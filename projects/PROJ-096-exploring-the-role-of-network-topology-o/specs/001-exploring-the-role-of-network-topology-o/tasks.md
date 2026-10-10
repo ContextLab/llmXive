@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization, governance alignment, and basic structure
 
-- [X] T000a [P] **Verify Spec Amendment**: Create `scripts/verify_spec.py` to parse `specs/001-exploring-the-role-of-network-topology-synchronization/spec.md`.
+- [ ] T000a [P] **Verify Spec Amendment**: Create `scripts/verify_spec.py` to parse `specs/001-exploring-the-role-of-network-topology-synchronization/spec.md`.
  **Logic**:
  1. Assert that the text "synthetic regular ring lattice of N=500 nodes" is present in FR-001.
  2. Assert that the text "ca-AstroPh" is NOT present as a base graph requirement in FR-001.
@@ -51,22 +51,22 @@
  **Verification**: `python scripts/verify_spec.py && echo 'OK' || exit 1`.
  **Note**: This task ensures the spec aligns with the plan's methodological correction before any code is run.
 
-- [X] T001 [P] **Initialize Project Directories**: Create `code/`, `code/utils/`, `data/`, `data/processed/`, `data/raw/`, `tests/`, `state/`, `state/projects/`. Verify creation by running `ls -R data/ code/ tests/ state/` and capturing the output to `data/checksums.txt` (as a log of directory structure).
+- [ ] T001 [P] **Initialize Project Directories**: Create `code/`, `code/utils/`, `data/`, `data/processed/`, `data/raw/`, `tests/`, `state/`, `state/projects/`. Verify creation by running `ls -R data/ code/ tests/ state/` and capturing the output to `data/checksums.txt` (as a log of directory structure).
  **Verification**: `test -f data/checksums.txt && echo 'OK' || exit 1`.
 
 - [X] T002a [P] **Create Requirements File**: Create `code/requirements.txt` containing pinned versions: `networkx>=3.2.0`, `scipy>=1.12.0`, `numpy>=1.26.0`, `pandas>=2.2.0`, `pyyaml>=6.0.0`.
  **Verification**: `test -f code/requirements.txt && grep -q "networkx" code/requirements.txt && echo 'OK' || exit 1`.
 
-- [X] T002b [P] **Initialize Virtual Environment**: Create a virtual environment in `code/.venv` and install dependencies from `requirements.txt`.
+- [ ] T002b [P] **Initialize Virtual Environment**: Create a virtual environment in `code/.venv` and install dependencies from `requirements.txt`.
  **Verification**: `test -d code/.venv && code/.venv/bin/pip list | grep networkx && echo 'OK' || exit 1`.
 
-- [X] T003a [P] Create `.flake8` config with `max-line-length=88`, `ignore=E203,W503` and `pyproject.toml` for black with `line-length=88`.
+- [ ] T003a [P] Create `.flake8` config with `max-line-length=88`, `ignore=E203,W503` and `pyproject.toml` for black with `line-length=88`.
  **Verification**: `test -f.flake8 && test -f pyproject.toml && grep -q "line-length" pyproject.toml && echo 'OK' || exit 1`.
 
-- [X] T003b [P] **Verify Linting Configuration**: Create `code/__init__.py` if it does not exist. Run `black --check code/` and `flake8 code/` on the `code/` directory. Redirect output to `data/checksums.txt` (append).
+- [ ] T003b [P] **Verify Linting Configuration**: Create `code/__init__.py` if it does not exist. Run `black --check code/` and `flake8 code/` on the `code/` directory. Redirect output to `data/checksums.txt` (append).
  **Verification**: `test -f code/__init__.py && black --check code/ && flake8 code/ && echo 'OK' || exit 1`.
 
-- [X] T003c [P] **Setup Pre-commit Hooks**: Install `pre-commit` and configure `.pre-commit-config.yaml` to run `autoflake` and `isort` on every commit. **Note**: This automates import cleanup, making manual import cleanup tasks unnecessary.
+- [~] T003c [P] **Setup Pre-commit Hooks**: Install `pre-commit` and configure `.pre-commit-config.yaml` to run `autoflake` and `isort` on every commit. **Note**: This automates import cleanup, making manual import cleanup tasks unnecessary.
  **Verification**: `test -f.pre-commit-config.yaml && pre-commit install && echo 'OK' || exit 1`.
 
 ---
@@ -77,15 +77,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations.
+- [~] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations.
  **Functions to implement**: `is_connected(G: nx.Graph) -> bool`, `average_degree(G: nx.Graph) -> float`, `clustering_coefficient(G: nx.Graph) -> float`.
  **Verification**: `python -c "from code.utils.graph_utils import is_connected, average_degree, clustering_coefficient; print('OK')"`.
 
-- [X] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction.
+- [~] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction.
  **Functions to implement**: `spearman_corr(x, y) -> tuple`, `p_value(spearman_stat, n) -> float`, `bonferroni_correction(p_values, alpha) -> list`.
  **Verification**: `python -c "from code.utils.stats_utils import spearman_corr, p_value, bonferroni_correction; print('OK')"`.
 
-- [X] T006 [P] **Setup Data Directory Structure and Metadata Schema**: Create `data/processed/`, `data/raw/`, and initialize `data/checksums.txt`. Define the `graph_metadata.json` schema in `docs/data_model.md` (or inline comment) containing keys: `node_count` (int), `avg_degree` (float), `p` (float), `seed` (int), `checksum` (string).
+- [~] T006 [P] **Setup Data Directory Structure and Metadata Schema**: Create `data/processed/`, `data/raw/`, and initialize `data/checksums.txt`. Define the `graph_metadata.json` schema in `docs/data_model.md` (or inline comment) containing keys: `node_count` (int), `avg_degree` (float), `p` (float), `seed` (int), `checksum` (string).
  **Checksum Format**: `data/checksums.txt` must contain SHA256 hashes of ALL data artifacts (raw downloads and generated `.gpickle` files), formatted as `hash filename`.
  **Verification**: `test -d data/processed && test -f data/checksums.txt && echo 'OK' || exit 1`.
 
@@ -106,17 +106,17 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Contract test for graph generation in `tests/test_topology.py` (verify N=500, connected, degree preservation)
-- [X] T011 [P] [US1] Integration test for metadata logging in `tests/test_topology.py` (verify seed and p saved to `graph_metadata.json`)
+- [~] T010 [P] [US1] Contract test for graph generation in `tests/test_topology.py` (verify N=500, connected, degree preservation)
+- [~] T011 [P] [US1] Integration test for metadata logging in `tests/test_topology.py` (verify seed and p saved to `graph_metadata.json`)
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] **Implement Synthetic Ring Lattice Generator**: Implement synthetic ring lattice generator in `code/generate_topology.py` (N=500, k=2). **Dependency**: Depends on T000a (Spec Verified) and T000c (Governance Override).
+- [~] T012 [US1] **Implement Synthetic Ring Lattice Generator**: Implement synthetic ring lattice generator in `code/generate_topology.py` (N=500, k=2). **Dependency**: Depends on T000a (Spec Verified) and T000c (Governance Override).
  **Verification**: `python -c "import networkx as nx; G=nx.watts_strogatz_graph(500, 2, 0); assert G.number_of_nodes() == 500 and nx.is_connected(G)"`.
 
-- [X] T014 [P] [US1] Implement Watts-Strogatz rewiring function with seed logging in `code/generate_topology.py`.
+- [~] T014 [P] [US1] Implement Watts-Strogatz rewiring function with seed logging in `code/generate_topology.py`.
 
-- [X] T015 [US1] Implement connectivity validation logic in `code/generate_topology.py` to skip disconnected graphs and log warnings (FR-002 compliance).
+- [~] T015 [US1] Implement connectivity validation logic in `code/generate_topology.py` to skip disconnected graphs and log warnings (FR-002 compliance).
 
 - [ ] T016 [US1] Implement batch generation loop (p=0.0 to 1.0, 50 steps, N instances as defined in `data/processed/config.json`) in `code/generate_topology.py`.
  **Input**: `data/processed/config.json` (read `n_topologies`).
@@ -145,7 +145,7 @@
 
 **Purpose**: Determine feasible scope and define the statistical model based on that scope.
 
-- [X] T009 [P] **Feasibility Study with Real ODE Micro-Benchmark**: Determine the maximum time steps, number of topologies, and run count feasible within 6 hours on a 2-core CPU runner, reserving [deferred] of the budget for verification tasks.
+- [~] T009 [P] **Feasibility Study with Real ODE Micro-Benchmark**: Determine the maximum time steps, number of topologies, and run count feasible within 6 hours on a 2-core CPU runner, reserving [deferred] of the budget for verification tasks.
  **Script**: `code/feasibility_study.py`.
  **Output**: Write `data/processed/config.json` with keys: `time_steps` (int), `n_topologies` (int), `run_count` (int), `runtime_estimate` (float), `contingency_flag` (bool, default false), `SC_VIOLATION` (bool), `scope_reduction_factor` (float), `error` (string, optional), `scaling_factor` (float).
  **Objective**: Binary search for `time_steps` in range [1000, 20000] for a fixed N=50 topologies. If max `time_steps` < 1000, calculate max `n_topologies` for fixed 1000 steps.
@@ -170,7 +170,7 @@
  **Content**: Explicitly state the reduced scope (time steps, number of topologies) and justify it as a necessary contingency due to compute constraints, referencing the 'Assumption about Compute Feasibility'. **Specifically**, if `n_topologies` is reduced, document the resulting sparsity in the `p` parameter space and the potential impact on the statistical correlation (FR-006).
  **Verification**: `test -f data/processed/compute_contingency.md && echo 'OK' || exit 1`.
 
-- [X] T008 [P] **Define Statistical Model**: Create `data/processed/analysis_config.yaml` defining the statistical model (e.g., single regression, multiple comparison correction) before analysis begins.
+- [ ] T008 [P] **Define Statistical Model**: Create `data/processed/analysis_config.yaml` defining the statistical model (e.g., single regression, multiple comparison correction) before analysis begins.
  **Dependency**: Runs AFTER T009 (strictly, not parallel).
  **Content**: Define `model_type` (e.g., 'spearman_regression'), `correction_method` (e.g., 'bonferroni'), and `threshold_sweep_range` (e.g., `[0.1, 0.9, 0.05]`).
  **Verification**: `test -f data/processed/analysis_config.yaml && echo 'OK' || exit 1`.
@@ -189,13 +189,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Contract test for order parameter calculation in `tests/test_simulation.py`
-- [X] T020 [P] [US2] Integration test for binary search convergence in `tests/test_simulation.py`
+- [~] T019 [P] [US2] Contract test for order parameter calculation in `tests/test_simulation.py`
+- [~] T020 [P] [US2] Integration test for binary search convergence in `tests/test_simulation.py`
 
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] Implement Kuramoto ODE derivative function in `code/simulate_kuramoto.py`. **Dependency**: Depends on T009 (reads `data/processed/config.json` for `time_steps`). **Error Handling**: If `config.json` has `time_steps=0` OR `error` key is present, proceed with fallback values and log a warning (do NOT raise RuntimeError). If `SC_003_VIOLATION` flag is set in `config.json`, proceed with reduced scope.
-- [X] T022 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 (ODE function).
+- [~] T022 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 (ODE function).
 - [ ] T023 [US2] Implement binary search algorithm for $K_c$ (threshold defined qualitatively, max iterations, tol specified) in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 and T022.
 - [ ] T024 [US2] Implement fallback linear sweep if binary search fails in `code/simulate_kuramoto.py`. **Dependency**: Depends on T023.
 - [ ] T025 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`).
@@ -211,14 +211,14 @@
  **Verification**: `test -f data/processed/simulation_results.csv && echo 'OK' || exit 1`. Verify row count matches number of valid (connected) topologies in the reduced scope.
  **Constraint**: This task relies on T009's configuration; no fallback logic for time steps is allowed here.
 
-- [X] T026a [US2] [FR-009] **Implement Rotational Invariance Verification Script**: Create `code/verify_invariance.py` to address reviewer `albert-einstein-simulated`'s concern regarding physical reality.
+- [~] T026a [US2] [FR-009] **Implement Rotational Invariance Verification Script**: Create `code/verify_invariance.py` to address reviewer `albert-einstein-simulated`'s concern regarding physical reality.
  **Logic**: Re-run the full binary search for $K_c$ on **ALL valid topologies** generated in US1.
  **Reference Frames**:
  1. **Single Oscillator Frame**: Calculate relative phases $\theta_i(t) - \theta_0(t)$.
  2. **Center-of-Mass (COM) Frame**: Calculate relative phases $\theta_i(t) - \bar{\theta}(t)$.
  3. **Perturbed Frames**: Generate $N_{perturb}=5$ random reference frames (weighted averages of phases) and verify $K_c$ remains stable within numerical tolerance (as per T051 requirement, now integrated).
  **Seeds**: Iterate over `run_count` seeds (read from `config.json`, minimum 10).
- **Budget Check**: If the number of valid topologies is sufficiently large, use a **stratified random sample** (a representative subset from each decile of `p` values). to ensure coverage of the full range while respecting SC-003. {{claim:c_f75d8998}} (Wikidata Q23400, https://www.wikidata.org/wiki/Q23400)
+ **Budget Check**: If the number of valid topologies is sufficiently large, use a **stratified random sample** (a representative subset from each decile of `p` values). to ensure coverage of the full range while respecting SC-003. If <= 100, process ALL. (Wikidata Q23400, https://www.wikidata.org/wiki/Q23400)
  **Output**: `data/processed/invariance_verification.json`.
  **Output Schema**:
  ```json
@@ -251,12 +251,12 @@
  **Error Handling**: If any entry has `status: "variant"` or `status: "unstable"`, the script MUST exit with code 1 and print "ERROR: INVARIANCE_FAILURE" to stderr.
  **Note**: This task is strictly ordered AFTER T025. It explicitly validates that the critical coupling is an observer-invariant property and stable across seeds, satisfying the EPR criterion of physical reality and SC-001.
 
-- [X] T026b [US2] [FR-009] **Run Invariance Verification**: Execute `code/verify_invariance.py` and verify results.
+- [~] T026b [US2] [FR-009] **Run Invariance Verification**: Execute `code/verify_invariance.py` and verify results.
  **Input**: `data/processed/invariance_verification.json` (produced by T026a).
  **Verification**: `test -f data/processed/invariance_verification.json && echo 'OK' || exit 1`.
  **Logic**: Parse `invariance_verification.json`. If any entry has `status: "variant"` or `status: "unstable"`, the task fails immediately with `PHYSICAL_INVARIANCE_FAILURE` or `STABILITY_FAILURE`. If all are "invariant", the task passes.
 
-- [X] T027a [US2] [SC-001] Implement stability check script `code/check_stability.py`.
+- [~] T027a [US2] [SC-001] Implement stability check script `code/check_stability.py`.
  **Logic**: Simulate Kuramoto dynamics multiple times per topology for **ALL valid topologies** (or stratified sample if >100). **Run Count**: Read `run_count` from `data/processed/config.json` (default set to a representative magnitude, adjusted by `scope_reduction_factor` if applicable). Calculate sample variance of R.
  **Input**: `data/processed/config.json` (for `run_count`).
  **Constraint**: If `run_count` < 10, the task MUST fail immediately with `STABILITY_FAILURE` and exit code 1. It does NOT proceed with a warning. This ensures SC-001 is not silently weakened.
@@ -266,7 +266,7 @@
  **Pre-check**: If `data/processed/config.json` is missing, halt immediately with error `CONFIG_MISSING`.
  **Note**: Strictly ordered AFTER T025. This task explicitly enforces a minimum run count for statistical validity.
 
-- [X] T027b [US2] Run `code/check_stability.py` to check stability.
+- [~] T027b [US2] Run `code/check_stability.py` to check stability.
  **Verification**: `test -f data/processed/stability_results.json && echo 'OK' || exit 1`.
  **Logic**: If `STABILITY_FAILURE` flag is set, the pipeline must halt with a 'STABILITY_FAILURE' error. If <10% unstable, the pipeline continues with a 'Partial Stability' status.
 
@@ -291,11 +291,11 @@
 
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
-- [X] T028 [P] [US3] Contract test for Spearman correlation calculation in `tests/test_analysis.py`
+- [~] T028 [P] [US3] Contract test for Spearman correlation calculation in `tests/test_analysis.py`
  **Description**: Verify `spearman_corr` function returns correct coefficient and p-value for known input arrays.
  **Verification**: Run `pytest tests/test_analysis.py::test_spearman_corr_contract`.
 
-- [X] T029 [P] [US3] Integration test for sensitivity analysis sweep in `tests/test_analysis.py`
+- [~] T029 [P] [US3] Integration test for sensitivity analysis sweep in `tests/test_analysis.py`
  **Description**: Verify `sensitivity_analysis` script produces output with correct schema and expected threshold values.
  **Verification**: Run `pytest tests/test_analysis.py::test_sensitivity_analysis_integration`.
 
@@ -317,7 +317,7 @@
 
 - [ ] T034 [US3] Generate summary plot (Critical Coupling vs. Rewiring Probability) with trend line in `code/analyze_results.py` saving to `data/processed/plot_kc_vs_p.png` and verify file exists and is non-empty.
 
-- [X] T035 [US3] Write final report summary to `data/processed/analysis_report.md` using `code/generate_report.py`.
+- [~] T035 [US3] Write final report summary to `data/processed/analysis_report.md` using `code/generate_report.py`.
  **Template**: Use `templates/analysis_report.md.j2` to render the report.
  **Content**:
  1. Spearman correlation value (float) and p-value.
@@ -336,7 +336,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T036 [US2] **Document Physical Invariance Methodology**: Create `docs/methodology.md` with a dedicated section explaining the rotational invariance test (T026).
+- [~] T036 [US2] **Document Physical Invariance Methodology**: Create `docs/methodology.md` with a dedicated section explaining the rotational invariance test (T026).
  **Content**:
  1. Theoretical basis: Why $K_c$ should be independent of the phase reference frame.
  2. Implementation details: How the Single Oscillator, Center-of-Mass, and Perturbed frames were constructed.
@@ -345,26 +345,26 @@
  **Dependency**: Requires completion of T026 (Invariance Verification).
  **Verification**: `test -f docs/methodology.md && grep -q "Physical Invariance" docs/methodology.md && echo 'OK' || exit 1`.
 
-- [X] T037a [P] Create `docs/methodology.md` with a section on the invariance check (T026), explaining the theoretical basis (rotational invariance of the order parameter $R$).
-- [X] T037b [P] Update `docs/quickstart.md` to include the invariance step as a mandatory part of the research pipeline.
+- [~] T037a [P] Create `docs/methodology.md` with a section on the invariance check (T026), explaining the theoretical basis (rotational invariance of the order parameter $R$).
+- [~] T037b [P] Update `docs/quickstart.md` to include the invariance step as a mandatory part of the research pipeline.
 
-- [X] T040a [P] **Implement Zero Variance Test**: Create `tests/test_edge_cases.py` with function `test_zero_variance()`.
+- [~] T040a [P] **Implement Zero Variance Test**: Create `tests/test_edge_cases.py` with function `test_zero_variance()`.
  **Logic**: Simulate a system with identical natural frequencies ($\omega_i = 0$) and verify the order parameter $R$ behaves as expected (synchronization).
  **Verification**: `pytest tests/test_edge_cases.py::test_zero_variance`.
 
-- [X] T040b [P] **Implement Numerical Instability Test**: Create `tests/test_edge_cases.py` with function `test_numerical_instability()`.
+- [~] T040b [P] **Implement Numerical Instability Test**: Create `tests/test_edge_cases.py` with function `test_numerical_instability()`.
  **Logic**: Simulate with extremely high coupling or very small time steps to verify the integrator handles edge cases without crashing or producing NaN.
  **Verification**: `pytest tests/test_edge_cases.py::test_numerical_instability`.
 
-- [X] T040c [P] **Implement Connectivity Edge Case Test**: Create `tests/test_edge_cases.py` with function `test_disconnected_graph_handling()`.
+- [~] T040c [P] **Implement Connectivity Edge Case Test**: Create `tests/test_edge_cases.py` with function `test_disconnected_graph_handling()`.
  **Logic**: Feed a disconnected graph to the simulation script and verify it is skipped and logged correctly (FR-002).
  **Verification**: `pytest tests/test_edge_cases.py::test_disconnected_graph_handling`.
 
-- [X] T041a [P] **Run Quickstart Validation**: Execute `docs/quickstart.md` steps and capture the output to `data/validation_log.txt`.
+- [~] T041a [P] **Run Quickstart Validation**: Execute `docs/quickstart.md` steps and capture the output to `data/validation_log.txt`.
  **Logic**: Run the full pipeline from `quickstart.md` in a clean environment. Capture stdout/stderr to `data/validation_log.txt`.
  **Verification**: `test -f data/validation_log.txt && grep -q "Success" data/validation_log.txt && echo 'OK' || exit 1`.
 
-- [X] T041 [P] Additional unit tests for edge cases (zero variance, numerical instability) in `tests/` (Deprecated: Replaced by T040a-c)
+- [~] T041 [P] Additional unit tests for edge cases (zero variance, numerical instability) in `tests/` (Deprecated: Replaced by T040a-c)
 
 ---
 
@@ -376,19 +376,19 @@
 
 ### Implementation for Review Resolution
 
-- [X] T050 [US2] **Explicitly Document Reference Frame Invariance in Final Report**: Update `data/processed/analysis_report.md` (T035) to include a dedicated "Physical Invariance Verification" section.
+- [~] T050 [US2] **Explicitly Document Reference Frame Invariance in Final Report**: Update `data/processed/analysis_report.md` (T035) to include a dedicated "Physical Invariance Verification" section.
  **Action**: Ensure the report explicitly states the results of T026 (invariance_verification.json) and concludes whether $K_c$ satisfies the EPR criterion of physical reality.
  **Verification**: `grep -q "Physical Invariance Verification" data/processed/analysis_report.md && echo 'OK' || exit 1`.
 
-- [X] T052 [US3] **Update Methodology Documentation**: Enhance `docs/methodology.md` (T036) to explicitly address the reviewer's concern about "small-world rewiring probability" as a physical parameter.
+- [~] T052 [US3] **Update Methodology Documentation**: Enhance `docs/methodology.md` (T036) to explicitly address the reviewer's concern about "small-world rewiring probability" as a physical parameter.
  **Content**: Add a subsection "Physical Interpretation of $p$ and $K_c$" explaining that $p$ is a topological invariant of the graph structure, while $K_c$ is the dynamical threshold required to overcome frequency dispersion, and both must be independent of the observer's phase coordinate system.
  **Verification**: `grep -q "Physical Interpretation" docs/methodology.md && echo 'OK' || exit 1`.
 
-- [X] T053 [US2] **Verify EPR Criterion in Unit Tests**: Add a specific unit test `tests/test_invariance.py::test_epr_criterion` that asserts the invariance condition (difference < $1e-4$) for a known stable graph.
+- [~] T053 [US2] **Verify EPR Criterion in Unit Tests**: Add a specific unit test `tests/test_invariance.py::test_epr_criterion` that asserts the invariance condition (difference < $1e-4$) for a known stable graph.
  **Logic**: Run the invariance check on a small, fully connected graph (N=50) and assert the result is "invariant".
  **Verification**: `pytest tests/test_invariance.py::test_epr_criterion`.
 
-- [X] T054 [US3] **Final Review of Physical Claims**: Conduct a final review of `data/processed/analysis_report.md` to ensure no claims about "physical reality" are made without the supporting evidence from T026 and T051 (now integrated).
+- [~] T054 [US3] **Final Review of Physical Claims**: Conduct a final review of `data/processed/analysis_report.md` to ensure no claims about "physical reality" are made without the supporting evidence from T026 and T051 (now integrated).
  **Action**: If any claim lacks evidence, flag it for revision. If all claims are supported, mark the task as complete.
  **Verification**: Manual review or automated grep for "physical reality" followed by check for "invariance_verification" reference.
 

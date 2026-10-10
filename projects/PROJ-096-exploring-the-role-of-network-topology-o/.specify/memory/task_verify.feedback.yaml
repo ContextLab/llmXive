@@ -1,0 +1,123 @@
+T000a:
+  reason: "The required file `scripts/verify_spec.py` is missing, and the specification\
+    \ still contains the phrase \u201Cca-AstroPh\u201D within FR\u2011001, so the\
+    \ second assertion would fail even if the script existed. Both the script implementation\
+    \ and the spec amendment need to be corrected."
+  task: 39264bc1657f10920109ac838e372aef27b22656c748099a8cb146f097a9b681
+T001:
+  reason: The required directories are present, and `data/checksums.txt` exists, but
+    its contents are only header comments and do not contain the recursive `ls -R
+    data/ code/ tests/ state/` output that the task mandates as a log of the directory
+    structure. The file must be populated with the actual `ls` listing to satisfy
+    the verification requirement.
+  task: 05dbf0af0ea6eca9d58a85f699b614e176f438b69e7116ca030bc960b18550bd
+T002a:
+  task: ff625d566f8e530d50d087f260c3040f1e2d3254d4edcdca7e5490feef6e1c8e
+T002b:
+  reason: The evidence only includes the `requirements.txt` file; there is no `code/.venv`
+    directory, no installation logs, and no output showing that `networkx` is installed
+    in the virtual environment. The required virtual environment and its populated
+    packages are missing.
+  task: 3794dbe860c62a66b91a64c7735ce333a3ea7ab1f39107544a085207fccaa50a
+T003a:
+  reason: The repository contains a correct `pyproject.toml` with `line-length = 88`,
+    but there is no `.flake8` file present (or it is missing/empty), so the required
+    flake8 configuration (`max-line-length=88`, `ignore=E203,W503`) is not provided.
+    Adding a properly populated `.flake8` file will satisfy the task.
+  task: c2851b08c1c227fd1069bee36808321912ceb0b215cc82165db8dae47eb74fe6
+T003b:
+  reason: The `code/__init__.py` file exists, but there is no evidence that `black
+    --check code/` and `flake8 code/` were actually run, nor that their output was
+    appended to `data/checksums.txt`. The `checksums.txt` file only contains header
+    comments and does not show any linting results. Provide logs of the linting commands
+    (or the updated `checksums.txt` with the appended output) to satisfy the task.
+  task: 0b1c1f9963d346495e76de450bc4772f09f0d8c4e88c7bf7270ef01907f7697a
+T003c:
+  task: 5ea9f25d6185cf73fcc3711d078cd48cfc6164980bd44c637f00c390c27dce42
+T004:
+  task: 6135b1cd686318da641fcd293695f94ef6f96931b6285605770585c7d7a9e83b
+T005:
+  task: 19c812f166469446ba397725b0a2aa1ad52621e8652d7594400d35287f017198
+T006:
+  task: aa62dd06d1ce2f610569ec9f1bff094720de9a2fa30bbf5b47e74ac59672b9fe
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/analysis_config.yaml'
+  task: 1c875b64d7936b0bb1abc7149f39be5582cbf542105e449beb910c30b568ece3
+T009:
+  task: b29c78113c8a8799b7deb74859c05210b14fb93abdedfb8704d1c80fb29eb1b1
+T009b:
+  task: b7238d09bb88c345cb3235376850e904fa17b4e8b5f2062027db4d6a07fa4274
+T010:
+  task: 89edf6a51fb677900262bc7dcd09160dce806051e7b2ad47acb32484cb3369a8
+T011:
+  task: c60ce4232cb0d1314ff7a7fcea3491a932340df087c2966b60c2c61118c36ea0
+T012:
+  task: 8302ec833c7e66fb9af263a515a2c7ca558ee28b65a44b7a820d351d652b1a17
+T014:
+  task: a1b61ddd3f1d7715f6230846e984a86cb760f7d3649f3052566da21547151f39
+T015:
+  task: c199ad495989d2f7863d6f6326dc7a703a6ffbdcd34c0b7bb50212728e91c699
+T016:
+  task: fec115c611d024e473feed23cec9bcc9e4551500f1cd8d7ac2797b31236170fe
+T019:
+  task: 2db8e5a3b471b5957043a0958b7427f3c8c077202f430ea1a1321b981b29f55e
+T020:
+  task: 05956904a1749f5ba4e9811dc099b17e365fb11167e680c1f46ebd00dbe98523
+T021:
+  task: 6a8eef5850f1208c7e9ff6dbe4f0c2055adc6cd934ff06534d87a2359ce8cf76
+T022:
+  task: 0c06c21afea498503057eab7e205079ab46bab1432e3a51edd517baf2b8bb305
+T023:
+  task: be85e623f72edcae73885cf6b4d5058596324cc60a9a8099f143fbc9c66de04a
+T024:
+  task: 528d2dfb975f083367a24679ee1b1aeb90ea8709f68e863332e82cfb0b7d82e5
+T025:
+  task: 20e313402cc7ba7256cd4ad614e9b9b61227ff1b9c10bbc5cc01cadfb7c5432d
+T026a:
+  task: 79573d328fcb3b18153970bc58cea7cd277720c27bfbd1b9524d4d06ab977cfc
+T026b:
+  task: 21ed50938c106183f3a09bec0dfea4dd83eeb5777440df9a54b94566db4b1387
+T027a:
+  task: 7ddb46e2ee083482de286648ac03211c4b4e23e463793515daf1041ff44f9e0e
+T027b:
+  task: ef918bd15889ea6a364ec74190a8415e496a861b5d006214466845ac785e7a9e
+T027d:
+  task: c71593b3e1ac095cffcc6cf6ff4787db9657a21ea621edd26f6f94ce5ca2ee75
+T028:
+  task: b58ea268ad0a593a69facbb4fc8daec67e5e034953318601791447bd550556b9
+T029:
+  task: fa5cf273aca7325e20cc3e9e1eec49361039c8d673b8d91f7bea614ae4690760
+T030:
+  task: d1c881551d0dd57da1da5c74d500f076ce9368d013281e8691a4f4d7e15b91ed
+T031:
+  task: 458ec0c249ec341ed7f95d40452d6a4e32c66c12600d6b8bd24fbadeef1a7a5c
+T033:
+  task: 25415564663a1052d1b875fe248a97acf1838c96e6935c123f91a32674faa28f
+T034:
+  task: 4961716f59a2a21fe71c764d9e7e46368d2cdda5ebb2f6d2b427ab4c9487d52f
+T035:
+  task: 3edf6dae96cfef35ca71b59dd520addc2abd34480f77f92e66db7ddbda232bed
+T036:
+  task: 423db7d1022c12e312f9dfbcf1ab5060167cb5ed20da43aa2f7a6b21eccd2ed6
+T037a:
+  task: 6cc638c20cda9eec1c955d1d339321950a3b355e4ec6df46c33914df2f6247d1
+T037b:
+  task: 58e67108b749b375e767e5dfe8bc9f9ee6bc8b84ec4187d22b96ebe60d9c0c8c
+T040a:
+  task: 9034c45b1717f0a968a98a2c4554c23281030efd1dc03e52be42679c0c50b859
+T040b:
+  task: 55065c0a698dc75941c96d64bfaba810b6afef4e135948982490638e82cc3d9d
+T040c:
+  task: d5c64723c3ec44e4aed720598afe87d7651288c008fd91818a99b59ac20312fd
+T041:
+  task: e39438c1a6a6bbff69fdfe652037b9e15657eac8db808fff032215c33222341c
+T041a:
+  task: 5f92ca490ad24c25762437b2aef163cdc07e9f9906afb708c1074ecb06af83c5
+T050:
+  task: fdb346e69114bf2e61bbae4c1c9a08204e568a3fc52c2f80339b5bd98f4a9daf
+T052:
+  task: 9b4bce2ef48668ba1a09bd99088f25fc70ce98620be259048b08ad9dc6f4fff8
+T053:
+  task: 666efaf696bc5ea5c777e0d9737caa10a82a77e033d532f88463fdfde0c96cb0
+T054:
+  task: f88c1bdf611d7d003c1673037eecf40c9012f3df0764ce63aed9b175060e165f

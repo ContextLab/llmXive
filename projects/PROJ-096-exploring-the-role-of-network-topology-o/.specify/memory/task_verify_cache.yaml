@@ -1,3 +1,52 @@
+T000a:
+  c: false
+  h: fdc9ab8e02fd53ec371b1d6ae62b31cea34f822c224570f2be4f5f7ed7ad4bbd
+  r: "The required file `scripts/verify_spec.py` is missing, and the specification\
+    \ still contains the phrase \u201Cca-AstroPh\u201D within FR\u2011001, so the\
+    \ second assertion would fail even if the script existed. Both the script implementation\
+    \ and the spec amendment need to be corrected."
+  sig: 089858fe55a621792fbb8e0c1c998f739bd0cf5f365ffd39582f3c05c18cfda8
+T001:
+  c: false
+  h: d3b218e71cf503fe2b16928443fd94d0cedf79253abfae0b79f0e33a762f6bbb
+  r: The required directories are present, and `data/checksums.txt` exists, but its
+    contents are only header comments and do not contain the recursive `ls -R data/
+    code/ tests/ state/` output that the task mandates as a log of the directory structure.
+    The file must be populated with the actual `ls` listing to satisfy the verification
+    requirement.
+  sig: 0b957a29be303d865dad4f22a9348a8a20f9ecb5dd4679191c726c6415dc5cc4
+T002a:
+  c: true
+  h: b08182822092ab3ec3334caad9e7a50a0158cb91f6565c994b62b8e2033e8971
+  r: "The `code/requirements.txt` file exists at the expected location, is non\u2011\
+    empty, and contains the exact five required package specifications with the correct\
+    \ version constraints, including the `networkx` entry verified by grep."
+  sig: 341a66441c66c175fb1ca39bb1220a2ebaf954324188d0cae27e361ccceced60
+T002b:
+  c: false
+  h: 054350f94eac00a3fd4d9c9324b891a9f4b3472c414a8525ea15738446687eed
+  r: The evidence only includes the `requirements.txt` file; there is no `code/.venv`
+    directory, no installation logs, and no output showing that `networkx` is installed
+    in the virtual environment. The required virtual environment and its populated
+    packages are missing.
+  sig: 1b63d158a3e5f986a171d9b5f57179d7269437f02b6a28397d9a63867d65b453
+T003a:
+  c: false
+  h: 50767615e1ab7501b8e93911203c933d0cb7a2ce36b23432e1c9f023cc9a14c6
+  r: The repository contains a correct `pyproject.toml` with `line-length = 88`, but
+    there is no `.flake8` file present (or it is missing/empty), so the required flake8
+    configuration (`max-line-length=88`, `ignore=E203,W503`) is not provided. Adding
+    a properly populated `.flake8` file will satisfy the task.
+  sig: b03ccb5fd027c28da385ebca3999f1ebff6b29050bbf9148358570b3db7b70a1
+T003b:
+  c: false
+  h: a257ab1ad308173f5f0acf498aa37403b71efe3b83e7d6afc08f1e9ebb53afc6
+  r: The `code/__init__.py` file exists, but there is no evidence that `black --check
+    code/` and `flake8 code/` were actually run, nor that their output was appended
+    to `data/checksums.txt`. The `checksums.txt` file only contains header comments
+    and does not show any linting results. Provide logs of the linting commands (or
+    the updated `checksums.txt` with the appended output) to satisfy the task.
+  sig: 7ddfd1de7c3ace155bea8626e6c1ef1fe0ec6944982766f948587871b10cfee5
 T006:
   c: false
   h: 74291fc98d8c729f9b965ddfe53c47bf757730448e4f9b10b24fbaf07016a46e
