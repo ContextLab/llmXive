@@ -29,7 +29,7 @@ The system must train a DistilledModel (a parameter-efficient architecture) to p
 
 **Why this priority**: This is the core research mechanism. It tests the hypothesis that text implicitly encodes structural information. This step must complete within a feasible CPU time limit and under a specified RAM constraint to be feasible.
 
-**Independent Test**: The training script can be executed on a small subset (e.g., 500 documents) to verify convergence of the MSE loss and that the model fits within the memory constraints. The test confirms the model outputs a vector of the correct dimensionality matching the frozen encoder.
+**Independent Test**: The training script can be executed on a modestly sized subset of documents to verify convergence of the MSE loss and that the model fits within the memory constraints. The test confirms the model outputs a vector of the correct dimensionality matching the frozen encoder.
 
 **Acceptance Scenarios**:
 
@@ -50,7 +50,7 @@ The system must evaluate the "augmented" model (text embeddings + predicted visu
 
 **Acceptance Scenarios**:
 
-1. **Given** a test set of scientific reasoning questions, **When** the augmented model and text-only baseline are evaluated, **Then** the system outputs performance metrics (Accuracy/F1) for both models.
+1. **Given** a test set of scientific reasoning questions, **When** the augmented model and text-only baseline are evaluated, **Then** the system outputs performance metrics (Accuracy/F) for both models.
 2. **Given** the performance metrics from multiple random seeds, **When** the statistical analysis runs, **Then** a paired t-test is performed, and the p-value is reported; the system is considered successful if p < 0.05, confirming statistical significance.
 3. **Given** a scenario where the augmented model performs worse than the baseline, **When** the analysis runs, **Then** the system still reports the delta and p-value, confirming the null result is statistically valid.
 4. **Given** the final evaluation report, **When** the text is reviewed, **Then** it explicitly frames any performance improvements as ASSOCIATIONAL findings, avoiding causal claims about text "causing" layout understanding.
@@ -74,7 +74,7 @@ The system must evaluate the "augmented" model (text embeddings + predicted visu
 - **FR-004**: System MUST construct an "augmented" representation by concatenating the text embeddings with the predicted visual latents for downstream evaluation. (See US-3)
 - **FR-005**: System MUST evaluate the augmented model and a text-only baseline on held-out scientific reasoning tasks and perform a paired t-test to assess statistical significance. (See US-3)
 - **FR-006**: System MUST explicitly frame any performance improvements as ASSOCIATIONAL findings, avoiding causal claims about text "causing" layout understanding unless randomization is specified in the design. (See US-3)
-- **FR-007**: System MUST fail gracefully with a clear error message if the combined dataset (primary + fallback sources) contains fewer than 10,000 pages with valid layout annotations. (See US-1)
+- **FR-007**: System MUST fail gracefully with a clear error message if the combined dataset (primary + fallback sources) contains an insufficient number of pages with valid layout annotations. (See US-1)
 - **FR-008**: System MUST perform an ablation study to demonstrate that the predicted visual latents contain information independent of the text-only encoder before downstream evaluation. (See US-2)
 - **FR-009**: System MUST re-train the text-only baseline for every random seed used in the augmented model to ensure the paired t-test controls for initialization variance. (See US-3)
 
