@@ -1,0 +1,18 @@
+status: none
+intent: Acropora millepora RNA-seq PRJNA321023 SRA RefSeq transcriptome python package
+  dataset
+required_fields:
+- sample_accession
+- run_accession
+- fastq_ftp
+- fastq_md5
+- library_layout
+- sequencing_platform
+- instrument_model
+- organism
+- collection_date
+- treatment
+- temperature
+cache_key: 26dcb57e859ccd67425e3da01aaeccb224a56b8f5ed154d50e421528a0edfb60
+searched_at: '2026-10-10T16:21:24.817982+00:00'
+retry_count: 1

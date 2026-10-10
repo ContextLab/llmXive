@@ -1,21 +1,48 @@
 T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `tests/`, `data/raw`, `data/processed`,
-    `results/plots`, `specs/001-coral-resilience-prediction/`) is provided; the claim
-    cannot be verified. The implementer must create and show the populated project
-    folder structure.
+  c: true
+  h: 13a4f9f69105c163ebd1a40b199b35fddeea7ffe1479aa461dd5e621d7c55766
+  r: The collector shows that the root project contains the required directories `code/`,
+    `tests/`, `data/raw`, `data/processed`, `results/plots`, and `specs/001-coral-resilience-prediction/`,
+    and the task log confirms each was verified as present.
+  sig: d07d4b53106416c6b70cdb1fe8075be4fd3898a17a2ac74eedbf8a4d56c2ddd5
 T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file was presented in the evidence, and no content showing the
-    required exclusion patterns (`data/raw/*.fastq.gz`, `data/processed/*.rds`, `__pycache__`,
-    `*.pyc`) was provided. The required artifact is therefore missing.
+  h: 83d8101540f303cb5cf2c95a3f92d173942961b0485eb73c7adf0339b100383c
+  r: Checked the project root `projects/PROJ-333-predicting-coral-resilience-to-thermal-s`
+    for a `.gitignore` file; the listed artifacts only include `data/raw/` and `data/processed/`
+    directories and their contents, with no `.gitignore` present. The required file
+    is missing, so the task is not satisfied.
+  sig: b16036fe5e5421f4ca8fa4276c6f65a1382e2018a05700a3a46171455c4ebb83
+T002:
+  c: false
+  h: ae2bef73f71457543e1382aa8d425619ed1b4e07ae7a826e5398011ddd942ca4
+  r: The `requirements.txt` file is present, but it lists the required packages without
+    version pins (e.g., `biopython` instead of `biopython==X.Y.Z`). The task explicitly
+    demanded *pinned* dependencies, which is not satisfied.
+  sig: a1e4f51cd40fc754bf8e0bdcbfa414acba5d7626e2bb70a3f030f25fd3edfd71
 T003a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.flake8` file was presented in the evidence; the required configuration with
-    `max-line-length=88` and `ignore=E203,W503` is absent, so the task is not satisfied.
+  h: ab885adb4a3d5858cde59490994b434c8655779089d90ce3892a3062066d50a8
+  r: The evidence contains no `.flake8` file (or any file showing its contents) in
+    the project root, so we cannot verify that a configuration with `max-line-length=88`
+    and `ignore=E203,W503` was created. The required artifact is missing.
+  sig: a402316ef6f70e8c57f485b981bf069e77cc6d8ad2642647bb3c455a1f7c2227
+T003b:
+  c: true
+  h: 51f28faa394e75d85d86479ec794ba287a8e168947d4371464df692091bb458e
+  r: "Checked the `pyproject.toml` file (1056\u202Fbytes) located at `projects/PROJ-333-predicting-coral-resilience-to-thermal-s/pyproject.toml`.\
+    \ It contains a `[tool.black]` section with `line-length = 88` and a `[tool.isort]`\
+    \ section configuring `line_length = 88`, fulfilling the task\u2019s requirement."
+  sig: a376ec102c66e21cba1975ac504e7eb8a65fab16b6c28a13f0773e3597dd9f88
+T004a:
+  c: false
+  h: d1180807f0f946cf7a6fd6becb3f573e34be01df4c737a5a9140d59245aacd62
+  r: "The `code/config.py` file exists and defines the required constants, but the\
+    \ comment for `MIN_COUNT_THRESHOLD` does not match the mandated wording. It lacks\
+    \ the exact phrase \u201C# MIN_COUNT_THRESHOLD=10 is a temporary placeholder.\
+    \ Research phase MUST update this value via T020b before final analysis.\u201D\
+    , so the task\u2019s specification is not fully satisfied."
+  sig: e5a6fc4ef17680080c42f5b0b71b8be022b7e78926dcf79ed3a900a1d9dfb8fd
 T015:
   c: false
   h: 963737de36f3e61c8c07ffeafd2f10954465f032da7a4ae6104b8f9e1a46ee18

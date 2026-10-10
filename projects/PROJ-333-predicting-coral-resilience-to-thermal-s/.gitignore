@@ -1,65 +1,29 @@
-# Data artifacts (large files)
-data/raw/*.fastq.gz
-data/processed/*.rds
-data/raw/reference/*.fasta
-data/raw/reference/*.fna
-data/raw/sra_cache/*
-
-# Python cache and bytecode
+# Byte-compiled / optimized files
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+*.py[cod]
+*$py.class
 
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-.project
-.settings/
+# Raw sequencing data (large, re-downloadable from NCBI SRA)
+data/raw/*.fastq.gz
+data/raw/PRJNA321023/*.fastq.gz
 
-# Logs and temporary files
-*.log
-.cache/
+# Processed R binary objects (large, regenerable)
+data/processed/*.rds
+
+# Environments and caches
+venv/
+.venv/
+env/
 .pytest_cache/
-.coverage
-htmlcov/
+.ruff_cache/
 .mypy_cache/
 
-# Environment and secrets
-.env
-.env.local
-.env.*.local
-*.pem
-*.key
-
-# R artifacts
-.Rhistory
-.Rdata
-.Rproj.user/
-
-# Jupyter notebooks cache
-.ipynb_checkpoints/
-
-# OS specific
+# OS artifacts
+.DS_Store
 Thumbs.db
-.Spotlight-V100
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
