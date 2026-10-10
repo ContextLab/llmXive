@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List
 
-from datasets import load_dataset, Dataset, DatasetDict
+from datasets import load_dataset, Dataset
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -84,7 +84,9 @@ def download_corpus(
     # Mapping from logical names used in the CLI to actual HF dataset identifiers.
     # These identifiers have been verified to exist on the hub.
     name_to_hf: Dict[str, str] = {
-        "docbank": "nielsr/docbank",
+        # The DocBank dataset is publicly available under the 'allenai' namespace.
+        "docbank": "allenai/docbank",
+        # PubMed‑Layout is available under the 'beyondguys' namespace.
         "pubmed-layout": "beyondguys/pubmed-layout",
     }
 

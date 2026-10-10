@@ -1,15 +1,13 @@
 status: none
-intent: scientific PDF layout dataset with text and bounding box annotations MixSub-LLaMA-3.2
-  python package dataset
+intent: download MixSub-LLaMA-3.2 MixSub-LLaMA-3.2 Text-Only Overlap scientific document
+  layout python package dataset
 required_fields:
-- document_id
+- doc_id
 - page_number
 - text
-- layout_bbox
-- layout_label
-- image_file
-- width
-- height
-cache_key: 6248b5462841ae69068b2b12a4d76be590698e554949a62201c5b234fd033f53
-searched_at: '2026-10-10T19:20:38.450849+00:00'
+- bbox_coordinates
+- bbox_label
+- image_path
+cache_key: e6d53e026869bb61e240d4ed403739ea2a5203a3feab6a1e48a9f6425518a365
+searched_at: '2026-10-10T20:18:49.441147+00:00'
 retry_count: 1
