@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T13:37:16.363548Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-531-the-impact-of-visual-motion-on-perceived
-last_run_id: b26db444-8d33-4c45-82ef-49997218650a
+last_run_id: 77713e8f-3b79-4960-835d-608aecd3ed62
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/specs/001-the-impact-of-visual-motion-on-perceived
 title: The Impact of Visual Motion on Perceived Agency in Virtual Interactions
-updated_at: '2026-09-19T08:56:13.012896Z'
+updated_at: '2026-10-10T17:34:30.729416Z'

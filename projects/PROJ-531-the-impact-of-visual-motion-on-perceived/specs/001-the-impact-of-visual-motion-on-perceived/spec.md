@@ -100,10 +100,10 @@ As a researcher, I need to generate visualizations and interpret model results s
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Dataset completeness is measured against the minimum viable sample size requirement (≥100 complete observations with both motion features and agency scores) (See US-1)
-- **SC-002**: Model generalizability is measured against out-of-sample performance metrics from 5-fold cross-validation (R² and RMSE on held-out folds) (See US-2)
+- **SC-002**: Model generalizability is measured against out-of-sample performance metrics from k-fold cross-validation (using a standard number of folds) (R² and RMSE on held-out folds) (See US-2)
 - **SC-003**: Statistical inference validity is measured against family-wise error rate control via multiple-comparison correction (See US-2)
 - **SC-004**: Predictor independence is measured against variance inflation factor diagnostics (VIF <5 for all retained predictors) (See US-2)
-- **SC-005**: Visualization interpretability is measured against ≥80% of 5 independent reviewers rating clarity ≥4/5 on a standardized rubric (See US-3)
+- **SC-005**: Visualization interpretability is measured against ≥80% of Multiple independent reviewers rating clarity ≥4/5 on a standardized rubric (See US-3)
 
 ---
 
