@@ -1,10 +1,13 @@
 T001a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory tree (`projects/PROJ-277-predicting-oxidation-resistance/`
-    with subfolders `code/`, `data/`, `tests/`, `logs/`) is provided; the claim is
-    unsubstantiated. The implementer must supply a listing or screenshots showing
-    the created folders.
+  h: 889f3b45d7ee1605858237c7b59fbdb42121f6c24aba4ff5329ae65b05c78be8
+  r: The requested directory `projects/PROJ-277-predicting-oxidation-resistance/`
+    is confirmed MISSING at the project root; the setup script instead created a nested
+    duplicate path (`.../projects/PROJ-277-predicting-the-impact-of-alloying-on-hig/projects/PROJ-277-predicting-oxidation-resistance/...`)
+    which does not match the required layout. Additionally, the required `logs/` directory
+    is not present among the confirmed top-level artifacts (only code/, data/, tests/
+    are listed), so the required tree with all four subdirectories is not in place.
+  sig: a5ad9ce9a495545cc7bc77981ee031896b84e549f41f2a5eba108e7c737a4ee4
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,19 +21,49 @@ T001c:
     \ nor any listing of its contents showing Python/DS patterns. Without the actual\
     \ file, the requirement cannot be confirmed as met. The implementer must add the\
     \ empty (or pattern\u2011filled) `.gitignore` at the specified location."
+T002a:
+  c: true
+  h: b461a201b030116bea9a37fff7d46f1d5887ca9bc5f34597c0158d27cd99945d
+  r: The requested `requirements.txt` exists at the project's canonical location (`projects/PROJ-277-predicting-the-impact-of-alloying-on-hig/code/requirements.txt`)
+    with all eight required packages (pandas, scikit-learn, shap, pyyaml, requests,
+    numpy, matplotlib, statsmodels) pinned to specific versions. The "missing" path
+    is just a different project-slug spelling of the same project; the collector's
+    resolved mapping establishes the artifact's identity.
+  sig: 154d7999a94b4eec136b0daf6aa25c2d1ab5bade9ddc51265fc8d143ea6c9748
 T002b:
   c: true
-  h: c5abbcc8b71c7c4877d7bef5573be5351ca2559a3eb256560ee789a348a27660
-  r: "The `pyproject.toml` file is present, non\u2011empty, and contains appropriate\
-    \ project metadata (name, version, description, dependencies, etc.), satisfying\
-    \ the requirement to provide either a `pyproject.toml` or `setup.cfg` in the specified\
-    \ project directory."
+  h: 8c11e5e3aa89b1b492bbc02682db00da4bc82f3cf5f056299f6d49c29884992c
+  r: The task asked for a `pyproject.toml` or `setup.cfg` with project metadata in
+    the PROJ-277 project; the collector confirmed a non-empty (1190 bytes) `pyproject.toml`
+    at the project's canonical root containing valid build-system, project metadata
+    (name, version, description, dependencies), and tool configuration. The requested
+    path `projects/PROJ-277-predicting-oxidation-resistance/` is a normalized-slug
+    variant of the resolved canonical project directory, which per the rules is not
+    a defect, and only one of the two file options was required.
+  sig: c7d317d12d56f15c47020615692efc50abf64cddfb363e64fc4470647c0f1a7a
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No artifact showing the `projects/PROJ-277-predicting-oxidation-resistance/data/raw`\
     \ and `.../data/processed` directories was provided; the claim lacks any file\u2011\
     system evidence that the required directory structure was actually created."
+T009:
+  c: false
+  h: 0dc8c84ba989b4564e90eec62de19d5a06d16d8ed82e55d711e92149439283ae
+  r: The required artifact `projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_fetcher.py`
+    is confirmed MISSING by the collector, and no equivalent contract test for data
+    fetcher validation (schema, checksums) was found at any resolved path. The implementer's
+    claim of completion is unsupported by any on-disk evidence.
+  sig: 59938429ef759f212c7c60d27cfa688f6460456eef1610b13916229ef8977ac1
+T010:
+  c: false
+  h: ffc50c869c8d0c50d56fd29e312c39e8a0a4d3f2541442b44d47e702c0875502
+  r: The required artifact `projects/PROJ-277-predicting-oxidation-resistance/tests/integration/test_prediction_pipeline.py`
+    is confirmed MISSING by the collector, and no equivalent integration test for
+    the full prediction pipeline or fallback-trigger verification was found at any
+    resolved path. The implementer's claim of completion is unsupported by any on-disk
+    evidence.
+  sig: 7b73eb9c81c6e40e2b42de523128dc8b6ebd21ea8f8295bd1ad8d6cdaa8e6307
 T019:
   c: false
   h: edf55dfe516119943384c785eb6567bf8074e5a196e43a91d8dc38d5ab90f7fb
@@ -44,3 +77,12 @@ T020:
     \ does not exist in the repository, so no test code is present to verify the gap\
     \ analysis behavior with insufficient data. The task\u2019s primary artifact is\
     \ missing."
+T021:
+  c: false
+  h: 5e64eab5334d0f8f81cd180312373e095973fa50be16c24082dc37414378ff95
+  r: The requested artifact `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`
+    is confirmed MISSING (the collector found no such file, and no resolved canonical
+    mapping was provided). No processor code handling optional microstructural features
+    (grain size, precipitate fraction) exists to verify, so the task's requirement
+    is entirely unmet.
+  sig: 6488eaa4f07cb3947f6871dc307979073b133dfe88537765b3925a2185067f41

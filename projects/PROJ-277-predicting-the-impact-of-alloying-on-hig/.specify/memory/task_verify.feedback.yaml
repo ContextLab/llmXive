@@ -1,0 +1,135 @@
+T001a:
+  reason: The requested directory `projects/PROJ-277-predicting-oxidation-resistance/`
+    is confirmed MISSING at the project root; the setup script instead created a nested
+    duplicate path (`.../projects/PROJ-277-predicting-the-impact-of-alloying-on-hig/projects/PROJ-277-predicting-oxidation-resistance/...`)
+    which does not match the required layout. Additionally, the required `logs/` directory
+    is not present among the confirmed top-level artifacts (only code/, data/, tests/
+    are listed), so the required tree with all four subdirectories is not in place.
+  task: 8f37daa744274834c2a75464a63d9bf34be3cadef7868d2e05ba04635f55876f
+T001b:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/'
+  task: c848b8741c887ce45b79e35c34301a7fc4e70067a1da2c562069c61bc65591ce
+T001c:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/'
+  task: f8adc757c86d1cc3607bdb12a355668064f78a8ec69e37d65b209ff12e241af5
+T002a:
+  task: 35b539db9b4caaf8d76a836da2c6bcf138c840cf3450634fd9b514125857eb76
+T002b:
+  task: fe4074cbb6a49aaf53658b5393ecb51213a64ecfb1211a093c84bf6161fe92d8
+T003a:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/pyproject.toml'
+  task: 01ca5a3839c4c6472a39a15ffa47ad72c2a67e7b38dc1bb90fd447bddd6d3360
+T003b:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/.pre-commit-config.yaml'
+  task: 8a0623053c59dc48e2ae64b34a7d15401203cb8fc941bf307e4154e5244a4769
+T004:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/__init__.py'
+  task: e1f4e4377b8a93adabca87b36fab6e20a1e0de4270fa08cf68f85e92725460c0
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/config.py'
+  task: 1ff63457c1b20cfca0689c6182f895da4a3713e59984fd78ae3dcadd989fb18a
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/utils/logger.py'
+  task: 25e3bd43ed09a55c8f6aa5a216c177fcb94bfd614db4b1bcf0373af560da842f
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/main.py'
+  task: 88b6c7a0d3315c809f0e1577c0bce8149d110526837f5b490143b6aa0bcc3bd5
+T008:
+  reason: 'Requested task execution failed; rerun successfully: projects/PROJ-277-predicting-oxidation-resistance/code/scripts/setup_data_dirs.py
+    exit=1'
+  task: ed7dd9d4ba07761286f68672a25fe30d7690f1d6b4c94d1f8f678e61354957d2
+T009:
+  reason: The required artifact `projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_fetcher.py`
+    is confirmed MISSING by the collector, and no equivalent contract test for data
+    fetcher validation (schema, checksums) was found at any resolved path. The implementer's
+    claim of completion is unsupported by any on-disk evidence.
+  task: 0db54eaff504b48c574c5b5a4f82e16db06e4a6e70eb83adfac2d73bcafbb56d
+T010:
+  reason: The required artifact `projects/PROJ-277-predicting-oxidation-resistance/tests/integration/test_prediction_pipeline.py`
+    is confirmed MISSING by the collector, and no equivalent integration test for
+    the full prediction pipeline or fallback-trigger verification was found at any
+    resolved path. The implementer's claim of completion is unsupported by any on-disk
+    evidence.
+  task: 526defd6ffa246afd37ab25763a3bf9b8c8548e0ca099c7f0d8c44e489772080
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/data/fetcher.py'
+  task: 0d9a67da55fd6192bdf0675a3f5d4d9097867ede2410899dcb774cfa0561dd22
+T012:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/data/fetcher.py'
+  task: 7c45ed60455ee2f9f4177ff52e48922471313b393abf4b9c1c0a357546afea85
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py'
+  task: 8ac5df8816eff05a75ef53ddefecae69a9e98b349bc62ebabe946c03a214c029
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/trainer.py'
+  task: 57c6d1733323480ba24379b37f3657f97861b83d413ef78e8053567b5384826e
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/trainer.py'
+  task: 5b3bd08b38ceed03aa0729049bbf44ac26fb955953114312ce79ecdce4a2b874
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py'
+  task: a8c5d4d8e3ac7009048b30b3468b16f4b02c5623ce3b406b810ff7a5c618d6dc
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/main.py'
+  task: 18def14ed9c389ac7919e08c6233e5b42c6057dd876c3bedda6265177b834783
+T019:
+  task: 5f090cb91039aa514493da406ded8f40ba49f7c6b2728a2cb61229b35238ba53
+T020:
+  task: 93764c99e90874eaad83985913ad8e75cb54c0e560b686b2bff386ff0bf48bdd
+T021:
+  reason: The requested artifact `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`
+    is confirmed MISSING (the collector found no such file, and no resolved canonical
+    mapping was provided). No processor code handling optional microstructural features
+    (grain size, precipitate fraction) exists to verify, so the task's requirement
+    is entirely unmet.
+  task: 888259201bd5e0695499d5677f5ea12853d593af7a966f071dfe2391456de90c
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/evaluator.py'
+  task: d31278198f2a94fae40719eef96b90c89872afe6d526fcd5bf8c0b72307c4023
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/evaluator.py'
+  task: a7045334b13723a3a8f934990b3432b42d1a2fd37508a08e4a83ebbf3980e163
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/evaluator.py'
+  task: f1533020d086295eee62c449985b1237db4958d563c9b359c05b05ce15306f41
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/evaluator.py'
+  task: aa59b65a5f1f4a92ffdf0e5fb3d977f0a334e40fdfa98f2201904300de171a21
+T026:
+  task: db9569973c3e84b302a275e2bb2bb88262a0f66d38e4cb28faf8ad7df86211cb
+T027:
+  task: fe8d9596d83f54df667c92874455979b89e3db614a6d092d0ab30ce78577d240
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/viz/shap_plots.py'
+  task: 4c678feede3cdc6549929ec6dcb98974c9864b233beeefd679d125f819843bf0
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/viz/shap_plots.py'
+  task: 778e0ab5a643f3a2fd37799183221ed5c36e89a118c6e8c313a87b29b053a014
+T030:
+  task: f49090c216d654014b236e0d8cea6e01fb50f9031e1b666a290dea724327cc6b
+T031:
+  task: f73faa292adced95acbeb41c0f974c2448a3c0009386c51e35e7ede2109eb459
+T032a:
+  task: bb4a083612ac370d47932e399a5ab779aebdcc1f9030bbc753cb3e9bd0a26e29
+T032b:
+  task: 5873a5c65b0f827c56623a93bc710bdad4d67a9709e61949ebaccfedfdd698b9
+T032c:
+  task: 8e5259b461504e820a75c53faf01a5529bcf4184545ad8ab870e5d954041e3e1
+T033:
+  task: 0c91e2f5041833035c6e5afceff627cf65433837c659a647f4c1fb0a7a559fc5
+T034:
+  task: 98bfdb9f24d53f94984c38b1b3d2a33847d3aa99a20022c39e77cd95e51a27c1
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/models/trainer.py'
+  task: 12aaafa264bd40ce5be957e0dfb0a201053c4e9155d1eacadaad1293f60c504c
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py'
+  task: 239c0afb8a9bf99f76b369061a6e21024abef5929a699e29d7e82ee0732847b0
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_fallback.py'
+  task: 281c15780208ebe6b36b7c8bd5ca8de228109adb196f243cff1164c4ffd4ddbe
+T043:
+  task: d1bba7f175b2e07ab64e5eb13838adeabbeb7e5c043d82761742b7258c7e3c2a
+T044:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py'
+  task: eaa6a109f13be3c3fc77dcb1804c08e439e1b6356b6c35de88dc1746ec727196
