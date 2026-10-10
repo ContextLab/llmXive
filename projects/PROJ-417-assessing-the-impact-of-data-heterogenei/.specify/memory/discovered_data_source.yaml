@@ -1,10 +1,12 @@
 status: none
-intent: download Cochrane Reviews meta-analysis dataset from Cochrane Database of
-  Systematic Reviews python package dataset
+intent: download Cochrane meta-analysis dataset for research python package dataset
 required_fields:
 - study_id
 - effect_size
 - standard_error
-cache_key: 6c0e9736bc237ef4b666315de6fa95d7c03d84278e0a554f8faea5b49b2b3c49
-searched_at: '2026-10-10T17:04:59.307950+00:00'
+- sample_size
+- outcome
+- study_variance
+cache_key: 0e0afba427dec608118e4ac804dfdb69d032bb75d489552957d5bcb1f5f69cb6
+searched_at: '2026-10-10T18:19:21.913903+00:00'
 retry_count: 1
