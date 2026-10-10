@@ -130,7 +130,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/quantify-cleaning-impact
   verified_at: '2026-09-02T13:44:37.118880Z'
-- artifact_hash: 70f82d158eb98592484d285abdf1f1f36bf909900005b4cb647fa806e6159d07
+- artifact_hash: 77801ba9a0c9c4fd9964b58c6769881cc8786d5bf5620817c9f8d77f93da4e59
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
   cite_id: c-001
   cited_authors: []
@@ -140,8 +140,8 @@
   value: https://archive.ics.uci.edu/ml/datasets/Wine+Quality
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/dataset/186/wine+quality
-  verified_at: '2026-09-18T16:42:10.114086Z'
-- artifact_hash: 70f82d158eb98592484d285abdf1f1f36bf909900005b4cb647fa806e6159d07
+  verified_at: '2026-10-10T06:35:04.156866Z'
+- artifact_hash: 77801ba9a0c9c4fd9964b58c6769881cc8786d5bf5620817c9f8d77f93da4e59
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
   cite_id: c-002
   cited_authors: []
@@ -151,4 +151,4 @@
   value: https://archive.ics.uci.edu/ml/datasets/Heart+Disease
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/dataset/45/heart+disease
-  verified_at: '2026-09-18T16:42:10.114086Z'
+  verified_at: '2026-10-10T06:35:04.156866Z'

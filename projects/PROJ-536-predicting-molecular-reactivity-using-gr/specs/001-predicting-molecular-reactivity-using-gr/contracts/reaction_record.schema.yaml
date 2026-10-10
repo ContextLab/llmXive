@@ -1,52 +1,72 @@
-# Schema for ReactionRecord
-# Defines the structure of a single reaction entry in the USPTO dataset
-# Used for validation in src/data/download.py and src/data/parse.py
-$schema: http://json-schema.org/draft-07/schema#
-title: ReactionRecord
-description: A record representing a chemical reaction with reactants, product, and yield information.
+# Schema: ReactionRecord
+# Entity: A single chemical reaction instance containing reactant SMILES,
+# product SMILES, reaction yield (0-100), and reaction class label.
+# Referenced by: spec.md (Key Entities), FR-001, FR-002, FR-008.
+# Validated by: src/data/download.py::validate_schema (T013).
+
+name: ReactionRecord
+description: >
+  A single chemical reaction record from the USPTO subset, carrying the
+  raw SMILES strings for reactants and product, the experimental
+  percentage yield, and a reaction class label used for reference
+  (not as the primary split key; see Scaffold Split in plan.md).
 type: object
 required:
   - reactants_smiles
   - product_smiles
   - yield
-  - reaction_class
+additionalProperties: true
 properties:
   reactants_smiles:
     type: string
-    description: >-
-      Canonical SMILES string representing the reactants.
-      Multiple reactants are separated by '.' (dot).
-      Example: "CCO.O=C(O)C" (Ethanol + Acetic Acid)
+    description: >
+      SMILES string of the reactants (multiple reactants separated by
+      '.'), parseable by RDKit. Rows with invalid syntax must be logged
+      and skipped per FR-001.
     minLength: 1
-    pattern: '^[A-Za-z0-9@#$%&*()+=\[\]{}|\\/\-~<>^!]+$'
   product_smiles:
     type: string
-    description: >-
-      Canonical SMILES string representing the product.
-      Example: "CC(=O)OCC" (Ethyl Acetate)
+    description: SMILES string of the reaction product, parseable by RDKit.
     minLength: 1
-    pattern: '^[A-Za-z0-9@#$%&*()+=\[\]{}|\\/\-~<>^!]+$'
   yield:
     type: number
-    description: >-
-      The reaction yield as a percentage (0.0 to 100.0).
-      Must be a finite number.
-    minimum: 0.0
-    maximum: 100.0
+    description: >
+      Experimental reaction yield as a continuous numeric percentage
+      in the range [0, 100]. MUST be numeric, not categorical
+      (A-002); a categorical yield column is a hard-stop schema
+      violation.
+    minimum: 0
+    maximum: 100
   reaction_class:
-    type: string
-    description: >-
-      The classification of the reaction (e.g., 'esterification', 'SN2', 'Suzuki').
-      Used for stratification or filtering if required.
-    minLength: 1
-  reaction_id:
-    type: string
-    description: >-
-      Optional unique identifier for the reaction record.
-    minLength: 1
-  timestamp:
-    type: string
-    format: date-time
-    description: >-
-      Optional timestamp of when the record was processed or extracted.
-additionalProperties: false
+    type:
+      - string
+      - integer
+      - "null"
+    description: >
+      Optional reaction class label. Retained for reference and
+      reporting of class imbalance, but NOT used as the primary split
+      key (Scaffold Split per plan.md / amended FR-008).
+  row_id:
+    type:
+      - string
+      - integer
+    description: Optional source row identifier used in skip logging.
+  murcko_scaffold:
+    type:
+      - string
+      - "null"
+    description: >
+      Murcko scaffold SMILES of the product, computed during
+      preprocessing (T016a) and used as the grouping key for the
+      scaffold split to prevent data leakage.
+  is_valid:
+    type: boolean
+    description: >
+      True if both SMILES fields parsed successfully with RDKit;
+      used by the data-validity calculation (SC-005, target > 95%).
+examples:
+  - reactants_smiles: "CCO.CC(=O)Cl"
+    product_smiles: "CCOC(=O)C"
+    yield: 85.5
+    reaction_class: "acylation"
+    is_valid: true

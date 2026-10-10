@@ -6,12 +6,14 @@ on:
   pull_request:
     branches: [ main, develop ]
 
-# SC-004: Enforce strict runtime limit (< 6 hours)
+# SC-004: Enforce strict runtime limit (< 6 hours = 360 minutes).
+# GitHub Actions hard-kills the job if it exceeds this limit.
 timeout-minutes: 360
 
 jobs:
   test-and-validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
 
     steps:
       - name: Checkout repository
@@ -25,17 +27,27 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # CPU-only torch wheel to guarantee no CUDA dependencies (plan constraint)
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
           # Ensure test runners are available
           pip install pytest pytest-cov
 
+      - name: Verify CPU-only environment
+        run: |
+          python -c "import torch; assert not torch.cuda.is_available(), 'CUDA must not be available in CI'; print('CPU-only environment verified')"
+
       - name: Run Unit Tests
         run: |
-          python -m pytest tests/unit/ -v --tb=short
+          python -m pytest tests/unit/ -v --tb=short --junitxml=junit_unit.xml
 
       - name: Run Integration Tests
         run: |
-          python -m pytest tests/integration/ -v --tb=short
+          python -m pytest tests/integration/ -v --tb=short --junitxml=junit_integration.xml
+
+      - name: Run Contract Tests
+        run: |
+          python -m pytest tests/contract/ -v --tb=short --junitxml=junit_contract.xml
 
       - name: Validate Quickstart Pipeline
         run: |
@@ -46,11 +58,30 @@ jobs:
           # Ensure CPU-only execution to match CI environment constraints
           TORCH_USE_CPU_ONLY: "1"
 
+      - name: Check total pipeline runtime (SC-004)
+        run: |
+          # Record job start/end timestamps and assert the elapsed
+          # wall-clock time stays under the 6-hour (21600 s) budget.
+          START=$(date -u -d "$JOB_START_TIME" +%s)
+          END=$(date -u +%s)
+          ELAPSED=$((END - START))
+          echo "Elapsed CI runtime: ${ELAPSED} seconds"
+          if [ "$ELAPSED" -ge 21600 ]; then
+            echo "FAIL: pipeline runtime ${ELAPSED}s exceeds 6-hour budget (SC-004)"
+            exit 1
+          fi
+          echo "PASS: pipeline runtime ${ELAPSED}s within 6-hour budget (SC-004)"
+        env:
+          JOB_START_TIME: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
+
       - name: Upload Test Results (if any)
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: |
-            junit.xml
+            junit_unit.xml
+            junit_integration.xml
+            junit_contract.xml
             coverage.xml
+          if-no-files-found: ignore

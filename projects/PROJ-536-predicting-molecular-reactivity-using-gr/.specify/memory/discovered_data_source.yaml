@@ -1,0 +1,8 @@
+status: none
+intent: download USPTO reaction dataset balanced subset python package dataset
+required_fields:
+- reaction_smiles
+- yield
+cache_key: b0da34cde9c0a158dc58cd5b1639ad665f185d52e35f4fd9846e03c18623006a
+searched_at: '2026-10-10T06:40:52.058002+00:00'
+retry_count: 1

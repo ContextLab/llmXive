@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: Execute `mkdir -p src/data src/models src/analysis src/config src/utils tests/contract tests/integration tests/unit` to establish the directory hierarchy.
+- [ ] T001 Create project structure per implementation plan: Execute `mkdir -p src/data src/models src/analysis src/config src/utils tests/contract tests/integration tests/unit` to establish the directory hierarchy.
 - [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`: Create file with exact pins (e.g., `rdkit==2023.9.5`, `torch==2.1.0+cpu`, `torch-geometric==2.4.0+cpu`, `scikit-learn==1.3.0`, `pandas==2.1.0`, `numpy==1.24.0`).
 - [X] T003a [P] Add ruff and black to `requirements.txt`: Include `ruff==0.1.0` and `black==23.0.0`.
 - [X] T003b [P] Create `.ruff.toml` and `pyproject.toml` configuration files: Define specific linting rules (e.g., `line-length = 88`, `select = ["E", "F", "W"]`) and formatting settings.
@@ -60,10 +60,10 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [X] T004 Setup configuration management in `src/config/defaults.yaml` (seeds, paths, hyperparameters)
-- [X] T005 [P] Implement custom logging infrastructure in `src/utils/logging.py` to track skipped invalid SMILES
-- [ ] T006 [P] Setup metric calculators in `src/utils/metrics.py` (MAE, RMSE, R²)
-- [ ] T007 Define and write schema files for `ReactionRecord` and `MolecularGraph` in `specs/001-predicting-molecular-reactivity-using-gr/contracts/`: Create `reaction_record.schema.yaml` (fields: reactants_smiles, product_smiles, yield, reaction_class) and `molecular_graph.schema.yaml` (fields: atoms, bonds, features).
-- [ ] T008 Setup CI environment configuration: Create `.github/workflows/ci.yml` with steps for installing dependencies, running tests, and enforcing a strict runtime limit.
+- [~] T005 [P] Implement custom logging infrastructure in `src/utils/logging.py` to track skipped invalid SMILES
+- [~] T006 [P] Setup metric calculators in `src/utils/metrics.py` (MAE, RMSE, R²)
+- [~] T007 Define and write schema files for `ReactionRecord` and `MolecularGraph` in `specs/001-predicting-molecular-reactivity-using-gr/contracts/`: Create `reaction_record.schema.yaml` (fields: reactants_smiles, product_smiles, yield, reaction_class) and `molecular_graph.schema.yaml` (fields: atoms, bonds, features).
+- [~] T008 Setup CI environment configuration: Create `.github/workflows/ci.yml` with steps for installing dependencies, running tests, and enforcing a strict runtime limit.
 - [ ] T009 [P] Create spec amendment request for FR-008: Document the change from "reaction class stratification" to "Scaffold Split" in a formal amendment request or PR description to update `spec.md`. (Note: spec.md has been updated in this revision, this task tracks the workflow).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -80,8 +80,8 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Skeleton Unit test for SMILES parsing and invalid entry logging in `tests/unit/test_parsing.py`: Create `test_parse_smiles_invalid_logs_error` function with `pytest.fail` placeholder to verify logging of invalid SMILES.
-- [X] T011 [P] [US1] Skeleton Integration test for MPNN training loop on CPU in `tests/integration/test_pipeline.py`: Create `test_mpnn_training_cpu` function with `pytest.fail` placeholder to verify training loop execution and model saving.
+- [~] T010 [P] [US1] Skeleton Unit test for SMILES parsing and invalid entry logging in `tests/unit/test_parsing.py`: Create `test_parse_smiles_invalid_logs_error` function with `pytest.fail` placeholder to verify logging of invalid SMILES.
+- [~] T011 [P] [US1] Skeleton Integration test for MPNN training loop on CPU in `tests/integration/test_pipeline.py`: Create `test_mpnn_training_cpu` function with `pytest.fail` placeholder to verify training loop execution and model saving.
 
 ### Implementation for User Story 1
 
@@ -109,7 +109,7 @@ Examples of foundational tasks (adjust based on your project):
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T020 [P] [US2] Unit test for baseline model training (RF/LR) in `tests/unit/test_baselines.py`: Create `test_rf_baseline` and `test_lr_baseline` functions with `pytest.fail` placeholders.
-- [X] T021 [P] [US2] Integration test for statistical significance comparison in `tests/integration/test_comparison.py`: Create `test_significance_comparison` function with `pytest.fail` placeholder.
+- [~] T021 [P] [US2] Integration test for statistical significance comparison in `tests/integration/test_comparison.py`: Create `test_significance_comparison` function with `pytest.fail` placeholder.
 
 ### Implementation for User Story 2
 

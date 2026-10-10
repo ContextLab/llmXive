@@ -1,9 +1,17 @@
-# Schema for MolecularGraph
-# Defines the structure of a molecular graph derived from SMILES
-# Used for validation in src/data/parse.py
-$schema: http://json-schema.org/draft-07/schema#
-title: MolecularGraph
-description: A graph representation of a molecule with atoms, bonds, and features.
+# Schema: MolecularGraph
+# Entity: A graph data structure derived from a SMILES string, containing
+# nodes (atoms with feature vectors) and edges (bonds with feature vectors).
+# Referenced by: spec.md (Key Entities), FR-002; produced by
+# src/data/parse.py::smiles_to_graph (T014).
+
+name: MolecularGraph
+description: >
+  Graph representation of a molecule converted from a SMILES string via
+  RDKit. Nodes are atoms with feature dictionaries (atomic number,
+  formal charge, hybridization, and related descriptors); edges are
+  bonds with feature dictionaries (bond type, conjugation, ring
+  membership). Consumed by the MPNN (src/models/mpnn.py) after
+  featurization.
 type: object
 required:
   - atoms
@@ -12,93 +20,135 @@ required:
 properties:
   atoms:
     type: array
-    description: >-
-      List of atom nodes in the graph.
-      Each atom is an object with an index and atomic number.
+    description: >
+      Ordered list of atom (node) records. The array index equals the
+      RDKit atom index, so bond endpoints reference positions in this
+      list.
+    minItems: 1
     items:
       type: object
       required:
-        - index
-        - atomic_number
+        - atomic_num
+        - formal_charge
+        - hybridization
       properties:
-        index:
+        atomic_num:
           type: integer
-          description: Unique index of the atom in the graph (0-based).
-          minimum: 0
-        atomic_number:
-          type: integer
-          description: Atomic number of the element (e.g., 6 for Carbon).
+          description: Atomic number (e.g., 6 for carbon).
           minimum: 1
-        charge:
+        formal_charge:
           type: integer
-          description: Formal charge of the atom.
-          default: 0
-        is_aromatic:
+          description: Formal charge on the atom.
+        hybridization:
+          type: string
+          description: >
+            RDKit hybridization state name, e.g. "SP", "SP2", "SP3",
+            "S", "UNSPECIFIED".
+        aromatic:
           type: boolean
           description: Whether the atom is part of an aromatic system.
-          default: false
+        num_hydrogens:
+          type: integer
+          description: Total number of implicit + explicit hydrogens.
+        is_in_ring:
+          type: boolean
+          description: Whether the atom belongs to a ring.
+        feature_vector:
+          type: array
+          description: >
+            Numeric feature vector for the MPNN node embedding
+            (one-hot encodings of the above fields).
+          items:
+            type: number
   bonds:
     type: array
-    description: >-
-      List of bond edges in the graph.
-      Each bond connects two atoms and has a type.
+    description: >
+      List of bond (edge) records. Edges are stored once per bond;
+      message passing uses bidirectional edges.
     items:
       type: object
       required:
-        - source
-        - target
+        - begin_atom_idx
+        - end_atom_idx
         - bond_type
       properties:
-        source:
+        begin_atom_idx:
           type: integer
-          description: Index of the source atom.
+          description: Index into the atoms array of the first endpoint.
           minimum: 0
-        target:
+        end_atom_idx:
           type: integer
-          description: Index of the target atom.
+          description: Index into the atoms array of the second endpoint.
           minimum: 0
         bond_type:
-          type: integer
-          description: >-
-            Type of bond: 1 (single), 2 (double), 3 (triple), 4 (aromatic).
-          enum: [1, 2, 3, 4]
-        is_conjugated:
+          type: string
+          description: >
+            RDKit bond type name, e.g. "SINGLE", "DOUBLE", "TRIPLE",
+            "AROMATIC".
+        conjugated:
           type: boolean
-          description: Whether the bond is conjugated.
-          default: false
+          description: Whether the bond is conjugated (FR-002).
+        is_in_ring:
+          type: boolean
+          description: Whether the bond is part of a ring.
+        feature_vector:
+          type: array
+          description: Numeric feature vector for the MPNN edge embedding.
+          items:
+            type: number
   features:
     type: object
-    description: >-
-      Global features or feature matrices associated with the graph.
-      Used for model input.
+    description: >
+      Graph-level features and metadata derived from the molecule,
+      used by baselines (T015) and for bookkeeping.
+    required:
+      - num_atoms
+      - num_bonds
     properties:
-      atom_features:
-        type: array
-        description: >-
-          Matrix of atom features (N_atoms x N_features).
-          Features typically include: atomic number, degree, hybridization, etc.
-        items:
-          type: array
-          items:
-            type: number
-      bond_features:
-        type: array
-        description: >-
-          Matrix of bond features (N_bonds x N_features).
-        items:
-          type: array
-          items:
-            type: number
+      num_atoms:
+        type: integer
+        description: Number of nodes (must equal len(atoms)).
+        minimum: 1
+      num_bonds:
+        type: integer
+        description: Number of edges (must equal len(bonds)).
+        minimum: 0
       molecular_weight:
         type: number
-        description: Calculated molecular weight of the molecule.
-      logP:
+        description: Molecular weight (RDKit Descriptors.MolWt).
+      logp:
         type: number
-        description: Calculated partition coefficient (logP).
+        description: Computed octanol-water partition coefficient (Crippen logP).
       tpsa:
         type: number
-        description: Topological Polar Surface Area.
-    required:
-      - atom_features
-      - bond_features
-additionalProperties: false
+        description: Topological polar surface area.
+      canonical_smiles:
+        type: string
+        description: RDKit canonical SMILES of the parsed molecule.
+examples:
+  - atoms:
+      - atomic_num: 6
+        formal_charge: 0
+        hybridization: "SP3"
+        aromatic: false
+        num_hydrogens: 4
+        is_in_ring: false
+      - atomic_num: 8
+        formal_charge: 0
+        hybridization: "SP3"
+        aromatic: false
+        num_hydrogens: 2
+        is_in_ring: false
+    bonds:
+      - begin_atom_idx: 0
+        end_atom_idx: 1
+        bond_type: "SINGLE"
+        conjugated: false
+        is_in_ring: false
+    features:
+      num_atoms: 2
+      num_bonds: 1
+      molecular_weight: 32.04
+      logp: -0.5
+      tpsa: 20.23
+      canonical_smiles: "CO"

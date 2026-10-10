@@ -14,6 +14,29 @@ from src.utils.logging import get_logger
 logger = get_logger(__name__)
 
 
+def _to_arrays(
+    y_true: Union[List[float], np.ndarray],
+    y_pred: Union[List[float], np.ndarray]
+) -> tuple:
+    """Convert inputs to float arrays with shared validation."""
+    if y_true is None or y_pred is None:
+        raise ValueError("Input arrays cannot be None.")
+    if len(y_true) == 0 or len(y_pred) == 0:
+        raise ValueError("Input arrays cannot be empty.")
+    if len(y_true) != len(y_pred):
+        raise ValueError(f"Input lengths must match: {len(y_true)} vs {len(y_pred)}.")
+
+    y_true_arr = np.asarray(y_true, dtype=float)
+    y_pred_arr = np.asarray(y_pred, dtype=float)
+
+    if not np.all(np.isfinite(y_true_arr)):
+        raise ValueError("y_true contains NaN or infinite values.")
+    if not np.all(np.isfinite(y_pred_arr)):
+        raise ValueError("y_pred contains NaN or infinite values.")
+
+    return y_true_arr, y_pred_arr
+
+
 def calculate_mae(
     y_true: Union[List[float], np.ndarray],
     y_pred: Union[List[float], np.ndarray]
@@ -29,16 +52,9 @@ def calculate_mae(
         float: The MAE value.
 
     Raises:
-        ValueError: If inputs are empty or have mismatched lengths.
+        ValueError: If inputs are empty, mismatched, or non-finite.
     """
-    if len(y_true) == 0 or len(y_pred) == 0:
-        raise ValueError("Input arrays cannot be empty.")
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Input lengths must match: {len(y_true)} vs {len(y_pred)}.")
-
-    y_true_arr = np.array(y_true, dtype=float)
-    y_pred_arr = np.array(y_pred, dtype=float)
-
+    y_true_arr, y_pred_arr = _to_arrays(y_true, y_pred)
     return float(np.mean(np.abs(y_true_arr - y_pred_arr)))
 
 
@@ -57,16 +73,9 @@ def calculate_rmse(
         float: The RMSE value.
 
     Raises:
-        ValueError: If inputs are empty or have mismatched lengths.
+        ValueError: If inputs are empty, mismatched, or non-finite.
     """
-    if len(y_true) == 0 or len(y_pred) == 0:
-        raise ValueError("Input arrays cannot be empty.")
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Input lengths must match: {len(y_true)} vs {len(y_pred)}.")
-
-    y_true_arr = np.array(y_true, dtype=float)
-    y_pred_arr = np.array(y_pred, dtype=float)
-
+    y_true_arr, y_pred_arr = _to_arrays(y_true, y_pred)
     return float(np.sqrt(np.mean((y_true_arr - y_pred_arr) ** 2)))
 
 
@@ -85,15 +94,10 @@ def calculate_r2(
         float: The R² value.
 
     Raises:
-        ValueError: If inputs are empty, have mismatched lengths, or y_true has zero variance.
+        ValueError: If inputs are empty, mismatched, non-finite,
+            or y_true has zero variance with imperfect predictions.
     """
-    if len(y_true) == 0 or len(y_pred) == 0:
-        raise ValueError("Input arrays cannot be empty.")
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Input lengths must match: {len(y_true)} vs {len(y_pred)}.")
-
-    y_true_arr = np.array(y_true, dtype=float)
-    y_pred_arr = np.array(y_pred, dtype=float)
+    y_true_arr, y_pred_arr = _to_arrays(y_true, y_pred)
 
     ss_res = np.sum((y_true_arr - y_pred_arr) ** 2)
     ss_tot = np.sum((y_true_arr - np.mean(y_true_arr)) ** 2)
@@ -101,7 +105,9 @@ def calculate_r2(
     if ss_tot == 0.0:
         if ss_res == 0.0:
             return 1.0
-        raise ValueError("y_true has zero variance and predictions are not perfect (R² undefined).")
+        raise ValueError(
+            "y_true has zero variance and predictions are not perfect (R² undefined)."
+        )
 
     return float(1.0 - (ss_res / ss_tot))
 

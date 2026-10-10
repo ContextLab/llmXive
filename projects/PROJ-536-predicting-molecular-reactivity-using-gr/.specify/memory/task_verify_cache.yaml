@@ -1,3 +1,56 @@
+T001:
+  c: false
+  h: f61a4052a61e34c1d67ec2c09be15c4293db71faf17c8f8182a66016a7492995
+  r: The task requires creating a directory hierarchy (`src/data`, `src/models`, `src/analysis`,
+    `src/config`, `src/utils`, `tests/contract`, `tests/integration`, `tests/unit`),
+    but the evidence collector reports no artifact paths were resolved and provides
+    no listing or confirmation that any of these directories exist in `projects/PROJ-536-predicting-molecular-reactivity-using-gr`.
+    With no on-disk evidence of the directory structure, the claim cannot be verified
+    as done.
+  sig: 4d2eb512b06380a2e7b0f779bb56b467ffb1f9cae2b653fa628cdfa33827230e
+T002:
+  c: true
+  h: 5a079e6778bbffe2deed9f206a995f8b85b0d885e7958d0454f75ec1a1d95728
+  r: 'The `requirements.txt` exists at the project root (608 bytes) and contains all
+    six required exact pins: `rdkit==2023.9.5`, `torch==2.1.0+cpu`, `torch-geometric==2.4.0+cpu`,
+    `scikit-learn==1.3.0`, `pandas==2.1.0`, `numpy==1.24.0`, plus reasonable supplementary
+    dependencies and a CPU wheel index URL.'
+  sig: 150c1cd49ccf0a786982e15e2da78d093beb72bb4f47f346c4a1212416ecbefc
+T003a:
+  c: true
+  h: 232b94c8d96148d863b64b95b27d2e2d98ad6b0d7366216f679c80033a945f95
+  r: The `requirements.txt` exists at the resolved project path and contains exactly
+    the requested entries `ruff==0.1.0` and `black==23.0.0` under a "Linting & Formatting"
+    section, matching the task's requirement.
+  sig: 6583f9b4b2a9e87bc622e15138eeb2edcf20a4eb7d1466bdcaf4f2ef14071deb
+T003b:
+  c: true
+  h: 985e6e517e68c5edb13e2be283f341908da98e587239e77e1e74835916a93a9b
+  r: Both `.ruff.toml` and `pyproject.toml` exist, are non-empty, and contain the
+    required linting configuration (`line-length = 88`, `select = ["E", "F", "W"]`
+    plus additional rules) and formatting settings (quote style, indent style, black
+    config), with the pyproject also including consistent `[tool.ruff]` settings.
+  sig: 379743d3b668c5dec7c4cbf99e2287dcad24dfe03797f85f7c9a3d6d8032a43b
+T003c:
+  c: true
+  h: 4648594893ef243555022bb2aa04a5f5196b88cbf6387946715ca2d19bdfa344
+  r: The `.pre-commit-config.yaml` exists at the project root with valid ruff and
+    black pre-commit hooks (ruff with `--fix --exit-non-zero-on-fix`, black pinned
+    to a version with a python3.11 language version), which directly satisfies the
+    task's requirement to add pre-commit hooks enforcing linting.
+  sig: e2d1ef2dbb7efa6bda79619e1d3699926224c442539fd17edfbabc5dd337e629
+T004:
+  c: true
+  h: 14d75b05d492b9b1f89d495f7803a633deb046e58426a166e4141803852b936f
+  r: "The file `src/config/defaults.yaml` exists (4827 bytes) and contains well-organized,\
+    \ non-placeholder configuration covering all three required areas: seeds (python/numpy/torch\
+    \ = 42, deterministic mode), paths (data, models, results, logs, figures), and\
+    \ hyperparameters (MPNN architecture, training with patience=5 and 200 epochs,\
+    \ cross-validation, splits, baselines, evaluation, explainability, conformal,\
+    \ logging, resources). Values are consistent with the spec's acceptance criteria\
+    \ (CPU-only, >95% SMILES validity threshold, 0.10 R\xB2 practical significance\
+    \ threshold)."
+  sig: 498c1b2eb47b052e192110cec9f727e60c63bc9bf073056364eed0a138996feb
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
