@@ -1,10 +1,4 @@
 T001:
-  reason: The project root, `code/`, `data/raw/`, `tests/`, `pyproject.toml` (with
-    ruff/black config), and `quickstart.md` all exist and look substantive, but the
-    task explicitly requires `data/processed/` and `data/results/`, and the collector
-    reports both as MISSING. The implementer must create those directories (e.g.,
-    with `.gitkeep` markers) and provide evidence that `ruff check .` and `black --check
-    .` pass in the project directory.
   task: 231868e21db34ce4001f4416ba6d7b166aa02a1769439741ce88241733c0c168
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py

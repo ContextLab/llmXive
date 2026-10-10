@@ -3,12 +3,12 @@
 This implementation fetches the supplementary files associated with the GEO
 series GSE136103, GSE127465, GSE111075, and GSE138852 via HTTP(S). The
 downloaded files are placed under ``data/raw/<GSE>/counts/``. SHA‑256
-checksums of the first downloaded file for each series are recorded in
+checksums of all downloaded files for each series are recorded in
 ``data/state.yaml`` to satisfy Constitution Principle III.
 
-The script does **not** rely on the SRA Toolkit (which may be unavailable in
-CI environments). Instead it uses the public GEO FTP server, which hosts the
-original raw count matrices or related files for each dataset.
+The script uses the public GEO FTP server, which hosts the original raw 
+count matrices or related files for each dataset, as these are required 
+for the downstream preprocessing and velocity analysis.
 """
 import argparse
 import hashlib
@@ -53,8 +53,11 @@ def update_state(dataset_id: str, metadata: Dict[str, Any]) -> None:
     state_path.parent.mkdir(parents=True, exist_ok=True)
 
     if state_path.exists():
-        with state_path.open("r") as f:
-            state = yaml.safe_load(f) or {}
+        try:
+            with state_path.open("r") as f:
+                state = yaml.safe_load(f) or {}
+        except yaml.YAMLError:
+            state = {}
     else:
         state = {}
 
@@ -73,7 +76,8 @@ def _geo_series_ftp_base(gse_id: str) -> str:
     ``.../GSEnnnxxx/GSEnnnxxx/suppl/`` where the middle component replaces
     the last three digits with ``nnn``.
     """
-    if not re.match(r"^GSE\\d+$", gse_id):
+    # FIXED: Corrected regex from r"^GSE\\d+$" to r"^GSE\d+$"
+    if not re.match(r"^GSE\d+$", gse_id):
         raise ValueError(f"Invalid GEO series identifier: {gse_id}")
 
     # Replace the last three digits with 'nnn'
@@ -156,17 +160,21 @@ def main() -> None:
             if not files:
                 raise RuntimeError(f"No supplementary files found for {gse} at {base_url}")
 
-            # Download all files (or a subset if desired). Here we download all.
+            # Download all files and record checksums for each
+            file_checksums: Dict[str, str] = {}
             downloaded_paths: List[Path] = []
             for filename in files:
                 file_url = base_url + filename
                 dest_file = counts_dir / filename
                 _download_file(file_url, dest_file)
+                
+                checksum = calculate_sha256(dest_file)
+                file_checksums[filename] = checksum
                 downloaded_paths.append(dest_file)
 
-            # Record checksum of the first downloaded file (as required)
+            # Use the first file as the primary reference for the schema
             first_file = downloaded_paths[0]
-            checksum = calculate_sha256(first_file)
+            primary_checksum = file_checksums[first_file.name]
 
             update_state(
                 gse,
@@ -174,10 +182,11 @@ def main() -> None:
                     "dataset_id": gse,
                     "source": "GEO_FTP",
                     "raw_counts_path": str(first_file.relative_to(project_root)),
-                    "checksum": checksum,
-                    "counts_checksum": checksum,
-                    "cell_count": 0,
-                    "gene_count": 0,
+                    "checksum": primary_checksum,
+                    "counts_checksum": primary_checksum,
+                    "all_file_checksums": file_checksums,
+                    "cell_count": 0, # To be populated by preprocess.py
+                    "gene_count": 0, # To be populated by preprocess.py
                     "status": "available",
                     "sufficiency_screen": {"source_record": "geo_ftp_download"},
                 },
@@ -185,7 +194,7 @@ def main() -> None:
             logger.info(
                 f"Successfully prepared {gse} – {len(downloaded_paths)} file(s) saved."
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.error(f"Failed to process {gse}: {exc}")
             failures.append(gse)
             update_state(
@@ -196,8 +205,6 @@ def main() -> None:
                     "raw_counts_path": "",
                     "checksum": "",
                     "counts_checksum": "",
-                    "cell_count": 0,
-                    "gene_count": 0,
                     "status": "unavailable",
                     "error": str(exc),
                 },

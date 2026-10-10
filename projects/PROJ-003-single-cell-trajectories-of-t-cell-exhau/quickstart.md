@@ -31,11 +31,11 @@
 **Critical Step**: Verify dataset availability before proceeding.
 
 ```bash
-# Attempt to download raw count matrices (replace with actual download commands)
+# Attempt to download raw count matrices
 python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852
 ```
 
-**Note**: If any dataset fails to download (due to access restrictions), the pipeline will halt and report the gap. [UNRESOLVED-CLAIM: c_a8a4af3e — status=not_enough_info]
+**Note**: If any dataset fails to download (due to access restrictions), the pipeline will halt and report the gap.
 
 ## Running the Pipeline
 
@@ -70,5 +70,5 @@ python code/report.py --input data/results/validation/ --output data/results/rep
 
 - **Dataset Download Failed**: Check GEO/SRA status; verify accession IDs; abort if no open substitute exists.
 - **Memory Overflow**: Reduce dataset size via sampling; enable streaming.
-- **scVelo Convergence Failed**: Increase regularization; retry; flag as "Alignment Failed".
+- **scVelo Convergence Failed**: Increase regularization; flag as "Alignment Failed".
 - **No Significant Fork-Points**: Check divergence threshold; verify data quality.

@@ -1,13 +1,13 @@
 T001:
-  c: false
-  h: e8e1191089f363e248fab787164c7e3c1ea19b7b0465fedd65b70ab5de9bbbfc
-  r: The project root, `code/`, `data/raw/`, `tests/`, `pyproject.toml` (with ruff/black
-    config), and `quickstart.md` all exist and look substantive, but the task explicitly
-    requires `data/processed/` and `data/results/`, and the collector reports both
-    as MISSING. The implementer must create those directories (e.g., with `.gitkeep`
-    markers) and provide evidence that `ruff check .` and `black --check .` pass in
-    the project directory.
-  sig: e6724c2739213a01534a8ba1fd2e3dc10759aa4fc9efc075eff8def11779e382
+  c: true
+  h: 3c309df5804e8b5eec05e632644c2606b1d0a9d13c66864d472202a2372cee31
+  r: The required directory tree (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
+    `tests/`) all exist with content, `pyproject.toml` configures both ruff and black
+    (line-length 88, target py39, dev extras), and `quickstart.md` documents the runnable
+    environment including prerequisites, installation, and pipeline commands. The
+    setup script executed successfully (exit 0) per the historical log, and linting
+    config is further backed by `test_linting_config.py` and `.pre-commit-config.yaml`.
+  sig: f90f625d3a644c8d81cb07f23d82deb12792fd429540641ef2694e51e5c876e1
 T003:
   c: false
   h: 198ce09f3e9a2e88e576000b67625a5a20806bfa641c1841ce134410daf18464

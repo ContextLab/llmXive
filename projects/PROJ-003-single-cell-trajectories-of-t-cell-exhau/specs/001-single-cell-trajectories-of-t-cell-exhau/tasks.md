@@ -6,9 +6,9 @@
 
 **Goal**: Establish the project environment and execute a thin, end-to-end analysis on a single real dataset to validate the pipeline from raw SRA data to velocity graphs.
 
-- [ ] T001 Establish the project layout in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`, including `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`. Configure linting/formatting via `pyproject.toml` (ruff/black) and document the runnable environment in `quickstart.md`.
+- [X] T001 Establish the project layout in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`, including `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`. Configure linting/formatting via `pyproject.toml` (ruff/black) and document the runnable environment in `quickstart.md`.
     - Verification: File tree exists; `ruff check .` and `black --check .` pass.
-- [ ] T002 Implement `code/download_data.py` to fetch raw count matrices for GSE136103, GSE127465, GSE111075, and GSE138852 using SRA Toolkit (`prefetch` and `fastq-dump`). <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
+- [ ] T002 Implement `code/download_data.py` to fetch raw count matrices for GSE136103, GSE127465, GSE111075, and GSE138852 using SRA Toolkit (`prefetch` and `fastq-dump`). <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
     - Requirements: No synthetic fallbacks; must fail loudly if SRA fetch fails. Record SHA256 checksums of all downloaded files in the project state YAML (Constitution Principle III).
     - Verification: `tests/unit/test_download.py` asserts that the state YAML contains valid checksums and that the datasets contain necessary variables (PD-1 expression, metabolic markers, exhaustion signatures, and therapy response labels) per SC-005.
     - Output: Raw files in `data/raw/` conforming to `contracts/dataset.schema.yaml`.

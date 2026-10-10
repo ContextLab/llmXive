@@ -19,6 +19,8 @@ def test_checksums_recorded():
         assert "counts_checksum" in data, f"Checksum missing for {gse}"
         assert len(data["counts_checksum"]) == 64, f"Invalid SHA256 for {gse}"
         assert data["status"] == "available"
+        assert "all_file_checksums" in data, f"Full checksum map missing for {gse}"
+        assert len(data["all_file_checksums"]) > 0, f"No files recorded for {gse}"
 
 def test_raw_files_exist():
     project_root = Path("data/raw")
@@ -27,4 +29,5 @@ def test_raw_files_exist():
         gse_dir = project_root / gse
         assert gse_dir.exists(), f"Directory for {gse} should exist"
         counts_dir = gse_dir / "counts"
+        assert counts_dir.exists(), f"Counts directory for {gse} should exist"
         assert any(counts_dir.iterdir()), f"No count files found for {gse}"

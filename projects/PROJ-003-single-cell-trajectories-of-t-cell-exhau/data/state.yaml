@@ -1,41 +1,37 @@
 datasets:
   GSE111075:
-    cell_count: 0
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE111075
-    error: 'Invalid GEO series identifier: GSE111075'
-    gene_count: 0
+    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE111nnn/GSE111075/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
+      HTTP Error 404: Not Found'
     raw_counts_path: ''
     source: GEO_FTP
     status: unavailable
   GSE127465:
-    cell_count: 0
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE127465
-    error: 'Invalid GEO series identifier: GSE127465'
-    gene_count: 0
+    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE127nnn/GSE127465/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
+      HTTP Error 404: Not Found'
     raw_counts_path: ''
     source: GEO_FTP
     status: unavailable
   GSE136103:
-    cell_count: 0
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE136103
-    error: 'Invalid GEO series identifier: GSE136103'
-    gene_count: 0
+    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE136nnn/GSE136103/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
+      HTTP Error 404: Not Found'
     raw_counts_path: ''
     source: GEO_FTP
     status: unavailable
   GSE138852:
-    cell_count: 0
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE138852
-    error: 'Invalid GEO series identifier: GSE138852'
-    gene_count: 0
+    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE138nnn/GSE138852/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
+      HTTP Error 404: Not Found'
     raw_counts_path: ''
     source: GEO_FTP
     status: unavailable
