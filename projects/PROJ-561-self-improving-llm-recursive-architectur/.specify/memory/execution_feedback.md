@@ -17,7 +17,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-561-self-improving-llm-recursive-architectur/code/main.py", line 10, in <module>
-    from utils.logging import init_cycle_logger, log_cycle_summary, log_error, get_log_path
-ImportError: cannot import name 'log_cycle_summary' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-561-self-improving-llm-recursive-architectur/code/utils/logging.py)
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-561-self-improving-llm-recursive-architectur/code/main.py", line 12, in <module>
+    from pipeline.model import (
+ImportError: cannot import name 'load_gpt_124m' from 'pipeline.model' (/home/runner/work/llmXive/llmXive/projects/PROJ-561-self-improving-llm-recursive-architectur/code/pipeline/model.py)
+

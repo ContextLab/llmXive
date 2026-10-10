@@ -5,7 +5,7 @@
 
 ## Phase 0: Research Design & Documentation (Prerequisites)
 
-- [ ] T000 [S] Create `research.md` from scratch. This file **MUST** include the following sections:  
+- [X] T000 [S] Create `research.md` from scratch. This file **MUST** include the following sections:  
   1. `## Methodology for Parameter Limit` (describing how the limit is determined, explicitly stating the limit is 30% above baseline as mandated by FR-003).  
   2. `## External Oracle Protocol` (defining the immutable evaluation metric, explicitly stating: “Reject if new_params significantly exceed baseline.”).  
   3. `## Philosophical & Operational Definitions` (covering Source of Authority, Fixed‑Point, Scaling Laws, Computational Irreducibility, Recursive Adaptation, Overfitting, Minimality Search, Thermodynamic Bounds, Bird vs. Frog).  

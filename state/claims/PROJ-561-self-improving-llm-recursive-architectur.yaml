@@ -280,7 +280,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-15T16:28:03Z'
 - artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
   attempts: 1
@@ -1964,7 +1964,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-25T01:46:48Z'
 - artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
   attempts: 1
@@ -4058,3 +4058,81 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T02:45:11Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: GPT-2 124M has 124 million parameters
+  claim_id: c_000303b6
+  context: "Initial State: The baseline model (GPT\u20112 124M) defines the initial\
+    \ parameter count P0."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Two other smaller releases of GPT-2 are available, including the small
+        version of 124M parameters and the medium size of 355M parameters. Both are
+        available to download from Huggingface.
+      source_id: GPT-2
+      url: https://en.wikipedia.org/wiki/GPT-2
+      value: 124M
+    filled: true
+  kind: numeric
+  raw_text: "The baseline model (GPT\u20112 124M) defines the initial parameter count\
+    \ P0."
+  resolved_value: 124M
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-10T20:20:40Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: performance scales as a power law of parameters and compute
+  claim_id: c_3cf8ae97
+  context: "Scaling Laws: We assume that performance P scales with parameter count\
+    \ N and compute C according to established power laws (P \u221D N^\u03B1 C^\u03B2\
+    )."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "We assume that performance P scales with parameter count N and compute\
+    \ C according to established power laws (P \u221D N^\u03B1 C^\u03B2)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-10T20:21:07Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: system improvement trajectory is computationally irreducible per Stephen
+    Wolfram
+  claim_id: c_a60d85b6
+  context: "Computational Irreducibility: As posited by Stephen Wolfram, the trajectory\
+    \ of this system's improvement cannot be predicted by a closed\u2011form equation."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q22980775
+        url: https://www.wikidata.org/wiki/Q22980775
+        value: '843'
+      - channel: wikidata
+        source_id: Q310798
+        url: https://www.wikidata.org/wiki/Q310798
+        value: Stephen Wolfram
+      quote: 'P437: Q3276244'
+      source_id: Q110188761
+      url: https://www.wikidata.org/wiki/Q110188761
+      value: Q3276244
+    filled: true
+  kind: entity_fact
+  raw_text: "As posited by Stephen Wolfram, the trajectory of this system's improvement\
+    \ cannot be predicted by a closed\u2011form equation; it must be simulated to\
+    \ be known."
+  resolved_value: Q3276244
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-10T20:21:31Z'

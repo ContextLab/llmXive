@@ -1,5 +1,7 @@
-'|bootstrap default num paired resample statistical testing':
-  quote: calculations are based on B = 1000 bootstrap replications.
-  source_id: '1409.4317'
-  url: https://arxiv.org/abs/1409.4317
-  value: '1000'
+0|baseline define initial model p0 parameter:
+  quote: Two other smaller releases of GPT-2 are available, including the small version
+    of 124M parameters and the medium size of 355M parameters. Both are available
+    to download from Huggingface.
+  source_id: GPT-2
+  url: https://en.wikipedia.org/wiki/GPT-2
+  value: 124M

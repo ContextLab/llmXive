@@ -1,11 +1,12 @@
 T000:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The required `research.md` file is not present in the provided evidence, and\
-    \ therefore none of the mandated sections (e.g., Project requirements, Feature\
-    \ Specification, User Scenarios & Testing) can be verified. The implementer must\
-    \ create a non\u2011empty `research.md` containing all specified sections and\
-    \ details."
+  c: true
+  h: 346c23730f724b37343cd474a92ff43a8a4259944392fd37abab651b28805963
+  r: "The `research.md` file (projects/PROJ-561-self-improving-llm-recursive-architectur/research.md,\
+    \ 7665\u202Fbytes) contains the three required headings: `## Methodology for Parameter\
+    \ Limit`, `## External Oracle Protocol`, and `## Philosophical & Operational Definitions`,\
+    \ each with the mandated statements about the 30\u202F% parameter limit and the\
+    \ \u201CReject if new_params significantly exceed baseline.\u201D requirement."
+  sig: 3a9991c31a7e991ef6e1f7b6608aa7fa46a3193d2bbbc508247b80e8dd3bed0b
 T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
