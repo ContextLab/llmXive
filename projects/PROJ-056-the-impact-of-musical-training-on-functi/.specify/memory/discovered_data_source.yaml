@@ -1,16 +1,16 @@
 status: none
-intent: ABCD Study and HCP-Adolescents resting state fMRI datasets NIH Data Archive
-  python package dataset
+intent: download ABCD Study resting state fMRI and HCP Adolescents dataset python
+  package dataset
 required_fields:
 - subject_id
-- musician_status
+- group_label (musician/non-musician)
 - musical_training_years
 - age
 - sex
-- motion_parameters
-- resting_state_fmri_nifti_path
-- connectivity_matrix
-- quality_control_metrics
-cache_key: b06e0b66339e840592881ffccf69af8b41e73fae10fb00fe151f4f2fdb6454a3
-searched_at: '2026-10-09T21:11:29.821253+00:00'
+- mean_framewise_displacement
+- site
+- scanner_model
+- resting_state_fmri_nifti_path_or_connectivity_matrix
+cache_key: 51b77c5d22d819e806893eeef399f29b162d48a1ad1a3b3d83fcc27d00e53fa7
+searched_at: '2026-10-10T00:17:01.002252+00:00'
 retry_count: 1
