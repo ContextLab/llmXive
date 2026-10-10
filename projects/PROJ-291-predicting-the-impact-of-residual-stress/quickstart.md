@@ -27,7 +27,7 @@ dependencies and confirms that every required module can be imported:
 bash scripts/env_check.sh
 ```
 
-The command exits with status 0 only when all required modules import without error. [UNRESOLVED-CLAIM: c_2812e31a — status=not_enough_info]
+The command exits with status 0 only when all required modules import without error.
 The log is written to `results/env_check.log`.
 
 ## 3. Run the full pipeline (single command)

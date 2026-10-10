@@ -1,3 +1,1 @@
-"""
-Package marker for the ``code.ingest`` sub‑module.
-"""
+# Package marker for the `code.ingest` submodule.

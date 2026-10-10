@@ -1,3 +1,1 @@
-"""
-Package marker for the top‑level ``code`` module.
-"""
+# Package marker for the top-level `code` module.

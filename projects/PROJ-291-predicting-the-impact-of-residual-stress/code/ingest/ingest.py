@@ -5,10 +5,10 @@ Data ingestion pipeline for the "Predicting the Impact of Residual Stress on Fat
 project.
 
 This module implements the full ingestion workflow required by task **T002**.
-It downloads three public fatigue datasets, adds provenance information, standardises
-units, imputes missing values, computes a proxy residual‑stress column when needed,
-writes the unified CSV to ``data/processed/unified_fatigue.csv`` and validates the
-result against the JSON‑Schema contract.
+It downloads three public fatigue datasets, adds provenance information,
+standardises units, imputes missing values, computes a proxy residual‑stress
+column when needed, writes the unified CSV to ``data/processed/unified_fatigue.csv``
+and validates the result against the JSON‑Schema contract.
 
 The script can be executed as a module (``python -m code.ingest.ingest``) or used
 programmatically via :func:`run_ingest`.
@@ -19,7 +19,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
-from typing import List, Mapping, Optional
+from typing import List, Mapping, Optional, Set
 
 import pandas as pd
 import requests
@@ -67,6 +67,8 @@ def _download_csv(url: str, dest_path: Path) -> pd.DataFrame:
 
 def _row_checksum(row: pd.Series) -> str:
     """Return a SHA‑256 checksum for a DataFrame row."""
+    # ``allow_nan=False`` forces json.dumps to raise on NaN, which we
+    # avoid by handling NaNs before calling this helper.
     row_json = json.dumps(row.to_dict(), sort_keys=True, allow_nan=False)
     return hashlib.sha256(row_json.encode("utf-8")).hexdigest()
 
@@ -88,10 +90,11 @@ def _convert_psi_to_mpa(series: pd.Series) -> pd.Series:
         return series * PSI_TO_MPA
     return series
 
-def _median_impute(df: pd.DataFrame) -> pd.DataFrame:
-    """Median‑impute all numeric columns in *df*."""
+def _median_impute(df: pd.DataFrame, exclude: Optional[Set[str]] = None) -> pd.DataFrame:
+    """Median‑impute all numeric columns in *df*, skipping any in *exclude*."""
     df = df.copy()
-    numeric_cols = df.select_dtypes(include=["number"]).columns
+    exclude = exclude or set()
+    numeric_cols = [c for c in df.select_dtypes(include=["number"]).columns if c not in exclude]
     for col in numeric_cols:
         median_val = df[col].median()
         df[col] = df[col].fillna(median_val)
@@ -120,15 +123,23 @@ def _apply_proxy(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def _validate_schema(df: pd.DataFrame, schema_path: Path) -> None:
-    """Validate each record in *df* against the JSON‑Schema at *schema_path*."""
+    """Validate each record in *df* against the JSON‑Schema at *schema_path*.
+
+    NaN values are converted to ``None`` because the JSON encoder used by
+    ``jsonschema`` does not accept NaN.
+    """
     with schema_path.open("r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
     validator = Draft7Validator(schema)
 
     errors = []
     for idx, record in df.iterrows():
+        # Convert pandas NaN / NaT to JSON‑compatible ``None``.
+        clean_record = {
+            k: (None if pd.isna(v) else v) for k, v in record.to_dict().items()
+        }
         try:
-            validator.validate(record.to_dict())
+            validator.validate(clean_record)
         except ValidationError as exc:
             errors.append(f"Row {idx}: {exc.message}")
 
@@ -199,18 +210,19 @@ def run_ingest(
         unified["residual_stress_measured"] = _convert_psi_to_mpa(
             unified["residual_stress_measured"]
         )
-
-    # ------------------------------------------------------------------
-    # 5. Median imputation of numeric columns
-    # ------------------------------------------------------------------
-    unified = _median_impute(unified)
-
-    # ------------------------------------------------------------------
-    # 6. Proxy residual‑stress calculation
-    # ------------------------------------------------------------------
-    if "residual_stress_measured" not in unified.columns:
+    else:
+        # Ensure the column exists so downstream steps can rely on it.
         unified["residual_stress_measured"] = pd.NA
+
+    # ------------------------------------------------------------------
+    # 5. Proxy residual‑stress calculation (must happen *before* imputation)
+    # ------------------------------------------------------------------
     unified = _apply_proxy(unified)
+
+    # ------------------------------------------------------------------
+    # 6. Median imputation of numeric columns (skip the measured stress column)
+    # ------------------------------------------------------------------
+    unified = _median_impute(unified, exclude={"residual_stress_measured"})
 
     # ------------------------------------------------------------------
     # 7. Write unified CSV
