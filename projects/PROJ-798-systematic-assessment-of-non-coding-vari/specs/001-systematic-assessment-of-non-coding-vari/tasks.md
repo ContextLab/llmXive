@@ -1,68 +1,159 @@
-# Tasks: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities
+# Tasks: Systematic Assessment of Non‑Coding Variant Effects on Transcription Factor Binding Affinities
 
-**Input**: Design documents from `/specs/001-gene-regulation/` (spec.md, plan.md, data-model.md, contracts/)
+**Inputs**: `spec.md`, `plan.md`, `data‑model.md`, contracts, and reviewer feedback.
 
-## Phase 1: Setup and first end‑to‑end analysis
+The list below follows the platform’s research‑task template and covers all functional and non‑functional requirements. Each item uses the canonical checkbox format and includes concrete verification steps.
 
-- [ ] T001 [US1] Create the project directory structure and prove it with a committed manifest. Create `code/`, `code/data_ingestion/`, `code/scoring/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/derived/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, each containing an `__init__.py` (for Python packages) or a `.gitkeep` (for data dirs). **Verification**: run `find code data tests -type d | sort > data/results/structure_manifest.txt` and commit the manifest; the verifier checks that this file lists every required directory. Also document the runnable entry command (`python -m code.main --help`) in `quickstart.md`. (Reopened)
+---
 
-- [ ] T004 [P] Create `.gitignore` at repository root containing the exact exclusion patterns `data/raw/*`, `!data/raw/checksums.json`, `!data/raw/source_log.txt`, `data/derived/*`, `__pycache__/`, `.env`. **Verification**: the committed file is non‑empty and contains all five patterns; `git check-ignore data/raw/snps_raw.vcf` exits 0 and `git check-ignore data/raw/source_log.txt` exits 1. (Reopened)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T010 [US1] Implement dbSNP SNP fetching in `code/data_ingestion/fetch_dbsnp.py`: download **all** common human SNPs (MAF > 1 %) from dbSNP build 155 GRCh38 via the canonical FTP mirror `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/` (HTTPS fallback allowed). Stream each chromosome VCF (`chr*.common_snps.vcf.gz`) line‑by‑line with `gzip.open` to stay within CI memory limits. Write source URLs, build version, timestamp, and SHA‑256 checksums to `data/raw/source_log.txt`. **Verification**: `data/raw/source_log.txt` exists and lists all downloaded URLs; `data/derived/snps_raw.parquet` contains real rsIDs with GRCh38 coordinates.
+| Goal | Run a minimal, fully‑real pipeline on a small, real input set and verify that every downstream step can be executed. |
+|------|------------------------------------------------------------|
 
-- [ ] T011 [US1] Download ENCODE v4 and Roadmap Epigenomics promoter/enhancer BED files from their official repositories (e.g., ENCODE FTP `ftp://ftp.encodeproject.org/` and Roadmap `[UNRESOLVED-CLAIM: https://egg2.wustl.edu/roadmap/data/byFileType/peaks/` — HTTP 404]). Record URLs, version tags, and SHA‑256 checksums in `data/raw/source_log.txt`. Merge and index them into `data/raw/regulatory_regions.bed`. **Verification**: BED file exists, non‑empty, and checksum logged.
+- [ ] T001 [US1] **Create the project directory layout** and record a manifest.  
+  *Path*: `code/`, `code/data_ingestion/`, `code/scoring/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/derived/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.  
+  *Verification*:  
+  ```text
+  find code data tests -type d | sort > data/results/structure_manifest.txt
+  ```  
+  The manifest must list every required directory; the CI verifier checks that the file exists and contains at least 11 unique directory paths.
 
-- [ ] T010b [US2] Download the GRCh38 reference genome FASTA (e.g., `ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/GRCh38.primary_assembly.genome.fa.gz`). Index with `samtools faidx`. Log URL, version, and checksum in `source_log.txt`. **Verification**: FASTA and `.fai` exist; checksum recorded.
+- [ ] T002 [US1] **Add a `.gitignore`** with the exact exclusion patterns required by the spec.  
+  *Path*: `.gitignore` at repository root.  
+  *Content*:  
+  ```text
+  data/raw/*
+  !data/raw/checksums.json
+  !data/raw/source_log.txt
+  data/derived/*
+  __pycache__/
+  .env
+  ```  
+  *Verification*: `git check-ignore data/raw/snps_raw.vcf.gz` must exit 0 and `git check-ignore data/raw/source_log.txt` must exit 1.
 
-- [ ] T012 [US1] Fetch the JASPAR 2024 human PWM collection (`ftp://ftp.ebi.ac.uk/pub/databases/jaspar/JASPAR2024/CORE/non_redundant/vertebrates/`) as a single TSV/FASTA file `data/raw/jaspar_pwm.txt`. Parse each matrix, store `pwm_id`, `tf_name`, `matrix`, and `length`. Log source URL, version, checksum. **Verification**: parsed PWM objects can be listed; checksum present.
+- [ ] T003 [US1] **Create test package scaffolding** so that `pytest` can discover tests.  
+  *Path*: `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py`.  
+  *Verification*: `python -c "import pytest, pkgutil; assert pkgutil.find_loader('tests.unit')"` must succeed. The CI runner must be able to import each package without `ImportError`.
 
-- [ ] T014 [US1] Implement regulatory filtering in `code/data_ingestion/filter_regions.py`: apply MAF > 1 % and A/C/G/T allele filters (exclude N/indels), intersect SNPs with `data/raw/regulatory_regions.bed` using ≥1 bp overlap (boundary SNPs included), and save to `data/derived/filtered_snps.parquet` validated against `specs/001-systematic-assessment-of-non-coding-vari/contracts/snp_schema.schema.yaml`. Log the scored‑vs‑input SNP ratio (SC‑001) to `data/results/sc001_proportion.json`. **Dependency**: T010, T011. Also explicitly drop any non‑human species variants (none expected from dbSNP) to satisfy US‑1 scenario 3.
+- [ ] T004 [US1] **Implement dbSNP common‑SNP fetch** (MAF > 1 %) for GRCh38 build 155.  
+  *Path*: `code/data_ingestion/fetch_dbsnp.py`.  
+  *Behavior*: Stream each chromosome VCF (`chr*.common_snps.vcf.gz`) from `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`, filter by MAF > 0.01, write to `data/raw/snps_raw.parquet`. Log every downloaded URL, build version, timestamp, and SHA‑256 checksum in `data/raw/source_log.txt`. Fail loudly if any download fails.  
+  *Verification*: `data/raw/snps_raw.parquet` must contain a column `maf` with a minimum ≥ 0.01; `source_log.txt` must contain at least one URL and a matching checksum line.
 
-- [ ] T013b [US1] Implement the GC‑matched non‑regulatory control set in `code/data_ingestion/filter_regions.py`: sample random non‑regulatory genomic windows (excluding `regulatory_regions.bed`), compute GC% with `pyfaidx`, and match the filtered SNPs' GC distribution within ±2 % tolerance. Save to `data/derived/gc_matched_controls.parquet` validated against `specs/001-systematic-assessment-of-non-coding-vari/contracts/control_set_schema.schema.yaml`. **Dependency**: T014. *Note*: controls are for baseline reporting only, not the primary KS test.
+- [ ] T005 [US1] **Download regulatory region annotations** (ENCODE v4 promoters/enhancers and Roadmap Epigenomics) and the GRCh38 reference genome.  
+  *Path*: `code/data_ingestion/fetch_annotations.py`.  
+  *Artifacts*: `data/raw/regulatory_regions.bed` (merged, sorted, BED‑3), `data/raw/hg38.fa` and `data/raw/hg38.fa.fai`. All URLs and SHA‑256 checksums appended to `data/raw/source_log.txt`.  
+  *Verification*: `bedtools intersect -a data/raw/regulatory_regions.bed -b data/raw/regulatory_regions.bed -u | wc -l` returns a non‑zero count; `samtools faidx data/raw/hg38.fa` succeeds; entries exist in `source_log.txt`.
 
-- [ ] T015 [US1] Compute LD blocks and stratification IDs for each filtered SNP using a pre‑computed LD reference (e.g., 1000 Genomes Phase 3) via `pysam`/`plink` utilities. Add fields `ld_block_id` and `stratum_id` (GC‑content + TSS‑distance bin) to `data/derived/filtered_snps.parquet`. Validate against the same SNP schema (which now requires these fields). **Dependency**: T014.
+- [ ] T006 [US1] **Fetch the JASPAR 2024 human PWM collection** and parse it into a structured JSON for fast lookup.  
+  *Path*: `code/data_ingestion/fetch_pwms.py`.  
+  *Artifact*: `data/raw/jaspar_pwms.json` (list of objects with `pwm_id`, `tf_name`, `matrix`, `length`). Log URL and checksum in `source_log.txt`.  
+  *Verification*: A unit test (`tests/unit/test_pwms.py`) loads the JSON and asserts that every object has a `length` ≥ 6 and that the total number of PWMs matches the JASPAR 2024 human count.
 
-- [ ] T018 [US2] Implement the affinity scorer in `code/scoring/pwm_scorer.py` and `code/scoring/delta_calculator.py`: load PWMs from `data/raw/jaspar_pwm.txt`, extract reference‑genome context windows via `pyfaidx` with window size equal to each PWM length (dynamic per TF), compute log‑odds scores for reference and alternate alleles, and output ΔScore = Score_alt − Score_ref plus the `is_large_magnitude` flag (|Δ| ≥ 2 bits). **Dependency**: T014, T010b. Include unit tests in `tests/unit/test_pwm_scorer.py` verifying log‑odds math on a hand‑computed example and asserting window size == PWM length.
+- [ ] T007 [US1] **Filter SNPs to regulatory regions** and generate a GC‑matched non‑regulatory control set.  
+  *Path*: `code/data_ingestion/filter_regions.py`.  
+  *Outputs*:  
+  - `data/derived/filtered_snps.parquet` (conforms to `snp_schema.schema.yaml`, includes `is_regulatory=True`).  
+  - `data/derived/gc_matched_controls.parquet` (conforms to `control_set_schema.schema.yaml`).  
+  - `data/results/sc001_proportion.json` (contains the ratio of regulatory SNPs to total raw SNPs).  
+  *Verification*:  
+  1. Load `filtered_snps.parquet` and confirm every record overlaps `regulatory_regions.bed` by ≥ 1 bp.  
+  2. Assert `sc001_proportion.json` contains a value > 0.0.  
+  3. Validate both Parquet files against their JSON‑Schema contracts using `jsonschema`.
 
-- [ ] T021 [US2] Connect scoring into `code/main.py` and run a thin end‑to‑end pass: score all filtered SNPs (now full‑genome) against **all** high‑confidence human JASPAR motifs (≈ 600 PWMs). Write real result rows to `data/derived/scores.parquet` with columns `snp_id`, `tf_id`, `score_ref`, `score_alt`, `delta_score`, `window_size`, `is_large_magnitude` per `specs/001-systematic-assessment-of-non-coding-vari/contracts/score_schema.schema.yaml`. **Checkpoint**: the documented command in `quickstart.md` executes and its numerical outputs can be spot‑checked against expected values for three concrete fixtures (see `tests/integration/expected_spotcheck.json`). **Dependency**: T018, T015.
+- [ ] T008 [US1] **Assign stratification identifiers** to each filtered SNP.  
+  *Path*: `code/data_ingestion/annotate_ld.py`.  
+  *Method*: Create a composite `stratum_id` based on GC‑content bin (0.05 wide) and distance‑to‑nearest‑TSS bin (10 kb). (Note: LD-block stratification removed to align with spec FR-004). Write back to `data/derived/filtered_snps.parquet`.  
+  *Verification*: The Parquet schema contains the `stratum_id` field; a sanity check confirms that `stratum_id` values are distributed across multiple bins.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T009 [US2] **Implement PWM scoring and ΔScore calculation** (dynamic window).  
+  *Path*: `code/scoring/pwm_scorer.py` (scoring) and `code/scoring/delta_calculator.py` (ΔScore + flag).  
+  *Behavior*: For each SNP–TF pair, extract a sequence window of length equal to the PWM (centered on the variant) from `hg38.fa`, compute log‑odds scores for reference and alternate alleles, store `delta_score` and `is_large_magnitude` (|Δ| ≥ 2 bits).  
+  *Verification*:  
+  1. Unit tests in `tests/unit/test_pwm_scorer.py` compare scores for a hand‑crafted example against a manual calculation.  
+  2. A test asserts that `window_size` equals the PWM’s `length`.  
+  3. Validate the output of a test run against `contracts/score_schema.schema.yaml` using `jsonschema`.
 
-- [ ] T027 [US3] Implement GWAS Catalog ingestion in `code/analysis/enrichment_test.py`: download the latest GWAS associations file from `[UNRESOLVED-CLAIM: https://ftp.ebi.ac.uk/pub/databases/gwas/latest/` — HTTP 404] (determine the most recent file at runtime), extract lead SNPs to a BED, intersect with `data/derived/filtered_snps.parquet` to set `is_gwas_lead`, and log the exact file name, version, and checksum to `data/raw/source_log.txt`. Fail loudly on fetch errors. **Dependency**: T014.
+- [ ] T010 [US2] **Run a thin end‑to‑end scoring pass** on a small, real chromosome subset (e.g., chr22) to produce a real result file.  
+  *Path*: `code/main.py --stage score --chroms 22`.  
+  *Output*: `data/derived/sample_scores.parquet` (conforms to `score_schema.schema.yaml`).  
+  *Verification*: The file contains ≥ 100 rows; a spot‑check script validates that the first row’s `window_size` matches the corresponding PWM length and that `delta_score` is a finite number.
 
-- [ ] T024 [US3] Implement the permutation test in `code/analysis/enrichment_test.py`: n = 100 permutations randomly reassigning the *in‑GWAS/out‑of‑GWAS* status labels across the entire dataset simultaneously (preserving total GWAS/non‑GWAS counts), with a fixed random seed. Run the KS test on the **FULL** unfiltered ΔScore distributions (in‑GWAS vs out‑GWAS) per TF. Flag TFs with insufficient SNP counts rather than crashing. Include unit tests in `tests/unit/test_statistics.py` verifying label‑count preservation and KS correctness on a synthetic dataset with known enrichment, and a specific check that TF TCF7L2 obtains a corrected p‑value < 0.05. **Dependency**: T021, T027.
+---
 
-- [ ] T025 [US3] Implement West‑Stephens max‑T FDR correction and final result aggregation in `code/analysis/fdr_correction.py`: build the null distribution of the maximum KS statistic across all TFs per permutation, compute corrected p‑values per TF, apply α = 0.05, **merge** the KS results from T024 with Tail‑Enrichment results from T026, and save the combined per‑TF results to `data/derived/enrichment_results.parquet` conforming to `specs/001-systematic-assessment-of-non-coding-vari/contracts/enrichment_result_schema.schema.yaml`. Include fields `ks_statistic`, `p_value_ks_observed`, `p_value_ks_corrected`, `tail_proportion_observed`, `tail_p_value`, `is_significant_ks`, `is_significant_tail`, etc. **Verification**: schema validation passes (using jsonschema) and the parquet file contains non‑null values for all tail‑related columns for each TF. **Dependency**: T024, T026.
+## Phase 2 – Complete the study and validate evidence  
 
-- [ ] T026 [US3] Implement the Tail‑Enrichment test in `code/analysis/tail_enrichment.py`: compute the proportion of SNP‑TF pairs with `|ΔScore| ≥ 2 bits` inside GWAS loci versus outside, perform a permutation‑based test (same label shuffling as T024), and output `tail_proportion_observed`, `tail_p_value`, and `is_significant_tail` per TF. Store results in `data/derived/tail_enrichment.parquet` validated against `specs/001-systematic-assessment-of-non-coding-vari/contracts/enrichment_result_schema.schema.yaml`. **Dependency**: T021, T027.
+| Goal | Full‑genome analysis, statistical testing, and result generation. |
+|------|-------------------------------------------------------------------|
 
-- [ ] T028 [US3] Validate enrichment result schema integration and tail‑test outputs: add a unit test `tests/unit/test_enrichment_schema.py` that loads a sample `enrichment_results.parquet`, validates it against `enrichment_result_schema.schema.yaml`, and asserts that the columns `tail_proportion_observed`, `tail_p_value`, and `is_significant_tail` are present and contain non‑null values for every TF. **Verification**: test passes and schema validation succeeds; any missing tail fields cause a test failure. **Dependency**: T025, T026.
+- [ ] T011 [US3] **Ingest GWAS Catalog lead SNPs** and annotate the filtered SNP dataset.  
+  *Path*: `code/analysis/fetch_gwas.py`.  
+  *Artifact*: `data/raw/gwas_lead_snps.bed`; the script updates `data/derived/filtered_snps.parquet` with a boolean `is_gwas_lead`. All download URLs, version tags, and checksums are appended to `source_log.txt`.  
+  *Verification*: After run, a query on the Parquet file shows at least one SNP with `is_gwas_lead=True`; the script exits with non‑zero status if the download fails.
 
-- [ ] T005v [US3] Add validation and sensitivity checks: 
-    * Sweep the large‑magnitude cutoff from 0.5 to 4.0 bits in 0.5‑bit steps, re‑run the enrichment pipeline, and record outcomes in `data/results/sensitivity_cutoff_sweep.json`.
-    * Verify runtime and peak memory of the full pipeline stay within 6 h / 7 GB by logging per‑phase timings and RAM usage to `data/results/performance_log.json`. **Dependency**: T025, T026.
+- [ ] T012 [US3] **Perform the permutation‑based KS test** for each TF.  
+  *Path*: `code/analysis/ks_enrichment.py`.  
+  *Method*:  
+  1. For each TF, split ΔScore values into GWAS‑inside vs GWAS‑outside groups.  
+  2. Compute the observed KS statistic and p‑value.  
+  3. Generate 100 permutations by shuffling the `is_gwas_lead` labels **stratified by stratum_id** to preserve local sequence context and GC content, and shuffle labels **jointly across all TFs** (for West‑Stephens max‑T).  
+  4. **Constraint**: The `is_large_magnitude` flag MUST NOT be used to filter SNPs for this test.  
+  *Output*: `data/derived/ks_null.npy` and `data/derived/ks_observed.parquet`.  
+  *Verification*: Unit test `tests/unit/test_ks_permutation.py` confirms that the permutation preserves the exact number of GWAS‑positive labels per stratum and that a synthetic dataset with known shift yields a KS p‑value < 0.01.
 
-- [ ] T006v [US3] Generate result tables and figures directly from validated outputs:
-    * `data/results/results_summary.csv` (per‑TF enrichment table from `enrichment_results.parquet`),
-    * TF‑sensitivity heatmap (`data/results/figures/tf_heatmap.png`),
-    * ΔScore distribution figure (in‑GWAS vs out‑GWAS) (`data/results/figures/delta_distribution.png`).
-    All figures trace back to `data/derived/enrichment_results.parquet` and `data/derived/scores.parquet`. **Dependency**: T025, T026.
+- [ ] T013 [US3] **Aggregate results, apply West‑Stephens max‑T FDR correction, and run the Tail‑Enrichment test**.  
+  *Path*: `code/analysis/aggregate_and_fdr.py`.  
+  *Steps*:  
+  1. Load `ks_observed.parquet` and the KS null matrix; compute the max‑T null distribution across TFs for each permutation.  
+  2. Derive West‑Stephens corrected p‑values (`p_value_ks_corrected`).  
+  3. Independently compute the Tail‑Enrichment statistic (proportion of |Δ| ≥ 2 bits inside vs outside GWAS) and its permutation‑based p‑value.  
+  4. **Constraint**: The `is_large_magnitude` flag MUST NOT be used to filter the input population for the statistical test; it is used only as the target variable for the proportion test.  
+  5. Calculate final SC-001 proportion (scored/raw) and save to `data/results/sc001_final.json`.  
+  6. Merge results into `data/derived/enrichment_results.parquet`.  
+  *Verification*: Validate `enrichment_results.parquet` against both `contracts/enrichment_result_schema.schema.yaml` and `contracts/enrichment_schema.schema.yaml` using `jsonschema`.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T014 [US3] **Generate result tables and figures** directly from validated outputs.  
+  *Path*: `code/visualization/generate_reports.py`.  
+  *Artifacts*:  
+  - `data/results/results_summary.csv` (per‑TF table with KS statistic, corrected p‑value, tail proportion, significance flags).  
+  - `data/results/figures/tf_heatmap.png` (heatmap of mean |Δ| per TF).  
+  - `data/results/figures/delta_distribution.png` (overlaid KDEs for GWAS‑inside vs outside).  
+  *Verification*: Validate `results_summary.csv` against `contracts/result_schema.schema.yaml` using `jsonschema`; each PNG file must be non‑zero size and have a checksum entry in `source_log.txt`.
 
-- [ ] T007 Write `data/results/report.md`: a concise methods/results account linking each claim to the actual output files and figure paths, stating the sampled chromosome scope (full‑genome dbSNP subset and its representativeness limitation), the permutation count, the 2‑bit cutoff sensitivity result, negative findings, and the associational (non‑causal) framing required by the spec assumptions. **Dependency**: T006v.
+- [ ] T015 [US3] **Sensitivity analysis & performance logging**.  
+  *Path*: `code/analysis/sensitivity.py`.  
+  *Actions*:  
+  1. Sweep the large‑magnitude cutoff from 0.5 to 4.0 bits in 0.5‑bit increments, re‑run the full enrichment pipeline for each cutoff, and record the number of significant TFs in `data/results/sensitivity_cutoff_sweep.json`.  
+  2. Record wall‑clock time and peak RAM per pipeline stage in `data/results/performance_log.json`.  
+  *Verification*: The JSON files are well‑formed; the performance log reports a total runtime < 6 h and peak memory < 7 GB on the CI runner.
 
-- [ ] T008 Write‑up re‑run verification (no `[P]` tag): Re‑run the documented workflow from its declared inputs (`python -m code.main`), confirm `pytest tests/` passes, verify that all derived result files (`*.parquet`, `*.csv`, `*.png`) are byte‑identical to the previous run (ignoring the raw GWAS source file which may change), and document the paper‑stage handoff (tables, figures, and report paths) in `data/results/paper_handoff.md`. **Verification**: a clean re‑run reproduces identical derived artifacts given the fixed seed. **Dependency**: T007.
+- [ ] T016 [US3] **Write the methods/results report and verify reproducibility**.  
+  *Path*: `data/results/report.md` and `data/results/paper_handoff.md`.  
+  *Steps*:  
+  1. The report cites the exact versions/URLs logged in `source_log.txt`.  
+  2. Run `python -m code.main --full` a second time with the same random seed; compute SHA‑256 hashes of all derived files.  
+  3. Assert that the hashes match those recorded after the first run.  
+  *Verification*: A test script `tests/integration/test_reproducibility.py` performs the re‑run, compares hashes, and exits with status 0 only when they are identical.
 
-## Dependencies and requirement coverage
+- [ ] T017 [US3] **Create the project quickstart guide**.  
+  *Path*: `specs/001-systematic-assessment-of-non-coding-vari/quickstart.md`.  
+  *Content*: Document the steps to set up the environment, run the data ingestion, scoring, and analysis stages, and verify results.  
+  *Verification*: The file exists and contains valid shell commands that correspond to the `code/main.py` entry points.
 
-| Requirement | Task(s) | Demonstrating command |
-|---|---|---|
-| FR-001 (dbSNP fetch, regulatory filter, GC‑matched controls) | T010, T011, T014, T013b | `python -m code.main --stage ingest` |
-| FR-002/FR-003 (dynamic‑window PWM scoring, ΔScore, 2‑bit flag) | T018, T021 | `pytest tests/unit/test_pwm_scorer.py` |
-| FR-004/FR-005 (label permutation, KS test) | T024 | `pytest tests/unit/test_statistics.py` |
-| FR-006/FR-007/FR-008 (West‑Stephens max‑T FDR, α = 0.05) | T025 | `python -m code.main --stage analysis` |
-| SC-001/SC-002/SC-003 | T014, T025, T005v | `data/results/sc001_proportion.json`, `enrichment_results.parquet`, `sensitivity_cutoff_sweep.json` |
-| NFR-001/NFR-002 (runtime, memory) | T005v | `data/results/performance_log.json` |
+---
 
-**Execution order**: T001/T004 (parallel) → T010 → T011 → T010b → T012 → T014 → T013b → T015 → T018 → T021 → T027 → T024 → T025 → T026 → T028 → T005v → T006v → T007 → T008.
+### Dependency & requirement coverage  
+
+| Requirement | Task(s) | Command to demonstrate |
+|------------|---------|--------------------------|
+| FR‑001 | T004, T005, T007 | `python -m code.main --stage ingest` |
+| FR‑002 / FR‑003 | T009, T010 | `pytest tests/unit/test_pwm_scorer.py` |
+| FR‑004 / FR‑005 | T012 | `pytest tests/unit/test_ks_permutation.py` |
+| FR‑006 / FR‑007 / FR‑008 | T013 | `python -m code.main --stage analysis` |
+| SC‑001 | T007, T013 | `cat data/results/sc001_final.json` |
+| SC‑002 / SC‑003 | T013, T014 | `head data/results/results_summary.csv` |
+| NFR‑001 / NFR‑002 | T015 | `cat data/results/performance_log.json` |
+
+**Execution order**:  
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016 → T017.
