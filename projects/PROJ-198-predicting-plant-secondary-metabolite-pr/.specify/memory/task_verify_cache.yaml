@@ -1,3 +1,28 @@
+T001:
+  c: true
+  h: 0d8f0941d2dc7b3e9be0836934edea258df206b9aa11dc8e27dab649714f06ae
+  r: "All required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,\
+    \ `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are\
+    \ present in the repository as confirmed by the collector\u2019s directory listings."
+  sig: e772e7d1c065ee6842d7b4262fec2eb19c052eaceede2739ea465c6bc9a94dea
+T002:
+  c: false
+  h: 40f55176dd4acd56189948458414e75b38cd0bf5662a32fdd8ea2b5bbac27868
+  r: "The repository contains `.ruff.toml` and a `pyproject.toml` with a Black configuration,\
+    \ but the required `.flake8` file is absent and there is no provided evidence\
+    \ (e.g., command output or logs) that `ruff --quiet .` and `black --check .` both\
+    \ exit with code\u202F0. The implementer must add a valid `.flake8` configuration\
+    \ file and supply proof that the linting and formatting checks succeed."
+  sig: f9c634b523cef877ff75c138f56d45e71ac32063fd75098010422580c5b99c93
+T003:
+  c: false
+  h: 0a7add0e3e31a0fa046823a5dfd348581170448eac7f3a4ae3ced55c4d6180e8
+  r: "The repository contains `code/config.py` and the `config.env_manager` implementation,\
+    \ but the required `.env.example` template file is not present, and there is no\
+    \ execution evidence showing that sourcing it makes `config.get(\"NCBI_API_KEY\"\
+    )` and `config.get(\"PMDB_API_TOKEN\")` return non\u2011empty strings. Both the\
+    \ template and the runtime verification are missing."
+  sig: 20b2c8011f78c2ee0e94517b2a785a2859a2c74d6efcead47d555497894fc6ac
 T018:
   c: true
   h: d06fa43e41d100dc9445e77d3b65cef30287c5ff8502d735d08a25c4ac88b436

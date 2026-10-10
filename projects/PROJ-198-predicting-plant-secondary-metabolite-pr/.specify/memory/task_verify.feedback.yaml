@@ -1,8 +1,18 @@
 T001:
   task: 7c2825e128f6cb3d57fc0a572a0276aff451d540d0ba9e3743a5891469a4d0fb
 T002:
+  reason: "The repository contains `.ruff.toml` and a `pyproject.toml` with a Black\
+    \ configuration, but the required `.flake8` file is absent and there is no provided\
+    \ evidence (e.g., command output or logs) that `ruff --quiet .` and `black --check\
+    \ .` both exit with code\u202F0. The implementer must add a valid `.flake8` configuration\
+    \ file and supply proof that the linting and formatting checks succeed."
   task: ac252081749a22a4ccb6489180b1dbdf5d0ff608f1b1a4c7227c078b1b97efae
 T003:
+  reason: "The repository contains `code/config.py` and the `config.env_manager` implementation,\
+    \ but the required `.env.example` template file is not present, and there is no\
+    \ execution evidence showing that sourcing it makes `config.get(\"NCBI_API_KEY\"\
+    )` and `config.get(\"PMDB_API_TOKEN\")` return non\u2011empty strings. Both the\
+    \ template and the runtime verification are missing."
   task: 8e7f82b684dfa083eab5e43e12f5c56e6dc6a8dab73b43a149d0f65f69ad9945
 T004:
   task: e8468989b9a16520402e43f5f289f5146a35cd652e4d06fff345ea325c53a01d

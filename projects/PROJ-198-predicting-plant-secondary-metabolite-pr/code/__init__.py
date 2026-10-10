@@ -1,3 +1,3 @@
 """
-llmXive Automated Science Pipeline - Code Package
+Package marker for the top‑level ``code`` module.
 """

@@ -1,13 +1,22 @@
 [flake8]
+# Use the same line length as Black
 max-line-length = 88
-extend-ignore = E203, E501
+# Ignore line break before binary operator (E203) to be compatible with Black
+extend-ignore = E203
+# Exclude common directories
 exclude =
     .git,
     __pycache__,
-    venv,
-    .venv,
     build,
-    dist
-per-file-ignores =
-    tests/*:ARG
-    code/conftest.py:ARG
+    dist,
+    .venv,
+    venv,
+    .mypy_cache,
+    .ruff_cache,
+    .pytest_cache,
+    .cache,
+    .tox,
+    .egg-info,
+    *.egg
+# Enable flake8 plugins that are installed via Ruff (if any)
+# No additional plugins required for this project.

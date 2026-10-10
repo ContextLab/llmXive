@@ -1,3 +1,3 @@
 """
-Data Processing Package
+Package marker for the ``code.data`` sub‑module.
 """

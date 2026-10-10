@@ -1,16 +1,15 @@
 status: none
-intent: download plant paired genome assembly and metabolite abundance dataset from
-  NCBI RefSeq MetaboLights python package dataset
+intent: download plant RefSeq genomes, MetaboLights metabolomics, and MIBiG ontology
+  python package dataset
 required_fields:
 - species_name
+- ncbi_taxonomy_id
 - genome_assembly_accession
 - genome_fasta_url
-- gff_annotation_url
+- annotation_gff_url
 - metabolite_inchikey
-- metabolite_raw_abundance
-- metabolite_log_abundance
-- bgc_type_presence_binary
-- bgc_type_count
-cache_key: fc56e928124a1ea70ae115e0811f88a2f53cc9af0c9492e579514f3e06c74ce7
-searched_at: '2026-10-10T04:34:49.334467+00:00'
+- metabolite_name
+- raw_abundance
+cache_key: 202a2a3365e2d2e44f6d49e0ee896a4df1b74c3b3c3b01824d4161d112db04c2
+searched_at: '2026-10-10T04:37:44.106508+00:00'
 retry_count: 1

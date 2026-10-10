@@ -6,10 +6,14 @@ import os
 import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from models.species import Species
 
-# Singleton instance
+# Import the EnvManager singleton for easy env access.
+from config.env_manager import get_env_manager
+
+# Singleton instance for the parsed YAML configuration.
 _config_instance: Optional["Config"] = None
 
 class ConfigSettings(BaseModel):
@@ -30,7 +34,8 @@ class ConfigSettings(BaseModel):
     ncbi_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("NCBI_API_KEY"))
     pmdb_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("PMDB_TOKEN"))
 
-    @field_validator('data_path', 'raw_data_path', 'processed_data_path', 'figures_path', 'logs_path', 'model_cache_path', mode='before')
+    @field_validator('data_path', 'raw_data_path', 'processed_data_path',
+                     'figures_path', 'logs_path', 'model_cache_path', mode='before')
     @classmethod
     def convert_to_path(cls, v):
         if isinstance(v, str):
@@ -70,7 +75,7 @@ def load_config(config_path: Optional[Path] = None) -> Config:
         if config_path is None:
             # Return default config if file doesn't exist
             return Config()
-        
+    
     if not config_path.exists():
         return Config()
         
@@ -100,8 +105,10 @@ def load_config(config_path: Optional[Path] = None) -> Config:
                     # Log warning but continue loading other species
                     print(f"Warning: Skipping invalid species entry due to validation error: {ve}")
                     continue
-                
-        _config_instance = Config(settings=settings, species_list=species_list, metadata=data.get('metadata', {}))
+            
+        _config_instance = Config(settings=settings,
+                                  species_list=species_list,
+                                  metadata=data.get('metadata', {}))
         return _config_instance
         
     except ValidationError as e:
@@ -130,3 +137,16 @@ def get_species_list() -> List[Species]:
 def get_data_path() -> Path:
     """Convenience function to get the base data path."""
     return get_config().settings.data_path
+
+# ----------------------------------------------------------------------
+# Helper to expose environment variables through the Config API
+# ----------------------------------------------------------------------
+def get(key: str) -> Optional[str]:
+    """
+    Shortcut accessor for environment variables.
+    
+    Mirrors the verification step in the task description:
+    after sourcing ``.env.example`` a call to ``config.get(\"NCBI_API_KEY\")``
+    should return the value defined in the ``.env`` file.
+    """
+    return get_env_manager().get(key)

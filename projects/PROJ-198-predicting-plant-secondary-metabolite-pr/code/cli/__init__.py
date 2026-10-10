@@ -1,5 +1,3 @@
 """
-CLI Package
+Package marker for the ``code.cli`` sub‑module.
 """
-# CLI entry points will be defined here as the project progresses.
-# Currently, the main CLI logic resides in code/cli/main.py.

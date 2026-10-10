@@ -24,67 +24,58 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/cli/main.py --step download_and_align -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
-    from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/preprocess.py", line 14, in <module>
-    logger = get_logger(__name__)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/logging.py", line 172, in get_logger
-    setup_logging()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/logging.py", line 111, in setup_logging
-    _logger.debug("Console handler added")
-    ^^^^^^^^^^^^^
-AttributeError: 'NoneType' object has no attribute 'debug'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 12, in <module>
+    from code.config import get_config, load_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 14, in <module>
+    from config.env_manager import get_env_manager
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 14, in <module>
+    from config.env_manager import get_env_manager
+ModuleNotFoundError: No module named 'config.env_manager'; 'config' is not a package
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
-    from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/preprocess.py", line 14, in <module>
-    logger = get_logger(__name__)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/logging.py", line 172, in get_logger
-    setup_logging()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/logging.py", line 111, in setup_logging
-    _logger.debug("Console handler added")
-    ^^^^^^^^^^^^^
-AttributeError: 'NoneType' object has no attribute 'debug'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 12, in <module>
+    from code.config import get_config, load_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 14, in <module>
+    from config.env_manager import get_env_manager
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 14, in <module>
+    from config.env_manager import get_env_manager
+ModuleNotFoundError: No module named 'config.env_manager'; 'config' is not a package
 
 - python -m pytest tests/ -> rc=2
-/test_align.py - AttributeError: 'NoneType' object has no att...
+n.py
+ERROR tests/test_config.py
+ERROR tests/unit/test_align.py
 ERROR tests/unit/test_cleanup_refactor.py - AttributeError: 'NoneType' object...
 ERROR tests/unit/test_data_directories.py - NameError: name 'List' is not def...
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
+ERROR tests/unit/test_download.py
 ERROR tests/unit/test_edge_cases.py - AttributeError: 'NoneType' object has n...
 ERROR tests/unit/test_env_manager.py
-ERROR tests/unit/test_eval.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_eval.py - AttributeError: 'NoneType' object has no attr...
 ERROR tests/unit/test_linting_config.py
 ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_preprocess.py - AttributeError: 'NoneType' object has n...
 ERROR tests/unit/test_project_structure.py
-ERROR tests/unit/test_report.py - AttributeError: 'NoneType' object has no at...
-ERROR tests/unit/test_sensitivity.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_report.py
+ERROR tests/unit/test_sensitivity.py - AttributeError: 'NoneType' object has ...
 ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
-!!!!!!!!!!!!!!!!!!! Interrupted: 17 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 2 skipped, 17 errors in 2.47s =========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 19 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 2 skipped, 19 errors in 2.27s =========================
 
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
-    from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/preprocess.py", line 14, in <module>
-    logger = get_logger(__name__)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/logging.py", line 172, in get_logger
-    setup_logging()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/logging.py", line 111, in setup_logging
-    _logger.debug("Console handler added")
-    ^^^^^^^^^^^^^
-AttributeError: 'NoneType' object has no attribute 'debug'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 12, in <module>
+    from code.config import get_config, load_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 14, in <module>
+    from config.env_manager import get_env_manager
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 14, in <module>
+    from config.env_manager import get_env_manager
+ModuleNotFoundError: No module named 'config.env_manager'; 'config' is not a package
 
 
 ## Declared deliverables still missing
