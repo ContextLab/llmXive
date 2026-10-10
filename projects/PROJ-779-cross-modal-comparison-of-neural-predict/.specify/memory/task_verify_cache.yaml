@@ -1,9 +1,47 @@
+T001a:
+  c: true
+  h: 36b799f73cc90d407c92d7e3615baf382af0905af77ab0ecab917060c4db61c0
+  r: "The evidence shows a `code/` directory (14 entries) and a non\u2011empty `code/__init__.py`\
+    \ file (270\u202Fbytes) present in the project root. This directly fulfills the\
+    \ task\u2019s requirement to create the directory and its `__init__.py`."
+  sig: 722e87f458e642bb0e9a247a74bfb88b3bd9d6be5b009b0c322c8e1ec17f6708
+T001b:
+  c: true
+  h: d6729511f6e26e6cda617340851eb946a1991fb9beda112033ab6dc3a82bcbc5
+  r: "The evidence shows the `code/data/` directory exists (with multiple files) and\
+    \ contains a non\u2011empty `code/data/__init__.py` file."
+  sig: 34cc1b5d1a61b445ed2350ef3665450726de88b90fac229a367dcbd16e70bc41
 T001c:
+  c: true
+  h: e5f7a40e6741c9e232358a2b7bf3887e447ead54aeccd50e3afdf3d435a146c1
+  r: "The evidence shows that `code/analysis/` and `code/validation/` directories\
+    \ exist and each contains a non\u2011empty `__init__.py` file (see the listed\
+    \ directory entries and file contents). The `test` command would therefore exit\
+    \ with code\u202F0, satisfying the task\u2019s requirement."
+  sig: 04ad0a2bcbce35c3884d76ac5084c416a0df383fc9b9888599a0ef0a3b8e0a1c
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file contents were provided showing that `code/analysis/`
-    and `code/validation/` exist, nor that each contains an `__init__.py`. Without
-    concrete evidence of these artifacts, the requirement is not satisfied.
+  h: c0ca299073b52977ee7bd44bf3b10277b0a3c445c2abf33d5911d0f048d38079
+  r: 'The provided `requirements.txt` exists but does not meet the task: it uses open-ended
+    `>=` version specifiers instead of exact pinned versions, includes extra unrelated
+    packages, and lists `h5py` rather than the required `hpy`. The file therefore
+    fails to satisfy the specification.'
+  sig: 0af29a308157026f20f5425b8133242e9441959752a02df8bdbcd073a8465432
+T003:
+  c: false
+  h: 25bbbabf48cf8fd50f6a7c18bef291dedb3d89615d180f69020075b9e6fb5089
+  r: The evidence only includes a `requirements.txt` file; there is no `.venv` directory,
+    no record of a virtual environment being created, and no `pip list` output showing
+    that the listed packages (with the required versions) are installed. These required
+    artifacts are missing, so the task is not satisfied.
+  sig: 7f679bad02cfa6f1bbd4d838ec983683b98d61ec96cf62c066d2ad9720140324
+T004:
+  c: false
+  h: 4ce8480c16bdd358b362c362bd4a894642f4e970c98c5a40d21942d183e5ac5c
+  r: The provided `.ruff.toml` is empty and does not contain a `[tool.ruff]` configuration
+    section as required, and there is no execution evidence showing that `ruff check
+    code/` and `black --check code/` were run successfully without errors.
+  sig: 011b0e6394b640a4d3fa148544f4cce94c5a6488e498a876f00087342680cd39
 T030:
   c: false
   h: a66a1a5756e88f40a34378c80d11ca63323544ac1914a083b016d9a8b8f1cab8

@@ -1,20 +1,19 @@
 status: none
-intent: OpenNeuro ds000246 auditory oddball dataset 500Hz sampling rate 100 oddball
-  300 standard trials AND OpenNeuro visual oddball dataset 500Hz sampling rate 100
-  oddball 300 standard trials python package dataset
+intent: OpenNeuro auditory oddball dataset ds000246 visual oddball dataset MNE-Python
+  python package dataset
 required_fields:
-- subject_id
-- session_id
-- run_id
-- sampling_rate
-- trial_type
-- stimulus_type
-- stimulus_onset
-- event_code
-- eeg_signal
-- meg_signal
+- raw_eeg
+- raw_meg
 - channel_names
-- bids_metadata
-cache_key: f1a373bb611af4bd1760ccc2bbf9c7b5581d8b26323b94ac37c2295046adb313
-searched_at: '2026-08-19T19:56:54.211896+00:00'
+- sampling_rate
+- event_id
+- trial_type
+- stimulus_onset
+- subject_id
+- age
+- sex
+- session
+- run
+cache_key: a28300eda7e35009e5e4a90fd717eb4cd0aff373b40059fc1b95fc60d3e5391a
+searched_at: '2026-10-10T14:22:07.872546+00:00'
 retry_count: 1

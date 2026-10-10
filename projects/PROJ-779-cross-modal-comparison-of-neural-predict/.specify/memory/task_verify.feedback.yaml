@@ -1,0 +1,167 @@
+T001a:
+  task: e1cc58fdc4a5ec2e00dd6ba2d6a6ff4dc3dc39e0ff1174cb5692b7409efc8ae0
+T001b:
+  task: 9a21a1f48384295eb9d0bb8904a21fc7ed9e09b99d4bc2ae9c3c1e609a519caf
+T001c:
+  task: 084826839b855410052620199ffc444d772ef56fe1a62eedbfedb5850e875cb5
+T002:
+  reason: 'The provided `requirements.txt` exists but does not meet the task: it uses
+    open-ended `>=` version specifiers instead of exact pinned versions, includes
+    extra unrelated packages, and lists `h5py` rather than the required `hpy`. The
+    file therefore fails to satisfy the specification.'
+  task: 289f654333ed2ea0adef7f33ebd54ba5596474802a9ea2a9f255432755974d0f
+T003:
+  reason: The evidence only includes a `requirements.txt` file; there is no `.venv`
+    directory, no record of a virtual environment being created, and no `pip list`
+    output showing that the listed packages (with the required versions) are installed.
+    These required artifacts are missing, so the task is not satisfied.
+  task: da1ffe2dbaeb556dd42918fe48bf317941dd34d3df20afe906ade2606fa23a36
+T004:
+  reason: The provided `.ruff.toml` is empty and does not contain a `[tool.ruff]`
+    configuration section as required, and there is no execution evidence showing
+    that `ruff check code/` and `black --check code/` were run successfully without
+    errors.
+  task: ccfa9188107a42f24a65629707e85fbe5b8fcd079a1a711e27df82a0d3c3e93d
+T005:
+  task: 6308031203d5ae99f9ebc0939d9bb4f28f76fe9fa75add50d2529226788d79e8
+T006:
+  task: 9d4bbbf497e88eb59d266e09dc31893b7cd738e23e41f397c8551c9adcb082b5
+T007:
+  task: d5fe2132dfbb91c7cf6d78f89c91d9918d2ee40808b31ee57e9aec1a64a97148
+T008:
+  task: b82262373db39f745ad6caca3f37a123dafc86dae9eca36da6e09b240974430a
+T009:
+  task: a437c11918779924677f518019e860214f75f5a68c64b2977ef9d92866925c3d
+T010:
+  task: ba120c61cf5c4ad0631b6a4ceeafb7d9d89d75839b0853c5e406b2c52a34637d
+T011:
+  task: 2dcd3537b042d8557adc233bcf75cc81c6da81fad3512fece51c2f045adba6ac
+T012:
+  task: 0671edb018c03199ee99b05203054a4fe7bfff88b3e07ff3f13d58bde8b9c959
+T013:
+  task: 27c1f62e158871ba2ada85b834b5205eae8b32cbe3956ce957f1d3eb6067bfc4
+T014:
+  task: c8e97f6da4e4852a8e4ea29aa5db0076f7e4bc485caca4355c31a4e9cc9169dd
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/download_auditory.py'
+  task: 12b11ff294855b1df5e9036be919c7fe5dbe5b4422916731c6e2ddb91dd452c0
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/download_visual.py'
+  task: 14e1187b3cf63526945125304b8e0a4dc00afb16b1576961b944313c6eded796
+T016a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/checksums.py, state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml,
+    state/...yaml'
+  task: ea0bfe897e8ba86b11a11529441220cf1bb2fa40a22e8a8f1f0d3604cf0f2638
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/download_auditory.py'
+  task: d32a57d810b5c7191563ab8b65740d0772e0df74a7d053b0113fb9b43cffca03
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/download_visual.py'
+  task: 68574eb4eeedebb0a455ceb25a276389bfa72659a471e007120c0ae27206b5e9
+T019a:
+  task: 002d2cfecc2e60a9d6f9c31bb832e49f689af3d3257a0d07168295f19ea612e8
+T019b:
+  task: d7999f8e6e4b3ab5039c9115cbc5f8ed2f81343891d2703539189879b0ecd59b
+T020a:
+  task: 40649cd9290e8b115730bf2292e4bc301fba2f3298cf56e39bc85a686e7f2a07
+T020b:
+  task: 3c67cf482c2eea954ef603b43dd2b9c67829405de007e774c45e4ce0503ccd4c
+T021:
+  task: dd1999957760fe25b26122a59140031b4751993a12795907aee60b6874f56af4
+T022:
+  task: 1a444abbf561650dc357a88756893ea7c1a060ebeed8997756a336b385934287
+T024:
+  task: 8de454890d1ff9623aed74a41127b93c553f523a58d827534b650c5a65f3b470
+T025:
+  task: e70d22e7bb82481e56b51be36919496f682a967107bce49084a489062dd73503
+T026:
+  task: 021aee87fa9a1a86904a070318ca461a195709a1099b9bed9a44312bfa6811dd
+T027:
+  task: f200c01d79357affdbd8fd7b5f211031b98050573e4bd95b815efd2f7e58a9d0
+T028:
+  task: 7a3bfc0f1859dbe77352df4511c171562f8006eeafbdff1e06f6e8d6d947612b
+T029:
+  task: 78b9857c44b4ad4d95fba3e67d57e8bd3d67bfc0581c0507122ce1b5e1468129
+T030:
+  task: 321203bd24c3b7f4498c6cdd78ac3d0071f20e6d759ea7c048ee3945d1db1fe5
+T031:
+  task: ba5c107b274c78fdfe301de8a41b18177b77cac1ae2f6ae89c23ea32503a74d1
+T032:
+  task: e6de664c80766a34512589c9a377743af003ce830f3dedcbe9f06a2c9ee26e64
+T033:
+  task: 051d5ce88c29121970cffe147436a79e623be05c311f6d1ed7c49e457bbb5f2b
+T034:
+  task: 3c48fbe6cae458b8ebc4f1acab5a24eec1b20c658d1875146aa7fae1c3d9aa59
+T035:
+  task: 11103e5e0ee6ac6bae743f24bb437a3b7dc0c8f8df6707bbf182b286e37f7bc0
+T036a:
+  task: f9c0129eecfaedc2b8a07ae4e81f5ec9533f93ccd8c9cf97d33971755007eb88
+T036b:
+  task: 95c1f26dc58bcc125ecab8ef8919a65b295fa1dd6b2f95c91464cc0ae3f73299
+T037:
+  task: e8fcba3ec35c0bc5b7187b73f69a171ffefbcce4e6535c2ac98436bfbdc1a568
+T038:
+  task: e9d13520e8166838781ddc0810d87bed7d9005635e1eea140331d562b1edf9bf
+T039:
+  task: fcc1e62f128ef0ec32222dfbd2a6a2cc0bfa22967d68d8e1c0d752f1a8dc30e2
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats_permutation.py'
+  task: a54d9d27fd3e52c9aa4d60a1b10d4ca6b78f4f5e765ba33ad028ed1c255b9cbb
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats_ttest.py'
+  task: 4c7913126b91d7d13944473b6da8c965f9c4c4cac281b6fa8e020c773b3104a6
+T042:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats_tost.py'
+  task: 65a96ef6da2c3aa5d8fa02f75bb26a9033749f669d39c7d9d796116b5f4ea83a
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats_bh.py'
+  task: 9e0be66a05c7b51e1c2c3e938c294889e91a787c8ebbb35f996216da18547a33
+T043b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats_bh.py,
+    data/results/bh_corrected_pvalues.json'
+  task: 8e091ffd0eb0b14c103adbfb0185266cf38861acf673281d363748ce6ec60e64
+T044:
+  task: 05da8a614ceb65e528f6a22c75c8dbec4755bc1bbca850bbfecf008e3985bd6c
+T045:
+  task: 111efaf671f793c1c06046c060f7d05fe0d1e8796c51a95f6d559b332cbc783a
+T046:
+  task: c1658a7d11a55e4692b5614e21e48576be3bc2d0fce9824e682ffc050c4c3cb4
+T047:
+  task: 92a23cad65ed7e0e3f26f8c913ba3b0f3be2eedad6be8af5285f7ccec1e380c3
+T047c:
+  task: c549c6cd3207fb7c08a1630599bb1e113c5cced59222fad9973f227d2400e47e
+T048:
+  task: e56cf88adb9d46ffffaf7454a8cea631a20942c4b0c7b7f641a85243e865e372
+T049:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_report.md'
+  task: 477107879c50fce027d238796ac61d849fb03da9c5ef29618f09e40c62e1a4d7
+T050:
+  task: bf15cf38b5be61af8ee8e9823de64fd7f5464b2b76caeb250c7df20d97ac35df
+T051:
+  task: 55fd410c85a3895412fdef6454e8a4ea519f26b237fa4424ea9c6e2da719fb4f
+T052a:
+  task: a30e6305c01bab1f486f433a88e1434758b193bf5e1907379553bc7530c64e10
+T052b:
+  task: 78becb9ba41a53924c5cf49edf70c05278f84ffe27c0deee74f6ad40bbac925a
+T053a:
+  task: e65b459f0c0961905d0c7ffd98cd5731b86ab30bc334354df1d54de47e15cd32
+T053b:
+  task: 651af1a099d447cfd61c227e4be093d5ba2b63eba02a491b38abf44b8287ed47
+T053c:
+  task: 0a5787df7948acb3da2f4189bc259a6df10eef180459d70d1df262e8bf34b967
+T054:
+  task: a895377ac092c3e3c3d42030beaf2eb413fde33585720e53d935def66fc801bf
+T055a:
+  task: bf7929b65e99743459a0a2cd54e2aceead4c2a9c042e01e0f35002e2f99b2cf6
+T055b:
+  task: c32d8a21900a06278776cb389590377a6fb1a27309c80751171b775a773cd7de
+T056:
+  task: 03fdc310ef8429e680f84ee11a226e55334d57b7d8e66a2f09f6c514b4610c6d
+T057:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_report.md'
+  task: 2a04854e030d624b52a1ef2263469eb069d5acee327f823f965c7636a15b07ab
+T058:
+  task: 4f16aeb47b6fb634276706305297a07e96c1e4b62b9ee191484f452429cd4909
+T059:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/deviation-sc-002.md'
+  task: f37fd71f73ac600e43c4449a980c7e2e29d002eaa48db6d0abd7c40fa3378eb6

@@ -2,6 +2,19 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T030** — The provided `metrics.py` defines an incorrect visual time window (‑400 ms to ‑300 ms instead of 150–350 ms) and the file is truncated, showing no implementation that writes `data/results/metrics_summary.json`. Moreover, the required JSON output file does not exist. The task’s extraction logic and output generation are therefore not satisfied.
-- **T032** — The repository lacks the required `data/processed/cleaned_data.fif` input file and the expected `data/results/metrics_summary.json` output file, so the pipeline cannot be verified. Moreover, the shown portion of `code/main.py` does not demonstrate that it calls the extraction step after preprocessing (no invocation of `run_metrics_extraction` or `extract_mean_amplitude` is visible). These missing artifacts and absent logic mean the task requirements are not met.
-- **T036b** — No execution logs, runtime measurements, or exit‑code evidence for `main.py` are present, and the required artifact (a CI‑style run confirming exit code 0 and < 6 h runtime) is missing. The implementer has not provided any proof that the verification was performed.
+- **T002** — The provided `requirements.txt` exists but does not meet the task: it uses open-ended `>=` version specifiers instead of exact pinned versions, includes extra unrelated packages, and lists `h5py` rather than the required `hpy`. The file therefore fails to satisfy the specification.
+- **T003** — The evidence only includes a `requirements.txt` file; there is no `.venv` directory, no record of a virtual environment being created, and no `pip list` output showing that the listed packages (with the required versions) are installed. These required artifacts are missing, so the task is not satisfied.
+- **T004** — The provided `.ruff.toml` is empty and does not contain a `[tool.ruff]` configuration section as required, and there is no execution evidence showing that `ruff check code/` and `black --check code/` were run successfully without errors.
+- **T015** — declared artifact(s) missing/empty/invalid: code/data/download_auditory.py
+- **T016** — declared artifact(s) missing/empty/invalid: code/data/download_visual.py
+- **T016a** — declared artifact(s) missing/empty/invalid: code/data/checksums.py, state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml, state/...yaml
+- **T017** — declared artifact(s) missing/empty/invalid: code/data/download_auditory.py
+- **T018** — declared artifact(s) missing/empty/invalid: code/data/download_visual.py
+- **T040** — declared artifact(s) missing/empty/invalid: code/analysis/stats_permutation.py
+- **T041** — declared artifact(s) missing/empty/invalid: code/analysis/stats_ttest.py
+- **T042** — declared artifact(s) missing/empty/invalid: code/analysis/stats_tost.py
+- **T043** — declared artifact(s) missing/empty/invalid: code/analysis/stats_bh.py
+- **T043b** — declared artifact(s) missing/empty/invalid: code/analysis/stats_bh.py, data/results/bh_corrected_pvalues.json
+- **T049** — declared artifact(s) missing/empty/invalid: data/results/final_report.md
+- **T057** — declared artifact(s) missing/empty/invalid: data/results/final_report.md
+- **T059** — declared artifact(s) missing/empty/invalid: docs/deviation-sc-002.md
