@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Fatigue Dataset Record"
+type: object
+required:
+  - sample_id
+  - material_class
+  - heat_input
+  - cooling_rate
+  - other_process_params
+  - fatigue_life_cycles
+  - source
+  - checksum
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the observation."
+  material_class:
+    type: string
+    enum: ["steel", "aluminum"]
+    description: "Material family."
+  heat_input:
+    type: number
+    description: "Process heat input in megajoules (MJ)."
+  cooling_rate:
+    type: number
+    description: "Cooling rate in kelvin per second (K/s)."
+  other_process_params:
+    type: string
+    description: "JSON‑encoded dictionary of additional numeric process parameters."
+  elastic_modulus:
+    type: number
+    description: "Elastic modulus in gigapascals (optional)."
+  yield_strength:
+    type: number
+    description: "Yield strength in megapascals (optional)."
+  residual_stress_measured:
+    type: number
+    description: "Directly measured residual stress in MPa (optional)."
+  is_proxy:
+    type: boolean
+    description: "True if residual stress was computed via proxy formula."
+  residual_stress_proxy:
+    type: number
+    description: "Proxy‑computed residual stress in MPa (present only when is_proxy is true)."
+  fatigue_life_cycles:
+    type: integer
+    description: "Number of cycles to failure (target variable)."
+  source:
+    type: string
+    description: "Origin of the record (e.g., 'synthetic', dataset name)."
+  checksum:
+    type: string
+    description: "SHA‑256 checksum of the raw row for provenance."
+additionalProperties: false
