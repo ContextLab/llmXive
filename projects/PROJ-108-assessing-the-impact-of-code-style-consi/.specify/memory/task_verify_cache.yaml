@@ -1,3 +1,65 @@
+T001:
+  c: true
+  h: 1fc0ad26ed9861cb2b18042591ae337999150f4786d3edd8d2c6940fab8c388e
+  r: All eight required directories (`code/`, `data/`, `tests/`, `data/raw/`, `data/processed/`,
+    `data/metadata/`, `tests/unit/`, `tests/integration/`) exist at the project root,
+    each non-empty (containing at least `.gitkeep` and, in several cases, substantive
+    scripts, tests, and data files). The task only asked for directory creation, which
+    is fully satisfied.
+  sig: 53ed9916b2267efd2088b6dc859dd887275937a642a7d40a876b53ba7092497a
+T002:
+  c: false
+  h: 2cc433337ffd94a1dd1761b977218a757c8d3b402d775758fe40d8c4ae6af9de
+  r: "The file `code/requirements.txt` exists and is non-empty, but its dependencies\
+    \ are not pinned \u2014 every entry uses `>=` range constraints (e.g., `torch>=2.0.0`,\
+    \ `radon>=6.0.0`) rather than exact `==` versions, which directly contradicts\
+    \ the task's \"pinned dependencies\" requirement. There is also no evidence of\
+    \ Python 3.10 project initialization (e.g., a `pyproject.toml`/`setup.py` declaring\
+    \ `requires-python = \"3.10\"` or equivalent). Fix by pinning each dependency\
+    \ to an exact version and adding a Python 3.10 project configuration."
+  sig: c5a7c1e6581a5767167d2fba751bd90e44de51f527de41b1c2a6621211b895dd
+T003:
+  c: false
+  h: 8df8b0688fba9130eb80c18bd83a4b5081d30bab37eb05ce16ae78c407e2051b
+  r: "No artifacts were provided or found on disk for this task \u2014 there is no\
+    \ evidence of flake8/black configuration files (e.g., `.flake8`, `setup.cfg`,\
+    \ `pyproject.toml`, or `tox.ini` with linting settings) or any formatting tool\
+    \ setup. The task claims completion but the collector confirmed no resolvable\
+    \ artifact paths, so there is nothing to verify the configuration against. The\
+    \ implementer must actually create and commit the linting/formatting configuration\
+    \ files."
+  sig: 4fb4832e555cfe5c623bf106e55c2a60af69337d59f1b629af3cf426ac11618e
+T004:
+  c: true
+  h: bede44e6e67d556e6adc4b0e95b9c043adb97773d8c0d38a9588c77d855fcb75
+  r: The artifact `code/00_validate_urls.py` exists (3412 bytes) and contains a genuine,
+    non-stub implementation that checks the real CodeSearchNet and Defects4J download
+    URLs via HEAD requests with timeouts, prints per-URL PASS/FAIL details, and exits
+    0/1 as specified. No placeholders, TODOs, or fabricated logic are present.
+  sig: 9411078be000520815ca30e65a8e35482ddbb3f73b7bff3070f8a3808c2bf573
+T005:
+  c: false
+  h: 042c557230bbf7d8afee1e1d927783c3f66c5c7fb6970d9f6456ce9b87fd0d50
+  r: 'The script `code/00_hash_artifacts.py` exists and is a genuine, functional implementation
+    (SHA-256 hashing, recursive artifact discovery, YAML state update). However, there
+    is no evidence it was ever run or that `state/hashes.yaml` actually contains computed
+    hashes: the collector only confirms the file exists in `state/` without showing
+    its contents, and no execution output/log is supplied. Additionally, the underlying
+    data artifacts are effectively empty (e.g., `data/processed/style_scores_threshold_0.25_0.75.csv`
+    contains only a header row), so a run would have hashed little or no real data '
+  sig: b23b363915b008f129cafa1e383b2a2a8efc4d9b882654aa8b8d7190b5fb2490
+T006:
+  c: false
+  h: b209da5592549bea85785e5a5824c8fd60b5763e7bfb6a2b4b38596eabaf5f90
+  r: 'The file exists and contains genuine implementations of BLEU, F1, Cohen''s d,
+    Pearson correlation, t-test, and ANCOVA, but it will fail to import: the `ancova`
+    function''s return annotation uses `Dict[str, Union[float, str]]` while `Dict`
+    is never imported (only `List, Tuple, Optional, Union, Iterable` from `typing`),
+    so `import code.utils.metrics` raises `NameError: name ''Dict'' is not defined`
+    at module load. Additionally, the ANCOVA p-value uses `1/(1+|F|)`, which is not
+    a valid statistical approximation (the t-test''s normal-CDF approximation is at
+    least defensible). Fix the missing `Dict` imp'
+  sig: a0e0b604e30907e4c290ceeec298bd8ae29d0505fedf6d400c5a480743607502
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

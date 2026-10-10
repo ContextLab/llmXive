@@ -1,0 +1,12 @@
+status: none
+intent: CodeSearchNet Python dataset download and Defects4J adapted dataset pip package
+  python package dataset
+required_fields:
+- file_path
+- indentation_variance
+- naming_variance
+- line_length_variance
+- normalized_style_score
+cache_key: f1ea3ec7261137c6958d489c82eb01a6be79932d412f013be45d90b77c299de7
+searched_at: '2026-10-10T10:13:50.232445+00:00'
+retry_count: 1

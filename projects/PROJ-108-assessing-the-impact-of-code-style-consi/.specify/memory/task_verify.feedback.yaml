@@ -1,0 +1,101 @@
+T001:
+  task: 62cb2feede7c681020f6bcbaa44ba66391b43be99cbb6153f5e4fc7f897c66f1
+T002:
+  reason: "The file `code/requirements.txt` exists and is non-empty, but its dependencies\
+    \ are not pinned \u2014 every entry uses `>=` range constraints (e.g., `torch>=2.0.0`,\
+    \ `radon>=6.0.0`) rather than exact `==` versions, which directly contradicts\
+    \ the task's \"pinned dependencies\" requirement. There is also no evidence of\
+    \ Python 3.10 project initialization (e.g., a `pyproject.toml`/`setup.py` declaring\
+    \ `requires-python = \"3.10\"` or equivalent). Fix by pinning each dependency\
+    \ to an exact version and adding a Python 3.10 project configuration."
+  task: dcb54c6522e490e7d936da9b5399282e65b6009af9c638afeaeceedb78cd7f63
+T003:
+  reason: "No artifacts were provided or found on disk for this task \u2014 there\
+    \ is no evidence of flake8/black configuration files (e.g., `.flake8`, `setup.cfg`,\
+    \ `pyproject.toml`, or `tox.ini` with linting settings) or any formatting tool\
+    \ setup. The task claims completion but the collector confirmed no resolvable\
+    \ artifact paths, so there is nothing to verify the configuration against. The\
+    \ implementer must actually create and commit the linting/formatting configuration\
+    \ files."
+  task: 8b1c6529ddcdf661b2eb411c0fd735b2f646d5a6be12a762963e97fa54eb5632
+T004:
+  task: 886dc0349cf670fa6ed74c6eb992b73bab1d2c426092b7ebdbd4fcda57811e0d
+T005:
+  reason: 'The script `code/00_hash_artifacts.py` exists and is a genuine, functional
+    implementation (SHA-256 hashing, recursive artifact discovery, YAML state update).
+    However, there is no evidence it was ever run or that `state/hashes.yaml` actually
+    contains computed hashes: the collector only confirms the file exists in `state/`
+    without showing its contents, and no execution output/log is supplied. Additionally,
+    the underlying data artifacts are effectively empty (e.g., `data/processed/style_scores_threshold_0.25_0.75.csv`
+    contains only a header row), so a run would have hashed little or no real data'
+  task: be0d0c8bef8a496203767168e4151377da74a784584a5195245268994038b939
+T006:
+  reason: 'The file exists and contains genuine implementations of BLEU, F1, Cohen''s
+    d, Pearson correlation, t-test, and ANCOVA, but it will fail to import: the `ancova`
+    function''s return annotation uses `Dict[str, Union[float, str]]` while `Dict`
+    is never imported (only `List, Tuple, Optional, Union, Iterable` from `typing`),
+    so `import code.utils.metrics` raises `NameError: name ''Dict'' is not defined`
+    at module load. Additionally, the ANCOVA p-value uses `1/(1+|F|)`, which is not
+    a valid statistical approximation (the t-test''s normal-CDF approximation is at
+    least defensible). Fix the missing `Dict` imp'
+  task: b70722e5b1458b2ece5a6178309545f0149c532030a7b086a2e4698e49029cc5
+T007:
+  task: b561248e02c0aa561eef618ef50b091c0d44b9b75b81df1e6b013642b85d0e0c
+T008:
+  task: 07e5ac34e1f01b346b921d2359b70635c34d2b584bbc374788a0eccab35ec79f
+T009:
+  task: ecd1a05d572c2df378ec3fe1184aeab6aabf1880bf988f1c72d6ed6416cc75cb
+T010:
+  task: c827241d5f584b12f5f460f56f619e785bef6337be6924d216089758cc658fa7
+T011:
+  task: eb40115d611ddd82e17cc56518d59b9166289bad4952b226c58932ac484bc06f
+T012:
+  task: 093c142d986a6155cac4305aae7fabdff354a04d5c4502faf5623f80f4e0c086
+T013:
+  task: e2c7acda22078075d7a127e2e96964c538deeb1779f7b682a7eef2736ab38d5a
+T014:
+  task: fdb0328c687c112ab745f96d758bc8d2c16f97fa0acc722f37c5847b11b2fa8b
+T015:
+  task: 2693c0fc96eb7942f13eed82f44ccf104e7ab08ee9810facdfd3b0a4f15d3d22
+T016:
+  task: 6c2bd721a5ef3e9d305de2ec6549c6689308714ead756de950fdc22a1ea6e1d1
+T017:
+  task: 020279d1495f6a4594a49824665f4727435937054f2c314c9d5673b264a9c9ba
+T018:
+  task: 0521dd18777703fb73208ae90e4491ac214d08953985b070b9abeeb6a8774512
+T019:
+  task: b8c6a96f49178e9f69e6c62accffe1b1223823e59b35706470746c7de15a563f
+T020:
+  task: dd00a7517538b09b1438c5614a279d34bba6a500877742e1090537755c5e00fb
+T021:
+  task: 3e948d46190217793ca94d3a2ee4cf84334cb48e410c410e4fd32d50a4141dbc
+T022:
+  task: 9b3f383e75d434e9c1845a0b4c4dccdef945197b1371fa25d71611a4deca219a
+T023:
+  task: 0f0f6d68820226495737e570e4c09da86707e31b2b2c4f2651b430b3643e1f16
+T024:
+  task: 334064a731632eb43ff8fda905c256af31f97dafcab9e57e3c912376e7be3aa4
+T025:
+  task: f0e04ffc7172e5b932b34a3a0d5cda374e8a731a2891a8fec6a6cd2ad7c0fb0a
+T026:
+  task: 30386a6ae4c5ca91306f201fff9051bee5684c7d94af39b2fb14e354b0cd3dd1
+T027:
+  task: 41984fb9ffe970fa1869f4ef23eb5bbf66a094917252b1c41d5c4a84f409a837
+T028:
+  task: 6b41138eb863cd679593bc0b50afa0721d077627d7b3b22c5add2b98a061ad29
+T029:
+  task: 3b7cebcb88ce2c69f24c88c2f3ca460c2a41805c0257f9452532629dec05f2d6
+T030:
+  task: 7d00d924ea55b778abb629e51d3c670fb4959f6101f334e1e96617e3204aed11
+T031:
+  task: d32df998afe49726bec0527718c913dfabefb210e0c5073e8e64e28871f47ce9
+T032:
+  task: 896aa49df193f1ab97aba6d423a535507441713bd8a9c726666bb604ebceb7e2
+T033:
+  task: f6c25e5fe7f59ecad56a9c583d7e7c644d76078d19195690a517f18699e1a8d8
+T034:
+  task: a317866d892cefb07e232582a7b12fcb4d0211bc7c8fcf9275fbc48d059190a3
+T035:
+  task: b8c0492df2b06e9d8d7dcf0e79670eebac0d0a0532083a812efd5c3b3c58aadb
+T036:
+  task: 67ade29ea254e416f9b2d0115874b377127c7ef2f100157be07ef966211e57a4

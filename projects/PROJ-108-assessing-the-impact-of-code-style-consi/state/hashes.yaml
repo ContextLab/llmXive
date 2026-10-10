@@ -1,0 +1,6 @@
+last_scan: '2026-10-10T10:12:24.388175'
+artifacts:
+  data/metadata/style_scores_raw.csv:
+    hash: cda40690096b1b39419b9a49327d30d29c8a2e90059d50a835538959b14ea31c
+    size_bytes: 384
+    last_modified: '2026-10-10T10:07:33.826349'
