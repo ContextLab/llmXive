@@ -1,82 +1,44 @@
-"""
-Logging utilities for the research pipeline.
-
-Provides structured logging, error reporting, and specific loggers for
-validation failures (Completeness, Power Insufficiency).
-"""
 import logging
-import sys
-import json
-import os
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-class ResearchFormatter(logging.Formatter):
-    """Custom formatter for research logs with timestamps and levels."""
-    def format(self, record):
-        log_fmt = f"[{datetime.now().isoformat()}] [{record.levelname}] {record.name}: {record.msg}"
-        return log_fmt
+_LOGGER_CACHE: Dict[str, logging.Logger] = {}
 
-def get_logger(name: str = "research") -> logging.Logger:
+def get_logger(name: str = __name__) -> logging.Logger:
     """
-    Get a configured logger instance.
-    
-    Args:
-        name: Logger name.
-        
-    Returns:
-        Configured logging.Logger.
+    Retrieve a structured logger instance. If the logger does not yet have
+    handlers, a simple ``StreamHandler`` with a concise formatter is added.
     """
+    if name in _LOGGER_CACHE:
+        return _LOGGER_CACHE[name]
+
     logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
-        
     logger.setLevel(logging.INFO)
-    
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(ResearchFormatter())
-    logger.addHandler(ch)
-    
-    # File handler (optional, directed to logs/research.log)
-    logs_dir = Path("logs")
-    logs_dir.mkdir(exist_ok=True)
-    fh = logging.FileHandler(logs_dir / "research.log")
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(ResearchFormatter())
-    logger.addHandler(fh)
-    
+
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+    _LOGGER_CACHE[name] = logger
     return logger
 
-def log_data_completeness(completeness: float, threshold: float) -> None:
-    """Log data completeness check result."""
-    logger = get_logger("validation.completeness")
-    status = "PASS" if completeness >= threshold else "FAIL"
-    logger.info(f"Data Completeness: {completeness:.4f} (Threshold: {threshold:.4f}) - {status}")
-
-def log_power_insufficiency(llm_count: int, non_llm_count: int, min_required: int) -> None:
+def log_analysis_result(logger: logging.Logger, step: str, result: Any) -> None:
     """
-    Log power insufficiency failure.
-    
-    Args:
-        llm_count: Number of LLM-generated samples.
-        non_llm_count: Number of non-LLM samples.
-        min_required: Minimum required per group.
+    Helper to log the result of a pipeline step in a structured way.
     """
-    logger = get_logger("validation.power")
-    msg = (f"POWER INSUFFICIENCY DETECTED. "
-           f"LLM Count: {llm_count}, Non-LLM Count: {non_llm_count}. "
-           f"Required: >= {min_required} per group.")
-    logger.error(msg)
+    logger.info(f"Analysis step '{step}' completed. Result: {result}")
 
-def log_validation_error(message: str) -> None:
-    """Log a generic validation error."""
-    logger = get_logger("validation.error")
-    logger.error(f"VALIDATION ERROR: {message}")
-
-def log_analysis_result(result_type: str, data: Dict[str, Any]) -> None:
-    """Log analysis results in a structured way."""
-    logger = get_logger("analysis.results")
-    logger.info(f"Analysis Result [{result_type}]: {json.dumps(data, indent=2)}")
+def log_power_insufficiency(logger: logging.Logger, observed_min: int, required_min: int) -> None:
+    """
+    Log a power‑insufficiency event. The message must contain the exact phrase
+    ``Power Insufficiency Error`` so that integration tests can verify it.
+    """
+    logger.error(
+        f"Power Insufficiency Error: Group size ({observed_min}) is below the "
+        f"minimum threshold ({required_min})."
+    )

@@ -1,12 +1,11 @@
 status: none
-intent: GitHub Pull Requests v2 dataset HuggingFace Authors Merged PRs backup python
-  package dataset
+intent: huggingface datasets github pull requests v2 download python package dataset
 required_fields:
 - code_diff
 - review_comments
 - merge_timestamp
 - project_metadata
 - commit_message
-cache_key: 2db5e88b2f89c260058fdab3f9bd4f1d39c1e9f0e6c196112ffc45b08b130f6b
-searched_at: '2026-10-10T02:39:02.200587+00:00'
+cache_key: 4793c369d59f96e1ddd720b8084615acbee12e71f1a541d521e53555050f63de
+searched_at: '2026-10-10T02:41:07.992515+00:00'
 retry_count: 1

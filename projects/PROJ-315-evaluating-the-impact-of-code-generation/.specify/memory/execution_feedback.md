@@ -17,17 +17,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/preprocess.py -> rc=1
-[2026-10-10T02:38:02.951805] [INFO] __main__: Starting audit accuracy pipeline. Input: docs/reports/audit_sample_labeled.csv
 
+2026-10-10 02:40:15 - __main__ - INFO - Starting audit accuracy pipeline. Input: docs/reports/audit_sample_labeled.csv
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 210, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 225, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 207, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 222, in main
     run_audit_accuracy_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 128, in run_audit_accuracy_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 131, in run_audit_accuracy_pipeline
     df = load_human_labeled_sample(input_csv)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 39, in load_human_labeled_sample
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 42, in load_human_labeled_sample
     raise ValueError(f"Missing required columns in human labeled sample: {missing_cols}")
 ValueError: Missing required columns in human labeled sample: ['commit_message', 'heuristic_label']
 

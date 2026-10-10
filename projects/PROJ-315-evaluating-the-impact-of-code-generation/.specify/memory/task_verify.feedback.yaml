@@ -11,6 +11,11 @@ T005:
 T006:
   task: 50649cf2073e92c21a7941d3178c0b537d18bf1846a88489b771baa1632e3b5c
 T007:
+  reason: "The `code/utils/logger.py` file is present and implements a basic logger\
+    \ and a `log_power_insufficiency` helper, but it does not provide any function\
+    \ or mechanism for reporting \u201CData Completeness\u201D errors as required\
+    \ by the task. Adding a dedicated data\u2011completeness logging helper (or otherwise\
+    \ handling that case) is needed to satisfy the full specification."
   task: 35e4345631bbc6d09423d458338c421d91e66cf6742a6c81d3879c37083218eb
 T008:
   task: ea7a29f0a6480c9fa6ee90e5ce4097f9630f7be4279093fb682af84b1230af76
@@ -19,11 +24,6 @@ T009:
 T010:
   task: c73fc0b4bb9964b29259c59d0a0ded6b0875c5555cc5b761798bc23dd806cb08
 T011:
-  reason: "The `tests/integration/test_power_check.py` file exists and raises a `ValueError`\
-    \ when a group size is <\u202F500, but the asserted error message only contains\
-    \ \u201CPower insufficiency\u201D and does not include the required phrase \u201C\
-    Power Insufficiency Error\u201D. The test therefore does not verify the exact\
-    \ message stipulated by the task."
   task: 3aec365fc5c5b6b537890a5eee42132059fecf4687a48fd3d52632febf9fabbe
 T012:
   reason: "The provided `code/data/fetch.py` calls `load_dataset` without the required\

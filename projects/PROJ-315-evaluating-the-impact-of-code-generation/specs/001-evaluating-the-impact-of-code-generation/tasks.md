@@ -63,7 +63,7 @@ description: "Task list template for feature implementation"
 - [X] T005 [P] Create `code/data/__init__.py` and `code/labeling/__init__.py` package structures
 - [X] T006 [P] Create `contracts/dataset.schema.yaml` defining required fields (code diff, review comments, merge timestamp, project metadata)
 - [X] T008 [P] Create `contracts/output.schema.yaml`. Deliverable: YAML file defining JSON schemas for: 1) Mann-Whitney U results (keys: `statistic`, `pvalue`, `method`), 2) VIF diagnostics (keys: `predictor`, `vif_score`), 3) Power analysis (keys: `sample_size`, `min_detectable_effect`), and 4) Error reports (keys: `error_code`, `observed_counts`). (FR-005, FR-008, FR-010)
-- [X] T007 [P] Setup `code/utils/logger.py` for structured logging and error reporting (Power Insufficiency, Data Completeness)
+- [ ] T007 [P] Setup `code/utils/logger.py` for structured logging and error reporting (Power Insufficiency, Data Completeness)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,7 +79,7 @@ description: "Task list template for feature implementation"
 
 - [X] T009 [P] [US1] Unit test for keyword classification logic in `tests/unit/test_classify.py` (test ≥2 keyword threshold logic: verify that a message with a single keyword is 'Human' and a message with multiple keywords is 'LLM')
 - [X] T010 [P] [US1] Integration test for data completeness check in `tests/integration/test_data_completeness.py` (verify <95% completeness triggers ValueError with 'Data Completeness Error' message)
-- [ ] T011 [P] [US1] Integration test for power insufficiency check in `tests/integration/test_power_check.py` (verify <500 per group triggers ValueError with 'Power Insufficiency Error' message)
+- [X] T011 [P] [US1] Integration test for power insufficiency check in `tests/integration/test_power_check.py` (verify <500 per group triggers ValueError with 'Power Insufficiency Error' message)
 
 ### Implementation for User Story 1
 

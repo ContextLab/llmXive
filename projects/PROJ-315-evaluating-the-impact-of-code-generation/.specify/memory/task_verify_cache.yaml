@@ -32,11 +32,12 @@ T004:
   sig: dd1efc14485c55f6acfd5cc35d016daf8c72d57a0d8b5c24d61038e7478bedf6
 T005:
   c: true
-  h: 280534cb172f4053b6566a82e93effaa9b97818ca160dc8596281ff4f657819c
-  r: "Checked the presence and non\u2011empty content of `code/data/__init__.py` (1450\u202F\
-    bytes) and `code/labeling/__init__.py` (125\u202Fbytes) at the required locations;\
-    \ both package initializers exist as specified."
-  sig: df71daff1f6aba4fb4f3b82f490abef846ed56ca408b2489e108e6d04f185c34
+  h: 3b6638d282d3a26708ee0b98c59ae5bdf3c348ff2fdb0630bcb9c7676dfdbe38
+  r: "The collector shows `code/data/__init__.py` (1450\u202Fbytes) and `code/labeling/__init__.py`\
+    \ (125\u202Fbytes) present at the expected locations with valid Python package\
+    \ initializers. Both files exist and are non\u2011empty, satisfying the task\u2019\
+    s requirement to create the package structures."
+  sig: 3abd48f888cab43b837e8d7863154a81061a9d404c57cc9b19cf2b32fc830aad
 T006:
   c: true
   h: e37d99ec44b8d83a92bbfef35a13e468bb89ed9a124187737579574301a1bb77
@@ -46,14 +47,14 @@ T006:
     \ a stub or placeholder."
   sig: 450c8ca872e10e161fa65e7edb3567ffcadc664403f94cfa3d3f4c6a7d32f4ae
 T007:
-  c: true
-  h: 2062c1c501c647e2e99c714655d9ccdcbc3b8b77c9011224a8f0d2ad7079735d
-  r: "Checked `code/utils/logger.py` (2722\u202Fbytes) which defines a custom formatter,\
-    \ console and file handlers, and provides `log_data_completeness` and `log_power_insufficiency`\
-    \ functions for the required error reporting. The module implements structured\
-    \ logging (timestamped messages, JSON output for analysis results) and the specific\
-    \ logging utilities for Power Insufficiency and Data Completeness."
-  sig: bd58f7dc482abc84b613ca45bb78aa029bceac46d247e0808d75397b68cd6924
+  c: false
+  h: 684e7572fba2e0569befb3fe4359e6022db7e6d4f49388a2a2e633bd65299202
+  r: "The `code/utils/logger.py` file is present and implements a basic logger and\
+    \ a `log_power_insufficiency` helper, but it does not provide any function or\
+    \ mechanism for reporting \u201CData Completeness\u201D errors as required by\
+    \ the task. Adding a dedicated data\u2011completeness logging helper (or otherwise\
+    \ handling that case) is needed to satisfy the full specification."
+  sig: a7206e8f08bac088de8e316ea6bdd68efeae51e94e8d5724c99cfe239a0db305
 T008:
   c: true
   h: 4e7a8a2b79b5573e01b121f31e02e1a6a47a9d66eb482b5cb51359d323c8ee1c
@@ -63,30 +64,32 @@ T008:
   sig: 5368c8317ed119cb54c8bb5fc143041dbddedc45f1342cefc8f4c8143c60401b
 T009:
   c: true
-  h: 9086c2b272b79fd0b48ae5589ec95690a6c400c26a8a8b36c008c273ef85ac9d
-  r: "Checked the presence and content of `tests/unit/test_classify.py`, which includes\
-    \ tests that verify a single\u2011keyword message is classified as human (not\
-    \ LLM) and a multi\u2011keyword message is classified as LLM, satisfying the \u2265\
-    2 keyword threshold requirement."
-  sig: af1343f9f9dc334b302e88902760a9f41b19c3bae6228775a9c1b4d185607ac2
+  h: 1cbb248f2699ff8a14c08e16bb3e6aa2cbdf5262215c4eac771dbb390636a8a2
+  r: "Checked `tests/unit/test_classify.py` (11512\u202Fbytes) which contains `TestClassifyPR.test_classify_as_llm_generated`\
+    \ confirming a message with \u22652 keyword matches is classified as LLM, and\
+    \ `TestClassifyPR.test_classify_as_not_llm_generated` confirming a single\u2011\
+    keyword message is classified as Human. The required unit tests are present and\
+    \ correctly implemented."
+  sig: def8b4452d4a8902fd23e2d4a01f4718ce7980b7544265f87c8726ab9e21a5b1
 T010:
   c: true
-  h: f060c5d2b94cfe4967f93a549813e663c470e8044d81a3dea8cc43f98edfa84f
-  r: "Checked the `tests/integration/test_data_completeness.py` file (2650\u202Fbytes)\
-    \ which contains two tests: one asserting that a dataset with 90\u202F% completeness\
-    \ raises a `ValueError` whose message includes \u201CData Completeness Error\u201D\
-    , and another confirming that a 95\u202F% complete dataset passes. The test correctly\
-    \ patches `fetch_dataset` and validates the required behavior."
-  sig: a3ba5407227bf02f02bfd3611e2ad31fad36a274a4428a88f8f64ec8456317cc
+  h: f37b1b90436e1ba045af539e137ee172a25f085f937a414721aa7451a1f5ebca
+  r: "The integration test file `tests/integration/test_data_completeness.py` exists\
+    \ and contains assertions that a `ValueError` with the phrase \u201CData Completeness\
+    \ Error\u201D is raised when mock data yields 90\u202F% completeness, and that\
+    \ no exception is raised at 95\u202F% completeness. The implementation in `code/data/preprocess.py`\u2019\
+    s `validate_completeness` and `run_data_completeness_check` functions produce\
+    \ the required error message, satisfying the task\u2019s requirement."
+  sig: 41eeb4403814edd82e6ba19c048ccc55f551b858af0148ce1bd3f584322d87b4
 T011:
-  c: false
-  h: 3dcfe2030381afa70c21382f043827750ef20ceca3f4dfb30070d97f7e638187
-  r: "The `tests/integration/test_power_check.py` file exists and raises a `ValueError`\
-    \ when a group size is <\u202F500, but the asserted error message only contains\
-    \ \u201CPower insufficiency\u201D and does not include the required phrase \u201C\
-    Power Insufficiency Error\u201D. The test therefore does not verify the exact\
-    \ message stipulated by the task."
-  sig: 1558815c34f56d60d0609d4f2feaccd3fdd1d0c66bb7b7382846d24b406555da
+  c: true
+  h: 8cabf298cbc7ccdaa751c5fd28353ff201fcd9af6e44a16dabe1bb44d884f2f7
+  r: "Checked `tests/integration/test_power_check.py` (8247\u202Fbytes) \u2013 it\
+    \ defines integration tests that create mock datasets with <\u202F500 samples\
+    \ in a group, invoke a check that raises `ValueError` whose message includes \u201C\
+    Power Insufficiency Error\u201D, and asserts this behavior, fulfilling the task\u2019\
+    s requirement."
+  sig: e27f8f4c3e476a9b185d04ff1b3a819283a74d8d9a56f7422529091be81398c7
 T012:
   c: false
   h: 1bc7321eaa23186cfb8a6798a08c821abed6ad120c45678e68831092d280eace
@@ -175,10 +178,10 @@ T016:
   sig: 63e213a7b3f7350d609664db3b73762e8ece9c10a3932f83e324b1bd2ae10853
 T017b:
   c: true
-  h: 397cec790cf7e7826b809a359c30a07c03665312277123b21ea786cb38be8c2e
-  r: "Checked `code/utils/wait_for_manual_input.py` which polls `docs/reports/audit_sample_labeled.csv`,\
-    \ validates the required columns, non\u2011null values, and allowed labels, logs\
-    \ outcomes, and exits with code\u202F0 on success or\u202F1 on failure. The provided\
-    \ `audit_sample_labeled.csv` conforms to the schema, confirming the implementation\
-    \ meets the task requirements."
-  sig: 03faa8af1235be74e08bb1afcb487070af3f2dc704801eb5b89dc79cfab3829f
+  h: bab5e2a018ca90f7e17987378653c8e25bcf9d098ebc12b456db27fecc67a6e4
+  r: "Checked `code/utils/wait_for_manual_input.py` \u2013 it polls the correct path,\
+    \ validates the required columns, disallows nulls, enforces allowed labels, logs\
+    \ and exits with 0/1 as specified. Also verified `docs/reports/audit_sample_labeled.csv`\
+    \ contains the required `pr_id` and `human_label` columns with only \u201CLLM\u201D\
+    \ or \u201CHuman\u201D values and no missing entries."
+  sig: d20a494bdfa0e4f5dff911289899e0ddb5d1e810aeb8233ef17955497fc941b3
