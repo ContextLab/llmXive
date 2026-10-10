@@ -1,4 +1,7 @@
+# Makefile for the residual‑stress fatigue project
+
 .PHONY: env-check
 
+# Run the environment verification script.
 env-check:
-	bash scripts/env_check.sh
+\t@bash scripts/env_check.sh

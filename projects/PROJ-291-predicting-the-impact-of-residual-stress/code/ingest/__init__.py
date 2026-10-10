@@ -1,1 +1,1 @@
-# Package marker for the `code.ingest` submodule.
+"""Ingestion subpackage for the residual‑stress fatigue project."""
