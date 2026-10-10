@@ -70,5 +70,15 @@
     "tables/table_4.tex",
     "tables/table_1.tex",
     "tables/table_2.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "240cf8e659e9dd3c42eaf9d133fbcce4ba4b78659b6a25f169b692acece616d1",
+      "bytes": 5199948
+    },
+    "original.pdf": {
+      "sha256": "37c4ab363740103f16ff048f0682b288c42189b8244704eae51c8304e5dc813b",
+      "bytes": 5162456
+    }
+  }
 }

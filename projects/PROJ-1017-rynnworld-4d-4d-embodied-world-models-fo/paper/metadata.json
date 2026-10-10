@@ -55,5 +55,15 @@
     "Sec/2-related.tex",
     "Sec/3-method.tex",
     "Sec/Appendix.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "df39230f5028b405413fa462f427d1633f32986f0ac6b628281ea504901fb609",
+      "bytes": 10450607
+    },
+    "original.pdf": {
+      "sha256": "1034f2de0936a10be4314f0d9b0d2f1c3d1bf7b93e849c588852b611307d90db",
+      "bytes": 10192290
+    }
+  }
 }

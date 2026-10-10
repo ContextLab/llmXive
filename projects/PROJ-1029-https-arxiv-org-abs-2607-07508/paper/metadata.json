@@ -44,5 +44,15 @@
     "figures/main_result_beyondaime.pdf",
     "neurips_2026.sty",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a8e26e7d5991f66392b029bed78e29bc185c3650ef1579651946445be5a46694",
+      "bytes": 783775
+    },
+    "original.pdf": {
+      "sha256": "44c695be0428c666d06c914ba76c037e3ac77eeb5db0a81bbe239719c21bda48",
+      "bytes": 664828
+    }
+  }
 }

@@ -46,5 +46,15 @@
     "tables/Results_different_Rregion_Size.tex",
     "tables/Scores_Talbe_across_subjects.tex",
     "tables/sanity_check.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "3ff47ef4e857b4ec74446e23172737dd8516d140cd6c9e88823f69f3347d257a",
+      "bytes": 31221912
+    },
+    "original.pdf": {
+      "sha256": "1db03e095f806e181d1320289be9ce192215c04998e66b38ae6bc694dd11f12c",
+      "bytes": 31190461
+    }
+  }
 }

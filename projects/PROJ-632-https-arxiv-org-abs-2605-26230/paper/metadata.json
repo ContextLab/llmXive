@@ -95,5 +95,15 @@
     "tab/image_metric.tex",
     "tab/pose.tex",
     "tab/recon.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "eb2f8914cdba2a2fb4b3caf8e9e6e7cfd95fa84b4a810badb4b56b0438195081",
+      "bytes": 45659608
+    },
+    "original.pdf": {
+      "sha256": "949cc78b2f65c3a117e36915aa1f72b9a26b78712d98f5658c68e7e0591bb18d",
+      "bytes": 45627154
+    }
+  }
 }

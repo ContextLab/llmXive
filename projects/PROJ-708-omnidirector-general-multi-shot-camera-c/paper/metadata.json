@@ -41,5 +41,15 @@
     "Figures/distortion.pdf",
     "main.bbl",
     "main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cb2060277e04b124eb8329dcc96506acf692aa6b6b1941aebaa0fe4968e5730f",
+      "bytes": 6329094
+    },
+    "original.pdf": {
+      "sha256": "c46c55d98cd825482a1c859b6fbbdf82c78921eef16e1de99e2c593f62efa7d0",
+      "bytes": 6266945
+    }
+  }
 }

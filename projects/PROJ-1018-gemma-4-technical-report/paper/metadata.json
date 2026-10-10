@@ -325,5 +325,15 @@
     "googledeepmind.cls",
     "main.bbl",
     "main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c075f67c35aa3d8c4fff5cc975b8343d044e5b8e876209381d3dbfb92ce094c7",
+      "bytes": 801604
+    },
+    "original.pdf": {
+      "sha256": "c3928186251a3f33caf7412f1a8fe7486e8350a7eeecf4146766a183ba22074a",
+      "bytes": 786864
+    }
+  }
 }

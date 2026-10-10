@@ -116,5 +116,15 @@
     "sec/11.ethics.tex",
     "sec/90.appendix.tex",
     "sec/91.appendix_prompts.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "021b23324989a04deacc9c72032dad209328b00769e6cc6569537051966072b9",
+      "bytes": 6780599
+    },
+    "original.pdf": {
+      "sha256": "bd190917b8df7f7c6cddabdc45917f99321498405043ab2ded4038d5727d38ee",
+      "bytes": 6748896
+    }
+  }
 }

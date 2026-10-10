@@ -69,5 +69,15 @@
     "tables/ablation_and_depth.tex",
     "tables/libero_plus_agg.tex",
     "tables/real_robot.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "e5c62ba92a56873dc1da2993a124375a717bb6a98a3069faf7b094d022468df1",
+      "bytes": 9242099
+    },
+    "original.pdf": {
+      "sha256": "19b79e58aac413f80c3eac7d34c7c570abc921ace4ba79a42b12aeda5ff61a42",
+      "bytes": 9206989
+    }
+  }
 }

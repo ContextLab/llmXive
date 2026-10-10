@@ -65,5 +65,15 @@
     "tab/merge_alignment_mm.tex",
     "tab/result_txt.tex",
     "template.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "fd8ce013fdfe583fb9d3198136234219088a56883a9ac14a8b145941d44df294",
+      "bytes": 2702056
+    },
+    "original.pdf": {
+      "sha256": "395d31db32d915a0226b16dca46b2c54ed042d49aae02a6456c50665dea09180",
+      "bytes": 2590508
+    }
+  }
 }

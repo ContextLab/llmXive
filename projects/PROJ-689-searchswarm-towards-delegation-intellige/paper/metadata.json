@@ -62,5 +62,15 @@
     "pictures/bc_agent_usage_plots/main_subagent_calls_distribution.pdf",
     "pictures/bc_agent_usage_plots/main_agent_rounds_distribution.pdf",
     "pictures/bc.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a40c4a55a0f81a163f6274b94ea0ac998640b1585711029276e06ea7ec8096d1",
+      "bytes": 1307506
+    },
+    "original.pdf": {
+      "sha256": "f0012dd940a1ebd16aea40445bbf64ae362d06817ce93c3c1a2f72353b50e42b",
+      "bytes": 1282651
+    }
+  }
 }

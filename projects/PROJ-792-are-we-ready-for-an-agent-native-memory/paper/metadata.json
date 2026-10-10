@@ -51,5 +51,15 @@
     "figures/table2_barchart_v2.pdf",
     "main.tex",
     "sample.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d998fb4bbba4b78a5cdc34ae9afe59da9a6a355b7ad4cb730c1cdd9814645680",
+      "bytes": 1813647
+    },
+    "original.pdf": {
+      "sha256": "6cad9bfcded2f1801c09049daa716a33e570cc407ddfbe40f32d3aa850361d85",
+      "bytes": 1791814
+    }
+  }
 }

@@ -55,5 +55,15 @@
     "fig/appendix/sim_46440_drag.png",
     "fig/appendix/102996.png",
     "fig/appendix/103008.png"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "9a1750d86bfde0cf6ea3db73dd0ee92d34e4573dd220aacfb88e1bcd89f0ae3b",
+      "bytes": 13126349
+    },
+    "original.pdf": {
+      "sha256": "1928d9d18accd298f88c5e5971cd998e1b84546b83dad7dc5ef714b7bca2460c",
+      "bytes": 13091125
+    }
+  }
 }

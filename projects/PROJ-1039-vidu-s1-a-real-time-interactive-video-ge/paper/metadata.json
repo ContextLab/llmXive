@@ -58,5 +58,15 @@
     "src/2-Method.tex",
     "src/4-Conclusion.tex",
     "src/3-Experiment.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "341e58912abe4626978aa806474d1741118011b2f5aed8b9694694f9633a2139",
+      "bytes": 5480504
+    },
+    "original.pdf": {
+      "sha256": "f3ed78a805f9544806a7b8b9294c2965ae30feb70cbd198c42674607d3f823ae",
+      "bytes": 5442572
+    }
+  }
 }

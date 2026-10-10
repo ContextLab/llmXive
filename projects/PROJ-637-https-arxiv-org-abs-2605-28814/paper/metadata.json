@@ -43,5 +43,15 @@
     "sections/theory.tex",
     "sections/exp.tex",
     "sections/appendix.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c45f6aa59ddbbe77fc572b57f5ee8151866b6b658b34ff0d4cd38ead391e1db7",
+      "bytes": 1673487
+    },
+    "original.pdf": {
+      "sha256": "9f779685dd7e11ff5a7e6b4b7940c1eeb38682f2efb974a7f9e29fc00d263a02",
+      "bytes": 1623356
+    }
+  }
 }

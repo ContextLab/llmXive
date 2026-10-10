@@ -69,5 +69,15 @@
     "sections/0_abstract.tex",
     "sections/6_appendix_failures.tex",
     "sections/6_appendix_traces.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a88b6c61b3d0246ec73211e1b82aa82f7da1512f47153b1129670d497955897c",
+      "bytes": 6569858
+    },
+    "original.pdf": {
+      "sha256": "1a5f233435576800433aa945eec9c54ae6412baed5779865c82f3feeea78f1c9",
+      "bytes": 6544540
+    }
+  }
 }

@@ -49,5 +49,15 @@
     "tables",
     "tables/swebenchpro_main_results.tex",
     "tables/tb2_main_results.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "2e7b108b73dbe081b7d6438172e9d03f882e585c4a2503644b650099f569bbac",
+      "bytes": 8877118
+    },
+    "original.pdf": {
+      "sha256": "4649df551ef69aaebb90541e42a1cf9db113266ab7f745e9581fcb90790eb233",
+      "bytes": 8730655
+    }
+  }
 }

@@ -124,5 +124,15 @@
     "figures/stage_results.pdf",
     "figures/trainning_recipe.pdf",
     "review.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "b7a93ba213900659222be56bbff73be62ce10b167153417125aac11c72ab3037",
+      "bytes": 1212710
+    },
+    "original.pdf": {
+      "sha256": "c38a98cc9866f3fd1dcad49f41728b6a5db54320902ce42c9cdc11f7aa639f64",
+      "bytes": 1172357
+    }
+  }
 }

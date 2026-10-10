@@ -56,5 +56,15 @@
     "sections/proof.tex",
     "tables",
     "tables/experiment.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "fcd8ac8ec9ff84195c963371c2853ca7831ae9bb68279bdb952f4308c93ffdb6",
+      "bytes": 2647896
+    },
+    "original.pdf": {
+      "sha256": "853ce7318607682bf90bd919c378969573aedb642688d6e493a743c7ba4550c2",
+      "bytes": 2611822
+    }
+  }
 }

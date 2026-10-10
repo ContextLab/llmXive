@@ -74,5 +74,15 @@
     "seed/MSALab.png",
     "seed/ByteSans-Medium.ttf",
     "seed/ByteSans-Bold.ttf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "79901355092b88a94bcc5663cfcdf2aeda43235ef9f75c4c1277a957ff3268ed",
+      "bytes": 16210891
+    },
+    "original.pdf": {
+      "sha256": "ee247f2a5209c6c5133d61fd8999274b768a7840f8aa7a4086268ab664625d43",
+      "bytes": 16162540
+    }
+  }
 }

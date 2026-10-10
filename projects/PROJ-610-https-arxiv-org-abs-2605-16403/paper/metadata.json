@@ -53,5 +53,15 @@
     "sections/05_Conclusion.tex",
     "sections/Appendix.tex",
     "sections/nips2026_conference.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cba215d8221cb7167a652aa4ad005f6e29bdf0781d92f8370e40bee73065402f",
+      "bytes": 15777646
+    },
+    "original.pdf": {
+      "sha256": "73656a3c7153212ec45b3e480b687afbbf12944b895379c81563b14f30dfc8d6",
+      "bytes": 15749960
+    }
+  }
 }

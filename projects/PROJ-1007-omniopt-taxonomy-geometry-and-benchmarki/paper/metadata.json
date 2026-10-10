@@ -104,5 +104,15 @@
     "tables/tab_related_survey_theory.tex",
     "tables/tab_seqlen_number_effective.tex",
     "tables/tab_taxonomy_cross_matrix.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "1f51150fec9eb028eb0b8bbf62831efacff5744cec18275a6edbbeb58eca67c8",
+      "bytes": 4988376
+    },
+    "original.pdf": {
+      "sha256": "62afd6af2d5463057172ec575d129d257447803b16b0a7d39bbe872351318a00",
+      "bytes": 5010419
+    }
+  }
 }

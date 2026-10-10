@@ -95,5 +95,15 @@
     "sections/LODTiles.png",
     "solarized-light.sty",
     "solarized.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "1cb733a137682cbb7882c440f224b8d7ec7b661bce1f593835e1cfe87b4c1385",
+      "bytes": 16705378
+    },
+    "original.pdf": {
+      "sha256": "b84d9f5ad231e381893d327a334536ad7637f41a53d84e0a0757783ef602c60e",
+      "bytes": 16670359
+    }
+  }
 }

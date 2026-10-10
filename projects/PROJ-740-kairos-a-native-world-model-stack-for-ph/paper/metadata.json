@@ -96,5 +96,15 @@
     "sec/timestep_distillation.tex",
     "sec/inference.tex",
     "sec/data_engineering_infrastructure.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "773f7c93e2cf9bdd30eeedef8445d06d2c52ab4a1a9676c23addf468cb2a2f3a",
+      "bytes": 42578436
+    },
+    "original.pdf": {
+      "sha256": "b52175ef71eccda41cecbcd9757d82c5aaed4fdd2295eaf34897e4bcf418bd7d",
+      "bytes": 42560431
+    }
+  }
 }

@@ -49,5 +49,15 @@
     "fiqure/overview.pdf",
     "math_commands.tex",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "6c119ada899c00b9ff5fbd01deb16995050dbf4116fdf11b9f5bb25e06925a4d",
+      "bytes": 6526490
+    },
+    "original.pdf": {
+      "sha256": "ee87e7cc0c648244fb70893798075430af472be3bdc4042766565cd75e22a7b6",
+      "bytes": 6482150
+    }
+  }
 }

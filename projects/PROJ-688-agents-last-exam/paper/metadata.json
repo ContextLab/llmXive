@@ -1328,5 +1328,15 @@
     "related.tex",
     "tables",
     "tables/main_results.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "7a97a4868362b670d97bbab8e8c77ea07ae618b316eebfce89423977c3dac446",
+      "bytes": 23707822
+    },
+    "original.pdf": {
+      "sha256": "30187cb8551144ed754e80922f111131b48870656801fddbba975a7f66d60695",
+      "bytes": 23664957
+    }
+  }
 }

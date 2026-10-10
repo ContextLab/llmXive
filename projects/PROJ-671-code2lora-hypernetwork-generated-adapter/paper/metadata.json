@@ -37,5 +37,15 @@
     "main.tex",
     "tables",
     "tables/numbers-headline.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "2f70b0de9c8588105440a19592c7e63cc4e21c28700a5f868511ea597af42b25",
+      "bytes": 1323017
+    },
+    "original.pdf": {
+      "sha256": "d8d886b2439fdbcc2dec3e1cd08f5a7e788da7c3a9e58040bb57e92b3e737f8b",
+      "bytes": 1314271
+    }
+  }
 }

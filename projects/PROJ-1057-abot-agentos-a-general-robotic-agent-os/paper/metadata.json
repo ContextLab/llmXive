@@ -92,5 +92,15 @@
     "solarized.sty",
     "sparkvla_m1.tex",
     "subsec_4_5_judge_model_draft.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c4ffbbc139e5128aae225ebc13b80fcdf5ca35a366b93456722d6ac539859cde",
+      "bytes": 32469959
+    },
+    "original.pdf": {
+      "sha256": "ccd654e0134cbf84c0466b5333d7971ccd5d4947c88029c218d65196e2ca1c25",
+      "bytes": 32291582
+    }
+  }
 }

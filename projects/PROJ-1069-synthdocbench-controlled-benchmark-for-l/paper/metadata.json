@@ -87,5 +87,15 @@
     "tables/difficulty-levels.tex",
     "tables/main-results.tex",
     "tables/related-benchmarks.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ac084c2535a3742c390014fae8b0b4c6a33861506040336bc2ac5ff817a6d543",
+      "bytes": 2702004
+    },
+    "original.pdf": {
+      "sha256": "280a924cf6b3f957596be997cf0536852412c86e2f9a7a67baea593254b01444",
+      "bytes": 2519749
+    }
+  }
 }

@@ -75,5 +75,15 @@
     "tables/probe.tex",
     "tables/reliable.tex",
     "tables/tradeoff.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "345e19977fd8ca9ce7d7df21f1b6402cd353e9d192f4749ff2916bea060547a3",
+      "bytes": 4665839
+    },
+    "original.pdf": {
+      "sha256": "77aa15fdd31d4a76ba68a1a9311205f8fd674bb53ec8667d888dfe6d16bf4239",
+      "bytes": 4704042
+    }
+  }
 }

@@ -74,5 +74,15 @@
     "paper/tables/5-models.tex",
     "paper/tables/co-reslo.tex",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "6ea180cd775b4854e55f4988e471cd96807657cf7ea5572833e2de9763e37d7d",
+      "bytes": 908906
+    },
+    "original.pdf": {
+      "sha256": "b06d9e16e8c444ce7214f2bc5d117bd0c7691ad5878b515fa353cfe5b3d78a12",
+      "bytes": 875316
+    }
+  }
 }

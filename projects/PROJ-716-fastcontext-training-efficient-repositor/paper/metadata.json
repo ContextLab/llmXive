@@ -72,5 +72,15 @@
     "tables/tab_explore.tex",
     "tables/tab_explore_protocol.tex",
     "tables/tab_runtime_cost.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "585e8edb94abba4d85d84c12cfc67aaacc3bd4f7dd24c5f76bb265234fd7bebe",
+      "bytes": 3124866
+    },
+    "original.pdf": {
+      "sha256": "1b51bf4f1d7e1cf0969c302c75b1be73f752c53a310cc43d9b55c4565b2780c9",
+      "bytes": 3118953
+    }
+  }
 }

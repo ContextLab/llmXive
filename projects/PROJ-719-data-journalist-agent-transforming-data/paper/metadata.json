@@ -130,5 +130,15 @@
     "tab",
     "tab/datasets.tex",
     "tab/relatedworks.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a0edd0cc68c01b0e7543d746ad53afa27a0d12891806ad6920f509799d646e6a",
+      "bytes": 36209221
+    },
+    "original.pdf": {
+      "sha256": "300c0bb7c8be5340f5139be7c415cfcaf9561abcc97979e432a801f683e20225",
+      "bytes": 36171305
+    }
+  }
 }

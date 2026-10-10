@@ -65,5 +65,15 @@
     "figs/limit_comparisons_time_all_qwen_a100_both.png",
     "figs/limit_comparisons_time_all_qwen_h100_both.png",
     "figs/limit_comparisons_time_all_qwen_h200_both.png"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ad16f46f09c5d6efc263b9cfc61781b8fb9d4b643bc5b08aebcec34c687012fd",
+      "bytes": 2038002
+    },
+    "original.pdf": {
+      "sha256": "8bca6ef09da40f919d46283c5740f913f1f6bfd594edd1f9b16eab461913edae",
+      "bytes": 1996992
+    }
+  }
 }

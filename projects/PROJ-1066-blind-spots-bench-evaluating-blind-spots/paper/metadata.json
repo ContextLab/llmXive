@@ -65,5 +65,15 @@
     "tables/dataset/img_q22.png",
     "tables/analyses",
     "tables/analyses/category.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "af92f8676fb0e2bff05e1f1513dea50b8ec3f30741b9138c84f17a5e7534df3c",
+      "bytes": 5317500
+    },
+    "original.pdf": {
+      "sha256": "7dabb222fd8ba826bd507b10007b7dcd8b33074b91f413174478b08e2efa8d33",
+      "bytes": 5183496
+    }
+  }
 }

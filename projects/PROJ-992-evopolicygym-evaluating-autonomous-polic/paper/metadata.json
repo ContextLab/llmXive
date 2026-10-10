@@ -65,5 +65,15 @@
     "tables/code_structure.tex",
     "tables/two_abilities_detail.tex",
     "tables/token_accounting.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "e45f9658a1ec59cb4d4478985a1c5d0c355e712c91966691a2373ea5129d6817",
+      "bytes": 1411301
+    },
+    "original.pdf": {
+      "sha256": "5838478c93e06b9d9455871326773c825992b2f87a7f7359abbad369bbbd8f31",
+      "bytes": 1395080
+    }
+  }
 }

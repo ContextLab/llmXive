@@ -62,5 +62,15 @@
     "sec/04_results.tex",
     "sec/05_conclusion.tex",
     "sec/06_appendix.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "4c5edb0129b91083680d4891367ae143e23577cce6ca0ef448dc847a82fdde7d",
+      "bytes": 8194148
+    },
+    "original.pdf": {
+      "sha256": "acb6f8f1aef9231b82ecab91c4bd3c86035748560bc16dfddc27d298f91fb1f2",
+      "bytes": 8140920
+    }
+  }
 }

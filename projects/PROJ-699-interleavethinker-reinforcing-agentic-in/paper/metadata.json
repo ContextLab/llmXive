@@ -76,5 +76,15 @@
     "longcat_style.sty",
     "math_commands.tex",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cb9f37719bc4dfe1ef38c291cfe5b4b908d6a6fe8b860734bcdb40225e5b505d",
+      "bytes": 5224390
+    },
+    "original.pdf": {
+      "sha256": "4e31610e8ee72bafd48592d9d812ecfacdba10a7978ec0ad6088111ed6513b5c",
+      "bytes": 5182355
+    }
+  }
 }

@@ -50,5 +50,15 @@
     "searchgen_teaser.pdf",
     "table_bottleneck.tex",
     "table_searchhurt.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "8662cad4ad31a223146786bf31dda4da84ff58f9d4dbceec0c8b82f72f6ed31c",
+      "bytes": 8352493
+    },
+    "original.pdf": {
+      "sha256": "de2ee4ff4a9c69440bb3889c56dc5332ed29f5591d0ac11b5480cdb595a166a0",
+      "bytes": 8199809
+    }
+  }
 }

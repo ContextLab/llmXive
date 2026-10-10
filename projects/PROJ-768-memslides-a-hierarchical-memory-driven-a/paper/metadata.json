@@ -60,5 +60,15 @@
     "tables/tool_memory_main_table.tex",
     "tables/tool_memory_paired_robustness_table.tex",
     "tables/tool_memory_pair_detail_table.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "4ee2156d64ba82c2399e5d88c920961b41c8eaf97e3e822b34064448607e27bf",
+      "bytes": 14848239
+    },
+    "original.pdf": {
+      "sha256": "42b59b33f388e6adb930fbf058377bf8d25a70204c14a04eb465ad8bc9e07af2",
+      "bytes": 14802101
+    }
+  }
 }

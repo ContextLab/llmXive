@@ -17,11 +17,14 @@ is concatenated, guaranteeing the no-modification invariant mechanically.
 
 from __future__ import annotations
 
+import logging
 import shutil
 from pathlib import Path
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.types import Project
+
+logger = logging.getLogger(__name__)
 
 _LLMXIVE_URL = "https://github.com/ContextLab/llmXive"
 _CLS_REL = "papers/.style/llmxive.cls"
@@ -121,9 +124,58 @@ def resolve_original_pdf(pdir: Path, metadata: dict, *, download: bool = True) -
         if arxiv_id:
             pdf_dir.mkdir(parents=True, exist_ok=True)
             if _download_arxiv_pdf(arxiv_id, saved):
+                _check_recorded_digest(saved, metadata, arxiv_id)
                 return saved
     return None
 
+
+def record_pdf_digest(path: Path) -> dict[str, object]:
+    """``{"sha256": ..., "bytes": ...}`` for ``path`` — the provenance record.
+
+    ``paper/metadata.json`` carries one of these per committed PDF under
+    ``committed_pdf_digests``, because an arXiv id alone does NOT pin the bytes:
+    ``arxiv.org/pdf/<id>`` serves the CURRENT version. A paper whose authors
+    posted a revision after intake re-downloads as different bytes, and pairing
+    a review written against the intake version with a later body would
+    misattribute the review.
+    """
+    import hashlib
+
+    data = path.read_bytes()
+    return {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+
+
+def _check_recorded_digest(saved: Path, metadata: dict, arxiv_id: str) -> bool:
+    """Whether a re-download matches the digest recorded at intake.
+
+    Logs a warning on a mismatch and returns ``False``; the caller still gets
+    the file, because control flow here is deliberately unchanged. Nothing is
+    persisted: a sidecar JSON that no module reads is a persist-and-forget
+    artifact, which ``llmxive.checks.state_readers`` rejects outright (it
+    caught exactly that in the first version of this). The structured record
+    belongs with its consumer — the dashboard's preprint entry — and lands with
+    the change that stops committing these PDFs.
+
+    Deciding whether a mismatch should BLOCK restyling belongs there too:
+    making it a hard gate now would strand every paper whose arXiv version has
+    moved, which is 5 of a random 12 sampled on 2026-10-10.
+    """
+    recorded = (metadata.get("committed_pdf_digests") or {}).get(saved.name)
+    if not isinstance(recorded, dict) or not recorded.get("sha256"):
+        return True  # nothing recorded (a fresh intake): nothing to compare
+    actual = record_pdf_digest(saved)
+    if actual["sha256"] == recorded.get("sha256"):
+        return True
+    logger.warning(
+        "preprint %s: re-downloaded %s does NOT match the version recorded at "
+        "intake (%s bytes sha %s vs recorded %s bytes sha %s). arxiv.org serves "
+        "the CURRENT version; the repository's reviews were written against the "
+        "recorded one. Re-review before treating them as the same paper.",
+        arxiv_id, saved.name,
+        actual["bytes"], str(actual["sha256"])[:12],
+        recorded.get("bytes"), str(recorded.get("sha256"))[:12],
+    )
+    return False
 
 def _download_arxiv_pdf(arxiv_id: str, out_path: Path) -> bool:
     """Download the canonical arXiv PDF. Returns True on a real PDF, else False."""
@@ -682,6 +734,7 @@ __all__ = [
     "build_peer_review_tex",
     "build_preprint_pdfs",
     "prepend_cover_to_pdf",
+    "record_pdf_digest",
     "render_llmxive_pdf",
     "resolve_original_pdf",
     "tex_escape",

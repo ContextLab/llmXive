@@ -35,5 +35,15 @@
     "natbib.sty",
     "paper.tex",
     "refs.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "471892c823469617e02164b7bb231ad0bbe3c9bb08a35de606ebf1876d08e249",
+      "bytes": 426778
+    },
+    "original.pdf": {
+      "sha256": "b748a078404345546599b57f0139d1a00eaad814ccbc22ab21dac0013a7ce6da",
+      "bytes": 385334
+    }
+  }
 }

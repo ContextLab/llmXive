@@ -53,5 +53,15 @@
     "tabs/ablation_dual_memory.tex",
     "tabs/sota2.tex",
     "tabs/sota1.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "6e8e7af28ec8f92bd7b265753ed5a8ae3ba76ca3cee49417d6b4cf15c17dc5ab",
+      "bytes": 1249574
+    },
+    "original.pdf": {
+      "sha256": "dc8ebffc4ea3eb2add2e8d484aeb0eaab9637520fe5636f76fbe67dd5904c6b2",
+      "bytes": 1124508
+    }
+  }
 }

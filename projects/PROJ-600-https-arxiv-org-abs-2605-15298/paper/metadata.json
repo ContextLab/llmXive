@@ -81,5 +81,15 @@
     "tab/vla_simplerenv_widowx_results.tex",
     "tab/vlm_qa_results.tex",
     "update_overleaf.sh"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "fb4a2f9be3f7bf0a89b7923ee83a512eec56415e0105dd937049bfb808187291",
+      "bytes": 5363219
+    },
+    "original.pdf": {
+      "sha256": "2081ac0871ce443442996fbd2193a9985c977987b43bb5a3bc196bcbe3fdfbeb",
+      "bytes": 5327611
+    }
+  }
 }

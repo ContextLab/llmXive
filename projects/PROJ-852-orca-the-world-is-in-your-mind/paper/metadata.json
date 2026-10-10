@@ -129,5 +129,15 @@
     "Section/Method.tex",
     "Section/Introduction.tex",
     "TR_Ref.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "5e24076617766f3cf9ae2a039b91a96be98a74154b3be08fcde6025ea4afdded",
+      "bytes": 41615530
+    },
+    "original.pdf": {
+      "sha256": "721569370946d1af59e6d1373b65a95c50c014feea4740dcefa401bd1e6832cd",
+      "bytes": 41577569
+    }
+  }
 }

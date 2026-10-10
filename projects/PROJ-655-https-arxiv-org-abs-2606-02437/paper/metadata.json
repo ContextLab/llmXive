@@ -162,5 +162,15 @@
     "tables/infrastructure/serving_readiness.tex",
     "tables/scale_up",
     "tables/scale_up/prior_comparison.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "91aa8379328818469e9eca69308ed362e1e7a523b0ad74d422a959575a813003",
+      "bytes": 5192449
+    },
+    "original.pdf": {
+      "sha256": "071a52e7ca586332b73da7df691715f322245d2b166238c8e3d5e52d9c08303d",
+      "bytes": 5167744
+    }
+  }
 }

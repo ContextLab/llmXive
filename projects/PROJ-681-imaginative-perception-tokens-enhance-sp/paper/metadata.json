@@ -79,5 +79,15 @@
     "tables/ablation_latent.tex",
     "tables/dataset_stats.tex",
     "tables/fig_ablation_latent.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c4633b8e49ac1a468c8a7250379509a7622071c5836647d1fba95dc368dcac13",
+      "bytes": 17260352
+    },
+    "original.pdf": {
+      "sha256": "a013b08491a1a0942a46e181dc4d6091c4f05a940b78b835d79e689c6523597b",
+      "bytes": 17206686
+    }
+  }
 }
