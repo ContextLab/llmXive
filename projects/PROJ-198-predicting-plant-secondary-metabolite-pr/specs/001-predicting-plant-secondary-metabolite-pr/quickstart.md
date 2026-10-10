@@ -2,84 +2,85 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to NCBI RefSeq and MetaboLights (no API key required for public data, but rate limits apply).
-- **Note**: antiSMASH 7.0 is a dependency. If you have Docker, the pipeline will attempt to run antiSMASH in a container. Otherwise, it will use a local installation. **Genomes > 500MB will be skipped automatically.**
+- Python 3.11+  
+- Git  
+- Access to NCBI RefSeq and MetaboLights (no API key required; respect rate limits).  
+- **antiSMASH 7.0** – either Docker installed (preferred) or a local installation on the PATH.  
+- Genomes > 500 MB will be automatically skipped.
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-198-predicting-plant-secondary-metabolite-pr
-    ```
+1. **Clone the repository**  
+   ```bash
+   git clone <repository-url>
+   cd projects/PROJ-198-predicting-plant-secondary-metabolite-pr
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**  
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install dependencies**  
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-4.  **(Optional) Install antiSMASH**:
-    If you have Docker installed, no action is needed. If you prefer to install antiSMASH locally:
-    ```bash
-    # Follow instructions at https://docs.antismash.secondarymetabolites.org/
-    # Ensure 'antismash' is in your PATH.
-    ```
+4. **(Optional) Install antiSMASH**  
+   - With Docker (recommended): no further action.  
+   - Locally: follow https://docs.antismash.secondarymetabolites.org/ and ensure `antismash` is on your PATH.
 
 ## Running the Pipeline
 
 ### 1. Configuration
-Edit `code/config.py` or `config/species_list.yaml` to define the list of plant species to analyze.
+Edit `config/species_list.yaml` to list the plant species you wish to analyze.
+
 ```yaml
 species:
   - "Arabidopsis thaliana"
   - "Oryza sativa"
   - "Solanum lycopersicum"
-  # ... add more
+  # add more …
 ```
 
-### 2. Data Download and Processing
-Run the data pipeline to download genomes, predict BGCs, and align data.
+### 2. Data Download & Alignment
 ```bash
 python code/cli/main.py --step download_and_align
 ```
-*This step may take 30-60 minutes depending on the number of species and antiSMASH execution time. Genomes > 500MB are skipped.*
+*Downloads genomes, runs antiSMASH, fetches metabolite tables, harmonizes identifiers, and writes `data/processed/aligned_matrix.csv`. Zero‑BGC rows are **preserved** as valid entries.*
 
-### 3. Model Training and Evaluation
-Train the models and run the sensitivity analysis.
+### 3. Model Training & Evaluation
 ```bash
 python code/cli/main.py --step train_and_evaluate
 ```
-*This step runs LOO cross-validation, PGLS, and the phylogenetic permutation baseline. It includes PCA dimensionality reduction.*
+*Performs PCA (if needed), runs LOO CV (for N < 20) or 5‑Fold CV (for N ≥ 20), trains RF, Elastic Net, Gradient Boosting, and PGLS, runs the phylogenetic permutation baseline **after** model training, and writes `data/processed/model_metrics.json` (the SSoT artifact).*
 
 ### 4. View Results
-Results are saved to `data/processed/`.
-- `aligned_matrix.csv`: The input data.
-- `model_metrics.json`: Performance metrics.
-- `sensitivity_analysis.csv`: Robustness check results (threshold sweep).
+- `data/processed/aligned_matrix.csv` – Input matrix.  
+- `data/processed/model_metrics.json` – **Single Source of Truth** for R², Pearson r, p‑values, CV method, and feature importances.  
+- `data/processed/sensitivity_analysis.csv` – Threshold sweep outcomes.
+
+## Sensitivity Sweep Enforcement
+
+The pipeline will **abort with a non‑zero exit code** if the maximum absolute R² variation across the BGC‑threshold sweep exceeds **0.05** (fulfilling SC‑002). This ensures robustness is a hard requirement.
 
 ## Testing
 
-Run the unit and integration tests:
 ```bash
 pytest tests/
 ```
 
-To test the pipeline on a small subset (5 species) to verify the 30-minute constraint:
+## Sub‑set Run (CI validation)
+
 ```bash
 python code/cli/main.py --step download_and_align --limit 5
 ```
+*Runs the pipeline on an initial set of species to verify the 30‑minute CI constraint.*
 
 ## Troubleshooting
 
-- **antiSMASH Timeout**: If the pipeline hangs for a specific species, that species will be excluded. Check logs for "Species skipped due to timeout".
-- **Missing Data**: If a species has no metabolite data, it will be excluded. Check `data/interim/alignment_warnings.log` for details.
-- **Memory Error**: If you encounter OOM errors, reduce the number of species in the config or increase the swap space on your machine.
-- **Small Sample Size**: If N < 20, the pipeline will use LOO cross-validation instead of 5-fold.
+- **antiSMASH timeout** – Species exceeding the time limit are logged and excluded.  
+- **Missing metabolite data** – Species lacking metabolite tables are excluded; see `data/interim/alignment_warnings.log`.  
+- **Memory errors** – Reduce the number of species or increase swap space.  
+- **Small N** – If fewer than 20 species remain after filtering, LOO CV is automatically selected.  

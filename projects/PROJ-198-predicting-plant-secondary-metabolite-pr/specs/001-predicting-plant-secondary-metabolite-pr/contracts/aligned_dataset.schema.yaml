@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Aligned Dataset Schema"
-description: "Schema for the final aligned feature-target matrix used in modeling."
+description: "Schema for the final aligned feature‑target matrix used in modeling."
 type: "object"
 properties:
   metadata:
@@ -52,7 +52,7 @@ properties:
             minimum: 0
         metabolite_targets:
           type: "object"
-          description: "Map of InChIKey to log-transformed abundance."
+          description: "Map of InChIKey to log‑transformed abundance."
           additionalProperties:
             type: "number"
             description: "Finite float value (no NaN/Inf)."
