@@ -1,12 +1,15 @@
 status: none
-intent: DocBank scientific PDF layout annotations dataset download python package
-  dataset
+intent: scientific PDF layout dataset with text and bounding box annotations MixSub-LLaMA-3.2
+  python package dataset
 required_fields:
 - document_id
 - page_number
-- text_content
-- layout_bounding_boxes
-- page_image_path
-cache_key: fdabc5c8461c28cf17bc98533af951341d3479050bd3f0396bf38b64306c740a
-searched_at: '2026-10-10T18:34:08.262197+00:00'
+- text
+- layout_bbox
+- layout_label
+- image_file
+- width
+- height
+cache_key: 6248b5462841ae69068b2b12a4d76be590698e554949a62201c5b234fd033f53
+searched_at: '2026-10-10T19:20:38.450849+00:00'
 retry_count: 1
