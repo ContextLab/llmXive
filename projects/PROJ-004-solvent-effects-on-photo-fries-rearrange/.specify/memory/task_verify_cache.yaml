@@ -1,3 +1,57 @@
+T001:
+  c: true
+  h: 5efcf382b998134ed734b65131abd3c8e1ba014d5f5ec9a8363ed3b142795081
+  r: All four required directories (`code/`, `data/`, `tests/`, `docs/`) exist with
+    non-empty contents (subdirectories, `__init__.py` markers, and files like `main.py`,
+    `methodology.md`), matching T001's requirement to create the project structure.
+  sig: f52eb9bf8a4f98567cc2030d4d90f8924bc9993d58be48865247a754e532bd71
+T002:
+  c: false
+  h: 947e6da08c92656bf2e1f48ace9412d48fa72cc7166f93b957ea5cb1f075ccb3
+  r: The `requirements.txt` exists but lists all packages without pinned versions
+    (e.g., bare `numpy`, `scipy`) and omits the required `rdkit`, while adding unrequested
+    packages (`pymatgen`, `matplotlib`, `seaborn`). The task explicitly required pinned
+    versions of the eight named packages including `rdkit`.
+  sig: 241c3854d61f4d4b7ac0aff64af8e0572cac5efe275b4aef4fbd3e983a69c639
+T002b:
+  c: false
+  h: 1a2b57f3d38773273adb24d2ade5e2e7b6fd4f17b71887943d93be9c322fb3e8
+  r: "The `requirements.txt` at `projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/requirements.txt`\
+    \ contains only numpy, scipy, pandas, scikit-learn, pyyaml, pymatgen, matplotlib,\
+    \ seaborn, pymc, and statsmodels \u2014 `rdkit` is not listed at all. The task's\
+    \ sole requirement was to pin `rdkit==2023.9.1` (or latest) in `requirements.txt`,\
+    \ so the fix is simply to add a pinned `rdkit` entry."
+  sig: 088e088af6490c02c3541a51aa44676ca21b92dd60fe14fe2355a3c746b8018a
+T003:
+  c: true
+  h: 9e68654b9cdbe77074662e4443513381457562443d96b0e2370ec3a34dd5bfb6
+  r: "The `pyproject.toml` exists and contains valid `[tool.black]` (line-length 88,\
+    \ py39 target) and `[tool.ruff]` (line-length 88, py39 target, rule selections/ignores)\
+    \ configuration sections, plus dev dependencies for both tools \u2014 exactly\
+    \ what T003 asked for."
+  sig: 0f7698c54c2895933f4a275f0e0b4bd9e67e92a0cccc7296106e6ced8a75633d
+T004:
+  c: true
+  h: 3ed05f5673a5a8968495071ccce5f67f3d93f5819e9e9be079efc900c8c3b7f1
+  r: "The artifact `code/utils/seeds.py` exists (2113 bytes) and contains a real,\
+    \ functional `set_seed` implementation covering Python's `random`, numpy, torch\
+    \ (with CUDA determinism flags), and tensorflow (each guarded for availability),\
+    \ plus helper functions `get_seed_hash` and `reset_seeds_to_default` \u2014 no\
+    \ stubs, TODOs, or placeholders. The content directly matches the task's requirement\
+    \ of a global seed utility for reproducibility."
+  sig: 1d68249afdb4d61f05cd94b9420cbd35e888b10eaea88a4732108f3455cd2361
+T005:
+  c: false
+  h: ff0ab4c54498ae69703e061c78613e5ce63da022bd7d20d440c41691d3e95fdd
+  r: "The file exists and `log_environmental_params`/`log_operation` do record parameter\
+    \ dicts, but the structured-logging setup is broken: `EnvironmentalFormatter.format`\
+    \ calls `datetime.now(timezone.utc)` while `timezone` is never imported (`from\
+    \ datetime import datetime` only), so any use of `setup_logging(log_file=...)`\
+    \ \u2014 the actual structured/file-logging path \u2014 raises `NameError` on\
+    \ the first record, directly contradicting the module's \"never raises\" contract.\
+    \ Fix the import (e.g., `from datetime import datetime, timezone`) and verify\
+    \ the formatter path executes; also note the decorator form o"
+  sig: 0abbb548d061771b554dc984cadbeda4505b8c91a97a878f3ed54a6187230b0d
 T014:
   c: false
   h: cef6517d460f1509e6ab5917cbaf430dac1513e8e346f395055d0c3a246ff333
@@ -48,17 +102,3 @@ T035:
     \ and contains logic to load the instrument model from `data/chemicals/instrument_config.yaml`,\
     \ falling back to the required generic model when the file or the model key is\
     \ missing. This matches the task\u2019s constraints."
-T060:
-  c: false
-  h: 248db98afa2d124950f2f7cedcb33d481cde16c97a97be75c2e2173679cff967
-  r: "The required output `data/processed/instrument_calibration_log.json` does not\
-    \ exist, and the provided `instrument_calibration_log.py` is incomplete (truncated)\
-    \ with no evidence that it successfully creates the JSON log. The task\u2019s\
-    \ core deliverable is therefore missing."
-T062:
-  c: false
-  h: 10511ac6070361fc97040df372cad1bf606ddf92f8ccf877c1a78b52ba418d0c
-  r: "The provided `baseline_verification.py` is truncated, contains a clear bug (`return\
-    \ pre` instead of the expected tuple) and lacks the core comparison logic and\
-    \ JSON report generation. Moreover, the required output file `data/processed/baseline_verification_report.json`\
-    \ does not exist. The task\u2019s deliverables are therefore not satisfied."

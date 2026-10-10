@@ -1,0 +1,120 @@
+T001:
+  task: 6e670a20861f3363655f1920d923f596e69939ce8188e81c71b11638976b72db
+T002:
+  reason: The `requirements.txt` exists but lists all packages without pinned versions
+    (e.g., bare `numpy`, `scipy`) and omits the required `rdkit`, while adding unrequested
+    packages (`pymatgen`, `matplotlib`, `seaborn`). The task explicitly required pinned
+    versions of the eight named packages including `rdkit`.
+  task: 4e163f492fd50649f5da87da7a3f8072dbd517f929f3d1a625282451205c2fef
+T002b:
+  reason: "The `requirements.txt` at `projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/requirements.txt`\
+    \ contains only numpy, scipy, pandas, scikit-learn, pyyaml, pymatgen, matplotlib,\
+    \ seaborn, pymc, and statsmodels \u2014 `rdkit` is not listed at all. The task's\
+    \ sole requirement was to pin `rdkit==2023.9.1` (or latest) in `requirements.txt`,\
+    \ so the fix is simply to add a pinned `rdkit` entry."
+  task: 23dbbe4285aa87107bcd56207bc53740bf9bfe20b3708b68f760ba29343aa379
+T003:
+  task: 86276874831484788b282277574f506851660dfffcf3ccf514d57ddf829393d4
+T004:
+  task: 7eeb2ace8cd36ee68f28e23ddb2782d5277c2162a3fecaffce7c94db52641a11
+T005:
+  reason: "The file exists and `log_environmental_params`/`log_operation` do record\
+    \ parameter dicts, but the structured-logging setup is broken: `EnvironmentalFormatter.format`\
+    \ calls `datetime.now(timezone.utc)` while `timezone` is never imported (`from\
+    \ datetime import datetime` only), so any use of `setup_logging(log_file=...)`\
+    \ \u2014 the actual structured/file-logging path \u2014 raises `NameError` on\
+    \ the first record, directly contradicting the module's \"never raises\" contract.\
+    \ Fix the import (e.g., `from datetime import datetime, timezone`) and verify\
+    \ the formatter path executes; also note the decorator form o"
+  task: 62ff72518f6fef17fffd027fda7053c021bbc8b988f9909adb06130f3f85dd2a
+T006a:
+  task: ce4949f3628dcda87be1f8be05c5b63a8ea7a4a778e3823a22b26a20dbbe541a
+T006b:
+  task: 6a2f9f83b4d2466fa34df9b621024ec3302d3b122b22246f233d60bdaccd913f
+T006c:
+  task: 2839ac3b2eb4a224efedf558b1c9134aded95d9a43d4408d0f772eb0c7846fd9
+T007:
+  task: e6032884841016c43bf2bf33999899a12c2fef74b888eb29b5375cf379e2652e
+T008:
+  task: 0c83b11918b97c6f412500f408aa266b753dcf3ac6742df6bb965303b73d4254
+T009a:
+  task: 311c36d69a114d1f82253ccb10f46020be600694ebd7b2cf1cedce89cffbe148
+T009b:
+  task: 9db6fb8d72752fa1533e57f0d2dbbf3b038a09902538a39be59bbbd32bb906c9
+T010:
+  task: 4af6395dc88655ebeb0734b65b7862be4d160970d6f02354daf37b1e19147c8a
+T013:
+  task: d848403c8a8dc8e881891923b261a8fd502e34ab5e871354274669be90f860e1
+T014:
+  task: 2d4babb1ac58adf084c7dec182f32eed814366c6a1b0c399183867ba416ad700
+T015b:
+  task: 3171bff85080c5e78b6c6609b56f29088e43a299301468b9302f13f3e2c80c8f
+T015c:
+  task: 72d023aecee9cecc7d8b96558cf49897bf26680d90194a840db9b0991b9d326a
+T015e:
+  task: 763ccce668c32d9577678a14036639826724053490078d3e0e4f94397868f604
+T015f:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/capture.py, data/raw/kinetic_traces/'
+  task: fd16ca8be86eb017958ae076f91173b750559559f90fe9617759b8ad3315d60b
+T016:
+  task: 471878a001d92bd5bf0c045cb27a8e2d106387a13a4ded53f8dcc1f235e5209f
+T017a:
+  task: 8bed81b1ae0249b9c478612c3321914b8fb50f7cfc51dc407527ace67f0273f0
+T017b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/compliance.py,
+    data/processed/compliance_report.json'
+  task: d092bce1f4713b6f0a98e84207cfaa07d3f6bfc428e98063f18abf77fee125ee
+T017c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/hash_manager.py,
+    solvents.yaml, state/artifact_hashes.yaml'
+  task: 559a56820e853139ac1fd5cb086cab4de6dbc4e5e988c3c802c875a6b3d853cf
+T021:
+  task: 7c1077a9975dbb49a268d1eb3da0edcf3e612ef4f90d3b2bcf53c7ebbb14c0c9
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/kinetic_metrics.csv'
+  task: 0e56f13e497f173e6434c02d30f123fdca2d1868bd79a628c26ee81e210ba56b
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis.csv'
+  task: 2e4596eb4aa589e4cd946877662cb70de8f21c3e0b97e4bd8fbd3ef1f9778213
+T029a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/compute/dft_results.csv'
+  task: 53b512a35f855370d5858ba997901f74ef4e93f8e506a9b7ce10d4bf05b0d7cc
+T029b:
+  task: fd861c41e0a54b63340e9584917e64d783479f2c8d5cf6a6efe0ecc4357140a2
+T029c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/compute/solvent_solvation.csv'
+  task: 57e8fd43c6d5b0c8baa03978db73e8bfa4f2344c8d60821a493792a4f8094efb
+T029d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/chemicals/phenyl_benzoate.smi'
+  task: 708434f81700c5974d9ccfba74e4c2c07b043e4c6ef2aa31c3a98650fb1cf2d4
+T030a:
+  task: 1c5a99afa9290ab5b865873d454986866688cfcb0531e0a37d012478c0912dc3
+T030b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/correlation_results.json'
+  task: ed6abb7d2197446bef3e79012169c9e44b0ad877a51038a4ff82c5e323a47429
+T031b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/vif_raw_scores.json'
+  task: b345fdfbc9543124051403d0daccc610278e8d1426214db4c7e593117532c4aa
+T032:
+  task: 41a27b14cc9fa5dd51b66b6535e6cd5eaee3bf0f2a22f7bdd2b544bb42e3859a
+T033:
+  task: 5c483c98a83abb478d281ef5f0b289b59709843cbf88b47ae008787c9a2f79ab
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: paper/figures/regression_plot.png'
+  task: a876b50e99594a5fd8f22c3a6ae8ba8d52500774044dd8a78cf01942e45f0a93
+T035:
+  task: e5cc423f3d94f8aeff1937dd9333b46b6072fd3c5e187a6d94c6b07b2a739089
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_full_pipeline.py'
+  task: 32655ac6800eac3298cad0e71fc2e9f11dc9a927c412a7870a8dbf4f07c80f1f
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/calibration_protocol.py,
+    data/chemicals/calibration_standards.yaml, data/processed/calibration_certificates/'
+  task: 5c3fef0ae6e2320c991c76421d3fcbe3d81bf80dbd7c035dcac0523ffe7d4f0e
+T059a:
+  task: 3637e816c4262a91eefcde7516dd761b24a0b1816bfa2b82a8ffed27e2f794fa
+T059b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/study_power_analysis.json'
+  task: 9f61d760733d9631926b13dcb5c29fc0c2197109a3936a0c7db6cfa76929bc6f
+T099:
+  task: 30801439b5403ea3c0f9e6587b3ec5859bcf0788e73e0e1e47e88cc08ce38596
