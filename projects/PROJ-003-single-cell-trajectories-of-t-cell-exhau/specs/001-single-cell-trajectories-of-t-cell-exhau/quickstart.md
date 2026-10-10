@@ -1,82 +1,60 @@
-# Quickstart: Single-Cell Trajectories of T-Cell Exhaustion (Full GEO Study)
+# Quickstart: Single-Cell Trajectories of T-Cell Exhaustion
 
 ## Prerequisites
-- Python 3.11+  
-- R 4.3+ (Seurat v4)  
-- Git
-- Access to a GitHub Actions runner **or** a local Linux/macOS environment with **2 CPU cores** and **≥ 7 GB RAM**.
+- Python 3.11+, R 4.3+ (Seurat v4), Git
+- Linux environment with 2 CPU cores and ≥7 GB RAM (or a GitHub Actions free-tier runner)
 
 ## Installation
 
 ```bash
-# 1️⃣ Clone the repository
 git clone <repo-url>
 cd projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau
-
-# 2️⃣ Create a virtual environment
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-
-# 3️⃣ Install Python dependencies
+python -m venv venv && source venv/bin/activate
 pip install -r code/requirements.txt
 ```
 
-## Data Download (Phase 0)
+## Data Download (Phase 1)
 
 ```bash
-# Download all four GEO datasets (no authentication required)
 python code/download_data.py \
   --datasets GSE136103 GSE127465 GSE111075 GSE138852 \
   --output data/raw/
 ```
 
-*If the command exits with a non‑zero status, inspect `logs/download.log` for checksum mismatches.*
+Supplementary-file URLs are resolved at run time from the NCBI GEO accession metadata endpoint; no URLs are hard-coded. Per-dataset failures are logged and marked `unavailable` — inspect `logs/download.log`.
 
 ## Run the Full Pipeline
 
 ```bash
-# 1️⃣ Preprocess (Seurat QC & normalization)
-python code/preprocess.py --input data/raw/ --output data/processed/
-
-# 2️⃣ Subset CD3+ T‑cells (focus on exhaustion‑relevant lineage)
+python code/preprocess.py --input data/raw/ --output data/processed/       # Seurat QC (MT-gene fix)
 python code/subset_tcells.py --input data/processed/ --output data/processed/
-
-# 3️⃣ Velocity & Pseudotime (CPU‑only)
-python code/velocity.py --input data/processed/ --output data/processed/
-
-# 4️⃣ Fork‑Point Identification
+python code/velocity.py --input data/processed/ --output data/processed/   # scVelo, CPU-only
 python code/forkpoint.py --input data/processed/ --output data/results/fork_points/
-
-# 5️⃣ Enrichment Against Therapy‑Response Signature (GSE138852)
+python code/power_analysis.py --input data/processed/ --output data/results/validation/
 python code/enrichment.py --input data/results/fork_points/ --output data/results/validation/
-
-# 6️⃣ Bootstrap Validation (a sufficient number of iterations)
 python code/validate.py --input data/results/validation/ --output data/results/validation/
-
-# 7️⃣ Generate the final HTML report
 python code/report.py --input data/results/validation/ --output data/results/report/
 ```
 
+Lint evidence (T001): `ruff check . && black --check .` runs in CI and its output is recorded in `logs/lint.txt`.
+
 ## Expected Outputs
+
 | Path | Description |
 |------|-------------|
-| `data/results/fork_points/<dataset>_fork_points.csv` | Ranked list of fork‑point genes (conforms to `fork_point.schema.yaml`; uses `branch_id`). |
-| `data/results/validation/<dataset>_enrichment.json` | JSON containing enrichment **corrected p‑value** (< 0.01), confidence interval, and bootstrap iteration count. |
-| `data/results/report/final_report.html` | Interactive report with velocity plot, divergence heatmap, gene table, enrichment statistics, and a clear disclaimer. |
+| `data/results/fork_points/<dataset>_fork_points.csv` | Ranked fork-point genes (`gene_symbol`, `branch_id`, `timing_rank`; conforms to `fork_point.schema.yaml`). |
+| `data/results/validation/power_analysis.json` | Power analysis result (FR-011). |
+| `data/results/validation/<dataset>_enrichment.json` | BH-corrected enrichment p-value, bootstrap CI, iteration count (conforms to `validation.schema.yaml`). |
+| `data/results/report/final_report.html` | Velocity plot, divergence heatmap, gene table, enrichment statistics, cross-dataset heatmap with bootstrap CIs, runtime/memory table, associational disclaimer. |
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Fix |
-|---------|--------------|-----|
-| Download script exits 1 | Network glitch or checksum mismatch | Re‑run the command; verify internet connectivity; check `logs/download.log`. |
-| QC filter removes **no** cells | Dataset missing mitochondrial gene annotation (`MT-` prefix). | The script falls back to any gene whose name starts with `MT-` **or** uses the `percent.mt` annotation from Seurat; if absent, a warning is logged and the filter is skipped. |
-| scVelo fails to converge | High noise or insufficient moments | Increase `n_pcs` or set `scvelo.tl.recover_dynamics(..., max_iter=200)`. |
-| No fork‑points detected | Divergence threshold too strict | Lower the threshold in `forkpoint.py` (e.g., `2.0 → 1.5` SD). |
-| Enrichment step errors | Signature file not found or malformed | Verify that `code/enrichment.py` points to the bundled therapy‑response signature file (`gse138852_therapy_signature.txt`). |
-| Validation step errors | Numeric fields contain `-1` placeholders | Ensure real numeric values are written; re‑run `validate.py` after successful enrichment. |
-
-All scripts are lint‑checked (`ruff check . && black --check .`) as part of CI; failures will be reported in the workflow logs.
+|---|---|---|
+| Download script exits 1 | Accession metadata unreachable or no supplementary files | Check `logs/download.log`; re-run; the dataset is marked `unavailable` and the run continues — do NOT substitute another source. |
+| QC removes zero cells | Gene symbols not loaded (T003 root cause) | Now fixed: features file is loaded and Ensembl→symbol MT map applied; if a dataset genuinely lacks MT annotation, a warning is logged. |
+| scVelo fails | Missing spliced/unspliced layers or convergence | Check `logs/velocity.log`; stochastic model with bounded retries; `alignment_status: "failed"` halts only that dataset's cross-dataset validation. |
+| No fork-points detected | Divergence threshold too strict | Threshold is configurable; consult `logs/forkpoint.log`. |
+| Enrichment step errors | Response labels absent from metadata | The step reports the gap explicitly; validation is restricted to datasets with labels. |
 
 ---
-
-

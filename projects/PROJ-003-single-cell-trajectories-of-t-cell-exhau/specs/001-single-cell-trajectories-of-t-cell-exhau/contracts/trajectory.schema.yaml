@@ -8,61 +8,54 @@ properties:
     description: "Identifier of the source dataset."
   pseudotime_path:
     type: "string"
-    description: "Path to the file containing per‑cell pseudotime values."
+    description: "Path to the file containing per-cell pseudotime values."
   velocity_graph_path:
     type: "string"
     description: "Path to the velocity graph (e.g., .h5ad)."
   alignment_status:
     type: "string"
     enum: ["success", "failed", "partial"]
-    description: "Result of the Markov‑chain alignment step."
+    description: "Result of the Markov-chain alignment step (retried with higher regularization up to 2 times)."
+  runtime_seconds:
+    type: "number"
+    description: "Wall-clock runtime of the velocity step (SC-001)."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage in MB logged via psutil (SC-001)."
   fork_points:
     type: "array"
-    description: "List of fork‑point objects identified in this trajectory."
+    description: "List of fork-point objects identified in this trajectory."
     items:
-      $ref: "#/definitions/fork_point"
+      type: "object"
+      properties:
+        branch_id:
+          type: "string"
+        divergence_score:
+          type: "number"
+        null_mean:
+          type: "number"
+        null_std:
+          type: "number"
+        p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        confidence:
+          type: "string"
+          enum: ["high", "low"]
+      required:
+        - branch_id
+        - divergence_score
+        - null_mean
+        - null_std
+        - p_value
+        - confidence
+      additionalProperties: false
 required:
   - dataset_id
   - pseudotime_path
   - velocity_graph_path
   - alignment_status
+  - runtime_seconds
+  - peak_memory_mb
 additionalProperties: false
-definitions:
-  fork_point:
-    type: "object"
-    properties:
-      branch_id:
-        type: "string"
-        description: "Identifier for the fork‑point (e.g., fp_001)."
-      divergence_score:
-        type: "number"
-        description: "Observed divergence metric."
-      null_mean:
-        type: "number"
-        description: "Mean of the null distribution."
-      null_std:
-        type: "number"
-        description: "Standard deviation of the same."
-      genes:
-        type: "array"
-        items:
-          $ref: "#/definitions/fork_point_gene"
-    required:
-      - branch_id
-      - divergence_score
-      - null_mean
-      - null_std
-      - genes
-    additionalProperties: false
-  fork_point_gene:
-    type: "object"
-    properties:
-      gene_symbol:
-        type: "string"
-      timing_rank:
-        type: "number"
-      expression_level:
-        type: "string"
-      description:
-        description: ""
-    additionalProperties: false

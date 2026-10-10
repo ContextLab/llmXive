@@ -1,14 +1,19 @@
 status: none
-intent: pysradb python package download GEO SRA scRNA-seq count matrices python package
-  dataset
+intent: GEO scRNA-seq T cell exhaustion datasets GSE136103 GSE127465 GSE111075 GSE138852
+  python package dataset
 required_fields:
-- gene_id
-- gene_name
 - cell_barcode
+- gene_symbol
 - raw_counts
-- mitochondrial_percentage
+- mitochondrial_gene_flag
+- CD3D_expression
+- CD3E_expression
+- CD3G_expression
+- PDCD1_expression
+- LAG3_expression
+- TOX_expression
+- therapy_response
 - sample_id
-- gse_accession
-cache_key: b0ddb3f480446861dadfcca87ccbb89c3ae07f754f2c9df56117c733c2d99056
-searched_at: '2026-10-10T15:23:46.995525+00:00'
+cache_key: 8293bae3bc9f8e71dc57fa8a25acb04aea214edd5d52efd684d0896dd8f1621b
+searched_at: '2026-10-10T15:51:23.756946+00:00'
 retry_count: 1

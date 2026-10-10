@@ -7,38 +7,46 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Benjamini‑Hochberg corrected p‑value for enrichment of fork‑point genes against therapy‑response signatures."
+    description: "Benjamini-Hochberg corrected p-value for enrichment of fork-point genes against therapy-response signatures."
   bootstrap_iterations:
-    type: "number"
+    type: "integer"
     minimum: 1
-    description: "Number of bootstrap resamples performed."
+    description: "Number of bootstrap resamples performed (1,000 per FR-006)."
   confidence_interval:
     type: "array"
     items:
       type: "number"
-      minimum: 0
-      maximum: 1
-    description: "95 % confidence interval for the enrichment metric."
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper] for the enrichment metric."
   cross_dataset_correlation:
     type: "number"
-    description: "Spearman correlation of fork‑point gene rankings between datasets."
+    description: "Spearman correlation of fork-point gene timing rankings between datasets."
   significance_level:
     type: "boolean"
-    description: "Indicates whether the enrichment result meets the significance threshold (p < 0.01)."
+    description: "True if the enrichment result meets the significance threshold (p < 0.01)."
+  power_adequate:
+    type: "boolean"
+    description: "True if the FR-011 power analysis confirms >= 80% power at alpha = 0.05."
   discovery_dataset_ids:
     type: "array"
     items:
       type: "string"
-    description: "Identifiers of the datasets where the fork‑point genes were discovered."
+    description: "Identifiers of the datasets where the fork-point genes were discovered."
   validation_dataset_id:
     type: "string"
     description: "Identifier of the dataset used for validation (e.g., GSE138852)."
+  disclaimer_included:
+    type: "boolean"
+    description: "True if the associational (non-causal) disclaimer of FR-009 is included in the final report."
 required:
   - enrichment_pvalue
   - bootstrap_iterations
   - confidence_interval
   - cross_dataset_correlation
   - significance_level
+  - power_adequate
   - discovery_dataset_ids
   - validation_dataset_id
+  - disclaimer_included
 additionalProperties: false
