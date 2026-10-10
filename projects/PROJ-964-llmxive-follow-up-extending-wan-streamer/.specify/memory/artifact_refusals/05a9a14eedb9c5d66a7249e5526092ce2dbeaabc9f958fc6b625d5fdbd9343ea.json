@@ -1,0 +1,7 @@
+{
+  "task_id": "T087",
+  "fingerprint": "8bc12bdd221db0549a60e982ef703876671e24fdf084950ad9fa9f9ea1f27915",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/utils/state_manager.py': imports nonexistent names from sibling files: `from utils.update_state_yaml import update_state` (available: ARTIFACT_DIRS, Any, Dict, FILE_EXTENSIONS, List, Optional, PROJECT_ROOT, Path...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

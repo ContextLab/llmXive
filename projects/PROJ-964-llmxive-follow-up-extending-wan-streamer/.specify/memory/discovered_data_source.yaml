@@ -1,11 +1,12 @@
 status: none
-intent: Wan-Streamer v0.1 VoxCeleb2 turn-taking latent vectors python package dataset
+intent: download Wan-Streamer v0.1 logs or VoxCeleb2 speech video dataset with turn
+  taking labels python package dataset
 required_fields:
 - timestamp
 - semantic_feature
 - prosodic_feature
 - latent_delta_magnitude
 - turn_label
-cache_key: 56b09b88ce5a17e0be44b9eebb129150b0afd7370fd32c40652d82dfd49e0e24
-searched_at: '2026-09-01T23:11:04.910015+00:00'
+cache_key: b5340d320f66bb89a7db7c2cda25319556528d145d0c9b0bfad664a21015c567
+searched_at: '2026-10-10T03:23:39.776275+00:00'
 retry_count: 1

@@ -1,3 +1,46 @@
+T002a:
+  c: true
+  h: 58326a5b9f72eed2cac2b03d97d0360933f11b9e39dc86774b8b3c85c6c360b8
+  r: The evidence shows the `code/` directory exists and contains the required subdirectories
+    `code/data`, `code/models`, `code/metrics`, `code/inference`, `code/utils`, and
+    `code/tasks`. The directory listing from the collector confirms each path is present,
+    satisfying the `os.path.isdir` verification step.
+  sig: 2b8d91689216c90dc843ee76ab0232c6494e27d51c79af6bc3b9abea4e408dc3
+T002b:
+  c: false
+  h: 6272e12969bc9e87b7fdf4a6a4f8aa000054ebe0f1214c9b0f10f5dbfd30262c
+  r: The `data/` directory and its required subfolders (`raw`, `processed`, `metrics`,
+    `logs`, `models`) are present, but there is no artifact (script output, test log,
+    etc.) showing that `os.path.isdir` was actually run and confirmed for each path.
+    Provide evidence of the verification step (e.g., a test script and its successful
+    output).
+  sig: a25651763d86de6c13f63b4974d5f55fba1909ef96d462aa7610c9699d7a957a
+T002c:
+  c: true
+  h: 689aa884b69a1ed6ee0b42842c5a7d8d691a9516bceb7d0370a41160777d78f5
+  r: The `state/` directory is present in the project root (contains a `.gitkeep`
+    file), satisfying the requirement to create the directory.
+  sig: 18c430c6e9c21be160454a5d313b77f21095ff66ab656143e712b42a2c15dd4e
+T002d:
+  c: true
+  h: 17dfd04ce1002deeda9ebfc28b528b037022416403b96ca9762006f08aa87bd8
+  r: Checked that the `docs/` directory exists in the project root (contains .gitkeep
+    and markdown files), satisfying the requirement to create the directory.
+  sig: 1452969ed3e39dd643467aa207abf6133ebc09ccf9b3c4647d61d2f915bb9e6c
+T002e:
+  c: true
+  h: df201a8868b3683974e1b971ef34b163af205fc427dda424d255ac5361d5c527
+  r: "Checked the `contracts/` directory (listed by the collector with 10 entries\
+    \ and a valid SHA\u2011256 hash), confirming it exists as required."
+  sig: 0267ed0dbd75659d204a33fb2b6fef4e302f5c727b3c8298bf5a45b902b276a3
+T002f:
+  c: false
+  h: b83b7691f64486902ec5e538b8e76a35d527d3f1bf78b990c812e4b864f7c83b
+  r: The `tests/` directory and its three subdirectories are present, satisfying the
+    creation part, but there is no evidence (e.g., a script run, log output, or test
+    result) showing that `os.path.isdir` was actually executed to verify those paths
+    as required. Provide proof of the verification step.
+  sig: 446bc092ebdf5ab28ab081c1a35be5b5d9fe844da9fb5971d4f6c0946de44b66
 T008:
   c: false
   h: d2d7746c6b099115ef7ed361732e3dbccc675546303cf9253de1ee40c66caadb
