@@ -1,0 +1,180 @@
+T001:
+  task: 40a0591949e2c5327f7c3daef51f2c5d4585492a587647ac6d94196540c6e24f
+T002:
+  reason: The `requirements.txt` exists but is missing the explicitly required `requests>=2.31.0`
+    line (the task notes it is required for the UCI fallback logic in T005). It contains
+    six other pinned packages (including extras like memory-profiler, psutil, jinja2),
+    but omits the one dependency the task called out.
+  task: 18057fe37475ae77a50c2c36746f4e99a469957f2a3b29ac1cef6ac2fef03fb9
+T003:
+  reason: "The script `code/scripts/pii_scan.py` exists and is a genuine implementation,\
+    \ but it hard-depends on a `.ruff.toml` file whose existence is not evidenced\
+    \ anywhere in the collected artifacts, and the sub-task requirement to configure\
+    \ `pyproject.toml` with the necessary PII rules is unmet \u2014 the shown `pyproject.toml`\
+    \ contains no `[tool.ruff]` section or PII rule configuration at all. Additionally,\
+    \ the script selects `PI` rather than the task-specified `PII001,PII002.` rules,\
+    \ and there is no execution evidence (e.g., a successful run output) that the\
+    \ scan actually works or that ruff is installed."
+  task: 943bd7acd56e3182d1f318e50d11109c88c4c34fb194280a6aabdfdf05a0466c
+T004:
+  task: ce13920b4d7dcb0ba121d3331c426541717cec11344cbe9c360388afdca9512d
+T005:
+  reason: "`code/data_loader.py` lacks nearly every required element: no UCI URL fallback\
+    \ (no `requests` usage, no CSV/ARFF parsing), no SHA-256 checksum verification\
+    \ (hashlib imported but never used), no spectrum validation across N/F bins with\
+    \ CRITICAL error, and no generation of `data/spectrum_report.json` with a `selected_ids`\
+    \ array \u2014 that file is confirmed MISSING. It also skips datasets with n_samples\
+    \ < 100 instead of warning and including them, and the fixed 15 IDs live in `code/config.py`\
+    \ with IDs (e.g., 23381, 35939) that don't match the research.md list; the cached\
+    \ results CSVs are fabricated-l"
+  task: 1216eeb63968d1fbeb0725002eaf6de73578e4a265942fc22cca6b3e96d0ccc3
+T005b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/spectrum_report.json'
+  task: de7c36bd2eae3aef534082790d081834bcbc1e329bad9479e03c0a58fd3d9b1d
+T005c:
+  reason: "The required artifacts `data/spectrum_report.json` and `data/filtered_dataset_ids.json`\
+    \ do not exist, and `code/data_loader.py` contains no filter step reading the\
+    \ spectrum report \u2014 it still has its own inline n<100 skip logic (violating\
+    \ the centralized-logic constraint that T005c be the sole filter). The implementer\
+    \ must add a filter script that reads `data/spectrum_report.json`, logs warnings\
+    \ for datasets with `n_samples < 100`, and writes `data/filtered_dataset_ids.json`,\
+    \ and remove the skip logic from `load_datasets`."
+  task: 85f49ce0cae49629eeab2ec066b851eb6e42aa37574cfd940063d2d0820c68a7
+T006:
+  task: 4a90094f9fa3fe9399b5b99079d8f214eea613fd38c90aaaedc4af0cd3e9bd90
+T007:
+  task: 9efd37a9b95abe56f7e5716f7ec5595ab3e8712f5218c1bbf988ad9ed6b4c334
+T009:
+  task: f9cfaaf2e012d7daa4ba59b4c283347251991d24d261b2da321b78989a58eee8
+T010a:
+  task: 2109e0ef5d2d4b602fc8343b9848982e7a6129c56eaf33633c28c5fe4fc904b1
+T010b:
+  task: a2d5b7e92f68d4f49b417714206eb606fbab496d76faae29a5fec5599aab7a54
+T010c:
+  task: 2541eff7f2c9ec8ad88829ba8b649f5557667e3487cbe9978428011c2ba68710
+T011:
+  task: 6ddebca2c8764ebba1a30e9465bb922678afc9fa11dae006a5c18d583220368d
+T012:
+  task: e9ea18379069dad78201b652652b3728a3ec177ce018eb8a33ca171fcc636c1f
+T013:
+  task: c0c6c7ebead754defe82569d6923352811612f7ec20a19f946dd3e6cffb622cc
+T014:
+  task: f97f6d43d42ee748b3bc596d33e875b2b931b1903dc209b8919c74071dd72562
+T016:
+  task: 9472674d8ceb7e3c2c3a29f12af032f99c7c1bcba336dd22a290037267fd3a46
+T017:
+  task: 242406c58fb49792e89fe825c18e080d1d679a31985f219b83fdc21c839a143d
+T018a:
+  task: 017fe9db1847de2db42ff78fd066e535d2ab2252881c2870373ddfbc2f9aa4f9
+T018b:
+  task: ec4dca44348aab68105077bc2d234923e9a367d0fdb0615d65f74bb6d66b4a01
+T019b:
+  task: 502747b11b8b8aeb5a39781a4cdcc5a336dc06324eedbea20ba50e0e89ea7fc4
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: results/regression_coefficients.csv,
+    results/theoretical_deviation.csv'
+  task: ad71a3201565ac527f04b72c770dd2385d320ebc881fe12154e9a10b5ead09b8
+T021:
+  task: a03e4915c84be416cfe6e43fabdf4437952f1dbcfb14ab470c0998f6dde76416
+T023:
+  task: 499b0f049c21164276a50e1d1715277b15c468fd24e6a5cf079df4a828e96976
+T024:
+  task: 49c918d33f3bc4d1278de88e0b69babb2b5fec97742ea511256cd1a0b089ff99
+T025:
+  task: 1ffc5bc96a48edb013da56e2b3c999011bf2b21ee108c899d0187ff4f0dec049
+T026a:
+  reason: 'declared artifact(s) missing/empty/invalid: results/correlation_results_raw.csv,
+    results/permutation_results_raw.csv, results/correction_families.json'
+  task: b780168675d23d7b09f272a8a9992944a47ddd17f9f0cddb65dd8b0885251ea6
+T026b:
+  task: 8d2c2b2c7eaa456baa3dad578137c3d90e6b00bb1022caa5cbe7daeef455fafc
+T026c:
+  task: d9d927096306a1c58701fcba5ba009afe992051c8ef522fe16c924066edf77c2
+T028a:
+  task: 97c79e4a55714cccbed2f6ed1ce0f512280fb7a09560aaec0a508760f2297e99
+T028b:
+  task: a66ad8b4fcdadecba9ce2f410186ec27594f78a54d3d0e6252097a79cd401d88
+T028c:
+  task: ad9ed6d286420f6eed5f73e0055ac2f5faee0aa89714d7b967f439c34bc1cca4
+T029a:
+  task: 6f58f9b52f37545b69ae00f23e533102e31c25e773045243cd29e198dd450b8e
+T029b:
+  task: 2ff5d040d66c951a25362c7529355af9ac79dcc74846cb856a05c8153d36db84
+T029c:
+  task: 0a1f2af4e56b00905952765048db1250a24538e96ff089a844c027b9e3caa7b1
+T031:
+  task: 476c7b00eceed2f6c42796ecb9fb6f3aeea978fec9261fd340b6bbd0e9dde525
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: scripts/run_e2e_validation.py,
+    results/e2e_validation_log.txt'
+  task: bebb1d67537184fb15ab4aa003d2c36044c45fc38221ea2f417fd454106c0eeb
+T033:
+  task: 139a1085beabf368e9056c2db09d1f7b18feb34275bfaca7e6e95d1149ad6513
+T036a:
+  task: 4a6273979c3ae057e8784f0199f2ef049c4fe123db5c4498e7ad53b6c88e0741
+T036b:
+  task: b157f34ed395759b42320eaf20d8bb67ced815906130e0267d9d16be1b535a39
+T037a:
+  task: 7fc8d4dd1d9ad1afd178869b29f439a6d578dc4deb5f29fb6791531e9782354c
+T037b:
+  task: bf5a1688cb63aafe8b441cc3b5ea4905716f3817def4abfe790adfc8fc592c07
+T038a:
+  task: ccec05dda7cec512b1d5838b2efc67cfbebcfd11212438bb128be2c5832ce78a
+T038b:
+  task: f49321bb11203c423ece157f7513544889fe13a6d4cca485700679378db4a211
+T039a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_data_loader.py'
+  task: 3205581fe484eb4d8f22b1b9cc62ec95b643fa6dec2850b7c8cfbdb7d8b55db3
+T039b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_data_loader.py'
+  task: ede52a8879febbe4286f49d3b02a765632aac92c3077cc33d7fd69cbd73f7230
+T039c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_data_loader.py'
+  task: a68fd0e0a2c03586bbe37799bad6c1671d3ddc544a3546eff70fe39be2f21291
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_evaluator.py'
+  task: 8aa4edda43bdf074d4b22526d82504fc5ce45ec782f653a256c8f66221d128cf
+T042:
+  task: 47b15496223db7a379b2f1c6fc0aea6d3e84967b55eff0e8a3373eb7b0328a78
+T047:
+  task: 7c43f48ab2992b7ebd8cf0a7b059804d07a5295f4c6787249de5118bbaf84a47
+T048:
+  task: 25ad33a60f9876683bb33c8aa2852c16777bce53557d1199725c00a1c0b0f5dd
+T049:
+  task: 410e29a5f444cfff43d1d65de6db5c755896e47f63ab32e3c93fc3ccad945f38
+T050a:
+  task: 959a015ac80de55336b570fba909e65b28dc84733f3840e50a1282bbc6a9c8de
+T050b:
+  task: c2a182b1795dc8c59d3851c0d38f9bdeee12c71dd9a6a97ec8357c1c0050502c
+T050c:
+  task: 85ab85db06df65cecf2a88dd32f54902b7dfee1381f824997ee3daf827cf892b
+T051a:
+  task: 9626536093241ee5ac61a680b8b6034cb243fc3dea3bdfb1314cd51c9578ef94
+T051b:
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_memory_audit.py
+    exit=1'
+  task: 5efb33349e0cc7faa4d55aadc124b85e4c312f1060f81c9dc2f76ac4430ff4ad
+T052a:
+  task: d97a5c2759b4c3bed3c35465a14b05274ca914373051421d87a3ed659c03da66
+T052b:
+  task: c473a1e5a88d0fd798c7609b8f572ecfe49e5e2fc603181f68d9b358f83faebc
+T053:
+  task: f5b4d60d0bf75a2163003b461ff47a36965f5c510f4c5c3951b1ee96a4613fa1
+T054:
+  task: be0d90be51c43fa7837436a5542df4fc62108daf63db2c2fe454eaa5b6e0656e
+T055:
+  task: 6750bdc5a7bd94d9d9338d2d0f43c02bbe976c0abd86bf282c54a8d082540443
+T056:
+  task: 93c85b278987d6345a857d76d1712d1ddd6ff2306cb89666ac2dc2d849ba94bf
+T057:
+  task: 60eeb2c1556a996693a9798c8609d9c7811e1517ca172eeab02ca7495d0b5550
+T058:
+  task: 46c39cbc64a66ae2d3e1d17480e5ccd43060a49ef7200be9ea870675f967f0bb
+T059:
+  task: 5a2fa3c89c1c6b96075b488ca017c7593a6316fbb0b9ec3363ddcd351e1b1d86
+T060:
+  task: 70f5d8e5421ba6157731d2b8701e03c8547b8b535551ba608adf1d8cfcc9455a
+T061:
+  task: c1796f3566aabe894e603c147de68e7fba3123686433fc68a57fa56052cc7737
+T062:
+  task: b59193c685c75e2a9b0efe1323e940181dba962150c135d719963e6695459936

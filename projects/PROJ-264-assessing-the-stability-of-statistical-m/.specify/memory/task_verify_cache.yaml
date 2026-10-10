@@ -1,3 +1,67 @@
+T001:
+  c: true
+  h: 179e3238f495639d4d8d5066e350c2d571bad952530f4e3a6f94a2448c215ccf
+  r: 'The task T001 only requires creating the project scaffolding files. Confirmed
+    on disk: `code/__init__.py` (non-empty package docstring), `code/main.py` (3455
+    bytes, real pipeline entry point), `data/raw/.gitkeep` and `data/processed/.gitkeep`
+    (present with content), and `tests/__init__.py` (non-empty). The three test-subdirectory
+    `.gitkeep` files were not inspected only due to the collector''s file-evidence
+    limit, not reported missing, and all other required files were resolved at their
+    canonical locations. The quality of `main.py`''s logic and the fabricated-looking
+    results CSVs are concerns fo'
+  sig: 88de7262d86921322ec5315ada50f7175c972abe081b675f56c9a7e16fd5c781
+T002:
+  c: false
+  h: 24cb6168454b5a67514ffe8ab0542eb35d295041f17277d6bca9473296415294
+  r: The `requirements.txt` exists but is missing the explicitly required `requests>=2.31.0`
+    line (the task notes it is required for the UCI fallback logic in T005). It contains
+    six other pinned packages (including extras like memory-profiler, psutil, jinja2),
+    but omits the one dependency the task called out.
+  sig: a7b18f90d9af7c0cf8de7710138e8c250a6a5cb8997772bc92e8b39822f4addc
+T003:
+  c: false
+  h: de2dad6532ff966709149312196500735ba7e170cf783ad902763bab274fe051
+  r: "The script `code/scripts/pii_scan.py` exists and is a genuine implementation,\
+    \ but it hard-depends on a `.ruff.toml` file whose existence is not evidenced\
+    \ anywhere in the collected artifacts, and the sub-task requirement to configure\
+    \ `pyproject.toml` with the necessary PII rules is unmet \u2014 the shown `pyproject.toml`\
+    \ contains no `[tool.ruff]` section or PII rule configuration at all. Additionally,\
+    \ the script selects `PI` rather than the task-specified `PII001,PII002.` rules,\
+    \ and there is no execution evidence (e.g., a successful run output) that the\
+    \ scan actually works or that ruff is installed."
+  sig: cb7510f038c44a909dffa21058784ea176f25adf17fa3ebda16d73635b2065a6
+T004:
+  c: true
+  h: 887576aa49fc387fb82723aa29c266017680fd42a0893a67cc82f9bd30814192
+  r: 'The artifact `code/utils.py` exists (1658 bytes) and contains real, working
+    implementations of all three required utilities: `set_seed` (pins Python, PYTHONHASHSEED,
+    numpy, and torch seeds), `setup_logging` (configures logging with a stdout handler),
+    and error handling wrappers (`PipelineError`, `log_and_reraise` decorator, `safe_execute`).
+    No stubs, TODOs, or placeholders are present.'
+  sig: 8a1ee1379c9e0dce9e7770f287c3ac0722344fa7c72bc014950fec1c12be591d
+T005:
+  c: false
+  h: 1188e62933cf2a0edbbc97f247753be1f3d743df1f2a41bbb354f132a3294580
+  r: "`code/data_loader.py` lacks nearly every required element: no UCI URL fallback\
+    \ (no `requests` usage, no CSV/ARFF parsing), no SHA-256 checksum verification\
+    \ (hashlib imported but never used), no spectrum validation across N/F bins with\
+    \ CRITICAL error, and no generation of `data/spectrum_report.json` with a `selected_ids`\
+    \ array \u2014 that file is confirmed MISSING. It also skips datasets with n_samples\
+    \ < 100 instead of warning and including them, and the fixed 15 IDs live in `code/config.py`\
+    \ with IDs (e.g., 23381, 35939) that don't match the research.md list; the cached\
+    \ results CSVs are fabricated-l"
+  sig: 8795f9729ee73cc925ccb5f37e568182a445e89335d0164aee3762f7fa6de7b5
+T005c:
+  c: false
+  h: 628e65cddcc71d7d57f1ad127514218a328195f9ccc6b3464072a174384c29a1
+  r: "The required artifacts `data/spectrum_report.json` and `data/filtered_dataset_ids.json`\
+    \ do not exist, and `code/data_loader.py` contains no filter step reading the\
+    \ spectrum report \u2014 it still has its own inline n<100 skip logic (violating\
+    \ the centralized-logic constraint that T005c be the sole filter). The implementer\
+    \ must add a filter script that reads `data/spectrum_report.json`, logs warnings\
+    \ for datasets with `n_samples < 100`, and writes `data/filtered_dataset_ids.json`,\
+    \ and remove the skip logic from `load_datasets`."
+  sig: b830056b7ee1983c3ffb1242ca4b2ad4c6f3f8020ab9ba151bf2d2f4ae2ae0ba
 T028a:
   c: false
   h: 2f4aae1d183b0694f0d850750109cf185ccd55b7517ee57606128b425da69dba

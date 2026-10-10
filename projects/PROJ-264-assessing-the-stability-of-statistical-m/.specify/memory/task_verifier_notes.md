@@ -1,0 +1,17 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T002** — The `requirements.txt` exists but is missing the explicitly required `requests>=2.31.0` line (the task notes it is required for the UCI fallback logic in T005). It contains six other pinned packages (including extras like memory-profiler, psutil, jinja2), but omits the one dependency the task called out.
+- **T003** — The script `code/scripts/pii_scan.py` exists and is a genuine implementation, but it hard-depends on a `.ruff.toml` file whose existence is not evidenced anywhere in the collected artifacts, and the sub-task requirement to configure `pyproject.toml` with the necessary PII rules is unmet — the shown `pyproject.toml` contains no `[tool.ruff]` section or PII rule configuration at all. Additionally, the script selects `PI` rather than the task-specified `PII001,PII002.` rules, and there is no execution evidence (e.g., a successful run output) that the scan actually works or that ruff is installed.
+- **T005** — `code/data_loader.py` lacks nearly every required element: no UCI URL fallback (no `requests` usage, no CSV/ARFF parsing), no SHA-256 checksum verification (hashlib imported but never used), no spectrum validation across N/F bins with CRITICAL error, and no generation of `data/spectrum_report.json` with a `selected_ids` array — that file is confirmed MISSING. It also skips datasets with n_samples < 100 instead of warning and including them, and the fixed 15 IDs live in `code/config.py` with IDs (e.g., 23381, 35939) that don't match the research.md list; the cached results CSVs are fabricated-l
+- **T005b** — declared artifact(s) missing/empty/invalid: data/spectrum_report.json
+- **T005c** — The required artifacts `data/spectrum_report.json` and `data/filtered_dataset_ids.json` do not exist, and `code/data_loader.py` contains no filter step reading the spectrum report — it still has its own inline n<100 skip logic (violating the centralized-logic constraint that T005c be the sole filter). The implementer must add a filter script that reads `data/spectrum_report.json`, logs warnings for datasets with `n_samples < 100`, and writes `data/filtered_dataset_ids.json`, and remove the skip logic from `load_datasets`.
+- **T020** — declared artifact(s) missing/empty/invalid: results/regression_coefficients.csv, results/theoretical_deviation.csv
+- **T026a** — declared artifact(s) missing/empty/invalid: results/correlation_results_raw.csv, results/permutation_results_raw.csv, results/correction_families.json
+- **T032** — declared artifact(s) missing/empty/invalid: scripts/run_e2e_validation.py, results/e2e_validation_log.txt
+- **T039a** — declared artifact(s) missing/empty/invalid: tests/unit/test_data_loader.py
+- **T039b** — declared artifact(s) missing/empty/invalid: tests/unit/test_data_loader.py
+- **T039c** — declared artifact(s) missing/empty/invalid: tests/unit/test_data_loader.py
+- **T040** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluator.py
+- **T051b** — Requested task execution failed; rerun successfully: scripts/run_memory_audit.py exit=1

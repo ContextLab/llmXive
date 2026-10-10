@@ -1,13 +1,14 @@
 status: none
-intent: download OpenML UCI binary classification datasets Python package dataset
+intent: OpenML python package retrieve verified binary classification datasets for
+  cross validation python package dataset
 required_fields:
 - dataset_id
 - dataset_name
-- model
-- fold
-- repeat
+- model_name
+- fold_number
+- repeat_number
 - accuracy
 - f1_score
-cache_key: c42f9bf39d7c6bba7b95a12a196866634810c4f21b8d9f66073b5e3b267c59c5
-searched_at: '2026-08-18T03:33:54.983444+00:00'
+cache_key: 32ebf1177533e446486be04f687825f6837908801c4b91e41cefe606138fe173
+searched_at: '2026-10-10T04:32:48.199318+00:00'
 retry_count: 1
