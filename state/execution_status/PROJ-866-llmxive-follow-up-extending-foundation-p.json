@@ -9,11 +9,11 @@
     "python code/engines/compressed_context.py --input data/raw/workflows.json --depths 2 4 6 8 10 -> rc=2\n    usage: compressed_context.py [-h] --workflow WORKFLOW [--depth DEPTH]\n                             [--method {bfs,dfs}] --output OUTPUT\ncompressed_context.py: error: the following arguments are required: --workflow, --output",
     "python code/analysis/tradeoff_model.py --full data/processed/full_context_logs.json --compressed data/processed/compressed_context_logs.json -> rc=1\n    No logs found for analysis."
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-18T01:38:12Z"
+  "updated_at": "2026-10-10T17:18:36Z"
 }

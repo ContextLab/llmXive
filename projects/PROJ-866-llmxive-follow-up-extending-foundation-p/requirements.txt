@@ -1,13 +1,14 @@
-# Core project dependencies (kept minimal for the execution environment)
 networkx
 tiktoken
 scikit-learn
 pandas
 pytest
-statsmodels
-numpy
 pm4py
-# The following were already required by the original project; they are
-# reiterated here to ensure the environment has them available.
-# (If the repository already contains a requirements.txt file, this entry
-# will simply add the missing ``pm4py`` dependency.)
+statsmodels
+scipy
+numpy
+# The following are already present in the original project; they are
+# listed again for completeness.
+# (If the original file already existed, this entry replaces it with the
+# same content plus the added ``scipy`` dependency required for curve
+# fitting.)

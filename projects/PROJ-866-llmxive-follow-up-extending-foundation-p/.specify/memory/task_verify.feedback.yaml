@@ -10,10 +10,7 @@ T067:
     data/raw/workflows.json, data/results/tradeoff_curve.csv, data/results/invalid_exclusion_report.json'
   task: 8544dc7ccbb1b351066b0b89c020caef35d363d455fb93b2ab1b037e62ceeaae
 T070:
-  reason: "The required output files `data/results/tradeoff_curve.csv` and `data/results/threshold_report.json`\
-    \ are missing, and `code/main.py` contains only a placeholder comment rather than\
-    \ the actual analysis implementation. Without these artifacts the task\u2019s\
-    \ core result artifacts have not been generated."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: c1a48cd5a05428fa1614a53a514f46c92227d3947266ca25eaee80326a4a15ff
 T071:
   reason: "The only artifact provided is `data/results/reproducibility_report.json`;\
@@ -36,6 +33,12 @@ T072b:
     data/results/tradeoff_curve.csv'
   task: d971a21b3da9c6a8531ce943b425b1fcce7fcfc322c7cc22ee1db04c520675dc
 T072c:
+  reason: "The handoff markdown exists, but the referenced figure (`figures/tradeoff_curve.png`)\
+    \ and table (`data/results/tradeoff_curve.csv`) are not present in the provided\
+    \ evidence, nor is there any proof that the reproduced SHA\u2011256 hash matches\
+    \ the hash produced by task\u202FT051. Without those linked artifacts and verification\
+    \ of the reproducibility hash, the handoff note does not fully satisfy the task\
+    \ requirements."
   task: b8aef465ea445851524160e8c2cd19b744dfdaab5a15f61e5166888a50bd7e4a
 T077:
   reason: The claim includes a detailed `docs/adaptive_sampling.md`, but there is
@@ -63,6 +66,15 @@ T080:
     \ were corrected. The task\u2019s primary artifact does not exist."
   task: 34820b30e2906c1466c676c482761f9ab94145ae16f75c3511173a6130b8e996
 T081:
+  reason: "The required file `services/executor.py` does not exist; the implementation\
+    \ is placed at `code/services/executor.py`, so the task\u2019s specified path\
+    \ is missing. Consequently the integration is not located where the specification\
+    \ demands."
   task: 8bf83435648de0e323625fa686f466c0c72c2d1c8bdd2a28093f22c8cdc07b3c
 T082:
+  reason: "The evidence does not include a `services/analyzer.py` file (or any diff\
+    \ showing a new verification step) that checks the safe\u2011operating\u2011zone\
+    \ threshold and aborts the pipeline when the policy\u2011violation error rate\
+    \ exceeds\u202F1\u202F%. Without this concrete implementation or test output,\
+    \ the task\u2019s requirement is not satisfied."
   task: 081a9162c922e3e135e4d0afe09102022719a069d090d91013b5e98bad95813d

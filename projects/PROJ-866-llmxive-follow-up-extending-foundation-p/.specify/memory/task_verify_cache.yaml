@@ -13,13 +13,6 @@ T067:
     \ are missing, so there is no evidence that the verification script was run or\
     \ that invalid workflows were excluded. Without these artifacts the task\u2019\
     s requirement is not satisfied."
-T070:
-  c: false
-  h: 83ada1ac6009a9e7c6994c85ca53994870272787af5e7889954bdd65b37b204e
-  r: "The required output files `data/results/tradeoff_curve.csv` and `data/results/threshold_report.json`\
-    \ are missing, and `code/main.py` contains only a placeholder comment rather than\
-    \ the actual analysis implementation. Without these artifacts the task\u2019s\
-    \ core result artifacts have not been generated."
 T071:
   c: false
   h: a35cfc2d90d45431e1c366e61923a7b47c44b27195439e6dc6d36e838512c047
@@ -39,12 +32,15 @@ T072a:
     \ it stayed within the 6\u2011hour limit. The required artifacts and genuine run\
     \ data are missing."
 T072c:
-  c: true
-  h: 293552e4b56a01aa18d9de79d68e2da24deb1e1c59e70662e80892fecf0eb58a
-  r: "The `specs/001-policy-compression-tradeoff/paper_handoff.md` file exists, contains\
-    \ links to the CSV, figure, and results summary, and records the reproducibility\
-    \ SHA\u2011256 hash while stating compliance with Constitution Principles IV and\
-    \ V."
+  c: false
+  h: 94bfbb7e595b4a439fb14061e49e24c7e5f51784dc5d2d74668dfd2d78a41b2e
+  r: "The handoff markdown exists, but the referenced figure (`figures/tradeoff_curve.png`)\
+    \ and table (`data/results/tradeoff_curve.csv`) are not present in the provided\
+    \ evidence, nor is there any proof that the reproduced SHA\u2011256 hash matches\
+    \ the hash produced by task\u202FT051. Without those linked artifacts and verification\
+    \ of the reproducibility hash, the handoff note does not fully satisfy the task\
+    \ requirements."
+  sig: e21717d8338bda22c1a426da88a61005b5f348f660e9e8230f492e4f8ebea2ee
 T077:
   c: false
   h: 99870899dedff45f20f0d92d185fdbf364bfe314a21a09d9e289510e53022a30
@@ -74,3 +70,20 @@ T080:
   r: "The required file `code/lib/utils.py` is missing, so the docstring cannot be\
     \ updated and there is no evidence that any references to the tokenizer model\
     \ were corrected. The task\u2019s primary artifact does not exist."
+T081:
+  c: false
+  h: bf616adafedf4bfed69abd8d5b37bfc4d666a6b760a70418f73683357e4bc5ae
+  r: "The required file `services/executor.py` does not exist; the implementation\
+    \ is placed at `code/services/executor.py`, so the task\u2019s specified path\
+    \ is missing. Consequently the integration is not located where the specification\
+    \ demands."
+  sig: 5717d3bd9ea93a822c78f5f19445ccb43c2170128ec91a35530a7e7ec58a43e3
+T082:
+  c: false
+  h: 2ff95e31804b460560d332dda1e4c03dd3a0366e30e92d24319e237c8845e7ee
+  r: "The evidence does not include a `services/analyzer.py` file (or any diff showing\
+    \ a new verification step) that checks the safe\u2011operating\u2011zone threshold\
+    \ and aborts the pipeline when the policy\u2011violation error rate exceeds\u202F\
+    1\u202F%. Without this concrete implementation or test output, the task\u2019\
+    s requirement is not satisfied."
+  sig: b01923292ec9a5ad008d7eac92702293002da3e6d9ecc7e100e5eee364f6a09b

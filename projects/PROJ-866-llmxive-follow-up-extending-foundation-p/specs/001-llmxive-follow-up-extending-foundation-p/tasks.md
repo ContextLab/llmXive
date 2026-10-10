@@ -19,7 +19,7 @@ The simulation pipeline (generation, Oracle, full/compressed execution, GLMM ana
 ## Remaining tasks
 
 ### Phase 1: Core result regeneration
-- [ ] T070 [US3] **Regenerate and verify core result artifacts**: Run the analysis pipeline (`python code/main.py --analyze`) to produce `data/results/tradeoff_curve.csv` **and** `data/results/threshold_report.json`. The JSON file must contain keys `threshold_pct`, `ci_lower`, `ci_upper` and respect the spec‑mandated error bound (≤1 % policy‑violation rate). **Dependency**: existing analysis implementation (complete).
+- [ ] T070 [US3] **Regenerate and verify core result artifacts**: Run the analysis pipeline (`python code/main.py --analyze`) to produce `data/results/tradeoff_curve.csv` **and** `data/results/threshold_report.json`. The JSON file must contain keys `threshold_pct`, `ci_lower`, `ci_upper` and respect the spec‑mandated error bound (≤1 % policy‑violation rate). **Dependency**: existing analysis implementation (complete). <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
 
 ### Phase 2: Validation and state update
 - [ ] T067 [US1] **Verify invalid workflow exclusion**: Execute `code/utils/verify_invalid_exclusion.py` which cross‑references workflow IDs marked `is_valid=false` in `data/raw/workflows.json` against the per‑run records underlying `data/results/tradeoff_curve.csv`. The script must ensure no invalid workflow contributes to any row in the CSV and write `data/results/invalid_exclusion_report.json` with keys `invalid_workflow_count`, `excluded_count`, `status`. **Dependency**: T070.
@@ -34,7 +34,7 @@ The simulation pipeline (generation, Oracle, full/compressed execution, GLMM ana
 
 - [ ] T072b **Results documentation**: Write `specs/001-policy-compression-tradeoff/results.md` summarizing methods, outcomes, edge‑case handling, and the safe‑operating‑zone threshold (≤1 % error). All figures and tables must be generated directly from `data/results/tradeoff_curve.csv`. **Dependency**: T072a.
 
-- [X] T072c **Paper‑stage handoff note**: Produce a handoff markdown `specs/001-policy-compression-tradeoff/paper_handoff.md` linking to the generated figures, tables, and the reproducibility hash from T051, confirming compliance with Constitution Principles IV and V. **Dependency**: T072b.
+- [ ] T072c **Paper‑stage handoff note**: Produce a handoff markdown `specs/001-policy-compression-tradeoff/paper_handoff.md` linking to the generated figures, tables, and the reproducibility hash from T051, confirming compliance with Constitution Principles IV and V. **Dependency**: T072b.
 
 ### Phase 5: Additional coverage tasks
 - [ ] T077 **Adaptive sampling in workflow generator**: Extend `services/generator.py` to implement adaptive sampling that densifies workflow depth distribution near the 1 % error‑rate threshold identified by analysis. Document the approach in `docs/adaptive_sampling.md`. **Dependency**: T070 (uses threshold info).
@@ -45,6 +45,6 @@ The simulation pipeline (generation, Oracle, full/compressed execution, GLMM ana
 
 - [ ] T080 **Tokenizer name consistency**: Ensure all code and documentation reference the correct tokenizer model `cl100k_base`. Update `code/lib/utils.py` docstring and any README mentions. **Dependency**: none.
 
-- [~] T081 **Integrate pm4py for log verification**: Add a usage of `pm4py` in `services/executor.py` to generate and validate execution logs against the Oracle Policy Engine, satisfying the plan’s listed dependency. Include a unit test `tests/unit/test_pm4py_integration.py`. **Dependency**: none.
+- [ ] T081 **Integrate pm4py for log verification**: Add a usage of `pm4py` in `services/executor.py` to generate and validate execution logs against the Oracle Policy Engine, satisfying the plan’s listed dependency. Include a unit test `tests/unit/test_pm4py_integration.py`. **Dependency**: none.
 
-- [~] T082 **Threshold bound enforcement**: Add a verification step in `services/analyzer.py` that asserts the identified safe‑operating‑zone threshold yields a policy‑violation error rate ≤ 1 % as required by SC‑004. Fail the pipeline if the bound is exceeded. **Dependency**: T070.
+- [ ] T082 **Threshold bound enforcement**: Add a verification step in `services/analyzer.py` that asserts the identified safe‑operating‑zone threshold yields a policy‑violation error rate ≤ 1 % as required by SC‑004. Fail the pipeline if the bound is exceeded. **Dependency**: T070.

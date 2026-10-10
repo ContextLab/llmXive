@@ -1,14 +1,18 @@
 status: none
-intent: synthetic multi-agent workflow dataset with policy graph python package dataset
+intent: synthetic multi-agent workflow generator python package with delegation depth
+  policy constraints dataset
 required_fields:
 - workflow_id
 - delegation_depth
-- policy_constraints_count
-- budget_cap_value
-- workflow_metadata
+- policy_complexity_score
+- policy_constraints
+- budget_cap
+- agent_roles
+- delegation_path
+- deterministic_seed
+- creation_timestamp
 - ground_truth_execution_log
-- policy_nodes
 - policy_violations
-cache_key: 8d15d2d9c987bc0284e47a14160b2799efeca5f2131883057ba848d8a9c3ed8f
-searched_at: '2026-10-09T11:37:00.659900+00:00'
+cache_key: e00268abfcc2481a96ad01eec46dd371043abec7fbcee6a7c7bdcaaf082b28b6
+searched_at: '2026-10-10T17:18:22.124868+00:00'
 retry_count: 1
