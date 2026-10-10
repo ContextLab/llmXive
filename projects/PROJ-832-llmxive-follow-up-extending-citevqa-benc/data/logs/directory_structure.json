@@ -1,0 +1,27 @@
+{
+  "task_id": "T001a",
+  "created_at": "2026-10-10T11:13:27.500268+00:00",
+  "project_root": "/home/runner/work/llmXive/llmXive/projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc",
+  "directories": [
+    "code",
+    "tests",
+    "data",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "data/logs",
+    "scripts"
+  ],
+  "created": [
+    "data/raw",
+    "data/processed"
+  ],
+  "already_existed": [
+    "code",
+    "tests",
+    "data",
+    "data/results",
+    "data/logs",
+    "scripts"
+  ]
+}

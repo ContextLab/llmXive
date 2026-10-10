@@ -1,9 +1,29 @@
 T001a:
+  c: true
+  h: 57b239f97805034b24e3b0d4667a5d6513dab34a4c9d120b452105ed3c655b99
+  r: All eight required directories (`code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`,
+    `data/results/`, `data/logs/`, `scripts/`) exist and are non-empty, confirmed
+    by the collector listing and the `data/logs/directory_structure.json` manifest.
+    The setup script executed successfully (exit 0) and its output matches the observed
+    structure.
+  sig: f7b310806c216bbf0637087f65f6b9258e6337d68dacbd8a3cc881fa08831f79
+T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `tests/`, `data/`, `data/raw/`,
-    `data/processed/`, `data/results/`, `data/logs/`, `scripts/`) is provided; the
-    claim cannot be verified without seeing the actual filesystem.
+  h: 3a43242056c7fe6ac938570caba5b55ca42e7ffb7e585c0bbb86267700a091ee
+  r: "The two `__init__.py` files exist with valid package docstrings, but the evidence\
+    \ shows no `data/.gitkeep` or `scripts/.gitkeep` \u2014 the collector's artifact\
+    \ list contains only the two `__init__.py` files, so half of the required artifacts\
+    \ are missing (or unverified). The implementer must create the `data/` and `scripts/`\
+    \ directories with their `.gitkeep` markers."
+  sig: d305d5290f3895ce8dbf6fea3f953ecfcd42a38519bf77ea840409cd0ac1455b
+T002a:
+  c: true
+  h: 97a1c67dae5306f7f2de87e4193af78facfdbdd650a9d020bf099646f3a1172c
+  r: 'The `requirements.txt` exists (777 bytes) and contains all ten required packages
+    with pinned versions: torch (as `torch==2.1.0+cpu`, satisfying the CPU-only torch
+    requirement), transformers, sentence-transformers, pdfplumber, scikit-learn, pandas,
+    pytest, memory-profiler, numpy, and matplotlib, plus reasonable supporting dependencies.'
+  sig: 18942a9135a10d9c1bff84d3909ef7525d8804e05d1d35c18d7cce5e88668011
 T002b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,12 +39,39 @@ T003:
     nor any evidence that ruff and black have been integrated into the project. Without
     these artifacts, the requirement to configure linting (ruff) and formatting (black)
     is not satisfied.
+T004:
+  c: true
+  h: fc84beaeea539fabd2a4de4849bced0e8db7a0e7cbc71a03d0bf7648945e586a
+  r: "`code/config.py` exists (3512 bytes) and contains real, substantive configuration:\
+    \ project paths with directory creation, fixed seeds (42), retrieval/reasoning/metrics\
+    \ hyperparameters matching the spec (all-MiniLM-L6-v2, Phi-3-mini, 0.85 semantic\
+    \ threshold, 0.5 IoU threshold, CPU device), and output paths \u2014 no stubs,\
+    \ TODOs, or placeholders."
+  sig: b3fe7ac46215c157e13421f2e4d5dd8fdc1cc8e9e450ff4595281adeef063152
+T005a:
+  c: false
+  h: f0b2a012808cde5ea6e098c99c4b2a5731538d956bf6bea3103f4934595b0575
+  r: 'The only artifact, `data/verified_sources.json`, is a bare assertion of success
+    with no accompanying verification evidence (no command output, HTTP check, or
+    `load_dataset` execution log), and the record is internally malformed: the `"timestamp"`
+    field contains `"2.24.0"` (a library version string), not a timestamp, and `"details"`
+    claims a builder config was observed without any run evidence. The implementer
+    must actually probe the URL (e.g., `datasets.load_dataset` or an HTTP request
+    to `https://huggingface.co/datasets/citevqa` or the correct canonical ID such
+    as an org-qualified dataset nam'
+  sig: 8b2aad7911cb510be8d4329f802f2e98b1fda333272abda834282ad5b269bccd
 T005b:
   c: false
-  h: a9bbe86c551218d07b7054c03fa21500e1d081c3307649ff166b50b2dd3e3c3c
-  r: "The required artifact `data/baseline_saa_raw.json` does not exist, so the scalar\
-    \ SAA mean value cannot be verified as documented. The task\u2019s core deliverable\
-    \ is missing."
+  h: 16e60cd4158d3be3dd96a03b31bef486d8973f9db7457a4d177344cd8cb32248
+  r: "The file `data/baseline_saa_raw.json` exists, but its citation is a placeholder\
+    \ \u2014 \"arXiv preprint arXiv:2405.xxxxx\" \u2014 and the source reference (\"\
+    Das, D., et al. (2024)\") is not a verifiable, real citation, indicating the CiteVQA\
+    \ paper was not actually read and the 0.42 value cannot be traced to a genuine\
+    \ Table 2 entry. The task requires the actual scalar SAA mean from the paper with\
+    \ a real, complete source citation (correct authors, venue, arXiv ID, table/row\
+    \ identifier); the implementer must locate the real paper, extract the correct\
+    \ baseline SAA value, and replace the fabricated citation."
+  sig: cae955fe3aca42ebf6d8f27d1be984c54a55bf79bd7c2b0c0e5199d4e9c24946
 T007:
   c: false
   h: fbb3ff406ad77f341cc3d09921991ca75d8d6c82a421577d744f16867fa7d3f9
