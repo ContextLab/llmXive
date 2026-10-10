@@ -1,19 +1,72 @@
+T004a:
+  c: false
+  h: 5a2e30c43e5649315586f4b098c4ef2107a3ecb88de3ebe6a570b1c422a89969
+  r: "The `data/README.md` exists but its \"Verified Datasets\" section contains no\
+    \ actual YAML list of verified dataset identifiers \u2014 only a commented-out\
+    \ \"MANUAL DATASET INJECTION PROTOCOL\" template with placeholder examples, plus\
+    \ a garbled status dump where most entries are marked \"failed\" and no entry\
+    \ has the required `- id: / source: / url:` object format. The blocked_status.json\
+    \ confirms the dataset IDs were invalid/unverified, so there are no verified datasets\
+    \ to list; the task's core deliverable (a populated YAML block of verified OpenML/HF\
+    \ IDs with URLs) is absent."
+  sig: 57d361c7d970f8f09cd4b0e4048207826abb9ca25195c412ca57a5c82da54c62
+T004b:
+  c: false
+  h: 7fdeb3b980b8dd6aeb66eaeea377d0ea721f6f5c652eb47a5af103dfef80bd6f
+  r: "The required artifact `code/validate_ids.py` does not exist at all (collector\
+    \ reports MISSING), so the task's core deliverable \u2014 a script that validates\
+    \ the 'Verified datasets' block in `data/README.md` and writes a critical blocker\
+    \ if empty \u2014 was never implemented. While `data/blocked_status.json` and\
+    \ a blocker note exist, they appear to come from other pipeline steps, not from\
+    \ the required validation script; the implementer must create `code/validate_ids.py`\
+    \ implementing the described check and blocker-writing behavior."
+  sig: 8c854c70ba096093f81b588cd15c30f5e1fadee2ee1bb0f0538f4e1f166c3758
+T012a:
+  c: false
+  h: 5b293facef397e5d65a2de24db987b9b977df04ab9191ba058379d722702d599
+  r: '`code/read_ids.py` does not implement the required logic: instead of parsing
+    the ''Verified datasets'' YAML block in `data/README.md` (keys `id`, `source`,
+    `url`) and returning a list of dictionaries, it reads a different file (`data/dataset_ids.txt`)
+    and returns a list of `source:id` strings. Additionally, the ''Verified datasets''
+    section in `data/README.md` contains only commented-out example entries, so there
+    is no actual YAML dataset block to parse; the implementer must either populate
+    real verified entries or handle the documented manual-injection protocol, and
+    rewrite the parser to match th'
+  sig: 6701f4d9111324fe06c8eab8ca4c2f52e9f53117d266f45f0e550c6759484253
 T012b:
   c: false
-  h: 4b29d36e212d93f40bc8efd2d691ddad7e9441613389877f738b8d5a06021822
-  r: "The provided `code/download.py` stops after defining `validate_checksum` (truncated)\
-    \ and does not show any logic for filtering datasets by the required columns,\
-    \ handling missing source checksums (the \u201CFAIL\u201D condition), or writing\
-    \ exclusions to `data/processed/exclusion_log.json` (the file is absent). Consequently\
-    \ the script does not fulfill the full set of requirements."
+  h: b70b91bde82158894e852b5d5ef981cec769ffadb2e579dfe7893312c468a6f4
+  r: "`data/raw/checksums.json` is MISSING \u2014 the script writes checksums to `data/processed/checksums.json`\
+    \ instead, and the on-disk `data/blocked_status.json` shows the pipeline actually\
+    \ failed (\"No valid datasets found\"), so no checksums were ever stored. The\
+    \ code never retrieves source-provided checksums from a dataset metadata API nor\
+    \ verifies against them (`validate_checksum` is never called with an expected\
+    \ value), and `DataFetchError` is caught per-dataset and logged rather than halting\
+    \ execution immediately as required. There is also no evidence (tests or run logs)\
+    \ demonstrating `DataFetchEr"
+  sig: ebabe8f3635c350c1373cfa9960ede439c21a0b2b1d17d3cd9bd03928df96b98
 T012c:
   c: false
-  h: 5344bf8b7232406edf2465d249fa989016adf12a53dead84a7a37703918aab1e
-  r: The required `data/processed/exclusion_log.json` file is missing, so the script
-    cannot read the exclusion data, and the `data/README.md` still contains only placeholder
-    text rather than a populated status table. The implementation does not demonstrate
-    that it actually writes the updated markdown to the README. Both the input data
-    and the resulting updated README are absent.
+  h: 16ee005d7e1ac0f01a5393c777855814bc6eb380245823576680a8d967f672e2
+  r: "`code/filter.py` and `data/processed/exclusion_log.json` are both MISSING \u2014\
+    \ the required deliverables do not exist. The only exclusion log present is at\
+    \ `data/exclusion_log.json` (wrong path) and references fabricated sample datasets\
+    \ (\"sample_non_sequential\", \"sample_no_predictability\") rather than the actual\
+    \ raw file `data/raw/openml_42279.csv`, and `data/blocked_status.json` indicates\
+    \ the pipeline never successfully processed real data."
+  sig: 3c211ca53d9e81ec751a6e529e2e1e24c866bebe2a3701fd4fed26e165d11297
+T012d:
+  c: false
+  h: 0f98b6dddbe0e7a4e249b3188ed00c6a8ff8f682d1e2f7b1718d403943a56e92
+  r: '`code/update_readme.py` contains no blocker logic at all: it never counts valid
+    datasets, never writes a critical blocker entry to `data/README.md`, never creates
+    `data/blocked_status.json` with the required schema `{timestamp, reason, exit_code:
+    1}`, and never halts (its `run_t013` only updates README sections). The existing
+    `data/blocked_status.json` has the wrong schema (a `status` field, no `exit_code`)
+    and appears to come from a different task, and `data/processed/exclusion_log.json`
+    is missing (the script would fabricate an empty one). The README''s "Dataset Status"
+    section is also corrup'
+  sig: be9fb703e52851ed6f96dd4ce2d9518651537f83dc93e6d53e59c11fe23a8bdd
 T017b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
