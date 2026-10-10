@@ -50,20 +50,46 @@ jobs:
         # under docs/papers/<project_id>/<filename>.pdf for the paper modal
         # to embed.
         #
-        # SIZE CAP: GitHub Pages caps a published site at 1 GB. The full PDF set
-        # is ~1.7 GB (dominated by a few dozen oversized 20-50 MB PDFs), which put
-        # the site over the limit (the deploy warned "exceeds 1 GB"). Mirror only
-        # PDFs <= MAX_MB so docs/ stays comfortably under 1 GB; the paper modal
-        # (dialog.js _renderArtifactPane) already falls back to a raw download link
-        # when the same-origin mirror is absent, so oversized papers still open.
+        # SIZE CAP: GitHub Pages caps a published site at 1 GB, and the
+        # <= MAX_MB per-file filter alone does NOT keep the site under it. Measured
+        # 2026-10-10: docs/papers was 2114.3 MB with every mirrored file already
+        # <= 15 MB, and the published github-pages artifact of run 38079995168 was
+        # 1916 MB -- 1.9x the cap. The bulk was third-party arXiv bodies
+        # (original.pdf 2183 MB + original-llmxive.pdf 2202 MB across 226 papers).
+        #
+        # RIGHTS: those bodies carry the arXiv Non-exclusive Distribution License
+        # (http://arxiv.org/licenses/nonexclusive-distrib/1.0/), which grants
+        # distribution to arXiv.org and is silent on anyone else. So they are not
+        # mirrored at all -- the modal links to the paper AT ITS SOURCE and names
+        # the licence. They are also gitignored, but this filter is load-bearing
+        # independently: resolve_original_pdf RE-DOWNLOADS original.pdf into the
+        # working tree during a run, and `find` below reads the working tree.
+        #
+        # Only llmXive's OWN artifacts are mirrored, so the modal can still embed
+        # them same-origin; the paper modal (dialog.js _renderArtifactPane) falls
+        # back to a raw download link whenever a mirror is absent.
         run: |
           set -euo pipefail
+          # docs/papers is a DERIVED mirror, rebuilt from scratch every run. The
+          # step only ever copied, so a file that stops qualifying (a PDF that
+          # grew past the cap, or a third-party body that must not be published)
+          # stayed mirrored forever: 348 third-party copies totalling 1666.2 MB
+          # were still being served after they stopped being eligible. Files
+          # that still qualify are rewritten byte-identically, so git sees no
+          # change for them and only genuine removals appear as deletions.
+          rm -rf docs/papers
           mkdir -p docs/papers
           MAX_MB=15
           skipped=0
           # File paths are entirely under our control here (repo-checked-out
           # paths only). No untrusted input is interpolated into the shell.
           while IFS= read -r src; do
+            case "$(basename "$src")" in
+              original.pdf|original-llmxive.pdf)
+                echo "skip third-party body (arXiv licence covers arxiv.org only): $src"
+                continue
+                ;;
+            esac
             sz=$(stat -c%s "$src" 2>/dev/null || echo 0)
             if [ "$sz" -gt $((MAX_MB * 1024 * 1024)) ]; then
               echo "skip oversized ($((sz / 1024 / 1024))MB > ${MAX_MB}MB), modal falls back to download link: $src"

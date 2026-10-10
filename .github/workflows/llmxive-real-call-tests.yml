@@ -71,6 +71,10 @@ jobs:
             /specs/
             /papers/
             /projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/
+            # 227 small JSON records (~1 MB). Without them the ingested-preprint
+            # corpus check runs against a sample of ONE and cannot speak for the
+            # corpus it is named after.
+            /projects/*/paper/metadata.json
             /web/
             /docs/css/
             /docs/js/

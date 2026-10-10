@@ -848,13 +848,9 @@ def _project_description(repo: Path, project_id: str, *, max_chars: int = 320) -
     """
     pdir = _project_dir(repo, project_id)
     # Prefer the paper abstract when available.
-    paper_meta = pdir / "paper" / "metadata.json"
-    if paper_meta.is_file():
-        try:
-            meta = json.loads(paper_meta.read_text(encoding="utf-8", errors="replace"))
-        except (json.JSONDecodeError, OSError):
-            meta = {}
-        abstract = (meta.get("abstract") or "").strip() if isinstance(meta, dict) else ""
+    meta = _paper_metadata(pdir)
+    if meta:
+        abstract = str(meta.get("abstract") or "").strip()
         if abstract:
             if len(abstract) > max_chars:
                 abstract = abstract[:max_chars].rsplit(" ", 1)[0] + "…"
@@ -1657,6 +1653,68 @@ def _preprint_action_items(repo: Path, project_id: str) -> list[dict[str, Any]]:
     return out
 
 
+def _paper_metadata(pdir: Path) -> dict[str, Any]:
+    """``paper/metadata.json`` for one project, or ``{}``.
+
+    The canonical arXiv-parsed record: ``arxiv_id``, ``arxiv_url``, ``license``,
+    ``license_url``, ``authors``, ``abstract``, and ``committed_pdf_digests``.
+    """
+    path = pdir / "paper" / "metadata.json"
+    if not path.is_file():
+        return {}
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return meta if isinstance(meta, dict) else {}
+
+
+def _preprint_source(pdir: Path) -> dict[str, Any]:
+    """Where the original paper lives, since this repository does not host it.
+
+    The ingested bodies (``original.pdf`` / ``original-llmxive.pdf``) carry the
+    arXiv Non-exclusive Distribution License, which grants distribution to
+    arXiv.org and is silent on anyone else, so they are neither committed nor
+    mirrored and ``original_pdf`` is ``None`` for them. The modal therefore has
+    to point at the paper AT ITS SOURCE and name the licence it is served under.
+
+    ``reviewed_version`` is the digest recorded when the paper was ingested
+    (``committed_pdf_digests``). It matters because the source URL serves the
+    CURRENT version: 5 of a random 12 ingested preprints already differ from the
+    bytes this repository's reviews were written against, so the modal must be
+    able to say which version was reviewed rather than implying the live PDF is
+    the reviewed one.
+    """
+    meta = _paper_metadata(pdir)
+    if not meta:
+        return {}
+    digests = meta.get("committed_pdf_digests")
+    digests = digests if isinstance(digests, dict) else {}
+    # Prefer the untouched body. Three ingests committed only the
+    # cover-prepended version, which carries the same body behind one llmXive
+    # page, so it attests the same reviewed paper -- but say WHICH file the
+    # digest is of rather than implying it is the raw original. A paper rebuilt
+    # from arXiv LaTeX source (main-llmxive.pdf, no ingested body) has nothing
+    # to attest and reports None.
+    reviewed: dict[str, Any] | None = None
+    for name in ("original.pdf", "original-llmxive.pdf"):
+        recorded = digests.get(name)
+        if isinstance(recorded, dict) and recorded.get("sha256"):
+            reviewed = {
+                "file": name,
+                "sha256": str(recorded.get("sha256") or ""),
+                "bytes": int(recorded.get("bytes") or 0),
+            }
+            break
+    return {
+        "arxiv_id": str(meta.get("arxiv_id") or ""),
+        "url": str(meta.get("arxiv_url") or ""),
+        "license": str(meta.get("license") or ""),
+        "license_url": str(meta.get("license_url") or ""),
+        "reviewed_version": reviewed,
+    }
+
+
 def _reviewed_preprint_entry(repo: Path, project: Project, *, run_entries: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Enriched entry for the dashboard's Reviewed Preprints tab.
 
@@ -1714,6 +1772,7 @@ def _reviewed_preprint_entry(repo: Path, project: Project, *, run_entries: list[
         "action_items": _preprint_action_items(repo, project.id),
         "original_pdf": _pdf("original-llmxive.pdf"),
         "peer_review_pdf": _pdf("peer-review-llmxive.pdf"),
+        "original_source": _preprint_source(pdir),
         "followup_project_id": followup_id,
     }
     return entry
