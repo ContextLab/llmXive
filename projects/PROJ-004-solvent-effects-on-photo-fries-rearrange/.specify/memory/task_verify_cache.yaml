@@ -1,13 +1,10 @@
 T001:
   c: true
-  h: 71fb40983d96684eae0945e949705890ab0beb8ea00f495c3c6df1ec70be12a4
-  r: 'The task T001 requires creation of four directories: `code/`, `data/`, `tests/`,
-    and `docs/`. The evidence confirms all four directories exist at the project root
-    (`projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/`), each containing
-    multiple entries and verified by SHA256 hashes. The directory structure is properly
-    initialized with `__init__.py` files present in each, indicating they are Python
-    packages ready for development. This satisfies the stated requirement completely.'
-  sig: 079637de807afc5a2e0db8a2c8551794e53c527bd7272a038679de481b5d9c53
+  h: ee1351d58134e735ea97acf9728f29bc40f08d6ff7e8d86f1464a06496e0fe5b
+  r: The collector shows that the project root contains the four required directories
+    (`code/`, `data/`, `tests/`, `docs/`), each present with multiple entries, confirming
+    the requested structure is in place.
+  sig: 5d573729bb4f35e316fb5ea8a42df1b3bbfcaae97cb35d43db84f56b8da66bca
 T002:
   c: true
   h: 6aa1462bf4c589c7494d007b2aa3829345f863f1efbf81032d04b3b6a1f82605
@@ -48,16 +45,12 @@ T004:
   sig: 1d68249afdb4d61f05cd94b9420cbd35e888b10eaea88a4732108f3455cd2361
 T005:
   c: true
-  h: 944d34a8058c9f977dbd096f46c021cfa1fcd3ba3b6390f7019fa55b3e216365
-  r: "The artifact `code/utils/logging.py` exists (12,245 bytes) and contains a fully\
-    \ implemented structured logging module that directly addresses the task requirement.\
-    \ The implementation includes:\n\n1. **EnvironmentalLogger class** with dedicated\
-    \ method `log_environmental_parameters()` that captures temperature (\xB0C), relative\
-    \ humidity (%), barometric pressure (hPa), substrate mass (mg), and integration\
-    \ time (ms) \u2014 exactly the environmental parameters referenced in the specification's\
-    \ acceptance criteria (SC-004: \"25 \xB1 0.5\xB0C\" and \"\xB12% RH\").\n\n2.\
-    \ **Validation logic** via `validate_environmental_condit"
-  sig: a484217cba1021456522b49efdcacc70a8fa9e5955b6047ef15807ef4cced422
+  h: 85e47cd757bac53cfdf16eeef1ac3879ab47040efcbd84376502faaa7729d860
+  r: "Checked `code/utils/logging.py` (2042\u202Fbytes) which defines `setup_logging`,\
+    \ `log_operation`, and `log_environmental_params` to configure logging and record\
+    \ environmental parameters as required. The module is present, non\u2011empty,\
+    \ and implements the logging of temperature, humidity, etc., satisfying the task."
+  sig: e89249f9233c0cdce616dc900c33b1588b6015b36a9aa3707fb2b51d9b3c6179
 T006a:
   c: true
   h: 2f06217db9d6fb1fe5c87761e6a1c2a3dd8123bbbb620c31ac095338226b93e8
@@ -82,31 +75,33 @@ T006b:
     metadata section, fulfilling the requirement for a versioned lookup table suitable
     for downstream validation tas'
   sig: 3955fb54a9f59bc77fbfb9622250d94aaaff402024affca8d6b07598b4b66086
-T006c:
-  c: false
-  h: 2e2e9859cc4426da4d3177dba8e63552b4702da428dca0505ffe59cb01296bf8
-  r: The task requires validation of `solvents.yaml` against `solvent.schema.yaml`,
-    but both files are MISSING from the project root. Without these two artifacts,
-    no validation can occur. The implementer cannot have completed schema validation
-    when the files to be validated do not exist on disk.
-  sig: 69d0b0d6d4ccd08a742c4529480a220b8f7b401a9bf80a98f8a0d80291f94b48
 T007:
+  c: true
+  h: e582c805e09cf9fe19c1994d690a7f7859ef8ab0351bbef6d3812efd58ec1fad
+  r: "Checked the `contracts/kinetic_trace.schema.yaml` file (9792\u202Fbytes) \u2013\
+    \ it exists, is non\u2011empty, and provides a complete JSON\u2011Schema definition\
+    \ covering all required trace metadata, environmental context, calibration info,\
+    \ and quality metrics as demanded by the task."
+  sig: a8f19f44daf77433ed3045e8bc75def00f015b94002e818de89e3582a9f77064
+T008:
   c: false
-  h: a25a6f4264bc6741acca916484fd954246e31d37047d8ff33cfcf06e3dc760f2
-  r: 'The artifact `contracts/kinetic_trace.schema.yaml` exists and is non-empty,
-    but it does not satisfy the task''s requirement as stated in the feature specification.
-
-
-    **Critical deficiency**: The task requires a schema that validates **kinetic trace
-    data** in the context of the three user stories, particularly User Story 1 (solvent
-    series configuration with environmental logging) and User Story 2 (radical-pair
-    lifetime extraction). The schema provided defines the structure for individual
-    trace records but **lacks the contract definitions necessary to support the experimental
-    workflow**:
-
-
-    1. **Mis'
-  sig: c3d8aff2f6f23e74963586e26d93f18a1917c4934e686aa6ba89d99db64e9b5c
+  h: cf2ef4c0fe5618506bb13b0d3de9056cce76d8597a3114232753ec75049f12c0
+  r: The `code/data/loaders.py` implementation is present, but the required `solvents.yaml`
+    lookup table is missing, so the loader cannot actually read and validate any records.
+    Without this file the functions will raise `SolventDataError`, failing the core
+    requirement of reading and returning validated solvent records. Adding the `solvents.yaml`
+    file (with the expected structure) is needed to complete the task.
+  sig: 6aedc23ca75e915a9d891d55837ef471d473c53c2ad717aba928fa227fcf62c0
+T009a:
+  c: false
+  h: 0ae9b3224ea69ceb97a930764cc741a156b97bd441106ccfe67da452234cabc1
+  r: "The provided `code/config.py` defines directory paths and CPU\u2011only environment\
+    \ settings, but it does **not** declare the required constants (e.g., default\
+    \ substrate mass and integration time set to `None`) nor any logic to load or\
+    \ override them from a `config.yaml` or CLI arguments. Additionally, the `config.yaml`\
+    \ file is missing entirely. These omissions mean the task\u2019s core requirements\
+    \ are not met."
+  sig: f8f7a07bdaa2db4b84b94d81054acb39d7aa84127144f64c310c612aa0e5489f
 T014:
   c: false
   h: cef6517d460f1509e6ab5917cbaf430dac1513e8e346f395055d0c3a246ff333

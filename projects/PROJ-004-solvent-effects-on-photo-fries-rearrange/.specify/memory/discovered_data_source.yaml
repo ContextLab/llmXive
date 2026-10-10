@@ -1,16 +1,12 @@
 status: none
-intent: solvent dielectric constant properties lookup table reference database python
+intent: download NIST dielectric constant solvent properties dataset pip install python
   package dataset
 required_fields:
 - solvent_name
 - dielectric_constant
-- temperature_celsius
-- relative_humidity_percent
-- refractive_index
-- density_g_cm3
-- viscosity_cp
-- polarity_index
-- dipole_moment_debye
-cache_key: fbd5fa335d3e03ab5bdef64879b65650b5bfd6a24912867a957a79b11a15a3ba
-searched_at: '2026-10-10T09:36:21.899847+00:00'
+- temperature_K
+- reference_source
+- version
+cache_key: 7524fda82590f4b6314bad376066a99b4beae773cb3c9165e0928a4e37cba76a
+searched_at: '2026-10-10T09:48:02.593522+00:00'
 retry_count: 1

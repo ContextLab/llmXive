@@ -275,10 +275,10 @@ def main():
                 return 1
     
     except HashVerificationError as e:
-        logger.error(f"Hash verification error: {e}")
+        logging.error(f"Hash verification error: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
+        logging.error(f"Unexpected error: {e}", exc_info=True)
         return 1
 
 

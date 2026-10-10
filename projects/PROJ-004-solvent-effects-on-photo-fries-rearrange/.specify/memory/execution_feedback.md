@@ -26,35 +26,37 @@ These commands failed because the analysis needs hardware the FREE, CPU-only CI 
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 26 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/power.py: self-declared fabricated metric — “…pproximation formula     # or hard-coded values for the specific n=3 case wh…”; code/data/generate_synthetic.py: self-declared fabricated metric — “…ulate variety     # These are NOT real measurements, just deterministic patterns…”; code/analysis/ground_state.py: synthetic/fake INPUT data not authorized by the spec — “…t     silent fallback to synthetic data.      Returns:         D…”; 3 command(s) failed: python code/main.py --mode simulate (rc=1); python code/main.py --mode real --data-path data/raw/ (rc=1); python -m pytest tests/ (rc=1); 6 declared deliverable(s) absent: data/compute/solvent_solvation.csv; data/processed/environment_logs.json; data/processed/kinetic_metrics.csv
+**Summary**: 26 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/power.py: self-declared fabricated metric — “…pproximation formula     # or hard-coded values for the specific n=3 case wh…”; code/data/generate_synthetic.py: self-declared fabricated metric — “…ulate variety     # These are NOT real measurements, just deterministic patterns…”; code/analysis/ground_state.py: synthetic/fake INPUT data not authorized by the spec — “…t     silent fallback to synthetic data.      Returns:         D…”; 3 command(s) failed: python code/main.py --mode simulate (rc=1); python code/main.py --mode real --data-path data/raw/ (rc=1); python -m pytest tests/ (rc=1); 8 declared deliverable(s) absent: data/compute/solvent_solvation.csv; data/processed/compliance_report.json; data/processed/environment_logs.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py --mode simulate -> rc=1
-enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791624875.180210    4055 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
-E0000 00:00:1791624876.605684    4055 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+I0000 00:00:1791625603.807691    4683 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1791625605.193940    4683 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 TensorFlow GPU devices disabled via config.py
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py", line 24, in <module>
-    from analysis.environment import ConfigurationError, record_run_environment, write_environment_logs
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/analysis/environment.py", line 17, in <module>
-    from utils.logging import setup_logging, log_operation
-ImportError: cannot import name 'log_operation' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/utils/logging.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py", line 25, in <module>
+    from data.loaders import get_all_solvents, get_solvent_properties, SolventDataError
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/data/loaders.py", line 13, in <module>
+    from utils.logging import log_compliance_check
+ImportError: cannot import name 'log_compliance_check' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/utils/logging.py)
 
 - python code/main.py --mode real --data-path data/raw/ -> rc=1
-enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791624881.169538    4064 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
-E0000 00:00:1791624882.596101    4064 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+I0000 00:00:1791625609.701969    4692 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1791625611.091249    4692 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 TensorFlow GPU devices disabled via config.py
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py", line 24, in <module>
-    from analysis.environment import ConfigurationError, record_run_environment, write_environment_logs
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/analysis/environment.py", line 17, in <module>
-    from utils.logging import setup_logging, log_operation
-ImportError: cannot import name 'log_operation' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/utils/logging.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py", line 25, in <module>
+    from data.loaders import get_all_solvents, get_solvent_properties, SolventDataError
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/data/loaders.py", line 13, in <module>
+    from utils.logging import log_compliance_check
+ImportError: cannot import name 'log_compliance_check' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/utils/logging.py)
 
 - python -m pytest tests/ -> rc=1
 
@@ -64,8 +66,10 @@ ImportError: cannot import name 'log_operation' from 'utils.logging' (/home/runn
 ## Declared deliverables still missing
 
 - data/compute/solvent_solvation.csv
+- data/processed/compliance_report.json
 - data/processed/environment_logs.json
 - data/processed/kinetic_metrics.csv
+- data/processed/sensitivity_analysis.csv
 - data/processed/study_power_analysis.json
 - data/processed/validation_flags.json
 - data/raw/synthetic_traces.csv
@@ -78,6 +82,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/correlation.py` — NOT invoked by the run-book
     - `code/data/compute/solvent_models.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/compute/solvent_solvation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/compliance_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/compliance.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/compliance_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/environment_logs.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/environment.py` — NOT invoked by the run-book
     - `code/analysis/material_balance.py` — NOT invoked by the run-book
@@ -93,11 +100,17 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/kinetic_metrics.py` — NOT invoked by the run-book
     - `code/analysis/method_spec.py` — NOT invoked by the run-book
     - `code/analysis/replicate_dashboard.py` — NOT invoked by the run-book
+    - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/kinetic_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/sensitivity_analysis.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/sensitivity_analysis.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/study_power_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/power.py` — NOT invoked by the run-book
+    - `code/run_power_analysis.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/study_power_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/validation_flags.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/compliance.py` — NOT invoked by the run-book
     - `code/analysis/ground_state.py` — NOT invoked by the run-book
     - `code/analysis/validation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/validation_flags.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

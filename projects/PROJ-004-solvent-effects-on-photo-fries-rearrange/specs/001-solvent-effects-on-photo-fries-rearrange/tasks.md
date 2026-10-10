@@ -41,10 +41,10 @@ description: "Task list template for feature implementation"
 
 - [X] T006a **Solvent Schema Definition** – `contracts/solvent.schema.yaml` (fields: name, dielectric_constant, source_id, citation_url).
 - [X] T006b **Solvent Data Population** – `data/chemicals/solvents.yaml` with ≥5 solvents (cyclohexane, toluene, acetonitrile, methanol, water) and NIST dielectric constants.
-- [ ] T006c **Solvent Schema Validation** – validate `solvents.yaml` against `solvent.schema.yaml`. <!-- FAILED: unspecified -->
-- [ ] T007 **Kinetic Trace Schema Definition** – `contracts/kinetic_trace.schema.yaml`.
-- [~] T008 **Implement Solvent Loader** – `code/data/loaders.py` reads `solvents.yaml` and returns validated records.
-- [~] T009a **Config Paths & CPU Constraints** – `code/config.py` defines paths, CPU‑only flag, and constants. Default substrate mass and integration time are set to `None` and must be overridden via a YAML config file `config.yaml` or CLI arguments.
+- [ ] T006c **Solvent Schema Validation** – validate `solvents.yaml` against `solvent.schema.yaml`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T007 **Kinetic Trace Schema Definition** – `contracts/kinetic_trace.schema.yaml`.
+- [ ] T008 **Implement Solvent Loader** – `code/data/loaders.py` reads `solvents.yaml` and returns validated records.
+- [ ] T009a **Config Paths & CPU Constraints** – `code/config.py` defines paths, CPU‑only flag, and constants. Default substrate mass and integration time are set to `None` and must be overridden via a YAML config file `config.yaml` or CLI arguments.
 - [~] T009b **Explicit Solvent List** – extend `code/config.py` with `EXPLICIT_SOLVENTS` list (e.g., `['water', 'methanol']`) to satisfy FR‑005 explicit‑model proportion.
 - [~] T010 **Unit Test for Solvent Loader** – `tests/unit/test_loaders.py` validates dielectric constants against a versioned lookup table.
 - [ ] T017c **Robust Hash Initialization** – `code/analysis/hash_manager.py` computes SHA‑256 of `solvents.yaml` and stores under `state/artifact_hashes.yaml` (key: `solvents_yaml_hash`); raises if file missing. <!-- FAILED-IN-EXECUTION: state/artifact_hashes.yaml exit=-1 -->
@@ -52,10 +52,10 @@ description: "Task list template for feature implementation"
 - [~] T015e **Instrument Capture Interface** – `code/data/instrument_interface.py` defines `capture_transient_data()` API; raises `NotImplementedError` if hardware absent. **Dependency**: Must be defined before `T015f`.
 - [~] T015b **Real Data Ingestion (Optional)** – `code/data/ingest.py` reads transient‑absorption CSV/JSON from path `REAL_DATA_PATH` (set in `config.py`). aborts if `USE_REAL_DATA=True` and file missing.
 - [~] T015c **Synthetic Data Generation (CI fallback)** – `code/data/generate_synthetic.py` creates deterministic synthetic kinetic traces (`data/raw/synthetic_traces.csv`) given a seed and output path.
-- [ ] T015f **Actual Data Capture Implementation** – `code/data/capture.py` creates `Kinetic Trace` entities in `data/raw/kinetic_traces/`. Uses real data (`T015b`) when `USE_REAL_DATA=True`; otherwise calls `T015c`. Generates a unique `run_id` for each trace. **Dependency**: Depends on `T015e`, `T015b`/`T015c`, and `T013` (solvent configuration).
+- [ ] T015f **Actual Data Capture Implementation** – `code/data/capture.py` creates `Kinetic Trace` entities in `data/raw/kinetic_traces/`. Uses real data (`T015b`) when `USE_REAL_DATA=True`; otherwise calls `T015c`. Generates a unique `run_id` for each trace. **Dependency**: Depends on `T015e`, `T015b`/`T015c`, and `T013` (solvent configuration). <!-- FAILED: unspecified -->
 - [~] T016 **Calibration Application** – `code/analysis/calibration.py` applies instrument calibration factors (detector response, wavelength stability) to raw traces; outputs `data/processed/calibration_record.json`.
 - [~] T017a **Environmental Validation & SC‑010 Enforcement** – `code/analysis/validation.py` verifies dielectric constants against lookup table (≤2 % deviation), computes percentage of compliant runs, fails if <98 %, and flags temperature or humidity excursions beyond tolerances. Input: all entries in `data/processed/environment_logs.json`. Output: `data/processed/validation_flags.json`.
-- [ ] T017b **Compliance Reporting** – `code/analysis/compliance.py` aggregates validation results to produce `data/processed/compliance_report.json` (≥95 % runs within all tolerances). **Dependency**: Runs after `T017a`.
+- [~] T017b **Compliance Reporting** – `code/analysis/compliance.py` aggregates validation results to produce `data/processed/compliance_report.json` (≥95 % runs within all tolerances). **Dependency**: Runs after `T017a`.
 
 ---
 
@@ -72,7 +72,7 @@ description: "Task list template for feature implementation"
 **Goal**: Process raw spectroscopic data to extract singlet‑radical‑pair intermediate lifetime via global kinetic analysis.
 
 - [~] T021 **Joint NLME Model Definition** – `code/analysis/kinetic_fit.py` defines a Joint Non‑Linear Mixed‑Effects model (using `pymc`) for decay traces across replicates and solvents. Pre‑computes PCA‑derived Solvent Polarity Index for later correlation.
-- [ ] T022 **NLME Model Execution & Lifetime Extraction** – runs the model defined in `T021`, extracts posterior means and standard deviations of lifetimes per solvent, flags outliers (> 2 σ). Outputs `data/processed/kinetic_metrics.csv`.
+- [ ] T022 **NLME Model Execution & Lifetime Extraction** – runs the model defined in `T021`, extracts posterior means and standard deviations of lifetimes per solvent, flags outliers (> 2 σ). Outputs `data/processed/kinetic_metrics.csv`. <!-- FAILED: unspecified -->
 - [ ] T025 **Threshold Sensitivity Analysis** – varies lifetime discrepancy thresholds `{0.05, 0.1}` ns, computes false‑positive and false‑negative rates against a synthetic ground truth (mean lifetime of replicates). Generates `data/processed/sensitivity_analysis.csv`.
 - (T023 Outlier Flagging is now integrated into `T022` and therefore omitted.)
 
@@ -83,7 +83,7 @@ description: "Task list template for feature implementation"
 **Goal**: Correlate computed solvation free energies with experimentally determined lifetimes using associational inference.
 
 - [~] T059a **Study Design Definition** – `code/analysis/power.py` defines static design (`n ≥ 3` replicates per solvent, ≥5 solvents, placeholder effect size). Outputs `data/processed/study_design.yaml`.
-- [ ] T059b **Run Power Analysis** – executes the design from `T059a` and writes `data/processed/study_power_analysis.json` (methodology, sample size, effect‑size status = 'deferred').
+- [ ] T059b **Run Power Analysis** – executes the design from `T059a` and writes `data/processed/study_power_analysis.json` (methodology, sample size, effect‑size status = 'deferred'). <!-- FAILED-IN-EXECUTION: code/run_power_analysis.py exit=1 -->
 - [ ] T029a **DFT Data Fetching (Implicit)** – loads pre‑computed implicit‑solvent DFT results from `data/compute/dft_results.csv`. If absent, raises `ConfigurationError`.
 - [ ] T029d **Explicit Solvent Model Computation (CPU Proxy)** – uses RDKit to generate a 3‑D geometry of phenyl benzoate from SMILES file `data/chemicals/phenyl_benzoate.smi`, optimizes with UFF, and computes solvation free energy via GBSA. Tags rows with `model_type='explicit'`. **Justification**: CPU‑tractable proxy required by plan's feasibility constraints.
 - [~] T029b **Model Partitioning & Validation** – partitions solvent list so that ≥20 % are assigned to explicit modeling (based on `EXPLICIT_SOLVENTS`). Validates count; raises `ConfigurationError` if not satisfied.
