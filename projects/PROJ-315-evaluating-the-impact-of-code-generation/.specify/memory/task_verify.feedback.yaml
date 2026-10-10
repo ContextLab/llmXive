@@ -1,9 +1,6 @@
 T001:
   task: b18ebf78eb9da6293b1512a84f7479fe000f863352ee9e8f888621d7d69146ab
 T002:
-  reason: "The provided `code/utils/config.py` defines `load_config_from_env` and\
-    \ `set_global_seed` instead of the required `load_config()` and `set_seed(seed=42)`\
-    \ functions, so the file does not meet the task\u2019s specification."
   task: 471d452f914f08af5142df829f39cde6b725c18a8412bd464de09947603c0919
 T003:
   task: 94980bd48b9ce9adcaa0d3bd486be02b200aa1e8968e30dc19e09365f2e7d04b
@@ -16,6 +13,14 @@ T006:
 T007:
   task: 35e4345631bbc6d09423d458338c421d91e66cf6742a6c81d3879c37083218eb
 T008:
+  reason: "The provided `contracts/output.schema.yaml` exists but its contents do\
+    \ not match the task specification. It defines a single, extensive analysis schema\
+    \ rather than four separate JSON schemas with the exact required keys: (1) Mann\u2011\
+    Whitney U results lack a `method` field and use `p_value` instead of `pvalue`;\
+    \ (2) VIF diagnostics are embedded in a regression object instead of a schema\
+    \ with `predictor` and `vif_score`; (3) Power analysis schema uses `sample_size_a`,\
+    \ `sample_size_b`, `effect_size`, etc., and omits `min_detectable_effect`; (4)\
+    \ No schema for error reports (`error_code`, `observed_cou"
   task: ea7a29f0a6480c9fa6ee90e5ce4097f9630f7be4279093fb682af84b1230af76
 T009:
   task: 2b350ee60cf0b028dbf4485dc0b8e39f337be7de3bd16830efce105b83e37198

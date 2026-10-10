@@ -1,18 +1,18 @@
 T001:
   c: true
-  h: 1f9a954fd53ea7a44f9c0719940fdcfec57dc404ba50d364be6a4cc111061537
+  h: b3f20939fa2f9c12b72bf8e44cd870fdff4ad63a1ab62e6771eeff71a08b74ac
   r: Checked that the project root contains the required `code/`, `data/`, `docs/`,
-    and `tests/` directories, each present with files (e.g., `code/` has multiple
-    entries, `data/` has `__init__.py`, `docs/` has `__init__.py` and a `reports/`
-    subfolder, `tests/` has several test files).
-  sig: e2e273def63daaefa079f92d101d9e04d6a494ab943814466a028ff312567e85
+    and `tests/` directories, each present and populated with files (e.g., `code/`
+    has multiple entries, `data/` has `__init__.py`, `docs/` has `__init__.py` and
+    a `reports/` subfolder, `tests/` has subfolders and test files).
+  sig: 48f753f104c208aee24257c8e2a558b34539bdc9ab82e86fe89afa0cf7b055c3
 T002:
-  c: false
-  h: f007fc1f61d3a893058af070ebe36699e9819cb1e96c241bb07fca33c9fa3477
-  r: "The provided `code/utils/config.py` defines `load_config_from_env` and `set_global_seed`\
-    \ instead of the required `load_config()` and `set_seed(seed=42)` functions, so\
-    \ the file does not meet the task\u2019s specification."
-  sig: 6d5404a4e4b6a5d47d2130b2a026d7741ee1dfd37cab877fbede4e286d41826e
+  c: true
+  h: 33ebbf0222c854610e458a9a430b905a3fb7db0e8704c15a2a595d8864ab88d8
+  r: "The `code/utils/config.py` file exists (4401\u202Fbytes) and defines a `load_config()`\
+    \ that returns a dictionary of all environment variables, and a `set_seed(seed=42)`\
+    \ that sets the seeds for `random`, `numpy` (and thus pandas) as required."
+  sig: a0d0db3ee7dbe68d6770cd3df1788aa1477a32b544bfd25a2996ae69e7163c18
 T003:
   c: true
   h: 60a63d5179d0faacb975c6a85c8660db4f039e682958492774dcbc8da1ce47bb
@@ -32,12 +32,11 @@ T004:
   sig: dd1efc14485c55f6acfd5cc35d016daf8c72d57a0d8b5c24d61038e7478bedf6
 T005:
   c: true
-  h: b8cae593777d082dcc441a955083dca58643be47c071a950e85c2fba03fc8d44
+  h: ac45ad73413cfa3c8cb21cdc0f2de338fcd96536fbcc881021472b07a61b85b4
   r: "The evidence includes the required `code/data/__init__.py` (352\u202Fbytes)\
-    \ and `code/labeling/__init__.py` (125\u202Fbytes) files at their canonical locations,\
-    \ both containing valid Python package code. These files satisfy the task\u2019\
-    s requirement to create the two package structures."
-  sig: c58f6e1fc8337834e4855e873abf291f775e06d4874929b9b1a23ccf1a8b6155
+    \ and `code/labeling/__init__.py` (125\u202Fbytes) files at the correct locations\
+    \ with valid Python package content. No missing or placeholder files were found."
+  sig: d00a13edc68aa4a49dc4ce32b196a96111883102d082bce0398b2239cffa2d80
 T006:
   c: true
   h: e37d99ec44b8d83a92bbfef35a13e468bb89ed9a124187737579574301a1bb77
@@ -46,3 +45,33 @@ T006:
     \ and `project_metadata` as mandated. The file contains a full definition, not\
     \ a stub or placeholder."
   sig: 450c8ca872e10e161fa65e7edb3567ffcadc664403f94cfa3d3f4c6a7d32f4ae
+T007:
+  c: true
+  h: 2062c1c501c647e2e99c714655d9ccdcbc3b8b77c9011224a8f0d2ad7079735d
+  r: "Checked `code/utils/logger.py` (2722\u202Fbytes) which defines a custom formatter,\
+    \ console and file handlers, and provides `log_data_completeness` and `log_power_insufficiency`\
+    \ functions for the required error reporting. The module implements structured\
+    \ logging (timestamped messages, JSON output for analysis results) and the specific\
+    \ logging utilities for Power Insufficiency and Data Completeness."
+  sig: bd58f7dc482abc84b613ca45bb78aa029bceac46d247e0808d75397b68cd6924
+T008:
+  c: false
+  h: 01518b117d9177d3c37b0b19b9588d2df1587c232dab909fe2811031318f0080
+  r: "The provided `contracts/output.schema.yaml` exists but its contents do not match\
+    \ the task specification. It defines a single, extensive analysis schema rather\
+    \ than four separate JSON schemas with the exact required keys: (1) Mann\u2011\
+    Whitney U results lack a `method` field and use `p_value` instead of `pvalue`;\
+    \ (2) VIF diagnostics are embedded in a regression object instead of a schema\
+    \ with `predictor` and `vif_score`; (3) Power analysis schema uses `sample_size_a`,\
+    \ `sample_size_b`, `effect_size`, etc., and omits `min_detectable_effect`; (4)\
+    \ No schema for error reports (`error_code`, `observed_cou"
+  sig: 2213ac7f6c43f3924edca8f85f8e6b84e57d2c8c76c327a9ca0fd7f71b8ce61f
+T009:
+  c: true
+  h: bbb198bf64f29c018dbe7b4fbbda011d34a333df45b71e708f218a05b6be2517
+  r: "The `tests/unit/test_classify.py` file exists (11512\u202Fbytes) and contains\
+    \ concrete unit tests that check the \u22652 keyword threshold: `test_classify_as_not_llm_generated`\
+    \ verifies a single\u2011keyword message is classified as Human, and `test_classify_as_llm_generated`\
+    \ verifies a multi\u2011keyword message is classified as LLM. No placeholders\
+    \ or missing logic are present."
+  sig: e5fcfb77d8725f0a89a4e74ec0337527090b963ec14a33bcd5e4bc05f9ce90f5

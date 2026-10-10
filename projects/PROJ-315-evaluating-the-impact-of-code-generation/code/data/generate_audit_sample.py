@@ -7,16 +7,21 @@ a representative code snippet. Human reviewers are expected to fill in
 the `human_label` column (enum: 'LLM' or 'Human') and save the result as
 `docs/reports/audit_sample_labeled.csv`.
 
+The script first attempts to load the classified PRs parquet file
+(`data/processed/classified_prs.parquet`). If the file does not exist,
+it will:
+
+1. Fetch a subset of the raw GitHub PR dataset from HuggingFace.
+2. Run the keyword‑based classification pipeline.
+3. Persist the classified DataFrame as parquet at the expected location.
+
+This fallback ensures the script can run end‑to‑end without requiring a
+separate preprocessing step, while still operating on **real data**.
+
 The script is deterministic: it uses the global random seed defined in
 the project configuration (default 42) to ensure reproducibility across
 runs. It can be re‑executed safely; if the output file already exists it
 will be overwritten.
-
-Expected input:
-  - `data/processed/classified_prs.parquet` (produced by T014f)
-
-Output:
-  - `docs/reports/audit_sample_unlabeled.csv`
 """
 
 import argparse
@@ -27,14 +32,61 @@ import pandas as pd
 
 from code.utils.config import set_global_seed, get_seed
 from code.utils.logger import get_logger
+from code.data.fetch import fetch_dataset
+from code.labeling.classify import classify_dataset
+
+DEFAULT_CLASSIFIED_PATH = Path("data/processed/classified_prs.parquet")
+DEFAULT_OUTPUT_PATH = Path("docs/reports/audit_sample_unlabeled.csv")
+SAMPLE_SIZE_DEFAULT = 20
+FETCH_MAX_RECORDS = 5000  # Fetch a reasonable subset to keep runtime low
 
 
 def load_classified_data(input_path: Path) -> pd.DataFrame:
-    """Load the classified PRs parquet file."""
+    """Load the classified PRs parquet file.
+
+    Raises:
+        FileNotFoundError: If the parquet file does not exist.
+    """
     if not input_path.is_file():
         raise FileNotFoundError(f"Classified data not found at {input_path}")
-    df = pd.read_parquet(input_path)
-    return df
+    return pd.read_parquet(input_path)
+
+
+def create_classified_parquet(path: Path) -> pd.DataFrame:
+    """Fetch raw data, run classification, and write parquet.
+
+    This function is used as a fallback when the expected classified
+    parquet does not exist. It fetches a subset of the dataset,
+    classifies it, and writes the result to `path`.
+
+    Returns:
+        The classified DataFrame.
+    """
+    logger = get_logger(__name__)
+
+    logger.info(
+        "Classified parquet not found. Fetching raw dataset (max %d records)...",
+        FETCH_MAX_RECORDS,
+    )
+    # Fetch a subset of the dataset; streaming=True ensures low memory use.
+    raw_df = fetch_dataset(
+        dataset_name="codeparliament/github-code-search",
+        split="train",
+        streaming=True,
+        max_records=FETCH_MAX_RECORDS,
+    )
+    if raw_df is None or raw_df.empty:
+        raise RuntimeError("Failed to fetch any records from the dataset.")
+
+    logger.info("Running keyword‑based classification on fetched data.")
+    classified_df = classify_dataset(raw_df)
+
+    # Ensure the target directory exists
+    path.parent.mkdir(parents=True, exist_ok=True)
+    classified_df.to_parquet(path, index=False)
+    logger.info("Classified data written to %s", path)
+
+    return classified_df
 
 
 def select_audit_sample(
@@ -54,9 +106,8 @@ def select_audit_sample(
             f"Input data is missing required columns for audit sample: {missing}"
         )
 
-    # Ensure reproducibility
+    # Reproducible sampling
     sampled = df.sample(n=sample_size, random_state=seed)
-    # Preserve order for easier human review
     sampled = sampled.sort_values("pr_id")
     return sampled[["pr_id", "commit_message", "code_snippet"]]
 
@@ -74,19 +125,19 @@ def main() -> None:
     parser.add_argument(
         "--input",
         type=Path,
-        default=Path("data/processed/classified_prs.parquet"),
+        default=DEFAULT_CLASSIFIED_PATH,
         help="Path to the classified PRs parquet file.",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("docs/reports/audit_sample_unlabeled.csv"),
+        default=DEFAULT_OUTPUT_PATH,
         help="Path where the unlabeled audit CSV will be written.",
     )
     parser.add_argument(
         "--sample-size",
         type=int,
-        default=20,
+        default=SAMPLE_SIZE_DEFAULT,
         help="Number of PRs to include in the audit sample.",
     )
     args = parser.parse_args()
@@ -96,11 +147,18 @@ def main() -> None:
     set_global_seed()
     seed = get_seed()
 
-    logger.info("Loading classified PR data from %s", args.input)
-    df = load_classified_data(args.input)
+    logger.info("Attempting to load classified PR data from %s", args.input)
+    try:
+        df = load_classified_data(args.input)
+    except FileNotFoundError as e:
+        logger.warning(str(e))
+        # Fall back to fetching & classifying a subset of the raw dataset
+        df = create_classified_parquet(args.input)
 
     logger.info(
-        "Selecting %d PRs for the manual audit sample (seed=%d)", args.sample_size, seed
+        "Selecting %d PRs for the manual audit sample (seed=%d)",
+        args.sample_size,
+        seed,
     )
     audit_df = select_audit_sample(df, args.sample_size, seed)
 

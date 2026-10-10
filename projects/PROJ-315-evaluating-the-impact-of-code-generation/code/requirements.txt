@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+scipy
+radon
+textblob
+matplotlib
+seaborn
+datasets
+pyyaml
+pyarrow
+# Added pyarrow to enable parquet read/write support for audit sample generation.
