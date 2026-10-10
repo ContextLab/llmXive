@@ -28695,7 +28695,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-10T02:42:56.543165+00:00",
+  "generated_at": "2026-10-10T02:58:52.540983+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -86153,7 +86153,7 @@
           ]
         },
         {
-          "contributions": 4,
+          "contributions": 11,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -86192,6 +86192,62 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 14.81559,
+          "ended_at": "2026-10-10T02:40:12.607724Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T02:39:57.792134Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 29.864815,
+          "ended_at": "2026-10-10T02:39:57.787702Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T02:39:27.922887Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 32.406476,
+          "ended_at": "2026-10-10T02:37:59.379711Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T02:37:26.973235Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 17.004251,
+          "ended_at": "2026-10-10T02:35:53.532139Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T02:35:36.527888Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 22.399861,
+          "ended_at": "2026-10-10T02:35:36.522425Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T02:35:14.122564Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 11.288563,
+          "ended_at": "2026-10-10T02:33:35.180315Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T02:33:23.891752Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 10.270959,
+          "ended_at": "2026-10-10T02:33:23.885969Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T02:33:13.615010Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 23.049723,
           "ended_at": "2026-10-10T02:31:06.461558Z",
           "model": "openai.gpt-oss-120b",
@@ -86213,62 +86269,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-10T02:20:42.769918Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 491.682938,
-          "ended_at": "2026-10-07T09:44:03.132356Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-07T09:35:51.449418Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 952.10996,
-          "ended_at": "2026-10-06T16:55:25.211309Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T16:39:33.101349Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.612183,
-          "ended_at": "2026-10-06T16:39:33.035243Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T16:39:27.423060Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.006175,
-          "ended_at": "2026-10-06T16:39:27.350043Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T16:39:21.343868Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 49.365125,
-          "ended_at": "2026-10-06T16:39:18.244603Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T16:38:28.879478Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 34.671652,
-          "ended_at": "2026-10-06T16:38:28.875998Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T16:37:54.204346Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 29.487662,
-          "ended_at": "2026-10-06T16:37:54.200734Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T16:37:24.713072Z"
         }
       ],
       "paper_status": null,
@@ -167275,6 +167275,90 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 14.81559,
+      "ended_at": "2026-10-10T02:40:12.607724Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T02:39:57.792134Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 29.864815,
+      "ended_at": "2026-10-10T02:39:57.787702Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T02:39:27.922887Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 32.406476,
+      "ended_at": "2026-10-10T02:37:59.379711Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T02:37:26.973235Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 17.004251,
+      "ended_at": "2026-10-10T02:35:53.532139Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T02:35:36.527888Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.399861,
+      "ended_at": "2026-10-10T02:35:36.522425Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T02:35:14.122564Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 11.288563,
+      "ended_at": "2026-10-10T02:33:35.180315Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T02:33:23.891752Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.270959,
+      "ended_at": "2026-10-10T02:33:23.885969Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T02:33:13.615010Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 25.86961,
       "ended_at": "2026-10-10T02:32:13.085014Z",
       "failure_reason": "",
@@ -173194,90 +173278,6 @@
       "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-09T09:27:27.808784Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 37.633032,
-      "ended_at": "2026-10-09T09:30:00.289101Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T09:29:22.656069Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 23.580308,
-      "ended_at": "2026-10-09T09:29:22.653599Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T09:28:59.073291Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 38.60267,
-      "ended_at": "2026-10-09T09:28:59.070840Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T09:28:20.468170Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 34.715052,
-      "ended_at": "2026-10-09T09:28:20.465694Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T09:27:45.750642Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 31.88156,
-      "ended_at": "2026-10-09T09:27:45.748150Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T09:27:13.866590Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 152.881522,
-      "ended_at": "2026-10-09T09:27:27.804481Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-586-social-memory-networks-modeling-collecti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T09:24:54.922959Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.610999,
-      "ended_at": "2026-10-09T09:27:13.864023Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T09:26:52.253024Z"
     }
   ],
   "reviewed_preprints": [
