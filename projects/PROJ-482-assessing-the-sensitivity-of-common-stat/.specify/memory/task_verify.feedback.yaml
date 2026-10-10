@@ -1,0 +1,156 @@
+T001:
+  reason: The `code/` directory contains many source files instead of being empty
+    with only a `.gitkeep`, and the required `logs/` directory (with a `.gitkeep`)
+    is missing entirely.
+  task: 6b51c95ea5c8b6b62234e4a73de9d30409a05397bfa42ad30dc750600eff4850
+T002:
+  reason: The provided `requirements.txt` includes `scikit-learn`, which the task
+    explicitly required to be removed; thus the dependency list does not match the
+    specification. The file must be edited to contain only the listed packages (`numpy`,
+    `scipy`, `pandas`, `matplotlib`, `seaborn`, `pytest`, `statsmodels`) and omit
+    `scikit-learn`.
+  task: c28246aab9218b241e62604aba4ed26e353a9926974e60d0898bccf1f1122f32
+T003:
+  reason: The repository contains a `pyproject.toml` with a Black configuration, but
+    there is no `setup.cfg` and the `pyproject.toml` lacks any Flake8 (or other linting)
+    settings. The task requires configuring both linting (Flake8) and formatting tools,
+    which is not satisfied. Adding a Flake8 section (e.g., `[tool.flake8]` with desired
+    options) to either `setup.cfg` or `pyproject.toml` would be needed.
+  task: ee42bae9538dc6c67ae473a34227e543f3521fb5098a4e139b7070f5eaaadf2f
+T004:
+  reason: "The provided `code/config.py` exists and defines most required constants,\
+    \ but it does **not** expose a top\u2011level constant named `SEED_BASE` set to\u202F\
+    42 as the task specifies (it only uses a local `seed_base` variable inside `get_simulation_grid`).\
+    \ Consequently the required `SEED_BASE=42` parameter is missing. Adding `SEED_BASE\
+    \ = 42` (or renaming the existing variable) would satisfy the task."
+  task: 69609efbdbf859cf56cc441edbb263b6fc75a38f9db6382270d47caf87db3cb9
+T005:
+  task: f2f6894082a1bc3eaf6c67a49909d5fb22446d387308ab45025d2ae518cb8fd9
+T006:
+  task: 354653e92e5a117db3966ee4509270f73ebc34b15166f2e687f4e22931ac2ffc
+T007:
+  task: 220dac8f1faa519a5819c483a1f8277807c0d5596eeb14184e4453dc1c7b51f9
+T008d:
+  task: 9a8519f4047d44425142d8b1dbbebabd6bbee1662c2ffbda5ed5df9711f64f79
+T009a:
+  task: bf91bcef3951993fa9635e03b9df2ecd73cff84eed28b3a284a923757f11d49d
+T009b:
+  task: beb9ccc53d0cb74170453eab6366ecd9e351a65b7397c5ddd8cc525242580e11
+T009c:
+  task: 757d9c30dbb90bf64d46770a5137576c7fc3e2aec03100e8176c90a25d27d182
+T009d:
+  task: a5488120d61de394d797ed542c756fcf1be1e5962b3f71f7cbbaf2e79eeb7c34
+T011:
+  task: d67332758a7d07dc6445b4827c9313066141022b44a3feadb7021e6663ab526c
+T012:
+  task: 69f25c85976b5c55d4f2b6f60f96098c0bb58332427aee45260ddcfdd564add9
+T013:
+  task: 51df2bfe2f081310d31d9333c104b0c51b63c3c1826d92bcc3de5e3a3fb72563
+T014:
+  task: 61b585c9f9317ffeb99f0af0c5b6902de14df96ac2a209708bae40a6e89bb47a
+T015:
+  task: d239d477d16b4d498dcbd7dd01e1e4c9ca8d4123bf9b165bf6c8f8d74ff2f36b
+T016:
+  task: e0dcbbb247e7dfd743c0b522a963c05db3440f2de3b6e20ee609117ef6117cc2
+T017:
+  task: f09bfc84ea1786c5703f91a4c04854a99e0a3b4c3a8720c257e4051684ebc992
+T017b:
+  task: 631f796641b338a7f9708e168023ebc0405f7329be819af894532c65713517c7
+T018:
+  task: 2fa393a42d004a44e7e20594562f78f39f4f789df2501ac3d000d30d7a3f654f
+T018-1:
+  task: c5049bedaa2c70ef8b7a70769f5c620127ba23a27279a317d2acedede0e74fd7
+T020-1:
+  task: 9b2ab2dd061c398b4613ed5be351d2fbd16d1a0bd1fbaca07143df6ba28e1e0f
+T020-2:
+  task: bc3c9a7c55ba6827f4128db8938d79a902acad3b583de766b205b7f4498a07d7
+T021c:
+  task: 4d94193e8494e94e22dc9fd5e2951393e3e6fd080e943f65b929cf1c5e639a10
+T022:
+  task: 81acee4252123294bbfa6e711db8e67fe7355fe040f73199199642fba16f4122
+T023:
+  task: 6a6cfc289e8dbe5817ec18f522543099c821c369d7352508039076dbebce5b53
+T024:
+  task: bb7d47135fb7103d006be86c934708476368bbd0355a770bfad2b92012344802
+T025:
+  task: 873f83f05798260a8cb9960b3105c7f747fa4f5386026d0a614c97f3d736ad3a
+T026:
+  task: cd297180739d0c5911435958910ac87def375bb309ee274cd085ebc57ff5b595
+T026b:
+  task: 5fd651c50d4855c17394ebd7f1ea59374d96dd1222ceb1f2c46a02a37e99dcd8
+T026c:
+  task: ae0af43b19e1aaa2b24fd9aead9b863f34562e4725d84121e2d95fa87d1c59da
+T027-1:
+  task: 6c30c7e13a165567c31105cda96c65e88e3c9d708ccc82246dd1ca3894bdf8ab
+T027-1b-NEW:
+  task: ef1dff7a946f33de6adfe6bea85aca0e0ef7a3862c869ba3ef6328e39f90f37a
+T027-2:
+  task: cd696818f51de8456ee11a58304dfbae47ef2b0907cad327a10467618967a13e
+T027-3:
+  task: f5cd9699fb28a4b6c80f7381cb04816b4911d0a933dcf450f5720ca3d11de2b5
+T027-4:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/regression_results.json'
+  task: 11f3f56841f20fe00ec308e8c9aa0b68498d9ac42592d8779b03a7329ddc39ed
+T027c:
+  task: dd5d35bded35fca8bd1a780a27545532bc62639887f58591b1470c4a3e67bff7
+T027c-1:
+  task: f2231c3f2849ccd6099597ea570677f1a7e8ba934cf2349531ecfc556f7b2438
+T028:
+  task: bb21ae3dca4e8e5ec0e5c05243190b970ba2b51ccd8883be91553cfd3dcfe705
+T029:
+  task: 8d7759ea6859a24729e4e196b85ca9fd41488441393a033e56e827dccd533e17
+T030:
+  task: b2ebfbfc52b634fbdeecc372d6e853ef3a870b44d4280602b59fd65db9a67b73
+T031:
+  task: 897722c65fc43e159566ab6ef38820720d77ea89573e97b7cfecfe834ee94a49
+T032a:
+  task: 5a11b01ba9552ecf96c4703859f077bbd38a3b234611ae20db87862ded2f313e
+T032b:
+  task: b2192956e6b45bbe8df64330ab44271eef62d808a7f483cd2f333bfbf8c11e4d
+T033-IMP:
+  task: 9b7271662500f2f8f9cc9b4a9a79d22c94f300a303592fbef061a37f3cfe4f8d
+T033-RUN:
+  task: 0a6d00563199cbcebb2506ba5d228080f9a1a4403dbd0bbe57c033f68fd79a12
+T034:
+  task: 692f51019bbdd25fd5e6dd3486e25affc37a3a9e69eecd53e80980995d9e1f32
+T035:
+  task: 27523a750756e255fee3ec26ae67c1b830d53bd791434f0c0935526e6d2e5d81
+T036:
+  task: 1bd686112681c0b5f520e81c2369b36e5f5219e978eccc934611612f5a591987
+T037:
+  task: 43c92b160414cf3a3da03802b8c709a961ffe31e9ba6b9d8570fd7430d6df3c3
+T038:
+  task: 4faa03c1c6c60094ac6a5f04e64ae7174fa4f605aca116e1cca34ec4e24da617
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: code/checkpoint_runner.py'
+  task: 60cae9880f496d3298d4ee225851273255178c377319784aa7e820ffba214c11
+T040:
+  task: f0f777f01e95aaf3bc3ea143e397ada4743eef3d5ca55e1c11fc2ad56049a1e1
+T041-1:
+  task: b09722d819180cd34be5144694612925e49062571329f4a785325f5dedeba6f6
+T041-2:
+  task: 8ea68c854a4655921bccad5a0e628d53afe5d1a82b493c28c77ed898c0a70697
+T041-3:
+  task: b625198f1b9aad38e5a4774bd6fabf60714d6fd84e99819a8ab1c680584839b8
+T042:
+  task: dbf6800036bc864e8ad0b75daa986a3ef65d0a3726669def3477847d55b8f827
+T043:
+  task: a21d88a83f11db4f484b74ce74e41be393d17bc22db84e1743a9d16c8d5db6b5
+T044-1:
+  task: 11fd3e730691390a26988794aafd3fd05ce8756bb96b0138b8ed2f643016fadd
+T044-2:
+  task: ffd9b68fc343a093e4e771c524d8159bbb25647229a038d9f677da20842eaf5c
+T044-3:
+  task: 31fa64289e2fb53c84b8c5b141f99a56234a38a7d1bca2268295e1d9746f9895
+T044-NEW:
+  task: 688a6d365358d840992f507bc1a594a7a867a6da70d6a2adc6647de1dee8a180
+T045-NEW:
+  task: 8ebaac1b3c32b905ff12ed7f52a922da79660249f0c296a68c92f1f94974791f
+T046:
+  task: d775f05c5a1e2ca4862216f89936702b2809d1bf906d3942146cd719bde2d21a
+T047-NEW:
+  task: dcf962a1c7a818119b7269283a384e5d5ad00fdf1669e0f75874f867ec62f61a
+T048:
+  task: 043b1aec74c8561da407e7b7a3cf8054af3d13f4b605de24f01c9f069a8b6674
+T049:
+  task: ef201c675b29d25ddcf971c5da7ba313aee0bddd2a8d59bf960fa12c1818c795

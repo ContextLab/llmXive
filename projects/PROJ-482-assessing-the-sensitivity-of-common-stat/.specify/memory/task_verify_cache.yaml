@@ -1,3 +1,52 @@
+T001:
+  c: false
+  h: 4bb8a8a73ae935afc0d205c8df9301de2f63e0b4828c1982d1b5ebde4834cfeb
+  r: The `code/` directory contains many source files instead of being empty with
+    only a `.gitkeep`, and the required `logs/` directory (with a `.gitkeep`) is missing
+    entirely.
+  sig: 7378b3a1469c74b36e92259509f2ecde8a41b15510d0e4cf7b78fd8ad5d98b49
+T002:
+  c: false
+  h: bed6efbad7e93da0a3db97abf338e9d465f62202905ac6ec410a821e8957d877
+  r: The provided `requirements.txt` includes `scikit-learn`, which the task explicitly
+    required to be removed; thus the dependency list does not match the specification.
+    The file must be edited to contain only the listed packages (`numpy`, `scipy`,
+    `pandas`, `matplotlib`, `seaborn`, `pytest`, `statsmodels`) and omit `scikit-learn`.
+  sig: 3b9285c72e119cd839e00c3feee0f2d80d32501b761a459a3386fd6d481d7dea
+T003:
+  c: false
+  h: cd58a126612dccf4ce46f6e9c2a38954f6369e2930f2ae797f87c394fb67c62a
+  r: The repository contains a `pyproject.toml` with a Black configuration, but there
+    is no `setup.cfg` and the `pyproject.toml` lacks any Flake8 (or other linting)
+    settings. The task requires configuring both linting (Flake8) and formatting tools,
+    which is not satisfied. Adding a Flake8 section (e.g., `[tool.flake8]` with desired
+    options) to either `setup.cfg` or `pyproject.toml` would be needed.
+  sig: 408e7be356d09ff8c1eb90cf68cf40b6fcee8e65543bd6af3ae77e2358f588d8
+T004:
+  c: false
+  h: 07b7c415dd042376a72dcafd21322072f8d86a916ec8fbeb24320881c2ea3ff4
+  r: "The provided `code/config.py` exists and defines most required constants, but\
+    \ it does **not** expose a top\u2011level constant named `SEED_BASE` set to\u202F\
+    42 as the task specifies (it only uses a local `seed_base` variable inside `get_simulation_grid`).\
+    \ Consequently the required `SEED_BASE=42` parameter is missing. Adding `SEED_BASE\
+    \ = 42` (or renaming the existing variable) would satisfy the task."
+  sig: 12c2817427ffc2cc2016315ea1b9d197584c288b9e4b2fc7a9e3dc5139de50a6
+T005:
+  c: true
+  h: 17495e62d1fcd6d4ec22cccc6b0696640a030c5947c00ea7801aa705b58fc1fe
+  r: "The `code/__init__.py` file (resolved at `code/__init__.py`) is present, non\u2011\
+    empty (2.4\u202FKB), and defines a package\u2011level logger, helper functions\
+    \ for configuring logging, and exports the logger via `__all__`. This fulfills\
+    \ the task\u2019s requirement to implement the `__init__.py` module and provide\
+    \ basic logging infrastructure."
+  sig: 06744a1134576872d9f662e057955bb453c22ffb533ca2bb5054e5c3cb96395d
+T006:
+  c: true
+  h: dc0c4c49df81eb4931174418b11d24b59bdeb99cc95cbeceb5c4456251244623
+  r: "The evidence shows that both `data/raw/` and `data/processed/` directories exist\
+    \ in the project and each contains a `.gitkeep` file, fulfilling the task\u2019\
+    s requirement to create the directories with placeholder files."
+  sig: 997ee1903b7ed967bd0645133dcffd678d473dea1fa258ed6ee74b62c4188d27
 T014:
   c: false
   h: 891f23fa890e88e6ac197873fe9341018c1521a9cb88c9f4b742274cd76d4bce
