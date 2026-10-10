@@ -1,0 +1,144 @@
+T001:
+  reason: "The task requires creating `code/`, `data/raw`, `data/processed`, `data/results`,\
+    \ `tests/`, and `utils/` directories, but the evidence only confirms `code/` and\
+    \ `tests/` exist \u2014 there is no evidence that any of the three `data/` subdirectories\
+    \ (`data/raw`, `data/processed`, `data/results`) were created, nor that `utils/`\
+    \ exists as a directory (it appears only as an entry inside `code/`, not at the\
+    \ project root as specified). The implementer must create the missing `data/raw`,\
+    \ `data/processed`, `data/results`, and root-level `utils/` directories (with\
+    \ `.gitkeep` markers if empty) to satisfy the"
+  task: 681db5717f70f64b1c45da73e808b8a0373723b9e9e34c428ef7e15924c230ac
+T002:
+  reason: The `requirements.txt` exists but contains a typo `rdkkit` (the correct
+    package is `rdkit`, so the dependency would fail to install) and none of the required
+    packages (`rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `tqdm`, `huggingface_hub`,
+    `matplotlib`, `seaborn`, `scipy`) are pinned to versions as the task requires.
+    Fix the typo and add version pins for all specified dependencies.
+  task: 8980febf5ff0fdd643549ff8c5bfceb7115863de503832bbae4c7063d0e274ca
+T003:
+  reason: "No artifacts were provided or found on disk for this task \u2014 there\
+    \ is no `pyproject.toml`, `ruff.toml`, `.ruff.toml`, `setup.cfg`, or any configuration\
+    \ file containing `ruff` or `black` settings, nor any evidence (e.g., lint/format\
+    \ run output) that the tools were configured or executed. The task requires actual\
+    \ configuration of linting and formatting tools; with zero artifacts to inspect,\
+    \ the claim cannot be verified and must be treated as not done."
+  task: 190cf20156fe34406d66516d932e39c054a0e51b2a99cb01d50784ffd0882de9
+T004:
+  reason: "The evidence collector lists no artifacts for this task \u2014 there is\
+    \ no `utils/memory_monitor.py` (or any resolved equivalent) present on disk, so\
+    \ the claimed RAM-tracking/downsampling module cannot be verified to exist, let\
+    \ alone implement the \u2265 6.5 GB trigger with \u2264 7 GB peak behavior. The\
+    \ implementer must actually create the module (with memory monitoring and a graceful\
+    \ downsampling mechanism) and provide evidence of its content/execution."
+  task: 482d08f3f5775cb3fe628c60049f61b4bfbd1b214e3bd1d49d672072ed584588
+T005:
+  reason: "The evidence collector lists no artifacts on disk for this task \u2014\
+    \ there is no confirmed `utils/parsers.py` (or any resolved equivalent path) in\
+    \ `projects/PROJ-301-predicting-molecular-descriptors-from-qu`, and no execution\
+    \ evidence (e.g., tests of SMILES conversion, XYZ parsing, or malformed-molecule\
+    \ error handling). With no file present and no content to inspect, the claimed\
+    \ implementation cannot be verified; the implementer must actually create `utils/parsers.py`\
+    \ with the SMILES/XYZ conversion functions and error handling, and provide evidence\
+    \ it runs."
+  task: 165b4fc2a75b2ef7df77043662722d04572f99a93211083d1b160fb7a319aa23
+T006:
+  task: 99f25ea4912e9b520f8fcf4cbb36de7d5cd6f5f7ada1357bef8c68c7907fa731
+T007:
+  task: 970c3baae75a4cb2faaef37d65df27319516bd1a0658ea23499046867fc8b8d1
+T008:
+  task: 0738263d2cb2fef4801f774a2f1aa4d572dc0d8157b05e251f1d81a7e1bdc39f
+T009:
+  task: b04602c805fb4137c99aa2b3462d494648fd4de810f31e2f32f4a41a930e393a
+T010:
+  task: 0e12ba39c2a7f7b479f20a9e885c95da3b70e2d92c86fd0add477f1d92ca6dda
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_sampling.py, data/processed/molecules_cleaned.parquet,
+    data/processed/split_indices_final.json, data/processed/'
+  task: 99f034640d5abf53e163bd45b759b1a3cb52632518b4a4bc231554512163e451
+T012:
+  task: cce3e0952cd343de6e3471600f48b1c41f1bf40227f8782d67cff0d0450f6a5f
+T015:
+  task: 51554d900ae28157279adc887a196608d090fae9b9af4e39a7d4fae5abd37f44
+T016:
+  task: 4371eee36f9b8d912791c3d92e3c1b5c003533fb8ed26b02451059d12c7dbf16
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04_aggregate_metrics.py'
+  task: a5129936ec5f7cb66f30aa0bdb60eb0133e20d8fe3b0a1e3e7e50b56c7049a05
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04_train_orchestrator.py,
+    code/train_2d.py, code/train_3d.py'
+  task: be3ad1804539c60edb50ec2095127e1b8c97bcd6f4847208b46de468c5a1ae95
+T020:
+  task: 0df2fc9892f7bec42aa978a58850ba8caff65c5820395cfd6ab643fa5db74993
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_analysis.py, data/processed/labels_test.csv'
+  task: 5a27886c3f215e747675c620c6f494b8b5d4d73fd0e15a03288c594aa8cba168
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_analysis.py, data/processed/labels_test.csv'
+  task: b5b430d26af8589f76bc359cdd02e5729b7a3c0e3514332763b846252aead0ed
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_analysis.py'
+  task: 4a5c8494e999f8a5188a59cf93cd8342de8b584cd3faa33c0ab4d64c50a91746
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_analysis.py'
+  task: fafff1fe551ad49d7a448da5f20dec411c8b662fdc34a8fe5aeb5c7e804fa210
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_analysis.py'
+  task: 9c1daf2d52b40807cd6143dc48b64896f96bbe123f3b6d5e3d4b4de7adabaf43
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_analysis.py'
+  task: 0db37558d7dd15ad88d8701e94ba183a49243eb490cf558edb082235a0a81e13
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_analysis.py'
+  task: 82bccf7773638602135c1cc26c67c7b6d5b652c17ddb857ccddba06f244fa3b2
+T029:
+  task: aefc5d289ac474872067743c76f8c898ce0a16221f13a7d277368b9d2e11ce7f
+T030:
+  task: 064633f6fcb162a2c0efc726041732066ce12cdab3714a0e4e6bf80dc8f9857c
+T032:
+  task: acc8499c25b869ea8476adb0380fc6bd5a1451ecb03ba82c29664dc833b3ae5f
+T033:
+  task: e72d196e8fd0e316745cd89d4323b0bdb3e7baa70201a0b1a039b4b3a276a397
+T034:
+  task: 982671153ebef8502a47628b6725f65caf6dab97fb3244d6546830bd7ff8f203
+T034#1:
+  task: 354502061cc04035a8833b7b48d9efce84a43e1d3c2c9240f4d2e90bfb0bb2ef
+T035:
+  task: a62f5c37674a09dbabd387c6ec872a39f4142c6aa91549ab5b8049ad67485809
+T035#1:
+  task: 1bc2fd6273893a9f451eef839768f864da1eb74e3a59570c6e987eabdd1863ea
+T037:
+  task: f569037ce171db05c4d518a1a2fada336bf88b6ef7bb42916b075c09792bacde
+T038:
+  task: daa39b74a1972d2cd40e5772d0ab181082a4acc8728a4512f0bf4f617cc0c287
+T039:
+  task: f161b32d24c77dc8f43ff93c500efbe8fbb00c0b430c9e0f6816d10e94d98cb9
+T040:
+  task: 2c6dcb6fe232c312c3ac042be6d8f89fe2b0b490c2a8c50d5ac1dec5a8052375
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_full_pipeline.py'
+  task: 44c2947e76e77078ce2e6c6d36569731b64e6a2e44a87dd6cafb242b9125c694
+T049:
+  task: 2e27bd2e61cdf6e9a2fd7ba846f60eb869c4e9d5572ec2afe418f363dec8785f
+T050:
+  task: c07b8bbede577ebd7dc6644fe7658696a4cef25074fc64ddfde14309821ffe42
+T051:
+  task: c4b6163f35f8ea7e8928865198b3f14c07d27e9f266aa77c2eb2f6662478b2f6
+T052:
+  task: bffea22a5e567e63699c0e4d607b5cc470c88f23b06991a0b7d13bd45f9b33ef
+T053:
+  task: 6a42199eca80812ca95d955d44058767d03e7ee23ff2e9618db4f478e1732305
+T054:
+  task: 455c85489cc1dd6c7813b8780efa4ec58cf2d58a59486d9f553d15750e91480c
+T055:
+  task: aa782a32c05f2df1f1a5832b4691130d548a770101d4b9c23ca46b8ecbecb5a4
+T056:
+  task: 045efe55c1f2001fe41ffe984ba4764806c6bd97801b498d7af1ec28fb9fe625
+T057:
+  task: 7a6f305315f0189281ef275e57a757fa05d667bc4dfa1d6e491aa4eb4b2d5e6e
+T058:
+  task: 0cbfa5a03ff33595ad62b1f390ef7d68b5da010801467ddae19ab0f023cd54fd
+T059:
+  task: cb6670bec9b3e0de7a748153987fc7ca6f986f88ea1aee19cc33b4d33888c5fb
+T060:
+  task: 31888ae071742a01135beac8b81fb3bff6c67b36f5ba9ff94b7da5a5ffee840d

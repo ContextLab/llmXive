@@ -1,3 +1,64 @@
+T001:
+  c: false
+  h: ff0ca88e0d67121f00ebe48de4fe1b35d9b973496f9684fc74e1189ffd4cbc12
+  r: "The task requires creating `code/`, `data/raw`, `data/processed`, `data/results`,\
+    \ `tests/`, and `utils/` directories, but the evidence only confirms `code/` and\
+    \ `tests/` exist \u2014 there is no evidence that any of the three `data/` subdirectories\
+    \ (`data/raw`, `data/processed`, `data/results`) were created, nor that `utils/`\
+    \ exists as a directory (it appears only as an entry inside `code/`, not at the\
+    \ project root as specified). The implementer must create the missing `data/raw`,\
+    \ `data/processed`, `data/results`, and root-level `utils/` directories (with\
+    \ `.gitkeep` markers if empty) to satisfy the"
+  sig: 01a2cba7bcfd6b4b5ace6bcdc21e4bd19066a7a3377665868ee1fb8c6afae788
+T002:
+  c: false
+  h: 2bd39b69c4650a56cda699f1315c8422d957607d75081580825a65fbc8813125
+  r: The `requirements.txt` exists but contains a typo `rdkkit` (the correct package
+    is `rdkit`, so the dependency would fail to install) and none of the required
+    packages (`rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `tqdm`, `huggingface_hub`,
+    `matplotlib`, `seaborn`, `scipy`) are pinned to versions as the task requires.
+    Fix the typo and add version pins for all specified dependencies.
+  sig: 6d44859d6f6a7621cb900d24c9f5db6c43385da1133ed79e803f94ba7e04d06f
+T003:
+  c: false
+  h: 9030b28a1c9884b7211c648954061c34ed4a4a510bc72c77b8bb34f65bf62ef9
+  r: "No artifacts were provided or found on disk for this task \u2014 there is no\
+    \ `pyproject.toml`, `ruff.toml`, `.ruff.toml`, `setup.cfg`, or any configuration\
+    \ file containing `ruff` or `black` settings, nor any evidence (e.g., lint/format\
+    \ run output) that the tools were configured or executed. The task requires actual\
+    \ configuration of linting and formatting tools; with zero artifacts to inspect,\
+    \ the claim cannot be verified and must be treated as not done."
+  sig: b91c0352aae986c39e6c21da1f72b6be8d8cc5f769be3bed9d0075df07fd3a58
+T004:
+  c: false
+  h: 75a126339f100cf6b5346e050d73095c658cc404f1f245e01b5741daeaef7228
+  r: "The evidence collector lists no artifacts for this task \u2014 there is no `utils/memory_monitor.py`\
+    \ (or any resolved equivalent) present on disk, so the claimed RAM-tracking/downsampling\
+    \ module cannot be verified to exist, let alone implement the \u2265 6.5 GB trigger\
+    \ with \u2264 7 GB peak behavior. The implementer must actually create the module\
+    \ (with memory monitoring and a graceful downsampling mechanism) and provide evidence\
+    \ of its content/execution."
+  sig: 897806e55d390ffb65e5e914bb0da787c96668652813a25477a5ccdd4eddb723
+T005:
+  c: false
+  h: 237224105063cbb45a291b284b231f0f9e203ec797a49cb53c55a5524172ecae
+  r: "The evidence collector lists no artifacts on disk for this task \u2014 there\
+    \ is no confirmed `utils/parsers.py` (or any resolved equivalent path) in `projects/PROJ-301-predicting-molecular-descriptors-from-qu`,\
+    \ and no execution evidence (e.g., tests of SMILES conversion, XYZ parsing, or\
+    \ malformed-molecule error handling). With no file present and no content to inspect,\
+    \ the claimed implementation cannot be verified; the implementer must actually\
+    \ create `utils/parsers.py` with the SMILES/XYZ conversion functions and error\
+    \ handling, and provide evidence it runs."
+  sig: fd47904be93f12cf950afc5ed72a3a822323589796faf7cb032465aa76cd7a2e
+T006:
+  c: true
+  h: bae4e0d70fb842c9a1c6d8daae7a81952d2a76e8d1413bbb301a591ac6a97531
+  r: "The file `code/utils/models.py` exists (654 bytes) and defines all three required\
+    \ dataclasses \u2014 `Molecule` (smiles + properties dict), `FeatureSet` (2D/3D\
+    \ feature arrays plus labels), and `ModelResult` (model name, metrics, predictions,\
+    \ errors) \u2014 with real, non-stub implementations appropriate to a base data\
+    \ model task."
+  sig: 846dae0f8e627cab81147263ee3e9987ede512d27825c57537125e75b4d3eaae
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
