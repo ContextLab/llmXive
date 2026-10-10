@@ -1,3 +1,18 @@
+T001:
+  c: false
+  h: 90e1c328f572a3b5e2e98cfc4ca98b9465365ac91bd2c46659bae1602ef93164
+  r: The evidence shows all required directories except `logs/` are present; the `logs/`
+    directory is missing entirely, so the hierarchy is not complete as specified.
+  sig: 978f748fc74292d361161c9055b0b499184dea018748418b0b3379fa32b66ea4
+T002:
+  c: false
+  h: abf42776ab52d97ff3e8c9cd958ae833cb532de1d11d70084c6a80d26505a60e
+  r: "The `code/requirements.txt` file is present and correctly pins exact versions\
+    \ for all six packages, and `code/__init__.py` exists, but there is no provided\
+    \ evidence (e.g., CI logs or command output) showing that `pip install -r code/requirements.txt`\
+    \ actually succeeded without warnings. Without this execution proof, the task\u2019\
+    s verification condition is unmet."
+  sig: 32c71d6db9b07e10c47973c3ba07af56473ff8de2515cd4996af8c4a30f11d5c
 T025:
   c: false
   h: 697d8b7d27bc1910d197db28aea68b573a2691b966c1bc30c2e4aef2b05febd2

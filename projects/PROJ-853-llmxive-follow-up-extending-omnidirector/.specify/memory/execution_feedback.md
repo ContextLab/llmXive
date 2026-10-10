@@ -38,23 +38,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/projects/PROJ-853-llmxive-follow-up-extending-omnidirector/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-853-llmxive-follow-up-extending-omnidirector/code/main.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -v -> rc=2
-ed 0 items / 1 error
+-extending-omnidirector
+plugins: platformdirs-4.12.4, anyio-4.15.1
+collecting ... collected 0 items / 1 error
 
 ==================================== ERRORS ====================================
-_ ERROR collecting projects/PROJ-853-llmxive-follow-up-extending-omnidirector/tests/unit/test_config.py _
+__________________ ERROR collecting tests/unit/test_config.py __________________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-853-llmxive-follow-up-extending-omnidirector/tests/unit/test_config.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 tests/unit/test_config.py:14: in <module>
     from config import (
 E   ImportError: cannot import name 'DEFAULT_CONSTANTS' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-853-llmxive-follow-up-extending-omnidirector/code/config.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_config.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.28s ===============================
+=============================== 1 error in 0.08s ===============================
 
 
 

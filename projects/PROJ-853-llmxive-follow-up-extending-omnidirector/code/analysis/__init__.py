@@ -1,1 +1,3 @@
-"""Analysis subpackage."""
+"""
+Analysis subpackage: metrics, reporting, validation.
+"""

@@ -1,1 +1,3 @@
-"""Data subpackage."""
+"""
+Data subpackage: utilities for dataset handling.
+"""

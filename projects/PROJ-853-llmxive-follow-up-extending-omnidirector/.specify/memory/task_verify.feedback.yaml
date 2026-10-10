@@ -1,8 +1,17 @@
 T001:
+  reason: The evidence shows all required directories except `logs/` are present;
+    the `logs/` directory is missing entirely, so the hierarchy is not complete as
+    specified.
   task: 819db57223c6fca884dd759c372cd1cc473dd16d062366a682945bdf6809561d
 T002:
+  reason: "The `code/requirements.txt` file is present and correctly pins exact versions\
+    \ for all six packages, and `code/__init__.py` exists, but there is no provided\
+    \ evidence (e.g., CI logs or command output) showing that `pip install -r code/requirements.txt`\
+    \ actually succeeded without warnings. Without this execution proof, the task\u2019\
+    s verification condition is unmet."
   task: cfa9b1a93e5c5f34c81cb796b8af3114c1d583ee07d4dffe6a70baf9b5be5253
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/lint.sh exit=1'
   task: cc95ba63d7f40a4ccf0a503ba5a996af750670515c87591561246e898922a0e6
 T004:
   task: dd9697ad8e8aa566aaffe4a86ec14bd147bd20536855bb586998866a9330b95e

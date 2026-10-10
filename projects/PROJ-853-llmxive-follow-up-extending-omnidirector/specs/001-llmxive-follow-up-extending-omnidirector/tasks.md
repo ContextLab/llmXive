@@ -16,7 +16,7 @@ All tasks follow the canonical checklist format. Unchecked boxes (`[ ]`) indicat
   **Paths**: `code/requirements.txt` (pinned exact versions of `opencv-python`, `numpy`, `pandas`, `scipy`, `pytest`, `pyyaml`), `code/__init__.py`.  
   *Verification*: `pip install -r code/requirements.txt` succeeds on the CI runner without warnings, and all version numbers are exact (e.g., `opencv-python==4.8.0.76`).  
 
-- [ ] T003 [US1] Add linting and formatting configuration.  
+- [ ] T003 [US1] Add linting and formatting configuration.   <!-- FAILED-IN-EXECUTION: code/lint.sh exit=1 -->
   **Paths**: `.ruff.toml`, `.flake8`, `pyproject.toml` (with Black settings), `code/lint.sh` (runs `ruff check . && black --check .`).  
   *Verification*: CI runs `code/lint.sh` and fails if any style violations are reported.
 

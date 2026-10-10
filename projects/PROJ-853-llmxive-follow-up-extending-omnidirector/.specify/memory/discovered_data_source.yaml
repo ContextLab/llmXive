@@ -3,11 +3,9 @@ intent: OmniDirector camera grid video dataset download python package dataset
 required_fields:
 - sequence_id
 - frame_index
-- image_path
-- rotation_matrix_R_i
-- translation_vector_t_i
-- timestamp
-- camera_intrinsics
-cache_key: b0f41568527b0c5c3bb4d76b05f723330d49131bc39f422a3117bf3e226d2cd4
-searched_at: '2026-10-10T02:31:12.123321+00:00'
+- image_file
+- camera_rotation
+- camera_translation
+cache_key: a7150ac049b0fe0116df23829098d3311c068ecf501042fc9a4b91849df037eb
+searched_at: '2026-10-10T02:32:46.407893+00:00'
 retry_count: 1
