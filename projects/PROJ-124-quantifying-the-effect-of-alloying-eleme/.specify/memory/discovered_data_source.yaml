@@ -1,0 +1,11 @@
+status: none
+intent: download 2014 experimental glass forming ability dataset pymatgen element
+  database python package dataset
+required_fields:
+- alloy_formula
+- element_fraction_columns
+- target_continuous_property
+- sample_id
+cache_key: ea92c420e2fb13901e31baa1c3334f580f480be596bd3cfe366683538f20fc64
+searched_at: '2026-10-10T15:28:19.768468+00:00'
+retry_count: 1
