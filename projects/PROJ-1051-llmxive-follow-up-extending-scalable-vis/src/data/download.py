@@ -84,8 +84,8 @@ def download_corpus(
     # Mapping from logical names used in the CLI to actual HF dataset identifiers.
     # These identifiers have been verified to exist on the hub.
     name_to_hf: Dict[str, str] = {
-        # The DocBank dataset is publicly available under the 'allenai' namespace.
-        "docbank": "allenai/docbank",
+        # The DocBank dataset is publicly available under the 'nielsr' namespace.
+        "docbank": "nielsr/docbank",
         # PubMed‑Layout is available under the 'beyondguys' namespace.
         "pubmed-layout": "beyondguys/pubmed-layout",
     }
@@ -99,10 +99,23 @@ def download_corpus(
     primary_hf = name_to_hf[primary_name]
     fallback_hf = name_to_hf[fallback_name]
 
-    print(f"Downloading primary dataset: {primary_hf}")
-    primary_ds: Dataset = load_dataset(primary_hf, split="train", streaming=False)
-    print(f"Downloading fallback dataset: {fallback_hf}")
-    fallback_ds: Dataset = load_dataset(fallback_hf, split="train", streaming=False)
+    # Load primary dataset
+    try:
+        print(f"Downloading primary dataset: {primary_hf}")
+        primary_ds: Dataset = load_dataset(primary_hf, split="train", streaming=False)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to download primary dataset '{primary_hf}': {exc}"
+        ) from exc
+
+    # Load fallback dataset
+    try:
+        print(f"Downloading fallback dataset: {fallback_hf}")
+        fallback_ds: Dataset = load_dataset(fallback_hf, split="train", streaming=False)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to download fallback dataset '{fallback_hf}': {exc}"
+        ) from exc
 
     # Compute checksums for each dataset's cached files.
     print("\nPrimary dataset cache files:")
@@ -115,7 +128,7 @@ def download_corpus(
     fallback_count = count_pages_with_layout(fallback_ds)
     total_count = primary_count + fallback_count
 
-    print(f"Pages with layout annotations:")
+    print("Pages with layout annotations:")
     print(f"  {primary_name}: {primary_count}")
     print(f"  {fallback_name}: {fallback_count}")
     print(f"  TOTAL: {total_count}")

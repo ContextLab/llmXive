@@ -1,13 +1,14 @@
 status: none
-intent: download MixSub-LLaMA-3.2 MixSub-LLaMA-3.2 Text-Only Overlap scientific document
-  layout python package dataset
+intent: MixSub-LLaMA-3.2 scientific document layout dataset download python package
 required_fields:
-- doc_id
+- document_id
 - page_number
-- text
-- bbox_coordinates
-- bbox_label
-- image_path
-cache_key: e6d53e026869bb61e240d4ed403739ea2a5203a3feab6a1e48a9f6425518a365
-searched_at: '2026-10-10T20:18:49.441147+00:00'
+- image_file
+- raw_text
+- layout_bounding_boxes
+- bbox_labels
+- page_width
+- page_height
+cache_key: 7104fb7bfd2c04349e4824eff5575fc927b25b0ba0a8bb32e1689b59ae5a3020
+searched_at: '2026-10-10T21:18:27.842644+00:00'
 retry_count: 1

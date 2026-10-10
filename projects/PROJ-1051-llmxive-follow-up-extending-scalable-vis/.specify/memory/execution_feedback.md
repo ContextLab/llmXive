@@ -18,10 +18,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.download  --primary-name docbank  --fallback-name pubmed-layout -> rc=1
-Downloading primary dataset: allenai/docbank
+Downloading primary dataset: nielsr/docbank
 
 
-❌ ERROR: Dataset 'allenai/docbank' doesn't exist on the Hub or cannot be accessed.
+❌ ERROR: Failed to download primary dataset 'nielsr/docbank': Dataset 'nielsr/docbank' doesn't exist on the Hub or cannot be accessed.
 
 - python -m src.data.preprocess  --input-dir data/raw  --output-path data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 
