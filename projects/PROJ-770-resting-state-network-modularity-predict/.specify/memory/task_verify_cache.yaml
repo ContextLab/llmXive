@@ -1,0 +1,53 @@
+T001:
+  c: true
+  h: 1998fce335f1120b82902ecb807ad7d8c3306e514cc670aac9403a28b93675b6
+  r: "Checked that the repository contains the three required top\u2011level directories\
+    \ \u2013 `code/` (with multiple files), `data/` (present as an empty directory)\
+    \ and `tests/` (containing a test file) \u2013 matching the implementation plan\u2019\
+    s project\u2011structure requirement."
+  sig: 7b1bc3f8d3f2f48e60aacf8ad8c9013e648cfcef7e4065357e39ae62c5b23e0f
+T002:
+  c: false
+  h: 876c878f1de68abfcd3e250f23049fc7b1c1ebb9b5822fc6f38813305d966743
+  r: "The repository contains a `requirements.txt` file with the required packages,\
+    \ but the versions are specified with `>=` rather than exact pins (e.g., `nilearn==0.10.0`).\
+    \ The task explicitly required \u201Cpinning\u201D those dependencies, which is\
+    \ not satisfied. Additionally, no evidence of a Python\u202F3.11 project configuration\
+    \ (e.g., `pyproject.toml` or a version\u2011specific environment file) is provided.\
+    \ The implementer must replace the version specifiers with exact versions and\
+    \ optionally include a Python\u2011version declaration."
+  sig: 897b8751d0799ca8b5432d9d9d7ffeaf78ec2af305b053d24d315802b4833f79
+T003:
+  c: false
+  h: ac7092d47808cc70e727c5c9d390de1e8b73f61118cf06bcfcb1d56d0749f5d5
+  r: The evidence provides only the project root path and contains no configuration
+    files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or scripts)
+    that set up ruff linting or black formatting, nor any documentation or execution
+    logs showing the tools are configured. Without these artifacts, the requirement
+    to configure linting and formatting is not satisfied.
+  sig: dffe1c857f27f1e7faacad882f746d40fa390d132ef96015aca17feaf1fb2bfa
+T008:
+  c: true
+  h: 4f026709f1b71232c1dd6c426a85433e07376bfb7ad9c57d3121869b7af8f9ed
+  r: "The `.github/workflows/research.yml` file (3372\u202Fbytes) is present at the\
+    \ required path and defines a `run-pipeline` job that runs on `ubuntu-latest`\
+    \ (CPU\u2011only) with comments and a soft limit enforcing the ~7\u202FGB RAM\
+    \ constraint. The workflow includes steps to install dependencies and execute\
+    \ sample pipeline scripts, satisfying the task\u2019s specification."
+  sig: d7a111de2fed83166a1cd478e89e1fd03c63e578d6c2463753f8b41434e57ffb
+T009:
+  c: false
+  h: 17fabb2f1aa88f3d599cdfabef4013595feae34160c934168b80db9466e529d7
+  r: "The required unit\u2011test file `tests/test_download_data.py` is missing from\
+    \ the project, so no test for the data\u2011filtering logic is present. The task\
+    \ cannot be considered fulfilled until this file exists and contains the appropriate\
+    \ tests."
+  sig: b5b37bddf04ac7fda34e2810dbca30002d7e4e7072dde8cddfbde95ea90d52c9
+T010:
+  c: false
+  h: a5997b3fa4280baed76158cb462f8dfadd8496533c602a570e7dc8041d3adbd5
+  r: "The required artifact `tests/test_preprocess_fmri.py` does not exist in the\
+    \ project repository, so no unit test for the band\u2011pass filter frequency\
+    \ response is present. The missing file must be added with appropriate test code\
+    \ to satisfy the task."
+  sig: 179cc348dc502ef9cc31fdd3e836414d4304353cab9b36ec468baf151186b529

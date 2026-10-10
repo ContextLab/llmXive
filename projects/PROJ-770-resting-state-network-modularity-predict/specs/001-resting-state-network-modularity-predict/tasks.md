@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `nilearn`, `scikit-learn`, `python-louvain`, `statsmodels`, `nibabel`)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `nilearn`, `scikit-learn`, `python-louvain`, `statsmodels`, `nibabel`)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/utils.py` with global random seed setting (numpy, random, python) and memory profiling helpers <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [ ] T004 [P] Implement `code/utils.py` with global random seed setting (numpy, random, python) and memory profiling helpers <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [X] T005 [P] Create `code/config.py` to manage paths (`data/raw`, `data/processed`, `data/results`) and hyperparameters (thresholds, sensitivity analysis increments)
-- [X] T006 [P] Implement `code/download_data.py` with full HCP S3/HuggingFace verification logic: fetch metadata, verify NIfTI existence for a random subset of subjects, and HALT execution if data is unavailable (Phase 0 critical path)
-- [X] T007 Setup `tests/test_utils.py` to verify seed reproducibility and memory constraints
+- [ ] T005 [P] Create `code/config.py` to manage paths (`data/raw`, `data/processed`, `data/results`) and hyperparameters (thresholds, sensitivity analysis increments)
+- [ ] T006 [P] Implement `code/download_data.py` with full HCP S3/HuggingFace verification logic: fetch metadata, verify NIfTI existence for a random subset of subjects, and HALT execution if data is unavailable (Phase 0 critical path)
+- [ ] T007 Setup `tests/test_utils.py` to verify seed reproducibility and memory constraints
 - [X] T008 Setup CI workflow (`.github/workflows/research.yml`) targeting CPU-only runner with 7GB RAM limit
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,15 +78,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Unit test for data filtering logic in `tests/test_download_data.py`
-- [X] T010 [P] [US1] Unit test for band-pass filter frequency response in `tests/test_preprocess_fmri.py`
+- [ ] T009 [P] [US1] Unit test for data filtering logic in `tests/test_download_data.py`
+- [ ] T010 [P] [US1] Unit test for band-pass filter frequency response in `tests/test_preprocess_fmri.py`
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement `code/download_data.py` to fetch a representative sample of subjects' fMRI NIfTI and behavioral CSVs from HCP verified sources (S3/HuggingFace) using `seed=42` and `random.sample`, verifying column existence for "Number of close friends" and "Number of acquaintances"; output `data/processed/behavioral_clean.csv` (schema: subject_id, age, sex, friends, acquaintances) with median imputation applied if missingness <20%, otherwise exclude subject and log exclusion count <!-- FAILED: unspecified -->
-- [X] T012 [P] [US1] Implement `code/preprocess_fmri.py` to apply band-pass filter (–0.1 Hz), regress motion parameters and global signal, and extract region-wise time series using the Schaefer atlas
-- [X] T013 [US1] Implement `code/preprocess_fmri.py` logic to compute Fisher-z transformed correlation matrices for each subject, handling motion artifact exclusion (FD > 0.5mm) and missing data via **median imputation (if <20% missing) or subject exclusion (if >20% missing)** with mandatory logging/exclusion count documentation <!-- FAILED: unspecified -->
-- [X] T014 [US1] Add validation logic in `code/preprocess_fmri.py` to ensure no NaN values or dimension mismatches in output matrices
+- [ ] T011 [P] [US1] Implement `code/download_data.py` to fetch a representative sample of subjects' fMRI NIfTI and behavioral CSVs from HCP verified sources (S3/HuggingFace) using `seed=42` and `random.sample`, verifying column existence for "Number of close friends" and "Number of acquaintances"; output `data/processed/behavioral_clean.csv` (schema: subject_id, age, sex, friends, acquaintances) with median imputation applied if missingness <20%, otherwise exclude subject and log exclusion count <!-- FAILED: unspecified -->
+- [ ] T012 [P] [US1] Implement `code/preprocess_fmri.py` to apply band-pass filter (–0.1 Hz), regress motion parameters and global signal, and extract region-wise time series using the Schaefer atlas
+- [ ] T013 [US1] Implement `code/preprocess_fmri.py` logic to compute Fisher-z transformed correlation matrices for each subject, handling motion artifact exclusion (FD > 0.5mm) and missing data via **median imputation (if <20% missing) or subject exclusion (if >20% missing)** with mandatory logging/exclusion count documentation <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Add validation logic in `code/preprocess_fmri.py` to ensure no NaN values or dimension mismatches in output matrices
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,15 +100,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T016 [P] [US2] Unit test for adjacency matrix thresholding logic in `tests/test_build_graphs.py`
-- [X] T017 [P] [US2] Unit test for Louvain algorithm convergence and seed stability in `tests/test_build_graphs.py`
+- [~] T016 [P] [US2] Unit test for adjacency matrix thresholding logic in `tests/test_build_graphs.py`
+- [~] T017 [P] [US2] Unit test for Louvain algorithm convergence and seed stability in `tests/test_build_graphs.py`
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Implement `code/build_graphs.py` to threshold Fisher-z correlation matrices at the top percentage of strongest positive edges as defined in `code/config.py` to ensure comparable density
-- [X] T019 [US2] Implement `code/build_graphs.py` to apply the Louvain algorithm (via `python-louvain`) with retry logic (seeds) for convergence, recording modularity Q and community assignments
-- [ ] T020 [US2] Add sanity check in `code/build_graphs.py` to flag and log subjects with Q > 1.0 or Q < 0.0
-- [ ] T021 [US2] Generate `data/processed/subject_modularity.csv` containing subject IDs and computed Q values
+- [~] T018 [P] [US2] Implement `code/build_graphs.py` to threshold Fisher-z correlation matrices at the top percentage of strongest positive edges as defined in `code/config.py` to ensure comparable density
+- [~] T019 [US2] Implement `code/build_graphs.py` to apply the Louvain algorithm (via `python-louvain`) with retry logic (seeds) for convergence, recording modularity Q and community assignments
+- [~] T020 [US2] Add sanity check in `code/build_graphs.py` to flag and log subjects with Q > 1.0 or Q < 0.0
+- [ ] T021 [US2] Generate `data/processed/subject_modularity.csv` containing subject IDs and computed Q values <!-- FAILED-IN-EXECUTION: code/build_graphs.py exit=1 -->
 - [ ] T022 [US2] Implement `code/build_graphs.py` to calculate "total connectivity strength" (sum of absolute edge weights) for each subject to serve as a covariate controlling for global signal intensity (Addressing FR-006)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

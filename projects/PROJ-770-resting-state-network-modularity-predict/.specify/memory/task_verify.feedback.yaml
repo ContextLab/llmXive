@@ -1,0 +1,98 @@
+T001:
+  task: 9082468bdb3438f7fea6f9e10b33b3f08e3a0b2e7addde5874dfa35d8834e811
+T002:
+  reason: "The repository contains a `requirements.txt` file with the required packages,\
+    \ but the versions are specified with `>=` rather than exact pins (e.g., `nilearn==0.10.0`).\
+    \ The task explicitly required \u201Cpinning\u201D those dependencies, which is\
+    \ not satisfied. Additionally, no evidence of a Python\u202F3.11 project configuration\
+    \ (e.g., `pyproject.toml` or a version\u2011specific environment file) is provided.\
+    \ The implementer must replace the version specifiers with exact versions and\
+    \ optionally include a Python\u2011version declaration."
+  task: c4706396802209143c34c9cda16e37c29ad1ce626fc08f36b8f0ad24e8ffb37b
+T003:
+  reason: The evidence provides only the project root path and contains no configuration
+    files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or scripts)
+    that set up ruff linting or black formatting, nor any documentation or execution
+    logs showing the tools are configured. Without these artifacts, the requirement
+    to configure linting and formatting is not satisfied.
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils.py'
+  task: e082299e825cfc33c71e4d41ea1a58350c078752f884079a85b79d1526c0272c
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: code/config.py'
+  task: 5ef18d8d1761c6c1f226e37435711528c3bdf8901242b84d3c42b63425c20425
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: code/download_data.py'
+  task: f1a90462ec518a482bc63ef4a84506972a5ef13917d3f4099e6db54b84bd417d
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_utils.py'
+  task: d04bb7447a459d70f6a6768961eb1f5ecbeca12495d0f425305631a4c055c09c
+T008:
+  task: 3e2f1b67a5057957751078660b0b13f69a3c7c35ab50a320e59af01ec71d2f61
+T009:
+  reason: "The required unit\u2011test file `tests/test_download_data.py` is missing\
+    \ from the project, so no test for the data\u2011filtering logic is present. The\
+    \ task cannot be considered fulfilled until this file exists and contains the\
+    \ appropriate tests."
+  task: 6e5b97135da6ee8c5d27ecb6e06f9bb085eec927cd01889c45b82626845fbc15
+T010:
+  reason: "The required artifact `tests/test_preprocess_fmri.py` does not exist in\
+    \ the project repository, so no unit test for the band\u2011pass filter frequency\
+    \ response is present. The missing file must be added with appropriate test code\
+    \ to satisfy the task."
+  task: 506223f826a1d868b31560bdaf5157d3fc37c6b65a2520284cb97af8b13ab4f2
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: code/download_data.py, data/processed/behavioral_clean.csv'
+  task: 70b983c0121a590037167c78f994618dd9c787bf57eb64c1b11afac6d3ba88a8
+T012:
+  reason: 'declared artifact(s) missing/empty/invalid: code/preprocess_fmri.py'
+  task: 5e29b30db79a08e1145eb0832509862b688c6e29e9a512509ba0dba72f082c0b
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: code/preprocess_fmri.py'
+  task: 55f5c18ddcbcb209842b71a6f6995d0f00500527945b054420b08c2fc6bc245d
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: code/preprocess_fmri.py'
+  task: fa94ef6f13f263eb1c7cad4d422269c8d6f1cd2f687406606a149ed77ae109f7
+T016:
+  task: d719e12545a9222acc415543d56e354713a4740bc9a3c69a2bddaa17cc6a7438
+T017:
+  task: a6978db989805d68e2e8be10097889e56cef8f7e4cc57977519a875420f6ff2b
+T018:
+  task: 4203a0893b525cdac9156c91a742936ad435a192859b887277508fd10168994e
+T019:
+  task: 6be7a2ec72bb3d66e74f8ca589dc605a1f7ceabbc02c49f0d29eba37d45ad559
+T020:
+  task: 12f566b18ae73945273bb61a3a85c757690c9947dd935a254a9889269d9e068b
+T021:
+  reason: 'Requested task execution failed; rerun successfully: code/build_graphs.py
+    exit=1'
+  task: 6bd68a67b3cfe5dd867487d713c051013935fa93a937f34037e2dc4fd31923be
+T022:
+  task: 468301e979b7b2968b953d516ddda4234c4ee79e50c0fbea47d55c9fbda4bf45
+T023:
+  task: efeb5a2a0f8aa205f5f0dc85a594f6aa1785a68cc713ab8a13d7b3e489af09d3
+T024:
+  task: 0a8d8e0260e4ceaa504cef1c9b301d0ebb6ac925578e7b07932a313e1ed553be
+T025:
+  task: 4b03dc2c9915df28e23dc394ebbf6fe61b8b62713d6d8866eb1ea57d5536aa1a
+T026:
+  task: dd0c32a8bacf5bb175f0aae1ab3a1c7c7a5c75f251909a57c89e1e2b34bbe0c3
+T027:
+  task: 77f2f3f44c7493625fb7f6a4862b99719b7365270ddba4ae3633293c1e15a2a4
+T028:
+  task: ecde356b63f3f2daf8a02e921e6a7fc8ecdab15c48ffb864261f7f07ee08fb4b
+T029:
+  task: cb59d1361005fb233665fdbd5dc046e6c2e9c52ce03be6c14b7adc08d57a3e3f
+T030:
+  task: a825ea52b51721f68bee9e59186aa298a692c12af5c11d6e2610153c32e41f3d
+T031:
+  task: c756e96d216e3dc3df39d14e8136396b1bb53f821cfaa3dc2987d1defe6ae6bc
+T032:
+  task: 5fdbb6bbb09c58b0aa7f8d907f54677e251485383f2d96fc8779e11a4880ee05
+T033:
+  task: 4cb1c4354c65d5af6a88d1c5d8c2dce3d81e42aa2f1c41d17c55cfd2045a8158
+T034:
+  task: e9b5494a35538f4b2ec2a5ff57ac9817a32a39cbd8910b4f597d6f74718b2dfe
+T035:
+  task: a2961d90b64fba5ea75914bcf9a9c2a77bd5f515764559fbaf4bb45b9a951690
