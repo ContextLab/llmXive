@@ -27,8 +27,8 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 **Create project structure** – directories: `code/`, `data/`, `tests/`, `docs/`.
-- [ ] T002 **Initialize a Python project** – create `requirements.txt` with pinned versions (`numpy`, `scipy`, `pandas`, `scikit-learn`, `pymc`, `statsmodels`, `pyyaml`, `rdkit`).
-- [ ] T002b **Add RDKit for Molecular Proxy** – pin `rdkit==2023.9.1` (or latest) in `requirements.txt`.
+- [X] T002 **Initialize a Python project** – create `requirements.txt` with pinned versions (`numpy`, `scipy`, `pandas`, `scikit-learn`, `pymc`, `statsmodels`, `pyyaml`, `rdkit`).
+- [X] T002b **Add RDKit for Molecular Proxy** – pin `rdkit==2023.9.1` (or latest) in `requirements.txt`.
 - [X] T003 **Configure linting and formatting** – add `ruff` and `black` configuration to `pyproject.toml`.
 - [X] T004 **Initialize random seed utility** – `code/utils/seeds.py` sets global seeds for reproducibility.
 - [ ] T005 **Setup structured logging** – `code/utils/logging.py` handles logging of environmental parameters.
@@ -39,9 +39,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin.
 
-- [~] T006a **Solvent Schema Definition** – `contracts/solvent.schema.yaml` (fields: name, dielectric_constant, source_id, citation_url).
-- [~] T006b **Solvent Data Population** – `data/chemicals/solvents.yaml` with ≥5 solvents (cyclohexane, toluene, acetonitrile, methanol, water) and NIST dielectric constants.
-- [~] T006c **Solvent Schema Validation** – validate `solvents.yaml` against `solvent.schema.yaml`.
+- [ ] T006a **Solvent Schema Definition** – `contracts/solvent.schema.yaml` (fields: name, dielectric_constant, source_id, citation_url).
+- [ ] T006b **Solvent Data Population** – `data/chemicals/solvents.yaml` with ≥5 solvents (cyclohexane, toluene, acetonitrile, methanol, water) and NIST dielectric constants.
+- [ ] T006c **Solvent Schema Validation** – validate `solvents.yaml` against `solvent.schema.yaml`.
 - [~] T007 **Kinetic Trace Schema Definition** – `contracts/kinetic_trace.schema.yaml`.
 - [~] T008 **Implement Solvent Loader** – `code/data/loaders.py` reads `solvents.yaml` and returns validated records.
 - [~] T009a **Config Paths & CPU Constraints** – `code/config.py` defines paths, CPU‑only flag, and constants. Default substrate mass and integration time are set to `None` and must be overridden via a YAML config file `config.yaml` or CLI arguments.

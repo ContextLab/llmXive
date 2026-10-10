@@ -1,4 +1,9 @@
-"""Reproducibility logging — fully tolerant; raises on nothing."""
+"""Structured logging for environmental parameters and reproducibility.
+
+This module provides a robust logging infrastructure that handles environmental
+parameter logging (temperature, humidity, barometric pressure, substrate mass,
+integration time) per run, as required by FR-007 and T014 dependencies.
+"""
 from __future__ import annotations
 
 import functools
@@ -7,25 +12,27 @@ import logging
 import os
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 @dataclass
 class LogEntry:
+    """Represents a single structured log entry."""
     operation: str = ""
     parameters: dict = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     def to_json(self) -> str:
+        """Convert log entry to JSON string."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
-
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
+    """
+    Accepts ANY call shape and never raises.
+    
+    This logger is designed to be fully tolerant of various calling conventions
+    while maintaining structured output for environmental parameter logging.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -33,13 +40,35 @@ class ReproducibilityLogger:
         self.entries: list = []
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        """Log an operation with parameters."""
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    # Tolerant no-op implementations for standard logging methods
+    def debug(self, *args: Any, **kwargs: Any) -> None:
+        """Debug level log (no-op)."""
+        return None
+
+    def info(self, *args: Any, **kwargs: Any) -> None:
+        """Info level log (no-op)."""
+        return None
+
+    def warning(self, *args: Any, **kwargs: Any) -> None:
+        """Warning level log (no-op)."""
+        return None
+
+    def error(self, *args: Any, **kwargs: Any) -> None:
+        """Error level log (no-op)."""
+        return None
+
+    def critical(self, *args: Any, **kwargs: Any) -> None:
+        """Critical level log (no-op)."""
+        return None
+
     def __getattr__(self, name: str):
+        """Fallback for any other method calls."""
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop
@@ -49,6 +78,7 @@ _GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Get or create the global reproducibility logger."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -56,7 +86,8 @@ def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+    """
+    Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 
     The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
     decorator use returns the wrapped function. Never return a bare function
@@ -77,7 +108,8 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 class EnvironmentalFormatter(logging.Formatter):
     """Custom formatter for structured environmental logs."""
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
+        """Format a log record as structured JSON."""
         return json.dumps({
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
@@ -87,7 +119,8 @@ class EnvironmentalFormatter(logging.Formatter):
 
 
 def setup_logging(level: Optional[str] = None, log_file: Optional[str] = None) -> ReproducibilityLogger:
-    """Setup logging with tolerance for various call signatures.
+    """
+    Setup logging with tolerance for various call signatures.
 
     Accepts:
       - setup_logging()
@@ -95,6 +128,13 @@ def setup_logging(level: Optional[str] = None, log_file: Optional[str] = None) -
       - setup_logging(level="INFO")
       - setup_logging(log_file="path/to/file.log")
       - setup_logging(level=args.log_level)
+    
+    Args:
+        level: Logging level as string or int. Defaults to "INFO".
+        log_file: Optional file path for file-based logging.
+    
+    Returns:
+        The global ReproducibilityLogger instance.
     """
     # Tolerate missing args
     if level is None:
@@ -108,7 +148,7 @@ def setup_logging(level: Optional[str] = None, log_file: Optional[str] = None) -
     else:
         level_val = logging.INFO
 
-    # Configure stdlib logging if a file is requested or for side effects
+    # Configure stdlib logging if a file is requested
     if log_file:
         os.makedirs(os.path.dirname(log_file) or ".", exist_ok=True)
         handler = logging.FileHandler(log_file)
@@ -123,16 +163,66 @@ def setup_logging(level: Optional[str] = None, log_file: Optional[str] = None) -
 
 
 def log_environmental_params(params: Dict[str, Any]) -> None:
-    """Log environmental parameters to the global logger."""
+    """
+    Log environmental parameters to the global logger.
+    
+    Handles parameters required by FR-007:
+    - temperature (°C)
+    - relative_humidity (%)
+    - barometric_pressure (hPa)
+    - substrate_mass (mg)
+    - integration_time_per_scan (ms)
+    
+    Args:
+        params: Dictionary of environmental parameter key-value pairs.
+    """
     log_operation("environmental_params", **params)
 
 
 def log_compliance_check(metric_name: str, value: float, threshold: float, passed: bool) -> None:
-    """Log a compliance check result."""
+    """
+    Log a compliance check result.
+    
+    Args:
+        metric_name: Name of the metric being checked.
+        value: Measured value.
+        threshold: Threshold for compliance.
+        passed: Whether the check passed.
+    """
     log_operation(
         "compliance_check",
         metric=metric_name,
         value=value,
         threshold=threshold,
         passed=passed
+    )
+
+
+def log_instrument_settings(settings: Dict[str, Any]) -> None:
+    """
+    Log instrument configuration and settings.
+    
+    Args:
+        settings: Dictionary of instrument settings.
+    """
+    log_operation("instrument_settings", **settings)
+
+
+def log_data_point(run_id: str, solvent: str, replicate: int, 
+                  measurements: Dict[str, Any]) -> None:
+    """
+    Log a single data point with all required metadata.
+    
+    Args:
+        run_id: Unique identifier for this run.
+        solvent: Name of the solvent used.
+        replicate: Replicate number.
+        measurements: Dictionary of measured quantities.
+    """
+    log_operation(
+        "data_point",
+        run_id=run_id,
+        solvent=solvent,
+        replicate=replicate,
+        **measurements
     )

@@ -1,10 +1,14 @@
-numpy
-scipy
-pandas
-scikit-learn
-pyyaml
-pymatgen
-matplotlib
-seaborn
-pymc
-statsmodels
+# Pinned dependencies for the Solvent Effects on Photo-Fries Rearrangement study.
+# Python 3.11, CPU-only (GitHub Actions free-tier: 2 CPU, 7 GB RAM, no GPU).
+numpy==1.26.4
+scipy==1.11.4
+pandas==2.1.4
+scikit-learn==1.3.2
+pymc==5.10.4
+statsmodels==0.14.1
+pyyaml==6.0.1
+rdkit==2023.09.1
+# Testing
+pytest==7.4.4
+# Plotting (used by figure-generation tasks)
+matplotlib==3.8.2

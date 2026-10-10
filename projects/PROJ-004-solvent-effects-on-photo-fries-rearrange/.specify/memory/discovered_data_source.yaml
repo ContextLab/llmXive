@@ -1,16 +1,17 @@
 status: none
-intent: MNSol solvation free energy dielectric constant dataset python package dataset
+intent: solvent dielectric constant properties lookup table reference database python
+  package dataset
 required_fields:
 - solvent_name
 - dielectric_constant
-- temperature_C
+- temperature_celsius
 - relative_humidity_percent
-- time_ns
-- absorbance_mOD
-- solvation_free_energy_kcal_per_mol
-- solvation_method
-- dataset_version
-- checksum
-cache_key: 55c653f86fab09492aa75b5c7dc6a8141288e5f5ceab40c843c5266faf13454b
-searched_at: '2026-10-10T09:14:57.149408+00:00'
+- density_g_cm3
+- refractive_index
+- viscosity_cP
+- molecular_weight
+- cas_number
+- version_timestamp
+cache_key: b29be7affe9ded4e6306dac555c93b8e3cd769c03b91964afca644d37a4c0335
+searched_at: '2026-10-10T09:31:57.255399+00:00'
 retry_count: 1

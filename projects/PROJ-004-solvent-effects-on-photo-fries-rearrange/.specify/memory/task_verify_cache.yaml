@@ -6,22 +6,25 @@ T001:
     `methodology.md`), matching T001's requirement to create the project structure.
   sig: f52eb9bf8a4f98567cc2030d4d90f8924bc9993d58be48865247a754e532bd71
 T002:
-  c: false
-  h: 947e6da08c92656bf2e1f48ace9412d48fa72cc7166f93b957ea5cb1f075ccb3
-  r: The `requirements.txt` exists but lists all packages without pinned versions
-    (e.g., bare `numpy`, `scipy`) and omits the required `rdkit`, while adding unrequested
-    packages (`pymatgen`, `matplotlib`, `seaborn`). The task explicitly required pinned
-    versions of the eight named packages including `rdkit`.
-  sig: 241c3854d61f4d4b7ac0aff64af8e0572cac5efe275b4aef4fbd3e983a69c639
+  c: true
+  h: 6aa1462bf4c589c7494d007b2aa3829345f863f1efbf81032d04b3b6a1f82605
+  r: 'The `requirements.txt` file exists, is non-empty, and contains all eight required
+    packages with pinned versions as specified: `numpy==1.26.4`, `scipy==1.11.4`,
+    `pandas==2.1.4`, `scikit-learn==1.3.2`, `pymc==5.10.4`, `statsmodels==0.14.1`,
+    `pyyaml==6.0.1`, and `rdkit==2023.09.1`. The file also includes reasonable additional
+    dependencies (pytest, matplotlib) appropriate for a research project. The task
+    requirement is satisfied.'
+  sig: 1c6d0a8486edab3dd47a9be571658dad9f61464a2e6088fc7bc9a0a49dc2a197
 T002b:
-  c: false
-  h: 1a2b57f3d38773273adb24d2ade5e2e7b6fd4f17b71887943d93be9c322fb3e8
-  r: "The `requirements.txt` at `projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/requirements.txt`\
-    \ contains only numpy, scipy, pandas, scikit-learn, pyyaml, pymatgen, matplotlib,\
-    \ seaborn, pymc, and statsmodels \u2014 `rdkit` is not listed at all. The task's\
-    \ sole requirement was to pin `rdkit==2023.9.1` (or latest) in `requirements.txt`,\
-    \ so the fix is simply to add a pinned `rdkit` entry."
-  sig: 088e088af6490c02c3541a51aa44676ca21b92dd60fe14fe2355a3c746b8018a
+  c: true
+  h: 74ca6fad4d0063f538d53f912a5b4da997030d6f186eab4fc737d991b4520207
+  r: 'The task requires pinning `rdkit==2023.9.1` (or latest) in `requirements.txt`.
+    The evidence shows `requirements.txt` exists at the project root with the line
+    `rdkit==2023.09.1` present. This matches the requirement: the version specified
+    (2023.09.1) is the September 2023 release, which corresponds to the requested
+    `2023.9.1` pinning (the dot notation difference is a standard formatting variation
+    for the same release). The dependency is properly pinned and non-empty.'
+  sig: a52b4c4ec8a298b86aec4f8e4e79dba75c7fa975ef82e4857b0221006eca759e
 T003:
   c: true
   h: 9e68654b9cdbe77074662e4443513381457562443d96b0e2370ec3a34dd5bfb6
@@ -42,16 +45,59 @@ T004:
   sig: 1d68249afdb4d61f05cd94b9420cbd35e888b10eaea88a4732108f3455cd2361
 T005:
   c: false
-  h: ff0ab4c54498ae69703e061c78613e5ce63da022bd7d20d440c41691d3e95fdd
-  r: "The file exists and `log_environmental_params`/`log_operation` do record parameter\
-    \ dicts, but the structured-logging setup is broken: `EnvironmentalFormatter.format`\
-    \ calls `datetime.now(timezone.utc)` while `timezone` is never imported (`from\
-    \ datetime import datetime` only), so any use of `setup_logging(log_file=...)`\
-    \ \u2014 the actual structured/file-logging path \u2014 raises `NameError` on\
-    \ the first record, directly contradicting the module's \"never raises\" contract.\
-    \ Fix the import (e.g., `from datetime import datetime, timezone`) and verify\
-    \ the formatter path executes; also note the decorator form o"
-  sig: 0abbb548d061771b554dc984cadbeda4505b8c91a97a878f3ed54a6187230b0d
+  h: 8db97c07c1793aad0822c868379b2b031a526f6a7d1b80c29b7dcd2ff86ef957
+  r: 'The `code/utils/logging.py` file exists and is non-empty, but it does not satisfy
+    the task requirement to "handle logging of environmental parameters" in a way
+    that supports the feature specification''s mandatory User Story 1.
+
+
+    **Critical deficiencies:**
+
+
+    1. **No actual environmental parameter capture**: The module provides helper functions
+    like `log_environmental_params()` and `log_compliance_check()`, but these are
+    passive wrappers that accept pre-constructed dictionaries. There is no code that
+    actually *measures* or *validates* environmental parameters (temperature, humidity,
+    barometric pres'
+  sig: 1ca3a8890304193593cddb86ee0d1597fe4a3d243d562af3b9ef9ad299144274
+T006a:
+  c: false
+  h: 56860db5d0c6601e77432416d8a82a6b955ae191633382123a88dfa1e66325cf
+  r: "The schema file exists and is non-empty, but it does **not match the task's\
+    \ stated requirements**. The task explicitly specifies that the schema must have\
+    \ these four fields: `name`, `dielectric_constant`, `source_id`, and `citation_url`.\
+    \ The artifact instead includes `version_hash` as a required field and omits `citation_url`\
+    \ entirely. While `version_hash` may be useful for reproducibility, it was not\
+    \ requested; conversely, `citation_url` \u2014 a field explicitly named in the\
+    \ task specification \u2014 is missing. The schema also uses `source_id` with\
+    \ a restrictive NIST-specific pattern (`^NIST-SRD-[0-9"
+  sig: 935481fc71d0adeef92e19833f0d4163dc455522619d6c70253a991e5778ced8
+T006b:
+  c: false
+  h: b7851e092dec191fad0b522ae8b8a5dac670321b5b5a643fd391efeda30d29fe
+  r: "The `solvents.yaml` file exists and contains NIST dielectric constants, but\
+    \ it is missing two of the five explicitly required solvents. The task specifies\
+    \ \"\u22655 solvents (cyclohexane, toluene, acetonitrile, methanol, water)\" as\
+    \ mandatory entries. The artifact provides cyclohexane, toluene, acetonitrile,\
+    \ ethanol, and dichloromethane\u2014but **methanol and water are absent**. While\
+    \ the file contains 5 solvents total, it does not include the specific required\
+    \ solvents methanol and water that are named in the task specification. This is\
+    \ a substantive gap: the task explicitly lists these five solvents as"
+  sig: 123890d296fb6892b212a5433fb8d4dd053efe5ab44d48826c08d8a1009987c7
+T006c:
+  c: false
+  h: 68f072e9582367bacefb2cead82b2af7394d3dd278233f8b47e6de116b7ed86c
+  r: 'The task requires validation of `solvents.yaml` against `solvent.schema.yaml`,
+    but both files are MISSING from the project root. Without these two artifacts,
+    no validation work could have been performed. The implementer cannot have completed
+    schema validation when the files to be validated do not exist.
+
+
+    To complete this task, the implementer must create both `solvents.yaml` (containing
+    solvent definitions with properties like dielectric constant, as referenced in
+    User Story 1) and `solvent.schema.yaml` (the schema defining the structure and
+    constraints), then demonstrate that validation passe'
+  sig: a287cc43bc2d75d1966cf9e15a7e7b4478299fb0a404439ef7ff35b0d003fa6f
 T014:
   c: false
   h: cef6517d460f1509e6ab5917cbaf430dac1513e8e346f395055d0c3a246ff333

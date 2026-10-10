@@ -33,11 +33,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --mode simulate -> rc=1
 
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791623609.619743    2820 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+I0000 00:00:1791624614.669484    3426 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
 To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791623611.561118    2820 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
-E0000 00:00:1791623613.033636    2820 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+I0000 00:00:1791624616.506818    3426 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1791624617.936342    3426 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 TensorFlow GPU devices disabled via config.py
 Found only 4 solvents in range [2, 35]. Defaulting to available list for demo, but constraint may be violated.
 Solvent configuration error: Constraint Violation: Could not find 5 solvents with dielectric constant between 2 and 33. Found 4 in range. Available solvents: ['cyclohexane', 'ethanol', 'acetonitrile', 'toluene', 'dichloromethane']
@@ -45,11 +45,11 @@ Solvent configuration error: Constraint Violation: Could not find 5 solvents wit
 - python code/main.py --mode real --data-path data/raw/ -> rc=1
 
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791623616.090339    2829 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+I0000 00:00:1791624620.637195    3435 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
 To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791623618.035025    2829 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
-E0000 00:00:1791623619.531895    2829 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+I0000 00:00:1791624622.444331    3435 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1791624623.859698    3435 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 TensorFlow GPU devices disabled via config.py
 Found only 4 solvents in range [2, 35]. Defaulting to available list for demo, but constraint may be violated.
 Solvent configuration error: Constraint Violation: Could not find 5 solvents with dielectric constant between 2 and 33. Found 4 in range. Available solvents: ['cyclohexane', 'ethanol', 'acetonitrile', 'toluene', 'dichloromethane']
