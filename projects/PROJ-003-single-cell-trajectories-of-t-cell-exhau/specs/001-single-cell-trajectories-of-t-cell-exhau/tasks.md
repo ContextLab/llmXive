@@ -6,7 +6,7 @@
 
 **Goal**: Establish the project environment and execute a thin, end-to-end analysis on a single real dataset to validate the pipeline from raw SRA data to velocity graphs.
 
-- [X] T001 Establish the project layout in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`, including `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`. Configure linting/formatting via `pyproject.toml` (ruff/black) and document the runnable environment in `quickstart.md`.
+- [ ] T001 Establish the project layout in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`, including `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`. Configure linting/formatting via `pyproject.toml` (ruff/black) and document the runnable environment in `quickstart.md`.
     - Verification: File tree exists; `ruff check .` and `black --check .` pass.
 - [ ] T002 Implement `code/download_data.py` to fetch raw count matrices for GSE136103, GSE127465, GSE111075, and GSE138852 using SRA Toolkit (`prefetch` and `fastq-dump`).
     - Requirements: No synthetic fallbacks; must fail loudly if SRA fetch fails. Record SHA256 checksums of all downloaded files in the project state YAML (Constitution Principle III).

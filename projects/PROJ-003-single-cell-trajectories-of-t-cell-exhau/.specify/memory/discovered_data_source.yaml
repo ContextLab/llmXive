@@ -1,38 +1,12 @@
-status: verified
-kind: pypi_package
-ref: scanpy
-access_python: "import scanpy as sc\n# Load a built\u2011in example dataset (pbmc3k)\
-  \ which contains gene annotations and cell metadata\nadata = sc.datasets.pbmc3k()\n\
-  # Number of cell records\nn = int(adata.n_obs)\n# Determine which of the requested\
-  \ fields are present\nfields = []\n# gene identifiers\nif hasattr(adata.var, 'index')\
-  \ and adata.var.index.dtype == object:\n    fields.append('gene_id')\n# gene names\
-  \ (symbols)\nif 'gene_symbols' in adata.var.columns:\n    fields.append('gene_name')\n\
-  # cell barcodes (obs names)\nif adata.obs_names is not None:\n    fields.append('cell_barcode')\n\
-  # raw counts matrix\nif adata.X is not None:\n    fields.append('raw_counts')\n\
-  # mitochondrial percentage (commonly stored as pct_counts_mt)\nif 'pct_counts_mt'\
-  \ in adata.obs.columns:\n    fields.append('mitochondrial_percentage')\n# sample\
-  \ identifier (may be stored as batch or sample_id)\nif 'batch' in adata.obs.columns:\n\
-  \    fields.append('sample_id')\nelif 'sample_id' in adata.obs.columns:\n    fields.append('sample_id')\n\
-  # condition label (e.g., treatment vs control)\nif 'condition' in adata.obs.columns:\n\
-  \    fields.append('condition_label')\nelif 'condition_label' in adata.obs.columns:\n\
-  \    fields.append('condition_label')\n# therapy response label\nif 'therapy_response'\
-  \ in adata.obs.columns:\n    fields.append('therapy_response')\nprint(f\"RECORDS={n}\"\
-  )\nprint(f\"FIELDS={','.join(fields)}\")"
-record_count: 2700
-sample_fields:
-- gene_id
-- cell_barcode
-- raw_counts
-field_coverage: 0.5
+status: none
+intent: download GEO GSE136103 GSE127465 GSE111075 GSE138852 raw count matrices from
+  NCBI SRA python package dataset
 required_fields:
-- gene_id
-- gene_name
 - cell_barcode
+- gene_id
 - raw_counts
 - mitochondrial_percentage
-- sample_id
-- condition_label
-- therapy_response
-intent: pysradb scvelo seurat GEO SRA GSE136103 GSE127465 GSE111075 GSE138852 python
-  package dataset
-cache_key: 2ac2f2132625e5b76cc0e078b4e49e51ff4e1f89f8b1a32dfad3ccdc69ddf5a6
+- sample_accession
+cache_key: 76bd98d27f7e521c0316d8bca2bd821d06be97e69908e66559cd9d5d8435ebf1
+searched_at: '2026-10-10T11:25:16.115080+00:00'
+retry_count: 1
