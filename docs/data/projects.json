@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 17433,
+    "total_contributions": 17447,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1736,
+      "contribution_count": 1743,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -1038,15 +1038,6 @@
     },
     {
       "areas": [
-        "computer science",
-        "linguistics"
-      ],
-      "contribution_count": 59,
-      "kind": "human",
-      "name": "llmxive-preprint-followup"
-    },
-    {
-      "areas": [
         "biology",
         "chemistry",
         "computer science",
@@ -1061,9 +1052,18 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 58,
+      "contribution_count": 64,
       "kind": "llm",
       "name": "zai-org.glm-5.3"
+    },
+    {
+      "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 59,
+      "kind": "human",
+      "name": "llmxive-preprint-followup"
     },
     {
       "areas": [
@@ -1077,7 +1077,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 19,
+      "contribution_count": 20,
       "kind": "llm",
       "name": "anthropic.claude-haiku-4-5-20251001"
     },
@@ -28701,7 +28701,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-10T15:27:07.500099+00:00",
+  "generated_at": "2026-10-10T16:09:08.105887+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -28944,24 +28944,24 @@
           "title": "Single-Cell Trajectories of T-Cell Exhaustion"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-196-the-role-of-temporal-discounting-in-proc",
           "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
           "title": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-798-systematic-assessment-of-non-coding-vari",
-          "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
-          "title": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-495-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-495-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Vulnerability Density"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "project_id": "PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "title": "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\""
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-981-llmxive-follow-up-extending-agentic-envi",
+          "project_id": "PROJ-981-llmxive-follow-up-extending-agentic-envi",
+          "title": "llmXive follow-up: extending \"Agentic Environment Engineering for Large Language Models: A Survey of\""
         }
       ],
       "inputs": [
@@ -28988,24 +28988,24 @@
           "title": "Single-Cell Trajectories of T-Cell Exhaustion"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-196-the-role-of-temporal-discounting-in-proc",
           "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
           "title": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-798-systematic-assessment-of-non-coding-vari",
-          "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
-          "title": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-495-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-495-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Vulnerability Density"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "project_id": "PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "title": "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\""
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-555-investigating-the-potential-benefits-of-",
+          "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
+          "title": "Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas"
         }
       ],
       "inputs": [
@@ -29032,24 +29032,24 @@
           "title": "Single-Cell Trajectories of T-Cell Exhaustion"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-196-the-role-of-temporal-discounting-in-proc",
           "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
           "title": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-798-systematic-assessment-of-non-coding-vari",
-          "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
-          "title": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-495-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-495-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Vulnerability Density"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "project_id": "PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "title": "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\""
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-555-investigating-the-potential-benefits-of-",
+          "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
+          "title": "Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas"
         }
       ],
       "inputs": [
@@ -29076,24 +29076,24 @@
           "title": "Single-Cell Trajectories of T-Cell Exhaustion"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-196-the-role-of-temporal-discounting-in-proc",
           "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
           "title": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-798-systematic-assessment-of-non-coding-vari",
-          "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
-          "title": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-495-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-495-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Vulnerability Density"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "project_id": "PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "title": "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\""
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-555-investigating-the-potential-benefits-of-",
+          "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
+          "title": "Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas"
         }
       ],
       "inputs": [
@@ -29114,29 +29114,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-196-the-role-of-temporal-discounting-in-proc",
           "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
           "title": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-555-investigating-the-potential-benefits-of-",
+          "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
+          "title": "Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-798-systematic-assessment-of-non-coding-vari",
           "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
           "title": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-495-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-495-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Vulnerability Density"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "project_id": "PROJ-993-llmxive-follow-up-extending-evopolicygym",
-          "title": "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-446-predicting-molecular-halide-binding-affi",
-          "project_id": "PROJ-446-predicting-molecular-halide-binding-affi",
-          "title": "Predicting Molecular Halide Binding Affinities with Machine Learning"
         }
       ],
       "inputs": [
@@ -29157,6 +29157,16 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-798-systematic-assessment-of-non-coding-vari",
           "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
           "title": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
@@ -29170,16 +29180,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-459-investigating-the-relationship-between-b",
           "project_id": "PROJ-459-investigating-the-relationship-between-b",
           "title": "Investigating the Relationship Between Brain Network Dynamics and Musical Genre Preference"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-301-predicting-molecular-descriptors-from-qu",
-          "project_id": "PROJ-301-predicting-molecular-descriptors-from-qu",
-          "title": "Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-307-machine-learning-prediction-of-crack-pro",
-          "project_id": "PROJ-307-machine-learning-prediction-of-crack-pro",
-          "title": "Machine Learning Prediction of Crack Propagation Rates in Metals"
         }
       ],
       "inputs": [
@@ -29203,6 +29203,16 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+          "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-798-systematic-assessment-of-non-coding-vari",
           "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
           "title": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
@@ -29216,16 +29226,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-459-investigating-the-relationship-between-b",
           "project_id": "PROJ-459-investigating-the-relationship-between-b",
           "title": "Investigating the Relationship Between Brain Network Dynamics and Musical Genre Preference"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-301-predicting-molecular-descriptors-from-qu",
-          "project_id": "PROJ-301-predicting-molecular-descriptors-from-qu",
-          "title": "Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-307-machine-learning-prediction-of-crack-pro",
-          "project_id": "PROJ-307-machine-learning-prediction-of-crack-pro",
-          "title": "Machine Learning Prediction of Crack Propagation Rates in Metals"
         }
       ],
       "inputs": [
@@ -29890,20 +29890,21 @@
           ]
         },
         {
+          "contributions": 10,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "clarifier",
+            "implementer"
+          ]
+        },
+        {
           "contributions": 9,
           "kind": "llm",
           "name": "google.gemma-4-31B-it",
           "roles": [
             "implementer",
             "tasker"
-          ]
-        },
-        {
-          "contributions": 9,
-          "kind": "llm",
-          "name": "openai.gpt-oss-120b",
-          "roles": [
-            "implementer"
           ]
         },
         {
@@ -29934,6 +29935,30 @@
       "id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "planner",
+          "duration_s": 1408.087085,
+          "ended_at": "2026-10-10T16:08:14.311871Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-10T15:44:46.224786Z"
+        },
+        {
+          "agent": "clarifier",
+          "duration_s": 110.415925,
+          "ended_at": "2026-10-10T15:44:37.273213Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:42:46.857288Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 1565.593471,
+          "ended_at": "2026-10-10T15:42:33.566599Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-10T15:16:27.973128Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 194.617396,
@@ -29989,30 +30014,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-10T13:10:39.685447Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 18.265803,
-          "ended_at": "2026-10-10T12:16:27.531843Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-10T12:16:09.266040Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 14.809391,
-          "ended_at": "2026-10-10T12:16:09.262799Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-10T12:15:54.453408Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 21.504876,
-          "ended_at": "2026-10-10T12:15:54.450136Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-10T12:15:32.945260Z"
         }
       ],
       "paper_status": null,
@@ -30026,7 +30027,7 @@
       "speckit_research_dir": "projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau",
       "submitter": null,
       "title": "Single-Cell Trajectories of T-Cell Exhaustion",
-      "updated_at": "2026-10-10T15:16:14.552555+00:00",
+      "updated_at": "2026-10-10T15:44:37.275862+00:00",
       "upstream_feedback": null
     },
     {
@@ -30703,7 +30704,7 @@
           ]
         },
         {
-          "contributions": 4,
+          "contributions": 7,
           "kind": "llm",
           "name": "zai-org.glm-5.3",
           "roles": [
@@ -30738,6 +30739,30 @@
       "id": "PROJ-007-energy-systems",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 171.716694,
+          "ended_at": "2026-10-10T15:30:32.619656Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:27:40.902962Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 203.431124,
+          "ended_at": "2026-10-10T15:27:40.899063Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:24:17.467939Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 69.146497,
+          "ended_at": "2026-10-10T15:24:17.463954Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:23:08.317457Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 216.428767,
@@ -30793,30 +30818,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-06T16:03:04.855485Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 15.895574,
-          "ended_at": "2026-09-18T14:30:14.649536Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-18T14:29:58.753962Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 27.245054,
-          "ended_at": "2026-09-18T14:29:58.750824Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-18T14:29:31.505770Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 20.438156,
-          "ended_at": "2026-09-18T14:29:31.502538Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-18T14:29:11.064382Z"
         }
       ],
       "paper_status": null,
@@ -54576,6 +54577,16 @@
         {
           "contributions": 3,
           "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out",
+            "implementer",
+            "tasker"
+          ]
+        },
+        {
+          "contributions": 3,
+          "kind": "llm",
           "name": "google.gemma-3-27b-it",
           "roles": [
             "implementer"
@@ -54584,15 +54595,15 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "anthropic.claude-haiku-4-5-20251001",
           "roles": [
-            "flesh_out"
+            "implementer"
           ]
         }
       ],
       "citation_summary": {
         "mismatch": 0,
-        "pending": 4,
+        "pending": 3,
         "unreachable": 0,
         "verified": 4
       },
@@ -54603,12 +54614,44 @@
         "repo_path": "projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "planned",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question asks about the causal influence of specific alloying elements and interactions on critical cooling rates, which is a substantive materials science inquiry. While it includes a clause about ML prediction, this serves as the mechanism for quantification rather than defining the scientific\u2026",
       "field": "materials science",
       "id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 78.833179,
+          "ended_at": "2026-10-10T15:29:51.920546Z",
+          "model": "anthropic.claude-haiku-4-5-20251001",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:28:33.087367Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 46.978918,
+          "ended_at": "2026-10-10T15:20:30.030133Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:19:43.051215Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 0.034682,
+          "ended_at": "2026-10-10T15:19:34.851011Z",
+          "model": "deterministic-no-llm",
+          "outcome": "skipped",
+          "started_at": "2026-10-10T15:19:34.816329Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 514.523034,
+          "ended_at": "2026-10-10T15:19:19.952556Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:10:45.429522Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 347.920669,
@@ -54656,38 +54699,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-01T22:09:45.433830Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 344.831264,
-          "ended_at": "2026-10-01T22:09:43.118655Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-01T22:03:58.287391Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 391.80124,
-          "ended_at": "2026-10-01T22:03:58.285301Z",
-          "model": "google.gemma-3-27b-it",
-          "outcome": "success",
-          "started_at": "2026-10-01T21:57:26.484061Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 65.776786,
-          "ended_at": "2026-10-01T21:57:26.481783Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-01T21:56:20.704997Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1471.036132,
-          "ended_at": "2026-10-01T21:56:20.666873Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-01T21:31:49.630741Z"
         }
       ],
       "paper_status": null,
@@ -54701,7 +54712,7 @@
       "speckit_research_dir": "projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme",
       "submitter": null,
       "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses",
-      "updated_at": "2026-10-06T22:22:24.498125+00:00",
+      "updated_at": "2026-10-10T15:28:20.255201+00:00",
       "upstream_feedback": null
     },
     {
@@ -55056,12 +55067,21 @@
           ]
         },
         {
-          "contributions": 2,
+          "contributions": 3,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "flesh_out",
+            "implementer",
             "project_initializer"
+          ]
+        },
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
           ]
         },
         {
@@ -55092,6 +55112,30 @@
       "id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 408.154697,
+          "ended_at": "2026-10-10T15:19:11.456502Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:12:23.301805Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 50.988956,
+          "ended_at": "2026-10-10T15:12:23.299672Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:11:32.310716Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 39.836019,
+          "ended_at": "2026-10-10T15:11:32.308004Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:10:52.471985Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 0.946589,
@@ -55147,30 +55191,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-05T08:15:19.390335Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 27.92015,
-          "ended_at": "2026-10-05T08:15:19.388423Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T08:14:51.468273Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 44.910549,
-          "ended_at": "2026-10-05T08:14:51.466397Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T08:14:06.555848Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 31.200778,
-          "ended_at": "2026-10-05T08:14:06.553828Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T08:13:35.353050Z"
         }
       ],
       "paper_status": null,
@@ -66259,10 +66279,18 @@
           "roles": [
             "flesh_out"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "tasker"
+          ]
         }
       ],
       "citation_summary": {
-        "mismatch": 0,
+        "mismatch": 3,
         "pending": 0,
         "unreachable": 0,
         "verified": 1
@@ -66280,6 +66308,30 @@
       "id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "tasker",
+          "duration_s": 298.595868,
+          "ended_at": "2026-10-10T15:31:23.241982Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-10T15:26:24.646114Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 28.933731,
+          "ended_at": "2026-10-10T15:26:17.746898Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-10T15:25:48.813167Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 904.250686,
+          "ended_at": "2026-10-10T15:25:37.548110Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:10:33.297424Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 0.00247,
@@ -66335,30 +66387,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-25T18:34:09.839892Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 94.464563,
-          "ended_at": "2026-09-25T18:34:09.836261Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-25T18:32:35.371698Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 609.874145,
-          "ended_at": "2026-09-25T18:32:35.298209Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-25T18:22:25.424064Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 772.184185,
-          "ended_at": "2026-09-25T18:22:25.361595Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-25T18:09:33.177410Z"
         }
       ],
       "paper_status": null,
@@ -66372,7 +66400,7 @@
       "speckit_research_dir": "projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc",
       "submitter": null,
       "title": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks",
-      "updated_at": "2026-10-10T15:10:21.888265+00:00",
+      "updated_at": "2026-10-10T15:26:17.747407+00:00",
       "upstream_feedback": null
     },
     {
@@ -82465,7 +82493,7 @@
     {
       "artifact_links": {
         "citations": "state/citations/PROJ-291-predicting-the-impact-of-residual-stress.yaml",
-        "code": null,
+        "code": "projects/PROJ-291-predicting-the-impact-of-residual-stress/code",
         "data": null,
         "idea": "projects/PROJ-291-predicting-the-impact-of-residual-stress/idea/research_question_validation.md",
         "paper_figures": null,
@@ -82476,11 +82504,11 @@
         "paper_supplement": null,
         "paper_supplement_source": null,
         "paper_tasks": null,
-        "plan": null,
+        "plan": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/plan.md",
         "reviews_paper": null,
         "reviews_research": null,
         "spec": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/spec.md",
-        "tasks": null
+        "tasks": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/tasks.md"
       },
       "authors": [
         {
@@ -82496,33 +82524,100 @@
           ]
         },
         {
-          "contributions": 1,
+          "contributions": 6,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
-            "flesh_out"
+            "flesh_out",
+            "implementer",
+            "planner",
+            "tasker"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
           ]
         }
       ],
       "citation_summary": {
         "mismatch": 0,
-        "pending": 0,
+        "pending": 1,
         "unreachable": 0,
         "verified": 0
       },
       "created_at": "2026-05-05T05:11:24.754103+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/spec.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/spec.md",
-        "repo_path": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/spec.md",
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/tasks.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/tasks.md",
+        "repo_path": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question asks about a causal mechanism in materials science\u2014specifically, how manufacturing process parameters influence fatigue life through the mediating effect of residual stress. This is independent of any specific ML method; the methodology (mediation analysis, regression models) is a tool to\u2026",
       "field": "materials science",
       "id": "PROJ-291-predicting-the-impact-of-residual-stress",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 156.739378,
+          "ended_at": "2026-10-10T15:40:43.641715Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:38:06.902337Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 12.579537,
+          "ended_at": "2026-10-10T15:35:05.962723Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:34:53.383186Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 26.431258,
+          "ended_at": "2026-10-10T15:34:53.379650Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:34:26.948392Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 37.999685,
+          "ended_at": "2026-10-10T15:34:26.944512Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:33:48.944827Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 0.033663,
+          "ended_at": "2026-10-10T15:33:40.843673Z",
+          "model": "deterministic-no-llm",
+          "outcome": "skipped",
+          "started_at": "2026-10-10T15:33:40.810010Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 99.062445,
+          "ended_at": "2026-10-10T15:33:31.991649Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:31:52.929204Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 1281.530871,
+          "ended_at": "2026-10-10T15:31:37.425985Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:10:15.895114Z"
+        },
         {
           "agent": "clarifier",
           "duration_s": 183.562649,
@@ -82546,38 +82641,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-30T18:44:42.557387Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 26.636287,
-          "ended_at": "2026-06-28T15:18:02.209039Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-28T15:17:35.572752Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 71.168051,
-          "ended_at": "2026-06-25T05:45:28.274638Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-06-25T05:44:17.106587Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 20.975218,
-          "ended_at": "2026-06-13T22:09:10.275308Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-13T22:08:49.300090Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 247.907506,
-          "ended_at": "2026-05-05T05:15:52.027771Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-05T05:11:44.120265Z"
         }
       ],
       "paper_status": null,
@@ -82591,7 +82654,7 @@
       "speckit_research_dir": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress",
       "submitter": null,
       "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets",
-      "updated_at": "2026-09-18T18:39:27.277446+00:00",
+      "updated_at": "2026-10-10T15:37:55.212205+00:00",
       "upstream_feedback": null
     },
     {
@@ -93151,6 +93214,14 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 12,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
@@ -93174,83 +93245,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 214.220618,
-          "ended_at": "2026-09-30T01:31:02.974792Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 77.019266,
+          "ended_at": "2026-10-10T15:43:07.493995Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-09-30T01:27:28.754174Z"
+          "started_at": "2026-10-10T15:41:50.474729Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 54.797996,
-          "ended_at": "2026-09-30T01:27:28.750478Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 86.030653,
+          "ended_at": "2026-10-10T15:41:50.469219Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-09-30T01:26:33.952482Z"
+          "started_at": "2026-10-10T15:40:24.438566Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 378.264775,
-          "ended_at": "2026-09-30T01:26:33.948759Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 77.337998,
+          "ended_at": "2026-10-10T15:40:24.433052Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-09-30T01:20:15.683984Z"
+          "started_at": "2026-10-10T15:39:07.095054Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 108.871259,
-          "ended_at": "2026-09-30T01:20:15.680339Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 73.595525,
+          "ended_at": "2026-10-10T15:39:07.089480Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-09-30T01:18:26.809080Z"
+          "started_at": "2026-10-10T15:37:53.493955Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 743.386615,
-          "ended_at": "2026-09-03T09:18:26.853453Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 34.016693,
+          "ended_at": "2026-10-10T15:37:53.488432Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-09-03T09:06:03.466838Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 935.280112,
-          "ended_at": "2026-09-03T09:06:03.388792Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-03T08:50:28.108680Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1063.765326,
-          "ended_at": "2026-09-03T08:50:28.041810Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-03T08:32:44.276484Z"
+          "started_at": "2026-10-10T15:37:19.471739Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 786.341003,
-          "ended_at": "2026-08-31T16:56:44.833423Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 53.04407,
+          "ended_at": "2026-10-10T15:37:19.466144Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-08-31T16:43:38.492420Z"
+          "started_at": "2026-10-10T15:36:26.422074Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 734.099435,
-          "ended_at": "2026-08-31T16:43:34.781049Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 45.074708,
+          "ended_at": "2026-10-10T15:36:26.416477Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-08-31T16:31:20.681614Z"
+          "started_at": "2026-10-10T15:35:41.341769Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 40.815321,
-          "ended_at": "2026-08-31T16:31:20.678248Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 22.493901,
+          "ended_at": "2026-10-10T15:35:41.336179Z",
+          "model": "zai-org.glm-5.3",
           "outcome": "success",
-          "started_at": "2026-08-31T16:30:39.862927Z"
+          "started_at": "2026-10-10T15:35:18.842278Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 14.851904,
+          "ended_at": "2026-10-10T15:35:18.836599Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:35:03.984695Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 49.104612,
+          "ended_at": "2026-10-10T15:35:03.979037Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:34:14.874425Z"
         }
       ],
       "paper_status": null,
@@ -126009,12 +126080,20 @@
         "repo_path": "projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "in_progress",
+      "current_stage": "planned",
       "description": "I'll search for relevant literature to ground this research idea, then flesh it out according to the required structure. ```tool_calls [{\"name\": \"lit_search\", \"arguments\": {\"query\": \"ecotourism forest regeneration conservation impact\", \"max_results\": 8}}, {\"name\": \"lit_search\", \"arguments\": {\"query\": \"ecotourism\u2026",
       "field": "environmental science",
       "id": "PROJ-555-investigating-the-potential-benefits-of-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 0.003215,
+          "ended_at": "2026-10-10T15:20:55.281502Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-10T15:20:55.278287Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 85.270404,
@@ -126086,14 +126165,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-23T17:33:06.405583Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 33.423781,
-          "ended_at": "2026-09-23T17:33:06.402083Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-23T17:32:32.978302Z"
         }
       ],
       "paper_status": null,
@@ -126107,7 +126178,7 @@
       "speckit_research_dir": "projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of",
       "submitter": "Claude 3 Sonnet",
       "title": "Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas",
-      "updated_at": "2026-09-23T17:48:39.795554+00:00",
+      "updated_at": "2026-10-10T15:20:55.282405+00:00",
       "upstream_feedback": null
     },
     {
@@ -165997,6 +166068,14 @@
           "roles": [
             "flesh_out"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "research_question_validator"
+          ]
         }
       ],
       "citation_summary": {
@@ -166012,12 +166091,20 @@
         "repo_path": "projects/PROJ-981-llmxive-follow-up-extending-agentic-envi/idea/llmxive-follow-up-extending-agentic-envi.md",
         "type": "markdown"
       },
-      "current_stage": "flesh_out_complete",
+      "current_stage": "flesh_out_in_progress",
       "description": "Field: Linguistics (Applied NLP / Agent-Centric Reasoning) Can a purely symbolic, difficulty-driven environment synthesis engine, operating without neural synthesis, generate a curriculum of logic puzzles that reliably improves LLMs' multi-step reasoning stability compared to standard static benchmarks? While the\u2026",
       "field": "linguistics",
       "id": "PROJ-981-llmxive-follow-up-extending-agentic-envi",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "research_question_validator",
+          "duration_s": 129.56129,
+          "ended_at": "2026-10-10T15:23:06.575380Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:20:57.014090Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 81.099272,
@@ -166038,7 +166125,7 @@
       "speckit_research_dir": null,
       "submitter": "llmxive-preprint-followup",
       "title": "llmXive follow-up: extending \"Agentic Environment Engineering for Large Language Models: A Survey of\"",
-      "updated_at": "2026-09-07T18:27:08.002232+00:00",
+      "updated_at": "2026-10-10T15:23:06.578327+00:00",
       "upstream_feedback": null
     },
     {
@@ -166620,6 +166707,14 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
@@ -166641,6 +166736,22 @@
       "id": "PROJ-986-llmxive-follow-up-extending-blockpilot-i",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 312.1354,
+          "ended_at": "2026-10-10T15:50:47.417888Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:45:35.282488Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 64.522613,
+          "ended_at": "2026-10-10T15:45:35.278270Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T15:44:30.755657Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 2.706675,
@@ -166704,22 +166815,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-03T01:50:53.877470Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 33.760979,
-          "ended_at": "2026-09-03T01:50:53.874002Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-03T01:50:20.113023Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 58.98483,
-          "ended_at": "2026-09-03T01:50:06.217289Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-03T01:49:07.232459Z"
         }
       ],
       "paper_status": null,
@@ -167683,6 +167778,450 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1408.087085,
+      "ended_at": "2026-10-10T16:08:14.311871Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-10T15:44:46.224786Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 312.1354,
+      "ended_at": "2026-10-10T15:50:47.417888Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-986-llmxive-follow-up-extending-blockpilot-i",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:45:35.282488Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 64.522613,
+      "ended_at": "2026-10-10T15:45:35.278270Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-986-llmxive-follow-up-extending-blockpilot-i",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:44:30.755657Z"
+    },
+    {
+      "agent": "clarifier",
+      "duration_s": 110.415925,
+      "ended_at": "2026-10-10T15:44:37.273213Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
+      "project_stage": "clarified",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:42:46.857288Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 77.019266,
+      "ended_at": "2026-10-10T15:43:07.493995Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:41:50.474729Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1565.593471,
+      "ended_at": "2026-10-10T15:42:33.566599Z",
+      "failure_reason": "StagePanelKickback: plan panel did not converge: 18 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full prov",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
+      "project_stage": "clarified",
+      "severity": "soft",
+      "started_at": "2026-10-10T15:16:27.973128Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 86.030653,
+      "ended_at": "2026-10-10T15:41:50.469219Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:40:24.438566Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 156.739378,
+      "ended_at": "2026-10-10T15:40:43.641715Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:38:06.902337Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 77.337998,
+      "ended_at": "2026-10-10T15:40:24.433052Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:39:07.095054Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 73.595525,
+      "ended_at": "2026-10-10T15:39:07.089480Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:37:53.493955Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 34.016693,
+      "ended_at": "2026-10-10T15:37:53.488432Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:37:19.471739Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 53.04407,
+      "ended_at": "2026-10-10T15:37:19.466144Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:36:26.422074Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 45.074708,
+      "ended_at": "2026-10-10T15:36:26.416477Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:35:41.341769Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.493901,
+      "ended_at": "2026-10-10T15:35:41.336179Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:35:18.842278Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 14.851904,
+      "ended_at": "2026-10-10T15:35:18.836599Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:35:03.984695Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 12.579537,
+      "ended_at": "2026-10-10T15:35:05.962723Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:34:53.383186Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 49.104612,
+      "ended_at": "2026-10-10T15:35:03.979037Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:34:14.874425Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 26.431258,
+      "ended_at": "2026-10-10T15:34:53.379650Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:34:26.948392Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 37.999685,
+      "ended_at": "2026-10-10T15:34:26.944512Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:33:48.944827Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 41.610842,
+      "ended_at": "2026-10-10T15:34:14.868860Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:33:33.258018Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.033663,
+      "ended_at": "2026-10-10T15:33:40.843673Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-10T15:33:40.810010Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 84.913729,
+      "ended_at": "2026-10-10T15:33:33.252199Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:32:08.338470Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 99.062445,
+      "ended_at": "2026-10-10T15:33:31.991649Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:31:52.929204Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1281.530871,
+      "ended_at": "2026-10-10T15:31:37.425985Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:10:15.895114Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 298.595868,
+      "ended_at": "2026-10-10T15:31:23.241982Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-10T15:26:24.646114Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 171.716694,
+      "ended_at": "2026-10-10T15:30:32.619656Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-007-energy-systems",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:27:40.902962Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 78.833179,
+      "ended_at": "2026-10-10T15:29:51.920546Z",
+      "failure_reason": "",
+      "model": "anthropic.claude-haiku-4-5-20251001",
+      "outcome": "success",
+      "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:28:33.087367Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 203.431124,
+      "ended_at": "2026-10-10T15:27:40.899063Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-007-energy-systems",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:24:17.467939Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 28.933731,
+      "ended_at": "2026-10-10T15:26:17.746898Z",
+      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T041', 'T043']",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-10T15:25:48.813167Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 904.250686,
+      "ended_at": "2026-10-10T15:25:37.548110Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:10:33.297424Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 69.146497,
+      "ended_at": "2026-10-10T15:24:17.463954Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-007-energy-systems",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:23:08.317457Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 129.56129,
+      "ended_at": "2026-10-10T15:23:06.575380Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-981-llmxive-follow-up-extending-agentic-envi",
+      "project_stage": "flesh_out_in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:20:57.014090Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.003215,
+      "ended_at": "2026-10-10T15:20:55.281502Z",
+      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T009']",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-10T15:20:55.278287Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 46.978918,
+      "ended_at": "2026-10-10T15:20:30.030133Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:19:43.051215Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.034682,
+      "ended_at": "2026-10-10T15:19:34.851011Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-10T15:19:34.816329Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 514.523034,
+      "ended_at": "2026-10-10T15:19:19.952556Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:10:45.429522Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 408.154697,
+      "ended_at": "2026-10-10T15:19:11.456502Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:12:23.301805Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 194.617396,
       "ended_at": "2026-10-10T15:13:40.268659Z",
@@ -167693,6 +168232,30 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-10T15:10:25.651263Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 50.988956,
+      "ended_at": "2026-10-10T15:12:23.299672Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:11:32.310716Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 39.836019,
+      "ended_at": "2026-10-10T15:11:32.308004Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T15:10:52.471985Z"
     },
     {
       "agent": "implementer",
@@ -173213,474 +173776,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-09T17:13:29.961315Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 387.718502,
-      "ended_at": "2026-10-09T17:17:15.918395Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-508-evaluating-the-impact-of-llm-based-code-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T17:10:48.199893Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 416.884678,
-      "ended_at": "2026-10-09T17:16:49.208835Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T17:09:52.324157Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 128.371821,
-      "ended_at": "2026-10-09T17:13:29.959178Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-030-predicting-crystal-structures-from-molec",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T17:11:21.587357Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 62.626866,
-      "ended_at": "2026-10-09T17:11:21.585232Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-030-predicting-crystal-structures-from-molec",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T17:10:18.958366Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.002894,
-      "ended_at": "2026-10-09T17:10:31.307347Z",
-      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T015b', 'T016']",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-676-quantifying-the-effect-of-disorder-on-el",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-09T17:10:31.304453Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.002975,
-      "ended_at": "2026-10-09T17:10:29.424543Z",
-      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T078']",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-828-llmxive-follow-up-extending-learning-to",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-09T17:10:29.421568Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 66.65312,
-      "ended_at": "2026-10-09T17:10:18.955851Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-030-predicting-crystal-structures-from-molec",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T17:09:12.302731Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 381.936473,
-      "ended_at": "2026-10-09T16:24:02.065011Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T16:17:40.128538Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 400.232381,
-      "ended_at": "2026-10-09T16:23:53.460998Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-254-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T16:17:13.228617Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 661.468157,
-      "ended_at": "2026-10-09T16:22:20.676171Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-281-the-impact-of-perceived-control-over-dig",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-09T16:11:19.208014Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 585.088168,
-      "ended_at": "2026-10-09T16:20:37.989993Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-231-statistical-analysis-of-publicly-availab",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-10-09T16:10:52.901825Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 50.289996,
-      "ended_at": "2026-10-09T16:17:44.817354Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-092-statistical-analysis-of-feature-importan",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T16:16:54.527358Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 295.927042,
-      "ended_at": "2026-10-09T16:17:40.124260Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T16:12:44.197218Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 378.091747,
-      "ended_at": "2026-10-09T16:16:54.525304Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-092-statistical-analysis-of-feature-importan",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T16:10:36.433557Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 170.275455,
-      "ended_at": "2026-10-09T16:13:59.546924Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-728-autocorrelation-of-the-m-bius-function-i",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-09T16:11:09.271469Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 533.048436,
-      "ended_at": "2026-10-09T15:51:30.339541Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-284-investigating-the-relationship-between-b",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-09T15:42:37.291105Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.306577,
-      "ended_at": "2026-10-09T15:42:37.287382Z",
-      "failure_reason": "",
-      "model": "anthropic.claude-haiku-4-5-20251001",
-      "outcome": "success",
-      "project_id": "PROJ-284-investigating-the-relationship-between-b",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:42:12.980805Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 41.900795,
-      "ended_at": "2026-10-09T15:42:12.977082Z",
-      "failure_reason": "",
-      "model": "anthropic.claude-haiku-4-5-20251001",
-      "outcome": "success",
-      "project_id": "PROJ-284-investigating-the-relationship-between-b",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:41:31.076287Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 54.040653,
-      "ended_at": "2026-10-09T15:41:31.072393Z",
-      "failure_reason": "",
-      "model": "anthropic.claude-haiku-4-5-20251001",
-      "outcome": "success",
-      "project_id": "PROJ-284-investigating-the-relationship-between-b",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:40:37.031740Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 41.209636,
-      "ended_at": "2026-10-09T15:40:37.028146Z",
-      "failure_reason": "",
-      "model": "anthropic.claude-haiku-4-5-20251001",
-      "outcome": "success",
-      "project_id": "PROJ-284-investigating-the-relationship-between-b",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:39:55.818510Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 46.741979,
-      "ended_at": "2026-10-09T15:39:55.814704Z",
-      "failure_reason": "",
-      "model": "anthropic.claude-haiku-4-5-20251001",
-      "outcome": "success",
-      "project_id": "PROJ-284-investigating-the-relationship-between-b",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:39:09.072725Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1103.757116,
-      "ended_at": "2026-10-09T15:39:07.303117Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-920-llmxive-follow-up-extending-masking-stal",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:20:43.546001Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 22.279487,
-      "ended_at": "2026-10-09T15:38:26.183546Z",
-      "failure_reason": "TaskFormatError: Tasker produced only 0 task IDs (need >= 5; total chars: 13487). Regenerate the complete tasks.md as canonical '- [ ] T### description' checkbox items, not task tables or fenced examp",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-171-quantifying-neural-representation-drift-",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-09T15:38:03.904059Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1524.350471,
-      "ended_at": "2026-10-09T15:38:03.856983Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-171-quantifying-neural-representation-drift-",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:12:39.506512Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 382.361446,
-      "ended_at": "2026-10-09T15:25:27.006705Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:19:04.645259Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 152.232275,
-      "ended_at": "2026-10-09T15:19:40.468315Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-369-evaluating-the-robustness-of-statistical",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:17:08.236040Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 25.543618,
-      "ended_at": "2026-10-09T15:19:04.642622Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:18:39.099004Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.652278,
-      "ended_at": "2026-10-09T15:18:39.096334Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:18:22.444056Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.008823,
-      "ended_at": "2026-10-09T15:18:22.441258Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:17:55.432435Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 405.231651,
-      "ended_at": "2026-10-09T15:17:57.628450Z",
-      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T034']",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-203-predicting-phase-transitions-in-amorphou",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-09T15:11:12.396799Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 217.204256,
-      "ended_at": "2026-10-09T15:17:55.429537Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:14:18.225281Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 30.424794,
-      "ended_at": "2026-10-09T15:17:08.231885Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-369-evaluating-the-robustness-of-statistical",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:16:37.807091Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 387.211318,
-      "ended_at": "2026-10-09T15:16:37.802522Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-369-evaluating-the-robustness-of-statistical",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:10:10.591204Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 18.94535,
-      "ended_at": "2026-10-09T15:10:29.914411Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-236-exploring-the-influence-of-network-topol",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T15:10:10.969061Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 1015.694996,
-      "ended_at": "2026-10-09T15:04:47.880054Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-880-llmxive-follow-up-extending-your-unembed",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-09T14:47:52.185058Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 2199.385065,
-      "ended_at": "2026-10-09T14:47:52.125999Z",
-      "failure_reason": "StagePanelKickback: plan panel did not converge: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full prove",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "failed",
-      "project_id": "PROJ-880-llmxive-follow-up-extending-your-unembed",
-      "project_stage": "clarified",
-      "severity": "soft",
-      "started_at": "2026-10-09T14:11:12.740934Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 49.388489,
-      "ended_at": "2026-10-09T14:31:33.636914Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-537-predicting-the-yield-strength-of-bcc-ste",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T14:30:44.248425Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 19.382618,
-      "ended_at": "2026-10-09T14:30:53.886381Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-027-predicting-antibiotic-resistance-evoluti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T14:30:34.503763Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 123.44646,
-      "ended_at": "2026-10-09T14:29:51.979002Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-027-predicting-antibiotic-resistance-evoluti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T14:27:48.532542Z"
     }
   ],
   "reviewed_preprints": [
