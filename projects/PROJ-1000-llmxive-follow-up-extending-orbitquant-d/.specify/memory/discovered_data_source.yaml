@@ -1,33 +1,10 @@
-status: verified
-kind: pypi_package
-ref: pycocotools
-access_python: "import os, ssl, urllib.request, zipfile, json\nfrom pycocotools.coco\
-  \ import COCO\n\nurl = \"https://images.cocodataset.org/annotations/annotations_trainval2017.zip\"\
-  \nzip_path = \"/tmp/coco_ann.zip\"\nif not os.path.exists(zip_path):\n    ctx =\
-  \ ssl.create_default_context()\n    ctx.check_hostname = False\n    ctx.verify_mode\
-  \ = ssl.CERT_NONE\n    with urllib.request.urlopen(url, context=ctx) as resp, open(zip_path,\
-  \ \"wb\") as out:\n        out.write(resp.read())\n\nwith zipfile.ZipFile(zip_path,\
-  \ \"r\") as z:\n    ann_file = next(f for f in z.namelist() if f.endswith(\"instances_val2017.json\"\
-  ))\n    extract_dir = \"/tmp\"\n    z.extract(ann_file, extract_dir)\n    ann_path\
-  \ = os.path.join(extract_dir, ann_file)\n\ncoco = COCO(ann_path)\nimg_ids = coco.getImgIds()\n\
-  print(f\"RECORDS={len(img_ids)}\")\n\nif img_ids:\n    sample = coco.loadImgs(img_ids[0])[0]\n\
-  \    fields = \",\".join(sample.keys())\n    print(f\"FIELDS={fields}\")"
-record_count: 5000
-sample_fields:
-- license
-- file_name
-- coco_url
-- height
-- width
-- date_captured
-- flickr_url
-- id
-field_coverage: 0.6
+status: none
+intent: download MS COCO 2017 validation set with captions via Hugging Face datasets
+  python package dataset
 required_fields:
 - image_id
-- file_name
-- width
-- height
-- captions
-intent: download MS COCO 2017 validation set via huggingface python package dataset
-cache_key: 48e90fe1a248cf5dd6f0aea535c337a95bb9025fb1b27035a8373e3b3d30ba5c
+- caption
+- image_path
+cache_key: a639056262676fa3a7fe409b1b841923fc2609a55b9d3d5c2caf764ec2eae5ba
+searched_at: '2026-10-10T13:14:36.513969+00:00'
+retry_count: 1

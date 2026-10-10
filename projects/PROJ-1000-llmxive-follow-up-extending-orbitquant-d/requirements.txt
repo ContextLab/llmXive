@@ -10,3 +10,4 @@ pandas>=2.1.0
 sentence-transformers>=2.2.2
 # Additional utilities used by the data scripts
 tqdm>=4.66.0
+pycocotools>=2.0.0
