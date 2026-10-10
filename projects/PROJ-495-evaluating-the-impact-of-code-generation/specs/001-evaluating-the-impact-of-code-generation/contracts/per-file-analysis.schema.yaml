@@ -1,0 +1,28 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "PerFileAnalysis"
+type: "object"
+required: ["file_id", "source_group", "vulnerability_count", "cwe_ids"]
+properties:
+  file_id:
+    type: "string"
+  source_group:
+    enum: ["llm", "human"]
+  language:
+    enum: ["python", "javascript", "java", "other"]
+  loc:
+    type: ["integer", "null"]
+  vulnerability_count:
+    type: "integer"
+    minimum: 0
+  cwe_ids:
+    type: "array"
+    items:
+      type: "string"
+      pattern: "^CWE-[0-9]+$"
+  density:
+    type: ["number", "null", "string"]
+    description: "vulnerabilities per LOC; null or 'undefined' when LOC is zero"
+  tools_run:
+    type: "array"
+    items:
+      enum: ["bandit", "semgrep"]

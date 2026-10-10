@@ -1,0 +1,45 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "AggregateResults"
+type: "object"
+required: ["groups", "tests"]
+properties:
+  groups:
+    type: "array"
+    minItems: 2
+    items:
+      type: "object"
+      required: ["group", "n_files", "mean_density", "median_density", "sd_density"]
+      properties:
+        group:
+          enum: ["llm", "human"]
+        n_files:
+          type: "integer"
+          minimum: 0
+        mean_density:
+          type: ["number", "null"]
+        median_density:
+          type: ["number", "null"]
+        sd_density:
+          type: ["number", "null"]
+  tests:
+    type: "array"
+    minItems: 2
+    items:
+      type: "object"
+      required: ["test_name", "p_value", "p_adjusted"]
+      properties:
+        test_name:
+          enum: ["negbin", "mannwhitneyu"]
+        p_value:
+          type: ["number", "null"]
+        p_adjusted:
+          type: ["number", "null"]
+        coefficient:
+          type: ["number", "null"]
+        ci_low:
+          type: ["number", "null"]
+        ci_high:
+          type: ["number", "null"]
+        significant:
+          type: ["boolean", "null"]
+          description: "true when p_adjusted < adjusted alpha (BH-corrected)"

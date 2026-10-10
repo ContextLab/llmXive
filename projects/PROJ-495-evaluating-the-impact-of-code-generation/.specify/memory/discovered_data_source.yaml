@@ -1,0 +1,13 @@
+status: none
+intent: download CodeVulnBench dataset and Juliet Test Suite Python package
+required_fields:
+- file_path
+- file_name
+- source_type
+- vulnerability_count
+- cwe_ids
+- analysis_tool
+- tool_severity
+cache_key: cbbbc781350188a2455ec95aaf4f26e3fe9e9c87a0ef085b3da27107c75d6d5c
+searched_at: '2026-10-10T10:18:15.842052+00:00'
+retry_count: 1
