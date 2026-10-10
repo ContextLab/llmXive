@@ -1,6 +1,6 @@
 """Implementation reports must see measured data, not invent sample numbers."""
-from llmxive.speckit.implement_cmd import _current_data_context, ImplementerAgent
-from tests.unit.test_implementer_feedback_injection import _project, _ctx, _MECH
+from llmxive.speckit.implement_cmd import ImplementerAgent, _current_data_context
+from tests.unit.test_implementer_feedback_injection import _MECH, _ctx, _project
 
 
 def test_real_prompt_contains_current_measurements(tmp_path):

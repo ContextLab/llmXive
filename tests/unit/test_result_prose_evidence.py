@@ -52,15 +52,19 @@ def test_grounded_prose_preserved_and_cache_invalidated(fixture):
 
 @pytest.mark.parametrize('change', ['unsigned', 'tampered', 'deleted', 'symlink'])
 def test_untrusted_artifact_never_reaches_model(fixture, change):
-    root, project, file, claim = fixture
+    root, _project, file, claim = fixture
     if change == 'unsigned':
-        for path in (root/'state/results').rglob('*.yaml'): path.unlink()
+        for path in (root/'state/results').rglob('*.yaml'):
+            path.unlink()
     elif change == 'tampered':
         file.write_text('arbitrary replacement')
     elif change == 'deleted':
         file.unlink()
     else:
-        copy=root/'outside.json'; copy.write_text(DATA);file.unlink();file.symlink_to(copy)
+        copy=root/'outside.json'
+        copy.write_text(DATA)
+        file.unlink()
+        file.symlink_to(copy)
     model = backend()
     result = resolve_result(claim,backend=model,model=None,repo_root=root)
     assert result.status == ClaimStatus.NOT_ENOUGH_INFO
@@ -90,7 +94,8 @@ def test_contradicted_result_is_refuted_without_filling(fixture):
 
 def test_change_during_entailment_cannot_be_accepted(fixture):
     root, _, file, claim = fixture
-    model=backend();original=model.chat
+    model=backend()
+    original=model.chat
     def chat(*args,**kwargs):
         file.write_text(DATA.replace('0.1452','0.9'))
         return original(*args,**kwargs)
@@ -130,10 +135,10 @@ def test_large_authenticated_file_is_not_read_into_prompt(fixture):
 
 @pytest.mark.parametrize('fail', [False, True])
 def test_real_preview_signs_only_successful_outputs_without_accepting_project(tmp_path, monkeypatch, fail):
-    from tests.unit.test_implementation_preview import _project
     from llmxive.execution.stage import run_implementation_preview
     from llmxive.results.harness import result_backed
     from llmxive.state import execution_status
+    from tests.unit.test_implementation_preview import _project
     monkeypatch.setenv('LLMXIVE_RECEIPT_KEY','ephemeral-preview-key')
     script=("from pathlib import Path\nPath('data').mkdir(exist_ok=True)\n"
             "Path('data/counts.csv').write_text('n,square\\n' + ''.join(f'{n},{n*n}\\n' for n in range(1,11)))\n")

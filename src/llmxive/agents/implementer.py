@@ -563,13 +563,13 @@ _OP_HINTS: dict[str, str] = {
 _COMPUTE_CUE = re.compile(
     r"\bfill(?:\s+in|\s+out)?\b|\bpopulate\b|\bplaceholder|\bTBD\b|\bnan\b"
     # "<exact|actual|real|computed|concrete|true> ... <count|number|value|…>"
-    r"|\b(?:exact|actual|real|computed|concrete|true)\s+(?:\w+[\s‑-]+){0,3}"
+    r"|\b(?:exact|actual|real|computed|concrete|true)\s+(?:\w+[\s\u2011-]+){0,3}"
     r"(?:count|number|value|figure|percentage|vif|coverage|total|statistic)"
     # "<insert|report|state|record|provide|specify> the <exact|actual|total|number|count>"
     r"|\b(?:insert|report|state|record|provide|specify|compute)\s+(?:the\s+)?"
     r"(?:exact|actual|total|real|number|count|computed)"
     r"|\bnumber\s+of\b|\btotal\s+(?:number|count|excluded|records|rows|knots|of)\b"
-    r"|\bcomputed\b|coverage\s*%|\bcounts?\s+(?:per|of|per‑crossing|per-crossing)\b"
+    r"|\bcomputed\b|coverage\s*%|\bcounts?\s+(?:per|of|per\u2011crossing|per-crossing)\b"
     r"|replace\s+.*\b(?:nan|tbd|placeholder)",
     re.I,
 )

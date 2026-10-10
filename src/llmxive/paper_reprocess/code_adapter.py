@@ -101,7 +101,7 @@ def adapt_code(
             if retry_files and not _syntax_errors(retry_files):
                 files = retry_files
         written = _write_adaptation(pdir, files)
-    except Exception as exc:  # noqa: BLE001 — proactive step; never break back-fill
+    except Exception as exc:
         logger.warning("%s: code_adapter failed (%s); keeping external quickstart",
                         pdir.name, exc)
         return []
@@ -124,7 +124,7 @@ def adapt_code(
         if (pdir / req_rel).is_file() and req_rel not in written:
             written.append(req_rel)
             written.sort()
-    except Exception as exc:  # noqa: BLE001 — best-effort; the fix-loop still heals deps
+    except Exception as exc:
         logger.warning("%s: code_adapter requirements generation failed (%s)",
                         pdir.name, exc)
     return written

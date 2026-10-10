@@ -375,7 +375,7 @@ _POSITIVE_OBS = re.compile(
 # work that never moves the verdict. (The unanimous gate is unaffected: these
 # items were never blocking.)
 _NONBLOCKING_RE = re.compile(
-    r"non[\s‐-―-]?blocking|\boptional\b|\bnice[\s-]to[\s-]have\b"
+    r"non[\s\u2010-―-]?blocking|\boptional\b|\bnice[\s-]to[\s-]have\b"
     r"|\bcould\s+be\b|\bwould\s+(?:be\s+\w+|improve|help|simplify|reduce)\b",
     re.I,
 )

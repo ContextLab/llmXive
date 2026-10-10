@@ -9,9 +9,8 @@ are intentionally broader than the auditors' extension/date filters.
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import subprocess
-
+from pathlib import Path
 
 INPUTS = {
     "speckit": (

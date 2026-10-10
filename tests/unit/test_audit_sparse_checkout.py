@@ -1,12 +1,11 @@
 """Exercise the workflow's actual Git sparse patterns and corpus guard."""
 
 import importlib.util
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import pytest
 import yaml
-
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location(

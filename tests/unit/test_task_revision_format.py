@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 from llmxive.backends.base import ChatResponse
-from llmxive.convergence.revisers.tasks_reviser import TasksReviser, PaperTasksReviser
 from llmxive.convergence.revisers._reviser_response import is_malformed_reply_error
+from llmxive.convergence.revisers.tasks_reviser import PaperTasksReviser, TasksReviser
 
 ROOT = Path(__file__).resolve().parents[2]
 BAD = [

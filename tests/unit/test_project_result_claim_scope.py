@@ -1,6 +1,7 @@
 """Project outcomes require local receipts, never external lookup/fill."""
 import pytest
 import yaml
+
 from llmxive.claims.extract import _parse_extraction_reply
 from llmxive.claims.models import ClaimKind, ClaimStatus
 from llmxive.claims.resolve import resolve

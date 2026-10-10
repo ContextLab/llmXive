@@ -1,5 +1,4 @@
 """A plausible report cannot verify its own invented measurements."""
-import yaml
 
 from llmxive.agents import task_verifier as tv
 
@@ -10,8 +9,10 @@ def fixture(tmp_path):
     (project/'data').mkdir()
     (project/'docs/research.md').write_text('Our unconditional TV was 0.018.\n')
     (project/'data/summary.json').write_text('{"tv_unconditional":0.1452}')
-    feature=project/'specs/001-report';feature.mkdir(parents=True)
-    tasks=feature/'tasks.md';tasks.write_text('- [X] T001 Write docs/research.md from measured results\n')
+    feature=project/'specs/001-report'
+    feature.mkdir(parents=True)
+    tasks=feature/'tasks.md'
+    tasks.write_text('- [X] T001 Write docs/research.md from measured results\n')
     return project,tasks
 
 
@@ -38,7 +39,8 @@ def test_changed_supporting_data_invalidates_accepted_report(tmp_path,monkeypatc
 
 def test_plain_library_task_does_not_depend_on_unrelated_results(tmp_path):
     project,_=fixture(tmp_path)
-    (project/'code').mkdir();(project/'code/library.py').write_text('def identity(x): return x\n')
+    (project/'code').mkdir()
+    (project/'code/library.py').write_text('def identity(x): return x\n')
     evidence=tv.gather_evidence(project,'Implement code/library.py')
     assert 'tv_unconditional' not in evidence
 

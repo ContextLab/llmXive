@@ -1,13 +1,13 @@
 """Revision output instructions must not conflict across message priorities."""
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
 from llmxive.agents.prompts import render_prompt
-from llmxive.backends.base import ChatMessage,ChatResponse
+from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.convergence.revisers._reviser_response import RESPONSE_FORMAT_BLOCK
 from llmxive.convergence.revisers._self_consistency import invoke_reviser_backend
-from pathlib import Path
 
 
 @pytest.mark.parametrize('prompt', ['tasker.md','clarifier.md','implementer_research.md',

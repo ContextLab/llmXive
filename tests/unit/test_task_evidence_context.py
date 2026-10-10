@@ -1,6 +1,5 @@
 """Task verification sees the relevant data and actual task execution record."""
 
-from pathlib import Path
 
 from llmxive.agents import task_verifier as tv
 from llmxive.speckit.implement_cmd import _current_data_context
@@ -20,7 +19,7 @@ def test_declared_output_directory_precedes_unrelated_small_summaries(tmp_path):
 
 
 def test_real_successful_shell_execution_reaches_verifier_evidence(tmp_path):
-    project, tasks, mechanical = setup(tmp_path)
+    project, _tasks, mechanical = setup(tmp_path)
     write(project, mechanical, 'printf "computed successfully\\n"\n')
     evidence = tv.gather_evidence(project, "T001 Execute scripts/study.sh")
     assert "(exit 0," in evidence and "ok=True" in evidence

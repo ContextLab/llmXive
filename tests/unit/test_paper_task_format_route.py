@@ -16,7 +16,7 @@ from tests.unit.test_tasker_authoring_contract import OBSERVED_TABLES, project  
 def test_paper_table_response_recovers_within_paper_and_preserves_research(
     project, monkeypatch, stage  # noqa: F811 - imported pytest fixture
 ):
-    root, research, state = project
+    root, _research, state = project
     paper = root / "paper/specs/001-paper"
     paper.mkdir(parents=True)
     for name, text in {

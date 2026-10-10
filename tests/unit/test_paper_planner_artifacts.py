@@ -193,7 +193,7 @@ def test_planner_rejects_aliases_before_writes_and_preserves_reviewed_plan(
         return write_text(path, *args, **kwargs)
 
     monkeypatch.setattr(Path, "write_text", observe_write)
-    with pytest.raises(ValueError, match="canonical relative|same artifact"):
+    with pytest.raises(ValueError, match=r"canonical relative|same artifact"):
         agent._write_and_validate(ctx, mech, response)
     assert writes == []
     assert (feature / "plan.md").read_bytes() == original

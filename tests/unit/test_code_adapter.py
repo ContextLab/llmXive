@@ -69,7 +69,7 @@ def _patch_chat(monkeypatch: pytest.MonkeyPatch, response_text: str) -> None:
     split → write) is exercised against a fixed model reply — only the network
     call is stubbed.
     """
-    def _fake_chat(messages, **kwargs):  # noqa: ANN001
+    def _fake_chat(messages, **kwargs):
         return ChatResponse(text=response_text, model="stub", backend="stub")
 
     import llmxive.backends.router as router
@@ -145,7 +145,7 @@ def test_adapt_code_llm_error_returns_empty(
     pdir.mkdir()
     sub = _make_submodule(tmp_path)
 
-    def _boom(**kwargs):  # noqa: ANN003
+    def _boom(**kwargs):
         raise RuntimeError("model exploded")
 
     monkeypatch.setattr(code_adapter, "_call_adapter", _boom)

@@ -12,7 +12,6 @@ comment can point at the exact lock.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.execution.analysis_runner import AnalysisRunResult, RunCommandResult
@@ -227,7 +226,7 @@ def test_b3_script_missing_selfheal_is_self_owning(tmp_path: Path) -> None:
     # Second identical round: the appended task now OWNS the path → no duplicate.
     second = _reopen_failing_tasks(proj, res)
     after2 = (proj / "specs" / "001-feature" / "tasks.md").read_text(encoding="utf-8")
-    assert after2.count("Reconcile run-book vs implementation for `%s`" % missing) == 1, (
+    assert after2.count(f"Reconcile run-book vs implementation for `{missing}`") == 1, (
         "self-heal must not append a duplicate reconciliation task each round"
     )
     assert second == 0, "a converged self-heal reopens nothing new on the next round"
