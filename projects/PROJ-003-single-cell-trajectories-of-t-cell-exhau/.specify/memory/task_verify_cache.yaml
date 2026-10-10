@@ -1,12 +1,13 @@
 T001:
-  c: false
-  h: 5dfe19cca4d90596ec9f0af2262dd107890d8d67eb11ceff3c9bd7b176c299cf
-  r: The project layout is missing the required `data/processed/` and `data/results/`
-    directories, and the `quickstart.md` is not located at the project root as implied
-    by the task. Additionally, there is no evidence that `ruff check .` and `black
-    --check .` were executed and passed. These artifacts and verification steps must
-    be added for the task to be considered complete.
-  sig: 15db92a0274378107fad63fc3830d0bbecfb11efa91e09e58308eb1364d06d89
+  c: true
+  h: 71a964579ffcc9426c9470a29ff2a1f581641231e1b2bb2eab55fc7a6e9c90fb
+  r: The required directory tree exists (code/, data/raw/ with the four GSE subdirectories,
+    data/processed/, data/results/, tests/), `pyproject.toml` configures both ruff
+    and black (line-length 88, target py39, dev extras), and `quickstart.md` documents
+    the runnable environment with prerequisites, installation, and pipeline commands.
+    The init script ran successfully (exit 0), and the layout matches the task's stated
+    requirements.
+  sig: d985b499f5b72fd129292a18940e024ff3a186ad8dfc8f1b69dc1cef51ad47d7
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

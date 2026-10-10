@@ -268,7 +268,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-25T20:58:43Z'
 - artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
   attempts: 1
@@ -795,3 +795,20 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-06T15:46:43Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: pipeline halts and reports gap when a dataset fails to download
+  claim_id: c_a8a4af3e
+  context: If any dataset fails to download (due to access restrictions), the pipeline
+    will halt and report the gap.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If any dataset fails to download (due to access restrictions), the pipeline
+    will halt and report the gap.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T12:12:50Z'

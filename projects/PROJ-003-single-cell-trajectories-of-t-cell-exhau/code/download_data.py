@@ -1,26 +1,30 @@
-"""Download real scRNA‑seq count matrices for the T‑cell exhaustion project.
+"""Download raw count matrices for the T‑cell exhaustion project using SRA Toolkit.
 
-This implementation uses a verified real data source (Scanpy's built‑in
-pbmc3k dataset) to provide genuine count matrices for each requested GEO
-accession. The data are written to ``data/raw/<GSE>/counts`` as an
-``.h5ad`` file, and SHA‑256 checksums are recorded in ``data/state.yaml``
-as required by Constitution Principle III.
-
-The previous version attempted to fetch GEO supplementary files, which
-resulted in directory listings (e.g., ``filelist.txt``) and missing data.
-By loading a real dataset we guarantee that each ``counts`` directory
-contains at least one non‑empty file and that the state file holds valid
-64‑character checksums for all four datasets.
+This implementation fetches the real SRA files associated with the GEO
+series GSE136103, GSE127465, GSE111075, and GSE138852 via `prefetch`.
+The downloaded `.sra` files are placed under ``data/raw/<GSE>/counts/``.
+SHA‑256 checksums of the first downloaded file are recorded in
+``data/state.yaml`` to satisfy Constitution Principle III.
 """
 import argparse
 import hashlib
 import logging
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict
 
-import scanpy as sc
 import yaml
+
+# Functions from the SRA‑toolkit installer to ensure the tool is present
+try:
+    from install_sra_toolkit import (
+        install_sra_toolkit,
+        verify_sra_toolkit,
+    )
+except ImportError:  # pragma: no cover
+    install_sra_toolkit = None
+    verify_sra_toolkit = None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,13 +41,15 @@ TARGET_GSE_IDS = [
     "GSE138852",
 ]
 
+
 def calculate_sha256(file_path: Path) -> str:
     """Calculate the SHA‑256 checksum of *file_path*."""
     sha256 = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
+
 
 def update_state(dataset_id: str, metadata: Dict[str, Any]) -> None:
     """Write *metadata* for *dataset_id* into ``data/state.yaml``."""
@@ -52,7 +58,7 @@ def update_state(dataset_id: str, metadata: Dict[str, Any]) -> None:
     state_path.parent.mkdir(parents=True, exist_ok=True)
 
     if state_path.exists():
-        with open(state_path, "r") as f:
+        with state_path.open("r") as f:
             state = yaml.safe_load(f) or {}
     else:
         state = {}
@@ -60,28 +66,40 @@ def update_state(dataset_id: str, metadata: Dict[str, Any]) -> None:
     state.setdefault("datasets", {})
     state["datasets"][dataset_id] = metadata
 
-    with open(state_path, "w") as f:
+    with state_path.open("w") as f:
         yaml.dump(state, f, default_flow_style=False)
 
-def write_pbmc3k_counts(gse_id: str, output_dir: Path) -> Path:
-    """
-    Load Scanpy's example ``pbmc3k`` dataset and write it as an ``.h5ad``
-    file inside *output_dir*. The file name encodes the GSE identifier so
-    downstream steps can locate it unambiguously.
-    """
-    logger.info(f"Loading example dataset for {gse_id} via Scanpy...")
-    adata = sc.datasets.pbmc3k()
-    counts_dir = output_dir / "counts"
-    counts_dir.mkdir(parents=True, exist_ok=True)
 
-    out_file = counts_dir / f"{gse_id}_counts.h5ad"
-    adata.write_h5ad(out_file)
-    logger.info(f"Wrote count matrix to {out_file} ({out_file.stat().st_size / 1e6:.1f} MB)")
-    return out_file
+def prefetch_sra(gse_id: str, destination: Path) -> None:
+    """Run `prefetch -O <destination> <gse_id>`.
+
+    Raises:
+        RuntimeError: If the SRA Toolkit is not installed or the command fails.
+    """
+    # Ensure SRA Toolkit is available
+    if install_sra_toolkit is not None:
+        if not install_sra_toolkit():
+            raise RuntimeError("Failed to install SRA Toolkit via conda.")
+    if verify_sra_toolkit is not None and not verify_sra_toolkit():
+        raise RuntimeError("SRA Toolkit verification failed – `prefetch --help` did not run.")
+
+    cmd = ["prefetch", "-O", str(destination), gse_id]
+    logger.info(f"Running SRA Toolkit command: {' '.join(cmd)}")
+    try:
+        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"prefetch failed for {gse_id}: {e.stderr.strip()}")
+        raise RuntimeError(f"prefetch failed for {gse_id}") from e
+
+
+def collect_sra_files(gse_dir: Path) -> list[Path]:
+    """Recursively collect all ``.sra`` files under *gse_dir*."""
+    return list(gse_dir.rglob("*.sra"))
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download real count matrices for the T‑cell exhaustion project."
+        description="Download raw count matrices for the T‑cell exhaustion project using SRA Toolkit."
     )
     parser.add_argument(
         "--datasets",
@@ -101,17 +119,56 @@ def main() -> None:
     for gse in gse_ids:
         logger.info(f"Processing {gse} …")
         gse_dir = raw_root / gse
+        counts_dir = gse_dir / "counts"
+        counts_dir.mkdir(parents=True, exist_ok=True)
 
         try:
-            counts_file = write_pbmc3k_counts(gse, gse_dir)
+            # Download SRA files directly into the GSE directory
+            prefetch_sra(gse, str(gse_dir))
+
+            # Locate the downloaded .sra files (they may be inside sub‑folders)
+            sra_files = collect_sra_files(gse_dir)
+            if not sra_files:
+                raise RuntimeError(f"No .sra files were retrieved for {gse}")
+
+            # Move (or copy) the .sra files into the ``counts`` sub‑directory
+            for sra_path in sra_files:
+                target_path = counts_dir / sra_path.name
+                if not target_path.exists():
+                    sra_path.replace(target_path)
+
+            # Re‑collect after moving
+            final_files = list(counts_dir.iterdir())
+            if not final_files:
+                raise RuntimeError(f"Failed to place .sra files into {counts_dir}")
+
+            first_file = final_files[0]
+            checksum = calculate_sha256(first_file)
+
+            # Record minimal metadata; later stages will enrich it
+            update_state(
+                gse,
+                {
+                    "dataset_id": gse,
+                    "source": "SRA",
+                    "raw_counts_path": str(first_file.relative_to(project_root)),
+                    "checksum": checksum,
+                    "counts_checksum": checksum,
+                    "cell_count": 0,
+                    "gene_count": 0,
+                    "status": "available",
+                    "sufficiency_screen": {"source_record": "sra_download"},
+                },
+            )
+            logger.info(f"Successfully prepared {gse} – {len(final_files)} .sra file(s) saved.")
         except Exception as exc:  # noqa: BLE001
-            logger.error(f"Failed to create count matrix for {gse}: {exc}")
+            logger.error(f"Failed to process {gse}: {exc}")
             failures.append(gse)
             update_state(
                 gse,
                 {
                     "dataset_id": gse,
-                    "source": "Scanpy/pbmc3k",
+                    "source": "SRA",
                     "raw_counts_path": "",
                     "checksum": "",
                     "counts_checksum": "",
@@ -123,30 +180,12 @@ def main() -> None:
             )
             continue
 
-        checksum = calculate_sha256(counts_file)
-
-        # Record minimal metadata; later pipeline stages will fill cell/gene counts.
-        update_state(
-            gse,
-            {
-                "dataset_id": gse,
-                "source": "Scanpy/pbmc3k",
-                "raw_counts_path": str(counts_file.relative_to(project_root)),
-                "checksum": checksum,
-                "counts_checksum": checksum,
-                "sra_sample_checksum": "skipped_no_sra",
-                "cell_count": 0,
-                "gene_count": 0,
-                "status": "available",
-                "sufficiency_screen": {"source_record": "pbmc3k_example"},
-            },
-        )
-
     if failures:
         logger.critical(f"Data preparation failed for: {', '.join(failures)}")
         sys.exit(1)
 
     logger.info("All datasets prepared successfully. State written to data/state.yaml")
+
 
 if __name__ == "__main__":
     main()

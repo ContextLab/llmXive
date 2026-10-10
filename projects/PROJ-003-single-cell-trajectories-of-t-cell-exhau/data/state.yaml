@@ -1,49 +1,41 @@
 datasets:
   GSE111075:
     cell_count: 0
-    checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
-    counts_checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
+    checksum: ''
+    counts_checksum: ''
     dataset_id: GSE111075
+    error: Failed to install SRA Toolkit via conda.
     gene_count: 0
-    raw_counts_path: data/raw/GSE111075/counts/GSE111075_counts.h5ad
-    source: Scanpy/pbmc3k
-    sra_sample_checksum: skipped_no_sra
-    status: available
-    sufficiency_screen:
-      source_record: pbmc3k_example
+    raw_counts_path: ''
+    source: SRA
+    status: unavailable
   GSE127465:
     cell_count: 0
-    checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
-    counts_checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
+    checksum: ''
+    counts_checksum: ''
     dataset_id: GSE127465
+    error: Failed to install SRA Toolkit via conda.
     gene_count: 0
-    raw_counts_path: data/raw/GSE127465/counts/GSE127465_counts.h5ad
-    source: Scanpy/pbmc3k
-    sra_sample_checksum: skipped_no_sra
-    status: available
-    sufficiency_screen:
-      source_record: pbmc3k_example
+    raw_counts_path: ''
+    source: SRA
+    status: unavailable
   GSE136103:
     cell_count: 0
-    checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
-    counts_checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
+    checksum: ''
+    counts_checksum: ''
     dataset_id: GSE136103
+    error: Failed to install SRA Toolkit via conda.
     gene_count: 0
-    raw_counts_path: data/raw/GSE136103/counts/GSE136103_counts.h5ad
-    source: Scanpy/pbmc3k
-    sra_sample_checksum: skipped_no_sra
-    status: available
-    sufficiency_screen:
-      source_record: pbmc3k_example
+    raw_counts_path: ''
+    source: SRA
+    status: unavailable
   GSE138852:
     cell_count: 0
-    checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
-    counts_checksum: f5ddd76da819fa241d7637754472cbf9067ebf18a27592383fec5df563d43a12
+    checksum: ''
+    counts_checksum: ''
     dataset_id: GSE138852
+    error: Failed to install SRA Toolkit via conda.
     gene_count: 0
-    raw_counts_path: data/raw/GSE138852/counts/GSE138852_counts.h5ad
-    source: Scanpy/pbmc3k
-    sra_sample_checksum: skipped_no_sra
-    status: available
-    sufficiency_screen:
-      source_record: pbmc3k_example
+    raw_counts_path: ''
+    source: SRA
+    status: unavailable
