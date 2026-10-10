@@ -1,12 +1,13 @@
 T001:
   c: true
-  h: a704e1ff8d5fd821dcc8e68a5638786e584f0ac479066dd75b5ae54bd98c2204
-  r: "Checked the collector\u2011confirmed directory listings for `projects/PROJ-505-exploring-the-statistical-relationship-b/`\
-    \ which show the required top\u2011level folders (`code/`, `data/`, `tests/`)\
-    \ and the exact sub\u2011folders (`code/ingestion/`, `code/analysis/`, `code/utils/`,\
-    \ `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/unit/`, `tests/integration/`).\
-    \ All required directories are present."
-  sig: d292e3c3269acadfa1402a2e26ad60cc9fa9005b8a5f2d521ba5831dfd32cce5
+  h: bec87d7affbc8d5a38925e36d5a05219c29bee02776ec54e4eababefcd66366a
+  r: "The collector shows that `projects/PROJ-505-exploring-the-statistical-relationship-b/`\
+    \ contains the required sub\u2011directories `code/ingestion/`, `code/analysis/`,\
+    \ `code/utils/`, `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/unit/`,\
+    \ and `tests/integration/`. The creation script `code/create_project_structure.py`\
+    \ ran successfully (exit\u202F0) as recorded in `code/.tasks/T001.code_create_project_structure.py.log`,\
+    \ confirming the directory tree was built."
+  sig: ed6ae6a69033a41ed2cdc37291c5a3979f28e9eca422503e1ac25ba67d94d578
 T002:
   c: true
   h: ba9a1315e1de8ca8aedad014feb8a30092b4898651f95de0b43a2b7a64514a7f
@@ -24,14 +25,15 @@ T003:
   sig: a0b69092ed14096a6d10745f90b9876af34cb4a0fa70f1ef1b7652adb5831424
 T004:
   c: false
-  h: d009bc86f08a6c55a7fb88087a0a2cb2eaceba4755916945c4174ac7f7203f21
-  r: "The `code/utils/io.py` file implements MD5 checksum helpers (`compute_md5`,\
-    \ `verify_md5`) instead of the required SHA\u2011256 checksum function, so it\
-    \ does not meet the specification. The `code/utils/logging.py` only provides a\
-    \ `get_logger(name)` factory and does not create a module\u2011level logger (`logging.getLogger(__name__)`)\
-    \ at import time as required. These mismatches mean the task\u2019s functional\
-    \ requirements are not satisfied."
-  sig: b65f60b09632c0d88affc0dffd8e7851653e9c9ff339cf4a130e978437df6010
+  h: 6808e906cd8116c2e51d5278d29e40598e9363a93b4563e8218c8aeb8587ec30
+  r: "The provided `io.py` and `logging.py` contain the required functions and a module\u2011\
+    level logger, but the unit tests import them as `utils.io` and `utils.logging`.\
+    \ The repository only has a `code/utils` package, not a top\u2011level `utils`\
+    \ package, so the imports will fail (ModuleNotFoundError) and the tests cannot\
+    \ verify the functionality. The import path must be corrected (e.g., expose a\
+    \ top\u2011level `utils` package or adjust the tests) for the task to be considered\
+    \ complete."
+  sig: 3e9917ea593a1f6472837b2e26bf29f9237d1ceda6f01900fd53af4407850f20
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,16 +1,16 @@
 status: none
-intent: pyspedas download ACE SWICS O/Fe He/H C/O and NOAA Dst Kp hourly dataset python
-  package dataset
+intent: CDAWeb ACE SWICS and WIND composition O/Fe He/H C/O NOAA Dst Kp python package
+  dataset
 required_fields:
-- timestamp_utc
-- O/Fe_ratio
-- He/H_ratio
-- C/O_ratio
-- solar_wind_velocity
-- solar_wind_density
-- solar_wind_temperature
-- Dst_index
-- Kp_index
-cache_key: 99187e935ea4556898c55a199e2b7832ac59fcc5ed70d442466c23543c5f4f96
-searched_at: '2026-10-10T08:34:40.619626+00:00'
+- timestamp (UTC hourly)
+- O/Fe ion flux ratio
+- He/H ion flux ratio
+- C/O ion flux ratio
+- solar wind velocity
+- solar wind proton density
+- solar wind temperature
+- Dst index
+- Kp index
+cache_key: 1d8f709b4f8f9c78c25942f166067d224efbda2c12547ca6c982cf8fc670e5bb
+searched_at: '2026-10-10T08:37:12.314476+00:00'
 retry_count: 1

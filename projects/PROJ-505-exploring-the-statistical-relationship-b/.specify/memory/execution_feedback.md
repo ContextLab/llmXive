@@ -17,70 +17,46 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/ingestion/download_noaa.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic fallback data...")         df = load_s…”
 - code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet`
+  - script usage: `generate_synthetic_data.py [-h] --start START --end END`
+  - argparse error: `generate_synthetic_data.py: error: the following arguments are required: --start, --end`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic ACE data as a fallback."…”; code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…warning("Falling back to synthetic ACE data generation.")     return…”; code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic fallback data...")         df = load_s…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/utils/verify_data.py --input data/processed/synthetic_aligned.parquet; 3 command(s) failed: python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet (rc=1); python code/main.py (rc=1); python -m pytest tests/ (rc=2)
+**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic ACE data as a fallback."…”; code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…warning("Falling back to synthetic ACE data generation.")     return…”; code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic fallback data...")         df = load_s…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/utils/verify_data.py --input data/processed/synthetic_aligned.parquet; 2 command(s) failed: python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet (rc=2); python -m pytest tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet -> rc=1
+- python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/generate_synthetic_data.py", line 15, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py", line 9, in <module>
-    from .io import compute_md5, verify_md5, load_parquet, save_parquet
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py", line 10, in <module>
-    import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/.venv/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+usage: generate_synthetic_data.py [-h] --start START --end END
+                                  [--source SOURCE] --output OUTPUT
+generate_synthetic_data.py: error: the following arguments are required: --start, --end
 
 - python code/utils/verify_data.py --input data/processed/synthetic_aligned.parquet -> rc=2
 
 /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/verify_data.py': [Errno 2] No such file or directory
 
-- python code/main.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 12, in <module>
-    from utils.logging import get_logger, setup_logging
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py", line 9, in <module>
-    from .io import compute_md5, verify_md5, load_parquet, save_parquet
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py", line 10, in <module>
-    import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/.venv/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-
 - python -m pytest tests/ -> rc=2
-ition
-code/ingestion/generate_synthetic_data.py:15: in <module>
-    from utils.logging import get_logger
-code/utils/__init__.py:9: in <module>
-    from .io import compute_md5, verify_md5, load_parquet, save_parquet
-code/utils/io.py:10: in <module>
-    import pyarrow.parquet as pq
-code/.venv/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-pyarrow/lib.pyx:42: in init pyarrow.lib
-    ???
-E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+nthetic.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_synthetic.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_synthetic.py:26: in <module>
+    from code.ingestion.generate_synthetic_data import generate_solar_wind_composition
+E   ImportError: cannot import name 'generate_solar_wind_composition' from 'code.ingestion.generate_synthetic_data' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/generate_synthetic_data.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_regression.py
-ERROR tests/integration/test_sensitivity.py
-ERROR tests/unit/test_coupling.py
-ERROR tests/unit/test_download_ace.py
-ERROR tests/unit/test_ingestion.py
-ERROR tests/unit/test_io.py
-ERROR tests/unit/test_logging.py
-ERROR tests/unit/test_mkdirs.py
 ERROR tests/unit/test_permutation.py
 ERROR tests/unit/test_regression.py
 ERROR tests/unit/test_synthetic.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 11 errors in 0.99s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 0.66s ===============================
 
 
