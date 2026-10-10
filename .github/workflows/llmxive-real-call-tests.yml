@@ -153,6 +153,11 @@ jobs:
             /docs/index.html
             /notes/
             /projects/*/specs/
+            # test_proj552_template_copies_match_shared reads a project's OWN
+            # copy of the Spec Kit templates, which the offline job gets from
+            # scripts/ci/prepare_test_checkout.py. This job needs the templates
+            # but not the PDF sample, so it takes the paths directly.
+            /projects/*/.specify/templates/
             /*.md
             /*.toml
             /*.ini

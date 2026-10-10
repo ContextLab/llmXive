@@ -61,7 +61,10 @@ mcp = [
 dev = [
   "pytest>=8",
   "pytest-asyncio",
-  "ruff",
+  # PINNED: an unpinned linter makes the CI lint gate fail on code that did
+  # not change, the first time a new ruff ships a rule. 0.17.0 reports RUF036,
+  # which 0.15.x did not, so a locally-clean tree failed the gate.
+  "ruff==0.17.0",
   "mypy",
   "types-PyYAML",
 ]
