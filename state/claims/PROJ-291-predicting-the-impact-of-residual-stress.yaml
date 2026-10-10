@@ -1,0 +1,123 @@
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: make env-check exits with status 0 confirming environment ready
+  claim_id: c_39ffb66f
+  context: "The repository provides a convenient `make` target that checks the installation\
+    \ of all required packages. The command should exit with status\u202F0, confirming\
+    \ that the environment is ready."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The `make env-check` command should exit with status\u202F0, confirming\
+    \ that the environment is ready."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:34:10Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: synthetic dataset checksum matches recorded hash
+  claim_id: c_609798e6
+  context: "Check that the synthetic dataset checksum matches the recorded hash (validation\
+    \ only) using a Python snippet that compares the computed SHA\u2011256 hash to\
+    \ the stored value."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The synthetic dataset checksum matches the recorded hash.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:34:10Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pipeline completes within GitHub Actions free tier limits 2.5 hours and
+    7 GB RAM
+  claim_id: c_8be9f748
+  context: "All steps complete within the GitHub Actions free\u2011tier limits (\u2248\
+    \u202F2.5\u202Fh, <\u202F7\u202FGB RAM)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps complete within the GitHub Actions free\u2011tier limits (\u2248\
+    \u202F2.5\u202Fh, <\u202F7\u202FGB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:34:10Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/README.md
+  attempts: 1
+  canonical: raw files stored under data/raw after download
+  claim_id: c_4c158658
+  context: "All raw files are stored under `data/raw/` after download. Their SHA\u2011\
+    256 checksums are recorded in the unified CSV for provenance tracking."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All raw files are stored under `data/raw/` after download.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:34:26Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/README.md
+  attempts: 1
+  canonical: SHA-256 checksums recorded in unified CSV for provenance tracking
+  claim_id: c_c6a7bc17
+  context: "All raw files are stored under `data/raw/` after download. Their SHA\u2011\
+    256 checksums are recorded in the unified CSV (`data/processed/unified_fatigue.csv`)\
+    \ for provenance tracking."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Their SHA\u2011256 checksums are recorded in the unified CSV (`data/processed/unified_fatigue.csv`)\
+    \ for provenance tracking."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:34:26Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/README.md
+  attempts: 1
+  canonical: OpenML fatigue dataset with project ID 123456 downloaded
+  claim_id: c_c3af8752
+  context: "The pipeline automatically downloads the following open datasets: ...\
+    \ OpenML \u2013 Fatigue Dataset \u2013 Project ID: 123456 (accessed via the `datasets`\
+    \ library)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "OpenML \u2013 Fatigue Dataset \u2013 Project ID: 123456 is downloaded\
+    \ by the pipeline."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:34:26Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/README.md
+  attempts: 1
+  canonical: pipeline quantifies mediation effect of residual stress on fatigue life
+  claim_id: c_f7f75e10
+  context: This repository implements a reproducible research pipeline that quantifies
+    how residual stress mediates the relationship between manufacturing process parameters
+    and fatigue life across material classes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline quantifies how residual stress mediates the relationship
+    between manufacturing process parameters and fatigue life across material classes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:34:26Z'

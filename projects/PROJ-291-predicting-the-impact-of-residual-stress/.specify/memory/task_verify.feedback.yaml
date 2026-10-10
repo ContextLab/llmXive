@@ -1,0 +1,37 @@
+T001:
+  reason: "The repository contains a correctly pinned `requirements.txt` and a `quickstart.md`\
+    \ that describes the single `bash run_pipeline.sh` command, but there is no `README.md`\
+    \ file and no provided evidence that `make env-check` actually runs successfully\
+    \ or that `pip install -r requirements.txt` finishes within the required 2\u202F\
+    minutes on the GitHub Actions runner. These missing artifacts and verification\
+    \ logs mean the task\u2019s requirements are not fully satisfied."
+  task: 2a270757db70633c215d840b16a7afa0a9c372e03444212b275f2dc64cc0add0
+T002:
+  reason: "The repository contains the ingestion script, but the required output file\
+    \ `data/processed/unified_fatigue.csv` was never generated, and the unit\u2011\
+    test file `tests/test_ingest.py` is missing, so the pipeline cannot be verified\
+    \ against the synthetic test case. The missing artifacts must be added and the\
+    \ script executed to produce the unified CSV for the task to be considered complete."
+  task: b7299771542c41e9d50d294e0893720ab46399e8b14fedf2f018e553e8e2f743
+T003:
+  task: 82b4375148219ebbb04243ad6fb84e6290444de0566ee5dd68a76e9f18f1241c
+T004:
+  task: 0f4b56afab1aa2cd0369cdb8e3a5800ac2410cff71b4524fec9e50c48c175ce6
+T005:
+  task: 7b85c4be4a2aaba13993e56b1d850450d410df1c9fbe7f524bbe94f383820c19
+T006:
+  task: 2d1956d0392dde0012fd07ed79fa2203e375cfb58a14f7f893a6a9fe4b8bd85c
+T007:
+  task: c26ded13f3e7759d357fa94d6666643d66d0fab6110a33afebe970ce2bc849cc
+T008:
+  task: 93f0a14011535f0ed8c2e70c3fb1e906561a9b7a401e778b42d926afa58621ca
+T009:
+  task: eed9cf512bf987b1a3ab9ecd0b5679a963ef8c7d1fb2a5f401d2a4f3a05b5356
+T010:
+  task: 0c4a1b830f0a6c4efafd3b29f78066041e83b50398df592851eb576811319572
+T011:
+  task: 7e3a686867d0c9c9baba4adc8499f165fa8efdbac4080b9a85bf4681b24c4095
+T012:
+  task: 699df451c471574b47e193f0c0065987ed42f7c3e0338380e86f4746ca75382a
+T013:
+  task: 2f106b8e3df7015c1f0182fc34fa2efc05a3923f06c68251513521392a20df59

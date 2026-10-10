@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — The repository contains a correctly pinned `requirements.txt` and a `quickstart.md` that describes the single `bash run_pipeline.sh` command, but there is no `README.md` file and no provided evidence that `make env-check` actually runs successfully or that `pip install -r requirements.txt` finishes within the required 2 minutes on the GitHub Actions runner. These missing artifacts and verification logs mean the task’s requirements are not fully satisfied.
+- **T002** — The repository contains the ingestion script, but the required output file `data/processed/unified_fatigue.csv` was never generated, and the unit‑test file `tests/test_ingest.py` is missing, so the pipeline cannot be verified against the synthetic test case. The missing artifacts must be added and the script executed to produce the unified CSV for the task to be considered complete.
