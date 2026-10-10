@@ -1,24 +1,24 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: "object"
 title: "Trajectory Schema"
-description: "Schema for RNA velocity and pseudotime trajectories."
+description: "Schema for RNA velocity and pseudotime trajectory artifacts."
 properties:
   dataset_id:
     type: "string"
-    description: "Associated dataset ID."
+    description: "Identifier of the source dataset."
   pseudotime_path:
     type: "string"
-    description: "Path to the pseudotime ordering file."
+    description: "Path to the file containing per‑cell pseudotime values."
   velocity_graph_path:
     type: "string"
-    description: "Path to the velocity graph file."
+    description: "Path to the velocity graph (e.g., .h5ad)."
   alignment_status:
     type: "string"
     enum: ["success", "failed", "partial"]
-    description: "Status of the alignment process."
+    description: "Result of the Markov‑chain alignment step."
   fork_points:
     type: "array"
-    description: "List of fork-points identified in the trajectory."
+    description: "List of fork‑point objects identified in this trajectory."
     items:
       $ref: "#/definitions/fork_point"
 required:
@@ -27,25 +27,28 @@ required:
   - velocity_graph_path
   - alignment_status
 additionalProperties: false
-
 definitions:
   fork_point:
     type: "object"
     properties:
-      fork_id:
+      branch_id:
         type: "string"
+        description: "Identifier for the fork‑point (e.g., fp_001)."
       divergence_score:
         type: "number"
+        description: "Observed divergence metric."
       null_mean:
         type: "number"
+        description: "Mean of the null distribution."
       null_std:
         type: "number"
+        description: "Standard deviation of the same."
       genes:
         type: "array"
         items:
           $ref: "#/definitions/fork_point_gene"
     required:
-      - fork_id
+      - branch_id
       - divergence_score
       - null_mean
       - null_std
@@ -57,14 +60,9 @@ definitions:
       gene_symbol:
         type: "string"
       timing_rank:
-        type: "integer"
+        type: "number"
       expression_level:
-        type: "number"
-      differential_timing:
-        type: "number"
-    required:
-      - gene_symbol
-      - timing_rank
-      - expression_level
-      - differential_timing
+        type: "string"
+      description:
+        description: ""
     additionalProperties: false

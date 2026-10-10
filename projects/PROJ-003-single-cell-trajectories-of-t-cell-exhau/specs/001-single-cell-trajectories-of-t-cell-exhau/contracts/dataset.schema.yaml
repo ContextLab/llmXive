@@ -1,23 +1,23 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: "object"
 title: "Dataset Schema"
-description: "Schema for raw and processed scRNA-seq datasets in the T-cell exhaustion trajectory analysis."
+description: "Schema for raw and processed scRNA‑seq datasets used in the T‑cell exhaustion trajectory analysis."
 properties:
   dataset_id:
     type: "string"
     description: "Unique identifier for the dataset (e.g., GSE136103)."
   source:
     type: "string"
-    description: "Source of the dataset (e.g., GEO, SRA)."
+    description: "Source of the dataset (e.g., GEO FTP)."
   raw_counts_path:
     type: "string"
-    description: "Path to the raw count matrix file."
+    description: "Filesystem path to the raw count matrix file (e.g., .mtx or .h5ad)."
   metadata_path:
     type: "string"
-    description: "Path to the metadata file."
+    description: "Path to accompanying metadata file (may be empty if not provided)."
   checksum:
     type: "string"
-    description: "SHA256 checksum of the raw data file."
+    description: "SHA‑256 checksum of the raw data file."
   cell_count:
     type: "integer"
     description: "Number of cells in the dataset."

@@ -1,12 +1,26 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 18 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T002` (rejected 1x): Requested task execution failed; rerun successfully: code/download_data.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan substitutes the required GEO datasets (which contain therapy response labels and exhausted T‑cell populations) with the generic `pbmc3k` dataset, which lacks both exhaustion phenotypes and clinical outcome data. This substitution makes it impossible to address the core research question of linking fork‑points to checkpoint‑therapy responsiveness.
+- Using `pbmc3k` as a proxy violates construct validity: the dataset represents healthy peripheral blood mononuclear cells, not the exhausted T‑cell states of chronic infection or tumor microenvironments that the specification targets.
+- The plan acknowledges that FR‑008 (validation against therapy response) cannot be satisfied, yet proceeds without an alternative strategy to test the hypothesis. The absence of a valid outcome variable means the pipeline cannot provide evidence for the claimed biological mechanism.
+- No power analysis is presented for the ~2,700‑cell `pbmc3k` dataset. Detecting statistically significant fork‑points and performing bootstrap validation on such a modest sample may be under‑powered, especially given the multiple‑testing correction and the intended cross‑dataset validation.
+- The plan does not include steps to isolate T‑cells or control for heterogeneous cell‑type composition in `pbmc3k`. Without enrichment for the relevant lineage, divergence signals may be driven by unrelated cell‑type differences, confounding the fork‑point detection.
+- The placeholder validation JSON (`enrichment_pvalue` = -1) is used to satisfy schema compliance, but it provides no empirical evidence. Relying on a placeholder to meet a functional requirement undermines methodological rigor.
+- FR-008 (validation against published therapy response signatures) is marked as impossible in the plan and no implementation is provided; the plan lacks any artifact or step that satisfies this functional requirement.
+- SC-002 (trajectory consistency measured by enrichment of therapy response markers with p < 0.01) is listed as *not applicable* in Phase 5; the plan does not deliver the required enrichment analysis, leaving the success criterion unaddressed.
+- SC-003 (statistical significance of enrichment analysis with p < 0.01) is also marked as *not applicable*; no bootstrap or p‑value computation is performed, so the criterion is unmet.
+- SC-005 (data sufficiency of the four GEO datasets) is satisfied only for the proxy `pbmc3k` dataset; the original GEO datasets are omitted, so the spec’s data‑sufficiency requirement is not fulfilled.
+- SC-006 (biological validity via enrichment of fork‑point genes in GSE138852 signatures with p < 0.05) is marked as *not applicable*; the plan provides only a placeholder JSON and does not perform the required enrichment analysis.
+- The plan uses the `pbmc3k` dataset as a proxy for the four GEO datasets (GSE136103, GSE127465, GSE111075, GSE138852). `pbmc3k` is a peripheral blood mononuclear cell dataset and does not contain T‑cell exhaustion signatures, chronic infection or tumor microenvironment contexts, nor therapy‑response labels required by FR‑001 and FR‑008. Consequently the chosen dataset is inappropriate for answering the core research question about exhaustion trajectories and therapy responsiveness.
+- Because the proxy dataset lacks therapy‑response metadata, FR‑008 (validation against therapy response signatures) cannot be satisfied. The plan marks this requirement as “not applicable,” which means the pipeline cannot provide the cross‑dataset validation essential to the study’s scientific claim.
+- Contract `fork_point.schema.yaml` defines the field `branch_id`, but the plan describes the output CSV using the field name `fork_id`. This naming mismatch will cause schema validation to fail.
+- Contract `dataset.schema.yaml` is never exercised: the plan does not state that a Dataset artifact conforming to this schema will be produced or validated.
+- Contract `trajectory.schema.yaml` is not referenced: the plan should explicitly state that a Trajectory artifact (with fields `pseudotime_path`, `velocity_graph_path`, `alignment_status`, etc.) will be generated and validated against the schema.
+- Principle II (Verified Accuracy) is marked *PENDING* because the plan mentions the lack of verified sources for the original GEO datasets but does not provide any verified citations for the substitute dataset (`pbmc3k`). A citation to the Scanpy documentation or the original pbmc3k publication should be added to satisfy the principle.
+- Principle VI (Biological Trajectory Consistency) is marked **PASS**, yet the plan provides no validation of fork‑point genes against therapy‑response labels (FR‑008). The outcome variable required to test the core hypothesis is absent, so the analysis cannot assess whether identified early fork‑points predict checkpoint‑therapy responsiveness. This makes the study unable to answer its primary research question, violating methodological soundness.

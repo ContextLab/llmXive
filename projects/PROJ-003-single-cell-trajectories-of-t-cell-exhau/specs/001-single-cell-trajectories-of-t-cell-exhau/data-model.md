@@ -1,46 +1,28 @@
 # Data Model: Single-Cell Trajectories of T-Cell Exhaustion
 
 ## Overview
-
-This document defines the data structures, schemas, and relationships for the T-cell exhaustion trajectory analysis pipeline. All data flows from raw count matrices through preprocessing, velocity estimation, fork-point identification, and validation to final reporting.
+This document defines the canonical data entities, their attributes, and the JSON/YAML schemas used to validate artifacts produced by the pipeline. All files live under `data/` and are described by the contracts in `contracts/`.
 
 ## Entities
 
-### Dataset
-Represents a raw scRNA-seq count matrix with associated metadata.
-- **Fields**: `dataset_id` (string), `source` (string), `raw_counts_path` (string), `metadata_path` (string), `checksum` (string), `cell_count` (integer), `gene_count` (integer).
-- **Constraints**: `dataset_id` must be unique; `checksum` must match SHA256 of raw file.
-
-### Trajectory
-Represents the inferred developmental path of T-cells for a single dataset.
-- **Fields**: `dataset_id` (string), `pseudotime_path` (string), `velocity_graph_path` (string), `alignment_status` (string: "success", "failed", "partial"), `fork_points` (list of ForkPoint).
-- **Constraints**: `alignment_status` must be "success" for downstream analysis.
-
-### ForkPoint
-Represents a branch point in the trajectory where velocity vectors diverge.
-- **Fields**: `fork_id` (string), `dataset_id` (string), `divergence_score` (float), `null_mean` (float), `null_std` (float), `genes` (list of ForkPointGene).
-- **Constraints**: `divergence_score` must be > 2.0 * `null_std` to be considered significant.
-- **Schema Reference**: `contracts/fork_point.schema.yaml`.
-
-### ForkPointGene
-Represents a gene expressed at a fork-point, ranked by timing.
-- **Fields**: `gene_symbol` (string), `fork_id` (string), `timing_rank` (integer), `expression_level` (float), `differential_timing` (float).
-- **Constraints**: `timing_rank` must be unique per fork-point; `differential_timing` must be > 0.1 pseudotime units.
-
-### ValidationResult
-Represents the outcome of cross-dataset validation and enrichment analysis.
-- **Fields**: `gene_symbol` (string), `enrichment_pvalue` (float), `bootstrap_iterations` (integer), `confidence_interval` (tuple), `cross_dataset_correlation` (float).
-- **Constraints**: `enrichment_pvalue` must be < 0.01 for significant findings (SC-002/003) and < 0.05 for SC-006.
+| Entity | Description | Key Fields |
+|--------|-------------|------------|
+| **Dataset** | Raw scRNA‑seq count matrix and metadata. Includes a `therapy_response` column when present (e.g., GSE138852). | `dataset_id`, `source`, `raw_counts_path`, `metadata_path`, `checksum`, `cell_count`, `gene_count`, `status` |
+| **Trajectory** | Velocity‑augmented representation of a single dataset. Contains pseudotime values, velocity vectors, alignment status, and links to identified fork‑points. | `dataset_id`, `pseudotime_path`, `velocity_graph_path`, `alignment_status`, `fork_points` |
+| **ForkPoint** | A statistically significant branch in the velocity field where divergence exceeds the null threshold. | `branch_id`, `dataset_id`, `divergence_score`, `null_mean`, `null_std`, `genes` |
+| **ForkPointGene** | Gene expressed at a fork‑point, ranked by its timing of expression relative to the branch. | `gene_symbol`, `branch_id`, `timing_rank`, `expression_level`, `differential_timing` |
+| **ValidationResult** | Outcome of enrichment and bootstrap validation against therapy‑response signatures (when available). | `enrichment_pvalue`, `bootstrap_iterations`, `confidence_interval`, `cross_dataset_correlation`, `significance_level`, `discovery_dataset_ids`, `validation_dataset_id` |
 
 ## Data Flow
+1. **Raw Download** → `data/raw/` (Dataset artifact, `contracts/dataset.schema.yaml`)  
+2. **QC & Normalization** → `data/processed/` (Trajectory artifact, `contracts/trajectory.schema.yaml`)  
+3. **Velocity Estimation** → same directory (updates Trajectory)  
+4. **Fork‑Point Detection** → `data/results/fork_points/` (ForkPoint + ForkPointGene, `contracts/fork_point.schema.yaml`)  
+5. **Validation** → `data/results/validation/` (ValidationResult, `contracts/validation.schema.yaml`)  
+6. **Report** → `data/results/report/` (HTML, figures, final_report.html)
 
-1. **Raw Data**: Downloaded from SRA/GEO → `data/raw/`.
-2. **Preprocessed Data**: QC-filtered, normalized matrices → `data/processed/`.
-3. **Velocity Data**: Velocity graphs and pseudotime → `data/processed/`.
-4. **Fork-Point Data**: Ranked gene lists → `data/results/fork_points/`.
-5. **Validation Data**: Bootstrap results, heatmaps → `data/results/validation/`.
-6. **Report**: Final PDF/HTML report → `data/results/report/`.
+All artifacts are validated against their respective schema during CI.
 
-## Schema Definitions
+---
 
-See `contracts/` for detailed YAML schemas.
+

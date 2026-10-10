@@ -3,36 +3,37 @@ type: "object"
 title: "Validation Result Schema"
 description: "Schema for bootstrap validation and enrichment analysis results."
 properties:
-  gene_symbol:
-    type: "string"
-    description: "Symbol of the fork-point gene."
   enrichment_pvalue:
     type: "number"
-    description: "P-value for enrichment against therapy response signatures."
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg corrected p‑value for enrichment of fork‑point genes against therapy‑response signatures."
   bootstrap_iterations:
-    type: "integer"
-    description: "Number of bootstrap iterations performed (patient-level)."
+    type: "number"
+    minimum: 1
+    description: "Number of bootstrap resamples performed."
   confidence_interval:
     type: "array"
     items:
       type: "number"
-    description: "95% confidence interval for the enrichment metric."
+      minimum: 0
+      maximum: 1
+    description: "95 % confidence interval for the enrichment metric."
   cross_dataset_correlation:
     type: "number"
-    description: "Spearman rank correlation across datasets."
+    description: "Spearman correlation of fork‑point gene rankings between datasets."
   significance_level:
-    type: "number"
-    description: "Significance threshold (e.g., 0.01 or 0.05)."
+    type: "boolean"
+    description: "Indicates whether the enrichment result meets the significance threshold (p < 0.01)."
   discovery_dataset_ids:
     type: "array"
     items:
       type: "string"
-    description: "List of discovery dataset IDs used to derive fork-points."
+    description: "Identifiers of the datasets where the fork‑point genes were discovered."
   validation_dataset_id:
     type: "string"
-    description: "Validation dataset ID used for therapy response labels."
+    description: "Identifier of the dataset used for validation (e.g., GSE138852)."
 required:
-  - gene_symbol
   - enrichment_pvalue
   - bootstrap_iterations
   - confidence_interval

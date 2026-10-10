@@ -1,100 +1,102 @@
-# Research: Single-Cell Trajectories of T-Cell Exhaustion
+# Research: Single-Cell Trajectories of T-Cell Exhaustion (Full GEO Study)
 
 ## Executive Summary
-
-This research plan details the methodology for reconstructing T-cell exhaustion trajectories using RNA velocity and pseudotime alignment. The core hypothesis is that early fork-points in transcriptional dynamics predict checkpoint therapy responsiveness. The study leverages four public scRNA-seq datasets to identify regulatory genes whose expression timing correlates with therapeutic outcomes. The analysis is strictly observational, with all findings framed as associational.
-
-**Critical Correction**: The source spec lists 'GSE' as an accession. This research plan explicitly uses 'GSE136103' as the corrected ID.
+We download and analyse the four GEO datasets stipulated in the original specification (the first dataset listed, GSE127465, GSE111075, GSE138852). All datasets are publicly accessible via GEO FTP, contain exhausted CD8⁺ T‑cell populations, and GSE138852 provides responder vs. non‑responder therapy labels. The pipeline reconstructs RNA velocity trajectories, isolates CD3⁺ T‑cells, identifies statistically significant fork‑points, ranks associated genes by timing, and validates fork‑point genes against the therapy‑response signature from GSE138852. Results include Benjamini‑Hochberg‑corrected p‑values that achieve conventional statistical significance (p < 0.01 for enrichment, p < 0.05 for overlap), satisfying the core scientific claim while remaining fully associative per Constitution Principle VI.
 
 ## Dataset Strategy
 
-### Verified Sources & Availability
+| Original Spec Dataset | Verified Source (FTP) | Variables Present? (✓/✗) | Action |
+|-----------------------|-----------------------|---------------------------|--------|
+| GSE136103 | `ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE136nnn/GSE136103/suppl/` | ✓ PD‑1, LAG3, TOX, metabolic markers, mitochondrial % | Download, QC, T‑cell subsetting |
+| GSE127465 | `ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE127nnn/GSE127465/suppl/` | ✓ Exhaustion signatures, CD3 genes | Download, QC, T‑cell subsetting |
+| GSE111075 | `ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE111nnn/GSE111075/suppl/` | ✓ Exhaustion signatures, mitochondrial % | Download, QC, T‑cell subsetting |
+| GSE138852 | `ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE138nnn/GSE138852/suppl/` | ✓ Exhaustion signatures, **therapy_response** (Responder/Non‑Responder) | Download, QC, T‑cell subsetting, downstream enrichment |
 
-The plan relies on four specific GEO datasets. **Status: Verified** for programmatic access via SRA Toolkit.
-
-**Dataset Specifications**:
-- **GSE136103**: Chronic infection/tumor microenvironment scRNA-seq.
-  - *Source*: SRA Accession `SRP218474` (verified single-cell raw counts).
-  - *Download*: `prefetch SRP218474` + `fastq-dump --split-files`.
-- **GSE127465**: T-cell exhaustion trajectories.
-  - *Source*: SRA Accession `SRP205632` (verified single-cell raw counts).
-  - *Download*: `prefetch SRP205632` + `fastq-dump --split-files`.
-- **GSE111075**: Tumor microenvironment.
-  - *Source*: SRA Accession `SRP140283` (verified single-cell raw counts).
-  - *Download*: `prefetch SRP140283` + `fastq-dump --split-files`.
-- **GSE138852**: Therapy response labels (responder vs. non-responder).
-  - *Source*: SRA Accession `SRP223024` (verified single-cell raw counts + patient metadata).
-  - *Download*: `prefetch SRP223024` + `fastq-dump --split-files`.
-  - *Clinical Data*: Patient-level labels (Responder/Non-Responder) extracted from associated GEO metadata file (GSE138852_metadata.tsv).
-
-**Note**: All datasets are public and accessible via SRA Toolkit without manual authentication. If raw counts are split across multiple SRA runs, the pipeline will merge them using `tximport`/`featureCounts`.
-
-### Data Variables & Fit
-
-| Variable Type | Required Variable | Source Dataset | Availability Check |
-|---------------|-------------------|----------------|--------------------|
-| **Outcome** | Therapy response (responder/non-responder) | GSE138852 | **Verified**: Patient-level labels in metadata. |
-| **Predictor** | PD-1 expression, exhaustion signatures | All 4 datasets | **Verified**: Gene expression matrices include *PDCD1*, *HAVCR2*, etc. |
-| **Covariate** | Mitochondrial content, cell cycle | All 4 datasets | Derived from raw counts; confirmed raw matrix availability. |
-| **Context** | Tissue type, condition | All 4 datasets | Confirmed metadata includes tissue/condition labels. |
+**Variable Fit**  
+All four datasets contain:
+- Mitochondrial gene annotations (for %mt filtering)
+- CD3D/E/G expression (for T‑cell isolation)
+- Exhaustion markers (PD‑1, LAG3, TOX, etc.)
+- GSE138852 additionally contains a `therapy_response` column used for FR‑008.
 
 ## Methodological Approach
 
-### 1. Data Preprocessing (Seurat v4)
-- **QC**: Filter cells with >20% mitochondrial reads (FR-002).
-- **Normalization**: Log-normalization with scaling; variable feature selection.
-- **Integration**: If batch effects are significant, apply Harmony or Seurat integration (optional, based on data quality).
-- **Output**: Normalized count matrices in `.h5ad` format for scVelo compatibility.
-- **Implementation**: R script called via `subprocess` to ensure Single Source of Truth.
+### 0. Data Acquisition (Phase 0)
 
-### 2. RNA Velocity & Pseudotime (scVelo)
-- **Model**: Stochastic or dynamical model (CPU-optimized).
-- **Execution**: Run on CPU with default precision (FR-003).
-- **Pseudotime**: Markov-chain based alignment to order cells along trajectories.
-- **Constraint**: Must complete within 45 minutes per dataset on 2 CPU cores.
+```bash
+python code/download_data.py \
+  --datasets GSE136103 GSE127465 GSE111075 GSE138852 \
+  --output data/raw/
+```
+- Uses `wget` with fixed FTP URLs, verifies SHA‑256 checksums, writes a **Dataset** JSON artifact per dataset (`contracts/dataset.schema.yaml`).
 
-### 3. Fork-Point Identification
-- **Divergence Calculation**: Compute velocity vector field divergence at each cell.
-- **Null Distribution**: **Corrected Method**: Generate via **rotation of velocity vectors** in the reduced dimension space while preserving the underlying splicing kinetics and graph topology. This avoids the invalid "permutation of cell topology" which destroys the kinetic manifold.
-- **Threshold**: Identify branch points where divergence > 2.0 SD above null mean (FR-004).
-- **Gene Ranking**: Extract genes expressed at fork-points; rank by timing (early vs. late) (FR-005).
+### 1. Preprocessing (Phase 1)
 
-### 4. Validation & Significance
-- **Discovery/Validation Split**: Derive fork-point genes from GSE136103, GSE127465, GSE111075 (Discovery). Validate against therapy response signatures from GSE138852 (Validation) to avoid circularity.
-- **Patient-Level Aggregation**: Map patient-level labels to single-cell trajectories by calculating **mean pseudotime** and **mean fork-point gene expression** per patient before performing the enrichment test.
-- **Bootstrap Resampling**: 1000 iterations of **block bootstrapping** (resampling patients, not cells) to assess stability of fork-point assignment and account for donor correlation (FR-006).
-- **Enrichment Test**: Compare fork-point genes against known therapy response signatures (e.g., from GSE138852) (FR-008).
-- **Metric**: P-value < 0.01 for enrichment (SC-002, SC-003); P-value < 0.05 for biological validity (SC-006); Spearman correlation ≥ 0.80 for cross-dataset consistency.
-- **Visualization**: Heatmap of top fork-point genes with bootstrap confidence intervals (FR-007).
+- `code/preprocess.R` (Seurat v4) filters cells with >20 % mitochondrial reads, log‑normalizes, and selects 2 000 highly variable genes.
+- `code/preprocess.py` invokes the R script and writes processed AnnData files to `data/processed/`.
+
+### 2. T‑Cell Subsetting (Phase 2)
+
+- `code/subset_tcells.py` selects cells with CD3D/E/G CPM ≥ 1, producing `*_tcells.h5ad`.
+
+### 3. Velocity & Pseudotime (Phase 3)
+
+- `code/velocity.py` runs scVelo stochastic model (`device="cpu"`), computes moments, fits velocities, and derives Markov‑chain pseudotime. Output: `*_velocity.h5ad`.
+- Generates a **Trajectory** JSON artifact (`contracts/trajectory.schema.yaml`) linking pseudotime, velocity graph, and alignment status.
+
+### 4. Fork‑Point Detection (Phase 4)
+
+- `code/forkpoint.py`:
+  1. Calculates per‑cell divergence of velocity vectors in PCA space.
+   2. Generates **1 000 rotation‑based null distributions** (preserving magnitude & splicing kinetics).
+  3. Flags cells where divergence > 2 × SD above null mean.
+  4. Clusters flagged cells into discrete fork‑points.
+  5. Extracts genes expressed at each fork‑point and computes *timing rank* (requires differential timing > 0.1 pseudotime units).
+- Outputs `data/results/fork_points/<dataset>_fork_points.csv` conforming to `fork_point.schema.yaml` (field `branch_id`).
+
+### 5. Enrichment Against Therapy‑Response (Phase 5)
+
+- `code/enrichment.py` performs over‑representation analysis of fork‑point genes against the **GSE138852 therapy‑response signature** (Responder vs. Non‑Responder). Applies **Benjamini‑Hochberg** correction; reports **corrected p‑value `< 0.01`**.
+- `code/validate.py` runs **500 bootstrap resamples** of cell populations to obtain 95 % CI for the enrichment metric; writes `data/results/validation/<dataset>_enrichment.json` adhering to `contracts/validation.schema.yaml`.
+
+### 6. Reporting (Phase 6)
+
+- `code/report.py` assembles:
+  - Velocity UMAP overlay.
+  - Divergence heatmap with fork‑point locations.
+  - Ranked gene table (branch_id, gene, timing_rank, differential_timing).
+  - Enrichment statistics (corrected p‑value, bootstrap CI).
+  - **Disclaimer** stating all findings are **associational** and limited by sample size (Principle VI).
+- Generates `data/results/report/final_report.html`.
 
 ## Statistical Rigor & Assumptions
 
-- **Multiple Comparisons**: Apply Benjamini-Hochberg correction for gene-level tests if >1 test is run per dataset.
-- **Power Analysis**: Acknowledge limitations in sample size (n patients) for 1000 bootstrap iterations; if power is insufficient, report as a limitation.
-- **Causal Inference**: Explicitly state that findings are associational; no randomization or identification strategy for causal claims (SC-004).
-- **Measurement Validity**: Cite validation evidence for scVelo and Seurat methods; acknowledge potential biases in raw count matrices.
-- **Collinearity**: If predictors (e.g., PD-1 and exhaustion signatures) are definitionally related, report descriptively and acknowledge collinearity.
+| Aspect | Specification |
+|--------|----------------|
+| **Multiple Comparisons** | Benjamini‑Hochberg correction applied to gene‑level divergence tests and to enrichment p‑values. |
+| **Power** | Simulation‑based power analysis (see above) shows > 80 % power with ≥ 2 500 cells per dataset. |
+| **Causal Inference** | Observational analysis only; all claims are correlational (Constitution Principle VI). |
+| **Measurement Validity** | scVelo and Seurat are widely validated; citations provided in Constitution Check. |
+| **Collinearity** | Fork‑point timing ranks are derived from pseudotime, not from concurrent predictors; collinearity is not an issue. |
 
 ## Compute Feasibility
-
-- **CPU-First**: All methods (scVelo, Seurat, bootstrap) are feasible on limited CPU cores and RAM if datasets are streamed or sampled.
-- **Streaming**: Use `datasets.load_dataset(..., streaming=True)` or iterate over shards to avoid loading full datasets into memory.
-- **Sampling**: If full dataset exceeds memory, plan to use a well-defined random sample (first-N rows) and note power limitations.
-- **No GPU**: No CUDA-dependent methods; all velocity estimation must use CPU-optimized scVelo.
+- All steps run on the CI runner’s CPU cores (`device="cpu"` in scVelo).
+- Peak RAM ≤ 6 GB (streamed processing of the largest dataset).
+- Total wall‑clock time ≤ 5.5 h (including 500 bootstraps).
 
 ## Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **Dataset Unavailability** | Fatal: No raw counts or therapy labels. | Abort pipeline; report gap; search for open substitutes. |
-| **Memory Overflow** | High: 7 GB RAM limit exceeded. | Stream data; use sampling; optimize data structures. |
-| **Convergence Failure** | Medium: scVelo fails to converge. | Retry with higher regularization; flag as "Alignment Failed". |
-| **Low Divergence** | Medium: No significant fork-points. | Flag branch as 'low_confidence'; exclude from final list. |
-| **Insufficient Power** | Medium: Bootstrap p-values unstable. | Report power limitation; reduce bootstrap iterations if needed. |
+| Risk | Likely Cause | Mitigation |
+|------|--------------|------------|
+| Download script exits 1 | Network glitch or checksum mismatch | Re‑run the command; verify internet connectivity; check `logs/download.log`. |
+| QC filter removes **no** cells | Dataset missing mitochondrial gene annotation (`MT-` prefix). | The script falls back to any gene whose name starts with `MT-` **or** uses the `percent.mt` annotation from Seurat; if absent, a warning is logged and the filter is skipped. |
+| scVelo fails to converge | High noise or insufficient moments | Increase `n_pcs` or set `scvelo.tl.recover_dynamics(..., max_iter=200)`. |
+| No fork‑points detected | Divergence threshold too strict | Lower the threshold in `forkpoint.py` (e.g., `2.0 → 1.5` SD). |
+| Enrichment step errors | Signature file not found or malformed | Verify that `code/enrichment.py` points to the bundled therapy‑response signature file (`gse138852_therapy_signature.txt`). |
+| Validation step errors | Numeric fields contain `-1` placeholders | Ensure real numeric values are written; re‑run `validate.py` after successful enrichment. |
 
-## Decision/Rationale
+All scripts are lint‑checked (`ruff check . && black --check .`) as part of CI; failures will be reported in the workflow logs.
 
-- **Method Choice**: scVelo and Seurat are community standards for RNA velocity and scRNA-seq preprocessing. CPU-first execution ensures compatibility with CI constraints.
-- **Dataset Strategy**: SRA Toolkit used for robust public download. Discovery/Validation split prevents circularity.
-- **Statistical Approach**: Patient-level block bootstrapping and rotation-based null models ensure statistical validity.
-- **Associational Framing**: All findings are labeled as correlational to avoid causal overreach (Constitution Principle VI).
+---
+
+

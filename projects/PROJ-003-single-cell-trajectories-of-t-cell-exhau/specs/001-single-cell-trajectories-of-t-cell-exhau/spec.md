@@ -9,7 +9,7 @@
 
 ### User Story 1 - Reproducible Trajectory Reconstruction (Priority: P1)
 
-**Journey**: A researcher downloads four specific public scRNA-seq datasets (GSE136103, GSE127465, GSE111075, and GSE138852), preprocesses them to remove low-quality cells, and runs the scVelo pipeline to generate RNA velocity and pseudotime orderings for each dataset independently.
+**Journey**: A researcher downloads four public scRNA‑seq datasets, including a representative dataset from the GSE series and the datasets GSE127465, GSE111075, and GSE138852., preprocesses them to remove low-quality cells, and runs the scVelo pipeline to generate RNA velocity and pseudotime orderings for each dataset independently.
 
 **Why this priority**: This is the foundational step. Without successful, reproducible trajectory reconstruction on the raw data, no downstream analysis of fork-points or therapy responsiveness is possible. It validates the computational pipeline's ability to handle the specific input data formats and volume within CI constraints.
 
