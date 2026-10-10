@@ -1,14 +1,12 @@
 T001:
-  c: true
-  h: 27b932feddd698b60e22dc9ad25ac5c94dffd2dd1ca53bbae03dffa7d3be67eb
-  r: 'The required artifacts exist: `code/requirements.txt` contains the six allowed
-    CPU-tractable dependencies (plus psutil, a minor CPU-only addition), `code/scripts/fetch_cochrane.py`
-    implements the Zenodo DOI 10.5281/zenodo.10286623 fetch with CSV structure validation
-    and raises `FileNotFoundError` on failure with no silent substitution, and `data/raw/cochrane_base_synthetic.csv`
-    exists with 20 studies of valid effect sizes and standard errors (the allowed
-    fallback, mu=0/sigma=1/N=20 per Jackson et al. 2010). The synthetic CSV''s effect
-    sizes match a standard-normal (mu=0, sigma=1) sample, consis'
-  sig: a13a2940185e26c57b9164f9193820779084be9c7ebb2e2e3f00410b0ab0d4e5
+  c: false
+  h: db19db667e965c207b12fc1d8b497533f61694fc23c6e883bcddd55b5d0f2ab5
+  r: "Checked `code/requirements.txt` (contains an extra `psutil` package not listed\
+    \ among the allowed CPU\u2011only dependencies) and the required `data/raw/cochrane_base.csv`\
+    \ (missing, though the synthetic fallback exists). The extra dependency violates\
+    \ the task\u2019s strict dependency list, so the implementation does not fully\
+    \ meet the specification."
+  sig: 2360d5f6da02bf2e54776aa5f3eb630f50470a94b52e696a3c67f925e7de3f00
 T002:
   c: true
   h: aeaed097d2b8cb66666a8bc717790f6cd1bf5e4477a41eeafa6f860ff8485a08
@@ -23,50 +21,31 @@ T002:
   sig: df65bc475fd65ad6a34f64d66d86511a868a60bb5108aff0e55fe7dab80f2e51
 T003:
   c: true
-  h: 97b23425d9c65655d54eab968f4c54851c2af2724f84bc29f75753c9550216fe
-  r: "I checked `code/simulation/estimators.py` (17.9 KB, implementing FE, DL, REML\
-    \ with Q/I\xB2 for every estimation, small-study N<5 flagging, and REML failure\
-    \ logging with DL fallback), `tests/unit/test_estimators.py` (tests covering \u03C4\
-    \xB2=0 stability, known-case pooled estimates within 0.001, Q/I\xB2 presence,\
-    \ small-study flags, and failure logging/fallback), and `data/results/reml_failures.json`,\
-    \ whose three timestamped \"simulated crash\" events with `fallback: dersimonian_laird_tau2`\
-    \ demonstrate the FR-006 logging path was actually exercised by the test suite.\
-    \ All required artifacts exist, are substanti"
-  sig: f7db1580203bef8f2dd9a6055c9ff7e8364ed2d988223751fdd5d4cf4e150c8a
+  h: 60aa5da1c14b75701beac9b10a2c70a3c8fa39905a90a03cacf062e08e239fd6
+  r: "Checked `code/simulation/estimators.py` (contains Fixed\u2011Effects, DerSimonian\u2011\
+    Laird, REML estimators, Q/I\xB2 calculation, small\u2011study flagging, REML failure\
+    \ logging with fallback) and the accompanying unit tests `tests/unit/test_estimators.py`\
+    \ which verify \u03C4\xB2\u202F=\u202F0 stability, pooled estimates within 0.001,\
+    \ and the required logging/flag behavior."
+  sig: 38d6e14947513cc76efff124a614320966dfef8ad0d7c5f367a5683be0740e9a
 T005:
   c: true
-  h: 23c145738b7ad9c18b95b9d1bba07137c0e520058d740b4e90c9905ca2aca813
-  r: "`data/results/estimation_results.csv` exists with 60 rows (2 \u03C4\xB2 levels\
-    \ \xD7 10 replicates \xD7 3 estimators) containing all required schema fields\
-    \ (`pooled_effect`, `ci_lower`, `ci_upper`, `estimator_type`, `sweep_type`, `convergence_warning`)\
-    \ plus non-null `i_squared` and `q_statistic` for every replicate, and the values\
-    \ are consistent with the underlying `simulation_raw.json`/`run_summary.json`\
-    \ (e.g., identical pooled effects and coverage rates across artifacts). The \u03C4\
-    \xB2=0 rows showing Q=0 and I\xB2=0 are the mathematically correct result of the\
-    \ generator's zero-variance perturbation, not missing data"
-  sig: 5a4b192bb4c2a1f9d0931439a221daf5cb17d4159e78efc24eaa31c32931af0e
-T006:
-  c: false
-  h: f737673badba8c1e2a7b4d07f2bca9bf793456a720209ae0a3ba2219a12da442
-  r: "`data/results/simulation_raw.json` is only 75,127 bytes; at ~3.7 KB per replicate\
-    \ record (as seen in the sample), it holds roughly 20 records \u2014 far below\
-    \ the required \u22652,500 (5 levels \xD7 \u2265500 replicates). The visible records\
-    \ are all `tau_squared: 0.0` with identical, degenerate study effects, consistent\
-    \ with a dry-run-scale output, and no runtime log evidence (duration <6 h, peak\
-    \ RAM <7 GB per SC-003) was provided \u2014 the only execution record is a 4.1\
-    \ s run with empty stdout/stderr, which cannot have produced a full sweep."
-  sig: 1587bb8c4f443c6057dfa368f78714c2a2e8c44ab3b5c318960f3533becf9495
+  h: a86eb120f388993d138fc9d86a1b0552366916fee00e7c9bb096fae1092d7926
+  r: "Checked `data/results/estimation_results.csv` (contains the required columns,\
+    \ non\u2011null pooled effects, I\xB2 and Q for all 20 replicates across \u03C4\
+    \xB2\u202F=\u202F0 and\u202F0.1) and `data/results/run_summary.json` confirming\
+    \ the 10\u2011replicate\u2011per\u2011level run. The pipeline was orchestrated\
+    \ via `code/main.py` and produced the expected CSV and accompanying logs."
+  sig: d08a5a52e49e25ce9598b571de3d0f7dbec08dbfb6a753de10efbad847376887
 T007:
-  c: true
-  h: 040c1a131d1cb10544abaa15b20fdcd9120af2a82f4cf785381695c92a638298
-  r: "The stats.py implements all three required tests (exact binomial via `binomtest`,\
-    \ Shapiro-Wilk, conditional ANOVA/Kruskal-Wallis) with Bonferroni correction at\
-    \ \u03B1=0.01, and the execution log shows `code/run_aggregated_metrics.py` exited\
-    \ 0 producing `data/results/aggregated_metrics.csv` with all six schema-required\
-    \ columns and 5 \u03C4\xB2 levels (0.0\u20132.0), matching the contract. The CSV\
-    \ values are plausible computed results (e.g., coverage declining from 1.0 to\
-    \ 0.51 with increasing \u03C4\xB2), not placeholders."
-  sig: e243c3f6bd96b212d2822d9f9a4506fad653854fb9f33fdd9e9df240a7887503
+  c: false
+  h: 4ccb9d97a0c544b4159292cd10611370da665e91b8ade4ab3c66a1374df24e85
+  r: "Checked `code/analysis/stats.py` \u2013 it implements the exact binomial test,\
+    \ Shapiro\u2011Wilk test, conditional ANOVA/Kruskal\u2011Wallis logic, and a Bonferroni\
+    \ correction step. However, the required output file `data/results/aggregated_metrics.csv`\
+    \ is missing, so the verification artifact does not exist. The task is not fully\
+    \ satisfied."
+  sig: 1497575085596ed8f9e3a9830065377364f7b6fbe31d8948c60c3426a5c2f75b
 T009:
   c: false
   h: 7bbd0683526948bd52a284306821b89225be03403ef129cf034ffae685d7e3ec
@@ -78,16 +57,14 @@ T009:
   sig: b4570e4ad432b60b1516d5c1070774ab7cc352257b48888565654d6247971dd3
 T010:
   c: false
-  h: d176a03edcf3187ea727fabe4fd5c137e2d56e22f7a879991e6984122dc59527
-  r: "The report exists and contains the \"associational\" label and file references,\
-    \ but its contents contradict the actual result files: `reml_failures.json` records\
-    \ `failure_count: 0` with empty events, yet the report's REML table lists two\
-    \ fabricated \"simulated crash\" failures; and the aggregated metrics table (5\
-    \ \u03C4\xB2 levels, coverage 0.763/0.633/0.582/0.511) does not match `run_summary.json`/`estimation_results.csv`\
-    \ (only \u03C4\xB2=0.0 and 0.1, 10 replicates, coverage 1.0/0.4). The report was\
-    \ evidently generated from different or invented data rather than the actual `data/results/`\
-    \ artifacts; the implemen"
-  sig: 2697a6b970cb6e4b1c41fc2c1b024d1f2c45fdef541d95c6f724d9ff8f5392a0
+  h: 265194abe3183bb9c61b984de9986100d21f8f4a07636bbecc50bc5f304a5d10
+  r: "The `report.md` file does contain the required \u201Cassociational\u201D label\
+    \ and references to the result files, but it lists REML convergence failures that\
+    \ are not present in the source `data/results/reml_failures.json` (the JSON reports\
+    \ zero failures). This inconsistency means the report does not correctly compile\
+    \ the actual results, violating the task\u2019s requirement to include accurate\
+    \ REML failure counts. The report should reflect the true contents of `reml_failures.json`."
+  sig: 045b5358084c4c02006dab6769a107345fb0a40b0bac3eafc026471c27103e62
 T011:
   c: false
   h: ec21a02ae5df9fef0bef6d5711efda8e82aa227c75dd9b0a40942e1216ba4d82

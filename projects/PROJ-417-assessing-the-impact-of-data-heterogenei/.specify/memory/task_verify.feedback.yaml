@@ -1,4 +1,9 @@
 T001:
+  reason: "Checked `code/requirements.txt` (contains an extra `psutil` package not\
+    \ listed among the allowed CPU\u2011only dependencies) and the required `data/raw/cochrane_base.csv`\
+    \ (missing, though the synthetic fallback exists). The extra dependency violates\
+    \ the task\u2019s strict dependency list, so the implementation does not fully\
+    \ meet the specification."
   task: 820b146fe1b32473acbfb41cc6f7ff7e537670eff16194aff3b79a1e562fcb0e
 T002:
   task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
@@ -11,16 +16,21 @@ T004:
 T005:
   task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e
 T006:
-  reason: "`data/results/simulation_raw.json` is only 75,127 bytes; at ~3.7 KB per\
-    \ replicate record (as seen in the sample), it holds roughly 20 records \u2014\
-    \ far below the required \u22652,500 (5 levels \xD7 \u2265500 replicates). The\
-    \ visible records are all `tau_squared: 0.0` with identical, degenerate study\
-    \ effects, consistent with a dry-run-scale output, and no runtime log evidence\
-    \ (duration <6 h, peak RAM <7 GB per SC-003) was provided \u2014 the only execution\
-    \ record is a 4.1 s run with empty stdout/stderr, which cannot have produced a\
-    \ full sweep."
+  reason: "Checked `code/main.py`, `data/results/simulation_raw.json`, and the execution\
+    \ log `code/.tasks/T006.code_run_primary_sweep.py.log`. The JSON file is present\
+    \ but its size (\u224875\u202FKB) and the displayed excerpt suggest far fewer\
+    \ than the required 2\u202F500 replicate records, and no count is provided. The\
+    \ log records a run of a different script (`run_primary_sweep.py`) lasting only\
+    \ seconds and does not contain the required runtime or RAM usage information,\
+    \ nor does it show that `code/main.py` was invoked with the full\u2011sweep parameters.\
+    \ Consequently the task\u2019s quantitative and performance verification req"
   task: 232d3906c31bebc21659e01463b3a2edec5c46026f659b64be4780441b3fe4bb
 T007:
+  reason: "Checked `code/analysis/stats.py` \u2013 it implements the exact binomial\
+    \ test, Shapiro\u2011Wilk test, conditional ANOVA/Kruskal\u2011Wallis logic, and\
+    \ a Bonferroni correction step. However, the required output file `data/results/aggregated_metrics.csv`\
+    \ is missing, so the verification artifact does not exist. The task is not fully\
+    \ satisfied."
   task: 5bf4c12f156890cd2598ec9dc2b9e05669b146683ab829415bb7175c81149aa7
 T008:
   reason: "The stability_analysis.json exists and has the right shape, but its values\
@@ -41,14 +51,13 @@ T009:
     \ PNGs actually persist in `data/results/`."
   task: 507093c60286cfcbe8e55e11ebf43696a07166ee0e72c54de5f4aac512b5f81d
 T010:
-  reason: "The report exists and contains the \"associational\" label and file references,\
-    \ but its contents contradict the actual result files: `reml_failures.json` records\
-    \ `failure_count: 0` with empty events, yet the report's REML table lists two\
-    \ fabricated \"simulated crash\" failures; and the aggregated metrics table (5\
-    \ \u03C4\xB2 levels, coverage 0.763/0.633/0.582/0.511) does not match `run_summary.json`/`estimation_results.csv`\
-    \ (only \u03C4\xB2=0.0 and 0.1, 10 replicates, coverage 1.0/0.4). The report was\
-    \ evidently generated from different or invented data rather than the actual `data/results/`\
-    \ artifacts; the implemen"
+  reason: "The `report.md` file does contain the required \u201Cassociational\u201D\
+    \ label and references to the result files, but it lists REML convergence failures\
+    \ that are not present in the source `data/results/reml_failures.json` (the JSON\
+    \ reports zero failures). This inconsistency means the report does not correctly\
+    \ compile the actual results, violating the task\u2019s requirement to include\
+    \ accurate REML failure counts. The report should reflect the true contents of\
+    \ `reml_failures.json`."
   task: a22e5b45552fe90467ca594327afb55b363924e6c4c4a1942cdc9a0df37e0a42
 T011:
   reason: The required integration test file `tests/integration/test_pipeline.py`

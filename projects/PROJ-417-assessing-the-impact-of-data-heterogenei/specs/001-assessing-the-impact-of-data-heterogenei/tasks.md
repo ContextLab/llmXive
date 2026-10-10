@@ -6,7 +6,7 @@
 
 **Goal**: Establish the simulation environment and run a thin, end-to-end analysis on a small valid sample to verify the data flow from perturbation to metric calculation.
 
-- [X] T001 Establish the project layout and verify input provenance.
+- [ ] T001 Establish the project layout and verify input provenance.
     Implement the directory structure defined in `plan.md` and ensure `code/requirements.txt` contains only CPU-tractable dependencies (`numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`). 
     Implement the data loader in `code/scripts/fetch_cochrane.py` to fetch real data from Zenodo DOI `10.5281/zenodo.10286623` or fallback to the verified synthetic base (mu=0.0, sigma=1.0, N=20) cited from Jackson et al. (2010).
     The loader MUST raise `FileNotFoundError` on fetch failure rather than silently substituting fake data.
@@ -43,7 +43,7 @@
     Execute `code/main.py` for the full domain: $\tau^2 \in \{0, 0.1, 0.5, 1.0, 2.0\}$ with $\ge 500$ replicates per level.
     **Verification**: `data/results/simulation_raw.json` contains at least 2,500 records; logs confirm the process completes within 6 hours and peak RAM usage is $< 7$ GB (SC-003).
 
-- [X] T007 Perform statistical analysis and aggregate metrics.
+- [ ] T007 Perform statistical analysis and aggregate metrics.
     Implement `code/analysis/stats.py` to calculate:
     1. Exact binomial tests for coverage deviation against the nominal 0.95 level (FR-004).
     2. Shapiro-Wilk normality tests on bias distributions (FR-008).
@@ -60,7 +60,7 @@
     Implement `code/visualization/plots.py` to produce PNGs of Coverage vs. $\tau^2$ and Mean Bias vs. $\tau^2$ (FR-005).
     **Verification**: `ls data/results/*.png` confirms the existence of both required plots.
 
-- [~] T010 Generate the final framed report.
+- [ ] T010 Generate the final framed report.
     Implement `code/reporting/report_gen.py` to compile results into `data/results/report.md`, including REML failure counts and stability metrics.
     **Mandatory**: Insert explicit "associational" labeling in the report header and conclusions to avoid causal claims (SC-005).
     **Verification**: `data/results/report.md` contains the "associational" label and references the specific result files in `data/results/`.
