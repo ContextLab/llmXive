@@ -145,6 +145,40 @@ _CODE_SETUP_FAILURE_RE = re.compile(
     r"NameError|UnboundLocalError):|\bNo module named\b"
 )
 
+#: A failing command's captured tail holds MORE than the error it died of: a
+#: handled exception printed as a warning, and — for a chained traceback —
+#: every non-terminal link ("During handling of the above exception ..."). So
+#: ``_CODE_SETUP_FAILURE_RE`` is matched against the TERMINAL error line only.
+#: Scanning the whole tail misclassified a real data failure as a setup failure
+#: whenever an import/name error appeared ANYWHERE above it (the observed shape:
+#: a printed ``ImportError`` fallback notice, then a terminal
+#: ``FileNotFoundError`` on a ``data/`` input).
+_TRACEBACK_START_RE = re.compile(r"Traceback \(most recent call last\):")
+#: A traceback's exception line: a (dotted) name, a colon, then the message.
+#: Source/frame lines (``File "x.py", line 3``, ``df = pd.read_csv(...)``) and
+#: interpreter messages (``/usr/bin/python: No module named x``) do not match.
+_ERROR_LINE_RE = re.compile(
+    r"^[ \t]*(?:[A-Za-z_]\w*\.)*[A-Za-z_]\w*:(?:[ \t].*)?$", re.MULTILINE,
+)
+
+
+def _terminal_error_line(failure: str) -> str:
+    """The line a failing command DIED of, from its captured tail.
+
+    Narrows the tail to the LAST traceback (so a handled exception and every
+    non-terminal link of an exception chain are excluded), then takes that
+    segment's last exception line. Falls back to the segment's last non-empty
+    line when no exception line is present — which is how the interpreter's own
+    ``<python>: No module named <pkg>`` launch failure stays classified.
+    """
+    starts = [m.start() for m in _TRACEBACK_START_RE.finditer(failure)]
+    final = failure[starts[-1]:] if starts else failure
+    errors = [line.strip() for line in _ERROR_LINE_RE.findall(final) if line.strip()]
+    if errors:
+        return errors[-1]
+    lines = [line.strip() for line in final.splitlines() if line.strip()]
+    return lines[-1] if lines else ""
+
 
 def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
     """Discover data for positive data signals or unexplained missing outputs.
@@ -158,7 +192,9 @@ def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
         return True
     if _data_unavailable_failures(failures):
         return True
-    if failures and all(_CODE_SETUP_FAILURE_RE.search(f) for f in failures):
+    if failures and all(
+        _CODE_SETUP_FAILURE_RE.search(_terminal_error_line(f)) for f in failures
+    ):
         return False
     if any(str(d).startswith("data/") for d in res.declared_missing):
         return True
