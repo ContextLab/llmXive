@@ -39,7 +39,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download_coco.py -> rc=1
-", line 496, in _call_chain
+line 496, in _call_chain
     result = func(*args)
              ^^^^^^^^^^^
   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/urllib/request.py", line 643, in http_error_default
@@ -49,14 +49,14 @@ urllib.error.HTTPError: HTTP Error 404: Not Found
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 97, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 114, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 68, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 85, in main
     json_data = _download_json(COCO_VAL_URL)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 45, in _download_json
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 44, in _download_json
     raise RuntimeError(f"Failed to download JSON from {url}: {e}") from e
-RuntimeError: Failed to download JSON from https://raw.githubusercontent.com/COCO-SSD/COCO-SSD/master/annotations/captions_val2017.json: HTTP Error 404: Not Found
+RuntimeError: Failed to download JSON from https://raw.githubusercontent.com/cocodataset/cocoapi/master/annotations/captions_val2017.json: HTTP Error 404: Not Found
 
 - python code/main.py --mode full -> rc=2
 

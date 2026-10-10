@@ -1,8 +1,11 @@
 T001:
   c: true
-  h: 8207e5228fca97c5b83db8c92f8b7e1b0421c244464e0fb4726c96de3c7d08a5
-  r: "Checked that all required directories and files exist (including `code/` sub\u2011\
-    dirs, `data/raw/`, `data/processed/`, `state/`, `requirements.txt`, `code/config.py`,\
-    \ and the quick\u2011start markdown) and that `python code/main.py --phase init`\
-    \ runs successfully, printing \u201CInitialization complete\u201D."
-  sig: eef38a8f817c12fa49d2fed60f5064611ab78d893c86daac01ca4fb245a58326
+  h: 0205f99a919b1cb023ee4f8dd50c2a215130b04f3018bd1a9efda5572ab47aba
+  r: 'All required directories (code/ and its five subdirectories, tests/, data/raw,
+    data/processed, state/) exist and are non-empty; requirements.txt contains torch
+    and other dependencies; code/config.py is a substantive configuration module;
+    and specs quickstart.md is a real guide. code/main.py implements `--phase init`,
+    which creates the required directories and prints "Initialization complete", matching
+    the task''s verification command. (Minor nit: quickstart.md mentions `--mode full`
+    while main.py uses `--phase`, but this does not affect T001''s stated requirements.)'
+  sig: 1253cdef74e3e6796410375af80434b41e17cd09d73f8cf08c5b8ddc5c6efab0

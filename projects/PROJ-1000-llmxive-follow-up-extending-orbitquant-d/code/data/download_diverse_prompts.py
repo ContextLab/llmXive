@@ -27,10 +27,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Public URL for COCO 2017 training captions
+# Public URL for COCO 2017 training captions (official COCO API repository)
 COCO_TRAIN_URL = (
-    "https://raw.githubusercontent.com/COCO-SSD/COCO-SSD/master/annotations/"
-    "captions_train2017.json"
+    "https://raw.githubusercontent.com/cocodataset/cocoapi/master/annotations/captions_train2017.json"
 )
 
 def _download_json(url: str) -> dict:
@@ -51,6 +50,11 @@ def _write_prompts_csv(prompts: List[Dict[str, str]], csv_path: Path) -> None:
         writer = csv.DictWriter(f, fieldnames=["id", "caption", "source"])
         writer.writeheader()
         writer.writerows(prompts)
+
+# Public function expected by other modules
+def write_prompts_to_csv(prompts: List[Dict[str, str]], csv_path: Path) -> None:
+    """Convenient wrapper used by other scripts; forwards to the internal writer."""
+    _write_prompts_csv(prompts, csv_path)
 
 def fetch_diverse_prompts(num_samples: int = 1000) -> List[Dict[str, str]]:
     """
@@ -91,7 +95,7 @@ def main() -> None:
     try:
         prompts = fetch_diverse_prompts(num_samples=1000)
         output_path = Path("data/processed/diverse_prompts.csv")
-        _write_prompts_csv(prompts, output_path)
+        write_prompts_to_csv(prompts, output_path)
 
         # Verify output
         if not output_path.is_file():

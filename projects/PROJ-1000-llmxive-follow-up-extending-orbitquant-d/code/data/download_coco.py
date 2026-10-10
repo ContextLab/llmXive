@@ -27,10 +27,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Public URL for COCO 2017 validation captions
+# Public URL for COCO 2017 validation captions (official COCO API repository)
 COCO_VAL_URL = (
-    "https://raw.githubusercontent.com/COCO-SSD/COCO-SSD/master/annotations/"
-    "captions_val2017.json"
+    "https://raw.githubusercontent.com/cocodataset/cocoapi/master/annotations/captions_val2017.json"
 )
 
 def _download_json(url: str) -> dict:
@@ -52,6 +51,24 @@ def _write_captions_csv(captions: list[dict], csv_path: Path) -> None:
         writer.writeheader()
         for entry in captions:
             writer.writerow(entry)
+
+def load_coco_captions(config: Config) -> list[dict]:
+    """
+    Load the previously downloaded COCO validation captions from CSV.
+
+    Returns a list of ``{'id': str, 'caption': str}`` dictionaries.
+    """
+    csv_path = config.raw_data_dir / "coco_captions" / "captions.csv"
+    if not csv_path.is_file():
+        raise RuntimeError(f"Captions CSV not found at {csv_path}. Have you run this script?")
+    captions = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            captions.append({"id": row["id"], "caption": row["caption"]})
+    if not captions:
+        raise RuntimeError("Loaded captions CSV is empty.")
+    return captions
 
 def main() -> None:
     """Entry point: download validation captions and write CSV + metadata."""
