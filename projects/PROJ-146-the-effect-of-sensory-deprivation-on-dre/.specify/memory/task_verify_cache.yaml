@@ -1,3 +1,54 @@
+T001:
+  c: false
+  h: 1f933eeb5239750d6023b9cbe352832ba7e3fabdcb3e6f7ea7dee2403e7957b4
+  r: "Checked the project root `projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/`\
+    \ and its sub\u2011folders. The required directories `data/raw/`, `data/synthetic/`,\
+    \ `data/processed/`, and `results/reports/` are missing, so the prescribed directory\
+    \ structure is not fully created."
+  sig: 210e97e048fe012756c5387b6e954070714cc45e5de4a0d3b62c27f6afbf8d2a
+T002:
+  c: false
+  h: 788e210bfba99b46f05c49f9ba25fa51671cf11bba105a33074f3ce9191ff663
+  r: "The only artifact found is `code/requirements.txt`, which does contain the required\
+    \ packages (pandas, numpy, statsmodels, scikit-learn, seaborn, pyyaml, pytest)\
+    \ but also adds extra entries (black, ruff) and there is no evidence of a Python\u202F\
+    3.11 project initialization file (e.g., `pyproject.toml`, `setup.cfg`, or a version\u2011\
+    specifying configuration). Without such a manifest specifying Python\u202F3.11,\
+    \ the claim that the project has been initialized for that interpreter cannot\
+    \ be verified. Adding a proper project configuration file that declares `requires-python\
+    \ = \">=3.11\"` (and optionally the requir"
+  sig: b3ac2ee9fd3c4262787de53a416474c72dda07bec3ee1c191eec0b38b31fca74
+T003:
+  c: false
+  h: ec5f89f2e5cbb6f30f7f469f412a2fb0d98cce1d5d701d5517dd1e26f11a579e
+  r: "Checked the project root `projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre`\
+    \ for any linting/formatting configuration artifacts (e.g., `pyproject.toml` with\
+    \ Black settings, `.ruff.toml`, `ruff.toml`, or a pre\u2011commit hook file) and\
+    \ found none; no evidence of ruff or Black being installed or configured. The\
+    \ required configuration files or scripts are missing, so the task is not satisfied."
+  sig: a906458f3a83261de11841da6920098869dc0d14609866337b38c3d84fd427bc
+T004:
+  c: true
+  h: 588fcd11913b579e7b3fcf769f4735d26dd135e1d0c105302e5152422d6b30c9
+  r: "Checked the presence and content of `data/ethics/ethics-waiver.md` (3134\u202F\
+    bytes) which provides the required synthetic\u2011data ethics waiver placeholder.\
+    \ The file exists and fulfills the task\u2019s specification."
+  sig: 53eabd93b3e72ecea0815e92503539f4b0ef541ab9087825258ff86c82f44b7d
+T005:
+  c: true
+  h: be4ef3c4dd2062d9d5b3f157fb1964724b6c57574ba0fa5036ed7aca23a4e1bf
+  r: "Checked `data/protocols/protocol.yaml` (846\u202Fbytes) which contains the exact\
+    \ threshold label strings, N\u202F=\u202F200, the three effect size entries (\u201C\
+    moderate positive\u201D, \u201Cnull\u201D, \u201Cmoderate negative\u201D), and\
+    \ ICC\u202F=\u202F0.3 as required."
+  sig: ad3a80456ca2032edf83f5c64e09eb4f136126ccb2b94bee6aa390f54952abf4
+T006:
+  c: false
+  h: f853c1441e7c3898ce4a9396cac2abffa38afae34054976cd5be01e4fb9e3603
+  r: "The `contracts/` directory is present, but both required files `dataset.schema.yaml`\
+    \ and `model-output.schema.yaml` are missing, so the task\u2019s core deliverables\
+    \ were not created."
+  sig: 763a7a79f62feef78856646294b06000df9da2ba338fef084c6739be604187dd
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

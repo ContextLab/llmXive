@@ -1,0 +1,104 @@
+T001:
+  reason: "Checked the project root `projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/`\
+    \ and its sub\u2011folders. The required directories `data/raw/`, `data/synthetic/`,\
+    \ `data/processed/`, and `results/reports/` are missing, so the prescribed directory\
+    \ structure is not fully created."
+  task: fd9749df37c2551938dc5880fcc73581cee6ed175995d42e50dc7f7415028214
+T002:
+  reason: "The only artifact found is `code/requirements.txt`, which does contain\
+    \ the required packages (pandas, numpy, statsmodels, scikit-learn, seaborn, pyyaml,\
+    \ pytest) but also adds extra entries (black, ruff) and there is no evidence of\
+    \ a Python\u202F3.11 project initialization file (e.g., `pyproject.toml`, `setup.cfg`,\
+    \ or a version\u2011specifying configuration). Without such a manifest specifying\
+    \ Python\u202F3.11, the claim that the project has been initialized for that interpreter\
+    \ cannot be verified. Adding a proper project configuration file that declares\
+    \ `requires-python = \">=3.11\"` (and optionally the requir"
+  task: 2800f66a98736aac73986fd4fd3ea4a984e7b9d13752e1b8d42dddf4c1417bb1
+T003:
+  reason: "Checked the project root `projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre`\
+    \ for any linting/formatting configuration artifacts (e.g., `pyproject.toml` with\
+    \ Black settings, `.ruff.toml`, `ruff.toml`, or a pre\u2011commit hook file) and\
+    \ found none; no evidence of ruff or Black being installed or configured. The\
+    \ required configuration files or scripts are missing, so the task is not satisfied."
+  task: dc052eeb99bd88469008c614bd2759598e7884d5159f8c811c1a7d33386daa23
+T004:
+  task: 80e6de0a3853c433540f317abec543987709f9c8d0188f8df4da1eadcf6fcd8b
+T005:
+  task: 2a7accd94cee21712e947c19205308abd65a7d93445a38b0687a0309588ff6d2
+T006:
+  reason: "The `contracts/` directory is present, but both required files `dataset.schema.yaml`\
+    \ and `model-output.schema.yaml` are missing, so the task\u2019s core deliverables\
+    \ were not created."
+  task: 3422e23c09ea5ae6d85eabd255c226c6fb0976f3146e284f6053c843cc7546f3
+T007:
+  task: 4b8ca3c7b98afef63e0d14dd7ef9a309315c053600bfe6887d4ad2b896529bb6
+T008:
+  task: c9c480d815f29e747b1b0580e91f584e344173f21a86e063a51e040e81247456
+T009:
+  task: fa478a8b737e8c41bb39b1ab8b5337ece434a466a7b9adc9820b8fa7063689fc
+T010:
+  task: 24540bb6e2cdde90489351bc1cafc69e80b32d7350b1618739fe850dec74c0e5
+T011:
+  task: dad5f41853d879fc60d6f0bc57b95a78ddbf7f308c63e359e5778f86e373914a
+T012:
+  task: c7c06b4cd9568a0eb00c7a1dd4650cab31679bffbcfef63d9f4b79a44d9dfc51
+T013:
+  task: 2f021b96806c5349e077cc8cdd3482936861ee50c38b33ae0205e5764c9dcac1
+T014:
+  task: 8acb64e58d249ec1b357a0c7abcd66e649fdfd130373c1a5fa7e207283b4fbf0
+T015:
+  task: 50c5cc6fcce5e5bf298bfaa63f4e4c7bfa3791061f450648328de2fd4b041551
+T016:
+  task: c4a79e60186c945f251a06c361595eff6a2de4d2294fb8efae26b52a2922ea86
+T017:
+  task: 65171634d036b6c94311f145aa9c7ae783a1dc7345a0e65f41d8b7b6a3ede734
+T018:
+  task: 1474fb6adb7cd868a71d3dabf1788de2637c668e82dec4f3f98c78743f9784e1
+T019:
+  task: bc4b4bb48764ee102cfd31f1c1e8d44aaed08b80850c6e063a876d856525d06c
+T020:
+  task: af37f3d355dfe94677ade1d5327437ea29e3295f24968fef158da222237c8407
+T021:
+  task: 7db479402262b07adadfdd2875af71a353b35ad0ba22f1249a25eb2386724910
+T022:
+  task: 4664edf20b8e6d3c41f08a41c72e31366344caf84c05ba6ac26c64a3c91d9650
+T022a:
+  task: 12159f0310da9a470bdcd6b03fd8b51b8668f67920c26d05025608817fbda702
+T023:
+  task: 8723fcb920627122e299fbb7fa6b52328b3a1cf456cc44f9df005bc0c5588fbf
+T024:
+  task: 617229ee3dc06dd4db23dd3d9165f48f825980ff6fd8e26491e378fdc11661d7
+T025:
+  task: f36def96d7e980e72d5a9c8afb081f93ccd2d7fddde772cad5b73250c659cd47
+T026:
+  task: 8cd6870fe5e61edf44f17657f6b5d6182e86dfb103234e1f11104d0d7b3fe6d9
+T027:
+  task: d3e3ae5124c7ae942953cf77df48b14cb2d1f0460bc59e56812ea191a0827480
+T028:
+  task: 64243f78ee07a46b743246d76c1f37128c0fb1bc88a07ee8b323f91cda3313f9
+T029:
+  task: d4e926ede4493af7a12f5714062384349b52d273e657477d45487fd930f7d840
+T030:
+  task: c42bcd4de00a69336602cfd592988594b048691bcd1895c28ffde6c5b0791670
+T031:
+  task: f502723024b4d98c504a6784e0d2635040c44f861ec812083066d2116b64da4c
+T032:
+  task: d79cee3512bf20c9fbbdb862d657a33dae59741e1010b82186afdd0d76540ec4
+T033:
+  task: c6e2cc51a9d4fde5e816cc288f2fc048966f695044b933919d23af5fc4af8c6d
+T034:
+  task: 80d5b041286ad7b470871e5af02a6a5cff7737d06f8aaac11ce3180a2cf3c29c
+T035:
+  task: 686250eb7df33f254ada058dc20f51d09bf6f5395b3f3a68ab5608e027b8c5b7
+T036:
+  task: 2a1f073f7da55b2171381016c5884723620f63a745f3fd6fb6e4e523125df53c
+T037:
+  task: 4c65ed76a1154587beafe595ee6fce9aff525061aa183d85e33863ae3dc45fcf
+T038:
+  task: 57b7c9956bf7d681c21f2a9288246c02657ce351172c80cc2745e15e592241bc
+T039:
+  task: 4a5714f13080ebd94d897187c0578674adbf204d60a192155c2d372d6058c246
+T040:
+  task: ef0cb4ec429a9ab9f39bcfba4f08c68f78753774263ad195b968eb3a87e70bfb
+T041:
+  task: bbc0b0b03bb59eff6a88ac67365808fcd4f3c53d44cbdddfd30fa22a72615087
