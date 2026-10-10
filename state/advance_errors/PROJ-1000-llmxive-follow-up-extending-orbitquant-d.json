@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
-  "stage": "planned",
+  "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "model_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-10T04:32:26.278569+00:00",
-  "last_seen": "2026-10-10T05:17:30.018583+00:00",
-  "retry_after": null,
-  "last_error": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | anthropic.claude-haiku-4-5-20251001(model-down attempt 1): Dartmouth model 'anthropic.claude-haiku-4-5-20251001' hung past 180s deadline (no response received)",
-  "evidence": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 conse",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-10T05:25:35.576175+00:00",
+  "last_seen": "2026-10-10T05:25:35.576175+00:00",
+  "retry_after": "2026-10-10T05:35:35.576175+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }

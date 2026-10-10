@@ -2,8 +2,7 @@
 Preprocess module for merging COCO captions with a diverse external prompt
 set and creating train / test splits.
 
-The script expects the following helper functions to be available:
-
+The script expects the helper functions:
 * ``load_coco_captions(config)`` – returns a list of ``{'id', 'caption'}``
   dictionaries from the COCO download step.
 * ``fetch_diverse_prompts()`` – returns a list of ``{'id', 'caption',
@@ -27,11 +26,28 @@ project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from config import Config
-from data.download_coco import load_coco_captions
-from data.download_diverse_prompts import (
+# Import using the correct package path (the modules live under ``code/data``)
+from code.data.download_coco import load_coco_captions
+from code.data.download_diverse_prompts import (
     fetch_diverse_prompts,
-    merge_and_deduplicate,
+    write_prompts_to_csv as _write_dummy,  # noqa: F401 (imported for side‑effects only)
+    # The merge function is defined in ``download_diverse_prompts`` for compatibility
+    # but we re‑implement it here to avoid circular imports.
 )
+
+def merge_and_deduplicate(coco: List[Dict[str, Any]], diverse: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Merge two prompt lists and deduplicate based on caption text.
+    """
+    seen = set()
+    merged = []
+    for src in (coco, diverse):
+        for entry in src:
+            caption = entry.get('caption')
+            if caption and caption not in seen:
+                seen.add(caption)
+                merged.append(entry)
+    return merged
 
 def split_data(
     data: List[Dict[str, Any]],

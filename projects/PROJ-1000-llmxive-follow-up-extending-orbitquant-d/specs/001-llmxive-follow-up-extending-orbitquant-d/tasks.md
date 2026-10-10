@@ -15,7 +15,7 @@ All tasks are expressed as check‑boxes with the canonical `- [ ] T### [P?] [US
 
 ## Phase 2 – Data acquisition & prompt preparation  
 
-- [ ] T002 [P] Download MS‑COCO validation set, extract captions, and fetch a diverse external prompt set   <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 -->
+- [ ] T002 [P] Download MS‑COCO validation set, extract captions, and fetch a diverse external prompt set   <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 -->
   - **Steps**  
     1. `code/data/download_coco.py` → `data/raw/coco_captions/` (HuggingFace `nlpconnect/coco_captions`, split = validation).  
     2. `code/data/preprocess.py` → `data/processed/prompts.csv` with columns `image_id, caption`. Must contain ≥ 400 rows.  

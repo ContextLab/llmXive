@@ -1,15 +1,11 @@
 """
-Download and cache the MS-COCO 2017 validation captions using the
-HuggingFace `nlpconnect/coco_captions` dataset (split=validation).
+Download and cache the MS-COCO 2017 validation captions using a publicly
+accessible HuggingFace dataset.
 
-The script streams the dataset to avoid loading the entire ~8 GB
-collection into memory. Captions are written to a CSV file under
-`data/raw/coco_captions/` and a small metadata JSON file is stored
+The script streams the dataset to avoid loading the entire collection
+into memory. Captions are written to a CSV file under
+``data/raw/coco_captions/`` and a small metadata JSON file is stored
 alongside it.
-
-The module also provides a helper `load_coco_captions(config)` that
-reads the generated CSV and returns a list of ``{'id': <str>,
-'caption': <str>}`` dictionaries for downstream processing.
 
 All failures raise ``RuntimeError`` – no synthetic fallback is used.
 """
@@ -34,16 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def _stream_coco_captions(
-    dataset_name: str = "nlpconnect/coco_captions",
+    dataset_name: str = "cocodataset/COCO2017",
     split: str = "validation",
 ) -> Iterator[Dict[str, Any]]:
     """
     Stream the COCO captions dataset.
 
     Yields dictionaries with keys ``id`` (image identifier) and
-    ``caption`` (a single caption string).  The original dataset
-    contains multiple captions per image; we emit each caption as a
-    separate record to maximise the number of usable prompts.
+    ``caption`` (a single caption string). The dataset provides a list of
+    captions per image; each caption is emitted as a separate record.
     """
     try:
         from datasets import load_dataset
@@ -52,9 +47,7 @@ def _stream_coco_captions(
             "The 'datasets' library is required. Install it via: pip install datasets"
         ) from exc
 
-    logger.info(
-        f"Loading dataset {dataset_name} (split={split}) with streaming..."
-    )
+    logger.info(f"Loading dataset {dataset_name} (split={split}) with streaming...")
     try:
         ds = load_dataset(
             dataset_name,
@@ -66,7 +59,7 @@ def _stream_coco_captions(
         raise RuntimeError(f"Failed to load COCO captions dataset: {e}") from e
 
     for item in ds:
-        # The dataset provides an 'image_id' and a list of 'captions'
+        # The COCO dataset uses 'image_id' and a list of 'captions'
         image_id = item.get("image_id") or item.get("id")
         captions = item.get("captions") or item.get("caption")
         if not captions:
@@ -142,7 +135,7 @@ def main() -> None:
         logger.info(f"Finished streaming – total captions written: {count}")
 
         metadata = {
-            "dataset": "nlpconnect/coco_captions",
+            "dataset": "cocodataset/COCO2017",
             "split": "validation",
             "num_records": count,
             "csv_path": str(output_csv),

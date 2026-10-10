@@ -1,9 +1,12 @@
 status: none
-intent: COCO 2017 validation captions download via Python package dataset
+intent: download MS COCO 2017 validation captions via Hugging Face datasets python
+  package dataset
 required_fields:
 - image_id
-- file_name
 - caption
-cache_key: 27513444b3636551bac08d582bcafa8be4666650bc2faa2a7e9564f8feb99b39
-searched_at: '2026-10-10T05:22:50.224778+00:00'
+- file_name
+- height
+- width
+cache_key: f66a422026436fd729d213b0d824225aa406ba1ee52de8eebf51f5a6ad1b22ee
+searched_at: '2026-10-10T05:25:27.006703+00:00'
 retry_count: 1

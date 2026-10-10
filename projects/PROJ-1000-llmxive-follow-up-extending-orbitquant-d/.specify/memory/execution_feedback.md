@@ -39,20 +39,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download_coco.py -> rc=1
-k/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 136, in main
+nner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 129, in main
     for record in _stream_coco_captions():
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 66, in _stream_coco_captions
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 59, in _stream_coco_captions
     raise RuntimeError(f"Failed to load COCO captions dataset: {e}") from e
-RuntimeError: Failed to load COCO captions dataset: Dataset 'nlpconnect/coco_captions' doesn't exist on the Hub or cannot be accessed.
+RuntimeError: Failed to load COCO captions dataset: Dataset 'cocodataset/COCO2017' doesn't exist on the Hub or cannot be accessed.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 166, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 159, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 161, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 154, in main
     raise RuntimeError(f"Failed to stream COCO captions: {e}") from e
-RuntimeError: Failed to stream COCO captions: Failed to load COCO captions dataset: Dataset 'nlpconnect/coco_captions' doesn't exist on the Hub or cannot be accessed.
+RuntimeError: Failed to stream COCO captions: Failed to load COCO captions dataset: Dataset 'cocodataset/COCO2017' doesn't exist on the Hub or cannot be accessed.
 
 - python code/main.py --mode full -> rc=2
 
@@ -60,10 +60,7 @@ usage: main.py [-h] --phase {init,validate}
 main.py: error: the following arguments are required: --phase
 
 - python -m pytest tests/unit/ -> rc=2
-lidate_clustering.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 tests/unit/test_validate_clustering.py:15: in <module>
@@ -71,32 +68,34 @@ tests/unit/test_validate_clustering.py:15: in <module>
 E   ImportError: cannot import name 'REQUIRED_TOP_LEVEL_KEYS' from 'validation.validate_clustering' (/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/validation/validate_clustering.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_clustering.py - FileNotFoundError: [Errno 2] No such fi...
+ERROR tests/unit/test_download_diverse_prompts.py - NameError: name 'List' is...
 ERROR tests/unit/test_load_matrices.py
+ERROR tests/unit/test_preprocess.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_router_inference.py
 ERROR tests/unit/test_timing.py - FileNotFoundError: [Errno 2] No such file o...
 ERROR tests/unit/test_validate_clustering.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 6.12s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 5.24s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-__ ERROR collecting tests/integration/test_preprocess.py _____________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/tests/integration/test_preprocess.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/integration/test_preprocess.py:21: in <module>
-    from data.preprocess import split_data, write_csv, main
-E   ModuleNotFoundError: No module named 'data.preprocess'
+pen
+    return open_func(self.baseFilename, self.mode,
+E   FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/logs/timing_run.log'
+____________ ERROR collecting tests/integration/test_preprocess.py _____________
+tests/integration/test_preprocess.py:10: in <module>
+    from code.data.download_diverse_prompts import main as download_diverse_main
+code/data/download_diverse_prompts.py:32: in <module>
+    def fetch_diverse_prompts(num_samples: int = 1000) -> List[Dict[str, str]]:
+                                                          ^^^^
+E   NameError: name 'List' is not defined
 =========================== short test summary info ============================
 ERROR tests/integration/test_activation_variance.py
 ERROR tests/integration/test_download_diverse_prompts.py
 ERROR tests/integration/test_full_pipeline.py - FileNotFoundError: [Errno 2] ...
-ERROR tests/integration/test_preprocess.py
+ERROR tests/integration/test_preprocess.py - NameError: name 'List' is not de...
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 5.60s ===============================
+============================== 4 errors in 5.31s ===============================
 
 
 
@@ -153,10 +152,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/entropy_proxy.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity.py` — NOT invoked by the run-book
     - `code/config.py` — NOT invoked by the run-book
-    - `code/data/download_coco.py` — IS a run-book command
     - `code/data/download_diverse_prompts.py` — NOT invoked by the run-book
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/evaluation/metrics.py` — NOT invoked by the run-book
+    - `code/evaluation/timing.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/prompts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/quantized_activations.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/mse_validator.py` — NOT invoked by the run-book
