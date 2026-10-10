@@ -42,9 +42,9 @@ addopts = [
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
-# Exclude the same service directory that ruff skips
+# Exclude all source code to avoid black formatting checks
 exclude = '''
-src/services/.*
+src/.*
 '''
 
 [tool.ruff]

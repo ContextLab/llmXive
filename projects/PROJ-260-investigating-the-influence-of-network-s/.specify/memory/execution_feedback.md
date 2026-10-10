@@ -11,7 +11,7 @@ ator.py         144    144     0%   1-246
 src/services/run_registry_validator.py       8      8     0%   7-18
 src/services/topology_extractor.py         201    201     0%   1-408
 ----------------------------------------------------------------------
-TOTAL                                      696    696     0%
+TOTAL                                      717    717     0%
 
 FAIL Required test coverage of 70% not reached. Total coverage: 0.00%
 =========================== short test summary info ============================
@@ -21,7 +21,7 @@ ERROR tests/unit/test_registry_validator.py
 ERROR tests/unit/test_simulation_box.py
 ERROR tests/unit/test_utils.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 5 errors in 0.72s =========================
+========================= 1 warning, 5 errors in 0.75s =========================
 
 /home/runner/work/llmXive/llmXive/projects/PROJ-260-investigating-the-influence-of-network-s/code/.venv/lib/python3.11/site-packages/coverage/control.py:967: CoverageWarning: No data was collected. (no-data-collected); see https://coverage.readthedocs.io/en/7.16.2/messages.html#warning-no-data-collected
   self._warn("No data was collected.", slug="no-data-collected")

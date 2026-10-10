@@ -19,7 +19,7 @@ artifact paths and an explicit verification step.
 - [X] **T002**  Create the output‑directory hierarchy `outputs/`, `outputs/figures/`, `outputs/reports/` and write its tree to `docs/design/output_tree.txt`.  
   **Verification**: `cat docs/design/output_tree.txt` must list the three output folders.
 
-- [ ] **T003**  Initialise a Python project with a pinned `requirements.txt` containing  
+- [X] **T003**  Initialise a Python project with a pinned `requirements.txt` containing  
   `numpy`, `scipy`, `pandas`, `scikit-learn`, `ase`, `matplotlib`, `seaborn`, `networkx`, `pytest`, `pytest-cov`, `pytest-randomly`, `statsmodels`.  
   **Verification**: `pip install -r requirements.txt` succeeds without version conflicts.
 

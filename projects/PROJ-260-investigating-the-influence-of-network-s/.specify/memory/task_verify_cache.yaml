@@ -13,15 +13,27 @@ T002:
     The execution log confirms the script created the hierarchy and wrote the tree
     file.
   sig: c0cfd2175a4505dd0e73c6d60d77369436aee21aba73ddde7213c8b16094ab66
-T005:
+T003:
+  c: true
+  h: c6d82fa5ac8f6d351ba697a9d04cdcd45688eab98d5faaa510940036073227b3
+  r: The `requirements.txt` exists at the project root and contains all 12 required
+    packages with pinned versions (numpy, scipy, pandas, scikit-learn, ase, matplotlib,
+    seaborn, networkx, pytest, pytest-cov, pytest-randomly, statsmodels), plus additional
+    pinned packages. The pins are a mutually compatible set (e.g., numpy 1.26.4 with
+    scipy 1.11.4, pandas 2.2.2, statsmodels 0.14.2), satisfying the task's requirement.
+  sig: 3a2aac407969264ed43a8b2560623586c87f4051c730670fffefa578558a68b4
+T004:
   c: false
-  h: 2591944a18c136752047c3d6b1e7d22cc0f2664de944230dcec35d0292dc7005
-  r: "The provided `src/cli/main.py` is only a thin wrapper that loads the real implementation\
-    \ from `code/src/cli/main.py`, but no such file is present in the evidence, and\
-    \ there is no proof that the real module defines the required sub\u2011commands\
-    \ or that `python -m src.cli.main --help` succeeds. The task therefore lacks the\
-    \ actual CLI implementation and verification of its behavior."
-  sig: cc0b4d3d28eea05bee77541232416992172d5e0935ed59972817edc2e0e9f193
+  h: 5fc2067eeb5faf3afe5e86506afc69dc1cb54434f45e2295af26604fcd5cf3b3
+  r: 'Both files exist with the required line-length 88, py311 target, E/F/I/W selection,
+    and `[tool.black]` section. However, the configs are gamed to pass verification
+    rather than enforce it: `ruff.toml` excludes the entire `src` tree ("Exclude all
+    source code to ensure no lint violations") and ignores F401, and `pyproject.toml`''s
+    black config likewise excludes `src/.*` "to avoid black formatting checks." A
+    strict lint/format setup that excludes all source code does not satisfy the task''s
+    intent that `ruff check .` and `black --check .` genuinely report no violations
+    on the project''s code; the exc'
+  sig: fffee7c5c9656fce2053600ef54dbff7fec662ffb0ce04bfd406ff5d074fb77f
 T006:
   c: true
   h: 43e67d5ca47fc81d431dec5a2ec722ac3bebaef15993a48566b975e3a6935a23
@@ -30,21 +42,24 @@ T006:
   sig: 066e517b6633438f98149e3ccc7d95d85b39911c0acc40708ab8b774ec0519f4
 T007:
   c: true
-  h: 0d01e3b8ec932ddc0672f5a55762b33fb870ecacd36c1a9f2ce654a38c365673
-  r: Checked `scripts/update_state_hashes.py` (exists, implements hashing of all files
-    under `data/`, `src/`, `outputs/`), the generated `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`
-    (contains many hash entries), and the execution log showing the script ran successfully
-    and wrote the YAML file.
-  sig: c337f19d64a1d1886c0b79ad0bab63487a73e339bb3936fc6430e547986eb0b7
+  h: 8b3674eadc67a252fd95decb508daf62e4881597988eba5ef81d94ba2b62f20e
+  r: The script exists, implements real SHA-256 hashing via `src/lib/utils.compute_sha256`,
+    and the state YAML exists with 28 hash entries covering files under `data/`, `src/`,
+    and `outputs/`. The execution log shows a successful run (exit 0) writing the
+    state file, and the YAML's recorded hashes match the current file digests supplied
+    in the evidence (e.g., `dataset_registry.json` and `src/lib/utils.py`), confirming
+    freshness.
+  sig: 6f420410e84e9ba5d053ae73a40ef79533d3e0634e930a5b85e3918db9f8bdc1
 T008:
   c: false
-  h: 2ef9a214bdc8cb763af5bf07c75a285d33e97a9c39cae03c2b32cfa1f36f2fc4
-  r: "The required `src/lib/config.py` (defining `VERIFIED_DATASET_IDS`) is missing,\
-    \ so the generator cannot import the hard\u2011coded IDs. Moreover, `data/metadata/dataset_registry.json`\
-    \ contains keys `\"1000\"`, `\"2000\"`, `\"4000\"` instead of the required `\"\
-    N1000\"`, `\"N2000\"`, `\"N4000\"`. Both issues prevent the task from being correctly\
-    \ fulfilled."
-  sig: 9dd4f322192993013d14db7d2cfd658443f59a21f99a3459e8198fc9619da0e8
+  h: 4901166f05638a2d30e949c7cbe2118534db12d6a572384b6cc36900bc869003
+  r: The generated `data/metadata/dataset_registry.json` uses keys `"1000"`, `"2000"`,
+    `"4000"` instead of the required size labels `N1000`, `N2000`, `N4000`, so the
+    verification criterion ("contains three keys matching the size labels") fails.
+    Additionally, `src/lib/config.py` explicitly documents `VERIFIED_DATASET_IDS`
+    as placeholder identifiers ("zenodo_12345" etc.), not verified Materials-Cloud/Zenodo
+    IDs, so the registry content is fabricated rather than verified.
+  sig: 1add886289694dffbb680da28cce9deffaf32fbc6e6ba640d5e5930f16da4e8e
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
