@@ -1,15 +1,19 @@
 status: none
-intent: Earth Microbiome Project 16S raw FASTQ with pH temperature metadata SILVA
-  Greengenes python package dataset
+intent: QIIME2 16S rRNA OTU ASV table FASTQ pH temperature sensor logs python package
+  dataset
 required_fields:
 - sample_id
-- collection_timestamp
+- timestamp
 - latitude
 - longitude
-- pH
-- temperature
-- otu_counts_or_asv_counts
+- ph_value
+- temperature_celsius
+- otu_id
+- asv_id
+- microbial_abundance_count
+- normalized_abundance
 - shannon_diversity_index
-cache_key: ffcf24145e689b8dec77ced9af75a729217638821a571b4cb0314b4964e1f352
-searched_at: '2026-08-11T08:45:14.632233+00:00'
+- fastq_sequence_read
+cache_key: 41793dd286335aedd1d4b3bf140f48a4554ac65a2351914d5b283a851651d81b
+searched_at: '2026-10-10T05:30:09.139704+00:00'
 retry_count: 1

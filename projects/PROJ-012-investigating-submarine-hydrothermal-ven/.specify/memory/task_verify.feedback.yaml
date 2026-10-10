@@ -1,0 +1,135 @@
+T001:
+  task: 85df1069394c523a04a97edd799907ea71a1674e8d99f1ef1aab3ea8d4d35d69
+T002:
+  reason: "The `requirements.txt` file exists and is non-empty, but it is **missing\
+    \ a critical required dependency**: `qiime2`. The task explicitly specifies that\
+    \ the project must include `qiime2` in the dependencies, yet the artifact lists\
+    \ only 13 packages (pandas, scikit-learn, statsmodels, biopython, scipy, matplotlib,\
+    \ seaborn, skbio, pytest, ruff, black, isort, pyyaml) without qiime2. The file\
+    \ also includes three additional packages (pytest, ruff, black, isort, pyyaml)\
+    \ not mentioned in the task specification, but the omission of qiime2\u2014which\
+    \ was explicitly required\u2014means the deliverable does not matc"
+  task: 9b1219917dc48eea1176c06b01d9e94a7d3e196d6b65faa3c9280c54c84e658a
+T002b:
+  task: f3c670c29bfdaca2ef44d4cecc58f808157f7bbfeca75cc8f3b4f2b675812e2f
+T003:
+  reason: "The task requires configuring linting (`ruff`) and formatting (`black`)\
+    \ tools, but the evidence shows critical gaps:\n\n1. **Ruff configuration failed**:\
+    \ The log states \"ruff accepted the configuration (exit 1)\" \u2014 exit code\
+    \ 1 indicates failure, not success. The \"OK\" label is misleading; a non-zero\
+    \ exit code means ruff rejected the configuration.\n\n2. **Black not installed**:\
+    \ The verification script explicitly notes \"black not installed; skipping live\
+    \ check,\" meaning the formatting tool was never actually configured or validated\
+    \ on the system.\n\n3. **No configuration artifacts shown**: The evidence"
+  task: 190cf20156fe34406d66516d932e39c054a0e51b2a99cb01d50784ffd0882de9
+T004:
+  task: 90745ec60d909f91f74e3ce99df736d45fffa7ed31f39dc3010bf9dfb0f650ef
+T005:
+  task: 8d226dfd848c34eacb6399de433389f99ffdf418e83b73438cf90c98ceab2b95
+T006:
+  reason: "The `conftest.py` file exists and contains pytest configuration, but it\
+    \ has critical defects that prevent it from functioning correctly:\n\n1. **Import\
+    \ mismatch with data_models.py**: The `conftest.py` imports `Sample`, `OTU`, and\
+    \ `DiversityMetric` from `code.data_models`, but the actual `data_models.py` defines\
+    \ these classes with different field names. For example:\n   - `conftest.py` creates\
+    \ `Sample(ph=7.2, ...)` but `data_models.py` defines the field as `pH` (capital\
+    \ letters)\n   - `conftest.py` uses `ph_sd=0.05` but `data_models.py` defines\
+    \ it as `pH_sd`\n   - `conftest.py` passes `coordinates="
+  task: edb9a65569ef1cedc0505e00c5e4551aff1e2231c050f66e129d024b4a246692
+T007:
+  task: adf3dfc0a9894ba6575da316aae0a1969802e1f41c0ef2d67d872419eb95274b
+T008:
+  task: 4166febea9afe3297e246a07d01bbab4df5a4e5359126aba3143405fab5f37c7
+T009:
+  task: ad9ede6bd44212211a727d1caa07e76dd0729673fd18d840fc3e9dc5f47f9a1b
+T010:
+  task: 1c3d10d93fe6801eb3b69caaa56b5f27b11617633da3fce983fa013471953f3c
+T011:
+  task: e5d5ca138b51ab472eeeacee3d7fcd55270830191293cbd8f31c0aa089f4a6e1
+T012:
+  task: e28b3816879fdcc13e88edd183e7935605cbeb729000b0e8132348b214fba2c7
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/filtered_unified_sample_table.csv'
+  task: 2e7bac33e926256061de5d5eb2a0e3746442dad2d1217efd78901b0f1e8774c6
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/unified_sample_table.csv'
+  task: a742408bc2e60d99f54d803845308eb4a93d641ea70259d7d97450d9fd6c246c
+T015:
+  task: 5150e9a6af89ddad9cffa694f9cdb4a4b7a544ba9b86a9249531a79f1a3d1141
+T016:
+  task: 6ae379f7ddbaedab3fb530a5630a2c6a8495742c2fde94ff4e3f2e1a7162447a
+T017:
+  task: e2c1e9712fa4f4a1be5b4a2d75e8d4f8f228287537561b086128486f6bcfb081
+T018:
+  task: 0ae4d77fd180d1f5e6aa2aa69583946382802818f89d1339ae57c0fa8b94a525
+T019:
+  task: a61d96ee775c9ca8919a8af6e7c7b14e1b9ccfc1b8fadcc9e8f66e8390a7afd3
+T020:
+  task: 0bc4f32ce4537451ed3983b2e44bcfd5a9491146063db6e3fb6432fca14cfe18
+T020b:
+  task: 05b25ce68017a55828f72a14c049d50cfeb25ce7941cc63efef350225bba81bf
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/diversity_transformed.csv'
+  task: 5a786c98470f65f40bbfc854cfe46b34bffa5087df3f0e4f412a28508b2dd5d9
+T022:
+  task: 5380b433d44232fc9dbac6c70830b138507933d03dc70767f2de17e79f834aa7
+T023:
+  task: f209a45dc1b7611c4ed5a85030b1000b82f52e134228940e2328f1678df1219c
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/alpha_diversity_results.csv'
+  task: b749d75f649c734533ad09e29eefd018165130560233c64664d8b9d7e6a39277
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/alpha_diversity_results.csv'
+  task: a9736d62ca614e0f964e358d8255c30c4f7ead753c6172fb44b9de4075717502
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis_log.json'
+  task: 2b8b0f850c474b18bf9b2f48740c2f831c9ab5b8c31ec1c54d14621aa646b4b2
+T027:
+  task: 278719cc2525bdf60c943ae0a6c0f2f5bcbeb48602b22c5d0aaac66ce63d341c
+T028:
+  task: 354554cde482b18f752960626a0af80011ffaa5247cd92933eac6ae4f123109b
+T029:
+  task: 618e9907fcbef291c02aa6e25c1ef07c72b5df6863cee7ae1c7d05fd205c7ca5
+T030:
+  task: 8ba0e31db1dd80364271ccd2a1851191498e66e894b0d862aa9c8f9d19a37b15
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/beta_balanced_subset.csv,
+    data/processed/beta_diversity_results.csv'
+  task: 1a107065badd1f6a4ada03dd9946ede8a4ad7e8758ef28ce80d95682ab1aaf4f
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/ordination_coords.csv'
+  task: f6ae3ae093a2789ac539c7947de7e556b6d6c51d8429df887b4a1acad2e4b40f
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/dbRDA_results.csv'
+  task: 161318dca574ae6fbf6127327130abe43001011ad2d0956c7cf986521728f2ae
+T034:
+  task: d5bc622052e8983aa6312f30d394d808d3f6f43004741cd59c85c9f7e02902ab
+T036:
+  task: 3b656743fd038fb6704e5f9dc7ab7ac673e259e396d7e916e4f968e45992c72c
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: results/summary_report.md'
+  task: 2ee13ecca661a4c6359dc8a61929ad378276332995ba73aa65f5ecfa6f2e8d57
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/mock_data/,
+    tests/integration/test_runtime_limit.py, state/runtime_log.json'
+  task: 0cf96318f9b6f05eb9e1430158e12c9ae4e194fec78856359db12bd890a127ed
+T040:
+  task: ffd2450cf9d1b42fc1e2d15437f0ec47ee89403f095ad559c59d8336c2bd77af
+T041:
+  task: 69cf5dde184bac02ab82f22397a759c2163b4804703395cf593432b9b869dbf8
+T049:
+  task: 654626d184b235917f0ea4c9034cfb7a9468ae13aa91532771941dba4eeac389
+T050:
+  task: e3d877dbb35e74362236bd501bc85f60948798b899725fbedb31a34e7ea916d8
+T051:
+  task: 2a2c92d8ed20e0ba490822354ca86afe4d85ab1f76e92874cd2756b16d50c89b
+T052:
+  task: aa75174721d3b7ef8e4e92210d5865abe9604d64e268fae6ce173cb9b8d8f198
+T053:
+  task: 7793b1d774d0f1386429f904ab4c11dc369fc9a57d2b71466ceab5e29eb61e16
+T054:
+  task: 131aed41ceaa316147b21a8982b85da92c32eadd2f75597e65d091ccd5591524
+T055:
+  task: 5d52782f344918151e8bb163b17e5d5050a7d02cd2f1235aec1ddc36484d0f73
+T056:
+  task: 22892f6a23e6cd26e324325cb574036330ef04f8a2b53b5e493bdfb8254e4470

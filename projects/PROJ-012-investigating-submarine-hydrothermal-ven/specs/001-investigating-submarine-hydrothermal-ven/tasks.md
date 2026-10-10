@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `data/raw/`, `data/processed/`, `code/`, `tests/`, `state/`, `results/figures/`
-- [X] T002 Initialize Python 3.11 project with `pandas`, `scikit-learn`, `statsmodels`, `biopython`, `scipy`, `matplotlib`, `seaborn`, `skbio`, `qiime2` dependencies in `requirements.txt`
+- [X] T001 Create project structure per implementation plan: `data/raw/`, `data/processed/`, `code/`, `tests/`, `state/`, `results/figures/`
+- [ ] T002 Initialize Python 3.11 project with `pandas`, `scikit-learn`, `statsmodels`, `biopython`, `scipy`, `matplotlib`, `seaborn`, `skbio`, `qiime2` dependencies in `requirements.txt`
 - [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
 ---
@@ -54,17 +54,17 @@
 
 ### Tests for User Story 1
 
-- [X] T008 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_ingestion_schema.py`
-- [X] T009 [P] [US1] Integration test for temporal alignment and rejection logic in `tests/integration/test_ingestion_alignment.py`
+- [~] T008 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_ingestion_schema.py`
+- [~] T009 [P] [US1] Integration test for temporal alignment and rejection logic in `tests/integration/test_ingestion_alignment.py`
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Implement `code/ingestion.py` to load pH CSV and Temp CSV, validate `deployment_event`, `sensor_id`, and `coordinates` fields (Constitution Principle VI), and calculate pH SD within ±15 min window using utility from T004 (depends on T004)
-- [X] T011 [US1] Implement temporal alignment logic in `code/ingestion.py`: join samples within ±15 minute window; flag mismatches in `rejected_samples.log`
-- [X] T012 [US1] Implement outlier filtering in `code/ingestion.py`: Call outlier detection function from T004 to exclude samples with pH < 1.0 or pH > 10.0. For samples with pH in the lower acidic or higher alkaline ranges, flag for manual review (do not exclude). Ensure the 8.5–10.0 range is explicitly handled per FR-006 (depends on T004)
-- [X] T013 [US1] Enforce exclusion logic: Filter out samples where `pH_heterogeneous` (SD > 0.2) is True or pH is out of range; write `data/processed/filtered_unified_sample_table.csv` for downstream use
-- [X] T014 [US1] Output unified `data/processed/unified_sample_table.csv` (before filtering) with columns: sample_id, timestamp, pH, temp, pH_sd, location, fastq_path, deployment_event, sensor_id, coordinates
-- [X] T015 [US1] Extend logging configuration in `code/utils.py` to add handlers for ingestion steps, using infrastructure from T004 (depends on T004)
+- [~] T010 [US1] Implement `code/ingestion.py` to load pH CSV and Temp CSV, validate `deployment_event`, `sensor_id`, and `coordinates` fields (Constitution Principle VI), and calculate pH SD within ±15 min window using utility from T004 (depends on T004)
+- [~] T011 [US1] Implement temporal alignment logic in `code/ingestion.py`: join samples within ±15 minute window; flag mismatches in `rejected_samples.log`
+- [~] T012 [US1] Implement outlier filtering in `code/ingestion.py`: Call outlier detection function from T004 to exclude samples with pH < 1.0 or pH > 10.0. For samples with pH in the lower acidic or higher alkaline ranges, flag for manual review (do not exclude). Ensure the 8.5–10.0 range is explicitly handled per FR-006 (depends on T004)
+- [ ] T013 [US1] Enforce exclusion logic: Filter out samples where `pH_heterogeneous` (SD > 0.2) is True or pH is out of range; write `data/processed/filtered_unified_sample_table.csv` for downstream use
+- [ ] T014 [US1] Output unified `data/processed/unified_sample_table.csv` (before filtering) with columns: sample_id, timestamp, pH, temp, pH_sd, location, fastq_path, deployment_event, sensor_id, coordinates
+- [~] T015 [US1] Extend logging configuration in `code/utils.py` to add handlers for ingestion steps, using infrastructure from T004 (depends on T004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (metadata only; sequence data handled in US2)
 
@@ -78,21 +78,21 @@
 
 ### Tests for User Story 2
 
-- [X] T016 [P] [US2] Contract test for LME output schema in `tests/contract/test_lme_output.py`
-- [X] T017 [P] [US2] Integration test for non-linearity detection and warning generation in `tests/integration/test_diversity_nonlinear.py`
+- [~] T016 [P] [US2] Contract test for LME output schema in `tests/contract/test_lme_output.py`
+- [~] T017 [P] [US2] Integration test for non-linearity detection and warning generation in `tests/integration/test_diversity_nonlinear.py`
 
 ### Implementation for User Story 2
 
-- [X] T018 [US2] Implement `code/preprocessing.py` to invoke version-locked QIIME2 pipeline (via CLI wrapper: `qiime demux summarize`, `qiime dada2 denoise-paired`) on raw FASTQ files from `data/raw/` (input) to generate denoised sequences and OTU/ASV table (output: `feature-table.qza` which is then extracted to `data/processed/otu_table.tsv`). (depends on T002b)
-- [X] T019 [US2] Implement rarefaction logic in `code/preprocessing.py`: rarefy the OTU table to fixed depths (SC-003) to generate multiple rarefied tables using the depth specified in `data/processed/rarefaction_config.yaml` (determined by T020b)
-- [X] T020 [US2] Calculate alpha diversity indices (Shannon, Simpson) for each rarefied sample in `code/preprocessing.py` (depends on T019)
-- [X] T021 [US2] Implement GLMM/Transformation logic (CLR or log-transform) for non-normal diversity indices; output transformed data to `data/processed/diversity_transformed.csv` for T022
-- [X] T020b [US2] Determine optimal rarefaction depth via rarefaction curve analysis; if undetermined, set to '[deferred]' and document rationale in `data/processed/rarefaction_config.yaml` (required for T019/T026)
-- [X] T022 [US2] Implement `code/analysis.py` LME function: `diversity ~ pH + (1|site)` using `statsmodels` (depends on T021); write results to `data/processed/lme_results.csv` with columns: estimate, se, p_value, model_type. Include fallback logic: if < 2 sites, run fixed-effects linear regression; if N < 10, run Spearman correlation. Output format: estimate, se, p_value, model_type.
-- [X] T023 [US2] Add residual analysis in `code/analysis.py` to detect non-linearity; output warning and suggest polynomial term if detected (US-2)
-- [X] T024 [US2] Generate `data/processed/alpha_diversity_results.csv` with pH, diversity metrics, and LME stats (estimate, SE, p-value, model_type)
-- [X] T025 [US2] Add metadata flag in output `data/processed/alpha_diversity_results.csv` explicitly stating 'associational_analysis_of_summary_statistic: true' (FR-003.1)
-- [X] T026 [US2] Implement sensitivity analysis for rarefaction depth (SC-003): sweep {a range of magnitudes, [deferred]} and log stability of results across thresholds to `data/processed/sensitivity_analysis_log.json` (depends on T020b)
+- [~] T018 [US2] Implement `code/preprocessing.py` to invoke version-locked QIIME2 pipeline (via CLI wrapper: `qiime demux summarize`, `qiime dada2 denoise-paired`) on raw FASTQ files from `data/raw/` (input) to generate denoised sequences and OTU/ASV table (output: `feature-table.qza` which is then extracted to `data/processed/otu_table.tsv`). (depends on T002b)
+- [~] T019 [US2] Implement rarefaction logic in `code/preprocessing.py`: rarefy the OTU table to fixed depths (SC-003) to generate multiple rarefied tables using the depth specified in `data/processed/rarefaction_config.yaml` (determined by T020b)
+- [~] T020 [US2] Calculate alpha diversity indices (Shannon, Simpson) for each rarefied sample in `code/preprocessing.py` (depends on T019)
+- [ ] T021 [US2] Implement GLMM/Transformation logic (CLR or log-transform) for non-normal diversity indices; output transformed data to `data/processed/diversity_transformed.csv` for T022
+- [~] T020b [US2] Determine optimal rarefaction depth via rarefaction curve analysis; if undetermined, set to '[deferred]' and document rationale in `data/processed/rarefaction_config.yaml` (required for T019/T026)
+- [~] T022 [US2] Implement `code/analysis.py` LME function: `diversity ~ pH + (1|site)` using `statsmodels` (depends on T021); write results to `data/processed/lme_results.csv` with columns: estimate, se, p_value, model_type. Include fallback logic: if < 2 sites, run fixed-effects linear regression; if N < 10, run Spearman correlation. Output format: estimate, se, p_value, model_type.
+- [~] T023 [US2] Add residual analysis in `code/analysis.py` to detect non-linearity; output warning and suggest polynomial term if detected (US-2)
+- [ ] T024 [US2] Generate `data/processed/alpha_diversity_results.csv` with pH, diversity metrics, and LME stats (estimate, SE, p-value, model_type)
+- [ ] T025 [US2] Add metadata flag in output `data/processed/alpha_diversity_results.csv` explicitly stating 'associational_analysis_of_summary_statistic: true' (FR-003.1)
+- [ ] T026 [US2] Implement sensitivity analysis for rarefaction depth (SC-003): sweep {a range of magnitudes, [deferred]} and log stability of results across thresholds to `data/processed/sensitivity_analysis_log.json` (depends on T020b)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -106,18 +106,18 @@
 
 ### Tests for User Story 3
 
-- [X] T027 [P] [US3] Contract test for PERMANOVA output schema in `tests/contract/test_permanova_output.py`
-- [X] T028 [P] [US3] Integration test for dispersion control and rarefaction balancing in `tests/integration/test_beta_diversity_balance.py`
+- [~] T027 [P] [US3] Contract test for PERMANOVA output schema in `tests/contract/test_permanova_output.py`
+- [~] T028 [P] [US3] Integration test for dispersion control and rarefaction balancing in `tests/integration/test_beta_diversity_balance.py`
 
 ### Implementation for User Story 3
 
-- [X] T029 [US3] Implement `code/analysis.py` to compute Bray-Curtis dissimilarity matrix from rarefied OTU table (depends on T019)
-- [X] T030 [US3] Implement `betadisper` test (homogeneity of dispersions) in `code/analysis.py`; if p < 0.05, flag the subsequent PERMANOVA result as `dispersion_flag: 'confounded'` in `data/processed/beta_diversity_results.csv` (FR-004); otherwise 'ok'; do NOT auto-correct data
-- [X] T031 [US3] Implement PERMANOVA test on Bray-Curtis matrix with pH as predictor; if groups are unbalanced (>2x difference), perform a stratified random subsampling step (seed=42) ONLY for the purpose of balancing the test (as per US-3), writing the balanced subset to `data/processed/beta_balanced_subset.csv`; use this subset for the PERMANOVA calculation and downstream reporting; output `data/processed/beta_diversity_results.csv`
-- [X] T032 [US3] Implement ordination logic: PCoA first; if stress > 0.2, fallback to NMDS (FR-005); output ordination coordinates to `data/processed/ordination_coords.csv`
-- [X] T033 [US3] Implement VIF collinearity diagnostic for pH vs. temperature; if VIF > 5, perform dbRDA (variance partitioning) to isolate pH effect; output `data/processed/dbRDA_results.csv` with columns: source (pH, temp, residual), variance_explained, p_value (SC-004)
-- [X] T034 [US3] Generate ordination coordinates and intermediate data for plotting (depends on T032)
-- [X] T036 [US3] Generate `results/figures/` with all ordination plots (PCoA/NMDS) colored by pH levels, diversity vs. pH scatterplots, and dbRDA plots using `matplotlib`/`seaborn` (depends on T032, T034)
+- [~] T029 [US3] Implement `code/analysis.py` to compute Bray-Curtis dissimilarity matrix from rarefied OTU table (depends on T019)
+- [~] T030 [US3] Implement `betadisper` test (homogeneity of dispersions) in `code/analysis.py`; if p < 0.05, flag the subsequent PERMANOVA result as `dispersion_flag: 'confounded'` in `data/processed/beta_diversity_results.csv` (FR-004); otherwise 'ok'; do NOT auto-correct data
+- [ ] T031 [US3] Implement PERMANOVA test on Bray-Curtis matrix with pH as predictor; if groups are unbalanced (>2x difference), perform a stratified random subsampling step (seed=42) ONLY for the purpose of balancing the test (as per US-3), writing the balanced subset to `data/processed/beta_balanced_subset.csv`; use this subset for the PERMANOVA calculation and downstream reporting; output `data/processed/beta_diversity_results.csv`
+- [ ] T032 [US3] Implement ordination logic: PCoA first; if stress > 0.2, fallback to NMDS (FR-005); output ordination coordinates to `data/processed/ordination_coords.csv`
+- [ ] T033 [US3] Implement VIF collinearity diagnostic for pH vs. temperature; if VIF > 5, perform dbRDA (variance partitioning) to isolate pH effect; output `data/processed/dbRDA_results.csv` with columns: source (pH, temp, residual), variance_explained, p_value (SC-004)
+- [~] T034 [US3] Generate ordination coordinates and intermediate data for plotting (depends on T032)
+- [~] T036 [US3] Generate `results/figures/` with all ordination plots (PCoA/NMDS) colored by pH levels, diversity vs. pH scatterplots, and dbRDA plots using `matplotlib`/`seaborn` (depends on T032, T034)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -127,10 +127,10 @@
 
 **Purpose**: Generate final reports, validate success criteria, and ensure reproducibility.
 
-- [X] T037 [P] Generate `results/summary_report.md` aggregating LME, PERMANOVA, and dbRDA results. Required sections: 1. LME Summary, 2. PERMANOVA Summary, 3. dbRDA Variance Partitioning, 4. Sensitivity Analysis
-- [X] T039 [P] Run full pipeline end-to-end on `tests/integration/mock_data/` to verify SC-005 (runtime < 6 hours on 2 CPU/7GB RAM); implement `tests/integration/test_runtime_limit.py` to assert runtime < 21600 seconds; explicitly log runtime and memory usage to `state/runtime_log.json`
-- [X] T040 [P] Validate all outputs against `contracts/` schemas and generate `state/` checksums
-- [X] T041 [P] Update `README.md` with usage instructions and data requirements
+- [ ] T037 [P] Generate `results/summary_report.md` aggregating LME, PERMANOVA, and dbRDA results. Required sections: 1. LME Summary, 2. PERMANOVA Summary, 3. dbRDA Variance Partitioning, 4. Sensitivity Analysis
+- [ ] T039 [P] Run full pipeline end-to-end on `tests/integration/mock_data/` to verify SC-005 (runtime < 6 hours on 2 CPU/7GB RAM); implement `tests/integration/test_runtime_limit.py` to assert runtime < 21600 seconds; explicitly log runtime and memory usage to `state/runtime_log.json`
+- [~] T040 [P] Validate all outputs against `contracts/` schemas and generate `state/` checksums
+- [~] T041 [P] Update `README.md` with usage instructions and data requirements
 
 ---
 

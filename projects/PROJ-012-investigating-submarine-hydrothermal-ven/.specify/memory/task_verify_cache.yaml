@@ -1,10 +1,27 @@
 T001:
+  c: true
+  h: 13c4dfee52791935bc5b57b19557ba9f3650105a57f6ed39e54cf29d4ddac9bb
+  r: "The evidence confirms all six required directories exist at their canonical\
+    \ locations within the project root (`projects/PROJ-012-investigating-submarine-hydrothermal-ven`):\n\
+    - `data/raw/` \u2713\n- `data/processed/` \u2713\n- `code/` \u2713\n- `tests/`\
+    \ \u2713\n- `state/` \u2713\n- `results/figures/` \u2713\n\nThe execution log\
+    \ shows the setup script ran successfully (exit 0) and explicitly logged creation\
+    \ of each directory with the exact paths specified in the task requirement. The\
+    \ collector's artifact inventory confirms all directories are non-empty (containing\
+    \ at least `.gitkeep` markers and/or implementation files), demonstrat"
+  sig: a4032bcc6af4b0e9a3e1dc86187d56847693755e64be2b5cfcff7b242bccf292
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `code/`,\
-    \ `tests/`, `state/`, `results/figures/`) being present or populated is provided;\
-    \ the implementer\u2019s claim cannot be verified. The task remains unfinished\
-    \ until the full project folder hierarchy is created."
+  h: 28e28397b6891c53b50e2fb23a28b4e28f839d3cbdb4ad9ba295393fe8392d15
+  r: "The `requirements.txt` file exists and is non-empty, but it is **missing a critical\
+    \ required dependency**: `qiime2`. The task explicitly specifies that the project\
+    \ must include `qiime2` in the dependencies, yet the artifact lists only 13 packages\
+    \ (pandas, scikit-learn, statsmodels, biopython, scipy, matplotlib, seaborn, skbio,\
+    \ pytest, ruff, black, isort, pyyaml) without qiime2. The file also includes three\
+    \ additional packages (pytest, ruff, black, isort, pyyaml) not mentioned in the\
+    \ task specification, but the omission of qiime2\u2014which was explicitly required\u2014\
+    means the deliverable does not matc"
+  sig: 89eab6b297df07ee5925bf2115d3c6dc7cdf74959ce2cff3c80931efd17158b3
 T002b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,12 +30,52 @@ T002b:
     \ (evidence of a functional QIIME\u202F2 installation/configuration) is missing."
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ `black` settings, or a `pre-commit` hook) are present in the provided evidence,\
-    \ so the requirement to configure `ruff` and `black` is not satisfied. The implementer\
-    \ must add the appropriate configuration artifacts and ensure they are non\u2011\
-    empty and correctly set up."
+  h: f4d77317ea6d4fcd350d044c81855262b2e7218972dc8912f35f8c5768f5c1cd
+  r: "The task requires configuring linting (`ruff`) and formatting (`black`) tools,\
+    \ but the evidence shows critical gaps:\n\n1. **Ruff configuration failed**: The\
+    \ log states \"ruff accepted the configuration (exit 1)\" \u2014 exit code 1 indicates\
+    \ failure, not success. The \"OK\" label is misleading; a non-zero exit code means\
+    \ ruff rejected the configuration.\n\n2. **Black not installed**: The verification\
+    \ script explicitly notes \"black not installed; skipping live check,\" meaning\
+    \ the formatting tool was never actually configured or validated on the system.\n\
+    \n3. **No configuration artifacts shown**: The evidence"
+  sig: 0b2b0f75fd3c673d22e0243646e8a2ae5a62f7d6a26530d629b62d48bf7ef3e1
+T004:
+  c: true
+  h: fa8cf548ccd10e1c224b430ed9480bf0db6834e8eba8624ec2a91a8627d9804f
+  r: "**Evidence checked:**\n\n1. **Artifact existence**: `code/utils.py` exists (9501\
+    \ bytes) and is non-empty.\n\n2. **Logging infrastructure**: The file implements\
+    \ three logging functions (`setup_logging`, `get_logger`, `setup_ingestion_logging`)\
+    \ with proper handler configuration, file/console output, and formatting. The\
+    \ `_ensure_log_handlers()` helper prevents duplicate handlers.\n\n3. **Outlier\
+    \ detection (FR-006)**: The `detect_ph_outliers()` function correctly implements\
+    \ the specified rules:\n   - Flags pH < 1.0 or > 10.0 as extreme outliers (excluded)\n\
+    \   - Flags pH in [1.0, 2.0] (unity to moderate ac"
+  sig: 46fa8149a4eef8ca8748572f51a76691ff1a29122d2b62238ded61bf72b932a2
+T005:
+  c: true
+  h: 730850037421fe4a19b2a685ddebf78de374c93836df08d0a5a351160701f878
+  r: The artifact `code/data_models.py` exists and contains three well-defined dataclass
+    entities (`Sample`, `OTU`, `DiversityMetric`) with appropriate fields matching
+    the task requirements. Each class includes a `validate()` method that performs
+    schema validation (checking required fields, value ranges, and constraints), and
+    three module-level validation functions (`validate_sample_schema`, `validate_otu_schema`,
+    `validate_diversity_metric_schema`) provide dictionary-based schema validation.
+    The implementation correctly maps to the data model entities referenced in the
+    feature specification (sampl
+  sig: 79b53fecc9bea8c652ff6d7cf9dd639a543e58b58f572515af3271a45bd17ba8
+T006:
+  c: false
+  h: 6ac6487a24d1e8617be578c17eaa383e917003cde79932ff96370cdd771c99d9
+  r: "The `conftest.py` file exists and contains pytest configuration, but it has\
+    \ critical defects that prevent it from functioning correctly:\n\n1. **Import\
+    \ mismatch with data_models.py**: The `conftest.py` imports `Sample`, `OTU`, and\
+    \ `DiversityMetric` from `code.data_models`, but the actual `data_models.py` defines\
+    \ these classes with different field names. For example:\n   - `conftest.py` creates\
+    \ `Sample(ph=7.2, ...)` but `data_models.py` defines the field as `pH` (capital\
+    \ letters)\n   - `conftest.py` uses `ph_sd=0.05` but `data_models.py` defines\
+    \ it as `pH_sd`\n   - `conftest.py` passes `coordinates="
+  sig: 8514050f76259d3f91166fb6778df6a1fce25256047f22bb25f6afee365c1172
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
