@@ -1,2 +1,1 @@
-# Models module initialization
-pass
+"""Models subpackage – model loading and wrappers."""

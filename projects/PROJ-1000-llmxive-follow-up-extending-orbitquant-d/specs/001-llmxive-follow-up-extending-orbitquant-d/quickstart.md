@@ -34,7 +34,7 @@
 
 4.  **View Results**:
     - Correlation plots: `data/processed/correlation_plots/`
-    - Clustering Report: `data/processed/clustering_report.json` (Required for Phase 2)
+    - Clustering Report: `data/processed/clustering_report.json` (Required for Phase 2)
     - Rotation matrices: `data/processed/rotation_matrices/`
     - Final metrics: `data/processed/results.csv`
 

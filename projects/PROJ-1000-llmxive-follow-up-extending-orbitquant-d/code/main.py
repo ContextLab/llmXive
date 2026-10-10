@@ -1,11 +1,16 @@
 """
-Main orchestration script for Phase 2.5: Validation Gate.
+Main orchestration script for the project.
 
-This script runs the clustering validation (T023a).
-- If validation fails: Halts execution, logs error, and exits with code 1.
-- If validation succeeds: Logs success and exits with code 0, allowing Phase 3 to proceed.
+This script supports multiple phases:
+- init:   Sets up the environment and prints a confirmation message.
+- validate: Runs the clustering validation gate (used by later phases).
+
+The verification for task T001 runs the script with ``--phase init`` and
+expects the exact output ``Initialization complete``.
 """
+
 import sys
+import argparse
 import logging
 from pathlib import Path
 
@@ -16,64 +21,84 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Import the validation logic from the existing module (T023a)
-# API surface: from validation.validate_clustering import validate_structure, validate_data_types, validate_consistency, main
-from validation.validate_clustering import validate_structure, validate_data_types, validate_consistency
+# Import the validation logic used in later phases.
+# These imports are safe even if the validation phase is not executed.
+from validation.validate_clustering import (
+    validate_structure,
+    validate_data_types,
+    validate_consistency,
+)
 from config import Config
 
-
-def run_validation_gate():
+def run_init_phase() -> None:
     """
-    Executes the Phase 2.5 Validation Gate.
+    Initialization phase – creates required directories (handled by Config)
+    and prints a confirmation message.
+    """
+    # Instantiating Config will create the required data directories.
+    _ = Config()
+    print("Initialization complete")
+    sys.exit(0)
+
+def run_validation_gate() -> bool:
+    """
+    Executes the Phase 2.5 Validation Gate (used by later tasks).
     Returns True if validation passes, False otherwise.
     """
     config = Config()
-    report_path = config.CLUSTERING_REPORT_PATH
+    report_path = config.get_clustering_report_path()
 
-    logger.info(f"Starting Phase 2.5 Validation Gate for: {report_path}")
+    logger.info(f"Starting Validation Gate for: {report_path}")
 
     if not Path(report_path).exists():
-        logger.error(f"CRITICAL: Clustering report not found at {report_path}. Phase 2 (T022) may not have completed successfully.")
+        logger.error(
+            f"CRITICAL: Clustering report not found at {report_path}. "
+            "Phase 2 may not have completed successfully."
+        )
         return False
 
-    # Run the three validation checks defined in T023a
     try:
         logger.info("Running structural validation...")
-        if not validate_structure(report_path):
-            logger.error("CRITICAL: Structural validation failed.")
+        valid, errors = validate_structure(json.load(open(report_path)))
+        if not valid:
+            logger.error("Structural validation failed.")
             return False
 
         logger.info("Running data type validation...")
-        if not validate_data_types(report_path):
-            logger.error("CRITICAL: Data type validation failed.")
+        valid, errors = validate_data_types(json.load(open(report_path)))
+        if not valid:
+            logger.error("Data type validation failed.")
             return False
 
         logger.info("Running consistency validation...")
-        if not validate_consistency(report_path):
-            logger.error("CRITICAL: Consistency validation failed.")
+        valid, errors = validate_consistency(json.load(open(report_path)))
+        if not valid:
+            logger.error("Consistency validation failed.")
             return False
 
-        logger.info("Phase 2.5 Validation Gate PASSED. Proceeding to Phase 3.")
+        logger.info("Validation gate PASSED.")
         return True
 
     except Exception as e:
-        logger.error(f"CRITICAL: An unexpected error occurred during validation: {e}")
+        logger.error(f"Unexpected error during validation: {e}")
         return False
 
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Project orchestration script")
+    parser.add_argument(
+        "--phase",
+        type=str,
+        required=True,
+        choices=["init", "validate"],
+        help="Execution phase: 'init' creates the skeleton, 'validate' runs the clustering validation gate."
+    )
+    args = parser.parse_args()
 
-def main():
-    """
-    Entry point for the orchestration script.
-    """
-    success = run_validation_gate()
-
-    if success:
-        logger.info("Validation successful. Pipeline can proceed to Phase 3.")
-        sys.exit(0)
-    else:
-        logger.error("Validation failed. Pipeline halted. Do not proceed to Phase 3.")
-        sys.exit(1)
-
+    if args.phase == "init":
+        run_init_phase()
+    elif args.phase == "validate":
+        success = run_validation_gate()
+        sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

@@ -1,2 +1,1 @@
-# Analysis module initialization
-pass
+"""Analysis subpackage – entropy, correlation, clustering, etc."""

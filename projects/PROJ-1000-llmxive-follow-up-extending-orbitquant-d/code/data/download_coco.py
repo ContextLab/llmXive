@@ -1,22 +1,17 @@
 """
-Download and cache the MS-COCO 2017 Validation dataset using streaming.
+Download and cache the MS-COCO 2017 validation captions using the
+HuggingFace `nlpconnect/coco_captions` dataset (split=validation).
 
-This script fetches the 'mscoco' dataset from HuggingFace Datasets,
-specifically the '2017' split, which includes both images and captions.
-It uses the `datasets` library with `streaming=True` to process the data
-in chunks without loading the entire ~8GB dataset into RAM, ensuring
-memory usage stays below 2GB.
+The script streams the dataset to avoid loading the entire ~8 GB
+collection into memory. Captions are written to a CSV file under
+`data/raw/coco_captions/` and a small metadata JSON file is stored
+alongside it.
 
-The script processes the stream to generate a lightweight metadata file
-containing prompt captions and image IDs, which are then saved to the
-processed data directory. This allows downstream tasks to iterate over
-the data without re-downloading, while the raw images remain streamed
-from the source when needed.
+The module also provides a helper `load_coco_captions(config)` that
+reads the generated CSV and returns a list of ``{'id': <str>,
+'caption': <str>}`` dictionaries for downstream processing.
 
-Output:
-    Creates `data/processed/coco_prompts_streaming.csv` containing
-    columns [id, caption] derived from the streamed dataset.
-    Also saves a small metadata summary to `data/raw/coco_2017_val_streaming_meta.json`.
+All failures raise ``RuntimeError`` – no synthetic fallback is used.
 """
 import os
 import sys
@@ -24,9 +19,9 @@ import csv
 import json
 import logging
 from pathlib import Path
-from typing import Iterator, Dict, Any
+from typing import Iterator, Dict, Any, List
 
-# Add project root to path for imports if running as script
+# Ensure the project root is on the import path when the script is run directly
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -34,90 +29,102 @@ from config import Config
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-def stream_coco_prompts(
-    dataset_name: str = "mscoco",
-    dataset_config: str = "2017",
-    dataset_split: str = "validation"
+def _stream_coco_captions(
+    dataset_name: str = "nlpconnect/coco_captions",
+    split: str = "validation",
 ) -> Iterator[Dict[str, Any]]:
     """
-    Stream the MS-COCO dataset from HuggingFace.
+    Stream the COCO captions dataset.
 
-    Yields:
-        Dictionary containing 'id' and 'caption' for each sample.
+    Yields dictionaries with keys ``id`` (image identifier) and
+    ``caption`` (a single caption string).  The original dataset
+    contains multiple captions per image; we emit each caption as a
+    separate record to maximise the number of usable prompts.
     """
     try:
         from datasets import load_dataset
-    except ImportError:
+    except ImportError as exc:
         raise ImportError(
-            "The 'datasets' library is required. Install it via: "
-            "pip install datasets"
-        )
+            "The 'datasets' library is required. Install it via: pip install datasets"
+        ) from exc
 
-    logger.info(f"Loading dataset: {dataset_name} ({dataset_config}) - {dataset_split} (streaming)...")
-
+    logger.info(
+        f"Loading dataset {dataset_name} (split={split}) with streaming..."
+    )
     try:
-        # Use streaming=True to avoid loading full dataset into memory
         ds = load_dataset(
             dataset_name,
-            dataset_config,
-            split=dataset_split,
+            split=split,
             streaming=True,
-            trust_remote_code=False
+            trust_remote_code=False,
         )
     except Exception as e:
-        raise RuntimeError(f"Failed to load MS-COCO dataset in streaming mode: {e}")
+        raise RuntimeError(f"Failed to load COCO captions dataset: {e}") from e
 
-    # Iterate and yield formatted records
-    # Note: In 'mscoco' dataset, captions are often in a list.
-    # We take the first caption for simplicity, or join if needed.
-    for idx, item in enumerate(ds):
-        # Handle different potential structures of the dataset
-        # Typically: item['annotations'] is a list of dicts with 'caption'
-        # Or item['caption'] exists directly depending on the specific HF module version
-        caption = None
-        if 'caption' in item:
-            caption = item['caption']
-        elif 'annotations' in item and isinstance(item['annotations'], list) and len(item['annotations']) > 0:
-            caption = item['annotations'][0].get('caption')
-        elif 'image_caption' in item:
-            caption = item['image_caption']
-
-        if caption is None:
-            logger.warning(f"Skipping sample {idx}: No caption found.")
+    for item in ds:
+        # The dataset provides an 'image_id' and a list of 'captions'
+        image_id = item.get("image_id") or item.get("id")
+        captions = item.get("captions") or item.get("caption")
+        if not captions:
             continue
+        # Ensure we have an iterable of strings
+        if isinstance(captions, str):
+            captions = [captions]
+        for idx, cap in enumerate(captions):
+            if isinstance(cap, str) and cap.strip():
+                yield {"id": f"{image_id}_{idx}", "caption": cap.strip()}
 
-        # Ensure caption is a string
-        if not isinstance(caption, str):
-            caption = str(caption)
+def load_coco_captions(config: Config) -> List[Dict[str, str]]:
+    """
+    Load the CSV generated by :func:`main` and return a list of
+    ``{'id': ..., 'caption': ...}`` dictionaries.
 
-        yield {
-            "id": item.get('id', idx),
-            "caption": caption
-        }
+    Parameters
+    ----------
+    config: Config
+        Project configuration – used to locate the CSV file.
 
-def main():
+    Returns
+    -------
+    List[Dict[str, str]]
+        List of caption records.
+    """
+    csv_path = (
+        config.raw_data_dir
+        / "coco_captions"
+        / "captions.csv"
+    )
+    if not csv_path.is_file():
+        raise RuntimeError(
+            f"COCO captions CSV not found at expected location: {csv_path}"
+        )
+    records: List[Dict[str, str]] = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            records.append({"id": row["id"], "caption": row["caption"]})
+    logger.info(f"Loaded {len(records)} COCO captions from {csv_path}")
+    return records
+
+def main() -> None:
+    """
+    Entry point: stream the dataset and write a CSV file under
+    ``data/raw/coco_captions/``.
+    """
     config = Config()
-    
-    # Ensure directories exist
-    data_raw_path = config.data_raw_path
-    data_processed_path = config.data_processed_path
-    
-    data_raw_path.mkdir(parents=True, exist_ok=True)
-    data_processed_path.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Starting MS-COCO streaming download process...")
-    logger.info(f"Raw data path: {data_raw_path}")
-    logger.info(f"Processed data path: {data_processed_path}")
+    # Resolve output directories
+    raw_coco_dir = config.raw_data_dir / "coco_captions"
+    raw_coco_dir.mkdir(parents=True, exist_ok=True)
 
-    # Output file for processed prompts (CSV)
-    output_csv = data_processed_path / "coco_prompts_streaming.csv"
-    meta_file = data_raw_path / "coco_2017_val_streaming_meta.json"
+    output_csv = raw_coco_dir / "captions.csv"
+    meta_file = raw_coco_dir / "metadata.json"
 
-    logger.info(f"Streaming data and writing to {output_csv}...")
+    logger.info(f"Streaming COCO captions to {output_csv}")
 
     count = 0
     try:
@@ -126,39 +133,34 @@ def main():
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
-            for record in stream_coco_prompts():
+            for record in _stream_coco_captions():
                 writer.writerow(record)
                 count += 1
-                
-                # Log progress every 1000 samples
                 if count % 1000 == 0:
-                    logger.info(f"Processed {count} samples...")
+                    logger.info(f"Processed {count} caption records...")
 
-        logger.info(f"Successfully streamed and saved {count} samples to {output_csv}")
+        logger.info(f"Finished streaming – total captions written: {count}")
 
-        # Save metadata
         metadata = {
-            "dataset": "mscoco",
-            "config": "2017",
+            "dataset": "nlpconnect/coco_captions",
             "split": "validation",
-            "mode": "streaming",
-            "num_samples": count,
-            "output_csv": str(output_csv),
-            "timestamp": str(Path(__file__).stat().st_mtime)
+            "num_records": count,
+            "csv_path": str(output_csv),
+            "timestamp": str(Path(__file__).stat().st_mtime),
         }
         with open(meta_file, "w", encoding="utf-8") as f:
             json.dump(metadata, f, indent=2)
-        
-        logger.info(f"Metadata saved to {meta_file}")
+
+        logger.info(f"Metadata written to {meta_file}")
 
     except Exception as e:
-        logger.error(f"Error during streaming process: {e}")
-        # Clean up partial file if it exists
+        logger.error(f"Error during streaming: {e}")
+        # Clean up partial CSV if something went wrong
         if output_csv.exists():
             output_csv.unlink()
-        raise RuntimeError(f"Failed to stream MS-COCO dataset: {e}")
+        raise RuntimeError(f"Failed to stream COCO captions: {e}") from e
 
-    logger.info("MS-COCO streaming download and processing complete.")
+    logger.info("COCO caption download and indexing complete.")
 
 if __name__ == "__main__":
     main()

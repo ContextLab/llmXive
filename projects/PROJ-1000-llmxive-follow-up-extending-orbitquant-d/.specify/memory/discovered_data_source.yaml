@@ -1,12 +1,9 @@
 status: none
-intent: download MS-COCO 2017 validation images and PromptSource text prompts python
-  package dataset
+intent: COCO 2017 validation captions download via Python package dataset
 required_fields:
-- prompt_id
-- prompt_text
 - image_id
-- image_file_name
+- file_name
 - caption
-cache_key: a0383b0c91afb49eb27ee0466f8d23a2d370cdacbae069f810c9eee833c604e3
-searched_at: '2026-09-19T05:17:08.835599+00:00'
+cache_key: 27513444b3636551bac08d582bcafa8be4666650bc2faa2a7e9564f8feb99b39
+searched_at: '2026-10-10T05:22:50.224778+00:00'
 retry_count: 1

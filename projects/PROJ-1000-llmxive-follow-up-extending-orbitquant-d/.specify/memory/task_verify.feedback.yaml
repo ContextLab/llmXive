@@ -1,0 +1,31 @@
+T001:
+  task: ec9d21d754e2d47e9d7d0b2d2fcf439a17f2c7f5960a3bc87d6b6bf177f9e8a0
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_coco.py
+    exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py
+    exit=1'
+  task: ee52fa9e235cf5af6a978b3bb7415e1c3d28c23ec9ad7ccdf685da5f8690355f
+T003:
+  task: 97d4308c44fbeda3fc87ff3d43f5dcb10ae855b73b75601f93ed0385ff6fae6f
+T004:
+  task: a3e1034fa0c08b3aea53025f8c64ac7bd734efc17a09cba8f78f6650e058d9d9
+T005:
+  task: 0e5861923bab791babf3773e3df1700c368aa89620e000503a8fbafb543bdace
+T006:
+  task: f06a01fdbefa3ba2b1e67d227227f3d1dee9453a78f91d372e0a111fb7b1bc23
+T007:
+  task: eedb271cc129878744c210218ab65f7b90a4f422ad7a5fd0e42db59428c63618
+T008:
+  task: 2d3eefcce4c3cae96b7add86909facc9a3ae96353f4238322159eeab88f3dbdb
+T009:
+  task: dd5903cadd6a11d90603ac37b19eb19416e9ee9a69ec66c0c71ff954fc44b225
+T010:
+  task: ed8ba531994a0d6c0779f0b80ec0182ea7531d222bc37e314f0f2ffca204f61e
+T011:
+  task: a31ebcf4d5fde0c477c8bd2a53af6a83383cd461b996defdba14cde430086c64
+T012:
+  task: eafa92975bd380d39102953397af10a9546cf990762e75c907334803b04a5e08
+T013:
+  task: c14f2ea718b666f093768743011eca2a87700b3313cc734a32338a1c3e6db038
+T014:
+  task: eaff4859e110eb82b683347670add10ba9e8310827fabf44916d562ae0e3c1a6

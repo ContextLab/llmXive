@@ -1,2 +1,1 @@
-# Data module initialization
-pass
+"""Data subpackage – utilities for downloading and preprocessing datasets."""
