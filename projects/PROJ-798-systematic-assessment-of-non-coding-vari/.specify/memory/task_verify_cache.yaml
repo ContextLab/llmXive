@@ -17,12 +17,13 @@ T002:
   sig: b262ddc09ccf851807cf4a547f04640ff129bd733d60ecfc9e3e423e31730f51
 T003:
   c: true
-  h: 32e9c994151ef436be340ea1e542a77afaddcb5a21cdafff1702cd4e6c7153d6
-  r: "Checked that `tests/unit/__init__.py`, `tests/integration/__init__.py`, and\
-    \ `tests/contract/__init__.py` all exist, contain non\u2011empty docstrings, and\
-    \ thus define importable Python packages (`tests.unit`, `tests.integration`, `tests.contract`)\
-    \ satisfying the pytest discovery requirement."
-  sig: 82c8d714c072ba13db116a023fab5fd7fb8b2a691da744a4f3863c9292a638c6
+  h: 51c878251d8fe2f59b0d5da62f81883f4199d8d0ed6863e3912541f9a1e8c59b
+  r: "The three `__init__.py` files for `tests/unit`, `tests/integration`, and `tests/contract`\
+    \ are present and contain non\u2011empty docstrings, making each directory a valid\
+    \ Python package. Their existence ensures that `pkgutil.find_loader('tests.unit')`\
+    \ (and the analogous calls for the other packages) will succeed, allowing pytest\
+    \ to discover tests without ImportError."
+  sig: 188e1857207b45c92c9c2086489ba37edf3915a485771783b66a64fd27e18d82
 T013:
   c: false
   h: 3e870215eb6619f9bde08061a71d3297b2db81aa8f2d30ff6175cfc3776ac82c

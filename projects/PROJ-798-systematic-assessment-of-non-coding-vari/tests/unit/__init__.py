@@ -1,1 +1,3 @@
-"""Unit test package for the project."""
+"""
+Unit test package initializer.
+"""

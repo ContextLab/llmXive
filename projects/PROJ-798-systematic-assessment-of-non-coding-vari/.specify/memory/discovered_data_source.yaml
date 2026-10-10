@@ -1,5 +1,5 @@
 status: none
-intent: dbSNP 155 common SNPs MAF>1% GRCh38 ENCODE v4 BED Roadmap Epigenomics JASPAR
+intent: dbSNP build 155 common SNPs ENCODE v4 regulatory BED Roadmap Epigenomics JASPAR
   2024 python package dataset
 required_fields:
 - rsid
@@ -8,8 +8,10 @@ required_fields:
 - reference_allele
 - alternate_allele
 - maf
-- genome_build
+- regulatory_region_type
+- regulatory_overlap
 - gc_content
-cache_key: a18bbf411cbee564c572cd4924b1ff0f3d1740bae8c9cd31fe9ef4d3eb043f41
-searched_at: '2026-10-10T14:36:41.644353+00:00'
+- control_set_flag
+cache_key: b915284c3866b6f717ac1e464e51a43c4a3c91841d63876ae84e1a54ff1caf21
+searched_at: '2026-10-10T14:38:45.364486+00:00'
 retry_count: 1

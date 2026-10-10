@@ -1,1 +1,3 @@
-"""Integration test package for the project."""
+"""
+Integration test package initializer.
+"""
