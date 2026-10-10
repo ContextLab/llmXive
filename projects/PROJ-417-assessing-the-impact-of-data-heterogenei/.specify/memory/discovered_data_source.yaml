@@ -1,0 +1,11 @@
+status: none
+intent: "download Cochrane meta\u2011analysis effect size dataset python package dataset"
+required_fields:
+- study_id
+- effect_size
+- standard_error
+- sample_size
+- variance
+cache_key: 95761a31fde96fe2832c362596ccf495747535f1a520b94caacf46b716536af4
+searched_at: '2026-10-10T16:38:16.689487+00:00'
+retry_count: 1

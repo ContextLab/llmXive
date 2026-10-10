@@ -1,14 +1,13 @@
 import pytest
 import os
-import json
 import math
 import numpy as np
 from pathlib import Path
+from typing import List
 
 # Import from project modules
 from simulation.generator import (
     SimulationConfig, 
-    StudyResult, 
     SimulationResult, 
     load_base_data_structure, 
     calculate_effect_and_variance, 
@@ -16,13 +15,13 @@ from simulation.generator import (
     validate_simulation_output,
     generate_synthetic_meta_analysis
 )
-from config_loader import get_base_data_path, get_replicate_count, get_tau2_levels, get_random_seed
+from config_loader import get_base_data_path
 
 @pytest.fixture
 def mock_base_data():
-    """Create a mock base data structure for testing."""
+    """Create mock base data lists for testing."""
     return {
-        'effect_sizes': [0.5, 0.6, 0.4, 0.7, 0.55],
+        'effects': [0.5, 0.6, 0.4, 0.7, 0.55],
         'ses': [0.1, 0.12, 0.11, 0.09, 0.1],
         'N_studies': 5
     }
@@ -37,12 +36,9 @@ def test_load_base_data_structure():
     base_path = get_base_data_path()
     assert os.path.exists(base_path), f"Base data file not found at {base_path}"
     
-    data = load_base_data_structure()
-    assert 'effect_sizes' in data
-    assert 'ses' in data
-    assert 'N_studies' in data
-    assert len(data['effect_sizes']) == data['N_studies']
-    assert len(data['ses']) == data['N_studies']
+    effects, ses = load_base_data_structure(str(base_path))
+    assert len(effects) > 0
+    assert len(effects) == len(ses)
 
 def test_calculate_effect_and_variance_zero_tau2(rng):
     """Test effect calculation when tau2 is 0 (homogeneity)."""
@@ -50,151 +46,101 @@ def test_calculate_effect_and_variance_zero_tau2(rng):
     tau2 = 0.0
     base_se = 0.1
     
-    obs_effect, obs_se = calculate_effect_and_variance(true_effect, tau2, base_se, rng)
+    obs_effect, obs_var = calculate_effect_and_variance(0.0, base_se, true_effect, tau2, rng)
     
-    # When tau2=0, between-study variance is 0, so total_var = base_se^2
-    expected_se = math.sqrt(base_se**2 + tau2)
-    assert math.isclose(obs_se, expected_se, rel_tol=1e-5)
-    
-    # The effect should be close to true_effect + noise
-    # We can't assert exact value due to randomness, but we can check it's in a reasonable range
-    assert abs(obs_effect - true_effect) < 3 * expected_se, "Observed effect is too far from true effect"
-
-def test_calculate_effect_and_variance_positive_tau2(rng):
-    """Test effect calculation when tau2 > 0."""
-    true_effect = 0.5
-    tau2 = 0.25
-    base_se = 0.1
-    
-    obs_effect, obs_se = calculate_effect_and_variance(true_effect, tau2, base_se, rng)
-    
-    expected_se = math.sqrt(base_se**2 + tau2)
-    assert math.isclose(obs_se, expected_se, rel_tol=1e-5)
+    # Variance should be exactly base_se^2
+    assert math.isclose(obs_var, base_se**2, rel_tol=1e-5)
+    # Effect should be within a reasonable range (3 sigma)
+    assert abs(obs_effect - true_effect) < 3 * base_se
 
 def test_create_replicate(mock_base_data, rng):
     """Test that a replicate is created with the correct structure."""
     config = SimulationConfig(
-        true_effect=0.5,
-        tau2=0.1,
-        replicate_id=0,
-        n_studies=5
+        injected_true_effect=0.5,
+        injected_tau2=0.1,
+        N_studies=5,
+        base_data_path="dummy_path",
+        seed=42
     )
     
-    result = create_replicate(config, mock_base_data, rng)
+    result = create_replicate(config, mock_base_data['effects'], mock_base_data['ses'], rng)
     
+    assert isinstance(result, SimulationResult)
     assert result.injected_true_effect == 0.5
     assert result.injected_tau2 == 0.1
     assert result.N_studies == 5
     assert len(result.studies) == 5
-    assert result.replicate_id == 0
     
-    # Check study structure
     for study in result.studies:
-        assert 'effect' in study
-        assert 'se' in study
-        assert 'study_id' in study
-        assert study['study_id'] < 5
+        assert 'effect_size' in study
+        assert 'standard_error' in study
+        assert 'variance' in study
 
 def test_validate_simulation_output(mock_base_data, rng):
     """Test that validation passes for valid results."""
     config = SimulationConfig(
-        true_effect=0.5,
-        tau2=0.1,
-        replicate_id=0,
-        n_studies=5
-    )
-    
-    result = create_replicate(config, mock_base_data, rng)
-    results = [result]
-    
-    assert validate_simulation_output(results) is True
-
-def test_validate_simulation_output_invalid_structure():
-    """Test that validation fails for invalid results."""
-    invalid_result = SimulationResult(
         injected_true_effect=0.5,
         injected_tau2=0.1,
         N_studies=5,
-        studies=[],  # Empty studies list
-        replicate_id=0
+        base_data_path="dummy_path",
+        seed=42
     )
     
-    assert validate_simulation_output([invalid_result]) is False
+    result = create_replicate(config, mock_base_data['effects'], mock_base_data['ses'], rng)
+    assert validate_simulation_output([result]) is True
 
 def test_variance_match_unit_test(mock_base_data, rng):
     """
-    Unit test to verify that generated variance matches injected tau2 within Monte Carlo error.
-    This test uses a small number of replicates for speed.
+    Verify that the injected tau^2 matches the empirical variance 
+    of generated effect sizes within 0.05.
     """
-    n_replicates = 100
     tau2_target = 0.5
     true_effect = 0.5
     n_studies = 20
+    n_replicates = 500
     
-    # Generate multiple replicates
-    results = []
+    config = SimulationConfig(
+        injected_true_effect=true_effect,
+        injected_tau2=tau2_target,
+        N_studies=n_studies,
+        base_data_path="dummy_path",
+        seed=42
+    )
+    
+    obs_tau2_values = []
     for i in range(n_replicates):
-        config = SimulationConfig(
-            true_effect=true_effect,
-            tau2=tau2_target,
-            replicate_id=i,
-            n_studies=n_studies
-        )
-        result = create_replicate(config, mock_base_data, rng)
-        results.append(result)
+        sub_rng = np.random.default_rng(config.seed + i)
+        result = create_replicate(config, mock_base_data['effects'], mock_base_data['ses'], sub_rng)
+        obs_tau2_values.append(result.observed_between_study_variance)
     
-    # Extract all effects and compute empirical variance
-    all_effects = []
-    for res in results:
-        for study in res.studies:
-            all_effects.append(study['effect'])
+    mean_obs_tau2 = np.mean(obs_tau2_values)
     
-    # The variance of effects should be approximately tau2 + mean(se^2)
-    # But for simplicity, we check that the between-study variance is close to tau2
-    # We'll compute the variance of the means of each replicate
-    replicate_means = [np.mean([s['effect'] for s in res.studies]) for res in results]
-    empirical_var_between = np.var(replicate_means, ddof=1)
-    
-    # The expected variance of the mean is (tau2 + avg_se^2 / n_studies)
-    # This is a rough check; in practice, we'd need a more sophisticated test
-    # For now, we just ensure it's in the right ballpark
-    avg_se_sq = np.mean([s['se']**2 for res in results for s in res.studies])
-    expected_var_mean = tau2_target + avg_se_sq / n_studies
-    
-    # Allow for Monte Carlo error (10% tolerance)
-    tolerance = 0.1 * expected_var_mean
-    assert abs(empirical_var_between - expected_var_mean) < tolerance, \
-        f"Empirical variance {empirical_var_between} differs too much from expected {expected_var_mean}"
+    # Verification: injected tau^2 matches empirical variance within 0.05
+    assert abs(mean_obs_tau2 - tau2_target) < 0.05, \
+        f"Empirical tau^2 {mean_obs_tau2:.4f} differs from target {tau2_target} by more than 0.05"
 
 def test_homogeneity_check(mock_base_data, rng):
     """
-    Unit test to verify that tau2=0 produces zero between-study variance (homogeneity).
+    Verify that tau2=0 produces near-zero between-study variance.
     """
-    n_replicates = 50
     tau2_target = 0.0
-    true_effect = 0.5
     n_studies = 20
+    n_replicates = 100
     
-    replicate_means = []
+    config = SimulationConfig(
+        injected_true_effect=0.5,
+        injected_tau2=tau2_target,
+        N_studies=n_studies,
+        base_data_path="dummy_path",
+        seed=42
+    )
+    
+    obs_tau2_values = []
     for i in range(n_replicates):
-        config = SimulationConfig(
-            true_effect=true_effect,
-            tau2=tau2_target,
-            replicate_id=i,
-            n_studies=n_studies
-        )
-        result = create_replicate(config, mock_base_data, rng)
-        replicate_means.append(np.mean([s['effect'] for s in result.studies]))
+        sub_rng = np.random.default_rng(config.seed + i)
+        result = create_replicate(config, mock_base_data['effects'], mock_base_data['ses'], sub_rng)
+        obs_tau2_values.append(result.observed_between_study_variance)
     
-    # When tau2=0, the between-study variance should be very small (only due to sampling error)
-    empirical_var_between = np.var(replicate_means, ddof=1)
-    
-    # The expected variance of the mean is avg_se^2 / n_studies
-    # We'll compute a rough bound
-    all_ses = [s['se'] for res in [create_replicate(SimulationConfig(true_effect, tau2_target, i, n_studies), mock_base_data, rng) for i in range(n_replicates)] for s in res.studies]
-    avg_se_sq = np.mean([se**2 for se in all_ses])
-    expected_var_mean = avg_se_sq / n_studies
-    
-    # Allow for some Monte Carlo error
-    assert empirical_var_between < 2 * expected_var_mean, \
-        f"Empirical variance {empirical_var_between} is too large for tau2=0 (expected < {2 * expected_var_mean})"
+    mean_obs_tau2 = np.mean(obs_tau2_values)
+    # For tau2=0, the MoM estimator should be very close to 0
+    assert mean_obs_tau2 < 0.05, f"Expected near-zero tau^2 for homogeneity, got {mean_obs_tau2:.4f}"

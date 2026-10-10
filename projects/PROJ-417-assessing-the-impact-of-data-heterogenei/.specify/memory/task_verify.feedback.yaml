@@ -1,0 +1,40 @@
+T001:
+  task: 820b146fe1b32473acbfb41cc6f7ff7e537670eff16194aff3b79a1e562fcb0e
+T002:
+  reason: "The generator and test files exist and their content substantively implements\
+    \ \u03C4\xB2 perturbation with deterministic per-replicate seeding (seed + replicate\
+    \ index), and the test's statistical design (500 replicates, MoM estimator, 0.05\
+    \ tolerance) is sound. However, there is no execution evidence that `tests/unit/test_generator.py`\
+    \ was actually run and passed \u2014 no pytest output, no `data/results/simulation_raw.json`,\
+    \ no log \u2014 and the task's mandatory verification criterion is precisely that\
+    \ the test confirms the empirical-variance match. Additionally, the test imports\
+    \ `simulation.generator` while t"
+  task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
+T003:
+  task: 4384087d40e88678368e8be20ac6f3a68bef64c7c531dfa2d2681e582a7e300e
+T004:
+  reason: "The `code/analysis/metrics.py` implementation itself exists and correctly\
+    \ reads `true_effect` strictly from `injected_true_effect` (raising KeyError otherwise),\
+    \ computes bias as `pooled - true_effect` and coverage as an inclusive CI check\
+    \ \u2014 so a pooled estimate equal to the true effect would yield zero bias and\
+    \ coverage True. However, the task's explicit verification requirement \u2014\
+    \ unit tests confirming the zero-bias/coverage-True behavior \u2014 has no corresponding\
+    \ artifact: no test file (e.g., `tests/...metrics...`) or test execution output\
+    \ was provided in the evidence, so the claimed test confir"
+  task: 8a154f87ae88709e1935a37c714ab4dd02b425d066a708f75377172d1debd8e6
+T005:
+  task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e
+T006:
+  task: 232d3906c31bebc21659e01463b3a2edec5c46026f659b64be4780441b3fe4bb
+T007:
+  task: 5bf4c12f156890cd2598ec9dc2b9e05669b146683ab829415bb7175c81149aa7
+T008:
+  task: 060588d92881ef7ed5127eb03e228579803df114d9d0d638ab02ce896dbec738
+T009:
+  task: 507093c60286cfcbe8e55e11ebf43696a07166ee0e72c54de5f4aac512b5f81d
+T010:
+  task: a22e5b45552fe90467ca594327afb55b363924e6c4c4a1942cdc9a0df37e0a42
+T011:
+  task: 82306112c171373a57017966a62f1e67961c7c24bcd4aacb00c5fad4df287108
+T012:
+  task: a49a61bae509e264f0cfc92bc391951e6552f6a460598ea5478d6763bc25baf4

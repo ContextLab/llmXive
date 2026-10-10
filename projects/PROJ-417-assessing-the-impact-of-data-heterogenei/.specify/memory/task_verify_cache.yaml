@@ -1,11 +1,51 @@
-T006c:
+T001:
+  c: true
+  h: 2b957581c3aff8491e24342c5fbaa4d7f2671bee61d6cb01d8d07820e60b91b4
+  r: 'I checked `code/requirements.txt` (exactly the six CPU-tractable dependencies),
+    `code/scripts/fetch_cochrane.py` (raises `FileNotFoundError` on fetch failure
+    before the explicit, task-sanctioned fallback to the verified synthetic base),
+    the execution log (exit 0, fetch failed with 404, fallback ran), and `data/raw/cochrane_base_synthetic.csv`,
+    which exists with 20 rows of valid effect sizes and positive standard errors matching
+    the mu=0.0, sigma=1.0, N=20 parameterization. Minor deviation: the fetch URL is
+    a GitHub mirror rather than the Zenodo DOI, but the task explicitly permits the
+    verified'
+  sig: 1dabea8e331aaf94baed6cb480a27f7dcf57e798fe79545cc89b00d7a47330ca
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file or its contents were presented, and therefore there is\
-    \ no evidence that it has been updated to state a concrete replicate count (e.g.,\
-    \ 500) together with a power\u2011analysis or methodological justification as\
-    \ required. The implementer must supply the updated `research.md` containing the\
-    \ explicit number and justification."
+  h: d1dae25230f8ff8d78a3c4bd618265b581e1aae5c0a6f5a1044dae32a1705815
+  r: "The generator and test files exist and their content substantively implements\
+    \ \u03C4\xB2 perturbation with deterministic per-replicate seeding (seed + replicate\
+    \ index), and the test's statistical design (500 replicates, MoM estimator, 0.05\
+    \ tolerance) is sound. However, there is no execution evidence that `tests/unit/test_generator.py`\
+    \ was actually run and passed \u2014 no pytest output, no `data/results/simulation_raw.json`,\
+    \ no log \u2014 and the task's mandatory verification criterion is precisely that\
+    \ the test confirms the empirical-variance match. Additionally, the test imports\
+    \ `simulation.generator` while t"
+  sig: 434dc16bec7bc12afc1b2d7971c2d09159a21b7a470171335f7414a7b8564fe6
+T003:
+  c: true
+  h: a8b31acacbb181465690f659416c5cb2fc24bc597812a8543e8db46aaf6178bd
+  r: "The `code/simulation/estimators.py` artifact (13.8 KB) genuinely implements\
+    \ FE, DL, and REML estimators with Q/I\xB2 computed in every path, an explicit\
+    \ `small_study_flag` for N < 5, and REML failure logging to `data/results/reml_failures.json`\
+    \ with DL/FE fallback (the JSON file itself is only created on failure, so its\
+    \ absence is not a defect). The corresponding `tests/unit/test_estimators.py`\
+    \ covers \u03C4\xB2=0 stability, known-case pooled estimates within 0.001, Q/I\xB2\
+    \ presence, small-study flagging, and the FR-006 failure-logging/fallback path,\
+    \ matching the task's verification requirement."
+  sig: 9c921ae76f31660825b47e97a9fce7b26bb99842025ba65cbfd346a0fe354f85
+T004:
+  c: false
+  h: 7c2c32ff48117b369a7e928c239b91bc58ba46d888fa608440c1480dcdb02eec
+  r: "The `code/analysis/metrics.py` implementation itself exists and correctly reads\
+    \ `true_effect` strictly from `injected_true_effect` (raising KeyError otherwise),\
+    \ computes bias as `pooled - true_effect` and coverage as an inclusive CI check\
+    \ \u2014 so a pooled estimate equal to the true effect would yield zero bias and\
+    \ coverage True. However, the task's explicit verification requirement \u2014\
+    \ unit tests confirming the zero-bias/coverage-True behavior \u2014 has no corresponding\
+    \ artifact: no test file (e.g., `tests/...metrics...`) or test execution output\
+    \ was provided in the evidence, so the claimed test confir"
+  sig: 26395c8500dda7779246fbeec06a3d206210329dac83e86617b81a64597ae6d6
 T010:
   c: false
   h: d27516bf6f4773261f1e3baca00f2dae2e2bd27e25a89617cf5245d53e1dd0de

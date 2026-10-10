@@ -6,7 +6,7 @@
 
 **Goal**: Establish the simulation environment and run a thin, end-to-end analysis on a small valid sample to verify the data flow from perturbation to metric calculation.
 
-- [ ] T001 Establish the project layout and verify input provenance.
+- [X] T001 Establish the project layout and verify input provenance.
     Implement the directory structure defined in `plan.md` and ensure `code/requirements.txt` contains only CPU-tractable dependencies (`numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`). 
     Implement the data loader in `code/scripts/fetch_cochrane.py` to fetch real data from Zenodo DOI `10.5281/zenodo.10286623` or fallback to the verified synthetic base (mu=0.0, sigma=1.0, N=20) cited from Jackson et al. (2010).
     The loader MUST raise `FileNotFoundError` on fetch failure rather than silently substituting fake data.
@@ -17,7 +17,7 @@
     **Mandatory**: Implement deterministic random seeding using a pinned seed to ensure reproducibility (Constitution Principle I).
     **Verification**: `tests/unit/test_generator.py` confirms that the injected $\tau^2$ matches the empirical variance of generated effect sizes within 0.05.
 
-- [ ] T003 Implement meta-analysis estimators and heterogeneity logic.
+- [X] T003 Implement meta-analysis estimators and heterogeneity logic.
     Implement `code/simulation/estimators.py` providing Fixed-Effects, DerSimonian-Laird, and REML estimators (FR-002).
     **Mandatory**: Implement calculation of $Q$ and $I^2$ statistics for every estimation (Constitution Principle VII).
     **Mandatory**: Implement logic to identify and flag datasets with $N < 5$ studies, ensuring they are either excluded or explicitly flagged to avoid unreliable degrees-of-freedom approximations (Spec: Edge Cases).
