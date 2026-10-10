@@ -269,6 +269,69 @@ def _spec_quality_concerns(
     return concerns
 
 
+#: The doc-authoring gates at which more than one of spec/plan/tasks is present
+#: in ``artifacts`` (``plan_cmd`` adds spec.md beside plan.md;
+#: ``_tasker_engine_bridge`` passes all three), so a cross-document comparison
+#: is possible. The paper pipeline has the same shape and the same exposure.
+_CONTRACT_DRIFT_STAGES = frozenset(
+    {"planned", "tasked", "paper_planned", "paper_tasked"}
+)
+_CONTRACT_DOC_NAMES = frozenset({"spec.md", "plan.md", "tasks.md"})
+
+
+def _contract_drift_concerns(
+    artifacts: dict[str, str], *, stage: str, reviewer: str
+) -> list[Concern]:
+    """Synthesize a blocking concern per named quantity whose definitions
+    DISAGREE between this feature's spec, plan and tasks.
+
+    Every panel lens reads one document at a time, so a defect that exists only
+    BETWEEN documents is invisible to all of them: each document is internally
+    coherent. The frozen PROJ-9999 canary defined the exported column
+    ``stratum_TV`` as ``0.5*abs(f_i - 1/(p-1))`` in its spec and tasks but
+    ``abs(f_i - 1/(p-1))`` in its plan — a factor of two on a reported
+    statistic — and replanned twice with the conflict intact, because no
+    reviewer was ever shown two documents at once.
+
+    :func:`~llmxive.speckit._contract_drift.scan_contract_drift` reports only a
+    STRUCTURAL disagreement that both sides' restricted-sympy parse confirms, so
+    an equivalent restatement or a renamed operand is not a finding. The
+    severity is SCIENCE: a quantity whose computed value depends on which
+    document the implementer read is not writing-level residue, so it can never
+    advance on the doc-stage writing-only allowance."""
+    if stage not in _CONTRACT_DRIFT_STAGES:
+        return []
+    from llmxive.speckit._contract_drift import scan_contract_drift
+
+    docs = {
+        path: text
+        for path, text in artifacts.items()
+        if _is_doc_artifact_key(path)
+        and path.replace("\\", "/").rsplit("/", 1)[-1] in _CONTRACT_DOC_NAMES
+    }
+    concerns: list[Concern] = []
+    for idx, finding in enumerate(scan_contract_drift(docs)):
+        sites = "; ".join(f"{path}: {expr}" for path, expr in finding.definitions)
+        concerns.append(
+            Concern(
+                id=f"drift{idx:07d}"[:12].ljust(12, "0"),
+                reviewer=reviewer,
+                severity=Severity.SCIENCE,
+                artifact=finding.definitions[0][0],
+                location="",
+                text=(
+                    f"Scientific-contract drift: {finding.reason}. All "
+                    f"definitions found: {sites}. Make these documents agree on "
+                    f"one definition before advancing — each document is "
+                    f"internally consistent, so only a cross-document check "
+                    f"sees this (Constitution Principle I)."
+                ),
+                round=1,
+            )
+        )
+    return concerns
+
+
 def _fabrication_concerns(
     artifacts: dict[str, str], *, stage: str, reviewer: str
 ) -> list[Concern]:
@@ -322,15 +385,18 @@ def _fabrication_concerns(
 
 
 # A requirement id (FR-007 / SC-012), tolerant of the non-breaking hyphen the
-# LLM emits (FR‑007), an optional leading zero-pad, AND a sub-letter suffix
+# LLM emits in place of a hyphen (U+2011), an optional leading zero-pad, AND a
+# sub-letter suffix
 # (FR-004a / SC-010b) — the reviser creates these when it splits a requirement
 # to add a sibling (e.g. FR-004a for FR-004's sensitivity analysis). Without the
 # ``[a-z]?`` the id never matches (the ``a`` blocks the ``\b``), so the anchored
 # set silently omits it and a PROVABLY-anchored FR-004a is kept as a false
 # orphan — the live PROJ-492 spec residual.
-_REQ_ID_RE = re.compile(r"\b((?:FR|SC)[-‑]?\d{1,3}[a-z]?)\b", re.IGNORECASE)
+_REQ_ID_RE = re.compile(r"\b((?:FR|SC)[-\u2011]?\d{1,3}[a-z]?)\b", re.IGNORECASE)
 # A line that ESTABLISHES a story anchor for the id(s) on it.
-_ANCHOR_HINT_RE = re.compile(r"see\s+us|\bus[-‑\s]?\d|\banchored\s+requirement", re.IGNORECASE)
+_ANCHOR_HINT_RE = re.compile(
+    r"see\s+us|\bus[-\u2011\s]?\d|\banchored\s+requirement", re.IGNORECASE
+)
 # A concern that CLAIMS an FR/SC has no user-story anchor (traceability).
 _ORPHAN_CLAIM_RE = re.compile(
     r"orphan|not\s+(?:anchored|linked|tied|cited|referenced|connected)\b|"
@@ -340,7 +406,7 @@ _ORPHAN_CLAIM_RE = re.compile(
 
 
 def _norm_req_id(raw: str) -> str:
-    raw = raw.replace("‑", "-").upper().replace("FR", "FR-").replace("SC", "SC-")
+    raw = raw.replace("\u2011", "-").upper().replace("FR", "FR-").replace("SC", "SC-")
     raw = raw.replace("FR--", "FR-").replace("SC--", "SC-")
     pre, _, num = raw.partition("-")
     # Zero-pad the numeric part; preserve any sub-letter suffix (004A) so
@@ -712,6 +778,8 @@ def run_convergence(
     ) + _spec_quality_concerns(
         artifacts, stage=spec.stage, reviewer=_guard_reviewer
     ) + _fabrication_concerns(
+        artifacts, stage=spec.stage, reviewer=_guard_reviewer
+    ) + _contract_drift_concerns(
         artifacts, stage=spec.stage, reviewer=_guard_reviewer
     )
     if marker_concerns:

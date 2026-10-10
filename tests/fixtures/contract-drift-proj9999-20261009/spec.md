@@ -1,0 +1,1 @@
+- **FR-005**: The system MUST calculate, for each stratum, (i) its mass (number of n in the stratum), (ii) its stratum‑TV contribution defined as ½·|f_i − 1/(p‑1)| where f_i is the conditional frequency of the stratum, and (iii) output these values in a CSV file named `results_N{N}_p{p}.csv` with columns `q`, `e`, `q_mod_p`, `count`, `stratum_TV`, `contribution`. *(See US-1)*
