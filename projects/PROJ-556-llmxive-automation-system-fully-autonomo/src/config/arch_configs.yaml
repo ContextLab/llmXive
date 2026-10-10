@@ -8,7 +8,7 @@
 # stochasticity and are pinned for reproducibility.
 #
 # CPU-only constraint (GitHub Actions free tier, no CUDA): all models are
-# small, CPU-tractable checkpooints (<= ~0.5B parameters).
+# small, CPU-tractable checkpoints (<= ~0.5B parameters).
 
 defaults:
   embedding_model: sentence-transformers/all-MiniLM-L6-v2
