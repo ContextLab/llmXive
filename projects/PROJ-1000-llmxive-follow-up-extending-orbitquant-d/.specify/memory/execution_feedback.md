@@ -71,22 +71,22 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/mse_validator.py` — NOT invoked by the run-book
     - `code/analysis/router.py` — NOT invoked by the run-book
     - `code/analysis/router_api_docs.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/main_validation.py` — NOT invoked by the run-book
+    - `code/quantization/static_baseline.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/clustering_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/correlation_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/clustering.py` — NOT invoked by the run-book
     - `code/analysis/generate_correlation_results.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity.py` — NOT invoked by the run-book
     - `code/analysis/visualization.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
     - `code/main_validation.py` — NOT invoked by the run-book
     - `code/run_correlation.py` — NOT invoked by the run-book
     - `code/validation/validate_correlation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/correlation_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/diverse_prompts.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/entropy_proxy.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
     - `code/data/download_diverse_prompts.py` — NOT invoked by the run-book
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/evaluation/timing.py` — NOT invoked by the run-book
@@ -112,7 +112,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/prompts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/quantized_activations.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/mse_validator.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
     - `code/quantization/static_baseline.py` — NOT invoked by the run-book
     - `code/quantization/w2a4_engine.py` — NOT invoked by the run-book
     - `code/run_quantization_validation.py` — NOT invoked by the run-book

@@ -1,11 +1,12 @@
 T001:
-  c: true
-  h: b0dca03b9c3ae98655ecbc29a4f6660d238cbb865ad685b841ee2a1c9c41c8bd
-  r: All required directories (code/ with data, models, analysis, quantization, evaluation
-    subdirs, tests/, data/raw, data/processed, state/) exist and are non-empty; `requirements.txt`
-    contains torch and other dependencies; `code/config.py` is a substantive configuration
-    module; and `specs/.../quickstart.md` is a real quick-start guide. `code/main.py`
-    implements `--phase init`, which creates the required directories and prints "Initialization
-    complete", and its `from config import Config` import resolves correctly when
-    run as `python code/main.py` from the project root (script directory on sys.pat
-  sig: fa86e7c7332a95affd14a3615bf8f9b21a8cde8c1c817fbaeff378fec9e693a4
+  c: false
+  h: 1cc91cd3e5e7107ae9028fbabffc7bdb173fb4a28e51a92be9ee2680ef88d635
+  r: 'The directory skeleton, `requirements.txt` (contains torch), `code/config.py`,
+    and `quickstart.md` all exist, but the required quick-start command `python code/main.py
+    --phase init` cannot succeed: `main.py`''s `run_init_phase` accesses `cfg.code_dir`,
+    `cfg.tests_dir`, and `cfg.project_root`, none of which are defined in the shown
+    `code/config.py` (it only defines `raw_data_dir`, `processed_data_dir`, `seed`,
+    and two path properties), so it would raise `AttributeError` before printing "Initialization
+    complete". Additionally, the quickstart.md instructs `python code/main.py --mode
+    full`, which t'
+  sig: 5f3e288a0fe4864179687fd4a086bf52c763636dbe7cb2cf6902d4f8408e6a2f

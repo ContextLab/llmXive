@@ -1,4 +1,12 @@
 T001:
+  reason: 'The directory skeleton, `requirements.txt` (contains torch), `code/config.py`,
+    and `quickstart.md` all exist, but the required quick-start command `python code/main.py
+    --phase init` cannot succeed: `main.py`''s `run_init_phase` accesses `cfg.code_dir`,
+    `cfg.tests_dir`, and `cfg.project_root`, none of which are defined in the shown
+    `code/config.py` (it only defines `raw_data_dir`, `processed_data_dir`, `seed`,
+    and two path properties), so it would raise `AttributeError` before printing "Initialization
+    complete". Additionally, the quickstart.md instructs `python code/main.py --mode
+    full`, which t'
   task: ec9d21d754e2d47e9d7d0b2d2fcf439a17f2c7f5960a3bc87d6b6bf177f9e8a0
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/download_coco.py
