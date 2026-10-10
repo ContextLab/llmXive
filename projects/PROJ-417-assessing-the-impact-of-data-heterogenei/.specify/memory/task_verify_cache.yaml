@@ -1,43 +1,49 @@
 T001:
-  c: false
-  h: cd69b1602d586109bf521947e49cbf5878686b6341eefc7ea418e332965d48e8
-  r: "Checked `code/scripts/fetch_cochrane.py` and its execution log: the script catches\
-    \ the `FileNotFoundError` raised on fetch failure and returns exit code\u202F\
-    0 instead of propagating the exception, violating the \u201Cmust raise FileNotFoundError\u201D\
-    \ requirement. Additionally, `data/raw/cochrane_base.csv` is missing (only the\
-    \ synthetic fallback file exists). The loader therefore does not meet the task\u2019\
-    s error\u2011handling specification."
-  sig: 04a6f50c4ccefd4333f36604274b247599aa0b6d1cf744832226a11fc0cd2c77
+  c: true
+  h: c52f2f0e01b3273a7c5bef22ef71e57ab3f7a9060d2c7278eba7764afb6f8122
+  r: Checked `code/requirements.txt` (exactly the six CPU-tractable deps), `code/scripts/fetch_cochrane.py`
+    (fetches Zenodo record 10286623, validates effect-size/SE columns, and raises
+    `FileNotFoundError` on any fetch/validation failure with no silent substitution),
+    and `data/raw/cochrane_base_synthetic.csv`, which exists with 20 studies and valid
+    `effect_size`/`standard_error` columns consistent with the N(0,1), N=20 verified
+    synthetic base. The plan.md and project layout artifacts are present as required.
+  sig: 59020ceeb92bd061f6a1146fba179333e59276c0eb612e990a15c83e42fdfcd9
 T002:
   c: true
-  h: 0bd0a5f6bc8be8d8c07ea15e03cabceba9f5ace49b1406641125a2b4d57d2089
-  r: "Checked `code/simulation/generator.py` for \u03C4\xB2 perturbation logic, deterministic\
-    \ seeding via the config seed, and the empirical variance calculation; the unit\
-    \ tests in `tests/unit/test_generator.py` (including the variance\u2011match test)\
-    \ all pass as shown in the verification log."
-  sig: 5bf2b5070437d747cab62a638a88014e97bb46d7a8201e1024dfce64d8f5177a
+  h: aeaed097d2b8cb66666a8bc717790f6cd1bf5e4477a41eeafa6f860ff8485a08
+  r: "I examined `code/simulation/generator.py` (perturbs \u03C4\xB2 via a normal\
+    \ heterogeneity component, deterministic per-replicate seeding with `np.random.default_rng(seed\
+    \ + i)` from a pinned config seed) and `tests/unit/test_generator.py`, which contains\
+    \ the required verification test (`test_variance_match_unit_test`: 500 replicates,\
+    \ method-of-moments empirical \u03C4\xB2 vs injected 0.5 within 0.05) plus determinism\
+    \ and homogeneity tests. The statistical model is sound \u2014 with N=20 studies\
+    \ and small base SEs, the mean MoM estimate E[var(effects) \u2212 avg v_i] equals\
+    \ the injected \u03C4\xB2, so the assertion is genuinely "
+  sig: df65bc475fd65ad6a34f64d66d86511a868a60bb5108aff0e55fe7dab80f2e51
 T003:
   c: false
-  h: 359d3cb907762df630252cf26d8c851d633461cdbf20448ebec48210c839f5d9
-  r: "The `code/simulation/estimators.py` file provides Fixed\u2011Effects and DerSimonian\u2011\
-    Laird estimators and includes REML fallback\u2011failure logging, but the snippet\
-    \ does not contain an `apply_estimator` dispatcher nor the REML branch that computes\
-    \ and returns the required `q_statistic`, `i2`, `df`, and `p_value` fields. Consequently\
-    \ the module does not demonstrably satisfy the mandatory requirement that every\
-    \ estimator produce Q and I\xB2 statistics and that the public `apply_estimator`\
-    \ function exists for the unit\u2011test suite. Adding the missing dispatcher\
-    \ and completing the REML implementation (includin"
-  sig: 599494f3c0a2e7f33e0f024784ca68be12326f0c3c2797fc915cf38769ac1df2
+  h: b80b146f6433cc6caff1c0ca038363b8ffe4de98430a4f137b810c21fffff0e6
+  r: "The estimator module has a fatal bug: `log_reml_failure` calls `Path(log_path).parent.mkdir(...)`\
+    \ but `pathlib.Path` is never imported in `estimators.py` (only json, math, time,\
+    \ typing, numpy, scipy), so any REML failure-logging invocation raises `NameError`\
+    \ \u2014 meaning the FR-006 requirement (log failures and fall back) cannot work\
+    \ as written, and the test `test_failure_logging_and_fallback` would fail. Additionally,\
+    \ `data/results/reml_failures.json` has a schema (`{\"failure_count\": 0, \"events\"\
+    : []}`) that `log_reml_failure` neither reads nor writes (it expects/writes a\
+    \ plain JSON list), indica"
+  sig: ef772ceed38174aeda32c7db3e83389987c19f1bbaf306afce64efdc879540b5
 T005:
   c: true
-  h: 458f696a57f11ebde144d2f641e0ce7d87184ed9bf138df46dce05a7c37d897a
-  r: "Checked `code/main.py` (pipeline entry point) and the generated `data/results/estimation_results.csv`,\
-    \ which includes the required columns (`pooled_effect`, `ci_lower`, `ci_upper`,\
-    \ `estimator_type`, `sweep_type`, `convergence_warning`) and non\u2011null I\xB2\
-    \ (`i_squared`) and Q (`q_statistic`) values for all 20 replicates (10 per \u03C4\
-    \xB2 level). The file matches the T005 schema and reflects a 2\u2011level, 10\u2011\
-    replicate run."
-  sig: 8c9e62880537db3391f4ce10846f1a7e5ce42c9c99d8a1078b8cd76a61afbc8c
+  h: b802558c7af7cf05ce37d7351f6d3204eae81c9cde5d32c7d4e5fbfa45941e23
+  r: "I checked `data/results/estimation_results.csv` (60 rows = 2 \u03C4\xB2 levels\
+    \ \xD7 10 replicates \xD7 3 estimators) with all required schema fields (`pooled_effect`,\
+    \ `ci_lower`, `ci_upper`, `estimator_type`, `sweep_type`, `convergence_warning`)\
+    \ populated and non-null, plus non-null `i_squared` and `q_statistic` for every\
+    \ replicate, consistent with `run_summary.json` (coverage 0.4 for FE at \u03C4\
+    \xB2=0.1 matches the CSV's coverage flags) and an empty REML failure log. The\
+    \ \u03C4\xB2=0 replicates being identical is the expected degenerate case of the\
+    \ documented perturbation model (y = \u03BC + \u221A\u03C4\xB2\xB7z), not fabrication."
+  sig: ead9432c0c9678b4ed2caeb3162ca1d3ae7474ec5323e4ffc26752a1d1e00cc6
 T007:
   c: false
   h: 9a473874ddeb6ac0684ed19102a5284dbce9a5f79fbcbac06476334c1aa92194
@@ -59,14 +65,26 @@ T008:
     \ is meaningless. The missing sensitivity sweep output (and corresponding CSV)\
     \ must be generated and the stability analysis rerun to produce a genuine comparison."
   sig: d5df70c9cc23317578ce7d570fe4b12932553b1f01b841ad9028fd6089c8c24e
+T009:
+  c: false
+  h: d91dbdbe8ad06c21a4af6f95c28191a50e298df326a1eead476a2c73b89a7d37
+  r: "The required artifact `code/visualization/plots.py` is MISSING, and the `data/results/`\
+    \ directory listing contains no PNG files \u2014 neither the Coverage vs. \u03C4\
+    \xB2 nor Mean Bias vs. \u03C4\xB2 plots exist. The implementer must create the\
+    \ plotting module and generate both PNG outputs in `data/results/`."
+  sig: aa7dc664c2dca8d4ab33654c35300f24d00869bc10c004e682e6fe84a00e8ae8
 T010:
   c: false
-  h: d27516bf6f4773261f1e3baca00f2dae2e2bd27e25a89617cf5245d53e1dd0de
-  r: "The generated `simulation_raw.json` contains only a handful of replicates (6\
-    \ total) instead of \u2265500 replicates for each heterogeneity level, and the\
-    \ required schema file `contracts/simulated_dataset.schema.yaml` is missing, so\
-    \ we cannot confirm output conforms to the contract. The implementation does not\
-    \ meet the quantity and validation requirements."
+  h: d176a03edcf3187ea727fabe4fd5c137e2d56e22f7a879991e6984122dc59527
+  r: "The report exists and contains the \"associational\" label and file references,\
+    \ but its contents contradict the actual result files: `reml_failures.json` records\
+    \ `failure_count: 0` with empty events, yet the report's REML table lists two\
+    \ fabricated \"simulated crash\" failures; and the aggregated metrics table (5\
+    \ \u03C4\xB2 levels, coverage 0.763/0.633/0.582/0.511) does not match `run_summary.json`/`estimation_results.csv`\
+    \ (only \u03C4\xB2=0.0 and 0.1, 10 replicates, coverage 1.0/0.4). The report was\
+    \ evidently generated from different or invented data rather than the actual `data/results/`\
+    \ artifacts; the implemen"
+  sig: 2697a6b970cb6e4b1c41fc2c1b024d1f2c45fdef541d95c6f724d9ff8f5392a0
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

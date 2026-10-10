@@ -156,12 +156,17 @@ def fetch_real_data() -> Path:
                             continue
                         inner_bytes = zf.read(inner_name)
                         if _validate_csv_bytes(inner_bytes):
-                            # Write the validated CSV to the output location
                             OUTPUT_FILE.write_bytes(inner_bytes)
-                            print(f"Successfully extracted and validated '{inner_name}' from zip '{name}' → {OUTPUT_FILE}")
+                            print(
+                                f"Successfully extracted and validated '{inner_name}' "
+                                f"from zip '{name}' → {OUTPUT_FILE}"
+                            )
                             return OUTPUT_FILE
                         else:
-                            last_error = f"inner file '{inner_name}' in zip '{name}' failed validation"
+                            last_error = (
+                                f"inner file '{inner_name}' in zip '{name}' "
+                                "failed validation"
+                            )
                 continue  # continue to next candidate if zip processed
 
             # Otherwise treat as plain CSV
@@ -193,19 +198,10 @@ def main() -> int:
     print("=" * 60)
     print("FETCHING COCHRANE DATA")
     print("=" * 60)
-    try:
-        fetch_real_data()
-        print("SUCCESS: Real Cochrane data fetched and validated.")
-    except FileNotFoundError as e:
-        # Report the error but do NOT abort the pipeline; the fallback
-        # mechanism in `code/main.py` will generate a verified synthetic base.
-        print(f"ERROR: {e}")
-        print("Proceeding with synthetic fallback (handled elsewhere).")
-        # Return success code so that downstream pipeline continues.
-        return 0
-    finally:
-        print("=" * 60)
-
+    # Propagate any FileNotFoundError so the caller can handle it.
+    fetch_real_data()
+    print("SUCCESS: Real Cochrane data fetched and validated.")
+    print("=" * 60)
     return 0
 
 if __name__ == "__main__":

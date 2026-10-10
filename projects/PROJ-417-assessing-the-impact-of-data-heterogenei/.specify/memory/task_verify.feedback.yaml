@@ -1,22 +1,16 @@
 T001:
-  reason: "Checked `code/scripts/fetch_cochrane.py` and its execution log: the script\
-    \ catches the `FileNotFoundError` raised on fetch failure and returns exit code\u202F\
-    0 instead of propagating the exception, violating the \u201Cmust raise FileNotFoundError\u201D\
-    \ requirement. Additionally, `data/raw/cochrane_base.csv` is missing (only the\
-    \ synthetic fallback file exists). The loader therefore does not meet the task\u2019\
-    s error\u2011handling specification."
   task: 820b146fe1b32473acbfb41cc6f7ff7e537670eff16194aff3b79a1e562fcb0e
 T002:
   task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
 T003:
-  reason: "The `code/simulation/estimators.py` file provides Fixed\u2011Effects and\
-    \ DerSimonian\u2011Laird estimators and includes REML fallback\u2011failure logging,\
-    \ but the snippet does not contain an `apply_estimator` dispatcher nor the REML\
-    \ branch that computes and returns the required `q_statistic`, `i2`, `df`, and\
-    \ `p_value` fields. Consequently the module does not demonstrably satisfy the\
-    \ mandatory requirement that every estimator produce Q and I\xB2 statistics and\
-    \ that the public `apply_estimator` function exists for the unit\u2011test suite.\
-    \ Adding the missing dispatcher and completing the REML implementation (includin"
+  reason: "The estimator module has a fatal bug: `log_reml_failure` calls `Path(log_path).parent.mkdir(...)`\
+    \ but `pathlib.Path` is never imported in `estimators.py` (only json, math, time,\
+    \ typing, numpy, scipy), so any REML failure-logging invocation raises `NameError`\
+    \ \u2014 meaning the FR-006 requirement (log failures and fall back) cannot work\
+    \ as written, and the test `test_failure_logging_and_fallback` would fail. Additionally,\
+    \ `data/results/reml_failures.json` has a schema (`{\"failure_count\": 0, \"events\"\
+    : []}`) that `log_reml_failure` neither reads nor writes (it expects/writes a\
+    \ plain JSON list), indica"
   task: 4384087d40e88678368e8be20ac6f3a68bef64c7c531dfa2d2681e582a7e300e
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/run_tests.sh
@@ -51,8 +45,20 @@ T008:
     \ must be generated and the stability analysis rerun to produce a genuine comparison."
   task: 060588d92881ef7ed5127eb03e228579803df114d9d0d638ab02ce896dbec738
 T009:
+  reason: "The required artifact `code/visualization/plots.py` is MISSING, and the\
+    \ `data/results/` directory listing contains no PNG files \u2014 neither the Coverage\
+    \ vs. \u03C4\xB2 nor Mean Bias vs. \u03C4\xB2 plots exist. The implementer must\
+    \ create the plotting module and generate both PNG outputs in `data/results/`."
   task: 507093c60286cfcbe8e55e11ebf43696a07166ee0e72c54de5f4aac512b5f81d
 T010:
+  reason: "The report exists and contains the \"associational\" label and file references,\
+    \ but its contents contradict the actual result files: `reml_failures.json` records\
+    \ `failure_count: 0` with empty events, yet the report's REML table lists two\
+    \ fabricated \"simulated crash\" failures; and the aggregated metrics table (5\
+    \ \u03C4\xB2 levels, coverage 0.763/0.633/0.582/0.511) does not match `run_summary.json`/`estimation_results.csv`\
+    \ (only \u03C4\xB2=0.0 and 0.1, 10 replicates, coverage 1.0/0.4). The report was\
+    \ evidently generated from different or invented data rather than the actual `data/results/`\
+    \ artifacts; the implemen"
   task: a22e5b45552fe90467ca594327afb55b363924e6c4c4a1942cdc9a0df37e0a42
 T011:
   task: 82306112c171373a57017966a62f1e67961c7c24bcd4aacb00c5fad4df287108
