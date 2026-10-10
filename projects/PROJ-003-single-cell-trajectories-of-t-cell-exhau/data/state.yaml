@@ -1,0 +1,65 @@
+datasets:
+  GSE111075:
+    cell_count: 0
+    checksum: dc2aefa02621957635b87deb4de664b02da3406a537182ca4f58aa94095ab5ae
+    counts_checksum: dc2aefa02621957635b87deb4de664b02da3406a537182ca4f58aa94095ab5ae
+    dataset_id: GSE111075
+    gene_count: 0
+    raw_counts_path: data/raw/GSE111075/counts/filelist.txt
+    source: GEO/SRA
+    sra_sample_checksum: skipped_no_toolkit
+    status: available
+    sufficiency_screen:
+      exhaustion_signature: false
+      metabolic_markers: false
+      pd1_expression: false
+      source_record: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE111075&targ=self&form=text&view=quick
+      therapy_response_labels: false
+  GSE127465:
+    cell_count: 0
+    checksum: 84a5ae3288e7fd7d48b244b87529f5905199ad9be6cf076d2e77a14d7d5688ce
+    counts_checksum: 84a5ae3288e7fd7d48b244b87529f5905199ad9be6cf076d2e77a14d7d5688ce
+    dataset_id: GSE127465
+    gene_count: 0
+    raw_counts_path: data/raw/GSE127465/counts/GSE127465_mouse_counts_normalized_15939x28205.mtx.gz
+    source: GEO/SRA
+    sra_sample_checksum: skipped_no_toolkit
+    status: available
+    sufficiency_screen:
+      exhaustion_signature: false
+      metabolic_markers: false
+      pd1_expression: false
+      source_record: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE127465&targ=self&form=text&view=quick
+      therapy_response_labels: false
+  GSE136103:
+    cell_count: 0
+    checksum: 1c7fcd6f80c44c5cbc416553855a2915f02b436164526fefcf2eb3aeac608ff6
+    counts_checksum: 1c7fcd6f80c44c5cbc416553855a2915f02b436164526fefcf2eb3aeac608ff6
+    dataset_id: GSE136103
+    gene_count: 0
+    raw_counts_path: data/raw/GSE136103/counts/filelist.txt
+    source: GEO/SRA
+    sra_sample_checksum: skipped_no_toolkit
+    status: available
+    sufficiency_screen:
+      exhaustion_signature: false
+      metabolic_markers: false
+      pd1_expression: false
+      source_record: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE136103&targ=self&form=text&view=quick
+      therapy_response_labels: false
+  GSE138852:
+    cell_count: 0
+    checksum: cf4b29e8acc215b8c697b6c10aff505028b698d7ea00b7cea4e5f4d3f4b3420c
+    counts_checksum: cf4b29e8acc215b8c697b6c10aff505028b698d7ea00b7cea4e5f4d3f4b3420c
+    dataset_id: GSE138852
+    gene_count: 0
+    raw_counts_path: data/raw/GSE138852/counts/GSE138852_counts.csv.gz
+    source: GEO/SRA
+    sra_sample_checksum: skipped_no_toolkit
+    status: available
+    sufficiency_screen:
+      exhaustion_signature: false
+      metabolic_markers: false
+      pd1_expression: false
+      source_record: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE138852&targ=self&form=text&view=quick
+      therapy_response_labels: false

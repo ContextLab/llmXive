@@ -1,10 +1,21 @@
-numpy
-pandas
-scipy
-scanpy
-scvelo
-matplotlib
-seaborn
-pyyaml
-biopython
-requests
+# Core scientific stack
+numpy>=1.23
+pandas>=1.5
+scipy>=1.9
+scikit-learn>=1.1
+# Single-cell analysis
+anndata>=0.9
+scanpy>=1.9
+scvelo>=0.2.5
+# Data acquisition
+requests>=2.28
+wget>=3.2
+biopython>=1.79
+PyYAML>=6.0
+# Plotting
+matplotlib>=3.6
+seaborn>=0.12
+# HDF5 support
+h5py>=3.7
+# Testing
+pytest>=7.0

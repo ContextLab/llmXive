@@ -1,14 +1,26 @@
 T001:
   c: true
-  h: b1d4d06cee19f0a162e1ce510f070f3c5e3aaf416a0bee88aa22c5dc88568ba4
+  h: 20a8c0140cf3f687754d8640b0ec6082f51fa2f59b270f3403d2b7a4d8387730
   r: The required directory tree exists (code/, data/raw/, data/processed/, data/results/,
-    tests/), pyproject.toml configures ruff and black (line-length 88, rule selection,
-    black target versions), and quickstart.md documents the runnable environment with
-    prerequisites, installation, and pipeline commands. The verification criteria
-    (ruff/black passing) are supported by the presence of test_linting_config.py and
-    a passing setup_directories.py execution record; no substantive artifact is missing
-    or stubbed.
-  sig: a3f19ec6b4b7628ce26dcc28f154a0848591400fa0c29aa41c0f59fb3f072c56
+    tests/), `pyproject.toml` configures both ruff and black (line-length 88, target
+    py39+), and `quickstart.md` documents the runnable environment with installation
+    and pipeline commands. The verification criteria mention `ruff check .` and `black
+    --check .` passing; while no lint-run logs are shown, the configuration artifacts
+    and directory layout the task actually requires are present and non-empty, and
+    a linting-config test file exists in tests/.
+  sig: 21c43a9f24f2b4bb584413c3c4ec318c7b7208b65a99ec5c20bd2c4d044d2273
+T002:
+  c: false
+  h: 046ea8e5654477238e00a9d7334c70255492f70000b5793c28860c0535f90703
+  r: "The run log shows the script downloaded GEO supplementary files rather than\
+    \ raw count matrices via SRA Toolkit (prefetch/fastq-dump), and for GSE136103\
+    \ and GSE111075 the \"counts\" file is merely `filelist.txt` \u2014 a directory\
+    \ listing, not a count matrix \u2014 so two of four datasets have no real data.\
+    \ The task's requirement to use SRA Toolkit is treated as optional (skipped with\
+    \ a warning), and there is no evidence `tests/unit/test_download.py` was executed\
+    \ or that `data/state.yaml` contains valid 64-char checksums with `status: available`\
+    \ for all four datasets (the state file itself was not provided"
+  sig: 8e7aad8f1c9a42a3d4561446741e4fb813ecb8286b906515417acbfc20b67725
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

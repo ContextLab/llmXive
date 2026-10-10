@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "093943699c0ab293577fb5c3135eafec1cd23a33ad48dc5c56d788e7aed03b62",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/preprocess.py': SyntaxError at line 121: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 20709\n[implementer] refusing to write 'tests/unit/test_preprocess.py': imports nonexistent names from sibling files: `from preprocess import MITO_THRESHOLD_PERCENT, compute_percent_mito, filter_mito_cells, load_counts, seurat_normalize` (available: Path, argparse, check_r_environment, logger, logging, main, os, run_r_preprocessing...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

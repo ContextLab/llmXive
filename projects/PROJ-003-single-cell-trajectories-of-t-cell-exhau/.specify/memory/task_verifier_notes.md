@@ -2,4 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T002** — Requested task execution failed; rerun successfully: code/download_data.py exit=1
+- **T002** — The run log shows the script downloaded GEO supplementary files rather than raw count matrices via SRA Toolkit (prefetch/fastq-dump), and for GSE136103 and GSE111075 the "counts" file is merely `filelist.txt` — a directory listing, not a count matrix — so two of four datasets have no real data. The task's requirement to use SRA Toolkit is treated as optional (skipped with a warning), and there is no evidence `tests/unit/test_download.py` was executed or that `data/state.yaml` contains valid 64-char checksums with `status: available` for all four datasets (the state file itself was not provided
