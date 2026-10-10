@@ -211,3 +211,114 @@ def test_selection_exhaustion_never_reaches_proposal_or_reads_untrusted_source(
     assert len(list(output.glob('selection-validation*.json'))) == 3
     assert not (output/'source-context.json').exists()
     assert secret.read_text() == 'SECRET SELECTION SENTINEL'
+
+
+def test_overflow_can_replace_context_then_reach_unchanged_baseline_gate(repair_repo, monkeypatch):
+    repo, output, source, related, proposal = repair_repo
+    old = 'src/llmxive/old_context.py'
+    (repo / old).write_text('#' + 'x' * 249_990)
+    prompts = []
+
+    def ask(prompt, **kwargs):
+        prompts.append(prompt)
+        if len(prompts) == 1:
+            return {'paths': [old], 'problem': 'wrong answer through existing caller'}
+        if len(prompts) == 2:
+            return proposal  # Append-only expansion would exceed the unchanged cap.
+        if len(prompts) == 3:
+            assert '250 KB' in prompt
+            return {'context_paths': [source, related], 'reason': 'Replace irrelevant large context'}
+        assert 'def answer(): return 0' in prompt
+        return proposal
+
+    def baseline(path, tests, log, **kwargs):
+        assert (path / source).read_text() == 'def answer(): return 0\n'
+        assert tests == [proposal['regression']]
+        raise RuntimeError('unchanged isolated baseline gate reached')
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    monkeypatch.setattr(runner, 'isolated_tests', baseline)
+    with pytest.raises(RuntimeError, match='unchanged isolated baseline gate reached'):
+        runner.run(repo, {}, output)
+    assert len(prompts) == 4  # one selection, exactly three bounded proposal turns
+    final_context = json.loads((output / 'source-context.json').read_text())
+    assert set(final_context) == {source, related}
+    assert final_context[source] == (repo / source).read_text()
+    assert (repo / old).stat().st_size == 249_991
+
+
+def test_proposal_gets_exact_baseline_tests_and_invalid_related_path_feedback(repair_repo, monkeypatch):
+    repo, output, source, related, proposal = repair_repo
+    invented = 'tests/unit/test_repair_previous_attempt.py'
+    prompts = []
+
+    def ask(prompt, **kwargs):
+        prompts.append(prompt)
+        assert f'EXISTING_RELATED_TESTS:\n["{related}"]' in prompt
+        if len(prompts) == 1:
+            return dict(proposal, related_tests=[invented])
+        assert f'related tests must exist in the baseline: {invented!r}' in prompt
+        return proposal
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    result = runner.propose_fix(repo, {}, output, [source, related], {},
+                                {source: (repo / source).read_text()})
+    assert len(prompts) == 2
+    assert result['related_tests'] == [related]
+    assert not (repo / invented).exists()
+
+
+@pytest.mark.parametrize('kind', ['outside', 'unknown', 'symlink', 'oversized', 'too_many',
+                                  'not_strings', 'mixed_proposal', 'only_requests'])
+def test_context_replacement_cannot_bypass_scope_budget_or_candidate_gates(repair_repo, monkeypatch, kind):
+    repo, output, source, _related, proposal = repair_repo
+    secret = repo / 'outside.py'
+    secret.write_text('PRIVATE_CONTEXT_SENTINEL')
+    link = repo / 'src/llmxive/link.py'
+    link.symlink_to(secret)
+    large = repo / 'src/llmxive/large.py'
+    large.write_text('#' + 'x' * 250_000)
+    paths = {'outside': ['../outside.py'], 'unknown': ['src/llmxive/invented.py'],
+             'symlink': ['src/llmxive/link.py'], 'oversized': ['src/llmxive/large.py'],
+             'too_many': [source] * 13, 'not_strings': [{}],
+             'mixed_proposal': [source], 'only_requests': [source]}[kind]
+    prompts = []
+
+    def ask(prompt, **kwargs):
+        prompts.append(prompt)
+        assert 'PRIVATE_CONTEXT_SENTINEL' not in prompt
+        request = {'context_paths': paths, 'reason': 'Inspect real source'}
+        return dict(proposal, **request) if kind == 'mixed_proposal' else request
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    monkeypatch.setattr(runner, 'isolated_tests', lambda *a, **k: pytest.fail('request reached execution'))
+    with pytest.raises(ValueError):
+        runner.propose_fix(repo, {}, output, runner.selectable_files(repo), {},
+                           {source: (repo / source).read_text()})
+    assert len(prompts) == 3
+    assert not (output / 'proposal.json').exists()
+    assert not (repo / proposal['regression']).exists()
+    assert secret.read_text() == 'PRIVATE_CONTEXT_SENTINEL'
+    assert (repo / source).read_text() == 'def answer(): return 0\n'
+    if kind == 'only_requests':
+        assert 'three-turn proposal budget' in (output / 'proposal-validation-revision-2.json').read_text()
+
+
+def test_replaced_away_source_must_be_reread_before_editing(repair_repo, monkeypatch):
+    repo, output, source, related, proposal = repair_repo
+    responses = iter([{'context_paths': [related], 'reason': 'Inspect fixture conventions'},
+                      proposal, proposal])
+    prompts = []
+
+    def ask(prompt, **kwargs):
+        prompts.append(prompt)
+        return next(responses)
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    result = runner.propose_fix(repo, {}, output, [source, related], {},
+                               {source: (repo / source).read_text()})
+    assert result['files'][source] == 'def answer(): return 42\n'
+    assert 'previous proposal edited unread files' in prompts[2]
+    assert set(json.loads((output / 'source-context-revision-1.json').read_text())) == {related}
+    assert set(json.loads((output / 'source-context-revision-2.json').read_text())) == {source, related}
+    assert json.loads((output / 'context-request.json').read_text())['replaced_paths'] == [source]
