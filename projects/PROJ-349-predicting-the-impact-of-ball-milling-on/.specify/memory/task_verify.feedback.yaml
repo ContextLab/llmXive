@@ -1,0 +1,187 @@
+T001:
+  task: 2adcde32f46659e8d70d27000fe6925de3df735beab8222caaac4c9620f7e722
+T002:
+  reason: '`requirements.txt` exists with all ten required pinned dependencies (plus
+    an extra `arxiv` entry, which is harmless), but the required `requirements-optional.txt`
+    containing `easyocr==1.7.*`, `opencv-python==4.8.*`, and `pdf2image==1.16.*` is
+    missing entirely. The implementer must create that optional dependencies file
+    to satisfy the task.'
+  task: 0dafd4997706458edc129a97f1f8b59e9e2912d253cb626d9b83a622fc07f6b5
+T002b:
+  reason: "The `requirements.txt` exists and contains a plausible pinned dependency\
+    \ list, but the task's action is to run `pip check` (or equivalent) and its verification\
+    \ criterion is \"no dependency conflicts reported\" \u2014 and no execution evidence\
+    \ of such a check (command output, log, or report) was provided. The implementer's\
+    \ claim that dependencies are resolvable is unverified; the next step should capture\
+    \ and attach actual `pip check` / `pip install --dry-run` output against this\
+    \ file."
+  task: 52866a7f045af9bd3cafd1cc2466e329105a92cadc9657be71c5b16e1efddd47
+T003a:
+  reason: "The evidence collector shows no artifacts on disk for this task \u2014\
+    \ there is no `.flake8` file (or any resolved path) present in the project, so\
+    \ the required configuration file with `max-line-length = 88` does not exist.\
+    \ The implementer must create `.flake8` at the project root containing that setting."
+  task: f6693b3617699471af94f653fe9c24b77bda8fbde2ddf08066eb0750ee442f0c
+T003b:
+  task: 8dd0c65d07157e34081e336a54696257dba1480a05d42aad84b75af051ec5198
+T004:
+  reason: "The evidence collector provided no artifacts confirming a `.git` directory,\
+    \ a `.gitignore` file, or any `git log` output showing an initial commit in `projects/PROJ-349-predicting-the-impact-of-ball-milling-on`.\
+    \ The task's verification criteria (`.git` exists and `git log` shows an initial\
+    \ commit) are entirely unmet by the supplied evidence \u2014 the implementer must\
+    \ actually run `git init`, add a `.gitignore`, and create the initial commit,\
+    \ and the evidence must show it."
+  task: f8e7bafcab9c709c7e534a6fbab6630873ca3e04a65b010db7876411ed382377
+T005:
+  task: c35b069797c83659d7d2e73c36ab13e382ac0412e7a817265292b2525aa8f1cd
+T006:
+  task: b0c80514608adbce2099b33075bf9a9bed659a14e515ff6cad160021d095a6b1
+T007a:
+  task: f9bdcab664d92f7ef16c0005fb1a449a2d6909b1750f99746061ed49cf6e7f83
+T007b:
+  task: 7cd6d6ce1c3572f3bdf07b76fcc09d3d2bcfcc166a0e278090aca5025dffc707
+T008:
+  task: 654f5a24d9bc89eee7fde689d4d16592ae09637ac3d68e8d77f8a512bf9a9c89
+T009:
+  task: ec4bf41a1cc3046c02faa9a94289b632d6abadb9d5ce3fd3494d0a0e9b6a5f95
+T009b:
+  task: 73d91a5b6f0bb8fc3e8a405e7f04e229ae4dfdfabb8becf4c2e1376d851246d9
+T010:
+  task: b8a01b6113d450d4ac1d329009137a7fabf3856269d38ecc19b3e5b92e7b7fad
+T011:
+  task: fe2551beca30d3a923a87f7fa30cec84c69494cecf3a3272dcfdd48c4975cdae
+T011b:
+  task: a0d3d0cc3e5a1b4ee0c7759ee46acda8a53f726256b7911f25afff853ec272bf
+T011c:
+  task: dd0bb25da43b2c6b0c09587a62d5900717add6d1844339392ef294208069a8b2
+T012:
+  task: 8ec8b48d56d76d299fb0a582e979ff87fecb9b0c150c2231ef61ac49fb00eff6
+T013:
+  task: 17ab0608746b535978317989473d984174307cf703e6b1d8f36a197356b08dbd
+T013b:
+  task: a85017f4f2da55352d3ba3d33474a57e6285c06e89ea1d520e5c55485092d31a
+T014a:
+  task: beb2127f42e3d291882b3d8bc70a26f63e9e61a63e1c80bb5138bbb0d61066f5
+T014b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/ingest/flagger.py, data/flagged_psd.log'
+  task: d502f2c90f80cdfeea2fa3b1f07620c259c7874a227f5b319e858a1ea68c38e3
+T014c:
+  task: 43759a4be652d310ab291b79bcb8e2507b4108bc8a16d27d37c3348564961e18
+T015a:
+  task: 0362296f7b5fd795c8389b04fefbb61d7df04762603c89f282597e96e4e0f16f
+T016a:
+  task: ae04479767b4fda8499bc9cc756ab1b13d6b5fa8155601bd66509d15c14edef8
+T016b:
+  task: 550074dd2ad28a40405b499855492b6b8d3cc0f4af53566290113cc3acc3edf0
+T016c:
+  task: 5eb51aa829543ee083e953e2a88f61f740250da10bb1b525352533249323c9c7
+T016e:
+  task: 9cc2737f6d15d70fb1bb0a9af2422ca0716b77349d427751fe44f010259bc502
+T017a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/ball_milling_dataset.parquet'
+  task: 760fa416dde026021e654ccc4bef9e8a244db7cb620a5026a93aaaf2aa755c46
+T017b:
+  task: 49d3a54cf8749e09a37d9d1a72d0bd1c9f4487d4b6410bedffa1b94ba028722d
+T018:
+  task: db89a44b5b97d478159a65f8f18c97cd821b0252d1b0a3ce8c28689704704bc2
+T019:
+  task: f3b850ab9571c8477d83d34cf301345e1063c215e3de645f7ddcfa6c0550616f
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: src/ingest/streaming_utils.py'
+  task: e638f86efc32119809fca4a1c99ab22853caa45977f8693cfd579d77a51c9b4c
+T021:
+  task: 2de5ef4e6b9920e929605802be53def8e006866f42b3b183fa6f55cbd7c396ed
+T021#1:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/train_gpr.py, src/model/train_rf.py'
+  task: c7451ba6b34c791320a51a87701c109e61fae9afc9038f131f51ce81f0a3320b
+T022:
+  task: d192654fafb2bdedc0cf7d7d4d1a3000d1af696b37814200857b8bcbf5fc9cda
+T023:
+  task: d0eb76dc661a6f693937d807aebee1159cbf1c7cab03e2a88868726c9a56ad90
+T024:
+  task: d1e5c92fa15afa6660b3cd49d58cb5318fe3c003066c355b0314a98815ebf386
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/baseline_lr.py'
+  task: 5881dfee737fa8cf39c08a4c726e04ece2cf85fbfee8f9e21d59e654bedfe701
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: src/evaluate/metrics.py, results/metrics.csv'
+  task: 61dd47ce115e7c53045daa3914da02fb1dc998cb2072b6ba6f2aaa9696cfedcc
+T026b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/evaluate/nested_cv_report.py'
+  task: 4b66532333ac4c14a72250abf92e511e431d9bc77e3870ebc8e7d3ceef626bb5
+T027:
+  task: 7b7b3c37c94293e36162742295f898ce813a771867c4882d5586597f67f7a76e
+T029a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/train_gpr.py'
+  task: a5d37fe6f78b33b178562cad9a6dbbdb8a5f480df90fb76f565b9a1036b635e9
+T029b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/train_rf.py'
+  task: ed77a6dd8d8f60ab5fae7057fde7ae0a06da68078bb4eeee7b9ba9dd8f349ddc
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: results/power_analysis_result.txt'
+  task: 0512e25f73ab954ed8a560061d2675c0a77efd2a66ba710ccf68025883c3ec3a
+T032:
+  task: d4945cb9e826def14e7abf9d2cc69bdbf474d110ef444f73ccdda823ca639f31
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: src/interpret/partial_dependence.py'
+  task: 5c61c8bcdd00b4e4f0a00a09b838daafa36e1e20b0699c9252c702cae722472d
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: src/interpret/feature_importance.py,
+    results/feature_importance.json'
+  task: 3097ecef092e52c7fe3c89f8ff622fe52df15d74c80c2d0d1fee6d10d748004b
+T035:
+  task: fde19a9e09984120de2e875b6e6be24fe91e2b6795b3930ffaee03bb16d2e4ac
+T036:
+  task: 4f0e968ca3be074ff5f58eaa9ad1bb5808b88ce449a551dcf737a98dc5d43d5d
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: src/utils/generate_report.py,
+    results/final_report.md'
+  task: 651170421ded4255b7073fab244505808c8f610102bdade77d658497aadba332
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: .github/workflows/ci.yml'
+  task: 59f6e0f5bdb342d7ba4df07978d1d2ec63bdaf3d6bf46fa6ba3ab9d197a3f202
+T039:
+  task: 6bfe70e19f42f4149d27a3e62dadead8da803aa9543f735da2f1653534e28fd7
+T053:
+  task: caa40d7c8d4ab04b06e77b3bd015744c137444ec27ae854015e46287fe425ddb
+T054:
+  task: bf40e845a328a74f4204dc32816026e9df2c3a7f80d006b8db78679a0c31e87c
+T055:
+  task: 35def87e2c147b789af5bda63b528772391accc4c38a3807e51e050442bc7ebd
+T056:
+  reason: 'declared artifact(s) missing/empty/invalid: src/cli/train.py, data/processed/small_sample.parquet'
+  task: 8c4495a0c72488b2c02727a72dace29808dba40babf3402bb87eda187392b53d
+T057:
+  task: 67d66bc292a944c441632736418d4e3cc70bfeec7b38a72c45e3faad577490b9
+T058:
+  task: d4369fae21ef570e0ef1a5f21b9bfead14798477b7453513cba8b7ec333d2fa1
+T060:
+  task: d6ab61ad8a2d537f63fa26368b6eb272ed667b7e078e71c7d3af0359164d462c
+T061:
+  task: dbed6660196755fec151ae1e03501eb7126c618a04585ceb9e95910f13929619
+T062:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/bin_calculator.py'
+  task: f080672acf324d0d6d1f4a08171e17b1977aa8e6fa5dfb07879a71c2fe29c9f4
+T063:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/bin_calculator.py'
+  task: f08a331f6953ea03e5012206da78184e26be496ccf74a7c1a34fd18798eb6647
+T065:
+  task: 1d2d8b646cb97c2e81721aa37021bac79520eabbb6881c47e47ef06fc9460e8d
+T067:
+  reason: 'declared artifact(s) missing/empty/invalid: src/preprocess/derive_duration.py'
+  task: 479fb1319c1fece3d2bb919f8496c3a0e9d7b649d0437db88c712630537577ab
+T068:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/resource_monitor.py'
+  task: 79d5124e1a837abe172fcfa1ab583873bf06292c43e0ccf9ec065c5c9dec92c3
+T069:
+  task: 7841c95b9decd99b12c45c957b9753fa48513d74518596972dfa0e0d34aa2fbe
+T070:
+  reason: 'declared artifact(s) missing/empty/invalid: results/power_analysis_result.txt,
+    results/t_test_power.txt'
+  task: 23dfb178eb49c6b069fca77dbd12ac5defce6054635a5e8f56a5e16a4ae93cdf
+T071:
+  reason: 'declared artifact(s) missing/empty/invalid: src/cli/train.py'
+  task: aa5ac5e32f86c2cbd3f3d6c0dab52657332025981520b5408fc0e19cf7d00a97
+T072:
+  reason: 'declared artifact(s) missing/empty/invalid: src/cli/train.py'
+  task: 9d862873bed865804a1dca281319573c3cb107ea5de1271200ca7b645821e027

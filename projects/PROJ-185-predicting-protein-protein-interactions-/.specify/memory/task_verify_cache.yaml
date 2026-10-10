@@ -1,10 +1,68 @@
+T001:
+  c: false
+  h: 9ece62454a698eca8e712423e619f97e7971a143b0c8f3b6621fb4a63bf13385
+  r: The task requires creating `src/`, `tests/`, `data/`, `results/`, `docs/`, and
+    `contracts/`, but the evidence shows `data/` and `results/` are MISSING at the
+    project root. The other four directories exist with plausible content, but two
+    of the six required skeleton directories were never created.
+  sig: c6dca0e033d90e6620ce793b12a60f75919118e73fbe42fd0852b0dbf9b16469
+T001c:
+  c: false
+  h: 080b82fbbb51016a6d2bea182bc812ca31613de60d659542995c99263fe132af
+  r: "The test file exists but is broken: it calls `missing_directories(project_root)`,\
+    \ yet the helper's signature is `missing_directories(expected, root)`, so `project_root`\
+    \ is passed as `expected` (a Path is not an iterable of Paths \u2014 this raises\
+    \ TypeError, not a meaningful check). Additionally, `from check_skeleton import\
+    \ ...` will fail at collection time because `code/check_skeleton.py` is not on\
+    \ `sys.path` from `tests/integration/` (no conftest.py or path manipulation is\
+    \ shown), and no execution evidence (e.g., a passing pytest run) was provided.\
+    \ The test needs to import the module correctly (e"
+  sig: 4338e45456949e2fd0a3a27d279aab63b2571f09dc455580dc73fea4b43e5cdf
 T001d:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI configuration, script, or workflow file was presented that checks for\
-    \ the presence of required skeleton directories and causes the CI job to fail\
-    \ if any are missing. The implementer supplied no artifact matching the task\u2019\
-    s requirement, so the claim of completion is unsupported."
+  h: 36651024288082d99c9b25ee8c5fb7d9f58579360e19e1858937074cc34a57a0
+  r: "The test file exists but is functionally broken: `missing_directories(project_root)`\
+    \ passes the project root as the *first* positional argument (`expected`), not\
+    \ the `root` parameter \u2014 Path objects iterate over their path parts, so the\
+    \ check would test nonsense paths relative to `cwd`, not the intended directories.\
+    \ Additionally, `from check_skeleton import ...` has no evidence of import resolution\
+    \ (the module lives in `code/`, and no conftest/sys.path setup is shown), and\
+    \ there is no evidence of the claimed `skeleton-ci` CI job (no workflow file)\
+    \ or any passing test execution."
+  sig: 1bbae1f6ee5335c2c2e9efed83cdd56e4e75eac71025826f7eb3cfd790d0e97b
+T002:
+  c: false
+  h: 723ceb45f833a79b9c351049901e329119beb272b19f06ba2266851669390a48
+  r: "The `requirements.txt` exists and lists the seven required packages, but the\
+    \ dependencies are not pinned (no version specifiers except `PyYAML>=6.0`, and\
+    \ even that is a floor, not a pin). Moreover, `pyproject.toml` (931 bytes, fully\
+    \ shown) contains only a `[tool.black]` section and a comment claiming \"[project]\
+    \ and [build-system] sections exist elsewhere in this file\" \u2014 which is demonstrably\
+    \ false given the file's full contents \u2014 so the project is not actually initialized\
+    \ with valid packaging metadata. Fix by adding real `[project]`/`[build-system]`\
+    \ sections and pinning exact versions (e.g., `"
+  sig: 81de90cff9b1ee308013e85a128cbd2eea7e5cc47b72375c691cba98f3e96c69
+T002c:
+  c: false
+  h: a20ee53544aec4e60e73e9b63df9326a695585b80f40653a86cf3784b63f9ba2
+  r: "The artifacts exist but fail the task's core requirement: dependencies are not\
+    \ pinned \u2014 `requirements.txt` lists bare package names (only `PyYAML>=6.0`\
+    \ has any constraint, and that's a floor, not a pin), and `pyproject.toml` contains\
+    \ no `[project]`/`[build-system]` dependency metadata at all (its comment claims\
+    \ those sections exist \"elsewhere in this file,\" but the file is only 931 bytes\
+    \ of Black config \u2014 they do not). No unit test verifying pinning was provided\
+    \ either."
+  sig: 1346558a0c3b6662518c694e9312d9183dc6f6f460ee50c25f9a378bfef92330
+T003_new:
+  c: false
+  h: cad721cffb88552f73d4ffc9df14361e823184c6ac531f437940d93583203b5c
+  r: "The task requires verification that `org.At.tair.db`, `DESeq2`, and `limma`\
+    \ are installable and importable via `rpy2` in the Python environment, but the\
+    \ evidence collector found no artifacts at all \u2014 no verification script,\
+    \ log, or output demonstrating the packages were installed and imported. Without\
+    \ any execution evidence (e.g., a script that imports the packages through rpy2\
+    \ and its recorded output), the claim cannot be substantiated."
+  sig: 317e75e5df3994589d17b70b7ac765165b5935154b9ecaf407524d6ab9c47ad9
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,17 +1,59 @@
+T001:
+  c: true
+  h: dd4ca488cd31c99da7c28c257279b357a75377cc0a0c4af7e5baecab55c2e18e
+  r: 'Both `scripts/setup_manifest.txt` and `scripts/setup.sh` exist with substantive
+    content: the manifest lists the required directories (`src/`, `tests/`, `data/raw`,
+    `data/processed`, `data/splits`, `results`, `contracts/`, `.github/workflows/`)
+    plus extras, and `setup.sh` creates all of them via `mkdir -p` with correct project-root
+    resolution. The directories (`src/`, `tests/`, `contracts/`, etc.) are confirmed
+    to exist on disk, consistent with the script having been run successfully.'
+  sig: 83944fa2ef96cab1bc96d9e1b8ee4e06333174483f9da858d0af365913ea66fb
+T002:
+  c: false
+  h: 1f47797acf8e7c3f812d1eb3d6f0572999b0987ce7471c1b9353f285e6d3b54d
+  r: '`requirements.txt` exists with all ten required pinned dependencies (plus an
+    extra `arxiv` entry, which is harmless), but the required `requirements-optional.txt`
+    containing `easyocr==1.7.*`, `opencv-python==4.8.*`, and `pdf2image==1.16.*` is
+    missing entirely. The implementer must create that optional dependencies file
+    to satisfy the task.'
+  sig: c87c779ca24c45f0b296f80a300eaca8d54f8a64e050d2dc26ebe1378651526b
+T002b:
+  c: false
+  h: 51e36c06b3abe2d96a887f35ce13584e98d374262f2bd9cc078323a721b045d9
+  r: "The `requirements.txt` exists and contains a plausible pinned dependency list,\
+    \ but the task's action is to run `pip check` (or equivalent) and its verification\
+    \ criterion is \"no dependency conflicts reported\" \u2014 and no execution evidence\
+    \ of such a check (command output, log, or report) was provided. The implementer's\
+    \ claim that dependencies are resolvable is unverified; the next step should capture\
+    \ and attach actual `pip check` / `pip install --dry-run` output against this\
+    \ file."
+  sig: 43c6d67ef7de9fa9a207e04ecf244ab9321c7333fb050572dbc3673295713fcc
 T003a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `.flake8` file was provided, nor any snippet showing that it
-    contains `max-line-length = 88`. Without the actual file or its contents, we cannot
-    confirm the required linting configuration exists. The implementer must add the
-    `.flake8` file with the specified setting.
+  h: eaa9c5923b4cbcd45501d18cbd5777a90b88efde822795ba18a1ee59588c643c
+  r: "The evidence collector shows no artifacts on disk for this task \u2014 there\
+    \ is no `.flake8` file (or any resolved path) present in the project, so the required\
+    \ configuration file with `max-line-length = 88` does not exist. The implementer\
+    \ must create `.flake8` at the project root containing that setting."
+  sig: 42ee8352ce7efed3eb29c62f870fe142ba06e4c10074c0ca2ac9fae451ac63e3
+T003b:
+  c: true
+  h: 3b27690a9e886dedd93b271fefaf465a93226dcd3f9022d3c164f53df61ff662
+  r: The `pyproject.toml` exists (1366 bytes) and contains a valid `[tool.black]`
+    section with line-length, target-version, include/exclude patterns, and other
+    standard black settings, satisfying the task's requirement of a file with valid
+    black configuration.
+  sig: cb3431f85faddd00704541a8a62128232b00662f7d8abe6ba194fb681752bd51
 T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No repository artifacts were provided \u2013 there is no `.git` directory, no\
-    \ `.gitignore` file, and no output from `git log` showing an initial commit. Without\
-    \ these concrete items, the claim that the Git repository was initialized cannot\
-    \ be verified."
+  h: 71c557afd362c3d9193f12fb439920d21e3014b2a755c60b773bbdf5b4c767de
+  r: "The evidence collector provided no artifacts confirming a `.git` directory,\
+    \ a `.gitignore` file, or any `git log` output showing an initial commit in `projects/PROJ-349-predicting-the-impact-of-ball-milling-on`.\
+    \ The task's verification criteria (`.git` exists and `git log` shows an initial\
+    \ commit) are entirely unmet by the supplied evidence \u2014 the implementer must\
+    \ actually run `git init`, add a `.gitignore`, and create the initial commit,\
+    \ and the evidence must show it."
+  sig: 757c7cfa4758a4ac8e039d51439859d4adeadec13ade047f1358053eeec6bf84
 T009:
   c: false
   h: 427b4689638c2d79a4d7019a5d0d16f6f07f2b7d7204b9d6da17cfaa18186f97

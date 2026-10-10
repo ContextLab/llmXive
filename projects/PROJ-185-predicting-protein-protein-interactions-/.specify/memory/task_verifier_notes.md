@@ -1,0 +1,56 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — The task requires creating `src/`, `tests/`, `data/`, `results/`, `docs/`, and `contracts/`, but the evidence shows `data/` and `results/` are MISSING at the project root. The other four directories exist with plausible content, but two of the six required skeleton directories were never created.
+- **T001c** — The test file exists but is broken: it calls `missing_directories(project_root)`, yet the helper's signature is `missing_directories(expected, root)`, so `project_root` is passed as `expected` (a Path is not an iterable of Paths — this raises TypeError, not a meaningful check). Additionally, `from check_skeleton import ...` will fail at collection time because `code/check_skeleton.py` is not on `sys.path` from `tests/integration/` (no conftest.py or path manipulation is shown), and no execution evidence (e.g., a passing pytest run) was provided. The test needs to import the module correctly (e
+- **T001d** — The test file exists but is functionally broken: `missing_directories(project_root)` passes the project root as the *first* positional argument (`expected`), not the `root` parameter — Path objects iterate over their path parts, so the check would test nonsense paths relative to `cwd`, not the intended directories. Additionally, `from check_skeleton import ...` has no evidence of import resolution (the module lives in `code/`, and no conftest/sys.path setup is shown), and there is no evidence of the claimed `skeleton-ci` CI job (no workflow file) or any passing test execution.
+- **T002** — The `requirements.txt` exists and lists the seven required packages, but the dependencies are not pinned (no version specifiers except `PyYAML>=6.0`, and even that is a floor, not a pin). Moreover, `pyproject.toml` (931 bytes, fully shown) contains only a `[tool.black]` section and a comment claiming "[project] and [build-system] sections exist elsewhere in this file" — which is demonstrably false given the file's full contents — so the project is not actually initialized with valid packaging metadata. Fix by adding real `[project]`/`[build-system]` sections and pinning exact versions (e.g., `
+- **T002c** — The artifacts exist but fail the task's core requirement: dependencies are not pinned — `requirements.txt` lists bare package names (only `PyYAML>=6.0` has any constraint, and that's a floor, not a pin), and `pyproject.toml` contains no `[project]`/`[build-system]` dependency metadata at all (its comment claims those sections exist "elsewhere in this file," but the file is only 931 bytes of Black config — they do not). No unit test verifying pinning was provided either.
+- **T003_new** — The task requires verification that `org.At.tair.db`, `DESeq2`, and `limma` are installable and importable via `rpy2` in the Python environment, but the evidence collector found no artifacts at all — no verification script, log, or output demonstrating the packages were installed and imported. Without any execution evidence (e.g., a script that imports the packages through rpy2 and its recorded output), the claim cannot be substantiated.
+- **T009c_u** — declared artifact(s) missing/empty/invalid: tests/unit/test_config_content.py
+- **T009d** — declared artifact(s) missing/empty/invalid: scripts/record_runtime.py
+- **T010c** — declared artifact(s) missing/empty/invalid: tests/unit/test_schema_syntax.py
+- **T064d** — declared artifact(s) missing/empty/invalid: tests/integration/test_sample_abort.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/pipeline/normalize.py
+- **T065** — declared artifact(s) missing/empty/invalid: src/pipeline/batch_correct.py
+- **T065a** — declared artifact(s) missing/empty/invalid: src/pipeline/confound_regression.py
+- **T015** — declared artifact(s) missing/empty/invalid: src/pipeline/filter.py
+- **T016a** — declared artifact(s) missing/empty/invalid: src/pipeline/correlation_raw.py
+- **T016a_stream** — declared artifact(s) missing/empty/invalid: tests/unit/test_correlation_streaming.py
+- **T016a_verify** — declared artifact(s) missing/empty/invalid: tests/unit/test_raw_correlation_presence.py
+- **T017** — declared artifact(s) missing/empty/invalid: src/pipeline/mapping.py
+- **T017d** — declared artifact(s) missing/empty/invalid: tests/unit/test_bioc_packages_mapping.py
+- **T016b** — declared artifact(s) missing/empty/invalid: src/pipeline/correlation_extract.py
+- **T083** — declared artifact(s) missing/empty/invalid: src/pipeline/fdr_correction.py
+- **T018** — declared artifact(s) missing/empty/invalid: results/pipeline.log
+- **T018c** — declared artifact(s) missing/empty/invalid: tests/unit/test_edge_export.py
+- **T042_low** — declared artifact(s) missing/empty/invalid: tests/integration/test_low_edge_scenario.py
+- **T200** — declared artifact(s) missing/empty/invalid: scripts/generate_mock_edge_list.py, results/predicted_ppi_mock.tsv
+- **T021** — declared artifact(s) missing/empty/invalid: src/pipeline/download_string.py
+- **T022_split** — declared artifact(s) missing/empty/invalid: src/pipeline/split_data.py
+- **T022_split_c** — declared artifact(s) missing/empty/invalid: tests/unit/test_data_splitting.py
+- **T022_split_impl_c** — declared artifact(s) missing/empty/invalid: tests/unit/test_split_workflow.py
+- **T022_eval_impl** — declared artifact(s) missing/empty/invalid: results/evaluation_metrics.json
+- **T091** — declared artifact(s) missing/empty/invalid: src/pipeline/negative_sampling.py
+- **T023** — declared artifact(s) missing/empty/invalid: src/pipeline/baseline.py
+- **T023c** — declared artifact(s) missing/empty/invalid: tests/unit/test_baseline.py
+- **T022c** — declared artifact(s) missing/empty/invalid: tests/unit/test_full_evaluation.py
+- **T045c** — declared artifact(s) missing/empty/invalid: results/evaluation_metrics.json
+- **T044c** — declared artifact(s) missing/empty/invalid: tests/unit/test_go_enrichment_graceful.py
+- **T148** — declared artifact(s) missing/empty/invalid: species.yaml
+- **T150** — declared artifact(s) missing/empty/invalid: src/pipeline/summary.py
+- **T085c** — declared artifact(s) missing/empty/invalid: tests/unit/test_sensitivity.py
+- **T087** — declared artifact(s) missing/empty/invalid: tests/unit/test_sensitivity.py
+- **T128** — declared artifact(s) missing/empty/invalid: results/citation_block.txt
+- **T138** — declared artifact(s) missing/empty/invalid: src/pipeline/final_report.py
+- **T036c** — declared artifact(s) missing/empty/invalid: tests/unit/test_docs_build.py
+- **T046** — declared artifact(s) missing/empty/invalid: scripts/measure_runtime.py, results/benchmark_report.txt
+- **T050** — declared artifact(s) missing/empty/invalid: docs/quickstart.md
+- **T300** — declared artifact(s) missing/empty/invalid: src/pipeline/false_positive_burden.py
+- **T301** — declared artifact(s) missing/empty/invalid: src/pipeline/summary.py
+- **T302c** — declared artifact(s) missing/empty/invalid: tests/unit/test_readme_fp_section.py
+- **T303** — declared artifact(s) missing/empty/invalid: docs/quickstart.md
+- **T303c** — declared artifact(s) missing/empty/invalid: tests/unit/test_quickstart_fp_section.py
+- **T305** — declared artifact(s) missing/empty/invalid: src/pipeline/calibration.py
+- **T305c** — declared artifact(s) missing/empty/invalid: tests/unit/test_calibration.py

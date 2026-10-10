@@ -106,7 +106,7 @@
 
 **Goal**: Generate isotropic mock catalogs via Spec-mandated Rotation Matrices (FR-005), compute null distribution, and derive p-values.
 
-**Independent Test**: {{claim:c_3120b814}} (95% confidence).
+**Independent Test**: Verify that randomized isotropic data yields p-value > 0.05 (95% confidence).
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
