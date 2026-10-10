@@ -1,11 +1,9 @@
 status: none
-intent: download OSF Reproducibility Project Psychology replication dataset csv python
-  package dataset
+intent: OSF replication project Nosek dataset download csv python package dataset
 required_fields:
-- study_id
 - year
-- cohen_d
+- effect_size
 - sample_size
-cache_key: b3a09c17dba034cbef6fd0528ce4f3d77e5ed6b3e8192dcc11a828e7ad1d2be1
-searched_at: '2026-09-01T18:54:49.557986+00:00'
+cache_key: 0c6d54e3ffe518b2f9f1e9103d815f2b2992d02039e9189ffc7f37a0925ac250
+searched_at: '2026-10-10T21:12:37.028561+00:00'
 retry_count: 1

@@ -1,0 +1,73 @@
+T001a:
+  reason: The project root listing shows `code/`, `data/`, `tests/`, and `docs/` exist,
+    but the required `results/` and `state/` directories are absent from the 13 entries,
+    and there is no evidence that `data/raw/` and `data/derived/` subdirectories were
+    created (the `data/` directory's contents are not shown as containing them). The
+    task explicitly required `mkdir -p data/raw data/derived code tests results state
+    docs`, so the missing `results/`, `state/`, and (unconfirmed) `data/raw`/`data/derived`
+    directories must be created to complete it.
+  task: 999a91243d109430eb96ee9482ed35daa5ec2a08b4d93f6cb39bf475766d57b2
+T001b:
+  reason: "The task requires initializing a `.gitignore` file excluding `data/raw`,\
+    \ `data/derived`, `__pycache__`, and `.env`, but the evidence collector found\
+    \ no artifact on disk \u2014 no `.gitignore` path was resolved or confirmed to\
+    \ exist anywhere in the project. The next implementer should create the `.gitignore`\
+    \ at the project root with those four entries."
+  task: 92ebdb60c52295dc1e434c33c3fa0fc3690c165fbaecf260013fc3ef5f4fdebd
+T001c:
+  reason: The `requirements.txt` exists and lists all 11 required packages (plus two
+    extras), but the task explicitly required **pinned versions**, and every entry
+    is unpinned (e.g., `pandas`, `numpy` with no `==x.y.z`). The implementer must
+    add version pins for each dependency.
+  task: 00e8aa6a47784c941d5159246765ce270154cd3c845c99062ed69c29eb4e396d
+T005:
+  task: 6ef46ed8d68478e73204baa963fa1a610afa9a588282423d223ac3c3f19caedb
+T006:
+  reason: "The required output file `data/raw/data.csv` does not exist, and there\
+    \ is no execution evidence (logs, schema_validation.json) that the loader ever\
+    \ ran successfully. The script also deviates from the spec: it never uses `streaming=True`\
+    \ or the >100MB size check, and the `osf/reproducibility_project` dataset fetch\
+    \ has no demonstrated success \u2014 the next implementer must actually run the\
+    \ loader and produce the validated CSV with `year`, `effect_size`, `sample_size`,\
+    \ `field` columns."
+  task: 155adc32d8747b4dd6f229e3752cc8e5e612a5e518efb40963e16166000e63d1
+T007:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_schema.py
+    exit=1'
+  task: faaa50da7cf740ff8ee22fb4ed058b651c2abf615874a0d5864a8958d957a914
+T008:
+  task: 9c0e83a29cd6076fcdc5218bb9ed13d5e0b5399cfb79bf50439383576a9b2926
+T009:
+  task: aa6ba6f12e97e7fb780e58d08f26da1fbdc39d40b04dd8a391d8d8c0efa1bfc5
+T010:
+  task: a1a687880e41d1bd6cf9fdf945b390e0ea9e8ea8d8ec0c593a513df343248918
+T011:
+  task: 79aff34cf3c056fb84291244e8d524f695b1f75df7d80892df3d0a42784a1c31
+T011a:
+  task: 3a81b0d74657601e13b83b1f81f62e9e96e9ea1ad7d9aaf8805cba71584408fa
+T011b:
+  task: c9f080ac4025acd47a540f3b3186bf6f3c9943c27197c7bae0d592bfee187a44
+T011c:
+  task: 3dbae9c4f9a099cc68c0928f56b5fcc1afa3d55fc59a2e7254409616e6c87410
+T013:
+  task: 12390418428401848dc98d97a2d7afbbab3f41628bde2c6c74a82aa3ca887e83
+T020:
+  task: 465d51e458b8a5929f6072804db793375ea65ef0d13b4331a65cba6ad3857d30
+T020b:
+  task: 700bc14c73830ce30d9efeca7677fa208a16c7efbb53819ab75f8cdbc6cf53a0
+T021:
+  task: 05e1173df86a2812e1ec51c0cf8c591d49223c95b6239057610dd69d4b07cc7d
+T021b:
+  task: bd3c06bed5dd71cf877972f8859f801841b7ed6d3fca7cdee60718390928c4ce
+T025:
+  task: 5590dc868e5e2cdf3cd7ba22f45f85a04631810e93a09ee43267761ac8f449cc
+T027:
+  task: 013e3d02394c64bcf9de54e983a0be455a08734c679e5f48ed5e480be32cc330
+T030:
+  task: 715b51d22cce5a803451e53d68db8019e0d7f2db8ff4df74b2190b45bfa36370
+T031:
+  task: 23013daded2d07add43cc825f905b06da20494a27a6ad2a0160010feb7c2a3b8
+T032:
+  task: 8cace0ca7293c0f317f4c3171bdaeed5767227d91113bd5a1b5f2207262c14db
+T033:
+  task: b69e7bbb8e8794b238ddf8c01cb69763aa9a9bd6925376368888a0fddc72aff7

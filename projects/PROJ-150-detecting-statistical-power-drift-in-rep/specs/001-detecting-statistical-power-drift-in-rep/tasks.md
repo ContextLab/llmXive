@@ -42,9 +42,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create `projects/PROJ-150-detecting-statistical-power-drift-in-rep/` directory structure by running `mkdir -p data/raw data/derived code tests results state docs`
-- [X] T001b [P] Initialize `.gitignore` for Python data projects (exclude data/raw, data/derived, __pycache__,.env)
-- [X] T001c [P] Create `requirements.txt` with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest, psutil, linearmodels. **Note**: `linearmodels` is used for crossed random effects support which `statsmodels` lacks.
+- [ ] T001a [P] Create `projects/PROJ-150-detecting-statistical-power-drift-in-rep/` directory structure by running `mkdir -p data/raw data/derived code tests results state docs`
+- [ ] T001b [P] Initialize `.gitignore` for Python data projects (exclude data/raw, data/derived, __pycache__,.env)
+- [ ] T001c [P] Create `requirements.txt` with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest, psutil, linearmodels. **Note**: `linearmodels` is used for crossed random effects support which `statsmodels` lacks.
 
 ---
 
@@ -55,11 +55,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 [P] Create `code/__init__.py` and establish package structure
-- [X] T006 Implement `code/download_data.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch the `osf/reproducibility_project` dataset, specifically the `data.csv` file. **Logic**:
+- [ ] T006 Implement `code/download_data.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch the `osf/reproducibility_project` dataset, specifically the `data.csv` file. **Logic**:
  1. Attempt to fetch using `datasets.load_dataset("osf/reproducibility_project", split="train", streaming=True)` if file size > 100MB, else `read_csv`.
  2. **CRITICAL**: If the dataset fetch fails (network error, 404), raise `DataFetchError`. Do NOT fall back to synthetic data.
  3. **Verification**: Ensure the loader yields rows correctly and handles chunking if triggered. **Output**: A reusable data loader function in `code/download_data.py` and the file `data/raw/data.csv`. **Dependency**: T006 must complete before T007. (FR-010, Plan Compute Constraints, Constitution Principle II) **Schema Validation**: Confirm the downloaded file contains the required columns: `year`, `effect_size`, `sample_size`, `field`.
-- [ ] T007 Implement `code/validate_schema.py` for URL reachability and column presence validation. **Logic**: Verify that the downloaded file contains the required columns: `year`, `effect_size`, `sample_size`, `field`. **CRITICAL**: If any column is missing, raise a `SchemaValidationError` immediately. Do NOT proceed. **Output**: `data/derived/schema_validation.json` containing `{"status": "valid", "columns_found": [...]}`. **Dependency**: T007 must complete before T011a. (FR-008, Plan Data Preparation)
+- [ ] T007 Implement `code/validate_schema.py` for URL reachability and column presence validation. **Logic**: Verify that the downloaded file contains the required columns: `year`, `effect_size`, `sample_size`, `field`. **CRITICAL**: If any column is missing, raise a `SchemaValidationError` immediately. Do NOT proceed. **Output**: `data/derived/schema_validation.json` containing `{"status": "valid", "columns_found": [...]}`. **Dependency**: T007 must complete before T011a. (FR-008, Plan Data Preparation) <!-- FAILED-IN-EXECUTION: code/validate_schema.py exit=1 -->
  - **Schema Definition**: The output JSON MUST contain the following keys:
  - `status`: "valid" or "invalid"
  - `columns_found`: list of strings
@@ -105,7 +105,7 @@
  validate_schema("data/raw/data.csv", "data/derived/schema_validation.json")
  ```
 - [X] T008 [P] Create `code/update_state.py` to compute SHA-256 hashes and update project state file
-- [X] T009 Setup `pytest` configuration and base test fixtures in `tests/conftest.py`
+- [~] T009 Setup `pytest` configuration and base test fixtures in `tests/conftest.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -121,8 +121,8 @@
 
 > **NOTE**: Tasks marked [P] are file-level independent (can be written in parallel). However, per TDD practice, these tests MUST be written and verified to FAIL before the corresponding implementation tasks (T011a-T016) are implemented.
 
-- [X] T010 [P] [US1] Unit test `tests/unit/test_power_calc.py::test_power_calc_handles_nan` for power calculation logic.
-- [X] T011 [P] [US1] Integration test `tests/integration/test_lmm_pipeline.py::test_lmm_pipeline_full_run` for the full LMM pipeline.
+- [~] T010 [P] [US1] Unit test `tests/unit/test_power_calc.py::test_power_calc_handles_nan` for power calculation logic.
+- [~] T011 [P] [US1] Integration test `tests/integration/test_lmm_pipeline.py::test_lmm_pipeline_full_run` for the full LMM pipeline.
 
 ### Implementation for User Story 1
 
@@ -189,7 +189,7 @@
  preprocess_data("data/raw/data.csv", "data/derived/cleaned_data.csv")
  ```
 
-- [X] T011b [US1] Implement `code/preprocess.py` to validate grouping variables (`field`, `original_study_id`) for variance and cardinality. **Logic**:
+- [~] T011b [US1] Implement `code/preprocess.py` to validate grouping variables (`field`, `original_study_id`) for variance and cardinality. **Logic**:
  1. Check that each grouping factor has > 1 unique level. If a factor has only 1 level (single study), flag it as "single_level" for **exclusion from the dataset** in downstream modeling.
  2. **Zero Variance Check (FIXED)**: For each factor, iterate through unique levels. Calculate the variance of `power_estimate` for each specific level. If a specific level has zero variance (or NaN due to single item), mark **that specific level** as invalid. Do NOT flag the entire factor unless ALL levels are invalid.
  3. **Output**: Save `data/derived/grouping_validation.json` with status per factor and a list of valid levels.
@@ -427,7 +427,7 @@
 **Checkpoint**: At this point, User Story 1 (Core Drift Analysis) should be fully functional and testable independently
 
 <!-- auto-added by the execution fix loop: run-book vs implementation mismatch (a quickstart command names a script no task created) -->
-- [X] T021 Reconcile run-book vs implementation for `code/model_fit.py`: the quickstart run-book invokes this script and it is now implemented by T011c. This task is complete.
+- [~] T021 Reconcile run-book vs implementation for `code/model_fit.py`: the quickstart run-book invokes this script and it is now implemented by T011c. This task is complete.
 
 ---
 
@@ -439,7 +439,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/robustness.py` for **Year Permutation Test**. **Logic**: <!-- FAILED: unspecified -->
+- [~] T020 [US2] Implement `code/robustness.py` for **Year Permutation Test**. **Logic**: <!-- FAILED: unspecified -->
  1. Load `results/lmm_final_summary.json` to get the observed `slope_year` and `p_value_lrt`.
  2. Load `data/derived/residuals.csv`.
  3. **Permutation Loop**: Shuffle the `year` column N times. **Default**: 10,000 permutations. **Fallback**: If timeout or memory error occurs, reduce to 1,000 permutations and log a warning.
@@ -538,7 +538,7 @@
  year_permutation_test("data/derived/residuals.csv", "results/lmm_final_summary.json", "results/permutation_pvalue.json")
  ```
 
-- [X] T020b [US2] Implement **Input Permutation Test** within `code/robustness.py`. **Logic**: <!-- FAILED: unspecified -->
+- [~] T020b [US2] Implement **Input Permutation Test** within `code/robustness.py`. **Logic**: <!-- FAILED: unspecified -->
  1. Load `data/derived/cleaned_data.csv` (to have original effect_size/sample_size).
  2. **Permutation Loop**: Shuffle entire study rows (preserving the joint distribution of `effect_size` and `sample_size`) N times (holding `year` **CONSTANT**). N = 10,000 (default), fallback to [deferred] if timeout/memory error.
  3. **Recalculate Power & Residuals**: For each shuffle, recalculate `power_estimate` and `power_residual` using the shuffled inputs.
@@ -652,7 +652,7 @@
  input_permutation_test("data/derived/cleaned_data.csv", "results/lmm_final_summary.json", "results/input_permutation.json")
  ```
 
-- [X] T021b [US2] Implement **Sensitivity Analysis** within `code/robustness.py`. **Logic**:
+- [~] T021b [US2] Implement **Sensitivity Analysis** within `code/robustness.py`. **Logic**:
  1. Define a range of alpha thresholds: `{0.01, 0.05, 0.1}`.
  2. For each alpha, re-run the full LMM pipeline (or at least the LRT) on the original, unshuffled data.
  3. **Record Significance**: Note whether the `year` effect remains significant (p < alpha) for each threshold.
