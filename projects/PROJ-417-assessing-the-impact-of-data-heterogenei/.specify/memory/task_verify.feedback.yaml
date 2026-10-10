@@ -11,30 +11,20 @@ T004:
 T005:
   task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e
 T006:
-  reason: "The provided `data/results/simulation_raw.json` is only ~75\u202FKB and\
-    \ contains just a handful of replicates in the excerpt, far fewer than the required\
-    \ \u22652\u202F500 records for the five \u03C4\xB2 levels \xD7\u202F500 replicates.\
-    \ Moreover, the only execution log shown is for `code/run_primary_sweep.py`, not\
-    \ for the required `code/main.py`, and there is no log evidence of total runtime\
-    \ \u2264\u202F6\u202Fh or peak RAM\u202F<\u202F7\u202FGB. The task therefore lacks\
-    \ the full\u2011scale simulation output and the required performance verification."
+  reason: "`data/results/simulation_raw.json` is only 75,127 bytes \u2014 far too\
+    \ small to contain 2,500 replicates of 20 studies each (each replicate alone is\
+    \ ~3KB, so 2,500 would be several MB); the visible content shows only the tau\xB2\
+    =0 records and the file almost certainly holds just the 2\xD710 dry-run set. Additionally,\
+    \ the execution log shows a 4.1-second run with empty stdout/stderr and provides\
+    \ no evidence of the full 5-level \xD7 500-replicate sweep, nor any log confirming\
+    \ completion time or peak RAM < 7 GB (SC-003). The implementer must actually run\
+    \ `python code/main.py --mode full --seed 42` (or equivale"
   task: 232d3906c31bebc21659e01463b3a2edec5c46026f659b64be4780441b3fe4bb
 T007:
-  reason: "Checked `code/analysis/stats.py` and `data/results/aggregated_metrics.csv`.\
-    \ The stats module uses a Kolmogorov\u2011Smirnov test instead of the required\
-    \ Shapiro\u2011Wilk test, and all hypothesis tests are run with the default \u03B1\
-    \u202F=\u202F0.05 rather than the Bonferroni\u2011adjusted \u03B1\u202F=\u202F\
-    0.01, so the core statistical requirements are not met despite the CSV conforming\
-    \ to the schema."
   task: 5bf4c12f156890cd2598ec9dc2b9e05669b146683ab829415bb7175c81149aa7
 T008:
-  reason: "The evidence shows `compute_stability_analysis` was invoked, but the log\
-    \ reports that the required sensitivity results file (`data/results/estimation_results_sensitivity.csv`)\
-    \ was missing, so the analysis fell back to using the primary results only. Consequently,\
-    \ no secondary simulation sweep with \u03C4\xB2\u202F\u2208\u202F{0.05,\u202F\
-    0.1,\u202F0.5} was executed or saved, and the reported `max_diff` of\u202F0.0\
-    \ is meaningless. The missing sensitivity sweep output (and corresponding CSV)\
-    \ must be generated and the stability analysis rerun to produce a genuine comparison."
+  reason: 'Requested task execution failed; rerun successfully: code/run_sensitivity_sweep.py
+    exit=1'
   task: 060588d92881ef7ed5127eb03e228579803df114d9d0d638ab02ce896dbec738
 T009:
   reason: "The required artifact `code/visualization/plots.py` is MISSING, and the\

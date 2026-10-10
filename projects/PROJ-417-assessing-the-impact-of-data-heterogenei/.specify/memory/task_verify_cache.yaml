@@ -1,15 +1,15 @@
 T001:
   c: true
-  h: a3486f967a44f9bd430f2bdaec0fa6d3b85f65e2c7b80655f07f356c98a68a8b
-  r: "The required data artifact exists: `data/raw/cochrane_base_synthetic.csv` contains\
-    \ 20 rows (N=20) with `effect_size` and `standard_error` columns whose values\
-    \ are consistent with the verified synthetic base (mu=0, sigma=1, e.g., values\
-    \ spanning roughly -1.9 to 1.6 with SEs ~0.07\u20130.15). The loader `code/scripts/fetch_cochrane.py`\
-    \ targets Zenodo DOI 10.5281/zenodo.10286623 via the REST API, validates CSV structure\
-    \ (effect-size + SE columns, \u22655 rows), and raises `FileNotFoundError` on\
-    \ any fetch/validation failure with no silent substitution. `code/requirements.txt`\
-    \ lists the six required CPU-trac"
-  sig: 7226df326fe2e0d9c44844632c3e8e56216d42b5e68e147f936b0edbf8804b4a
+  h: 201fa21e4e7999542934ee4731262ceb8dc3271952044efc54cdeb6d25e04ad2
+  r: 'The verification criterion is met: `data/raw/cochrane_base_synthetic.csv` exists
+    with 20 rows (N=20) of valid `effect_size` and `standard_error` values consistent
+    with the mu=0.0, sigma=1.0 standard-normal base, and `code/scripts/fetch_cochrane.py`
+    fetches from Zenodo DOI 10.5281/zenodo.10286623 and explicitly raises `FileNotFoundError`
+    on any fetch/validation failure with no silent substitution. `code/requirements.txt`
+    lists the six required CPU-tractable dependencies (the additional `pytest` is
+    required by the plan''s testing infrastructure and is CPU-tractable, not a violation
+    of the depende'
+  sig: 6680abc6de67515146652623fa1a66e0416bb5d33cdf597d47fc3a162e58ef5d
 T002:
   c: true
   h: aeaed097d2b8cb66666a8bc717790f6cd1bf5e4477a41eeafa6f860ff8485a08
@@ -24,38 +24,50 @@ T002:
   sig: df65bc475fd65ad6a34f64d66d86511a868a60bb5108aff0e55fe7dab80f2e51
 T003:
   c: true
-  h: 47c5ce880215e4aa080a6d575d479296d2ee7ff467f6d06b03b6b33bb0acc452
-  r: "I checked `code/simulation/estimators.py` (FE, DL, REML implementations with\
-    \ Q, I\xB2, small-study flagging, and REML failure logging with DL fallback),\
-    \ `tests/unit/test_estimators.py` (covering \u03C4\xB2=0 stability, 0.001-tolerance\
-    \ known cases, Q/I\xB2 for every estimator, N<5 flags, and failure logging), and\
-    \ `data/results/reml_failures.json`, which contains a real logged event matching\
-    \ the test's forced optimizer crash (\"simulated crash\", fallback \"dersimonian_laird_tau2\"\
-    ) \u2014 evidence the failure-logging path was actually executed. All mandatory\
-    \ requirements (FR-002, FR-006, Principle VII, small-study ed"
-  sig: b23bb4ef6cc4b2919caed4d8478ee3883705c988eb2c25491e4228cc33a67fa9
+  h: 4b14a523fa3c506c2274b587eebe0a48ef1c93c7be181c903fd060e5619c8b5e
+  r: "The estimators module exists with full FE, DL, and REML implementations including\
+    \ Q/I\xB2 for every estimation, small-study (N<5) flagging, and REML failure logging\
+    \ with DL fallback; the reml_failures.json log contains real failure events from\
+    \ the test's forced-crash scenario, and tests/unit/test_estimators.py covers \u03C4\
+    \xB2=0 stability and known-case pooled estimates within 0.001. The truncated REML\
+    \ body is the only gap in visibility, but the test suite and failure log evidence\
+    \ confirm it functions as specified."
+  sig: 2f23fc51abadf2767018bfdf231367aacaac94f3ca136f82d330c19ef28c9558
 T005:
   c: true
-  h: 128d8d8ee593deb00ab20c23d79afca3500bab2b0eb8c4dcf1ef9253fba5f2bb
+  h: 18917fda480b9157f29b57eac67b43e4cbd9b90a8c083aeb8c64a9360a22c9e7
   r: "I checked `data/results/estimation_results.csv` (60 rows = 2 \u03C4\xB2 levels\
     \ \xD7 10 replicates \xD7 3 estimators) with all required T005 fields (`pooled_effect`,\
     \ `ci_lower`, `ci_upper`, `estimator_type`, `sweep_type`, `convergence_warning`)\
-    \ populated and non-null, plus non-null `i_squared` and `q_statistic` for every\
-    \ replicate, consistent with `run_summary.json` (e.g., FE coverage 0.4 at \u03C4\
-    \xB2=0.1 matches the CSV's coverage flags) and the seeded base data in `data/raw/cochrane_base_synthetic.csv`.\
-    \ The identical pooled effects across \u03C4\xB2=0 replicates are the expected\
-    \ degenerate consequence of the documented g"
-  sig: 81af061998fc5327f516eaea15a0ec7b033a272d60a49f210e88d02e13d414e1
-T007:
+    \ populated and non-null, including non-null `i_squared` and `q_statistic` for\
+    \ every replicate, plus corroborating artifacts (`run_summary.json` matching the\
+    \ CSV group counts, `simulation_raw.json`, `reml_failures.json`, and `code/main.py`\
+    \ with a `dry-run` mode implementing exactly 2 levels \xD7 10 replicates). The\
+    \ \u03C4\xB2=0 rows show Q=0/I\xB2=0 because the generator draws identi"
+  sig: 5aa218f064c4db8f0d7bab94ba331ee177330006664f007286407fc742eaedf6
+T006:
   c: false
-  h: 9a473874ddeb6ac0684ed19102a5284dbce9a5f79fbcbac06476334c1aa92194
-  r: "Checked `code/analysis/stats.py` and `data/results/aggregated_metrics.csv`.\
-    \ The stats module uses a Kolmogorov\u2011Smirnov test instead of the required\
-    \ Shapiro\u2011Wilk test, and all hypothesis tests are run with the default \u03B1\
-    \u202F=\u202F0.05 rather than the Bonferroni\u2011adjusted \u03B1\u202F=\u202F\
-    0.01, so the core statistical requirements are not met despite the CSV conforming\
-    \ to the schema."
-  sig: d59d6961749db154f1214f797ad7fc3472f80def17dda9089907f049f445e674
+  h: ba35e0bc504ce475c69ec287d178c8951a9e923548c69a37e65092d4d028443e
+  r: "`data/results/simulation_raw.json` is only 75,127 bytes \u2014 far too small\
+    \ to contain 2,500 replicates of 20 studies each (each replicate alone is ~3KB,\
+    \ so 2,500 would be several MB); the visible content shows only the tau\xB2=0\
+    \ records and the file almost certainly holds just the 2\xD710 dry-run set. Additionally,\
+    \ the execution log shows a 4.1-second run with empty stdout/stderr and provides\
+    \ no evidence of the full 5-level \xD7 500-replicate sweep, nor any log confirming\
+    \ completion time or peak RAM < 7 GB (SC-003). The implementer must actually run\
+    \ `python code/main.py --mode full --seed 42` (or equivale"
+  sig: 528f25d32d13ce02da8c41405772f567abeba0dbb5cc4a919c67b58f798864d5
+T007:
+  c: true
+  h: 040c1a131d1cb10544abaa15b20fdcd9120af2a82f4cf785381695c92a638298
+  r: "The stats.py implements all three required tests (exact binomial via `binomtest`,\
+    \ Shapiro-Wilk, conditional ANOVA/Kruskal-Wallis) with Bonferroni correction at\
+    \ \u03B1=0.01, and the execution log shows `code/run_aggregated_metrics.py` exited\
+    \ 0 producing `data/results/aggregated_metrics.csv` with all six schema-required\
+    \ columns and 5 \u03C4\xB2 levels (0.0\u20132.0), matching the contract. The CSV\
+    \ values are plausible computed results (e.g., coverage declining from 1.0 to\
+    \ 0.51 with increasing \u03C4\xB2), not placeholders."
+  sig: e243c3f6bd96b212d2822d9f9a4506fad653854fb9f33fdd9e9df240a7887503
 T008:
   c: false
   h: 06dde3908edde9b529e1cb374ef065bd7845442a1234cfcf4fce5d5ea862533a

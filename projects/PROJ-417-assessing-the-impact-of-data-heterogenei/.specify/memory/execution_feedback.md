@@ -13,7 +13,7 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/results/estimation_results.csv, data/results/reml_failures.json, data/results/run_summary.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/scripts/fetch_cochrane.py (rc=1); python -m pytest tests/unit/ (rc=1); 3 declared deliverable(s) absent: data/raw/cochrane_base.csv; data/results/aggregated_metrics.csv; data/results/stability_analysis.json
+**Summary**: every produced artifact is gitignored (data/results/estimation_results.csv, data/results/reml_failures.json, data/results/run_summary.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/scripts/fetch_cochrane.py (rc=1); python -m pytest tests/unit/ (rc=1); 1 declared deliverable(s) absent: data/raw/cochrane_base.csv
 
 ## Failing / missing run-book commands
 
@@ -34,27 +34,25 @@ Traceback (most recent call last):
 FileNotFoundError: REAL_DATA_FETCH_FAILED: no usable file on Zenodo record 10.5281/zenodo.10286623 (last error: None)
 
 - python -m pytest tests/unit/ -> rc=1
-schema.py::test_schema_rejects_invalid_record
-FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_primary
-FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
+est_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
 FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_default
 FAILED tests/unit/test_estimators.py::TestREML::test_failure_logging_and_fallback
 FAILED tests/unit/test_reml_failure_log.py::test_log_reml_failure_appends_events
+FAILED tests/unit/test_stats.py::test_shapiro_wilk_normal - assert 0.01747221...
+FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_wrong_type
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_save_dummy_record_to_results
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-=================== 10 failed, 61 passed, 6 errors in 1.57s ====================
+=================== 12 failed, 59 passed, 6 errors in 1.42s ====================
 
 
 
 ## Declared deliverables still missing
 
 - data/raw/cochrane_base.csv
-- data/results/aggregated_metrics.csv
-- data/results/stability_analysis.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -69,13 +67,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/scripts/fetch_cochrane.py` — IS a run-book command
     - `code/scripts/generate_synthetic_base.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/cochrane_base.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/results/aggregated_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/aggregate_metrics.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — NOT invoked by the run-book
-    - `code/reporting/report_gen.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/aggregated_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/results/stability_analysis.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/stats.py` — NOT invoked by the run-book
-    - `code/reporting/report_gen.py` — NOT invoked by the run-book
-    - `code/run_stability_analysis.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/stability_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

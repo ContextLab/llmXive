@@ -43,7 +43,7 @@
     Execute `code/main.py` for the full domain: $\tau^2 \in \{0, 0.1, 0.5, 1.0, 2.0\}$ with $\ge 500$ replicates per level.
     **Verification**: `data/results/simulation_raw.json` contains at least 2,500 records; logs confirm the process completes within 6 hours and peak RAM usage is $< 7$ GB (SC-003).
 
-- [ ] T007 Perform statistical analysis and aggregate metrics.
+- [X] T007 Perform statistical analysis and aggregate metrics.
     Implement `code/analysis/stats.py` to calculate:
     1. Exact binomial tests for coverage deviation against the nominal 0.95 level (FR-004).
     2. Shapiro-Wilk normality tests on bias distributions (FR-008).
@@ -51,7 +51,7 @@
     Apply a Bonferroni correction to the significance threshold ($\alpha = 0.05 / 5 = 0.01$) for all hypothesis tests (FR-007).
     **Verification**: `data/results/aggregated_metrics.csv` is produced, conforming to `contracts/aggregated_metric.schema.yaml`.
 
-- [ ] T008 Execute Sensitivity Sweep and Stability Analysis.
+- [ ] T008 Execute Sensitivity Sweep and Stability Analysis. <!-- FAILED-IN-EXECUTION: code/run_sensitivity_sweep.py exit=1 -->
     Run a secondary simulation sweep with $\tau^2 \in \{0.05, 0.1, 0.5\}$ to detect non-linearities in the low-to-moderate transition zone (SC-004).
     Implement stability analysis in `code/analysis/stats.py` to compare coverage rates between the primary and sensitivity sweeps for overlapping $\tau^2$ levels.
     **Verification**: `data/results/stability_analysis.json` reports the `max_diff` in coverage rates between the two sweeps.

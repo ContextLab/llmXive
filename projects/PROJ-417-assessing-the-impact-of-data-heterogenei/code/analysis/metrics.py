@@ -56,7 +56,7 @@ class MetricsResult:
             "tau_squared_estimate": self.tau_squared_estimate,
             "i_squared": self.i_squared,
             "bias": self.bias,
-            "coverage_flag": self.coverage_flag
+            "coverage_flag": self.coverage_flag,
         }
 
 
@@ -81,21 +81,29 @@ def calculate_i_squared(
 ) -> float:
     """
     Calculates the I^2 statistic.
+
     I^2 = max(0, (Q - df) / Q) * 100
     where Q = sum(w_i * (y_i - pooled)^2) and df = k - 1
     """
-    k = len(effect_sizes)
+    # Convert inputs to floats to guard against string values
+    try:
+        effect_sizes_f = [float(e) for e in effect_sizes]
+        standard_errors_f = [float(se) for se in standard_errors]
+    except Exception as exc:
+        raise ValueError(f"Non‑numeric value in effect sizes or standard errors: {exc}")
+
+    k = len(effect_sizes_f)
     if k < 2:
         return 0.0
 
     # Weights (inverse variance)
-    weights = [1.0 / (se**2) for se in standard_errors]
+    weights = [1.0 / (se ** 2) for se in standard_errors_f]
 
     # Q statistic
-    q = sum(w * (y - pooled_estimate)**2 for w, y in zip(weights, effect_sizes))
+    q = sum(w * (y - pooled_estimate) ** 2 for w, y in zip(weights, effect_sizes_f))
     df = k - 1
 
-    if q <= df:
+    if q <= df or q == 0.0:
         return 0.0
 
     i_squared = (q - df) / q
@@ -189,8 +197,10 @@ def compute_metrics_from_simulation(
         replicate_id = int(record.get("replicate_id", idx))
 
         # Support both possible column names for the estimated tau^2.
-        tau2_raw = record.get("tau_squared_estimate",
-                             record.get("tau_squared_est", None))
+        tau2_raw = record.get(
+            "tau_squared_estimate",
+            record.get("tau_squared_est", None)
+        )
         tau2 = float(tau2_raw) if tau2_raw is not None else 0.0
 
         if "i_squared" in record and record["i_squared"] is not None:
@@ -249,10 +259,9 @@ def aggregate_metrics(
     if not results:
         return {
             "mean_bias": 0.0,
-            "mean_absolute_bias": 0.0,
             "coverage_rate": 0.0,
             "mean_i_squared": 0.0,
-            "total_replicates": 0
+            "total_replicates": 0,
         }
 
     biases = [r.bias for r in results]
@@ -261,8 +270,7 @@ def aggregate_metrics(
 
     return {
         "mean_bias": float(np.mean(biases)),
-        "mean_absolute_bias": float(np.mean(np.abs(biases))),
         "coverage_rate": float(np.mean(coverage_flags)),
         "mean_i_squared": float(np.mean(i_squares)),
-        "total_replicates": len(results)
+        "total_replicates": len(results),
     }

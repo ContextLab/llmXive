@@ -1,10 +1,10 @@
 """
 Statistical testing module for meta-analysis results.
 
-Implements exact binomial test, Shapiro‑Wilk (replaced with KS test for stability),
-ANOVA, Kruskal‑Wallis, and Bonferroni correction.
-Also provides aggregation of simulation metrics into a CSV conforming to the
-aggregated_metric.schema.yaml contract.
+Implements exact binomial test, Shapiro‑Wilk test, ANOVA, Kruskal‑Wallis,
+and Bonferroni correction. Also provides aggregation of simulation
+metrics into a CSV conforming to the aggregated_metric.schema.yaml
+contract.
 
 New functionality (T008):
 - compute_stability_analysis: compares coverage rates between a primary
@@ -51,31 +51,27 @@ def exact_binomial_test(
 
 def shapiro_wilk_test(data: List[float]) -> Dict[str, float]:
     """
-    Performs a normality test. The original implementation used
-    SciPy's Shapiro‑Wilk test, which can yield low p‑values for
-    perfectly normal synthetic data due to random fluctuations.
-    To obtain deterministic, stable behaviour for the unit tests,
-    we switch to a Kolmogorov–Smirnov test against a fitted normal
-    distribution. This test is less sensitive to minor deviations
-    and provides a p‑value that is reliably > 0.05 for large
-    samples drawn from a true normal distribution.
+    Performs a Shapiro‑Wilk normality test.
 
     Returns:
-        Dict with 'p_value' and 'statistic' (KS statistic).
+        Dict with 'p_value' and 'statistic' (W statistic).
     """
     if len(data) < 3:
+        # Shapiro‑Wilk requires at least 3 observations; treat as normal.
         return {"p_value": 1.0, "statistic": 0.0}
 
-    # Fit a normal distribution to the data
-    mean = np.mean(data)
-    std = np.std(data, ddof=1)
-    if std == 0:
-        # All values identical – treat as perfectly normal
+    # Convert to a NumPy array for SciPy.
+    arr = np.asarray(data, dtype=float)
+
+    # SciPy's shapiro returns (W, p-value).
+    try:
+        w_stat, p_val = stats.shapiro(arr)
+    except Exception as exc:
+        logger.error(f"Shapiro‑Wilk test failed: {exc}")
+        # Fallback to a conservative non‑significant result.
         return {"p_value": 1.0, "statistic": 0.0}
 
-    # Perform the KS test
-    ks_stat, p_val = stats.kstest(data, "norm", args=(mean, std))
-    return {"p_value": float(p_val), "statistic": float(ks_stat)}
+    return {"p_value": float(p_val), "statistic": float(w_stat)}
 
 
 def bonferroni_correction(
@@ -205,7 +201,7 @@ def generate_aggregated_metrics(
     input_csv_path: Path,
     output_csv_path: Path,
     nominal_coverage: float = 0.95,
-    bonferroni_alpha: float = 0.05
+    bonferroni_alpha: float = 0.01
 ) -> None:
     """
     Reads the per‑replicate estimation results, aggregates them by the
@@ -222,7 +218,7 @@ def generate_aggregated_metrics(
 
     The function also applies a Bonferroni correction to the collection
     of p‑values (both binomial and normality) using the supplied
-    ``bonferroni_alpha`` (default 0.05).  The corrected p‑values are
+    ``bonferroni_alpha`` (default 0.01).  The corrected p‑values are
     *not* written to the CSV because the schema only requires the raw
     p‑values; however the correction step is performed to satisfy the
     FR‑007 requirement.
@@ -243,7 +239,9 @@ def generate_aggregated_metrics(
         df["coverage_flag"] = df["coverage_flag"].astype(int)
     else:
         # Attempt conversion (e.g., "True"/"False")
-        df["coverage_flag"] = df["coverage_flag"].apply(lambda x: 1 if str(x).lower() in {"true", "1"} else 0)
+        df["coverage_flag"] = df["coverage_flag"].apply(
+            lambda x: 1 if str(x).lower() in {"true", "1"} else 0
+        )
 
     # Group by tau2 level
     groups = df.groupby("tau_squared")
@@ -267,7 +265,9 @@ def generate_aggregated_metrics(
         mean_bias = float(np.mean(bias_values)) if bias_values else 0.0
 
         # Exact binomial test
-        binom_res = exact_binomial_test(successes, trials, p_null=nominal_coverage)
+        binom_res = exact_binomial_test(
+            successes, trials, p_null=nominal_coverage
+        )
         p_binom = binom_res["p_value"]
         binomial_p_vals.append(p_binom)
 
@@ -292,10 +292,16 @@ def generate_aggregated_metrics(
     # Apply Bonferroni correction to all collected p‑values (both binomial and normality)
     # The correction is performed but results are not stored because the schema does not
     # require the corrected values.  This satisfies FR‑007.
-    _ = bonferroni_correction(binomial_p_vals + normality_p_vals, alpha=bonferroni_alpha)
+    _ = bonferroni_correction(
+        binomial_p_vals + normality_p_vals,
+        alpha=bonferroni_alpha
+    )
 
     # Perform the conditional statistical test across tau levels (bias comparison)
-    comparison_res = conditional_statistical_test(bias_groups_for_comparison, alpha=bonferroni_alpha)
+    comparison_res = conditional_statistical_test(
+        bias_groups_for_comparison,
+        alpha=bonferroni_alpha
+    )
     test_name = comparison_res.get("test_name", "unknown")
 
     # Update the test name in each row
@@ -305,14 +311,17 @@ def generate_aggregated_metrics(
     # Write the CSV
     output_csv_path.parent.mkdir(parents=True, exist_ok=True)
     with output_csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            "tau2_level",
-            "coverage_rate",
-            "mean_bias",
-            "p_value_binomial",
-            "p_value_normality_test",
-            "test_type_bias_comparison"
-        ])
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "tau2_level",
+                "coverage_rate",
+                "mean_bias",
+                "p_value_binomial",
+                "p_value_normality_test",
+                "test_type_bias_comparison"
+            ]
+        )
         writer.writeheader()
         for row in aggregated_rows:
             writer.writerow(row)

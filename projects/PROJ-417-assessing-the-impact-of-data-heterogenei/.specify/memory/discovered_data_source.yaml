@@ -1,14 +1,13 @@
 status: none
-intent: download Cochrane review study level effect sizes standard errors dataset
+intent: Cochrane systematic review study level effect sizes and standard errors download
   python package dataset
 required_fields:
 - study_id
 - effect_size
 - standard_error
 - sample_size
-- outcome
-- intervention
-- tau2
-cache_key: c15fb510043119d5903bfff024e9d4bb08ba9ac7c85ab371a6d3187639007d41
-searched_at: '2026-10-10T20:20:44.393360+00:00'
+- outcome_type
+- study_year
+cache_key: 534611e477e37f7cd6b01585156ad8e4be8352b19e2215f739e18c5f8a02e4bc
+searched_at: '2026-10-10T20:27:11.681749+00:00'
 retry_count: 1
