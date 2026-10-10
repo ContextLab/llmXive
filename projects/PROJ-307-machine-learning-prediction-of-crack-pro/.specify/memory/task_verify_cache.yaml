@@ -1,11 +1,13 @@
 T001a:
   c: false
-  h: 0ba93f07ca6f1fc56fa7b891e6aaea5dc453418452160b059aa5c3dbfbae433d
+  h: 58aca505c2bfd85f6edc695bb75e13d5f3b19e6f7b994f5be263cd7714b545e8
   r: "The required top\u2011level directory `projects/001-crack-propagation-ml/` does\
-    \ not exist; the existing `code/`, `data/`, `tests/`, `specs/`, and `contracts/`\
-    \ folders are at the repository root, not under the specified project path, so\
-    \ the mandated layout is missing."
-  sig: eff971c86e155305cbd9321ba22d4915efc459fbe6506636eb9e1435329c09a5
+    \ not exist at the repository root (collector marks it MISSING), and the `code/`,\
+    \ `data/`, `tests/`, `specs/`, `contracts/` folders are present only at the root,\
+    \ not inside that project folder. The task demands those sub\u2011folders inside\
+    \ `projects/001-crack-propagation-ml/`. Create the missing project directory with\
+    \ the specified sub\u2011folders at the correct location."
+  sig: 0a4259ccc4cebfa783a5563eaebb7dabc8120bd1fb468ec42068630d47dc2ff0
 T001b:
   c: false
   h: 116d5d53684814895999716a612f309c2b4cb68dc498bdfc430d40cf1879f289

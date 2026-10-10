@@ -1,8 +1,10 @@
 T001a:
   reason: "The required top\u2011level directory `projects/001-crack-propagation-ml/`\
-    \ does not exist; the existing `code/`, `data/`, `tests/`, `specs/`, and `contracts/`\
-    \ folders are at the repository root, not under the specified project path, so\
-    \ the mandated layout is missing."
+    \ does not exist at the repository root (collector marks it MISSING), and the\
+    \ `code/`, `data/`, `tests/`, `specs/`, `contracts/` folders are present only\
+    \ at the root, not inside that project folder. The task demands those sub\u2011\
+    folders inside `projects/001-crack-propagation-ml/`. Create the missing project\
+    \ directory with the specified sub\u2011folders at the correct location."
   task: 1dcfd61ee15232f75e498eaf73dcf574e3cbc07bca150562f93e8e821182cf09
 T001b:
   reason: The required `__init__.py` files are present, but there is no documented

@@ -86,6 +86,6 @@ tests/integration/test_permutation.py:135
 ERROR tests/integration/test_baseline.py
 ERROR tests/unit/test_augmented.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 2 warnings, 2 errors in 1.18s =========================
+======================== 2 warnings, 2 errors in 1.13s =========================
 
 

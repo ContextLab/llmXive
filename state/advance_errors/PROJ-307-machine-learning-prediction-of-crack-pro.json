@@ -2,13 +2,13 @@
   "project_id": "PROJ-307-machine-learning-prediction-of-crack-pro",
   "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "backend_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-06T02:52:09.331664+00:00",
-  "last_seen": "2026-07-20T19:33:32.850135+00:00",
-  "retry_after": null,
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: 'API key invalid!' | local: transformers is not installed; required by local backend",
-  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: 'API key invalid!' | local: transformers is not installed; required by local backend",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-10T10:22:07.065195+00:00",
+  "last_seen": "2026-10-10T10:22:07.065195+00:00",
+  "retry_after": "2026-10-10T10:32:07.065195+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
