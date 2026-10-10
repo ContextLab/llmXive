@@ -4,38 +4,38 @@ datasets:
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE111075
-    error: Failed to install SRA Toolkit via conda.
+    error: 'Invalid GEO series identifier: GSE111075'
     gene_count: 0
     raw_counts_path: ''
-    source: SRA
+    source: GEO_FTP
     status: unavailable
   GSE127465:
     cell_count: 0
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE127465
-    error: Failed to install SRA Toolkit via conda.
+    error: 'Invalid GEO series identifier: GSE127465'
     gene_count: 0
     raw_counts_path: ''
-    source: SRA
+    source: GEO_FTP
     status: unavailable
   GSE136103:
     cell_count: 0
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE136103
-    error: Failed to install SRA Toolkit via conda.
+    error: 'Invalid GEO series identifier: GSE136103'
     gene_count: 0
     raw_counts_path: ''
-    source: SRA
+    source: GEO_FTP
     status: unavailable
   GSE138852:
     cell_count: 0
     checksum: ''
     counts_checksum: ''
     dataset_id: GSE138852
-    error: Failed to install SRA Toolkit via conda.
+    error: 'Invalid GEO series identifier: GSE138852'
     gene_count: 0
     raw_counts_path: ''
-    source: SRA
+    source: GEO_FTP
     status: unavailable

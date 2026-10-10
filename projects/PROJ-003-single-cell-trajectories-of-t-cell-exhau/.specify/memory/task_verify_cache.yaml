@@ -1,12 +1,13 @@
 T001:
-  c: true
-  h: 448f014c48d6fea4b3fdee878668842213beec8b264f1181dee6c47bd059c9be
-  r: The required directory tree exists (code/, data/raw/, data/processed/, data/results/,
-    tests/), `pyproject.toml` configures both ruff and black (line-length 88, target
-    py39, lint rule selection), and `quickstart.md` documents the runnable environment
-    including prerequisites, installation, and pipeline commands. The init script
-    executed successfully (exit 0), and the layout matches the task's stated requirements.
-  sig: f82c5fbe0cb6396996444936abf5a9a130bfb1311fc155797dabb70228d37bc3
+  c: false
+  h: e8e1191089f363e248fab787164c7e3c1ea19b7b0465fedd65b70ab5de9bbbfc
+  r: The project root, `code/`, `data/raw/`, `tests/`, `pyproject.toml` (with ruff/black
+    config), and `quickstart.md` all exist and look substantive, but the task explicitly
+    requires `data/processed/` and `data/results/`, and the collector reports both
+    as MISSING. The implementer must create those directories (e.g., with `.gitkeep`
+    markers) and provide evidence that `ruff check .` and `black --check .` pass in
+    the project directory.
+  sig: e6724c2739213a01534a8ba1fd2e3dc10759aa4fc9efc075eff8def11779e382
 T003:
   c: false
   h: 198ce09f3e9a2e88e576000b67625a5a20806bfa641c1841ce134410daf18464

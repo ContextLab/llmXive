@@ -7,41 +7,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852 -> rc=1
-16:32,617 - ERROR - Failed to process GSE111075: Failed to install SRA Toolkit via conda.
-2026-10-10 12:16:32,624 - INFO - Processing GSE138852 …
-Installing SRA Toolkit via conda...
-Found conda executable: conda
-Running: conda install -y -c bioconda -c conda-forge sratoolkit
-✗ Failed to install SRA Toolkit via conda.
-  Stderr: 
-CondaToSNonInteractiveError: Terms of Service have not been accepted for the following channels. Please accept or remove them before proceeding:
-    - https://repo.anaconda.com/pkgs/main
-    - https://repo.anaconda.com/pkgs/r
-
-To accept these channels' Terms of Service, run the following commands:
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
-
-For information on safely removing channels from your conda configuration,
-please see the official documentation:
-
-    https://www.anaconda.com/docs/tools/working-with-conda/channels
-
-
-2026-10-10 12:16:33,703 - ERROR - Failed to process GSE138852: Failed to install SRA Toolkit via conda.
-2026-10-10 12:16:33,709 - CRITICAL - Data preparation failed for: GSE136103, GSE127465, GSE111075, GSE138852
+2026-10-10 13:11:25,436 - INFO - Processing GSE136103 …
+2026-10-10 13:11:25,436 - ERROR - Failed to process GSE136103: Invalid GEO series identifier: GSE136103
+2026-10-10 13:11:25,439 - INFO - Processing GSE127465 …
+2026-10-10 13:11:25,439 - ERROR - Failed to process GSE127465: Invalid GEO series identifier: GSE127465
+2026-10-10 13:11:25,441 - INFO - Processing GSE111075 …
+2026-10-10 13:11:25,441 - ERROR - Failed to process GSE111075: Invalid GEO series identifier: GSE111075
+2026-10-10 13:11:25,443 - INFO - Processing GSE138852 …
+2026-10-10 13:11:25,443 - ERROR - Failed to process GSE138852: Invalid GEO series identifier: GSE138852
+2026-10-10 13:11:25,445 - CRITICAL - Data preparation failed for: GSE136103, GSE127465, GSE111075, GSE138852
 
 
 - python code/preprocess.py --input data/raw/ --output data/processed/ -> rc=1
-2026-10-10 12:16:36,276 - INFO - Checking R environment...
-2026-10-10 12:16:36,276 - ERROR - R executable not found in PATH.
-2026-10-10 12:16:36,276 - INFO - Running Python fallback preprocessing for data/raw
-2026-10-10 12:16:36,277 - ERROR - No supported matrix files found in directory data/raw
-2026-10-10 12:16:36,277 - ERROR - Both R and Python preprocessing failed.
+2026-10-10 13:11:27,261 - INFO - Checking R environment...
+2026-10-10 13:11:27,262 - ERROR - R executable not found in PATH.
+2026-10-10 13:11:27,262 - INFO - Running Python fallback preprocessing for data/raw
+2026-10-10 13:11:27,262 - ERROR - No supported matrix files found in directory data/raw
+2026-10-10 13:11:27,262 - ERROR - Both R and Python preprocessing failed.
 
 
 - python code/velocity.py --input data/processed/ --output data/processed/ -> rc=1
-2026-10-10 12:16:38,555 - ERROR - Input file not found: data/processed
+2026-10-10 13:11:28,746 - ERROR - Input file not found: data/processed
 
 
 - python code/forkpoint.py --input data/processed/ --output data/results/fork_points/ -> rc=2
