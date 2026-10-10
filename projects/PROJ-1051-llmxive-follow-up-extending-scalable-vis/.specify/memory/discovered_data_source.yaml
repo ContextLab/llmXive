@@ -1,14 +1,14 @@
 status: none
-intent: MixSub-LLaMA-3.2 scientific document layout dataset download python package
+intent: download scientific document corpus text layout annotations DocBank PubLayNet
+  python package dataset
 required_fields:
 - document_id
+- page_id
 - page_number
-- image_file
-- raw_text
-- layout_bounding_boxes
-- bbox_labels
-- page_width
-- page_height
-cache_key: 7104fb7bfd2c04349e4824eff5575fc927b25b0ba0a8bb32e1689b59ae5a3020
-searched_at: '2026-10-10T21:18:27.842644+00:00'
+- text
+- layout_annotations
+- bounding_box_coordinates
+- image_path
+cache_key: f58bc5a821afa8715c78793579956a31f2ac8da9cd1275c6f5fce5729c1b763d
+searched_at: '2026-10-10T23:10:46.786881+00:00'
 retry_count: 1
