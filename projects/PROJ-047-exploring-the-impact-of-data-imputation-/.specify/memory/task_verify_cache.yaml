@@ -1,3 +1,54 @@
+T001:
+  c: false
+  h: ba0a1b335130b182f607a21227870e69eaea643221096647a4aaa37eb26c80dd
+  r: "The evidence shows the six package and .gitkeep files exist, but they contain\
+    \ comment text rather than being truly empty placeholders, and there is no evidence\
+    \ that the required `code/main.py` and `code/requirements.txt` files are present\
+    \ at all. These missing or non\u2011empty artifacts prevent the task from being\
+    \ fully satisfied."
+  sig: ad97036146b3aef8651198a05f0bc4d217d9f754c83e435f29b1f447ecb8d3e4
+T002:
+  c: true
+  h: c06fc5cd3cf6e6d12a1114e065ca13b07c91f7382aa39735bf37344380b8d8ed
+  r: "Checked `code/requirements.txt` (resolved path `code/requirements.txt`). It\
+    \ contains all eight required packages with the exact pinned versions in the correct\
+    \ `package==version` format; the file is present and non\u2011empty. Extra packages\
+    \ do not violate the stated requirement."
+  sig: 4ba0c6fe088d5a983d913cf06bc239666b27689dceaa84f9923311f3f23fa4c4
+T003b:
+  c: false
+  h: 5db53b04d832b87371f9b268e134abde1cc43eaf2559a664b462977d3881f004
+  r: "The provided `code/.ruff.toml` lacks the required `target-version = \"py311\"\
+    ` setting, includes extra `select` entries beyond `['E','F','I','W']`, and does\
+    \ not define any `per-file-ignores` for test files (only for `__init__.py`). These\
+    \ omissions mean the task\u2019s specifications are not fully satisfied."
+  sig: 9326a9ca43db70de0266ea618bd012bac9b37cb51f8a5970e57ce73bb1499f78
+T004:
+  c: true
+  h: a87cb1bcd0885f33f550371518e627a1294a0347dea0fb62a78526ff814524f5
+  r: "The `code/simulation/config.py` file (3127\u202Fbytes) is present and defines\
+    \ `BETA_SWEEP` as `[0.0, 0.2, 0.5, 0.8, 1.0]`, `SAMPLE_SIZE = 1000`, `REPLICATIONS_PER_BETA\
+    \ = 200`, and includes utilities (`BASE_SEED`, `get_run_seed`, `get_experiment_rng`)\
+    \ for deterministic random\u2011seed management. All required hyperparameters\
+    \ and seed handling are correctly implemented."
+  sig: 93214ed2593fdeeef00922a1c01f45b8da0c64b0bf02572be553a9cc70710a16
+T005:
+  c: false
+  h: 5125c06245ad97e794d37ac11fdd52fb643e6d8699ddb40d586fb83f0fb3d24d
+  r: 'Checked `code/simulation/scm_generator.py`: it defines the required `SyntheticDataset`
+    dataclass correctly, but the `SCMGenerator` class is only a stub (`class SCMGenerator:
+    pass`) and is not declared abstract (e.g., does not inherit from `abc.ABC` nor
+    define any abstract methods). The task explicitly asked for an abstract base class,
+    so this requirement is not met.'
+  sig: 881e0e6357e842f461cfc16d40aa909b53cce67e71b2e33a10e73e7dd8523eee
+T006:
+  c: true
+  h: 97fc5b10f2fa2a32aee8be719f4e87fc1e6cf8dc6dec5997794c45132a2c64a0
+  r: "Checked `code/simulation/scm_generator.py` where `regenerate_ground_truth` returns\
+    \ the hard\u2011coded `tau_true=0.5` and echoes the input `beta`, and `tests/test_scm_generator.py`\
+    \ which contains the required `test_regenerate_ground_truth` asserting those exact\
+    \ values for `seed=42, beta=0.5`. All required artifacts exist and meet the specification."
+  sig: 1ec2a20a37a657c271e9b59726635c5a8ace4d20cfe8cf933b4b2f4cc9c626d2
 T014:
   c: false
   h: b202950a4558ef0b70ac04ee98e08228b40406f6cf62939867480a36a31cb8ee

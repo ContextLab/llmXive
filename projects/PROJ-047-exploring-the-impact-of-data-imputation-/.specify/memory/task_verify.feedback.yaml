@@ -1,0 +1,137 @@
+T001:
+  reason: "The evidence shows the six package and .gitkeep files exist, but they contain\
+    \ comment text rather than being truly empty placeholders, and there is no evidence\
+    \ that the required `code/main.py` and `code/requirements.txt` files are present\
+    \ at all. These missing or non\u2011empty artifacts prevent the task from being\
+    \ fully satisfied."
+  task: a1e23dd08b670a5459766ddf2359d8986ee7ae70f2d8a3b178921afc677a50eb
+T002:
+  task: a84632ddd865ff82cbcc1f858d48b25f11c2909d43b1df0541be5bb884fd6584
+T003a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/pyproject.toml'
+  task: 25a661957595a257bbf77854a97b9fa0b295ec3a174f07b80312992cb5681f93
+T003b:
+  reason: "The provided `code/.ruff.toml` lacks the required `target-version = \"\
+    py311\"` setting, includes extra `select` entries beyond `['E','F','I','W']`,\
+    \ and does not define any `per-file-ignores` for test files (only for `__init__.py`).\
+    \ These omissions mean the task\u2019s specifications are not fully satisfied."
+  task: abdfc1663bb2e979923f61d8e61f05a47610c2d4e942ae09e7beb6b90686b209
+T004:
+  task: 374062b6c18630fc65b9c702a319072801ebf5aedfc4e2e92bb57506b435b4e2
+T005:
+  reason: 'Checked `code/simulation/scm_generator.py`: it defines the required `SyntheticDataset`
+    dataclass correctly, but the `SCMGenerator` class is only a stub (`class SCMGenerator:
+    pass`) and is not declared abstract (e.g., does not inherit from `abc.ABC` nor
+    define any abstract methods). The task explicitly asked for an abstract base class,
+    so this requirement is not met.'
+  task: d569faee28c8940e2a617b1260b012c1916e0aa9e4d8df3d973d44cdaf77b502
+T006:
+  task: 8fe85e17b307ef77a88ea4dcc6c07726906c2ca6129e1589ba9d1dcebfe5c1ef
+T007:
+  task: 68c7905366b6c6897e33030d1d823347a58270c113cf55a080712ce654444769
+T008:
+  task: 856e64b45ceff2e7a867e5dd5ad56ba6fdf73daa2142464d7c5f7828b370d080
+T009:
+  task: ab9dfd34ff3e767e7ba11b5b95e39debebe3bb99ef9769d030361a20c1b6eefd
+T010:
+  task: 05071c4cdeaac2cbbc69a47c80010e286f2068467df1ed7ff600ef96bc03b2c1
+T011:
+  task: afdaa39e25e042d523a158392d3c73ca2c0670849064296b6cc9a808742ad950
+T012:
+  task: 164b9c44c091f2e9d111ae0550e6733a2027b52b7891081e30e3baa41ec93a85
+T013:
+  task: 29bb2c2f89fddfb5887c36984a4c354bcf59db9cb27250e818f5e9594208b33b
+T014:
+  task: 270211c46235d8509e4c7404a854707f5cf2269e43103767bb8149689ff92859
+T015:
+  task: 327940953dc7812576a8ebe9d7069f597610ef9877855eea65adf0e87a28b77f
+T016:
+  task: 60bdf6312522abe9197e0bf875e707d9a57f0b578068a17ad3630783516e6ebc
+T017:
+  task: 79a8ed50dbb68cda530868795b58347403ac34e0b869122def5706696f07eb88
+T018:
+  task: 58475f95c95a359a02e9b37370a4be822072ff395fc924d3a478da966a346b96
+T019:
+  task: 0ae7f1c052dfb5bc229ae199618a953f9c0996c1efb9003d02b70745caad3b4b
+T020:
+  task: a8e3b4fc063f293b29b8137963cd20aab609adbc6914d933d9d0d00797678b09
+T021:
+  task: 7b45aa18b61723a4bd77a5ac1805ee9cadc42b849cd75dd107e3256cabcf8808
+T022:
+  task: d3dbb3b19840197a47bad6a40ae48baa5d387156a940a1fd557fac1cb01883d4
+T023:
+  task: a17f05e8408f274cade20615ccd7e008d68bd6a866bb91b8c268f8489e80c242
+T024:
+  task: 6b092a8efe6fedadcbbf11a67b9eecba1763cc0d4dd2093ef02e8d4841abf5ce
+T025:
+  task: 6979139e155cbaebb4f2bea9a1c3bb566fc621016640511e6ea1af5d76a762b0
+T026:
+  task: b6f0ab3e27e0cc9271e9d46bd502c833d620b9fb86f0daa4fb2275eedf0f1fcf
+T027:
+  task: 96fd9ee58316157ee84e22175dff35c636cc7c19b0590be7921f1515903123ff
+T028:
+  task: 0a49688026739bcf5ed691e4cbf2ba286eccaf91cb525d9cf55982c4bd0f55bc
+T029a:
+  task: 48d2e17d3fdbe8404fa033de83484bcfc82e0bf50af14bbb7f4170788a330603
+T029c:
+  task: 6e87b82066a9f0c6cd84e976716455c7b5da853b47fa51a0875c71e1f37e3473
+T029d:
+  task: 9ad3f3e07824464e7632e0a883918f7d140266f24703873c415c54ca86fc9986
+T030:
+  task: 22126b9dba7139391be5ec2d1e9cdbfc64c2a8bfe809fb030a8e3fd622e38bdb
+T031:
+  task: 5cf3f55359bd69cb67a3afe9c705643b5918f7bed7468f3fdf87869020fff5c6
+T032:
+  task: 94b33d9f4c407bfc4cc75b76a7fed37828504fdda49ec8a6cf93074743e5b0a7
+T033:
+  task: d07fca30b6080ccd041e1f32cf7614c1aa75a6c0606742a2f1d85cc70d1e0272
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_sensitivity.py'
+  task: b97c391baf0e490b2f9ca798fd0b712709b5fef286648fee00d190a3fa7b5009
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/oracle.py, data/results/oracle_benchmark.json'
+  task: 5d868f6f580b2850ad1802217e27749f4dbdedc16ce0a10f9221c7c12344c4ca
+T036:
+  task: 6343ab59f37c722f5580c1c748ecf3aba148fc76a18fb64f369f2b2c0c5ddb3a
+T037:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/simulation.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 531d52e4d15094923539047e35f11bd6206505618005e6e857f9b73cfccc9bcb
+T038:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/simulation.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 90577cb9405d293d662fe472b744367c1d4fb628dc44346e18469c8146180160
+T039:
+  task: 3a4a48ddf211428af92de2c2534be04e8094c49e8f6989cdbc76ce2b6deec291
+T040:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: a1574bf04c7d4bbb9a0147c5190f1efaffbe46b68579d82930069baf44bca3a3
+T041:
+  task: bcd8cd03159bd7a80eb3dcb20a350f71003b6b87b7dd0581713c8305c0fb0169
+T042:
+  task: af03cf8dbb5230234e9d84af773cec4818e72c2c599d58dc42fa344c03105f7b
+T047:
+  task: 14791f46b2ad70d9f84c6dfafbbe0e32dfa0fdb57f039658a5033ba3ced6f9b1
+T048:
+  task: 97648d337625035746bc5a975ee1fd68d7388d39a7b6e0fc57d932b7faf3b1da
+T049:
+  task: 241d1a097493f0bee58463883bac87d5e7ab8e152203164adf829712167b4112
+T050:
+  task: 816fd662f404332e5f86eaacf627a5ffbdc9b458b7a9e1a030bbb6f6f2486c05
+T051:
+  task: 16959602ad5d097dc19b206546ce420f1c11b69a6cba132160c07ff8888df54c
+T052:
+  task: df46f2cc521f5ec113412fdddaca54266875cbce090405ef36a1fe96947ffaf3
+T053:
+  task: 5ebfdcf86b208d04d7052f88e6bc5b53954a9a2e6a95f222adc91be5f0f69281
+T054:
+  task: 2ff40389a60b494165bf56e746fb241a1350d5d855916f90336f148bc85e641f
+T055:
+  task: 773f81be5001e4d7aeb8bc79a91950ea05d795d4277dc09395db6a8d07152b07

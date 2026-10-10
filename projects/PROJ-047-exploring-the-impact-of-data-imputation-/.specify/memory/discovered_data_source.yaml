@@ -1,14 +1,12 @@
 status: none
-intent: download synthetic causal inference dataset with MNAR missingness binary treatment
-  continuous outcome python package dataset
+intent: synthetic causal inference MNAR dataset with known ATE python package dataset
 required_fields:
-- sample_id
-- treatment_binary
-- outcome_continuous
-- confounder_1
-- confounder_2
-- confounder_3
+- treatment
+- outcome
+- confounders
 - missing_indicator
-cache_key: 5a2c78ae55b07c5babd43d7bece369039a7dfca5c19c025ac5de539091a7b110
-searched_at: '2026-10-03T02:01:23.152790+00:00'
+- ground_truth_ATE
+- mnar_parameter_beta
+cache_key: 89c79475ba407012d3cf21e180d7b4c06de32b298659c503f3a71c5e8f6d9fc1
+searched_at: '2026-10-10T22:16:57.240062+00:00'
 retry_count: 1
