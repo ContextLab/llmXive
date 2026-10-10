@@ -14,6 +14,10 @@ properties:
   vulnerability_count:
     type: "integer"
     minimum: 0
+  corrected_vulnerability_count:
+    type: "integer"
+    minimum: 0
+    description: "Vulnerability count after adjusting for audit‑derived false‑positive rate"
   cwe_ids:
     type: "array"
     items:
@@ -21,8 +25,11 @@ properties:
       pattern: "^CWE-[0-9]+$"
   density:
     type: ["number", "null", "string"]
-    description: "vulnerabilities per LOC; null or 'undefined' when LOC is zero"
+    description: "vulnerabilities per LOC (raw); null or 'undefined' when LOC is zero"
+  density_corrected:
+    type: ["number", "null", "string"]
+    description: "vulnerabilities per LOC after false‑positive correction; null or 'undefined' when LOC is zero"
   tools_run:
     type: "array"
     items:
-      enum: ["bandit", "semgrep"]
+      enum: ["bandit", "semgrep", "sonarqube"]

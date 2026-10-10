@@ -100,5 +100,5 @@ The system must execute a Negative Binomial regression and a Mann-Whitney U test
 - The "lines of code" (LOC) metric is calculated using a standard, language-agnostic counting method (e.g., excluding comments and blank lines) as implemented by the chosen tooling.
 - The dataset contains sufficient sample sizes in both the LLM and human groups to perform a meaningful statistical test (n ≥ 30 per group is assumed; if not, the study will be limited to descriptive statistics only).
 - The analysis is observational; therefore, any findings will be framed as associational differences in vulnerability density, not causal effects of LLM usage on code security.
-- The GitHub Actions free-tier runner provides consistent performance (2 CPU cores, ~7 GB RAM) without significant variability that would impact the reproducibility of the analysis.
+- The GitHub Actions free‑tier runner provides consistent performance (multiple CPU cores, on the order of several gigabytes of RAM) without significant variability that would impact the reproducibility of the analysis.
 - Human auditors are available to perform the manual verification of the stratified sample required for ground truth validation (FR-007).
