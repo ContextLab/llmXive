@@ -10,3 +10,36 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k
   verified_at: '2026-07-09T10:51:27.306053Z'
+- artifact_hash: 2bc397ce4ee9c58a67671c5414f26ca4568fd07d740cb53f9941971d2ce4f7e1
+  artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/psychology-data/discounting/master/data/discounting.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/psychology-data/discounting/master/data/discounting.csv
+  verified_at: '2026-10-10T15:25:37.160097Z'
+- artifact_hash: 2bc397ce4ee9c58a67671c5414f26ca4568fd07d740cb53f9941971d2ce4f7e1
+  artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/psychology-data/procrastination/master/data/procrastination.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/psychology-data/procrastination/master/data/procrastination.csv
+  verified_at: '2026-10-10T15:25:37.160097Z'
+- artifact_hash: 2bc397ce4ee9c58a67671c5414f26ca4568fd07d740cb53f9941971d2ce4f7e1
+  artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/psychology-data/nback/master/data/nback.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/psychology-data/nback/master/data/nback.csv
+  verified_at: '2026-10-10T15:25:37.160097Z'
