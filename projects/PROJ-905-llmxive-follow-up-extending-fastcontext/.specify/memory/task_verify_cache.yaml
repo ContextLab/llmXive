@@ -21,9 +21,3 @@ T023:
     \ actually invoke the Lite and Baseline pipelines or write log entries. Moreover,\
     \ the required output file `data/results/exploration_logs.jsonl` is missing entirely.\
     \ The task\u2019s core requirements are therefore not satisfied."
-T032a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md content from `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`
-    was provided; thus we cannot verify that installation instructions, usage examples,
-    and contribution guidelines were added. The required artifact is missing.
