@@ -149,7 +149,7 @@ def test_production_queue_and_checkout_routing_keeps_dartmouth(path):
 @pytest.mark.parametrize("reference_input", [
     "src/llmxive/librarian/verify.py", "pyproject.toml",
     "tests/real_call/test_resolve_reference_registrar_agnostic.py",
-])
+], ids=lambda value: value.replace("/", "_"))
 def test_mixed_production_routing_and_reference_edits_retain_all_checks(reference_input):
     assert load("select_checks").select([*PRODUCTION_ROUTING, reference_input]) == {
         "offline": True, "live": True, "references": True,
