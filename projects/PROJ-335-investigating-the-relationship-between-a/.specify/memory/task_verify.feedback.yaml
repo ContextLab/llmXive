@@ -1,0 +1,101 @@
+T001:
+  reason: "The evidence provides only the project root location but contains no confirmation\
+    \ that the required directories (`code`, `data/raw`, `data/processed`, `data/metrics`,\
+    \ `data/results`, `tests/unit`, `tests/integration`, `tests/contract`, `docs`)\
+    \ actually exist. Without directory listings or creation logs, the task\u2019\
+    s requirement is not demonstrated."
+  task: 9b5c2533cb123cb8dd97707487d4bd7598df30cb1b31369416047fe4b656b331
+T002:
+  reason: "The provided `code/requirements.txt` exists, but it lists version specifiers\
+    \ with `>=` instead of exact pins (`==`), violating the \u201Cpinned dependencies\u201D\
+    \ requirement, and it includes unrelated packages (ruff, pytest, datalad) that\
+    \ were not part of the task. The file therefore does not meet the specification."
+  task: 6befad63a9218acbacb6501fce93ec12da645da65f318e54d97a744cc81c438b
+T003:
+  task: 1bc92622970a07412ade806ee8b4ef955ca89e9396b7e2b5c7fc0a101faa39dd
+T004:
+  task: fddfc9e53fdeffdd87650f5fa6adec765d147225833b9ba552b2201d69d93ab7
+T005:
+  reason: "Checked `code/utils/validation.py` (4691\u202Fbytes). It provides functions\
+    \ that validate EEG channel lists, behavioral metric dicts, and CSV column sets,\
+    \ exiting via `sys.exit(1)` on failures. However, the task requires halting with\
+    \ the specific error code **FR\u2011006**, which the implementation never references\
+    \ or returns; it always uses generic exit code\u202F1. The utility therefore does\
+    \ not meet the stipulated error\u2011code requirement."
+  task: adb4529740cf6ab70fa1a4c6cee695843ce11dbd2fd12efd56e2faec1ad9a398
+T006:
+  reason: "The evidence provides only the project root path and no concrete files\
+    \ or directories showing a BIDS\u2011compliant `data/raw` layout, nor any scripts\
+    \ or JSON side\u2011car files for handling OpenNeuro metadata. Without these artifacts\
+    \ the requirement to set up the BIDS structure and metadata handling is not demonstrated."
+  task: c8fb298c2ea464ed95a9d2e08d139d463ee159757492cdcce13d8ea87e7e75e5
+T007a:
+  task: 67424734e52c48e1db81ae9f2af342ecb3851c6ad673ced7706d9434b2d083f3
+T007b:
+  task: ec6ddcae231e88d2b264abba9664dee93471cb1826e371e893d5c4711ea2bdab
+T008:
+  task: 40efafad2f00f5c9f1a7ce94dcd119934d224c625162c896d7459acd51e1d678
+T010:
+  task: 0937d2ef7c267a15f6d07e6e589a962bd13e9bbee446b6502a52cac1c4b58a00
+T011:
+  task: c79a5c3d00d2c6ce91710faa6f666f4acbbab58aaaaf3e0dabb1281fbbde1ad7
+T012:
+  task: a3ff459e0ac654e70a9b7c88e2057f0961283bbf618b8ac17feb45f31baea9e7
+T013:
+  task: ffdbfe01413bddd50e8482267711e18cd4dc12fd7623dce76aa4fc6d5b309198
+T014:
+  task: 12604ead99a37eaf7fa3bc841654e3d6416c3f993febe75ddeb59f399641e1ea
+T015:
+  task: 6f2a42ff1ed220794a923b314d2a5d71f3f69e2b767f52583edf9c8d67938e36
+T016:
+  task: b5da20fdb6380e4c53c2ac3e47ac51da5a55890cd6970236cba5b4e48b85d615
+T017:
+  task: 6c628de7255fbc04ab961dced9a47e9d121324f316b645f1b68d9e1666b4fb6b
+T018:
+  task: eb412a8c24471bc27577e2855485a101fe6902f23eab0c2c9a1b016775f2271d
+T019:
+  task: 6d4ef300fcb995d3484bb58e650c56c73660f0c02a5611f07975fb84a1d6de4e
+T020:
+  task: f7b332a0fa612270beadeb457ef4f9cc014ccdd5f282c2390cd27058b99fc0b4
+T021:
+  task: af492584393661e393003c8ff08bd8a9d00dee338f42f47c2fbc8ffcbf55fcea
+T022:
+  task: cc282ccbe488efc28384f9f4c70bd3dc160cfffcfb7ec9ab63633462bcf852f4
+T023:
+  task: 88036494cb2f4ffbd5c2ed881404d787f42517f95de365a1c079a08a1d5dbc02
+T024:
+  task: cbd7300f2080329e04c6ff08c0e71441d9b1e3e085b3ead3cb4ce64eb0c67c6c
+T025:
+  task: e2d0289b517b5002ad20fed52e3035af45c0e18b4fc7acafdcab8c0f118ecc9c
+T026:
+  task: 5d828075ffbee42c46229fbcb11d7f96073d81c76bf05b02122f31713c9f2862
+T027:
+  task: b7816713efd48f436ee4682900d7c650ebb21868f1d26555bbee179a8450a424
+T028:
+  task: 9de4f2f10bdc35d6466d867adea0899b43e64a2bb90d2ebb308468a4398ffb3a
+T029:
+  task: dd0f99a3a0124b0779eb60a85a6211adedde8c709fda389904fa5e46636184ca
+T030:
+  task: 6f2d6ad87e3e19074ac618ee9c7853a4a4704f300a9f22f0dc7905441b46d99b
+T031:
+  task: da0577d25fdd40f2815b0532729be1d70d8654ac40f6b6942d8be4904a683bdf
+T031a:
+  task: ae480cc5c933f26224f576eb8fed3122ae144b59f194098a2c4311f8d66b093a
+T032:
+  task: 4623e930df708dc1dc4e5c65fcd7d57d9ea8e638fdc332158b744aef4596c671
+T033:
+  task: 395af841209ed37905b214ac926a21aa23d6e4ca861f0c8d6d72d8931f595464
+T034:
+  task: cdbf355fd7033820e8dc675dab902e6d8c391955b0e068833e46e77f67efc898
+T035:
+  task: fed801b2ea2c7e8000dd94279e71b1c46564dafe49b6178899990f173a7a5023
+T036a:
+  task: 2b733acb07029388c78c24ed3fab0090142cbb425dfaf778dbfe7de2e924b93f
+T036b:
+  task: 172ae25d4c96561531ecf358ff8d00796040c8176074af0daef7a2cd0826b6d6
+T037:
+  task: 81c95dc4b5e462f8d322fa9a291764cd871fe97f1e310849f1dd9891b5a590d1
+T038:
+  task: 8032fd985f84ffa959f78fa54c93d17c4c3cd7c819dce7a83f9595125e609b0c
+T039:
+  task: 807705c5994dcb107697cd2bafa03a0b88e1346b13e11cbb6cf66682cc4c3466

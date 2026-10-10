@@ -1,136 +1,153 @@
+"""Structured logging infrastructure for the alpha-WM pipeline.
+
+T008: Configures logging that outputs structured (JSON) log records to
+``data/results/`` and human-readable records to the console.
+
+Usage:
+    from utils.logging_config import setup_logging, get_logger
+    setup_logging()
+    logger = get_logger(__name__)
+    logger.info("message", extra={"event": "download", "dataset": "ds000248"})
+"""
+
+import json
 import logging
 import sys
-import os
-import json
+from datetime import datetime, timezone
 from pathlib import Path
-from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
 
-# Ensure the data/results directory exists for log file output
-RESULTS_DIR = Path("data/results")
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+# Default log file location (relative to repository root).
+DEFAULT_LOG_DIR = Path("data/results")
+DEFAULT_LOG_FILE = "pipeline.log"
+
+# Reserved LogRecord attributes; everything else in `extra` is treated
+# as structured payload.
+_RESERVED = set(
+    logging.LogRecord("", 0, "", 0, "", None, None).__dict__.keys()
+) | {"message", "asctime", "taskName"}
+
 
 class StructuredFormatter(logging.Formatter):
+    """Format log records as single-line JSON objects.
+
+    Standard LogRecord fields (level, time, logger, message) plus any
+    keyword payload passed via ``extra={...}`` are serialized.
     """
-    Custom formatter that outputs logs as JSON lines for structured logging.
-    Includes timestamp, level, logger name, message, and optional extra fields.
-    """
+
     def format(self, record: logging.LogRecord) -> str:
-        log_data = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+        payload: Dict[str, Any] = {
+            "timestamp": datetime.fromtimestamp(
+                record.created, tz=timezone.utc
+            ).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno
         }
-        
-        # Include exception info if present
+        for key, value in record.__dict__.items():
+            if key not in _RESERVED and not key.startswith("_"):
+                try:
+                    json.dumps(value)
+                    payload[key] = value
+                except (TypeError, ValueError):
+                    payload[key] = repr(value)
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
-        
-        # Include any extra fields passed to the log call
-        if hasattr(record, 'extra_data'):
-            log_data["data"] = record.extra_data
+            payload["exception"] = self.formatException(record.exc_info)
+        return json.dumps(payload, ensure_ascii=False)
 
-        return json.dumps(log_data)
 
-def setup_logging(console_level: int = logging.INFO, 
-                  file_level: int = logging.DEBUG,
-                  log_filename: Optional[str] = None) -> None:
-    """
-    Configure the root logger to output structured logs to both console and file.
-    
+_configured = False
+
+
+def setup_logging(
+    log_dir: Optional[str] = None,
+    log_file: str = DEFAULT_LOG_FILE,
+    level: int = logging.INFO,
+    console_level: int = logging.INFO,
+    logger_name: Optional[str] = None,
+) -> logging.Logger:
+    """Configure structured logging to ``data/results/`` and console.
+
     Args:
-        console_level: Logging level for console output (default: INFO)
-        file_level: Logging level for file output (default: DEBUG)
-        log_filename: Optional filename for the log file. If None, uses timestamped name.
-    """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG) # Capture all, filters applied by handlers
+        log_dir: Directory for the structured log file. Defaults to
+            ``data/results``.
+        log_file: Filename of the structured log inside ``log_dir``.
+        level: Minimum level for the file (JSON) handler.
+        console_level: Minimum level for the console handler.
+        logger_name: Root logger name to configure (default: root).
 
-    # Clear existing handlers to avoid duplicates on re-runs
-    root_logger.handlers.clear()
-
-    # 1. Console Handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(console_level)
-    console_handler.setFormatter(StructuredFormatter())
-    root_logger.addHandler(console_handler)
-
-    # 2. File Handler (Structured JSON)
-    if log_filename is None:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_filename = f"pipeline_{timestamp}.log"
-    
-    log_path = RESULTS_DIR / log_filename
-    
-    file_handler = logging.FileHandler(log_path, mode='a')
-    file_handler.setLevel(file_level)
-    file_handler.setFormatter(StructuredFormatter())
-    root_logger.addHandler(file_handler)
-
-    # Log startup confirmation
-    logging.info(f"Logging infrastructure initialized. Output to: {log_path}")
-
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a named logger instance.
-    
-    Args:
-        name: Name for the logger (typically __name__)
-        
     Returns:
-        Configured logger instance
+        The configured logger.
     """
+    global _configured
+
+    target = logging.getLogger(logger_name)
+    target.setLevel(min(level, console_level))
+
+    if _configured and target.handlers:
+        # Already configured; return the existing logger.
+        return target
+
+    log_path_dir = Path(log_dir) if log_dir else DEFAULT_LOG_DIR
+    log_path_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_path_dir / log_file
+
+    # File handler: structured JSON lines.
+    file_handler = logging.FileHandler(log_path, encoding="utf-8")
+    file_handler.setLevel(level)
+    file_handler.setFormatter(StructuredFormatter())
+    target.addHandler(file_handler)
+
+    # Console handler: human-readable.
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(console_level)
+    console_handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+        )
+    )
+    target.addHandler(console_handler)
+
+    target.propagate = False
+    _configured = True
+    target.info(
+        "Logging initialized",
+        extra={"event": "logging_setup", "log_file": str(log_path)},
+    )
+    return target
+
+
+def get_logger(name: str = "alpha_wm") -> logging.Logger:
+    """Return a named logger, configuring defaults if needed."""
+    if not _configured:
+        setup_logging()
     return logging.getLogger(name)
 
-def log_metric(logger: logging.Logger, metric_name: str, value: float, 
-               subject_id: Optional[str] = None, **kwargs) -> None:
-    """
-    Helper function to log a metric with structured extra data.
-    
-    Args:
-        logger: Logger instance
-        metric_name: Name of the metric
-        value: Value of the metric
-        subject_id: Optional subject ID
-        **kwargs: Additional key-value pairs to include in the log data
-    """
-    extra_data = {
-        "metric": metric_name,
-        "value": value
-    }
-    if subject_id:
-        extra_data["subject_id"] = subject_id
-    extra_data.update(kwargs)
-    
-    # Attach extra data to the log record via a custom attribute
-    # We use a wrapper to inject this into the formatter
-    record = logger.makeRecord(
-        logger.name, logging.INFO, "", 0, 
-        f"Metric recorded: {metric_name} = {value}", 
-        (), None
-    )
-    record.extra_data = extra_data
-    logger.handle(record)
 
-def main():
+def log_metric(logger: logging.Logger, metric_name: str, value: Any, **context: Any) -> None:
+    """Log a metric with structured context at INFO level."""
+    extra = {"event": "metric", "metric": metric_name, "value": value}
+    extra.update(context)
+    logger.info(f"metric {metric_name}={value!r}", extra=extra)
+
+
+def main() -> None:
+    """Entry point: initialize logging and emit a startup record.
+
+    Writes a structured log file to ``data/results/pipeline.log`` and
+    echoes a human-readable record to the console.
     """
-    Test function to demonstrate logging configuration.
-    """
-    setup_logging()
-    logger = get_logger("T008_Test")
-    
-    logger.info("Logging system initialized successfully.")
-    logger.warning("This is a test warning.")
-    logger.error("This is a test error.")
-    
-    # Test structured metric logging
-    log_metric(logger, "alpha_power", 0.85, subject_id="001", channel="Fz")
-    
-    logger.info("Test completed. Check data/results/ for log files.")
+    logger = setup_logging()
+    logger.info(
+        "Pipeline logging infrastructure ready",
+        extra={
+            "event": "startup",
+            "log_dir": str(DEFAULT_LOG_DIR),
+            "structured_format": "json",
+        },
+    )
+
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,54 @@
+T001:
+  c: false
+  h: bbd9c8eeb7a84decc8a3b4d1fbfaca182d8d7e8746d321a7436fbdc80141dcbd
+  r: "The evidence provides only the project root location but contains no confirmation\
+    \ that the required directories (`code`, `data/raw`, `data/processed`, `data/metrics`,\
+    \ `data/results`, `tests/unit`, `tests/integration`, `tests/contract`, `docs`)\
+    \ actually exist. Without directory listings or creation logs, the task\u2019\
+    s requirement is not demonstrated."
+  sig: 379655b874f6d4e48abbec139e81a6c7e111185cd9b727a9feaaef4f79069d87
+T002:
+  c: false
+  h: 8091f7f209d061466aae37f8b64e983e14caa9a9915f9f8b83e79476627dbbdb
+  r: "The provided `code/requirements.txt` exists, but it lists version specifiers\
+    \ with `>=` instead of exact pins (`==`), violating the \u201Cpinned dependencies\u201D\
+    \ requirement, and it includes unrelated packages (ruff, pytest, datalad) that\
+    \ were not part of the task. The file therefore does not meet the specification."
+  sig: ed2b0677a5587e78b894e036ee26074667b950b1a2b357d4c4feb2f9ccc33a82
+T003:
+  c: true
+  h: 17c20aa278b5c98056fad89c8770920f63af9a973650885f98eff9ab61bd32b4
+  r: "The `code/.pre-commit-config.yaml` file exists (593\u202Fbytes) and contains\
+    \ the required pre\u2011commit configuration, including ruff (linting) and black\
+    \ (formatting) hooks alongside other standard hooks. This directly fulfills the\
+    \ task\u2019s specification."
+  sig: 61f21357c5e078bbd8aaf2af1f0caf72045f468e63f0a64a6933b7d212fbf8c8
+T004:
+  c: true
+  h: 75ec09a56adac83ab49dc334512df98a993df08ce2269f8247036eeca24861f2
+  r: "Checked the resolved artifact `code/config.yaml` (1457\u202Fbytes) which defines\
+    \ the dataset ID `ds000248`, MNE bandpass filter (1\u201140\u202FHz), alpha band\
+    \ range (8\u201112\u202FHz), and random seeds, exactly as required by task\u202F\
+    T004."
+  sig: 5032fe033249e983f2c0f0a60e882c76f608801a2af15e72b0b444ff8800b996
+T005:
+  c: false
+  h: 8546090b8d1cdac54a20c6357957e0f489f8bac716a7412dceeb64217fef60e3
+  r: "Checked `code/utils/validation.py` (4691\u202Fbytes). It provides functions\
+    \ that validate EEG channel lists, behavioral metric dicts, and CSV column sets,\
+    \ exiting via `sys.exit(1)` on failures. However, the task requires halting with\
+    \ the specific error code **FR\u2011006**, which the implementation never references\
+    \ or returns; it always uses generic exit code\u202F1. The utility therefore does\
+    \ not meet the stipulated error\u2011code requirement."
+  sig: b7618e8f6046d91a91d11fac88aae5cfa4eee7ca7358908c0c093d9e373352b3
+T006:
+  c: false
+  h: 265baee4196904c7c05daa6a4095e23a50c60743fcefedbedaae7a71d3121ae1
+  r: "The evidence provides only the project root path and no concrete files or directories\
+    \ showing a BIDS\u2011compliant `data/raw` layout, nor any scripts or JSON side\u2011\
+    car files for handling OpenNeuro metadata. Without these artifacts the requirement\
+    \ to set up the BIDS structure and metadata handling is not demonstrated."
+  sig: b324e51f66b93d1788dd54e1aaecfbfbdc8659637e601900808c56b69eabde71
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
