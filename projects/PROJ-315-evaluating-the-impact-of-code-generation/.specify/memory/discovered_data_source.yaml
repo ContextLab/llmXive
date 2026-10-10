@@ -2,16 +2,17 @@ status: none
 intent: download GitHub Pull Requests v2 sample dataset from HuggingFace python package
   dataset
 required_fields:
+- pr_id
 - code_diff
 - review_comments
 - merge_timestamp
 - project_metadata
 - commit_message
-- cyclomatic_complexity
-- lines_of_code
 - comment_count
 - sentiment_score
 - merge_time
-cache_key: c2c4f3ff3650af44d6049f8acf0d67afbd12bb6b93af16fb4ceac5338f0974ec
-searched_at: '2026-10-10T02:32:42.770191+00:00'
+- cyclomatic_complexity
+- lines_of_code
+cache_key: 48db989abd159de816a47e0f514d10f7a10f8ce665c941dc839b83bdb823d4d4
+searched_at: '2026-10-10T02:34:37.342212+00:00'
 retry_count: 1

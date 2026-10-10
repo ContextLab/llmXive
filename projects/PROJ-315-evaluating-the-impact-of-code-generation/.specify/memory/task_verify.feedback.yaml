@@ -13,22 +13,31 @@ T006:
 T007:
   task: 35e4345631bbc6d09423d458338c421d91e66cf6742a6c81d3879c37083218eb
 T008:
-  reason: "The provided `contracts/output.schema.yaml` exists but its contents do\
-    \ not match the task specification. It defines a single, extensive analysis schema\
-    \ rather than four separate JSON schemas with the exact required keys: (1) Mann\u2011\
-    Whitney U results lack a `method` field and use `p_value` instead of `pvalue`;\
-    \ (2) VIF diagnostics are embedded in a regression object instead of a schema\
-    \ with `predictor` and `vif_score`; (3) Power analysis schema uses `sample_size_a`,\
-    \ `sample_size_b`, `effect_size`, etc., and omits `min_detectable_effect`; (4)\
-    \ No schema for error reports (`error_code`, `observed_cou"
   task: ea7a29f0a6480c9fa6ee90e5ce4097f9630f7be4279093fb682af84b1230af76
 T009:
   task: 2b350ee60cf0b028dbf4485dc0b8e39f337be7de3bd16830efce105b83e37198
 T010:
+  reason: "The integration test file `tests/integration/test_data_completeness.py`\
+    \ exists, but it imports `main` from `code/data/preprocess.py`, which implements\
+    \ an audit\u2011accuracy pipeline and never performs a data\u2011completeness\
+    \ check. Consequently the test cannot trigger the required `ValueError`, and it\
+    \ does not assert that the error message contains the exact phrase \u201CData\
+    \ Completeness Error\u201D. The test therefore does not satisfy the task\u2019\
+    s requirement."
   task: c73fc0b4bb9964b29259c59d0a0ded6b0875c5555cc5b761798bc23dd806cb08
 T011:
+  reason: "The `tests/integration/test_power_check.py` file exists and raises a `ValueError`\
+    \ when a group size is <\u202F500, but the asserted error message only contains\
+    \ \u201CPower insufficiency\u201D and does not include the required phrase \u201C\
+    Power Insufficiency Error\u201D. The test therefore does not verify the exact\
+    \ message stipulated by the task."
   task: 3aec365fc5c5b6b537890a5eee42132059fecf4687a48fd3d52632febf9fabbe
 T012:
+  reason: "The provided `code/data/fetch.py` calls `load_dataset` without the required\
+    \ `batch_size=1000` argument and then materialises the entire streaming dataset\
+    \ into a list/DataFrame, which defeats the memory\u2011efficient chunked streaming\
+    \ requirement. It also does not implement chunked processing of the full dataset\
+    \ as specified. The task\u2019s core requirement is therefore not satisfied."
   task: 0baf6ca88731c0cab720923964a823f1cdba7a06b6ecc0a2b95bf8294e5ec968
 T014a:
   task: 420ecf8d4222048ddd57279fcfc7e7a96939720bce80c0f665239da1651f36dd

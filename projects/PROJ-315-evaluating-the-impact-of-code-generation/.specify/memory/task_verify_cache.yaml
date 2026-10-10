@@ -32,11 +32,11 @@ T004:
   sig: dd1efc14485c55f6acfd5cc35d016daf8c72d57a0d8b5c24d61038e7478bedf6
 T005:
   c: true
-  h: ac45ad73413cfa3c8cb21cdc0f2de338fcd96536fbcc881021472b07a61b85b4
-  r: "The evidence includes the required `code/data/__init__.py` (352\u202Fbytes)\
-    \ and `code/labeling/__init__.py` (125\u202Fbytes) files at the correct locations\
-    \ with valid Python package content. No missing or placeholder files were found."
-  sig: d00a13edc68aa4a49dc4ce32b196a96111883102d082bce0398b2239cffa2d80
+  h: fbd1ec8af616a77513d50ae6abe143c210be750d5d4a14f796be9a9395e7ee32
+  r: "Checked the presence and non\u2011empty content of `code/data/__init__.py` (1450\u202F\
+    bytes) and `code/labeling/__init__.py` (125\u202Fbytes) at the required locations.\
+    \ Both package initializers exist as specified."
+  sig: 063d35a468fdc240431b8887b2f20b91273e165372bc51f68e58f9934fee6dc5
 T006:
   c: true
   h: e37d99ec44b8d83a92bbfef35a13e468bb89ed9a124187737579574301a1bb77
@@ -55,23 +55,45 @@ T007:
     \ logging utilities for Power Insufficiency and Data Completeness."
   sig: bd58f7dc482abc84b613ca45bb78aa029bceac46d247e0808d75397b68cd6924
 T008:
-  c: false
-  h: 01518b117d9177d3c37b0b19b9588d2df1587c232dab909fe2811031318f0080
-  r: "The provided `contracts/output.schema.yaml` exists but its contents do not match\
-    \ the task specification. It defines a single, extensive analysis schema rather\
-    \ than four separate JSON schemas with the exact required keys: (1) Mann\u2011\
-    Whitney U results lack a `method` field and use `p_value` instead of `pvalue`;\
-    \ (2) VIF diagnostics are embedded in a regression object instead of a schema\
-    \ with `predictor` and `vif_score`; (3) Power analysis schema uses `sample_size_a`,\
-    \ `sample_size_b`, `effect_size`, etc., and omits `min_detectable_effect`; (4)\
-    \ No schema for error reports (`error_code`, `observed_cou"
-  sig: 2213ac7f6c43f3924edca8f85f8e6b84e57d2c8c76c327a9ca0fd7f71b8ce61f
+  c: true
+  h: 4e7a8a2b79b5573e01b121f31e02e1a6a47a9d66eb482b5cb51359d323c8ee1c
+  r: "Checked `contracts/output.schema.yaml` \u2013 it exists, is non\u2011empty,\
+    \ and defines JSON schemas with the exact required keys for Mann\u2011Whitney\
+    \ U results, VIF diagnostics, power analysis, and error reports."
+  sig: 5368c8317ed119cb54c8bb5fc143041dbddedc45f1342cefc8f4c8143c60401b
 T009:
   c: true
-  h: bbb198bf64f29c018dbe7b4fbbda011d34a333df45b71e708f218a05b6be2517
-  r: "The `tests/unit/test_classify.py` file exists (11512\u202Fbytes) and contains\
-    \ concrete unit tests that check the \u22652 keyword threshold: `test_classify_as_not_llm_generated`\
-    \ verifies a single\u2011keyword message is classified as Human, and `test_classify_as_llm_generated`\
-    \ verifies a multi\u2011keyword message is classified as LLM. No placeholders\
-    \ or missing logic are present."
-  sig: e5fcfb77d8725f0a89a4e74ec0337527090b963ec14a33bcd5e4bc05f9ce90f5
+  h: 9086c2b272b79fd0b48ae5589ec95690a6c400c26a8a8b36c008c273ef85ac9d
+  r: "Checked the presence and content of `tests/unit/test_classify.py`, which includes\
+    \ tests that verify a single\u2011keyword message is classified as human (not\
+    \ LLM) and a multi\u2011keyword message is classified as LLM, satisfying the \u2265\
+    2 keyword threshold requirement."
+  sig: af1343f9f9dc334b302e88902760a9f41b19c3bae6228775a9c1b4d185607ac2
+T010:
+  c: false
+  h: 6adc347352958f7a2466c108be0169845a68fcd48ea70a3d10ca3ac7d0b03ebb
+  r: "The integration test file `tests/integration/test_data_completeness.py` exists,\
+    \ but it imports `main` from `code/data/preprocess.py`, which implements an audit\u2011\
+    accuracy pipeline and never performs a data\u2011completeness check. Consequently\
+    \ the test cannot trigger the required `ValueError`, and it does not assert that\
+    \ the error message contains the exact phrase \u201CData Completeness Error\u201D\
+    . The test therefore does not satisfy the task\u2019s requirement."
+  sig: 9aafbf5d1610dba337f40933ec8466d01fac6c9cbf416a02cb39a805c63e8519
+T011:
+  c: false
+  h: 3dcfe2030381afa70c21382f043827750ef20ceca3f4dfb30070d97f7e638187
+  r: "The `tests/integration/test_power_check.py` file exists and raises a `ValueError`\
+    \ when a group size is <\u202F500, but the asserted error message only contains\
+    \ \u201CPower insufficiency\u201D and does not include the required phrase \u201C\
+    Power Insufficiency Error\u201D. The test therefore does not verify the exact\
+    \ message stipulated by the task."
+  sig: 1558815c34f56d60d0609d4f2feaccd3fdd1d0c66bb7b7382846d24b406555da
+T012:
+  c: false
+  h: 1bc7321eaa23186cfb8a6798a08c821abed6ad120c45678e68831092d280eace
+  r: "The provided `code/data/fetch.py` calls `load_dataset` without the required\
+    \ `batch_size=1000` argument and then materialises the entire streaming dataset\
+    \ into a list/DataFrame, which defeats the memory\u2011efficient chunked streaming\
+    \ requirement. It also does not implement chunked processing of the full dataset\
+    \ as specified. The task\u2019s core requirement is therefore not satisfied."
+  sig: 9857edfc386fbe35838b9ad5bcc070c19400c5c162f50853684bb184822c121c
