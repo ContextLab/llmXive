@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10286623
   verified_at: '2026-10-10T16:52:23.982979Z'
-- artifact_hash: 296c4181f04919f17ffb89cbd4d31a8101653c24bff4ec019827ddf0966f678b
+- artifact_hash: 3789d0d3aedc622d52b69b1483a64b5eb7c7f10ab35d8e089199e94eeb846b0d
   artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: 10.5281/zenodo.10286623
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10286623
-  verified_at: '2026-10-10T20:26:07.269879Z'
+  verified_at: '2026-10-10T20:33:49.496076Z'

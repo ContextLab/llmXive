@@ -1,6 +1,1 @@
-{
-  "start_time": "2026-10-10T19:22:24",
-  "end_time": "2026-10-10T19:22:28",
-  "elapsed_seconds": 4.02422022819519,
-  "peak_memory_mb": 604.953125
-}
+start_time: 2026-10-10T20:33:57.108942\nend_time: 2026-10-10T20:33:57.135218\nelapsed_seconds: 0.03\npeak_memory_mb: 98.04\n

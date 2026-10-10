@@ -34,11 +34,11 @@ Traceback (most recent call last):
 FileNotFoundError: REAL_DATA_FETCH_FAILED: no usable file on Zenodo record 10.5281/zenodo.10286623 (last error: None)
 
 - python -m pytest tests/unit/ -> rc=1
-est_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
+r.py::TestGetReplicateCount::test_get_replicate_count_primary
+FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
 FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_default
 FAILED tests/unit/test_estimators.py::TestREML::test_failure_logging_and_fallback
 FAILED tests/unit/test_reml_failure_log.py::test_log_reml_failure_appends_events
-FAILED tests/unit/test_stats.py::test_shapiro_wilk_normal - assert 0.01747221...
 FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_wrong_type
@@ -46,7 +46,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-=================== 12 failed, 59 passed, 6 errors in 1.42s ====================
+=================== 11 failed, 61 passed, 6 errors in 2.21s ====================
 
 
 

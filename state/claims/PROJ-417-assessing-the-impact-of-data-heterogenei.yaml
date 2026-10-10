@@ -10245,3 +10245,301 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-10T19:26:24Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: synthetic base dataset has mean 0.0, std 1.0, N=20
+  claim_id: c_c044606a
+  context: Methods Summary point 1 describes the base data used for the analysis.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The analysis uses the verified synthetic base dataset `data/raw/cochrane_base_synthetic.csv`\
+    \ (\u03BC\u202F=\u202F0.0, \u03C3\u202F=\u202F1.0, N\u202F=\u202F20)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:37Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "primary sweep generates 500 replicates per \u03C4\xB2 level"
+  claim_id: c_e81ad46e
+  context: "Methods Summary point 2 explains how the simulation injects between\u2011\
+    study variance."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "For each \u03C4\xB2 level, 500 replicates are generated in the primary\
+    \ sweep"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:39Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "secondary sweep adds 500 replicates per \u03C4\xB2 level"
+  claim_id: c_2daa8ccb
+  context: Methods Summary point 2 also describes a secondary sensitivity sweep.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "A secondary sensitivity sweep adds an additional 500 replicates per \u03C4\
+    \xB2 level for \u03C4\xB2 \u2208 {0.05, 0.1, 0.5}"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:41Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: primary sweep produced 2500 replicates per estimator
+  claim_id: c_71ce034b
+  context: Results Overview states the total replicates generated in the primary sweep.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The primary sweep produced 2\u202F500 replicates for each of the three\
+    \ estimators"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:43Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: total rows across estimators is 7500
+  claim_id: c_c9a36cc4
+  context: Results Overview mentions the combined row count from the primary sweep.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The total number of rows across all estimators is 7\u202F500"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:45Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "coverage rate at \u03C4\xB2=0.0 is 1.000"
+  claim_id: c_b120d8c2
+  context: "Table in Results Overview lists coverage rates for each \u03C4\xB2 level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 0.0, the coverage rate is 1.000"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:47Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "coverage rate at \u03C4\xB2=0.1 is 0.763"
+  claim_id: c_440ffaad
+  context: "Table in Results Overview lists coverage rates for each \u03C4\xB2 level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 0.1, the coverage rate is 0.763"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:49Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "coverage rate at \u03C4\xB2=0.5 is 0.633"
+  claim_id: c_f16597a5
+  context: "Table in Results Overview lists coverage rates for each \u03C4\xB2 level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 0.5, the coverage rate is 0.633"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:51Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "coverage rate at \u03C4\xB2=1.0 is 0.582"
+  claim_id: c_c85d12b7
+  context: "Table in Results Overview lists coverage rates for each \u03C4\xB2 level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 1.0, the coverage rate is 0.582"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "coverage rate at \u03C4\xB2=2.0 is 0.511"
+  claim_id: c_e7a2c0ef
+  context: "Table in Results Overview lists coverage rates for each \u03C4\xB2 level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 2.0, the coverage rate is 0.511"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:55Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "mean bias at \u03C4\xB2=0.0 is -4.6e-18"
+  claim_id: c_4403b325
+  context: "Table in Results Overview provides mean bias values for each \u03C4\xB2\
+    \ level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 0.0, the mean bias is \u22124.6\u202Fe\u201118"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:57Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "mean bias at \u03C4\xB2=0.1 is 0.0062"
+  claim_id: c_dc708fdc
+  context: "Table in Results Overview provides mean bias values for each \u03C4\xB2\
+    \ level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 0.1, the mean bias is 0.0062"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:32:59Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "mean bias at \u03C4\xB2=0.5 is 0.0115"
+  claim_id: c_b8db1b51
+  context: "Table in Results Overview provides mean bias values for each \u03C4\xB2\
+    \ level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 0.5, the mean bias is 0.0115"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:33:01Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "mean bias at \u03C4\xB2=1.0 is -0.0066"
+  claim_id: c_49106339
+  context: "Table in Results Overview provides mean bias values for each \u03C4\xB2\
+    \ level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 1.0, the mean bias is \u22120.0066"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:33:03Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "mean bias at \u03C4\xB2=2.0 is -0.0301"
+  claim_id: c_6e0b71c6
+  context: "Table in Results Overview provides mean bias values for each \u03C4\xB2\
+    \ level."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At \u03C4\xB2 level 2.0, the mean bias is \u22120.0301"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:33:05Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "normality test p-value at \u03C4\xB2=0.0 is 2.2e-50"
+  claim_id: c_321e8b27
+  context: Results Overview discusses normality test outcomes for bias distributions.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Normality test for bias distribution at \u03C4\xB2=0.0 yielded p\u2248\
+    2.2\u202Fe\u201150"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:33:07Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: two REML convergence failures
+  claim_id: c_ad1d7575
+  context: Results Overview reports REML convergence failures and fallback behavior.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Two REML runs failed to converge (both on a 5\u2011study dataset)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:33:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: full sweep completed within 6 hours
+  claim_id: c_8ed13d13
+  context: Limitations section notes computational constraints and runtime.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The full sweep completed within the GitHub Actions CPU\u2011only limits\
+    \ (\u2264\u202F6\u202Fh, \u2264\u202F7\u202FGB RAM)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T20:33:11Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: synthetic base follows Jackson et al. 2010
+  claim_id: c_b367b88b
+  context: Limitations section explains why a synthetic base was used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic base dataset mirrors realistic effect\u2011size distributions\
+    \ as described by Jackson et\u202Fal.,\u202F2010"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-10T20:33:47Z'

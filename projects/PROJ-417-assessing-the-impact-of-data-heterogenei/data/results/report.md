@@ -13,23 +13,20 @@ _**Associational** analysis of how between‑study variance (τ²) affects estim
 
 | Timestamp | Reason | Fallback | # Studies |
 |-----------|--------|----------|-----------|
-| 2026-10-10T19:19:31 | optimizer raised exception: simulated crash | dersimonian_laird_tau2 | 5 |
-| 2026-10-10T19:19:41 | optimizer raised exception: simulated crash | dersimonian_laird_tau2 | 5 |
+| 2026-10-10T20:19:30 | optimizer raised exception: simulated crash | dersimonian_laird_tau2 | 5 |
+| 2026-10-10T20:26:17 | optimizer raised exception: simulated crash | dersimonian_laird_tau2 | 5 |
 
 
 
 ## Stability Analysis (Primary vs. Sensitivity Sweep)
 
-**Maximum absolute difference in coverage rates:** `0.0`
+**Maximum absolute difference in coverage rates:** `0.6113333333333333`
 
 ### Per‑τ² coverage differences
-| τ² | |Δ coverage| |
-|---|--------------|
-| 0 | 0.0 |
-| 0.1 | 0.0 |
-| 0.5 | 0.0 |
-| 1 | 0.0 |
-| 2 | 0.0 |
+| τ² | Δ coverage |
+|---|------------|
+| 0.1 | 0.6113333333333333 |
+| 0.5 | 0.47133333333333327 |
 
 
 
@@ -37,11 +34,11 @@ _**Associational** analysis of how between‑study variance (τ²) affects estim
 
 | τ² | Coverage Rate | Mean Bias | Binomial p‑value | Normality p‑value | Test Used |
 |---|---------------|-----------|------------------|-------------------|-----------|
-| 0.0 | 1.000 | -0.000000 | 8.786e-34 | 1.398e-248 | Kruskal-Wallis |
-| 0.1 | 0.763 | 0.006215 | 3.683e-133 | 4.901e-01 | Kruskal-Wallis |
-| 0.5 | 0.633 | 0.011502 | 5.521e-311 | 8.954e-01 | Kruskal-Wallis |
-| 1.0 | 0.582 | -0.006578 | 0.000e+00 | 5.355e-01 | Kruskal-Wallis |
-| 2.0 | 0.511 | -0.030126 | 0.000e+00 | 8.289e-01 | Kruskal-Wallis |
+| 0.0 | 1.000 | -0.000000 | 8.786e-34 | 2.243e-50 | Kruskal‑Wallis |
+| 0.1 | 0.763 | 0.006215 | 3.683e-133 | 9.103e-02 | Kruskal‑Wallis |
+| 0.5 | 0.633 | 0.011502 | 5.521e-311 | 1.752e-02 | Kruskal‑Wallis |
+| 1.0 | 0.582 | -0.006578 | 0.000e+00 | 1.267e-01 | Kruskal‑Wallis |
+| 2.0 | 0.511 | -0.030126 | 0.000e+00 | 6.624e-02 | Kruskal‑Wallis |
 
 
 

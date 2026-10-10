@@ -81,7 +81,7 @@ def main() -> int:
 
     # Number of replicates – taken from the configuration file.
     # The config loader defaults to 500 if the key is missing.
-    replicates = get_replicate_count(sweep_type="sensitivity_sweep")
+    replicates = get_replicate_count(purpose='sensitivity_sweep')
 
     # Deterministic RNG seed (pinned for reproducibility)
     seed = get_random_seed()

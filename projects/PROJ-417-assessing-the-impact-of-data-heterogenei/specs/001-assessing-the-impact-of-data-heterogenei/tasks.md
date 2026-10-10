@@ -24,7 +24,7 @@
     Include REML convergence failure logic in `estimators.py` to log events to `data/results/reml_failures.json` and proceed with a fallback variance or exclusion (FR-006).
     **Verification**: Unit tests in `tests/unit/test_estimators.py` confirm $\tau^2=0$ stability and that pooled estimates match known normal cases within 0.001.
 
-- [ ] T004 Implement metric calculation logic. <!-- FAILED-IN-EXECUTION: code/run_tests.sh exit=1 -->
+- [ ] T004 Implement metric calculation logic. <!-- FAILED-IN-EXECUTION: code/run_tests.sh exit=1 --> <!-- ATOMIZE: requested -->
     Implement `code/analysis/metrics.py` to calculate bias and 95% CI coverage, reading `true_effect` strictly from the `injected_true_effect` column of the simulation output (FR-003).
     **Verification**: Unit tests confirm that a pooled estimate exactly equal to the true effect results in zero bias and a coverage flag of True.
 
@@ -51,7 +51,7 @@
     Apply a Bonferroni correction to the significance threshold ($\alpha = 0.05 / 5 = 0.01$) for all hypothesis tests (FR-007).
     **Verification**: `data/results/aggregated_metrics.csv` is produced, conforming to `contracts/aggregated_metric.schema.yaml`.
 
-- [ ] T008 Execute Sensitivity Sweep and Stability Analysis. <!-- FAILED-IN-EXECUTION: code/run_sensitivity_sweep.py exit=1 -->
+- [ ] T008 Execute Sensitivity Sweep and Stability Analysis.
     Run a secondary simulation sweep with $\tau^2 \in \{0.05, 0.1, 0.5\}$ to detect non-linearities in the low-to-moderate transition zone (SC-004).
     Implement stability analysis in `code/analysis/stats.py` to compare coverage rates between the primary and sensitivity sweeps for overlapping $\tau^2$ levels.
     **Verification**: `data/results/stability_analysis.json` reports the `max_diff` in coverage rates between the two sweeps.
@@ -60,7 +60,7 @@
     Implement `code/visualization/plots.py` to produce PNGs of Coverage vs. $\tau^2$ and Mean Bias vs. $\tau^2$ (FR-005).
     **Verification**: `ls data/results/*.png` confirms the existence of both required plots.
 
-- [ ] T010 Generate the final framed report.
+- [~] T010 Generate the final framed report.
     Implement `code/reporting/report_gen.py` to compile results into `data/results/report.md`, including REML failure counts and stability metrics.
     **Mandatory**: Insert explicit "associational" labeling in the report header and conclusions to avoid causal claims (SC-005).
     **Verification**: `data/results/report.md` contains the "associational" label and references the specific result files in `data/results/`.
@@ -71,12 +71,12 @@
 
 **Goal**: Ensure the entire pipeline is reproducible from scratch and prepare the handoff for the paper pipeline.
 
-- [ ] T011 Perform final reproducibility validation.
+- [~] T011 Perform final reproducibility validation.
     Execute the full pipeline (T001 $\rightarrow$ T010) on a fresh environment.
     Generate SHA-256 checksums for all final artifacts in `data/results/` and record them in `state/artifact_hashes.yaml`.
     **Verification**: All integration tests in `tests/integration/test_pipeline.py` pass, and checksums match the original run.
 
-- [ ] T012 Document the paper-stage handoff.
+- [~] T012 Document the paper-stage handoff.
     Write a concise methods/results account in `data/results/handoff.md` linking to the actual output cells and figure files.
     Explicitly state any limitations, such as the impact of small study effects ($N < 5$) flagged during estimation.
     **Verification**: Handoff document includes a complete list of all generated artifacts and their corresponding scientific requirements (FR-IDs).

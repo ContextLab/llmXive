@@ -11,26 +11,34 @@ T004:
 T005:
   task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e
 T006:
-  reason: "`data/results/simulation_raw.json` is only 75,127 bytes \u2014 far too\
-    \ small to contain 2,500 replicates of 20 studies each (each replicate alone is\
-    \ ~3KB, so 2,500 would be several MB); the visible content shows only the tau\xB2\
-    =0 records and the file almost certainly holds just the 2\xD710 dry-run set. Additionally,\
-    \ the execution log shows a 4.1-second run with empty stdout/stderr and provides\
-    \ no evidence of the full 5-level \xD7 500-replicate sweep, nor any log confirming\
-    \ completion time or peak RAM < 7 GB (SC-003). The implementer must actually run\
-    \ `python code/main.py --mode full --seed 42` (or equivale"
+  reason: "`data/results/simulation_raw.json` is only 75,127 bytes; at ~3.7 KB per\
+    \ replicate record (as seen in the sample), it holds roughly 20 records \u2014\
+    \ far below the required \u22652,500 (5 levels \xD7 \u2265500 replicates). The\
+    \ visible records are all `tau_squared: 0.0` with identical, degenerate study\
+    \ effects, consistent with a dry-run-scale output, and no runtime log evidence\
+    \ (duration <6 h, peak RAM <7 GB per SC-003) was provided \u2014 the only execution\
+    \ record is a 4.1 s run with empty stdout/stderr, which cannot have produced a\
+    \ full sweep."
   task: 232d3906c31bebc21659e01463b3a2edec5c46026f659b64be4780441b3fe4bb
 T007:
   task: 5bf4c12f156890cd2598ec9dc2b9e05669b146683ab829415bb7175c81149aa7
 T008:
-  reason: 'Requested task execution failed; rerun successfully: code/run_sensitivity_sweep.py
-    exit=1'
+  reason: "The stability_analysis.json exists and has the right shape, but its values\
+    \ are not credible as genuine Monte Carlo results: a coverage-rate difference\
+    \ of 0.611 between two sweeps at the same \u03C4\xB2=0.1 (and 0.471 at \u03C4\xB2\
+    =0.5) is statistically implausible for real replicate simulations and suggests\
+    \ the sensitivity sweep data is broken, tiny-sample, or fabricated. Additionally,\
+    \ the sensitivity sweep log shows it \"completed\" in 1.1 seconds with no evidence\
+    \ it actually ran \u03C4\xB2 \u2208 {0.05, 0.1, 0.5} with real replicates, and\
+    \ \u03C4\xB2=0.05 does not appear in the stability comparison at all; the underlying\
+    \ `estimati"
   task: 060588d92881ef7ed5127eb03e228579803df114d9d0d638ab02ce896dbec738
 T009:
-  reason: "The required artifact `code/visualization/plots.py` is MISSING, and the\
-    \ `data/results/` directory listing contains no PNG files \u2014 neither the Coverage\
-    \ vs. \u03C4\xB2 nor Mean Bias vs. \u03C4\xB2 plots exist. The implementer must\
-    \ create the plotting module and generate both PNG outputs in `data/results/`."
+  reason: "The `data/results/` directory listing (13 entries) contains no `coverage_vs_tau2.png`\
+    \ or `mean_bias_vs_tau2.png`, even though the execution log claims they were generated\
+    \ \u2014 the required verification `ls data/results/*.png` fails. The implementer\
+    \ must re-run `python code/visualization/plots.py` from the project root so both\
+    \ PNGs actually persist in `data/results/`."
   task: 507093c60286cfcbe8e55e11ebf43696a07166ee0e72c54de5f4aac512b5f81d
 T010:
   reason: "The report exists and contains the \"associational\" label and file references,\

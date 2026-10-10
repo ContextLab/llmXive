@@ -33,32 +33,45 @@ def _read_estimation_results(csv_path: Path) -> pd.DataFrame:
     """Read the estimation results CSV into a DataFrame."""
     if not csv_path.is_file():
         raise FileNotFoundError(f"Estimation results file not found: {csv_path}")
-    df = pd.read_csv(csv_path)
-    return df
+    return pd.read_csv(csv_path)
 
 def _read_reml_failures(json_path: Path) -> List[Dict]:
-    """Load the REML failure log (may be empty)."""
+    """
+    Load the REML failure log.
+
+    The log may be either a list of event dictionaries (legacy format)
+    or a dictionary containing an ``events`` key (current format).
+    An empty list is returned when the file does not exist, signalling
+    that no failures were recorded.
+    """
     if not json_path.is_file():
-        # An empty list signals no failures – this is a valid state.
+        # No failures recorded – return empty list.
         return []
+
     with json_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
-    return data
+
+    # Support both legacy list format and the newer dict wrapper.
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict) and "events" in data:
+        # Some earlier versions also stored a ``failure_count`` field.
+        return data["events"]
+    # Unexpected structure – treat as empty to avoid crashes.
+    return []
 
 def _read_stability_analysis(json_path: Path) -> Dict:
     """Load the stability analysis JSON."""
     if not json_path.is_file():
         raise FileNotFoundError(f"Stability analysis file not found: {json_path}")
     with json_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
+        return json.load(f)
 
 def _read_aggregated_metrics(csv_path: Path) -> pd.DataFrame:
     """Read the aggregated metrics CSV."""
     if not csv_path.is_file():
         raise FileNotFoundError(f"Aggregated metrics file not found: {csv_path}")
-    df = pd.read_csv(csv_path)
-    return df
+    return pd.read_csv(csv_path)
 
 def _summarise_reml_failures(failures: List[Dict]) -> str:
     """Create a markdown table summarising REML failures."""
@@ -77,7 +90,9 @@ def _summarise_reml_failures(failures: List[Dict]) -> str:
     md = ["| Timestamp | Reason | Fallback | # Studies |",
           "|-----------|--------|----------|-----------|"]
     for r in rows:
-        md.append(f"| {r['Timestamp']} | {r['Reason']} | {r['Fallback']} | {r['Studies']} |")
+        md.append(
+            f"| {r['Timestamp']} | {r['Reason']} | {r['Fallback']} | {r['Studies']} |"
+        )
     md.append("\n")
     return "\n".join(md)
 
@@ -88,10 +103,10 @@ def _format_stability_analysis(data: Dict) -> str:
     lines = [
         f"**Maximum absolute difference in coverage rates:** `{max_diff}`",
         "",
-        "### Per‑τ² coverage differences"
+        "### Per‑τ² coverage differences",
+        "| τ² | Δ coverage |",
+        "|---|------------|"
     ]
-    lines.append("| τ² | |Δ coverage| |")
-    lines.append("|---|--------------|")
     for tau, diff in diffs.items():
         lines.append(f"| {tau} | {diff} |")
     lines.append("\n")
@@ -101,7 +116,8 @@ def _format_aggregated_metrics(df: pd.DataFrame) -> str:
     """Render the aggregated metrics DataFrame as a markdown table."""
     if df.empty:
         return "No aggregated metrics available.\n"
-    # Ensure deterministic column order for readability
+
+    # Expected column order for readability.
     columns = [
         "tau2_level",
         "coverage_rate",
@@ -112,10 +128,14 @@ def _format_aggregated_metrics(df: pd.DataFrame) -> str:
     ]
     missing = set(columns) - set(df.columns)
     if missing:
-        raise ValueError(f"Aggregated metrics CSV is missing columns: {missing}")
+        raise ValueError(
+            f"Aggregated metrics CSV is missing columns: {missing}"
+        )
 
-    md = ["| τ² | Coverage Rate | Mean Bias | Binomial p‑value | Normality p‑value | Test Used |",
-          "|---|---------------|-----------|------------------|-------------------|-----------|"]
+    md = [
+        "| τ² | Coverage Rate | Mean Bias | Binomial p‑value | Normality p‑value | Test Used |",
+        "|---|---------------|-----------|------------------|-------------------|-----------|"
+    ]
     for _, row in df[columns].iterrows():
         md.append(
             f"| {row['tau2_level']} "
@@ -133,7 +153,7 @@ def _format_aggregated_metrics(df: pd.DataFrame) -> str:
 # ----------------------------------------------------------------------
 def generate_report() -> Path:
     """Generate ``data/results/report.md`` and return its path."""
-    # Resolve important paths relative to the project root
+    # Resolve important paths relative to the project root.
     base_dir = Path(__file__).resolve().parents[2]  # project root
     results_dir = base_dir / "data" / "results"
 
@@ -143,19 +163,22 @@ def generate_report() -> Path:
     aggregated_csv = results_dir / "aggregated_metrics.csv"
     report_path = results_dir / "report.md"
 
-    # Load data (will raise if any required file is missing)
+    # Load data (will raise if any required file is missing).
     df_estim = _read_estimation_results(estimation_csv)
     reml_failures = _read_reml_failures(reml_json)
     stability = _read_stability_analysis(stability_json)
     df_agg = _read_aggregated_metrics(aggregated_csv)
 
-    # Build markdown content
+    # Build markdown content.
     lines: List[str] = []
 
-    # Header with explicit associational label (SC‑005)
+    # Header with explicit associational label (SC‑005).
     lines.append("# Meta‑Analysis Heterogeneity Impact Report")
     lines.append("")
-    lines.append("_**Associational** analysis of how between‑study variance (τ²) affects estimator performance._")
+    lines.append(
+        "_**Associational** analysis of how between‑study variance (τ²) "
+        "affects estimator performance._"
+    )
     lines.append("")
     lines.append("## Data Sources")
     lines.append("")
@@ -203,7 +226,7 @@ def generate_report() -> Path:
     lines.append("- Cochrane Database of Systematic Reviews (accessed via Zenodo DOI 10.5281/zenodo.10286623).")
     lines.append("")
 
-    # Write the report
+    # Write the report.
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text("\n".join(lines), encoding="utf-8")
 

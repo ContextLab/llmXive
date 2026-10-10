@@ -1,15 +1,14 @@
 T001:
   c: true
-  h: 201fa21e4e7999542934ee4731262ceb8dc3271952044efc54cdeb6d25e04ad2
-  r: 'The verification criterion is met: `data/raw/cochrane_base_synthetic.csv` exists
-    with 20 rows (N=20) of valid `effect_size` and `standard_error` values consistent
-    with the mu=0.0, sigma=1.0 standard-normal base, and `code/scripts/fetch_cochrane.py`
-    fetches from Zenodo DOI 10.5281/zenodo.10286623 and explicitly raises `FileNotFoundError`
-    on any fetch/validation failure with no silent substitution. `code/requirements.txt`
-    lists the six required CPU-tractable dependencies (the additional `pytest` is
-    required by the plan''s testing infrastructure and is CPU-tractable, not a violation
-    of the depende'
-  sig: 6680abc6de67515146652623fa1a66e0416bb5d33cdf597d47fc3a162e58ef5d
+  h: 27b932feddd698b60e22dc9ad25ac5c94dffd2dd1ca53bbae03dffa7d3be67eb
+  r: 'The required artifacts exist: `code/requirements.txt` contains the six allowed
+    CPU-tractable dependencies (plus psutil, a minor CPU-only addition), `code/scripts/fetch_cochrane.py`
+    implements the Zenodo DOI 10.5281/zenodo.10286623 fetch with CSV structure validation
+    and raises `FileNotFoundError` on failure with no silent substitution, and `data/raw/cochrane_base_synthetic.csv`
+    exists with 20 studies of valid effect sizes and standard errors (the allowed
+    fallback, mu=0/sigma=1/N=20 per Jackson et al. 2010). The synthetic CSV''s effect
+    sizes match a standard-normal (mu=0, sigma=1) sample, consis'
+  sig: a13a2940185e26c57b9164f9193820779084be9c7ebb2e2e3f00410b0ab0d4e5
 T002:
   c: true
   h: aeaed097d2b8cb66666a8bc717790f6cd1bf5e4477a41eeafa6f860ff8485a08
@@ -24,39 +23,39 @@ T002:
   sig: df65bc475fd65ad6a34f64d66d86511a868a60bb5108aff0e55fe7dab80f2e51
 T003:
   c: true
-  h: 4b14a523fa3c506c2274b587eebe0a48ef1c93c7be181c903fd060e5619c8b5e
-  r: "The estimators module exists with full FE, DL, and REML implementations including\
-    \ Q/I\xB2 for every estimation, small-study (N<5) flagging, and REML failure logging\
-    \ with DL fallback; the reml_failures.json log contains real failure events from\
-    \ the test's forced-crash scenario, and tests/unit/test_estimators.py covers \u03C4\
-    \xB2=0 stability and known-case pooled estimates within 0.001. The truncated REML\
-    \ body is the only gap in visibility, but the test suite and failure log evidence\
-    \ confirm it functions as specified."
-  sig: 2f23fc51abadf2767018bfdf231367aacaac94f3ca136f82d330c19ef28c9558
+  h: 97b23425d9c65655d54eab968f4c54851c2af2724f84bc29f75753c9550216fe
+  r: "I checked `code/simulation/estimators.py` (17.9 KB, implementing FE, DL, REML\
+    \ with Q/I\xB2 for every estimation, small-study N<5 flagging, and REML failure\
+    \ logging with DL fallback), `tests/unit/test_estimators.py` (tests covering \u03C4\
+    \xB2=0 stability, known-case pooled estimates within 0.001, Q/I\xB2 presence,\
+    \ small-study flags, and failure logging/fallback), and `data/results/reml_failures.json`,\
+    \ whose three timestamped \"simulated crash\" events with `fallback: dersimonian_laird_tau2`\
+    \ demonstrate the FR-006 logging path was actually exercised by the test suite.\
+    \ All required artifacts exist, are substanti"
+  sig: f7db1580203bef8f2dd9a6055c9ff7e8364ed2d988223751fdd5d4cf4e150c8a
 T005:
   c: true
-  h: 18917fda480b9157f29b57eac67b43e4cbd9b90a8c083aeb8c64a9360a22c9e7
-  r: "I checked `data/results/estimation_results.csv` (60 rows = 2 \u03C4\xB2 levels\
-    \ \xD7 10 replicates \xD7 3 estimators) with all required T005 fields (`pooled_effect`,\
-    \ `ci_lower`, `ci_upper`, `estimator_type`, `sweep_type`, `convergence_warning`)\
-    \ populated and non-null, including non-null `i_squared` and `q_statistic` for\
-    \ every replicate, plus corroborating artifacts (`run_summary.json` matching the\
-    \ CSV group counts, `simulation_raw.json`, `reml_failures.json`, and `code/main.py`\
-    \ with a `dry-run` mode implementing exactly 2 levels \xD7 10 replicates). The\
-    \ \u03C4\xB2=0 rows show Q=0/I\xB2=0 because the generator draws identi"
-  sig: 5aa218f064c4db8f0d7bab94ba331ee177330006664f007286407fc742eaedf6
+  h: 23c145738b7ad9c18b95b9d1bba07137c0e520058d740b4e90c9905ca2aca813
+  r: "`data/results/estimation_results.csv` exists with 60 rows (2 \u03C4\xB2 levels\
+    \ \xD7 10 replicates \xD7 3 estimators) containing all required schema fields\
+    \ (`pooled_effect`, `ci_lower`, `ci_upper`, `estimator_type`, `sweep_type`, `convergence_warning`)\
+    \ plus non-null `i_squared` and `q_statistic` for every replicate, and the values\
+    \ are consistent with the underlying `simulation_raw.json`/`run_summary.json`\
+    \ (e.g., identical pooled effects and coverage rates across artifacts). The \u03C4\
+    \xB2=0 rows showing Q=0 and I\xB2=0 are the mathematically correct result of the\
+    \ generator's zero-variance perturbation, not missing data"
+  sig: 5a4b192bb4c2a1f9d0931439a221daf5cb17d4159e78efc24eaa31c32931af0e
 T006:
   c: false
-  h: ba35e0bc504ce475c69ec287d178c8951a9e923548c69a37e65092d4d028443e
-  r: "`data/results/simulation_raw.json` is only 75,127 bytes \u2014 far too small\
-    \ to contain 2,500 replicates of 20 studies each (each replicate alone is ~3KB,\
-    \ so 2,500 would be several MB); the visible content shows only the tau\xB2=0\
-    \ records and the file almost certainly holds just the 2\xD710 dry-run set. Additionally,\
-    \ the execution log shows a 4.1-second run with empty stdout/stderr and provides\
-    \ no evidence of the full 5-level \xD7 500-replicate sweep, nor any log confirming\
-    \ completion time or peak RAM < 7 GB (SC-003). The implementer must actually run\
-    \ `python code/main.py --mode full --seed 42` (or equivale"
-  sig: 528f25d32d13ce02da8c41405772f567abeba0dbb5cc4a919c67b58f798864d5
+  h: f737673badba8c1e2a7b4d07f2bca9bf793456a720209ae0a3ba2219a12da442
+  r: "`data/results/simulation_raw.json` is only 75,127 bytes; at ~3.7 KB per replicate\
+    \ record (as seen in the sample), it holds roughly 20 records \u2014 far below\
+    \ the required \u22652,500 (5 levels \xD7 \u2265500 replicates). The visible records\
+    \ are all `tau_squared: 0.0` with identical, degenerate study effects, consistent\
+    \ with a dry-run-scale output, and no runtime log evidence (duration <6 h, peak\
+    \ RAM <7 GB per SC-003) was provided \u2014 the only execution record is a 4.1\
+    \ s run with empty stdout/stderr, which cannot have produced a full sweep."
+  sig: 1587bb8c4f443c6057dfa368f78714c2a2e8c44ab3b5c318960f3533becf9495
 T007:
   c: true
   h: 040c1a131d1cb10544abaa15b20fdcd9120af2a82f4cf785381695c92a638298
@@ -68,25 +67,15 @@ T007:
     \ values are plausible computed results (e.g., coverage declining from 1.0 to\
     \ 0.51 with increasing \u03C4\xB2), not placeholders."
   sig: e243c3f6bd96b212d2822d9f9a4506fad653854fb9f33fdd9e9df240a7887503
-T008:
-  c: false
-  h: 06dde3908edde9b529e1cb374ef065bd7845442a1234cfcf4fce5d5ea862533a
-  r: "The evidence shows `compute_stability_analysis` was invoked, but the log reports\
-    \ that the required sensitivity results file (`data/results/estimation_results_sensitivity.csv`)\
-    \ was missing, so the analysis fell back to using the primary results only. Consequently,\
-    \ no secondary simulation sweep with \u03C4\xB2\u202F\u2208\u202F{0.05,\u202F\
-    0.1,\u202F0.5} was executed or saved, and the reported `max_diff` of\u202F0.0\
-    \ is meaningless. The missing sensitivity sweep output (and corresponding CSV)\
-    \ must be generated and the stability analysis rerun to produce a genuine comparison."
-  sig: d5df70c9cc23317578ce7d570fe4b12932553b1f01b841ad9028fd6089c8c24e
 T009:
   c: false
-  h: d91dbdbe8ad06c21a4af6f95c28191a50e298df326a1eead476a2c73b89a7d37
-  r: "The required artifact `code/visualization/plots.py` is MISSING, and the `data/results/`\
-    \ directory listing contains no PNG files \u2014 neither the Coverage vs. \u03C4\
-    \xB2 nor Mean Bias vs. \u03C4\xB2 plots exist. The implementer must create the\
-    \ plotting module and generate both PNG outputs in `data/results/`."
-  sig: aa7dc664c2dca8d4ab33654c35300f24d00869bc10c004e682e6fe84a00e8ae8
+  h: 7bbd0683526948bd52a284306821b89225be03403ef129cf034ffae685d7e3ec
+  r: "The `data/results/` directory listing (13 entries) contains no `coverage_vs_tau2.png`\
+    \ or `mean_bias_vs_tau2.png`, even though the execution log claims they were generated\
+    \ \u2014 the required verification `ls data/results/*.png` fails. The implementer\
+    \ must re-run `python code/visualization/plots.py` from the project root so both\
+    \ PNGs actually persist in `data/results/`."
+  sig: b4570e4ad432b60b1516d5c1070774ab7cc352257b48888565654d6247971dd3
 T010:
   c: false
   h: d176a03edcf3187ea727fabe4fd5c137e2d56e22f7a879991e6984122dc59527

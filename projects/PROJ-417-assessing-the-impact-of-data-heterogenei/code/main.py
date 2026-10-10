@@ -9,6 +9,7 @@ Orchestrates:
 4. Metric calculation (bias, 95% CI coverage, Q, I^2)
 5. Output of data/results/estimation_results.csv (T005 schema) and
    data/results/reml_failures.json
+6. Runtime logging for SC-003 verification.
 
 Usage:
     python code/main.py --mode full --seed 42
@@ -18,15 +19,22 @@ Usage:
 import argparse
 import csv
 import importlib.util
-import inspect
 import json
 import logging
 import os
 import sys
+import time
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
+
+# Attempt to import psutil for memory usage; if unavailable, fallback to None.
+try:
+    import psutil
+except Exception:  # pragma: no cover
+    psutil = None
 
 # Make sibling packages importable both as a script and as a module.
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -52,6 +60,7 @@ SIMULATION_OUTPUT = "simulation_raw.json"
 ESTIMATION_OUTPUT = "estimation_results.csv"
 REML_FAILURE_LOG = "reml_failures.json"
 RUN_SUMMARY_OUTPUT = "run_summary.json"
+RUNTIME_LOG = "runtime_logs.txt"
 
 # Estimator identifiers: (dispatcher key for apply_estimator, schema name)
 ESTIMATORS = [
@@ -139,7 +148,7 @@ def setup_logging(verbose: bool = False) -> None:
         from utils.logging import setup_logging as _setup
 
         _setup(level=level, log_file=Path(OUTPUT_DIR) / "pipeline.log")
-    except Exception:
+    except Exception:  # pragma: no cover
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         logging.basicConfig(
             level=level,
@@ -195,7 +204,7 @@ def _generate_verified_base(path: Path) -> None:
     """Generate the documented verified synthetic base (T001 fallback:
     mu=0.0, sigma=1.0, N=20, Jackson et al., 2010) at `path`.
 
-  Prefers the existing generator modules; falls back to an inline
+    Prefers the existing generator modules; falls back to an inline
     deterministic generation with the same documented parameters.
     """
     for mod_path in (
@@ -206,7 +215,7 @@ def _generate_verified_base(path: Path) -> None:
             try:
                 spec = importlib.util.spec_from_file_location("gen_synth_base", mod_path)
                 module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
+                spec.loader.exec_module(module)  # type: ignore
                 data = module.generate_synthetic_base_data()
                 module.save_to_csv(data, path)
                 logger.info("Verified synthetic base written to %s via %s", path, mod_path)
@@ -663,6 +672,20 @@ def validate_contracts() -> int:
     return 0
 
 
+def _write_runtime_log(start_ts: float, end_ts: float, mem_mb: float) -> None:
+    """Write a simple runtime log for SC-003 verification."""
+    log_path = Path(OUTPUT_DIR) / RUNTIME_LOG
+    start_dt = datetime.fromtimestamp(start_ts).isoformat()
+    end_dt = datetime.fromtimestamp(end_ts).isoformat()
+    elapsed = end_ts - start_ts
+    with open(log_path, "w") as f:
+        f.write(f"start_time: {start_dt}\\n")
+        f.write(f"end_time: {end_dt}\\n")
+        f.write(f"elapsed_seconds: {elapsed:.2f}\\n")
+        f.write(f"peak_memory_mb: {mem_mb:.2f}\\n")
+    logger.info("Runtime log written to %s", log_path)
+
+
 def main() -> int:
     """Main orchestration function."""
     args = parse_args()
@@ -673,6 +696,7 @@ def main() -> int:
     ensure_directories()
     setup_logging(verbose=args.verbose)
 
+    start_time = time.time()
     logger.info("Starting meta-analysis heterogeneity pipeline (mode=%s)...", args.mode)
 
     try:
@@ -699,11 +723,21 @@ def main() -> int:
         run_analysis(estimation_rows)
 
         logger.info("Pipeline completed successfully.")
-        return 0
-
+        exit_code = 0
     except Exception as e:
         logger.error("Pipeline failed with error: %s", e, exc_info=True)
-        return 1
+        exit_code = 1
+    finally:
+        end_time = time.time()
+        # Memory usage in MB; if psutil is unavailable, fallback to 0.
+        if psutil is not None:
+            mem_bytes = psutil.Process(os.getpid()).memory_info().rss
+            mem_mb = mem_bytes / (1024 * 1024)
+        else:
+            mem_mb = 0.0
+        _write_runtime_log(start_time, end_time, mem_mb)
+
+    return exit_code
 
 
 if __name__ == "__main__":
