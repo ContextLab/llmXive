@@ -1,0 +1,165 @@
+T001-Setup-Dirs-Code:
+  task: 484056a6db885670f0e1ea43714ac6546cf4eec27cbfabf472ac04e0331a8c9f
+T001-Setup-Dirs-Data:
+  task: a32817c375ae8f2fde375c173852429300b9b0dfdd8a78de01a7e2f97eeaceba
+T001-Setup-Dirs-Results:
+  task: 965ea51a4c4264544a3fe9ad598e7c67b3048e93e6a8db12ca72be8b5abe5658
+T001-Setup-Execute:
+  task: 3d442431b54d4453c8241b75092de6d03bdeec103db26ff550d57c4d0328cbe0
+T002:
+  reason: "The requirements.txt exists but omits pinned `torch==2.1.0` and `torch-geometric==2.4.0`\
+    \ as actual entries \u2014 they appear only in a comment claiming they're installed\
+    \ via separate index URLs, which does not satisfy the task's requirement that\
+    \ the file contain pinned versions of all eleven listed packages. Fix by adding\
+    \ both pins (e.g., with `--extra-index-url` directives if needed) directly in\
+    \ `code/requirements.txt`."
+  task: b48db4b8f3e65acb10a956eef4c0ed8644e478221117356d5a1974484913cf48
+T002-Install:
+  task: 6a3f26475d4165d79e82aed572288b2684ae3da0c67bb2a0ab232adca9598594
+T002b:
+  reason: '`code/config.py` exists and correctly defines `TIME_BUDGET=6.0`, `MAX_RAM_GB=7.0`,
+    `RANDOM_SEED=42`, and `SENSITIVITY_THRESHOLDS=[0.01, 0.05, 0.1]`, but the required
+    `MAX_MOLECULES: int = 5000` constant is entirely absent from the file. Add `MAX_MOLECULES:
+    int = 5000` (the fixed pilot-study cap) to complete the task.'
+  task: 6129f7c7cde87422e729439b429284f30c6dd43cb93265d23329af3b8049d154
+T003a:
+  task: f159eee32cbaae2bd9a165f2b861435350f08d20238640c20ba2dbbb0de32d40
+T003b:
+  task: 655fab35f23584d45d26723a01fde77b530f1547683409def1b891fa0369f374
+T004:
+  reason: "The schema file exists at the corrected `contracts/` path and is well-formed,\
+    \ but it does not define the required field `surface_area` \u2014 the target label\
+    \ is named `sasa` instead. The task explicitly enumerates the expected fields\
+    \ (SMILES, node_features, edge_features, surface_area, molecular_weight), so the\
+    \ schema should either rename `sasa` to `surface_area` or include a `surface_area`\
+    \ field (e.g., as an alias) to match the contract."
+  task: ef53bf526a1335b73af18b02e0e142cd859eaa5b60a06cb5272b6a4a8b3cd75d
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml'
+  task: aab0d2ba95fa9fd56336af5311f77781e32173b7f6851aeef3ff2bedf477b82a
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: specs/001-predicting-molecular-surface-area/contracts/sensitivity_schema.yaml'
+  task: 7c5bbef397224e6f1ebdd96371313a7f9a550c47d961152292cb90e6794926ec
+T007:
+  task: e312b995d707c8e6c3e149ef63ea7de4434e7201f8b446e921b6c181057f3955
+T008a:
+  task: 80e11d4fe40f14cfe6320c813d43ab122894dd9c62178042cf6b0302f4737fbe
+T009a:
+  task: be622ddb9ea8f5bceb66ecde7b0189bef076843f665fa26e68ac449061c851cf
+T009b:
+  task: edd8912953b6818f14a61b18c945c4f90395748b7e648daedeeb7b1f43515823
+T009c:
+  task: cb09ff625800f864d5c55d91c8ac6343aea809ddf73b8997a79f70b8e1f66bbb
+T010:
+  task: 4fc520e8549e8f4843e93a29b33b1da81208f3bda1d11ae90208bd68c7b0e034
+T011:
+  task: 658c44aa5f29c69198e510d5340ef0095e2746a643fe2ab8289023b9d91b2887
+T012:
+  task: e639b06dc2f1a59bdc8e2bcf5afe589fa74ff4b75a90bbec393072e30d6c428b
+T013:
+  task: 7377f92dbbb8461f70c2ac68dbc67d0235a53eacbe56fb060fb6daa722a791ab
+T014-Features:
+  task: d96e1c6252594ca0afe75218b4d7e6085c8aa87ff9ae0a86300fb05b9df62cf1
+T014-Merge:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/graphs_with_features.parquet'
+  task: a7d0377ec743d29f16915f14039cf289353d5a34222f0a28e5b745155a255b65
+T014-Pilot:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/pilot_study.py, data/processed/pilot_report.json'
+  task: 45ea1a0dd9c50d12488779ee92c27092b5c559442103eed1b026743abce6bede
+T014-Sample:
+  task: 9386229589b96eaf98662e74239a242cb130a12c13c558fde28911caa045ed98
+T015a:
+  task: 7e358b3e7819d4e82d086d7d140b2fc677da012449e058ea95f64616e9fcab8d
+T015b:
+  task: f746532851ac7a607b37d530a734830a465fe76541acb46e8c89168f7ae1ebbc
+T015c:
+  task: 2a41c5939a21d859cda1e7759fb09adc9af7e97f2c2c5701607f8178da4e1be9
+T015d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/conformer_params.json,
+    data/processed/noise_floor_report.json'
+  task: 7733164b197f5e19bcd892f5c01ec538eb002cf62c8745f87ddc13f83109baf7
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: data/splits/train_indices.csv,
+    data/splits/test_indices.csv, data/splits/split_report.json, data/splits/split_error_report.json'
+  task: f264ad7d76e7fe7dc7ccb7c29ae82c2a404e386d9afb6029445ba3127f47f36c
+T016-Gate:
+  task: 92cdd1e4b6b9f6a1b02b5b119686d9029383e27e39e12e98c831746d14210ccb
+T016-Report:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/paired_dataset.parquet,
+    data/splits/train_indices.csv, data/splits/test_indices.csv, data/processed/final_dataset_stats.json'
+  task: 758c579590323104d488e397270af96db86e57a81c8c6d898cb8bf912e834ca4
+T017:
+  task: 8aa5acd8fbe3ba30443e766f46711e0f12d768c18f85df73a9d2f03e10202585
+T018:
+  task: b56425f69e4c9cabecb9ef1eabfa9d462c191becf8b03f02f8c0ee53e06c7b9b
+T019:
+  task: 77a99c242150136151bd1c6bd1fc1c4f1581c9973b1d966dde454d4b78feb2c2
+T020:
+  task: b446e3e291774938044369f8af955db7a7db361f23d9292942e1e09e223918d0
+T021a:
+  task: bd2c92da1ab5b5ee2768f17c2ff45f51500b2aa985c093ffcc97a50259a9cbbd
+T021c:
+  task: a10ea707d528ce2adbfe62291aa101519fa1a088421a2b30506af2e84786915a
+T022:
+  task: 53baec89f8e410bf1264d37241e7434031adc8aedecc85160d996fa801a48080
+T023a:
+  task: 53c2053e4a8f39ee5d6ba00dbb29e206e7db707bbc0b67acef5fc170eb29f005
+T023b:
+  task: 23dc63d106e86ad1e5b9fe4ed54de4b4750755b51fca35c751d85baa82271709
+T023c:
+  task: 2ae4a3c33dda476dfab869e0bbd54b394e79cf184d442443fe8740e5f8c5fe71
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: results/reports/model_comparison.json'
+  task: ab75b3cd051620606ae692efc9d4498f0011f187d2a402ea6a1cf7d607399975
+T026:
+  task: 42b5173fe13015d266a7ae8a1367e8903f5fd3b56df24a8fa3bf0bf78e3f1841
+T027:
+  task: d30993cd47db1d64ff8b0eb07345bf808dbbc11a4ecad0e3e0d7468bae07db44
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: results/predictions/gcn_predictions.parquet,
+    results/predictions/baseline_3d_predictions.parquet, data/processed/sensitivity_absolute.csv'
+  task: 96b07190e3763ecbf2e5a5029eb4f7befd104f26fc3dacfbbabcd3c17e4c4032
+T029:
+  task: fce0c481663b5582accce21c0bdfc132c7b0fb1adaa3621cb291760151a4f381
+T030:
+  task: 2705ff156258a4473ab878389085c42b9a376a3a65eee3056598c2cecfa20b5d
+T031:
+  task: e88a74af92f0e37f617bb9c6198dd4541d0ba411824969413464d98772cea53a
+T032a:
+  task: 69129fd3cf31eaa7be2df5e4801348cd9836005e566e3be7336b787fc38e7241
+T032b:
+  task: 30e6ac4b6eee416668083a3209f7219d29c23ea732b37be860a215dbf73c18d2
+T033-Refactor-Preprocess:
+  task: 3726766cd4e11d6b57558fd42c6a7e0c2d0b2c63a51f6435cdd8c3aa4b8139fc
+T033-Refactor-Train:
+  task: 6128c688e2e1afcb391b4f93cda73b1efb01e65934fcf4a8eaea72538c51f3f8
+T035-Test-Preprocess:
+  task: 0475e0cdfce2830c3f4ed77b7c0c2e869696c122da65c4f01e59b8163f8d936d
+T035-Test-Validators:
+  task: c74ab8959c70914c7ed1fa85a6c94e5dba28f0707a6662ad221654fbba37e46d
+T036:
+  task: ae4efb852e8cce442fac110ef45951dd16c798691aa02d8be3af8bde664ea236
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: results/reports/model_metrics.json'
+  task: e3a48d8eae10683503d104fad64a81da6607a45a0b7f1c3e050c8d78d0c039c3
+T045:
+  task: c3b3e97d24a4e74bf38dc2d9d21dc9cbb01aeb8314785ae5b6307f8e631f0dfd
+T048:
+  task: 2b315c6ac2ed4cb4137ad2a69770b436c24142f44282866adb72adadcf852a9c
+T049:
+  task: 0e917c408e6fc9c30f9c150af8f365715b070aa3f36264b949d52bd7830ef227
+T052-Run:
+  reason: 'declared artifact(s) missing/empty/invalid: code/main.py, results/reports/pipeline_execution.log'
+  task: c232f8decef33a535f76dc1a528985415259f31ce4db472435b860a5f7d007ef
+T052-Verify-Parse:
+  reason: 'declared artifact(s) missing/empty/invalid: results/reports/pipeline_execution.log,
+    results/reports/runtime_raw.json'
+  task: a67607759b8524b8f4d0be7658942c5c061aa01bdb89611585fbb0f2a0dcddcf
+T052-Verify-Report:
+  task: 630a1f3ee8b1427fad2a0f2acbe19dc4ebe0256b1a5ddf85f624a987f890dca0
+T056:
+  task: c4899e459909971a0af430c88b82c6ef6f42ededa06e15a529e979e93eaa4a4d
+T057:
+  task: 7210edb38aeb6e715da0ce25cf574d004f52b8ad4a03c704a595d88023a9927c
+T058:
+  task: e8f3dbe735269e4811298d8cc1e47f7fb74a44ae2c347996e5d51d688e846a0a

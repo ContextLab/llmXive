@@ -1,10 +1,50 @@
+T001-Setup-Dirs-Code:
+  c: true
+  h: 3336ef61838033db6cb6780e42668d7a3c42651b796d2877c8d42291685b8b4a
+  r: The script `scripts/setup_dirs.py` exists, is non-empty, and creates exactly
+    the nine required directories (code/, code/data/, code/models/, code/eval/, code/utils/,
+    tests/contract/, tests/unit/, tests/integration/, logs/) with verification logic.
+    The execution log shows it ran with exit 0 and successfully created/verified all
+    directories, and the collector confirms all target directories currently exist
+    with substantive contents.
+  sig: e0f073a0835b4a4da980bfc42ae5f64fc62cf494ea7eaf08ff3a7a2ad977955d
+T002:
+  c: false
+  h: a1ace3e02a556fefc47e63660bd0a81480c4d0662c7356e524ca0d49eb968829
+  r: "The requirements.txt exists but omits pinned `torch==2.1.0` and `torch-geometric==2.4.0`\
+    \ as actual entries \u2014 they appear only in a comment claiming they're installed\
+    \ via separate index URLs, which does not satisfy the task's requirement that\
+    \ the file contain pinned versions of all eleven listed packages. Fix by adding\
+    \ both pins (e.g., with `--extra-index-url` directives if needed) directly in\
+    \ `code/requirements.txt`."
+  sig: 3c497d057878d3577567b4ac2c0a76b8d611b3c9cc386060ad15e1b53f7c7633
+T002b:
+  c: false
+  h: 706e9a834d31800e640903ad43e831d8a57d1871d20340c34627459eecac27db
+  r: '`code/config.py` exists and correctly defines `TIME_BUDGET=6.0`, `MAX_RAM_GB=7.0`,
+    `RANDOM_SEED=42`, and `SENSITIVITY_THRESHOLDS=[0.01, 0.05, 0.1]`, but the required
+    `MAX_MOLECULES: int = 5000` constant is entirely absent from the file. Add `MAX_MOLECULES:
+    int = 5000` (the fixed pilot-study cap) to complete the task.'
+  sig: cab47e4a8d9b4c0620a4399aec027df91ac4f8adcd504114ce52d169c61b3376
 T003b:
   c: true
-  h: 60c5362cff04882f81b5c6e4246a75af4cdde60a4245c8767c891fc9a18e0d78
-  r: "The provided `pyproject.toml` file exists, is non\u2011empty, and contains a\
-    \ full `[tool.black]` section with formatting rules, satisfying the task\u2019\
-    s requirement to generate a Black configuration via `pyproject.toml`. The optional\
-    \ `.black.toml` is not needed since the configuration is correctly placed in `pyproject.toml`."
+  h: dcbaf7e09472f871cd1226b175c36b9cb1a420db4f6ca5c0f1321bd0397449d1
+  r: The `pyproject.toml` exists (2470 bytes) and contains a substantive `[tool.black]`
+    section with line-length, target versions, include/exclude patterns, and normalization
+    options, satisfying the task's requirement for Black formatting rules. A redundant
+    `.black.toml` also exists under `code/`, but this doesn't undermine the primary
+    deliverable.
+  sig: 4b02251546d57ceb150e4fd98a77867c2b6b7193dce311d2e14b0c80a7a5f9b3
+T004:
+  c: false
+  h: 3159c11c08c12c14a7c07f4a24ac02bffcfec4c79ed86515e27977f4994547fb
+  r: "The schema file exists at the corrected `contracts/` path and is well-formed,\
+    \ but it does not define the required field `surface_area` \u2014 the target label\
+    \ is named `sasa` instead. The task explicitly enumerates the expected fields\
+    \ (SMILES, node_features, edge_features, surface_area, molecular_weight), so the\
+    \ schema should either rename `sasa` to `surface_area` or include a `surface_area`\
+    \ field (e.g., as an alias) to match the contract."
+  sig: 3a2cdda0490848f1960de7255583748e6d5599c26993bbb09f6ea7a8490129f7
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -81,6 +121,17 @@ T048:
     \ demonstrating SMILES ingestion with streaming, fallback to OpenDataPubChem,\
     \ or the >100\u2011atom filter. Consequently, the required implementation and\
     \ output artifacts are missing."
+T049:
+  c: true
+  h: 1ccd4ab12dd4502811ac284e6a5bb313c68bf27cf56e7ed4bef9e9fdcfb17517
+  r: 'The artifact `code/utils/network_check.py` exists (3988 bytes) and implements
+    a real connectivity check (HuggingFace dataset_info for the ZINC15 dataset plus
+    a PubChem endpoint probe) with the required failure behavior: `main()` raises
+    `ConnectionError` immediately when the ZINC15 check fails, with no retry or synthetic-data
+    fallback. The ZINC15-via-HuggingFace interpretation is consistent with the spec''s
+    "public repository (e.g., ZINC15 or OpenDataPubChem)" and the supporting `logging.py`/`config.py`
+    imports resolve locally.'
+  sig: da3ee8e0244081cd81aa66184b2cc420a8378aa99652946e7aca8f0ac96a3179
 T057:
   c: false
   h: 27faa8299690c59773437289bb0ac59ab18efec2586c5e38838d9b9ca6db99bc
