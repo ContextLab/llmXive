@@ -10,6 +10,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
+               [--task {discover,validate_shifts,evolve,analyze}]
                (--check | --run-evolution | --run-full-pipeline)
 main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 
@@ -17,6 +18,7 @@ main.py: error: one of the arguments --check --run-evolution --run-full-pipeline
 
 usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
+               [--task {discover,validate_shifts,evolve,analyze}]
                (--check | --run-evolution | --run-full-pipeline)
 main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 
@@ -24,6 +26,7 @@ main.py: error: one of the arguments --check --run-evolution --run-full-pipeline
 
 usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
+               [--task {discover,validate_shifts,evolve,analyze}]
                (--check | --run-evolution | --run-full-pipeline)
 main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 
@@ -31,6 +34,7 @@ main.py: error: one of the arguments --check --run-evolution --run-full-pipeline
 
 usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
+               [--task {discover,validate_shifts,evolve,analyze}]
                (--check | --run-evolution | --run-full-pipeline)
 main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 

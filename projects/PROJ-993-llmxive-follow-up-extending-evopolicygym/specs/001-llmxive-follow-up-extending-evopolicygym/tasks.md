@@ -16,7 +16,7 @@ All tasks are ordered to respect data flow – a task that consumes a file appea
 
 ## Phase 1 – Environment discovery & dynamic‑shift validation (FR‑001)
 
-- [ ] **T001 [S] [US1]** Discover the 16 EvoPolicyGym environments and record them.  
+- [ ] **T001 [S] [US1]** Discover the 16 EvoPolicyGym environments and record them.   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   *Implementation*: `code/environments/registry_wrapper.py` imports the EvoPolicyGym registry, writes the list of environment IDs to `data/discovered_envs.json` (JSON array) and a human‑readable log to `data/discovered_envs.log`.  
   *Verification*:  
   1. `data/discovered_envs.json` exists and contains exactly 16 string IDs.  

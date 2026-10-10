@@ -1,8 +1,5 @@
 T001:
-  reason: "The required output files `data/discovered_envs.json` and `data/discovered_envs.log`\
-    \ are missing, and the discovery script does not raise a `RuntimeError` when the\
-    \ environment count differs from 16 (it only logs a warning). These issues prevent\
-    \ the task\u2019s verification criteria from being met."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 77f83930c1ee547b0aefc05db9fa7bc397617eaee126940127c53efcba131210
 T002:
   task: 571e88e867f57062d436ade66114d6dbd11b1b97bc6af0691632f53d20d8d398

@@ -1,23 +1,18 @@
 """
 Orchestrator script for the llmXive follow‑up EvoPolicyGym extension.
 
-Provides three primary CLI flags:
+Provides four primary entry points:
   --check               Verify that required pre‑condition files exist.
   --run-evolution       Execute the evolutionary harness pipeline.
-  --run-full-pipeline   Run the complete downstream pipeline:
-                        1) Generate dynamic‑shift environment wrappers.
-                        2) Run shift sensitivity analysis.
-                        3) Run shift validation (p‑value calculation).
-                        4) Run the evolutionary harness.
-                        5) Run statistical analysis.
+  --run-full-pipeline   Run the complete downstream pipeline.
+  --task <name>         Shortcut tasks for quickstart (discover, validate_shifts,
+                        evolve, analyze).
 
 Optional arguments:
   --seeds SEEDS [SEEDS ...]         List of random seeds (default: [42]).
-  --runs RUNS                       Number of runs per seed (default: 5).
+  --runs RUNS                       Number of runs per seed (default from config or 5).
   --conditions CONDITION [CONDITION ...]
                                     Conditions to evaluate (default: baseline counterfactual).
-
-The script exits with status 0 on success and non‑zero on any error.
 """
 
 import argparse
@@ -118,8 +113,6 @@ def cmd_run_full_pipeline(args):
     # ------------------------------------------------------------------
     logger.info("Generating Dynamic‑Shift environment wrappers")
     try:
-        # The function expects a path to the base registry (the discovered IDs JSON)
-        # and an output directory where the generated wrappers will be stored.
         generate_all_dynamic_shift_envs(
             env_registry_path="data/discovered_envs.json",
             output_path=os.path.join("code", "environments", "generated"),
@@ -149,7 +142,6 @@ def cmd_run_full_pipeline(args):
     # ------------------------------------------------------------------
     # 4. Evolutionary Harness
     # ------------------------------------------------------------------
-    # Re‑use the same logic as the --run-evolution command
     cmd_run_evolution(args)
 
     # ------------------------------------------------------------------
@@ -189,6 +181,14 @@ def build_parser():
         help="Conditions to evaluate (e.g., baseline counterfactual)",
     )
 
+    # Shortcut task argument for quickstart
+    parser.add_argument(
+        "--task",
+        type=str,
+        choices=["discover", "validate_shifts", "evolve", "analyze"],
+        help="Convenient shortcut to run a single pipeline stage.",
+    )
+
     # Mutually exclusive primary actions
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -215,6 +215,23 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
+    # Handle shortcut tasks first
+    if args.task:
+        if args.task == "discover":
+            from environments.registry_wrapper import main as discover_main
+            discover_main()
+            return
+        elif args.task == "validate_shifts":
+            run_shift_analysis_main()
+            return
+        elif args.task == "evolve":
+            cmd_run_evolution(args)
+            return
+        elif args.task == "analyze":
+            run_stats_analysis_main()
+            return
+
+    # Normal flag handling
     if args.check:
         cmd_check(args)
     elif args.run_evolution:
