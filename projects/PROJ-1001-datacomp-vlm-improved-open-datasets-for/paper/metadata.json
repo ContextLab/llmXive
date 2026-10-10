@@ -145,5 +145,15 @@
     "tables/per_dataset/cat_text.tex",
     "tables/per_dataset/cat_general.tex",
     "tables/per_dataset/cat_knowledge.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "5b87874afc960d80bf3a8090c0d037a35e7995d60a7be899c6e1740099c18f2a",
+      "bytes": 9147612
+    },
+    "original.pdf": {
+      "sha256": "c3638247061522865046e8ca44d954fe35e538da878d93516e0c5cd888f3c710",
+      "bytes": 9128866
+    }
+  }
 }

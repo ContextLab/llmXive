@@ -69,5 +69,15 @@
     "tables/ablation_vbench.tex",
     "tables/main_table.tex",
     "tables/train-data.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "8e7e96213ef4aeedfd70249bf085e3a5f99c0a4f711a7fb2c31c7648a61193de",
+      "bytes": 19339476
+    },
+    "original.pdf": {
+      "sha256": "4469aead1f914c5632cc0dc971bc503c19a6ba6eadcceaff4bad5a86e389d65b",
+      "bytes": 19304659
+    }
+  }
 }

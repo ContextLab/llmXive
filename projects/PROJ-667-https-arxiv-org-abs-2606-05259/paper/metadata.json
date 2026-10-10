@@ -108,5 +108,15 @@
     "table/annotater.tex",
     "table/qwen_results.tex",
     "table/subject_list.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "334f7619ab7368add55a39d9bc239c84395f737e180ee9aafd2a52b860979f4e",
+      "bytes": 7777577
+    },
+    "original.pdf": {
+      "sha256": "905c11552cd437642b83dabf599713da605868bb3a35ddfd83282ef661a3b1c8",
+      "bytes": 7736204
+    }
+  }
 }

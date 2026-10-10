@@ -556,5 +556,15 @@
     "tables/data/sdg/sdg_overview.tex",
     "tables/data/reasoner",
     "tables/data/reasoner/data_stats.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "88f8835c06a16d337584f06c8bbdeb2259d1c4b1a6d6ac56ae6fb5873e07de83",
+      "bytes": 29839079
+    },
+    "original.pdf": {
+      "sha256": "df058bd2447fbdd83d13fd63be60a8b0aceb00ef6e50ba428b0a6bdbbed64b8d",
+      "bytes": 29956210
+    }
+  }
 }

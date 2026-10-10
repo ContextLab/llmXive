@@ -51,5 +51,15 @@
     "style/optimistic.tfm",
     "style/Optimistic.ttf",
     "style/style.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "670608f233cdf16cd178fe39277663252090d418c58a15ec7595fd1fb87a3bf1",
+      "bytes": 4892423
+    },
+    "original.pdf": {
+      "sha256": "921ef5c7c4ce650c9da9c5c489ef946c01ad83eb12f110cf3a82af0c5cfde2cb",
+      "bytes": 4849354
+    }
+  }
 }

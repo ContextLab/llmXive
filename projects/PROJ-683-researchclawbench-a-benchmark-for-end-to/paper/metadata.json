@@ -299,5 +299,15 @@
     "sections/researchclawbench.tex",
     "sections/related_work.tex",
     "sections/conclusion.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "e64644c712330149e78dd38311dbe3ed5a428893959048029a1a3dd5f4ab8fc4",
+      "bytes": 11443926
+    },
+    "original.pdf": {
+      "sha256": "b94e262f98b24c7ccd6ad9f5a1e861fea5478f1d6e123a0cbcce54a58a5b36f7",
+      "bytes": 11420062
+    }
+  }
 }

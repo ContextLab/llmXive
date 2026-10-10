@@ -47,5 +47,15 @@
     "logos/university_lamda.png",
     "main.tex",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d97104db99cb4e53facce9e640835636541f6b4d35171ddd56c18ed2845b7298",
+      "bytes": 6470483
+    },
+    "original.pdf": {
+      "sha256": "53c9e808a45cf50657bee550970ab1a3813479b28b85bcd3acb1df6f506eca00",
+      "bytes": 6351089
+    }
+  }
 }

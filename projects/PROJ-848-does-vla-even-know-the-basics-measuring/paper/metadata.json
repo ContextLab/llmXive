@@ -42,5 +42,15 @@
     "images/data_processing3.png",
     "main.bbl",
     "main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "406886d09e6bdd8b89cd29904b96eb1938dd81b7c45817f8eb5e95e0b911ced8",
+      "bytes": 9362033
+    },
+    "original.pdf": {
+      "sha256": "8956c80724fb6af68faf89047a4754b020876539fd32747589016c4120591287",
+      "bytes": 9330072
+    }
+  }
 }

@@ -47,5 +47,15 @@
     "tables/main_result.tex",
     "tables/geneval.tex",
     "tables/dpg.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ca7b4706275604c366e2955c5b87fe0f0eb2538007ec53ad9793e89c5b139d15",
+      "bytes": 10791599
+    },
+    "original.pdf": {
+      "sha256": "7da6a959482c7130898da6fefd695b3c6b647f7953f3e8bc1369c89d56c081ed",
+      "bytes": 10654901
+    }
+  }
 }

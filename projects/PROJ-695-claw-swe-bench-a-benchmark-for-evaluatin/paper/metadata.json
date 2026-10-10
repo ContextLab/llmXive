@@ -121,5 +121,15 @@
     "sn-article.tex",
     "sn-bibliography.bib",
     "style.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "7b12c908f04384d317d69c1bc02ffaed195e15cc0055e522b05aaf2d84079275",
+      "bytes": 1866255
+    },
+    "original.pdf": {
+      "sha256": "c50bf4e5fd1a588236fcc1e62764e8518d8e87ecf040018f94b4f3c389b926a1",
+      "bytes": 1833656
+    }
+  }
 }

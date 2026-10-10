@@ -53,5 +53,15 @@
     "sections/1_introduction.tex",
     "sections/0_abstract.tex",
     "template.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "886781e01215bbd7556d1bf488a74030242dd0b8c04b9513ba59b6685e94f5cf",
+      "bytes": 1797041
+    },
+    "original.pdf": {
+      "sha256": "b86e2dbbd0b66922898b7bd4e694c79f41845552255460549e96be16fe895feb",
+      "bytes": 1752241
+    }
+  }
 }

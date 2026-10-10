@@ -58,5 +58,15 @@
     "sections",
     "sections/application_scenarios.tex",
     "sections/reference_implementation.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "512533f557ada45983fa959310b24e892aa74e97931f8b7c3c0035b1737c7776",
+      "bytes": 9930976
+    },
+    "original.pdf": {
+      "sha256": "60360b10803a5f44d4031cc744388d6534af4bc6e4dd40c2cba7c090980ac1b0",
+      "bytes": 9889053
+    }
+  }
 }

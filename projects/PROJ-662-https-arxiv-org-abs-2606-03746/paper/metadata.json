@@ -54,5 +54,15 @@
     "logo/logo.pdf",
     "logo/qwen-logo.pdf",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "19b96ca3dad99dfde7d8e49aaea038cc0ff08aeb4e953601b7f7f73d4c80ab76",
+      "bytes": 13403263
+    },
+    "original.pdf": {
+      "sha256": "d35fb48e60360eedae6b3614494130631ac8beb649434cb161ffdeba46597e40",
+      "bytes": 13356555
+    }
+  }
 }

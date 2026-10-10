@@ -56,5 +56,15 @@
     "sec/0_abstract.tex",
     "sec/vla_appendix.tex",
     "sec/vla_main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c8db1265df79836f5e57ba9b30b8992b0da4d117d68ce74620499b972713cd76",
+      "bytes": 3811226
+    },
+    "original.pdf": {
+      "sha256": "5deb665359c7e05478b89cb6a0d3974d96ad669d2b04ef5e00d53a2639d0033a",
+      "bytes": 3781717
+    }
+  }
 }

@@ -46,5 +46,15 @@
     "figures/case_reddit/base_010.jpg",
     "main.tex",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "63ab2e49560280dd169f440ef781268406a1a957591d0c871c47170d121cb9b1",
+      "bytes": 2500103
+    },
+    "original.pdf": {
+      "sha256": "f96dee958e7b0ffe507d97c9bedeba438408ae89bcfb43ebbe4f07ab15a8b917",
+      "bytes": 2470935
+    }
+  }
 }

@@ -96,5 +96,15 @@
     "logo/qwen-logo.pdf",
     "math_commands.tex",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "83734490a8b1e9ac5822454814e51ad13c1fb8642957b1eecfeac9b8e4f325c5",
+      "bytes": 5620796
+    },
+    "original.pdf": {
+      "sha256": "1acc32b7ef306f7c86b2b7c724432ed18f6c62ef400eeff4601059d4cc2fd6fe",
+      "bytes": 5641111
+    }
+  }
 }

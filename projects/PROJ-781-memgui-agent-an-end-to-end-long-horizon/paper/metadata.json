@@ -94,5 +94,15 @@
     "tables/table-offline-eval.tex",
     "tables/table-main-results.tex",
     "tables/table-ablation-model-size.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "54e83e272902294f1aadcce89322b7457f2ff44cd01e1adb484bd63776497433",
+      "bytes": 47691108
+    },
+    "original.pdf": {
+      "sha256": "53314c6b109fe41c472fcd37fa299796bbaf54ef85a1ecdfba7e2a28048ecd34",
+      "bytes": 47658952
+    }
+  }
 }

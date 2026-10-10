@@ -61,5 +61,15 @@
     "table/reasoning.tex",
     "table/ruler.tex",
     "table/longbench.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d7cf29b3081396d3c110fb26ecac7d4b2b8ca21fa76f85b1ad9593768f05ba82",
+      "bytes": 3634555
+    },
+    "original.pdf": {
+      "sha256": "a5b801bb5f3deacc26c7bb704bea37972f8a507be3a6bb623c9267d90224f9ce",
+      "bytes": 3597514
+    }
+  }
 }

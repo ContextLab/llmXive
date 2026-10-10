@@ -62,5 +62,15 @@
     "figures/benchdatav6.png",
     "neurips_2026.sty",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c9ac1570613bedf4e2979cad8ebcafae2a57c50a211eeae14d6f6d2577a20827",
+      "bytes": 5573354
+    },
+    "original.pdf": {
+      "sha256": "9b3754485febe95aafd75aa5ae8dcfea40efdf9c2b570ac2be51f92c96738e0f",
+      "bytes": 5544073
+    }
+  }
 }

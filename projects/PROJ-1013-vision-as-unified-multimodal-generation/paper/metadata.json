@@ -106,5 +106,15 @@
     "sections/6_conclusion.tex",
     "sections/appendix.tex",
     "sensenova.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cd8a501b495865f82f5042ab002acfc736088bd687ebb732b988819f0cf5ffa1",
+      "bytes": 38526677
+    },
+    "original.pdf": {
+      "sha256": "c2d3387e7e73867be90a32602889cd6008f76ce93e1279bd9596d50269aed79a",
+      "bytes": 38228895
+    }
+  }
 }

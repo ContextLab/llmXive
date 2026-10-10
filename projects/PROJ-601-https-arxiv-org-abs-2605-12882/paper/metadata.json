@@ -88,5 +88,15 @@
     "opendatalab.cls",
     "paper.bib",
     "paper.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "2c17381d44f2e48b1a48d2d63456da6653edaeb900120e9aa5a7676c560984e0",
+      "bytes": 5481222
+    },
+    "original.pdf": {
+      "sha256": "4dad1ed28687e39ce3fafc1fbc503b9b7033607df97fb503130b8e34d29072c8",
+      "bytes": 5485304
+    }
+  }
 }

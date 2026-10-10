@@ -17,11 +17,15 @@ is concatenated, guaranteeing the no-modification invariant mechanically.
 
 from __future__ import annotations
 
+import json
+import logging
 import shutil
 from pathlib import Path
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.types import Project
+
+logger = logging.getLogger(__name__)
 
 _LLMXIVE_URL = "https://github.com/ContextLab/llmXive"
 _CLS_REL = "papers/.style/llmxive.cls"
@@ -121,8 +125,69 @@ def resolve_original_pdf(pdir: Path, metadata: dict, *, download: bool = True) -
         if arxiv_id:
             pdf_dir.mkdir(parents=True, exist_ok=True)
             if _download_arxiv_pdf(arxiv_id, saved):
+                _check_recorded_digest(saved, metadata, arxiv_id)
                 return saved
     return None
+
+
+def record_pdf_digest(path: Path) -> dict[str, object]:
+    """``{"sha256": ..., "bytes": ...}`` for ``path`` — the provenance record.
+
+    ``paper/metadata.json`` carries one of these per committed PDF under
+    ``committed_pdf_digests``, because an arXiv id alone does NOT pin the bytes:
+    ``arxiv.org/pdf/<id>`` serves the CURRENT version. A paper whose authors
+    posted a revision after intake re-downloads as different bytes, and pairing
+    a review written against the intake version with a later body would
+    misattribute the review.
+    """
+    import hashlib
+
+    data = path.read_bytes()
+    return {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+
+
+def _check_recorded_digest(saved: Path, metadata: dict, arxiv_id: str) -> None:
+    """Flag a re-download whose bytes differ from the recorded intake version.
+
+    Writes ``original-version-mismatch.json`` beside the PDF and logs, so the
+    discrepancy is discoverable instead of silent. Control flow is deliberately
+    unchanged: the caller still gets the file. Deciding whether a mismatch
+    should BLOCK restyling belongs with whatever stops committing these PDFs —
+    making it a hard gate here would strand every paper whose arXiv version
+    moved, with no evidence yet of how many that is.
+    """
+    recorded = (metadata.get("committed_pdf_digests") or {}).get(saved.name)
+    if not isinstance(recorded, dict) or not recorded.get("sha256"):
+        return  # nothing recorded (a fresh intake): nothing to compare against
+    actual = record_pdf_digest(saved)
+    if actual["sha256"] == recorded.get("sha256"):
+        return
+    marker = saved.with_name(f"{saved.stem}-version-mismatch.json")
+    marker.write_text(
+        json.dumps(
+            {
+                "arxiv_id": arxiv_id,
+                "pdf": saved.name,
+                "recorded_at_intake": recorded,
+                "redownloaded": actual,
+                "note": (
+                    "arxiv.org/pdf/<id> serves the CURRENT version; these bytes "
+                    "are not the ones the repository's reviews were written "
+                    "against. Re-review before treating the two as the same "
+                    "paper."
+                ),
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    logger.warning(
+        "preprint %s: re-downloaded original differs from the recorded intake "
+        "version (%s bytes sha %s... vs recorded %s bytes sha %s...)",
+        arxiv_id, actual["bytes"], str(actual["sha256"])[:12],
+        recorded.get("bytes"), str(recorded.get("sha256"))[:12],
+    )
 
 
 def _download_arxiv_pdf(arxiv_id: str, out_path: Path) -> bool:
@@ -682,6 +747,7 @@ __all__ = [
     "build_peer_review_tex",
     "build_preprint_pdfs",
     "prepend_cover_to_pdf",
+    "record_pdf_digest",
     "render_llmxive_pdf",
     "resolve_original_pdf",
     "tex_escape",

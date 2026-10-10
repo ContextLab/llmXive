@@ -204,5 +204,15 @@
     "table/sim_benchmark.tex",
     "table/sim_task_details.tex",
     "table/standard.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "94c1af4061c26a9db7db68ed342399b69169b310cb074f1fb8b6e9f670bb9cfc",
+      "bytes": 27543009
+    },
+    "original.pdf": {
+      "sha256": "e07c215f30169dde6a792c34b046b1f54818d09331763988732dcf9ead89a9d4",
+      "bytes": 27334326
+    }
+  }
 }

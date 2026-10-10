@@ -102,5 +102,15 @@
     "tables/rollout_history_breakdown.tex",
     "tables/e2e_speedup.tex",
     "tables/related_works_categories.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "748822a2823620356e191020cd3ae2b080507b6d8d986f13a3c8e93d8cf83165",
+      "bytes": 2062202
+    },
+    "original.pdf": {
+      "sha256": "ec86677601927beda1ef1d91c43a7de71915852b96010bda696e0b0db3e41f34",
+      "bytes": 2021092
+    }
+  }
 }

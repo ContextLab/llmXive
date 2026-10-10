@@ -43,5 +43,15 @@
     "ref.bib",
     "splncs04.bst",
     "sup.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "dddd57b83d6f9f9a3f4cd589a615f085f64cd48a13f71ff3a83ac3e3ac772437",
+      "bytes": 8602418
+    },
+    "original.pdf": {
+      "sha256": "c0657399c9a5b3bc3c9e4919a2bc073252f386f20b7b69d7529e7b11f5facb4a",
+      "bytes": 8563780
+    }
+  }
 }

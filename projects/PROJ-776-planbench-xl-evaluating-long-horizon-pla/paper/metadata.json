@@ -86,5 +86,15 @@
     "Tables/experiment_hyperparameter.tex",
     "Tables/main_table.tex",
     "Tables/comparison_table.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "3dc2514947acc7008396d120f8f0e98c4a442016d287338282f665cf8113628a",
+      "bytes": 1340897
+    },
+    "original.pdf": {
+      "sha256": "593b053aacd52d4c436ca5a2a6b98d63de4760fa1c76b98f410b1371b8e6af61",
+      "bytes": 1403595
+    }
+  }
 }

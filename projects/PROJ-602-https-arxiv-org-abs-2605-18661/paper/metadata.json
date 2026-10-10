@@ -189,5 +189,15 @@
     "tables/appendix_s8.tex",
     "tables/method_summary.tex",
     "worldbench.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d62ac92fc642f189164bdd6758bcff0fa189a3d805a01c3daf0a29106029ce5d",
+      "bytes": 10762424
+    },
+    "original.pdf": {
+      "sha256": "95cd4d820c51ef64e3cd9ec54271913e600053b7ea0668c345f97c9ec5d7c8dd",
+      "bytes": 10752120
+    }
+  }
 }

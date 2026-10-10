@@ -70,5 +70,15 @@
     "tabs/ezsbench_full.tex",
     "tabs/paibench_full.tex",
     "tabs/rbench.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "487ded70882bdb33491421143e7ffa9a5bcbb9f5d56406f8e9f6f88f48693d7f",
+      "bytes": 18231623
+    },
+    "original.pdf": {
+      "sha256": "c70000a324019d599d3c3182a36d25744d4e9618eadc85c9ffd1c71e5a6e65e6",
+      "bytes": 18193539
+    }
+  }
 }

@@ -86,5 +86,15 @@
     "logo/modelscope-logo.pdf",
     "logo/qwen-logo.pdf",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "81f7a32602d30cd8b648772463da98047df483536e0a3f21e0f251dce51d91cc",
+      "bytes": 12743055
+    },
+    "original.pdf": {
+      "sha256": "f6aabca8b80fab2605050749cc2e2c4c02d888c11dce6729310f030072a82b0d",
+      "bytes": 12692991
+    }
+  }
 }

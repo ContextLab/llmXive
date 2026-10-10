@@ -69,5 +69,15 @@
     "pdf/reduction_com.pdf",
     "pdf/sensitive.pdf",
     "pdf/token_demo.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "221f20ce0bf839e2c940e8f1b520d427c33a5c8cc29192f52765e23b51fc8f33",
+      "bytes": 2035130
+    },
+    "original.pdf": {
+      "sha256": "ead55a24472045f52886c1b2b89defd75c376d64cd829d8edc12e13c7fceea9c",
+      "bytes": 2005025
+    }
+  }
 }

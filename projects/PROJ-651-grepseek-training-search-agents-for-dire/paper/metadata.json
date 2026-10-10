@@ -42,5 +42,15 @@
     "iclr2026_conference.tex",
     "math_commands.tex",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "9d964ee72cad4113183f0d3cc241f0db96c0f71c7725a51e4f0ae5c1f8035eb2",
+      "bytes": 1723996
+    },
+    "original.pdf": {
+      "sha256": "ee7cd1dec13252e5e6261ca02f686f0cfd56ea110e9e20e74a74de07693e16e2",
+      "bytes": 1601821
+    }
+  }
 }

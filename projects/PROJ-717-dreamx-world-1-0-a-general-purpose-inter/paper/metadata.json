@@ -81,5 +81,15 @@
     "sections/rl.tex",
     "sections/teaser.tex",
     "sections/training_pipeline.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "63c3cba3977465a93cb43ce850dc2cef38dd9c532d0522dd94ff597badd434b7",
+      "bytes": 12579208
+    },
+    "original.pdf": {
+      "sha256": "8524f77fb6c10071f6098a285abf086b13f6a7a117ddcaf3470c2ca3d90bc122",
+      "bytes": 12525972
+    }
+  }
 }

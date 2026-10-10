@@ -56,5 +56,15 @@
     "figures/fig_methodology_adjacency.pdf",
     "references.bib",
     "technical_report.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "5ed99e61924437691db3aa85b1f1ba4b42f6b53dcd21875b4febcb1bf421e87f",
+      "bytes": 2372788
+    },
+    "original.pdf": {
+      "sha256": "5a3249e33ad1427d7c0acccac41d028cb0c117052fa25bb6a796cd02045cc24a",
+      "bytes": 2367496
+    }
+  }
 }

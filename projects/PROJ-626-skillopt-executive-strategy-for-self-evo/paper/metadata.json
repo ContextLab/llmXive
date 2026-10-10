@@ -50,5 +50,15 @@
     "sections/figures/epoch_ablation_train_sel_test_trends.pdf",
     "sections/figures/pipeline.pdf",
     "sections/figures/teaser.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "3d4d1786a6e4859f76d9121d891e3763c43de22e20c298d7150c55a30dce5fbf",
+      "bytes": 909155
+    },
+    "original.pdf": {
+      "sha256": "87f7f0f323b1671e9202b3ebb1596e909e507c71ecd1b360b0075a5ee1727fe3",
+      "bytes": 879864
+    }
+  }
 }

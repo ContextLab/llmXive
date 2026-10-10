@@ -109,5 +109,15 @@
     "formatting.md",
     "frontis.cls",
     "README.md"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "fb258f72c7977a4bbbaffbcbbebaab506c8868b9cafd7f9a2b96cbbf9bfe69a9",
+      "bytes": 1000399
+    },
+    "original.pdf": {
+      "sha256": "9f39da53875a63d9af925626c44e92debb254502e9876a8d40d1f95301dbb3ee",
+      "bytes": 960603
+    }
+  }
 }

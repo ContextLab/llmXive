@@ -62,5 +62,15 @@
     "sections/02_related_work.tex",
     "sections/03_method.tex",
     "ziplab-tech-report.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "7a3ff28bd1b86d7b4dfc683b11831b703264350726b03e5b595180db92c12957",
+      "bytes": 21139525
+    },
+    "original.pdf": {
+      "sha256": "1d7a20b8d99f448dda60a3f52da67861f73aafaa18fe8df731e8d1ea54cbbd1d",
+      "bytes": 21112085
+    }
+  }
 }

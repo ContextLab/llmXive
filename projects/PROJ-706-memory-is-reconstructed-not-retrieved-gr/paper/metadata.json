@@ -49,5 +49,15 @@
     "Section-6-Conclusion.tex",
     "Section-7-Appendix.tex",
     "Section-8-Motivation.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "59d79b7336724fca82b3ccf90542e134781f658d30b7f6876db1e45424e67141",
+      "bytes": 5021781
+    },
+    "original.pdf": {
+      "sha256": "04ed4671f861af5ebe635a3dfba65accac18a59903e397e7b10bd334f7469a0e",
+      "bytes": 4989704
+    }
+  }
 }
