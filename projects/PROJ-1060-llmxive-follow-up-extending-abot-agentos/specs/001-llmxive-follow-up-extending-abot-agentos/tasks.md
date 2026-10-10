@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: Create the following directories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/001-symbolic-memory-edge-robotics/contracts/`. Create empty `__init__.py` files in `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/<spec_id>/contracts/`.
+- [ ] T001 Create project structure per implementation plan: Create the following directories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/001-symbolic-memory-edge-robotics/contracts/`. Create empty `__init__.py` files in `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/<spec_id>/contracts/`.
 - [X] T002 Create `code/requirements.txt` containing pinned versions for: `networkx==3.2.1 `, `pandas==2.1.4 `, `scikit-learn==1.3.2 `, `statsmodels==0.14.1 `, `datasets==2.16.1 `, `transformers==4.37.2 `, `pytest==7.4.3 `, `ruff==0.1.11 `, `black==23.12.1 `, `tracemalloc` (stdlib).
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: Create `code/.ruff.toml` with `line-length = 88 ` and `select = ["E", "F", "I"]`. Create `code/pyproject.toml` with `[tool.black] line-length = 88 `.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: Create `code/.ruff.toml` with `line-length = 88 ` and `select = ["E", "F", "I"]`. Create `code/pyproject.toml` with `[tool.black] line-length = 88 `.
 
 ---
 
@@ -55,14 +55,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` with canonical seeds and hyperparameters: `RANDOM_SEED = 42 `, `GRANULARITY = "coarse"`, `PREDICATE_SET = "spatial"`, `MODEL_ID = "google/vit-base-patch16-224"`, `MAX_TRACES = 500 `, `BASELINE_HASH = "sha:abc123..."`.
-- [X] T005 [P] Implement `code/data_loader.py` to stream **ALFWorld** via `datasets.load_dataset("alfworld/alfworld", split="train", streaming=True)` with checksum verification.
+- [ ] T004 Create `code/config.py` with canonical seeds and hyperparameters: `RANDOM_SEED = 42 `, `GRANULARITY = "coarse"`, `PREDICATE_SET = "spatial"`, `MODEL_ID = "google/vit-base-patch16-224"`, `MAX_TRACES = 500 `, `BASELINE_HASH = "sha:abc123..."`.
+- [ ] T005 [P] Implement `code/data_loader.py` to stream **ALFWorld** via `datasets.load_dataset("alfworld/alfworld", split="train", streaming=True)` with checksum verification.
 - [X] T006 [P] Implement fallback mechanism in `code/data_loader.py` to load versioned artifacts from `data/raw/` if remote download fails (FAIL LOUDLY if neither works).
-- [X] T007 Create `code/metrics.py` defining class `MetricsLogger` with methods: `log_success(bool)`, `log_latency(float)`, `log_memory(float)`, `save_report(str)`; output format JSON/CSV.
-- [X] T008 [P] Setup `pytest` configuration and contract test scaffolding in `tests/`: Create `tests/conftest.py` with `pythonpath = ["code"]` and `addopts = "-v"`.
-- [X] T009 [P] Define **ALFWorld** ground-truth schema mapping in `data/schemas/ground_truth_mapping.json` with keys: `nodes` (list of tokenized semantic identifier strings), `edges` (list of `{source: string, target: string, predicate: string}`), `predicates` (allowed list: `on_top_of`, `near`, `before`). **Schema Example**: `{"nodes": ["red_cup_kitchen_counter", "table"], "edges": [{"source": "red_cup_kitchen_counter", "target": "table", "predicate": "on_top_of"}]}`.
-- [X] T027a Acquire, install, or containerize the ABot-AgentOS baseline version. **Reproducible Fallback Strategy**: 1) Attempt to pull Docker image `ghcr.io/abot-agentos/baseline` (hash: `sha:abc123...`). 2) If Docker fails, attempt `pip download abot-agentos==1.0.0` and verify the downloaded wheel file's `sha256` hash matches `config.py` `BASELINE_HASH`. If hash mismatch, fail. 3) If both fail, attempt to load versioned baseline artifact from `data/raw/` (hash: `sha:xyz789...`). 4) If all fail, raise `RuntimeError("Baseline acquisition failed: No reproducible artifact found.")` and exit. **DO NOT** transition to `human_input_needed`.
-- [X] T027 Depends on T027a: Implement `code/baseline_runner.py` to execute the neural baseline (ABot-AgentOS v1.0) via `subprocess.run` or import, accepting task traces and returning success/latency metrics. **CRITICAL**: Must instrument the subprocess to capture and log `peak_cpu_memory_mb` using `tracemalloc` or `psutil` and return it in the result dict.
+- [~] T007 Create `code/metrics.py` defining class `MetricsLogger` with methods: `log_success(bool)`, `log_latency(float)`, `log_memory(float)`, `save_report(str)`; output format JSON/CSV.
+- [~] T008 [P] Setup `pytest` configuration and contract test scaffolding in `tests/`: Create `tests/conftest.py` with `pythonpath = ["code"]` and `addopts = "-v"`.
+- [~] T009 [P] Define **ALFWorld** ground-truth schema mapping in `data/schemas/ground_truth_mapping.json` with keys: `nodes` (list of tokenized semantic identifier strings), `edges` (list of `{source: string, target: string, predicate: string}`), `predicates` (allowed list: `on_top_of`, `near`, `before`). **Schema Example**: `{"nodes": ["red_cup_kitchen_counter", "table"], "edges": [{"source": "red_cup_kitchen_counter", "target": "table", "predicate": "on_top_of"}]}`.
+- [~] T027a Acquire, install, or containerize the ABot-AgentOS baseline version. **Reproducible Fallback Strategy**: 1) Attempt to pull Docker image `ghcr.io/abot-agentos/baseline` (hash: `sha:abc123...`). 2) If Docker fails, attempt `pip download abot-agentos==1.0.0` and verify the downloaded wheel file's `sha256` hash matches `config.py` `BASELINE_HASH`. If hash mismatch, fail. 3) If both fail, attempt to load versioned baseline artifact from `data/raw/` (hash: `sha:xyz789...`). 4) If all fail, raise `RuntimeError("Baseline acquisition failed: No reproducible artifact found.")` and exit. **DO NOT** transition to `human_input_needed`.
+- [~] T027 Depends on T027a: Implement `code/baseline_runner.py` to execute the neural baseline (ABot-AgentOS v1.0) via `subprocess.run` or import, accepting task traces and returning success/latency metrics. **CRITICAL**: Must instrument the subprocess to capture and log `peak_cpu_memory_mb` using `tracemalloc` or `psutil` and return it in the result dict.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,19 +76,19 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T010 [P] [US1] Contract test for graph schema in `tests/contract/test_graph_schema.py::test_schema_matches_ground_truth`: Assert that the constructed graph nodes and edges strictly match the keys and allowed predicates defined in `data/schemas/ground_truth_mapping.json`.
-- [X] T011 [P] [US1] Unit test for token mapping accuracy in `tests/unit/test_token_mapping.py::test_vlm_mapping_determinism`: Assert that running `discretize_trace` twice on the same input yields identical token lists and confidence scores.
+- [~] T010 [P] [US1] Contract test for graph schema in `tests/contract/test_graph_schema.py::test_schema_matches_ground_truth`: Assert that the constructed graph nodes and edges strictly match the keys and allowed predicates defined in `data/schemas/ground_truth_mapping.json`.
+- [~] T011 [P] [US1] Unit test for token mapping accuracy in `tests/unit/test_token_mapping.py::test_vlm_mapping_determinism`: Assert that running `discretize_trace` twice on the same input yields identical token lists and confidence scores.
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Depends on T002, T009, T004, T005: Implement `code/tokenizer.py` function `discretize_trace(trace: dict) -> list[str]` using frozen VLM `code/config.py` MODEL_ID (`google/vit-base-patch-224`) to map raw visual observations from **ALFWorld** to fixed taxonomy.
-- [X] T013 [P] [US1] Depends on T012, T009: Implement `code/graph_builder.py` logic to construct a Directed Acyclic Graph (DAG) where nodes are semantic tokens and edges are predicates (`on_top_of`, `near`, `before`). <!-- FAILED: unspecified -->
-- [X] T014 [P] [US1] Depends on T012: Implement `code/graph_builder.py` logic to actively detect and flag logical inconsistencies (contradictory spatial info) for review, and EXCLUDE flagged edges from the final DAG.
-- [X] T015 [US1] Depends on T012: Implement logic in `code/graph_builder.py` to handle missing VLM matches by assigning "unknown_object" token and logging the event.
-- [X] T016a [P] [US1] Depends on T005, T004: Implement parametric sweep logic in `code/experiment_runner.py` to iterate over `granularity=["coarse", "fine"]` and `expressiveness=["spatial", "spatial+temporal"]`. Define the input slice as a **random sample of traces** from **ALFWorld** split=train, using seed 42.
-- [X] T016b [P] [US1] Depends on T016a: Define the exact schema for `data/results/sweep_metrics.csv` with columns: `granularity`, `expressiveness`, `success_rate`, `latency_ms`, `memory_mb`, `trace_count`.
-- [X] T016c [US1] Depends on T016a, T016b: Execute the parametric sweep on the defined input slice (random sample of 500 traces) and write the results to `data/results/sweep_metrics.csv`.
-- [X] T016d [US1] Depends on T016c: Verify `data/results/sweep_metrics.csv` exists, is not empty, and contains the expected number of rows corresponding to the full factorial combination of all slices.
+- [~] T012 [P] [US1] Depends on T002, T009, T004, T005: Implement `code/tokenizer.py` function `discretize_trace(trace: dict) -> list[str]` using frozen VLM `code/config.py` MODEL_ID (`google/vit-base-patch-224`) to map raw visual observations from **ALFWorld** to fixed taxonomy.
+- [~] T013 [P] [US1] Depends on T012, T009: Implement `code/graph_builder.py` logic to construct a Directed Acyclic Graph (DAG) where nodes are semantic tokens and edges are predicates (`on_top_of`, `near`, `before`). <!-- FAILED: unspecified -->
+- [~] T014 [P] [US1] Depends on T012: Implement `code/graph_builder.py` logic to actively detect and flag logical inconsistencies (contradictory spatial info) for review, and EXCLUDE flagged edges from the final DAG.
+- [~] T015 [US1] Depends on T012: Implement logic in `code/graph_builder.py` to handle missing VLM matches by assigning "unknown_object" token and logging the event.
+- [~] T016a [P] [US1] Depends on T005, T004: Implement parametric sweep logic in `code/experiment_runner.py` to iterate over `granularity=["coarse", "fine"]` and `expressiveness=["spatial", "spatial+temporal"]`. Define the input slice as a **random sample of traces** from **ALFWorld** split=train, using seed 42.
+- [~] T016b [P] [US1] Depends on T016a: Define the exact schema for `data/results/sweep_metrics.csv` with columns: `granularity`, `expressiveness`, `success_rate`, `latency_ms`, `memory_mb`, `trace_count`.
+- [~] T016c [US1] Depends on T016a, T016b: Execute the parametric sweep on the defined input slice (random sample of 500 traces) and write the results to `data/results/sweep_metrics.csv`.
+- [~] T016d [US1] Depends on T016c: Verify `data/results/sweep_metrics.csv` exists, is not empty, and contains the expected number of rows corresponding to the full factorial combination of all slices.
 - [ ] T017 [US1] Depends on T013: Implement and execute validation in `code/graph_builder.py` to ensure memory footprint of constructed graph ≤ 2 GB for 500 traces. **Deliverable**: Write result to `data/results/memory_check.json` with key `pass/fail`.
 - [ ] T009b [P] [US1] Depends on T013, T009, T005: Implement `code/validator.py` to calculate reconstruction error: compare constructed graph nodes/edges against `ground_truth_mapping.json`, compute error rate, and log result to `data/results/reconstruction_error.json`. **CRITICAL**: If required variables are missing in the input trace, log a warning to `data/results/validation_warnings.log` and proceed with available features (do not crash).
 
@@ -104,16 +104,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for query output schema in `tests/contract/test_query_output.py::test_query_output_schema`: Assert that the output of `query_graph` is a list of dataclasses with fields `id`, `token`, `predicates`.
-- [X] T019 [P] [US2] Integration test for multi-hop predicate chaining in `tests/integration/test_query_chaining.py::test_multi_hop_chaining`: Assert that a query for "X near Y which is before Z" correctly returns the path or null if no path exists.
+- [~] T018 [P] [US2] Contract test for query output schema in `tests/contract/test_query_output.py::test_query_output_schema`: Assert that the output of `query_graph` is a list of dataclasses with fields `id`, `token`, `predicates`.
+- [~] T019 [P] [US2] Integration test for multi-hop predicate chaining in `tests/integration/test_query_chaining.py::test_multi_hop_chaining`: Assert that a query for "X near Y which is before Z" correctly returns the path or null if no path exists.
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Depends on T013, T017, T009: Implement `code/query_engine.py` function `query_graph(graph: networkx.DiGraph, query: str) -> list[Node]` using a deterministic depth-first traversal algorithm operating entirely on CPU. Define `Node` as a dataclass with fields `id`, `token`, `predicates`.
-- [X] T021 [US2] Depends on T020: Extend `code/query_engine.py` to handle complex queries requiring chaining multiple predicates (e.g., "Find X near Y which is before Z").
-- [X] T022 [US2] Depends on T020: Extend `code/query_engine.py` to return "not found" (null) status when no path exists, without hallucinating a path.
+- [~] T020 [US2] Depends on T013, T017, T009: Implement `code/query_engine.py` function `query_graph(graph: networkx.DiGraph, query: str) -> list[Node]` using a deterministic depth-first traversal algorithm operating entirely on CPU. Define `Node` as a dataclass with fields `id`, `token`, `predicates`.
+- [~] T021 [US2] Depends on T020: Extend `code/query_engine.py` to handle complex queries requiring chaining multiple predicates (e.g., "Find X near Y which is before Z").
+- [~] T022 [US2] Depends on T020: Extend `code/query_engine.py` to return "not found" (null) status when no path exists, without hallucinating a path.
 - [ ] T023 [US2] Depends on T020: Implement `code/latency_guard.py` decorator `@latency_guard(threshold_avg=150, threshold_p95=100)` to measure query latency over a **batch of queries**; if the **average** exceeds a predefined threshold OR **p95** exceeds a predefined threshold, **raise `LatencyExceededError`** (do NOT continue) and log violation to `data/results/latency_violations.json` (schema: `[{\"query_batch_id\": str, \"avg_ms\": float, \"p95_ms\": float, \"timestamp\": str}]`). This enforces SC-003.
-- [X] T024 [US2] Depends on T020: Add validation in `tests/integration/test_gpu_free.py::test_no_gpu_usage`: Assert `torch.cuda.is_available()` is False (or ignored) AND `torch.cuda.memory_allocated() == 0` AND `subprocess.run(["nvidia-smi"]).stdout` contains no active processes during query execution.
+- [ ] T024 [US2] Depends on T020: Add validation in `tests/integration/test_gpu_free.py::test_no_gpu_usage`: Assert `torch.cuda.is_available()` is False (or ignored) AND `torch.cuda.memory_allocated() == 0` AND `subprocess.run(["nvidia-smi"]).stdout` contains no active processes during query execution.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,19 +127,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T025 [P] [US3] Contract test for statistical report schema in `tests/contract/test_stats_report.py::test_statistical_report_schema`: Assert the final report JSON contains keys `p_value`, `test_statistic`, `error_counts`, `deltas`.
+- [~] T025 [P] [US3] Contract test for statistical report schema in `tests/contract/test_stats_report.py::test_statistical_report_schema`: Assert the final report JSON contains keys `p_value`, `test_statistic`, `error_counts`, `deltas`.
 - [ ] T026 [P] [US3] Integration test for full comparative pipeline in `tests/integration/test_comparative_pipeline.py::test_full_pipeline`: Assert that running `main.py` with `--compare` produces `data/results/final_report.md` and `data/results/deltas.json`.
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Depends on T005, T016c, T020, T027, T013: Implement `code/experiment_runner.py` to orchestrate the comparative study across a representative set of tasks, recording success rate, peak RAM, and query latency for both systems.
-- [X] T029 [US3] Depends on T028: Implement `code/metrics.py` function `run_mcnemar_test(success_symbolic: list[bool], success_neural: list[bool]) -> (float, float)` to compute p-value and statistic for **binary outcomes** (success/failure). **Mandatory**: Validate `len(success_symbolic) == len(success_neural)` and raise `ValueError` if not, ensuring paired data constraint.
-- [X] T030 [US3] Depends on T028: Implement `code/error_analysis.py` to categorize symbolic system failures into "discretization ambiguity" or "logical inference limitations" by inspecting the `error_type` field (values: 'VLM_MISMATCH' or 'GRAPH_TRAVERSAL_FAIL') generated by `graph_builder.py`.
+- [~] T028 [US3] Depends on T005, T016c, T020, T027, T013: Implement `code/experiment_runner.py` to orchestrate the comparative study across a representative set of tasks, recording success rate, peak RAM, and query latency for both systems.
+- [~] T029 [US3] Depends on T028: Implement `code/metrics.py` function `run_mcnemar_test(success_symbolic: list[bool], success_neural: list[bool]) -> (float, float)` to compute p-value and statistic for **binary outcomes** (success/failure). **Mandatory**: Validate `len(success_symbolic) == len(success_neural)` and raise `ValueError` if not, ensuring paired data constraint.
+- [~] T030 [US3] Depends on T028: Implement `code/error_analysis.py` to categorize symbolic system failures into "discretization ambiguity" or "logical inference limitations" by inspecting the `error_type` field (values: 'VLM_MISMATCH' or 'GRAPH_TRAVERSAL_FAIL') generated by `graph_builder.py`.
 - [ ] T030a [P] [US3] Depends on T030, T028: Implement `code/error_analysis.py` to capture and log the total count of failures before categorization begins. Write `total_failures` count to `data/results/error_analysis_log.json` with key `total_failures`.
-- [X] T030b [US3] Depends on T030, T030a: Implement `code/error_analysis.py` to calculate error analysis coverage percentage (`categorized_failures / total_failures * 100`) and report to `data/results/error_coverage.json` (schema: `{\"total_failures\": int, \"categorized_failures\": int, \"coverage_pct\": float}`).
-- [X] T031 [US3] Depends on T016c: Implement `code/metrics.py` logic to aggregate sweep results and measure impact of granularity/predicate expressiveness on performance.
+- [~] T030b [US3] Depends on T030, T030a: Implement `code/error_analysis.py` to calculate error analysis coverage percentage (`categorized_failures / total_failures * 100`) and report to `data/results/error_coverage.json` (schema: `{\"total_failures\": int, \"categorized_failures\": int, \"coverage_pct\": float}`).
+- [~] T031 [US3] Depends on T016c: Implement `code/metrics.py` logic to aggregate sweep results and measure impact of granularity/predicate expressiveness on performance.
 - [ ] T032a [US3] Depends on T028, T029: Implement `code/metrics.py` to calculate specific deltas: `success_rate_delta = symbolic_rate - neural_rate` and `memory_reduction_pct = (1 - symbolic_mem / neural_mem) * 100 `; write to `data/results/deltas.json` (schema: `{\"success_rate_delta\": float, \"memory_reduction_pct\": float}`).
-- [X] T032 [US3] Depends on T028, T029, T032a, T030b: Generate final report in `data/results/final_report.md` (Markdown format) containing p-values, test statistics, error counts, and the calculated deltas (success rate difference, memory reduction), evaluating if targets (≤5%, ≥80%) are met. Sections: `p-value`, `test_statistic`, `error_counts`, `deltas`, `target_met`.
+- [ ] T032 [US3] Depends on T028, T029, T032a, T030b: Generate final report in `data/results/final_report.md` (Markdown format) containing p-values, test statistics, error counts, and the calculated deltas (success rate difference, memory reduction), evaluating if targets (≤5%, ≥80%) are met. Sections: `p-value`, `test_statistic`, `error_counts`, `deltas`, `target_met`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -149,10 +149,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T033 [P] Documentation updates in `specs/001-symbolic-memory-edge-robotics/`: Update `README.md`, `specs/001-symbolic-memory-edge-robotics/quickstart.md`, and `code/CONTRIBUTING.md` with execution instructions and schema references.
+- [~] T033 [P] Documentation updates in `specs/001-symbolic-memory-edge-robotics/`: Update `README.md`, `specs/001-symbolic-memory-edge-robotics/quickstart.md`, and `code/CONTRIBUTING.md` with execution instructions and schema references.
 - [ ] T034 Code cleanup and refactoring: Run `ruff check code/` and remove all unused imports. Refactor nested conditionals in `code/graph_builder.py` to reduce depth < 3.
-- [X] T035 Performance optimization across all stories: Run `cProfile` on `code/query_engine.py` and optimize hot paths to achieve **p95 latency < 100ms**. **Constraint**: Maximum 3 optimization iterations; if target not met, document bottlenecks in `data/results/perf_bottlenecks.md`.
-- [X] T036 [P] Additional unit tests in `tests/unit/`: Add `tests/unit/test_edge_cases.py::test_contradictory_spatial` and `tests/unit/test_token_mapping.py::test_unknown_object`.
+- [~] T035 Performance optimization across all stories: Run `cProfile` on `code/query_engine.py` and optimize hot paths to achieve **p95 latency < 100ms**. **Constraint**: Maximum 3 optimization iterations; if target not met, document bottlenecks in `data/results/perf_bottlenecks.md`.
+- [~] T036 [P] Additional unit tests in `tests/unit/`: Add `tests/unit/test_edge_cases.py::test_contradictory_spatial` and `tests/unit/test_token_mapping.py::test_unknown_object`.
 - [ ] T037 Run `quickstart.md` validation: Execute `python code/main.py --validate` and verify exit code 0.
 
 ---

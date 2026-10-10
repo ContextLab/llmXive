@@ -1,0 +1,110 @@
+T001:
+  reason: "The collector shows that `data/raw/` and `data/processed/` directories\
+    \ are missing (and therefore their required empty `__init__.py` files are absent),\
+    \ violating the task\u2019s specification to create those directories and init\
+    \ files."
+  task: 373d02624ec10e96c13defc763c544f8a4281abad91acd41843af6d4c81e0f50
+T002:
+  task: aecac42be376e35c3ecd2c1c4f655d3652b7d0ec553476d8e97246ad57d4bdca
+T003:
+  reason: The `code/.ruff.toml` file exists and sets `line-length = 88`, but its `select`
+    list contains additional codes (`"W"`, `"B"`, `"C4"`, `"UP"`) beyond the required
+    `["E", "F", "I"]`, so it does not match the exact specification. The `code/pyproject.toml`
+    correctly includes `[tool.black] line-length = 88`. The mismatch in the Ruff configuration
+    makes the task incomplete.
+  task: eaf3893ef546d8662bc6a045fa559ed2a1425f9f8e62b4ba894ca3b25179b0ff
+T004:
+  reason: "The provided `code/config.py` contains all required constants except `BASELINE_HASH`;\
+    \ this variable is absent, so the task\u2019s specification is not fully met.\
+    \ Adding a line such as `BASELINE_HASH = \"sha:abc123...\"` would complete the\
+    \ requirement."
+  task: bb2b9abf9e8a55e3bd714a8972cde7809f19cd145118079163d55f92a6a24c55
+T005:
+  reason: The `code/data_loader.py` file exists and streams the ALFWorld dataset using
+    `datasets.load_dataset(..., streaming=True)`, but it does **not** implement any
+    checksum verification of the downloaded data, which is a core requirement of the
+    task. Adding hash/checksum validation for the streamed files is needed to satisfy
+    the specification.
+  task: f0dfe092cee8393e16d30576ce40d4c42d6be1ea6392477efa5fe7f7563f93d1
+T006:
+  task: 12137fdb9f00e7431ff624fa32174dabbb35b748494980b15058737690609cd9
+T007:
+  task: 8f0825aff9c613c99738895fc7052a100c207cac49558474862a4296856b4b2a
+T008:
+  task: e18af2dc8267622a469439c2dd00f6a83327bc07e0d067e9748a2ada3dfb5f29
+T009:
+  task: f79ec4b3b5f9087292c1db464c715889ab6df611ef4623b681c60ffb9b76171a
+T009b:
+  task: e29cc97e44f358c08326444b13414e84de97735a7b09c6ed84e88fd9aa051216
+T010:
+  task: 5f88ed995e1f0a7bbbe846b1e3be4d40d661b13aa353be24243e6739223252ab
+T011:
+  task: 4e708e6f2fef3fe3ae4a3a20165cedff7c7eadb14368b8efe8795654fc6c10be
+T012:
+  task: 3040b2995e8023810d52c673d688d3bc5f2faf1084f5f9c2d964258a08e1f213
+T013:
+  task: a6da01646698040e44ed37ceabc2b0e98d34469621b95770dec5c5eb179f0da5
+T014:
+  task: 4d84756db62bc23d06d9c22f13845c55b3667a557836242ed3ce37724b77a79c
+T015:
+  task: 8cba0d863036cf4287d15c96415a66a873f02a4b7d7e6852cbd34d0dfec90c29
+T016a:
+  task: 58b3fb5a2350ab3e9e422c7521289b2e679fda544d46877abfca759180229db8
+T016b:
+  task: 541bc69946a160084ab1e9826b002b5d24319ce9ae0c45ff69e9aeea2d3f1e34
+T016c:
+  task: 0e5d496f8df3dd43be91fc061f28ef3e8123daefc3b6fdd87f8522c442222b34
+T016d:
+  task: 328eb4bd66b01fe7722b10ae072711cb64a573253a4892d5df5739b19e2ec04e
+T017:
+  task: 0f7631b20aa0a0a788eecf660392f352739f8eaf094e8a1ab3d3fbb0a3669e1c
+T018:
+  task: 3ddf84d4a97a0e6c0b45ea92d0197e7e966da102ba80f2428d294a8c3a8ae8e2
+T019:
+  task: cad606b1fb1d3bdf61ea91457601aa5ecc9d9c283b10a82005cede85d0f03372
+T020:
+  task: 65cff74ce989d5fc2bef1aeba3ba09940111194572bba4f2dd964607b2447b1f
+T021:
+  task: e2c4c932a33c384d6e14b239044d251551b128b75e30adfdee251a5e6c99d429
+T022:
+  task: b7e4f963f27f4a24ed65dea91a9e9b4b3e97624ceec8935b2c5ed2fb6eb21ac1
+T023:
+  task: 4b82bce8b8bb55ca914ca6c2038866e7c3739212ca4cab2cc6364c90ba44dd6b
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_gpu_free.py'
+  task: e6597c7822113fb472db5f45ce8a5dcac8b0ba87c53ed08d629bef7d42a3684a
+T025:
+  task: 309a4b96bfa7b6ebea461e24f59a901137001f6ec1987756a0cd98c843b3708e
+T026:
+  task: 4d144e31639fb56e1502723f87fd0e9fdbb0826bedb37d53b55ca8879627826c
+T027:
+  task: 65303e0f873752dc5ffafa3b3ef83f64ae08a5f90ac543e218ad2f3687ba37d1
+T027a:
+  task: 18944a8acd5db19ad1e7bb3e9d6076db609f15294c05e4bd77177769c02d7d0e
+T028:
+  task: 3bd769ac3bbfc1620f585c52f384f8b36f4388efb76bb00558f949d69f816730
+T029:
+  task: f550cfd145e4a7b53cd014ad3291138db872a89136687ad9d5a13bb76f255c7c
+T030:
+  task: 82ef80b1e5893695a7e397bb8650507b2c7ff08a49f12a26f32263234a55b787
+T030a:
+  task: 48551e42497527f68564a5d4cd1fd672eea025e1aebd69ae04e5937be281955d
+T030b:
+  task: a62fe9ced4f24855c99a9e53afcfaf44b058354e1f0bd99150aee6ba2eaa0ed0
+T031:
+  task: 51704719188b9b7f459ebbb3bbc49decc9dce70e7a324f7d4e22da7a4ed2d625
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_report.md'
+  task: 86694c22492407daa63b3c24e174e45fe88f1e3f2e4991b6f4045a93677db34a
+T032a:
+  task: 1dc6310a089ab5752fb02017f9e857277f32db6639fd92fc9a633dfc8a7fd0e6
+T033:
+  task: fcad69ca32f4327baf0565ee9b6839033fd4d733497a84a41799c1100b43736e
+T034:
+  task: e349d1ff98b285b8dc3513d5969fe6bcd3e426480c1bb2509c59bbab04b9e556
+T035:
+  task: fa974156fa316dfa2da367c0a48b53f444207919f8008b5f4fd4d4953bbfdd8d
+T036:
+  task: 637e941cf810339a08709143ebfeeab039a3b3ec445a269aa70f28b31a47e119
+T037:
+  task: 2c3b4fb816909aaef311c880a7a09535b7f4640b19e74e8a955a84ff2c1113dd

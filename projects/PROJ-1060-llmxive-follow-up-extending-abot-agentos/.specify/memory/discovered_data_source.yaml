@@ -1,14 +1,15 @@
 status: none
-intent: EmbodiedWorldBench task traces dataset ALFWorld download python package dataset
+intent: download EmbodiedWorldBench task traces and ALFWorld dataset with dialogue
+  spatial coordinates temporal sequences python package dataset
 required_fields:
-- task_id
 - dialogue
 - spatial_coordinates
 - temporal_sequence
-- outcome
-- object_labels
-- environment_context
+- task_outcome
+- ground_truth_graph_annotations
+- entity_token_labels
 - timestamp
-cache_key: 78ddbfb97b46555e6a330f282a93bccdeeab404299da67a1389788dea95636bb
-searched_at: '2026-09-19T11:32:51.764625+00:00'
+- environment_context
+cache_key: afe9f2741da817dc2552fa54f022690cf3f4a3d7e4b41b13b0b0b3732a8cc219
+searched_at: '2026-10-10T08:22:10.301290+00:00'
 retry_count: 1

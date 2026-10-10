@@ -1,3 +1,53 @@
+T001:
+  c: false
+  h: 19934a12c22e59845236d86aabdde60a76400dbfc48c6299989f382e37da2b38
+  r: "The collector shows that `data/raw/` and `data/processed/` directories are missing\
+    \ (and therefore their required empty `__init__.py` files are absent), violating\
+    \ the task\u2019s specification to create those directories and init files."
+  sig: 9a607e9cdd2c81f535800546968242713db0b1c50525a5eaa70bfcb92b169aea
+T002:
+  c: true
+  h: f69bb37c394d42d68551610e2c381a62553640155f39a8638e0a44b850ab590e
+  r: "Checked `code/requirements.txt` (resolved path `code/requirements.txt`) which\
+    \ contains all listed packages with the exact pinned versions and includes the\
+    \ `tracemalloc` entry for the stdlib module. The file is present, non\u2011empty,\
+    \ and matches the task specification."
+  sig: 0dce2f8735bf87513bd55db7ce8e26e180e16333e0ce9c2fb61332767a54a526
+T003:
+  c: false
+  h: 983cdf2bfc0fb95ed93bf094750319d1ef1d1bc88c094954b725a2af0a044182
+  r: The `code/.ruff.toml` file exists and sets `line-length = 88`, but its `select`
+    list contains additional codes (`"W"`, `"B"`, `"C4"`, `"UP"`) beyond the required
+    `["E", "F", "I"]`, so it does not match the exact specification. The `code/pyproject.toml`
+    correctly includes `[tool.black] line-length = 88`. The mismatch in the Ruff configuration
+    makes the task incomplete.
+  sig: a0270bc2c1d17d552aeb54705d4c659c5ac92f80fd438e671ea3304e6cfc3a3d
+T004:
+  c: false
+  h: d323e21dab0943d5c1dc6e763b91782c6ef78dedee5d6962fc14f0d9175dc041
+  r: "The provided `code/config.py` contains all required constants except `BASELINE_HASH`;\
+    \ this variable is absent, so the task\u2019s specification is not fully met.\
+    \ Adding a line such as `BASELINE_HASH = \"sha:abc123...\"` would complete the\
+    \ requirement."
+  sig: 5321f92bd3b676a855615528f3ce2016929566c04c89d30a186922453d725b68
+T005:
+  c: false
+  h: e33541a258073203933881d8c07da0f3f4084345dae5db80431e2ac631f29b6d
+  r: The `code/data_loader.py` file exists and streams the ALFWorld dataset using
+    `datasets.load_dataset(..., streaming=True)`, but it does **not** implement any
+    checksum verification of the downloaded data, which is a core requirement of the
+    task. Adding hash/checksum validation for the streamed files is needed to satisfy
+    the specification.
+  sig: d61c60d988113f710ac4cde153871a09adf536607b98e6019fc8048415145cb7
+T006:
+  c: true
+  h: 7cbc25d923b7a7e05ce96ca4a0bf15e5677565f90463f6a8c8b5e01e5336a5ae
+  r: "Checked `code/data_loader.py`, which tries to load the ALFWorld dataset via\
+    \ the `datasets` library, falls back to reading JSON files from `data/raw/` when\
+    \ that fails, and raises a RuntimeError (\u201CFAIL LOUDLY\u201D) if the fallback\
+    \ directory is absent. This matches the task\u2019s required fallback\u2011and\u2011\
+    loud\u2011failure behavior."
+  sig: 6b0c5e46b8dd180bfb5dbd39f460104238de1fd18bc03aeb4a470d3a04a1608c
 T009b:
   c: false
   h: b4911b5bd8e426d279fddcb5eee45bcedd523693b1092b7777427b0a95996d35
