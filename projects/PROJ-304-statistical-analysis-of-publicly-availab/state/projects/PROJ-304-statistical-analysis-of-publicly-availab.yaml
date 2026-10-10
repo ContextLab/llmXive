@@ -1,26 +1,44 @@
-synthetic_data:
-  random_seed: 42
-  noise_mean_db: 60.0
-  noise_std_db: 10.0
-  traffic_mean: 1000.0
-  traffic_std: 500.0
-  pop_density_mean: 2000.0
-  pop_density_std: 1500.0
-  land_use_distribution:
-    residential: 0.6
-    commercial: 0.2
-    industrial: 0.1
-    green: 0.1
-  grid_size_meters: 200
-  total_cells: 50000
-  chunk_size: 5000
-  generated_at: '2024-01-15T10:30:00.000000'
-project:
-  id: PROJ-304-statistical-analysis-of-publicly-availab
-  name: Statistical Analysis of Urban Noise Pollution
-  status: active
-  created_at: '2024-01-15T10:00:00.000000'
-  updated_at: '2024-01-15T10:30:00.000000'
-checksums:
-  last_updated: '2024-01-15T10:30:00.000000'
-  files: []
+projects:
+  PROJ-304-statistical-analysis-of-publicly-availab:
+    last_updated: '2026-10-10T07:20:27.509700+00:00'
+    project_id: PROJ-304-statistical-analysis-of-publicly-availab
+    checksums:
+      code:
+        synthetic_data.py: 18018c32bae9482706b4555daec7ff70e3e3dfa12a9e77ba53ffe419293c84ad
+        run_lint.py: 4fa0fb29984d99836b8e8fc76eaec14b638ed5ef1fb9a56ea024fcc558de5dd5
+        logger.py: c1d6ac31c6878aeb37e15a0e4f924e4cd880dd7f4d0462caa0e9c8f0d333a3f2
+        validation_metrics.py: 8d29ddeead19f81380a9786b7ab934aaeee9487cc85326689a68fe6a1b554bef
+        linting_config.py: 3e1a74c6d569a900015bd7966d4df43986bcf149fb8e83c906b15df14c073610
+        models.py: f1da582935c546c355b03e058518a5d1500f40af2c0cba475675f4baf207c30c
+        validation_report.py: e720a261a5d765c59de463ff53d5b085d6382bb2cd894593070f8976b79e0cc6
+        hygiene.py: 149c5d138030e414b980c369984fcd2f69f8d80850925be86fb6e29a8d12f81b
+        harmonize_and_save.py: c60eead6417fef11cfa27b0673ef288fefcdffa0c347fe68f5e904c75b338464
+        fdr_correction.py: c45b6780965dca40c0e785b94c77b34757249332ef08241cca8f0e5dba78fa54
+        validation.py: 90d17f56668ca044010cfc3ee30dc8a00395932bdbb269386a6922c0d988110b
+        preprocessing.py: 92c3c5b9401a2ebb94713fb4e7d0a7eb799dc50320adb1e5ac127c033e33356c
+        save_model_results.py: 533f48550ba224beb9842b7f892f9ef5ab4005464c7fd61bd32d0cd5d602d2a8
+        setup_directories.py: 87b4e0671e29303c5282eb2b0a1e6d4c7a2383679e871c8011503952acb440a7
+        __init__.py: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        ingestion.py: abd95263039cc5c5b2fafd4c133282ec3edae92bb02256e53d34ed40747d9071
+        model_selection.py: aa8b00d2df855220f9a7e5f6ac09d6fbb417a5373e2dbd61794b04b9bcffb4a9
+        .tasks/T011.atomize.yaml: ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356
+        .tasks/T016.code_harmonize_and_save.py.log: 9f74736eee7e9b38146ba1e9787e3b6ee6f1f646cda8fed4eeaf3747ce3074d1
+        schemas/grid_cell.py: 5b768c12e3bdf9fcad9946bd8362eb6c303c625a0a521b45bf04dd9e1a152353
+      tests:
+        integration/test_ingestion.py: 27164f33c13fa95c08d07ab13e2f02f8b98b331751f74e0b225508677d80022d
+        integration/test_linting_integration.py: a37bbb2b6c74865f4926bf8d4d0043bd0910cc43d3246a2f68e9c4242788c0a4
+        integration/test_validation.py: 9d4fa1230ee8039522bddff48e1a9da10e448ab2351ee8df7cd6c14ffbb5f866
+        integration/test_validation_report.py: aaf7814d78182f03db0bb6303c9ced9779888a226b892e9d3b681519ef8f9b4f
+        unit/test_setup_directories.py: 4843a8995ebcd81394857b7430c68d0b35532af184904ea9abe6adbe9e1305a7
+        unit/test_preprocessing.py: 30b812ecf64ce199ffcc0a1e7d2131d8dac2e6e74e9213813202c6f0df54f263
+        unit/test_logger.py: 6f992e7fcb7e109d6a2c4ad5f99ab56dd977a1e17ed21e68df8d853822e7ff7f
+        unit/test_synthetic_data.py: 01f8e0b57637d5ddf7b558923673b67e2a39a282f0ab83ccb0cf42db599d6326
+        unit/test_models.py: 8cbb014935f93ad7a7d1e6062ffd5914ced25526d55df4f9d5c2bd63b6b49401
+        unit/test_linting.py: 790aff1382931a084b0c859492b879ec5350bbc51e5fc087cd6d5ffb7bbc3cd7
+        unit/test_robust_se.py: 73226621d45907ec8f8e878a8726ae28b6884b62186182e56ed0f39537f40a51
+        unit/test_fdr_correction.py: a3fdd47c5810d289ed3253c85962f721098918ebd5ed7360c63539a1bd9a9c13
+        unit/test_validation_metrics.py: 4fe8873e72a0ae97b86ec36410d65d7f21f3e6f3da97bbd229a37c4901ffbf32
+        unit/test_linting_config.py: 5bf85d03a4e6f00988186159c566da00652129cc092ae5cd816cd0f0c0bb99e4
+        unit/test_validation.py: 4fbb874488a30bfefe58495df0287388feef28ca33a8a277ba0ad807d2f3116c
+        unit/test_model_selection.py: dd5c6d786db1dc5bffd62729f9733d6e151a73f6c1545916e8294cc632eac533
+        unit/test_grid_cell_schema.py: 46974bb05926136e2200768974f87f657f2971d1ba0cada9db7b7508c308dd8e

@@ -1,3 +1,59 @@
+T001:
+  c: false
+  h: 6cbf027627399bb913692dc26adf1897abd802086adfe02ddf88906e96823834
+  r: "The task requires creating the directory structure `data/raw`, `data/processed`,\
+    \ `code`, `tests/unit`, `tests/integration`, but the evidence collector found\
+    \ no artifacts on disk \u2014 no directories (or placeholder files within them)\
+    \ were confirmed to exist at the project root. The implementer's claim of completion\
+    \ is unsupported by any observed directory structure; the next step is to actually\
+    \ create these directories (with appropriate marker files, e.g., `.gitkeep`, if\
+    \ the version control system requires them)."
+  sig: 61ec79aa7af30e9494e2ef164c040f577a49f470e230af27e1a7d051e8dfec51
+T002:
+  c: true
+  h: d6c9e7bbe6af4ec1ca76f585b1b55ae133f9b3f2bc734120a1f64a3e88d27a11
+  r: The `requirements.txt` exists at the project root and contains all 11 required
+    packages (pandas, geopandas, pysal, libpysal, scikit-learn, numpy, statsmodels,
+    requests, pyarrow, linearmodels, dask, distributed), plus a few reasonable extras
+    (shapely, spreg, esda) that don't conflict with the requirement.
+  sig: 8f9dbaa7af88e360addbb886771e3da3efe78ab40cb9e2abb1fcc07914a3686f
+T003:
+  c: false
+  h: bbf97f951b4e8e902e7a3f9a20b72ef518c39961891769e9b1fb15bb161027db
+  r: "No artifacts were provided or confirmed on disk for this task \u2014 the collector\
+    \ explicitly notes the task references no code/data/figure path and no configuration\
+    \ files (e.g., `pyproject.toml`, `ruff.toml`, `.ruff.toml`, `black` config, or\
+    \ CI workflow) were shown to exist. There is no evidence that ruff and black are\
+    \ actually configured anywhere in the project."
+  sig: ea72aedbefe2d8b939629986c6eb14fc9a4a77e4154e93678d23bced3bb9488f
+T004b:
+  c: true
+  h: 4ccb4cb3f319e0070fbfb8db06ef7ae14d764de6068341adf701330621d982ae
+  r: "`code/hygiene.py` exists with a real `compute_and_record_checksums()` implementation\
+    \ (SHA-256 over data/processed, code, tests, YAML state update), and the state\
+    \ file `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`\
+    \ contains actual recorded checksums \u2014 including hygiene.py's own checksum\
+    \ (149c5d13...) matching the collector's sha256, confirming the function was genuinely\
+    \ executed against the real files."
+  sig: cbf16d25c927bb6472aeefb1e6b083fe0f775adf51c3b60297dbf22140521ac9
+T006:
+  c: true
+  h: 3c61f286670a604bb084d846e7ca35894fcef01a7dd3939ebdddd08a72503b3b
+  r: "The file `code/schemas/grid_cell.py` exists (3177 bytes) and defines a Pydantic\
+    \ `SpatialGridCell` model with all five required fields (`grid_id`, `geometry`\
+    \ as a Shapely geometry with GeoJSON-dict coercion, `noise_metrics` dict, `covariates`\
+    \ dict, `date`), plus GeoJSON serialization helpers \u2014 no stubs or placeholders."
+  sig: f852e823911eeebdeb490c9a37da59ee2068395485620ebceaf413a98115c76f
+T007:
+  c: true
+  h: 3e1d4a52c329feb4e38c2e736bdbe109a2eeffed60ea6843c0e91d82210ff487
+  r: '`code/logger.py` exists (3591 bytes) and contains a `RotatingFileHandler` with
+    the exact required format string `''%(asctime)s - %(name)s - %(levelname)s - %(message)s''`,
+    plus a `test_log_format` function that captures output via a StringIO handler
+    and verifies the timestamp/name/level/message structure. The `linting_config`
+    import dependency is present locally, and the test logic is a genuine verification
+    (not a stub).'
+  sig: a26d1a036acb4e764cb9b77be30326dda8469d97497e98d935a39b6cd057d4e8
 T015:
   c: true
   h: 477416f1cbd2f13022b428451bc19b9c4865f5fc7bddb3ac258dca2c43a4297b

@@ -1,0 +1,15 @@
+status: none
+intent: NoiseTube municipal open data OpenStreetMap OSMnx WorldPop unified grid python
+  package dataset
+required_fields:
+- grid_id
+- geometry
+- noise_mean
+- noise_median
+- noise_95th_percentile
+- traffic_volume
+- land_use_class
+- population_density
+cache_key: 6aefbbe42ec15543b201af7225a5a3436967c7c5086b9189607e1509c7e887ce
+searched_at: '2026-10-10T07:21:51.849772+00:00'
+retry_count: 1

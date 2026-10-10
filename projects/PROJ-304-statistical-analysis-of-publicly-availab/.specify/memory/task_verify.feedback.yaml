@@ -1,0 +1,91 @@
+T001:
+  reason: "The task requires creating the directory structure `data/raw`, `data/processed`,\
+    \ `code`, `tests/unit`, `tests/integration`, but the evidence collector found\
+    \ no artifacts on disk \u2014 no directories (or placeholder files within them)\
+    \ were confirmed to exist at the project root. The implementer's claim of completion\
+    \ is unsupported by any observed directory structure; the next step is to actually\
+    \ create these directories (with appropriate marker files, e.g., `.gitkeep`, if\
+    \ the version control system requires them)."
+  task: 6323ba3c43b6a42db718c7093e5de854cf9a84143747af50dafd32515e8a7017
+T002:
+  task: e778209124ad636a31386ae4dc000becfdae13b0ed09b4bc44dc7971979ecd96
+T003:
+  reason: "No artifacts were provided or confirmed on disk for this task \u2014 the\
+    \ collector explicitly notes the task references no code/data/figure path and\
+    \ no configuration files (e.g., `pyproject.toml`, `ruff.toml`, `.ruff.toml`, `black`\
+    \ config, or CI workflow) were shown to exist. There is no evidence that ruff\
+    \ and black are actually configured anywhere in the project."
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004b:
+  task: 99ff8b92861d383a404576aff618ef727a80d2865674560937ce18085520539a
+T005:
+  task: a54b84bdfe2f792d86eebac623aca6974b861d7b8f385ea869c120543240b19a
+T005b:
+  task: 816846617466910c3613da06e13e53a122f22340c27b8bb637fc1d8b698a2c7a
+T006:
+  task: 6ded28e79a46411ba7a480c195797b0d7e7f75f284f801ff7738eb329cd088c3
+T007:
+  task: 5fc47e9d3eedd2a54962a39566144cddbb2952958d4dfeb1daa6c1fb82b6e06a
+T009:
+  task: a404943e15fd69b4cae2db9fa0c6013c27fcfbb54fbbc87696c8aa9b4cc09cc8
+T010:
+  task: fce0a961e384efcb0b0ffdc2222ae0bb7fe26a4401121ef6678ebcb7bee6a7c8
+T011:
+  task: d3406645e18051ba7ff3ce6cafdb0632b53cdc4c67d06f70b85c71656968da20
+T012:
+  task: b9a56b9de0e72e91fb65c65ab7e0535ad10f36e6f44c8535be459fe21537a206
+T013:
+  task: f593b293c13f1b24f655d41fb8aca0382d5e394840392e357866e81ced7ebeb8
+T014:
+  task: 5f492029a7b50a799e54066912a948bf09c73aa3d2e1d8f4be23fed691a5661b
+T015:
+  task: b4ae742a6560865c1afa16e6e001e5d92d936029e12296d8f23e07f6253631a2
+T016:
+  reason: 'Requested task execution failed; rerun successfully: code/harmonize_and_save.py
+    exit=1'
+  task: bf3a96ad89e763a0e80779f006011f9d307cd85d6d8a0ca176d030124d8eca46
+T017:
+  task: 63c25f1df8f580c4d13539b19eac57c094ce3e15e344fa073311279ae4ec3f1e
+T018:
+  task: aaa06c628701e7ccb5f52360a9fe2839b4592585e14de8cf4cace23d8999711d
+T019:
+  task: 32fce6d36444369b724c64b4bc0c8184f50892176250df573e34daf4a3d4f61b
+T020:
+  task: 1037a8aafcad50913422ab5224fe6b45d498056788c850028e5f262696b08351
+T021:
+  task: bc817aa4c3af4950e3e4397e1ab853e5a7a92243e355c1670ec3a702adbd003d
+T022:
+  task: 2d3360368b262101659ca66be3785e067c009d44ef4302457eb042beb95e715f
+T023:
+  task: fb9abd72243a23c9c4b40b90eb757ce38f9366802ff6b8036b6f86ff086e7228
+T024:
+  task: e652fc804b01f2e748f5c0c3c645f4a2278e20bde06a162b71e8496bba26c783
+T025:
+  task: 16954f9e4e4b0fadaa1d9dd442eda51c3598ffe753b6a9bc679882e7dc5baf9e
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/model_results.json'
+  task: e62142063839019211a52568a10438521a7bb7a29db74a2eca7514be8aa6424a
+T027:
+  task: 701a23e902fd37b9d919090f18947f2845fb49d7a93d1c5308284b24a43911f9
+T028:
+  task: 92899d3a5f0ec5b8cb1f85780323a8fc5101e11a3c6f99ded53e6924213a04f7
+T029:
+  task: d31a7d7923ee1d9736e88911bc24022c69eb29b1d3953bcf47e9642936e97dd3
+T030:
+  task: e00d38c3cbc4340f2d3cce449152530a042c112cabc074f79fc16a5c8dcdd95e
+T031:
+  task: 12dce7fc42c29fc5dd36b68364f597c6bc8cbbd383e0df89031d04dae8fb8939
+T032:
+  task: fafac6768cd37ce93643bec7fe3d2ab667db353d7ce8bf34c7bd314a40796bea
+T033:
+  task: 93de4bd2599bc81030cd58eb686c812d52e74fe8c9185e4a5006d733e8c966cc
+T034:
+  task: 18964e05f4b019e036f6ba9ce73cae7a5ed54402650d58af3cc783e3ecf1fdc9
+T035:
+  task: ad94d83907b17519ad30ea2818f0d978b9e3ca7b46272011faf70d269c26884c
+T037:
+  task: cabf5105774c1c9fb011454ad375253b8421a9579e3a0193886c1be112ed3278
+T038:
+  task: 322ea72805f46e6abb7a63febd034f8dc3ea96250469b6d92f0559fbcbce3206
+T039:
+  task: 41289d64465815cbe3f5a889da5b7951ef1f85221b494e51298bc2c9d34302d2
