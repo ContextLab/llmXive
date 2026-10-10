@@ -1,5 +1,5 @@
 status: none
-intent: download OpenAlex full snapshot subgraph parquet dataset python package dataset
+intent: OpenAlex full snapshot 2026-01-01 parquet download python package dataset
 required_fields:
 - id
 - title
@@ -7,6 +7,6 @@ required_fields:
 - publication_date
 - field
 - neighbors
-cache_key: 60a6f8ac8b84a8c0ad269328b8966ac1e8bd0a45eda0c415a01f1806a6f57ff2
-searched_at: '2026-10-10T00:28:23.006371+00:00'
+cache_key: 1741a5cd0bae25f88cc4bb4c67ccd548e9ed688e5dd74aa52348a4de385d8612
+searched_at: '2026-10-10T00:29:53.058160+00:00'
 retry_count: 1

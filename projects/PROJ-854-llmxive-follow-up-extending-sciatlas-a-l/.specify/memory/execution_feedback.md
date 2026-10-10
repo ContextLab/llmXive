@@ -35,7 +35,7 @@ code/tests/unit/test_embeddings.py:16: in <module>
 E   ModuleNotFoundError: No module named 'src.services.embeddings'
 =========================== short test summary info ============================
 ERROR code/tests/unit/test_embeddings.py
-=============================== 1 error in 0.13s ===============================
+=============================== 1 error in 0.08s ===============================
 
 ERROR: found no collectors for /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/tests/unit/test_embeddings.py::test_novelty_independence
 
