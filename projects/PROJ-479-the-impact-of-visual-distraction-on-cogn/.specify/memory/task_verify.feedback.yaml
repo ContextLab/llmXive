@@ -1,0 +1,45 @@
+T001:
+  reason: "The project lacks the required `specs/001-visual-distraction-cognitive-control/`\
+    \ directory, the `code/requirements.txt` does not pin versions and omits `requests`\
+    \ and `openml` (and adds an unrelated `pyyaml`). The utility module\u2019s API\
+    \ does not match the specification (functions are named `compute_file_checksum`,\
+    \ `set_random_seed`, `sanitize_image_pii`, `log_structured_error` instead of `compute_checksum`,\
+    \ `set_global_seed`, `sanitize_images`, `log_error`). Consequently the claimed\
+    \ verification steps cannot be confirmed."
+  task: 045030f255bb40ae90032f87d63dac2248eaa539589080b691f19bcf2f19890e
+T001a:
+  task: b7cbf2a1ed41f86ca084f4c44a46c5cad6cb7f06fcd24f0094aef728043fecfe
+T001b:
+  task: 335fe8dfbab50b411b5887c7393d155335c06760050d44adf6fea1447c4ad938
+T001c:
+  task: ffe53b9158b80cdd58850d2ca9929a90607c89981a0472f2db1a2a714c4d4f5a
+T001d:
+  task: 7f82f32444367baf78e369cc88b3f56f75957bda0e237ae1c38ac9285ba40745
+T001e:
+  task: de83ee627302666d27eeec4be77b85162640ce3698a02fbb752a257189d9041a
+T002:
+  task: 59e5d591e13974c1a1efb2ee936d9c3c37c9e0da90e9ed1365946aebd803ccef
+T003:
+  task: fb56dea076103fbb936682671dfcbab770bf57cbaa98e89b2f68363d0f5df356
+T004:
+  task: 39a5a4d42cf74417b1ff4dd268c5e0f98bbaab7375cf629fb77a7c42f4d2fecd
+T005:
+  task: 60f8511ab22edda320282fcaa7f62683220fcb1d24aabab13a500c4e13a1937a
+T006:
+  task: 52c140a67f25f8fbf360f694ef97142eccaf0587c18c972dd759cb778d22cf8b
+T007:
+  task: d3fbe7765d81d8adfb3a6a3c64d4999a1b0d52ca1a9425d4095759e42e86a5bf
+T008:
+  task: 5890762a3845377e45ad39618c9978ec8ab5de5853793f34483b838b61895adb
+T009:
+  task: 2795286f8f92e42492e7fcde4fe370b3aea6f02366c345148b3dc998ac955d97
+T010:
+  task: e15d585cdd1e08d1eb00a6713fb886acf606b5bbf5eefe2149fdb32899b38847
+T011:
+  task: 2ec212fa5867b1df28ac8e4e497228d88f866301b79dbce09d9cf129751e7668
+T012:
+  task: 3ca5a9f9abf036727fc049c1e561a5905d9cda290f64a9ac0a5a4c7060863dc6
+T013:
+  task: 9c8a45bae141f391b6ccc02ecf2c57ae8b0eb6a83f62701ed64011064d7e7187
+T014:
+  task: 8a31e639a76a0cf9205e9b0bbd793bbe21263c98db9370b5a1a93bdb24bde027

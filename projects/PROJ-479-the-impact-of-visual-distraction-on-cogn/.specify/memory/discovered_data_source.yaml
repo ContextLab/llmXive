@@ -1,13 +1,15 @@
 status: none
-intent: download Stroop task participant reaction time dataset OpenML or HuggingFace
-  python package dataset
+intent: OpenML Stroop and Flanker task datasets with workspace image metadata python
+  package dataset
 required_fields:
 - participant_id
 - reaction_time
 - accuracy
+- environment_tag
+- image_id
 - edge_density
 - color_entropy
 - object_count
-cache_key: 8121f6c925cb27d6675258fc6d5ba8b7446dcd4b8422d71e55e3f4812013f9ea
-searched_at: '2026-07-25T19:59:47.504578+00:00'
+cache_key: a284eb5681279f90e89dc8661fc4a235c1621240d3d0345f597b1edbdee7f8c1
+searched_at: '2026-10-10T06:27:26.149188+00:00'
 retry_count: 1

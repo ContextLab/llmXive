@@ -1,3 +1,14 @@
+T001:
+  c: false
+  h: e7ebdc738a6a465236470b36638e4aedac4c53de88d6bc203cf47c4a008ceaa0
+  r: "The project lacks the required `specs/001-visual-distraction-cognitive-control/`\
+    \ directory, the `code/requirements.txt` does not pin versions and omits `requests`\
+    \ and `openml` (and adds an unrelated `pyyaml`). The utility module\u2019s API\
+    \ does not match the specification (functions are named `compute_file_checksum`,\
+    \ `set_random_seed`, `sanitize_image_pii`, `log_structured_error` instead of `compute_checksum`,\
+    \ `set_global_seed`, `sanitize_images`, `log_error`). Consequently the claimed\
+    \ verification steps cannot be confirmed."
+  sig: 5d0e9d4c3422ae0ebd608e588a23d6479b689147868f5e045f1ea6c7e0e0d977
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,81 +16,3 @@ T003:
     `pyproject.toml` with Black settings) or documentation of their setup are present;
     the claim provides no tangible artifact demonstrating that ruff/flake8 and Black
     have been configured for the project.
-T019a:
-  c: false
-  h: 0cc157577c9d50846bc70e26251e1d29ae7bb4e68e92ff7d8a505c84f6a26f0f
-  r: "The repository lacks the required `results/statistics/power_analysis_a_priori.md`\
-    \ file, and the provided `code/03_analysis.py` (even though it imports `FTestPower`)\
-    \ does not contain any implementation that performs the a\u2011priori power calculation\
-    \ or writes the markdown report. The task\u2019s core deliverable is therefore\
-    \ missing."
-T021:
-  c: false
-  h: 3f2a6e5a6f97b3a2fc58361039569f1114c56771e4076f0a3ee181be04c7e237
-  r: "The required artifact `tests/unit/test_edge_density.py` does not exist in the\
-    \ repository, so no unit test for edge density calculation is present. The task\
-    \ cannot be considered completed until this file is added with appropriate tests\
-    \ verifying that edge density values are normalized to the [0,\u202F1] range."
-T022:
-  c: false
-  h: 53bcc2b1e38cef0ab998d5c0974aa81875cad2947c61eb893174e79d1d96c8a6
-  r: "The required artifact `tests/unit/test_color_entropy.py` does not exist in the\
-    \ repository, so no unit test for the color entropy calculation is present. The\
-    \ task\u2019s deliverable is missing entirely."
-T023:
-  c: false
-  h: 63b80dc38746c8d73c2c3703c54e07a0e4921f191be68e13541d0b319da80668
-  r: The required artifact `tests/unit/test_object_count.py` does not exist in the
-    repository, so the unit test for object count handling cannot be verified. The
-    task remains unfinished until the file is added with the appropriate test code.
-T027:
-  c: false
-  h: 84d6c1f1531c0e80f68b5c04f24c2a31cfa2271b14af91a8d1c864fd86d15fd2
-  r: "The repository contains `code/02_visual_metrics.py`, but the displayed portion\
-    \ stops before any `if __name__ == \"__main__\":` block that would iterate over\
-    \ `data/raw/` images and write `visual_metrics_intermediate.csv`. Moreover, the\
-    \ required output file `data/processed/visual_metrics_intermediate.csv` is absent.\
-    \ The task\u2019s core requirement\u2014processing all raw images and saving the\
-    \ computed metrics to the intermediate CSV\u2014is therefore not fulfilled."
-T028:
-  c: false
-  h: 4bac483c6f37e2a328b6c4a0013923f8767eef65d3208fde4417150f5a2e5b32
-  r: The repository lacks `data/processed/final_analysis_data.csv`, and the provided
-    `code/02_visual_metrics.py` does not contain any code that reads `visual_metrics_intermediate.csv`,
-    merges it with `merged_data.csv`, or writes the result to `final_analysis_data.csv`.
-    Consequently, the required merge logic and output file are missing.
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `specs/001-visual-distraction-cognitive-control/quickstart.md` file is presented,\
-    \ and thus there is no evidence that the required \u201CData Source Selection\u201D\
-    \ and \u201CInterpretation of Results\u201D sections were added. The implementer\
-    \ must provide the markdown document with the specified sections."
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No codebase or linter output was provided, so there is no evidence that any\
-    \ files were cleaned up or that a PEP8 check was run and passed. The required\
-    \ artifact\u2014a PEP8\u2011compliant code repository or a linting report showing\
-    \ zero errors\u2014is missing."
-T049:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of new unit test files in `tests/unit/` was provided; the claim\
-    \ of \u201Cadditional unit tests for edge cases (image failure, zero variance)\u201D\
-    \ cannot be verified because the required test artifacts are missing. The next\
-    \ implementer must add concrete test cases covering image loading failures and\
-    \ zero\u2011variance data scenarios in the `tests/unit/` directory."
-T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing that `quickstart.md` was executed or validated is present;\
-    \ there are no logs, output files, or confirmation that the end\u2011to\u2011\
-    end pipeline ran successfully. The implementer\u2019s submission contains only\
-    \ a feature specification, not the required validation evidence."
-T051:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, log files, or test output were provided to demonstrate that T015 now
-    includes strict dataset source validation logic or that it logs the correct linkage
-    validation status. Without these artifacts, the claim cannot be verified.
