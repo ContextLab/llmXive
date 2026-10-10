@@ -1,3 +1,62 @@
+T001:
+  c: true
+  h: a83e22de06c9c55afbf1706c934f0695f18c3b9a3991507112f594abbf7e2c06
+  r: All five requested directories (`data/raw/`, `data/processed/`, `data/results/`,
+    `code/`, `tests/`) exist with `.gitkeep` files confirmed in each directory listing,
+    exactly matching the task's requirement.
+  sig: 29d750231a65084a464baf8a0d1fcea2b75cac82de74fc5ffed1b5be282725ee
+T002:
+  c: false
+  h: d66138eecfa377090bf19ae51c09bdf281d01c45e29f9d3adb9ca9bcfcad23ba
+  r: The requirements.txt exists and pins 12 of the 13 requested packages at the exact
+    specified versions, but it pins `psutil==5.9.0` instead of the required `psutil==2.3.0`,
+    and the task explicitly required exact pins for all listed versions. Fix the psutil
+    line (or get the requirement corrected) to satisfy the task as stated.
+  sig: deb70960c01cc8bb679ae37e838f3230e545123bf21b60deb7a28b8aa8552ca9
+T003:
+  c: false
+  h: ede356de67a1853e35f9f704cb89213ad1e275ceba2d3a1ded5e886fb339634a
+  r: "The evidence collector lists no artifacts for this task \u2014 there is no `pyproject.toml`,\
+    \ `ruff.toml`, `.ruff.toml`, `setup.cfg`, `tox.ini`, or any configuration file\
+    \ containing ruff/black settings anywhere in the project, and no evidence (e.g.,\
+    \ lint/format run output) that the tools were configured or executed. The implementer's\
+    \ claim of configuring ruff and black is unsupported by any on-disk artifact;\
+    \ the next implementer should add an actual configuration file (e.g., `[tool.ruff]`\
+    \ and `[tool.black]` sections in `pyproject.toml`) and demonstrate it applies\
+    \ to the project's code."
+  sig: fbcc0fda87833cd81f097c1f468bab40db5c60810cf4aeecec4a78e7aa36162c
+T004:
+  c: true
+  h: 2ada9226dce86069261bb8feace8e7b7e87e40b6f579e63713d7326e9c86c125
+  r: "`code/config.py` exists (4900 bytes) and defines all required explicit keys\
+    \ with correct defaults: `batch_size=8`, `learning_rate=1e-4`, `seed=42`, `dataset_limits`\
+    \ (including `max_train_samples`), `paths` (data dirs), and `thresholds` (including\
+    \ `semantic_threshold`), plus serialization helpers \u2014 no stubs or placeholders."
+  sig: 0b2dc1f6942d0a8bf1770a7f608587363648e2f8020ef4c8af620b88321dabb3
+T005:
+  c: false
+  h: 7d08fc5a2cd31320b587f4c3db8da56b626cd595927fc53d23e194387352175d
+  r: "The file exists and fails loudly on fetch errors, but it does not implement\
+    \ the required **standard spatial resize to a fixed resolution** \u2014 there\
+    \ is no resizing logic (no transforms, no target resolution, no PIL/torch resize)\
+    \ anywhere in `code/data_loader.py`. It also loads COCO via `load_dataset(\"mscoco\"\
+    , \"2017\", ...)` instead of the specified `load_dataset(\"coco\", split=\"train\"\
+    , streaming=True)`, and ImageNet \"batch handling\" is only a generic `get_dataloader`\
+    \ that returns `None` for streaming datasets rather than real batch handling.\
+    \ Additionally, the T032 benchmark fabricates a \"baseline\""
+  sig: e2330e22687df8b51669fc446a7312498368cf0cbe226fafb95e0f91690a7cc8
+T006:
+  c: false
+  h: 59256bbb9728867d9e0591f93547a3976f853013fb320b1a797c213a190e503e
+  r: "The task explicitly forbids a fallback architecture and requires a `RuntimeError`\
+    \ with a clear message when the ViQ checkpoint is missing, but `code/model.py`\
+    \ implements `FrozenViQWrapper` as a self-described \"Simulated ViQ Encoder\"\
+    \ (a small ResNet-like CNN) with no checkpoint loading or error path at all \u2014\
+    \ a fabricated stand-in rather than the required frozen ViQ wrapper using ID \"\
+    viq-base-v\". Additionally, the `Codebook.forward` reshape-back branch is dead\
+    \ code (the 4D check occurs after `x` is already reshaped to 3D), so 4D inputs\
+    \ return wrongly-shaped outputs."
+  sig: 83014fc7334c78e1b887cc041bd99d818e996285c5eddbaf9ac7b0140a20f4a8
 T006b:
   c: false
   h: e98c7e2d6ebb109ab0a02d64429f947352b91d11fca093a72e0c52f8ac6b33b1
@@ -54,21 +113,6 @@ T028:
     \ a correlation analysis script unrelated to computing the percentage difference\
     \ between high\u2011res and baseline semantic similarity scores. The task\u2019\
     s core functionality and output file are therefore missing."
-T036b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `plan.md` file or `decisions/003-plan-spec-alignment.md` note was\
-    \ provided; without these artifacts we cannot confirm that the reference to \u201C\
-    SC-005\u201D was removed as required. The implementer must supply the modified\
-    \ plan document or decision record showing the change."
-T036c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided spec excerpt does not contain the exact required text blocks (\u201C\
-    Native 1024x1024 ground truth used per Decision Record\u202F002\u201D and \u201C\
-    Paired t\u2011test or Wilcoxon signed\u2011rank test used per Decision Record\u202F\
-    002\u201D), nor is there any shown evidence of an updated `spec.md` file. Without\
-    \ the actual updated document, the deliverable is missing."
 T040:
   c: false
   h: cb60f05380b1169b58c81ca2ca7289f02b48690a1a5266aff7fb769ed47c0032

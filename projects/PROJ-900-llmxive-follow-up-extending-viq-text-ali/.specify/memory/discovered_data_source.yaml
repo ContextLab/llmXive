@@ -1,11 +1,5 @@
 status: none
-intent: COCO image-caption dataset low resolution 64x64 download python package dataset
-required_fields:
-- image_id
-- image
-- caption
-- width
-- height
-cache_key: 7d2d086ce28a696c7f98cd30f96af6fb82b96b689b76f4f8365457654683aa95
-searched_at: '2026-07-21T23:58:48.398064+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-10T23:08:51.701375+00:00'
+retry_count: 3
