@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T033` (rejected 1x): No updated `README.md` content was provided; there is no evidence that a new section describing the project goal, dependencies, and pipeline execution steps exists or is non‑empty. The implementer must add and show the revised README with the required information.
-- `T036` (rejected 1x): No artifacts (e.g., a diff, a lint report, or the formatted `code/` files) were provided to demonstrate that `ruff check --fix` and `black` were run and that all lint errors were resolved. The implementer’s claim cannot be verified without such evidence.
+- `task-format` (rejected 1x): Unterminated Markdown code fence in tasks.md; repair the task document
 
 ## Required change
 
