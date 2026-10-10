@@ -1,119 +1,40 @@
-# Alignment Results Schema: Defines the structure of behavioral alignment outputs
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Alignment Results Schema"
+description: "Schema describing the results of aligning behavioral timestamps to imaging frames."
 type: object
 required:
-  - metadata
-  - alignment_map
-  - temporal_offsets
-  - quality_metrics
+  - imaging_timestamps_path
+  - behavior_timestamps_path
+  - aligned_indices
+  - alignment_error
+  - method
 properties:
-  metadata:
+  imaging_timestamps_path:
+    type: string
+    description: Path to the file containing imaging timestamps.
+  behavior_timestamps_path:
+    type: string
+    description: Path to the file containing raw behavioral timestamps.
+  aligned_indices:
+    type: array
+    description: Array of integer indices mapping each behavior event to the nearest imaging frame.
+    items:
+      type: integer
+  alignment_error:
     type: object
-    description: Metadata about the alignment process
+    description: Error metrics for the alignment.
     required:
-      - alignment_id
-      - source_dataset_id
-      - n_components
-      - n_behavioral_features
-      - method
+      - mean_error_seconds
+      - max_error_seconds
     properties:
-      alignment_id:
-        type: string
-        description: Unique identifier for this alignment run
-      source_dataset_id:
-        type: string
-        description: ID of the dataset used for alignment
-      n_components:
-        type: integer
-        minimum: 1
-        description: Number of NMF components aligned
-      n_behavioral_features:
-        type: integer
-        minimum: 1
-        description: Number of behavioral features considered
-      method:
-        type: string
-        enum: [cross_correlation, dynamic_time_warping, lagged_correlation]
-        description: Method used for alignment
-      max_lag_frames:
-        type: integer
-        minimum: 0
-        description: Maximum lag considered in frames
-  alignment_map:
-    type: object
-    description: Mapping of components to behavioral features
-    required:
-      - mappings
-      - best_lags
-    properties:
-      mappings:
-        type: array
-        items:
-          type: object
-          required:
-            - component_id
-            - behavior_feature
-            - correlation_strength
-          properties:
-            component_id:
-              type: string
-              description: ID of the NMF component
-            behavior_feature:
-              type: string
-              description: Name of the behavioral feature (e.g., 'running_speed', 'pupil_diameter')
-            correlation_strength:
-              type: number
-              minimum: -1
-              maximum: 1
-              description: Correlation coefficient at optimal lag
-      best_lags:
-        type: array
-        items:
-          type: object
-          required:
-            - component_id
-            - optimal_lag_frames
-          properties:
-            component_id:
-              type: string
-              description: ID of the NMF component
-            optimal_lag_frames:
-              type: integer
-              description: Optimal temporal lag in frames (positive = behavior lags component)
-  temporal_offsets:
-    type: object
-    description: Calculated time offsets between imaging and behavior streams
-    required:
-      - imaging_start_time
-      - behavior_start_time
-      - offset_seconds
-    properties:
-      imaging_start_time:
+      mean_error_seconds:
         type: number
-        description: Start time of imaging stream in seconds
-      behavior_start_time:
+      max_error_seconds:
         type: number
-        description: Start time of behavior stream in seconds
-      offset_seconds:
-        type: number
-        description: Calculated offset (behavior_time - imaging_time)
-  quality_metrics:
-    type: object
-    description: Metrics assessing the quality of the alignment
-    required:
-      - mean_correlation
-      - max_correlation
-      - alignment_confidence
-    properties:
-      mean_correlation:
-        type: number
-        description: Mean correlation across all component-feature pairs
-      max_correlation:
-        type: number
-        description: Maximum correlation observed
-      alignment_confidence:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Confidence score of the alignment (0-1)
-additionalProperties: false
+  method:
+    type: string
+    enum: [nearest, linear_interpolation]
+    description: Alignment method used.
+  notes:
+    type: string
+    description: Optional free‑form notes.

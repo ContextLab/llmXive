@@ -1,28 +1,23 @@
+# flake8 configuration for the decoding-internal-states pipeline.
+# Consumed by `flake8` when run from the code/ directory.
 [flake8]
-max-line-length = 88
-extend-ignore = E203, E501, W503
+max-line-length = 100
+extend-ignore =
+    # E203: whitespace before ':' (conflicts with black slicing style)
+    E203,
+    # W503: line break before binary operator (black-compliant)
+    W503
 exclude =
     .git,
     __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info,
-    data,
     .venv,
     venv,
-    env
+    build,
+    dist,
+    *.egg-info,
+    ../data,
+    ../results
 per-file-ignores =
-    # Allow unused imports in __init__.py for public API exports
-    code/__init__.py: F401
-    code/utils/__init__.py: F401
-    code/data/__init__.py: F401
-    code/analysis/__init__.py: F401
-    # Allow unused arguments in test fixtures
-    code/tests/test_*.py: F811
+    # tests allow slightly longer lines for fixtures and assertions
+    tests/*:E501
 max-complexity = 15
-statistics = True
-show-source = True
-count = True
-select = E, F, W, C90
-ignore = E121, E123, E126, E226, E24, E704, W503, W504

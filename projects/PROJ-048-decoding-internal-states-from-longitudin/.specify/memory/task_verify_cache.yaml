@@ -1,18 +1,53 @@
 T001:
+  c: true
+  h: 1e986eb82e5b3c8d92cffde3fcc3c91108e036ae2fd56dde787836c5e3ef2fe2
+  r: Checked the execution log `code/.tasks/T001.code_setup_structure.py.log`, which
+    records the successful run of the setup script and confirms creation of the exact
+    directories `code/data`, `code/analysis`, `code/utils`, `code/tests`, and `specs/001-decoding-internal-states/contracts`
+    as required.
+  sig: 77230518b889b2e453b1d0ca97df92a98bb606e12c18d403b03463f632855f83
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or other evidence were provided showing that the required\
-    \ folders (`code/data`, `code/analysis`, `code/utils`, `code/tests`, `specs/001-decoding-internal-states/contracts`)\
-    \ actually exist. The implementer\u2019s claim cannot be verified without concrete\
-    \ artifacts, so the project structure has not been demonstrated."
+  h: ab1adae40877540a27eefc65c8e5728bd05ebae9a6537b48e77e4c62f02d1fdd
+  r: "The only artifact present is a `requirements.txt`, but it lists version ranges\
+    \ (e.g., `numpy>=1.26.0,<2.0.0`) rather than exact pinned versions, which does\
+    \ not satisfy the \u201Cpinning\u201D requirement. Moreover, no other project\u2011\
+    initialization files (e.g., `pyproject.toml`, `setup.cfg`, or a marker of Python\u202F\
+    3.11) are provided, so the Python\u202F3.11 project is not fully initialized."
+  sig: 6bd0674c40ec1b55329f3893b58ef893e6f721ac1b0c0ef3df756378e899cec0
 T003:
+  c: true
+  h: e5b1b9ec9ff4be6860a51aed61bc4190bfb29649be9a771091d89aaf2b641bee
+  r: Checked the presence of linting configuration files (`.flake8`, `pyproject.toml`/`setup.cfg`
+    for Black) and the lint script (`lint.sh`), and verified that the automated test
+    log `code/.tasks/T003.code_tests_test_lint_config.py.log` reports all checks passed,
+    confirming the configs parse and the script exists.
+  sig: a494b41c5a2f68368461e6b92bd78fd9117e027dc41e9c64c088e96b077e749c
+T004:
+  c: true
+  h: 7ef5b5ebf16acdef6f63f172bdd4014b3a0c9d17c590fd497d1b92ce9bde006a
+  r: "Checked `code/utils/memory_monitor.py` (3056\u202Fbytes) which defines `MemoryExceededError`,\
+    \ reads a configurable limit (env var or argument), provides `check_memory_limit`\
+    \ and a `MemoryMonitor` context manager that raise `MemoryExceededError` when\
+    \ the limit is exceeded."
+  sig: dec12807244b125643d0e9a1a7d1be9131173d3ac968123fd99db5debf8052f7
+T005:
+  c: true
+  h: d84e378831f4a545c58cf815fdf39fdfcb41468ae96f34defc24eba632330d2b
+  r: "The `code/utils/logger.py` file (4263\u202Fbytes) is present and contains a\
+    \ fully implemented JSON\u2011based logger with `get_logger`, `log_stage_start`,\
+    \ `log_stage_end`, `log_memory_usage`, and `log_error` functions, matching the\
+    \ task\u2019s requirement for structured pipeline\u2011stage logging. No stubs\
+    \ or missing functionality were found."
+  sig: 561a88d4394ea2bef7e57bf6649f1eeccddaedeb862a7131b7775cedf51e6581
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black settings, or a `setup.cfg`/`tox.ini` containing flake8/black sections)\
-    \ are present in the provided evidence, nor any documentation showing they have\
-    \ been added to the `code/` directory. The implementer\u2019s claim lacks the\
-    \ required artifacts."
+  h: b3bb86dbd3c9c8f3d115b122e17b91798db44d131c9f293505383c677f6fe7fe
+  r: The `specs/001-decoding-internal-states/contracts/` directory exists but the
+    four required schema files (`dataset.schema.yaml`, `output.schema.yaml`, `alignment_results.schema.yaml`,
+    `correlation_results.schema.yaml`) are all reported as MISSING. Without these
+    files the task of creating the base data schemas is not satisfied.
+  sig: 89b8bbee58cdfcd63ecfe3131f940de19c19d4ba8bfd0427b5f824c2951d7ff6
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

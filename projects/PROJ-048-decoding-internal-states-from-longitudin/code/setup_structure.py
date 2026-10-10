@@ -1,36 +1,46 @@
+"""T001: Create the project directory structure defined in plan.md.
+
+Creates the exact directory tree:
+    code/data, code/analysis, code/utils, code/tests,
+    specs/001-decoding-internal-states/contracts
+
+Each directory is created (idempotently) and populated with a .gitkeep
+marker file so the structure is visible to git and verifiable on disk.
+Running this script prints a listing of the created tree and exits 0.
 """
-Script to establish the project directory structure.
-This script creates the necessary folders for the llmXive project.
-"""
-import os
 from pathlib import Path
 
-def create_directories():
-    """Create the project directory tree."""
-    # Define the base project root (current directory)
-    base = Path(".")
+# Project root is the parent of the directory containing this script.
+ROOT = Path(__file__).resolve().parent.parent
 
-    # Define the required directories relative to the base
-    dirs = [
-        "code/data",
-        "code/analysis",
-        "code/utils",
-        "code/tests",
-        "specs/001-decoding-internal-states/contracts",
-    ]
+DIRECTORIES = [
+    "code/data",
+    "code/analysis",
+    "code/utils",
+    "code/tests",
+    "specs/001-decoding-internal-states/contracts",
+]
 
-    created_count = 0
-    for dir_path in dirs:
-        full_path = base / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {full_path}")
-            created_count += 1
-        else:
-            print(f"Exists: {full_path}")
 
-    print(f"\nDirectory setup complete. Created {created_count} new directories.")
-    return created_count
+def create_structure(root: Path = ROOT) -> None:
+    """Create all required directories and .gitkeep marker files."""
+    for rel in DIRECTORIES:
+        target = root / rel
+        target.mkdir(parents=True, exist_ok=True)
+        marker = target / ".gitkeep"
+        if not marker.exists():
+            marker.write_text("", encoding="utf-8")
+
+
+def main() -> None:
+    create_structure()
+    print("Project structure created per plan.md:")
+    for rel in DIRECTORIES:
+        target = ROOT / rel
+        assert target.is_dir(), f"missing directory: {target}"
+        assert (target / ".gitkeep").exists(), f"missing marker in: {target}"
+        print(f"  [ok] {rel}/")
+
 
 if __name__ == "__main__":
-    create_directories()
+    main()

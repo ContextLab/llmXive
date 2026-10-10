@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` by executing `mkdir -p code/data code/analysis code/utils code/tests specs/001-decoding-internal-states/contracts` to establish the exact directory tree defined in the plan.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` pinning `numpy`, `pandas`, `scikit-learn`, `scipy`, `requests`, `tqdm`, `nwb`, `pytest`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
+- [X] T001 Create project structure per `plan.md` by executing `mkdir -p code/data code/analysis code/utils code/tests specs/001-decoding-internal-states/contracts` to establish the exact directory tree defined in the plan.
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` pinning `numpy`, `pandas`, `scikit-learn`, `scipy`, `requests`, `tqdm`, `nwb`, `pytest`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
 
@@ -58,9 +58,9 @@
 - [X] T004 [P] Implement `code/utils/memory_monitor.py` to enforce a configurable RAM limit and raise `MemoryExceededError`
 - [X] T005 [P] Implement `code/utils/logger.py` for structured logging of pipeline stages
 - [ ] T006 Create base data schemas in `specs/001-decoding-internal-states/contracts/` (`dataset.schema.yaml`, `output.schema.yaml`, `alignment_results.schema.yaml`, `correlation_results.schema.yaml`)
-- [X] T007 Implement `code/data/loader.py` with chunked loading strategy to ensure memory safety
-- [X] T008 [P] Implement `code/data/split.py` for time-based train/test splitting with a majority-to-minority ratio. to satisfy FR-008 (held-out dataset split for statistical validation)
-- [X] T009 Setup environment configuration management by creating `code/config.py` to manage specific keys: `DATASET_URL`, `RANDOM_SEED`, `MEMORY_LIMIT_GB`
+- [~] T007 Implement `code/data/loader.py` with chunked loading strategy to ensure memory safety
+- [~] T008 [P] Implement `code/data/split.py` for time-based train/test splitting with a majority-to-minority ratio. to satisfy FR-008 (held-out dataset split for statistical validation)
+- [~] T009 Setup environment configuration management by creating `code/config.py` to manage specific keys: `DATASET_URL`, `RANDOM_SEED`, `MEMORY_LIMIT_GB`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,17 +76,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Contract test for data schema in `code/tests/test_preprocess.py` (verify no NaNs, correct shape)
-- [X] T011 [P] [US1] Integration test for memory limit in `code/tests/test_preprocess.py` (verify `MemoryExceededError` on oversized input)
+- [~] T010 [P] [US1] Contract test for data schema in `code/tests/test_preprocess.py` (verify no NaNs, correct shape)
+- [~] T011 [P] [US1] Integration test for memory limit in `code/tests/test_preprocess.py` (verify `MemoryExceededError` on oversized input)
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/data/download.py` to fetch specific Allen Brain Atlas Visual Coding subset (ROI traces + metadata) with checksum validation
-- [X] T013 [US1] Implement `code/data/preprocess.py` `dF/F` normalization, detrending, and missing data handling: interpolate if ≤5% missing, otherwise raise `DataValidationError` with message "Missing data exceeds 5% threshold" (FR-002)
-- [X] T014 [US1] Implement `code/data/preprocess.py` deconvolution step using OASIS algorithm to estimate spike rates (FR-011); output is required input for T020
-- [X] T015 [US1] Implement resampling logic in `code/data/preprocess.py` to align behavioral metadata sampling rate with imaging data
-- [X] T016 [US1] Implement specific logic in `code/data/download.py` and `code/data/loader.py` to intercept dataset size checks and explicitly raise `MemoryExceededError` with the message "Memory limit exceeded" if the dataset exceeds 5GB (FR-001, SC-001)
-- [X] T017 [US1] Add logging for data download, preprocessing steps, and memory usage in `code/utils/logger.py`
+- [~] T012 [P] [US1] Implement `code/data/download.py` to fetch specific Allen Brain Atlas Visual Coding subset (ROI traces + metadata) with checksum validation
+- [~] T013 [US1] Implement `code/data/preprocess.py` `dF/F` normalization, detrending, and missing data handling: interpolate if ≤5% missing, otherwise raise `DataValidationError` with message "Missing data exceeds 5% threshold" (FR-002)
+- [~] T014 [US1] Implement `code/data/preprocess.py` deconvolution step using OASIS algorithm to estimate spike rates (FR-011); output is required input for T020
+- [~] T015 [US1] Implement resampling logic in `code/data/preprocess.py` to align behavioral metadata sampling rate with imaging data
+- [~] T016 [US1] Implement specific logic in `code/data/download.py` and `code/data/loader.py` to intercept dataset size checks and explicitly raise `MemoryExceededError` with the message "Memory limit exceeded" if the dataset exceeds 5GB (FR-001, SC-001)
+- [~] T017 [US1] Add logging for data download, preprocessing steps, and memory usage in `code/utils/logger.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,18 +100,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for NMF output shape and non-negativity in `code/tests/test_nmf.py`
-- [X] T019 [P] [US2] Integration test for CPU-only enforcement in `code/tests/test_nmf.py` (verify no CUDA calls)
+- [~] T018 [P] [US2] Contract test for NMF output shape and non-negativity in `code/tests/test_nmf.py`
+- [~] T019 [P] [US2] Integration test for CPU-only enforcement in `code/tests/test_nmf.py` (verify no CUDA calls)
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/analysis/nmf_engine.py` custom solver with temporal smoothness regularization (SparseNMF/ConvNMF approach) to satisfy FR-010; consumes deconvolved output from T014 (Note: Removed [P] tag due to dependency on T014)
-- [X] T021 [US2] Implement NMF execution logic in `code/analysis/nmf_engine.py` with configurable k (a range of values) and A limited number of retries for convergence.
-- [X] T022 [US2] Implement sensitivity sweep logic in `code/analysis/nmf_engine.py` to iterate through specific k values and aggregate results for sensitivity analysis (FR-003)
-- [X] T023 [US2] Implement parallel multi-seed sweep in `code/analysis/nmf_engine.py` to generate NMF components for multiple random seeds
+- [~] T020 [US2] Implement `code/analysis/nmf_engine.py` custom solver with temporal smoothness regularization (SparseNMF/ConvNMF approach) to satisfy FR-010; consumes deconvolved output from T014 (Note: Removed [P] tag due to dependency on T014)
+- [~] T021 [US2] Implement NMF execution logic in `code/analysis/nmf_engine.py` with configurable k (a range of values) and A limited number of retries for convergence.
+- [~] T022 [US2] Implement sensitivity sweep logic in `code/analysis/nmf_engine.py` to iterate through specific k values and aggregate results for sensitivity analysis (FR-003)
+- [~] T023 [US2] Implement parallel multi-seed sweep in `code/analysis/nmf_engine.py` to generate NMF components for multiple random seeds
 - [ ] T024 [US2] Implement sequential aggregation of NMF results from T023 to calculate cosine similarity across seeds and verify stability threshold ≥0.95 (SC-004); write stability report to `code/analysis/stability_report.json` with explicit pass/fail status
-- [X] T025 [US2] Integrate `code/data/loader.py` to feed chunked data into NMF engine without loading full matrix
-- [X] T026 [US2] Implement alignment of extracted component weights with behavioral metadata timestamps in `code/analysis/alignment.py`
+- [~] T025 [US2] Integrate `code/data/loader.py` to feed chunked data into NMF engine without loading full matrix
+- [~] T026 [US2] Implement alignment of extracted component weights with behavioral metadata timestamps in `code/analysis/alignment.py`
 - [ ] T027 [US2] Calculate alignment error metric and validate against ≤1 frame threshold (SC-005); raise error if threshold exceeded
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,16 +126,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Contract test for correlation results schema in `code/tests/test_stats.py`
-- [X] T029 [P] [US3] Integration test for permutation test significance in `code/tests/test_stats.py` (verify p > 0.05 on shuffled data)
+- [~] T028 [P] [US3] Contract test for correlation results schema in `code/tests/test_stats.py`
+- [~] T029 [P] [US3] Integration test for permutation test significance in `code/tests/test_stats.py` (verify p > 0.05 on shuffled data)
 
 ### Implementation for User Story 3
 
-- [X] T030 [US3] Implement `code/analysis/stats.py` Spearman correlation calculation between component weights and behavioral metrics (Note: Removed [P] tag due to dependency on T026) <!-- FAILED: unspecified -->
-- [X] T031 [US3] Implement `code/analysis/stats.py` permutation test with a sufficient number of iterations to ensure statistical reliability to generate null distribution and p-values (FR-005) with explicit enforcement that Benjamini-Hochberg FDR correction is applied ONLY to the held-out set results after splitting (FR-008, Plan Phase 2 Step 6)
-- [X] T032 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
+- [~] T030 [US3] Implement `code/analysis/stats.py` Spearman correlation calculation between component weights and behavioral metrics (Note: Removed [P] tag due to dependency on T026) <!-- FAILED: unspecified -->
+- [~] T031 [US3] Implement `code/analysis/stats.py` permutation test with a sufficient number of iterations to ensure statistical reliability to generate null distribution and p-values (FR-005) with explicit enforcement that Benjamini-Hochberg FDR correction is applied ONLY to the held-out set results after splitting (FR-008, Plan Phase 2 Step 6)
+- [~] T032 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
 - [ ] T033 [US3] Implement validation logic to compare NMF components derived from the training set against the test set: run NMF on training set, apply weights to test set, calculate correlation on test set only, and report to prove non-tautological correlation (FR-008); explicitly reference held-out set generated by T008
-- [X] T034 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
+- [~] T034 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
 - [ ] T035 [US3] Perform explicit statistical comparison between NMF-derived correlations and the linear mixing null model: calculate difference in correlation strength and p-values, and generate a comparison report
 - [ ] T036 [US3] Generate final results report to `results/final_report.md` with p-values, significance flags, explicit comparison against the linear mixing null model, and validation results from T033
 - [ ] T037 [US3] Restrict statistical testing to the held-out test set generated by `code/data/split.py` (FR-008)

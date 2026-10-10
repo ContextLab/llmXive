@@ -1,0 +1,19 @@
+status: none
+intent: Allen Institute Visual Coding calcium imaging dataset download python package
+  dataset
+required_fields:
+- cell_id
+- fluorescence_trace
+- frame_timestamp
+- dff_normalized_trace
+- detrended_trace
+- mouse_id
+- session_id
+- stimulus_id
+- trial_number
+- behavioral_timestamp
+- running_speed
+- pupil_diameter
+cache_key: e1fbfc55de4e597d0311ea42a1ca8a16692ede641114c703dca59e2a79f4a22f
+searched_at: '2026-10-10T07:27:01.205968+00:00'
+retry_count: 1

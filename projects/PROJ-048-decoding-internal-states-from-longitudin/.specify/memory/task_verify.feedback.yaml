@@ -1,0 +1,93 @@
+T001:
+  task: 4d5656c60107b8d0c33c3e9dd37a1037eef962271e134a6a9f1bc33e58eaefe8
+T002:
+  reason: "The only artifact present is a `requirements.txt`, but it lists version\
+    \ ranges (e.g., `numpy>=1.26.0,<2.0.0`) rather than exact pinned versions, which\
+    \ does not satisfy the \u201Cpinning\u201D requirement. Moreover, no other project\u2011\
+    initialization files (e.g., `pyproject.toml`, `setup.cfg`, or a marker of Python\u202F\
+    3.11) are provided, so the Python\u202F3.11 project is not fully initialized."
+  task: a1b23f2570f40a01174c544ef3a149ddafa8528b55a197c79d8123bbc49f7b00
+T003:
+  task: 9af88fbb3ef47c246afb4e5b46694e6c6d4418f2cfbb2221d8c4b889f2dec808
+T004:
+  task: 8334ee12fb6c1cf621f7fbf6f36315f78f6614e1952b8162ac4a6b7849bbf5d6
+T005:
+  task: 5ac99a6f7524d76e9d8b03726df256cfaaa8fa6156d759183213b43b38524a10
+T006:
+  reason: The `specs/001-decoding-internal-states/contracts/` directory exists but
+    the four required schema files (`dataset.schema.yaml`, `output.schema.yaml`, `alignment_results.schema.yaml`,
+    `correlation_results.schema.yaml`) are all reported as MISSING. Without these
+    files the task of creating the base data schemas is not satisfied.
+  task: 834e9a09d40da4e047f79efd53ec137964e33d0c8c0cf5be9a7fb317f256c49f
+T007:
+  task: 393ee0ece99405dd88a3b7ee8ee68be30238750de6efcce299dc6182cb9b9310
+T008:
+  task: 9f849dcc3ea7b8b916e434e7bbb2dc92d2dd146c8abdb8e4f7d8e52074f57ac3
+T009:
+  task: fd25215ff1ba2fe75a505354b2d5ef056d10c8824583d18cde807c40c1315322
+T010:
+  task: fb0727d448e5a4a1743a093cae11944cbed51dd8a43fa7562ee4f680f3782bd9
+T011:
+  task: 2f5ffa6326500a0e12ee4f87adcc3604449e135c023a29d6997c36c0347b62f6
+T012:
+  task: 8d58c4c72461d7907c900804da2c9e0bd14aadc49a8dd46709d3cf132c6b002e
+T013:
+  task: eeda32ff52860ab4b476898139ab51a844facf4d94fb71a5ba8337d0967d9e5d
+T014:
+  task: 4fed72abe1b76edbd2cf9efc94efdde68c9b1f45fb32ba1493a99ffffea6c4ab
+T015:
+  task: d86b856e3e1f2cfa4774c562a9f0d984d66478bc1e856c562f2f9d4e77aef4d4
+T016:
+  task: e11de0896d4808d55e8d93e1f1dda89cd504bb6bd9108d2733f1fa4340a17844
+T017:
+  task: ea7494442ce3a138486f8ea8572ad32fb004ef0523d7635352f0be62b2080272
+T018:
+  task: 9efd17b925b0f02cfddb85dedd90796b75f5add973993cff45f350b262284117
+T019:
+  task: 38060c651a6310f6b91dd3dc2b2abb80c724abe0d77d99b1631c1e6a468df5eb
+T020:
+  task: 56a915275cc8c5c07f52accbfc58085c64f4641fd01f86eb88f4667539f6b386
+T021:
+  task: 7457d692bfd160d2f07f6552dedfd1b65dd63d36e4dd5954a083b121f73cc618
+T022:
+  task: 1d898ffca558e9388625178e326a6be99fcb6d96f0b4afc5511f2e79c8dbec3d
+T023:
+  task: 3316caaf2c35eced10383ea5d68370c65c12c98eb87c7735225aaef81c4a6d50
+T024:
+  task: 3a43a04e3218fe615255dce232a9c416f4b9f428d23cb58d6721468dbe1112f2
+T025:
+  task: 37eef8c0ab8befe67fadd3ce6497e9a16084890778b5eb14a38539aa4acb6906
+T026:
+  task: 9f44120dd634e62ce62389a612f29a3deb06c1a6eb9749f22d8eacd1c3fe737f
+T027:
+  task: 80a53b8080ebf5b52c7f7bd3b99b1a921138a8325b923210b2d972d2e6070ef7
+T028:
+  task: ab056c074227ac0cdd2fa329f4374689cb6c67e903258f0f3adee0364c9de04b
+T029:
+  task: 319223a15140ec47df8bcd5a7b0de3443250bab3ebeb670c890a526519408801
+T030:
+  task: 871b1609afe742a954a374153d3fddf9b3f5f6a0e9759e7a47eb6e1e12f301a7
+T031:
+  task: c772dd040295b412b3f2dd3ad138296f1874ba59513a9a50f683774bd02f9089
+T032:
+  task: 207b1805e4e32bfb37af2ef9e985c2c97d663f958f134ba6e6b83fdf1392a09c
+T033:
+  task: 356c8ca687047041e08b61910d44262c9330970cbe59c4fb1e6129721d32712b
+T034:
+  task: be2ad6a3d2e908e67605855a18182d065722ae8a98f53b586b1093ed7476d55a
+T035:
+  task: b55128822a8fed55d701a3b9f1c2667bda61638d231fee3100e20de21f1a7dfc
+T036:
+  task: d9cece728373b2cb383b5f890893c8b5592aced7cbd47df398041cff4d735fbf
+T037:
+  task: 58fbc435fd11b3beaf70a67810255fc148f318d7866cb5012ee8d1772cc5291d
+T038:
+  task: 8e6ad3a75600aea6c01d064073ddf71ecbab4a0ceedc6a5d3c1849ae5ed7b81b
+T039:
+  task: 8c449f04dafcacf50e60e81a2595b720cd72dc81c1459b538aff5de7f52250f2
+T040:
+  task: cca0dff254aa15ff9e79a54b689fc871f3dbba9a96a80931ddbb90509afbd52b
+T041:
+  task: 172a3cdf741d9c2dd615ea9ab4ff622636ee70646e2d73ac8f2dcb1d7070c511
+T042:
+  task: b50685bb1a8d78d8ccec81759d43648e971af469a441470098c260fc4e6c956d

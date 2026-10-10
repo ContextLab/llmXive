@@ -1,0 +1,16 @@
+# Black formatting configuration for the decoding-internal-states pipeline.
+# Consumed by `black` when run from the code/ directory.
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | __pycache__
+  | build
+  | dist
+)/
+'''
