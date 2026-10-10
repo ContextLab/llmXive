@@ -53,7 +53,10 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          # depth 1: run_calibration.py reads current files and uses no
+          # repository history, and a full-history clone of a ~9 GB / 14k-commit
+          # repository is minutes of the job's budget spent on nothing.
+          fetch-depth: 1
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
