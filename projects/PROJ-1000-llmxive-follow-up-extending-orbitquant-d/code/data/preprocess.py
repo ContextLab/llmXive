@@ -31,8 +31,6 @@ from code.data.download_coco import load_coco_captions
 from code.data.download_diverse_prompts import (
     fetch_diverse_prompts,
     write_prompts_to_csv as _write_dummy,  # noqa: F401 (imported for side‑effects only)
-    # The merge function is defined in ``download_diverse_prompts`` for compatibility
-    # but we re‑implement it here to avoid circular imports.
 )
 
 def merge_and_deduplicate(coco: List[Dict[str, Any]], diverse: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

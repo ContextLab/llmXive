@@ -1,12 +1,4 @@
 T001:
-  reason: 'The task requires that `python code/main.py --phase init` runs without
-    error and prints exactly "Initialization complete". However, `code/main.py` has
-    a critical bug: it imports `json` at line 1 (implicitly via the validation module)
-    but never imports it explicitly, and more critically, it calls `json.load()` in
-    the `run_validation_gate()` function without the `json` module being imported
-    in the file. When `--phase init` is executed, the `run_init_phase()` function
-    will succeed and print "Initialization complete", but the module-level imports
-    will fail because `code/main.py` does not contain `'
   task: ec9d21d754e2d47e9d7d0b2d2fcf439a17f2c7f5960a3bc87d6b6bf177f9e8a0
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/download_coco.py

@@ -1,12 +1,8 @@
 T001:
-  c: false
-  h: 069ebcaed5582faa166111a9320a344b18dca795769a49acafa96e9138bd8954
-  r: 'The task requires that `python code/main.py --phase init` runs without error
-    and prints exactly "Initialization complete". However, `code/main.py` has a critical
-    bug: it imports `json` at line 1 (implicitly via the validation module) but never
-    imports it explicitly, and more critically, it calls `json.load()` in the `run_validation_gate()`
-    function without the `json` module being imported in the file. When `--phase init`
-    is executed, the `run_init_phase()` function will succeed and print "Initialization
-    complete", but the module-level imports will fail because `code/main.py` does
-    not contain `'
-  sig: 4807c15dcda16230ee181685648d5b8ca4937d6e10017f29184f97f927c0a82a
+  c: true
+  h: 8207e5228fca97c5b83db8c92f8b7e1b0421c244464e0fb4726c96de3c7d08a5
+  r: "Checked that all required directories and files exist (including `code/` sub\u2011\
+    dirs, `data/raw/`, `data/processed/`, `state/`, `requirements.txt`, `code/config.py`,\
+    \ and the quick\u2011start markdown) and that `python code/main.py --phase init`\
+    \ runs successfully, printing \u201CInitialization complete\u201D."
+  sig: eef38a8f817c12fa49d2fed60f5064611ab78d893c86daac01ca4fb245a58326

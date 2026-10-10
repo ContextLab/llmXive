@@ -7,7 +7,7 @@ All tasks are expressed as check‑boxes with the canonical `- [ ] T### [P?] [US
 
 ## Phase 1 – Project initialization  
 
-- [ ] T001 [P] Create project skeleton, dependency list, configuration, and quick‑start guide  
+- [X] T001 [P] Create project skeleton, dependency list, configuration, and quick‑start guide  
   - **Artifacts**: directories `code/`, `code/data/`, `code/models/`, `code/analysis/`, `code/quantization/`, `code/evaluation/`, `tests/`, `data/raw/`, `data/processed/`, `state/`; files `requirements.txt`, `code/config.py`, `specs/001-llmxive-followup/quickstart.md`.  
   - **Verification**: `find code/ -type d | wc -l` ≥ 8, `python -c "import code.config"` succeeds, `grep -c "torch" requirements.txt` ≥ 1, and the quick‑start command `pip install -r requirements.txt && python code/main.py --phase init` runs without error and prints “Initialization complete”.
 
@@ -15,7 +15,7 @@ All tasks are expressed as check‑boxes with the canonical `- [ ] T### [P?] [US
 
 ## Phase 2 – Data acquisition & prompt preparation  
 
-- [ ] T002 [P] Download MS‑COCO validation set, extract captions, and fetch a diverse external prompt set   <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 -->
+- [ ] T002 [P] Download MS‑COCO validation set, extract captions, and fetch a diverse external prompt set   <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 -->
   - **Steps**  
     1. `code/data/download_coco.py` → `data/raw/coco_captions/` (HuggingFace `nlpconnect/coco_captions`, split = validation).  
     2. `code/data/preprocess.py` → `data/processed/prompts.csv` with columns `image_id, caption`. Must contain ≥ 400 rows.  

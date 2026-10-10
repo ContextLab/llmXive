@@ -10,6 +10,7 @@ import csv
 import random
 import logging
 from pathlib import Path
+from typing import List, Dict
 
 from datasets import load_dataset
 
@@ -25,8 +26,8 @@ OUTPUT_DIR = Path("data/processed")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_FILE = OUTPUT_DIR / "diverse_prompts.csv"
 
-# Real data source: COCO training captions (public)
-DATASET_NAME = "cocodataset/COCO2017"
+# Real data source: COCO captions (train split) – provides a large, diverse set of captions
+DATASET_NAME = "nlpconnect/coco_captions"
 SPLIT = "train"
 
 def fetch_diverse_prompts(num_samples: int = 1000) -> List[Dict[str, str]]:
@@ -55,10 +56,7 @@ def fetch_diverse_prompts(num_samples: int = 1000) -> List[Dict[str, str]]:
 
     prompts = []
     for idx, item in enumerate(sampled_data):
-        caption = item.get('captions') or item.get('caption')
-        if isinstance(caption, list):
-            # Take the first caption for simplicity
-            caption = caption[0] if caption else ''
+        caption = item.get('caption')
         if isinstance(caption, str):
             caption = caption.strip()
         if caption:

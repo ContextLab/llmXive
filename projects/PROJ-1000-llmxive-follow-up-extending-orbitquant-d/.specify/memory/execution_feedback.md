@@ -39,20 +39,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download_coco.py -> rc=1
-nner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 129, in main
+k/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 123, in main
     for record in _stream_coco_captions():
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 59, in _stream_coco_captions
     raise RuntimeError(f"Failed to load COCO captions dataset: {e}") from e
-RuntimeError: Failed to load COCO captions dataset: Dataset 'cocodataset/COCO2017' doesn't exist on the Hub or cannot be accessed.
+RuntimeError: Failed to load COCO captions dataset: Dataset 'nlpconnect/coco_captions' doesn't exist on the Hub or cannot be accessed.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 159, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 153, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 154, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 148, in main
     raise RuntimeError(f"Failed to stream COCO captions: {e}") from e
-RuntimeError: Failed to stream COCO captions: Failed to load COCO captions dataset: Dataset 'cocodataset/COCO2017' doesn't exist on the Hub or cannot be accessed.
+RuntimeError: Failed to stream COCO captions: Failed to load COCO captions dataset: Dataset 'nlpconnect/coco_captions' doesn't exist on the Hub or cannot be accessed.
 
 - python code/main.py --mode full -> rc=2
 

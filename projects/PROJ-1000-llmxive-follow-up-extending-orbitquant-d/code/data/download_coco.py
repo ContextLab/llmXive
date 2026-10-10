@@ -30,7 +30,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def _stream_coco_captions(
-    dataset_name: str = "cocodataset/COCO2017",
+    dataset_name: str = "nlpconnect/coco_captions",
     split: str = "validation",
 ) -> Iterator[Dict[str, Any]]:
     """
@@ -59,17 +59,11 @@ def _stream_coco_captions(
         raise RuntimeError(f"Failed to load COCO captions dataset: {e}") from e
 
     for item in ds:
-        # The COCO dataset uses 'image_id' and a list of 'captions'
-        image_id = item.get("image_id") or item.get("id")
-        captions = item.get("captions") or item.get("caption")
-        if not captions:
-            continue
-        # Ensure we have an iterable of strings
-        if isinstance(captions, str):
-            captions = [captions]
-        for idx, cap in enumerate(captions):
-            if isinstance(cap, str) and cap.strip():
-                yield {"id": f"{image_id}_{idx}", "caption": cap.strip()}
+        # Expected fields: "id" and "caption"
+        caption = item.get("caption")
+        record_id = item.get("id")
+        if caption and isinstance(caption, str) and record_id:
+            yield {"id": str(record_id), "caption": caption.strip()}
 
 def load_coco_captions(config: Config) -> List[Dict[str, str]]:
     """
@@ -135,7 +129,7 @@ def main() -> None:
         logger.info(f"Finished streaming – total captions written: {count}")
 
         metadata = {
-            "dataset": "cocodataset/COCO2017",
+            "dataset": "nlpconnect/coco_captions",
             "split": "validation",
             "num_records": count,
             "csv_path": str(output_csv),

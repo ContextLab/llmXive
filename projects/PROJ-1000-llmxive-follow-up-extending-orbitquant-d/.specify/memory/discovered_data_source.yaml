@@ -1,12 +1,10 @@
 status: none
-intent: huggingface datasets ms coco 2017 validation set python package semantic entropy
-  python package dataset
+intent: download MS-COCO 2017 validation set via huggingface datasets python package
+  dataset
 required_fields:
-- prompt_text
 - image_id
+- image_file
 - caption
-- semantic_entropy
-- activation_variance
-cache_key: 73d5fc92f6c0fa7e6049e620f0ab265e452683a524c2975ff15ee97119ca84f1
-searched_at: '2026-10-10T06:28:15.151389+00:00'
+cache_key: d98dd8ad05bea091df79b56f17a87aa86f8d5a5bfa01e1943bd5d01c97804dd0
+searched_at: '2026-10-10T10:20:39.767744+00:00'
 retry_count: 1
