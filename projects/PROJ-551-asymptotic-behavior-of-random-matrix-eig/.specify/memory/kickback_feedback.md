@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T021c` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/validated_sweep_results.csv, data/processed/threshold_identification.json
+- `task-format` (rejected 1x): Tasker produced only 0 task IDs (need >= 5; total chars: 11987). Regenerate the complete tasks.md as canonical '- [ ] T### description' checkbox items, not task tables or fenced examples. Preserve every scientific requirement, path and verification step; do not add empty tasks or discard requirements to satisfy the format.
 
 ## Required change
 
