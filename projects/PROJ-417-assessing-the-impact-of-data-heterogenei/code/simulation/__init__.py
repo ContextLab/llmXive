@@ -1,32 +1,33 @@
-# Simulation module initialization
 """
-Simulation engine for generating synthetic meta-analysis datasets.
+Simulation package initialization.
 
-This module exposes the core classes and functions for data generation,
-including the simulation generator and related utilities.
+This file makes the `code.simulation` directory a proper Python package,
+allowing imports such as `from code.simulation.estimators import ...`.
+
+The estimators module provides Fixed‑Effects, DerSimonian‑Laird, and REML
+meta‑analysis estimators, along with Q and I² calculations, small‑study
+flagging, and REML convergence‑failure logging as required by FR‑002,
+FR‑006, and Constitution Principle VII.
 """
-
-from .generator import (
-    generate_synthetic_meta_analysis,
-    create_replicate,
-    validate_simulation_output,
-    SimulationConfig,
-    SimulationResult
+# Export primary public symbols for convenience
+from .estimators import (
+    EstimationResult,
+    estimate_fixed_effects,
+    estimate_dersimonian_laird,
+    estimate_reml,
+    apply_estimator,
+    calculate_i_squared,
+    log_reml_failure,
+    REML_FAILURE_LOG_PATH,
 )
 
 __all__ = [
-    "generate_synthetic_meta_analysis",
-    "create_replicate",
-    "validate_simulation_output",
-    "SimulationConfig",
-    "SimulationResult"
+    "EstimationResult",
+    "estimate_fixed_effects",
+    "estimate_dersimonian_laird",
+    "estimate_reml",
+    "apply_estimator",
+    "calculate_i_squared",
+    "log_reml_failure",
+    "REML_FAILURE_LOG_PATH",
 ]
-
-# Import logger if needed for module-level logging
-try:
-    from utils.logging import get_logger
-    logger = get_logger(__name__)
-except ImportError:
-    # Fallback if utils not yet available during initial setup
-    import logging
-    logger = logging.getLogger(__name__)

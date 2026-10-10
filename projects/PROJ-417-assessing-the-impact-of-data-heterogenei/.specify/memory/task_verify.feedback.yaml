@@ -1,32 +1,16 @@
 T001:
+  reason: "Checked `code/requirements.txt` (contains an extra `pytest` entry not listed\
+    \ among the allowed CPU\u2011only dependencies) and the missing `data/raw/cochrane_base.csv`\
+    \ (only the synthetic fallback exists). The extra dependency violates the \u201C\
+    only \u2026 dependencies\u201D rule, so the task is not fully satisfied."
   task: 820b146fe1b32473acbfb41cc6f7ff7e537670eff16194aff3b79a1e562fcb0e
 T002:
-  reason: "The `code/simulation/generator.py` file exists and implements the variance\
-    \ perturbation and deterministic seeding, and the unit\u2011test file `tests/unit/test_generator.py`\
-    \ contains the required checks. However, the test imports `simulation.generator`,\
-    \ while the source file lives under `code/simulation/generator.py` with no top\u2011\
-    level `simulation` package or `__init__.py` to make that import succeed. Consequently\
-    \ the tests cannot be imported/executed, so the verification criterion is not\
-    \ met. Add a proper package layout (e.g., a top\u2011level `simulation` package\
-    \ or adjust the import paths) so the test"
   task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
 T003:
-  reason: "The provided `code/simulation/estimators.py` defines the Fixed\u2011Effects,\
-    \ DerSimonian\u2011Laird, and REML estimators and includes Q, I\xB2 calculations,\
-    \ small\u2011study flagging, and REML failure logging. However, the file excerpt\
-    \ does not show the required `apply_estimator` dispatcher that the unit tests\
-    \ import (`tests/unit/test_estimators.py`). Since there is no evidence that this\
-    \ function exists, the implementation does not fully satisfy the verification\
-    \ suite. Adding a correctly\u2011implemented `apply_estimator` (dispatching to\
-    \ the three estimators and raising on unknown keys) will complete the task."
   task: 4384087d40e88678368e8be20ac6f3a68bef64c7c531dfa2d2681e582a7e300e
 T004:
-  reason: "Checked `code/analysis/metrics.py` \u2013 it implements bias and 95\u202F\
-    % CI coverage, reading the true effect strictly from the `injected_true_effect`\
-    \ column as required. However, no unit\u2011test files or test execution evidence\
-    \ are present to confirm that a pooled estimate equal to the true effect yields\
-    \ zero bias and a coverage flag of\u202FTrue, which the task\u2019s verification\
-    \ clause demands. Adding the appropriate tests (and evidence they pass) is needed."
+  reason: 'Requested task execution failed; rerun successfully: code/run_tests.sh
+    exit=1'
   task: 8a154f87ae88709e1935a37c714ab4dd02b425d066a708f75377172d1debd8e6
 T005:
   task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e

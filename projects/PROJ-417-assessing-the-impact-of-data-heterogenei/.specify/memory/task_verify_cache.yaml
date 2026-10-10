@@ -1,35 +1,28 @@
 T001:
-  c: true
-  h: 26a36c8e203cafe0abd0d5b71a345ca535ce42e0152eeee9d8e4bd4f926ecfa1
-  r: Checked `code/requirements.txt` for correct dependencies, `code/scripts/fetch_cochrane.py`
-    for proper fetch logic and error handling, and confirmed that `data/raw/cochrane_base_synthetic.csv`
-    exists with valid effect size and standard error columns. All required artifacts
-    are present and meet the task specifications.
-  sig: c5dd8cb73fbd749c6856b64bb2766ad93ef4ce56e2f89fa13bd7bb43eb2cdd59
+  c: false
+  h: cbc0b2daebb81ccff1477b5c27711de3b9731c53bb879d7f72df407a7ca55585
+  r: "Checked `code/requirements.txt` (contains an extra `pytest` entry not listed\
+    \ among the allowed CPU\u2011only dependencies) and the missing `data/raw/cochrane_base.csv`\
+    \ (only the synthetic fallback exists). The extra dependency violates the \u201C\
+    only \u2026 dependencies\u201D rule, so the task is not fully satisfied."
+  sig: e34b59afb4f5315eb9eaf76a9c8d59bf05ab067c273111261d1f71ea27ddd86e
 T002:
-  c: false
-  h: aeaed097d2b8cb66666a8bc717790f6cd1bf5e4477a41eeafa6f860ff8485a08
-  r: "The `code/simulation/generator.py` file exists and implements the variance perturbation\
-    \ and deterministic seeding, and the unit\u2011test file `tests/unit/test_generator.py`\
-    \ contains the required checks. However, the test imports `simulation.generator`,\
-    \ while the source file lives under `code/simulation/generator.py` with no top\u2011\
-    level `simulation` package or `__init__.py` to make that import succeed. Consequently\
-    \ the tests cannot be imported/executed, so the verification criterion is not\
-    \ met. Add a proper package layout (e.g., a top\u2011level `simulation` package\
-    \ or adjust the import paths) so the test"
-  sig: 7dc8894e4b86dc733520cc851367afcf4098e169318c33c25c5256d0a325aabd
+  c: true
+  h: 0bd0a5f6bc8be8d8c07ea15e03cabceba9f5ace49b1406641125a2b4d57d2089
+  r: "Checked `code/simulation/generator.py` for \u03C4\xB2 perturbation logic, deterministic\
+    \ seeding via the config seed, and the empirical variance calculation; the unit\
+    \ tests in `tests/unit/test_generator.py` (including the variance\u2011match test)\
+    \ all pass as shown in the verification log."
+  sig: 5bf2b5070437d747cab62a638a88014e97bb46d7a8201e1024dfce64d8f5177a
 T003:
-  c: false
-  h: e9d17f85d9554d258e4ad430d6e63711867b858748df236468a836c0d60f41fd
-  r: "The provided `code/simulation/estimators.py` defines the Fixed\u2011Effects,\
-    \ DerSimonian\u2011Laird, and REML estimators and includes Q, I\xB2 calculations,\
-    \ small\u2011study flagging, and REML failure logging. However, the file excerpt\
-    \ does not show the required `apply_estimator` dispatcher that the unit tests\
-    \ import (`tests/unit/test_estimators.py`). Since there is no evidence that this\
-    \ function exists, the implementation does not fully satisfy the verification\
-    \ suite. Adding a correctly\u2011implemented `apply_estimator` (dispatching to\
-    \ the three estimators and raising on unknown keys) will complete the task."
-  sig: f379c288dc5034601097ff203d87a72c94e2037616f2844bd895a320b7bb4e67
+  c: true
+  h: ca33f9d195db3082c68f0958b6caa3f1525545de9afbe370a995fb567bcab2b9
+  r: "Checked `code/simulation/estimators.py` (implements Fixed\u2011Effects, DerSimonian\u2011\
+    Laird, REML estimators, computes Q and I\xB2, flags N\u202F<\u202F5, logs REML\
+    \ failures to `data/results/reml_failures.json`) and the unit\u2011test suite\
+    \ `tests/unit/test_estimators.py` which validates all required behaviours. The\
+    \ log file `data/results/reml_failures.json` is present and correctly populated."
+  sig: ecc6864557df5573a93aa74e34ad5c7a221515e6fb9259a17b6301ea370a64c9
 T004:
   c: false
   h: ca4be915ce6a2433dfb27c902d34284b7ab0e524e93e06ac4a5563358243b9ed
@@ -42,14 +35,14 @@ T004:
   sig: 33f75d84b4787dad662020bab6edc2fe27fd0d7d9e27e24002150d0758e0c9d8
 T005:
   c: true
-  h: 61b5ebd8dd995285e242d473bad4d65d81fe62153141fbf409b998d35e6ad0f0
-  r: "The pipeline was run via `code/main.py`, producing `data/results/estimation_results.csv`\
-    \ with the required columns (pooled_effect, ci_lower, ci_upper, estimator_type,\
-    \ sweep_type, i_squared, q_statistic, convergence_warning) for 10 replicates at\
-    \ \u03C4\xB2\u202F=\u202F0 and \u03C4\xB2\u202F=\u202F0.1, and all values are\
-    \ non\u2011null. Supporting artifacts (`run_summary.json`, `reml_failures.json`,\
-    \ `simulation_raw.json`) confirm the end\u2011to\u2011end execution."
-  sig: c9de420665bf5d6c7e5d3a86bb03d8f74c5a63799b2e77971f83753e6aa0abac
+  h: 367cb9eedde53a06146d9e8f422fc8be87a0cf361a4a20c269eed4103b1dd6a5
+  r: "Checked `code/main.py` orchestrates the pipeline and the generated `data/results/estimation_results.csv`\
+    \ (11257\u202Fbytes) contains the required columns (`pooled_effect`, `ci_lower`,\
+    \ `ci_upper`, `estimator_type`, `sweep_type`) plus `convergence_warning`, with\
+    \ non\u2011null values for pooled effects, I\xB2 and Q for all 20 replicates (10\
+    \ per \u03C4\xB2 level). The accompanying `run_summary.json` confirms a 10\u2011\
+    replicate dry\u2011run across the two heterogeneity levels."
+  sig: 4fca01a2c930ec78ccbc558ea04856c34d13e395643e6732fc04e9f67f1939ab
 T006:
   c: false
   h: b4dcac9eca7c86a78f716e4a7eb34e8b4ae67a5482f7667bf73619de9a51d0b2

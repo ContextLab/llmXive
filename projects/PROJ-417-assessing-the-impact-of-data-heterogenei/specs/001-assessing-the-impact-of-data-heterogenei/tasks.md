@@ -6,25 +6,25 @@
 
 **Goal**: Establish the simulation environment and run a thin, end-to-end analysis on a small valid sample to verify the data flow from perturbation to metric calculation.
 
-- [X] T001 Establish the project layout and verify input provenance.
+- [ ] T001 Establish the project layout and verify input provenance.
     Implement the directory structure defined in `plan.md` and ensure `code/requirements.txt` contains only CPU-tractable dependencies (`numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`). 
     Implement the data loader in `code/scripts/fetch_cochrane.py` to fetch real data from Zenodo DOI `10.5281/zenodo.10286623` or fallback to the verified synthetic base (mu=0.0, sigma=1.0, N=20) cited from Jackson et al. (2010).
     The loader MUST raise `FileNotFoundError` on fetch failure rather than silently substituting fake data.
     **Verification**: `data/raw/cochrane_base.csv` (or `cochrane_base_synthetic.csv`) exists and contains valid effect sizes and standard errors.
 
-- [ ] T002 Implement the simulation generator.
+- [X] T002 Implement the simulation generator.
     Implement `code/simulation/generator.py` to perturb between-study variance $\tau^2$ (FR-001).
     **Mandatory**: Implement deterministic random seeding using a pinned seed to ensure reproducibility (Constitution Principle I).
     **Verification**: `tests/unit/test_generator.py` confirms that the injected $\tau^2$ matches the empirical variance of generated effect sizes within 0.05.
 
-- [ ] T003 Implement meta-analysis estimators and heterogeneity logic.
+- [X] T003 Implement meta-analysis estimators and heterogeneity logic.
     Implement `code/simulation/estimators.py` providing Fixed-Effects, DerSimonian-Laird, and REML estimators (FR-002).
     **Mandatory**: Implement calculation of $Q$ and $I^2$ statistics for every estimation (Constitution Principle VII).
     **Mandatory**: Implement logic to identify and flag datasets with $N < 5$ studies, ensuring they are either excluded or explicitly flagged to avoid unreliable degrees-of-freedom approximations (Spec: Edge Cases).
     Include REML convergence failure logic in `estimators.py` to log events to `data/results/reml_failures.json` and proceed with a fallback variance or exclusion (FR-006).
     **Verification**: Unit tests in `tests/unit/test_estimators.py` confirm $\tau^2=0$ stability and that pooled estimates match known normal cases within 0.001.
 
-- [ ] T004 Implement metric calculation logic.
+- [ ] T004 Implement metric calculation logic. <!-- FAILED-IN-EXECUTION: code/run_tests.sh exit=1 -->
     Implement `code/analysis/metrics.py` to calculate bias and 95% CI coverage, reading `true_effect` strictly from the `injected_true_effect` column of the simulation output (FR-003).
     **Verification**: Unit tests confirm that a pooled estimate exactly equal to the true effect results in zero bias and a coverage flag of True.
 
