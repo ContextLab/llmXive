@@ -1,11 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that the required directories (`code/`, `data/raw/`,\
-    \ `data/processed/`, `tests/`, `docs/`, `state/`) actually exist in the project\
-    \ repository; the implementer\u2019s response contains no file\u2011system listing\
-    \ or screenshots confirming their creation. The task remains unfinished until\
-    \ those directories are created and verified."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,20 +11,6 @@ T008:
   r: No `.env` file, configuration script, or documentation was presented showing
     that API keys for Materials Project and NREL have been set up and managed via
     environment variables. The required artifact is missing, so the task is not satisfied.
-T012d:
-  c: false
-  h: 6fcd6ad49a08c620fb9ba185b98de8cc21cbbc79fb176341585fd77572e9ce19
-  r: "Both required files `data/raw/nrel_perovskites.csv` and `data/raw/mp_perovskites.csv`\
-    \ are missing, so the task\u2019s condition (existence and at least one row) is\
-    \ not satisfied and no verification or critical error logging can have occurred.\
-    \ The implementer must provide the two CSV files with data."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `metadata.json` file (or a diff showing the added `precision_from_registry`
-    flag and updated `precision_source` fields) was provided, nor any verification
-    output confirming that the provenance information was correctly merged for every
-    record. Consequently the required artifact is missing.
 T019:
   c: false
   h: 86c0f6d2a8a0c60b9a89c1b0ce5fc9bde3fc8a06cd99769c519f5a284e44e764
@@ -59,48 +37,3 @@ T041:
   r: The required file `contracts/metadata.schema.yaml` does not exist (the only listed
     artifact is a missing `schema.yaml`). Without the schema file, the explicit fields
     cannot be enforced, so the task is not satisfied.
-T047c:
-  c: false
-  h: 6f8ecf3565c323064ff7e6373930c7a388e767b0df3f40e54402f945a06bf7a0
-  r: "The repository lacks the required `data/raw/instrument_registry.csv` file, and\
-    \ the provided `instrument_registry.py` raises a `FileNotFoundError` when the\
-    \ CSV is absent instead of falling back to the default \xB110\u202F\xB0C precision\
-    \ and logging a warning as specified. Additionally, the snippet does not show\
-    \ a `get_precision(instrument_model)` function, so it\u2019s unclear whether the\
-    \ required API is implemented. The task\u2019s core requirements are therefore\
-    \ not satisfied."
-T052:
-  c: false
-  h: 9bc5cabb68934abeff65fb87dd6bd8c33ff4856c481bb674b942da6e3001dd9b
-  r: "The provided `instrument_registry.py` shows loading of the CSV and defines defaults,\
-    \ but the visible portion cuts off before the `get_precision` implementation,\
-    \ so we cannot confirm that it returns the default \xB110\u202F\xB0C for unknown\
-    \ models **and** writes those unmapped names to `data/raw/unmapped_instruments.log`.\
-    \ The log file is also absent, indicating the logging behavior may not be implemented.\
-    \ The next implementer should supply the complete `get_precision` function (or\
-    \ equivalent) that performs the lookup, falls back to the default precision, and\
-    \ appends unmapped instrument names to the specif"
-T053:
-  c: false
-  h: 0b4617145c39645e4a42fca439a7f49c1d78be8fe6a87b607575aa0b106a5f6b
-  r: "The required file `data/processed/validation_report.md` is missing, so no content\
-    \ can be verified to contain the \u201CInstrumentation Audit\u201D and \u201C\
-    Data Quality Assessment\u201D sections or the consolidated logic. The task\u2019\
-    s primary artifact is absent."
-T054:
-  c: false
-  h: 592572365e3a73367aba025a9869e54911d0bac72091d545248ab0ecf728b4d2
-  r: "The repository lacks the required `data/raw/instrumentation_fallbacks.log` and\
-    \ the generated `data/processed/missing_instrumentation_report.csv`; both are\
-    \ missing. Moreover, the `generate_missing_instrumentation_report` function is\
-    \ incomplete (truncated) and does not contain the logic to read the log and write\
-    \ the CSV. The task\u2019s core output is therefore not present."
-T061:
-  c: false
-  h: 99a0dd35bca685f2e1dbee0269021f3994d618be1f2c2cb39d253a7d6c0623d4
-  r: "The repository contains `code/utils/uncertainty_calculator.py`, but the file\
-    \ is truncated and does not show any logic that reads `data/raw/perovskites_merged.csv`,\
-    \ writes `data/processed/descriptors_uncertainty.csv`, or creates `data/processed/exclusion_log.csv`.\
-    \ Moreover, the required input CSV (`data/raw/perovskites_merged.csv`) and the\
-    \ two output CSVs are absent, so the task\u2019s core functionality cannot be\
-    \ verified or executed."

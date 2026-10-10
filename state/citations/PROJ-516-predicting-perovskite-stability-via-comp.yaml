@@ -19,7 +19,7 @@
   value: https://zenodo.org/records/10972088/files/nrel_perovskite_data.csv`
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/10972088/files/nrel_perovskite_data.csv
-  verified_at: '2026-10-10T03:27:12.273222Z'
+  verified_at: '2026-10-10T03:27:57.156052Z'
 - artifact_hash: e0ef9a31fe5284f651caa03de9390bc512457b3c6aae270de1aa46e4847c4d2f
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-002
@@ -30,4 +30,4 @@
   value: 10.5281/zenodo.10972088
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10972088
-  verified_at: '2026-10-10T03:27:12.273222Z'
+  verified_at: '2026-10-10T03:27:57.156052Z'
