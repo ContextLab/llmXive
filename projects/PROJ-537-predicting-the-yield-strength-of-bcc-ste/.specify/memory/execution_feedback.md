@@ -15,9 +15,7 @@ Traceback (most recent call last):
     from .logging import StructuredFormatter, get_logger, log_provenance_event, log_api_query, log_data_artifact
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/logging.py", line 8, in <module>
     from .checksums import get_logger as _get_checksum_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/checksums.py", line 12, in <module>
-    from .logging import get_logger
-ImportError: cannot import name 'get_logger' from partially initialized module 'utils.logging' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/logging.py)
+ImportError: cannot import name 'get_logger' from 'utils.checksums' (/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/checksums.py)
 
 
 ## Declared deliverables still missing
