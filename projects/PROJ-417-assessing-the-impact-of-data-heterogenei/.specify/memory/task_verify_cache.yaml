@@ -1,51 +1,49 @@
 T001:
-  c: true
-  h: 2b957581c3aff8491e24342c5fbaa4d7f2671bee61d6cb01d8d07820e60b91b4
-  r: 'I checked `code/requirements.txt` (exactly the six CPU-tractable dependencies),
-    `code/scripts/fetch_cochrane.py` (raises `FileNotFoundError` on fetch failure
-    before the explicit, task-sanctioned fallback to the verified synthetic base),
-    the execution log (exit 0, fetch failed with 404, fallback ran), and `data/raw/cochrane_base_synthetic.csv`,
-    which exists with 20 rows of valid effect sizes and positive standard errors matching
-    the mu=0.0, sigma=1.0, N=20 parameterization. Minor deviation: the fetch URL is
-    a GitHub mirror rather than the Zenodo DOI, but the task explicitly permits the
-    verified'
-  sig: 1dabea8e331aaf94baed6cb480a27f7dcf57e798fe79545cc89b00d7a47330ca
-T002:
   c: false
-  h: d1dae25230f8ff8d78a3c4bd618265b581e1aae5c0a6f5a1044dae32a1705815
-  r: "The generator and test files exist and their content substantively implements\
-    \ \u03C4\xB2 perturbation with deterministic per-replicate seeding (seed + replicate\
-    \ index), and the test's statistical design (500 replicates, MoM estimator, 0.05\
-    \ tolerance) is sound. However, there is no execution evidence that `tests/unit/test_generator.py`\
-    \ was actually run and passed \u2014 no pytest output, no `data/results/simulation_raw.json`,\
-    \ no log \u2014 and the task's mandatory verification criterion is precisely that\
-    \ the test confirms the empirical-variance match. Additionally, the test imports\
-    \ `simulation.generator` while t"
-  sig: 434dc16bec7bc12afc1b2d7971c2d09159a21b7a470171335f7414a7b8564fe6
+  h: 7f24f5a559a9eacfa90e14351402861e35ecff5a48a5f33e29c0c931d639cf79
+  r: "The synthetic fallback CSV (`data/raw/cochrane_base_synthetic.csv`, N=20, mu=0,\
+    \ sigma=1, valid effect sizes/SEs) exists and the script ran successfully, but\
+    \ the loader never attempts the required primary source \u2014 it fetches from\
+    \ a GitHub URL (`mpiktas/meta-analysis-data/jackson2010.csv`, which 404s) instead\
+    \ of Zenodo DOI `10.5281/zenodo.10286623`, so the real-data path specified by\
+    \ the task can never succeed. Additionally, `code/requirements.txt` contains `pytest`,\
+    \ violating the \"only CPU-tractable dependencies (numpy, scipy, pandas, scikit-learn,\
+    \ matplotlib, pyyaml)\" requirement. Fix: point `"
+  sig: f17d1b0bd6be9a3ab0b287136960f72c47825d41d941848b9258e620a75593b9
+T002:
+  c: true
+  h: be66448bfba8f93a2d0d6df37e28800b329294f2a7969d078c5ba9491362a87f
+  r: "The generator implements the \u03C4\xB2 perturbation model (y_i ~ N(\u03BC +\
+    \ u_i, v_i) with u_i ~ N(0, \u03C4\xB2)), deterministic per-replicate seeding\
+    \ via `np.random.default_rng(seed + i)` with a pinned seed from config, and the\
+    \ required test file `tests/unit/test_generator.py` includes `test_variance_match_unit_test`\
+    \ checking injected \u03C4\xB2=0.5 against empirical method-of-moments variance\
+    \ within 0.05 over 500 replicates. The historical execution log shows all 9 tests\
+    \ passing (exit 0), including the variance-match and deterministic-seeding tests,\
+    \ and the implementation content matches the test expectations."
+  sig: ede8bfed06ed950c74146013214652ce20b17f1c915fd692a4d33fd8240a46e8
 T003:
   c: true
-  h: a8b31acacbb181465690f659416c5cb2fc24bc597812a8543e8db46aaf6178bd
-  r: "The `code/simulation/estimators.py` artifact (13.8 KB) genuinely implements\
-    \ FE, DL, and REML estimators with Q/I\xB2 computed in every path, an explicit\
-    \ `small_study_flag` for N < 5, and REML failure logging to `data/results/reml_failures.json`\
-    \ with DL/FE fallback (the JSON file itself is only created on failure, so its\
-    \ absence is not a defect). The corresponding `tests/unit/test_estimators.py`\
+  h: 7b97759222ce50574a3afa82c222bbadbf724297a2c1a2b5340c9baa252d5409
+  r: "The artifacts exist and are substantive: `estimators.py` (13.8KB) implements\
+    \ FE, DL, and REML with Q/I\xB2 computed in every path, an N<5 `small_study_flag`,\
+    \ and REML failure logging with DL fallback; `tests/unit/test_estimators.py` (9.6KB)\
     \ covers \u03C4\xB2=0 stability, known-case pooled estimates within 0.001, Q/I\xB2\
-    \ presence, small-study flagging, and the FR-006 failure-logging/fallback path,\
-    \ matching the task's verification requirement."
-  sig: 9c921ae76f31660825b47e97a9fce7b26bb99842025ba65cbfd346a0fe354f85
+    \ presence, small-study flagging, and FR-006 fallback. The `data/results/reml_failures.json`\
+    \ contains a real logged failure event (matching the test's forced-crash scenario\
+    \ with n=5 and the same effect sizes/variances), providing execution evidence\
+    \ that the failure-logging path actually ran ra"
+  sig: 062199883f82b20958f9e6916d7bc5acad9df8a58d97ab2f3d12750c614490a4
 T004:
-  c: false
-  h: 7c2c32ff48117b369a7e928c239b91bc58ba46d888fa608440c1480dcdb02eec
-  r: "The `code/analysis/metrics.py` implementation itself exists and correctly reads\
-    \ `true_effect` strictly from `injected_true_effect` (raising KeyError otherwise),\
-    \ computes bias as `pooled - true_effect` and coverage as an inclusive CI check\
-    \ \u2014 so a pooled estimate equal to the true effect would yield zero bias and\
-    \ coverage True. However, the task's explicit verification requirement \u2014\
-    \ unit tests confirming the zero-bias/coverage-True behavior \u2014 has no corresponding\
-    \ artifact: no test file (e.g., `tests/...metrics...`) or test execution output\
-    \ was provided in the evidence, so the claimed test confir"
-  sig: 26395c8500dda7779246fbeec06a3d206210329dac83e86617b81a64597ae6d6
+  c: true
+  h: 2b0bd84bbcea4df3015e176f31a6bd003b9903e71074decb1958c3ba918cb544
+  r: "`code/analysis/metrics.py` exists (8355 bytes) and implements bias, 95% CI coverage,\
+    \ and I\xB2, reading the true effect strictly from `injected_true_effect` (raising\
+    \ KeyError on any other source, per FR-003). The unit test log shows exit 0 with\
+    \ 16/16 passing, including `test_compute_metrics_zero_bias_and_coverage_true`\
+    \ and `test_zero_bias_when_pooled_equals_true_effect`, matching the stated verification\
+    \ criterion."
+  sig: 499020c79bcdaf1938546c7dee5779bbc77bf878e9f25f81b7da88a9b78b15c1
 T010:
   c: false
   h: d27516bf6f4773261f1e3baca00f2dae2e2bd27e25a89617cf5245d53e1dd0de

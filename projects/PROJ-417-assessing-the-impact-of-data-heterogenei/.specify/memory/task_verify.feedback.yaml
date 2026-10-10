@@ -1,28 +1,22 @@
 T001:
+  reason: "The synthetic fallback CSV (`data/raw/cochrane_base_synthetic.csv`, N=20,\
+    \ mu=0, sigma=1, valid effect sizes/SEs) exists and the script ran successfully,\
+    \ but the loader never attempts the required primary source \u2014 it fetches\
+    \ from a GitHub URL (`mpiktas/meta-analysis-data/jackson2010.csv`, which 404s)\
+    \ instead of Zenodo DOI `10.5281/zenodo.10286623`, so the real-data path specified\
+    \ by the task can never succeed. Additionally, `code/requirements.txt` contains\
+    \ `pytest`, violating the \"only CPU-tractable dependencies (numpy, scipy, pandas,\
+    \ scikit-learn, matplotlib, pyyaml)\" requirement. Fix: point `"
   task: 820b146fe1b32473acbfb41cc6f7ff7e537670eff16194aff3b79a1e562fcb0e
 T002:
-  reason: "The generator and test files exist and their content substantively implements\
-    \ \u03C4\xB2 perturbation with deterministic per-replicate seeding (seed + replicate\
-    \ index), and the test's statistical design (500 replicates, MoM estimator, 0.05\
-    \ tolerance) is sound. However, there is no execution evidence that `tests/unit/test_generator.py`\
-    \ was actually run and passed \u2014 no pytest output, no `data/results/simulation_raw.json`,\
-    \ no log \u2014 and the task's mandatory verification criterion is precisely that\
-    \ the test confirms the empirical-variance match. Additionally, the test imports\
-    \ `simulation.generator` while t"
   task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
 T003:
   task: 4384087d40e88678368e8be20ac6f3a68bef64c7c531dfa2d2681e582a7e300e
 T004:
-  reason: "The `code/analysis/metrics.py` implementation itself exists and correctly\
-    \ reads `true_effect` strictly from `injected_true_effect` (raising KeyError otherwise),\
-    \ computes bias as `pooled - true_effect` and coverage as an inclusive CI check\
-    \ \u2014 so a pooled estimate equal to the true effect would yield zero bias and\
-    \ coverage True. However, the task's explicit verification requirement \u2014\
-    \ unit tests confirming the zero-bias/coverage-True behavior \u2014 has no corresponding\
-    \ artifact: no test file (e.g., `tests/...metrics...`) or test execution output\
-    \ was provided in the evidence, so the claimed test confir"
   task: 8a154f87ae88709e1935a37c714ab4dd02b425d066a708f75377172d1debd8e6
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
+    code/main.py exit=1'
   task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e
 T006:
   task: 232d3906c31bebc21659e01463b3a2edec5c46026f659b64be4780441b3fe4bb
