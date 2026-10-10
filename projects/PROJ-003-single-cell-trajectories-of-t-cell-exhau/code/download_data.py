@@ -20,6 +20,7 @@ import urllib.request
 import urllib.error
 import re
 import yaml
+from urllib.parse import urljoin
 
 logging.basicConfig(
     level=logging.INFO,
@@ -76,7 +77,6 @@ def _geo_series_ftp_base(gse_id: str) -> str:
     ``.../GSEnnnxxx/GSEnnnxxx/suppl/`` where the middle component replaces
     the last three digits with ``nnn``.
     """
-    # FIXED: Corrected regex from r"^GSE\\d+$" to r"^GSE\d+$"
     if not re.match(r"^GSE\d+$", gse_id):
         raise ValueError(f"Invalid GEO series identifier: {gse_id}")
 
@@ -89,7 +89,8 @@ def _list_ftp_directory(url: str) -> List[str]:
     """
     Return a list of filenames present in the given FTP/HTTP directory.
 
-    The function fetches the HTML index page and extracts ``href`` links.
+    The function fetches the HTML index page and extracts ``href`` links,
+    filtering out absolute URLs and directory links.
     """
     try:
         with urllib.request.urlopen(url) as response:
@@ -97,9 +98,15 @@ def _list_ftp_directory(url: str) -> List[str]:
     except urllib.error.HTTPError as e:
         raise RuntimeError(f"Failed to list directory {url}: {e}") from e
 
-    # Simple regex to capture href values that do not end with '/' (i.e., files)
+    # Capture href values. 
+    # We filter for relative links that do not start with http, /, ?, or #, 
+    # and do not end with / (which indicates a directory).
     links = re.findall(r'href="([^"?]+)"', html)
-    files = [link for link in links if not link.endswith("/")]
+    files = [
+        link for link in links 
+        if not link.startswith(('http', '/', '?', '#', 'mailto:', 'tel:')) 
+        and not link.endswith("/")
+    ]
     return files
 
 
@@ -164,7 +171,7 @@ def main() -> None:
             file_checksums: Dict[str, str] = {}
             downloaded_paths: List[Path] = []
             for filename in files:
-                file_url = base_url + filename
+                file_url = urljoin(base_url, filename)
                 dest_file = counts_dir / filename
                 _download_file(file_url, dest_file)
                 

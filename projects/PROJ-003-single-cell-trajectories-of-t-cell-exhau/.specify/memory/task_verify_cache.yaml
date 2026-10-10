@@ -1,24 +1,36 @@
 T001:
   c: true
-  h: 3c309df5804e8b5eec05e632644c2606b1d0a9d13c66864d472202a2372cee31
-  r: The required directory tree (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
+  h: 84da27b593dd038d475baec27e2962895b0e1108269b8374cc12e2909be01215
+  r: The required directories (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
     `tests/`) all exist with content, `pyproject.toml` configures both ruff and black
-    (line-length 88, target py39, dev extras), and `quickstart.md` documents the runnable
-    environment including prerequisites, installation, and pipeline commands. The
-    setup script executed successfully (exit 0) per the historical log, and linting
-    config is further backed by `test_linting_config.py` and `.pre-commit-config.yaml`.
-  sig: f90f625d3a644c8d81cb07f23d82deb12792fd429540641ef2694e51e5c876e1
+    (line-length 88, target versions, rule selection), and `quickstart.md` documents
+    the runnable environment including prerequisites, installation, and pipeline commands.
+    The setup script executed successfully (exit 0) per the historical log, and linting
+    config is further supported by `test_linting_config.py` and `.pre-commit-config.yaml`.
+  sig: 36941c4fca61fa02d245d930fe1ac1dc92049158cb598fbf2893814d1b56c25d
+T002:
+  c: false
+  h: 6292a8b9ee03e3f581b0db1913104a7321c63d92ca7a73a3e63a32a339072d17
+  r: "The implementation fetches GEO supplementary files via HTTP instead of using\
+    \ SRA Toolkit (`prefetch`/`fastq-dump`) as explicitly required, and `tests/unit/test_download.py`\
+    \ omits the mandated SC-005 verification that datasets contain PD-1 expression,\
+    \ metabolic markers, exhaustion signatures, and therapy response labels \u2014\
+    \ it only checks checksum lengths and directory existence. Additionally, no `data/state.yaml`\
+    \ artifact or test-execution evidence was supplied, so there is no proof the state\
+    \ YAML with valid checksums exists or that the tests pass."
+  sig: 8a9263ce4148831ff2c95cd3e303ab4763741067a07949a286dca27878345612
 T003:
   c: false
-  h: 198ce09f3e9a2e88e576000b67625a5a20806bfa641c1841ce134410daf18464
-  r: "The required output artifacts \u2014 normalized `.h5ad` files in `data/processed/`\
-    \ \u2014 do not exist: the directory is confirmed present but empty (0 entries),\
-    \ and no execution evidence shows the pipeline was ever run. Additionally, `tests/unit/test_preprocess.py`\
-    \ does not actually assert that >20% mito cells are removed: `test_mito_filtering_logic`\
-    \ contains no meaningful assertions (both success and failure branches just `pass`),\
-    \ and both tests skip entirely when R is unavailable, so the verification requirement\
-    \ is not genuinely satisfied."
-  sig: 25376bb24a9d73cfe6a1815a9d87e5ffdf5205a2ad37f4a361a8674cf005d865
+  h: 391c24288b0692d6d2cec48213d536dfe9cf6b1e47917ec78951547eb0d564b2
+  r: "The artifacts exist, but the actual execution log shows the QC filter never\
+    \ functioned on real data: for GSE127465 the run reported \"No mitochondrial genes\
+    \ detected; setting percent.mt to 0\" and \"Cells before QC: 41861, after QC:\
+    \ 41861\" \u2014 zero cells filtered, because the .mtx loader only reads `genes.tsv`/`barcodes.tsv`\
+    \ if present and otherwise leaves generic var names, so the `MT-` pattern never\
+    \ matches. Additionally, `tests/unit/test_preprocess.py` imports `python_preprocess`\
+    \ but never calls it; both tests re-implement the filtering logic inline on synthetic\
+    \ AnnData objects, so they verify n"
+  sig: abc0b5d2c8a9486151961f69b0e6664c31849c6b33c231717f821dc0693d1514
 T004:
   c: false
   h: 67d9dd41b2a2bd131b3cfc41f84d0af5af6ffdb1f98ed4904036e86607741e3b

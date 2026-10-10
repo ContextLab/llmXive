@@ -1,37 +1,64 @@
 datasets:
   GSE111075:
-    checksum: ''
-    counts_checksum: ''
+    all_file_checksums:
+      GSE111075_RAW.tar: 42bba262d74c0de9e5d550ed02dd3ee13a04ff93fa1b75e8d6ff1544e00c9413
+      filelist.txt: dc2aefa02621957635b87deb4de664b02da3406a537182ca4f58aa94095ab5ae
+    cell_count: 0
+    checksum: 42bba262d74c0de9e5d550ed02dd3ee13a04ff93fa1b75e8d6ff1544e00c9413
+    counts_checksum: 42bba262d74c0de9e5d550ed02dd3ee13a04ff93fa1b75e8d6ff1544e00c9413
     dataset_id: GSE111075
-    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE111nnn/GSE111075/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
-      HTTP Error 404: Not Found'
-    raw_counts_path: ''
+    gene_count: 0
+    raw_counts_path: data/raw/GSE111075/counts/GSE111075_RAW.tar
     source: GEO_FTP
-    status: unavailable
+    status: available
+    sufficiency_screen:
+      source_record: geo_ftp_download
   GSE127465:
-    checksum: ''
-    counts_checksum: ''
+    all_file_checksums:
+      GSE127465_RAW.tar: 88727a8a3900292089dbd87ec4a118a5a3c2d6eab470b4f70e0bf283284c52ac
+      GSE127465_gene_names_human_41861.tsv.gz: 614f0e3e831c03dad88086e2d1e0bce9505d19b9ef2d567a6e97bc8e120a31c4
+      GSE127465_gene_names_mouse_28205.tsv.gz: f28b6087479db89ce19d8a0e7b805a861de5fc8589d482231857e6999b92e275
+      GSE127465_human_cell_metadata_54773x25.tsv.gz: 74d07d798bb0dd09078e4bd19267c55541c29fa8752d102740d318fc90d503a5
+      GSE127465_human_counts_normalized_54773x41861.mtx.gz: 899ef3c67fc7505d4ce3f9d184897513a47bb9c3b2f06234a5dc3b52d6c3915b
+      GSE127465_load_human_data_align_with_unfiltered.html.gz: dd6823d7fdb80f13465a09784a4564916c4fde5fb72baeaa302a4fdea19276d4
+      GSE127465_mouse_cell_metadata_15939x12.tsv.gz: 13d535547ebd19391d6b2bf2d1e9c3ef90951be908aee4cb93952463d3af6dd2
+      GSE127465_mouse_counts_normalized_15939x28205.mtx.gz: 84a5ae3288e7fd7d48b244b87529f5905199ad9be6cf076d2e77a14d7d5688ce
+      filelist.txt: 142e8755850a269951c58ad62b586ad209063f6a9174e273f52d6cb81469267f
+    cell_count: 0
+    checksum: 88727a8a3900292089dbd87ec4a118a5a3c2d6eab470b4f70e0bf283284c52ac
+    counts_checksum: 88727a8a3900292089dbd87ec4a118a5a3c2d6eab470b4f70e0bf283284c52ac
     dataset_id: GSE127465
-    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE127nnn/GSE127465/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
-      HTTP Error 404: Not Found'
-    raw_counts_path: ''
+    gene_count: 0
+    raw_counts_path: data/raw/GSE127465/counts/GSE127465_RAW.tar
     source: GEO_FTP
-    status: unavailable
+    status: available
+    sufficiency_screen:
+      source_record: geo_ftp_download
   GSE136103:
-    checksum: ''
-    counts_checksum: ''
+    all_file_checksums:
+      GSE136103_RAW.tar: f986793cbf2008dee10fb42a534812189a4d921a95f4da02784d5b1bd581d495
+      filelist.txt: 1c7fcd6f80c44c5cbc416553855a2915f02b436164526fefcf2eb3aeac608ff6
+    cell_count: 0
+    checksum: f986793cbf2008dee10fb42a534812189a4d921a95f4da02784d5b1bd581d495
+    counts_checksum: f986793cbf2008dee10fb42a534812189a4d921a95f4da02784d5b1bd581d495
     dataset_id: GSE136103
-    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE136nnn/GSE136103/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
-      HTTP Error 404: Not Found'
-    raw_counts_path: ''
+    gene_count: 0
+    raw_counts_path: data/raw/GSE136103/counts/GSE136103_RAW.tar
     source: GEO_FTP
-    status: unavailable
+    status: available
+    sufficiency_screen:
+      source_record: geo_ftp_download
   GSE138852:
-    checksum: ''
-    counts_checksum: ''
+    all_file_checksums:
+      GSE138852_counts.csv.gz: cf4b29e8acc215b8c697b6c10aff505028b698d7ea00b7cea4e5f4d3f4b3420c
+      GSE138852_covariates.csv.gz: b1792071bee9942f7cd18ef90fd350d611e06dd8a2d478b45f55c00d8b9896da
+    cell_count: 0
+    checksum: cf4b29e8acc215b8c697b6c10aff505028b698d7ea00b7cea4e5f4d3f4b3420c
+    counts_checksum: cf4b29e8acc215b8c697b6c10aff505028b698d7ea00b7cea4e5f4d3f4b3420c
     dataset_id: GSE138852
-    error: 'HTTP error while downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE138nnn/GSE138852/suppl/https://www.hhs.gov/vulnerability-disclosure-policy/index.html:
-      HTTP Error 404: Not Found'
-    raw_counts_path: ''
+    gene_count: 0
+    raw_counts_path: data/raw/GSE138852/counts/GSE138852_counts.csv.gz
     source: GEO_FTP
-    status: unavailable
+    status: available
+    sufficiency_screen:
+      source_record: geo_ftp_download

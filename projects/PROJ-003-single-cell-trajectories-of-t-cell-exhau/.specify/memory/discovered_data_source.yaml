@@ -1,15 +1,14 @@
 status: none
-intent: download GEO scRNAseq GSE136103 GSE127465 GSE111075 GSE138852 python package
-  dataset
+intent: GEO SRA download raw count matrices GSE136103 GSE127465 GSE111075 GSE138852
+  python package dataset
 required_fields:
-- cell_id
+- cell_barcode
 - gene_id
-- raw_counts
-- mitochondrial_percent
+- gene_symbol
+- raw_umi_count
+- mitochondrial_gene_flag
 - sample_id
-- tissue_type
-- condition
-- therapy_response
-cache_key: f5cb170868cd07c0c79b992ed21670e7294bab34857724d6938051080c3188d8
-searched_at: '2026-10-10T14:16:25.405736+00:00'
+- library_id
+cache_key: 24188b1e935c4e7f5a6c85bb3b037bc8ca18453420c30789f01c5d39dc749d31
+searched_at: '2026-10-10T14:29:42.458143+00:00'
 retry_count: 1

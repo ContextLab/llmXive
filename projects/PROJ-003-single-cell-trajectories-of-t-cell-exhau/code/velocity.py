@@ -1,14 +1,13 @@
 """Run scVelo dynamical model on a preprocessed AnnData object.
 
-This script loads a `.h5ad` file that already contains the required
-``spliced`` and ``unspliced`` layers (produced by the preprocessing step),
-computes RNA velocity using the dynamical model on CPU, adds a pseudotime
-(latent time) annotation, and writes the enriched AnnData object to the
+This script loads a `.h5ad` file that contains the required
+``spliced`` and ``unspliced`` layers, computes RNA velocity using 
+the dynamical model on CPU, adds a pseudotime (latent time) 
+annotation, and writes the enriched AnnData object to the 
 specified output path.
 
-The script is deliberately lightweight and avoids any GPU‑specific
-configuration – scVelo defaults to CPU execution unless a CUDA‑enabled
-PyTorch backend is detected, which is not installed in the CI environment.
+It handles both direct file paths and directories (searching for 
+GSE136103_processed.h5ad).
 """
 import argparse
 import logging
@@ -47,14 +46,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Estimate RNA velocity and pseudotime (latent time) using "
-            "scVelo's dynamical model (CPU‑only)."
+            "scVelo's dynamical model (CPU-only)."
         )
     )
     parser.add_argument(
         "--input",
         type=str,
         required=True,
-        help="Path to the pre‑processed .h5ad file (must contain spliced/unspliced layers).",
+        help="Path to the pre-processed .h5ad file or directory containing it.",
     )
     parser.add_argument(
         "--output",
@@ -68,12 +67,24 @@ def main() -> None:
     output_path = Path(args.output)
 
     # ------------------------------------------------------------------
-    # Load data
+    # Resolve Input Path
     # ------------------------------------------------------------------
+    # If input is a directory, look for the specific dataset required for T004
+    if input_path.is_dir():
+        target_file = input_path / "GSE136103_processed.h5ad"
+        if target_file.exists():
+            input_path = target_file
+        else:
+            logger.error(f"Directory {input_path} does not contain GSE136103_processed.h5ad")
+            sys.exit(1)
+
     if not input_path.is_file():
         logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
 
+    # ------------------------------------------------------------------
+    # Load data
+    # ------------------------------------------------------------------
     logger.info(f"Reading AnnData from {input_path}")
     try:
         adata = scv.read(str(input_path))
@@ -88,12 +99,10 @@ def main() -> None:
         sys.exit(1)
 
     # ------------------------------------------------------------------
-    # scVelo pipeline (CPU‑only)
+    # scVelo pipeline (CPU-only)
     # ------------------------------------------------------------------
     logger.info("Running scVelo preprocessing (filter & normalize).")
-    # The data is already normalized by the preprocessing step, but we still
-    # run a lightweight filter to remove any low‑quality genes/cells that
-    # might have been missed.
+    # We run this to identify the top genes that vary in splicing kinetics
     scv.pp.filter_and_normalize(
         adata,
         min_shared_counts=20,
@@ -105,6 +114,7 @@ def main() -> None:
     scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
 
     logger.info("Recovering dynamics (dynamical model).")
+    # This is the most compute-intensive step; runs on CPU by default
     scv.tl.recover_dynamics(adata)
 
     logger.info("Computing velocities.")
@@ -125,10 +135,15 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Write output
     # ------------------------------------------------------------------
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # If output_path is a directory, we use the filename from tasks.md
+    final_output = output_path
+    if output_path.is_dir():
+        final_output = output_path / "velocity_graph.h5ad"
+
+    final_output.parent.mkdir(parents=True, exist_ok=True)
     try:
-        adata.write(str(output_path))
-        logger.info(f"Velocity analysis completed. Output written to {output_path}")
+        adata.write(str(final_output))
+        logger.info(f"Velocity analysis completed. Output written to {final_output}")
     except Exception as exc:
         logger.error(f"Failed to write output file: {exc}")
         sys.exit(1)

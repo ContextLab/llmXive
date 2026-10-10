@@ -8,14 +8,14 @@
 
 - [X] T001 Establish the project layout in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`, including `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`. Configure linting/formatting via `pyproject.toml` (ruff/black) and document the runnable environment in `quickstart.md`.
     - Verification: File tree exists; `ruff check .` and `black --check .` pass.
-- [ ] T002 Implement `code/download_data.py` to fetch raw count matrices for GSE136103, GSE127465, GSE111075, and GSE138852 using SRA Toolkit (`prefetch` and `fastq-dump`). <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
+- [ ] T002 Implement `code/download_data.py` to fetch raw count matrices for GSE136103, GSE127465, GSE111075, and GSE138852 using SRA Toolkit (`prefetch` and `fastq-dump`).
     - Requirements: No synthetic fallbacks; must fail loudly if SRA fetch fails. Record SHA256 checksums of all downloaded files in the project state YAML (Constitution Principle III).
     - Verification: `tests/unit/test_download.py` asserts that the state YAML contains valid checksums and that the datasets contain necessary variables (PD-1 expression, metabolic markers, exhaustion signatures, and therapy response labels) per SC-005.
     - Output: Raw files in `data/raw/` conforming to `contracts/dataset.schema.yaml`.
 - [ ] T003 Implement the preprocessing pipeline consisting of `code/preprocess.R` (Seurat v4 QC: >20% mitochondrial read filter and normalization) and a Python wrapper `code/preprocess.py` that executes the R script via `subprocess`.
     - Output: Normalized `.h5ad` files in `data/processed/`.
     - Verification: `tests/unit/test_preprocess.py` asserts that cells with >20% mitochondrial reads are removed.
-- [ ] T004 Implement `code/velocity.py` to execute the scVelo dynamical model on CPU with default precision for a single dataset (GSE136103).
+- [ ] T004 Implement `code/velocity.py` to execute the scVelo dynamical model on CPU with default precision for a single dataset (GSE136103). <!-- FAILED-IN-EXECUTION: code/velocity.py exit=1 -->
     - Requirements: Complete within 45 minutes on CPU; no CUDA usage.
     - Output: `data/results/velocity_graph.h5ad` containing velocity vectors and pseudotime values.
     - Verification: Integration test in `tests/integration/test_trajectory_reconstruction.py` confirms the `.h5ad` file contains `velocity`, `pseudotime`, `spliced`, and `unspliced` layers.
