@@ -5,12 +5,3 @@ T014:
     \ of failures and skipping logic cannot be verified. Without this artifact, the\
     \ task\u2019s core requirement (logging and skipping environments based on the\
     \ p\u2011value) is not satisfied."
-T015a:
-  c: false
-  h: 310bbf042c83b6ef06d5de8ea0d6d40577b1c4dd7f0392bface9319be6ed3569
-  r: The provided `code/main.py` does not contain any logic that invokes `generate_all_dynamic_shift_envs`
-    to apply `DynamicShiftEnvironment` to the discovered environments, nor does it
-    implement a dedicated wrapper that checks for `data/sensitivity_report.csv` before
-    doing so. Additionally, the required `data/sensitivity_report.csv` file is absent
-    from the repository. Both the script behavior and the necessary data artifact
-    are missing.
