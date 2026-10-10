@@ -315,3 +315,14 @@ projects/*/paper/.chunk_summaries/
 projects/*/.runtime-home/
 .claude/scheduled_tasks.lock
 projects/PROJ-577-multabench-benchmarking-multimodal-tabul/data/synthetic_multimodal.csv
+
+# Ingested third-party paper bodies are NOT stored in this repository. They
+# carry the arXiv Non-exclusive Distribution License, which grants distribution
+# to arXiv.org and says nothing about anyone else, and they were 4.39 GB of an
+# 8.96 GB repository. paper/metadata.json keeps the arxiv_id, arxiv_url, licence
+# and the sha256 of the version our reviews were written against
+# (committed_pdf_digests); resolve_original_pdf re-downloads on demand and warns
+# when the bytes differ, which they do for 5 of every 12 sampled. The exact
+# reviewed bytes remain in git history.
+projects/*/paper/pdf/original.pdf
+projects/*/paper/pdf/original-llmxive.pdf
