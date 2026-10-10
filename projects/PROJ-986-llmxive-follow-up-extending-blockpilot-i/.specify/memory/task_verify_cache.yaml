@@ -1,3 +1,60 @@
+T001a:
+  c: true
+  h: a48e0127e024dfc0d2e95e04fb8d8b480e6917ad71b9113079652b238f6b2abd
+  r: The project root directory `projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/`
+    exists with 16 entries including the standard subdirectories (code/, data/, specs/,
+    tests/, contracts/, idea/, logs/) and config files (README.md, pyproject.toml,
+    requirements.txt, .gitignore, .ruff.toml). The task only asked for creating the
+    project root directory structure, and that structure is present and non-empty.
+  sig: 8ee1c0b093a4d53baa5afb4f60919554d4d576aeff6059ee01699947abde90de
+T001b:
+  c: true
+  h: a544ae5dffbcd014db3db28ad99be6f2a813ca35463acd69db7a96809c0b77f6
+  r: All seven required directories (`data/raw/`, `data/processed/`, `data/models/`,
+    `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`) exist under
+    the project root, each containing a `.gitkeep` marker (and the test directories
+    additionally contain `__init__.py` and test files). The task only asked for directory
+    creation, which is fully satisfied by the observed directory structure.
+  sig: 8ac0c9aa02016ee7ef3ff918e2425c895a2b8c036cbb0e18cdc046fe53f1df36
+T002:
+  c: false
+  h: 336694e377d98676a361cee47c441f680480849373d57af56caef7bbf95ea88e
+  r: The `requirements.txt` exists and contains all required packages (plus scipy),
+    but every dependency uses `>=` lower-bound constraints rather than pinned versions
+    (e.g., `transformers>=4.35.0`), which does not satisfy the task's explicit requirement
+    to **pin versions** for reproducibility. The implementer should replace these
+    with exact pins (e.g., `transformers==4.35.0`) or a lockfile-style pinned set.
+  sig: 92bc555a6d271efc65ec8bffa395f337e9921ad43ea95f2f9e32385f21ca65c2
+T003:
+  c: false
+  h: 0295f27bcb358c421e7480fa80a8445c7154d9a99b70ca2da5a1c7a85603b020
+  r: "No artifacts were provided or found on disk for this task \u2014 the collector\
+    \ confirms the task references no code/data/figure paths, and there is no evidence\
+    \ of any linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `setup.cfg`, `tox.ini`, or `.flake8`/`black` config) existing in the project.\
+    \ The implementer's claim of configuring ruff/flake8 and black cannot be verified\
+    \ against any actual configuration artifact, so the required tooling setup is\
+    \ missing."
+  sig: 9f6f7bee8939f04022178a8e625c9b63b81bdb1a430a52162de0abc5137634f1
+T004:
+  c: true
+  h: bc24d5b692f0c88130deea62575232b26003394d281eca80e05621b1b16f6c58
+  r: The artifact `code/utils/data_loader.py` exists (8995 bytes) and implements streaming
+    loading via `datasets.load_dataset(..., streaming=True)` with dedicated `load_gsm8k_streaming()`
+    and `load_humaneval_streaming()` helpers, correct canonical hub IDs/configs (gsm8k/main,
+    openai_humaneval/test), and no synthetic-data fallback. The code is real, non-stub,
+    and matches the task's stated requirement.
+  sig: 6b848eae0ea491faf78709c86da74a12f90d98759fa7aa3663e0e2ed3d269f77
+T005:
+  c: true
+  h: 4ad3d91f4d7e7be8d9d5fd4e9bc99268a5026c106837602e71fd920eb78b9eb6
+  r: "The file `code/utils/metrics.py` exists (2987 bytes) and contains real, non-stub\
+    \ implementations of latency measurement (`calculate_latency` using `time.perf_counter`,\
+    \ mean latency), accuracy (classification and \xB11 regression tolerance), and\
+    \ correlation coefficients (Pearson, Spearman, Kendall), plus MAE/RMSE/R\xB2,\
+    \ matching the task's stated requirements. No placeholders, TODOs, or fabricated\
+    \ values are present."
+  sig: 9468d74cbd192aa3a034ac2d32a0939e24629523a41bf2c2a6cd7d9649139e08
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

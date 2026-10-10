@@ -1,26 +1,37 @@
-# Data artifacts (raw/processed/outputs are generated, not committed)
+# Data artifacts (raw, processed, and outputs are generated at runtime)
 data/
-code/data/
+!data/.gitkeep
 
-# Python bytecode and caches
+# Python bytecode
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.ruff_cache/
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
 
 # Virtual environments
 venv/
 .venv/
+env/
 
-# Logs
-logs/
-*.log
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
-# Environment / secrets
+# Environments and secrets
 .env
-*.env
+.env.*
 
-# Editors / OS
+# Editors and OS files
 .vscode/
 .idea/
 .DS_Store
+
+# Jupyter
+.ipynb_checkpoints/

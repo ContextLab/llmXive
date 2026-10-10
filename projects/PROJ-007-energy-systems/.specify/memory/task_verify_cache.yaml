@@ -1,15 +1,14 @@
 T001:
-  c: true
-  h: 878000d1e727488b9fe4d0d3a6ab6b9c27d64a482b3ca5fb2b9d1cdb521d13c9
-  r: The task only required creating the directory structure, and the execution record
-    shows `code/scripts/setup_project_structure.sh` ran with exit code 0, reporting
-    successful creation of all ten required directories (src/data, src/analysis, src/utils,
-    src/models, tests/unit, tests/integration, data/raw, data/processed, data/outputs,
-    specs/). The collector independently confirms `specs/` exists on disk, consistent
-    with the script's output; the remaining directories are empty by design and thus
-    have no file artifacts to list, but the successful run log is adequate evidence
-    for this scaffolding tas
-  sig: 6457832aaf4a097ca85ae4d49b42197a71b44fa6aba3740d81fe6a696e33c344
+  c: false
+  h: a104275b8aca74b2d84684f29990bf14e27e9d6b1573a22a19686242f2b51eda
+  r: "The task requires creating `src/data`, `src/analysis`, `src/utils`, `src/models`,\
+    \ `tests/unit`, `tests/integration`, `data/raw`, `data/processed`, `data/outputs`,\
+    \ and `specs/`, but the evidence only confirms `specs/` exists (with 2 entries);\
+    \ none of the other directories are shown to exist. The `data/outputs/analysis_result.json`\
+    \ shown is a fabricated-looking results file (round timestamp, placeholder-style\
+    \ counts) and does not substitute for the required directory structure \u2014\
+    \ the implementer must actually create all listed directories."
+  sig: d42eb695aceae90678a2a3e16f4807acf188f9f3904956dff50ddbddce0e73a1
 T003:
   c: true
   h: e932a8d74ed869114c0b1dea81f516473f8e383292232f2bf367e3d262cffa78
@@ -19,15 +18,6 @@ T003:
     as requested, extending the pyproject config. The content matches the task''s
     stated requirement of configuring ruff and black tooling.'
   sig: d44b2ea656f6aafbb600f7d575d11ce1c2fd3c398fbc8ea644ff488ae872186f
-T004:
-  c: false
-  h: e52ec594d2780fbdcd019c112eb2ac1fa72b4dcd6e4efdc05dbf8763d184ab22
-  r: "`pytest.ini` exists with valid configuration (testpaths, markers, addopts),\
-    \ but there is no evidence of a `.gitignore` file containing entries for `data/`\
-    \ and `__pycache__/` \u2014 the collector's evidence includes no `.gitignore`\
-    \ artifact at all. The implementer must create or update `.gitignore` with those\
-    \ two entries to complete the task."
-  sig: 59209ff94a52cb7171765e978f9d704d8b7275c34b7601b375ed0213fe95ebbf
 T005:
   c: true
   h: 9dc2df3dcd291edcfbc65f9353e33f4341474b1e408a1735ac4ff571f7379ea9
@@ -71,6 +61,35 @@ T009:
     \ Additionally, the required docstring describing outlier handling at the 1st/99th\
     \ percentiles is only loosely implied by "
   sig: 007e5eeb4ea4e8446f2e7a74a90e5af5bc6d78ab6fc581c5317bf44fc80902ce
+T010:
+  c: false
+  h: 4e515218622e6c088e9b11eddd7f86d7551800c39d9efa1a17dae6ad99347293
+  r: 'The file exists and `match_pairs` matches the required signature, but `estimate_propensity`
+    is missing the required `covariates: list` parameter (it takes only `df`), violating
+    the specified signature. The docstrings do describe the matching algorithm (nearest
+    neighbor) and caliper enforcement, but the signature defect must be fixed.'
+  sig: 86e7fdc65eae05e17940f770aedf33e490d6f883369fb5edf0c5d225587356e9
+T011:
+  c: true
+  h: 7b67e9815d747dc1f5cf3d640737f80a8cf5ce2b3ffe4f0230e10b34a9118d36
+  r: "The file `src/analysis/balance.py` exists (7028 bytes) with the exact required\
+    \ signatures (`calculate_smd(df: pd.DataFrame) -> dict` and `plot_balance(smd_data:\
+    \ dict) -> matplotlib.figure.Figure`) and thorough docstrings describing SMD calculation\
+    \ and balance visualization. Although the task nominally asked for `NotImplementedError`\
+    \ stubs, the artifact provides real, working implementations that fully satisfy\
+    \ (and exceed) the signature and docstring requirements \u2014 not a placeholder\
+    \ or fabricated stand-in."
+  sig: 8618235cb88160bca5a01534c17608e591af48a30d73f9bc1d9219d5b310843f
+T012:
+  c: false
+  h: ad7180ce30e4516964e43c1433bc228a9ebf3f1acd6b58466c2849de00d5d71c
+  r: "The file exists with docstrings describing OLS with cluster-robust SEs and DiD\
+    \ logic, but the required signature is `run_ols(df: pd.DataFrame, cluster_var:\
+    \ str)` and the artifact defines `run_ols(df: pd.DataFrame)` \u2014 the `cluster_var`\
+    \ parameter is missing. The task explicitly requires those exact function signatures,\
+    \ so this is a mismatch that must be fixed (adding the `cluster_var: str` parameter\
+    \ to `run_ols`)."
+  sig: d5100959388fa4c3d0dab9bf0b3f1b74d2a449be28e55aefa464d00070fc8f8d
 T040:
   c: false
   h: ed024f14edf960e9650f8e3fc77f1dffc2d7efadb2eede8102b90fdcad768e36
@@ -79,27 +98,17 @@ T040:
     is missing. Both the documentation update and the presence of the output artifact
     are absent.
 T044a:
-  c: false
-  h: b009f922bd5760d5ee970de9f9d2307e3aa1d61e681e2adbdaee26ec3f194797
-  r: 'The file `.github/workflows/ci.yml` exists and its content matches the plan.md
-    Phase 0 YAML verbatim, but the workflow as written cannot satisfy the task''s
-    core requirement that the build FAIL if PII is detected: the scan step ends in
-    `|| true` (always exits 0), and the "Fail on new secrets" step runs `detect-secrets
-    audit ... || echo "No new secrets detected"` (also always exits 0, and `audit`
-    is an interactive baseline-auditing command, not a failure check). Additionally,
-    the scan excludes `data/raw/.*` rather than scanning `data/` and `src/` as the
-    task specifies. The next implementer shoul'
-  sig: a29c282a5602e449e4187e49427c56854ff035be8b5ec636510c443ce14d6bdb
-T044b:
-  c: false
-  h: e385ecb881f96c998a3be8e6db2e56062a8c4834a49eef16c331c046f43f1c15
-  r: "The task requires a `.secrets.baseline` file generated by running `detect-secrets\
-    \ scan --baseline .secrets.baseline` and committed, but the evidence collector\
-    \ found no artifact at that path (or any path) in `projects/PROJ-007-energy-systems`\
-    \ \u2014 no baseline file exists on disk and there is no execution or commit evidence.\
-    \ The implementer must actually run the detect-secrets scan and commit the resulting\
-    \ `.secrets.baseline` file to the project."
-  sig: 7f9d9b4d196f53fb7fcc3f097cd8b960c07e54e848cef491d698dbafd5b4c13e
+  c: true
+  h: d5515c8807d837eb59e1e385e2f33b070f0324c8ff9b72a331eaf6b8482c0520
+  r: The artifact `.github/workflows/ci.yml` exists (2624 bytes) and contains a `security-scan`
+    job that installs detect-secrets, scans `data/` and `src/` against the `.secrets.baseline`,
+    and explicitly fails the build (`exit 1`) when new PII/secrets are detected via
+    the baseline-diff check. The file deviates textually from the plan.md Phase 0
+    snippet (baseline-existence check, cp/cmp comparison instead of `|| true` + `audit`),
+    but that plan version would not actually fail on PII detection, whereas the implemented
+    workflow satisfies the task's stated functional requirements (scan data/ and src/,
+    fa
+  sig: ee68dc6efc593e3087e002e5b2812a04c2a56598e0be677a49174c334950b80c
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

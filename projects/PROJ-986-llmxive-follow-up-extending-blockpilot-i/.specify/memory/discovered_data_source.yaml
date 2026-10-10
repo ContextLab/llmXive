@@ -1,12 +1,12 @@
 status: none
-intent: GSM8K HumanEval block size acceptance length dataset python package dataset
+intent: huggingface datasets package GSM8K HumanEval python package dataset
 required_fields:
-- sample_id
-- prompt_text
-- block_size
-- acceptance_length
-- optimal_block_size
-- source_dataset
-cache_key: b9545621106c520bbe6655da574d638f1ba7b4ffda9d9e62036dedce5d20adc2
-searched_at: '2026-09-03T02:07:39.504646+00:00'
+- question
+- answer
+- prompt
+- function_name
+- test_cases
+- entry_point
+cache_key: 1d89fc8aec25ae58b6c55246315642ed268483c0331362ffb9a858944de7d4f6
+searched_at: '2026-10-10T15:52:15.603191+00:00'
 retry_count: 1

@@ -1,0 +1,7 @@
+{
+  "task_id": "T017",
+  "fingerprint": "f0ecdebf1a80a1f392f3a30656d9ee048aab475e52f9b35c5d53021f31166353",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/tests/unit/test_descriptors.py': imports nonexistent names from sibling files: `from src.features import descriptors` (available: __init__, alerts). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

@@ -1,0 +1,138 @@
+T001a:
+  task: 4802f15261fda84db33362e05a2372d5da51febd63eaf452c339d1992a848751
+T001b:
+  task: c5da747d26f3991697589bd7909f167780ac485c06674b234edb0b4c9681df07
+T001c:
+  reason: 'declared artifact(s) missing/empty/invalid: specs/001-llmxive-blockpilot-extension/'
+  task: 39a4bf45e5f2fc2888c6c91914ea27ba2507c7db9497aa61980e12f96799a0cd
+T002:
+  reason: The `requirements.txt` exists and contains all required packages (plus scipy),
+    but every dependency uses `>=` lower-bound constraints rather than pinned versions
+    (e.g., `transformers>=4.35.0`), which does not satisfy the task's explicit requirement
+    to **pin versions** for reproducibility. The implementer should replace these
+    with exact pins (e.g., `transformers==4.35.0`) or a lockfile-style pinned set.
+  task: 54ff3dd4f21dad7acec980ddac108397170ed8e2e5eb167a3fb7ddb55c025f49
+T003:
+  reason: "No artifacts were provided or found on disk for this task \u2014 the collector\
+    \ confirms the task references no code/data/figure paths, and there is no evidence\
+    \ of any linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `setup.cfg`, `tox.ini`, or `.flake8`/`black` config) existing in the project.\
+    \ The implementer's claim of configuring ruff/flake8 and black cannot be verified\
+    \ against any actual configuration artifact, so the required tooling setup is\
+    \ missing."
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  task: b023eca2396c3c978a282349f67bfe43838a82a7d6e963711407a054dcf3d1fc
+T005:
+  task: 4e6a358ce05711fc1bd119341687d277898aed38a1db1d6770666df4173eb619
+T006:
+  task: 0a351b50ce2fa089163fca613da9ae0e6c2d8472e64bbb550f158f3e8557c3de
+T007:
+  task: 3c4327b453a902e2208a27e15584eb4c7424018c12ab425f52ff8e63aaf50a0b
+T008:
+  task: f306862b8fa2305a309354591d95fb24af6a325c55999f00e34c21a63379b8a9
+T009:
+  task: 385d070c5086706b63abb32e26b9ceb32c86cd4578219f2d0ef62d5947bc35a5
+T009a:
+  task: fec86cbcbd4446c4f3cd9e0e51c65df09e88cfb7c3d6263d6dd715d27284c255
+T010:
+  task: 9c23e0f2d7a795f156dfbf88aa905edf854bb9d719b39705c932099188ce34ea
+T011:
+  task: 3a5d550c66352b6e83bc4e4e11be1d91e4428282dbdfffac05f0a02ce56519a1
+T012:
+  reason: 'Requested task execution failed; rerun successfully: code/sweep.py exit=1'
+  task: 8a947265982ff2d3121278f7928f535b3a8422d93aad0cdafc59299c229ea51f
+T013:
+  task: facc43638c534c5e944f936fbbf9922cd4d971f9b96dfad42a87206d9e44ea53
+T014:
+  task: 741818b7aaf3ee1d11c2a398780ed6d3d5b8689caa72ff4b3f85d9007d749d10
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/ground_truth.jsonl'
+  task: c57c8b6ba30d0256498de24af667eed143aa060b6d3c17e63b348c461e5718cf
+T016:
+  task: e76353c1c10e8a4f97284f8b6bb7c7631c585f5581473d3b4a68905597ada002
+T018:
+  task: 370165942920ca9190dffdd18c420065bf04cfe40d00425afb5b321f4a8a0577
+T019:
+  task: 827f63d0a0890701d9632d0a3ffebecdbb341f103b846b54e24f1df9379c2c4c
+T020:
+  task: 938a92f9cc6e25dba9818901c5988f87b71c75f7212d0379e062b677dce8266f
+T021:
+  task: 96b2feb26eb7f590fce8eb6341cf4d23edca7dc2a823b69d985f4ac54e37b773
+T022:
+  task: cd88ba3a04758d66e87808adbe8b490dd7f5065fa95ece9320bcb0f8405f3ef1
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/features.jsonl'
+  task: 502a6d483c1ba674841201af83eabbebf1aa4097afc0cabaeb512d33f7d75573
+T025:
+  task: 4de0eb943a3491d0a08d8300a768628a3f504a1a8cebaa9469e882fa1e611fea
+T026:
+  task: 865848b2c87296b76b383728357e6392cd9e826bcc8739646fed3863d42ebe1a
+T027b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/train.py'
+  task: 06c9a0bc749f0596cd12c9e3d8b2a70a6744c1b5459b9c348577dd7e09d9663c
+T027c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/train.py, data/processed/metrics.json'
+  task: 661149944ac8b8d84be326867727428e666758d4cc29fb0689383a98faa6cc18
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: code/train.py'
+  task: 81b9a214caf40a6fc91d0d00b92dc4b167da6211b0bf4767da76ff274255319d
+T029:
+  task: d2e696e2f90f44cdbdb151ccb79177addc078927a2000790d53e6c16dcd508e7
+T030:
+  task: a433e1fbd6ad42650a0c1ffccfe46dad1b9e8f1e4ca08b42bd8b40398b0ab486
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/training_set.jsonl'
+  task: c981f0636c56654d81af6cfcd65a819c856390b3793495bc1aaf5090f2b4c0ae
+T031a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/uncertainty.py, data/processed/uncertainty_metrics.jsonl'
+  task: 12573c9b1d6914acd305e017252d799e6fd202e0ba0012eeedfa7dfcdd858673
+T031b:
+  task: b9b6b29a97eaf25a57e4592e8d0b661d6bc9c967b2efc4e72d71a6c2085195c6
+T031c:
+  task: 9a711235b027889f3c45652d9651536593f6de9b536846f5074ffcae51f10822
+T032:
+  task: 01a2864a6b7eb6fd5451c20df0d112458ee803fed640a18fdd40d64065896616
+T033:
+  task: 7f43a298e85ed7cbe30a227f75909ab69e4d3232d4fcb6cd0f41ec596c4eef80
+T034:
+  task: c6f73bad99d4fcaeab7d94eae051f636300c281403ce619ff7e50297411df35e
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/feature_importance.json'
+  task: 2f2c79fae7b506ea4dda19e914018bc01da701331cadcf8842cbb7c5887e9e45
+T036:
+  task: 940041ce482f004c472f094e944db07a4393008b1baed2b21bcaecb80412dc41
+T037:
+  task: 36f30a0e590e6101566e75edb7ff97b628a32538774bbb0bc55785f2bbf4c397
+T038:
+  task: 5c90b7a1fc649f79bbedf0750046dace3362e9c0d8c0c1099fd1f5e93c0c4ec7
+T039:
+  task: b2625ced4981715d6e391ff02b0f2efa8f95c15cca2a2807f04c68e8409aeade
+T040:
+  task: b2a0ca6f47feea283e188f7576b9953062273a85b87e1a4be01fa5ef711405a5
+T041:
+  task: 144eab1799ba543515c40607badd05e5ed7b541f344e10e905bc11452ac52f6c
+T042:
+  task: cfb924ec8723880cf8081902f397736a70394e4841ae63118e180dc63adc8910
+T043:
+  task: 78779d6ff358f5bdfec73b19b36839348a698817a5eae89a30ad1c10df104498
+T045:
+  task: 9262346fe4017ae67801fe4311c845584b6eb9f3b3bdced42c9206efb1b33d02
+T046:
+  task: 0b1784d4a8f65837a01ad98414f28ca8dea3d261b040be782a06d3c096d5da3a
+T047:
+  task: 1707170339fc747397e882ddcb698cdac737148e1b639132a1f3216bdccbf802
+T048:
+  task: 1b101e0ee0edbdee4949c89b62d4bfe019f0dd2d8aef2c04c48783a647587c44
+T049:
+  task: 55041769d4628d4109b2e8b4aaa2fa1ca6a4a83cb5d58034e2937458a1d051dc
+T050:
+  task: caa08ca8ef5828f5cb3aebd346be0400b237ef9f2b52b5da6bb1071e22cb1bbe
+T051a:
+  task: fa75e717da339cd7a28d8e909f15b76566053f0825ff02cfd5adb6c9fa28055f
+T051b:
+  task: 08fe59944c453c860e36a53a74456dfdb9dd5cd06af468f92a9728be71811bd6
+T052:
+  task: 78d9f107d23c23319af104e3c4a73fd9bfbde169e97c6f1e31118442ccfe4777
+T053:
+  task: a81a1c4148e5ebd6f1ca4d1666c8672dd3fe5777c4fcd75c3d4ed5c8bb9395bc

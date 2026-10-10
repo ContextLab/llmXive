@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: StructuralAlertsConfig
-description: Schema for the structural alerts configuration file.
+description: Schema for the structural alerts configuration file (config/structural_alerts.json).
 type: object
 required:
   - patterns
@@ -8,7 +8,7 @@ properties:
   patterns:
     type: array
     minItems: 10
-    description: List of structural alert patterns
+    description: List of structural alert patterns; at least 10 patterns are required to ensure statistical validity of the rule-based scorer.
     items:
       type: object
       required:
@@ -34,4 +34,5 @@ properties:
         description:
           type: string
           description: Human-readable description of the structural motif
+      additionalProperties: false
 additionalProperties: false

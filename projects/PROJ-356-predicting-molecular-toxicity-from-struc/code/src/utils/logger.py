@@ -32,46 +32,46 @@ _logger: Optional[logging.Logger] = None
 def get_logger(name: str = "toxicity_pipeline") -> logging.Logger:
     """
     Get or create the project logger with configured handlers.
-    
+
     Args:
         name: Logger name (default: "toxicity_pipeline")
-        
+
     Returns:
         Configured logging.Logger instance
     """
     global _logger
-    
+
     if _logger is not None and _logger.name == name:
         return _logger
-    
+
     # Create new logger
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    
+
     # Prevent duplicate handlers if called multiple times
     if logger.handlers:
         return logger
-    
+
     # Create console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-    
+
     # Create file handler (ensure data directory exists)
     log_file_path = DEFAULT_LOG_FILE
     log_file_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     file_handler = logging.FileHandler(log_file_path)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-    
+
     # Add handlers
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
-    
+
     # Store reference
     _logger = logger
-    
+
     return logger
 
 
@@ -84,7 +84,7 @@ def log_data_count(
 ) -> None:
     """
     Log data count information.
-    
+
     Args:
         logger: Logger instance
         source: Data source name (e.g., "ToxCast", "PubChem")
@@ -106,7 +106,7 @@ def log_error(
 ) -> None:
     """
     Log error information with context.
-    
+
     Args:
         logger: Logger instance
         error_type: Type of error (e.g., "ValidationError", "DownloadError")
@@ -128,7 +128,7 @@ def log_checksum(
 ) -> None:
     """
     Log file checksum for integrity verification.
-    
+
     Args:
         logger: Logger instance
         file_path: Path to the file
@@ -148,7 +148,7 @@ def log_pipeline_stage(
 ) -> None:
     """
     Log pipeline stage execution.
-    
+
     Args:
         logger: Logger instance
         stage: Stage name (e.g., "download", "preprocess", "training")
@@ -169,7 +169,7 @@ def log_pipeline_stage(
 def setup_default_logger() -> logging.Logger:
     """
     Setup and return the default project logger.
-    
+
     Returns:
         Configured logging.Logger instance
     """

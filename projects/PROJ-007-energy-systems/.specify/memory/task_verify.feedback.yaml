@@ -1,13 +1,20 @@
 T001:
+  reason: "The task requires creating `src/data`, `src/analysis`, `src/utils`, `src/models`,\
+    \ `tests/unit`, `tests/integration`, `data/raw`, `data/processed`, `data/outputs`,\
+    \ and `specs/`, but the evidence only confirms `specs/` exists (with 2 entries);\
+    \ none of the other directories are shown to exist. The `data/outputs/analysis_result.json`\
+    \ shown is a fabricated-looking results file (round timestamp, placeholder-style\
+    \ counts) and does not substitute for the required directory structure \u2014\
+    \ the implementer must actually create all listed directories."
   task: 3cbad35daed4ccc88dfaf17fe4903ae88e19e4eee7e57a181e7d4ead4c5717c8
 T003:
   task: 41f9dc0627d4037eabf5f831acd209327b07f11f04358a59f821211ee80ebe4e
 T004:
-  reason: "`pytest.ini` exists with valid configuration (testpaths, markers, addopts),\
-    \ but there is no evidence of a `.gitignore` file containing entries for `data/`\
-    \ and `__pycache__/` \u2014 the collector's evidence includes no `.gitignore`\
-    \ artifact at all. The implementer must create or update `.gitignore` with those\
-    \ two entries to complete the task."
+  reason: "`pytest.ini` exists with valid configuration, but there is no evidence\
+    \ of a `.gitignore` file or entries for `data/` and `__pycache__/` \u2014 the\
+    \ collector shows no `.gitignore` artifact at all, so half the task's deliverable\
+    \ is missing. The implementer must create/verify `.gitignore` containing `data/`\
+    \ and `__pycache__/` entries."
   task: c4b7daa26422077e67292bec65eab0346e5546b1231329df9056e6200f9a5ea5
 T005:
   task: 9f2c3a2510c51a3b41a09da678f85cbc96f5763fa1a4daaf528afd0f3a2314b0
@@ -37,10 +44,20 @@ T009:
     \ at the 1st/99th percentiles is only loosely implied by"
   task: 65486b70c1c4a738a65282e8c15d3e995bce119fd7bff2aba3d8e27687fdce65
 T010:
+  reason: 'The file exists and `match_pairs` matches the required signature, but `estimate_propensity`
+    is missing the required `covariates: list` parameter (it takes only `df`), violating
+    the specified signature. The docstrings do describe the matching algorithm (nearest
+    neighbor) and caliper enforcement, but the signature defect must be fixed.'
   task: 3896542b3f2308a09788646b706378088f069dced289d6fc79adc2ed4af40d97
 T011:
   task: bfd736ab11f2903e93aff92f39dd946f4007a170ffd2bbf9928d690b49b3cf2d
 T012:
+  reason: "The file exists with docstrings describing OLS with cluster-robust SEs\
+    \ and DiD logic, but the required signature is `run_ols(df: pd.DataFrame, cluster_var:\
+    \ str)` and the artifact defines `run_ols(df: pd.DataFrame)` \u2014 the `cluster_var`\
+    \ parameter is missing. The task explicitly requires those exact function signatures,\
+    \ so this is a mismatch that must be fixed (adding the `cluster_var: str` parameter\
+    \ to `run_ols`)."
   task: 62cce7b7acf10fcf58aff342efd08a04c785b969c723b6c7b6a17e34c7e83a06
 T013:
   task: fe87f5a8fe29795c9c25344a5014eeae12db5220a4ea7a138987eb48842c428b
@@ -86,14 +103,6 @@ T040:
 T043:
   task: 50346acecad7fcfa90ebed127fc2b30fd9fdd699a836dd550ad4370896b62f59
 T044a:
-  reason: 'The file `.github/workflows/ci.yml` exists and its content matches the
-    plan.md Phase 0 YAML verbatim, but the workflow as written cannot satisfy the
-    task''s core requirement that the build FAIL if PII is detected: the scan step
-    ends in `|| true` (always exits 0), and the "Fail on new secrets" step runs `detect-secrets
-    audit ... || echo "No new secrets detected"` (also always exits 0, and `audit`
-    is an interactive baseline-auditing command, not a failure check). Additionally,
-    the scan excludes `data/raw/.*` rather than scanning `data/` and `src/` as the
-    task specifies. The next implementer shoul'
   task: 3e577e6e26a8d1d4d8e1261d8c309d0dd3adb3d4f25e3964a6497cb0a1f46644
 T044b:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/generate_secrets_baseline.sh

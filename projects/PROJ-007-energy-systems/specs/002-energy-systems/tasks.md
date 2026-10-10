@@ -24,11 +24,11 @@
 
 **Purpose**: Project initialization, basic structure, and security enforcement.
 
-- [X] T001 Create project structure: `mkdir -p src/data src/analysis src/utils src/models tests/unit tests/integration data/raw data/processed data/outputs specs/`
+- [ ] T001 Create project structure: `mkdir -p src/data src/analysis src/utils src/models tests/unit tests/integration data/raw data/processed data/outputs specs/`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Add `pyproject.toml` sections for ruff/black and create `.ruff.toml`
 - [ ] T004 [P] Set up `pytest` configuration: Create `pytest.ini` and `.gitignore` entries for `data/` and `__pycache__/`
-- [ ] T044a [P] Security hardening (Workflow): Create `.github/workflows/ci.yml` with a job `security-scan` that runs `detect-secrets scan --baseline.secrets.baseline` on `data/` and `src/`. The workflow must fail the build if PII is detected. This task defines the CI infrastructure. **Implementation**: The file content must match the `plan.md` Phase 0 specification exactly.
-- [ ] T044b [P] Security hardening (Baseline): Generate the initial `.secrets.baseline` file by running `detect-secrets scan --baseline.secrets.baseline` locally. This task must be completed after T044a to ensure the baseline file exists for the CI workflow to audit. **Implementation**: Execute the command locally and commit the resulting file. <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=2 -->
+- [X] T044a [P] Security hardening (Workflow): Create `.github/workflows/ci.yml` with a job `security-scan` that runs `detect-secrets scan --baseline.secrets.baseline` on `data/` and `src/`. The workflow must fail the build if PII is detected. This task defines the CI infrastructure. **Implementation**: The file content must match the `plan.md` Phase 0 specification exactly.
+- [ ] T044b [P] Security hardening (Baseline): Generate the initial `.secrets.baseline` file by running `detect-secrets scan --baseline.secrets.baseline` locally. This task must be completed after T044a to ensure the baseline file exists for the CI workflow to audit. **Implementation**: Execute the command locally and commit the resulting file. <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=2 --> <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=1 -->
 
 ---
 
@@ -50,15 +50,15 @@
  - `def winsorize(df: pd.DataFrame, lower: float, upper: float) -> pd.DataFrame:`
  - `def construct_treatment(df: pd.DataFrame) -> pd.DataFrame:`
  - **Docstring requirement**: Must describe outlier handling (1st/99th percentile) and treatment construction logic.
-- [~] T010 [P] Create `src/analysis/psm.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [ ] T010 [P] Create `src/analysis/psm.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def estimate_propensity(df: pd.DataFrame, covariates: list) -> pd.DataFrame:`
  - `def match_pairs(df: pd.DataFrame, caliper: float) -> pd.DataFrame:`
  - **Docstring requirement**: Must describe matching algorithm and caliper enforcement.
-- [~] T011 [P] Create `src/analysis/balance.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [X] T011 [P] Create `src/analysis/balance.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def calculate_smd(df: pd.DataFrame) -> dict:`
  - `def plot_balance(smd_data: dict) -> matplotlib.figure.Figure:`
  - **Docstring requirement**: Must describe SMD calculation and balance visualization.
-- [~] T012 [P] Create `src/analysis/causal.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [ ] T012 [P] Create `src/analysis/causal.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def run_ols(df: pd.DataFrame, cluster_var: str) -> statsmodels.regression.linear_model.RegressionResults:`
  - `def run_did(df: pd.DataFrame) -> statsmodels.regression.linear_model.RegressionResults:`
  - **Docstring requirement**: Must describe OLS with cluster-robust SEs and DiD logic (noted as impossible in plan).

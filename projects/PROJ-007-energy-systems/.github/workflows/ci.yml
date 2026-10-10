@@ -13,22 +13,39 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install detect-secrets
         run: pip install detect-secrets
-      - name: Run PII Scan
+      - name: Verify secrets baseline exists
         run: |
-          detect-secrets scan --baseline .secrets.baseline --exclude-files 'data/raw/.*' || true
-          # Note: Baseline should be created manually once. 
-          # If .secrets.baseline does not exist, create it first:
-          # detect-secrets scan --baseline .secrets.baseline
+          if [ ! -f .secrets.baseline ]; then
+            echo "ERROR: .secrets.baseline not found."
+            echo "Generate it locally (task T044b) with:"
+            echo "  detect-secrets scan --baseline .secrets.baseline"
+            exit 1
+          fi
+      - name: Run PII Scan on data/ and src/
+        run: |
+          # Preserve the committed baseline so we can detect changes.
+          cp .secrets.baseline .secrets.baseline.orig
+          # Re-scan ONLY the directories in scope (data/ and src/) and
+          # merge results into the baseline. detect-secrets updates the
+          # baseline file in place when new secrets are found.
+          detect-secrets scan --baseline .secrets.baseline data/ src/
       - name: Fail on new secrets
         run: |
-          detect-secrets audit --baseline .secrets.baseline || echo "No new secrets detected"
+          # If the re-scan modified the baseline, new PII/secrets were
+          # detected in data/ or src/ -> fail the build.
+          if ! cmp -s .secrets.baseline.orig .secrets.baseline; then
+            echo "PII/secrets detected in data/ or src/ — failing build."
+            echo "Review the diff of .secrets.baseline to identify the new findings."
+            exit 1
+          fi
+          echo "No new secrets detected in data/ or src/."
 
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
-        uses: setup-python@v4
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
       - name: Install dependencies
@@ -45,5 +62,13 @@ jobs:
       - name: Check for PII in processed data
         run: |
           # Simple check for common PII patterns in processed data
-          grep -rE '\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z|a-z]{2,}\b' data/processed/ || echo "No email PII found"
-          grep -rE '\b\d{3}-\d{2}-\d{4}\b' data/processed/ || echo "No SSN PII found"
+          if grep -rEq '\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z|a-z]{2,}\b' data/processed/; then
+            echo "Email PII found in data/processed/ — failing build."
+            exit 1
+          fi
+          echo "No email PII found"
+          if grep -rEq '\b\d{3}-\d{2}-\d{4}\b' data/processed/; then
+            echo "SSN PII found in data/processed/ — failing build."
+            exit 1
+          fi
+          echo "No SSN PII found"

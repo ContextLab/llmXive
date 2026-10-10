@@ -3,8 +3,9 @@
 #
 # Runs `detect-secrets scan --baseline .secrets.baseline` from the project
 # root so that the CI security-scan job (T044a) has a baseline to audit
-# against. The script fails loudly (set -e) if detect-secrets is missing,
-# the scan fails, or the resulting baseline file is invalid JSON.
+# against. The script fails loudly if detect-secrets cannot be made
+# available, the scan fails without producing a baseline, or the
+# resulting baseline file is invalid JSON.
 set -euo pipefail
 
 # Resolve the project root (three levels above this script) so the
@@ -19,15 +20,29 @@ if ! command -v detect-secrets >/dev/null 2>&1; then
     python -m pip install --quiet detect-secrets
 fi
 
-echo "Running detect-secrets scan to generate .secrets.baseline ..."
-detect-secrets scan --baseline .secrets.baseline
-
-# Validate the baseline is a real, well-formed detect-secrets baseline.
-if [ ! -f .secrets.baseline ]; then
-    echo "ERROR: .secrets.baseline was not created." >&2
+# Verify it is now genuinely usable (importable and has a CLI entry point).
+if ! command -v detect-secrets >/dev/null 2>&1; then
+    echo "ERROR: detect-secrets still unavailable after install attempt." >&2
     exit 1
 fi
 
+echo "Running detect-secrets scan to generate .secrets.baseline ..."
+# detect-secrets scan can exit non-zero in some versions when potential
+# secrets are found; the baseline file is still written in that case.
+# We therefore capture the exit code and validate the artifact on disk,
+# failing loudly if the baseline was not produced.
+set +e
+detect-secrets scan --baseline .secrets.baseline
+SCAN_RC=$?
+set -e
+echo "detect-secrets scan exit code: ${SCAN_RC}"
+
+if [ ! -f .secrets.baseline ]; then
+    echo "ERROR: .secrets.baseline was not created (scan exit code ${SCAN_RC})." >&2
+    exit 1
+fi
+
+# Validate the baseline is a real, well-formed detect-secrets baseline.
 python - <<'PY'
 import json
 import sys

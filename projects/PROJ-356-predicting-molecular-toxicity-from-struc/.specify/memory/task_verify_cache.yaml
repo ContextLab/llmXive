@@ -1,10 +1,58 @@
+T001:
+  c: true
+  h: 59d8125acc11201c78859c0413e3bc662d361be923cc93fa2267fd0a803cc59c
+  r: The script `code/scripts/init_project.py` exists (3315 bytes), creates all 12
+    required directories plus verification logic, and the execution log shows it ran
+    with exit 0 and "Verification SUCCESS" for every required directory. All required
+    directories are confirmed present on disk with the expected contents.
+  sig: e77cd7490a887c3dfdf52a25044b35555b5c1f3e6df6046c7403b43af23f3bbb
+T002:
+  c: true
+  h: 11632c012e9cdd128a5905ed1539c3aad61ddb281fb73a696cc4a06aa7034e33
+  r: The script `code/scripts/init_project.py` exists with full directory-creation
+    and verification logic, and the execution log shows it ran with exit code 0, creating
+    all 13 required directories and printing "Verification SUCCESS. All required directories
+    exist." The evidence directly matches the task's requirement to execute the script
+    and verify creation via file system checks.
+  sig: d10fd0f1caa26f9ddf304f63858e26648e4bf5fe5d40c5f1bf8b951a84c33621
+T009:
+  c: false
+  h: 3afeb26e1d65b72235fb9a5b698ae5cf5af9ee8e6ecc68094ed257ae15a15769
+  r: The collector confirms the contracts directory exists but reports both required
+    files, `dataset.schema.yaml` and `model_output.schema.yaml`, as MISSING (only
+    `alerts.schema.yaml` is present). The task explicitly requires creating those
+    two schema files, so the deliverable is not done.
+  sig: 3eeef8f705ab8f9f8057eff70488ebcb861e2abf621cec88a0175a95e76ec358
 T009b:
   c: true
-  h: c4ccd80ee309144fdc4f8dfb9ed600bf61d6a2ed7363398120aef600ecd56eca
-  r: "The file `alerts.schema.yaml` exists at the required location (under `code/specs/.../contracts/`)\
-    \ and contains a valid YAML schema, satisfying the task\u2019s requirement to\
-    \ create the file (empty or with a header). No other artifacts are needed for\
-    \ this task."
+  h: cfdfb87a35f9c51eac36033155902b3474854934cabfd5d7d139de61356008f6
+  r: The file `contracts/alerts.schema.yaml` exists at the resolved path, is non-empty
+    (1236 bytes), and contains a well-formed JSON Schema (draft-07) for the structural
+    alerts config with required fields (pattern_id, smarts_string, weight, source,
+    description), satisfying the task's requirement of creating the schema file with
+    a header.
+  sig: 405d8bd2aca4fc0801257288c675a36ef5cf11a5e8bfa3f3e09112f5559ca17d
+T009c:
+  c: true
+  h: f01f952c5d9b9556511d500f66a22c90ca01624d640e7096d8223a7b0722bd9c
+  r: "The schema file exists at the requested path (1236 bytes) and is a valid draft-07\
+    \ JSON Schema defining an object with a required `patterns` array whose items\
+    \ require `pattern_id`, `smarts_string`, `weight`, `source`, and `description`\
+    \ \u2014 matching the structure of the actual `config/structural_alerts.json`,\
+    \ which validates against it (12 patterns \u2265 minItems 10, all required fields\
+    \ present, numeric non-negative weights)."
+  sig: 5a5b89461f76a1a2f695492c4f0d88583ca8132bb033a1517525a5e66ae79343
+T010:
+  c: true
+  h: f4a55411f9dccbb9de94f013b74bdd206d4858adfd96a967a3c1df613bced064
+  r: 'The file exists (1867 bytes) and contains exactly 10 SMARTS patterns, each with
+    a `pattern_id`, `smarts_string`, numeric `weight`, `source` (all "Brenk Set"),
+    and `description`, matching the required schema and the "curated" requirement.
+    Minor caveat for downstream tasks: several SMARTS (e.g., `AZIDE_01` and `AZO_01`
+    with `[N;D1]=[N;D1]`) impose degree-1 constraints on both atoms of a double bond
+    and may never match real molecules, but this task only required the curated, well-documented
+    pattern set.'
+  sig: 594b882a33d731b42385f05eb23a768f58ed19afaefaf9d1dccd43e9bf95dcf2
 T015:
   c: false
   h: b26a0c49ee655b01c31615f9267335ab6303475c856b3aa7a5690b06709b7c5e

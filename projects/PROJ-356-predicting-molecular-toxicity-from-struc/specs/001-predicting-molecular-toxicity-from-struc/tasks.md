@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure (Programmatic execution)
 
-- [ ] T001 [P] Write `scripts/init_project.py` to programmatically create the required directory structure: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/raw/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/processed/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/models/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/docs/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/scripts/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/state/`. (Addresses executability/reproducibility, FR-001, Constitution Principle I & V)
-- [ ] T002 [P] Execute `scripts/init_project.py` to generate the directory structure and verify creation via file system checks. (Depends on T001)
+- [X] T001 [P] Write `scripts/init_project.py` to programmatically create the required directory structure: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/raw/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/processed/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/models/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/docs/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/scripts/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/state/`. (Addresses executability/reproducibility, FR-001, Constitution Principle I & V)
+- [X] T002 [P] Execute `scripts/init_project.py` to generate the directory structure and verify creation via file system checks. (Depends on T001)
 
 ---
 
@@ -56,7 +56,7 @@
 
 - [ ] T009 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/` directory with `dataset.schema.yaml` and `model_output.schema.yaml`. (Clarified path per plan.md)
 - [X] T009b [P] Create the file `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/alerts.schema.yaml` (empty or with header). (FR-003, Constitution Principle II)
-- [ ] T009c [P] Generate `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/alerts.schema.yaml` with the exact JSON Schema definition for `config/structural_alerts.json`. **Instruction**: Generate a valid JSON Schema file matching the structure defined in FR-003 (do not copy-paste text from this description). **Content**:
+- [X] T009c [P] Generate `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/alerts.schema.yaml` with the exact JSON Schema definition for `config/structural_alerts.json`. **Instruction**: Generate a valid JSON Schema file matching the structure defined in FR-003 (do not copy-paste text from this description). **Content**:
 ```yaml
 $schema: http://json-schema.org/draft-07/schema#
 title: StructuralAlertsConfig
@@ -86,7 +86,7 @@ properties:
  type: string
 ```
  **Instruction**: Generate the YAML content programmatically or from a verified template to ensure robustness. (FR-003, Constitution Principle II)
-- [ ] T010 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/structural_alerts.json` with a curated set of at least 10 SMARTS patterns and weights. **Requirement**: Each pattern must include a `source` field (e.g., "ToxCast", "Brenk set") and `description` to satisfy the "curated" requirement. **Exact JSON Schema Example**:
+- [X] T010 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/structural_alerts.json` with a curated set of at least 10 SMARTS patterns and weights. **Requirement**: Each pattern must include a `source` field (e.g., "ToxCast", "Brenk set") and `description` to satisfy the "curated" requirement. **Exact JSON Schema Example**:
 ```json
 {
  "patterns": [
@@ -164,10 +164,10 @@ properties:
 }
 ```
  **Instruction**: Copy the exact JSON content from the task description into `config/structural_alerts.json`. (FR-003)
-- [ ] T011 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/pipeline/run.py` orchestration skeleton with CLI argument parsing
-- [ ] T012 Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/config/__init__.py` and environment variable management for paths
-- [ ] T013 Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/scripts/update_state.py` for artifact hashing and state file updates
-- [ ] T014 Setup logging infrastructure in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/utils/logger.py` to capture data counts, errors, and checksums
+- [~] T011 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/pipeline/run.py` orchestration skeleton with CLI argument parsing
+- [~] T012 Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/config/__init__.py` and environment variable management for paths
+- [~] T013 Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/scripts/update_state.py` for artifact hashing and state file updates
+- [~] T014 Setup logging infrastructure in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/utils/logger.py` to capture data counts, errors, and checksums
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -183,8 +183,8 @@ properties:
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US1] Unit test for SMILES standardization and MW filtering in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_preprocess.py`
-- [ ] T016 [P] [US1] Unit test for SMARTS pattern loading and binary vector generation in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_alerts.py`
+- [~] T015 [P] [US1] Unit test for SMILES standardization and MW filtering in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_preprocess.py`
+- [~] T016 [P] [US1] Unit test for SMARTS pattern loading and binary vector generation in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_alerts.py`
 - [ ] T017 [P] [US1] Unit test for descriptor calculation (a set of fixed descriptors) in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_descriptors.py`
 - [ ] T018 [P] [US1] Integration test for full data-to-model pipeline in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/integration/test_pipeline.py`
 

@@ -1,61 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: MolecularToxicityDataset
-description: Schema for the preprocessed molecular toxicity dataset used in the pipeline.
+title: MutagenicityDataset
+description: >
+  Schema for the raw and preprocessed mutagenicity datasets used in the
+  molecular toxicity prediction pipeline. Each record represents a single
+  compound with a SMILES string and a binary mutagenicity label sourced
+  from a PubChem BioAssay (e.g., AID 1851) or ToxCast assay.
 type: object
 required:
-  - metadata
-  - records
+  - smiles
+  - label
 properties:
-  metadata:
-    type: object
-    required:
-      - source
-      - assay_id
-      - assay_type
-      - total_compounds
-      - processed_at
-      - checksum
-    properties:
-      source:
-        type: string
-        description: Origin of the dataset (e.g., 'PubChem', 'ToxCast')
-      assay_id:
-        type: string
-        description: Specific assay identifier (e.g., 'AID1851')
-      assay_type:
-        type: string
-        description: Type of assay (e.g., 'Ames', 'Mutagenicity')
-      total_compounds:
-        type: integer
-        minimum: 1000
-        description: Number of valid compounds after preprocessing
-      processed_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of processing
-      checksum:
-        type: string
-        description: SHA-256 checksum of the raw data source
-  records:
-    type: array
-    description: List of molecular records
-    items:
-      type: object
-      required:
-        - smiles
-        - label
-        - molecular_weight
-      properties:
-        smiles:
-          type: string
-          description: Canonical SMILES string
-        label:
-          type: integer
-          enum: [0, 1]
-          description: Binary toxicity label (0: inactive, 1: active)
-        molecular_weight:
-          type: number
-          description: Molecular weight in Daltons
-        instance_id:
-          type: integer
-          description: Unique row index in the preprocessed dataset
+  smiles:
+    type: string
+    description: Molecular structure encoded as a SMILES string.
+    minLength: 1
+  label:
+    type: integer
+    description: Binary mutagenicity label (1 = active/mutagenic, 0 = inactive).
+    enum:
+      - 0
+      - 1
+  canonical_smiles:
+    type: string
+    description: >
+      RDKit-canonicalized SMILES produced during preprocessing
+      (FR-002). Present in preprocessed outputs only.
+  molecular_weight:
+    type: number
+    description: >
+      Molecular weight in Daltons. Preprocessing filters compounds
+      with molecular_weight >= 1000.
+    exclusiveMinimum: 0
+    maximum: 1000
+  assay_id:
+    type: string
+    description: Identifier of the source assay (e.g., a PubChem AID).
+  assay_type:
+    type: string
+    description: Type of mutagenicity assay (e.g., Ames, ToxCast).
+additionalProperties: false

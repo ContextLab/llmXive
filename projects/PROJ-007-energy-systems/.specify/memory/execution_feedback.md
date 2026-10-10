@@ -44,6 +44,6 @@ ERROR tests/unit/test_preprocess.py
 ERROR tests/unit/test_psm.py
 ERROR tests/unit/test_report_generation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 3.36s ===============================
+============================== 7 errors in 2.09s ===============================
 
 
