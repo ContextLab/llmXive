@@ -1,0 +1,19 @@
+status: none
+intent: OpenNeuro ds000305 ADHD-200 dataset download python package and Schaefer 200
+  atlas nilearn python package dataset
+required_fields:
+- subject_id
+- parcel_1_entropy
+- parcel_2_entropy
+- parcel_3_entropy
+- parcel_4_entropy
+- parcel_5_entropy
+- parcel_6_entropy
+- parcel_7_entropy
+- parcel_8_entropy
+- parcel_9_entropy
+- parcel_10_entropy
+- parcel_11_entropy
+cache_key: 2ed73c541ff5bcc5f2adf7d35a17b06bebaf816f42500f0af51d5964a35f7504
+searched_at: '2026-10-10T00:52:13.992641+00:00'
+retry_count: 1

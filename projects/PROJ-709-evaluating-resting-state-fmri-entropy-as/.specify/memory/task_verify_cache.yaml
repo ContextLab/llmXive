@@ -1,3 +1,58 @@
+T001:
+  c: false
+  h: 7b05a616632b4a31125745d7832519f5b49b807421e9a38b5e6cb9b605a83c70
+  r: The required `code/logs/` directory is missing (collector reports "MISSING (file
+    does not exist)"). All other required directories (`code/`, `data/raw/`, `data/processed/`,
+    `data/derived/`, `tests/`, `docs/`) exist with `.gitkeep` files, and `code/__init__.py`
+    is a non-empty module docstring, but the task explicitly lists `code/logs/` among
+    the directories to create, so it must be added (e.g., `mkdir -p code/logs` with
+    a `.gitkeep`).
+  sig: 7d43f4af079c8273b6879a279ffd6550933a101919e2dbf2964b1447f76a8742
+T002a:
+  c: true
+  h: 10d3928bbcb0ea91e968485e41f3d62c2cbbdc76536b3a8df58d4457a2a898ac
+  r: The file `code/requirements.txt` exists (223 bytes) and contains all 12 required
+    packages with pinned `==` versions (antropy, scikit-learn, nibabel, nilearn, pandas,
+    numpy, scipy, matplotlib, seaborn, statsmodels, openneuro-py, pyyaml), plus two
+    extra dev tools (black, isort) which don't conflict with the requirement.
+  sig: 8022dc7797b5c0d7107a53703cdfdf22a9204f55925d98e4d0f57806efc70693
+T002b:
+  c: false
+  h: 7c25f600f675359f388e19babf15c45312a816603dda2bf277c9363cc288a124
+  r: "The task requires an actual virtual environment at `code/.venv` plus execution\
+    \ evidence of `code/.venv/bin/python --version` showing >=3.11, but the evidence\
+    \ collector reports no artifacts on disk for this task \u2014 no `code/.venv`\
+    \ directory, interpreter, or version-check output was provided. The implementer\
+    \ must actually create the venv (e.g., `python3.11 -m venv code/.venv`) and run\
+    \ the version command, capturing its output as evidence."
+  sig: 8a22479fddb005e51dde361b32c148b899ae9962b74222a4f29612bc2960cc1e
+T003a:
+  c: false
+  h: 4b29ecc3c52129975bd65e4f6181b35102b4b4b1278ecd56f07b406f595facc9
+  r: "`code/requirements.txt` exists with properly pinned versions, but `code/.env.example`\
+    \ is MISSING \u2014 the task explicitly requires it to contain `CUDA_VISIBLE_DEVICES=`.\
+    \ The implementer must create `code/.env.example` with that line to complete the\
+    \ task."
+  sig: 22ce2d6492466697dd7980c1d010f1cdc8f7bccc9868cfce56951642c5e983cd
+T004:
+  c: false
+  h: ddd93e69fa110f15bb58f69550a780c153bdc2e9ffd2e14aa0fe303a13685f48
+  r: '`code/config.py` exists but defines `dataset_id = "ds000030"` instead of the
+    required `"ds000305"` (failing the task''s own verification assertion), omits
+    `SAMPLE_SIZE_N = 50` entirely, and contains no logic asserting the loaded dataset
+    has at least 50 valid subjects (no `RuntimeError` on fewer). The implementer must
+    fix the dataset ID, add the sample-size constant, and add the subject-count validation.'
+  sig: 1c0475385bfd17b387f5c087218cd08082314402ad228d33b5198d564f370933
+T005a:
+  c: false
+  h: bc95ceef9b1159aa1dd07cc85b9a08743626a49c928f4aaa2c78b21c4ea59559
+  r: "The required `data/raw/checksums.sha256` is MISSING and no NIfTI files were\
+    \ downloaded to `data/raw/` (only `.gitkeep` and a log). The loader also deviates\
+    \ from the task: it uses `nilearn.datasets.fetch_openneuro_dataset` instead of\
+    \ the required `datasets.load_dataset(\"openneuro/ds000305\", split=\"train\"\
+    , streaming=True)`, and there is no evidence it was ever run \u2014 `valid_subjects.csv`\
+    \ is an empty placeholder with only comments."
+  sig: 71fdc48f48ca88d2fdf759055354569ad9e66b7cabe14b8a3b3345d968895299
 T005b:
   c: false
   h: d2164a586829c3847ff89f30ef7cadfc1094802b5d59072b93a6905b7ac5e62c
