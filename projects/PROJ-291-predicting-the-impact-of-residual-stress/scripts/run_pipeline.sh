@@ -1,19 +1,15 @@
 #!/usr/bin/env bash
 # run_pipeline.sh – orchestrates the end‑to‑end analysis for the project.
-# Each stage aborts the pipeline on error (set -e).  Stages that are not yet
-# implemented will simply be skipped with a clear message.
-
 set -euo pipefail
 
 echo "=== Step 1: Environment verification ==="
 bash scripts/env_check.sh
 
 echo "=== Step 2: Data ingestion ==="
-# The ingestion module writes the unified CSV to data/processed/unified_fatigue.csv
+# Use the 'code' package root
 python -m code.ingest.ingest
 
 echo "=== Step 3: Preprocessing (placeholder) ==="
-# Future preprocessing script – currently a no‑op placeholder to keep the pipeline functional.
 if [ -f "code/preprocess/preprocess.py" ]; then
   python -m code.preprocess.preprocess
 else
