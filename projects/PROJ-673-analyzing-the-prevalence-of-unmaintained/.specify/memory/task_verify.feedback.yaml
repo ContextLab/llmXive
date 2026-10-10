@@ -1,0 +1,114 @@
+T001:
+  reason: The only artifacts shown are `plan.md` and a `contracts/` directory; there
+    is no evidence (no `ls -R` output or directory listings) that the required `src/models`,
+    `src/services`, `src/analysis`, `src/cli`, `src/utils`, `data/raw`, `data/processed`,
+    `tests/unit`, and `tests/integration` directories were actually created. Additionally,
+    a `contracts/` directory exists at the project root, which the task explicitly
+    forbids creating here (the plan places it under `specs/001-.../contracts/`), so
+    its presence at root is a violation unless it can be shown to be the spec-scoped
+    path.
+  task: 25068942b8a5d2c3f7739db3f9fcf06d15f97d94b6f14a30c4640871c2a5e6be
+T002:
+  task: 0410978d866ac867235ed6e21a55a0994d5999abce1808ac1b96d6af4dbb7615
+T003:
+  task: 271186ff24d7bd0a27dd3e4b3ef269aa5d69a830beae0d918e082e00ea963888
+T004:
+  task: 1d3e0bddf9c8c8d03be26df79d6dd37d7199cac0957efc3325a94d2865079580
+T005:
+  task: 2b93108a8446df587533cd254ec138dd7e7c5d9209e5b459c70b93ef4b76f017
+T005a:
+  reason: "The file `src/utils/checksum.py` exists and is substantive, but it defines\
+    \ `generate_checksum` (plus verify/directory helpers), while the task's verification\
+    \ command imports and calls `compute_checksum` \u2014 running the specified check\
+    \ would raise `ImportError: cannot import name 'compute_checksum'`. The implementer\
+    \ must add a `compute_checksum` function (or alias) so the exact verification\
+    \ command passes."
+  task: b68e82e7a98e666414fd70ac6f0bcadb625f22340e1a2fe51d2c0c13fded81aa
+T006:
+  task: f0aff538a970045e103ca30fbedf869c74132fb820d7a79e1af9d4f7ee859a7a
+T007:
+  task: 6a5279f23447ded0e31d101132d54cf67b2e238fff415b09202c108d3bf14d4b
+T007a:
+  task: 152a92ba79507d6d4ce7d05ede75f3421d1c4832244a064b65df87b6b4de62bf
+T008:
+  task: 340b1e3cdcd78d94ea7ca1868be6e07b55f7ffb70dfcd76bb301940313009364
+T008b:
+  task: ec54fa6b4296f85b7c3888b477598e85341c8abe4766579ce44f8c9cc107de84
+T009:
+  task: e3305eecfb7028cca2b23c0f4a2882b46b8e64095382a57c5925d78294aa77e7
+T010:
+  task: 713f15d0e8c073952d3b067c64cd7dccd8d3c5e8b0d845401f8fb6ac6413a6ee
+T011:
+  task: 8dd1ebb813e1a3446f2706837f78ce55693abaeb62b45aa200cdc62780e84a71
+T012:
+  task: 9a6dc14d5fec63e5ad57c562ae8fb2c66ebfde2625d903372050c02706a6ce9b
+T013:
+  task: 32df5938cd5bc4a2bc43a2165f9dc7d4e1130f125c5fdeb208bf6c4a2693b6aa
+T014:
+  task: 9b4247462e0da1cde3de51a0cab265d7444de3c530ddaf6c77209c3a16469481
+T015:
+  task: aea320121de50d30ca9995a714bced885942c4313b5afda37550453c6a360aac
+T016:
+  task: 539ff0d3333f3e9a5169e9a555a0bc8a93f2141a992bbc88d7e493cd21632b99
+T017a:
+  task: d7021029b2e883c587b0fdad65f25cfc419f38b41ee790850ae518a3ee1055b6
+T017b:
+  task: 840b98792e105a5ab46fae93ff4dc5336229e3b1f45b7a5f3e610c5e0453b8d4
+T018:
+  task: c61d39ead8594eac26e78ad5644ded328844f2d44e6c5535e107524f968b5bc7
+T019:
+  task: 171f64f32924a2ca3d4039d31b3750de4d4b0bb7d37faa85eccd1912e4f47eaf
+T020:
+  task: 939653bd77c4cb1d178ddcdcec1361e8670af4525e289ad0e37dfdf8826aae82
+T021:
+  task: fa989c61dff49129c6ce7049f244381bb04933d73518aeca751f6b90a467596b
+T022:
+  task: ee9ca1b0bb0293e163aea5db5e6100fa82499ada13359169aafa9ec60de195a3
+T023:
+  task: 635d14f052f70fd786ddacdd10fed2788025311bce6486a907ff361b608fbebc
+T024:
+  task: 8f5d43e3e0116b209869f49d1c0757442266ad3380bdccaffb3c36836d242908
+T025:
+  task: 5641ba71e53eca28ec7af7696a9efcef325a65bf3c24cfaf003a0ebf134095ab
+T026:
+  task: 798818bb7077cab58f01bcc0f06699bf6796d677815df4a2cb7fc2992c82b7b1
+T027:
+  task: 8deb25f1f526d64c7cd41c2bba93262c93b0ea3f5199e2266e484b9594cfc4d0
+T028:
+  task: 8635e78c4210fc2e59a0f66302f03b685d9f351c3147e2d5a2b8de45fe0570f8
+T029:
+  task: 110343f5f1416f66d0dba32b559a6ae3e7d3b29691c363ad73f834f608626c2b
+T030:
+  task: 4e18cac7a2f39f991ff21245d3f585553a873d2029bf30217d95085439475aba
+T031:
+  task: 1b7042cb46ac3b7fcd6d7f0ea4f94b432c24fc464f0b8b65bedec64de9e8a9e5
+T032:
+  task: 5065746319ed9cda04cb17e72309ade52a278ef6269d07f7f1945c2cecb1b8b2
+T033:
+  task: 28488f0aec961132ac7673620e2921496e40fd7d746f4e5ceb8093243d0985e1
+T034:
+  task: f922a204d4a1ae48159767aa7f6389533d9f5f151597fb465f404298a5ad992e
+T035:
+  task: 2cd50f0f6d0f1acc286b54103c1012e58be9cd74b90a1532e124d2c125c73ec5
+T036:
+  task: 59c8b01446479f83b195b3b3948cf7a3bb20d4026ca3670a14993053d79c13a3
+T037:
+  task: a0572b497110081993cfd32035ea2c798fe53522b94c8fad0e9268ae4036a2f8
+T038:
+  task: 28d15b9bb541c42a6328c662641f0c1fde1ce8b38414d2a6e9579fc83f7283b7
+T039:
+  task: c677ae081ea5bde852a3aa5a3eec67e4a533628e7967742924221ddcc009546f
+T040:
+  task: 5362208df3c0a02310e34bae90bd9f658cd4053b27d76c0297609508846f3161
+T041:
+  task: 977e6cd00e657a95ac6436ba89a06c72dd64ac22bbfc908b52b5c46b5d975752
+T042:
+  task: b5f650a4f34260633691bd57eadc4888d38ef1e5294f2664e43289b5fc45d788
+T043:
+  task: 88f55481fbf089347f02dde04876bf54bd844872b280c2cef8012310086fdbc9
+T044:
+  task: be917dee531e540758f9f03f407ff2420dcd94afc1d0260f622ad4b4f92467cc
+T045:
+  task: ac96c90c21a85990e16e6f2fb5e208d0fbc1180364cc58a75129700186e2865c
+T046:
+  task: cdd86fc051180fc60ef35d82d77b751cdd4c28c4d41b629b9d3ec8f05762c953

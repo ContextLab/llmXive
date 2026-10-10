@@ -1,6 +1,7 @@
 """
 Unit tests for the sensitivity analysis module.
 """
+
 import pytest
 import json
 import tempfile
@@ -11,7 +12,7 @@ from src.analysis.sensitivity import (
     calculate_unmaintained_ratio,
     calculate_correlation_with_maintenance_status,
     run_threshold_sweep,
-    run_sensitivity_analysis
+    run_sensitivity_analysis,
 )
 
 # Sample mock data for testing
@@ -21,8 +22,9 @@ MOCK_DEPENDENCIES = [
     {"name": "pkg3", "age_in_days": 400, "vulnerability_count": 10},
     {"name": "pkg4", "age_in_days": 200, "vulnerability_count": 0},
     {"name": "pkg5", "age_in_days": 10, "vulnerability_count": 1},
-    {"name": "pkg6", "age_in_days": None, "vulnerability_count": 3}, # Should be skipped
+    {"name": "pkg6", "age_in_days": None, "vulnerability_count": 3},  # Should be skipped
 ]
+
 
 class TestCalculateUnmaintainedRatio:
     def test_ratio_calculation(self):
@@ -53,6 +55,7 @@ class TestCalculateUnmaintainedRatio:
         ratio = calculate_unmaintained_ratio(null_deps, 30)
         assert ratio == 0.0
 
+
 class TestCalculateCorrelationWithMaintenanceStatus:
     def test_correlation_calculation(self):
         """Test correlation calculation on a subset."""
@@ -79,46 +82,50 @@ class TestCalculateCorrelationWithMaintenanceStatus:
         assert rho == 0.0
         assert p == 1.0
 
+
 class TestRunThresholdSweep:
     def test_sweep_output_structure(self):
         """Verify the structure of the sweep results."""
         results = run_threshold_sweep(MOCK_DEPENDENCIES, [30, 100])
-        
+
         assert isinstance(results, list)
         assert len(results) == 2
-        
+
         for res in results:
             assert "threshold_days" in res
             assert "unmaintained_ratio" in res
             assert "correlation_coefficient" in res
             assert "p_value" in res
 
+
 class TestSensitivityAnalysisIntegration:
     def test_end_to_end_execution(self):
         """Test the full pipeline writing to a temp file."""
         # Create a temporary CSV file
         import pandas as pd
+
         df = pd.DataFrame(MOCK_DEPENDENCIES)
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             input_path = Path(tmpdir) / "test_deps.csv"
             output_path = Path(tmpdir) / "test_sensitivity.json"
-            
+
             df.to_csv(input_path, index=False)
-            
+
             result = run_sensitivity_analysis(str(input_path), str(output_path))
-            
+
             # Verify output file exists
             assert output_path.exists()
-            
+
             # Verify result content
             assert "threshold_sweep" in result
             assert len(result["threshold_sweep"]) > 0
-            
+
             # Verify JSON content matches
-            with open(output_path, 'r') as f:
+            with open(output_path, "r") as f:
                 loaded = json.load(f)
             assert loaded == result
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -8,6 +8,7 @@ Tests verify:
 - Cache invalidation on data change
 - Cache statistics
 """
+
 import os
 import json
 import tempfile
@@ -15,7 +16,12 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from src.utils.cache_manager import CacheManager, get_cache_manager, cache_api_response, get_cached_api_response
+from src.utils.cache_manager import (
+    CacheManager,
+    get_cache_manager,
+    cache_api_response,
+    get_cached_api_response,
+)
 from src.utils.checksum import generate_checksum
 
 
@@ -37,7 +43,7 @@ class TestCacheManager:
         """Test that cache directory is created if it doesn't exist."""
         non_existent_dir = temp_cache_dir / "new_cache"
         assert not non_existent_dir.exists()
-        
+
         manager = CacheManager(cache_dir=non_existent_dir)
         assert non_existent_dir.exists()
         assert non_existent_dir.is_dir()
@@ -50,7 +56,7 @@ class TestCacheManager:
         response_data = {
             "name": "express",
             "downloads": 1000000,
-            "dependencies": ["body-parser", "cookie"]
+            "dependencies": ["body-parser", "cookie"],
         }
 
         cache_manager.cache_response(api_name, endpoint, params, response_data)
@@ -64,14 +70,14 @@ class TestCacheManager:
         assert checksum_path.exists()
 
         # Verify content
-        with open(cache_path, 'r') as f:
+        with open(cache_path, "r") as f:
             loaded_data = json.load(f)
         assert loaded_data == response_data
 
         # Verify checksum
-        with open(checksum_path, 'r') as f:
+        with open(checksum_path, "r") as f:
             stored_checksum = f.read().strip()
-        
+
         expected_checksum = generate_checksum(response_data)
         assert stored_checksum == expected_checksum
 
@@ -83,7 +89,7 @@ class TestCacheManager:
         response_data = {
             "full_name": "microsoft/typescript",
             "created_at": "2014-01-01T00:00:00Z",
-            "updated_at": "2024-01-01T00:00:00Z"
+            "updated_at": "2024-01-01T00:00:00Z",
         }
 
         # First, cache the response
@@ -98,7 +104,7 @@ class TestCacheManager:
         api_name = "npm"
         endpoint = "/nonexistent"
         params = {}
-        
+
         result = cache_manager.get_cached_response(api_name, endpoint, params)
         assert result is None
 
@@ -116,8 +122,8 @@ class TestCacheManager:
         # Manually modify the cache file to simulate corruption/change
         cache_key = cache_manager._generate_cache_key(api_name, endpoint, params)
         cache_path = cache_manager._get_cache_path(cache_key)
-        
-        with open(cache_path, 'w') as f:
+
+        with open(cache_path, "w") as f:
             json.dump(modified_data, f)
 
         # Should return None because checksum won't match
@@ -136,8 +142,8 @@ class TestCacheManager:
         # Corrupt the checksum file
         cache_key = cache_manager._generate_cache_key(api_name, endpoint, params)
         checksum_path = cache_manager._get_checksum_path(cache_key)
-        
-        with open(checksum_path, 'w') as f:
+
+        with open(checksum_path, "w") as f:
             f.write("invalid_checksum")
 
         # Should return None
@@ -165,12 +171,7 @@ class TestCacheManager:
         """Test clearing all cache entries."""
         # Add multiple cache entries
         for i in range(3):
-            cache_manager.cache_response(
-                "npm", 
-                f"/packages/pkg{i}", 
-                {}, 
-                {"name": f"pkg{i}"}
-            )
+            cache_manager.cache_response("npm", f"/packages/pkg{i}", {}, {"name": f"pkg{i}"})
 
         deleted = cache_manager.clear_cache()
         assert deleted == 6  # 3 .json + 3 .sha256 files
@@ -180,14 +181,11 @@ class TestCacheManager:
         # Add some entries
         for i in range(2):
             cache_manager.cache_response(
-                "npm", 
-                f"/packages/stat{i}", 
-                {}, 
-                {"name": f"stat{i}", "size": 100 * (i + 1)}
+                "npm", f"/packages/stat{i}", {}, {"name": f"stat{i}", "size": 100 * (i + 1)}
             )
 
         stats = cache_manager.get_cache_stats()
-        
+
         assert stats["total_entries"] == 2
         assert stats["checksum_files"] == 2
         assert stats["total_size_bytes"] > 0
@@ -197,7 +195,7 @@ class TestCacheManager:
         """Test that cache key is deterministic regardless of param order."""
         api_name = "npm"
         endpoint = "/packages/test"
-        
+
         params1 = {"a": 1, "b": 2, "c": 3}
         params2 = {"c": 3, "a": 1, "b": 2}  # Same params, different order
 
@@ -230,38 +228,36 @@ class TestConvenienceFunctions:
 
     def test_get_cache_manager_singleton(self, temp_cache_dir):
         """Test that get_cache_manager returns a singleton instance."""
-        with patch('src.utils.cache_manager.CacheManager') as mock_manager:
+        with patch("src.utils.cache_manager.CacheManager") as mock_manager:
             # First call
             instance1 = get_cache_manager()
             # Second call (should not create new instance)
             instance2 = get_cache_manager()
-            
+
             # Verify CacheManager was only instantiated once
             assert mock_manager.call_count == 1
             assert instance1 is instance2
 
     def test_cache_api_response_function(self, temp_cache_dir):
         """Test the cache_api_response convenience function."""
-        with patch('src.utils.cache_manager.CacheManager') as MockManager:
+        with patch("src.utils.cache_manager.CacheManager") as MockManager:
             mock_instance = MagicMock()
             MockManager.return_value = mock_instance
-            
+
             cache_api_response("npm", "/test", {"a": 1}, {"data": "value"})
-            
+
             mock_instance.cache_response.assert_called_once_with(
                 "npm", "/test", {"a": 1}, {"data": "value"}
             )
 
     def test_get_cached_api_response_function(self, temp_cache_dir):
         """Test the get_cached_api_response convenience function."""
-        with patch('src.utils.cache_manager.CacheManager') as MockManager:
+        with patch("src.utils.cache_manager.CacheManager") as MockManager:
             mock_instance = MagicMock()
             mock_instance.get_cached_response.return_value = {"cached": "data"}
             MockManager.return_value = mock_instance
-            
+
             result = get_cached_api_response("npm", "/test", {"a": 1})
-            
-            mock_instance.get_cached_response.assert_called_once_with(
-                "npm", "/test", {"a": 1}
-            )
+
+            mock_instance.get_cached_response.assert_called_once_with("npm", "/test", {"a": 1})
             assert result == {"cached": "data"}

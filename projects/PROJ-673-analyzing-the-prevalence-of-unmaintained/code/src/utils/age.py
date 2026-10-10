@@ -36,8 +36,8 @@ def parse_date(date_string: Optional[str]) -> Optional[datetime]:
 
     try:
         # Handle various ISO formats
-        if date_string.endswith('Z'):
-            date_string = date_string[:-1] + '+00:00'
+        if date_string.endswith("Z"):
+            date_string = date_string[:-1] + "+00:00"
 
         # Try parsing with timezone
         try:
@@ -48,7 +48,7 @@ def parse_date(date_string: Optional[str]) -> Optional[datetime]:
             return dt
         except ValueError:
             # Try without timezone
-            dt = datetime.fromisoformat(date_string.replace('Z', ''))
+            dt = datetime.fromisoformat(date_string.replace("Z", ""))
             return dt.replace(tzinfo=timezone.utc)
     except Exception as e:
         logger.warning(f"Failed to parse date '{date_string}': {e}")
@@ -99,10 +99,7 @@ def calculate_age_in_days(last_release_date: Optional[Union[str, datetime]]) -> 
     return round(age_days, 2)
 
 
-def validate_age_data(
-    age_in_days: Optional[float],
-    vulnerability_count: Optional[int]
-) -> dict:
+def validate_age_data(age_in_days: Optional[float], vulnerability_count: Optional[int]) -> dict:
     """
     Validate that age calculation and vulnerability counting are handled correctly
     per FR-010.
@@ -117,12 +114,15 @@ def validate_age_data(
     return {
         "age_is_null": age_in_days is None,
         "vulnerability_count_exists": vulnerability_count is not None,
-        "fr010_compliant": (age_in_days is None and vulnerability_count is not None) or
-                           (age_in_days is not None),
+        "fr010_compliant": (age_in_days is None and vulnerability_count is not None)
+        or (age_in_days is not None),
         "message": (
             "FR-010 Compliant: Missing release date handled correctly"
-            if age_in_days is None and vulnerability_count is not None else
-            "Age data available" if age_in_days is not None else
-            "WARNING: Both age and vulnerability count are missing"
-        )
+            if age_in_days is None and vulnerability_count is not None
+            else (
+                "Age data available"
+                if age_in_days is not None
+                else "WARNING: Both age and vulnerability count are missing"
+            )
+        ),
     }

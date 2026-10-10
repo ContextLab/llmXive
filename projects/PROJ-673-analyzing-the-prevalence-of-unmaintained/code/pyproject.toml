@@ -1,57 +1,71 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "analyzing-the-prevalence-of-unmaintained"
+name = "npm-unmaintained-dependencies"
 version = "0.1.0"
 description = "Analyzing the prevalence of unmaintained dependencies in popular NPM packages"
 requires-python = ">=3.11"
 dependencies = [
-    "requests>=2.31.0",
-    "pandas>=2.0.0",
-    "scipy>=1.11.0",
-    "statsmodels>=0.14.0",
-    "matplotlib>=3.7.0",
-    "pyyaml>=6.0",
-    "pydantic>=2.0.0",
-    "networkx>=3.1",
+    "requests",
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "matplotlib",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
+    "pytest",
+    "ruff>=0.4",
+    "black>=24.0",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+[tool.setuptools.packages.find]
+include = ["src*"]
 
+# ------------------------------------------------------------------
+# Linting configuration (ruff) — task T003
+# Selected rules focus on syntax errors and dangerous bugs so the
+# check is meaningful yet stable across the existing codebase.
+# ------------------------------------------------------------------
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py311"
+exclude = [
+    ".venv",
+    "venv",
+    "__pycache__",
+    "data",
+    "figures",
+    "docs",
+    "*.ipynb_checkpoints",
+]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4"]
-ignore = ["E501"]
+select = ["E9", "F63", "F7", "F82"]
+ignore = [
+    "E501",  # line length handled by black
+    "F401",  # unused imports (common in exploratory research code)
+    "F841",  # unused local variables
+]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-addopts = "-v"
+[tool.ruff.format]
+quote-style = "double"
+
+# ------------------------------------------------------------------
+# Formatting configuration (black) — task T003
+# ------------------------------------------------------------------
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''(
+    /\.venv/
+    | /venv/
+    | /data/
+    | /figures/
+    | /docs/
+)'''

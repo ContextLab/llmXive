@@ -50,7 +50,7 @@ class APIMetricsAggregator:
             Dictionary containing aggregated metrics for all API clients.
         """
         all_metrics = get_all_api_metrics()
-        
+
         total_calls = 0
         total_successes = 0
         total_failures = 0
@@ -60,7 +60,7 @@ class APIMetricsAggregator:
             calls = metrics.get("total_calls", 0)
             successes = metrics.get("successes", 0)
             failures = metrics.get("failures", 0)
-            
+
             total_calls += calls
             total_successes += successes
             total_failures += failures
@@ -73,7 +73,7 @@ class APIMetricsAggregator:
                 "successes": successes,
                 "failures": failures,
                 "success_rate_percent": round(success_rate, 2),
-                "failure_rate_percent": round(failure_rate, 2)
+                "failure_rate_percent": round(failure_rate, 2),
             }
 
         overall_success_rate = (total_successes / total_calls * 100) if total_calls > 0 else 0.0
@@ -86,10 +86,10 @@ class APIMetricsAggregator:
                 "total_successful": total_successes,
                 "total_failed": total_failures,
                 "overall_success_rate_percent": round(overall_success_rate, 2),
-                "overall_failure_rate_percent": round(overall_failure_rate, 2)
+                "overall_failure_rate_percent": round(overall_failure_rate, 2),
             },
             "client_breakdown": client_breakdown,
-            "raw_metrics": all_metrics
+            "raw_metrics": all_metrics,
         }
 
         return self._metrics_snapshot
@@ -105,11 +105,11 @@ class APIMetricsAggregator:
             self.collect_metrics()
 
         summary = self._metrics_snapshot.get("summary", {})
-        
+
         return {
             "success_ratio": summary.get("overall_success_rate_percent", 0.0) / 100.0,
             "failure_ratio": summary.get("overall_failure_rate_percent", 0.0) / 100.0,
-            "total_calls": summary.get("total_api_calls", 0)
+            "total_calls": summary.get("total_api_calls", 0),
         }
 
     def report_metrics(self) -> str:
@@ -138,18 +138,20 @@ class APIMetricsAggregator:
             f"  Success Rate: {summary.get('overall_success_rate_percent', 0.0)}%",
             f"  Failure Rate: {summary.get('overall_failure_rate_percent', 0.0)}%",
             "",
-            "CLIENT BREAKDOWN:"
+            "CLIENT BREAKDOWN:",
         ]
 
         for client_name, metrics in client_breakdown.items():
-            report_lines.extend([
-                f"\n  {client_name}:",
-                f"    Calls: {metrics.get('total_calls', 0)}",
-                f"    Successes: {metrics.get('successes', 0)}",
-                f"    Failures: {metrics.get('failures', 0)}",
-                f"    Success Rate: {metrics.get('success_rate_percent', 0.0)}%",
-                f"    Failure Rate: {metrics.get('failure_rate_percent', 0.0)}%"
-            ])
+            report_lines.extend(
+                [
+                    f"\n  {client_name}:",
+                    f"    Calls: {metrics.get('total_calls', 0)}",
+                    f"    Successes: {metrics.get('successes', 0)}",
+                    f"    Failures: {metrics.get('failures', 0)}",
+                    f"    Success Rate: {metrics.get('success_rate_percent', 0.0)}%",
+                    f"    Failure Rate: {metrics.get('failure_rate_percent', 0.0)}%",
+                ]
+            )
 
         report_lines.append("")
         report_lines.append("=" * 60)
@@ -170,8 +172,8 @@ class APIMetricsAggregator:
             self.collect_metrics()
 
         output_path = self.output_dir / filename
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
+
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self._metrics_snapshot, f, indent=2, default=str)
 
         logger.info(f"API metrics report saved to {output_path}")
@@ -213,17 +215,16 @@ def main():
     the results to stdout.
     """
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     logger.info("Starting API metrics aggregation...")
 
     aggregator = APIMetricsAggregator()
     metrics = aggregator.collect_metrics()
-    
+
     print(aggregator.report_metrics())
-    
+
     output_path = aggregator.save_report()
     print(f"\nDetailed report saved to: {output_path}")
 

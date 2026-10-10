@@ -16,6 +16,7 @@ if __name__ == "__main__" and "code" not in sys.path[0]:
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
 
+
 def load_processed_data(input_path: str) -> List[Dict[str, Any]]:
     """
     Load dependency data from a JSON file (output of T016/T017).
@@ -24,23 +25,24 @@ def load_processed_data(input_path: str) -> List[Dict[str, Any]]:
     path = Path(input_path)
     if not path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
+
+    with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
+
     if not isinstance(data, list):
         # Handle case where data might be wrapped in an object
-        if isinstance(data, dict) and 'dependencies' in data:
-            return data['dependencies']
+        if isinstance(data, dict) and "dependencies" in data:
+            return data["dependencies"]
         raise ValueError(f"Expected list of dependencies in {input_path}, got {type(data)}")
-    
+
     return data
+
 
 def export_to_csv(data: List[Dict[str, Any]], output_path: str) -> str:
     """
     Export dependency data to a CSV file at the specified output_path.
     Returns the checksum of the generated file.
-    
+
     Required columns based on T018/T017 requirements:
     - age_in_days (calculated in T017)
     - last_release_date
@@ -56,16 +58,21 @@ def export_to_csv(data: List[Dict[str, Any]], output_path: str) -> str:
 
     # Define standard columns to ensure consistency
     fieldnames = [
-        "package_name", "version", "category",
-        "last_release_date", "last_commit_date",
-        "age_in_days", "vulnerability_count",
-        "is_unmaintained", "source_repo"
+        "package_name",
+        "version",
+        "category",
+        "last_release_date",
+        "last_commit_date",
+        "age_in_days",
+        "vulnerability_count",
+        "is_unmaintained",
+        "source_repo",
     ]
 
-    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
+    with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
-        
+
         for row in data:
             # Ensure age_in_days is present (it is calculated in T017)
             # If a row lacks age_in_days, it should have been handled in T017,
@@ -76,8 +83,9 @@ def export_to_csv(data: List[Dict[str, Any]], output_path: str) -> str:
     # Generate checksum for the output file
     checksum = generate_checksum(output_file)
     write_checksum_file(output_file, checksum)
-    
+
     return checksum
+
 
 def main():
     """
@@ -107,6 +115,7 @@ def main():
     except Exception as e:
         print(f"Error exporting data: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

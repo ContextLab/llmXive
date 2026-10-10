@@ -2,6 +2,7 @@ import hashlib
 from pathlib import Path
 from typing import Union
 
+
 def generate_checksum(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
     """
     Generate a checksum for a file.
@@ -33,7 +34,10 @@ def generate_checksum(file_path: Union[str, Path], algorithm: str = "sha256") ->
 
     return hasher.hexdigest()
 
-def write_checksum_file(file_path: Union[str, Path], checksum_path: Union[str, Path] = None) -> Path:
+
+def write_checksum_file(
+    file_path: Union[str, Path], checksum_path: Union[str, Path] = None
+) -> Path:
     """
     Generate a checksum for a file and write it to a .checksum file.
 
@@ -52,9 +56,9 @@ def write_checksum_file(file_path: Union[str, Path], checksum_path: Union[str, P
         checksum_path = Path(checksum_path)
 
     checksum = generate_checksum(file_path)
-    
+
     # Write checksum in standard format: <checksum>  <filename>
     with open(checksum_path, "w") as f:
         f.write(f"{checksum}  {file_path.name}\n")
-    
+
     return checksum_path

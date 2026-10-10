@@ -15,13 +15,14 @@ import time
 import random
 from typing import Callable, Any, TypeVar, Optional
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 # Constants as per FR-009 and specification
 MAX_RETRIES = 3
 INITIAL_DELAY = 1.0  # seconds
 MULTIPLIER = 2.0
 MAX_DELAY = 60.0  # seconds
+
 
 def exponential_backoff(
     func: Callable[..., T],
@@ -30,7 +31,7 @@ def exponential_backoff(
     multiplier: float = MULTIPLIER,
     max_delay: float = MAX_DELAY,
     *args: Any,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> T:
     """
     Executes a function with exponential backoff retry logic.

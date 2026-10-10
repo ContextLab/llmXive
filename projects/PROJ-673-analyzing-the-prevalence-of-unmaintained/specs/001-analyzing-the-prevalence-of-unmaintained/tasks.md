@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
+- [ ] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
  *Verification*: Run `ls -R` and confirm the directory tree matches the plan.md structure. Ensure `contracts/` is NOT created here.
 - [X] T002 Initialize Python 3.11 project with `requests`, `pandas`, `scipy`, `statsmodels`, `matplotlib`, `pyyaml` dependencies by creating `pyproject.toml` at repository root
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools <!-- FAILED-IN-EXECUTION: code/scripts/setup_lint.sh exit=1 -->
  *Verification*: Run `ruff check.` and `black --check.` to confirm configuration is valid and no errors occur.
 
 ---
@@ -40,11 +40,11 @@
 
 - [X] T004 Create data models for `Package`, `Dependency`, and `AnalysisResult` in `src/models/data_models.py` (Pydantic/Dict schemas)
 - [X] T005 [P] Implement utility functions for exponential backoff in `src/utils/backoff.py` with EXPLICIT parameters: max_retries=3 (per FR-009), initial_delay=1s, multiplier=2.0, max_delay=60s.
-- [X] T005a Implement checksum generation in `src/utils/checksum.py` for file integrity verification.
+- [ ] T005a Implement checksum generation in `src/utils/checksum.py` for file integrity verification.
  *Verification*: Run `python -c "from src.utils.checksum import compute_checksum; import hashlib; f = open('test.txt', 'w'); f.write('test'); f.close(); print(compute_checksum('test.txt') == hashlib.md5(open('test.txt', 'rb').read()).hexdigest())"`.
 - [X] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
-- [X] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
-- [X] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
+- [~] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
+- [~] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
 - [ ] T008 [P] Implement local file caching mechanism in `src/utils/cache.py` to save raw API responses to `data/raw/` with immutable checksums (Constitution Principle III & VI).
  *Implementation Details*: Create function `save_response_to_cache(request_params: dict, response: dict) -> str` that writes JSON to `data/raw/{hash}.json` and returns the checksum. Create function `load_from_cache(request_params: dict) -> dict | None`. Ensure `data/raw/` files are named with a hash of the request parameters and timestamp to guarantee immutability and reproducibility.
  *Verification*: 1. Create a dummy JSON file `test_payload.json`. 2. Run `python -c "from src.utils.cache import save_response_to_cache; save_response_to_cache({'test': 1}, {'data': 'test'})"`. 3. Verify `data/raw/` contains a file matching the pattern `{hash}.json`. 4. Run `python -c "from src.utils.cache import load_from_cache; data = load_from_cache({'test': 1}); assert data == {'data': 'test'}"`. 5. Run `python -c "import hashlib; f = open('data/raw/{hash}.json', 'rb'); print(hashlib.md5(f.read()).hexdigest())"` to verify checksum integrity.
@@ -68,18 +68,18 @@
 
 > **NOTE**: These are 'Write Test' tasks. They define the expected behavior and can be written in parallel with each each. They verify the logic once the implementation (T012-T018) is present.
 
-- [X] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
-- [X] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
-- [X] T011 [US1] Write integration test for replaying NPM/GitHub API responses using cached snapshots from `data/raw/` in `tests/integration/test_api_clients_replay.py`.
+- [~] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
+- [~] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
+- [~] T011 [US1] Write integration test for replaying NPM/GitHub API responses using cached snapshots from `data/raw/` in `tests/integration/test_api_clients_replay.py`.
  *Note*: Replaces mocked API tests. Must use real cached snapshots to adhere to Constitution Principle VI (API Snapshot Integrity) and FR-007 (real-call testing).
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
-- [X] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
-- [X] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
-- [X] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
-- [X] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages
+- [~] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
+- [~] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
+- [~] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
+- [~] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
+- [~] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages
 - [ ] T017b [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count.
  *Implementation Details*: Add function `calculate_age_in_days(last_release_date: str | None) -> float | None` in `src/utils/age.py`. Ensure that if `release_date` is null, `age_in_days` is set to null, but `vulnerability_count` is populated from the audit data. Add an assertion in the code or a test to verify this behavior.
 - [ ] T018 [US1] Implement the export logic within `src/cli/collect_data.py` to write `data/processed/dependencies_raw.csv` and `data/processed/metrics.json`. This task ensures the code exists to write the files but does not execute the run.
@@ -105,8 +105,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
-- [X] T022 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
+- [~] T021 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
+- [~] T022 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
 
 ### Implementation for User Story 2
 
@@ -117,15 +117,15 @@
 - [ ] T024 [US2] **Execute Power Analysis**: Run `python src/analysis/power.py` to generate `data/processed/power_analysis.json`. **DEPENDENCY**: Requires `data/processed/dependencies_raw.csv` from T019.
  *Execution*: `python src/analysis/power.py`
  *Verification*: Verify `data/processed/power_analysis.json` exists with keys: effect_size, alpha, sample_size, actual_power, methodology_notes.
-- [X] T025 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008).
-- [X] T026 [US2] Implement the core correlation script in `src/analysis/correlation.py` to compute Spearman rho and p-value.
+- [~] T025 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008).
+- [~] T026 [US2] Implement the core correlation script in `src/analysis/correlation.py` to compute Spearman rho and p-value.
 - [ ] T027 [US2] **Execute Core Correlation**: Run `python src/analysis/correlation.py` to generate `data/processed/results_correlation.json` (Spearman rho, p-value). **DEPENDENCY**: T019.
  *Execution*: `python src/analysis/correlation.py`
  *Verification*: Verify `data/processed/results_correlation.json` exists with keys: correlation_coefficient, p_value, sample_size.
-- [X] T028 [US2] **Execute Visualization**: Run `python src/analysis/visualizer.py --plot-scatter` to generate scatter plots. **DEPENDENCY**: T027.
+- [~] T028 [US2] **Execute Visualization**: Run `python src/analysis/visualizer.py --plot-scatter` to generate scatter plots. **DEPENDENCY**: T027.
  *Execution*: `python src/analysis/visualizer.py --plot-scatter`
  *Verification*: Verify `data/processed/scatter_plot.png` exists.
-- [X] T029 [US2] **Execute Analysis Runner**: Run `python src/cli/run_analysis.py` to orchestrate correlation, visualization, and reporting. **DEPENDENCY**: T024, T027, T028.
+- [~] T029 [US2] **Execute Analysis Runner**: Run `python src/cli/run_analysis.py` to orchestrate correlation, visualization, and reporting. **DEPENDENCY**: T024, T027, T028.
  *Execution*: `python src/cli/run_analysis.py`
  *Verification*: Verify all output artifacts exist.
 - [ ] T030 [US2] Add logic to flag statistical significance (p < 0.05) in the output report (US-2 Acceptance 3)
@@ -143,12 +143,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T031 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
-- [X] T032 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
+- [~] T031 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
+- [~] T032 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
 
 ### Implementation for User Story 3
 
-- [X] T033 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: If keywords are missing/noisy, classify using dependency graph topology: map 'degree centrality' > 0.8 to 'core', 'betweenness centrality' > 0.5 to 'infrastructure', otherwise 'other'. (FR-007). **DEPENDENCY**: Requires graph structure from T015.
+- [~] T033 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: If keywords are missing/noisy, classify using dependency graph topology: map 'degree centrality' > 0.8 to 'core', 'betweenness centrality' > 0.5 to 'infrastructure', otherwise 'other'. (FR-007). **DEPENDENCY**: Requires graph structure from T015.
  *Implementation Details*: Use `networkx.algorithms.centrality.degree_centrality` and `networkx.algorithms.centrality.betweenness_centrality` to calculate metrics. Ensure fallback logic is ONLY triggered when keyword data is missing or noisy, as per spec. The graph is built from the dependency tree data output by T015.
  *Verification*: Verify that the classifier correctly identifies categories based on keywords when available, and falls back to topology only when necessary. Explicitly verify that the fallback logic is triggered ONLY when keyword data is missing/noisy.
 - [ ] T034 [US3] Implement the stratified stats script in `src/analysis/stratified_stats.py` to compute per-category coefficients.
@@ -163,7 +163,7 @@
 - [ ] T038 [US3] **Execute Sensitivity Analysis**: Run `python src/analysis/sensitivity.py` to perform threshold sweep and generate `data/processed/sensitivity_analysis.json`. **DEPENDENCY**: T027.
  *Execution*: `python src/analysis/sensitivity.py`
  *Verification*: Verify `data/processed/sensitivity_analysis.json` exists with keys: threshold_sweep.
-- [X] T039 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
+- [~] T039 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
 - [ ] T040 [US3, US1, US2] **Execute Report Generation**: Run `python src/cli/generate_report.py` to aggregate US-2, US-3, and sensitivity analysis results into `docs/report.md`. **DEPENDENCY**: T029, T035, T036, T038.
  *Note*: T036 must run AFTER T029 (which creates the base file) and BEFORE T040 to ensure the appended variance data is present.
  *Execution*: `python src/cli/generate_report.py`

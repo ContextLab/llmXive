@@ -7,11 +7,7 @@ but still include vulnerability_count.
 
 import pytest
 from datetime import datetime, timezone
-from src.utils.age import (
-    parse_date,
-    calculate_age_in_days,
-    validate_age_data
-)
+from src.utils.age import parse_date, calculate_age_in_days, validate_age_data
 
 
 class TestParseDate:
@@ -144,7 +140,7 @@ class TestFR010Compliance:
             "name": "old-package",
             "version": "1.0.0",
             "last_release_date": None,  # Missing
-            "vulnerability_count": 4
+            "vulnerability_count": 4,
         }
 
         age = calculate_age_in_days(dependency_data["last_release_date"])
@@ -160,7 +156,7 @@ class TestFR010Compliance:
             "name": "modern-package",
             "version": "2.0.0",
             "last_release_date": "2023-01-01T00:00:00Z",
-            "vulnerability_count": 0
+            "vulnerability_count": 0,
         }
 
         age = calculate_age_in_days(dependency_data["last_release_date"])

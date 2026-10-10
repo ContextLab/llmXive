@@ -4,6 +4,7 @@ Dependency Resolver Service for NPM Packages.
 This module implements the recursive dependency tree resolver to flatten
 direct and transitive dependencies for NPM packages (FR-002).
 """
+
 from typing import List, Dict, Any, Optional, Set
 from src.services.npm_client import NpmClient
 from src.services.github_client import GithubClient
@@ -17,19 +18,24 @@ import time
 
 logger = logging.getLogger(__name__)
 
+
 class DependencyResolver:
     """
     Recursively resolves dependency trees for NPM packages, flattening
     direct and transitive dependencies into a single list of Dependency objects.
     """
 
-    def __init__(self, npm_client: NpmClient, github_client: GithubClient, audit_client: AuditClient):
+    def __init__(
+        self, npm_client: NpmClient, github_client: GithubClient, audit_client: AuditClient
+    ):
         self.npm_client = npm_client
         self.github_client = github_client
         self.audit_client = audit_client
         self._visited_packages: Set[str] = set()
 
-    def _resolve_package_dependencies(self, package_name: str, version: str, depth: int = 0, max_depth: int = 5) -> List[Dict[str, Any]]:
+    def _resolve_package_dependencies(
+        self, package_name: str, version: str, depth: int = 0, max_depth: int = 5
+    ) -> List[Dict[str, Any]]:
         """
         Recursively fetches and resolves dependencies for a specific package version.
 
@@ -43,16 +49,18 @@ class DependencyResolver:
             A list of dependency dictionaries containing metadata.
         """
         if depth >= max_depth:
-            logger.warning(f"Max depth {max_depth} reached for {package_name}@{version}. Stopping recursion.")
+            logger.warning(
+                f"Max depth {max_depth} reached for {package_name}@{version}. Stopping recursion."
+            )
             return []
 
         cache_key = {
             "service": "npm",
             "endpoint": "package_info",
             "package": package_name,
-            "version": version
+            "version": version,
         }
-        
+
         cached = load_from_cache(cache_key)
         if cached:
             logger.info(f"Cache hit for {package_name}@{version}")
@@ -79,25 +87,27 @@ class DependencyResolver:
             # otherwise we treat the spec as the version key for the next fetch.
             # In a real production system, we would resolve semver ranges to exact versions.
             # Here we assume the spec provided is sufficient to fetch or we fetch the latest.
-            
+
             # Avoid infinite loops by checking visited set
             package_id = f"{dep_name}@{dep_version_spec}"
             if package_id in self._visited_packages:
                 logger.debug(f"Skipping already visited package: {package_id}")
                 continue
-            
+
             self._visited_packages.add(package_id)
 
             # Fetch dependency metadata
             dep_metadata = self.npm_client.get_package_metadata(dep_name, dep_version_spec)
             if not dep_metadata:
-                logger.warning(f"Could not resolve metadata for dependency: {dep_name}@{dep_version_spec}")
+                logger.warning(
+                    f"Could not resolve metadata for dependency: {dep_name}@{dep_version_spec}"
+                )
                 continue
 
             dep_version = dep_metadata.get("version", dep_version_spec)
             repo_url = dep_metadata.get("repository", {}).get("url")
             repo_name = None
-            
+
             if repo_url and "github.com" in repo_url:
                 # Extract repo name from URL (e.g., https://github.com/user/repo -> user/repo)
                 parts = repo_url.split("/")
@@ -121,7 +131,9 @@ class DependencyResolver:
                 if audit_data:
                     vulnerabilities = audit_data.get("vulnerabilities", {})
                     # Sum up all severity counts or just count entries
-                    vulnerability_count = len(vulnerabilities) if isinstance(vulnerabilities, dict) else 0
+                    vulnerability_count = (
+                        len(vulnerabilities) if isinstance(vulnerabilities, dict) else 0
+                    )
             except Exception as e:
                 logger.warning(f"Failed to fetch audit data for {dep_name}: {e}")
 
@@ -133,17 +145,21 @@ class DependencyResolver:
                 "last_release_date": last_release.isoformat() if last_release else None,
                 "vulnerability_count": vulnerability_count,
                 "depth": depth + 1,
-                "parent": f"{package_name}@{version}"
+                "parent": f"{package_name}@{version}",
             }
             dependencies.append(dep_obj)
 
             # Recursively resolve transitive dependencies
-            transitive_deps = self._resolve_package_dependencies(dep_name, dep_version, depth + 1, max_depth)
+            transitive_deps = self._resolve_package_dependencies(
+                dep_name, dep_version, depth + 1, max_depth
+            )
             dependencies.extend(transitive_deps)
 
         return dependencies
 
-    def resolve_full_tree(self, package_name: str, version: str = "latest", max_depth: int = 5) -> List[Dict[str, Any]]:
+    def resolve_full_tree(
+        self, package_name: str, version: str = "latest", max_depth: int = 5
+    ) -> List[Dict[str, Any]]:
         """
         Resolves the full dependency tree for a given package.
 
@@ -157,10 +173,12 @@ class DependencyResolver:
         """
         self._visited_packages.clear()
         logger.info(f"Starting dependency resolution for {package_name}@{version}")
-        
+
         # Resolve root package first
-        root_deps = self._resolve_package_dependencies(package_name, version, depth=0, max_depth=max_depth)
-        
+        root_deps = self._resolve_package_dependencies(
+            package_name, version, depth=0, max_depth=max_depth
+        )
+
         logger.info(f"Resolved {len(root_deps)} dependencies for {package_name}")
         return root_deps
 
@@ -180,51 +198,61 @@ class DependencyResolver:
                 dep_obj = Dependency(
                     name=dep.get("name"),
                     version=dep.get("version"),
-                    last_commit_date=datetime.fromisoformat(dep["last_commit_date"]) if dep.get("last_commit_date") else None,
-                    last_release_date=datetime.fromisoformat(dep["last_release_date"]) if dep.get("last_release_date") else None,
+                    last_commit_date=(
+                        datetime.fromisoformat(dep["last_commit_date"])
+                        if dep.get("last_commit_date")
+                        else None
+                    ),
+                    last_release_date=(
+                        datetime.fromisoformat(dep["last_release_date"])
+                        if dep.get("last_release_date")
+                        else None
+                    ),
                     vulnerability_count=dep.get("vulnerability_count", 0),
                     depth=dep.get("depth", 0),
-                    parent=dep.get("parent")
+                    parent=dep.get("parent"),
                 )
                 dependencies.append(dep_obj)
             except Exception as e:
                 logger.error(f"Failed to parse dependency {dep.get('name')}: {e}")
                 continue
-        
+
         return dependencies
+
 
 def main():
     """
     Entry point for testing the DependencyResolver.
     """
     logging.basicConfig(level=logging.INFO)
-    
+
     # Initialize clients
     npm_client = NpmClient()
     github_client = GithubClient()
     audit_client = AuditClient()
-    
+
     resolver = DependencyResolver(npm_client, github_client, audit_client)
-    
+
     # Example: Resolve a popular package
     # Using 'express' as a test case
     package_name = "express"
     version = "latest"
-    
+
     print(f"Resolving dependencies for {package_name}...")
     raw_deps = resolver.resolve_full_tree(package_name, version, max_depth=3)
-    
+
     print(f"Found {len(raw_deps)} dependencies.")
-    
+
     # Convert to typed objects
     typed_deps = resolver.flatten_to_dependencies(raw_deps)
-    
+
     # Print summary
     for dep in typed_deps[:10]:
         print(f"- {dep.name}@{dep.version} (Depth: {dep.depth}, Vulns: {dep.vulnerability_count})")
-        
+
     if len(typed_deps) > 10:
         print(f"... and {len(typed_deps) - 10} more.")
+
 
 if __name__ == "__main__":
     main()

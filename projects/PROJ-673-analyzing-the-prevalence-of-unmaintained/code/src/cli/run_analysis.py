@@ -25,18 +25,14 @@ from src.config.settings import get_config
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("run_analysis")
 
+
 def verify_artifacts(output_dir: Path) -> bool:
     """Verify that all expected output artifacts exist."""
-    required_files = [
-        "power_analysis.json",
-        "results_correlation.json",
-        "scatter_plot.png"
-    ]
+    required_files = ["power_analysis.json", "results_correlation.json", "scatter_plot.png"]
     missing = []
     for fname in required_files:
         fpath = output_dir / fname
@@ -45,13 +41,14 @@ def verify_artifacts(output_dir: Path) -> bool:
             logger.error(f"Missing artifact: {fpath}")
         else:
             logger.info(f"Verified artifact: {fpath}")
-    
+
     if missing:
         logger.error(f"Verification failed. Missing files: {missing}")
         return False
-    
+
     logger.info("All artifacts verified successfully.")
     return True
+
 
 def main():
     parser = argparse.ArgumentParser(description="Run the full analysis pipeline.")
@@ -59,13 +56,13 @@ def main():
         "--input-csv",
         type=str,
         default="data/processed/dependencies_raw.csv",
-        help="Path to the input CSV file from data collection."
+        help="Path to the input CSV file from data collection.",
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default="data/processed",
-        help="Directory to write analysis results."
+        help="Directory to write analysis results.",
     )
     args = parser.parse_args()
 
@@ -120,6 +117,7 @@ def main():
         sys.exit(1)
 
     logger.info("Analysis pipeline completed successfully.")
+
 
 if __name__ == "__main__":
     main()
