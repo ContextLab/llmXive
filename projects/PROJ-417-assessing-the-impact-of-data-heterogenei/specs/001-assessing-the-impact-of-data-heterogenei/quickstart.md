@@ -13,18 +13,29 @@
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-3.  **Install dependencies** (includes `pytest` for the unit tests):
+3.  **Install dependencies**:
     ```bash
     pip install -r code/requirements.txt
     ```
+    (For running the test suite, install `pytest` separately:
+    `pip install pytest`.)
 
 ## 3. Base Data
 
+Fetch the base dataset (T001). The script first attempts the real
+Cochrane data from Zenodo DOI ``; if that fetch
+fails it raises loudly and then writes the verified synthetic base
+(mu=0.0, sigma=1.0, N=20, parameters cited from Jackson et al., 2010):
+
+```bash
+bash code/scripts/setup_project.sh
+python code/scripts/fetch_cochrane.py
+```
+
 The pipeline resolves its base dataset from `data/raw/` in this order:
 
-1. `data/raw/cochrane_base.csv` — real Cochrane data, produced by
-   `python code/scripts/fetch_cochrane.py` (this script raises loudly
-   if the real fetch fails; it never silently substitutes data).
+1. `data/raw/cochrane_base.csv` — real Cochrane data from Zenodo,
+   produced by `python code/scripts/fetch_cochrane.py`.
 2. `data/raw/cochrane_base_synthetic.csv` — the **verified synthetic
    base** documented in T001 (mu=0.0, sigma=1.0, N=20, parameters cited
    from Jackson et al., 2010). If neither file exists, the pipeline

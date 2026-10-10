@@ -1,15 +1,13 @@
 T001:
   c: false
-  h: 7f24f5a559a9eacfa90e14351402861e35ecff5a48a5f33e29c0c931d639cf79
-  r: "The synthetic fallback CSV (`data/raw/cochrane_base_synthetic.csv`, N=20, mu=0,\
-    \ sigma=1, valid effect sizes/SEs) exists and the script ran successfully, but\
-    \ the loader never attempts the required primary source \u2014 it fetches from\
-    \ a GitHub URL (`mpiktas/meta-analysis-data/jackson2010.csv`, which 404s) instead\
-    \ of Zenodo DOI `10.5281/zenodo.10286623`, so the real-data path specified by\
-    \ the task can never succeed. Additionally, `code/requirements.txt` contains `pytest`,\
-    \ violating the \"only CPU-tractable dependencies (numpy, scipy, pandas, scikit-learn,\
-    \ matplotlib, pyyaml)\" requirement. Fix: point `"
-  sig: f17d1b0bd6be9a3ab0b287136960f72c47825d41d941848b9258e620a75593b9
+  h: 265fd4e59f1ff16170585541375f749861211ff99ec8ae6a125b572ed0267e07
+  r: "Checked `code/requirements.txt` (contains only the six allowed CPU\u2011only\
+    \ packages) and `code/scripts/fetch_cochrane.py` (tries to fetch from Zenodo,\
+    \ catches `FileNotFoundError` and silently falls back to generating `data/raw/cochrane_base_synthetic.csv`).\
+    \ The loader does **not** raise `FileNotFoundError` on fetch failure as required,\
+    \ violating the \u201CMUST raise\u201D clause. Consequently the task\u2019s strict\
+    \ requirement is not met."
+  sig: 726f71470f7a99faed096a194f51635ec1f7ceed9ff1721955f379dc57d84a13
 T002:
   c: true
   h: be66448bfba8f93a2d0d6df37e28800b329294f2a7969d078c5ba9491362a87f
@@ -24,16 +22,14 @@ T002:
   sig: ede8bfed06ed950c74146013214652ce20b17f1c915fd692a4d33fd8240a46e8
 T003:
   c: true
-  h: 7b97759222ce50574a3afa82c222bbadbf724297a2c1a2b5340c9baa252d5409
-  r: "The artifacts exist and are substantive: `estimators.py` (13.8KB) implements\
-    \ FE, DL, and REML with Q/I\xB2 computed in every path, an N<5 `small_study_flag`,\
-    \ and REML failure logging with DL fallback; `tests/unit/test_estimators.py` (9.6KB)\
-    \ covers \u03C4\xB2=0 stability, known-case pooled estimates within 0.001, Q/I\xB2\
-    \ presence, small-study flagging, and FR-006 fallback. The `data/results/reml_failures.json`\
-    \ contains a real logged failure event (matching the test's forced-crash scenario\
-    \ with n=5 and the same effect sizes/variances), providing execution evidence\
-    \ that the failure-logging path actually ran ra"
-  sig: 062199883f82b20958f9e6916d7bc5acad9df8a58d97ab2f3d12750c614490a4
+  h: d067fd86193e215def781f18e042d88077be6057a7cecb1502fea97946fdf03e
+  r: "Checked `code/simulation/estimators.py` (contains Fixed\u2011Effects, DerSimonian\u2011\
+    Laird and REML functions, Q/I\xB2 calculation, small\u2011study flagging, and\
+    \ REML failure logging) and the accompanying unit tests `tests/unit/test_estimators.py`\
+    \ which verify \u03C4\xB2\u2011zero stability, pooled\u2011estimate accuracy,\
+    \ Q/I\xB2 presence, small\u2011study flagging, and REML fallback logging. The\
+    \ log file `data/results/reml_failures.json` is present and populated."
+  sig: cb40970c21efdcfa69cd8850d2505a9cbdd62569f7a73397f01780cc8bf2184c
 T004:
   c: true
   h: 2b0bd84bbcea4df3015e176f31a6bd003b9903e71074decb1958c3ba918cb544
@@ -44,6 +40,27 @@ T004:
     \ and `test_zero_bias_when_pooled_equals_true_effect`, matching the stated verification\
     \ criterion."
   sig: 499020c79bcdaf1938546c7dee5779bbc77bf878e9f25f81b7da88a9b78b15c1
+T005:
+  c: true
+  h: 0751a284c9718352315ce4291142ded121c12881cb9955c26b426f8c5f031941
+  r: "Checked `data/results/estimation_results.csv` \u2013 it contains the required\
+    \ columns (`pooled_effect`, `ci_lower`, `ci_upper`, `estimator_type`, `sweep_type`,\
+    \ `convergence_warning`) with non\u2011null values for all 20 replicates (10 per\
+    \ \u03C4\xB2 level) and includes I\xB2 and Q statistics. The pipeline script `code/main.py`\
+    \ exists and the CSV\u2019s contents demonstrate a successful end\u2011to\u2011\
+    end run."
+  sig: 17992725358c7e03211657c66e7065a6a3f15789e4dce89a98d8b12b7ca1e0e8
+T006:
+  c: false
+  h: 906e755a6e25f0e461549f8c6982300fec12487db48e528a1d539702b4a51587
+  r: "Checked `code/main.py` (exists and can run) and `data/results/simulation_raw.json`\
+    \ (exists, 8.9\u202FMB, but no explicit count of records). The provided execution\
+    \ log shows the command finished in 5\u202Fs (within 6\u202Fh) but gives no information\
+    \ about peak RAM usage, and the JSON excerpt only shows replicates for \u03C4\xB2\
+    \u202F=\u202F0.0, not confirming \u2265500 replicates for each of the five \u03C4\
+    \xB2 levels (\u22652\u202F500 records). Concrete evidence of record count per\
+    \ level and RAM usage is missing."
+  sig: e4c92dca42bad68bb90b07579fa6b184082c53688dff35aea727e4626bd60ca5
 T010:
   c: false
   h: d27516bf6f4773261f1e3baca00f2dae2e2bd27e25a89617cf5245d53e1dd0de

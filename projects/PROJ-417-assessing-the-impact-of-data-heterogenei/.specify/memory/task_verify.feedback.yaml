@@ -1,12 +1,10 @@
 T001:
-  reason: "The synthetic fallback CSV (`data/raw/cochrane_base_synthetic.csv`, N=20,\
-    \ mu=0, sigma=1, valid effect sizes/SEs) exists and the script ran successfully,\
-    \ but the loader never attempts the required primary source \u2014 it fetches\
-    \ from a GitHub URL (`mpiktas/meta-analysis-data/jackson2010.csv`, which 404s)\
-    \ instead of Zenodo DOI `10.5281/zenodo.10286623`, so the real-data path specified\
-    \ by the task can never succeed. Additionally, `code/requirements.txt` contains\
-    \ `pytest`, violating the \"only CPU-tractable dependencies (numpy, scipy, pandas,\
-    \ scikit-learn, matplotlib, pyyaml)\" requirement. Fix: point `"
+  reason: "Checked `code/requirements.txt` (contains only the six allowed CPU\u2011\
+    only packages) and `code/scripts/fetch_cochrane.py` (tries to fetch from Zenodo,\
+    \ catches `FileNotFoundError` and silently falls back to generating `data/raw/cochrane_base_synthetic.csv`).\
+    \ The loader does **not** raise `FileNotFoundError` on fetch failure as required,\
+    \ violating the \u201CMUST raise\u201D clause. Consequently the task\u2019s strict\
+    \ requirement is not met."
   task: 820b146fe1b32473acbfb41cc6f7ff7e537670eff16194aff3b79a1e562fcb0e
 T002:
   task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
@@ -15,10 +13,15 @@ T003:
 T004:
   task: 8a154f87ae88709e1935a37c714ab4dd02b425d066a708f75377172d1debd8e6
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
-    code/main.py exit=1'
   task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e
 T006:
+  reason: "Checked `code/main.py` (exists and can run) and `data/results/simulation_raw.json`\
+    \ (exists, 8.9\u202FMB, but no explicit count of records). The provided execution\
+    \ log shows the command finished in 5\u202Fs (within 6\u202Fh) but gives no information\
+    \ about peak RAM usage, and the JSON excerpt only shows replicates for \u03C4\xB2\
+    \u202F=\u202F0.0, not confirming \u2265500 replicates for each of the five \u03C4\
+    \xB2 levels (\u22652\u202F500 records). Concrete evidence of record count per\
+    \ level and RAM usage is missing."
   task: 232d3906c31bebc21659e01463b3a2edec5c46026f659b64be4780441b3fe4bb
 T007:
   task: 5bf4c12f156890cd2598ec9dc2b9e05669b146683ab829415bb7175c81149aa7
