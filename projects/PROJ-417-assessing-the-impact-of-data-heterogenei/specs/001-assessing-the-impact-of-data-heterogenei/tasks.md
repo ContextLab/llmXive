@@ -1,405 +1,98 @@
 # Tasks: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
 
-**Input**: Design documents from `/specs/001-assess-heterogeneity-impact/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root (per `plan.md`)
-- Paths shown below assume single project structure - adjusted based on `plan.md`
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per `plan.md` (mkdir `code/simulation`, `code/analysis`, `code/visualization`, `code/reporting`, `data/raw`, `data/processed`, `data/results`, `tests/unit`, `tests/integration`, `contracts`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`, `pytest`
-- [X] T003 [P] Configure linting (flake8/black) and pre-commit hooks in `code/`
-- [X] T006b [P] **Create Configuration File**: Create `code/config.yaml` with keys `nominal_confidence_level` (placeholder, to be resolved by T006b-resolve), `simulation_parameters` (replicate counts, tau2 levels). **This defines the schema.**
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure, data ingestion, and contracts that MUST be complete before ANY user story can be implemented.
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Data must be fetched and verified before simulation. **Schema tasks (T004a-create, T004a-verify, T004b, T004c) must be completed and verified before T010/T017 can start.**
-
-- [ ] T004a-create [P] **Define Simulated Dataset Schema**: Create `specs/001-assess-heterogeneity-impact/contracts/simulated_dataset.schema.yaml` with the following content:
- ```yaml
- type: object
- required:
- - injected_true_effect
- - injected_tau2
- - N_studies
- properties:
- injected_true_effect:
- type: number
- injected_tau2:
- type: number
- N_studies:
- type: integer
- ```
- **Output**: `specs/001-assess-heterogeneity-impact/contracts/simulated_dataset.schema.yaml` must exist. **[Key Entity: SimulatedDataset] [FR-001]**
-- [ ] T004a-verify-content [P] **Verify Simulated Dataset Schema Content**: Validate that `simulated_dataset.schema.yaml` content matches the Key Entity definition in `spec.md`. **Execute**: Python script to load schema and compare fields against `spec.md` Key Entities. **Fail if fields do not match.**
-- [ ] T004a-verify-script [P] **Create Validation Script**: Create `code/scripts/validate_schema.py` to validate JSON against a YAML schema. **Content**: Script must use `jsonschema` library. **Output**: `code/scripts/validate_schema.py` must exist.
-- [ ] T004a-verify [P] **Verify Simulated Dataset Schema**: Run `code/scripts/validate_schema.py` with `simulated_dataset.schema.yaml` and a dummy record. **Output**: `data/results/schema_simulated_dataset_validation.json` containing validation status. **Execute**: `python code/scripts/validate_schema.py --schema specs/001-assess-heterogeneity-impact/contracts/simulated_dataset.schema.yaml --input data/results/dummy_simulated_dataset.json`. **Dummy JSON**: `{"injected_true_effect": 0.5, "injected_tau2": 0.1, "N_studies": 20}`. **Verification Logic**: The script MUST load the schema and the dummy JSON, validate using `jsonschema`, and fail if the schema is syntactically invalid or the dummy record fails validation. **[Constraint Preservation]**
-- [ ] T004b [P] **Define Estimation Result Schema**: Create `specs/001-assess-heterogeneity-impact/contracts/estimation_result.schema.yaml` with the following content:
- ```yaml
- type: object
- required:
- - I_squared
- - Q
- - reliability_flag
- - injected_true_effect
- - injected_tau2
- properties:
- I_squared:
- type: number
- Q:
- type: number
- reliability_flag:
- type: boolean
- injected_true_effect:
- type: number
- injected_tau2:
- type: number
- ```
- **Output**: `specs/001-assess-heterogeneity-impact/contracts/estimation_result.schema.yaml` must exist. **[Key Entity: EstimationResult] [SC-002]**
-- [ ] T004b-verify-content [P] **Verify Estimation Result Schema Content**: Validate that `estimation_result.schema.yaml` content matches the Key Entity definition in `spec.md`. **Execute**: Python script to load schema and compare fields against `spec.md` Key Entities. **Fail if fields do not match.**
-- [ ] T004b-verify [P] **Verify Estimation Result Schema**: Run `code/scripts/validate_schema.py` with `estimation_result.schema.yaml` and a dummy record. **Output**: `data/results/schema_estimation_result_validation.json` containing validation status. **Execute**: `python code/scripts/validate_schema.py --schema specs/001-assess-heterogeneity-impact/contracts/estimation_result.schema.yaml --input data/results/dummy_estimation_result.json`. **Dummy JSON**: `{"I_squared": 50.0, "Q": 15.5, "reliability_flag": true, "injected_true_effect": 0.5, "injected_tau2": 0.1}`. **[Constraint Preservation]**
-- [ ] T004c [P] **Define Aggregated Metric Schema**: Create `specs/001-assess-heterogeneity-impact/contracts/aggregated_metric.schema.yaml` with the following content:
- ```yaml
- type: object
- required:
- - tau2_level
- - coverage_rate
- - mean_bias
- - p_value_binomial
- - p_value_normality_test
- - test_type_bias_comparison
- properties:
- tau2_level:
- type: number
- coverage_rate:
- type: number
- mean_bias:
- type: number
- p_value_binomial:
- type: number
- p_value_normality_test:
- type: number
- test_type_bias_comparison:
- type: string
- ```
- **Output**: `specs/001-assess-heterogeneity-impact/contracts/aggregated_metric.schema.yaml` must exist. **[Key Entity: AggregatedMetric]**
-- [ ] T004c-verify-content [P] **Verify Aggregated Metric Schema Content**: Validate that `aggregated_metric.schema.yaml` content matches the Key Entity definition in `spec.md`. **Execute**: Python script to load schema and compare fields against `spec.md` Key Entities. **Fail if fields do not match.**
-- [ ] T004c-verify [P] **Verify Aggregated Metric Schema**: Run `code/scripts/validate_schema.py` with `aggregated_metric.schema.yaml` and a dummy record. **Output**: `data/results/schema_aggregated_metric_validation.json` containing validation status. **Execute**: `python code/scripts/validate_schema.py --schema specs/001-assess-heterogeneity-impact/contracts/aggregated_metric.schema.yaml --input data/results/dummy_aggregated_metric.json`. **Dummy JSON**: `{"tau2_level": 0.1, "coverage_rate": 0.95, "mean_bias": 0.01, "p_value_binomial": 0.5, "p_value_normality_test": 0.8, "test_type_bias_comparison": "Kruskal-Wallis"}`. **[Constraint Preservation]**
-- [X] T005 [P] Implement `code/simulation/__init__.py` and `code/analysis/__init__.py` to expose core classes
-- [X] T006 Create `code/main.py` entry point that orchestrates the pipeline (generation -> estimation -> analysis -> reporting) with CLI argument support for seeds and levels
-- [X] T007 Setup logging infrastructure in `code/utils/logging.py` to capture convergence failures and simulation progress to `data/results/simulation.log`
-
-### Research & Configuration Resolution (Phase 2)
-
-- [ ] T006b-resolve [P] **Resolve Configuration Value**: Execute `code/scripts/resolve_config.py` to ensure `code/config.yaml` contains a nominal confidence level and replicate count appropriate for the study. **Logic**: If `research.md` exists and contains `replicates_per_level` and `nominal_confidence_level`, read them. If `research.md` is missing or values are missing, **CREATE** `research.md` with default values (`replicates_per_level: 500`, `nominal_confidence_level:`) and use those. **Write** resolved values to `code/config.yaml`. **Output**: `code/config.yaml` must contain `replicates_per_level` and `nominal_confidence_level`. **[Constraint Preservation] [SC-004]**
-- [ ] T006c-research-power [P] **Update Research with Justification**: Update `research.md` to explicitly state the "sufficient number" of replicates per heterogeneity level based on a methodological derivation (Monte Carlo error < 1%). **Specific Value**: Set `replicates_per_level` to a sufficient number to ensure statistical robustness. **Output**: `research.md` must contain `replicates_per_level` and the justification. **[Constraint Preservation] [SC-004] [DEPENDS ON: T006b-resolve]**
-
-### Research & Synthetic Base Parameters (Phase 2)
-
-- [ ] T040b-research-params [P] **Define Synthetic Base Parameters**: Update `research.md` to explicitly define the synthetic base parameters (mu, sigma, N_studies) and cite the source. **Specific Values**: Set `synthetic_base_params: {mu: 0.0, sigma: 1.0, N_studies: <variable>}`. **Citation**: Cite "Jackson et al. (2010)" as the source for these parameters. **Output**: `research.md` must contain these specific values and the citation. **[Constraint Preservation] [DEPENDS ON: T006b-resolve]**
-- [ ] T040b-verify-citation [P] **Verify Synthetic Base Citation**: Verify `research.md` contains the citation "Jackson et al. (2010)" and the parameters. **Execute**: `grep -q "Jackson et al. (2010)" research.md`. **Fail if grep returns non-zero.** **[Constitution II] [DEPENDS ON: T040b-research-params]**
-- [ ] T040b-doc [P] **Verify Synthetic Base Documentation**: Create and execute `code/scripts/verify_docs.py` to verify `research.md` and `data/raw/README.md`. **Execute**: `grep -q "synthetic_base_params" research.md` AND `grep -q "Jackson et al. (2010)" research.md`. **Fail if grep returns non-zero.** **Update `data/raw/README.md` to explicitly state "Synthetic Base Used" with parameters.** **DEPENDS ON: T040b-research-params**
-- [ ] T040b-checksum [P] **Record Synthetic Checksum**: Calculate the SHA256 checksum of `data/raw/cochrane_base_synthetic.csv` and record it in `state/artifact_hashes.yaml`. **Execute**: `sha256sum data/raw/cochrane_base_synthetic.csv > state/checksums/synthetic_base.sha256` AND update `state/artifact_hashes.yaml`. **[Constitution III] [DEPENDS ON: T040b-gen]**
-- [ ] T040b-checksum-verify [P] **Verify Synthetic Checksum in State**: Verify that `state/artifact_hashes.yaml` contains the checksum for `data/raw/cochrane_base_synthetic.csv`. **Execute**: `grep -q "data/raw/cochrane_base_synthetic.csv" state/artifact_hashes.yaml`. **Fail if grep returns non-zero.** **[Constitution III] [DEPENDS ON: T040b-checksum]**
-
-### Data Fetching & Synthetic Base (Phase 2)
-
-- [X] T040 [P] **Fetch Real Data**: Create `code/scripts/fetch_cochrane.py`. **Execute: `python code/scripts/fetch_cochrane.py`.** **Source**: Fetch from Zenodo DOI `10.5281/zenodo.10286623` (Cochrane Meta-Analysis Data Repository). **Specific API**: Use `requests` library to GET `. **CRITICAL**: The script MUST raise `FileNotFoundError('REAL_DATA_FETCH_FAILED')` if the fetch fails. **This specific exception triggers the controlled fallback to T040b-gen.** Do not halt the pipeline; the loader (T006c) must catch this and invoke T040b-gen.
-- [ ] T040b-gen [P] **Generate Verified Synthetic Base**: Create `code/scripts/generate_synthetic_base.py`. **Execute: `python code/scripts/generate_synthetic_base.py`.** **Trigger**: Executed after T040 completes (regardless of success/fail status). **DEPENDS ON: T040, T040b-research-params.** **Parameters**: Read `synthetic_base_params` from `research.md` (mu=0.0, sigma=1.0, N_studies=20). **Source**: Cite "Jackson et al. (2010)" from `research.md`. **Effect Size Metric**: Explicitly specify "Log Odds Ratio" as the metric. **Write these parameters to `code/config.yaml` under `synthetic_base_params` by Deep merging with existing config, overwriting existing keys.** Save as `data/raw/cochrane_base_synthetic.csv`.
-- [X] T040c [P] **Adapt Synthetic Parameters**: Create `code/scripts/adapt_parameters.py`. **Trigger**: Executed only if T040 succeeds (real data fetched). **Logic**: Parse the fetched Cochrane data to calculate empirical mean effect, SE distribution parameters (mu, sigma), and N_studies. Update `code/config.yaml` with these derived `synthetic_base_params`. **This ensures the simulation perturbs based on the structural properties of the real data.** **[FR-001] [DEPENDS ON: T040 (success path)]**
-- [ ] T040c-adapt-synthetic [P] **Adapt Synthetic Parameters for Synthetic Path**: Create `code/scripts/adapt_parameters_synthetic.py`. **Trigger**: Executed if T040 fails and T040b-gen runs. **Logic**: Read `synthetic_base_params` from `research.md` and ensure `code/config.yaml` reflects these parameters for the simulation. **DEPENDS ON: T040b-gen.**
-- [X] T041 [US1] **Document Data Source**: Create `data/raw/README.md` and update `research.md` to explicitly document the source URL, accession ID, and citation for the base dataset used in T040 OR (T040b-gen AND T040b-doc). **DEPENDS ON: T040 completion OR (T040b-gen completion AND T040b-doc completion).**
-
-### Config Loader Implementation (Phase 2)
-
-- [ ] T006c [P] **Implement Config Loader**: Implement `code/config_loader.py` to parse `code/config.yaml`. **DEPENDS ON: T006b.** **Must catch `FileNotFoundError` from data fetch and trigger fallback logic.**
-
----
-
-## Phase 3: User Story 1 - Simulation Engine Execution (Priority: P1) 🎯 MVP
-
-**Goal**: Generate synthetic meta-analysis datasets with controlled levels of between-study variance ($\tau^2$) to test statistical methods under known ground truths.
-
-**Independent Test**: Run `code/simulation/generator.py` with $\tau^2 \in \{0, 0.1\}$ and multiple replicates; verify output JSON contains injected $\tau^2$ and generated effect sizes; process exits 0 within 10 mins.
-
-### Implementation for User Story 1
-
-- [ ] T010 [US1] Implement `code/simulation/generator.py` to load base data from `data/raw/` (either `cochrane_base.csv` from T040/T040c or `cochrane_base_synthetic.csv` from T040b-gen/T040b-adapt) and implement a loop generating **≥500 replicates** per level for heterogeneity levels $\{0, 0.1, 0.5, 1.0, 2.0\}$. **Ensure output conforms to `contracts/simulated_dataset.schema.yaml` (including `N_studies` field).** **Output must include `injected_true_effect` and `injected_tau2` columns.** **Save output to `data/results/simulation_raw.json`.** **Verify output artifact `data/results/simulation_raw.json` contains a sufficient number of records using `jq length data/results/simulation_raw.json`.** **[FR-001, SC-004] [DEPENDS ON: T004a-create, T004a-verify, T041, T006b-resolve, T040b-checksum-verify]** **Note: If config.yaml is missing or replicates_per_level is null, default to 500 replicates.**
-- [ ] T012 [US1] Implement logic in `generator.py` to handle $\tau^2=0$ without numerical instability (Edge Case: Zero Variance)
-- [ ] T012-verify [P] [US1] **Verify Zero Variance Handling**: Write and run a unit test `test_generator.py::test_homogeneity` verifying that $\tau^2=0$ produces zero between-study variance and that the Random-Effects estimator converges to the Fixed-Effects result without instability. **Execute**: `pytest tests/unit/test_generator.py::test_homogeneity`. **Verify output artifact `data/results/test_homogeneity_check.json` confirms zero variance and stable convergence**. **DEPENDS ON: T012.**
-
-### Tests for User Story 1 (Run AFTER T010 implementation)
-
-- [ ] T008-code [P] [US1] **Write Unit Test Code**: Write `test_generator.py` verifying that generated variance matches injected $\tau^2$ within Monte Carlo error. **Use a sufficient number of replicates for this unit test to ensure statistical stability.** **Verify output artifact `data/results/test_variance_check.json` contains mean variance within 0.01 of target**. **DEPENDS ON: T010 (stub or full implementation).**
-- [ ] T008-run [US1] **Run Unit Test**: Execute `pytest tests/unit/test_generator.py::test_variance_match` to generate the artifact. **Verify `data/results/test_variance_check.json` exists and confirms mean variance error <= 0.01**. **DEPENDS ON: T010, T008-code.**
-- [ ] T009 [US1] Unit test `test_generator.py` verifying that $\tau^2=0$ produces zero between-study variance (homogeneity). **Execute**: `pytest tests/unit/test_generator.py::test_homogeneity`. **Verify output artifact `data/results/test_homogeneity_check.json` confirms zero variance**. **DEPENDS ON: T010.**
-
-### Execution for User Story 1
-
-- [ ] T014b [US1] **Execute Primary Sweep**: Run `code/simulation/generator.py` with the full set of heterogeneity levels $\{0, 0.1, 0.5, 1.0, 2.0\}$ and the replicates count defined in `config.yaml` (from T006b-resolve, default 500). **Output: `data/results/simulation_raw.json` containing all replicates.** **Verify file size and record count using `jq length data/results/simulation_raw.json` to confirm the expected volume of records.** **[FR-001, SC-004] [DEPENDS ON: T010, T012.]**
-- [ ] T014b-verify-schema [US1] **Verify Primary Sweep Schema**: Validate `data/results/simulation_raw.json` against `contracts/simulated_dataset.schema.yaml`. **Execute**: Python script to load JSON and check for `injected_true_effect` and `injected_tau2` columns. **Fail if missing.** **Explicit Verification**: Calculate expected count = (number of levels) × (replicates_per_level from config.yaml). **If replicates_per_level is missing, use 500.** Verify record count == expected count. **Fail if count != expected count**. **DEPENDS ON: T014b.**
-- [ ] T014b-validate-artifact [US1] **Validate Artifact Against Contract**: Run a validation script to ensure `data/results/simulation_raw.json` conforms to `contracts/simulated_dataset.schema.yaml` for all records. **Execute**: `python code/scripts/validate_schema.py --input data/results/simulation_raw.json --schema specs/001-assess-heterogeneity-impact/contracts/simulated_dataset.schema.yaml`. **Fail if validation fails.** **DEPENDS ON: T014b.**
-
-**Checkpoint**: Simulation engine generates valid, reproducible datasets with known ground truths.
-
----
-
-## Phase 4: User Story 2 - Estimator Application and Metric Calculation (Priority: P2)
-
-**Goal**: Apply Fixed-Effects, DL, and REML estimators to simulated data and calculate bias/coverage.
-
-**Independent Test**: Process a pre-generated small set of simulated datasets; verify output includes pooled estimate, confidence interval, and coverage flag for true effect.
-
-### Implementation for User Story 2
-
-- [ ] T011a [US2] **Add N_studies Column**: Implement logic in `code/analysis/metrics.py` to add `N_studies` column to output. **[FR-001]**
-- [ ] T011b [US2] **Implement Reliability Flag**: Implement logic in `code/analysis/metrics.py` to set `reliability_flag` (boolean) to `False` if `N_studies < 5`. **Explicit threshold: N_studies < 5, configurable in `code/config.yaml` under `small_study_threshold` (default 5).** **[Edge Case: Small Study Effects]**
-- [ ] T011c [US2] **Flag Small Studies (DO NOT FILTER)**: Implement logic in `code/analysis/metrics.py` to FLAG replicates where `reliability_flag` is `False` (N_studies < 5) but **DO NOT FILTER THEM OUT** before calculating aggregated bias and coverage. **Ensure T019 and T020 process all data points, including flagged ones, to measure the impact of small studies.** **[Edge Case: Small Study Effects] [SC-002] [DEPENDS ON: T011b.]**
-- [ ] T017 [US2] Implement `code/simulation/estimators.py` with Fixed-Effects, DerSimonian-Laird (DL), and REML estimators (CPU-tractable, no CUDA). **Must calculate and output $I^2$ and $Q$ statistics per replicate**. **Output must conform to `contracts/estimation_result.schema.yaml` and include `injected_true_effect` and `injected_tau2` fields.** **Must validate output against schema before saving.** **Save output to `data/results/estimation_results.csv`.** **DEPENDS ON: T004b, T004b-verify, T010.**
-- [ ] T018 [US2] Implement REML convergence failure logic in `estimators.py`: log event, impute minimal positive variance or skip, record count. **Write failures to `data/results/reml_failures.json` with count.** **[FR-006]**
-- [ ] T019 [US2] Implement `code/analysis/metrics.py` to calculate bias (`pooled - true_effect`) and 95% CI coverage for each replicate. **CRITICAL**: `true_effect` MUST be read from the `injected_true_effect` column in the input JSON (from T010). **If `injected_true_effect` is missing, raise `ValueError`.** **Do not reference research.md.** **Process ALL data points, including those flagged in T011c.**
-- [ ] T026 [US2] **Implement Bonferroni Correction**: Implement `code/analysis/stats.py` with Bonferroni correction for multiple hypothesis tests (FR-007). **Specific Logic**: Read `nominal_confidence_level` from `config.yaml`. Calculate adjusted alpha = 0.05 / 5 = 0.01. [UNRESOLVED-CLAIM: c_5d2cbdce — status=not_enough_info] **Justification**: The count of 5 corresponds to the heterogeneity levels defined in FR-001. **[FR-007] [DEPENDS ON: T006b-resolve.]**
-- [ ] T020 [US2] **Verify Coverage at Tau2=0**: Implement logic in `metrics.py` to verify coverage at $\tau^2=0$ is statistically indistinguishable from the nominal level. **Read `config.yaml["nominal_confidence_level"]` (default 0.95 (1710.08708, https://arxiv.org/abs/1710.08708) if missing) and `config.yaml["bonferroni_adjusted_alpha"]` (default 0.01 if missing) from `code/config.yaml` (defined in T006b-resolve and T026) and use them as the expected success probability `p` and threshold in the Exact Binomial Test.** **Use the Exact Binomial Test (`scipy.stats.binom`) with `p` set to the `nominal_confidence_level`.** **Calculate p-value; compare against `adjusted_alpha`; if p < `adjusted_alpha`, flag as deviation.** **DEPENDS ON: T010, T011a, T011b, T026.**
-- [ ] T021 [US2] Output results to `data/results/estimation_results.csv` conforming to `contracts/estimation_result.schema.yaml` (including `I^2` and `reliability_flag` fields)
-- [ ] T021-validate-artifact [US2] **Validate Estimation Artifact Against Contract**: Run a validation script to ensure `data/results/estimation_results.csv` conforms to `contracts/estimation_result.schema.yaml` for all records. **Execute**: `python code/scripts/validate_schema.py --input data/results/estimation_results.csv --schema specs/001-assess-heterogeneity-impact/contracts/estimation_result.schema.yaml`. **Fail if validation fails.** **DEPENDS ON: T021.**
-
-### Tests for User Story 2
-
-- [ ] T015 [P] [US2] Unit test `test_estimators.py` verifying Fixed-Effects, DL, and REML against standard normal data cases. **Assertion**: Pooled estimate within 0.001 of expected value; CI bounds correct.
-- [ ] T016 [P] [US2] Unit test `test_estimators.py` verifying REML convergence failure handling (negative variance -> fallback/skip). **Assertion**: Failure logged to `reml_failures.json` with count; no crash.
-- [ ] T016b [P] [US2] Unit test `test_estimators.py` verifying that Fixed-Effects converges when $\tau^2=0$ and that bias calculation handles flagged $N<5$ studies correctly. **Assertion**: Bias calculated correctly; $N<5$ studies flagged.
-- [ ] T020b [P] [US2] Unit test `test_stats.py` verifying that bias metrics are correctly calculated for flagged $N<5$ studies from T011b. **Assertion**: Bias metric matches expected value for flagged set.
-
-**Checkpoint**: Estimators applied correctly; bias and coverage metrics calculated for all replicates.
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
-
-**Goal**: Aggregate results, perform statistical tests (Binomial, Kruskal-Wallis), and generate visualizations.
-
-**Independent Test**: Run analysis script on pre-computed CSV; verify summary table of coverage rates and PNG plot of coverage vs. $\tau^2$.
-
-### Sensitivity Sweep Tasks (Part of US3)
-
-- [ ] T034d-justify [US3] **Justify Sensitivity Sweep Levels**: Update `research.md` to explicitly justify the sensitivity sweep levels {0.05, 0.1, 0.5} based on scientific rationale for the low-to-moderate transition zone. **Output**: `research.md` must contain the justification. **[SC-004]**
-- [ ] T034a [US3] **Sensitivity Sweep CLI**: Add CLI arguments to `code/main.py` to support a secondary sensitivity sweep with levels $\{0.05, 0.1, 0.5\}$ and other standard significance thresholds. **Rationale**: These levels target the low-to-moderate transition zone (SC-004) to detect non-linearities near the homogeneity threshold, distinct from the primary sweep.
-- [ ] T034d [US3] **Execute Sensitivity Sweep**: Run `code/simulation/generator.py --levels [low],<threshold>,0.5 --replicates 500`. **Output: `data/results/sensitivity_sweep.csv`.** **DEPENDS ON: T034a, T010, T034d-justify.** **[SC-004]**
-- [ ] T034c-sensitivity-schema [US3] **Define Sensitivity Sweep Schema**: Create `specs/001-assess-heterogeneity-impact/contracts/sensitivity_sweep.schema.yaml` defining the schema for `sensitivity_sweep.csv`. **DEPENDS ON: T034d.**
-- [ ] T034c [US3] **Sensitivity Sweep Verification**: Unit test `test_stats.py` or `test_pipeline.py` verifying that the sensitivity sweep generates multiple levels with 500 replicates and outputs `sensitivity_sweep.csv` with valid data conforming to `sensitivity_sweep.schema.yaml`. **Verify output artifact `data/results/sensitivity_sweep.csv` exists and has a sufficient record count to support statistical analysis and correct structure.** **DEPENDS ON: T034d.**
-- [ ] T034e [US3] **Stability Analysis**: Implement logic to merge `data/results/simulation_raw.json` and `data/results/sensitivity_sweep.csv` and compare coverage rates across overlapping $\tau^2$ levels. **Calculate the absolute difference in coverage rates between the primary and sensitivity sweeps for each overlapping level. ** **Output**: `data/results/stability_analysis.json` reporting the difference in coverage rates. **Verify**: Output exists and contains stability metrics. **JSON Structure**: `{"coverage_differences": [{"tau2": 0.1, "diff": 0.02},...], "max_diff": 0.02}`. **** **DEPENDS ON: T014b, T034d.** **[SC-004]**
-- [ ] T034f [US3] **Report Stability Metric**: Load `data/results/stability_analysis.json` and extract `max_diff`. **Output**: `data/results/stability_status.json` containing the calculated `max_diff` value. **Do NOT apply any pass/fail threshold.** **JSON Structure**: `{"max_diff": 0.02}`. **[SC-004]**
-- [ ] T034g-Report-Stability [US3] **Report Stability in Final Report**: Update `code/reporting/report_gen.py` to include the stability analysis results from `data/results/stability_status.json` in the final report. **Explicitly state the `max_diff` value and interpret the stability of coverage rates across the heterogeneity levels.** **[SC-004] [DEPENDS ON: T034f, T028.]**
-
-### Tests for User Story 3
-
-- [ ] T022 [P] [US3] Unit test `test_stats.py` verifying exact binomial test calculation against known proportions. **Assertion**: p-value matches expected value for given proportion.
-- [ ] T023 [P] [US3] Unit test `test_stats.py` verifying Bonferroni correction application ($\alpha = 0.05/5$). **Assertion**: Corrected alpha is 0.01. **DEPENDS ON: T026.**
-- [ ] T023_test_conditional_logic [P] [US3] Unit test `test_stats.py` verifying the conditional branching logic: explicitly test that Shapiro-Wilk $p < 0.05$ triggers Kruskal-Wallis, and $p \ge 0.05$ triggers ANOVA. **DEPENDS ON: T037.**
-- [ ] T029b [P] [US3] **Report Framing Validation**: Unit test `test_reporting.py` verifying that the generated `report.md` contains the required "associational" label and validates framing against the contract. **Assertion**: "associational" label present; no causal claims. **DEPENDS ON: T028.**
-
-### Implementation for User Story 3
-
-- [ ] T024 [US3] Implement `code/analysis/stats.py` with exact binomial test for coverage deviation (FR-004)
-- [ ] T025 [US3] Implement `code/analysis/stats.py` with Shapiro-Wilk test for normality (FR-008)
-- [ ] T037 [US3] Implement conditional branching logic in `code/analysis/stats.py` to select Kruskal-Wallis if Shapiro-Wilk $p < 0.05$, else ANOVA (FR-008). **Apply Bonferroni correction by adjusting the significance threshold (alpha = 0.01) and comparing the resulting p-values against this adjusted threshold.** **DEPENDS ON: T025, T026.**
-- [ ] T027 [US3] Implement `code/visualization/plots.py` to generate PNG plots: Coverage vs. $\tau^2$ and Mean Bias vs. $\tau^2$ (FR-005). **Ensure plots utilize $I^2$ data from the `estimation_results.csv` produced by T021.**
-- [ ] T028 [US3] **Generate Report**: Implement `code/reporting/report_gen.py` to aggregate metrics, perform tests, and generate `data/results/report.md`. **Must include sensitivity sweep data from T034d and stability analysis from T034e.** **Must read `reml_failures.json` from T018 and include failure counts.** **Must include explicit "associational" labeling.** **Use template `docs/report_template.md` to generate report.md containing sections: Introduction, Methods, Results (Primary & Sensitivity), Discussion, Conclusion.** **DEPENDS ON: T034d, T034e, T034g-Report-Stability, T021, T018.**
-- [ ] T029 [US3] Ensure `report_gen.py` explicitly labels results as "associational" and avoids causal claims (SC-005)
-- [ ] T030 [US3] Validate final report content against `contracts/aggregated_metric.schema.yaml`
-
-### Tests for User Story 3 (Run AFTER Implementation)
-
-- [ ] T022 [P] [US3] Unit test `test_stats.py` verifying exact binomial test calculation against known proportions. **Assertion**: p-value matches expected value for given proportion. **DEPENDS ON: T024.**
-- [ ] T023 [P] [US3] Unit test `test_stats.py` verifying Bonferroni correction application ($\alpha = 0.05/5$). **Assertion**: Corrected alpha is 0.01. **DEPENDS ON: T026.**
-- [ ] T023_test_conditional_logic [P] [US3] Unit test `test_stats.py` verifying the conditional branching logic: explicitly test that Shapiro-Wilk $p < 0.05$ triggers Kruskal-Wallis, and $p \ge 0.05$ triggers ANOVA. **DEPENDS ON: T037.**
-- [ ] T029b [P] [US3] **Report Framing Validation**: Unit test `test_reporting.py` verifying that the generated `report.md` contains the required "associational" label and validates framing against the contract. **Assertion**: "associational" label present; no causal claims. **DEPENDS ON: T028.**
-
-**Checkpoint**: Statistical analysis complete; visualizations generated; report framed correctly.
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T014 [US1] **Full Scale Performance Test**: Run `generator.py` for the full set (multiple levels × replicates_per_level from config). Verify the process completes within 360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner. **Pass/Fail Criteria**: Fail if runtime > 360 mins OR RAM > 7GB. **Use `memory_profiler` (mprof run) to measure and record RAM usage.** Verify integrity of `data/results/simulation_raw.json` (a dataset of records). **This is an Integration/Performance Benchmark, not a Unit Test. Run after T010-T013 implementation.** **DEPENDS ON: T010, T012.**
-- [ ] T031 [US1] Run full integration test `tests/integration/test_pipeline.py` on a fresh runner to verify end-to-end flow. **NOTE: The core integration logic can be validated against a small synthetic dataset first. The final validation run depends on T014 and T034 completion.**
-- [ ] T032 [P] Update `docs/quickstart.md` with instructions to run the simulation engine locally
-- [ ] T033 [P] Verify `requirements.txt` contains only CPU-tractable dependencies (no `torch[cuda]`, `bitsandbytes`, etc.)
-- [ ] T035 [P] Update `state/` with content hashes of `data/results/` artifacts. **Specific Path**: Update `state/artifact_hashes.yaml` with SHA256 hashes for all files in `data/results/`. **Format**: `artifact_hashes: { "data/results/simulation_raw.json": "<sha256>",... }`.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Includes Data Fetch (T040), Synthetic Base Fallback (T040b-gen/T040b-adapt/T040b-doc/T041), and Documentation (T041).** **Schema tasks (T004a-create, T004a-verify, T004b, T004c) must be completed before T010/T017.**
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (needs simulated data to estimate)
-- **User Story 3 (P3)**: Depends on US2 (needs estimation results to analyze)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Generators before Estimators
-- Estimators before Metrics/Analysis
-- Core implementation before Visualization/Reporting
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) EXCEPT T041, T040b-gen, T040b-doc, T040c, T040b-checksum, T040b-verify-source-content which have conditional dependencies.
-- Tests for a user story marked [P] can run in parallel
-- Different modules (Generator vs Estimator logic) can be developed in parallel once interfaces are defined
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch implementation first:
-Task: "Implement generator.py for perturbation logic (T010)"
-
-# Then launch tests:
-Task: "Unit test test_generator.py verifying variance match (T008-code)"
-Task: "Unit test test_generator.py verifying homogeneity (T009)"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (Including T040/T040b-gen/T040b-adapt/T040b-doc/T041 Data Fetch/Fallback)
-3. Complete Phase 3: User Story 1 (Simulation)
-4. **STOP and VALIDATE**: Run simulation with small seed, verify JSON output and variance match.
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 (Simulation) → Test independently → MVP Data Generation
-3. Add User Story 2 (Estimation) → Test independently → MVP Metrics
-4. Add User Story 3 (Analysis) → Test independently → MVP Report
-5. Each story adds value without breaking previous stories.
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Simulation Engine)
- - Developer B: User Story 2 (Estimators & Metrics)
- - Developer C: User Story 3 (Stats & Reporting)
-3. Stories complete and integrate via `main.py`.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **CRITICAL**: All simulation tasks must run on CPU-only (cores, 7GB RAM) within 6 hours. No GPU/CUDA dependencies allowed.
-- **CRITICAL**: Data must be real (Cochrane) or verified synthetic base. No fabrication of input data. T040/T040b-gen/T040b-adapt/T040c ensures this by mandating a fetch step with a verified synthetic fallback path and parameter adaptation.
-- **CRITICAL**: REML convergence failures must be handled gracefully (log/skip) to ensure full pipeline completion.
-- **CRITICAL**: T010 must implement a loop for ≥500 replicates per level.
-- **CRITICAL**: T037 must implement conditional branching for statistical test selection AND apply Bonferroni correction to the significance threshold (alpha = 0.01) as mandated by FR-007.
-- **CRITICAL**: T038 (Performance) is now T014 and moved to Phase 6.
-- **CRITICAL**: T034 (Sensitivity Sweep) is a core success criterion, not optional polish, and is now in Phase 5.
-- **CRITICAL**: T039 (I^2) is now integrated into T017 to satisfy schema requirements and resolve ordering conflicts.
-- **CRITICAL**: T041 ensures traceability of the base dataset to satisfy Constitution II.
-- **CRITICAL**: T014 explicitly verifies the full A generation loop with a sufficient number of replicates to ensure statistical robustness. and performance constraints as an integration test.
-- **CRITICAL**: T040b-gen provides the necessary fallback path for data unavailability.
-- **CRITICAL**: T040c ensures parameter adaptation for real data.
-- **CRITICAL**: T040b-adapt ensures parameter adaptation for synthetic data.
-- **CRITICAL**: T034c and T029b ensure verification of sensitivity sweep and report framing.
-- **CRITICAL**: T020 reads nominal_confidence_level from config.yaml (T006b-resolve) as float and uses Exact Binomial Test with Bonferroni-corrected alpha (a reduced significance threshold) as threshold for ALL levels (via T020b).
-- **CRITICAL**: T019 explicitly reads `true_effect` from `injected_true_effect` column and raises ValueError if missing.
-- **CRITICAL**: T011 generates the `reliability_flag` in the metrics output.
-- **CRITICAL**: T034a, T034b, T034c split generation and verification of the sensitivity sweep.
-- **CRITICAL**: T004 includes `reliability_flag` and `I^2` as required fields.
-- **CRITICAL**: T008 uses 500 replicates for verification and error margin.
-- **CRITICAL**: T040/T040b/T040c treat synthetic base as a valid co-equal path with adaptation.
-- **CRITICAL**: T014 uses `memory_profiler` for RAM verification.
-- **CRITICAL**: T014b executes the primary sweep (calculated count) and verifies count.
-- **CRITICAL**: T034d executes the sensitivity sweep with explicit levels {0.05, 0.1, 0.5}.
-- **CRITICAL**: T040b-gen writes parameters to config.yaml, cites Jackson et al. (2010) with mu=0.0, sigma=1.0, N=20, and updates research.md.
-- **CRITICAL**: T040b-doc verifies documentation via Python script.
-- **CRITICAL**: T011a/b/c split logic for N_studies, reliability_flag, and flagging (not filtering).
-- **CRITICAL**: T018 writes `reml_failures.json`.
-- **CRITICAL**: T020 uses `scipy.stats.binom` with p=0.95 and alpha=0.01.
-- **CRITICAL**: T015, T016, T016b, T020b, T022, T023, T029b include concrete assertion logic.
-- **CRITICAL**: T034c verifies a record count across three levels with 500 replicates per level.
-- **CRITICAL**: T034e ensures stability analysis is performed.
-- **CRITICAL**: T034f ensures stability metric is reported without arbitrary thresholds.
-- **CRITICAL**: T040b-checksum ensures synthetic base is checksummed.
-- **CRITICAL**: T006b-resolve ensures config.yaml is updated to numeric 0.95 (from research).
-- **CRITICAL**: T014b-verify-schema ensures simulation output conforms to schema.
-- **CRITICAL**: T040b-verify-source-content removed; replaced by T040b-verify-citation.
-- **CRITICAL**: T011c flags but does not filter, preserving data for T019/T020.
-- **CRITICAL**: T037 applies Bonferroni to alpha threshold, not p-values.
-- **CRITICAL**: T020 depends on T026 for alpha threshold.
-- **CRITICAL**: T010 depends on T041 for data availability.
-- **CRITICAL**: T006b-resolve is self-contained and creates research.md if missing.
-- **CRITICAL**: T040b-checksum-verify ensures state integrity before T010.
-- **CRITICAL**: T034d-justify ensures sensitivity sweep levels are justified.
-- **CRITICAL**: T004a-verify-script and T004a-verify separate script creation from execution.
-- **CRITICAL**: T006c-research-power specifies exact key path in research.md.
-- **CRITICAL**: T040b-gen specifies deep merge strategy.
-- **CRITICAL**: T034d specifies exact CLI arguments.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/*.yaml`
+
+## Phase 1: Setup and first end-to-end analysis
+
+**Goal**: Establish the simulation environment and run a thin, end-to-end analysis on a small valid sample to verify the data flow from perturbation to metric calculation.
+
+- [ ] T001 Establish the project layout and verify input provenance.
+    Implement the directory structure defined in `plan.md` and ensure `code/requirements.txt` contains only CPU-tractable dependencies (`numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`). 
+    Implement the data loader in `code/scripts/fetch_cochrane.py` to fetch real data from Zenodo DOI `10.5281/zenodo.10286623` or fallback to the verified synthetic base (mu=0.0, sigma=1.0, N=20) cited from Jackson et al. (2010).
+    The loader MUST raise `FileNotFoundError` on fetch failure rather than silently substituting fake data.
+    **Verification**: `data/raw/cochrane_base.csv` (or `cochrane_base_synthetic.csv`) exists and contains valid effect sizes and standard errors.
+
+- [ ] T002 Implement the simulation generator.
+    Implement `code/simulation/generator.py` to perturb between-study variance $\tau^2$ (FR-001).
+    **Mandatory**: Implement deterministic random seeding using a pinned seed to ensure reproducibility (Constitution Principle I).
+    **Verification**: `tests/unit/test_generator.py` confirms that the injected $\tau^2$ matches the empirical variance of generated effect sizes within 0.05.
+
+- [ ] T003 Implement meta-analysis estimators and heterogeneity logic.
+    Implement `code/simulation/estimators.py` providing Fixed-Effects, DerSimonian-Laird, and REML estimators (FR-002).
+    **Mandatory**: Implement calculation of $Q$ and $I^2$ statistics for every estimation (Constitution Principle VII).
+    **Mandatory**: Implement logic to identify and flag datasets with $N < 5$ studies, ensuring they are either excluded or explicitly flagged to avoid unreliable degrees-of-freedom approximations (Spec: Edge Cases).
+    Include REML convergence failure logic in `estimators.py` to log events to `data/results/reml_failures.json` and proceed with a fallback variance or exclusion (FR-006).
+    **Verification**: Unit tests in `tests/unit/test_estimators.py` confirm $\tau^2=0$ stability and that pooled estimates match known normal cases within 0.001.
+
+- [ ] T004 Implement metric calculation logic.
+    Implement `code/analysis/metrics.py` to calculate bias and 95% CI coverage, reading `true_effect` strictly from the `injected_true_effect` column of the simulation output (FR-003).
+    **Verification**: Unit tests confirm that a pooled estimate exactly equal to the true effect results in zero bias and a coverage flag of True.
+
+- [ ] T005 Execute a small-scale end-to-end pipeline run.
+    Connect the components via `code/main.py` and run a trial with 10 replicates across 2 heterogeneity levels ($\tau^2 \in \{0, 0.1\}$).
+    **Schema Resolution**: Produce `data/results/estimation_results.csv` containing `pooled_effect`, `ci_lower`, `ci_upper`, `estimator_type`, and `sweep_type` as defined in `data-model.md`, and use `convergence_warning` for REML failures. Note: These fields are currently missing from `contracts/*.yaml` and are flagged for correction.
+    **Verification**: `data/results/estimation_results.csv` contains non-null pooled effects, $I^2$, and $Q$ statistics for all replicates.
+
+**Checkpoint**: The documented command in `quickstart.md` executes, and numerical outputs in `data/results/` can be verified against the input parameters.
+
+## Phase 2: Complete the study and validate its evidence
+
+**Goal**: Execute the full primary and sensitivity sweeps, perform rigorous statistical testing, and generate the final evidence artifacts.
+
+- [ ] T006 Run the Primary Simulation Sweep.
+    Execute `code/main.py` for the full domain: $\tau^2 \in \{0, 0.1, 0.5, 1.0, 2.0\}$ with $\ge 500$ replicates per level.
+    **Verification**: `data/results/simulation_raw.json` contains at least 2,500 records; logs confirm the process completes within 6 hours and peak RAM usage is $< 7$ GB (SC-003).
+
+- [ ] T007 Perform statistical analysis and aggregate metrics.
+    Implement `code/analysis/stats.py` to calculate:
+    1. Exact binomial tests for coverage deviation against the nominal 0.95 level (FR-004).
+    2. Shapiro-Wilk normality tests on bias distributions (FR-008).
+    3. Conditional branching: Kruskal-Wallis if $p < 0.05$, otherwise ANOVA, to compare bias across levels (FR-008).
+    Apply a Bonferroni correction to the significance threshold ($\alpha = 0.05 / 5 = 0.01$) for all hypothesis tests (FR-007).
+    **Verification**: `data/results/aggregated_metrics.csv` is produced, conforming to `contracts/aggregated_metric.schema.yaml`.
+
+- [ ] T008 Execute Sensitivity Sweep and Stability Analysis.
+    Run a secondary simulation sweep with $\tau^2 \in \{0.05, 0.1, 0.5\}$ to detect non-linearities in the low-to-moderate transition zone (SC-004).
+    Implement stability analysis in `code/analysis/stats.py` to compare coverage rates between the primary and sensitivity sweeps for overlapping $\tau^2$ levels.
+    **Verification**: `data/results/stability_analysis.json` reports the `max_diff` in coverage rates between the two sweeps.
+
+- [ ] T009 Generate visualizations.
+    Implement `code/visualization/plots.py` to produce PNGs of Coverage vs. $\tau^2$ and Mean Bias vs. $\tau^2$ (FR-005).
+    **Verification**: `ls data/results/*.png` confirms the existence of both required plots.
+
+- [ ] T010 Generate the final framed report.
+    Implement `code/reporting/report_gen.py` to compile results into `data/results/report.md`, including REML failure counts and stability metrics.
+    **Mandatory**: Insert explicit "associational" labeling in the report header and conclusions to avoid causal claims (SC-005).
+    **Verification**: `data/results/report.md` contains the "associational" label and references the specific result files in `data/results/`.
+
+**Checkpoint**: All required runs complete, and artifacts match the actual computations without fabrication.
+
+## Phase 3: Reproducible results and paper handoff
+
+**Goal**: Ensure the entire pipeline is reproducible from scratch and prepare the handoff for the paper pipeline.
+
+- [ ] T011 Perform final reproducibility validation.
+    Execute the full pipeline (T001 $\rightarrow$ T010) on a fresh environment.
+    Generate SHA-256 checksums for all final artifacts in `data/results/` and record them in `state/artifact_hashes.yaml`.
+    **Verification**: All integration tests in `tests/integration/test_pipeline.py` pass, and checksums match the original run.
+
+- [ ] T012 Document the paper-stage handoff.
+    Write a concise methods/results account in `data/results/handoff.md` linking to the actual output cells and figure files.
+    Explicitly state any limitations, such as the impact of small study effects ($N < 5$) flagged during estimation.
+    **Verification**: Handoff document includes a complete list of all generated artifacts and their corresponding scientific requirements (FR-IDs).
+
+## Dependencies and requirement coverage
+
+| Requirement | Task | Verification Command | Order |
+| :--- | :--- | :--- | :--- |
+| FR-001 (Generation) | T002, T006 | `jq length data/results/simulation_raw.json` | $\rightarrow$ |
+| FR-002 (Estimators) | T003 | `pytest tests/unit/test_estimators.py` | $\rightarrow$ |
+| FR-003 (Bias/Cov) | T004, T005 | `python code/scripts/validate_schema.py --input data/results/estimation_results.csv` | $\rightarrow$ |
+| FR-004 (Binomial) | T007 | `grep "p_value_binomial" data/results/aggregated_metrics.csv` | $\rightarrow$ |
+| FR-005 (Plots) | T009 | `ls data/results/*.png` | $\rightarrow$ |
+| FR-006 (REML Fail) | T003 | `ls data/results/reml_failures.json` | $\rightarrow$ |
+| FR-007 (Bonferroni) | T007 | `grep "alpha=0.01" code/analysis/stats.py` | $\rightarrow$ |
+| FR-008 (KW/ANOVA) | T007 | `grep "Kruskal-Wallis" data/results/aggregated_metrics.csv` | $\rightarrow$ |
+| SC-003 (Compute) | T006 | `grep "RAM < 7GB" data/results/runtime_logs.txt` | $\rightarrow$ |
+| SC-004 (Sensitivity) | T008 | `ls data/results/stability_analysis.json` | $\rightarrow$ |
+| SC-005 (Framing) | T010 | `grep "associational" data/results/report.md` | $\rightarrow$ |
