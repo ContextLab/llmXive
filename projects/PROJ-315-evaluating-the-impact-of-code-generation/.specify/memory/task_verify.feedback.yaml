@@ -1,0 +1,111 @@
+T001:
+  task: b18ebf78eb9da6293b1512a84f7479fe000f863352ee9e8f888621d7d69146ab
+T002:
+  reason: "The provided `code/utils/config.py` defines `load_config_from_env` and\
+    \ `set_global_seed` instead of the required `load_config()` and `set_seed(seed=42)`\
+    \ functions, so the file does not meet the task\u2019s specification."
+  task: 471d452f914f08af5142df829f39cde6b725c18a8412bd464de09947603c0919
+T003:
+  task: 94980bd48b9ce9adcaa0d3bd486be02b200aa1e8968e30dc19e09365f2e7d04b
+T004:
+  task: faa5f74f1c77b84410246bcd68d77b5ec0c924a89362f02452a7d3bc9fcc4ba7
+T005:
+  task: 742dd34005eeabd587697e485f0d84d3ea2a08756e7bac00bd465f22f51de88d
+T006:
+  task: 50649cf2073e92c21a7941d3178c0b537d18bf1846a88489b771baa1632e3b5c
+T007:
+  task: 35e4345631bbc6d09423d458338c421d91e66cf6742a6c81d3879c37083218eb
+T008:
+  task: ea7a29f0a6480c9fa6ee90e5ce4097f9630f7be4279093fb682af84b1230af76
+T009:
+  task: 2b350ee60cf0b028dbf4485dc0b8e39f337be7de3bd16830efce105b83e37198
+T010:
+  task: c73fc0b4bb9964b29259c59d0a0ded6b0875c5555cc5b761798bc23dd806cb08
+T011:
+  task: 3aec365fc5c5b6b537890a5eee42132059fecf4687a48fd3d52632febf9fabbe
+T012:
+  task: 0baf6ca88731c0cab720923964a823f1cdba7a06b6ecc0a2b95bf8294e5ec968
+T014a:
+  task: 420ecf8d4222048ddd57279fcfc7e7a96939720bce80c0f665239da1651f36dd
+T014b:
+  task: 4875ebcd68bfc5d87bb935a55d5475755d599309cf209aed399a4e0c6932ec52
+T014c:
+  task: d0c29923aa156a2006b69bfe2523aa4ca0b0e92382163dfe9f7252536b1b643f
+T014d:
+  task: ec3f40e856875652a859147fa054faec4c6161e8a497186060b29a6d5f2f4055
+T014e:
+  task: 9b6e059a79cee677a90559fad37822963bdf2323f3d18b0121c497086bff1f5e
+T014f:
+  task: dcaf5a1d3b8bf3c933d47ba9d9f3b049eedc2d028e132b69e6a6bafbb8a6df6b
+T014g:
+  task: 2bb514776132421cfa28fe6de75c1b9d157f881c3a2c0578e88bdb2e1da66e36
+T015:
+  task: 31d0fce1ebbf5f24ecda70769b3cdf9ed1391c48e8776e64edc62f2cda48c42b
+T016:
+  task: d9bfa965754748ddcac7441dffbdce87bb3d630643e77e8014909c344a18bfa2
+T017a:
+  reason: 'Requested task execution failed; rerun successfully: code/data/generate_audit_sample.py
+    exit=1'
+  task: 17b6853de2de658dabb01e46ead81d4f5e778f28ee1c16d783fedc1611beef21
+T017b:
+  task: 4d16642d3b3576f240d8c241b7568ec0a8459abead795dad88e3581d6e04e179
+T018:
+  task: 0382cd34c85e9df922f2b71c9c8d4685dd2c1c0693752b6ab846d2eec409a7c6
+T019:
+  task: 6654ac8a217566978727516efb9af04fbc4823e5d873da39737b3d146793905d
+T020:
+  task: 42c608f598753c93352715f40c2aa8f57e309bccc482eeefa43eed8a3a490519
+T022:
+  task: 3ad723fe7e6e8e50680811b55de062e6f3959beaed368a957193fd4eec260d68
+T023:
+  task: debcb287d350435e900baf2d9c6b74de1261a9616c28b7349ef966ca5b052551
+T024:
+  task: 5eef95906a4d6103b6adff247dd960171f17ba1e5346e7a882c88988a0b7586b
+T025:
+  task: 2a5e684a51c70cb74c9303f0a9b884922d99003b9a6384a6048f161563f0f300
+T026:
+  task: 4328e3abfb37f4a00de146ef23c5a1a91bedd02669237d31beaebf150d455009
+T027:
+  task: fc048a9ff7e876061221a02bf81105c729c3d2a09071a118592da414edbfa120
+T028:
+  task: 71ca871a87c9c216cbf00baa451e8ae042cb3e427666e637b23f05090b95ef69
+T029a:
+  task: 0fbf17085faa714e2a5e725f57d96030068489397493f9401ca05315a25eaef6
+T030:
+  task: cca4ff564ce508012f5823536bf0de8ff22d08b5b0272a435350fee2d7d79645
+T031:
+  task: 5b40cf3526f2e32acf7f151132b35e2ebca9d021f6f79aaeb7ea86a0df3d34a7
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/viz.py, docs/reports/boxplot_comment_count.png,
+    docs/reports/boxplot_sentiment.png, docs/reports/boxplot_merge_time.png'
+  task: 64671053268d2795a30babb1f5b5fc2269e592d9b88945bd66a1d55da45ede50
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/viz.py, docs/reports/histogram_comment_count.png,
+    docs/reports/histogram_sentiment.png'
+  task: aa41b49e3fde99bdf2056a5e7b64b2a4f630539149dcb5edcb71ef212f735ffd
+T034:
+  task: f8307cd0263787d62d81315f63c126dccb279a70d57379f097d38bd18299e569
+T035a:
+  task: 4eabab33aed96d501e4d850288b3c46751fcb1b7074483c44c4c0984aee14e8f
+T035b:
+  task: e4902056aa0e49c45e45cca416416bac120e13828f992fc0e40e4802c72e75d4
+T035c:
+  task: 907cea6d776b6f6fcd713e799239304851300ab5b783d62c5fedb1b5fe4672d0
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/research.md, docs/quickstart.md'
+  task: 58e8158ca9ea8fe9aeb26d24369b40689f33043dd3c18570063d1e484d67789c
+T038:
+  task: 0e592aac9c7b32ae12173f38685efbfa76d34f47742fa2ff1bf39c882b49dc4e
+T039:
+  task: 10ade3e1a4403173ec0f41e7768a313f98881b61ad40907ef7161ab7d0d8ac45
+T040:
+  task: f03efb0aa6b1230472e610231b6f235ce4ddf90221813fcc02cf8aa1c505d3f9
+T041a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/benchmark/run_time.py'
+  task: c9abd06b6d62dcb5e0179ddf3c5d5b6e0dfa56df66048509f046d2e37c29e176
+T041b:
+  task: 99fa980f00859b22553070ccead9025e3b04d4c102854244233cad892deefa5d
+T043:
+  task: 0b5ef681448523da7a2f0304e26419319c55f1e1d978d8f4b83caa3a3a1bbd08
+T044:
+  task: ed75f31981d88da9b2601939e3ca48ccc2742d99ce5c52b6b738b575e4bdee35

@@ -1,0 +1,12 @@
+status: none
+intent: GitHub Pull Requests v2 sample Authors Merged PRs Dataset PRs download HuggingFace
+  python package dataset
+required_fields:
+- code_diff
+- review_comments
+- merge_timestamp
+- project_metadata
+- commit_message
+cache_key: 136b35abe3b6def51f6535105009f36c243fa3fe8250d7e935e2fc1702ae630b
+searched_at: '2026-10-10T02:29:48.528139+00:00'
+retry_count: 1

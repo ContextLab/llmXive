@@ -48,7 +48,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (create `code/`, `data/`, `docs/`, `tests/` directories)
-- [X] T002 [P] Create `code/utils/config.py`. Deliverable: A file containing `load_config()` function (returns dict of environment variables) and `set_seed(seed=42)` function that sets random seeds for `numpy`, `pandas`, and `random` libraries to 42. (FR-012)
+- [ ] T002 [P] Create `code/utils/config.py`. Deliverable: A file containing `load_config()` function (returns dict of environment variables) and `set_seed(seed=42)` function that sets random seeds for `numpy`, `pandas`, and `random` libraries to 42. (FR-012)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
@@ -62,8 +62,8 @@ description: "Task list template for feature implementation"
 - [X] T004 Setup `code/utils/hash_artifacts.py` to compute SHA-256 checksums for data and stats artifacts (Constitution Principle V)
 - [X] T005 [P] Create `code/data/__init__.py` and `code/labeling/__init__.py` package structures
 - [X] T006 [P] Create `contracts/dataset.schema.yaml` defining required fields (code diff, review comments, merge timestamp, project metadata)
-- [X] T008 [P] Create `contracts/output.schema.yaml`. Deliverable: YAML file defining JSON schemas for: 1) Mann-Whitney U results (keys: `statistic`, `pvalue`, `method`), 2) VIF diagnostics (keys: `predictor`, `vif_score`), 3) Power analysis (keys: `sample_size`, `min_detectable_effect`), and 4) Error reports (keys: `error_code`, `observed_counts`). (FR-005, FR-008, FR-010)
-- [X] T007 [P] Setup `code/utils/logger.py` for structured logging and error reporting (Power Insufficiency, Data Completeness)
+- [~] T008 [P] Create `contracts/output.schema.yaml`. Deliverable: YAML file defining JSON schemas for: 1) Mann-Whitney U results (keys: `statistic`, `pvalue`, `method`), 2) VIF diagnostics (keys: `predictor`, `vif_score`), 3) Power analysis (keys: `sample_size`, `min_detectable_effect`), and 4) Error reports (keys: `error_code`, `observed_counts`). (FR-005, FR-008, FR-010)
+- [~] T007 [P] Setup `code/utils/logger.py` for structured logging and error reporting (Power Insufficiency, Data Completeness)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,32 +77,32 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 1
 
-- [X] T009 [P] [US1] Unit test for keyword classification logic in `tests/unit/test_classify.py` (test ≥2 keyword threshold logic: verify that a message with a single keyword is 'Human' and a message with multiple keywords is 'LLM')
-- [X] T010 [P] [US1] Integration test for data completeness check in `tests/integration/test_data_completeness.py` (verify <95% completeness triggers ValueError with 'Data Completeness Error' message)
-- [X] T011 [P] [US1] Integration test for power insufficiency check in `tests/integration/test_power_check.py` (verify <500 per group triggers ValueError with 'Power Insufficiency Error' message)
+- [~] T009 [P] [US1] Unit test for keyword classification logic in `tests/unit/test_classify.py` (test ≥2 keyword threshold logic: verify that a message with a single keyword is 'Human' and a message with multiple keywords is 'LLM')
+- [~] T010 [P] [US1] Integration test for data completeness check in `tests/integration/test_data_completeness.py` (verify <95% completeness triggers ValueError with 'Data Completeness Error' message)
+- [~] T011 [P] [US1] Integration test for power insufficiency check in `tests/integration/test_power_check.py` (verify <500 per group triggers ValueError with 'Power Insufficiency Error' message)
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/data/fetch.py` to download dataset `codeparliament/github-code-search` from HuggingFace using `datasets.load_dataset(name, split="train", streaming=True, batch_size=1000)`. Logic: Stream ALL records in chunks to memory-efficiently process the full dataset. Do NOT use `itertools.islice` or any sampling logic; the full dataset must be processed to satisfy FR-001 and FR-012. (FR-001, FR-012, Constitution Principle: Real Data)
-- [X] T014a [US1] Implement `code/data/preprocess.py` function `load_and_extract()`. Logic: Load raw data and extract code diffs, review comments, merge timestamps, AND **project metadata** into a DataFrame. Output: `data/raw/raw_prs.parquet`. (FR-001, FR-011)
-- [X] T014b [US1] Implement `code/data/preprocess.py` function `validate_completeness()`. Logic: Validate ≥95% completeness of ALL required fields (code diff, review comments, merge timestamp, **project metadata**). If <95%, raise `ValueError` with 'Data Completeness Error'. Output: `docs/reports/completeness_report.json`. (FR-011, FR-014, SC-007)
-- [X] T014c [US1] Implement `code/data/preprocess.py` function `compute_basic_stats()`. Logic: Calculate initial descriptive statistics (row counts, null counts). Output: `data/processed/basic_stats.json`. (FR-011)
-- [X] T014d [US1] Implement `code/data/preprocess.py` function `compute_sentiment_scores()`. Logic: Compute sentiment scores for review comments using `textblob` and append to DataFrame. Output: Updated DataFrame with sentiment. (SC-002)
-- [X] T014e [P] [US1] Create `code/labeling/keywords.yaml` containing the EXACT list of LLM-associated keywords required for FR-002. The list MUST match the definition in `spec.md` FR-002: ["copilot", "generated by llm", "ai code", "github copilot", "code generated by", "llm generated", "ai generated"]. (FR-002)
-- [X] T014f [US1] Implement `code/labeling/classify.py`. Logic: Load keywords from `code/labeling/keywords.yaml`. Apply **case-insensitive matching and whitespace normalization** to commit messages. Tag PRs as "LLM-generated" if they contain ≥2 matching keywords, otherwise "human-written". Output: `data/processed/classified_prs.parquet` with `predicted_label` column. (FR-002, FR-015)
-- [X] T015 [US1] Implement `code/data/preprocess.py` function `compute_complexity_metrics()`. Logic: 
+- [~] T012 [P] [US1] Implement `code/data/fetch.py` to download dataset `codeparliament/github-code-search` from HuggingFace using `datasets.load_dataset(name, split="train", streaming=True, batch_size=1000)`. Logic: Stream ALL records in chunks to memory-efficiently process the full dataset. Do NOT use `itertools.islice` or any sampling logic; the full dataset must be processed to satisfy FR-001 and FR-012. (FR-001, FR-012, Constitution Principle: Real Data)
+- [~] T014a [US1] Implement `code/data/preprocess.py` function `load_and_extract()`. Logic: Load raw data and extract code diffs, review comments, merge timestamps, AND **project metadata** into a DataFrame. Output: `data/raw/raw_prs.parquet`. (FR-001, FR-011)
+- [~] T014b [US1] Implement `code/data/preprocess.py` function `validate_completeness()`. Logic: Validate ≥95% completeness of ALL required fields (code diff, review comments, merge timestamp, **project metadata**). If <95%, raise `ValueError` with 'Data Completeness Error'. Output: `docs/reports/completeness_report.json`. (FR-011, FR-014, SC-007)
+- [~] T014c [US1] Implement `code/data/preprocess.py` function `compute_basic_stats()`. Logic: Calculate initial descriptive statistics (row counts, null counts). Output: `data/processed/basic_stats.json`. (FR-011)
+- [~] T014d [US1] Implement `code/data/preprocess.py` function `compute_sentiment_scores()`. Logic: Compute sentiment scores for review comments using `textblob` and append to DataFrame. Output: Updated DataFrame with sentiment. (SC-002)
+- [~] T014e [P] [US1] Create `code/labeling/keywords.yaml` containing the EXACT list of LLM-associated keywords required for FR-002. The list MUST match the definition in `spec.md` FR-002: ["copilot", "generated by llm", "ai code", "github copilot", "code generated by", "llm generated", "ai generated"]. (FR-002)
+- [~] T014f [US1] Implement `code/labeling/classify.py`. Logic: Load keywords from `code/labeling/keywords.yaml`. Apply **case-insensitive matching and whitespace normalization** to commit messages. Tag PRs as "LLM-generated" if they contain ≥2 matching keywords, otherwise "human-written". Output: `data/processed/classified_prs.parquet` with `predicted_label` column. (FR-002, FR-015)
+- [~] T015 [US1] Implement `code/data/preprocess.py` function `compute_complexity_metrics()`. Logic: 
   1. Iterate over all code diffs in the DataFrame.
   2. Use `radon.cc` and `radon.loc` on code snippets.
   3. **Wrap radon calls in try-except blocks** to handle specific exceptions for unsupported languages (log warnings, set metrics to NaN, DO NOT drop row).
   4. **Append a count of unsupported language files to `basic_stats.json`** to track data quality.
   Output: `data/processed/complexity_metrics.parquet` with `cyclomatic_complexity` and `lines_of_code` columns, and updated `basic_stats.json`. (FR-003, Edge Cases, SC-007)
-- [X] T014g [US1] Implement `code/data/preprocess.py` function `validate_power()`. Logic: Count LLM and Human labels. If either <500, raise `ValueError` with 'Power Insufficiency Error'. Output: `docs/reports/power_status.json`. (FR-013)
-- [X] T016 [P] [US1] Implement `code/data/preprocess.py` function `generate_audit_sample()`. Logic: Create a random sample (seed fixed for reproducibility, size sufficient for manual audit) of classified PRs for manual audit. Output: `docs/reports/audit_sample_unlabeled.csv` with columns `pr_id`, `commit_message`, `code_snippet`. (FR-015)
-- [ ] T017a [US1] **Manual Gate**: A human reviewer must open the PRs listed in `docs/reports/audit_sample_unlabeled.csv` (generated by T016), determine if the code is LLM-generated or human-written, and save the results to `docs/reports/audit_sample_labeled.csv`. Schema: `pr_id` (string), `human_label` (enum: 'LLM', 'Human'). No nulls allowed. This step is a blocking gate. (FR-015)
-- [X] T017b [US1] **Automated Ingestion**: Implement `code/utils/wait_for_manual_input.py`. Logic: Poll `docs/reports/audit_sample_labeled.csv` at regular intervals. If found, validate schema (`pr_id`, `human_label`, no nulls, allowed values 'LLM'/'Human'). If valid, log success and exit 0. If invalid, log error and exit 1. (FR-015)
-- [X] T018 [US1] Implement `code/data/preprocess.py` function `calculate_audit_accuracy()`. Logic: Load the original classified data (from T014f) and the human-labeled CSV (from T017b). Compare `predicted_label` vs `human_label` and calculate accuracy. Output: `docs/reports/audit_accuracy.json`. (FR-015, SC-009)
-- [X] T019 [US1] Implement `code/data/preprocess.py` function `write_error_report()`. Logic: Write `error_report.json` to `docs/reports/` with specific error codes ('POWER_INSUFFICIENCY', 'DATA_COMPLETENESS_ERROR') and observed counts if T014b or T014g fails. (FR-013, FR-014)
-- [X] T020 [US1] Integrate `code/utils/hash_artifacts.py` invocation after `preprocess.py` completes. Hash artifacts: `data/processed/cleaned.parquet`, `data/processed/classified_prs.parquet`, `docs/reports/audit_sample_unlabeled.csv`. Runs ONLY if T014b (validation) passes. **Dependency**: Must run AFTER T016. (Constitution Principle V)
+- [~] T014g [US1] Implement `code/data/preprocess.py` function `validate_power()`. Logic: Count LLM and Human labels. If either <500, raise `ValueError` with 'Power Insufficiency Error'. Output: `docs/reports/power_status.json`. (FR-013)
+- [~] T016 [P] [US1] Implement `code/data/preprocess.py` function `generate_audit_sample()`. Logic: Create a random sample (seed fixed for reproducibility, size sufficient for manual audit) of classified PRs for manual audit. Output: `docs/reports/audit_sample_unlabeled.csv` with columns `pr_id`, `commit_message`, `code_snippet`. (FR-015)
+- [ ] T017a [US1] **Manual Gate**: A human reviewer must open the PRs listed in `docs/reports/audit_sample_unlabeled.csv` (generated by T016), determine if the code is LLM-generated or human-written, and save the results to `docs/reports/audit_sample_labeled.csv`. Schema: `pr_id` (string), `human_label` (enum: 'LLM', 'Human'). No nulls allowed. This step is a blocking gate. (FR-015) <!-- FAILED-IN-EXECUTION: code/data/generate_audit_sample.py exit=1 -->
+- [~] T017b [US1] **Automated Ingestion**: Implement `code/utils/wait_for_manual_input.py`. Logic: Poll `docs/reports/audit_sample_labeled.csv` at regular intervals. If found, validate schema (`pr_id`, `human_label`, no nulls, allowed values 'LLM'/'Human'). If valid, log success and exit 0. If invalid, log error and exit 1. (FR-015)
+- [~] T018 [US1] Implement `code/data/preprocess.py` function `calculate_audit_accuracy()`. Logic: Load the original classified data (from T014f) and the human-labeled CSV (from T017b). Compare `predicted_label` vs `human_label` and calculate accuracy. Output: `docs/reports/audit_accuracy.json`. (FR-015, SC-009)
+- [~] T019 [US1] Implement `code/data/preprocess.py` function `write_error_report()`. Logic: Write `error_report.json` to `docs/reports/` with specific error codes ('POWER_INSUFFICIENCY', 'DATA_COMPLETENESS_ERROR') and observed counts if T014b or T014g fails. (FR-013, FR-014)
+- [~] T020 [US1] Integrate `code/utils/hash_artifacts.py` invocation after `preprocess.py` completes. Hash artifacts: `data/processed/cleaned.parquet`, `data/processed/classified_prs.parquet`, `docs/reports/audit_sample_unlabeled.csv`. Runs ONLY if T014b (validation) passes. **Dependency**: Must run AFTER T016. (Constitution Principle V)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data loaded, classified, metrics computed, audit accuracy recorded)
 
@@ -116,16 +116,16 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2
 
-- [X] T022 [P] [US2] Unit test for Mann-Whitney U test wrapper in `tests/unit/test_stats.py`
-- [X] T023 [P] [US2] Unit test for multiple comparison correction (Bonferroni/BH) in `tests/unit/test_stats.py`
-- [X] T024 [P] [US2] Unit test for VIF calculation in `tests/unit/test_stats.py`
+- [~] T022 [P] [US2] Unit test for Mann-Whitney U test wrapper in `tests/unit/test_stats.py`
+- [~] T023 [P] [US2] Unit test for multiple comparison correction (Bonferroni/BH) in `tests/unit/test_stats.py`
+- [~] T024 [P] [US2] Unit test for VIF calculation in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [X] T025 [US2] Implement `code/analysis/stats.py` Mann-Whitney U test function for comment count, sentiment score, merge time. Input: `data/processed/classified_prs.parquet` (from T014f) and `data/processed/complexity_metrics.parquet` (from T015). (FR-004)
-- [X] T026 [P] [US2] Implement `code/analysis/stats.py` multiple comparison correction logic supporting BOTH Bonferroni and Benjamini-Hochberg (BH) methods, configurable via `code/utils/config.py`. Input: p-values from T025. (FR-005)
-- [X] T027 [US2] Implement `code/analysis/stats.py` power analysis function using `statsmodels.stats.power`. Logic: **Require** `audit_accuracy` from T018. **If T018 output is missing, raise ValueError with message "Manual audit accuracy missing"**. Calculate effective sample size (N_eff = N * audit_accuracy) and then calculate minimum detectable effect size for 80% power at α = 0.05. Output: `docs/reports/power_analysis.json`. (FR-008, FR-015)
-- [X] T028 [US2] Implement `code/analysis/stats.py` linear regression with complexity covariates and VIF diagnostics. Input: `data/processed/classified_prs.parquet` (from T014f) and `data/processed/complexity_metrics.parquet` (from T015). Output: `docs/reports/vif_diagnostics.json`. (FR-010)
+- [~] T025 [US2] Implement `code/analysis/stats.py` Mann-Whitney U test function for comment count, sentiment score, merge time. Input: `data/processed/classified_prs.parquet` (from T014f) and `data/processed/complexity_metrics.parquet` (from T015). (FR-004)
+- [~] T026 [P] [US2] Implement `code/analysis/stats.py` multiple comparison correction logic supporting BOTH Bonferroni and Benjamini-Hochberg (BH) methods, configurable via `code/utils/config.py`. Input: p-values from T025. (FR-005)
+- [~] T027 [US2] Implement `code/analysis/stats.py` power analysis function using `statsmodels.stats.power`. Logic: **Require** `audit_accuracy` from T018. **If T018 output is missing, raise ValueError with message "Manual audit accuracy missing"**. Calculate effective sample size (N_eff = N * audit_accuracy) and then calculate minimum detectable effect size for 80% power at α = 0.05. Output: `docs/reports/power_analysis.json`. (FR-008, FR-015)
+- [~] T028 [US2] Implement `code/analysis/stats.py` linear regression with complexity covariates and VIF diagnostics. Input: `data/processed/classified_prs.parquet` (from T014f) and `data/processed/complexity_metrics.parquet` (from T015). Output: `docs/reports/vif_diagnostics.json`. (FR-010)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (data ready, stats computed)
 
@@ -139,18 +139,18 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3
 
-- [X] T030 [P] [US3] Unit test for plot generation (boxplots, histograms) in `tests/unit/test_viz.py`
-- [X] T031 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_viz.py`
+- [~] T030 [P] [US3] Unit test for plot generation (boxplots, histograms) in `tests/unit/test_viz.py`
+- [~] T031 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_viz.py`
 
 ### Implementation for User Story 3
 
-- [X] T032 [P] [US3] Implement `code/analysis/viz.py` boxplot generation for review metrics with significance markers (p < 0.05, p < 0.01, p < 0.001). Output: `docs/reports/boxplot_comment_count.png`, `docs/reports/boxplot_sentiment.png`, `docs/reports/boxplot_merge_time.png`. Figure size: appropriate dimensions for clarity and aspect ratio. (FR-006)
-- [X] T033 [P] [US3] Implement `code/analysis/viz.py` histogram generation for metric distributions. Output: `docs/reports/histogram_comment_count.png`, `docs/reports/histogram_sentiment.png`. Binning: Sturges. (FR-006)
-- [X] T034 [US3] Implement `code/analysis/viz.py` sensitivity analysis plot. Logic: **Sweep the keyword match count threshold (integer parameter) from 1 to 5**. For each threshold, re-classify the data using the logic in `code/labeling/classify.py` (without reloading the keyword list for the range) and plot Classification Rate vs Threshold. Input: `code/labeling/classify.py` logic. Output: `docs/reports/sensitivity_analysis.png`. (FR-007)
-- [X] T029a [P] [US3] Implement `code/report/generate.py` function `get_disclaimer()`. Logic: Return a specific text block stating: "All findings are associational, not causal. Code complexity is a mediator; controlling for it may introduce collider bias." This function is consumed by T035c. (FR-009)
-- [X] T035a [US3] Implement `code/report/generate.py` function `aggregate_data()`. Logic: Load VIF, Power, Stats, and Audit results from their respective JSON files. Output: `docs/reports/report_data.json`. (FR-008, FR-010)
-- [X] T035b [US3] Implement `code/report/generate.py` function `render_template()`. Logic: Load `docs/templates/report_template.md` and inject `report_data.json`. Output: `docs/reports/draft_report.md`.
-- [X] T035c [US3] Implement `code/report/generate.py` function `write_final_report()`. Logic: Read `draft_report.md`, call `get_disclaimer()` from T029a to append the disclaimer text, and write to `docs/reports/final_report.md`. (FR-009)
+- [ ] T032 [P] [US3] Implement `code/analysis/viz.py` boxplot generation for review metrics with significance markers (p < 0.05, p < 0.01, p < 0.001). Output: `docs/reports/boxplot_comment_count.png`, `docs/reports/boxplot_sentiment.png`, `docs/reports/boxplot_merge_time.png`. Figure size: appropriate dimensions for clarity and aspect ratio. (FR-006)
+- [ ] T033 [P] [US3] Implement `code/analysis/viz.py` histogram generation for metric distributions. Output: `docs/reports/histogram_comment_count.png`, `docs/reports/histogram_sentiment.png`. Binning: Sturges. (FR-006)
+- [~] T034 [US3] Implement `code/analysis/viz.py` sensitivity analysis plot. Logic: **Sweep the keyword match count threshold (integer parameter) from 1 to 5**. For each threshold, re-classify the data using the logic in `code/labeling/classify.py` (without reloading the keyword list for the range) and plot Classification Rate vs Threshold. Input: `code/labeling/classify.py` logic. Output: `docs/reports/sensitivity_analysis.png`. (FR-007)
+- [~] T029a [P] [US3] Implement `code/report/generate.py` function `get_disclaimer()`. Logic: Return a specific text block stating: "All findings are associational, not causal. Code complexity is a mediator; controlling for it may introduce collider bias." This function is consumed by T035c. (FR-009)
+- [~] T035a [US3] Implement `code/report/generate.py` function `aggregate_data()`. Logic: Load VIF, Power, Stats, and Audit results from their respective JSON files. Output: `docs/reports/report_data.json`. (FR-008, FR-010)
+- [~] T035b [US3] Implement `code/report/generate.py` function `render_template()`. Logic: Load `docs/templates/report_template.md` and inject `report_data.json`. Output: `docs/reports/draft_report.md`.
+- [~] T035c [US3] Implement `code/report/generate.py` function `write_final_report()`. Logic: Read `draft_report.md`, call `get_disclaimer()` from T029a to append the disclaimer text, and write to `docs/reports/final_report.md`. (FR-009)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -160,14 +160,14 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T037 [P] Documentation updates: Update `docs/research.md` (Methodology, Data Sources) and `docs/quickstart.md` (Installation, Execution) with specific content from the implementation.
-- [X] T038 [P] Code cleanup: Remove unused imports, ensure type hints, standardize docstrings in `code/`. Verify linting passes (ruff check).
-- [X] T039 [P] Run quickstart.md validation: Execute `python code/main.py --validate`. Verify exit code 0 and no errors in log.
-- [X] T040 [P] Verify all random seeds are consistently applied.: Run `grep -r "random.seed" code/` and verify all instances use a consistent configuration parameter..
-- [X] T041a [P] [US3] **Benchmark Script**: Implement `code/benchmark/run_time.py` to measure execution time of fetch/preprocess/stats pipelines and record time < 6 hours for 50k PRs. (FR-012)
-- [X] T041b [P] [US3] **CI Gate**: Add CI step in `.github/workflows/` to assert runtime < 6h based on the benchmark script. (FR-012)
-- [X] T043 [US3] **Limitations Section**: Implement `code/report/generate.py` function `add_limitations()`. Logic: Append a "Limitations" section to `final_report.md` that explicitly discusses the "Observational Nature" of the study and the "Mediator Bias" introduced by controlling for code complexity, citing the specific VIF results from T028. (FR-009, FR-010)
-- [X] T044 [P] [US1] **Data Source Verification**: Implement `code/data/fetch.py` logic to strictly validate the HuggingFace dataset ID `codeparliament/github-code-search` against the `contracts/dataset.schema.yaml`. If the dataset schema does not match (missing required columns), raise a `ValueError` with the message "Dataset Schema Mismatch: Verified source not found" and exit. Do NOT fall back to any other dataset or synthetic data. (Constitution Principle: Real Data, FR-001)
+- [ ] T037 [P] Documentation updates: Update `docs/research.md` (Methodology, Data Sources) and `docs/quickstart.md` (Installation, Execution) with specific content from the implementation.
+- [~] T038 [P] Code cleanup: Remove unused imports, ensure type hints, standardize docstrings in `code/`. Verify linting passes (ruff check).
+- [~] T039 [P] Run quickstart.md validation: Execute `python code/main.py --validate`. Verify exit code 0 and no errors in log.
+- [~] T040 [P] Verify all random seeds are consistently applied.: Run `grep -r "random.seed" code/` and verify all instances use a consistent configuration parameter..
+- [ ] T041a [P] [US3] **Benchmark Script**: Implement `code/benchmark/run_time.py` to measure execution time of fetch/preprocess/stats pipelines and record time < 6 hours for 50k PRs. (FR-012)
+- [~] T041b [P] [US3] **CI Gate**: Add CI step in `.github/workflows/` to assert runtime < 6h based on the benchmark script. (FR-012)
+- [~] T043 [US3] **Limitations Section**: Implement `code/report/generate.py` function `add_limitations()`. Logic: Append a "Limitations" section to `final_report.md` that explicitly discusses the "Observational Nature" of the study and the "Mediator Bias" introduced by controlling for code complexity, citing the specific VIF results from T028. (FR-009, FR-010)
+- [~] T044 [P] [US1] **Data Source Verification**: Implement `code/data/fetch.py` logic to strictly validate the HuggingFace dataset ID `codeparliament/github-code-search` against the `contracts/dataset.schema.yaml`. If the dataset schema does not match (missing required columns), raise a `ValueError` with the message "Dataset Schema Mismatch: Verified source not found" and exit. Do NOT fall back to any other dataset or synthetic data. (Constitution Principle: Real Data, FR-001)
 
 ---
 

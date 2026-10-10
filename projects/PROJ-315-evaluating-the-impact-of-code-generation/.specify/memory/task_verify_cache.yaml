@@ -1,0 +1,48 @@
+T001:
+  c: true
+  h: 1f9a954fd53ea7a44f9c0719940fdcfec57dc404ba50d364be6a4cc111061537
+  r: Checked that the project root contains the required `code/`, `data/`, `docs/`,
+    and `tests/` directories, each present with files (e.g., `code/` has multiple
+    entries, `data/` has `__init__.py`, `docs/` has `__init__.py` and a `reports/`
+    subfolder, `tests/` has several test files).
+  sig: e2e273def63daaefa079f92d101d9e04d6a494ab943814466a028ff312567e85
+T002:
+  c: false
+  h: f007fc1f61d3a893058af070ebe36699e9819cb1e96c241bb07fca33c9fa3477
+  r: "The provided `code/utils/config.py` defines `load_config_from_env` and `set_global_seed`\
+    \ instead of the required `load_config()` and `set_seed(seed=42)` functions, so\
+    \ the file does not meet the task\u2019s specification."
+  sig: 6d5404a4e4b6a5d47d2130b2a026d7741ee1dfd37cab877fbede4e286d41826e
+T003:
+  c: true
+  h: 60a63d5179d0faacb975c6a85c8660db4f039e682958492774dcbc8da1ce47bb
+  r: "The `pyproject.toml` file (1580\u202Fbytes) includes `[tool.ruff]` and `[tool.black]`\
+    \ sections with typical configuration options, and the `dev` optional dependencies\
+    \ list both `ruff` and `black`. This demonstrates that linting and formatting\
+    \ tools are properly configured as required."
+  sig: 6b25bccd54a291c07fe8bc1e26607de62b177c63a1b8134b43e83e8ab6463093
+T004:
+  c: true
+  h: 886cc4bd2a21b386ddcd946e912532ff83f915bdaad2bd32c938ada59ecd2643
+  r: "Checked the resolved artifact `code/utils/hash_artifacts.py` (8151\u202Fbytes)\
+    \ which defines functions to locate artifact files, compute their SHA\u2011256\
+    \ hashes, output JSON checksum files, and verify them via a CLI, fulfilling the\
+    \ requirement to compute checksums for data and stats artifacts under Constitution\
+    \ Principle\u202FV."
+  sig: dd1efc14485c55f6acfd5cc35d016daf8c72d57a0d8b5c24d61038e7478bedf6
+T005:
+  c: true
+  h: b8cae593777d082dcc441a955083dca58643be47c071a950e85c2fba03fc8d44
+  r: "The evidence includes the required `code/data/__init__.py` (352\u202Fbytes)\
+    \ and `code/labeling/__init__.py` (125\u202Fbytes) files at their canonical locations,\
+    \ both containing valid Python package code. These files satisfy the task\u2019\
+    s requirement to create the two package structures."
+  sig: c58f6e1fc8337834e4855e873abf291f775e06d4874929b9b1a23ccf1a8b6155
+T006:
+  c: true
+  h: e37d99ec44b8d83a92bbfef35a13e468bb89ed9a124187737579574301a1bb77
+  r: "The artifact `contracts/dataset.schema.yaml` exists (5.8\u202FKB) and its YAML\
+    \ schema lists the required properties `code_diff`, `review_comments`, `merge_timestamp`,\
+    \ and `project_metadata` as mandated. The file contains a full definition, not\
+    \ a stub or placeholder."
+  sig: 450c8ca872e10e161fa65e7edb3567ffcadc664403f94cfa3d3f4c6a7d32f4ae
