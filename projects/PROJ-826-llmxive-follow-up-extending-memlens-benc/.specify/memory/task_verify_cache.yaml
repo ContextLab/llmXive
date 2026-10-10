@@ -1,9 +1,54 @@
 T001:
+  c: true
+  h: f85b7e70c4d6302cfcad0f56d4952d49b3a0feded56fa651b311696226d1b7d1
+  r: Checked the project root listing (showing `data/`, `code/`, `state/`, `tests/`
+    directories) and the execution log of `code/setup_dirs.py`, which confirms that
+    `data/raw`, `data/processed`, `code`, `tests/unit`, and `state/projects` were
+    created and verified present.
+  sig: 4a2dbd8534631ce6812a498ebe7e8ad07db086739e065accfd60a7d91c9c4641
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that `data/raw`,
-    `data/processed`, `code`, `tests/unit`, and `state/projects` exist under `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/`.
-    Without concrete proof of these folders, the requirement is not satisfied.
+  h: b96f9109dffe8beb4bf8d8c42ed3d9f8cad96374b3a9d62fb9df93052cbaca24
+  r: "The evidence includes `code/__init__.py`, `tests/__init__.py`, and `requirements.txt`,\
+    \ but there is no `README.md` file present in the project. Additionally, the `__init__.py`\
+    \ files contain comment text rather than being truly empty placeholders. The missing\
+    \ README.md (and non\u2011empty placeholder content) means the task is not fully\
+    \ satisfied."
+  sig: 93a297e2625d9888d59dca0d155b5600828b03368f502163c17f8f54a718af17
+T003:
+  c: true
+  h: 2685367f6a98a2278a82f67bbccf8631a6b305b44643a9a0621b366665170dc7
+  r: "Checked `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/requirements.txt`;\
+    \ it exists, is non\u2011empty, and contains pinned versions for torch\u2011cpu,\
+    \ transformers, ultralytics, sentence\u2011transformers, scipy, pandas, datasets,\
+    \ and pytest (along with additional optional packages, which does not violate\
+    \ the requirement)."
+  sig: d7466f6676fa1107db4088ed3ec6a89432a9b974ee8c61196272e0d558cd1961
+T004:
+  c: true
+  h: e981260467b2e6fa06250fa37fef4ce91a80faa0cdd01c0fe6272d172d94d71f
+  r: "Checked `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/download.py`\
+    \ (4408\u202Fbytes). It loads the MemLens dataset from HuggingFace via `datasets.load_dataset`,\
+    \ saves it locally, and provides `compute_checksums`/`calculate_sha256` functions\
+    \ that compute SHA\u2011256 hashes of the downloaded file(s), logging the results\
+    \ and recording them in a state YAML file. All required behavior is present."
+  sig: ca0d3ed06e24c670e4987a9f85fcbf943c127d3dbd90834d4d0b92cd3b9eebd9
+T005:
+  c: false
+  h: ca7c31ad2804b723b2536d0afd4c4e3cb2678289bceb430783b28793c8dcbc79
+  r: "The evidence only includes a placeholder `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`\
+    \ with a dummy hash and size, and there is no provided `download.py` showing the\
+    \ required state\u2011update logic. Without a concrete implementation that writes\
+    \ real artifact hashes to the YAML file, the task is not satisfied."
+  sig: 5723278d93b878b761bd9102122cb7e7e956908fe91b96b3dcffe45f38c13aee
+T006:
+  c: true
+  h: de6289c72017fcc3f5b71a6146e4e7a6f6ce13ae67ba4aff417f826022a51c96
+  r: "Checked `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`\
+    \ (11898\u202Fbytes) which implements data loading utilities such as `load_memlens_dataset`\
+    \ (and image preprocessing) and a schema validator `validate_schema`, fulfilling\
+    \ the task\u2019s requirement."
+  sig: b2321cf33f16ab45cefd04bcc6d3e2b70325087f131179fd2bc799b0bc08b711
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
