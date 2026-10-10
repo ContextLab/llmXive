@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T12:29:02.781215Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-198-predicting-plant-secondary-metabolite-pr
-last_run_id: 674f8a1c-7998-4eee-b7fd-23bc5e7346a7
+last_run_id: 6da58636-186d-49c7-92ef-cf119a8b394a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr
 title: Predicting Plant Secondary Metabolite Profiles from Publicly Available Genomic
   Data
-updated_at: '2026-10-10T04:30:51.080088Z'
+updated_at: '2026-10-10T04:32:59.623837Z'
