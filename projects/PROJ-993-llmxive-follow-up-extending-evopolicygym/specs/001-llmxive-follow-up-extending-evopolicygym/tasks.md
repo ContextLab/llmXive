@@ -23,7 +23,7 @@ All tasks are ordered to respect data flow – a task that consumes a file appea
   2. `data/discovered_envs.log` contains a line “Discovered 16 environments”.  
   3. If the count ≠ 16, the script raises `RuntimeError` (CI fails).
 
-- [ ] **T002 [S] [US1]** Define the CSV schema for the static‑agent sensitivity report.  
+- [X] **T002 [S] [US1]** Define the CSV schema for the static‑agent sensitivity report.  
   *Artifact*: `data/sensitivity_report.schema.yaml` describing columns `env_id` (string), `shift_step` (int), `pre_shift_score` (float), `post_shift_score` (float), `drop_percent` (float), `p_value` (float), `is_significant` (bool).  
   *Verification*: The file parses as valid YAML, and a CI lint step confirms that all required column names and types are present.
 
@@ -34,7 +34,7 @@ All tasks are ordered to respect data flow – a task that consumes a file appea
   - At least one row has `is_significant == true`.  
   - File size > 0 bytes.
 
-- [ ] **T004 [S] [US1]** Implement the orchestrator (`code/main.py`).  
+- [ ] **T004 [S] [US1]** Implement the orchestrator (`code/main.py`).   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Logic*:  
    1. Loads `data/discovered_envs.json`; if missing, aborts with a clear error.  
    2. Calls `generate_all_dynamic_shift_envs()` (implemented in `code/environments/dynamic_shift_env.py`) to create `DynamicShiftEnvironment` wrappers for all discovered IDs and writes the wrappers to `code/environments/generated/`.  

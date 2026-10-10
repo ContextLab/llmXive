@@ -1,3 +1,19 @@
+T001:
+  c: false
+  h: 7296279c45e5f73d21950cc19eb97e5165fcdc553448317ee47b951ae751f598
+  r: "The required output files `data/discovered_envs.json` and `data/discovered_envs.log`\
+    \ are missing, and the discovery script does not raise a `RuntimeError` when the\
+    \ environment count differs from 16 (it only logs a warning). These issues prevent\
+    \ the task\u2019s verification criteria from being met."
+  sig: 2ebd9c8805c2fbab68f6cba9c6121b553688b26dae47448951b81609ff9c6201
+T002:
+  c: true
+  h: f0b83daec10bc2209217c326710ce144aabf21b748db5bfef98ce657a404aaa7
+  r: "The `data/sensitivity_report.schema.yaml` file is present (282\u202Fbytes) and\
+    \ contains a valid YAML definition with the exact seven columns and matching types\
+    \ (`string`, `integer`, `float`, `float`, `float`, `float`, `boolean`). This satisfies\
+    \ the task\u2019s requirement for the static\u2011agent sensitivity report schema."
+  sig: c0c51642d84e14c390eefb5f515cc51b8668200dd0f220a71157d93a712fb880
 T014:
   c: false
   h: fd4a4a137f5e9f7ffc3b219f98058b2b167ff93f651e84b37a7a05bf68bb9464

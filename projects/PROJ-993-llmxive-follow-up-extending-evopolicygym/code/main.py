@@ -1,142 +1,228 @@
+"""
+Orchestrator script for the llmXive follow‑up EvoPolicyGym extension.
+
+Provides three primary CLI flags:
+  --check               Verify that required pre‑condition files exist.
+  --run-evolution       Execute the evolutionary harness pipeline.
+  --run-full-pipeline   Run the complete downstream pipeline:
+                        1) Generate dynamic‑shift environment wrappers.
+                        2) Run shift sensitivity analysis.
+                        3) Run shift validation (p‑value calculation).
+                        4) Run the evolutionary harness.
+                        5) Run statistical analysis.
+
+Optional arguments:
+  --seeds SEEDS [SEEDS ...]         List of random seeds (default: [42]).
+  --runs RUNS                       Number of runs per seed (default: 5).
+  --conditions CONDITION [CONDITION ...]
+                                    Conditions to evaluate (default: baseline counterfactual).
+
+The script exits with status 0 on success and non‑zero on any error.
+"""
+
 import argparse
 import sys
 import os
 import json
 import logging
-from typing import List, Optional
 
-# Ensure project root is in path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Ensure the project root is on the import path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from utils.logging import setup_logging, get_logger
 from utils.config import get_config
+from envs.dynamic_shift_env import generate_all_dynamic_shift_envs
 from analysis.run_shift_sensitivity import main as run_shift_analysis_main
 from analysis.shift_validation import main as run_shift_validation_main
-from agents.evolutionary_harness import EvolutionaryHarness
 from analysis.stats import main as run_stats_analysis_main
-from envs.dynamic_shift_env import generate_all_dynamic_shift_envs
-from utils.env_discovery import run_discovery
+from agents.evolutionary_harness import EvolutionaryHarness
 
 logger = get_logger(__name__)
 
-def run_shift_sensitivity_analysis(args):
-    """Execute the shift sensitivity analysis (T013f, T015c)."""
-    logger.info("Starting Shift Sensitivity Analysis...")
-    # T013d: Ensure environments are discovered
-    if not os.path.exists("data/discovered_envs.json"):
-        logger.info("Discovered environments missing. Running discovery...")
-        run_discovery()
-    
-    # Run the sensitivity analysis script logic
-    run_shift_analysis_main()
-    logger.info("Shift Sensitivity Analysis complete.")
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def _load_json(filepath: str):
+    """Load a JSON file, raising a clear error if it does not exist."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Required file not found: {filepath}")
+    with open(filepath, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-def run_shift_validation(args):
-    """Execute shift validation and p-value calculation (T014)."""
-    logger.info("Starting Shift Validation...")
-    if not os.path.exists("data/sensitivity_report.csv"):
-        raise FileNotFoundError("sensitivity_report.csv not found. Run shift analysis first.")
-    run_shift_validation_main()
-    logger.info("Shift Validation complete.")
+def _verify_preconditions():
+    """Check that the two mandatory input files exist."""
+    missing = []
+    for path in ["data/discovered_envs.json", "data/sensitivity_report.csv"]:
+        if not os.path.exists(path):
+            missing.append(path)
+    if missing:
+        raise FileNotFoundError(
+            f"Pre‑condition check failed – missing file(s): {', '.join(missing)}"
+        )
+    logger.info("All pre‑conditions satisfied")
 
-def run_evolution_pipeline(args):
-    """Execute the evolutionary harness pipeline (T032a, T032b, T033, T034, T035)."""
-    logger.info("Starting Evolution Pipeline...")
-    
-    # Pre-flight checks
+# ----------------------------------------------------------------------
+# CLI command implementations
+# ----------------------------------------------------------------------
+def cmd_check(_args):
+    """Implementation of the --check flag."""
+    try:
+        _verify_preconditions()
+        print("All pre‑conditions satisfied")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+def cmd_run_evolution(args):
+    """Implementation of the --run-evolution flag."""
+    # Verify that the sensitivity report exists before proceeding
     if not os.path.exists("data/sensitivity_report.csv"):
-        raise FileNotFoundError("sensitivity_report.csv not found. Run shift analysis first.")
-    
-    # Load config
+        logger.error("Missing data/sensitivity_report.csv – run shift analysis first.")
+        sys.exit(1)
+
+    # Load discovered environment IDs
+    try:
+        env_ids = _load_json("data/discovered_envs.json")
+    except Exception as e:
+        logger.error(f"Failed to load discovered environments: {e}")
+        sys.exit(1)
+
+    # Resolve optional arguments
     config = get_config()
-    seeds = args.seeds if args.seeds else config.get('seeds', [42])
-    runs = args.runs if args.runs else config.get('runs', 5)
-    envs = args.envs if args.envs else config.get('envs', None)
-    conditions = args.conditions if args.conditions else config.get('conditions', ['baseline', 'counterfactual'])
+    seeds = args.seeds if args.seeds else config.get("seeds", [42])
+    runs = args.runs if args.runs else config.get("runs", 5)
+    conditions = (
+        args.conditions
+        if args.conditions
+        else config.get("conditions", ["baseline", "counterfactual"])
+    )
 
-    # Initialize Harness
+    logger.info(
+        f"Running Evolutionary Harness with seeds={seeds}, runs={runs}, conditions={conditions}"
+    )
     harness = EvolutionaryHarness(
+        env_ids=env_ids,
+        conditions=conditions,
         seeds=seeds,
         runs_per_seed=runs,
-        env_ids=envs,
-        conditions=conditions
     )
-    
-    # Run evolution
     harness.run()
-    
-    logger.info("Evolution Pipeline complete.")
+    logger.info("Evolutionary harness completed successfully")
 
-def run_stats_analysis(args):
-    """Execute statistical analysis (T036)."""
-    logger.info("Starting Statistical Analysis...")
-    if not os.path.exists("data/evolution_results.csv"):
-        raise FileNotFoundError("evolution_results.csv not found. Run evolution pipeline first.")
-    run_stats_analysis_main()
-    logger.info("Statistical Analysis complete.")
+def cmd_run_full_pipeline(args):
+    """Implementation of the --run-full-pipeline flag."""
+    # ------------------------------------------------------------------
+    # 1. Generate Dynamic‑Shift environment wrappers
+    # ------------------------------------------------------------------
+    logger.info("Generating Dynamic‑Shift environment wrappers")
+    try:
+        # The function expects a path to the base registry (the discovered IDs JSON)
+        # and an output directory where the generated wrappers will be stored.
+        generate_all_dynamic_shift_envs(
+            env_registry_path="data/discovered_envs.json",
+            output_path=os.path.join("code", "environments", "generated"),
+        )
+    except Exception as e:
+        logger.error(f"Failed to generate dynamic‑shift environments: {e}")
+        sys.exit(1)
 
-def run_full_pipeline(args):
-    """Orchestrate the full pipeline: Shift -> Validation -> Evolution -> Stats."""
-    logger.info("Starting Full Pipeline...")
-    
-    # 1. Shift Analysis
-    run_shift_sensitivity_analysis(args)
-    
-    # 2. Validation
-    run_shift_validation(args)
-    
-    # 3. Evolution
-    run_evolution_pipeline(args)
-    
-    # 4. Stats
-    run_stats_analysis(args)
-    
-    logger.info("Full Pipeline complete.")
+    # ------------------------------------------------------------------
+    # 2. Shift Sensitivity Analysis
+    # ------------------------------------------------------------------
+    try:
+        run_shift_analysis_main()
+    except Exception as e:
+        logger.error(f"Shift sensitivity analysis failed: {e}")
+        sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # 3. Shift Validation (p‑value calculation)
+    # ------------------------------------------------------------------
+    try:
+        run_shift_validation_main()
+    except Exception as e:
+        logger.error(f"Shift validation failed: {e}")
+        sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # 4. Evolutionary Harness
+    # ------------------------------------------------------------------
+    # Re‑use the same logic as the --run-evolution command
+    cmd_run_evolution(args)
+
+    # ------------------------------------------------------------------
+    # 5. Statistical Analysis
+    # ------------------------------------------------------------------
+    try:
+        run_stats_analysis_main()
+    except Exception as e:
+        logger.error(f"Statistical analysis failed: {e}")
+        sys.exit(1)
+
+    logger.info("Full pipeline completed successfully")
+
+# ----------------------------------------------------------------------
+# Argument parsing
+# ----------------------------------------------------------------------
+def build_parser():
+    parser = argparse.ArgumentParser(
+        description="llmXive Follow‑up: EvoPolicyGym Extension Orchestrator"
+    )
+    # Global optional arguments used by several commands
+    parser.add_argument(
+        "--seeds",
+        type=int,
+        nargs="+",
+        help="Random seeds to use (e.g., --seeds 42 43)",
+    )
+    parser.add_argument(
+        "--runs",
+        type=int,
+        help="Number of runs per seed (default from config or 5)",
+    )
+    parser.add_argument(
+        "--conditions",
+        type=str,
+        nargs="+",
+        help="Conditions to evaluate (e.g., baseline counterfactual)",
+    )
+
+    # Mutually exclusive primary actions
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "--check",
+        action="store_true",
+        help="Verify that required pre‑condition files exist",
+    )
+    group.add_argument(
+        "--run-evolution",
+        action="store_true",
+        help="Execute the evolutionary harness pipeline",
+    )
+    group.add_argument(
+        "--run-full-pipeline",
+        action="store_true",
+        help="Run the complete pipeline (shift analysis → validation → evolution → stats)",
+    )
+    return parser
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive Follow-up: EvoPolicyGym Extension Pipeline")
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-
-    # Global args that might be used by all
-    parser.add_argument('--config', type=str, default='config.yaml', help='Path to config file')
-    parser.add_argument('--seeds', type=int, nargs='+', help='Random seeds to use')
-    parser.add_argument('--runs', type=int, help='Number of runs per seed')
-    parser.add_argument('--envs', type=str, nargs='+', help='Specific environment IDs to target')
-    parser.add_argument('--conditions', type=str, nargs='+', help='Conditions to evaluate (baseline, counterfactual)')
-
-    # Subcommand: Shift Analysis
-    parser_shift = subparsers.add_parser('run-shift-analysis', help='Run shift sensitivity analysis')
-    
-    # Subcommand: Validation
-    parser_val = subparsers.add_parser('run-shift-validation', help='Run shift validation')
-
-    # Subcommand: Evolution
-    parser_evo = subparsers.add_parser('run-evolution', help='Run evolutionary harness')
-
-    # Subcommand: Stats
-    parser_stats = subparsers.add_parser('run-stats', help='Run statistical analysis')
-
-    # Subcommand: Full
-    parser_full = subparsers.add_parser('run-full', help='Run full pipeline')
-
-    args = parser.parse_args()
-
-    # Setup logging
+    # Initialise logging early so that any errors are captured
     setup_logging(level=logging.INFO)
 
-    if args.command == 'run-shift-analysis':
-        run_shift_sensitivity_analysis(args)
-    elif args.command == 'run-shift-validation':
-        run_shift_validation(args)
-    elif args.command == 'run-evolution':
-        run_evolution_pipeline(args)
-    elif args.command == 'run-stats':
-        run_stats_analysis(args)
-    elif args.command == 'run-full':
-        run_full_pipeline(args)
+    parser = build_parser()
+    args = parser.parse_args()
+
+    if args.check:
+        cmd_check(args)
+    elif args.run_evolution:
+        cmd_run_evolution(args)
+    elif args.run_full_pipeline:
+        cmd_run_full_pipeline(args)
     else:
+        # This should never happen because argparse enforces one flag
         parser.print_help()
         sys.exit(1)
 

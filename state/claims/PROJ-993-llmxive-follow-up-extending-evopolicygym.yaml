@@ -1690,7 +1690,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-02T07:01:25Z'
 - artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
   attempts: 0
@@ -2216,3 +2216,96 @@
   source_type: external
   status: verified
   updated_at: '2026-10-02T07:22:52Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/quickstart.md
+  attempts: 1
+  canonical: prints all pre-conditions satisfied when required files exist
+  claim_id: c_40f69b51
+  context: "The orchestrator provides three entry points: Verify pre\u2011conditions\
+    \ ... Prints `All pre\u2011conditions satisfied` when `data/discovered_envs.json`\
+    \ and `data/sensitivity_report.csv` exist."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Prints `All pre\u2011conditions satisfied` when `data/discovered_envs.json`\
+    \ and `data/sensitivity_report.csv` exist."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:23:35Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/quickstart.md
+  attempts: 1
+  canonical: generates evolution_results.csv and run_state.json
+  claim_id: c_be7ce520
+  context: Run only the evolutionary harness ... Generates `data/evolution_results.csv`,
+    `data/run_state.json`, and related artefacts.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generates `data/evolution_results.csv`, `data/run_state.json`, and related
+    artefacts.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:23:36Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/quickstart.md
+  attempts: 1
+  canonical: key result files present after pipeline completion
+  claim_id: c_7401c460
+  context: 'After completion, the following key files should be present: `data/discovered_envs.json`,
+    `data/sensitivity_report.csv`, `data/evolution_results.csv`, `data/stats_results.json`,
+    `data/final_results.csv`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'After completion, the following key files should be present: `data/discovered_envs.json`,
+    `data/sensitivity_report.csv`, `data/evolution_results.csv`, `data/stats_results.json`,
+    `data/final_results.csv`.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:23:36Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/quickstart.md
+  attempts: 1
+  canonical: orchestrator aborts with clear error if sensitivity_report.csv missing
+  claim_id: c_fb88cf0f
+  context: "Missing `sensitivity_report.csv` \u2013 ensure the shift analysis step\
+    \ completed successfully; the orchestrator will abort with a clear error if this\
+    \ file is absent."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator will abort with a clear error if `data/sensitivity_report.csv`
+    is absent.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:23:36Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/quickstart.md
+  attempts: 1
+  canonical: full pipeline executes steps in specified order producing certain files
+  claim_id: c_ff8c8026
+  context: "Run the full end\u2011to\u2011end study ... Executes, in order: 1. Dynamic\u2011\
+    shift environment generation 2. Shift sensitivity analysis (`data/sensitivity_report.csv`)\
+    \ 3. Shift validation (p\u2011values) 4. Evolutionary harness 5. Mixed\u2011effects\
+    \ statistical analysis (`data/stats_results.json`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The full pipeline executes, in order: Dynamic\u2011shift environment\
+    \ generation; Shift sensitivity analysis (`data/sensitivity_report.csv`); Shift\
+    \ validation (p\u2011values); Evolutionary harness; Mixed\u2011effects statistical\
+    \ analysis (`data/stats_results.json`)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:23:37Z'

@@ -1,79 +1,62 @@
-# Quickstart: EvoPolicyGym Extension Pipeline
-
-This guide explains how to run the full analysis pipeline for the llmXive follow-up project.
+# Quickstart: EvoPolicyGym Extension
 
 ## Prerequisites
 
-1. Ensure all dependencies are installed:
+1. **Install dependencies**
  ```bash
  pip install -r requirements.txt
  ```
-2. Verify that `data/discovered_envs.json` exists. If not, run:
+
+2. **Discover environments (if not already present)**
  ```bash
- python code/main.py run-shift-analysis
+ python -m code.main --check # will report missing files
+ # If the check fails because files are missing, run the discovery step:
+ python -m code.main --run-full-pipeline --seeds 42 --runs 1 --conditions baseline counterfactual
  ```
 
-## Running the Pipeline
+## Running the pipeline
 
-The pipeline consists of four stages:
-1. **Shift Sensitivity Analysis**: Evaluate environment sensitivity to dynamic shifts.
-2. **Shift Validation**: Validate shift effects and calculate p-values.
-3. **Evolution Pipeline**: Run evolutionary agents on baseline and counterfactual conditions.
-4. **Statistical Analysis**: Perform mixed-effects model analysis.
+The orchestrator provides three entry points:
 
-You can run each stage individually or run the full pipeline at once.
-
-### Run Full Pipeline
-
-To execute the entire pipeline from start to finish:
-
+### 1. Verify pre‑conditions
 ```bash
-python code/main.py run-full --seeds 42 --runs 5 --conditions baseline counterfactual
+python -m code.main --check
 ```
+Prints `All pre‑conditions satisfied` when `data/discovered_envs.json` and
+`data/sensitivity_report.csv` exist.
 
-**Arguments:**
-- `--seeds`: List of random seeds (default: 42)
-- `--runs`: Number of runs per seed (default: 5)
-- `--conditions`: Conditions to evaluate (default: baseline counterfactual)
-- `--envs`: Specific environment IDs to target (optional, defaults to all discovered)
-
-### Run Individual Stages
-
-#### 1. Shift Sensitivity Analysis
+### 2. Run only the evolutionary harness
 ```bash
-python code/main.py run-shift-analysis
+python -m code.main --run-evolution --seeds 42 43 --runs 5 --conditions baseline counterfactual
 ```
-**Output:** `data/sensitivity_report.csv`
+Generates `data/evolution_results.csv`, `data/run_state.json`, and related
+artefacts.
 
-#### 2. Shift Validation
+### 3. Run the full end‑to‑end study
 ```bash
-python code/main.py run-shift-validation
+python -m code.main --run-full-pipeline --seeds 42 --runs 5 --conditions baseline counterfactual
 ```
-**Output:** `data/shift_validation.log`
+Executes, in order:
+1. Dynamic‑shift environment generation
+2. Shift sensitivity analysis (`data/sensitivity_report.csv`)
+3. Shift validation (p‑values)
+4. Evolutionary harness
+5. Mixed‑effects statistical analysis (`data/stats_results.json`)
 
-#### 3. Evolution Pipeline
-```bash
-python code/main.py run-evolution --seeds 42 --runs 5
-```
-**Output:** `data/evolution_results.csv`, `data/run_state.json`
+After completion, the following key files should be present:
 
-#### 4. Statistical Analysis
-```bash
-python code/main.py run-stats
-```
-**Output:** `data/stats_results.json`, `data/final_results.csv`
-
-## Verifying Results
-
-After running the full pipeline, verify that the following files exist:
+- `data/discovered_envs.json`
 - `data/sensitivity_report.csv`
 - `data/evolution_results.csv`
 - `data/stats_results.json`
-- `data/final_results.csv`
+- `data/final_results.csv` (created by later pipeline stages)
 
 ## Troubleshooting
 
-- **Missing `discovered_envs.json`**: Run `python code/main.py run-shift-analysis` first to discover environments.
-- **Missing `sensitivity_report.csv`**: Ensure shift analysis completed successfully.
-- **Missing `evolution_results.csv`**: Ensure evolution pipeline completed successfully.
-- **Missing `stats_results.json`**: Ensure statistical analysis completed successfully.
+- **Missing `discovered_envs.json`** – run the full pipeline or the
+ discovery step first.
+- **Missing `sensitivity_report.csv`** – ensure the shift analysis step
+ completed successfully; the orchestrator will abort with a clear error
+ if this file is absent.
+- **Any step aborts** – the error message printed to stderr indicates the
+ missing prerequisite. Fix the issue and re‑run the appropriate command.

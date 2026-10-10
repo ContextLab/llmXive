@@ -1,22 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --task discover`
-  - script usage: `main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]`
-  - argparse error: `main.py: error: argument command: invalid choice: 'discover' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')`
-- run-book command: `python code/main.py --task validate_shifts`
-  - script usage: `main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]`
-  - argparse error: `main.py: error: argument command: invalid choice: 'validate_shifts' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')`
-- run-book command: `python code/main.py --task evolve --seeds 5 --conditions baseline,counterfactual`
-  - script usage: `main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]`
-  - argparse error: `main.py: error: argument command: invalid choice: 'evolve' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')`
-- run-book command: `python code/main.py --task analyze`
-  - script usage: `main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]`
-  - argparse error: `main.py: error: argument command: invalid choice: 'analyze' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 4 command(s) failed: python code/main.py --task discover (rc=2); python code/main.py --task validate_shifts (rc=2); python code/main.py --task evolve --seeds 5 --conditions baseline,counterfactual (rc=2); 6 declared deliverable(s) absent: data/discovered_envs.json; data/evolution_results.csv; data/masked_schema.json
@@ -25,39 +8,31 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --task discover -> rc=2
 
-usage: main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]
-               [--runs RUNS] [--envs ENVS [ENVS ...]]
+usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
-               {run-shift-analysis,run-shift-validation,run-evolution,run-stats,run-full}
-               ...
-main.py: error: argument command: invalid choice: 'discover' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')
+               (--check | --run-evolution | --run-full-pipeline)
+main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 
 - python code/main.py --task validate_shifts -> rc=2
 
-usage: main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]
-               [--runs RUNS] [--envs ENVS [ENVS ...]]
+usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
-               {run-shift-analysis,run-shift-validation,run-evolution,run-stats,run-full}
-               ...
-main.py: error: argument command: invalid choice: 'validate_shifts' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')
+               (--check | --run-evolution | --run-full-pipeline)
+main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 
 - python code/main.py --task evolve --seeds 5 --conditions baseline,counterfactual -> rc=2
 
-usage: main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]
-               [--runs RUNS] [--envs ENVS [ENVS ...]]
+usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
-               {run-shift-analysis,run-shift-validation,run-evolution,run-stats,run-full}
-               ...
-main.py: error: argument command: invalid choice: 'evolve' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')
+               (--check | --run-evolution | --run-full-pipeline)
+main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 
 - python code/main.py --task analyze -> rc=2
 
-usage: main.py [-h] [--config CONFIG] [--seeds SEEDS [SEEDS ...]]
-               [--runs RUNS] [--envs ENVS [ENVS ...]]
+usage: main.py [-h] [--seeds SEEDS [SEEDS ...]] [--runs RUNS]
                [--conditions CONDITIONS [CONDITIONS ...]]
-               {run-shift-analysis,run-shift-validation,run-evolution,run-stats,run-full}
-               ...
-main.py: error: argument command: invalid choice: 'analyze' (choose from 'run-shift-analysis', 'run-shift-validation', 'run-evolution', 'run-stats', 'run-full')
+               (--check | --run-evolution | --run-full-pipeline)
+main.py: error: one of the arguments --check --run-evolution --run-full-pipeline is required
 
 
 ## Declared deliverables still missing
@@ -76,6 +51,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/discovered_envs.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/apply_shift_wrappers.py` — NOT invoked by the run-book
     - `code/analysis/run_shift_sensitivity.py` — NOT invoked by the run-book
+    - `code/environments/registry_wrapper.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/tests/test_env_discovery.py` — NOT invoked by the run-book
     - `code/utils/env_discovery.py` — NOT invoked by the run-book
@@ -84,7 +60,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/agents/evolution_results_writer.py` — NOT invoked by the run-book
     - `code/agents/evolutionary_harness.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
     - `code/tests/test_stats.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/evolution_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/masked_schema.json` is declared but was NOT written. Scripts referencing it:
