@@ -1,0 +1,117 @@
+T001:
+  reason: The evidence shows `src/__init__.py`, `tests/__init__.py`, and the three
+    `.gitkeep` files under `data/raw`, `data/processed`, and `data/traits`, but there
+    is no confirmed presence of `data/manifests/.gitkeep`, `data/synthetic/.gitkeep`,
+    nor the required flag file `data/.dir_setup_complete`. These missing files prevent
+    the task from being fully satisfied.
+  task: 720d3805ca513332a6c960ad218bda01a5dc09d0469f8ba7b1e795d542568291
+T002:
+  reason: "The `requirements.txt` file is present and lists the required packages,\
+    \ but none of them are version\u2011pinned (e.g., `rpy2==...`). The task explicitly\
+    \ demanded a *pinned* requirements file, so the artifact does not meet the specification.\
+    \ Adding exact version specifiers for each listed dependency is needed."
+  task: 7d95c5b31fabec5eaf9de3d4f9ed07b24731bc14ac22d2875499ae1085fa5e29
+T003a-fix:
+  reason: The `pyproject.toml` file with `[tool.ruff]` and `[tool.black]` sections
+    is present, but there is no provided evidence that `ruff check .` and `black --check
+    .` were actually run and passed. Execution logs or command output confirming successful
+    linting/formatting are required.
+  task: 189e0238c347b36f30755d422e5662b3ae434ef4c50a83aaad23e061d99defd1
+T003b-install-deps:
+  reason: "No artifact (e.g., a shell script, log file, or captured command output)\
+    \ showing that the specified `conda install \u2026` command was run, nor any evidence\
+    \ that the subsequent version checks (`fastp --version`, etc.) were executed and\
+    \ returned exit code\u202F0. Without such execution evidence, the task\u2019s\
+    \ installation and verification requirements are not satisfied."
+  task: 738948121ddc543fb8b39764ea3b2c8380440031bcc3523c47da047d8080eb08
+T003c-fix:
+  reason: 'declared artifact(s) missing/empty/invalid: data/manifests/env_validation.json'
+  task: 6b82204235317d11009b2b59dece1b0f52518932929ace8cbe6d31b5b84ab593
+T004-fix:
+  task: 5ac4a62be468e5ee9476130ac8a743bbdac32612f8e5b0e8978d7ff864e7f338
+T005-fix:
+  task: 5765df6f1cd513a1e0b4e6c8be8813e57563ab4f7ea165f01fced7083772dc14
+T006-fix:
+  task: 3bde3558bc0e15ecfd43f183863ec498ede54758306c4a4d42f130b9836699e2
+T007-fix:
+  reason: 'declared artifact(s) missing/empty/invalid: src/utils/setup_dirs.py'
+  task: 6dd5f5eb0c06fab86bf106a6667d09321be1777e377bf2590cf554456fe03df6
+T008:
+  task: 00ae00c583e2df1b3644832c71b792ec5c779a35df82bd56856ddf0ae4d4c543
+T009:
+  task: 1278fd091307be5d20c062c1cd2b285cfae3e5239ce90d6d6d881d037a531650
+T010:
+  task: 353d4828f561d3653ce09d63294e96ee80694f2bdbfdee395580c6cd4eefcf65
+T011:
+  task: b09d1bbb3ddcc372668e8b3a9ec7844225398e35215d06dfc60284232c3a12e6
+T011-real:
+  task: d2cc7b06f71233c4f6055eed9a73fdadaa740974bd4de3118faa4ad1e0765482
+T011a:
+  task: d97ad668928d4aa7c2b129dacc9ece393dc7bcfb34dc1bdc911aff25f3d14b46
+T012a:
+  task: 81c6a4c73e2151c744abbe3dbe6b5a59d5fac69119f29e0b13fd187a0bd23540
+T012b:
+  task: dc875bf884748d9a3cd3d878ff3e699cc907b68a8764f0be8058b66e8a8755c3
+T012c:
+  task: 843bbd6b1e1ffaeea4266e8275c80ed114c625e162b8ee9cd9c5b6608c9e7515
+T013:
+  task: 3ba7b9f1db6a74e39b57bed879afcf2df94b2d71a69ac1aa3848b525976dde5c
+T014:
+  task: 674d2bffe9c14f2034be7a65130f255d014e7ee19480d37fa32adf2198c0241a
+T015:
+  task: f3a8dba19063cc2478b1725cb9034ea7890e2651467cb32b0dde4ac6f5510b32
+T016:
+  task: d341cfcea9be6af4961b6b12bdc0aedddf1f28fa242b75100de9be6c0bf3b693
+T017:
+  task: 0aedbcf4c70284d4d16ceac4d0d0711be1fa39ec4fe15b7357352677553618cd
+T018:
+  task: a144a8fa43db3840b40c914e241a9bbfeb3ad7014087229431447885ff5a7802
+T021:
+  task: b4cfbbfe216157d9684707bdb81df9c746fc674ea561efafc006056a0435c118
+T023:
+  task: d35908bec2fd40bb446730c644b50f0cfc4c3a8a825bd54df0a775c285857a69
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_validation.py'
+  task: 0703c1779253fd6e4e4e02d6e7a3945574b2dd3d215d3d746ed200335c525b78
+T025a:
+  task: a686e5bdc9407a1f33d1ee248f895acb087ab65618f6fe89cf08996526d426d2
+T025b:
+  task: 94cfc4848bfb1729fcee74e70695753164c579d11712e9ba6bfb5012b2f569a1
+T025c:
+  task: 7724581333352bd33be1c00a6dff923a514b1e12a76a241b7672b4f40050f194
+T026:
+  task: 52c4d788fa1b306ff81c99f69b9791c4bc0f6849e06fa726592db9c6a7756aae
+T027:
+  task: 115ac86dc089a283ed9ad9c7c4546db3f1ecb9df1b195f1cd96ed0c18db20038
+T028:
+  task: b543b0dd637917d09361d5053616e28f9cc15e8071b7b0d8091ee118339ad7de
+T028a:
+  task: 631b050e3ca8760e7bc5dd7a3c9e592cb14994edfc54ec486ad584acd416b410
+T029:
+  task: 485911c8da6b44e2ad836dca29a9aba052b797c3c3733a2cc4a8f18e5a62e431
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: src/cli/run_pipeline.py'
+  task: 36fdd18fb41636ea38da3f31fc5978b6f0e41c3be06ad63a0a2f7fc1baf872fc
+T036:
+  task: 6f395969cb5a6ef4879b4787c5d40a56a3582035d9b471678c3970d64b7171ce
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/pathway_aggregation.py,
+    data/processed/pathway_mappings.json, data/processed/pathway_features.csv'
+  task: d2207b1f5ae0b0169fcf6aa7859a4df8e030a6b71e862c77918a0e79bb1a1a7a
+T038a:
+  task: c8a9ed1794621c009b59bc18dc17129ae9ce13f81aeabf039425a487ec110100
+T039:
+  task: 763aa8820c9ce1ab8b822362a595b8d99de6e043df4f8ff1d709470bc6fb73b1
+T040:
+  task: 225d132d2051a08fb04c5b3a9aca69b80cb868857b226017fc405c0d295e9c5e
+T050:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/sensitivity_analysis.py'
+  task: e4fc1d593a3f2a31464f3bd4fcfa3d2e373752b47eba50c753344c51b107a778
+T051:
+  reason: 'declared artifact(s) missing/empty/invalid: src/cli/report_generator.py'
+  task: f56c2065f7006435c9a7d7614a086a1a4793b5c47a924a8a0311945cee39a0c9
+T052:
+  task: 01a70dcab2f0018c01102c89fcb08b3fa46c07a55709708eef9f5b5aebbf7d94
+T053:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/tissue_specificity.py'
+  task: c025c4dc506e38aa1981f2ddb4173351ca6bc1a5656e0f5221f86df67d8bf876

@@ -1,17 +1,53 @@
-T003a:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ or `black` settings) are present, nor any documentation showing that `ruff`\
-    \ and `black` have been set up for Python\u202F3.11. The required artifacts to\
-    \ demonstrate the configuration are missing."
-T003b:
+  h: dea58618ae5f0a0d50f7869df1277bac8e411ff32e96afccd2c0f819277a26a1
+  r: The evidence shows `src/__init__.py`, `tests/__init__.py`, and the three `.gitkeep`
+    files under `data/raw`, `data/processed`, and `data/traits`, but there is no confirmed
+    presence of `data/manifests/.gitkeep`, `data/synthetic/.gitkeep`, nor the required
+    flag file `data/.dir_setup_complete`. These missing files prevent the task from
+    being fully satisfied.
+  sig: f8b6569672ff81855bceaffea2a61a6a1d5de733eaffd2ac1945a233d4a5091f
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No installation scripts for HISAT2, fastp, or featureCounts are present, nor
-    any logs or commands showing they were run and that the binaries are now in the
-    system PATH. The required artifacts (script files and execution evidence) are
-    missing.
+  h: fbd596766556d2682716903ddb9fd931b4feb8785f786af893340e62636f7925
+  r: "The `requirements.txt` file is present and lists the required packages, but\
+    \ none of them are version\u2011pinned (e.g., `rpy2==...`). The task explicitly\
+    \ demanded a *pinned* requirements file, so the artifact does not meet the specification.\
+    \ Adding exact version specifiers for each listed dependency is needed."
+  sig: 75ddd7085463d760774f0083bda584d924ad1e0db14dc6de055d4ec2b43f3c58
+T003a-fix:
+  c: false
+  h: 89c9338c112da3405ddf9b240cc4ee21638c738f342167ac65fa0272f7906008
+  r: The `pyproject.toml` file with `[tool.ruff]` and `[tool.black]` sections is present,
+    but there is no provided evidence that `ruff check .` and `black --check .` were
+    actually run and passed. Execution logs or command output confirming successful
+    linting/formatting are required.
+  sig: 200f30fea82ed81d22ae4d75fee35141169a172f7529283389a2e2ebad7c89c6
+T003b-install-deps:
+  c: false
+  h: 450994f61b04d27aca59c78d96d6a71f575c127205d350223be56d15a5cf9dce
+  r: "No artifact (e.g., a shell script, log file, or captured command output) showing\
+    \ that the specified `conda install \u2026` command was run, nor any evidence\
+    \ that the subsequent version checks (`fastp --version`, etc.) were executed and\
+    \ returned exit code\u202F0. Without such execution evidence, the task\u2019s\
+    \ installation and verification requirements are not satisfied."
+  sig: 719d8cddbbc6d10b3fc77688939c77f01592d3fffe943438553ac32815e91945
+T004-fix:
+  c: true
+  h: 62dbe4ae2e72c2122621eb3b44813335970f6468f77aea05a4c7ad50d3ddaf41
+  r: "Checked `src/utils/config.py` which defines path strings, seed, threshold values,\
+    \ and hard\u2011codes the exact housekeeping gene list specified (the 49 genes\
+    \ listed in the task). The file is non\u2011empty and implements the required\
+    \ configuration utilities."
+  sig: cc2e368f8e595ec217517af7ecbd8ee82c50729fd27f3423bec0a3c0bce11cdb
+T005-fix:
+  c: true
+  h: 25a127e846c496a6444841a301cbc19f7bf208712e4d33f51dc275e004a21fc0
+  r: Checked `src/utils/logger.py` and `src/utils/provenance.py`; both files exist,
+    contain full implementations of a pipeline logger (singleton, setup, handlers,
+    level control) and a provenance tracking system (artifact records, run management,
+    JSON export), satisfying the logging and provenance tracking requirements.
+  sig: 9a80d8d0ba550ffae722f7c4fd1785d135bff7ce95e85840c59ab775a192f10a
 T011a:
   c: false
   h: 4453c61b2dd66745b5c0b9a2118c82c58cbe1bb4da052861fe3000a2483e648b
