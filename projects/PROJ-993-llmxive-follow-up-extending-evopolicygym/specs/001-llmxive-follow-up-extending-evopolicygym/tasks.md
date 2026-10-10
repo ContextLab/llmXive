@@ -1,195 +1,149 @@
 # Tasks: llmXive follow‑up – extending **EvoPolicyGym** with counterfactual feedback  
 
-**Inputs**: `spec.md`, `plan.md`, existing `contracts/`, current code base under `code/`, data folder `data/`.  
-**Goal**: Deliver a reproducible, end‑to‑end study that (1) augments the EvoPolicyGym suite with a **dynamic‑shift** mode, (2) provides a **CPU‑tractable counterfactual explanation generator** (with deterministic fallback to a scalar‑reward signal), (3) runs the **evolutionary harness** under baseline and counterfactual conditions, (4) analyses the results with a **mixed‑effects model**, and (5) reports the measured success‑rate of the explanation module.  
+**Inputs**: `spec.md`, `plan.md`, all contract files under `specs/.../contracts/`, current source tree under `code/`, and the `data/` directory.  
+
+The goal is to deliver a reproducible end‑to‑end study that (1) augments EvoPolicyGym with a **dynamic‑shift** mode, (2) supplies a **CPU‑tractable counterfactual explanation generator** (with deterministic fallback to a scalar‑reward signal), (3) runs the evolutionary harness under baseline and counterfactual conditions, (4) analyses the results with a mixed‑effects model, and (5) hands‑off the final results for paper‑stage reporting.
 
 ---  
 
-## Phase 0 – Verified foundation (already completed)
+## Phase 1 – Environment discovery & dynamic‑shift validation (FR‑001)
 
-- [ ] T001a [P] Create project directory layout (`code/`, `tests/`, `data/`, `specs/`).  
-- [ ] T001b [P] Add `__init__.py` in every new sub‑package.  
-- [ ] T001c [P] Pin dependencies in `requirements.txt`.  
-- [ ] T001d [P] Add `pyproject.toml` with ruff/black configs.  
-- [ ] T001e [P] Install dependencies; log output to `data/install_log.txt`.  
-- [ ] T004 [P] Implement `code/utils/config.py` (seed & hyper‑parameter manager).  
-- [ ] T005 [P] Set up structured logging in `code/utils/logging.py`.  
-- [ ] T006 [P] Create base wrapper `code/environments/base_env.py`.  
-- [ ] T007 [P] Generate a **rules schema** (`data/rules_schema.json`) from the EvoPolicyGym source or a minimal template.  
-- [ ] T008 [P] Provide reproducible seed utility (`code/utils/seed_utils.py`).  
-- [ ] T009 [P] Separate test‑set configuration from training config in `config.py`.  
-- [ ] T010 [P] [US1] Unit test for shift‑trigger logic (`code/tests/test_env_shift.py`).  
-- [ ] T011 [P] [US1] Integration test for performance drop after shift (`code/tests/test_env_shift.py`).  
-- [ ] T013c [P] [US1] Define and validate the **dynamic‑shift configuration schema** (`code/environments/dynamic_shift_env.py`).  
-- [ ] T013b [P] [US1] Implement reward/transition alteration after `shift_step`.  
-- [ ] T014 [P] [US1] Compute p‑value for shift impact; log non‑significant shifts to `data/shift_validation.log`.  
-- [ ] T018 [P] [US2] Unit test for counterfactual‑explanation schema validation (`code/tests/test_explanation.py`).  
-- [ ] T019 [P] [US2] Integration test for the 30‑s timeout & fallback (`code/tests/test_explanation.py`).  
-- [ ] T020a [P] [US2] Define `CounterfactualExplanation` Pydantic model (`code/explanation/validator.py`).  
-- [ ] T020b [P] [US2] Implement `validate_explanation()` (`code/explanation/validator.py`).  
-- [ ] T021a‑Load [P] [US2] Load `data/rules_schema.json` into `data/derivation_cache.json`.  
-- [ ] T024 [P] [US3] Unit test for `radon`‑based cyclomatic complexity (`code/tests/test_stats.py`).  
-- [ ] T031 [P] [US3] Integration test for mixed‑effects model output (`code/tests/test_stats.py`).  
-
----  
-
-## Phase 1 – Dynamic‑Shift environment pipeline (FR‑001)
-
-> **Missing / rejected work:** `T013d`, `T013e`, `T013f`, `T015b`, `T015c`, `T015a`.  
-> The following tasks replace those and produce the required artifacts.
-
-- [ ] **T101 [P] [US1]** Discover and record the 16 EvoPolicyGym environments.  
-  *Implementation*: `code/environments/registry_wrapper.py` imports `evopolicygym.envs.REGISTRY`, writes the list of IDs to `data/discovered_envs.json` **and** to a human‑readable log `data/discovered_envs.log`.  
+- [ ] **T001 [P] [US1]** Discover the 16 EvoPolicyGym environments and record them.  
+  *Implementation*: `code/environments/registry_wrapper.py` imports the EvoPolicyGym registry, writes the list of environment IDs to `data/discovered_envs.json` (JSON array) and a human‑readable log to `data/discovered_envs.log`.  
   *Verification*:  
-  1. File `data/discovered_envs.json` exists and contains a JSON array of 16 strings.  
-  2. If the count ≠ 16, raise `RuntimeError` with an informative message (fails the CI).  
+  1. `data/discovered_envs.json` exists and contains exactly 16 string IDs.  
+  2. `data/discovered_envs.log` contains a line “Discovered 16 environments”.  
+  3. If the count ≠ 16, the script raises `RuntimeError` (CI fails).
 
-- [ ] **T102 [P] [US1]** Create a concrete **sensitivity‑report schema** for the CSV produced by the static‑agent validation.  
-  *Artifact*: `data/sensitivity_report.schema.yaml` defining columns `env_id` (str), `shift_step` (int), `pre_shift_score` (float), `post_shift_score` (float), `drop_percent` (float), `p_value` (float), `is_significant` (bool).  
-  *Verification*: The file exists and is valid YAML (schema‑lint passes).  
+- [ ] **T002 [P] [US1]** Create a concrete CSV‑schema file for the sensitivity report.  
+  *Artifact*: `data/sensitivity_report.schema.yaml` defining columns `env_id` (string), `shift_step` (int), `pre_shift_score` (float), `post_shift_score` (float), `drop_percent` (float), `p_value` (float), `is_significant` (bool).  
+  *Verification*: The file exists, parses as valid YAML, and passes a schema‑lint check.
 
-- [ ] **T103 [P] [US1]** Run the **static‑agent** on every discovered environment to generate the sensitivity report.  
-  *Script*: `code/scripts/run_static_shift_validation.py` reads `data/discovered_envs.json`, wraps each environment with `DynamicShiftEnvironment`, executes a non‑adaptive agent for the full budget, records pre‑ and post‑shift rewards, computes `drop_percent` and a one‑tailed t‑test p‑value, and writes `data/sensitivity_report.csv`.  
+- [ ] **T003 [P] [US1]** Run a non‑adaptive static agent on every discovered environment to generate `data/sensitivity_report.csv`.  
+  *Script*: `code/scripts/run_static_shift_validation.py` reads `data/discovered_envs.json`, wraps each environment with `DynamicShiftEnvironment` (default shift at 50 % of the interaction budget), executes the static agent for the full budget, records pre‑ and post‑shift rewards, computes `drop_percent` and a one‑tailed t‑test p‑value, and writes the CSV.  
   *Verification*:  
-  - CSV header matches `data/sensitivity_report.schema.yaml`.  
-  - At least one environment has `is_significant == true`.  
+  - CSV header exactly matches `data/sensitivity_report.schema.yaml`.  
+  - At least one row has `is_significant == true`.  
+  - File size > 0 bytes.
 
-- [ ] **T104 [P] [US1]** **Orchestrator script** that ensures the sensitivity report exists before any evolution runs.  
-  *File*: `code/main.py` (entry point).  
+- [ ] **T004 [P] [US1]** Implement an orchestrator (`code/main.py`) that validates pre‑conditions and optionally launches the evolutionary phase.  
   *Logic*:  
-   1. Calls `T101` (environment discovery) if `data/discovered_envs.json` missing.  
-   2. Checks `data/sensitivity_report.csv`; if absent, aborts with clear error.  
-   3. Provides CLI flag `--run-evolution` that triggers Phase 2 (User Story 3).  
-  *Verification*: Running `python -m code.main --check` prints “All pre‑conditions satisfied” only when both files exist.  
+   1. If `data/discovered_envs.json` is missing, invoke **T001**.  
+   2. If `data/sensitivity_report.csv` is missing, abort with a clear error message.  
+   3. Provide CLI flag `--run-evolution` that calls the evolutionary harness (Phase 2).  
+   4. Provide a `--check` flag that prints “All pre‑conditions satisfied” only when both files exist.  
+  *Verification*: Running `python -m code.main --check` on a clean checkout prints the success message; missing files cause a non‑zero exit code.
 
 ---  
 
 ## Phase 2 – Counterfactual explanation module (FR‑002, FR‑006)
 
-> **Missing / rejected work:** `T023` (scalar‑reward fallback) and supporting steps.  
+- [ ] **T005 [P] [US2]** Produce a masked rule schema (`data/masked_schema.json`).  
+  *Script*: `code/explanation/mask_schema.py` loads the full rule schema (`data/rules_schema.json`), removes any logical predicate fields while preserving every `rule_id` and its human‑readable description, and writes the masked version.  
+  *Verification*: The output JSON contains the same set of `rule_id`s as the source and no fields named `logic` or similar.
 
-- [ ] **T201 [P] [US2]** Generate a **masked rule schema** that hides the logical predicates but retains identifiers and human‑readable descriptions.  
-  *Script*: `code/explanation/mask_schema.py` reads `data/derivation_cache.json`, produces `data/masked_schema.json`.  
-  *Verification*: The output JSON contains the same `rule_id`s as the original but no `logic` fields.  
+- [ ] **T006 [P] [US2]** Implement LLM inference with a 30‑second hard timeout.  
+  *File*: `code/explanation/generator.py` loads `TinyLlama/TinyLlama-1.1B-Chat-v1.0` in 4‑bit mode via `bitsandbytes`, builds a prompt from a trajectory log + `data/masked_schema.json`, and runs inference inside a `signal.alarm(30)` guard (Unix) or a `threading.Timer` fallback on other platforms.  
+  *Verification*: Unit test `tests/test_explanation_timeout.py` forces a sleep > 30 s and asserts that the fallback path is taken.
 
-- [ ] **T202 [P] [US2]** Implement **LLM inference** with a 30‑second hard timeout.  
-  *File*: `code/explanation/generator.py` – uses `transformers` to load `TinyLlama/TinyLlama-1.1B-Chat-v1.0` in 4‑bit mode (`bitsandbytes`).  
-  *Behaviour*:  
-   - Constructs prompt from trajectory log + `data/masked_schema.json`.  
-   - Runs inference inside a `signal.alarm` (Unix) / `threading.Timer` guard.  
-   - If the model exceeds 30 s or raises an exception → goto fallback (T203).  
-  *Verification*: Unit test `T019` asserts that a deliberately slow model triggers fallback.  
+- [ ] **T007 [P] [US2]** Add dual fallback handling that returns **either** a template‑based textual explanation **or** a scalar‑reward signal (reward = 0.0).  
+  *Implementation*: In `generator.py`, `handle_fallback(reason)` creates a `CounterfactualExplanation` object with `is_fallback=True` **and** a dictionary `{"reward": 0.0, "fallback_reason": reason}`. Both objects are written as a single JSON line to `data/fallbacks.log`.  
+  *Verification*: Integration test triggers a timeout and checks that the returned payload contains a `reward` field set to `0.0` and that the log entry’s `fallback_reason` equals `"timeout"`.
 
-- [ ] **T203 [P] [US2]** **Fallback handling** – two‑branch fallback:  
-   1. **Template‑based textual explanation** (`TemplateExplanation`).  
-   2. **Scalar‑reward fallback** (numeric reward = 0.0) when a textual explanation is not permissible.  
-  *Implementation*: In `generator.py`, `handle_fallback(reason)` creates a `CounterfactualExplanation` with `is_fallback=True` **and** returns a secondary scalar‑reward object `{ "reward": 0.0, "fallback_reason": reason }`. Both objects are logged to `data/fallbacks.log` with ISO‑8601 timestamps.  
-  *Verification*: Integration test `T019` checks that a timeout produces a log entry with `"fallback_reason":"timeout"` and that the returned payload contains the scalar reward field.  
+- [ ] **T008 [P] [US2]** Enforce the 200‑token limit on generated explanations.  
+  *Logic*: After generation, count tokens with the model’s tokenizer. If the count exceeds 200, raise `TokenLimitExceeded` which invokes `handle_fallback("exceeds_token_limit")`. No truncation is performed.  
+  *Verification*: Test `tests/test_explanation_token_limit.py` supplies a deliberately long generation and asserts that the fallback log reason is `"exceeds_token_limit"`.
 
-- [ ] **T204 [P] [US2]** Enforce the **200‑token limit** on generated explanations.  
-  *Logic*: After LLM generation, count tokens (using the tokenizer). If > 200, raise `TokenLimitExceeded` which triggers `handle_fallback("exceeds_token_limit")`. No truncation is performed.  
-  *Verification*: Unit test `T021d` (added) asserts that an over‑limit generation is logged as `"exceeds_token_limit"` and no explanation object is persisted.  
+- [ ] **T009 [P] [US2]** Validate each explanation against the canonical JSON schema (`specs/…/counterfactual_explanation.schema.yaml`).  
+  *Implementation*: `generator.py` calls `validate_explanation(obj, schema_path)` (wrapper around `jsonschema.validate`). If validation fails, invoke `handle_fallback("validation_fail")`.  
+  *Verification*: Test `tests/test_explanation_schema.py` feeds a malformed object and checks for the `"validation_fail"` entry in `data/fallbacks.log`.
 
-- [ ] **T205 [P] [US2]** Validate each explanation against the **canonical JSON schema** (`specs/…/counterfactual_explanation.schema.yaml`).  
-  *Implementation*: `generator.py` calls `validate_explanation()` (from `validator.py`) before returning the object. Invalid objects trigger fallback with reason `"validation_fail"`.  
-  *Verification*: `T018` ensures that an intentionally malformed object fails validation and is logged appropriately.  
-
-- [ ] **T206 [P] [US2]** Log **successful** explanation generations.  
-  *File*: `data/success_log.jsonl` – each line contains `{ "run_id": <str>, "env_id": <str>, "rule_id": <str>, "timestamp": <ISO> }`.  
-  *Verification*: After a successful generation, the line appears; a simple grep in CI confirms non‑empty file.  
+- [ ] **T010 [P] [US2]** Log successful explanations.  
+  *File*: `data/success_log.jsonl` – each line is a JSON object `{ "run_id": <str>, "env_id": <str>, "rule_id": <str>, "timestamp": <ISO‑8601> }`.  
+  *Verification*: After a successful generation, a new line appears; a quick `grep` in CI confirms the file is non‑empty.
 
 ---  
 
 ## Phase 3 – Evolutionary harness & metric collection (FR‑003, FR‑004)
 
-- [ ] **T301 [P] [US3]** Implement the **baseline & counterfactual orchestration**.  
-  *File*: `code/agents/evolutionary_harness.py` – `EvolutionaryHarness` class reads `data/discovered_envs.json` and filters to environments where `is_significant == true` (from `sensitivity_report.csv`). For each seed and condition, it runs the EvoPolicyGym evolution loop, stores raw policy code under `data/policies/<run_id>.py`.  
-  *Verification*: Running `python -m code.agents.evolutionary_harness --seeds 3 --conditions baseline,counterfactual` produces a non‑empty `data/run_state.json`.  
+- [ ] **T011 [P] [US3]** Implement the evolutionary harness that runs both baseline (scalar reward) and counterfactual conditions.  
+  *File*: `code/agents/evolutionary_harness.py` defines `EvolutionaryHarness`. It reads `data/discovered_envs.json`, filters to environments where `is_significant == true` (from `data/sensitivity_report.csv`), iterates over a user‑specified list of seeds, and for each condition (`baseline`, `counterfactual`) runs the EvoPolicyGym evolution loop, saving raw policy code to `data/policies/<run_id>.py` and recording metadata (seed, condition, env_id, generation).  
+  *Verification*: After invoking `python -m code.agents.evolutionary_harness --seeds 3 --conditions baseline,counterfactual`, the directory `data/policies/` contains at least one `.py` file per condition and a JSON state file `data/run_state.json` with entries for each run.
 
-- [ ] **T302 [P] [US3]** **Policy parser** for structural metrics.  
-  *File*: `code/analysis/complexity_metrics.py` – wraps `radon` to compute cyclomatic complexity (`cc`) and conditional branch count. Handles `SyntaxError` by returning `cc = -1` and `branches = -1`.  
-  *Verification*: Unit test `T024` confirms correct values on a known sample file; error case returns `-1`.  
+- [ ] **T012 [P] [US3]** Compute structural metrics for each evolved policy.  
+  *File*: `code/analysis/complexity_metrics.py` wraps the `radon` library to return `cyclomatic_complexity` (float) and `branch_count` (int). If the policy file raises `SyntaxError`, the function returns `cc = -1` and `branches = -1`.  
+  *Verification*: Unit test `tests/test_complexity_metrics.py` runs the function on a known good file (expects positive values) and on a deliberately broken file (expects `-1`).
 
-- [ ] **T303 [P] [US3]** **Generation‑error handling**.  
-  *Logic*: In `evolutionary_harness.py`, after each policy is written, invoke `complexity_metrics.py`. If `cc == -1`, record `generation_errors += 1` in the run record and skip inclusion in the final CSV. All errors are appended to `data/generation_errors.log`.  
-  *Verification*: After a deliberately broken policy is injected, the log contains the appropriate entry and the CSV row is omitted.  
+- [ ] **T013 [P] [US3]** Integrate complexity analysis into the harness and handle generation errors.  
+  *Logic*: After each policy is written, the harness calls `complexity_metrics.py`. If `cc == -1`, the run record increments `generation_errors`, logs the traceback to `data/generation_errors.log`, and the run is excluded from the final CSV.  
+  *Verification*: Inject a broken policy (e.g., syntax error) via a test harness run and confirm that `data/generation_errors.log` contains an entry and that the corresponding row is absent from `data/evolution_results.csv`.
 
-- [ ] **T304 [P] [US3]** Write **evolution results** CSV.  
-  *File*: `data/evolution_results.csv` – columns conform to `contracts/evolution_results.schema.yaml` (`run_id`, `seed`, `condition`, `generalization_score`, `complexity`, `branch_count`, `generation_errors`). Data are assembled from `run_state.json`, `complexity_metrics.py`, and the static `sensitivity_report.csv`.  
-  *Verification*: CSV header matches schema; at least one row per condition is present.  
-
----  
-
-## Phase 4 – Statistical analysis & reporting (FR‑005)
-
-- [ ] **T401 [P] [US3]** Run a **mixed‑effects model** on the evolution results.  
-  *File*: `code/analysis/statistical_test.py` – uses `statsmodels` formula `generalization_score ~ condition + complexity + (1|seed)`.  
-  *Checks*:  
-   - `data/evolution_results.csv` exists and contains ≥ 1 row per condition.  
-   - Model converges; extracts `p_value`, `effect_size` (Cohen’s d), `condition` coefficient sign.  
-   - If `p_value < 0.05` **and** coefficient > 0, set `significant = true`.  
-   - Writes `data/stats_results.json` adhering to `contracts/stats_results.schema.yaml`.  
-  *Verification*: `T031` confirms that a minimal synthetic dataset yields a well‑formed JSON with the required fields.  
-
-- [ ] **T402 [P] [US3]** **Power analysis** – compute minimum detectable effect size given the sample size; if power < 0.8, add a warning entry `data/power_analysis.log` and set `"underpowered": true` in `stats_results.json`.  
-  *Verification*: CI checks that the log file appears when the sample size is < 10.  
-
-- [ ] **T403 [P]** Aggregate **explanation‑success rate**.  
-  *Script*: `code/analysis/aggregate_success.py` reads `data/success_log.jsonl` and `data/fallbacks.log`, computes `rate = successes / (successes + failures)`, writes `data/aggregation_stats.json` (matches `contracts/aggregation_stats.schema.yaml`).  
-  *Verification*: The JSON contains fields `successful_explanations`, `fallback_count`, `overall_success_rate`.  
-
-- [ ] **T404 [P]** **Final results hand‑off**.  
-  *CLI*: `python -m code.main --run-full-pipeline` executes (1) environment discovery, (2) sensitivity report, (3) evolution harness, (4) statistical test, (5) aggregation, and finally writes `data/final_results.csv` that merges `evolution_results.csv` with `stats_results.json` and `aggregation_stats.json`.  
-  *Verification*: The final CSV contains a row for each run plus a summary row labeled `OVERALL`.  
+- [ ] **T014 [P] [US3]** Write the evolution results CSV (`data/evolution_results.csv`).  
+  *Schema*: Must conform to `contracts/evolution_results.schema.yaml` (fields: `run_id`, `seed`, `condition`, `generalization_score`, `complexity`, `branch_count`, `generation_errors`). The script aggregates data from `run_state.json`, complexity metrics, and the pre/post‑shift scores from `sensitivity_report.csv`.  
+  *Verification*: The CSV header matches the schema, the file contains at least one row for each condition, and a checksum file `data/evolution_results.sha256` is generated.
 
 ---  
 
-## Phase 5 – Documentation & quick‑start (non‑research but required for reproducibility)
+## Phase 4 – Statistical analysis & result aggregation (FR‑005)
 
-- [ ] **T501 [P]** Write `README.md` with project overview, install steps, and CLI usage.  
-- [ ] **T502 [P]** Write `quickstart.md` that walks a new user through the **single‑command end‑to‑end run** (`python -m code.main --run-full-pipeline`).  
-- [ ] **T503 [P]** Add a CI‑friendly test `tests/test_quickstart.py` that executes the quick‑start script on a minimal subset (2 environments, 1 seed) and asserts that `data/final_results.csv` exists.  
+- [ ] **T015 [P] [US3]** Run a mixed‑effects model on the evolution results.  
+  *File*: `code/analysis/statistical_test.py` loads `data/evolution_results.csv` and fits a model with formula  
+  `generalization_score ~ condition + complexity + (1|seed)` using `statsmodels`. It extracts `p_value`, `effect_size` (Cohen’s d), and the sign of the `condition` coefficient. If `p_value < 0.05` **and** the coefficient is positive, `significant = true`; otherwise `significant = false`. The results are written to `data/stats_results.json` adhering to `contracts/stats_results.schema.yaml`.  
+  *Verification*: Running the script on a synthetic mini‑dataset produces a JSON file with the required keys; a CI test (`tests/test_statistical_test.py`) asserts the presence of `p_value` and `significant`.
+
+- [ ] **T016 [P] [US3]** Perform a power analysis and warn if under‑powered.  
+  *File*: `code/analysis/power_analysis.py` computes statistical power given the sample size, effect size estimate, and α = 0.05 (using `statsmodels.stats.power`). If power < 0.8, it writes a warning line to `data/power_analysis.log` and adds `"underpowered": true` to `data/stats_results.json`.  
+  *Verification*: With fewer than 10 runs per condition, the log file appears and the JSON flag is set; a test (`tests/test_power_analysis.py`) checks this behavior.
+
+- [ ] **T017 [P] [US3]** Aggregate the explanation‑success rate.  
+  *Script*: `code/analysis/aggregate_success.py` reads `data/success_log.jsonl` and `data/fallbacks.log`, computes `rate = successes / (successes + failures)`, and writes `data/aggregation_stats.json` matching a simple schema (`successful_explanations`, `fallback_count`, `overall_success_rate`).  
+  *Verification*: The JSON file exists and the three fields are numeric; a test (`tests/test_aggregate_success.py`) validates the computation on a tiny handcrafted log.
+
+- [ ] **T018 [P] [US3]** End‑to‑end pipeline CLI (`code/main.py`).  
+  *Flags*:  
+   - `--run-full-pipeline` executes, in order, **T001–T004**, **T005–T010**, **T011–T014**, **T015–T017**, then merges `evolution_results.csv`, `stats_results.json`, and `aggregation_stats.json` into `data/final_results.csv` (adds a summary row labeled `OVERALL`).  
+   - `--check` only performs pre‑condition validation (Phase 1).  
+  *Verification*: After a successful run on a minimal configuration (2 environments, 1 seed, both conditions), `data/final_results.csv` exists, contains the merged columns, and the summary row’s `overall_success_rate` matches the aggregation file.
 
 ---  
 
-## Phase 6 – Revision concerns (addressed proactively)
+## Phase 5 – Documentation & CI sanity check
 
-| Concern | Task | Remedy |
-|---------|------|--------|
-| Shift‑validation warnings for non‑significant drops | T014 (already checked) | Logs to `data/shift_validation.log`. |
-| Token‑limit enforcement & logging | T204 (new) | Logs `"exceeds_token_limit"` in `fallbacks.log`. |
-| Scalar‑reward fallback requirement | T203 (new) | Returns numeric reward alongside textual fallback. |
-| Schema‑mismatch safety | T205 (new) | Validation step rejects mismatched rule IDs. |
-| Mixed‑effects model coefficient sign | T401 (new) | Explicit check for positive coefficient; logs error if negative. |
-| Minimum rows per condition | T401 (new) | RuntimeError if a condition missing. |
-| Under‑powered analysis warning | T402 (new) | Power‑analysis log & flag. |
+- [ ] **T019 [P]** Write `README.md` with project overview, installation steps (`pip install -r requirements.txt`), and CLI usage examples (`python -m code.main --run-full-pipeline`).  
+  *Verification*: File exists and contains a heading `# llmXive – Counterfactual EvoPolicyGym Extension`.
+
+- [ ] **T020 [P]** Write `quickstart.md` that walks a new user through the single‑command end‑to‑end run and lists the expected output files (`data/final_results.csv`, `data/stats_results.json`).  
+  *Verification*: File exists and the described command matches the actual CLI flag.
+
+- [ ] **T021 [P]** Add a CI‑friendly test (`tests/test_quickstart.py`) that invokes the quick‑start on a reduced subset (2 environments, 1 seed) and asserts that `data/final_results.csv` is created and contains at least one row per condition.  
+  *Verification*: The test passes on a fresh checkout; CI reports “passed”.
 
 ---  
 
 ### Summary of pending (unchecked) substantive tasks  
 
-| ID | Story | Description |
-|----|-------|-------------|
-| **T101** | US1 | Discover 16 environments, write JSON & log. |
-| **T102** | US1 | Create CSV schema YAML for sensitivity report. |
-| **T103** | US1 | Run static agent, produce `sensitivity_report.csv`. |
-| **T104** | US1 | Orchestrator (`code/main.py`) that validates pre‑conditions. |
-| **T201** | US2 | Produce masked rule schema (`masked_schema.json`). |
-| **T202** | US2 | LLM inference with 30 s timeout. |
-| **T203** | US2 | Dual fallback: template text **or** scalar reward (0.0). |
-| **T204** | US2 | Enforce 200‑token limit, trigger fallback on breach. |
-| **T205** | US2 | Validate explanations against canonical schema. |
-| **T206** | US2 | Log successful explanations to `success_log.jsonl`. |
-| **T301** | US3 | Evolutionary harness orchestrating both conditions. |
-| **T302** | US3 | Policy parser (`radon`) for complexity & branch count. |
-| **T303** | US3 | Generation‑error handling & logging. |
-| **T304** | US3 | Write `evolution_results.csv` per contract. |
-| **T401** | US3 | Mixed‑effects model analysis, produce `stats_results.json`. |
-| **T402** | US3 | Power analysis warning for small sample sizes. |
-| **T403** | –   | Compute explanation success rate (`aggregation_stats.json`). |
-| **T404** | –   | End‑to‑end pipeline CLI, produce `final_results.csv`. |
-| **T501** | –   | README documentation. |
-| **T502** | –   | Quick‑start guide. |
-| **T503** | –   | CI test for quick‑start execution. |
+| ID | Story | Core description |
+|----|-------|-------------------|
+| **T001** | US1 | Discover environments → `discovered_envs.json` + log |
+| **T002** | US1 | Create CSV schema for sensitivity report |
+| **T003** | US1 | Run static agent → `sensitivity_report.csv` |
+| **T004** | US1 | Orchestrator (`code.main`) with pre‑condition checks |
+| **T005** | US2 | Mask rule schema → `masked_schema.json` |
+| **T006** | US2 | LLM inference with 30 s timeout |
+| **T007** | US2 | Dual fallback: template explanation **or** scalar reward |
+| **T008** | US2 | Enforce 200‑token limit, trigger fallback |
+| **T009** | US2 | Schema validation of explanations |
+| **T010** | US2 | Log successful explanations |
+| **T011** | US3 | Evolutionary harness for both conditions |
+| **T012** | US3 | Policy complexity & branch count via `radon` |
+| **T013** | US3 | Generation‑error handling & logging |
+| **T014** | US3 | Write `evolution_results.csv` per contract |
+| **T015** | US3 | Mixed‑effects model → `stats_results.json` |
+| **T016** | US3 | Power analysis warning & flag |
+| **T017** | US3 | Aggregate explanation success rate |
+| **T018** | US3 | End‑to‑end pipeline CLI → `final_results.csv` |
+| **T019** | –   | README documentation |
+| **T020** | –   | Quick‑start guide |
+| **T021** | –   | CI test for quick‑start |
 
-All tasks are listed in execution order respecting data flow; no task that consumes a file is placed before the task that produces it. Each task includes the exact artifact path(s) it reads or writes, and the verification steps required for CI to mark the checkbox as completed.
+All tasks respect data flow: a task that consumes a file is listed after the task that produces it. Each task includes concrete artifact paths and an explicit verification step so that the CI can automatically mark the checkbox as completed.
