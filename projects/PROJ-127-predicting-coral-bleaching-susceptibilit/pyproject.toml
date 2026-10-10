@@ -5,8 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-coral-bleaching"
 version = "0.1.0"
-description = "Predicting Coral Bleaching Susceptibility from Environmental Data"
-requires-python = ">=3.9"
+description = "Predicting Coral Bleaching Susceptibility from Environmental Data (llmXive PROJ-127)"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "llmXive PROJ-127 contributors" },
+]
+requires-python = ">=3.11"
+keywords = ["coral", "bleaching", "machine-learning", "xgboost", "remote-sensing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: GIS",
+]
 dependencies = [
     "xgboost",
     "scikit-learn",
@@ -17,38 +31,28 @@ dependencies = [
     "requests",
     "pyyaml",
     "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
     "ruff",
     "black",
+    "pytest",
 ]
 
-[tool.ruff]
-# Same as Black
-line-length = 88
-indent-width = 4
-target-version = "py39"
+[project.scripts]
+coral-pipeline = "code.main:main"
 
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
+[tool.setuptools]
+packages = ["code"]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
+# NOTE: Ruff configuration lives exclusively in ruff.toml (created in T002A).
+# It is intentionally NOT duplicated here: ruff refuses to run when both
+# ruff.toml and [tool.ruff] in pyproject.toml are present.
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
 # A regex preceded with ^/ will apply only to files and directories

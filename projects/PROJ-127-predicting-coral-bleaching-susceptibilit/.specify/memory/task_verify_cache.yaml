@@ -1,11 +1,58 @@
+T001:
+  c: false
+  h: b69e1430c2b1d3649a81fc248dedb6078ac64c6f38b1def6455bc3923ab21422
+  r: The evidence shows the `code/` and `results/` directories exist, and a `requirements.txt`
+    with the required pinned packages is present, but the required `data/raw`, `data/processed`,
+    `data/models` (only a file inside is shown, the directory itself is not confirmed),
+    `tests/unit`, `tests/integration`, `state/` directories are missing, as is a `.gitignore`
+    file and `__init__.py` files in all Python directories (e.g., `tests/`). These
+    omissions mean the prescribed project structure is not fully created.
+  sig: 2826c3229f963a71074a0013fe0628b6c40f0fe0ce70e990a82e589d36fe5dab
+T002A:
+  c: true
+  h: 7cc8cbfb66e33b6f446a4b77dd7b3a7c7075caa7b634ae8157e6b42b76fdfcf5
+  r: "The `ruff.toml` file was found at the repository root (`projects/PROJ-127-predicting-coral-bleaching-susceptibilit/ruff.toml`)\
+    \ and contains concrete linting settings, including a line\u2011length rule, excluded\
+    \ directories, selected rule families, and ignored rules. Its content matches\
+    \ the task\u2019s requirement for a project\u2011wide Ruff configuration."
+  sig: 9227cdf627558cdb04bff5fe07b2b02ec9b8205029d97832dbb5498ee63ade62
+T002B:
+  c: true
+  h: bf502982831ee6bc440e1ac3c2ea86d4384ba3dd9d92877ebd55f1f526b7de53
+  r: "Checked the `pyproject.toml` file (resolved at `pyproject.toml`, 1634\u202F\
+    bytes) which contains the required `[build-system]` section, full `[project]`\
+    \ metadata, dependencies, optional dev dependencies, script entry point, and tool\
+    \ configurations. The file exists, is non\u2011empty, and matches the task\u2019\
+    s specification."
+  sig: bcc69f021fe4cfab2002f1da4b1da012514b7ab84ae206211f9fc30df3a51124
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or a `ruff` section, or a pre\u2011commit hook) are provided\
-    \ in the `code/` directory, so the requirement to configure ruff/black is not\
-    \ demonstrated. The implementer must add the appropriate config files and verify\
-    \ they are non\u2011empty."
+  h: 223735b7cd068ea6b201498ad9bb823764a3e44fc78b5b119f9cda8d71f3fbb5
+  r: "The `code/config.py` file is present but lacks the required `IMPUTATION_THRESHOLD_DAYS`\
+    \ and `MAX_RAM_GB` variables, does not perform any reachability checks on the\
+    \ URLs, and uses an incorrect variable name (`UNEP_REEFS_URL` instead of `UNEP_URL`).\
+    \ Moreover, the URLs are generic placeholders rather than verified, working endpoints.\
+    \ These omissions mean the task\u2019s specifications are not satisfied."
+  sig: 94b0ba413f2121b5220bf82f615bb09048e886043f735e56dd901286ce1418c9
+T004:
+  c: true
+  h: b2e4ac2fb022be134211d9bde1f4949b87746358d6bada7221668b76b685d64b
+  r: "Checked `code/data_gap_report.py` (2929\u202Fbytes) which imports `code/config.py`,\
+    \ validates each required URL with a HEAD request, and writes `data_gap_report.md`\
+    \ containing missing sources and a \u201CHALT\u201D status when any URL is absent\
+    \ or unreachable. The script fulfills the specified behavior."
+  sig: bbefffd5a01daa057a041cb2da034cfee49a601dc5a798e499502aa96fd34ba4
+T005:
+  c: false
+  h: 44284672246361e7c8a0b208211f0d7a96ab9bc4212cdf084efb29d2ba6ab914
+  r: "The repository contains `code/data_gap_report.py`, but the script only writes\
+    \ a markdown report and never creates the required `data_gap_status.json` with\
+    \ the `status` and `missing_sources` fields. No execution logs or generated JSON\
+    \ file are present, so the task\u2019s success criteria and blocking\u2011gate\
+    \ behavior are not demonstrated. The implementer must add code to produce `data_gap_status.json`\
+    \ (PASS/FAIL) and provide evidence of a run that creates this file and halts the\
+    \ pipeline on FAIL."
+  sig: 174888238cce54e4f985035a34a25f32fea94c86ae0edfe9c1d3514b8bd70190
 T009:
   c: false
   h: f404e9e2f75a71f0178c25068ec179e3b5993b02f835770680ad491220d1f9c4
