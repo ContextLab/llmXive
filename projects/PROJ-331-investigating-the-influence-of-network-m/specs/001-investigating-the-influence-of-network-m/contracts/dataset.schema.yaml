@@ -1,58 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Manifest Schema"
-description: "Schema for the manifest.json file tracking processed subjects and data integrity."
+description: "Schema for manifest.json tracking processed subjects and data integrity."
 type: "object"
 properties:
   cohort_target:
     type: "integer"
-    description: "Target number of subjects (e.g., a sufficient cohort size to ensure statistical power)."
     const: 50
+    description: "Target number of subjects."
   cohort_actual:
     type: "integer"
-    description: "Actual number of subjects successfully processed."
     minimum: 0
+    description: "Number of subjects successfully processed."
   cohort_skipped:
     type: "integer"
-    description: "Number of subjects skipped due to missing data."
     minimum: 0
+    description: "Number of subjects skipped due to missing data."
+  structural_data_available:
+    type: "boolean"
+    description: "True if real structural connectomes were obtainable; false means motif-association stage is gated."
   subjects:
     type: "array"
-    description: "List of subject processing records."
     items:
       type: "object"
       properties:
         subject_id:
           type: "string"
-          description: "HCP Subject ID."
         status:
           type: "string"
           enum:
             - "processed"
             - "skipped"
             - "error"
-          description: "Processing status."
         structural_path:
           type: ["string", "null"]
-          description: "Relative path to structural.npy if processed."
         rsfc_path:
           type: ["string", "null"]
-          description: "Relative path to rsfc.npy if processed."
         error_message:
           type: ["string", "null"]
-          description: "Error message if status is error."
       required:
         - "subject_id"
         - "status"
       additionalProperties: false
   checksums:
     type: "object"
-    description: "Checksums for raw data files (key: filename, value: sha256)."
+    description: "SHA-256 checksums of raw data files (filename -> hex digest)."
     additionalProperties:
       type: "string"
 required:
   - "cohort_target"
   - "cohort_actual"
   - "cohort_skipped"
+  - "structural_data_available"
   - "subjects"
   - "checksums"
 additionalProperties: false

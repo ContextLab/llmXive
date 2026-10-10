@@ -1,87 +1,114 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Correlation Results Schema"
-description: "Schema for the correlation_results.json file containing statistical outputs."
+description: "Schema for correlation_results.json containing all statistical outputs."
 type: "object"
 properties:
   analysis_params:
     type: "object"
-    description: "Parameters used for the analysis."
     properties:
       seed:
         type: "integer"
         const: 42
       bonferroni_alpha:
         type: "number"
-        description: "Bonferroni-adjusted alpha level."
+        description: "Bonferroni-adjusted alpha (0.05 / 13)."
       permutation_count:
         type: "integer"
-        const: 1000
+        minimum: 1000
       power_target:
         type: "number"
-        description: "Target statistical power."
         const: 0.80
+        description: "Target statistical power (0.80, per Wikipedia 'Power (statistics)')."
       vif_threshold:
         type: "number"
-        description: "VIF threshold for switching to Ridge Regression."
         const: 5
     required:
-      - seed
-      - bonferroni_alpha
-      - permutation_count
-      - power_target
-      - vif_threshold
+      - "seed"
+      - "bonferroni_alpha"
+      - "permutation_count"
+      - "power_target"
+      - "vif_threshold"
   results:
     type: "array"
-    description: "List of correlation results per motif and metric."
+    description: "One entry per motif x metric x correlation type."
     items:
       type: "object"
       properties:
         motif_id:
           type: "string"
-          description: "Identifier for the motif type."
         metric:
           type: "string"
           enum:
             - "strength"
             - "global_efficiency"
-          description: "Functional metric analyzed."
-        partial_correlation:
-          type: "number"
-          description: "Partial correlation coefficient (r) or regression coefficient."
-        p_value_raw:
-          type: "number"
-          description: "Unadjusted p-value."
-        p_value_bonferroni:
-          type: "number"
-          description: "Bonferroni-corrected p-value."
-        significant:
-          type: "boolean"
-          description: "True if p_value_bonferroni < 0.05."
-        empirical_p_value:
-          type: "number"
-          description: "Empirical p-value from permutation test (if significant)."
-        n_subjects:
-          type: "integer"
-          description: "Number of subjects used in this test."
-        method_used:
+        correlation_type:
           type: "string"
           enum:
-            - "multivariate_regression"
-            - "ridge_regression"
-          description: "Method used based on VIF check."
+            - "pearson"
+            - "spearman"
+        partial_r:
+          type: "number"
+        p_value_raw:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        p_value_bonferroni:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        significant:
+          type: "boolean"
+        empirical_p:
+          type: ["number", "null"]
+          minimum: 0
+          maximum: 1
+          description: "Permutation empirical p-value; null if test skipped."
+        skipped_reason:
+          type: ["string", "null"]
+          description: "e.g. 'insufficient variance' when motif z-vector is constant."
+        vif:
+          type: "number"
+        n_subjects:
+          type: "integer"
       required:
-        - motif_id
-        - metric
-        - partial_correlation
-        - p_value_raw
-        - p_value_bonferroni
-        - significant
-        - n_subjects
-        - method_used
+        - "motif_id"
+        - "metric"
+        - "correlation_type"
+        - "partial_r"
+        - "p_value_raw"
+        - "p_value_bonferroni"
+        - "significant"
+        - "n_subjects"
       additionalProperties: false
+  multicollinearity:
+    type: "object"
+    properties:
+      max_vif:
+        type: "number"
+      vif_warning:
+        type: "boolean"
+        description: "True if any predictor VIF >= 5."
+      flagged_pairs:
+        type: "array"
+        description: "Predictor pairs with |r| >= 0.9."
+        items:
+          type: "object"
+          properties:
+            pair:
+              type: "array"
+              items:
+                type: "string"
+            r:
+              type: "number"
+          required:
+            - "pair"
+            - "r"
+    required:
+      - "max_vif"
+      - "vif_warning"
+      - "flagged_pairs"
   power_analysis:
     type: "object"
-    description: "Power analysis results."
     properties:
       n:
         type: "integer"
@@ -89,16 +116,20 @@ properties:
         type: "number"
       power:
         type: "number"
+        const: 0.80
       min_detectable_r:
         type: "number"
-        description: "Minimum detectable Pearson r."
+      type_ii_error_statement:
+        type: "string"
     required:
-      - n
-      - alpha_adjusted
-      - power
-      - min_detectable_r
+      - "n"
+      - "alpha_adjusted"
+      - "power"
+      - "min_detectable_r"
+      - "type_ii_error_statement"
 required:
-  - analysis_params
-  - results
-  - power_analysis
+  - "analysis_params"
+  - "results"
+  - "multicollinearity"
+  - "power_analysis"
 additionalProperties: false

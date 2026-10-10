@@ -1,77 +1,57 @@
-# Research: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
+# Research: Investigating the Influence of Network Motifs on Resting-State Functional Connectivity
 
 ## 1. Research Question & Hypothesis
-**Question:** Do specific 3‑node network motif configurations in structural brain connectomes **associate** with individual variation in resting‑state functional connectivity (rsFC) patterns?  
 
-**Hypothesis:** After controlling for structural global node degree **and additional covariates** (age, sex, head‑motion, scanner site), higher z‑scores for particular undirected 3‑node motifs (especially triangles and 2‑edge paths) will be associated with increased rsFC strength and/or higher global efficiency across subjects.
+**Question**: Do specific 3-node and 4-node network motif configurations in structural brain connectomes *associate* with (not constrain — observational, associational framing) individual variation in rsFC strength and global efficiency?
+
+**Hypothesis**: Motif z-scores (prevalence vs. degree-preserving nulls) for particular motifs associate with rsFC strength and/or global efficiency across subjects, after controlling for structural global degree.
 
 ## 2. Dataset Strategy
+
 | Dataset | Source | Access Method | Variables Used | Verification Status |
 |---------|--------|---------------|----------------|---------------------|
-| **OpenNeuro ds000228 (Midnight Scan Club)** | OpenNeuro | `datasets.load_dataset("openneuro", "ds000228")` | Resting‑state fMRI (multiple runs) | ✅ Verified open download |
-| **Synthetic Structural Connectomes** | Generated in‑pipeline (degree‑preserving random graphs) | Procedural generation using the Maslov‑Sneppen algorithm (seed = 42) | Binary adjacency matrices (100 × 100) derived from synthetic diffusion tractography | ✅ Generated locally, no external download required |
+| OpenNeuro preprocessed fMRI (fsLR-64k) | https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet (dataset dict: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json) | Direct parquet download / `datasets` streaming | Resting-state BOLD-derived surface time series → rsFC matrices | ✅ Verified open download |
+| OpenNeuro ds001734 (named in spec) | No verified source found | — | Diffusion + rs-fMRI pairing | ❌ No verified URL; described by name only, NOT citable as a download |
+| HCP structural connectomes (named in constitution Principle VI) | Access-gated (registration/DUA) | — | Diffusion tractography | ❌ Cannot be fetched on CI; no open substitute verified |
 
-**Rationale & Limitations:**  
-- No open, programmatically downloadable dataset currently provides both diffusion tractography and rs‑fMRI at the required resolution. The Human Connectome Project (HCP) data are gated and cannot be accessed on the free CI runner.  
-- Consequently, we use the publicly available rs‑fMRI from OpenNeuro ds000228 and generate synthetic structural connectomes that mimic realistic degree distributions. This satisfies the pipeline’s computational feasibility while preserving the ability to test motif‑rsFC associations, but it **limits the interpretation** to a proxy analysis; the limitation is explicitly documented in the final report.  
-- If an open dataset with both modalities becomes available, the pipeline can be switched without code changes.
+**Dataset–variable fit assessment (blocking finding)**: The study requires *paired* diffusion tractography and rs-fMRI per subject. The only verified source (the fsLR-64k parquet) contains functional data but **no diffusion tractography**, so structural connectomes — the core predictor — cannot be derived from any verified open source. Per the plan's anti-fabrication rules, no synthetic structural stand-in is used. The motif-analysis code is implemented and unit-tested on labeled test graphs; the motif–rsFC association stage is gated on real structural data and reports the gap honestly if unavailable. This is a scope mismatch requiring spec-level correction (name a verified open diffusion dataset, or reframe the question).
 
 ## 3. Methodology
 
-### 3.1 Data Preprocessing
-1. **Download** rs‑fMRI for each subject from OpenNeuro ds000228. Missing runs trigger a warning; subjects with no usable rs‑fMRI are marked *skipped*.  
-2. **Synthetic Structural Generation**: For each subject, create a binary undirected graph with 100 nodes whose degree sequence follows a realistic power‑law distribution using the Maslov‑Sneppen algorithm seeded at 42. Save as `structural.npy`.  
-3. **Parcellation**: Apply the bundled Schaefer‑100 atlas (included in the repo) to the synthetic structural graph – effectively an identity mapping since the graph already has 100 nodes.  
-4. **Functional Connectivity**: Compute Pearson correlation of BOLD time‑series within each parcel → `rsfc.npy`. **Threshold** absolute correlations > 0.2, then compute **global efficiency** on the resulting weighted graph (standard definition).  
-5. **Global Degree**: Compute the sum of degrees in the synthetic structural graph – used as a control variable in regression.  
-6. **Additional Covariates**: Load a CSV file (`covariates.csv`) containing age, sex, mean framewise displacement (head‑motion), and scanner site for each subject; these are added to the regression model.
+### 3.1 Data acquisition & preprocessing
+1. Stream/download the verified parquet; select up to 50 subjects with usable resting-state runs; checksum raw files under `data/raw/`.
+2. Parcellate BOLD time series to a 100-node cortical parcellation (Schaefer-100 mapping applied to fsLR vertices); compute Pearson rsFC → `rsfc.npy`.
+3. rsFC strength = mean absolute off-diagonal correlation; global efficiency computed on the thresholded (|r| > 0.2) weighted graph via `networkx.global_efficiency` on the binarized thresholded graph.
+4. Missing runs → warning + subject skip (FR-001 acceptance 2).
 
-### 3.2 Motif Quantification
-- **Graph Type**: Undirected binary (synthetic).  
-- **Motif Set**: **13** non‑isomorphic 3‑node motifs (Milo et al. 2002).  
-- **Enumeration**: Use `networkx.algorithms.isomorphism` to count each motif per subject.  
-- **Null Model**: Generate ≥ 1000 degree‑preserving random graphs via the Maslov‑Sneppen rewiring algorithm (undirected). Compute mean and std of motif counts across null graphs; calculate z‑score:
-  \[
-  Z = \frac{N_{\text{obs}} - \mu_{\text{null}}}{\sigma_{\text{null}}}
-  \]
-- **Sensitivity Null** (Task T006b): Preserve both degree sequence and global motif counts to test robustness.
+### 3.2 Motif quantification (gated on real structural input)
+- Undirected binary graphs; enumerate all 3-node (4 non-isomorphic) and 4-node motif classes via `networkx` subgraph isomorphism counting (GF enumeration), covering the 13 motif categories the spec tests.
+- Null model: Maslov–Sneppen degree-preserving rewiring, ≥1000 iterations, seed 42; z = (N_obs − μ_null)/σ_null; σ=0 → z=0 (disconnected/absent motifs, per US-2 acceptance 2).
+- 300 s wall-clock guard per subject (SC-002): abort gracefully with timeout warning.
 
-### 3.3 Statistical Analysis
-1. **Primary Model**: Multivariate GLM (or ridge regression if VIF ≥ 5)  
-   - Predictors: Motif z‑scores for the 13 motifs **plus** covariates (age, sex, head‑motion, scanner site).  
-   - Outcomes: (a) rsFC strength (mean absolute correlation) and (b) global efficiency.  
-   - Control: Structural global degree (linear + quadratic term).  
-2. **Multicollinearity**: Compute VIF for each predictor. If any VIF > 5, apply **Ridge Regression**; additionally, perform **PCA** on the 13 motif z‑scores and retain components explaining ≥ 95 % variance, using these components as predictors.  
-3. **Partial Correlations**: Extract **partial Pearson** and **partial Spearman** coefficients controlling for all covariates and structural degree.  
-4. **Multiple‑Comparison Correction**: Bonferroni across the 13 motifs (α_adj = 0.05 / 13 ≈ 0.00385).  
-5. **Permutation Test**: Shuffle subject labels ≥ 1000 times; recompute the full multivariate model each permutation; derive empirical p‑value per motif.  
-6. **Power Analysis**: Using `statsmodels.stats.power.tt_ind_solve_power`, compute the minimum detectable Pearson r for N = 50, α_adj = 0.00385, power = 0.80 (source: Power = 0.80). The result is reported in the PDF.  
-7. **Regional Checks** (Task T007c): Correlate motif density within canonical networks (e.g., DMN) with local rsFC strength; Bonferroni across regions.
+### 3.3 Statistical analysis
+- Partial Pearson and Spearman correlations of each motif z-score with each metric (strength, global efficiency), controlling for structural global degree.
+- Bonferroni across the 13 tested motifs (α_adj = 0.05/13 ≈ 0.00385); flag corrected p < 0.05.
+- VIF over the full motif predictor set; VIF ≥ 5 → warning logged, all motifs still tested (per FR-005); pairwise Pearson correlations among predictors, flag |r| ≥ 0.9, still report all p-values.
+- Permutation test: ≥1000 label shuffles, seed 42, empirical p per motif.
+- Zero-variance motif vectors (var < 1e-6) → skip test, record "insufficient variance".
+- Power analysis: minimum detectable Pearson r for N = 50, α = 0.05/13, power = 0.80 (power value 0.80 per Wikipedia, "Power (statistics)"), reported with Type II error implications.
+- **Causal framing**: observational, cross-sectional — associational claims only; enforced by the FR-009 disclaimer.
+- **Power limitation**: N = 50 with α_adj ≈ 0.00385 yields a large minimum detectable r; acknowledged explicitly rather than claiming adequate power.
 
 ### 3.4 Reporting
-- **PDF generation** (`results.pdf`) includes one page per motif:
-  - Scatter plot (motif z‑score vs. rsFC metric) with 95 % confidence band.
-  - Partial Pearson **and** Spearman correlation coefficients, raw p‑values.
-  - Bonferroni‑corrected p‑value and significance flag.
-  - Empirical p‑value from permutation test.
-  - VIF diagnostics (and note if ridge/PCA was used).
-- **Disclaimer**: The exact string `"These findings are associational only and do not imply causation."` is inserted and later verified by a PDF text search.  
-- **Power Section**: Minimum detectable r, α_adj, and interpretation of Type II error risk are included.  
-- **Limitations**: Explicit paragraph noting that structural connectomes are synthetic due to lack of open diffusion data; results should be interpreted accordingly.
+- `results.pdf`: per-motif pages (scatter + 95% CI band, partial r's, raw/Bonferroni/empirical p, VIF, pairwise predictor correlations), power section, limitations (including the structural-data gap if gated), and the exact disclaimer string "These findings are associational only and do not imply causation." verified by PDF text extraction.
 
 ## 4. Compute Feasibility
-- All steps run on CPU; motif enumeration for a 100‑node graph with 13 motifs is O(N³) ≈ 1 × 10⁶ operations, well under the 300 s limit.  
-- Permutation testing (1000 permutations × 13 motifs) with NumPy vectorization completes within minutes on a 2‑core runner.  
-- Memory usage < 1 GB; total disk usage < 7 GB (fits CI limits).  
-- No GPU required; the plan adheres to the **CPU‑first** rule.
 
-## 5. Decision Rationale
-- **Dataset Choice**: OpenNeuro ds000228 provides high‑quality rs‑fMRI that can be downloaded without credentials. Synthetic structural graphs allow motif analysis while respecting CI constraints.  
-- **Motif Size**: 13 undirected motifs are standard in network‑motif literature; enumeration is tractable within the compute budget.  
-- **Statistical Controls**: Inclusion of age, sex, head‑motion, and scanner site mitigates omitted‑variable bias. VIF‑based model switching plus PCA addresses inherent collinearity among motif counts.  
-- **Multiple Testing**: Bonferroni provides strict family‑wise error control given 13 tests.  
-- **Transparency**: All parameters, seeds, and library versions are logged; schemas enforce contract compliance.  
+- **CPU-first**: every method (parquet streaming, Pearson correlation, motif enumeration on 100-node graphs, Maslov–Sneppen nulls, permutations, PDF generation) runs faithfully on the 2-core/7 GB runner. No GPU escape hatch needed.
+- Motif enumeration: 100-node graphs, ~10⁶ triplets/quadruplets with vectorized counting — well under 300 s.
+- Permutations: 1000 × 13 tests, NumPy-vectorized — minutes.
+- Data: stream the parquet shard-by-shard; only derived matrices (50 × ~40 KB) persist — far under disk/RAM limits.
 
----
+## 5. Decision / Rationale
 
-
+- **rs-fMRI source**: the verified OpenNeuro fsLR-64k parquet is the only programmatically downloadable OpenNeuro mirror available; used for the functional modality.
+- **Structural modality**: no verified open diffusion source exists (ds001734 unverified; HCP gated). Rather than fabricate synthetic connectomes (rejected — a simulated stand-in for real brain structure would be fabrication), the structural stages are gated and the mismatch surfaced for spec revision.
+- **Statistics**: Bonferroni chosen per spec; permutation test as robustness; VIF/pairwise diagnostics per FR-005; power analysis per FR-010 with honest limitation statement.
+- **Motif scope**: 3- and 4-node motifs only (spec assumption); undirected binary treatment consistent with standard motif practice (Milo et al.; no verified URL available, cited by name only).

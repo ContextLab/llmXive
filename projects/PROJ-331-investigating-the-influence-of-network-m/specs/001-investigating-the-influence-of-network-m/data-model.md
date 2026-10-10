@@ -1,58 +1,45 @@
-# Data Model: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
+# Data Model: Investigating the Influence of Network Motifs on Resting-State Functional Connectivity
 
 ## 1. Entities & Relationships
 
 | Entity | Key Attributes | Relationships |
 |--------|----------------|---------------|
-| **Subject** | `subject_id` (string), `status` (`processed`/`skipped`/`error`) | Owns one **Structural Connectome**, one **Functional Connectome**, one **Motif Profile**, one **Structural Metadata** |
-| **Structural Connectome** | `structural.npy` (binary 100 × 100 float32) | Belongs to a **Subject** |
-| **Functional Connectome** | `rsfc.npy` (float32 100 × 100) | Belongs to a **Subject** |
-| **Motif Profile** | JSON: `{motif_type: z_score}` for multiple motifs | Belongs to a **Subject** |
-| **Structural Metadata** | JSON conforming to `structural_connectome.schema.yaml` (includes seed, status, file paths) | Belongs to a **Subject** |
-| **Covariates** | CSV rows: `subject_id, age, sex, head_motion, scanner_site` | Linked to **Subject** (used in regression) |
-| **Correlation Result** | JSON/CSV row per motif‑metric pair (partial Pearson & Spearman, VIF, method) | Aggregates across **Subjects** |
-| **Manifest** | Cohort‑level summary (`cohort_target`, `cohort_actual`, `cohort_skipped`, `subjects[]`, `checksums`) | Global view of all **Subject** records |
+| **Subject** | `subject_id` (string), `status` (`processed`/`skipped`/`error`) | Owns one Structural Connectome (optional), one Functional Connectome, one Motif Profile, one Metadata record |
+| **Structural Connectome** | `structural.npy` — binary symmetric 100×100 float32 | Belongs to Subject; derived from real structural input with provenance, or absent (gated) |
+| **Functional Connectome** | `rsfc.npy` — symmetric 100×100 float32 Pearson matrix | Belongs to Subject |
+| **Motif Profile** | `motif_profile.json` — motif_id → z-score map + null-model params | Belongs to Subject; derived from Structural Connectome |
+| **Metadata** | `metadata.json` conforming to `structural_connectome.schema.yaml` (provenance, seed, status) | Belongs to Subject |
+| **Subject Metrics** | CSV row: `subject_id, rsfc_strength, global_efficiency, global_degree` | Aggregates Subject outputs |
+| **Correlation Result** | JSON row per motif×metric: partial r (Pearson/Spearman), raw/Bonferroni/empirical p, VIF, method | Aggregates across Subjects |
+| **Manifest** | `manifest.json`: cohort counts, subject records, checksums | Global view |
 
-## 2. File Formats & Schemas
+## 2. File Formats
 
-- **Raw Data**  
-  - `data/raw/<subject_id>/structural.nii.gz` (original HCP diffusion)  
-  - `data/raw/<subject_id>/rsfmri.nii.gz` (original HCP rs‑fMRI)
+- **Raw**: `data/raw/openneuro-fslr64k/*.parquet` (checksummed, unchanged; SHA-256 recorded in manifest)
+- **Processed** (all new files, derivations documented in metadata):
+  - `data/processed/<subject_id>/structural.npy`
+  - `data/processed/<subject_id>/rsfc.npy`
+  - `data/processed/<subject_id>/motif_profile.json`
+  - `data/processed/<subject_id>/metadata.json`
+  - `data/processed/subject_metrics.csv`
+  - `data/processed/correlation_results.json` (conforms to `output.schema.yaml`)
+  - `data/processed/manifest.json` (conforms to `dataset.schema.yaml`)
+- **Outputs**: `results/results.pdf`; `data/logs/pipeline.log` (machine-readable, structured entries)
 
-- **Processed Data**  
-  - `data/processed/<subject_id>/structural.npy` (binary adjacency)  
-  - `data/processed/<subject_id>/rsfc.npy` (Pearson correlation matrix)  
-  - `data/processed/<subject_id>/motif_profile.json` (z‑scores for a set of motifs)  
-  - `data/processed/<subject_id>/metadata.json` (conforms to `structural_connectome.schema.yaml`)  
-  - `data/processed/manifest.json` (overall cohort status)
+## 3. Data Flow
 
-- **Covariates**  
-  - `data/processed/covariates.csv` (age, sex, head‑motion, scanner site for each subject)
+1. Ingestion (`data_loader.py`): parquet → `data/raw/` (checksummed)
+2. Parcellation (`data_loader.py`): time series → 100-node rsFC; structural input → binary adjacency (gated)
+3. Metrics: rsFC strength, global efficiency, global degree → `subject_metrics.csv`
+4. Motif enumeration (`motif_analysis.py`) → `motif_profile.json`
+5. Metadata (`utils.py`) → `metadata.json` per subject
+6. Statistics (`correlation_analysis.py`) → `correlation_results.json`
+7. Reporting (`report_generator.py`) → `results.pdf`
+8. Logging (`utils.py`) → `pipeline.log` at every step
 
-- **Outputs**  
-  - `results/results.pdf` (final report)  
-  - `data/processed/correlation_results.json` (statistical summary)  
-  - `data/logs/pipeline.log` (machine‑readable log)
+## 4. Validation & Logging
 
-Schema files are located in `contracts/` and define the exact JSON structures for the manifest, motif profile, analysis results, and structural metadata.
-
-## 3. Data Flow Diagram
-
-1. **Ingestion** (`data_loader.py`) → Raw HCP files → `data/raw/`.
-2. **Parcellation** (`data_loader.py`) → `structural.npy` (binary undirected) stored under `data/processed/`.
-3. **Functional Calculation** (`data_loader.py`) → `rsfc.npy` + thresholding → `efficiency.csv`.
-4. **Motif Enumeration** (`motif_analysis.py`) → `motif_profile.json`.
-5. **Metadata Generation** (`utils.py`) → `metadata.json` per subject (matches `structural_connectome.schema.yaml`).
-6. **Covariate Loading** (`utils.py`) → `covariates.csv`.
-7. **Statistical Modeling** (`correlation_analysis.py`) → `correlation_results.json`.
-8. **Reporting** (`report_generator.py`) → `results.pdf`.
-9. **Logging** (`utils.py`) → `pipeline.log` throughout all steps.
-
-## 4. Validation & Logging (Task T017)
-
-- **utils.py** validates constants at start‑up (`seed=42`, `bonferroni_alpha=0.0125`, `permutation_count=1000`, `vif_threshold=5`).  
-- **pipeline.log** records every major step, warnings (e.g., missing modality), errors, and the final success summary.  
-- **Manifest** captures `cohort_actual` vs. `cohort_target` to enforce **SC‑001** (≥ 95 % success).  
-
----
-
+- `utils.py` validates constants at startup: `seed=42`, Bonferroni α = 0.05/13, `permutation_count ≥ 1000`, `vif_threshold = 5`, and logs pinned library versions.
+- Manifest enforces SC-001: `cohort_actual ≥ 0.95 × cohort_target` else warning.
+- Contract tests (`tests/contract/test_schemas.py`) validate every JSON artifact against `contracts/*.schema.yaml`.
+- No PII: subject IDs are dataset-provided pseudonymous identifiers only.

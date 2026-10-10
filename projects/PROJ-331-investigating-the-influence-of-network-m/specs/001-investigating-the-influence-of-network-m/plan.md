@@ -1,138 +1,111 @@
 # Implementation Plan: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
 
-**Branch**: `feature/motif-rsfc` | **Date**: 2026-10-10 | **Spec**: `specs/feature/motif-rsfc/spec.md`  
+**Branch**: `feature/motif-rsfc` | **Date**: 2026-10-10 | **Spec**: `specs/feature/motif-rsfc/spec.md`
 **Input**: Feature specification from `specs/feature/motif-rsfc/spec.md`
 
 ## Summary
-We will build a reproducible, end‑to‑end pipeline that (1) downloads resting‑state functional MRI data, (2) generates synthetic structural connectomes when diffusion data are unavailable, (3) computes rsFC matrices and global efficiency, (4) enumerates **all 13** undirected 3‑node motifs, (5) generates degree‑preserving null models (≥ 1000 iterations) and computes motif‑z‑scores, (6) performs partial Pearson and Spearman correlations controlling for structural global degree **and additional covariates**, applies Bonferroni correction across 13 motifs, runs a permutation test (≥ 1000 permutations), conducts VIF diagnostics and, when needed, switches to ridge regression or PCA, (7) conducts a power‑analysis for N = 50, α = 0.05/13, power = 0.80, and (8) produces a PDF report containing scatter plots, confidence intervals, VIF diagnostics, the required disclaimer string, and the power‑analysis result.
+
+Build a reproducible CPU-only pipeline that (1) retrieves real resting-state fMRI from the verified OpenNeuro parquet mirror, (2) computes rsFC matrices (Schaefer-100-equivalent parcellation) and global efficiency, (3) enumerates 3-node and 4-node motifs in structural connectomes with degree-preserving nulls and z-scores, (4) runs partial Pearson/Spearman correlations with Bonferroni correction, permutation tests, VIF/pairwise-collinearity diagnostics, and a power analysis, and (5) generates `results.pdf` with the mandatory disclaimer.
+
+**Scope inconsistency (surfaced for correction, per stage rules):** The spec's Data Access section names OpenNeuro ds001734 retrieved via `datalad`, but **no verified source exists for OpenNeuroDatasets/ds001734** (see Verified datasets block). The only verified OpenNeuro source is the `clane9/openneuro-fslr64k` parquet mirror, which is a preprocessed fMRI derivative on the fsLR-64k surface and **does not contain diffusion tractography**. Consequently:
+
+- **rs-fMRI**: obtained from the verified parquet (real data).
+- **Diffusion/structural connectomes**: NO verified open source is available; HCP (named in the constitution's Principle VI) is access-gated and cannot be fetched on CI. The pipeline will **not fabricate or synthesize structural connectomes** (the prior plan's synthetic-graph approach is rejected as a fabrication stand-in). The structural/motif stages are implemented, tested on unit-test fixtures (clearly labeled test graphs, never reported as results), and **gated**: if no real structural connectomes are downloadable, the pipeline logs the gap, skips motif–rsFC association testing, and the report states that the structural half of the research question could not be answered with obtainable data. This mismatch should be resolved at the spec level (either name a verified open diffusion dataset or reframe the question) — the plan does not silently substitute a different question.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `networkx`, `matplotlib`, `seaborn`, `statsmodels`, `reportlab`, `datasets` (for OpenNeuro), `tqdm`  
-- **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/logs/`, `results/`)  
-- **Testing**: `pytest` (unit & integration) + contract validation tests  
-- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ~7 GB RAM, ~14 GB disk)  
-- **Performance Goals**: Motif enumeration ≤ 300 s per subject; PDF generation ≤ 2 min; total runtime ≤ 6 h on CI  
-- **Constraints**: CPU‑first; no GPU required; deterministic seeds (`seed=42`)  
+
+- **Language/Version**: Python 3.11
+- **Primary Dependencies** (pinned in `code/requirements.txt`): `numpy`, `scipy`, `pandas`, `networkx`, `matplotlib`, `statsmodels`, `reportlab`, `datasets`, `pyarrow`, `jsonschema`, `pytest`, `flake8`, `black`
+- **Storage**: local filesystem (`data/raw/`, `data/processed/`, `data/logs/`, `results/`)
+- **Testing**: `pytest` (unit, integration, contract)
+- **Target Platform**: GitHub Actions free runner (2 CPU, ~7 GB RAM, ~14 GB disk, ≤6 h)
+- **Performance Goals**: motif enumeration ≤ 300 s/subject (SC-002); PDF ≤ 2 min and ≤ 5 MB (SC-004)
+- **Constraints**: CPU-first (no GPU method needed anywhere); seed = 42; no fabricated data
+- **Project Type**: research pipeline (CLI scripts)
 
 ## Constitution Check
+
 | Principle | Status | Note |
 |-----------|--------|------|
-| **I. Reproducibility** | ✅ | Fixed seeds, `requirements.txt`, CI‑downloaded data each run |
-| **II. Verified Accuracy** | ⏳ | Citations will be verified in `research.md` |
-| **III. Data Hygiene** | ✅ | Raw files stored unchanged; derived files have provenance metadata |
-| **IV. Single Source of Truth** | ✅ | Every figure/statistic traces to a single row in `data/processed/` |
-| **V. Versioning Discipline** | ✅ | Content hashes recorded in `state/`; timestamps managed by platform |
-| **VI. Structural Data Integrity** | ✅ | Synthetic binary connectomes are generated reproducibly; provenance recorded |
-| **VII. Statistical Transparency** | ✅ | Scripts log test parameters, seeds, library versions, and full results |
-
-## Data Availability
-- **OpenNeuro ds000228 (Midnight Scan Club)** provides publicly downloadable resting‑state fMRI for 10 subjects and is accessible via the Hugging Face `datasets` library.  
-- **Synthetic Structural Connectomes** are generated in‑pipeline using a degree‑preserving random graph model (Maslov‑Sneppen) seeded at 42. This synthetic data serves as the structural modality because no open dataset currently offers diffusion tractography at the required resolution.  
-- The pipeline will **abort with a clear error** if the OpenNeuro download fails and synthetic generation cannot be performed, preventing any fabrication of missing modalities.
+| I. Reproducibility | ✅ | Pinned `requirements.txt`, seed 42, data fetched from the same verified canonical URL each run |
+| II. Verified Accuracy | ✅ | Citations limited to the Verified datasets block; no invented URLs |
+| III. Data Hygiene | ✅ | Raw parquet checksummed under `data/`; all derivations are new files with provenance |
+| IV. Single Source of Truth | ✅ | Every figure/statistic traces to one `data/processed/` row and one `code/` block |
+| V. Versioning Discipline | ✅ | Content hashes recorded; `updated_at` maintained by platform |
+| VI. Structural Data Integrity | ✅ | Principle VI names HCP, which is access-gated; the gating behavior above honors the principle (no in-place modification, provenance metadata on any derived connectome) while the dataset mismatch is surfaced for spec correction |
+| VII. Statistical Transparency | ✅ | All test parameters, seeds, library versions logged; full p-value tables in outputs |
 
 ## FR/SC Traceability
-| Requirement | Plan Element(s) | Notes |
-|-------------|-----------------|-------|
-| **FR‑001** (Download) | T002 – Data Ingestion & Validation | Downloads rs‑fMRI from OpenNeuro; generates synthetic structural adjacency if diffusion unavailable |
-| **FR‑002** (Structural) | T004 – Parcellation | Generates binary undirected adjacency matrices (synthetic or real) |
-| **FR‑003** (rsFC) | T005 – Functional Calc | Pearson correlation matrices & global efficiency on thresholded graph |
-| **FR‑004** (Motifs) | T006 – Motif Quant, T006b – Secondary Null | Enumerates **13** undirected 3‑node motifs, computes z‑scores |
-| **FR‑005** (Correlation) | T007 – Stats Analysis (Global) | Multivariate GLM / ridge regression, VIF check, Bonferroni (α = 0.05/13) |
-| **FR‑006** (Permutation) | T007 – Stats Analysis (Global) | ≥ 1000 permutations per motif |
-| **FR‑007** (Report) | T008 – Reporting | PDF with plots, CI, VIF, disclaimer, power analysis |
-| **FR‑008** (Logging) | T017 – Utils/Logging | `pipeline.log` records all steps, warnings, errors |
-| **FR‑009** (Disclaimer) | T008 – Reporting | Mandatory string verified via PDF text search |
-| **FR‑010** (Power) | T007 – Stats Analysis (Global) | Power‑analysis module reports minimum detectable r for N = 50, α_adj = 0.05/13, power = 0.80 |
-| **SC‑001** (≥ 95 % subjects) | T002 – Validation logic (`actual ≥ 0.95*target`) | Logs warning if threshold not met |
-| **SC‑002** (Motif ≤ 300 s) | T006 – Timeout guard (300 s) | Aborts with warning if exceeded |
-| **SC‑003** (All p‑values logged) | T007 – Stats Output | JSON/CSV contains raw & corrected p‑values for all **13** motifs |
-| **SC‑004** (PDF ≤ 2 min, ≤ 5 MB) | T008 – Report generation | Benchmarked for CI; file size limit enforced |
-| **SC‑005** (Power analysis present) | T007 – Power module | Minimum detectable r reported in PDF |
+
+| Requirement | Plan Element(s) |
+|-------------|-----------------|
+| FR-001 | T002 (ingestion from verified parquet; missing-data skip + warning) |
+| FR-002 | T004 (parcellation → binary undirected adjacency; gated on real structural input) |
+| FR-003 | T005 (rsFC Pearson matrices, global efficiency) |
+| FR-004 | T006 (3- and 4-node enumeration, ≥1000 Maslov–Sneppen nulls, z-scores, 300 s guard) |
+| FR-005 | T007 (partial Pearson+Spearman controlling global degree, Bonferroni over 13 motifs, VIF ≥ 5 warning, pairwise \|r\| ≥ 0.9 flag, all p-values reported) |
+| FR-006 | T007 (≥1000 label permutations, empirical p) |
+| FR-007 | T008 (PDF: scatter + CI, coefficients, corrected p, permutation outcome, collinearity diagnostics) |
+| FR-008 | T001/T017 (directory + `pipeline.log` machine-readable logging) |
+| FR-009 | T008 (disclaimer string inserted and verified by PDF text search) |
+| FR-010 | T007 (power analysis: N=50, α=0.05/13, power=0.80 — power value 0.80 per Wikipedia "Power (statistics)"; min detectable r; Type II error statement) |
+| SC-001 | T002 validation (`cohort_actual ≥ 0.95 × cohort_target` check in manifest) |
+| SC-002 | T006 timeout guard |
+| SC-003 | T007 outputs p-values for all 13 motifs to log + JSON |
+| SC-004 | T008 (≤ 2 min, ≤ 5 MB, DPI fallback) |
+| SC-005 | T007/T008 power section fields |
 
 ## Project Structure
-### Documentation (this feature)
+
 ```
 specs/feature/motif-rsfc/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
+├── plan.md, research.md, data-model.md, quickstart.md
 ├── contracts/
-│   ├── analysis_results.schema.yaml
 │   ├── dataset.schema.yaml
 │   ├── motif_profile.schema.yaml
 │   ├── output.schema.yaml
-│   ├── results.schema.yaml
 │   └── structural_connectome.schema.yaml
 └── tasks.md
-```
 
-### Source Code (single‑project layout)
-```
 code/
 ├── __init__.py
-├── config.py            # paths, seeds, constants
-├── data_loader.py       # OpenNeuro download, synthetic structural generation, missing‑data handling
-├── motif_analysis.py    # 3‑node enumeration, null models, z‑scores
-├── correlation_analysis.py  # GLM, ridge, PCA, VIF, permutation, power
-├── report_generator.py  # PDF creation (ReportLab + matplotlib)
-├── utils.py             # logging, validation of constants, metadata JSON writer
-└── main.py              # orchestration
+├── config.py            # paths, seed=42, constants
+├── requirements.txt     # pinned deps
+├── data_loader.py       # parquet streaming download, parcellation, rsFC
+├── motif_analysis.py    # 3/4-node enumeration, nulls, z-scores, timeout guard
+├── correlation_analysis.py  # partial corr, Bonferroni, permutation, VIF, power
+├── report_generator.py  # ReportLab PDF
+├── utils.py             # logging, constant validation, metadata writer
+└── main.py
 
 tests/
-├── unit/
-│   ├── test_motif.py
-│   └── test_correlation.py
-├── integration/
-│   └── test_pipeline.py
-└── contract/
-    └── test_schemas.py
+├── unit/ (test_motif.py, test_correlation.py)
+├── integration/test_pipeline.py
+└── contract/test_schemas.py
 
-data/
-├── raw/                 # placeholder (no required files for open dataset)
-├── processed/
-│   ├── <subj>/structural.npy
-│   ├── <subj>/rsfc.npy
-│   ├── <subj>/motif_profile.json
-│   ├── <subj>/metadata.json          # conforms to structural_connectome.schema.yaml
-│   └── manifest.json
-├── logs/
-│   └── pipeline.log
-└── manifest.json        # cohort summary
-
-results/
-└── results.pdf
+data/{raw,processed,logs}/    results/
+.flake8    pyproject.toml    .pre-commit-config.yaml
 ```
 
-**Structure Decision**: Single‑project layout (Option 1) is optimal for a research pipeline; no separate services or front‑ends are required.
+**Structure Decision**: single-project layout; no services or front-ends needed.
 
-## Task List (8‑15 substantive tasks)
-| ID | Task | Description | Deliverable | FR/SC |
-|----|------|-------------|------------|-------|
-| **T001** | Directory Setup | Create `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/` with placeholder `__init__.py` & `.gitkeep`. | Folder hierarchy | FR‑001, FR‑008 |
-| **T002** | Data Ingestion & Validation | Programmatic OpenNeuro download for rs‑fMRI; generate synthetic structural adjacency if diffusion unavailable; write `manifest.json`; enforce SC‑001 (`actual ≥ 0.95*target`). | Processed `.npy` files + `manifest.json` | FR‑001, SC‑001 |
-| **T003** | Linting Config | Add `.flake8` and `pyproject.toml` (Black settings) and configure pre‑commit hook. | `.flake8`, `pyproject.toml` | FR‑008 (code quality) |
-| **T004** | Parcellation | Apply Schaefer‑100 atlas to synthetic/real diffusion data → binary undirected adjacency (`structural.npy`). | `structural.npy` per subject | FR‑002 |
-| **T005** | Functional Calc | Compute Pearson correlation matrix from rs‑fMRI → `rsfc.npy`; threshold absolute correlations >0.2; calculate global efficiency on the weighted graph → `efficiency.csv`. | `rsfc.npy`, `efficiency.csv` | FR‑003 |
-| **T006** | Motif Quant | Enumerate **13** undirected 3‑node motifs, generate ≥ 1000 degree‑preserving null graphs, compute z‑scores, enforce SC‑002 (≤ 300 s). | `motif_profile.json` per subject | FR‑004, SC‑002 |
-| **T006b** | Secondary Null Model | Build null graphs preserving both degree sequence and global motif counts to test robustness. | `motif_sensitivity.json` | FR‑004 (robustness) |
-| **T007** | Stats Analysis (Global) | Multivariate GLM (or ridge if VIF ≥ 5) – predictors: motif z‑scores + covariates; outcomes: rsFC strength & global efficiency; control: structural global degree; VIF diagnostics; Bonferroni; ≥ 1000 permutations; PCA when needed; power analysis (N = 50, α_adj, power = 0.80). | `correlation_results.json` | FR‑005, FR‑006, FR‑010, SC‑003, SC‑005 |
-| **T007c** | Stats Analysis (Regional) | Correlate motif density within canonical networks (e.g., DMN) with local rsFC strength; Bonferroni across regions. | `regional_results.json` | FR‑005 (additional evidence) |
-| **T008** | Reporting | Generate `results.pdf` with one page per motif: scatter plot, CI, partial Pearson **and** Spearman, raw & Bonferroni‑corrected p‑values, empirical p‑value, VIF, disclaimer string, power‑analysis section. | `results/results.pdf` | FR‑007, FR‑009, SC‑004 |
-| **T009** | Data Model Documentation | Write `data-model.md` describing entities, relationships, file formats, and manifest schema. | `data-model.md` | FR‑008 |
-| **T010** | Structural Metadata | For each subject, write `metadata.json` conforming to `structural_connectome.schema.yaml` (includes seed, file paths, status). | `metadata.json` per subject | FR‑008 |
-| **T011** | Contract Tests | Implement schema validation tests using `jsonschema`; run in `tests/contract/`. | Test suite passes | FR‑008 |
-| **T017** | Utils/Logging | Implement `utils.py` with global constants (`seed=42`, `bonferroni_alpha=0.0125`, `permutation_count=1000`, `vif_threshold=5`), logger setup (`pipeline.log`), validation of constants, and metadata JSON writer. | `utils.py`, `pipeline.log` | FR‑008, FR‑010 |
+## Task List
+
+| ID | Task | Deliverable | FR/SC |
+|----|------|-------------|-------|
+| T001 | Directory setup: create `code/`, `tests/{unit,integration,contract}/`, `data/{raw,processed,logs}/`, `results/`, `state/` with `__init__.py`/`.gitkeep` files committed | Folder hierarchy visible in repo | FR-001, FR-008 |
+| T002 | Data ingestion: stream the verified OpenNeuro parquet (`datasets` / direct parquet URL), select up to 50 subjects, record checksums, write `manifest.json`, enforce SC-001, skip+warn on missing data | `data/raw/` files + `manifest.json` | FR-001, SC-001 |
+| T003 | Lint/format config: `.flake8`, `pyproject.toml` (Black), `.pre-commit-config.yaml`; verify `flake8` and `black --check` pass on `code/` | Config files, clean lint run | FR-008 |
+| T004 | Parcellation: map real structural inputs (if obtainable) to binary undirected 100-node adjacency with provenance metadata; if none obtainable, emit explicit gating log — no synthetic stand-in | `structural.npy` + `metadata.json` per subject, or gated skip | FR-002 |
+| T005 | Functional metrics: Pearson rsFC matrices → `rsfc.npy`; mean strength; global efficiency | `rsfc.npy`, `subject_metrics.csv` | FR-003 |
+| T006 | Motif quantification: enumerate 3- and 4-node motifs, ≥1000 degree-preserving nulls, z-scores, 300 s guard, zero-variance/disconnected-graph handling | `motif_profile.json` per subject | FR-004, SC-002 |
+| T007 | Statistics: partial Pearson/Spearman vs. strength & efficiency controlling global degree, Bonferroni (13 motifs), ≥1000 permutations, VIF + pairwise \|r\| flags, power analysis (N=50, α=0.05/13, power=0.80) | `correlation_results.json` (schema-valid) | FR-005, FR-006, FR-010, SC-003, SC-005 |
+| T008 | Reporting: `results.pdf`, one page per motif (scatter + 95% CI, coefficients, raw/corrected/empirical p, VIF, pairwise correlations), disclaimer string + text-search verification, power section, ≤5 MB / ≤2 min | `results/results.pdf` | FR-007, FR-009, SC-004 |
+| T009 | Data-model documentation: `specs/feature/motif-rsfc/data-model.md` covering entities, relationships, file formats, manifest schema | `data-model.md` | FR-008 |
+| T010 | Structural metadata: per-subject `metadata.json` conforming to `structural_connectome.schema.yaml` (provenance, seed, status) | `metadata.json` files | FR-002, FR-008 |
+| T011 | Contract tests: `jsonschema` validation of manifest, motif profiles, correlation results, metadata | Passing test suite | FR-008 |
+| T017 | Utils/logging: complete `utils.py` (constant validation of seed=42, Bonferroni α, permutation count, VIF threshold; library-version logging; structured logger) and a real `data/logs/pipeline.log` produced by a pipeline run | `utils.py`, `pipeline.log` | FR-008, FR-010 |
 
 ## Complexity Tracking
-No principle violations detected; all tasks are necessary to satisfy the functional and success criteria without unnecessary bloat.
 
-## Addressing Previously Rejected Tasks
-- **T001** now explicitly creates the required directory hierarchy.  
-- **T003** supplies concrete linting configuration files.  
-- **T009** provides a complete `data-model.md`.  
-- **T017** delivers a full `utils.py` implementation with constant validation and logging, and ensures `pipeline.log` exists.
-
----
-
+No constitution violations. The structural-data gating is not a simplification of the science: it is the honest handling of a data-availability mismatch that the spec must resolve.

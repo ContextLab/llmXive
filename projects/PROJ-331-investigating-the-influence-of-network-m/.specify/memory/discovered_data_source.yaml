@@ -1,11 +1,13 @@
 status: none
-intent: Human Connectome Project 1200 subjects diffusion tractography and rsfMRI Schaefer
-  100 atlas python package dataset
+intent: Human Connectome Project diffusion and rs-fMRI with Schaefer atlas python
+  package dataset
 required_fields:
 - subject_id
-- structural_connectome_binary_matrix
-- rsfc_matrix
+- diffusion_tractography_path
+- structural_connectome_matrix
+- rs_fmri_path
+- functional_connectivity_matrix
 - parcellation_name
-cache_key: fedec6908d45ed2b0d1b1d01439e4647167d620f84e6935ece5f7eeb0536b781
-searched_at: '2026-10-10T07:16:18.808070+00:00'
+cache_key: 0d64863058420b65e7bd6c4d908bd088a39f078bec2c6abbe82519a4c207dc65
+searched_at: '2026-10-10T07:41:45.487303+00:00'
 retry_count: 1

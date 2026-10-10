@@ -1,30 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Motif Profile Schema"
-description: "Schema for motif z-score profiles per subject"
+description: "Schema for per-subject motif z-score profiles."
 type: "object"
 properties:
   subject_id:
     type: "string"
   motif_z_scores:
     type: "object"
-    description: "Map of motif type to z-score"
+    description: "Map of motif identifier (3-node and 4-node classes) to z-score."
     additionalProperties:
       type: "number"
-      description: "Z-score for the motif type"
   null_model_params:
     type: "object"
     properties:
       iterations:
         type: "integer"
-        description: "Number of null model iterations"
+        minimum: 1000
       method:
         type: "string"
-        description: "Method used (e.g., 'degree_preserving_undirected')"
+        const: "degree_preserving_undirected"
+      seed:
+        type: "integer"
+        const: 42
     required:
       - "iterations"
       - "method"
+      - "seed"
+  elapsed_seconds:
+    type: "number"
+    description: "Wall-clock enumeration time; must be <= 300 per SC-002."
 required:
   - "subject_id"
   - "motif_z_scores"
   - "null_model_params"
+  - "elapsed_seconds"
 additionalProperties: false
