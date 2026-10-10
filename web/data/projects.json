@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 17377,
+    "total_contributions": 17381,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1704,
+      "contribution_count": 1705,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -1055,12 +1055,13 @@
         "materials science",
         "mathematics",
         "neuroscience",
+        "ocean science",
         "other",
         "physics",
         "psychology",
         "statistics"
       ],
-      "contribution_count": 40,
+      "contribution_count": 41,
       "kind": "llm",
       "name": "zai-org.glm-5.3"
     },
@@ -1069,12 +1070,13 @@
         "computer science",
         "materials science",
         "neuroscience",
+        "ocean science",
         "other",
         "physics",
         "psychology",
         "statistics"
       ],
-      "contribution_count": 16,
+      "contribution_count": 17,
       "kind": "llm",
       "name": "anthropic.claude-haiku-4-5-20251001"
     },
@@ -1443,6 +1445,17 @@
       "contribution_count": 4,
       "kind": "human",
       "name": "Zikai Zhou"
+    },
+    {
+      "areas": [
+        "computer science",
+        "linguistics",
+        "materials science",
+        "mathematics"
+      ],
+      "contribution_count": 4,
+      "kind": "llm",
+      "name": "google.gemma-4-31B-it"
     },
     {
       "areas": [
@@ -2007,16 +2020,6 @@
       "contribution_count": 3,
       "kind": "human",
       "name": "Zhongyu Li"
-    },
-    {
-      "areas": [
-        "linguistics",
-        "materials science",
-        "mathematics"
-      ],
-      "contribution_count": 3,
-      "kind": "llm",
-      "name": "google.gemma-4-31B-it"
     },
     {
       "areas": [
@@ -28696,7 +28699,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-10T05:23:08.731180+00:00",
+  "generated_at": "2026-10-10T06:16:43.984088+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29198,6 +29201,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
+          "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
+          "title": "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-198-predicting-plant-secondary-metabolite-pr",
           "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
           "title": "Predicting Plant Secondary Metabolite Profiles from Publicly Available Genomic Data"
@@ -29216,11 +29224,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-853-llmxive-follow-up-extending-omnidirector",
           "project_id": "PROJ-853-llmxive-follow-up-extending-omnidirector",
           "title": "llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-315-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-315-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Quality"
         }
       ],
       "inputs": [
@@ -31511,7 +31514,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-012-investigating-submarine-hydrothermal-ven.yaml",
         "code": "projects/PROJ-012-investigating-submarine-hydrothermal-ven/code",
-        "data": null,
+        "data": "projects/PROJ-012-investigating-submarine-hydrothermal-ven/data",
         "idea": "projects/PROJ-012-investigating-submarine-hydrothermal-ven/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -31543,11 +31546,27 @@
           ]
         },
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "research_question_validator"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "anthropic.claude-haiku-4-5-20251001",
+          "roles": [
+            "implementer"
           ]
         }
       ],
@@ -31570,6 +31589,30 @@
       "id": "PROJ-012-investigating-submarine-hydrothermal-ven",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 642.840583,
+          "ended_at": "2026-10-10T05:29:21.145567Z",
+          "model": "anthropic.claude-haiku-4-5-20251001",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:18:38.304984Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 338.323199,
+          "ended_at": "2026-10-10T05:18:38.301128Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:12:59.977929Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 119.321403,
+          "ended_at": "2026-10-10T05:12:59.973031Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:11:00.651628Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 376.083599,
@@ -31625,30 +31668,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-28T20:55:51.471602Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 122.850565,
-          "ended_at": "2026-09-28T20:55:51.468211Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-28T20:53:48.617646Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 92.038886,
-          "ended_at": "2026-09-28T20:53:48.614196Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-28T20:52:16.575310Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 56.486898,
-          "ended_at": "2026-09-28T20:52:16.571830Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-28T20:51:20.084932Z"
         }
       ],
       "paper_status": null,
@@ -38959,7 +38978,7 @@
           ]
         },
         {
-          "contributions": 9,
+          "contributions": 10,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -39004,6 +39023,14 @@
       "id": "PROJ-056-the-impact-of-musical-training-on-functi",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 59.286697,
+          "ended_at": "2026-10-10T06:15:21.933686Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T06:14:22.646989Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 26.70324,
@@ -39075,14 +39102,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "success",
           "started_at": "2026-10-09T11:08:20.485303Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 367.478178,
-          "ended_at": "2026-10-05T10:00:21.882435Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:54:14.404257Z"
         }
       ],
       "paper_status": null,
@@ -45945,10 +45964,11 @@
           ]
         },
         {
-          "contributions": 1,
+          "contributions": 4,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
+            "implementer",
             "tasker"
           ]
         }
@@ -45966,12 +45986,36 @@
         "repo_path": "projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "analyzed",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question investigates a substantive relationship between the semantic complexity of input prompts and the statistical behavior of activation distributions within Diffusion Transformers. It asks whether the *phenomenon* of high-entropy inputs creates a mismatch with static quantization bases, rather\u2026",
       "field": "computer science",
       "id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 60.411204,
+          "ended_at": "2026-10-10T05:24:07.884045Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:23:07.472841Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 38.577913,
+          "ended_at": "2026-10-10T05:21:24.457237Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:20:45.879324Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 177.1261,
+          "ended_at": "2026-10-10T05:20:45.876208Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:17:48.750108Z"
+        },
         {
           "agent": "tasker",
           "duration_s": 0.02777,
@@ -46027,30 +46071,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-06T12:56:51.946323Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 52.937222,
-          "ended_at": "2026-10-06T12:56:51.943606Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T12:55:59.006384Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 31.248903,
-          "ended_at": "2026-10-06T12:55:59.003752Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T12:55:27.754849Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 23.891417,
-          "ended_at": "2026-10-06T12:55:27.752207Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T12:55:03.860790Z"
         }
       ],
       "paper_status": null,
@@ -46064,7 +46084,7 @@
       "speckit_research_dir": "projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d",
       "submitter": null,
       "title": "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\"",
-      "updated_at": "2026-10-10T05:17:41.493985+00:00",
+      "updated_at": "2026-10-10T05:22:56.146112+00:00",
       "upstream_feedback": null
     },
     {
@@ -95263,7 +95283,7 @@
           ]
         },
         {
-          "contributions": 24,
+          "contributions": 25,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -95278,6 +95298,14 @@
           "name": "google.gemma-3-27b-it",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-4-31B-it",
+          "roles": [
+            "implementer"
           ]
         }
       ],
@@ -95300,6 +95328,22 @@
       "id": "PROJ-370-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 589.326588,
+          "ended_at": "2026-10-10T05:23:34.408797Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:13:45.082209Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 172.680669,
+          "ended_at": "2026-10-10T05:13:45.079403Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-10T05:10:52.398734Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 334.167293,
@@ -95363,22 +95407,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-09T09:30:00.291586Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 37.633032,
-          "ended_at": "2026-10-09T09:30:00.289101Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-09T09:29:22.656069Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 23.580308,
-          "ended_at": "2026-10-09T09:29:22.653599Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-09T09:28:59.073291Z"
         }
       ],
       "paper_status": null,
@@ -167353,6 +167381,54 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 59.286697,
+      "ended_at": "2026-10-10T06:15:21.933686Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T06:14:22.646989Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 642.840583,
+      "ended_at": "2026-10-10T05:29:21.145567Z",
+      "failure_reason": "",
+      "model": "anthropic.claude-haiku-4-5-20251001",
+      "outcome": "success",
+      "project_id": "PROJ-012-investigating-submarine-hydrothermal-ven",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:18:38.304984Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 60.411204,
+      "ended_at": "2026-10-10T05:24:07.884045Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:23:07.472841Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 589.326588,
+      "ended_at": "2026-10-10T05:23:34.408797Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:13:45.082209Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 651.941224,
       "ended_at": "2026-10-10T05:21:59.787565Z",
@@ -167378,6 +167454,18 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 38.577913,
+      "ended_at": "2026-10-10T05:21:24.457237Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:20:45.879324Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 393.701256,
       "ended_at": "2026-10-10T05:20:59.196280Z",
       "failure_reason": "",
@@ -167389,6 +167477,30 @@
       "started_at": "2026-10-10T05:14:25.495024Z"
     },
     {
+      "agent": "implementer",
+      "duration_s": 177.1261,
+      "ended_at": "2026-10-10T05:20:45.876208Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:17:48.750108Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 338.323199,
+      "ended_at": "2026-10-10T05:18:38.301128Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-012-investigating-submarine-hydrothermal-ven",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:12:59.977929Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 0.02777,
       "ended_at": "2026-10-10T05:17:41.492095Z",
@@ -167396,7 +167508,7 @@
       "model": "deterministic-no-llm",
       "outcome": "skipped",
       "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-10T05:17:41.464325Z"
     },
@@ -167408,7 +167520,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-10T05:10:49.560869Z"
     },
@@ -167423,6 +167535,30 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-10T05:10:25.405809Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 172.680669,
+      "ended_at": "2026-10-10T05:13:45.079403Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:10:52.398734Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 119.321403,
+      "ended_at": "2026-10-10T05:12:59.973031Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-012-investigating-submarine-hydrothermal-ven",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-10T05:11:00.651628Z"
     },
     {
       "agent": "implementer",
@@ -167540,7 +167676,7 @@
       "model": "anthropic.claude-haiku-4-5-20251001",
       "outcome": "failed",
       "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-10T04:15:23.427382Z"
     },
@@ -173243,114 +173379,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-09T10:39:03.487922Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 25.699421,
-      "ended_at": "2026-10-09T10:39:03.483906Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:38:37.784485Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 50.428849,
-      "ended_at": "2026-10-09T10:38:37.780391Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:37:47.351542Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 92.597047,
-      "ended_at": "2026-10-09T10:37:47.347575Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:36:14.750528Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 34.810659,
-      "ended_at": "2026-10-09T10:36:14.746591Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:35:39.935932Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 23.916686,
-      "ended_at": "2026-10-09T10:35:39.931941Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:35:16.015255Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 41.732599,
-      "ended_at": "2026-10-09T10:35:16.011229Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:34:34.278630Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 135.131235,
-      "ended_at": "2026-10-09T10:33:50.262906Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:31:35.131671Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 36.23229,
-      "ended_at": "2026-10-09T10:31:35.127687Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:30:58.895397Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.148244,
-      "ended_at": "2026-10-09T10:30:58.890878Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-09T10:30:42.742634Z"
     }
   ],
   "reviewed_preprints": [
