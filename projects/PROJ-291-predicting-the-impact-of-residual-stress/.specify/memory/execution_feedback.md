@@ -56,7 +56,7 @@ FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_fati
 
 - python -m pytest -q -> rc=5
 
-no tests ran in 0.16s
+no tests ran in 0.14s
 
 
 

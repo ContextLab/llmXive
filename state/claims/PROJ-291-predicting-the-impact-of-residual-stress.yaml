@@ -121,3 +121,54 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-10T15:34:26Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: clean pip install completes well under 2-minute budget on GitHub Actions
+    ubuntu-latest runner
+  claim_id: c_5affce7e
+  context: Environment setup section describing dependency installation performance.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A clean `pip install -r requirements.txt` completes in well under the
+    2-minute budget on the GitHub Actions ubuntu-latest runner (CPU-only torch wheel).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:40:42Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: all pipeline steps complete within GitHub Actions free-tier limits of
+    6 hours and 7 GB RAM
+  claim_id: c_65f43c9e
+  context: Quickstart section describing resource usage of the full pipeline and tests.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps complete within the GitHub Actions free-tier limits (\u2264\
+    \ 6 h runtime, < 7 GB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:40:42Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pipeline uses only real public datasets, never synthetic data, for scientific
+    claims
+  claim_id: c_7632f347
+  context: Quickstart section describing data provenance guarantees.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Synthetic data is never used for scientific claims; the pipeline ingests
+    real public datasets from their canonical, version-pinned URLs.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T15:40:42Z'

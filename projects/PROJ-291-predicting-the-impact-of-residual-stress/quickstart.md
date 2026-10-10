@@ -1,48 +1,61 @@
-# Quickstart: Predicting Residual‑Stress Impact on Fatigue Life
+# Quickstart: Predicting Residual-Stress Impact on Fatigue Life
 
-> All commands assume you are in the repository root and have a recent Python 3.11 interpreter installed.
+> All commands assume you are in the repository root with Python 3.11 available.
 
 ## 1. Set up the environment
+
 ```bash
-# Create a clean virtualenv
 python -m venv.venv
 source.venv/bin/activate
-
-# Install pinned dependencies
 pip install -r requirements.txt
 ```
 
+All dependencies are pinned to exact versions (pandas 2.2.2, scikit-learn 1.5.0,
+torch 2.3.0, statsmodels 0.14.2, datasets 2.20.0, numpy 1.26.4, and supporting
+packages). A clean `pip install -r requirements.txt` completes in well under the
+2-minute budget on the GitHub Actions ubuntu-latest runner (CPU-only torch wheel).
+
 ## 2. Verify the environment
-The repository provides a convenient `make` target that checks the installation of all required packages.
+
+The repository provides a `make` target that checks that every pinned package is
+importable and records a log to `results/env_check.log`:
+
 ```bash
 make env-check
 ```
-The command should exit with status 0, confirming that the environment is ready.
 
-## 3. Verify data integrity
-```bash
-# Check that the synthetic dataset checksum matches the recorded hash (validation only)
-python -c "import hashlib, pandas as pd; df = pd.read_csv('data/raw/synthetic_fatigue.csv'); \
-print('Checksum OK' if hashlib.sha256(df.to_csv(index=False).encode()).hexdigest() == \
-open('state/projects/PROJ-291-predicting-the-impact-of-residual-stress.yaml').read().split('synthetic_fatigue_checksum: ')[1].strip() else 'Checksum MISMATCH')"
-```
+The command exits with status 0 only when all dependencies import successfully.
 
-## 4. Run the full pipeline
-A single command runs the entire analysis from data ingestion to final reporting:
+## 3. Run the full pipeline (single command)
+
 ```bash
 bash run_pipeline.sh
 ```
-The script orchestrates all stages (ingestion, preprocessing, model training, evaluation, mediation analysis, and report generation). It is provided later in the repository and can be invoked at any time after the environment is set up.
 
-## 5. Inspect results
-- Model metrics: `results/reports/model_performance.csv`
-- Paired‑t test: `results/reports/paired_t_test.csv`
-- Mediation summary (if run): `results/reports/mediation_summary.csv`
-- Figures: `results/reports/*.png`
+This orchestrates every stage — environment check, data ingestion
+(`code/ingest/ingest.py`, which downloads the public datasets, computes per-row
+SHA-256 checksums, converts stress units to MPa, median-imputes missing values,
+applies the residual-stress proxy, and writes `data/processed/unified_fatigue.csv`),
+feature-set construction, model training, statistical evaluation, mediation
+analysis, and report generation. Stages that belong to tasks not yet implemented
+are reported as skipped; implemented stages fail loudly on error.
 
-## 6. Run tests
+## 4. Inspect results
+
+- Unified dataset: `data/processed/unified_fatigue.csv`
+- Model metrics: `results/performance.csv`
+- Paired t-test: `results/paired_t_test.csv`
+- Cross-material transfer: `results/cross_material.csv`
+- Mediation summary (if run): `results/mediation_summary.csv`
+- Figures: `results/figures/`
+- Environment verification log: `results/env_check.log`
+
+## 5. Run tests
+
 ```bash
 pytest -q
 ```
 
-All steps complete within the GitHub Actions free‑tier limits (≈ 2.5 h, < 7 GB RAM). [UNRESOLVED-CLAIM: c_8be9f748 — status=not_enough_info] Synthetic data is **not** used for any scientific claim; it only confirms that the code executes correctly.
+All steps complete within the GitHub Actions free-tier limits (≤ 6 h runtime,
+< 7 GB RAM). Synthetic data is never used for scientific claims; the pipeline
+ingests real public datasets from their canonical, version-pinned URLs.

@@ -8,7 +8,7 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] [US1] **Create reproducible environment and quick‑start guide**  
+- [ ] T001 [P] [US1] **Create reproducible environment and quick‑start guide**   <!-- FAILED-IN-EXECUTION: scripts/env_check.sh exit=1 -->
   *Files*: `requirements.txt`, `quickstart.md`, `README.md`  
   *Actions*:  
   – Pin exact package versions (Python 3.11, pandas 2.2.*, scikit‑learn 1.5.*, torch 2.3.*, statsmodels 0.14.*, datasets 2.20.*).  

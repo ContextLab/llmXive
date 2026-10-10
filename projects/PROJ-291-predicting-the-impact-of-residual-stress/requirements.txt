@@ -1,4 +1,4 @@
-# Reproducible environment for the residual‑stress fatigue project
+# Reproducible environment for the residual-stress fatigue project
 # Python version: 3.11
 pandas==2.2.2
 numpy==1.26.4
@@ -8,3 +8,6 @@ statsmodels==0.14.2
 datasets==2.20.0
 pyyaml==6.0.1
 pytest==8.2.2
+requests==2.32.3
+jsonschema==4.22.0
+matplotlib==3.9.0
