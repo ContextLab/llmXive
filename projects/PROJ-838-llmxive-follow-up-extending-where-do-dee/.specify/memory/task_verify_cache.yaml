@@ -1,17 +1,37 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code/`, `data/`, or `tests/` directories (or any
-    files within them) was provided; without these artifacts the claim that the project
-    structure was created cannot be verified.
+  c: true
+  h: feb64c2d634d9e5225034494233539442288c83fa28b46085295c2c254626963
+  r: All four required files exist with non-empty content (`code/__init__.py`, `data/raw/.gitkeep`,
+    `data/processed/.gitkeep`, `tests/__init__.py`), and the directory structure (`code`,
+    `data`, `tests`, `data/raw`, `data/processed`, `graphs`, `data/processed/graphs`)
+    is implied by the resolved file paths. The task only asked for scaffolding, which
+    is fully satisfied.
+  sig: 9e09b6722389de37ef9f69efe7fbbeec52f390b65093f56102fc7e4a10746529
+T002:
+  c: true
+  h: a001205a58f6d24e889eb0e33ddeba93329b456f265a56a73d2c72dad44d42ef
+  r: The `requirements.txt` exists at the project root, is non-empty, and contains
+    all eight required packages (pandas, networkx, scikit-learn, spacy, tqdm, pyyaml,
+    requests, scipy) plus a few reasonable extras (datasets, numpy, pytest).
+  sig: dee97da0a8f3d0f9cce41bfd7a36c9fc739bc6da6d3a13b76463b3333bdfb94e
 T003:
+  c: true
+  h: 4483714bd2338e8ff44faef2ee8d2f82ea981d47a4389a94c13727b65e249dad
+  r: The `pyproject.toml` exists at the project root and contains the exact required
+    `[tool.black]` section (line-length=88, target-version=['py311']) and `[tool.ruff]`
+    section (select=['E','W','F'], ignore=['E501']), plus reasonable supporting project/build
+    configuration.
+  sig: 84ae512ef47efc1f60e2d7e3705a4d566f701b4e7ba89fa36546e9e1bab33563
+T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` or `.ruff.toml`
-    for ruff, `black` settings, or a `pre-commit` hook) are present in the provided
-    evidence, nor any documentation showing that ruff and black have been installed
-    and integrated into the project workflow. The required artifacts to demonstrate
-    that linting (ruff) and formatting (black) are configured are missing.
+  h: 96df2e6a71d762f4e66bdac58e738ac6ad2b6fb3887b02993e0231fdbda07011
+  r: '`code/config.py` exists and correctly defines `cutoff_depth=0.3`, `seed=42`,
+    `dataset_url="NJU-LINK/TELBench"`, and a `sensitivity_thresholds` list containing
+    the required [0.01, 0.05, 0.1]. However, the task explicitly requires `null_permutations=1000`,
+    while the file sets its default to 5000 (via `os.environ.get("LLMXIVE_NULL_PERMUTATIONS",
+    5000)`), contradicting the stated requirement. Fix: change the default to 1000
+    (or otherwise match the task''s specified value).'
+  sig: 382291c4c7560b0a55c35034b450b802757b2d44e04880d81f246edb35fe4738
 T004a:
   c: false
   h: ac915ba8e7bd03f89d29d9cc83b866d0fe79dcd3e38538b58a40c388c68dc8ae
@@ -21,6 +41,29 @@ T004a:
     \ the file. Additionally, the shown source for `validator.py` is truncated, suggesting\
     \ the implementation may be incomplete. The task\u2019s core deliverable \u2013\
     \ a non\u2011empty JSON file with the justification/recommendation \u2013 is missing."
+T005:
+  c: false
+  h: 8a48f0fa5247c79468f3dc37f179bedb347afcc0573f314dca6fbbc7bb20c99e
+  r: "`code/hasher.py` exists and implements real hashing logic (chunked sha256, directory\
+    \ hashing, manifest load/save), but `save_hash_manifest` calls `ensure_directories(output_path)`\
+    \ while `code/config.py` defines `ensure_directories()` with no parameters, so\
+    \ that function raises a `TypeError` whenever it is invoked \u2014 a required\
+    \ utility function is non-functional. Fix the call (e.g., call `ensure_directories()`\
+    \ and create the output file's parent directory separately) so the manifest-saving\
+    \ utility actually works."
+  sig: 483b127e6e7065db2b2bd5fb79ebd05d600ca92b28d62c3d758fe478b96e48b1
+T006:
+  c: false
+  h: 3954c169b393c65604f741b69041ea6cdf1357c682802bd7f5e4026455d89241
+  r: "The file exists and `validate_trajectory_record`/`validate_json_file` do handle\
+    \ missing fields with warnings and per-record skipping, but malformed JSON is\
+    \ NOT handled gracefully: `validate_json_file` calls `json.load(f)` with no try/except,\
+    \ so a corrupted JSON file raises an uncaught `JSONDecodeError` and crashes the\
+    \ batch \u2014 directly contradicting acceptance scenario 3 (\"logs a warning\
+    \ and skips that specific trajectory without crashing the entire batch\"). Additionally,\
+    \ `fetch_tebench_streaming` references an undefined `dataset_id` variable (NameError\
+    \ at `logger.info(f\"Starting streaming fetc"
+  sig: 5e6ca71196ec3768cabff68544b43f1d5aca7b98eeeea7789f9a24258a5c25c4
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

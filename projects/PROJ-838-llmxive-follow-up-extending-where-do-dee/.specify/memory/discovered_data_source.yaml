@@ -1,14 +1,12 @@
 status: none
-intent: download TELBench NJU-LINK/TELBench dataset via HuggingFace datasets python
-  package dataset
+intent: TELBench dataset download HuggingFace NJU-LINK/TELBench python package dataset
 required_fields:
 - trajectory_id
-- spans
-- spans.span_id
-- spans.text
-- spans.citation
-- spans.co_reference
-- success_label
-cache_key: 1b702e1db0400efab742e45d902e8c124aa7c7814c013a4ddef200948a520cf4
-searched_at: '2026-07-26T19:33:02.205154+00:00'
+- span_index
+- span_text
+- span_citations
+- span_coreferences
+- outcome_label
+cache_key: 94740aeebc66347f9d91670a68d6c59b0d449c1cc25291a6650d6f65337c1b2f
+searched_at: '2026-10-10T00:18:00.547085+00:00'
 retry_count: 1
