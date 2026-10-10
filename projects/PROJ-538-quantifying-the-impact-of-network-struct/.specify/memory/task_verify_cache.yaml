@@ -1,3 +1,55 @@
+T001.1:
+  c: false
+  h: 2339f300d0cd5f311dcfe6590aee0e3afff928d2c9dfd78c2e2082d1f573a025
+  r: "The project root exists, but the required sub\u2011directories `data/raw`, `data/processed`,\
+    \ `tests/unit`, and `tests/contract` are not present in the listed contents. These\
+    \ folders must be created to satisfy the task\u2019s directory\u2011structure\
+    \ requirement."
+  sig: b60b640e04cc7839431c1eae1820a919ce5b452d834bfcfdc1951a53984662f6
+T003.1:
+  c: false
+  h: 77c265814fd94d6c5d8f01e8dc0c5f8cd5f741a05258d7d8bdc78b9727d1a315
+  r: "The task requires two specific actions: (1) running `ruff init` to initialize\
+    \ Ruff configuration, and (2) configuring `ruff.toml` with `target-version = \"\
+    py311\"`. While a `ruff.toml` file exists at the correct location with substantive\
+    \ configuration, it is **missing the required `target-version = \"py311\"` setting**.\
+    \ The file contains `[lint]` and `[format]` sections but no `[tool.ruff]` section\
+    \ or equivalent top-level configuration specifying the target Python version.\
+    \ Additionally, there is no evidence that `ruff init` was actually executed as\
+    \ a command\u2014the file appears to have been manually "
+  sig: 755e70127dc7f3e96fa303318a20388c3e57874ec7c3951803654e39e5ed837f
+T004.1:
+  c: false
+  h: 01b1bfc892f52d5d942bad741b2731e00cb780602434fa4c6e8a9a2f2ea0f735
+  r: 'The task T004.1 requires creating three data directories: `data/raw`, `data/processed`,
+    and `contracts`. However, no evidence has been provided showing that these directories
+    actually exist in the project at `projects/PROJ-538-quantifying-the-impact-of-network-struct/`.
+    The collector report contains no artifact listing, directory tree, or confirmation
+    that these paths were created. Without explicit evidence that these directories
+    exist and are accessible within the project structure, the task cannot be verified
+    as complete.'
+  sig: 0a62450ff8a3ea6e7e300fc27003343145be0a6e8fa9771185d237282f1dd42f
+T005:
+  c: false
+  h: 1309dbb87e85e3ddc45d664d83b56a4894c203966f652859e048107a499a192d
+  r: 'The task requires a `DataConfig` class with five specific fields (`MODE`, `DATA_PATH`,
+    `REAL_DATA_THRESHOLD`, `SYNTHETIC_SEED`, `GROUND_TRUTH_R`), but the artifact defines
+    a `Config` class with a different structure using `RunMode` enum and Path objects
+    instead of the required string/int/float fields. The implementer created a working
+    configuration system but did not implement the exact class specification requested:
+    `MODE` as a string defaulting to ''auto'', `DATA_PATH` as a string defaulting
+    to ''data/raw'', and the three numeric thresholds/parameters are entirely missing.'
+  sig: f6e3f7a378de7cbc71204fdce8b5a568f2808175cf03b50fea330bd7a989c7c7
+T006:
+  c: false
+  h: feb2626e9770889e67f04032277cb261b8e3221aab2bfaf7d3a38258fe55da59
+  r: "The task requires defining `class VoronoiConstructionError(Exception)` with\
+    \ `error_code = E_VORONOI_FAIL` and a log message template \"Voronoi construction\
+    \ failed for file {filename}: {error}\". The artifact defines `class VoronoiFailure(Exception)`\
+    \ instead\u2014a different class name\u2014and contains no `error_code` attribute,\
+    \ no `E_VORONOI_FAIL` constant, and no log message template. The implementation\
+    \ does not match the specification's explicit naming and behavior requirements."
+  sig: 03a5c92b7baecce09cabdeb322ddcf54aaa783d08744fe3286431b611834f365
 T008:
   c: true
   h: e5ee44b2dda0484fe4748c87488702d4f3d938d7402cc152245b21feb942d636

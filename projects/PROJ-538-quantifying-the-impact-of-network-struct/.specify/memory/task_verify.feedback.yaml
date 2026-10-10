@@ -1,0 +1,138 @@
+T000:
+  task: 06903185493d25c9b9d7cc940f6e6c3244a0b7abe0888f1ce18dae692610ca4f
+T001.1:
+  reason: "The project root exists, but the required sub\u2011directories `data/raw`,\
+    \ `data/processed`, `tests/unit`, and `tests/contract` are not present in the\
+    \ listed contents. These folders must be created to satisfy the task\u2019s directory\u2011\
+    structure requirement."
+  task: e9e8131d2f8b37dc0c6a6e540dbfdca11741b27ccbf1f3776885f292be2a7416
+T002:
+  task: 547c2691f01f81d12cd629f3a39c9a2365a47a306abd44af673faf14b6d7e374
+T003.1:
+  reason: "The task requires two specific actions: (1) running `ruff init` to initialize\
+    \ Ruff configuration, and (2) configuring `ruff.toml` with `target-version = \"\
+    py311\"`. While a `ruff.toml` file exists at the correct location with substantive\
+    \ configuration, it is **missing the required `target-version = \"py311\"` setting**.\
+    \ The file contains `[lint]` and `[format]` sections but no `[tool.ruff]` section\
+    \ or equivalent top-level configuration specifying the target Python version.\
+    \ Additionally, there is no evidence that `ruff init` was actually executed as\
+    \ a command\u2014the file appears to have been manually"
+  task: 0c8010b7b771900e758714a0d90db92cff9fffb313687fc5d2c32770d00b0c4d
+T004.1:
+  reason: 'The task T004.1 requires creating three data directories: `data/raw`, `data/processed`,
+    and `contracts`. However, no evidence has been provided showing that these directories
+    actually exist in the project at `projects/PROJ-538-quantifying-the-impact-of-network-struct/`.
+    The collector report contains no artifact listing, directory tree, or confirmation
+    that these paths were created. Without explicit evidence that these directories
+    exist and are accessible within the project structure, the task cannot be verified
+    as complete.'
+  task: 92b590209eb80b2605f95d1b99e27079bff716c15dfa16964da853e2be5dfc69
+T005:
+  reason: 'The task requires a `DataConfig` class with five specific fields (`MODE`,
+    `DATA_PATH`, `REAL_DATA_THRESHOLD`, `SYNTHETIC_SEED`, `GROUND_TRUTH_R`), but the
+    artifact defines a `Config` class with a different structure using `RunMode` enum
+    and Path objects instead of the required string/int/float fields. The implementer
+    created a working configuration system but did not implement the exact class specification
+    requested: `MODE` as a string defaulting to ''auto'', `DATA_PATH` as a string
+    defaulting to ''data/raw'', and the three numeric thresholds/parameters are entirely
+    missing.'
+  task: 14ebf27b6a369891abebd61da44823b7dd8864b8cc201e4d7e6e488fabca8a8e
+T006:
+  reason: "The task requires defining `class VoronoiConstructionError(Exception)`\
+    \ with `error_code = E_VORONOI_FAIL` and a log message template \"Voronoi construction\
+    \ failed for file {filename}: {error}\". The artifact defines `class VoronoiFailure(Exception)`\
+    \ instead\u2014a different class name\u2014and contains no `error_code` attribute,\
+    \ no `E_VORONOI_FAIL` constant, and no log message template. The implementation\
+    \ does not match the specification's explicit naming and behavior requirements."
+  task: 510d96213cf94830e394b5af5562f81aca66da2cfaf88fd0143d99bc244d3502
+T007:
+  task: 31052b7c053f65447f4502462c0f80cfad3d7a13e487163ed87dfe85fdd19657
+T008:
+  task: 17a54933cf69598a19635afa75cd1fd9e71cdc8460c893361c06e16cbbcca1f1
+T009:
+  task: 71df473e00689624debbafec016bf07cd7532393abf6f1e7b4921cb755357e29
+T010:
+  task: 309110d45c5c78cf9cf165fe09f709f3bf3adc1ed5302b609b9f4d5bde54bfe2
+T011:
+  task: c5acf44e703decd6a62c383dfe82792496f50fef728805c03cd3e887dcc5d86a
+T012:
+  task: a1cdbceb43365bff9e40cc6bc87ce42b09a70721199240e465f79fb8e4c14818
+T013:
+  task: f3a7a6b6b5fa72b8ae93d163ee5b0ba88a4fc2b4ec88c1579df1599f54a4263c
+T014:
+  task: 5abc4af6076edcf4f05419a0312e2ab56c5d780a5b6a810ceefcc5bcdc55ffeb
+T014.1:
+  task: e64a7875ba3fe3b831525df609498cfc5499990d9203e5bf33e81c937670da8d
+T015:
+  task: 650b020d6fc5c912190cfad7aa3ff046389787ef91f2a4f74a8bffaaaae3864c
+T016:
+  task: db92d30c6a99b2235da62e60912d619e7192cb82ab50515c76e6beae5b13f07b
+T017:
+  task: 7760cf5238a7bc7a0bb431d9d8044397ce52f3b4fce60f4c679fa93d3f14f9b8
+T017.1:
+  task: 8f44e8ea3cb096835cfb80233213b4e64f11818c85609d34b407fef66f8e2995
+T019:
+  task: 0295f098dade28ab5dafad4c08ed3c6fa9e39a8a876a4e1b7c642cedc59d7f48
+T020:
+  task: 32d0a27fde04bda0f9b011bf741f0b4658878ee6c6cd7e5c9e35efe3a67d2d63
+T021:
+  task: cdad36e7705c71bf2656102693a0e2dbac4a9ff9eff4082c53b9fe98ef33a7a0
+T022:
+  task: e6da23a704620367e317e851ec48030e22c10c399449ab643d70533acfbffa40
+T023:
+  task: 35b8c6133e14bb118070e065ba56cbd56f5c15aaa2bb173cc62649bd6b80a944
+T024:
+  task: ef7daed4ab74ac87ad51ba88bfd747d33b38bab61e87d8b355636ec86acb304b
+T026:
+  task: 76c968966ddbfaf3ab69cb743da7a73d30baadbc617cd8c5f3c109f7d42697e5
+T027:
+  task: b0f85ca72d56876a8dec1ec4143e45ed5c234bc0a58fa7198f50be170af32862
+T028:
+  task: c0893880803a1b72a8f398e80fe407838f3934c895a641a5478fca254e3b5900
+T029:
+  task: c27e87c3792f9022a39c0bc9bf0272dc84d020f93315dec5510d63a3f8752678
+T030:
+  task: d5461032dd9afb97ef2fa0face35927755b4f472f4884276b1412efcc7a2d4d6
+T031:
+  task: 9e76913e96d13bd8c6828ea50bb366021630b70bbfae4ad73ba9f1f7a7af7576
+T032:
+  task: 0350492cfa7b9db40232a44666b6864bc0ec332d4fbc9a90ca3c53252eb764a6
+T033:
+  task: da21d1bff4b92402a7afc0333feabb018ab53825d0e29da393549f922a848982
+T034:
+  task: fe7ea90f6f6e771b6e54c5c1b4e0ebc2dcd8752c02acd6c5544b77d2efd7894f
+T035:
+  task: ef6a61506659d9fc7f3d749b108353f4245da8b59072001e43615862d6c52c16
+T039:
+  task: bac5359cf8a523e3b0512c99bd21154ffa6c3167d353cb2348394bd5fbb49eb8
+T040:
+  task: 315aea6bc37202345a2b06dfd2dd41f2cbb3d3464d121d3d03adbd752425e9a5
+T041:
+  task: 17437c7727fc0d2e3f2fea1f50105029b70ed7bcb8843617f0430788bed79105
+T042:
+  task: c2f882752f2169ffbbb905e53be4fd12d7262d654698b8fd8cc3979bc15eeba4
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/results_summary.json'
+  task: 427dc3f6043461835c88143deee4a3e437251c092ddcb26bb0861eeae1ef74a1
+T044:
+  task: c5c99bbf438aba261952477590147a0988e21817df1b218f327e2244567d4ec0
+T045:
+  task: 6ce802b36a880bb6a48b9e49b69a12047121d235f3acdbfc061951bc237a5ba8
+T046:
+  task: 8ac45a8205a13b5e8d168431f1b402396cf0ec8c47f21d8614595e2c1d29ffec
+T047:
+  task: f83e0371c385c7be6f6af8891dce2b8b7b6759e8879ee956d7cab5a1502c4b75
+T048:
+  task: 6c1c220e18ed209c9b13a4360607f8c977863cc97346aae4e627b0350e4e12a7
+T049:
+  task: 127a1cdc44e9a1177f816cfb499a3d5abb13407ac9723902b43f13be38d98a61
+T050:
+  task: efe50e1b3ecaad6e370a23169c79166af3f0225ce1ddd008f54d7a0af210934c
+T052:
+  task: 6a07164e0e9dbfc258a64c11f054ee550cc7e2570834f1f9b07b684f2417a353
+T053:
+  task: 0d8e9012d1eae3c7b6e290d2565dcc25a0b58e5fff4288882dd06605813cee1b
+T054:
+  task: fc1043c250276b33a11ed7e511f53ddfd28efb6c9f1a17be4d587663be0d4dba
+T055:
+  task: c9cc81f84e16e4e191053985c612b126549915ebf1f049c394344f6429ec9ad9

@@ -1,16 +1,16 @@
 status: none
-intent: OpenKIM and Materials Cloud Cu-Ni Au-Ag alloy MD snapshots dataset python
-  package dataset
+intent: OpenKIM Cu-Ni alloy MD snapshots download Materials Cloud Au-Ag dataset python
+  package
 required_fields:
-- atom_id
-- element
-- x
-- y
-- z
+- atomic_index
+- atomic_species
+- x_coordinate
+- y_coordinate
+- z_coordinate
+- cell_vectors
 - snapshot_id
 - temperature
-- thermal_conductivity
-- cell_vectors
-cache_key: 76fa153b56103831f82af2567e068d08ce858d0cfded4b7130ef8605ad2c8737
-searched_at: '2026-09-28T03:07:28.488482+00:00'
+- precalculated_thermal_conductivity
+cache_key: df808c04e067d933f1d7779987dc9bbcfa0f87865cd6005e9f3b5bd5211a375a
+searched_at: '2026-10-10T01:40:25.686068+00:00'
 retry_count: 1
