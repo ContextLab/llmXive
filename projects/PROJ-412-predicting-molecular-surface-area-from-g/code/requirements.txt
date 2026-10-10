@@ -1,18 +1,33 @@
-# Core dependencies
+# Pinned dependencies for PROJ-412 (Task T002)
+# PyTorch CPU wheels are served from the PyTorch index; the extra-index-url
+# below lets `pip install -r code/requirements.txt` resolve torch==2.1.0
+# from the CPU wheel repository while everything else comes from PyPI.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Core scientific stack
 rdkit==2023.9.5
 pandas==2.1.4
 scikit-learn==1.3.2
 pyyaml==6.0.1
 numpy==1.26.2
-pytest==7.4.3
+
+# Deep learning (CPU)
+torch==2.1.0
+torch-geometric==2.4.0
+
+# Tooling
 ruff==0.1.6
 black==23.11.0
+
+# Data ingestion (HuggingFace)
 datasets==2.15.0
 huggingface_hub==0.19.4
 
-# Note: PyTorch and Torch Geometric are installed via specific index URLs as per task T002-Install.
-# They are not listed here to avoid conflicts with the standard index, but their versions are
-# implicitly required by the project plan (torch==2.1.0, torch-geometric==2.4.0).
-# Installation commands:
-#   pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
-#   pip install torch-geometric==2.4.0 --index-url https://download.pytorch.org/whl/cpu
+# Transitive pin: datasets pulls in pyarrow; unpinned it resolves to a
+# build that requires NumPy >= 2.0, which breaks the numpy==1.26.2 pin
+# above (ImportError: pyarrow requires NumPy 2.0 or newer). pyarrow 14.x
+# is the version contemporary with the pinned stack and supports NumPy 1.x.
+pyarrow==14.0.2
+
+# Testing
+pytest==7.4.3

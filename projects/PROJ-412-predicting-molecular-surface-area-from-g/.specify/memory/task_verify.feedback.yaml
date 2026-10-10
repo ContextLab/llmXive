@@ -7,12 +7,6 @@ T001-Setup-Dirs-Results:
 T001-Setup-Execute:
   task: 3d442431b54d4453c8241b75092de6d03bdeec103db26ff550d57c4d0328cbe0
 T002:
-  reason: "The requirements.txt exists but omits pinned `torch==2.1.0` and `torch-geometric==2.4.0`\
-    \ as actual entries \u2014 they appear only in a comment claiming they're installed\
-    \ via separate index URLs, which does not satisfy the task's requirement that\
-    \ the file contain pinned versions of all eleven listed packages. Fix by adding\
-    \ both pins (e.g., with `--extra-index-url` directives if needed) directly in\
-    \ `code/requirements.txt`."
   task: b48db4b8f3e65acb10a956eef4c0ed8644e478221117356d5a1974484913cf48
 T002-Install:
   task: 6a3f26475d4165d79e82aed572288b2684ae3da0c67bb2a0ab232adca9598594
