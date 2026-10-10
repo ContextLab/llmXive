@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-531-the-impact-of-visual-motion-on-perceived",
+  "stage": "planned",
+  "class": "transient",
+  "fingerprint": "model_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-10T17:45:50.426964+00:00",
+  "last_seen": "2026-10-10T17:45:50.426964+00:00",
+  "retry_after": "2026-10-10T17:55:50.426964+00:00",
+  "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(model-down attempt 1): Dartmouth model 'zai-org.glm-5.3' hung past 84s deadline (no response received) | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
+  "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(model-down attempt 1): Dartmouth model 'zai-org.glm-5.3' hung past 84s deadline (no response received) | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
+}
