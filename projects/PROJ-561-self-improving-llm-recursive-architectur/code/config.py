@@ -9,6 +9,11 @@ from typing import Optional, Dict, Any, List
 # Configure logging for the module
 logger = logging.getLogger(__name__)
 
+# FR-003 hard cap: the maximum allowed parameter increase ratio above the
+# GPT-2 baseline. Any value parsed from research.md that exceeds this cap
+# is clamped to it.
+MAX_PARAM_INCREASE_RATIO = 0.30
+
 class Hyperparameters:
     """Container for training hyperparameters."""
     def __init__(self, lr: float = 5e-5, batch_size: int = 4, seed: int = 42, epochs: int = 1):
@@ -59,7 +64,7 @@ def _parse_research_md_for_param_limit(research_path: str) -> Optional[float]:
     try:
         with open(research_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         # Check if the methodology section exists
         if "## Methodology for Parameter Limit" not in content:
             logger.warning("Methodology for Parameter Limit section not found in research.md.")
@@ -71,10 +76,10 @@ def _parse_research_md_for_param_limit(research_path: str) -> Optional[float]:
         section_start = content.find("## Methodology for Parameter Limit")
         if section_start == -1:
             return None
-        
+
         # Look within the next 2000 characters for a ratio definition
         section_content = content[section_start : section_start + 2000]
-        
+
         # Check for deferred markers first
         if "[deferred]" in section_content.lower() or "deferred" in section_content.lower():
             logger.info("Parameter limit found as [deferred] in research.md.")
@@ -84,7 +89,7 @@ def _parse_research_md_for_param_limit(research_path: str) -> Optional[float]:
         # Pattern: number (possibly with leading 0.)
         pattern = r'(?:ratio|limit|max_param|increase).*[:\s=]+([0-9]*\.?[0-9]+)'
         matches = re.findall(pattern, section_content, re.IGNORECASE)
-        
+
         if matches:
             try:
                 val = float(matches[0])
@@ -93,13 +98,29 @@ def _parse_research_md_for_param_limit(research_path: str) -> Optional[float]:
                     return val
             except ValueError:
                 pass
-        
+
         logger.warning("No valid numeric parameter limit found in research.md methodology section.")
         return None
 
     except Exception as e:
         logger.error(f"Error parsing research.md for parameter limit: {e}")
         return None
+
+def _clamp_param_ratio(value: Optional[float]) -> Optional[float]:
+    """
+    Clamps a parameter increase ratio to the FR-003 hard cap (0.30).
+    Any value read from research.md exceeding 0.30 is clamped to 0.30.
+    None (deferred) passes through unchanged.
+    """
+    if value is None:
+        return None
+    if value > MAX_PARAM_INCREASE_RATIO:
+        logger.warning(
+            f"Parameter increase ratio {value} from research.md exceeds the "
+            f"FR-003 hard cap {MAX_PARAM_INCREASE_RATIO}. Clamping to {MAX_PARAM_INCREASE_RATIO}."
+        )
+        return MAX_PARAM_INCREASE_RATIO
+    return value
 
 def get_config() -> Config:
     """Returns the global configuration, initializing it if necessary."""
@@ -116,29 +137,29 @@ def set_config(cfg: Config) -> None:
 def _init_config() -> Config:
     """Initializes the configuration with defaults and research overrides."""
     base_dir = os.getenv("PROJECT_ROOT", ".")
-    
+
     # Initialize paths
     paths = PathConfig(base_dir)
-    
+
     # Initialize safety constraints
     # Default provisional value is 0.30, but we check research.md first
     research_path = paths.research_md
     param_ratio = _parse_research_md_for_param_limit(research_path)
-    
-    if param_ratio is None:
-        # If research.md doesn't define it, we use None (deferred) or a provisional default
-        # The task says: set to None (or '[DEFERRED]') and log a warning that default 0.30 is provisional.
-        # We will store None to indicate it's not set, and the system should handle the default logic where used.
-        # However, for the SafetyConstraints object, we can store a provisional default if needed, 
-        # but the task implies we should reflect the "deferred" state.
-        # Let's store None to represent "not defined by research", and let consumers handle the 0.30 default.
-        # But the task says: "set to None (or '[DEFERRED]')". We'll use None.
-        safety = SafetyConstraints(max_param_increase_ratio=None)
-        logger.warning("MAX_PARAM_INCREASE_RATIO not defined in research.md. Using None (provisional default 0.30 must be handled by consumers).")
-    else:
-        safety = SafetyConstraints(max_param_increase_ratio=param_ratio)
 
-    # Initialize hyperparameters
+    if param_ratio is None:
+        # research.md does not define a value; the FR-003 cap of 0.30 is the
+        # provisional default enforced everywhere the limit is consumed.
+        safety = SafetyConstraints(max_param_increase_ratio=None)
+        logger.warning(
+            "MAX_PARAM_INCREASE_RATIO not defined in research.md. Using None "
+            "(provisional FR-003 default of 0.30 applies)."
+        )
+    else:
+        # FR-003: clamp any research.md value exceeding 0.30 to 0.30.
+        clamped = _clamp_param_ratio(param_ratio)
+        safety = SafetyConstraints(max_param_increase_ratio=clamped)
+
+    # Initialize hyperparameters (FR-004: lr=5e-5, bs=4, 1 epoch)
     hyperparams = Hyperparameters(
         lr=5e-5,
         batch_size=4,
@@ -171,8 +192,9 @@ def get_trajectory_path() -> str:
 def get_max_param_increase_percent() -> Optional[float]:
     """
     Returns the max parameter increase ratio.
-    If research.md defined a value, returns it.
-    If not, returns None (indicating the provisional 0.30 default is in effect but not formally set).
+    If research.md defined a value, returns it (clamped to the FR-003 cap).
+    If not, returns None (indicating the provisional 0.30 default is in
+    effect but not formally set).
     """
     return get_config().safety.max_param_increase_ratio
 

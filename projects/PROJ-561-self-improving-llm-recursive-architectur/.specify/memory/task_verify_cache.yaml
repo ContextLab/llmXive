@@ -56,14 +56,14 @@ T001d:
   sig: 34ff751262f5a46eff4464f9f8bacea9879e0b33e020084fdd99097d0614fa04
 T001e:
   c: true
-  h: c1b227c0f1e4659e60da5f2d2cfe30cf8e3d3bd81083dc5e075a23f4820a0e7e
-  r: "Checked `code/utils/random.py` (2143\u202Fbytes) \u2013 it imports `get_seed`\
-    \ from `config.py`, validates the seed is an integer, and calls `random.seed`,\
-    \ `np.random.seed`, `torch.manual_seed` (and `torch.cuda.manual_seed_all` when\
-    \ CUDA is available) with that seed, then pins the seeds on import. This fulfills\
-    \ the task\u2019s requirement that the three seeding functions be invoked with\
-    \ the seed from `config.py`."
-  sig: 1c71d19c0facca4b8207a63fc89248a8ef26c3040609292f86f304f6f747cfb0
+  h: dcf72f37c8a2e14a93eaf93e1645156696b0015203bcafe80ba7c3e2c1d85128
+  r: '`code/utils/random.py` exists and implements `pin_random_seed()` which calls
+    `random.seed(seed)`, `np.random.seed(seed)`, and `torch.manual_seed(seed)` with
+    the seed obtained from `config.get_seed()` (which returns the config''s seed,
+    default 42), plus optional CUDA seeding. The verification criterion (unit test
+    asserting those three calls with the config seed) is satisfiable by this implementation;
+    no stubs or placeholders are present.'
+  sig: 2381f8aa3d25fa68fa9d1fbd56a3f9a32ff99abdf16efece31c4ce4b4d454ca0
 T001f:
   c: true
   h: 0d84538a6b75023f9c52373c96b9902c4f74fd6501ac1230d751791ec87ebc70
@@ -84,12 +84,15 @@ T001g:
   sig: 71410f4c18669b0bbd89be777213165eee375e87e0bb80ad360d9f94e9364f55
 T005b:
   c: true
-  h: d4cd2992587644386a85be54d90dbef2e8644a11ef8e7d6aa3c60691a0fb075b
-  r: "Checked `code/pipeline/loader.py` where `exponential_backoff` is defined with\
-    \ an initial 30\u202Fs delay and a maximum of 5 retries, and verified the accompanying\
-    \ unit tests in `tests/unit/test_backoff.py` that confirm the correct back\u2011\
-    off schedule and exhaustion behavior."
-  sig: 95062998ad2202f55b17507ff6e6912dc5e25270015c6e0deb87bbb7b138caf5
+  h: dc566a3aa4362e0aa35d19e668edff7c9f4cb9e364257d7d3f9b74fc9633156c
+  r: '`code/pipeline/loader.py` contains a real `exponential_backoff` decorator with
+    initial_delay=30 s, max_retries=5, exponential doubling, and re-raise of the original
+    exception after exhaustion, and `tests/unit/test_backoff.py` exists with two substantive
+    tests (success-after-retries verifying 30 s/60 s delays, and exhaustion re-raising
+    the original error) that correctly monkeypatch `time.sleep` and `random.uniform`
+    to match the implementation''s module-level usage. The stubs in loader.py belong
+    to other tasks and do not affect this requirement.'
+  sig: 2bfa78bba46d95cae72f5cbca06492ead0764b1801080b932b7e2f0168d3b09e
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
