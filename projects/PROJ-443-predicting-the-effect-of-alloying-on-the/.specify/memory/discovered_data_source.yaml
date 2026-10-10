@@ -1,19 +1,18 @@
 status: none
-intent: download high entropy alloy composition elastic constants dataset Materials
-  Project OQMD python package dataset
+intent: High entropy alloy elastic property dataset from Materials Project and OQMD
+  python package dataset
 required_fields:
 - composition_string
 - element_fractions
-- num_principal_elements
-- elastic_moduli_bulk
-- elastic_moduli_shear
-- elastic_tensor_components
-- mixing_enthalpy
-- atomic_radius_variance
-- electronegativity_variance
-- ilr_transformed_features
-- source_database
-- retrieval_timestamp
-cache_key: f856878d1ca74f7cde9c5283898341a1940ec8023218ec4b0f3f24170595b36f
-searched_at: '2026-10-10T00:33:54.784557+00:00'
+- number_of_elements
+- bulk_modulus_GPa
+- shear_modulus_GPa
+- elastic_tensor_Cij
+- formation_energy_per_atom
+- spacegroup_number
+- density_g_cm3
+- lattice_parameters_a_b_c
+- lattice_angles_alpha_beta_gamma
+cache_key: 92beb2e34e8b4d6ce42c15d94a225c73d921f6f3ca19bd69d3baa51012725d63
+searched_at: '2026-10-10T00:36:38.604415+00:00'
 retry_count: 1

@@ -1,1 +1,1 @@
-"""Test suite for HEA Elastic Modulus Prediction."""
+# Init for code/tests package

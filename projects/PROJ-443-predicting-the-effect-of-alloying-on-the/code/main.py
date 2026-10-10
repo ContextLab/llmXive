@@ -1,66 +1,87 @@
 """
-Main entry point for the HEA elastic modulus prediction pipeline.
+Top‑level orchestration script for the HEA elastic‑modulus pipeline.
 
-The command ``python -m code.main --stage all`` is the canonical
-entry used throughout the documentation.  At this stage of the
-project the script only provides a lightweight dispatcher that
-acknowledges the requested stage; subsequent tasks will flesh out
-the actual pipeline logic.
+The ``--stage`` command‑line argument selects which part of the pipeline
+to run.  For the purpose of task **T002** we implement the ``fetch``
+stage, which delegates to :pymod:`code.data.fetch` and records provenance
+metadata.
 """
 
 import argparse
+import logging
 import sys
 
-def _stage_all() -> None:
-    """Placeholder for the full pipeline execution."""
-    print("🚀 Running full pipeline (stage: all).")
-    # Future implementation will invoke fetch → clean → engineer → train → evaluate → report
-    # For now we simply acknowledge the request.
-    sys.exit(0)
+from code.data.fetch import fetch_all
+from code.utils.logging_config import setup_logging, get_logger
+
+logger = get_logger(__name__)
 
 def _stage_fetch() -> None:
-    print("⚙️ Fetch stage requested – not yet implemented.")
-    sys.exit(0)
+    """
+    Execute the data‑ingestion stage.
 
+    This function calls :func:`code.data.fetch.fetch_all`, which handles
+    retrieval from the Materials Project and OQMD, writes raw dumps to
+    ``data/raw/``, and generates ``data/source_metadata.yaml``.
+    """
+    logger.info("Starting FETCH stage.")
+    fetch_all()
+    logger.info("FETCH stage completed successfully.")
+
+
+# ----------------------------------------------------------------------
+# Placeholder stubs for other stages (required for CLI completeness)
+# ----------------------------------------------------------------------
 def _stage_engineer() -> None:
-    print("⚙️ Engineer stage requested – not yet implemented.")
-    sys.exit(0)
+    logger.info("ENGINEER stage not implemented in this task.")
+    # In a full implementation this would invoke feature‑engineering code.
+
 
 def _stage_train() -> None:
-    print("⚙️ Train stage requested – not yet implemented.")
-    sys.exit(0)
+    logger.info("TRAIN stage not implemented in this task.")
+    # In a full implementation this would train regression models.
+
 
 def _stage_report() -> None:
-    print("⚙️ Report stage requested – not yet implemented.")
-    sys.exit(0)
+    logger.info("REPORT stage not implemented in this task.")
+    # In a full implementation this would generate the final report.
 
-def main() -> None:
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main(argv: list | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="HEA Elastic Modulus Prediction Pipeline"
     )
     parser.add_argument(
         "--stage",
-        type=str,
+        choices=["fetch", "engineer", "train", "report", "all"],
         required=True,
-        choices=["all", "fetch", "engineer", "train", "report"],
         help="Pipeline stage to execute.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    stage_dispatch = {
-        "all": _stage_all,
-        "fetch": _stage_fetch,
-        "engineer": _stage_engineer,
-        "train": _stage_train,
-        "report": _stage_report,
-    }
+    # Initialise logging – default INFO level; can be overridden by env vars
+    setup_logging(level="INFO")
 
-    # Dispatch to the appropriate stage function
-    stage_func = stage_dispatch.get(args.stage)
-    if stage_func is None:
-        parser.error(f"Unknown stage: {args.stage}")
+    if args.stage == "fetch":
+        _stage_fetch()
+    elif args.stage == "engineer":
+        _stage_engineer()
+    elif args.stage == "train":
+        _stage_train()
+    elif args.stage == "report":
+        _stage_report()
+    elif args.stage == "all":
+        _stage_fetch()
+        _stage_engineer()
+        _stage_train()
+        _stage_report()
     else:
-        stage_func()
+        logger.error("Unknown stage: %s", args.stage)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -12,9 +12,74 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/features/descriptors.py: self-declared fabricated metric — “…elements)     factor = 10.0 # Arbitrary scaling factor for the simplified mod…”; 2 command(s) failed: python -m pytest tests/contract/ (rc=4); python -m pytest tests/integration/ (rc=2); 1 declared deliverable(s) absent: data/processed/hea_features.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/features/descriptors.py: self-declared fabricated metric — “…elements)     factor = 10.0 # Arbitrary scaling factor for the simplified mod…”; 7 command(s) failed: python -m code.main --stage all (rc=1); python -m code.main --stage fetch (rc=1); python -m code.main --stage engineer (rc=1); 1 declared deliverable(s) absent: data/processed/hea_features.csv
 
 ## Failing / missing run-book commands
+
+- python -m code.main --stage all -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/main.py", line 14, in <module>
+    from code.data.fetch import fetch_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/fetch.py", line 24, in <module>
+    from .metadata import write_metadata_entry, check_and_update_provenance
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/metadata.py", line 22, in <module>
+    from jsonschema import validate, ValidationError as JsonSchemaError
+ModuleNotFoundError: No module named 'jsonschema'
+
+- python -m code.main --stage fetch -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/main.py", line 14, in <module>
+    from code.data.fetch import fetch_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/fetch.py", line 24, in <module>
+    from .metadata import write_metadata_entry, check_and_update_provenance
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/metadata.py", line 22, in <module>
+    from jsonschema import validate, ValidationError as JsonSchemaError
+ModuleNotFoundError: No module named 'jsonschema'
+
+- python -m code.main --stage engineer -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/main.py", line 14, in <module>
+    from code.data.fetch import fetch_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/fetch.py", line 24, in <module>
+    from .metadata import write_metadata_entry, check_and_update_provenance
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/metadata.py", line 22, in <module>
+    from jsonschema import validate, ValidationError as JsonSchemaError
+ModuleNotFoundError: No module named 'jsonschema'
+
+- python -m code.main --stage train -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/main.py", line 14, in <module>
+    from code.data.fetch import fetch_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/fetch.py", line 24, in <module>
+    from .metadata import write_metadata_entry, check_and_update_provenance
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/metadata.py", line 22, in <module>
+    from jsonschema import validate, ValidationError as JsonSchemaError
+ModuleNotFoundError: No module named 'jsonschema'
+
+- python -m code.main --stage report -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/main.py", line 14, in <module>
+    from code.data.fetch import fetch_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/fetch.py", line 24, in <module>
+    from .metadata import write_metadata_entry, check_and_update_provenance
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/code/data/metadata.py", line 22, in <module>
+    from jsonschema import validate, ValidationError as JsonSchemaError
+ModuleNotFoundError: No module named 'jsonschema'
 
 - python -m pytest tests/contract/ -> rc=4
 ============================= test session starts ==============================
@@ -44,12 +109,12 @@ tests/integration/test_data_fetch.py:27: in <module>
     setup_logging(level="DEBUG")
 E   TypeError: setup_logging() got an unexpected keyword argument 'level'
 ------------------------------- Captured stderr --------------------------------
-2026-10-10 00:32:49 - root - INFO - Logging initialized at level INFO
-2026-10-10 00:32:49 - root - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/logs/pipeline.log
+2026-10-10 00:35:32 - root - INFO - Logging initialized at level INFO
+2026-10-10 00:35:32 - root - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-443-predicting-the-effect-of-alloying-on-the/logs/pipeline.log
 =========================== short test summary info ============================
 ERROR tests/integration/test_data_fetch.py - TypeError: setup_logging() got a...
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.48s ===============================
+=============================== 1 error in 0.44s ===============================
 
 
 

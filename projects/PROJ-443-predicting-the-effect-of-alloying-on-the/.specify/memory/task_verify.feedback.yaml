@@ -7,6 +7,7 @@ T001:
     shown in the provided artifact list.
   task: 8a10b10494db877c36bf8260d3e025603408eb8afdc0c9f0e7c2b9732b8b2770
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 71a9d36b8235dcf256db2d89887a4f2d5903d202a9ef8dc2a3d3cb213b9cc0ad
 T003:
   task: a11e4eecfbf7b353e7aaea4fd7a50c3a28e01eccf1a518a682f319dd333e24d1
