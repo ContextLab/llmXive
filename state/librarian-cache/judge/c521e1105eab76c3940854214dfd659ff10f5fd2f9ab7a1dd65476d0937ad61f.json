@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.09579",
+  "judged_at": "2026-10-10T21:20:57Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"when vision speaks for sound\" computer science",
+  "rationale": "This is a comprehensive survey of audio-visual learning, the exact field underlying \"When Vision Speaks for Sound\" (audio-visual cross-modal learning). It satisfies category (d)/(f) as the canonical survey reference any follow-up work in audio-visual learning would cite for framing, taxonomy, and future directions.",
+  "relevant": true
+}

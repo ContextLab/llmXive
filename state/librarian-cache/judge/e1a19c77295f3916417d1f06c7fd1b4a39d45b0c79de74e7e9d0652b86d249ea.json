@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.11583",
+  "judged_at": "2026-10-10T21:21:41Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"when vision speaks for sound\" computer science",
+  "rationale": "The paper is canonical audio-visual cross-modal work — it studies associating semantic, acoustic, and visual cues, directly relevant to a follow-up on \"When Vision Speaks for Sound\" (audio-visual grounding/learning). It satisfies (a)/(f) as same-mechanism prior work on audio-visual semantic association, and it also provides the SoundSpaces simulation infrastructure commonly cited in this literature.",
+  "relevant": true
+}

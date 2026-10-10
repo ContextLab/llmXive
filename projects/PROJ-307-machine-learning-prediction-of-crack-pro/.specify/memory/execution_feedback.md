@@ -9,83 +9,58 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --step download -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 135, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 132, in main
-    run_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 30, in run_pipeline
-    ensure_dirs(config)
-TypeError: ensure_dirs() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 9, in <module>
+    from data.loader import load_nasa_data, load_nist_data, validate_schema
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/data/loader.py", line 10, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
 
 - python code/main.py --step preprocess -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 135, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 132, in main
-    run_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 30, in run_pipeline
-    ensure_dirs(config)
-TypeError: ensure_dirs() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 9, in <module>
+    from data.loader import load_nasa_data, load_nist_data, validate_schema
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/data/loader.py", line 10, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
 
 - python code/main.py --step baseline -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 135, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 132, in main
-    run_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 30, in run_pipeline
-    ensure_dirs(config)
-TypeError: ensure_dirs() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 9, in <module>
+    from data.loader import load_nasa_data, load_nist_data, validate_schema
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/data/loader.py", line 10, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
 
 - python code/main.py --step augmented -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 135, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 132, in main
-    run_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 30, in run_pipeline
-    ensure_dirs(config)
-TypeError: ensure_dirs() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 9, in <module>
+    from data.loader import load_nasa_data, load_nist_data, validate_schema
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/data/loader.py", line 10, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
 
 - python code/main.py --step regimes -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 135, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 132, in main
-    run_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 30, in run_pipeline
-    ensure_dirs(config)
-TypeError: ensure_dirs() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 9, in <module>
+    from data.loader import load_nasa_data, load_nist_data, validate_schema
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/data/loader.py", line 10, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
 
 - python code/main.py --step full -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 135, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 132, in main
-    run_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 30, in run_pipeline
-    ensure_dirs(config)
-TypeError: ensure_dirs() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/main.py", line 9, in <module>
+    from data.loader import load_nasa_data, load_nist_data, validate_schema
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/data/loader.py", line 10, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
 
-- python -m pytest tests/ -> rc=2
-tegration/test_permutation.py:64
-  /home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/tests/integration/test_permutation.py:64: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    @pytest.mark.integration
+- python -m pytest tests/ -> rc=1
 
-tests/integration/test_permutation.py:135
-  /home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/tests/integration/test_permutation.py:135: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    @pytest.mark.integration
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ============================
-ERROR tests/integration/test_baseline.py
-ERROR tests/unit/test_augmented.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 2 warnings, 2 errors in 1.13s =========================
-
+/home/runner/work/llmXive/llmXive/projects/PROJ-307-machine-learning-prediction-of-crack-pro/code/.venv/bin/python: No module named pytest
 
