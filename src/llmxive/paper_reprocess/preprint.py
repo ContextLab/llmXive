@@ -93,7 +93,7 @@ def ingestion_statement(manifest: dict[str, Any]) -> str:
         origin = via
     else:
         origin = "ingested from an external source"
-    parts = [f"Ingested by llmXive"]
+    parts = ["Ingested by llmXive"]
     if when:
         parts[0] += f" on {when[:10]}"
     parts[0] += f" — {origin}"

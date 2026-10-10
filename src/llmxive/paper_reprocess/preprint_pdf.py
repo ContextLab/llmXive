@@ -18,6 +18,7 @@ is concatenated, guaranteeing the no-modification invariant mechanically.
 from __future__ import annotations
 
 import logging
+import re as _re
 import shutil
 from pathlib import Path
 
@@ -72,8 +73,8 @@ def tex_escape(text: str, *, smart_quotes: bool = True) -> str:
         "^": r"\textasciicircum{}",
         # Unicode “smart” punctuation the LLMs emit -> LaTeX quotes/dashes.
         "“": "``", "”": "''",      # “ ”
-        "‘": "`", "’": "'",         # ‘ ’
-        "–": "--", "—": "---",      # en / em dash
+        "\u2018": "`", "\u2019": "'",   # single quotes
+        "\u2013": "--", "\u2014": "---",  # en / em dash
         "…": r"\ldots{}",                 # …
     }
     _openers = " \t\n([{~/-"  # a straight quote after one of these opens
@@ -345,7 +346,6 @@ def prepend_cover_to_pdf(cover_pdf: Path, original_pdf: Path, out_path: Path) ->
 # --------------------------------------------------------------------------- #
 # Markdown -> LaTeX (the review body is free-form markdown)
 # --------------------------------------------------------------------------- #
-import re as _re
 
 # Inline tokens, in precedence order. Code first (so ** inside `code` is
 # literal); then LaTeX math spans (``$...$``, ``$$...$$``, ``\(..\)``, ``\[..\]``)

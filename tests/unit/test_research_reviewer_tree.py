@@ -116,9 +116,11 @@ def test_advisory_comments_surfaced_as_context_not_gating(tmp_path: Path, monkey
     the user-requested handling: advisory comments influence the evaluation,
     they are not discarded (fix #2) nor are they a gating vote."""
     import shutil
+
     import yaml
-    from llmxive.agents.research_reviewer import ResearchReviewerAgent
+
     from llmxive.agents.base import AgentContext
+    from llmxive.agents.research_reviewer import ResearchReviewerAgent
     from llmxive.config import repo_root as _rr
 
     # Self-contained repo: copy the real prompt tree so render_prompt resolves
@@ -130,7 +132,9 @@ def test_advisory_comments_surfaced_as_context_not_gating(tmp_path: Path, monkey
     (base / "specs" / "001-x").mkdir(parents=True)
     (base / "specs" / "001-x" / "spec.md").write_text("# Spec\nq", encoding="utf-8")
     (base / "specs" / "001-x" / "tasks.md").write_text("- [x] T001 do it", encoding="utf-8")
-    (base / "code").mkdir(); (base / "data").mkdir(); (base / "docs").mkdir()
+    (base / "code").mkdir()
+    (base / "data").mkdir()
+    (base / "docs").mkdir()
     rdir = base / "reviews" / "research"
     rdir.mkdir(parents=True)
     rec = {

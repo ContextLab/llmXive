@@ -1,7 +1,9 @@
 """A real failed command cannot be accepted by an optimistic model review."""
 from types import SimpleNamespace
+
 import pytest
 import yaml
+
 from llmxive.agents import task_verifier as tv
 from llmxive.backends.base import ChatResponse
 from llmxive.speckit.implement_cmd import ImplementerAgent
@@ -56,7 +58,7 @@ def test_edit_without_rerun_cannot_erase_real_failure(tmp_path, monkeypatch):
 
 
 def test_legacy_checked_failure_invalidates_even_matching_acceptance_cache(tmp_path, monkeypatch):
-    project, tasks, mechanical = setup(tmp_path)
+    project, tasks, _mechanical = setup(tmp_path)
     (project/'scripts').mkdir()
     (project/'scripts/study.sh').write_text('exit 7\n')
     rest = 'T001 Execute scripts/study.sh <!-- FAILED-IN-EXECUTION: scripts/study.sh exit=7 -->'

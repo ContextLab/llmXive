@@ -3,6 +3,7 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import openai
 import pytest
 
 
@@ -10,6 +11,7 @@ import pytest
 def test_real_sdk_does_not_repeat_failed_http_requests(monkeypatch, failure):
     import langchain_dartmouth.llms as sdk
     from langchain_core.messages import HumanMessage
+
     from llmxive.backends import dartmouth
     calls = []
     class Handler(BaseHTTPRequestHandler):
@@ -37,7 +39,11 @@ def test_real_sdk_does_not_repeat_failed_http_requests(monkeypatch, failure):
     monkeypatch.setattr(dartmouth,'_DEFAULT_REASONING_DEADLINE_S',0.08 if failure == 'read_timeout' else 2.0)
     try:
         client = dartmouth.DartmouthBackend(max_retries=0)._client('zai-org.glm-5.3')
-        with pytest.raises(Exception):
+        # The two failure modes surface as openai.InternalServerError and
+        # openai.APITimeoutError (verified against the local server); both are
+        # openai.APIError. Asserting that, rather than a blind Exception, keeps
+        # the test from passing on an error raised by its own scaffolding.
+        with pytest.raises(openai.APIError):
             client.invoke([HumanMessage(content='local retry boundary')], max_tokens=8)
         assert calls == ['/v1/chat/completions']
         assert client.root_client.max_retries == 0

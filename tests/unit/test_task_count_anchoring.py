@@ -16,7 +16,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from llmxive.pipeline import graph
-from llmxive.state import project as project_store
 
 
 def _proj(tmp_path: Path, tasks_body: str) -> Path:

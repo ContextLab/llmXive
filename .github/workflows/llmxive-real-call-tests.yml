@@ -97,6 +97,12 @@ jobs:
           sudo apt-get install -y --no-install-recommends poppler-utils
           pdftotext -v 2>&1 | head -1
 
+      - name: Lint (ruff)
+        # No workflow ran ruff until now, and the repository had accumulated 96
+        # errors across src/ and tests/ while every agent linted only its own
+        # changed files by hand. Runs FIRST: it costs seconds, where the suites
+        # below cost minutes.
+        run: ruff check src tests scripts eval
       - name: Prompt existence check
         run: python -m llmxive.checks.prompts
       - name: Spec Kit script executability check
@@ -107,6 +113,58 @@ jobs:
         run: pytest tests/contract -v
       - name: Full fast offline unit suite
         run: pytest tests/unit -q -m "not slow" --durations=25
+
+  integration:
+    name: Offline integration tests
+    needs: changes
+    if: needs.changes.outputs.offline == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      LLMXIVE_REAL_TESTS: ""
+      DARTMOUTH_CHAT_API_KEY: ""
+    steps:
+      # tests/integration was run by NO workflow. That is how the SC-008 README
+      # regression from #1545 survived: nothing executed the test that asserts
+      # it. It gets its own job rather than joining `offline`, because it needs
+      # two paths that job deliberately omits -- /.claude/ (144K) and
+      # /projects/*/specs/ (61M) -- and loading them into the fast gate would
+      # undo the checkout trimming of #1557.
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /.claude/
+            /.specify/
+            /.style/
+            /src/
+            /tests/
+            /agents/
+            /eval/promptfoo/
+            /contracts/
+            /scripts/
+            /specs/
+            /papers/
+            /web/
+            /docs/css/
+            /docs/js/
+            /docs/data/
+            /docs/index.html
+            /notes/
+            /projects/*/specs/
+            /*.md
+            /*.toml
+            /*.ini
+            /LICENSE
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
+      - name: Offline integration suite
+        run: pytest tests/integration -q -m "not slow" --durations=25
 
   dartmouth:
     name: Dartmouth live models
@@ -218,7 +276,7 @@ jobs:
 
   real-call:
     name: CI gate (offline + Dartmouth)
-    needs: [changes, offline, dartmouth, references]
+    needs: [changes, offline, integration, dartmouth, references]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -230,7 +288,12 @@ jobs:
           import json, os
           jobs = json.loads(os.environ['NEEDS'])
           assert jobs['changes']['result'] == 'success', 'check selection failed'
-          for job, flag in [('offline', 'offline'), ('dartmouth', 'live'), ('references', 'references')]:
+          # `integration` is gated on the same `offline` selector output as the
+          # offline job: it must SUCCEED whenever offline code changed, and skip
+          # otherwise. Without it in `needs` the job would run and report but
+          # never block a merge, which is how an unrun suite stays unrun.
+          for job, flag in [('offline', 'offline'), ('integration', 'offline'),
+                            ('dartmouth', 'live'), ('references', 'references')]:
               required = jobs['changes']['outputs'][flag] == 'true'
               actual = jobs[job]['result']
               expected = 'success' if required else 'skipped'

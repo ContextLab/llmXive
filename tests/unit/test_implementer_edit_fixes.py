@@ -241,7 +241,7 @@ def test_flexible_replace_handles_whitespace_and_indent_drift() -> None:
     # Multi-line block: LLM dedented the nested line (indentation drift) -> no
     # exact substring, but a unique line-based match under strip-normalization.
     text = "def f():\n    if x:\n        return 1\n"
-    out, why = _flexible_replace(text, "if x:\n    return 1", "if x:\n    return 2")
+    out, _why = _flexible_replace(text, "if x:\n    return 1", "if x:\n    return 2")
     assert out is not None and "return 2" in out and "return 1" not in out
 
     # Internal-whitespace drift on a single line.
@@ -307,7 +307,7 @@ def test_apply_unified_diff_flexible_fallback_on_bad_context(tmp_path: Path) -> 
     search/replace; a genuinely non-matching hunk still fails."""
     import subprocess
 
-    from llmxive.agents.implementer import apply_unified_diff, _diff_hunks_to_replacements
+    from llmxive.agents.implementer import _diff_hunks_to_replacements, apply_unified_diff
 
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=False)
     f = tmp_path / "code" / "f.txt"
@@ -383,8 +383,10 @@ def test_apply_move_and_delete_file(tmp_path: Path) -> None:
     src.write_text("log", encoding="utf-8")
     dst = tmp_path / "docs" / "reproducibility" / "run.log"
     assert apply_move_file(src, dst).applied and dst.is_file() and not src.exists()
-    a = tmp_path / "a.txt"; a.write_text("x", encoding="utf-8")
-    b = tmp_path / "b.txt"; b.write_text("y", encoding="utf-8")
+    a = tmp_path / "a.txt"
+    a.write_text("x", encoding="utf-8")
+    b = tmp_path / "b.txt"
+    b.write_text("y", encoding="utf-8")
     assert not apply_move_file(a, b).applied  # dest exists -> refused
     assert a.is_file()  # source untouched on refusal
 
@@ -393,9 +395,12 @@ def test_verify_changed_python_rolls_back_broken_edits(tmp_path: Path) -> None:
     """A research code edit must never leave un-importable Python."""
     from llmxive.agents.implementer import _verify_changed_python
 
-    good = tmp_path / "g.py"; good.write_text("x = 1\n", encoding="utf-8")
-    bad = tmp_path / "b.py"; bad.write_text("def f(:\n    pass\n", encoding="utf-8")
-    doc = tmp_path / "d.md"; doc.write_text("not python", encoding="utf-8")
+    good = tmp_path / "g.py"
+    good.write_text("x = 1\n", encoding="utf-8")
+    bad = tmp_path / "b.py"
+    bad.write_text("def f(:\n    pass\n", encoding="utf-8")
+    doc = tmp_path / "d.md"
+    doc.write_text("not python", encoding="utf-8")
     assert _verify_changed_python([str(good), str(doc)]) is None
     assert _verify_changed_python([str(bad)]) is not None  # syntax error reported
 
@@ -440,6 +445,7 @@ def test_force_blocker_rereview_clears_only_non_accept(tmp_path: Path) -> None:
     research revision never touches, so a blocker would otherwise never be
     re-judged and the panel loops to the round cap). Accepts are preserved."""
     import yaml
+
     from llmxive.agents.implementer import _force_blocker_rereview
 
     proj = "PROJ-901-converge"
@@ -485,8 +491,11 @@ def test_compute_and_fill_context_and_trace_guard(tmp_path: Path) -> None:
     whitelist; (3) guard rejects any result-like number the edit introduces that
     traces to no artifact (no hallucinated empirical values)."""
     import json
+
     from llmxive.agents.implementer import (
-        _is_compute_required, _computation_context, _untraceable_result_numbers,
+        _computation_context,
+        _is_compute_required,
+        _untraceable_result_numbers,
     )
     from llmxive.state import execution_status
 
@@ -659,6 +668,7 @@ def test_compile_paper_defers_when_lualatex_absent(monkeypatch) -> None:
     pipeline lane crashed every paper revision (13x PROJ-641). Mirrors the
     final-recompile defer (FR-010)."""
     from pathlib import Path
+
     import llmxive.agents.implementer as impl
 
     monkeypatch.setattr(impl.shutil, "which", lambda _name: None)

@@ -30,15 +30,17 @@ def backed(artifact):
 
 @pytest.mark.parametrize('change', ['rewrite', 'delete', 'symlink'])
 def test_signed_receipt_rejected_after_artifact_changes(artifact, change):
-    root, project, file = artifact
+    root, _project, file = artifact
     assert backed(artifact) is not None
     if change == 'rewrite':
         file.write_text('N,count\n10,999\n')
     elif change == 'delete':
         file.unlink()
     else:
-        outside=root/'outside.csv'; outside.write_bytes(file.read_bytes())
-        file.unlink(); file.symlink_to(outside)
+        outside=root/'outside.csv'
+        outside.write_bytes(file.read_bytes())
+        file.unlink()
+        file.symlink_to(outside)
     assert backed(artifact) is None
 
 
@@ -76,7 +78,9 @@ def test_legacy_hashless_verified_result_cannot_survive_deleted_artifact(artifac
 
 
 def test_receipt_key_not_exposed_to_research_child(tmp_path, monkeypatch):
-    import os,subprocess,sys
+    import subprocess
+    import sys
+
     from llmxive.sandbox import analysis_environment
     monkeypatch.setenv('LLMXIVE_RECEIPT_KEY','ephemeral-test-only-receipt-key')
     result=subprocess.run([sys.executable,'-c',

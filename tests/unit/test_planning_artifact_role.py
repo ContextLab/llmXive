@@ -4,7 +4,7 @@ from dataclasses import replace
 import pytest
 
 from llmxive.claims import service
-from tests.unit.test_planning_skip import _Backend, _lowlevel_claim, DOC
+from tests.unit.test_planning_skip import DOC, _Backend, _lowlevel_claim
 
 
 @pytest.mark.parametrize('name', ['spec.md', 'plan.md', 'research.md', 'data-model.md', 'quickstart.md'])
