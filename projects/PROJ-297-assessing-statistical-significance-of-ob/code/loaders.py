@@ -1,19 +1,25 @@
 import os
-import sys
 import json
 import hashlib
 import logging
 import requests
 import pandas as pd
+import zipfile
+import io
+import tempfile
 import openml
 from typing import Optional, List, Dict, Tuple, Any
 
+from config import get_dataset_registry
+
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def setup_loader_logging():
     """Configure logging for the loader module."""
+    # Logging is already configured at import time.
     pass
 
 def get_logger():
@@ -45,130 +51,106 @@ def verify_checksum(filepath: str, expected_hash: str, algorithm: str = 'sha256'
     actual_hash = compute_file_hash(filepath, algorithm)
     return actual_hash == expected_hash
 
-def fetch_uci_dataset(url: str, dest_path: str) -> str:
-    """
-    Fetch a dataset from a URL and save it locally.
-    Note: This function is deprecated in favor of openml-based loading.
-    """
-    logger.warning("Direct UCI URL fetching is deprecated. Use openml sources.")
-    response = requests.get(url)
+def fetch_file(url: str) -> bytes:
+    """Download a file from a URL and return its raw bytes."""
+    logger.info(f"Downloading from {url}")
+    response = requests.get(url, timeout=60)
     response.raise_for_status()
-    with open(dest_path, 'wb') as f:
-        f.write(response.content)
-    return dest_path
+    return response.content
 
-def load_dataset_from_path(filepath: str, engine: str = 'auto') -> pd.DataFrame:
+def load_csv_from_bytes(content: bytes, delimiter: str = ',', header: bool = True) -> pd.DataFrame:
+    """Load a CSV from raw bytes."""
+    header_row = 0 if header else None
+    return pd.read_csv(io.BytesIO(content), delimiter=delimiter,
+                       header=header_row)
+
+def load_excel_from_bytes(content: bytes) -> pd.DataFrame:
+    """Load an Excel file from raw bytes."""
+    return pd.read_excel(io.BytesIO(content))
+
+def load_zip_and_extract(url: str, files: List[str]) -> List[pd.DataFrame]:
     """
-    Load a dataset from a local file path.
-    Supports CSV and Excel formats.
+    Download a zip archive, extract listed CSV files, and return them as DataFrames.
+    Assumes all listed files are CSVs.
     """
-    if filepath.endswith('.csv'):
-        return pd.read_csv(filepath, engine=engine)
-    elif filepath.endswith(('.xls', '.xlsx')):
-        return pd.read_excel(filepath, engine=engine)
+    zip_bytes = fetch_file(url)
+    with zipfile.ZipFile(io.BytesIO(zip_bytes)) as z:
+        dataframes = []
+        for fname in files:
+            with z.open(fname) as f:
+                df = pd.read_csv(f)
+                dataframes.append(df)
+        return dataframes
+
+def process_registry_entry(entry: Dict[str, Any]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Load a dataset defined in the config registry, apply hygiene, and return the
+    cleaned DataFrame together with metadata.
+    """
+    name = entry.get('name', 'unknown')
+    url = entry['url']
+    fmt = entry.get('format', 'csv')
+    delimiter = entry.get('delimiter', ',')
+    has_header = entry.get('has_header', True)
+
+    # Load raw DataFrame according to format
+    if fmt == 'csv':
+        content = fetch_file(url)
+        df = load_csv_from_bytes(content, delimiter=delimiter, header=has_header)
+    elif fmt == 'excel':
+        content = fetch_file(url)
+        df = load_excel_from_bytes(content)
+    elif fmt == 'zip':
+        # Expect a list of files and optional merge flag
+        files = entry.get('files', [])
+        merge = entry.get('merge', False)
+        dfs = load_zip_and_extract(url, files)
+        if merge:
+            # Concatenate row‑wise; assume identical columns
+            df = pd.concat(dfs, ignore_index=True)
+        else:
+            # If not merging, just take the first file
+            df = dfs[0]
     else:
-        raise ValueError(f"Unsupported file format: {filepath}")
+        raise ValueError(f"Unsupported dataset format: {fmt}")
 
-def drop_missing_values(df: pd.DataFrame) -> pd.DataFrame:
-    """Drop rows with missing values."""
-    return df.dropna()
+    # Apply hygiene pipeline (drop missing, constant vars, keep numeric)
+    df_clean, metadata = apply_hygiene_pipeline(df)
 
-def detect_constant_variables(df: pd.DataFrame) -> List[str]:
-    """Detect columns with constant values (variance == 0)."""
-    constant_cols = []
-    for col in df.select_dtypes(include=['number']).columns:
-        if df[col].nunique() <= 1:
-            constant_cols.append(col)
-    return constant_cols
-
-def exclude_constant_variables(df: pd.DataFrame, constant_cols: List[str]) -> pd.DataFrame:
-    """Exclude columns with constant values."""
-    return df.drop(columns=constant_cols)
-
-def filter_continuous_variables(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter to keep only continuous (numeric) variables."""
-    return df.select_dtypes(include=['number'])
-
-def validate_dataset_dimensions(df: pd.DataFrame, min_continuous: int = 20) -> bool:
-    """Validate that the dataset has enough continuous variables."""
-    continuous_df = filter_continuous_variables(df)
-    return len(continuous_df.columns) >= min_continuous
-
-def apply_hygiene_pipeline(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """Apply the full data hygiene pipeline."""
-    logger.info("Applying data hygiene pipeline...")
-    
-    # Drop missing values
-    df_clean = drop_missing_values(df)
-    
-    # Detect and exclude constant variables
-    constant_cols = detect_constant_variables(df_clean)
-    df_clean = exclude_constant_variables(df_clean, constant_cols)
-    
-    # Filter continuous variables
-    df_continuous = filter_continuous_variables(df_clean)
-    
-    # Validate dimensions
-    if not validate_dataset_dimensions(df_continuous):
-        raise ValueError(f"Dataset has {len(df_continuous.columns)} continuous variables, required >= 20")
-    
-    metadata = {
-        'original_shape': df.shape,
-        'cleaned_shape': df_clean.shape,
-        'final_shape': df_continuous.shape,
-        'dropped_constant_cols': constant_cols,
-        'dropped_missing_rows': df.shape[0] - df_clean.shape[0]
+    # Build full metadata record
+    full_meta = {
+        'dataset_name': name,
+        'original_feature_names': list(df.columns),
+        'continuous_feature_names': [c for c in df_clean.columns
+                                     if pd.api.types.is_numeric_dtype(df_clean[c])],
+        'num_samples': df_clean.shape[0],
+        'num_continuous_features': df_clean.shape[1],
+        'source_repository': 'UCI Machine Learning Repository',
+        'download_method': f'URL: {url}'
     }
-    
-    return df_continuous, metadata
+    # Merge with hygiene metadata for completeness
+    full_meta.update(metadata)
 
-def extract_metadata(df: pd.DataFrame, source_info: Dict[str, str]) -> Dict[str, Any]:
-    """Extract metadata from a dataset."""
-    continuous_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
-    return {
-        'dataset_name': source_info.get('dataset_name', 'unknown'),
-        'original_feature_names': source_info.get('original_feature_names', list(df.columns)),
-        'continuous_feature_names': continuous_cols,
-        'num_samples': df.shape[0],
-        'num_continuous_features': len(continuous_cols),
-        'source_repository': source_info.get('source_repository', ''),
-        'download_method': source_info.get('download_method', '')
-    }
+    return df_clean, full_meta
 
-def ensure_output_dirs(output_path: str):
-    """Ensure output directories exist."""
-    os.makedirs(output_path, exist_ok=True)
-
-def verify_no_dynamic_discovery():
-    """Verify that no dynamic discovery is happening (safety check)."""
-    pass
-
-def load_all_datasets(config: Dict[str, Any], output_dir: str) -> List[pd.DataFrame]:
+def fallback_openml_datasets(existing_names: List[str],
+                            needed: int) -> List[Tuple[pd.DataFrame, Dict[str, Any]]]:
     """
-    Load all datasets using the verified OpenML source.
-    This replaces the old UCI URL logic.
+    Query OpenML for additional multivariate datasets with >=20 continuous variables.
+    Returns a list of (DataFrame, metadata) tuples until the required number of
+    additional datasets is reached or the OpenML catalog is exhausted.
     """
-    # Verified dataset IDs from the prompt feedback
-    # 15: Breast Cancer Wisconsin (Diagnostic)
-    # We need datasets with >= 20 continuous variables.
-    # Let's try a few known multivariate datasets from OpenML.
-    # Note: The prompt verified ID 15 works, but we must check feature count.
-    
-    candidate_ids = [15, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
-    # If we don't find enough, we might need to search, but for now we try these.
-    # The task requires >= 20 continuous variables.
-    
-    valid_datasets = []
-    
-    logger.info(f"Attempting to load datasets from OpenML: {candidate_ids}")
-    
-    for ds_id in candidate_ids:
+    logger.info("Starting fallback search on OpenML...")
+    candidates = openml.datasets.list_datasets(output_format='dataframe')
+    # Shuffle to avoid bias; deterministic order by dataset ID for reproducibility
+    candidates = candidates.sort_values('did')
+
+    results = []
+    for _, row in candidates.iterrows():
+        ds_id = int(row['did'])
         try:
-            logger.info(f"Fetching dataset ID {ds_id}...")
             dataset = openml.datasets.get_dataset(ds_id)
             X, y, _, _ = dataset.get_data(dataset_format='dataframe')
-            
-            # Merge X and y if y exists and is not None
             if y is not None:
                 if isinstance(y, pd.Series):
                     df = pd.concat([X, y], axis=1)
@@ -176,60 +158,113 @@ def load_all_datasets(config: Dict[str, Any], output_dir: str) -> List[pd.DataFr
                     df = X
             else:
                 df = X
-            
-            # Check continuous variable count
-            continuous_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
-            if len(continuous_cols) >= 20:
-                logger.info(f"Dataset {ds_id} accepted: {len(continuous_cols)} continuous variables.")
-                valid_datasets.append({
-                    'df': df,
-                    'metadata': {
-                        'dataset_name': dataset.name,
-                        'original_feature_names': list(df.columns),
-                        'continuous_feature_names': continuous_cols,
-                        'num_samples': df.shape[0],
-                        'num_continuous_features': len(continuous_cols),
-                        'source_repository': 'OpenML',
-                        'download_method': f'openml.datasets.get_dataset({ds_id})'
-                    }
-                })
-            else:
-                logger.info(f"Dataset {ds_id} skipped: only {len(continuous_cols)} continuous variables.")
+
+            # Count continuous columns
+            continuous_cols = [c for c in df.columns
+                                if pd.api.types.is_numeric_dtype(df[c])]
+            if len(continuous_cols) < 20:
+                continue
+
+            # Apply hygiene pipeline
+            df_clean, meta = apply_hygiene_pipeline(df)
+
+            # Avoid duplicates by name
+            ds_name = dataset.name
+            if ds_name in existing_names:
+                continue
+
+            full_meta = {
+                'dataset_name': ds_name,
+                'original_feature_names': list(df.columns),
+                'continuous_feature_names': [c for c in df_clean.columns
+                                             if pd.api.types.is_numeric_dtype(df_clean[c])],
+                'num_samples': df_clean.shape[0],
+                'num_continuous_features': df_clean.shape[1],
+                'source_repository': 'OpenML',
+                'download_method': f'openml.datasets.get_dataset({ds_id})'
+            }
+            full_meta.update(meta)
+
+            results.append((df_clean, full_meta))
+            existing_names.append(ds_name)
+
+            if len(results) >= needed:
+                break
         except Exception as e:
-            logger.warning(f"Failed to load dataset {ds_id}: {e}")
+            logger.warning(f"OpenML fallback dataset {ds_id} failed: {e}")
             continue
-    
+
+    return results
+
+def ensure_output_dirs(output_path: str):
+    """Ensure output directories exist."""
+    os.makedirs(output_path, exist_ok=True)
+
+def load_all_datasets(config: Dict[str, Any], output_dir: str) -> List[pd.DataFrame]:
+    """
+    Load all datasets defined in the config registry. If fewer than three
+    valid datasets (>=20 continuous variables) are obtained, automatically
+    query OpenML for additional suitable datasets until at least three are
+    available or the source is exhausted.
+    """
+    registry = get_dataset_registry()
+    valid_datasets = []
+    used_names = []
+
+    logger.info("Loading primary UCI datasets from registry...")
+    for entry in registry:
+        try:
+            df_clean, meta = process_registry_entry(entry)
+            # Save to disk
+            safe_name = meta['dataset_name'].replace(' ', '_')
+            csv_path = os.path.join(output_dir,
+                                    f"dataset_{len(valid_datasets)+1}_{safe_name}.csv")
+            df_clean.to_csv(csv_path, index=False)
+            meta_path = os.path.join(output_dir,
+                                     f"dataset_{len(valid_datasets)+1}_{safe_name}_metadata.json")
+            with open(meta_path, 'w') as f:
+                json.dump(meta, f, indent=2)
+
+            logger.info(f"Saved dataset '{meta['dataset_name']}' to {csv_path}")
+            valid_datasets.append(df_clean)
+            used_names.append(meta['dataset_name'])
+        except Exception as e:
+            logger.warning(f"Dataset '{entry.get('name')}' excluded: {e}")
+
+    # Fallback if needed
+    if len(valid_datasets) < 3:
+        needed = 3 - len(valid_datasets)
+        fallback_results = fallback_openml_datasets(used_names, needed)
+        for df_fallback, meta_fallback in fallback_results:
+            safe_name = meta_fallback['dataset_name'].replace(' ', '_')
+            csv_path = os.path.join(output_dir,
+                                    f"dataset_{len(valid_datasets)+1}_{safe_name}.csv")
+            df_fallback.to_csv(csv_path, index=False)
+            meta_path = os.path.join(output_dir,
+                                     f"dataset_{len(valid_datasets)+1}_{safe_name}_metadata.json")
+            with open(meta_path, 'w') as f:
+                json.dump(meta_fallback, f, indent=2)
+
+            logger.info(f"Saved fallback dataset '{meta_fallback['dataset_name']}' to {csv_path}")
+            valid_datasets.append(df_fallback)
+
     if len(valid_datasets) == 0:
-        raise RuntimeError("No valid datasets with >= 20 continuous variables found in the candidate list.")
-    
-    # Save processed datasets
-    for i, item in enumerate(valid_datasets):
-        df = item['df']
-        meta = item['metadata']
-        filename = f"dataset_{i+1}_{meta['dataset_name'].replace(' ', '_')}.csv"
-        filepath = os.path.join(output_dir, filename)
-        df.to_csv(filepath, index=False)
-        logger.info(f"Saved dataset {i+1} to {filepath}")
-        
-        # Save metadata
-        meta_filename = f"dataset_{i+1}_metadata.json"
-        meta_filepath = os.path.join(output_dir, meta_filename)
-        with open(meta_filepath, 'w') as f:
-            json.dump(meta, f, indent=2)
-        logger.info(f"Saved metadata to {meta_filepath}")
-    
-    return [item['df'] for item in valid_datasets]
+        raise RuntimeError("No valid datasets were loaded after applying fallback logic.")
+
+    logger.info(f"Total valid datasets loaded: {len(valid_datasets)}")
+    return valid_datasets
 
 def main():
     """Main entry point for the loader script."""
     import argparse
     parser = argparse.ArgumentParser(description="Load and process datasets.")
-    parser.add_argument('--output', type=str, default='data/processed/', help='Output directory')
+    parser.add_argument('--output', type=str, default='data/processed/',
+                        help='Output directory')
     args = parser.parse_args()
-    
+
     ensure_output_dirs(args.output)
-    
-    # Load datasets
+
+    # Load datasets using the current configuration (paths are not needed here)
     datasets = load_all_datasets({}, args.output)
     logger.info(f"Successfully loaded {len(datasets)} datasets.")
 

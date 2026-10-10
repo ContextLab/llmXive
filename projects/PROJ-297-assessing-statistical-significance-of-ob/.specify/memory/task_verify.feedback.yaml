@@ -1,0 +1,237 @@
+T001:
+  task: 57cf2a2f3432876598cb6e15a454703a46e4291c032693c7615c269d016b6377
+T002:
+  task: 6988eb1b7035cb4e79ad3d7093bb408bf803b62f07c4c92f338512798156e8ff
+T003:
+  reason: "The `pyproject.toml` exists with the correct `[tool.black]` section (line-length=88,\
+    \ target-version=['py311']), but the required `.flake8` file (max-line-length=88,\
+    \ exclude=.git,__pycache__) is absent from the project root \u2014 no evidence\
+    \ of it was provided. Create `.flake8` in `projects/PROJ-297-assessing-statistical-significance-of-ob/`\
+    \ with those settings."
+  task: 3be4adcdcab14fdce434250eb911e65b70fe979642a21df2c7239062f8e14fba
+T004:
+  reason: The `code/config.py` file exists and defines the required paths, random
+    seed, thresholds, and lists the six UCI datasets with verified URLs. However,
+    it does **not** implement the required logic to download the datasets, handle
+    zip archives, or merge the two Student Performance CSV files as stipulated in
+    the task description. The file only provides metadata and helper functions, leaving
+    the actual fetching/processing logic absent. Adding functions that perform the
+    download, unzip, and conditional merging would be needed to satisfy T004.
+  task: 647b751921580c12f86a2050b991c5448a0a3d394aaf93021bd9597e9de0f654
+T005:
+  reason: "The implementation explicitly deprecates the required UCI URL fetching\
+    \ (\"Direct UCI URL fetching is deprecated\") and instead hardcodes an arbitrary\
+    \ OpenML candidate ID list (15\u201358) that ignores the T004 verified dataset\
+    \ list. The mandated fallback strategy \u2014 automatically querying the UCI repository\
+    \ for the next multivariate datasets with \u226520 continuous variables until\
+    \ \u22653 valid datasets are found or the repository is exhausted \u2014 is not\
+    \ implemented; the code merely iterates a fixed list and raises if zero are found,\
+    \ with no repository search and no \u22653-dataset guarantee. There is also no\
+    \ executi"
+  task: a08497f115ec1da224d4b6f1bc1fe5b00ffba414c9c6e332cfbc09ba86be2fd5
+T006:
+  reason: "The `code/loaders.py` file calls `apply_hygiene_pipeline(df)` but the function\
+    \ is never defined in the provided artifact, and no code is present that actually\
+    \ drops rows with missing values, removes constant columns, or filters out datasets\
+    \ with fewer than 20 continuous variables. Consequently the required data\u2011\
+    hygiene logic is absent."
+  task: a0c54d178a90c80ee1e1f1aaa99595e31ae89fe38583b494ed6b5902316c74ab
+T007:
+  reason: 'The file `code/stats_engine.py` exists and includes the required imports,
+    but it does **not** contain the exact `generate_null_distribution(df: pd.DataFrame,
+    n_permutations: int, stats_func: callable) -> dict` stub (the file defines other
+    functions instead). Additionally, the `compute_correlation` stub adds a default
+    argument and `calculate_stats` uses a `Dict` return annotation, deviating from
+    the exact signatures. The missing required function makes the task incomplete.'
+  task: df1de1a542903d53ffd69de49b9ff2512002d6bffca9e29aceb327f28cf09306
+T007b:
+  task: f24789b49269a3727eeeea76f23c4be5de3f02d52569f97260ace92c42630f55
+T007c:
+  reason: "The provided `code/constitution.py` contains only gate\u2011checking utilities\
+    \ and does **not** implement a function that creates or updates `state/projects/PROJ-297-assessing-statistical-significance-of-ob.yaml`\
+    \ with the required schema and default `\"pending\"` status. Moreover, the existing\
+    \ YAML file has `amendment_status: \"ratified\"` and extra fields (`last_updated`,\
+    \ `version`) that do not match the specified schema `{amendment_status: str, ratified_by:\
+    \ str | null, date: str | null}`. A proper creator/updater function and a correctly\u2011\
+    shaped YAML file are missing."
+  task: 1eb24bf49baef55f214f15bec6bf22ce08450184a07baf5f6026aebc5a155052
+T008:
+  task: ad0d4e456a7c8d8725ef3dd11a0bd6ac8795a3df282e3e29ab9358a6fce1a111
+T010:
+  task: c65c64239c2a309786ae60a260b22c37f2d5c88616707a373e1a13574c01b786
+T011:
+  task: 8bed7015afbcd67b2c8d256216f118988ccfdf74de3c1ad1458f88eade9e9b26
+T015:
+  task: 3c6f4506aa77831c2ea4d9dd3122931c76fcc1dfb93ee8fddae17077f7e82dd5
+T016:
+  task: 566ed0999fe53d86a213cf76d8f33add6c15b7d2da303c7d2ae0f613a1e05054
+T016b:
+  task: cafce1bd83af50b53c42a3d14a964ea668639127011a13228b2e3bb61aa2c932
+T016c:
+  task: e88c064a6811e5234bee627e875e70284ee7f84f8251e5e6d54b1702f1a7950e
+T016d:
+  task: dbfa7dc96dc37328c877f7b6af5725e2a0cc437137f8edeb373b3c88b2f44ebb
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_correction.py'
+  task: 9848b97abd41e75083fe7a1ec4b5fb3b0ec096c7a285a517d7d16f485236aeb9
+T019:
+  task: 0837c0e6b7f39ca512011dc0640d22f514d5e6e841906dd1504b0b1b5b97499f
+T020:
+  task: 050dd0189720a3322797172c93e346eca36ad06ab5687bc67499ff54b0b69f46
+T021:
+  task: 4d34a20732f77b4f2787d6d3415c8e40defd37c25f723608b347bbe9bc73c07b
+T022:
+  task: 27c80a73e5f0bbaeffa175b810efa9cf437b65c23cd973ee35eba6b3e8e0bd61
+T023:
+  task: 1173de62a9c2d3f2ce2b66e4d835342d065c980ff523e2068c2038abf2d6bebb
+T024:
+  task: 1188b4e3d5b0a84593e92550c1b39ca68f6f813b03ecea915a8bf1ec38331fbe
+T024c:
+  task: 6f9c9d4d2804a3ab1dba2bb1437f86435ebc027cb817c8727b6816163039ff3e
+T025:
+  task: e330b2ee7ddfbbbbab1c75f3a3d1233ab0f13bb993fd0d552e7d6bb5dbd52745
+T025b:
+  task: a6aa28b999e34a161d2b9d200526b6f222ca234b4a79ef55d9fb542723c502eb
+T026:
+  task: dcdd589de53a257e68c09e20fff5da43b98ae791cb87eed379b1518bd5d15b95
+T027:
+  task: 1a89c5989874f405aebe5cf46dc4b042a80a0bc61fe8a7004b53f7b6c7e24f7c
+T028:
+  task: 33f6ec6f2a0bbcb66ddb085ac586414e127f1d68465ff16b80f4249ccbbe0f92
+T029:
+  task: 530b49849779392d79cd1dc5837b231f635d875a5cf807f2aa4273d8da836ed8
+T032:
+  task: 7d319d6bfb068ceeadb312cf8ae583ff2ffde7dab5d0f98afd0954601229eae4
+T034:
+  task: 9c709b5a88967e8a257d28afacc183272acdaf3ba3fb0fc5c0191250baa96c9b
+T035:
+  task: f1b62b0e89c0f4b9e1bfe95337834c601280786fa20e214cc77e47ee3549b6d5
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: code/test_sensitivity.py'
+  task: a8f020c34d7c55e9b643d9477e90858c7a066033077cddc6762949dd355a7712
+T041:
+  task: df888df2d90df4f3d6b2a777c7f020c6a89b89899fc860e80863cfc7085f95c7
+T042:
+  task: 04f8abd4ae49716a8c9f82948fe4ce96539ad43e164a611ed785c088534ab701
+T043:
+  task: 4aca9630e86b735d52dc0848656e1490e624e1541199ea8f29505d90e1cc86da
+T044:
+  task: bc825960945fbd9caf7f1a7de4b93219963a79cf8b7bbe7869fc5990903ce23b
+T045:
+  task: a6fc2771cc79ab2a4c5825c51b15218524e540fa2144e4ccecd86f80aafd23d3
+T046:
+  task: 9c80c8fffc64848451f76013bb0ea95b0748dc8fc731d1d49f09d70d52d59deb
+T047:
+  task: 5a4a1b1629fdb102031fd2c59512d083ac0f9362854e360dbbb5565706a28d03
+T048:
+  task: 83a28bfe588d5856da1a66aa24abe53e8f930139a658507d947f3ed09f8eac74
+T049:
+  task: 80d5bcc53935f06d6993641040a392a7c902c27a293600f296f183db295408aa
+T050:
+  task: 88b7acf59664c0430101aba9d088606e9f019e04ff6159ebb168f08e23e717ae
+T051:
+  task: ae582346db12444f90a13060065d8087c2f0ee992b2026d30b38ba5b5663ba24
+T052:
+  task: 7aa8c8b340cd23cc9a93b52980ed22987b23f1b473ab4006e8ef7f62b252f7df
+T053:
+  task: a5dde3f85b19e8aaded3c0b7dc2b539fb30e07a9bac281b89a6bbbf1eb790151
+T054:
+  task: 5b1352523034ed0232f9f5281156c11bb2cafdef25372fdde475853df51dc626
+T055:
+  task: 4629707d081428ff02df3ce48f37002f617751dd6316d44f4a6042b53d0ebdab
+T055b:
+  task: a4bbede9da3694df4b28b076a9f6e984cdf3826f79018bd38bcfee5c332b1aeb
+T055c:
+  task: d90273b0ba3db808ebf00f389ae705f72202ef89185039d3b54ef0d2971b3b0e
+T056:
+  task: 44822f5e47a1e358ed17485ee1be397df46274e0f8d134184fcecd7b728e6eda
+T058:
+  task: d661f29870fd5595299b49e9b3b39d8fb4ad9b4fa104b0f09a190a2c3711c609
+T059:
+  task: f772dc563428c41090f750fd8eadd3192812ef0f1f85910c7104d31a4b2afcfe
+T060:
+  task: 9cd96f657250bfb5ba7896bb024f2d4e7c8e8ee06e9a43e94827c4923c456f53
+T062:
+  task: fe3d39c2b646d4da344f83b405152d1756c570fd8383429b09f7fa310fe80b29
+T063:
+  task: aee7c26e018bda9e93f9c1a0eddfdbcb4be01e8c3e45a55482c9396750273a79
+T064:
+  task: 72c410541bbfda6defc55c6b4718847a6f2e33ab8ffb90be2d3fd4b3440f34bf
+T065:
+  task: a789f3bea0ee50ec4aa0d6b9a4dbcd91f392386aa746d23a30dd7d8cbff82b16
+T066:
+  task: 42697eafbc000317a491f8f3e526d8a9bbab4af329dab4fbe02d31112ee36473
+T067:
+  task: b2bd022abcae0161f86bfb3dfda797574584a485353ae16ccdce5817a746299a
+T068:
+  task: b2f381d9b9a62346527be4c85bf45c01362319b748a3ee0799186b24ccf5703c
+T069:
+  task: 65fd8c4a1effc022a5fde2be437106e77207d5e66759b8c1aa1f1b9773b204ba
+T069b:
+  task: d147a05f18e8f76591ad1e09781b88e7e48cf307db9e06c56efcb3ae6233860e
+T070:
+  task: 697096b50f605f8ece8937343e2521a6a567628d530aecbd47e070070dc7a212
+T071:
+  task: 7c4d263c0180454e03d21038a13c234cd8df0ed4c9d04e67322db333e42336ed
+T072:
+  task: cfb42214696d08f99fab751e29053b3d980bcab247022eac1871e3e59e6402c4
+T073:
+  task: 7f17c3ec0c2893654a049a6ffb53b40954fd34e63bb6a3e19cd37d623ff676b7
+T074:
+  task: 0c537f7e58a148f4fa7f92d0e40c8954e5338b5b30630ab9e76862cf73142da1
+T075:
+  task: e5681c9128c3ae54e4205f056bceb9a944bd7cfa7afe876f9ddeea2e4997d0fa
+T076:
+  task: f54286aadd09e9f73cfd43be3a84e16e33a053a5a35067391bf06d2e34c3ba45
+T077:
+  task: fbed6ef5dead8a8a36622a2758613d19e27cf9886e09db39e2da055853d6fde7
+T078:
+  task: c616743517c15ee030cae775b208306b69d0bdbf69042d50c651c8db415697ec
+T082:
+  task: 76e0200ad3f7ba0fe7d8ec707c7b0e3e9e524e8da7ab104205815f0949271b3c
+T083:
+  task: 6f815a2bcce4421381a49c07f966e87785381d8f4388c0b72771c21105033c85
+T084:
+  task: 3d6745652153f7db08f28b6f1612bc6b0e51f0152af562f4ccaae9065644a2b2
+T085:
+  task: 192bef5d43e98f837a9e6d30fbd866c534a9c88401eee0bf050b4129769037ca
+T086:
+  task: 433d390a8809a4815dff8514e99913fdd2bf363d5e8b7dc911e29a85232f0e10
+T089:
+  task: 8821a9eba90f0a5992ef818115f64d9e84536e03f15601a18ecc07eba360887e
+T090:
+  task: 4ed55b1efdfcee9c0fd564d0feeb5db019e8b64be25335668ebed2563e950c13
+T091:
+  task: 297184c90f552bcc2ebf879d206867b21e50d2feea2ba5211d2e336e7674aae8
+T093:
+  task: 6e1ee4965481f76695109593686d6beb96409f1729c7e26ff5365d995da3a431
+T094:
+  task: f5dd4a2289e10c38f2ad249f460d47ddf50f63cc8c83e87a4ab849c15e6dbdcd
+T095:
+  task: 6542d37733c6ba41c08999f4d3aa3e02006960e560008552014a2ee195a788bd
+T096:
+  task: e1b3f5257b56c0b2d2b2a7efa8876fc3ee4554a29cbd95d8f7589ae1cc1357e1
+T097:
+  task: 2f52b0a22df1cd09a373382d5b143d15bbad5a12391ae01bfc094f060037e1fd
+T099:
+  task: 617e68d6042a33c149d5a235f76894fee15b49daa03755a6ca4312dc3507c7e7
+T101:
+  task: 6f8bc50225a44178982e7e089158a54856bd69d918ee554bc3de3ac43bdc6de3
+T102:
+  task: 5806b51db9885ecf7041bbe82f5bb63eea45dafb1f6a900eadc265fc6a0e02f0
+T103:
+  task: 183cf8d19a7d2aa808fae5fdc463c87afb001ad48ebf18eab8924928822cbe7d
+T104:
+  task: 0721116385d246b178fc17915461fbdeca71fc375844d8c3e64f31d404b4aa94
+T105:
+  task: aa54776b239d5ed2aa635d497590c097d3161b4819706a602ce6fa9bf8135af1
+T106:
+  task: 6896a700611f4f352d60313413f132e3626d4c7efbb0d1f6d641cc1e446f23c8
+T107:
+  task: 6fd4a9fc3c4dc1133e3c583e54a116c4896e02080887f07c5e74288b7006def8
+T108:
+  task: 65deb0f5a9e7ad53510f161f873a12ad9b5f16810baabc65e0da13d781c27454
+T109:
+  task: 3e76fb83e3046c6695664d23783baf64d547dadc14533d90795ef52c344a8ba4
+T110:
+  task: b0c776f0d2bc1fbdb4168574bcaf0a329d6d7f0b7796801032c82c79c5e7ccf2

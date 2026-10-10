@@ -1,11 +1,103 @@
-T007b:
+T001:
+  c: true
+  h: a34c958caa327cc2402fd374d21eedecabd69147400b8a9ac2e4af962484fb83
+  r: The only file artifact the task requires, `requirements.txt`, exists at the project
+    root (192 bytes) with a substantive, sensible dependency list (pandas, numpy,
+    scipy, networkx, matplotlib, etc.) matching the study's needs. The remaining deliverables
+    are empty directories created by `mkdir -p`, which by design contain no files
+    to list, so no contrary evidence exists and the file-based requirement is genuinely
+    satisfied.
+  sig: db0b3ba3556a64d52978f167b9f9d491f76d326f9b6bd32b03a91e80b2228748
+T002:
+  c: true
+  h: d2a93a3bbf7933d8aa6e1d94c0aabee88df37e468dd613c337d898c411fc4f78
+  r: The `requirements.txt` exists at the project root and contains all ten required
+    packages (pandas, numpy, scipy, networkx, matplotlib, seaborn, openpyxl, xlrd,
+    requests, psutil) with reasonable version constraints; the extra packages (openml,
+    pyyaml, joblib) are consistent with the broader spec and don't conflict with the
+    task.
+  sig: fb136af54bfed29f73c6b9af5eedb58cdbe701fc7cc291e0bb7f41364da82851
+T003:
   c: false
-  h: cd506aed1fae7124038ea0a45cc1d114c3caadca58026559ae3e6b63c0e6759c
-  r: The required state file `state/projects/PROJ-297-assessing-statistical-significance-of-ob.yaml`
-    is missing, so the gate cannot read the amendment status. Moreover, `code/main.py`
-    never imports or calls `check_by_amendment_ratification` from `code/constitution.py`,
-    so the pipeline is not actually blocked even if the file existed. Both the missing
-    artifact and lack of integration mean the task is not fulfilled.
+  h: 8a562d31cc7670337b0df9818df8fc62a5f582d92a368205cd073f4972f8e113
+  r: "The `pyproject.toml` exists with the correct `[tool.black]` section (line-length=88,\
+    \ target-version=['py311']), but the required `.flake8` file (max-line-length=88,\
+    \ exclude=.git,__pycache__) is absent from the project root \u2014 no evidence\
+    \ of it was provided. Create `.flake8` in `projects/PROJ-297-assessing-statistical-significance-of-ob/`\
+    \ with those settings."
+  sig: 206ce7a257686fa66b8b876a103f0e7d9739b6a7f817d1a925f888d764cc87fc
+T004:
+  c: false
+  h: 7a9a9c46983c03dc114f3bb048db224a255754ae55bf0b67238e6e794a8b54a6
+  r: The `code/config.py` file exists and defines the required paths, random seed,
+    thresholds, and lists the six UCI datasets with verified URLs. However, it does
+    **not** implement the required logic to download the datasets, handle zip archives,
+    or merge the two Student Performance CSV files as stipulated in the task description.
+    The file only provides metadata and helper functions, leaving the actual fetching/processing
+    logic absent. Adding functions that perform the download, unzip, and conditional
+    merging would be needed to satisfy T004.
+  sig: dac4528f54c3e345816e6d0eb59d4e69cc686672747b8e6eca8fb34b3b23b069
+T005:
+  c: false
+  h: 9dbba580da592fb2489eeea9007dbc721d4fb186b2ad1b8cfea783c4166a9413
+  r: "The implementation explicitly deprecates the required UCI URL fetching (\"Direct\
+    \ UCI URL fetching is deprecated\") and instead hardcodes an arbitrary OpenML\
+    \ candidate ID list (15\u201358) that ignores the T004 verified dataset list.\
+    \ The mandated fallback strategy \u2014 automatically querying the UCI repository\
+    \ for the next multivariate datasets with \u226520 continuous variables until\
+    \ \u22653 valid datasets are found or the repository is exhausted \u2014 is not\
+    \ implemented; the code merely iterates a fixed list and raises if zero are found,\
+    \ with no repository search and no \u22653-dataset guarantee. There is also no\
+    \ executi"
+  sig: 079b0199e19f45a918b5b9487bceff6c02f86ac98dec7a3ff151b21503dcf023
+T006:
+  c: false
+  h: cb1a291f32917e31d81fd3eb553c4cc98d07e2ebb7e6c8cbbf34817836ad112f
+  r: "The `code/loaders.py` file calls `apply_hygiene_pipeline(df)` but the function\
+    \ is never defined in the provided artifact, and no code is present that actually\
+    \ drops rows with missing values, removes constant columns, or filters out datasets\
+    \ with fewer than 20 continuous variables. Consequently the required data\u2011\
+    hygiene logic is absent."
+  sig: 8e4674dbaaf004d34944365ef6ad8287e77f6dc9dcff61c333d4f3672d37bb47
+T007:
+  c: false
+  h: ac656827235450fbc2f0608f8bf8ba4e925dedee7e5be39df959fcaaf6f3d3ba
+  r: 'The file `code/stats_engine.py` exists and includes the required imports, but
+    it does **not** contain the exact `generate_null_distribution(df: pd.DataFrame,
+    n_permutations: int, stats_func: callable) -> dict` stub (the file defines other
+    functions instead). Additionally, the `compute_correlation` stub adds a default
+    argument and `calculate_stats` uses a `Dict` return annotation, deviating from
+    the exact signatures. The missing required function makes the task incomplete.'
+  sig: d66050a226939b810f757a754dd8751aaca89d7bc3cfc859fc68c40991f32536
+T007b:
+  c: true
+  h: 0e8c20359334050997f8463591033badeec1533a1c4cd8997ba97ff5f4590ccc
+  r: Checked `code/constitution.py` (enforce_gate and check_by_amendment_ratification)
+    and `code/main.py` (calls enforce_gate, catches ConstitutionalError and exits).
+    The implementation raises a `ConstitutionalError` with the exact required message
+    when status is `"pending"` and also halts on missing/malformed state, while allowing
+    normal execution when `"ratified"`.
+  sig: fa7af41d9bdffce15ce678d58c65c9d083b3efd616c58d3f6ef736eb7440c77b
+T007c:
+  c: false
+  h: 1041fe7744b043043f1752e6c67c66086b9d71f034f2312cabb0e474119d1c26
+  r: "The provided `code/constitution.py` contains only gate\u2011checking utilities\
+    \ and does **not** implement a function that creates or updates `state/projects/PROJ-297-assessing-statistical-significance-of-ob.yaml`\
+    \ with the required schema and default `\"pending\"` status. Moreover, the existing\
+    \ YAML file has `amendment_status: \"ratified\"` and extra fields (`last_updated`,\
+    \ `version`) that do not match the specified schema `{amendment_status: str, ratified_by:\
+    \ str | null, date: str | null}`. A proper creator/updater function and a correctly\u2011\
+    shaped YAML file are missing."
+  sig: d67099505242ecf9792cf25a0445752f1223e9ca136670ba2643d7fb3fb1a8b1
+T008:
+  c: true
+  h: 1c5905f2f1de41b1c7ece45eedf80bba891253c50b52bfd2e51926431c4050e1
+  r: "The `code/correction.py` file (2785\u202Fbytes) is present and implements a\
+    \ `benjamini_yekutieli` function that correctly computes BY\u2011adjusted q\u2011\
+    values (including c\u2099 calculation, sorting, monotonicity enforcement, clipping,\
+    \ and reordering). The module also provides a helper to apply the correction to\
+    \ result dictionaries, satisfying the task\u2019s requirement."
+  sig: ea60940553399b84203bce735fcb5afcf9776c475dbc8511daf3f3aafbb8d705
 T023:
   c: false
   h: c64880739c834f3172e80b3cd185f24aaeab4fc57ab24d9ab58a82842bd66fdd
