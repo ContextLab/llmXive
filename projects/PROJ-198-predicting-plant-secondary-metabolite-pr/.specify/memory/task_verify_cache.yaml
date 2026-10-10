@@ -5,39 +5,3 @@ T018:
     \ of `save_aligned_matrix()` that defaults to writing `aligned_matrix.csv` under\
     \ `data/processed/` via `get_data_path()`. The function creates the directory\
     \ if needed and saves the DataFrame, satisfying the task\u2019s requirement."
-T023a:
-  c: false
-  h: cd1f2fe7ecf8b50d9d50d070a667f7c1882c81893a3432b82aa199cae13d645d
-  r: The repository lacks the required `apply_pca()` implementation in `code/modeling/train.py`
-    (the file shows only other functions and is truncated before any PCA logic) and
-    the expected output file `data/interim/pca_features.csv` is missing. Both the
-    code artifact and the generated CSV are absent, so the task is not satisfied.
-T028:
-  c: true
-  h: 42771512bb2913c0a378f6fbe85808df913db2b2c459cdcef28906a40d804e7d
-  r: "The `save_metrics()` function in `code/modeling/eval.py` is fully implemented:\
-    \ it creates the target directory, writes the provided metrics dictionary to `data/processed/metrics.json`\
-    \ with proper JSON formatting, and logs the action. No placeholder or stub remains.\
-    \ The missing `metrics.json` file is acceptable because the task only required\
-    \ implementing the saving functionality, not pre\u2011creating the file."
-T032:
-  c: false
-  h: 483716db4bbcf0f6421876308d1005cfda1b558bf740b9984473b16efe30e4ae
-  r: "The repository lacks a `code/cli/main.py` file and the existing `code/utils/report.py`\
-    \ does not contain a `generate_report()` function (the file is truncated and only\
-    \ defines loading/formatting helpers). Consequently, the required report\u2011\
-    generation functionality is not implemented."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any unit test files under `tests/unit/` was provided, and there
-    is no listing or content showing tests that cover the specified edge cases (zero
-    BGCs, missing metabolites). The required artifact is missing, so the task is not
-    satisfied.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CI validation artifacts (e.g., CI workflow files, logs, or a passed `quickstart.md`
-    execution report) are present. The provided material only describes feature specifications
-    and user stories, without any evidence that the quickstart steps were run or succeeded
-    on continuous integration. The required proof of successful validation is missing.
