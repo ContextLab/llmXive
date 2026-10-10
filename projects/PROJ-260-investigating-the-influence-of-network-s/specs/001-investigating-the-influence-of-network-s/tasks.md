@@ -1,193 +1,211 @@
 # Tasks: Investigating the Influence of Network Structure on Heat Conduction in Amorphous Solids
 
-**Input**: Design documents from `/specs/001-investigate-network-heat-conduction/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+**Inputs**: `spec.md`, `plan.md`, existing code base, data‑model, and contracts.  
+All tasks are written as canonical checkbox items; each includes the required
+artifact paths and an explicit verification step.
 
 ---
 
-## Phase 1 – Project scaffolding & quick‑start documentation  
+## Phase 1 – Project scaffolding & quick‑start
 
-**Goal**: Establish a reproducible directory layout, dependency list, and a runnable CLI entry point that can be demonstrated on a tiny real dataset.
+| Goal | Produce a reproducible directory layout, dependency list, and a runnable CLI that can be demonstrated on a tiny real dataset. |
+|------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001a [P] Create the full data‑directory hierarchy (`data/raw/`, `data/derived/`, `data/derived/topology/`, `data/derived/vdos/`, `data/derived/reference/`, `data/derived/correlation/`, `data/metadata/`) and write a machine‑generated tree listing to `docs/design/directory_structure.txt`.  
-  *Verification*: `cat docs/design/directory_structure.txt` must show all required folders.
+- [ ] **T001**  Create the full data‑directory hierarchy  
+  `data/raw/`, `data/derived/`, `data/derived/topology/`, `data/derived/vdos/`, `data/derived/reference/`, `data/derived/correlation/`, `data/metadata/`  
+  and write a machine‑generated tree listing to `docs/design/data_tree.txt`.  
+  **Verification**: `cat docs/design/data_tree.txt` must contain all seven directories (one per line).
 
-- [ ] T001b [P] Create the output‑directory hierarchy (`outputs/`, `outputs/figures/`, `outputs/reports/`) and write a tree listing to `docs/design/output_structure.txt`.  
-  *Verification*: `cat docs/design/output_structure.txt` must list the three output folders.
+- [ ] **T002**  Create the output‑directory hierarchy `outputs/`, `outputs/figures/`, `outputs/reports/` and write its tree to `docs/design/output_tree.txt`.  
+  **Verification**: `cat docs/design/output_tree.txt` must list the three output folders.
 
-- [ ] T002 [P] Initialise a Python project with a pinned `requirements.txt` containing `numpy`, `scipy`, `pandas`, `scikit-learn`, `ase`, `matplotlib`, `seaborn`, `networkx`, `pytest`, `pytest-cov`, `pytest-randomly`, `statsmodels`.  
+- [ ] **T003**  Initialise a Python project with a pinned `requirements.txt` containing  
+  `numpy`, `scipy`, `pandas`, `scikit-learn`, `ase`, `matplotlib`, `seaborn`, `networkx`, `pytest`, `pytest-cov`, `pytest-randomly`, `statsmodels`.  
+  **Verification**: `pip install -r requirements.txt` succeeds without version conflicts.
 
-- [ ] T003a [P] Add `ruff.toml` with strict linting (select = ["E","F","I","W"], line‑length = 88, target‑version = "py311").  
+- [ ] **T004**  Add linting and formatting configs: `ruff.toml` (strict E/F/I/W, line‑length 88, Python 3.11) and `pyproject.toml` with a `[tool.black]` section (same line‑length, target‑version 3.11).  
+  **Verification**: Running `ruff check .` and `black --check .` reports no violations.
 
-- [ ] T003b [P] Add `pyproject.toml` with a `[tool.black]` section (line‑length = 88, target‑version = ["py311"]).  
+- [ ] **T005**  Implement the top‑level CLI entry point `src/cli/main.py`.  
+  It must expose sub‑commands `extract-topology`, `calc-vdos`, `ingest-kappa`, `aggregate`, `analyze`, and orchestrate the full pipeline, writing all artefacts under `data/derived/` and `outputs/`.  
+  **Verification**: `python -m src.cli.main --help` lists all sub‑commands and exits with code 0.
 
-- [ ] T009 [P] Add `__init__.py` files to `tests/unit/`, `tests/integration/`, and `tests/contract/` so that the test package is importable.  
+- [ ] **T006**  Create a minimal `config.yaml` in the project root containing  
+  ```yaml
+  bootstrap_iterations: 1000
+  ```  
+  (additional keys may be added later).  
+  **Verification**: `yaml.safe_load(open("config.yaml"))` returns a dict with the key `bootstrap_iterations`.
 
-- [ ] T010 [P] Configure `pyproject.toml` to enable `pytest-randomly` and `pytest-cov` with a minimum coverage of 80 %.  
-
-- [ ] T045 [P] Implement `src/cli/main.py` – the top‑level CLI that sequentially calls the topology extractor, VDOS calculator, κ‑ingester, and statistical analyzer, writing all artefacts under `data/derived/` and `outputs/`.  
-
-- [ ] T048 [P] Create a documentation‑only `config.yaml` containing `bootstrap_iterations: 1000` and a placeholder `effect_size` entry (ignored by the code).  
-
-- [ ] T049 [P] Implement `scripts/update_state_hashes.py` which computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.  
-
----
-
-## Phase 2 – Foundational data acquisition & independence checks  
-
-**Goal**: Fetch real amorphous‑silicon trajectories from verified repositories, validate them, and ingest independently sourced thermal‑conductivity values.
-
-- [ ] T055a [Foundational] Implement `src/services/registry_generator.py` to write `data/metadata/dataset_registry.json` mapping system‑size labels (`N1000`, `N2000`, `N4000`) to verified Materials‑Cloud/Zenodo dataset IDs (constant `VERIFIED_DATASET_IDS` in `src/lib/config.py`).  
-
-- [ ] T055b [Foundational] Implement `src/services/registry_validator.py` to verify each ID in `dataset_registry.json` via the Zenodo API, aborting with a clear error if any ID is unreachable.  Writes `data/metadata/valid_sources.json` and a log `data/metadata/registry_validation.log`.  
-
-- [ ] T056 [Foundational] Implement `src/services/data_loader.py` that streams the three verified datasets (using `datasets.load_dataset(..., streaming=True)`) into `data/raw/`.  The loader must:
-  * Ensure **all three** system sizes are present.
-  * Write a SHA‑256 checksum file `data/metadata/checksums.txt`.
-  * Abort loudly on any download failure (no synthetic fallback).  
-
-- [ ] T057 [Foundational] Implement `src/services/kappa_ingester.py` to read a researcher‑provided CSV (default `data/derived/reference/kappa_values.csv`) containing columns `system_size,kappa,source_id,source_type,trajectory_id`.  
-  *Validate*:
-  * `source_id` matches an entry in `valid_sources.json`.
-  * `source_id` ≠ `trajectory_id` (independence check, abort with `FatalError: Circular Dependency Detected` if violated).
-  * All rows have `is_independent=True`.
-  * Write the validated CSV back to `data/derived/reference/kappa_values_validated.csv`.  
-
-- [ ] T061 [P] Extend `src/services/topology_extractor.py` to stream trajectory files larger than 100 k atoms using `ase.io.iread` with a configurable `chunk_size`.  When streaming is used, log the sampled atom count, random seed, and limitation description to `data/metadata/sampling_log.txt`.  
-
-- [ ] T062 [P] Add RDF‑ambiguity detection to `topology_extractor.py`: if the first minimum is shallow (< 5 % of the preceding peak) or multiple minima lie within 0.2 Å, log a warning and require the user to supply `--rdf-cutoff-override`.  
+- [ ] **T007**  Implement `scripts/update_state_hashes.py` that computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.  
+  **Verification**: Running the script creates the YAML file and contains at least one hash entry.
 
 ---
 
-## Phase 3 – User Story 1: Topology extraction  
+## Phase 2 – Data acquisition & independence checks
 
-**Goal**: Parse trajectories, build a distance‑cutoff bond network, and compute per‑atom and global topological metrics.
+| Goal | Fetch real amorphous‑silicon trajectories, validate them, and ingest independently‑sourced thermal‑conductivity values. |
+|------|--------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T017 [US1] Implement `src/services/topology_extractor.py` (FR‑001, FR‑002).  
-  *Features*:
-  * Load LAMMPS or XYZ files via `ase`.
-  * Compute RDF, locate the first minimum (dynamic cutoff) or use `--rdf-cutoff-override`.
-  * Build a `networkx` graph of bonds.
-  * Compute per‑atom coordination number, bond‑angle variance, and flag any atom with coordination > 6 as a “Physical Anomaly” (non‑fatal).
-  * Compute global mean coordination; if |mean − 4.00| > 0.05, log a critical message and set exit code 3 (pipeline continues).
+- [ ] **T008** [Foundational] Implement `src/services/registry_generator.py` that writes `data/metadata/dataset_registry.json`. This JSON maps system‑size labels (`N1000`, `N2000`, `N4000`) to verified Materials‑Cloud/Zenodo dataset identifiers (hard‑coded in `src/lib/config.py` as `VERIFIED_DATASET_IDS`).  
+  **Verification**: The JSON file exists and contains three keys matching the size labels.
+
+- [ ] **T009** [Foundational] Implement `src/services/registry_validator.py` which reads `dataset_registry.json`, queries the Zenodo API for each ID, aborts with a clear error if any ID is unreachable, and writes `data/metadata/valid_sources.json` plus a log `data/metadata/registry_validation.log`.  
+  **Verification**: The log contains the line `VALIDATION SUCCESS` and `valid_sources.json` lists the same three IDs.
+
+- [ ] **T010** [Foundational] Implement `src/services/data_loader.py` that streams the three verified datasets (using `datasets.load_dataset(..., streaming=True)`) into `data/raw/`. It must:  
+  * Write a SHA‑256 checksum per downloaded file to `data/metadata/checksums.txt`.  
+  * Abort loudly (`raise RuntimeError`) on any download failure (no synthetic fallback).  
+  **Verification**: After a successful run, `data/raw/` contains at least one file per system size and `checksums.txt` lists a hash for each file.
+
+- [ ] **T011** [Foundational] Implement `src/services/kappa_ingester.py` that reads `data/derived/reference/kappa_values.csv` (columns: `system_size,kappa,source_id,source_type,trajectory_id`), validates that:  
+  * `source_id` appears in `valid_sources.json`.  
+  * `source_id` ≠ `trajectory_id` (independence check).  
+  * All rows have `is_independent=True` (or raise if missing).  
+  It then writes the validated table to `data/derived/reference/kappa_values_validated.csv`.  
+  **Verification**: The output CSV exists, contains the same number of rows as the input, and a grep for the string `FatalError` returns nothing.
+
+- [ ] **T031** [FR‑006] Verify that at least **30** independent disorder snapshots have been ingested for each of the three system sizes. Scan `data/raw/` (or the manifest generated by T010) and count files per size; abort with an error if any size has fewer than 30 files.  
+  **Verification**: The task logs the counts and fails with a clear message if the threshold is not met.
+
+---
+
+## Phase 3 – User Story 1: Topology extraction
+
+| Goal | Parse trajectories, build a bond network, and compute per‑atom & global topology metrics. |
+|------|----------------------------------------------------------------------------------------|
+
+- [ ] **T012** [US1] Implement `src/services/topology_extractor.py` (FR‑001, FR‑002). It must:  
+  * Load LAMMPS dump or XYZ files via `ase.io.read`.  
+  * Compute the radial distribution function, locate the **first minimum** (dynamic cutoff) or honor a user‑provided `--rdf-cutoff-override`.  
+  * **Verification**: Confirm that the cutoff used equals the RDF first minimum within ±0.01 Å.  
+  * Build a `networkx` graph of bonds using that cutoff.  
+  * Compute per‑atom coordination number, bond‑angle variance, flag any atom with coordination > 6 as a non‑fatal “Physical Anomaly”.  
+  * Compute global `mean_coordination` and `bottleneck_density`.  
   * Write per‑atom CSV to `data/derived/topology/<box_id>_topology.csv` and a summary JSON to `data/derived/topology/<box_id>_summary.json`.  
+  **Verification**: Running the extractor on a tiny public a‑Si trajectory (≤ 500 atoms) creates both files; the CSV contains columns `atom_id,coordination_number,bond_angle_variance,is_bottleneck`; the JSON field `mean_coordination` satisfies `|mean‑4.00| ≤ 0.05`.
 
-- [ ] T018 [P] Add structured logging (INFO/DEBUG) for all steps of `topology_extractor.py`; write logs to `data/metadata/topology_log.log`.  
+- [ ] **T013**  Add structured logging (`INFO`/`DEBUG`) for all steps of `topology_extractor.py` to `data/metadata/topology_log.log`.  
+  **Verification**: The log file exists and contains the line `RDF cutoff =`.
 
-- [ ] T020 [P] Add CLI flag `--rdf-cutoff-override` to `src/cli/main.py` (propagated to the extractor).  
-
-- [ ] T019 [P] Add integration test `tests/integration/test_full_topology.py` that runs the extractor on a tiny public a‑Si trajectory (≤ 500 atoms) and checks that the output CSV contains the required columns and that the mean coordination is within the accepted tolerance.  
-
----
-
-## Phase 4 – User Story 2: Vibrational analysis & bottleneck identification  
-
-**Goal**: From velocity data, compute the VDOS, participation ratios, and quantify topological bottlenecks.
-
-- [ ] T063 [US2] Implement `src/services/vdos_calculator.py` (FR‑003, FR‑004).  
-  *Steps*:
-  * Verify that velocity data exists; if missing, raise `VelocityDataMissingError` with exit code 4 (pipeline halts for VDOS but not for topology).
-  * Compute the velocity autocorrelation function (VACF) using `numpy.float64` precision.
-  * Perform FFT to obtain the VDOS spectrum.
-  * Calculate the participation ratio for each frequency bin.
-  * Identify localized modes (high PR, low frequency) and compute `localized_mode_density` (integrated over 10–15 THz).
-  * Detect the high‑frequency peak (‑15 THz) and log a “Spectral Anomaly” if the peak height < 5 % of the global maximum **and** the system is not perfectly coordinated.
-  * Write CSV `data/derived/vdos/<box_id>_vdos.csv` and a summary JSON `data/derived/vdos/<box_id>_summary.json`.  
-
-- [ ] T026 [US2] (previous implementation retained; now superseded by T063 – keep as reference).  
-
-- [ ] T027 [P] Implement `src/services/sensitivity_analyzer.py` to sweep the under‑coordination threshold (default < 3 ± 0.5) and report the coefficient of variation of bottleneck density in `data/derived/topology/sensitivity_report.txt`.  
-
-- [ ] T028 [P] Add acoustic‑mode / high‑freq‑peak validation logic (see T063 description).  
-
-- [ ] T029 [P] Add integration test `tests/integration/test_full_vdos.py` that runs the VDOS calculator on a verified small trajectory with velocities and checks that the output CSV contains `frequency_THz`, `density_of_states`, `participation_ratio` columns and that a high‑frequency peak is recorded.  
+- [ ] **T014**  Add an integration test `tests/integration/test_full_topology.py` that invokes the extractor on the tiny dataset and asserts the CSV schema and mean‑coordination tolerance.  
+  **Verification**: `pytest -q tests/integration/test_full_topology.py` passes.
 
 ---
 
-## Phase 5 – User Story 3: Correlation, robustness & power analysis  
+## Phase 4 – User Story 2: Vibrational analysis & bottleneck identification
 
-**Goal**: Aggregate topology, VDOS, and κ data across three system sizes, perform bootstrap‑based correlation, apply multiple‑comparison correction, and report statistical power.
+| Goal | Compute VDOS, participation ratios, and quantify topological bottlenecks. |
+|------|--------------------------------------------------------------------------|
 
-- [ ] T046 [US3] Implement a data‑aggregation script `src/services/aggregate_data.py` that:
-  * Scans `data/derived/topology/*_N{size}*.csv` for the three required sizes (1000, 2000, 4000 atoms).
-  * Joins each record with the corresponding VDOS summary and κ value from `kappa_values_validated.csv`.
-  * Asserts that **exactly** three distinct system sizes are present; abort with a clear error if not.
-  * Writes the combined dataset to `data/derived/correlation/aggregated_dataset.csv`.  
+- [ ] **T015** [US2] Implement `src/services/vdos_calculator.py` (FR‑003, FR‑004). It must:  
+  * Verify that a velocity dump is present; if missing, raise `VelocityDataMissingError` with exit code 4 (graceful halt, topology results retained).  
+  * Compute the velocity autocorrelation function (VACF) using `numpy.float64`.  
+  * Perform an FFT to obtain the VDOS spectrum.  
+  * Calculate the participation ratio for every frequency bin.  
+  * Identify localized modes in the high‑frequency range (10–15 THz) and compute `localized_mode_density`.  
+  * Detect the high‑frequency peak (≈ ‑15 THz) and log a “Spectral Anomaly” if the peak height < 5 % of the global maximum **and** the box is not perfectly coordinated.  
+  * Write CSV `data/derived/vdos/<box_id>_vdos.csv` (columns `frequency_THz,density_of_states,participation_ratio`) and summary JSON `data/derived/vdos/<box_id>_summary.json`.  
+  **Verification**: Running the calculator on a verified small trajectory with velocities creates both files; the CSV contains the required columns and the JSON field `high_freq_peak_THz` lies between 10 and 15 THz. Additionally, a negative‑path test confirms that missing velocity data raises the specified error with exit code 4.
 
-- [ ] T041 [US3] Implement `src/services/statistical_analyzer.py` (FR‑005, FR‑006, FR‑007).  
-  *Operations*:
-  * Load `aggregated_dataset.csv`.
-  * For each topological metric (`mean_coordination`, `bottleneck_density`, `bond_angle_variance`) compute Spearman and Pearson r, raw p‑values, and 95 % CI via **1000** bootstrap iterations (`scipy.stats.bootstrap`).
-  * Apply Bonferroni correction across all metric‑size tests; store corrected p‑values.
-  * Perform a power analysis using the observed effect size (Cohen’s d for Pearson r conversion) via `statsmodels.stats.power.NormalIndPower`; flag `low_power_warning` if power < 0.8.
-  * Write one JSON file per metric‑size combination to `data/derived/correlation/<metric>_N{size}.json` that conforms to `contracts/correlation.schema.yaml`.  
+- [ ] **T016**  Implement `src/services/sensitivity_analyzer.py` that sweeps the under‑coordination threshold (`< 3 ± 0.5`) and writes the coefficient of variation of bottleneck density to `data/derived/topology/sensitivity_report.txt`.  
+  **Verification**: The report file exists and contains a line `CV =` with a numeric value.
 
-- [ ] T042 [P] In `statistical_analyzer.py`, compute and output the variance of correlation coefficients across the three system sizes (finite‑size effect) to `outputs/reports/finite_size_effect.txt`.  
-
-- [ ] T043 [P] Log a “Low Power” warning (and set `low_power_warning: true` in the JSON) when power < 0.8.  
-
-- [ ] T047 [P] Add a human‑readable summary table `outputs/reports/correlation_summary.csv` that lists, for each metric‑size pair, `spearman_r`, `pearson_r`, `p_value_corrected`, `ci_lower`, `ci_upper`, `bootstrap_iterations`, `statistical_power`, and `low_power_warning`.  
-
-- [ ] T047b [P] Add unit test `tests/unit/test_power_ignores_config.py` that temporarily patches `config.yaml` with a dummy effect size and verifies that `statistical_analyzer` still uses the observed effect size for power calculation.  
-
-- [ ] T044 [P] Add integration test `tests/integration/test_full_correlation.py` that runs the full aggregation → statistical pipeline on a minimal but complete three‑size dataset (≤ 30 realizations per size) and checks that the JSON outputs validate against `contracts/correlation.schema.yaml`.  
+- [ ] **T017**  Add an integration test `tests/integration/test_full_vdos.py` that runs `vdos_calculator.py` on the same tiny trajectory and asserts the CSV schema and that `high_freq_peak_THz` is recorded.  
+  **Verification**: `pytest -q tests/integration/test_full_vdos.py` passes.
 
 ---
 
-## Phase 6 – Reporting & final hand‑off  
+## Phase 5 – Aggregation & statistical correlation (User Story 3)
 
-**Goal**: Produce reproducible figures, tables, and a concise methods/results write‑up linked to the actual artefacts.
+| Goal | Assemble all derived data, perform bootstrap‑based correlation, apply multiple‑comparison correction, and report statistical power. |
+|------|------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T050 [P] Generate a PDF/HTML report in `outputs/reports/` containing:
-  * RDF plots, VDOS spectra, bottleneck density sensitivity curves.
-  * Correlation scatter plots with 95 % CI bands for each metric‑size pair.
-  * Tables from `correlation_summary.csv`.
-  * Explicit statements of any warnings (low power, ambiguous RDF, missing velocity data).  
+- [ ] **T018** [US3] Implement `src/services/aggregate_data.py`. It must:  
+  * Scan `data/derived/topology/*_N{size}.csv` for the required sizes (at least three distinct sizes, e.g., 1000, 2000, 4000 atoms).  
+  * Join each record with the corresponding VDOS summary (`*_summary.json`) and the validated κ value from `kappa_values_validated.csv`.  
+  * Abort with a clear error if **fewer than three** distinct system sizes are present.  
+  * Write the combined dataset to `data/derived/correlation/aggregated_dataset.csv`.  
+  **Verification**: After a successful run, the CSV exists and has a column `system_size_group` with ≥ 3 unique values.
 
-- [ ] T051 [P] Save all figures (PNG) to `outputs/figures/` with descriptive filenames (e.g., `rdf_N1000.png`, `vdos_N2000.png`, `corr_bottleneck_N4000.png`).  
+- [ ] **T019** [US3] Implement `src/services/statistical_analyzer.py` (FR‑005, FR‑006, FR‑007). It must:  
+  * Load `aggregated_dataset.csv`.  
+  * For each topological metric (`mean_coordination`, `bottleneck_density`, `bond_angle_variance`) compute Spearman and Pearson coefficients, raw p‑values, and 95 % confidence intervals via **1000** bootstrap iterations (`scipy.stats.bootstrap`).  
+  * Apply Bonferroni correction across all metric‑size tests and store `p_value_corrected`.  
+  * Perform a power analysis using the observed effect size (Cohen’s d derived from Pearson r) via `statsmodels.stats.power.NormalIndPower`; set `low_power_warning: true` if power < 0.8.  
+  * Write one JSON per metric‑size pair to `data/derived/correlation/<metric>_N{size}.json` conforming to `contracts/correlation.schema.yaml`.  
+  * Produce a human‑readable summary CSV `outputs/reports/correlation_summary.csv` with all statistical fields, and a variance‑of‑coefficients report `outputs/reports/finite_size_effect.txt`.  
+  **Verification**: All JSON files validate against the schema (run `jsonschema`), the summary CSV contains the header row, and `low_power_warning` is a boolean.
 
-- [ ] T052 [P] Update `README.md` with a “Quick‑start” section that shows how to run the full pipeline via `python -m src.cli.main --kappa-file data/derived/reference/kappa_values.csv`.  
+- [ ] **T032** [FR‑008] Validate thermal‑conductivity source independence before correlation. The task reads `data/derived/reference/kappa_values_validated.csv` and checks that every `source_id` differs from the associated `trajectory_id`. It also confirms that the `reference_generator.py` script is **not** invoked in the production pipeline (e.g., by ensuring no file `data/derived/reference/kappa_generated.csv` exists).  
+  **Verification**: The validation script exits with code 0 and logs “All κ values independent”; pipeline aborts if any violation is detected.
 
-- [ ] T053 [P] Generate API documentation for `src/services/` using `pdoc` and place it under `docs/api/`.  
+- [ ] **T036** [SC‑003] Compute the variance of the correlation coefficients (Spearman `r`) across the three system sizes for each metric and assert that the variance does not exceed a tolerance of 0.02 (indicating consistency). Write the result to `outputs/reports/correlation_consistency.txt`.  
+  **Verification**: The file exists and contains `Variance =` with a numeric value ≤ 0.02.
 
-- [ ] T055 [P] Run the full automated test suite (`pytest -q`) and ensure ≥ 80 % coverage; failures must be fixed before proceeding.  
+- [ ] **T030** [SC‑005] Measure the total wall‑clock time of the full pipeline (from topology extraction through statistical analysis) on a 4000‑atom dataset and assert that it is ≤ 1800 seconds. Record the elapsed time in `outputs/reports/runtime_report.txt`.  
+  **Verification**: The report file exists and contains `Elapsed time =` with a value ≤ 1800 s.
 
----
-
-## Phase 7 – Manual reference calculation & SC‑001 verification  
-
-**Goal**: Provide an independent, deterministic reference correlation calculation to verify the pipeline’s numerical accuracy.
-
-- [ ] T059 [US3] Implement `scripts/manual_reference.py` that:
-  * Programmatically builds a small amorphous‑silicon structure using the Wooten‑Winer‑Weaire (WWA) algorithm (≈ 200 atoms).
-  * Runs `topology_extractor.py` on this structure to obtain `mean_coordination` and `bottleneck_density`.
-  * Generates a synthetic κ value using the Cahill‑Pohl model (purely deterministic, documented).
-  * Computes the Spearman rank correlation between the two metrics **using the same code path** (`scipy.stats.spearmanr`).
-  * Writes the resulting `r` and the input vectors to `data/metadata/manual_reference.json`.  
-
-- [ ] T060 [P] Add test `tests/unit/test_sc001_accuracy.py` that loads `manual_reference.json` and compares the pipeline’s correlation output (run on the same synthetic dataset) against the stored reference, asserting `|pipeline_r ‑ reference_r| < 1e-6`.  
-
----
-
-## Phase 8 – Edge‑case robustness (review‑driven)  
-
-- [ ] T064 [P] Extend `statistical_analyzer.py` to detect when fewer than three system sizes are present; log `"LIMITATION: Insufficient System Sizes for Finite‑Size Validation"` and set `finite_size_validation_status: "SKIPPED"` in the final JSON report.  
-
-- [ ] T065 [P] Add integration test `tests/integration/test_data_loader_fail.py` that mocks a download failure and asserts `data_loader.py` raises `DataFetchError` and exits with code 1, without invoking any synthetic‑data generator.  
+- [ ] **T020** [P] Add an integration test `tests/integration/test_full_correlation.py` that runs the aggregation → statistical pipeline on a minimal three‑size dataset (≤ 30 realizations per size) and asserts that each generated JSON validates against `contracts/correlation.schema.yaml`.  
+  **Verification**: `pytest -q tests/integration/test_full_correlation.py` passes.
 
 ---
 
-### Dependencies & execution order  
+## Phase 6 – Reporting & final hand‑off
 
-| Phase | Tasks (must finish before) |
-|-------|-----------------------------|
-| 1 | T001a, T001b, T002‑T010 |
-| 2 | T055a → T055b → T056 → T057 |
-| 3 | T017 (depends on T056) |
-| 4 | T063 (depends on T056) |
-| 5 | T046 (depends on T056 & T057) → T041 |
-| 6 | T045 (orchestrates all above) |
-| 7 | T059 (independent) → T060 |
-| 8 | Independent robustness checks (can run after core pipeline) |
+| Goal | Produce reproducible figures, tables, and a concise methods/results write‑up linked to the actual artefacts. |
+|------|-----------------------------------------------------------------------------------------------------------|
 
-All tasks marked `[P]` may run in parallel provided their file‑level dependencies are respected. Checked tasks (`[X]`) have already produced verifiable artefacts; unchecked tasks must be completed before the next verification round.
+- [ ] **T021**  Generate a PDF report `outputs/reports/report.pdf` (or HTML) that includes:  
+  * RDF plots per system size.  
+  * VDOS spectra with participation‑ratio overlays.  
+  * Bottleneck‑density sensitivity curves.  
+  * Correlation scatter plots with 95 % CI bands for each metric‑size pair.  
+  * Tables from `correlation_summary.csv`.  
+  * Explicit statements of any warnings (low power, ambiguous RDF, missing velocity).  
+  **Verification**: The PDF opens without errors and each figure filename appears in the document.
+
+- [ ] **T022**  Save all generated figures (PNG) to `outputs/figures/` with descriptive filenames (e.g., `rdf_N1000.png`, `vdos_N2000.png`, `corr_bottleneck_N4000.png`).  
+  **Verification**: The directory contains at least three PNG files and `ls outputs/figures/` lists them.
+
+- [ ] **T023**  Update `README.md` with a “Quick‑start” section that shows how to run the full pipeline via  
+  `python -m src.cli.main --kappa-file data/derived/reference/kappa_values_validated.csv`.  
+  **Verification**: The README contains the exact command line snippet.
+
+- [ ] **T024**  Generate API documentation for the `src/services/` package using `pdoc` and place it under `docs/api/`.  
+  **Verification**: `docs/api/` contains an `index.html` file.
+
+- [ ] **T025**  Run the full automated test suite (`pytest -q`) and ensure **≥ 80 %** line coverage; fix any failures before proceeding.  
+  **Verification**: The pytest summary reports `coverage: 80%` (or higher) and `0 failed`.
+
+---
+
+## Phase 7 – Manual reference calculation & SC‑001 verification
+
+| Goal | Provide an independent deterministic reference calculation to validate the pipeline’s numerical accuracy. |
+|------|-------------------------------------------------------------------------------------------------------------|
+
+- [ ] **T026** [US3] Implement `scripts/manual_reference.py` that:  
+  * Builds a small amorphous‑silicon structure (~200 atoms) using the Wooten‑Winer‑Weaire algorithm (deterministic seed).  
+  * Runs `topology_extractor.py` on this structure to obtain `mean_coordination` and `bottleneck_density`.  
+  * Generates a synthetic thermal‑conductivity value using the Cahill‑Pohl model (purely formula‑based, documented).  
+  * Computes the Spearman rank correlation between the two metrics **using the same code path** (`scipy.stats.spearmanr`).  
+  * Writes the inputs and resulting `r` to `data/metadata/manual_reference.json`.  
+  **Verification**: The JSON file exists and contains keys `mean_coordination`, `bottleneck_density`, `thermal_conductivity`, `spearman_r`.  
+  *Note*: This reference is **solely for internal validation** and its κ values are **not used** in the production correlation pipeline, thereby preserving FR‑008 independence.
+
+- [ ] **T027** [P] Add a unit test `tests/unit/test_sc001_accuracy.py` that loads `manual_reference.json`, runs the pipeline’s correlation routine on the same synthetic dataset, and asserts `|pipeline_r – reference_r| < 1e-6`.  
+  **Verification**: The test passes (`pytest -q tests/unit/test_sc001_accuracy.py`).
+
+---
+
+## Phase 8 – Edge‑case robustness (review‑driven)
+
+| Goal | Ensure the pipeline behaves gracefully when assumptions are violated. |
+|------|------------------------------------------------------------------------|
+
+- [ ] **T028** [P] Extend `statistical_analyzer.py` to detect when fewer than three system sizes are present; log `"LIMITATION: Insufficient System Sizes for Finite‑Size Validation"` and set `finite_size_validation_status: "SKIPPED"` in the final JSON report.  
+  **Verification**: Running the analyzer on a two‑size dataset creates a JSON with the field `finite_size_validation_status` set to `"SKIPPED"` and the log contains the warning string.
+
+- [ ] **T029** [P] Add an integration test `tests/integration/test_data_loader_fail.py` that mocks a download failure (e.g., by pointing the registry to a non‑existent Zenodo ID) and asserts that `data_loader.py` raises `RuntimeError` with exit code 1 and **does not** invoke any synthetic‑data generator.  
+  **Verification**: The test passes and the traceback contains `DataFetchError`.

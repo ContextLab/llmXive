@@ -42,15 +42,3 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/670b523c0c10e11fcb9709d4/be402c8f73af3cc34173c3946806ed1761f84bea2574dfa137aac588d96560a9?response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27alencar021.zip%3B+filename%3D%22alencar021.zip%22%3B&user_id=public&Expires=1788049587&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcwYjUyM2MwYzEwZTExZmNiOTcwOWQ0L2JlNDAyYzhmNzNhZjNjYzM0MTczYzM5NDY4MDZlZDE3NjFmODRiZWEyNTc0ZGZhMTM3YWFjNTg4ZDk2NTYwYTlcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2FsZW5jYXIwMjEuemlwJTNCK2ZpbGVuYW1lJTNEJTIyYWxlbmNhcjAyMS56aXAlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4ODA0OTU4N319fV19&Signature=MEYCIQDpdJYBxwftSHX41P%7ESW9d4Jmh%7EJdvSXugI%7E0iMBVdbrgIhALXUWr-ZArMvRhIj1wHORaaeUfhzHxZFLdZflgqyK8Vf&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
   verified_at: '2026-08-29T23:26:19.360120Z'
-- artifact_hash: bce36b29ed6ca3b9c0296073078a59852e67f97bb001ccb8619ed1f959e4c3e8
-  artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[math/0504516] Iterated smoothed bootstrap confidence intervals
-    for population quantiles'
-  kind: url
-  value: https://arxiv.org/abs/math/0504516
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/math/0504516
-  verified_at: '2026-10-06T23:40:58.372193Z'

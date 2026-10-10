@@ -3,12 +3,12 @@
   "stage": "planned",
   "class": "transient",
   "fingerprint": "model_chain_failed",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-10-10T16:21:37.298651+00:00",
-  "last_seen": "2026-10-10T16:21:37.298651+00:00",
-  "retry_after": "2026-10-10T16:31:37.298651+00:00",
+  "last_seen": "2026-10-10T17:23:47.315396+00:00",
+  "retry_after": null,
   "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
   "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }
