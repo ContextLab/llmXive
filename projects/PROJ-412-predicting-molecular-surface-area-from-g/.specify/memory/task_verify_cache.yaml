@@ -172,6 +172,36 @@ T011:
     \ `code/utils/logging.py` also exists and provides the imported `get_logger`,\
     \ so the module is importable as written."
   sig: 54b6a03f786d4fb9bc52fd587a4b10348db70a161fbbcbed0918d5a2ad07338a
+T012:
+  c: true
+  h: c93e09a6d6c537c4477ed5781e2b840603655cdf4603c2f66c308d5cf91f9c75
+  r: The test file `tests/contract/test_data_schema.py` exists (1195 bytes) and contains
+    real, non-stub assertions validating the schema file's existence, required fields
+    (smiles, node_features, edge_features, surface_area, molecular_weight), and type/minimum
+    constraints, all consistent with the actual `dataset.schema.yaml` content (which
+    defines those fields, required list, and `surface_area` as number with minimum
+    0). The schema path in the test matches the collector-resolved canonical directory,
+    so the contract test genuinely validates against the T004-generated schema.
+  sig: e0296f5be20c5918fcea442e79678d825f8144c94c92e1d9640cd6803fd058b3
+T013:
+  c: false
+  h: 9cccbb3ff00d33fe3f054b110fbef3207e0c3bc7e597b80720172e33a95102e4
+  r: 'The test file exists and is non-empty, but it is not a genuine integration test
+    of the T048 pipeline: `test_ingestion_pipeline_chunk_processing` imports `process_smiles_chunk`
+    and `write_chunk_to_parquet` yet never calls them, instead re-implementing the
+    validation/filtering logic inline ("Simulate logging", "Simulate feature extraction"),
+    so the actual ingestion code is untested. Additionally, the `test_env` fixture
+    calls `setup_logging(log_level=..., log_file=...)`, but `code/utils/logging.py`
+    defines `setup_logging(log_level=logging.INFO)` with no `log_file` parameter,
+    so the fixture would '
+  sig: 5ebafbd900b36fc02928f5579e5f218e82270195aefd022f937fc9226c6c171d
+T014-Sample:
+  c: false
+  h: c65f1f71fe7bb35aac7adcd352b1d0d48bca3078063540f962489c996389f3f1
+  r: The required outputs `data/processed/sampled_dataset.parquet` and `data/processed/sampling_report.json`
+    do not exist, and the dependency `data/processed/pilot_report.json` is also missing.
+    Only `code/config.py` exists; no sampling code or artifacts were produced.
+  sig: 1a4bc2327616bc5e6965ee0672427c6ab8350f2c5698f31e5d63c35bd72c1ebf
 T015c:
   c: false
   h: 2532f98fa00dd4d39eb914ef7c48b1670720e5893a830aabecaf297882d8b57e
@@ -237,12 +267,15 @@ T045:
   sig: 64a532adb4c2e20a23005d7b7fa3c4fc18c4fc251b20d291dbd59d491f4e7870
 T048:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the task description and project specifications;\
-    \ there are no code files, scripts, or generated `data/raw/chunk_*.parquet` files\
-    \ demonstrating SMILES ingestion with streaming, fallback to OpenDataPubChem,\
-    \ or the >100\u2011atom filter. Consequently, the required implementation and\
-    \ output artifacts are missing."
+  h: 2ed26d20947a61c50d15b912611ab39637368d93138f8d78cd6fe11d9c5ebadb
+  r: The only artifact provided in the evidence is `specs/.../contracts/dataset.schema.yaml`;
+    there is no ingestion code implementing streaming `load_dataset`, chunked processing,
+    the max-atoms filter, or the DATA_SOURCE_OVERRIDE logic, no `logs/excluded_molecules.log`
+    or `logs/ingestion_errors.log`, and no `data/raw/chunk_*.parquet` outputs or execution
+    evidence. The task's required deliverables (the ingestion script and its chunked
+    parquet outputs with verified row counts) are entirely absent from the evidence,
+    so the claim cannot be verified as done.
+  sig: 992252758d9ce26797428e58edc75caeec13d48bf4096569ea428e7202bd623e
 T049:
   c: true
   h: 1ccd4ab12dd4502811ac284e6a5bb313c68bf27cf56e7ed4bef9e9fdcfb17517
@@ -266,9 +299,23 @@ T056:
   sig: 039993474f0d71c1ad37f3b606dec3a1f254f2da634cb9cbaa73325207b67930
 T057:
   c: false
-  h: 27faa8299690c59773437289bb0ac59ab18efec2586c5e38838d9b9ca6db99bc
-  r: The provided `code/data/ingest.py` only defines helper functions (`calculate_checksum`,
-    `save_checksums`) and is truncated before any logic that hashes each downloaded
-    chunk, compares to a manifest, or writes to `data/raw/checksums.json`. Moreover,
-    the required `data/raw/checksums.json` file does not exist. Hence the checksum
-    verification feature is not fully implemented.
+  h: cfa58d5fc0aa0aaca284a36d761ccd2d2150c5284710b3332b2d75d909c626e3
+  r: "The ingest.py defines `calculate_checksum` and `save_checksums` helpers but\
+    \ never calls them: `main()` creates an empty `checksums` dict, passes it to `process_and_write_chunk`\
+    \ (which ignores it), and never computes any chunk hash, never checks a manifest,\
+    \ never writes `data/raw/checksums.json` \u2014 which is confirmed MISSING on\
+    \ disk. The task's unconditional checksum verification, manifest mismatch halt,\
+    \ and checksum logging requirements are entirely unimplemented."
+  sig: c5dba4e4426ea72459cc8297f8e912c9f4aadb03b26fe354e7dd0957528dbb5f
+T058:
+  c: true
+  h: 26cd47f7874ab33c385b2831da5109b7136cd3d6520f066468fb4f2414ac19e9
+  r: "I examined `code/models/train.py` (15005 bytes) and confirmed the T058 logic:\
+    \ `train_model` wraps the epoch loop in a try/except that detects `RuntimeError`\
+    \ containing \"out of memory\", logs the adjustment (\"Reducing batch size from\
+    \ X to X//2\"), halves the batch size, clears the CUDA cache, and retries via\
+    \ the `while current_batch_size >= min_batch_size` loop, halting only when the\
+    \ minimum (default 1) is reached \u2014 exactly the required fallback behavior\
+    \ rather than an immediate crash. Minor unrelated defects exist (e.g., `memory_monitor.log_epoch(epoch,\
+    \ train_loss, val_loss)` passes two loss arg"
+  sig: 31335c8f4de80b05820154fb9f27762c281f34f87eb6963fec4edc96d6a16281

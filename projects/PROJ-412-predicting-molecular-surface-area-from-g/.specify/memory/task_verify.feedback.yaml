@@ -40,6 +40,14 @@ T011:
 T012:
   task: e639b06dc2f1a59bdc8e2bcf5afe589fa74ff4b75a90bbec393072e30d6c428b
 T013:
+  reason: 'The test file exists and is non-empty, but it is not a genuine integration
+    test of the T048 pipeline: `test_ingestion_pipeline_chunk_processing` imports
+    `process_smiles_chunk` and `write_chunk_to_parquet` yet never calls them, instead
+    re-implementing the validation/filtering logic inline ("Simulate logging", "Simulate
+    feature extraction"), so the actual ingestion code is untested. Additionally,
+    the `test_env` fixture calls `setup_logging(log_level=..., log_file=...)`, but
+    `code/utils/logging.py` defines `setup_logging(log_level=logging.INFO)` with no
+    `log_file` parameter, so the fixture would'
   task: 7377f92dbbb8461f70c2ac68dbc67d0235a53eacbe56fb060fb6daa722a791ab
 T014-Features:
   task: d96e1c6252594ca0afe75218b4d7e6085c8aa87ff9ae0a86300fb05b9df62cf1
@@ -51,6 +59,9 @@ T014-Pilot:
     exit=1'
   task: 45ea1a0dd9c50d12488779ee92c27092b5c559442103eed1b026743abce6bede
 T014-Sample:
+  reason: The required outputs `data/processed/sampled_dataset.parquet` and `data/processed/sampling_report.json`
+    do not exist, and the dependency `data/processed/pilot_report.json` is also missing.
+    Only `code/config.py` exists; no sampling code or artifacts were produced.
   task: 9386229589b96eaf98662e74239a242cb130a12c13c558fde28911caa045ed98
 T015a:
   task: 7e358b3e7819d4e82d086d7d140b2fc677da012449e058ea95f64616e9fcab8d
@@ -129,6 +140,13 @@ T040:
 T045:
   task: c3b3e97d24a4e74bf38dc2d9d21dc9cbb01aeb8314785ae5b6307f8e631f0dfd
 T048:
+  reason: The only artifact provided in the evidence is `specs/.../contracts/dataset.schema.yaml`;
+    there is no ingestion code implementing streaming `load_dataset`, chunked processing,
+    the max-atoms filter, or the DATA_SOURCE_OVERRIDE logic, no `logs/excluded_molecules.log`
+    or `logs/ingestion_errors.log`, and no `data/raw/chunk_*.parquet` outputs or execution
+    evidence. The task's required deliverables (the ingestion script and its chunked
+    parquet outputs with verified row counts) are entirely absent from the evidence,
+    so the claim cannot be verified as done.
   task: 2b315c6ac2ed4cb4137ad2a69770b436c24142f44282866adb72adadcf852a9c
 T049:
   task: 0e917c408e6fc9c30f9c150af8f365715b070aa3f36264b949d52bd7830ef227
@@ -144,6 +162,12 @@ T052-Verify-Report:
 T056:
   task: c4899e459909971a0af430c88b82c6ef6f42ededa06e15a529e979e93eaa4a4d
 T057:
+  reason: "The ingest.py defines `calculate_checksum` and `save_checksums` helpers\
+    \ but never calls them: `main()` creates an empty `checksums` dict, passes it\
+    \ to `process_and_write_chunk` (which ignores it), and never computes any chunk\
+    \ hash, never checks a manifest, never writes `data/raw/checksums.json` \u2014\
+    \ which is confirmed MISSING on disk. The task's unconditional checksum verification,\
+    \ manifest mismatch halt, and checksum logging requirements are entirely unimplemented."
   task: 7210edb38aeb6e715da0ce25cf574d004f52b8ad4a03c704a595d88023a9927c
 T058:
   task: e8f3dbe735269e4811298d8cc1e47f7fb74a44ae2c347996e5d51d688e846a0a
