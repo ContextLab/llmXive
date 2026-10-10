@@ -1,3 +1,1 @@
-"""
-Analysis, metrics, and validation.
-"""
+"""Analysis subpackage."""

@@ -1,3 +1,1 @@
-"""
-Geometric solvers and reconstruction utilities.
-"""
+"""Geometry subpackage."""

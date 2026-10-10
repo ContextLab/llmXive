@@ -4,36 +4,3 @@ T025:
   r: The required integration test file `code/tests/integration/test_geometry_pipeline.py`
     does not exist in the repository, so the claimed implementation is missing entirely.
     No test code is present to verify full sequence reconstruction.
-T026:
-  c: false
-  h: ee9658f1dae83f07df5a76dfc5c5a08747303850b9e39b3781ca74f5deb681a8
-  r: "The `metrics.py` file defines the absolute\u2011difference function and a loader,\
-    \ but the required input file `data/processed/poses_estimated.json` is absent,\
-    \ so the code cannot actually consume the data as specified. The missing JSON\
-    \ file must be provided (or generated) for the task to be fulfilled."
-T030:
-  c: false
-  h: f0574297cb8a4dfddf19a62e6e948f9b41b4bc472a5eb8ecf72dda719d29d5ac
-  r: "The required `data/processed/filtered_sequences.csv` does not exist, and the\
-    \ provided `code/analysis/validation.py` contains only placeholder aspect\u2011\
-    ratio utilities and does not read the CSV, detect `randomized_depth=True` rows,\
-    \ attempt depth recovery, or flag errors >\u202F50\u202F%. Both the data artifact\
-    \ and the necessary validation logic are missing."
-T031:
-  c: false
-  h: 88c1c6b12a3d7b169ec6353d2bc1436ca88b18aea5d49aebfd02b078e000c75b
-  r: The required output file `data/processed/reconstruction_results.csv` does not
-    exist, so the success rate was neither calculated nor recorded as specified. The
-    implementer must generate this CSV with the retained/total filtering metrics.
-T032:
-  c: false
-  h: 88c1c6b12a3d7b169ec6353d2bc1436ca88b18aea5d49aebfd02b078e000c75b
-  r: The required artifact `data/processed/reconstruction_results.csv` does not exist,
-    so no execution timing data is recorded. The implementer must create the CSV file
-    and ensure the pipeline writes the total execution time into it.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `report.md` file or any content was supplied; the implementer did not provide
-    the required statistical report with the specified sections and visualizations.
-    The task remains unfinished until the report is created and presented.

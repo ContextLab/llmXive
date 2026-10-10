@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T06:49:42.691735Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-853-llmxive-follow-up-extending-omnidirector
-last_run_id: e66744e9-d6dd-4457-924c-0988649f3ec4
+last_run_id: 347407ce-8d59-4523-894f-6ee3f58110f5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-853-llmxive-follow-up-extending-omnidirector/specs/001-llmxive-follow-up-extending-omnidirector
 title: 'llmXive follow-up: extending "OmniDirector: General Multi-Shot Camera Cloning
   without Cross-Paired D"'
-updated_at: '2026-10-10T02:29:34.119187Z'
+updated_at: '2026-10-10T02:31:12.340085Z'

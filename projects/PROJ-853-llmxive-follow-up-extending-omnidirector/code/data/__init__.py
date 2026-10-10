@@ -1,3 +1,1 @@
-"""
-Data ingestion, processing, and models.
-"""
+"""Data subpackage."""

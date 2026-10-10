@@ -1,3 +1,1 @@
-"""
-llmXive Project: OmniDirector Extension
-"""
+"""Top-level package for the project."""
