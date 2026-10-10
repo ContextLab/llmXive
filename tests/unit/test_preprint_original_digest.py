@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 
 import pytest
 
@@ -56,7 +57,7 @@ def test_a_saved_original_is_used_without_any_download(tmp_path, monkeypatch):
     assert preprint_pdf.resolve_original_pdf(pdir, metadata) == pdir / "paper/pdf/original.pdf"
 
 
-def test_a_matching_redownload_raises_no_flag(tmp_path, monkeypatch):
+def test_a_matching_redownload_is_silent(tmp_path, monkeypatch, caplog):
     pdir, metadata = _project(tmp_path, record_digest=True)
 
     def _download(_arxiv_id, out_path):
@@ -64,13 +65,18 @@ def test_a_matching_redownload_raises_no_flag(tmp_path, monkeypatch):
         return True
 
     monkeypatch.setattr(preprint_pdf, "_download_arxiv_pdf", _download)
-    got = preprint_pdf.resolve_original_pdf(pdir, metadata)
+    with caplog.at_level(logging.WARNING, logger=preprint_pdf.logger.name):
+        got = preprint_pdf.resolve_original_pdf(pdir, metadata)
     assert got is not None and got.read_bytes() == INTAKE_BYTES
-    assert not list(got.parent.glob("*version-mismatch.json"))
+    assert "does NOT match" not in caplog.text
+    # Nothing is persisted: an artifact no module reads is a persist-and-forget
+    # write, which llmxive.checks.state_readers rejects (it caught exactly that
+    # in the first version of this change).
+    assert sorted(x.name for x in got.parent.iterdir()) == ["original.pdf"]
 
 
-def test_a_changed_redownload_is_flagged_and_still_returned(tmp_path, monkeypatch):
-    """The caller keeps working; the discrepancy becomes discoverable."""
+def test_a_changed_redownload_is_reported_and_still_returned(tmp_path, monkeypatch, caplog):
+    """The caller keeps working; the discrepancy is not silent."""
     pdir, metadata = _project(tmp_path, record_digest=True)
 
     def _download(_arxiv_id, out_path):
@@ -78,18 +84,28 @@ def test_a_changed_redownload_is_flagged_and_still_returned(tmp_path, monkeypatc
         return True
 
     monkeypatch.setattr(preprint_pdf, "_download_arxiv_pdf", _download)
-    got = preprint_pdf.resolve_original_pdf(pdir, metadata)
+    with caplog.at_level(logging.WARNING, logger=preprint_pdf.logger.name):
+        got = preprint_pdf.resolve_original_pdf(pdir, metadata)
     assert got is not None, "control flow is deliberately unchanged"
-    marker = got.parent / "original-version-mismatch.json"
-    assert marker.is_file(), "a silent version swap is the failure being prevented"
-    flagged = json.loads(marker.read_text())
-    assert flagged["arxiv_id"] == "2606.18216"
-    assert flagged["recorded_at_intake"]["bytes"] == len(INTAKE_BYTES)
-    assert flagged["redownloaded"]["bytes"] == len(REVISED_BYTES)
-    assert flagged["redownloaded"]["sha256"] == hashlib.sha256(REVISED_BYTES).hexdigest()
+    assert "does NOT match" in caplog.text, "a silent version swap is the failure prevented"
+    assert "2606.18216" in caplog.text
+    assert str(len(REVISED_BYTES)) in caplog.text and str(len(INTAKE_BYTES)) in caplog.text
 
 
-def test_a_fresh_intake_has_nothing_to_compare(tmp_path, monkeypatch):
+def test_the_digest_comparison_reports_both_outcomes(tmp_path):
+    """The predicate itself, independent of the download path."""
+    target = tmp_path / "original.pdf"
+    target.write_bytes(INTAKE_BYTES)
+    recorded = {"committed_pdf_digests": {"original.pdf": {
+        "sha256": hashlib.sha256(INTAKE_BYTES).hexdigest(), "bytes": len(INTAKE_BYTES)}}}
+    assert preprint_pdf._check_recorded_digest(target, recorded, "2606.18216") is True
+    target.write_bytes(REVISED_BYTES)
+    assert preprint_pdf._check_recorded_digest(target, recorded, "2606.18216") is False
+    # No record at all: nothing to contradict.
+    assert preprint_pdf._check_recorded_digest(target, {}, "2606.18216") is True
+
+
+def test_a_fresh_intake_has_nothing_to_compare(tmp_path, monkeypatch, caplog):
     pdir, metadata = _project(tmp_path, record_digest=False)
 
     def _download(_arxiv_id, out_path):
@@ -97,9 +113,10 @@ def test_a_fresh_intake_has_nothing_to_compare(tmp_path, monkeypatch):
         return True
 
     monkeypatch.setattr(preprint_pdf, "_download_arxiv_pdf", _download)
-    got = preprint_pdf.resolve_original_pdf(pdir, metadata)
+    with caplog.at_level(logging.WARNING, logger=preprint_pdf.logger.name):
+        got = preprint_pdf.resolve_original_pdf(pdir, metadata)
     assert got is not None
-    assert not list(got.parent.glob("*version-mismatch.json"))
+    assert "does NOT match" not in caplog.text
 
 
 # --- the committed records themselves ------------------------------------

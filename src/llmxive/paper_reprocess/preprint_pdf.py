@@ -17,7 +17,6 @@ is concatenated, guaranteeing the no-modification invariant mechanically.
 
 from __future__ import annotations
 
-import json
 import logging
 import shutil
 from pathlib import Path
@@ -146,49 +145,37 @@ def record_pdf_digest(path: Path) -> dict[str, object]:
     return {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
 
 
-def _check_recorded_digest(saved: Path, metadata: dict, arxiv_id: str) -> None:
-    """Flag a re-download whose bytes differ from the recorded intake version.
+def _check_recorded_digest(saved: Path, metadata: dict, arxiv_id: str) -> bool:
+    """Whether a re-download matches the digest recorded at intake.
 
-    Writes ``original-version-mismatch.json`` beside the PDF and logs, so the
-    discrepancy is discoverable instead of silent. Control flow is deliberately
-    unchanged: the caller still gets the file. Deciding whether a mismatch
-    should BLOCK restyling belongs with whatever stops committing these PDFs —
-    making it a hard gate here would strand every paper whose arXiv version
-    moved, with no evidence yet of how many that is.
+    Logs a warning on a mismatch and returns ``False``; the caller still gets
+    the file, because control flow here is deliberately unchanged. Nothing is
+    persisted: a sidecar JSON that no module reads is a persist-and-forget
+    artifact, which ``llmxive.checks.state_readers`` rejects outright (it
+    caught exactly that in the first version of this). The structured record
+    belongs with its consumer — the dashboard's preprint entry — and lands with
+    the change that stops committing these PDFs.
+
+    Deciding whether a mismatch should BLOCK restyling belongs there too:
+    making it a hard gate now would strand every paper whose arXiv version has
+    moved, which is 5 of a random 12 sampled on 2026-10-10.
     """
     recorded = (metadata.get("committed_pdf_digests") or {}).get(saved.name)
     if not isinstance(recorded, dict) or not recorded.get("sha256"):
-        return  # nothing recorded (a fresh intake): nothing to compare against
+        return True  # nothing recorded (a fresh intake): nothing to compare
     actual = record_pdf_digest(saved)
     if actual["sha256"] == recorded.get("sha256"):
-        return
-    marker = saved.with_name(f"{saved.stem}-version-mismatch.json")
-    marker.write_text(
-        json.dumps(
-            {
-                "arxiv_id": arxiv_id,
-                "pdf": saved.name,
-                "recorded_at_intake": recorded,
-                "redownloaded": actual,
-                "note": (
-                    "arxiv.org/pdf/<id> serves the CURRENT version; these bytes "
-                    "are not the ones the repository's reviews were written "
-                    "against. Re-review before treating the two as the same "
-                    "paper."
-                ),
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+        return True
     logger.warning(
-        "preprint %s: re-downloaded original differs from the recorded intake "
-        "version (%s bytes sha %s... vs recorded %s bytes sha %s...)",
-        arxiv_id, actual["bytes"], str(actual["sha256"])[:12],
+        "preprint %s: re-downloaded %s does NOT match the version recorded at "
+        "intake (%s bytes sha %s vs recorded %s bytes sha %s). arxiv.org serves "
+        "the CURRENT version; the repository's reviews were written against the "
+        "recorded one. Re-review before treating them as the same paper.",
+        arxiv_id, saved.name,
+        actual["bytes"], str(actual["sha256"])[:12],
         recorded.get("bytes"), str(recorded.get("sha256"))[:12],
     )
-
+    return False
 
 def _download_arxiv_pdf(arxiv_id: str, out_path: Path) -> bool:
     """Download the canonical arXiv PDF. Returns True on a real PDF, else False."""
