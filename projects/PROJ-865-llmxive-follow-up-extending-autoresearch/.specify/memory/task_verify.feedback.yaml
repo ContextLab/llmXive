@@ -1,0 +1,214 @@
+T001:
+  reason: "Checked the repository tree under `projects/PROJ-865-llmxive-follow-up-extending-autoresearch`.\
+    \ Required directories such as `code/data/`, `code/engine/`, `code/analysis/`,\
+    \ `data/processed/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, and\
+    \ `ci/` are missing, as are required files `README.md` and `.gitignore`. The task\u2019\
+    s demand for a complete directory and file layout is therefore not satisfied."
+  task: 6c443e317294d955232314c92ef350cbd1df71e20db6b2f74b97ade9a653c906
+T002:
+  reason: "The required `code/utils/validate_citations.py` script is missing, and\
+    \ the expected output `data/artifacts/citation_validation_report.json` does not\
+    \ exist, so the citation\u2011validation gate was never executed."
+  task: c68ee9920d1162945a348b7649f38b8e21f246f8345386b7d9f649ebe943266d
+T002b:
+  reason: "The required artifact `data/artifacts/citation_validation_report.json`\
+    \ is missing, and the state file `state/projects/PROJ-865-llmxive-follow-up-extending-autoresearch.yaml`\
+    \ does not exist. Moreover, `update_state.py` does not accept the specified `--artifact`\
+    \ and `--state-file` arguments nor is there any execution evidence showing it\
+    \ was run and recorded the hash/timestamp. The task\u2019s core requirement is\
+    \ therefore unmet."
+  task: 7eb9b637e8d7970488feb7a2facf1e862adcb12e7b2f690279a7fc68f29ae782
+T002c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/validate_citations.py,
+    data/artifacts/citation_validation_report.json'
+  task: 3a3c7351cf9b4d4b4a2be71093bb829bfdf9ea569377a2f0ac532a09be71da7f
+T003:
+  reason: Checked `.ruff.toml` (lacks required `select` and `target-version="py311"`),
+    `pyproject.toml` (uses Python 3.10 instead of 3.11 and omits the required `select`
+    list), and `.pre-commit-config.yaml` (file is missing). The artifacts do not meet
+    the specified configurations.
+  task: aea16d94cb3f0fb8edb5f2b97ba3da2ca857dc3f79b7f9fdef7815bf5b8757e8
+T004:
+  reason: The evidence shows the project directories and a pipeline log, but no `.gitignore`
+    file is present (or listed) and therefore the required file with the specified
+    exclusion patterns is missing. The task cannot be considered done until a `.gitignore`
+    containing the listed patterns is added to the repository.
+  task: 28b6e2941ac10e75cb546ec05d2a5a6fb5fb2d443b782ab7f946b8d15a8b78a0
+T005:
+  reason: "The `requirements.txt` file exists, but it does not contain pinned version\
+    \ specifications (e.g., `pandas==...`) and it omits the required `lifelines` package\
+    \ while including an extra `pyyaml` entry. These deviations mean the task\u2019\
+    s requirement is not satisfied."
+  task: 3a141d670e7400bc1b9f7a6a7ced888e7bb263982b6a67b9af92a5e3d3d990e5
+T005a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/annotation/gold_standard_loader.py,
+    data/raw/gold_standard.json'
+  task: e078c554653a3d7bc17048dcda193c9aa61d2e35a0c74a13da1c472cf19ef39f
+T005b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/annotation/consensus.py,
+    data/derived/consensus_annotations.csv'
+  task: 5e5755ca8ce89fe008aa52ec659bc970a1ab7539554f3a397b67d93c82eaa9d5
+T005c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/annotation/disagreement_resolver.py,
+    data/derived/disagreements.csv'
+  task: 6aa8f8b13ee3d4e9170e3d5bdfd2b57fd28bc4ec38d68d54b7ff0a56f5c41b6e
+T005d:
+  task: 7257ec6e3b63bc8962f8c5360489c4f7f503c8fcda04f64bdef94c7412f6f9ac
+T005e:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/gold_standard.json,
+    code/annotation/generate_gold_standard.py, data/derived/human_annotations.csv'
+  task: 98c5ce3071366051d8a190ebba389b1d4be2f09588ce4fea88890fc11e62d806
+T005f:
+  task: cd9ed176af863e7ee8a969dad864a55c0990566ef5bce014154517f8521482c0
+T006a:
+  task: d6eaaeacd015f38799e22181805bc5156de4692864b1dc22742e680cc40f5f3f
+T006c:
+  task: de3c6dadf6449358ffd50d9e127664a0f93759f004217030353508aa83179eeb
+T006d:
+  task: a746440af9b178106050f3ec50da1c4eae6849ba4f0d6cc58c01f56351d9c91a
+T007:
+  task: bdc2d01255b1627b7090ec90ff538a431034fc14c37c281bf83b91915afc2a0b
+T007b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/config_baseline.py'
+  task: e857a4b39b2662d3a77e74b0c635b46af2045029e5f6676a00c0db7a09452d79
+T007c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/watchdog.py'
+  task: 9cbfd2c80f9494bdf15e8fabadbb241287295b24cd566d2421e681f226b33e5a
+T007d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/adaptive_sampler.py'
+  task: 8a37556370f73ed226f39fe5203cfa6dbf27122907b5fcc1103e2f1ce55deaa4
+T008:
+  task: 11806380de0eb0be5ec98467239beb9d9425dd6bc11fe64a69d3b7a883d5c98b
+T009:
+  task: 414d34ac52ba4bc7c67ad2acb3648216f42b09cd71213e1670281e5a66dba8fa
+T009a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/annotation/annotator.py'
+  task: d935603fd95e2e8c4551951b24024d549c028aba80b36a249546b488b405a70b
+T011a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/annotation/create_split.py,
+    data/derived/train_split.json, data/derived/holdout_split.json'
+  task: 71ef28619bb57068dfc6b2e7b72e54f0f0d75e7e9c4ce023b83225909de992cf
+T011b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/rules_library.json'
+  task: a397a99ae76af39843cf13dc085822ef65edf1df9646fed024fc7e01477e57b4
+T011c:
+  task: 3441a9eb0af9b66fb1a068d8e54a414bd538c19b82609f74bfe906f946581fb6
+T011d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/coverage_report.json'
+  task: 53c1a42971484c17ec39045ed52f791bc50de415d1f440f99c96277f73114d3f
+T015b:
+  task: a1520c9a0824e470cdbc8f33fdb901b0a26de11502b61f15264044067712f92c
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/metrics_log.json'
+  task: df5616e94efbdeb0d2ff4458045ec22a2b59d9c2584bbc859292f6598b451ade
+T017:
+  task: 21285da209499d01d6055d8e0f5dd48f0a318cd46046c7dd502b650dbaecdd4b
+T019:
+  task: a773a9df8af56ed60f4e1c9d94892c561e8e302441c49ac50892e29a54507f91
+T019a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/experiment_manifest.json'
+  task: 119314dbb2fb2d7d0bb8f3611dc80befc1fc6bf3e63f6d3fbef5257da84b01eb
+T020:
+  task: 04d5d297ec17737de2c1572630f88aa208a0abacb11dc6d9d2b669eecffb4fca
+T021:
+  task: 01470806de554a1fa3ff0708c8d918309e7498a9174711bc14d4623ed923272f
+T021b:
+  task: f9658a6933cad78c10c9b43c25a7b7d90406306ad22e3ac5179de5e0ef6ad9dd
+T021c:
+  task: 5834e2bb8382537e3f13b2eb964edcc4b507674d2875dbe80875aed4cdf0f628
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/results.csv'
+  task: 3abd110c6fdc8a09d3ad2dfce8856bfaa7e8938dd4ce2df8220e679b6a88978f
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04_analysis/logistic_regression.py,
+    data/derived/logistic_regression_results.json'
+  task: 84e6b11a5ade9f761f18cb4012cb006887e35f73522546473159485ff752814f
+T025b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04_analysis/tobit_regression.py,
+    data/derived/tobit_regression_results.json'
+  task: 29dfb0ff740d5755214bbd04422d0f2d67d18c765d4575c51115a47b54e529e1
+T026a:
+  task: b17947bac7d370a84c38775935e043f78fd8e1727d5fc474ae1f57525cf18a2b
+T026b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/pairwise_comparison.json'
+  task: 3be053c7311246dfe3538d054798997d12b2d1094939dfdf892f6c42cd7ba17d
+T026c:
+  task: cbadc71ce8ebdf83cceb671aab47272d7f56aa2aac3067041b9be4577e73e736
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/results.csv, data/derived/rules_library.json,
+    data/derived/error_taxonomy.json'
+  task: f35c601d8f72b118aed1f98bf00f2f1dbd7e27491d548bd5791a1486338d17f1
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/arbitrated_ground_truth.json'
+  task: d553a7294ee6b303e9276b5b564c105d995c6aa456f96fbb084b6518c21a66cc
+T029b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/stratified_success_rates.csv'
+  task: d3decbd736065f3ba9df115a8c368b6e6278489b49f46bd8ee96b2b04eabd167
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/loader.py'
+  task: 912b4bbfcb68766d350b151cf2efc2669580d30b61087383ee62d93afb565d14
+T041a:
+  task: 48b26934f32a2cb8735b19c7e8c7226f355455a1d9862590c954babca5c13696
+T041b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/gpu_guard.py'
+  task: 645fbac0a32833f8b2b0345281bc3ddbbb957922c222a7285d5fe278a2e5a0dd
+T044:
+  task: 6cccc99bc8910c5b2cf7dad5be2baf7e2d1f179c7a9ec9ba6728524dd8e378ee
+T048:
+  task: 805376ab7cb97a3e706a999c54f6d61239e8d942bc97af4c1b232ae5df9da8f1
+T050:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/verify_data_source.py,
+    data/raw/.checksums, data/artifacts/data_source_report.json'
+  task: 506903c9222cc07a4dffe78689e2057a117c0f447835e53fe1092d82ca38e971
+T054:
+  reason: 'declared artifact(s) missing/empty/invalid: code/annotation/kappa_calculator.py,
+    data/derived/kappa_report.json'
+  task: a8bca4e00f0c2b9b9f0977802f9318f1e5bf52914db89a4dc97b1c4d15d57030
+T058b:
+  task: 23b251da580f881f499a75c0d1761243b65a98180e0575bde966f80eff550ca1
+T058c:
+  reason: 'declared artifact(s) missing/empty/invalid: ci/baseline_job.yml, ci/rule_engine_job.yml'
+  task: 500800e086d8a19606704d2a30f062a8cbb6495c98639fb008b60b8d3e3c49e9
+T060:
+  task: 2512a9259a6aaae2318c0b9ef22d723856d3a9243cbb99b7844f97f3b4a68398
+T072:
+  task: da4b1a5c30e2edde30a7aaea5b9fac91d48643d91f7d4c657e4395e3544a28a3
+T073:
+  task: e872f8085903edda4ef4a29e3d70c8be8943baecd06f3edb6fcad2e40f65db2d
+T074:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04_analysis/tobit_regression.py'
+  task: e0287407c140bec69d72d91d1cad5f4c68c80ac689adcc9bce1cd650344bf3ee
+T075:
+  task: 27c409f502b5e46f71a17f24ab5a93251bb4264c7297c564f061c56aca61f018
+T076:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04_analysis/verify_paired_data.py,
+    data/derived/results.csv, data/derived/paired_data_validation.json'
+  task: 3535c96484619dbe7da70acf6efcb95e0b35f8e96fabe4e6340a2d1637a8ca7c
+T077:
+  task: 9db80e24e5b4b9b5e84bccfb8ede4768a05c8f5e68ea2311ce7c5d6736b85432
+T078:
+  task: c696703def65ce3a9674de9590d8daca0d3585b1d58ac6bbcb777c62d7072036
+T079:
+  task: 2d51d0bf951f9d004ebe8dc4c8501acdd90b7e6d3990942110dca0d743e5b2bc
+T080:
+  task: e666675a1d5b705fab36fa8ab4081eeb0605c7789f784cf2009516544cc08b52
+T081:
+  task: 289ea34cdfcc382344c32ff24b71d786827f36d80c0dfec916d648f3451e1148
+T082:
+  task: 7c8513652ccd67180cab00d312658799a48b8ee6fb3079a916458248352cf9f3
+T083:
+  reason: 'declared artifact(s) missing/empty/invalid: code/execution/run_rule_engine.py,
+    data/derived/pilot_results.csv, data/derived/pilot_baseline_results.json'
+  task: d2eb9b4e1effe29aebdbc6ad687fd33852e76db4e15f8214300c289899f3a528
+T084:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/statistical_model.py,
+    data/derived/pilot_results.csv, data/derived/pilot_regression_results.json, data/derived/pilot_interaction_significance_report.json'
+  task: 7d20630d959dcb0ac042d3daef5f406e9d13bb97538b9c3ef6cac9481bbcdad6
+T085:
+  task: 2e8fbeb08f9ac7db82994343465db88fb38c109b14446b37c9821e13d4a3352a
+T086:
+  reason: 'Requested task execution failed; rerun successfully: code/04_analysis/generate_final_report.py
+    exit=1'
+  task: 8975a9bc551a134ca6560995d0eb0f4551bbce07361ab42c1e2ebe9ff8ca4bfd
+T087:
+  task: 8048b0ca20e3aeaa87b326757f409ac09ad91a26a909380d4b0796eba38793d4

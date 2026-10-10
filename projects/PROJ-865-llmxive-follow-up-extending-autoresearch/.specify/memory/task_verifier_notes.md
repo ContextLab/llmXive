@@ -2,7 +2,40 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T083** — No execution logs, metric files, or any other artifacts showing that the rule engine and baseline agent were run on the 10‑item subset, nor any evidence of data‑flow verification, metric logging, or censored‑data handling is present. The claim lacks the required concrete outputs.
+- **T002c** — declared artifact(s) missing/empty/invalid: code/utils/validate_citations.py, data/artifacts/citation_validation_report.json
+- **T002** — The required `code/utils/validate_citations.py` script is missing, and the expected output `data/artifacts/citation_validation_report.json` does not exist, so the citation‑validation gate was never executed.
+- **T002b** — The required artifact `data/artifacts/citation_validation_report.json` is missing, and the state file `state/projects/PROJ-865-llmxive-follow-up-extending-autoresearch.yaml` does not exist. Moreover, `update_state.py` does not accept the specified `--artifact` and `--state-file` arguments nor is there any execution evidence showing it was run and recorded the hash/timestamp. The task’s core requirement is therefore unmet.
+- **T001** — Checked the repository tree under `projects/PROJ-865-llmxive-follow-up-extending-autoresearch`. Required directories such as `code/data/`, `code/engine/`, `code/analysis/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, and `ci/` are missing, as are required files `README.md` and `.gitignore`. The task’s demand for a complete directory and file layout is therefore not satisfied.
+- **T003** — Checked `.ruff.toml` (lacks required `select` and `target-version="py311"`), `pyproject.toml` (uses Python 3.10 instead of 3.11 and omits the required `select` list), and `.pre-commit-config.yaml` (file is missing). The artifacts do not meet the specified configurations.
+- **T004** — The evidence shows the project directories and a pipeline log, but no `.gitignore` file is present (or listed) and therefore the required file with the specified exclusion patterns is missing. The task cannot be considered done until a `.gitignore` containing the listed patterns is added to the repository.
+- **T005** — The `requirements.txt` file exists, but it does not contain pinned version specifications (e.g., `pandas==...`) and it omits the required `lifelines` package while including an extra `pyyaml` entry. These deviations mean the task’s requirement is not satisfied.
+- **T007b** — declared artifact(s) missing/empty/invalid: code/utils/config_baseline.py
+- **T007c** — declared artifact(s) missing/empty/invalid: code/utils/watchdog.py
+- **T007d** — declared artifact(s) missing/empty/invalid: code/utils/adaptive_sampler.py
+- **T050** — declared artifact(s) missing/empty/invalid: code/utils/verify_data_source.py, data/raw/.checksums, data/artifacts/data_source_report.json
+- **T036** — declared artifact(s) missing/empty/invalid: code/data/loader.py
+- **T005a** — declared artifact(s) missing/empty/invalid: code/annotation/gold_standard_loader.py, data/raw/gold_standard.json
+- **T005e** — declared artifact(s) missing/empty/invalid: data/raw/gold_standard.json, code/annotation/generate_gold_standard.py, data/derived/human_annotations.csv
+- **T009a** — declared artifact(s) missing/empty/invalid: code/annotation/annotator.py
+- **T054** — declared artifact(s) missing/empty/invalid: code/annotation/kappa_calculator.py, data/derived/kappa_report.json
+- **T005b** — declared artifact(s) missing/empty/invalid: code/annotation/consensus.py, data/derived/consensus_annotations.csv
+- **T005c** — declared artifact(s) missing/empty/invalid: code/annotation/disagreement_resolver.py, data/derived/disagreements.csv
+- **T011a** — declared artifact(s) missing/empty/invalid: code/annotation/create_split.py, data/derived/train_split.json, data/derived/holdout_split.json
+- **T011b** — declared artifact(s) missing/empty/invalid: data/derived/rules_library.json
+- **T011d** — declared artifact(s) missing/empty/invalid: data/derived/coverage_report.json
+- **T016** — declared artifact(s) missing/empty/invalid: data/derived/metrics_log.json
+- **T041b** — declared artifact(s) missing/empty/invalid: code/utils/gpu_guard.py
+- **T019a** — declared artifact(s) missing/empty/invalid: data/derived/experiment_manifest.json
+- **T058c** — declared artifact(s) missing/empty/invalid: ci/baseline_job.yml, ci/rule_engine_job.yml
+- **T022** — declared artifact(s) missing/empty/invalid: data/derived/results.csv
+- **T025** — declared artifact(s) missing/empty/invalid: code/04_analysis/logistic_regression.py, data/derived/logistic_regression_results.json
+- **T025b** — declared artifact(s) missing/empty/invalid: code/04_analysis/tobit_regression.py, data/derived/tobit_regression_results.json
+- **T027** — declared artifact(s) missing/empty/invalid: data/derived/results.csv, data/derived/rules_library.json, data/derived/error_taxonomy.json
+- **T026b** — declared artifact(s) missing/empty/invalid: data/derived/pairwise_comparison.json
+- **T028** — declared artifact(s) missing/empty/invalid: data/derived/arbitrated_ground_truth.json
+- **T029b** — declared artifact(s) missing/empty/invalid: data/derived/stratified_success_rates.csv
+- **T074** — declared artifact(s) missing/empty/invalid: code/04_analysis/tobit_regression.py
+- **T076** — declared artifact(s) missing/empty/invalid: code/04_analysis/verify_paired_data.py, data/derived/results.csv, data/derived/paired_data_validation.json
+- **T083** — declared artifact(s) missing/empty/invalid: code/execution/run_rule_engine.py, data/derived/pilot_results.csv, data/derived/pilot_baseline_results.json
 - **T084** — declared artifact(s) missing/empty/invalid: code/analysis/statistical_model.py, data/derived/pilot_results.csv, data/derived/pilot_regression_results.json, data/derived/pilot_interaction_significance_report.json
-- **T085** — The required output artifacts `data/derived/full_rules_library.json`, `data/derived/full_results.csv`, and `data/derived/full_regression_results.json` are absent from the repository. Consequently the full‑scale pipeline execution was not demonstrated, and the task’s deliverables are not satisfied.
-- **T086** — No research report file or its contents are present; the implementer provided only a textual claim without delivering the compiled document that should contain the hypothesis discussion, interaction term significance, error taxonomy, and sensitivity analysis. The required artifact is missing.
+- **T086** — Requested task execution failed; rerun successfully: code/04_analysis/generate_final_report.py exit=1

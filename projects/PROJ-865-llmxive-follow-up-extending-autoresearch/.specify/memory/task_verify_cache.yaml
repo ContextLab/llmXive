@@ -1,17 +1,53 @@
+T001:
+  c: false
+  h: 913572d601a482f400fa5be259b9021809647b5d7eb26b904c0f3e7bcf3d591e
+  r: "Checked the repository tree under `projects/PROJ-865-llmxive-follow-up-extending-autoresearch`.\
+    \ Required directories such as `code/data/`, `code/engine/`, `code/analysis/`,\
+    \ `data/processed/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, and\
+    \ `ci/` are missing, as are required files `README.md` and `.gitignore`. The task\u2019\
+    s demand for a complete directory and file layout is therefore not satisfied."
+  sig: d3c5d0ef19ec06f382b3dc363408ec842793134081e43527847106b340a8f9f8
+T002:
+  c: false
+  h: e25547cc6672a0190175d3da654bed09c75c4e21a6e91dec6e099205caf4f983
+  r: "The required `code/utils/validate_citations.py` script is missing, and the expected\
+    \ output `data/artifacts/citation_validation_report.json` does not exist, so the\
+    \ citation\u2011validation gate was never executed."
+  sig: a57c0f7bbbf70785fbaaa6c6d9d124283a87236e072403f5bb795de499516c17
 T002b:
   c: false
-  h: 33cd93ceb3f15244aa9e8c26a4d083a1dadb6e4a96edde45ce69f880e7dec64f
-  r: "The required artifact `data/artifacts/citation_validation_report.json` does\
-    \ not exist, and consequently the state file `state/projects/PROJ-865-llmxive-follow-up-extending-autoresearch.yaml`\
-    \ was never created or updated. Without the JSON report and the resulting state\
-    \ YAML, the task\u2019s core requirement\u2014recording the validation hash and\
-    \ timestamp\u2014has not been fulfilled."
+  h: 6502f6dbb263e1b1f8559d408eb7d24acdd3e8f1e14f609ff82b768cdc34456f
+  r: "The required artifact `data/artifacts/citation_validation_report.json` is missing,\
+    \ and the state file `state/projects/PROJ-865-llmxive-follow-up-extending-autoresearch.yaml`\
+    \ does not exist. Moreover, `update_state.py` does not accept the specified `--artifact`\
+    \ and `--state-file` arguments nor is there any execution evidence showing it\
+    \ was run and recorded the hash/timestamp. The task\u2019s core requirement is\
+    \ therefore unmet."
+  sig: ce28ec2e0927d3eef5c573820b0be2768b43b4847d083abf37da7d20d70bd108
+T003:
+  c: false
+  h: 68b42deb6bb4871eb759b8c1f7f3702ceeee55354b7e4798dd9bc0e7ec02f489
+  r: Checked `.ruff.toml` (lacks required `select` and `target-version="py311"`),
+    `pyproject.toml` (uses Python 3.10 instead of 3.11 and omits the required `select`
+    list), and `.pre-commit-config.yaml` (file is missing). The artifacts do not meet
+    the specified configurations.
+  sig: d535b90703d653ff2219935137c709c236166b7545e083d7ea1814542fbe0636
+T004:
+  c: false
+  h: 957d5066e2d08b2e722193aca169ef6ff1ca494cf35cc6e0dcc32abd9409c37b
+  r: The evidence shows the project directories and a pipeline log, but no `.gitignore`
+    file is present (or listed) and therefore the required file with the specified
+    exclusion patterns is missing. The task cannot be considered done until a `.gitignore`
+    containing the listed patterns is added to the repository.
+  sig: b7ca5ce26bf151971b38161027c145f98413c80deb883aee5021cc72fbb24b8e
 T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file or its contents were provided; thus we cannot verify that
-    the required rules for `data/raw/`, `data/derived/`, and `data/artifacts/` were
-    added. The task lacks the necessary artifact.
+  h: 8aaa2d871e233be76112f415a91de9500e4e1029a9682a6a965abb0831c235cf
+  r: "The `requirements.txt` file exists, but it does not contain pinned version specifications\
+    \ (e.g., `pandas==...`) and it omits the required `lifelines` package while including\
+    \ an extra `pyyaml` entry. These deviations mean the task\u2019s requirement is\
+    \ not satisfied."
+  sig: dfd5187b9d99f464f93aeb2b5e3bb81e30607f28ed1dd670ba814220ada94698
 T007:
   c: false
   h: 60f28228e2ddcb6ffd1aacf550eeb70eb6b75b8faae27f36cbb4329ccb56746c
