@@ -1,9 +1,7 @@
-pandas
-numpy
-scikit-learn
-statsmodels
-scipy
-pytest
-ruff
-black
-pyarrow
+pandas==2.2.*
+numpy==1.26.*
+scikit-learn==1.5.*
+statsmodels==0.14.*
+scipy==1.13.*
+pytest==8.2.*
+requests==2.32.*

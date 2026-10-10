@@ -7,7 +7,7 @@
 
 ## Phase 1 – Project scaffolding & foundational utilities  
 
-- [ ] **T001** [P] Create the full project directory tree under `projects/PROJ-505-exploring-the-statistical-relationship-b/`  
+- [X] **T001** [P] Create the full project directory tree under `projects/PROJ-505-exploring-the-statistical-relationship-b/`  
 
   ```
   projects/PROJ-505-exploring-the-statistical-relationship-b/
@@ -26,7 +26,7 @@
 
   **Verification** – Run a shell command (e.g. `find … -type d`) and confirm that every directory listed above exists (exit code 0).
 
-- [ ] **T002** Initialize a Python project with a pinned `requirements.txt` containing the core scientific stack.  
+- [X] **T002** Initialize a Python project with a pinned `requirements.txt` containing the core scientific stack.  
 
   **File**: `requirements.txt` (project root)  
 
@@ -41,7 +41,7 @@
 
   **Verification** – File exists and each line matches the pattern `package==major.minor.*`.
 
-- [ ] **T003** Add a lightweight configuration module defining the random seed and canonical data‑path constants.  
+- [X] **T003** Add a lightweight configuration module defining the random seed and canonical data‑path constants.  
 
   **File**: `code/config.py`  
 
@@ -67,7 +67,7 @@
 
 ## Phase 2 – Data ingestion & alignment (User Story 1, **P1**)  
 
-- [ ] **T005** Implement real‑data download, parsing, and raw‑file preservation for ACE/WIND composition data.  
+- [ ] **T005** Implement real‑data download, parsing, and raw‑file preservation for ACE/WIND composition data.   <!-- FAILED-IN-EXECUTION: code/ingestion/download_ace.py exit=1; code/ingestion/download_noaa.py exit=1 -->
 
   **Files**: `code/ingestion/download_ace.py`, `code/ingestion/download_noaa.py`  
 

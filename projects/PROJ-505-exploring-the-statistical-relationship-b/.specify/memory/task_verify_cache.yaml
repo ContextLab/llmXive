@@ -1,3 +1,37 @@
+T001:
+  c: true
+  h: a704e1ff8d5fd821dcc8e68a5638786e584f0ac479066dd75b5ae54bd98c2204
+  r: "Checked the collector\u2011confirmed directory listings for `projects/PROJ-505-exploring-the-statistical-relationship-b/`\
+    \ which show the required top\u2011level folders (`code/`, `data/`, `tests/`)\
+    \ and the exact sub\u2011folders (`code/ingestion/`, `code/analysis/`, `code/utils/`,\
+    \ `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/unit/`, `tests/integration/`).\
+    \ All required directories are present."
+  sig: d292e3c3269acadfa1402a2e26ad60cc9fa9005b8a5f2d521ba5831dfd32cce5
+T002:
+  c: true
+  h: ba9a1315e1de8ca8aedad014feb8a30092b4898651f95de0b43a2b7a64514a7f
+  r: "The `requirements.txt` file was found at the project root (`projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt`)\
+    \ and contains all six required pinned packages, each following the `package==major.minor.*`\
+    \ pattern (plus an additional valid entry). The file is non\u2011empty and matches\
+    \ the specification."
+  sig: 42fe6f35b050fecbcbfb61945361e8221920da79709f3f0613b183cf9861c7a8
+T003:
+  c: true
+  h: af731d19dbcc2d5b2d325ed8d76af5543f171acb4785e1edfc79159290d7c08e
+  r: "Checked the `code/config.py` file (resolved path `code/config.py`, 1757\u202F\
+    bytes) which defines `SEED = 42` and the `RAW_DIR`, `PROC_DIR`, and `ARTIFACT_DIR`\
+    \ path constants as required, and the module imports without error."
+  sig: a0b69092ed14096a6d10745f90b9876af34cb4a0fa70f1ef1b7652adb5831424
+T004:
+  c: false
+  h: d009bc86f08a6c55a7fb88087a0a2cb2eaceba4755916945c4174ac7f7203f21
+  r: "The `code/utils/io.py` file implements MD5 checksum helpers (`compute_md5`,\
+    \ `verify_md5`) instead of the required SHA\u2011256 checksum function, so it\
+    \ does not meet the specification. The `code/utils/logging.py` only provides a\
+    \ `get_logger(name)` factory and does not create a module\u2011level logger (`logging.getLogger(__name__)`)\
+    \ at import time as required. These mismatches mean the task\u2019s functional\
+    \ requirements are not satisfied."
+  sig: b65f60b09632c0d88affc0dffd8e7851653e9c9ff339cf4a130e978437df6010
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,31 +72,3 @@ T012:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`
     actually exists; the artifact list is empty, so the required folder was not created.
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation artifact showing the added validation\
-    \ logic (temporal offset \u2264\u202F30\u202Fminutes and monotonic timestamps)\
-    \ is present. The implementer\u2019s claim cannot be verified because the required\
-    \ implementation files or evidence of integration into T024 are missing."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV or JSON files containing the regression results and model metrics are\
-    \ present in the `data/artifacts/` directory; the implementer provided only the\
-    \ task description without the required output artifacts. The task\u2019s core\
-    \ requirement\u2014to integrate regression results into that folder\u2014is therefore\
-    \ unmet."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md content was provided for review, so we cannot confirm that the documentation
-    was updated to explicitly state the data gap and the synthetic nature of any fallback
-    data. The required artifact is missing.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No validation output, log, or report for `quickstart.md` is present; the implementer
-    provided no artifact demonstrating that the quickstart documentation was parsed,
-    checked, and passed. Consequently the required evidence of a successful quickstart
-    validation is missing.

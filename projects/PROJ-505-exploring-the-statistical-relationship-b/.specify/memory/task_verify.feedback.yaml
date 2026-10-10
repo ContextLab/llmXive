@@ -1,0 +1,50 @@
+T001:
+  task: c1b72864b169c887206b78b895893e721e3b80e582694db42aa189f8b15aeeea
+T002:
+  task: e893c20cc1f301a8248aeacdd448f4c36fc287af2c24647ef34c37fe1a79549b
+T003:
+  task: 7537932bf548322bb61d4e74fffbceb92d1396b257b8c9a63949ee8b43e81986
+T004:
+  reason: "The `code/utils/io.py` file implements MD5 checksum helpers (`compute_md5`,\
+    \ `verify_md5`) instead of the required SHA\u2011256 checksum function, so it\
+    \ does not meet the specification. The `code/utils/logging.py` only provides a\
+    \ `get_logger(name)` factory and does not create a module\u2011level logger (`logging.getLogger(__name__)`)\
+    \ at import time as required. These mismatches mean the task\u2019s functional\
+    \ requirements are not satisfied."
+  task: b7a609573e7ba4f6b0cb7a2b4534f9027349fe5bb402640d053a2678c5b4c23f
+T005:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/download_ace.py
+    exit=1; code/ingestion/download_noaa.py exit=1'
+  task: cb08c137fb63dd8759f1caf51a2d3af3b616303532aea8da9bc931144e92541e
+T006:
+  task: 9d9f2089b3d7618b83f242f073b1852a5960dc4a6cbd589f32533dabb02ce65c
+T007:
+  task: d098f3f77cd6249da72cd9cb8b6bdfcd75941363d30073770f959d45a5e6413a
+T008:
+  task: 4c5595763b05defb89dc15b15a6791e67158957447b5fa7acbe0fa4f8cb9cfae
+T009:
+  task: 9b404962159cf591458ab595c52ff964a0d4456436b9b9a1f4f857c0e5dc9c7b
+T010:
+  task: 7912b7ae38b23ea101e766c8f19d8f22d8dc9bad7f041b9630a094d1554b4dba
+T011:
+  task: ebaa27f89ddfe49cabb02d1c5d17849ff3fcfb8bd2b0319a5c47535602ec1b92
+T012:
+  task: 1e8c7890d859f5d97da1f4560b4a947e38e8a16cc836092196af71c583524291
+T013:
+  task: bd10045b5fa9100644e6db3c4428a580fcab870e0a39142c71299308a27d57e9
+T014:
+  task: 2f6e7d01e3e0fc8b993d882846c3ce4bb80a40f507d04693ad60c43a446fa87b
+T015:
+  task: cc02c6800f0c9ec1386834554a475e8ddf06ab09777a98de7c48f0ddc4dfb122
+T016:
+  task: 4486b99750c58c4dacaec94950db1f92b9e321df226ac89e1aa6e4ad53e72d7e
+T017:
+  task: 500e099fac8719b427a231f60c273f3f6852f3da101c941ad68e66cdebadd08e
+T018:
+  task: dbc282e32c584cf910e02496660ff25f075c4d26a6f4bfb86b596abf96868fdd
+T019:
+  task: 06be62263d82671e5c1ed40413d89d35c7d734584a3b3dece511c9a33de4e126
+T020:
+  task: 4d7564bfacafccde31ed0409b6d3d031579e0811bc24313e9a0ac2966f553817
+T021:
+  task: 458885fb3593ceb838df8db96e3cd03b21db5fc01b945280c082ec00bacda0cc
