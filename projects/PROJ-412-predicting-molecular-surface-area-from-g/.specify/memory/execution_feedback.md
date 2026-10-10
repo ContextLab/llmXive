@@ -56,8 +56,8 @@ Traceback (most recent call last):
 ValueError: Dataset fetch failed: Couldn't find a dataset script at /home/runner/work/llmXive/llmXive/projects/PROJ-412-predicting-molecular-surface-area-from-g/zinc15/filtered/filtered.py or any data file in the same directory. Couldn't find 'zinc15/filtered' on the Hugging Face Hub either: FileNotFoundError: Dataset 'zinc15/filtered' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 
 - python code/data/split.py --input data/processed/molecules.parquet --output data/processed/splits/ -> rc=1
-2026-10-10 23:29:38,526 - code.utils.logging - INFO - Starting T016: Data Splitting
-2026-10-10 23:29:38,526 - code.utils.logging - ERROR - Failed to load processed data: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-412-predicting-molecular-surface-area-from-g/data/processed/paired_dataset.parquet
+2026-10-10 23:32:38,351 - code.utils.logging - INFO - Starting T016: Data Splitting
+2026-10-10 23:32:38,351 - code.utils.logging - ERROR - Failed to load processed data: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-412-predicting-molecular-surface-area-from-g/data/processed/paired_dataset.parquet
 
 
 - python code/models/train.py --model gcn --config code/config.py -> rc=2

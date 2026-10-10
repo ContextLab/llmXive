@@ -111,13 +111,69 @@ T007:
     network_check, directories, conformer_config) are present as substantive implementations,
     so the package init and config loader requirements are genuinely satisfied.
   sig: f5c2e8c683fb226c9d824ca11a38fb71f906b16f252c849e3f8d4c48967f9d06
-T011:
+T008a:
+  c: true
+  h: 304500594df2d96a4791bd49b624380025f445b5d17646474f1791e34487a848
+  r: 'The artifact `code/utils/logging.py` exists (4730 bytes) and contains a real,
+    functional logging infrastructure: `setup_logging` with console and file handlers
+    (pipeline.log, excluded_molecules.log, ingestion_errors.log), plus JSON-formatting
+    helpers for excluded molecules, ingestion errors, and dataset/split statistics,
+    matching the spec''s logging needs (e.g., warning logs with specific SMILES strings).
+    The only blemish is a redundant local redefinition of `get_project_root` alongside
+    the `.config` import, which is harmless duplication, not a defect preventing the
+    task''s requirement.'
+  sig: 55993a3ff072ccd4b142ae62b01c88fe49fa7304579e96a9a9f05078913a1b2a
+T009a:
+  c: true
+  h: 8b5f01add438b698c1cb239b4da3e64002471b9221127fdecc1f05e8e63c5e81
+  r: The file `code/data_models/molecule.py` exists (5699 bytes) and defines a `Molecule`
+    dataclass with all required attributes (`smiles`, `mol`, `molecular_weight`, `atom_count`,
+    `node_features`, `edge_features`), the required `validate()` and `to_dict()` methods,
+    and explicitly implements node features as `[atom_type, hybridization, formal_charge]`
+    and edge features as `[bond_type, conjugated, aromatic]` with no stubs or placeholders.
+  sig: 0d6b7b8ed10a36b9fbcc13dd471c06f999e73928c4a4a99cd6d0143ebbf54839
+T009b:
+  c: true
+  h: 6556d2c56ba998c84e3c4ba1b13fb242d63e7c59299eb039530124b1e0b11c2f
+  r: 'The file `code/data_models/graph.py` exists (3692 bytes) and defines a `Graph`
+    dataclass with all five required attributes (`nodes`, `edges`, `node_features`,
+    `edge_features`, `adjacency_matrix`) and both required methods: `validate()` performs
+    real consistency checks (node/edge counts vs. feature rows, adjacency shape) and
+    `to_pyg_format()` converts to a PyTorch Geometric `Data` object with proper edge_index
+    transposition and empty-edge handling. No stubs, TODOs, or placeholders; no dependencies
+    required.'
+  sig: 0dc6cf92df5d02863b480a04cad35f4093af57adb62de7fdf9b3c1e0736a899c
+T009c:
+  c: true
+  h: 0f5576c6b63a61d7c67046e0882a66f69a186647262ef1d27965d43a17da6ab0
+  r: The file `code/data_models/evaluation_result.py` exists (3174 bytes) and defines
+    a dataclass with all required attributes (`model_type`, `mae`, `rmse`, `r2`, `predictions`,
+    `errors`) and both required methods `to_json()` and `summary()`, plus useful extras
+    (`from_dict`, `to_dict`), with no stubs or placeholders.
+  sig: b0efe0de8abfe6047e875b7e66a472840e7f3cf1c4c4cc40de1f16babd4b23d6
+T010:
   c: false
-  h: 557089656345f3ce41fd9efdc1ef18286508a05e2a023ba839ebc4b187b87e33
-  r: The required artifact `tests/integration/test_ingest.py` does not exist in the
-    repository, so the integration test for the SMILES ingestion pipeline is missing.
-    The task cannot be considered completed until this file is added with appropriate
-    test code.
+  h: e948df7dbcc3867f37a1be89259d6518136fc561441693aff19ebe24afbeef37
+  r: "`code/utils/seed.py` exists and implements a functional seed-pinning utility\
+    \ (random/NumPy/PyTorch seeding, default 42), and `code/config.py` defines `RANDOM_SEED:\
+    \ int = 42`. However, the task explicitly requires the seed to be set **from `code/config.py`**,\
+    \ and `seed.py` never imports or references `RANDOM_SEED` \u2014 it hardcodes\
+    \ its own `DEFAULT_SEED = 42` instead, so the two are only coincidentally equal\
+    \ and will silently diverge if the config value changes. Fix: import `RANDOM_SEED`\
+    \ from `code/config.py` (e.g., `from ..config import RANDOM_SEED` or equivalent)\
+    \ and use it as the default in `se"
+  sig: 68f999f1a643d2bde6007d231e416b3695cb8a2691f25ecaed4065f39de02d2a
+T011:
+  c: true
+  h: 31bfde8ca21df3254b1e524effd8f217ff5ec931cccbd3e6e8d5833ff6f8c8f3
+  r: "The artifact `code/utils/checksum.py` exists (12KB, non-empty) and contains\
+    \ a full, real implementation: SHA-256 file/directory checksum calculation with\
+    \ chunked reading and exclusion patterns, JSON manifest save/load, verification\
+    \ functions, and a CLI with calculate-file/calculate-dir/save-manifest/verify-manifest\
+    \ subcommands \u2014 no stubs, TODOs, or placeholders. Its only local dependency\
+    \ `code/utils/logging.py` also exists and provides the imported `get_logger`,\
+    \ so the module is importable as written."
+  sig: 54b6a03f786d4fb9bc52fd587a4b10348db70a161fbbcbed0918d5a2ad07338a
 T015c:
   c: false
   h: 2532f98fa00dd4d39eb914ef7c48b1670720e5893a830aabecaf297882d8b57e

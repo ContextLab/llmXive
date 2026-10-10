@@ -20,6 +20,7 @@ import glob
 import json
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import List
@@ -41,6 +42,8 @@ CONFORMER_PARAMS = {
 }
 
 FAILURE_RATE_THRESHOLD = 0.10
+PUBCHEM_BATCH_SIZE = 20  # small batches to stay within PUG-REST limits
+PUBCHEM_MAX_RETRIES = 3
 
 
 def load_smiles_from_chunks(pattern: str) -> List[str]:
@@ -54,33 +57,70 @@ def load_smiles_from_chunks(pattern: str) -> List[str]:
     return smiles_list
 
 
+def _pubchem_request(url: str) -> bytes:
+    """Perform a PUG-REST request with bounded retries on transient errors."""
+    last_err: Exception | None = None
+    for attempt in range(PUBCHEM_MAX_RETRIES):
+        req = urllib.request.Request(
+            url, headers={"User-Agent": "llmXive-pilot-study/1.0"}
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                if resp.status != 200:
+                    raise ConnectionError(
+                        f"PubChem PUG-REST returned status {resp.status}"
+                    )
+                return resp.read()
+        except (urllib.error.HTTPError, urllib.error.URLError) as e:
+            last_err = e
+            time.sleep(2.0 * (attempt + 1))
+    raise ConnectionError(f"PubChem PUG-REST unreachable after retries: {last_err}")
+
+
 def fetch_smiles_from_pubchem(count: int) -> List[str]:
     """
     Fetch real SMILES from PubChem PUG-REST (first `count` CIDs).
 
-    This is a REAL public data source; if unreachable, raises loudly.
+    Requests are batched (JSON format) to avoid the CSV endpoint's
+    size/shape issues. This is a REAL public data source; if
+    unreachable, raises loudly.
     """
     from rdkit import Chem  # validate parse downstream anyway
 
-    cids = ",".join(str(i) for i in range(1, count + 1))
-    url = (
-        "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/"
-        f"property/CanonicalSMILES/CSV?cid={cids}"
-    )
-    req = urllib.request.Request(url, headers={"User-Agent": "llmXive-pilot-study/1.0"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        if resp.status != 200:
-            raise ConnectionError(f"PubChem PUG-REST returned status {resp.status}")
-        csv_bytes = resp.read()
-    df = pd.read_csv(pd.io.common.BytesIO(csv_bytes))
-    if "CanonicalSMILES" not in df.columns or df.empty:
-        raise ValueError("PubChem response did not contain CanonicalSMILES data")
-    smiles = df["CanonicalSMILES"].dropna().astype(str).tolist()
-    # Basic sanity: must parse with RDKit
-    valid = [s for s in smiles if Chem.MolFromSmiles(s) is not None]
-    if not valid:
+    smiles: List[str] = []
+    cid = 1
+    while len(smiles) < count:
+        cids = ",".join(
+            str(i) for i in range(cid, cid + PUBCHEM_BATCH_SIZE)
+        )
+        url = (
+            "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/"
+            f"property/CanonicalSMILES/JSON?cid={cids}"
+        )
+        payload = json.loads(_pubchem_request(url).decode("utf-8"))
+        features = payload.get("PropertyTable", {}).get("Properties", [])
+        if not features:
+            raise ValueError(
+                "PubChem response did not contain CanonicalSMILES data"
+            )
+        got_any = False
+        for entry in features:
+            smi = entry.get("CanonicalSMILES")
+            if smi and Chem.MolFromSmiles(smi) is not None:
+                smiles.append(smi)
+                got_any = True
+                if len(smiles) >= count:
+                    break
+        if not got_any:
+            # A whole batch of CIDs yielded nothing usable -> data issue
+            raise ValueError(
+                "No valid SMILES obtained from PubChem batch "
+                f"starting at CID {cid}"
+            )
+        cid += PUBCHEM_BATCH_SIZE
+    if not smiles:
         raise ValueError("No valid SMILES obtained from PubChem")
-    return valid
+    return smiles[:count]
 
 
 def process_single_molecule(smiles: str) -> bool:

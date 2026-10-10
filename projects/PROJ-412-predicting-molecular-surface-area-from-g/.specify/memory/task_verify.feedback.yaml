@@ -34,6 +34,14 @@ T009b:
 T009c:
   task: cb09ff625800f864d5c55d91c8ac6343aea809ddf73b8997a79f70b8e1f66bbb
 T010:
+  reason: "`code/utils/seed.py` exists and implements a functional seed-pinning utility\
+    \ (random/NumPy/PyTorch seeding, default 42), and `code/config.py` defines `RANDOM_SEED:\
+    \ int = 42`. However, the task explicitly requires the seed to be set **from `code/config.py`**,\
+    \ and `seed.py` never imports or references `RANDOM_SEED` \u2014 it hardcodes\
+    \ its own `DEFAULT_SEED = 42` instead, so the two are only coincidentally equal\
+    \ and will silently diverge if the config value changes. Fix: import `RANDOM_SEED`\
+    \ from `code/config.py` (e.g., `from ..config import RANDOM_SEED` or equivalent)\
+    \ and use it as the default in `se"
   task: 4fc520e8549e8f4843e93a29b33b1da81208f3bda1d11ae90208bd68c7b0e034
 T011:
   task: 658c44aa5f29c69198e510d5340ef0095e2746a643fe2ab8289023b9d91b2887
