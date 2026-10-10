@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-365-predicting-molecular-diffusion-coefficie
-last_run_id: 920c7fc5-c210-4e94-8b63-d99acfc0a5fc
+last_run_id: fcc96b15-14dd-4abf-b924-55ecce3d53c5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie
 title: Predicting Molecular Diffusion Coefficients in Liquids with Graph Neural Networks
-updated_at: '2026-10-10T01:31:48.387333Z'
+updated_at: '2026-10-10T01:32:25.843673Z'
