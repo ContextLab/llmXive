@@ -1,16 +1,54 @@
 T001:
+  c: true
+  h: dbe6f370bc32c4b450dfd4a2d5df09629d81246eddd4a9e5926c71e08ac1a50e
+  r: "The collector shows the three required directories (`code/src/`, `code/scripts/`,\
+    \ `code/tests/`) exist with multiple files, and the `setup_project_structure.py`\
+    \ script ran successfully (exit\u202F0) confirming the structure. No missing or\
+    \ empty placeholders were found."
+  sig: 4aee62aad163473a688daca31fe80bf2ecde16d60dd4b302342330d05a6104d9
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required directories (`code/src/`, `code/scripts/`,
-    `code/tests/`) actually exist or contain any files; the implementer did not supply
-    a directory listing or any files to demonstrate the project structure.
+  h: c21a1b6eec4a91b002b508c600b26e9ded5198ffe39f375fb67aab9b698fe938
+  r: "The evidence includes a `requirements.txt` containing the required Python packages\
+    \ (plus an extra `scipy`), but there is no artifact showing an R\u202F4.3 environment\
+    \ (e.g., Dockerfile, renv lockfile, or similar). The task\u2019s R\u2011environment\
+    \ requirement is unmet."
+  sig: 63e981940e36d2b8d02ff388f2708d7d8ad45ca19f7a407388a82b955ae4da30
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration artifacts (e.g., .flake8, pyproject.toml,
-    or black/flake8 setup scripts) are present; the provided evidence only describes
-    statistical pipeline requirements, not the required linting setup. The task T003
-    therefore remains unfulfilled.
+  h: ae7533d6ecb82c7441968705a7ad59e1f6ad5d7d09b8cac2f3795878e163a364
+  r: "The log shows that `setup_lint_tools.sh` installed flake8 and ran it on the\
+    \ code, but there is no evidence that Black was installed, configured, or invoked\
+    \ (no black version output, no formatting run, and no Black configuration file\
+    \ such as `pyproject.toml` or `black.toml`). To satisfy the task, add artifacts\
+    \ confirming Black\u2019s installation and configuration (e.g., a `pyproject.toml`\
+    \ with Black settings and a log showing `black --check` or a formatting run)."
+  sig: 0c913861c267ad195df4755604674450423d2a77566ba01c1b0a621f5f7f7900
+T004:
+  c: true
+  h: c773efadd143d8cc1515003a2713f248adb41ac5c97716153a0efeb7ca9f7a5e
+  r: "The `code/src/config.py` file (2174\u202Fbytes, sha256=86f8faed\u2026) defines\
+    \ random seeds (`RANDOM_SEED`, `NUMPY_SEED`), path constants (`PROJECT_ROOT`,\
+    \ `DATA_DIR`, etc.), and runtime thresholds (`MAX_RUNTIME_SECONDS` set to 6\u202F\
+    hours and `MIN_PERMUTATIONS` set to 100). All required elements are present and\
+    \ correctly implemented."
+  sig: 56c76bd63afded056beec7ad056274c017ee75543d64c6d419eae7e266d2b8ce
+T005:
+  c: true
+  h: f401a9f15104e1d22b27fc59beab9c59806ad06755eb57c5986ad48f7fc0879c
+  r: "Checked `code/src/versioning.py` (1741\u202Fbytes) which defines `compute_sha256`,\
+    \ `load_state`, `save_state`, `update_artifact_state`, and `verify_artifact` to\
+    \ compute SHA256 hashes and write them into `state.yaml`. The module creates/updates\
+    \ `state.yaml` as needed, satisfying the task requirements."
+  sig: 01847577d6bc048a60eb5979f3478cc02dc84c4cda4605dddc2dc119cd22e96a
+T006:
+  c: true
+  h: fe56994b45f0be42d8c408097aebb4db5e60d8191d1b283c24b8d4b685c868fe
+  r: "The `code/scripts/setup_env.sh` file exists (2044\u202Fbytes) and its contents\
+    \ create a Python virtual environment, install Python requirements, initialize\
+    \ an R `renv` environment, and install the listed R packages, fulfilling the task\u2019\
+    s requirement."
+  sig: 0d657f343e6986a60b298e41481b1fd9508197de495942c22bb7628ea77b61a7
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

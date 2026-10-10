@@ -1,0 +1,94 @@
+T001:
+  task: fd94b3509d9b7d4e56492c73779540dae8d72d44d51627e7aceb286789e2db45
+T002:
+  reason: "The evidence includes a `requirements.txt` containing the required Python\
+    \ packages (plus an extra `scipy`), but there is no artifact showing an R\u202F\
+    4.3 environment (e.g., Dockerfile, renv lockfile, or similar). The task\u2019\
+    s R\u2011environment requirement is unmet."
+  task: ca11ff93626bb55548c6215c32f40d51ec8066974a8a77d239cbfd5552a41ad2
+T003:
+  reason: "The log shows that `setup_lint_tools.sh` installed flake8 and ran it on\
+    \ the code, but there is no evidence that Black was installed, configured, or\
+    \ invoked (no black version output, no formatting run, and no Black configuration\
+    \ file such as `pyproject.toml` or `black.toml`). To satisfy the task, add artifacts\
+    \ confirming Black\u2019s installation and configuration (e.g., a `pyproject.toml`\
+    \ with Black settings and a log showing `black --check` or a formatting run)."
+  task: c489551519fa750d0841c75b7b40f58723ac45225304743a321d7815ffa4a667
+T004:
+  task: af74bfb8333ef4146fdf7a272e0b588f45099b554376b71602f7712bf6b191cc
+T005:
+  task: 0ef4304fd7a7a085cc83336e0f55ec33846b1e09551f031507c31a45272d6612
+T006:
+  task: a6daa0f8af13fc2f433744b30aba169259a7d245264c9f68a0925bdab9e3ff04
+T007:
+  task: d0116baa5dbcaeae7cb2c9ac2fda3bff6eb27b20d730278b275b7d595ba08ac3
+T008:
+  task: 268c3320ffc8f0e35bdafc02d54f2c86830aaea74cf2926c5163737dbd0bf44b
+T009:
+  task: d48b26ad2a651de8dfc00c4ca25e58bfeb72fb1f9644da66860d14c846d08d22
+T010:
+  task: 63d47c9f8208b383e957a04d9549d4c4d9161a4733ff3d0aae9d945232ef2d89
+T011:
+  task: b55f28ffb2a489525982c4244d2ee4deeca90fd8b40a2114f9fce2d7f193be7e
+T012:
+  task: 9c1c319da1a0787130266af64a5c2bd6cc4165faffe9cddcb8c7fd0ca5beba38
+T013:
+  task: b1091963bee4d6bbd4b809a34dd32cda92a2c422c3de3c4c1e30968ece178907
+T014:
+  task: d6b931eee7bffb02385a35bf40ea8aec6251e4811189e29ecf9081857ce7ccd2
+T015:
+  task: c37a842d9b12dbcbe7b6202fa96ba737acfd71b2fa4858a730a2433cc9e84cde
+T016:
+  task: e4026d817027b14cfd769c9f4a64bf45ee40b19ced0cedbbdc53a982c3a6ddd7
+T016a:
+  task: 30f214f06557997509548980d2cf747fae51512a901eac694475da1f53eb66aa
+T017:
+  task: 187cb5f4d3eb26f98b4a19b61a267da2904eb4677a8e720b37afb1d1840ce71f
+T018:
+  task: 3125eb6e889b5b4ee354986a2eebf9c5d26da107e72dddf943f32b88ab5e8633
+T019:
+  task: 5f7880fa332494693aaf65325237f3567f3c94b942021a58cb69f3a31b9b83e7
+T020:
+  task: fc9064615a5b47759e89187581120b19baac95cdf1b946d4f4185c70afee4c7c
+T021:
+  task: 9d787dc9fa42140b594060ca68c1777a792b51436d49799c1a893a335a68c7a5
+T021a:
+  task: af1df9ac95851481902ad62e47ea6418c5b69fd5cdad5bf0c8991388e9382664
+T022:
+  task: 4f83eea50e7a65c6f24fceac7ed4d5ed69f6502c2ee34a548a2f9798aff88059
+T023:
+  task: 6b06d27e7961b5fe1a445d777736ed04fa2f76173eb51767a5ca7ce63631a0c1
+T024:
+  task: 2471ec56bf2f7b61e05d8c3be804e6503d2a26f858551ac48396e5b4a6882e0f
+T024b:
+  task: 3ffce1d74f9c20ad627a70dc1fbaa322e4f61f7aaaeeb55b9b405df5e1b082b1
+T024c:
+  task: 7bac26258ee64f867d0b723223acbeb06a0ea2bfc8926eff35b4c73d13984a24
+T025:
+  task: b2336b128ff66df7fe32a37893a98129312c3255b118f9e963180fe112d3766b
+T026:
+  task: ab562dcf22479c3cc855241ff83b3b948edfc75301aaeef69b5cc346d76c7e7d
+T027:
+  task: 9b9eea1f60941adf2f16fff9abd7a911328722ec2775f5189b2ed1e492527ff3
+T028:
+  task: 57d6f8f7986ad428c2f0bb6948625f6173080a670a857c32f14b5e9f6cb4a8b6
+T029:
+  task: c8e211a65f74e48f27ec6f67dfa70160af5ade2da69bff726f10c9ecc8b6e3a1
+T029a:
+  task: b7ac654700712f7b4b414df8a7ce80c00df838b986b775729ce3de22f6881e9d
+T030:
+  task: 1ac580e950e3209d5f379729a076dbea3bdf1010cb572aea8ca782b513074715
+T031:
+  task: 8dd7a0263829fa64b16452d444380304055907be12dad963b8908984559867dc
+T032:
+  task: c34c50c9d0bd3a6d62d9672ff1d5a1840de7e79413a1991f8f3176f48fa38bb5
+T033:
+  task: f1086318a7a8ae66262f49f2e276b877381726819c8887120cf56b827b571883
+T034:
+  task: bac8eb039b5515389d2cd0354fd0c7ccd31670dbaad854d5d4362bcd5b1146ae
+T035:
+  task: 8b66a8a4276365563dca4c26eafb0c5686fd462662012489c80986643996a634
+T036a:
+  task: 2630203b0754ced0dc6091dfa99f4e0fe3eea175e094e6337150d8ebd4262c46
+T036b:
+  task: af16bb6c4d38d6bae8f6a0848311548325611deed014616191d61a8c68170ee6

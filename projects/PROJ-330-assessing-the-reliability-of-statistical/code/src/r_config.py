@@ -1,237 +1,171 @@
 """
-R Environment Configuration Management.
+r_config.py
+-------------
+Helper module for loading environment configuration related to R script locations
+and memory limits. This centralizes configuration management so that other parts
+of the pipeline can retrieve these settings without hard‑coding values.
 
-This module provides configuration for R script execution paths and memory limits.
-It reads from a YAML configuration file and exposes validated settings for the
-pipeline to use when invoking R subprocesses.
+The configuration is stored in ``code/config.yaml``. If the file is missing or
+malformed, a clear exception is raised to surface the problem during execution.
 """
 
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
-import yaml
-import logging
+from typing import Any, Dict
 
-from src.config import PROJECT_ROOT
-
-# Default configuration paths
-R_CONFIG_FILE: Path = PROJECT_ROOT / "code" / "config" / "r_config.yaml"
-DEFAULT_R_SCRIPT_DIR: Path = PROJECT_ROOT / "code" / "scripts"
-DEFAULT_MEMORY_LIMIT_MB: int = 4096  # 4GB default limit
-DEFAULT_TIME_LIMIT_SECONDS: int = 3600  # 1 hour default limit
-
-logger = logging.getLogger(__name__)
+try:
+    import yaml
+except ImportError as exc:
+    raise ImportError(
+        "PyYAML is required for configuration loading. Install it via "
+        "`pip install pyyaml`."
+    ) from exc
 
 
-def load_r_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+# Path to the YAML configuration file located at the project root
+_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config.yaml"
+
+_CONFIG_CACHE: Dict[str, Any] = {}
+
+
+def _load_config() -> Dict[str, Any]:
     """
-    Load R configuration from a YAML file.
+    Load the YAML configuration file.
 
-    Args:
-        config_path: Path to the YAML config file. Defaults to R_CONFIG_FILE.
+    Returns
+    -------
+    dict
+        Parsed configuration dictionary.
 
-    Returns:
-        Dictionary containing R configuration settings.
-
-    Raises:
-        FileNotFoundError: If the config file does not exist.
-        yaml.YAMLError: If the config file contains invalid YAML.
+    Raises
+    ------
+    FileNotFoundError
+        If the configuration file does not exist.
+    yaml.YAMLError
+        If the file cannot be parsed as valid YAML.
     """
-    if config_path is None:
-        config_path = R_CONFIG_FILE
+    if not _CONFIG_PATH.is_file():
+        raise FileNotFoundError(f"Configuration file not found at {_CONFIG_PATH}")
 
-    if not config_path.exists():
-        logger.warning(f"R config file not found at {config_path}, using defaults")
-        return {
-            "r_script_dir": str(DEFAULT_R_SCRIPT_DIR),
-            "memory_limit_mb": DEFAULT_MEMORY_LIMIT_MB,
-            "time_limit_seconds": DEFAULT_TIME_LIMIT_SECONDS,
-            "r_executable": "Rscript",
-            "additional_env": {}
-        }
+    with _CONFIG_PATH.open("r", encoding="utf-8") as f:
+        config = yaml.safe_load(f) or {}
 
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
+    if not isinstance(config, dict):
+        raise yaml.YAMLError("Configuration file must contain a mapping at the top level.")
 
-    # Validate and set defaults for missing keys
-    validated_config = {
-        "r_script_dir": config.get("r_script_dir", str(DEFAULT_R_SCRIPT_DIR)),
-        "memory_limit_mb": config.get("memory_limit_mb", DEFAULT_MEMORY_LIMIT_MB),
-        "time_limit_seconds": config.get("time_limit_seconds", DEFAULT_TIME_LIMIT_SECONDS),
-        "r_executable": config.get("r_executable", "Rscript"),
-        "additional_env": config.get("additional_env", {})
-    }
-
-    # Ensure paths are absolute
-    validated_config["r_script_dir"] = str(Path(validated_config["r_script_dir"]).resolve())
-
-    return validated_config
+    return config
 
 
-def get_r_script_path(script_name: str, config: Optional[Dict[str, Any]] = None) -> Path:
+def _get_config() -> Dict[str, Any]:
     """
-    Get the full path to an R script.
+    Retrieve the configuration, using a cached version if already loaded.
+    """
+    global _CONFIG_CACHE
+    if not _CONFIG_CACHE:
+        _CONFIG_CACHE = _load_config()
+    return _CONFIG_CACHE
 
-    Args:
-        script_name: Name of the R script file.
-        config: Optional config dictionary. If None, loads from default location.
 
-    Returns:
+def get_r_script_dir() -> Path:
+    """
+    Return the directory that contains R scripts.
+
+    Returns
+    -------
+    pathlib.Path
+        Path object pointing to the R script directory.
+
+    Raises
+    ------
+    KeyError
+        If ``R_SCRIPT_DIR`` is not defined in the configuration.
+    """
+    cfg = _get_config()
+    dir_str = cfg["R_SCRIPT_DIR"]
+    return Path(dir_str).resolve()
+
+
+def get_r_script_path() -> Path:
+    """
+    Return the full path to the main R differential expression script.
+
+    Returns
+    -------
+    pathlib.Path
         Path object pointing to the R script.
 
-    Raises:
-        FileNotFoundError: If the script does not exist.
+    Raises
+    ------
+    KeyError
+        If ``R_SCRIPT_PATH`` is not defined in the configuration.
     """
-    if config is None:
-        config = load_r_config()
-
-    script_dir = Path(config["r_script_dir"])
-    script_path = script_dir / script_name
-
-    if not script_path.exists():
-        raise FileNotFoundError(f"R script not found: {script_path}")
-
-    return script_path
+    cfg = _get_config()
+    path_str = cfg["R_SCRIPT_PATH"]
+    return Path(path_str).resolve()
 
 
-def get_memory_limit_mb(config: Optional[Dict[str, Any]] = None) -> int:
+def get_memory_limit_mb() -> int:
     """
-    Get the memory limit for R processes in megabytes.
+    Retrieve the hard memory limit (in megabytes) for the pipeline.
 
-    Args:
-        config: Optional config dictionary. If None, loads from default location.
+    Returns
+    -------
+    int
+        Memory limit in MB.
 
-    Returns:
-        Memory limit in megabytes.
+    Raises
+    ------
+    KeyError
+        If ``MEMORY_LIMIT_MB`` is not defined in the configuration.
     """
-    if config is None:
-        config = load_r_config()
-
-    return int(config["memory_limit_mb"])
+    cfg = _get_config()
+    return int(cfg["MEMORY_LIMIT_MB"])
 
 
-def get_time_limit_seconds(config: Optional[Dict[str, Any]] = None) -> int:
+def get_memory_warning_threshold_mb() -> int:
     """
-    Get the time limit for R processes in seconds.
+    Retrieve the memory warning threshold (in megabytes). When usage exceeds this
+    value, the pipeline should emit a warning but may continue.
 
-    Args:
-        config: Optional config dictionary. If None, loads from default location.
+    Returns
+    -------
+    int
+        Memory warning threshold in MB.
 
-    Returns:
-        Time limit in seconds.
+    Raises
+    ------
+    KeyError
+        If ``MEMORY_WARNING_THRESHOLD_MB`` is not defined in the configuration.
     """
-    if config is None:
-        config = load_r_config()
-
-    return int(config["time_limit_seconds"])
+    cfg = _get_config()
+    return int(cfg["MEMORY_WARNING_THRESHOLD_MB"])
 
 
-def get_r_executable(config: Optional[Dict[str, Any]] = None) -> str:
+# Backward compatibility helpers (mirroring the original config module API)
+# These simply delegate to the new functions so existing imports continue to work.
+
+def ensure_directories() -> None:
     """
-    Get the path/name of the R executable to use.
-
-    Args:
-        config: Optional config dictionary. If None, loads from default location.
-
-    Returns:
-        String path/name of R executable.
+    Ensure that required output directories exist. This function mirrors the
+    original ``ensure_directories`` from ``src.config`` but also guarantees that
+    the R script directory exists (creating it if necessary). It is safe to call
+    multiple times.
     """
-    if config is None:
-        config = load_r_config()
+    from src.config import ensure_directories as _ensure_src_dirs
 
-    return config["r_executable"]
+    # Ensure the generic project directories first
+    _ensure_src_dirs()
 
-
-def get_r_env_vars(config: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
-    """
-    Get environment variables to set for R processes.
-
-    Args:
-        config: Optional config dictionary. If None, loads from default location.
-
-    Returns:
-        Dictionary of environment variables.
-    """
-    if config is None:
-        config = load_r_config()
-
-    env_vars = dict(os.environ)
-    env_vars.update(config.get("additional_env", {}))
-
-    # Set memory limit as environment variable for R
-    memory_mb = get_memory_limit_mb(config)
-    env_vars["R_MAX_VSIZE"] = f"{memory_mb * 1024 * 1024}"  # Convert MB to bytes
-
-    return env_vars
+    # Then ensure the R script directory exists
+    r_dir = get_r_script_dir()
+    r_dir.mkdir(parents=True, exist_ok=True)
 
 
-def create_default_config(output_path: Optional[Path] = None) -> Path:
-    """
-    Create a default R configuration file.
-
-    Args:
-        output_path: Path where to write the config. Defaults to R_CONFIG_FILE.
-
-    Returns:
-        Path to the created config file.
-    """
-    if output_path is None:
-        output_path = R_CONFIG_FILE
-
-    # Ensure parent directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    default_config = {
-        "# R Script Configuration": "Directory containing R scripts",
-        "r_script_dir": str(DEFAULT_R_SCRIPT_DIR),
-        "# Memory Configuration": "Maximum memory (MB) for R processes",
-        "memory_limit_mb": DEFAULT_MEMORY_LIMIT_MB,
-        "# Time Configuration": "Maximum execution time (seconds) for R processes",
-        "time_limit_seconds": DEFAULT_TIME_LIMIT_SECONDS,
-        "# R Executable": "Path to Rscript executable (use full path if not in PATH)",
-        "r_executable": "Rscript",
-        "# Additional Environment": "Extra environment variables for R processes",
-        "additional_env": {
-            "R_LIBS_USER": str(PROJECT_ROOT / "code" / "R_libs")
-        }
-    }
-
-    with open(output_path, 'w') as f:
-        yaml.dump(default_config, f, default_flow_style=False, sort_keys=False)
-
-    logger.info(f"Created default R config at {output_path}")
-    return output_path
-
-
-def validate_r_environment(config: Optional[Dict[str, Any]] = None) -> bool:
-    """
-    Validate that the R environment is properly configured.
-
-    Args:
-        config: Optional config dictionary. If None, loads from default location.
-
-    Returns:
-        True if environment is valid, False otherwise.
-    """
-    if config is None:
-        config = load_r_config()
-
-    # Check if R executable exists
-    import shutil
-    r_executable = get_r_executable(config)
-    if shutil.which(r_executable) is None:
-        logger.error(f"R executable not found: {r_executable}")
-        return False
-
-    # Check if script directory exists
-    script_dir = Path(config["r_script_dir"])
-    if not script_dir.exists():
-        logger.error(f"R script directory does not exist: {script_dir}")
-        return False
-
-    # Check memory limit is reasonable
-    memory_mb = get_memory_limit_mb(config)
-    if memory_mb < 512:
-        logger.warning(f"Memory limit is very low: {memory_mb}MB")
-
-    return True
+# Export symbols for ``from src.r_config import *``
+__all__ = [
+    "get_r_script_dir",
+    "get_r_script_path",
+    "get_memory_limit_mb",
+    "get_memory_warning_threshold_mb",
+    "ensure_directories",
+]

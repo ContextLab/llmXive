@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/src/`, `code/scripts/`, `code/tests/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, matplotlib, seaborn, pyyaml, requests, tqdm, statsmodels) and R 4.3 environment
+- [X] T001 Create project structure per implementation plan (`code/src/`, `code/scripts/`, `code/tests/`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, matplotlib, seaborn, pyyaml, requests, tqdm, statsmodels) and R 4.3 environment
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
 
 ---
@@ -58,9 +58,9 @@
 - [X] T004 [P] Implement `code/src/config.py` with random seeds, path constants, and runtime thresholds (6h limit, min 100 perms)
 - [X] T005 [P] Implement `code/src/versioning.py` to compute SHA256 hashes of artifacts and update `state.yaml`
 - [X] T006 [P] Create `code/scripts/setup_env.sh` to initialize R `renv` and Python `venv`
-- [X] T007 Create `code/src/data_loader.py` with functions to fetch datasets from verified URLs (GEO, TCGA, ENCODE) via a manifest file and verify checksums
-- [X] T008 Create `code/src/preprocessing.py` to filter zero-count genes and handle missing batch metadata (default to random stratification)
-- [ ] T009 [P] Setup environment configuration management for R script paths and memory limits <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [~] T007 Create `code/src/data_loader.py` with functions to fetch datasets from verified URLs (GEO, TCGA, ENCODE) via a manifest file and verify checksums
+- [~] T008 Create `code/src/preprocessing.py` to filter zero-count genes and handle missing batch metadata (default to random stratification)
+- [~] T009 [P] Setup environment configuration management for R script paths and memory limits <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 9, column 3:
  - **R Script Paths**: `R_SCRIPT_DI...
  ^
@@ -83,18 +83,18 @@ expected alphabetic or numeric character, but found '*'
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] [TDD] Write `test_stratification_handles_missing_batch` in `code/tests/test_preprocessing.py` asserting random fallback on missing metadata
-- [X] T011 [P] [US1] [TDD] Write `test_pearson_correlation_all_genes_returns_valid_r` in `code/tests/test_metrics.py`
+- [~] T010 [P] [US1] [TDD] Write `test_stratification_handles_missing_batch` in `code/tests/test_preprocessing.py` asserting random fallback on missing metadata
+- [~] T011 [P] [US1] [TDD] Write `test_pearson_correlation_all_genes_returns_valid_r` in `code/tests/test_metrics.py`
 
 ### Implementation for User Story 1
 
 - [ ] T016a [US1] **Spec Correction**: Update `spec.md` FR-006 to explicitly authorize calculating stability on "ALL genes" (overriding "significant genes") to avoid Winner's Curse, citing plan.md Spec Correction #1
-- [X] T016 [US1] Implement `code/src/metrics.py` to calculate Pearson correlation of log2FC between full set and subsets for ALL genes (AUTHORIZED by T016a; see Spec Correction #1)
-- [X] T012 [P] [US1] Configure `code/src/data_loader.py` usage in `main.py` to fetch a specific RNA-seq count matrix (e.g., from GEO) with ≥20 samples
-- [X] T013 [P] [US1] Configure `code/src/preprocessing.py` usage in `main.py` to partition data into 5 stratified subsets (or random if no batch metadata)
-- [X] T014 [US1] Create `code/scripts/run_r_script.R` to perform Differential Expression (DESeq2/edgeR) on the full dataset
-- [X] T015 [US1] Implement Python orchestration in `code/main.py` to loop subset calls to `code/scripts/run_r_script.R` (T014)
-- [X] T017 [US1] Add error handling in `code/src/main.py` to skip datasets with <20 samples and log warnings
+- [~] T016 [US1] Implement `code/src/metrics.py` to calculate Pearson correlation of log2FC between full set and subsets for ALL genes (AUTHORIZED by T016a; see Spec Correction #1)
+- [~] T012 [P] [US1] Configure `code/src/data_loader.py` usage in `main.py` to fetch a specific RNA-seq count matrix (e.g., from GEO) with ≥20 samples
+- [~] T013 [P] [US1] Configure `code/src/preprocessing.py` usage in `main.py` to partition data into 5 stratified subsets (or random if no batch metadata)
+- [~] T014 [US1] Create `code/scripts/run_r_script.R` to perform Differential Expression (DESeq2/edgeR) on the full dataset
+- [~] T015 [US1] Implement Python orchestration in `code/main.py` to loop subset calls to `code/scripts/run_r_script.R` (T014)
+- [~] T017 [US1] Add error handling in `code/src/main.py` to skip datasets with <20 samples and log warnings
 - [ ] T018 [US1] Implement logic to handle "Insufficient total genes" (replacing 'significant genes' check per T016) gracefully if <5 genes found across all categories
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -109,20 +109,20 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Write `test_stratified_shuffle_preserves_batch_counts` in `code/tests/test_permutation.py`
-- [X] T020 [P] [US2] Write `test_ks_statistic_uniform_distribution_passes` and `test_bland_altman_plot_generation` in `code/tests/test_metrics.py`
+- [~] T019 [P] [US2] Write `test_stratified_shuffle_preserves_batch_counts` in `code/tests/test_permutation.py`
+- [~] T020 [P] [US2] Write `test_ks_statistic_uniform_distribution_passes` and `test_bland_altman_plot_generation` in `code/tests/test_metrics.py`
 
 ### Implementation for User Story 2
 
 - [ ] T021a [US2] **Spec Correction**: Update `spec.md` FR-004 to explicitly authorize the "Fixed-Dispersion Wald Perturbation" approximation (skipping full DE re-run) to meet 6h runtime constraints, citing plan.md Spec Correction #3
-- [X] T021 [P] [US2] Implement `code/src/de_analysis.py` (single-run wrapper) that calls `code/scripts/run_r_script.R` to extract and **save fixed-dispersion parameters** to a state file artifact (AUTHORIZED by T021a)
-- [X] T022 [US2] Implement `code/src/permutation.py` to shuffle sample labels within batch groups and recompute Wald statistics using fixed dispersions from T021 artifact (AUTHORIZED by T021a)
-- [X] T023 [US2] Implement `code/src/permutation.py` dynamic iteration logic: estimate time per iter, cap at 6h, fallback to min 100 iterations with "low-confidence" flag
-- [X] T024b [US2] Implement `code/src/metrics.py` to compare parametric vs. empirical p-values: **KS test to verify p-value > 0.05** (correcting spec SC-002) and generate Bland-Altman plot
+- [~] T021 [P] [US2] Implement `code/src/de_analysis.py` (single-run wrapper) that calls `code/scripts/run_r_script.R` to extract and **save fixed-dispersion parameters** to a state file artifact (AUTHORIZED by T021a)
+- [~] T022 [US2] Implement `code/src/permutation.py` to shuffle sample labels within batch groups and recompute Wald statistics using fixed dispersions from T021 artifact (AUTHORIZED by T021a)
+- [~] T023 [US2] Implement `code/src/permutation.py` dynamic iteration logic: estimate time per iter, cap at 6h, fallback to min 100 iterations with "low-confidence" flag
+- [~] T024b [US2] Implement `code/src/metrics.py` to compare parametric vs. empirical p-values: **KS test to verify p-value > 0.05** (correcting spec SC-002) and generate Bland-Altman plot
 - [ ] T024c [US2] Update `plan.md`/`spec.md` with Spec Correction #2 (KS threshold: D < 0.05 -> p-value > 0.05)
-- [X] T024 [US2] Implement `code/src/metrics.py` to calculate and report p-value inflation metrics (median absolute deviation)
-- [X] T025 [US2] Add Benjamini-Hochberg correction to all reported p-values in `code/src/metrics.py` (per FR-008)
-- [X] T026 [US2] Implement `code/src/report.py` to visualize the Bland-Altman plot and save to `artifacts/`
+- [~] T024 [US2] Implement `code/src/metrics.py` to calculate and report p-value inflation metrics (median absolute deviation)
+- [~] T025 [US2] Add Benjamini-Hochberg correction to all reported p-values in `code/src/metrics.py` (per FR-008)
+- [~] T026 [US2] Implement `code/src/report.py` to visualize the Bland-Altman plot and save to `artifacts/`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,13 +136,13 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T027 [P] [US3] Write `test_aggregation_handles_missing_repo_gracefully` in `code/tests/test_integration.py`
+- [~] T027 [P] [US3] Write `test_aggregation_handles_missing_repo_gracefully` in `code/tests/test_integration.py`
 
 ### Implementation for User Story 3
 
-- [X] T028 [P] [US3] Configure `code/src/data_loader.py` usage in `main.py` to fetch and cache 3-4 distinct datasets from verified sources (TCGA, ENCODE, GEO) <!-- FAILED: unspecified -->
-- [X] T029 [P] [US3] Implement logic in `code/src/data_loader.py` to explicitly tag each dataset with its source (TCGA/ENCODE/GEO) for downstream aggregation
-- [X] T029a [US3] **Aggregation Logic**: Implement logic in `code/src/report.py` to aggregate stability correlations and inflation metrics into a summary table, **grouped by source tag** (TCGA vs ENCODE vs GEO) to validate repository-specific trends
+- [~] T028 [P] [US3] Configure `code/src/data_loader.py` usage in `main.py` to fetch and cache 3-4 distinct datasets from verified sources (TCGA, ENCODE, GEO) <!-- FAILED: unspecified -->
+- [~] T029 [P] [US3] Implement logic in `code/src/data_loader.py` to explicitly tag each dataset with its source (TCGA/ENCODE/GEO) for downstream aggregation
+- [~] T029a [US3] **Aggregation Logic**: Implement logic in `code/src/report.py` to aggregate stability correlations and inflation metrics into a summary table, **grouped by source tag** (TCGA vs ENCODE vs GEO) to validate repository-specific trends
 - [ ] T030 [US3] Implement logic to handle missing data points for one repository without failing the entire analysis
 - [ ] T031 [US3] Generate a comparative visualization (e.g., bar chart) of stability correlations across repositories in `artifacts/`
 
@@ -154,7 +154,7 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T032 [P] Documentation updates in `code/README.md` and `specs/001-assess-significance-reliability/quickstart.md`
+- [~] T032 [P] Documentation updates in `code/README.md` and `specs/001-assess-significance-reliability/quickstart.md`
 - [ ] T033 Code cleanup and refactoring for memory efficiency (ensure <6GB usage)
 - [ ] T034 Performance optimization: verify permutation loop overhead is minimal
 - [ ] T035 [P] Run `specs/001-assess-significance-reliability/quickstart.md` validation

@@ -1,0 +1,49 @@
+Project structure report (T001)
+================================
+
+Required directories:
+  code/src [exists] - 13 files
+  code/scripts [exists] - 13 files
+  code/tests [exists] - 11 files
+
+Directory listings:
+  code/src/
+    code/src/.gitkeep
+    code/src/__init__.py
+    code/src/config.py
+    code/src/data_loader.py
+    code/src/de_analysis.py
+    code/src/main.py
+    code/src/memory_monitor.py
+    code/src/metrics.py
+    code/src/permutation.py
+    code/src/preprocessing.py
+    code/src/r_config.py
+    code/src/report.py
+    code/src/versioning.py
+  code/scripts/
+    code/scripts/.gitkeep
+    code/scripts/__init__.py
+    code/scripts/format.sh
+    code/scripts/generate_cross_dataset_visualization.py
+    code/scripts/lint.sh
+    code/scripts/measure_permutation_overhead.py
+    code/scripts/optimize_memory_usage.py
+    code/scripts/run_r_script.R
+    code/scripts/setup_env.sh
+    code/scripts/setup_linting.sh
+    code/scripts/setup_project_structure.py
+    code/scripts/setup_r_env.sh
+    code/scripts/validate_quickstart.py
+  code/tests/
+    code/tests/.gitkeep
+    code/tests/__init__.py
+    code/tests/test_data_loader.py
+    code/tests/test_integration.py
+    code/tests/test_metrics.py
+    code/tests/test_permutation.py
+    code/tests/test_preprocessing.py
+    code/tests/test_r_config.py
+    code/tests/test_report.py
+    code/tests/test_validate_quickstart.py
+    code/tests/test_versioning.py
