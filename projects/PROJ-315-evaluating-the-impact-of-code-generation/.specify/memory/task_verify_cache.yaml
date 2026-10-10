@@ -32,11 +32,11 @@ T004:
   sig: dd1efc14485c55f6acfd5cc35d016daf8c72d57a0d8b5c24d61038e7478bedf6
 T005:
   c: true
-  h: fbd1ec8af616a77513d50ae6abe143c210be750d5d4a14f796be9a9395e7ee32
+  h: 280534cb172f4053b6566a82e93effaa9b97818ca160dc8596281ff4f657819c
   r: "Checked the presence and non\u2011empty content of `code/data/__init__.py` (1450\u202F\
-    bytes) and `code/labeling/__init__.py` (125\u202Fbytes) at the required locations.\
-    \ Both package initializers exist as specified."
-  sig: 063d35a468fdc240431b8887b2f20b91273e165372bc51f68e58f9934fee6dc5
+    bytes) and `code/labeling/__init__.py` (125\u202Fbytes) at the required locations;\
+    \ both package initializers exist as specified."
+  sig: df71daff1f6aba4fb4f3b82f490abef846ed56ca408b2489e108e6d04f185c34
 T006:
   c: true
   h: e37d99ec44b8d83a92bbfef35a13e468bb89ed9a124187737579574301a1bb77
@@ -70,15 +70,14 @@ T009:
     2 keyword threshold requirement."
   sig: af1343f9f9dc334b302e88902760a9f41b19c3bae6228775a9c1b4d185607ac2
 T010:
-  c: false
-  h: 6adc347352958f7a2466c108be0169845a68fcd48ea70a3d10ca3ac7d0b03ebb
-  r: "The integration test file `tests/integration/test_data_completeness.py` exists,\
-    \ but it imports `main` from `code/data/preprocess.py`, which implements an audit\u2011\
-    accuracy pipeline and never performs a data\u2011completeness check. Consequently\
-    \ the test cannot trigger the required `ValueError`, and it does not assert that\
-    \ the error message contains the exact phrase \u201CData Completeness Error\u201D\
-    . The test therefore does not satisfy the task\u2019s requirement."
-  sig: 9aafbf5d1610dba337f40933ec8466d01fac6c9cbf416a02cb39a805c63e8519
+  c: true
+  h: f060c5d2b94cfe4967f93a549813e663c470e8044d81a3dea8cc43f98edfa84f
+  r: "Checked the `tests/integration/test_data_completeness.py` file (2650\u202Fbytes)\
+    \ which contains two tests: one asserting that a dataset with 90\u202F% completeness\
+    \ raises a `ValueError` whose message includes \u201CData Completeness Error\u201D\
+    , and another confirming that a 95\u202F% complete dataset passes. The test correctly\
+    \ patches `fetch_dataset` and validates the required behavior."
+  sig: a3ba5407227bf02f02bfd3611e2ad31fad36a274a4428a88f8f64ec8456317cc
 T011:
   c: false
   h: 3dcfe2030381afa70c21382f043827750ef20ceca3f4dfb30070d97f7e638187
@@ -97,3 +96,36 @@ T012:
     \ requirement. It also does not implement chunked processing of the full dataset\
     \ as specified. The task\u2019s core requirement is therefore not satisfied."
   sig: 9857edfc386fbe35838b9ad5bcc070c19400c5c162f50853684bb184822c121c
+T014a:
+  c: false
+  h: 113245956a2da9666000931d900d7892328a0277ffd5873ddef59f7bc59bb461
+  r: The `code/data/preprocess.py` file does not contain a `load_and_extract()` function
+    implementing the required loading, extraction of diffs, comments, timestamps,
+    and project metadata, nor does it write `data/raw/raw_prs.parquet`. Additionally,
+    the expected parquet file is missing. These core artifacts must be added for the
+    task to be considered complete.
+  sig: 04aff1b17bfc3ded094c249036aaeb731f3da2f79ad7cd50b21395082da9f0a0
+T014b:
+  c: false
+  h: fd5763d957e3a4200f9d80d9eb713a6fb2aa0189eb31f5f45cbd9e07bd7a19d3
+  r: "The `validate_completeness` function exists and correctly checks \u226595% completeness\
+    \ and raises a `ValueError` containing \u201CData Completeness Error\u201D. However,\
+    \ the task also requires that a completeness report be written to `docs/reports/completeness_report.json`,\
+    \ and this file is missing and no code in `preprocess.py` creates it. The output\
+    \ artifact is therefore not produced."
+  sig: 6ece2dcfa9f7583bb3dce5f2346d827d9cf47ef52b0c4eac8e47e9c574a12555
+T014c:
+  c: false
+  h: c6b9ef033640d98f89b0f8e59ded0666026bc46513576e9bdf0274b2653e34a7
+  r: The `code/data/preprocess.py` file does not contain a `compute_basic_stats()`
+    function, nor does it generate or write the required `data/processed/basic_stats.json`
+    file. Both the function implementation and its expected output are missing.
+  sig: f2e02b205456d538225e1fdf2cc35aaa13c9bd3289da80e82727cf6b3b15964f
+T014d:
+  c: false
+  h: 20ffab80d7e756ba4e782ec0b68bc61adf84d8bdca9adabf294b95c4cd2d2346
+  r: "The file `code/data/preprocess.py` (7269\u202Fbytes) does not contain a `compute_sentiment_scores()`\
+    \ function, nor any logic that uses `textblob` to compute sentiment scores and\
+    \ append them to a DataFrame. Implementing this missing function is required to\
+    \ satisfy the task."
+  sig: 300bd66ad11371a4df467f455b77324f04e3fcedff57fb5e5bbdf93e4e191a7f

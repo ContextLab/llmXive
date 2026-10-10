@@ -8,6 +8,7 @@ import pandas as pd
 from code.utils.config import set_global_seed
 from code.utils.logger import get_logger, log_analysis_result
 from code.labeling.classify import load_keywords, count_keyword_matches, classify_pr
+from code.data.fetch import fetch_dataset
 
 logger = get_logger(__name__)
 
@@ -137,8 +138,69 @@ def run_audit_accuracy_pipeline(
     
     return metrics
 
-# Note: The main entry point for this specific logic is run_audit_accuracy_pipeline.
-# It is typically called from code/data/run_pipeline.py after T017b completes.
+# ----------------------------------------------------------------------
+# New functionality for data completeness validation (T010)
+# ----------------------------------------------------------------------
+
+def validate_completeness(
+    df: pd.DataFrame,
+    required_fields: Optional[List[str]] = None,
+    threshold: float = 0.95
+) -> None:
+    """
+    Validate that at least ``threshold`` proportion of rows have non‑null
+    values for all ``required_fields``. If the proportion is below the
+    threshold, raise a ``ValueError`` whose message contains the exact
+    phrase ``Data Completeness Error``.
+    
+    Args:
+        df: DataFrame containing the raw PR records.
+        required_fields: List of column names that must be non‑null.
+                         Defaults to ['diff', 'review_comments',
+                         'merge_timestamp', 'project_name'].
+        threshold: Minimum proportion of complete records (default 0.95).
+    
+    Raises:
+        ValueError: If the completeness proportion is below ``threshold``.
+    """
+    if required_fields is None:
+        required_fields = ['diff', 'review_comments', 'merge_timestamp', 'project_name']
+    
+    total = len(df)
+    if total == 0:
+        raise ValueError("Data Completeness Error: dataset contains no records")
+    
+    # Rows where *all* required fields are non‑null
+    complete_mask = df[required_fields].notnull().all(axis=1)
+    complete_count = complete_mask.sum()
+    completeness = complete_count / total
+    
+    if completeness < threshold:
+        pct = completeness * 100
+        raise ValueError(
+            f"Data Completeness Error: only {pct:.2f}% of records are complete "
+            f"(required >= {threshold * 100:.0f}%)"
+        )
+    logger.info(
+        f"Data completeness validation passed: {pct:.2f}% complete (threshold {threshold * 100:.0f}%)"
+    )
+
+def run_data_completeness_check() -> None:
+    """
+    Load the raw dataset via ``fetch_dataset`` and run the completeness
+    validation. This function is intended for integration testing and for
+    early‑stage pipeline gating.
+    
+    Raises:
+        ValueError: Propagated from ``validate_completeness`` when the
+                    dataset does not meet the completeness requirement.
+    """
+    logger.info("Fetching raw dataset for completeness validation")
+    df = fetch_dataset()
+    if df is None or df.empty:
+        raise ValueError("Data Completeness Error: fetched dataset is empty")
+    validate_completeness(df)
+
 def main():
     """Entry point for direct execution."""
     set_global_seed(42)

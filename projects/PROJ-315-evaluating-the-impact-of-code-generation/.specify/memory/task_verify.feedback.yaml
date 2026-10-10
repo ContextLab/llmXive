@@ -17,13 +17,6 @@ T008:
 T009:
   task: 2b350ee60cf0b028dbf4485dc0b8e39f337be7de3bd16830efce105b83e37198
 T010:
-  reason: "The integration test file `tests/integration/test_data_completeness.py`\
-    \ exists, but it imports `main` from `code/data/preprocess.py`, which implements\
-    \ an audit\u2011accuracy pipeline and never performs a data\u2011completeness\
-    \ check. Consequently the test cannot trigger the required `ValueError`, and it\
-    \ does not assert that the error message contains the exact phrase \u201CData\
-    \ Completeness Error\u201D. The test therefore does not satisfy the task\u2019\
-    s requirement."
   task: c73fc0b4bb9964b29259c59d0a0ded6b0875c5555cc5b761798bc23dd806cb08
 T011:
   reason: "The `tests/integration/test_power_check.py` file exists and raises a `ValueError`\
@@ -40,12 +33,29 @@ T012:
     \ as specified. The task\u2019s core requirement is therefore not satisfied."
   task: 0baf6ca88731c0cab720923964a823f1cdba7a06b6ecc0a2b95bf8294e5ec968
 T014a:
+  reason: The `code/data/preprocess.py` file does not contain a `load_and_extract()`
+    function implementing the required loading, extraction of diffs, comments, timestamps,
+    and project metadata, nor does it write `data/raw/raw_prs.parquet`. Additionally,
+    the expected parquet file is missing. These core artifacts must be added for the
+    task to be considered complete.
   task: 420ecf8d4222048ddd57279fcfc7e7a96939720bce80c0f665239da1651f36dd
 T014b:
+  reason: "The `validate_completeness` function exists and correctly checks \u2265\
+    95% completeness and raises a `ValueError` containing \u201CData Completeness\
+    \ Error\u201D. However, the task also requires that a completeness report be written\
+    \ to `docs/reports/completeness_report.json`, and this file is missing and no\
+    \ code in `preprocess.py` creates it. The output artifact is therefore not produced."
   task: 4875ebcd68bfc5d87bb935a55d5475755d599309cf209aed399a4e0c6932ec52
 T014c:
+  reason: The `code/data/preprocess.py` file does not contain a `compute_basic_stats()`
+    function, nor does it generate or write the required `data/processed/basic_stats.json`
+    file. Both the function implementation and its expected output are missing.
   task: d0c29923aa156a2006b69bfe2523aa4ca0b0e92382163dfe9f7252536b1b643f
 T014d:
+  reason: "The file `code/data/preprocess.py` (7269\u202Fbytes) does not contain a\
+    \ `compute_sentiment_scores()` function, nor any logic that uses `textblob` to\
+    \ compute sentiment scores and append them to a DataFrame. Implementing this missing\
+    \ function is required to satisfy the task."
   task: ec3f40e856875652a859147fa054faec4c6161e8a497186060b29a6d5f2f4055
 T014e:
   task: 9b6e059a79cee677a90559fad37822963bdf2323f3d18b0121c497086bff1f5e
