@@ -1,11 +1,1 @@
-- artifact_hash: f841cb2a1a8eaa0ef0ea74b60b5a56625f0345c2600de8cd4dbed41d8b02cc13
-  artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1409.4317] Bootstrap-Based K-Sample Testing For Functional Data'
-  kind: url
-  value: https://arxiv.org/abs/1409.4317
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1409.4317
-  verified_at: '2026-10-07T02:45:11.860036Z'
+[]
