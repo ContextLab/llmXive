@@ -1,5 +1,12 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-10-01T14:50:35.244364+00:00'
-retry_count: 3
+intent: download OpenAlex full snapshot subgraph parquet dataset python package dataset
+required_fields:
+- id
+- title
+- cited_by_count
+- publication_date
+- field
+- neighbors
+cache_key: 60a6f8ac8b84a8c0ad269328b8966ac1e8bd0a45eda0c415a01f1806a6f57ff2
+searched_at: '2026-10-10T00:28:23.006371+00:00'
+retry_count: 1

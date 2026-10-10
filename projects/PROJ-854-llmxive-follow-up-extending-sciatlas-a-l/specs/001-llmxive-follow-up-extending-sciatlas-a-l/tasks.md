@@ -10,7 +10,7 @@
 - [ ] **T001** **Create project skeleton** – `mkdir -p src/{models,services,cli,utils} tests/{contract,integration,unit} data/{raw,processed} artifacts/{results,plots}`.  
   - *Verification*: `test -d src/models && test -d tests/unit && test -d data/processed`.  
 
-- [ ] **T002** **Initialize `pyproject.toml`** – Define build system, project metadata, and runtime dependencies (`networkx>=3.0`, `pandas>=2.0`, `sentence-transformers>=2.2`, `scikit-learn>=1.3`, `statsmodels>=0.14`, `pyarrow>=12.0`, `datasets>=2.14`).  
+- [X] **T002** **Initialize `pyproject.toml`** – Define build system, project metadata, and runtime dependencies (`networkx>=3.0`, `pandas>=2.0`, `sentence-transformers>=2.2`, `scikit-learn>=1.3`, `statsmodels>=0.14`, `pyarrow>=12.0`, `datasets>=2.14`).  
   - *Verification*: `grep -q "networkx>=3.0" pyproject.toml && pip check`.  
 
 - [ ] **T003** **Amend spec & plan for OpenAlex source** – Update every occurrence of “PubGraph” to “OpenAlex‑derived Subgraph” in `specs/001-bridging-coefficient-analysis/spec.md` and `specs/001-bridging-coefficient-analysis/plan.md`.  

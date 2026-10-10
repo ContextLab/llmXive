@@ -1,11 +1,18 @@
-T012b:
+T001:
   c: false
-  h: 9d4b233079c4135d5df07f85e4542b8c36dc0bb996277705a2aa8ef05ff28f29
-  r: The `src/services/ingest.py` file does not contain the required `validate_sampled_graph`
-    implementation (the shown excerpt only includes imports and `fetch_sample_ids`).
-    Moreover, the expected output files `artifacts/results/sampling_validation.json`
-    and `artifacts/results/topology_equivalence.json` are absent. Both the core function
-    and its result artifacts are missing, so the task is not fulfilled.
+  h: ef533a786b2e1830c8b9b71ce8bcaebdd62cb6b497a590b2d61f47fbf6b25d5d
+  r: The `src/models` and `tests/unit` directories exist, but the required `data/processed`
+    (and its parent `data/`) directory is missing, so the project skeleton is not
+    fully created as specified.
+  sig: 3b66288546c050f7ae8d80d02cc2211ecac0ebe96f4ba5102fed508d0c70185c
+T002:
+  c: true
+  h: a098b291b8a9b237a9bd5394cbcbcc114d5b5fcf633d9708696caba7cd472ab8
+  r: "Checked the provided `pyproject.toml` (807\u202Fbytes) and confirmed it defines\
+    \ a build system, includes project metadata, and lists all required runtime dependencies\
+    \ (`networkx>=3.0`, `pandas>=2.0`, `sentence-transformers>=2.2`, `scikit-learn>=1.3`,\
+    \ `statsmodels>=0.14`, `pyarrow>=12.0`, `datasets>=2.14`)."
+  sig: e2a21c160ed89b586dcb954dbf9e89ed171304e81cf699ac99e15ebd32ad9603
 T016:
   c: false
   h: 28e7c502df867fa7ddb9742b672fc3f479c6231d6e5a037bcf66048d9dde3b28
@@ -13,53 +20,3 @@ T016:
     \ not exist, and the YAML state file still contains a placeholder hash instead\
     \ of a real SHA\u2011256 hash and updated timestamp. Consequently the task\u2019\
     s core output and integrity update are missing."
-T020:
-  c: false
-  h: 028e8c495abe7320119a401e850fb55fbf7f3151557b84ee5c3d5dbcd38fb427
-  r: "The required `src/services/embeddings.py` file does not exist, so no implementation\
-    \ of loading the model or the `generate_embeddings_batch` function is present.\
-    \ Moreover, the benchmark test imports `load_embedding_model` and `generate_embeddings_batched`\
-    \ (a different name and batch size) from that missing module, indicating the expected\
-    \ functionality is not implemented. The task\u2019s core requirement is therefore\
-    \ unmet."
-T021a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, logs, or test output showing a validation step for the selected `k`\
-    \ (silhouette stability across seeds) is present. The required artifact\u2014\
-    implementation of the stability check and evidence that it runs and logs the chosen\
-    \ `k`\u2014is missing."
-T025:
-  c: false
-  h: 274b68b40cb90a070859f5b3e85c35b3d4cdaac76d89533ab302a6a372000dd3
-  r: The repository lacks the required schema file (`specs/001-bridging-coefficient-analysis/contracts/final_dataset_schema.schema.yaml`)
-    and the `src/services/ingest.py` file does not contain an implementation of `validate_final_dataset_schema(df)`.
-    Both the artifact and the validation logic are missing, so the task is not satisfied.
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided that implements a multiple\u2011\
-    comparison correction (Bonferroni or Benjamini\u2011Hochberg) nor a CLI flag to\
-    \ select the method. Without such artifacts, the requirement is not satisfied."
-T037:
-  c: false
-  h: a3dbc591e9d3b869188f56ef7357ecb06b1c39492728e147fd50bfb35d6a6c30
-  r: The required input dataset `data/processed/final_analysis_dataset.parquet` does
-    not exist, and the expected output artifacts `artifacts/results/analysis_report.md`
-    and `artifacts/results/corrected_pvalues.json` are also missing. Moreover, the
-    provided test file is truncated and does not contain the full implementation needed
-    to generate those artifacts.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/validation_report.md` file was provided; thus there is no evidence
-    of an execution log, exit code, or artifact hashes, which are required to satisfy
-    the task. The implementer must generate and supply the validation report at the
-    specified path.
-T039:
-  c: false
-  h: ea0f2b915b9b71d186e9e451294a2810df0993dc2dadca0bea20d941b6778d6d
-  r: "The `src/services/ingest.py` file shows no import or usage of `memory_profiler`\
-    \ and does not log peak RAM usage per batch. Additionally, the required `src/services/embeddings.py`\
-    \ file is completely missing. Both files need the memory\u2011profiling integration\
-    \ and the embeddings module must exist."

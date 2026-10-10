@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "7dd07bad8c7cac4475fada1efdafcc984d8a28010605442310ad887ad97356c7",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-bridging-coefficient-analysis/spec.md'\n[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-bridging-coefficient-analysis/plan.md'"
+}
