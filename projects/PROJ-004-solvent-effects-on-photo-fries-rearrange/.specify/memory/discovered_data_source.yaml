@@ -1,15 +1,17 @@
 status: none
-intent: download solvent dielectric constants NIST Chemistry WebBook and FreeSolv
-  python package dataset
+intent: solvent properties dataset dielectric constant temperature relative humidity
+  solvation free energy SMD PCM NIST Chemistry WebBook ThermoML CRC Handbook python
+  package dataset
 required_fields:
 - solvent_name
 - dielectric_constant
-- temperature_K
+- temperature
+- relative_humidity
+- solvation_free_energy_smd
+- solvation_free_energy_pcm
+- cas_number
 - reference_source
-- dataset_version
-- solute_name
-- solvation_free_energy_kcal_per_mol
-- calculation_method
-cache_key: 1015e70cb9e4d7b6bf62eae5cac4a91fc2945c4164f0b0c0bdcb55f9cf82453d
-searched_at: '2026-10-10T09:49:54.752913+00:00'
+- version
+cache_key: d1cadb6233e9b7d9d41859b9a48f5d08480769731d626efebee3746cba7c45b2
+searched_at: '2026-10-10T09:52:43.112147+00:00'
 retry_count: 1

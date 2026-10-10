@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
-  "stage": "planned",
+  "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "model_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-07T10:34:32.757699+00:00",
-  "last_seen": "2026-10-07T11:42:42.296626+00:00",
-  "retry_after": null,
-  "last_error": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-3-27b-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7f99ccc1fe90>, 'Connection to chat.dartmouth.edu timed out. (connect ti",
-  "evidence": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-3-27b-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-10T09:53:00.927661+00:00",
+  "last_seen": "2026-10-10T09:53:00.927661+00:00",
+  "retry_after": "2026-10-10T10:03:00.927661+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }

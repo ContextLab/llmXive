@@ -122,32 +122,58 @@ T014:
     \ environment log file \u2013 is absent."
   sig: 56729b5b996d318007e913ee323f5bb624f10d7b3e8f5387b9f391cc28b3e32a
 T015b:
-  c: true
-  h: c88346e8b887770fcfa0d0c79444c4284b763ee846555f7470860340b3a985e7
-  r: "The repository contains `code/data/ingest.py` (4616\u202Fbytes) which defines\
-    \ `ingest_real_transient_absorption_data`. It checks the existence of the provided\
-    \ path, prints exactly \u201CCRITICAL: Real data file missing. Aborting.\u201D\
-    \ and calls `sys.exit(1)` when `use_real_data` (derived from `USE_REAL_DATA`)\
-    \ is true and the file is absent. The script also returns the DataFrame when the\
-    \ file exists and does nothing when the flag is false, satisfying all stated constraints."
+  c: false
+  h: 0bc5c25504b4d155eb0c221483025d8cde92d5944f04a522826801d2b1cea2a0
+  r: "The provided `code/data/ingest.py` aborts when `USE_REAL_DATA=True` and the\
+    \ file is missing, but it does **not** read the data path from a `config.py` setting\
+    \ (it uses an environment variable) and it only handles CSV files, not JSON as\
+    \ required. These deviations mean the task\u2019s specification is not fully satisfied."
+  sig: 6be9c6be6ef039045798d243d2f8e592592ac4ef9a236885a1cad327734f0b19
+T015c:
+  c: false
+  h: 8c817c62049a9c81efbbc2393b0a3550e777fcf8f16c1fb865e3770dccf488f4
+  r: "The `generate_synthetic.py` script exists but it neither accepts a seed argument\
+    \ nor has been shown to actually produce the required `data/raw/synthetic_traces.csv`\
+    \ file (the file is missing). Consequently the task\u2019s core requirement\u2014\
+    deterministic synthetic trace generation with a seed and output path\u2014is not\
+    \ met."
+  sig: b7cd44806680d5c7c0bb5af864ab508f1189b2d497e276f9cfdc306eea8eda4f
+T015e:
+  c: false
+  h: e037004bd855e12d49b6a6a906db8fae30b565a89dd3e09e38545e52d77786f7
+  r: "The required file `code/data/instrument_interface.py` is missing, so the `capture_transient_data()`\
+    \ API cannot be verified to exist or to raise `NotImplementedError` as specified.\
+    \ The task\u2019s core deliverable is absent."
+  sig: 5a42e9bc235f493a4cfe3ac07ac138dc514c1710281fcf16c98e799d58176aa8
+T016:
+  c: false
+  h: 6a6f17309c8c570f7ad39dc668ad36e0caccbec9aeba2e3f6f5c79170d97f7f0
+  r: "The repository contains `code/analysis/calibration.py`, which applies calibration\
+    \ factors, but it writes its log to `data/processed/calibration_log.json` and\
+    \ saves calibrated traces as a CSV. The required output file `data/processed/calibration_record.json`\
+    \ is missing, and the script never creates it. The task\u2019s specification is\
+    \ therefore not satisfied."
+  sig: c0cbea2425be289042b6845f8a43d1896da055a081be455c547272e52fc76b92
 T017a:
   c: false
-  h: afda064db6b6b1adce746c654cd6d070576e3b1da1e9f7394a303b47ffb4b61b
-  r: "The repository contains `code/analysis/validation.py`, but the shown portion\
-    \ stops mid\u2011function and does not demonstrate temperature/humidity checks\
-    \ or writing to `data/processed/validation_flags.json`. Moreover, the required\
-    \ output file `data/processed/validation_flags.json` is absent, and the provided\
-    \ `solvents.yaml` lacks a `version_hash`, causing the code to raise a `ConfigurationError`\
-    \ instead of completing validation. The task\u2019s core outputs are therefore\
-    \ missing."
+  h: c8e3558bfcbcbd66c9f1f0cecb5f8bb686f6eb6433c05a765420f809d30907cc
+  r: "Checked `code/analysis/validation.py` (exists) and the required data files.\
+    \ The script does not compute the overall percentage of compliant runs nor enforce\
+    \ the 98\u202F% compliance threshold, and the required input `data/processed/environment_logs.json`\
+    \ (and consequently the output `validation_flags.json`) are missing. Both the\
+    \ missing input file and the absent compliance\u2011percentage logic must be added\
+    \ to satisfy T017a."
+  sig: 110ae9c2997f3c0a1ae448a833577da2c3d0e425127ecebf57aaf41ef6cc605a
 T017b:
   c: false
-  h: 0dbdbac32fef626eb39ae92ed98b8ce15afaef13387681d4c129eb4fc20b1b4a
-  r: "The repository contains a partially shown `code/analysis/validation.py`, but\
-    \ it does not implement the compliance\u2011percentage calculation nor write `data/processed/compliance_report.json`.\
-    \ Moreover, the required input files `data/processed/environment_logs.json` and\
-    \ `data/processed/validation_flags.json` are absent, so the script cannot run\
-    \ the intended analysis. The task\u2019s core output is missing."
+  h: 9579edca0a61ddf6a6ff4428621371314299c046d1a02d175c2a4610aeee4f29
+  r: "The repository contains the implementation `code/analysis/compliance.py`, but\
+    \ the required output artifact `data/processed/compliance_report.json` is missing,\
+    \ and there is no evidence that the script was run or that \u226595\u202F% of\
+    \ runs met all tolerances. The task is not fulfilled until the compliance report\
+    \ file is generated (with a compliance percentage \u22650.95) and the file is\
+    \ present in the expected location."
+  sig: dd05e5838f1fda23eabe4a5f8c4d2d70cd03cdfae99d4312b8c618d2c24f36fb
 T021:
   c: false
   h: c4e526b805d68afd4f2f59fa47a20e04401abec8e34e76d4c83ddf05f96d549f

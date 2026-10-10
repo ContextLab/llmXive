@@ -53,21 +53,49 @@ T014:
     \ environment log file \u2013 is absent."
   task: 2d4babb1ac58adf084c7dec182f32eed814366c6a1b0c399183867ba416ad700
 T015b:
+  reason: "The provided `code/data/ingest.py` aborts when `USE_REAL_DATA=True` and\
+    \ the file is missing, but it does **not** read the data path from a `config.py`\
+    \ setting (it uses an environment variable) and it only handles CSV files, not\
+    \ JSON as required. These deviations mean the task\u2019s specification is not\
+    \ fully satisfied."
   task: 3171bff85080c5e78b6c6609b56f29088e43a299301468b9302f13f3e2c80c8f
 T015c:
+  reason: "The `generate_synthetic.py` script exists but it neither accepts a seed\
+    \ argument nor has been shown to actually produce the required `data/raw/synthetic_traces.csv`\
+    \ file (the file is missing). Consequently the task\u2019s core requirement\u2014\
+    deterministic synthetic trace generation with a seed and output path\u2014is not\
+    \ met."
   task: 72d023aecee9cecc7d8b96558cf49897bf26680d90194a840db9b0991b9d326a
 T015e:
+  reason: "The required file `code/data/instrument_interface.py` is missing, so the\
+    \ `capture_transient_data()` API cannot be verified to exist or to raise `NotImplementedError`\
+    \ as specified. The task\u2019s core deliverable is absent."
   task: 763ccce668c32d9577678a14036639826724053490078d3e0e4f94397868f604
 T015f:
   reason: 'declared artifact(s) missing/empty/invalid: code/data/capture.py, data/raw/kinetic_traces/'
   task: fd16ca8be86eb017958ae076f91173b750559559f90fe9617759b8ad3315d60b
 T016:
+  reason: "The repository contains `code/analysis/calibration.py`, which applies calibration\
+    \ factors, but it writes its log to `data/processed/calibration_log.json` and\
+    \ saves calibrated traces as a CSV. The required output file `data/processed/calibration_record.json`\
+    \ is missing, and the script never creates it. The task\u2019s specification is\
+    \ therefore not satisfied."
   task: 471878a001d92bd5bf0c045cb27a8e2d106387a13a4ded53f8dcc1f235e5209f
 T017a:
+  reason: "Checked `code/analysis/validation.py` (exists) and the required data files.\
+    \ The script does not compute the overall percentage of compliant runs nor enforce\
+    \ the 98\u202F% compliance threshold, and the required input `data/processed/environment_logs.json`\
+    \ (and consequently the output `validation_flags.json`) are missing. Both the\
+    \ missing input file and the absent compliance\u2011percentage logic must be added\
+    \ to satisfy T017a."
   task: 8bed81b1ae0249b9c478612c3321914b8fb50f7cfc51dc407527ace67f0273f0
 T017b:
-  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/compliance.py,
-    data/processed/compliance_report.json'
+  reason: "The repository contains the implementation `code/analysis/compliance.py`,\
+    \ but the required output artifact `data/processed/compliance_report.json` is\
+    \ missing, and there is no evidence that the script was run or that \u226595\u202F\
+    % of runs met all tolerances. The task is not fulfilled until the compliance report\
+    \ file is generated (with a compliance percentage \u22650.95) and the file is\
+    \ present in the expected location."
   task: d092bce1f4713b6f0a98e84207cfaa07d3f6bfc428e98063f18abf77fee125ee
 T017c:
   reason: 'Requested task execution failed; rerun successfully: state/artifact_hashes.yaml
