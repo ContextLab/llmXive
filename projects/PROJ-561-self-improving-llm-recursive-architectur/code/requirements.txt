@@ -1,11 +1,13 @@
 torch>=2.0.0
-datasets>=2.14.0
+transformers>=4.35.0
+datasets>=2.16.0
 numpy>=1.24.0
-scipy>=1.11.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
 psutil>=5.9.0
-pydantic>=2.0.0
-jinja2>=3.1.0
-pytest  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-transformers  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+pyyaml>=6.0
+tqdm>=4.65.0
+requests>=2.31.0
+responses>=0.24.1
+# Additional utilities used across the project
+# (e.g., for logging, profiling, etc.) are covered by the above packages.

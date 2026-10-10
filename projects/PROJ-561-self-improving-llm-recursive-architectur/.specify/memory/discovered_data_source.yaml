@@ -1,14 +1,12 @@
 status: none
-intent: HuggingFace datasets library OpenWebText GSM8K ARC-Challenge BoolQ python
-  package dataset
+intent: OpenWebText GSM8K ARC-Challenge BoolQ FR-021 validation python package dataset
 required_fields:
 - text
 - question
 - answer
-- solution
-- options
+- choices
 - passage
 - label
-cache_key: e8496061e890f507442b95de938aa6720f3f79c325ed8ea1301c4da758ff1e47
-searched_at: '2026-10-10T20:24:43.194121+00:00'
+cache_key: f1494f0a1cbf506a8faaec3e1bf3b323810d3fa8d3e903682cd743761a59c5b3
+searched_at: '2026-10-10T20:27:23.256794+00:00'
 retry_count: 1

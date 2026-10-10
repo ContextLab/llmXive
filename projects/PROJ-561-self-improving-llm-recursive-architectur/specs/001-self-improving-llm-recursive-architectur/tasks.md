@@ -11,13 +11,13 @@
   3. `## Philosophical & Operational Definitions` (covering Source of Authority, Fixed‑Point, Scaling Laws, Computational Irreducibility, Recursive Adaptation, Overfitting, Minimality Search, Thermodynamic Bounds, Bird vs. Frog).  
   **Verification**: `grep -q "## Methodology for Parameter Limit" research.md` **AND** `grep -q "## External Oracle Protocol" research.md` **AND** `grep -q "## Philosophical & Operational Definitions" research.md`.
 
-- [ ] T005b [S] Implement exponential‑backoff wrapper `exponential_backoff` (initial_delay = 30 s, max_retries = 5). **Verification**: unit test added in `tests/unit/test_backoff.py`.
+- [X] T005b [S] Implement exponential‑backoff wrapper `exponential_backoff` (initial_delay = 30 s, max_retries = 5). **Verification**: unit test added in `tests/unit/test_backoff.py`.
 
 - [ ] T001c [S] Implement **Pre‑flight URL Verification** in `utils/data_loader.py` (`verify_urls(urls: List[str])`). Raises an error on unreachable URLs and implements FR‑011 exponential back‑off using the wrapper from T005b. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
 
 - [ ] T001d [S] Implement **Data Download & Checksumming** (`download_and_checksum(dataset_name, dest_path)`). Writes a SHA‑256 hash file alongside the downloaded data. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
 
-- [ ] T001e [S] Implement **Random Seed Pinning** in `code/utils/random.py` to ensure reproducibility (Constitution I). **Verification**: unit test asserts that `random.seed`, `np.random.seed`, and `torch.manual_seed` are called with the seed from `config.py`.
+- [X] T001e [S] Implement **Random Seed Pinning** in `code/utils/random.py` to ensure reproducibility (Constitution I). **Verification**: unit test asserts that `random.seed`, `np.random.seed`, and `torch.manual_seed` are called with the seed from `config.py`.
 
 ## Phase 1: Setup (Shared Infrastructure)
 

@@ -1,1 +1,3 @@
-# integration tests package
+"""
+Package for integration tests.
+"""

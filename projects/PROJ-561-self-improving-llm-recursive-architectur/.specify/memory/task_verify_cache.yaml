@@ -23,23 +23,42 @@ T001b:
     \ and its test are missing."
 T001c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'No `utils/data_loader.py` file containing a `verify_urls(urls: List[str])` implementation
-    is provided, nor is a unit test for this function shown. The required code and
-    its test are missing, so the task is not satisfied.'
+  h: eac48a1df593aabd4e3625aa0f9c85a929874f73d10c831a241329241a57d80e
+  r: "The repository contains `code/utils/data_loader.py` with a correct `verify_urls`\
+    \ implementation and the required unit\u2011test file, but the test imports `utils.data_loader`,\
+    \ while the only `utils` package present is under `code/`. As a result the test\
+    \ cannot import the function, so the verification step is broken. Move the module\
+    \ to a top\u2011level `utils/` package (or adjust the import in the test) so that\
+    \ `tests/unit/test_data_loader.py` can successfully import and run against the\
+    \ implementation."
+  sig: a1f4b45849d8c2b411eb8202fa5a16a03eec14ec8e78a0eb746ba678e801ffc2
 T001d:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code defining `download_and_checksum(dataset_name, dest_path)` or the accompanying\
-    \ unit test was provided; the required SHA\u2011256 file generation artifact is\
-    \ missing, so the task\u2019s deliverable cannot be confirmed."
+  h: f26b23e42cb6c6f0c7b31b2d13b9f3803f6f8251603dcb7aeab079add15d9158
+  r: "The repository includes a full `download_and_checksum` implementation in `code/pipeline/loader.py`,\
+    \ but the claimed verification unit test in `tests/unit/test_data_loader.py` only\
+    \ tests `verify_urls`; there is no test exercising `download_and_checksum` or\
+    \ checking that a SHA\u2011256 file is written. Adding a proper test for this\
+    \ function is required to meet the task\u2019s verification requirement."
+  sig: da63a51daf8d94b6d5c084023c90e509899365b51d149223f213c0b5d17da26f
+T001e:
+  c: true
+  h: c1b227c0f1e4659e60da5f2d2cfe30cf8e3d3bd81083dc5e075a23f4820a0e7e
+  r: "Checked `code/utils/random.py` (2143\u202Fbytes) \u2013 it imports `get_seed`\
+    \ from `config.py`, validates the seed is an integer, and calls `random.seed`,\
+    \ `np.random.seed`, `torch.manual_seed` (and `torch.cuda.manual_seed_all` when\
+    \ CUDA is available) with that seed, then pins the seeds on import. This fulfills\
+    \ the task\u2019s requirement that the three seeding functions be invoked with\
+    \ the seed from `config.py`."
+  sig: 1c71d19c0facca4b8207a63fc89248a8ef26c3040609292f86f304f6f747cfb0
 T005b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code defining an `exponential_backoff` function or a corresponding verification
-    test was provided; the claim lacks any tangible artifact to inspect. The required
-    wrapper and its test must be added to the repository for the task to be considered
-    complete.
+  c: true
+  h: d4cd2992587644386a85be54d90dbef2e8644a11ef8e7d6aa3c60691a0fb075b
+  r: "Checked `code/pipeline/loader.py` where `exponential_backoff` is defined with\
+    \ an initial 30\u202Fs delay and a maximum of 5 retries, and verified the accompanying\
+    \ unit tests in `tests/unit/test_backoff.py` that confirm the correct back\u2011\
+    off schedule and exhaustion behavior."
+  sig: 95062998ad2202f55b17507ff6e6912dc5e25270015c6e0deb87bbb7b138caf5
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
