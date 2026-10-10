@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project directory structure: `mkdir -p projects/PROJ-421-assessing-the-impact-of-data-resolution-/code projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/raw projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/derived projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests`
+- [ ] T001 Create project directory structure: `mkdir -p projects/PROJ-421-assessing-the-impact-of-data-resolution-/code projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/raw projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/derived projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests`
 - [X] T002 Create `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/requirements.txt` pinning `rasterio`, `geopandas`, `pysal`, `numpy`, `scipy`, `matplotlib`, `pandas`, `libpysal`.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/`.
-- [X] T039a [P] [US1-US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/main.py` as the CLI entry point. **Functionality**: Accept `--full-sweep` flag to orchestrate the entire pipeline (Ingestion -> Resampling -> Calibration -> Analysis -> Visualization). **Output**: Executable script with argument parsing and error handling. **Prerequisite**: T001, T002.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/`.
+- [ ] T039a [P] [US1-US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/main.py` as the CLI entry point. **Functionality**: Accept `--full-sweep` flag to orchestrate the entire pipeline (Ingestion -> Resampling -> Calibration -> Analysis -> Visualization). **Output**: Executable script with argument parsing and error handling. **Prerequisite**: T001, T002.
 
 ---
 
@@ -59,11 +59,11 @@
 - [X] T004 Create base data models: Implement classes `ResolutionRaster` (fields: resolution, path, values) and `BinaryIndicatorMap` (fields: class_id, binary_values) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/models.py`.
 - [X] T005 [P] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py` with memory-mapped I/O helpers and windowed raster readers.
 - [X] T006 [P] Setup logging infrastructure in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
-- [X] T007 [P] Setup `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/config.py` for resolutions (30, 60, 120, 240, 480), seeds (seed=42), and paths. **Note**: `SPATIAL_LAG_LAMBDA` will be populated dynamically from `state/calibration.yaml` after T010.
-- [X] T008 [P] Implement error handling and retry logic with exponential backoff in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
-- [X] T009 [P] [US1] Implement checksumming and metadata validation utilities in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py::checksum_file`.
-- [X] T009b [US1] Implement URL validation utility in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py::validate_url`. **Constraint**: This function must verify a URL is reachable with a bounded timeout and return True only if HTTP status code is in the 2xx range. **Prerequisite**: T005.
-- [X] T010 [P] [Phase-0] Implement Lambda Estimation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py`. **Method**: Use Maximum Likelihood Estimation (MLE) on a representative sample of the binary map to estimate the spatial lag parameter ($\lambda$). **Output**: Write estimated $\lambda$ to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/state/calibration.yaml`. **Constraint**: Do NOT hardcode $\lambda$ in `config.py`; read from state file. **Prerequisite**: T005, T020 (for binary map input). **Note**: This task is moved to Phase 1 to ensure $\lambda$ is available for all subsequent analysis tasks.
+- [~] T007 [P] Setup `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/config.py` for resolutions (30, 60, 120, 240, 480), seeds (seed=42), and paths. **Note**: `SPATIAL_LAG_LAMBDA` will be populated dynamically from `state/calibration.yaml` after T010.
+- [~] T008 [P] Implement error handling and retry logic with exponential backoff in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
+- [~] T009 [P] [US1] Implement checksumming and metadata validation utilities in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py::checksum_file`.
+- [~] T009b [US1] Implement URL validation utility in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py::validate_url`. **Constraint**: This function must verify a URL is reachable with a bounded timeout and return True only if HTTP status code is in the 2xx range. **Prerequisite**: T005.
+- [~] T010 [P] [Phase-0] Implement Lambda Estimation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py`. **Method**: Use Maximum Likelihood Estimation (MLE) on a representative sample of the binary map to estimate the spatial lag parameter ($\lambda$). **Output**: Write estimated $\lambda$ to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/state/calibration.yaml`. **Constraint**: Do NOT hardcode $\lambda$ in `config.py`; read from state file. **Prerequisite**: T005, T020 (for binary map input). **Note**: This task is moved to Phase 1 to ensure $\lambda$ is available for all subsequent analysis tasks.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,17 +79,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T011 [P] [US1] Unit test for nearest-neighbor resampling logic in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_resampling.py::test_nearest_neighbor_preserves_integers` (asserts that unique values in output == unique values in input).
-- [X] T012 [P] [US1] Integration test for download and aggregation pipeline in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_integration.py`.
+- [~] T011 [P] [US1] Unit test for nearest-neighbor resampling logic in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_resampling.py::test_nearest_neighbor_preserves_integers` (asserts that unique values in output == unique values in input).
+- [~] T012 [P] [US1] Integration test for download and aggregation pipeline in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_integration.py`.
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/data_ingestion.py` to download NLCD 30m subset for Colorado. **Primary Source**: USGS EarthExplorer API (FR-001). **Fallback**: If API fails or key is missing, fetch from verified HuggingFace mirror `https://huggingface.co/datasets/nlcd-30m/resolve/main/nlcd_2019_colorado_30m.tif`. **Validation**: MUST call `utils::validate_url` on the fallback URL before download. Validate checksum using `utils.py::checksum_file`. Implement retry logic using `utils.py` utilities. **Prerequisite**: T009b (URL Validation).
-- [X] T013b [US1] Verify HuggingFace fallback dataset integrity. **Action**: Before T013 uses the fallback, verify the dataset contains the correct bounding box metadata for Colorado and valid land cover classes. **Output**: Raise error if metadata mismatch. **Prerequisite**: T009b.
-- [X] T014a [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py::generate_resolution(input_path, factor)` function to generate a single coarser resolution raster using nearest-neighbor resampling. **Constraint**: MUST use chunked processing (windowed reads) with 2000x2000 pixel windows and **no overlap** between windows to stay within 7GB RAM. **Prerequisite**: T005, T013.
-- [X] T014b [US1] Implement CLI loop in `projects/PROJ-assessing-the-impact-of-data-resolution-/code/resampling.py` to call `generate_resolution` for a range of scaling factors. **CLI Interface**: `python -m code.resampling --input <path> --factors 2,4,8,16 --output <dir>`. **Output Naming**: Files MUST be named `nlcd_{state}_res_{factor}m.tif` (e.g., `nlcd_co_res_{resolution}m.tif`), where the resolution parameter denotes a representative spatial scale appropriate for the analysis. in the `data/derived/` directory. **Prerequisite**: T014a.
-- [X] T015 [US1] Implement bounds checking to skip invalid resolutions that exceed dataset bounds in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py`.
-- [X] T016 [US1] Apply checksumming and metadata validation for all generated rasters using `code/utils.py::checksum_file`.
+- [~] T013 [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/data_ingestion.py` to download NLCD 30m subset for Colorado. **Primary Source**: USGS EarthExplorer API (FR-001). **Fallback**: If API fails or key is missing, fetch from verified HuggingFace mirror `https://huggingface.co/datasets/nlcd-30m/resolve/main/nlcd_2019_colorado_30m.tif`. **Validation**: MUST call `utils::validate_url` on the fallback URL before download. Validate checksum using `utils.py::checksum_file`. Implement retry logic using `utils.py` utilities. **Prerequisite**: T009b (URL Validation).
+- [~] T013b [US1] Verify HuggingFace fallback dataset integrity. **Action**: Before T013 uses the fallback, verify the dataset contains the correct bounding box metadata for Colorado and valid land cover classes. **Output**: Raise error if metadata mismatch. **Prerequisite**: T009b.
+- [~] T014a [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py::generate_resolution(input_path, factor)` function to generate a single coarser resolution raster using nearest-neighbor resampling. **Constraint**: MUST use chunked processing (windowed reads) with 2000x2000 pixel windows and **no overlap** between windows to stay within 7GB RAM. **Prerequisite**: T005, T013.
+- [ ] T014b [US1] Implement CLI loop in `projects/PROJ-assessing-the-impact-of-data-resolution-/code/resampling.py` to call `generate_resolution` for a range of scaling factors. **CLI Interface**: `python -m code.resampling --input <path> --factors 2,4,8,16 --output <dir>`. **Output Naming**: Files MUST be named `nlcd_{state}_res_{factor}m.tif` (e.g., `nlcd_co_res_{resolution}m.tif`), where the resolution parameter denotes a representative spatial scale appropriate for the analysis. in the `data/derived/` directory. **Prerequisite**: T014a.
+- [~] T015 [US1] Implement bounds checking to skip invalid resolutions that exceed dataset bounds in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py`.
+- [~] T016 [US1] Apply checksumming and metadata validation for all generated rasters using `code/utils.py::checksum_file`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,8 +99,8 @@
 
 **Purpose**: Prepare data for statistical analysis by transforming to binary and defining the pre-defined spatial lag parameter ($\lambda$) for the Alternative Hypothesis.
 
-- [X] T020 [P] [US2] Implement binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` (e.g., Forest=1, Others=0). **Input**: 30m raster from T013. **Output**: `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/derived/nlcd_30m_binary.tif`. **Constraint**: Must specify exact class ID (e.g., Forest=Class [ID]). **Prerequisite**: T013.
-- [X] T010 [US2] [Phase-0] Define the pre-defined spatial lag parameter ($\lambda$) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py`. **Method**: Estimate $\lambda$ from the 30m binary map (T020) using MLE. **Output**: Store estimated $\lambda$ in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/state/calibration.yaml`. **Prerequisite**: T020. **Constraint**: Do NOT hardcode in `config.py`; read dynamically.
+- [~] T020 [P] [US2] Implement binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` (e.g., Forest=1, Others=0). **Input**: 30m raster from T013. **Output**: `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/derived/nlcd_30m_binary.tif`. **Constraint**: Must specify exact class ID (e.g., Forest=Class [ID]). **Prerequisite**: T013.
+- [~] T010 [US2] [Phase-0] Define the pre-defined spatial lag parameter ($\lambda$) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py`. **Method**: Estimate $\lambda$ from the 30m binary map (T020) using MLE. **Output**: Store estimated $\lambda$ in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/state/calibration.yaml`. **Prerequisite**: T020. **Constraint**: Do NOT hardcode in `config.py`; read dynamically.
 
 **Checkpoint**: Calibration complete - US2 can begin
 
@@ -114,17 +114,17 @@
 
 ### Tests for User Story 2
 
-- [X] T018 [P] [US2] Unit test for binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
-- [X] T019 [P] [US2] Unit test for Moran's I calculation and p-value generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T018 [P] [US2] Unit test for binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T019 [P] [US2] Unit test for Moran's I calculation and p-value generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement H0 null distribution generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` using `pysal.esda.moran` with **exactly 1,000 random permutations** (FR-004). **Constraint**: No runtime-based reduction in permutation count is permitted; optimization must be achieved via code efficiency. **Prerequisite**: T020, T014.
-- [X] T022a [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py::generate_h1_data(binary_map, lambda_val)` using a **Gibbs Sampler (binary spatial autoregressive process)**. **Parameters**: Use $\lambda$ from `state/calibration.yaml`. **Input**: Binary map and fixed lambda. **Output**: Synthetic binary rasters. **Prerequisite**: T010, T020. **Note**: Use Gibbs Sampler to ensure construct validity for binary data, not simple linear injection.
-- [X] T022 [US2] Implement statistical power calculation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py`: compute the rejection rate of the H1 simulations (proportion where p < 0.05) by comparing against the critical value derived from the H0 distribution. This metric represents the statistical power (FR-005). **Input**: H1 data from T022a. **Prerequisite**: T021, T022a.
-- [X] T025 [US2] Save results (Moran's I, p-values, power estimates) to CSV in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/`. **Schema**: `results.csv` with columns `resolution, moran_i, p_value, power, seed, class_id`. **Prerequisite**: T022.
-- [X] T025a [P] [US2] Validate existence and schema of `results.csv` before downstream tasks. **Output**: Log "Schema Validated" or raise error. **Prerequisite**: T025.
-- [X] T035 [US2] [Mandatory] Implement Multi-Class Sensitivity: Repeat the analysis for a second land cover class (Urban=1, Others=0, using NLCD class 12) using the same pipeline. **Output**: Append results to `results.csv` with a `class_id` column. **Constraint**: This is a core verification step for SC-004. **Prerequisite**: T025a.
+- [~] T021 [US2] Implement H0 null distribution generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` using `pysal.esda.moran` with **exactly 1,000 random permutations** (FR-004). **Constraint**: No runtime-based reduction in permutation count is permitted; optimization must be achieved via code efficiency. **Prerequisite**: T020, T014.
+- [~] T022a [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py::generate_h1_data(binary_map, lambda_val)` using a **Gibbs Sampler (binary spatial autoregressive process)**. **Parameters**: Use $\lambda$ from `state/calibration.yaml`. **Input**: Binary map and fixed lambda. **Output**: Synthetic binary rasters. **Prerequisite**: T010, T020. **Note**: Use Gibbs Sampler to ensure construct validity for binary data, not simple linear injection.
+- [~] T022 [US2] Implement statistical power calculation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py`: compute the rejection rate of the H1 simulations (proportion where p < 0.05) by comparing against the critical value derived from the H0 distribution. This metric represents the statistical power (FR-005). **Input**: H1 data from T022a. **Prerequisite**: T021, T022a.
+- [~] T025 [US2] Save results (Moran's I, p-values, power estimates) to CSV in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/`. **Schema**: `results.csv` with columns `resolution, moran_i, p_value, power, seed, class_id`. **Prerequisite**: T022.
+- [~] T025a [P] [US2] Validate existence and schema of `results.csv` before downstream tasks. **Output**: Log "Schema Validated" or raise error. **Prerequisite**: T025.
+- [~] T035 [US2] [Mandatory] Implement Multi-Class Sensitivity: Repeat the analysis for a second land cover class (Urban=1, Others=0, using NLCD class 12) using the same pipeline. **Output**: Append results to `results.csv` with a `class_id` column. **Constraint**: This is a core verification step for SC-004. **Prerequisite**: T025a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -138,19 +138,19 @@
 
 ### Tests for User Story 3
 
-- [X] T026 [P] [US3] Unit test for threshold identification logic in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
-- [X] T027 [P] [US3] Unit test for sensitivity analysis (±10% sweep) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T026 [P] [US3] Unit test for threshold identification logic in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T027 [P] [US3] Unit test for sensitivity analysis (±10% sweep) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
 
 ### Implementation for User Story 3
 
-- [X] T028 [P] [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py` to generate Power-vs-Resolution curve.
-- [X] T029 [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py::find_threshold(power_csv_path)` which returns the resolution string (e.g., '240m') where power < 0.80, and writes this to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/threshold_report.txt`. **Prerequisite**: T025a.
-- [X] T030 [US3] Calculate Type II error delta (1 - power) relative to 30m baseline. **Action**: Implement `calculate_type_ii_delta` function in `code/analysis.py`. **Logic**: If 30m baseline power is missing or 1.0, delta is 0.0. Otherwise, calculate percentage point increase relative to 30m. **Output**: Append rows to `results.csv` with columns `resolution, type_ii_error_delta`. **Prerequisite**: T025a.
-- [X] T032a [US3] Perform Resampling Sweep for Sensitivity Analysis. **Action**: Generate new rasters at perturbed factors (e.g., 1.1x and 0.9x of original factors) using `resampling.py`. **Output**: New raster files in `data/derived/sensitivity/`. **Prerequisite**: T014a.
-- [X] T032b [US3] Re-run Analysis for Sensitivity Sweep. **Action**: Run `analysis.py` on the perturbed rasters from T032a to generate new power estimates. **Output**: Append sensitivity results to `results.csv`. **Prerequisite**: T032a.
-- [X] T032 [US3] Generate sensitivity analysis report confirming threshold stability. **Filename**: `sensitivity_report.md`. **Content**: Verify that the identified threshold falls within one discrete resolution step of the inflection point when the aggregation factor is varied. **Prerequisite**: T032b.
-- [X] T033 [US3] Generate `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md` containing the specific resolution threshold, Type II error delta, and sensitivity analysis results. **Constraint**: Do NOT include MAUP narrative (removed as scope creep). **Prerequisite**: T030, T032.
-- [X] T034 [US3] Ensure p-value = 0.05 is treated as significant but flagged. **Mechanism**: Add column `is_boundary` to `results.csv` and log warning.
+- [~] T028 [P] [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py` to generate Power-vs-Resolution curve.
+- [~] T029 [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py::find_threshold(power_csv_path)` which returns the resolution string (e.g., '240m') where power < 0.80, and writes this to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/threshold_report.txt`. **Prerequisite**: T025a.
+- [~] T030 [US3] Calculate Type II error delta (1 - power) relative to 30m baseline. **Action**: Implement `calculate_type_ii_delta` function in `code/analysis.py`. **Logic**: If 30m baseline power is missing or 1.0, delta is 0.0. Otherwise, calculate percentage point increase relative to 30m. **Output**: Append rows to `results.csv` with columns `resolution, type_ii_error_delta`. **Prerequisite**: T025a.
+- [ ] T032a [US3] Perform Resampling Sweep for Sensitivity Analysis. **Action**: Generate new rasters at perturbed factors (e.g., 1.1x and 0.9x of original factors) using `resampling.py`. **Output**: New raster files in `data/derived/sensitivity/`. **Prerequisite**: T014a.
+- [~] T032b [US3] Re-run Analysis for Sensitivity Sweep. **Action**: Run `analysis.py` on the perturbed rasters from T032a to generate new power estimates. **Output**: Append sensitivity results to `results.csv`. **Prerequisite**: T032a.
+- [~] T032 [US3] Generate sensitivity analysis report confirming threshold stability. **Filename**: `sensitivity_report.md`. **Content**: Verify that the identified threshold falls within one discrete resolution step of the inflection point when the aggregation factor is varied. **Prerequisite**: T032b.
+- [~] T033 [US3] Generate `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md` containing the specific resolution threshold, Type II error delta, and sensitivity analysis results. **Constraint**: Do NOT include MAUP narrative (removed as scope creep). **Prerequisite**: T030, T032.
+- [~] T034 [US3] Ensure p-value = 0.05 is treated as significant but flagged. **Mechanism**: Add column `is_boundary` to `results.csv` and log warning.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -160,13 +160,13 @@
 
 **Purpose**: Improvements that affect multiple user stories and final verification
 
-- [X] T035a [P] [Doc] [US1-US3] Update `README.md` with CLI usage examples covering the full pipeline from ingestion to final report.
-- [X] T035b [P] Update `docs/api.md` with function signatures.
-- [X] T036 Code cleanup and refactoring. **Criteria**: Enforce line length < 88 (black) and remove unused imports (ruff).
-- [X] T037 Performance optimization (verify < 6h runtime on CPU-only runner). **Target**: Reduce peak memory usage to < 6GB and runtime < 5.5h.
-- [X] T039b [P] [Polish] Runtime Profiling: Implement a runtime monitor in `code/main.py` to log execution time per phase. **Goal**: Ensure 1,000 permutations (T021) can complete within 6h total runtime without reducing sample size. **Prerequisite**: T039a.
-- [X] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM. **Command**: `python -m code.main --full-sweep`. **Verification**: Check `data/results/threshold_report.txt` exists.
-- [X] T041 Run `quickstart.md` validation. **Procedure**: Execute all commands in `quickstart.md` and verify success exit codes.
+- [~] T035a [P] [Doc] [US1-US3] Update `README.md` with CLI usage examples covering the full pipeline from ingestion to final report.
+- [~] T035b [P] Update `docs/api.md` with function signatures.
+- [~] T036 Code cleanup and refactoring. **Criteria**: Enforce line length < 88 (black) and remove unused imports (ruff).
+- [~] T037 Performance optimization (verify < 6h runtime on CPU-only runner). **Target**: Reduce peak memory usage to < 6GB and runtime < 5.5h.
+- [ ] T039b [P] [Polish] Runtime Profiling: Implement a runtime monitor in `code/main.py` to log execution time per phase. **Goal**: Ensure 1,000 permutations (T021) can complete within 6h total runtime without reducing sample size. **Prerequisite**: T039a.
+- [~] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM. **Command**: `python -m code.main --full-sweep`. **Verification**: Check `data/results/threshold_report.txt` exists.
+- [~] T041 Run `quickstart.md` validation. **Procedure**: Execute all commands in `quickstart.md` and verify success exit codes.
 
 ---
 

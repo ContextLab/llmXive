@@ -1,3 +1,61 @@
+T001:
+  c: false
+  h: 756b31e13c2e68586de2cf2f99f01dba34c198c95146f3212a19d8a141dfc603
+  r: "The task requires creating the project directory structure (code, data/raw,\
+    \ data/derived, data/results, tests), but the evidence collector found no artifacts\
+    \ on disk \u2014 no directories or files were confirmed to exist at the project\
+    \ root. There is no evidence that `mkdir -p` was executed or that any of the five\
+    \ required directories exist; the implementer must actually create `projects/PROJ-421-assessing-the-impact-of-data-resolution-/`\
+    \ with its `code`, `data/raw`, `data/derived`, `data/results`, and `tests` subdirectories."
+  sig: dfe65e5a4c77f052ccd2b7d9284366572253b03b985a857f88306f613a8461c7
+T002:
+  c: true
+  h: 4c9945df2e017fbb5a382ebdcfc9bb559df933871e302a55c6c586d2489947a9
+  r: The file `code/requirements.txt` exists (383 bytes) and pins all eight required
+    packages (rasterio, geopandas, pysal, numpy, scipy, matplotlib, pandas, libpysal)
+    with version constraints; the extra entries (pytest, requests, tqdm, urllib3)
+    are additive and don't conflict with the requirement.
+  sig: 581adf7fcb2897fa8a25ae12dd3a7da9c200ed0d72e2af204b8509740654207f
+T003:
+  c: false
+  h: 88fe4778e9d4893061b24f4e4051fb3dfb447e71ab72da1a9500ff0fe893fbb7
+  r: The directory listing confirms `.ruff.toml`, `.black.toml`, `setup_linting.sh`,
+    and `pyproject.toml` exist in `projects/PROJ-421-.../code/`, but no file contents
+    were provided, so there is no evidence the ruff/black configurations are actually
+    valid or non-stub. Critically, `.black.toml` is not a configuration file Black
+    recognizes (Black only reads `pyproject.toml`, or CLI flags), so the formatting
+    tool is effectively unconfigured; the implementer should place Black settings
+    under `[tool.black]` in `pyproject.toml` (or document CLI usage) and show the
+    actual ruff config contents.
+  sig: c89fd019c42bd11ba9db8c58ce668b6589f63e0a5b5ac188d040ef7ea3d0b95b
+T004:
+  c: true
+  h: f60e3fcd400497d7e5a20c424d4e82f2325f69a2e51326ac76e8481521542f4d
+  r: "The file `code/models.py` exists (2982 bytes) and defines both required dataclasses\
+    \ \u2014 `ResolutionRaster` with fields resolution, path, values, and `BinaryIndicatorMap`\
+    \ with class_id, binary_values \u2014 including validation, type hints, and helpful\
+    \ properties, with no stubs or placeholders."
+  sig: f054d41adb70a3ca81e550d97eaca01d6d2c976cf14d38aec40cde0e463956e9
+T005:
+  c: true
+  h: c7367c00ae0457a67584c94d4b47d6ad2b9e0b5caa9e60d252cd9d1c7dd86ea6
+  r: The file `code/utils.py` (7,299 bytes) exists and contains working memory-mapped
+    I/O helpers (`create_memory_mapped_array`, `reshape_memory_map` using `np.memmap`)
+    and functional windowed raster readers (`iter_windows`, `read_raster_windowed`,
+    `read_raster_windowed_with_retry`) that correctly stitch windowed reads into a
+    pre-allocated array via rasterio `Window` objects. Minor quality issues exist
+    (hardcoded `/tmp` memmap path, `validate_raster_bounds` returning a constant True),
+    but these are auxiliary helpers, not the required memory-mapped I/O or windowed
+    reading functionality the task spec
+  sig: 1297cf1aaded72e07b86a46e37021fc429f048f66534a7965389249641c55f79
+T006:
+  c: true
+  h: ab19c3b71a328a07d3eb93dcbd6d1243cbf2404015dbca8c96571356ea3c6eff
+  r: 'The file `code/utils.py` exists (7,299 bytes) and contains genuine logging infrastructure:
+    `setup_logging()` configuring `logging.basicConfig` with INFO level and timestamped
+    formatting, plus a `get_logger(name)` accessor, with a module-level `logger` actually
+    used throughout the other utilities. No stubs or placeholders in the logging functionality.'
+  sig: 95ed4652d2e1bfa7d0191565906c765838383c0e08892853dc1c52043b4fac90
 T020:
   c: false
   h: 344291aa5ded1305316fac2273d298cb96ec7334fe4d320dbe0991acd75250a2
