@@ -1,6 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T001c** — The repository contains `code/utils/data_loader.py` with a correct `verify_urls` implementation and the required unit‑test file, but the test imports `utils.data_loader`, while the only `utils` package present is under `code/`. As a result the test cannot import the function, so the verification step is broken. Move the module to a top‑level `utils/` package (or adjust the import in the test) so that `tests/unit/test_data_loader.py` can successfully import and run against the implementation.
-- **T001d** — The repository includes a full `download_and_checksum` implementation in `code/pipeline/loader.py`, but the claimed verification unit test in `tests/unit/test_data_loader.py` only tests `verify_urls`; there is no test exercising `download_and_checksum` or checking that a SHA‑256 file is written. Adding a proper test for this function is required to meet the task’s verification requirement.

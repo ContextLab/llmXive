@@ -13,20 +13,20 @@
 
 - [X] T005b [S] Implement exponential‑backoff wrapper `exponential_backoff` (initial_delay = 30 s, max_retries = 5). **Verification**: unit test added in `tests/unit/test_backoff.py`.
 
-- [ ] T001c [S] Implement **Pre‑flight URL Verification** in `utils/data_loader.py` (`verify_urls(urls: List[str])`). Raises an error on unreachable URLs and implements FR‑011 exponential back‑off using the wrapper from T005b. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
+- [X] T001c [S] Implement **Pre‑flight URL Verification** in `utils/data_loader.py` (`verify_urls(urls: List[str])`). Raises an error on unreachable URLs and implements FR‑011 exponential back‑off using the wrapper from T005b. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
 
-- [ ] T001d [S] Implement **Data Download & Checksumming** (`download_and_checksum(dataset_name, dest_path)`). Writes a SHA‑256 hash file alongside the downloaded data. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
+- [X] T001d [S] Implement **Data Download & Checksumming** (`download_and_checksum(dataset_name, dest_path)`). Writes a SHA‑256 hash file alongside the downloaded data. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
 
 - [X] T001e [S] Implement **Random Seed Pinning** in `code/utils/random.py` to ensure reproducibility (Constitution I). **Verification**: unit test asserts that `random.seed`, `np.random.seed`, and `torch.manual_seed` are called with the seed from `config.py`.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 [S] Create project directory layout (`code/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`, `results/`, `state/`) and add `__init__.py` files.  
+- [X] T001 [S] Create project directory layout (`code/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`, `results/`, `state/`) and add `__init__.py` files.  
   **Verification**: `python -c "import os; assert os.path.exists('code/tests/unit/__init__.py') and os.path.isdir('data/raw') and os.path.isdir('results') and os.path.isdir('state')"`.
 
-- [ ] T001f [S] Author `data-model.md` documenting the entities and data flow defined in the project plan. **Verification**: `test -f data-model.md`.
+- [X] T001f [S] Author `data-model.md` documenting the entities and data flow defined in the project plan. **Verification**: `test -f data-model.md`.
 
-- [ ] T001g [S] Author `quickstart.md` providing instructions for running the pipeline. **Verification**: `test -f quickstart.md`.
+- [X] T001g [S] Author `quickstart.md` providing instructions for running the pipeline. **Verification**: `test -f quickstart.md`.
 
 - [ ] T008 [S] Create `config.py` with hyper‑parameters (lr = 5e‑5, bs = 4, seed). `MAX_PARAM_INCREASE_RATIO` MUST be capped at 0.30 as per FR-003; any value read from `research.md` exceeding 0.30 MUST be clamped to 0.30. **Verification**: import `config` and assert `MAX_PARAM_INCREASE_RATIO <= 0.30`.
 

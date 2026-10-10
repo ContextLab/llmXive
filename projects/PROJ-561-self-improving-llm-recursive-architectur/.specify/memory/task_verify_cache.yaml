@@ -7,6 +7,17 @@ T000:
     \ each with the mandated statements about the 30\u202F% parameter limit and the\
     \ \u201CReject if new_params significantly exceed baseline.\u201D requirement."
   sig: 3a9991c31a7e991ef6e1f7b6608aa7fa46a3193d2bbbc508247b80e8dd3bed0b
+T001:
+  c: true
+  h: 28e59aad9a733ee61358763c8e22c0ce3520a32690af22abdca8e94784878f37
+  r: All required directories (`code/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`,
+    `data/raw/`, `data/processed/`, `results/`, `state/`) exist with the expected
+    contents, and `__init__.py` files are present in `code/tests/unit/` (26 bytes,
+    non-empty docstring), `code/tests/integration/`, and `code/tests/` per the directory
+    listings. The verification command's checks (existence of `code/tests/unit/__init__.py`
+    and the `data/raw`, `results`, `state` directories) are all satisfied by the observed
+    artifacts.
+  sig: a0cbdedaf27d1edda3223ca2e57d4fc4378ffafe70b4d7654d85ad2c04dfde28
 T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -22,25 +33,27 @@ T001b:
     \ is written or that a verification test was added. The required implementation\
     \ and its test are missing."
 T001c:
-  c: false
-  h: eac48a1df593aabd4e3625aa0f9c85a929874f73d10c831a241329241a57d80e
-  r: "The repository contains `code/utils/data_loader.py` with a correct `verify_urls`\
-    \ implementation and the required unit\u2011test file, but the test imports `utils.data_loader`,\
-    \ while the only `utils` package present is under `code/`. As a result the test\
-    \ cannot import the function, so the verification step is broken. Move the module\
-    \ to a top\u2011level `utils/` package (or adjust the import in the test) so that\
-    \ `tests/unit/test_data_loader.py` can successfully import and run against the\
-    \ implementation."
-  sig: a1f4b45849d8c2b411eb8202fa5a16a03eec14ec8e78a0eb746ba678e801ffc2
+  c: true
+  h: e1e87909139dc17215b4a820ea42611ff9bc4e29e11d077d5c2e6e4681d140f6
+  r: 'The implementation exists in `code/utils/data_loader.py` (re-exported via top-level
+    `utils/data_loader.py`): `verify_urls` performs HEAD requests wrapped by the `exponential_backoff`
+    decorator from `pipeline/loader` (30s initial delay, 5 retries, per FR-011) and
+    raises `ValueError` naming the unreachable URL. The required unit tests in `tests/unit/test_data_loader.py`
+    mock HTTP with `responses`, cover both the success and failure/retry paths (asserting
+    6 calls = 1 + 5 retries), and match the task''s verification requirement; no execution
+    logs were supplied, but the artifacts'' content genuinely '
+  sig: f8b969f12cabc5b9ce9db52fda3d1b66ab46d76569932075f2c5c8c863df30c2
 T001d:
-  c: false
-  h: f26b23e42cb6c6f0c7b31b2d13b9f3803f6f8251603dcb7aeab079add15d9158
-  r: "The repository includes a full `download_and_checksum` implementation in `code/pipeline/loader.py`,\
-    \ but the claimed verification unit test in `tests/unit/test_data_loader.py` only\
-    \ tests `verify_urls`; there is no test exercising `download_and_checksum` or\
-    \ checking that a SHA\u2011256 file is written. Adding a proper test for this\
-    \ function is required to meet the task\u2019s verification requirement."
-  sig: da63a51daf8d94b6d5c084023c90e509899365b51d149223f213c0b5d17da26f
+  c: true
+  h: 19fbb0c4eef148be7a200f59850458dd7dee06e1d30a8e085d48e5193f0b48cd
+  r: '`code/pipeline/loader.py` contains a real, non-stub `download_and_checksum(dataset_name,
+    dest_path)` that downloads via HuggingFace `datasets`, computes a SHA-256 directory
+    checksum, and writes a `SHA256SUM` file alongside the data (with idempotent caching),
+    and `tests/unit/test_data_loader.py` adds substantive unit tests verifying the
+    returned 64-char digest, the SHA256SUM file''s existence/content, and consistency
+    with `calculate_directory_checksum`. The stubs present in the file are for other,
+    later tasks (load_openwebtext etc.), not this deliverable.'
+  sig: 34ff751262f5a46eff4464f9f8bacea9879e0b33e020084fdd99097d0614fa04
 T001e:
   c: true
   h: c1b227c0f1e4659e60da5f2d2cfe30cf8e3d3bd81083dc5e075a23f4820a0e7e
@@ -51,6 +64,24 @@ T001e:
     \ the task\u2019s requirement that the three seeding functions be invoked with\
     \ the seed from `config.py`."
   sig: 1c71d19c0facca4b8207a63fc89248a8ef26c3040609292f86f304f6f747cfb0
+T001f:
+  c: true
+  h: 0d84538a6b75023f9c52373c96b9902c4f74fd6501ac1230d751791ec87ebc70
+  r: The file `data-model.md` exists (3,226 bytes) at the resolved project path and
+    contains substantive documentation of core entities (ModelCheckpoint, PerformanceMetric,
+    RefinementCycle, TrajectorySummary), data flow, and constraints consistent with
+    the project plan (benchmarks, sample sizes, parameter cap, trajectory.json output).
+    It is not a stub or placeholder.
+  sig: a137d011d457f15edfeb6f070c0ae0bb36cf65fca0da084ac75b1a3f737fb06c
+T001g:
+  c: true
+  h: eebc7e2d49687e866e06f832c8e230f08f12e58e8a238b51f2859bec1640fe75
+  r: "The file `quickstart.md` exists (2182 bytes) at the resolved project path and\
+    \ contains genuine, substantive instructions covering prerequisites, installation,\
+    \ configuration, running the pipeline (`python code/main.py`), expected outputs,\
+    \ and troubleshooting \u2014 matching the task's requirement for run instructions.\
+    \ The verification criterion `test -f quickstart.md` is satisfied."
+  sig: 71410f4c18669b0bbd89be777213165eee375e87e0bb80ad360d9f94e9364f55
 T005b:
   c: true
   h: d4cd2992587644386a85be54d90dbef2e8644a11ef8e7d6aa3c60691a0fb075b

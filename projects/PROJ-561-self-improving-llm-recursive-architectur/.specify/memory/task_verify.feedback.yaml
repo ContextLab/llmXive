@@ -7,20 +7,8 @@ T001a:
 T001b:
   task: 30781d71e0b835ac06a7244912c0796fda1a3169c71e1ce8317944b81cc0f6bd
 T001c:
-  reason: "The repository contains `code/utils/data_loader.py` with a correct `verify_urls`\
-    \ implementation and the required unit\u2011test file, but the test imports `utils.data_loader`,\
-    \ while the only `utils` package present is under `code/`. As a result the test\
-    \ cannot import the function, so the verification step is broken. Move the module\
-    \ to a top\u2011level `utils/` package (or adjust the import in the test) so that\
-    \ `tests/unit/test_data_loader.py` can successfully import and run against the\
-    \ implementation."
   task: 88e4c2391b092b97f7fa23ab3c473f23755393aaaa12d9dde036faf050c97ac4
 T001d:
-  reason: "The repository includes a full `download_and_checksum` implementation in\
-    \ `code/pipeline/loader.py`, but the claimed verification unit test in `tests/unit/test_data_loader.py`\
-    \ only tests `verify_urls`; there is no test exercising `download_and_checksum`\
-    \ or checking that a SHA\u2011256 file is written. Adding a proper test for this\
-    \ function is required to meet the task\u2019s verification requirement."
   task: 6010c9d6d0d1a875154b7dde639c63f016c47935a2acb29f6ee4d7aad08cef2d
 T001e:
   task: c71be3d5f252526e80015665eed26d91a210ab18e6235fbf67135fdb7e902e99

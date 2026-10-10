@@ -1,3 +1,1 @@
-"""
-Package for unit and integration tests.
-"""
+"""Init for tests package."""
