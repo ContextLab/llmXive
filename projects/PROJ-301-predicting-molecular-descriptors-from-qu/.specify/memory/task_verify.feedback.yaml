@@ -1,8 +1,18 @@
 T001:
+  reason: "The evidence shows the required top\u2011level directories `code/`, `data/raw/`,\
+    \ `data/processed/`, `data/results/`, `tests/`, and `docs/` each contain a `.gitkeep`\
+    \ file, but there is **no separate top\u2011level `utils/` directory**\u2014the\
+    \ only `utils/` found is nested inside `code/`. The task explicitly requires a\
+    \ top\u2011level `utils/` folder, so the directory tree is incomplete."
   task: c8e69606045f92f8a55715eda63adbb607ce2cb5bfab26324d1c85bca3004621
 T002:
+  reason: "The `requirements.txt` contains the required ten pinned packages, but it\
+    \ also includes two additional lines (`ruff==0.4.0` and `black==24.0.0`) that\
+    \ were not part of the task specification, so the file\u2019s content does not\
+    \ exactly match the requested list."
   task: 4056e7b075e34423880a668c6cc4469b7fcacc8d5ad815f285ffedb76e30c580
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
   task: a530b7b79a151d5de05b337ae6ca54573dc7dba7ee2c10927c7b1f441d80a6bb
 T004:
   task: 56abebf111082a0ad015fdbf52c4844a5f4e752be48d3aa778497e8815c6e8c4

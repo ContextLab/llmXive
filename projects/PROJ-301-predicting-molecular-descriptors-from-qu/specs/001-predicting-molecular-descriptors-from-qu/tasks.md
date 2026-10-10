@@ -28,7 +28,7 @@ All tasks are written in the canonical checklist format. Tasks marked **[P]** ca
   ```  
   *Verification*: file exists and each line matches the pattern `package==version`; `pip install -r requirements.txt` succeeds in a fresh venv.
 
-- [ ] **T003** [US0] Configure linting/formatting tools.  
+- [ ] **T003** [US0] Configure linting/formatting tools.   <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
   - Create `ruff.toml` with the default rule set.  
   - Create `pyproject.toml` with `[tool.black] line-length = 88`.  
   *Verification*: `ruff check .` and `black --check .` both exit with code 0; their stdout is saved to `artifacts/metrics/lint_report.txt`.

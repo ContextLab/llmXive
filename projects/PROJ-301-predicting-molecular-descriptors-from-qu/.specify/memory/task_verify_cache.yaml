@@ -1,0 +1,17 @@
+T001:
+  c: false
+  h: 352bd1c217b0b91186e03995d4f343ed29fb4ab0ce5d3f7b142a1af7db9f6e63
+  r: "The evidence shows the required top\u2011level directories `code/`, `data/raw/`,\
+    \ `data/processed/`, `data/results/`, `tests/`, and `docs/` each contain a `.gitkeep`\
+    \ file, but there is **no separate top\u2011level `utils/` directory**\u2014the\
+    \ only `utils/` found is nested inside `code/`. The task explicitly requires a\
+    \ top\u2011level `utils/` folder, so the directory tree is incomplete."
+  sig: 6ad81823d29ed6c3c9ef91c74a6b75af4d2538366ef7f6f42f8916eb95e55a52
+T002:
+  c: false
+  h: a859e63962520f6542fc3d2a686955fd0637c35877af7c11f99cf28030d2b1a4
+  r: "The `requirements.txt` contains the required ten pinned packages, but it also\
+    \ includes two additional lines (`ruff==0.4.0` and `black==24.0.0`) that were\
+    \ not part of the task specification, so the file\u2019s content does not exactly\
+    \ match the requested list."
+  sig: 666bc8e9d969eec4ec9743847b5fa4a658f82a1259df95e186ca148f8958996a

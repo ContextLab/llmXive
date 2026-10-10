@@ -64,6 +64,31 @@ ModuleNotFoundError: No module named 'code_04_analysis'
 - data/processed/molecules_cleaned.parquet
 - data/raw/qm9_full.parquet
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `qm9pack` to the project's `requirements.txt` and `pip install qm9pack`.
+- **Verified**: this loads **130831** real records with fields: XYZ_file, Index, SMILES, InChi, N_atoms, Stoichiometry, Elements, XYZ_Ang, Mulliken_pop, Harmonic_Freq_cmi, RotA_GHz, RotB_GHz, RotC_GHz, Dipole_debye, Polarizability_bohr3, HOMO_au, LUMO_au, HOMO_LUMO_gap_au, R2_bohr2, ZPVE_au, InternalEnergy_0K_au, InternalEnergy_298K_au, Enthalphy_298K_au, GibbsFreeEnergy_298K_au, Heatcapacity_Cv_cal_mol_K, A_xx, A_xy, A_yy, A_xz, A_yz, A_zz.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import pandas as pd
+from qm9pack import get_data
+
+# Load the complete QM9 dataset (specify the dataset name)
+data = get_data("qm9")
+
+# Ensure we have a DataFrame for uniform handling
+df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
+
+# Output record count and field names
+print(f"RECORDS={len(df)}")
+print("FIELDS=" + ",".join(df.columns.tolist()))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
