@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [S] Create project directory structure: `projects/PROJ-037-investigating-the-correlation-between-gu/`, `data/raw/`, `data/processed/`, `data/outputs/`, `code/`, `tests/`, `docs/`. **Note**: Use full relative path `projects/PROJ-037-investigating-the-correlation-between-gu/code/` for all code directories.
-- [X] T001b [P] Create empty `README.md`, `.gitignore`, and `requirements.txt` placeholder files
+- [ ] T001b [P] Create empty `README.md`, `.gitignore`, and `requirements.txt` placeholder files
 
 ---
 
@@ -55,16 +55,16 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T005a is a hard prerequisite for all User Story tasks.
 
 - [X] T002a [S] Create `requirements.txt` at `projects/PROJ-037-investigating-the-correlation-between-gu/` with dependencies: `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `biom-format`, `skbio`, `numpy`, `matplotlib`, `seaborn`, `requests`. **Note**: Removed `rdkit` and `mordred` as they were only needed for the out-of-scope Phase 6.
-- [X] T002b [S] Create virtual environment in `projects/PROJ-037-investigating-the-correlation-between-gu/` by executing `python -m venv venv`.
-- [X] T002c [S] Install requirements into the virtual environment by executing `source venv/bin/activate && pip install -r requirements.txt` from the project root directory. **Note**: Depends on T002a and T002b completion.
+- [ ] T002b [S] Create virtual environment in `projects/PROJ-037-investigating-the-correlation-between-gu/` by executing `python -m venv venv`.
+- [ ] T002c [S] Install requirements into the virtual environment by executing `source venv/bin/activate && pip install -r requirements.txt` from the project root directory. **Note**: Depends on T002a and T002b completion.
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `setup.cfg` or `pyproject.toml`
-- [X] T004 [P] Create `code/__init__.py` and utility modules for configuration and logging in `code/utils/`
-- [X] T005 [P] Generate `contracts/dataset.schema.yaml` artifact defining the schema for the merged cohort (columns: participant_id, shannon, simpson, sleep_duration, sleep_quality, chronotype, age, bmi, diet_type, antibiotic_history). **Note**: This task MUST be completed before T006a.
-- [X] T005a [S] Update `specs/001-gene-regulation/spec.md` to formally reflect plan mitigations: 1) REMOVE FR-003 (alpha-beta correlation) entirely; 2) UPDATE SC-002 to state "The criterion is met if the confidence intervals are calculated (including zero as a valid negative result)"; 3) UPDATE FR-004 to require 'diet type' instead of 'diet timing'. **Note**: This task is a HARD DEPENDENCY for Phase 3 (US1) and must be completed before T011.
-- [X] T006a [P] Define data validation schema in `code/schemas.py` matching `contracts/dataset.schema.yaml` (specify column types: participant_id=str, shannon=float, etc.). **Note**: Depends on T005 completion.
-- [X] T006b [P] Implement validation logic in `code/utils/validators.py` to check non-null constraints and data types for the merged cohort
-- [X] T007 [P] Setup random seed management for reproducibility in `code/utils/seeding.py`
-- [X] T008 [P] Create base configuration loader for environment variables in `code/config.py`
+- [~] T004 [P] Create `code/__init__.py` and utility modules for configuration and logging in `code/utils/`
+- [~] T005 [P] Generate `contracts/dataset.schema.yaml` artifact defining the schema for the merged cohort (columns: participant_id, shannon, simpson, sleep_duration, sleep_quality, chronotype, age, bmi, diet_type, antibiotic_history). **Note**: This task MUST be completed before T006a.
+- [~] T005a [S] Update `specs/001-gene-regulation/spec.md` to formally reflect plan mitigations: 1) REMOVE FR-003 (alpha-beta correlation) entirely; 2) UPDATE SC-002 to state "The criterion is met if the confidence intervals are calculated (including zero as a valid negative result)"; 3) UPDATE FR-004 to require 'diet type' instead of 'diet timing'. **Note**: This task is a HARD DEPENDENCY for Phase 3 (US1) and must be completed before T011.
+- [~] T006a [P] Define data validation schema in `code/schemas.py` matching `contracts/dataset.schema.yaml` (specify column types: participant_id=str, shannon=float, etc.). **Note**: Depends on T005 completion.
+- [~] T006b [P] Implement validation logic in `code/utils/validators.py` to check non-null constraints and data types for the merged cohort
+- [~] T007 [P] Setup random seed management for reproducibility in `code/utils/seeding.py`
+- [~] T008 [P] Create base configuration loader for environment variables in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,20 +80,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Unit test for data merging logic in `tests/test_ingestion.py` (verify N calculation)
-- [X] T010 [P] [US1] Unit test for missing data imputation logic in `tests/test_ingestion.py`
+- [~] T009 [P] [US1] Unit test for data merging logic in `tests/test_ingestion.py` (verify N calculation)
+- [~] T010 [P] [US1] Unit test for missing data imputation logic in `tests/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement `code/ingestion.py` to download American Gut Project 16S rRNA data and Open Humans sleep metadata. **Specifics**:
+- [~] T011 [P] [US1] Implement `code/ingestion.py` to download American Gut Project 16S rRNA data and Open Humans sleep metadata. **Specifics**:
  1. AGP: Use `qiita` CLI to fetch Study ID `10317` artifacts `feature-table.biom` and `taxonomy.qza`.
  2. Open Humans: Use `requests` to fetch Study ID `11599` ('Sleep Quality and Circadian Rhythm') via the endpoint ` Name or service not known)"))]. **CRITICAL**: Authentication MUST be handled via `OPENHUMANS_ACCESS_TOKEN` environment variable. If the token is missing or the fetch fails, the script MUST raise a `ConnectionError` and exit immediately (do NOT fallback to synthetic data). Verify data integrity via checksums. **Note**: This task includes verification of the 'diet type' variable presence; if missing, raise a clear error or flag for manual intervention.
-- [X] T012 [US1] Implement merge logic in `code/ingestion.py` to join datasets on Participant ID; **CRITICAL**: If N=0 (no matches found), the system MUST HALT with exit code 1 and log "ERROR: No matching participants found. Cohort matching failed per Constitution Principle VI." If 0 < N < 200, the system MUST flag a "Power Limitation" warning and proceed. **Note**: This logic strictly adheres to Spec Edge Cases: halt only on impossible N=0, proceed with warning on valid but underpowered N < 200.
-- [X] T013 [US1] Implement filtering logic in `code/ingestion.py` to exclude participants with missing sleep/microbiome data
-- [X] T014 [US1] Implement outlier capping for sleep duration (<2h or >16h) at 1st/99th percentiles in `code/ingestion.py`
-- [X] T015 [US1] Implement covariate imputation (median/mode) for BMI, age, antibiotic history in `code/ingestion.py`
-- [X] T016 [US1] Generate summary report in `code/ingestion.py` listing the **exact retained participant count (N)** and distribution of key covariates (age, BMI, antibiotic use). **CRITICAL**: IF N < 200, the report MUST explicitly flag a "Power Limitation" warning stating "Sample size N < 200 reduces ability to detect small effect sizes after adjustment."
-- [ ] T017 [US1] Save final merged cohort to `data/processed/cohort_merged.csv`
+- [~] T012 [US1] Implement merge logic in `code/ingestion.py` to join datasets on Participant ID; **CRITICAL**: If N=0 (no matches found), the system MUST HALT with exit code 1 and log "ERROR: No matching participants found. Cohort matching failed per Constitution Principle VI." If 0 < N < 200, the system MUST flag a "Power Limitation" warning and proceed. **Note**: This logic strictly adheres to Spec Edge Cases: halt only on impossible N=0, proceed with warning on valid but underpowered N < 200.
+- [~] T013 [US1] Implement filtering logic in `code/ingestion.py` to exclude participants with missing sleep/microbiome data
+- [~] T014 [US1] Implement outlier capping for sleep duration (<2h or >16h) at 1st/99th percentiles in `code/ingestion.py`
+- [~] T015 [US1] Implement covariate imputation (median/mode) for BMI, age, antibiotic history in `code/ingestion.py`
+- [~] T016 [US1] Generate summary report in `code/ingestion.py` listing the **exact retained participant count (N)** and distribution of key covariates (age, BMI, antibiotic use). **CRITICAL**: IF N < 200, the report MUST explicitly flag a "Power Limitation" warning stating "Sample size N < 200 reduces ability to detect small effect sizes after adjustment."
+- [ ] T017 [US1] Save final merged cohort to `data/processed/cohort_merged.csv` <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,21 +107,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for alpha diversity calculation in `tests/test_analysis.py`
-- [X] T019 [P] [US2] Unit test for FDR correction logic in `tests/test_analysis.py`
+- [~] T018 [P] [US2] Unit test for alpha diversity calculation in `tests/test_analysis.py`
+- [~] T019 [P] [US2] Unit test for FDR correction logic in `tests/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement `code/diversity.py` to calculate Alpha diversity (Shannon, Simpson) and Beta diversity (Bray-Curtis) per participant
-- [X] T021 [US2] Implement `code/analysis.py` to perform Spearman/Pearson correlation tests between diversity metrics and sleep variables (duration, quality, chronotype)
-- [X] T022 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis.py` for all p-values
-- [X] T023 [US2] Implement distance-based redundancy analysis (dbRDA) in `code/analysis.py` for non-linear screening of sleep vs. beta diversity
-- [X] T024 [US2] Implement Generalized Linear Model (GLM) in `code/analysis.py` adjusting for confounders (age, BMI, diet type, medication, antibiotic history); **Note**: Per updated spec (T005a), 'diet type' is used instead of 'diet timing'. The report will naturally reflect the implemented logic.
-- [X] T025 [US2] Implement PERMANOVA in `code/analysis.py` strictly for categorical sleep variables (not continuous); use dbRDA for continuous variables as per plan mitigation.
-- [X] T026 [US2] Implement `code/viz.py` to generate a heatmap of taxa-sleep associations using `seaborn.heatmap` and save to `data/outputs/heatmap.png`. **Specifics**: Plot the **top 10** taxa-sleep associations against **sleep_quality** ranked by **absolute Spearman correlation coefficient (|rho|)**. Use the **Genus** taxonomic level (or the finest resolved level available). The plot title MUST explicitly include the correlation coefficients and FDR-corrected p-values for the top association using the format: "Top Association: {taxon} vs sleep_quality, rho={rho:.3f}, p_adj={p:.4f}". **Depends on T020/T021/T022**.
-- [X] T027 [US2] Implement `code/viz.py` to generate a PCoA ordination plot colored by sleep quality scores using `skbio.OrdinationResults` and save to `data/outputs/pcoa_sleep_quality.png`. **Specifics**: Use the 'sleep_quality' column from the merged cohort to color the points. The plot MUST include a legend and axis labels. **Depends on T020/T021/T022**.
-- [X] T028 [US2] Generate final results table in `data/outputs/correlation_results.csv` including effect sizes, p-values, and FDR-corrected p-values. **Note**: Ensure table is CSV formatted with headers matching spec requirements.
-- [X] T029 [US2] Implement logic in `code/report.py` to ensure the **entire report** (headers, captions, text) explicitly frames all findings as "associational" and avoids causal language, verifying FR-008 compliance.
+- [~] T020 [P] [US2] Implement `code/diversity.py` to calculate Alpha diversity (Shannon, Simpson) and Beta diversity (Bray-Curtis) per participant
+- [~] T021 [US2] Implement `code/analysis.py` to perform Spearman/Pearson correlation tests between diversity metrics and sleep variables (duration, quality, chronotype)
+- [~] T022 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis.py` for all p-values
+- [~] T023 [US2] Implement distance-based redundancy analysis (dbRDA) in `code/analysis.py` for non-linear screening of sleep vs. beta diversity
+- [~] T024 [US2] Implement Generalized Linear Model (GLM) in `code/analysis.py` adjusting for confounders (age, BMI, diet type, medication, antibiotic history); **Note**: Per updated spec (T005a), 'diet type' is used instead of 'diet timing'. The report will naturally reflect the implemented logic.
+- [~] T025 [US2] Implement PERMANOVA in `code/analysis.py` strictly for categorical sleep variables (not continuous); use dbRDA for continuous variables as per plan mitigation.
+- [~] T026 [US2] Implement `code/viz.py` to generate a heatmap of taxa-sleep associations using `seaborn.heatmap` and save to `data/outputs/heatmap.png`. **Specifics**: Plot the **top 10** taxa-sleep associations against **sleep_quality** ranked by **absolute Spearman correlation coefficient (|rho|)**. Use the **Genus** taxonomic level (or the finest resolved level available). The plot title MUST explicitly include the correlation coefficients and FDR-corrected p-values for the top association using the format: "Top Association: {taxon} vs sleep_quality, rho={rho:.3f}, p_adj={p:.4f}". **Depends on T020/T021/T022**.
+- [~] T027 [US2] Implement `code/viz.py` to generate a PCoA ordination plot colored by sleep quality scores using `skbio.OrdinationResults` and save to `data/outputs/pcoa_sleep_quality.png`. **Specifics**: Use the 'sleep_quality' column from the merged cohort to color the points. The plot MUST include a legend and axis labels. **Depends on T020/T021/T022**.
+- [ ] T028 [US2] Generate final results table in `data/outputs/correlation_results.csv` including effect sizes, p-values, and FDR-corrected p-values. **Note**: Ensure table is CSV formatted with headers matching spec requirements.
+- [~] T029 [US2] Implement logic in `code/report.py` to ensure the **entire report** (headers, captions, text) explicitly frames all findings as "associational" and avoids causal language, verifying FR-008 compliance.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,15 +135,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T030 [P] [US3] Unit test for bootstrap resampling logic in `tests/test_validation.py`
-- [X] T031 [P] [US3] Unit test for sensitivity sweep logic in `tests/test_validation.py`
+- [~] T030 [P] [US3] Unit test for bootstrap resampling logic in `tests/test_validation.py`
+- [~] T031 [P] [US3] Unit test for sensitivity sweep logic in `tests/test_validation.py`
 
 ### Implementation for User Story 3
 
-- [X] T032 [P] [US3] Implement bootstrap resampling with 1000 iterations in `code/validation.py` to estimate confidence intervals for top-ranked correlations; **CRITICAL**: IF N < 40, skip resampling, write `validation_status.json` with `resampling_skipped: true` and reason "Insufficient sample size", and proceed with full-dataset analysis flagging the limitation. **Note**: Per updated spec (T005a), confidence intervals including zero are valid negative results.
-- [X] T033 [US3] Implement sensitivity analysis in `code/validation.py` sweeping significance threshold over the specific set of values: `[0.01, 0.05, 0.1]` as defined in spec SC-003.
-- [X] T034 [US3] Generate sensitivity report in `data/outputs/sensitivity_report.csv` showing variation in significant taxa counts
-- [X] T035 [US3] Update `code/report.py` to include a section detailing bootstrap stability (CIs) and sensitivity sweep results, explicitly framing all findings as associational
+- [~] T032 [P] [US3] Implement bootstrap resampling with 1000 iterations in `code/validation.py` to estimate confidence intervals for top-ranked correlations; **CRITICAL**: IF N < 40, skip resampling, write `validation_status.json` with `resampling_skipped: true` and reason "Insufficient sample size", and proceed with full-dataset analysis flagging the limitation. **Note**: Per updated spec (T005a), confidence intervals including zero are valid negative results.
+- [~] T033 [US3] Implement sensitivity analysis in `code/validation.py` sweeping significance threshold over the specific set of values: `[0.01, 0.05, 0.1]` as defined in spec SC-003.
+- [ ] T034 [US3] Generate sensitivity report in `data/outputs/sensitivity_report.csv` showing variation in significant taxa counts
+- [~] T035 [US3] Update `code/report.py` to include a section detailing bootstrap stability (CIs) and sensitivity sweep results, explicitly framing all findings as associational
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,13 +153,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T043 [P] Update `README.md` with specific run commands, environment setup instructions, and data download steps.
-- [X] T044 [P] Run `black` and `flake8` on `code/` directory and fix all formatting/linting errors.
-- [X] T045 [P] Profile the top slowest functions in `code/analysis.py` and `code/validation.py` and implement optimizations to reduce runtime by at least 10% for each.
-- [X] T046 [P] Add unit test cases in `tests/` for edge data types (e.g., empty datasets, single-row datasets, extreme outliers).
-- [X] T047 [P] Run `bandit` security scan on `code/` directory and fix all high-severity findings.
-- [X] T049 [P] Generate `quickstart.md` artifact in `docs/` as required by plan.md, including setup instructions, data download steps, and run commands.
-- [X] T048 [US3] Run `quickstart.md` validation <!-- Note: Depends on T049 completion -->
+- [~] T043 [P] Update `README.md` with specific run commands, environment setup instructions, and data download steps.
+- [~] T044 [P] Run `black` and `flake8` on `code/` directory and fix all formatting/linting errors.
+- [~] T045 [P] Profile the top slowest functions in `code/analysis.py` and `code/validation.py` and implement optimizations to reduce runtime by at least 10% for each.
+- [~] T046 [P] Add unit test cases in `tests/` for edge data types (e.g., empty datasets, single-row datasets, extreme outliers).
+- [~] T047 [P] Run `bandit` security scan on `code/` directory and fix all high-severity findings.
+- [~] T049 [P] Generate `quickstart.md` artifact in `docs/` as required by plan.md, including setup instructions, data download steps, and run commands.
+- [~] T048 [US3] Run `quickstart.md` validation <!-- Note: Depends on T049 completion -->
 
 ---
 

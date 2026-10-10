@@ -1,3 +1,51 @@
+T001a:
+  c: true
+  h: 0f6c1c1c3d699305e62e2ae6a319c2716be70df8e87ef51aad7d5269781cb9ef
+  r: "The collector shows the project root `projects/PROJ-037-investigating-the-correlation-between-gu/`\
+    \ exists with the required sub\u2011directories `data/raw/`, `data/processed/`,\
+    \ `data/outputs/`, `code/`, `tests/`, and `docs/`. The `code/` directory is also\
+    \ present at the full relative path `projects/PROJ-037-investigating-the-correlation-between-gu/code/`\
+    \ as specified."
+  sig: 40c41a3334d16f070b582bc59f6cad39c6754eff7108b23ae0204f7defa2228f
+T001b:
+  c: false
+  h: 506dae83e2a20cc9bf6759b5795c98ca399091cc7bc00bf206f1909fce87bbab
+  r: "Checked the `requirements.txt` file (found non\u2011empty with package list)\
+    \ and found no `README.md` or `.gitignore` files in the project root. The task\
+    \ required empty placeholder files for all three, so the required artifacts are\
+    \ missing or incorrectly populated."
+  sig: abbabf5aa849855dc8feacf15472e40c4b84a27e189ffaaa046987c94bc3c4de
+T002a:
+  c: true
+  h: d7e56fd35142c880cf1d50145466593ce7c93e3b9cb91b7eed463cbf7bd9f775
+  r: "The `requirements.txt` file was found at `projects/PROJ-037-investigating-the-correlation-between-gu/requirements.txt`\
+    \ (89\u202Fbytes) and contains exactly the listed dependencies (`pandas`, `scikit-learn`,\
+    \ `scipy`, `statsmodels`, `biom-format`, `skbio`, `numpy`, `matplotlib`, `seaborn`,\
+    \ `requests`). This satisfies the task\u2019s sole requirement."
+  sig: 5bb6e12e3bd801572837febf671a9953c0adfc79e447cbb8c32d59bf943a1eed
+T002b:
+  c: false
+  h: ca6f423dcd71411de41b9d7c93c23f748f6301bc9316e9a3b600974075328c4d
+  r: "The project directory `projects/PROJ-037-investigating-the-correlation-between-gu/`\
+    \ does not contain a `venv` folder (no virtual\u2011environment files such as\
+    \ `bin/`, `Scripts/`, or `pyvenv.cfg`). The required virtual environment created\
+    \ by `python -m venv venv` is therefore missing."
+  sig: c5709b53cea49563138edb1a7f8f83b796630f2f66f71be97a8e0fe6804b2912
+T002c:
+  c: false
+  h: a07b76cc2ed49f9c39cfdcfc4c2b065b14ca38daccb45cc572c6649fd2df5e31
+  r: "Checked the presence of `requirements.txt`, but there is no evidence of a created\
+    \ `venv` directory, activation script, or any logs/output showing that `pip install\
+    \ -r requirements.txt` was run and succeeded. The task\u2019s core requirement\u2014\
+    installing the listed packages into a virtual environment\u2014is not demonstrated."
+  sig: 850097e5558a4bb7dda00738e5ec868fafc7da01d7d117fc3dc9d5916d55a2b0
+T003:
+  c: true
+  h: e8b72b367dbd9e356d9da00cc5d3528c126a7ffc0ccedb8a915052680d4b364c
+  r: Checked `setup.cfg` (contains a full `[flake8]` section) and `pyproject.toml`
+    (contains `[tool.black]` and `[tool.flake8]` sections) which together configure
+    flake8 linting and black formatting as required.
+  sig: 3b82e2ae6b04e0aaaed8a2750751340556e2b0225e66c9cda2f49f61ad15fa1f
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
