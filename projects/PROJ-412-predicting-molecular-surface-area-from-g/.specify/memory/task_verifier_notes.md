@@ -3,7 +3,6 @@
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
 - **T005** — declared artifact(s) missing/empty/invalid: specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml
-- **T010** — `code/utils/seed.py` exists and implements a functional seed-pinning utility (random/NumPy/PyTorch seeding, default 42), and `code/config.py` defines `RANDOM_SEED: int = 42`. However, the task explicitly requires the seed to be set **from `code/config.py`**, and `seed.py` never imports or references `RANDOM_SEED` — it hardcodes its own `DEFAULT_SEED = 42` instead, so the two are only coincidentally equal and will silently diverge if the config value changes. Fix: import `RANDOM_SEED` from `code/config.py` (e.g., `from ..config import RANDOM_SEED` or equivalent) and use it as the default in `se
 - **T014-Pilot** — Requested task execution failed; rerun successfully: code/data/pilot_study.py exit=1
 - **T014-Merge** — declared artifact(s) missing/empty/invalid: data/processed/graphs_with_features.parquet
 - **T015d** — declared artifact(s) missing/empty/invalid: data/processed/conformer_params.json, data/processed/noise_floor_report.json

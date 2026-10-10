@@ -1,11 +1,12 @@
 status: none
-intent: download ZINC15 SMILES dataset with computed 3D surface area python package
+intent: download ZINC15 SMILES dataset with 3D surface area labels PubChem validation
+  python package dataset
 required_fields:
 - smiles
 - atom_features
 - bond_features
 - surface_area
-- molecule_id
-cache_key: 7fd5fbf7562c3c06d9afd377fedd3357fd738b14b954e32f893026d8466eecf3
-searched_at: '2026-10-10T23:33:54.560078+00:00'
+- molecular_weight
+cache_key: 87db064d1cdda53a8b00e7093337c056e02827338ee983f89503bf79473e99a1
+searched_at: '2026-10-10T23:37:00.541529+00:00'
 retry_count: 1

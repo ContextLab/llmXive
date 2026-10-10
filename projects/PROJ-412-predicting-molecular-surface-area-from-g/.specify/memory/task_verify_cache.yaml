@@ -102,15 +102,15 @@ T006:
   sig: d89032dbfe9f19b0b1dbb1ebada004f0fef6f3ea888bcad9925237257648e25c
 T007:
   c: true
-  h: 918c676660f064aca951d9ee053f607ff5317512672c8ad2bb344df24cdd6e70
+  h: 804e41666acc52c8b7df38e108787cd6b576697db330348009016da26649d89d
   r: The required `code/__init__.py` exists (1750 bytes) with a real package docstring,
     version, sys.path setup, and guarded imports of the config and utility modules,
-    and the environment configuration loader `code/config.py` exists with concrete,
-    non-placeholder values (time budget, RAM limit, seed, paths, directory creation).
-    All referenced utility modules (logging, seed, validators, checksum, memory_monitor,
-    network_check, directories, conformer_config) are present as substantive implementations,
-    so the package init and config loader requirements are genuinely satisfied.
-  sig: f5c2e8c683fb226c9d824ca11a38fb71f906b16f252c849e3f8d4c48967f9d06
+    and the environment configuration loader `code/config.py` exists with substantive
+    content (time budget, RAM limit, seed, paths, directory creation). All referenced
+    utility modules (logging, seed, validators, checksum, memory_monitor, network_check,
+    directories) are present and non-stub implementations, so the task's deliverables
+    are genuinely satisfied.
+  sig: b42be478acd915e392ce1f8192b6ae1bca172a1b7b63b1e01ee7237071fe26e2
 T008a:
   c: true
   h: 304500594df2d96a4791bd49b624380025f445b5d17646474f1791e34487a848
@@ -152,17 +152,15 @@ T009c:
     (`from_dict`, `to_dict`), with no stubs or placeholders.
   sig: b0efe0de8abfe6047e875b7e66a472840e7f3cf1c4c4cc40de1f16babd4b23d6
 T010:
-  c: false
-  h: e948df7dbcc3867f37a1be89259d6518136fc561441693aff19ebe24afbeef37
-  r: "`code/utils/seed.py` exists and implements a functional seed-pinning utility\
-    \ (random/NumPy/PyTorch seeding, default 42), and `code/config.py` defines `RANDOM_SEED:\
-    \ int = 42`. However, the task explicitly requires the seed to be set **from `code/config.py`**,\
-    \ and `seed.py` never imports or references `RANDOM_SEED` \u2014 it hardcodes\
-    \ its own `DEFAULT_SEED = 42` instead, so the two are only coincidentally equal\
-    \ and will silently diverge if the config value changes. Fix: import `RANDOM_SEED`\
-    \ from `code/config.py` (e.g., `from ..config import RANDOM_SEED` or equivalent)\
-    \ and use it as the default in `se"
-  sig: 68f999f1a643d2bde6007d231e416b3695cb8a2691f25ecaed4065f39de02d2a
+  c: true
+  h: d3877d499ff213e62838e4f4701f22327aa44936de7a12d7e2907884445fbc34
+  r: '`code/utils/seed.py` exists (5938 bytes) and implements a real seed-pinning
+    utility: it imports `RANDOM_SEED` from `code/config.py` (confirmed value 42),
+    sets Python/NumPy/PyTorch seeds, sets `PYTHONHASHSEED`, and provides supporting
+    helpers (env override, reproducibility verification, context manager) with no
+    stubs or TODOs. The dependency `code/utils/logging.py` also exists, so the module''s
+    imports are resolvable in the project layout.'
+  sig: 50cf1a6b2bcdb8cd9ca51eb58d1b39f3f6f8845f3472e80c56329d6e063ed7bc
 T011:
   c: true
   h: 31bfde8ca21df3254b1e524effd8f217ff5ec931cccbd3e6e8d5833ff6f8c8f3
@@ -182,20 +180,27 @@ T015c:
     cannot be verified. Additionally, without these files the specified columns and
     metadata cannot be checked. The task therefore is not completed.
 T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log file, or test output was provided showing that SMILES validation,\
-    \ conformer\u2011generation error handling, failure\u2011rate counting, and the\
-    \ \u201Chalt if >10\u202F% failure\u201D logic have been implemented. The required\
-    \ artifact (e.g., updated ingestion script with the described validation and logging)\
-    \ is missing, so the task is not satisfied."
+  c: true
+  h: 1fe2df62b40ccd341babb4fa12fc109d6da5f422a61580480700dc760e001108
+  r: "`code/utils/validators.py` exists (5162 bytes) and contains a real `validate_smiles(smiles_list)`\
+    \ function that uses RDKit's `Chem.MolFromSmiles` to check syntax and returns\
+    \ the list of invalid strings, plus a warning log for invalid entries \u2014 matching\
+    \ the task's stated contract for T048/T014. The implementation is genuine (no\
+    \ stubs/TODOs), handles non-string and empty inputs, and includes a CLI test entry\
+    \ point."
+  sig: 9f6c495bb10c4eb691f52521d5185141e16c49fd7371e107d5aa9c2f52780597
 T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logging implementation, log files, or code changes that record excluded molecules
-    or dataset statistics were provided. The claim lacks any artifact (e.g., updated
-    scripts, log output, or documentation) demonstrating that the required logging
-    behavior has been added.
+  c: true
+  h: 57906ab56a73031b47cf57414940a3252eebbc93e9ca7129d9ce970d640621fc
+  r: '`code/utils/logging.py` exists (4730 bytes) and defines both required functions
+    with the correct signatures: `log_excluded_molecules(count, smiles_list)` writes
+    JSON entries routed to `logs/excluded_molecules.log` via a dedicated file handler,
+    and `log_errors(errors)` logs each error as JSON at the WARNING level to `logs/ingestion_errors.log`,
+    satisfying the WARNING-level requirement. The relative import `from .config import
+    get_project_root` resolves to the confirmed `code/utils/config.py`, and the local
+    redefinition of `get_project_root` (a minor redundancy, not a defect) still returns
+    the c'
+  sig: f49f04ea760e6b2dc61f2486a105727e2f252206b93b4aa2c53f774bbc18a907
 T021c:
   c: false
   h: b1fbfbc6ab00b2ee76cb6e79dafd7c1abc53899352c660b3432947a109156d4d
@@ -219,14 +224,17 @@ T036:
     \ provided only the task description without any validation logs, screenshots,\
     \ or generated output."
 T045:
-  c: false
-  h: 925d705340249b7b14c551ff5b4fe3d15748720363a693a00aa00596dd1fa976
-  r: "The `code/utils/memory_monitor.py` file exists and defines a `MemoryMonitor`\
-    \ class, but the required `code/config.py` (which should provide `MAX_RAM_GB`)\
-    \ is missing, so the wrapper cannot obtain the RAM limit as specified. Additionally,\
-    \ the truncated source prevents confirming that the class logs per\u2011epoch\
-    \ peaks and triggers an early exit. The missing config file must be added (defining\
-    \ `MAX_RAM_GB`) and the monitor\u2019s behavior verified."
+  c: true
+  h: 9ecb4530c39359e0c21e4c61fcec8a4a871dea5e9a5708c9cfd244e90d9cb245
+  r: '`code/utils/memory_monitor.py` exists (8191 bytes) with a full `MemoryMonitor`
+    class that starts/stops tracemalloc, logs per-epoch peak/current memory via `log_epoch`,
+    checks the `MAX_RAM_GB` limit from `code/config.py` (which defines MAX_RAM_GB=7.0
+    plus LOGS_DIR/PROJECT_ROOT used by the imports), and generates a JSON diagnostic
+    report on limit exceedance or exception, with a context manager and a working
+    demo `main()`. The early-exit behavior is exposed via `check_limit()` returning
+    True on exceedance (used to break the training loop in the demo), which satisfies
+    the wrapper requirement.'
+  sig: 64a532adb4c2e20a23005d7b7fa3c4fc18c4fc251b20d291dbd59d491f4e7870
 T048:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -246,6 +254,16 @@ T049:
     "public repository (e.g., ZINC15 or OpenDataPubChem)" and the supporting `logging.py`/`config.py`
     imports resolve locally.'
   sig: da3ee8e0244081cd81aa66184b2cc420a8378aa99652946e7aca8f0ac96a3179
+T056:
+  c: true
+  h: 5a66e1cbf94549f82ca4c762cd6e3bd87d6e4324e37dc08358791d35bbcdfc6c
+  r: "The artifact `code/data/ingest.py` exists (8294 bytes) and its `fetch_zinc15_streaming`\
+    \ wraps `load_dataset(..., streaming=True)` with no synthetic-data fallback: connection\
+    \ errors are re-raised immediately, other fetch failures are re-raised as `ValueError`,\
+    \ and an empty stream raises `ValueError` \u2014 matching the \"Fail Loudly\"\
+    \ requirement. The remaining try/except blocks only log and re-raise, never swallow\
+    \ errors or substitute fake data."
+  sig: 039993474f0d71c1ad37f3b606dec3a1f254f2da634cb9cbaa73325207b67930
 T057:
   c: false
   h: 27faa8299690c59773437289bb0ac59ab18efec2586c5e38838d9b9ca6db99bc

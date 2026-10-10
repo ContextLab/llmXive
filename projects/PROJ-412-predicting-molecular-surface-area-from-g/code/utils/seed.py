@@ -12,12 +12,17 @@ from typing import Optional, Dict, Any, Callable, List
 
 import numpy as np
 
+# Import the central configuration value for the random seed.
+# This ensures the seed used by the utility stays in sync with the
+# project-wide configuration defined in `code/config.py`.
+from ..config import RANDOM_SEED
+
 from .logging import get_logger
 
 logger = get_logger(__name__)
 
-# Default seed if none is provided
-DEFAULT_SEED = 42
+# Default seed if none is provided – now sourced from the central config.
+DEFAULT_SEED = RANDOM_SEED
 
 def set_seed(seed: Optional[int] = None) -> int:
     """
@@ -79,6 +84,7 @@ def get_seed_from_env(env_var: str = "SEED", default: Optional[int] = None) -> i
     if default is not None:
         return default
 
+    # Fall back to the project-wide default seed.
     return DEFAULT_SEED
 
 def verify_seed_reproducibility(
