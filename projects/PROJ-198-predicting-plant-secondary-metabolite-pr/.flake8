@@ -1,9 +1,9 @@
 [flake8]
-# Use the same line length as Black
+# Maximum line length for flake8 (should match black's line length)
 max-line-length = 88
-# Ignore line break before binary operator (E203) to be compatible with Black
-extend-ignore = E203
-# Exclude common directories
+# Extend ignored errors
+extend-ignore = E203, W503
+# Exclude directories that are not source code
 exclude =
     .git,
     __pycache__,
@@ -11,12 +11,8 @@ exclude =
     dist,
     .venv,
     venv,
-    .mypy_cache,
-    .ruff_cache,
-    .pytest_cache,
-    .cache,
-    .tox,
-    .egg-info,
-    *.egg
-# Enable flake8 plugins that are installed via Ruff (if any)
-# No additional plugins required for this project.
+    .env,
+    .env.example,
+    .ruff.toml,
+    pyproject.toml,
+    *.egg-info

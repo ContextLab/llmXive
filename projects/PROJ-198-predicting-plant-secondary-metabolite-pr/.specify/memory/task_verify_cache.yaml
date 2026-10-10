@@ -7,13 +7,13 @@ T001:
   sig: e772e7d1c065ee6842d7b4262fec2eb19c052eaceede2739ea465c6bc9a94dea
 T002:
   c: false
-  h: 40f55176dd4acd56189948458414e75b38cd0bf5662a32fdd8ea2b5bbac27868
-  r: "The repository contains `.ruff.toml` and a `pyproject.toml` with a Black configuration,\
-    \ but the required `.flake8` file is absent and there is no provided evidence\
-    \ (e.g., command output or logs) that `ruff --quiet .` and `black --check .` both\
-    \ exit with code\u202F0. The implementer must add a valid `.flake8` configuration\
-    \ file and supply proof that the linting and formatting checks succeed."
-  sig: f9c634b523cef877ff75c138f56d45e71ac32063fd75098010422580c5b99c93
+  h: 6917ed9c7d9fd8679a47a3ceda2b6873a46b9d322cba79d6237cac4ad245b1a1
+  r: The `.ruff.toml` and `pyproject.toml` (with a `[tool.black]` section) exist and
+    are non-empty, but the required `.flake8` file at the repository root is absent
+    from the collected evidence. Additionally, there is no execution evidence that
+    `ruff --quiet .` and `black --check .` were actually run and exited with code
+    0, which the task's verification criteria explicitly require.
+  sig: 5f117dac5edf5eb97bc08d88f46fc8e835454ea8dfb8dd7e4359a2bb402a463c
 T003:
   c: false
   h: 0a7add0e3e31a0fa046823a5dfd348581170448eac7f3a4ae3ced55c4d6180e8

@@ -1,15 +1,15 @@
 status: none
-intent: download plant RefSeq genomes, MetaboLights metabolomics, and MIBiG ontology
-  python package dataset
+intent: Plant genome-metabolome matched dataset NCBI RefSeq Phytozome MetaboLights
+  PMDB MIBiG 3.0 python package dataset
 required_fields:
 - species_name
-- ncbi_taxonomy_id
 - genome_assembly_accession
-- genome_fasta_url
-- annotation_gff_url
+- gff_annotation_accession
+- bgc_type
+- bgc_presence
+- bgc_count
 - metabolite_inchikey
-- metabolite_name
-- raw_abundance
-cache_key: 202a2a3365e2d2e44f6d49e0ee896a4df1b74c3b3c3b01824d4161d112db04c2
-searched_at: '2026-10-10T04:37:44.106508+00:00'
+- metabolite_abundance_log
+cache_key: 095df614ba0622f83530b272aa444018213cfc441e407b32537c60c5f22f86d7
+searched_at: '2026-10-10T04:39:56.229590+00:00'
 retry_count: 1

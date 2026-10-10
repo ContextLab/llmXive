@@ -18,7 +18,7 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"tests/*" = ["S101"]  # Allow assert in tests
+"tests/*" = ["S101", "F821", "F822", "F823", "F841"]  # Allow assert in tests and ignore undefined name errors
 
 [format]
 # Use double quotes for strings

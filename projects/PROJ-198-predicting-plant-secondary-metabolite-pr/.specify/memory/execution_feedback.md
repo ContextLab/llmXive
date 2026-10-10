@@ -63,7 +63,7 @@ ERROR tests/unit/test_report.py
 ERROR tests/unit/test_sensitivity.py - AttributeError: 'NoneType' object has ...
 ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
 !!!!!!!!!!!!!!!!!!! Interrupted: 19 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 2 skipped, 19 errors in 2.27s =========================
+======================== 2 skipped, 19 errors in 2.24s =========================
 
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
