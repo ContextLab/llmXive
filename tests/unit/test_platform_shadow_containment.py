@@ -191,3 +191,24 @@ def test_the_tasker_prompts_forbid_writing_platform_state(prompt):
     assert "project-owned paths" in text
     assert "state/" in text
     assert "verification time" in text
+
+
+def test_containment_is_reported_before_a_malformed_artifact(tmp_path):
+    """Precedence: a shadow is the more fundamental defect.
+
+    `test_yaml_artifact_validation` used to model a project writing
+    `state/projects/<id>.yaml` as if that were legitimate, and asserted the
+    "invalid YAML" rejection. Both defects are real; the containment one is
+    reported, because fixing the YAML would leave the shadow — and the shadow is
+    what rejects honest work later.
+    """
+    project = tmp_path / "projects" / "PROJ-test"
+    manifest = project / "state" / "projects" / "PROJ-test.yaml"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text("git_commit: abc\\nfiles:\\n  x: y\\n", encoding="utf-8")
+    verdict, reason = _deterministic_verdict(
+        project, "T001 Generate state/projects/PROJ-test.yaml",
+    )
+    assert verdict == "reject"
+    assert "platform-owned" in reason.lower()
+    assert "invalid" not in reason, "the containment defect is the one reported"

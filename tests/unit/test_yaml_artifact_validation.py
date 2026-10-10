@@ -32,10 +32,15 @@ def test_legacy_positive_receipt_cannot_accept_malformed_yaml(tmp_path, monkeypa
     project = tmp_path / "projects/PROJ-test"
     feature = project / "specs/001-test"
     feature.mkdir(parents=True)
-    manifest = project / "state/projects/PROJ-test.yaml"
+    # A PROJECT-owned manifest path. This used to name
+    # `state/projects/PROJ-test.yaml`, which a project may not write at all —
+    # the containment guard now rejects such a task before the YAML is ever
+    # parsed, so the malformed-YAML behaviour under test would never be reached.
+    # See tests/unit/test_platform_shadow_containment.py for that rule.
+    manifest = project / "data/result_manifest.yaml"
     manifest.parent.mkdir(parents=True)
     manifest.write_text(r"git_commit: abc\nfiles:\n  data/result.csv: deadbeef\n")
-    definition = "T001 Generate state/projects/PROJ-test.yaml"
+    definition = "T001 Generate data/result_manifest.yaml"
     tasks = feature / "tasks.md"
     tasks.write_text(f"- [X] {definition}\n")
     memory = project / ".specify/memory"
