@@ -11,7 +11,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: GalaxyRotationCurveSchema
 description: >
-  Schema for galaxy rotation curve data derived from SPARC dataset.
+  Schema for galaxy rotation curve data derived from the SPARC dataset.
   Includes radial distance, observed velocity, uncertainties, and metadata
   required for quality filtering (inclination, point count).
 
@@ -68,11 +68,10 @@ properties:
     maximum: 90
 
   mass_to_light_ratio:
-    type: number
+    type: [number, "null"]
     description: >
       Stellar mass-to-light ratio (M/L) in solar units.
       May be None or NaN if not available for a specific band.
-    nullable: true
 
   distance:
     type: number
@@ -84,7 +83,8 @@ properties:
   source_file:
     type: string
     description: >
-      Original filename from the SPARC dataset (e.g., "NGC0001/NGC0001_RotCurve.dat").
+      Original filename from the SPARC dataset
+      (e.g., "NGC0001/NGC0001_RotCurve.dat").
     minLength: 1
 
   n_points:

@@ -35,13 +35,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T048 [P] Generate `contracts/dataset.schema.yaml` defining the schema for parsed galaxy data (FR-002, FR-003)
-- [ ] T049 [P] Generate `contracts/fit_results.schema.yaml` defining the schema for model fit outputs (FR-007, FR-009)
-- [X] T050 [US1/2/3] Implement data schema validators in `tests/contract/test_schemas.py` matching the generated contracts. **Dependency**: T048 AND T049 must complete first. (Depends on T048 AND T049 completion - removed [P] tag)
-- [X] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
-- [X] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
-- [X] T007 [P] Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
-- [X] T008 [P] Create logging infrastructure in `code/utils.py` to track pipeline stages
+- [X] T048 [P] Generate `contracts/dataset.schema.yaml` defining the schema for parsed galaxy data (FR-002, FR-003)
+- [X] T049 [P] Generate `contracts/fit_results.schema.yaml` defining the schema for model fit outputs (FR-007, FR-009)
+- [ ] T050 [US1/2/3] Implement data schema validators in `tests/contract/test_schemas.py` matching the generated contracts. **Dependency**: T048 AND T049 must complete first. (Depends on T048 AND T049 completion - removed [P] tag)
+- [ ] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
+- [~] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
+- [~] T007 [P] Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
+- [~] T008 [P] Create logging infrastructure in `code/utils.py` to track pipeline stages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,10 +57,10 @@
 
 **⚠️ CRITICAL SEQUENCE**: T012 -> T016 -> T013 -> T014 -> T015. Do NOT run in parallel.
 
-- [X] T012 [US1] Implement SPARC downloader with a configurable retry logic mechanism (a limited number of attempts) in `code/download.py` (FR-001)
-- [X] T016 [US1] Implement checksum verification and metadata logging for downloaded SPARC data in `data/metadata.yaml` per Constitution Principle III (Data Hygiene). **Dependency**: T012 must complete first. (FR-001, Constitution Principle III)
-- [X] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty. **Dependency**: T016 must complete first (requires verified data). (FR-002)
-- [X] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points. **Dependency**: T013 must complete first. (FR-003)
+- [~] T012 [US1] Implement SPARC downloader with a configurable retry logic mechanism (a limited number of attempts) in `code/download.py` (FR-001)
+- [~] T016 [US1] Implement checksum verification and metadata logging for downloaded SPARC data in `data/metadata.yaml` per Constitution Principle III (Data Hygiene). **Dependency**: T012 must complete first. (FR-001, Constitution Principle III)
+- [~] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty. **Dependency**: T016 must complete first (requires verified data). (FR-002)
+- [~] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points. **Dependency**: T013 must complete first. (FR-003)
 - [ ] T015 [US1] Create `data/processed/filtered_galaxies.csv` and update `data/metadata.yaml` with download timestamp/version. **Dependency**: T014 must complete first. **Error Handling**: If upstream artifacts (T014 output) are missing or invalid, log a fatal error and exit with non-zero code. (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -75,10 +75,10 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [P] [US2] Implement MOND 'simple' model in `code/models/mond.py`: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light ratio) as a free parameter (FR-004, Plan Summary)
-- [ ] T022 [P] [US2] {{claim:c_b0e61bcc}} **Note**: spec.md FR-005 text is defective (missing value); plan.md requires update to explicitly mandate this citation or include the value. (FR-005) <!-- FAILED: unspecified -->
-- [X] T023 [US2] Implement fitting engine in `code/fit.py` using `scipy.optimize.curve_fit` with velocity uncertainty weighting. **Dependency**: T021 AND T022 must complete. (FR-006)
-- [X] T024 [US2] Implement metric calculator in `code/metrics.py` for reduced χ², AIC, BIC (FR-007)
+- [~] T021 [P] [US2] Implement MOND 'simple' model in `code/models/mond.py`: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light ratio) as a free parameter (FR-004, Plan Summary)
+- [ ] T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration prior c ~ M_baryon^α (α=0.24, std=0.1 dex). **Source**: Derive std=0.1 dex from Bullock et al. 2001 (ApJ, 550, 21). **Note**: spec.md FR-005 text is defective (missing value); plan.md requires update to explicitly mandate this citation or include the value. (FR-005) <!-- FAILED: unspecified -->
+- [~] T023 [US2] Implement fitting engine in `code/fit.py` using `scipy.optimize.curve_fit` with velocity uncertainty weighting. **Dependency**: T021 AND T022 must complete. (FR-006)
+- [~] T024 [US2] Implement metric calculator in `code/metrics.py` for reduced χ², AIC, BIC (FR-007)
 - [ ] T025 [US2] Generate `results/fit_summary.csv` with all metrics per galaxy-model. **Dependency**: T023 and T024 must complete. **Error Handling**: If upstream artifacts (T023/T024 output) are missing or invalid, log a fatal error and exit with non-zero code.
 - [ ] T026 [US2] Implement sensitivity analysis in `code/sensitivity.py` sweeping χ² thresholds across a set of values and output `results/sensitivity_data.csv`. **Dependency**: T025 must complete. (FR-012, SC-006) **Note**: spec.md SC-006 text is defective (missing '1.0'); plan.md requires update to include the full set. <!-- FAILED: unspecified -->
 - [ ] T035 [US2] Generate `results/sensitivity_summary.txt` with a text-based summary of the sensitivity sweep results (pass rates per threshold) derived from `results/sensitivity_data.csv`. **Dependency**: T026 must complete. (FR-012, SC-006)
@@ -95,7 +95,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T031 [US3] Implement residual calculator in `code/residuals.py` to compute (observed - predicted) distributions (FR-008)
+- [~] T031 [US3] Implement residual calculator in `code/residuals.py` to compute (observed - predicted) distributions (FR-008)
 - [ ] T032 [US3] Implement block-bootstrap permutation test in `code/residuals.py` resampling at galaxy level. (FR-009, US3)
 - [ ] T033 [US3] Implement Holm-Bonferroni correction in `code/residuals.py` for multiple hypothesis tests. **Dependency**: T032 must complete. (FR-010)
 - [ ] T034 [US3] Generate `results/residual_stats.csv` with mean, median, std, p-values per model. **Dependency**: T031, T032, T033 must complete. **Error Handling**: If upstream artifacts (T031/T032/T033 output) are missing or invalid, log a fatal error and exit with non-zero code.
