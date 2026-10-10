@@ -2,17 +2,13 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T005** — The `code/utils/logging.py` file exists and is non-empty, but it does not satisfy the task requirement to "handle logging of environmental parameters" in a way that supports the feature specification's mandatory User Story 1.
+- **T006c** — The task requires validation of `solvents.yaml` against `solvent.schema.yaml`, but both files are MISSING from the project root. Without these two artifacts, no validation can occur. The implementer cannot have completed schema validation when the files to be validated do not exist on disk.
+- **T007** — The artifact `contracts/kinetic_trace.schema.yaml` exists and is non-empty, but it does not satisfy the task's requirement as stated in the feature specification.
 
-**Critical deficiencies:**
+**Critical deficiency**: The task requires a schema that validates **kinetic trace data** in the context of the three user stories, particularly User Story 1 (solvent series configuration with environmental logging) and User Story 2 (radical-pair lifetime extraction). The schema provided defines the structure for individual trace records but **lacks the contract definitions necessary to support the experimental workflow**:
 
-1. **No actual environmental parameter capture**: The module provides helper functions like `log_environmental_params()` and `log_compliance_check()`, but these are passive wrappers that accept pre-constructed dictionaries. There is no code that actually *measures* or *validates* environmental parameters (temperature, humidity, barometric pres
-- **T006a** — The schema file exists and is non-empty, but it does **not match the task's stated requirements**. The task explicitly specifies that the schema must have these four fields: `name`, `dielectric_constant`, `source_id`, and `citation_url`. The artifact instead includes `version_hash` as a required field and omits `citation_url` entirely. While `version_hash` may be useful for reproducibility, it was not requested; conversely, `citation_url` — a field explicitly named in the task specification — is missing. The schema also uses `source_id` with a restrictive NIST-specific pattern (`^NIST-SRD-[0-9
-- **T006b** — The `solvents.yaml` file exists and contains NIST dielectric constants, but it is missing two of the five explicitly required solvents. The task specifies "≥5 solvents (cyclohexane, toluene, acetonitrile, methanol, water)" as mandatory entries. The artifact provides cyclohexane, toluene, acetonitrile, ethanol, and dichloromethane—but **methanol and water are absent**. While the file contains 5 solvents total, it does not include the specific required solvents methanol and water that are named in the task specification. This is a substantive gap: the task explicitly lists these five solvents as
-- **T006c** — The task requires validation of `solvents.yaml` against `solvent.schema.yaml`, but both files are MISSING from the project root. Without these two artifacts, no validation work could have been performed. The implementer cannot have completed schema validation when the files to be validated do not exist.
-
-To complete this task, the implementer must create both `solvents.yaml` (containing solvent definitions with properties like dielectric constant, as referenced in User Story 1) and `solvent.schema.yaml` (the schema defining the structure and constraints), then demonstrate that validation passe
-- **T017c** — declared artifact(s) missing/empty/invalid: code/analysis/hash_manager.py, solvents.yaml, state/artifact_hashes.yaml
+1. **Mis
+- **T017c** — Requested task execution failed; rerun successfully: state/artifact_hashes.yaml exit=-1
 - **T015f** — declared artifact(s) missing/empty/invalid: code/data/capture.py, data/raw/kinetic_traces/
 - **T017b** — declared artifact(s) missing/empty/invalid: code/analysis/compliance.py, data/processed/compliance_report.json
 - **T022** — declared artifact(s) missing/empty/invalid: data/processed/kinetic_metrics.csv

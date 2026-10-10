@@ -9,53 +9,31 @@ T003:
 T004:
   task: 7eeb2ace8cd36ee68f28e23ddb2782d5277c2162a3fecaffce7c94db52641a11
 T005:
-  reason: 'The `code/utils/logging.py` file exists and is non-empty, but it does not
-    satisfy the task requirement to "handle logging of environmental parameters" in
-    a way that supports the feature specification''s mandatory User Story 1.
-
-
-    **Critical deficiencies:**
-
-
-    1. **No actual environmental parameter capture**: The module provides helper functions
-    like `log_environmental_params()` and `log_compliance_check()`, but these are
-    passive wrappers that accept pre-constructed dictionaries. There is no code that
-    actually *measures* or *validates* environmental parameters (temperature, humidity,
-    barometric pres'
   task: 62ff72518f6fef17fffd027fda7053c021bbc8b988f9909adb06130f3f85dd2a
 T006a:
-  reason: "The schema file exists and is non-empty, but it does **not match the task's\
-    \ stated requirements**. The task explicitly specifies that the schema must have\
-    \ these four fields: `name`, `dielectric_constant`, `source_id`, and `citation_url`.\
-    \ The artifact instead includes `version_hash` as a required field and omits `citation_url`\
-    \ entirely. While `version_hash` may be useful for reproducibility, it was not\
-    \ requested; conversely, `citation_url` \u2014 a field explicitly named in the\
-    \ task specification \u2014 is missing. The schema also uses `source_id` with\
-    \ a restrictive NIST-specific pattern (`^NIST-SRD-[0-9"
   task: ce4949f3628dcda87be1f8be05c5b63a8ea7a4a778e3823a22b26a20dbbe541a
 T006b:
-  reason: "The `solvents.yaml` file exists and contains NIST dielectric constants,\
-    \ but it is missing two of the five explicitly required solvents. The task specifies\
-    \ \"\u22655 solvents (cyclohexane, toluene, acetonitrile, methanol, water)\" as\
-    \ mandatory entries. The artifact provides cyclohexane, toluene, acetonitrile,\
-    \ ethanol, and dichloromethane\u2014but **methanol and water are absent**. While\
-    \ the file contains 5 solvents total, it does not include the specific required\
-    \ solvents methanol and water that are named in the task specification. This is\
-    \ a substantive gap: the task explicitly lists these five solvents as"
   task: 6a2f9f83b4d2466fa34df9b621024ec3302d3b122b22246f233d60bdaccd913f
 T006c:
-  reason: 'The task requires validation of `solvents.yaml` against `solvent.schema.yaml`,
+  reason: The task requires validation of `solvents.yaml` against `solvent.schema.yaml`,
     but both files are MISSING from the project root. Without these two artifacts,
-    no validation work could have been performed. The implementer cannot have completed
-    schema validation when the files to be validated do not exist.
-
-
-    To complete this task, the implementer must create both `solvents.yaml` (containing
-    solvent definitions with properties like dielectric constant, as referenced in
-    User Story 1) and `solvent.schema.yaml` (the schema defining the structure and
-    constraints), then demonstrate that validation passe'
+    no validation can occur. The implementer cannot have completed schema validation
+    when the files to be validated do not exist on disk.
   task: 2839ac3b2eb4a224efedf558b1c9134aded95d9a43d4408d0f772eb0c7846fd9
 T007:
+  reason: 'The artifact `contracts/kinetic_trace.schema.yaml` exists and is non-empty,
+    but it does not satisfy the task''s requirement as stated in the feature specification.
+
+
+    **Critical deficiency**: The task requires a schema that validates **kinetic trace
+    data** in the context of the three user stories, particularly User Story 1 (solvent
+    series configuration with environmental logging) and User Story 2 (radical-pair
+    lifetime extraction). The schema provided defines the structure for individual
+    trace records but **lacks the contract definitions necessary to support the experimental
+    workflow**:
+
+
+    1. **Mis'
   task: e6032884841016c43bf2bf33999899a12c2fef74b888eb29b5375cf379e2652e
 T008:
   task: 0c83b11918b97c6f412500f408aa266b753dcf3ac6742df6bb965303b73d4254
@@ -87,8 +65,8 @@ T017b:
     data/processed/compliance_report.json'
   task: d092bce1f4713b6f0a98e84207cfaa07d3f6bfc428e98063f18abf77fee125ee
 T017c:
-  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/hash_manager.py,
-    solvents.yaml, state/artifact_hashes.yaml'
+  reason: 'Requested task execution failed; rerun successfully: state/artifact_hashes.yaml
+    exit=-1'
   task: 559a56820e853139ac1fd5cb086cab4de6dbc4e5e988c3c802c875a6b3d853cf
 T021:
   task: 7c1077a9975dbb49a268d1eb3da0edcf3e612ef4f90d3b2bcf53c7ebbb14c0c9

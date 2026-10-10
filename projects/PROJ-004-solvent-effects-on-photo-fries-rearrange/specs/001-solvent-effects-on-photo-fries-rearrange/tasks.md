@@ -31,7 +31,7 @@ description: "Task list template for feature implementation"
 - [X] T002b **Add RDKit for Molecular Proxy** – pin `rdkit==2023.9.1` (or latest) in `requirements.txt`.
 - [X] T003 **Configure linting and formatting** – add `ruff` and `black` configuration to `pyproject.toml`.
 - [X] T004 **Initialize random seed utility** – `code/utils/seeds.py` sets global seeds for reproducibility.
-- [ ] T005 **Setup structured logging** – `code/utils/logging.py` handles logging of environmental parameters.
+- [X] T005 **Setup structured logging** – `code/utils/logging.py` handles logging of environmental parameters.
 
 ---
 
@@ -39,15 +39,15 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin.
 
-- [ ] T006a **Solvent Schema Definition** – `contracts/solvent.schema.yaml` (fields: name, dielectric_constant, source_id, citation_url).
-- [ ] T006b **Solvent Data Population** – `data/chemicals/solvents.yaml` with ≥5 solvents (cyclohexane, toluene, acetonitrile, methanol, water) and NIST dielectric constants.
-- [ ] T006c **Solvent Schema Validation** – validate `solvents.yaml` against `solvent.schema.yaml`.
-- [~] T007 **Kinetic Trace Schema Definition** – `contracts/kinetic_trace.schema.yaml`.
+- [X] T006a **Solvent Schema Definition** – `contracts/solvent.schema.yaml` (fields: name, dielectric_constant, source_id, citation_url).
+- [X] T006b **Solvent Data Population** – `data/chemicals/solvents.yaml` with ≥5 solvents (cyclohexane, toluene, acetonitrile, methanol, water) and NIST dielectric constants.
+- [ ] T006c **Solvent Schema Validation** – validate `solvents.yaml` against `solvent.schema.yaml`. <!-- FAILED: unspecified -->
+- [ ] T007 **Kinetic Trace Schema Definition** – `contracts/kinetic_trace.schema.yaml`.
 - [~] T008 **Implement Solvent Loader** – `code/data/loaders.py` reads `solvents.yaml` and returns validated records.
 - [~] T009a **Config Paths & CPU Constraints** – `code/config.py` defines paths, CPU‑only flag, and constants. Default substrate mass and integration time are set to `None` and must be overridden via a YAML config file `config.yaml` or CLI arguments.
 - [~] T009b **Explicit Solvent List** – extend `code/config.py` with `EXPLICIT_SOLVENTS` list (e.g., `['water', 'methanol']`) to satisfy FR‑005 explicit‑model proportion.
 - [~] T010 **Unit Test for Solvent Loader** – `tests/unit/test_loaders.py` validates dielectric constants against a versioned lookup table.
-- [ ] T017c **Robust Hash Initialization** – `code/analysis/hash_manager.py` computes SHA‑256 of `solvents.yaml` and stores under `state/artifact_hashes.yaml` (key: `solvents_yaml_hash`); raises if file missing.
+- [ ] T017c **Robust Hash Initialization** – `code/analysis/hash_manager.py` computes SHA‑256 of `solvents.yaml` and stores under `state/artifact_hashes.yaml` (key: `solvents_yaml_hash`); raises if file missing. <!-- FAILED-IN-EXECUTION: state/artifact_hashes.yaml exit=-1 -->
 - [~] T014 **Environment Logging Infrastructure** – `code/analysis/environment.py` logs temperature, humidity, barometric pressure, substrate mass, and integration time per run to `data/processed/environment_logs.json`. **Dependency**: Runs after `T015f` (data capture) to obtain run IDs.
 - [~] T015e **Instrument Capture Interface** – `code/data/instrument_interface.py` defines `capture_transient_data()` API; raises `NotImplementedError` if hardware absent. **Dependency**: Must be defined before `T015f`.
 - [~] T015b **Real Data Ingestion (Optional)** – `code/data/ingest.py` reads transient‑absorption CSV/JSON from path `REAL_DATA_PATH` (set in `config.py`). aborts if `USE_REAL_DATA=True` and file missing.

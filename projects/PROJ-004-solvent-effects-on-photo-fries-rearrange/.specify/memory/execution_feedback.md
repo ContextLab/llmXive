@@ -31,28 +31,30 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --mode simulate -> rc=1
-
+enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791624614.669484    3426 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791624616.506818    3426 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
-E0000 00:00:1791624617.936342    3426 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+I0000 00:00:1791624875.180210    4055 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1791624876.605684    4055 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 TensorFlow GPU devices disabled via config.py
-Found only 4 solvents in range [2, 35]. Defaulting to available list for demo, but constraint may be violated.
-Solvent configuration error: Constraint Violation: Could not find 5 solvents with dielectric constant between 2 and 33. Found 4 in range. Available solvents: ['cyclohexane', 'ethanol', 'acetonitrile', 'toluene', 'dichloromethane']
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py", line 24, in <module>
+    from analysis.environment import ConfigurationError, record_run_environment, write_environment_logs
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/analysis/environment.py", line 17, in <module>
+    from utils.logging import setup_logging, log_operation
+ImportError: cannot import name 'log_operation' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/utils/logging.py)
 
 - python code/main.py --mode real --data-path data/raw/ -> rc=1
-
+enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791624620.637195    3435 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791624622.444331    3435 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
-E0000 00:00:1791624623.859698    3435 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+I0000 00:00:1791624881.169538    4064 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1791624882.596101    4064 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 TensorFlow GPU devices disabled via config.py
-Found only 4 solvents in range [2, 35]. Defaulting to available list for demo, but constraint may be violated.
-Solvent configuration error: Constraint Violation: Could not find 5 solvents with dielectric constant between 2 and 33. Found 4 in range. Available solvents: ['cyclohexane', 'ethanol', 'acetonitrile', 'toluene', 'dichloromethane']
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py", line 24, in <module>
+    from analysis.environment import ConfigurationError, record_run_environment, write_environment_logs
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/analysis/environment.py", line 17, in <module>
+    from utils.logging import setup_logging, log_operation
+ImportError: cannot import name 'log_operation' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/utils/logging.py)
 
 - python -m pytest tests/ -> rc=1
 

@@ -2,15 +2,14 @@ $schema: http://json-schema.org/draft-07/schema#
 title: Solvent Properties Schema
 description: |
   Schema for validating solvent property data used in the Photo-Fries rearrangement study.
-  Sources must align with NIST Standard Reference Database entries as per T006.
-  Enforces strict typing for dielectric constants and versioning to satisfy
-  reproducibility requirements (Marie Curie review).
+  Sources must align with established chemical databases as per T006a.
+  Enforces strict typing for dielectric constants to satisfy reproducibility requirements.
 type: object
 required:
   - name
   - dielectric_constant
   - source_id
-  - version_hash
+  - citation_url
 properties:
   name:
     type: string
@@ -26,12 +25,12 @@ properties:
       reference_temp: "25°C"
   source_id:
     type: string
-    description: Identifier from NIST Standard Reference Database
-    pattern: "^NIST-SRD-[0-9]+$"
-  version_hash:
+    description: Identifier for the data source (e.g., NIST-SRD-69, CRC-Handbook)
+    minLength: 1
+  citation_url:
     type: string
-    description: SHA-256 hash of the source data version to ensure immutability
-    pattern: "^[a-f0-9]{64}$"
+    description: URL to the primary source or reference for the dielectric constant value
+    format: uri
   temperature_celsius:
     type: number
     description: Temperature at which dielectric constant was measured
