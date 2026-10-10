@@ -1,19 +1,15 @@
 status: none
-intent: MatNavi NIST Materials Data Repository BCC iron alloy yield strength experimental
-  data python package dataset
+intent: MatNavi NIST Materials Data Repository yield strength dataset Materials Project
+  elastic constants python package dataset
 required_fields:
-- composition
-- alloy_system
-- yield_strength_MPa
-- crystal_structure
-- space_group
-- temperature_K
-- strain_rate
-- source_reference
 - material_id
-- shear_modulus_GPa
-- bulk_modulus_GPa
-- youngs_modulus_GPa
-cache_key: 5352b04db2f3cbbe9b9e838a864d4e5f6f46f8fb9f86aa32c1f49c0f8ad15953
-searched_at: '2026-10-10T00:34:34.886219+00:00'
+- composition
+- space_group
+- crystal_structure
+- yield_strength
+- shear_modulus
+- bulk_modulus
+- elastic_constants
+cache_key: a352c0bda6ea6041d09b474aad9ca79045aa5b6c1a8bf2bc4b7acb24249ac84f
+searched_at: '2026-10-10T02:28:43.973211+00:00'
 retry_count: 1
