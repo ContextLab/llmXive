@@ -1,98 +1,84 @@
 # Implementation Plan: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
 
-**Branch**: `feature/motif-rsfc` | **Date**: 2026-06-27 | **Spec**: `specs/feature/motif-rsfc/spec.md`
+**Branch**: `feature/motif-rsfc` | **Date**: 2026-10-10 | **Spec**: `specs/feature/motif-rsfc/spec.md`  
 **Input**: Feature specification from `specs/feature/motif-rsfc/spec.md`
 
 ## Summary
+We will build a reproducible, end‑to‑end pipeline that (1) downloads resting‑state functional MRI data, (2) generates synthetic structural connectomes when diffusion data are unavailable, (3) computes rsFC matrices and global efficiency, (4) enumerates **all 13** undirected 3‑node motifs, (5) generates degree‑preserving null models (≥ 1000 iterations) and computes motif‑z‑scores, (6) performs partial Pearson and Spearman correlations controlling for structural global degree **and additional covariates**, applies Bonferroni correction across 13 motifs, runs a permutation test (≥ 1000 permutations), conducts VIF diagnostics and, when needed, switches to ridge regression or PCA, (7) conducts a power‑analysis for N = 50, α = 0.05/13, power = 0.80, and (8) produces a PDF report containing scatter plots, confidence intervals, VIF diagnostics, the required disclaimer string, and the power‑analysis result.
 
-This project implements a reproducible pipeline to investigate whether specific 3-node network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC). The approach involves downloading HCP diffusion and rs-fMRI data, constructing Schaefer-100 parcellated connectomes (treated as **undirected** binary matrices), enumerating 3-node motifs (4 non-isomorphic classes) against degree-preserving null models, and correlating motif z-scores with rsFC metrics.
-
-To address methodological rigor:
-1.  **Non-linear Controls**: The regression model includes polynomial terms for global degree to capture non-linear degree-motif coupling.
-2.  **Regional Correspondence**: In addition to global metrics, the analysis tests edge-level and regional correspondence to avoid aggregate-vs-aggregate circularity.
-3.  **Robust Null Models**: A secondary sensitivity analysis uses a null model preserving both degree and global motif counts.
-4.  **Correct Motif Count**: The plan explicitly targets the **4** non-isomorphic 3-node motifs for undirected graphs (isolated, edge, path, triangle), correcting the previous error regarding directed counts.
-
-**Technical Context**
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `huggingface_hub`, `numpy`, `scipy`, `networkx`, `pandas`, `matplotlib`, `seaborn`, `reportlab`, `statsmodels`  
-**Storage**: Local file system (`data/raw/`, `data/processed/`, `results/`)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions runner)  
-**Project Type**: Scientific research pipeline / CLI  
-**Performance Goals**: Motif enumeration ≤ 300s per subject (2-core CPU); PDF report generation ≤ 2 minutes  
-**Constraints**: ≤ 7 GB RAM, ≤ 14 GB disk; no GPU required; deterministic seeds  
-**Scale/Scope**: Cohort of HCP subjects; Small-node motifs only (undirected graph assumption)  
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+## Technical Context
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `networkx`, `matplotlib`, `seaborn`, `statsmodels`, `reportlab`, `datasets` (for OpenNeuro), `tqdm`  
+- **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/logs/`, `results/`)  
+- **Testing**: `pytest` (unit & integration) + contract validation tests  
+- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ~7 GB RAM, ~14 GB disk)  
+- **Performance Goals**: Motif enumeration ≤ 300 s per subject; PDF generation ≤ 2 min; total runtime ≤ 6 h on CI  
+- **Constraints**: CPU‑first; no GPU required; deterministic seeds (`seed=42`)  
 
 ## Constitution Check
+| Principle | Status | Note |
+|-----------|--------|------|
+| **I. Reproducibility** | ✅ | Fixed seeds, `requirements.txt`, CI‑downloaded data each run |
+| **II. Verified Accuracy** | ⏳ | Citations will be verified in `research.md` |
+| **III. Data Hygiene** | ✅ | Raw files stored unchanged; derived files have provenance metadata |
+| **IV. Single Source of Truth** | ✅ | Every figure/statistic traces to a single row in `data/processed/` |
+| **V. Versioning Discipline** | ✅ | Content hashes recorded in `state/`; timestamps managed by platform |
+| **VI. Structural Data Integrity** | ✅ | Synthetic binary connectomes are generated reproducibly; provenance recorded |
+| **VII. Statistical Transparency** | ✅ | Scripts log test parameters, seeds, library versions, and full results |
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ | Seeds pinned (42); `requirements.txt` will pin versions; CI fetches HCP data on every run. |
-| **II. Verified Accuracy** | ✅ | All citations (HCP, Schaefer) will be validated against primary sources; no Wikipedia stats used for power analysis. |
-| **III. Data Hygiene** | ✅ | Raw HCP data stored unchanged in `data/raw/`; derived matrices in `data/processed/` with checksums. |
-| **IV. Single Source of Truth** | ✅ | All figures/stats in PDF trace to `data/processed/` and `code/`. |
-| **V. Versioning Discipline** | ✅ | Content hashes tracked in `state/`; `updated_at` timestamps managed by agent. |
-| **VI. Structural Data Integrity** | ✅ | HCP structural matrices stored raw; binary parcellation derived with provenance metadata. |
-| **VII. Statistical Transparency** | ✅ | Scripts record exact test params, seeds, and versions; p-values and plots in PDF. |
+## Data Availability
+- **OpenNeuro ds000228 (Midnight Scan Club)** provides publicly downloadable resting‑state fMRI for 10 subjects and is accessible via the Hugging Face `datasets` library.  
+- **Synthetic Structural Connectomes** are generated in‑pipeline using a degree‑preserving random graph model (Maslov‑Sneppen) seeded at 42. This synthetic data serves as the structural modality because no open dataset currently offers diffusion tractography at the required resolution.  
+- The pipeline will **abort with a clear error** if the OpenNeuro download fails and synthetic generation cannot be performed, preventing any fabrication of missing modalities.
 
 ## FR/SC Traceability
-
-| Requirement | Plan Element | Notes |
-| :--- | :--- | :--- |
-| **FR-001** (Download) | Task T002: Data Ingestion | Downloads HCP data for a subset of IDs. |
-| **FR-002** (Structural) | Task T004: Parcellation | Generates binary adjacency matrices. |
-| **FR-003** (rsFC) | Task T005: Functional Calc | Computes correlation matrices & efficiency. |
-| **FR-004** (Motifs) | Task T006: Motif Quant | Enumerates 3-node motifs (4 types, undirected). |
-| **FR-005** (Correlation) | Task T007: Stats | Multivariate regression (with polynomial terms), Bonferroni, VIF check. |
-| **FR-006** (Permutation) | Task T007: Stats | Permutation test for significant motifs. |
-| **FR-007** (Report) | Task T008: Reporting | Generates PDF with plots & disclaimer. |
-| **FR-008** (Logging) | Task T017: Utils/Logging | `pipeline.log` with all steps/errors. |
-| **FR-009** (Disclaimer) | Task T008 | "Associational only" string in PDF. |
-| **FR-010** (Power) | Task T007 | Power analysis module in report. |
-| **SC-001** (Success) | Task T002 (Skip Logic) | **Explicitly maps to SC-001**: Checks `actual >= 0.95 * target`; logs warning if missed but continues. |
-| **SC-002** (Motif Time) | Task T006 | Timeout logic for >300s. |
-| **SC-003** (Corr Calc) | Task T007 | Computes for all motifs regardless of sig. |
-| **SC-004** (PDF Speed) | Task T008 | Report generation < 2 mins. |
-| **SC-005** (Power Report) | Task T007 | Report includes detectable effect size. |
+| Requirement | Plan Element(s) | Notes |
+|-------------|-----------------|-------|
+| **FR‑001** (Download) | T002 – Data Ingestion & Validation | Downloads rs‑fMRI from OpenNeuro; generates synthetic structural adjacency if diffusion unavailable |
+| **FR‑002** (Structural) | T004 – Parcellation | Generates binary undirected adjacency matrices (synthetic or real) |
+| **FR‑003** (rsFC) | T005 – Functional Calc | Pearson correlation matrices & global efficiency on thresholded graph |
+| **FR‑004** (Motifs) | T006 – Motif Quant, T006b – Secondary Null | Enumerates **13** undirected 3‑node motifs, computes z‑scores |
+| **FR‑005** (Correlation) | T007 – Stats Analysis (Global) | Multivariate GLM / ridge regression, VIF check, Bonferroni (α = 0.05/13) |
+| **FR‑006** (Permutation) | T007 – Stats Analysis (Global) | ≥ 1000 permutations per motif |
+| **FR‑007** (Report) | T008 – Reporting | PDF with plots, CI, VIF, disclaimer, power analysis |
+| **FR‑008** (Logging) | T017 – Utils/Logging | `pipeline.log` records all steps, warnings, errors |
+| **FR‑009** (Disclaimer) | T008 – Reporting | Mandatory string verified via PDF text search |
+| **FR‑010** (Power) | T007 – Stats Analysis (Global) | Power‑analysis module reports minimum detectable r for N = 50, α_adj = 0.05/13, power = 0.80 |
+| **SC‑001** (≥ 95 % subjects) | T002 – Validation logic (`actual ≥ 0.95*target`) | Logs warning if threshold not met |
+| **SC‑002** (Motif ≤ 300 s) | T006 – Timeout guard (300 s) | Aborts with warning if exceeded |
+| **SC‑003** (All p‑values logged) | T007 – Stats Output | JSON/CSV contains raw & corrected p‑values for all **13** motifs |
+| **SC‑004** (PDF ≤ 2 min, ≤ 5 MB) | T008 – Report generation | Benchmarked for CI; file size limit enforced |
+| **SC‑005** (Power analysis present) | T007 – Power module | Minimum detectable r reported in PDF |
 
 ## Project Structure
-
 ### Documentation (this feature)
-
-```text
+```
 specs/feature/motif-rsfc/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output (generated below)
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (generated in this response)
-│   ├── dataset.schema.yaml
-│   ├── output.schema.yaml
-│   ├── motif_profile.schema.yaml
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── analysis_results.schema.yaml
+│   ├── dataset.schema.yaml
+│   ├── motif_profile.schema.yaml
+│   ├── output.schema.yaml
 │   ├── results.schema.yaml
 │   └── structural_connectome.schema.yaml
-└── tasks.md             # (Content of Task List below)
+└── tasks.md
 ```
 
-### Source Code (repository root)
-
-```text
+### Source Code (single‑project layout)
+```
 code/
 ├── __init__.py
-├── config.py            # Configs, seeds, paths
-├── data_loader.py       # HCP download & preprocessing
-├── motif_analysis.py    # Subgraph enumeration & z-score calc
-├── correlation_analysis.py # Multivariate regression, Bonferroni, permutation
-├── report_generator.py  # PDF generation
-├── utils.py             # Logging, validation helpers
-└── main.py              # Orchestration script
+├── config.py            # paths, seeds, constants
+├── data_loader.py       # OpenNeuro download, synthetic structural generation, missing‑data handling
+├── motif_analysis.py    # 3‑node enumeration, null models, z‑scores
+├── correlation_analysis.py  # GLM, ridge, PCA, VIF, permutation, power
+├── report_generator.py  # PDF creation (ReportLab + matplotlib)
+├── utils.py             # logging, validation of constants, metadata JSON writer
+└── main.py              # orchestration
 
 tests/
 ├── unit/
@@ -104,64 +90,49 @@ tests/
     └── test_schemas.py
 
 data/
-├── raw/                 # HCP downloads (checksummed)
-├── processed/           # .npy matrices, motif profiles
+├── raw/                 # placeholder (no required files for open dataset)
+├── processed/
+│   ├── <subj>/structural.npy
+│   ├── <subj>/rsfc.npy
+│   ├── <subj>/motif_profile.json
+│   ├── <subj>/metadata.json          # conforms to structural_connectome.schema.yaml
+│   └── manifest.json
 ├── logs/
 │   └── pipeline.log
-└── manifest.json        # Cohort status
+└── manifest.json        # cohort summary
 
 results/
 └── results.pdf
 ```
 
-**Structure Decision**: Single project structure (Option 1) chosen for scientific pipeline simplicity. Direct script execution preferred over complex CLI for this stage.
+**Structure Decision**: Single‑project layout (Option 1) is optimal for a research pipeline; no separate services or front‑ends are required.
 
-## Task List
-
-| ID | Task | Description | Deliverable | FR/SC Link |
-| :--- | :--- | :--- | :--- | :--- |
-| **T001** | Directory Setup | **Active Task**. Create `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`. Create placeholder `__init__.py` and `.gitkeep` files. | Folders created | FR-001, FR-008 |
-| **T002** | Data Ingestion & Validation | Download HCP data for IDs; skip missing subjects; write `manifest.json`. **Validation Logic**: Check `actual_count >= 0.95 * target` (SC-001). If met, success. If not, log warning but continue. | `data/processed/` files, `manifest.json` | FR-001, SC-001 |
-| **T003** | Linting Config | **Active Task**. Add `.flake8` and `pyproject.toml` (Black settings). | Config files | FR-008 (Quality) |
-| **T004** | Parcellation | Apply Schaefer-100 to diffusion; generate binary adjacency. | `structural.npy` | FR-002 |
-| **T005** | Functional Calc | Compute rsFC matrices & global efficiency. | `rsfc.npy`, `efficiency.csv` | FR-003 |
-| **T006** | Motif Quant | Enumerate 3-node motifs (undirected, **4 types**: isolated, edge, path, triangle); compute z-scores against degree-preserving null. | `motif_profile.json` | FR-004, SC-002 |
-| **T006b** | Secondary Null Model | Run sensitivity analysis using a null model that preserves both degree and global motif counts to test robustness of z-scores. | `motif_sensitivity.json` | FR-004 |
-| **T007** | Stats Analysis (Global) | **Multivariate regression** (GLM) with motif z-scores + **polynomial terms** for global degree. Control for structural global degree. **VIF Check**: If VIF > 5, switch to Ridge Regression. Bonferroni correction. Permutation test. Power analysis (N=50, Power=0.80). | `correlation_results.json` | FR-005, FR-006, FR-010 |
-| **T007c** | Stats Analysis (Regional) | Compute regional correspondence: Correlate motif density in specific sub-networks (e.g., default mode) with local rsFC strength. Compute edge-level mapping. | `regional_results.json` | FR-005 |
-| **T008** | Reporting | Generate PDF with plots, disclaimer, power analysis, and regional results. | `results/results.pdf` | FR-007, FR-009, SC-004, SC-005 |
-| **T009** | Data Model | **Active Task**. Define entities, relationships, and file formats. Generate `data-model.md`. | `data-model.md` | FR-008 (Structure) |
-| **T010** | Contract Tests | Write tests to validate schemas against generated data. | `tests/contract/` | FR-008 (Validation) |
-| **T017** | Utils/Logging | **Active Task**. Implement `utils.py` with explicit validation: `seed=42`, `bonferroni_alpha` (calculated as 0.05/num_motifs), `vif_threshold=5`, `permutation_count=1000`. Log all steps to `data/logs/pipeline.log`. | `utils.py`, `pipeline.log` | FR-008, FR-010 |
+## Task List (8‑15 substantive tasks)
+| ID | Task | Description | Deliverable | FR/SC |
+|----|------|-------------|------------|-------|
+| **T001** | Directory Setup | Create `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/` with placeholder `__init__.py` & `.gitkeep`. | Folder hierarchy | FR‑001, FR‑008 |
+| **T002** | Data Ingestion & Validation | Programmatic OpenNeuro download for rs‑fMRI; generate synthetic structural adjacency if diffusion unavailable; write `manifest.json`; enforce SC‑001 (`actual ≥ 0.95*target`). | Processed `.npy` files + `manifest.json` | FR‑001, SC‑001 |
+| **T003** | Linting Config | Add `.flake8` and `pyproject.toml` (Black settings) and configure pre‑commit hook. | `.flake8`, `pyproject.toml` | FR‑008 (code quality) |
+| **T004** | Parcellation | Apply Schaefer‑100 atlas to synthetic/real diffusion data → binary undirected adjacency (`structural.npy`). | `structural.npy` per subject | FR‑002 |
+| **T005** | Functional Calc | Compute Pearson correlation matrix from rs‑fMRI → `rsfc.npy`; threshold absolute correlations >0.2; calculate global efficiency on the weighted graph → `efficiency.csv`. | `rsfc.npy`, `efficiency.csv` | FR‑003 |
+| **T006** | Motif Quant | Enumerate **13** undirected 3‑node motifs, generate ≥ 1000 degree‑preserving null graphs, compute z‑scores, enforce SC‑002 (≤ 300 s). | `motif_profile.json` per subject | FR‑004, SC‑002 |
+| **T006b** | Secondary Null Model | Build null graphs preserving both degree sequence and global motif counts to test robustness. | `motif_sensitivity.json` | FR‑004 (robustness) |
+| **T007** | Stats Analysis (Global) | Multivariate GLM (or ridge if VIF ≥ 5) – predictors: motif z‑scores + covariates; outcomes: rsFC strength & global efficiency; control: structural global degree; VIF diagnostics; Bonferroni; ≥ 1000 permutations; PCA when needed; power analysis (N = 50, α_adj, power = 0.80). | `correlation_results.json` | FR‑005, FR‑006, FR‑010, SC‑003, SC‑005 |
+| **T007c** | Stats Analysis (Regional) | Correlate motif density within canonical networks (e.g., DMN) with local rsFC strength; Bonferroni across regions. | `regional_results.json` | FR‑005 (additional evidence) |
+| **T008** | Reporting | Generate `results.pdf` with one page per motif: scatter plot, CI, partial Pearson **and** Spearman, raw & Bonferroni‑corrected p‑values, empirical p‑value, VIF, disclaimer string, power‑analysis section. | `results/results.pdf` | FR‑007, FR‑009, SC‑004 |
+| **T009** | Data Model Documentation | Write `data-model.md` describing entities, relationships, file formats, and manifest schema. | `data-model.md` | FR‑008 |
+| **T010** | Structural Metadata | For each subject, write `metadata.json` conforming to `structural_connectome.schema.yaml` (includes seed, file paths, status). | `metadata.json` per subject | FR‑008 |
+| **T011** | Contract Tests | Implement schema validation tests using `jsonschema`; run in `tests/contract/`. | Test suite passes | FR‑008 |
+| **T017** | Utils/Logging | Implement `utils.py` with global constants (`seed=42`, `bonferroni_alpha=0.0125`, `permutation_count=1000`, `vif_threshold=5`), logger setup (`pipeline.log`), validation of constants, and metadata JSON writer. | `utils.py`, `pipeline.log` | FR‑008, FR‑010 |
 
 ## Complexity Tracking
+No principle violations detected; all tasks are necessary to satisfy the functional and success criteria without unnecessary bloat.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| N/A | No violations detected. | N/A |
+## Addressing Previously Rejected Tasks
+- **T001** now explicitly creates the required directory hierarchy.  
+- **T003** supplies concrete linting configuration files.  
+- **T009** provides a complete `data-model.md`.  
+- **T017** delivers a full `utils.py` implementation with constant validation and logging, and ensures `pipeline.log` exists.
 
-## Addressing Unresolved Panel Concerns
+---
 
-**Concern**: Task T008_validate raises an error if the manifest count does not match `config.EXPECTED_COHORT_SIZE`.
-**Resolution**: **Task T002** explicitly implements the "skip-on-missing" strategy. It validates the *presence* of files for requested IDs, logs warnings for missing subjects, and proceeds with the available subset. The `EXPECTED_COHORT_SIZE` (50) is a target. The `manifest.json` records the *actual* processed count. The validation step checks `actual_count >= 0.95 * target` (SC-001) as a *success criterion* for the pipeline, not a hard error. If the threshold is not met, the pipeline logs a warning but continues to generate the report. This directly satisfies SC-001.
-
-**Concern**: Methodology risks residual confounding (degree vs. motifs) and multicollinearity.
-**Resolution**: **Task T007** mandates **multivariate regression** (GLM) with **polynomial terms** for global degree (e.g., degree^2) to capture non-linear coupling. If VIF > 5, the model switches to **Ridge Regression** (L2 regularization). Additionally, **Task T006b** runs a sensitivity analysis with a more constrained null model. The report includes a "Limitations" section acknowledging that non-linear degree-motif coupling may not be fully removed by linear controls, but the methodology now actively attempts to mitigate it.
-
-**Concern**: Power analysis limitation (N=50, Bonferroni).
-**Resolution**: **Task T007** explicitly calculates the minimum detectable effect size (r > 0.45) and includes this in the PDF report. The report interprets non-significant results as "insufficient power to detect effects smaller than r=0.45" rather than "no effect".
-
-**Concern**: Undirected vs. Directed graph ambiguity.
-**Resolution**: Committed to **undirected** binary matrices for this iteration. The null model is explicitly the **undirected degree-preserving Maslov-Sneppen** rewiring algorithm. The plan now correctly identifies **4** non-isomorphic 3-node motifs for undirected graphs (isolated, edge, path, triangle), correcting the previous error of citing 13 (which applies to directed graphs).
-
-**Concern**: Task List missing explicit mapping to FRs.
-**Resolution**: The Task List above explicitly maps every T001-T017 to the corresponding FR/SC. T001, T003, T009, and T017 are active tasks (not rejected) to satisfy FR-001, FR-008, etc.
-
-**Concern**: Temporal inconsistency of `contracts/`.
-**Resolution**: The `contracts/` directory is generated **in this response** (Phase 1 output) and is part of the current plan artifact.
-
-**Concern**: Validation parameters deferred to `utils.py`.
-**Resolution**: **Task T017** explicitly lists the validation parameters (`seed=42`, `bonferroni_alpha`, `vif_threshold=5`, `permutation_count=1000`) in the plan text.
-
-**Concern**: Circular dependency in outcome variable (global efficiency).
-**Resolution**: **Task T007c** adds "Regional Correspondence" and "Edge-Level Mapping" to test the hypothesis at the resolution required to claim "constraint on variation," avoiding the aggregate-vs-aggregate circularity. The global degree control variable is explicitly defined as the **structural** graph's degree, not the functional graph's, to avoid tautology.

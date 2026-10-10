@@ -1,32 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Manifest Schema"
 description: "Schema for the manifest.json file tracking processed subjects and data integrity."
-type: object
+type: "object"
 properties:
   cohort_target:
-    type: integer
+    type: "integer"
     description: "Target number of subjects (e.g., a sufficient cohort size to ensure statistical power)."
     const: 50
   cohort_actual:
-    type: integer
+    type: "integer"
     description: "Actual number of subjects successfully processed."
     minimum: 0
   cohort_skipped:
-    type: integer
+    type: "integer"
     description: "Number of subjects skipped due to missing data."
     minimum: 0
   subjects:
-    type: array
+    type: "array"
     description: "List of subject processing records."
     items:
-      type: object
+      type: "object"
       properties:
         subject_id:
-          type: string
+          type: "string"
           description: "HCP Subject ID."
         status:
-          type: string
-          enum: ["processed", "skipped", "error"]
+          type: "string"
+          enum:
+            - "processed"
+            - "skipped"
+            - "error"
           description: "Processing status."
         structural_path:
           type: ["string", "null"]
@@ -38,18 +41,18 @@ properties:
           type: ["string", "null"]
           description: "Error message if status is error."
       required:
-        - subject_id
-        - status
+        - "subject_id"
+        - "status"
       additionalProperties: false
   checksums:
-    type: object
+    type: "object"
     description: "Checksums for raw data files (key: filename, value: sha256)."
     additionalProperties:
-      type: string
+      type: "string"
 required:
-  - cohort_target
-  - cohort_actual
-  - cohort_skipped
-  - subjects
-  - checksums
+  - "cohort_target"
+  - "cohort_actual"
+  - "cohort_skipped"
+  - "subjects"
+  - "checksums"
 additionalProperties: false

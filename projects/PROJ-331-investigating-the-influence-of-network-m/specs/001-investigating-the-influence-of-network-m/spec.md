@@ -32,7 +32,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a binary structural adjacency matrix (treated as undirected), **When** the motif‑counting function executes, **Then** it returns a dictionary with z‑scores for all 13 possible 3‑node motifs in undirected graphs, each computed against degree‑preserved random graphs (≥ 1000 iterations).
+1. **Given** a binary structural adjacency matrix (treated as undirected), **When** the motif‑counting function executes, **Then** it returns a dictionary with z‑scores for all possible 3‑node motifs in undirected graphs, each computed against degree‑preserved random graphs (≥ 1000 iterations).
 2. **Given** a disconnected graph (isolated nodes), **When** the function runs, **Then** it still completes without crash and reports z‑scores of zero for motifs that cannot occur.
 
 ---
@@ -65,9 +65,9 @@
 ### Functional Requirements
 
 - **FR‑001**: The system MUST download diffusion tractography and resting‑state fMRI files for a provided list of HCP subject IDs and store them in a reproducible directory structure. (See US‑1)
-- **FR‑002**: The system MUST construct binary structural connectomes at the Schaefer‑100 node parcellation using the downloaded diffusion data, treating the graph as undirected. (See US‑1)
+- **FR‑002**: The system MUST construct binary structural connectomes at a standard Schaefer parcellation (i.e., a chosen node resolution) using the downloaded diffusion data, treating the graph as undirected. (See US‑1)
 - **FR‑003**: The system MUST compute rsFC matrices (Pearson correlation of BOLD time‑series) and derive global efficiency for each subject. (See US‑1)
-- **FR‑004**: The system MUST enumerate all 3‑node subgraphs in each undirected structural connectome, generate degree‑preserving null networks (≥ 1000 iterations), and output motif z‑score prevalence for every 3‑node motif type (13 total). (See US‑2)
+- **FR‑004**: The system MUST enumerate all 3‑node subgraphs in each undirected structural connectome, generate degree‑preserving null networks (≥ 1000 iterations), and output motif z‑score prevalence for each small‑scale motif type (a set of motif categories). (See US‑2)
 - **FR‑005**: The system MUST perform partial Pearson and Spearman correlations between each motif's z‑score and each rsFC metric (strength and global efficiency) across subjects, controlling for structural global node degree, apply Bonferroni correction for the 13 motifs tested, and flag motifs with corrected p < 0.05. The system MUST first compute the Variance Inflation Factor (VIF) for each predictor and skip univariate testing for any predictor with VIF ≥ 5.0. (See US‑3)
 - **FR‑006**: The system MUST run a permutation test (≥ 1000 permutations, shuffling subject labels) for all tested motifs to obtain an empirical p‑value and report the result. (See US‑3)
 - **FR‑007**: The system MUST generate a PDF report containing, for every tested motif, a scatter plot with a confidence interval, the partial correlation coefficient, corrected p‑value, permutation‑test outcome, and VIF diagnostics. (See US‑3)

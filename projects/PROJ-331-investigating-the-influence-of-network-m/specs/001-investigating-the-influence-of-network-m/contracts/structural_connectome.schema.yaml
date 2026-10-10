@@ -28,7 +28,7 @@ properties:
     properties:
       structural:
         type: "string"
-        description: "Relative path to the canonical_binary_adj.npy file."
+        description: "Relative path to the binary adjacency .npy file."
       structural_weighted:
         type: "string"
         description: "Relative path to the weighted adjacency file (if generated)."

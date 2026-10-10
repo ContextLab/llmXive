@@ -20,8 +20,11 @@ properties:
       method:
         type: "string"
         description: "Method used (e.g., 'degree_preserving_undirected')"
+    required:
+      - "iterations"
+      - "method"
 required:
-  - subject_id
-  - motif_z_scores
-  - null_model_params
+  - "subject_id"
+  - "motif_z_scores"
+  - "null_model_params"
 additionalProperties: false

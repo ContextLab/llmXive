@@ -22,13 +22,20 @@ properties:
           type: "number"
         motif_path_z:
           type: "number"
-        # Add other motifs as needed
+        motif_edge_z:
+          type: "number"
+        motif_isolated_z:
+          type: "number"
       required:
         - subject_id
         - rsfc_strength
         - global_efficiency
         - global_degree
         - network_density
+        - motif_triangle_z
+        - motif_path_z
+        - motif_edge_z
+        - motif_isolated_z
   permutation_results:
     type: "array"
     items:
@@ -38,7 +45,9 @@ properties:
           type: "string"
         metric_type:
           type: "string"
-          enum: ["rsfc_strength", "global_efficiency"]
+          enum:
+            - "rsfc_strength"
+            - "global_efficiency"
         partial_r:
           type: "number"
         p_value_bonferroni:

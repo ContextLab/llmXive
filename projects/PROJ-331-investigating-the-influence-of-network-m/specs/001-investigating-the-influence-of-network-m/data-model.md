@@ -2,83 +2,57 @@
 
 ## 1. Entities & Relationships
 
-### 1.1 Subject
-Represents a single participant in the study.
--   **ID**: Unique HCP Subject ID (string).
--   **Status**: `processed`, `skipped`, `error`.
--   **Dependencies**: Structural Matrix, RSFC Matrix, Motif Profile.
--   **Skip Logic**: If data is missing, status is `skipped` and a warning is logged. The subject is excluded from downstream calculations.
-
-### 1.2 Structural Connectome
-Binary adjacency matrix derived from diffusion data.
--   **Format**: NumPy `.npy` (100x100 float32).
--   **Origin**: HCP Diffusion Data + Schaefer-100 Parcellation.
--   **Properties**: Symmetric (undirected), binary (0/1).
-
-### 1.3 Functional Connectome (RSFC)
-Correlation matrix derived from BOLD time-series.
--   **Format**: NumPy `.npy` (100x100 float32).
--   **Properties**: Symmetric, values in [-1, 1].
-
-### 1.4 Motif Profile
-Summary of 3-node motif z-scores for a subject.
--   **Format**: JSON.
--   **Keys**: Motif type ID (e.g., "isolated", "edge", "path", "triangle"), Z-score (float).
--   **Null Model Params**: Iterations, seed.
-
-### 1.5 Correlation Result
-Statistical output linking motifs to functional metrics.
--   **Format**: JSON / CSV.
--   **Fields**: Motif ID, Metric (Strength/Efficiency), Partial Correlation (r), P-value (raw), P-value (Bonferroni), Significant (bool), Empirical P-value (from permutation), VIF.
-
-### 1.6 Manifest
-Cohort-level summary of processing status.
--   **Format**: JSON.
--   **Fields**: `cohort_target`, `cohort_actual`, `cohort_skipped`, `subjects` (list of records), `checksums`.
+| Entity | Key Attributes | Relationships |
+|--------|----------------|---------------|
+| **Subject** | `subject_id` (string), `status` (`processed`/`skipped`/`error`) | Owns one **Structural Connectome**, one **Functional Connectome**, one **Motif Profile**, one **Structural Metadata** |
+| **Structural Connectome** | `structural.npy` (binary 100 × 100 float32) | Belongs to a **Subject** |
+| **Functional Connectome** | `rsfc.npy` (float32 100 × 100) | Belongs to a **Subject** |
+| **Motif Profile** | JSON: `{motif_type: z_score}` for multiple motifs | Belongs to a **Subject** |
+| **Structural Metadata** | JSON conforming to `structural_connectome.schema.yaml` (includes seed, status, file paths) | Belongs to a **Subject** |
+| **Covariates** | CSV rows: `subject_id, age, sex, head_motion, scanner_site` | Linked to **Subject** (used in regression) |
+| **Correlation Result** | JSON/CSV row per motif‑metric pair (partial Pearson & Spearman, VIF, method) | Aggregates across **Subjects** |
+| **Manifest** | Cohort‑level summary (`cohort_target`, `cohort_actual`, `cohort_skipped`, `subjects[]`, `checksums`) | Global view of all **Subject** records |
 
 ## 2. File Formats & Schemas
 
-### 2.1 Raw Data
--   `data/raw/<subject_id>/structural.nii.gz` (HCP original)
--   `data/raw/<subject_id>/rsfmri.nii.gz` (HCP original)
+- **Raw Data**  
+  - `data/raw/<subject_id>/structural.nii.gz` (original HCP diffusion)  
+  - `data/raw/<subject_id>/rsfmri.nii.gz` (original HCP rs‑fMRI)
 
-### 2.2 Processed Data
--   `data/processed/<subject_id>/structural.npy`: Binary adjacency matrix.
--   `data/processed/<subject_id>/rsfc.npy`: Correlation matrix.
--   `data/processed/<subject_id>/motif_profile.json`: Z-scores.
--   `data/processed/manifest.json`: List of processed subjects, skipped count, and checksums.
+- **Processed Data**  
+  - `data/processed/<subject_id>/structural.npy` (binary adjacency)  
+  - `data/processed/<subject_id>/rsfc.npy` (Pearson correlation matrix)  
+  - `data/processed/<subject_id>/motif_profile.json` (z‑scores for a set of motifs)  
+  - `data/processed/<subject_id>/metadata.json` (conforms to `structural_connectome.schema.yaml`)  
+  - `data/processed/manifest.json` (overall cohort status)
 
-### 2.3 Output
--   `results/results.pdf`: Final report.
--   `data/logs/pipeline.log`: Machine-readable log.
--   `data/processed/correlation_results.json`: Statistical outputs.
+- **Covariates**  
+  - `data/processed/covariates.csv` (age, sex, head‑motion, scanner site for each subject)
 
-## 3. Data Flow
+- **Outputs**  
+  - `results/results.pdf` (final report)  
+  - `data/processed/correlation_results.json` (statistical summary)  
+  - `data/logs/pipeline.log` (machine‑readable log)
 
-1.  **Ingest**: HCP Data -> `data/raw/`
-2.  **Process**: `data/raw/` -> `code/data_loader.py` -> `data/processed/structural.npy`, `rsfc.npy`. *Logic*: Skip missing subjects, log warnings, update manifest.
-3.  **Analyze**: `structural.npy` -> `code/motif_analysis.py` -> `data/processed/motif_profile.json`
-4.  **Correlate**: `motif_profile.json`, `rsfc.npy` -> `code/correlation_analysis.py` -> `data/processed/correlation_results.json` (includes VIF check).
-5.  **Report**: `correlation_results.json` -> `code/report_generator.py` -> `results/results.pdf`
+Schema files are located in `contracts/` and define the exact JSON structures for the manifest, motif profile, analysis results, and structural metadata.
 
-## 4. Validation & Logging (Task T017)
+## 3. Data Flow Diagram
 
--   **utils.py**: Validates `seed=42`, `bonferroni_alpha` (calculated as 0.05/num_motifs), `permutation_count=1000`, and `vif_threshold=5` at startup.
--   **pipeline.log**: Records all processing steps, warnings (e.g., "Subject X skipped: missing diffusion"), and errors.
--   **Manifest**: Tracks `actual_count` vs `target` to satisfy SC-001 (>= 95% success).
+1. **Ingestion** (`data_loader.py`) → Raw HCP files → `data/raw/`.
+2. **Parcellation** (`data_loader.py`) → `structural.npy` (binary undirected) stored under `data/processed/`.
+3. **Functional Calculation** (`data_loader.py`) → `rsfc.npy` + thresholding → `efficiency.csv`.
+4. **Motif Enumeration** (`motif_analysis.py`) → `motif_profile.json`.
+5. **Metadata Generation** (`utils.py`) → `metadata.json` per subject (matches `structural_connectome.schema.yaml`).
+6. **Covariate Loading** (`utils.py`) → `covariates.csv`.
+7. **Statistical Modeling** (`correlation_analysis.py`) → `correlation_results.json`.
+8. **Reporting** (`report_generator.py`) → `results.pdf`.
+9. **Logging** (`utils.py`) → `pipeline.log` throughout all steps.
 
-## 5. Manifest Schema Details
+## 4. Validation & Logging (Task T017)
 
-The `manifest.json` file (referenced in `dataset.schema.yaml`) contains:
--   `cohort_target`: Integer (50).
--   `cohort_actual`: Integer (number of subjects successfully processed).
--   `cohort_skipped`: Integer (number of subjects skipped).
--   `subjects`: Array of objects, each containing:
-    -   `subject_id`: String.
-    -   `status`: Enum ["processed", "skipped", "error"].
-    -   `structural_path`: String or null.
-    -   `rsfc_path`: String or null.
-    -   `error_message`: String or null.
--   `checksums`: Object mapping filenames to SHA256 hashes.
+- **utils.py** validates constants at start‑up (`seed=42`, `bonferroni_alpha=0.0125`, `permutation_count=1000`, `vif_threshold=5`).  
+- **pipeline.log** records every major step, warnings (e.g., missing modality), errors, and the final success summary.  
+- **Manifest** captures `cohort_actual` vs. `cohort_target` to enforce **SC‑001** (≥ 95 % success).  
 
-The `data_loader.py` logic ensures that if a subject is missing data, the `status` is set to "skipped", the `error_message` is logged, and the subject is **not** included in the `cohort_actual` count for statistical analysis, but **is** included in the manifest to track the success rate against SC-001.
+---
+
