@@ -28,8 +28,8 @@ ERROR:__main__:NREL Fetch failed. Aborting.
 
 - python code/model_training.py -> rc=1
 
-2026-10-10 03:32:43,406 - __main__ - INFO - Starting model training pipeline...
-2026-10-10 03:32:43,407 - __main__ - ERROR - Data file data/processed/descriptors.csv not found. Run T017 first.
+2026-10-10 03:35:08,598 - __main__ - INFO - Starting model training pipeline...
+2026-10-10 03:35:08,599 - __main__ - ERROR - Data file data/processed/descriptors.csv not found. Run T017 first.
 
 - python validation.py -> rc=2
 
