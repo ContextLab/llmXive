@@ -1,13 +1,14 @@
 T001:
+  reason: The required `data/results/` directory is explicitly MISSING from the project
+    tree (only `data/raw/` and `data/processed/` exist with `.gitkeep` markers), so
+    the required layout is incomplete. Additionally, there is no execution evidence
+    that `ruff check .` and `black --check .` pass (the verification criterion), and
+    the quickstart references scripts like `code/forkpoint.py`, `code/validate.py`,
+    and `code/report.py` that do not appear in the `code/` directory listing.
   task: 231868e21db34ce4001f4416ba6d7b166aa02a1769439741ce88241733c0c168
 T002:
-  reason: "The implementation fetches GEO supplementary files via HTTP instead of\
-    \ using SRA Toolkit (`prefetch`/`fastq-dump`) as explicitly required, and `tests/unit/test_download.py`\
-    \ omits the mandated SC-005 verification that datasets contain PD-1 expression,\
-    \ metabolic markers, exhaustion signatures, and therapy response labels \u2014\
-    \ it only checks checksum lengths and directory existence. Additionally, no `data/state.yaml`\
-    \ artifact or test-execution evidence was supplied, so there is no proof the state\
-    \ YAML with valid checksums exists or that the tests pass."
+  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
+    exit=1'
   task: 7323bcb445421bb832f3e8298ae91ac21dea8acb68e4b90eb172291de55afab2
 T003:
   reason: "The artifacts exist, but the actual execution log shows the QC filter never\

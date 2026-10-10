@@ -1,24 +1,13 @@
 T001:
-  c: true
-  h: 84da27b593dd038d475baec27e2962895b0e1108269b8374cc12e2909be01215
-  r: The required directories (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
-    `tests/`) all exist with content, `pyproject.toml` configures both ruff and black
-    (line-length 88, target versions, rule selection), and `quickstart.md` documents
-    the runnable environment including prerequisites, installation, and pipeline commands.
-    The setup script executed successfully (exit 0) per the historical log, and linting
-    config is further supported by `test_linting_config.py` and `.pre-commit-config.yaml`.
-  sig: 36941c4fca61fa02d245d930fe1ac1dc92049158cb598fbf2893814d1b56c25d
-T002:
   c: false
-  h: 6292a8b9ee03e3f581b0db1913104a7321c63d92ca7a73a3e63a32a339072d17
-  r: "The implementation fetches GEO supplementary files via HTTP instead of using\
-    \ SRA Toolkit (`prefetch`/`fastq-dump`) as explicitly required, and `tests/unit/test_download.py`\
-    \ omits the mandated SC-005 verification that datasets contain PD-1 expression,\
-    \ metabolic markers, exhaustion signatures, and therapy response labels \u2014\
-    \ it only checks checksum lengths and directory existence. Additionally, no `data/state.yaml`\
-    \ artifact or test-execution evidence was supplied, so there is no proof the state\
-    \ YAML with valid checksums exists or that the tests pass."
-  sig: 8a9263ce4148831ff2c95cd3e303ab4763741067a07949a286dca27878345612
+  h: 6367ca4d57a582ac65d9bcc8bb2654c4a0ec75667f1cdf3db3936b6cdf9f9fd2
+  r: The required `data/results/` directory is explicitly MISSING from the project
+    tree (only `data/raw/` and `data/processed/` exist with `.gitkeep` markers), so
+    the required layout is incomplete. Additionally, there is no execution evidence
+    that `ruff check .` and `black --check .` pass (the verification criterion), and
+    the quickstart references scripts like `code/forkpoint.py`, `code/validate.py`,
+    and `code/report.py` that do not appear in the `code/` directory listing.
+  sig: 308b96e5c7cc3f6f652b6d452177db0866ec330860a0a9b9db80f8ae6ecc6fb8
 T003:
   c: false
   h: 391c24288b0692d6d2cec48213d536dfe9cf6b1e47917ec78951547eb0d564b2

@@ -1,13 +1,5 @@
-# Project dependencies
-scanpy>=1.9.0
-scvelo>=0.2.5
-pandas
-numpy
-matplotlib
-seaborn
-requests
 pyyaml
-# The SRA Toolkit is optional; we now rely on public GEO FTP downloads.
-# If a user wishes to use the original SRA‑based workflow, they can
-# install it separately (e.g., via conda). This file does not attempt to
-# install it automatically.
+pandas
+scanpy
+requests
+pytest
