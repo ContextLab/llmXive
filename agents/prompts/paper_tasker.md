@@ -80,6 +80,13 @@ nonconvergence follows the bounded paper-stage recovery policy.
 ## Rules
 
 - Every task line in tasks.md MUST include `[kind:…]`.
+- **A task writes only PROJECT-owned paths.** Paper outputs go under
+  `paper/` (plus `data/` and `figures/` for inputs it computes). NEVER task
+  recording artifact hashes, run state, project status or stage in `state/...`
+  (nor `.github/`): those belong to the platform, which derives hashes at
+  verification time. A script run from the
+  project resolves `state/...` INSIDE the project, leaving a stale shadow of
+  canonical state that the verifier then reads and rejects honest work against.
 - DO NOT add tasks the spec did not call for (no scope creep at
   task-generation time).
 - Output ONLY the complete paper tasks.md document, using canonical unchecked

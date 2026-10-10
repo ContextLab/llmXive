@@ -922,6 +922,19 @@ def _write_execution_feedback(
         except Exception as exc:
             logger.warning("data-contract feedback skipped: %s", exc)
 
+    # A run can leave a project-local SHADOW of a platform directory behind even
+    # when no task declared the path, because the script wrote it at runtime.
+    # Report it: the shadow is what later rejects honest work (see
+    # llmxive.execution.platform_paths).
+    try:
+        from llmxive.execution.platform_paths import shadow_feedback
+
+        block = shadow_feedback(mem_dir.parent.parent)
+        if block:
+            lines.append(block)
+    except Exception as exc:  # never block feedback on this best-effort section
+        logger.warning("platform-shadow feedback skipped: %s", exc)
+
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
