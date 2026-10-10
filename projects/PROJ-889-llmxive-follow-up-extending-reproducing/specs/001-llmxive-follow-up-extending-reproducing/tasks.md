@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: Create directories `code/`, `data/raw`, `data/processed`, `tests/`, `tests/unit`, `tests/integration`, `contracts/`. Create files `requirements.txt`, `.gitignore`, `README.md`, `code/__init__.py`.
+- [ ] T001 Create project structure per implementation plan: Create directories `code/`, `data/raw`, `data/processed`, `tests/`, `tests/unit`, `tests/integration`, `contracts/`. Create files `requirements.txt`, `.gitignore`, `README.md`, `code/__init__.py`.
 - [X] T002 Initialize Python project with dependencies: `pandas`, `numpy`, `scipy`, `requests`, `pyyaml`, `jsonschema`, `pytest` in `requirements.txt`
 - [X] T003a [P] Configure linting (ruff): Create `.ruff.toml` with rules for E (Error), F (Pyflakes), W (Warning), I (Import), N (Naming) enforcing PEP8 and Google style. **Content**: Write a valid `.ruff.toml` file with `select = ["E", "F", "W", "I", "N"]` and `line-length = 88`.
 - [X] T003b [P] Configure formatting (black): Create `pyproject.toml` for Black formatting configuration. **Content**: Write a valid `pyproject.toml` file with `[tool.black]` section setting `line-length = 88`, `target-version = ['py311']`, and `skip-magic-trailing-comma = true`.
@@ -56,13 +56,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004a [P] Create data directory structure: Create directories `data/raw` and `data/processed` at the repository root.
-- [X] T004b [P] Configure.gitignore for data: Update `.gitignore` to exclude `data/raw/*` and `data/processed/*` while keeping the directory structure.
-- [X] T005a [P] Create trajectory schema: Create `contracts/trajectory.schema.yaml` defining the schema for `seed_id`, `bias_type`, `timestep`, `J_biased`, `J_unbiased`, `J_gold`. (FR-001, FR-002, Entity: Trajectory) **Content**: Write a valid YAML schema file defining types for all required columns. **Note**: File must exist and be valid YAML.
-- [X] T005b [P] Create metrics schema: Create `contracts/metrics.schema.yaml` defining the schema for Precision, Recall, F1-score, p-value, effect_size. (FR-005, SC-001, SC-002) **Content**: Write a valid YAML schema file defining types for all required metrics. **Note**: File must exist and be valid YAML.
-- [X] T006 Create base utility module for file I/O and checksumming (`code/utils/io_utils.py`). **Required Functions**: 1. `load_csv(path: str) -> pd.DataFrame`: Loads a CSV file. 2. `save_csv(df: pd.DataFrame, path: str) -> None`: Saves a DataFrame to CSV. 3. `compute_sha256(path: str) -> str`: Computes and returns the SHA256 hash of a file. 4. `validate_schema(df: pd.DataFrame, schema_path: str) -> bool`: Validates DataFrame against a YAML schema.
-- [X] T007 Configure environment configuration management for data paths and hyperparameters (`code/config.py`)
-- [X] T017 Implement edge case handlers for time-series processing in `code/utils/math_utils.py`. **Logic**: 1. Implement `interpolate_missing_timesteps()` using linear interpolation for gaps in the time series. 2. Implement `safe_z_score()` which returns a neutral baseline value if the standard deviation of the window is zero, using a small positive epsilon floor to prevent division by zero. 3. Implement `handle_nan()` to gracefully handle NaN values in sliding window calculations. **Dependency**: Requires T005a (schema) to validate input types. **Note**: This task is part of US1 and must be completed before T015.
+- [ ] T004a [P] Create data directory structure: Create directories `data/raw` and `data/processed` at the repository root.
+- [ ] T004b [P] Configure.gitignore for data: Update `.gitignore` to exclude `data/raw/*` and `data/processed/*` while keeping the directory structure.
+- [~] T005a [P] Create trajectory schema: Create `contracts/trajectory.schema.yaml` defining the schema for `seed_id`, `bias_type`, `timestep`, `J_biased`, `J_unbiased`, `J_gold`. (FR-001, FR-002, Entity: Trajectory) **Content**: Write a valid YAML schema file defining types for all required columns. **Note**: File must exist and be valid YAML.
+- [~] T005b [P] Create metrics schema: Create `contracts/metrics.schema.yaml` defining the schema for Precision, Recall, F1-score, p-value, effect_size. (FR-005, SC-001, SC-002) **Content**: Write a valid YAML schema file defining types for all required metrics. **Note**: File must exist and be valid YAML.
+- [~] T006 Create base utility module for file I/O and checksumming (`code/utils/io_utils.py`). **Required Functions**: 1. `load_csv(path: str) -> pd.DataFrame`: Loads a CSV file. 2. `save_csv(df: pd.DataFrame, path: str) -> None`: Saves a DataFrame to CSV. 3. `compute_sha256(path: str) -> str`: Computes and returns the SHA256 hash of a file. 4. `validate_schema(df: pd.DataFrame, schema_path: str) -> bool`: Validates DataFrame against a YAML schema.
+- [~] T007 Configure environment configuration management for data paths and hyperparameters (`code/config.py`)
+- [~] T017 Implement edge case handlers for time-series processing in `code/utils/math_utils.py`. **Logic**: 1. Implement `interpolate_missing_timesteps()` using linear interpolation for gaps in the time series. 2. Implement `safe_z_score()` which returns a neutral baseline value if the standard deviation of the window is zero, using a small positive epsilon floor to prevent division by zero. 3. Implement `handle_nan()` to gracefully handle NaN values in sliding window calculations. **Dependency**: Requires T005a (schema) to validate input types. **Note**: This task is part of US1 and must be completed before T015.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,16 +78,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for $G(t)$ calculation logic in `tests/unit/test_ingestion_math.py`
-- [X] T011 [P] [US1] Unit test for $\Delta G(t)$ derivative logic in `tests/unit/test_ingestion_math.py`
-- [X] T013b [P] [US1] Unit test for download validation logic in `tests/unit/test_download_validation.py`. **Logic**: Verify that the validation function correctly validates the CHERRL repository source (HuggingFace/CHERRL-repo), handles invalid sources by raising the correct error, and exits with the appropriate error code. This is a unit test of the validation logic with mocked network calls. **Assertion**: Assert that a valid source returns success and an invalid source triggers the specific error message.
-- [X] T012 [US1] Integration test for multi-seed aggregation in `tests/integration/test_ingestion_pipeline.py`. **Logic**: Run the full aggregation pipeline on a small set of mock logs. **Assertions**: Assert merged CSV has expected row count, assert `seed_id` distribution matches input, assert `G(t)` and `dG(t)` columns exist and are numeric.
+- [~] T010 [P] [US1] Unit test for $G(t)$ calculation logic in `tests/unit/test_ingestion_math.py`
+- [~] T011 [P] [US1] Unit test for $\Delta G(t)$ derivative logic in `tests/unit/test_ingestion_math.py`
+- [~] T013b [P] [US1] Unit test for download validation logic in `tests/unit/test_download_validation.py`. **Logic**: Verify that the validation function correctly validates the CHERRL repository source (HuggingFace/CHERRL-repo), handles invalid sources by raising the correct error, and exits with the appropriate error code. This is a unit test of the validation logic with mocked network calls. **Assertion**: Assert that a valid source returns success and an invalid source triggers the specific error message.
+- [~] T012 [US1] Integration test for multi-seed aggregation in `tests/integration/test_ingestion_pipeline.py`. **Logic**: Run the full aggregation pipeline on a small set of mock logs. **Assertions**: Assert merged CSV has expected row count, assert `seed_id` distribution matches input, assert `G(t)` and `dG(t)` columns exist and are numeric.
 
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `download_cherrl_logs.py` to fetch real data. **Functional Requirements**: 1. Connect to the verified CHERRL repository source. 2. Dynamically discover available splits and select the first one containing required columns ($J_{\text{biased}}$, $J_{\text{unbiased}}$, $J_{\text{gold}}$). 3. **Fail Loud**: If the source is unreachable or no valid split is found, log an error and exit with a non-zero error code. 4. **Local Test Mode**: If the `--local-test` flag is provided, use a small, deterministic synthetic subset for unit testing purposes only; otherwise, strictly use real data. 5. **Deliverable**: Save extracted logs to `data/raw/cherrl_logs/`.
-- [X] T014 [US1] Implement `code/ingestion.py` to load logs and compute $G(t) = |J_{\text{biased}} - J_{\text{unbiased}}|$ (FR-001). **Dependency**: Requires T013 to complete successfully and produce raw logs. **Validation**: Must verify T013 output exists before processing.
-- [X] T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete derivative), **rolling z-score (W=20, min 5 samples)**, and aggregate logs from multiple seeds into a single CSV with `seed_id` and `bias_type` metadata (FR-002). **Dependency**: Requires T014.
+- [~] T014 [US1] Implement `code/ingestion.py` to load logs and compute $G(t) = |J_{\text{biased}} - J_{\text{unbiased}}|$ (FR-001). **Dependency**: Requires T013 to complete successfully and produce raw logs. **Validation**: Must verify T013 output exists before processing.
+- [~] T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete derivative), **rolling z-score (W=20, min 5 samples)**, and aggregate logs from multiple seeds into a single CSV with `seed_id` and `bias_type` metadata (FR-002). **Dependency**: Requires T014.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,15 +101,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for z-score thresholding logic in `tests/unit/test_detector.py`
-- [X] T019 [P] [US2] Unit test for $\Delta G(t)$ dynamic thresholding logic in `tests/unit/test_detector.py`
-- [X] T020 [P] [US2] Integration test with synthetic spike data in `tests/integration/test_detector_pipeline.py`
+- [~] T018 [P] [US2] Unit test for z-score thresholding logic in `tests/unit/test_detector.py`
+- [~] T019 [P] [US2] Unit test for $\Delta G(t)$ dynamic thresholding logic in `tests/unit/test_detector.py`
+- [~] T020 [P] [US2] Integration test with synthetic spike data in `tests/integration/test_detector_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement contaminated window exclusion logic (FR-009) in `code/detector.py`. **Logic**: 1. Read `data/processed/trajectories_divergence.csv` and **ground-truth labels from T031**. 2. **Contamination Definition**: Identify contiguous segments of timesteps where the ground-truth label is 'hacked' AND the segment duration exceeds the sliding window size (W=20). To identify 'hacking events' for duration calculation, flag a timestep as an 'event' if $G(t) > 3 \times \text{MAD}(G)$ (Median Absolute Deviation), as authorized by the spec's edge case handling. 3. **Mask Generation**: Mark ALL timesteps in these segments as `is_contaminated=True`. Otherwise, `is_contaminated=False`. 4. **Output**: Ensure the DataFrame contains the `is_contaminated` boolean column. **Dependency**: Requires T016 (aggregated data) and **T031 (ground truth labels)**.
-- [ ] T021 [US2] Implement `code/detector.py` to calculate sliding window z-score ($W=20$, **minimum of 5 samples**) per FR-002, reading from `data/processed/trajectories_divergence.csv`. **Dependency**: Requires T016 (aggregated data) and **T025 (contaminated window mask)** to calculate the correct baseline (excluding contaminated timesteps from the rolling std calculation). **Logic**: Use `is_contaminated` to skip timesteps when computing the rolling standard deviation for the z-score baseline.
-- [X] T022 [US2] Implement logic in `code/detector.py` to flag "hacked" if $z(G(t)) > \tau$ OR if $\Delta G(t)$ exceeds a dynamic threshold, applying **Bonferroni correction** to the combined OR condition. **Config**: Use the fixed threshold $\tau = 3.0$ and $k=3.0$ as defined in FR-003. **Bonferroni Logic**: 1. Calculate adjusted alpha ($\alpha_{adj} = \alpha_{total} / k$) for the combined decision, where $k$ represents the number of comparisons. 2. Flag if p-value(z) < $\alpha_{adj}$ OR p-value(delta) < $\alpha_{adj}$. 3. **Crucial**: Do NOT change the threshold values (3.0) themselves; the correction applies to the significance level interpretation. 4. **Baseline**: Calculate baseline noise floor as the standard deviation of the **preceding timesteps** (or all available if <100) using the corrected baseline from T025, **consuming the `is_contaminated` column from T025 to skip contaminated indices**. **Dependency**: Requires T016 (aggregated data) and **T025 (contaminated window mask)**.
+- [~] T025 [US2] Implement contaminated window exclusion logic (FR-009) in `code/detector.py`. **Logic**: 1. Read `data/processed/trajectories_divergence.csv` and **ground-truth labels from T031**. 2. **Contamination Definition**: Identify contiguous segments of timesteps where the ground-truth label is 'hacked' AND the segment duration exceeds the sliding window size (W=20). To identify 'hacking events' for duration calculation, flag a timestep as an 'event' if $G(t) > 3 \times \text{MAD}(G)$ (Median Absolute Deviation), as authorized by the spec's edge case handling. 3. **Mask Generation**: Mark ALL timesteps in these segments as `is_contaminated=True`. Otherwise, `is_contaminated=False`. 4. **Output**: Ensure the DataFrame contains the `is_contaminated` boolean column. **Dependency**: Requires T016 (aggregated data) and **T031 (ground truth labels)**.
+- [ ] T021 [US2] Implement `code/detector.py` to calculate sliding window z-score ($W=20$, **minimum of 5 samples**) per FR-002, reading from `data/processed/trajectories_divergence.csv`. **Dependency**: Requires T016 (aggregated data) and **T025 (contaminated window mask)** to calculate the correct baseline (excluding contaminated timesteps from the rolling std calculation). **Logic**: Use `is_contaminated` to skip timesteps when computing the rolling standard deviation for the z-score baseline. <!-- FAILED-IN-EXECUTION: code/detector.py exit=1 -->
+- [~] T022 [US2] Implement logic in `code/detector.py` to flag "hacked" if $z(G(t)) > \tau$ OR if $\Delta G(t)$ exceeds a dynamic threshold, applying **Bonferroni correction** to the combined OR condition. **Config**: Use the fixed threshold $\tau = 3.0$ and $k=3.0$ as defined in FR-003. **Bonferroni Logic**: 1. Calculate adjusted alpha ($\alpha_{adj} = \alpha_{total} / k$) for the combined decision, where $k$ represents the number of comparisons. 2. Flag if p-value(z) < $\alpha_{adj}$ OR p-value(delta) < $\alpha_{adj}$. 3. **Crucial**: Do NOT change the threshold values (3.0) themselves; the correction applies to the significance level interpretation. 4. **Baseline**: Calculate baseline noise floor as the standard deviation of the **preceding timesteps** (or all available if <100) using the corrected baseline from T025, **consuming the `is_contaminated` column from T025 to skip contaminated indices**. **Dependency**: Requires T016 (aggregated data) and **T025 (contaminated window mask)**.
 - [ ] T023 [US2] Generate `data/processed/trajectories_labeled.csv` by appending `hacked_label` column to the US1 output, preserving separation of concerns (FR-001 vs FR-003). **Schema**: `hacked_label` must be a boolean column (True/False). **Dependency**: Requires T022.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,11 +126,11 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026 [P] [US3] Unit test for ground-truth derivation logic ($J_{\text{gold}}$ drops) in `tests/unit/test_ground_truth.py`
-- [X] T027 [P] [US3] Unit test for independence check (Pearson correlation) in `tests/unit/test_ground_truth.py`
-- [X] T028 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_evaluation.py`
-- [X] T029 [P] [US3] Unit test for baseline generation logic in `tests/unit/test_evaluation.py`
-- [X] T030 [P] [US3] Integration test for full evaluation pipeline in `tests/integration/test_evaluation_pipeline.py`
+- [~] T026 [P] [US3] Unit test for ground-truth derivation logic ($J_{\text{gold}}$ drops) in `tests/unit/test_ground_truth.py`
+- [~] T027 [P] [US3] Unit test for independence check (Pearson correlation) in `tests/unit/test_ground_truth.py`
+- [~] T028 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_evaluation.py`
+- [~] T029 [P] [US3] Unit test for baseline generation logic in `tests/unit/test_evaluation.py`
+- [~] T030 [P] [US3] Integration test for full evaluation pipeline in `tests/integration/test_evaluation_pipeline.py`
 
 ### Implementation for User Story 3
 
@@ -152,7 +152,7 @@
 
 - [ ] T039 [P] Documentation updates in `README.md` and `quickstart.md`
 - [ ] T040b [P] Refactor `code/config.py` into classes: Organize constants into classes `DataConfig`, `ModelConfig`, and `EvalConfig` with docstrings.
-- [X] T041 [P] Implement sequential seed processing in `code/main.py` to ensure memory safety and runtime < 4 hours (process seeds one by one if needed). **Note**: This logic is integrated into the main pipeline loop, not a separate task.
+- [ ] T041 [P] Implement sequential seed processing in `code/main.py` to ensure memory safety and runtime < 4 hours (process seeds one by one if needed). **Note**: This logic is integrated into the main pipeline loop, not a separate task.
 - [ ] T042 [P] Additional unit tests for edge cases (missing data, zero variance) in `tests/unit/`
 - [ ] T043 Run quickstart.md validation and verify all artifacts are checksummed
 

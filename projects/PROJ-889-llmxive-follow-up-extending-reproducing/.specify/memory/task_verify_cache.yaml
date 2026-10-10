@@ -1,3 +1,49 @@
+T001:
+  c: false
+  h: afbb9fb1475fc7b16c8b6070edc31ba5ebba02439012eb6b9e1ba4fb626c7df7
+  r: The project contains `code/`, `data/raw/`, `tests/` with `unit/` and `integration/`,
+    `contracts/`, `requirements.txt`, and `code/__init__.py`, but the `data/processed/`
+    directory is not present, and the required `.gitignore` and `README.md` files
+    are missing.
+  sig: 626cf607ef438c932f70334c4b9acaa20f289624476c61486c75ec2c9e143147
+T002:
+  c: true
+  h: 63236c4ac799d7230c566d1d1985b7a9b798399a11dae1dfb64a802aed0b9bc1
+  r: "Checked the `requirements.txt` file (69\u202Fbytes) which lists `pandas`, `numpy`,\
+    \ `scipy`, `requests`, `pyyaml`, `jsonschema`, and `pytest` (plus an additional\
+    \ `datasets>=2.0.0`). All required dependencies are present, satisfying the task."
+  sig: 28c818000ec29d2fa7e70c144d54701abe42322c87329a5de8e6fd52f2a99ec7
+T003a:
+  c: true
+  h: f5a6ff78a3c4613e6f2bc7aeefa99ad9f3a0ca0656ef09fa8a01db57d5425b64
+  r: "Checked the `.ruff.toml` file (resolved at `.ruff.toml`), which contains a valid\
+    \ TOML configuration with `select = [\"E\", \"F\", \"W\", \"I\", \"N\"]` and `line-length\
+    \ = 88`, fulfilling the task\u2019s specification."
+  sig: 7a08525102161133c64cc0b2ad0407ada5cfbcd1968deecb7ceb8cfd21290460
+T003b:
+  c: true
+  h: de4e127ae0d65c56700e9d2802b1a52488d81fd57b71437835764a6ad34d7621
+  r: "The `pyproject.toml` file exists (576\u202Fbytes) and contains a `[tool.black]`\
+    \ section with `line-length = 88`, `target-version = ['py311']`, and `skip-magic-trailing-comma\
+    \ = true` as required."
+  sig: 3c46d5b5a1f3650172938bbf8abac0e8424da21bd16ef46096400652478f8ed9
+T004a:
+  c: false
+  h: f36f8a1bee554985e1a76ffd6d54cc151565c55246b62f0329182a0b740054e9
+  r: The evidence does not show the presence of the required `data/raw` and `data/processed`
+    directories at the repository root; no artifact listing or directory listing confirming
+    their creation is provided. The implementer must add these two directories (or
+    evidence thereof) to satisfy the task.
+  sig: 5b1a7b2858733921c4d8005fc8fb66044ae49de3ff2607242d185b7e267ff323
+T004b:
+  c: false
+  h: 8db7282c8854f82d06ad1f6a9d6eee61225312dc1c834b97ea40b965c1305118
+  r: The evidence only shows `.gitignore` files located inside `data/raw/` and `data/processed/`,
+    and their contents are not provided. The task requires updating a `.gitignore`
+    (typically at the repository root) to exclude the paths `data/raw/*` and `data/processed/*`
+    while preserving the directory structure, but no such file or the necessary pattern
+    lines are demonstrated. Consequently the required artifact is missing or insufficient.
+  sig: 61fb609db9405f58dc6494c6728feb368848f4aa0569c972aa9f3a46cad0c27a
 T010:
   c: false
   h: 3c082aceffdfe435ec9d471f03758f28789e98535fc99e7b01eb96e9e143f60a

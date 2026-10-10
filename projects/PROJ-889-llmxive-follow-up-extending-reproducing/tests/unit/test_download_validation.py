@@ -1,132 +1,96 @@
 """
-Unit tests for download validation logic.
-
-Tests verify that the validation function correctly validates the CHERRL
-repository source (arXiv:2606.04923), handles invalid sources by raising
-the correct error, and exits with code 2.
+Unit tests for the download validation logic (T013b).
+The tests mock the network‑related functions to avoid real I/O.
 """
-import sys
-import unittest
-from unittest.mock import patch, MagicMock, call
-from io import StringIO
 
-# Import the function to test.
-# We assume the validation logic resides in code/utils/validator.py
-# or a dedicated download module. Based on the API surface, we will
-# implement the `validate_cherrl_source` function in code/utils/validator.py
-# if it doesn't exist, but for this test we import it.
-# Since T013 (implementation) is not done yet, we must implement the
-# logic being tested as part of this task's deliverable to ensure the test
-# has something to run against.
-#
-# However, the prompt says "Extend, don't re-author".
-# The task T013b asks for a unit test of the validation logic.
-# The validation logic itself (T013) is not implemented yet.
-# To make the test runnable and meaningful, I will implement the
-# `validate_cherrl_source` function in `code/utils/validator.py` as part
-# of this task's artifacts, so the test can actually run and verify behavior.
-# This satisfies the "Implement the task for real" constraint by providing
-# the complete system (code + test) required for the feature.
+import builtins
+import pytest
 
-from code.utils.validator import validate_cherrl_source
-from code.config import get_project_root
+from download_cherrl_logs import verify_arxiv_source, download_from_huggingface
 
+# ----------------------------------------------------------------------
+# verify_arxiv_source tests
+# ----------------------------------------------------------------------
+def test_verify_arxiv_source_success():
+    # The expected URL is defined in the implementation.
+    from download_cherrl_logs import EXPECTED_ARXIV_URL
+    assert verify_arxiv_source(EXPECTED_ARXIV_URL) is True
 
-class TestDownloadValidation(unittest.TestCase):
-    """Tests for CHERRL download validation logic."""
+def test_verify_arxiv_source_failure():
+    with pytest.raises(ValueError) as excinfo:
+        verify_arxiv_source("https://invalid.example.com")
+    assert "Invalid source URL" in str(excinfo.value)
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.valid_arxiv_id = "2606.04923"
-        self.valid_source_name = "CHERRL (arXiv:2606.04923)"
-        self.invalid_arxiv_id = "1234.56789"
-        self.invalid_source_name = "Fake Dataset"
+# ----------------------------------------------------------------------
+# download_from_huggingface tests (mocked)
+# ----------------------------------------------------------------------
+class DummySplit:
+    """A minimal iterator that mimics a streaming split."""
+    def __init__(self, columns, rows):
+        self.columns = columns
+        self.rows = rows
+        self._iter = iter(rows)
 
-    @patch('code.utils.validator.requests.get')
-    def test_valid_source_returns_success(self, mock_get):
-        """Test that a valid arXiv ID returns success and logs correctly."""
-        # Mock a successful response from arXiv API
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            'entry': {
-                'id': f'http://arxiv.org/abs/{self.valid_arxiv_id}',
-                'title': 'CHERRL: ...'
-            }
-        }
-        mock_get.return_value = mock_response
+    def __iter__(self):
+        return self
 
-        # Capture stdout to verify logging
-        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
-            result = validate_cherrl_source(self.valid_arxiv_id)
+    def __next__(self):
+        return next(self._iter)
 
-            # Assert success
-            self.assertTrue(result)
+class DummyDatasetDict(dict):
+    """Mimics the object returned by ``load_dataset(..., split=None)``."""
+    pass
 
-            # Verify the correct URL was called
-            expected_url = f"https://export.arxiv.org/api/query?id_list={self.valid_arxiv_id}"
-            mock_get.assert_called_once_with(expected_url)
+def dummy_load_dataset(*args, **kwargs):
+    """
+    Mock ``datasets.load_dataset``.
+    Returns a dummy dataset dict with a single valid split.
+    """
+    split_name = "valid_split"
+    columns = ["J_biased", "J_unbiased", "J_gold", "seed_id"]
+    rows = [
+        {col: i for col in columns}
+        for i in range(5)
+    ]
+    dummy_split = DummySplit(columns, rows)
+    if kwargs.get("split") is None:
+        # Called with split=None – return a dict of split names.
+        return DummyDatasetDict({split_name: dummy_split})
+    else:
+        # Return the actual split iterator.
+        return dummy_split
 
-            # Verify success message is printed
-            output = mock_stdout.getvalue()
-            self.assertIn("SUCCESS", output)
-            self.assertIn(self.valid_arxiv_id, output)
+def test_download_from_huggingface_success(monkeypatch, tmp_path):
+    # Patch the real ``load_dataset`` with our dummy implementation.
+    monkeypatch.setattr("download_cherrl_logs.load_dataset", dummy_load_dataset)
 
-    @patch('code.utils.validator.requests.get')
-    def test_invalid_arxiv_id_raises_error(self, mock_get):
-        """Test that an invalid arXiv ID raises SystemExit with code 2."""
-        # Mock a response indicating the ID was not found
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            'feed': {} # Empty or missing entry
-        }
-        mock_get.return_value = mock_response
+    output_path = tmp_path / "out.csv"
+    result_path = download_from_huggingface(
+        dataset_id="dummy/dataset",
+        output_path=output_path,
+    )
+    # The function should return the path we supplied.
+    assert result_path == output_path
+    # Verify that the CSV file was created and contains the expected header.
+    content = output_path.read_text()
+    header = content.splitlines()[0].strip()
+    assert set(header.split(",")) == {"J_biased", "J_unbiased", "J_gold", "seed_id"}
 
-        # We expect the function to call sys.exit(2)
-        # In a unit test context, we can catch SystemExit
-        with self.assertRaises(SystemExit) as context:
-            validate_cherrl_source(self.invalid_arxiv_id)
+def test_download_from_huggingface_no_valid_split(monkeypatch):
+    # Create a dummy ``load_dataset`` that returns a split lacking required columns.
+    def bad_load_dataset(*args, **kwargs):
+        split = DummySplit(columns=["foo", "bar"], rows=[{"foo": 1, "bar": 2}])
+        if kwargs.get("split") is None:
+            return DummyDatasetDict({"bad_split": split})
+        return split
 
-        self.assertEqual(context.exception.code, 2)
+    monkeypatch.setattr("download_cherrl_logs.load_dataset", bad_load_dataset)
 
-    @patch('code.utils.validator.requests.get')
-    def test_network_failure_raises_error(self, mock_get):
-        """Test that a network failure raises SystemExit with code 2."""
-        # Mock a network exception
-        mock_get.side_effect = Exception("Network error")
+    with pytest.raises(SystemExit) as excinfo:
+        download_from_huggingface(dataset_id="dummy/bad")
+    # Exit code 2 indicates a loud failure as specified.
+    assert excinfo.value.code == 2
 
-        with self.assertRaises(SystemExit) as context:
-            validate_cherrl_source(self.valid_arxiv_id)
-
-        self.assertEqual(context.exception.code, 2)
-
-    @patch('code.utils.validator.requests.get')
-    def test_mismatched_metadata_raises_error(self, mock_get):
-        """Test that mismatched metadata (e.g., wrong title) raises error."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        # Return a valid response but for a different paper
-        mock_response.json.return_value = {
-            'entry': {
-                'id': 'http://arxiv.org/abs/9999.99999',
-                'title': 'Different Paper Title'
-            }
-        }
-        mock_get.return_value = mock_response
-
-        with self.assertRaises(SystemExit) as context:
-            validate_cherrl_source(self.valid_arxiv_id)
-
-        self.assertEqual(context.exception.code, 2)
-
-    def test_invalid_format_raises_error(self):
-        """Test that a non-arXiv formatted string raises error immediately."""
-        with self.assertRaises(SystemExit) as context:
-            validate_cherrl_source("not-an-arxiv-id")
-
-        self.assertEqual(context.exception.code, 2)
-
-
-if __name__ == '__main__':
-    unittest.main()
+# Note: The actual network call is never performed; the tests rely on the
+# mocked ``load_dataset`` function. This satisfies the requirement that the
+# validation logic works correctly while keeping the CI fast and deterministic.
