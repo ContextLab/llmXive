@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T03:18:15.949126Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-516-predicting-perovskite-stability-via-comp
-last_run_id: 8e8717a0-3971-4c5b-9fed-996afb621d40
+last_run_id: f38d413a-63a3-4614-ba21-5f5919d8ddfe
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp
 title: Predicting Perovskite Stability via Compositional Fingerprints
-updated_at: '2026-10-10T03:24:18.639288Z'
+updated_at: '2026-10-10T03:27:13.289845Z'
