@@ -1,1 +1,1 @@
-# Config module initialization
+"""Configuration management module."""

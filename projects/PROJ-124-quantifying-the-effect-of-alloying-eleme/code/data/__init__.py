@@ -1,1 +1,1 @@
-# Data module initialization
+"""Data acquisition and feature engineering module."""

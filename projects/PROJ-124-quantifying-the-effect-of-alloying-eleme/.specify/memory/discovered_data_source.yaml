@@ -1,11 +1,9 @@
 status: none
-intent: download 2014 experimental glass forming ability dataset pymatgen element
-  database python package dataset
-required_fields:
-- alloy_formula
-- element_fraction_columns
-- target_continuous_property
-- sample_id
-cache_key: ea92c420e2fb13901e31baa1c3334f580f480be596bd3cfe366683538f20fc64
-searched_at: '2026-10-10T15:28:19.768468+00:00'
+intent: '### User Story 1 - Data Acquisition and Feature Engineering (Priority: P1)
+  The system MUST ingest raw composition data from Dataset (2014 Experimental GFA),
+  parse elemental fractions, and compute physics-based descriptors (atomic radius,
+  electronegativity, valence electron count) and interaction fea'
+required_fields: []
+cache_key: 2894603c0052c5d39bb156cb433135cbf6daeac906e48f003201c607a8fdac17
+searched_at: '2026-10-10T15:30:13.044032+00:00'
 retry_count: 1

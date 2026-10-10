@@ -1,1 +1,1 @@
-# Models module initialization
+"""Model training and prediction module."""

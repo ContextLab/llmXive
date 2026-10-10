@@ -24,11 +24,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/code/main.py': [Errno 2] No such file or directory
 
 - python code/data/download.py -> rc=1
-2026-10-10 15:21:29 - __main__ - INFO - Attempting to download dataset (Attempt 1/5)...
-2026-10-10 15:21:29 - __main__ - CRITICAL - Critical error during download: Network error during download: 404 Client Error. (Request ID: Root=1-6aca57f9-4142073155ad42ef04c10fe2;11be57ab-6cdb-4237-bc1a-173a2de3ffb3)
+2026-10-10 15:29:53 - __main__ - INFO - Attempting to download dataset (Attempt 1/5)...
+2026-10-10 15:29:53 - __main__ - CRITICAL - Critical error during download: Network error during download: 404 Client Error. (Request ID: Root=1-6aca59f1-30df67020c915eab1011b36c;e3b27698-fdc4-48a0-91a4-306034e61bdc)
 
 Entry Not Found for url: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/pilot_flags.csv.
-2026-10-10 15:21:29 - __main__ - CRITICAL - Task failed: Network error during download: 404 Client Error. (Request ID: Root=1-6aca57f9-4142073155ad42ef04c10fe2;11be57ab-6cdb-4237-bc1a-173a2de3ffb3)
+2026-10-10 15:29:53 - __main__ - CRITICAL - Task failed: Network error during download: 404 Client Error. (Request ID: Root=1-6aca59f1-30df67020c915eab1011b36c;e3b27698-fdc4-48a0-91a4-306034e61bdc)
 
 Entry Not Found for url: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/pilot_flags.csv.
 
@@ -74,7 +74,7 @@ ERROR tests/unit/test_elements_config.py
 ERROR tests/unit/test_environment_config.py
 ERROR tests/unit/test_project_structure.py - AttributeError: module 'sys' has...
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 4 warnings, 3 errors in 3.29s =========================
+======================== 4 warnings, 3 errors in 2.93s =========================
 
 
 
@@ -98,8 +98,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/validate.py` — NOT invoked by the run-book
     - `code/models/predict.py` — IS a run-book command
     - `code/models/train.py` — IS a run-book command
-    - `code/utils/__init__.py` — NOT invoked by the run-book
     - `code/utils/schema_validator.py` — NOT invoked by the run-book
+    - `code/utils/shap_utils.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/gfa_dataset.csv` is declared but was NOT written. Scripts referencing it:
     - `code/config/environment_defaults.py` — NOT invoked by the run-book
