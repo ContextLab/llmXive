@@ -1,3 +1,12 @@
+T001:
+  c: false
+  h: 1bc413de8f4ac9114911a9ecdb046dee2cf3876cd9a9b5d80b071e01e761706e
+  r: "The `requirements.txt` does not list `pyyaml`, and the required sub\u2011directories\
+    \ `tests/unit` and `tests/integration` (and their `__init__.py` files) are absent,\
+    \ causing the verification script to fail the directory and init\u2011file checks.\
+    \ Adding `pyyaml` to `requirements.txt` and creating the missing test subfolders\
+    \ with `__init__.py` will satisfy the task."
+  sig: 40fe02dc253af04b0a2de2bccbebb074fa6146a54a261cc37de3cf6521d28328
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,13 +28,6 @@ T005:
     \ is truncated) and does not contain a `log_error()` function at all. Moreover,\
     \ the required unit test `tests/unit/test_logger.py` is absent, so the verification\
     \ command cannot run. The task\u2019s required artifacts are missing or incomplete."
-T012c:
-  c: false
-  h: 2e0b798c270b368e221aeb5dfb49ae0ef16b6994d038aead2f73fd1bceb827cb
-  r: "The required output file `data/filtered_swe_bench_v1.parquet` does not exist,\
-    \ and the provided `loader.py` snippet is truncated with no visible implementation\
-    \ of the graph\u2011traversal line\u2011count filtering or parquet writing. Consequently\
-    \ the task\u2019s core requirements are not satisfied."
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

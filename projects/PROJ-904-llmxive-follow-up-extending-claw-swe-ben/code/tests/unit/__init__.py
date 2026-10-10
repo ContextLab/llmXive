@@ -1,1 +1,1 @@
-pass
+"""Unit tests package initialization."""

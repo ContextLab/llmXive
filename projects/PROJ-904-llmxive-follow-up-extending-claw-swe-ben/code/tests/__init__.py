@@ -1,1 +1,1 @@
-pass
+"""Tests package initialization."""

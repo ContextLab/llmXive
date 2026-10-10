@@ -1,4 +1,1 @@
-# PyPy configuration for compatibility checks
-[pypy]
-version = "3.11"
-jit = true
+# Placeholder configuration file for PyPy compatibility (currently empty)
