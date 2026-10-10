@@ -70,7 +70,7 @@ As a researcher, I need the system to perform correlation analysis (linear and n
 - **FR-001**: System MUST ingest defect coordinate data from CSV files and convert them into network graphs using a configurable Euclidean distance threshold (See US-1).
 - **FR-002**: System MUST calculate the global clustering coefficient, average path length, degree distribution, and size of the largest connected component (LCC) fraction (calculated as nodes in LCC / total nodes) for each input graph (See US-2).
 - **FR-003**: System MUST perform Pearson and Spearman correlation analysis AND fit linear and non-linear regression models (e.g., polynomial, Gaussian Process) between each topological metric and the thermal conductivity values (See US-3).
-- **FR-004**: System MUST execute bootstrap resampling (n=1000 iterations) to generate 95% confidence intervals for all correlation coefficients (See US-3).
+- **FR-004**: System MUST execute bootstrap resampling (n=1000 iterations) to generate a confidence interval at a conventional high confidence levels for all correlation coefficients (See US-3).
 - **FR-005**: System MUST apply a multiple-comparison correction (Bonferroni) to p-values when more than one hypothesis test is performed (See US-3).
 - **FR-006**: System MUST handle disconnected graphs by calculating path metrics only on the largest connected component and flagging the graph as "disconnected" in the metadata (See US-2).
 - **FR-007**: System MUST output all results in a structured JSON format containing metrics, correlations, p-values, confidence intervals, and generate scatter plots of topology metrics vs. thermal conductivity with regression lines (See US-3).

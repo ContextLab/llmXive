@@ -1,61 +1,68 @@
 # Data Model: Exploring the Impact of Network Topology on Heat Dissipation in 2D Materials
 
 ## Overview
+Defines the JSON/CSV schemas for raw defect data, intermediate graph representations, and final statistical results. All schemas are version‑controlled and validated with `jsonschema`.
 
-This document defines the data structures used throughout the pipeline: raw defect coordinate records, intermediate graph representations, and final statistical analysis results. All files are JSON or CSV for portability and reproducibility.
-
-## Key Entities
+## Entities
 
 ### 1. DefectSample
-Represents a single physical sample.
-
 ```yaml
 sample_id: string          # Unique identifier
-material_type: string      # "graphene", "MoS2", etc.
-defect_coordinates: list   # List of [x, y] pairs (float)
-thermal_conductivity: float # Bulk thermal conductivity (W/mK)
-source_dataset: string     # Name of the source dataset
+material_type: string      # "graphene", "MoS2", or "other"
+defect_coordinates:        # List of [x, y] pairs (float, float)
+  - - float
+    - float
+thermal_conductivity: float   # W/mK
+source_dataset: string        # Name of the source dataset
 ```
 
 ### 2. TopologyGraph
-Represents the network abstraction of a sample.
-
 ```yaml
 sample_id: string
 node_count: integer
 edge_count: integer
 clustering_coefficient: float
-average_path_length: float  # NaN if disconnected or zero defects
-lcc_fraction: float         # Nodes in LCC / total nodes
-percolation_threshold: float # Critical distance where LCC > 0.5 (nm)
+density_normalized_clustering: float   # Clustering coefficient normalized by defect density (C / ρ)
+average_path_length: float   # NaN if disconnected or zero defects
+lcc_fraction: float          # Nodes in LCC / total nodes
+percolation_threshold: float # Critical distance (nm) where LCC > 0.5
 is_connected: boolean
-degree_distribution: list   # List of [degree, frequency] pairs
-metadata: object            # Flags (e.g., "disconnected", "zero_defects")
+degree_distribution:        # List of [degree, frequency] pairs
+  - - integer
+    - integer
+metadata:
+  flags:                     # e.g., ["disconnected", "zero_defects"]
+    - string
 ```
 
 ### 3. AnalysisResult
-Statistical output for a metric (or PCA component) versus thermal conductivity.
-
 ```yaml
-metric_name: string         # e.g., "clustering_coefficient" or "PC1"
+metric_name: string
 correlation_coefficient: float
-p_value: float
-adjusted_p_value: float     # Bonferroni or FDR corrected
-confidence_interval: list   # [lower, upper] 95% CI
-regression_model_params: object
+p_value: float               # 0 ≤ p ≤ 1
+adjusted_p_value: float      # Bonferroni or FDR corrected
+confidence_interval:         # [lower, upper] 95% CI
+  - float
+  - float
+regression_model_params: {}  # Model‑specific parameters
 regression_r_squared: float
-sensitivity_analysis: object # Results for 1.5x, 2.0x, 2.5x thresholds
+sensitivity_analysis:
+  thresholds:                # Tested multipliers
+    - float
+  correlation_sd: float      # SD of correlation across thresholds
 ```
 
 ## Data Flow
+1. **Raw Input** (`DefectSample`) → stored in `data/raw/` (CSV/Parquet).  
+2. **Graph Construction** (`DefectSample` → `TopologyGraph`) → `data/processed/graphs/`.  
+3. **Metric Enrichment** updates `TopologyGraph` with percolation and density‑normalized fields.  
+4. **Statistical Analysis** (`TopologyGraph` collection) → `results/analysis_results.json` (`AnalysisResult`).  
 
-1. **Raw Input** (`DefectSample`) → CSV/Parquet in `data/raw/`.
-2. **Graph Construction** (`DefectSample` → `TopologyGraph`) stored in `data/processed/graphs/`.
-3. **Metric Calculation** (`TopologyGraph`) → enriched `TopologyGraph` (adds percolation, density‑normalized metrics).
-4. **Statistical Analysis** (`TopologyGraph` collection) → `AnalysisResult` records in `results/analysis_results.json`.
+## Hygiene Rules
+- **Checksums**: SHA‑256 recorded in `state/` for every raw file.
+- **Immutability**: Raw files never overwritten; derived files receive timestamped names.
+- **Versioning**: Content hash of each artifact stored in `state/`; any change updates the hash entry.
 
-## Data Hygiene
+---
 
-- **Checksums**: All raw files in `data/raw/` are SHA‑256 checksummed; hashes recorded in `state/`.  
-- **Immutability**: Raw files are never overwritten; derived artifacts receive new filenames with timestamps.  
-- **Versioning**: Every artifact’s content hash is stored in `state/`; any change triggers a new hash entry.
+

@@ -15,6 +15,9 @@ properties:
     type: number
     minimum: 0
     maximum: 1
+  density_normalized_clustering:
+    type: number
+    description: "Clustering coefficient normalized by defect density (C / ρ)"
   average_path_length:
     type: number
     description: "NaN if disconnected or zero defects"
@@ -51,6 +54,7 @@ required:
   - node_count
   - edge_count
   - clustering_coefficient
+  - density_normalized_clustering
   - average_path_length
   - lcc_fraction
   - percolation_threshold
