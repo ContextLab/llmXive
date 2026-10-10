@@ -9,7 +9,7 @@
 
 ### User Story 1 - Automated PR Data Extraction and Preprocessing (Priority: P1)
 
-The system must automatically fetch pull request diffs, review comments, and linked issues from 3-5 specified open-source GitHub repositories, extracting the code changes and associated human annotations to create a structured dataset for analysis.
+The system must automatically fetch pull request diffs, review comments, and linked issues from several specified open-source GitHub repositories., extracting the code changes and associated human annotations to create a structured dataset for analysis.
 
 **Why this priority**: This is the foundational data ingestion step. Without a clean, structured dataset of code diffs and ground-truth bug labels, no subsequent analysis or comparison can occur. It delivers the raw material required for the entire research pipeline.
 

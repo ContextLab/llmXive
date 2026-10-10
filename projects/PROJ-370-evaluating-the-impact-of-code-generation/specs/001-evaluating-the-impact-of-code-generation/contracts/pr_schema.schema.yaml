@@ -20,7 +20,7 @@ properties:
     description: "Repository name (e.g., 'microsoft/vscode')"
   diff_text:
     type: "string"
-    description: "The full git diff content"
+    description: "The full (possibly truncated) git diff content"
   human_review_comments:
     type: "array"
     description: "List of human review comments associated with the PR"

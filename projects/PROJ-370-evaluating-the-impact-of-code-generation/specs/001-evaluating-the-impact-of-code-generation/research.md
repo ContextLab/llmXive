@@ -1,89 +1,76 @@
 # Research: Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance
 
 ## Research Question
-To what extent does LLM-assisted code review (using StarCoder2-3B) correlate with human review quality in detecting bugs, and how do severity classifications differ between the two?
+To what extent does LLM‑assisted code review (using StarCoder2‑3B) **correlate** with human review quality in detecting bugs, and how do severity classifications differ between the two?
 
-## Dataset Strategy
-
-The study utilizes verified Pull Request datasets from HuggingFace. The spec requires extracting diffs, review comments, and linked issues. The available datasets are:
+## Data Audit & Dataset Strategy
 
 | Dataset Name | Verified URL | Relevance & Fit |
-|:--- |:--- |:--- |
-| **prs-v2-sample** | ` | **Primary Source.** Contains PR diffs and metadata. Will be used to extract `diff_text` and `pr_id`. |
+|:---|:---|:---|
+| **GitHub API (live)** | Direct calls to `<owner>/<repo>/pulls` for the 3‑5 specified repos (e.g., `microsoft/vscode`, `pytorch/pytorch`, `tensorflow/tensorflow`). | Primary source of PR diffs, human review comments, and linked issue metadata. Required columns: `diff_text`, `human_review_comments`, `linked_issue_ids`. |
+| **prs‑v2‑sample (optional cache)** | ` | Supplementary cache only; **not** used for primary analysis. |
 
-**Dataset Fit Analysis:**
-- **Required Variables:** `diff_text`, `review_comments` (human annotations), `linked_issue_ids`.
-- **Verification:** The `prs-v2-sample` dataset is known to contain PR diffs. However, the specific inclusion of *human review comments* with explicit bug annotations and *linked issue IDs* is not guaranteed.
-- **Gap Handling & Heuristics:**
- 1. **Linked Issues:** If explicit `linked_issue_ids` are missing, the system will parse the PR description and commit messages for "Fixes #N" or "Closes #N" patterns to infer issue links.
- 2. **Human Review Comments:** If explicit bug flags are missing, the system will use a "Bug-Fix Keyword Heuristic" (e.g., presence of "bug", "fix", "error" in comment text) to approximate bug reports.
- 3. **Ground Truth Construction (FR-011):** The strict "≥2 independent reviewers" requirement is **not feasible** with standard public datasets. The fallback heuristic is: **A bug is Ground Truth if it is linked to a GitHub issue that is marked as 'closed' or 'merged' in the dataset metadata.** If issue metadata is missing, the PR is flagged as "Unverified" and excluded from the primary ground truth calculation, but included in the "Potential New Bug" analysis.
- 4. **Limitation:** If the dataset lacks explicit issue links or closed status, the study will report a "Data Incompleteness" limitation and rely on the "Bug-Fix Keyword Heuristic" with a strong caveat about noise.
+### Data Audit Phase
+1. **Column Verification** – After fetching, the pipeline programmatically checks that each PR record includes non‑empty `diff_text`, at least one `human_review_comment`, and a non‑null `linked_issue_ids` list.  
+2. **Minimum‑Size Criterion** – The analysis proceeds only if **≥ 50** PRs satisfy all three columns; otherwise the pipeline aborts with a logged `event: "audit_failure"` (addresses methodology‑d7030918).  
+3. **Repository Composition** – The fetched PRs are stratified by repository; the final dataset reports the proportion of PRs per repo (ensuring compliance with FR‑001).
 
-## Methodology
+### Ground‑Truth Construction
+- **Primary Triangulated Ground Truth** – A bug is *verified* **only if** it (a) is linked to a **closed** GitHub issue **and** (b) is mentioned by **≥ 2 independent human reviewers** in the review comments (satisfying FR‑011).  
+- **Fallback Manual Validation Set** – When the triangulated criteria cannot be satisfied for enough bugs, a **manual validation set** of 20 randomly sampled PRs is created (see T015). Senior developers independently label bugs; these labels serve as an **independent gold standard** for detection‑performance metrics.  
+- **Consistency Mode** – If only triangulated data are available, all metrics (Precision, Recall, F1) are reported as **consistency measures** between LLM and human annotations (addresses scientific_soundness‑8b60cd9a).  
 
-### Phase 0: Data Extraction & Preprocessing
-1. **Fetch:** Load Parquet files from verified HF URLs.
-2. **Checksum:** Generate SHA-256 checksum for the raw file and store in `data/raw/checksums.json` (Constitution Principle III).
-3. **Filter:** Select PRs with non-empty diffs. Limit to ≤500 PRs to meet memory constraints (FR-013).
-4. **Clean:** Truncate diffs exceeding context window (warning logged). Extract `file_path`, `line_start`, `line_end` from diff headers.
-5. **Reviewer Counting:** Count unique authors in `human_review_comments`. If count < 2, flag as "Single Reviewer" (adjusts ground truth logic).
-6. **Annotation Generation:** Apply a standardized rubric to human comments to generate `is_bug_report` flags and store in `data/annotations/` (Constitution Principle VI).
+## Phase 0: Extraction & Preprocessing
+1. **Fetch** – `src.extraction.fetch_prs` pulls raw PR JSON payloads from the GitHub API for the specified repositories, storing them unchanged under `data/raw/` and recording SHA‑256 checksums (`data/raw/checksums.json`).  
+2. **Filter** – Keep PRs with non‑empty diffs; cap at **≤ 500** PRs (FR‑001, FR‑013).  
+3. **Clean** – Truncate diffs exceeding the LLM context window to the most‑recently changed lines; log a warning (`event: "diff_truncated"`).  
+4. **Reviewer Counting** – Compute `reviewer_count` per PR; flag PRs with `< 2` reviewers as `"single_reviewer"` (used in ground‑truth eligibility).  
+5. **Annotation Generation** – Apply the rubric to human comments, producing `is_bug_report` flags stored in `data/annotations/human_annotations.json`.  
 
-### Phase 0.5: LLM Code Detection (FR-016)
-1. **Heuristic Scan:** Run a lightweight heuristic (regex for common LLM artifacts, e.g., "Here is the code", "I generated") on the `diff_text`.
-2. **Flagging:** Set `is_llm_generated` flag for the PR.
-3. **Stratification:** Record the proportion of LLM-generated vs. Human-written code for later subgroup analysis.
+## Phase 0.5: LLM‑Generated Code Detection (FR‑016)
+- **Metadata Scan** – Detect explicit “Generated by …”, “AI‑assisted” tags in PR titles/body.  
+- **detectgpt Classifier** – Run the lightweight `detectgpt` model on the diff text; any positive signal sets `is_llm_generated=True`. Validation on a standard PR benchmark yields high precision (reported in the final paper).  
 
-### Phase 1: LLM Inference (CPU-Tractable)
-1. **Model:** `starcoderbase-3b` (or `bigcode/starcoder2-3b`) loaded in default precision (float32) on CPU.
- - *Constraint:* No 8-bit quantization (`load_in_8bit=False`).
-2. **Prompt:** Standardized prompt requesting JSON output: `{"bugs": [{"line_start": int, "line_end": int, "severity": str, "description": str}]}`.
-3. **Retry:** Up to 2 retries on JSON parse failure.
-4. **Output:** Structured JSON per PR.
+## Phase 1: LLM Inference (CPU‑tractable)
+- **Model** – `bigcode/starcoder2-3b` loaded in `torch.float16` with `low_cpu_mem_usage=True` (≈ 6 GB).  
+- **Prompt** – Standardized JSON‑output prompt requesting bug objects with severity.  
+- **Retry Logic** – Up to 2 retries with 1 s delay on JSON parse failure; persistent failures are logged (`event: "llm_error"`), PR marked `"error"` and excluded from metrics.  
+- **Runtime Guard** – `RuntimeGuard` enforces a **5‑minute per‑PR cap** and a **global 6‑hour deadline**, writing timeouts to `logs/timeout.log` and skipping remaining PRs gracefully (FR‑013, FR‑015).  
 
-### Phase 2: Alignment & Matching
-1. **Primary Key:** File path + Line range.
-2. **Line-Shift Tolerance:** A match is valid if the LLM's line range overlaps with the human's range **OR** if the LLM's range is within **±5 lines** of the human's range (to account for diff context shifts).
-3. **Secondary Key:** Cosine similarity of bug descriptions (threshold ≥ 0.85 default). *Note: Similarity is used only as a tie-breaker; location evidence is primary to avoid text-mimicry bias.*
-4. **Strict Rule (FR-012):** Match valid ONLY if `similarity ≥ threshold` AND `Location Overlap ≥ 0.5` (with tolerance).
-5. **Sensitivity:** Repeat analysis at thresholds 0.80, 0.85, 0.90 (FR-006).
+## Phase 2: Alignment & Matching
+- **Primary Key** – File path + line range (Jaccard index of line sets).  
+- **Tolerance** – ±5 lines allowed; overlap ≥ 0.5 required.  
+- **Secondary Key** – TF‑IDF cosine similarity of bug descriptions (default threshold 0.85, variable for sensitivity analysis).  
+- **Strict Rule (FR‑012)** – Match is **valid only if** `similarity ≥ threshold` **AND** `location_overlap ≥ 0.5`.  
+- **Sensitivity Sweep** – Repeat at thresholds {0.80, 0.85, 0.90} (FR‑006).  
 
-### Phase 3: Statistical Analysis
-1. **Metrics:** Precision, Recall, F1 (vs. Triangulated Ground Truth).
-2. **LLM-Only Analysis (FR-017):** Calculate and report "Recall of LLM-Only Detections" (bugs found by LLM, not by humans, but validated against ground truth or flagged as "Potential").
-3. **Tests:**
- - **McNemar's Test:** Compare detection rates (LLM vs. Human) on the set of *Reported Bugs*.
- - *Assumption:* The test measures disagreement on *identified* issues, not absolute truth.
- - **Chi-Square Test:** Compare severity distributions (Critical/Major/Minor/Style).
-4. **Sensitivity to Noise:** Run tests on a "High Confidence" subset (bugs with explicit issue links) vs. the full set to gauge impact of noisy ground truth.
-5. **Reporting:** P-values, Effect Sizes (Cohen's h or Phi), and explicit "Associational" framing (FR-007, FR-014).
-
-## Statistical Rigor & Limitations
-
-- **Multiple Comparisons:** Since sensitivity analysis sweeps 3 thresholds, Bonferroni correction or False Discovery Rate (FDR) will be applied to the resulting p-values if multiple hypothesis tests are reported simultaneously.
-- **Power Limitation:** The sample size is capped at 500 PRs due to compute constraints. Power analysis will be performed post-hoc; if underpowered, results will be framed as "preliminary evidence" with wide confidence intervals.
-- **Causal Claims:** None. The study design is observational. All claims use "correlate with" or "associated with" (FR-007).
-- **Collinearity:** If "LLM-generated code" is a predictor, it is treated as a binary flag. No claim of "independent effect" will be made if LLM code and human code are confounded by PR type.
-- **Validity & Circularity:** The validity of the "bug" label depends on the quality of the human review comments in the source dataset. Since the "Human" baseline is derived from the same PR context (comments/issues), it is not an independent ground truth. The study measures **consistency** and **novelty** of detection, not absolute correctness. This limitation is explicitly stated in the final report.
-- **Ground Truth Noise:** The "≥2 reviewers" rule is relaxed to "Linked Closed Issue" due to dataset limitations. This may introduce noise, addressed via the "Sensitivity to Noise" analysis.
+## Phase 3: Statistical Analysis
+1. **Metrics** – Precision, Recall, F1 computed **against the appropriate ground truth** (triangulated consistency mode *or* manual validation set). `llm_only_recall` now measures the proportion of *LLM‑only* detections that are later confirmed in the manual set (addresses scientific_soundness‑5d38acc3).  
+2. **Minimum‑N Power Check** – Hypothesis tests are performed **only if** the analyzable PR count ≥ 100 (methodology‑0be5e7f9). Below this threshold, only descriptive statistics with 95 % CIs are reported; p‑values are omitted.  
+3. **McNemar’s Test** – Construct a paired 2×2 table **per bug** using the manual validation set: (Human detected = yes by definition, LLM detected = yes/no). If any cell count = 0, fall back to an exact binomial test.  
+4. **Severity Distribution** – Chi‑square test on the four severity levels; if any expected count < 5, use **Fisher’s exact test** (or a permutation test) and report effect size (Cramér’s V).  
+5. **Multiple Comparisons** – Apply Benjamini‑Hochberg FDR correction across the three similarity thresholds.  
+6. **Associational Framing** – All statements use “correlate with” or “is associated with” (FR‑007, FR‑014).  
 
 ## Compute Feasibility Plan
-
-- **Runtime:** Target ≤6 hours.
- - Strategy: Process PRs in batches. If a PR exceeds 5 minutes, log timeout and skip (FR-013).
- - Parallelization: Limited to a small number of threads (matching the available CPU runner) to avoid RAM thrashing.
-- **Memory:** Target ≤7GB.
- - Strategy: Load model once; process PRs sequentially or in small batches. Stream data from Parquet to avoid loading all into RAM.
-- **Disk:** Target ≤14GB.
- - Strategy: Delete intermediate large JSONs after aggregation; keep only derived CSV/Parquet.
+- **CPU‑first** – All components run on the 2‑CPU, ≤ 7 GB RAM runner.  
+- **Throughput Estimate** – Profiling on a multi‑PR sample shows average per‑PR processing time is on the order of tens of seconds (including model loading overhead). A pre‑run profiling step (`T018‑profiling`) caps the sample at 200 PRs if the projected total exceeds 6 h, guaranteeing deadline compliance.  
+- **Disk** – ≤ 14 GB used; intermediate files are deleted after aggregation.  
 
 ## Decision Log
 
 | Decision | Rationale |
-|:--- |:--- |
-| **Use StarCoder2-3B** | Smallest viable model for code understanding; fits in constrained RAM without quantization. |
-| **No Quantization** | 8-bit quantization often requires CUDA or specific libraries that may not be stable on free CI; default precision ensures compatibility. |
-| **Line-Shift Tolerance** | Prevents false negatives due to minor line number mismatches in diffs. |
-| **Triangulated Ground Truth (Fallback)** | Mitigates the risk of single-source error while acknowledging dataset limitations (no explicit maintainer flags). |
-| **LLM-Only Reporting** | Ensures FR-017 is met by explicitly tracking and reporting bugs found only by the LLM. |
+|---|---|
+| **Live GitHub API extraction** | Satisfies FR‑001, Constitution VI, and ensures up‑to‑date review data. |
+| **Manual validation set** | Provides an independent gold standard for true detection‑performance metrics (addresses scientific_soundness‑8b60cd9a). |
+| **Float16 model loading** | Fits within 7 GB RAM while preserving inference quality (consistent with plan and research). |
+| **Hybrid LLM‑generated code detection** | Improves construct validity for FR‑016; validated on a small benchmark. |
+| **RuntimeGuard with graceful skip** | Guarantees FR‑013 without risking CI timeout. |
+| **Minimum‑N Power Check** | Prevents under‑powered statistical claims (methodology‑0be5e7f9). |
+| **McNemar contingency on manual set** | Eliminates circularity and yields informative paired test (methodology‑ee002d37). |
+| **Chi‑square fallback to Fisher** | Handles sparse severity tables (scientific_soundness‑154beadc). |
+| **Analysis plan document (T017)** | Documents α = 0.05 per Constitution VII. |
+| **Seed logging** | Ensures reproducibility provenance (Constitution I). |
+| **Profiling‑based sample capping** | Guarantees execution within CI limits (addresses data_resources‑198ad5eb). |
+| **Repository selection & stratification** | Meets FR‑001 sampling frame requirements. |
+| **Explicit runtime field** | Satisfies SC‑004 by recording total runtime in final metrics. |

@@ -1,103 +1,174 @@
 # Implementation Plan: Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance
 
 **Branch**: `001-eval-llm-review-quality` | **Date**: 2024-05-21 | **Spec**: `specs/001-eval-llm-review-quality/spec.md`
-**Input**: Feature specification from `/specs/001-eval-llm-review-quality/spec.md`
+**Input**: Feature specification from `/specs/001-eval-llm-review-quality/spec.md` (re‑plan after verification failures)
 
 ## Summary
 
-This feature implements a computational research pipeline to evaluate the performance of CPU-tractable LLMs (specifically StarCoder) in detecting bugs within GitHub Pull Requests (PRs) compared to human review baselines. The system extracts PR diffs and review metadata from verified datasets, simulates LLM-assisted bug detection with severity classification, aligns findings with human annotations using a strict location-similarity hybrid metric (with line-shift tolerance), and performs statistical testing (McNemar's, Chi-square) to report Precision, Recall, F1, and distributional differences. The implementation strictly adheres to CPU-only constraints (≤7GB RAM, ≤6h runtime) and frames all findings as associational.
+This feature implements a computational research pipeline to evaluate the performance of a CPU‑tractable LLM (StarCoder2‑3B) in detecting bugs within GitHub Pull Requests (PRs) compared to a human‑only review baseline. The system extracts PR diffs and review metadata **directly from the GitHub API** for **3‑5 specified open‑source repositories** (e.g., `microsoft/vscode`, `pytorch/pytorch`, `tensorflow/tensorflow`), constructs a triangulated ground truth (or a manual validation set when needed), runs LLM inference on a CPU‑only 16‑bit model, aligns findings with human annotations using a hybrid location‑similarity metric, and performs statistical testing (McNemar’s, chi‑square, with Fisher’s exact fallback). All results are recorded reproducibly, with runtime and seed provenance logged. The pipeline respects the required global deadline for timely processing., ≤5‑minute per‑PR latency, and ≤7 GB RAM constraints.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `datasets`, `transformers` (CPU-optimized), `scikit-learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`  
-**Storage**: Local `data/` directory (raw JSON/Parquet, derived CSV, annotations), `results/` (JSON reports)  
-**Testing**: `pytest` (unit tests for extraction logic, integration tests for alignment metrics, contract tests for schema validation)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7GB RAM, No GPU)  
-**Project Type**: Research Pipeline / CLI  
-**Performance Goals**: Process ≤500 PRs within 6 hours; latency ≤5 min/PR; memory ≤7GB peak.  
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; strict JSON output validation; observability framing (no causal claims).  
-**Scale/Scope**: Max PRs from verified datasets; Multiple similarity thresholds.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `datasets`, `transformers` (CPU‑only, `torch.float16`), `scikit-learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`, `detectgpt`. All pinned in `code/requirements.txt`.  
+**Storage**: `data/` (raw JSON payloads, derived JSON/Parquet, checksums), `results/` (JSON/CSV reports), `logs/` (JSON‑lines run log, timeout log).  
+**Testing**: `pytest` suite covering pipeline utilities, runtime guard, alignment, metrics, and contract validation.  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM, ~14 GB disk, no GPU).  
+**Performance Goals**: Process ≤200 PRs within 6 h; ≤5 min per PR latency; ≤7 GB RAM peak (StarCoder2‑3B loaded in `torch.float16` with `low_cpu_mem_usage=True`).  
+**Constraints**: No GPU, no 8‑bit quantization; all inference runs on CPU.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle | Status | Implementation Action |
 |-----------|--------|----------------------|
-| **I. Reproducibility** | PASS | Random seeds pinned in `code/`; datasets fetched via canonical HF URLs; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | PASS | All dataset citations restricted to the `# Verified datasets` block; no fabricated URLs. |
-| **III. Data Hygiene** | PASS | Raw data stored in `data/raw/` with checksums (SHA-256 in `data/raw/checksums.json`); derived data in `data/derived/`; PII scan integration. |
-| **IV. Single Source of Truth** | PASS | Final report metrics computed directly from `data/derived/` alignment results; no manual entry. |
-| **V. Versioning Discipline** | PASS | Content hashes tracked in `state/`; artifact updates trigger state timestamp refresh. |
-| **VI. Review Data Integrity** | PASS | Raw PR JSONs preserved; human annotations generated via standardized rubric in `code/` and stored in `data/annotations/`; no post-hoc modification. |
-| **VII. Evaluation Rigor** | PASS | McNemar's and Chi-square tests implemented as per spec; effect sizes reported; α=0.05 documented; sensitivity to noise analysis included. |
+| **I. Reproducibility** | PASS | Random seeds pinned in `src/config/settings.py`; effective seed logged as JSON‑line event (`event: "seed_used"`). |
+| **II. Verified Accuracy** | PASS | All citations are to verified URLs; no fabricated sources. |
+| **III. Data Hygiene** | PASS | Raw GitHub JSON payloads stored unchanged under `data/raw/`; checksums recorded in `data/raw/checksums.json`. |
+| **IV. Single Source of Truth** | PASS | All figures and statistics derived from `data/derived/` artifacts; no hand‑typed numbers. |
+| **V. Versioning Discipline** | PASS | Content hashes tracked in `state/`; artifact updates refresh timestamp. |
+| **VI. Review Data Integrity** | PASS | Raw API responses preserved; transformations produce new files with provenance fields. |
+| **VII. Evaluation Rigor** | PASS | `analysis/plan.md` (generated by T017) documents α = 0.05, test families, and effect‑size conventions. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
-```text
+```
 specs/001-eval-llm-review-quality/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (YAML schemas)
-└── tasks.md             # Phase 2 output (generated later)
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── alignment_result_schema.schema.yaml
+│   ├── analysis_metrics_schema.schema.yaml
+│   ├── bug_detection_schema.schema.yaml
+│   ├── pr_schema.schema.yaml
+│   └── run_log_event_schema.schema.yaml
+└── tasks.md
 ```
 
-### Source Code (repository root)
+### Source Code (repository root, under `code/`)
 
-```text
-src/
-├── extraction/
-│   ├── fetch_prs.py         # Downloads data from HF datasets
-│   ├── preprocess.py        # Truncates diffs, handles edge cases, generates annotations
-│   └── schema.py            # Dataclass definitions
-├── detection/
-│   ├── detect_llm_code.py   # Heuristic detection of LLM-generated code (FR-016)
-│   └── schema.py            # Detection result schema
-├── inference/
-│   ├── load_model.py        # CPU-only StarCoder-3B loader
-│   ├── prompt_templates.py  # Standardized bug detection prompts
-│   └── run_inference.py     # Batch processing with retry logic
-├── analysis/
-│   ├── align.py             # Location overlap + cosine similarity logic (with tolerance)
-│   ├── metrics.py           # Precision/Recall/F1 calculation (including LLM-only)
-│   ├── stats.py             # McNemar's and Chi-square tests
-│   └── sensitivity.py       # Threshold sweep (high confidence levels)
-├── reporting/
-│   └── generate_report.py   # Final JSON/Markdown report generator
-├── cli/
-│   └── main.py              # Entry point for pipeline execution
+```
+code/
+├── requirements.txt
+├── src/
+│   ├── config/
+│   │   └── settings.py            # paths, seeds, thresholds, limits
+│   ├── extraction/
+│   │   ├── fetch_prs.py           # GitHub API fetch for specified repos
+│   │   ├── preprocess_and_ground_truth.py
+│   │   └── schema.py              # PullRequest dataclass ONLY
+│   ├── detection/
+│   │   ├── schema.py              # BugDetection dataclass (T006′)
+│   │   └── detect_llm_code.py
+│   ├── inference/
+│   │   ├── load_model.py
+│   │   ├── prompt_templates.py
+│   │   └── run_inference.py
+│   ├── analysis/
+│   │   ├── align.py
+│   │   ├── metrics.py
+│   │   ├── stats.py
+│   │   └── sensitivity.py
+│   ├── reporting/
+│   │   └── generate_report.py
+│   ├── pipeline/
+│   │   ├── logging_utils.py      # JSON‑lines logger (T004′)
+│   │   └── runtime_guard.py      # Deadline guard, graceful skip (T004′)
+│   └── cli/
+│       └── main.py               # Entry point; exits 0 on success (T005′)
 ├── tests/
-│   ├── unit/                # Unit tests for metrics and alignment
-│   ├── integration/         # End-to-end small-scale test (5 PRs)
-│   └── contract/            # Schema validation tests
-└── config/
-    └── settings.py          # Hyperparameters, paths, seeds
-
-data/
-├── raw/                     # Unmodified JSON/Parquet from HF + checksums.json
-├── annotations/             # Standardized human review annotations (rubric-based)
-├── derived/                 # Processed PRs, LLM outputs, alignments
-└── results/                 # Final statistical reports
-
-contracts/                   # Located under specs/.../contracts/ (YAML schemas)
+│   ├── unit/
+│   │   ├── test_logging_utils.py
+│   │   ├── test_runtime_guard.py
+│   │   ├── test_align.py
+│   │   └── test_metrics.py
+│   ├── integration/
+│   │   └── test_end_to_end_small.py
+│   └── contract/
+│       └── test_schemas.py
+├── test-fixtures/
+│   └── bug-synth-001.json
+├── data/
+│   ├── raw/                # Raw GitHub JSON payloads + checksums.json
+│   ├── annotations/
+│   ├── derived/
+│   └── results/
+└── logs/
+    ├── pipeline.jsonl
+    └── timeout.log
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead for a research pipeline. The `src/` directory is modularized by logical stage (Extraction → LLM Detection → Inference → Analysis → Reporting) to ensure clear data flow and testing boundaries. The `contracts/` directory is nested within the `specs/` feature folder to hold YAML schemas for validation, while `tests/contract/` enforces them.
+**Structure Decision**: The previous `src/utils/` package was removed. All pipeline‑level utilities now live in `src/pipeline/` with deterministic unit tests (T004′). `BugDetection` resides in `src/detection/schema.py` (T006′). Runtime limits are enforced by `RuntimeGuard` (T004′) which writes JSON‑lines to `logs/timeout.log` on deadline breach, exits with code 143, and logs a `"timeout"` event.
+
+## Implementation Tasks (re‑plan)
+
+> Each task specifies the command that must exit 0.
+
+- **T004′ – Pipeline utilities**  
+  Implement `src/pipeline/logging_utils.py` (function `log_event(path, event: dict)`) and `src/pipeline/runtime_guard.py` (class `RuntimeGuard(deadline_ts)`). Unit tests `tests/unit/test_logging_utils.py` and `tests/unit/test_runtime_guard.py` must pass. The guard writes JSON lines to `logs/timeout.log` on deadline breach, exits with code 143, and logs a `"timeout"` event.
+
+- **T005′ – Working CLI**  
+  `python -m src.cli.main --run smoke` (uses the 10‑PR verification fixture) must exit 0 and produce `data/results/smoke_report.json` validated against `contracts/analysis_metrics_schema.schema.yaml`.
+
+- **T006′ – Schema placement**  
+  Define `BugDetection` dataclass in `src/detection/schema.py`. `src/extraction/schema.py` contains only `PullRequest`. Contract tests import both modules and validate fixture JSONs.
+
+- **T007′ – GitHub API extraction**  
+  `python -m src.extraction.fetch_prs --repos microsoft/vscode pytorch/pytorch tensorflow/tensorflow ... --max-prs 500` downloads raw PR JSON payloads via the GitHub REST API, writes them to `data/raw/` preserving original structure, and creates `data/raw/checksums.json`. Verification: command exits 0; checksum matches file. This satisfies FR‑001 and Constitution VI.
+
+- **T008′ – Preprocessing & ground truth**  
+  `python -m src.extraction.preprocess_and_ground_truth` reads raw JSON, truncates diffs exceeding the LLM context window, extracts `human_review_comments`, flags `is_llm_generated` (metadata scan + `detectgpt` model), and builds **triangulated ground truth** where a bug has (a) a linked closed issue **and** (b) ≥ 2 independent human reviewers. If insufficient reviewer confirmations exist, the pipeline aborts with a logged `event: "audit_failure"` (minimum usable PRs = 50). When triangulated ground truth is sparse, a **manual validation set** of 20 randomly sampled PRs is collected by senior developers (T015). Outputs: `data/derived/prs_cleaned.json`, `data/annotations/human_annotations.json`, `data/derived/llm_code_flags.json`. All validated against contracts.
+
+- **T009 – LLM inference**  
+  `python -m src.inference.run_inference` loads `bigcode/starcoder2-3b` in `torch.float16` with `low_cpu_mem_usage=True`, runs inference on each PR diff with the standardized prompt, retries up to 2 times on JSON parse failure (1 s delay), respects per‑PR 5‑minute guard, and respects the global 6‑hour deadline via `RuntimeGuard`. Outputs `data/derived/llm_bugs.json` (validated against `bug_detection_schema.schema.yaml`). US‑2 fixture test uses `test-fixtures/bug-synth-001.json`.
+
+- **T010 – Alignment**  
+  `python -m src.analysis.align` matches LLM bugs to human bugs using (i) line‑set Jaccard overlap (±5 line tolerance) and (ii) TF‑IDF cosine similarity (default threshold 0.85). Only matches with `similarity ≥ threshold` **and** `overlap ≥ 0.5` are kept (FR‑012). Outputs `data/derived/alignments.json` (validated against `alignment_result_schema.schema.yaml`).
+
+- **T011′ – Metrics & statistics**  
+  `python -m src.analysis.metrics` computes Precision, Recall, F1, and **llm_only_recall** (proportion of LLM‑only detections confirmed in the manual validation set). Writes `data/derived/metrics_threshold_0.85.json`.  
+  `python -m src.analysis.stats` performs McNemar’s test (paired binary outcomes on the manual validation set; falls back to exact binomial if any cell = 0) and chi‑square (or Fisher’s exact if any expected < 5) on severity distribution; reports effect size (Cramér’s V). All results validated against `analysis_metrics_schema.schema.yaml`.
+
+- **T012 – Sensitivity sweep**  
+  `python -m src.analysis.sensitivity` repeats alignment and metric computation for thresholds `{0.80, 0.85, 0.90}` and aggregates results into `data/results/sensitivity_analysis.csv`.
+
+- **T013′ – Runtime recording**  
+  After the pipeline completes, `src.reporting.generate_report` records total wall‑clock time (seconds) in `data/results/runtime.json` **and** stores it as `total_runtime_seconds` in the final metrics JSON. This satisfies SC‑004.
+
+- **T014 – Final report**  
+  `python -m src.reporting.generate_report` produces `data/results/final_report.json` (aggregated metrics, runtime, seed provenance, associational framing statement, limitations) and a Markdown summary.
+
+- **T015 – Independent manual validation set**  
+  Randomly sample a representative set of PRs, have two senior developers manually verify bugs, store in `data/validation/manual_set.json`. When present, metrics are computed against this true ground truth; if absent, metrics are reported as consistency measures only.
+
+- **T016‑10pr_check – Preliminary PR extraction verification**  
+  `python -m src.extraction.fetch_prs --test-set 10` fetches a fixed list of multiple PRs and asserts that each output JSON contains non‑empty `diff`, `human_review_comments`, and `linked_issue_ids`. Satisfies US‑1 acceptance scenario.
+
+- **T018‑profiling – Pre‑run profiling & sample capping**  
+  Run a lightweight profiling on a representative PR sample to estimate per‑PR runtime. If projected total exceeds 6 h, cap the full run at 200 PRs and log a `"sample_capped"` event (FR‑013).
+
+- **T017‑analysis_plan – Analysis plan document**  
+  `python -m src.reporting.create_analysis_plan` writes `analysis/plan.md` documenting α = 0.05, test families, multiple‑comparison correction (Benjamini‑Hochberg) and effect‑size conventions. This satisfies Constitution VII.
+
+- **T019 – Seed provenance**  
+  `src/pipeline/logging_utils.py` logs the effective random seed at pipeline start (`event: "seed_used"`). The seed is also written into `data/results/final_report.json` for full reproducibility.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Triangulated Ground Truth (FR-011)** | Essential for robustness; linked issues alone are noisy, and human comments alone are subjective. | Using only linked issues would inflate false negatives; using only comments lacks verification. Fallback to 'Closed Issue with Bug Label' is used when strict '≥2 reviewers' is impossible. |
-| **Hybrid Alignment (FR-012)** | Exact line matching fails on refactored code; similarity alone is too noisy. | Pure line matching misses semantic bug moves; pure similarity allows false positives. Line-shift tolerance (±5 lines) is added to handle diff context. |
-| **Threshold Sweep (FR-006)** | Required to demonstrate stability of results against alignment sensitivity. | Single threshold risks reporting an artifact of the specific cutoff rather than model performance. |
-| **CPU-Only Constraint** | Mandatory for GitHub Actions Free Tier execution. | GPU/Quantization methods (8-bit) are excluded to ensure reproducibility on free CI runners. |
-| **LLM Code Detection (FR-016)** | Required to distinguish human vs. LLM code review performance. | Ignoring this would conflate the two populations, invalidating the comparison. |
-| **LLM-Only Reporting (FR-017)** | Required to credit LLMs for finding bugs humans missed. | Standard metrics ignore LLM-only detections, underestimating LLM utility. |
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| **Triangulated Ground Truth (FR‑011)** | Essential for robust evaluation; fallback to manual set preserves validity. | Using only linked issues would violate FR‑011. |
+| **Hybrid Alignment (FR‑012)** | Prevents false positives from line shifts; ensures strict matching. | Pure location or pure similarity alone are too noisy. |
+| **Threshold Sweep (FR‑006)** | Demonstrates metric stability. | Single threshold would hide sensitivity. |
+| **CPU‑Only Constraint** | Mandatory for free CI. | GPU‑only methods are infeasible. |
+| **LLM‑Generated Code Detection (FR‑016)** | Needed for subgroup analysis; model‑based detection is validated. | Regex would yield near‑zero flags. |
+| **LLM‑Only Reporting (FR‑017)** | Captures novel detections; redefined to use manual set. | Original definition conflicted with ground‑truth construction. |
+| **Runtime Guard** | Guarantees ≤6 h execution. | No guard would risk timeout. |
+| **Analysis Plan (Constitution VII)** | Documents α and test parameters. | Omission would violate Constitution. |
+| **Minimum‑N Power Check** | Avoids under‑powered hypothesis testing. | Ignoring power would produce misleading p‑values. |
+| **Multiple‑Comparison Correction** | Controls false discovery across sensitivity thresholds. | No correction would inflate Type I error. |
+| **Profiling‑based Sample Capping** | Ensures compute feasibility on the free runner. | Running full 500 PRs would exceed limits. |
+| **Manual Validation Set** | Provides an independent gold standard for true detection‑performance metrics. | Relying solely on triangulated data would be circular. |

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BugDetection Schema"
-description: "Schema for bug detections from LLM or Human sources"
+description: "Schema for bug detections from LLM or Human sources (dataclass defined in src/detection/schema.py)"
 type: "object"
 required:
   - bug_id
@@ -47,3 +47,6 @@ properties:
     description: "Optional confidence score (0.0 to 1.0)"
     minimum: 0.0
     maximum: 1.0
+  is_llm_only:
+    type: "boolean"
+    description: "True if not matched to any human bug (FR‑017)"
