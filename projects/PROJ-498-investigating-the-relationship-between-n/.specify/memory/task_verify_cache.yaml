@@ -1,11 +1,10 @@
 T001:
   c: true
-  h: e80e3f79a58d4949ac2aa04e4f32c9d696bec79bfbe89bf79d76258b8750c305
-  r: "The collector confirms that `projects/PROJ-498-investigating-the-relationship-between-n/`\
-    \ and its `code/`, `data/`, and `tests/` subdirectories all exist, and the execution\
-    \ log for `create_directories.py` shows a successful run creating the structure.\
-    \ This satisfies the task\u2019s sole requirement."
-  sig: 8e23b66996631aa1b54b9180a537bd4a5182a7dde54a7a4d45172e96b233d203
+  h: e54db423064dace6b1dc32c9339d742cfe2b48c2ae61f33858c06d369192694f
+  r: Checked the repository tree showing `projects/PROJ-498-investigating-the-relationship-between-n/`
+    with the required `code/`, `data/`, and `tests/` subfolders, and the `.tasks/T001.code_create_directories.py.log`
+    confirming the script created the structure successfully.
+  sig: 2b7b8e502d669e488da4227d2f0cc4aef3dd58aeaed5d423a69cf5360c1e16db
 T002:
   c: false
   h: 15e6ca1696237c8e74e3675e6b46d328f5a4210806770b96030b7451c99f695b
@@ -15,6 +14,15 @@ T002:
     without version conflicts. Adding such verification output is needed to satisfy
     the task.
   sig: 4635606f5e43eadc02ebee4fa7a6085eeeeead27a3e451533e869e193a330765
+T003:
+  c: false
+  h: e3141d0be28566ac6b420936e6773f2e3d844b1734dcdeceaea3f10f5f773c2c
+  r: "The evidence contains no linting configuration files (e.g., `pyproject.toml`,\
+    \ `.flake8`, `.isort.cfg`) nor any recorded output showing `black --check .`,\
+    \ `flake8 .`, or `isort --check-only .` returning exit code\u202F0. Without these\
+    \ artifacts or execution logs, the requirement to configure and verify linting/formatting\
+    \ cannot be confirmed."
+  sig: 7285f389787a77e0c238ead6b66c47f71d4184c1d3c18177482e906a1cd5c9cd
 T013:
   c: false
   h: af4f9df700bef4fbda1521515e71ef7778884d69a60a974931eb835a4fa812f4

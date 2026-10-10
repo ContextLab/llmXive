@@ -1,19 +1,15 @@
 status: none
-intent: OpenNeuro task switching EEG dataset dsXXXXX download via MNE python package
-  dataset
+intent: OpenNeuro task switching dataset dsXXXXX download python package dataset
 required_fields:
 - subject_id
-- session_id
-- run_id
-- raw_eeg_data
-- channel_names
-- sampling_rate
+- raw_eeg_signal
 - event_markers
-- stimulus_onset
-- pre_stimulus_baseline
-- post_stimulus_interval
-- epoch_data
+- channel_locations
+- sampling_rate
+- stimulus_onset_times
+- condition_labels
 - epoch_start_time
-cache_key: 11884ba282200f1bc2e666189512662cb4d5f4676303d9a03ff72083a951735c
-searched_at: '2026-10-10T03:26:36.686549+00:00'
+- epoch_end_time
+cache_key: 2080b870d4f67d011766eecb5ce711fa1a2e660209b65a7a1c82438a151a1a67
+searched_at: '2026-10-10T03:28:37.245821+00:00'
 retry_count: 1

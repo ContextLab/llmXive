@@ -19,12 +19,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --dataset ds004173 --output data/results -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/main.py", line 10, in <module>
-    from synchrony import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/synchrony.py", line 21, in <module>
-    @dataclass
-     ^^^^^^^^^
-NameError: name 'dataclass' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/main.py", line 13, in <module>
+    from preprocess import get_subject_ids, get_subject_trials_per_condition
+ImportError: cannot import name 'get_subject_ids' from 'preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/preprocess.py)
 
 - python -m pytest tests/unit/ -> rc=1
 
@@ -33,12 +30,9 @@ NameError: name 'dataclass' is not defined
 - python code/main.py --dataset ds004173 --subject sub-01 --quick -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/main.py", line 10, in <module>
-    from synchrony import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/synchrony.py", line 21, in <module>
-    @dataclass
-     ^^^^^^^^^
-NameError: name 'dataclass' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/main.py", line 13, in <module>
+    from preprocess import get_subject_ids, get_subject_trials_per_condition
+ImportError: cannot import name 'get_subject_ids' from 'preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/preprocess.py)
 
 
 ## Declared deliverables still missing

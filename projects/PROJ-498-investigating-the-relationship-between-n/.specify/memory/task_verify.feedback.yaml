@@ -8,6 +8,11 @@ T002:
     to satisfy the task.
   task: 01c67ed060c267a83fb141affa9ef7f2479919b3c28391fb6e96e62a01b74078
 T003:
+  reason: "The evidence contains no linting configuration files (e.g., `pyproject.toml`,\
+    \ `.flake8`, `.isort.cfg`) nor any recorded output showing `black --check .`,\
+    \ `flake8 .`, or `isort --check-only .` returning exit code\u202F0. Without these\
+    \ artifacts or execution logs, the requirement to configure and verify linting/formatting\
+    \ cannot be confirmed."
   task: 49c2eba878028d65aa302e8fb9bd71514d4da645a19c29bbfbb648a91ffa6228
 T004:
   task: 2076f5b9be3d82e0148438d9287a35c022ed7946d05ab2b47bf4097b664bd22c
