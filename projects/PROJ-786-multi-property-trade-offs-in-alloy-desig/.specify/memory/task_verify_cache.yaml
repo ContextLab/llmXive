@@ -1,34 +1,54 @@
 T000:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided excerpt shows that `spec.md` contains the required version entries\
-    \ and that the listed functional requirements, success criteria, and user story\
-    \ reference Bulk and Shear Moduli, but there is no actual log confirming the verification\
-    \ nor a git commit updating the file. The task\u2019s required output artifact\
-    \ is missing."
+  h: 043249aa754156072fb79c8958ea191a4c2e6acdb4013bd3dcf957aade577d23
+  r: "The spec file exists and includes the required version entries, but it does\
+    \ not contain the conditional pivot logic referencing HDBSCAN (or K\u2011Means\
+    \ on residuals) as required, and FR\u2011006 lacks the explicit 0.1 step specification.\
+    \ Moreover, the required output file `data/processed/spec_alignment_log.txt` is\
+    \ missing."
+  sig: 7c7f6364542b4be10247472635dad67c8ba1be51f5a02a93363b8d08d0b398fb
+T001:
+  c: true
+  h: b1c12b114501e30288ef3b9d7bba2581eca66a6808c3131fc3c41c597c4e6def
+  r: "The repository contains the project root `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/`\
+    \ and all required sub\u2011directories (`code/`, `data/`, `tests/`, `docs/`,\
+    \ `data/raw/`, `data/processed/`, `tests/contract/`, `tests/integration/`, `tests/unit/`).\
+    \ Each of these directories includes a `.gitkeep` file, confirming the initialized\
+    \ structure."
+  sig: b446e63cea57692fe171675ef878937881d18b34798a819acc382406946079b2
+T002:
+  c: true
+  h: 77360afa47259a4d7b0ade0d0c4e93935da027eb8c53d16e03e7c89ab05c7b2d
+  r: "Checked the `requirements.txt` file (262\u202Fbytes) located at the project\
+    \ root. It contains all listed packages (pandas, scikit-learn, numpy, scipy, deap,\
+    \ matplotlib, seaborn, requests, pyyaml, pyarrow, pymatgen, mendeleev, python-dotenv,\
+    \ hdbscan) with exact `==major.minor.patch` pins, satisfying the task\u2019s requirement."
+  sig: fd2c2b4bd6f21ee0d6625b317ed8bc55d949b7b02e237e414a3b39eed2fa491f
 T003:
   c: true
-  h: b8ad8072f2ffb36b808074852d7581842eac10e212395eb848988bc633c75b69
-  r: "The provided `pyproject.toml` (1855\u202Fbytes) contains full `[tool.black]`\
-    \ and `[tool.ruff]` configurations, fulfilling the requirement to configure linting\
-    \ and formatting. Separate `.ruff.toml` and `.black.toml` files are not needed\
-    \ because the settings are correctly placed in `pyproject.toml`."
+  h: a51b2c02456356efc3e8155881a63f35efe926f7573186cd2bb8b3747d1eec6d
+  r: "Checked the presence and contents of `pyproject.toml`, `.ruff.toml`, and `.black.toml`;\
+    \ all three files exist, are non\u2011empty, and contain appropriate ruff and\
+    \ black configuration sections with project\u2011specific settings."
+  sig: c2a6c641ae38ff3fc3be1f850b696d12c5905aef026e2239d1818d33ac1d6076
 T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the `data/raw` and `data/processed` directories
-    exist and contain a `.gitkeep` file each; without these artifacts the requirement
-    cannot be confirmed. The implementer must add the directory structure and the
-    placeholder `.gitkeep` files.
+  h: ed4243a31aa279b8deed4588283e4fd66778a7c533e41c3d770b17e330ad2132
+  r: "Checked the project root for the required `data/raw/.gitkeep` and `data/processed/.gitkeep`\
+    \ files; neither the directories nor the placeholder files are present in the\
+    \ repository. The task\u2019s core deliverable \u2013 the directory structure\
+    \ with `.gitkeep` files \u2013 is missing."
+  sig: f28bba0d6521722dfa6f5dff4da7b43a54080e1f99f890f567a9bf8cbc7a93be
 T005:
   c: false
-  h: ddda77f7f40937ab8b9e20fcec588f88695a72da2365530fd9da2341175563a3
-  r: "The required `state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml`\
-    \ file does not exist, and the provided `code/versioning.py` script (truncated)\
-    \ contains only hash\u2011computation utilities without any code that updates\
-    \ the YAML\u2019s `artifact_hashes` map, sets an `updated_at` timestamp, or outputs\
-    \ the updated YAML and log as required. The task\u2019s core functionality is\
-    \ therefore missing."
+  h: 2d7f74b2e263fa846c829b65059e4a4de1da775af9904b98e97aaa8f3bb70b36
+  r: The repository contains the `code/versioning.py` script, but the required state
+    file `state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml` is
+    missing and there is no evidence (e.g., execution logs or the generated YAML)
+    showing that the script was run, produced the updated YAML, and logged hash computation.
+    The implementer must provide a run of the script that creates/updates the YAML
+    file and includes the corresponding console/log output.
+  sig: 97118deffa09cccf41ccf2586021bdb9444057cb63bda0bbf2b728f97e98b7dc
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

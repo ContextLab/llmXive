@@ -1,13 +1,11 @@
 status: none
-intent: Open Quantum Materials Database OQMD elastic properties bulk shear modulus
-  python package dataset
+intent: Open Quantum Materials Database elastic properties dataset download python
+  package dataset
 required_fields:
 - material_id
 - formula
 - bulk_modulus
 - shear_modulus
-- energy_per_atom
-- volume
-cache_key: fbae2a3d660f19cccb6ead5d30859696d5ff929da8357174dafdc5490d4df0d1
-searched_at: '2026-09-06T11:41:11.216284+00:00'
+cache_key: 1457d2c7c1ad64bb9fe24a7cb0821fc4d996536cd40e47986ecf25a68ff0e762
+searched_at: '2026-10-10T09:20:22.242118+00:00'
 retry_count: 1
