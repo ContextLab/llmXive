@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: 0205f99a919b1cb023ee4f8dd50c2a215130b04f3018bd1a9efda5572ab47aba
-  r: 'All required directories (code/ and its five subdirectories, tests/, data/raw,
-    data/processed, state/) exist and are non-empty; requirements.txt contains torch
-    and other dependencies; code/config.py is a substantive configuration module;
-    and specs quickstart.md is a real guide. code/main.py implements `--phase init`,
-    which creates the required directories and prints "Initialization complete", matching
-    the task''s verification command. (Minor nit: quickstart.md mentions `--mode full`
-    while main.py uses `--phase`, but this does not affect T001''s stated requirements.)'
-  sig: 1253cdef74e3e6796410375af80434b41e17cd09d73f8cf08c5b8ddc5c6efab0
+  h: d6d6378ba3576b808868986149209a2347949cf6beb7f6ceb942b276dac33cfd
+  r: All required directories (code/ and its five subdirectories, tests/, data/raw/,
+    data/processed/, state/) exist and are non-empty; requirements.txt contains torch
+    and other real dependencies; code/config.py is a substantive configuration module;
+    and specs quickstart.md is a real guide. code/main.py implements `--phase init`
+    which creates the directories and prints "Initialization complete", matching the
+    verification command. Minor inconsistency (quickstart mentions `--mode full` while
+    main.py uses `--phase`) does not undermine the T001 skeleton/quickstart requirements.
+  sig: 51598f275be5ea1eb02785ae6ecd8cc9610af8d42e07f08c6eaf89f5d3b1bbe1

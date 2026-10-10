@@ -81,6 +81,45 @@ main.py: error: the following arguments are required: --phase
 - data/processed/prompts.csv
 - data/processed/quantized_activations.json
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `pycocotools` to the project's `requirements.txt` and `pip install pycocotools`.
+- **Verified**: this loads **5000** real records with fields: license, file_name, coco_url, height, width, date_captured, flickr_url, id.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import os, ssl, urllib.request, zipfile, json
+from pycocotools.coco import COCO
+
+url = "https://images.cocodataset.org/annotations/annotations_trainval2017.zip"
+zip_path = "/tmp/coco_ann.zip"
+if not os.path.exists(zip_path):
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    with urllib.request.urlopen(url, context=ctx) as resp, open(zip_path, "wb") as out:
+        out.write(resp.read())
+
+with zipfile.ZipFile(zip_path, "r") as z:
+    ann_file = next(f for f in z.namelist() if f.endswith("instances_val2017.json"))
+    extract_dir = "/tmp"
+    z.extract(ann_file, extract_dir)
+    ann_path = os.path.join(extract_dir, ann_file)
+
+coco = COCO(ann_path)
+img_ids = coco.getImgIds()
+print(f"RECORDS={len(img_ids)}")
+
+if img_ids:
+    sample = coco.loadImgs(img_ids[0])[0]
+    fields = ",".join(sample.keys())
+    print(f"FIELDS={fields}")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
