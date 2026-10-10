@@ -2,5 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T018a** — The required output file `data/processed/morphological_metrics.csv` is absent, and the provided `code/main.py` only calls a generic `run_output_pipeline()` without showing that it creates the CSV with the specified columns and `brain_region` tag. Hence the task’s core deliverable is not present.
-- **T018c** — declared artifact(s) missing/empty/invalid: data/processed/morphological_metrics.csv
+- **T001** — The required directories exist, but the task explicitly forbids creating any files in them. The `code/` folder contains many Python modules, `data/processed/` holds `synthetic_dataset.csv`, and `reports/` contains JSON/MD files, all of which violate the “no files” constraint for T001.
+- **T042** — declared artifact(s) missing/empty/invalid: docs/OPERATIONAL_DEFINITIONS.md

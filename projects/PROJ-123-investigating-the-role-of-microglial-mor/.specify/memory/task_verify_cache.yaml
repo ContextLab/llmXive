@@ -1,3 +1,53 @@
+T001:
+  c: false
+  h: 09cb96fa845eea8e4a443716351198c228391da3d40d4ee799b4c3da967bef1a
+  r: "The required directories exist, but the task explicitly forbids creating any\
+    \ files in them.\u202FThe `code/` folder contains many Python modules, `data/processed/`\
+    \ holds `synthetic_dataset.csv`, and `reports/` contains JSON/MD files, all of\
+    \ which violate the \u201Cno files\u201D constraint for T001."
+  sig: a522d1ae4a77d561aa80235a7e125e20e3c23fd3a2498d5c24bb95d1a48922b8
+T002:
+  c: true
+  h: 59fa88613c9fd67d3aa0fd574baeb2ddab5e7253052446937db47704467f35b1
+  r: Checked the `requirements.txt` file at `projects/PROJ-123-investigating-the-role-of-microglial-mor/requirements.txt`;
+    it contains all required packages (scikit-learn, statsmodels, numpy, pandas, opencv-python-headless,
+    scikit-image, pyyaml) and thus fulfills the initialization task.
+  sig: 19816bc0b64d1abb4a4a47869fe746b4a7b51aa8f5de2c7eec3a198c380f53b1
+T003:
+  c: true
+  h: ab93838a69a2705ac2a3e3e2eb6dc60a8a819b6c3bb88e9cf4130d2fdee70bdf
+  r: "Checked the `pyproject.toml` (1483\u202Fbytes) which contains a full `[tool.ruff]`\
+    \ configuration (target version, line length, exclusions, lint rules, isort settings)\
+    \ and a `[tool.black]` configuration (line length, target version, include/exclude\
+    \ patterns). This satisfies the requirement to configure both ruff linting and\
+    \ Black formatting in the project\u2019s `pyproject.toml`."
+  sig: 353dda8336f2d55fb9fb13ceeaebc3524cf47aa90d3fcc9d0f27e2852ec47067
+T004:
+  c: true
+  h: 342da76f00366363450ec3766890ef20bc06cd0d5d650cd8e96f57938f893593
+  r: "The `code/config.py` file (3942\u202Fbytes) defines `DATA_ROOT`, `MODEL_ROOT`,\
+    \ `SEED`, `CPU_ONLY`, `VIF_THRESHOLD`\u202F=\u202F5.0, `SENSITIVITY_THRESHOLD`\u202F\
+    =\u202F0.05, and the `MORPHOLOGY_METRICS` list with the required four metric names.\
+    \ All constants are present with the correct values, satisfying the task\u2019\
+    s specification."
+  sig: 430fb61578897a27273195105cba964668a3eaa0ff84cb6ddedc7f564b9ebc60
+T005:
+  c: true
+  h: 4754f2bdb936607ec057627040a427f42e5949bf679b9e624267f0ccafa4567a
+  r: "Checked `code/__init__.py` (4033\u202Fbytes) which defines a project logger,\
+    \ configures console and file handlers, and provides `warn_missing_metadata` that\
+    \ logs warnings for missing metadata fields as required by FR\u2011001 and FR\u2011\
+    008. The file is non\u2011empty and implements the requested logging infrastructure."
+  sig: 6afef3d7ed6c156cce54b49424e054993b9e5d399185c3dcd7ba93e3e1acd9b4
+T006a:
+  c: true
+  h: feb270d3acca38b53c7dbf762203c696d8e4e6994d41e1119104f8054a154bed
+  r: "Checked the `specs/001-investigating-the-role-of-microglial-mor/contracts/dataset.schema.yaml`\
+    \ file (1888\u202Fbytes) and confirmed it defines a JSON\u2011Schema with the\
+    \ required fields (`brain_region`, `pathology_status`, `morphological_metrics`\
+    \ containing `branch_points`, `total_length`, `soma_area`, `sholl_intersections`,\
+    \ and `cognitive_score`) matching the task\u2019s specification."
+  sig: d5e18acc9b6e61053d551dd095253d0f1ecbb26b6cb18ef419d3e94d45df2c81
 T018a:
   c: false
   h: b484809b51535debd0565d0f12f0f57f885e2b6c8b501bae6b378ce72cc93d92
