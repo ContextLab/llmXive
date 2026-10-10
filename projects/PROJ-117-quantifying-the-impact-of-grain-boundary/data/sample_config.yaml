@@ -37,8 +37,6 @@ limitations:
     it may introduce selection bias if the data stream is not shuffled.
     The first 500 records might over-represent specific material classes or
     simulation conditions present at the beginning of the source API response.
-    Results derived from this sample should be treated as preliminary and
-    verified against the full dataset when compute resources allow.
   
   # Specific risks associated with this sampling method
   risks:

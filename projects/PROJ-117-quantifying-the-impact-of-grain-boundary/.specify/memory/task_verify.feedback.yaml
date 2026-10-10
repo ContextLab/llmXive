@@ -1,0 +1,99 @@
+T001:
+  reason: "The evidence shows the `code/`, `data/raw/`, `data/processed/`, and `models/`\
+    \ directories exist, but the required `artifacts/` directory is missing from the\
+    \ project structure. Adding an empty (or .gitkeep\u2011containing) `artifacts/`\
+    \ folder will satisfy the task."
+  task: 0600e4f4670577f00d111e72a0126f0e59cfe657d7f2e71c8d8305016481f053
+T002:
+  reason: The `requirements.txt` file exists and lists the required packages, but
+    it does not pin them to specific versions (e.g., `pandas==1.5.3`). The task explicitly
+    required *pinned* dependencies, and the current file fails to meet that specification
+    (and also includes extra packages not requested). The implementer must add exact
+    version specifiers for each listed dependency and remove any unintended entries.
+  task: b903e13e5ef2c6663f65300691aea173320e4526873c0ff91efa2554ed75bb74
+T003:
+  reason: "The evidence provided contains no linting or formatting configuration files\
+    \ (e.g., `pyproject.toml` with Black and Ruff settings, a `.flake8` file, or a\
+    \ pre\u2011commit hook invoking these tools). Without such artifacts, the requirement\
+    \ to \u201Cconfigure linting (ruff/flake8) and formatting (black) tools\u201D\
+    \ is not satisfied. Add the appropriate configuration files and, optionally, CI\
+    \ integration to complete the task."
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  reason: "The `data/metadata.yaml` file exists but only contains `sources` and `last_updated`\
+    \ keys; it lacks the required `version_tag`, `checksum`, and `retrieval_date`\
+    \ fields (or a proper schema defining them). The task\u2019s specification for\
+    \ a provenance schema is therefore not met."
+  task: 190528bc19762baa291c511f1541ced3c513e87e2e8f1e5645db7dad1e3101d8
+T005:
+  task: dfd6b322eb920b494a6e99545cf1b2f0c6d7c2ba64a92d33c5e7658fe539b726
+T006:
+  task: 83591d4a700d1488c4003fe137c8700a9368c0fff33a9b13981002b1c3bc5957
+T007:
+  task: 3d9c08030af951d85c240d7502f9221323ffa98782b46c4658f95dfd0ddbd8ff
+T008:
+  task: d3555b054a1cc231bf724b9239fe537b3dcfe1929822ebd0f2e611dfe24ae572
+T009a:
+  task: 913bfe3504f250f68fbd9746931873fe1db9ee7f107c3395ca1384f35d6f328b
+T009b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/download_kim.py, data/raw/kim/'
+  task: 36aa7a9ae19eb4900304401ff91a7379f74b06890fafc5fd7783880a2c792137
+T009c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/download_nist.py, data/raw/nist/'
+  task: 0aa45f0a0e5bf413bf6cdaf25969ca4ef02de4d2c3cf948213f32dc8db22725b
+T010:
+  task: b3db9279250a65a6014db2f0ab220a949d2de052398e3ba2541f2c2dd5a6251e
+T011:
+  task: 73f5073e889806bfe32514e61513af59ddd0dceb8985c85836001a5f9600922d
+T012a:
+  task: 6041f3b8d21bfaf8b058c563707478679941bd0c216deedeac82686918188b9c
+T012b:
+  task: 97cf95c2e466f4fd4254da62fc6509a235f806931beb90297ee71fb489cfb742
+T013:
+  task: 611db0b58e93835bdead4f59120ac7f23ac3eff24ab0aec8ac6de99b8d760381
+T014:
+  task: 10d47493db40a54e60676713e01544978b54a1c0cdcd1852dcdbaa986a31f6aa
+T015:
+  task: 55bbb9ad216bbc27c59a6c759809cc72c59081fdd6e36a23761c505d6f662a93
+T016:
+  task: 85b72edc5b5d40b535592e61e55677f6c85eca8377e8566a2336516cf547305c
+T017:
+  task: 44af91e197653c4e1753b26417781dbfcc961ee260aeef5fedcfda6c1aa6a32f
+T018:
+  task: cf51456b320788e87d107edb8895545fd67c8e151512210230e4c727866decd4
+T019:
+  task: 5b55306a01c7fa37d9818e0d0d09c7274dba47c45c4a3d85be06d32884414868
+T020:
+  task: 4ff1a8f62dc74a3ace02ba6e95ef44448730183367dc64004da0f8e50ef7ebec
+T021:
+  task: e13bf9f7a05e26cf32d08de57d91fde32ff86a1ee3fe68c68a778da1577acae2
+T022:
+  task: 618890283c96660850f78ec10c46f8f5c52720a3070dbd37fd0188154b00696e
+T023:
+  task: 1eeb54c1742b381f83e3db41b415aae732aa2c829b8c142ff8f79e4854391503
+T024:
+  task: d82fcee1dd76da673cd41975c7f8adc31d0c986470533585ba4bee20bc5fcb40
+T025a:
+  task: af209a24c466b857ae8ee04ffc66a438d99f68589c83d93f05b72331f74e203f
+T025b:
+  task: 6590987ff857331cde98fd03a4fa6a17f80a534c87868bd20a04d110a0ba0e58
+T026a:
+  task: e45aff671b0e9bc2d989ab319b86b8b049fa52caa22e0fb28be871e364080db9
+T026b:
+  task: 0444e7546244faf6e7b74738c63ac2f878cd9b8600ac208730dcdb3c68aa5fa3
+T029:
+  task: 2097f761b5581dc9f9f45e70230c41e4e843faa282954a825c61747926c79703
+T030:
+  task: 338c7b70c5171bf4652a674e2ddc9159a245368150cd3ee60e76239b354cb7c7
+T034:
+  task: 1ccca4d09f667e5abc1c66147b0794e2728b7982f85efa6bd6f85593bf411507
+T036:
+  task: b6b73ef977733f30202941f72dd908e5f0299131c9b3abbcd6799ee98e8711ee
+T037:
+  task: 92ec616a2c66a627a480249bf0779f71cb62e337585318fd6cbc6e40121653ae
+T038:
+  task: 74cdf1a56a43bc5199c4c0cc05d5081898973967e6fd3314be828fb4c34020a6
+T039:
+  task: 641e47ecf3ba1c8131e49aad6dadfc8652716e2b707cfbae64bb1f97cfeee022
+T040:
+  task: 25dcfa57f8b4d19075bad7caa8846bb0d486d113c2a3680aea244e88e3e25cc8

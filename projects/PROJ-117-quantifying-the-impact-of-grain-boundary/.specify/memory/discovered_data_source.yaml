@@ -1,6 +1,6 @@
 status: none
-intent: grain boundary diffusivity dataset Materials Project OpenKIM NIST download
-  python package dataset
+intent: grain boundary diffusion dataset Materials Project OpenKIM NIST python package
+  dataset
 required_fields:
 - misorientation_angle
 - boundary_plane_normal
@@ -8,8 +8,6 @@ required_fields:
 - temperature
 - composition
 - diffusivity
-- material_id
-- source
-cache_key: aeea3de95e8841223478193563a3a4f43c0aac972b4ab4391e1609c7b4d16b8f
-searched_at: '2026-07-19T21:53:30.825183+00:00'
+cache_key: 9a37ef858974fdc61137117584185240ec5dfd12ee4601e5345806155c772e30
+searched_at: '2026-10-10T02:30:06.531787+00:00'
 retry_count: 1
