@@ -1,10 +1,11 @@
 T001:
   c: true
-  h: bafd624e88cd3e77773745b1d5e5d4a0edef3b6a31a2ede8688ccf1f4e8ee4a5
-  r: All required directories (code/ and its five subdirectories, tests/, data/raw/,
-    data/processed/, state/) exist and are non-empty; `requirements.txt` contains
-    torch and other real dependencies; `code/config.py` is a substantive configuration
+  h: b0dca03b9c3ae98655ecbc29a4f6660d238cbb865ad685b841ee2a1c9c41c8bd
+  r: All required directories (code/ with data, models, analysis, quantization, evaluation
+    subdirs, tests/, data/raw, data/processed, state/) exist and are non-empty; `requirements.txt`
+    contains torch and other dependencies; `code/config.py` is a substantive configuration
     module; and `specs/.../quickstart.md` is a real quick-start guide. `code/main.py`
-    implements `--phase init` which creates the required directories and prints "Initialization
-    complete", matching the verification command.
-  sig: 3be38b9cddd8a3ac6ae0f2b9c4d0d6e549331d4d2134cc261a2ab4690877b569
+    implements `--phase init`, which creates the required directories and prints "Initialization
+    complete", and its `from config import Config` import resolves correctly when
+    run as `python code/main.py` from the project root (script directory on sys.pat
+  sig: fa86e7c7332a95affd14a3615bf8f9b21a8cde8c1c817fbaeff378fec9e693a4

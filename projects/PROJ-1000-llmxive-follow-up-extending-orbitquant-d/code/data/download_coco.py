@@ -106,6 +106,29 @@ def _write_captions_csv(captions: list[dict], csv_path: Path) -> None:
         for entry in captions:
             writer.writerow(entry)
 
+def load_coco_captions(config: Config) -> list[dict]:
+    """
+    Load the COCO validation captions that were previously written by ``main()``.
+    Returns a list of dictionaries with keys ``id`` and ``caption``.
+    """
+    # Resolve the directory where the CSV is stored.
+    raw_dir = getattr(config, "raw_data_dir", Path("data/raw"))
+    csv_path = raw_dir / "coco_captions" / "captions.csv"
+
+    if not csv_path.is_file():
+        raise RuntimeError(f"COCO captions CSV not found at {csv_path}")
+
+    try:
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            captions = [row for row in reader]
+    except Exception as e:
+        raise RuntimeError(f"Failed to read COCO captions CSV at {csv_path}: {e}") from e
+
+    if not captions:
+        raise RuntimeError(f"COCO captions CSV at {csv_path} is empty")
+    return captions
+
 def main() -> None:
     """Entry point: download validation captions and write CSV + metadata."""
     config = Config()
