@@ -1,18 +1,15 @@
 status: none
-intent: SWE-bench dataset Hugging Face python package repository code retrieval
+intent: SWE-bench dataset Hugging Face Python package repository code retrieval
 required_fields:
-- instance_id
-- repo
-- base_commit
+- repository_name
+- repository_url
+- task_id
 - problem_statement
 - relevant_files
-- test_patch
-- repo_type
-- repo_url
+- test_files
 - directory_structure
+- import_statements
 - file_paths
-- import_patterns
-- test_file_locations
-cache_key: f65759d430a4353e26814eeb9b5164cb80305b838641b3634f11210a8c3bd4d5
-searched_at: '2026-10-10T08:28:20.860555+00:00'
+cache_key: a7c39cc134f4e631ac16e5534257f79c3afb4cca81d79c807d1b043744e2f1fe
+searched_at: '2026-10-10T08:32:14.873567+00:00'
 retry_count: 1
