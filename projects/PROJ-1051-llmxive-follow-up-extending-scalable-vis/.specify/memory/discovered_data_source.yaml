@@ -1,17 +1,16 @@
 status: none
-intent: PubLayNet DocVQA scientific document layout dataset with text annotations
-  python package dataset
+intent: DocBank scientific document layout dataset MixSub-LLaMA-3.2 python package
+  dataset
 required_fields:
 - document_id
 - page_number
-- pdf_path
-- image_path
-- raw_text
-- layout_annotations
-- bounding_boxes
-- element_type
-- page_width
-- page_height
-cache_key: 7a99cc2390140674686d20b2a6be270d13247a5ea7b71fd6a22983c2a5af927b
-searched_at: '2026-10-10T18:12:28.763487+00:00'
+- image_file
+- text
+- bbox_x0
+- bbox_y0
+- bbox_x1
+- bbox_y1
+- bbox_label
+cache_key: 3d657dc13d3992a17731af4fbd41bedc1e7043ee3f7b022af244a36e32601bec
+searched_at: '2026-10-10T18:32:52.279801+00:00'
 retry_count: 1
