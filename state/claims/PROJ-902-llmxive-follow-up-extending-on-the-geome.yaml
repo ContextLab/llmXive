@@ -699,7 +699,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-13T08:10:20Z'
 - artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/docs/REPRODUCTION.md
   attempts: 1
@@ -1365,3 +1365,89 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T16:40:21Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: "peak RAM \u2264 7 GB using 8-bit quantisation"
+  claim_id: c_e789ca2c
+  context: "The code is optimized for CPU\u2011only execution. Model loading uses\
+    \ 8\u2011bit quantisation via bitsandbytes to keep peak RAM \u2264\u202F7\u202F\
+    GB."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Model loading uses 8\u2011bit quantisation via bitsandbytes to keep peak\
+    \ RAM \u2264\u202F7\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:18:22Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: 30 seeds default
+  claim_id: c_f054849e
+  context: Specify a custom list of seeds (default is the 30 seeds defined in src/config/seeds.yaml).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: default is the 30 seeds defined in src/config/seeds.yaml
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:18:22Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: GSM8K dataset was successfully downloaded and its checksum verified
+  claim_id: c_3e0287ad
+  context: Step 3 of the quick start guide runs a script to download the GSM8K dataset
+    and reports that it was downloaded and checksum verified.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: GSM8K downloaded and checksum verified
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:19:20Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: 8-bit quantization with bitsandbytes limits peak RAM usage to 7 GB
+  claim_id: c_70cdec5c
+  context: "In the environment setup section it is noted that the project is CPU\u2011\
+    first and that quantization (bitsandbytes 8\u2011bit) keeps peak RAM \u2264\u202F\
+    7\u202FGB."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "quantization (`bitsandbytes` 8\u2011bit) keeps peak RAM \u2264\u202F\
+    7\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:19:20Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: "Resource feasibility experiments complied with 7 GB RAM and 6 hour wall\u2011\
+    clock limits"
+  claim_id: c_91a1e029
+  context: "The pipeline invocation description lists US\u20113 (Resource Feasibility)\
+    \ as aggregating RAM and wall\u2011clock logs, ensuring compliance with the 7\u202F\
+    GB / 6\u2011hour limits."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "US\u20113 (Resource Feasibility) \u2026 ensuring compliance with the\
+    \ 7\u202FGB / 6\u2011hour limits"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T13:19:20Z'

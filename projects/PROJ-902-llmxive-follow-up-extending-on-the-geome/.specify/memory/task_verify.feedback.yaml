@@ -1,0 +1,447 @@
+T001:
+  reason: "The task's required script `scripts/setup_project_layout.py` is MISSING,\
+    \ and two of the required directories (`data/` and `results/`) do not exist \u2014\
+    \ only `src/`, `tests/`, and `contracts/` are present. The implementer must create\
+    \ the setup script and the full directory layout (root, `src/`, `tests/`, `data/`,\
+    \ `results/`, `contracts/`) as specified in `plan.md`."
+  task: 789754aeb9cf778b5aadab5c754a466a18a8e1f39a0fc6dc6ab93459b1272ac6
+T001a:
+  reason: The required test file `tests/contract/test_project_layout.py` is MISSING,
+    and the directories `data/` and `results/` that the test is supposed to verify
+    are also absent from the project. No `setup_project_layout.py` execution evidence
+    was provided either, so nothing demonstrates the layout creation is verified.
+  task: b56d951111c90589899269f9e719a41500c0e662b8f709027e58ea5afdc67623
+T002:
+  task: 10e97226bbc571b2e2cfb6d79572ebce7672706addde7665deab07677412fb5a
+T002a:
+  reason: 'The test file `tests/contract/test_requirements_schema.py` exists and is
+    substantive, but `test_critical_packages_present` would FAIL against the actual
+    `requirements.txt`: it demands `llama-cpp-python`, `numpy`, and `pandas`, none
+    of which appear in the file (which lists torch, transformers, datasets, bitsandbytes,
+    scipy, statsmodels, pyyaml, ruff, black, jsonschema, pytest, psutil, tqdm). The
+    expected critical-package list also doesn''t match the project''s actual dependency
+    set, and the syntax regex is effectively a no-op (every group is optional, so
+    it matches any line). The implementer shou'
+  task: ab090cd186a395d77f846da0f41006815fa77da5ddd2e9ff928e5189c6fe0f64
+T003:
+  task: 819702b9e44b012cdd8f1575f3224c5f7e3c68c94a4b49e77e440c978f44adb6
+T003a:
+  task: 3e1c7f501b087be8631e4cf436f7f2499050113877b6f8efdd6266455d3d20bf
+T003b_test:
+  task: 143421f6ebb402f12b556827041a3d86409de2a439dad7130b9677153e101a90
+T004:
+  reason: The evidence collector provided no artifact listing or content for `README.md`
+    at the project root (`projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md`),
+    so there is no confirmation the file exists or contains the required "Quick Start",
+    "Usage", "Environment Setup", and "Pipeline Invocation" sections. The implementer's
+    "(completed)" claim is not itself evidence; the next step is to actually create
+    (or show) the README with those four sections covering `run_all.py` usage, environment
+    setup, and pipeline invocation.
+  task: eb21c040399636aa4a917626b22a989b6be8bbbc32189c806170002c212d0377
+T004b:
+  reason: "The file exists with a correct matrix (2 jobs per condition, 15 seeds each)\
+    \ and `timeout-minutes: 360`, but the RAM enforcement is ineffective: `ulimit\
+    \ -v` is set in its own step, and GitHub Actions runs each `run` step in a fresh\
+    \ shell, so the limit does not apply to the experiment step (and `ulimit -v` limits\
+    \ virtual memory, not the VmRSS RAM the spec requires). Additionally, the artifact\
+    \ upload only covers `ci_metrics.json` in the test job \u2014 there is no upload\
+    \ of the experiment job's results/outputs, so the required artifact-upload deliverable\
+    \ is not genuinely satisfied."
+  task: 3552857880a66712fc34b8a3566a61faddfafacda6332d9ff375a06455a09fca
+T004c:
+  reason: 'The test file exists and structurally validates the workflow against the
+    schema, but its path resolution is wrong: `pathlib.Path(__file__).resolve().parents[3]`
+    from `tests/contract/test_ci_workflow_schema.py` resolves to the repository root,
+    whereas `.github/workflows/ci.yml` and `contracts/ci_workflow.schema.yaml` live
+    under the project root (`projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/`),
+    i.e. `parents[2]`. Running the test would raise FileNotFoundError rather than
+    validate anything, and no execution evidence (e.g. a passing pytest run) was supplied.
+    Fix the root resolution'
+  task: 31398b0e99dfcd26adc636f508a35062b36e5555805ed4d17bc56c441d652e62
+T005b:
+  reason: "The task requires verifying that `README.md` contains usage instructions\
+    \ for `run_all.py`, but the evidence collector supplied no artifact content \u2014\
+    \ no README file or excerpt was provided for inspection. Without the actual README\
+    \ text, I cannot confirm the usage instructions exist; the next step is to provide\
+    \ (or write) the README section documenting how to run `run_all.py` (command,\
+    \ arguments, expected behavior) and re-verify against its actual contents."
+  task: 6d87e479ea1ce91453aae7db16e573180059897b1f530d7831ec87e53af4df4d
+T005c:
+  task: 61901147bfdf974bd04cdb455be67e97146c9a16dc2fd7fb70a0f46a7a329fc7
+T005d:
+  task: 6295c7d75498e5e9df168c5c6a04b36d6fc871c59fadb9624869f15b2dcf6e8c
+T006:
+  task: 55a713a6efe3ce348d1618cce60dee5ce3c72da568912f07ce42c826655053b1
+T006a:
+  task: ac53ebfe5ef944d742900a2f111c21d8fd4fbe5530cbd8d32d79b0536abb9c63
+T007:
+  task: 12c9e3d30be8261ee4b849f87d86e884d8a12b563b6eff28fb73f7b7982a8f6a
+T007a:
+  task: 11850f5d65b73cd492c3d1132633d8164778ccf80ff88ead073426a8efcd3bee
+T007b:
+  task: 34eae17ddd1d20e187948b0c56eb2efd6acd882ae18bcafc3c10055be62edd5c
+T007c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_logging_output.py'
+  task: 6a7b9695b1e15fa1f1087352a940be1481de8c37a66a13a9f60ab92e851a9d02
+T007d:
+  task: 19156c86249e4a4e425d4349e9fc45703c9b8f75341ca9dee78f73aae65fe147
+T008:
+  task: 9350186466da8485d8436fbcd9f70d70cf4d9b3a20d8145493e0f2a6cb1268a7
+T008a:
+  task: 119757a7bc3863efeea13da54d5f428af22882c9feba47655ca2158c9f3ed6a1
+T008b:
+  task: 2c2cbb2107c3adfe60c77312a3ced1d68280decd0a634af9c5aac4f8a34e94d5
+T009_impl:
+  task: ce23ec95bada4fef3debd19208d7666c48b4c9989ceeae7f9005bd7660655dd2
+T009a:
+  task: 6695edb782d824cbee1d056df3335a310bc46cfe4b5d300327a5965e0be0d4d2
+T009b:
+  task: b4715d6b83ebe3ac68dfdbaf4fa7aa77c03eed84eaafc4e97b807568969edc7c
+T009c:
+  task: 7474fb507ff9f07af6c1e703dd130e32dc477ceaf693b39cb4b3865e098c62fc
+T009d:
+  task: 63e1bddfb779014333b0724ce718e0137363ea4ed7bbebb493fda6b37ca429c8
+T009e:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_checksum_failure.py'
+  task: 1eb118a3c6ebf68b4b11c1468213ffe3a2385d4578d63b7c0f397cbb0c801a78
+T009z:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_download_gsm8k_integrity.py'
+  task: 866dda217d3a3cf919a58728b958a817d1d13fbaecb320becbe8f5fdc4aac665
+T013:
+  task: a02aee3bf49074db1a983dd50cf213ed8b1ebe025ee7ef3453d5c350c9ac25ee
+T013a:
+  task: a44ec5e0601134dc6935426fa7463e8d43c97b54a8f41c02c6cd09ec584add36
+T013c:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml'
+  task: 50488ea637703746a445b3d4113b25fecb802ccab88446662e2f02a1bcbdf057
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_opd.py,
+    tests/integration/test_frozen_subspace_opd.py'
+  task: 64947c04e7914f7c0b1efff628664a370dffe6d47a98a646057fcc11919c59eb
+T014a:
+  task: 73d98eb598e5716342f649c55f46aac4ac80b5582dc2c800dc04b5b67d212322
+T015:
+  task: 0c59c9c2ccd839b2d1de252a7137769be3d12f0afd0dd962e2dba4e22ec71d9e
+T015a:
+  task: 067e77f1ee4e7acd7e1b2f4a15df0322a97dbc1706693b85e106b6c99520c36d
+T015c:
+  task: 05ad77bed550a134ab5e74e0189096dc261822f4b6782b1a88f2cb51261ed50c
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/svd_compute.py'
+  task: af3d2ffa3328bc6aaa2f70b4a7c294da38dae9d3eebfac40c62afe7edb5ae6cc
+T016a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_svd_variance.py'
+  task: 204c4a03c230b7801f6adaa30486f691ebc0d3168ec14c8b37db7daa00ae8b0d
+T016b:
+  task: a8318766a8601c01774d5a1bf6075fb135798c0669ac6052938c87ce53e0a5b3
+T016c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_svd_output.py'
+  task: 25b4a58a326ee970228b022ab7279e68e6c8513c33b58afe3ff16aea7931e7dc
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: results/svd_sensitivity.csv'
+  task: 91b68b6fb0feb7d54739b796f3ea7a9d429fb5ad9bbf13805ee418bbacf803bc
+T017a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_svd_sweep.csv'
+  task: 671866e08c5a53587520c5d4c1975dbffd449ef9a91cac8b51d5fade3a3ea9d0
+T017b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_svd_sweep_entries.py'
+  task: 6324d7a5888a27896fbfc6e7da57203bcc4ad34c4d245bb7b1f71f8f289528f0
+T017c:
+  task: 26aff684c9e5f36f9887f4f32928ded60316163c5c0bff3fc15f766fe68ba317
+T017d:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_svd_robustness.csv'
+  task: ed8b1e298fc5e2ecf2f9378236536aebe234f991ad5ff15cb81790f56e5adaab
+T018:
+  task: 67fb0712b824f3f3ab37fb2588bdcf16898be7a8657299b2de2a1bf20f2f5576
+T018a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_mask_naming.py'
+  task: a30d08e17aa3f963c4cf332e3a55ea375d6a9db6d3a607c67f58af56d522cff8
+T018c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_mask_correctness.py'
+  task: 88da198be8e0fa1c373f56976f82875b734b21f440a5b1366924144bd5ed524a
+T018d:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_mask_variance_criterion.py'
+  task: 1782d8e7b8e0b2f958fd874df04e6c59681638c5cb4d5bd7c950c4ba76b318e7
+T019:
+  reason: 'declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_opd.py'
+  task: c7e0b0c5241838c00d419876d324dc369ff5db4530170fd1c19d6a96e6d36e05
+T019a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_frozen_opd_mask.py'
+  task: f5256dfe3d149698f36dd930ecc4358c902cec460a560ee7a82017984c3fb383
+T019c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_frozen_opd_training.py'
+  task: aedb45f9648ec95cf187d0bfcc78194de7bef1928c572b1aef0fc1c4a532eb59
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: src/eval/evaluate.py'
+  task: 0d571736613db1bad988ec7111d02c2c12741f5642fd4aea99f288e9b230fecd
+T020a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate_output.py'
+  task: de0f8808854b1e62e31b0660402d3641cfb5276f73d0f0a87d9e4bc2f1a18a88
+T020c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate_per_seed.py'
+  task: ee7108722716eff2c27434f1794be1d4128105c0eea3f4b662782b4bb107ba5a
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: src/evaluation/statistical_tests.py'
+  task: cb43ce9bf4061b850c3dcc2bea09b2947f8c0802c0f6956b0c746a0560aa16d6
+T021_pre:
+  task: 04a6591aeff14c6b538765b46c465292fa298a65cf3f7fb69edc127acaabefa4
+T021_pre_SFT:
+  task: d7a37baeda54b686f744a1522f95b75ad8cb767802718044f465e2e265115b33
+T021_pre_SFT_test:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_power_analysis_sft.py'
+  task: f503a377546f61dfffdc3e7908d92b7a39282ada4aa29558ebcef90c09d7f603
+T021a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_stats_analysis.py'
+  task: 19f77d430767aa881dbe36fd2adecb29ffdca77b663cc7f72c5f6ed824efc1b8
+T021b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/pipeline/aggregate_sensitivity.py'
+  task: cf174b33e90c03f6aca34923d96d6e1b762fba7cfcb10c7a5f9784e641bf0ec0
+T021c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_aggregate_sensitivity.py'
+  task: 93fc341b6a0132fa60afbf6d5ab7c62e6594c1e319d8b27efa7b816f81a10a47
+T021d:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml, src/pipeline/record_power.yaml,
+    tests/unit/test_power_recording.py'
+  task: 9d6bb6384a4d70aec2fa9d62a0720eb9de6f287beb7384c71a180a71aaa9196e
+T021e:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/equivalence_report.py'
+  task: d264c3c9d24118227866b2babc02aa23d60166309f031b8cb1e22b8536570646
+T021f:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_sc001_report.py'
+  task: 66e0883303ecd0617f674e15db8cea8e2005469f68a6196b0a81c7d43a02a476
+T021g:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_sc001_contract.py'
+  task: f74c82d41a4b0a18a0b26a810ec9181c949ebe764249760e45d648a774757385
+T021h:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/robustness_report.py'
+  task: 6b877dcbfcfeb82390a6322315438b523f2876257db6226aa0982ae679d51c94
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: src/pipeline/run_us1.py, results/us1_summary.csv'
+  task: 21a4ba06a2a131f5e0b4f5c4814959dd5ca0a9323a4c49420abba66dbe9c1494
+T022a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_run_us1.py'
+  task: b9a065b132500461a8c43852dc00413d0183dfb4be4449c07ee693530d9d3450
+T022c:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml, tests/integration/test_run_us1_state_yaml.py'
+  task: d7f3cfa4f346827489f49ecf1b978ca1586a90c4cd97dc9c8283c0ebfa874194
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_sft.py,
+    results/frozen_sft_accuracy.csv, tests/integration/test_frozen_subspace_sft.py'
+  task: c96ab068c76beec9ad50cf2622329c7ad10f55b0c051a695eacc6f5e771c622b
+T024a:
+  task: aaa674178805c64bec1e922ed73a179a29dbaeb062489ded212e24cfc761e2cf
+T025:
+  task: 9d49125d0612dfa04fb498b61daa7995d02bb7fb39c8130ac4585e3ba0a1d50c
+T025a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_random_mask.py'
+  task: 65a584ccc9d7a31215677c65169d3955a9a33b98fc97b230301c5543d58bada3
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_sft.py'
+  task: 864c860d86fdc195a56ddf6ab47d1a7bf1731c1707073d3344f1b74f521f1235
+T026a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_sft_mask_application.py'
+  task: 36047e49565621dcb606fd6ca562fb65416e0b96bf1cfa8a0e36bd2daaacb4df
+T026b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/pipeline/orchestrate_sft_seeds.py'
+  task: 26db4ce61644da94f1cea6be5e4f0fb0c7e6ba19f82197c974131983198f94a6
+T026c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_orchestrate_sft_seeds.py'
+  task: 538a0211e6852389870f1f9af393de5fe6f765a79a098e072f1323e346d3cd02
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_random.py'
+  task: 838c066ad0a671e1c9f498d27652bcd9c1bd7e4b1f8136345496f88fbf3e5b03
+T027a:
+  task: 3c778c56a1f69f4daea8225c7d64a94ae86158537223db2e4921a374b38c8513
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: src/eval/evaluate.py, results/frozen_sft_accuracy.csv'
+  task: 55de4f39d5e2ef4fa7e9b1f42f13f76c8f39bd049f717731c29bf531da6e6265
+T028a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate_sft_append.py'
+  task: 51bedea75838b9eea77f24ade8ccd833ae2ba0522f701e4c216faab70ce3a4f9
+T029:
+  task: db239f5635dc58402cc6911b81782f622fe43050c4861b4f0698c0a7d1af76dd
+T029a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_plateau_detection.py'
+  task: f594bcee7a62223468d74214678bcfce9c6bcff765e6f9d0d7c558028c5706ac
+T029b:
+  task: c815efeb1f54382a7d673ebba133350f0c9f6944479fb581fdd17348256e78f0
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: src/pipeline/run_us2.py, results/us2_summary.csv'
+  task: 1681ac22f73a3d0a36e5a720bd0e9ef66445a440047745a7ee62a178c54c4f02
+T030a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_run_us2.py'
+  task: 3dbf18e6fc2150e9ec58d0f3c337d50297cff5120f18ad0881540b025da97e2c
+T031:
+  task: fae3c4094bd1b6332208a36e0e197a90ed241fc3ef2c8627c339ee9657c14a7f
+T031a:
+  task: a36ed95371cf17845a5a0cc5e025728e5bd741266205080bc3533a01ae30e12d
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: src/pipeline/run_all.py, results/experiment_summary.csv'
+  task: c232b1f05136d44ad2757c3ddbcbe55027a0df806059b0daee0904fb9f0ed1cc
+T032a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_run_all.py'
+  task: c0c9b02a45daaabc7cbec3f083328826d9a6eda546b9b970d9c1f5dc0194069c
+T032b:
+  reason: 'declared artifact(s) missing/empty/invalid: results/experiment_summary.csv,
+    src/pipeline/generate_unified_summary.py'
+  task: aafb59614c6726c563e4c3889044b1931ce1b2a65dd2045b6cfd336213722088
+T032b-schema:
+  task: a02b6b120fd78bc4d0c4e551d2aa9f911ae2d45708725ad474a7ce3a173f938c
+T033:
+  task: dfbe1b78106495c2da2c5b384e5977fb14ea42c82b0236cc207c49a89c282385
+T033a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_ci_metrics_schema.py'
+  task: 8ba0fd6e46a4ab70a3e156d7362e5a68b3f6f086cf2758730aa62beb9a3c8810
+T034:
+  task: 08e9c3084ee1b0e130ad7b41963842b23adb4c54283067a4ed71a23b70254a59
+T034a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_ci_workflow_schema.py'
+  task: 88f08e4ffc9007e8642f92979c98c2b6743ac9d4a7314f0144fd4c7a8971a631
+T036:
+  task: bb9d4d16d2c6d824211f465139c92fb715e8adda945b0b922fac725a96649291
+T036a:
+  task: 72190f0ba77c7fd626121226b5dd36827dd6322a1e37d0e383f39a83ce960863
+T037a:
+  task: 30f2e59bb29a2ab88ad7822dc397e1e120614576f9d55f3aacf2dfe33ebf70f4
+"T037\u2011mypy":
+  task: 538564a4609b8c04c8fb81a7f05eb3171ce87f2c9a9ffabe26168b14d9621295
+"T037\u2011ruff":
+  task: d6cdec9ec9d63fec53d82742acfde2f5d4184a48895d779b517bb70533151612
+"T037\u2011type-hints":
+  task: c9102c09bb599e94ed24181a21c51198036ab7ec88b6c65420f814bf89d744bb
+T038:
+  task: 3588572a19fa0957dca79e287b7e2cb42fe961bbade4531bfd50af2c35ef49a3
+T038a:
+  task: fffd8ec5b046ccfa4cebe3864792260fcbc392e9b9196218de84868aa6bf1b10
+"T039\u2011threshold":
+  task: cd18298e04304d4c5aba868c40aaac404491603fa85027a812bd50ef19be7017
+T040a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_gitignore.py'
+  task: 2896e80ec2543e8b77ddbab480546baffbf4966ebd2b6871a4e7c55f694d5721
+"T040\u2011gitignore":
+  task: dc08ba31d6db963da4e634adbc212ccef45c3712a1d57f722767aeb2b7b2884f
+"T040\u2011poetry-lock":
+  task: e50594e2b4d5c271dc8facb77314192d185af78b0eb32e4820b36986f8cb8fd2
+"T040\u2011secret-scan":
+  reason: 'declared artifact(s) missing/empty/invalid: tests/security/test_secret_scan.py'
+  task: 10ac4c514dd8c0058570269473961b8fe56216b3e1fbd1e71a7bfa40600f80d4
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: data/gsm8k/, data/checksums.txt'
+  task: 6b4ab697d2d333aaba75a9668db5011f62dcc11c79e740acaa47a16364a3777d
+T041a:
+  task: fa2086579b3dae41d7fa47ab849a3453845bd465ba9b4d264e7c8e0532db9e67
+T041b:
+  task: 130f9e7fcf7969bc66cb8d9830fc084bb958cca5957aafbad1641474586ee363
+T042:
+  task: 2570ede317867fcd769579342389d2e3c9ff170f6d7b00a8044d70804e28350d
+T043:
+  task: 2524aa9b50e96caadee55ada35464f9770e0ff4f99b8ae8bc294240f3cc65434
+T044:
+  task: a6889e82cc01fe45cf04fef8e7aba05210293a7ca3fd9c101b2c64c42da7b2c4
+T044a:
+  task: ca4af24e7ccbd02d33e4c872b8728862b825ee9337cd32bc52cc318a9cbb5dc6
+T045:
+  task: 40559de87b8dd6dc48ec3c45960cb4a5af1c3c71aba63cd7f7e4b1fec25f0f05
+T050:
+  task: f58a7b7c731628719e8787860f4e34d3cb623ac671a82614ad7e30f3b2491c75
+T050a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_reference_validation.py'
+  task: 37663bb6fc549653d167608396b4efe9e00db313cf171a468e6823120550c02f
+T051:
+  task: fed5b8eab93f31753eea9275bf5f9f3be21d6cd6bae8231a6895c0cb099db9c1
+T051a:
+  task: 7e07d76a063419ec1ece3b438ddecea5c7d9a06ac1e894673858e2e17e8b027b
+T051b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_sc002_predicate.py'
+  task: 25b4d6b3f580e1d8e934ba177548b4f5841a50cd4d11c3ddae801505dc163e06
+T052:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model/mask_derivation.py'
+  task: ec5fe1fcda4f09aea253c1c81bfc1929002883645f9289002b477971a98f7326
+T052a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_mask_derivation_seeds.py'
+  task: f1cb0edf5be00a5e17f5fdcd7e3f837a97ce775215ff66392af618b009fa444f
+T052b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_mask_seed_separation.py'
+  task: e0f6b568b7893969b3b35a2e68c9772ff8065f232638a6a43ed09d75a1e55d98
+T053:
+  reason: 'declared artifact(s) missing/empty/invalid: src/pipeline/orchestrate_svd_seeds.py'
+  task: bc27f3b72bc18e03bb3a8eac83034510f6347997f8e8923dee3eae45faf144a2
+T054:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml, src/pipeline/generate_state_yaml.py'
+  task: 5f5f4e4d038248840e7e88444e9ff11dcd7f9acfc4f47809768d38308078a57b
+T054a:
+  task: bdcb4b2e4365cc6bce38f5eb146aca76455cacb60c40ce9ab8d5b210c3caf06f
+T054b:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml, src/pipeline/generate_state_yaml.py'
+  task: 5545f3198f183144c6b7b85c9a68f6257aa72836db2282ec90f5ae7e3e8a1f8a
+T054c:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml, tests/contract/test_state_yaml_schema_validation.py'
+  task: c0af7a8862e51df8d65f4992a99f865c2ce8a4709792cfb27941938e88246e36
+T054d:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml, tests/contract/test_state_yaml_post_generation.py'
+  task: d3c91038f89e69db00e56b30253bb01f28f59bb69f37bc82ab61244a42ff7eee
+T055:
+  task: 48cecc456c9808a94e7e5d7209970ce63062c4c317fbab920a6c7f6bc3fa653b
+T055b:
+  task: b9b4fff669ee312dfc1445d2ab9e525e6f10598f033e8627f8331293cef96ccf
+T056:
+  task: b63beef2fc49ef85b2a33cc9320dce8eaf0fc61d72cf935e5681aa704a47804a
+T056a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/ci/test_ci_matrix_partition.py'
+  task: 881039d0ccc35dc881faf7ca72e01082cbf0105a17558dc99c3db6a0532dc489
+T057:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/svd_compute.py'
+  task: 3063c769e62d8295240aaab3071b7f102d47038fba7ccd7a1d4142e9e2cf6b3f
+T057a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_svd_edge_case.py'
+  task: f9dff480f491291b037bb4b0892a683c1dd866a10ac5d5809318415adf44b160
+T057b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_svd_high_rank_warning.py'
+  task: 8a2e1e21238087ff6ecf898e86c532db611d53c2ed426926b1db7c423a3851a0
+T058:
+  reason: 'declared artifact(s) missing/empty/invalid: src/utils/training_monitor.py'
+  task: 401e1460987b9857b4711cad6bdb2adb0f57ed6ae490c81b655b113fdadcc6e3
+T058a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_loss_divergence.py'
+  task: f48ba0b71654c9c626b3880503f894afae008dd5439d0f909cd1d39ce4db1184
+T058b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_training_monitor_abort.py'
+  task: 1f1ef34cb5b07929b0dc60c8858d1680d6c65fd1c60645af41ffc631809bced4
+T058c:
+  task: 42adf1f9fc4299da6fc3c4e103537420b78aa29c0609f3a9b0ca4276079c9b06
+T059:
+  reason: 'declared artifact(s) missing/empty/invalid: src/utils/loss_logging.py'
+  task: 0374bb0cc867d26646ad31363a3ca76520f7c39369b522f439f21ebd61202617
+T059a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_loss_logging_schema.py'
+  task: 591a630d9da122601e1a5c79d8af8b7e4bee47806b0c66813fb23080dd74e12d
+T059b:
+  task: 6c38797d5cc4f3c20e0b5e29611327db65c06b6e805dfc3fc6afb1a4161dcb73
+T059c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_loss_logging_integration.py'
+  task: cd26d22c288dca1ecc85d5bbdc41a774fd8bcf47fd5d5f080ac738909d96d570
+T060:
+  task: 572a4774fa039435df4b028df79e2e4fd372c4d938afca9836bc31dabc70ed46
+T061:
+  task: 91a7c84202df1cd204bbf0b8a4069584ead73ea9d87010f453a79f229d1a1916
+T062:
+  task: 9cfd4cc7e5d1d91a457d8671f4dafb70fe015ae866156207b6614606baada6e4
+T071:
+  task: eea361b83d9d3e03bf67ddff3a4af65bf7c1acceccf164cf61976d69ecd1da9a
+T071a:
+  task: 087ae8fafcbe229785a1e70eb8eca1a8b4bb12aeb3a13b5b43a41226ea840046
+T072:
+  task: d3c62748a572f86d8f73a759e4344d00ae9f7687794d87d304b64a3ed1b27548
+T072a:
+  task: ee69b8e1445673e99078903a15dbb6fe5c6ef79d813d1ca5138dcd1e57d5c148
+T117-new:
+  task: 38120ea440792aa82448e278f95d5be1a3ed666727f7b2f9228507de937e5994
+T117a-new:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml, tests/contract/test_power_analysis_state_yaml.py'
+  task: 31d5c48d59eb78191557fbaf037f72d01a9025fcd05493400f075df22d8392ec
+T118-new:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/robustness_report.py'
+  task: d070a40f2232c32fca0d927ab3adb834d49ac118d98d579c256a7b73924ab75b
+T118a-new:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_robustness_check.py'
+  task: 6a21e82622046a4282ec7bb03dfe42bf67aa821f9864741842baef45d234b8a0

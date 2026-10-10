@@ -1,3 +1,102 @@
+T001:
+  c: false
+  h: 5b361f9ef7649a0f2d9b66546f714371ff3fcfc4c11ea94ddb64e3d13de0b9b8
+  r: "The task's required script `scripts/setup_project_layout.py` is MISSING, and\
+    \ two of the required directories (`data/` and `results/`) do not exist \u2014\
+    \ only `src/`, `tests/`, and `contracts/` are present. The implementer must create\
+    \ the setup script and the full directory layout (root, `src/`, `tests/`, `data/`,\
+    \ `results/`, `contracts/`) as specified in `plan.md`."
+  sig: 3768818768a9b6797c16f67db1319cb059cdf5aab5e91d310d66207ab7667bdf
+T001a:
+  c: false
+  h: a4c8ce9096d0b8139f540a5ed5033991a4fa3632824e29f3840fd87505485de8
+  r: The required test file `tests/contract/test_project_layout.py` is MISSING, and
+    the directories `data/` and `results/` that the test is supposed to verify are
+    also absent from the project. No `setup_project_layout.py` execution evidence
+    was provided either, so nothing demonstrates the layout creation is verified.
+  sig: 5c3b4465ab613314e8e0818d0d85660773bbad077fdcf9951b525d57074a2ad6
+T002:
+  c: true
+  h: 22c137873f18a4580a5092602cf78a3703e2f8c7cf49e70056f745bdf291e3df
+  r: The `requirements.txt` file exists at the resolved project path, is non-empty
+    (308 bytes), and contains a plausible pinned dependency set (torch, transformers,
+    datasets, scipy, statsmodels, etc.) consistent with the spec's ML/statistical-analysis
+    needs. The task only required initializing the project and generating `requirements.txt`,
+    which is satisfied.
+  sig: a9a3cefa555dee5fbfe1a951833337093dc310f99778447ffbad8e00c3ffcefd
+T002a:
+  c: false
+  h: 25e0c4c787c755d4d4dca7692255c505b039d69619302a2702751d8399ac4ff7
+  r: 'The test file `tests/contract/test_requirements_schema.py` exists and is substantive,
+    but `test_critical_packages_present` would FAIL against the actual `requirements.txt`:
+    it demands `llama-cpp-python`, `numpy`, and `pandas`, none of which appear in
+    the file (which lists torch, transformers, datasets, bitsandbytes, scipy, statsmodels,
+    pyyaml, ruff, black, jsonschema, pytest, psutil, tqdm). The expected critical-package
+    list also doesn''t match the project''s actual dependency set, and the syntax
+    regex is effectively a no-op (every group is optional, so it matches any line).
+    The implementer shou'
+  sig: eaf90ee12fcae3f730edfa56f1fe929121ff14ba8e592ccaa651f75ea9fcc165
+T004:
+  c: false
+  h: 8ae31d9086ad268aadb22706940310e664f0fe83bd6c8338b646f4c20b6afbec
+  r: The evidence collector provided no artifact listing or content for `README.md`
+    at the project root (`projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md`),
+    so there is no confirmation the file exists or contains the required "Quick Start",
+    "Usage", "Environment Setup", and "Pipeline Invocation" sections. The implementer's
+    "(completed)" claim is not itself evidence; the next step is to actually create
+    (or show) the README with those four sections covering `run_all.py` usage, environment
+    setup, and pipeline invocation.
+  sig: 054024beabdccbc6779153ae55eaf3c433f5fcbfe82588dc24b43dd6e7cb6da5
+T004b:
+  c: false
+  h: 14c6948323706046939ebd9f750ce7640730813d7b3fb6c2cc9c8d9903e75a09
+  r: "The file exists with a correct matrix (2 jobs per condition, 15 seeds each)\
+    \ and `timeout-minutes: 360`, but the RAM enforcement is ineffective: `ulimit\
+    \ -v` is set in its own step, and GitHub Actions runs each `run` step in a fresh\
+    \ shell, so the limit does not apply to the experiment step (and `ulimit -v` limits\
+    \ virtual memory, not the VmRSS RAM the spec requires). Additionally, the artifact\
+    \ upload only covers `ci_metrics.json` in the test job \u2014 there is no upload\
+    \ of the experiment job's results/outputs, so the required artifact-upload deliverable\
+    \ is not genuinely satisfied."
+  sig: d8b092e2470214dd12405fe819afeb6cf133e9569780202ab770f70fd8c5f6f1
+T004c:
+  c: false
+  h: f260a7cc0b9997a5c6544737014148553fe1ab2d2f4de2ca3b1eec17b1543dab
+  r: 'The test file exists and structurally validates the workflow against the schema,
+    but its path resolution is wrong: `pathlib.Path(__file__).resolve().parents[3]`
+    from `tests/contract/test_ci_workflow_schema.py` resolves to the repository root,
+    whereas `.github/workflows/ci.yml` and `contracts/ci_workflow.schema.yaml` live
+    under the project root (`projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/`),
+    i.e. `parents[2]`. Running the test would raise FileNotFoundError rather than
+    validate anything, and no execution evidence (e.g. a passing pytest run) was supplied.
+    Fix the root resolution '
+  sig: 50a177964f598cfc635492fb509fc3e5524e676df6d52d094cb051e1d950af1c
+T005b:
+  c: false
+  h: 02fdc67f97d7fad6794a66c43c8017ce824a1d4baa40d72392e43528199120f2
+  r: "The task requires verifying that `README.md` contains usage instructions for\
+    \ `run_all.py`, but the evidence collector supplied no artifact content \u2014\
+    \ no README file or excerpt was provided for inspection. Without the actual README\
+    \ text, I cannot confirm the usage instructions exist; the next step is to provide\
+    \ (or write) the README section documenting how to run `run_all.py` (command,\
+    \ arguments, expected behavior) and re-verify against its actual contents."
+  sig: 5b8f02ff6a05188a7f4496546d0f5fede000ab419177c84f6b470667ffcaccd3
+T005c:
+  c: true
+  h: e071cfe375aa96c576509206261b1341d67b3342efc097341a4ceaeb99b271b6
+  r: The file `tests/contract/test_readme.py` exists (1134 bytes) and contains real
+    pytest tests verifying README existence and required sections (title, Quick Start,
+    Installation, Running Experiments), with no stubs or placeholders. The task only
+    asked for this test file, which is genuinely present and functional.
+  sig: 50154898e4ea7a828e3de17a207ace8ec7336a7544b00e91798bd323a676f089
+T005d:
+  c: true
+  h: a020bf31ad8603e393fe57220819c8e52b38f1dabfb18f5ab2b81ce13f1d568f
+  r: The test file `tests/contract/test_readme_run_all_section.py` exists (2022 bytes)
+    and contains a real, non-stub pytest contract test that checks the README exists
+    and includes usage instructions mentioning `run_all.py` with surrounding "pipeline"
+    context, matching the task's stated requirement.
+  sig: e4362373807e90208c2d517576752d1588e04b1b756f09df702ab338722a61f2
 T036a:
   c: false
   h: 4a8b30181929c877f1da61397bac5010761d7f00950a364d06383f9b1fbd2abc

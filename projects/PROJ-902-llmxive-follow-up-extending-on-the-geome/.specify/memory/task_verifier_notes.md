@@ -1,0 +1,88 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T004** — The evidence collector provided no artifact listing or content for `README.md` at the project root (`projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md`), so there is no confirmation the file exists or contains the required "Quick Start", "Usage", "Environment Setup", and "Pipeline Invocation" sections. The implementer's "(completed)" claim is not itself evidence; the next step is to actually create (or show) the README with those four sections covering `run_all.py` usage, environment setup, and pipeline invocation.
+- **T004b** — The file exists with a correct matrix (2 jobs per condition, 15 seeds each) and `timeout-minutes: 360`, but the RAM enforcement is ineffective: `ulimit -v` is set in its own step, and GitHub Actions runs each `run` step in a fresh shell, so the limit does not apply to the experiment step (and `ulimit -v` limits virtual memory, not the VmRSS RAM the spec requires). Additionally, the artifact upload only covers `ci_metrics.json` in the test job — there is no upload of the experiment job's results/outputs, so the required artifact-upload deliverable is not genuinely satisfied.
+- **T004c** — The test file exists and structurally validates the workflow against the schema, but its path resolution is wrong: `pathlib.Path(__file__).resolve().parents[3]` from `tests/contract/test_ci_workflow_schema.py` resolves to the repository root, whereas `.github/workflows/ci.yml` and `contracts/ci_workflow.schema.yaml` live under the project root (`projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/`), i.e. `parents[2]`. Running the test would raise FileNotFoundError rather than validate anything, and no execution evidence (e.g. a passing pytest run) was supplied. Fix the root resolution
+- **T005b** — The task requires verifying that `README.md` contains usage instructions for `run_all.py`, but the evidence collector supplied no artifact content — no README file or excerpt was provided for inspection. Without the actual README text, I cannot confirm the usage instructions exist; the next step is to provide (or write) the README section documenting how to run `run_all.py` (command, arguments, expected behavior) and re-verify against its actual contents.
+- **T001** — The task's required script `scripts/setup_project_layout.py` is MISSING, and two of the required directories (`data/` and `results/`) do not exist — only `src/`, `tests/`, and `contracts/` are present. The implementer must create the setup script and the full directory layout (root, `src/`, `tests/`, `data/`, `results/`, `contracts/`) as specified in `plan.md`.
+- **T001a** — The required test file `tests/contract/test_project_layout.py` is MISSING, and the directories `data/` and `results/` that the test is supposed to verify are also absent from the project. No `setup_project_layout.py` execution evidence was provided either, so nothing demonstrates the layout creation is verified.
+- **T002a** — The test file `tests/contract/test_requirements_schema.py` exists and is substantive, but `test_critical_packages_present` would FAIL against the actual `requirements.txt`: it demands `llama-cpp-python`, `numpy`, and `pandas`, none of which appear in the file (which lists torch, transformers, datasets, bitsandbytes, scipy, statsmodels, pyyaml, ruff, black, jsonschema, pytest, psutil, tqdm). The expected critical-package list also doesn't match the project's actual dependency set, and the syntax regex is effectively a no-op (every group is optional, so it matches any line). The implementer shou
+- **T050a** — declared artifact(s) missing/empty/invalid: tests/contract/test_reference_validation.py
+- **T009e** — declared artifact(s) missing/empty/invalid: tests/unit/test_checksum_failure.py
+- **T041** — declared artifact(s) missing/empty/invalid: data/gsm8k/, data/checksums.txt
+- **T009z** — declared artifact(s) missing/empty/invalid: tests/integration/test_download_gsm8k_integrity.py
+- **T052** — declared artifact(s) missing/empty/invalid: src/model/mask_derivation.py
+- **T052a** — declared artifact(s) missing/empty/invalid: tests/unit/test_mask_derivation_seeds.py
+- **T052b** — declared artifact(s) missing/empty/invalid: tests/unit/test_mask_seed_separation.py
+- **T053** — declared artifact(s) missing/empty/invalid: src/pipeline/orchestrate_svd_seeds.py
+- **T054** — declared artifact(s) missing/empty/invalid: state.yaml, src/pipeline/generate_state_yaml.py
+- **T054b** — declared artifact(s) missing/empty/invalid: state.yaml, src/pipeline/generate_state_yaml.py
+- **T054c** — declared artifact(s) missing/empty/invalid: state.yaml, tests/contract/test_state_yaml_schema_validation.py
+- **T054d** — declared artifact(s) missing/empty/invalid: state.yaml, tests/contract/test_state_yaml_post_generation.py
+- **T056a** — declared artifact(s) missing/empty/invalid: tests/ci/test_ci_matrix_partition.py
+- **T007c** — declared artifact(s) missing/empty/invalid: tests/unit/test_logging_output.py
+- **T016** — declared artifact(s) missing/empty/invalid: src/data/svd_compute.py
+- **T016a** — declared artifact(s) missing/empty/invalid: tests/unit/test_svd_variance.py
+- **T016c** — declared artifact(s) missing/empty/invalid: tests/unit/test_svd_output.py
+- **T017** — declared artifact(s) missing/empty/invalid: results/svd_sensitivity.csv
+- **T017a** — declared artifact(s) missing/empty/invalid: tests/unit/test_svd_sweep.csv
+- **T017b** — declared artifact(s) missing/empty/invalid: tests/unit/test_svd_sweep_entries.py
+- **T017d** — declared artifact(s) missing/empty/invalid: tests/unit/test_svd_robustness.csv
+- **T018a** — declared artifact(s) missing/empty/invalid: tests/unit/test_mask_naming.py
+- **T018c** — declared artifact(s) missing/empty/invalid: tests/unit/test_mask_correctness.py
+- **T018d** — declared artifact(s) missing/empty/invalid: tests/unit/test_mask_variance_criterion.py
+- **T019** — declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_opd.py
+- **T019a** — declared artifact(s) missing/empty/invalid: tests/unit/test_frozen_opd_mask.py
+- **T019c** — declared artifact(s) missing/empty/invalid: tests/integration/test_frozen_opd_training.py
+- **T020** — declared artifact(s) missing/empty/invalid: src/eval/evaluate.py
+- **T020a** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate_output.py
+- **T020c** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate_per_seed.py
+- **T021** — declared artifact(s) missing/empty/invalid: src/evaluation/statistical_tests.py
+- **T021_pre_SFT_test** — declared artifact(s) missing/empty/invalid: tests/unit/test_power_analysis_sft.py
+- **T021a** — declared artifact(s) missing/empty/invalid: tests/unit/test_stats_analysis.py
+- **T021b** — declared artifact(s) missing/empty/invalid: src/pipeline/aggregate_sensitivity.py
+- **T021c** — declared artifact(s) missing/empty/invalid: tests/unit/test_aggregate_sensitivity.py
+- **T021d** — declared artifact(s) missing/empty/invalid: state.yaml, src/pipeline/record_power.yaml, tests/unit/test_power_recording.py
+- **T021e** — declared artifact(s) missing/empty/invalid: src/analysis/equivalence_report.py
+- **T021f** — declared artifact(s) missing/empty/invalid: tests/unit/test_sc001_report.py
+- **T021g** — declared artifact(s) missing/empty/invalid: tests/contract/test_sc001_contract.py
+- **T021h** — declared artifact(s) missing/empty/invalid: src/analysis/robustness_report.py
+- **T022** — declared artifact(s) missing/empty/invalid: src/pipeline/run_us1.py, results/us1_summary.csv
+- **T022a** — declared artifact(s) missing/empty/invalid: tests/integration/test_run_us1.py
+- **T022c** — declared artifact(s) missing/empty/invalid: state.yaml, tests/integration/test_run_us1_state_yaml.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_opd.py, tests/integration/test_frozen_subspace_opd.py
+- **T013c** — declared artifact(s) missing/empty/invalid: state.yaml
+- **T025a** — declared artifact(s) missing/empty/invalid: tests/unit/test_random_mask.py
+- **T026** — declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_sft.py
+- **T026a** — declared artifact(s) missing/empty/invalid: tests/unit/test_sft_mask_application.py
+- **T026b** — declared artifact(s) missing/empty/invalid: src/pipeline/orchestrate_sft_seeds.py
+- **T026c** — declared artifact(s) missing/empty/invalid: tests/integration/test_orchestrate_sft_seeds.py
+- **T027** — declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_random.py
+- **T028** — declared artifact(s) missing/empty/invalid: src/eval/evaluate.py, results/frozen_sft_accuracy.csv
+- **T028a** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate_sft_append.py
+- **T029a** — declared artifact(s) missing/empty/invalid: tests/unit/test_plateau_detection.py
+- **T030** — declared artifact(s) missing/empty/invalid: src/pipeline/run_us2.py, results/us2_summary.csv
+- **T030a** — declared artifact(s) missing/empty/invalid: tests/integration/test_run_us2.py
+- **T051b** — declared artifact(s) missing/empty/invalid: tests/contract/test_sc002_predicate.py
+- **T024** — declared artifact(s) missing/empty/invalid: src/train/frozen_subspace_sft.py, results/frozen_sft_accuracy.csv, tests/integration/test_frozen_subspace_sft.py
+- **T033a** — declared artifact(s) missing/empty/invalid: tests/contract/test_ci_metrics_schema.py
+- **T032** — declared artifact(s) missing/empty/invalid: src/pipeline/run_all.py, results/experiment_summary.csv
+- **T032b** — declared artifact(s) missing/empty/invalid: results/experiment_summary.csv, src/pipeline/generate_unified_summary.py
+- **T032a** — declared artifact(s) missing/empty/invalid: tests/integration/test_run_all.py
+- **T034a** — declared artifact(s) missing/empty/invalid: tests/contract/test_ci_workflow_schema.py
+- **T040‑secret-scan** — declared artifact(s) missing/empty/invalid: tests/security/test_secret_scan.py
+- **T040a** — declared artifact(s) missing/empty/invalid: tests/contract/test_gitignore.py
+- **T057** — declared artifact(s) missing/empty/invalid: src/data/svd_compute.py
+- **T057a** — declared artifact(s) missing/empty/invalid: tests/unit/test_svd_edge_case.py
+- **T057b** — declared artifact(s) missing/empty/invalid: tests/unit/test_svd_high_rank_warning.py
+- **T058** — declared artifact(s) missing/empty/invalid: src/utils/training_monitor.py
+- **T058a** — declared artifact(s) missing/empty/invalid: tests/integration/test_loss_divergence.py
+- **T058b** — declared artifact(s) missing/empty/invalid: tests/unit/test_training_monitor_abort.py
+- **T059** — declared artifact(s) missing/empty/invalid: src/utils/loss_logging.py
+- **T059a** — declared artifact(s) missing/empty/invalid: tests/unit/test_loss_logging_schema.py
+- **T059c** — declared artifact(s) missing/empty/invalid: tests/unit/test_loss_logging_integration.py
+- **T117a-new** — declared artifact(s) missing/empty/invalid: state.yaml, tests/contract/test_power_analysis_state_yaml.py
+- **T118-new** — declared artifact(s) missing/empty/invalid: src/analysis/robustness_report.py
+- **T118a-new** — declared artifact(s) missing/empty/invalid: tests/unit/test_robustness_check.py

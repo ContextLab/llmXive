@@ -1,69 +1,120 @@
 # llmXive Geometry Extension
 
-## Overview
-This repository implements the **llmXive Geometry Extension** project, providing data
-download, preprocessing, model training, evaluation, statistical analysis, and a
-unified experiment aggregation pipeline. All scripts are written for Python 3.11
-and can be run on a standard Linux workstation or CI runner.
+**Repository for the follow‑up project extending “On the Geometry of On‑Policy Distillation”.**
 
-## Quickstart
-Follow these steps to get the project up and running from a fresh clone:
+## Quick Start
 
+This guide walks a new researcher from a fresh clone to reproducing the full experimental matrix on a free GitHub Actions runner.
+
+1. **Clone the repository**
+ ```bash
+ git clone <repo-url>
+ cd llmxive-geometry-extension
+ ```
+
+2. **Set up the Python environment**
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate
+ pip install -r requirements.txt
+ ```
+
+3. **Download the GSM8K dataset**
+ ```bash
+ python -m src.data.download_gsm8k
+ # ✅ GSM8K downloaded and checksum verified [UNRESOLVED-CLAIM: c_3e0287ad — status=not_enough_info]
+ ```
+
+4. **Run a single seed locally (debug)**
+ ```bash
+ python -m src.cli.run_experiment \
+ --condition frozen_opd \
+ --seed 42 \
+ --dry-run
+ ```
+ This executes the full pipeline for one seed and writes a temporary `state.yaml`.
+
+5. **Trigger the full CI matrix**
+ - Push a branch or open a PR; GitHub Actions will automatically start the workflow defined in `.github/workflows/ci.yml`.
+ - The matrix contains jobs for each experimental condition (full_opd, frozen_opd, frozen_sft, random_sft, full_sft) with ≤ 15 seeds per job, respecting the 7 GB RAM and 6‑hour limits.
+
+6. **Run the complete pipeline locally**
+ ```bash
+ python -m src.pipeline.run_all
+ ```
+ This command sequentially runs `run_us1.py`, `run_us2.py`, and aggregates all result CSVs into `results/experiment_summary.csv`.
+ It also generates the authoritative `results/state.yaml` artifact containing all metrics, masks, power‑analysis results, and statistical‑test outcomes.
+
+7. **Inspect results**
+ - After CI succeeds, download the artifact `state.yaml` from the workflow summary.
+ - Generate the final report:
+ ```bash
+ python -m src.analysis.generate_report --state results/state.yaml
+ ```
+ The script produces `report.pdf` and a `figures/` directory.
+
+8. **Optional: modify variance threshold**
+ ```bash
+ python -m src.cli.run_experiment \
+ --condition frozen_opd \
+ --variance-threshold 0.90 \
+ --seed-list 1 2 3... 30
+ ```
+
+## Usage
+
+The project provides a set of entry‑point modules under `src/cli/` and `src/pipeline/`:
+
+- `src.cli.run_experiment` – orchestrates a single experimental condition for a given seed (or list of seeds).
+ **Key arguments**
+ - `--condition`: one of `full_opd`, `frozen_opd`, `frozen_sft`, `random_sft`, `full_sft`.
+ - `--seed` / `--seed-list`: seed(s) to run.
+ - `--dry-run`: perform all steps without writing permanent artifacts (useful for debugging).
+ - `--variance-threshold`: override the default variance‑explained threshold (e.g., `0.90`).
+
+- `src.pipeline.run_all` – runs the full end‑to‑end experiment across all user stories (US‑1, US‑2, US‑3).
+ It internally calls:
+ ```text
+ src/pipeline/run_us1.py
+ src/pipeline/run_us2.py
+ src/pipeline/generate_unified_summary.py
+ ```
+ and finally writes `results/experiment_summary.csv` and `results/state.yaml`.
+
+- `src.analysis.generate_report` – consumes `results/state.yaml` to produce a PDF report and supporting figures.
+
+## Environment Setup
+
+- **Python**: 3.11 (tested on Ubuntu‑latest runners).
+- **Core dependencies** (listed in `requirements.txt`):
+ - `torch==2.3.0`
+ - `transformers==4.44.0`
+ - `datasets==2.20.0`
+ - `bitsandbytes==0.44.0`
+ - `scipy==1.14.0`
+ - `statsmodels==0.14.2`
+ - `pyyaml==6.0.2`
+ - `ruff==0.6.2`
+ - `black==24.8.0`
+- The project is CPU‑first; all scripts run on the standard GitHub Actions runner without GPU. Quantization (`bitsandbytes` 8‑bit) keeps peak RAM ≤ 7 GB.
+
+## Pipeline Invocation
+
+The top‑level pipeline is invoked with:
 ```bash
-# 1. Install the required Python packages
-pip install -r requirements.txt
-
-# 2. Download the GSM8K dataset (the script validates SHA‑256 checksums)
-python -m src.data.download_gsm8k
-
-# 3. Run the full end‑to‑end experiment pipeline
 python -m src.pipeline.run_all
 ```
+This command performs the following steps:
 
-The commands above will:
-* fetch and verify the GSM8K data,
-* execute the US‑1, US‑2, and US‑3 pipelines,
-* generate per‑seed results, `state.yaml`, and a unified
- `results/experiment_summary.csv`,
-* produce `ci_metrics.json` containing peak RAM and total wall‑clock time.
+1. **US‑1 (Frozen‑Subspace OPD)** – trains the frozen‑subspace OPD condition across all seeds, logs resource usage, and records accuracy on the held‑out generalization subset.
+2. **US‑2 (Frozen‑Subspace & Random‑Mask SFT)** – runs SFT under the OPD‑derived mask and under a random mask, evaluates accuracy drops, and performs paired statistical tests.
+3. **US‑3 (Resource Feasibility)** – aggregates RAM and wall‑clock logs, ensuring compliance with the 7 GB / 6‑hour limits.
+4. **Aggregation** – merges per‑seed CSVs into `results/experiment_summary.csv` and writes the comprehensive `results/state.yaml`.
 
-## Running the Full Pipeline
-The primary entry point for the experiment is **`src/pipeline/run_all.py`**.
-It orchestrates the three user‑story pipelines (`run_us1.py`, `run_us2.py`,
-`run_us3.py`), aggregates their CSV outputs, and writes the final summary.
+After successful execution, the following artefacts are available:
 
-You can invoke it in either of the following ways:
+- `results/experiment_summary.csv` – unified CSV conforming to `contracts/experiment.schema.yaml`.
+- `results/state.yaml` – single source of truth for all metrics and statistical outcomes.
+- `figures/` – visualisations generated by the analysis script.
 
-```bash
-# Preferred module‑style execution (ensures the package is on the import path)
-python -m src.pipeline.run_all
-
-# Direct script execution (also works)
-python src/pipeline/run_all.py
-```
-
-## Additional Documentation
-* **`quickstart.md`** – step‑by‑step reproduction instructions, including
- environment setup and troubleshooting tips.
-* **`data-model.md`** – description of dataset schemas, splits, and checksum
- handling.
-* **`contracts/`** – JSON/YAML schemas used by the contract tests under
- `tests/contract/`.
-* **`src/`** – core source code (data utilities, model masks, training,
- evaluation, statistical analysis, and pipeline orchestration).
-
-## Testing
-The repository ships a comprehensive test suite:
-
-```bash
-# Run all unit, integration, and contract tests
-pytest -q
-```
-
-The CI workflow (`.github/workflows/ci.yml`) executes the same command,
-validates `ci_metrics.json`, and enforces the pass‑rate threshold.
-
----
-
-*For any questions or contributions, please open an issue or submit a pull
-request.*
+For further details on each component, refer to the corresponding module docstrings and the `specs/001-llmxive-geometry-extension/` documentation.

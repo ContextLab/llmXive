@@ -1,4 +1,18 @@
-torch>=2.0
-transformers>=4.35
-bitsandbytes>=0.41
-datasets>=2.14
+# Core dependencies
+torch==2.3.0
+transformers==4.44.0
+datasets==2.20.0
+bitsandbytes==0.44.0
+scipy==1.14.0
+statsmodels==0.14.2
+pyyaml==6.0.2
+
+# Development / linting / testing utilities
+ruff==0.6.2
+black==24.8.0
+jsonschema==0.14.2
+pytest==8.2.2
+
+# Optional utilities used in scripts
+psutil==5.9.8
+tqdm==4.66.5

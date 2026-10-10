@@ -16,178 +16,178 @@
 
 ## Phase 0: Setup (Shared Infrastructure)
 
-- [X] T004 Create a top‑level `README.md` with quick‑start instructions, usage instructions for `run_all.py`, environment setup, and pipeline invocation. **Deliverable**: `README.md` at repo root containing sections: "Quick Start", "Usage", "Environment Setup", "Pipeline Invocation" (file: `README.md`) **(completed)**
-- [X] T004b Implement GitHub Actions CI workflow at `.github/workflows/ci.yml` with matrix logic (2 jobs per condition, <=15 seeds/job), RAM (7GB) & time (360m) enforcement, and artifact upload. **Deliverable**: `.github/workflows/ci.yml` with explicit `matrix`, `timeout-minutes: 360`, and memory limits (file: `.github/workflows/ci.yml`) **(completed)**
-- [X] T004c [P] Add CI workflow schema validation test that verifies `.github/workflows/ci.yml` contains the matrix strategy, timeout, and memory limits as defined in `contracts/ci_workflow.schema.yaml` (file: `tests/contract/test_ci_workflow_schema.py`) **(completed)**
-- [X] T005b [P] Verify README content includes usage instructions for `run_all.py` (file: `README.md`) **(completed)**
+- [ ] T004 Create a top‑level `README.md` with quick‑start instructions, usage instructions for `run_all.py`, environment setup, and pipeline invocation. **Deliverable**: `README.md` at repo root containing sections: "Quick Start", "Usage", "Environment Setup", "Pipeline Invocation" (file: `README.md`) **(completed)**
+- [ ] T004b Implement GitHub Actions CI workflow at `.github/workflows/ci.yml` with matrix logic (2 jobs per condition, <=15 seeds/job), RAM (7GB) & time (360m) enforcement, and artifact upload. **Deliverable**: `.github/workflows/ci.yml` with explicit `matrix`, `timeout-minutes: 360`, and memory limits (file: `.github/workflows/ci.yml`) **(completed)**
+- [ ] T004c [P] Add CI workflow schema validation test that verifies `.github/workflows/ci.yml` contains the matrix strategy, timeout, and memory limits as defined in `contracts/ci_workflow.schema.yaml` (file: `tests/contract/test_ci_workflow_schema.py`) **(completed)**
+- [ ] T005b [P] Verify README content includes usage instructions for `run_all.py` (file: `README.md`) **(completed)**
 - [X] T005c [P] Add README content verification test (file: `tests/contract/test_readme.py`) **(completed)**
 - [X] T005d [P] Add contract test to ensure README includes usage instructions for `run_all.py` (file: `tests/contract/test_readme_run_all_section.py`) **(completed)**
-- [X] T001 Create project directory layout as described in `plan.md` (root, `src/`, `tests/`, `data/`, `results/`, `contracts/`) (file: `scripts/setup_project_layout.py`)
-- [X] T001a [P] Add a test that asserts the expected directories (`src/`, `tests/`, `data/`, `results/`, `contracts/`) exist after execution and verifies `setup_project_layout.py` creates them (file: `tests/contract/test_project_layout.py`)
+- [ ] T001 Create project directory layout as described in `plan.md` (root, `src/`, `tests/`, `data/`, `results/`, `contracts/`) (file: `scripts/setup_project_layout.py`)
+- [ ] T001a [P] Add a test that asserts the expected directories (`src/`, `tests/`, `data/`, `results/`, `contracts/`) exist after execution and verifies `setup_project_layout.py` creates them (file: `tests/contract/test_project_layout.py`)
 - [X] T002 Initialize a Python 3.11 project with `poetry init` and add required dependencies (see plan) – `requirements.txt` generated (file: `requirements.txt`)
-- [X] T002a [P] Add contract test for `requirements.txt` presence and content correctness (file: `tests/contract/test_requirements_schema.py`)
-- [X] T003 Create linting configuration file `.ruff.toml` (file: `.ruff.toml`) **(completed)**
-- [X] T003a [P] Add linting configuration validation test (file: `tests/contract/test_linting_config.py`)
-- [X] T003b_test [P] Add contract test to validate `.ruff.toml` schema (file: `tests/contract/test_ruff_config_schema.py`)
-- [X] T071 Create `quickstart.md` with step‑by‑step reproduction instructions (file: `quickstart.md`) **(completed)**
-- [X] T071a [P] Add contract test that `quickstart.md` exists and contains required sections (file: `tests/contract/test_quickstart.py`) **(completed)**
-- [X] T072 Create `data-model.md` describing dataset schemas, splits, and checksum handling (file: `data-model.md`) **(completed)**
-- [X] T072a [P] Add contract test that `data-model.md` is present and matches a simple schema (file: `tests/contract/test_data_model_schema.py`) **(completed)**
-- [X] T050 Run the Reference‑Validator Agent on all citations in the spec and plan to ensure Principle II compliance (file: `scripts/run_reference_validator.sh`) **(completed)**
-- [X] T050a [P] Add contract test that verifies the reference‑validator output contains no failures (file: `tests/contract/test_reference_validation.py`) **(completed)**
-- [X] T009_impl Implement dataset‑download script `src/data/download_gsm8k.py` with checksum validation and caching, explicitly raising `DataFetchError` on failure with NO synthetic fallback (file: `src/data/download_gsm8k.py`) **(completed)**
-- [X] T009a [P] Add integration test for dataset download integrity and checksum validation (file: `tests/integration/test_download_gsm8k.py`) **(completed)**
-- [X] T009b [P] US1/US2 Implement the data splitting logic to partition GSMK into training, evaluation, and a **held‑out generalization subset** (default [deferred] of total, stratified by difficulty) and persist these splits. **Deliverable**: `src/data/split_gsm8k.py` with default [deferred] split if not specified (file: `src/data/split_gsm8k.py`) – satisfies US‑1, US‑2 **(completed)**
-- [X] T009c [P] Add unit test for stratified splitting correctness and reproducibility (file: `tests/unit/test_split_gsm8k.py`) **(completed)**
-- [X] T009d [P] Add integration test that running the download script a second time hits the local cache (no network request) (file: `tests/integration/test_gsm8k_cache.py`) **(completed)**
-- [X] T009e [P] Add unit test that checksum validation aborts on corrupted files (file: `tests/unit/test_checksum_failure.py`) **(completed)**
-- [X] T041 Compute and record SHA‑256 checksums for all GSM8K files under `data/gsm8k/` (file: `data/checksums.txt`) **(completed)**
-- [X] T041a [P] Add contract test that `data/checksums.txt` exists and contains an entry for each downloaded file (file: `tests/contract/test_checksums_generation.py`) **(completed)**
-- [X] T044 Extend the dataset‑download script to verify the recorded SHA‑256 checksums before returning data, aborting on mismatch **(completed)**
-- [X] T044a [P] Add integration test that checksum validation is executed and raises on corrupted files (file: `tests/integration/test_checksum_validation.py`) **(completed)**
-- [X] T009z [P] Add integration test to verify dataset download script streams data, validates checksums, and respects spec requirements (file: `tests/integration/test_download_gsm8k_integrity.py`) **(completed)**
-- [X] T052 Implement mask‑derivation using **multiple independent seeds** (distinct from a set of evaluation seeds) to compute the OPD subspace mask (file: `src/model/mask_derivation.py`) **(completed)**
-- [X] T052a [P] Add unit test confirming that the mask‑derivation seeds are disjoint from the evaluation seed set and that the generated mask dimensions match expectations (file: `tests/unit/test_mask_derivation_seeds.py`) **(completed)**
-- [X] T052b [P] Add verification test that the mask‑derivation process logs seed separation and stores provenance metadata (file: `tests/unit/test_mask_seed_separation.py`) **(completed)**
-- [X] T053 Update the SVD orchestration (T016b) to consume the mask derived in T052 rather than recomputing per‑seed masks, ensuring proper separation of mask creation and evaluation (file: `src/pipeline/orchestrate_svd_seeds.py`) **(completed)**
-- [X] T054 Implement generation of the authoritative `state.yaml` artifact that aggregates all metrics, masks, power‑analysis results, and statistical test outcomes (file: `src/pipeline/generate_state_yaml.py`) **(completed)**
-- [X] T054b Implement the `state.yaml` generation logic (file: `src/pipeline/generate_state_yaml.py`) **(completed)**
-- [X] T054a [P] Add contract test that `state.yaml` conforms to `contracts/experiment.schema.yaml` (file: `tests/contract/test_state_yaml_schema.py`) **(completed)**
-- [X] T054c [P] Add contract test that `state.yaml` schema compliance passes (file: `tests/contract/test_state_yaml_schema_validation.py`) **(completed)**
-- [X] T054d [P] Run the state.yaml contract test after generation to respect producer‑consumer ordering (file: `tests/contract/test_state_yaml_post_generation.py`) **(pending)**
-- [X] T055 Extend the CI workflow to run `state.yaml` validation after the aggregation step and fail the job on schema violations (file: `.github/workflows/ci.yml`) **(completed)**
-- [X] T055b [P] Add CI step that validates experiment artifacts against both `contracts/experiment.schema.yaml` and `contracts/experiment_results.schema.yaml` (file: `.github/workflows/ci.yml`) **(completed)**
-- [X] T056 Refactor the CI matrix to split each experimental condition (`opd_full`, `frozen_opd`, `frozen_sft`, `random_sft`) into **≤ 15 seeds per job** (two jobs per condition) to respect the several‑hour / Limited GB limits per FR‑012 (file: `.github/workflows/ci.yml`) **(completed)**
-- [X] T056a [P] Add CI‑level test that verifies the matrix correctly partitions seeds and that each job receives ≤ 15 seeds (file: `tests/ci/test_ci_matrix_partition.py`) **(completed)**
-- [X] T042 [P] Update resource monitor to log peak RAM usage and total wall‑clock time; report violations in logs without raising errors (file: `src/utils/resource_monitor.py`) **(completed)**
-- [X] T043 [P] Update resource monitor to log runtime duration; report violations in logs without raising errors (file: `src/utils/resource_monitor.py`) **(completed)**
-- [X] T058c [P] Update `src/utils/resource_monitor.py` to **raise errors and abort the job** if RAM > 7GB or wall-clock > 360m, ensuring compliance with FR-012 and Constitution Principle VII (file: `src/utils/resource_monitor.py`) **(completed)**
-- [X] T062 [P] Update `plan.md` and `tasks.md` to remove any reference to non-existent FR-041 (directory creation), ensuring no scope creep (file: `plan.md`, `tasks.md`) **(completed)**
-- [X] T041b [P] Add a task to formalize directory creation in `spec.md` if FR-041 is needed, or confirm T001 covers it (file: `tasks.md`) **(completed)**
+- [ ] T002a [P] Add contract test for `requirements.txt` presence and content correctness (file: `tests/contract/test_requirements_schema.py`)
+- [~] T003 Create linting configuration file `.ruff.toml` (file: `.ruff.toml`) **(completed)**
+- [~] T003a [P] Add linting configuration validation test (file: `tests/contract/test_linting_config.py`)
+- [~] T003b_test [P] Add contract test to validate `.ruff.toml` schema (file: `tests/contract/test_ruff_config_schema.py`)
+- [~] T071 Create `quickstart.md` with step‑by‑step reproduction instructions (file: `quickstart.md`) **(completed)**
+- [~] T071a [P] Add contract test that `quickstart.md` exists and contains required sections (file: `tests/contract/test_quickstart.py`) **(completed)**
+- [~] T072 Create `data-model.md` describing dataset schemas, splits, and checksum handling (file: `data-model.md`) **(completed)**
+- [~] T072a [P] Add contract test that `data-model.md` is present and matches a simple schema (file: `tests/contract/test_data_model_schema.py`) **(completed)**
+- [~] T050 Run the Reference‑Validator Agent on all citations in the spec and plan to ensure Principle II compliance (file: `scripts/run_reference_validator.sh`) **(completed)**
+- [ ] T050a [P] Add contract test that verifies the reference‑validator output contains no failures (file: `tests/contract/test_reference_validation.py`) **(completed)**
+- [~] T009_impl Implement dataset‑download script `src/data/download_gsm8k.py` with checksum validation and caching, explicitly raising `DataFetchError` on failure with NO synthetic fallback (file: `src/data/download_gsm8k.py`) **(completed)**
+- [~] T009a [P] Add integration test for dataset download integrity and checksum validation (file: `tests/integration/test_download_gsm8k.py`) **(completed)**
+- [~] T009b [P] US1/US2 Implement the data splitting logic to partition GSMK into training, evaluation, and a **held‑out generalization subset** (default [deferred] of total, stratified by difficulty) and persist these splits. **Deliverable**: `src/data/split_gsm8k.py` with default [deferred] split if not specified (file: `src/data/split_gsm8k.py`) – satisfies US‑1, US‑2 **(completed)**
+- [~] T009c [P] Add unit test for stratified splitting correctness and reproducibility (file: `tests/unit/test_split_gsm8k.py`) **(completed)**
+- [~] T009d [P] Add integration test that running the download script a second time hits the local cache (no network request) (file: `tests/integration/test_gsm8k_cache.py`) **(completed)**
+- [ ] T009e [P] Add unit test that checksum validation aborts on corrupted files (file: `tests/unit/test_checksum_failure.py`) **(completed)**
+- [ ] T041 Compute and record SHA‑256 checksums for all GSM8K files under `data/gsm8k/` (file: `data/checksums.txt`) **(completed)**
+- [~] T041a [P] Add contract test that `data/checksums.txt` exists and contains an entry for each downloaded file (file: `tests/contract/test_checksums_generation.py`) **(completed)**
+- [~] T044 Extend the dataset‑download script to verify the recorded SHA‑256 checksums before returning data, aborting on mismatch **(completed)**
+- [~] T044a [P] Add integration test that checksum validation is executed and raises on corrupted files (file: `tests/integration/test_checksum_validation.py`) **(completed)**
+- [ ] T009z [P] Add integration test to verify dataset download script streams data, validates checksums, and respects spec requirements (file: `tests/integration/test_download_gsm8k_integrity.py`) **(completed)**
+- [ ] T052 Implement mask‑derivation using **multiple independent seeds** (distinct from a set of evaluation seeds) to compute the OPD subspace mask (file: `src/model/mask_derivation.py`) **(completed)**
+- [ ] T052a [P] Add unit test confirming that the mask‑derivation seeds are disjoint from the evaluation seed set and that the generated mask dimensions match expectations (file: `tests/unit/test_mask_derivation_seeds.py`) **(completed)**
+- [ ] T052b [P] Add verification test that the mask‑derivation process logs seed separation and stores provenance metadata (file: `tests/unit/test_mask_seed_separation.py`) **(completed)**
+- [ ] T053 Update the SVD orchestration (T016b) to consume the mask derived in T052 rather than recomputing per‑seed masks, ensuring proper separation of mask creation and evaluation (file: `src/pipeline/orchestrate_svd_seeds.py`) **(completed)**
+- [ ] T054 Implement generation of the authoritative `state.yaml` artifact that aggregates all metrics, masks, power‑analysis results, and statistical test outcomes (file: `src/pipeline/generate_state_yaml.py`) **(completed)**
+- [ ] T054b Implement the `state.yaml` generation logic (file: `src/pipeline/generate_state_yaml.py`) **(completed)**
+- [~] T054a [P] Add contract test that `state.yaml` conforms to `contracts/experiment.schema.yaml` (file: `tests/contract/test_state_yaml_schema.py`) **(completed)**
+- [ ] T054c [P] Add contract test that `state.yaml` schema compliance passes (file: `tests/contract/test_state_yaml_schema_validation.py`) **(completed)**
+- [ ] T054d [P] Run the state.yaml contract test after generation to respect producer‑consumer ordering (file: `tests/contract/test_state_yaml_post_generation.py`) **(pending)**
+- [~] T055 Extend the CI workflow to run `state.yaml` validation after the aggregation step and fail the job on schema violations (file: `.github/workflows/ci.yml`) **(completed)**
+- [~] T055b [P] Add CI step that validates experiment artifacts against both `contracts/experiment.schema.yaml` and `contracts/experiment_results.schema.yaml` (file: `.github/workflows/ci.yml`) **(completed)**
+- [~] T056 Refactor the CI matrix to split each experimental condition (`opd_full`, `frozen_opd`, `frozen_sft`, `random_sft`) into **≤ 15 seeds per job** (two jobs per condition) to respect the several‑hour / Limited GB limits per FR‑012 (file: `.github/workflows/ci.yml`) **(completed)**
+- [ ] T056a [P] Add CI‑level test that verifies the matrix correctly partitions seeds and that each job receives ≤ 15 seeds (file: `tests/ci/test_ci_matrix_partition.py`) **(completed)**
+- [~] T042 [P] Update resource monitor to log peak RAM usage and total wall‑clock time; report violations in logs without raising errors (file: `src/utils/resource_monitor.py`) **(completed)**
+- [~] T043 [P] Update resource monitor to log runtime duration; report violations in logs without raising errors (file: `src/utils/resource_monitor.py`) **(completed)**
+- [~] T058c [P] Update `src/utils/resource_monitor.py` to **raise errors and abort the job** if RAM > 7GB or wall-clock > 360m, ensuring compliance with FR-012 and Constitution Principle VII (file: `src/utils/resource_monitor.py`) **(completed)**
+- [~] T062 [P] Update `plan.md` and `tasks.md` to remove any reference to non-existent FR-041 (directory creation), ensuring no scope creep (file: `plan.md`, `tasks.md`) **(completed)**
+- [~] T041b [P] Add a task to formalize directory creation in `spec.md` if FR-041 is needed, or confirm T001 covers it (file: `tasks.md`) **(completed)**
 
 ## Phase 1: Foundational (Blocking Prerequisites)
 
-- [X] T006 Implement a deterministic RNG helper that sets seeds for `numpy`, `torch`, and Python's `random` (file: `src/utils/random_seed.py`) **(completed)**
-- [X] T006a [P] Add unit test for RNG seeding correctness (file: `tests/unit/test_random_seed.py`) **(completed)**
-- [X] T007 Implement a logging utility that writes JSON‑line logs with timestamps (file: `src/utils/logging.py`) **(completed)**
-- [X] T007a [P] Add contract test for logging output schema (file: `tests/contract/test_logging_schema.py`) **(completed)**
-- [X] T007b [P] Add verification test that each log entry includes a valid ISO‑8601 timestamp (file: `tests/contract/test_logging_timestamp.py`) **(completed)**
-- [X] T007c [P] Add unit test that logging utility correctly writes a sample JSON‑line entry adhering to schema (file: `tests/unit/test_logging_output.py`) **(completed)**
-- [X] T007d [P] Extend `src/utils/logging.py` with functions `log_peak_ram(ram_gb: float)` and `log_wall_clock(minutes: float)` to satisfy FR‑007 and FR‑016 **(completed)**
-- [X] T008 Implement a resource‑monitoring module that records peak VmRSS and wall‑clock time for any script (file: `src/utils/resource_monitor.py`) – used by all experiments (FR‑007) **(completed)**
-- [X] T008a [P] Add unit test for resource monitor accuracy (file: `tests/unit/test_resource_monitor.py`) **(completed)**
-- [X] T008b Updated: Resource monitor now only logs metrics; warnings are removed to avoid conflict with other tests (file: `src/utils/resource_monitor.py`) **(completed)**
-- [X] T045 [P] Add unit test that each experimental run’s resource‑monitor log respects the prescribed RAM and A substantial wall‑clock limit for runtime. (file: `tests/contract/test_per_run_resource_limits.py`) **(completed)**
-- [X] T015 Implement Full‑Parameter OPD baseline script (file: `src/train/opd_baseline.py`) – satisfies FR‑002 **(completed)**
-- [X] T015a Implement logic to **persist per‑layer weight deltas** (file: `src/data/persist_deltas.py`) – ensures data hygiene before SVD consumption **(completed)**
-- [X] T015c Add unit test that persisted delta files have matching SHA‑256 entries (file: `tests/unit/test_opd_baseline_deltas.py`) **(completed)**
-- [X] T016 Implement SVD computation script (file: `src/data/svd_compute.py`) – satisfies FR‑003, FR‑008 **(completed)**
-- [X] T016a Add unit test that cumulative variance ≥ 95% (file: `tests/unit/test_svd_variance.py`) **(completed)**
-- [X] T016b Seed‑Specific SVD Orchestrator (file: `src/pipeline/orchestrate_svd_seeds.py`) – ensures distinct masks for paired tests **(completed)**
-- [X] T016c Add unit test that each SVD run outputs a mask file and that cumulative variance meets the threshold (file: `tests/unit/test_svd_output.py`) **(completed)**
-- [X] T017 Implement SVD sensitivity sweep (file: `results/svd_sensitivity.csv`) – FR‑008 **(completed)**
-- [X] T017a Add test that summary CSV includes entries for all thresholds (file: `tests/unit/test_svd_sweep.csv`) **(completed)**
-- [X] T017b Add test that summary CSV contains rows for multiple confidence thresholds (file: `tests/unit/test_svd_sweep_entries.py`) **(completed)**
-- [X] T017c Verify robustness across variance thresholds and record in `results/svd_robustness.csv` (file: `results/svd_robustness.csv`) **(completed)**
-- [X] T017d Add unit test for robustness CSV content (file: `tests/unit/test_svd_robustness.csv`) **(completed)**
-- [X] T018 Implement mask generation (file: `src/model/mask.py`) – FR‑004 **(completed)**
-- [X] T018a Add test that mask files are correctly named per seed (file: `tests/unit/test_mask_naming.py`) **(completed)**
-- [X] T018c Add unit test verifying mask shape, binary values, and dimensionality (file: `tests/unit/test_mask_correctness.py`) **(completed)**
-- [X] T018d Add test that selected subspace meets ≥ 95 % variance criterion (file: `tests/unit/test_mask_variance_criterion.py`) **(completed)**
-- [X] T019 Implement Frozen‑Subspace OPD training script (file: `src/train/frozen_subspace_opd.py`) – FR‑001 & FR‑004 **(completed)**
-- [X] T019a Add test that training respects mask and logs required fields (file: `tests/unit/test_frozen_opd_mask.py`) **(completed)**
-- [X] T019c Add integration test confirming mask application and required logs (file: `tests/integration/test_frozen_opd_training.py`) **(completed)**
-- [X] T020 Implement evaluation script (file: `src/eval/evaluate.py`) – FR‑006 **(completed)**
-- [X] T020a Add test for evaluation CSV format (file: `tests/unit/test_evaluate_output.py`) **(completed)**
-- [X] T020c Add test that evaluation records per‑seed accuracy entries (file: `tests/unit/test_evaluate_per_seed.py`) **(completed)**
-- [X] T021 Implement statistical analysis module (file: `src/evaluation/statistical_tests.py`) – FR‑009, FR‑006, FR‑011 **(completed)**
-- [X] T021_pre Perform pre‑test power analysis for OPD TOST (calculates required N, reports achieved power) (file: `src/evaluation/power_analysis.py`) **(completed)**
-- [X] T021_pre_SFT Perform pre‑study power analysis for US‑2 paired t‑tests (effect size δ=0.03) (file: `src/evaluation/power_analysis_sft.py`) **(completed)**
-- [X] T021_pre_SFT_test [P] Add unit tests for SFT power‑analysis correctness (file: `tests/unit/test_power_analysis_sft.py`) **(completed)**
-- [X] T021a Add unit tests for power analysis and TOST correctness (file: `tests/unit/test_stats_analysis.py`) **(completed)**
-- [X] T021b Implement Sensitivity Aggregation task that aggregates TOST results from the sensitivity sweep (file: `src/pipeline/aggregate_sensitivity.py`) – satisfies SC‑006 **(completed)**
-- [X] T021c Add unit test for aggregation correctness (file: `tests/unit/test_aggregate_sensitivity.py`) **(completed)**
-- [X] T021d Add task to record achieved statistical power in `state.yaml` (file: `src/pipeline/record_power.yaml`) and test it (file: `tests/unit/test_power_recording.py`) **(completed)**
-- [X] T021e Add task that executes the paired TOST equivalence test and writes SC‑001 report (file: `src/analysis/equivalence_report.py`) with fields `equivalence`, `p_lower`, `p_upper`, `achieved_power` **(completed)**
-- [X] T021f Add task to generate SC‑ report (equivalence decision) and test (file: `tests/unit/test_sc001_report.py`) **(completed)**
-- [X] T021g Add contract test that SC‑001 report contains required fields (file: `tests/contract/test_sc001_contract.py`) **(completed)**
-- [X] T021h **(new)** Add task to generate a consolidated robustness report across variance‑explained thresholds (SC‑006) (file: `src/analysis/robustness_report.py`) **(completed)**
-- [X] T022 Implement script `src/pipeline/run_us1.py` that orchestrates steps T015b‑T021f for all seeds, logs resource usage via `resource_monitor`, and produces a final summary CSV (`results/us1_summary.csv`) – end‑to‑end execution **(completed)**
-- [X] T022a Add end‑to‑end test that `run_us1.py` produces a complete summary CSV (file: `tests/integration/test_run_us1.py`) **(completed)**
-- [X] T022c Add end‑to‑end test that `run_us1.py` also creates `state.yaml` (file: `tests/integration/test_run_us1_state_yaml.py`) **(completed)**
-- [X] T013 US1 Contract test that `results/experiment_summary.csv` contains the required columns defined in `contracts/experiment.schema.yaml` (file: `tests/contract/test_experiment_schema.py`) **(completed)**
-- [X] T013a Enhance test to assert column presence and correct data types **(completed)**
-- [X] T014 US1 Integration test that a single seed run of `src/train/frozen_subspace_opd.py` produces a CSV row with non‑null `accuracy` and `peak_ram_gb` fields (file: `tests/integration/test_frozen_subspace_opd.py`) **(completed)**
-- [X] T014a Extend integration test to assert reasonable ranges for `accuracy` and `peak_ram_gb` **(completed)**
-- [X] T013c Ensure `state.yaml` is generated before `test_experiment_schema` runs (dependency ordering) **(completed)**
+- [~] T006 Implement a deterministic RNG helper that sets seeds for `numpy`, `torch`, and Python's `random` (file: `src/utils/random_seed.py`) **(completed)**
+- [~] T006a [P] Add unit test for RNG seeding correctness (file: `tests/unit/test_random_seed.py`) **(completed)**
+- [~] T007 Implement a logging utility that writes JSON‑line logs with timestamps (file: `src/utils/logging.py`) **(completed)**
+- [~] T007a [P] Add contract test for logging output schema (file: `tests/contract/test_logging_schema.py`) **(completed)**
+- [~] T007b [P] Add verification test that each log entry includes a valid ISO‑8601 timestamp (file: `tests/contract/test_logging_timestamp.py`) **(completed)**
+- [ ] T007c [P] Add unit test that logging utility correctly writes a sample JSON‑line entry adhering to schema (file: `tests/unit/test_logging_output.py`) **(completed)**
+- [~] T007d [P] Extend `src/utils/logging.py` with functions `log_peak_ram(ram_gb: float)` and `log_wall_clock(minutes: float)` to satisfy FR‑007 and FR‑016 **(completed)**
+- [~] T008 Implement a resource‑monitoring module that records peak VmRSS and wall‑clock time for any script (file: `src/utils/resource_monitor.py`) – used by all experiments (FR‑007) **(completed)**
+- [~] T008a [P] Add unit test for resource monitor accuracy (file: `tests/unit/test_resource_monitor.py`) **(completed)**
+- [~] T008b Updated: Resource monitor now only logs metrics; warnings are removed to avoid conflict with other tests (file: `src/utils/resource_monitor.py`) **(completed)**
+- [~] T045 [P] Add unit test that each experimental run’s resource‑monitor log respects the prescribed RAM and A substantial wall‑clock limit for runtime. (file: `tests/contract/test_per_run_resource_limits.py`) **(completed)**
+- [~] T015 Implement Full‑Parameter OPD baseline script (file: `src/train/opd_baseline.py`) – satisfies FR‑002 **(completed)**
+- [~] T015a Implement logic to **persist per‑layer weight deltas** (file: `src/data/persist_deltas.py`) – ensures data hygiene before SVD consumption **(completed)**
+- [~] T015c Add unit test that persisted delta files have matching SHA‑256 entries (file: `tests/unit/test_opd_baseline_deltas.py`) **(completed)**
+- [ ] T016 Implement SVD computation script (file: `src/data/svd_compute.py`) – satisfies FR‑003, FR‑008 **(completed)**
+- [ ] T016a Add unit test that cumulative variance ≥ 95% (file: `tests/unit/test_svd_variance.py`) **(completed)**
+- [~] T016b Seed‑Specific SVD Orchestrator (file: `src/pipeline/orchestrate_svd_seeds.py`) – ensures distinct masks for paired tests **(completed)**
+- [ ] T016c Add unit test that each SVD run outputs a mask file and that cumulative variance meets the threshold (file: `tests/unit/test_svd_output.py`) **(completed)**
+- [ ] T017 Implement SVD sensitivity sweep (file: `results/svd_sensitivity.csv`) – FR‑008 **(completed)**
+- [ ] T017a Add test that summary CSV includes entries for all thresholds (file: `tests/unit/test_svd_sweep.csv`) **(completed)**
+- [ ] T017b Add test that summary CSV contains rows for multiple confidence thresholds (file: `tests/unit/test_svd_sweep_entries.py`) **(completed)**
+- [~] T017c Verify robustness across variance thresholds and record in `results/svd_robustness.csv` (file: `results/svd_robustness.csv`) **(completed)**
+- [ ] T017d Add unit test for robustness CSV content (file: `tests/unit/test_svd_robustness.csv`) **(completed)**
+- [~] T018 Implement mask generation (file: `src/model/mask.py`) – FR‑004 **(completed)**
+- [ ] T018a Add test that mask files are correctly named per seed (file: `tests/unit/test_mask_naming.py`) **(completed)**
+- [ ] T018c Add unit test verifying mask shape, binary values, and dimensionality (file: `tests/unit/test_mask_correctness.py`) **(completed)**
+- [ ] T018d Add test that selected subspace meets ≥ 95 % variance criterion (file: `tests/unit/test_mask_variance_criterion.py`) **(completed)**
+- [ ] T019 Implement Frozen‑Subspace OPD training script (file: `src/train/frozen_subspace_opd.py`) – FR‑001 & FR‑004 **(completed)**
+- [ ] T019a Add test that training respects mask and logs required fields (file: `tests/unit/test_frozen_opd_mask.py`) **(completed)**
+- [ ] T019c Add integration test confirming mask application and required logs (file: `tests/integration/test_frozen_opd_training.py`) **(completed)**
+- [ ] T020 Implement evaluation script (file: `src/eval/evaluate.py`) – FR‑006 **(completed)**
+- [ ] T020a Add test for evaluation CSV format (file: `tests/unit/test_evaluate_output.py`) **(completed)**
+- [ ] T020c Add test that evaluation records per‑seed accuracy entries (file: `tests/unit/test_evaluate_per_seed.py`) **(completed)**
+- [ ] T021 Implement statistical analysis module (file: `src/evaluation/statistical_tests.py`) – FR‑009, FR‑006, FR‑011 **(completed)**
+- [~] T021_pre Perform pre‑test power analysis for OPD TOST (calculates required N, reports achieved power) (file: `src/evaluation/power_analysis.py`) **(completed)**
+- [~] T021_pre_SFT Perform pre‑study power analysis for US‑2 paired t‑tests (effect size δ=0.03) (file: `src/evaluation/power_analysis_sft.py`) **(completed)**
+- [ ] T021_pre_SFT_test [P] Add unit tests for SFT power‑analysis correctness (file: `tests/unit/test_power_analysis_sft.py`) **(completed)**
+- [ ] T021a Add unit tests for power analysis and TOST correctness (file: `tests/unit/test_stats_analysis.py`) **(completed)**
+- [ ] T021b Implement Sensitivity Aggregation task that aggregates TOST results from the sensitivity sweep (file: `src/pipeline/aggregate_sensitivity.py`) – satisfies SC‑006 **(completed)**
+- [ ] T021c Add unit test for aggregation correctness (file: `tests/unit/test_aggregate_sensitivity.py`) **(completed)**
+- [ ] T021d Add task to record achieved statistical power in `state.yaml` (file: `src/pipeline/record_power.yaml`) and test it (file: `tests/unit/test_power_recording.py`) **(completed)**
+- [ ] T021e Add task that executes the paired TOST equivalence test and writes SC‑001 report (file: `src/analysis/equivalence_report.py`) with fields `equivalence`, `p_lower`, `p_upper`, `achieved_power` **(completed)**
+- [ ] T021f Add task to generate SC‑ report (equivalence decision) and test (file: `tests/unit/test_sc001_report.py`) **(completed)**
+- [ ] T021g Add contract test that SC‑001 report contains required fields (file: `tests/contract/test_sc001_contract.py`) **(completed)**
+- [ ] T021h **(new)** Add task to generate a consolidated robustness report across variance‑explained thresholds (SC‑006) (file: `src/analysis/robustness_report.py`) **(completed)**
+- [ ] T022 Implement script `src/pipeline/run_us1.py` that orchestrates steps T015b‑T021f for all seeds, logs resource usage via `resource_monitor`, and produces a final summary CSV (`results/us1_summary.csv`) – end‑to‑end execution **(completed)**
+- [ ] T022a Add end‑to‑end test that `run_us1.py` produces a complete summary CSV (file: `tests/integration/test_run_us1.py`) **(completed)**
+- [ ] T022c Add end‑to‑end test that `run_us1.py` also creates `state.yaml` (file: `tests/integration/test_run_us1_state_yaml.py`) **(completed)**
+- [~] T013 US1 Contract test that `results/experiment_summary.csv` contains the required columns defined in `contracts/experiment.schema.yaml` (file: `tests/contract/test_experiment_schema.py`) **(completed)**
+- [~] T013a Enhance test to assert column presence and correct data types **(completed)**
+- [ ] T014 US1 Integration test that a single seed run of `src/train/frozen_subspace_opd.py` produces a CSV row with non‑null `accuracy` and `peak_ram_gb` fields (file: `tests/integration/test_frozen_subspace_opd.py`) **(completed)**
+- [~] T014a Extend integration test to assert reasonable ranges for `accuracy` and `peak_ram_gb` **(completed)**
+- [ ] T013c Ensure `state.yaml` is generated before `test_experiment_schema` runs (dependency ordering) **(completed)**
 
 ## Phase 3: User Story 2 – Comparative Geometric Distinctness (Priority: P2)
 
-- [X] T025 Implement a random‑mask generator that creates a binary mask of the same dimensionality as the OPD mask (seeded for reproducibility) (file: `src/model/mask.py`) – FR‑005 **(completed)**
-- [X] T025a Add test that random mask is reproducible given a seed (file: `tests/unit/test_random_mask.py`) **(completed)**
-- [X] T026 Implement Frozen‑Subspace SFT training script (file: `src/train/frozen_subspace_sft.py`) – FR‑005 **(completed)**
-- [X] T026a Add test that mask is correctly applied during SFT (file: `tests/unit/test_sft_mask_application.py`) **(completed)**
-- [X] T026b Implement Seed Loop Orchestrator for Frozen‑Subspace SFT (file: `src/pipeline/orchestrate_sft_seeds.py`) – satisfies FR‑006, US‑2 N=30 **(completed)**
-- [X] T026c Add integration test that orchestrator runs all seeds and produces expected CSVs (file: `tests/integration/test_orchestrate_sft_seeds.py`) **(completed)**
-- [X] T027 Implement Frozen‑Subspace Random training script that re‑uses `frozen_subspace_sft.py` with the random mask (file: `src/train/frozen_subspace_random.py`) – FR‑005 **(completed)**
-- [X] T027a Verify reuse of SFT script for random mask (file: `tests/unit/test_random_reuse.py`) **(completed)**
-- [X] T028 Extend `src/eval/evaluate.py` to compute accuracy for SFT runs and append to `results/frozen_sft_accuracy.csv` (file: same) – FR‑006 **(completed)**
-- [X] T028a Add test for correct CSV appending behavior (file: `tests/unit/test_evaluate_sft_append.py`) **(completed)**
-- [X] T029 Extend `src/eval/stats.py` to compute mean accuracy drop, run paired t‑test, and detect loss plateau – FR‑010, FR‑006 **(completed)**
-- [X] T029a Add unit test for loss‑plateau detection logic (file: `tests/unit/test_plateau_detection.py`) **(completed)**
-- [X] T029b Add test that statistical results (mean drop, p‑value) are recorded correctly (file: `tests/unit/test_stats_us2.py`) **(completed)**
-- [X] T030 Add driver script `src/pipeline/run_us2.py` that orchestrates mask generation, SFT runs, random runs, evaluation, and statistical reporting, producing `results/us2_summary.csv` – end‑to‑end **(completed)**
-- [X] T030a Add end‑to‑end test that `run_us2.py` yields expected summary schema (file: `tests/integration/test_run_us2.py`) **(completed)**
-- [X] T051 US2 Contract test that `results/us2_summary.csv` contains columns `mask_type`, `mean_accuracy_drop`, `t_stat`, `p_value` (file: `tests/contract/test_us2_schema.py`) **(completed)**
-- [X] T051a Extend contract test to verify column types **(completed)**
-- [X] T051b Add predicate test implementing the refined SC‑002 condition (mean < 3 pp AND p > 0.05) OR (mean ≥ 3 pp AND p < 0.05) (file: `tests/contract/test_sc002_predicate.py`) **(completed)**
-- [X] T024 US2 Integration test that a single seed run of `src/train/frozen_subspace_sft.py` completes without OOM and writes a row to `results/frozen_sft_accuracy.csv` (file: `tests/integration/test_frozen_subspace_sft.py`) **(completed)**
-- [X] T024a Add assertions for OOM absence and CSV entry correctness **(completed)**
+- [~] T025 Implement a random‑mask generator that creates a binary mask of the same dimensionality as the OPD mask (seeded for reproducibility) (file: `src/model/mask.py`) – FR‑005 **(completed)**
+- [ ] T025a Add test that random mask is reproducible given a seed (file: `tests/unit/test_random_mask.py`) **(completed)**
+- [ ] T026 Implement Frozen‑Subspace SFT training script (file: `src/train/frozen_subspace_sft.py`) – FR‑005 **(completed)**
+- [ ] T026a Add test that mask is correctly applied during SFT (file: `tests/unit/test_sft_mask_application.py`) **(completed)**
+- [ ] T026b Implement Seed Loop Orchestrator for Frozen‑Subspace SFT (file: `src/pipeline/orchestrate_sft_seeds.py`) – satisfies FR‑006, US‑2 N=30 **(completed)**
+- [ ] T026c Add integration test that orchestrator runs all seeds and produces expected CSVs (file: `tests/integration/test_orchestrate_sft_seeds.py`) **(completed)**
+- [ ] T027 Implement Frozen‑Subspace Random training script that re‑uses `frozen_subspace_sft.py` with the random mask (file: `src/train/frozen_subspace_random.py`) – FR‑005 **(completed)**
+- [~] T027a Verify reuse of SFT script for random mask (file: `tests/unit/test_random_reuse.py`) **(completed)**
+- [ ] T028 Extend `src/eval/evaluate.py` to compute accuracy for SFT runs and append to `results/frozen_sft_accuracy.csv` (file: same) – FR‑006 **(completed)**
+- [ ] T028a Add test for correct CSV appending behavior (file: `tests/unit/test_evaluate_sft_append.py`) **(completed)**
+- [~] T029 Extend `src/eval/stats.py` to compute mean accuracy drop, run paired t‑test, and detect loss plateau – FR‑010, FR‑006 **(completed)**
+- [ ] T029a Add unit test for loss‑plateau detection logic (file: `tests/unit/test_plateau_detection.py`) **(completed)**
+- [~] T029b Add test that statistical results (mean drop, p‑value) are recorded correctly (file: `tests/unit/test_stats_us2.py`) **(completed)**
+- [ ] T030 Add driver script `src/pipeline/run_us2.py` that orchestrates mask generation, SFT runs, random runs, evaluation, and statistical reporting, producing `results/us2_summary.csv` – end‑to‑end **(completed)**
+- [ ] T030a Add end‑to‑end test that `run_us2.py` yields expected summary schema (file: `tests/integration/test_run_us2.py`) **(completed)**
+- [~] T051 US2 Contract test that `results/us2_summary.csv` contains columns `mask_type`, `mean_accuracy_drop`, `t_stat`, `p_value` (file: `tests/contract/test_us2_schema.py`) **(completed)**
+- [~] T051a Extend contract test to verify column types **(completed)**
+- [ ] T051b Add predicate test implementing the refined SC‑002 condition (mean < 3 pp AND p > 0.05) OR (mean ≥ 3 pp AND p < 0.05) (file: `tests/contract/test_sc002_predicate.py`) **(completed)**
+- [ ] T024 US2 Integration test that a single seed run of `src/train/frozen_subspace_sft.py` completes without OOM and writes a row to `results/frozen_sft_accuracy.csv` (file: `tests/integration/test_frozen_subspace_sft.py`) **(completed)**
+- [~] T024a Add assertions for OOM absence and CSV entry correctness **(completed)**
 
 ## Phase 4: User Story 3 – Resource Feasibility & Reproducibility (Priority: P3)
 
-- [X] T033 Extend `src/utils/resource_monitor.py` to write a JSON summary (`ci_metrics.json`) at the end of the full pipeline (peak RAM, total wall‑clock) – FR‑007 **(completed)**
-- [X] T033a [P] Add contract test that `ci_metrics.json` respects `{ "peak_ram_gb": number, "wall_clock_min": number }` schema (file: `tests/contract/test_ci_metrics_schema.py`) **(completed)**
-- [X] T032 Create a top‑level pipeline script `src/pipeline/run_all.py` that sequentially calls `run_us1.py`, `run_us2.py`, and aggregates all result CSVs into `results/experiment_summary.csv` (file: `src/pipeline/run_all.py`) – FR‑007 **(completed)**
-- [X] T032b Implement Unified Summary Generator within `run_all.py` (or as a separate module) that merges US1, US2, and US3 CSVs into `results/experiment_summary.csv` with full schema compliance (file: `src/pipeline/generate_unified_summary.py`) – satisfies Constitution Principle IV **(completed)**
-- [X] T032a [P] Add end‑to‑end test for `run_all.py` aggregation correctness (file: `tests/integration/test_run_all.py`) **(completed)**
-- [X] T032b-schema [P] Add contract test that the unified `results/experiment_summary.csv` conforms to `contracts/experiment.schema.yaml` (file: `tests/contract/test_unified_summary_schema.py`) **(completed)**
-- [X] T034 Update the GitHub Actions workflow to invoke `python -m src.pipeline.run_all` and to upload `ci_metrics.json` as an artifact (file: `.github/workflows/ci.yml`) **(completed)**
-- [X] T034a [P] Add CI workflow schema validation test that verifies the workflow invokes `run_all` and uploads `ci_metrics.json` (file: `tests/contract/test_ci_workflow_schema.py`) **(completed)**
-- [X] T031 CI sanity test that the workflow `ci.yml` finishes without timeout and publishes an artifact `ci_metrics.json` containing `peak_ram_gb` and `wall_clock_min` (file: `tests/ci/test_ci_limits.py`) **(completed)**
-- [X] T031a Extend CI sanity test to parse `ci_metrics.json` and assert per‑run RAM ≤ 7 GB and wall‑clock ≤ 360 min. **(completed)**
+- [~] T033 Extend `src/utils/resource_monitor.py` to write a JSON summary (`ci_metrics.json`) at the end of the full pipeline (peak RAM, total wall‑clock) – FR‑007 **(completed)**
+- [ ] T033a [P] Add contract test that `ci_metrics.json` respects `{ "peak_ram_gb": number, "wall_clock_min": number }` schema (file: `tests/contract/test_ci_metrics_schema.py`) **(completed)**
+- [ ] T032 Create a top‑level pipeline script `src/pipeline/run_all.py` that sequentially calls `run_us1.py`, `run_us2.py`, and aggregates all result CSVs into `results/experiment_summary.csv` (file: `src/pipeline/run_all.py`) – FR‑007 **(completed)**
+- [ ] T032b Implement Unified Summary Generator within `run_all.py` (or as a separate module) that merges US1, US2, and US3 CSVs into `results/experiment_summary.csv` with full schema compliance (file: `src/pipeline/generate_unified_summary.py`) – satisfies Constitution Principle IV **(completed)**
+- [ ] T032a [P] Add end‑to‑end test for `run_all.py` aggregation correctness (file: `tests/integration/test_run_all.py`) **(completed)**
+- [~] T032b-schema [P] Add contract test that the unified `results/experiment_summary.csv` conforms to `contracts/experiment.schema.yaml` (file: `tests/contract/test_unified_summary_schema.py`) **(completed)**
+- [~] T034 Update the GitHub Actions workflow to invoke `python -m src.pipeline.run_all` and to upload `ci_metrics.json` as an artifact (file: `.github/workflows/ci.yml`) **(completed)**
+- [ ] T034a [P] Add CI workflow schema validation test that verifies the workflow invokes `run_all` and uploads `ci_metrics.json` (file: `tests/contract/test_ci_workflow_schema.py`) **(completed)**
+- [~] T031 CI sanity test that the workflow `ci.yml` finishes without timeout and publishes an artifact `ci_metrics.json` containing `peak_ram_gb` and `wall_clock_min` (file: `tests/ci/test_ci_limits.py`) **(completed)**
+- [~] T031a Extend CI sanity test to parse `ci_metrics.json` and assert per‑run RAM ≤ 7 GB and wall‑clock ≤ 360 min. **(completed)**
 
 ## Phase 5: Polish & Cross‑Cutting Concerns
 
-- [X] T036 Update documentation in `docs/` to describe how to reproduce each user story, including seed selection and mask files (file: `docs/REPRODUCTION.md`) **(completed)**
-- [X] T036a Verify REPRODUCTION.md matches actual scripts and seed usage (file: `tests/contract/test_reproduction_md.py`) **(completed)**
-- [X] T037‑ruff Apply `ruff` autofixes across the codebase (file: `src/` modules) **(completed)**
-- [X] T037‑type-hints Add type hints to all modules and run `mypy --strict` (files: all `src/` modules) **(completed)**
-- [X] T037‑mypy Add CI step that runs `mypy --strict` and fails on any error (file: CI config) **(completed)**
-- [X] T037a [P] Add CI step that runs `ruff` and fails on lint errors (file: CI config) **(completed)**
-- [X] T038 Add additional unit tests for utility functions (`random_seed` and `resource_monitor`) with explicit test files `tests/unit/test_random_seed.py` and `tests/unit/test_resource_monitor_edge.py` **(completed)**
-- [X] T038a Ensure edge‑case coverage for utilities (invalid seeds, missing files) (file: `tests/unit/test_resource_monitor_edge.py`) **(completed)**
-- [X] T039‑threshold [P] Enforce that the overall test pass rate is ≥ 95% AND allow 'inconclusive' results as valid passes (file: `tests/contract/test_pass_rate_threshold.py`) **(completed)**
-- [X] T040‑secret-scan Add secret‑scan test and verify `.gitignore` excludes cache directories (file: `tests/security/test_secret_scan.py`) **(completed)**
-- [X] T040‑gitignore Add `.gitignore` entries for caches, model checkpoints, and other large artifacts (file: `.gitignore`) **(completed)**
-- [X] T040‑poetry-lock Pin dependency hashes in `poetry.lock` and verify integrity (file: `poetry.lock`) **(completed)**
-- [X] T040a [P] Add contract test that verifies `.gitignore` correctly excludes specified directories (file: `tests/contract/test_gitignore.py`) **(completed)**
-- [X] T057 Implement logic to detect when the SVD spectrum requires >10 % of total parameters to reach the variance threshold; log a warning and flag for manual review (file: `src/data/svd_compute.py`) **(completed)**
-- [X] T057a Add unit test that simulates a high‑rank spectrum and verifies the warning is emitted (file: `tests/unit/test_svd_edge_case.py`) **(completed)**
-- [X] T057b [P] Add unit test to verify warning emission for high‑rank SVD (file: `tests/unit/test_svd_high_rank_warning.py`) **(completed)**
-- [X] T058 Implement loss‑divergence detection: if loss increases by >0.5 in a single epoch, abort training and record the failure (file: `src/utils/training_monitor.py`) **(completed)**
-- [X] T058a Add integration test that forces divergence and checks for proper abort behavior (file: `tests/integration/test_loss_divergence.py`) **(completed)**
-- [X] T058b [P] Add unit test confirming training abort on loss divergence (file: `tests/unit/test_training_monitor_abort.py`) **(completed)**
-- [X] T059 Implement loss‑landscape logging utility that writes JSON‑lines with per‑epoch loss, ΔL, and plateau detection (file: `src/utils/loss_logging.py`) – satisfies FR‑010 **(completed)**
-- [X] T059a Add unit test for loss‑logging output schema (file: `tests/unit/test_loss_logging_schema.py`) **(completed)**
-- [X] T059b Implement loss‑logging integration into OPD and SFT training scripts **(completed)**
-- [X] T059c Add unit tests for loss‑logging during training (file: `tests/unit/test_loss_logging_integration.py`) **(completed)**
-- [X] T060 Integrate power‑analysis results into `state.yaml` (ensuring FR‑011 reporting) (file: `src/pipeline/record_power.yaml`) – already covered by T021d **(completed)**
-- [X] T117-new [P] Update `src/evaluation/statistical_tests.py` to include a detailed power analysis report in `state.yaml` with fields: `achieved_power`, `effect_size`, `n_observed`, `n_required` (file: `src/evaluation/statistical_tests.py`) – satisfies FR‑011 **(completed)**
-- [X] T117a-new [P] Add contract test that verifies `state.yaml` contains the required power analysis fields for all statistical tests (file: `tests/contract/test_power_analysis_state_yaml.py`) **(completed)**
-- [X] T118-new [P] Implement a robustness check in `src/analysis/robustness_report.py` that compares TOST results across multiple variance thresholds and flags any inconsistencies (file: `src/analysis/robustness_report.py`) **(completed)**
-- [X] T118a-new [P] Add unit test that verifies the robustness check correctly identifies inconsistencies in TOST results (file: `tests/unit/test_robustness_check.py`) **(completed)**
-- [X] T061 [P] Implement CI step to validate all experiment result files (`results/*.csv` and any other artifacts) against `contracts/experiment.schema.yaml` and `contracts/experiment_results.schema.yaml`, failing the job on schema violations (file: `.github/workflows/ci.yml`) **(pending)**
+- [~] T036 Update documentation in `docs/` to describe how to reproduce each user story, including seed selection and mask files (file: `docs/REPRODUCTION.md`) **(completed)**
+- [~] T036a Verify REPRODUCTION.md matches actual scripts and seed usage (file: `tests/contract/test_reproduction_md.py`) **(completed)**
+- [~] T037‑ruff Apply `ruff` autofixes across the codebase (file: `src/` modules) **(completed)**
+- [~] T037‑type-hints Add type hints to all modules and run `mypy --strict` (files: all `src/` modules) **(completed)**
+- [~] T037‑mypy Add CI step that runs `mypy --strict` and fails on any error (file: CI config) **(completed)**
+- [~] T037a [P] Add CI step that runs `ruff` and fails on lint errors (file: CI config) **(completed)**
+- [~] T038 Add additional unit tests for utility functions (`random_seed` and `resource_monitor`) with explicit test files `tests/unit/test_random_seed.py` and `tests/unit/test_resource_monitor_edge.py` **(completed)**
+- [~] T038a Ensure edge‑case coverage for utilities (invalid seeds, missing files) (file: `tests/unit/test_resource_monitor_edge.py`) **(completed)**
+- [~] T039‑threshold [P] Enforce that the overall test pass rate is ≥ 95% AND allow 'inconclusive' results as valid passes (file: `tests/contract/test_pass_rate_threshold.py`) **(completed)**
+- [ ] T040‑secret-scan Add secret‑scan test and verify `.gitignore` excludes cache directories (file: `tests/security/test_secret_scan.py`) **(completed)**
+- [~] T040‑gitignore Add `.gitignore` entries for caches, model checkpoints, and other large artifacts (file: `.gitignore`) **(completed)**
+- [~] T040‑poetry-lock Pin dependency hashes in `poetry.lock` and verify integrity (file: `poetry.lock`) **(completed)**
+- [ ] T040a [P] Add contract test that verifies `.gitignore` correctly excludes specified directories (file: `tests/contract/test_gitignore.py`) **(completed)**
+- [ ] T057 Implement logic to detect when the SVD spectrum requires >10 % of total parameters to reach the variance threshold; log a warning and flag for manual review (file: `src/data/svd_compute.py`) **(completed)**
+- [ ] T057a Add unit test that simulates a high‑rank spectrum and verifies the warning is emitted (file: `tests/unit/test_svd_edge_case.py`) **(completed)**
+- [ ] T057b [P] Add unit test to verify warning emission for high‑rank SVD (file: `tests/unit/test_svd_high_rank_warning.py`) **(completed)**
+- [ ] T058 Implement loss‑divergence detection: if loss increases by >0.5 in a single epoch, abort training and record the failure (file: `src/utils/training_monitor.py`) **(completed)**
+- [ ] T058a Add integration test that forces divergence and checks for proper abort behavior (file: `tests/integration/test_loss_divergence.py`) **(completed)**
+- [ ] T058b [P] Add unit test confirming training abort on loss divergence (file: `tests/unit/test_training_monitor_abort.py`) **(completed)**
+- [ ] T059 Implement loss‑landscape logging utility that writes JSON‑lines with per‑epoch loss, ΔL, and plateau detection (file: `src/utils/loss_logging.py`) – satisfies FR‑010 **(completed)**
+- [ ] T059a Add unit test for loss‑logging output schema (file: `tests/unit/test_loss_logging_schema.py`) **(completed)**
+- [~] T059b Implement loss‑logging integration into OPD and SFT training scripts **(completed)**
+- [ ] T059c Add unit tests for loss‑logging during training (file: `tests/unit/test_loss_logging_integration.py`) **(completed)**
+- [~] T060 Integrate power‑analysis results into `state.yaml` (ensuring FR‑011 reporting) (file: `src/pipeline/record_power.yaml`) – already covered by T021d **(completed)**
+- [~] T117-new [P] Update `src/evaluation/statistical_tests.py` to include a detailed power analysis report in `state.yaml` with fields: `achieved_power`, `effect_size`, `n_observed`, `n_required` (file: `src/evaluation/statistical_tests.py`) – satisfies FR‑011 **(completed)**
+- [ ] T117a-new [P] Add contract test that verifies `state.yaml` contains the required power analysis fields for all statistical tests (file: `tests/contract/test_power_analysis_state_yaml.py`) **(completed)**
+- [ ] T118-new [P] Implement a robustness check in `src/analysis/robustness_report.py` that compares TOST results across multiple variance thresholds and flags any inconsistencies (file: `src/analysis/robustness_report.py`) **(completed)**
+- [ ] T118a-new [P] Add unit test that verifies the robustness check correctly identifies inconsistencies in TOST results (file: `tests/unit/test_robustness_check.py`) **(completed)**
+- [~] T061 [P] Implement CI step to validate all experiment result files (`results/*.csv` and any other artifacts) against `contracts/experiment.schema.yaml` and `contracts/experiment_results.schema.yaml`, failing the job on schema violations (file: `.github/workflows/ci.yml`) **(pending)**
 
 ## Phase 6: Final Validation
 
