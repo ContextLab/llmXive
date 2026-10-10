@@ -1,10 +1,54 @@
+T001a:
+  c: true
+  h: cbddef6952ffa484d2c7c50e270cc3f46446c076be80fbceefae970e8a145128
+  r: The collector confirms that the project root contains the required `code/`, `data/`,
+    `tests/`, and `specs/` directories, each present with multiple entries. No missing
+    or empty directory artifacts were found.
+  sig: 92ee2c2404ba34aff9cb55d688a935e790b23245922c5f0b08ff3838a8a14ada
 T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of `__init__.py` files in `code/data/`, `code/analysis/`, `code/viz/`,\
-    \ or `code/utils/` is presented; the required package initializer files are missing\
-    \ or not shown. The task cannot be considered fulfilled until those files exist\
-    \ and are non\u2011empty."
+  h: 85bb53628a79127a8ec5a8102070be66ada9163f3d6fe85394fff8fae00a0d18
+  r: "The evidence shows `code/data/__init__.py` exists, but there is no listed `__init__.py`\
+    \ in the other required sub\u2011packages (`code/analysis/`, `code/utils/`, `code/viz/`).\
+    \ Without those files the task of creating `__init__.py` in all `code/` sub\u2011\
+    packages is not satisfied."
+  sig: 06dee95c8573d60c4bdbbdebc155bcc184ee6df1d8bb9db3fb7957d2ab6894d2
+T002:
+  c: false
+  h: 92f89fa94299c4531431da3e0c0a4ebbfb24e57bac8a2eb0b9d3bcf53f241072
+  r: "The only artifact found is `code/requirements.txt`, which does contain all the\
+    \ required packages with the correct \u201C>=\u201D specifiers, but there is no\
+    \ evidence that the project is initialized for Python\u202F3.12.0 (e.g., a `pyproject.toml`,\
+    \ `setup.cfg`, or similar file specifying `requires-python = \"3.12\"`). Without\
+    \ such a version declaration, the task\u2019s requirement to initialize a Python\u202F\
+    3.12.0 project is not satisfied."
+  sig: 522df4690a2a4ffcd06537e09569de5e7874fec9766f63d92d45f5a1de0b6840
+T003:
+  c: false
+  h: 2aec444e15bd0e3a0f58eea44af6387bab69aecae07dfee1c45c68b3e5d70283
+  r: The evidence only shows that configuration files (`.flake8`, `.ruff.toml`, `ruff.toml`,
+    `pyproject.toml`) and helper scripts exist, but their contents are not provided;
+    there is no proof they contain valid Ruff, Flake8, or Black settings. Without
+    the actual configuration details (e.g., `[tool.black]` section, Flake8 rule list,
+    Ruff rules) we cannot confirm that linting and formatting are truly configured
+    in `code/`. The implementer must supply the contents of these files (or execution
+    logs showing the tools run successfully) to satisfy the task.
+  sig: d855b8fc9d5a447b833c639d1ca1b6d22f51a1c39a84b16bc0a485a1fe6aca8e
+T004:
+  c: true
+  h: d7be647243234a850ca0c04d1cba863d6d0a3b76a6f6d7205e469189ad998689
+  r: "The evidence shows the required `data/raw/`, `data/processed/`, and `state/`\
+    \ directories are present (each containing a `.gitkeep` placeholder), satisfying\
+    \ the task\u2019s directory\u2011structure requirement."
+  sig: 1231c507842d48589a0d4bbad7b8360212d607df086592472eb4c9a86a65bbca
+T005:
+  c: true
+  h: 8c96f83dc8256e8139fb90d88015b15ca2aaa748c37dc83f4c32570ec818dfb0
+  r: "Checked `code/utils/logging.py` (6736\u202Fbytes) \u2013 it defines a tolerant\
+    \ logger and implements `write_provenance_log` that creates a JSON file mapping\
+    \ each derived CSA variable to its source LSMS question/response IDs, fulfilling\
+    \ the provenance\u2011logging requirement."
+  sig: 040552eecaa6745e2f40732e29859816a5237dc28459cdfabd456921e2a954cf
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

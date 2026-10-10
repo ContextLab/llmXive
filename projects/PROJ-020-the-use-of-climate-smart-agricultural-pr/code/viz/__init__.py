@@ -1,20 +1,4 @@
-"""Visualization module package."""
-from .plots import (
-    load_processed_data,
-    load_model_results,
-    create_scatter_plot,
-    generate_scatter_plot_report,
-    create_coefficient_plot,
-    create_distribution_plot,
-    main
-)
-from .refactor_plots import (
-    setup_figure,
-    save_figure,
-    add_timestamp_to_path,
-    create_color_map,
-    format_axis_labels,
-    add_grid_to_axes,
-    create_subplots_grid,
-    log_plot_metadata
-)
+"""Visualization sub-package (scatter, coefficient, map, and distribution plots)."""
+from .plots import main as plots_main
+
+__all__ = ["plots_main"]

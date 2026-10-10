@@ -1,17 +1,19 @@
 status: none
-intent: download LSMS World Bank, FAOSTAT, NASA POWER data with python package dataset
+intent: download World Bank LSMS microdata, FAOSTAT, NASA POWER climate data python
+  package dataset
 required_fields:
 - household_id
 - country
-- region
 - survey_year
+- region
 - latitude
 - longitude
-- agricultural_indicator_name
-- agricultural_indicator_value
-- temperature
-- precipitation
-- demographic_variables
-cache_key: 322c93b610f61e1aea8e59761c002d1fcce3d254ac6a094a39c77b851f913041
-searched_at: '2026-07-23T22:22:08.701247+00:00'
+- crop_type
+- fertilizer_use
+- food_security_indicator
+- household_head_age
+- household_head_gender
+- household_size
+cache_key: 8e2b9d0bcea5b0eac2fd8bf8134a7c8eb33bd457c27c4dd55e4c11492e82f3d8
+searched_at: '2026-10-10T19:26:02.069193+00:00'
 retry_count: 1
