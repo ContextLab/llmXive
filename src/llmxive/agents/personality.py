@@ -1217,188 +1217,294 @@ def _write_run_log_entry(repo_root: Path, entry: dict[str, Any]) -> None:
         fh.write(json.dumps(entry, sort_keys=True) + "\n")
 
 
+def _grounded_call(target, persona, repo_root: Path,
+                   *, persona_framing: str) -> tuple[str, str]:
+    """ONE model call for the turn. Returns ``(reply_text, actual_model)``.
+
+    Replaces the catalog-driven call. The old one sent 30 projects with two
+    140-character artifact previews each and asked for a critique; the audit
+    found critiques inventing issues the artifacts did not have, which is what
+    140 characters of an artifact gets you. This sends ONE artifact, read under
+    an explicit budget, with its ordinary reviews.
+
+    There is no second call: the rubric-retry round is gone. An unusable reply
+    is an abstention, which is a perfectly good outcome for an advisory lane.
+
+    The model actually used is returned, not assumed. ``MODEL_NAME`` is a
+    module constant that the run log recorded for every tick regardless of what
+    answered, which the audit flagged as hardcoded provenance.
+    """
+    from llmxive.agents import registry as registry_loader
+    from llmxive.agents.personality_turn import render_prompt
+    from llmxive.backends.base import ChatMessage
+    from llmxive.backends.router import chat_with_fallback
+
+    entry = registry_loader.get(AGENT_NAME)
+    prompt = render_prompt(target, persona_framing=persona_framing)
+    response = chat_with_fallback(
+        [ChatMessage(role="user", content=prompt)],
+        default_backend=entry.default_backend.value,
+        fallback_backends=[b.value for b in (entry.fallback_backends or [])],
+        model=entry.default_model,
+        max_tokens=8192,
+        temperature=0.7,
+    )
+    return response.text, (getattr(response, "model", "") or entry.default_model)
+
+
+def _already_commented(repo_root: Path, slug: str, digest: str) -> bool:
+    """Whether ``slug`` has already taken a turn on this exact context.
+
+    Reads the run log, which already records every tick, rather than adding a
+    state file. A persona re-reading an unchanged artifact produces the remark
+    it already made; a genuine change to the artifact or a NEW ordinary review
+    changes the digest and makes the context fresh again.
+    """
+    log_root = repo_root / "state" / "run-log"
+    if not log_root.is_dir():
+        return False
+    for month_dir in sorted(log_root.iterdir(), reverse=True)[:2]:
+        if not month_dir.is_dir():
+            continue
+        for path in month_dir.glob("*.jsonl"):
+            try:
+                text = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            if digest not in text:
+                continue  # cheap pre-filter before parsing the file
+            for line in text.splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    row = json.loads(line)
+                except ValueError:
+                    continue
+                if (row.get("agent_name") == AGENT_NAME
+                        and row.get("personality_slug") == slug
+                        and row.get("context_digest") == digest):
+                    return True
+    return False
+
+
 def tick(repo_root: Path, *, force_slug: str | None = None,
          timeout_s: float = DEFAULT_TIMEOUT_S,
          llm_fixture: str | None = None) -> dict[str, Any]:
-    """One end-to-end tick of the personality rotation.
+    """One end-to-end personality turn: a real artifact, then comment or abstain.
+
+    The redesign the 2026-10-09 incremental-value audit led to. A turn now:
+
+    1. selects ONE substantive artifact of ONE active AUTHORED project BEFORE
+       generating anything, and abstains with no model call when there is none
+       (a URL-only stub or a thin file is not something to critique);
+    2. abstains with no model call when this persona already took a turn on
+       this exact context (its own past output never counts as a change);
+    3. makes exactly ONE call, with the artifact read under a byte budget,
+       truncation flagged, and the artifact's ordinary reviews shown so the
+       turn does not restate them;
+    4. may only COMMENT or ABSTAIN. The old ``contribute`` and
+       ``propose_arxiv`` routes wrote records nothing consumed, and are now a
+       malformed reply rather than a silent no-op;
+    5. records the model that ACTUALLY answered, the context digest, and any
+       quote that could not be located in the artifact.
+
+    Comments remain ADVISORY: they go through the same stage-aware triage and
+    the canonical review writer as before, never become a scientific gate, and
+    never displace a human's feedback or an ordinary review.
 
     Args:
         repo_root: the llmXive repository root.
-        force_slug: testing-only — bypass the rotation pointer and force
-            a specific persona to take this turn. The rotation pointer
-            is NOT updated when this is set (so the next real tick
-            resumes where it left off). See quickstart § 3.
-        timeout_s: per-tick wall-clock budget (FR-017). Currently
-            advisory — the LLM router enforces its own per-call
-            timeout; this value is recorded in the run-log entry for
-            audit but doesn't actively kill the process.
-        llm_fixture: testing-only — when set, the LLM call is replaced
-            by reading this JSON file (one of the fixtures under
-            tests/fixtures/personality/). Set via the
-            `LLMXIVE_PERSONALITY_FIXTURE` env var; see quickstart § 2.
+        force_slug: testing-only — bypass the rotation pointer and force a
+            specific persona. The pointer is NOT updated when it is set.
+        timeout_s: per-tick wall-clock budget (FR-017), recorded for audit;
+            the router enforces its own per-call timeout.
+        llm_fixture: testing-only — read the reply from this JSON file instead
+            of calling a model. Set via ``LLMXIVE_PERSONALITY_FIXTURE``.
 
     Returns:
         The run-log entry dict (also written to disk).
     """
+    from llmxive.agents.personality_turn import (
+        ACTION_ABSTAIN,
+        TurnParseError,
+        context_digest,
+        parse_turn,
+        select_target,
+    )
+
     repo_root = Path(repo_root)
     started = _dt.datetime.now(_dt.UTC)
 
-    # ── 1. Load pool ──
-    pool_result = load_pool(repo_root / POOL_PATH)
-    if not pool_result.personalities:
-        entry = _build_log_entry(
-            started, _dt.datetime.now(_dt.UTC),
-            slug=None, display_name=None, action=None,
-            outcome=OUTCOME_ABSTAINED,
-            project_id=None, committed_paths=[],
-            note=f"no valid personalities in pool (errors={pool_result.error_count})",
-        )
+    def _finish(**kwargs: Any) -> dict[str, Any]:
+        """Write the run-log entry, move the pointer per FR-017, return it."""
+        ended = _dt.datetime.now(_dt.UTC)
+        extra = kwargs.pop("extra", None) or {}
+        entry = _build_log_entry(started, ended, **kwargs)
+        entry.update(extra)
         _write_run_log_entry(repo_root, entry)
         return entry
 
-    # ── 2. Select persona ──
+    # 1. Pool + persona (unchanged rotation semantics).
+    pool_result = load_pool(repo_root / POOL_PATH)
+    if not pool_result.personalities:
+        return _finish(
+            slug=None, display_name=None, action=None, outcome=OUTCOME_ABSTAINED,
+            project_id=None, committed_paths=[],
+            note=f"no valid personalities in pool (errors={pool_result.error_count})",
+        )
+
     state = load_rotation_state(repo_root / ROTATION_PATH)
     if force_slug:
         match = [p for p in pool_result.personalities if p.slug == force_slug]
         persona = match[0] if match else None
         if persona is None:
-            entry = _build_log_entry(
-                started, _dt.datetime.now(_dt.UTC),
+            return _finish(
                 slug=force_slug, display_name=None, action=None,
-                outcome=OUTCOME_ABSTAINED,
-                project_id=None, committed_paths=[],
+                outcome=OUTCOME_ABSTAINED, project_id=None, committed_paths=[],
                 note=f"force_slug={force_slug!r} not in pool",
             )
-            _write_run_log_entry(repo_root, entry)
-            return entry
     else:
         persona = select_next(pool_result.personalities, state.last_used)
         if persona is None:
-            entry = _build_log_entry(
-                started, _dt.datetime.now(_dt.UTC),
-                slug=None, display_name=None, action=None,
-                outcome=OUTCOME_ABSTAINED,
-                project_id=None, committed_paths=[],
-                note="pool empty after load (race?)",
+            return _finish(
+                slug=None, display_name=None, action=None, outcome=OUTCOME_ABSTAINED,
+                project_id=None, committed_paths=[], note="pool empty after load (race?)",
             )
-            _write_run_log_entry(repo_root, entry)
-            return entry
-
     display = display_name_for_render(persona)
 
-    # ── 3. Build catalog ──
-    catalog = build_catalog(repo_root)
+    # 2. Target BEFORE generation. No target, no call.
+    target = select_target(repo_root)
+    if target is None:
+        ended = _dt.datetime.now(_dt.UTC)
+        entry = _build_log_entry(
+            started, ended, slug=persona.slug, display_name=display, action=None,
+            outcome=OUTCOME_ABSTAINED, project_id=None, committed_paths=[],
+            note="no active authored project has a substantive artifact to read",
+        )
+        _write_run_log_entry(repo_root, entry)
+        if not force_slug:
+            _maybe_advance_pointer(repo_root, state, persona, OUTCOME_ABSTAINED,
+                                    ended, None, [])
+        return entry
 
-    # ── 4. Call LLM (or fixture) ──
-    raw_response: str
-    outcome: str
-    action_obj: Action | None = None
-    dispatch_result: DispatchResult | None = None
-    note: str | None = None
+    digest = context_digest(target)
 
+    # 3. Unchanged context: abstain without a call.
+    if _already_commented(repo_root, persona.slug, digest):
+        ended = _dt.datetime.now(_dt.UTC)
+        entry = _build_log_entry(
+            started, ended, slug=persona.slug, display_name=display, action=None,
+            outcome=OUTCOME_ABSTAINED, project_id=target.project_id,
+            committed_paths=[],
+            note=f"already commented on this unchanged context ({target.artifact_rel})",
+        )
+        entry["context_digest"] = digest
+        _write_run_log_entry(repo_root, entry)
+        if not force_slug:
+            _maybe_advance_pointer(repo_root, state, persona, OUTCOME_ABSTAINED,
+                                    ended, None, [])
+        return entry
+
+    # 4. Exactly one call.
+    actual_model = ""
     try:
         fixture_path = llm_fixture or os.environ.get("LLMXIVE_PERSONALITY_FIXTURE")
         if fixture_path:
             raw_response = Path(fixture_path).read_text(encoding="utf-8")
+            actual_model = "fixture"
         else:
-            raw_response = _call_llm_for_persona(persona, catalog, repo_root)
-    except Exception as exc:
-        # Distinguish rate-limit / transient backend errors from any other
-        # failure — rate-limit explicitly records OUTCOME_RATE_LIMITED so
-        # post-hoc audits can see the difference. Either way the pointer
-        # HOLDS (FR-017).
-        outcome = _classify_llm_exception(exc)
-        note = f"LLM call failed ({outcome}): {exc}"
-        ended = _dt.datetime.now(_dt.UTC)
-        entry = _build_log_entry(
-            started, ended, slug=persona.slug, display_name=display,
-            action=None, outcome=outcome,
-            project_id=None, committed_paths=[], note=note,
-        )
-        _write_run_log_entry(repo_root, entry)
-        # Pointer HOLDS on rate_limited / model_error (FR-017).
-        _maybe_advance_pointer(repo_root, state, persona, outcome, ended, None, [])
-        return entry
-
-    # ── 5. Parse action ──
-    try:
-        action_obj = parse_action(raw_response)
-    except ParseError as exc:
-        outcome = OUTCOME_MALFORMED
-        note = exc.reason
-        ended = _dt.datetime.now(_dt.UTC)
-        entry = _build_log_entry(
-            started, ended, slug=persona.slug, display_name=display,
-            action=None, outcome=outcome,
-            project_id=None, committed_paths=[], note=note,
-        )
-        _write_run_log_entry(repo_root, entry)
-        _maybe_advance_pointer(repo_root, state, persona, outcome, ended, None, [])
-        return entry
-
-    # ── 5b. Early target-existence check (FR-017 + cost guard) ──
-    # If the comment/contribute target artifact doesn't exist, skip the
-    # rubric (which would otherwise eat an LLM call rating content that
-    # will be discarded anyway) AND skip dispatch so the pointer holds
-    # with the correct `target_missing` outcome rather than a coerced
-    # `abstained` (which would advance the rotation pointer per
-    # ADVANCING_OUTCOMES). Without this guard, the rubric reclassifies
-    # bad-target ticks as abstain and rotation advances on a missed
-    # target — wrong on both counts.
-    if action_obj.action in (ACTION_COMMENT, ACTION_CONTRIBUTE):
-        artifact_rel = action_obj.target_artifact_path or ""
-        if artifact_rel and not (repo_root / artifact_rel).exists():
-            outcome = OUTCOME_TARGET_MISSING
-            ended = _dt.datetime.now(_dt.UTC)
-            entry = _build_log_entry(
-                started, ended, slug=persona.slug, display_name=display,
-                action=action_obj.action, outcome=outcome,
-                project_id=action_obj.target_project_id,
-                committed_paths=[],
-                note=f"target artifact not found: {artifact_rel}",
+            raw_response, actual_model = _grounded_call(
+                target, persona, repo_root, persona_framing=persona.prompt_body,
             )
-            _write_run_log_entry(repo_root, entry)
-            if not force_slug:
-                _maybe_advance_pointer(repo_root, state, persona, outcome, ended,
-                                        action_obj.action, [])
-            return entry
-
-    # ── 5c. Rubric gate (spec 009 FR-004, Clarification Q3) ──
-    # If the action is a comment/contribute and the rubric flags it as below
-    # threshold, retry ONCE with a hint. On the second failure: persist the
-    # rejected body to .audit/rejected-contributions.jsonl, convert to abstain,
-    # and advance the rotation.
-    if action_obj.action in (ACTION_COMMENT, ACTION_CONTRIBUTE):
-        action_obj, rubric_note = _rubric_gate_or_convert_to_abstain(
-            action_obj, raw_response, persona, catalog, repo_root,
+    except Exception as exc:
+        outcome = _classify_llm_exception(exc)
+        ended = _dt.datetime.now(_dt.UTC)
+        entry = _build_log_entry(
+            started, ended, slug=persona.slug, display_name=display, action=None,
+            outcome=outcome, project_id=target.project_id, committed_paths=[],
+            note=f"LLM call failed ({outcome}): {exc}",
         )
-        if rubric_note:
-            note = rubric_note
+        entry["context_digest"] = digest
+        _write_run_log_entry(repo_root, entry)
+        _maybe_advance_pointer(repo_root, state, persona, outcome, ended, None, [])
+        return entry
 
-    # ── 6. Dispatch ──
+    # 5. Comment or abstain — nothing else.
+    try:
+        turn = parse_turn(raw_response, target, model=actual_model)
+    except TurnParseError as exc:
+        ended = _dt.datetime.now(_dt.UTC)
+        entry = _build_log_entry(
+            started, ended, slug=persona.slug, display_name=display, action=None,
+            outcome=OUTCOME_MALFORMED, project_id=target.project_id,
+            committed_paths=[], note=str(exc),
+        )
+        entry["context_digest"] = digest
+        if actual_model:
+            entry["model_name"] = actual_model
+        _write_run_log_entry(repo_root, entry)
+        _maybe_advance_pointer(repo_root, state, persona, OUTCOME_MALFORMED, ended,
+                                None, [])
+        return entry
+
+    provenance = {
+        "context_digest": digest,
+        "artifact_path": target.artifact_rel,
+        "artifact_kind": target.kind,
+        "artifact_truncated": target.artifact_truncated,
+        "ordinary_reviews_shown": [name for name, _ in target.reviews],
+        "quote_anchoring": "quotes located in the artifact; NOT factual validation",
+        "unanchored_quotes": list(turn.unanchored),
+        "novelty": "unassessed",
+        "factuality": "unassessed",
+        "applied": "unassessed",
+    }
+
+    if turn.action == ACTION_ABSTAIN:
+        ended = _dt.datetime.now(_dt.UTC)
+        entry = _build_log_entry(
+            started, ended, slug=persona.slug, display_name=display,
+            action=ACTION_ABSTAIN, outcome=OUTCOME_ABSTAINED,
+            project_id=target.project_id, committed_paths=[],
+            note=turn.reason or "nothing to add",
+        )
+        entry["model_name"] = actual_model or entry.get("model_name")
+        entry.update(provenance)
+        _write_run_log_entry(repo_root, entry)
+        if not force_slug:
+            _maybe_advance_pointer(repo_root, state, persona, OUTCOME_ABSTAINED,
+                                    ended, ACTION_ABSTAIN, [])
+        return entry
+
+    # 6. Dispatch the comment through the EXISTING canonical writer, so the
+    # stage-aware triage, the "(simulated)" attribution and the
+    # living-document route for a POSTED project all behave as before.
+    action_obj = Action(
+        action=ACTION_COMMENT,
+        target_project_id=target.project_id,
+        target_artifact_path=target.artifact_rel,
+        target_artifact_kind=target.kind,
+        content=turn.comment,
+        reason=(turn.reason or "grounded comment on a read artifact"),
+    )
     dispatch_result = dispatch(action_obj, persona, repo_root)
     outcome = dispatch_result.outcome
     ended = _dt.datetime.now(_dt.UTC)
     entry = _build_log_entry(
         started, ended, slug=persona.slug, display_name=display,
-        action=action_obj.action, outcome=outcome,
-        project_id=action_obj.target_project_id,
+        action=ACTION_COMMENT, outcome=outcome, project_id=target.project_id,
         committed_paths=dispatch_result.committed_paths,
         note=dispatch_result.error,
     )
+    entry["model_name"] = actual_model or entry.get("model_name")
+    entry.update(provenance)
     _write_run_log_entry(repo_root, entry)
 
-    # ── 6b. Spec 009: append to the project's activity feed + record dispatch ──
-    # Personality ticks bypass the central runner (since they have their own
-    # rotation + dispatch flow), so we mirror runner.py's feed integration
-    # here. This is intentional duplication of the *integration point*, not
-    # of the FeedStore logic itself (Constitution I: FeedStore is still the
-    # single canonical reader/writer).
-    if outcome == OUTCOME_COMMITTED and action_obj.target_project_id:
+    if outcome == OUTCOME_COMMITTED and target.project_id:
         try:
             from llmxive.feed import FeedStore
             store = FeedStore(repo_root)
-            feed_item = store.append(action_obj.target_project_id, {
+            feed_item = store.append(target.project_id, {
                 "kind": "personality_tick",
                 "author": {
                     "type": "agent",
@@ -1406,33 +1512,28 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
                     "persona": persona.slug,
                     "display_name": display,
                 },
-                "summary": (action_obj.reason or "")[:280] or "personality contribution",
-                "body": action_obj.content or "",
+                "summary": (turn.reason or "")[:280] or "personality comment",
+                "body": turn.comment,
                 "target": {
-                    "artifact_path": action_obj.target_artifact_path or "",
-                    "artifact_kind": action_obj.target_artifact_kind or "",
-                } if action_obj.target_project_id else None,
+                    "artifact_path": target.artifact_rel,
+                    "artifact_kind": target.kind,
+                },
             })
-            # FR-034 input: record dispatch metadata
-            store.record_dispatch(action_obj.target_project_id, {
+            store.record_dispatch(target.project_id, {
                 "dispatch_id": feed_item["id"],
                 "agent": f"personality:{persona.slug}",
                 "feed_delivered": True,
-                "manifest": {"items": []},  # personality tick reads catalog, not feed (yet)
+                "manifest": {"items": [target.artifact_rel]},
                 "outcome": outcome,
                 "committed_paths": dispatch_result.committed_paths,
             })
         except Exception as exc:  # pragma: no cover — defensive
             log.warning("could not record personality tick to activity feed: %s", exc)
-    # Advance the rotation pointer ONLY on committed/abstained; HOLD on
-    # everything else (FR-017). Also honor force_slug — testing flag
-    # never updates the pointer.
+
     if not force_slug:
         _maybe_advance_pointer(repo_root, state, persona, outcome, ended,
-                                action_obj.action, dispatch_result.committed_paths)
+                                ACTION_COMMENT, dispatch_result.committed_paths)
     return entry
-
-
 def _build_log_entry(
     started: _dt.datetime, ended: _dt.datetime, *,
     slug: str | None, display_name: str | None,

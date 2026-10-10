@@ -17,64 +17,18 @@ Covers:
 from __future__ import annotations
 
 import json
-import shutil
 from pathlib import Path
 
 import yaml
 
 from llmxive.agents import personality as p
+from llmxive.agents import personality_turn as pt
+from tests.personality_fixture import make_repo
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "personality"
 
 
-def _make_repo(tmp_path: Path) -> Path:
-    """Build a minimal repo skeleton: agents/prompts/personalities/,
-    state/projects/, a fixture project with an idea + spec, and the
-    umbrella prompt.
-    """
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    # Personalities pool — just kahneman.
-    (repo / "agents" / "prompts" / "personalities").mkdir(parents=True)
-    shutil.copy(FIXTURES / "kahneman.md", repo / "agents" / "prompts" / "personalities" / "kahneman.md")
-    # Umbrella prompt — minimal stub; the LLM is fixtured.
-    (repo / "agents" / "prompts" / "personality.md").write_text(
-        "# Personality umbrella\nReturn JSON.", encoding="utf-8")
-    # Fixture project — same id as the canned action_comment fixture.
-    pid = "PROJ-001-mechanistic-interpretability-of-ctcf-bin"
-    spec_dir = repo / "projects" / pid / "specs" / "001-mechanistic-interpretability-of-ctcf-bin"
-    spec_dir.mkdir(parents=True)
-    spec_path = spec_dir / "spec.md"
-    spec_path.write_text(
-        "# Spec — CTCF interpretability\n\nA placeholder.", encoding="utf-8")
-    tasks_path = spec_dir / "tasks.md"
-    tasks_path.write_text("# Tasks\n\n- [ ] T1\n", encoding="utf-8")
-    # Project state YAML — required for build_catalog's project_store.list_all.
-    state_dir = repo / "state" / "projects"
-    state_dir.mkdir(parents=True)
-    state_dir.joinpath(f"{pid}.yaml").write_text(
-        yaml.safe_dump({
-            "artifact_hashes": {},
-            "assigned_agent": None,
-            "created_at": "2026-05-01T00:00:00+00:00",
-            "current_stage": "in_progress",
-            "failed_stage": None,
-            "field": "biology",
-            "human_escalation_reason": None,
-            "id": pid,
-            "last_run_id": None,
-            "last_run_status": None,
-            "points_paper": {},
-            "points_research": {},
-            "revision_round": 0,
-            "speckit_paper_dir": None,
-            "speckit_research_dir": "specs/001-mechanistic-interpretability-of-ctcf-bin",
-            "title": "CTCF Interpretability",
-            "updated_at": "2026-05-13T00:00:00+00:00",
-        }),
-        encoding="utf-8",
-    )
-    return repo
+_make_repo = make_repo
 
 
 # -- T014: build_catalog ---------------------------------------------------
@@ -138,9 +92,20 @@ class TestDispatchComment:
         repo = _make_repo(tmp_path)
         pool = p.load_pool(repo / p.POOL_PATH)
         persona = pool.personalities[0]
-        # Comment fixture targets the spec.md we created in _make_repo.
-        raw = (FIXTURES / "action_comment.json").read_text(encoding="utf-8")
-        action = p.parse_action(raw)
+        # This exercises the canonical review WRITER, not the reply parser. A
+        # turn no longer declares its own target -- it is given one -- so the
+        # Action is built the way tick() now builds it.
+        reply = json.loads((FIXTURES / "action_comment.json").read_text(encoding="utf-8"))
+        target = pt.select_target(repo)
+        assert target is not None, "the fixture project must be substantive"
+        action = p.Action(
+            action=p.ACTION_COMMENT,
+            target_project_id=target.project_id,
+            target_artifact_path=target.artifact_rel,
+            target_artifact_kind=target.kind,
+            content=reply["comment"],
+            reason="grounded comment on a read artifact",
+        )
         result = p.dispatch(action, persona, repo)
         assert result.outcome == p.OUTCOME_COMMITTED
         assert len(result.committed_paths) == 1
@@ -261,42 +226,55 @@ class TestTickPointerRule:
         assert state.last_used == "some-prior-slug"
         assert state.last_outcome == p.OUTCOME_MALFORMED
 
-    def test_target_missing_holds_pointer(self, tmp_path: Path) -> None:
+    def test_no_substantive_artifact_abstains_without_a_model_call(self, tmp_path: Path) -> None:
+        """A turn is GIVEN a target, so it can no longer name a missing one.
+
+        The old lane let the model declare `target.artifact_path`, and a bad
+        one produced OUTCOME_TARGET_MISSING with the pointer HELD. A turn now
+        selects the artifact itself, so the equivalent case is "no active
+        authored project has anything substantive to read" -- decided before
+        any model call. The pointer ADVANCES: nothing is this persona's fault
+        and there is nothing for it to do differently, so holding would stall
+        the whole rotation while no project has a substantive artifact.
+        """
         repo = _make_repo(tmp_path)
-        # Synthesize an action with a target that doesn't exist on disk.
-        bad_target = tmp_path / "bad-target.json"
-        bad_target.write_text(json.dumps({
-            "action": "comment",
-            "reason": "...",
-            "target": {
-                "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-                "artifact_kind": "spec",
-                "artifact_path": "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/missing/spec.md",
-            },
-            "content": "should not be written",
-        }), encoding="utf-8")
-        # Set a prior pointer to detect the hold.
+        # Reduce the only project's spec to a stub: nothing substantive remains.
+        spec = next((repo / "projects").glob("*/specs/*/spec.md"))
+        spec.write_text("# Spec\n\nTODO.\n", encoding="utf-8")
+        next((repo / "projects").glob("*/specs/*/tasks.md")).write_text(
+            "# Tasks\n\n- [ ] T1\n", encoding="utf-8")
         p.write_rotation_state(
-            p.RotationState(
-                last_used="prior-slug",
-                last_used_at="2026-05-13T00:00:00+00:00",
-                last_outcome=p.OUTCOME_COMMITTED,
-                history=[],
-            ),
+            p.RotationState(last_used="some-prior-slug",
+                            last_used_at="2026-05-13T00:00:00+00:00",
+                            last_outcome=p.OUTCOME_COMMITTED, history=[]),
             repo / p.ROTATION_PATH,
         )
-        entry = p.tick(repo, llm_fixture=str(bad_target))
-        assert entry["outcome"] == p.OUTCOME_TARGET_MISSING
+
+        def _forbidden(*_a, **_k):
+            raise AssertionError("no model call may be made without a target")
+
+        import llmxive.agents.personality as module
+        original = module._grounded_call
+        module._grounded_call = _forbidden
+        try:
+            entry = p.tick(repo)
+        finally:
+            module._grounded_call = original
+        assert entry["outcome"] == p.OUTCOME_ABSTAINED
+        assert "substantive" in entry["note"]
         state = p.load_rotation_state(repo / p.ROTATION_PATH)
-        # HELD.
-        assert state.last_used == "prior-slug"
+        assert state.last_used == "kahneman", "the rotation advances past a dead turn"
 
     def test_run_log_entry_has_all_required_fields(self, tmp_path: Path) -> None:
         repo = _make_repo(tmp_path)
         entry = p.tick(repo, llm_fixture=str(FIXTURES / "action_comment.json"))
         # Required attribution markers (data-model.md E6 + FR-010).
         assert entry["agent_name"] == "personality"
-        assert entry["model_name"] == "openai.gpt-oss-120b"
+        # The audit's provenance finding: MODEL_NAME is a module constant that
+        # the run log recorded for EVERY tick regardless of what answered. The
+        # entry now carries the model that actually produced the reply -- here
+        # the fixture that stood in for one.
+        assert entry["model_name"] == "fixture"
         assert entry["model_kind"] == "personality_simulator"
         assert entry["personality_slug"] == "kahneman"
         assert entry["display_name"] == "Daniel Kahneman (simulated)"

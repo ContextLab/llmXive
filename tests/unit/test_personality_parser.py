@@ -19,7 +19,14 @@ FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "personality"
 
 class TestParseActionFixtures:
     def test_comment_fixture(self) -> None:
-        raw = (FIXTURES / "action_comment.json").read_text(encoding="utf-8")
+        """`parse_action` is the ARCHIVAL parser.
+
+        It is kept to read the 535 historical records, which are all in the
+        pre-redesign reply shape, so it is tested against that shape. A live
+        turn is parsed by `personality_turn.parse_turn` instead — see
+        tests/unit/test_personality_turn.py.
+        """
+        raw = (FIXTURES / "legacy_action_comment.json").read_text(encoding="utf-8")
         a = p.parse_action(raw)
         assert a.action == "comment"
         assert a.target_project_id == "PROJ-001-mechanistic-interpretability-of-ctcf-bin"
