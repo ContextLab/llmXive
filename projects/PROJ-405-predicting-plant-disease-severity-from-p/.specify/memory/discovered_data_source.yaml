@@ -1,19 +1,19 @@
 status: none
-intent: PlantVillage image dataset and NOAA Integrated Surface Database NASA POWER
-  ERA5 Meteostat historical weather python package dataset
+intent: download PlantVillage image dataset and NOAA GHCN historical weather python
+  package dataset
 required_fields:
 - image_id
-- plant_species
-- disease_label
+- species
+- disease
 - capture_date
-- capture_latitude
-- capture_longitude
+- latitude
+- longitude
 - lesion_area_ratio
 - necrosis_color_index
 - texture_entropy
 - mean_temperature_7d
 - mean_humidity_7d
 - total_precipitation_7d
-cache_key: 914b704dc59549e34e75ab59606d07d8ae1793907b704bfaab9c6cffa858adaa
-searched_at: '2026-10-01T02:54:57.619832+00:00'
+cache_key: fbb1b6ee501cb549eb8a05ed39ab9ee3daeeca1f10465a954c2493729600d522
+searched_at: '2026-10-10T01:43:41.824904+00:00'
 retry_count: 1

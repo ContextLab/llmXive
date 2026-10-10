@@ -33,17 +33,20 @@ class ColoredFormatter(logging.Formatter):
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
+# Corrected LOG_DIR key – previously used a non‑existent config entry.
+LOG_DIR = get_path("artifacts_logs")
+
 def setup_logging(level: int = logging.INFO) -> None:
     """
     Configure root logger with console and file handlers.
     """
     global _logger_instance
     if _logger_instance is not None:
-        return # Already setup
+        return  # Already setup
 
     # Ensure log directory exists
     try:
-        log_dir = get_path("artifacts_logs")
+        log_dir = LOG_DIR
     except KeyError:
         # Fallback if config not fully ready during very early init
         log_dir = Path("artifacts/logs")
@@ -65,7 +68,7 @@ def setup_logging(level: int = logging.INFO) -> None:
     root_logger.addHandler(ch)
 
     # File Handler
-    fh = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
+    fh = RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=3)
     fh.setLevel(level)
     fh.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     root_logger.addHandler(fh)

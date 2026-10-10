@@ -62,7 +62,7 @@ To investigate the relationship between environmental conditions (temperature, h
 
 ### 4.1 Configuration File
 - All paths, seeds, API keys, and constants are defined in `code/config.py`.
-- **Fixed Parameters**: The **7-day weather window is a fixed parameter** defined in `config.py` (e.g., `WEATHER_WINDOW_DAYS = 7`). It is **not dynamically adjusted** based on data availability or record characteristics. This ensures consistent aggregation across all records.
+- **Fixed Parameters**: The **7-day weather window is a fixed parameter** defined in `config.py` (e.g., `WEATHER_WINDOW_DAYS = 7`). It is **not dynamically adjusted** based on data availability, record characteristics, or model performance. This ensures consistent aggregation across all records and keeps the study design reproducible: every record's weather context is computed over exactly the same 7-day window preceding image capture, regardless of how much weather data is available for that window (records with insufficient weather data are excluded rather than having their window shortened or extended).
 
 ### 4.2 State Management
 - SHA-256 hashes of all artifacts are stored in `state/*.yaml`.

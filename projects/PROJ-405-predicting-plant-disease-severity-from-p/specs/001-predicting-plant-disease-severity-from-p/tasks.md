@@ -45,25 +45,25 @@
 
 **⚠️ CRITICAL**: Implementation tasks (Phase 3+) CANNOT start until T047-T050 are complete and `plan.md` reflects the corrected logic.
 
-- [X] T001a [P] Create `projects/PROJ-405/` root directory structure
-- [X] T001b [P] Create `projects/PROJ-405/code/`, `data/`, `tests/`, `artifacts/` subdirectories
-- [X] T001c [P] Create `projects/PROJ-405/specs/001-predict-plant-disease-severity/` subdirectories
+- [ ] T001a [P] Create `projects/PROJ-405/` root directory structure
+- [ ] T001b [P] Create `projects/PROJ-405/code/`, `data/`, `tests/`, `artifacts/` subdirectories
+- [ ] T001c [P] Create `projects/PROJ-405/specs/001-predict-plant-disease-severity/` subdirectories
 
 - [X] T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: `opencv-python`, `scikit-learn`, `pandas`, `numpy`, `requests`, `datasets`, `matplotlib`, `seaborn`, `pyyaml`)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
-- [X] T047 [P] [Plan Correction] Update `plan.md` Step 0.4: **Replace** "expert-labeled severity scores" or "simulated ground truth" with "metadata presence and non-null feature values". **Update text** to state: "Verify non-null values for image features and weather variables. Study is observational; no ground truth exists."
-- [X] T048 [P] [Plan Correction] Update `plan.md` Step 1.3: **Replace** "pre-processed NOAA GHCN-Daily station CSV" with "NOAA GHCN-Daily API query via `requests` library". **Update text** to state: "If Open-Meteo fails, query NOAA API for nearest station. If both fail, exclude record. No local CSVs."
-- [X] T049 [P] [Docs] Update `research.md` to explicitly state: "No ground truth validation is performed due to absence of expert labels; findings are framed as associational."
-- [ ] T050 [P] [Docs] Update `plan.md` to clarify: "7-day window is a fixed parameter in `config.py`, not dynamically adjusted."
+- [ ] T047 [P] [Plan Correction] Update `plan.md` Step 0.4: **Replace** "expert-labeled severity scores" or "simulated ground truth" with "metadata presence and non-null feature values". **Update text** to state: "Verify non-null values for image features and weather variables. Study is observational; no ground truth exists."
+- [ ] T048 [P] [Plan Correction] Update `plan.md` Step 1.3: **Replace** "pre-processed NOAA GHCN-Daily station CSV" with "NOAA GHCN-Daily API query via `requests` library". **Update text** to state: "If Open-Meteo fails, query NOAA API for nearest station. If both fail, exclude record. No local CSVs."
+- [ ] T049 [P] [Docs] Update `research.md` to explicitly state: "No ground truth validation is performed due to absence of expert labels; findings are framed as associational."
+- [~] T050 [P] [Docs] Update `plan.md` to clarify: "7-day window is a fixed parameter in `config.py`, not dynamically adjusted."
 
-- [X] T004 [P] Implement `code/config.py` for paths, seeds, API keys, and constant definitions
-- [X] T005 [P] Setup logging infrastructure in `code/__init__.py` and `code/utils/logging_config.py`
-- [X] T006a [P] Create `dataset.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `image_path`, `disease_label`, `lesion_area_ratio`, `necrosis_color_index`, `texture_entropy`, `location_lat`, `location_lon`, `image_date`.
-- [X] T006b [P] Create `weather.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `location_lat`, `location_lon`, `date_start`, `date_end`, `mean_temp`, `mean_humidity`, `total_precipitation`.
-- [X] T006c [P] Create `model_output.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `baseline_r2`, `baseline_mae`, `augmented_r2`, `p_value`, `sensitivity_analysis`.
-- [X] T007 Implement state management utility in `code/utils/state_manager.py` to handle SHA-256 hashing for `state/*.yaml` updates
-- [X] T008 [P] Setup unit test framework (`pytest`) and integration test structure in `tests/`
+- [~] T004 [P] Implement `code/config.py` for paths, seeds, API keys, and constant definitions
+- [~] T005 [P] Setup logging infrastructure in `code/__init__.py` and `code/utils/logging_config.py`
+- [~] T006a [P] Create `dataset.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `image_path`, `disease_label`, `lesion_area_ratio`, `necrosis_color_index`, `texture_entropy`, `location_lat`, `location_lon`, `image_date`.
+- [~] T006b [P] Create `weather.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `location_lat`, `location_lon`, `date_start`, `date_end`, `mean_temp`, `mean_humidity`, `total_precipitation`.
+- [~] T006c [P] Create `model_output.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `baseline_r2`, `baseline_mae`, `augmented_r2`, `p_value`, `sensitivity_analysis`.
+- [~] T007 Implement state management utility in `code/utils/state_manager.py` to handle SHA-256 hashing for `state/*.yaml` updates
+- [~] T008 [P] Setup unit test framework (`pytest`) and integration test structure in `tests/`
 
 **Checkpoint**: Foundation ready - plan contradictions resolved - user story implementation can now begin in parallel
 
@@ -79,23 +79,23 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Unit test for OpenCV feature extraction logic in `tests/unit/test_feature_extraction.py` (verify lesion area ratio, color index, entropy calculations)
-- [X] T010 [P] [US1] Unit test for weather linker in `tests/unit/test_weather_linker.py` (verify 7-day aggregation and date arithmetic)
-- [X] T011 [P] [US1] Integration test for data ingestion pipeline on a small subset in `tests/integration/test_data_ingestion.py` <!-- FAILED: unspecified -->
+- [~] T009 [P] [US1] Unit test for OpenCV feature extraction logic in `tests/unit/test_feature_extraction.py` (verify lesion area ratio, color index, entropy calculations)
+- [~] T010 [P] [US1] Unit test for weather linker in `tests/unit/test_weather_linker.py` (verify 7-day aggregation and date arithmetic)
+- [~] T011 [P] [US1] Integration test for data ingestion pipeline on a small subset in `tests/integration/test_data_ingestion.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/data_ingestion.py`: `download_plantvillage()` function for PlantVillage download, checksum verification, and metadata parsing (location/date extraction from filenames). **Must use streaming** (`datasets.load_dataset(..., streaming=True)`) to handle large datasets without exceeding 7GB RAM.
-- [X] T013 [US1] Implement `code/data_ingestion.py`: `extract_features()` function for OpenCV pipeline to extract lesion area ratio, necrosis color index, and texture entropy (FR-001).
-- [X] T014 [US1] Implement `code/weather_linker.py`: `fetch_weather()` function for Open-Meteo API integration for 7-day historical weather (FR-002). Implement exponential backoff for rate limits.
-- [X] T015 [US1] Implement `code/weather_linker.py`: `fetch_weather_noaa()` function for NOAA API fallback. **Logic**: If Open-Meteo fails, query NOAA API for nearest station. If NOAA fails, **impute using nearest neighbor station** from available data. If all fail, exclude record with specific log flag. **Do not use local CSVs or synthetic data.**
-- [ ] T016a [US1] Implement `code/data_ingestion.py`: `merge_data()` function to merge image features and weather data into `data/processed/unified_analysis.csv`.
-- [X] T016b [US1] Implement `code/data_ingestion.py`: `verify_merge()` function to assert row count matches input and assert non-null values in weather columns (US-1).
-- [X] T017 [US1] Implement `code/main.py` (Data Stage): Orchestrate the full data pipeline (Download -> Extract -> Link -> Merge) with memory-mapped/batched processing to stay within 7GB RAM (FR-008). <!-- FAILED: unspecified -->
-- [X] T018 [US1] Implement `code/data_ingestion.py`: Exclude records with missing location metadata (US-1 AC-2). Log a warning for each excluded record and ensure they are NOT present in the final `unified_analysis.csv`.
-- [X] T019a [US1] Implement `code/utils/validity_check.py`: `validate_data_presence()` function to check for non-null values in image features and weather variables on a random subset (n=50). **Depends on T016a (merged file generation)**.
-- [X] T019b [US1] Implement `code/utils/validity_check.py`: `generate_validity_report()` function to generate `validity_report.json` stating the study is "Observational" (no ground truth). **Do not** perform correlation checks or block execution.
-- [X] T019c [US1] Implement `code/utils/validity_check.py`: `update_results_flag()` function to update `results.json` with `observational_status: true` based on T019b. <!-- FAILED: unspecified -->
+- [~] T012 [P] [US1] Implement `code/data_ingestion.py`: `download_plantvillage()` function for PlantVillage download, checksum verification, and metadata parsing (location/date extraction from filenames). **Must use streaming** (`datasets.load_dataset(..., streaming=True)`) to handle large datasets without exceeding 7GB RAM.
+- [~] T013 [US1] Implement `code/data_ingestion.py`: `extract_features()` function for OpenCV pipeline to extract lesion area ratio, necrosis color index, and texture entropy (FR-001).
+- [~] T014 [US1] Implement `code/weather_linker.py`: `fetch_weather()` function for Open-Meteo API integration for 7-day historical weather (FR-002). Implement exponential backoff for rate limits.
+- [~] T015 [US1] Implement `code/weather_linker.py`: `fetch_weather_noaa()` function for NOAA API fallback. **Logic**: If Open-Meteo fails, query NOAA API for nearest station. If NOAA fails, **impute using nearest neighbor station** from available data. If all fail, exclude record with specific log flag. **Do not use local CSVs or synthetic data.**
+- [ ] T016a [US1] Implement `code/data_ingestion.py`: `merge_data()` function to merge image features and weather data into `data/processed/unified_analysis.csv`. <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
+- [~] T016b [US1] Implement `code/data_ingestion.py`: `verify_merge()` function to assert row count matches input and assert non-null values in weather columns (US-1).
+- [~] T017 [US1] Implement `code/main.py` (Data Stage): Orchestrate the full data pipeline (Download -> Extract -> Link -> Merge) with memory-mapped/batched processing to stay within 7GB RAM (FR-008). <!-- FAILED: unspecified -->
+- [~] T018 [US1] Implement `code/data_ingestion.py`: Exclude records with missing location metadata (US-1 AC-2). Log a warning for each excluded record and ensure they are NOT present in the final `unified_analysis.csv`.
+- [~] T019a [US1] Implement `code/utils/validity_check.py`: `validate_data_presence()` function to check for non-null values in image features and weather variables on a random subset (n=50). **Depends on T016a (merged file generation)**.
+- [~] T019b [US1] Implement `code/utils/validity_check.py`: `generate_validity_report()` function to generate `validity_report.json` stating the study is "Observational" (no ground truth). **Do not** perform correlation checks or block execution.
+- [~] T019c [US1] Implement `code/utils/validity_check.py`: `update_results_flag()` function to update `results.json` with `observational_status: true` based on T019b. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Unified Dataset ready). **Note**: US2/US3 depend on T016b (Unified Dataset) and T019 (Logging), not the validity check result.
 
@@ -109,17 +109,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Unit test for residual calculation and calibration logic in `tests/unit/test_modeling.py`
-- [X] T022 [P] [US2] Unit test for permutation test logic in `tests/unit/test_modeling.py` (verify null distribution generation)
-- [X] T023 [P] [US2] Integration test for full modeling pipeline on the unified dataset in `tests/integration/test_modeling.py` <!-- ATOMIZE: requested -->
+- [~] T021 [P] [US2] Unit test for residual calculation and calibration logic in `tests/unit/test_modeling.py`
+- [~] T022 [P] [US2] Unit test for permutation test logic in `tests/unit/test_modeling.py` (verify null distribution generation)
+- [~] T023 [P] [US2] Integration test for full modeling pipeline on the unified dataset in `tests/integration/test_modeling.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
-- [X] T024 [P] [US2] Implement `code/modeling.py`: `split_data()` function for Data Splitting (Train/Test) for final evaluation.
-- [X] T025 [US2] Implement `code/modeling.py`: `train_baseline_rf()` function for Baseline Random Forest training using K-Fold Cross-Validation (`n_jobs=-1`) to generate Out-of-Fold (OOF) predictions for the entire dataset (Step 2.2). <!-- FAILED: unspecified -->
-- [X] T026 [US2] Implement `code/modeling.py`: `calculate_residuals()` function to calculate Raw Residuals (Actual - OOF Prediction) and apply isotonic regression/mean-centering for Residual Calibration (Step 2.3, 2.4).
-- [X] T027 [US2] Implement `code/modeling.py`: `train_augmented_rf()` function to train Augmented Random Forest using Weather variables + Interaction Terms to predict **Calibrated Residuals** (FR-004).
-- [X] T028 [US2] Implement `code/modeling.py`: `run_paired_permutation_test()` function. **Algorithm**: <!-- FAILED: unspecified -->
+- [~] T024 [P] [US2] Implement `code/modeling.py`: `split_data()` function for Data Splitting (Train/Test) for final evaluation.
+- [~] T025 [US2] Implement `code/modeling.py`: `train_baseline_rf()` function for Baseline Random Forest training using K-Fold Cross-Validation (`n_jobs=-1`) to generate Out-of-Fold (OOF) predictions for the entire dataset (Step 2.2). <!-- FAILED: unspecified -->
+- [~] T026 [US2] Implement `code/modeling.py`: `calculate_residuals()` function to calculate Raw Residuals (Actual - OOF Prediction) and apply isotonic regression/mean-centering for Residual Calibration (Step 2.3, 2.4).
+- [~] T027 [US2] Implement `code/modeling.py`: `train_augmented_rf()` function to train Augmented Random Forest using Weather variables + Interaction Terms to predict **Calibrated Residuals** (FR-004).
+- [~] T028 [US2] Implement `code/modeling.py`: `run_paired_permutation_test()` function. **Algorithm**: <!-- FAILED: unspecified -->
  1. Implement `train_null_residual_model()`: A model that predicts zero residuals for all inputs.
  2. Train Augmented Model on real data -> `R2_aug`.
  3. Train Null Model on real data -> `R2_null`.
@@ -128,9 +128,9 @@
  6. Calculate p-value: `(count(null_R2_diff >= R2_diff) + 1) / 1001`.
  7. Output: `p_value`, `iterations`, `null_distribution_mean` to `artifacts/permutation_results.json`.
  **Depends on**: T026 (Calibrated Residuals), T027 (Augmented Model).
-- [X] T029 [US2] Implement `code/main.py` (Model Stage - Orchestration): Orchestrate Baseline -> Residual -> Augmented pipeline (T025-T027).
-- [X] T030 [US2] Implement `code/main.py` (Model Stage - Permutation): Orchestrate the Paired Permutation Test (T028) and output `results.json` with R², MAE, and p-value (SC-001, SC-004).
-- [X] T031 [US2] Implement `code/utils/reporting.py`: Logic to explicitly flag "Null Result" in `results.json.hypothesis_test.null_result_flag` (boolean) if p-value >= 0.05, ensuring the outcome is recorded as a valid scientific finding (US-2, AC-3).
+- [~] T029 [US2] Implement `code/main.py` (Model Stage - Orchestration): Orchestrate Baseline -> Residual -> Augmented pipeline (T025-T027).
+- [~] T030 [US2] Implement `code/main.py` (Model Stage - Permutation): Orchestrate the Paired Permutation Test (T028) and output `results.json` with R², MAE, and p-value (SC-001, SC-004).
+- [~] T031 [US2] Implement `code/utils/reporting.py`: Logic to explicitly flag "Null Result" in `results.json.hypothesis_test.null_result_flag` (boolean) if p-value >= 0.05, ensuring the outcome is recorded as a valid scientific finding (US-2, AC-3).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Hypothesis validated or invalidated)
 
@@ -144,12 +144,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T032 [P] [US3] Unit test for sensitivity analysis threshold sweeping logic in `tests/unit/test_visualization.py`
-- [X] T033 [P] [US3] Integration test for plot generation and sensitivity report in `tests/integration/test_visualization.py` <!-- ATOMIZE: requested -->
+- [~] T032 [P] [US3] Unit test for sensitivity analysis threshold sweeping logic in `tests/unit/test_visualization.py`
+- [~] T033 [P] [US3] Integration test for plot generation and sensitivity report in `tests/integration/test_visualization.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 3
 
-- [X] T034 [P] [US3] Implement `code/visualization.py`: `generate_partial_dependence_plots()` function to generate Partial Dependence Plots for interaction effects between humidity/temperature and image features on predicted residual severity (FR-006, Step 4.1).
+- [~] T034 [P] [US3] Implement `code/visualization.py`: `generate_partial_dependence_plots()` function to generate Partial Dependence Plots for interaction effects between humidity/temperature and image features on predicted residual severity (FR-006, Step 4.1).
 - [ ] T035 [US3] Implement `code/visualization.py`: `run_sensitivity_analysis()` function to perform Sensitivity Analysis logic sweeping thresholds at absolute deviations **{0.01, 0.05, 0.1}** from the 90th percentile baseline (FR-007, Step 4.2).
 - [ ] T036 [US3] Implement `code/visualization.py`: `calculate_metrics()` function to calculate and report F1 scores and False Positive Rates for the swept thresholds (AC-2).
 - [ ] T037 [US3] Implement `code/main.py` (Visual Stage): Orchestrate plot generation and sensitivity report creation. Append results to `results.json` (SC-002).
@@ -163,16 +163,16 @@
 
 **Purpose**: Final validation, state updates, and artifact generation
 
-- [X] T039 [P] [US1, US2, US3] Verify all metrics against acceptance criteria in `tests/integration/test_full_pipeline.py`
-- [X] T040 [P] Implement `code/utils/reporting.py`: `generate_final_report()` function to generate final `artifacts/results.json` with all metrics (R², MAE, p-value, sensitivity data).
+- [~] T039 [P] [US1, US2, US3] Verify all metrics against acceptance criteria in `tests/integration/test_full_pipeline.py`
+- [~] T040 [P] Implement `code/utils/reporting.py`: `generate_final_report()` function to generate final `artifacts/results.json` with all metrics (R², MAE, p-value, sensitivity data).
 - [ ] T041 [P] Implement `code/utils/hash_utils.py`: `compute_artifact_hashes()` function to compute SHA-256 hashes for `results.json` and `data/processed/unified_analysis.csv`. Verify hashes match state/*.yaml.
-- [X] T042 [P] Implement `code/utils/state_manager.py`: `update_state_file()` function to update `state/projects/PROJ-405-predicting-plant-disease-severity-from-p.yaml` with the computed hashes and timestamps to satisfy Constitution Principle V (Step 5.2).
-- [X] T043a [P] Implement `code/utils/docs.py`: `generate_quickstart()` function to generate `quickstart.md` content: Include exact paths, commands, and seed values for reproduction.
-- [X] T043b [P] Implement `code/utils/docs.py`: `verify_quickstart()` function to add steps to verify that the `state/*.yaml` hashes match the generated artifacts.
-- [X] T043c [P] Finalize `quickstart.md`: Ensure documentation aligns with the exact hashes recorded in the state file.
+- [~] T042 [P] Implement `code/utils/state_manager.py`: `update_state_file()` function to update `state/projects/PROJ-405-predicting-plant-disease-severity-from-p.yaml` with the computed hashes and timestamps to satisfy Constitution Principle V (Step 5.2).
+- [~] T043a [P] Implement `code/utils/docs.py`: `generate_quickstart()` function to generate `quickstart.md` content: Include exact paths, commands, and seed values for reproduction.
+- [ ] T043b [P] Implement `code/utils/docs.py`: `verify_quickstart()` function to add steps to verify that the `state/*.yaml` hashes match the generated artifacts.
+- [~] T043c [P] Finalize `quickstart.md`: Ensure documentation aligns with the exact hashes recorded in the state file.
 - [ ] T044 [P] Implement `code/main.py`: Add `log_resource_usage()` function to capture RAM peak and total runtime during execution, writing to `logs/resource_usage.log`.
 - [ ] T045 [P] Implement `code/main.py`: Add `verify_resources()` function to run `python code/main.py --verify-resources` and assert RAM < 7GB and Runtime < 6h. Update `results.json` with `resource_usage` block (SC-003).
-- [X] T046 Code cleanup: Remove temporary files, ensure all logs are clean, and verify no synthetic data fallbacks were triggered
+- [~] T046 Code cleanup: Remove temporary files, ensure all logs are clean, and verify no synthetic data fallbacks were triggered
 
 ---
 

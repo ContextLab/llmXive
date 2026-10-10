@@ -1,3 +1,27 @@
+T001b:
+  c: false
+  h: c173ab2c38005c9db4a2a7c531a3c94e14387fdfa3782fdebd8724fbbf3eebd1
+  r: The evidence shows that `projects/PROJ-405/code/` is missing and there is no
+    `artifacts/` subdirectory present, so the required directory structure has not
+    been fully created.
+  sig: 334ce21d011837262585cb703ce455459c7720e8666eec874a7a42f91a0d85eb
+T002:
+  c: true
+  h: 212e526a4ce91a764d1bb09c0d04bdab17032988468440620e64e3f95045aafe
+  r: "Checked the `requirements.txt` file (resolved at `projects/PROJ-405-predicting-plant-disease-severity-from-p/requirements.txt`),\
+    \ which is present, non\u2011empty, and includes all nine required dependencies\
+    \ (opencv\u2011python, scikit\u2011learn, pandas, numpy, requests, datasets, matplotlib,\
+    \ seaborn, pyyaml). Extra entries do not violate the task."
+  sig: a56141473a556a31fe64084ea8f891872a1a7d05e71edc2bc4ce96958fa12574
+T003:
+  c: false
+  h: 00589bcf368201719eed0839dac66db094aa2b03953acd5e6eaaab1ee45a6236
+  r: The evidence provides no linting or formatting configuration files (e.g., `pyproject.toml`,
+    `.ruff.toml`, `.flake8`, or a `black` config) nor any scripts or documentation
+    showing that ruff/flake8 and black have been set up and integrated into the project.
+    Without these artifacts, the requirement to configure linting and formatting tools
+    is not satisfied.
+  sig: a35c23ef45ebb07dbde82235f5001b9f45ba1b7f7967f7477412b516fe806c00
 T016a:
   c: false
   h: ed51aed7b8a9851df65b25380f7b9e5cdea8924c7780409c902da5307acae8b2
@@ -13,6 +37,34 @@ T040:
     empty JSON containing the required metrics (R\xB2, MAE, p\u2011value, sensitivity\
     \ data). The implementer\u2019s claim consists only of task description, not the\
     \ actual artifact."
+T047:
+  c: false
+  h: 1a25bf9d359e14978f453ba66d04974befd0ddf43bd955b50cc81bd329db7b2a
+  r: "The provided `plan.md` does not contain a Step\u202F0.4 with the required revised\
+    \ wording; it still references \u201Cexpert\u2011labeled ground truth severity\
+    \ scores\u201D and lacks the exact sentence \u201CVerify non-null values for image\
+    \ features and weather variables. Study is observational; no ground truth exists.\u201D\
+    . The plan must be edited to replace those phrases and add the specified text\
+    \ in Step\u202F0.4."
+  sig: 082cb79af454947707ee04b62c7552d0cc3e34da203c4788d02b22542a7fdb74
+T048:
+  c: false
+  h: 0426a254e83d206adb17d9cd4c358e7b2577b52490c9e67a363b76c4ee67ef7e
+  r: "The `plan.md` file does include a fallback to query the NOAA GHCN\u2011Daily\
+    \ API and to exclude records when both APIs fail, but it does **not** contain\
+    \ the required phrasing \u201CNOAA GHCN\u2011Daily API query via `requests` library\u201D\
+    \ nor the explicit statement \u201CNo local CSVs.\u201D These exact textual updates\
+    \ are missing, so the task\u2019s specification is not fully satisfied."
+  sig: c83907f68829c18e6cfcbbce739d232e816db6b2eb7df641ff026a63f6dee20e
+T049:
+  c: false
+  h: 8939004e0420134f6b97f76864df7fc81c0a358a280fd9386f1db05e587769cf
+  r: "Checked `research.md` (7033\u202Fbytes) \u2013 it discusses construct validity\
+    \ and mentions \u201Cframe results as \u2018associational\u2019\u201D but does\
+    \ **not** contain the required explicit sentence: \u201CNo ground truth validation\
+    \ is performed due to absence of expert labels; findings are framed as associational.\u201D\
+    \ The mandated statement is missing."
+  sig: bf6f1e426b5aaaf8319c588db473c2db0d91569d50b463efa76d99695d20fae5
 T050:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

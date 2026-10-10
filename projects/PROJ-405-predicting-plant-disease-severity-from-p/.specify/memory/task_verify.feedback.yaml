@@ -1,0 +1,145 @@
+T001a:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-405/'
+  task: f4590924e3bd8c36653963122fde0664b9f731422a52d4084d2404d273049405
+T001b:
+  reason: The evidence shows that `projects/PROJ-405/code/` is missing and there is
+    no `artifacts/` subdirectory present, so the required directory structure has
+    not been fully created.
+  task: 638f4f1db7291d816a40212ef1e7324060900ed054d465b6b6334f88be6fa35a
+T001c:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-405/specs/001-predict-plant-disease-severity/'
+  task: 7ead3952ce719414f57406c8202618dab1b06cbaeb5cf14d0c1c7a53a851b389
+T002:
+  task: 24b69620ac2788f76036653140c03405a163a595e0a9f825d8852bad01488130
+T003:
+  reason: The evidence provides no linting or formatting configuration files (e.g.,
+    `pyproject.toml`, `.ruff.toml`, `.flake8`, or a `black` config) nor any scripts
+    or documentation showing that ruff/flake8 and black have been set up and integrated
+    into the project. Without these artifacts, the requirement to configure linting
+    and formatting tools is not satisfied.
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  task: 97d35211bd5053e6176d747429b4d8228da41b5e79169c757bc305bae08a995b
+T005:
+  task: 222f852aac85e62fcdb63d3bd78641dde104d0ca86c4016b98f38130c43f9f2f
+T006a:
+  task: 54fd268b1b5991b22faaf617d08e6c05c303d4837606b2922866e67e1774d869
+T006b:
+  task: 15dc6253ec189627fc04a4d047761a603013b3de86a46e0b65a31ab4c24de6c5
+T006c:
+  task: 268de671f95d8d88e8e57b23c1e109e3cc1b97a551c62f24cabaa63f218b3020
+T007:
+  task: 9348d5754435f794c8e56a3e1318140fc129972a0fefbf7df4d1468ea0ed100b
+T008:
+  task: 4d8cb7f751ac919dd33f0573b29bd5cd3f07b05990a10b995a46eb5b8424dc7f
+T009:
+  task: cf98a439430c7c48fc17b1b8fa374a72fefbe380d0c2b628d25dfb91d8809833
+T010:
+  task: b5a091b5d5c040e1c1d2354d6c55a0eb2c0cca1a181f2c52840871f11f57f894
+T011:
+  task: 25f07e57eedee338f54e0b8bdacc81b8be9bd57527e11cebd272a40ce2b8e296
+T012:
+  task: 60ae0858e660f21e2905ccd92d9b89a489174c632755b9676ab30f206ba983bc
+T013:
+  task: 7072f983d46a30687d2c01a7b43792036e09f3559a8891130793088324aeeff0
+T014:
+  task: b6821ba05ceed3235814226a12c9fd4341c205536e021ea1fc5adb9c5942440c
+T015:
+  task: d6dda0a03ad03c61de64540193924a9c25b0b7a6e8a84deaade91831ee18c9d7
+T016a:
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+    exit=1'
+  task: cb8e7af8c1af54407ab4d82ffd96dbce1a4bf22de347250fd1ede8dbcb5951fc
+T016b:
+  task: 7cd482bee7ce5053aa2bd492b0e89a15352b31ecdaf4ec72fa2f44661ee81e3d
+T017:
+  task: 0ef6b292192fe905f6af974e76cbb2abfaff41435b558ec8304fda328eabc62a
+T018:
+  task: 1ecca1c8525ec47c257e448aa997d8905ed78151ee8d34f41afde1cbdabee89b
+T019a:
+  task: 87fed8cd3f0509940ba51815492babdaa6e98eb0cf2a1ad53a56e14dd31ea507
+T019b:
+  task: 0ea9a2760db57ade048b845a5e9c0db126bb0bcb04336ba0cc0ed62edcf56e85
+T019c:
+  task: 18363390810bf0dd77c2b1014920dc2b9d7f9c843acde1ae2c507743bd67b6d8
+T021:
+  task: e17adf54dbcde3465073f45faee5ce03d3f1789be866d945f0d5f669213338e4
+T022:
+  task: 8aaaebf45b88de440b4ab4e1617a409826c5c04baaa4739db5e96f622cfc2402
+T023:
+  task: f22c6ebe19e5955170cd44fcb74c281521777fe6ab7e8e28f44cc4520460f10e
+T024:
+  task: 0ce83ff51cf10c8ad51118b04e81f557269cea1d0cacbaaa8ba5b61a23494640
+T025:
+  task: 9077bf0eabfac89a697883739eeda60a9ec936b7501be04cfa12a39f48d0e28a
+T026:
+  task: c6c52b55206d15ebc4e3e314c7eb543bd292951da3d4caafadad8931b6e22988
+T027:
+  task: 25ef05533d8ab38574c52477d4ab2d729b66a0aa3d45e28c44da2bfbd56738d7
+T028:
+  task: db9d4436115ba2f9d0415e6b6f35ac1f63ba5d133d9ad9a5d3a96423f65aaa92
+T029:
+  task: 43bbd6850cab3fb0c75d9afb154834e4ceec8f63b7ba3563e43f4e891182de1d
+T030:
+  task: b43c0dce6c296bb6ea0400cfdf3e26d973b3f1cc688a10f198cee9965ff670a4
+T031:
+  task: 3c9ad09bfa0d6d8b7f529c70efeaaf8dea649ff63de98b1da91649a0fe7f0d61
+T032:
+  task: 2e5e1195236977be57061f7f257d919baa8f28f7615b376417a05de366df94b8
+T033:
+  task: beb8411fe3d649b16c6db09b5c49ee3c48e7293f5b850813d881ece0b6a6c5ac
+T034:
+  task: 8cae44e7bae7083d8c1a356280d309a6626c3a7f6ffdffd3c54b21d5294636c0
+T035:
+  task: 4384443ec84bfd712cb1a0a0d8a91eb207384de36760ed550570fd852d0c0354
+T036:
+  task: 07289441c78f1886aaaf848522eb4ca4153fd95502554c536d0ee022fd390870
+T037:
+  task: ecc9d71ec837a48a9ab22436b4a149e0563ddaab086cfea61a6b69b50af763de
+T038:
+  task: a8ce860285eee7507ffab94bcf1caa6b2638ca2c03fd3ac375aab2d403866fb5
+T039:
+  task: b897e6ced75bfdd29efa56e0b6f073282d38fadbe4f8b2c443fadbbd7fe671f4
+T040:
+  task: 87cec4daf6b45fa2a826539b9ccbdd0f23728609c84d06ca17caf6669e291ffc
+T041:
+  task: e6bbffe02d0e70bce021b619466c346777b87a3cbd27e4f7259e0098f4d9325d
+T042:
+  task: af8097c59c8a39dad4a98e699aafed829ca77bfb96148f4f4496f892a241533f
+T043a:
+  task: f4dc6f9876b6c5b86b0d9776fdce0df5fb3542767e4bbe2b44426f042d16d2b8
+T043b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/docs.py, state/'
+  task: a5180069e2b97449d976eaca9915164f1b9356b45b8c4f696bab513eca7b51de
+T043c:
+  task: 5a65e350245f9a8269a45a20c863cb4e9cdacec1f46dec741ac656b0a8cfad80
+T044:
+  task: 1fa2239072c064a0320ecc5ef761300f668479648254ce192ed576684b536b56
+T045:
+  task: 7e8ba944b084684d764e9efe0730fe3ea413dd70567001fb9957e862fc009d58
+T046:
+  task: ec5ca04d81a0ecf4a13ee6e4c15f36b7a664fa106788a543ec20366decc7d93e
+T047:
+  reason: "The provided `plan.md` does not contain a Step\u202F0.4 with the required\
+    \ revised wording; it still references \u201Cexpert\u2011labeled ground truth\
+    \ severity scores\u201D and lacks the exact sentence \u201CVerify non-null values\
+    \ for image features and weather variables. Study is observational; no ground\
+    \ truth exists.\u201D. The plan must be edited to replace those phrases and add\
+    \ the specified text in Step\u202F0.4."
+  task: 1aecb78b89f798cf11fe6a77925de64b572ca4e05ac48a8c430320c7a84f37f5
+T048:
+  reason: "The `plan.md` file does include a fallback to query the NOAA GHCN\u2011\
+    Daily API and to exclude records when both APIs fail, but it does **not** contain\
+    \ the required phrasing \u201CNOAA GHCN\u2011Daily API query via `requests` library\u201D\
+    \ nor the explicit statement \u201CNo local CSVs.\u201D These exact textual updates\
+    \ are missing, so the task\u2019s specification is not fully satisfied."
+  task: f1fce5f2476ac36c6f06d4ff2458b59c4d58c361cb672a4525eaf579cbd79332
+T049:
+  reason: "Checked `research.md` (7033\u202Fbytes) \u2013 it discusses construct validity\
+    \ and mentions \u201Cframe results as \u2018associational\u2019\u201D but does\
+    \ **not** contain the required explicit sentence: \u201CNo ground truth validation\
+    \ is performed due to absence of expert labels; findings are framed as associational.\u201D\
+    \ The mandated statement is missing."
+  task: 2a5f1a2a48029ae093170bb28fb901392abf28a41c4dc50217bb3cf750f44099
+T050:
+  task: a4a42068e1e2007b1ac32dbb648f145bedade30c7a687574fbaa1130d5e7f9c8

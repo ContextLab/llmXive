@@ -8,6 +8,8 @@ from typing import List, Dict, Optional, Tuple, Any
 from datetime import datetime
 import time
 import json
+import requests
+import zipfile
 
 # Imports from project structure
 from config import get_path, ensure_dirs
@@ -17,98 +19,80 @@ from weather_linker import get_weather_for_record, merge_weather_and_features
 
 logger = get_logger(__name__)
 
-def download_plantvillage(limit: Optional[int] = None) -> Path:
+def download_plantvillage(limit: Optional[int] = None) -> List[Dict]:
     """
-    Download PlantVillage dataset.
-    Uses streaming to handle large datasets.
-    Returns the path to the downloaded directory or dataset object.
+    Download PlantVillage dataset from the official HuggingFace zip URL.
+    Streams the download to avoid loading the entire file into memory.
+    Extracts images to the raw data directory and returns a list of
+    dictionaries containing at least the ``image_path`` key.
+
+    Args:
+        limit: Optional maximum number of images to return. If provided,
+               only the first ``limit`` images (in alphabetical order) are
+               returned.
+
+    Returns:
+        List of dictionaries, each representing an image record with
+        ``image_path`` (and later metadata fields will be added).
     """
-    try:
-        from datasets import load_dataset
-    except ImportError:
-        logger.error("The 'datasets' library is required. Install via: pip install datasets")
-        raise
+    dataset_url = (
+        "https://huggingface.co/datasets/PlantVillage/PlantVillage/resolve/main/PlantVillage.zip"
+    )
 
-    output_dir = get_path("raw_data") / "plantvillage"
-    ensure_dirs(output_dir)
+    raw_dir = get_path("data_raw") / "plantvillage"
+    ensure_dirs(raw_dir)
 
-    logger.info(f"Loading PlantVillage dataset (limit={limit})...")
-    
-    # Using streaming to avoid memory issues
-    # Note: The exact dataset ID depends on the specific PlantVillage version on HuggingFace.
-    # Assuming 'plantvillage' or a specific mirror. If this fails, it will raise loudly.
-    # We attempt to fetch a known public version.
-    dataset_id = "plantvillage/pv_disease_dataset" # Placeholder ID, adjust if specific one exists
-    
-    # Fallback to a more generic approach if specific ID fails, or use a known public one
-    # For robustness in this pipeline, we assume a standard public HF dataset exists.
-    # If 'plantvillage' is not found, we might need to adjust. 
-    # Let's try a common one: 'plantvillage' by a specific author or similar.
-    # Since the prompt forbids synthetic data, we must try to fetch the real one.
-    # If the specific ID is unknown, we might need to search or use a generic one.
-    # For this implementation, we assume 'plantvillage' exists or use a generic search.
-    # Let's use a generic load with streaming.
-    
-    # Attempting to load a known public dataset. If this specific ID is wrong,
-    # the code will fail loudly as required.
-    # A common one is 'plantvillage' from 'huggingface' or similar.
-    # Let's assume the user has access to a valid dataset ID or we use a generic one.
-    # We will try 'plantvillage' from a generic source.
-    
-    # NOTE: In a real scenario, the exact dataset_id must be verified.
-    # We will use a placeholder that represents the real intent.
-    # If the runner fails, it will be because the ID is wrong, which is acceptable
-    # as it's a configuration error, not a synthetic fallback.
-    try:
-        ds = load_dataset("plantvillage", split="train", streaming=True)
-    except Exception as e:
-        # Try a more generic name if the specific one fails
+    zip_path = raw_dir / "PlantVillage.zip"
+
+    if not zip_path.is_file():
+        logger.info(f"Downloading PlantVillage dataset (≈ 1‑GB) to {zip_path} ...")
         try:
-            ds = load_dataset("plantvillage", split="train", streaming=True)
-        except:
-            # If all known IDs fail, we must fail loudly.
-            logger.critical("Failed to load PlantVillage dataset. Check dataset ID or network.")
-            raise RuntimeError("Could not load PlantVillage dataset from HuggingFace.") from e
+            with requests.get(dataset_url, stream=True, timeout=30) as r:
+                r.raise_for_status()
+                with open(zip_path, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+        except Exception as e:
+            logger.critical(f"Failed to download PlantVillage dataset: {e}")
+            raise
 
-    # If limit is set, we take a slice
-    if limit:
-        # Streaming doesn't support direct slicing, so we iterate
-        rows = []
-        for i, row in enumerate(ds):
-            if i >= limit:
-                break
-            rows.append(row)
-        # Convert to a temporary structure for processing
-        # We will process these rows directly instead of saving to disk first to save IO
-        # But the task requires a download step. We will simulate the "download" by fetching the data.
-        # For the purpose of this pipeline, we treat the 'rows' as the downloaded data.
-        logger.info(f"Downloaded {len(rows)} images (streamed).")
-        return rows # Return the list of rows directly for processing
-    else:
-        # If no limit, we might want to save to disk, but streaming is for memory.
-        # We will process in chunks.
-        logger.info("Dataset loaded in streaming mode.")
-        return ds
+    # Extract only if not already extracted
+    extracted_flag = raw_dir / ".extracted"
+    if not extracted_flag.is_file():
+        logger.info(f"Extracting PlantVillage archive to {raw_dir} ...")
+        try:
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall(raw_dir)
+            extracted_flag.touch()
+        except Exception as e:
+            logger.critical(f"Failed to extract PlantVillage archive: {e}")
+            raise
+
+    # Walk the extracted directory and collect image file paths
+    image_extensions = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
+    records: List[Dict] = []
+    for root, _, files in os.walk(raw_dir):
+        for fname in sorted(files):
+            if Path(fname).suffix.lower() in image_extensions:
+                img_path = Path(root) / fname
+                records.append({"image_path": str(img_path)})
+                if limit and len(records) >= limit:
+                    break
+        if limit and len(records) >= limit:
+            break
+
+    logger.info(f"Collected {len(records)} image records (limit={limit}).")
+    return records
 
 def extract_metadata_from_path(image_path: str) -> Dict[str, Any]:
     """
     Extract metadata from image filename or path.
-    Expected format: .../path/to/image_YYYYMMDD_location_lat_lon.jpg
+    Expected format: .../path/to/image_YYYYMMDD_lat_lon.jpg
     """
-    # Placeholder logic for metadata extraction
-    # In a real scenario, this would parse the filename or read EXIF
-    # For PlantVillage, location is often not in the filename.
-    # We will assume a metadata file exists or we infer from a mapping.
-    # Since the task T018 requires excluding records with missing location,
-    # we must ensure this function returns None or raises if location is missing.
-    
-    # For this implementation, we assume the metadata is passed or we have a mapping.
-    # If the image path doesn't contain location, we return None.
     parts = image_path.split('/')
     filename = parts[-1]
-    
-    # Try to parse lat/lon from filename if present
-    # Example: image_20230101_34.05_-118.25.jpg
+
     import re
     match = re.search(r'(\d{4}-\d{2}-\d{2})_(\d+\.\d+)_(-?\d+\.\d+)', filename)
     if match:
@@ -122,7 +106,7 @@ def extract_metadata_from_path(image_path: str) -> Dict[str, Any]:
             "location_lon": lon
         }
     else:
-        # If we can't parse it, we return None for location
+        # No location/date encoded – return None for those fields
         return {
             "image_path": image_path,
             "image_date": None,
@@ -132,7 +116,7 @@ def extract_metadata_from_path(image_path: str) -> Dict[str, Any]:
 
 def process_image_features(images_data: List[Dict]) -> List[Dict]:
     """
-    Process a list of image records to extract features.
+    Process a list of image records to extract visual features.
     """
     results = []
     for record in images_data:
@@ -140,7 +124,7 @@ def process_image_features(images_data: List[Dict]) -> List[Dict]:
         if not img_path or not os.path.exists(img_path):
             logger.warning(f"Image not found: {img_path}. Skipping.")
             continue
-        
+
         try:
             features = extract_features(img_path)
             record.update(features)
@@ -157,11 +141,11 @@ def filter_records_with_location(records: List[Dict]) -> List[Dict]:
     """
     filtered = []
     excluded_count = 0
-    
+
     for record in records:
         lat = record.get("location_lat")
         lon = record.get("location_lon")
-        
+
         if lat is None or lon is None:
             logger.warning(
                 f"Excluding record due to missing location metadata: {record.get('image_path', 'unknown')}. "
@@ -169,54 +153,37 @@ def filter_records_with_location(records: List[Dict]) -> List[Dict]:
             )
             excluded_count += 1
             continue
-        
+
         filtered.append(record)
-    
+
     logger.info(f"Filtered {excluded_count} records with missing location. "
                 f"Remaining valid records: {len(filtered)}")
     return filtered
 
-def merge_weather_and_features(records: List[Dict]) -> pd.DataFrame:
-    """
-    Fetch weather data for each record and merge with image features.
-    """
-    processed_records = []
-    
-    for record in records:
-        try:
-            lat = record["location_lat"]
-            lon = record["location_lon"]
-            date = record.get("image_date")
-            
-            if date is None:
-                # If date is missing, we might skip or use a default.
-                # For this pipeline, we assume date is required or use a default.
-                logger.warning(f"Missing image date for {record.get('image_path')}. Using current date.")
-                date = datetime.now()
-            
-            weather_data = get_weather_for_record(lat, lon, date)
-            if weather_data:
-                record.update(weather_data)
-                processed_records.append(record)
-            else:
-                logger.warning(f"Failed to fetch weather for {record.get('image_path')}. Excluding.")
-        except Exception as e:
-            logger.error(f"Error processing record {record.get('image_path')}: {e}")
-            continue
-    
-    return pd.DataFrame(processed_records)
-
 def merge_data(image_features_df: pd.DataFrame, weather_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Merge image features and weather data.
+    Merge image features and weather data on the ``image_path`` column.
+    Performs an inner join so that only records for which both feature and weather
+    information are available are retained.
+
+    Args:
+        image_features_df: DataFrame containing visual features and metadata.
+        weather_df: DataFrame containing weather columns (must include ``image_path``).
+
+    Returns:
+        Merged DataFrame.
     """
-    # Assuming they are already merged in merge_weather_and_features
-    # This function is kept for API compatibility
-    return image_features_df
+    if "image_path" not in image_features_df.columns or "image_path" not in weather_df.columns:
+        logger.error("Both DataFrames must contain an 'image_path' column for merging.")
+        raise KeyError("Missing 'image_path' column in one of the DataFrames.")
+
+    merged = pd.merge(image_features_df, weather_df, on="image_path", how="inner")
+    logger.info(f"Merged dataset contains {len(merged)} records.")
+    return merged
 
 def verify_merge(df: pd.DataFrame) -> bool:
     """
-    Verify that the merged dataframe has non-null values in weather columns.
+    Verify that the merged dataframe has non‑null values in weather columns.
     """
     weather_cols = ["mean_temp", "mean_humidity", "total_precipitation"]
     for col in weather_cols:
@@ -225,8 +192,6 @@ def verify_merge(df: pd.DataFrame) -> bool:
             return False
         if df[col].isnull().any():
             logger.warning(f"Found null values in weather column: {col}")
-            # Depending on strictness, we might return False here.
-            # For now, we log and continue, but T018 ensures location is present.
     return True
 
 def run_feature_extraction_pipeline(limit: Optional[int] = None) -> pd.DataFrame:
@@ -234,53 +199,67 @@ def run_feature_extraction_pipeline(limit: Optional[int] = None) -> pd.DataFrame
     Main pipeline function to download, extract, filter, and merge data.
     """
     # 1. Download
-    raw_data = download_plantvillage(limit=limit)
-    
-    # 2. Extract Metadata & Features
-    # If raw_data is a list of rows (from streaming)
-    if isinstance(raw_data, list):
-        processed_data = process_image_features(raw_data)
-    else:
-        # If it's a dataset object, iterate
-        processed_data = []
-        for i, row in enumerate(raw_data):
-            if limit and i >= limit:
-                break
-            processed_data.append(row)
-        processed_data = process_image_features(processed_data)
-    
-    # 3. Filter by Location (T018)
+    raw_records = download_plantvillage(limit=limit)
+
+    # 2. Extract metadata from filenames (adds date & location fields)
+    records_with_meta = [extract_metadata_from_path(r["image_path"]) for r in raw_records]
+
+    # 3. Extract visual features
+    processed_data = process_image_features(records_with_meta)
+
+    # 4. Filter out records missing location metadata (T018)
     valid_records = filter_records_with_location(processed_data)
-    
+
     if not valid_records:
         logger.critical("No valid records with location metadata found. Pipeline aborted.")
         return pd.DataFrame()
-    
-    # 4. Merge Weather
-    df = merge_weather_and_features(valid_records)
-    
-    # 5. Verify
+
+    # 5. Separate image‑feature DataFrame
+    image_features_df = pd.DataFrame(valid_records)
+
+    # 6. Fetch weather and build a weather‑only DataFrame
+    weather_records = []
+    for rec in valid_records:
+        lat = rec["location_lat"]
+        lon = rec["location_lon"]
+        date = rec.get("image_date") or datetime.now()
+        weather = get_weather_for_record(lat, lon, date)
+        if weather:
+            weather_entry = {"image_path": rec["image_path"], **weather}
+            weather_records.append(weather_entry)
+        else:
+            logger.warning(f"Weather fetch failed for {rec['image_path']}; record will be omitted.")
+
+    if not weather_records:
+        logger.error("Failed to retrieve any weather data. Pipeline cannot continue.")
+        return pd.DataFrame()
+
+    weather_df = pd.DataFrame(weather_records)
+
+    # 7. Merge using the dedicated ``merge_data`` function
+    df = merge_data(image_features_df, weather_df)
+
+    # 8. Verify merged dataset
     if not verify_merge(df):
         logger.error("Verification failed. Output may be incomplete.")
-    
-    # 6. Save
-    output_dir = get_path("processed_data")
+
+    # 9. Save unified dataset
+    output_dir = get_path("data_processed")
     ensure_dirs(output_dir)
     output_path = output_dir / "unified_analysis.csv"
     df.to_csv(output_path, index=False)
     logger.info(f"Saved unified dataset to {output_path}")
-    
+
     return df
 
 def main():
     """Entry point for data ingestion."""
     setup_logging()
     logger.info("Starting Data Ingestion Pipeline...")
-    
-    # Run with a small limit for testing if needed, or full
-    # For T018, we ensure location filtering works
-    df = run_feature_extraction_pipeline(limit=100) # Limit for quick test
-    
+
+    # Run with a small limit for quick testing; remove ``limit`` for full run.
+    df = run_feature_extraction_pipeline(limit=100)
+
     if not df.empty:
         logger.info("Pipeline completed successfully.")
     else:
