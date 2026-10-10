@@ -8,8 +8,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/ingestion/fetcher.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic data as a fallback.…”
-- code/ingestion/fetcher.py: synthetic/fake INPUT data not authorized by the spec — “…gger.warning("Generating synthetic fallback data. This should not be used…”
 - code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generates synthetic WCST (Wisconsin Card Sor…”
 - code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec — “…e         DataFrame with synthetic WCST data.     """     np.random.s…”
 - code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec — “…(T010d)...")          # Generate synthetic data     df = generate_s…”
@@ -19,45 +17,150 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/fetcher.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic data as a fallback.…”; code/ingestion/fetcher.py: synthetic/fake INPUT data not authorized by the spec — “…gger.warning("Generating synthetic fallback data. This should not be used…”; code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generates synthetic WCST (Wisconsin Card Sor…”; 2 command(s) failed: python code/main.py (rc=1); python code/analysis.py (rc=1); 12 declared deliverable(s) absent: data/processed/cleaned_age_filtered.csv; data/processed/cleaned_dataset.csv; data/processed/cleaned_dataset_no_mmse.csv
+**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generates synthetic WCST (Wisconsin Card Sor…”; code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec — “…e         DataFrame with synthetic WCST data.     """     np.random.s…”; code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec — “…(T010d)...")          # Generate synthetic data     df = generate_s…”; 12 command(s) failed: python code/main.py (rc=1); python code/task_t010d_generate_simulation.py (rc=1); python code/task_t012a_age_exclusion.py (rc=1); 12 declared deliverable(s) absent: data/processed/cleaned_age_filtered.csv; data/processed/cleaned_dataset_no_mmse.csv; data/processed/cleaned_score_filtered.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    2026-10-06 12:55:53,574 - utils - INFO - Starting llmXive Pipeline Orchestration
+line (T010c)...
+2026-10-10 06:33:38,937 - llmXive - INFO - Running Age Exclusion (T012a)...
+2026-10-10 06:33:39,505 - llmXive - ERROR - T012a failed: 2026-10-10 06:33:39,437 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
+2026-10-10 06:33:39,437 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-10 06:33:39,437 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/main.py", line 106, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/main.py", line 103, in main
-    return run_orchestration()
-           ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/main.py", line 32, in run_orchestration
-    log_info(f"Project Root: {config['paths']['root']}")
-                              ~~~~~~^^^^^^^^^
-KeyError: 'paths'
-- python code/analysis.py -> rc=1
-    2026-10-06 12:55:54,728 - ERROR - Data Error: Cleaned dataset not found at ./data/processed/final_cleaned_dataset.csv
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/analysis.py", line 285, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 155, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/analysis.py", line 258, in main
-    df = load_cleaned_dataset()
-         ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/analysis.py", line 28, in load_cleaned_dataset
-    raise DataNotFoundError(f"Cleaned dataset not found at {filepath}")
-DataNotFoundError: Cleaned dataset not found at ./data/processed/final_cleaned_dataset.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 133, in main
+    df_raw = load_raw_dataset(paths)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 44, in load_raw_dataset
+    raise FileNotFoundError(f"Raw dataset not found at {input_path}")
+FileNotFoundError: Raw dataset not found at data/raw/raw_dataset.csv
+
+
+- python code/task_t010d_generate_simulation.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t010d_generate_simulation.py", line 123, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t010d_generate_simulation.py", line 83, in main
+    ensure_dirs()
+TypeError: ensure_dirs() missing 1 required positional argument: 'config'
+
+- python code/task_t012a_age_exclusion.py -> rc=1
+
+2026-10-10 06:33:40,284 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
+2026-10-10 06:33:40,284 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-10 06:33:40,285 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 155, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 133, in main
+    df_raw = load_raw_dataset(paths)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 44, in load_raw_dataset
+    raise FileNotFoundError(f"Raw dataset not found at {input_path}")
+FileNotFoundError: Raw dataset not found at data/raw/raw_dataset.csv
+
+- python code/task_t012b_score_exclusion.py -> rc=1
+
+2026-10-10 06:33:40,691 - ERROR - File not found: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/cleaned_age_filtered.csv
+
+- python code/task_t012d_mmse_flag.py -> rc=1
+
+2026-10-10 06:33:41,100 - llmXive - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+
+- python code/task_t012e_mmse_exclusion.py -> rc=1
+
+2026-10-10 06:33:41,507 - llmXive - INFO - Starting T012e: MMSE Exclusion and Robustness Prep
+2026-10-10 06:33:41,507 - llmXive - ERROR - File not found: MMSE flag not found at /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/mmse_flag.json
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012e_mmse_exclusion.py", line 148, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012e_mmse_exclusion.py", line 109, in main
+    has_mmse = load_mmse_flag(paths['mmse_flag_path'])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012e_mmse_exclusion.py", line 48, in load_mmse_flag
+    raise FileNotFoundError(f"MMSE flag not found at {path}")
+FileNotFoundError: MMSE flag not found at /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/mmse_flag.json
+
+- python code/task_t014a_create_cleaned_dataset.py -> rc=1
+
+2026-10-10 06:33:41,919 - llmXive - INFO - Starting T014a: Generate Cleaned Dataset at 2026-10-10T06:33:41.919551
+2026-10-10 06:33:41,919 - llmXive - WARNING - Exclusion log not found at data/processed/exclusion_log.json. Proceeding without it.
+2026-10-10 06:33:41,919 - llmXive - WARNING - MMSE flag not found at data/processed/mmse_flag.json. Assuming MMSE filtering was not applied.
+2026-10-10 06:33:41,919 - llmXive - INFO - MMSE filtering applied: False
+2026-10-10 06:33:41,919 - llmXive - ERROR - Data not found: Input dataset not found at data/processed/cleaned_dataset.csv
+
+- python code/task_t014b_validity_metrics.py -> rc=1
+
+2026-10-10 06:33:42,336 - llmXive - INFO - Starting T014b: Validity Metrics Calculation
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t014b_validity_metrics.py", line 144, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t014b_validity_metrics.py", line 126, in main
+    paths = get_config_paths()
+            ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t014b_validity_metrics.py", line 25, in get_config_paths
+    'raw_dataset': config['paths']['data_raw'] + '/raw_dataset.csv',
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'data_raw'
+
+- python code/analysis.py -> rc=1
+
+2026-10-10 06:33:43,551 - INFO - Starting statistical analysis (T018: Welch's t-test)
+2026-10-10 06:33:43,551 - ERROR - Data Error: Cleaned dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/final_cleaned_dataset.csv
+
+- python code/task_t027b_mmse_robustness_analysis.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t027b_mmse_robustness_analysis.py", line 14, in <module>
+    from statsmodels.stats.power import t_ind_solve_power
+ImportError: cannot import name 't_ind_solve_power' from 'statsmodels.stats.power' (/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/.venv/lib/python3.11/site-packages/statsmodels/stats/power.py)
+
+- python code/generate_robustness_summary.py -> rc=1
+
+2026-10-10 06:33:44,747 - INFO - Starting T053: Robustness Summary Report Generation
+2026-10-10 06:33:44,748 - INFO - Loading primary report from data/results/primary_analysis_report.json
+2026-10-10 06:33:44,748 - ERROR - Missing required input file: Required file not found: data/results/primary_analysis_report.json
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/generate_robustness_summary.py", line 239, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/generate_robustness_summary.py", line 201, in main
+    primary_report = load_json_file(primary_report_path)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/generate_robustness_summary.py", line 28, in load_json_file
+    raise FileNotFoundError(f"Required file not found: {path}")
+FileNotFoundError: Required file not found: data/results/primary_analysis_report.json
+
+- python -m pytest tests/integration/test_full_pipeline.py -v -> rc=1
+(T012a)...
+2026-10-10 06:33:45,679 - llmXive - ERROR - T012a failed: 2026-10-10 06:33:45,632 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
+2026-10-10 06:33:45,632 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-10 06:33:45,632 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 155, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 133, in main
+    df_raw = load_raw_dataset(paths)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 44, in load_raw_dataset
+    raise FileNotFoundError(f"Raw dataset not found at {input_path}")
+FileNotFoundError: Raw dataset not found at data/raw/raw_dataset.csv
+=============================== 1 error in 0.46s ===============================
+
+
 
 ## Declared deliverables still missing
 
 - data/processed/cleaned_age_filtered.csv
-- data/processed/cleaned_dataset.csv
 - data/processed/cleaned_dataset_no_mmse.csv
-- data/processed/exclusion_counts.json
+- data/processed/cleaned_score_filtered.csv
 - data/processed/exclusion_log.json
 - data/processed/final_cleaned_dataset.csv
 - data/processed/mmse_flag.json
 - data/processed/validity_metrics.json
+- data/raw/metadata.json
 - data/raw/raw_dataset.csv
 - data/results/robustness_report.json
 - data/results/runtime_log.json
@@ -68,102 +171,86 @@ DataNotFoundError: Cleaned dataset not found at ./data/processed/final_cleaned_d
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/cleaned_age_filtered.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t012a_age_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t012b_score_exclusion.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_age_filtered.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/cleaned_dataset.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t012e_mmse_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t020_effect_sizes.py` — NOT invoked by the run-book
-    - `code/task_t027b_mmse_robustness_analysis.py` — NOT invoked by the run-book
-    - `code/task_t027a_mmse_robustness_prep.py` — NOT invoked by the run-book
-    - `code/task_t014a_create_cleaned_dataset.py` — NOT invoked by the run-book
-    - `code/task_t021_power_analysis.py` — NOT invoked by the run-book
-    - `code/task_t027_robustness_check.py` — NOT invoked by the run-book
-    - `code/analysis.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/cleaned_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/task_t012a_age_exclusion.py` — IS a run-book command
+    - `code/task_t012b_score_exclusion.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/cleaned_age_filtered.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/cleaned_dataset_no_mmse.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t012e_mmse_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t027b_mmse_robustness_analysis.py` — NOT invoked by the run-book
+    - `code/generate_robustness_summary.py` — IS a run-book command
+    - `code/task_t012e_mmse_exclusion.py` — IS a run-book command
     - `code/task_t027a_mmse_robustness_prep.py` — NOT invoked by the run-book
-    - `code/generate_robustness_summary.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_dataset_no_mmse.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/exclusion_counts.json` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t012e_mmse_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t012a_age_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t012b_score_exclusion.py` — NOT invoked by the run-book
-    - `code/ingestion.py` — NOT invoked by the run-book
-    - `code/task_t012c_generate_exclusion_log.py` — NOT invoked by the run-book
-    - `code/ingestion/validator.py` — NOT invoked by the run-book
-    - `code/ingestion/fetcher.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/exclusion_counts.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/task_t027b_mmse_robustness_analysis.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/cleaned_dataset_no_mmse.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/cleaned_score_filtered.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/task_t012b_score_exclusion.py` — IS a run-book command
+    - `code/task_t012e_mmse_exclusion.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/cleaned_score_filtered.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/exclusion_log.json` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t014b_validity_metrics.py` — NOT invoked by the run-book
-    - `code/task_t012d_mmse_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t014a_create_cleaned_dataset.py` — NOT invoked by the run-book
-    - `code/task_t015a_generate_metadata.py` — NOT invoked by the run-book
-    - `code/ingestion.py` — NOT invoked by the run-book
-    - `code/task_t012c_generate_exclusion_log.py` — NOT invoked by the run-book
-    - `code/ingestion/validator.py` — NOT invoked by the run-book
-    - `code/ingestion/fetcher.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/exclusion_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/final_cleaned_dataset.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t014a_create_cleaned_dataset.py` — NOT invoked by the run-book
-    - `code/task_t021_power_analysis.py` — NOT invoked by the run-book
-    - `code/analysis.py` — IS a run-book command
-    - `code/task_t022_generate_report.py` — NOT invoked by the run-book
-    - `code/assumption_checks.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/final_cleaned_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/mmse_flag.json` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t012e_mmse_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t027a_mmse_robustness_prep.py` — NOT invoked by the run-book
-    - `code/task_t014a_create_cleaned_dataset.py` — NOT invoked by the run-book
-    - `code/task_t027_robustness_check.py` — NOT invoked by the run-book
-    - `code/task_t012d_mmse_flag.py` — NOT invoked by the run-book
-    - `code/ingestion.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/mmse_flag.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/validity_metrics.json` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t014b_validity_metrics.py` — NOT invoked by the run-book
-    - `code/ingestion.py` — NOT invoked by the run-book
-    - `code/ingestion/validator.py` — NOT invoked by the run-book
     - `code/ingestion/__init__.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/validity_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/ingestion/fetcher.py` — NOT invoked by the run-book
+    - `code/ingestion/validator.py` — NOT invoked by the run-book
+    - `code/ingestion.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
+    - `code/task_t012c_generate_exclusion_log.py` — NOT invoked by the run-book
+    - `code/task_t012d_mmse_exclusion.py` — NOT invoked by the run-book
+    - `code/task_t014a_create_cleaned_dataset.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/exclusion_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/final_cleaned_dataset.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis.py` — IS a run-book command
+    - `code/assumption_checks.py` — NOT invoked by the run-book
+    - `code/task_t014a_create_cleaned_dataset.py` — IS a run-book command
+    - `code/task_t021_power_analysis.py` — NOT invoked by the run-book
+    - `code/task_t022_generate_report.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/final_cleaned_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/mmse_flag.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingestion.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
+    - `code/task_t012d_mmse_flag.py` — IS a run-book command
+    - `code/task_t012e_mmse_exclusion.py` — IS a run-book command
+    - `code/task_t014a_create_cleaned_dataset.py` — IS a run-book command
+    - `code/task_t014b_validity_metrics.py` — IS a run-book command
+    - `code/task_t027_robustness_check.py` — NOT invoked by the run-book
+    - `code/task_t027a_mmse_robustness_prep.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/mmse_flag.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/validity_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingestion/__init__.py` — NOT invoked by the run-book
+    - `code/ingestion/validator.py` — NOT invoked by the run-book
+    - `code/ingestion.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
+    - `code/task_t014b_validity_metrics.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/validity_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/metadata.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis.py` — IS a run-book command
+    - `code/generate_data_model.py` — NOT invoked by the run-book
+    - `code/ingestion/__init__.py` — NOT invoked by the run-book
+    - `code/ingestion/fetcher.py` — NOT invoked by the run-book
+    - `code/ingestion.py` — NOT invoked by the run-book
+    - `code/reference_validator.py` — NOT invoked by the run-book
+    - `code/run_ingestion.py` — NOT invoked by the run-book
+    - `code/task_t010d_generate_simulation.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/raw_dataset.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t014b_validity_metrics.py` — NOT invoked by the run-book
-    - `code/task_t010d_generate_simulation.py` — NOT invoked by the run-book
-    - `code/run_t010b_fetch.py` — NOT invoked by the run-book
-    - `code/task_t012a_age_exclusion.py` — NOT invoked by the run-book
-    - `code/task_t012d_mmse_flag.py` — NOT invoked by the run-book
-    - `code/task_t015a_generate_metadata.py` — NOT invoked by the run-book
     - `code/ingestion.py` — NOT invoked by the run-book
     - `code/run_ingestion.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/raw_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/run_t010b_fetch.py` — NOT invoked by the run-book
+    - `code/task_t010d_generate_simulation.py` — IS a run-book command
+    - `code/task_t012a_age_exclusion.py` — IS a run-book command
+    - `code/task_t012d_mmse_flag.py` — IS a run-book command
+    - `code/task_t014b_validity_metrics.py` — IS a run-book command
+    - `code/task_t015a_generate_metadata.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/raw_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/robustness_report.json` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t027b_mmse_robustness_analysis.py` — NOT invoked by the run-book
-    - `code/task_t027c_compare_robustness.py` — NOT invoked by the run-book
+    - `code/generate_robustness_summary.py` — IS a run-book command
     - `code/task_t027_robustness_check.py` — NOT invoked by the run-book
-    - `code/generate_robustness_summary.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/robustness_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/task_t027b_mmse_robustness_analysis.py` — IS a run-book command
+    - `code/task_t027c_compare_robustness.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/robustness_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/runtime_log.json` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
     - `code/task_t015b_stimulus_validation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/runtime_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/results/runtime_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/sensitivity_comparison.json` is declared but was NOT written. Scripts referencing it:
-    - `code/task_t030_final_report.py` — NOT invoked by the run-book
+    - `code/generate_robustness_summary.py` — IS a run-book command
     - `code/task_t027c_compare_robustness.py` — NOT invoked by the run-book
     - `code/task_t028_sensitivity_report.py` — NOT invoked by the run-book
-    - `code/generate_robustness_summary.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/sensitivity_comparison.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `runtime_log.json`
-
-- ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
-- REQUIRED by the consumer(s): `[paths]`
-- PRODUCER(s) to edit: `code/main.py`
-- CONSUMER(s) that read it: `code/main.py`, `code/task_t015b_stimulus_validation.py`
-  → Edit the producer so every required name [paths] is in `runtime_log.json`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
+    - `code/task_t030_final_report.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/sensitivity_comparison.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

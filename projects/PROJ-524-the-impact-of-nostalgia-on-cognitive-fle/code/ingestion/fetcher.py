@@ -26,13 +26,13 @@ class RealDataFetchFailed(Exception):
 def fetch_from_openml(dataset_id: int) -> pd.DataFrame:
     """
     Fetches data from OpenML.
-    
+
     Args:
         dataset_id: The OpenML dataset ID.
-    
+
     Returns:
         DataFrame with the fetched data.
-    
+
     Raises:
         DataFetchError: If the fetch fails.
     """
@@ -46,25 +46,31 @@ def fetch_from_openml(dataset_id: int) -> pd.DataFrame:
         logger.error(f"Failed to fetch from OpenML: {e}")
         raise DataFetchError(f"OpenML fetch failed: {e}")
 
-def fetch_from_huggingface(path: str, config: Optional[str] = None) -> pd.DataFrame:
+def fetch_from_huggingface(repo: str, name: str = "wcst", split: str = "train", streaming: bool = False) -> pd.DataFrame:
     """
     Fetches data from HuggingFace Datasets.
-    
+
     Args:
-        path: The dataset path.
-        config: The dataset configuration name.
-    
+        repo: The dataset repository identifier.
+        name: The dataset configuration name (default "wcst").
+        split: The split to load (default "train").
+        streaming: Whether to stream the dataset.
+
     Returns:
         DataFrame with the fetched data.
-    
+
     Raises:
         DataFetchError: If the fetch fails.
     """
     try:
         from datasets import load_dataset
-        ds = load_dataset(path, config if config else None, split="train")
-        df = ds.to_pandas()
-        log_info(f"Successfully fetched dataset {path} from HuggingFace.")
+        ds = load_dataset(repo, name=name, split=split, streaming=streaming)
+        # If streaming, we need to materialize
+        if streaming:
+            df = pd.DataFrame(ds)
+        else:
+            df = ds.to_pandas()
+        log_info(f"Successfully fetched dataset {repo} (config={name}) from HuggingFace.")
         return df
     except Exception as e:
         logger.error(f"Failed to fetch from HuggingFace: {e}")
@@ -73,13 +79,13 @@ def fetch_from_huggingface(path: str, config: Optional[str] = None) -> pd.DataFr
 def fetch_from_url(url: str) -> pd.DataFrame:
     """
     Fetches data from a URL (CSV).
-    
+
     Args:
         url: The URL to the CSV file.
-    
+
     Returns:
         DataFrame with the fetched data.
-    
+
     Raises:
         DataFetchError: If the fetch fails.
     """
@@ -91,105 +97,79 @@ def fetch_from_url(url: str) -> pd.DataFrame:
         logger.error(f"Failed to fetch from URL: {e}")
         raise DataFetchError(f"URL fetch failed: {e}")
 
-def fetch_metadata_from_source(source: str) -> Dict[str, Any]:
-    """
-    Fetches metadata from a source.
-    
-    Args:
-        source: The source identifier.
-    
-    Returns:
-        Dictionary with metadata.
-    """
-    return {"source": source, "fetched_at": pd.Timestamp.now().isoformat()}
-
-def load_local_file(filepath: str) -> pd.DataFrame:
-    """
-    Loads data from a local file.
-    
-    Args:
-        filepath: Path to the file.
-    
-    Returns:
-        DataFrame with the loaded data.
-    """
-    df = pd.read_csv(filepath)
-    log_info(f"Successfully loaded local file {filepath}.")
-    return df
-
 def fetch_data() -> Tuple[Optional[pd.DataFrame], str, bool]:
     """
-    Attempts to fetch real data from the canonical source.
-    
-    Tries OpenML, then HuggingFace, then URL.
-    If all fail, raises RealDataFetchFailed.
-    
-    Returns:
-        Tuple of (DataFrame, source_name, simulation_mode).
-    
-    Raises:
-        RealDataFetchFailed: If real data cannot be fetched.
-    """
-    # Check for verified source override
-    verified_path = Path("data/verified_source.json")
-    if verified_path.exists():
-        with open(verified_path, 'r') as f:
-            verified = json.load(f)
-        source_type = verified.get("type")
-        source_id = verified.get("id")
-        log_info(f"Using verified source: {source_type} - {source_id}")
-        
-        if source_type == "openml":
-            try:
-                df = fetch_from_openml(int(source_id))
-                return df, source_id, False
-            except DataFetchError:
-                log_warning("Verified source fetch failed.")
-        
-        elif source_type == "huggingface":
-            try:
-                df = fetch_from_huggingface(source_id, verified.get("config"))
-                return df, source_id, False
-            except DataFetchError:
-                log_warning("Verified source fetch failed.")
-        
-        elif source_type == "url":
-            try:
-                df = fetch_from_url(source_id)
-                return df, source_id, False
-            except DataFetchError:
-                log_warning("Verified source fetch failed.")
+    Attempts to fetch real WCST data from public sources.
 
-    # Try canonical sources defined in plan.md
-    # 1. OpenML WCST dataset (example ID)
+    Strategy (deterministic order):
+    1. Search OpenML for datasets whose name or description contain any of the keywords
+       ["WCST","card-sorting","executive function"]; select the dataset with the largest
+       row count, breaking ties by the lowest OpenML ID.
+    2. If no suitable OpenML dataset is found, attempt to load a HuggingFace dataset
+       using a repository identifier (placeholder) with name="wcst".
+    3. If that also fails, attempt a direct URL fetch (placeholder URL).
+
+    On success returns (DataFrame, source_identifier, simulation_mode=False).
+    On total failure raises RealDataFetchFailed.
+
+    Returns:
+        Tuple[DataFrame or None, source identifier string, simulation_mode flag]
+    """
+    # 1. OpenML search
     try:
-        df = fetch_from_openml(12345) # Placeholder ID, will fail if not real
-        return df, "openml_12345", False
-    except DataFetchError:
-        log_info("OpenML fetch failed.")
-    
-    # 2. HuggingFace dataset
+        import openml
+        log_info("Searching OpenML for WCST-related datasets...")
+        df_list = openml.datasets.list_datasets(output_format='dataframe')
+        keywords = ["wcst", "card-sorting", "executive function"]
+        mask = df_list['name'].str.lower().fillna('').apply(
+            lambda x: any(k in x for k in keywords)
+        ) | df_list['description'].str.lower().fillna('').apply(
+            lambda x: any(k in x for k in keywords)
+        )
+        candidates = df_list[mask]
+        if not candidates.empty:
+            # Choose dataset with max instances, then min did
+            max_instances = candidates['NumberOfInstances'].max()
+            candidates_max = candidates[candidates['NumberOfInstances'] == max_instances]
+            selected = candidates_max.loc[candidates_max['did'].idxmin()]
+            dataset_id = int(selected['did'])
+            log_info(f"Selected OpenML dataset ID {dataset_id} ({selected['name']}) with {max_instances} rows.")
+            df = fetch_from_openml(dataset_id)
+            source = f"openml:{dataset_id}"
+            return df, source, False
+        else:
+            log_info("No OpenML datasets matched the keywords.")
+    except Exception as e:
+        log_warning(f"OpenML search/fetch failed: {e}")
+
+    # 2. HuggingFace attempt (placeholder repo - will likely fail)
     try:
-        df = fetch_from_huggingface("some_real_wcst_dataset", "default")
-        return df, "huggingface_some_real_wcst_dataset", False
-    except DataFetchError:
-        log_info("HuggingFace fetch failed.")
-    
-    # 3. Direct URL
+        repo = "some_user/wcst_dataset"  # Placeholder; replace with real repo if known
+        log_info(f"Attempting HuggingFace fetch from repo '{repo}'...")
+        df = fetch_from_huggingface(repo, name="wcst", split="train", streaming=False)
+        source = f"huggingface:{repo}"
+        return df, source, False
+    except Exception as e:
+        log_warning(f"HuggingFace fetch failed: {e}")
+
+    # 3. Direct URL attempt (placeholder URL)
     try:
-        df = fetch_from_url("https://example.com/wcst_data.csv")
-        return df, "url_example", False
-    except DataFetchError:
-        log_info("URL fetch failed.")
-    
-    # All real sources failed
+        url = "https://example.com/wcst_data.csv"
+        log_info(f"Attempting direct URL fetch from {url}...")
+        df = fetch_from_url(url)
+        source = f"url:{url}"
+        return df, source, False
+    except Exception as e:
+        log_warning(f"URL fetch failed: {e}")
+
+    # All attempts failed
     log_error("All real data sources failed to fetch.")
-    raise RealDataFetchFailed("Could not fetch real data from any canonical source.")
+    raise RealDataFetchFailed("Could not fetch real WCST data from any source.")
 
 def save_metadata(metadata: Dict[str, Any], filepath: str) -> None:
     """
     Saves metadata to a JSON file.
-    
+
     Args:
         metadata: Metadata dictionary.
         filepath: Path to save the file.
@@ -201,7 +181,7 @@ def save_metadata(metadata: Dict[str, Any], filepath: str) -> None:
 def save_exclusion_log(exclusion_counts: Dict[str, int], filepath: str) -> None:
     """
     Saves exclusion log to a JSON file.
-    
+
     Args:
         exclusion_counts: Dictionary of exclusion counts.
         filepath: Path to save the file.

@@ -1,12 +1,8 @@
-# Core dependencies
-pandas>=1.5.0
-numpy>=1.21.0
-scipy>=1.9.0
-statsmodels>=0.13.0
-pyyaml>=6.0
-requests>=2.28.0
-datasets>=2.8.0
-pytest>=7.0.0
-black>=22.0.0
-ruff>=0.0.200
-toml>=0.10.0
+pandas
+numpy
+scipy
+statsmodels
+pyyaml
+openml
+datasets
+# Existing dependencies (if any) should be retained; add the above if missing.
