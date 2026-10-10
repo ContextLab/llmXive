@@ -1,10 +1,54 @@
+T001:
+  c: true
+  h: a9cb58bac2a99d544ff41fcf28df8ef4144f8b062210b0671e5468614a837742
+  r: The evidence shows the directory `projects/PROJ-530-neural-correlates-of-error-monitoring-du/`
+    exists (14 entries listed), satisfying the sole requirement to create the root
+    project folder.
+  sig: 2c626668a5ad81cec73977ba94258d25b4d44238bde0d953b1f0a72130ea59f9
 T002:
+  c: true
+  h: f93516be05182e252ea4a6cff295df35fe4507c1b88e42b1e5f42d78ff75ac41
+  r: The collector shows that both `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`
+    and `.../data/processed/` directories exist, and the execution log from `code/.tasks/T002.code_ensure_data_dirs.py.log`
+    confirms the script successfully created them. No further content is required
+    for this task.
+  sig: f05819288d67476635ce3d8a16881ebd9e38f2d0041900b39dc6a0e730832702
+T003:
+  c: true
+  h: c1b5ff2e747d8dda8faef550ac2a7388b845f38bd3861411061b0436c6d980ce
+  r: The collector confirms that all required directories (`results/models/`, `results/figures/`,
+    `results/diagnostics/`, `code/`, and `tests/`) exist under the project root and
+    contain files (e.g., `.gitkeep` in the results subfolders and numerous source/test
+    files in `code/` and `tests/`). This satisfies the task of creating the specified
+    results and code directories.
+  sig: 12b622c30a6a953f907aee2362b0df172011f9970528999ecaf18e47a48c2035
+T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the two required directories (`.../data/raw/`\
-    \ and `.../data/processed/`) actually exist or contain any files; the implementer\u2019\
-    s claim is unsubstantiated. The task remains incomplete until the directories\
-    \ are created and verified."
+  h: 60c0e3c2e7bf33dc1a01db8369bbeed4cac6b1ddad664fded8dbafbcfed4e12c
+  r: "The evidence provides only the project root path but no concrete files (e.g.,\
+    \ `pyproject.toml`, `requirements.txt`, `environment.yml`, or similar) that declare\
+    \ a Python\u202F3.11 project and list the required dependencies. Without such\
+    \ a manifest, we cannot verify that the specified packages are included, so the\
+    \ task is not satisfied."
+  sig: 083ad60158b2f36a3135d890dc8a7fbad7852e6eac55baf629cf913c3c975581
+T005:
+  c: false
+  h: 227be96b377fd2ead568db14a506110a271717a5e75812312a609d7569e15483
+  r: "The evidence contains no linting configuration artifacts (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, `setup.cfg`, or a pre\u2011commit hook) and provides no\
+    \ proof that flake8/black have been installed or run. Without these files or execution\
+    \ logs, the requirement to \u201CConfigure linting (flake8/black) and formatting\
+    \ tools\u201D is not satisfied. Adding the appropriate config files and a demonstration\
+    \ of a successful lint/format run is needed."
+  sig: dacbd26bcc38ddb4d777cb2206750a4beedf5ece5c71d913b6bcbe35ed6d8119
+T006:
+  c: true
+  h: bfe7da49f1882418ffe0b0b0c5992a906b47edd9765a1b0abfd1d17bbbe44707
+  r: "Checked `code/__init__.py` (present, imports config loader) and `code/config_loader.py`\
+    \ (non\u2011empty implementation of loading, validation, defaults, and related\
+    \ utilities). Both required artifacts exist and contain functional code, satisfying\
+    \ the task."
+  sig: 04c026cd126a87f6f5181879e42c48b7585151db82ba466f8320007321ee3eab
 T012:
   c: false
   h: 445d2d266366dbcfe10c27c27beb55ef840d2ffeec5ddcf75ea31e3a616e736d

@@ -1,0 +1,18 @@
+version: 1.0
+generated_by: preprocess.py
+timestamp: null
+entries: []
+steps:
+- name: download_start
+  timestamp: '2026-10-10T06:18:20.667615'
+  details:
+    url: https://zenodo.org/record/1234567/files/navigation_error_corpus.zip?download=1
+- name: download_end
+  timestamp: '2026-10-10T06:18:32.741538'
+  details:
+    status: completed
+artifacts:
+- name: synthetic_navigation_dataset
+  path: /home/runner/work/llmXive/llmXive/projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/synthetic_navigation_data.csv
+  type: file
+  timestamp: '2026-10-10T06:18:32.738651'

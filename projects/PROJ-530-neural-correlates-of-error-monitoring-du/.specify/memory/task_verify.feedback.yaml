@@ -1,0 +1,91 @@
+T001:
+  task: 06546221720cfde2feceaffbe562d93a745b4385e728df2f0d1bebc494f9a21c
+T002:
+  task: 134c0caecd2317184adcda925610a19ab56b84c73226fe3c4b81e08c4d6e2217
+T003:
+  task: 13b9aa9aa5515afc47158190011f06ad1507b3d3bed20925d89fd469760c454e
+T004:
+  reason: "The evidence provides only the project root path but no concrete files\
+    \ (e.g., `pyproject.toml`, `requirements.txt`, `environment.yml`, or similar)\
+    \ that declare a Python\u202F3.11 project and list the required dependencies.\
+    \ Without such a manifest, we cannot verify that the specified packages are included,\
+    \ so the task is not satisfied."
+  task: 8741d6c3cfca74257e02916782b2496194f974f974f238714e1391e61b9b824c
+T005:
+  reason: "The evidence contains no linting configuration artifacts (e.g., `.flake8`,\
+    \ `pyproject.toml` with Black settings, `setup.cfg`, or a pre\u2011commit hook)\
+    \ and provides no proof that flake8/black have been installed or run. Without\
+    \ these files or execution logs, the requirement to \u201CConfigure linting (flake8/black)\
+    \ and formatting tools\u201D is not satisfied. Adding the appropriate config files\
+    \ and a demonstration of a successful lint/format run is needed."
+  task: 770db96bafd3584053d99230f1db58a866ac686d055eec5969c39a0b3675704e
+T006:
+  task: c1da8b55c8217734ec6ab621b1b65e9bb66e8bc31782f399da2b8cfd91224efe
+T007:
+  task: c5581d533adc9fde31ad5d39d0c0e9caf4d3664d7d59d7a116cc73dca8dfd95a
+T008:
+  task: b4fef0e94a5d58515ba1e77032dfd3f2b1d0c1a4c8676388217c907f09738b12
+T009:
+  task: b7af352fe5225f763237e1ccd64491ce8c3d871590226dc5dee219bbd4980f73
+T010:
+  task: a0daca8e32047aa01b12691c83af0e7572f1ce92a43da61541f2f73aac0eee7e
+T011:
+  task: 2e97e64d5fefbc55e9be3e365330a50bd414321eb74d3a2cdaa0410d42ec6159
+T012:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
+  task: a3e70e1673484631d32e9094fd5049d59de0ec28755b69ffbeaf1b68bce58170
+T013:
+  task: 8af3175241bcf3444215486b1b84f4e3168e963bbcce0eb92bc992da4237380a
+T014:
+  task: a6d90ce61e9e6023a3a787111939a0bcaf254bbdf896adda97d3e865a639a849
+T015:
+  task: aa91fa6fd06cbeb06f950ad174e1ba6d16a8b40e03af24346d9a771b10709892
+T016:
+  task: 1c6515d6a52bc09bee7e08dd753e21780910ade90783d2f9e255a72d379d996b
+T017:
+  task: f1ac1ad9ebf811dfea4927fd42678ed0365dcb6b4259b57c83f984bb41b02445
+T018:
+  task: 4781d6cdd6d0ab6c45fa4c7d6526563f54b41eb8ce129804e62073279a7754c7
+T019:
+  task: 1287c0e9b7866685d53c4927b875c38c6350f02f3bd5e5e8a8003f381ccd54dd
+T020:
+  task: bbbb5111153df9cd088f1658a07c8d084f648a39d32d666b22c7a10d0790c944
+T021:
+  task: 1775874c5f4e325dfa5c1505d0e096da21d8846dd32bf2ab6e3d7513335d8f10
+T022:
+  task: 080278c537171c4ea24f95d62d1613c51b69a4039d5eae98e022c435fd09d9bb
+T023:
+  task: f69b92c44456ec754706e107c48579eeeca7e7fb2d8977218161a0adcc88cf66
+T024:
+  task: 502702311f757e641458e6c546fe106ee0908a3497292b18a27737d60d73bcf0
+T025:
+  task: 173b2ec12a00506a128270455f8f2e74c3821509ad68e61614342fa86302a497
+T026:
+  task: 62ed118b918a383db1330de8841b296e6b128dd634149e21386dd36851262edf
+T027:
+  task: d0867c618cb2de36480c4f608a4d84f5e6be65b6f807efa3993e39d87a0faa4c
+T028:
+  task: 72168c15281053b184f70813b5cc04071a1f3eef319d1afd0593748629b630d7
+T029:
+  task: 0c8bb1a0af7ecfa0535fc3acae22e783983e182aef27fbdbe569b2af754485c4
+T030:
+  task: 838100b986b83bfdc43660f5a232214226007dc787ee7089f60013da471aeffd
+T031:
+  task: cbcb22a0701d4842a4e52dbf01e6dd065dcfef35bacdee24ebb1b151c1216cff
+T032:
+  task: 3cf9cbe51f7dc48c711dfff1d770d90abbb5c1bdc08de3fa1d5b7eefeda31ca2
+T033:
+  task: d09e9f4c393347ef68f2a9e262de4b05be30536c9794d02d09b2d50af069019d
+T034:
+  task: e5bde0a6825ea4b85502da5cc86e44697ad61055d93326c3c39087b82eea0fbb
+T035:
+  task: 808bc826e50f24789e18f513ecad75f12c73a0ca0a1615c5e5f93015d0203dd4
+T036:
+  task: 1fca61dade38a72d47b04b04de0e2bcc758175108e98e478c7a0e290e868ca64
+T037:
+  task: 19870f175d1a2d55b7d0e721c3e3f6eff4cae4b419999d40a591cadae6d08d42
+T038:
+  task: 6207b06545f39abf623e1975d1b5e68e51ac930d78941aaacd70aa1faae2f5d7
+T039:
+  task: 7fb660d4981d7a7593cb27f29f9d0567c813f6e4f86cade9d18d8dee7665bb88
