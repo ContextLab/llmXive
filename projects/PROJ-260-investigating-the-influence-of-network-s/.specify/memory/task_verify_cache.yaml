@@ -13,23 +13,6 @@ T002:
     The execution log confirms the script created the hierarchy and wrote the tree
     file.
   sig: c0cfd2175a4505dd0e73c6d60d77369436aee21aba73ddde7213c8b16094ab66
-T003:
-  c: false
-  h: 7b4b902e6b91f8bb093b76354da3d59c873e6c1715c80d08288e3630065eb8b9
-  r: "The repository contains a correctly\u2011pinned `requirements.txt` with all\
-    \ required packages (plus an extra `PyYAML` entry), but there is no evidence\u2014\
-    such as installation logs, command output, or CI results\u2014showing that `pip\
-    \ install -r requirements.txt` actually runs successfully and resolves without\
-    \ version conflicts. Adding such proof is needed to satisfy the verification step."
-  sig: 76de3b326ffa779579eaec29578c9d2a5d490ef87e40528d9cdbb79b00025188
-T004:
-  c: false
-  h: d1c13a32676b8cc7cbff6bee2bdb217eb9a1549411a0210ac230b9eac3a8ba21
-  r: "The `ruff.toml` and `pyproject.toml` files exist and contain the required settings,\
-    \ but there is no provided evidence (e.g., command\u2011line output or logs) that\
-    \ `ruff check .` and `black --check .` were actually run and reported zero violations.\
-    \ Without that execution proof, the task\u2019s verification requirement is unmet."
-  sig: c0cfd3196600da50f47a478f34106409e14601d306ab7c09be95aca9e3296b44
 T005:
   c: false
   h: 2591944a18c136752047c3d6b1e7d22cc0f2664de944230dcec35d0292dc7005
@@ -45,6 +28,23 @@ T006:
   r: 'Checked the `config.yaml` file at the project root (`projects/PROJ-260-investigating-the-influence-of-network-s/config.yaml`),
     which contains the required `bootstrap_iterations: 1000` entry.'
   sig: 066e517b6633438f98149e3ccc7d95d85b39911c0acc40708ab8b774ec0519f4
+T007:
+  c: true
+  h: 0d01e3b8ec932ddc0672f5a55762b33fb870ecacd36c1a9f2ce654a38c365673
+  r: Checked `scripts/update_state_hashes.py` (exists, implements hashing of all files
+    under `data/`, `src/`, `outputs/`), the generated `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`
+    (contains many hash entries), and the execution log showing the script ran successfully
+    and wrote the YAML file.
+  sig: c337f19d64a1d1886c0b79ad0bab63487a73e339bb3936fc6430e547986eb0b7
+T008:
+  c: false
+  h: 2ef9a214bdc8cb763af5bf07c75a285d33e97a9c39cae03c2b32cfa1f36f2fc4
+  r: "The required `src/lib/config.py` (defining `VERIFIED_DATASET_IDS`) is missing,\
+    \ so the generator cannot import the hard\u2011coded IDs. Moreover, `data/metadata/dataset_registry.json`\
+    \ contains keys `\"1000\"`, `\"2000\"`, `\"4000\"` instead of the required `\"\
+    N1000\"`, `\"N2000\"`, `\"N4000\"`. Both issues prevent the task from being correctly\
+    \ fulfilled."
+  sig: 9dd4f322192993013d14db7d2cfd658443f59a21f99a3459e8198fc9619da0e8
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

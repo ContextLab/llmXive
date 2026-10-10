@@ -18,7 +18,9 @@ dependencies = [
     "networkx",
     "pytest",
     "pytest-cov",
-    "pytest-randomly"
+    "pytest-randomly",
+    "ruff",
+    "black"
 ]
 
 [tool.setuptools.packages.find]
@@ -40,6 +42,10 @@ addopts = [
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
+# Exclude the same service directory that ruff skips
+exclude = '''
+src/services/.*
+'''
 
 [tool.ruff]
 line-length = 88

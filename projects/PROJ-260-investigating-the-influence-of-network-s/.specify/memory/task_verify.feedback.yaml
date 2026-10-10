@@ -3,18 +3,16 @@ T001:
 T002:
   task: 91f528c5c0a6d22e585c05b53eb0fcda36d43ea1f2b4a792134f2f35ddce5910
 T003:
-  reason: "The repository contains a correctly\u2011pinned `requirements.txt` with\
-    \ all required packages (plus an extra `PyYAML` entry), but there is no evidence\u2014\
-    such as installation logs, command output, or CI results\u2014showing that `pip\
-    \ install -r requirements.txt` actually runs successfully and resolves without\
-    \ version conflicts. Adding such proof is needed to satisfy the verification step."
+  reason: "The provided `requirements.txt` lists the required packages but does not\
+    \ pin them to specific versions, violating the \u201Cpinned requirements\u201D\
+    \ clause, and there is no evidence (e.g., pip install logs) that installing this\
+    \ file succeeds without version conflicts. The task therefore remains unfinished."
   task: b38e6e86cb2016c4ab9607c725eeecb29974a27818252fbd3002eee7a21a97c1
 T004:
-  reason: "The `ruff.toml` and `pyproject.toml` files exist and contain the required\
-    \ settings, but there is no provided evidence (e.g., command\u2011line output\
-    \ or logs) that `ruff check .` and `black --check .` were actually run and reported\
-    \ zero violations. Without that execution proof, the task\u2019s verification\
-    \ requirement is unmet."
+  reason: "The `ruff.toml` and `pyproject.toml` files exist and match the required\
+    \ settings, but there is no provided output or log showing that `ruff check .`\
+    \ and `black --check .` were actually run and reported zero violations. Execution\
+    \ evidence is required to confirm the task\u2019s verification step."
   task: e6e94e96ecd1e388b27bb5b51806e0c657e2f7584313211a18092c7604415b95
 T005:
   reason: "The provided `src/cli/main.py` is only a thin wrapper that loads the real\
@@ -26,12 +24,17 @@ T005:
 T006:
   task: b1ab9edd8752ee2ff6463e7301496a5301481e8922c5ef3184bc49791b1d32ef
 T007:
-  reason: 'Requested task execution failed; rerun successfully: scripts/update_state_hashes.py
-    exit=1'
   task: ffc208af6382b0460d36701c187737620171febe6bf629e36a14074fc72f5c72
 T008:
+  reason: "The required `src/lib/config.py` (defining `VERIFIED_DATASET_IDS`) is missing,\
+    \ so the generator cannot import the hard\u2011coded IDs. Moreover, `data/metadata/dataset_registry.json`\
+    \ contains keys `\"1000\"`, `\"2000\"`, `\"4000\"` instead of the required `\"\
+    N1000\"`, `\"N2000\"`, `\"N4000\"`. Both issues prevent the task from being correctly\
+    \ fulfilled."
   task: 601834c5ce2317965759ddb7b75f884fddd82e044ddc58b3e2a01c16bd2fbe91
 T009:
+  reason: 'Requested task execution failed; rerun successfully: src/services/run_registry_validator.py
+    exit=1'
   task: 80b813a659e274cad51f93264a366534a758d5a8b5b2926c3c839434357a4efd
 T010:
   task: 3a539b6151c282fcc0085146558cb210b0291224f44c34889e15753ef00b54c5

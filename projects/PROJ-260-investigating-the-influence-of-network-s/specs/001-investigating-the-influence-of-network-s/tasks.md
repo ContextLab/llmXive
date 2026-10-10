@@ -37,7 +37,7 @@ artifact paths and an explicit verification step.
   (additional keys may be added later).  
   **Verification**: `yaml.safe_load(open("config.yaml"))` returns a dict with the key `bootstrap_iterations`.
 
-- [ ] **T007**  Implement `scripts/update_state_hashes.py` that computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.   <!-- FAILED-IN-EXECUTION: scripts/update_state_hashes.py exit=1 -->
+- [X] **T007**  Implement `scripts/update_state_hashes.py` that computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.
   **Verification**: Running the script creates the YAML file and contains at least one hash entry.
 
 ---
@@ -50,7 +50,7 @@ artifact paths and an explicit verification step.
 - [ ] **T008** [Foundational] Implement `src/services/registry_generator.py` that writes `data/metadata/dataset_registry.json`. This JSON maps system‑size labels (`N1000`, `N2000`, `N4000`) to verified Materials‑Cloud/Zenodo dataset identifiers (hard‑coded in `src/lib/config.py` as `VERIFIED_DATASET_IDS`).  
   **Verification**: The JSON file exists and contains three keys matching the size labels.
 
-- [ ] **T009** [Foundational] Implement `src/services/registry_validator.py` which reads `dataset_registry.json`, queries the Zenodo API for each ID, aborts with a clear error if any ID is unreachable, and writes `data/metadata/valid_sources.json` plus a log `data/metadata/registry_validation.log`.  
+- [ ] **T009** [Foundational] Implement `src/services/registry_validator.py` which reads `dataset_registry.json`, queries the Zenodo API for each ID, aborts with a clear error if any ID is unreachable, and writes `data/metadata/valid_sources.json` plus a log `data/metadata/registry_validation.log`.   <!-- FAILED-IN-EXECUTION: src/services/run_registry_validator.py exit=1 -->
   **Verification**: The log contains the line `VALIDATION SUCCESS` and `valid_sources.json` lists the same three IDs.
 
 - [ ] **T010** [Foundational] Implement `src/services/data_loader.py` that streams the three verified datasets (using `datasets.load_dataset(..., streaming=True)`) into `data/raw/`. It must:  

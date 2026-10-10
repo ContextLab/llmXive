@@ -1,28 +1,22 @@
 """
-Top‑level command‑line interface for the PROJ‑260 pipeline.
+CLI implementation for the amorphous‑silicon analysis pipeline.
 
-The CLI exposes the following sub‑commands (as required by the task
-description):
+This module defines the real command‑line interface that the thin wrapper
+``src/cli/main.py`` loads.  It provides the sub‑commands required by the
+specification:
 
-  * extract-topology – Run the topology extraction service.
-  * calc-vdos        – Run the VDOS calculation service.
-  * ingest-kappa     – Ingest validated thermal‑conductivity values.
-  * aggregate        – Aggregate topology and κ data for statistical analysis.
-  * analyze          – Perform the statistical correlation analysis.
-  * run              – Convenience command that executes the full pipeline
-                       in the order above.
+  * extract-topology
+  * calc-vdos
+  * ingest-kappa
+  * aggregate
+  * analyze
+  * run          (full pipeline shortcut)
 
-Each sub‑command forwards to the corresponding service module if that
-module provides a ``main`` entry point.  If the service does not yet have
-a ``main`` function, a clear ``NotImplementedError`` is raised so that
-developers can see which parts of the pipeline still need implementation.
-
-The module is deliberately lightweight – it does **not** generate any
-artefacts itself, it only coordinates the existing services.  This keeps
-the CLI independent of the underlying implementation details while still
-satisfying the verification requirement:
-    ``python -m src.cli.main --help``
-which lists all sub‑commands and exits with status 0.
+Each sub‑command dynamically loads the corresponding service module from
+``src.services`` and forwards any additional arguments to that service’s
+own ``main`` entry point.  The helper functions are deliberately small
+and test‑friendly so that ``python -m src.cli.main --help`` prints a
+helpful usage message and exits with status 0.
 """
 
 import argparse
@@ -40,14 +34,14 @@ def _load_service(module_path: str, entry_name: str = "main") -> Callable:
 
     Parameters
     ----------
-    module_path: str
-        Dotted module path relative to the project root (e.g.
-        ``src.services.topology_extractor``).
-    entry_name: str, optional
-        Name of the callable to retrieve (default ``"main"``).
+    module_path : str
+        Dotted module path relative to the project root, e.g.
+        ``src.services.topology_extractor``.
+    entry_name : str, optional
+        Name of the callable to retrieve (default ``\"main\"``).
 
     Returns
-    ----------
+    -------
     Callable
         The requested entry point.
 
@@ -59,16 +53,15 @@ def _load_service(module_path: str, entry_name: str = "main") -> Callable:
     """
     try:
         module = importlib.import_module(module_path)
-    except ModuleNotFoundError as exc:
+    except Exception as exc:
         raise NotImplementedError(
-            f"Service module '{module_path}' not found. "
-            "Ensure the corresponding implementation exists."
+            f"Unable to import service module '{module_path}': {exc}"
         ) from exc
 
     if not hasattr(module, entry_name):
         raise NotImplementedError(
-            f"The service '{module_path}' does not define a '{entry_name}()' "
-            "function. Implement it to enable the CLI sub‑command."
+            f"Service module '{module_path}' does not define entry point "
+            f"'{entry_name}'."
         )
     return getattr(module, entry_name)
 
@@ -76,33 +69,39 @@ def _run_service(entry_func: Callable, args: List[str]) -> int:
     """
     Execute a service entry point with the supplied argument list.
 
-    The service entry point is expected to follow the conventional
-    ``def main() -> int`` signature where the integer return value is used
-    as the process exit code.
+    The service ``main`` functions are expected to accept no arguments
+    (they parse ``sys.argv`` internally) and return an integer exit code.
+    This helper simply calls the function and returns its result.
 
     Parameters
     ----------
-    entry_func: Callable
-        The service's ``main`` function.
-    args: List[str]
-        Command‑line arguments that should be passed to the service.
-        For now we simply forward them via ``sys.argv`` manipulation.
+    entry_func : Callable
+        The service’s ``main`` function.
+    args : List[str]
+        Arguments that would be passed to the service.  They are ignored
+        here because the services use their own ``argparse`` parsing.
 
     Returns
     -------
     int
         The exit code returned by the service (0 on success).
     """
-    # Preserve the original argv and replace it temporarily.
+    # Some services may rely on ``sys.argv``; ensure it contains only the
+    # arguments intended for the service.
     original_argv = sys.argv
     try:
-        sys.argv = [original_argv[0]] + args
-        return entry_func()
+        # Build a minimal argv list: script name + any forwarded args.
+        sys.argv = [entry_func.__module__] + args
+        result = entry_func()
+        if result is None:
+            # Services that exit via ``sys.exit`` return ``None`` – treat as success.
+            return 0
+        return int(result)
     finally:
         sys.argv = original_argv
 
 # ----------------------------------------------------------------------
-# Sub‑command implementations
+# Sub‑command wrappers
 # ----------------------------------------------------------------------
 def _cmd_extract_topology(argv: List[str]) -> int:
     """Run the topology extraction service."""
@@ -126,22 +125,8 @@ def _cmd_aggregate(argv: List[str]) -> int:
 
 def _cmd_analyze(argv: List[str]) -> int:
     """Run the statistical analysis service."""
-    # The statistical analysis service may be named differently; attempt
-    # a few plausible module names.
-    possible_modules = [
-        "src.services.statistical_analyzer",
-        "src.services.statistical_analysis",
-    ]
-    for mod in possible_modules:
-        try:
-            func = _load_service(mod)
-            return _run_service(func, argv)
-        except NotImplementedError:
-            continue
-    raise NotImplementedError(
-        "Statistical analysis service not found. Implement "
-        "`src.services.statistical_analyzer.main()` (or a compatible module)."
-    )
+    func = _load_service("src.services.statistical_analyzer")
+    return _run_service(func, argv)
 
 def _cmd_run(argv: List[str]) -> int:
     """
@@ -149,9 +134,10 @@ def _cmd_run(argv: List[str]) -> int:
 
         extract-topology → calc-vdos → ingest-kappa → aggregate → analyze
     """
-    # The ``argv`` list may contain additional flags (e.g. ``--config``);
-    # we forward the whole list to each sub‑command, letting the services
-    # decide which arguments they understand.
+    # The ``argv`` list may contain flags such as ``--config`` that are
+    # intended for the individual services.  We forward the same list to
+    # each sub‑command; services that do not recognise a flag will simply
+    # ignore it via their own ``argparse`` definitions.
     subcommands = [
         _cmd_extract_topology,
         _cmd_calc_vdos,
@@ -162,8 +148,7 @@ def _cmd_run(argv: List[str]) -> int:
     for sub in subcommands:
         rc = sub(argv)
         if rc != 0:
-            # Abort the pipeline if any step fails.
-            print(f"[pipeline] Sub‑command {sub.__name__} exited with code {rc}")
+            # Abort the pipeline on the first failure.
             return rc
     return 0
 
@@ -171,41 +156,70 @@ def _cmd_run(argv: List[str]) -> int:
 # Argument parser construction
 # ----------------------------------------------------------------------
 def build_parser() -> argparse.ArgumentParser:
-    """Create the top‑level ``argparse`` parser with all sub‑commands."""
+    """
+    Create the top‑level ``argparse`` parser with all sub‑commands.
+    """
     parser = argparse.ArgumentParser(
-        prog="src.cli.main",
-        description="PROJ‑260 pipeline orchestrator."
+        description="Amorphous‑silicon analysis pipeline CLI"
     )
     subparsers = parser.add_subparsers(
         title="sub‑commands",
         dest="command",
         required=True,
+        help="Available pipeline stages",
     )
 
-    # Helper to add a sub‑command that forwards all remaining args.
-    def add_forward_subparser(name: str, handler: Callable):
-        sub = subparsers.add_parser(
-            name,
-            help=f"Execute the '{name}' stage of the pipeline."
-        )
+    # Helper to add a sub‑parser that simply forwards all remaining args.
+    def _add_forwarder(name: str, help_msg: str, func: Callable):
+        sub = subparsers.add_parser(name, help=help_msg)
+        # ``argparse.REMAINDER`` captures everything after the sub‑command.
         sub.add_argument(
             "extra_args",
             nargs=argparse.REMAINDER,
-            help="Arguments passed directly to the underlying service."
+            help="Arguments passed directly to the service",
         )
-        sub.set_defaults(func=handler)
+        sub.set_defaults(func=lambda ns: func(ns.extra_args))
 
-    add_forward_subparser("extract-topology", _cmd_extract_topology)
-    add_forward_subparser("calc-vdos", _cmd_calc_vdos)
-    add_forward_subparser("ingest-kappa", _cmd_ingest_kappa)
-    add_forward_subparser("aggregate", _cmd_aggregate)
-    add_forward_subparser("analyze", _cmd_analyze)
-    add_forward_subparser("run", _cmd_run)
+    _add_forwarder(
+        "extract-topology",
+        "Parse trajectories and extract topological metrics",
+        _cmd_extract_topology,
+    )
+    _add_forwarder(
+        "calc-vdos",
+        "Compute the vibrational density of states (VDOS)",
+        _cmd_calc_vdos,
+    )
+    _add_forwarder(
+        "ingest-kappa",
+        "Validate and ingest thermal‑conductivity (κ) values",
+        _cmd_ingest_kappa,
+    )
+    _add_forwarder(
+        "aggregate",
+        "Combine topology, VDOS and κ data into a single dataset",
+        _cmd_aggregate,
+    )
+    _add_forwarder(
+        "analyze",
+        "Perform statistical correlation analysis",
+        _cmd_analyze,
+    )
+    # ``run`` does not forward extra args – it simply executes the pipeline.
+    run_parser = subparsers.add_parser(
+        "run", help="Execute the full pipeline in the correct order"
+    )
+    run_parser.add_argument(
+        "extra_args",
+        nargs=argparse.REMAINDER,
+        help="Arguments forwarded to each sub‑command",
+    )
+    run_parser.set_defaults(func=lambda ns: _cmd_run(ns.extra_args))
 
     return parser
 
 # ----------------------------------------------------------------------
-# Main entry point
+# Entry point
 # ----------------------------------------------------------------------
 def main() -> int:
     """
@@ -217,18 +231,11 @@ def main() -> int:
         Process exit code (0 = success).
     """
     parser = build_parser()
+    # ``parse_args`` will automatically display help and exit if no
+    # sub‑command is supplied (thanks to ``required=True`` above).
     args = parser.parse_args()
-
-    # ``extra_args`` holds any arguments after the sub‑command name.
-    # They are forwarded unchanged to the service implementation.
-    try:
-        return args.func(args.extra_args)  # type: ignore[arg-type]
-    except NotImplementedError as exc:
-        parser.error(str(exc))
-    except Exception as exc:  # pragma: no cover – unexpected failures
-        parser.error(f"Unexpected error while executing sub‑command: {exc}")
-
-    return 1
+    # ``args.func`` is set by the sub‑parser configuration.
+    return args.func(args)
 
 if __name__ == "__main__":
     sys.exit(main())
