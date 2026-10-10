@@ -19,7 +19,7 @@
   value: https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet
-  verified_at: '2026-10-05T22:12:20.399854Z'
+  verified_at: '2026-10-10T03:14:42.938194Z'
 - artifact_hash: cf9e3b918272944247bcbc381be328c68e7f3c26fd8e9af11cb489a70370bb06
   artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
   cite_id: c-002
@@ -32,4 +32,4 @@
   value: https://arxiv.org/abs/2604.10702
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.10702
-  verified_at: '2026-10-05T22:12:20.399854Z'
+  verified_at: '2026-10-10T03:14:42.938194Z'

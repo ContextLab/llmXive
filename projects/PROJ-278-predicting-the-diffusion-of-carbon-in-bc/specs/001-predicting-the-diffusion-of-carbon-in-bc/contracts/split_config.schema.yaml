@@ -2,8 +2,9 @@ $schema: http://json-schema.org/draft-07/schema#
 title: Split Configuration Schema
 description: |
   Schema defining the structure and constraints for the split configuration
-  file (split_config.json) generated during data preprocessing. This file
-  dictates the cross-validation strategy and sample statistics for model training.
+  file (split_config.json) generated during data preprocessing (T010).
+  This file dictates the cross-validation strategy and sample statistics
+  for model training (consumed by T015).
 type: object
 required:
   - strategy
@@ -14,7 +15,8 @@ properties:
     type: string
     description: |
       The data splitting strategy to be used for model training and validation.
-      Determined dynamically based on sample size (LOOCV for N < 30, 80/20 otherwise).
+      Determined dynamically based on sample size: LOOCV is forced when
+      N < 30 (with a PowerWarning), otherwise an 80/20 train/test split is used.
     enum:
       - "80/20"
       - "LOOCV"

@@ -1,0 +1,80 @@
+T001:
+  task: 7c387e3c26ad2e3649e51499f7106105bd69301fbd2e1300c8b4577b8092dc83
+T002:
+  reason: "The file `code/requirements.txt` exists and contains all ten required packages,\
+    \ but none are pinned to specific versions \u2014 the task explicitly requires\
+    \ a pinned requirements file. Additionally it includes four extra packages (datasets,\
+    \ jsonschema, pyyaml, matplotlib, scipy) with informal comments rather than proper\
+    \ pin syntax; the implementer should pin every dependency to exact versions (e.g.,\
+    \ `pandas==2.x.y`)."
+  task: e4e0f3cdf56263d948337a4179ba85a7ca5fb4116e8897d20a8a4d8f4c2f6455
+T003:
+  task: 8a27d444c7dc8716d70af9fc98ea3451dc78c88e2e4ee7fc09bc9268f1d8bd04
+T004a:
+  task: 60c8dd40afad23132cef1d6d5c69457ade75ad3126ab2f480d886713c0e2fa91
+T004b:
+  task: 80f3783d012a16bf70104888ba0e257a50a5ddfbcb1399db46c465cbfc87c89e
+T004c:
+  task: f33752de0db44e4ad8f0620b357c1dd6dfed67705b2e02055f501cf707bfb834
+T005a:
+  task: 54fbc5846ed2c9cebb72a482d3d13fb20d6e99a4bebc58fce645137a98d1ad8c
+T005b:
+  task: 47c29f911dfbb74c0773021210b24d0c63508a2564354640599da4eab6b9f080
+T006:
+  task: 1d513504cf5faf2735497983f7b926a64060ea2ff6edbd35fc8dc35dfb6639be
+T007:
+  task: 78d20b4267b7d237c3e8dcfa2989e613b922de9100d4644844b6e10c35b4f988
+T008:
+  task: e6acfc6d1d624f3cf9cf9b11f51f8fa06283b0eb1a836fd18ec51f372f417c31
+T009:
+  task: ba60dc5fbf5b6964b2d3c02826cf717846e82b0ccaa021459d1cedac94f6196b
+T009b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/00_reference_validator.py'
+  task: b85ddee2cd8e71f55568d999333db6fe6661a256e83cd9cfde8bc43be8615a8a
+T010:
+  task: b74358a9b6cb02b076d5a48b72c87f1a5c1d7a49d4e3b3a0c971d2919a8bfa0e
+T011:
+  task: c39ba7e1927deeed46322e1438d625eaa1c65f51adfe87c3981569fc7e3b0637
+T013b:
+  task: 6294ff875d5e0336d8172e9f8e495322d6477d47db69072ecb4cb4194f7d5b7b
+T014:
+  task: a3d3c6a8db0eb11cb54bbf6b57762221c03c6b8b8b6ec0c35906412ad8cffc0c
+T015:
+  task: 9fda8ef069985e9d3ef8764ee024dc47ce0dd4bc990e06aa1e62bc90a9ab7a4d
+T016:
+  task: 99f0309fcf0a11872558493f4e5fea3547cb2abe8a9dd890d64ea63857f3be6e
+T017:
+  task: 20b926372509ea8da3a23a3edc1cfbbb2f5bfd31cf93aff7c4c6c1833e669031
+T018:
+  task: ecb0d59c8bd5fbf4d78f4dbd4c330aceb53a349ae2f4f1c83cb3ccc60cefefdd
+T019:
+  task: 4ca195b03a59e400fb1c49333f40ee81be084413ad4c4bcffda77b7f1790f666
+T021a:
+  task: 45fa1c8fa7fb665e49db719a996ae269c82e5fdd07106b9bf21cb7474cfb3d38
+T021b:
+  task: a9970e7c89c72717eee427f2050c304bad03a12757b50b9fa84fcdc7f3c360c8
+T021c:
+  task: 04b6534fd50f2347a56d6db5ab4516fe6cbeabf6aa3e9b51e44f7fc6b23912eb
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/refactoring_summary.md'
+  task: 96e3ec4a47d7ece6fa73e2074bd27b07b99a28b0ba1232f94ade7c51bcdb762d
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: state/validation_log.json'
+  task: 467781d6cf38927e0837d3d80ea37c5a80ceac2bbf38707857f43d8ffc135708
+T024a:
+  task: 3d647a5dbccaf9e26f3c2e25f0d4299b4c398cf4bdcdb146ecb99229bcf0d7bb
+T024b:
+  task: 80ce2b409086b8aefbac48255c51290b3f384a3213d8b965fca783a29cdc1ed0
+T025:
+  task: 49ddc9dd1390b01a55ed54f648b94ca6d798cc15f92d297fa26411fcb5f8c9c6
+T026:
+  task: ba9b149b5231a3377733f02719fab22b34ef978598407a20c070e43c86b9b342
+T027:
+  task: c150efea0ea70e4e9423b575a392f973092c8babb05a7577e379cea7db311f41
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/data_scarcity_report.md'
+  task: 9719233fd22482747dc83c3b3ee992e2faa20efa6324b6e52322fcd5929aa790
+T029:
+  task: 70afe41560a6cf46c4c7ed3f5910e5d95de5222a76d4f2ece4230ee013455415
+T030:
+  task: 73b411155683f4efcb4cd1e3ae5660fe1d807890ecc0c1076928ade01c80613e

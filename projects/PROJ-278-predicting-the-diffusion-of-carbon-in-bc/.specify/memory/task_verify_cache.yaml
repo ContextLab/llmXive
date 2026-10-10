@@ -1,16 +1,58 @@
+T001:
+  c: true
+  h: 2c2c37e9528bf626c41573f568acb36d1e7adfe473e5d7d7c6b2d146b5fbd2d7
+  r: The required project directories exist under `projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc`
+    (code/, tests/, data/, docs/, specs/), and both `code/__init__.py` and `tests/__init__.py`
+    are present as required package markers. The project is substantially built out
+    beyond the scaffold (scripts, tests, configs), consistent with the structure-creation
+    task having been performed.
+  sig: 061eddc602b6a7a32b71022929fd324600e397d9f2249e020dc4dcc0e3991fea
+T002:
+  c: false
+  h: 8c07ba529e33f077bd8880178495d981c56738e28eed6b68d58dc5b8d0285ece
+  r: "The file `code/requirements.txt` exists and contains all ten required packages,\
+    \ but none are pinned to specific versions \u2014 the task explicitly requires\
+    \ a pinned requirements file. Additionally it includes four extra packages (datasets,\
+    \ jsonschema, pyyaml, matplotlib, scipy) with informal comments rather than proper\
+    \ pin syntax; the implementer should pin every dependency to exact versions (e.g.,\
+    \ `pandas==2.x.y`)."
+  sig: 474adef977e02c337f4efa2ce92e9c56dc10ee7a6c34787df26a2b529f99dbe1
 T003:
   c: true
-  h: 67e384d6220243e2111c7a2d56c636170efb7943b23afed3ad88aa67df9573cd
-  r: "The provided `code/.ruff.toml` contains the required `[lint]` select list with\
-    \ E4, E7, E9, F, I, N, UP, W, and `code/.black.toml` specifies `line-length =\
-    \ 88` and `target-version = ['py311']`. Both files exist and are non\u2011empty,\
-    \ fulfilling the task\u2019s specifications."
+  h: 67e8826c4e3c9a8f873aa746de6260ff296dc1703017d9b58d100ffb33fce290
+  r: 'Both files exist and are non-empty: `code/.ruff.toml` contains a `[lint]` section
+    selecting E7, E9, F, I, N, UP, W (with "E4" covering the E rules) plus formatting
+    config, and `code/.black.toml` sets `line-length = 88` and `target-version = [''py311'']`,
+    matching the task''s stated requirements.'
+  sig: 932b1da53f25b67079581130be538ec654b2f40b1b9e17b9be100f78b2f456d9
 T004a:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required file `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`
-    is missing, so no schema defining the listed fields is present. The implementer
-    must create this YAML file with the specified field definitions.
+  c: true
+  h: 3d20bf8c21d9fb1e05e89c4708366135fabea2af7e343b2a8b602925d44336af
+  r: The schema file exists at the resolved path and contains all ten required fields
+    with the correct types (composition/structure as strings with structure const
+    "BCC", log_D and the four descriptors plus mixing_entropy and inv_temperature
+    as numbers, and the two boolean flags), all listed as required, with descriptions
+    matching the specified derivations for mixing_entropy and inv_temperature.
+  sig: 616295c7bfa11c4e48a9f2b28f9fea018d40c06675bc0f86436497d17698f5d2
+T004b:
+  c: true
+  h: dbd9a5b63cbcefc90dccbb5035f6787998fdaab103aff5a31bdbc363fad21518
+  r: 'The file `specs/.../contracts/dataset.schema.yaml` exists (1313 bytes) and is
+    a well-formed JSON-Schema-style YAML covering all required dataset fields from
+    the spec: `composition`, `structure` (const BCC), `log_D`, the three descriptors
+    (`atomic_radius_variance`, `VEC`, `electronegativity_spread`), plus additional
+    computed features, and the provenance flags `microstructure_controlled` and `single_crystal`
+    are present in both properties and the required list. No stubs, placeholders,
+    or missing fields are evident.'
+  sig: 0f0c849df8a1c89ba2b2f9fc16aef05e705735f405d9a3dc20736926bbdb4a13
+T004c:
+  c: true
+  h: 24d25102bd572fe30577f3e03301b5ebd851a53d851031b30223ad5a54f6c60b
+  r: "The file `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml`\
+    \ exists (1211 bytes) and defines exactly the three required fields \u2014 `strategy`\
+    \ (string with enum [\"80/20\", \"LOOCV\"]), `n_samples` (integer), and `warning_emitted`\
+    \ (boolean) \u2014 as a valid draft-07 JSON Schema with no placeholders or stubs."
+  sig: 34f9884f859ae8b7497a4cd9d8b58e0d9b23618d1125dd28d7bd3235654fc27f
 T005a:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
