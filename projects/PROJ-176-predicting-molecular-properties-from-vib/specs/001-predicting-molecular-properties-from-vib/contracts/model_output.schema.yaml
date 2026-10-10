@@ -5,7 +5,7 @@ type: "object"
 properties:
   model_state_dict:
     type: "object"
-    description: "State dictionary of the 1-D CNN weights."
+    description: "State dictionary of the 1‑D CNN weights."
     additionalProperties: true
   optimizer_state_dict:
     type: "object"

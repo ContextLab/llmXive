@@ -1,0 +1,55 @@
+status: verified
+kind: pypi_package
+ref: qm9pack
+access_python: "import qm9pack\n\n# Load the full QM9 dataset (provide required dataset\
+  \ argument)\ndata = qm9pack.get_data('qm9')\n\nrecords = data\n\nprint(f\"RECORDS={len(records)}\"\
+  )\n\nif hasattr(records, \"columns\"):\n    fields = list(records.columns)\nelif\
+  \ isinstance(records, (list, tuple)) and records:\n    first = records[0]\n    if\
+  \ isinstance(first, dict):\n        fields = list(first.keys())\n    else:\n   \
+  \     fields = list(getattr(first, \"__dict__\", {}).keys())\nelse:\n    fields\
+  \ = []\n\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 130831
+sample_fields:
+- XYZ_file
+- Index
+- SMILES
+- InChi
+- N_atoms
+- Stoichiometry
+- Elements
+- XYZ_Ang
+- Mulliken_pop
+- Harmonic_Freq_cmi
+- RotA_GHz
+- RotB_GHz
+- RotC_GHz
+- Dipole_debye
+- Polarizability_bohr3
+- HOMO_au
+- LUMO_au
+- HOMO_LUMO_gap_au
+- R2_bohr2
+- ZPVE_au
+- InternalEnergy_0K_au
+- InternalEnergy_298K_au
+- Enthalphy_298K_au
+- GibbsFreeEnergy_298K_au
+- Heatcapacity_Cv_cal_mol_K
+- A_xx
+- A_xy
+- A_yy
+- A_xz
+- A_yz
+- A_zz
+field_coverage: 0.5
+required_fields:
+- InChIKey
+- SMILES
+- molecule_id
+- dipole_moment
+- polarizability
+- homo_lumo_gap
+- ir_wavenumbers
+- ir_intensities
+intent: QM9 dataset with precomputed IR spectra download python package dataset
+cache_key: 7eb671d9ab37ab02d77b39e0a4164fe309f4de0c5a0b6eb5ac2dddfa78406ff5

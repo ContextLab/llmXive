@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Evaluation Results Schema"
-description: "Schema for the JSON report containing MAE, R², TOST, and Hotelling's T2 results."
+description: "Schema for the JSON report containing MAE, R², TOST, and Hotelling's T² results."
 type: "object"
 properties:
   dipole:
@@ -41,13 +41,16 @@ properties:
         description: "DFT method used for training data."
       dft_method_val:
         type: "string"
-        description: "DFT method used for validation (or 'simulated')."
+        description: "DFT method used for validation (or \"simulated\")."
       selection_bias_detected:
         type: "boolean"
         description: "Whether KS-test indicated significant selection bias."
     required:
       - "test_size"
       - "seed"
+      - "dft_method_train"
+      - "dft_method_val"
+      - "selection_bias_detected"
     additionalProperties: false
 required:
   - "dipole"
@@ -68,17 +71,19 @@ $defs:
       r2:
         type: "number"
         description: "Coefficient of determination."
+        minimum: -1
+        maximum: 1
       tost_p_value:
         type: "number"
-        description: "P-value for the Two One-Sided Tests (equivalence test)."
+        description: "P-value for the Two One‑Sided Tests (equivalence test)."
         minimum: 0
         maximum: 1
       ci_lower:
         type: "number"
-        description: "Lower bound of 95% confidence interval for mean error."
+        description: "Lower bound of 95 % confidence interval for mean error."
       ci_upper:
         type: "number"
-        description: "Upper bound of 95% confidence interval for mean error."
+        description: "Upper bound of 95 % confidence interval for mean error."
     required:
       - "mae"
       - "r2"

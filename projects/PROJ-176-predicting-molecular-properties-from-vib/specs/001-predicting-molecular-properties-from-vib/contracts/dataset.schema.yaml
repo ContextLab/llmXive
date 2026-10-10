@@ -5,7 +5,7 @@ type: "object"
 properties:
   spectra:
     type: "array"
-    description: "Normalized, smoothed IR spectra. Shape: [N, 1, 3601]"
+    description: "Normalized, smoothed IR spectra. Shape: [N, a single‑channel dimension, (spectral length corresponding to the full resolution of the instrument)]"
     items:
       type: "array"
       items:
@@ -36,10 +36,27 @@ properties:
     items:
       type: "string"
     minItems: 1
+  selection_bias_stats:
+    type: "object"
+    description: "KS-test statistics for selection bias audit."
+    properties:
+      statistic:
+        type: "number"
+        description: "KS statistic value."
+      p_value:
+        type: "number"
+        description: "KS test p‑value."
+        minimum: 0
+        maximum: 1
+    required:
+      - "statistic"
+      - "p_value"
+    additionalProperties: false
 required:
   - "spectra"
   - "dipole"
   - "polarizability"
   - "gap"
   - "InChIKeys"
+  - "selection_bias_stats"
 additionalProperties: false

@@ -1,134 +1,133 @@
 # Quickstart: Predicting Molecular Properties from Vibrational Spectra
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- Sufficient free disk space (for raw data + processed artifacts)
-- Sufficient RAM (recommended for smooth processing)
+- Python 3.11+  
+- Git  
+- At least **10 GB** free disk space (raw + processed data)  
+- Adequate RAM (recommended for smooth operation)  
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
- ```bash
- cd projects/PROJ-176-predicting-molecular-properties-from-vib
- ```
+```bash
+# 1. Clone the repository (or navigate to the project root)
+cd projects/PROJ-176-predicting-molecular-properties-from-vib
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
- *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with GitHub Actions free-tier runners.*
+# 3. Install dependencies (CPU‑only PyTorch)
+pip install -r code/requirements.txt
+```
+
+*`requirements.txt` pins `torch` to the CPU wheel, `qm9pack`, `datasets`, `numpy`, `pandas`, `scipy`, `scikit-learn`, and `tensorboard`.*
 
 ## Data Download & Preprocessing
 
-Run the ingestion pipeline to download raw data, align datasets, and generate the preprocessed tensor file.
-
 ```bash
+# Download raw QM9 and IR‑spectra, verify checksums, and align them
 python code/main.py download
+
+# Preprocess: interpolation, Gaussian smoothing, unit‑area normalization
 python code/main.py preprocess
 ```
 
-- **Output**: `data/preprocessed/aligned_dataset.npz`
-- **Expected Time**: 10-20 minutes (depends on network speed).
-- **Verification**: The script will print the number of molecules successfully aligned and report any selection bias detected.
+- **Output**: `data/processed/aligned_dataset.npz`  
+- **Verification**: The script prints the number of aligned molecules and any selection‑bias KS‑test results.
 
-### Data Download Details
-
-The `download` step fetches data from the following verified sources:
-- **QM9**: Downloaded via the `datasets` library (Hugging Face) or direct URL as defined in `code/data/download.py`.
-- **IR-Spectra**: Downloaded from the specified external repository.
-
-### Preprocessing Steps
-
-The `preprocess` step performs the following transformations:
-1. **Alignment**: Inner join of QM9 and IR-spectra datasets on `InChIKey`.
-2. **Interpolation**: Spectra are interpolated to a fixed grid covering the mid-infrared region (400–4000 cm⁻¹) with 1 cm⁻¹ spacing.
-3. **Smoothing**: Gaussian smoothing applied with $\sigma = 2 \text{ cm}^{-1}$.
-4. **Normalization**: Unit area normalization applied to spectra.
-5. **Filtering**: Molecules missing dipole, polarizability, or HOMO-LUMO gap are removed.
-6. **Audit**: Coverage audit (KS-test) performed to detect selection bias.
-
-## Training the Model
-
-Train the 1-D CNN on the preprocessed data. This step runs on CPU.
+## Training the Model (CPU‑only)
 
 ```bash
 python code/main.py train
 ```
 
-- **Output**: `models/checkpoint_best.pt`, `runs/` (TensorBoard logs).
-- **Expected Time**: 1-3 hours (depending on batch size and epochs).
-- **Monitoring**: Use `tensorboard --logdir=runs` to view loss curves.
-- **Timeout**: The process will automatically terminate if it exceeds a predefined time limit (6 hours).
+- **Outputs**  
+  - `models/checkpoint_best.pt` (best model)  
+  - `runs/` (TensorBoard logs)  
+  - `results/runtime_verification.json` (will indicate `< 6h` if successful)  
 
-### Hyperparameters
-
-The following hyperparameters are used during model training:
-
-| Parameter | Value | Description |
-|:--- |:--- |:--- |
-| **Learning Rate** | `1e-3` | Initial learning rate for Adam optimizer |
-| **Patience** | `10` | Early stopping patience (monitoring `val_loss`) |
-| **Kernel Size (Block 1)** | `9` | First convolutional block kernel size |
-| **Kernel Size (Block 2)** | `7` | Second convolutional block kernel size |
-| **Kernel Size (Block 3)** | `5` | Third convolutional block kernel size |
-| **Filters (All Blocks)** | `64` | Number of filters in each convolutional block |
-| **Optimizer** | `Adam` | Optimizer type |
-| **Device** | `CPU` | Execution device (CUDA explicitly disabled) |
-| **Smoothing $\sigma$** | `2` | Gaussian smoothing standard deviation ($cm^{-1}$) |
-| **Wavenumber Range** | `400–4000` | Mid-infrared region (cm⁻¹) |
-| **Grid Spacing** | `1` | Interpolation step size (cm⁻¹) |
+- **Monitoring**: `tensorboard --logdir=runs`  
 
 ## Evaluation
-
-Evaluate the trained model on the held-out test set.
 
 ```bash
 python code/main.py evaluate --checkpoint models/checkpoint_best.pt
 ```
 
-- **Output**: `results/evaluation_metrics.json`.
-- **Content**: MAE, R², TOST p-values, and Hotelling's T² results for dipole, polarizability, and HOMO-LUMO gap.
-- **Validation**: Includes paired-sample t-tests to check for systematic bias (p < 0.01 threshold).
+- **Output**: `results/evaluation_metrics.json` containing MAE, R², TOST p‑values, and Hotelling’s T².  
 
-## Independent Validation (Optional)
-
-If an independent validation dataset is available (e.g., `data/external/val_dataset.npz`), run:
+## Independent Validation (Mandatory)
 
 ```bash
-python code/main.py validate --checkpoint models/checkpoint_best.pt --data data/external/val_dataset.npz
+python code/main.py validate --checkpoint models/checkpoint_best.pt
 ```
 
-If no external dataset is available, the `validate` step will automatically run a Domain Shift Simulation (fallback) or fail loudly if real data is strictly required by configuration.
+- **Output**: `results/validation_metrics.json` (MAE, R² on a truly external dataset).  
+- **Failure Mode**: If no external validation dataset is found, the script aborts with a clear error message and the pipeline stops, ensuring the scientific claim is not overstated.
+
+## Static Analysis & Testing (Required Evidence)
+
+```bash
+# Static analysis with ruff (will generate logs/ruff_check.log)
+ruff check --fix code/ > logs/ruff_check.log 2>&1
+
+# Run the test suite (will generate logs/pytest.log)
+pytest tests/ -v > logs/pytest.log 2>&1
+```
+
+Both logs must end with an exit code 0; any warnings must be fixed before proceeding.
+
+## Pipeline Runtime Monitoring
+
+After the full pipeline finishes (including validation), a runtime summary is written to:
+
+```bash
+cat results/pipeline_runtime.json
+```
+
+The JSON must show `"elapsed_seconds"` ≤ 21600 (6 h) and `"status": "completed"`.
+
+## Profile Report
+
+A memory/CPU usage summary is generated automatically:
+
+```bash
+cat results/profile_report.txt
+```
+
+This file is produced by `code/scripts/profile_pipeline.py` and must be present for SC‑008.
 
 ## Final Deliverables Checklist
 
-Upon successful completion of the pipeline, verify the existence of the following artifacts:
-
-- [ ] `logs/data_ingestion.log`: Contains structured logs for download size, mismatch count, and final counts.
-- [ ] `results/profile_report.txt`: Generated by `code/scripts/profile_pipeline.py` detailing memory bottlenecks.
-- [ ] `results/runtime_verification.json`: Generated by `code/scripts/verify_runtime.py` confirming the 6-hour execution limit was respected.
-- [ ] `results/evaluation_metrics.json`: Contains the final MAE, R², and statistical test results.
+| Artifact | Expected Location | How to Verify |
+|----------|-------------------|---------------|
+| Data ingestion log | `logs/data_ingestion.log` | Contains download sizes and mismatch counts. |
+| Preprocessing log & NPZ | `data/processed/aligned_dataset.npz` | Load with `np.load` and check shapes. |
+| Training log & checkpoint | `models/checkpoint_best.pt` & `logs/training.log` | TensorBoard visualizes loss curves. |
+| Runtime verification | `results/runtime_verification.json` | `"status": "completed"` and `"elapsed_seconds"` ≤ 21600. |
+| Full pipeline runtime | `results/pipeline_runtime.json` | Must be ≤ 6 h; abort otherwise. |
+| Evaluation metrics | `results/evaluation_metrics.json` | Validate against `contracts/evaluation_results.schema.yaml`. |
+| Independent validation metrics | `results/validation_metrics.json` | Same schema; flagged if MAE increase > 20 %. |
+| Control experiment metrics | `results/control_metrics.json` | Same schema; MAE should be significantly higher than the main model. |
+| Profile report | `results/profile_report.txt` | Summarizes memory/CPU usage (generated by `code/scripts/profile_pipeline.py`). |
+| Static analysis report | `logs/ruff_check.log` | Should end with `Finished` and exit code 0. |
+| Test suite output | `logs/pytest.log` | All tests pass (`=== 8 passed in ...`). |
 
 ## Testing
 
-Run the unit and integration tests to verify data alignment, model shape, and statistical outputs.
-
 ```bash
-pytest tests/ -v
+pytest tests/ -v > logs/pytest.log 2>&1
 ```
+
+All tests must pass; the log file is the evidence required for task **T046**.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `BATCH_SIZE` in `code/models/trainer.py`.
-- **CUDA Error**: Ensure `torch` is the CPU version. Do not install `torch` with `+cu118` or similar.
-- **Data Mismatch**: If the alignment count is 0, verify that both raw datasets contain the `InChIKey` column.
-- **Timeout**: If the process is killed, check the `timeout` logs in `logs/` to see if the 6-hour limit was reached.
-- **Missing External Data**: If validation fails due to missing data, ensure `data/external/` contains the required `.npz` file or adjust configuration to allow synthetic fallback.
+- **MemoryError** – Reduce `BATCH_SIZE` in `code/models/trainer.py`.  
+- **Timeout** – Check `results/pipeline_runtime.json`; if `"status": "timeout"` increase early‑stopping patience or reduce max epochs.  
+- **Zero Alignments** – Verify that both raw files contain the `InChIKey` column; re‑run `download` if needed.  
+- **CUDA Accidentally Enabled** – Ensure `torch.cuda.is_available()` returns `False`; reinstall `torch` without CUDA support.  
+
+---
+
+
