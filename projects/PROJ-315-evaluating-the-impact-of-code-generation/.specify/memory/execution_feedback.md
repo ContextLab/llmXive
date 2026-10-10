@@ -17,7 +17,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/preprocess.py -> rc=1
-[2026-10-10T02:35:57.041420] [INFO] __main__: Starting audit accuracy pipeline. Input: docs/reports/audit_sample_labeled.csv
+[2026-10-10T02:38:02.951805] [INFO] __main__: Starting audit accuracy pipeline. Input: docs/reports/audit_sample_labeled.csv
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-315-evaluating-the-impact-of-code-generation/code/data/preprocess.py", line 210, in <module>
