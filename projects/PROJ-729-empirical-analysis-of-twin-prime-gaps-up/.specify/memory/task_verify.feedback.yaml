@@ -1,0 +1,90 @@
+T001:
+  reason: 'The project directory exists with a scaffold (code/, data/, specs/, plan.md,
+    tasks.md, etc.), but the task was to create the project structure per the implementation
+    plan, and no evidence shows the required artifacts exist or are populated: `data/raw/twin_primes.csv`,
+    `data/results/stats.json`, `data/figures/qq_plot.png`, and `data/results/local_stats.json`
+    are all absent, and the collector reports no data artifacts at all. The implementer''s
+    claim of completion is not supported by any non-empty, content-matching deliverables.'
+  task: 56c3cafd48301be7e14725647e98ac0ad186c8ac63c31ce1c55d6c76c03a8e2a
+T002:
+  reason: 'declared artifact(s) missing/empty/invalid: requirements.txt'
+  task: 1a1540e6f9d2efb762fd7cfb81f6cdafdb6a4b07f83521e762a2108d3c691761
+T003:
+  reason: 'declared artifact(s) missing/empty/invalid: .pre-commit-config.yaml'
+  task: 6dba72a9b2fcfe4d5e11415665bf2b2dcfe6a0d39ee968d6158f132c51d1edc5
+T004:
+  task: 7804e3a6434c92c0906487ac419c99bf1d7f32108c178e061f62bfdddb889e97
+T005:
+  task: 1123aeacdf88f81e821b6390d536c35cfb5912a25f0c64a1b09529d81eec1dfe
+T006:
+  task: 74a7a9107552c914415810436a21340ee3f897674c8ff19622643acf505b2e2a
+T007:
+  task: 462bd05abd173a13bc3d8d5ed96b48b28beaa9c365ba9214a1ce869e3055843f
+T008:
+  task: 372f75d504061f2809fa063e998a28b458e431a71dab959fba1870aa2b1d5d55
+T010:
+  task: b33ef227a28f98ddf89e1d3c46caa88c2395e40a9605d7f8755a426bce8e45a7
+T011:
+  task: 0f0626c1aabcc90ff6326f95eb2c08f771ea53e431daa172b96f152a24c3932e
+T012:
+  task: 08ea146cf51b6b1b3e91e061996123ba599882c07ed4692a34661b414efd9da0
+T013b-a:
+  task: fc92dd8655bd36dc6d536857a088ca07da5d917c1f4eb0ae7f75089314e5df9c
+T013b-b:
+  reason: 'Requested task execution failed; rerun successfully: code/compute_expected_count.py
+    exit=1'
+  task: 03ca0ead95175dbb5fe4fe3d82344cd8e2c8246defe6d3f26b4d123b92e45a32
+T014:
+  task: 1fee8a67f89fa6228fc8e6403502b978d4f284383972e08ab698818490fd6e9c
+T014b:
+  task: 9c386fd1c5867de025603d014bbdc8925daa606a721afe9a91dff963255434ec
+T015:
+  task: 1be9d3435a3264fbf6b3dcd27ab7ba993d049e073ea18598c20d831f79d86df8
+T016:
+  task: 2945607008a0bc69b860d3a1433cb21de6e7f42e93f78f769457a9a57d870c0e
+T018:
+  task: 1d94f7e9b4b8764a5fa6445ee295b3f9b412f2d8406a848acf1a7504dd30565b
+T019:
+  task: ec910b207912723c6671743806265e8d299a9cb2d97509245f6aa824d4a0a464
+T020:
+  task: 156a8c55736cc9cae174e3b607119140aa958e6bbb1c898438c0ce83fd58d092
+T021:
+  task: b926dc5ace0035a15feafff9d6ba2c5fe732fcab3fb92be3d7b4d263e684da85
+T021b:
+  task: 36dce6c3a7838c3a262d71f7dc45019abbf333175d00de2ce9b51fdb8a146942
+T021c:
+  task: f5d8c573dd8ae4e4490c92156999414e67f19007086d674e74e489690ed0e5e2
+T022:
+  task: 77a0203262e4c906cb70e8c3e6dede3274bc2e04aea86d308545d68a18906c11
+T023:
+  task: e986b458b7346c61bcfe4bdc7406774483f46d3b77130ac3dfccf36ea44892e6
+T024:
+  task: 3cbb66483adb93f497be5de7789452dd56abcab5df8fc7c7df1389f1aafe0352
+T025:
+  task: 0f5d059e996f08cc0f3cb48d977c080566cfff7dbe62456af0758dc329134a6f
+T026:
+  task: 3f9e049ee0e76e2c4768bf443348710d5e4020ad22b25302aae7e85efe71509b
+T028a:
+  task: 84c21a4d2dfaf84d23e8f171252391d7a0674225caca2a18e138d1bb8bf5017f
+T028b:
+  task: e0d623b12a6c6c144e138bae4b53cb2bec8cf3eeade0892f3deacd36451af8d5
+T028c:
+  task: 2ea2a49ac63a0175de84110333a054dd58a089ae5026f34ca4d795a1c84e9f4b
+T029:
+  task: b81bf82452c63037b451d23361a09d9f874a5a6ef64fbbe5568bc58a2a302791
+T030:
+  task: c8eb70c8a97657a2e31777a79cb1e1591c15571619e47d09a11f4bfcc8afe93a
+T031:
+  task: 0cf2db620489bee00e831ab1cb2e563a17b658aca6efe1556f52175f4579bcdd
+T032:
+  task: e8d877d9827cffcdf9e9c24eae1c3419da9fdb022bb4e64c52996fa2694e16ad
+T033:
+  task: 3c396e0525307e8e80ef1b3c09b06d9b65b508c58019df9ba6716a4d58be3b32
+T034:
+  task: 3b88a7cddcfcbeee57f0de0a242b378fbf6f858642af748ed0806e4ed3694262
+T035:
+  task: d0a31ff65fe0e2603819bcf710525e26ad223f77e1a345b1a55bb43d5a0ea5c9
+T036:
+  task: 50d26eead88e3b6cf9315171688d3db090102c6218eb9d43060f0acea7d302e2
+T037:
+  task: ddb5893ef0d5fa4983ced4a51d5719f2b5ad3dc1a26f055ac87a3d930c76bae5

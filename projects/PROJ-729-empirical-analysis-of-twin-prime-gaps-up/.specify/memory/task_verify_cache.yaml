@@ -1,3 +1,60 @@
+T001:
+  c: false
+  h: 99f48d30d40970ff141b257a4ca08ed65eb69fdac809eedd7ad2a2e86b0c4b74
+  r: 'The project directory exists with a scaffold (code/, data/, specs/, plan.md,
+    tasks.md, etc.), but the task was to create the project structure per the implementation
+    plan, and no evidence shows the required artifacts exist or are populated: `data/raw/twin_primes.csv`,
+    `data/results/stats.json`, `data/figures/qq_plot.png`, and `data/results/local_stats.json`
+    are all absent, and the collector reports no data artifacts at all. The implementer''s
+    claim of completion is not supported by any non-empty, content-matching deliverables.'
+  sig: 4bedb3b78963fbef6b2519f254f7e00664c32a5107397f93b9f211f9ab7a1b98
+T004:
+  c: true
+  h: 401dedff669e046747b0c6b733efafbccbd53e511c4647d24da5136fc569f8cd
+  r: The three required directories (`data/raw/`, `data/results/`, `data/figures/`)
+    all exist under the project root, each containing a `.gitkeep` marker to preserve
+    them in version control. This matches the task's requirement of setting up the
+    data directory structure; the actual data files (CSV, stats, figures) belong to
+    later tasks.
+  sig: 0fa3e883cc669e37a7ada01d5f33ec66cf887af50e45b820807e794206f5bdfb
+T005:
+  c: true
+  h: 03385d5724748009bf7ff32f698214a17d05c13f71fe3603afca3f3eec05ad9c
+  r: The schema file exists at `contracts/twin_prime_schema.schema.yaml` (1494 bytes)
+    and defines all four required fields (`p`, `p_next`, `delta`, `normalized_gap`)
+    with types, constraints, and validation rules consistent with FR-002 (delta as
+    gap between consecutive twin-prime pair starts, normalized_gap = delta / log(p),
+    p_next = p + 2).
+  sig: 90f033dfae6073c6942f3ac5d4139f132b8b68ede6ad7486072c4b2fb2bdac2f
+T006:
+  c: true
+  h: db8af0e93623a95d1df9a346305721cf39b1119a8962371d211c16a9a42fc396
+  r: '`code/hash_artifacts.py` exists (3484 bytes) and fully implements SHA-256 hashing
+    (chunked `hashlib.sha256`) over the project''s data/results/figures artifacts
+    plus YAML state updating via `yaml.safe_load`/`yaml.dump`, with no stubs or TODOs.
+    Although it reads config keys (`output_csv`, `results_dir`, `figures_dir`) that
+    `config.py` doesn''t define, its fallback defaults (`data/raw/twin_primes.csv`,
+    `data/results`, `data/figures`) match the project''s configured paths, so the
+    behavior is correct.'
+  sig: a2a8bf17c380a2f22dd05bf33b1de3222fc9d746c9161eb38103c42906a6a13b
+T007:
+  c: true
+  h: 1d6cb23204d07fee5b64f7800b12e362bafa6886854de1661ed5f5faa5afff5e
+  r: '`code/config.py` exists (2126 bytes) and provides a real, non-stub configuration
+    loader: `get_config()` returns range limits (`max_prime: 10**9`) and paths (raw/results/figures/contracts,
+    schema, state), with optional `config.json` override, plus `ensure_directories`,
+    `get_schema_path`, and `get_state_path` helpers. The content matches the task''s
+    requirement for a base configuration loader reading range limits and paths.'
+  sig: fb8ff44b91374825f9d0a5ff136e288ef5c0ea01dc7ce968a48ae8f2a9ad6323
+T008:
+  c: true
+  h: 5a7ddb7150a8893f780ff93a09b90e0ab67694e42f49db84fd0ee8aec6f4b60c
+  r: '`code/utils.py` exists (1536 bytes) and contains real, working implementations
+    of logging setup (`setup_logging`), memory monitoring (`get_memory_usage_mb`,
+    `track_resources`), and error handling with exit codes (`exit_with_error` with
+    configurable code and `sys.exit`), matching the task''s stated scope. No stubs,
+    TODOs, or placeholders are present.'
+  sig: 90d4be97cf440e02f680db201a39dd33327055591cf6a5ec640c00b28144cb40
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

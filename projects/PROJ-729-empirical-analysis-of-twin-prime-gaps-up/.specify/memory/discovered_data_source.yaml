@@ -1,0 +1,9 @@
+status: none
+intent: The Pile text generation dataset huggingface datasets python package dataset
+required_fields:
+- text
+- source
+- metadata
+cache_key: 473cb827ca7209c3b02b9a4f072c52a66dc1ee7cff6cc5a7faec9c9e4e35dc35
+searched_at: '2026-10-10T03:31:01.028732+00:00'
+retry_count: 1

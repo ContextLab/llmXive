@@ -47,9 +47,9 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
-- [X] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
+- [ ] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -79,16 +79,16 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float derived from p=3 (calculate as `(5-3)/log(3)`). **Verification**: Use tolerance `assert abs(val - expected) < 1e-4` to handle floating point precision.
-- [X] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
+- [~] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float derived from p=3 (calculate as `(5-3)/log(3)`). **Verification**: Use tolerance `assert abs(val - expected) < 1e-4` to handle floating point precision.
+- [~] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
 
 ### Implementation for User Story 1
 
-- [ ] T013b-a [US1] [FR-002] [SC-001] **Implement Hardy-Littlewood Calculation Function**.
+- [~] T013b-a [US1] [FR-002] [SC-001] **Implement Hardy-Littlewood Calculation Function**.
  - **Step 1**: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py` using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014 $.
  - **Output**: A reusable function in `code/generate_primes.py`.
 
-- [ ] T013b-b [US1] [FR-002] [SC-001] **Compute and Save Expected Count**.
+- [ ] T013b-b [US1] [FR-002] [SC-001] **Compute and Save Expected Count**. <!-- FAILED-IN-EXECUTION: code/compute_expected_count.py exit=1 -->
  - **Step 1**: Call `calculate_hardy_littlewood_expected_count(10**9)`.
  - **Step 2**: Log the calculated expected count to the console.
  - **Step 3**: Save the expected count to `data/results/expected_count.json` with key `expected_count`.
@@ -114,7 +114,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Output**: Save metrics to `data/results/performance_gen.json`.
  - **Dependency**: Must run sequentially immediately after T014 completes file writes.
 
-- [X] T015 [US1] [FR-003] **Implement `code/validate_schema.py`**.
+- [~] T015 [US1] [FR-003] **Implement `code/validate_schema.py`**.
  - Validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml`.
  - **Dependency**: **Must run after T014** (file generation) to ensure the file exists.
 
@@ -135,8 +135,8 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for Parametric Bootstrap KS logic in `tests/unit/test_bootstrap_ks.py`
-- [X] T019 [P] [US2] Integration test for analysis pipeline in `tests/integration/test_analysis.py`
+- [~] T018 [P] [US2] Unit test for Parametric Bootstrap KS logic in `tests/unit/test_bootstrap_ks.py`
+- [~] T019 [P] [US2] Integration test for analysis pipeline in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
@@ -221,9 +221,9 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 **Purpose**: Generate final report, verify citations, and hash artifacts.
 
 - [ ] T031 [P] [FR-009] **Implement `code/verify_citations.py`**.
- - Validate citations for **Cramér (year)**, **Hardy-Littlewood**, **{{claim:c_f5a66288}} ({{claim:c_e86a42d1}}, https://oeis.org/A002386)**, and **Goldston, Pintz, and Yıldırım** against primary sources.
+ - Validate citations for **Cramér (year)**, **Hardy-Littlewood**, **OEIS A002386 (OEIS A002386, https://oeis.org/A002386)**, and **Goldston, Pintz, and Yıldırım** against primary sources.
  - **Step 1**: Attempt to resolve missing URLs in spec.md Assumptions via DOI lookup using `requests` and crossref logic.
- - **Step 2 (Fallback)**: If DOI lookup fails, use a hardcoded canonical URL list for {{claim:c_f5a66288}} to ensure verification proceeds.
+ - **Step 2 (Fallback)**: If DOI lookup fails, use a hardcoded canonical URL list for OEIS A002386 to ensure verification proceeds.
  - **Validation Criteria**: Verify title overlap >= 0.7 against resolved primary source URLs.
 
 - [ ] T032 [P] [FR-006] **Implement Final Report Generation**.
@@ -246,7 +246,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Content**: Quote Cramér's heuristic and mention the Goldston-Pintz-Yıldırım refinement regarding small gaps between primes.
  - **Verification**: Ensure the text explicitly links the normalized gap metric to the Cramér model.
 
-- [ ] T035 [P] [addresses Dan Rockmore review] Update `code/report.py` to include a dedicated "Historical Context" section citing Cramér (year) and {{claim:c_348a6684}}.
+- [ ] T035 [P] [addresses Dan Rockmore review] Update `code/report.py` to include a dedicated "Historical Context" section citing Cramér (year) and Goldston, Pintz, and Yıldırım (2005).
  - **Dependency**: Must run sequentially before T032.
  - Must explicitly quote or paraphrase the heuristic regarding prime gap distribution.
  - Must reference the Hardy-Littlewood k-tuple conjecture context.
