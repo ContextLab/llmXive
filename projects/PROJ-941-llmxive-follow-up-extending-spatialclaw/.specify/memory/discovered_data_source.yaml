@@ -1,13 +1,14 @@
 status: none
-intent: SpatialClaw benchmark dataset official download pip python package dataset
+intent: SpatialClaw benchmark dataset download open source python package dataset
 required_fields:
 - task_id
-- scene_image
-- occlusion_mask
 - polygon_vertices
-- object_labels
-- ground_truth_2d_coords
+- edge_list
+- occlusion_mask
+- depth_map_2d
+- ground_truth_label
+- scene_image_path
 - metadata
-cache_key: 70c2c423e41eec598f9e0fcb08acea36feb8919e18f35bb5d013de11c523d8db
-searched_at: '2026-08-02T13:40:07.386941+00:00'
+cache_key: 2a6b0080df8d85dd4bd6a2c53751008fdcb8c1da52f8bb67f17142eb8c6f7f0a
+searched_at: '2026-10-10T03:22:36.966520+00:00'
 retry_count: 1

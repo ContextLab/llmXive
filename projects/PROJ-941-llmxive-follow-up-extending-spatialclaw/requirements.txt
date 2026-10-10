@@ -1,4 +1,3 @@
-# Existing dependencies
 shapely
 numpy
 scipy
@@ -7,5 +6,4 @@ pytest
 statsmodels
 datasets
 huggingface_hub
-# New dependencies for T060 (if any, currently using standard lib + existing)
-# No new dependencies required for T060
+pyyaml

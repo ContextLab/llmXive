@@ -1,0 +1,197 @@
+T001:
+  task: f813bb708b58e20ffc423e319ac25badb0e7a69ca12aabb38fc6c0f3faaa642b
+T002:
+  task: 459167371e1f0b39457c80b83cfb945d0cd0fbb409d4d93a08ad04c12af33f2a
+T003:
+  reason: "The evidence only shows the project root path and contains no linting or\
+    \ formatting configuration files (e.g., `pyproject.toml` with `[tool.black]` /\
+    \ `[tool.ruff]`, `.ruff.toml`, or a `black`/`ruff` config file). Without these\
+    \ artifacts, the task of configuring ruff and black is not satisfied. Adding the\
+    \ appropriate configuration files (and optionally a pre\u2011commit hook) is required."
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: b404acc178c8cd8aeb9897ebb6b9bbe8687219de9afe6a9199e695d4ec197e64
+T005:
+  task: 2fd76aa0e8a8942c12fd5a9c2a5a33cfd66a22645d1f243cb5890f0e919d6987
+T006a:
+  task: 39dcbe2d61b98bc1e38d110d0296dffef436e0cc3c5181e71161772a90d7ff9e
+T006b:
+  task: 9a20bad6789e0bc8b592dd7f62030b2f9ace67a44d98c0d01bc3be0d3cdc7987
+T006c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/validator.py, results/analysis/pilot_validation.log'
+  task: 8359acbf8e76f91781eb2df935a7cca6266f1480da99b0317f25f3f25aeb5004
+T006d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/validator.py, data/raw/synthetic_spatialclaw_v1.json,
+    results/analysis/flat_object_distribution_report.json'
+  task: 5a4eb01e1ace272ffb47d8a6396646f2d2a684adc847f197cc144dc34a071227
+T007:
+  task: 5b35a99a42fb376f1833165b65b1b9b056d89d127149eb112868b430b8984f6f
+T008:
+  task: 3439e255c3174a3fb6f0ed8883cd116d89ef63d7c4006d60987230fbfae55118
+T008b:
+  task: d53ffa5ffebcc4cb24fd333528e62ea15c3e47b4120080119b7bdd8d806b8e04
+T008c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/validator.py, results/analysis/projection_fidelity_report.json'
+  task: b0686c0e29a6df121e326708e7129e64ee65e69748e80ab5fb5cd9c1e049cbb7
+T010:
+  task: 6c922145f481f047fbbdea1ba25bacfe2954c62e882fad5cf5c82784b5cf360f
+T011:
+  task: d1b0891019e78ea7878b17ab86ba26aff8c140ff8fc15fb80e70946011c82b37
+T012:
+  task: d9d2e5de3dac0d3931979bf7d22709cb9ab1aef2f55add27aa3bc3a83b1a58e5
+T013:
+  task: 39b856b62baf55b1b9923ece16edd90077f85cc375f8e850acc3487f98de38fc
+T014:
+  task: 4c388b859043f1aa921d578393d4b7a35fd7dc5b65da391978dbc48b0b5b40e2
+T015:
+  task: 28340df9789fead98dffc32814ba2c882ac66da6627dcd98dc77f9daaead3d23
+T016:
+  task: 497230b1492c427f09df8c49d0602c1b89037a32ef12aec6fa7cc4f61fcaa6ba
+T017a:
+  task: 4899e82a52347f2f888b4951d547e84509b8b8e65a4ac42e62884b82fb4ab7b2
+T017b:
+  task: 6c9bc81e58cd6ced5917c67f27a4642f397265d375334689ceb5c28bab729ea8
+T017c:
+  reason: 'declared artifact(s) missing/empty/invalid: results/runs/, results/analysis/run_count_verification.json'
+  task: 12d13e4cc8e02616e65bfc59905e9636de80ad6f137c559bc290fa97a2d06b2e
+T017d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/verify_seeds.py,
+    results/logs/execution.log, results/analysis/seed_verification_report.md'
+  task: 3832da2cf5a1feeb05a2e9c99997d74622936f19ff90788e411c8873f6b6ada0
+T018:
+  task: c618918b6fae7a262fa10f23ad43fccc04768839ee38b652fc3e9eafe34d7e96
+T020:
+  task: 90dd1f0c44390763d40c203814a234252cce46e3c4da1f34f8a6cf6660a69564
+T021:
+  task: 6207e067581daf53aabbf20337612dbbd29d3c7d838e12201047968c9d40ef11
+T022:
+  task: 56a0b3545c6b8ac383712702c904288275d6e3fc25b92fbf464a5732f5e9d9a7
+T023a:
+  task: c6f6171fce7d51a1d27a8f6c89f526a61ce833778485d3666c3f254445066cdf
+T023b:
+  reason: 'declared artifact(s) missing/empty/invalid: results/logs/baseline_run.json'
+  task: caabe70a33b1f8230fa9ed2210dd3d43f5876e5cfc24d985e7d5840d5594e67d
+T024:
+  task: da328ad98f7c7f312248f6261e8ab0c6f896fe36fbe08dbf7c6d1e58d54883c3
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: results/analysis/paired_comparison.csv'
+  task: e1468f393b3ecd1746d7e8090ea0846cfa7bed1d13a95639e3d0d376a092c52c
+T026:
+  task: 6cde2780866aa3bccc4e4818532c940880586a2572e38869537159f0363b32a9
+T027:
+  task: 7c286d6f0c3162e3442d0d057d9663e6c017aefcde37ef3df386794fe4217c71
+T028:
+  task: 68b578fb14a8eb94aa0c8db655260fe92e60d416cac3477ff3972470ffd89f73
+T029:
+  task: b90b496377290513253f523197f9ffcf514dec822fcc0b819330321cbf5ce70f
+T030:
+  task: 18e0cc3a518f0520c5e6bdec41b0618b0e2482eb3f4bfe9a2de89c3319688c6c
+T031:
+  task: 5467232ae6c36a00650d0e0c461cfb7acf11be4abec952a755346989cc7ab02d
+T034:
+  task: 236d67d4726da77a4eb9b8ed373fadc4daa07f28972a1c22b92ae8595969f2fc
+T035a:
+  reason: 'The provided `data/power_config.yaml` is present but does not contain all
+    required keys: it lacks `max_runtime_hours`, `n_runs`, `flat_object_ratio`, and
+    `side_length_bounds`, and thus does not match the specified schema or default
+    values. The missing fields must be added with the concrete numeric defaults for
+    the task to be satisfied.'
+  task: 3105493045819cbc80dc7fc592c4696d427acd7eb42503d6ea94dd765627dda2
+T035b:
+  reason: "The `code/stats/power_analysis.py` correctly reads `data/power_config.yaml`\
+    \ and writes a JSON summary with the required fields, and the output file exists.\
+    \ However, the implementation does not incorporate the \u201Cspecific subset of\
+    \ \u2018flat objects\u2019 required for edge case analysis\u201D into the sample\u2011\
+    size calculation, which the task explicitly demands. Adding logic to handle that\
+    \ subset is needed for completeness."
+  task: 4f4a7692bc89b75a297a0f3cd6c7f6c8e6b894521986d03031b01952b3f95063
+T035c:
+  task: 14d2bcb55a565fc301be476af1d12a63b8fc5914c1e257a9421802de9fb30f7e
+T035d:
+  task: c6947573fc485bd158ec919b96c91e127151cb156687c7a3cb950955d80d3200
+T037a:
+  task: 3729d922e7c1321fce8bce3bc362b76988778c3f1ad231b53c777160d9be7eff
+T037b:
+  task: f990c7a02c114c31ba6406c289dcc12469d5e1f1b4fe6086a3de8aecfaecbcaf
+T037c:
+  task: ed12735467ae9993e38b63e52e36b0964a69cb87b068bf3f66abc72eccbc4f5e
+T037d:
+  task: caad584efa91ed93a51adbdcaf29014a2b99c28646f513a02f9749d2ed5e3a16
+T037e:
+  task: 6b18ef2e0c241b0bb8f676c6d63a70ef4da9b520f8aa0f350198f67bba1095d8
+T038:
+  task: fe06d37b7c59ff7673f44998458bbf1a47090f827b5a35e3f11d9758f6a7de5a
+T039a:
+  task: 857cd6106b9f9492f22ebd4028d42ce7d402eea02c5a73e61eed9bdaf076d1a3
+T039b:
+  task: 6f14fe015e0477b6dd2f0c60d1d661e46ded95f6ea02bdf89ce75667936c2519
+T040:
+  task: 7017cc31fcbc3833b6446c28adcd1996090a51bcea8fee2b4205080b5c636cce
+T041:
+  task: 9f63810347c1799c447028f46eabc3249e96dd39cabd4ed26060bb4755404bdc
+T044:
+  task: 7c46b2ea462e1f7c4913edc5b8c79b01f8aaa6bddb0a94de63462e49b5a32deb
+T045:
+  task: a1c4bbc997549191da2b0e51ce1797167cab013b503286c957842f3b68cc30d3
+T046:
+  task: 5db2112efc4c3fc020d1def65e738dc84aab12bc2b9e3178095ed00331b47fea
+T046_exec:
+  task: 212fb74232efccadfd1c4901696605af97cc360623d4ef7b44d512bd8139b4b9
+T047:
+  task: 5134ae28fca8dd1ab57e3343d245796d0a0fc06ffa8a473b17349909e03cfe27
+T047_exec:
+  task: 758df0b0b6ac069f038a2bfbd5cfd61b9b262e4acf21aa6b0bfd9f5cbb1b4f73
+T048_create:
+  task: 52f6021d6191a64f1e1268e6a0d4aafd9f73c5e04c5b76078e8d9addc58509fd
+T048_exec:
+  task: 77dd3bde2d00a0a83cfeb2f0e8b360628080d1e55a9b79a641bebb6dfc32c5ae
+T049:
+  task: b9e7f7992b4fabfcc1ce39770d48a611feddaab3b0ec4856be261fc732ead4a7
+T050:
+  task: 3877d3a4ef9ecf6d9e3acffbad06f943a59703116ec994a5011c1d68fc3d71ee
+T051:
+  task: 8b2a8c799018325757735180bb802e27482e62f05c8420f5232beb4f88928c01
+T052_create:
+  task: aa1305a2375e4662241a88ad3a957b6dadbe98f27f050873feec7d248d4cd37e
+T052_exec:
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_full_pipeline.py
+    exit=1'
+  task: 3808e7c9d141ce29c7fc7c8100a6130ce6edd3bd878dea5be050cbc9999d2081
+T053:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/verify_seeds.py,
+    results/logs/execution.log, results/analysis/seed_verification_report.md'
+  task: 51b8bc00201671d6d2ed1dd8b627f10450b71e88aca113aa417ae56b7e6aae92
+T054:
+  reason: 'declared artifact(s) missing/empty/invalid: code/stats/validate_power.py'
+  task: 8ba955bbf4767e53dec23c24b41559a597a50585b3a39786f5f4442089c3c1f8
+T055:
+  reason: 'declared artifact(s) missing/empty/invalid: code/metrics/audit_latency.py,
+    results/logs/execution.log, results/analysis/latency_audit_report.json'
+  task: e1c935b0fc000573963f79a7e0f3a83d5801c6ef6aa0786ac8cef220390b8285
+T056:
+  task: 2ddac206086764f6adf5cb89b93e5e500b93dd8567a5b2674256cde791942b0a
+T057a:
+  task: 7a36649fd44265d1d6d1af9a721218372f2b41bc8c0242574fe0459fbc8e36c9
+T057b:
+  task: 1ddcee867a9172fe76064bd320a8900dcc1dfd886033058caae73fd943d7862a
+T057c:
+  task: 3a593df0233a165cc2f842dd4ec525fcebe23df56860db6e8af6b61c02aa1e7a
+T058:
+  task: 27692a84eb64c1d6ac65c66823404d4b3b5d708dba560c334ae34bb673e88b14
+T060:
+  task: 5306cb97c5e5e16f8c390759428eef6d3164c231bf7d376a8185f5947d895d7d
+T061:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/final_audit.py'
+  task: 1cf6bbe913c96107cf148fcc2b70c90c53abcac5da76dda9a4b476c4f8faf7d5
+T062:
+  task: 96d3104b1e716409f975d8586f33bb7b5151c85aff9c50dd50ecebc36aa89769
+T063:
+  task: 7ea0d332cfcaf6da5f22dbb8fc244be106e69951511d30941cdfe4ff1f759bc3
+T064:
+  task: 2278d5bcff572e941194c69c42d89323799498befc88962078d1e91615ade7d1
+T065:
+  task: 5aa02e590fc3e1c1eda995240195579977d0f6a358a249aba2687eb58ec63c25
+T066:
+  task: 4e6f99a1201f184ca64cc12686fe18de3624aeec678d7e85bf55e0df10104b54
+T067:
+  task: 650a0a26efcac8ed1cb53ce49df4afe77954163b921b2ebb3e5c501754ec1ed3

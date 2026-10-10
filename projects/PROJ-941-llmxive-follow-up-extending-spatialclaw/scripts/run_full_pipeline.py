@@ -35,7 +35,6 @@ from code.stats.report_generator import main as report_main
 from code.utils.logging import setup_logging
 from code.utils.budget_check import check_budget
 from code.utils.runtime_monitor import check_runtime_limit, RuntimeLimitExceededError
-from code.data.loader import load_dataset, DataLoadError
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -58,37 +57,31 @@ def run_step(step_name: str, func, *args, **kwargs) -> bool:
 def execute_data_generation():
     """Execute T006b: Full Data Generation."""
     logger.info("Executing Data Generation (T006b)...")
-    # Call the generator main function
     generate_data_main()
 
 def execute_baseline():
     """Execute T023b: 3D Baseline Execution."""
     logger.info("Executing 3D Baseline (T023b)...")
-    # Run baseline on the generated dataset
     baseline_main()
 
 def execute_agent_2d():
     """Execute T017b: 2D Agent Execution."""
     logger.info("Executing 2D Agent (T017b)...")
-    # Run 2D agent on the generated dataset
     agent_2d_main()
 
 def execute_stats():
     """Execute T029: Statistical Analysis."""
     logger.info("Executing Statistical Analysis (T029)...")
-    # Run statistical tests
     stats_main()
 
 def execute_assemble_paired():
     """Execute T047a: Final Paired Dataset Assembly."""
     logger.info("Executing Paired Dataset Assembly (T047a)...")
-    # Assemble the final paired dataset
     assemble_main()
 
 def execute_report_generation():
     """Execute T048: Final Report Generation."""
     logger.info("Executing Final Report Generation (T048)...")
-    # Generate the final statistical report
     report_main()
 
 def main():

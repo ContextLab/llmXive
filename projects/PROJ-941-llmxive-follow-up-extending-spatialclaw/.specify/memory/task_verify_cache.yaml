@@ -1,3 +1,28 @@
+T001:
+  c: true
+  h: ec126c455cc7a0dca0f3a914cd79e13d0e1fa330e82d8cc51ee9e2d09b12cac3
+  r: "Checked that the project root `projects/PROJ-941-llmxive-follow-up-extending-spatialclaw`\
+    \ contains the required top\u2011level directories `code/`, `data/`, `results/`,\
+    \ and `tests/`, each present with files (e.g., `.gitkeep`, `__init__.py`). The\
+    \ structure matches the implementation plan."
+  sig: e4887c618c7f5c17fe96a0718b796f98ace53b0e2556554268e7dd4b0211b026
+T002:
+  c: true
+  h: 02923a05c62f387d475aa1df3688e57048f8abc427e4848f6fab7898bf3d30d7
+  r: "Checked the `requirements.txt` file at `projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/requirements.txt`;\
+    \ it exists, is non\u2011empty, and lists all required packages (shapely, numpy,\
+    \ scipy, pandas, pytest, statsmodels, datasets, huggingface_hub) plus an extra\
+    \ harmless entry. No required artifact is missing or incorrect."
+  sig: 87531c3f2012e8779cf06cf34447e3167e1f5b43f897902a0c1e4c07b4f8626f
+T003:
+  c: false
+  h: ddf4fa31c1c7012d4a306232d96a288c9691ab0a39da8a5762679a0de596bc79
+  r: "The evidence only shows the project root path and contains no linting or formatting\
+    \ configuration files (e.g., `pyproject.toml` with `[tool.black]` / `[tool.ruff]`,\
+    \ `.ruff.toml`, or a `black`/`ruff` config file). Without these artifacts, the\
+    \ task of configuring ruff and black is not satisfied. Adding the appropriate\
+    \ configuration files (and optionally a pre\u2011commit hook) is required."
+  sig: 70a3d6871a268f75085ef4029d8693130bcb94171b19228e0e63ac907d327ad0
 T006a:
   c: false
   h: 380fa64df417d30c0ca4fa7f88dfc48d24afea9cc86d2d2108909202168035c9
@@ -19,12 +44,32 @@ T026:
     \ the implementation of logic to subtract blocked 3D library initialization time\
     \ from step latency calculations. The required artifact (e.g., modified latency\u2011\
     calculation module, unit tests, or logs showing the exclusion) is missing."
+T035a:
+  c: false
+  h: b430e66b49cdb5ef562eda47e898154c5bf0e259058d2b5c943787f4727ac642
+  r: 'The provided `data/power_config.yaml` is present but does not contain all required
+    keys: it lacks `max_runtime_hours`, `n_runs`, `flat_object_ratio`, and `side_length_bounds`,
+    and thus does not match the specified schema or default values. The missing fields
+    must be added with the concrete numeric defaults for the task to be satisfied.'
+  sig: 2d0b173b0fe7b15037cea2464ddde9a8e3a78cf396f1c8ea67df79ab2f9c7ff6
 T035b:
   c: false
-  h: 0b2e8c2f74deaac482d0753ac872a455a5dca774f745a8dba3ce402baa32d80d
-  r: The `code/stats/power_analysis.py` file is truncated (e.g., an unfinished line
-    in `validate_budget`) and contains no logic to write `data/power_analysis_report.json`.
-    Moreover, the required JSON report file is missing from the repository.
+  h: 005b25a1945a233e831e600877e13a3a49febaa46870412ce44f67de745cc6c2
+  r: "The `code/stats/power_analysis.py` correctly reads `data/power_config.yaml`\
+    \ and writes a JSON summary with the required fields, and the output file exists.\
+    \ However, the implementation does not incorporate the \u201Cspecific subset of\
+    \ \u2018flat objects\u2019 required for edge case analysis\u201D into the sample\u2011\
+    size calculation, which the task explicitly demands. Adding logic to handle that\
+    \ subset is needed for completeness."
+  sig: 86bee880a1e555b15a6103b5159f56f436ae67e2544b4fcabb1545e7fa9e725f
+T035c:
+  c: true
+  h: 10fc118310f5861e2edb64596275db92f04dab76bfebb59e628987cf169883a5
+  r: "The `results/analysis/power_analysis_summary.json` file exists, is non\u2011\
+    empty, and contains a concrete power\u2011analysis summary with realistic parameters\
+    \ and results, satisfying the task\u2019s requirement to execute T035b logic and\
+    \ write the JSON artifact."
+  sig: 1946e4fe411b2f866d95f339d381d1725fdb881c95ecfcb7abad57fb39f1206f
 T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
