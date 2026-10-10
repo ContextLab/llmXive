@@ -16,7 +16,7 @@ All tasks follow the canonical `- [ ] T### [USx?] description …` format, list 
 
 ## Phase 1 – Project scaffolding & reproducibility foundation  
 
-- [ ] T001 [US0] Create core directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`.  
+- [X] T001 [US0] Create core directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`.  
   - **Verification**: `tree -L 2` lists the directories; CI asserts they exist before any later task runs.  
 
 - [ ] T002 [US0] Create `code/requirements.txt` with pinned versions:  

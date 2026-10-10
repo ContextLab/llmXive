@@ -1,10 +1,27 @@
+T001:
+  c: true
+  h: dc47cec1e5abec1bbf456e9c08bb1d0bd7c74f94fcf791b4a3b39dc359d1fd7e
+  r: The evidence shows that the project root contains the six required directories
+    (`code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`), each with
+    files (e.g., `.gitkeep`) confirming they exist and are not empty. No required
+    directory is missing.
+  sig: 37a5cb0c254564eea8d4008dbd0360ab6b67403bdedff3e13deafe49e6d000c4
+T002:
+  c: false
+  h: 3a14d9249af91187c06e87c9bed12f7bd4c489866a90874648114ddb7c453fd9
+  r: The `code/requirements.txt` file exists and contains the exact pinned versions
+    required, but there is no provided evidence (e.g., command output, logs, or screenshots)
+    that `pip install -r code/requirements.txt` actually succeeds in a fresh virtual
+    environment. The verification step is missing.
+  sig: f07122ca65cbe71f07a95359ef2bdfc6e1a0eba0b41bcfc9ecf2c49b52e5c481
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., .flake8, .pylintrc, pyproject.toml,
-    .isort.cfg) or integration scripts are present in the provided evidence, so the
-    requirement to configure flake8/pylint and black/isort is not satisfied. The implementer
-    must add the appropriate config files and ensure they are applied in the project.
+  h: 983e506d14b07ce56312fe5065d68545ea212c775d225ead8440da84faa693f9
+  r: "The `docs/quickstart.md` file is present and contains the required sections,\
+    \ but the `README.md` file is missing (no artifact or content was provided). Adding\
+    \ a non\u2011empty `README.md` with at least one non\u2011comment line will be\
+    \ needed to satisfy the task."
+  sig: 77eb9e77728efa6d3636146739cdc5bf0f129d1f9da402f678ec005865dfc28b
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

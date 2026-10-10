@@ -1,6 +1,6 @@
 status: none
-intent: Materials Project perovskite thermal stability NREL pulse diagnostics python
-  package dataset
+intent: download perovskite composition experimental decomposition temperature dataset
+  Materials Project NREL Pulse Diagnostics python package dataset
 required_fields:
 - formula
 - T_d
@@ -12,6 +12,6 @@ required_fields:
 - weighted_formation_enthalpy
 - variance_ionic_radius
 - variance_electronegativity
-cache_key: 2c49c44d659f93f9529529db4faf84b10432f499eb382c0254f4b1272668c042
-searched_at: '2026-10-10T03:29:56.670003+00:00'
+cache_key: 6ff0b9358eae07eae812ed37115905d2c49a33b8b033ab582b439f52c9bf0e4a
+searched_at: '2026-10-10T03:34:17.150538+00:00'
 retry_count: 1

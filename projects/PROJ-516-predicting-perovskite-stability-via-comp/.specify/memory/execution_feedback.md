@@ -18,23 +18,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data_ingestion.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/data_ingestion.py", line 17, in <module>
-    from merge_datasets import main as merge_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/merge_datasets.py", line 22, in <module>
-    logging.FileHandler('data/raw/merge_operations.log')
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/data/raw/merge_operations.log'
+INFO:__main__:Starting Data Ingestion Pipeline
+INFO:__main__:Running T012a: NREL Fetch
+INFO:fetch_nrel_perovskites:Starting NREL Perovskite Fetch (T012a)
+INFO:fetch_nrel_perovskites:Fetching NREL material data...
+WARNING:fetch_nrel_perovskites:NREL API key not found. Using mock data for demonstration.
+ERROR:fetch_nrel_perovskites:NREL Perovskite Fetch failed: NREL API key missing and no fallback configured.
+ERROR:__main__:NREL Fetch failed. Aborting.
 
 - python code/model_training.py -> rc=1
 
-2026-10-10 03:28:44,465 - __main__ - INFO - Starting model training pipeline...
-2026-10-10 03:28:44,467 - __main__ - ERROR - Data file data/processed/descriptors.csv not found. Run T017 first.
+2026-10-10 03:32:43,406 - __main__ - INFO - Starting model training pipeline...
+2026-10-10 03:32:43,407 - __main__ - ERROR - Data file data/processed/descriptors.csv not found. Run T017 first.
 
 - python validation.py -> rc=2
 

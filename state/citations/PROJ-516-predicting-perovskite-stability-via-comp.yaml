@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/3a7b7d6e7a2d425aa67611a30f752cac95ea684d/BSEBENCH_SOURCE.json?%2Fdatasets%2Fbsebench-org%2Fnrel-pulse-diagnostics-2025-raw%2Fresolve%2Fmain%2FBSEBENCH_SOURCE.json=&etag=%224992767d453b219cc7d2967fa61735644b2265bd%22
   verified_at: '2026-07-05T14:22:28.440529Z'
-- artifact_hash: e0ef9a31fe5284f651caa03de9390bc512457b3c6aae270de1aa46e4847c4d2f
+- artifact_hash: 68f2dfb61003b2c7724f78dafbf4662b18b50b4847df17a46a82fe065a7ec26e
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://zenodo.org/records/10972088/files/nrel_perovskite_data.csv`
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/10972088/files/nrel_perovskite_data.csv
-  verified_at: '2026-10-10T03:27:57.156052Z'
-- artifact_hash: e0ef9a31fe5284f651caa03de9390bc512457b3c6aae270de1aa46e4847c4d2f
+  verified_at: '2026-10-10T03:32:17.366847Z'
+- artifact_hash: 68f2dfb61003b2c7724f78dafbf4662b18b50b4847df17a46a82fe065a7ec26e
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: 10.5281/zenodo.10972088
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10972088
-  verified_at: '2026-10-10T03:27:57.156052Z'
+  verified_at: '2026-10-10T03:32:17.366847Z'

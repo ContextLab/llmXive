@@ -1,8 +1,16 @@
 T001:
   task: 1cd22373167baf89c241ca54e2ae72be4145d1d3229dc973288a7fcc7f57d77c
 T002:
+  reason: The `code/requirements.txt` file exists and contains the exact pinned versions
+    required, but there is no provided evidence (e.g., command output, logs, or screenshots)
+    that `pip install -r code/requirements.txt` actually succeeds in a fresh virtual
+    environment. The verification step is missing.
   task: 722a266db6a292fffcc4c3cc262f4834008af0a2d7d5d93d47d01328d7b416e9
 T003:
+  reason: "The `docs/quickstart.md` file is present and contains the required sections,\
+    \ but the `README.md` file is missing (no artifact or content was provided). Adding\
+    \ a non\u2011empty `README.md` with at least one non\u2011comment line will be\
+    \ needed to satisfy the task."
   task: 772bc480ae9c98f6a4600c4d1dd355fc3b89c2292f6268ebabe2c080addb8570
 T005:
   task: 00e9c97f790800abc27e93b022212237506689e7415b37111089ed11123886db
