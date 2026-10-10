@@ -44,6 +44,12 @@ paper, reviews and revision history. The registry and central
 [state files](src/llmxive/state/) record progress. The dashboard derives its view
 from these records.
 
+**Finding the agent for a stage.** Every stage is owned by an agent listed in
+[agents/registry.yaml](agents/registry.yaml). Look up the stage there, then
+follow the agent's `prompt_path:` into [agents/prompts/](agents/prompts/) to
+read the exact instructions it runs with; its `model:` and `backend:` fields say
+where those instructions are sent.
+
 | Phase | Main path | Required evidence |
 | --- | --- | --- |
 | Research design | Idea → expansion and question validation → specification → clarification → plan → tasks and analysis | A scoped, testable question; complete design artifacts; executable tasks; stage review |
