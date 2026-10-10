@@ -1,11 +1,13 @@
 T001:
   c: false
-  h: cbc0b2daebb81ccff1477b5c27711de3b9731c53bb879d7f72df407a7ca55585
-  r: "Checked `code/requirements.txt` (contains an extra `pytest` entry not listed\
-    \ among the allowed CPU\u2011only dependencies) and the missing `data/raw/cochrane_base.csv`\
-    \ (only the synthetic fallback exists). The extra dependency violates the \u201C\
-    only \u2026 dependencies\u201D rule, so the task is not fully satisfied."
-  sig: e34b59afb4f5315eb9eaf76a9c8d59bf05ab067c273111261d1f71ea27ddd86e
+  h: cd69b1602d586109bf521947e49cbf5878686b6341eefc7ea418e332965d48e8
+  r: "Checked `code/scripts/fetch_cochrane.py` and its execution log: the script catches\
+    \ the `FileNotFoundError` raised on fetch failure and returns exit code\u202F\
+    0 instead of propagating the exception, violating the \u201Cmust raise FileNotFoundError\u201D\
+    \ requirement. Additionally, `data/raw/cochrane_base.csv` is missing (only the\
+    \ synthetic fallback file exists). The loader therefore does not meet the task\u2019\
+    s error\u2011handling specification."
+  sig: 04a6f50c4ccefd4333f36604274b247599aa0b6d1cf744832226a11fc0cd2c77
 T002:
   c: true
   h: 0bd0a5f6bc8be8d8c07ea15e03cabceba9f5ace49b1406641125a2b4d57d2089
@@ -15,47 +17,48 @@ T002:
     \ all pass as shown in the verification log."
   sig: 5bf2b5070437d747cab62a638a88014e97bb46d7a8201e1024dfce64d8f5177a
 T003:
-  c: true
-  h: ca33f9d195db3082c68f0958b6caa3f1525545de9afbe370a995fb567bcab2b9
-  r: "Checked `code/simulation/estimators.py` (implements Fixed\u2011Effects, DerSimonian\u2011\
-    Laird, REML estimators, computes Q and I\xB2, flags N\u202F<\u202F5, logs REML\
-    \ failures to `data/results/reml_failures.json`) and the unit\u2011test suite\
-    \ `tests/unit/test_estimators.py` which validates all required behaviours. The\
-    \ log file `data/results/reml_failures.json` is present and correctly populated."
-  sig: ecc6864557df5573a93aa74e34ad5c7a221515e6fb9259a17b6301ea370a64c9
-T004:
   c: false
-  h: ca4be915ce6a2433dfb27c902d34284b7ab0e524e93e06ac4a5563358243b9ed
-  r: "Checked `code/analysis/metrics.py` \u2013 it implements bias and 95\u202F% CI\
-    \ coverage, reading the true effect strictly from the `injected_true_effect` column\
-    \ as required. However, no unit\u2011test files or test execution evidence are\
-    \ present to confirm that a pooled estimate equal to the true effect yields zero\
-    \ bias and a coverage flag of\u202FTrue, which the task\u2019s verification clause\
-    \ demands. Adding the appropriate tests (and evidence they pass) is needed."
-  sig: 33f75d84b4787dad662020bab6edc2fe27fd0d7d9e27e24002150d0758e0c9d8
+  h: 359d3cb907762df630252cf26d8c851d633461cdbf20448ebec48210c839f5d9
+  r: "The `code/simulation/estimators.py` file provides Fixed\u2011Effects and DerSimonian\u2011\
+    Laird estimators and includes REML fallback\u2011failure logging, but the snippet\
+    \ does not contain an `apply_estimator` dispatcher nor the REML branch that computes\
+    \ and returns the required `q_statistic`, `i2`, `df`, and `p_value` fields. Consequently\
+    \ the module does not demonstrably satisfy the mandatory requirement that every\
+    \ estimator produce Q and I\xB2 statistics and that the public `apply_estimator`\
+    \ function exists for the unit\u2011test suite. Adding the missing dispatcher\
+    \ and completing the REML implementation (includin"
+  sig: 599494f3c0a2e7f33e0f024784ca68be12326f0c3c2797fc915cf38769ac1df2
 T005:
   c: true
-  h: 367cb9eedde53a06146d9e8f422fc8be87a0cf361a4a20c269eed4103b1dd6a5
-  r: "Checked `code/main.py` orchestrates the pipeline and the generated `data/results/estimation_results.csv`\
-    \ (11257\u202Fbytes) contains the required columns (`pooled_effect`, `ci_lower`,\
-    \ `ci_upper`, `estimator_type`, `sweep_type`) plus `convergence_warning`, with\
-    \ non\u2011null values for pooled effects, I\xB2 and Q for all 20 replicates (10\
-    \ per \u03C4\xB2 level). The accompanying `run_summary.json` confirms a 10\u2011\
-    replicate dry\u2011run across the two heterogeneity levels."
-  sig: 4fca01a2c930ec78ccbc558ea04856c34d13e395643e6732fc04e9f67f1939ab
-T006:
+  h: 458f696a57f11ebde144d2f641e0ce7d87184ed9bf138df46dce05a7c37d897a
+  r: "Checked `code/main.py` (pipeline entry point) and the generated `data/results/estimation_results.csv`,\
+    \ which includes the required columns (`pooled_effect`, `ci_lower`, `ci_upper`,\
+    \ `estimator_type`, `sweep_type`, `convergence_warning`) and non\u2011null I\xB2\
+    \ (`i_squared`) and Q (`q_statistic`) values for all 20 replicates (10 per \u03C4\
+    \xB2 level). The file matches the T005 schema and reflects a 2\u2011level, 10\u2011\
+    replicate run."
+  sig: 8c9e62880537db3391f4ce10846f1a7e5ce42c9c99d8a1078b8cd76a61afbc8c
+T007:
   c: false
-  h: b4dcac9eca7c86a78f716e4a7eb34e8b4ae67a5482f7667bf73619de9a51d0b2
-  r: "Checked `code/main.py`, `data/results/simulation_raw.json`, and the historical\
-    \ log `code/.tasks/T006.code_run_primary_sweep.py.log`. The JSON file is only\
-    \ ~75\u202FKB, far too small to contain 2\u202F500 full replicate records (each\
-    \ replicate includes many fields and arrays), and no evidence is provided that\
-    \ it actually holds \u22652\u202F500 entries. Moreover, the only execution record\
-    \ is for a different script (`run_primary_sweep.py`), not `code/main.py`, and\
-    \ there are no logs showing the run completed within 6\u202Fh or used <\u202F\
-    7\u202FGB RAM. The task therefore lacks the required full\u2011domain run and\
-    \ verification evidence"
-  sig: 3d626443f2b69d4e1cc714a7ce566ee9d529dbf667a8e89c23cc859ad957cb61
+  h: 9a473874ddeb6ac0684ed19102a5284dbce9a5f79fbcbac06476334c1aa92194
+  r: "Checked `code/analysis/stats.py` and `data/results/aggregated_metrics.csv`.\
+    \ The stats module uses a Kolmogorov\u2011Smirnov test instead of the required\
+    \ Shapiro\u2011Wilk test, and all hypothesis tests are run with the default \u03B1\
+    \u202F=\u202F0.05 rather than the Bonferroni\u2011adjusted \u03B1\u202F=\u202F\
+    0.01, so the core statistical requirements are not met despite the CSV conforming\
+    \ to the schema."
+  sig: d59d6961749db154f1214f797ad7fc3472f80def17dda9089907f049f445e674
+T008:
+  c: false
+  h: 06dde3908edde9b529e1cb374ef065bd7845442a1234cfcf4fce5d5ea862533a
+  r: "The evidence shows `compute_stability_analysis` was invoked, but the log reports\
+    \ that the required sensitivity results file (`data/results/estimation_results_sensitivity.csv`)\
+    \ was missing, so the analysis fell back to using the primary results only. Consequently,\
+    \ no secondary simulation sweep with \u03C4\xB2\u202F\u2208\u202F{0.05,\u202F\
+    0.1,\u202F0.5} was executed or saved, and the reported `max_diff` of\u202F0.0\
+    \ is meaningless. The missing sensitivity sweep output (and corresponding CSV)\
+    \ must be generated and the stability analysis rerun to produce a genuine comparison."
+  sig: d5df70c9cc23317578ce7d570fe4b12932553b1f01b841ad9028fd6089c8c24e
 T010:
   c: false
   h: d27516bf6f4773261f1e3baca00f2dae2e2bd27e25a89617cf5245d53e1dd0de

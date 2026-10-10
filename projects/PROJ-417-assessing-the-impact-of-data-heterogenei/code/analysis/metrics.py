@@ -187,7 +187,11 @@ def compute_metrics_from_simulation(
                 )
 
         replicate_id = int(record.get("replicate_id", idx))
-        tau2 = float(record.get("tau_squared_estimate", 0.0) or 0.0)
+
+        # Support both possible column names for the estimated tau^2.
+        tau2_raw = record.get("tau_squared_estimate",
+                             record.get("tau_squared_est", None))
+        tau2 = float(tau2_raw) if tau2_raw is not None else 0.0
 
         if "i_squared" in record and record["i_squared"] is not None:
             i_squared = float(record["i_squared"])
@@ -245,6 +249,7 @@ def aggregate_metrics(
     if not results:
         return {
             "mean_bias": 0.0,
+            "mean_absolute_bias": 0.0,
             "coverage_rate": 0.0,
             "mean_i_squared": 0.0,
             "total_replicates": 0

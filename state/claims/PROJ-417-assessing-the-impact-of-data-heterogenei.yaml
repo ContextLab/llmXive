@@ -969,7 +969,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-11T21:49:50Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -1124,7 +1124,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-11T21:53:45Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 0
@@ -3312,7 +3312,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-24T10:48:50Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
   attempts: 1
@@ -4179,7 +4179,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-30T04:42:12Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -4779,7 +4779,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-19T00:55:40Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -5711,7 +5711,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-22T06:34:25Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -5924,7 +5924,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-22T06:40:15Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -5966,7 +5966,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-26T06:33:17Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -6168,7 +6168,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-26T06:41:10Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 0
@@ -6423,7 +6423,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-26T06:48:59Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -8963,7 +8963,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-06T22:40:59Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   attempts: 1
@@ -9832,7 +9832,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-06T22:52:29Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
   attempts: 1
@@ -10089,3 +10089,159 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-06T22:56:57Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: download real Cochrane meta-analysis dataset from Zenodo DOI 10.5281/zenodo.10286623
+  claim_id: c_66cac4ad
+  context: "In the Methods Summary the pipeline attempts to download a real Cochrane\
+    \ meta\u2011analysis dataset from Zenodo."
+  evidence:
+    asserted: '10.5281'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: "The pipeline first attempts to download a real Cochrane meta\u2011analysis\
+    \ dataset from Zenodo (DOI\u202F10.5281/zenodo.10286623)."
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-10-10T19:25:41Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: synthetic base with mean 0, std 1, N=20 sourced from Jackson et al 2010
+  claim_id: c_bb1a1daf
+  context: If the real dataset cannot be fetched, the pipeline uses a verified synthetic
+    base described by Jackson et al. 2010.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "When unavailable, it falls back to a verified synthetic base (\u03BC\u202F\
+    =\u202F0.0, \u03C3\u202F=\u202F1.0, N\u202F=\u202F20) sourced from Jackson et\u202F\
+    al.\u202F(2010)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:10Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "at least 500 replicates generated per \u03C4\xB2 level"
+  claim_id: c_1b63627f
+  context: "The simulation step generates \u2265\u202F500 replicates for each \u03C4\
+    \xB2 level in the primary sweep."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "For each \u03C4\xB2 level, \u2265\u202F500 replicates are generated (primary\
+    \ sweep)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:12Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "coverage 100% at \u03C4\xB2=0"
+  claim_id: c_1fe2ed31
+  context: "Results Overview reports that coverage declines with heterogeneity, starting\
+    \ at 100\u202F% when \u03C4\xB2\u202F=\u202F0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Coverage is 100\u202F% at \u03C4\xB2\u202F=\u202F0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:14Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "coverage approx 51% at \u03C4\xB2=2.0"
+  claim_id: c_6b7f1d27
+  context: "Results Overview reports that coverage declines with increasing heterogeneity,\
+    \ reaching \u2248\u202F51\u202F% at \u03C4\xB2\u202F=\u202F2.0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Coverage declines to approximately 51\u202F% at \u03C4\xB2\u202F=\u202F\
+    2.0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:16Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "mean bias approx 0% at \u03C4\xB2=0"
+  claim_id: c_f6b5eec4
+  context: "Bias shows a modest upward drift as \u03C4\xB2 grows, with mean bias ranging\
+    \ from \u2248\u202F0\u202F% at \u03C4\xB2\u202F=\u202F0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Mean bias is approximately 0\u202F% at \u03C4\xB2\u202F=\u202F0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:18Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: "mean bias approx -3% at \u03C4\xB2=2.0"
+  claim_id: c_8b5e3c65
+  context: "Bias shows a modest upward drift as \u03C4\xB2 grows, with mean bias reaching\
+    \ \u2248\u202F\u20113\u202F% at \u03C4\xB2\u202F=\u202F2.0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Mean bias is approximately -3\u202F% at \u03C4\xB2\u202F=\u202F2.0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:20Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: REML converged successfully for all replicates
+  claim_id: c_25d27afc
+  context: Results Overview states that REML converged successfully for all replicates,
+    with failures handled via DL fallback.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: REML converged successfully for all replicates.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:22Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/handoff.md
+  attempts: 1
+  canonical: datasets with fewer than five studies flagged and excluded
+  claim_id: c_e132c8d5
+  context: "The small\u2011study effect note indicates that datasets with N\u202F\
+    <\u202F5 were flagged and excluded from primary inference."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Datasets with fewer than five studies were flagged and excluded from primary
+    inference.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T19:26:24Z'

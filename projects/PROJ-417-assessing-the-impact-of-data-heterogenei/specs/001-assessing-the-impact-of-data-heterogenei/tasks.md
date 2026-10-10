@@ -17,7 +17,7 @@
     **Mandatory**: Implement deterministic random seeding using a pinned seed to ensure reproducibility (Constitution Principle I).
     **Verification**: `tests/unit/test_generator.py` confirms that the injected $\tau^2$ matches the empirical variance of generated effect sizes within 0.05.
 
-- [X] T003 Implement meta-analysis estimators and heterogeneity logic.
+- [ ] T003 Implement meta-analysis estimators and heterogeneity logic.
     Implement `code/simulation/estimators.py` providing Fixed-Effects, DerSimonian-Laird, and REML estimators (FR-002).
     **Mandatory**: Implement calculation of $Q$ and $I^2$ statistics for every estimation (Constitution Principle VII).
     **Mandatory**: Implement logic to identify and flag datasets with $N < 5$ studies, ensuring they are either excluded or explicitly flagged to avoid unreliable degrees-of-freedom approximations (Spec: Edge Cases).
@@ -56,11 +56,11 @@
     Implement stability analysis in `code/analysis/stats.py` to compare coverage rates between the primary and sensitivity sweeps for overlapping $\tau^2$ levels.
     **Verification**: `data/results/stability_analysis.json` reports the `max_diff` in coverage rates between the two sweeps.
 
-- [ ] T009 Generate visualizations.
+- [~] T009 Generate visualizations.
     Implement `code/visualization/plots.py` to produce PNGs of Coverage vs. $\tau^2$ and Mean Bias vs. $\tau^2$ (FR-005).
     **Verification**: `ls data/results/*.png` confirms the existence of both required plots.
 
-- [ ] T010 Generate the final framed report.
+- [~] T010 Generate the final framed report.
     Implement `code/reporting/report_gen.py` to compile results into `data/results/report.md`, including REML failure counts and stability metrics.
     **Mandatory**: Insert explicit "associational" labeling in the report header and conclusions to avoid causal claims (SC-005).
     **Verification**: `data/results/report.md` contains the "associational" label and references the specific result files in `data/results/`.
@@ -71,12 +71,12 @@
 
 **Goal**: Ensure the entire pipeline is reproducible from scratch and prepare the handoff for the paper pipeline.
 
-- [ ] T011 Perform final reproducibility validation.
+- [~] T011 Perform final reproducibility validation.
     Execute the full pipeline (T001 $\rightarrow$ T010) on a fresh environment.
     Generate SHA-256 checksums for all final artifacts in `data/results/` and record them in `state/artifact_hashes.yaml`.
     **Verification**: All integration tests in `tests/integration/test_pipeline.py` pass, and checksums match the original run.
 
-- [ ] T012 Document the paper-stage handoff.
+- [~] T012 Document the paper-stage handoff.
     Write a concise methods/results account in `data/results/handoff.md` linking to the actual output cells and figure files.
     Explicitly state any limitations, such as the impact of small study effects ($N < 5$) flagged during estimation.
     **Verification**: Handoff document includes a complete list of all generated artifacts and their corresponding scientific requirements (FR-IDs).
