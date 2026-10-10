@@ -1,10 +1,5 @@
 T048:
-  reason: "The pipeline never produced the required real merged dataset \u2013 `data/intermediate/merged.csv`\
-    \ is missing, and `data/provenance/checksums.txt` is not present. Moreover, `data/provenance/dft_queries.jsonl`\
-    \ only contains placeholder entries with zero queries, showing that no actual\
-    \ fetch from the Materials Project API (or the experimental source) was performed.\
-    \ Consequently the task\u2019s core deliverables and validation criteria are not\
-    \ satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: d10a86146f7f25459a30daffdc9ff7a2352eabd1b4db97e8afc71434113d6a91
 T049:
   task: 9497cc12529a7ddd90cb700b666340961d59e86ffff23396d69ad2d950e09e1c

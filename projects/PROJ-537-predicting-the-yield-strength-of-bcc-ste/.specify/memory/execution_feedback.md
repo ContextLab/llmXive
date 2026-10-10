@@ -9,13 +9,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/main.py", line 20, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/main.py", line 19, in <module>
     from utils.logging import get_logger, log_provenance_event
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/__init__.py", line 5, in <module>
     from .logging import StructuredFormatter, get_logger, log_provenance_event, log_api_query, log_data_artifact
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/logging.py", line 8, in <module>
-    from .checksums import get_logger as _get_checksum_logger
-ImportError: cannot import name 'get_logger' from 'utils.checksums' (/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/checksums.py)
+ImportError: cannot import name 'StructuredFormatter' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/logging.py)
 
 
 ## Declared deliverables still missing
@@ -41,13 +39,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/intermediate/merged.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/output.json` is declared but was NOT written. Scripts referencing it:
     - `code/config.py` — NOT invoked by the run-book
+    - `code/ingestion/fetch_dft.py` — NOT invoked by the run-book
     - `code/ingestion/fetch_experimental.py` — NOT invoked by the run-book
     - `code/ingestion/finalize_dataset.py` — NOT invoked by the run-book
     - `code/ingestion/generate_checksums.py` — NOT invoked by the run-book
     - `code/ingestion/merge_and_filter.py` — NOT invoked by the run-book
     - `code/ingestion/update_state.py` — NOT invoked by the run-book
     - `code/interpretability/bootstrap_stability.py` — NOT invoked by the run-book
-    - `code/interpretability/check_stability.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/output.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/shap_summary.png` is declared but was NOT written. Scripts referencing it:
     - `code/interpretability/plot_results.py` — NOT invoked by the run-book
