@@ -1,15 +1,9 @@
-"""Implementation of full metrics generation for US2.
+"""Implementation of full metrics generation and Benjamini-Hochberg FDR correction for US2.
 
 This module merges the outputs of the PCA step (``pca_loadings.csv`` and
 ``factor_scores.csv``) with the aggregated network metrics (``aggregated_metrics.csv``)
-to produce ``full_metrics.csv`` with the schema required by the specification:
-
-``subject_id, modularity, global_efficiency, pc_mean, wmd_mean,
-pca_factor_1, pca_factor_2``
-
-The module re‑uses the existing PCA utilities defined in
-``code/analysis/pca_utils.py`` so that the earlier task *T023a* (PCA
-computation) remains the single source of truth for those outputs.
+to produce ``full_metrics.csv`` and then applies FDR correction to the
+correlation results (``correlation_results.csv``), writing ``fdr_corrected_results.csv``.
 """
 
 from __future__ import annotations
@@ -19,9 +13,10 @@ from pathlib import Path
 from typing import Tuple
 
 import pandas as pd
+from statsmodels.stats.multitest import multipletests
 
 # Re‑use the PCA pipeline implementation that already writes the PCA
-# artifacts.  Importing it here keeps the dependency graph simple and
+# artefacts.  Importing it here keeps the dependency graph simple and
 # guarantees that the PCA step is executed before we attempt to merge the
 # results.
 from .pca_utils import run_pca_pipeline
@@ -52,7 +47,7 @@ def _write_csv(df: pd.DataFrame, path: Path) -> None:
     logger.log("wrote_csv", path=str(path), rows=len(df))
 
 # ----------------------------------------------------------------------
-# Core functionality
+# Core functionality – full metrics generation
 # ----------------------------------------------------------------------
 def generate_full_metrics(
     analysis_dir: Path = Path("data/analysis")
@@ -113,9 +108,7 @@ def generate_full_metrics(
         validate="one_to_one",
     )
 
-    # The specification requires the following column order.  If any column
-    # is missing we raise an informative error so the pipeline fails loudly
-    # rather than producing a malformed file.
+    # The specification requires the following column order.
     required_columns = [
         "subject_id",
         "modularity",
@@ -143,6 +136,75 @@ def generate_full_metrics(
     return output_path
 
 # ----------------------------------------------------------------------
+# Benjamini-Hochberg FDR correction
+# ----------------------------------------------------------------------
+def apply_fdr_correction(
+    analysis_dir: Path = Path("data/analysis"),
+    pvalue_column: str = "p",
+    qvalue_column: str = "q",
+    significance_column: str = "significant",
+    alpha: float = 0.05,
+) -> Path:
+    """
+    Apply Benjamini‑Hochberg FDR correction to the set of p‑values produced
+    by the correlation step and write a CSV that includes corrected q‑values
+    and a boolean ``significant`` flag.
+
+    The function expects a CSV named ``correlation_results.csv`` (produced by
+    task T024) in ``analysis_dir`` with at least the columns ``metric_name``
+    and the p‑value column (default ``p``).  It writes
+    ``fdr_corrected_results.csv`` to the same directory.
+
+    Parameters
+    ----------
+    analysis_dir : Path
+        Directory containing ``correlation_results.csv`` and where the
+        corrected file will be written.
+    pvalue_column : str, optional
+        Name of the column containing raw p‑values. Default ``"p"``.
+    qvalue_column : str, optional
+        Name of the column to store the corrected q‑values. Default ``"q"``.
+    significance_column : str, optional
+        Name of the Boolean column indicating significance after correction.
+        Default ``"significant"``.
+    alpha : float, optional
+        FDR threshold. Default ``0.05``.
+
+    Returns
+    -------
+    Path
+        Path to the written ``fdr_corrected_results.csv`` file.
+    """
+    logger.log("apply_fdr_correction_start", analysis_dir=str(analysis_dir))
+
+    corr_path = analysis_dir / "correlation_results.csv"
+    if not corr_path.is_file():
+        raise FileNotFoundError(f"Correlation results file not found: {corr_path}")
+
+    df = _read_csv(corr_path)
+
+    if pvalue_column not in df.columns:
+        raise KeyError(f"Column '{pvalue_column}' not found in correlation results.")
+
+    # Perform Benjamini‑Hochberg correction
+    pvals = df[pvalue_column].values
+    _, qvals, _, _ = multipletests(pvals, alpha=alpha, method="fdr_bh")
+    df[qvalue_column] = qvals
+    df[significance_column] = df[qvalue_column] < alpha
+
+    # Preserve original column order, appending the new ones at the end.
+    output_path = analysis_dir / "fdr_corrected_results.csv"
+    _write_csv(df, output_path)
+
+    logger.log(
+        "apply_fdr_correction_complete",
+        output_path=str(output_path),
+        total_tests=int(len(pvals)),
+        significant=int(df[significance_column].sum()),
+    )
+    return output_path
+
+# ----------------------------------------------------------------------
 # Command‑line interface
 # ----------------------------------------------------------------------
 def _parse_cli() -> Tuple[Path]:
@@ -152,8 +214,11 @@ def _parse_cli() -> Tuple[Path]:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Create full_metrics.csv by merging aggregated network metrics "
-        "with PCA factor scores."
+        description=(
+            "Create ``full_metrics.csv`` by merging aggregated network metrics "
+            "with PCA factor scores and apply Benjamini‑Hochberg FDR correction "
+            "to correlation results."
+        )
     )
     parser.add_argument(
         "--analysis-dir",
@@ -169,8 +234,9 @@ def main() -> None:
     analysis_dir, = _parse_cli()
     try:
         generate_full_metrics(analysis_dir=analysis_dir)
+        apply_fdr_correction(analysis_dir=analysis_dir)
     except Exception as exc:
-        logger.log("full_metrics_generation_failed", error=str(exc))
+        logger.log("full_metrics_or_fdr_failed", error=str(exc))
         raise
 
 if __name__ == "__main__":

@@ -1,3 +1,59 @@
+T001:
+  c: false
+  h: de7c24f4a1777c461af384f773d03994d6efaa939446c18edd003a5272c5acae
+  r: "The task requires creating a specific project directory structure (`code/data`,\
+    \ `code/analysis`, `code/viz`, `code/report`, `code/tests`, `data/raw`, `data/processed`,\
+    \ `data/analysis`, `logs`, `docs`), but the evidence collector found no artifacts\
+    \ on disk \u2014 no directories or files were confirmed to exist at the project\
+    \ root. There is no evidence that the `mkdir -p` command was executed or that\
+    \ any of the required directories exist."
+  sig: 092268b88f638362dda969c24a1fb791ed8bf36393cc3a3b148bc50abbe4788c
+T002:
+  c: true
+  h: 0f61858519b79c97d5a3477f58bfda75dbaad8442ddb55c3c4074688a1190cf2
+  r: The `requirements.txt` exists at the project root and contains all 14 required
+    pinned packages with exactly the specified versions (nibabel==5.2.0, numpy==1.26.0,
+    pandas==2.2.0, scikit-learn==1.4.0, networkx==3.2.1, matplotlib==3.8.0, seaborn==0.13.0,
+    nilearn==0.10.2, requests==2.31.0, pytest==7.4.0, statsmodels==0.14.1, bctpy==1.0.2,
+    openneuro-py==2.0.0, hcp==0.0.1), plus two additional pinned packages (tqdm, pyyaml)
+    which do not conflict with the requirement.
+  sig: 7a24036140beb6f895a84391dc0a6317916a7339250d7046ce0048f0d896776d
+T003:
+  c: false
+  h: f426eea7c46d78f11f59239892d999497663952d623c1bd1505a5e7d262265bf
+  r: "No artifacts were provided or confirmed on disk for this task \u2014 there is\
+    \ no evidence of a ruff configuration (e.g., `pyproject.toml`/`ruff.toml` with\
+    \ lint rules), formatter setup, or any lint/format execution logs. The task \"\
+    Configure linting (ruff) and formatting tools\" requires actual configuration\
+    \ files to exist, and none were shown."
+  sig: 94e53894df82dbed0b1e24f6adad10fd082b7065028c2d61bcfea29991dcf018
+T004:
+  c: false
+  h: a07c9d1382b467bdf2e4870a685ce981ff5b15409ff1927462437042a405dc2f
+  r: '`code/config.py` exists but contains only a `get_hcp_credentials()` helper;
+    it defines none of the required configuration keys (`HCP_CREDENTIALS`, `BATCH_SIZE`,
+    `MEMORY_LIMIT` (7GB), `HCP_API_VERSION`, `SCHAEFER_ATLAS_URL`, `PCA_COMPONENTS`
+    (2)). The implementer must add these keys with the specified values (e.g., MEMORY_LIMIT
+    = 7GB, PCA_COMPONENTS = 2) rather than just a credentials helper.'
+  sig: ce18cee764fd99e218f67320ea40c055fd0259af4887abb54062a33e0081e8d6
+T005:
+  c: true
+  h: 3601eeeb7847ce6ea1bc67bb12f34bc309ba04ba131581b84008fa268fd9d4c3
+  r: The artifact `code/utils/memory_monitor.py` exists (2791 bytes) and implements
+    real memory profiling via psutil (`get_available_memory`), memory estimation,
+    and dynamic batch sizing (`calculate_batch_size`) with a self-test in `__main__`.
+    Its dependency `code/logging_config.py` exists with a compatible tolerant logger,
+    and the code contains no stubs, TODOs, or fabricated values.
+  sig: 25bef6dc9b8ba92e5391641fe5b876b56530696224288860cae552b22c6a87f0
+T006:
+  c: false
+  h: d9f1e88563db53543c9d8a058994f95da9c8633e4b77b960288b929943ed43f9
+  r: "The task requires logging infrastructure writing structured logs to `logs/pipeline.log`,\
+    \ but the evidence collector found no artifacts at all \u2014 no logging module/code,\
+    \ no `logs/` directory, and no `pipeline.log` file exist in the project. There\
+    \ is nothing on disk to verify the claim against, so the task cannot be judged\
+    \ complete."
+  sig: 6c6e8d8ca3864863ceb103dfda625985c9f37b12cff669b29f8064c27011ddde
 T014b:
   c: false
   h: 906ba6c465ff9f54d8eb26acb9517435a33b3b5167f284e2bc4a9028cc87cb33
