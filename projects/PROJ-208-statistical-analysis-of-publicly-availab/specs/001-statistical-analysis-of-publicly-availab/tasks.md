@@ -48,10 +48,10 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create code/ directory at repository root
-- [X] T001b [P] Create data/ directory at repository root with subdirectories: raw/, processed/, figures/
+- [ ] T001b [P] Create data/ directory at repository root with subdirectories: raw/, processed/, figures/
 - [X] T001c [P] Create tests/ directory at repository root with subdirectories: contract/, integration/, unit/
-- [X] T001d [P] Create state/ directory at repository root
-- [X] T002 Initialize Python 3.11 project with pinned CPU-tractable dependencies in requirements.txt at projects/PROJ-208-statistical-analysis-of-publicly-availab/code/ (requests, pandas, numpy, scipy, statsmodels, pymer4, matplotlib, seaborn, pyyaml)
+- [ ] T001d [P] Create state/ directory at repository root
+- [ ] T002 Initialize Python 3.11 project with pinned CPU-tractable dependencies in requirements.txt at projects/PROJ-208-statistical-analysis-of-publicly-availab/code/ (requests, pandas, numpy, scipy, statsmodels, pymer4, matplotlib, seaborn, pyyaml)
 - [X] T003 [P] Configure linting and formatting tools: create ruff.toml and pyproject.toml config files
 
 ---
@@ -63,10 +63,10 @@ description: "Task list template for feature implementation"
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create configuration manager in code/utils/config.py (random seeds, paths, thresholds)
-- [X] T005 [P] Implement GitHub API client with rate limit handling, exponential backoff, and explicit **wait ≥60 seconds** before resuming upon rate limit hits in code/utils/api_client.py (FR-001, US-1)
-- [X] T006 [P] Setup schema validators against contracts/ in code/utils/validators.py (SC-001)
-- [X] T027 [P] Create documentation: data-model.md (entity definitions), contracts/ (schema YAML files), AND quickstart.md (end-to-end run instructions) per plan.md Phase 1 outputs
-- [X] T039 [P] Implement Reference-Validator Agent with explicit integration points (artifact write, Advancement-Evaluator, transition gate) and blocking logic for the `research_review` → `research_accepted` transition (Constitution Principle II)
+- [~] T005 [P] Implement GitHub API client with rate limit handling, exponential backoff, and explicit **wait ≥60 seconds** before resuming upon rate limit hits in code/utils/api_client.py (FR-001, US-1)
+- [~] T006 [P] Setup schema validators against contracts/ in code/utils/validators.py (SC-001)
+- [~] T027 [P] Create documentation: data-model.md (entity definitions), contracts/ (schema YAML files), AND quickstart.md (end-to-end run instructions) per plan.md Phase 1 outputs
+- [~] T039 [P] Implement Reference-Validator Agent with explicit integration points (artifact write, Advancement-Evaluator, transition gate) and blocking logic for the `research_review` → `research_accepted` transition (Constitution Principle II)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,16 +82,16 @@ description: "Task list template for feature implementation"
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T007 [P] [US1] Contract test for dataset schema in tests/contract/test_dataset_schema.py
-- [X] T008 [P] [US1] Integration test for API fetch with rate limit simulation in tests/integration/test_api_fetch.py
+- [~] T007 [P] [US1] Contract test for dataset schema in tests/contract/test_dataset_schema.py
+- [~] T008 [P] [US1] Integration test for API fetch with rate limit simulation in tests/integration/test_api_fetch.py
 
 ### Implementation for User Story 1
 
-- [X] T047 [US1] Implement **Streaming Data Loader** in `code/data/loader.py` using `datasets.load_dataset(..., streaming=True)` to process the full real dataset in chunks, ensuring memory usage stays <7GB while avoiding synthetic sampling unless the full stream is impossible (Plan Phase 0, Constitution Principle II)
+- [~] T047 [US1] Implement **Streaming Data Loader** in `code/data/loader.py` using `datasets.load_dataset(..., streaming=True)` to process the full real dataset in chunks, ensuring memory usage stays <7GB while avoiding synthetic sampling unless the full stream is impossible (Plan Phase 0, Constitution Principle II)
 
 #### HuggingFace Loader (Atomic Steps)
-- [ ] T009a-1 [US1] Implement **Schema Validator** for HuggingFace dataset in `code/data/validators_hf.py` to check `created_at`, `closed_at`, `labels`, `assignee`, `comments_count` presence and types (FR-001).
-- [ ] T009a-2 [US1] Implement **HuggingFace Fetcher** in `code/data/loader_hf.py` to fetch `akhousker/github-issues` with `streaming=True` and error handling (FR-001).
+- [~] T009a-1 [US1] Implement **Schema Validator** for HuggingFace dataset in `code/data/validators_hf.py` to check `created_at`, `closed_at`, `labels`, `assignee`, `comments_count` presence and types (FR-001).
+- [ ] T009a-2 [US1] Implement **HuggingFace Fetcher** in `code/data/loader_hf.py` to fetch `akhousker/github-issues` with `streaming=True` and error handling (FR-001). <!-- FAILED-IN-EXECUTION: code/data/loader_hf.py exit=1 -->
 - [ ] T009a-3 [US1] Implement **HF Writer** in `code/data/loader_hf.py` to write validated data to `data/raw/github_issues_raw_hf.parquet` **AFTER** metadata enrichment (T045) is complete (Plan Phase 0). **Dependency**: T045.
 
 #### GitHub API Fallback Loader (Atomic Steps)
@@ -103,7 +103,7 @@ description: "Task list template for feature implementation"
 - [ ] T009b-4 [US1] Implement **API Validator** in `code/data/validators_api.py` to validate fetched API data against `contracts/dataset.schema.yaml` (FR-001).
 
 #### Repository Metadata Enrichment (Atomic Steps)
-- [X] T045 [US1] Implement **Repository Metadata Enrichment** script in `code/collect/enrich_metadata.py` to fetch `language`, `star_count`, and `contributor_count` for repositories in the dataset via GitHub API; Output to `data/processed/repo_metadata.json` with schema `{repo_id, language, star_count, contributor_count}` and merge `language` into the main dataset **BEFORE** writing the raw parquet file (Plan Phase 0.5, FR-001). **Dependency**: Must complete before T009a-3 and T009b-4 to ensure language is present in the raw data. **Note**: This task runs on the raw data (HF or API) before the Orchestrator merges/writes it.
+- [~] T045 [US1] Implement **Repository Metadata Enrichment** script in `code/collect/enrich_metadata.py` to fetch `language`, `star_count`, and `contributor_count` for repositories in the dataset via GitHub API; Output to `data/processed/repo_metadata.json` with schema `{repo_id, language, star_count, contributor_count}` and merge `language` into the main dataset **BEFORE** writing the raw parquet file (Plan Phase 0.5, FR-001). **Dependency**: Must complete before T009a-3 and T009b-4 to ensure language is present in the raw data. **Note**: This task runs on the raw data (HF or API) before the Orchestrator merges/writes it.
 
 #### Data Source Orchestrator (Atomic Steps)
 - [ ] T009c-1 [US1] Implement **HF Check Logic** in `code/collect/orchestrator.py` to verify HF dataset availability and validity (Plan Phase 0.5). **Dependency**: T045 (if HF used).
@@ -113,10 +113,10 @@ description: "Task list template for feature implementation"
 - [ ] T009c-5 [US1] Implement **Repository Count Verification** in `code/collect/orchestrator.py` to explicitly verify the final merged dataset meets the ≥100 repository threshold **IF** HF was invalid. If HF was valid, skip this check. (FR-001). **Dependency**: T009c-3.
 - [ ] T009c-6 [US1] Implement **Discovery Failure Handler** in `code/collect/orchestrator.py` to trigger dynamic discovery if the curated list is insufficient to meet the ≥100 threshold. (FR-001). **Dependency**: T009c-5.
 
-- [X] T009d [US1] Implement **Fallback Strategy Documentation** in `docs/fallback_strategy.md` detailing the escalation path if the hard stop on the repository count (T009c-5) is triggered, including manual repository list expansion procedures (FR-001). **Dependency**: T009c.
-- [X] T010 [US1] Implement preprocessing script in `code/collect/preprocess.py` to compute resolution_time_hours, apply log-transform, and exclude invalid issues (FR-002, FR-003). **Dependency**: T045, T009c.
-- [X] T011 [US1] Save cleaned dataset to `data/processed/cleaned_issues.csv` with checksum AND validate ≥95% completeness threshold per SC-001 by checking that columns `created_at`, `closed_at`, `labels`, `assignee`, and `comments_count` contain **non-null, non-empty, and non-invalid-format values** (e.g., 'N/A', 'null') for ≥95% of rows using `code/utils/validators.py` (defined in T006); Output validation report to `data/logs/completeness_report.json` with schema `{total_rows, valid_rows, completeness_pct, excluded_columns}`; 'language' is explicitly EXCLUDED from this specific check. **Note**: 'language' is explicitly EXCLUDED from this specific check to prevent false negatives from enrichment failures. **Dependency**: T010.
-- [X] T012 [US1] Add logging for excluded issues (negative resolution time, missing timestamps) to `data/logs/preprocessing.log` in JSON format (FR-003) **Dependency**: T010.
+- [~] T009d [US1] Implement **Fallback Strategy Documentation** in `docs/fallback_strategy.md` detailing the escalation path if the hard stop on the repository count (T009c-5) is triggered, including manual repository list expansion procedures (FR-001). **Dependency**: T009c.
+- [~] T010 [US1] Implement preprocessing script in `code/collect/preprocess.py` to compute resolution_time_hours, apply log-transform, and exclude invalid issues (FR-002, FR-003). **Dependency**: T045, T009c.
+- [~] T011 [US1] Save cleaned dataset to `data/processed/cleaned_issues.csv` with checksum AND validate ≥95% completeness threshold per SC-001 by checking that columns `created_at`, `closed_at`, `labels`, `assignee`, and `comments_count` contain **non-null, non-empty, and non-invalid-format values** (e.g., 'N/A', 'null') for ≥95% of rows using `code/utils/validators.py` (defined in T006); Output validation report to `data/logs/completeness_report.json` with schema `{total_rows, valid_rows, completeness_pct, excluded_columns}`; 'language' is explicitly EXCLUDED from this specific check. **Note**: 'language' is explicitly EXCLUDED from this specific check to prevent false negatives from enrichment failures. **Dependency**: T010.
+- [ ] T012 [US1] Add logging for excluded issues (negative resolution time, missing timestamps) to `data/logs/preprocessing.log` in JSON format (FR-003) **Dependency**: T010.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -130,17 +130,17 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T013 [P] [US2] Unit test for log-transform handling of zero values in tests/unit/test_transforms.py
-- [X] T014 [P] [US2] Integration test for distribution fitting output format in tests/integration/test_distributions.py
+- [~] T013 [P] [US2] Unit test for log-transform handling of zero values in tests/unit/test_transforms.py
+- [~] T014 [P] [US2] Integration test for distribution fitting output format in tests/integration/test_distributions.py
 
 ### Implementation for User Story 2
 
-- [X] T017a [US2] Implement **MAD and IQR Outlier Detection** in `code/data/cleaner.py` to: 1) Calculate Median Absolute Deviation (MAD) on **log-transformed** resolution times as the **primary** detection method (per Plan.md Phase 0/2), 2) Calculate IQR (Q3 + 1.5*IQR) on **log-transformed** data as a **secondary** diagnostic for comparison. Flag outliers using MAD (threshold = median + k*MAD), where k is a robustness factor, and report both counts. (FR-002, US-2, Plan Phase 2). **Dependency**: T010.
-- [X] T015 [P] [US2] Implement ECDF plot generation in `code/analysis/distribution_fitting.py` (x-axis log scale) (FR-002)
-- [X] T016a [US2] Fit log-normal model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
-- [X] T016b [US2] Fit Weibull model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
-- [X] T017 [US2] Detect and report extreme outliers using **MAD-based detection (primary)** and **IQR method (secondary)** on log-transformed data as defined in Spec US-2 Acceptance Scenario 3; Report the **number of outliers** and their **percentage of the total dataset** for both methods; Output to `data/processed/outlier_report.json` with schema `{mad_count: int, iqr_count: int, mad_percentage: float, iqr_percentage: float, primary_method: "MAD"}` (FR-002, US-2, Plan Phase 2). **Dependency**: Requires T017a.
-- [X] T018 [US2] Save figures to `data/figures/` and results to `data/processed/distribution_metrics.json` (SC-002)
+- [ ] T017a [US2] Implement **MAD and IQR Outlier Detection** in `code/data/cleaner.py` to: 1) Calculate Median Absolute Deviation (MAD) on **log-transformed** resolution times as the **primary** detection method (per Plan.md Phase 0/2), 2) Calculate IQR (Q3 + 1.5*IQR) on **log-transformed** data as a **secondary** diagnostic for comparison. Flag outliers using MAD (threshold = median + k*MAD), where k is a robustness factor, and report both counts. (FR-002, US-2, Plan Phase 2). **Dependency**: T010.
+- [~] T015 [P] [US2] Implement ECDF plot generation in `code/analysis/distribution_fitting.py` (x-axis log scale) (FR-002)
+- [~] T016a [US2] Fit log-normal model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
+- [~] T016b [US2] Fit Weibull model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
+- [ ] T017 [US2] Detect and report extreme outliers using **MAD-based detection (primary)** and **IQR method (secondary)** on log-transformed data as defined in Spec US-2 Acceptance Scenario 3; Report the **number of outliers** and their **percentage of the total dataset** for both methods; Output to `data/processed/outlier_report.json` with schema `{mad_count: int, iqr_count: int, mad_percentage: float, iqr_percentage: float, primary_method: "MAD"}` (FR-002, US-2, Plan Phase 2). **Dependency**: Requires T017a.
+- [~] T018 [US2] Save figures to `data/figures/` and results to `data/processed/distribution_metrics.json` (SC-002)
 
 **Checkpoint**: At this point, At least User Story 1 AND 2 should both work independently
 
@@ -154,35 +154,35 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US3] Contract test for analysis output schema in tests/contract/test_analysis_schema.py
-- [X] T020 [P] [US3] Integration test for mixed-effects model convergence in tests/integration/test_mixed_effects.py
+- [~] T019 [P] [US3] Contract test for analysis output schema in tests/contract/test_analysis_schema.py
+- [~] T020 [P] [US3] Integration test for mixed-effects model convergence in tests/integration/test_mixed_effects.py
 
 ### Implementation for User Story 3
 
-- [X] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with **Holm-Bonferroni correction** for independent tests AND **Westfall-Young permutation** for label dependency (Plan Phase 2, FR-004, US-3); Output to `code/analysis/hypothesis_testing.py` (FR-004, US-3). **Note**: Westfall-Young is a primary deliverable per Plan.md.
-- [X] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in `code/analysis/mixed_effects_model.py` (FR-005)
-- [X] T023 [US3] Implement **k-fold Stratified Cross-Validation by repository size** in `code/analysis/modeling.py` to generate MAE and R² metrics with standard deviation across folds (SC-004, US-3)
-- [X] T023b [US3] Implement **R² Benchmark Comparison** in `code/analysis/modeling.py` to compare the calculated R² against the literature benchmark (SC-004) and generate `data/processed/benchmark_report.json` with schema `{calculated_r2: float, benchmark_threshold:, status: "pass" | "fail"}` (SC-004). **Dependency**: T023.
-- [X] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in `code/diagnostics/collinearity.py` (FR-006)
+- [~] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with **Holm-Bonferroni correction** for independent tests AND **Westfall-Young permutation** for label dependency (Plan Phase 2, FR-004, US-3); Output to `code/analysis/hypothesis_testing.py` (FR-004, US-3). **Note**: Westfall-Young is a primary deliverable per Plan.md.
+- [~] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in `code/analysis/mixed_effects_model.py` (FR-005)
+- [~] T023 [US3] Implement **k-fold Stratified Cross-Validation by repository size** in `code/analysis/modeling.py` to generate MAE and R² metrics with standard deviation across folds (SC-004, US-3)
+- [~] T023b [US3] Implement **R² Benchmark Comparison** in `code/analysis/modeling.py` to compare the calculated R² against the literature benchmark (SC-004) and generate `data/processed/benchmark_report.json` with schema `{calculated_r2: float, benchmark_threshold:, status: "pass" | "fail"}` (SC-004). **Dependency**: T023.
+- [~] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in `code/diagnostics/collinearity.py` (FR-006)
 
 #### Sensitivity Analysis (Atomic Steps)
-- [X] T025a-1a [US3] Implement **Parametric Bootstrap Resampling Function** in `code/analysis/sensitivity.py` with `n_resamples=1000`, `random_state=42`, resampling Kruskal-Wallis statistics and LME coefficients (FR-007).
-- [X] T025a-1b [US3] Implement **Statistic Calculation Function** in `code/analysis/sensitivity.py` to calculate stability proportions for the **specific thresholds [, 0.05, 0.1]** within each resample (FR-007).
-- [X] T025a-1c [US3] Implement **Main Loop Orchestration** in `code/analysis/sensitivity.py` to execute the bootstrap loop and aggregate results (FR-007).
-- [X] T025a-2 [US3] Implement **Stability Proportion Calculation** in `code/analysis/sensitivity.py` to compute the proportion of significant resamples for each threshold in the set **[0.01, 0.05, 0.1]** (FR-007).
-- [X] T025a-3 [US3] Write intermediate bootstrap samples to `data/processed/bootstrap_samples.pkl` (FR-007).
-- [X] T025b-1 [US3] Implement **Threshold Iteration Loop** in `code/analysis/sensitivity.py` to aggregate stability metrics across the **specific thresholds [a range of standard significance levels]** (FR-007).
-- [X] T025b-2 [US3] Implement **Intermediate Aggregation** in `code/analysis/sensitivity.py` to collect stability metrics (FR-007).
-- [X] T025b-3 [US3] Write intermediate results to `data/processed/sensitivity_sweep.json` (FR-007).
-- [X] T025c [US3] Generate **final stability proportion report** in `data/processed/sensitivity_report.json` with explicit schema: `{0.01: <float>, 0.05: <float>, 0.1: <float>}` representing the **proportion of bootstrap resamples significant** for each specific threshold (FR-007). **Dependency**: Requires T025b-3 and T025a-3. **Note**: This is the definitive output; T025a outputs intermediate data.
+- [ ] T025a-1a [US3] Implement **Parametric Bootstrap Resampling Function** in `code/analysis/sensitivity.py` with `n_resamples=1000`, `random_state=42`, resampling Kruskal-Wallis statistics and LME coefficients (FR-007).
+- [ ] T025a-1b [US3] Implement **Statistic Calculation Function** in `code/analysis/sensitivity.py` to calculate stability proportions for the **specific thresholds [, 0.05, 0.1]** within each resample (FR-007).
+- [ ] T025a-1c [US3] Implement **Main Loop Orchestration** in `code/analysis/sensitivity.py` to execute the bootstrap loop and aggregate results (FR-007).
+- [ ] T025a-2 [US3] Implement **Stability Proportion Calculation** in `code/analysis/sensitivity.py` to compute the proportion of significant resamples for each threshold in the set **[0.01, 0.05, 0.1]** (FR-007).
+- [ ] T025a-3 [US3] Write intermediate bootstrap samples to `data/processed/bootstrap_samples.pkl` (FR-007).
+- [ ] T025b-1 [US3] Implement **Threshold Iteration Loop** in `code/analysis/sensitivity.py` to aggregate stability metrics across the **specific thresholds [a range of standard significance levels]** (FR-007).
+- [ ] T025b-2 [US3] Implement **Intermediate Aggregation** in `code/analysis/sensitivity.py` to collect stability metrics (FR-007).
+- [ ] T025b-3 [US3] Write intermediate results to `data/processed/sensitivity_sweep.json` (FR-007).
+- [ ] T025c [US3] Generate **final stability proportion report** in `data/processed/sensitivity_report.json` with explicit schema: `{0.01: <float>, 0.05: <float>, 0.1: <float>}` representing the **proportion of bootstrap resamples significant** for each specific threshold (FR-007). **Dependency**: Requires T025b-3 and T025a-3. **Note**: This is the definitive output; T025a outputs intermediate data.
 
-- [X] T026 [US3] Enforce "associational" or "correlational" language in all result text generation in `code/analysis/results.py` (FR-008)
-- [X] T049 [US3] Update `code/analysis/mixed_effects_model.py` to implement **Dimensionality Reduction** for categorical variables: group labels with <1% frequency into an "Other" category before one-hot encoding to prevent singular matrices in VIF calculation (Plan Phase 2, FR-006)
+- [~] T026 [US3] Enforce "associational" or "correlational" language in all result text generation in `code/analysis/results.py` (FR-008)
+- [~] T049 [US3] Update `code/analysis/mixed_effects_model.py` to implement **Dimensionality Reduction** for categorical variables: group labels with <1% frequency into an "Other" category before one-hot encoding to prevent singular matrices in VIF calculation (Plan Phase 2, FR-006)
 
 #### Collinearity Report (Atomic Steps)
-- [X] T056-1 [US3] Implement **VIF Metric Extraction and Correlated Pair Identification** in `code/diagnostics/collinearity.py` to extract VIF values from T024 output AND identify correlated pairs (threshold |r|≥0.7) (FR-006).
-- [X] T056-2 [US3] Implement **Human-Readable Summary Formatting** in `code/diagnostics/collinearity.py` to list predictors with VIF≥5 and correlated pairs (FR-006). **Note**: Merged with T056-1 in previous revision; T056-2 now refers to the formatting step of the merged logic.
-- [X] T056-3 [US3] Implement **Associational Language Injection** in `code/diagnostics/collinearity.py` to ensure all text in the report explicitly states "associational" or "correlational" (FR-008). **Dependency**: Requires T056-2.
+- [~] T056-1 [US3] Implement **VIF Metric Extraction and Correlated Pair Identification** in `code/diagnostics/collinearity.py` to extract VIF values from T024 output AND identify correlated pairs (threshold |r|≥0.7) (FR-006).
+- [~] T056-2 [US3] Implement **Human-Readable Summary Formatting** in `code/diagnostics/collinearity.py` to list predictors with VIF≥5 and correlated pairs (FR-006). **Note**: Merged with T056-1 in previous revision; T056-2 now refers to the formatting step of the merged logic.
+- [~] T056-3 [US3] Implement **Associational Language Injection** in `code/diagnostics/collinearity.py` to ensure all text in the report explicitly states "associational" or "correlational" (FR-008). **Dependency**: Requires T056-2.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -192,22 +192,22 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories, constitutional compliance, and final validation
 
-- [X] T028 [P] Code cleanup and refactoring: run ruff check (zero warnings)
-- [X] T042 [P] Achieve pytest coverage ≥80% with coverage report
-- [X] T029 [P] Configure GitHub Actions workflow for CI (standard CPU allocation, sufficient RAM, h timeout) AND validate actual runtime stays within ≤6h constraint (FR-009, FR-010)
-- [X] T030 [P] Run quickstart.md validation to ensure end-to-end reproducibility (SC-005)
-- [X] T033 [P] Generate content hashes for all artifacts in data/, code/, state/ (Constitution Principle V)
-- [X] T031 [P] Update state/projects/PROJ-208-statistical-analysis-of-publicly-availab.yaml with artifact hashes and updated_at timestamp (ISO 8601 format) on artifact changes (Constitution Principle V)
-- [X] T032 [P] Validate reproducibility by re-running code/ against data/ on fresh GitHub Actions runner with identical outputs = matching checksums (Constitution Principle I)
-- [X] T034 [P] Enforce reproducibility: verify code re-run produces identical outputs with checksums for data/, code/, state/ artifacts (Constitution Principle I)
-- [X] T035a [P] **Create/Update** `code/VERSION.txt` with the deterministic timezone script version string (e.g., `timezone_script_version:.0`) as a distinct, executable step (Constitution Principle VI).
-- [X] T035b [P] Validate temporal data integrity: ensure timestamps from GitHub API stored unchanged AND verify `code/VERSION.txt` exists and contains the version string (Constitution Principle VI). **Dependency**: T035a.
-- [X] T036 [P] Validate reproducible feature engineering: verify feature extraction scripts produce identical outputs AND explicitly declare API fields they read (Constitution Principle VII)
-- [X] T037 [P] Validate data hygiene: verify checksums and run Repository-Hygiene Agent for PII scan (Constitution Principle III)
-- [X] T038 [P] Run Repository-Hygiene Agent for PII scan enforcement in CI workflow with checkpoint verification (Constitution Principle III)
-- [X] T040 [P] Validate single-source-of-truth traceability: verify all figures/statistics trace to exactly one data row and code block (Constitution Principle IV)
-- [X] T041 [P] Validate all result text contains "associational" or "correlational" phrases per FR-008
-- [X] T043 [P] **Execute** Reference-Validator Agent on all artifacts generated in Phases 3-5 (citations, data, code) as a blocking gate before `research_accepted` transition (Constitution Principle II)
+- [~] T028 [P] Code cleanup and refactoring: run ruff check (zero warnings)
+- [~] T042 [P] Achieve pytest coverage ≥80% with coverage report
+- [~] T029 [P] Configure GitHub Actions workflow for CI (standard CPU allocation, sufficient RAM, h timeout) AND validate actual runtime stays within ≤6h constraint (FR-009, FR-010)
+- [~] T030 [P] Run quickstart.md validation to ensure end-to-end reproducibility (SC-005)
+- [~] T033 [P] Generate content hashes for all artifacts in data/, code/, state/ (Constitution Principle V)
+- [~] T031 [P] Update state/projects/PROJ-208-statistical-analysis-of-publicly-availab.yaml with artifact hashes and updated_at timestamp (ISO 8601 format) on artifact changes (Constitution Principle V)
+- [~] T032 [P] Validate reproducibility by re-running code/ against data/ on fresh GitHub Actions runner with identical outputs = matching checksums (Constitution Principle I)
+- [~] T034 [P] Enforce reproducibility: verify code re-run produces identical outputs with checksums for data/, code/, state/ artifacts (Constitution Principle I)
+- [ ] T035a [P] **Create/Update** `code/VERSION.txt` with the deterministic timezone script version string (e.g., `timezone_script_version:.0`) as a distinct, executable step (Constitution Principle VI).
+- [~] T035b [P] Validate temporal data integrity: ensure timestamps from GitHub API stored unchanged AND verify `code/VERSION.txt` exists and contains the version string (Constitution Principle VI). **Dependency**: T035a.
+- [~] T036 [P] Validate reproducible feature engineering: verify feature extraction scripts produce identical outputs AND explicitly declare API fields they read (Constitution Principle VII)
+- [~] T037 [P] Validate data hygiene: verify checksums and run Repository-Hygiene Agent for PII scan (Constitution Principle III)
+- [~] T038 [P] Run Repository-Hygiene Agent for PII scan enforcement in CI workflow with checkpoint verification (Constitution Principle III)
+- [~] T040 [P] Validate single-source-of-truth traceability: verify all figures/statistics trace to exactly one data row and code block (Constitution Principle IV)
+- [~] T041 [P] Validate all result text contains "associational" or "correlational" phrases per FR-008
+- [~] T043 [P] **Execute** Reference-Validator Agent on all artifacts generated in Phases 3-5 (citations, data, code) as a blocking gate before `research_accepted` transition (Constitution Principle II)
 
 **Checkpoint**: All constitutional principles validated, documentation complete, CI configured
 
@@ -221,8 +221,8 @@ description: "Task list template for feature implementation"
 
 ### Implementation for Revision Gaps
 
-- [X] T053 [US1] Implement unit test in `tests/unit/test_fallback.py` to verify that the **GitHub API fallback** in T009c triggers correctly when HuggingFace dataset is unavailable (Plan Phase 0.5)
-- [X] T054 [US3] Implement unit test in `tests/unit/test_hypothesis.py` to verify that **Holm-Bonferroni correction** is applied in T021 (Plan Phase 2)
+- [~] T053 [US1] Implement unit test in `tests/unit/test_fallback.py` to verify that the **GitHub API fallback** in T009c triggers correctly when HuggingFace dataset is unavailable (Plan Phase 0.5)
+- [~] T054 [US3] Implement unit test in `tests/unit/test_hypothesis.py` to verify that **Holm-Bonferroni correction** is applied in T021 (Plan Phase 2)
 
 **Checkpoint**: All identified analysis gaps and revision concerns addressed.
 

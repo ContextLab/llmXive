@@ -1,38 +1,18 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import sys
-
-  from datasets import load_dataset
-
-
-  ds = load_dataset("akhousker/github-issues", split="train")
-
-  print(f"RECORDS={len(ds)}")
-
-  required = ["issue_id","repository","created_at","closed_at","resolution_time_hours","labels","assignee","state","comments_count"]
-
-  fields = [c for c in required if c in ds.column_names]
-
-  print("FIELDS=" + ",".join(fields))'
-record_count: 7096
-sample_fields:
-- created_at
-- closed_at
-- labels
-- assignee
-- state
-field_coverage: 0.556
+status: none
+intent: GitHub closed issues dataset HuggingFace datasets library python package dataset
 required_fields:
-- issue_id
-- repository
+- repository_full_name
+- issue_number
+- issue_title
+- issue_body
+- issue_state
 - created_at
 - closed_at
-- resolution_time_hours
-- labels
-- assignee
-- state
-- comments_count
-intent: HuggingFace dataset akhousker github-issues closed issues download python
-  package dataset
-cache_key: b905448506b0d5b496ee651824f880c91d91417234f3badd3a9681d9e6c20b63
+- resolution_time_seconds
+- author_login
+- assignee_logins
+- label_names
+- comment_count
+cache_key: 1d5ab7aef4756de3670ce6daf400ec292254c2694b3a3bff13482ace7e80b5bb
+searched_at: '2026-10-10T13:18:25.057204+00:00'
+retry_count: 1

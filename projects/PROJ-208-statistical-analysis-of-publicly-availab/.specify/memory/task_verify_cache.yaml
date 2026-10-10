@@ -1,11 +1,52 @@
-T009c:
+T001a:
+  c: true
+  h: 7280bceb39a611c649291d9e7baf3ca0a8f482368ac8de322b3eda91a84571be
+  r: "The evidence shows a `code/` directory present at the repository root (12 entries,\
+    \ verified by its SHA\u2011256 hash). This satisfies the sole requirement of creating\
+    \ the `code/` directory."
+  sig: f18ff48d613cee12699841ce8272d92aa3ba5628b47673dee1aa13f17699f8f4
+T001b:
   c: false
-  h: e70a6856b4ee87b920f8ba1598f95a3c4eaa96f0d43cad87a3a14c1a11203f3b
-  r: The provided `code/collect/orchestrator.py` is truncated (e.g., `fetch_api_data_wrapper`
-    ends with `result = fetch_issues_from_c` and lacks the logic to count unique repos,
-    invoke the API loader until 100 repos, merge datasets, and write the Parquet file).
-    Moreover, the required output file `data/raw/github_issues_raw_merged.parquet`
-    does not exist. The orchestrator therefore does not meet the specified requirements.
+  h: a82309ea8cdefcb8c7dfa25b3e9a6b82fdbf85fe758f40de684dcf62015d5445
+  r: "Checked the `data/` directory at the project root. While `data/` exists and\
+    \ contains a `raw/` subdirectory, the required `processed/` and `figures/` subdirectories\
+    \ are missing (the `figures/` entry is reported as MISSING). The task\u2019s requirement\
+    \ to create all three subdirectories is therefore not satisfied."
+  sig: ae61b38477b1e11aabcc0f50929d5578959ab841a6f7e0f375b9d7a9a5410b3d
+T001c:
+  c: true
+  h: 00e7a7bef4674e07495f9753512eb6c1ad8c338152956ed357f1f03be86a5088
+  r: "The evidence shows a `tests/` directory at the repository root containing `__init__.py`\
+    \ and the required subdirectories `contract/`, `integration/`, and `unit/`. This\
+    \ matches the task\u2019s specification for the directory structure."
+  sig: 6be27d03862018fa62eef70b90e656060790c66fda3953a619022e7d9e3184b3
+T002:
+  c: false
+  h: 2966a1af9ac4f75f90e2cd50112553e15ceb514c0ff70fd1541d28386147c787
+  r: "The only visible\u202Frequirements.txt (at the project root) lists the correct\
+    \ packages but without version pins and includes an extra \u201Cdatasets\u201D\
+    \ entry; the task required a pinned list located in\u202Fprojects/PROJ-208\u2011\
+    statistical\u2011analysis\u2011of\u2011publicly\u2011availab/code/\u202Fexactly\
+    \ matching the nine specified packages. The content does not satisfy the \u201C\
+    pinned CPU\u2011tractable dependencies\u201D requirement."
+  sig: 910a67faebdbbb935638b3b9050f7bc925161b6f72eb9521907e9c0959751af4
+T003:
+  c: true
+  h: 4a6585c3908312576aaa52cf291c4b5f80f8e4e4ab0b1f9c1220dde78bc5501c
+  r: "The evidence includes a non\u2011empty `code/ruff.toml` defining linting rules\
+    \ and formatting options, and a non\u2011empty `code/pyproject.toml` that references\
+    \ the ruff configuration and declares the project\u2019s build and dependency\
+    \ settings. Both required files are present and correctly populated."
+  sig: 4966d0f805d315a4b65e457765e7ec3e453309233409fc7921d584cc77a0046c
+T004:
+  c: true
+  h: b734dd9c3f2f5df3ae336bb3a2f58276259256390a0fe8b99943b90cee2f4e70
+  r: "The `code/utils/config.py` file (3428\u202Fbytes) is present and implements\
+    \ a configuration manager that loads defaults, provides access to random seed\
+    \ handling (`set_seed`), path retrieval (`get_path`), and threshold values (`get_threshold`).\
+    \ Its API also includes generic getters, saving/loading of YAML configs, and exposure\
+    \ of API settings, fully covering the requested functionality."
+  sig: ed1491471063fc1f406bd3199dbae861c972bb6fdfe5129fbb201aabe9fab641
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
