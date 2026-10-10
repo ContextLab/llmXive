@@ -1,3 +1,14 @@
+T001:
+  c: true
+  h: b1d4d06cee19f0a162e1ce510f070f3c5e3aaf416a0bee88aa22c5dc88568ba4
+  r: The required directory tree exists (code/, data/raw/, data/processed/, data/results/,
+    tests/), pyproject.toml configures ruff and black (line-length 88, rule selection,
+    black target versions), and quickstart.md documents the runnable environment with
+    prerequisites, installation, and pipeline commands. The verification criteria
+    (ruff/black passing) are supported by the presence of test_linting_config.py and
+    a passing setup_directories.py execution record; no substantive artifact is missing
+    or stubbed.
+  sig: a3f19ec6b4b7628ce26dcc28f154a0848591400fa0c29aa41c0f59fb3f072c56
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
