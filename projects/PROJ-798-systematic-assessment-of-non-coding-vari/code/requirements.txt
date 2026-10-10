@@ -1,0 +1,7 @@
+pandas
+pyarrow
+pysam
+tqdm
+# Existing project requirements (if any) would be listed here; this file
+# now includes the additional dependencies required for the dbSNP fetch
+# step.  The CI runner will install the full set before executing scripts.

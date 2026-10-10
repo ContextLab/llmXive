@@ -1,19 +1,28 @@
-T010b:
-  c: true
-  h: 525894a272e8e5f9fa6d86c072e1443ebeb310fe7d5961d523765128e60b938b
-  r: "The repository contains a non\u2011empty `code/data_ingestion.py` that defines\
-    \ `download_jaspar_pwms()` which fetches the JASPAR CORE PWM file from the specified\
-    \ URL and saves it to `data/raw/jaspar_pwm.txt`, logging the source and checksum\
-    \ as required. The implementation has no placeholders or stubs, satisfying the\
-    \ task specification."
-T010c:
+T001:
   c: false
-  h: ad930ebc769042ea26781c3579776956daf921a6bf17dd1635668be32aaa24cc
-  r: "The provided `code/data_ingestion.py` does not contain any logic that checks\
-    \ for the presence of a dbSNP file and falls back to a 1000\u202FGenomes source,\
-    \ nor does it call `log_source_lineage` for those sources. Additionally, the required\
-    \ `data/raw/source_log.txt` file is absent. Both the selection behavior and the\
-    \ logging artifact are missing, so the task is not fulfilled."
+  h: 869d37a61014fafc646c443f4189c9bd863074adf1382d6bde9976ed9f4d76f4
+  r: "The required directories exist, but `data/results/structure_manifest.txt` does\
+    \ not list the specified project layout (e.g., `code/data_ingestion`, `data/raw`,\
+    \ `tests/unit`, etc.). The manifest only contains the virtual\u2011environment\
+    \ paths, so it fails the \u201Clist every required directory\u201D check."
+  sig: d9f6258730237cb94d2cbcabe69ab1c52f39eeb66fd900470e22394af797578f
+T002:
+  c: false
+  h: 41aa715e8f5dd2b199e69c4f07f1979f802748779dc5d97acc7fc92309bf9959
+  r: "The repository does not contain the required `.gitignore` file (or its contents\
+    \ are not shown), and there is no evidence that the specified `git check-ignore`\
+    \ commands were run and produced the expected exit codes. Additionally, the files\
+    \ referenced in the verification steps (`data/raw/snps_raw.vcf.gz` and `data/raw/source_log.txt`)\
+    \ are missing, preventing any real ignore\u2011rule testing."
+  sig: b262ddc09ccf851807cf4a547f04640ff129bd733d60ecfc9e3e423e31730f51
+T003:
+  c: true
+  h: 32e9c994151ef436be340ea1e542a77afaddcb5a21cdafff1702cd4e6c7153d6
+  r: "Checked that `tests/unit/__init__.py`, `tests/integration/__init__.py`, and\
+    \ `tests/contract/__init__.py` all exist, contain non\u2011empty docstrings, and\
+    \ thus define importable Python packages (`tests.unit`, `tests.integration`, `tests.contract`)\
+    \ satisfying the pytest discovery requirement."
+  sig: 82c8d714c072ba13db116a023fab5fd7fb8b2a691da744a4f3863c9292a638c6
 T013:
   c: false
   h: 3e870215eb6619f9bde08061a71d3297b2db81aa8f2d30ff6175cfc3776ac82c
@@ -22,12 +31,3 @@ T013:
     \ operation). Moreover, the required input files `data/raw/snps_raw.vcf` and `data/raw/regulatory_regions.bed`\
     \ are missing, so the script cannot be executed or tested. The task\u2019s core\
     \ requirement is therefore unmet."
-T013b:
-  c: false
-  h: f5f3627a478a6f705366b25632d749a4a456f3552e390e6b0e468174568ec898
-  r: "The repository contains a partially shown `code/data_ingestion.py` that stops\
-    \ after SNP\u2011region intersection and does not include any implementation for\
-    \ calculating GC content, selecting GC\u2011matched control regions, or writing\
-    \ a Parquet file. Moreover, the required output `data/derived/gc_matched_controls.parquet`\
-    \ is absent. The task\u2019s core requirement\u2014generating and saving a GC\u2011\
-    matched non\u2011regulatory control set\u2014is therefore not satisfied."

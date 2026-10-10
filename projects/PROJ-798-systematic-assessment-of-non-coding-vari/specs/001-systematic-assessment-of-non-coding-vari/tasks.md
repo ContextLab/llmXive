@@ -32,11 +32,11 @@ The list below follows the platform’s research‑task template and covers all 
   ```  
   *Verification*: `git check-ignore data/raw/snps_raw.vcf.gz` must exit 0 and `git check-ignore data/raw/source_log.txt` must exit 1.
 
-- [ ] T003 [US1] **Create test package scaffolding** so that `pytest` can discover tests.  
+- [X] T003 [US1] **Create test package scaffolding** so that `pytest` can discover tests.  
   *Path*: `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py`.  
   *Verification*: `python -c "import pytest, pkgutil; assert pkgutil.find_loader('tests.unit')"` must succeed. The CI runner must be able to import each package without `ImportError`.
 
-- [ ] T004 [US1] **Implement dbSNP common‑SNP fetch** (MAF > 1 %) for GRCh38 build 155.  
+- [ ] T004 [US1] **Implement dbSNP common‑SNP fetch** (MAF > 1 %) for GRCh38 build 155.   <!-- FAILED-IN-EXECUTION: code/data_ingestion/fetch_dbsnp.py exit=1 -->
   *Path*: `code/data_ingestion/fetch_dbsnp.py`.  
   *Behavior*: Stream each chromosome VCF (`chr*.common_snps.vcf.gz`) from `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`, filter by MAF > 0.01, write to `data/raw/snps_raw.parquet`. Log every downloaded URL, build version, timestamp, and SHA‑256 checksum in `data/raw/source_log.txt`. Fail loudly if any download fails.  
   *Verification*: `data/raw/snps_raw.parquet` must contain a column `maf` with a minimum ≥ 0.01; `source_log.txt` must contain at least one URL and a matching checksum line.

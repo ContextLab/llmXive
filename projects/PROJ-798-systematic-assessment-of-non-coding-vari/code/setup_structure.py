@@ -1,61 +1,59 @@
-import os
+#!/usr/bin/env python3
+"""
+create_structure.py
+
+Creates the required project directory layout and records a manifest file.
+The manifest is written to ``data/results/structure_manifest.txt`` and contains a
+sorted list of all directories under ``code``, ``data`` and ``tests``.
+This satisfies the verification step:
+
+    find code data tests -type d | sort > data/results/structure_manifest.txt
+
+The script exits with a non‑zero status if any step fails, ensuring loud failure
+on missing system utilities.
+"""
+
+import subprocess
 from pathlib import Path
 
-def main():
-    """
-    Creates the project directory structure as defined in the implementation plan.
-    Directories created:
-      - code/
-      - data/raw/
-      - data/derived/
-      - tests/
-      - tests/unit/
-      - tests/integration/
-      - tests/contract/
-      - specs/
-      - figures/
-    """
-    root = Path(__file__).resolve().parent.parent
-    
-    directories = [
-        "code",
-        "data/raw",
-        "data/derived",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "specs/001-gene-regulation",
-        "figures",
-        "logs"
+def main() -> None:
+    # Required directory paths (relative to the repository root)
+    required_dirs = [
+        Path("code"),
+        Path("code/data_ingestion"),
+        Path("code/scoring"),
+        Path("code/analysis"),
+        Path("code/utils"),
+        Path("data/raw"),
+        Path("data/derived"),
+        Path("data/results"),
+        Path("tests/unit"),
+        Path("tests/integration"),
+        Path("tests/contract"),
     ]
-    
-    for dir_path in directories:
-        full_path = root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path.relative_to(root)}")
-    
-    # Create __init__.py files to ensure Python treats them as packages
-    init_files = [
-        "code/__init__.py",
-        "tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py",
-        "tests/contract/__init__.py",
-        "data/__init__.py",
-        "data/raw/__init__.py",
-        "data/derived/__init__.py",
-        "specs/001-gene-regulation/__init__.py"
-    ]
-    
-    for init_file in init_files:
-        full_path = root / init_file
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created empty package file: {init_file}")
-        else:
-            print(f"Package file already exists: {init_file}")
 
-    print("\nProject structure initialization complete.")
+    # Create each directory (parents=True allows nested creation)
+    for d in required_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+    # Path for the manifest file
+    manifest_path = Path("data/results/structure_manifest.txt")
+
+    # Use the system ``find`` command to generate the full directory list.
+    # ``check=True`` ensures the script fails loudly if ``find`` is unavailable
+    # or returns a non‑zero exit status.
+    result = subprocess.run(
+        ["find", "code", "data", "tests", "-type", "d"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    # Sort the output to guarantee deterministic ordering
+    dirs = sorted(line.strip() for line in result.stdout.splitlines() if line.strip())
+
+    # Write the sorted list to the manifest file, ending with a newline.
+    manifest_path.write_text("\n".join(dirs) + "\n")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,15 @@
+status: none
+intent: dbSNP 155 common SNPs MAF>1% GRCh38 ENCODE v4 BED Roadmap Epigenomics JASPAR
+  2024 python package dataset
+required_fields:
+- rsid
+- chromosome
+- position
+- reference_allele
+- alternate_allele
+- maf
+- genome_build
+- gc_content
+cache_key: a18bbf411cbee564c572cd4924b1ff0f3d1740bae8c9cd31fe9ef4d3eb043f41
+searched_at: '2026-10-10T14:36:41.644353+00:00'
+retry_count: 1

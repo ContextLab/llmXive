@@ -1,0 +1,45 @@
+T001:
+  reason: "The required directories exist, but `data/results/structure_manifest.txt`\
+    \ does not list the specified project layout (e.g., `code/data_ingestion`, `data/raw`,\
+    \ `tests/unit`, etc.). The manifest only contains the virtual\u2011environment\
+    \ paths, so it fails the \u201Clist every required directory\u201D check."
+  task: f1e95fed63a95063ec8f06afd8dcc9da6b793d264d363290960ff76089e47df2
+T002:
+  reason: "The repository does not contain the required `.gitignore` file (or its\
+    \ contents are not shown), and there is no evidence that the specified `git check-ignore`\
+    \ commands were run and produced the expected exit codes. Additionally, the files\
+    \ referenced in the verification steps (`data/raw/snps_raw.vcf.gz` and `data/raw/source_log.txt`)\
+    \ are missing, preventing any real ignore\u2011rule testing."
+  task: 5db875919000366551154095583cc5a9263d145b7e54412e8accadfa93c6b6be
+T003:
+  task: 932d1a332e7af45b961c7caf00f986c61e9af44e4ace5c23c72e549d4b4770c0
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion/fetch_dbsnp.py
+    exit=1'
+  task: 51c23a569a12ad13f4d07e4ebfae1ac41f076fc1c8ff5e973a6f4c0a7e8aa03c
+T005:
+  task: 54533be42fa706dc3cc866b0abe92bcb8858142642647263cdfdaacb3361fa78
+T006:
+  task: 0c1d9136a8486311720dd6e4d750b45c372b1c2859eddda1ff32ed535554adba
+T007:
+  task: 1abd984ba5327e826418955c2f01142f8867e25b251b4f35b777e64563e9ffd4
+T008:
+  task: 6fd5e8a381520c33e6a5bf66bb2b8cb3645d83642e47db58698b530b0771f297
+T009:
+  task: c098d8349a90c583e7fafe67cce32f14180abc8519dfd02c6402127c57821155
+T010:
+  task: dc6269366213763ef924faeddd405064899b9d5293014831d626b26505d84771
+T011:
+  task: e04370c5c96933f7d57f5e1df7bcfaf74d6236c3fa0d624382a1bf693606e726
+T012:
+  task: da033cf6d78e1c5d44415ea2786c87225f8047d5eef18fe9b5c8ec59edce8f06
+T013:
+  task: 13fc744d724456d1f798385daa2df48a209e4b2ce31fa62b20e1231d7def5b0b
+T014:
+  task: edc7776314a9fe31268229a09f479d653ac18aef3be7ad63269c98dca829f15b
+T015:
+  task: f9646cb04e02a25fdc7b3ea45b0d26ced72cb6ee3a56bed1fd76a397b6cfd50a
+T016:
+  task: 876f87b5d1d5e78692430bfd2f90791e5e01e553f362b3e8446d3de2ab56b2b7
+T017:
+  task: fc3aafa7ffdeee22cdf9d1f2c0cc120a56d102e05c3d21dc283b453d55bd62b6

@@ -1,32 +1,6 @@
-# Data directories
 data/raw/*
 !data/raw/checksums.json
 !data/raw/source_log.txt
 data/derived/*
-
-# Python cache
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Environment
 .env
-.venv/
-venv/
-
-# IDE
-.idea/
-.vscode/
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Logs
-*.log
-logs/
-
-# OS
-.DS_Store
-Thumbs.db
