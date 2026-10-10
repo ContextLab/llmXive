@@ -1,0 +1,34 @@
+T001:
+  c: true
+  h: 55ab83b9b5c12ac22edd23a4e3322aa7efc398d3a23cddec22c7f80e1f6608a3
+  r: Checked the project root `projects/PROJ-459-investigating-the-relationship-between-b`
+    and confirmed that the directories `code/data`, `code/analysis`, `code/utils`,
+    `tests/contract`, `tests/integration`, `tests/unit`, `data/raw`, `data/processed`,
+    `data/derived`, and `state/projects` all exist as created by the logged `create_structure.py`
+    run.
+  sig: 3f171c92e99ead34baba4297d512baa2ec9d0b2e777bfd2757603b76967311f9
+T002:
+  c: false
+  h: 37e3a166013a0e2558abeaf235dfb004f5c5f50cb876d489d767fd8ab1b32382
+  r: "The provided `requirements.txt` does include the nine required pinned packages,\
+    \ but it also contains a stray line (`pi`), duplicate/unpinned entries (e.g.,\
+    \ `networkx` without version), and a long list of unrelated packages, so it does\
+    \ not match the task\u2019s specification of a clean requirements file containing\
+    \ only the specified pinned versions."
+  sig: 319ba3cac49aada42eb822bf82ed108b8b7622f1d7596eaa51c8f8211647e456
+T003:
+  c: false
+  h: b80833617971e190bed5721034c33e0f44ce9567325dc567af8f59c95fa68256
+  r: The repository contains a valid `pyproject.toml` with Black configuration, but
+    there is no `.flake8` file present, and no execution evidence (e.g., command output
+    or logs) showing that `black --check .` and `flake8 code/` succeed. Both the missing
+    configuration file and lack of verification results must be provided.
+  sig: 8294f51a165f830db200c330d480ec6c83c9f33d1f2120276bbbf62d07657231
+T004:
+  c: true
+  h: 97421089555ee92bc6157f02bb5c3e7cf23029e9ea73cdc8cc78b7265417dfbe
+  r: "Checked `code/config.py` (8136\u202Fbytes) which defines directory paths, hyperparameters\
+    \ with `window_sizes` (20,\u202F30,\u202F40\u202FTRs), includes both dataset IDs\
+    \ `ds000030` and `ds000208`, and provides functions `set_active_dataset_id` and\
+    \ `switch_dataset_on_failure` to change the active dataset when validation fails."
+  sig: 55b35dc3c5c02518fa2d344c488ffa93b3320900d38b802083cd23658e669c4f

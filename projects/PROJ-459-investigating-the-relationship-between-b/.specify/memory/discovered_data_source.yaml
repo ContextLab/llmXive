@@ -1,0 +1,18 @@
+status: none
+intent: download OpenNeuro ds000030 resting state fMRI BIDS behavioral metadata Schaefer-400
+  atlas python package dataset
+required_fields:
+- subject_id
+- roi_id
+- timepoint
+- bold_signal
+- musical_genre_preference
+- STOMP_R_proxy
+- age
+- sex
+- handedness
+- scan_quality_flag
+- missing_behavior_flag
+cache_key: a0d77e5cea5066fac7de39c3af7a46f60b44fb302ff5e2138d57222714e50fd0
+searched_at: '2026-10-10T12:25:13.149307+00:00'
+retry_count: 1
