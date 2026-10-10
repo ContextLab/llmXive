@@ -1,14 +1,18 @@
 status: none
-intent: QM9 dataset download Harvard Dataverse DOI 10.7910/DVN/28075 python package
-  dataset
+intent: HuggingFace datasets python package download QM9 parquet with 3D coordinates
+  and DFT properties
 required_fields:
 - molecule_id
-- smiles
-- atomic_numbers
-- coordinates_xyz
+- atom_index
+- atomic_number
+- x
+- y
+- z
 - dipole_moment
 - homo_energy
 - lumo_energy
-cache_key: ab16eff46ac0127f1a501070b6f9de02e4a65650ef452d23e5a3c20af074682c
-searched_at: '2026-09-14T03:29:18.344145+00:00'
+- atom_positions
+- atom_types
+cache_key: 409652e9060c365911458bbaa4dd0d0b9fabe3dfd3943b1ed7d9c98ec88c0c53
+searched_at: '2026-10-10T12:23:27.360270+00:00'
 retry_count: 1
