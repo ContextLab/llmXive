@@ -1,10 +1,100 @@
+T001:
+  c: false
+  h: 204e9ec0242c1259e2b3765a022c4b430e6ad485ee947ad0317cdd23923d3359
+  r: The collector shows `code/`, `data/raw/`, `data/processed/`, and `results/` directories
+    exist, but there is no `logs/` directory present in the project tree. The task
+    requires a `logs/` folder as part of the structure, so the required artifact is
+    missing.
+  sig: c496e12a6a254f833e563981474e5d87cb1724e3f92a989114d8978b7e38c486
+T002:
+  c: true
+  h: cd056915072dff3d3c6e914d50d4291e00e9e680f43fbb84435b063d7fc1b80d
+  r: "The `requirements.txt` file was found at the project root (650\u202Fbytes) and\
+    \ contains pinned (`==`) versions for all required packages: pandas, scikit-learn,\
+    \ statsmodels, seaborn, matplotlib, scipy, jinja2, pyyaml, and pytest. Extra entries\
+    \ (python-dotenv, requests) do not violate the task, which only mandated the presence\
+    \ of the specified pinned dependencies."
+  sig: e743cdc2a56354bf39578eceb5247d65adc9c8d02237460c514cade57289d941
+T003:
+  c: false
+  h: 428cb3e7d9f00daf6cea84e715c007ca804b84580f5c33212e6e28fbf3b6bf71
+  r: "The `code/` directory does contain `.flake8`, `pyproject.toml`, and `lint_and_format.py`,\
+    \ but the evidence provides only a directory listing \u2014 no contents of these\
+    \ files were supplied, so there is no proof they contain actual flake8/black configuration\
+    \ (e.g., `[flake8]` settings, `[tool.black]`/`[tool.flake8]` sections) rather\
+    \ than empty or placeholder files, nor any execution evidence that linting/formatting\
+    \ runs. The next implementer should show the contents of `.flake8` and `pyproject.toml`\
+    \ and a successful lint/format run (e.g., `lint_and_format.py` output) to confirm\
+    \ the configuration is "
+  sig: 64afe7a15d7210c76025c336668931f29f671e6b5666d86baca93ce883a1c506
+T004:
+  c: false
+  h: d386b90b55bb85a1454be5dfb690fab5907b58c3d3448157046e1403c773fa3a
+  r: The file `code/config.py` exists but contains only a directory-creation helper;
+    it defines no seeds, no paths constants, no alpha thresholds (0.01, 0.05, 0.10),
+    and no bootstrap count (n=1000), which are the explicit requirements of T004.
+    The implementer must add these configuration constants (e.g., `SEED`, path variables,
+    `ALPHA_LEVELS = [0.01, 0.05, 0.10]`, `N_BOOTSTRAP = 1000`).
+  sig: ed17ae323c7bc7fde9bc9df6da175634116ce53f1290cf39273ec873b40f5a5d
+T005:
+  c: true
+  h: cc36d875350f0197d70f9714e9dde0e201884facafe8a68469bc643a43d93dd4
+  r: 'The artifact `code/data_loader.py` exists (5392 bytes) and implements exactly
+    what T005 requires: `load_csv` loads CSVs from `data/raw/`, `validate_data_directory`
+    checks directory existence, and a `ValueError` is raised when the data directory
+    is missing (plus codebook mapping and required-column validation per the spec''s
+    acceptance scenario). Supporting imports (`config.py`, `logging_config.py`) resolve
+    locally, and `data/raw/` exists. The suspicious all-zero results CSVs belong to
+    other tasks, not this skeleton task.'
+  sig: 30aac1acdce8f5d08dcd90405f7e167887f0b6b1eae20d74fad66b698534058e
+T005b:
+  c: true
+  h: 6f90dc610627e3c2ed10eb164300943874d9c45b108a6efd2c08c672a57b6ee0
+  r: "Checked `code/iat_protocol.md` (2959\u202Fbytes) which contains the extracted\
+    \ IAT protocol metadata as required; since metadata is present, the conditional\
+    \ generation of `results/deviation_note.md` is not needed, and no error raising\
+    \ is applicable."
+  sig: bd527c4601f68e0b97a00605a3be6e359a7de722d156a857d015e3b373d7095a
+T006:
+  c: false
+  h: 6d7beb02716d205c52a153217f96af414fbbb5a0c77377dc75f0f8ff0ed4afe0
+  r: The file `code/preprocessing.py` is present, but its functions `load_data`, `impute_mice`,
+    and `derive_variables` contain full implementations instead of the required skeleton
+    that raises `NotImplementedError`. The task explicitly demanded placeholders that
+    raise `NotImplementedError`, which is not satisfied.
+  sig: 225c1959756250e4116810429945426d802daeea9b3c847668f50ac841320336
+T007:
+  c: true
+  h: 774427e2be3dd76c3bf2a7d3f4aa23c59a3f40e9197b790238c452102f40ca1a
+  r: "Checked the `contracts/dataset.schema.yaml` file (3566\u202Fbytes) which defines\
+    \ the three required columns (`IAT_D_score`, `political_ideology`, `news_exposure_freq`),\
+    \ lists them under `required_columns`, and provides per\u2011column `validation_logic`\
+    \ as well as overall validation rules."
+  sig: 48e23b8eb3658528df191cdf84ccf381facf315738c953c1f7db727f7d7ec000
+T008:
+  c: false
+  h: bf5091d7a226ad103c936d6fbe26f7d5b47af2b72f59e032ced9b93ecd348a31
+  r: "The repository contains a `code/logging_config.py` file, but no evidence of\
+    \ its contents shows that it configures logging to both a `logs/` directory and\
+    \ the console, nor that it sets up any error\u2011handling wrappers. Moreover,\
+    \ a `logs/` directory is not present in the listed artifacts, and no test runs\
+    \ or execution logs are provided to demonstrate that logging actually occurs.\
+    \ The task\u2019s core requirement\u2014implemented error handling and logging\
+    \ infrastructure writing to `logs/` and the console\u2014is therefore not verified."
+  sig: fe21ef6732168c665ef8c750e9e35bebebc2ce1f16a2358827c6c1ab3f78292f
 T017a:
   c: false
-  h: a4021f1409c53fb227ba8784727c956ed3ccdb2afb6d04b48d109db58416c6cd
-  r: "The `code/power.py` file is truncated, contains syntax errors (`required_n =\
-    \ fi`) and does not implement writing the required `results/power_design.csv`.\
-    \ Moreover, the `results/power_design.csv` file is absent. The task\u2019s deliverables\
-    \ are therefore not present or functional."
+  h: ed975b5ee294521e8236679f15a2d4a161bac7c8bf1af6946ef76afef7344123
+  r: "The `achieved_power` value in `results/power_design.csv` is `0.8001234567890123`\
+    \ \u2014 the trailing digit sequence \"1234567890123\" is a hand-typed fabrication\
+    \ signature, not plausible scipy output. Moreover, the value contradicts what\
+    \ `code/power.py` would actually compute: `find_min_sample_size` passes total\
+    \ N into `calculate_ncp`, which then multiplies by `num_groups=2` (ncp = f\xB2\
+    \xB72N = 0.0225\xB7702 \u2248 15.8 at N=351), yielding power \u22480.97, not 0.80\
+    \ \u2014 so the CSV was not produced by this code. There is also no execution\
+    \ evidence (logs/run output) that the script ran, and the \"literature-based effect\
+    \ si"
+  sig: d988094a147f9112b10bcc44a9492eb2270ceae6d1116966666f500e5afb2136
 T022:
   c: false
   h: c27139df1ef38c91b1793071bbfc7233b15095c7139dbdf1c65a08714c60f8b1
