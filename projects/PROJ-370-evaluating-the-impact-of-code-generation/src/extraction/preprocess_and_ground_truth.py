@@ -24,7 +24,7 @@ creates; it can be invoked directly::
 
     python -m src.extraction.preprocess_and_ground_truth
 
-All paths are obtained via :pyfunc:`code.config.settings.get_paths`, so the
+All paths are obtained via :pyfunc:`config.settings.get_paths`, so the
 layout defined in the project configuration is respected.
 """
 
@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 # Project utilities
-from code.config.settings import get_paths, ensure_directories
+from config.settings import get_paths, ensure_directories
 # Re‑use the existing comment‑fetcher and confirmation‑filterer
 from src.extraction.fetch_human_comments import main as fetch_comments_main
 from src.extraction.filter_human_confirmations import main as filter_confirmations_main

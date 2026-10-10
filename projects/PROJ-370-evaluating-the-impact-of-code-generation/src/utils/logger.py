@@ -1,158 +1,119 @@
 """
-Logger utilities for the LLM impact evaluation pipeline.
+Structured JSON logger utilities for the pipeline.
 
-This module provides:
-  - JSON‑line structured logging for pipeline events.
-  - Simple counters for processed / skipped PRs (used by the timeout
-    wrapper and other stages).
-  - A thin wrapper around :pyfunc:`config.settings.ensure_directories`
-    that accepts an optional list of extra paths (the original
-    implementation mistakenly defined ``ensure_directories`` with no
-    parameters, causing a TypeError in ``src.cli.main``).
+This module provides a simple `get_logger` function that returns a
+``logging.Logger`` instance configured to write one JSON object per
+line to ``logs/<logger_name>.log``.  The format includes the
+timestamp, log level, logger name, message and any extra fields
+passed via the ``extra`` argument of the logging call.
 
-The implementation is deliberately lightweight and has no external
-runtime dependencies beyond the Python standard library and the
-project's own ``config.settings`` module.
+The logger is deliberately lightweight – it does not propagate to
+the root logger and it creates the ``logs`` directory on first
+use.  Helper functions ``increment_pr_processed`` and
+``increment_pr_skipped`` are provided for the CLI orchestration;
+they simply emit a ``INFO`` record with a ``counter`` field that
+downstream analysis scripts can aggregate if desired.
 """
 
 import json
 import logging
+import os
 from pathlib import Path
-from typing import List, Optional
+from datetime import datetime
+from typing import Any, Dict
 
-# Project configuration helpers
-from config.settings import get_paths, ensure_directories as _ensure_directories
+LOGS_DIR = Path("logs")
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-# ----------------------------------------------------------------------
-# Internal state
-# ----------------------------------------------------------------------
-_pr_processed_counter: int = 0
-_pr_skipped_counter: int = 0
+class _JsonLogFormatter(logging.Formatter):
+    """Format a log record as a single JSON object per line."""
 
-# ----------------------------------------------------------------------
-# Helper – ensure directories (public API expected by src.cli.main)
-# ----------------------------------------------------------------------
-def ensure_directories(extra_paths: Optional[List[Path]] = None) -> None:
-    """
-    Public wrapper matching the signature used by ``src.cli.main``.
-
-    Delegates to ``config.settings.ensure_directories`` which creates the
-    core project directories and any additional paths supplied by the
-    caller.
-
-    Args:
-        extra_paths: Optional list of ``Path`` objects (files or
-                    directories) that should be created in addition to
-                    the standard layout.
-    """
-    # ``config.settings.ensure_directories`` already accepts an optional
-    # list, so we simply forward the argument.
-    _ensure_directories(extra_paths)
-
-# ----------------------------------------------------------------------
-# Logger configuration
-# ----------------------------------------------------------------------
-def _json_formatter(record: logging.LogRecord) -> str:
-    """
-    Convert a LogRecord into a JSON‑encoded string.
-
-    The JSON object contains a minimal set of fields required for the
-    structured logs used in the research pipeline:
-
-    - timestamp (ISO‑8601)
-    - level (e.g. INFO, DEBUG)
-    - logger (name of the logger)
-    - message (the formatted log message)
-    - module / function (optional, for debugging)
-
-    This function is used as a ``logging.Formatter`` ``format`` method.
-    """
-    log_entry = {
-        "timestamp": record.created,
-        "level": record.levelname,
-        "logger": record.name,
-        "message": record.getMessage(),
-        "module": record.module,
-        "function": record.funcName,
-    }
-    return json.dumps(log_entry, ensure_ascii=False)
-
-class JsonLineFormatter(logging.Formatter):
-    """Formatter that outputs one JSON object per log line."""
     def format(self, record: logging.LogRecord) -> str:
-        return _json_formatter(record)
+        # Base payload
+        payload: Dict[str, Any] = {
+            "timestamp": datetime.utcfromtimestamp(record.created).isoformat() + "Z",
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        # Merge any user‑supplied extra fields (the ``extra`` dict)
+        if hasattr(record, "extra") and isinstance(record.extra, dict):
+            payload.update(record.extra)
+        else:
+            # ``logging`` stores extra fields directly on the record
+            for key, value in record.__dict__.items():
+                if key not in (
+                    "args",
+                    "asctime",
+                    "created",
+                    "exc_info",
+                    "exc_text",
+                    "filename",
+                    "funcName",
+                    "levelname",
+                    "levelno",
+                    "lineno",
+                    "module",
+                    "msecs",
+                    "message",
+                    "msg",
+                    "name",
+                    "pathname",
+                    "process",
+                    "processName",
+                    "relativeCreated",
+                    "stack_info",
+                    "thread",
+                    "threadName",
+                ):
+                    payload[key] = value
 
-def setup_pipeline_logging() -> None:
-    """
-    Configure the root logger for the entire pipeline.
+        return json.dumps(payload, ensure_ascii=False)
 
-    - Ensures the ``logs`` directory exists.
-    - Adds a ``FileHandler`` that writes JSON‑line entries to
-      ``logs/pipeline.log``.
-    - Adds a ``StreamHandler`` for console output (plain text).
-    - Sets the default log level to ``INFO`` (DEBUG can be enabled via
-      ``--verbose`` in the CLI).
-    """
-    paths = get_paths()
-    log_dir = Path(paths["logs"])
-    # Use the public ``ensure_directories`` wrapper; it accepts a list.
-    ensure_directories([log_dir])
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    # Prevent adding duplicate handlers if this function is called
-    # multiple times (e.g., during unit tests).
-    if any(isinstance(h, logging.FileHandler) and h.baseFilename.endswith("pipeline.log") for h in logger.handlers):
+def _ensure_file_handler(logger: logging.Logger) -> None:
+    """Attach a ``FileHandler`` that writes JSON lines if not already present."""
+    if any(isinstance(h, logging.FileHandler) for h in logger.handlers):
         return
+    log_path = LOGS_DIR / f"{logger.name}.log"
+    handler = logging.FileHandler(log_path, encoding="utf-8")
+    handler.setFormatter(_JsonLogFormatter())
+    logger.addHandler(handler)
+    logger.propagate = False  # Prevent duplicate output to root logger
 
-    # File handler – JSON lines
-    file_handler = logging.FileHandler(log_dir / "pipeline.log", encoding="utf-8")
-    file_handler.setFormatter(JsonLineFormatter())
-    logger.addHandler(file_handler)
-
-    # Console handler – human‑readable
-    console_handler = logging.StreamHandler()
-    console_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-
-# ----------------------------------------------------------------------
-# Counter helpers (used by timeout wrapper and other stages)
-# ----------------------------------------------------------------------
-def increment_pr_processed() -> None:
-    """Increment the counter for successfully processed PRs."""
-    global _pr_processed_counter
-    _pr_processed_counter += 1
-
-def increment_pr_skipped() -> None:
-    """Increment the counter for PRs that were skipped (e.g., timeout)."""
-    global _pr_skipped_counter
-    _pr_skipped_counter += 1
-
-def get_pr_counters() -> dict:
-    """
-    Return the current PR counters.
-
-    Returns:
-        dict: ``{'processed': int, 'skipped': int}``
-    """
-    return {
-        "processed": _pr_processed_counter,
-        "skipped": _pr_skipped_counter,
-    }
-
-# ----------------------------------------------------------------------
-# Convenience getter for module‑level loggers
-# ----------------------------------------------------------------------
 def get_logger(name: str) -> logging.Logger:
     """
-    Retrieve a named logger that inherits the pipeline configuration.
+    Return a logger that writes JSON‑line records to ``logs/<name>.log``.
 
-    Args:
-        name: Name of the logger (typically ``__name__``).
+    Parameters
+    ----------
+    name: str
+        Logical name of the logger (e.g., ``"pipeline"`` or
+        ``"unit_test_logger"``).
 
-    Returns:
-        Configured ``logging.Logger`` instance.
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
     """
-    return logging.getLogger(name)
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    _ensure_file_handler(logger)
+    return logger
+
+# ----------------------------------------------------------------------
+# Simple counter helpers used by the CLI timeout wrapper
+# ----------------------------------------------------------------------
+def increment_pr_processed() -> None:
+    """
+    Emit a log entry indicating that a PR has been successfully processed.
+    Downstream scripts may count these entries.
+    """
+    logger = get_logger("pipeline")
+    logger.info("PR processed", extra={"counter": "processed"})
+
+def increment_pr_skipped() -> None:
+    """
+    Emit a log entry indicating that a PR was skipped (e.g., due to timeout).
+    """
+    logger = get_logger("pipeline")
+    logger.info("PR skipped", extra={"counter": "skipped"})

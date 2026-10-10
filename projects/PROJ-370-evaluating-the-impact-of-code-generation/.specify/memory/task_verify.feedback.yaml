@@ -1,15 +1,20 @@
 T001:
+  reason: The evidence shows that `src/`, `src/utils/`, `tests/`, `specs/`, and `contracts/`
+    directories exist, but the required `data/raw/`, `data/derived/`, `data/annotations/`,
+    and `results/` directories are missing. These missing directories must be created
+    for the task to be complete.
   task: 5aa66b9f1398c5eb66c3ada2e806cfe8b6155b27e7a6aacec5b5a32f7f8e0b69
 T002:
   task: c709a2a07e0a144a110062f0e56fb7e9d8ce36935e9ecf00a67a36ff10fbf460
 T003:
   task: 8ed99c05047b0e900afcf2c0f5fc42a4d3d50229c0aee737fb43d25ba69d4481
 T004:
-  reason: "The only evidence is that `src/utils/logger.py` and `src/utils/timeout_wrapper.py`\
-    \ exist; no code, test results, or logs are provided to show they enforce a 6\u202F\
-    h limit, write to `logs/timeout.log`, exit with code\u202F143, or emit valid JSON\u2011\
-    line logs. Without this concrete implementation or test output, the task requirements\
-    \ are not demonstrated."
+  reason: "The repository contains `src/utils/logger.py` and `src/utils/timeout_wrapper.py`,\
+    \ but no evidence of their contents or of unit\u2011test execution showing that\
+    \ the timeout wrapper enforces a 6\u202Fh limit, writes to `logs/timeout.log`,\
+    \ exits with code\u202F143, or that the logger emits correctly\u2011formatted\
+    \ JSON lines. Provide the actual source code and test results to confirm the required\
+    \ behavior."
   task: 3fab66ba80eeee3b370f33be2efb6db7474269a87ae92b3b21ab8a2250866041
 T005:
   reason: 'Requested task execution failed; rerun successfully: src/cli/main.py exit=1'

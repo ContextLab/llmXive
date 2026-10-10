@@ -11,18 +11,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/cli/main.py", line 28, in <module>
-    from src.utils.timeout_wrapper import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/__init__.py", line 10, in <module>
-    from .timeout_wrapper import set_global_timeout, check_timeout
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/timeout_wrapper.py", line 30, in <module>
-    from code.src.utils.logger import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/__init__.py", line 10, in <module>
-    from .timeout_wrapper import set_global_timeout, check_timeout
-ImportError: cannot import name 'set_global_timeout' from 'code.src.utils.timeout_wrapper' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/timeout_wrapper.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/cli/main.py", line 35, in <module>
+    from src.utils.logger import (
+ImportError: cannot import name 'setup_pipeline_logging' from 'src.utils.logger' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/utils/logger.py)
 
 - python -m pytest tests/unit/ -> rc=2
-le '/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/unit/test_preprocess_and_ground_truth.py'.
+tError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/unit/test_preprocess_and_ground_truth.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -36,10 +30,9 @@ code/src/extraction/fetch_human_comments.py:17: in <module>
     import requests
 E   ModuleNotFoundError: No module named 'requests'
 =========================== short test summary info ============================
-ERROR tests/unit/test_logger.py
 ERROR tests/unit/test_preprocess_and_ground_truth.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.11s ===============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.12s ===============================
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -55,7 +48,7 @@ FAILED tests/contract/test_yaml_schemas.py::TestYAMLSchemas::test_pr_data_schema
 FAILED tests/contract/test_yaml_schemas.py::TestYAMLSchemas::test_bug_detection_schema_valid_fields
 FAILED tests/contract/test_yaml_schemas.py::TestYAMLSchemas::test_alignment_result_schema_valid_fields
 ERROR tests/contract/test_yaml_schemas.py::test_yaml_syntax_validity
-===================== 5 failed, 3 passed, 1 error in 0.08s =====================
+===================== 5 failed, 3 passed, 1 error in 0.09s =====================
 
 
 - python -m src.cli.main --config config/settings.py --run all --seed 42 -> rc=1
@@ -63,15 +56,9 @@ ERROR tests/contract/test_yaml_schemas.py::test_yaml_syntax_validity
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/cli/main.py", line 28, in <module>
-    from src.utils.timeout_wrapper import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/__init__.py", line 10, in <module>
-    from .timeout_wrapper import set_global_timeout, check_timeout
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/timeout_wrapper.py", line 30, in <module>
-    from code.src.utils.logger import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/__init__.py", line 10, in <module>
-    from .timeout_wrapper import set_global_timeout, check_timeout
-ImportError: cannot import name 'set_global_timeout' from 'code.src.utils.timeout_wrapper' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/utils/timeout_wrapper.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/cli/main.py", line 35, in <module>
+    from src.utils.logger import (
+ImportError: cannot import name 'setup_pipeline_logging' from 'src.utils.logger' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/utils/logger.py)
 
 
 ## Declared deliverables still missing

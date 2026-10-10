@@ -16,7 +16,7 @@ data‑flow dependency).  `USx` links the task to the corresponding user story
 |------|-------------|
 | Establish a reproducible workspace and enforce coding standards. |  |
 
-- [X] **T001** Create the required directory layout – `src/`, `src/utils/`, `data/raw/`, `data/derived/`, `data/annotations/`, `results/`, `tests/`, `specs/`, `contracts/`. **Verification:** assert that each directory exists after execution.  
+- [ ] **T001** Create the required directory layout – `src/`, `src/utils/`, `data/raw/`, `data/derived/`, `data/annotations/`, `results/`, `tests/`, `specs/`, `contracts/`. **Verification:** assert that each directory exists after execution.  
 - [X] **T002** Add `requirements.txt` (pinned versions of `datasets`, `transformers`, `scikit‑learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`) and a `config/settings.py` that defines hyper‑parameters, path constants, random seeds, and the list `TARGET_REPOS = ["microsoft/vscode", "pytorch/pytorch", "tensorflow/tensorflow"]`. **Verification:** check that both files exist and contain the expected entries.  
 - [X] **T003** Add a `pyproject.toml` configuring **ruff** and **black** (including line‑length, exclude patterns) and a GitHub Actions workflow that runs `ruff check` and `black --check`. **Verification:** confirm `pyproject.toml` includes ruff/black sections and `.github/workflows/ci.yml` exists.  
 - [ ] **T004** Implement utility modules in `src/utils/`:  
