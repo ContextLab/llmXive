@@ -122,6 +122,8 @@ T038:
 T039:
   task: a21a0f1329a4e4f7fca0c1dd2828b9cabc4b2b71584af167ff751874fbb75c98
 T042:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/calibration.py
+    exit=1'
   task: 84672e7aba48208cf8693520499a8390aeb547c5c79c9b9799bd91fde9fe6a1f
 T043:
   task: e8db33fcd078c68c854d1d9f0badb758c7f9d2e963196a9cc799823caaa059a7

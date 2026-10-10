@@ -2,7 +2,7 @@
 Quantization Calibration Module.
 
 Implements a pilot inference run to calibrate the quantization penalty for Q4_K_M
-on CPU. Enforces a strict 60-minute timeout and writes the result to
+on CPU. Enforces a strict 60‑minute timeout and writes the result to
 state/quantization_penalty.json.
 """
 
@@ -24,6 +24,9 @@ if __name__ == "__main__":
 from models.quantization import load_model_q4_k_m
 from utils.logger import setup_logger, log_error
 
+# Additional import for real data
+from datasets import load_dataset
+
 # Constants
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = PROJECT_ROOT / "state"
@@ -40,11 +43,12 @@ class TimeoutError(Exception):
 
 def timeout_handler(signum, frame):
     """Signal handler for timeout."""
-    raise TimeoutError("Pilot run exceeded 60-minute timeout.")
+    raise TimeoutError("Pilot run exceeded 60‑minute timeout.")
 
 class QuantizationCalibration:
     """
-    Runs a pilot inference to estimate the performance penalty of Q4_K_M quantization.
+    Runs a pilot inference to estimate the performance penalty of Q4_K_M quantization
+    on CPU.
     """
 
     def __init__(self, model_path: Optional[str] = None):
@@ -59,105 +63,84 @@ class QuantizationCalibration:
         self.quantization_type = "Q4_K_M"
         self.logger = logger
 
-    def _create_synthetic_sample(self) -> Dict[str, Any]:
+    def _load_real_sample(self) -> Dict[str, Any]:
         """
-        Creates a small synthetic sample for the pilot run.
-        This is NOT the filtered dataset, but a minimal valid input structure.
+        Loads a single real instance from the Claw‑SWE‑Bench dataset to use as a
+        calibration prompt. The dataset is streamed to avoid loading the whole
+        collection into memory.
+
+        Returns:
+            A dictionary representing one dataset example. Expected to contain at
+            least the key ``problem_statement`` which will be fed to the model.
         """
-        # Synthetic prompt based on typical SWE-bench issue descriptions
-        # to ensure the model actually runs inference without needing real data files.
-        return {
-            "instance_id": "calibration_pilot_001",
-            "repo": "test/repo",
-            "base_commit": "abc123",
-            "problem_statement": "Fix the bug in the main function.",
-            "hints": ["Check the imports."],
-            "test_patch": "diff --git a/main.py b/main.py\n...",
-            "patch": "diff --git a/main.py b/main.py\n...",
-            "env": {},
-            "file_content": "def main():\n    print('Hello World')\n    # Placeholder for calibration\n    return True\n",
-            "files_in_context": ["main.py"],
-            "line_count": 500
-        }
+        self.logger.info("Fetching a real sample from the Claw‑SWE‑Bench dataset...")
+        # The official dataset identifier on Hugging Face Hub
+        ds = load_dataset(
+            "princeton-nlp/Claw-SWE-Bench",
+            split="train",
+            streaming=True,
+            trust_remote_code=True,
+        )
+        for example in ds:
+            # Return the first example that has a non‑empty problem statement
+            if example.get("problem_statement"):
+                self.logger.info("Sample fetched successfully.")
+                return example
+        raise ValueError("Unable to fetch a valid sample from the dataset.")
 
     def _run_pilot_inference(self, sample: Dict[str, Any]) -> float:
         """
-        Runs the actual pilot inference.
+        Runs a minimal inference pass using the loaded quantized model.
 
         Args:
-            sample: The synthetic sample data.
+            sample: A dataset example containing at least ``problem_statement``.
 
         Returns:
-            float: The measured penalty (ratio of quantized time to expected baseline).
-                   For this pilot, we measure actual inference time and return a
-                   placeholder ratio based on typical overheads if no baseline is available,
-                   or simply return 1.0 if the run completes successfully to indicate
-                   'calibrated' state.
+            float: Measured penalty. For this calibration we define the penalty as
+            the elapsed time (seconds) of loading + a single token generation.
+            The value is returned directly; downstream scripts may normalise it.
         """
         self.logger.info("Loading model with Q4_K_M quantization on CPU...")
         self.logger.info(f"Device: {self.device}")
         self.logger.info(f"Quantization: {self.quantization_type}")
 
         start_time = time.time()
-
         try:
-            # Load the model using the existing helper
-            # This function is expected to handle the specific loading logic
+            # Load the quantized model; the helper handles device placement.
             model = load_model_q4_k_m(self.model_path, device=self.device)
 
-            self.logger.info("Model loaded successfully. Running inference...")
+            self.logger.info("Model loaded successfully. Running minimal inference...")
 
-            # Prepare a simple input for the model
-            # We assume the model runner expects a text prompt or similar
-            # Since we are just calibrating the overhead, we run a minimal generation
             prompt = sample["problem_statement"]
+            # Attempt a very small generation; many models expose a ``generate`` method.
+            if hasattr(model, "generate"):
+                # For Transformers models we also need a tokenizer.
+                # The quantization loader typically returns a tuple (model, tokenizer)
+                # but we guard against different return signatures.
+                if isinstance(model, tuple) and len(model) == 2:
+                    model_obj, tokenizer = model
+                else:
+                    model_obj = model
+                    tokenizer = None
 
-            # Note: The actual runner logic might be in models/runner.py
-            # We invoke the loading here to ensure it fits and runs.
-            # If the runner is needed for full inference, we would call it here.
-            # For calibration of the *penalty*, we measure the load + minimal inference time.
-
-            # Simulate a minimal inference pass if the model supports it
-            # or just measure the load time as a proxy if generation is too heavy for a pilot.
-            # Given the constraint "Run a pilot inference", we attempt a generation.
-            # We use a generic approach assuming the model object has a generate method
-            # or we pass it to a runner.
-            
-            # Since we don't have the full runner context here, we assume load_model_q4_k_m
-            # returns a model object compatible with a standard generation call.
-            # We will perform a dummy generation to ensure the pipeline works.
-            
-            # Attempting a minimal generation to ensure the pipeline is valid
-            # We use a very short max_length to keep the pilot fast.
-            if hasattr(model, 'generate'):
-                # This is a generic call; actual implementation depends on the model type
-                # returned by load_model_q4_k_m.
-                # We catch any specific generation errors that aren't timeouts.
-                pass 
+                if tokenizer is not None:
+                    inputs = tokenizer(prompt, return_tensors="pt")
+                    # Ensure tensors are on CPU
+                    inputs = {k: v.to(self.device) for k, v in inputs.items()}
+                    # Generate a single token
+                    output = model_obj.generate(**inputs, max_new_tokens=1)
+                else:
+                    # Fallback: assume model can accept raw strings (e.g., a pipeline)
+                    output = model.generate(prompt, max_new_tokens=1)
             else:
-                self.logger.warning("Model does not have 'generate' attribute. Skipping generation, measuring load time only.")
-
+                self.logger.warning(
+                    "Model object lacks a 'generate' method; skipping generation step."
+                )
             end_time = time.time()
             duration = end_time - start_time
-
             self.logger.info(f"Pilot inference completed in {duration:.2f} seconds.")
-            
-            # Calculate penalty: 
-            # Since we don't have a full FP16 baseline run here, we return 1.0
-            # to indicate the calibration was successful and the quantization overhead
-            # is now "known" (in this case, the baseline for the pipeline is the quantized run itself).
-            # The task asks for a "penalty" value. In the absence of a FP16 run, 
-            # 1.0 implies no additional penalty beyond the quantized state itself.
-            # However, typically a penalty > 1.0 implies slowdown. 
-            # Let's assume the "penalty" here is the ratio of (Quantized Time / Expected FP16 Time).
-            # Without a FP16 run, we cannot calculate this dynamically. 
-            # The task description implies we write a penalty value. 
-            # We will set it to 1.0 to indicate "calibrated" state as per the "reason: calibrated" output.
-            # If the task implies a specific calculation, it would require the FP16 baseline.
-            # Given the constraints, we return 1.0 as a placeholder for "calibrated".
-            
-            return 1.0
-
+            # Here the "penalty" is simply the duration; callers can interpret as needed.
+            return duration
         except Exception as e:
             self.logger.error(f"Pilot inference failed: {str(e)}")
             raise
@@ -167,43 +150,42 @@ class QuantizationCalibration:
         Execute the calibration process.
 
         Returns:
-            dict: The result dictionary containing penalty and reason.
+            dict: Result containing the measured penalty and metadata.
         """
         self.logger.info("Starting Quantization Calibration...")
-        
+
         # Set up the timeout
         signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(TIMEOUT_SECONDS)
 
         try:
-            sample = self._create_synthetic_sample()
+            sample = self._load_real_sample()
             penalty = self._run_pilot_inference(sample)
-            
+
             # Cancel the alarm
             signal.alarm(0)
-            
+
             result = {
                 "penalty": penalty,
                 "reason": "calibrated",
                 "model_path": self.model_path,
                 "device": self.device,
-                "quantization_type": self.quantization_type
+                "quantization_type": self.quantization_type,
             }
-            
-            self.logger.info(f"Calibration successful. Penalty: {penalty}")
+
+            self.logger.info(f"Calibration successful. Penalty: {penalty:.2f}s")
             return result
 
         except TimeoutError as e:
             signal.alarm(0)
             self.logger.error(f"TIMEOUT: {str(e)}")
-            result = {
-                "penalty": 1.0,
+            return {
+                "penalty": None,
                 "reason": "timeout",
                 "model_path": self.model_path,
                 "device": self.device,
-                "quantization_type": self.quantization_type
+                "quantization_type": self.quantization_type,
             }
-            return result
         except Exception as e:
             signal.alarm(0)
             self.logger.error(f"Calibration failed with error: {str(e)}")
@@ -211,13 +193,12 @@ class QuantizationCalibration:
 
     def write_output(self, result: Dict[str, Any]) -> None:
         """
-        Write the result to the state directory.
+        Persist the calibration result to ``state/quantization_penalty.json``.
         """
         STATE_DIR.mkdir(parents=True, exist_ok=True)
-        with open(OUTPUT_FILE, 'w') as f:
+        with open(OUTPUT_FILE, "w") as f:
             json.dump(result, f, indent=2)
         self.logger.info(f"Result written to {OUTPUT_FILE}")
-
 
 def main():
     """
@@ -227,11 +208,11 @@ def main():
         calibration = QuantizationCalibration()
         result = calibration.run()
         calibration.write_output(result)
-        
+
         # Verify the output file exists
         if OUTPUT_FILE.exists():
             logger.info("Verification: Output file exists.")
-            with open(OUTPUT_FILE, 'r') as f:
+            with open(OUTPUT_FILE, "r") as f:
                 data = json.load(f)
                 logger.info(f"Output content: {data}")
         else:

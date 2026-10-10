@@ -1,0 +1,1 @@
+# This file ensures the tests/integration package is recognized.
