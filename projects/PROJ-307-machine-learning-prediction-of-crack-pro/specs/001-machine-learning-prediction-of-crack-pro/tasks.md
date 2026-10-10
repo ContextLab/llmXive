@@ -1,244 +1,146 @@
 # Tasks: Machine Learning Prediction of Crack Propagation Rates in Metals
 
-**Input**: Design documents from `/specs/001-crack-propagation-ml/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a [P] Create directory structure for `projects/001-crack-propagation-ml/` (code, data, tests, specs, contracts)
-- [ ] T001b [P] Create initial `__init__.py` files and empty placeholder files for `code/` modules
+**Input**: `spec.md`, `plan.md`, existing research artifacts, and reviewer feedback.  
+All tasks follow the canonical `- [ ] T### [P?] [USx?] description with file path` format. Checked boxes (`[X]`) indicate work already verified; unchecked boxes (`[ ]`) are pending. Duplicate IDs have been eliminated and each task is uniquely numbered.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding (foundational, must be completed before any user‑story work)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001a Create the top‑level directory layout for the feature  
+  `projects/001-crack-propagation-ml/` with sub‑folders `code/`, `data/`, `tests/`, `specs/`, `contracts/`.  
+  *Verification*: `tree` output shows the expected hierarchy; all folders are present.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T001b Add `__init__.py` files and minimal placeholder modules so that every package under `code/` is importable.  
+  *Files*: `code/__init__.py`, `code/data/__init__.py`, `code/models/__init__.py`, `code/analysis/__init__.py`, `code/utils/__init__.py`.  
+  *Verification*: `python -c "import code"` runs without `ImportError`.
 
-- [X] T002 Create project structure per implementation plan (`projects/001-crack-propagation-ml/`)
-- [X] T003 Initialize Python 3.11 project with `pyproject.toml` and pinned `requirements.txt` (scikit-learn, xgboost, optuna, pandas, ruptures, matplotlib, seaborn, pyyaml, jsonschema)
-- [X] T004 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T005 [P] Create `code/config.py` for hyperparameters, random seeds, and path configuration
-- [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining required columns ($da/dN$, $\Delta K$, composition, heat treatment)
-- [ ] T007 [P] Create `contracts/output.schema.yaml` defining expected result formats (metrics, plots)
-- [X] T008 [P] Create `code/utils/__init__.py` and `code/utils/stats.py` (file structure for stats module)
-- [ ] T009 [P] Create skeleton `code/data/loader.py` with schema validation logic (consumes `contracts/dataset.schema.yaml` from T006)
-- [ ] T010 [P] Setup environment configuration management and logging infrastructure in `code/`
+- [ ] T002 Initialise a Python 3.11 project with a pinned `requirements.txt` and a `pyproject.toml` that lists the exact versions of all dependencies required by the plan.  
+  *Verification*: `pip install -r requirements.txt` succeeds; `python -m build` reports a valid build.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T003 Configure linting (`ruff`) and formatting (`black`) tools and add them to the CI workflow.  
+  *Verification*: `ruff .` and `black --check .` both exit with status 0 in the CI run.
 
----
+- [ ] T004 Create `code/config.py` containing global random seeds, default hyper‑parameters, and path constants used throughout the pipeline.  
+  *Verification*: Importing `code.config` yields the expected attributes (e.g., `SEED`, `DATA_DIR`, `RESULTS_DIR`).
 
-## Phase 3: User Story 1 - Baseline Validation and Dataset Preparation (Priority: P1) 🎯 MVP
+- [ ] T005 Add the **dataset contract** `contracts/dataset.schema.yaml` by copying the authoritative schema from `specs/001-machine-learning-prediction-of-crack-pro/contracts/dataset.schema.yaml` into the project’s `contracts/` directory and validate it with a known good record.  
+  *Verification*: `jsonschema.validate(instance, schema)` succeeds for a sample record; the file is present and passes `yamllint`.
 
-**Goal**: Ingest public FCG datasets, clean data, impute missing heat-treatment values, and establish a physics-based baseline (Paris Law) using linear regression.
+- [ ] T006 Add the **output contract** `contracts/output.schema.yaml` by copying the schema from `specs/001-machine-learning-prediction-of-crack-pro/contracts/output.schema.yaml` into `contracts/` and validate a sample `ModelPerformance` JSON.  
+  *Verification*: Validation of a sample JSON against the schema returns no errors.
 
-**Independent Test**: The pipeline runs on a subset, outputs a linear regression model with $R^2$, and generates a partial dependence plot showing the log-log linear relationship.
-
-### Implementation for User Story 1
-
-- [X] T013 [US1] Implement data fetching logic in `code/data/loader.py` to fetch real data from **NASA Fracture Control Database** (CSV: `) and **NIST Materials Data Repository** (CSV: `). Save to `data/raw/` with checksums. **DO NOT** use `numenta/NAB` or generic repos. <!-- FAILED: unspecified -->
-- [X] T014 [US1] Implement `code/data/preprocessor.py` to filter valid $da/dN$/$\Delta K$, impute missing heat-treatment with "Unknown/Not Specified", and encode features
-- [X] T015 [US1] Implement `code/models/baseline.py` for stratified linear regression using only $\log(\Delta K)$ to predict $\log(da/dN)$
-- [X] T016 [US1] Implement `code/main.py` step to train baseline and calculate $R^2$ and p-value against a **null model defined as an intercept-only (horizontal line) model** using a **Permutation Test** to confirm the **log-log linear relationship of the Paris Law** (slope significance).
-- [X] T017 [US1] Implement `code/analysis/viz.py` to generate Partial Dependence Plot (PDP) for $\Delta K$ vs $da/dN$ verifying Paris Law linearity
-- [ ] T018 [US1] Add validation logic to halt if dataset lacks required columns after cleaning
-- [X] T010 [US1] Unit test for `code/data/loader.py` schema validation in `tests/unit/test_loader.py` (Write test immediately after T013 code)
-- [X] T011 [US1] Unit test for `code/data/preprocessor.py` imputation logic in `tests/unit/test_preprocessor.py` (Write test immediately after T014 code)
-- [X] T012 [US1] Integration test for baseline model training and $R^2$ calculation in `tests/integration/test_baseline.py`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T007 Create `code/utils/__init__.py` and a skeleton `code/utils/stats.py` (currently empty but importable).  
+  *Verification*: `import code.utils.stats` works; the module is listed in the package.
 
 ---
 
-## Phase 4: User Story 2 - Augmented Model Training and Variance Explanation (Priority: P2)
+## Phase 2 – Baseline pipeline (User Story 1 – P1)
 
-**Goal**: Train tree-based ensemble models (RF, XGBoost) with composition and heat-treatment features, and quantify variance explained via Permutation Tests.
+- [ ] T008 Implement `code/data/loader.py`  
+  *Features*: download the NASA Fracture Control Database CSV and the NIST Materials Data Repository CSV, verify SHA‑256 checksums, and validate each row against `contracts/dataset.schema.yaml`.  
+  *Path*: `code/data/loader.py` → raw files stored in `data/raw/`.  
+  *Verification*: Running `python -m code.data.loader --step download` creates the two CSVs, prints “validation passed”, and exits with status 0.
 
-**Independent Test**: The system trains the augmented model, performs k-fold CV, and outputs a $\Delta R^2$ metric with $p \le 0.05$ from a Permutation Test.
+- [ ] T008a Modify `code/data/loader.py` to import the dataset schema from `contracts/dataset.schema.yaml` and perform per‑record validation using `jsonschema.validate`.  
+  *Verification*: Loader logs “record X validated” for each row; failures raise a clear exception.
 
-### Implementation for User Story 2
+- [ ] T009 Implement the preprocessing pipeline in `code/data/preprocessor.py`  
+  *Steps*:  
+  1. Load raw CSVs, filter rows with positive `da_dN` and `delta_K`.  
+  2. Compute `log_da_dN` and `log_delta_K`.  
+  3. Impute missing `heat_treatment` with the literal string `"Unknown/Not Specified"`.  
+  4. One‑hot encode `heat_treatment` and z‑score scale continuous features (including composition wt %).  
+  5. Persist the processed table as `data/processed/processed_fcg.parquet`.  
+  *Verification*: The parquet file contains the columns `log_da_dN`, `log_delta_K`, `composition`, `heat_treatment_*`; a quick `pandas.read_parquet` shows no NaNs in required columns.
 
-- [X] T007a [P] [US2] Implement the core Permutation Test function in `code/utils/stats.py` (parameters: n_permutations, seed, metric). **Null Hypothesis**: Target values are randomly permuted. **Test Statistic**: Difference in $R^2$ between models. **P-value**: Proportion of permuted statistics >= observed statistic.
-- [X] T021 [US2] Implement `code/models/augmented.py` to support Random Forest and XGBoost with composition (wt%) and heat-treatment descriptors
-- [X] T019 [US2] Unit test for `code/models/augmented.py` fallback logic (missing features) in `tests/unit/test_augmented.py`
-- [X] T022 [US2] Implement `code/models/trainer.py` using Optuna for hyperparameter tuning ($n\_estimators$, $max\_depth$, $learning\_rate$) with k-fold stratified CV
-- [X] T023 [US2] Implement `code/main.py` step to perform Permutation Test (using logic from T007a) comparing Baseline vs. Augmented model error reduction. **Note**: Implementation follows Plan.md decision to use ONLY Permutation Tests (F-test rejected).
-- [X] T020 [US2] Integration test for Permutation Test significance in `tests/integration/test_permutation.py`
-- [X] T024 [US2] Implement `code/main.py` step to train augmented models, run CV, and calculate $\Delta R^2$
-- [ ] T025 [US2] Implement feature importance aggregation and top-3 feature extraction logic in `code/analysis/`
-- [X] T026 [US2] Add fallback logic in `code/models/augmented.py` to handle missing composition or heat-treatment columns gracefully
+- [ ] T010a Build the baseline model in `code/models/baseline.py` and a driver in `code/main.py` that:  
+  1. Loads the processed data.  
+  2. Trains a simple linear regression using **only** `log_delta_K` to predict `log_da_dN`.  
+  3. Computes the coefficient of determination (`R²`) on a held‑out test split.  
+  4. Performs a **permutation test** (10 000 permutations) against a null intercept‑only model and records the observed p‑value.  
+  5. Writes a JSON metric file conforming to `contracts/output.schema.yaml` (e.g., `results/baseline_metrics.json`).  
+  6. Generates a partial‑dependence plot of `log_delta_K` vs. `log_da_dN` showing the Paris‑Law slope and saves it to `results/baseline_pdp.png`.  
+  *Verification*: After `python -m code.main --step baseline`, the JSON file exists, contains `model_type: "Baseline"`, `r2_score` > 0, and a reported `p_value`; the PNG displays a straight line on log‑log axes.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T011 Add a pipeline‑wide column‑validation step in `code/main.py` that calls `verify_required_columns(df, required_columns)` (required columns are listed in `dataset.schema.yaml`). The function aborts with a clear error message if any column is missing.  
+  *Verification*: Manually delete `log_delta_K` from the DataFrame, rerun the pipeline, and confirm it exits with non‑zero status and prints “Missing required column: log_delta_K”.
 
----
-
-## Phase 5: User Story 3 - Regime Identification and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Identify $\Delta K$ regions where microstructural effects dominate using continuous interaction analysis and verify stability via sensitivity analysis.
-
-**Independent Test**: The system generates a regime map showing $\Delta R^2$ across regions and a sensitivity report confirming stability under parameter variation.
-
-### Implementation for User Story 3
-
-- [X] T029 [US3] Implement `code/analysis/regimes.py` using **`ruptures` change-point detection** as the primary method to identify Low/Mid/High $\Delta K$ regions. **Fallback**: If `ruptures` fails, use `scikit-learn`'s `GaussianProcessRegressor` with RBF kernel (varying coefficient model) with bandwidth selected via cross-validation.
-- [X] T027 [US3] Unit test for `code/analysis/regimes.py` varying coefficient models in `tests/unit/test_regimes.py`
-- [X] T030 [US3] Implement local $R^2$ and feature importance calculation within identified regimes in `code/analysis/regimes.py`
-- [X] T031 [US3] Implement `code/analysis/sensitivity.py` to sweep model parameters and verify region stability (ranking unchanged)
-- [X] T028 [US3] Unit test for `code/analysis/sensitivity.py` stability check in `tests/unit/test_sensitivity.py`
-- [X] T032 [US3] Implement `code/analysis/viz.py` to generate regime maps and PDPs for top 3 non-$\Delta K$ features
-- [ ] T033 [US3] Implement `code/main.py` step to orchestrate regime analysis and generate final sensitivity report
-- [ ] T034 [US3] Implement logic to evaluate model on held-out distinct alloy families. **If** the primary dataset lacks distinct families, **execute graceful degradation**: log a warning that generalizability test is limited to available data and proceed with evaluation on the existing subset. **DO NOT** fetch secondary external data.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T011a Add a JSON‑schema validation step that runs **after** the baseline (and later) metric files are written, checking them against `contracts/output.schema.yaml` before any downstream consumer reads them.  
+  *Verification*: If the JSON does not conform, the script raises a `SchemaValidationError` and halts.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – Augmented modeling (User Story 2 – P2)
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T012 Implement a reusable permutation‑test helper in `code/utils/stats.py`  
+  *Signature*: `permutation_test(metric_func, X, y, n_perm=5000, random_state=SEED) -> (observed, p_value)`.  
+  *Verification*: Unit test confirms that permuting a constant target yields a p‑value ≈ 1.0.
 
-- [ ] T035 [P] Documentation updates in `docs/` and `README.md`: Update 'Installation' (dependencies), 'Data Sources' (NASA/NIST URLs), 'Usage' (example commands), and 'Results' (interpretation of PDPs).
-- [ ] T036 Code cleanup and refactoring for memory efficiency (< 7 GB RAM)
-- [ ] T037 Performance optimization to ensure full pipeline completes within 6 hours on 2-core CPU
-- [ ] T038 [P] Additional unit tests for data validation edge cases in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation and CI pipeline verification
-- [ ] T040 [P] Update `spec.md` to remove the "nested model F-test" option from FR-005, formally ratifying the Plan.md decision to use only Permutation Tests.
+- [ ] T012a Add a pytest unit‑test file `tests/unit/test_permutation_helper.py` that exercises the helper with a constant target and asserts the p‑value condition.  
+  *Verification*: `pytest tests/unit/test_permutation_helper.py -q` passes.
 
----
+- [ ] T013 Implement the augmented‑model module `code/models/augmented.py` that:  
+  1. Accepts the full feature set (`log_delta_K`, composition, one‑hot heat‑treatment).  
+  2. Provides two classes – `RandomForestRegressor` and `XGBRegressor` – wrapping scikit‑learn and XGBoost respectively.  
+  3. Contains **fallback logic**: if composition columns are absent, train using only `log_delta_K` + heat‑treatment; if heat‑treatment columns are absent, train using only `log_delta_K` + composition.  
+  *Verification*: Import the module and instantiate both regressors with a dummy DataFrame missing composition; a warning is logged and training proceeds.
 
-## Dependencies & Execution Order
+- [ ] T014 Implement hyper‑parameter optimisation in `code/models/trainer.py` using Optuna’s TPE sampler: tune `n_estimators`, `max_depth`, and `learning_rate` for both regressors with **5‑fold stratified CV** (stratified by `alloy_family`). Enforce an explicit time budget of **1800 seconds** for the entire optimisation run.  
+  *Verification*: Running `python -m code.models.trainer --optimize` finishes within the budget and prints the best hyper‑parameters for each model.
 
-### Phase Dependencies
+- [ ] T015 Extend `code/main.py` with an **augmented training step** that:  
+  1. Loads the processed data.  
+  2. Calls the Optuna trainer to obtain the best RF and XGB models.  
+  3. Computes `R²` for each model on the held‑out test set.  
+  4. Calculates **ΔR² = R²_augmented – R²_baseline**.  
+  5. Runs the permutation‑test helper (from T012) to obtain a p‑value for the improvement.  
+  6. Aggregates feature‑importance across folds, ranks them, and writes the top‑3 non‑`log_delta_K` features to `results/augmented_feature_importance.json`.  
+  7. Stores all metrics in `results/augmented_metrics.json` (conforms to the output contract).  
+  *Verification*: After the step completes, both JSON files exist, contain the expected fields, and the p‑value ≤ 0.05.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data cleaning pipeline
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model outputs
-
-### Within Each User Story
-
-- **TDD Discipline**: Tests are written *immediately after* the implementation block they validate (e.g., T013 then T010, T014 then T011).
-- Data loading/preprocessing before modeling
-- Modeling before analysis/viz
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T015a Add a dedicated aggregation task that merges per‑fold feature‑importance arrays into a single averaged importance ranking used by T015.  
+  *Verification*: The aggregation script produces `results/augmented_feature_importance.json` with averaged scores.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – Regime identification & sensitivity (User Story 3 – P3)
 
-```bash
-# Launch implementation and test for T013/T010 together (TDD flow):
-Task: "Implement data fetching logic in code/data/loader.py..." (T013)
-Task: "Unit test for code/data/loader.py schema validation..." (T010)
+- [ ] T016 Implement regime detection in `code/analysis/regimes.py` using the **ruptures** library (Kernel Change‑Point Detection). The algorithm automatically splits the test‑set data into three contiguous ΔK regimes (low, mid, high) based on changes in residuals of the baseline model.  
+  *Verification*: Running `python -m code.analysis.regimes --detect` prints three interval boundaries that cover the full ΔK range and saves a `results/regime_bounds.json`.
 
-# Launch implementation and test for T014/T011 together:
-Task: "Implement code/data/preprocessor.py to filter valid data..." (T014)
-Task: "Unit test for code/data/preprocessor.py imputation logic..." (T011)
-```
+- [ ] T017 For each identified regime, compute:  
+  1. **Local R²** for both baseline and augmented models.  
+  2. **Dominant features** (top‑3 by importance) within the regime.  
+  Store the results in `results/regime_analysis.json` adhering to the `output.schema.yaml` “regime_analysis” section.  
+  *Verification*: The JSON contains keys `low`, `mid`, `high` with the required sub‑fields (`local_r2`, `dominant_features`, `stability_score`).
 
----
+- [ ] T018 Implement a sensitivity analysis in `code/analysis/sensitivity.py` that:  
+  1. Perturbs each hyper‑parameter of the augmented models by ±10 % (one at a time).  
+  2. Reruns regime detection for each perturbed model.  
+  3. Computes a **stability score** defined as the proportion of regime‑ranking orders (Low > Mid > High) that remain unchanged across all perturbations.  
+  *Verification*: The script outputs a numeric stability score ≥ 0.9 for the default model and writes it into `results/regime_analysis.json` under each regime.
 
-## Implementation Strategy
+- [ ] T019 Extend `code/main.py` with a **regime‑analysis step** that orchestrates the three scripts above, generates a regime‑map figure (`results/regime_map.png`), and produces partial‑dependence plots for the top‑3 non‑ΔK features in each regime (`results/pdp_<feature>.png`).  
+  *Verification*: After the step, all figures exist, are readable, and CI logs report “Regime analysis completed”.
 
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Implementation -> Tests)
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T020 Add a **generalizability check** in `code/main.py` that evaluates the augmented model on a held‑out subset containing alloy families not present in the training split. If such a subset does not exist, the script logs a warning (“No distinct alloy families in test set – generalizability assessment limited”) and continues without error.  
+  *Verification*: CI run shows the warning when appropriate and still produces the usual metric files.
 
 ---
 
-## Notes
+## Phase 5 – Documentation, performance, and hand‑off
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- **TDD Workflow**: Write implementation code, then immediately write the corresponding test task to validate it. The list order reflects execution flow (Code -> Test), but development discipline requires Test-Driven thinking.
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data fetching tasks MUST use real, reachable URLs or package-based fetchers (no fake/synthetic data generation).
-- **CRITICAL**: All models MUST run on CPU-only CI (2 cores, 7GB RAM) within 6 hours. No GPU/8-bit dependencies.
-- **CRITICAL**: Data sources MUST be NASA Fracture Control Database and NIST Materials Data Repository.
-- **CRITICAL**: Generalizability tests MUST be performed even if primary data lacks diversity (graceful degradation if needed).
-- **CRITICAL**: Regime analysis MUST prioritize `ruptures` as per Plan.md, with fallback to varying coefficient models.
-- **CRITICAL**: All statistical tests (T016, T023) MUST use Permutation Tests as per Plan.md.
+- [ ] T021 Update the project documentation:  
+  *Files*: `README.md`, `quickstart.md`.  
+  *Content*: installation instructions (including the exact `requirements.txt`), data‑source URLs for NASA and NIST datasets, example CLI commands for each pipeline step, and a brief interpretation of the key results (baseline R², ΔR², regime map).  
+  *Verification*: The CI step `make docs` builds the Markdown without errors; the rendered README displays correctly on GitHub.
+
+- [ ] T022 Optimize memory usage (e.g., stream CSVs with `chunksize`, use `parquet` for processed data, delete intermediate DataFrames) **and** add profiling to enforce the **≤ 6 hour** wall‑clock limit and **≤ 7 GB** RSS on the GitHub Actions free‑tier runner.  
+  *Verification*: The CI job logs total runtime (“Pipeline completed in Xh Ym”) and peak memory usage (checked via `psutil`); both stay within the specified bounds.
+
+- [ ] T023 Run the complete CI suite, ensuring that **all unit and integration tests pass** and that the final result artifacts (`results/*.json`, `results/*.png`) conform to their respective schemas.  
+  *Verification*: GitHub Actions finishes with a green check; `pytest -q` reports “0 failed”.
+
+- [ ] T024 Amend `spec.md` to remove the “nested model F‑test” option from FR‑005, formally ratifying the plan’s decision to use **only permutation tests**.  
+  *Verification*: The updated `spec.md` no longer mentions the F‑test; a diff shows the removal and a commit comment references the resolution of the FR‑005 conflict.
