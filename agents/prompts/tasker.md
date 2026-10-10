@@ -103,6 +103,14 @@ for the cap-hit path and signals `human_input_needed`.
   CUDA and re-runs the SAME run-book on the GPU — so a real `device="cuda"` task
   DOES execute and produce real results. Choose the scaled GPU form ONLY when the
   science genuinely requires it; never a fabricated CPU imitation of a GPU method.
+- **A task writes only PROJECT-owned paths.** Everything a task produces goes
+  under `data/`, `figures/`, `code/`, `paper/` or the feature's `specs/` dir.
+  NEVER task recording artifact hashes, run state, project status or stage in
+  `state/...` (nor `.github/`): those belong to the platform, which derives
+  hashes at verification time. A script run from the project resolves
+  `state/...` INSIDE the project, leaving a stale
+  shadow of canonical state that the verifier then reads and rejects honest
+  work against — PROJ-9999 lost two whole runs to exactly that.
 - NEVER weaken a test or remove a constraint to make analyze pass —
   the constitution says "fix the code, not the test".
 - Task ordering MUST respect data flow: a task that says

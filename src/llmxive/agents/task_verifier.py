@@ -147,6 +147,15 @@ def _artifact_valid(project_dir: Path, rel: str) -> bool:
 
     import yaml
 
+    from llmxive.execution.platform_paths import is_project_dir, platform_shadow
+
+    # A path shadowing a platform-owned directory is NEVER valid evidence,
+    # however well-formed the file is. See llmxive.execution.platform_paths for
+    # the canary run that a stale hash in a project-local `state/` shadow
+    # rejected and kicked back.
+    if is_project_dir(project_dir) and platform_shadow(rel):
+        return False
+
     f = _evidence_path(project_dir, rel)
     if f is not None and rel.endswith("/") and f.is_dir():
         return True  # Scaffolding can legitimately require an empty directory.
@@ -199,9 +208,26 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     failure = EXECUTION_FAILURE_RE.search(task_text)
     if failure:
         return "reject", "Requested task execution failed; rerun successfully: " + failure.group(1)
+    from llmxive.execution.platform_paths import is_project_dir, platform_shadow
+
     paths = _declared_paths(task_text)
     if not paths:
         return None, ""
+    if is_project_dir(project_dir):
+        # A task that writes platform-owned state is ill-formed whatever else it
+        # produced: the shadow it leaves behind is what later rejects honest
+        # work. Reject with the containment reason, so the implementer gets an
+        # actionable item rather than a bare "artifact missing".
+        offending = [(p, platform_shadow(p)) for p in paths if platform_shadow(p)]
+        if offending:
+            detail = ", ".join(f"`{p}` (shadows `{owned}/`)" for p, owned in offending)
+            return "reject", (
+                "the task writes platform-owned path(s) inside the project: "
+                f"{detail}. A project owns data/, figures/, code/ and paper/; "
+                "the platform owns state/ and derives artifact hashes at "
+                "verification time. Re-scope the step to write only "
+                "project-owned outputs."
+            )
     statuses = [(p, _artifact_valid(project_dir, p)) for p in paths]
     # Existence can establish missing work; it cannot establish correct work.
     # A nonempty stub or arbitrary two-row CSV must still be judged semantically.
@@ -219,6 +245,8 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
     Uses the broadened :func:`_declared_paths` detector, so a setup/config/test
     task (``pyproject.toml``, ``tests/…``, ``src/…``) yields REAL file evidence
     instead of the "no artifact path" prose fallback."""
+    from llmxive.execution.platform_paths import platform_shadow
+
     paths = _declared_paths(task_text)
     file_count = 0
     python_sources: list[Path] = []
@@ -229,7 +257,17 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
     # commands without trusting path-equivalence claims in generated prose.
     # Standalone caller directories do not establish a repository convention.
     repository_root = project_root.parent.parent if project_root.parent.name == "projects" else None
+    inside_project = repository_root is not None
     for rel in paths:
+        owned = platform_shadow(rel) if inside_project else None
+        if owned:
+            # Never quote a shadow's CONTENTS as evidence: a stale record in one
+            # is exactly how an honest artifact gets rejected.
+            chunks.append(
+                f"- `{rel}`: PLATFORM-OWNED PATH (shadows `{owned}/`) — a project "
+                "must not write platform state, and this copy is not evidence."
+            )
+            continue
         f = _evidence_path(project_dir, rel)
         if f is not None and rel.endswith("/") and f.is_dir():
             entries = sorted(p.name + ("/" if p.is_dir() else "") for p in f.iterdir())
