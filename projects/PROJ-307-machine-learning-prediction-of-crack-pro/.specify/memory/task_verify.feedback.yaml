@@ -1,0 +1,74 @@
+T001a:
+  reason: "The required top\u2011level directory `projects/001-crack-propagation-ml/`\
+    \ does not exist; the existing `code/`, `data/`, `tests/`, `specs/`, and `contracts/`\
+    \ folders are at the repository root, not under the specified project path, so\
+    \ the mandated layout is missing."
+  task: 1dcfd61ee15232f75e498eaf73dcf574e3cbc07bca150562f93e8e821182cf09
+T001b:
+  reason: The required `__init__.py` files are present, but there is no documented
+    evidence (e.g., command output or test log) showing that `python -c "import code"`
+    runs without an `ImportError`. Provide execution proof to satisfy the verification
+    step.
+  task: f54f2fb008495257faec1515dcc54e6b3760dbb851275139501c045fff7e4783
+T002:
+  reason: "The provided `requirements.txt` and `pyproject.toml` list dependencies\
+    \ with minimum version specifiers (`>=`) rather than exact, pinned versions, and\
+    \ there is no evidence that `pip install -r requirements.txt` succeeded or that\
+    \ `python -m build` produced a valid build. The task\u2019s requirement for a\
+    \ fully pinned dependency list and successful build verification is therefore\
+    \ unmet."
+  task: 0ac2f74d72320a95be9799b5551fdb642044820f53b1dadd6448bdd902f0904d
+T003:
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_lint.sh
+    exit=2'
+  task: 1eb6c36b749f6b7eb74b85fa662fe187aedbf164935003e6ef49b77179bc3d45
+T004:
+  task: 4be782029b7355356839dbe6b57277fccf93b8c56e9c75234efa513fb10003c4
+T005:
+  task: 5322c2796358ef0ad33c56182f7b0c594b8cbcc079e0f9893476dbf458915810
+T006:
+  task: ed723bc3fd53dd2e50712431e49a82fb05200e3b28de0b3122692f4b2da30051
+T007:
+  task: e71a8c766a9fe94aa2524bbc3492b716093d8e986f3f116f4c0ee639cc925aed
+T008:
+  task: 42d5130f8f5a6a4d1868fc12387af4d0fff66256c70e065ce40939e14d0404c3
+T008a:
+  task: 79fa47a8821be2e830322305e77a23caf48f1837e04c1b3bf86938fd75943930
+T009:
+  task: da401e855219c07c0079aeabe8e882218cd3662669d67e2eff95ebd93e2e0535
+T010a:
+  task: 50bf47e189bdd0f297529e3dcc65bc1c6c445a90f8119815ced5f425510dfc93
+T011:
+  task: 21e7dfaec43504afa2ca825f9a0674114bf0d5ff72e0d54f8b570d7375d0f798
+T011a:
+  task: b458154dd1dba1ade399fb62abcfd8bb759773406f3837d42ba4cf724035cf6e
+T012:
+  task: 71fe6550d9062e8a7d210794bff7ad738464f0d2a546c7c3d409713726404f4c
+T012a:
+  task: f054b4c1134c4802b1b9d2f6d23aeb615aff4e226412690139e996f0a8a9090b
+T013:
+  task: f376cbe598e48283c181ff88ae5d61edd860c2b2b3e3db99ec4fbfe079952901
+T014:
+  task: cae3fd208471c2fdf39870ca5a5997dbc9d2b1bbfc3ba3bb7bb8c8ceef7631c8
+T015:
+  task: a350ab3638157a1156292d887bb4a1c76985b7898dabeb1b559bb65c634fccfc
+T015a:
+  task: a32ffabc70c336341aa02c674a523caa7266de8e443a1f44b5604f46b286138a
+T016:
+  task: 5fc66353d47ddadcf2231f705ab3d1d6fc84f9628456e27ebc313130df801beb
+T017:
+  task: 604265683f2df785a3ec1c205c35d3ab26bf61a311d5ac2be22e6b63bc2c2366
+T018:
+  task: d124998050817a2fd00164e4dea9541b5a484d5b2d97782a08d04373c981a2c5
+T019:
+  task: 0c4287c34274ac7d493414c77013c86c5e1ce1be756800870f0f4d1f441332a5
+T020:
+  task: b818fbefb6521df9c5c137ca981e19c3c8f77ff68613eaf6da88903aaca17fc4
+T021:
+  task: e09b40adee0a51eda7827afa294938481b2fa9c62b014e811b4339138d307d5b
+T022:
+  task: 06436c62f2d8322f987ef355d7d6df52abe5c184a3c34ea4726dba3f1d5baa0f
+T023:
+  task: d34ac556c9e587ed6125250a3eb73578e0cae6f76a62d0926dfbc04d5a888f0e
+T024:
+  task: a5d05f9ca1dc916ca2b2d0c56d77582ec1e75e2fff7e30e1e270ab159ceb551c

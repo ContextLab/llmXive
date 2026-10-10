@@ -18,7 +18,7 @@ All tasks follow the canonical `- [ ] T### [P?] [USx?] description with file pat
 - [ ] T002 Initialise a Python 3.11 project with a pinned `requirements.txt` and a `pyproject.toml` that lists the exact versions of all dependencies required by the plan.  
   *Verification*: `pip install -r requirements.txt` succeeds; `python -m build` reports a valid build.
 
-- [ ] T003 Configure linting (`ruff`) and formatting (`black`) tools and add them to the CI workflow.  
+- [ ] T003 Configure linting (`ruff`) and formatting (`black`) tools and add them to the CI workflow.   <!-- FAILED-IN-EXECUTION: scripts/run_lint.sh exit=2 -->
   *Verification*: `ruff .` and `black --check .` both exit with status 0 in the CI run.
 
 - [ ] T004 Create `code/config.py` containing global random seeds, default hyper‑parameters, and path constants used throughout the pipeline.  

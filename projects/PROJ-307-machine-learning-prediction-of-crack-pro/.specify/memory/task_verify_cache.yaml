@@ -1,9 +1,28 @@
+T001a:
+  c: false
+  h: 0ba93f07ca6f1fc56fa7b891e6aaea5dc453418452160b059aa5c3dbfbae433d
+  r: "The required top\u2011level directory `projects/001-crack-propagation-ml/` does\
+    \ not exist; the existing `code/`, `data/`, `tests/`, `specs/`, and `contracts/`\
+    \ folders are at the repository root, not under the specified project path, so\
+    \ the mandated layout is missing."
+  sig: eff971c86e155305cbd9321ba22d4915efc459fbe6506636eb9e1435329c09a5
 T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any `__init__.py` files or placeholder module files in the `code/`
-    directory is provided; the implementer did not supply the required artifacts,
-    so the task is not satisfied.
+  h: 116d5d53684814895999716a612f309c2b4cb68dc498bdfc430d40cf1879f289
+  r: The required `__init__.py` files are present, but there is no documented evidence
+    (e.g., command output or test log) showing that `python -c "import code"` runs
+    without an `ImportError`. Provide execution proof to satisfy the verification
+    step.
+  sig: 415ab0d5dbf3cb166e03fbe369b03f8ea858724d783d077e975f34176fcfdea7
+T002:
+  c: false
+  h: e2b9b50f6c002e01f4dc0ea005763f725ac107b09c785220ded6a9db5e343d70
+  r: "The provided `requirements.txt` and `pyproject.toml` list dependencies with\
+    \ minimum version specifiers (`>=`) rather than exact, pinned versions, and there\
+    \ is no evidence that `pip install -r requirements.txt` succeeded or that `python\
+    \ -m build` produced a valid build. The task\u2019s requirement for a fully pinned\
+    \ dependency list and successful build verification is therefore unmet."
+  sig: c05fd6818f04cfab4743b7fd7f3df6b99f07169d845725395faea4ae01c70e57
 T009:
   c: false
   h: 460968f8ba0304b4b7f76641f8a722ec68144051905b101e6b9f3b229444ef90
@@ -12,14 +31,6 @@ T009:
     and the referenced schema file is missing from the repository, so the loader cannot
     actually consume the intended contract. The required schema artifact must be added
     (or the loader must be wired to the correct path) for the task to be fulfilled.
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration or logging files (e.g., `config.yaml`, `.env`, `logging.py`,
-    or similar) are present in the `code/` directory, nor is any evidence (code snippets,
-    screenshots, test output) provided to demonstrate that environment configuration
-    management and logging infrastructure have been set up. The required artifacts
-    are missing, so the task is not satisfied.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,12 +38,3 @@ T018:
     provided; the claim lacks any concrete artifact demonstrating that the pipeline
     now halts when required columns are missing after cleaning. The required implementation
     is therefore not evidenced.
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files or scripts were presented in `code/analysis/` that perform feature\u2011\
-    importance aggregation or extract the top\u20113 features, and thus the required\
-    \ artifact is missing. The implementer must add the appropriate implementation\
-    \ (e.g., a Python module that reads model importance outputs, aggregates them\
-    \ across folds or models, and returns the three most important non\u2011\u0394\
-    K features)."
