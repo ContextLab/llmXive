@@ -158,6 +158,27 @@ _DEFAULT_BREAKER_COOLDOWN_S = float(
     os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", "900.0")
 )
 
+# A recovery probe asks ONE question: is this model answering at all? Asking it
+# with the next real request made the answer cost a full request budget --
+# ``_DEFAULT_REASONING_DEADLINE_S`` (360s) for a model whose breaker was opened
+# by a deadline hang in the first place. Measured on the 2026-10-09 totient
+# canary: 7 deadline hangs burned 2160s of an 8171s run (26%), and roughly four
+# of them were probes re-hanging on a model already known to be sick. A tiny
+# bounded request answers the same question in seconds (openai.gpt-oss-120b
+# 2.62s, zai-org.glm-5.3 1.85s, qwen.qwen3.5-122b 0.85s, measured 2026-10-10),
+# and a real request keeps its full budget once the model is known to answer.
+_LIVENESS_DEADLINE_S = float(
+    os.environ.get("LLMXIVE_DARTMOUTH_LIVENESS_DEADLINE_S", "30.0")
+)
+# Reasoning-safe, NOT minimal. Measured live 2026-10-10 on the trivial probe
+# prompt: with max_tokens=16 both openai.gpt-oss-120b and google.gemma-4-31B-it
+# return an EMPTY reply (they spend the budget before emitting content — the
+# same flap EmptyReplyError documents), which a liveness check would read as
+# "model is down" and keep a healthy model's circuit open forever. With 512
+# both answer in ~1s. Still far cheaper than a real request.
+_LIVENESS_MAX_TOKENS = 512
+_LIVENESS_PROMPT = "Reply with exactly: OK"
+
 
 class _CircuitBreaker:
     """Trips OPEN on a sustained outage so callers abort fast.
@@ -192,7 +213,19 @@ class _CircuitBreaker:
         window_s: float = _DEFAULT_BREAKER_WINDOW_S,
         clock: Callable[[], float] = time.monotonic,
         cooldown_s: float = _DEFAULT_BREAKER_COOLDOWN_S,
+        liveness: Callable[[str], bool | None] | None = None,
     ) -> None:
+        #: Optional cheap recovery check, called with :attr:`name` when the
+        #: cooldown expires. ``True`` closes the circuit and the caller's real
+        #: request proceeds with its FULL budget; ``False`` leaves it open and
+        #: restarts the cooldown without burning a request; ``None`` means "no
+        #: cheap check available" (a paid model, whose call must stay behind the
+        #: credit guard) and falls back to probing with the real request. Left
+        #: ``None`` by default, so a breaker constructed without it behaves
+        #: exactly as before.
+        self.liveness = liveness
+        #: The resolved model this breaker guards; set by ``_breaker_for``.
+        self.name = ""
         self._max_consecutive = max_consecutive
         self._window_s = window_s
         self._clock = clock
@@ -238,6 +271,24 @@ class _CircuitBreaker:
                 if self._probe_in_flight or now - self._opened_at < self._cooldown_s:
                     raise self._open_error()
                 self._probe_in_flight = probe = True
+        if probe and self.liveness is not None:
+            try:
+                alive = self.liveness(self.name)
+            except BaseException:  # a probe must never raise into the caller
+                alive = False
+            if alive is not None:
+                with self._lock:
+                    self._probe_in_flight = False
+                    if not alive:
+                        # Still sick. Restart the cooldown and fail fast, WITHOUT
+                        # spending the caller's full request budget to find out.
+                        self._opened_at = self._clock()
+                        raise self._open_error()
+                    self._reset()
+                # The model answers: this is now an ordinary call, not a probe,
+                # so it gets the full deadline and does not re-open the circuit
+                # on a single transient failure.
+                probe = False
         try:
             result = fn()
         except TransientBackendError as exc:
@@ -748,8 +799,47 @@ class DartmouthBackend(BaseBackend):
         self._breakers: dict[str, _CircuitBreaker] = {}
 
     def _new_breaker(self) -> _CircuitBreaker:
-        """Factory for a fresh per-model breaker (overridable in tests)."""
-        return _CircuitBreaker()
+        """Factory for a fresh per-model breaker (overridable in tests).
+
+        Binds the cheap liveness check, so a recovery probe asks a bounded
+        question instead of spending a full request budget. A breaker built
+        without it (every test that constructs one directly) keeps the original
+        probe-with-the-real-request behavior.
+        """
+        return _CircuitBreaker(liveness=self._liveness_ok)
+
+    def _liveness_ok(self, model: str) -> bool | None:
+        """Is ``model`` answering at all? ``None`` when it cannot be asked cheaply.
+
+        A tiny request with its own short deadline, made OUTSIDE the breaker and
+        outside the retry budget: it never records a failure and never counts
+        toward tripping. Any exception means "not answering" — this decides
+        whether to reopen a circuit, so it must not raise.
+
+        A PAID model returns ``None`` rather than a verdict: its every call has
+        to pass the credit-managed opt-in guard (Constitution Principle IV), and
+        a liveness ping is not worth a credit. The breaker then falls back to
+        probing with the caller's real request, exactly as before.
+        """
+        if not is_free_model(model):
+            return None
+        from langchain_core.messages import HumanMessage
+
+        try:
+            client = self._client(model)
+            reply = invoke_with_deadline(
+                lambda: client.invoke(
+                    [HumanMessage(content=_LIVENESS_PROMPT)],
+                    max_tokens=_LIVENESS_MAX_TOKENS,
+                ),
+                timeout=_LIVENESS_DEADLINE_S,
+                description=f"Dartmouth liveness probe {model!r}",
+            )
+        except BaseException as exc:
+            _log.info("dartmouth: liveness probe for %s failed: %s", model, exc)
+            return False
+        content = getattr(reply, "content", "")
+        return bool(content if isinstance(content, str) else str(content).strip())
 
     def _breaker_for(self, model: str) -> _CircuitBreaker:
         """The circuit breaker guarding ``model`` on this backend (lazy-created).
@@ -759,6 +849,7 @@ class DartmouthBackend(BaseBackend):
         br = self._breakers.get(model)
         if br is None:
             br = self._new_breaker()
+            br.name = model  # the liveness check needs to know WHICH model
             self._breakers[model] = br
         return br
 
