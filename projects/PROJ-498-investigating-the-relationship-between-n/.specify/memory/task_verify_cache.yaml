@@ -1,3 +1,20 @@
+T001:
+  c: true
+  h: e80e3f79a58d4949ac2aa04e4f32c9d696bec79bfbe89bf79d76258b8750c305
+  r: "The collector confirms that `projects/PROJ-498-investigating-the-relationship-between-n/`\
+    \ and its `code/`, `data/`, and `tests/` subdirectories all exist, and the execution\
+    \ log for `create_directories.py` shows a successful run creating the structure.\
+    \ This satisfies the task\u2019s sole requirement."
+  sig: 8e23b66996631aa1b54b9180a537bd4a5182a7dde54a7a4d45172e96b233d203
+T002:
+  c: false
+  h: 15e6ca1696237c8e74e3675e6b46d328f5a4210806770b96030b7451c99f695b
+  r: The `requirements.txt` file exists and contains all the required pinned dependencies,
+    but there is no provided evidence (e.g., install logs, command output, or test
+    results) showing that `pip install -r requirements.txt` actually runs successfully
+    without version conflicts. Adding such verification output is needed to satisfy
+    the task.
+  sig: 4635606f5e43eadc02ebee4fa7a6085eeeeead27a3e451533e869e193a330765
 T013:
   c: false
   h: af4f9df700bef4fbda1521515e71ef7778884d69a60a974931eb835a4fa812f4
@@ -47,10 +64,3 @@ T041:
     \ a section was added. Additionally, the referenced `data/selected_dataset_id.txt`\
     \ file is missing, which contradicts the claim that the command runs without manual\
     \ dataset ID. The documentation update therefore has not been provided."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no `quickstart.md` file, validation script, or any evidence
-    that the markdown was checked for correctness; instead only unrelated project
-    specifications were shown. The required artifact (a verification of `quickstart.md`
-    validation) is missing.

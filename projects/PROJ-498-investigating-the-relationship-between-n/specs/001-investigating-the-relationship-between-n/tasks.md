@@ -9,7 +9,7 @@
 
 **Goal**: Establish a reproducible project skeleton and basic tooling.  
 
-- [ ] T001 [P] Create directory structure  
+- [X] T001 [P] Create directory structure  
   - `projects/PROJ-498-investigating-the-relationship-between-n/`  
   - `projects/PROJ-498-investigating-the-relationship-between-n/code/`  
   - `projects/PROJ-498-investigating-the-relationship-between-n/data/`  
