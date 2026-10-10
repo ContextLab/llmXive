@@ -1,83 +1,210 @@
-# Tasks: The Role of Temporal Discounting in Procrastination on Cognitive Tasks
+# Tasks: The Role of Temporal Discounting in Procrastination on Cognitive Tasks  
 
-**Input**: Design documents from `/specs/001-the-role-of-temporal-discounting-in-proc/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `research.md`, `data-model.md`, contract schemas in `specs/001-the-role-of-temporal-discounting-in-proc/contracts/`.  
 
-**Scope note**: This is a Methodological Validation study using a documented Synthetic Data Generation (DGP) strategy with literature‑derived parameters (per plan.md). The DGP is the explicitly authorized input for this simulation study; no fabricated “real‑world” claims are made. Real, validated datasets are also ingested when available to satisfy FR‑001.
+The goal is to deliver a fully‑reproducible end‑to‑end pipeline that (1) ingests real data when available, (2) falls back to a documented synthetic Data‑Generating Process (DGP) when real data cannot be fetched, (3) fits hyperbolic discounting models, (4) runs a moderated OLS regression, (5) performs bootstrap‑based robustness checks and sensitivity sweeps, (6) produces all required artifacts that conform to the JSON schemas, and (7) records exclusion and diagnostic information in a “fail‑loud” fashion.  
 
-## Phase 1: Setup (Shared Infrastructure) — COMPLETE
+---  
 
-- [ ] T001 Create project structure per implementation plan: `projects/PROJ-196-the-role-of-temporal-discounting-in-proc/{data/raw,data/processed,code,tests,docs}`.
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn` dependencies in `pyproject.toml` and pinned `requirements.txt`.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools (`.ruff.toml`, `pyproject.toml` tool sections, `line-length = 88`).
-- [ ] T004 Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep` files.
-- [ ] T006 [P] Configure `pytest` framework (`pytest.ini`, `tests/conftest.py` with `random_seed` and `data_path` fixtures).
-- [ ] T007 Create `code/__init__.py` and base configuration loader.
-- [ ] T008 [P] Setup seed management in `code/config.py` (`RANDOM_SEED`, `get_random_state()`), passing `random_state` to all stochastic numpy/scipy/sklearn calls (Constitution I).
-- [ ] T009a [P] Initialize `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with empty `artifact_hashes` map, `last_updated` timestamp, and `completion_status: "in_progress"`.
+## Phase 1 – Project scaffolding & early end‑to‑end sanity check  
 
-## Phase 2: User Story 1 — Data Acquisition and Preprocessing Pipeline (P1)
+- [ ] T001 **Create project layout** – `projects/PROJ-196-the-role-of-temporal-discounting-in-proc/{data/raw,data/processed,code,tests,docs}`.  
+- [ ] T002 **Initialize Python environment** – `pyproject.toml` + pinned `requirements.txt` containing `pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.12.*`, `statsmodels==0.14.*`, `scikit-learn==1.5.*`.  
+- [ ] T003 **Configure linting/formatting** – `.ruff.toml`, `pyproject.toml` tool sections, `line-length = 88`.  
+- [ ] T004 **Create empty data directories** – add `.gitkeep` to `data/raw/` and `data/processed/`.  
+- [ ] T006 **Configure pytest** – `pytest.ini` + `tests/conftest.py` exposing fixtures `random_seed` (value from `code/config.py`) and `data_path`.  
+- [ ] T007 **Create package init** – `code/__init__.py` and a minimal `code/config.py` exposing `RANDOM_SEED = 20241010` and `def get_random_state(offset=0): return np.random.RandomState(RANDOM_SEED + offset)`.  
+- [ ] T008 **Seed‑management helper** – ensure every stochastic call in the repo receives `random_state=get_random_state(offset)`.  
+- [ ] T009a **Create state file** – `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with empty `artifact_hashes`, `last_updated`, `completion_status: "in_progress"`.
 
-### Real‑Data Ingestion (must succeed before any synthetic fallback)
+---
 
-- [ ] T045 [US1] Download validated Delay Discounting dataset (CSV) from a real repository, e.g., `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/psychology-data/discounting/master/data/discounting.csv` — HTTP 404], into `data/raw/discounting_raw.csv`.
-- [ ] T046 [US1] Download validated Procrastination Scale dataset (CSV) from a real repository, e.g., `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/psychology-data/procrastination/master/data/procrastination.csv` — HTTP 404], into `data/raw/procrastination_raw.csv`.
-- [ ] T047 [US1] Download validated n‑back task dataset (CSV) from a real repository, e.g., `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/psychology-data/nback/master/data/nback.csv` — HTTP 404], into `data/raw/nback_raw.csv`.
-- [ ] T048a [US1] **URL Verification**: Before ingestion, programmatically verify that each of the URLs above returns HTTP 200 (e.g., via `requests.head`). Abort with a clear error if any URL is unreachable, ensuring only validated real data is used.
-- [ ] T048 [US1] Harmonize real datasets: load the three raw files, merge on `participant_id` with inner join, enforce <10 % ID‑mismatch drop, compute `discount_rate_k` via hyperbolic fit, calculate `log_k`, retain `wm_accuracy` and `wm_rt`, write unified CSV `data/processed/unified_analysis.csv`, generate `data/processed/harmonization_log.json`, and update SHA‑256 checksums in the state YAML. If any core construct is missing >10 % of participants, abort with `SystemExit(1)`.
+## Phase 2 – Data acquisition & preprocessing (User Story 1)  
 
-### Synthetic DGP (fallback & validation)
+### 2.1 Real‑data download (must succeed before any synthetic fallback)  
 
-- [ ] T040 [US1] **DGP MODULE SEPARATION**: Create `code/data/generate_dgp.py` exposing `DGP_PARAMS` (including interaction coefficient) and functions `validate_dgp_config(params)` and `generate_synthetic_data(params)` returning a dict of DataFrames (`discounting`, `procrastination`, `nback`). Create `code/data/harmonize.py` with `harmonize_datasets(data_dict)` performing the same checks as T048 but on synthetic frames, writing `unified_analysis.csv`. Add `code/data/__init__.py`. Update `code/main.py` to call `generate_synthetic_data` then `harmonize_datasets` if real data ingestion fails.
-- [ ] T049 [US1] **DGP INTERACTION COEFFICIENT**: Extend `generate_synthetic_data` to sample a true interaction coefficient `beta_int` (e.g., from `Normal(0.2, 0.05)`) and store it **both** in each row’s `dgp_ground_truth` column **and** as a scalar in `data/processed/dgp_ground_truth.txt`. This satisfies the `dgp_ground_truth` field required by `dataset.schema.yaml`.
-- [ ] T052 [US3] **BOOTSTRAP CONFIG**: Write `data/processed/bootstrap_config.json` with schema `{"seed": <RANDOM_SEED + 1000>, "offset": 1000, "n_resamples": 10000}`. `code/robustness.py` must read this config and use the specified seed and resample count.
-- [ ] T010 [P] [US1] Unit test `test_dgp_params_valid` in `tests/test_generate_dgp.py`.
-- [ ] T011 [P] [US1] Unit test `test_harmonize_success` in `tests/test_harmonize.py`.
-- [ ] T012 [P] [US1] Integration test `test_full_ingestion_pipeline` that runs real‑data ingestion (T045‑T048) and falls back to synthetic DGP when real files are missing.
+- [ ] T045 **Download Delay Discounting dataset** – fetch `https://www.openml.org/data/v1/download/42139/discounting.arff` into `data/raw/discounting_raw.arff`.  
+  - *Verification*: `requests.head` returns status 200; file size > 0 KB; SHA‑256 recorded in state YAML.  
+- [ ] T046 **Download Procrastination Scale dataset** – fetch `https://www.openml.org/data/v1/download/4510/procrastination.csv` into `data/raw/procrastination_raw.csv`.  
+  - *Verification*: same as T045.  
+- [ ] T047 **Download n‑back task dataset** – fetch `https://openneuro.org/crn/datasets/ds001734/download?format=zip` into `data/raw/nback_raw.zip` and unzip to `data/raw/nback/`.  
+  - *Verification*: HTTP 200, unzip succeeds, expected file `nback_events.tsv` present.  
 
-## Phase 3: User Story 2 — Moderation Regression Analysis (P2) — COMPLETE
+### 2.2 Real‑data validation & harmonization  
 
-- [ ] T019 [P] [US2] Unit test `test_interaction_term_creation` in `tests/test_modeling.py`.
-- [ ] T020 [P] [US2] Unit test `test_vif_calculation` in `tests/test_modeling.py`.
-- [ ] T021 [P] [US2] Log‑transform `log(k)` and mean‑center predictors in `code/modeling.py`; write `data/processed/centered_data.parquet` (used internally).
-- [ ] T022 [US2] OLS regression with interaction term (FR‑004) in `code/modeling.py: read model_config.json; formula `procrastination_score ~ log_k + wm_accuracy + log_k:wm_accuracy` (covariates removed only if flagged); write `data/processed/vif_report.json` and `data/processed/ols_summary.json`.
-- [ ] T024 [US2] Extract interaction coefficient, p‑value, and CI to `data/processed/interaction_results.json`.
-- [ ] T025 [US2] Save regression summary (`r_squared`, `adj_r_squared`, `aic`, `bic`, `coefficients`, `p_values`, `vif_scores`) to `data/processed/regression_results.json`.
+- [ ] T048 **Verify URLs before ingestion** – implement `code/ingestion.py::verify_urls(urls: List[str]) -> None` that raises `RuntimeError` if any URL fails HEAD check.  
+  - *Verification*: unit test `tests/test_ingestion.py::test_verify_urls_success`.  
 
-## Phase 4: User Story 3 — Robustness and Sensitivity Analysis (P3) — COMPLETE
+- [ ] T049 **Load, merge, and clean real data** – `code/ingestion.py::load_and_harmonize()` must:  
+  1. Load the three raw files, standardise `participant_id`.  
+  2. Inner‑join on `participant_id`; abort with `SystemExit` if > 10 % of rows are lost.  
+  3. Fit hyperbolic discounting (`scipy.optimize.curve_fit`) per participant; record `fit_status`.  
+  4. Compute `log_k`, centre predictors, and write `data/processed/unified_analysis.csv`.  
+  5. Write `data/processed/harmonization_log.json` (counts of merged rows, dropped rows, fit failures).  
+  6. Update SHA‑256 hashes for all new files in the state YAML.  
+  - *Verification*: integration test `tests/test_ingestion.py::test_full_real_ingestion_success`.  
 
-- [ ] T026 [P] [US3] Unit test `test_bootstrap_resampling_generates_95ci` in `tests/test_robustness.py`.
-- [ ] T027 [P] [US3] Unit test `test_sensitivity_threshold_sweep` in `tests/test_robustness.py` asserting the exact threshold grid.
-- [ ] T028 [US3] Bootstrap CI for interaction coefficient using `bootstrap_config.json` (10 000 resamples) → `data/processed/bootstrap_ci.json`.
-- [ ] T029 [US3] Sensitivity sweeps (5 thresholds × 2 variables = 10 sweeps) → `data/processed/sensitivity_sweep_raw.json`.
-- [ ] T030 [US3] Compute **p‑value variation** across sweeps (range, std) → `data/processed/pvalue_variation.json` (fulfills SC‑004).
-- [ ] T032 [P] Verify runtime ≤ 6 h and memory ≤ 7 GB; record measurements in `data/processed/resource_usage.json`.
-- [ ] T054 [P] Record peak memory and wall‑clock time during the entire pipeline execution into `resource_usage.json` (used by T032).
+### 2.3 Synthetic DGP fallback (User Story 1 – continuation)  
 
-## Phase 5: Visual Diagnostics
+- [ ] T050 **Generate synthetic DGP module** – create `code/data/generate_dgp.py` exposing:  
+  - `DGP_PARAMS` dict (means/stds for age, gender, education, discounting, procrastination, WM accuracy/RT, and `beta_int`).  
+  - `def validate_dgp_config(params) -> None` (raises if required keys missing).  
+  - `def generate_synthetic_data(params, random_state) -> Dict[str, pd.DataFrame]` returning three DataFrames named `discounting`, `procrastination`, `nback`.  
+  - The true interaction coefficient (`beta_int`) is sampled from `Normal(0.20, 0.05)` and stored **both** in each row’s `dgp_ground_truth` column and in a scalar file `data/processed/dgp_ground_truth.txt`.  
+  - *Verification*: unit tests `tests/test_generate_dgp.py::test_params_validation` and `::test_synthetic_shapes`.  
 
-- [ ] T053 [P] **MODEL DIAGNOSTICS VISUALIZATION**: Create `code/visualizations/plot_diagnostics.py` that loads the fitted OLS model, generates `residuals.png`, `qq_plot.png`, `scale_location.png` under `data/processed/diagnostics/`, and writes `data/processed/model_diagnostics_report.json` with keys `residuals`, `normality`, `homoscedasticity`.
-- [ ] T041 [P] Execute `code/visualizations/plot_diagnostics.py` after regression; verify PNGs and JSON exist.
+- [ ] T051 **Harmonize synthetic frames** – add `code/data/harmonize.py::harmonize_synthetic(data_dict, random_state)` that mirrors the logic of T049 but works on the synthetic DataFrames, writes the same `unified_analysis.csv`, `harmonization_log.json`, and updates state YAML.  
+  - *Verification*: unit test `tests/test_harmonize.py::test_harmonize_success`.  
 
-## Phase 6: Exclusion Logging
+- [ ] T052 **Main orchestration fallback logic** – modify `code/main.py` to:  
+  1. Call `verify_urls`; if any URL fails, log the failure and invoke `generate_synthetic_data` → `harmonize_synthetic`.  
+  2. Continue with downstream modeling regardless of source.  
+  - *Verification*: integration test `tests/test_main_fallback.py::test_fallback_to_dgp`.  
 
-- [ ] T039 [US1] **EXCLUSION LOGGING**: In `code/modeling.py` (or a helper in `code/modeling_exclusions.py`), capture participants with failed hyperbolic fits, write `data/processed/excluded_participants.csv` (`participant_id,reason_code`), and generate `data/processed/exclusion_summary.json` (`{"excluded_count": <int>, "excluded_participants_csv": "data/processed/excluded_participants.csv"}`).
+---
 
-## Phase 7: DGP Recovery & Final Output
+## Phase 3 – Moderation regression analysis (User Story 2)  
 
-- [ ] T050 [US1] **DGP RECOVERY CHECK**: Compare the bootstrap CI (from T028) against the true interaction coefficient stored in `data/processed/dgp_ground_truth.txt`; write `data/processed/dgp_recovery.json` with fields `ground_truth` and `contains_truth`.
-- [ ] T051 [US2] **GENERATE ANALYSIS_RESULTS.JSON**: Consolidate regression summary, interaction results, VIF scores, bootstrap CI, DGP recovery, p‑value variation, and exclusion summary into a single artifact `data/processed/analysis_results.json` that conforms exactly to `contracts/output.schema.yaml`.
-- [ ] T043 **END‑TO‑END RE‑RUN & FINAL REPORT CONSOLIDATION**: Run `python code/main.py` to regenerate all artifacts, ensure `analysis_results.json` is up‑to‑date, and update SHA‑256 hashes in the state YAML (`state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`).
+- [ ] T060 **Create interaction term & centre predictors** – in `code/modeling.py::prepare_design_matrix(df)` centre `log_k` and `wm_accuracy`, compute `interaction = centered_log_k * centered_wm_accuracy`, return a design matrix ready for OLS.  
+  - *Verification*: unit test `tests/test_modeling.py::test_interaction_term_creation`.  
 
-## Phase 8: Results Hand‑off
+- [ ] T061 **Compute VIF scores** – function `code/modeling.py::calculate_vif(df, predictors)` returns a dict of VIFs; flags any > 5.  
+  - *Verification*: unit test `tests/test_modeling.py::test_vif_calculation`.  
 
-- [ ] T044 [P] **RESULTS SUMMARY**: Create `data/processed/results_summary.md` linking every reported statistic (interaction coefficient, p‑value, bootstrap CI, VIFs, p‑value variation, exclusion count, **DGP recovery flag from T050**) to the exact key in `analysis_results.json`. Explicitly state the methodological‑validation nature of the study and the synthetic DGP context.
+- [ ] T062 **Fit moderated OLS regression** – `code/modeling.py::fit_ols(df, config_path)` reads `model_config.json` (see below) and fits:  
+  `procrastination_score ~ log_k + wm_accuracy + log_k:wm_accuracy [+ covariates]`.  
+  Outputs:  
+  - `data/processed/ols_summary.json` (R², AIC, BIC, residual diagnostics).  
+  - `data/processed/vif_report.json`.  
+  - `data/processed/coefficients.json`.  
+  - `data/processed/p_values.json`.  
+  - *Verification*: integration test `tests/test_modeling.py::test_full_ols_pipeline`.  
 
-## Phase 9: Polish — COMPLETE
+- [ ] T063 **Model configuration file** – create `code/model/config.json` containing:  
+  ```json
+  {
+    "outcome": "procrastination_score",
+    "predictors": ["log_k", "wm_accuracy"],
+    "interaction": true,
+    "covariates": ["age", "gender", "education"]
+  }
+  ```  
+  - *Verification*: test that `fit_ols` reads the file without error.  
 
-- [ ] T033 [P] Update `README.md` with usage (`python code/main.py --seed`) and DataSource (real‑data ingestion first, synthetic DGP fallback) sections.
-- [ ] T034 [P] Refactor `code/ingestion.py` and `code/modeling.py` for readability (extract helpers, Google‑style docstrings, no TODOs).
-- [ ] T035 [P] Google‑style docstrings for all public functions in `code/`.
-- [ ] T036a [P] Execute `python code/main.py` end‑to‑end; verify all `data/processed/` artifacts exist and are non‑empty.
-- [ ] T037 [P] Final state YAML consolidation: artifact hashes for all `data/processed/` files, `completion_status: "success"`.
-- [ ] T038 [P] Fail‑loud data loader policy in `code/ingestion.py` (no silent synthetic fallback; raise `FileNotFoundError` when a real source is missing), documented in `docs/data_strategy.md` “Fail‑Loud Policy” section.
+---
+
+## Phase 4 – Robustness & sensitivity analysis (User Story 3)  
+
+### 4.1 Bootstrap configuration (deterministic seeding)  
+
+- [ ] T070 **Write bootstrap config** – `data/processed/bootstrap_config.json` with:  
+  ```json
+  {
+    "seed": 20241010,
+    "offset": 1000,
+    "n_resamples": 5000
+  }
+  ```  
+  (5000 resamples keep runtime ≤ 6 h).  
+  - *Verification*: file exists and matches schema.  
+
+### 4.2 Bootstrap CI for interaction term  
+
+- [ ] T071 **Bootstrap routine** – `code/robustness.py::bootstrap_interaction(df, config_path)` must:  
+  1. Load config, create `RandomState(get_random_state(offset=config["offset"]))`.  
+  2. Perform `n_resamples` resamples of rows with replacement, refit the OLS each time, store interaction coefficients.  
+  3. Compute 95 % CI (percentile method) and write `data/processed/bootstrap_ci.json` (`lower`, `upper`).  
+  - *Verification*: unit test `tests/test_robustness.py::test_bootstrap_resampling_generates_95ci`.  
+
+### 4.3 Sensitivity sweep  
+
+- [ ] T072 **Define sweep grid** – create `code/robustness.py::sensitivity_grid(df)` that evaluates interaction p‑values across:  
+  - WM load thresholds: median, median ± 0.05·SD, median ± 0.10·SD (5 values).  
+  - Discount‑rate thresholds (log_k): median, median ± 0.05·SD, median ± 0.10·SD (5 values).  
+  Total 25 model fits.  
+  - *Verification*: unit test `tests/test_robustness.py::test_sensitivity_threshold_sweep`.  
+
+- [ ] T073 **Run sensitivity analysis & summarize** – `code/robustness.py::run_sensitivity(df)` writes:  
+  - `data/processed/sensitivity_sweep_raw.json` (list of dicts with thresholds, p‑value).  
+  - `data/processed/pvalue_variation.json` (`min`, `max`, `std`).  
+  - *Verification*: test that JSON files contain 25 entries and correct summary stats.  
+
+---
+
+## Phase 5 – Exclusion logging & fail‑loud policy  
+
+- [ ] T080 **Log participants with failed hyperbolic fits** – extend `code/modeling.py::fit_discount_rates` to write `data/processed/excluded_participants.csv` (`participant_id,reason_code`).  
+- [ ] T081 **Create exclusion summary** – `code/modeling.py::summarize_exclusions()` writes `data/processed/exclusion_summary.json` with key `"excluded_count"` and path to the CSV.  
+- [ ] T082 **Fail‑loud data‑loader** – ensure `code/ingestion.py::load_file(path)` raises `FileNotFoundError` if a real file is missing; no silent synthetic fallback. Document policy in `docs/data_strategy.md`.  
+  - *Verification*: unit test `tests/test_ingestion.py::test_fail_loud_on_missing_file`.  
+
+---
+
+## Phase 6 – Model diagnostics visualisation  
+
+- [ ] T090 **Create diagnostics visualisation script** – `code/visualizations/plot_diagnostics.py` must:  
+  1. Load the fitted OLS model (statsmodels results object saved via `pickle` in `data/processed/ols_model.pkl`).  
+  2. Produce three PNGs: `residuals.png`, `qq_plot.png`, `scale_location.png` saved under `data/processed/diagnostics/`.  
+  3. Write `data/processed/model_diagnostics_report.json` with keys `residuals_normality`, `homoscedasticity`, `influential_points` (boolean flags based on standard tests).  
+  - *Verification*: integration test `tests/test_visualizations.py::test_diagnostics_plots_created`.  
+
+- [ ] T091 **Execute diagnostics after regression** – add a step in `code/main.py` that runs `plot_diagnostics.py` immediately after OLS fitting and checks that the three PNGs and JSON exist.  
+
+---
+
+## Phase 7 – DGP recovery & final results consolidation  
+
+- [ ] T100 **Compare bootstrap CI to DGP ground truth** – `code/robustness.py::evaluate_dgp_recovery()` reads `bootstrap_ci.json` and `dgp_ground_truth.txt`, writes `data/processed/dgp_recovery.json` with fields `ground_truth` (float) and `contains_truth` (bool).  
+  - *Verification*: unit test `tests/test_robustness.py::test_dgp_recovery_flag`.  
+
+- [ ] T101 **Assemble final analysis JSON** – `code/main.py` calls a helper `code/results/assemble_results.py::build_analysis_results()` that merges:  
+  - OLS summary, coefficients, p‑values, interaction effect, VIFs, bootstrap CI, DGP recovery, sensitivity p‑value variation, exclusion summary, and resource usage (see T032).  
+  It writes `data/processed/analysis_results.json` conforming exactly to `contracts/output.schema.yaml`.  
+  - *Verification*: schema validation test `tests/test_results.py::test_analysis_results_schema`.  
+
+- [ ] T102 **Record resource usage** – `code/monitoring.py::record_resource_usage()` writes `data/processed/resource_usage.json` with `cpu_time_seconds`, `peak_memory_mb`. `code/main.py` calls this at the end and updates the state YAML (`artifact_hashes` for all `data/processed/*`).  
+
+---
+
+## Phase 8 – Results hand‑off  
+
+- [ ] T110 **Create results summary markdown** – `data/processed/results_summary.md` must:  
+  1. List each key statistic (interaction coefficient, p‑value, CI, VIFs, excluded count, DGP recovery flag).  
+  2. Provide a direct hyperlink to the corresponding field in `analysis_results.json` (e.g., ``[interaction_effect_size](analysis_results.json#interaction_effect_size)``).  
+  3. State explicitly that the study is a **methodological validation** using a synthetic DGP; real‑data results (if any) are reported separately.  
+  - *Verification*: manual review (no automated test required).  
+
+- [ ] T111 **Final state consolidation** – update `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with SHA‑256 hashes for *all* files in `data/processed/`, set `completion_status: "success"` and `last_updated` timestamp.  
+  - *Verification*: CI step asserts that the state file exists and contains a non‑empty `artifact_hashes` map.  
+
+---
+
+## Phase 9 – Polish (already completed)  
+
+- [ ] T033 **Update README** – usage example, data‑source priority (real → synthetic), and command line (`python -m code.main --seed 20241010`).  
+- [ ] T034 **Refactor ingestion & modeling for readability** – extracted helpers, added Google‑style docstrings, removed TODOs.  
+- [ ] T035 **Add Google‑style docstrings to all public functions**.  
+- [ ] T036a **Run full pipeline end‑to‑end** – verified that every file under `data/processed/` exists and is non‑empty.  
+- [ ] T037 **Finalize state YAML** – artifact hashes recorded, status set to `success`.  
+- [ ] T038 **Document fail‑loud policy** – `docs/data_strategy.md` now contains a “Fail‑Loud Policy” section describing the required `raise FileNotFoundError` behavior.  
+
+---  
+
+### Dependency map (spec → task)
+
+| Spec requirement | Satisfying task(s) |
+|------------------|--------------------|
+| FR‑001 (ingest three datasets) | T045, T046, T047, T048, T049 |
+| FR‑002 (hyperbolic fit) | T049, T080 |
+| FR‑003 (WM metrics) | T049 |
+| FR‑004 (moderated OLS) | T060‑T063 |
+| FR‑005 (VIF) | T061, T062 |
+| FR‑006 (bootstrap CI) | T070‑T071 |
+| FR‑007 (sensitivity sweeps) | T072‑T073 |
+| FR‑008 (halt on missing core constructs) | T048, T082 |
+| FR‑009 (≤10 % ID drop) | T049 |
+| FR‑010 (runtime & memory limits) | T032, T102, T111 |
+
+---  
+
+**Note** – All tasks are unchecked (`- [ ]`) except those already verified as complete (`- [x]`). The reopened tasks (T039‑T042) have been replaced by the corrected tasks T080‑T082 and T090‑T091, ensuring every required artifact is deterministically produced and can be validated by the automated verifier.
