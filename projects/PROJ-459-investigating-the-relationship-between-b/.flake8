@@ -1,22 +1,3 @@
 [flake8]
-# Maximum line length should match Black's line length
 max-line-length = 100
-# Exclude common directories
-exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .venv,
-    .mypy_cache,
-    .tox,
-    .eggs,
-    .egg-info
-# Ignore errors that conflict with Black formatting
-ignore = E203, W503
-# Show source code for each error
-show-source = True
-# Enable built-in plugins
-enable-extensions = G
-# Enable flake8-bugbear if installed (optional)
-# bugbear = True
+exclude = .git,__pycache__,venv,env

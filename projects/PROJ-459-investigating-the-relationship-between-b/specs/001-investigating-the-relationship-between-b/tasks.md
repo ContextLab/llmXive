@@ -8,12 +8,12 @@
 ## Phase 1: Setup and Foundational Infrastructure (COMPLETE)
 
 - [X] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `state/`). Execute: `mkdir -p code/data code/analysis code/utils tests/contract tests/integration tests/unit data/raw data/processed data/derived state/projects`.
-- [ ] T002 Initialize Python project with `requirements.txt` containing pinned versions: `nibabel==5.2.0`, `networkx==3.2.1`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `scipy==1.11.4`, `pyyaml==6.0.1`, `pytest==7.4.3`, `statsmodels==0.14.0`.
+- [X] T002 Initialize Python project with `requirements.txt` containing pinned versions: `nibabel==5.2.0`, `networkx==3.2.1`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `scipy==1.11.4`, `pyyaml==6.0.1`, `pytest==7.4.3`, `statsmodels==0.14.0`.
 - [ ] T003 [P] Configure linting and formatting tools (`.flake8`, `pyproject.toml` black config). Verification: `black --check .` and `flake8 code/`.
 - [X] T004 Create `code/config.py` with paths, hyperparameters (window sizes, TRs), and dataset IDs (`ds000030`, `ds000208`), with a mechanism to switch dataset IDs if validation fails.
-- [ ] T005 [P] Implement `code/utils/atlas.py`: `load_atlas()` and `map_to_yeo()` mapping Schaefer‑400 ROIs to Yeo 7‑network parcellation (DMN=7, Auditory=4, Salience=2).
-- [ ] T006 [P] Implement `code/utils/io.py`: `compute_checksum()`, `save_parquet()`, `load_json()`.
-- [ ] T007 Create data models in `code/data/models.py` (Pydantic): `Subject`, `TimeSeries`, `NetworkMetric`, `CorrelationResult`, `SensitivityReport`.
+- [X] T005 [P] Implement `code/utils/atlas.py`: `load_atlas()` and `map_to_yeo()` mapping Schaefer‑400 ROIs to Yeo 7‑network parcellation (DMN=7, Auditory=4, Salience=2).
+- [X] T006 [P] Implement `code/utils/io.py`: `compute_checksum()`, `save_parquet()`, `load_json()`.
+- [X] T007 Create data models in `code/data/models.py` (Pydantic): `Subject`, `TimeSeries`, `NetworkMetric`, `CorrelationResult`, `SensitivityReport`.
 - [ ] T008 [P] Implement `code/utils/docker.py`: `validate_docker_daemon()` and `check_fmriprep_image()`.
 - [ ] T009 [P] Environment configuration for memory limits and runtime monitoring: `check_memory_limit()` in `code/config.py`, `monitor_runtime_and_warn()` in `code/utils/io.py`. Monitoring and warnings only; no hard runtime cap (now enforced by T084).
 

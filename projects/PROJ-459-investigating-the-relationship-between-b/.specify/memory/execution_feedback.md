@@ -67,43 +67,40 @@ Traceback (most recent call last):
 NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 
 - python -m pytest tests/contract/ -> rc=2
-================================ ERRORS ====================================
-___________ ERROR collecting tests/contract/test_data_validation.py ____________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/tests/contract/test_data_validation.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/contract/test_data_validation.py:13: in <module>
-    from data.validate import check_behavioral_variables, DataValidationError
-E   ImportError: cannot import name 'check_behavioral_variables' from 'data.validate' (/home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/data/validate.py)
+igrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    @validator("r")
+
+code/data/models.py:154
+  /home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/data/models.py:154: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    @validator("p_raw", "p_adj")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/contract/test_data_validation.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.60s ===============================
+ERROR tests/contract/test_metric_schema.py - pydantic.errors.PydanticUserErro...
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 7 warnings, 2 errors in 0.49s =========================
 
 
 - python -m pytest tests/unit/ -> rc=2
-.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_stats_null_validation.py:4: in <module>
-    from analysis.stats import run_null_distribution_validation
-code/analysis/stats.py:3: in <module>
-    from scipy.stats import spearmanr, power
-E   ImportError: cannot import name 'power' from 'scipy.stats' (/home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/.venv/lib/python3.11/site-packages/scipy/stats/__init__.py)
+dev/2.14/migration/
+    @validator("r")
+
+code/data/models.py:154
+  /home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/data/models.py:154: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    @validator("p_raw", "p_adj")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/unit/test_atlas.py
 ERROR tests/unit/test_config.py
 ERROR tests/unit/test_download.py
 ERROR tests/unit/test_linting_config.py
 ERROR tests/unit/test_metrics.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_sensitivity_report.py - pydantic.errors.PydanticUserErr...
 ERROR tests/unit/test_stats.py
 ERROR tests/unit/test_stats_null_validation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 0.84s ===============================
+======================== 7 warnings, 7 errors in 0.72s =========================
 
 
 

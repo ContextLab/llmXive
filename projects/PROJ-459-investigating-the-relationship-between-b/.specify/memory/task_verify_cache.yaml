@@ -8,14 +8,13 @@ T001:
     run.
   sig: 3f171c92e99ead34baba4297d512baa2ec9d0b2e777bfd2757603b76967311f9
 T002:
-  c: false
-  h: 37e3a166013a0e2558abeaf235dfb004f5c5f50cb876d489d767fd8ab1b32382
-  r: "The provided `requirements.txt` does include the nine required pinned packages,\
-    \ but it also contains a stray line (`pi`), duplicate/unpinned entries (e.g.,\
-    \ `networkx` without version), and a long list of unrelated packages, so it does\
-    \ not match the task\u2019s specification of a clean requirements file containing\
-    \ only the specified pinned versions."
-  sig: 319ba3cac49aada42eb822bf82ed108b8b7622f1d7596eaa51c8f8211647e456
+  c: true
+  h: 9e46fad8985517956570768823f0e735e80cdc7be17e5ae546f64d91caa9927e
+  r: "The `requirements.txt` file was found at `projects/PROJ-459-investigating-the-relationship-between-b/requirements.txt`\
+    \ (141\u202Fbytes) and contains exactly the pinned package versions specified\
+    \ in the task. Its content matches the required list with no missing or extra\
+    \ entries."
+  sig: 3d8a2e335c2aa6829a73d958783618ceefcd40dc8f8b48d621b31b860098f1fb
 T003:
   c: false
   h: b80833617971e190bed5721034c33e0f44ce9567325dc567af8f59c95fa68256
@@ -32,3 +31,28 @@ T004:
     \ `ds000030` and `ds000208`, and provides functions `set_active_dataset_id` and\
     \ `switch_dataset_on_failure` to change the active dataset when validation fails."
   sig: 55b35dc3c5c02518fa2d344c488ffa93b3320900d38b802083cd23658e669c4f
+T005:
+  c: true
+  h: 3bbdcd79af447af5a84846b85c174c3af1f982d19f27101b0c5aed9db78aebd6
+  r: "Checked `code/utils/atlas.py` (5481\u202Fbytes) which defines `load_atlas()`\
+    \ that reads the Schaefer\u2011400 NIfTI image and label file, and `map_to_yeo()`\
+    \ that translates ROI IDs to Yeo network IDs using the required mapping (DMN\u202F\
+    \u2192\u202F7, Auditory\u202F\u2192\u202F4, Salience\u202F\u2192\u202F2). Both\
+    \ functions are fully implemented and non\u2011placeholder."
+  sig: 3a97c53037c8cb2f6a11f610d21dcdb1751b073982359219dd5c9da2a92f6bff
+T006:
+  c: true
+  h: 794e8bef2168423c36963c8187a559a447c0f577473183a31933259312c1a6c8
+  r: "Checked the provided `code/utils/io.py` (4792\u202Fbytes) and confirmed that\
+    \ it defines the three required functions\u2014`compute_checksum()`, `save_parquet()`,\
+    \ and `load_json()`\u2014with correct signatures and functional implementations\
+    \ that meet the specification."
+  sig: c6b98b8f660109592f91698e77bd8ce3162178cc7acd38d99070aae12ed4cab3
+T007:
+  c: true
+  h: cd7167d2ca4c0784cbd8d35859e328aafd5c59dd3174c04493ba3a38a27001ed
+  r: "Checked `code/data/models.py` (6762\u202Fbytes) and confirmed it defines the\
+    \ five required Pydantic models \u2013 `Subject`, `TimeSeries`, `NetworkMetric`,\
+    \ `CorrelationResult`, and `SensitivityReport` \u2013 with appropriate fields\
+    \ and validation, matching the task specification."
+  sig: f5782427653cb605f681f33806e63bcfb968c4a03c39d7af3cec744615dfe74f

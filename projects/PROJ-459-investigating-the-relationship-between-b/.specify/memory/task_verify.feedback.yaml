@@ -1,11 +1,6 @@
 T001:
   task: 92c4e3e6257b707d80ef84761978b03dec2759d32180f9c1fadcee7573ed9556
 T002:
-  reason: "The provided `requirements.txt` does include the nine required pinned packages,\
-    \ but it also contains a stray line (`pi`), duplicate/unpinned entries (e.g.,\
-    \ `networkx` without version), and a long list of unrelated packages, so it does\
-    \ not match the task\u2019s specification of a clean requirements file containing\
-    \ only the specified pinned versions."
   task: 92762ac6e8d587f34f43a922510caa58db19d03f94c8ccafda66166b0e984f7b
 T003:
   reason: The repository contains a valid `pyproject.toml` with Black configuration,
