@@ -1,6 +1,10 @@
-T025:
+T001:
   c: false
-  h: 16460ea609215694479187e03c3eec032c347552d4902aa01190bf4f29bd59e9
-  r: "The required file `src/model/derive_groups.py` does not exist, so no code implementing\
-    \ the \u201CAlloy System\u201D grouping key is present. The task cannot be considered\
-    \ fulfilled until this module is created with the appropriate logic."
+  h: 6e27d1684e07f6c18c5e5b2fbf3f1de3350e3fd3029560739298d93e2da1baf3
+  r: The scaffold directories, requirements.txt (with all listed packages), seeds.py,
+    and quickstart.md (showing the entry command) are present, but there is no evidence
+    that `pip install -r code/requirements.txt` actually succeeded, nor any proof
+    that `pytest code/tests/` runs and collects the required unit tests (e.g., test_normalization.py,
+    test_coda.py, test_bootstrap.py, test_fdr.py). The specific test files are not
+    shown in the provided artifact list.
+  sig: a954c17b5ca27498565b0e0007c4edec79ea2a94e3cc3dd4f7b9fd09bd58d310

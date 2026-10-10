@@ -1,0 +1,48 @@
+T001:
+  reason: The scaffold directories, requirements.txt (with all listed packages), seeds.py,
+    and quickstart.md (showing the entry command) are present, but there is no evidence
+    that `pip install -r code/requirements.txt` actually succeeded, nor any proof
+    that `pytest code/tests/` runs and collects the required unit tests (e.g., test_normalization.py,
+    test_coda.py, test_bootstrap.py, test_fdr.py). The specific test files are not
+    shown in the provided artifact list.
+  task: 8a10b10494db877c36bf8260d3e025603408eb8afdc0c9f0e7c2b9732b8b2770
+T002:
+  task: 71a9d36b8235dcf256db2d89887a4f2d5903d202a9ef8dc2a3d3cb213b9cc0ad
+T003:
+  task: a11e4eecfbf7b353e7aaea4fd7a50c3a28e01eccf1a518a682f319dd333e24d1
+T004:
+  task: cc7c24a51ee8a2d11902da843d306e3a473ed930e6b856c8c734c5dd62fc63db
+T005:
+  task: fc6c9096cc3f571d6cb30cb72c1bad2bb1862ca9ea32e210a28c7e9cd78c2edf
+T006:
+  task: f89d4620f12812ff4811a13a7c0a06552368197846dd36bed7d26753f5d3f8f2
+T007:
+  task: 7d9fbb2ec4708d27e905c8d4105652a22934b7e26db6747a60cb60405539f6e2
+T008:
+  task: 530a2e66d478b0ef7a47dd2d89b56f5b0f334d0b3defad3899e7325dafe1e4dc
+T009:
+  task: 02f715b9119e6ef8dbfa65a3eebce0bdb875db657c427f67ed89ce7cc8ba3b09
+T010:
+  task: 9f91d1d98cd1105f996160ce37f65aaaae2cc4edd7b27f8854cbfdca760074d9
+T011:
+  task: 0a9c8aa6e2e9025803c1fd2182e19fccfc6276330fce62eb0f7a8d8e3e3eaa2f
+T012:
+  task: f36f5f7ef905db575560abd715a93f1cb905ac66e981fc2701b4dbe11caf9a21
+T013:
+  task: 09c664f087bec36493c13c282d50811e4c85d315cf967b0642665b13a32ea0f6
+T014:
+  task: 24424c52e3f04ce3009074c7234d8cde54be071eb896d6c901c2129fd6b869d1
+T015:
+  task: 37ebc72e79722e42b48a20633a9e6d2693baf83294ef6fd194bf0624c448693b
+T016:
+  task: 24b123c07b785ae208c252389bb81a74d9870617c0bdf25ed10644bde91bfe4c
+T017:
+  task: 1d4aa6555eaa0a172e966f6acc1286a5cfbcaa9cedf19ad8377ab0dcb854f1bf
+T018:
+  task: b3d83a1ac05718b7c2b56bfbedc35e94839886e00d612f61fefb52d7d9e56fec
+T019:
+  task: e81dd5f8b8e1e0f1901d77b5f267489425e3c835d4d327fa1fa9501b7641bec8
+T020:
+  task: 7effdcbf7bf72e4e73013c132aca292d222c0db5b64d6cbd2ff732f90ec3145e
+T021:
+  task: 9725e245ce8684d69c39dcd9d75718c11862838a36d07be2905aa73c496f0777

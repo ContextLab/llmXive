@@ -10,6 +10,9 @@ pyyaml>=6.0
 
 # Materials Science Specific
 pymatgen>=2023.0.0
+mp-api>=0.39.2
+compositional>=0.4.1
+matplotlib>=3.8
 
 # Explainability
 shap>=0.44
