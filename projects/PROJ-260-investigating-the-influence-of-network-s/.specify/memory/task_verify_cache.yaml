@@ -1,3 +1,36 @@
+T001:
+  c: true
+  h: 0392e65b7fc68868571e2d664b053c6e9cfd5042b4c42201010a91d29685712f
+  r: Checked that the seven required directories exist and that `docs/design/data_tree.txt`
+    lists each of them on a separate line, matching the task specification. The creation
+    script log confirms the file was generated.
+  sig: a4c0f41255c286e40f0e5c21d9633387097be7f5dc856d89f4f52aafc19e04c8
+T002:
+  c: true
+  h: a17fdad6cfbd74d5e3bf92f074751fc4180fbf5d7f9c85f9be4c25303a45fbd9
+  r: The `outputs/`, `outputs/figures/`, and `outputs/reports/` directories exist,
+    and `docs/design/output_tree.txt` contains the three folder paths exactly as required.
+    The execution log confirms the script created the hierarchy and wrote the tree
+    file.
+  sig: c0cfd2175a4505dd0e73c6d60d77369436aee21aba73ddde7213c8b16094ab66
+T003:
+  c: false
+  h: 28bba1d615fcde59914fafeea7584d3f46fbe58e7be08ee1979cddede2028c5a
+  r: "The provided `requirements.txt` lists the required packages but uses \u201C\
+    >=\u201D version specifiers instead of exact pins and adds many extra dependencies;\
+    \ there is no evidence that `pip install -r requirements.txt` was run successfully\
+    \ without conflicts. To satisfy the task, the file must pin exact versions for\
+    \ the listed packages (e.g., `numpy==1.24.0`) and include verification that installation\
+    \ completes cleanly."
+  sig: f81ead460e3dc77884ea994108e9ec85cb462a12fb85fa8f7a6a3d25fbe60d44
+T004:
+  c: false
+  h: d1c13a32676b8cc7cbff6bee2bdb217eb9a1549411a0210ac230b9eac3a8ba21
+  r: "The `ruff.toml` and `pyproject.toml` files exist and contain the required settings,\
+    \ but there is no provided evidence (e.g., command\u2011line output or logs) that\
+    \ `ruff check .` and `black --check .` were actually run and reported zero violations.\
+    \ Without that execution proof, the task\u2019s verification requirement is unmet."
+  sig: c0cfd3196600da50f47a478f34106409e14601d306ab7c09be95aca9e3296b44
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,24 +38,3 @@ T009:
     \ in `tests/unit/`, `tests/integration/`, or `tests/contract/`; thus the required\
     \ test package initialization files are missing. The implementer must add non\u2011\
     empty `__init__.py` files in each of those directories."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output files were presented that implement a loop\
-    \ ingesting data for the three required system sizes (N=1000, 2000, 4000) and\
-    \ aggregating the specified power metrics (FR\u2011006, Plan Scale/Scope). The\
-    \ evidence is missing, so the task is not satisfied."
-T055b:
-  c: false
-  h: f180ad411800e092b707190dde7a99240aae5cb987897564336b849da244f304
-  r: "The `src/services/registry_validator.py` file is truncated and ends mid\u2011\
-    statement, indicating the implementation is not finished. Moreover, the required\
-    \ `data/metadata/dataset_registry.json` file is missing entirely. Both the service\
-    \ code and the target JSON file are needed for the task to be considered complete."
-T059:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No manual reference calculation document or data for SC\u2011001 is present;\
-    \ the evidence provided contains only the feature specification and user stories,\
-    \ with no actual calculation output, file, or report. The required artifact is\
-    \ missing."

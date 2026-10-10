@@ -1,0 +1,77 @@
+T001:
+  task: cf16e1f9a601be1f8d3947ffd091899e736694fbbea79f9b0ef3c5ea13d511e7
+T002:
+  task: 91f528c5c0a6d22e585c05b53eb0fcda36d43ea1f2b4a792134f2f35ddce5910
+T003:
+  reason: "The provided `requirements.txt` lists the required packages but uses \u201C\
+    >=\u201D version specifiers instead of exact pins and adds many extra dependencies;\
+    \ there is no evidence that `pip install -r requirements.txt` was run successfully\
+    \ without conflicts. To satisfy the task, the file must pin exact versions for\
+    \ the listed packages (e.g., `numpy==1.24.0`) and include verification that installation\
+    \ completes cleanly."
+  task: b38e6e86cb2016c4ab9607c725eeecb29974a27818252fbd3002eee7a21a97c1
+T004:
+  reason: "The `ruff.toml` and `pyproject.toml` files exist and contain the required\
+    \ settings, but there is no provided evidence (e.g., command\u2011line output\
+    \ or logs) that `ruff check .` and `black --check .` were actually run and reported\
+    \ zero violations. Without that execution proof, the task\u2019s verification\
+    \ requirement is unmet."
+  task: e6e94e96ecd1e388b27bb5b51806e0c657e2f7584313211a18092c7604415b95
+T005:
+  task: 8dc79e58e0a451275b67401e3c9a9b261b2143aa080853fd41410557e0fb601f
+T006:
+  task: b1ab9edd8752ee2ff6463e7301496a5301481e8922c5ef3184bc49791b1d32ef
+T007:
+  task: ffc208af6382b0460d36701c187737620171febe6bf629e36a14074fc72f5c72
+T008:
+  task: 601834c5ce2317965759ddb7b75f884fddd82e044ddc58b3e2a01c16bd2fbe91
+T009:
+  task: 80b813a659e274cad51f93264a366534a758d5a8b5b2926c3c839434357a4efd
+T010:
+  task: 3a539b6151c282fcc0085146558cb210b0291224f44c34889e15753ef00b54c5
+T011:
+  task: 73e14d37631347a2f4e313a0913f933e91f8eb86126b977f51ab69dfaed5aa01
+T012:
+  task: 9fce0e6156bc0bbecbf1a4f244312bc8e570a2a1fe0576d299a08d814ee77c0c
+T013:
+  task: f6ba296d64849f75b390102cb7ddc78f1babfdfcec67fd8960721e051ebedb48
+T014:
+  task: ea4e03bf0b93482bc475120ce858349173ce53e5d588679da962b8e45e18de8f
+T015:
+  task: 32fe718a413c14dbe601252e12aaa327331fea5f23f4d1c963d0a966c0cc8faa
+T016:
+  task: 08288f6af5b51cbf42d8d7a39e7f97603adb58735b8187e25c500d94758e2fcc
+T017:
+  task: f6507b8f11501d4310bb5bc1f240da1693b61d5ac92800af7861c4dc16bc471e
+T018:
+  task: e1778133409dd1974242793f18249eb7323fd5359deda4e1f4073a45a0cec029
+T019:
+  task: aa463ce664719778daad8699f55164e3cba2cdbb949fe5e6c18c63a0022da7ea
+T020:
+  task: b0e511599abd26c79e7d1808ae78c9995a6666b47928e8552aac9b4d9dd7303d
+T021:
+  task: a451086eef3482e6324fdef04d201d3e1c4967db0c3da19c683a6a15af3136a8
+T022:
+  task: 08eda93f09e119befb0712ab329f1ae83dfa60383bd931a91b76d9548975d0c3
+T023:
+  task: a7b6b5c445ef22bc730a7ce5b71f79890802d2e04f4dc1936193e68912f582ff
+T024:
+  task: fedc6b4776f8fbca8c667820a137f8c2b34f4f37a84740bd566a7abcbf84361c
+T025:
+  task: b5b897cec9fac59255963b532309a2a077bb4f0b87aa5a5267c8120bfffdb181
+T026:
+  task: 562b72b6942bb62e1eeca903298b77382ff044e79f6f3a49aa37624b276b030a
+T027:
+  task: bcc8c7709433dc87764a87b249db21b6c75c59105829086a851d004bb436bd64
+T028:
+  task: 5d22cac6cb103ff98e5d348a03ed6251812a6fb02961240b9ee5395774d2e104
+T029:
+  task: 5b84f5637ae8adc93fe673bb36ec0204d74b3490887b1389fd8da21ac0d21e6f
+T030:
+  task: 52362082b505d6d2aa0f85973f4309659abb02116a268039016b90abefb3e3d7
+T031:
+  task: 579849b24c0108fa1cab19f72cfef35f000c9a508bf08f11c9bf2c3fdaa21a5f
+T032:
+  task: 9c0547d0817766f3a1a71dc25a03d4f0e3d6751f6e17d38b8e6c52a5d95e8a9c
+T036:
+  task: ed93df61da922ed133f303e1d506bb3eb70b0aeedaa3c6d8f3bd6bb86e86c15a

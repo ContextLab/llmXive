@@ -11,12 +11,12 @@ artifact paths and an explicit verification step.
 | Goal | Produce a reproducible directory layout, dependency list, and a runnable CLI that can be demonstrated on a tiny real dataset. |
 |------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] **T001**  Create the full data‑directory hierarchy  
+- [X] **T001**  Create the full data‑directory hierarchy  
   `data/raw/`, `data/derived/`, `data/derived/topology/`, `data/derived/vdos/`, `data/derived/reference/`, `data/derived/correlation/`, `data/metadata/`  
   and write a machine‑generated tree listing to `docs/design/data_tree.txt`.  
   **Verification**: `cat docs/design/data_tree.txt` must contain all seven directories (one per line).
 
-- [ ] **T002**  Create the output‑directory hierarchy `outputs/`, `outputs/figures/`, `outputs/reports/` and write its tree to `docs/design/output_tree.txt`.  
+- [X] **T002**  Create the output‑directory hierarchy `outputs/`, `outputs/figures/`, `outputs/reports/` and write its tree to `docs/design/output_tree.txt`.  
   **Verification**: `cat docs/design/output_tree.txt` must list the three output folders.
 
 - [ ] **T003**  Initialise a Python project with a pinned `requirements.txt` containing  

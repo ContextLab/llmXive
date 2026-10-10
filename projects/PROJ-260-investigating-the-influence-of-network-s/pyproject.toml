@@ -38,12 +38,12 @@ addopts = [
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
+target-version = ['py311']
+include = '\\.pyi?$'
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py311"
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
