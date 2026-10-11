@@ -20,7 +20,7 @@
 - [ ] T070-setup-dirs Create project directory hierarchy required for the pipeline.  
   Path: `projects/PROJ-080-phase-transitions-in-amorphous-solids-un/{data/raw,data/processed,code,tests/unit,tests/integration,specs/contracts}`  
 
-- [ ] T071-setup-schemas Create all required JSON‑Schema contract files (trajectory, output, precursor_metrics, analysis_results).  
+- [X] T071-setup-schemas Create all required JSON‑Schema contract files (trajectory, output, precursor_metrics, analysis_results).  
   Path: `specs/contracts/trajectory.schema.yaml`, `specs/contracts/output.schema.yaml`, `specs/contracts/precursor_metrics.schema.yaml`, `specs/contracts/analysis_results.schema.yaml`  
 
 - [ ] T001a-dirs‑verify Verify that the directory structure created by T070 exists.  

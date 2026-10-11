@@ -1,18 +1,3 @@
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No Python code or configuration file was provided that sets up a `logging` logger
-    with a file handler to capture warnings for indeterminate trajectories. The required
-    logging infrastructure artifact is missing, so the task is not satisfied.
-T010:
-  c: false
-  h: 03614756993ea2f75367d6ecc69fd6e1e5d8c6b73f50ac6f809ea9dab2b8d3be
-  r: "The repository contains a `code/data_loader.py` with helper functions for computing\
-    \ a SHA\u2011256 hash and writing artifact hashes, but the file is truncated and\
-    \ never shows these functions being invoked on a downloaded/generated file, nor\
-    \ is there any evidence of the required state file (`state/projects/PROJ-080-phase-transitions-in-amorphous-solids-un.yaml`)\
-    \ being created. The missing state file means the checksum result is not actually\
-    \ persisted, so the task\u2019s core requirement is not satisfied."
 T017:
   c: false
   h: 709c8f5b91c92b431da37f591d5f3712cd7f2ae3923b3b63f2610a54eb3da8af
@@ -28,3 +13,21 @@ T039:
     loading component that raises explicit exceptions on fetch failures or that disables\
     \ synthetic fallbacks. Consequently, the required \u201Cfail loud\u201D policy\
     \ is not demonstrated."
+T070-setup-dirs:
+  c: false
+  h: c6080443413714908950e649e4a7ce310938242073b994ef666a53875b4b6e86
+  r: "The log shows the setup script ran, but there is no concrete evidence that the\
+    \ required sub\u2011directories (`data/raw`, `data/processed`, `tests/unit`, `tests/integration`,\
+    \ `specs/contracts`) actually exist in the repository; the directory listing only\
+    \ shows the top\u2011level `data/`, `tests/`, and `specs/` folders without confirming\
+    \ those specific children. Add or show the presence of those exact paths."
+  sig: 2025a933709207ce8c6b5616942592784489e68ff7858c6e438f22198306e61a
+T071-setup-schemas:
+  c: true
+  h: df56dc67da1439a51f7c1f1ddfdb07ea70dfd699d33e06deb91118f32e28cac2
+  r: "Checked the four schema files listed in the task; each exists (non\u2011empty\
+    \ YAML files), is a valid JSON\u2011Schema draft\u201107 definition for trajectory,\
+    \ output, precursor_metrics, and analysis_results, and the collector maps the\
+    \ requested `specs/contracts/...` paths to these concrete files. All required\
+    \ contract files are present and correctly defined."
+  sig: d1614a0b9b270a820409aa2c127bb235fdb89165077d1db4d363016d4c9cb975

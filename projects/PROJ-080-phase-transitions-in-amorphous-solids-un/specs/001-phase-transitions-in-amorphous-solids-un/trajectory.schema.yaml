@@ -26,7 +26,7 @@ properties:
         type: integer
         minimum: 100
         maximum: 100000
-        description: Total number of particles in the system
+        description: Total number of particles
         error_message: "Particle count must be between 100 and 100,000. Exceeding 100k violates FR-006 memory constraints."
       box_dimensions:
         type: array
