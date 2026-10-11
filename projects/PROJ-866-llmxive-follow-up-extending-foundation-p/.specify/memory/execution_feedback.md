@@ -23,15 +23,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -v -> rc=2
-unit/test_vif_analysis.py'.
-Hint: make sure your test modules/packages have valid Python names.
+ake sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/unit/test_vif_analysis.py:14: in <module>
-    from analysis.tradeoff_model import (
-E   ImportError: cannot import name 'VIF_THRESHOLD' from 'analysis.tradeoff_model' (/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/code/analysis/tradeoff_model.py)
+tests/unit/test_state_registry.py:12: in <module>
+    from utils.update_state_registry import update_state_registry, compute_sha256, STATE_FILE, DATA_RAW_DIR
+E   ImportError: cannot import name 'STATE_FILE' from 'utils.update_state_registry' (/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/code/utils/update_state_registry.py)
 =========================== short test summary info ============================
 ERROR tests/security/test_network_isolation.py - NameError: name 'List' is no...
 ERROR tests/unit/test_finalize_state.py
@@ -39,9 +38,8 @@ ERROR tests/unit/test_pm4py_integration.py
 ERROR tests/unit/test_reproducibility.py
 ERROR tests/unit/test_state_manager.py
 ERROR tests/unit/test_state_registry.py
-ERROR tests/unit/test_vif_analysis.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 0.94s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 1.53s ===============================
 
 
 
@@ -78,3 +76,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/verify_data_consistency.py` — NOT invoked by the run-book
     - `code/utils/verify_invalid_workflow_exclusion.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/tradeoff_curve.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

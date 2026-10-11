@@ -1,18 +1,16 @@
 status: none
-intent: synthetic multi-agent workflow generator python package with delegation depth
-  policy constraints dataset
+intent: synthetic multi-agent workflow generation python package dataset for policy
+  compression study
 required_fields:
 - workflow_id
 - delegation_depth
-- policy_complexity_score
-- policy_constraints
+- policy_complexity
+- constraints
 - budget_cap
-- agent_roles
-- delegation_path
-- deterministic_seed
-- creation_timestamp
-- ground_truth_execution_log
+- metadata
+- ground_truth_log
+- execution_steps
 - policy_violations
-cache_key: e00268abfcc2481a96ad01eec46dd371043abec7fbcee6a7c7bdcaaf082b28b6
-searched_at: '2026-10-10T17:18:22.124868+00:00'
+cache_key: 3aae962c0cf26336ac4ca28646674f4918a93ccb2be686b608a0c2cb242ef06e
+searched_at: '2026-10-11T00:15:34.438286+00:00'
 retry_count: 1
