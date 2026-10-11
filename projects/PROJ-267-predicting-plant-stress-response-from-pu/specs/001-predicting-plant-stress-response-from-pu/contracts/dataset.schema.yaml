@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Unified Dataset Schema"
-description: "Schema for the processed unified matrix containing protein features and gene expression targets."
+description: "Schema for the processed unified matrix containing protein features and an aggregated gene expression target representing overall expression patterns."
 type: "object"
 properties:
   sample_id:
@@ -22,7 +22,7 @@ properties:
     description: "Plant species."
   target_gene_expression:
     type: "number"
-    description: "Normalized gene expression value (target)."
+    description: "Aggregated expression score (first principal component) representing gene‑expression patterns."
 additionalProperties:
   type: "number"
   description: "Dynamic protein feature columns matching the pattern ^protein_.*$"

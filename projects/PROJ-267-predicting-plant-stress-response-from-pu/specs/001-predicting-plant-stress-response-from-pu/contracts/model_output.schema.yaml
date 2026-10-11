@@ -8,5 +8,46 @@ properties:
     enum:
       - "RandomForestRegressor"
       - "SVR"
-    description: "Type of [  \  ]  \  \  \  \  \  "
-  **
+    description: "Type of regression model."
+  cv_strategy:
+    type: "string"
+    enum:
+      - "5-fold"
+      - "LOOCV"
+    description: "Cross‑validation strategy used."
+  train_stress:
+    type: "string"
+    enum:
+      - "Drought"
+      - "Salinity"
+      - "Heat"
+    description: "Stress condition used for training."
+  test_stress:
+    type: "string"
+    enum:
+      - "Drought"
+      - "Salinity"
+      - "Heat"
+    description: "Stress condition used for testing (may equal train_stress for within‑stress evaluation)."
+  r2:
+    type: "number"
+    description: "Coefficient of determination on the test set."
+  rmse:
+    type: "number"
+    description: "Root Mean Square error on the test set."
+  null_model_r2:
+    type: "number"
+    description: "R² of the null (mean) model."
+  shuffled_target_p:
+    type: "number"
+    description: "p‑value from the shuffled target control test (‑ shuffling the target value instead of the stress label)."
+required:
+  - "model_type"
+  - "cv_strategy"
+  - "train_stress"
+  - "test_stress"
+  - "r2"
+  - "rmse"
+  - "null_model_r2"
+  - "shuffled_target_p"
+additionalProperties: false
