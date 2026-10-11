@@ -91,6 +91,36 @@ are provided in the messages that follow.
    To rerun an existing script unchanged, include its `path`, `execute: true`, and
    `args`, and OMIT `contents`; the runtime preserves and executes the existing file.
 
+## Provided by the platform — use these, do not rewrite them
+
+Every project's Python environment already has, without declaring them:
+`numpy`, `pandas`, `scipy`, `matplotlib`, `scikit-learn`, `statsmodels`,
+`seaborn`, `pytest`, `PyYAML`, `requests`, `jsonschema`, `psutil`. Declare a
+package in `requirements.txt` only when it is NOT in that list, or when the
+analysis needs a specific version.
+
+Every project can also import `llmxive_toolkit`. It is already on the import
+path: do not add it to `requirements.txt`, and do not write a file with that name.
+
+```python
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)                    # optional: get_logger(__name__, log_file="logs/run.log")
+out = paths.data("results", "census.csv")     # <project>/data/results/census.csv; the folder now exists
+fig = paths.figures("tv_vs_n.png")            # <project>/figures/tv_vs_n.png
+root = paths.root                             # the project directory, whatever the working directory is
+```
+
+- `paths.data(...)`, `paths.figures(...)`, `paths.results(...)`, `paths.docs(...)`,
+  `paths.code(...)` and `paths.path(...)` return a `pathlib.Path` inside the project
+  and create the folder it lives in. They do not create the file.
+- So do NOT write directory-creation scripts, `ensure_dirs` helpers, a logging
+  module, or `sys.path` edits to find the project root. Do NOT create a file
+  named after a standard-library module (`logging.py`, `code.py`, `io.py`,
+  `types.py`, `json.py`): it replaces the real one for every script in the project.
+- The Python environment itself belongs to the platform. Never create, inspect,
+  scan or delete a virtual environment from project code or tests.
+
 ## Output format (STRICT)
 
 Output **YAML only** — no prose around it, no markdown fences. Top-level keys

@@ -1,0 +1,22 @@
+# Packages every project venv can import without declaring them.
+#
+# Chosen from the corpus, not from taste: each is imported by at least 15% of
+# the 790 projects with Python (numpy 735, pytest 715, pandas 616, scipy 536,
+# yaml 490, matplotlib 343, requests 295, sklearn 290, statsmodels 272,
+# psutil 192, jsonschema 132, seaborn 124). torch, datasets and transformers
+# are as common but far too large to give to projects that do not ask.
+#
+# A project that declares its own version of one of these gets its own: project
+# packages are installed into the project venv and come first on sys.path.
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+matplotlib==3.8.4
+scikit-learn==1.5.0
+statsmodels==0.14.2
+seaborn==0.13.2
+pytest==8.2.0
+PyYAML==6.0.1
+requests==2.32.3
+jsonschema==4.22.0
+psutil==5.9.8

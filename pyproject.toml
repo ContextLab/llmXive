@@ -78,4 +78,4 @@ where = ["src"]
 include = ["llmxive*"]
 
 [tool.setuptools.package-data]
-llmxive = ["py.typed"]
+llmxive = ["py.typed", "execution/base_requirements.txt"]

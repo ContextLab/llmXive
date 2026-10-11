@@ -175,6 +175,14 @@ These [process safeguards](src/llmxive/sandbox.py) are not a complete hostile-co
 filesystem sandbox: research jobs may access the network to obtain public data.
 Run studies in disposable workers/checkouts with appropriate host permissions.
 
+The environment lives outside the project, in `.llmxive-venvs/<PROJ-ID>` at the
+repository root, so project code cannot scan or remove it. Each one can import a
+shared set of pinned packages ([`base_requirements.txt`](src/llmxive/execution/base_requirements.txt),
+built once per machine under `~/.cache/llmxive/base-env`) and the standard-library-only
+[`llmxive_toolkit`](src/llmxive/project_toolkit/llmxive_toolkit/__init__.py)
+(`paths`, `get_logger`). A version a project declares in its own `requirements.txt`
+is installed into that project's environment and takes precedence.
+
 Implementation and planning writers check project boundaries and symlink escapes.
 Planning refuses ambiguous file aliases before writing and restores prior bytes
 when deterministic guards reject a revision. Implementation refuses new

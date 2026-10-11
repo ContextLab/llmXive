@@ -184,6 +184,10 @@ Do not manufacture separate tasks for mkdir, logging frameworks, architecture
 documents, packaging, dashboards, release automation, or generic API scaffolding
 unless the research question specifically requires them. First run a thin,
 end-to-end analysis on real inputs; then expand the scale and validation.
+The platform already gives every project the common scientific packages and a
+`llmxive_toolkit` module (`paths` creates output folders on demand, `get_logger`
+configures logging), so directory creation, logging setup and installing numpy,
+pandas, scipy, matplotlib or pytest are never tasks.
 On re-plan, preserve working artifacts and completed requirements. Repair the
 specific failing commands/contracts from feedback instead of regenerating a
 larger task list. If the question cannot be answered with available data and
