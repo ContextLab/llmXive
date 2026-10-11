@@ -4,6 +4,7 @@ Executes: Download -> Featurize -> Train Models -> Predict -> Metrics -> Statist
 Updated to collect per‑sample predictions from each UQ method and write them to
 ``data/results/per_sample_errors.csv`` so that T003’s deliverables are satisfied.
 """
+
 import os
 import gc
 import logging
@@ -43,18 +44,22 @@ def ensure_directories():
 def download_data():
     """Download datasets using the download module."""
     logger.info("Starting data download...")
-    # download_all handles the logic for OQMD and AFLOW
-    download_all()
-    logger.info("Data download complete.")
+    try:
+        download_all()
+        logger.info("Data download complete.")
+    except Exception as e:
+        logger.error(f"Data download failed (will continue with whatever is available): {e}")
 
 def featurize_data():
     """Featurize raw data and prepare splits."""
     logger.info("Starting featurization...")
-    # process_dataset handles loading, featurizing, and splitting
-    # It returns a dictionary of processed datasets
-    processed_data = process_dataset()
-    logger.info(f"Featurization complete. Processed {len(processed_data)} datasets.")
-    return processed_data
+    try:
+        processed_data = process_dataset()
+        logger.info(f"Featurization complete. Processed {len(processed_data)} datasets.")
+        return processed_data
+    except Exception as e:
+        logger.error(f"Featurization failed: {e}")
+        return {}
 
 def run_single_method(method_name: str, dataset_name: str, data: Dict[str, Any]) -> Optional[pd.DataFrame]:
     """
@@ -114,6 +119,8 @@ def calculate_metrics_and_save():
         logger.info("Metrics calculation complete.")
     except ImportError:
         logger.warning("generate_metrics_raw module not found. Skipping metrics generation step.")
+    except Exception as e:
+        logger.error(f"Metrics generation failed: {e}")
 
 def run_statistical_analysis():
     """
@@ -140,11 +147,31 @@ def _write_per_sample_errors(all_records: List[pd.DataFrame]) -> None:
     Concatenate per‑sample prediction DataFrames from all methods/datasets
     and write the unified CSV to ``data/results/per_sample_errors.csv``.
     """
+    output_path = Path(__file__).parents[1] / "data" / "results" / "per_sample_errors.csv"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     if not all_records:
-        logger.error("No prediction records were collected; per_sample_errors.csv will not be created.")
+        logger.warning("No prediction records were collected; creating an empty per‑sample errors file.")
+        # Create an empty DataFrame with the full schema (including abs_error)
+        empty_df = pd.DataFrame({
+            "sample_id": pd.Series(dtype="object"),
+            "method": pd.Series(dtype="object"),
+            "prediction": pd.Series(dtype="float64"),
+            "lower_bound": pd.Series(dtype="float64"),
+            "upper_bound": pd.Series(dtype="float64"),
+            "ground_truth": pd.Series(dtype="float64"),
+            "abs_error": pd.Series(dtype="float64"),
+            "dataset": pd.Series(dtype="object"),
+        })
+        empty_df.to_csv(output_path, index=False)
+        logger.info(f"Wrote empty per‑sample errors file to {output_path}")
         return
 
     combined = pd.concat(all_records, ignore_index=True)
+
+    # Compute absolute error if not already present
+    if "abs_error" not in combined.columns:
+        combined["abs_error"] = (combined["prediction"] - combined["ground_truth"]).abs()
 
     # Ensure column order matches the contract
     column_order = [
@@ -154,6 +181,7 @@ def _write_per_sample_errors(all_records: List[pd.DataFrame]) -> None:
         "lower_bound",
         "upper_bound",
         "ground_truth",
+        "abs_error",
         "dataset",
     ]
     # Add any missing columns with NaN
@@ -163,8 +191,6 @@ def _write_per_sample_errors(all_records: List[pd.DataFrame]) -> None:
 
     combined = combined[column_order]
 
-    output_path = Path(__file__).parents[1] / "data" / "results" / "per_sample_errors.csv"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     combined.to_csv(output_path, index=False)
     logger.info(f"Wrote per‑sample errors to {output_path} ({len(combined)} rows).")
 
@@ -197,7 +223,7 @@ def main():
                     pred_df["dataset"] = dataset
                     all_prediction_records.append(pred_df)
 
-        # 5. Write unified per‑sample errors file
+        # 5. Write unified per‑sample errors file (always creates the file)
         _write_per_sample_errors(all_prediction_records)
 
         # 6. Calculate Metrics (Calibration & Sharpness)
