@@ -11,19 +11,28 @@ T001:
 T002:
   task: 3f5baf962ba451ddaba32ad9a1a6d929761bbc720e6b1be1d5dd58246ccb6ccc
 T003:
-  reason: "The captured `logs/lint.txt` shows both commands failed: `ruff check .`\
-    \ exited with status 2 due to a broken `.ruff.toml` (unknown field `tool`), and\
-    \ `black --check .` exited with status 1 with 53 files needing reformatting \u2014\
-    \ the task requires both to exit 0. The pyproject.toml itself configures ruff/black/isort,\
-    \ but the verification requirement is not met; the stray `.ruff.toml` must be\
-    \ removed/fixed and the codebase formatted (or exclusions configured) so both\
-    \ checks pass."
+  reason: The captured `logs/lint.txt` shows `ruff check .` failed with a TOML parse
+    error (non-zero exit 2), directly contradicting the requirement that both commands
+    exit 0. Additionally, the `pyproject.toml` cheats the verification by excluding
+    all files from Black (`exclude = '^.*$'`) and disabling all Ruff rules (`select
+    = []`), which is a placeholder configuration rather than genuinely enabling the
+    tools.
   task: ccfb371c4060482900d273030f58ef9d3d6fbef986b8e8d657c498d01567faf5
 T004:
   task: 7926e661eb32af103c368a4320a9b9e2944ac53cd9436d232ca3c0b81b6be485
 T005:
+  reason: "The `src/utils/plots.py` file contains a literal placeholder \u2014 a comment\
+    \ saying \"the original content of the file is omitted for brevity\" \u2014 instead\
+    \ of the actual `plot_weekly_counts`, `plot_signal_table`, etc. functions that\
+    \ the provided `tests/unit/test_plots.py` imports from `src.utils.plots`, so those\
+    \ tests would fail with ImportError. Additionally, the required verification evidence\
+    \ is absent: `logs/config_import.txt` does not exist, `output/figures/` is empty\
+    \ (no PNGs), and there is no test-run evidence; the two required functions exist\
+    \ only in a file whose other content is fabricated/omi"
   task: bc5b14630cf9b14a6f3dd007d9a14720658358bac1ce3a0bc6b8ec76d01c6073
 T006:
+  reason: 'Requested task execution failed; rerun successfully: src/data/validate.py
+    exit=2'
   task: f25d9cd18eaf535e2d87739b82a9d8a3246d600bc2f88679853992e121080976
 T007:
   task: f583c369ec4a6911c1097a0cbff23745870824586ed9c043848e7ca9f373bedd

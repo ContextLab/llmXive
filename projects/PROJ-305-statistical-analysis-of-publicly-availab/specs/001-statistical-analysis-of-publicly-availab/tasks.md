@@ -41,7 +41,7 @@
     2. `save_forest_plot(df, metric, ci_low, ci_high, title, path)` – creates a forest‑plot style figure for ROR/PRR/IC.  
   - **Verification**: `python -c "import src.utils.config as cfg; assert cfg.SEED==42"` writes `logs/config_import.txt`. Run the unit test `tests/unit/test_plots.py` (provided) and ensure PNG files appear in `output/figures/`.
 
-- [ ] **T006** Implement `src/data/validate.py` – a CLI validator that checks a CSV/Parquet file against `contracts/dataset.schema.yaml`.  
+- [ ] **T006** Implement `src/data/validate.py` – a CLI validator that checks a CSV/Parquet file against `contracts/dataset.schema.yaml`.   <!-- FAILED-IN-EXECUTION: src/data/validate.py exit=2 -->
   - **Behaviour**:  
     1. Load the schema with `jsonschema`.  
     2. Accept a file path argument (`--input`).  

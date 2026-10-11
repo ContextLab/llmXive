@@ -13,7 +13,7 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python src/data/download.py (rc=1); python src/data/validate.py (rc=3); python src/main.py (rc=1); 2 declared deliverable(s) absent: data/meddra_soc_mapping.csv; data/processed/cleaned_vaers.parquet
+**Summary**: 3 command(s) failed: python src/data/download.py (rc=1); python src/data/validate.py (rc=2); python src/main.py (rc=1); 2 declared deliverable(s) absent: data/meddra_soc_mapping.csv; data/processed/cleaned_vaers.parquet
 
 ## Failing / missing run-book commands
 
@@ -29,14 +29,14 @@ INFO:__main__:Downloading https://vaers.hhs.gov/data/datasets/vaersdata2023.csv 
 ERROR:__main__:Failed to download https://vaers.hhs.gov/data/datasets/vaersdata2023.csv: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/vaersdata2023.csv
 ERROR:__main__:Failed to download data for years: [2020, 2021, 2022, 2023]
 
-- python src/data/validate.py -> rc=3
-2026-10-11 23:08:56,651 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.csv
+- python src/data/validate.py -> rc=2
+2026-10-11 23:15:33,090 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
+2026-10-11 23:15:33,094 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
+2026-10-11 23:15:33,094 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
 
 
 - python src/main.py -> rc=1
-2026-10-11 23:08:57,592 - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-11 23:08:57,606 - INFO - generated new fontManager
-2026-10-11 23:08:57,789 - INFO - No action specified. Use --full or --phase N
+2026-10-11 23:15:33,853 - INFO - No action specified. Use --full or --phase N
 
 
 
@@ -55,7 +55,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/utils/config.py` — NOT invoked by the run-book
     - `code/tests/unit/test_clean.py` — NOT invoked by the run-book
     - `code/tests/unit/test_download_meddra.py` — NOT invoked by the run-book
-    - `src/utils/config.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/meddra_soc_mapping.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/cleaned_vaers.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/src/analysis/disproportionality.py` — NOT invoked by the run-book

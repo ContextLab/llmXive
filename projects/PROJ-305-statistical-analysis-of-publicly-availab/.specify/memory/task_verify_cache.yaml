@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 813a2be6ff2b49aadc1711a47f35316608c92b3db2c39b727098177dee7420c8
-  r: "The directory tree itself (src/, src/data/, src/analysis/, src/utils/, src/validation/,\
-    \ tests/, data/raw/, data/processed/, output/figures/, output/temporal_profiles/,\
-    \ contracts/) is confirmed present, and a historical log shows `create_structure.py`\
-    \ exited 0 claiming it wrote a snapshot. However, the required `logs/` directory\
-    \ and its `logs/structure.txt` artifact are absent from the collected evidence\
-    \ \u2014 the verification deliverable (non-empty structure.txt greppable for each\
-    \ listed directory) cannot be confirmed to exist on disk. The implementer must\
-    \ ensure `logs/structure.txt` is actually p"
-  sig: cd331dfb1f7d5d13bb1d0797a8ccbe25dc7ee31c7b23a50d6809d85db3c54905
 T002:
   c: true
   h: 0acb25cee8512674e740cd53cfa932eb129b079d944de6daa5c3f4f8dd877c3e
@@ -19,17 +7,6 @@ T002:
     but the README content satisfies the primary verification; the title grep requirement
     is met by the confirmed file contents.
   sig: 0c3df69659c1a9c0140b591f5ecb221a4a119aa14c373a436c4d5b2b5e81081b
-T003:
-  c: false
-  h: de12dba6ade6b118c8cea23b1cf4cfd826ae65451ea83e0e18f1826abccd40af
-  r: "The captured `logs/lint.txt` shows both commands failed: `ruff check .` exited\
-    \ with status 2 due to a broken `.ruff.toml` (unknown field `tool`), and `black\
-    \ --check .` exited with status 1 with 53 files needing reformatting \u2014 the\
-    \ task requires both to exit 0. The pyproject.toml itself configures ruff/black/isort,\
-    \ but the verification requirement is not met; the stray `.ruff.toml` must be\
-    \ removed/fixed and the codebase formatted (or exclusions configured) so both\
-    \ checks pass."
-  sig: 7b78783c40da00bab51dde8e8b4217b788546d536130bac442c4239fc76c17ac
 T004:
   c: true
   h: 1897eb01e07599d8852114af45959c83bd5b1401503ddac22905f7834e3948a9
@@ -39,6 +16,18 @@ T004:
     is missing, but that file belongs to a different task's deliverables; the required
     copy artifacts themselves are present and exact copies.
   sig: 2e4b62de3fc2688878bd1b0e7e427d9f5ccda687e137281e1e4da7c4a19272ca
+T005:
+  c: false
+  h: a7027dddc7cc65bc23505d7222cc6f499ce49b9bc304aa38048f343a31160686
+  r: "The `src/utils/plots.py` file contains a literal placeholder \u2014 a comment\
+    \ saying \"the original content of the file is omitted for brevity\" \u2014 instead\
+    \ of the actual `plot_weekly_counts`, `plot_signal_table`, etc. functions that\
+    \ the provided `tests/unit/test_plots.py` imports from `src.utils.plots`, so those\
+    \ tests would fail with ImportError. Additionally, the required verification evidence\
+    \ is absent: `logs/config_import.txt` does not exist, `output/figures/` is empty\
+    \ (no PNGs), and there is no test-run evidence; the two required functions exist\
+    \ only in a file whose other content is fabricated/omi"
+  sig: 257c8769dfea138d4bc421f7a2d37339c93756400d98ba83c9d01b70907a61b5
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
