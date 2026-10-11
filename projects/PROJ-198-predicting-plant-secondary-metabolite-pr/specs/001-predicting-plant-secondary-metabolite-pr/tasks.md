@@ -11,7 +11,7 @@
   *Path(s):* `code/`, `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`  
   *Verification:* Run `tree` (or equivalent) at the repository root and confirm all listed directories exist.
 
-- [ ] **T002** [P] **Add linting & formatting configuration** <!-- FAILED-IN-EXECUTION: code/scripts/apply_formatting.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/apply_formatting.sh exit=1 -->
+- [ ] **T002** [P] **Add linting & formatting configuration** <!-- FAILED-IN-EXECUTION: code/scripts/apply_formatting.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/apply_formatting.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/apply_formatting.sh exit=1 -->
   *Path(s):* `.ruff.toml`, `.flake8`, `pyproject.toml` (Black section) at repository root  
   *Verification:* `ruff --quiet .` and `black --check .` complete with exit‑code 0.
 
