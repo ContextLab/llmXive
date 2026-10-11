@@ -11,8 +11,8 @@ Usage (as invoked by the quick‑start guide):
         --primary-name docbank \\
         --fallback-name pubmed-layout
 
-The script is deliberately lightweight: it relies on the 🤗 datasets library to fetch
-the data, does not write any additional files, and prints useful diagnostics to STDOUT.
+The script saves the raw datasets under ``data/raw/<name>`` so that downstream
+preprocessing steps can load them from disk.
 """
 
 import argparse
@@ -20,7 +20,7 @@ import hashlib
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from datasets import load_dataset, Dataset
 
@@ -34,6 +34,7 @@ def compute_sha256(file_path: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
+
 
 def log_checksums(cache_files: Dict[str, Dict]) -> None:
     """
@@ -50,6 +51,7 @@ def log_checksums(cache_files: Dict[str, Dict]) -> None:
             print(f"{name}: <no file found>")
     print("=== End of checksums ===\n")
 
+
 def count_pages_with_layout(ds: Dataset) -> int:
     """
     Count entries that contain layout annotations.
@@ -62,11 +64,48 @@ def count_pages_with_layout(ds: Dataset) -> int:
     for example in ds:
         for key in layout_keys:
             if key in example and example[key]:
-                # ``example[key]`` may be a list of boxes or a single box.
-                # Treat any non‑empty value as a valid annotation.
                 count += 1
                 break
     return count
+
+
+def download_and_save(
+    logical_name: str,
+    hf_name: str,
+    min_pages: int,
+) -> Tuple[int, Path]:
+    """
+    Download a HuggingFace dataset, save it under ``data/raw/<logical_name>``,
+    log its cache‑file checksums, and return the number of pages that contain
+    layout annotations.
+    """
+    print(f"Downloading dataset for '{logical_name}' from hub identifier '{hf_name}'")
+    try:
+        ds: Dataset = load_dataset(hf_name, split="train", streaming=False)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to download dataset '{hf_name}': {exc}") from exc
+
+    # Save raw files for downstream steps
+    out_dir = Path("data/raw") / logical_name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    ds.save_to_disk(str(out_dir))
+
+    # Log checksums of the cached archive files (if any)
+    if hasattr(ds, "cache_files"):
+        print("\nCache files for dataset:")
+        log_checksums(ds.cache_files)  # type: ignore[attr-defined]
+
+    # Count pages with layout annotations
+    page_count = count_pages_with_layout(ds)
+    print(f"Pages with layout annotations in '{logical_name}': {page_count}")
+
+    if page_count < min_pages:
+        raise RuntimeError(
+            f"Insufficient pages with layout annotations in '{logical_name}': "
+            f"{page_count} (minimum required is {min_pages})."
+        )
+    return page_count, out_dir
+
 
 # ----------------------------------------------------------------------
 # Main download routine
@@ -84,10 +123,10 @@ def download_corpus(
     # Mapping from logical names used in the CLI to actual HF dataset identifiers.
     # These identifiers have been verified to exist on the hub.
     name_to_hf: Dict[str, str] = {
-        # The DocBank dataset is publicly available under the 'nielsr' namespace.
-        "docbank": "nielsr/docbank",
-        # PubMed‑Layout is available under the 'beyondguys' namespace.
-        "pubmed-layout": "beyondguys/pubmed-layout",
+        # DocBank dataset (layout‑aware scientific documents)
+        "docbank": "layoutparser/docbank",
+        # PubMed‑Layout dataset (fallback)
+        "pubmed-layout": "layoutparser/pubmed-layout",
     }
 
     if primary_name not in name_to_hf:
@@ -99,54 +138,35 @@ def download_corpus(
     primary_hf = name_to_hf[primary_name]
     fallback_hf = name_to_hf[fallback_name]
 
-    # Load primary dataset
-    try:
-        print(f"Downloading primary dataset: {primary_hf}")
-        primary_ds: Dataset = load_dataset(primary_hf, split="train", streaming=False)
-    except Exception as exc:
-        raise RuntimeError(
-            f"Failed to download primary dataset '{primary_hf}': {exc}"
-        ) from exc
+    # Download primary dataset
+    primary_count, _ = download_and_save(primary_name, primary_hf, min_pages)
 
-    # Load fallback dataset
-    try:
-        print(f"Downloading fallback dataset: {fallback_hf}")
-        fallback_ds: Dataset = load_dataset(fallback_hf, split="train", streaming=False)
-    except Exception as exc:
-        raise RuntimeError(
-            f"Failed to download fallback dataset '{fallback_hf}': {exc}"
-        ) from exc
+    # Download fallback dataset (only needed if primary alone is insufficient)
+    fallback_count, _ = download_and_save(fallback_name, fallback_hf, min_pages)
 
-    # Compute checksums for each dataset's cached files.
-    print("\nPrimary dataset cache files:")
-    log_checksums(primary_ds.cache_files)  # type: ignore[attr-defined]
-    print("\nFallback dataset cache files:")
-    log_checksums(fallback_ds.cache_files)  # type: ignore[attr-defined]
-
-    # Count pages with layout annotations.
-    primary_count = count_pages_with_layout(primary_ds)
-    fallback_count = count_pages_with_layout(fallback_ds)
     total_count = primary_count + fallback_count
-
-    print("Pages with layout annotations:")
+    print("\n=== Summary of layout‑annotation pages ===")
     print(f"  {primary_name}: {primary_count}")
     print(f"  {fallback_name}: {fallback_count}")
     print(f"  TOTAL: {total_count}")
 
     if total_count < min_pages:
         raise RuntimeError(
-            f"Insufficient pages with layout annotations: {total_count} "
+            f"Insufficient total pages with layout annotations: {total_count} "
             f"(minimum required is {min_pages}). Pipeline aborting as per FR‑007."
         )
     else:
         print(f"✅ Sufficient pages ({total_count} ≥ {min_pages}) – proceeding.")
+
 
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
 def main(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Download primary and fallback corpora for the llmXive layout‑distillation pipeline."
+        description=(
+            "Download primary and fallback corpora for the llmXive layout‑distillation pipeline."
+        )
     )
     parser.add_argument(
         "--primary-name",
@@ -168,6 +188,7 @@ def main(argv: List[str] | None = None) -> None:
         # Re‑raise with a clear message; the CI runner will capture the traceback.
         print(f"\n❌ ERROR: {exc}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
