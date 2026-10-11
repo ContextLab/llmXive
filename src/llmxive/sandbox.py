@@ -359,6 +359,21 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     return env
 
 
+def _venv_environment(project_dir: Path, py: Path) -> dict[str, str]:
+    """The environment EVERY project process runs in: analysis paths plus the venv.
+
+    The venv's ``bin`` is first on PATH and ``VIRTUAL_ENV`` is set, so a child
+    the project starts (``python``, ``pytest``, ``bash run_all.sh``) is in the
+    same environment as its parent. Only the shell runner used to do this; a
+    Python script that started ``bash code/run_all.sh`` got the system
+    interpreter for everything below it.
+    """
+    env = _analysis_env(project_dir, analysis_environment(project_dir))
+    env["PATH"] = str(py.parent) + os.pathsep + env.get("PATH", "")
+    env["VIRTUAL_ENV"] = str(py.parent.parent)
+    return env
+
+
 def _explicit_script_package_root(
     project_dir: Path, args: list[str], run_cwd: Path,
 ) -> Path | None:
@@ -429,7 +444,7 @@ def run_in_venv(
         return ExecutionResult(False, -1, "", "working directory escapes the project directory", 0.0)
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
-    env = _analysis_env(project_dir, analysis_environment(project_dir))
+    env = _venv_environment(project_dir, py)
     package_root = _explicit_script_package_root(project_dir, args, run_cwd)
     if package_root is not None:
         paths = env["PYTHONPATH"].split(os.pathsep)
@@ -552,9 +567,7 @@ def run_shell_script(
         return ExecutionResult(False, -1, "", "supported shell interpreter unavailable", 0.0)
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
-    env = _analysis_env(project_dir, analysis_environment(project_dir))
-    env["PATH"] = str(py.parent) + os.pathsep + env.get("PATH", "")
-    env["VIRTUAL_ENV"] = str(py.parent.parent)
+    env = _venv_environment(project_dir, py)
     started = time.monotonic()
     proc = subprocess.Popen(
         [executable, str(script), *script_args], cwd=project_dir.resolve(),
@@ -603,7 +616,7 @@ def _pytest(project_dir: Path, argv: list[str], *, cwd: Path, timeout_s: int) ->
             timeout=timeout_s,
             capture_output=True,
             text=True,
-            env=_analysis_env(project_dir, analysis_environment(project_dir)),
+            env=_venv_environment(project_dir, py),
         )
         rc = proc.returncode
         out = proc.stdout
