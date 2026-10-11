@@ -1,3 +1,5 @@
 timestamp,peak_memory_mb,function_name
 2026-10-11 00:23:28,194.39,run_training_pipeline
 2026-10-11 00:23:29,194.00,run_training_pipeline
+2026-10-11 00:25:58,725.96,run_training_pipeline
+2026-10-11 00:25:58,725.96,run_training_pipeline

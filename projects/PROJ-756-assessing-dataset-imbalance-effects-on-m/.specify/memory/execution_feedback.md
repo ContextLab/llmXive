@@ -45,8 +45,8 @@ ModuleNotFoundError: No module named 'magpie'
 Cannot proceed: Data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/data/processed/descriptors.parquet
 
 - python code/training.py --input data/processed/processed.parquet --strategy skewed --output artifacts/models/baseline/ -> rc=1
-28,641 - INFO - Starting training pipeline...
-2026-10-11 00:23:28,641 - INFO - Memory profile logged for run_training_pipeline: 194.39 MB
+58,000 - INFO - Starting training pipeline...
+2026-10-11 00:25:58,000 - INFO - Memory profile logged for run_training_pipeline: 725.96 MB
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/code/training.py", line 167, in <module>
@@ -64,7 +64,7 @@ Traceback (most recent call last):
 FileNotFoundError: Data file not found: --input
 
 - python code/resampling.py --input data/processed/processed.parquet --output data/processed/balanced.parquet -> rc=1
-2026-10-11 00:23:28,952 - __main__ - ERROR - Resampling pipeline failed: Processed data not found at data/processed/descriptors.parquet. Run descriptors.py first.
+2026-10-11 00:25:58,308 - __main__ - ERROR - Resampling pipeline failed: Processed data not found at data/processed/descriptors.parquet. Run descriptors.py first.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/code/resampling.py", line 332, in <module>
@@ -79,8 +79,8 @@ Traceback (most recent call last):
 FileNotFoundError: Processed data not found at data/processed/descriptors.parquet. Run descriptors.py first.
 
 - python code/training.py --input data/processed/balanced.parquet --strategy balanced --output artifacts/models/balanced/ -> rc=1
-29,638 - INFO - Starting training pipeline...
-2026-10-11 00:23:29,638 - INFO - Memory profile logged for run_training_pipeline: 194.00 MB
+58,990 - INFO - Starting training pipeline...
+2026-10-11 00:25:58,991 - INFO - Memory profile logged for run_training_pipeline: 725.96 MB
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/code/training.py", line 167, in <module>
@@ -106,7 +106,7 @@ Traceback (most recent call last):
 NameError: name 'pd' is not defined. Did you mean: 'id'?
 
 - python code/shap_analysis.py --models artifacts/models/ --output results/shap_comparison.json -> rc=1
-2026-10-11 00:23:30,588 - INFO - Generating synthetic ground truth...
+2026-10-11 00:25:59,932 - INFO - Generating synthetic ground truth...
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/code/shap_analysis.py", line 145, in <module>
