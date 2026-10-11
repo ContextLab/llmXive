@@ -12,7 +12,7 @@ from pathlib import Path
 # scaffolding / config / test tasks are judged from real files, not prose.
 #: Directory-rooted artifact paths with a real dotted extension.
 _ROOTED_PATH_RE = re.compile(
-    r"(?<![\w./-])((?:projects/[\w.-]+|code|data|figures|results|outputs|src|tests?|scripts|config|configs|"
+    r"(?<![\w./-])((?:projects/[\w.-]+|code|data|figures|results|outputs?|src|tests?|scripts|config|configs|"
     r"notebooks|docs|assets|models|reports|paper|contracts|state|specs)/[\w./-]+\.\w+)"
 )
 #: Bare (optionally path-prefixed) build/config filenames a task may reference.
@@ -25,7 +25,7 @@ _CONFIG_FILE_RE = re.compile(
 _CONFIG_EXT_RE = re.compile(r"(?<![\w./-])((?:[\w./-]+/)?[\w.-]+\.(?:toml|cfg|ya?ml|ini))\b")
 _SPEC_DOC_RE = re.compile(r"\b((?:specs/[\w./-]+/)?(?:plan|spec|tasks|research|quickstart|data-model)\.md)\b")
 _DIRECTORY_PATH_RE = re.compile(
-    r"(?<![\w./-])((?:projects/[\w.-]+|code|data|figures|results|outputs|src|tests?|"
+    r"(?<![\w./-])((?:projects/[\w.-]+|code|data|figures|results|outputs?|src|tests?|"
     r"scripts|config|configs|notebooks|docs|assets|models|reports|paper|contracts|state|specs)"
     r"/(?:[\w.-]+/)*)(?![\w-]|\.\w)"
 )
@@ -36,7 +36,7 @@ _DIRECTORY_PATH_RE = re.compile(
 #: match these (its path class has no braces), so a task that produces a family
 #: of files named none of them as far as the evidence collector could tell.
 _PATTERN_PATH_RE = re.compile(
-    r"(?<![\w./-])((?:code|data|figures|results|outputs|src|tests?|scripts|docs|models|reports|"
+    r"(?<![\w./-])((?:code|data|figures|results|outputs?|src|tests?|scripts|docs|models|reports|"
     r"paper|contracts)/[\w./-]*(?:\{[^{}\s`]{1,32}\}|<[\w-]{1,32}>|\*)[\w./{}<>*-]*\.\w+)"
 )
 _PLACEHOLDER_RE = re.compile(r"\{[^{}]*\}|<[\w-]+>|\*+")
@@ -105,29 +105,33 @@ def declared_paths(task_text: str) -> list[str]:
     return out
 
 
-_BARE_FILE_RE = re.compile(
-    r"`([\w.-]+\.(?:md|py|sh|txt|csv|tsv|json|png|pdf|svg|tex|bib|ipynb))`")
+_NAMED_FILE_RE = re.compile(
+    r"`((?:[\w.-]+/)*[\w.-]+\.(?:md|py|sh|txt|csv|tsv|json|png|pdf|svg|tex|bib|ipynb))`")
 
 
-def declared_root_files(project_dir: Path, task_text: str) -> list[str]:
-    """Backticked bare filenames in a task that ARE files at the project root.
+def declared_existing_files(project_dir: Path, task_text: str) -> list[str]:
+    """Backticked file paths in a task that ARE files in the project.
 
-    :func:`declared_paths` needs a known directory or a config filename, so
-    "add a `README.md` entry at the project root" declared nothing. A bare name
-    is ambiguous text (`scipy.stats`, `json.dump`), so this never reports a
-    name as missing: only a real, regular, in-project file at the root counts,
-    and only when :func:`declared_paths` has not already found it.
+    :func:`declared_paths` needs a directory name from its list or a config
+    filename, so "add a `README.md` entry at the project root" and a table
+    written to `tables/extra/tv_long.md` declared nothing. A backticked name is
+    ambiguous text (`scipy.stats`, `json.dump`, a path in another project), so
+    this never reports one as missing: only a real, regular, in-project file
+    counts, and only when :func:`declared_paths` has not already found it.
     """
     known = set(declared_paths(task_text))
     root = project_dir.resolve()
     out: list[str] = []
-    for match in _BARE_FILE_RE.finditer(task_text):
+    for match in _NAMED_FILE_RE.finditer(task_text):
         name = match.group(1)
-        candidate = project_dir / name
-        if (name in known or name in out or candidate.is_symlink() or not candidate.is_file()
-                or candidate.resolve().parent != root):
+        if name in known or name in out or ".." in Path(name).parts:
             continue
-        out.append(name)
+        # No component may be a link: the file must be the project's own.
+        steps = [project_dir.joinpath(*Path(name).parts[:i + 1]) for i in range(len(Path(name).parts))]
+        if any(step.is_symlink() for step in steps):
+            continue
+        if steps[-1].is_file() and steps[-1].resolve().is_relative_to(root):
+            out.append(name)
     return out
 
 

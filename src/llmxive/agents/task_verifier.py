@@ -39,7 +39,7 @@ from llmxive.agents._task_verdict_receipt import authentic_verdict, signed_verdi
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
 from llmxive.claims.task_requirements import read_task_document
-from llmxive.project_paths import _ROOTED_PATH_RE, declared_root_files
+from llmxive.project_paths import _ROOTED_PATH_RE, declared_existing_files
 from llmxive.project_paths import declared_paths as _declared_paths
 from llmxive.project_paths import resolve_project_path as _evidence_path
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
@@ -344,7 +344,7 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
     instead of the "no artifact path" prose fallback."""
     from llmxive.execution.platform_paths import platform_shadow
 
-    paths = [*_declared_paths(task_text), *declared_root_files(project_dir, task_text)]
+    paths = [*_declared_paths(task_text), *declared_existing_files(project_dir, task_text)]
     file_count = 0
     source_bytes = 0
     python_sources: list[Path] = []
