@@ -7,52 +7,57 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -c "import hashlib, pandas as pd; df = pd.read_csv('data/raw/synthetic_fatigue.csv');  print('Checksum OK' if hashlib.sha256(df.to_csv(index=False).encode()).hexdigest() ==  open('state/projects/PROJ-291-predicting-the-impact-of-residual-stress.yaml').read().split('synthetic_fatigue_checksum: ')[1].strip() else 'Checksum MISMATCH')" -> rc=1
-^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
     parser = TextFileReader(filepath_or_buffer, **kwds)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
     self._engine = self._make_engine(f, self.engine)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
     self.handles = get_handle(
                    ^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/common.py", line 873, in get_handle
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
     handle = open(
              ^^^^^
 FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_fatigue.csv'
 
 - python -m src.ingest.ingest          # downloads (real) data, verifies checksum -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.ingest.ingest' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.ingest.ingest' (ModuleNotFoundError: No module named 'src')
 
 - python -m src.preprocess.preprocess   # unit conversion, imputation, proxy calc, checksum propagation, contract validation -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.preprocess.preprocess' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.preprocess.preprocess' (ModuleNotFoundError: No module named 'src')
 
 - python -m src.models.train --feature-set A   # process‑only -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src')
 
 - python -m src.models.train --feature-set B   # process + measured stress (if any) -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src')
 
 - python -m src.models.train --feature-set C   # process + material props -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src')
 
 - python -m src.models.evaluate --compare A B   # paired t‑test (full set) + sensitivity on measured subset -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.models.evaluate' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.evaluate' (ModuleNotFoundError: No module named 'src')
 
 - python -m src.models.evaluate --cross-material  # transfer learning evaluation -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.models.evaluate' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.evaluate' (ModuleNotFoundError: No module named 'src')
 
 - python -m src.mediation.bootstrap_mediation --resamples 10000 -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.mediation.bootstrap_mediation' (ModuleNotFoundError: No module named 'src')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.mediation.bootstrap_mediation' (ModuleNotFoundError: No module named 'src')
 
 - python -m pytest -q -> rc=1
 y'
@@ -84,7 +89,7 @@ E       ValueError: Out of range float values are not JSON compliant
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/encoder.py:258: ValueError
 =========================== short test summary info ============================
 FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - ValueError...
-1 failed in 0.63s
+1 failed in 0.61s
 
 
 

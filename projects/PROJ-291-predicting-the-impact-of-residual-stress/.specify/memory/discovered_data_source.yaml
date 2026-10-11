@@ -5,9 +5,9 @@ required_fields:
 - material_type
 - process_parameters
 - residual_stress
-- residual_stress_source
+- residual_stress_units
 - fatigue_life_cycles
-- stress_units
-cache_key: 0924e69457d4985e24a55cecce8ddda85b233930d3f0a9d74dc2e1bffddabf3a
-searched_at: '2026-10-10T23:11:09.401179+00:00'
+- residual_stress_source_flag
+cache_key: ff85bbee22028bfd85d7f2e01d99b69c94cc95815c10b3d66d972759b4b2dbae
+searched_at: '2026-10-11T05:11:09.155621+00:00'
 retry_count: 1

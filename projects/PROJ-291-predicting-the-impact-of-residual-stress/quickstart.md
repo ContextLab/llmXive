@@ -18,8 +18,6 @@ pip install -r requirements.txt
 Run the environment check to ensure all dependencies are correctly installed and importable:
 
 ```bash
-make env-check
-# OR
 bash scripts/env_check.sh
 ```
 

@@ -1,24 +1,18 @@
 # Predicting the Impact of Residual Stress on Fatigue Life
 
-This project investigates the mediating role of residual stress in the relationship between manufacturing process parameters and the fatigue life of materials, specifically focusing on steels and aluminum alloys.
+## Project Overview
+This project investigates the extent to which residual stress mediates the relationship between manufacturing process parameters and fatigue life across different material classes (specifically steels and aluminum alloys).
 
-## Research Question
-To what extent does residual stress mediate the relationship between manufacturing process parameters and fatigue life across different material classes, and how much predictive value does stress-mediated estimation add beyond direct process-to-fatigue modeling?
+The goal is to determine if explicitly modeling the residual stress mediator adds significant predictive value (measured by MAPE reduction) compared to direct process-to-fatigue modeling.
 
 ## Data Sources
 The pipeline ingests data from the following public repositories:
-- **NIST Materials Data Repository**: Fatigue life and stress data.
-- **UCI Machine Learning Repository**: Fatigue-related datasets.
-- **OpenML**: Publicly available fatigue test archives.
+- **NIST Materials Data Repository**: High-fidelity materials properties and fatigue data.
+- **UCI Machine Learning Repository**: Fatigue-life collections.
+- **OpenML**: Publicly shared fatigue datasets.
 
-Raw data is programmatically downloaded during the ingestion phase (`code/ingest/ingest.py`) and stored in `data/raw/`.
+## Obtaining Raw Data
+Raw data is programmatically fetched by the ingestion pipeline (`code/ingest/ingest.py`). The script downloads version-pinned CSV/JSON files from canonical URLs and stores them in `data/raw/` before processing.
 
-## Getting Started
-Please refer to [quickstart.md](quickstart.md) for detailed instructions on environment setup and running the analysis pipeline.
-
-## Project Structure
-- `code/`: Implementation of the science pipeline (ingestion, preprocessing, modeling, and evaluation).
-- `data/`: Raw and processed datasets.
-- `results/`: Performance metrics, statistical tests, and figures.
-- `specs/`: Feature specifications and contracts.
-- `tests/`: Unit and integration tests.
+## Reproducibility
+To ensure reproducibility, all random seeds are fixed to `SEED=42`, and all dependencies are pinned in `requirements.txt`.
