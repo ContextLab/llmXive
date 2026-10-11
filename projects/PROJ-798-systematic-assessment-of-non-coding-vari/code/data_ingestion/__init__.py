@@ -2,17 +2,12 @@
 Data ingestion module for downloading and processing raw genomic data.
 Exposes helper functions at package level for convenient imports.
 """
-
-# Re-export selected utilities from the module implementation so that
-# sub‑modules (e.g., fetch_dbsnp.py) can use
-# ``from data_ingestion import log_source_lineage, list_ftp_directory, download_ftp_file``.
 from .data_ingestion import (
     log_source_lineage,
     list_ftp_directory,
     download_ftp_file,
     download_jaspar_pwms,
     download_file_http,
-    download_ftp_file,
     find_common_snps_file,
     download_dbSNP_common_snps,
     download_1000Genomes_snps,

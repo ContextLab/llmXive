@@ -2,22 +2,30 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python code/main.py  --dbsnp-ftp "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/"  --jaspar-url "http://jaspar.genereg.net/"  --gwas-ftp "ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/"  --output-dir data/output (rc=1); python code/utils/checksum.py data/output/ (rc=1); 1 declared deliverable(s) absent: data/raw/snps_raw.parquet
+**Summary**: 1 command(s) failed: python code/main.py  --dbsnp-ftp "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/"  --jaspar-url "http://jaspar.genereg.net/"  --gwas-ftp "ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/"  --output-dir data/output (rc=1); 1 declared deliverable(s) absent: data/raw/snps_raw.parquet
 
 ## Failing / missing run-book commands
 
 - python code/main.py  --dbsnp-ftp "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/"  --jaspar-url "http://jaspar.genereg.net/"  --gwas-ftp "ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/"  --output-dir data/output -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/main.py", line 16, in <module>
-    from data_ingestion.fetch_dbsnp import main as fetch_dbsnp_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/__init__.py", line 9, in <module>
-    from .data_ingestion import (
-ModuleNotFoundError: No module named 'data_ingestion.data_ingestion'
-
-- python code/utils/checksum.py data/output/ -> rc=1
-
-Error: data/output is not a directory
+-798-systematic-assessment-of-non-coding-vari/code/main.py", line 53, in main
+    fetch_dbsnp_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/fetch_dbsnp.py", line 134, in main
+    listing = list_ftp_directory(FTP_BASE)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/data_ingestion.py", line 54, in list_ftp_directory
+    ftp.cwd(path)
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 625, in cwd
+    return self.voidcmd(cmd)
+           ^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 286, in voidcmd
+    return self.voidresp()
+           ^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 259, in voidresp
+    resp = self.getresp()
+           ^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 254, in getresp
+    raise error_perm(resp)
+ftplib.error_perm: 550 /snp/organisms/human_9606_b155_GRCh38p13/VCF: No such file or directory
 
 
 ## Declared deliverables still missing
