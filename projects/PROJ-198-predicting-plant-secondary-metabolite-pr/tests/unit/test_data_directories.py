@@ -1,17 +1,15 @@
 """
 Unit tests for data directory creation and structure validation.
 """
-import os
+
 import sys
 import tempfile
-import pytest
 from pathlib import Path
 
 # Add code/ to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from scripts.create_data_directories import main as create_main
-from utils.data_hygiene import ensure_directory_structure
+
 
 def test_data_directories_exist(tmp_path):
     """
@@ -34,6 +32,7 @@ def test_data_directories_exist(tmp_path):
     assert processed_dir.exists(), "data/processed must exist"
     assert interim_dir.exists(), "data/interim must exist"
 
+
 def test_ensure_directory_structure_function():
     """
     Test that the ensure_directory_structure utility works as expected.
@@ -43,17 +42,17 @@ def test_ensure_directory_structure_function():
         # Simulate calling the function
         # Note: ensure_directory_structure in utils/data_hygiene might need specific args
         # depending on its signature. Assuming it creates standard structure.
-        
+
         # Since we can't easily mock the global project root in ensure_directory_structure
         # without refactoring, we test the logic by verifying the directories
         # are created if we call the logic directly or via the script.
         # For this unit test, we verify the expected paths exist after a mock setup.
-        
+
         data_path = project_root / "data"
         (data_path / "raw").mkdir(parents=True)
         (data_path / "processed").mkdir(parents=True)
         (data_path / "interim").mkdir(parents=True)
-        
+
         assert (data_path / "raw").is_dir()
         assert (data_path / "processed").is_dir()
         assert (data_path / "interim").is_dir()

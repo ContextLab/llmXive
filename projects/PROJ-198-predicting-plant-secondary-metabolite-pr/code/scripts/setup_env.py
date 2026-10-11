@@ -1,6 +1,5 @@
-import os
-import sys
 from pathlib import Path
+
 
 def main():
     """
@@ -49,7 +48,7 @@ def main():
         "logs",
         "figures",
         "state",
-        "state/projects"
+        "state/projects",
     ]
 
     for directory in directories:
@@ -60,6 +59,7 @@ def main():
     print("Next steps:")
     print("1. Edit .env file to add your API keys (if needed)")
     print("2. Run the pipeline with 'python -m code.cli.main'")
+
 
 if __name__ == "__main__":
     main()

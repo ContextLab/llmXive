@@ -1,33 +1,33 @@
-import os
 import logging
 import random
-import json
+from code.config import get_config
+
+# Import existing phylogenetic utilities
+from code.modeling.phylo import construct_covariance_matrix, load_phylogeny, train_pgls
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union, Any, Callable
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, LeaveOneOut, KFold
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import ElasticNet
 from sklearn.metrics import r2_score
-
-# Import existing phylogenetic utilities
-from code.modeling.phylo import load_phylogeny, construct_covariance_matrix, train_pgls
-from code.config import get_config
+from sklearn.model_selection import KFold, LeaveOneOut
+from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
 
 
 class ModelTrainingError(Exception):
     """Custom exception for model training failures."""
+
     pass
 
 
 class StratifiedSplitError(Exception):
     """Custom exception for stratified split failures."""
+
     pass
 
 
@@ -51,7 +51,9 @@ def get_clade_members(tree, clade_labels: Dict[str, str]) -> Dict[str, List[str]
     return clade_members
 
 
-def find_balanced_clades(clade_members: Dict[str, List[str]], min_size: int = 2) -> List[str]:
+def find_balanced_clades(
+    clade_members: Dict[str, List[str]], min_size: int = 2
+) -> List[str]:
     """
     Filter clades that are large enough to be useful for stratification.
 
@@ -69,7 +71,7 @@ def create_stratified_split(
     species_list: List[str],
     clade_labels: Dict[str, str],
     train_ratio: float = 0.8,
-    random_seed: int = 42
+    random_seed: int = 42,
 ) -> Tuple[List[str], List[str]]:
     """
     Split species into train/test sets while preserving phylogenetic clade structure.
@@ -98,7 +100,9 @@ def create_stratified_split(
         test_species.extend(members[split_idx:])
 
     # Handle species not in valid clades (random split)
-    remaining = [s for s in species_list if s not in train_species and s not in test_species]
+    remaining = [
+        s for s in species_list if s not in train_species and s not in test_species
+    ]
     random.shuffle(remaining)
     split_idx = int(len(remaining) * train_ratio)
     train_species.extend(remaining[:split_idx])
@@ -111,7 +115,7 @@ def apply_pca(
     X: np.ndarray,
     y: np.ndarray,
     target_variance: float = 0.95,
-    max_components: Optional[int] = None
+    max_components: Optional[int] = None,
 ) -> Tuple[np.ndarray, PCA, int]:
     """
     Apply PCA for dimensionality reduction.
@@ -140,8 +144,10 @@ def apply_pca(
         X_reduced = pca.fit_transform(X_scaled)
         n_components = max_components
 
-    logger.info(f"PCA reduced features from {X.shape[1]} to {n_components} "
-                f"(retained variance: {sum(pca.explained_variance_ratio_):.4f})")
+    logger.info(
+        f"PCA reduced features from {X.shape[1]} to {n_components} "
+        f"(retained variance: {sum(pca.explained_variance_ratio_):.4f})"
+    )
 
     return X_reduced, pca, n_components
 
@@ -173,9 +179,7 @@ def determine_cv_method(n_samples: int, n_folds: int = 5) -> Union[KFold, LeaveO
 
 
 def train_models_loo(
-    X: np.ndarray,
-    y: np.ndarray,
-    clade_labels: Optional[Dict[str, str]] = None
+    X: np.ndarray, y: np.ndarray, clade_labels: Optional[Dict[str, str]] = None
 ) -> Dict[str, Dict[str, float]]:
     """
     Train models using Leave-One-Out Cross-Validation.
@@ -207,9 +211,7 @@ def train_models_loo(
 
 
 def train_models_5fold(
-    X: np.ndarray,
-    y: np.ndarray,
-    clade_labels: Optional[Dict[str, str]] = None
+    X: np.ndarray, y: np.ndarray, clade_labels: Optional[Dict[str, str]] = None
 ) -> Dict[str, Dict[str, float]]:
     """
     Train models using 5-Fold Cross-Validation.
@@ -246,7 +248,7 @@ def train_pgls_with_pca_optimization(
     species_names: List[str],
     tree_path: Path,
     variance_threshold: float = 0.95,
-    max_pca_components: Optional[int] = None
+    max_pca_components: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Train PGLS model with automatic PCA optimization if features > N.
@@ -273,27 +275,27 @@ def train_pgls_with_pca_optimization(
     # Check if PCA optimization is needed
     use_pca = n_features > n_samples
     config = get_config()
-    pca_threshold = getattr(config, 'pca_feature_threshold', n_samples)
+    pca_threshold = getattr(config, "pca_feature_threshold", n_samples)
 
     if n_features > pca_threshold:
         use_pca = True
-        logger.info(f"Feature count ({n_features}) exceeds threshold ({pca_threshold}), "
-                    f"applying PCA optimization before PGLS")
+        logger.info(
+            f"Feature count ({n_features}) exceeds threshold ({pca_threshold}), "
+            f"applying PCA optimization before PGLS"
+        )
 
     X_processed = X
     pca_info = None
 
     if use_pca:
         X_processed, pca_model, n_comp = apply_pca(
-            X, y,
-            target_variance=variance_threshold,
-            max_components=max_pca_components
+            X, y, target_variance=variance_threshold, max_components=max_pca_components
         )
         pca_info = {
             "applied": True,
             "original_features": n_features,
             "reduced_features": n_comp,
-            "variance_retained": float(sum(pca_model.explained_variance_ratio_))
+            "variance_retained": float(sum(pca_model.explained_variance_ratio_)),
         }
     else:
         pca_info = {"applied": False, "reason": "Features <= samples"}
@@ -303,7 +305,9 @@ def train_pgls_with_pca_optimization(
         tree = load_phylogeny(tree_path)
         cov_matrix = construct_covariance_matrix(tree, species_names)
     except Exception as e:
-        raise ModelTrainingError(f"Failed to load phylogeny or construct covariance: {e}")
+        raise ModelTrainingError(
+            f"Failed to load phylogeny or construct covariance: {e}"
+        )
 
     # Train PGLS
     try:
@@ -316,7 +320,7 @@ def train_pgls_with_pca_optimization(
         "pca_info": pca_info,
         "optimization_applied": use_pca,
         "feature_count": n_features,
-        "sample_count": n_samples
+        "sample_count": n_samples,
     }
 
 
@@ -335,7 +339,9 @@ def main():
         return
 
     df = pd.read_csv(aligned_csv)
-    species_col = config.get_species_list()[0] if config.get_species_list() else "species"
+    species_col = (
+        config.get_species_list()[0] if config.get_species_list() else "species"
+    )
 
     # Prepare features and target
     feature_cols = [c for c in df.columns if c not in [species_col, "metabolite_class"]]
@@ -355,9 +361,12 @@ def main():
 
     try:
         result = train_pgls_with_pca_optimization(
-            X, y, species_names, tree_path,
+            X,
+            y,
+            species_names,
+            tree_path,
             variance_threshold=0.95,
-            max_pca_components=10
+            max_pca_components=10,
         )
         logger.info(f"Optimization applied: {result['optimization_applied']}")
         logger.info(f"PCA info: {result['pca_info']}")

@@ -1,17 +1,15 @@
 status: none
-intent: plant genome assemblies NCBI RefSeq Phytozome matched metabolite abundance
-  tables MetaboLights PMDB MIBiG ontology python package dataset
+intent: plant matched genome RefSeq Phytozome metabolite MetaboLights PMDB MIBiG dataset
+  python package dataset
 required_fields:
 - species_name
-- assembly_accession
-- assembly_fasta_url
+- ncbi_refseq_assembly_accession
+- phytozome_genome_accession
+- genome_fasta_url
 - annotation_gff_url
-- bgc_type
-- bgc_presence
-- bgc_count
 - metabolite_inchikey
-- metabolite_abundance_raw
-- metabolite_abundance_log
-cache_key: e99f8821fc2d538d560645aebc3625715f2275ea6b94eed651e62737ed9d0b77
-searched_at: '2026-10-11T08:10:21.625894+00:00'
+- metabolite_abundance
+- sample_id
+cache_key: 15ec7a3088d20efd621a77e591a014486665634eb8b0095e4c6d7ec5c8b55d29
+searched_at: '2026-10-11T09:13:34.313437+00:00'
 retry_count: 1

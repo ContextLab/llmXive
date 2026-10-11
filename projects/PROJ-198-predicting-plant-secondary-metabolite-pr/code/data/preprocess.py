@@ -1,25 +1,23 @@
-import os
-import json
-import subprocess
-import logging
-import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Any, Dict, Union
+
 import pandas as pd
-import numpy as np
 from utils.logging import get_logger
-from models.bgc import BGCType
-from models.metabolite import MetaboliteClass
 
 logger = get_logger(__name__)
 
+
 class AntiSMASHError(Exception):
     """Custom exception for antiSMASH related errors."""
+
     pass
+
 
 class MIBiGMappingError(Exception):
     """Custom exception for MIBiG mapping errors."""
+
     pass
+
 
 # MIBiG 3.0 Ontology Mapping
 # Maps BGC types (from antiSMASH/MIBiG) to Metabolite Classes
@@ -161,6 +159,7 @@ BGC_CATEGORY_TO_CLASS: Dict[str, str] = {
     "bacteriocin": "bacteriocin",
 }
 
+
 def map_bgc_to_metabolite(bgc_type: str) -> str:
     """
     Map a BGC type to a metabolite class using MIBiG 3.0 ontology.
@@ -189,10 +188,15 @@ def map_bgc_to_metabolite(bgc_type: str) -> str:
             return value
 
     # If no match found, return 'unknown'
-    logger.warning(f"No MIBiG mapping found for BGC type: '{bgc_type}'. Assigning to 'unknown'.")
+    logger.warning(
+        f"No MIBiG mapping found for BGC type: '{bgc_type}'. Assigning to 'unknown'."
+    )
     return "unknown"
 
-def map_bgc_to_metabolite_dataframe(df: pd.DataFrame, bgc_column: str, output_column: str = "metabolite_class") -> pd.DataFrame:
+
+def map_bgc_to_metabolite_dataframe(
+    df: pd.DataFrame, bgc_column: str, output_column: str = "metabolite_class"
+) -> pd.DataFrame:
     """
     Apply BGC to metabolite mapping to a DataFrame column.
 
@@ -205,7 +209,9 @@ def map_bgc_to_metabolite_dataframe(df: pd.DataFrame, bgc_column: str, output_co
         DataFrame with the new metabolite class column added.
     """
     if bgc_column not in df.columns:
-        raise ValueError(f"Column '{bgc_column}' not found in DataFrame. Available columns: {df.columns.tolist()}")
+        raise ValueError(
+            f"Column '{bgc_column}' not found in DataFrame. Available columns: {df.columns.tolist()}"
+        )
 
     logger.info(f"Mapping BGC types from column '{bgc_column}' to metabolite classes.")
     df[output_column] = df[bgc_column].apply(map_bgc_to_metabolite)
@@ -215,12 +221,17 @@ def map_bgc_to_metabolite_dataframe(df: pd.DataFrame, bgc_column: str, output_co
     unknown_count = (df[output_column] == "unknown").sum()
     mapped_count = total_rows - unknown_count
 
-    logger.info(f"Mapping complete: {mapped_count}/{total_rows} rows mapped, {unknown_count} assigned to 'unknown'.")
+    logger.info(
+        f"Mapping complete: {mapped_count}/{total_rows} rows mapped, {unknown_count} assigned to 'unknown'."
+    )
 
     if unknown_count > 0:
-        logger.warning(f"{unknown_count} rows could not be mapped and were assigned to 'unknown' class.")
+        logger.warning(
+            f"{unknown_count} rows could not be mapped and were assigned to 'unknown' class."
+        )
 
     return df
+
 
 def run_antiasmh_wrapper(species_dir: Path) -> Dict[str, Any]:
     """
@@ -229,11 +240,15 @@ def run_antiasmh_wrapper(species_dir: Path) -> Dict[str, Any]:
     """
     raise NotImplementedError("This function is not implemented in this task.")
 
-def harmonize_metabolites(input_path: Union[str, Path], output_path: Union[str, Path]) -> None:
+
+def harmonize_metabolites(
+    input_path: Union[str, Path], output_path: Union[str, Path]
+) -> None:
     """
     Harmonize metabolite data (existing implementation - not modified by this task).
     """
     raise NotImplementedError("This function is not implemented in this task.")
+
 
 def main():
     """
@@ -252,7 +267,7 @@ def main():
         "",
         None,
         "alkaloid",
-        "siderophore"
+        "siderophore",
     ]
 
     logger.info("Demonstrating BGC to metabolite mapping:")
@@ -263,7 +278,7 @@ def main():
     # Example usage of DataFrame mapping
     sample_data = {
         "species": ["Species_A", "Species_B", "Species_C", "Species_D"],
-        "bgc_type": ["polyketide", "nrps", "unknown_type", "terpene"]
+        "bgc_type": ["polyketide", "nrps", "unknown_type", "terpene"],
     }
     df = pd.DataFrame(sample_data)
 
@@ -272,6 +287,7 @@ def main():
     logger.info(mapped_df.to_string())
 
     logger.info("Preprocess module main completed.")
+
 
 if __name__ == "__main__":
     main()

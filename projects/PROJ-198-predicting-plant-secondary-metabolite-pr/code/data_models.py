@@ -5,14 +5,16 @@ This module defines the core data structures (Species, BGCFeature, MetabolitePro
 used throughout the pipeline for data alignment, feature extraction, and modeling.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set
-from enum import Enum
 import json
+from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
+from typing import Dict, List, Optional, Set
+
 
 class BgcType(Enum):
     """Enumeration of known Biosynthetic Gene Cluster (BGC) types from antiSMASH."""
+
     POLYKETIDE = "polyketide"
     NON_RIBOSOMAL_PEPTIDE = "non-ribosomal peptide"
     TERPENE = "terpene"
@@ -30,6 +32,7 @@ class BgcType(Enum):
                 return member
         return cls.OTHER
 
+
 @dataclass
 class Species:
     """
@@ -42,6 +45,7 @@ class Species:
         genome_assembly_version: Version string of the genome assembly (e.g., 'GCF_000002625.1').
         assembly_level: Assembly level (e.g., 'Chromosome', 'Scaffold', 'Contig').
     """
+
     taxon_id: int
     scientific_name: str
     common_name: Optional[str] = None
@@ -63,7 +67,7 @@ class Species:
             "scientific_name": self.scientific_name,
             "common_name": self.common_name,
             "genome_assembly_version": self.genome_assembly_version,
-            "assembly_level": self.assembly_level
+            "assembly_level": self.assembly_level,
         }
 
     @classmethod
@@ -74,8 +78,9 @@ class Species:
             scientific_name=data["scientific_name"],
             common_name=data.get("common_name"),
             genome_assembly_version=data.get("genome_assembly_version"),
-            assembly_level=data.get("assembly_level")
+            assembly_level=data.get("assembly_level"),
         )
+
 
 @dataclass
 class BGCFeature:
@@ -91,6 +96,7 @@ class BGCFeature:
         confidence_score: Confidence score of the prediction (0.0 to 1.0).
         metadata: Additional metadata from the source (e.g., antiSMASH JSON).
     """
+
     species: Species
     bgc_id: str
     bgc_type: BgcType
@@ -105,8 +111,10 @@ class BGCFeature:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BGCFeature):
             return NotImplemented
-        return (self.species.taxon_id == other.species.taxon_id and
-                self.bgc_id == other.bgc_id)
+        return (
+            self.species.taxon_id == other.species.taxon_id
+            and self.bgc_id == other.bgc_id
+        )
 
     def to_dict(self) -> Dict:
         """Convert BGCFeature instance to a dictionary."""
@@ -117,11 +125,13 @@ class BGCFeature:
             "start_position": self.start_position,
             "end_position": self.end_position,
             "confidence_score": self.confidence_score,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict, species_obj: Optional[Species] = None) -> "BGCFeature":
+    def from_dict(
+        cls, data: Dict, species_obj: Optional[Species] = None
+    ) -> "BGCFeature":
         """Create a BGCFeature instance from a dictionary."""
         if species_obj is None:
             # If species_obj is not provided, assume the data contains species info
@@ -132,7 +142,9 @@ class BGCFeature:
             elif isinstance(species_data, Species):
                 species_obj = species_data
             else:
-                raise ValueError("Species information is required to construct BGCFeature")
+                raise ValueError(
+                    "Species information is required to construct BGCFeature"
+                )
 
         return cls(
             species=species_obj,
@@ -141,8 +153,9 @@ class BGCFeature:
             start_position=data["start_position"],
             end_position=data["end_position"],
             confidence_score=data["confidence_score"],
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
+
 
 @dataclass
 class MetaboliteProfile:
@@ -157,6 +170,7 @@ class MetaboliteProfile:
         unit: Unit of measurement (e.g., 'log_intensity', 'ppm').
         detection_confidence: Confidence in detection (e.g., 'confirmed', 'probable').
     """
+
     species: Species
     metabolite_id: str
     compound_name: str
@@ -170,8 +184,10 @@ class MetaboliteProfile:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MetaboliteProfile):
             return NotImplemented
-        return (self.species.taxon_id == other.species.taxon_id and
-                self.metabolite_id == other.metabolite_id)
+        return (
+            self.species.taxon_id == other.species.taxon_id
+            and self.metabolite_id == other.metabolite_id
+        )
 
     def to_dict(self) -> Dict:
         """Convert MetaboliteProfile instance to a dictionary."""
@@ -181,11 +197,13 @@ class MetaboliteProfile:
             "compound_name": self.compound_name,
             "abundance": self.abundance,
             "unit": self.unit,
-            "detection_confidence": self.detection_confidence
+            "detection_confidence": self.detection_confidence,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict, species_obj: Optional[Species] = None) -> "MetaboliteProfile":
+    def from_dict(
+        cls, data: Dict, species_obj: Optional[Species] = None
+    ) -> "MetaboliteProfile":
         """Create a MetaboliteProfile instance from a dictionary."""
         if species_obj is None:
             species_data = data.get("species")
@@ -194,7 +212,9 @@ class MetaboliteProfile:
             elif isinstance(species_data, Species):
                 species_obj = species_data
             else:
-                raise ValueError("Species information is required to construct MetaboliteProfile")
+                raise ValueError(
+                    "Species information is required to construct MetaboliteProfile"
+                )
 
         return cls(
             species=species_obj,
@@ -202,8 +222,9 @@ class MetaboliteProfile:
             compound_name=data["compound_name"],
             abundance=data["abundance"],
             unit=data.get("unit", "log_intensity"),
-            detection_confidence=data.get("detection_confidence", "confirmed")
+            detection_confidence=data.get("detection_confidence", "confirmed"),
         )
+
 
 @dataclass
 class AlignedDataset:
@@ -219,6 +240,7 @@ class AlignedDataset:
         metabolite_abundances: Dict mapping species taxon_id to a dict of metabolite_id -> abundance.
         metadata: Global metadata about the dataset (e.g., source, date).
     """
+
     species_list: List[Species]
     bgc_counts: Dict[int, Dict[str, int]] = field(default_factory=dict)
     metabolite_abundances: Dict[int, Dict[str, float]] = field(default_factory=dict)
@@ -238,7 +260,9 @@ class AlignedDataset:
         self.add_species(species)
         self.bgc_counts[species.taxon_id][bgc_type] = count
 
-    def add_metabolite_abundance(self, species: Species, metabolite_id: str, abundance: float) -> None:
+    def add_metabolite_abundance(
+        self, species: Species, metabolite_id: str, abundance: float
+    ) -> None:
         """Add or update metabolite abundance for a species."""
         self.add_species(species)
         self.metabolite_abundances[species.taxon_id][metabolite_id] = abundance
@@ -253,7 +277,7 @@ class AlignedDataset:
             "species_list": [s.to_dict() for s in self.species_list],
             "bgc_counts": self.bgc_counts,
             "metabolite_abundances": self.metabolite_abundances,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -264,7 +288,7 @@ class AlignedDataset:
             species_list=species_list,
             bgc_counts=data.get("bgc_counts", {}),
             metabolite_abundances=data.get("metabolite_abundances", {}),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
     def save_to_json(self, filepath: str) -> None:

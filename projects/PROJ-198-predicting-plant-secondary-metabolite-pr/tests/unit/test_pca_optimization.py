@@ -1,15 +1,13 @@
-import pytest
-import numpy as np
-import pandas as pd
-from pathlib import Path
 import tempfile
-import os
-
 from code.modeling.train import (
-    train_pgls_with_pca_optimization,
+    ModelTrainingError,
     apply_pca,
-    ModelTrainingError
+    train_pgls_with_pca_optimization,
 )
+from pathlib import Path
+
+import numpy as np
+import pytest
 
 
 class TestPCAOptimization:
@@ -25,20 +23,19 @@ class TestPCAOptimization:
         species = [f"sp_{i}" for i in range(n_samples)]
 
         # Create a simple dummy tree file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.nwk', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".nwk", delete=False) as f:
             f.write("((sp_0,sp_1),((sp_2,sp_3),(sp_4,sp_5)));" + "\n")
             tree_path = Path(f.name)
 
         try:
             result = train_pgls_with_pca_optimization(
-                X, y, species, tree_path,
-                variance_threshold=0.95
+                X, y, species, tree_path, variance_threshold=0.95
             )
 
-            assert result['optimization_applied'] is True
-            assert result['pca_info']['applied'] is True
-            assert result['pca_info']['original_features'] == n_features
-            assert result['pca_info']['reduced_features'] < n_features
+            assert result["optimization_applied"] is True
+            assert result["pca_info"]["applied"] is True
+            assert result["pca_info"]["original_features"] == n_features
+            assert result["pca_info"]["reduced_features"] < n_features
         finally:
             tree_path.unlink()
 
@@ -50,19 +47,18 @@ class TestPCAOptimization:
         y = np.random.randn(n_samples)
         species = [f"sp_{i}" for i in range(n_samples)]
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.nwk', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".nwk", delete=False) as f:
             f.write("((sp_0,sp_1),((sp_2,sp_3),(sp_4,sp_5)));" + "\n")
             tree_path = Path(f.name)
 
         try:
             result = train_pgls_with_pca_optimization(
-                X, y, species, tree_path,
-                variance_threshold=0.95
+                X, y, species, tree_path, variance_threshold=0.95
             )
 
             # With 10 features and 50 samples, PCA should NOT be applied
-            assert result['optimization_applied'] is False
-            assert result['pca_info']['applied'] is False
+            assert result["optimization_applied"] is False
+            assert result["pca_info"]["applied"] is False
         finally:
             tree_path.unlink()
 
@@ -74,9 +70,7 @@ class TestPCAOptimization:
         y = np.random.randn(n_samples)
 
         X_reduced, pca_model, n_comp = apply_pca(
-            X, y,
-            target_variance=0.95,
-            max_components=20
+            X, y, target_variance=0.95, max_components=20
         )
 
         # Check that variance is retained

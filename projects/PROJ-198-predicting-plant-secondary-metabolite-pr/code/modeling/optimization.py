@@ -5,15 +5,16 @@ Implements conditional PCA application before PGLS when feature count exceeds
 the number of samples (N), preventing overfitting and improving computational
 efficiency.
 """
+
 import logging
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any, Union
+from typing import Any, Dict, Optional, Union
 
-import pandas as pd
 import numpy as np
-
-from modeling.train import apply_pca, load_pca_features
+import pandas as pd
 from modeling.phylo import train_pgls
+from modeling.train import apply_pca
+
 from config import get_config
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 def should_apply_pca_before_pgls(
     feature_matrix: Union[pd.DataFrame, np.ndarray],
     n_samples: Optional[int] = None,
-    threshold_ratio: float = 1.0
+    threshold_ratio: float = 1.0,
 ) -> bool:
     """
     Determine if PCA should be applied before PGLS based on feature-to-sample ratio.
@@ -46,7 +47,9 @@ def should_apply_pca_before_pgls(
         if n_samples is None:
             n_samples = feature_matrix.shape[0]
     else:
-        raise TypeError(f"feature_matrix must be DataFrame or ndarray, got {type(feature_matrix)}")
+        raise TypeError(
+            f"feature_matrix must be DataFrame or ndarray, got {type(feature_matrix)}"
+        )
 
     if n_samples == 0:
         logger.warning("No samples provided. Cannot determine PCA necessity.")
@@ -70,7 +73,7 @@ def optimize_pgls_pipeline(
     tree_labels: Optional[list] = None,
     n_components: Optional[int] = None,
     threshold_ratio: float = 1.0,
-    random_state: Optional[int] = None
+    random_state: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Execute the PGLS pipeline with conditional PCA optimization.
@@ -123,52 +126,60 @@ def optimize_pgls_pipeline(
     )
 
     result = {
-        'pca_applied': apply_pca_flag,
-        'n_features_original': n_features_orig,
-        'n_features_final': n_features_orig,
-        'n_components': None,
-        'model_result': None
+        "pca_applied": apply_pca_flag,
+        "n_features_original": n_features_orig,
+        "n_features_final": n_features_orig,
+        "n_components": None,
+        "model_result": None,
     }
 
     if apply_pca_flag:
-        logger.info(f"Feature count ({n_features_orig}) exceeds sample count ({n_samples}). "
-                    f"Applying PCA for dimensionality reduction.")
+        logger.info(
+            f"Feature count ({n_features_orig}) exceeds sample count ({n_samples}). "
+            f"Applying PCA for dimensionality reduction."
+        )
 
         # Determine n_components if not specified
         if n_components is None:
             # Default to enough components to explain 95% variance, or max possible
             n_components = min(n_samples - 1, n_features_orig)
-            logger.info(f"Auto-selecting n_components={n_components} (min(N-1, Features))")
+            logger.info(
+                f"Auto-selecting n_components={n_components} (min(N-1, Features))"
+            )
 
         # Apply PCA using the existing pipeline function
         # We need to reconstruct a DataFrame for the apply_pca function signature
         # or pass numpy directly if the function supports it.
         # Looking at apply_pca signature in train.py, it likely expects a DataFrame or path.
         # To be safe and consistent with the existing pipeline, we create a temporary DF.
-        temp_df = pd.DataFrame(X_orig, columns=[f"feat_{i}" for i in range(n_features_orig)])
+        temp_df = pd.DataFrame(
+            X_orig, columns=[f"feat_{i}" for i in range(n_features_orig)]
+        )
 
         try:
             # apply_pca returns a DataFrame and metadata
             pca_result_df, pca_metadata = apply_pca(
-                temp_df,
-                n_components=n_components,
-                random_state=random_state
+                temp_df, n_components=n_components, random_state=random_state
             )
 
-            result['n_components'] = pca_metadata.get('n_components', n_components)
-            result['n_features_final'] = pca_result_df.shape[1]
+            result["n_components"] = pca_metadata.get("n_components", n_components)
+            result["n_features_final"] = pca_result_df.shape[1]
 
             # Extract the reduced features for PGLS
             X_final = pca_result_df.values
-            logger.info(f"PCA applied. Reduced to {result['n_features_final']} components.")
+            logger.info(
+                f"PCA applied. Reduced to {result['n_features_final']} components."
+            )
 
         except Exception as e:
             logger.error(f"PCA application failed: {e}")
             raise
 
     else:
-        logger.info(f"Feature count ({n_features_orig}) <= sample count ({n_samples}). "
-                    f"Skipping PCA. Using original features.")
+        logger.info(
+            f"Feature count ({n_features_orig}) <= sample count ({n_samples}). "
+            f"Skipping PCA. Using original features."
+        )
         X_final = X_orig
 
     # Run PGLS
@@ -182,9 +193,9 @@ def optimize_pgls_pipeline(
             y=y,
             phylogenetic_covariance=phylogenetic_covariance,
             tree_labels=tree_labels,
-            seed=random_state
+            seed=random_state,
         )
-        result['model_result'] = pgls_result
+        result["model_result"] = pgls_result
 
     except Exception as e:
         logger.error(f"PGLS training failed: {e}")
@@ -200,7 +211,7 @@ def main():
     """
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     config = get_config()
@@ -210,7 +221,9 @@ def main():
     # This path matches the output of T018
     data_path = Path("data/processed/aligned_matrix.csv")
     if not data_path.exists():
-        logger.error(f"Aligned data not found at {data_path}. Run data alignment first.")
+        logger.error(
+            f"Aligned data not found at {data_path}. Run data alignment first."
+        )
         return
 
     df = pd.read_csv(data_path)
@@ -219,8 +232,10 @@ def main():
     # Assuming BGC counts are features and metabolite abundance is target
     # This might need adjustment based on actual column names in aligned_matrix.csv
     # For now, we assume columns starting with 'bgc_' are features and 'metabolite_' is target
-    feature_cols = [c for c in df.columns if c.startswith('bgc_')]
-    target_col = [c for c in df.columns if c.startswith('metabolite_') or c == 'abundance']
+    feature_cols = [c for c in df.columns if c.startswith("bgc_")]
+    target_col = [
+        c for c in df.columns if c.startswith("metabolite_") or c == "abundance"
+    ]
 
     if not feature_cols or not target_col:
         logger.error("Could not automatically identify feature or target columns.")
@@ -236,15 +251,20 @@ def main():
     tree_labels = None
     if phylo_path.exists():
         try:
-            from modeling.phylo import load_phylogeny, construct_covariance_matrix
+            from modeling.phylo import construct_covariance_matrix, load_phylogeny
+
             tree = load_phylogeny(str(phylo_path))
             tree_labels = tree.get_tip_labels()
             covariance = construct_covariance_matrix(tree)
             logger.info(f"Phylogenetic covariance matrix loaded ({covariance.shape}).")
         except Exception as e:
-            logger.warning(f"Failed to load phylogeny: {e}. Proceeding without phylogenetic correction.")
+            logger.warning(
+                f"Failed to load phylogeny: {e}. Proceeding without phylogenetic correction."
+            )
     else:
-        logger.warning("Phylogeny file not found. Proceeding without phylogenetic correction.")
+        logger.warning(
+            "Phylogeny file not found. Proceeding without phylogenetic correction."
+        )
 
     # Run optimization
     result = optimize_pgls_pipeline(
@@ -252,26 +272,27 @@ def main():
         target_vector=y,
         phylogenetic_covariance=covariance,
         tree_labels=tree_labels,
-        random_state=config.seed_manager.get_seed()
+        random_state=config.seed_manager.get_seed(),
     )
 
     # Save results
     output_path = Path("data/processed/optimization_results.json")
     import json
+
     serializable_result = {
-        'pca_applied': result['pca_applied'],
-        'n_features_original': result['n_features_original'],
-        'n_features_final': result['n_features_final'],
-        'n_components': result['n_components'],
-        'model_result': {
-            'r2': result['model_result'].get('r2'),
-            'p_value': result['model_result'].get('p_value'),
-            'coefficients': result['model_result'].get('coefficients'),
-            'feature_importance': result['model_result'].get('feature_importance')
-        }
+        "pca_applied": result["pca_applied"],
+        "n_features_original": result["n_features_original"],
+        "n_features_final": result["n_features_final"],
+        "n_components": result["n_components"],
+        "model_result": {
+            "r2": result["model_result"].get("r2"),
+            "p_value": result["model_result"].get("p_value"),
+            "coefficients": result["model_result"].get("coefficients"),
+            "feature_importance": result["model_result"].get("feature_importance"),
+        },
     }
 
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(serializable_result, f, indent=2)
 
     logger.info(f"Optimization results saved to {output_path}")

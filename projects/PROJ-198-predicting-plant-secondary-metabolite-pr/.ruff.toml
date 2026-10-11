@@ -1,16 +1,10 @@
-# T036: Ruff configuration file
-# This file configures the ruff linter for the project
+# Ruff configuration for PROJ-198
+line-length = 88
+target-version = "py311"
 
 [lint]
-# Enable all rules
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
+# E: pycodestyle errors, W: pycodestyle warnings, F: Pyflakes, I: isort, C: flake8-comprehensions, B: flake8-bugbear
+select = ["E", "W", "F", "I", "C", "B"]
 ignore = [
     "E501",  # line too long (handled by black)
     "B008",  # do not perform function calls in argument defaults
@@ -18,17 +12,9 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"tests/*" = ["S101", "F821", "F822", "F823", "F841"]  # Allow assert in tests and ignore undefined name errors
+"tests/*" = ["S101", "F821", "F822", "F823", "F841"]
 
 [format]
-# Use double quotes for strings
 quote-style = "double"
-
-# Indent with spaces
 indent-style = "space"
-
-# Respect magic trailing commas
 skip-magic-trailing-comma = false
-
-# Align closing brackets with opening brackets
-# (black default)

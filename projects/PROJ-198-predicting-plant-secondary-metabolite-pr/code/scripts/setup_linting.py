@@ -3,10 +3,9 @@ Script to initialize and verify linting/formatting configuration for the project
 This script ensures that ruff and black are configured correctly via pyproject.toml
 and optional standalone config files, and provides a command to run checks.
 """
+
 import subprocess
 import sys
-import os
-from pathlib import Path
 
 
 def run_command(cmd: list[str], check: bool = True) -> None:
@@ -46,7 +45,9 @@ def main() -> None:
         run_command([sys.executable, "-m", "pip", "install", "black"])
 
     print("✅ Tools ready.")
-    print("Configuration files (.ruff.toml, pyproject.toml, .pre-commit-config.yaml) should be present in the project root.")
+    print(
+        "Configuration files (.ruff.toml, pyproject.toml, .pre-commit-config.yaml) should be present in the project root."
+    )
     print("To run checks manually:")
     print("  ruff check .")
     print("  black --check .")

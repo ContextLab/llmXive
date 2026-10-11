@@ -1,27 +1,28 @@
 """
 Unit tests for antiSMASH parser functionality.
 """
+
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
 
-import pytest
 import pandas as pd
+import pytest
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from utils.anti_smash_parser import (
-    parse_anti_smash_json,
-    extract_bgc_summary,
     bgc_summary_to_dataframe,
+    extract_bgc_summary,
     get_bgc_counts_by_type,
-    parse_anti_smash_directory
+    parse_anti_smash_directory,
+    parse_anti_smash_json,
 )
 
-
 # --- Fixtures ---
+
 
 @pytest.fixture
 def mock_anti_smash_data():
@@ -35,15 +36,15 @@ def mock_anti_smash_data():
                         "id": "cluster_001",
                         "cluster_type": "terpene",
                         "predicted_cluster_types": ["terpene"],
-                        "compound_classes": ["monoterpene"]
+                        "compound_classes": ["monoterpene"],
                     },
                     {
                         "id": "cluster_002",
                         "cluster_type": "polyketide",
                         "predicted_cluster_types": ["polyketide"],
-                        "compound_classes": ["type_I"]
-                    }
-                ]
+                        "compound_classes": ["type_I"],
+                    },
+                ],
             },
             "genome_002": {
                 "original_filename": "Oryza_sativa.fna",
@@ -52,14 +53,14 @@ def mock_anti_smash_data():
                         "id": "cluster_003",
                         "cluster_type": "NRPS",
                         "predicted_cluster_types": ["NRPS"],
-                        "compound_classes": ["peptide"]
+                        "compound_classes": ["peptide"],
                     }
-                ]
+                ],
             },
             "genome_003": {
                 "original_filename": "Zea_mays.fa",
-                "biosynthetic_clusters": []  # Empty BGCs
-            }
+                "biosynthetic_clusters": [],  # Empty BGCs
+            },
         }
     }
 
@@ -73,15 +74,13 @@ def mock_ci_data():
                 "genome_name": "mock_species_A",
                 "clusters": [
                     {"type": "alkaloid", "id": "m1"},
-                    {"type": "terpene", "id": "m2"}
-                ]
+                    {"type": "terpene", "id": "m2"},
+                ],
             },
             {
                 "genome_name": "mock_species_B",
-                "clusters": [
-                    {"type": "polyketide", "id": "m3"}
-                ]
-            }
+                "clusters": [{"type": "polyketide", "id": "m3"}],
+            },
         ]
     }
 
@@ -89,7 +88,7 @@ def mock_ci_data():
 @pytest.fixture
 def temp_json_file(mock_anti_smash_data):
     """Create a temporary JSON file with mock data."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(mock_anti_smash_data, f)
         temp_path = f.name
     yield temp_path
@@ -102,7 +101,7 @@ def temp_dir_with_jsons(mock_anti_smash_data):
     with tempfile.TemporaryDirectory() as temp_dir:
         # File 1
         path1 = Path(temp_dir) / "genome_1.json"
-        with open(path1, 'w') as f:
+        with open(path1, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         # File 2 (slightly different data)
@@ -116,19 +115,20 @@ def temp_dir_with_jsons(mock_anti_smash_data):
                             "id": "cluster_004",
                             "cluster_type": "terpene",
                             "predicted_cluster_types": ["terpene"],
-                            "compound_classes": ["sesquiterpene"]
+                            "compound_classes": ["sesquiterpene"],
                         }
-                    ]
+                    ],
                 }
             }
         }
-        with open(path2, 'w') as f:
+        with open(path2, "w") as f:
             json.dump(data2, f)
 
         yield temp_dir
 
 
 # --- Tests ---
+
 
 class TestParseAntiSmashJson:
     def test_valid_json_parsing(self, temp_json_file, mock_anti_smash_data):
@@ -141,7 +141,7 @@ class TestParseAntiSmashJson:
             parse_anti_smash_json("/nonexistent/path/file.json")
 
     def test_invalid_json(self):
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             f.write("not valid json {")
             temp_path = f.name
         try:

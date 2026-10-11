@@ -2,13 +2,14 @@
 Configuration management module.
 Handles loading settings from YAML, environment variables, and defaults.
 """
+
 import os
-import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, ValidationError, field_validator
+import yaml
 from models.species import Species
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 # Import the EnvManager singleton for easy env access.
 from .config_env import get_env_manager
@@ -16,6 +17,7 @@ from .config_env import get_env_manager
 # Load .env file using python‑dotenv
 try:
     from dotenv import load_dotenv
+
     # Load a .env file located at the project root (working directory)
     load_dotenv()
 except ImportError as e:
@@ -32,6 +34,7 @@ _config_instance: Optional["Config"] = None
 
 class ConfigSettings(BaseModel):
     """Settings for the application, matching the keys used in tests and the pipeline."""
+
     # Core data directories
     data_root: Path = Field(default=Path("data"))
     raw_data_path: Optional[Path] = None
@@ -53,8 +56,12 @@ class ConfigSettings(BaseModel):
     bgc_confidence_threshold: Optional[float] = None
 
     # API Keys (loaded from environment variables)
-    ncbi_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("NCBI_API_KEY"))
-    pmdb_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("PMDB_API_TOKEN"))
+    ncbi_api_key: Optional[str] = Field(
+        default_factory=lambda: os.getenv("NCBI_API_KEY")
+    )
+    pmdb_api_key: Optional[str] = Field(
+        default_factory=lambda: os.getenv("PMDB_API_TOKEN")
+    )
 
     # Convert any string paths to Path objects
     @field_validator(
@@ -108,7 +115,9 @@ class Config(BaseModel):
     @property
     def processed_path(self) -> Path:
         """Processed data directory – defaults to ``data_root / 'processed'``."""
-        return self.settings.processed_data_path or (self.settings.data_root / "processed")
+        return self.settings.processed_data_path or (
+            self.settings.data_root / "processed"
+        )
 
     @property
     def figures_path(self) -> Path:
@@ -123,7 +132,9 @@ class Config(BaseModel):
     @property
     def model_cache_path(self) -> Path:
         """Model cache directory – defaults to ``data_root / 'model_cache'``."""
-        return self.settings.model_cache_path or (self.settings.data_root / "model_cache")
+        return self.settings.model_cache_path or (
+            self.settings.data_root / "model_cache"
+        )
 
     # ------------------------------------------------------------------
     # Pipeline‑specific shortcuts expected by the CLI and tests
@@ -173,6 +184,7 @@ def load_config(config_path: Optional[Path] = None) -> Config:
     # here for safety in case the process changes its cwd before calling).
     try:
         from dotenv import load_dotenv
+
         load_dotenv()
     except Exception:
         # If loading fails we let the ImportError surface – it will be caught

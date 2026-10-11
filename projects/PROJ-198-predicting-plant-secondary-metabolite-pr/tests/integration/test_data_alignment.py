@@ -5,23 +5,25 @@ This test verifies that the data alignment pipeline correctly joins genomic (BGC
 and metabolomic data at the species level, handling missing data and identifier
 harmonization as specified in FR-003.
 """
-import os
+
+import json
 import sys
 import tempfile
-import json
-import csv
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
-import pytest
 import pandas as pd
+import pytest
 
 # Add project root to path for imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.anti_smash_parser import parse_anti_smash_json, extract_bgc_summary, bgc_summary_to_dataframe
-from data_models import AlignedDataset, Species, BGCFeature, MetaboliteProfile
+from data_models import AlignedDataset, BGCFeature, MetaboliteProfile, Species
+from utils.anti_smash_parser import (
+    bgc_summary_to_dataframe,
+    parse_anti_smash_json,
+)
 
 
 class TestDataAlignmentIntegration:
@@ -38,8 +40,8 @@ class TestDataAlignmentIntegration:
                 "details": [
                     {"type": "NRPS", "count": 2},
                     {"type": "PKS", "count": 1},
-                    {"type": "Terpene", "count": 2}
-                ]
+                    {"type": "Terpene", "count": 2},
+                ],
             },
             "Oryza sativa": {
                 "accession": "OS001",
@@ -49,8 +51,8 @@ class TestDataAlignmentIntegration:
                     {"type": "NRPS", "count": 3},
                     {"type": "PKS", "count": 2},
                     {"type": "Terpene", "count": 2},
-                    {"type": "RiPP", "count": 1}
-                ]
+                    {"type": "RiPP", "count": 1},
+                ],
             },
             "Zea mays": {
                 "accession": "ZM001",
@@ -58,9 +60,9 @@ class TestDataAlignmentIntegration:
                 "bgc_types": ["PKS", "Terpene"],
                 "details": [
                     {"type": "PKS", "count": 1},
-                    {"type": "Terpene", "count": 2}
-                ]
-            }
+                    {"type": "Terpene", "count": 2},
+                ],
+            },
         }
 
     @pytest.fixture
@@ -71,26 +73,16 @@ class TestDataAlignmentIntegration:
                 "Arabidopsis thaliana",
                 "Oryza sativa",
                 "Zea mays",
-                "Solanum lycopersicum"  # This one has NO BGC data
+                "Solanum lycopersicum",  # This one has NO BGC data
             ],
             "inchi_key": [
                 "YVXZVZVZVZVZVZ-UHFFFAOYSA-N",
                 "ABCABCABCABCABC-UHFFFAOYSA-N",
                 "XYZXYZXYZXYZXYZ-UHFFFAOYSA-N",
-                "DEFDEFDEFDEFDEF-UHFFFAOYSA-N"
+                "DEFDEFDEFDEFDEF-UHFFFAOYSA-N",
             ],
-            "metabolite_name": [
-                "Campesterol",
-                "Osbornin",
-                "Zearalenone",
-                "Tomatine"
-            ],
-            "log_abundance": [
-                4.2,
-                3.8,
-                5.1,
-                2.9
-            ]
+            "metabolite_name": ["Campesterol", "Osbornin", "Zearalenone", "Tomatine"],
+            "log_abundance": [4.2, 3.8, 5.1, 2.9],
         }
         return pd.DataFrame(data)
 
@@ -106,7 +98,7 @@ class TestDataAlignmentIntegration:
         """Test that species with both BGC and metabolite data are correctly joined."""
         # Write mock BGC data to temp file
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         # Write mock metabolite data to temp file
@@ -119,11 +111,7 @@ class TestDataAlignmentIntegration:
         # Perform species-level join
         # Species with both: Arabidopsis, Oryza, Zea (3 rows)
         # Species with only metabolites: Solanum (excluded)
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Verify the join result
         assert len(merged) == 3, f"Expected 3 joined rows, got {len(merged)}"
@@ -146,7 +134,7 @@ class TestDataAlignmentIntegration:
         """Test that species missing either BGC or metabolite data are excluded."""
         # Write mock data
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         metab_file = temp_dir / "mock_metabolites.csv"
@@ -156,11 +144,7 @@ class TestDataAlignmentIntegration:
         bgc_df = bgc_summary_to_dataframe(parse_anti_smash_json(str(bgc_file)))
 
         # Perform inner join
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Verify exclusion of species with missing data
         # Solanum lycopersicum has metabolites but no BGC -> excluded
@@ -177,7 +161,7 @@ class TestDataAlignmentIntegration:
         """Test that the join correctly uses species_name as the harmonized key."""
         # Write mock data
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         metab_file = temp_dir / "mock_metabolites.csv"
@@ -191,11 +175,7 @@ class TestDataAlignmentIntegration:
         assert "species_name" in mock_metabolite_data.columns
 
         # Perform join
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Verify all expected species are present
         expected_species = {"Arabidopsis thaliana", "Oryza sativa", "Zea mays"}
@@ -208,7 +188,7 @@ class TestDataAlignmentIntegration:
         """Test that BGC counts are correctly transferred during the join."""
         # Write mock data
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         metab_file = temp_dir / "mock_metabolites.csv"
@@ -218,14 +198,12 @@ class TestDataAlignmentIntegration:
         bgc_df = bgc_summary_to_dataframe(parse_anti_smash_json(str(bgc_file)))
 
         # Perform join
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Verify specific BGC counts
-        arabidopsis_row = merged[merged["species_name"] == "Arabidopsis thaliana"].iloc[0]
+        arabidopsis_row = merged[merged["species_name"] == "Arabidopsis thaliana"].iloc[
+            0
+        ]
         assert arabidopsis_row["bgc_count"] == 5
 
         oryza_row = merged[merged["species_name"] == "Oryza sativa"].iloc[0]
@@ -240,7 +218,7 @@ class TestDataAlignmentIntegration:
         """Test that BGC type diversity is preserved in the joined data."""
         # Write mock data
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         metab_file = temp_dir / "mock_metabolites.csv"
@@ -250,17 +228,15 @@ class TestDataAlignmentIntegration:
         bgc_df = bgc_summary_to_dataframe(parse_anti_smash_json(str(bgc_file)))
 
         # Perform join
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Verify BGC types are present
         assert "bgc_types" in merged.columns
 
         # Check that types are lists and contain expected values
-        arabidopsis_row = merged[merged["species_name"] == "Arabidopsis thaliana"].iloc[0]
+        arabidopsis_row = merged[merged["species_name"] == "Arabidopsis thaliana"].iloc[
+            0
+        ]
         assert isinstance(arabidopsis_row["bgc_types"], list)
         assert "NRPS" in arabidopsis_row["bgc_types"]
         assert "PKS" in arabidopsis_row["bgc_types"]
@@ -275,7 +251,7 @@ class TestDataAlignmentIntegration:
         """Test that an AlignedDataset object can be created from the joined data."""
         # Write mock data
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         metab_file = temp_dir / "mock_metabolites.csv"
@@ -285,30 +261,30 @@ class TestDataAlignmentIntegration:
         bgc_df = bgc_summary_to_dataframe(parse_anti_smash_json(str(bgc_file)))
 
         # Perform join
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Create AlignedDataset instance
         aligned_data = AlignedDataset(
-            species_list=[Species(name=row["species_name"]) for _, row in merged.iterrows()],
+            species_list=[
+                Species(name=row["species_name"]) for _, row in merged.iterrows()
+            ],
             bgc_features=[
                 BGCFeature(
                     species_name=row["species_name"],
                     bgc_count=int(row["bgc_count"]),
-                    bgc_types=row["bgc_types"]
-                ) for _, row in merged.iterrows()
+                    bgc_types=row["bgc_types"],
+                )
+                for _, row in merged.iterrows()
             ],
             metabolite_profiles=[
                 MetaboliteProfile(
                     species_name=row["species_name"],
                     inchi_key=row["inchi_key"],
                     metabolite_name=row["metabolite_name"],
-                    log_abundance=float(row["log_abundance"])
-                ) for _, row in merged.iterrows()
-            ]
+                    log_abundance=float(row["log_abundance"]),
+                )
+                for _, row in merged.iterrows()
+            ],
         )
 
         # Verify the dataset properties
@@ -329,23 +305,30 @@ class TestDataAlignmentIntegration:
             "accession": "BR001",
             "bgc_count": 0,
             "bgc_types": [],
-            "details": []
+            "details": [],
         }
 
         # Add corresponding metabolite data
-        mock_metabolite_data = pd.concat([
-            mock_metabolite_data,
-            pd.DataFrame([{
-                "species_name": "Brassica rapa",
-                "inchi_key": "BRBRBRBRBRBRBR-UHFFFAOYSA-N",
-                "metabolite_name": "Glucosinolate",
-                "log_abundance": 3.5
-            }])
-        ], ignore_index=True)
+        mock_metabolite_data = pd.concat(
+            [
+                mock_metabolite_data,
+                pd.DataFrame(
+                    [
+                        {
+                            "species_name": "Brassica rapa",
+                            "inchi_key": "BRBRBRBRBRBRBR-UHFFFAOYSA-N",
+                            "metabolite_name": "Glucosinolate",
+                            "log_abundance": 3.5,
+                        }
+                    ]
+                ),
+            ],
+            ignore_index=True,
+        )
 
         # Write mock data
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         metab_file = temp_dir / "mock_metabolites.csv"
@@ -355,11 +338,7 @@ class TestDataAlignmentIntegration:
         bgc_df = bgc_summary_to_dataframe(parse_anti_smash_json(str(bgc_file)))
 
         # Perform join
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Verify species with zero BGCs is included (not filtered out by join)
         assert "Brassica rapa" in merged["species_name"].values
@@ -373,7 +352,7 @@ class TestDataAlignmentIntegration:
         """Test that log-transformed metabolite abundances are preserved correctly."""
         # Write mock data
         bgc_file = temp_dir / "mock_bgc.json"
-        with open(bgc_file, 'w') as f:
+        with open(bgc_file, "w") as f:
             json.dump(mock_anti_smash_data, f)
 
         metab_file = temp_dir / "mock_metabolites.csv"
@@ -383,20 +362,19 @@ class TestDataAlignmentIntegration:
         bgc_df = bgc_summary_to_dataframe(parse_anti_smash_json(str(bgc_file)))
 
         # Perform join
-        merged = mock_metabolite_data.merge(
-            bgc_df,
-            on="species_name",
-            how="inner"
-        )
+        merged = mock_metabolite_data.merge(bgc_df, on="species_name", how="inner")
 
         # Verify log_abundance values are preserved
         expected_values = {
             "Arabidopsis thaliana": 4.2,
             "Oryza sativa": 3.8,
-            "Zea mays": 5.1
+            "Zea mays": 5.1,
         }
 
         for species, expected_val in expected_values.items():
-            actual_val = merged[merged["species_name"] == species]["log_abundance"].iloc[0]
-            assert abs(actual_val - expected_val) < 1e-6, \
-                f"Log abundance mismatch for {species}: expected {expected_val}, got {actual_val}"
+            actual_val = merged[merged["species_name"] == species][
+                "log_abundance"
+            ].iloc[0]
+            assert (
+                abs(actual_val - expected_val) < 1e-6
+            ), f"Log abundance mismatch for {species}: expected {expected_val}, got {actual_val}"

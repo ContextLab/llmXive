@@ -2,15 +2,16 @@
 Report generation utilities for the plant secondary metabolite prediction pipeline.
 Compiles model metrics, feature importance, and sensitivity analysis results into a final report.
 """
-import os
+
 import json
-import logging
-from pathlib import Path
+import os
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Union
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 # Import from existing project modules
 from utils.logging import get_logger
+
 from config import get_config, get_data_path
 
 logger = get_logger(__name__)
@@ -34,7 +35,7 @@ def load_model_results(metrics_path: Optional[str] = None) -> Dict[str, Any]:
     if not os.path.exists(metrics_path):
         raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
 
-    with open(metrics_path, 'r') as f:
+    with open(metrics_path, "r") as f:
         return json.load(f)
 
 
@@ -54,15 +55,19 @@ def load_sensitivity_results(results_path: Optional[str] = None) -> Dict[str, An
         results_path = str(Path(data_path) / "processed" / "sensitivity_results.json")
 
     if not os.path.exists(results_path):
-        logger.warning(f"Sensitivity results file not found: {results_path}. "
-                     "Proceeding without sensitivity data.")
+        logger.warning(
+            f"Sensitivity results file not found: {results_path}. "
+            "Proceeding without sensitivity data."
+        )
         return {}
 
-    with open(results_path, 'r') as f:
+    with open(results_path, "r") as f:
         return json.load(f)
 
 
-def format_feature_importance(feature_importance: Dict[str, float], top_n: int = 10) -> str:
+def format_feature_importance(
+    feature_importance: Dict[str, float], top_n: int = 10
+) -> str:
     """
     Format feature importance scores for the report.
 
@@ -76,11 +81,12 @@ def format_feature_importance(feature_importance: Dict[str, float], top_n: int =
     if not feature_importance:
         return "No feature importance data available."
 
-    sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
+    sorted_features = sorted(
+        feature_importance.items(), key=lambda x: x[1], reverse=True
+    )
     top_features = sorted_features[:top_n]
 
-    lines = ["| Rank | Feature | Importance |",
-             "|------|---------|------------|"]
+    lines = ["| Rank | Feature | Importance |", "|------|---------|------------|"]
 
     for rank, (feature, importance) in enumerate(top_features, 1):
         lines.append(f"| {rank} | {feature} | {importance:.4f} |")
@@ -101,38 +107,42 @@ def format_model_metrics(metrics: Dict[str, Any]) -> str:
     lines = []
 
     # Primary Results (PGLS)
-    if 'primary_results' in metrics:
+    if "primary_results" in metrics:
         lines.append("### Primary Analysis Results (PGLS)")
-        primary = metrics['primary_results']
+        primary = metrics["primary_results"]
         lines.append(f"- **R²**: {primary.get('r_squared', 'N/A')}")
         lines.append(f"- **P-value**: {primary.get('p_value', 'N/A')}")
-        if 'feature_importance' in primary:
+        if "feature_importance" in primary:
             lines.append("")
             lines.append("#### Top Feature Importances:")
-            lines.append(format_feature_importance(primary['feature_importance']))
+            lines.append(format_feature_importance(primary["feature_importance"]))
 
     # Model Comparison
-    if 'model_comparison' in metrics:
+    if "model_comparison" in metrics:
         lines.append("")
         lines.append("### Model Comparison")
         lines.append("| Model | R² | RMSE | MAE |")
         lines.append("|-------|----|------|-----|")
 
-        for model_name, model_metrics in metrics['model_comparison'].items():
-            r2 = model_metrics.get('r_squared', 'N/A')
-            rmse = model_metrics.get('rmse', 'N/A')
-            mae = model_metrics.get('mae', 'N/A')
+        for model_name, model_metrics in metrics["model_comparison"].items():
+            r2 = model_metrics.get("r_squared", "N/A")
+            rmse = model_metrics.get("rmse", "N/A")
+            mae = model_metrics.get("mae", "N/A")
             lines.append(f"| {model_name} | {r2} | {rmse} | {mae} |")
 
     # Statistical Significance
-    if 'significance_test' in metrics:
-        sig = metrics['significance_test']
+    if "significance_test" in metrics:
+        sig = metrics["significance_test"]
         lines.append("")
         lines.append("### Statistical Significance")
-        lines.append(f"- **Baseline R² (Permutation)**: {sig.get('baseline_r_squared', 'N/A')}")
+        lines.append(
+            f"- **Baseline R² (Permutation)**: {sig.get('baseline_r_squared', 'N/A')}"
+        )
         lines.append(f"- **Model R²**: {sig.get('model_r_squared', 'N/A')}")
         lines.append(f"- **P-value**: {sig.get('p_value', 'N/A')}")
-        lines.append(f"- **Significant (p < 0.05)**: {sig.get('is_significant', 'N/A')}")
+        lines.append(
+            f"- **Significant (p < 0.05)**: {sig.get('is_significant', 'N/A')}"
+        )
 
     return "\n".join(lines)
 
@@ -154,25 +164,27 @@ def format_sensitivity_results(sensitivity: Dict[str, Any]) -> str:
     lines.append("### Sensitivity Analysis Results")
 
     # Threshold sweep results
-    if 'threshold_sweep' in sensitivity:
+    if "threshold_sweep" in sensitivity:
         lines.append("")
         lines.append("#### Threshold Sweep Results")
         lines.append("| Threshold | R² | RMSE |")
         lines.append("|-----------|----|------|")
 
-        for sweep_result in sensitivity['threshold_sweep']:
-            threshold = sweep_result.get('threshold', 'N/A')
-            r2 = sweep_result.get('r_squared', 'N/A')
-            rmse = sweep_result.get('rmse', 'N/A')
+        for sweep_result in sensitivity["threshold_sweep"]:
+            threshold = sweep_result.get("threshold", "N/A")
+            r2 = sweep_result.get("r_squared", "N/A")
+            rmse = sweep_result.get("rmse", "N/A")
             lines.append(f"| {threshold} | {r2} | {rmse} |")
 
     # Variation calculation
-    if 'variation' in sensitivity:
-        var = sensitivity['variation']
+    if "variation" in sensitivity:
+        var = sensitivity["variation"]
         lines.append("")
         lines.append("#### Variation Summary")
         lines.append(f"- **Maximum R² Difference**: {var.get('max_diff', 'N/A')}")
-        lines.append(f"- **Within Tolerance (≤ 0.05)**: {var.get('within_tolerance', 'N/A')}")
+        lines.append(
+            f"- **Within Tolerance (≤ 0.05)**: {var.get('within_tolerance', 'N/A')}"
+        )
 
     return "\n".join(lines)
 
@@ -180,7 +192,7 @@ def format_sensitivity_results(sensitivity: Dict[str, Any]) -> str:
 def generate_report(
     output_path: Optional[str] = None,
     metrics_path: Optional[str] = None,
-    sensitivity_path: Optional[str] = None
+    sensitivity_path: Optional[str] = None,
 ) -> str:
     """
     Generate the final report compiling all results.
@@ -257,10 +269,18 @@ def generate_report(
     report_lines.append("")
     report_lines.append("## Threshold Justification")
     report_lines.append("")
-    report_lines.append("The BGC detection thresholds used in this analysis follow the antiSMASH default confidence settings,")
-    report_lines.append("which are widely accepted community standards for secondary metabolite gene cluster detection.")
-    report_lines.append("The sensitivity analysis demonstrates that model performance remains stable (R² variation ≤ 0.05)")
-    report_lines.append("across a range of threshold values, justifying the chosen thresholds.")
+    report_lines.append(
+        "The BGC detection thresholds used in this analysis follow the antiSMASH default confidence settings,"
+    )
+    report_lines.append(
+        "which are widely accepted community standards for secondary metabolite gene cluster detection."
+    )
+    report_lines.append(
+        "The sensitivity analysis demonstrates that model performance remains stable (R² variation ≤ 0.05)"
+    )
+    report_lines.append(
+        "across a range of threshold values, justifying the chosen thresholds."
+    )
     report_lines.append("")
     report_lines.append("---")
     report_lines.append("")
@@ -268,12 +288,22 @@ def generate_report(
     report_lines.append("")
 
     # Add conclusion based on results
-    if 'significance_test' in metrics and metrics['significance_test'].get('is_significant', False):
-        report_lines.append("The model demonstrates statistically significant predictive power (p < 0.05) for plant secondary metabolite profiles from genomic data,")
-        report_lines.append("supporting the hypothesis that BGC diversity can predict metabolite abundance patterns.")
+    if "significance_test" in metrics and metrics["significance_test"].get(
+        "is_significant", False
+    ):
+        report_lines.append(
+            "The model demonstrates statistically significant predictive power (p < 0.05) for plant secondary metabolite profiles from genomic data,"
+        )
+        report_lines.append(
+            "supporting the hypothesis that BGC diversity can predict metabolite abundance patterns."
+        )
     else:
-        report_lines.append("The analysis did not find statistically significant predictive power (p ≥ 0.05).")
-        report_lines.append("Further investigation with additional data or alternative modeling approaches may be warranted.")
+        report_lines.append(
+            "The analysis did not find statistically significant predictive power (p ≥ 0.05)."
+        )
+        report_lines.append(
+            "Further investigation with additional data or alternative modeling approaches may be warranted."
+        )
 
     report_lines.append("")
     report_lines.append("---")
@@ -282,27 +312,31 @@ def generate_report(
 
     # Write report
     report_content = "\n".join(report_lines)
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         f.write(report_content)
 
     logger.info(f"Report successfully generated: {output_path}")
 
     # Also generate JSON summary
-    json_output_path = str(Path(output_path).with_suffix('.json'))
+    json_output_path = str(Path(output_path).with_suffix(".json"))
     summary = {
-        'generated_at': timestamp,
-        'metrics_summary': {
-            'primary_r_squared': metrics.get('primary_results', {}).get('r_squared'),
-            'models_compared': list(metrics.get('model_comparison', {}).keys()),
-            'is_significant': metrics.get('significance_test', {}).get('is_significant'),
+        "generated_at": timestamp,
+        "metrics_summary": {
+            "primary_r_squared": metrics.get("primary_results", {}).get("r_squared"),
+            "models_compared": list(metrics.get("model_comparison", {}).keys()),
+            "is_significant": metrics.get("significance_test", {}).get(
+                "is_significant"
+            ),
         },
-        'sensitivity_summary': {
-            'max_r_squared_variation': sensitivity.get('variation', {}).get('max_diff'),
-            'within_tolerance': sensitivity.get('variation', {}).get('within_tolerance'),
-        }
+        "sensitivity_summary": {
+            "max_r_squared_variation": sensitivity.get("variation", {}).get("max_diff"),
+            "within_tolerance": sensitivity.get("variation", {}).get(
+                "within_tolerance"
+            ),
+        },
     }
 
-    with open(json_output_path, 'w') as f:
+    with open(json_output_path, "w") as f:
         json.dump(summary, f, indent=2)
 
     logger.info(f"JSON summary generated: {json_output_path}")

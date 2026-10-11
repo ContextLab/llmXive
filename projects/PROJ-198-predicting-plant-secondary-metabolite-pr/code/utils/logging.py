@@ -1,17 +1,22 @@
 """
 Minimal logging utilities used throughout the project.
 """
+
 import logging
 import sys
-from pathlib import Path
 
 _loggers = {}
 
-def setup_logging(name: str = "pipeline", level: int = logging.INFO, log_file: str | None = None) -> None:
+
+def setup_logging(
+    name: str = "pipeline", level: int = logging.INFO, log_file: str | None = None
+) -> None:
     """Configure root logger with console and optional file handlers."""
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     # Console handler
     ch = logging.StreamHandler(sys.stdout)
@@ -25,6 +30,7 @@ def setup_logging(name: str = "pipeline", level: int = logging.INFO, log_file: s
         fh.setLevel(level)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
+
 
 def get_logger(name: str) -> logging.Logger:
     """Retrieve a named logger, creating it if necessary."""

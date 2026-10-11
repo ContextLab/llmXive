@@ -8,22 +8,21 @@ It uses 3 mock species with pre-generated synthetic data to validate
 the alignment logic without requiring external data downloads.
 """
 
-import os
 import sys
-import tempfile
-import pytest
-import pandas as pd
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
-from data.align import align_data, save_aligned_matrix, calculate_alignment_success_rate
-from data.preprocess import harmonize_metabolites, map_bgc_to_metabolite_dataframe
-from utils.logging import setup_logging, get_logger
+from utils.logging import get_logger, setup_logging
 
+from data.align import align_data, calculate_alignment_success_rate, save_aligned_matrix
+from data.preprocess import harmonize_metabolites, map_bgc_to_metabolite_dataframe
 
 # Configure logging for tests
 setup_logging(log_level="INFO", log_file="tests/integration/test_align.log")
@@ -34,9 +33,21 @@ logger = get_logger(__name__)
 def mock_species_list():
     """Return a list of 3 mock species for testing."""
     return [
-        {"name": "Arabidopsis thaliana", "genome_path": "mock_genomes/athaliana.fasta", "metabolite_path": "mock_metabolites/athaliana.tsv"},
-        {"name": "Solanum lycopersicum", "genome_path": "mock_genomes/slycopersicum.fasta", "metabolite_path": "mock_metabolites/slycopersicum.tsv"},
-        {"name": "Oryza sativa", "genome_path": "mock_genomes/oryzasativa.fasta", "metabolite_path": "mock_metabolites/oryzasativa.tsv"}
+        {
+            "name": "Arabidopsis thaliana",
+            "genome_path": "mock_genomes/athaliana.fasta",
+            "metabolite_path": "mock_metabolites/athaliana.tsv",
+        },
+        {
+            "name": "Solanum lycopersicum",
+            "genome_path": "mock_genomes/slycopersicum.fasta",
+            "metabolite_path": "mock_metabolites/slycopersicum.tsv",
+        },
+        {
+            "name": "Oryza sativa",
+            "genome_path": "mock_genomes/oryzasativa.fasta",
+            "metabolite_path": "mock_metabolites/oryzasativa.tsv",
+        },
     ]
 
 
@@ -50,7 +61,13 @@ def mock_genome_data(mock_species_list, tmp_path):
     bgc_data = []
     for species in mock_species_list:
         # Generate realistic mock BGC counts
-        bgc_types = ["polyketide", "nonribosomal_peptide", "terpene", "alkaloid", "saccharide"]
+        bgc_types = [
+            "polyketide",
+            "nonribosomal_peptide",
+            "terpene",
+            "alkaloid",
+            "saccharide",
+        ]
         counts = {
             "species": species["name"],
             "total_bgc_count": np.random.randint(5, 50),
@@ -58,7 +75,7 @@ def mock_genome_data(mock_species_list, tmp_path):
             "nonribosomal_peptide": np.random.randint(0, 15),
             "terpene": np.random.randint(0, 10),
             "alkaloid": np.random.randint(0, 8),
-            "saccharide": np.random.randint(0, 5)
+            "saccharide": np.random.randint(0, 5),
         }
         bgc_data.append(counts)
 
@@ -80,7 +97,13 @@ def mock_metabolite_data(mock_species_list, tmp_path):
 
     # Create mock metabolite data for each species
     metabolite_data = []
-    metabolite_names = ["metabolite_A", "metabolite_B", "metabolite_C", "metabolite_D", "metabolite_E"]
+    metabolite_names = [
+        "metabolite_A",
+        "metabolite_B",
+        "metabolite_C",
+        "metabolite_D",
+        "metabolite_E",
+    ]
 
     for species in mock_species_list:
         for met_name in metabolite_names:
@@ -88,23 +111,29 @@ def mock_metabolite_data(mock_species_list, tmp_path):
             abundance = np.random.uniform(0.1, 100.0)
             inchikey = f"INCHIKEY_{met_name}_{species['name'][:3].upper()}"
 
-            metabolite_data.append({
-                "species": species["name"],
-                "metabolite_name": met_name,
-                "inchikey": inchikey,
-                "abundance": abundance,
-                "class": np.random.choice(["terpenoid", "alkaloid", "phenolic", "flavonoid"])
-            })
+            metabolite_data.append(
+                {
+                    "species": species["name"],
+                    "metabolite_name": met_name,
+                    "inchikey": inchikey,
+                    "abundance": abundance,
+                    "class": np.random.choice(
+                        ["terpenoid", "alkaloid", "phenolic", "flavonoid"]
+                    ),
+                }
+            )
 
             # Create a mock metabolite file
             met_file = tmp_path / species["metabolite_path"]
             met_file.parent.mkdir(parents=True, exist_ok=True)
-            met_file.write_text("species\tmetabolite_name\tinchikey\tabundance\tclass\n")
+            met_file.write_text(
+                "species\tmetabolite_name\tinchikey\tabundance\tclass\n"
+            )
             for row in metabolite_data:
                 if row["species"] == species["name"]:
                     met_file.write_text(
-                        met_file.read_text() +
-                        f"{row['species']}\t{row['metabolite_name']}\t{row['inchikey']}\t{row['abundance']}\t{row['class']}\n"
+                        met_file.read_text()
+                        + f"{row['species']}\t{row['metabolite_name']}\t{row['inchikey']}\t{row['abundance']}\t{row['class']}\n"
                     )
 
     met_df = pd.DataFrame(metabolite_data)
@@ -112,7 +141,9 @@ def mock_metabolite_data(mock_species_list, tmp_path):
     return tmp_path / "mock_metabolite_abundance.csv"
 
 
-def test_end_to_end_alignment(mock_species_list, mock_genome_data, mock_metabolite_data, tmp_path):
+def test_end_to_end_alignment(
+    mock_species_list, mock_genome_data, mock_metabolite_data, tmp_path
+):
     """
     Test the complete data alignment pipeline on 3 mock species.
 
@@ -140,8 +171,12 @@ def test_end_to_end_alignment(mock_species_list, mock_genome_data, mock_metaboli
     logger.info(f"Harmonized metabolite data: {len(harmonized_met_df)} rows")
 
     # Verify harmonization worked
-    assert "log_abundance" in harmonized_met_df.columns, "Harmonization should add log_abundance column"
-    assert harmonized_met_df["log_abundance"].notna().all(), "All log_abundance values should be non-null"
+    assert (
+        "log_abundance" in harmonized_met_df.columns
+    ), "Harmonization should add log_abundance column"
+    assert (
+        harmonized_met_df["log_abundance"].notna().all()
+    ), "All log_abundance values should be non-null"
 
     # Step 3: Map BGC types to metabolite classes
     mapped_df = map_bgc_to_metabolite_dataframe(bgc_df, harmonized_met_df)
@@ -152,12 +187,12 @@ def test_end_to_end_alignment(mock_species_list, mock_genome_data, mock_metaboli
 
     # Step 4: Align genomic and metabolomic data
     aligned_df, success_rate = align_data(
-        bgc_df,
-        harmonized_met_df,
-        species_list=mock_species_list
+        bgc_df, harmonized_met_df, species_list=mock_species_list
     )
 
-    logger.info(f"Aligned data: {len(aligned_df)} species, success rate: {success_rate:.2%}")
+    logger.info(
+        f"Aligned data: {len(aligned_df)} species, success rate: {success_rate:.2%}"
+    )
 
     # Verify alignment worked
     assert len(aligned_df) > 0, "Aligned data should not be empty"
@@ -170,8 +205,12 @@ def test_end_to_end_alignment(mock_species_list, mock_genome_data, mock_metaboli
 
     # Check that there are no null values in key columns
     assert aligned_df["species"].notna().all(), "All species should be non-null"
-    assert aligned_df["total_bgc_count"].notna().all(), "All BGC counts should be non-null"
-    assert aligned_df["log_abundance"].notna().all(), "All log abundances should be non-null"
+    assert (
+        aligned_df["total_bgc_count"].notna().all()
+    ), "All BGC counts should be non-null"
+    assert (
+        aligned_df["log_abundance"].notna().all()
+    ), "All log abundances should be non-null"
 
     # Step 5: Save aligned matrix
     output_path = tmp_path / "aligned_matrix.csv"
@@ -190,7 +229,9 @@ def test_end_to_end_alignment(mock_species_list, mock_genome_data, mock_metaboli
 
     # Verify success rate calculation
     assert 0 <= success_rate_calc <= 1, "Success rate should be between 0 and 1"
-    assert success_rate_calc == success_rate, "Calculated success rate should match returned rate"
+    assert (
+        success_rate_calc == success_rate
+    ), "Calculated success rate should match returned rate"
 
     # Final assertion: ensure we have at least some valid data
     assert len(aligned_df) >= 1, "Should have at least 1 valid species in aligned data"
@@ -212,31 +253,49 @@ def test_alignment_with_missing_data(mock_species_list, mock_genome_data, tmp_pa
     bgc_df = pd.read_csv(mock_genome_data)
 
     # Create metabolite data missing one species
-    met_df = pd.DataFrame([
-        {"species": "Arabidopsis thaliana", "metabolite_name": "met_A", "inchikey": "INCH_A", "abundance": 10.0, "class": "terpenoid"},
-        {"species": "Solanum lycopersicum", "metabolite_name": "met_B", "inchikey": "INCH_B", "abundance": 20.0, "class": "alkaloid"}
-        # Note: Oryza sativa is missing
-    ])
+    met_df = pd.DataFrame(
+        [
+            {
+                "species": "Arabidopsis thaliana",
+                "metabolite_name": "met_A",
+                "inchikey": "INCH_A",
+                "abundance": 10.0,
+                "class": "terpenoid",
+            },
+            {
+                "species": "Solanum lycopersicum",
+                "metabolite_name": "met_B",
+                "inchikey": "INCH_B",
+                "abundance": 20.0,
+                "class": "alkaloid",
+            },
+            # Note: Oryza sativa is missing
+        ]
+    )
 
     # Harmonize metabolite data
     harmonized_met_df = harmonize_metabolites(met_df)
 
     # Align data
     aligned_df, success_rate = align_data(
-        bgc_df,
-        harmonized_met_df,
-        species_list=mock_species_list
+        bgc_df, harmonized_met_df, species_list=mock_species_list
     )
 
-    logger.info(f"Aligned {len(aligned_df)} species with missing data, success rate: {success_rate:.2%}")
+    logger.info(
+        f"Aligned {len(aligned_df)} species with missing data, success rate: {success_rate:.2%}"
+    )
 
     # Verify that only 2 species are in the aligned data
     assert len(aligned_df) == 2, "Should have 2 species after filtering missing data"
-    assert "Oryza sativa" not in aligned_df["species"].values, "Missing species should be filtered out"
+    assert (
+        "Oryza sativa" not in aligned_df["species"].values
+    ), "Missing species should be filtered out"
 
     # Success rate should be 2/3
-    expected_rate = 2/3
-    assert abs(success_rate - expected_rate) < 0.01, f"Success rate should be approximately {expected_rate}"
+    expected_rate = 2 / 3
+    assert (
+        abs(success_rate - expected_rate) < 0.01
+    ), f"Success rate should be approximately {expected_rate}"
 
     logger.info("Missing data alignment test completed successfully")
 

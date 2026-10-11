@@ -6,24 +6,20 @@ These tests verify that the cleanup and refactoring script correctly:
 2. Fixes function naming to snake_case
 3. Runs ruff and black without errors
 """
-import os
+
 import sys
 import tempfile
-import pytest
 from pathlib import Path
-import ast
 
 # Add the code directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.cleanup_refactor import (
+    cleanup_and_refactor,
+    extract_function_signatures,
     find_python_files,
-    get_imported_names,
-    get_used_names,
     find_unused_imports,
     fix_function_names,
-    extract_function_signatures,
-    cleanup_and_refactor,
 )
 
 

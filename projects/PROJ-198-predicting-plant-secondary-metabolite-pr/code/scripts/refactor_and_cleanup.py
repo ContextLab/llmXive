@@ -7,31 +7,25 @@ remove dead code, and standardize formatting.
 
 It generates a report of changes made.
 """
-import os
-import sys
+
 import ast
 import logging
 import re
-from pathlib import Path
-from typing import List, Set, Tuple, Optional, Dict, Any
 from dataclasses import dataclass, field
-from utils.logging import setup_logging, get_logger
+from pathlib import Path
+from typing import List, Tuple
+
 from utils.cleanup_utils import (
     get_all_imports,
     get_used_names,
-    is_docstring,
-    normalize_log_call,
-    safe_parse_source,
-    get_indentation,
-    is_comment_or_blank,
-    extract_function_bodies,
-    check_code_quality
 )
-from config import get_data_path, get_config
+from utils.logging import setup_logging
+
 
 @dataclass
 class CleanupReport:
     """Report structure for cleanup operations."""
+
     total_files_processed: int = 0
     files_modified: int = 0
     issues_fixed: int = 0
@@ -42,16 +36,18 @@ class CleanupReport:
     errors: List[str] = field(default_factory=list)
     modified_files: List[str] = field(default_factory=list)
 
+
 def validate_syntax(file_path: Path) -> bool:
     """Check if a Python file has valid syntax."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             source = f.read()
         ast.parse(source)
         return True
     except SyntaxError as e:
         logging.error(f"Syntax error in {file_path}: {e}")
         return False
+
 
 def remove_unused_imports(source: str, file_path: Path) -> Tuple[str, int]:
     """Remove unused imports from source code."""
@@ -70,9 +66,8 @@ def remove_unused_imports(source: str, file_path: Path) -> Tuple[str, int]:
             stripped = line.strip()
 
             # Check if line is an import statement
-            is_import_line = (
-                stripped.startswith('import ') or
-                stripped.startswith('from ')
+            is_import_line = stripped.startswith("import ") or stripped.startswith(
+                "from "
             )
 
             if is_import_line:
@@ -83,14 +78,14 @@ def remove_unused_imports(source: str, file_path: Path) -> Tuple[str, int]:
                     # End of import block, process it
                     for line_num, import_line in current_import_block:
                         # Parse this specific import line
-                        temp_source = '\n'.join([l for _, l in current_import_block])
+                        temp_source = "\n".join([l for _, l in current_import_block])
                         try:
                             temp_tree = ast.parse(temp_source)
                             local_imports = get_all_imports(temp_tree)
 
                             should_keep = False
                             for imp in local_imports:
-                                name = imp.split('.')[0] if '.' in imp else imp
+                                name = imp.split(".")[0] if "." in imp else imp
                                 if name in used_names:
                                     should_keep = True
                                     break
@@ -111,14 +106,14 @@ def remove_unused_imports(source: str, file_path: Path) -> Tuple[str, int]:
         # Handle case where file ends with imports
         if in_import_block:
             for line_num, import_line in current_import_block:
-                temp_source = '\n'.join([l for _, l in current_import_block])
+                temp_source = "\n".join([l for _, l in current_import_block])
                 try:
                     temp_tree = ast.parse(temp_source)
                     local_imports = get_all_imports(temp_tree)
 
                     should_keep = False
                     for imp in local_imports:
-                        name = imp.split('.')[0] if '.' in imp else imp
+                        name = imp.split(".")[0] if "." in imp else imp
                         if name in used_names:
                             should_keep = True
                             break
@@ -130,10 +125,11 @@ def remove_unused_imports(source: str, file_path: Path) -> Tuple[str, int]:
                 except SyntaxError:
                     new_lines.append(import_line)
 
-        return '\n'.join(new_lines), removed_count
+        return "\n".join(new_lines), removed_count
     except SyntaxError:
         logging.warning(f"Could not parse {file_path} for unused imports")
         return source, 0
+
 
 def standardize_docstrings(source: str) -> Tuple[str, int]:
     """Standardize docstrings to use triple double quotes."""
@@ -153,7 +149,8 @@ def standardize_docstrings(source: str) -> Tuple[str, int]:
         else:
             new_lines.append(line)
 
-    return '\n'.join(new_lines), count
+    return "\n".join(new_lines), count
+
 
 def normalize_log_levels(source: str) -> Tuple[str, int]:
     """Normalize log level usage to use constants instead of strings."""
@@ -174,6 +171,7 @@ def normalize_log_levels(source: str) -> Tuple[str, int]:
 
     return new_source, count
 
+
 def remove_dead_code(source: str, file_path: Path) -> Tuple[str, int]:
     """Remove obvious dead code (unreachable statements after return/break/continue)."""
     try:
@@ -190,26 +188,28 @@ def remove_dead_code(source: str, file_path: Path) -> Tuple[str, int]:
         stripped = line.strip()
 
         # Check for control flow statements
-        if stripped.startswith('return ') or stripped == 'return':
+        if stripped.startswith("return ") or stripped == "return":
             new_lines.append(line)
             skip_until_next_def = True
             continue
 
-        if stripped.startswith('break') or stripped.startswith('continue'):
+        if stripped.startswith("break") or stripped.startswith("continue"):
             new_lines.append(line)
             skip_until_next_def = True
             continue
 
-        if stripped.startswith('raise ') or stripped.startswith('except'):
+        if stripped.startswith("raise ") or stripped.startswith("except"):
             new_lines.append(line)
             skip_until_next_def = False
             continue
 
         # Skip lines after return/break/continue until next function/class def
         if skip_until_next_def:
-            if (stripped.startswith('def ') or
-                stripped.startswith('class ') or
-                stripped.startswith('@')):
+            if (
+                stripped.startswith("def ")
+                or stripped.startswith("class ")
+                or stripped.startswith("@")
+            ):
                 skip_until_next_def = False
                 new_lines.append(line)
             else:
@@ -218,17 +218,18 @@ def remove_dead_code(source: str, file_path: Path) -> Tuple[str, int]:
 
         new_lines.append(line)
 
-    return '\n'.join(new_lines), removed_count
+    return "\n".join(new_lines), removed_count
+
 
 def process_file(file_path: Path, report: CleanupReport) -> bool:
     """Process a single Python file."""
-    if not file_path.suffix == '.py':
+    if not file_path.suffix == ".py":
         return False
 
     logging.info(f"Processing {file_path}")
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             original_source = f.read()
 
         source = original_source
@@ -256,13 +257,15 @@ def process_file(file_path: Path, report: CleanupReport) -> bool:
 
         # Validate syntax after changes
         if not validate_syntax(file_path):
-            logging.error(f"Syntax validation failed for {file_path} after modifications")
+            logging.error(
+                f"Syntax validation failed for {file_path} after modifications"
+            )
             report.errors.append(f"Syntax error in {file_path}")
             return False
 
         # Write back if changed
         if source != original_source:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(source)
             report.files_modified += 1
             report.modified_files.append(str(file_path))
@@ -278,6 +281,7 @@ def process_file(file_path: Path, report: CleanupReport) -> bool:
         report.errors.append(f"Error in {file_path}: {str(e)}")
         return False
 
+
 def main():
     """Main entry point for the cleanup script."""
     logger = setup_logging("cleanup", log_level=logging.INFO)
@@ -286,8 +290,8 @@ def main():
 
     # Define directories to process
     base_path = Path(__file__).parent.parent
-    data_dir = base_path / 'data'
-    modeling_dir = base_path / 'modeling'
+    data_dir = base_path / "data"
+    modeling_dir = base_path / "modeling"
 
     directories_to_process = []
 
@@ -307,7 +311,7 @@ def main():
 
     # Process all Python files
     for directory in directories_to_process:
-        for py_file in directory.rglob('*.py'):
+        for py_file in directory.rglob("*.py"):
             report.total_files_processed += 1
             process_file(py_file, report)
 
@@ -335,5 +339,6 @@ def main():
 
     return report
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

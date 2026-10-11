@@ -1,17 +1,19 @@
-import os
 import sys
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Add the code directory to the path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
 from scripts.setup_project_structure import create_directories, create_init_files
 
+
 @pytest.fixture
 def temp_project_root(tmp_path):
     """Create a temporary directory to act as project root."""
     return tmp_path
+
 
 def test_create_directories(temp_project_root):
     """Test that create_directories creates all required directories."""
@@ -31,6 +33,7 @@ def test_create_directories(temp_project_root):
     assert (temp_project_root / "data" / "raw").exists()
     assert (temp_project_root / "data" / "processed").exists()
     assert (temp_project_root / "data" / "interim").exists()
+
 
 def test_create_init_files(temp_project_root):
     """Test that create_init_files creates all required __init__.py files."""

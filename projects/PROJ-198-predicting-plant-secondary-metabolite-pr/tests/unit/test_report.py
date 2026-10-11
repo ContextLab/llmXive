@@ -1,11 +1,11 @@
 """
 Unit tests for report generation functionality.
 """
+
+import json
 import os
 import sys
 import tempfile
-import json
-import pytest
 from pathlib import Path
 
 # Add parent directory to path for imports
@@ -15,7 +15,7 @@ from utils.report import (
     format_feature_importance,
     format_model_metrics,
     format_sensitivity_results,
-    generate_report
+    generate_report,
 )
 
 
@@ -36,11 +36,7 @@ class TestFormatFeatureImportance:
 
     def test_multiple_features_sorted(self):
         """Test that features are sorted by importance."""
-        features = {
-            "feature_c": 0.50,
-            "feature_a": 0.90,
-            "feature_b": 0.75
-        }
+        features = {"feature_c": 0.50, "feature_a": 0.90, "feature_b": 0.75}
         result = format_feature_importance(features)
         # Check that feature_a appears before feature_b and feature_c
         a_pos = result.find("feature_a")
@@ -50,10 +46,7 @@ class TestFormatFeatureImportance:
 
     def test_top_n_limit(self):
         """Test that top_n limits the output."""
-        features = {
-            f"feature_{i}": 0.90 - i * 0.05
-            for i in range(20)
-        }
+        features = {f"feature_{i}": 0.90 - i * 0.05 for i in range(20)}
         result = format_feature_importance(features, top_n=5)
         # Should only have 5 features
         assert result.count("| 1 |") == 1
@@ -75,7 +68,7 @@ class TestFormatModelMetrics:
             "primary_results": {
                 "r_squared": 0.65,
                 "p_value": 0.001,
-                "feature_importance": {"gene_a": 0.8, "gene_b": 0.2}
+                "feature_importance": {"gene_a": 0.8, "gene_b": 0.2},
             }
         }
         result = format_model_metrics(metrics)
@@ -89,7 +82,7 @@ class TestFormatModelMetrics:
         metrics = {
             "model_comparison": {
                 "Random Forest": {"r_squared": 0.70, "rmse": 0.15, "mae": 0.10},
-                "Elastic Net": {"r_squared": 0.65, "rmse": 0.18, "mae": 0.12}
+                "Elastic Net": {"r_squared": 0.65, "rmse": 0.18, "mae": 0.12},
             }
         }
         result = format_model_metrics(metrics)
@@ -105,7 +98,7 @@ class TestFormatModelMetrics:
                 "baseline_r_squared": 0.02,
                 "model_r_squared": 0.65,
                 "p_value": 0.001,
-                "is_significant": True
+                "is_significant": True,
             }
         }
         result = format_model_metrics(metrics)
@@ -128,7 +121,7 @@ class TestFormatSensitivityResults:
             "threshold_sweep": [
                 {"threshold": 0.1, "r_squared": 0.60, "rmse": 0.20},
                 {"threshold": 0.5, "r_squared": 0.65, "rmse": 0.18},
-                {"threshold": 0.9, "r_squared": 0.62, "rmse": 0.19}
+                {"threshold": 0.9, "r_squared": 0.62, "rmse": 0.19},
             ]
         }
         result = format_sensitivity_results(sensitivity)
@@ -139,12 +132,7 @@ class TestFormatSensitivityResults:
 
     def test_variation_summary(self):
         """Test formatting of variation summary."""
-        sensitivity = {
-            "variation": {
-                "max_diff": 0.03,
-                "within_tolerance": True
-            }
-        }
+        sensitivity = {"variation": {"max_diff": 0.03, "within_tolerance": True}}
         result = format_sensitivity_results(sensitivity)
         assert "Variation Summary" in result
         assert "0.03" in result
@@ -163,19 +151,17 @@ class TestGenerateReport:
                 "primary_results": {
                     "r_squared": 0.65,
                     "p_value": 0.001,
-                    "feature_importance": {"gene_a": 0.8}
+                    "feature_importance": {"gene_a": 0.8},
                 },
-                "model_comparison": {
-                    "Random Forest": {"r_squared": 0.70}
-                },
+                "model_comparison": {"Random Forest": {"r_squared": 0.70}},
                 "significance_test": {
                     "baseline_r_squared": 0.02,
                     "model_r_squared": 0.65,
                     "p_value": 0.001,
-                    "is_significant": True
-                }
+                    "is_significant": True,
+                },
             }
-            with open(metrics_path, 'w') as f:
+            with open(metrics_path, "w") as f:
                 json.dump(metrics_data, f)
 
             # Create sample sensitivity file
@@ -183,14 +169,11 @@ class TestGenerateReport:
             sensitivity_data = {
                 "threshold_sweep": [
                     {"threshold": 0.1, "r_squared": 0.60},
-                    {"threshold": 0.5, "r_squared": 0.65}
+                    {"threshold": 0.5, "r_squared": 0.65},
                 ],
-                "variation": {
-                    "max_diff": 0.03,
-                    "within_tolerance": True
-                }
+                "variation": {"max_diff": 0.03, "within_tolerance": True},
             }
-            with open(sensitivity_path, 'w') as f:
+            with open(sensitivity_path, "w") as f:
                 json.dump(sensitivity_data, f)
 
             # Generate report
@@ -198,7 +181,7 @@ class TestGenerateReport:
             result_path = generate_report(
                 output_path=str(output_path),
                 metrics_path=str(metrics_path),
-                sensitivity_path=str(sensitivity_path)
+                sensitivity_path=str(sensitivity_path),
             )
 
             # Verify report exists
@@ -206,7 +189,7 @@ class TestGenerateReport:
             assert result_path == str(output_path)
 
             # Verify report content
-            with open(result_path, 'r') as f:
+            with open(result_path, "r") as f:
                 content = f.read()
 
             assert "Plant Secondary Metabolite Prediction Report" in content
@@ -224,18 +207,17 @@ class TestGenerateReport:
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create only metrics file
             metrics_path = Path(tmpdir) / "metrics.json"
-            with open(metrics_path, 'w') as f:
+            with open(metrics_path, "w") as f:
                 json.dump({"primary_results": {"r_squared": 0.65}}, f)
 
             output_path = Path(tmpdir) / "final_report.md"
             result_path = generate_report(
-                output_path=str(output_path),
-                metrics_path=str(metrics_path)
+                output_path=str(output_path), metrics_path=str(metrics_path)
             )
 
             assert os.path.exists(result_path)
 
-            with open(result_path, 'r') as f:
+            with open(result_path, "r") as f:
                 content = f.read()
 
             assert "No sensitivity analysis results available" in content
@@ -247,12 +229,12 @@ class TestGenerateReport:
             result_path = generate_report(
                 output_path=str(output_path),
                 metrics_path="/nonexistent/metrics.json",
-                sensitivity_path="/nonexistent/sensitivity.json"
+                sensitivity_path="/nonexistent/sensitivity.json",
             )
 
             assert os.path.exists(result_path)
 
-            with open(result_path, 'r') as f:
+            with open(result_path, "r") as f:
                 content = f.read()
 
             # Should handle missing data gracefully

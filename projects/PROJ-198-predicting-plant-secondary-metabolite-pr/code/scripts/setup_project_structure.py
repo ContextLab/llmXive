@@ -2,9 +2,9 @@
 Script to initialize the project directory structure.
 Creates the required directories for code, data, tests, and specs.
 """
+
 import os
 import sys
-import logging
 from pathlib import Path
 
 # Ensure the project root is in the path if running as a script
@@ -37,6 +37,7 @@ REQUIRED_DIRS = [
     "state",
     "state/projects",
 ]
+
 
 def main():
     """Create the project directory structure."""
@@ -75,8 +76,11 @@ def main():
             full_path.write_text("")
             print(f"Created init file: {init_file}")
 
-    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
+    print(
+        f"\nProject structure initialization complete. Created {created_count} new directories."
+    )
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

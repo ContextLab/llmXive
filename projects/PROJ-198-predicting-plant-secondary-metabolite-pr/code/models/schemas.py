@@ -123,9 +123,7 @@ class Metabolite(BaseModel):
     log_abundance: Optional[float] = Field(
         None, description="Log‑transformed abundance (log(x+1))"
     )
-    compound_class: Optional[str] = Field(
-        None, description="Metabolite chemical class"
-    )
+    compound_class: Optional[str] = Field(None, description="Metabolite chemical class")
 
     @validator("species", "inchikey")
     def non_empty(cls, v: str) -> str:

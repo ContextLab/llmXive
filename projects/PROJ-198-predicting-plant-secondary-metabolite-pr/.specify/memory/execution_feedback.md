@@ -24,56 +24,60 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/cli/main.py --step download_and_align -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
-    from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/preprocess.py", line 11, in <module>
-    from models.bgc import BGCType
-ImportError: cannot import name 'BGCType' from 'models.bgc' (/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/bgc.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
+    from code.data.align import align_data, save_aligned_matrix
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/align.py", line 7, in <module>
+    from config import get_data_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
+    from .config_env import get_env_manager
+ImportError: attempted relative import with no known parent package
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
-    from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/preprocess.py", line 11, in <module>
-    from models.bgc import BGCType
-ImportError: cannot import name 'BGCType' from 'models.bgc' (/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/bgc.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
+    from code.data.align import align_data, save_aligned_matrix
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/align.py", line 7, in <module>
+    from config import get_data_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
+    from .config_env import get_env_manager
+ImportError: attempted relative import with no known parent package
 
 - python -m pytest tests/ -> rc=2
-s://docs.pytest.org/en/stable/how-to/capture-warnings.html
+c V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    @validator("algorithm", "cv_method")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_align.py
-ERROR tests/integration/test_quickstart_validation.py
 ERROR tests/models/test_models.py
 ERROR tests/test_config.py
 ERROR tests/unit/test_align.py
 ERROR tests/unit/test_cleanup_refactor.py
-ERROR tests/unit/test_data_directories.py
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
-ERROR tests/unit/test_download.py
-ERROR tests/unit/test_edge_cases.py
+ERROR tests/unit/test_edge_cases.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_linting_config.py
 ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
-ERROR tests/unit/test_preprocess.py
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
-ERROR tests/unit/test_sensitivity.py
 ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
-!!!!!!!!!!!!!!!!!!! Interrupted: 20 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 8 warnings, 20 errors in 2.28s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 8 warnings, 15 errors in 1.14s ========================
 
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
-    from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/preprocess.py", line 11, in <module>
-    from models.bgc import BGCType
-ImportError: cannot import name 'BGCType' from 'models.bgc' (/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/bgc.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
+    from code.data.align import align_data, save_aligned_matrix
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/align.py", line 7, in <module>
+    from config import get_data_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
+    from .config_env import get_env_manager
+ImportError: attempted relative import with no known parent package
 
 
 ## Declared deliverables still missing

@@ -6,9 +6,8 @@ linting (ruff) and formatting (black) standards.
 """
 import subprocess
 import sys
-import logging
+from code.utils.logging import get_logger, setup_logging
 
-from code.utils.logging import setup_logging, get_logger
 
 def main() -> int:
     """Run ruff and black checks; return exit code."""
@@ -25,13 +24,16 @@ def main() -> int:
             logger.info("Running: %s", " ".join(cmd))
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError as e:
-            logger.error("Command failed with exit code %s: %s", e.returncode, " ".join(cmd))
+            logger.error(
+                "Command failed with exit code %s: %s", e.returncode, " ".join(cmd)
+            )
             return e.returncode
         except FileNotFoundError:
             logger.error("Command not found: %s", cmd[0])
             return 1
     logger.info("All linting checks passed.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

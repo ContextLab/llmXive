@@ -25,7 +25,7 @@ _env_manager: Optional["EnvManager"] = None
 class EnvManager:
     """
     Loads environment variables from a ``.env`` file and provides typed access.
-    
+
     The manager is deliberately lightweight – it does not perform any I/O
     beyond loading the ``.env`` file at initialization. All subsequent
     accesses are pure ``os.getenv`` calls.

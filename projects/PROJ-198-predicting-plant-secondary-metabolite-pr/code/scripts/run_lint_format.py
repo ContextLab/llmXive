@@ -1,10 +1,12 @@
 """
 Script to run linting (ruff) and formatting (black) checks.
 """
+
+import argparse
 import subprocess
 import sys
-import argparse
 from pathlib import Path
+
 
 def run_command(cmd: list[str], check: bool = True) -> bool:
     """Run a shell command. Returns True if successful."""
@@ -15,6 +17,7 @@ def run_command(cmd: list[str], check: bool = True) -> bool:
             raise RuntimeError(f"Command failed: {' '.join(cmd)}")
         return False
     return True
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run linting and formatting checks.")
@@ -57,6 +60,7 @@ def main() -> None:
             sys.exit(1)
 
     print("All checks passed.")
+
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,12 @@
 """
 Pytest configuration and fixtures.
 """
-import os
+
 import sys
-import pytest
 from pathlib import Path
-import pandas as pd
+
+import pytest
+
 
 # Add project root to path for imports
 @pytest.fixture(autouse=True)

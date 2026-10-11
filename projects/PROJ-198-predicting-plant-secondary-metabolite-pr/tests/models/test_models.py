@@ -1,12 +1,14 @@
 """
 Unit tests for Pydantic model definitions in code/models/.
 """
-import pytest
-from datetime import datetime
-from code.models.species import Species
-from code.models.bgc import BGCType, BGCFeature
-from code.models.metabolite import MetaboliteClass, Metabolite
+
+from code.models.bgc import BGCFeature, BGCType
+from code.models.metabolite import Metabolite, MetaboliteClass
 from code.models.output import ModelOutput
+from code.models.species import Species
+from datetime import datetime
+
+import pytest
 
 
 class TestSpecies:
@@ -18,7 +20,7 @@ class TestSpecies:
             common_name="Thale Cress",
             family="Brassicaceae",
             genome_size_bp=135000000.0,
-            assembly_accession="GCA_000001735.1"
+            assembly_accession="GCA_000001735.1",
         )
         assert s.species_id == "12345"
         assert s.scientific_name == "Arabidopsis thaliana"
@@ -31,10 +33,7 @@ class TestSpecies:
 
     def test_species_optional_fields(self):
         """Test handling of optional fields."""
-        s = Species(
-            species_id="999",
-            scientific_name="Test Plant"
-        )
+        s = Species(species_id="999", scientific_name="Test Plant")
         assert s.common_name is None
         assert s.metadata == {}
 
@@ -49,7 +48,7 @@ class TestBGCFeature:
             confidence_score=0.95,
             start_position=1000,
             end_position=5000,
-            gene_count=12
+            gene_count=12,
         )
         assert bgc.bgc_type == BGCType.NRPS
         assert bgc.confidence_score == 0.95
@@ -64,7 +63,7 @@ class TestBGCFeature:
                 bgc_type=BGCType.TERPENE,
                 confidence_score=1.5,  # Invalid
                 start_position=0,
-                end_position=100
+                end_position=100,
             )
 
     def test_bgc_unknown_type(self):
@@ -75,7 +74,7 @@ class TestBGCFeature:
             bgc_type=BGCType.UNKNOWN,
             confidence_score=0.1,
             start_position=0,
-            end_position=100
+            end_position=100,
         )
         assert bgc.bgc_type == BGCType.UNKNOWN
 
@@ -90,7 +89,7 @@ class TestMetabolite:
             chemical_class=MetaboliteClass.FLAVONOID,
             species_id="12345",
             abundance=150.5,
-            abundance_unit="ng/g"
+            abundance_unit="ng/g",
         )
         assert m.inchi_key == "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
         assert m.abundance == 150.5
@@ -100,10 +99,7 @@ class TestMetabolite:
         # Valid key
         valid_key = "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
         m = Metabolite(
-            metabolite_id="PMDB1",
-            inchi_key=valid_key,
-            species_id="1",
-            abundance=10.0
+            metabolite_id="PMDB1", inchi_key=valid_key, species_id="1", abundance=10.0
         )
         assert m.inchi_key == valid_key
 
@@ -113,7 +109,7 @@ class TestMetabolite:
                 metabolite_id="PMDB2",
                 inchi_key="INVALID",
                 species_id="1",
-                abundance=10.0
+                abundance=10.0,
             )
 
     def test_metabolite_negative_abundance(self):
@@ -123,7 +119,7 @@ class TestMetabolite:
                 metabolite_id="PMDB3",
                 inchi_key="BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
                 species_id="1",
-                abundance=-5.0
+                abundance=-5.0,
             )
 
 
@@ -136,7 +132,7 @@ class TestModelOutput:
             r_squared=0.85,
             n_samples=50,
             n_features=10,
-            feature_importance={"feature_A": 0.5, "feature_B": 0.3}
+            feature_importance={"feature_A": 0.5, "feature_B": 0.3},
         )
         assert output.run_id == "run_001"
         assert output.r_squared == 0.85
@@ -145,10 +141,7 @@ class TestModelOutput:
     def test_model_output_timestamp(self):
         """Test that timestamp is auto-generated."""
         output = ModelOutput(
-            run_id="run_002",
-            model_type="PGLS",
-            n_samples=20,
-            n_features=5
+            run_id="run_002", model_type="PGLS", n_samples=20, n_features=5
         )
         assert isinstance(output.timestamp, datetime)
 
@@ -159,6 +152,6 @@ class TestModelOutput:
             model_type="ElasticNet",
             n_samples=100,
             n_features=20,
-            hyperparameters={"alpha": 0.1, "l1_ratio": 0.5}
+            hyperparameters={"alpha": 0.1, "l1_ratio": 0.5},
         )
         assert output.hyperparameters["alpha"] == 0.1

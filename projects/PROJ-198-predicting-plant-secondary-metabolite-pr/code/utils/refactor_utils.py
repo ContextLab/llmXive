@@ -4,11 +4,9 @@ Utility functions for code refactoring and cleanup.
 This module provides helper functions used by the cleanup_refactor.py script
 to analyze and modify Python source files.
 """
+
 import ast
-import re
-from pathlib import Path
-from typing import List, Set, Tuple, Optional
-import logging
+from typing import List, Set, Tuple
 
 from utils.logging import get_logger
 
@@ -110,7 +108,9 @@ def fix_import_section(content: str, unused_imports: List[str]) -> str:
             # Collect all lines that are part of this import statement
             import_lines = [line]
             j = i + 1
-            while j < len(lines) and (lines[j].startswith(" ") or lines[j].startswith("\t")):
+            while j < len(lines) and (
+                lines[j].startswith(" ") or lines[j].startswith("\t")
+            ):
                 import_lines.append(lines[j])
                 j += 1
 

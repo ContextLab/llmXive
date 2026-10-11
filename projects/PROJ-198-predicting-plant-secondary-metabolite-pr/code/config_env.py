@@ -9,12 +9,12 @@ Provides:
 * ``ensure_directories`` – creates the standard data / logs / figures
   directories based on the configuration.
 """
-import os
+
 import logging
+import os
 from pathlib import Path
 from typing import Optional, Set
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _env_manager_instance = None  # type: ignore
@@ -28,6 +28,7 @@ class EnvConfig(BaseSettings):
     environment and, if a ``.env`` file exists in the project root, from
     that file as well.
     """
+
     # Core variables used across the pipeline
     NCBI_API_KEY: Optional[str] = None
     PMDB_TOKEN: Optional[str] = None
