@@ -246,7 +246,10 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
     def _third_party(mod: str) -> str | None:
         """Top-level pip-installable module name, or None for stdlib/local."""
         top = mod.split(".")[0]
-        if not top or top in sys.stdlib_module_names or top in local_names:
+        # llmxive_toolkit is the platform's, on every project's path already;
+        # it is not on PyPI and must never be written into requirements.
+        if (not top or top in sys.stdlib_module_names or top in local_names
+                or top == "llmxive_toolkit"):
             return None
         return top
 

@@ -101,6 +101,108 @@ def _legacy_venv(project_dir: Path) -> Path:
     return Path(project_dir) / "code" / ".venv"
 
 
+#: Pinned packages every project venv can import without declaring them.
+BASE_REQUIREMENTS = Path(__file__).resolve().parent / "execution" / "base_requirements.txt"
+#: Name of the file, in a project venv's site-packages, that links the base
+#: environment and the project toolkit onto its import path.
+_LINK_PTH = "llmxive_platform.pth"
+
+
+def base_env_dir() -> Path:
+    """Where the shared base environment for THIS interpreter and pin set lives.
+
+    One directory per (Python minor version, content of the pin file), under
+    ``$LLMXIVE_BASE_ENV_DIR`` or ``~/.cache/llmxive/base-env``. It is outside
+    every repository, so one build serves every project and every checkout on
+    the machine, and a changed pin file simply gets a new directory.
+    """
+    import hashlib
+
+    home = os.environ.get("LLMXIVE_BASE_ENV_DIR") or str(Path.home() / ".cache" / "llmxive" / "base-env")
+    digest = hashlib.sha256(BASE_REQUIREMENTS.read_bytes()).hexdigest()[:12]
+    return Path(home) / f"py{sys.version_info.major}{sys.version_info.minor}-{digest}"
+
+
+def ensure_base_env() -> Path | None:
+    """Build the shared base environment once; return it, or ``None``.
+
+    Measured, 2026-10-11: a third-party module missing from the venv was 16.7%
+    of all failing run-book commands (261 of 1,566, in 111 projects), and the
+    modules were the ordinary ones -- pytest 31, pandas 26, numpy 16. Each cost
+    a fix round: fail, have the import auto-declared, reinstall, run again. The
+    base environment makes those importable from the first run.
+
+    It is a plain ``pip install --target`` directory, not a venv: project venvs
+    reach it through a ``.pth`` line, so it is installed once per machine
+    instead of once per project (a project venv was up to 1.2 GB). Built in a
+    temporary sibling and renamed into place, so a half-built directory is
+    never used and two builders cannot corrupt each other.
+
+    ``None`` means it could not be built (no network, a pin that no longer
+    resolves). That is logged and survivable: a project that DECLARES its
+    dependencies still gets them from its own requirements.
+    """
+    import tempfile
+
+    target = base_env_dir()
+    if (target / ".complete").is_file():
+        return target
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        staging = Path(tempfile.mkdtemp(prefix=target.name + ".building-", dir=target.parent))
+    except OSError as exc:
+        logger.warning("base environment: cannot create %s: %s", target.parent, exc)
+        return None
+    try:
+        proc = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-q", "--disable-pip-version-check",
+             "--target", str(staging), "-r", str(BASE_REQUIREMENTS)],
+            check=False, capture_output=True, text=True,
+        )
+        if proc.returncode != 0:
+            logger.warning(
+                "base environment: pip failed (rc=%s); projects run with their own "
+                "requirements only. tail: %s", proc.returncode, (proc.stderr or "")[-400:])
+            return None
+        (staging / ".complete").write_text(BASE_REQUIREMENTS.read_text(encoding="utf-8"), encoding="utf-8")
+        try:
+            staging.rename(target)
+        except OSError:
+            # Another builder finished first; theirs is as good as ours.
+            if not (target / ".complete").is_file():
+                raise
+        return target
+    except OSError as exc:
+        logger.warning("base environment: build failed: %s", exc)
+        return None
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+
+
+def _link_platform_paths(venv: Path) -> None:
+    """Put the project toolkit and the base environment on the venv's path.
+
+    Written as a ``.pth`` file in the venv's own site-packages, so it holds for
+    every way the venv's python is started. ``.pth`` entries come AFTER
+    site-packages on ``sys.path``: a package the project installed itself
+    always wins over the base copy.
+    """
+    from llmxive.project_toolkit import TOOLKIT_PATH
+
+    lines = [str(TOOLKIT_PATH)]
+    base = ensure_base_env()
+    if base is not None:
+        lines.append(str(base))
+    body = "\n".join(lines) + "\n"
+    for site in venv.glob("lib/python*/site-packages"):
+        pth = site / _LINK_PTH
+        try:
+            if not pth.is_file() or pth.read_text(encoding="utf-8") != body:
+                pth.write_text(body, encoding="utf-8")
+        except OSError as exc:
+            logger.warning("could not link platform paths into %s: %s", site, exc)
+
+
 def ensure_venv(project_dir: Path) -> Path:
     """Create or reuse the project's venv (:func:`venv_dir`). Returns the python path.
 
@@ -129,17 +231,23 @@ def ensure_venv(project_dir: Path) -> Path:
             check=True,
             capture_output=True,
         )
-    from llmxive.project_files import requirements_path
+    _link_platform_paths(venv)
+    from llmxive.project_files import requirements_paths
 
-    req = requirements_path(project_dir)
-    if req.exists():
+    # EVERY manifest the project has. Only one of code/requirements.txt and
+    # requirements.txt used to be read; 31 failing run-book commands in the
+    # corpus imported a module the project had declared in the other one.
+    manifests = requirements_paths(project_dir)
+    if manifests:
         mtime_file = venv / ".requirements_mtime"
-        last_synced = (
-            float(mtime_file.read_text().strip()) if mtime_file.exists() else 0.0
-        )
-        cur_mtime = req.stat().st_mtime
+        try:
+            last_synced = float(mtime_file.read_text().strip()) if mtime_file.exists() else 0.0
+        except ValueError:
+            last_synced = 0.0
+        cur_mtime = max(req.stat().st_mtime for req in manifests)
         if cur_mtime > last_synced or needs_create:
-            _resilient_pip_install(py, req)
+            for req in manifests:
+                _resilient_pip_install(py, req)
             try:
                 mtime_file.write_text(f"{cur_mtime}\n", encoding="utf-8")
             except OSError:
@@ -237,6 +345,8 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     any inherited PYTHONPATH. Fixes the ModuleNotFoundError class that dominated the
     execution failures (25 of them) — the analysis crashing on its OWN package."""
     env = dict(base_env)
+    # Where llmxive_toolkit.paths anchors: the project, whatever the cwd is.
+    env["LLMXIVE_PROJECT_ROOT"] = str(project_dir.resolve())
     from llmxive.project_files import SOURCE_DIRS
 
     # Prefer the code workspace over same-named project-root scaffolding. With
@@ -564,9 +674,12 @@ def evict_other_project_venvs(project_dir: Path) -> int:
 
 
 __all__ = [
+    "BASE_REQUIREMENTS",
     "VENV_ROOT_NAME",
     "ExecutionResult",
+    "base_env_dir",
     "cleanup_venv",
+    "ensure_base_env",
     "ensure_venv",
     "evict_other_project_venvs",
     "run_pytest",
