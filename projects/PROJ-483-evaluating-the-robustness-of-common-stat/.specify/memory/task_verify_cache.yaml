@@ -1,3 +1,54 @@
+T001:
+  c: true
+  h: bcb2a12f987719355388a079c6889ef4ce2a1f7e4c3fc1297b042160dc0b38ef
+  r: "Checked that the project root `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`\
+    \ exists and contains the full set of expected top\u2011level entries (README,\
+    \ pyproject.toml, requirements.txt, and subfolders `code/`, `data/`, `docs/`,\
+    \ `results/`, `specs/`, `src/`, `tests/`, etc.) as required by the implementation\
+    \ plan. All required artifacts are present."
+  sig: aec4b43f28131c2c357aff49cbda7ca765301b7db9565a9dba607181af4e1835
+T002:
+  c: true
+  h: 2082d52c1a722d0cd43e68f193b8320fd4486597856edea4f7164e4ddbb52519
+  r: "Checked the `requirements.txt` file (172\u202Fbytes) and confirmed it lists\
+    \ all required packages (`numpy`, `scipy`, `pandas`, `statsmodels`, `matplotlib`,\
+    \ `seaborn`, `pyyaml`, `pytest`) with version constraints, satisfying the initialization\
+    \ task."
+  sig: 21216e5eaf2ca327a4e8287fa50a23033b0403214ebccbfff57f0a91bd711727
+T003:
+  c: true
+  h: 5d0b8275366ebf896bfac1c8630bf2ae17d8793f8836f4855f0bc47a64593dd0
+  r: "The `pyproject.toml` file (1380\u202Fbytes) includes `[tool.black]` and `[tool.flake8]`\
+    \ sections with appropriate settings, and the dev optional dependencies list contains\
+    \ `black` and `flake8`. This fulfills the task of configuring linting and formatting\
+    \ tools in `pyproject.toml`."
+  sig: 98bff38d656c23b88f9f39c4dcd7a97a13ab96d3b308297dbcb0fba23d297db0
+T004:
+  c: false
+  h: faa29deaff8de527e0247cd74894b82d8ef73911ff59a8e2215237b571629671
+  r: "The required schema file `contracts/config_schema.schema.yaml` is missing, and\
+    \ `code/config.py` validates against a different (non\u2011existent) schema path\
+    \ `contracts/simulation_config.schema.yaml` instead of the specified `contracts/config_schema.schema.yaml`.\
+    \ Consequently the loader cannot perform the required validation."
+  sig: c83ac0de7bbe4899016a1d01ff10b635596601693543dda22eb51d1eb9cac727
+T004b-populate:
+  c: false
+  h: 43b67d123068d213cb88a91b87f9e1dd811d9780790ed10ccf3f19502c71598c
+  r: "Checked `code/config.yaml`; while it includes `seed: 42` and `n_replications:\
+    \ 10000`, it lacks the required keys `use_real_data` and `use_streaming`, and\
+    \ the `dependency_strengths` list does not match `[0.0, 0.1, 0.2, 0.3, 0.5]` (it\
+    \ has a different field name and values). The task\u2019s specification is not\
+    \ fully satisfied."
+  sig: 8d72c6726bf981fa79d2352bb478ac4334c6be61305a4b00cb9e69390054d26d
+T005a:
+  c: false
+  h: 6e7bb283f0518c291e8d99e4f828b90136713be9772b196e10c637576400073d
+  r: "The provided `contracts/dataset_schema.schema.yaml` defines fields like `file_path`,\
+    \ `checksum`, `sample_size`, and `variable_types`, but it does **not** include\
+    \ the required `variable_names` (with continuous/categorical options), `target_column`,\
+    \ or `data_type` fields, nor does it match the exact schema specification requested.\
+    \ The task\u2019s required fields are missing or incorrectly named."
+  sig: 11e90506a2aa2969cdad121d4f224d443567b7d8459ceffad87f0c63dc678b50
 T014:
   c: false
   h: 0449617f5c0e38f170fe9565d67f731238035899044cf0c4e1fb1023c0878798
