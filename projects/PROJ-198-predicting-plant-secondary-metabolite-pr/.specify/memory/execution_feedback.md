@@ -44,8 +44,10 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'config.env_manager'; 'config' is not a package
 
 - python -m pytest tests/ -> rc=2
-n.py
+ ============================
 ERROR tests/test_config.py
+ERROR tests/integration/test_align.py
+ERROR tests/integration/test_quickstart_validation.py
 ERROR tests/unit/test_align.py
 ERROR tests/unit/test_cleanup_refactor.py - AttributeError: 'NoneType' object...
 ERROR tests/unit/test_data_directories.py - NameError: name 'List' is not def...
@@ -55,15 +57,15 @@ ERROR tests/unit/test_edge_cases.py - AttributeError: 'NoneType' object has n...
 ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_eval.py - AttributeError: 'NoneType' object has no attr...
 ERROR tests/unit/test_linting_config.py
-ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
-ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_modeling.py
+ERROR tests/unit/test_pca_optimization.py
 ERROR tests/unit/test_preprocess.py - AttributeError: 'NoneType' object has n...
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
 ERROR tests/unit/test_sensitivity.py - AttributeError: 'NoneType' object has ...
-ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_train.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 19 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 2 skipped, 19 errors in 2.24s =========================
+======================== 6 warnings, 19 errors in 2.59s ========================
 
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
@@ -96,3 +98,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/scripts/quickstart_validation.py` — NOT invoked by the run-book
     - `code/scripts/validate_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/aligned_matrix.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

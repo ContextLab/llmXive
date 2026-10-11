@@ -1,11 +1,8 @@
 T001:
   task: 7c2825e128f6cb3d57fc0a572a0276aff451d540d0ba9e3743a5891469a4d0fb
 T002:
-  reason: The `.ruff.toml` and `pyproject.toml` (with a `[tool.black]` section) exist
-    and are non-empty, but the required `.flake8` file at the repository root is absent
-    from the collected evidence. Additionally, there is no execution evidence that
-    `ruff --quiet .` and `black --check .` were actually run and exited with code
-    0, which the task's verification criteria explicitly require.
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/run_lint_check.py
+    exit=2'
   task: ac252081749a22a4ccb6489180b1dbdf5d0ff608f1b1a4c7227c078b1b97efae
 T003:
   reason: "The repository contains `code/config.py` and the `config.env_manager` implementation,\

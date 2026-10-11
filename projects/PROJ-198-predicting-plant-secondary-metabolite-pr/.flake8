@@ -1,18 +1,4 @@
 [flake8]
-# Maximum line length for flake8 (should match black's line length)
 max-line-length = 88
-# Extend ignored errors
 extend-ignore = E203, W503
-# Exclude directories that are not source code
-exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .venv,
-    venv,
-    .env,
-    .env.example,
-    .ruff.toml,
-    pyproject.toml,
-    *.egg-info
+exclude = .git,__pycache__,build,dist
