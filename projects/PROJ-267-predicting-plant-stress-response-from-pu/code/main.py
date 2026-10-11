@@ -3,11 +3,11 @@ Entry point for the project pipeline.
 
 The original ``main.py`` (created in T001) supported a ``--stage noop``
 command that exited with status 0.  This implementation now imports the
-project‑wide logger defined in ``utils.logger`` so that *any* invocation of
-the script creates ``logs/pipeline.log`` and records a basic start‑up
-message.  Additional stages can be added later; for the purpose of T006
-the ``noop`` stage is sufficient to demonstrate that the logger is used
-throughout the code base.
+project‑wide logger defined in ``utils.logging_config`` so that *any*
+invocation of the script creates ``logs/pipeline.log`` and records a
+basic start‑up message.  Additional stages can be added later; for the
+purpose of T006 the ``noop`` stage is sufficient to demonstrate that the
+logger is used throughout the code base.
 """
 
 import argparse

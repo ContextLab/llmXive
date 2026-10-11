@@ -1,13 +1,14 @@
 T001:
   c: true
-  h: 84051aa7743bf4bbabd874daa54a6cc9b7f304667d0597df45fa1425b3376a7a
-  r: 'All required artifacts exist and are non-empty: the five directories (data/raw,
-    data/processed, logs, docs, results) with .gitkeep markers, a populated requirements.txt,
-    code/main.py with a `--stage noop` option that returns exit code 0, and docs/structure.txt
-    containing a genuine tree listing. The historical execution record confirms `python
-    -m code.main --stage noop` exited 0, and main.py''s import of utils.logging_config
-    resolves via the confirmed code/utils package files.'
-  sig: 38bf99bdb2c8eb2379b4078c648c7ec57920bdec71faa6eec60dfa039795be3e
+  h: d7e782ecb9a6c070aa552599f45eac4709019e32eeae5507db609bf8cf0933a1
+  r: "All required artifacts exist and match the task: `data/raw/`, `data/processed/`,\
+    \ `logs/`, `docs/`, `results/` directories are present (with .gitkeep markers),\
+    \ `requirements.txt` is non-empty with real dependencies, `code/main.py` implements\
+    \ `--stage noop` returning exit code 0, and `docs/structure.txt` contains a full\
+    \ directory tree listing. The historical execution log confirms `python -m code.main\
+    \ --stage noop` ran with exit code 0, and the main.py import chain (`utils.logging_config`\
+    \ \u2192 `code.utils`) is backed by existing shim modules so the run is reproducible."
+  sig: b75c81eaf35236953c90994e074969ded348118bd5ef450fd1fe739d64eaeb4b
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,15 +24,6 @@ T005:
     \ for the `data/raw/` and `data/processed/` directories are present in the provided\
     \ evidence. The required artifact (validation implementation) is missing, so the\
     \ task is not satisfied."
-T006:
-  c: false
-  h: 632556280e45995ee3558ae75f558b3b922c10196c63aa8a9ad50968dd283363
-  r: The repository contains the required `code/utils/logger.py`, but there is no
-    evidence that other pipeline modules import and use this logger, nor any proof
-    that a pipeline run creates `logs/pipeline.log` with entries for dropped rows,
-    missing columns, or errors. The missing execution logs and import usage must be
-    provided.
-  sig: 0d6fa9d5389869e0430a958a35c51f0bad4653861405ef7da6a361060e53de0e
 T012:
   c: false
   h: 4196c01992af3b9c57e273d5a0d9687585e94c1533e876bf1e995b8d147e7541

@@ -1,15 +1,16 @@
 status: none
-intent: plant stress proteogenomics GEO ProteomeXchange EnsemblPlants python package
+intent: download plant stress proteomics transcriptomics GEO PRIDE python package
   dataset
 required_fields:
 - sample_id
 - species
 - stress_condition
 - protein_id
-- gene_id
 - protein_abundance
-- transcript_expression
-- metadata_source
-cache_key: 2bb0a956ab1f9b8479b88cfbac20a6590f2aabc9e4167bcd6f229af57ee264ad
-searched_at: '2026-10-11T14:10:55.894027+00:00'
+- gene_id
+- gene_expression
+- accession_id
+- publication_date
+cache_key: 5a271f1d1164d234688ef6754f2b537408504159921bd8b49342c5d5160b8d14
+searched_at: '2026-10-11T14:12:47.897184+00:00'
 retry_count: 1

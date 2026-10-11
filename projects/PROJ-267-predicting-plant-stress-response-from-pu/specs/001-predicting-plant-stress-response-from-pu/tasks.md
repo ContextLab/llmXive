@@ -10,10 +10,10 @@ The tasks below follow the three‑phase research template (setup → full s
 - [X] T001 Create project skeleton: directories `data/raw/`, `data/processed/`, `logs/`, `docs/`, `results/`; add `requirements.txt`; create `code/main.py` with a `--stage noop` option that exits 0; generate a directory‑tree listing `docs/structure.txt`.
   **Verification**: `docs/structure.txt` contains a tree listing; `python -m code.main --stage noop` exits 0; the command documented in `quickstart.md` runs successfully on a clean runner.
 
-- [ ] T006 Configure project‑wide logging: add `code/utils/logger.py` that writes INFO/WARN messages to `logs/pipeline.log`. Ensure all pipeline modules import and use this logger.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T006 Configure project‑wide logging: add `code/utils/logger.py` that writes INFO/WARN messages to `logs/pipeline.log`. Ensure all pipeline modules import and use this logger.
   **Verification**: `logs/pipeline.log` exists after any pipeline run and contains entries for dropped rows, missing columns, and any raised errors.
 
-- [ ] T002 Implement real‑data ingestion: add `code/data/download.py` and `code/utils/checksums.py` to stream download GEO/ProteomeXchange files, verify SHA‑256 checksums, and raise exceptions on failure (no silent fallback).  
+- [ ] T002 Implement real‑data ingestion: add `code/data/download.py` and `code/utils/checksums.py` to stream download GEO/ProteomeXchange files, verify SHA‑256 checksums, and raise exceptions on failure (no silent fallback).   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   **Verification**: `data/raw/` holds downloaded files > 1 KB, `data/raw/checksums.sha256` is present, and any download error raises an exception (no silent fallback).
 
 - [ ] T003 Add linting and formatting configuration: create `.flake8`, `pyproject.toml` with Black settings, and a CI script `ci/lint.sh` that runs `flake8` and `black --check`.  

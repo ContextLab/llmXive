@@ -15,9 +15,20 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/reporting/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…ross all columns. Likely mock data.")         elif arr.ndim…”
 - code/reporting/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…as zero variance. Likely mock data.")                  retu…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/modeling/train.py --model random_forest --cv_folds 5`
+  - script usage: `train.py [-h] [--strategy STRATEGY]`
+  - argparse error: `train.py: error: unrecognized arguments: --model random_forest --cv_folds 5`
+- run-book command: `python code/modeling/train.py --model svr --cv_folds 5`
+  - script usage: `train.py [-h] [--strategy STRATEGY]`
+  - argparse error: `train.py: error: unrecognized arguments: --model svr --cv_folds 5`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion/download.py: synthetic/fake INPUT data not authorized by the spec — “…etwork errors and return synthetic data.     - No fallback to mo…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…suggesting synthetic or fake data.          Args:…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…erns that might indicate synthetic data.          Args:…”; 3 run-book script(s) missing (plan/impl path mismatch): python code/data/ingest.py --species Arabidopsis --stress Drought; python code/data/preprocess.py; python code/models/evaluate.py --train_stress Drought --test_stress Salinity; 3 command(s) failed: python code/modeling/train.py --model random_forest --cv_folds 5 (rc=1); python code/modeling/train.py --model svr --cv_folds 5 (rc=1); python code/reporting/plots.py (rc=1)
+**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion/download.py: synthetic/fake INPUT data not authorized by the spec — “…etwork errors and return synthetic data.     - No fallback to mo…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…suggesting synthetic or fake data.          Args:…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…erns that might indicate synthetic data.          Args:…”; 3 run-book script(s) missing (plan/impl path mismatch): python code/data/ingest.py --species Arabidopsis --stress Drought; python code/data/preprocess.py; python code/models/evaluate.py --train_stress Drought --test_stress Salinity; 2 command(s) failed: python code/modeling/train.py --model random_forest --cv_folds 5 (rc=2); python code/modeling/train.py --model svr --cv_folds 5 (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -29,34 +40,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/preprocess.py': [Errno 2] No such file or directory
 
-- python code/modeling/train.py --model random_forest --cv_folds 5 -> rc=1
+- python code/modeling/train.py --model random_forest --cv_folds 5 -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/modeling/train.py", line 26, in <module>
-    from utils.config import get_project_root, get_data_path, get_results_path, get_log_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/__init__.py", line 1, in <module>
-    from .config import (
-ImportError: cannot import name 'PROJECT_ROOT' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/config.py)
+usage: train.py [-h] [--strategy STRATEGY]
+train.py: error: unrecognized arguments: --model random_forest --cv_folds 5
 
-- python code/modeling/train.py --model svr --cv_folds 5 -> rc=1
+- python code/modeling/train.py --model svr --cv_folds 5 -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/modeling/train.py", line 26, in <module>
-    from utils.config import get_project_root, get_data_path, get_results_path, get_log_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/__init__.py", line 1, in <module>
-    from .config import (
-ImportError: cannot import name 'PROJECT_ROOT' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/config.py)
+usage: train.py [-h] [--strategy STRATEGY]
+train.py: error: unrecognized arguments: --model svr --cv_folds 5
 
 - python code/models/evaluate.py --train_stress Drought --test_stress Salinity -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/models/evaluate.py': [Errno 2] No such file or directory
-
-- python code/reporting/plots.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/reporting/plots.py", line 14, in <module>
-    from utils.logging_config import get_logger, log_warning
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/__init__.py", line 1, in <module>
-    from .config import (
-ImportError: cannot import name 'PROJECT_ROOT' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/config.py)
 

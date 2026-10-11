@@ -1,6 +1,8 @@
 T001:
   task: 38123298df576f68cc50fe6c6f6ed3bdc00ff0b06cb24880855ddd8ed7f92eb0
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: 3284aeae70b5c17b95c4dc406e6e1cd30449b590d05719c2ae79b6ef5543cf89
 T003:
   task: 958dcd1a06adecf900342109128806160755d9f76a6406086cfaa8de0dd5bcdc
@@ -9,7 +11,13 @@ T004:
 T005:
   task: 07f218c7a9f63a69fd8cd0ddfcba0797ef90d67c304eebd5bdd448101aa948b9
 T006:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  reason: "The logger module `code/utils/logger.py` exists and looks functional, but\
+    \ there is no evidence that `logs/pipeline.log` was ever created \u2014 the only\
+    \ execution record (`--stage noop`) shows console output only, and no log file\
+    \ artifact is present in the evidence. Additionally, nothing demonstrates that\
+    \ pipeline modules actually import/use this logger, nor that the log contains\
+    \ entries for dropped rows, missing columns, or raised errors as the verification\
+    \ criterion requires."
   task: 8bed239b54ddad9c050d9babcf06e9832a33ab2be20f850d1d87661268ddeddb
 T007:
   task: 3a1ec68fcd0962655d5f16bfacf1ee07747ecc67fb79a51a8304503f42be69da
