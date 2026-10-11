@@ -1,64 +1,189 @@
 # Tasks: Predicting the Impact of Composition on the Vickers Hardness of Solder Alloys
 
-**Input**: `specs/001-predict-solder-hardness/spec.md`, `plan.md`, `data-model.md`, `contracts/solder_dataset.schema.yaml`, prior tasks.md and verifier feedback.
-**Re-plan note**: The prior API/literature-scraping ingestion approach (T008a/T008b/T012a/T012g) repeatedly failed verification because the named API endpoints (Materials Project v2, NIST, OpenAlloy) are not verifiably reachable and no real fetched artifacts were ever produced. The re-plan replaces speculative live API scraping with a **committed, citation-backed curated dataset** extracted from open-access published solder-hardness literature, which is real data with full provenance and is deterministically verifiable. Previously completed scaffolding (`requirements.txt`, `code/config.py`, `code/models/entities.py`, `code/ingestion/cleaner.py`, `code/ingestion/validator.py`, `code/features/transformer.py`, contract/integration tests) is preserved and reused; the tasks below consolidate the remaining pending work into a smallest complete study. No synthetic or placeholder data is permitted anywhere in the pipeline.
+**Inputs**: `specs/001-predict-solder-hardness/spec.md`, `plan.md`, `data-model.md`, `contracts/solder_dataset.schema.yaml`, prior `tasks.md` and verifier feedback.
 
-## Phase 1: Setup and first end-to-end analysis
+The goal is to deliver a fully reproducible, CPU‑only research pipeline that satisfies **all** functional requirements (FR‑001 – FR‑014) and success criteria (SC‑001 – SC‑007).  
+Each task is a concrete, unchecked work item that produces a real artifact on the free‑tier GitHub Actions runner.  Tasks are ordered to respect data flow; later tasks never depend on artifacts that are produced later.
 
-**Goal**: A validated real dataset and a thin end-to-end run producing real result rows early.
+---
 
-- [ ] T001 [P] [US1] **Build the curated, citation-backed solder hardness dataset** (replaces failed T008a/T008b/T012a/T012g scraping approach). Create `data/raw/solder_hardness_curated.csv` as a committed, version-controlled file in which every row is a real room-temperature Vickers hardness measurement of a solder alloy extracted from open-access published literature and public databases, with columns: `id`, `source_citation` (Author, Year, Title), `source_url` (real URL or empty), `alloy_family`, `elements` (JSON map element symbol → wt%), `hardness_hv` (numeric, HV), `hardness_unit`, `temperature_c`, `notes`. Requirements: (a) target ≥100 unique compositions, minimum 50 to proceed (FR-001); (b) every record carries a real, checkable citation — records without a verifiable citation MUST NOT be included; (c) include the full Sn-based family spread (Sn-Pb, Sn-Ag-Cu, Sn-Zn, Sn-Cu, Sn-Bi, Other); (d) NO synthetic, simulated, or placeholder rows — if fewer than 50 real cited records can be found, STOP and record the gap in `data/raw/curation_notes.md` rather than fabricating. Also create `data/raw/curation_notes.md` documenting the extraction method, the search performed, and the per-source record counts. Compute SHA256 of the curated CSV and write it to `data/checksums.txt` (immutable raw data, Constitution III/VI). Verification: `data/raw/solder_hardness_curated.csv` exists, parses with pandas, has ≥50 rows, every row has non-empty `source_citation` and numeric `hardness_hv`, and `data/checksums.txt` contains a matching hash.
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T002 [P] [US1] **Consolidate ingestion, cleaning and validation into one executable pipeline** producing all US-001 artifacts (consolidates prior T013/T014/T014a/T016b/T016c/T019; reuse the existing `code/ingestion/cleaner.py` and `code/ingestion/validator.py`, repairing them as needed). Create `code/ingestion/run_ingestion.py` that: (a) loads `data/raw/solder_hardness_curated.csv` — the loader MUST raise on missing/unparseable input, NEVER fall back to generated data; (b) applies the cleaning rules from `code/config.py` (`MAX_ELEMENTS=5`, `ROOM_TEMP_THRESHOLD_C`/tolerance, `COMPOSITION_SUM_THRESHOLD=95`): exclude >5-element alloys, exclude non-room-temperature measurements, standardize hardness to HV (conversion factors from `code/config.py`, not hardcoded), drop records with composition sum outside 95–105% logging each to `data/processed/excluded_records.csv` with reason codes; (c) writes the cleaned dataset to `data/processed/solder_hardness_cleaned.csv` (the sole downstream input) conforming to `specs/001-predict-solder-hardness/contracts/solder_dataset.schema.yaml`; (d) writes `data/processed/.ingestion_status.json` with schema `{"threshold_status": "N>=100"|"50<=N<100"|"N<50", "exact_N": int, "excluded_count": int, "power_limitation_warning": str|null, "reduced_n_flag": bool}` — if 50 ≤ N < 100 the power-limitation warning MUST be set (FR-001); (e) writes `data/processed/validation_metrics.yaml` with `total_raw_records`, `passed_threshold_count`, `failed_threshold_count`, `pass_rate_percentage` (SC-004, FR-002); (f) writes `data/processed/validation_report.yaml` summarizing the above. Include focused tests in `code/tests/test_ingestion.py` covering the exclusion rules and the N-threshold warning logic using small fixtures derived from real rows of the curated CSV. Verification: running `python -m code.ingestion.run_ingestion` produces all five artifacts with valid content, and the tests pass.
+- [ ] **T001** [US1] **Curate a citation‑backed solder‑hardness dataset**  
+  *Create* `data/raw/solder_hardness_curated.csv` (real rows extracted from open‑access literature and the Materials Project, NIST, OpenAlloy) with columns `id,source_citation,source_url,alloy_family,elements,hardness_hv,hardness_unit,temperature_c,notes`.  
+  *Also create* `data/raw/curation_notes.md` documenting the literature search, per‑source record counts, and any gaps.  
+  *Compute* SHA‑256 of the CSV and write it to `data/checksums.txt`.  
+  **Verification**: CSV parses with pandas, contains ≥ 50 rows, every row has a non‑empty `source_citation` and numeric `hardness_hv`. The hash in `checksums.txt` matches the file.
 
-- [ ] T003 [US1] **Document and execute the first thin end-to-end run.** Write the runnable command (`python -m code.ingestion.run_ingestion`) into `specs/001-predict-solder-hardness/quickstart.md`, execute it on the real curated data, and confirm the checkpoint: `data/processed/solder_hardness_cleaned.csv` contains only valid records (all composition sums ≥95%, element counts ≤5, non-null HV), and `.ingestion_status.json` reports the true `exact_N` with the correct threshold status. Record the actual N and pass rate in `quickstart.md`. Verification: the documented command executes from a clean checkout of `data/raw/` and its outputs match the schema and thresholds (FR-001, FR-002, SC-004).
+- [ ] **T017** [US1] **API data fetcher**  
+  Fetch raw composition‑hardness data from the Materials Project (or other open API) using a lightweight script `code/ingestion/api_fetcher.py`.  
+  Store the JSON response as `data/raw/api_fetched.json`.  
+  Compute SHA‑256 of this file and **append** the hash to `data/checksums.txt`.  
+  **Verification**: File exists, JSON parses, checksum line present and matches.
 
-**Checkpoint**: Real validated dataset exists; numerical outputs are checkable. No modeling or reporting starts from expected or invented results.
+- [ ] **T018** [US1] **Aggregator helper – copy sources & ingestion status**  
+  Copy all source files (`solder_hardness_curated.csv`, `api_fetched.json`, any auxiliary CSVs) into `data/raw/` (ensuring they are present).  
+  Generate `data/raw/.ingestion_status.json` summarising each raw file (`filename`, `size_bytes`, `sha256`).  
+  Update `data/checksums.txt` to include entries for every file now in `data/raw/`.  
+  **Verification**: Status JSON lists all files, each entry’s SHA matches the line in `checksums.txt`.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T002** [US1] **Ingestion, cleaning & validation pipeline**  
+  Implement `code/ingestion/run_ingestion.py` that:  
+  1. Loads `data/raw/solder_hardness_curated.csv` (fails loudly if missing).  
+  2. Applies cleaning rules from `code/config.py` (`MAX_ELEMENTS=5`, composition‑sum ≥ 95 %, temperature ≈ 25 °C, HV unit conversion).  
+  3. Writes the cleaned dataset to `data/processed/solder_hardness_cleaned.csv`.  
+  4. Writes `data/processed/excluded_records.csv` with reason codes for every dropped row.  
+  5. Writes `data/processed/.ingestion_status.json` containing `threshold_status` (`N>=100`, `50<=N<100`, or `N<50`), `exact_N`, `excluded_count`, `power_limitation_warning` (null or string), `reduced_n_flag`.  
+  6. Writes `data/processed/validation_metrics.yaml` (`total_raw_records`, `passed_threshold_count`, `failed_threshold_count`, `pass_rate_percentage`).  
+  7. Writes `data/processed/validation_report.yaml` summarising the above and flagging any power‑limitation warning (FR‑001, FR‑002, SC‑004).  
+  **Verification**: Running `python -m code.ingestion.run_ingestion` produces all seven files, each conforms to its schema, and unit tests in `code/tests/test_ingestion.py` pass.
 
-- [ ] T004 [US2] **Feature engineering: CLR transform and physical descriptors** (consolidates prior T023b/T023c/T053; reuse `code/features/transformer.py` and `code/features/descriptor_engine.py`). Extend `code/features/descriptor_engine.py` to read `data/processed/solder_hardness_cleaned.csv` and produce: (a) `data/processed/clr_features.csv` — centered log-ratio transformed composition vectors (FR-014), computed with a geometric-mean CLR implementation (drop the unreliable `compositional` package dependency if it is unavailable; implement CLR directly and test it), used as model input; (b) `data/processed/descriptors.csv` — physical descriptors computed from RAW weight percentages and elemental properties via `mendeleev` (`element.electronegativity.pauling` for electronegativity): `weighted_mean_atomic_mass`, `electronegativity_variance`, `atomic_radius_variance`, `weighted_avg_melting_point`, `valence_electron_concentration` (FR-003), with schema per data-model.md and a `transformation_hash` per record. Raw percentages are excluded from the model feature matrix. Inline comments must document the dual usage (CLR for model input, raw percentages for physical descriptors). Include unit tests in `code/tests/test_features.py` (CLR of a uniform composition is the zero vector; descriptor values for a known alloy, e.g. Sn-3.0Ag-0.5Cu, are hand-checkable). Verification: both CSVs exist, align row-for-row with the cleaned dataset, and tests pass.
+- [ ] **T003** [US1] **Document and run the first thin end‑to‑end analysis**  
+  Add the command `python -m code.ingestion.run_ingestion` to `specs/001-predict-solder-hardness/quickstart.md`.  
+  Execute the command on a clean checkout and record in `quickstart.md` the exact `exact_N` and whether a power‑limitation warning was emitted.  
+  **Verification**: The command runs without error, produces the cleaned CSV, and the numbers recorded in the markdown match the JSON status file.
 
-- [ ] T005 [US2] **Collinearity diagnostics (VIF).** Implement `code/features/collinearity.py` (extending prior T024/T054) to compute Variance Inflation Factors for all model predictors (CLR features + physical descriptors) and write `data/processed/vif_report.yaml` listing each predictor, its VIF score, and `is_collinear: true` for VIF ≥ 5 (FR-013, SC-006). Collinear features are flagged and interpreted descriptively, not dropped. Verification: the report covers every predictor used downstream and flags VIF ≥ 5 correctly (validate against `statsmodels` or a hand-computed VIF on a small fixture).
+- [ ] **T004** [US1] **Verify literature citations (research_verified.md)**  
+  Run the platform’s Reference‑Validator Agent on the `source_citation` fields of `data/raw/solder_hardness_curated.csv`.  
+  Write the validated list of citations (with URLs and DOI checks) to `specs/001-predict-solder-hardness/research_verified.md`.  
+  **Verification**: The file exists, contains one entry per row of the curated CSV, and each entry has a resolved DOI/URL (the verifier reports zero unresolved citations).
 
-- [ ] T006 [US2] **Train XGBoost and linear regression baselines with k-fold CV on CPU.** Implement `code/models/train.py` (consolidating prior T024b/T024c/T025/T026/T027) that: (a) builds the feature matrix from `clr_features.csv` + `descriptors.csv` and target `hardness_hv` from the cleaned dataset; (b) performs an 80/20 train/test split stratified by alloy family with a pinned seed (`code/seed.py`); (c) runs 5-fold cross-validation on the training set for both XGBoost (hyperparameter grid ≤10 combinations, explicitly enumerated) and linear regression, all CPU-only (`n_jobs`, no GPU/CUDA flags — FR-004, FR-010); (d) writes per-fold R²/RMSE for both models to `data/processed/cv_results.yaml` and saves fitted models under `models/`. Verification: `cv_results.yaml` contains 5 fold scores per model, and the training script runs on CPU-only infrastructure within the free-tier budget.
+- [ ] **T005** [US1] **Task‑ordering audit**  
+  Generate a JSON file `data/outputs/task_ordering_audit.json` that enumerates all tasks (T001‑T023) with their dependencies (e.g., T002 depends on T001). This aids reproducibility audits.  
+  **Verification**: The JSON is syntactically valid, lists every task ID exactly once, and each `depends_on` array references only tasks that appear earlier in the list.
 
-- [ ] T007 [US2] **Bootstrap evaluation, model comparison, and test-set predictions** (consolidates prior T027a/T028/T029b/T029d/T031b). Implement `code/evaluation/evaluate.py` that: (a) evaluates both trained models on the held-out test set, writing per-record predictions to `data/processed/predictions.csv`; (b) computes 95% bootstrap confidence intervals (≥1000 resamples, pinned seed) for test-set R² and RMSE, writing `data/processed/test_metrics.yaml` with `r2_mean`, `r2_ci_lower/upper`, `rmse_mean`, `rmse_ci_lower/upper` (FR-005, SC-001 — measured against the null mean-predictor baseline); (c) runs the paired t-test on the 5 CV fold scores (XGBoost vs linear), writing `data/processed/paired_ttest_results.yaml` with `t_statistic`, `p_value`, `significant` (SC-002); (d) runs the bootstrap model comparison on resampled test sets, writing `data/processed/bootstrap_comparison.yaml` (per plan.md, this addresses the low power of a 5-fold t-test). Verification: all four artifacts exist with valid numeric content, and the bootstrap CI brackets the point estimates.
+---
 
-- [ ] T008 [US2] **SHAP feature importance ranking.** Implement `code/evaluation/shap_analysis.py` to compute SHAP values for the XGBoost model on the test set and write `data/processed/shap_ranking.yaml` with `feature_name`, `mean_abs_shap_value`, `rank` for every feature, identifying the top compositional drivers (FR-006, SC-003). Verification: the ranking covers all predictors, is sorted by mean |SHAP|, and the top-3 features feed the PDP task below.
+## Phase 2 – Complete the study and validate its evidence  
 
-- [ ] T009 [US2] **Sensitivity analysis: R² threshold sweep.** Implement `code/evaluation/sensitivity.py` (consolidating prior T029a/T029c/T035b/T055) that: (a) defines the threshold sweep dynamically as `numpy.linspace(0.0, best_cv_r2, 11)` using the best cross-validated R² from `data/processed/cv_results.yaml`; (b) for each threshold T computes the fraction of bootstrap test-set R² samples exceeding T; (c) writes `data/processed/sensitivity_analysis.yaml` (`threshold`, `fraction_exceeding` pairs) and `data/processed/sensitivity_summary.yaml` with interpretations; (d) generates `data/outputs/sensitivity_plot.png` with x-axis "R² Threshold" and y-axis "Fraction of Bootstrap Samples Exceeding Threshold" (FR-009, SC-005). Verification: the YAML contains ≥5 threshold points spanning the dynamic range, fractions are in [0,1] and monotonically non-increasing in T, and the plot exists with correct labels.
+- [ ] **T006** [US2] **Feature engineering: CLR transform & compositional descriptors**  
+  Extend `code/features/descriptor_engine.py` (called by `code/features/run_features.py`) to:  
+  1. Load `data/processed/solder_hardness_cleaned.csv`.  
+  2. Apply a manual Centered Log‑Ratio (CLR) transform to the elemental composition vectors (no external `compositional` package).  
+  3. Write `data/processed/clr_features.csv` (CLR columns named `clr_<element>`).  
+  4. Compute physical descriptors using `mendeleev` (weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, valence electron concentration) and write `data/processed/descriptors.csv` with a **deterministic** `transformation_hash` per record (SHA‑256 of the sorted `elements` string concatenated with a fixed parameter identifier).  
+  Include unit tests in `code/tests/test_features.py` (zero vector for a uniform composition, hand‑checked descriptor values for Sn‑3 Ag‑0.5 Cu).  
+  **Verification**: Both CSV files exist, have the same row order as the cleaned dataset, and all tests pass.
 
-- [ ] T010 [US3] **Visualizations: predicted-vs-measured scatter and partial dependence plots.** Implement `code/visualization/plots.py` (consolidating prior T036/T037/T038) that reads `data/processed/predictions.csv` and `data/processed/shap_ranking.yaml` and generates: (a) `data/outputs/pred_vs_measured.png` — predicted vs measured hardness with bootstrap-derived 95% CI error bars, axis labels and HV units; (b) three partial dependence plots `data/outputs/pdp_<feature>.png` for the top-3 SHAP features, each with labeled axes and units (US-003). Verification: all four PNGs exist, open as valid images, and carry correct axis labels/units.
+- [ ] **T007** [US2] **Collinearity diagnostics (VIF)**  
+  Implement `code/features/collinearity.py` that reads the combined feature matrix (`clr_features.csv` + `descriptors.csv`) and computes Variance Inflation Factors for every predictor using `statsmodels`.  
+  Write `data/processed/vif_report.yaml` listing each predictor, its VIF score, and `is_collinear: true` for VIF ≥ 5.  
+  **Verification**: The YAML contains an entry for every column, VIF values are numeric, and at least one predictor is flagged if its VIF ≥ 5 (FR‑013, SC‑006).
 
-- [ ] T011 [US2] **Framed results report.** Implement `code/evaluation/generate_report.py` (consolidating prior T014b/T031c) to read `.ingestion_status.json`, `test_metrics.yaml`, `paired_ttest_results.yaml`, `bootstrap_comparison.yaml`, `vif_report.yaml`, `shap_ranking.yaml`, and `sensitivity_summary.yaml`, and write `data/processed/final_report.yaml` containing: all summary metrics; `associational_framing_warning: "Findings are associational, not causal."` (FR-007); the power-limitation warning if N < 100; and a limitations block stating the model captures compositional effects only and may not generalize to alloys with divergent thermal histories (per the spec's dataset-variable-fit assumption). Verification: the report is valid YAML, contains every required key, and its metric values match the upstream artifacts exactly (single source of truth, Constitution IV).
+- [ ] **T008** [US2] **Model training (XGBoost & Linear Regression) with k‑fold CV**  
+  Create `code/models/train.py` that:  
+  1. Merges `clr_features.csv` and `descriptors.csv` to form X, loads `hardness_hv` as y.  
+  2. Performs an 80/20 stratified train‑test split by `alloy_family` (seed pinned in `code/seed.py`).  
+  3. Executes 5‑fold CV on the training set for both XGBoost (grid ≤ 10 combos, **CPU‑only** build) and Linear Regression.  
+  4. Writes per‑fold R² and RMSE to `data/processed/cv_results.yaml`.  
+  5. Saves the fitted models under `models/xgboost_model.pkl` and `models/linear_model.pkl`.  
+  **Verification**: The YAML contains exactly five fold entries per model, and the script runs within the free‑tier CPU budget.
 
-- [ ] T012 [P] [US1] **Compute feasibility check.** Implement `code/evaluation/verify_runtime.py` that runs the full pipeline end-to-end on the real curated dataset, measuring wall-clock time, peak RAM, and disk usage of `data/` + `models/`, and writes the measurements to `data/processed/runtime_report.yaml` (FR-010, FR-011, FR-012, SC-007). Verification: the report shows total runtime ≤6 h, peak RAM ≤~7 GB, disk ≤~14 GB; if any budget is exceeded, the report states the exact mismatch (do not silently shrink the study).
+- [ ] **T019** [US2] **Null‑model baseline computation**  
+  Implement `code/evaluation/null_baseline.py` that:  
+  1. Computes the mean hardness of the training set.  
+  2. Predicts this constant value for every instance in the held‑out test set.  
+  3. Calculates R² and RMSE for these predictions.  
+  4. Writes `data/processed/null_baseline.yaml` with `r2_score` and `rmse_score`.  
+  5. Appends a dedicated entry `null_model` to `data/processed/cv_results.yaml` for easy downstream comparison.  
+  **Verification**: The YAML files exist and contain numeric values; a sanity check confirms R² ≤ 0.
 
-**Checkpoint**: All specified runs, comparisons, diagnostics and figures are complete and match the actual computations; checks run after their prerequisites.
+- [ ] **T009** [US2] **Bootstrap evaluation, test‑set predictions & model comparison**  
+  Implement `code/evaluation/evaluate.py` that:  
+  1. Loads the held‑out test set, generates predictions with both models, writes `data/processed/predictions.csv`.  
+  2. Performs ≥ 1000 bootstrap resamples of the test set to compute 95 % confidence intervals for R² and RMSE; store in `data/processed/test_metrics.yaml`.  
+  3. Runs a paired t‑test on the 5‑fold CV scores (XGBoost vs Linear) and writes `data/processed/paired_ttest_results.yaml`.  
+  4. Executes a bootstrap model‑comparison (difference of R² distributions) and writes `data/processed/bootstrap_comparison.yaml`.  
+  **Verification**: All four files exist, numeric fields are present, and bootstrap CI bounds enclose the point estimates.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] **T010** [US2] **SHAP feature‑importance ranking**  
+  Create `code/evaluation/shap_analysis.py` that computes SHAP values for the XGBoost model on the test set, aggregates mean absolute SHAP per feature, and writes `data/processed/shap_ranking.yaml` (sorted, top‑3 flagged).  
+  **Verification**: The YAML lists every predictor, includes `mean_abs_shap_value` and `rank`, and the top‑3 entries are later used by the PDP task.
 
-- [ ] T013 **Methods/results account and paper-stage handoff.** Write `specs/001-predict-solder-hardness/results.md` linked to the actual artifacts: dataset size and provenance summary (from `validation_metrics.yaml`), model comparison results (CV, paired t-test, bootstrap comparison), test-set metrics with CIs, SHAP top features, VIF flags, sensitivity analysis, and figure references to the files in `data/outputs/`. Describe negative findings, exclusions and limitations honestly, including the associational (non-causal) framing (FR-007), any power limitation (N < 100), and the confounding role of thermal history/microstructure. Include a named paper-stage handoff listing what the paper pipeline receives: `final_report.yaml`, `results.md`, all figures, and the requirement that the paper's Limitations section carry the associational and power-limitation statements. Paper layout, PDF compilation and publication remain with the subsequent pipeline stage.
+- [ ] **T011** [US2] **Sensitivity analysis (R² threshold sweep)**  
+  Implement `code/evaluation/sensitivity.py` that reads the best CV R² from `cv_results.yaml`, defines thresholds `np.linspace(0.0, best_r2, 11)`, and for each threshold computes the fraction of bootstrap test‑set R² samples exceeding it.  
+  Write `data/processed/sensitivity_analysis.yaml` (threshold‑fraction pairs) and `data/outputs/sensitivity_plot.png` (threshold on x‑axis, fraction on y‑axis).  
+  **Verification**: The YAML contains ≥ 5 points, fractions are monotonic decreasing, and the plot has correctly labeled axes.
 
-- [ ] T014 **Full reproducibility re-run.** Update `specs/001-predict-solder-hardness/quickstart.md` with the complete documented workflow (ingestion → features → training → evaluation → visualization → report), re-run it from the declared inputs (`data/raw/solder_hardness_curated.csv` + committed code) with pinned seeds, and confirm: all `code/tests/` tests pass; every artifact listed above exists with valid content; re-run metric values match the recorded ones (deterministic under pinned seeds). Record the re-run outcome in `results.md`.
+- [ ] **T012** [US3] **Visualizations: predicted‑vs‑measured scatter & partial dependence plots**  
+  Implement `code/visualization/plots.py` that:  
+  1. Reads `predictions.csv` and creates `data/outputs/pred_vs_measured.png` (scatter with 95 % CI error bars, HV units).  
+  2. Generates three partial dependence plots for the top‑3 SHAP features (`data/outputs/pdp_<feature>.png`).  
+  **Verification**: All PNG files open without error, have axis labels (`Hardness (HV)`, `Predicted Hardness (HV)`, feature names) and appropriate legends.
 
-## Dependencies and requirement coverage
+- [ ] **T013** [US2] **Final report generation (associational framing & limitations)**  
+  Write `code/evaluation/generate_report.py` that aggregates: `.ingestion_status.json`, `test_metrics.yaml`, `paired_ttest_results.yaml`, `bootstrap_comparison.yaml`, `vif_report.yaml`, `shap_ranking.yaml`, `sensitivity_summary.yaml`.  
+  Produce `data/processed/final_report.yaml` containing: all summary metrics, `associational_framing_warning`, any power‑limitation warning, and a `limitations` block stating that only compositional effects are modeled and thermal‑history effects are not captured.  
+  **Verification**: The YAML validates against a simple schema (all keys present, numeric values match upstream files), and the warning strings are exactly as required (FR‑007).
 
-- **FR-001/FR-002/SC-004** (dataset aggregation, ≥100 target / ≥50 minimum, validation): T001 → T002 → T003.
-- **FR-003/FR-014** (descriptors, CLR): T004 (after T002).
-- **FR-013/SC-006** (VIF): T005 (after T004).
-- **FR-004/FR-010** (models, CV, CPU-only): T006 (after T004/T005).
-- **FR-005/SC-001/SC-002** (bootstrap CIs, t-test, comparison): T007 (after T006).
-- **FR-006/SC-003** (SHAP): T008 (after T006).
-- **FR-009/SC-005** (sensitivity sweep): T009 (after T007).
-- **US-003** (scatter + PDPs): T010 (after T007, T008).
-- **FR-007** (associational framing): T011, T013 (after T002, T007–T009).
-- **FR-010/011/012/SC-007** (compute feasibility): T012 (after T003; parallel to T006+).
-- **Handoff/reproducibility**: T013, T014 (last).
+- [ ] **T023** [US2] **Aggregated final report assembly**  
+  Implement `code/evaluation/aggregate_final_report.py` that:  
+  1. Reads `data/raw/.ingestion_status.json`, `data/processed/final_report.yaml`, and `data/processed/null_baseline.yaml`.  
+  2. Merges these sections into a single human‑readable YAML `data/processed/final_aggregated_report.yaml`.  
+  3. Writes a concise Markdown summary `specs/001-predicting-the-impact-of-composition-on/results.md` (see Phase 3).  
+  **Verification**: The aggregated YAML exists, contains keys `ingestion_status`, `model_performance`, `null_baseline`, and passes a sanity‑check script.
 
-Execution order: T001, T002, T003 (Phase 1) → T004 → T005 → T006 → T007 → {T008, T009} → T010 → T011 → {T012, T013} → T014. No task verifies a requirement using an artifact produced by a later task.
+- [ ] **T014** [US2] **Compute‑feasibility audit**  
+  Implement `code/evaluation/verify_runtime.py` that runs the entire pipeline from T001 to T013 on the real curated dataset, measures wall‑clock time, peak RAM, and total disk usage of `data/` + `models/`.  
+  Write `data/processed/runtime_report.yaml` with fields `total_runtime_seconds`, `peak_ram_gb`, `total_disk_gb`, and a boolean `within_budget`.  
+  **Verification**: The report shows `within_budget: true` (≤ 6 h, ≤ 7 GB RAM, ≤ 14 GB disk) on the free‑tier runner; if any limit is exceeded the report includes the offending value.
 
-## Revision behavior
+- [ ] **T020** [US2] **CPU‑only environment verification**  
+  Run a script `code/evaluation/check_cpu_xgboost.py` that imports `xgboost`, inspects `xgboost.__config__` (or equivalent) to confirm it contains `'cpu'` and does **not** contain `'gpu'`.  
+  Write `data/processed/cpu_check.yaml` with `cpu_only: true/false`.  
+  The task fails (non‑zero exit) if `cpu_only` is false, causing the pipeline to abort.  
+  **Verification**: The YAML exists and reports `cpu_only: true`.
 
-Preserved from prior work (scaffolding and logic reused, not re-tasked): `requirements.txt`, lint config, `code/config.py`, `code/models/entities.py`, `code/ingestion/cleaner.py` and `validator.py` logic (absorbed into T002), `code/features/transformer.py` CLR function (absorbed into T004), and the existing contract/integration tests (extended in T002). Rejected approaches recorded: live scraping of unverifiable API endpoints (T008a/T008b/T012a/T012g) — replaced by the committed curated dataset (T001); the `compositional` package dependency — replaced by a tested in-repo CLR implementation if unavailable; all synthetic-fallback logic — permanently removed (loaders fail loudly). No completed requirement was dropped; pending work was consolidated from ~40 fragmented items into 14 verifiable tasks.
+- [ ] **T021** [US2] **Schema validation of cleaned dataset**  
+  Use `jsonschema` to validate `data/processed/solder_hardness_cleaned.csv` (converted to JSON records) against `specs/001-predicting-the-impact-of-composition-on/contracts/solder_dataset.schema.yaml`.  
+  Write `data/processed/schema_validation.yaml` with `valid: true/false` and an optional `errors` list.  
+  **Verification**: The file reports `valid: true`; any failure aborts the pipeline.
+
+---
+
+## Phase 3 – Reproducible results and paper handoff  
+
+- [ ] **T015** [US2] **Methods & results markdown (results.md)**  
+  Write `specs/001-predicting-the-impact-of-composition-on/results.md` that:  
+  * Summarises dataset size, provenance (from `curation_notes.md`), and power‑limitation status.  
+  * Presents model comparison (CV R²/RMSE, paired t‑test, bootstrap comparison, **null‑model baseline**).  
+  * Lists SHAP top‑3 features, VIF flags, and sensitivity‑analysis outcomes.  
+  * Embeds figure references (`pred_vs_measured.png`, `pdp_*.png`, `sensitivity_plot.png`).  
+  * Includes the associational framing warning and limitations verbatim from `final_report.yaml`.  
+  **Verification**: All referenced artifact paths exist, and the markdown can be rendered without broken links.
+
+- [ ] **T016** [US2] **Full reproducibility re‑run & verification**  
+  Update `specs/001-predicting-the-impact-of-composition-on/quickstart.md` with the complete workflow command chain (ingestion → features → training → evaluation → visualization → report → aggregation).  
+  Execute the chain from a clean checkout, ensuring:  
+  * All unit tests in `code/tests/` pass.  
+  * Every artifact listed in `results.md` is regenerated and matches the previously recorded checksum (store a `data/checksums_final.txt` containing SHA‑256 of each final artifact).  
+  * Record the outcome (“re‑run successful, all checksums identical”) in `results.md`.  
+  **Verification**: The checksum file contains entries for every final artifact, and a script `code/evaluation/check_reproducibility.py` confirms exact matches.
+
+---  
+
+### Dependency & Requirement Coverage  
+
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001 / FR‑002 / SC‑004 | T001 → T002 → T003 |
+| FR‑003 / FR‑014 | T006 |
+| FR‑013 / SC‑006 | T007 |
+| FR‑004 / FR‑010 | T008 |
+| FR‑005 / SC‑001 / SC‑002 | T009 + **T019** (null baseline) |
+| FR‑006 / SC‑003 | T010 |
+| FR‑009 / SC‑005 | T011 |
+| FR‑007 | T013, T015 |
+| FR‑010 / FR‑011 / FR‑012 / SC‑007 | T014 + **T020** (CPU‑only check) |
+| FR‑030 (schema) | **T021** |
+| US‑001 | T001‑T003 |
+| US‑002 | T006‑T012 |
+| US‑003 | T012 |
+| Edge‑case handling (N < 50, >5 elements, unit conversion) | T002, T014 |
+| Data‑hygiene & checksums | **T017**, **T018**, T005 |
+| Final aggregated report | **T023** |
+
+Execution order (chronological):  
+T017 → T001 → T018 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T019 → T009 → T010 → T011 → T012 → T013 → T023 → T014 → T020 → T021 → T015 → T016.  
+
+All tasks remain unchecked; the verifier will run them, confirm artifact existence and correctness, and then allow the boxes to be ticked.  

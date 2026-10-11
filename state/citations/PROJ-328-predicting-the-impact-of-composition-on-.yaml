@@ -189,25 +189,3 @@
   verification_status: pending
   verified_against_url: https://www.sciencedirect.com/journal/materials-science-and-engineering-a
   verified_at: '2026-10-07T04:46:48.248339Z'
-- artifact_hash: 85ba9ce0b6d168b494ff1dded6fc02008e44a3a7096a3a0fc74809d0872da430
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsproject.org/rest/v2/materials/`
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials/
-  verified_at: '2026-10-07T04:55:57.257557Z'
-- artifact_hash: 85ba9ce0b6d168b494ff1dded6fc02008e44a3a7096a3a0fc74809d0872da430
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Search | arXiv e-print repository
-  kind: url
-  value: https://arxiv.org/search/?query=solder+hardness&searchtype=all`
-  verification_status: pending
-  verified_against_url: https://arxiv.org/search/?query=solder+hardness&searchtype=all
-  verified_at: '2026-10-07T04:55:57.257557Z'
