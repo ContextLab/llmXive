@@ -1,17 +1,14 @@
 status: none
-intent: OpenNeuro ICPSR UK Biobank HuggingFace WCST aging nostalgia control python
+intent: OpenNeuro ICPSR UK Biobank HuggingFace WCST aging nostalgia download python
   package dataset
 required_fields:
 - participant_id
 - age
-- gender
-- education_years
-- MMSE_score
-- WCST_categories_completed
-- WCST_perseverative_errors
-- WCST_total_errors
-- WCST_trials_to_complete
+- wcst_total_correct
+- wcst_categories_completed
+- wcst_trials_to_completion
 - nostalgia_condition
-cache_key: 4b123cc852bbfa842e7f479a5bc23931c98942303b70e59e6c0cced6a0cfe0ac
-searched_at: '2026-10-11T04:11:46.300391+00:00'
+- mmse_score
+cache_key: dc074adcde6377d8a6f4e60ae09e756ce90ee65cd4ec2def198dcc61a3b8fcc2
+searched_at: '2026-10-11T07:15:57.662186+00:00'
 retry_count: 1

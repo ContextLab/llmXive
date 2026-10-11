@@ -1,4 +1,3 @@
-# Existing dependencies (standard library and common scientific stack are pre‑installed)
 numpy
 pandas
 scipy
@@ -11,7 +10,5 @@ PyYAML
 requests
 jsonschema
 psutil
-
-# Additional dependencies required for real data fetching (T101)
 openml
 datasets

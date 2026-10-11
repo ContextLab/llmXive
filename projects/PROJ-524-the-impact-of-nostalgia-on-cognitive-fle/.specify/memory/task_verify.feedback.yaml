@@ -1,4 +1,6 @@
 T101:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion.py
+    exit=1'
   task: 7ac3946d0b55d42c6741ef45c77040545fd9ae177a35adf70909436fa811e5fb
 T102:
   task: 453edac8d6ba2663a3e239fd475d75de82c9349825c9ede0efb7bc62dbf386b6
