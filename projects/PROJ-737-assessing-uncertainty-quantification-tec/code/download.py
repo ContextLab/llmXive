@@ -11,7 +11,7 @@ Datasets fetched:
 - AFLOW Thermal Conductivity
 
 The module caps each dataset at 5,000 samples using a fixed random seed
-(42), writes the CSV files to ``data/raw/``, computes a **SHA256** checksum
+(42), writes the CSV files to `data/raw/`, computes a SHA256 checksum
 for each file, and generates a JSON metadata file containing the checksum,
 number of samples, and cap information.
 
@@ -27,6 +27,7 @@ from typing import Dict, Any
 
 import pandas as pd
 from matminer.datasets import load_dataset
+from llmxive_toolkit import paths
 
 # Configure logging
 logging.basicConfig(
@@ -36,7 +37,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-DATA_RAW_DIR = Path("data/raw")
+DATA_RAW_DIR = paths.data("raw")
 # SHA256 manifest file – each line: dataset_key,filename,checksum
 CHECKSUMS_FILE = DATA_RAW_DIR / "sha256_manifest.txt"
 SAMPLE_CAP = 5000
@@ -84,7 +85,7 @@ def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
 def save_dataset(df: pd.DataFrame, filename: str, dataset_key: str) -> Path:
-    """Save a DataFrame to ``data/raw/`` and return the file path."""
+    """Save a DataFrame to `data/raw/` and return the file path."""
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
     filepath = DATA_RAW_DIR / filename
     df.to_csv(filepath, index=False)
@@ -104,7 +105,7 @@ def write_metadata(
         "num_samples": int(df.shape[0]),
         "cap_applied": SAMPLE_CAP,
         "checksum_sha256": checksum,
-        "download_timestamp": pd.Timestamp.utcnow().isoformat()
+        "download_timestamp": pd.Timestamp.now(tz='UTC').isoformat()
     }
     metadata_path = DATA_RAW_DIR / f"{dataset_key}_metadata.json"
     with open(metadata_path, "w") as f:
@@ -121,6 +122,10 @@ def append_checksum_record(dataset_key: str, filename: str, checksum: str) -> No
 def download_all() -> None:
     """Download all required datasets, enforce caps, and write metadata."""
     logger.info("Starting dataset download process using matminer...")
+
+    # Clear the manifest at the start of a fresh download run
+    if CHECKSUMS_FILE.exists():
+        CHECKSUMS_FILE.unlink()
 
     for key, cfg in DATASETS.items():
         logger.info(f"Processing dataset: {cfg['description']} (key={key})")

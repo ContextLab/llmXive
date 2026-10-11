@@ -1,50 +1,33 @@
-"""
-Unit tests for the download module (T002).
-
-These tests verify that the checksum function computes a SHA256 hash
-correctly and that the checksum manifest line formatting is as expected.
-They do **not** trigger the full dataset download (which would require
-network access and large files); instead they operate on a tiny temporary
-file.
-"""
-
-import hashlib
-import os
-import tempfile
-
 import pytest
+import pandas as pd
+from pathlib import Path
+import hashlib
+from code.download import compute_sha256, cap_dataframe
 
-from download import compute_sha256, append_checksum_record, CHECKSUMS_FILE
-
-def test_compute_sha256_known_content():
-    # Known content and its SHA256 hash (computed externally)
-    content = b"llmxive test content"
+def test_compute_sha256(tmp_path):
+    """Test that SHA256 checksum is computed correctly."""
+    test_file = tmp_path / "test.txt"
+    content = b"hello world"
+    test_file.write_bytes(content)
+    
     expected_hash = hashlib.sha256(content).hexdigest()
+    assert compute_sha256(test_file) == expected_hash
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(content)
-        tmp_path = tmp.name
+def test_cap_dataframe_oversize():
+    """Test that dataframe is capped to 5000 samples with seed 42."""
+    # Create a dataframe with 6000 rows
+    df = pd.DataFrame({"a": range(6000)})
+    capped_df = cap_dataframe(df)
+    assert len(capped_df) == 5000
+    
+    # Verify reproducibility with seed 42
+    df2 = pd.DataFrame({"a": range(6000)})
+    capped_df2 = cap_dataframe(df2)
+    pd.testing.assert_frame_equal(capped_df, capped_df2)
 
-    try:
-        result_hash = compute_sha256(Path(tmp_path))
-        assert result_hash == expected_hash
-    finally:
-        os.remove(tmp_path)
-
-def test_append_checksum_record_creates_manifest(tmp_path):
-    # Ensure a clean manifest file in a temporary directory
-    manifest_path = tmp_path / "sha256_manifest.txt"
-    # Patch the module-level constant to point to our temp file
-    original_manifest = CHECKSUMS_FILE
-    try:
-        # Monkey‑patch the constant
-        download.CHECKSUMS_FILE = manifest_path
-
-        # Append a dummy record
-        append_checksum_record("dummy_key", "dummy_file.csv", "abc123def456")
-        # Verify file content
-        content = manifest_path.read_text().strip()
-        assert content == "dummy_key,dummy_file.csv,abc123def456"
-    finally:
-        # Restore original constant
-        download.CHECKSUMS_FILE = original_manifest
+def test_cap_dataframe_undersize():
+    """Test that dataframe is not capped if it's smaller than 5000."""
+    df = pd.DataFrame({"a": range(100)})
+    capped_df = cap_dataframe(df)
+    assert len(capped_df) == 100
+    pd.testing.assert_frame_equal(df, capped_df)

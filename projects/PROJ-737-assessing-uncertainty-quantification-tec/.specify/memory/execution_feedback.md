@@ -11,9 +11,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 28, in <module>
     from pipeline import main as pipeline_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 20, in <module>
-    from models.mc_dropout import run_mc_dropout, main as mc_dropout_main
-ImportError: cannot import name 'main' from 'models.mc_dropout' (/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 17, in <module>
+    from download import download_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 29, in <module>
+    from matminer.datasets import load_dataset
+ModuleNotFoundError: No module named 'matminer'
 
 
 ## Declared deliverables still missing

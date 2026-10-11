@@ -1,2 +1,1 @@
-# Existing dependencies are provided by the platform.
-# Add any additional pinned packages here if needed.
+matminer==0.10.2

@@ -1,12 +1,13 @@
 T001:
-  c: false
-  h: 0224b92044caec1013689e357dea790dcb82f90e5bb1df84cbfd709c71a3f5e9
-  r: "The required `per_sample_errors.schema.yaml` contract is either missing or does\
-    \ not define the full column list (the unit test reports \u201Cincomplete column\
-    \ entry\u201D for each required field), causing the skeleton verification test\
-    \ to fail. The directory structure is present, but the schema file must be created/filled\
-    \ with the specified columns."
-  sig: 54c9b9d7b8c657c5b58cf472ec7b3b032cee20dd4494f4457c9d97f1ad2a3b97
+  c: true
+  h: 4867c5b8db91b8b3a5b6e6b2d9690e0939215c489abd32868f93f1218e0483ed
+  r: "All ten required directories exist (confirmed by the collector), `specs/001-.../contracts/per_sample_errors.schema.yaml`\
+    \ exists and was created by the executed `code/create_skeleton.py` (exit 0), and\
+    \ `tests/unit/test_t001.py` \u2014 which explicitly checks directory existence,\
+    \ schema correctness, and SC-005 dataset listing \u2014 passed (3/3, exit 0).\
+    \ The spec.md SC-005 section lists Band Gap, Thermal Conductivity, and Formation\
+    \ Energy as required, unmodified."
+  sig: c56e0f63df66c70dda6fb6ddb542bb71b0ee2c1163ca8fd925da0abc7a5c6ecf
 T002:
   c: false
   h: 45313ebe7dd2f6e5e46f336f0966aeda332403ccb16bde1934afc3d2e528b548

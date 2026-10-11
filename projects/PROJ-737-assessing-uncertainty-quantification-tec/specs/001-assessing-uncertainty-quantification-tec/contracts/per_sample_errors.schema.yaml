@@ -1,9 +1,9 @@
 columns:
-  - name: sample_id
-  - name: dataset
-  - name: method
-  - name: prediction
-  - name: lower_bound
-  - name: upper_bound
-  - name: ground_truth
-  - name: abs_error
+  - {name: sample_id, dtype: object}
+  - {name: dataset, dtype: object}
+  - {name: method, dtype: object}
+  - {name: prediction, dtype: float64}
+  - {name: lower_bound, dtype: float64}
+  - {name: upper_bound, dtype: float64}
+  - {name: ground_truth, dtype: float64}
+  - {name: abs_error, dtype: float64}

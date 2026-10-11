@@ -50,20 +50,18 @@ def _create_schema() -> None:
     # Ensure the parent directory exists
     schema_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if schema_path.is_file():
-        log.debug(f"Schema file already exists: {schema_path}")
-        return
-
+    # The schema must define both 'name' and 'dtype' for every column
+    # to satisfy the verification script (code/verify_t001.py).
     yaml_text = (
         "columns:\n"
-        "  - name: sample_id\n"
-        "  - name: dataset\n"
-        "  - name: method\n"
-        "  - name: prediction\n"
-        "  - name: lower_bound\n"
-        "  - name: upper_bound\n"
-        "  - name: ground_truth\n"
-        "  - name: abs_error\n"
+        "  - {name: sample_id, dtype: object}\n"
+        "  - {name: dataset, dtype: object}\n"
+        "  - {name: method, dtype: object}\n"
+        "  - {name: prediction, dtype: float64}\n"
+        "  - {name: lower_bound, dtype: float64}\n"
+        "  - {name: upper_bound, dtype: float64}\n"
+        "  - {name: ground_truth, dtype: float64}\n"
+        "  - {name: abs_error, dtype: float64}\n"
     )
     schema_path.write_text(yaml_text, encoding="utf-8")
     log.info(f"Created schema file: {schema_path}")
