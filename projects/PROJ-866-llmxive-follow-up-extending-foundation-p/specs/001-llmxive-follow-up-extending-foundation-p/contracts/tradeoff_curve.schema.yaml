@@ -1,30 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "TradeOffCurve"
-description: "Schema for the aggregated regression analysis results (SSoT for paper)."
+description: "Schema for the aggregated regression analysis results (single source of truth for the paper)."
 type: "object"
-properties:
-  reduction_pct:
-    type: "number"
-    description: "Context reduction percentage (binned or interpolated)."
-  error_rate:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Mean policy-violation error rate at this reduction level."
-  std_dev:
-    type: "number"
-    minimum: 0.0
-    description: "Standard deviation of error rate."
-  n_samples:
-    type: "integer"
-    minimum: 1
-    description: "Number of samples contributing to this point."
-  threshold_confidence_lower:
-    type: "number"
-    description: "Lower bound of the 95% CI for the threshold (from bootstrapping)."
-  threshold_confidence_upper:
-    type: "number"
-    description: "Upper bound of the 95% CI for the threshold (from bootstrapping)."
 required:
   - reduction_pct
   - error_rate
@@ -32,3 +9,32 @@ required:
   - n_samples
   - threshold_confidence_lower
   - threshold_confidence_upper
+properties:
+  reduction_pct:
+    type: "number"
+    description: "Context reduction percentage (rounded to 2 decimal places)."
+    minimum: 0
+    maximum: 100
+  error_rate:
+    type: "number"
+    description: "Mean policy‑violation error rate at this reduction level."
+    minimum: 0
+    maximum: 1
+  std_dev:
+    type: "number"
+    description: "Standard deviation of error rates."
+    minimum: 0
+  n_samples:
+    type: "integer"
+    description: "Number of execution logs contributing to this point."
+    minimum: 1
+  threshold_confidence_lower:
+    type: "number"
+    description: "Lower bound of the 95 % CI for the safe‑zone threshold."
+    minimum: 0
+    maximum: 100
+  threshold_confidence_upper:
+    type: "number"
+    description: "Upper bound of the 95 % CI for the safe‑zone threshold."
+    minimum: 0
+    maximum: 100

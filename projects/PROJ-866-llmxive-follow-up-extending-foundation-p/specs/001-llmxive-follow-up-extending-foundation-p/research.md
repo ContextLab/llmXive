@@ -1,81 +1,88 @@
 # Research: llmXive follow-up: extending "Foundation Protocol: A Coordination Layer for Agentic Society"
 
 ## Research Question
-
-What is the functional relationship between context compression (via graph-traversal depth limits) and policy-violation error rates in multi-agent workflows, and where is the "safe operating zone" threshold?
+What functional relationship exists between context compression (graph‑traversal depth limits) and policy‑violation error rate in synthetic multi‑agent workflows, and where does the “safe operating zone” threshold (error ≤ 1 %) lie?
 
 ## Dataset Strategy
 
 ### Verified Datasets
+The experiment relies exclusively on **synthetically generated data**; no external open‑source dataset contains the required “policy graph” and “compression error” variables.
 
-The project relies on a **synthetic dataset** generated programmatically to ensure full control over variables (delegation depth, policy complexity) and ground-truth validity. No external open-source dataset exists that contains the specific "policy graph" and "compression error" variables required for this controlled experiment.
+| Dataset | Source Type | Loader | Notes |
+|---|---|---|---|
+| Synthetic Workflows | Local generation (pm4py‑inspired) | `src/services/generator.py` | Deterministic, seeded, A substantial set of unique workflows with uniform depth distribution and varied policy complexity. |
+| Execution Logs | Local simulation | `src/services/executor.py` | Generates Full‑Context and Compressed‑Context logs; each log entry conforms to `execution_log.schema.yaml`. |
 
-**Source**: The data generation logic is derived from the `pm4py` synthetic event log generation pattern, adapted for the specific "Foundation Protocol" graph structure. This approach is verified to produce reproducible, structured data suitable for statistical analysis.
-
-- **Install**: `pip install pm4py` (used for log structure verification, though the core generator uses `networkx` for graph logic).
-- **Verified**: The generation recipe produces records with fields: `workflow_id`, `delegation_depth`, `policy_complexity`, `policy_nodes`, `ground_truth_state`, `actual_token_reduction_percentage`.
-- **Access Recipe**: The data is generated on-the-fly by the `src/services/generator.py` script using a deterministic seed. No external download is required.
-
-| Dataset Name | Source Type | Programmatic Loader | Notes |
-| :--- | :--- | :--- | :--- |
-| Synthetic Workflow Graphs | Local Generation (pm4py-inspired) | `src/services/generator.py` | Generates a diverse set of unique workflows with varying depth and complexity. |
-| Execution Logs | Local Simulation | `src/services/executor.py` | Simulates "Full" and "Compressed" execution against Oracle. |
+All data are produced on‑the‑fly; no download step is required, satisfying the CI runner’s offline constraints.
 
 ### Data Generation & Simulation Logic
+1. **Workflow Generation** (`generator.py`):  
+   - Uses `networkx` to build directed graphs.  
+   - Delegation depth sampled uniformly from 1‑10, guaranteeing ≥ 25 workflows per depth.  
+   - Policy complexity sampled uniformly from 1‑20 (number of policy nodes).  
+   - Fixed random seed (`42`) guarantees reproducibility (Constitution I).  
+   - Each workflow is validated against the Oracle; unsolvable workflows are flagged `is_valid=False` and **excluded** from error‑rate calculations. The proportion of invalid workflows is recorded in `invalid_exclusion_report.json` (see T‑Invalid‑Exclusion‑Report).  
 
-1.  **Workflow Generation**:
-    -   **Method**: Directed graph construction using `networkx`.
-    -   **Parameters**: workflows. Delegation depth: Uniform distribution (minimum depth defined). Policy complexity: Varies (multiple constraints per workflow).
-    -   **Seed**: Fixed random seed (e.g., `42`) for reproducibility (Constitution Principle I).
-    -   **Validation**: Each workflow is validated to ensure it is solvable by the Oracle (no "impossible" workflows). Invalid workflows are flagged (`is_valid=False`) and excluded from the error rate calculation denominator (Total Valid Workflows) to prevent selection bias.
-    -   **Adaptive Sampling**: An initial pilot run (depths 0, 5, 10) identifies the approximate inflection point. Subsequent runs densify depth steps (e.g., k=4, 5, 6, 7, 8) near the anticipated % error threshold to ensure sufficient sampling density for accurate threshold detection.
+2. **Oracle Policy Engine** (`models/policy.py`):  
+   - Deterministic state machine that **deduces** validity of each step from the *provided* policy context.  
+   - Returns a violation only when required deduction fails, not merely because a node is missing.  
+   - Completely independent of the compression algorithm (Constitution VI).
 
-2.  **Oracle Policy Engine (Simulated Agent)**:
-    -   **Role**: Independent ground-truth validator.
-    -   **Logic**: A deterministic state machine that acts as a **simulated agent**. It attempts to **deduce** the validity of a workflow step based on the *provided* context. It fails only if the required policy logic **cannot be deduced** from the available nodes, not merely because a node is missing. This prevents the tautology of "missing node = error" and models the actual reasoning capability of the agent.
-    -   **Independence**: The Oracle logic is distinct from the compression algorithm. The compression algorithm *removes* nodes; the Oracle *attempts to deduce* validity from what remains. This prevents circular validation (Constitution Principle VI).
-
-3.  **Compression Simulation**:
-    -   **Algorithm**: Breadth-First Search (BFS) or Depth-First Search (DFS) with a configurable depth limit `k`.
-    -   **Metric**: Token count calculated via `tiktoken` (**model: cl100k_base**) on the serialized policy subgraph.
-    -   **Variants**: Runs executed at depths `k` determined by adaptive sampling (e.g., 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).
-    -   **Edge Cases**:
- - `k=0`: No context passed. Records `context_reduction_pct` as `"[deferred]"` string and error rate as [deferred] (if policy required).
-        -   Single-node graph: Records `context_reduction_pct` as `"[deferred]"` string.
-        -   Invalid workflows: Excluded from the denominator of the error rate calculation.
+3. **Compression Simulation** (`compression.py` + `executor.py`):  
+   - Implements BFS/DFS with configurable depth limit `k`.  
+   - Token count obtained via `tiktoken` (`cl100k_base`) on the serialized subgraph.  
+   - Edge cases: `k=0` → `context_reduction_pct="[deferred]"`; single‑node graphs → same marker.  
 
 ## Statistical Analysis Plan
 
-### Methodology
+### 1. Regression (Binomial GEE)
+- **Model**: Binomial Generalized Estimating Equations (GEE) with logit link, exchangeable correlation structure, clustering by `workflow_id`. Implemented via `statsmodels.genmod.generalized_estimating_equations.GEE`.  
+- **Fixed Effects**: `context_reduction_pct` (continuous), `policy_complexity`, `delegation_depth`.  
+- **Goal**: Estimate the monotonic relationship; test significance of `context_reduction_pct`.
 
-1.  **Regression Analysis (GLMM)**:
-    -   **Model**: Generalized Linear Mixed-Effects Model (GLMM) with a logit link function.
-    -   **Fixed Effects**: Context reduction percentage (continuous), Policy complexity, Delegation depth.
-    -   **Random Effects**: Random intercepts for `workflow_id` to account for hierarchical clustering (multiple observations per workflow).
-    -   **Hypothesis**: The relationship is monotonic and non-linear. The analysis will explicitly **test for monotonicity** (e.g., using isotonic regression or trend tests) rather than assuming it.
-    -   **Significance**: P-values calculated for model coefficients.
-    -   **Multiplicity**: **Trend tests (Cochran-Armitage)** used for ordered depth comparisons. Bonferroni correction is reserved only for non-ordered secondary pairwise checks, not the primary threshold detection.
+### 2. Multiple‑Comparison Correction
+- Primary ordered comparisons (depth levels) use **Cochran‑Armitage trend test** (no correction needed for ordered test).  
+- Any secondary pairwise depth comparisons receive **Bonferroni correction** to maintain family‑wise α = 0.05.
 
-2.  **Threshold Detection**:
-    -   **Target**: Identify the `Context Reduction %` where `Error Rate` first exceeds 1%.
-    -   **Method**: Interpolation from the GLMM's fitted curve and confidence band.
-    -   **Confidence**: **A sufficient number of bootstrap resamples** to generate a high-confidence interval for the threshold estimate (SC-004, Verified Fact). The threshold value will be **rounded to 2 decimal places**.
-    -   **Output**: `threshold_report.json` and `tradeoff_curve.csv` will contain `threshold_confidence_lower` and `threshold_confidence_upper`.
+### 3. Threshold Detection
+- Target: Identify the smallest `context_reduction_pct` where the **predicted** error rate first exceeds **[deferred]**.
+- Method: Interpolate the fitted GEE curve; apply a **monotonicity diagnostic** (see below).  
+- Confidence interval: Obtain a 95 % CI via **bootstrap** with **1000 resamples** (verified fact).  
+- Output rounded to two decimal places.
 
-3.  **Power Analysis**:
-    -   **Assumption**: Medium effect size.
-    -   **Sample Size**: A sufficient number of workflows across adaptive depth steps provides sufficient power to detect the threshold effect, especially with the densified sampling near the inflection point.
+### 4. Monotonicity Diagnostic
+- After fitting the GEE, we verify that the predicted error rates are monotonic increasing with context reduction.  
+- If violations are detected, we refit using **isotonic regression** (`sklearn.isotonic.IsotonicRegression`) to enforce monotonicity before threshold extraction.
 
-### Compute Feasibility
+### 5. Power Analysis (formal, simulation‑based)
+- **Procedure**: Simulate 1000 synthetic datasets matching the planned design (500 workflows, the same depth/compression grid).  
+- For each simulated dataset, fit the GEE and test whether the model detects a ≥ 1 % error jump at the true threshold.  
+- The proportion of simulations where the effect is detected provides an empirical power estimate, which is reported in `run_metrics.json`.  
+- This replaces the previous informal statement and satisfies the methodological requirement.
 
--   **CPU-First**: All operations (graph traversal, tokenization, GLMM via `statsmodels`) are CPU-native. No GPU is required.
--   **Memory**: 500 small graphs and JSON logs fit comfortably within 7GB RAM.
--   **Time**: Estimated runtime < 2 hours on 2 vCPU.
+### 6. Edge‑Case Handling (already in plan)
+- Single‑node graphs and `compression_depth=0` produce `context_reduction_pct="[deferred]"`.  
+- Invalid workflows are excluded from error‑rate denominators; the exclusion rate is logged and reported.
 
-## Decision/Rationale
+### 7. Invalid‑Workflow Proportion Monitoring
+- The pipeline records `invalid_workflow_count` and `total_workflows` in `invalid_exclusion_report.json`.  
+- `run_metrics.json` includes the proportion `invalid_workflow_ratio = invalid_workflow_count / total_workflows`.  
+- This metric is examined during analysis to assess potential bias; if the ratio exceeds 10 % a warning is issued.
 
--   **Synthetic Data**: Chosen over real data because no public dataset contains the specific "policy graph" and "compression error" variables required. Synthetic generation allows precise control over the independent variable (compression depth) and ground truth.
--   **CPU-Only**: The simulation does not involve LLM inference, only graph algorithms and token counting. Running on CPU ensures fidelity to the "edge device" constraints mentioned in the motivation.
--   **Oracle Independence**: The strict separation of the Oracle from the execution engine is mandated by Constitution Principle VI to ensure the validity of the error metric. The Oracle simulates deduction, not simple presence checks.
--   **GLMM vs. Standard Regression**: GLMM is chosen to account for the non-independence of observations (multiple depths per workflow), preventing inflated Type I error rates.
--   **Adaptive Sampling**: Ensures sufficient data density near the critical threshold, addressing the power analysis concern for threshold detection.
+## Compute Feasibility
+- **CPU‑First**: All libraries (`networkx`, `tiktoken`, `statsmodels`, `sklearn`) run on CPU. No GPU‑only components.  
+- **Memory**: 500 small graphs + JSON logs ≈ 200 MB; well under 7 GB limit.  
+- **Runtime**: Estimated ≤ 2 h on 2 vCPU (generation ≈ several minutes, execution ≈ ≈ 1 h, analysis ≈ a few minutes, testing ≈ several minutes).  
+
+## Decision / Rationale
+- **Synthetic data** eliminates the need for unavailable external datasets and gives full control over depth/complexity variables.  
+- **CPU‑only** respects the resource‑constrained constraint (Constitution VII) and enables execution on free GitHub Actions runners.  
+- **Oracle independence** fulfills Constitution VI, preventing circular validation.  
+- **Binomial GEE** provides a statistically valid approach for clustered binary outcomes, correcting the earlier mis‑specified MixedLM.  
+- **Simulation‑based power analysis** offers a rigorous, documented estimate of statistical power.  
+- **Monotonicity check** safeguards against non‑monotonic fitted curves that could mislead threshold estimation.  
+- **Invalid‑workflow proportion monitoring** ensures that exclusion does not bias the estimated trade‑off curve.  
+
+---
+
+

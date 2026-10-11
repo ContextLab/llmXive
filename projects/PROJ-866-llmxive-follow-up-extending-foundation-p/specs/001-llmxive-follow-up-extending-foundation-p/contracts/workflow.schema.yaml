@@ -1,7 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Workflow"
-description: "Schema for a synthetic multi-agent workflow definition."
+description: "Schema for a synthetic multi‑agent workflow definition."
 type: "object"
+required:
+  - workflow_id
+  - delegation_depth
+  - policy_complexity
+  - nodes
+  - edges
+  - is_valid
 properties:
   workflow_id:
     type: "string"
@@ -10,7 +17,7 @@ properties:
     type: "integer"
     minimum: 1
     maximum: 10
-    description: "The depth of delegation in the workflow chain."
+    description: "Depth of delegation in the workflow chain."
   policy_complexity:
     type: "integer"
     minimum: 1
@@ -33,30 +40,24 @@ properties:
   is_valid:
     type: "boolean"
     description: "True if the workflow is solvable by the Oracle Policy Engine."
-required:
-  - workflow_id
-  - delegation_depth
-  - policy_complexity
-  - nodes
-  - edges
-  - is_valid
 definitions:
   PolicyNode:
     type: "object"
+    required:
+      - node_id
+      - type
+      - content
     properties:
       node_id:
         type: "string"
       type:
         type: "string"
-        description: "Type of policy (e.g., 'budget', 'sovereignty')."
+        description: "Policy type (e.g., \"budget\", \"sovereignty\")."
       content:
         type: "string"
         description: "Text description of the policy."
       dependencies:
         type: "array"
+        description: "IDs of prerequisite nodes."
         items:
           type: "string"
-    required:
-      - node_id
-      - type
-      - content

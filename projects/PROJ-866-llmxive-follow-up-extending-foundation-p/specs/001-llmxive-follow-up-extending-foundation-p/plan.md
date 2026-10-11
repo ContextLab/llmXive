@@ -1,122 +1,127 @@
 # Implementation Plan: llmXive follow-up: extending "Foundation Protocol: A Coordination Layer for Agentic Society"
 
-**Branch**: `001-policy-compression-tradeoff` | **Date**: 2026-07-11 | **Spec**: `specs/001-policy-compression-tradeoff/spec.md`
+**Branch**: `001-policy-compression-tradeoff` | **Date**: 2026-10-10 | **Spec**: `specs/001-policy-compression-tradeoff/spec.md`  
 **Input**: Feature specification from `/specs/001-policy-compression-tradeoff/spec.md`
 
 ## Summary
-
-This project implements a CPU-only simulation pipeline to quantify the trade-off between context compression (via graph-traversal depth limits) and policy-violation error rates in multi-agent workflows. The system generates a set of synthetic workflows with varying delegation depths and policy complexities., executes them against an independent Oracle Policy Engine (simulated agent logic) under "Full Context" and "Compressed Context" (BFS/DFS limited depth) regimes, and performs Generalized Linear Mixed-Effects Modeling (GLMM) to identify the "safe operating zone" where efficiency gains do not breach a [deferred] error bound. The implementation strictly adheres to the GitHub Actions free-tier constraints (limited CPU, constrained RAM) and ensures reproducibility via pinned seeds and checksummed artifacts.
-
-**Key Updates**: 
-- Statistical analysis now uses GLMM with random intercepts for workflow_id to handle hierarchical clustering.
-- Oracle logic simulates agent deduction rather than simple set-membership checks.
-- Explicit handling of edge cases ('[deferred]' values) and invalid workflows.
-- Threshold output rounded to 2 decimal places (FR-006).
-- Wall-clock time measurement recorded (SC-005).
-- Specific tokenizer `cl100k_base` mandated (FR-009).
+The project will (1) deterministically generate a substantial set of synthetic multi‑agent workflows with varied delegation depth and policy complexity, (2) execute each workflow under a full‑context baseline and under multiple compressed‑context variants (BFS/DFS depth limits), (3) record token usage via `tiktoken` (`cl100k_base`) and policy‑violation counts against an independent Oracle Policy Engine, and (4) perform a binomial Generalized Estimating Equations (GEE) regression with bootstrap‑derived confidence intervals to locate the “safe operating zone” where error ≤ 1 %. All steps are CPU‑only, reproducible, and validated against schema contracts.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `networkx` (graph traversal), `tiktoken` (token counting, **model: cl100k_base**), `scikit-learn` (regression), `pandas` (data handling), `pytest` (testing), `pm4py` (synthetic log generation/verification), `statsmodels` (GLMM), `scipy` (trend tests).  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`).  
-**Testing**: `pytest` with unit tests for graph generation, compression logic, statistical analysis, and **Oracle Independence Verification**.  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
-**Project Type**: Computational research simulation / CLI tool.  
-**Performance Goals**: Complete 500 workflow generations + ~-5000 execution runs (500 workflows × 1 Full + -9 Compressed depths) + analysis within 4 hours on 2 vCPU.  
-**Constraints**: CPU-only (no GPU), <7GB RAM peak, deterministic output (fixed seeds), no external API calls for data.  
-**Scale/Scope**: A set of synthetic workflows, variable execution runs (approx -5000), 1 regression curve, 1 threshold report.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `networkx`, `tiktoken` (model `cl100k_base`), `pandas`, `scikit-learn`, `statsmodels`, `pm4py`, `pytest`  
+- **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`)  
+- **Testing**: `pytest` + schema validation (`jsonschema`)  
+- **Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPU, ~7 GB RAM)  
+- **Constraints**: CPU‑only, deterministic seeds, no external data download  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-- **Principle I (Reproducibility)**: **PASS**. The plan mandates pinned seeds in `code/`, deterministic generation logic, and a `requirements.txt` for isolated execution. All data artifacts will be checksummed.
-- **Principle II (Verified Accuracy)**: **PASS**. All statistical methods (GLMM, bootstrapping) are cited to standard references. The "Verified datasets" block in `research.md` will strictly use the provided `pm4py` synthetic generation recipe as the data source, avoiding fabricated URLs.
-- **Principle III (Data Hygiene)**: **PASS**. The plan includes a `checksums.json` generation step. Raw synthetic data is generated once and stored; derivations (compressed logs) are written to new files. No in-place modification.
-- **Principle IV (Single Source of Truth)**: **PASS**. The `data/results/tradeoff_curve.csv` will be the sole source for the paper's figures. The code will read this CSV to generate plots, ensuring no hand-typed numbers. The `analysis_results.json` is the intermediate artifact for code logic, derived from the same logs.
-- **Principle V (Versioning Discipline)**: **PASS**. The plan includes a script to update `state/projects/...yaml` with artifact hashes upon completion.
-- **Principle VI (Deterministic State-Modeling)**: **PASS**. The architecture explicitly separates the "Oracle Policy Engine" (ground truth) from the "Compressed Context" execution engine. The validation logic compares the compressed result *against* the Oracle, preventing circular validation. **Note**: A specific unit test (`test_oracle_independence`) will verify that the Oracle module is not imported by the Compressed Executor logic.
-- **Principle VII (Resource-Constrained Execution Fidelity)**: **PASS**. The plan uses `networkx`, `tiktoken`, and `statsmodels` (CPU-native) and avoids loading large LLMs. The workflow limit ensures memory usage stays well under a practical threshold..
+| Principle | Status | Rationale |
+|-----------|--------|-----------|
+| I. Reproducibility | PASS | Fixed seeds (`SEED=42`), `requirements.txt`, checksummed artifacts. |
+| II. Verified Accuracy | PASS | All statistical methods cite standard references; no unverified citations. |
+| III. Data Hygiene | PASS | Synthetic data generated on‑the‑fly, checksums stored in `state/…yaml`. |
+| IV. Single Source of Truth | PASS | `data/results/tradeoff_curve.csv` is the sole source for figures/tables. |
+| V. Versioning Discipline | PASS | Post‑run script updates artifact hashes in project state file. |
+| VI. Deterministic State‑Modeling | PASS | Oracle Policy Engine (`models/policy.py`) is independent of compression logic. |
+| VII. Resource‑Constrained Execution Fidelity | PASS | No GPU‑only libraries; all code runs on CPU within memory limits. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-policy-compression-tradeoff/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── workflow.schema.yaml
 │   ├── execution_log.schema.yaml
 │   ├── tradeoff_curve.schema.yaml
 │   └── analysis_results.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md   # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 src/
 ├── models/
-│   ├── workflow.py          # Workflow graph definition
-│   ├── policy.py            # Oracle Policy Engine logic (INDEPENDENT)
-│   └── compression.py       # BFS/DFS traversal logic
+│   ├── workflow.py          # dataclasses for Workflow, PolicyNode
+│   ├── policy.py            # Oracle Policy Engine (independent)
+│   └── compression.py       # BFS/DFS depth‑limited subgraph extraction
 ├── services/
-│   ├── generator.py         # Synthetic workflow generator (500 workflows)
-│   ├── executor.py          # Full/Compressed execution engine
-│   └── analyzer.py          # GLMM, trend tests, and threshold analysis
+│   ├── generator.py         # deterministic workflow generator (FR‑001)
+│   ├── executor.py          # Full & Compressed execution engines (FR‑002‑FR‑004)
+│   └── analyzer.py          # GEE regression, bootstrap CI, monotonicity check (FR‑005‑FR‑006)
 ├── cli/
-│   └── run_simulation.py    # Main entry point
+│   └── run_simulation.py    # orchestrates pipeline (FR‑007)
 └── lib/
-    └── utils.py             # Tokenizer wrapper (cl100k_base), checksum utilities
-
-data/
-├── raw/
-│   └── workflows.json       # Generated 500 workflows
-├── processed/
-│   ├── full_context_logs.json
-│   └── compressed_context_logs.json
-└── results/
-    ├── tradeoff_curve.csv   # SSoT for paper
-    ├── threshold_report.json
-    └── run_metrics.json     # Wall-clock time (SC-005)
-
-tests/
-├── contract/
-│   └── test_schemas.py      # Validates JSON against YAML schemas
-├── integration/
-│   └── test_pipeline.py     # End-to-end simulation test
-└── unit/
-    ├── test_generator.py    # Verifies A set of unique workflows, depth distribution
-    ├── test_compression.py  # Verifies token reduction logic
-    ├── test_oracle_independence.py # Verifies Oracle is not called by Compressed Executor
-    └── test_analyzer.py     # Verifies GLMM and threshold detection
+    └── utils.py             # tokenizer wrapper, checksum utilities (FR‑009)
 ```
 
-**Structure Decision**: The "Single project" structure is selected. The project is a self-contained simulation pipeline requiring no frontend or separate backend services. The separation of `models`, `services`, and `cli` ensures clear boundaries between data definition, logic execution, and orchestration, facilitating unit testing and reproducibility.
+## Mapping of Functional & Success Criteria to Plan Phases
+| Phase | Tasks | FRs addressed | SCs addressed |
+|-------|-------|---------------|----------------|
+| **0 – Setup** | Install deps, pin seeds, generate checksums | FR‑007, FR‑009 | SC‑005 |
+| **1 – Synthetic Data Generation** | `generator.py` creates 500 workflows with uniform depth distribution (≥ 25 per depth) and varied policy complexity; flags invalid workflows | FR‑001, FR‑008 | SC‑001 |
+| **2 – Full‑Context Baseline** | `executor.py` runs each valid workflow with complete policy graph; logs token count & violations | FR‑002, FR‑004 | SC‑001, SC‑002 |
+| **3 – Compressed‑Context Variants** | For each depth `k ∈ {0,…,10}` (adaptive sampling densifies near expected inflection), `executor.py` extracts subgraph via BFS/DFS, tokenizes, records violations | FR‑003, FR‑004, FR‑009 | SC‑001, SC‑002 |
+| **4 – Edge‑Case Handling** | Detect single‑node graphs & depth 0; record `context_reduction_pct="[deferred]"`; monitor proportion of `is_valid=False` workflows and generate `invalid_exclusion_report.json` | FR‑001, FR‑008 | SC‑001 |
+| **5 – Statistical Analysis** | `analyzer.py` fits a **binomial GEE** model (logit link, exchangeable correlation, clustered by `workflow_id`); performs Cochran‑Armitage trend test; applies Bonferroni correction for any pairwise depth comparisons; runs monotonicity diagnostic (isotonic regression fallback) | FR‑005, FR‑006 | SC‑003, SC‑004 |
+| **5a – Power Analysis** | Conduct a **simulation‑based power analysis**: simulate multiple datasets (matching the verified resamples) with the expected effect size and evaluate detection of a ≥ 1 % error jump; report estimated power | — | — |
+| **5b – Invalid‑Workflow Reporting** | `T-Invalid‑Exclusion‑Report` generates `data/results/invalid_exclusion_report.json` containing `invalid_workflow_count`, `excluded_count`, and `status`; values are stored in `run_metrics.json` | FR‑008 | SC‑001 |
+| **5c – Analysis‑Results Schema Validation** | `T-Analyze‑Results‑Schema` validates the intermediate `analysis_results.json` against `contracts/analysis_results.schema.yaml` | — | — |
+| **6 – Reporting & Artifacts** | Write `tradeoff_curve.csv`, `threshold_report.json`, `run_metrics.json`; generate `tradeoff_curve.png`; compute SHA‑256 hashes stored in `state/…yaml` | FR‑006, FR‑007 | SC‑005 |
+| **7 – Validation & Tests** | Unit tests for generator distribution, compression token reduction, Oracle independence, schema compliance, end‑to‑end pipeline (`tests/integration/test_pipeline.py`) | FR‑007, FR‑008, FR‑009 | All SCs (via assertions) |
+| **8 – Quickstart Documentation** | `quickstart.md` (this file) – linked to FR‑007 (reproducibility) | FR‑007 | — |
+| **9 – Auxiliary Scripts** | `T-Update-Final-State` – compute checksums and update project state file. <br> `T-Verify-Invalid-Exclusion` – script `code/utils/verify_invalid_exclusion.py`. <br> `T-Generate-Reproducibility-Report` – produce `reproducibility_report.json` with command log and checksum verification. <br> `T-Main-Pipeline` – implement `code/main.py` orchestrating the full workflow. <br> `T-Abort-On-Threshold` – analyzer aborts pipeline if predicted error exceeds 1 % before final report. | — | — |
+| **10 – Adaptive Sampling Extension** | `T-Adapt-Generator-Adaptive` – extend `generator.py` with `--adaptive` flag to densify depth distribution around the anticipated inflection point. | FR‑001 | — |
+| **11 – CSV Validation** | `T-Validate-Tradeoff-CSV` – validate `tradeoff_curve.csv` against `contracts/tradeoff_curve.schema.yaml`. | — | — |
+
+## Specific Implementation Tasks (to be emitted in `tasks.md`)
+
+1. **T-Gen‑Deterministic** – Implement `generator.py` with fixed seed, uniform depth sampling, validation of solvability.
+2. **T-Oracle‑Independent** – Build `policy.py` as a pure deterministic state machine; no imports from compression modules.
+3. **T-Compress‑BFSDFS** – Implement depth‑limited traversal in `compression.py`; expose both BFS and DFS options.
+4. **T-Tokenizer‑Wrapper** – `utils.py` uses `tiktoken` with `cl100k_base`; returns token count for serialized subgraph.
+5. **T-Exec‑Full** – `executor.py` runs full context, records logs per `execution_log.schema.yaml`.
+6. **T-Exec‑Compressed** – Loop over adaptive depth list; handle edge cases (`k=0`, single‑node) with `"[deferred]"`.
+7. **T-Analyze‑GEE** – Fit binomial GEE model using `statsmodels` (`statsmodels.genmod.generalized_estimating_equations.GEE`) with exchangeable correlation; include covariates `policy_complexity` and `delegation_depth`.
+8. **T-Analyze‑Trend** – Cochran‑Armitage test (`statsmodels.stats.proportion.proportional_trend_test`); Bonferroni for secondary pairwise tests.
+9. **T-Analyze‑Bootstrap** – A sufficient number of resamples (a suitably large sample size per verified fact) to compute a 95 % CI for the 1 % error threshold.
+10. **T-Monotonicity‑Check** – Verify fitted curve monotonicity; if violated, refit using isotonic regression (`sklearn.isotonic.IsotonicRegression`).
+11. **T-Power‑Simulation** – Perform simulation‑based power analysis (1000 simulated datasets) and log estimated power.
+12. **T-Invalid‑Exclusion‑Report** – Generate `invalid_exclusion_report.json` and record counts in `run_metrics.json`.
+13. **T-Analyze‑Results‑Schema** – Validate `analysis_results.json` against `contracts/analysis_results.schema.yaml`.
+14. **T-Report‑Artifacts** – Serialize CSV/JSON, compute SHA‑256, update `state/projects/...yaml`.
+15. **T-Tests‑Unit** – Verify distribution, token reduction, Oracle independence, schema validation.
+16. **T-Tests‑Integration** – End‑to‑end pipeline test ensuring total wall‑clock < 6 h on CI.
+17. **T-Doc‑Quickstart** – Write `quickstart.md` (this file) and link it to FR‑007.
+18. **T-Contract‑Schemas** – Provide the four YAML schema files under `contracts/`.
+19. **T-Update‑Final‑State** – Compute SHA‑256 checksums for all generated artifacts and update the project state YAML.
+20. **T-Verify‑Invalid‑Exclusion** – Implement `code/utils/verify_invalid_exclusion.py` to generate the exclusion report.
+21. **T-Generate‑Reproducibility‑Report** – Produce `data/results/reproducibility_report.json` summarizing command logs and checksum verification.
+22. **T-Main‑Pipeline** – Implement `code/main.py` that calls the generation, execution, analysis, and reporting steps in order.
+23. **T-Abort‑On‑Threshold** – Analyzer aborts the pipeline if the predicted error rate exceeds 1 % before final artefacts are written.
+24. **T-Adapt‑Generator‑Adaptive** – Extend `generator.py` with an `--adaptive` flag for depth‑densified sampling.
+25. **T-Validate‑Tradeoff‑CSV** – Validate `tradeoff_curve.csv` against `contracts/tradeoff_curve.schema.yaml`.
+26. **T-Generate‑Figure** – Create `figures/tradeoff_curve.png` from `tradeoff_curve.csv` for inclusion in the paper.
 
 ## Complexity Tracking
+No constitution violations remain; all principles satisfied.
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+## Compute Feasibility
+- **CPU‑First**: All libraries (`networkx`, `tiktoken`, `statsmodels`, `sklearn`) run on CPU. No GPU‑only components.
+- **Memory**: 500 small graphs + logs ≈ 200 MB; well under 7 GB.
+- **Runtime**: Estimated ≤ 2 h on 2 vCPU (generation ≈ several minutes, execution ≈ ≈ 1 h, analysis ≈ a few minutes, testing ≈ several minutes).
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| N/A | Constitution Check passed. | N/A |
+## Decision / Rationale
+- **Synthetic data** gives full control over depth/complexity and avoids unavailable external datasets.  
+- **CPU‑only** respects resource‑constrained constraint (Constitution VII).  
+- **Oracle independence** fulfills Constitution VI, preventing circular validation.  
+- **Binomial GEE** provides a statistically valid approach for clustered binary outcomes, correcting the earlier mis‑specified GLMM.  
+- **Simulation‑based power analysis** offers a rigorous, documented estimate of statistical power.  
+- **Monotonicity check** safeguards against non‑monotonic fitted curves that could mislead threshold estimation.  
+- **Adaptive sampling** concentrates runs near the anticipated inflection while keeping total runs manageable.  
+- **Explicit reporting** of invalid‑workflow proportion prevents bias in error‑rate estimation.  
 
-## Specific Implementation Tasks (Addressing Panel Concerns)
+---
 
-- **T-Gen-Adaptive**: Implement adaptive sampling in `generator.py` to densify depth steps near the anticipated 1% error threshold.
-- **T-Oracle-Logic**: Implement Oracle as a "Simulated Agent" that attempts deduction, not just set-membership.
-- **T-Stat-GLMM**: Implement GLMM with random intercepts in `analyzer.py` using `statsmodels`.
-- **T-Stat-Trend**: Implement Cochran-Armitage trend test for monotonicity verification.
-- **T-Edge-Case**: Implement logic to output `[deferred]` for `context_reduction_pct` in single-node and depth=0 cases.
-- **T-Format-Round**: Ensure threshold output is rounded to 2 decimal places.
-- **T-Measure-Time**: Implement wall-clock time measurement and save to `run_metrics.json`.
-- **T-Verify-Oracle**: Unit test to ensure `models/policy.py` is not imported by `services/executor.py` for compression logic.
-- **T-Tokenizer**: Ensure `tiktoken` uses `cl100k_base` model explicitly.
+
