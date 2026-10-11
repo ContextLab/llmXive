@@ -42,18 +42,18 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
   verified_at: '2026-08-28T09:19:53.785033Z'
-- artifact_hash: 9fddf5a140cc1a66e6ce30469f1efdefaf17ddc2ccdd6063014357e32e222349
+- artifact_hash: 799bbfeef57f11c9d4a37d1e4c345c7f41b6d563e51375a0d6b513509203033f
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: Crystallography Open Database
   kind: url
-  value: https://www.crystallography.net/cod/
+  value: https://www.crystallography.net/cod/`
   verification_status: pending
   verified_against_url: https://www.crystallography.net/cod/
-  verified_at: '2026-09-21T18:39:27.243982Z'
-- artifact_hash: 9fddf5a140cc1a66e6ce30469f1efdefaf17ddc2ccdd6063014357e32e222349
+  verified_at: '2026-10-11T08:31:25.832003Z'
+- artifact_hash: 799bbfeef57f11c9d4a37d1e4c345c7f41b6d563e51375a0d6b513509203033f
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: 10.1021/j100785a001
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
-  verified_at: '2026-09-21T18:39:27.243982Z'
+  verified_at: '2026-10-11T08:31:25.832003Z'
