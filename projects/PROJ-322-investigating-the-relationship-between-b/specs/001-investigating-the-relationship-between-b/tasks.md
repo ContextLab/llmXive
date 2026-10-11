@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create directory structure: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` <!-- FAILED: unspecified -->
+- [ ] T001 Create directory structure: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` <!-- FAILED: unspecified -->
 
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pin `nilearn`, `networkx`, `statsmodels`, `pandas`, `numpy`, `scikit-learn`, `pyyaml`, `huggingface_hub`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pin `nilearn`, `networkx`, `statsmodels`, `pandas`, `numpy`, `scikit-learn`, `pyyaml`, `huggingface_hub`)
 
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -59,17 +59,17 @@
 
 - [X] T004 Implement `code/__init__.py` and shared configuration loader (`code/config.py`)
 
-- [X] T007 Implement memory monitoring utility (`code/memory_monitor.py`) to enforce ≤6GB RAM limit during batch processing (FR-001, SC-005); expose `get_current_ram_gb()` and `is_limit_exceeded()` functions.
+- [ ] T007 Implement memory monitoring utility (`code/memory_monitor.py`) to enforce ≤6GB RAM limit during batch processing (FR-001, SC-005); expose `get_current_ram_gb()` and `is_limit_exceeded()` functions.
 
-- [X] T005a [P] Initialize logging infrastructure (`code/logging_config.py`) with basic file handlers and rotation; do NOT configure memory hooks yet.
+- [ ] T005a [P] Initialize logging infrastructure (`code/logging_config.py`) with basic file handlers and rotation; do NOT configure memory hooks yet.
 
-- [X] T005b [P] [Depends on T007] Configure logging hooks in `code/logging_config.py` to read memory state from T007 and emit "Time Limit Warning" logs when RAM usage approaches 6GB.
+- [~] T005b [P] [Depends on T007] Configure logging hooks in `code/logging_config.py` to read memory state from T007 and emit "Time Limit Warning" logs when RAM usage approaches 6GB.
 
-- [X] T006 Create base data entities: `Subject`, `ConnectivityMatrix`, `GraphMetrics` classes in `code/entities.py`
+- [~] T006 Create base data entities: `Subject`, `ConnectivityMatrix`, `GraphMetrics` classes in `code/entities.py`
 
-- [X] T008a [P] Implement synthetic data generator (`code/synthetic_data.py`) for "Methodology Validation Mode" with seeded random states.
+- [~] T008a [P] Implement synthetic data generator (`code/synthetic_data.py`) for "Methodology Validation Mode" with seeded random states.
 
-- [X] T008b [P] [Depends on T004] Implement "Methodology Validation Mode" switch logic in `code/config.py` to set global `is_synthetic` flag based on data availability check. This task establishes the global project state for the mode.
+- [~] T008b [P] [Depends on T004] Implement "Methodology Validation Mode" switch logic in `code/config.py` to set global `is_synthetic` flag based on data availability check. This task establishes the global project state for the mode.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,23 +83,23 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/data_ingestion.py` to download OpenNeuro data (e.g., `ds000006` or similar mTBI dataset) and generate `data/results/manifest.csv`
+- [ ] T011 [US1] Implement `code/data_ingestion.py` to download OpenNeuro data (e.g., `ds000006` or similar mTBI dataset) and generate `data/results/manifest.csv` <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
 
-- [X] T012 [US1] Implement `code/preprocessing.py` for minimal confound regression using `nilearn` and AAL parcellation
+- [~] T012 [US1] Implement `code/preprocessing.py` for minimal confound regression using `nilearn` and AAL parcellation
 
 - [ ] T013 [US1] Add logic to skip subjects with missing time points (acute/chronic) and log exclusion reasons (Edge Case)
 
 - [ ] T014 [US1] Add logic to handle AAL atlas failure (skip subject, log error) without crashing (Edge Case)
 
-- [X] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
+- [~] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Execution of these tasks requires the code from T011-T016 to exist.
 
-- [X] T009 [P] [US1] Define and implement unit test `tests/unit/test_memory_monitor.py::test_get_current_ram_gb_returns_float` and `tests/unit/test_memory_monitor.py::test_is_limit_exceeded_raises_memory_error_when_ram_gt_6gb`
+- [~] T009 [P] [US1] Define and implement unit test `tests/unit/test_memory_monitor.py::test_get_current_ram_gb_returns_float` and `tests/unit/test_memory_monitor.py::test_is_limit_exceeded_raises_memory_error_when_ram_gt_6gb`
 
-- [X] T010 [P] [US1] Define and implement integration test `tests/integration/test_data_ingestion.py::test_ingestion_skips_subjects_with_missing_time_points_and_logs_exclusion`
+- [~] T010 [P] [US1] Define and implement integration test `tests/integration/test_data_ingestion.py::test_ingestion_skips_subjects_with_missing_time_points_and_logs_exclusion`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,11 +113,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [P] [US2] Implement `code/graph_metrics.py` to compute Global Efficiency, Local Efficiency, and Modularity (Q) from connectivity matrices using `networkx` (FR-002)
+- [~] T019 [P] [US2] Implement `code/graph_metrics.py` to compute Global Efficiency, Local Efficiency, and Modularity (Q) from connectivity matrices using `networkx` (FR-002)
 
 - [ ] T020 [US2] Implement proportional sparsity thresholding on connectivity matrices before metric calculation. (FR-008)
 
-- [X] T021 [US2] Implement `code/statistical_model.py` to fit Linear Mixed-Effects Model: `CognitiveScore ~ Efficiency + Modularity + Time + (1|Subject)` (FR-003)
+- [~] T021 [US2] Implement `code/statistical_model.py` to fit Linear Mixed-Effects Model: `CognitiveScore ~ Efficiency + Modularity + Time + (1|Subject)` (FR-003)
 
 - [ ] T022a [US2] Implement VIF calculation; if VIF > 5, attempt PCA on graph metrics. Success criteria: eigenvalues > 0 AND cumulative variance explained > 60%. If successful, output `data/results/pca_metrics.json`.
 
@@ -133,9 +133,9 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Define and implement unit test `tests/unit/test_graph_metrics.py::test_global_efficiency_returns_positive_scalar_for_connected_graph` and `tests/unit/test_graph_metrics.py::test_modularity_returns_value_between_0_and_1`
+- [~] T017 [P] [US2] Define and implement unit test `tests/unit/test_graph_metrics.py::test_global_efficiency_returns_positive_scalar_for_connected_graph` and `tests/unit/test_graph_metrics.py::test_modularity_returns_value_between_0_and_1`
 
-- [X] T018 [P] [US2] Define and implement unit test `tests/unit/test_collinearity.py::test_vif_calculation_returns_infinite_for_perfectly_collinear_predictors` and `tests/unit/test_collinearity.py::test_pca_fallback_triggers_when_vif_gt_5_and_variance_explained_gt_60`
+- [~] T018 [P] [US2] Define and implement unit test `tests/unit/test_collinearity.py::test_vif_calculation_returns_infinite_for_perfectly_collinear_predictors` and `tests/unit/test_collinearity.py::test_pca_fallback_triggers_when_vif_gt_5_and_variance_explained_gt_60`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -149,7 +149,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T028 [P] [US3] Implement `code/robustness.py` with a sufficient number of permutation iterations to calculate empirical p-value. (FR-004, SC-002)
+- [~] T028 [P] [US3] Implement `code/robustness.py` with a sufficient number of permutation iterations to calculate empirical p-value. (FR-004, SC-002)
 
 - [ ] T029 [US3] Implement sensitivity analysis: sweep correlation thresholds based on data-driven representative values (e.g., quantiles of correlation distribution) and output `data/results/sensitivity_analysis.csv` (FR-005, SC-003)
 
@@ -159,9 +159,9 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026 [P] [US3] Define and implement unit test `tests/unit/test_robustness.py::test_permutation_pvalue_is_less_than_parametric_pvalue_for_known_signal` and `tests/unit/test_robustness.py::test_permutation_iterations_match_input_parameter`
+- [~] T026 [P] [US3] Define and implement unit test `tests/unit/test_robustness.py::test_permutation_pvalue_is_less_than_parametric_pvalue_for_known_signal` and `tests/unit/test_robustness.py::test_permutation_iterations_match_input_parameter`
 
-- [X] T027 [P] [US3] Define and implement integration test `tests/integration/test_sensitivity.py::test_sensitivity_sweep_outputs_table_with_varying_thresholds_and_correlation_coefficients`
+- [~] T027 [P] [US3] Define and implement integration test `tests/integration/test_sensitivity.py::test_sensitivity_sweep_outputs_table_with_varying_thresholds_and_correlation_coefficients`
 
 **Checkpoint**: All user stories should now be independently functional
 

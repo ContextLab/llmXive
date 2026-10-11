@@ -1,3 +1,56 @@
+T001:
+  c: false
+  h: 7ca5d1390571479183d662a0be3dcb468c400057f9b1d729dfd2198d27e202f0
+  r: 'Checked the repository tree: `code/`, `data/raw/`, and `tests/` directories
+    are present, but the required `data/processed/` and `data/results/` directories
+    are missing entirely. The task demands all five directories to exist, so the implementation
+    is incomplete.'
+  sig: 08073bfea1de18454a5bd78557932a1da47fc3cf97798a7b9c44080030a61c4c
+T002:
+  c: false
+  h: 55b5f81c3b4ed0c782a375893b15b48a87452f6f9b48d34f58c277d522d203ee
+  r: "The only artifact found is `requirements.txt`, which lists the required packages\
+    \ but does **not** pin them to specific versions (e.g., no `==` specifiers) and\
+    \ even uses a version range for `huggingface_hub`. Since the task explicitly required\
+    \ pinning each dependency, the provided file fails to meet the specification.\
+    \ Additionally, no other evidence of a Python\u202F3.11 project setup (e.g., `pyproject.toml`\
+    \ or similar) is present."
+  sig: bae039e23a29cef10d2ae69813e8d6506f3644ea392846d906e0635bd2829c4d
+T003:
+  c: false
+  h: ffc2d20bf68745d8fae42d91733bb99fd0cb5be4667f939827724ab65084c650
+  r: "The repository contains no visible linting configuration files (e.g.,\u202F\
+    `.flake8`, `pyproject.toml` with Black settings, or a pre\u2011commit hook) or\
+    \ any evidence that flake8/black were installed and run; thus the requirement\
+    \ to configure linting and formatting tools is not satisfied."
+  sig: 24e80362270015597b8ce9edd59c149fb402388366ff8b4842696d650845369b
+T004:
+  c: true
+  h: 2926fd45e36242545b8345888cbbdd94fb0900c2166392c38c52aa509448a852
+  r: "Checked the `code/__init__.py` (6593\u202Fbytes) and `code/config.py` (2808\u202F\
+    bytes) files; both are present, non\u2011empty, and contain full implementations\
+    \ of the package initializer and a shared configuration loader with the expected\
+    \ functions."
+  sig: f1f8ac50f630523cdca40edaeeee337a53912c70f665026abe81557e976873bf
+T005a:
+  c: false
+  h: f90f69d2f8bf6a674a22ff5d191503b8933170d2a0b7ce0b753d8f595d5c2e20
+  r: "The provided `code/logging_config.py` does set up file handlers with rotation,\
+    \ but it also implements memory\u2011monitoring hooks (e.g., `MemoryCheckingFilter`,\
+    \ `_check_memory_and_log`, `initialize_logging(memory_hooks=True)`). The task\
+    \ explicitly required *no* memory\u2011hook configuration at this stage, so the\
+    \ artifact does not satisfy the specification."
+  sig: ffcd1fe4d4f4c4792e4bcf10a0cdbc849c379ebe4914445dee949b4b20ac9010
+T007:
+  c: false
+  h: 0c2da6008aca9626c8a9a7eeaafb2ff8bda498f5ef7db67ff7cd4f0db0ce10d2
+  r: "The `code/memory_monitor.py` file exists and defines `get_current_ram_gb()`\
+    \ and `is_limit_exceeded()`, but `get_current_ram_gb()` references `sys.platform`\
+    \ without importing `sys`. This causes a `NameError`, which is caught and makes\
+    \ the function return\u202F0.0\u202FGB, so the limit is never correctly detected\
+    \ or enforced. The utility therefore does not genuinely enforce the \u22646\u202F\
+    GB RAM constraint."
+  sig: 2aab1083082d181c70514b4a1e0dc7dcc7a7d6d2ade52db2e8b107d4a717c0ba
 T011:
   c: false
   h: 1b4c7ad2dbd7a3976c1b63de0746d4965f186612afb8d2d36eb3526b30823f3f

@@ -1,0 +1,105 @@
+T001:
+  reason: 'Checked the repository tree: `code/`, `data/raw/`, and `tests/` directories
+    are present, but the required `data/processed/` and `data/results/` directories
+    are missing entirely. The task demands all five directories to exist, so the implementation
+    is incomplete.'
+  task: b4f701b0bd6a6d791c41d61c6451d49c081571f3bf1ff60bb6866fa255aedc40
+T002:
+  reason: "The only artifact found is `requirements.txt`, which lists the required\
+    \ packages but does **not** pin them to specific versions (e.g., no `==` specifiers)\
+    \ and even uses a version range for `huggingface_hub`. Since the task explicitly\
+    \ required pinning each dependency, the provided file fails to meet the specification.\
+    \ Additionally, no other evidence of a Python\u202F3.11 project setup (e.g., `pyproject.toml`\
+    \ or similar) is present."
+  task: dc5ef6550ec1b576fd0e4d7fbbb8cb3f124af6e74bd97e95eb16505874b13931
+T003:
+  reason: "The repository contains no visible linting configuration files (e.g.,\u202F\
+    `.flake8`, `pyproject.toml` with Black settings, or a pre\u2011commit hook) or\
+    \ any evidence that flake8/black were installed and run; thus the requirement\
+    \ to configure linting and formatting tools is not satisfied."
+  task: 8b1c6529ddcdf661b2eb411c0fd735b2f646d5a6be12a762963e97fa54eb5632
+T004:
+  task: b6aae8f05a36bb24fff11f968b5f7970c1298b239c8a9ec792a20ab7dd10a0a6
+T005a:
+  reason: "The provided `code/logging_config.py` does set up file handlers with rotation,\
+    \ but it also implements memory\u2011monitoring hooks (e.g., `MemoryCheckingFilter`,\
+    \ `_check_memory_and_log`, `initialize_logging(memory_hooks=True)`). The task\
+    \ explicitly required *no* memory\u2011hook configuration at this stage, so the\
+    \ artifact does not satisfy the specification."
+  task: 397e4347c6a60b2eaedbd6551c76deba51034299b31ca6ddf8126a30ca2f8c6f
+T005b:
+  task: 925da5b5372378566a1ca50d68a4557192cf2805cf17a7beabcc91407de25174
+T006:
+  task: 24a6677476b2312504d9d91d145dbefb8fc3dc96407b54da0e3abc3cd4576a3c
+T007:
+  reason: "The `code/memory_monitor.py` file exists and defines `get_current_ram_gb()`\
+    \ and `is_limit_exceeded()`, but `get_current_ram_gb()` references `sys.platform`\
+    \ without importing `sys`. This causes a `NameError`, which is caught and makes\
+    \ the function return\u202F0.0\u202FGB, so the limit is never correctly detected\
+    \ or enforced. The utility therefore does not genuinely enforce the \u22646\u202F\
+    GB RAM constraint."
+  task: 7ca8b7db35abb98fc0d860868d6d2dde5c1fa8b4613f8f86f864390aa167ec24
+T008a:
+  task: 9e3b02d51eb9b8b63eb8156b2f2d6a1a721801471d806586b868c85318ef3a2f
+T008b:
+  task: dcfec9f3aeedc027107bc48377d1ccb8ef7609c1ba73a6af1baeabeddece62c8
+T009:
+  task: 097febe3efca8c98315d5c0acade8622aa268fdc5c507d9a511dbdaa66eafdc2
+T010:
+  task: 45446a34435036cbfd0f19a8d0dc5f9e906674150d988597851c3081e8adeb92
+T011:
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+    exit=1'
+  task: a2eee1be1e925980da6734057ee45d70b384c92bc54011dd5502a223406bf27a
+T012:
+  task: c83dabfae25b5750b1b6f739a2f5103a1787ff49bda085a90c79a17b0d673be1
+T013:
+  task: cbdbaa0d02b1319474bcf3de3293bacab614e0f5f7e70ca39dcd47cec1c9b5d7
+T014:
+  task: af1ebbbf08d2fded708261a67acf2d8b352e788d377b7f32cad81a24a5c7a599
+T016:
+  task: b30c04e18d0f03dfde92035b1d51dcc386b99baae00551cb02db4278bc7e4e6d
+T017:
+  task: 10c5f1cf4ff7b3bb1c0affcf43cdee477ac3736a4400415c638a8aa60f5d1d05
+T018:
+  task: c610b82c4334a2ef5a0937a83ef846e91b74f07492ab56d7fe73b34dbfe79389
+T019:
+  task: 3a5c1319be94063589ad57c5a20b1d4d9a63735403b3516e93d27e783f5e6570
+T020:
+  task: c184f17dcbe196bac3dd73848f2ce9ec8fe26ba9376f5fa836dd300d6a7bf268
+T021:
+  task: 37d59abc12dacb214792bf7b1e01e7e81e38a9b0dc14df97fb5605484e9fa14d
+T022a:
+  task: e198bf99e13e466485f896c6489cb406c8128832595bb13a1fa931a01d83ad45
+T022b:
+  task: 8765f953e5459e1067685195b59620537e0c283aaedb106711388082d523f1cb
+T023:
+  task: 239c59fd7ec2b57458e6379980462bb08d992ec1106178b66d6e304c204ac77c
+T024a:
+  task: cdc0b3737b59670e166bc03a1d6722d88a2ab0c89e5e971c65880dfbb128a11b
+T024b:
+  task: b163f103f9d114ea5270897d48d449811d23ccbedd49395d7154a0bf1bfffcd7
+T025:
+  task: f86e553c4cff2d7214023712ba11347d83ae4c837b43c5193b702e2f292852b8
+T026:
+  task: 0b2e8a3b08385319869525ae22a463cf1a738de1329b491fd784f5e6d2449426
+T027:
+  task: 553945bcf82795cbd299bf5f1a4f007c6c0a82d11ad5299bfc4c3ce350298d90
+T028:
+  task: 493b7726e4ccce4d6f33941c2e6c25283250b914e21fb9a911771ae4f1c0ac85
+T029:
+  task: 751bd6d7e0f08977cc1a9ffceafa42d6edf3241b0cde550e6c434479b5175401
+T030:
+  task: 10498f2f6a599569d820bab576cd8d075d3bc8a3842a5c575c5b49dad1b62bba
+T031:
+  task: 508472ecffe69cdebd6bf5852636969d61db048fd582703c07085e8d3d185d47
+T032:
+  task: e1a2616a39ba0bd78a6b71efab5ec09461d3cc8786ec835e56d84e16c6e5b2c7
+T033:
+  task: d11e903131d72cacc797f1b9863bece01f2e28917b0b47699087999b69752c78
+T034:
+  task: 479e05135fcb16f4a1ea55f66dbde2fa9ce32857a89b5a8ba29dbb0628e2bba8
+T035:
+  task: 3eab5c8f9a5e9d5385945bfdbb91b535975807b81a1d051e3fb70f582d7c96dc
+T036:
+  task: 732795eae2f01cba3ffc301b71374dddc42344edcdaaaf17598536b386456c19
