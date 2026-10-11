@@ -19,8 +19,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download.py --dataset qm9 --output data/raw -> rc=1
 
-2026-10-11 17:15:28,213 INFO __main__: Loading QM9 dataset via torch_geometric...
-2026-10-11 17:15:28,213 ERROR __main__: Failed to download or write QM9 subset: QM9.__init__() got an unexpected keyword argument 'download'
+2026-10-11 17:17:18,202 INFO __main__: Loading QM9 dataset via torch_geometric...
+2026-10-11 17:17:18,202 ERROR __main__: Failed to download or write QM9 subset: QM9.__init__() got an unexpected keyword argument 'download'
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-243-predicting-molecular-reactivity-using-gr/code/data/download.py", line 156, in main
     parquet_path = download_qm9_subset(raw_dir)
