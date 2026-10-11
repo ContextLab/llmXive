@@ -75,6 +75,7 @@ from llmxive.agents.citation_guard import (
 )
 from llmxive.agents.prompts import load_prompt
 from llmxive.backends.router import reasoning_chat
+from llmxive.speckit.yaml_extract import outer_fenced_body
 from llmxive.types import CitationKind
 
 logger = logging.getLogger(__name__)
@@ -432,14 +433,7 @@ def _parse_extraction_reply(reply_text: str) -> list[CitedClaim]:
     """
     import yaml
 
-    raw = (reply_text or "").strip()
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        raw = "\n".join(lines).strip()
+    raw = outer_fenced_body(reply_text)
 
     try:
         obj = yaml.safe_load(raw)

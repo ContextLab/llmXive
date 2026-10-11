@@ -29,6 +29,7 @@ REFERENCE_FILES = {
     "src/llmxive/config.py", "src/llmxive/types.py", "src/llmxive/credentials.py",
     "src/llmxive/contract_validate.py", "src/llmxive/agents/grounding_guard.py",
     "src/llmxive/agents/prompts.py", "src/llmxive/speckit/task_lines.py",
+    "src/llmxive/speckit/yaml_extract.py",  # fence handling for claim and verdict replies
 }
 REFERENCE_TESTS = {
     "tests/real_call/test_dataset_source_services.py",

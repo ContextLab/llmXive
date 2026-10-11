@@ -119,6 +119,13 @@ class ClarifierAgent(SlashCommandAgent):
         spec_path = Path(mechanical_output["spec_path"])
         markers = mechanical_output.get("markers", []) or []
         report = _parse_clarifier_response(llm_response.text)
+        if report is None and (llm_response.text or "").strip():
+            # An unreadable reply used to be coerced to "no patches", which
+            # fails the stage and repeats it from the start. Ask once for the
+            # same answer in a readable form before giving the attempt up.
+            again = self._ask_again_for_readable_reply(ctx, mechanical_output, llm_response.text)
+            if again is not None:
+                report = _parse_clarifier_response(again)
         if not isinstance(report, dict):
             report = {"patches": [], "notes": "non-mapping LLM output coerced to empty patches"}
 
@@ -227,6 +234,42 @@ class ClarifierAgent(SlashCommandAgent):
         self._run_spec_panel(ctx, spec_path, memory_dir, repo)
         return outputs
 
+    def _ask_again_for_readable_reply(
+        self,
+        ctx: SlashCommandContext,
+        mechanical_output: dict[str, Any],
+        unreadable: str,
+    ) -> str | None:
+        """Re-call the clarifier once, showing it the reply that would not parse.
+
+        Returns the new reply text, or ``None`` when there is no backend to ask
+        or the call fails; the caller then treats the attempt as it always did.
+        """
+        try:
+            from llmxive.backends.router import make_backend, reasoning_chat
+            backend = make_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+        if backend is None:
+            return None
+        messages = list(self.build_prompt(ctx, mechanical_output))
+        messages.append(ChatMessage(role="assistant", content=unreadable))
+        messages.append(ChatMessage(role="user", content=(
+            "# Correction required\n\n"
+            "Your reply above could not be parsed as JSON, so none of it was "
+            "used. Send the SAME report again as one valid JSON object and "
+            "nothing else. Every string starts and ends with a plain double "
+            "quote; a double quote or backslash inside a string is escaped "
+            "with a backslash; a line break inside a string is written \\n; "
+            "the object and every list are closed."
+        )))
+        try:
+            response = reasoning_chat(backend, messages, model=ctx.default_model)
+        except Exception as exc:
+            print(f"[clarify] re-ask for a readable reply failed: {type(exc).__name__}: {exc}")
+            return None
+        return getattr(response, "text", "") or ""
+
     def _run_spec_panel(
         self,
         ctx: SlashCommandContext,
@@ -304,6 +347,14 @@ def _parse_clarifier_response(text: str) -> dict[str, Any] | None:
         return parsed if isinstance(parsed, dict) else None
     except _json.JSONDecodeError:
         pass
+    # Try JSON whose string values were delimited by backslash-quote.
+    requoted = _requote_escaped_delimiters(inner)
+    if requoted != inner:
+        try:
+            parsed = _json.loads(_escape_newlines_in_json_strings(requoted))
+            return parsed if isinstance(parsed, dict) else None
+        except _json.JSONDecodeError:
+            pass
     # Fall back to lenient YAML.
     try:
         parsed = parse_yaml_lenient(inner)
@@ -311,6 +362,56 @@ def _parse_clarifier_response(text: str) -> dict[str, Any] | None:
     except yaml.YAMLError as exc:
         print(f"[clarify] both JSON and YAML parse failed: {exc}")
         return None
+
+
+def _requote_escaped_delimiters(text: str) -> str:
+    """Turn ``"key": \\"value\\"`` into ``"key": "value"``.
+
+    A model sometimes opens and closes a string with the escaped quote it
+    would use INSIDE one. Outside a string a backslash-quote means nothing in
+    JSON, so it can only be a delimiter: it opens a string that runs to the
+    next backslash-quote. Ordinary strings, and the escapes inside them, are
+    copied as they are; the text is returned unchanged when it has no such
+    delimiter.
+    """
+    out: list[str] = []
+    i, n = 0, len(text)
+    mode = ""  # "" outside a string, "plain" in "...", "escaped" in \"...\"
+    while i < n:
+        ch = text[i]
+        pair = text[i:i + 2]
+        if mode == "":
+            if pair == '\\"':
+                out.append('"')
+                mode = "escaped"
+                i += 2
+                continue
+            if ch == '"':
+                mode = "plain"
+        elif mode == "plain":
+            if ch == "\\" and i + 1 < n:
+                out.append(pair)
+                i += 2
+                continue
+            if ch == '"':
+                mode = ""
+        else:
+            if pair == '\\"':
+                out.append('"')
+                mode = ""
+                i += 2
+                continue
+            if ch == "\\" and i + 1 < n:
+                out.append(pair)
+                i += 2
+                continue
+            if ch == '"':
+                out.append('\\"')
+                i += 1
+                continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
 
 
 def _escape_newlines_in_json_strings(text: str) -> str:

@@ -45,6 +45,7 @@ import yaml
 from llmxive.agents.prompts import load_prompt
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import GENERATION_MAX_TOKENS, reasoning_chat
+from llmxive.speckit.yaml_extract import outer_fenced_body
 
 from ..types import Concern, ConcernResponse
 
@@ -103,18 +104,13 @@ def _parse_self_consistency_reply(text: str) -> SelfConsistencyResult:
     fallback (treat as OK) is the caller's explicit policy, applied uniformly
     to every failure mode.
     """
-    raw = (text or "").strip()
-    # Strip a leading ```yaml / ``` fence if present.
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        # drop the opening fence line and any trailing fence line
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        raw = "\n".join(lines).strip()
-
-    obj = yaml.safe_load(raw)
+    # A model that answers with the fenced audit and then explains itself is
+    # still answering. Reading only a fence that closed on the last line threw
+    # such a reply away, problems and all.
+    try:
+        obj = yaml.safe_load(outer_fenced_body(text))
+    except yaml.YAMLError as exc:
+        raise ValueError(f"self-consistency reply is not readable YAML: {exc}") from exc
     if not isinstance(obj, dict):
         raise ValueError(
             f"self-consistency reply is not a YAML mapping: {type(obj).__name__}"
