@@ -306,6 +306,12 @@ class ReviewSpec:
     reviser: Reviser | None
     kickback_routing: dict[Severity, str]
     overflow_goal: str
+    #: Where to go when the ONLY thing left unresolved is the deterministic
+    #: unverified-claim backstop (a ``[UNRESOLVED-CLAIM: ...]`` marker still in
+    #: the document). ``None`` routes it by its severity like any concern. Set
+    #: it where the marked sentence belongs to this stage's own document, so
+    #: that revising that document is what can clear it.
+    marker_route: str | None = None
     advance_stage: str | None = None  # the normal forward stage on convergence
     constitution_input: bool = False
     max_rounds: int = 3
