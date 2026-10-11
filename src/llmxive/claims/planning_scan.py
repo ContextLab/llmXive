@@ -54,6 +54,22 @@ _EMPIRICAL_TOKEN = re.compile(
     re.IGNORECASE,
 )
 
+# WORD-form bound operators, shared by the strip and by the claim pass's
+# design-target test so the two cannot disagree about one sentence.
+#   * "exceeds 30%", "fewer than 5" -- twins of the > < symbols.
+#   * "falls below 1%", "rises above 5%" -- the same comparison as "< 1%".
+#   * "fixed at 1%", "set to 2.5%", "capped at 10%" -- the project stating the
+#     value it chose.
+# Canary 9 (2026-10-11): a spec said "< 1% and < 0.1%" in one place and "falls
+# below 1% and below 0.1%" / "fixed at 1% and 0.1%" in two others. Only the
+# symbol form survived, the panel flagged the contradiction, the reviser
+# restored the numbers and the next render deferred them again: three
+# kickbacks on one concern.
+_WORD_BOUND = (
+    r"exceed(?:s|ing)?|greater\s+than|less\s+than|fewer\s+than|more\s+than"
+    r"|below|above|fixed\s+at|set\s+(?:to|at)|capped\s+at"
+)
+
 # Two distinct lead classes (spec 023 defect #16):
 #
 # A BOUND lead marks a CHOSEN DESIGN TARGET — a requirement the project
@@ -73,9 +89,13 @@ _BOUND_LEAD = re.compile(
     # word form ("exceeds 30%") was deferred — the same value, inconsistently
     # stripped, which the analyze gate then flags CRITICAL (live PROJ-492:
     # tasks.md "any domain exceeds [deferred] of corpus" vs FR-027's 30%).
-    r"exceed(?:s|ing)?|greater\s+than|less\s+than|fewer\s+than|more\s+than)\s+)$",
+    rf"{_WORD_BOUND})\s+)$",
     re.IGNORECASE,
 )
+
+# A value joined to a KEPT one by a comma / "and" / "or" is the same kind of
+# value: "falls below 1% and 0.1%", "capped at 3%, 5%, or 10%".
+_COORDINATION = re.compile(r"\s*(?:,\s*)?(?:(?:and|or)\s+)?", re.IGNORECASE)
 
 # An APPROXIMATOR lead hedges an EMPIRICAL assertion ("approximately
 # 27,635 papers", "~1,701,936 records", "a total of 2,000 knots") — the
@@ -136,7 +156,8 @@ def has_empirical_value(text: str) -> bool:
 _DESIGN_TARGET = re.compile(
     r"(?:[≥≤<>±=]|"
     r"\b(?:up\s+to|at\s+least|at\s+most|within|minimum(?:\s+of)?|"
-    r"maximum(?:\s+of)?|no\s+more\s+than|no\s+fewer\s+than|no\s+less\s+than))"
+    r"maximum(?:\s+of)?|no\s+more\s+than|no\s+fewer\s+than|no\s+less\s+than|"
+    rf"{_WORD_BOUND}))"
     r"\s*\d",
     re.IGNORECASE,
 )
@@ -241,6 +262,7 @@ def strip_empirical_values(
             continue
         new = line
         pos = 0
+        kept_end = -1  # end of the last value kept as a chosen target
         while True:
             m = _EMPIRICAL_TOKEN.search(new, pos)
             if m is None:
@@ -264,6 +286,9 @@ def strip_empirical_values(
             ):
                 pos = m.end()
                 continue
+            if 0 <= kept_end < start and _COORDINATION.fullmatch(new[kept_end:start]):
+                pos = kept_end = m.end()
+                continue
             if _BOUND_LEAD.search(new[:start]) is not None:
                 # Spec 023 defect #16: a bound-led value (>=95%, "at least
                 # 80%", "within 60 minutes") is a CHOSEN DESIGN TARGET — a
@@ -275,7 +300,7 @@ def strip_empirical_values(
                 # restored — an unwinnable reviewer-vs-strip war observed
                 # live on PROJ-552's spec panel. Bounded targets are KEPT;
                 # bare/approximated empirical assertions are deferred.
-                pos = m.end()
+                pos = kept_end = m.end()
                 continue
             if _STAT_DESIGN_CONTEXT.search(new[max(0, start - 30):m.end() + 30]):
                 # A confidence level / CI width is a statistical DESIGN
