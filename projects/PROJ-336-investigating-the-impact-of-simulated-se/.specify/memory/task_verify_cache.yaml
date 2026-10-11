@@ -1,9 +1,29 @@
-T010:
+T001:
   c: false
-  h: 2ae3df41748da46db8f5b6bcc44e31b36db63afb1de041d6e3d6cc1083b33499
-  r: "The required file `tests/unit/test_quality_check.py` does not exist in the repository,\
-    \ so no unit test for FD calculation is present to verify the >\u202F0.5\u202F\
-    mm threshold logic. The task\u2019s artifact is missing."
+  h: 3c6f28caff54d3e7d6e0fb9498bec0346c8a48597066272c6f8f7314d48af259
+  r: "The four required directories (`src/`, `tests/`, `data/`, `results/`) are present,\
+    \ but the CI verification script `tests/integration/test_structure.py`\u2014which\
+    \ the task specification cites as the means to confirm the structure\u2014does\
+    \ not exist, so the required verification artifact is missing."
+  sig: 09a2b6fc233ee75bccd96878bf00066550ea78cfd70fb75f97559df3b64c314b
+T002:
+  c: false
+  h: 423e8a121bc20d8bf07cb2c0dbca8a77ce3fac1b210f30be801fa03d3dae0135
+  r: The `requirements.txt` file is present and correctly lists all required packages,
+    but the required test `tests/unit/test_requirements.py` is missing, and there
+    is no evidence that `pip install -r requirements.txt` was run successfully to
+    confirm no version conflicts. Both the test script and installation verification
+    are needed to satisfy the task.
+  sig: f3cd96436806d2c94de817de6a7bd0a581fada956fb52261f3ea368bf6e3c3bb
+T003:
+  c: false
+  h: 0f4e34ee2fa42c9b2cd605c268535e94261921b6ac08e65f9be7444186aef90f
+  r: "The `quickstart.md` file exists and correctly documents the `python -m src.main\
+    \ --sample 1` command and required environment variables, but there is no evidence\
+    \ of a CI workflow (e.g., a GitHub Actions/YAML file or test log) that actually\
+    \ runs `python -m src.main --dry\u2011run` and verifies it exits with status\u202F\
+    0. Without that execution evidence, the verification step of the task is unproven."
+  sig: 97db00c328dc7821758f45f38278c37cc12543ba3bb22956e500d40b56ba4f1c
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

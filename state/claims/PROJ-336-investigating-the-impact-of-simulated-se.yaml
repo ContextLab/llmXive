@@ -249,7 +249,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-07T01:04:49Z'
 - artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
   attempts: 1
@@ -535,3 +535,53 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T06:48:38Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 and creates output directories
+  claim_id: c_c70441fa
+  context: Describes the expected result after running the full pipeline with a single
+    subject.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Upon successful completion the script exits with status\u202F0 and the\
+    \ following output directories are populated: data/preprocessed/, data/connectivity/,\
+    \ results/metrics.csv, results/stats.csv, figures/"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T05:17:08Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/quickstart.md
+  attempts: 1
+  canonical: "dry\u2011run prints pipeline stages and exits with status 0"
+  claim_id: c_37936879
+  context: "Statement under the Dry\u2011run verification section."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The dry\u2011run prints the ordered pipeline stages without performing\
+    \ any heavy computation and must exit with status\u202F0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T05:17:08Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/quickstart.md
+  attempts: 1
+  canonical: pipeline aborts with error if deprivation labels missing
+  claim_id: c_b471606e
+  context: Troubleshooting bullet about missing deprivation labels.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline will abort with a clear error if the BIDS hierarchy does
+    not contain the required deprivation-{pre,post} labels.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T05:17:08Z'

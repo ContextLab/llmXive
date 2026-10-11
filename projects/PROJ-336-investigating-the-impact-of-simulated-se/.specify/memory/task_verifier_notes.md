@@ -2,9 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No evidence of the required directories (`src/`, `tests/`, `data/`, `results/`) is presented; the implementer did not supply a directory listing or any files showing that the project structure has been created.
-- **T004** — declared artifact(s) missing/empty/invalid: src/config.py
-- **T005** — declared artifact(s) missing/empty/invalid: src/utils/atlas.py
-- **T006** — The required file `src/data/quality_check.py` is missing entirely, so no code, exclusion manifest, logging, or error‑handling exists to meet the specification. The task cannot be considered done until this file is created with the described functionality.
-- **T007** — No `main.py` file or any code implementing the required orchestration, checkpointing, and resumption logic was provided; the evidence section contains no artifacts to verify. The task therefore remains unfulfilled.
-- **T008** — No evidence of a modified `main.py` implementing disk‑quota enforcement, compression of intermediate files, or checkpointing is provided; the required artifact is missing, so the task cannot be confirmed as completed.
+- **T001** — The four required directories (`src/`, `tests/`, `data/`, `results/`) are present, but the CI verification script `tests/integration/test_structure.py`—which the task specification cites as the means to confirm the structure—does not exist, so the required verification artifact is missing.
+- **T002** — The `requirements.txt` file is present and correctly lists all required packages, but the required test `tests/unit/test_requirements.py` is missing, and there is no evidence that `pip install -r requirements.txt` was run successfully to confirm no version conflicts. Both the test script and installation verification are needed to satisfy the task.
+- **T003** — The `quickstart.md` file exists and correctly documents the `python -m src.main --sample 1` command and required environment variables, but there is no evidence of a CI workflow (e.g., a GitHub Actions/YAML file or test log) that actually runs `python -m src.main --dry‑run` and verifies it exits with status 0. Without that execution evidence, the verification step of the task is unproven.

@@ -1,0 +1,85 @@
+T001:
+  reason: "The four required directories (`src/`, `tests/`, `data/`, `results/`) are\
+    \ present, but the CI verification script `tests/integration/test_structure.py`\u2014\
+    which the task specification cites as the means to confirm the structure\u2014\
+    does not exist, so the required verification artifact is missing."
+  task: 0db1cd92056099ab947367d111e83bba3f463cd6952ffe3bfb4d093035e460e3
+T002:
+  reason: The `requirements.txt` file is present and correctly lists all required
+    packages, but the required test `tests/unit/test_requirements.py` is missing,
+    and there is no evidence that `pip install -r requirements.txt` was run successfully
+    to confirm no version conflicts. Both the test script and installation verification
+    are needed to satisfy the task.
+  task: f9cd3455af7241a4c53896927a6df6e20113d4579c81c6f16c4dbf53781b2c22
+T003:
+  reason: "The `quickstart.md` file exists and correctly documents the `python -m\
+    \ src.main --sample 1` command and required environment variables, but there is\
+    \ no evidence of a CI workflow (e.g., a GitHub Actions/YAML file or test log)\
+    \ that actually runs `python -m src.main --dry\u2011run` and verifies it exits\
+    \ with status\u202F0. Without that execution evidence, the verification step of\
+    \ the task is unproven."
+  task: e184ddae40826ab3f8bfa88407b413a2541834fd894f68e55e98c87709a74e99
+T004:
+  task: 324a3bdf550dd53b269d7ef5dc80bb9ecff3fa1af5b309dab9c0ebfa1c350935
+T005:
+  task: 2d27400274b651540aa3e705f4d07ea55cd3ee87a10b65adc3bb7b44e9e212e1
+T006:
+  task: 871e235cb8e326a31386bf6fdf6b4bd90bab5624e13463e3216221c65ff46d9d
+T007:
+  task: d41f3a634d77e6f1177f4a5ee97197a1cf78ac96940a94ea2f4f24bfa3c61a23
+T008:
+  task: 55db6c6b450d0a417e52551f98e862bd2b499d8e42aee954689fbc7075c6ecec
+T011:
+  task: 912661386ec4ed94fef268752d1d37e434ec563103e89a4f48a701bbf518f0b7
+T012:
+  task: bf1f86e2202d30d8ca3a54e630590c880bb36dbf4bf1dccbdf6d154c8bcbe800
+T013:
+  task: e6796b7af5da75b0de917325bbd9d37756497bd04b498cc3728d61bfc4554e21
+T014a:
+  task: 1300d3b187258b9b3f1bb2f9812476d153192dce19c36bc7ee99343fb3a6ba9a
+T014b:
+  task: 3c8c185196c6fd55fd62beda0ca66a1cb24b267c51f42cc85c954e71d25a3cd6
+T014c:
+  task: b2c68084d7c72094465b4c642c6c4dbd4820fd0c298c3c7e1b98f478fcbf1d4f
+T015:
+  task: ee95aab1d206145c928c3ef987e39991616ac4c1f3cf6aa37265ed5e76c892ca
+T016:
+  task: 38b3b6267cd1c724053527ef024e84ed4a42ca9df881d9e06a303b82137fea6c
+T018:
+  task: f86fefc485bafd52a312dd6367ab38b50a618d7d9ee05a859270174bf188d61d
+T019:
+  task: 9621d8f779322edd0adaa41398021152242942e5d85d12582d1fcb9080217089
+T020:
+  task: 0f0917446d6b5eb9c51d3afe864ca2d20278b43eeb5814e321c2ab1dbe8a2b2c
+T021:
+  task: 5b8b00d601b2d368e57b1a32e8e93e4074c7dd7a67d3b5c260ea6defe85eae8e
+T022:
+  task: bf02a610bbf29c9192e8b2330b2215bcd18357c9b083f7b7c4ca49b5774cc126
+T026:
+  task: 38e6b2f147e0d2c45934f58821a1e739b841d419639f967d2adcd7465ee7c5a9
+T027:
+  task: d96fc5d1112318b4c036f78fb6041ef5258cf17f4eb78f47cb287d2a8253552a
+T028:
+  task: 853a91e85fc14b0aef9b0d245ad18b2d64a4ffc96c4dfbdee94a44c8263a1cf6
+T029:
+  task: a5a4fa2521555e6c43d4ab5600b32b8ab135d128641c3327e1fb81bc67aaefbe
+T030:
+  task: b5593a5b560fec9189b5c13e27d73b3faeb3281b92ffba1f30b651943cb2ab45
+T031:
+  task: efec711b3dfd2b84191c40fb4617f952c9e94ffe5cfd52302fe925f8468e9293
+T032:
+  task: 860bf04292586be1a9888e7c18b5524b7deb3e0b64a77bf0474c2480651710b8
+T033:
+  task: dde37d8634aba4606c41e9700b3a545c01ffe5c2b3072ba90e93c33c83c36fef
+T034:
+  task: 347a49e36b0c325df4f7b698f5ac1c977b1bbe94df11d31224d88f52814f6d07
+T035:
+  task: 5120fee274c33e16a3720e1da42bba5b46bfbcd46f1e24ecf671461318c89c12
+T036:
+  task: 67f18f1bf43ec4d362eb18349a16b973f0cecd7c59b045829b18da30f8a7603a
+T037:
+  task: 3c61cf89141db57ee5f9b35eb55d99e4cfcfdab0907d94cd5b03aa20fb192bce
+T038:
+  task: fc4f66d158c1b6584f2a3818bbaa8a1fbf220466684fdb0ea5d4ffddf88731db
+T039:
+  task: 09350588645aa17119000913293cbc7be1b61b14b013986ad6dfafaca91bde5a
