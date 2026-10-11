@@ -48,9 +48,7 @@ Traceback (most recent call last):
 ImportError: cannot import name 'BGCType' from 'models.bgc' (/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/bgc.py)
 
 - python -m pytest tests/ -> rc=2
- short test summary info ============================
-ERROR tests/test_config.py
-ERROR tests/integration/test_align.py
+y
 ERROR tests/integration/test_quickstart_validation.py
 ERROR tests/models/test_models.py
 ERROR tests/unit/test_align.py
@@ -62,16 +60,16 @@ ERROR tests/unit/test_edge_cases.py
 ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_eval.py - AttributeError: 'NoneType' object has no attr...
 ERROR tests/unit/test_linting_config.py
-ERROR tests/unit/test_modeling.py
+ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_models.py
-ERROR tests/unit/test_pca_optimization.py
+ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_preprocess.py
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
 ERROR tests/unit/test_sensitivity.py - AttributeError: 'NoneType' object has ...
-ERROR tests/unit/test_train.py
+ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
 !!!!!!!!!!!!!!!!!!! Interrupted: 21 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 9 warnings, 21 errors in 2.28s ========================
+======================== 9 warnings, 21 errors in 2.35s ========================
 
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1

@@ -23,8 +23,8 @@ def _run_cmd(command: list[str]) -> int:
 
 def main() -> int:
     """Execute ruff and black checks."""
-    # Ruff (lint)
-    rc = _run_cmd(["ruff", "--quiet", "."])
+    # Ruff (lint) - use the 'check' subcommand for compatibility with older versions
+    rc = _run_cmd(["ruff", "check", "--quiet", "."])
     if rc != 0:
         return rc
     # Black (formatting)

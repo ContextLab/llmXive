@@ -1,10 +1,16 @@
 [flake8]
-# This configuration disables all flake8 checks for the CI environment.
-# The project relies on Ruff for linting, and Black for formatting.
-# Keeping this file ensures that any external tools expecting a .flake8
-# file will find one, satisfying the T002 requirement.
-ignore = E,W,F,I,C,B
+# Maximum line length (handled by Black)
 max-line-length = 88
-exclude = .git,__pycache__,build,dist,env,venv
-# No further rules are enforced.  The file exists to satisfy the
-# "Add linting & formatting configuration" task.
+# Exclude common directories
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    .mypy_cache,
+    .ruff_cache
+# Ignore specific warnings
+ignore =
+    E203,  # whitespace before ':', handled by Black
+    W503   # line break before binary operator, handled by Black
