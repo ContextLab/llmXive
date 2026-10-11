@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "0cb86a0f65c7a9c7214c74a0d89e3725442e34166c9fc82dc1b4e14dfb346c83",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-assessing-uncertainty-quantification-tec/spec.md'"
+}

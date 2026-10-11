@@ -6,12 +6,15 @@ Fetches:
 - OQMD Formation Energy (substituted for Elastic Modulus)
 - AFLOW Thermal Conductivity
 
-Implements fallback to local CSVs if API fails or rate limits are hit.
-Saves artifacts to data/raw/ with MD5 checksums.
+Implements strict failure policy: any failure to fetch a dataset (including all fallbacks)
+raises an exception, causing the whole download step to fail loudly.
+Caps each dataset at 5,000 samples using a fixed random seed (42) and records
+per‑dataset metadata (including the applied cap and checksum) in JSON files.
 """
 import os
 import hashlib
 import time
+import json
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
@@ -32,34 +35,10 @@ CHECKSUMS_FILE = DATA_RAW_DIR / "checksums.txt"
 MAX_RETRIES = 3
 RETRY_DELAY = 5  # seconds
 RATE_LIMIT_DELAY = 60  # seconds between requests to avoid 429
+SAMPLE_CAP = 5000
+RANDOM_SEED = 42
 
-# Real data sources (using public endpoints or fallback CSVs if API is restricted)
-# Note: OQMD and AFLOW APIs often require authentication or have strict rate limits.
-# We implement a robust fallback strategy using pre-processed sample CSVs if the API fails.
-# In a production environment, these URLs would point to the actual API endpoints.
-
-# Fallback data URLs (hosted on GitHub for demonstration as per task constraints on real data)
-# These point to real, small subsets of the actual datasets to ensure the code runs.
-OQMD_BAND_GAP_URL = "https://raw.githubusercontent.com/materialsproject/pymatgen/master/pymatgen/entries/compiled/entries.json" 
-# Since direct OQMD API access is complex (requires token), we use a known public CSV of OQMD-like data 
-# or a direct link to a processed subset if available. 
-# For this implementation, we will attempt to fetch from a public mirror or use a known stable CSV.
-
-# Using a real, stable public dataset mirror for OQMD Formation Energy (subset)
-OQMD_FORMATION_ENERGY_URL = "https://figshare.com/ndownloader/files/28535880" # Example link, might need rotation or fallback
-# Fallback to a known stable CSV for OQMD Formation Energy (small subset for testing)
-OQMD_FORMATION_ENERGY_FALLBACK = "https://raw.githubusercontent.com/hackingmaterials/automatminer/master/automatminer_demo/formation_energy.csv"
-
-# AFLOW Thermal Conductivity (using a public subset if API is unavailable)
-# AFLOW API: http://aflowlib.org/api/
-AFLOW_THERMAL_URL = "http://aflow.org/p/properties.json" # General properties, might need specific query
-# Fallback to a known CSV
-AFLOW_THERMAL_FALLBACK = "https://raw.githubusercontent.com/materialsdata/aflow/master/examples/thermal_conductivity_sample.csv"
-
-# We will use specific, reliable public CSVs for this task to ensure "Real Data" constraint is met 
-# without hitting API walls, as the task allows fallback to pre-processed CSVs.
-# These URLs point to real, small subsets of the actual data distributions.
-
+# Real data sources (public CSV mirrors)
 DATASETS = {
     "oqmd_band_gap": {
         "url": "https://raw.githubusercontent.com/materialsproject/materials-database/master/oqmd_band_gap_sample.csv",
@@ -89,10 +68,11 @@ def compute_md5(filepath: Path) -> str:
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-def fetch_with_retry(url: str, fallback_url: Optional[str] = None) -> Optional[pd.DataFrame]:
+def fetch_with_retry(url: str, fallback_url: Optional[str] = None) -> pd.DataFrame:
     """
-    Fetch data from URL with retry logic and rate limit handling.
-    Falls back to alternative URL if primary fails.
+    Fetch data from URL with retry logic and rate‑limit handling.
+    Falls back to an alternative URL if the primary fails.
+    Returns a DataFrame on success; raises RuntimeError on total failure.
     """
     urls_to_try = [url]
     if fallback_url:
@@ -103,80 +83,89 @@ def fetch_with_retry(url: str, fallback_url: Optional[str] = None) -> Optional[p
             try:
                 logger.info(f"Attempting to fetch from {current_url} (Attempt {attempt+1}/{MAX_RETRIES})")
                 response = requests.get(current_url, timeout=30)
-                
+
                 if response.status_code == 429:
-                    logger.warning("Rate limit hit. Waiting...")
+                    logger.warning("Rate limit hit. Waiting before retry...")
                     time.sleep(RATE_LIMIT_DELAY * (attempt + 1))
                     continue
-                
+
                 response.raise_for_status()
-                
-                # Try to parse as CSV
+
+                # Assume CSV content
                 try:
-                    df = pd.read_csv(response.text)
-                    logger.info(f"Successfully fetched data from {current_url}")
+                    df = pd.read_csv(pd.compat.StringIO(response.text))
+                    logger.info(f"Successfully fetched CSV from {current_url}")
                     return df
                 except Exception as parse_error:
-                    logger.warning(f"Failed to parse CSV from {current_url}: {parse_error}")
-                    # If it's not CSV, maybe it's JSON or other format? 
-                    # For this task, we assume CSVs as per spec "pre-processed CSVs"
-                    continue
-
+                    logger.error(f"Failed to parse CSV from {current_url}: {parse_error}")
+                    # Cannot parse, try next attempt / next URL
             except requests.exceptions.RequestException as e:
-                logger.warning(f"Request failed for {current_url}: {e}")
-                if attempt < MAX_RETRIES - 1:
-                    time.sleep(RETRY_DELAY * (attempt + 1))
-                continue
-    
-    logger.error(f"All fetch attempts failed for {urls_to_try}.")
-    return None
+                logger.warning(f"Request error for {current_url}: {e}")
 
-def save_dataset(df: pd.DataFrame, filename: str, dataset_name: str) -> bool:
-    """Save dataset to data/raw/ and compute checksum."""
+            if attempt < MAX_RETRIES - 1:
+                sleep_time = RETRY_DELAY * (attempt + 1)
+                logger.info(f"Retrying after {sleep_time}s...")
+                time.sleep(sleep_time)
+
+    raise RuntimeError(f"All attempts failed for URLs: {urls_to_try}")
+
+def save_dataset(df: pd.DataFrame, filename: str, dataset_key: str) -> Path:
+    """Save dataset to data/raw/ and compute its checksum. Returns the file path."""
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
     filepath = DATA_RAW_DIR / filename
-    
-    try:
-        df.to_csv(filepath, index=False)
-        checksum = compute_md5(filepath)
-        
-        # Append to checksums file
-        with open(CHECKSUMS_FILE, "a") as f:
-            f.write(f"{dataset_name},{filename},{checksum}\n")
-        
-        logger.info(f"Saved {filename} with checksum {checksum}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to save {filename}: {e}")
-        return False
+    df.to_csv(filepath, index=False)
+    checksum = compute_md5(filepath)
 
-def download_all():
-    """Download all required datasets."""
+    # Append checksum entry
+    with open(CHECKSUMS_FILE, "a") as f:
+        f.write(f"{dataset_key},{filename},{checksum}\n")
+
+    logger.info(f"Saved {filename} ({filepath.stat().st_size} bytes) with MD5 {checksum}")
+    return filepath
+
+def write_metadata(dataset_key: str, filename: str, df: pd.DataFrame, checksum: str) -> None:
+    """Write a JSON metadata file for a downloaded dataset."""
+    metadata = {
+        "dataset_key": dataset_key,
+        "filename": filename,
+        "num_samples": int(df.shape[0]),
+        "cap_applied": SAMPLE_CAP,
+        "checksum_md5": checksum,
+        "download_timestamp": pd.Timestamp.utcnow().isoformat()
+    }
+    metadata_path = DATA_RAW_DIR / f"{dataset_key}_metadata.json"
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+    logger.info(f"Wrote metadata to {metadata_path}")
+
+def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Cap the dataframe to SAMPLE_CAP rows using a fixed random seed."""
+    if len(df) > SAMPLE_CAP:
+        logger.info(f"Dataset has {len(df)} rows; capping to {SAMPLE_CAP} with seed {RANDOM_SEED}")
+        return df.sample(n=SAMPLE_CAP, random_state=RANDOM_SEED).reset_index(drop=True)
+    else:
+        logger.info(f"Dataset size ({len(df)}) <= cap ({SAMPLE_CAP}); no capping applied")
+        return df
+
+def download_all() -> None:
+    """Download all required datasets, enforce caps, and write metadata."""
     logger.info("Starting dataset download process...")
-    
-    if not DATA_RAW_DIR.exists():
-        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    for key, config in DATASETS.items():
-        logger.info(f"Processing {config['description']}...")
-        
-        # Check if file already exists and has valid checksum (optional optimization)
-        filepath = DATA_RAW_DIR / config['filename']
-        if filepath.exists():
-            logger.info(f"{config['filename']} already exists. Skipping download.")
-            continue
+    for key, cfg in DATASETS.items():
+        logger.info(f"Processing dataset: {cfg['description']} (key={key})")
 
-        df = fetch_with_retry(config['url'], config['fallback'])
-        
-        if df is not None:
-            if not df.empty:
-                save_dataset(df, config['filename'], key)
-            else:
-                logger.warning(f"Downloaded data for {key} is empty.")
-        else:
-            logger.error(f"Failed to download {key}. Skipping.")
-    
-    logger.info("Dataset download process finished.")
+        # Attempt to fetch; will raise on total failure
+        df = fetch_with_retry(cfg["url"], cfg.get("fallback"))
+        df = cap_dataframe(df)
+
+        # Save and compute checksum
+        saved_path = save_dataset(df, cfg["filename"], key)
+        checksum = compute_md5(saved_path)
+
+        # Write per‑dataset metadata
+        write_metadata(key, cfg["filename"], df, checksum)
+
+    logger.info("All datasets downloaded and processed successfully.")
 
 if __name__ == "__main__":
     download_all()

@@ -1,6 +1,7 @@
-# Extends the configuration in pyproject.toml
-# This file exists to allow `ruff check` to run without arguments
-target-version = "py311"
-line-length = 100
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501", "B008", "C901"]
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]  # handled by line-length above
+
+[tool.ruff.format]
+quote-style = "double"

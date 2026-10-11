@@ -1,0 +1,34 @@
+T001:
+  reason: "The required directories exist, and `spec.md` already lists the three datasets,\
+    \ but the `per_sample_errors.schema.yaml` file is either missing or its contents\
+    \ are not provided, so we cannot confirm it defines the required columns (including\
+    \ `abs_error`). The task\u2019s data\u2011contract definition is therefore incomplete."
+  task: f7936ff2c818ab9574f4f8c1b0b0fb803e2dfcfc08ded6005183f432c2831c9e
+T002:
+  task: 0314df1f1c2b3467de15130299f7fec217c30bb33578ba1d67e115868d87dfb4
+T003:
+  task: b4ede29f89d9a221b6f7d7ed9ad7ef9bf22891118d4b8b6bcf250444f53853bb
+T004:
+  task: 61bb17c504879a4821d80b4a99fac17bf0e02508541bae10f0fecd298ead8bf3
+T005:
+  task: 0c003630036ca191e1db59074967bb0592737ed0184e3330d89de846587a764e
+T006:
+  task: 7a1b079b3610fb25c8aea752ca483ef8942230d8a438202df21ab6c440b2a887
+T007:
+  task: bbc9775e86c8b11835d4a19d5a5b935d35504025259f168d0f4f8f865b404e94
+T008:
+  task: 7a868f96f05d89d2e26f73172f2d1f15f765e55196941732c6f23483548dd371
+T009:
+  task: 04fea6e93b11dcdea8923f488db69aa1d856f14928cae52d01db9a3523cdc015
+T010:
+  task: 43c8babc671f2a878d2fc0a7f6049fa61a0fd685bc84a54afb96a497252e35cd
+T011:
+  task: dbf1f02a4ee17b3b0c8d26d72d285344a061f29c0479c201111628a91a9a6599
+T012:
+  task: e42e7da47181096da2c8f79a8907f67845f90e1d879735cd138e77ab8fd42601
+T013:
+  task: 1bbe5660a602482eb517ad0fa5d8909e0db9b590d10822d8a205c1ff6e821a78
+T014:
+  task: 3fdf3f14a13cabb0a893125fe8b2a7293fdf7403b754699ba6daadd8cf394ff4
+T015:
+  task: bda3c6471e851606e5001c1a352576b956d38d26ddab08af181f1d623f8df568
