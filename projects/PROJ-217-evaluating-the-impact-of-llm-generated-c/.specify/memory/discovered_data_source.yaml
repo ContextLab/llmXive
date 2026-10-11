@@ -1,0 +1,12 @@
+status: none
+intent: CodeSearchNet Python dataset download pip install huggingface datasets python
+  package dataset
+required_fields:
+- snippet_id
+- code
+- human_docstring
+- generated_comment
+- no_comment
+cache_key: b9a21b816aac52c29cade1e6589f6d58b41b88aab147997b442f31f67bd371a6
+searched_at: '2026-10-11T00:18:04.291520+00:00'
+retry_count: 1
