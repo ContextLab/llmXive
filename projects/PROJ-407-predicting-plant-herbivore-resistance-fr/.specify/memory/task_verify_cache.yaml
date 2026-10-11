@@ -1,3 +1,55 @@
+T002:
+  c: true
+  h: c657a53e6174e8bbc70975c3d7dcad64d4e41d0d8ca573be9df938bb6be4aad1
+  r: "Checked the `requirements.txt` file (144\u202Fbytes) at the project root; it\
+    \ contains exactly the nine specified dependencies with the correct versions and\
+    \ ordering. No missing or placeholder content."
+  sig: 19f6d903c67420b4db2c7f6878958d9e2d0ceb9404b2c84ceb01cf88ba64c7aa
+T003:
+  c: false
+  h: 7b5b837b19c76e4068ce1b96b9495d6f9e2bd420d9b7c5549087d33ce8203698
+  r: "The provided `.pre-commit-config.yaml` defines hooks for black, flake8, isort,\
+    \ and some generic pre\u2011commit hooks, but it does **not** include a jsonschema\
+    \ validation hook (e.g., using `check-jsonschema`). The task explicitly required\
+    \ a jsonschema validation hook, so the artifact is missing that required component.\
+    \ Adding a `check-jsonschema` (or equivalent) entry to the file is needed to satisfy\
+    \ the requirement."
+  sig: 059b8c22e4f20c65705dfe99496a25d8b644d03a9264f1d31e0ca00e9ce2b76c
+T004:
+  c: false
+  h: fb00982629a7027730d830af4d780d6751b0ac700dd2acf2e6d980a4b1244ecf
+  r: The `code/config.py` file is present and defines `RANDOM_SEED`, `DATA_ROOT`,
+    `N_PERMUTATIONS`, `MAX_RUNTIME_HOURS`, and `MAX_MEMORY_GB` correctly, but it does
+    **not** define the required constant `DATASET_ID = 'plant-metabolomics/herbivore-resistance-v1'`.
+    Adding this missing key will satisfy the task.
+  sig: 4d2dceb37c22ebed4bfa3fdb1390c1a471edc051664d7f1b180701beded5e754
+T007:
+  c: false
+  h: a712ff1c395fe1a01be54cf00d385df18a5b720f85173b7dfeada69227165e00
+  r: "Checked the `pytest.ini` file (432\u202Fbytes) which includes the required `--cov=code\
+    \ --cov-report=term-missing --strict-markers` addopts and the listed markers,\
+    \ but it does **not** contain any configuration or hook for `jsonschema` validation\
+    \ as the task explicitly requires. The missing jsonschema setup means the base\
+    \ configuration is incomplete."
+  sig: 5d0a6cd51fec40bdc12f031f85d782f52a22b232fc2cc3e1dad3d3e062096da7
+T008:
+  c: true
+  h: 9670b542b5e3c532f5f557e2d7e6c31c783935eea36f2a1366228c11fee797e3
+  r: "Checked `code/ingest.py` where `retry_request(url, max_retries=3)` is defined\
+    \ with the correct signature, uses tenacity\u2019s `retry` decorator, and configures\
+    \ `wait_exponential(multiplier=1, min=1, max=4)` to produce 1\u202Fs, 2\u202F\
+    s, 4\u202Fs backoff intervals, returning the `requests.Response` or raising the\
+    \ exception after the attempts."
+  sig: 5adf69f96df141d161602fea33ba32a643926e4b2ef59d60d73895baba334e9e
+T009:
+  c: false
+  h: fc158191239c2cc2044f70dfda0b4435ff36dff092291ed77c3406d9aec42049
+  r: The `contracts/dataset.schema.yaml` file is present, but its `required` array
+    lists only `sample_id`, `genotype_id`, and `resistance`; it does not include `metabolite_*`
+    as a required column, contrary to the task specification. The schema only mentions
+    metabolite columns via `patternProperties`, which does not enforce their presence.
+    The missing required entry must be added to satisfy the task.
+  sig: 468c2a7e1268e22a128a9da5a95eb25947a756ecd09f4b14276f0b38e52382f3
 T010:
   c: false
   h: 44bf428f15d8bcb995afda23746dd01402a90b051246c01c53e595523d1b0105

@@ -1,0 +1,7 @@
+{
+  "task_id": "T010",
+  "fingerprint": "f3ed527b2510d4a9f6390121ec655a9d492f32de5cdfac06b5f1ff017623c711",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/ingest.py': imports nonexistent names from sibling files: `from config import DATASET_ID` (available: DATA_ROOT, INTERIM_DATA_DIR, MAX_MEMORY_GB, MAX_RUNTIME_HOURS, N_PERMUTATIONS, PROCESSED_DATA_DIR, RANDOM_SEED, RAW_DATA_DIR...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}
