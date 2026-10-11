@@ -2,7 +2,7 @@
 Main entry point for the plant stress response prediction pipeline.
 
 This script orchestrates the full pipeline: Data Ingestion -> Preprocessing -> Modeling -> Reporting.
-It includes a critical pre-flight check (T042) to ensure data dependencies are met before training.
+It includes a critical pre‑flight check (T042) to ensure data dependencies are met before training.
 Added support for a `--stage noop` option to satisfy the project‑skeleton creation task.
 """
 import os
@@ -26,7 +26,7 @@ def check_data_dependency():
     """
     T042: Verify Data Flow Order.
 
-    Ensures 'data/processed/merged_matrix.csv' exists and is non-empty
+    Ensures 'data/processed/merged_matrix.csv' exists and is non‑empty
     before proceeding to the modeling stage.
 
     Raises:
@@ -38,63 +38,90 @@ def check_data_dependency():
 
     logger = get_logger()
 
-    logger.info("Running T042: Pre-flight data dependency check...")
+    logger.info("Running T042: Pre‑flight data dependency check...")
 
     if not merged_file.exists():
-        error_msg = "Data Dependency Error: Preprocessing did not complete successfully. " \
-                    f"Expected file '{merged_file}' not found."
+        error_msg = (
+            "Data Dependency Error: Preprocessing did not complete successfully. "
+            f"Expected file '{merged_file}' not found."
+        )
         logger.error(error_msg)
         # Halt execution as per requirement
         raise SystemExit(error_msg)
 
     file_size = merged_file.stat().st_size
     if file_size == 0:
-        error_msg = "Data Dependency Error: Preprocessing did not complete successfully. " \
-                    f"Expected file '{merged_file}' is empty."
+        error_msg = (
+            "Data Dependency Error: Preprocessing did not complete successfully. "
+            f"Expected file '{merged_file}' is empty."
+        )
         logger.error(error_msg)
         raise SystemExit(error_msg)
 
     # Basic sanity check: ensure it's not just a header with no data
     try:
         import pandas as pd
-        df = pd.read_csv(merged_file, nrows=1)
         df_full = pd.read_csv(merged_file)
         if len(df_full) == 0:
-            error_msg = "Data Dependency Error: Preprocessing did not complete successfully. " \
-                        f"File '{merged_file}' contains no data rows (only headers)."
+            error_msg = (
+                "Data Dependency Error: Preprocessing did not complete successfully. "
+                f"File '{merged_file}' contains no data rows (only headers)."
+            )
             logger.error(error_msg)
             raise SystemExit(error_msg)
 
-        logger.info(f"Data dependency check passed. Found {len(df_full)} rows in '{merged_file}'.")
+        logger.info(
+            f"Data dependency check passed. Found {len(df_full)} rows in '{merged_file}'."
+        )
         return True
 
     except Exception as e:
-        error_msg = f"Data Dependency Error: Could not read or validate '{merged_file}': {str(e)}"
+        error_msg = (
+            f"Data Dependency Error: Could not read or validate '{merged_file}': {str(e)}"
+        )
         logger.error(error_msg)
         raise SystemExit(error_msg)
 
 def main():
-    parser = argparse.ArgumentParser(description="Plant Stress Response Prediction Pipeline")
-    parser.add_argument("--skip-ingestion", action="store_true", help="Skip data ingestion and start at modeling")
-    parser.add_argument("--skip-modeling", action="store_true", help="Skip modeling and start at reporting")
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
-    parser.add_argument("--stage", choices=["noop"], help="Execute a lightweight stage (e.g., 'noop' for skeleton verification)")
+    parser = argparse.ArgumentParser(
+        description="Plant Stress Response Prediction Pipeline"
+    )
+    parser.add_argument(
+        "--skip-ingestion",
+        action="store_true",
+        help="Skip data ingestion and start at modeling",
+    )
+    parser.add_argument(
+        "--skip-modeling",
+        action="store_true",
+        help="Skip modeling and start at reporting",
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Enable verbose logging"
+    )
+    parser.add_argument(
+        "--stage",
+        choices=["noop"],
+        help="Execute a lightweight stage (e.g., 'noop' for skeleton verification)",
+    )
     args = parser.parse_args()
 
-    # Setup logging
+    # Handle the special `noop` stage *before* any logging configuration.
+    # This avoids reliance on the logging subsystem, which may fail on a clean runner.
+    if args.stage == "noop":
+        # Minimal output – we use stdout directly because the logger may not be configured yet.
+        print("Noop stage selected via --stage noop; exiting with status 0.")
+        sys.exit(0)
+
+    # Setup logging (only after the noop check)
     log_path = get_log_path()
     log_level = logging.DEBUG if args.verbose else logging.INFO
     setup_logging()
     logger = get_logger(__name__)
 
-    # Handle the special `noop` stage early – this satisfies T001.
-    if args.stage == "noop":
-        logger.info("Noop stage selected via --stage noop; exiting with status 0.")
-        sys.exit(0)
-
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info("Starting Plant Stress Response Prediction Pipeline")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     try:
         # Phase 1: Data Ingestion (Optional skip)
@@ -126,12 +153,12 @@ def main():
         logger.info("Phase 3: Generating Final Report...")
         generate_summary_report()
 
-        logger.info("="*60)
+        logger.info("=" * 60)
         logger.info("Pipeline completed successfully.")
-        logger.info("="*60)
+        logger.info("=" * 60)
 
     except SystemExit as e:
-        # Re-raise SystemExit for clean termination with error message
+        # Re‑raise SystemExit for clean termination with error message
         logger.error(f"Pipeline halted: {e}")
         sys.exit(1)
     except Exception as e:

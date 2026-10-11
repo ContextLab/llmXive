@@ -1,85 +1,57 @@
 """
-Project‑wide logger utilities.
+Simple project‑wide logger used by pipeline modules.
 
-This module provides a simple, file‑based logger that writes INFO and
-WARNING (and higher) messages to ``logs/pipeline.log``.  The logger is
-lazily instantiated; the first call creates the log directory and the
-file handler.  Subsequent calls return the same ``logging.Logger``
-instance without adding duplicate handlers.
-
-The design matches the expectations of other pipeline components that
-import ``setup_logging``, ``get_logger`` and ``log_warning`` from
-``code.utils.logging_config`` – those functions are thin wrappers around
-the implementations defined here.
+The logger writes INFO and higher‑level messages to ``logs/pipeline.log``.
+It is deliberately lightweight to avoid import‑time side effects that could
+break the ``--stage noop`` execution path.
 """
 
 import logging
 from pathlib import Path
-from typing import Optional
+from .config import LOG_PATH
 
-# Path to the pipeline log file (relative to the project root)
-LOG_FILE = Path("logs/pipeline.log")
+_logger: logging.Logger | None = None
 
+def _ensure_log_file() -> Path:
+    """Return the path to the pipeline log file, creating parent directories."""
+    log_file = LOG_PATH / "pipeline.log"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    return log_file
 
-def _ensure_log_dir() -> None:
-    """Create the ``logs`` directory if it does not already exist."""
-    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-
-def get_logger(name: str = "pipeline") -> logging.Logger:
+def get_logger(name: str = __name__) -> logging.Logger:
     """
-    Return a configured logger that writes to ``logs/pipeline.log``.
+    Return a configured logger instance.
 
-    The logger is created only once per ``name``; if a logger with the
-    given name already has handlers attached, it is returned unchanged.
-    This prevents duplicate log entries when the function is called
-    multiple times throughout the pipeline.
-
-    Parameters
-    ----------
-    name: str, optional
-        The logger name.  The default ``\"pipeline\"`` is used by most
-        pipeline modules.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
+    The first call creates a ``logging.Logger`` with a ``FileHandler`` that
+    writes to ``logs/pipeline.log`` and a ``StreamHandler`` for console output.
+    Subsequent calls return the same logger to avoid duplicate handlers.
     """
-    _ensure_log_dir()
+    global _logger
+    if _logger is not None:
+        return _logger
+
     logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
 
-    # Attach a file handler only once
-    if not logger.handlers:
-        logger.setLevel(logging.INFO)
-        file_handler = logging.FileHandler(LOG_FILE, mode="a", encoding="utf-8")
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+    # File handler (writes to logs/pipeline.log)
+    file_handler = logging.FileHandler(_ensure_log_file(), mode="a")
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
 
+    # Console handler (stderr)
+    console_handler = logging.StreamHandler()
+    console_formatter = logging.Formatter("%(levelname)s: %(message)s")
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+
+    logger.propagate = False
+    _logger = logger
     return logger
 
-
+# Convenience wrapper used by older modules that imported ``log_warning`` directly.
 def log_warning(message: str) -> None:
-    """
-    Convenience wrapper to log a warning message.
-
-    Parameters
-    ----------
-    message: str
-        The warning text to be recorded.
-    """
+    """Log a warning message using the project logger."""
     get_logger().warning(message)
-
-
-def setup_logging() -> None:
-    """
-    Initialise the logging system.
-
-    The function exists for backward‑compatibility with modules that
-    previously called ``utils.logging_config.setup_logging()``.  It simply
-    ensures that the singleton logger is instantiated.
-    """
-    get_logger()

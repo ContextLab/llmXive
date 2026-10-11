@@ -7,7 +7,7 @@ The tasks below follow the three‑phase research template (setup → full s
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] T001 Create project skeleton: directories `data/raw/`, `data/processed/`, `logs/`, `docs/`, `results/`; add `requirements.txt`; create `code/main.py` with a `--stage noop` option that exits 0; generate a directory‑tree listing `docs/structure.txt`.   <!-- FAILED-IN-EXECUTION: code/verify_noop.py exit=1 -->
+- [ ] T001 Create project skeleton: directories `data/raw/`, `data/processed/`, `logs/`, `docs/`, `results/`; add `requirements.txt`; create `code/main.py` with a `--stage noop` option that exits 0; generate a directory‑tree listing `docs/structure.txt`.   <!-- FAILED-IN-EXECUTION: code/verify_noop.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_noop.py exit=1 -->
   **Verification**: `docs/structure.txt` contains a tree listing; `python -m code.main --stage noop` exits 0; the command documented in `quickstart.md` runs successfully on a clean runner.
 
 - [ ] T006 Configure project‑wide logging: add `code/utils/logger.py` that writes INFO/WARN messages to `logs/pipeline.log`. Ensure all pipeline modules import and use this logger.  
