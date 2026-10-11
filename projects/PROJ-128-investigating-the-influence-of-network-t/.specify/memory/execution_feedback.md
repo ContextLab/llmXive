@@ -65,7 +65,7 @@ ERROR tests/unit/test_structural.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_tractography.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_tractography_sensitivity.py - NameError: name 'Any' is ...
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.67s ===============================
+============================== 7 errors in 1.29s ===============================
 
 
 

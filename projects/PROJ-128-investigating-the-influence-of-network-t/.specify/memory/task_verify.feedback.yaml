@@ -5,19 +5,17 @@ T001a:
     data/raw/verified_manifest.json'
   task: 3a4f0dcc936408fb2fae4f52ada5061273dcade590a08109238c71cc2b2d710c
 T002:
+  reason: "The provided `requirements.txt` is missing the required `nilearn` and `networkx`\
+    \ packages and does not pin any versions (e.g., `numpy==1.26.0`). It also includes\
+    \ unrelated packages (matplotlib, seaborn, pytest, datasets, nibabel) that were\
+    \ not requested. The task\u2019s requirement for a fully pinned list of the specified\
+    \ dependencies is therefore not met."
   task: 78ad4d8c016442cca743b65e86089966dad7b69c06a045f48ad0f20732cdbe91
 T003:
   task: 65d1d6842884ede345b7497961ad4b9341ca0b6bb176357c3b2b055c0f3c9b0a
 T004a:
   task: 8d07ac9254bfcafa0807fcd39fc1e6abbb0efc88f55f501141185abe0b1b6d3e
 T004b:
-  reason: "`code/config.py` exists and defines most hyperparameters, but it deviates\
-    \ from the task's explicit requirements: `WINDOW_LENGTH_VALIDATION = 20` is a\
-    \ scalar, not the required list `[20]`; the required `BASELINE_DENSITY` variable\
-    \ is absent (it's named `DENSITY_THRESHOLD_BASELINE`); and `DENSITY_THRESHOLD_VARIATIONS\
-    \ = [0.10, 0.15, 0.20]` uses a \xB10.05 absolute offset rather than the FR-008-specified\
-    \ \xB15% perturbation of the baseline (which for 0.15 would be ~[0.1425, 0.15,\
-    \ 0.1575], or the baseline should be 0.1 with [0.095, 0.1, 0.105])."
   task: dc72f4f5f6832dfb1b09980b530d14dfe91715c6c46de91f06ad889a46f095cc
 T005:
   reason: The only artifact on disk is `code/__init__.py` (a package marker), but
