@@ -1,12 +1,12 @@
 status: none
-intent: CodeSearchNet Python dataset download pip install huggingface datasets python
-  package dataset
+intent: CodeSearchNet Python dataset parquet BLEU ROUGE-L reference datasets Sentence-BERT
+  embeddings human evaluation python package dataset
 required_fields:
 - snippet_id
 - code
 - human_docstring
-- generated_comment
+- llm_comment
 - no_comment
-cache_key: b9a21b816aac52c29cade1e6589f6d58b41b88aab147997b442f31f67bd371a6
-searched_at: '2026-10-11T00:18:04.291520+00:00'
+cache_key: d9da9041266fdf1348bdd32642c36533dedd31bebc5cb82afd156a665b9b73ea
+searched_at: '2026-10-11T01:40:20.951001+00:00'
 retry_count: 1
