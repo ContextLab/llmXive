@@ -1,252 +1,64 @@
 # Tasks: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
 
-**Input**: Design documents from `/specs/001-assessing-uncertainty-quantification-tec/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`, `plan.md`, `data-model.md`, `contracts/`
+**Re-plan note**: Updated to resolve all panel concerns, added per‑technique cost recording, cost‑metric significance testing, requirements‑pinning verification, integration test, entry‑point script, and aligned path layout with plan.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Task format
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+`- [ ] T### [P?] [USx?] description with exact artifact paths`. Paths are relative to the project directory. `[P]` = independent tasks (no data dependencies).
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 1: Setup and first end‑to‑end analysis
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T001 [US1] Verify project skeleton and data contracts. Ensure directories `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `code/models/`, `code/metrics/`, `code/stats/`, `code/utils/`, `tests/unit/`, `tests/integration/` exist. Define `per_sample_errors.schema.yaml` under `specs/.../contracts/` with columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`. Verify that `spec.md` SC‑005 already lists the three datasets; no modification required.
 
-## Path Conventions
+- [ ] T002 [US1] Implement `code/download.py` to fetch the three REAL datasets (OQMD band‑gap, OQMD formation‑energy, AFLOW thermal‑conductivity) and write them to `data/raw/` with SHA256 checksum manifest. The loader must FAIL LOUDLY on any fetch error. No synthetic fallback. Cap each dataset at **5,000** samples (fixed seed 42) and record this cap in the generated metadata file `data/raw/<dataset>_metadata.json`. **Spec amendment**: note that the original fallback clause in Assumptions is overridden by this strict‑fail policy.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T003 [US1] Run a thin end‑to‑end analysis on a 100‑sample subset: featurize using matminer (fallback to pymatgen), stratified 70/15/15 split, train baseline XGBoost and the four UQ methods (GPR, MC Dropout ≤200 passes, Deep Ensemble of 3, Split‑Conformal). Write per‑sample predictions to `data/results/per_sample_errors.csv` conforming to the schema. Record pipeline execution log `data/results/pipeline_run.json` (overall status, memory_peak_mb, total_duration_seconds).
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 2: Complete study and validate evidence
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T004 [US1] Execute the full pipeline on all three datasets at the 5,000‑sample cap, fixed seeds, and record **per‑technique** cost metrics (training time, inference time, peak RAM) to `data/results/cost_metrics.csv` (columns `dataset, method, train_time_s, inference_time_s, peak_ram_mb`). Also produce the complete `data/results/per_sample_errors.csv` for all 12 dataset × method combos.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T005 [P] [US2] Compute Calibration Error, Sharpness, and Coverage Error for every method × dataset from `per_sample_errors.csv`. Write `data/results/metrics_raw.csv` with columns matching `contracts/metrics.schema.yaml` (`dataset_id, method_id, metric_type, value, nominal_coverage, timestamp`). Use `metric_type` values `calibration_error`, `sharpness`, and `coverage_error` only.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T006 [P] [US3] Perform paired Wilcoxon Signed‑Rank tests on per‑sample absolute errors for all 6 method pairs within each dataset. Write results as JSON Lines to `data/results/statistical_report.jsonl`, where each line conforms to `contracts/statistics.schema.yaml`. Required fields per line: `test_type` (must be `"wilcoxon_signed_rank"`), `method_pair` (array of two method IDs), `dataset_name`, `p_value`, `significant`, `alpha`, `correction`, and `metric_analyzed` (enum `"calibration_error"` or `"sharpness_cv"`). This satisfies the schema’s mandatory `metric_analyzed` field.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T007 [P] [US3] Conduct conformal sensitivity analysis sweeping nominal coverage 0.80–0.99 (step 0.01). Write `data/results/sensitivity_report.csv` and generate figure `figures/sensitivity_tradeoff.png`.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T008 [US1] Add reproducibility and edge‑case checks: a smoke test that re‑runs the 100‑sample pipeline and asserts identical metric values under fixed seed; an integration test that runs the full pipeline on a tiny synthetic dataset (e.g., a pandas DataFrame with 20 samples, <100 test samples) and verifies that the statistical report flags “inconclusive”. Store outcomes in `data/results/validation_checks.json`.
 
-- [ ] T001a [P] Create directory structure: `data/raw/`, `data/processed/`, `code/models/`, `code/metrics/`, `code/stats/`, `results/`, `tests/unit/`, `tests/integration/`, `code/utils/`
-- [X] T001b [P] Initialize Python 3.11 project with `requirements.txt` (pinned versions: `scikit-learn`, `xgboost`, `torch`, `numpy`, `pandas`, `scipy`)
-- [X] T001c [P] Create `code/__init__.py`, `tests/__init__.py`
+- [ ] T009 [US1] Generate the final summary table `results/summary.csv` (repo‑root `results/` directory) aggregating calibration error, sharpness, and cost‑metric p‑values per method × dataset. Produce reliability diagram `figures/reliability_diagrams.png`. Scripts `code/visualize_summary.py` (creates `results/summary.csv`) and `code/visualize_reliability.py` (creates `figures/reliability_diagrams.png`) perform these steps, reading only `data/results/` artifacts.
 
----
+- [ ] T010 [US1] Write `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` documenting the runnable command, sampling rule, dataset substitution, Wilcoxon rationale, and any skipped methods.
 
-## Phase 2: Foundational (Blocking Prerequisites & Spec Amendments)
+- [ ] T011 [US1] Re‑run the documented workflow from raw data and confirm that all artifacts (`per_sample_errors.csv`, `metrics_raw.csv`, `statistical_report.jsonl`, `sensitivity_report.csv`, `results/summary.csv`, figures) are reproduced with matching values. Record hand‑off information in `specs/.../handoff.md`.
 
-**Purpose**: Core infrastructure, Spec amendments for alignment, and statistical contracts that MUST be complete before ANY user story can be implemented
+- [ ] T012 [US3] Perform statistical significance testing on **computational‑cost metrics** (train_time_s, inference_time_s, peak_ram_mb) across UQ methods using Welch’s t‑test (allowed by `contracts/statistics.schema.yaml`). Write `data/results/cost_statistical_report.csv` conforming to `contracts/statistics.schema.yaml` (includes required `metric_analyzed` field, e.g., `"train_time"`).
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T013 [US2] Verify that `requirements.txt` exists at repository root and that every dependency is pinned to an exact version. Run `pip install -r requirements.txt` in a clean environment and assert success; record result in `data/results/requirements_check.json`.
 
-- [ ] T002 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T002a [P] **Spec Amendment**: Update `spec.md` FR-004 to explicitly mandate **Paired Wilcoxon Signed-Rank tests** (replacing the independent-sample requirement) to align with the Constitution and Plan. Document the rationale (same test set, independent methods).
-- [X] T002b [P] **Spec Amendment**: Update `spec.md` FR-001 to explicitly substitute **Formation Energy (OQMD)** for **Elastic Modulus (Materials Project)** due to data unavailability. Update Success Criteria SC-005 accordingly.
-- [ ] T002c [P] **Spec Amendment**: Update `spec.md` SC-005 to list the actual datasets: "Band Gap, Thermal Conductivity, Formation Energy".
-- [X] T003 [P] Implement `code/download.py` to fetch real datasets: OQMD (Band Gap), OQMD (Formation Energy - substituted for Elastic Modulus), and AFLOW (Thermal Conductivity). **Endpoints**: OQMD via ` or fallback to pre-processed CSVs in `data/raw/` if API fails. AFLOW via `. **Constraint**: Must handle API rate limits, save to `data/raw/` with checksums, and fallback to local CSVs if API fails.
-- [X] T004 [P] Implement `code/featurize.py` using `matminer` (or fallback to `pymatgen` if `matminer` fails) to convert raw compositions/structures to feature vectors. **Constraint**: Must enforce a hard cap of **[deferred] samples** per dataset. Implement a memory-check loop: if RAM usage > 1.8GB during loading, downsample further. Must implement stratified train/validation/test split by property range using quantile-based bins and A fixed random seed will be used..
-- [X] T005 Create base data models in `code/__init__.py` (DataClasses for `MaterialsDataset`, `UQMethod`, `EvaluationMetric`)
-- [X] T006 Configure error handling and logging infrastructure in `code/utils/logger.py` to capture convergence failures and memory overflows
-- [X] T007 Setup environment configuration management (`.env` for API keys, `config.yaml` for hyperparameters)
-- [X] T024 [P] **Statistical Contract**: Implement `code/stats/significance.py` function `run_paired_wilcoxon(metrics_df)`. **Constraint**: Must perform paired test on per-sample errors (same test set) for method pairs within each dataset. **Constraint**: Do NOT use ANOVA or Independent t-test. This task defines the statistical logic required by the amended FR-004.
-- [ ] T024a [P] **Schema Contract**: Define and save the `per_sample_errors.csv` schema (columns: `sample_id`, `method`, `prediction`, `lower_bound`, `upper_bound`, `ground_truth`, `dataset`) to `results/`. This contract must be established before T014 runs to ensure correct data generation.
+- [ ] T014 [US1] Create `code/main.py` as a thin wrapper that imports and runs `code/pipeline.py`. Ensure the entry point works (`python code/main.py`). Verify via test in `tests/integration/test_main.py`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T015 [US1] Add integration test `tests/integration/test_pipeline.py` that executes the full pipeline on the 5,000‑sample capped datasets and checks that all expected result files are produced.
 
----
+## Dependencies and requirement coverage
 
-## Phase 3: User Story 1 - Reproducible UQ Pipeline Execution (Priority: P1) 🎯 MVP
+| Requirement | Task(s) |
+|---|---|
+| FR‑001 / SC‑005 | T001, T002, T004 |
+| FR‑002 / NFR‑001 | T003, T004 |
+| FR‑003 | T003 |
+| FR‑004 / SC‑003 | T006, T012 |
+| FR‑005 / SC‑002 | T003, T005 |
+| SC‑001 | T003, T004 |
+| SC‑004 | T007 |
+| NFR‑002 | T003 |
+| NFR‑003 | T008, T011 |
+| NFR‑003 (pinned deps) | T013 |
+| Constitution VI (per‑technique cost) | T004, T012 |
+| Constitution VII (cost‑metric significance) | T012 |
+| Plan‑structure (repo‑root results) | T009 |
+| Entry point | T014 |
+| Integration test | T015 |
 
-**Goal**: Execute a single orchestrated script that downloads data, trains baseline models, applies 4 UQ methods, and outputs metrics.
-
-**Independent Test**: The system can be tested by running `code/pipeline.py` on a subset of the data; if it completes without error and outputs `results/summary.csv`, the story is complete.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T008 [P] [US1] Contract test for `code/pipeline.py` output schema in `tests/unit/test_pipeline_schema.py`
-- [X] T009 [P] [US1] Integration test for full pipeline execution on a 100-sample subset in `tests/integration/test_pipeline_e2e.py`
-
-### Implementation for User Story 1
-
-- [X] T010 [P] [US1] Implement `code/models/gpr.py` using `sklearn.gaussian_process.GaussianProcessRegressor`. **Constraint**: Use RBF kernel, no GPU, no 8-bit quantization. Handle `ConvergenceWarning` by logging and skipping.
-- [X] T011 [P] [US1] Implement `code/models/mc_dropout.py` using PyTorch. **Constraint**: Use a small MLP (≤2M params) or XGBoost wrapper. Enable dropout during inference. **Convergence**: Limit MC passes to a maximum of 200 or until variance of predictions < 1e-4 over 50 consecutive passes.
-- [X] T012 [P] [US1] Implement `code/models/deep_ensemble.py`. **Constraint**: Train 3 small models (XGBoost or small MLP) sequentially, discard weights after inference, and limit ensemble size to 3 to ensure total RAM usage ≤ 2GB.
-- [X] T013 [P] [US1] Implement `code/models/conformal.py` using `conformal` or `scikit-learn` split-conformal logic. **Constraint**: Must work with any baseline regressor.
-- [X] T014 [US1] Implement `code/pipeline.py` orchestration script. Logic: Download → Featurize → Loop (Method x Dataset) → Train → Predict → Generate `per_sample_errors.csv` (schema defined in T024a) → Save intermediate results. **Dependency**: Must depend on T024a (Schema Contract) to ensure correct output format for downstream statistical testing.
-- [ ] T015 [US1] Add robust error handling in `pipeline.py`: If any method fails for a dataset, log error, skip, and continue to next method/dataset. Ensure partial results are saved.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Calibration and Sharpness Metric Calculation (Priority: P2)
-
-**Goal**: Calculate Calibration Error and Prediction Interval Sharpness for all test predictions.
-
-**Independent Test**: The system can be tested by feeding synthetic data with known intervals and verifying the calculated metrics match theoretical expectations.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T016 [P] [US2] Unit test for Calibration Error calculation in `tests/unit/test_metrics.py` (verify |Observed - Nominal|)
-- [X] T017 [P] [US2] Unit test for Sharpness calculation in `tests/unit/test_metrics.py` (verify mean interval width)
-
-### Implementation for User Story 2
-
-- [X] T018 [P] [US2] Implement `code/metrics/evaluation.py` function `calculate_calibration_error(predictions, intervals, ground_truth, nominal_level)`.
-- [X] T019 [US2] Implement `code/metrics/evaluation.py` function `calculate_sharpness(intervals)`.
-- [X] T020 [US2] Integrate metrics calculation into `code/pipeline.py` post-inference.
-- [ ] T021 [US2] Generate `results/metrics_raw.csv` containing: `dataset`, `method`, `metric_type` (Calibration/Sharpness), `value`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Significance and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Perform statistical significance testing (Paired Wilcoxon) and sensitivity analysis on conformal thresholds.
-
-**Independent Test**: The system can be tested by running the statistical module on generated metrics; it must output p-values and a sensitivity report.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T022 [P] [US3] Unit test for Paired Wilcoxon implementation in `tests/unit/test_stats.py` (verify p-value calculation on known arrays)
-- [X] T023 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_stats.py`
-
-### Implementation for User Story 3
-
-- [ ] T024 [P] [US3] **Statistical Execution**: Execute `run_paired_wilcoxon` on `per_sample_errors.csv` generated by T014. **Constraint**: Must perform paired test on per-sample errors (same test set) for method pairs within each dataset. **Constraint**: Do NOT use ANOVA or Independent t-test. <!-- FAILED: unspecified -->
-- [X] T025 [US3] Implement `code/stats/significance.py` function `run_sensitivity_analysis(conformal_results, coverage_range)`. **Constraint**: Sweep coverage levels from **0.80 to 0.99** with **step size 0.01**. Report width/error trade-offs.
-- [X] T026 [US3] Update `code/pipeline.py` to call statistical modules after all metrics are generated.
-- [ ] T027 [US3] Generate `results/statistical_report.csv` containing: `dataset`, `method_pair`, `test_type`, `p_value`, `significance_flag`.
-- [ ] T028 [US3] Generate `results/sensitivity_report.csv` containing: `coverage_level`, `avg_width`, `observed_coverage_error`.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T029 [P] [US1] Documentation updates in `README.md`: Add usage instructions, update dependencies list.
-- [ ] T030 [P] [US1] Documentation updates in `docs/`: Add API docs for `code/models/`, `code/metrics/`, `code/stats/`.
-- [ ] T031 [P] [US1] Documentation updates: Add contributing guide and code of conduct.
-- [ ] T032a [P] Code cleanup: Remove debug prints from `code/pipeline.py`.
-- [ ] T032b [P] Code cleanup: Remove debug prints from `code/models/*.py`.
-- [ ] T033 Performance optimization: Ensure total pipeline time < 1 hour on CPU-only runner
-- [ ] T034 [P] Additional unit tests for edge cases (e.g., dataset < 100 samples) in `tests/unit/`
-- [ ] T035 Run `quickstart.md` validation to ensure reproducible execution
-- [ ] T036 [US3] Add logic to flag statistical tests as "inconclusive" if test set size < 100 samples (per Assumptions in spec.md)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (except T024a schema)
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for prediction data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for metrics data
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement code/models/gpr.py"
-Task: "Implement code/models/mc_dropout.py"
-Task: "Implement code/models/deep_ensemble.py"
-Task: "Implement code/models/conformal.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories, includes Spec Amendments)
-3. Complete Phase 3: User Story 1 (Data download, featurization, 4 UQ models, pipeline orchestration)
-4. **STOP and VALIDATE**: Test User Story 1 independently on a small sample
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Pipeline & Models)
- - Developer B: User Story 2 (Metrics)
- - Developer C: User Story 3 (Stats)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All models must run on CPU-only (minimal cores and RAM). No GPU, no 8-bit quantization, no large GNNs. Use XGBoost or small MLPs only.
-- **Critical Constraint**: Use real datasets (OQMD, AFLOW) via verified URLs. No synthetic/fake data generation for input.
-- **Critical Constraint**: Statistical tests must be Paired Wilcoxon (Spec FR-004 amended, Constitution VII), not Independent t-test.
-- **Critical Constraint**: Elastic Modulus is substituted with Formation Energy (OQMD) due to data unavailability (Spec FR-001 amended).
+Execution order respects data flow; parallel‑safe tasks are marked `[P]`.
