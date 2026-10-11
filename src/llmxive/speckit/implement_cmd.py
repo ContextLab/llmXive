@@ -275,6 +275,11 @@ class ImplementerAgent(SlashCommandAgent):
             # task_id/verdict/artifact paths/contents using markers
             # rather than YAML structure.
             doc = _regex_parse_implementer(llm_response.text)
+            if doc is not None:
+                # Kept for the refusal message: when recovery finds nothing to
+                # write, the model must be told its YAML broke and where, not
+                # that it "supplied no artifacts" -- it believes it did.
+                doc["_yaml_error"] = " ".join(str(exc).split())[:400]
             if doc is None:
                 # Last-resort: mark this task as parse-failed and check
                 # it off so the implementer moves to the next one. The
@@ -454,7 +459,12 @@ class ImplementerAgent(SlashCommandAgent):
             refusal_log = project_root / mechanical_output.get("task_log_dir", "code/.tasks") / f"{task_id}.artifact-write.log"
             if not written and not any(art.get("execute") for art in doc.get("artifacts", []) or []):
                 if not refusals:
-                    refuse("[implementer] completed report supplied no writable artifacts or execution requests")
+                    refuse("[implementer] completed report supplied no writable artifacts or execution requests"
+                           + (". The reply was not valid YAML (" + doc["_yaml_error"] + "). Under "
+                              "`contents: |` EVERY line must be indented deeper than `contents:`, "
+                              "including the lines of a multi-line string. Write long text "
+                              "(Markdown, a paper) as its own artifact with its own `path:`, not "
+                              "as a string inside Python." if doc.get("_yaml_error") else ""))
             if refusals:
                 # Preserve exact rejection diagnostics through the same per-task
                 # log channel build_prompt already reads. Do not run stale files
@@ -1256,37 +1266,46 @@ def _regex_parse_implementer(text: str) -> dict[str, Any] | None:
     if out["verdict"] != "completed":
         return out
 
-    artifacts: list[dict[str, str]] = []
-    # Find every "  path: <p>\n  contents: |" pair, then read the
-    # indented block until next "  path:" or end of artifacts list.
-    art_re = re.compile(
-        r"^\s*-\s*path:\s*(?P<path>[^\n]+)\s*\n"
-        r"\s*contents:\s*\|\s*\n"
-        r"(?P<block>(?:.*\n)*?)"
-        r"(?=^\s*-\s*path:|\Z)",
-        re.MULTILINE,
-    )
-    for m in art_re.finditer(body):
-        path = m.group("path").strip().strip('"').strip("'")
-        block = m.group("block").rstrip("\n")
-        # Determine the leading indent of the block from its first
-        # non-empty line, then strip that indent from every line.
-        indent = None
-        for ln in block.splitlines():
-            if ln.strip():
-                indent = len(ln) - len(ln.lstrip(" "))
-                break
-        if indent is None or indent == 0:
-            contents = block
-        else:
-            stripped = []
+    artifacts: list[dict[str, Any]] = []
+    # Each "- path: <p>" entry, its scalar fields, then "contents: |" and the
+    # block up to the next entry. The scalar fields matter: a reply with
+    # `execute: true`, `args:` and `timeout_s:` between `path:` and `contents:`
+    # used to match NOTHING here, so a complete, runnable artifact was reported
+    # as "no writable artifacts" (PROJ-9999 canary, 2026-10-11, eleven times
+    # in a row -- see tests/fixtures/implementer/).
+    entry_re = re.compile(r"^(?P<lead>[ \t]*)-[ \t]*path:[ \t]*(?P<path>[^\n]+)\n", re.MULTILINE)
+    entries = list(entry_re.finditer(body))
+    for index, m in enumerate(entries):
+        end = entries[index + 1].start() if index + 1 < len(entries) else len(body)
+        rest = body[m.end():end]
+        art: dict[str, Any] = {"path": m.group("path").strip().strip('"').strip("'")}
+        opener = re.search(r"^[ \t]*contents:[ \t]*[|>][-+0-9]*[ \t]*\n", rest, re.MULTILINE)
+        fields = rest[: opener.start()] if opener else rest
+        for line in fields.splitlines():
+            key, sep, value = line.strip().partition(":")
+            if not sep or key not in {"execute", "args", "timeout_s", "contents"}:
+                continue
+            try:
+                art[key] = yaml.safe_load(value)
+            except yaml.YAMLError:
+                continue
+        if opener:
+            block = rest[opener.end():].rstrip("\n")
+            # The block's indent is that of its first non-empty line. Lines the
+            # model wrote at a SHALLOWER indent (a Markdown document inside a
+            # triple-quoted string, flush left) are kept as they are: they are
+            # exactly what broke the YAML, and they are content.
+            indent = None
             for ln in block.splitlines():
-                if len(ln) >= indent and ln[:indent].strip() == "":
-                    stripped.append(ln[indent:])
-                else:
-                    stripped.append(ln)
-            contents = "\n".join(stripped)
-        artifacts.append({"path": path, "contents": contents})
+                if ln.strip():
+                    indent = len(ln) - len(ln.lstrip(" "))
+                    break
+            if not indent:
+                art["contents"] = block
+            else:
+                art["contents"] = "\n".join(
+                    ln[indent:] if ln[:indent].strip() == "" else ln for ln in block.splitlines())
+        artifacts.append(art)
 
     out["artifacts"] = artifacts
     return out

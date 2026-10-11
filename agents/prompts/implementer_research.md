@@ -148,5 +148,10 @@ artifacts:
 - For `verdict: atomize` output only `task_id`, `verdict: atomize`, and a `reason:` line.
 - Use a literal block scalar (`contents: |`) so code indentation and newlines are
   preserved verbatim. Indent every content line by the same amount under `contents:`.
+- That includes every line of a multi-line string. A line that starts at the left
+  margin ends the block and the whole reply is lost. To produce a text file (Markdown,
+  a write-up, a table), make it its own artifact with its own `path:` and `contents: |`,
+  or build it in Python from a list of short strings; do not paste a long document
+  into a triple-quoted string.
 
 Implement task {{next_task_id}} now.
