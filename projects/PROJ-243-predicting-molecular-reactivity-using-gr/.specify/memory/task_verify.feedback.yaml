@@ -12,6 +12,8 @@ T002:
     --check .` actually succeeded.
   task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
 T003:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/checksums_schema.yaml,
+    data/raw/checksums.json'
   task: 4b43f349955989a58c04892e67d9de7f6e535f3d9a5dcdf4ed23892970b9ffe7
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/data/download.py
