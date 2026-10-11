@@ -1,159 +1,57 @@
-import os
+"""
+Setup script for creating required data directory structure and initializing
+essential files such as the exclusion log. This script is idempotent – it can be
+run multiple times without overwriting existing data.
+"""
+import json
 from pathlib import Path
-import yaml
-from typing import Dict, Any
+from llmxive_toolkit import paths, get_logger
 
-def ensure_directories():
-    """Create the required directory structure for the project."""
-    base = Path(".")
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "data/figures",
-        "data/logs",
-        "contracts",
-        "code/preprocess",
-        "code/analysis",
-        "code/reports",
-        "code/utils",
-        "tests/unit",
-        "tests/integration",
-        "docs"
-    ]
-    for d in dirs:
-        (base / d).mkdir(parents=True, exist_ok=True)
-    return True
+log = get_logger(__name__)
 
-def create_schema_files():
-    """Create the required schema files in the contracts/ directory."""
-    base = Path("contracts")
-    
-    # Dataset Schema: Defines the structure of the input HCP data
-    dataset_schema = {
-        "name": "HCP_Dataset_Schema",
-        "version": "1.0.0",
-        "description": "Schema for HCP OpenNeuro dMRI and fMRI data inputs",
-        "entities": {
-            "subject": {
-                "type": "object",
-                "properties": {
-                    "subject_id": {"type": "string", "description": "HCP Subject ID"},
-                    "age": {"type": "integer"},
-                    "sex": {"type": "string", "enum": ["M", "F"]},
-                    "handedness": {"type": "string"}
-                },
-                "required": ["subject_id"]
-            },
-            "dwi_data": {
-                "type": "object",
-                "properties": {
-                    "file_path": {"type": "string", "description": "Path to .nii.gz file"},
-                    "bvals": {"type": "string", "description": "Path to bvals file"},
-                    "bvecs": {"type": "string", "description": "Path to bvecs file"},
-                    "b0_threshold": {"type": "number"}
-                },
-                "required": ["file_path", "bvals", "bvecs"]
-            },
-            "fMRI_data": {
-                "type": "object",
-                "properties": {
-                    "file_path": {"type": "string", "description": "Path to .nii.gz file"},
-                    "tr": {"type": "number", "description": " repetition time in seconds"},
-                    "task": {"type": "string", "description": "Task name (e.0., 'Rest'}"},
-                    "motion_params": {"type": "array", "items": {"type": "number"}}
-                },
-                "required": ["file_path", "tr"]
-            }
-        }
-    }
+def ensure_data_directories() -> None:
+    """
+    Create the data sub‑directories required by the pipeline:
+    - data/raw
+    - data/derived
+    - data/logs
+    The function uses the llmxive_toolkit `paths` helper which creates parent
+    directories as needed.
+    """
+    raw_dir = paths.data("raw")
+    derived_dir = paths.data("derived")
+    logs_dir = paths.data("logs")
 
-    # Output Schema: Defines the structure of the pipeline outputs
-    output_schema = {
-        "name": "Pipeline_Output_Schema",
-        "version": "1.0.0",
-        "description": "Schema for structural and dynamic metrics output",
-        "files": {
-            "structural_metrics.csv": {
-                "type": "csv",
-                "columns": [
-                    {"name": "subject_id", "type": "string"},
-                    {"name": "global_efficiency", "type": "number"},
-                    {"name": "avg_clustering_coeff", "type": "number"},
-                    {"name": "modularity", "type": "number"},
-                    {"name": "density", "type": "number"},
-                    {"name": "avg_path_length", "type": "number"}
-                ]
-            },
-            "dynamic_metrics.csv": {
-                "type": "csv",
-                "columns": [
-                    {"name": "subject_id", "type": "string"},
-                    {"name": "state_id", "type": "integer"},
-                    {"name": "mean_d dwell_time", "type": "number"},
-                    {"name": "num_visits", "type": "integer"}
-                ]
-            },
-            "correlation_results.csv": {
-                "type": "csv",
-                "columns": [
-                    {"name": "struct_metric", "type": "string"},
-                    {"name": "dyn_metric", "type": "string"},
-                    {"name": "correlation_r", "type": "number"},
-                    {"name": "p_value", "type": "number"},
-                    {"name": "fdr_p_value", "type": "number"},
-                    {"name": "significant", "type": "boolean"}
-                ]
-            },
-            "exclusion_log.json": {
-                "type": "json",
-                "structure": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "subject_id": {"type": "string"},
-                            "reason": {"type": "string"},
-                            "timestamp": {"type": "string", "format": "date-time"}
-                        }
-                    }
-                }
-            },
-            "completeness_report.json": {
-                "type": "json",
-                "structure": {
-                    "type": "object",
-                    "properties": {
-                        "total_subjects": {"type": "integer"},
-                        "processed_subjects": {"type": "integer"},
-                        "excluded_subjects": {"type": "integer"},
-                        "completion_percentage": {"type": "number"},
-                        "exclusion_breakdown": {"type": "object"}
-                    }
-                }
-            }
-        }
-    }
+    # The `paths` helpers already ensure the parent directories exist.
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    derived_dir.mkdir(parents=True, exist_ok=True)
+    logs_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write schema files
-    with open(base / "dataset.schema.yaml", "w") as f:
-        yaml.dump(dataset_schema, f, default_flow_style=False)
+    log.info(f"Ensured data directories: {raw_dir}, {derived_dir}, {logs_dir}")
 
-    with open(base / "output.schema.yaml", "w") as f:
-        yaml.dump(output_schema, f, default_flow_style=False)
+def initialise_exclusion_log() -> None:
+    """
+    Create an empty exclusion log JSON file at
+    `data/logs/exclusion_log.json` if it does not already exist.
+    The log is a JSON list where each entry records a subject exclusion
+    event (subject_id, reason, timestamp). Starting with an empty list
+    satisfies downstream scripts that expect the file to be present.
+    """
+    exclusion_log_path = paths.path("data", "logs", "exclusion_log.json")
+    if not exclusion_log_path.exists():
+        exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
+        with exclusion_log_path.open("w", encoding="utf-8") as f:
+            json.dump([], f, indent=2)
+        log.info(f"Created empty exclusion log at {exclusion_log_path}")
+    else:
+        log.info(f"Exclusion log already exists at {exclusion_log_path}")
 
-    return True
-
-def main():
-    """Entry point to setup the data structure and schemas."""
-    print("Creating directory structure...")
-    ensure_directories()
-    print("Directory structure created.")
-    
-    print("Creating schema files...")
-    create_schema_files()
-    print("Schema files created.")
-    
-    print("Setup complete.")
+def main() -> None:
+    """Entry point executed when the script is run."""
+    log.info("Running data‑structure setup script...")
+    ensure_data_directories()
+    initialise_exclusion_log()
+    log.info("Data‑structure setup completed successfully.")
 
 if __name__ == "__main__":
     main()

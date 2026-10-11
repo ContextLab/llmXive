@@ -1,58 +1,18 @@
-name: HCP_Dataset_Schema
-version: 1.0.0
-description: Schema for HCP OpenNeuro dMRI and fMRI data inputs
-entities:
-  subject:
-    type: object
-    properties:
-      subject_id:
-        type: string
-        description: HCP Subject ID
-      age:
-        type: integer
-      sex:
-        type: string
-        enum:
-        - M
-        - F
-      handedness:
-        type: string
-    required:
-    - subject_id
-  dwi_data:
-    type: object
-    properties:
-      file_path:
-        type: string
-        description: Path to .nii.gz file
-      bvals:
-        type: string
-        description: Path to bvals file
-      bvecs:
-        type: string
-        description: Path to bvecs file
-      b0_threshold:
-        type: number
-    required:
-    - file_path
-    - bvals
-    - bvecs
-  fMRI_data:
-    type: object
-    properties:
-      file_path:
-        type: string
-        description: Path to .nii.gz file
-      tr:
-        type: number
-        description: repetition time in seconds
-      task:
-        type: string
-        description: Task name (e.g., 'Rest')
-      motion_params:
-        type: array
-        items:
-          type: number
-    required:
-    - file_path
-    - tr
+# Minimal placeholder schema for the OpenNeuro ds000224 dataset.
+# Real validation rules should be added as the project matures.
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  subject_id:
+    type: string
+  modality:
+    type: string
+  filename:
+    type: string
+  url:
+    type: string
+required:
+  - subject_id
+  - modality
+  - filename
+  - url

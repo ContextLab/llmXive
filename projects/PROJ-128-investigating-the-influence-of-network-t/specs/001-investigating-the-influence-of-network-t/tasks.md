@@ -48,7 +48,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] **Create Project Directory Structure**: Create `code/`, `data/`, `contracts/`, `tests/` directories and subdirectories as defined in the Plan (`data/raw`, `data/derived`, `data/logs`, `contracts/`, `code/`, `tests/unit`, `tests/integration`). Verify structure exists.
-- [X] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml>=6.0).
+- [ ] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml>=6.0).
 - [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` or `.pre-commit-config.yaml`.
 
 ---
@@ -63,11 +63,11 @@ description: "Task list template for feature implementation"
 - [X] T004b [P] Define hyperparameters in `code/config.py`: `WINDOW_LENGTH_BASELINE = 30` (in TRs), `WINDOW_LENGTH_VALIDATION = [20]` (in TRs), `WINDOW_STEP = 1` (in TRs), `K_MEANS_K = 5`. **Constraint**: Define `BASELINE_DENSITY` (to be derived or set, e.g., 0.1). **Logic**: `DENSITY_THRESHOLD_VARIATIONS = [BASELINE_DENSITY minus a small offset, BASELINE_DENSITY, BASELINE_DENSITY plus a small offset]`. **Rationale**: FR-008 specifies '±5%' perturbation; variations must be explicit numeric offsets, not vague heuristics.
 - [X] T005 [P] Create `code/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
 - [X] T006 [P] Implement `code/structural.py` skeleton with placeholder for graph metric calculation.
-- [ ] T007 [P] Implement `code/functional.py` skeleton for sliding-window and state extraction.
-- [ ] T008 [P] Create `code/correlation.py` skeleton for statistical testing.
+- [X] T007 [P] Implement `code/functional.py` skeleton for sliding-window and state extraction.
+- [X] T008 [P] Create `code/correlation.py` skeleton for statistical testing.
 - [X] T009 [P] Create `code/reports/generate_report.py` skeleton for final output.
 - [X] T009a [P] **Create Documentation**: Write `docs/quickstart.md` with instructions to run the full pipeline end-to-end, including environment setup and data fetching.
-- [ ] T010 [P] Setup `data/` directory structure (raw, derived, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
+- [~] T010 [P] Setup `data/` directory structure (raw, derived, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,7 +81,7 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T012 [P] [US1] Unit test for `code/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
+- [~] T012 [P] [US1] Unit test for `code/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
 - [~] T013 [P] [US1] Unit test for `code/functional.py` LOSO k-means state extraction in `tests/unit/test_functional.py`.
 - [~] T013b [P] [US1] **CRITICAL**: Unit test for LOSO Independence Constraint in `tests/unit/test_functional.py`. Verify that for any subject `i`, the generated centroids are computed *exclusively* from the data of subjects `j != i`. Assert that subject `i`'s data is never included in the centroid generation step.
 - [~] T014 [P] [US1] Integration test for single-subject pipeline in `tests/integration/test_single_subject.py`.
@@ -91,8 +91,8 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 1
 
 - [~] T015a [US1] Implement structural graph metric calculation (global efficiency, clustering, modularity) in `code/structural.py` using NetworkX. **Constraint**: MUST consume `DENSITY_THRESHOLD_BASELINE` from `code/config.py`. **Logic**: If `DENSITY_THRESHOLD_BASELINE` is `None`, derive the value dynamically (e.g., median degree of the cohort) and log the derived value. **Dependency**: T004b.
-- [ ] T015b [US1] **Mandatory Sensitivity Analysis (Graph Density)**: Implement a loop in `code/structural.py` that iterates through `DENSITY_THRESHOLD_VARIATIONS` (defined as `BASELINE ± 0.05`). For each threshold, apply it to the adjacency matrix, compute graph metrics, and save results. **Output**: Save `data/derived/structural_density_sensitivity.csv` containing metrics for each density level. **Schema**: `subject_id, density_threshold, global_efficiency, clustering, modularity`. **Dependency**: T004b, T015a.
-- [ ] T016 [US1] Implement **Leave-One-Subject-Out (LOSO) K-Means Centroid Generation** in `code/functional.py`. **Logic**: For each subject `i` in the cohort:
+- [~] T015b [US1] **Mandatory Sensitivity Analysis (Graph Density)**: Implement a loop in `code/structural.py` that iterates through `DENSITY_THRESHOLD_VARIATIONS` (defined as `BASELINE ± 0.05`). For each threshold, apply it to the adjacency matrix, compute graph metrics, and save results. **Output**: Save `data/derived/structural_density_sensitivity.csv` containing metrics for each density level. **Schema**: `subject_id, density_threshold, global_efficiency, clustering, modularity`. **Dependency**: T004b, T015a.
+- [~] T016 [US1] Implement **Leave-One-Subject-Out (LOSO) K-Means Centroid Generation** in `code/functional.py`. **Logic**: For each subject `i` in the cohort:
  1. Compute sliding-window correlations (window_length=30 TR, step=1 TR) for all OTHER subjects (N-1).
  2. Concatenate these matrices and apply k-means (k=5) to generate **Subject-Specific LOSO Centroids**.
  3. **Output**: Save a structured file `data/derived/loo_centroids_all_subjects.npz` where keys are strictly named `f"centroids_{subject_id}"` and values are the `(5, 200)` centroid arrays derived *only* from `j != i`.
@@ -100,7 +100,7 @@ description: "Task list template for feature implementation"
  5. **Deviation Note**: This implements the Plan's LOSO strategy, deviating from FR-002's "common set" requirement. **Constitution Override**: Explicitly authorized by **Constitution Principle VI** (Structural-Functional Independence) to prevent circular correlation. This is a **Spec Amendment** to FR-002.
  6. **Mandatory Traceability**: Upon successful generation, the script MUST write an entry to `data/logs/methodology_deviations.json` explicitly stating: "FR-002 deviation: Replaced 'common set of recurrent states' with 'subject-specific LOSO centroids' per Constitution Principle VI."
  7. **Intermediate Output**: Also save `data/derived/state_assignments_per_subject.csv` containing the state assignments for each subject during the loop (columns: `subject_id, window_index, state_id`) to facilitate T017.
-- [ ] T017 [US1] Implement **LOSO State Assignment** in `code/functional.py`. **Logic**: Load `data/derived/loo_centroids_all_subjects.npz`. For each subject `i`:
+- [~] T017 [US1] Implement **LOSO State Assignment** in `code/functional.py`. **Logic**: Load `data/derived/loo_centroids_all_subjects.npz`. For each subject `i`:
  1. Retrieve the LOSO Centroids generated specifically for subject `i` (key: `f"centroids_{subject_id}"`).
  2. Assign windowed matrices of subject `i` to these centroids to determine state sequences (list of state IDs per time window).
  3. Calculate per-subject dynamic metrics: **Mean Dwell Time** and **Number of Visited States**.
@@ -116,7 +116,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Aggregate exclusion logs from all phases to satisfy SC-005.
 
-- [ ] T001a [P] **Data Acquisition & Validation**: Fetch datasets using `datasets.load_dataset` or direct BIDS download from OpenNeuro ds000224. Validate schema. Compute checksums. Log exclusions to `data/logs/exclusion_log.json`. **Output**: `data/raw/verified_manifest.json`.
+- [ ] T001a [P] **Data Acquisition & Validation**: Fetch datasets using `datasets.load_dataset` or direct BIDS download from OpenNeuro ds000224. Validate schema. Compute checksums. Log exclusions to `data/logs/exclusion_log.json`. **Output**: `data/raw/verified_manifest.json`. <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
 - [~] T019a [US1] **Data Completeness Aggregation**: Implement a script in `code/analysis/` to read `data/logs/exclusion_log.json` (from T001a, T017, T018). **Logic**: Aggregate all exclusions into a single file `data/derived/exclusion_log.json`. Categorize exclusion reasons (e.g., "convergence failure", "sparsity >90%", "missing data"). **Output**: Save `data/derived/exclusion_log.json`. **Dependency**: T001a, T017, T018.
 - [~] T019b [US1] **Data Completeness Report**: Implement a script in `code/analysis/` to read `data/derived/exclusion_log.json` (from T019a) and `data/derived/structural_metrics.csv` (from T018). Calculate the percentage of processed subjects against the **total available cohort size** (count of subjects in `data/raw/`). Categorize exclusion reasons. **Output**: Save `data/derived/completeness_report.json` to satisfy SC-005. **Dependency**: T019a, T018.
 

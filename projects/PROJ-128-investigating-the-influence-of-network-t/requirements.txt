@@ -1,16 +1,10 @@
-# Pinned dependencies for the project
-# Core scientific packages
-numpy==1.26.0
-pandas==2.2.0
-scipy==1.12.0
-scikit-learn==1.4.0
-statsmodels==0.14.2
+# Project dependencies
+nilearn
+networkx
+scikit-learn
+pandas
+numpy
+statsmodels
+scipy
 pyyaml>=6.0
-
-# Neuroimaging packages
-nilearn==0.10.2
-networkx==3.2.1
-
-# Note: Additional packages (e.g., matplotlib, seaborn, pytest, datasets, nibabel)
-# are not required for the core pipeline and have been omitted per task
-# specifications. They can be added later if needed by downstream tasks.
+datasets

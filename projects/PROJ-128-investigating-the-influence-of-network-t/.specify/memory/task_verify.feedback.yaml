@@ -1,10 +1,14 @@
 T001:
   task: bf73a8acacc7b02a47a855e5442bb180c4c1b90d7c6d467ba38a1f0c06ad5a34
 T001a:
-  reason: 'declared artifact(s) missing/empty/invalid: data/logs/exclusion_log.json,
-    data/raw/verified_manifest.json'
+  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
+    exit=1'
   task: 3a4f0dcc936408fb2fae4f52ada5061273dcade590a08109238c71cc2b2d710c
 T002:
+  reason: The provided `requirements.txt` lists the required packages but does not
+    pin them to specific versions (e.g., `nilearn==...`). Only `pyyaml` has a version
+    spec, and an extra `datasets` line is present. To satisfy the task, each dependency
+    must be pinned (e.g., `nilearn==1.2.3`, `networkx==3.1`, etc.).
   task: 78ad4d8c016442cca743b65e86089966dad7b69c06a045f48ad0f20732cdbe91
 T003:
   task: 65d1d6842884ede345b7497961ad4b9341ca0b6bb176357c3b2b055c0f3c9b0a
@@ -17,10 +21,8 @@ T005:
 T006:
   task: 1fa66f36787beb678f35c507f8f0d082770778f3736b9dd413540283880232fd
 T007:
-  reason: 'declared artifact(s) missing/empty/invalid: code/functional.py'
   task: 2ed336bdf264f5f60a25e16c36a781874b2790929190eb88d7c11aa25c36a573
 T008:
-  reason: 'declared artifact(s) missing/empty/invalid: code/correlation.py'
   task: 3ce51748758e36746a8463e266eff746270d5bf1a504c58e5eb7120d7c93d63a
 T009:
   task: a3bd9e36ab0d6036bbb7ff6b01191ffe1184a2f5b7d8d46b0a8ad26b6d6a8afb
