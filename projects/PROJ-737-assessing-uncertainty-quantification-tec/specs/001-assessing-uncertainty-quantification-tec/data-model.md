@@ -19,7 +19,7 @@
 | n_samples | integer ≥ 1 | Total rows after loading. |
 | n_train | integer ≥ 1 | Training rows. |
 | n_val | integer ≥ 0 | Validation rows. |
-| n_test | integer ≥ 1 | Test rows (≥ 100 per SC‑001). |
+| n_test | integer ≥ 1 | Test rows (≥ 200 per SC‑001 and power‑analysis strategy). |
 | features | array[string] | Feature column names after featurization. |
 | target | string | Target column name. |
 | checksum | string | SHA‑256 of the processed CSV. |
@@ -57,15 +57,20 @@
 | p_value | number ∈ [0,1] |
 | test_type | enum: `wilcoxon_signed_rank` |
 | significant | boolean |
+| alpha | number |
+| correction | enum: `bonferroni`, `none` |
 
 ## Data Flow
 
 1. **download.py** → raw CSVs in `data/raw/`.  
 2. **featurize.py** → `data/processed/<dataset_id>.csv`.  
-3. **models/** → trained artefacts (saved as `results/models/<method_id>_<dataset_id>.pt` or `.pkl`).  
+3. **models/** → trained artefacts saved under `results/models/`.  
 4. **metrics/evaluation.py** → `results/metrics_<dataset_id>.csv`.  
 5. **stats/significance.py** → `results/statistical_report.csv`.  
-6. **pipeline.py** aggregates all CSVs into `results/summary.csv`.
+6. **pipeline.py** aggregates all CSVs into `results/summary.csv` **and** writes:
+   - `results/uq_methods.csv` (UQMethod registry, matching this entity definition)
+   - `results/pipeline_log.csv` (pipeline execution log conforming to `contracts/pipeline.schema.yaml`).  
+7. **results/** contain the final deliverables for downstream analysis and paper generation.
 
 ---
 
