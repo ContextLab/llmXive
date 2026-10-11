@@ -17,14 +17,20 @@
     pip install -r requirements.txt
     ```
 
-2.  **Download Data**:
+2.  **Initialize Project**:
+    Run the initialization script to create the directory skeleton:
+    ```bash
+    python code/main.py --phase init
+    ```
+
+3.  **Download Data**:
     Run the download script to fetch MS-COCO (including captions):
     ```bash
     python code/data/download_coco.py
     ```
     *Note: This will verify checksums and store data in `data/raw/`.*
 
-3.  **Run Analysis Pipeline**:
+4.  **Run Analysis Pipeline**:
     Execute the full pipeline (Correlation -> Clustering -> Evaluation):
     ```bash
     python code/main.py --mode full
@@ -32,9 +38,9 @@
     - **CPU Mode**: Runs entropy, clustering, and metrics. DiT generation uses SD2.1.
     - **GPU Mode**: If SD2.1 is insufficient, the script detects memory limits and attempts to offload DiT generation to a configured GPU (or logs a warning to use Kaggle).
 
-4.  **View Results**:
+5.  **View Results**:
     - Correlation plots: `data/processed/correlation_plots/`
-    - Clustering Report: `data/processed/clustering_report.json` (Required for Phase 2)
+    - Clustering Report: `data/processed/clustering_report.json` (Required for Phase 2)
     - Rotation matrices: `data/processed/rotation_matrices/`
     - Final metrics: `data/processed/results.csv`
 

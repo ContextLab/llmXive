@@ -1,23 +1,19 @@
 """
-Download the MS-COCO 2017 validation captions and store them as a CSV file.
-
-This script fetches the official COCO annotations archive, extracts the
-validation captions JSON, parses the captions, and writes them to
-``data/raw/coco_captions/captions.csv``. A small metadata JSON file is also
-written alongside the CSV.
-
-All failures raise ``RuntimeError`` – no synthetic fallback is used.
+Download the MS-COCO 2017 validation captions using the HuggingFace datasets library.
+Writes the result to data/raw/coco_captions/captions.csv.
 """
 import csv
-import json
 import logging
-import ssl
 import sys
-import urllib.request
-import zipfile
 from pathlib import Path
+from typing import List, Dict
 
-# Ensure the project root is on the import path when the script is run directly
+try:
+    from datasets import load_dataset
+except ImportError:
+    raise RuntimeError("The 'datasets' library is required. Please run 'pip install datasets'.")
+
+# Ensure the project root is on the import path
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -29,141 +25,51 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Official COCO annotations archive containing both instance and caption files
-COCO_ANNOTATIONS_ZIP_URL = (
-    "https://images.cocodataset.org/annotations/annotations_trainval2017.zip"
-)
-# Local temporary path for the downloaded zip
-TEMP_ZIP_PATH = Path("/tmp") / "coco_annotations.zip"
-
-def _download_annotations_zip(url: str, dest: Path) -> None:
-    """Download the COCO annotations zip file to ``dest``."""
-    if dest.is_file():
-        logger.info(f"Annotations zip already exists at {dest}")
-        return
-    logger.info(f"Downloading COCO annotations archive from {url}")
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    try:
-        with urllib.request.urlopen(url, context=ctx) as resp, open(dest, "wb") as out:
-            out.write(resp.read())
-    except Exception as e:
-        raise RuntimeError(f"Failed to download COCO annotations zip: {e}") from e
-
-def _extract_captions_json(zip_path: Path) -> Path:
+def download_coco_validation(config: Config) -> None:
     """
-    Extract ``captions_val2017.json`` from the zip archive and return its path.
-    The file is extracted into a temporary directory under ``/tmp``.
+    Fetch the validation split of nlpconnect/coco_captions and save as CSV.
     """
     try:
-        with zipfile.ZipFile(zip_path, "r") as z:
-            # Find the caption file for the validation split
-            caption_file = next(
-                (f for f in z.namelist() if f.endswith("captions_val2017.json")),
-                None,
-            )
-            if not caption_file:
-                raise RuntimeError(
-                    "captions_val2017.json not found inside the COCO annotations zip."
-                )
-            extract_dir = Path("/tmp") / "coco_extracted"
-            extract_dir.mkdir(parents=True, exist_ok=True)
-            z.extract(caption_file, extract_dir)
-            return extract_dir / caption_file
-    except zipfile.BadZipFile as e:
-        raise RuntimeError(f"Corrupted zip file {zip_path}: {e}") from e
+        logger.info("Downloading MS-COCO validation set from HuggingFace (nlpconnect/coco_captions)...")
+        dataset = load_dataset("nlpconnect/coco_captions", split="validation")
     except Exception as e:
-        raise RuntimeError(f"Failed to extract captions JSON: {e}") from e
+        raise RuntimeError(f"Failed to fetch COCO validation dataset from HuggingFace: {e}") from e
 
-def _load_captions(json_path: Path) -> list[dict]:
-    """Load captions from the extracted JSON file."""
-    try:
-        with open(json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception as e:
-            raise RuntimeError(f"Unable to read JSON from {json_path}: {e}") from e
+    output_dir = config.raw_data_dir / "coco_captions"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_csv = output_dir / "captions.csv"
 
-    if "annotations" not in data:
-        raise RuntimeError("Unexpected JSON format: missing 'annotations' key")
-
-    captions = [
-        {"id": str(item["image_id"]), "caption": item["caption"].strip()}
-        for item in data["annotations"]
-        if isinstance(item.get("caption"), str) and "image_id" in item
-    ]
+    captions = []
+    for idx, item in enumerate(dataset):
+        caption = item.get("caption")
+        if isinstance(caption, str) and caption.strip():
+            captions.append({"id": str(idx), "caption": caption.strip()})
 
     if not captions:
-        raise RuntimeError("No captions were extracted from the JSON file")
-    return captions
+        raise RuntimeError("No valid captions were extracted from the COCO validation dataset.")
 
-def _write_captions_csv(captions: list[dict], csv_path: Path) -> None:
-    """Write a list of ``{'id': ..., 'caption': ...}`` dicts to ``csv_path``."""
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(csv_path, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=["id", "caption"])
+    logger.info(f"Writing {len(captions)} captions to {output_csv}")
+    with open(output_csv, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "caption"])
         writer.writeheader()
-        for entry in captions:
-            writer.writerow(entry)
+        writer.writerows(captions)
 
-def load_coco_captions(config: Config) -> list[dict]:
+def load_coco_captions(config: Config) -> List[Dict[str, str]]:
     """
-    Load the COCO validation captions that were previously written by ``main()``.
-    Returns a list of dictionaries with keys ``id`` and ``caption``.
+    Helper function to load the captions CSV produced by this script.
     """
-    # Resolve the directory where the CSV is stored.
-    raw_dir = getattr(config, "raw_data_dir", Path("data/raw"))
-    csv_path = raw_dir / "coco_captions" / "captions.csv"
-
+    csv_path = config.raw_data_dir / "coco_captions" / "captions.csv"
     if not csv_path.is_file():
-        raise RuntimeError(f"COCO captions CSV not found at {csv_path}")
-
-    try:
-        with open(csv_path, newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            captions = [row for row in reader]
-    except Exception as e:
-        raise RuntimeError(f"Failed to read COCO captions CSV at {csv_path}: {e}") from e
-
-    if not captions:
-        raise RuntimeError(f"COCO captions CSV at {csv_path} is empty")
-    return captions
+        raise RuntimeError(f"COCO captions CSV not found at {csv_path}. Run download_coco.py first.")
+    
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return [row for row in reader]
 
 def main() -> None:
-    """Entry point: download validation captions and write CSV + metadata."""
     config = Config()
-
-    # Resolve output directories
-    raw_coco_dir = config.raw_data_dir / "coco_captions"
-    raw_coco_dir.mkdir(parents=True, exist_ok=True)
-
-    output_csv = raw_coco_dir / "captions.csv"
-    meta_file = raw_coco_dir / "metadata.json"
-
-    # 1. Download the annotations zip (if not already present)
-    _download_annotations_zip(COCO_ANNOTATIONS_ZIP_URL, TEMP_ZIP_PATH)
-
-    # 2. Extract the validation captions JSON
-    captions_json_path = _extract_captions_json(TEMP_ZIP_PATH)
-
-    # 3. Load captions from JSON
-    captions = _load_captions(captions_json_path)
-
-    # 4. Write captions to CSV
-    logger.info(f"Writing {len(captions)} captions to {output_csv}")
-    _write_captions_csv(captions, output_csv)
-
-    # 5. Write a small metadata file for provenance
-    metadata = {
-        "source_url": COCO_ANNOTATIONS_ZIP_URL,
-        "extracted_file": str(captions_json_path),
-        "num_records": len(captions),
-        "csv_path": str(output_csv),
-    }
-    with open(meta_file, "w", encoding="utf-8") as f:
-        json.dump(metadata, f, indent=2)
-
-    logger.info(f"COCO validation captions downloaded successfully to {output_csv}")
+    download_coco_validation(config)
+    logger.info("COCO validation captions downloaded successfully.")
 
 if __name__ == "__main__":
     main()

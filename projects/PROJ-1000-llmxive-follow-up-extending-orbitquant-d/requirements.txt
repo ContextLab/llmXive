@@ -1,13 +1,17 @@
-# Core dependencies for the OrbitQuant follow‑up project
-torch>=2.0.0
-transformers>=4.35.0
-diffusers>=0.21.0
-datasets>=2.0.0
-scikit-learn>=1.3.0
-scipy>=1.11.0
-numpy>=1.25.0
-pandas>=2.1.0
-sentence-transformers>=2.2.2
-# Additional utilities used by the data scripts
-tqdm>=4.66.0
-pycocotools>=2.0.0
+torch
+transformers
+diffusers
+datasets
+scikit-learn
+accelerate
+sentence-transformers
+pandas
+numpy
+scipy
+matplotlib
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil

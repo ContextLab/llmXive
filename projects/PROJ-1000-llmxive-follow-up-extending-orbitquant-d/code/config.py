@@ -15,15 +15,27 @@ class Config:
 
     Attributes
     ----------
+    project_root: Path
+        The root directory of the project.
+    code_dir: Path
+        Base directory for source code.
+    tests_dir: Path
+        Base directory for tests.
     raw_data_dir: Path
         Base directory for raw downloaded artifacts.
     processed_data_dir: Path
         Directory for processed CSV/JSON outputs.
+    state_dir: Path
+        Directory for state and hash files.
     seed: int
-        Random seed for any stochastic operations (e.g., train/test split).
+        Random seed for any stochastic operations.
     """
+    project_root: Path = Path(".")
+    code_dir: Path = Path("code")
+    tests_dir: Path = Path("tests")
     raw_data_dir: Path = Path("data/raw")
     processed_data_dir: Path = Path("data/processed")
+    state_dir: Path = Path("state")
     seed: int = 42
 
     # Convenience properties used by other modules
@@ -41,3 +53,8 @@ class Config:
     def prompts_csv_path(self) -> Path:
         """Path for the merged prompts CSV produced by preprocessing."""
         return self.processed_data_dir / "prompts.csv"
+    
+    @property
+    def clustering_report_path(self) -> Path:
+        """Path to the clustering report JSON."""
+        return self.processed_data_dir / "clustering_report.json"
