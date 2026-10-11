@@ -9,7 +9,7 @@ description: "Task list for llmXive follow‑up: extending LoopCoder‑v2"
 
 > **Notation**  
 > `- [ ] T### [P/D] [USx?] description – <artifact‑path>`  
-> `P` = can run in parallel with other tasks that do not touch the same files.  
+> `P` = can run in parallel with other tasks that do **not** touch the same files.  
 > `D` = must run after its listed dependencies.  
 > `USx` = user‑story identifier (US1 = core correlation, US2 = router simulation, US3 = robustness).
 
@@ -94,126 +94,83 @@ description: "Task list for llmXive follow‑up: extending LoopCoder‑v2"
 
 ---
 
-## Phase 1 – Data Acquisition & Streaming (new end‑to‑end foundation)
+## Phase 1 – Data Acquisition & Streaming (foundational end‑to‑end)
 
-- [ ] T101 [P] **Streaming Data Loader Implementation** – `code/src/data_loader.py`  
-  *Uses `datasets.load_dataset(..., streaming=True)` for HumanEval & MBPP; processes one problem at a time, writes rows incrementally to `data/processed/entropy_results_partial.csv` and `data/processed/convergence_results_partial.csv`; logs progress in `data/processed/streaming_log.json`.*
+- [ ] T101 [P] **Implement Streaming Data Loader** – `code/src/data_loader.py`  
+  *Uses `datasets.load_dataset(..., streaming=True)` for HumanEval & MBPP; iterates problem‑by‑problem, writes a compressed CSV `data/processed/problems_stream.csv` (columns: `problem_id, dataset, prompt, canonical_solution, test_suite, difficulty_stratum`).*  
+  *Verification:* `data/processed/problems_stream.csv` exists, row count matches raw split size, and a SHA‑256 checksum is recorded in `data/checksums_processed.txt`.
 
-- [ ] T102 [D] **Flush Partial Results to Final Files** – `data/processed/entropy_results.csv`, `data/processed/convergence_results_core.csv`  
-  *After streaming completes, concatenate partial files, compute SHA‑256 checksums, write to `data/checksums_processed.txt`.*
-
-- [ ] T103 [D] **Validate Streaming Loader Output Schema** – `data/processed/streaming_validation.json`  
-  *Runs a lightweight schema validator against `entropy_schema.schema.yaml` and `convergence_schema.schema.yaml`; records pass/fail.*
+- [ ] T102 [D] **Validate Loader Output Schema** – `data/processed/loader_validation.json`  
+  *Runs a JSON‑schema validator against `dataset.schema.yaml`; records pass/fail for each row and summary statistics.*  
 
 ---
 
 ## Phase 2 – Entropy Extraction (US‑1)
 
-- [ ] T201 [D] **Run Full Entropy Extraction (GPU)** – `code/src/entropy.py`  
+- [ ] T201 [D] **Run Full Entropy Extraction on GPU** – `code/src/entropy.py`  
   *Command:*  
   ```bash
   python -m code.src.entropy \
-    --input data/processed/full_splits.json \
+    --input data/processed/problems_stream.csv \
     --output data/processed/entropy_results.csv \
-    --reference data/processed/unseen_validation_set.csv \
     --device cuda \
     --seed 42
   ```  
-  *Generates `entropy_results.csv` (columns: `problem_id, dataset, entropy_value, num_clusters, num_samples, excluded`). Logs any exclusion events to `data/processed/exclusion_log.json`.*
-
-- [ ] T202 [D] **Verify Entropy Results Compliance** – `data/processed/entropy_verification.json`  
-  *Checks: (1) file exists and non‑empty; (2) each row conforms to `entropy_schema.schema.yaml`; (3) `entropy_value ≥ 0`; (4) `num_samples == 10`.*
+  *Generates `entropy_results.csv` (columns: `problem_id, dataset, entropy_value, num_clusters, num_samples, excluded`).*  
+  *Verification:* `data/processed/entropy_verification.json` – confirms file exists, non‑empty, each row conforms to `entropy_schema.schema.yaml`, `entropy_value ≥ 0`, `num_samples == 10`.
 
 ---
 
 ## Phase 3 – Convergence Inference (US‑1)
 
-- [ ] T301 [D] **Run Core Convergence Inference (k = 1‑3, GPU)** – `code/src/inference.py`  
+- [ ] T301 [D] **Run Core Convergence Inference (k = 1‑3) on GPU** – `code/src/inference.py`  
   *Command:*  
   ```bash
   python -m code.src.inference \
-    --input data/processed/full_splits.json \
+    --input data/processed/problems_stream.csv \
     --output data/processed/convergence_results_core.csv \
     --k_range 1 2 3 \
     --device cuda \
     --seed 42
   ```  
-  *Outputs CSV with schema defined in `convergence_schema.schema.yaml` (including `is_censored` and `convergence_step`).*
+  *Produces CSV with schema `convergence_schema.schema.yaml` (`problem_id, loop_count, passed, is_censored, convergence_step`).*  
+  *Verification:* `data/processed/convergence_core_validation.json` – checks schema compliance and that any row with `loop_count=3` and `passed=False` is marked `is_censored=True` and `convergence_step` is `null`.
 
-- [ ] T302 [D] **Run Sensitivity Convergence (k = 4)** – `code/src/inference.py`  
-  *Command:* same as T301 but `--k_range 4` → `data/processed/convergence_results_sensitivity.csv`.
-
-- [ ] T303 [D] **Censored‑Logic Verification** – `data/processed/censored_verification.json`  
-  *Ensures any row with `k=3` (or `k=4` for sensitivity) where `is_correct=False` has `is_censored=True` and `convergence_step` is `null`.*
+- [ ] T302 [D] **Run Sensitivity Convergence (k = 4) on GPU** – `code/src/inference.py`  
+  *Command:* same as T301 but `--k_range 4` → `data/processed/convergence_results_sensitivity.csv`.  
+  *Verification:* `data/processed/convergence_sens_validation.json` – same schema checks for the additional k=4 rows.
 
 ---
 
 ## Phase 4 – Core Statistical Analysis (US‑1)
 
-- [ ] T401 [D] **Spearman Correlation (entropy ↔ first_correct_step)** – `code/src/analysis.py`  
+- [ ] T401 [D] **Execute Full Core Analysis Suite** – `code/src/analysis.py`  
+  *Runs in a single invocation the following sub‑modes:*  
+  1. **Spearman correlation** between `entropy_value` and `convergence_step` → `data/processed/correlation_spearman.json`.  
+  2. **Kaplan‑Meier survival analysis** handling censored data → `data/processed/correlation_survival.json`.  
+  3. **Power analysis** for the observed Spearman ρ → `data/processed/correlation_power.json`.  
+  4. **Per‑stratum correlations** for all predefined difficulty strata → `data/processed/stratum_pvalues.json`.  
+  5. **Holm‑Bonferroni correction** on the stratum p‑values → `data/processed/adjusted_pvalues.json`.  
+  6. **Merge all core results** into a single JSON `data/processed/correlation_results_final.json` that conforms to `results_schema.schema.yaml` for each metric.  
   *Command:*  
   ```bash
   python -m code.src.analysis \
-    --mode spearman \
-    --entropy data/processed/entropy_results.csv \
-    --convergence data/processed/convergence_results_core.csv \
-    --output data/processed/correlation_spearman.json
-  ```  
-  *Result JSON follows `results_schema.schema.yaml` (fields: `metric_name`, `value`, `confidence_interval`, `significance_flag`).*
-
-- [ ] T402 [D] **Survival Analysis (Kaplan‑Meier & Cox PH)** – `code/src/analysis.py`  
-  *Command:*  
-  ```bash
-  python -m code.src.analysis \
-    --mode survival \
-    --convergence data/processed/convergence_results_core.csv \
-    --entropy data/processed/entropy_results.csv \
-    --output data/processed/correlation_survival.json
-  ```
-
-- [ ] T403 [D] **Power Analysis for Observed Effect** – `code/src/analysis.py`  
-  *Command:*  
-  ```bash
-  python -m code.src.analysis \
-    --mode power \
-    --spearman data/processed/correlation_spearman.json \
-    --output data/processed/correlation_power.json
-  ```
-
-- [ ] T404 [D] **Per‑Stratum Correlation (all strata)** – `code/src/analysis.py`  
-  *Command:*  
-  ```bash
-  python -m code.src.analysis \
-    --mode strata \
     --entropy data/processed/entropy_results.csv \
     --convergence data/processed/convergence_results_core.csv \
     --strata data/processed/strata_log.json \
-    --output data/processed/stratum_pvalues.json
-  ```
-
-- [ ] T405 [D] **Holm‑Bonferroni Correction (all strata)** – `code/src/analysis.py`  
-  *Command:*  
-  ```bash
-  python -m code.src.analysis \
-    --mode holm-bonferroni \
-    --input data/processed/stratum_pvalues.json \
-    --output data/processed/adjusted_pvalues.json
-  ```
-
-- [ ] T406 [D] **Merge All Core Results** – `data/processed/correlation_results_final.json`  
-  *Combines `correlation_spearman.json`, `correlation_survival.json`, `correlation_power.json`, and `adjusted_pvalues.json` into a single JSON document that satisfies `results_schema.schema.yaml` for each metric.*
+    --output_dir data/processed/
+  ```  
+  *Verification:* `data/processed/analysis_suite_report.json` – lists each generated file, confirms JSON schema compliance, and records that the significance flag for the primary Spearman test is `true` (p < 0.05) or otherwise documented.
 
 ---
 
 ## Phase 5 – Dynamic Router Simulation (US‑2)
 
-- [ ] T501 [D] **Generate 5‑Fold Stratified CV Splits** – `data/processed/router_cv_folds.json`  
-  *Uses `sklearn.model_selection.StratifiedKFold` on the derived target `optimal_k` (first correct loop).*
+- [ ] T501 [D] **Generate 5‑Fold Stratified CV Splits** – `code/src/router_cv.py`  
+  *Creates `data/processed/router_cv_folds.json` (list of 5 train/validation index sets stratified by `optimal_k`).*  
+  *Verification:* `data/processed/router_cv_folds_verified.json` – checks exact 5 folds, no overlap, stratification, and seed reproducibility.
 
-- [ ] T502 [D] **Verify CV Split Integrity** – `data/processed/router_cv_folds_verified.json`  
-  *Checks: exactly 5 folds, no overlap, stratification by `optimal_k`, seed = 42.*
-
-- [ ] T503 [D] **Train Ordinal Logistic Regression Router** – `code/src/analysis.py`  
+- [ ] T502 [D] **Train Ordinal Logistic Regression Router & Record Metrics** – `code/src/analysis.py`  
   *Command:*  
   ```bash
   python -m code.src.analysis \
@@ -222,86 +179,87 @@ description: "Task list for llmXive follow‑up: extending LoopCoder‑v2"
     --convergence data/processed/convergence_results_core.csv \
     --baseline data/processed/baseline_pass1.json \
     --cv_folds data/processed/router_cv_folds_verified.json \
-    --output data/processed/router_model.pkl \
-    --metrics data/processed/router_metrics.json
+    --output_dir data/processed/
   ```  
-  *Model saved as Pickle; metrics JSON follows `router.schema.yaml`.*
+  *Outputs:* `router_model.pkl` (pickle of trained model) and `router_metrics.json` (accuracy, confusion matrix, etc.) conforming to `router.schema.yaml`.  
+  *Verification:* `data/processed/router_training_report.json` – confirms model file exists, metrics JSON validates against schema, and training loss converged.
 
-- [ ] T504 [D] **Generate Router Predictions on Test Set** – `data/processed/router_results.csv`  
+- [ ] T503 [D] **Generate Router Predictions on Full Test Set** – `code/src/analysis.py`  
   *Command:*  
   ```bash
   python -m code.src.analysis \
     --mode predict_router \
     --model data/processed/router_model.pkl \
-    --input data/processed/full_splits.json \
+    --input data/processed/problems_stream.csv \
     --output data/processed/router_results.csv
-  ```
+  ```  
+  *Verification:* `data/processed/router_predictions_validation.json` – checks each row matches `router_schema.schema.yaml`.
 
-- [ ] T505 [D] **Evaluate Router vs Random Baseline** – `data/processed/router_accuracy_test.json`  
-  *Performs a paired t‑test comparing router accuracy to a random `k=1` baseline; stores test statistic, p‑value, and significance flag.*
-
-- [ ] T506 [D] **Compute Static k = 2 Baseline** – `data/processed/static_k2_baseline.json`  
-  *Aggregates FLOPs (via `calculate_flops`) and pass@1 accuracy when always using loop count 2.*
-
-- [ ] T507 [D] **Compute Oracle Baseline (optimal k per problem)** – `data/processed/oracle_baseline.json`  
-  *Uses the true `optimal_k` from convergence data to calculate ideal FLOPs and accuracy.*
-
-- [ ] T508 [D] **Non‑Inferiority Tests (FLOPs & Accuracy)** – `data/processed/flops_savings_test.json`  
-  *One‑sided tests checking that router FLOPs are not > 5 % above Oracle FLOPs and that accuracy loss ≤ 0.05 (δ = 0.05).*
-
-- [ ] T509 [D] **Calculate FLOPs Savings Summary** – `data/processed/flops_savings.json`  
-  *Merges `flops_savings_calc.json` (average savings) with `flops_savings_test.json` into a single report.*
+- [ ] T504 [D] **Evaluate Router vs Random Baseline & Compute FLOPs Savings** – `code/src/analysis.py`  
+  *Runs three sub‑steps:*  
+  1. **Accuracy comparison** (paired t‑test against random `k=1` baseline) → `router_accuracy_test.json`.  
+  2. **Static k=2 baseline** (accuracy + FLOPs) → `static_k2_baseline.json`.  
+  3. **Oracle baseline** (optimal k per problem) → `oracle_baseline.json`.  
+  4. **Non‑inferiority tests** (FLOPs ≤ 5 % above oracle, accuracy loss ≤ δ=0.05) → `flops_savings_test.json`.  
+  5. **Summarize FLOPs savings** → `flops_savings.json`.  
+  *Verification:* `router_evaluation_report.json` – contains all five JSON files, confirms that significance flags are present, and records whether the router meets the non‑inferiority criteria.
 
 ---
 
 ## Phase 6 – Robustness & Sensitivity Analyses (US‑3)
 
-- [ ] T601 [D] **Per‑Stratum Correlation (Powered Strata Only)** – `data/processed/stratum_pvalues_powered.json`  
-  *Same as T404 but skips strata with `< 50` samples (uses `STRATA_THRESHOLD`).*
+- [ ] T601 [D] **Powered‑Strata Correlation & Holm‑Bonferroni** – `code/src/robustness.py`  
+  *Filters out strata with fewer than `STRATA_THRESHOLD` samples, recomputes per‑stratum Spearman ρ, applies Holm‑Bonferroni.*  
+  *Outputs:* `stratum_pvalues_powered.json` and `adjusted_pvalues_powered.json`.  
+  *Verification:* `data/processed/robustness_strata_report.json` – validates both JSON files against `results_schema.schema.yaml`.
 
-- [ ] T602 [D] **Holm‑Bonferroni on Powered Strata** – `data/processed/adjusted_pvalues_powered.json`  
-  *Applies correction to the powered‑only p‑values.*
+- [ ] T602 [D] **Fit Hierarchical Mixed‑Effects Model** – `code/src/robustness.py`  
+  *Creates `mixed_effects_data.csv` (merged entropy, convergence, and stratum metadata) and fits `statsmodels.MixedLM` with random intercepts for `difficulty_stratum`.*  
+  *Outputs:* `mixed_effects_results.json`.  
+  *Verification:* `data/processed/mixed_effects_report.json` – checks model convergence diagnostics and schema compliance.
 
-- [ ] T603 [D] **Prepare Mixed‑Effects Dataset** – `data/processed/mixed_effects_data.csv`  
-  *Merges entropy, convergence (full, including k = 4), and split metadata; retains all strata.*
+- [ ] T603 [D] **Sensitivity Sweep Over Convergence Thresholds (k = 2,3,4)** – `code/src/robustness.py`  
+  *Computes Spearman ρ for each threshold, records variation, and flags stability.*  
+  *Outputs:* `sensitivity_sweep.json`.  
+  *Verification:* `data/processed/sensitivity_report.json` – ensures JSON contains entries for each k and confidence intervals.
 
-- [ ] T604 [D] **Fit Hierarchical Mixed‑Effects Model** – `data/processed/mixed_effects_results.json`  
-  *Uses `statsmodels.MixedLM` with random intercepts for `strata_name`; formula `entropy ~ convergence_step`. Stores coefficients, standard errors, and model fit statistics.*
-
-- [ ] T605 [D] **Sensitivity Sweep Over Convergence Thresholds (k = 2,3,4)** – `data/processed/sensitivity_sweep.json`  
-  *Computes Spearman ρ for each threshold, records variation, and flags stability.*
-
-- [ ] T606 [D] **Merge Robustness Outputs** – `data/processed/robustness_summary.json`  
-  *Combines `adjusted_pvalues_powered.json`, `mixed_effects_results.json`, and `sensitivity_sweep.json` into a single JSON summary.*
+- [ ] T604 [D] **Merge All Robustness Outputs** – `code/src/robustness.py`  
+  *Aggregates the three previous JSONs into a single `robustness_summary.json`.  
+  *Verification:* `data/processed/robustness_summary_validation.json` – confirms the file contains the expected keys and passes schema checks.
 
 ---
 
 ## Phase 7 – GPU Off‑load Execution (critical path)
 
-- [ ] T701 [P] **Finalize Kaggle GPU Script** – `code/run_gpu.sh` (already present, verified).  
+- [ ] T702 [D] **Submit Full‑Scale GPU Job** – `code/run_gpu.sh`  
+  *The script orchestrates the entire pipeline from T101 through T604 on a Kaggle GPU (automatic off‑load if CUDA unavailable on CPU runner).*  
+  *Verification:* `data/processed/gpu_job_log.json` – records start/end timestamps, exit codes for each sub‑command, and confirms that the script completed without error.
 
-- [ ] T702 [D] **Submit Full‑Scale GPU Job** – uses `run_gpu.sh` to execute the full pipeline (T101 → T509).  
+- [ ] T703 [D] **Download All GPU‑Generated Artifacts** – `code/run_gpu.sh` (download step)  
+  *Pulls the complete `data/processed/` directory from the Kaggle run into the local repository.*  
+  *Verification:* `data/processed/download_integrity.json` – lists each expected artifact with its SHA‑256 checksum and confirms presence.
 
-- [ ] T703 [D] **Download GPU‑Generated Artifacts** – pulls the `data/processed/` directory from the completed Kaggle run.  
-
-- [ ] T704 [D] **Verify GPU Artifacts** – `data/processed/gpu_artifact_integrity.json`  
-  *Checks existence and SHA‑256 checksums of `entropy_results.csv`, `convergence_results_core.csv`, `router_results.csv`, and all JSON result files; confirms schema compliance.*
+- [ ] T704 [D] **Verify GPU Artifacts Integrity & Schema Compliance** – `code/src/verification.py`  
+  *Checks existence, non‑emptiness, and schema compliance of every core output (`entropy_results.csv`, `convergence_results_core.csv`, `correlation_results_final.json`, `router_results.csv`, `robustness_summary.json`, etc.).*  
+  *Outputs:* `verification_report.json` (overall pass/fail summary).  
 
 ---
 
 ## Phase 8 – Final Aggregation & Handoff
 
 - [ ] T801 [D] **Assemble Final Research Report** – `paper/final_report.md`  
-  *Links to all result artifacts, includes tables/figures generated directly from JSON/CSV files, reports significance flags, power analysis outcomes, and FLOPs savings.*
+  *Links to all result artifacts, includes tables/figures generated directly from the JSON/CSV files, reports significance flags, power‑analysis outcomes, FLOPs‑savings summary, and robustness findings.*  
+  *Verification:* `paper/final_report_validation.json` – confirms that every referenced artifact exists and that figure generation scripts (in `code/src/figures.py`) ran without error.
 
 - [ ] T802 [D] **Update Quick‑Start for End‑Users** – `quickstart.md`  
-  *Adds a “Run Full GPU Study” section that points to `code/run_gpu.sh` and describes how to reproduce the results locally (including streaming loader option).*
+  *Adds a “Run Full GPU Study” section describing the single‑command invocation (`bash code/run_gpu.sh`) and how to reproduce results locally (including streaming loader option).*
 
 - [ ] T803 [D] **Create Reproducibility Manifest** – `data/processed/reproducibility_manifest.json`  
-  *Lists every input file, its checksum, the exact command line used to generate each downstream artifact, and the git commit hash of the code at execution time.*
+  *Lists every input file, its checksum, the exact command line used to generate each downstream artifact, the git commit hash of the code at execution time, and the random seed.*  
+  *Verification:* `data/processed/manifest_validation.json` – validates manifest completeness.
 
-- [ ] T804 [D] **Run Comprehensive Verification Suite** – `code/src/verification.py` → `verification_report.json`  
-  *Automated script that (1) validates all schema files, (2) checks that every required artifact exists and is non‑empty, (3) confirms that all statistical thresholds (p < 0.05, δ = 0.05) are met or appropriately reported, and (4) produces a pass/fail summary for the entire project.*
+- [ ] T804 [D] **Run Comprehensive Verification Suite** – `code/src/verification.py` → `verification_report.json` (re‑run after all artifacts are in place).  
+  *Automated script that (1) validates all schema files, (2) checks that every required artifact exists and is non‑empty, (3) confirms that all statistical thresholds (p < 0.05, δ = 0.05) are met or appropriately reported, and (4) produces a pass/fail summary for the entire project.*  
 
 ---
 
@@ -311,19 +269,24 @@ description: "Task list for llmXive follow‑up: extending LoopCoder‑v2"
 |------|------------|
 | T101 | T004f‑split‑logic, T004c, T004d |
 | T102 | T101 |
-| T103 | T102 |
 | T201 | T102 |
 | T202 | T201 |
 | T301 | T102 |
 | T302 | T102 |
 | T303 | T301 |
-| T401‑T406 | T202, T303 |
-| T501‑T509 | T406, T301 |
-| T601‑T606 | T406, T303 |
-| T702 | T701, T401‑T509, T601‑T606 |
-| T704 | T702 |
+| T401 | T202, T303 |
+| T501 | T401 |
+| T502 | T501 |
+| T503 | T502 |
+| T504 | T503 |
+| T505 | T504 |
+| T601 | T401 |
+| T602 | T601 |
+| T603 | T401 |
+| T604 | T602, T603 |
+| T702 | T101‑T604 |
+| T703 | T702 |
+| T704 | T703 |
 | T801‑T804 | All preceding tasks |
 
----
-
-> **Note:** All tasks that produce files are designed to be *deterministic* given the same random seed (`RANDOM_SEED = 42`). The GPU off‑load mechanism will automatically re‑run the same commands on a Kaggle GPU if a CPU‑only run fails due to CUDA requirements, satisfying the “real GPU computation” rule.
+> **Note:** All tasks that produce files are deterministic given the same random seed (`RANDOM_SEED = 42`). The GPU off‑load mechanism will automatically re‑run the same commands on a Kaggle GPU if a CPU‑only run fails due to CUDA requirements, satisfying the “real GPU computation” rule.
