@@ -1,18 +1,15 @@
 status: none
-intent: download Arabidopsis rice wheat drought salinity heat proteomics transcriptomics
-  GEO ProteomeXchange Ensembl Plants python package dataset
+intent: plant stress proteogenomics GEO ProteomeXchange EnsemblPlants python package
+  dataset
 required_fields:
+- sample_id
 - species
 - stress_condition
-- sample_id
-- protein_accession
-- protein_abundance
+- protein_id
 - gene_id
+- protein_abundance
 - transcript_expression
-- experiment_accession
-- publication_date
-- tissue_type
-- organism_tax_id
-cache_key: d95a3689e805bc7579791fcfecee6b839fb3a0e3ca71c6813aa0f485b07e02f2
-searched_at: '2026-10-11T11:12:31.533713+00:00'
+- metadata_source
+cache_key: 2bb0a956ab1f9b8479b88cfbac20a6590f2aabc9e4167bcd6f229af57ee264ad
+searched_at: '2026-10-11T14:10:55.894027+00:00'
 retry_count: 1

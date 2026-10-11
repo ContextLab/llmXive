@@ -1,84 +1,53 @@
 """
-Logging configuration utilities for the project.
+Compatibility wrapper for logging configuration.
 
-Provides a simple wrapper around the standard ``logging`` module that writes
-INFO and WARNING level messages to ``logs/pipeline.log``. All pipeline
-modules import :func:`get_logger` from this module, ensuring a single
-source of truth for log handling.
+This module provides the same public functions that were previously
+defined in the original ``utils.logging_config`` module, but all of them
+now delegate to the project‑wide logger implementation in
+``utils.logger``.  By centralising the logger creation here we guarantee
+that every pipeline component that imports ``get_logger`` (or the helper
+``setup_logging`` / ``log_warning``) uses the single logger that writes to
+``logs/pipeline.log``.
 """
-import logging
-from pathlib import Path
 
-from .config import LOG_PATH, LOG_LEVEL, LOG_MAX_BYTES, LOG_BACKUP_COUNT
+from .logger import get_logger as _get_logger
 
-# Ensure the logs directory exists at import time – this is safe because the
-# path is a simple constant and the operation is idempotent.
-LOG_PATH.mkdir(parents=True, exist_ok=True)
+__all__ = [
+    "get_logger",
+    "setup_logging",
+    "log_warning",
+]
 
-_loggers = {}
-
-def _configure_root_logger() -> None:
+def get_logger(name: str = __name__):
     """
-    Configure the root logger with a rotating file handler that writes to
-    ``logs/pipeline.log``. This function is idempotent; calling it multiple
-    times has no adverse effect.
+    Return the shared project logger.
+
+    This is a thin wrapper around ``utils.logger.get_logger`` so that
+    existing import statements (e.g. ``from utils.logging_config import
+    get_logger``) continue to work without modification.
     """
-    root = logging.getLogger()
-    if root.handlers:
-        # Assume configuration has already been performed.
-        return
+    return _get_logger(name)
 
-    root.setLevel(LOG_LEVEL.upper())
-
-    # Rotating file handler – limits size and keeps a few backups.
-    file_handler = logging.handlers.RotatingFileHandler(
-        LOG_PATH / "pipeline.log",
-        maxBytes=LOG_MAX_BYTES,
-        backupCount=LOG_BACKUP_COUNT,
-        encoding="utf-8",
-    )
-    formatter = logging.Formatter(
-        fmt="%(asctime)s %(levelname)s %(name)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    file_handler.setFormatter(formatter)
-    root.addHandler(file_handler)
-
-    # Also output to stdout for immediate feedback during interactive runs.
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    root.addHandler(stream_handler)
-
-def setup_logging() -> None:
+def setup_logging(log_file=None, log_level=None):
     """
-    Public entry point used by the pipeline to initialise logging.
-    It simply forwards to ``_configure_root_logger``.
+    Initialise logging for a script.
+
+    The underlying logger is already configured to write to
+    ``logs/pipeline.log``; this helper simply returns that logger and,
+    optionally, adjusts its level.
     """
-    _configure_root_logger()
-
-def get_logger(name: str = __name__) -> logging.Logger:
-    """
-    Retrieve a named logger. The first call creates and configures the
-    underlying logging system; subsequent calls return the cached logger.
-
-    Args:
-        name: Name of the logger (typically ``__name__``).
-
-    Returns:
-        A ``logging.Logger`` instance.
-    """
-    if name in _loggers:
-        return _loggers[name]
-
-    # Ensure the root logger is configured before creating child loggers.
-    _configure_root_logger()
-    logger = logging.getLogger(name)
-    _loggers[name] = logger
+    logger = _get_logger()
+    if log_level is not None:
+        logger.setLevel(log_level)
+    # ``log_file`` is ignored because the logger always writes to the
+    # canonical pipeline log file defined in ``utils.logger``.
     return logger
 
-def log_warning(message: str) -> None:
+def log_warning(message: str):
     """
-    Convenience helper used by a few legacy modules that previously
-    imported ``log_warning`` directly from ``utils.logging_config``.
+    Convenience wrapper used by older modules.
+
+    Logs a warning message using the shared project logger.
     """
-    get_logger(__name__).warning(message)
+    logger = _get_logger()
+    logger.warning(message)

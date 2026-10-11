@@ -7,10 +7,10 @@ The tasks below follow the three‑phase research template (setup → full s
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] T001 Create project skeleton: directories `data/raw/`, `data/processed/`, `logs/`, `docs/`, `results/`; add `requirements.txt`; create `code/main.py` with a `--stage noop` option that exits 0; generate a directory‑tree listing `docs/structure.txt`.   <!-- FAILED-IN-EXECUTION: code/verify_noop.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_noop.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_noop.py exit=1 -->
+- [X] T001 Create project skeleton: directories `data/raw/`, `data/processed/`, `logs/`, `docs/`, `results/`; add `requirements.txt`; create `code/main.py` with a `--stage noop` option that exits 0; generate a directory‑tree listing `docs/structure.txt`.
   **Verification**: `docs/structure.txt` contains a tree listing; `python -m code.main --stage noop` exits 0; the command documented in `quickstart.md` runs successfully on a clean runner.
 
-- [ ] T006 Configure project‑wide logging: add `code/utils/logger.py` that writes INFO/WARN messages to `logs/pipeline.log`. Ensure all pipeline modules import and use this logger.  
+- [ ] T006 Configure project‑wide logging: add `code/utils/logger.py` that writes INFO/WARN messages to `logs/pipeline.log`. Ensure all pipeline modules import and use this logger.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   **Verification**: `logs/pipeline.log` exists after any pipeline run and contains entries for dropped rows, missing columns, and any raised errors.
 
 - [ ] T002 Implement real‑data ingestion: add `code/data/download.py` and `code/utils/checksums.py` to stream download GEO/ProteomeXchange files, verify SHA‑256 checksums, and raise exceptions on failure (no silent fallback).  
