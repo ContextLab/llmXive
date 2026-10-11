@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-10-11T16:06:56.795985+00:00'
+last_used: alan-turing
+last_used_at: '2026-10-11T18:06:01.515542+00:00'
 last_outcome: committed
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-24T05:20:29.970821+00:00'
-  ended_at: '2026-06-24T06:48:06.240499+00:00'
-  outcome: abstained
-  action: abstain
 - slug: linus-pauling
   started_at: '2026-06-24T06:48:06.240499+00:00'
   ended_at: '2026-06-24T08:10:21.293511+00:00'
@@ -1226,3 +1221,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/reviews/research/ada-lovelace-simulated__2026-10-11__research.md
+- slug: alan-turing
+  started_at: '2026-10-11T16:06:56.795985+00:00'
+  ended_at: '2026-10-11T18:06:01.515542+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-947-llmxive-follow-up-extending-wbench-a-com/reviews/research/alan-turing-simulated__2026-10-11__research.md
