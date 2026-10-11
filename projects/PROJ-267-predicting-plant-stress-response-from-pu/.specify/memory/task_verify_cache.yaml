@@ -1,14 +1,13 @@
 T001:
-  c: true
-  h: d7e782ecb9a6c070aa552599f45eac4709019e32eeae5507db609bf8cf0933a1
-  r: "All required artifacts exist and match the task: `data/raw/`, `data/processed/`,\
-    \ `logs/`, `docs/`, `results/` directories are present (with .gitkeep markers),\
-    \ `requirements.txt` is non-empty with real dependencies, `code/main.py` implements\
-    \ `--stage noop` returning exit code 0, and `docs/structure.txt` contains a full\
-    \ directory tree listing. The historical execution log confirms `python -m code.main\
-    \ --stage noop` ran with exit code 0, and the main.py import chain (`utils.logging_config`\
-    \ \u2192 `code.utils`) is backed by existing shim modules so the run is reproducible."
-  sig: b75c81eaf35236953c90994e074969ded348118bd5ef450fd1fe739d64eaeb4b
+  c: false
+  h: 125da1730d8437bfb7ede299248ea6b284b13ae19a73141bc9e909497262a4b0
+  r: "The skeleton directories, `requirements.txt`, `code/main.py` with a `--stage\
+    \ noop` option, and `docs/structure.txt` are present and contain appropriate content.\
+    \ However, there is no execution evidence showing that `python -m code.main --stage\
+    \ noop` actually exits\u202F0, nor any proof that the commands documented in `quickstart.md`\
+    \ run successfully on a clean runner. Execution logs or test results are required\
+    \ to satisfy those verification steps."
+  sig: 5d6c9a7d7a073a36ea392ecae9deded780f872fd06044d243430691249063d68
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,6 +23,16 @@ T005:
     \ for the `data/raw/` and `data/processed/` directories are present in the provided\
     \ evidence. The required artifact (validation implementation) is missing, so the\
     \ task is not satisfied."
+T006:
+  c: false
+  h: 7d9c78bd84906ac45baf53da8f40a291165018cabaadfbd79b075ec0620b0fcf
+  r: The repository contains a `code/utils/logger.py` that correctly configures a
+    logger writing to `logs/pipeline.log`, and a verification script reports success,
+    but there is no actual `logs/pipeline.log` file shown nor evidence that other
+    pipeline modules import and use this logger. Without the real log file containing
+    the required INFO/WARN entries and import usage across the codebase, the task
+    is not fully satisfied.
+  sig: 670838268fd1612a18d7b4f35c1bee1968810f87a0dbaea675dbad7457d6d976
 T012:
   c: false
   h: 4196c01992af3b9c57e273d5a0d9687585e94c1533e876bf1e995b8d147e7541

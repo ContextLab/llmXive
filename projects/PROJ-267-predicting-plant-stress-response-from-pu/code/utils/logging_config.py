@@ -7,7 +7,7 @@ now delegate to the project‑wide logger implementation in
 ``utils.logger``.  By centralising the logger creation here we guarantee
 that every pipeline component that imports ``get_logger`` (or the helper
 ``setup_logging`` / ``log_warning``) uses the single logger that writes to
-``logs/pipeline.log``.
+`logs/pipeline.log`.
 """
 
 from .logger import get_logger as _get_logger

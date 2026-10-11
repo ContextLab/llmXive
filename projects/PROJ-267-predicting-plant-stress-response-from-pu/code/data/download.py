@@ -3,7 +3,7 @@ Real‑data ingestion script.
 
 This script downloads a small publicly available file from NCBI GEO,
 stores it under ``data/raw/``, and generates a SHA‑256 checksum file
-``data/raw/checksums.sha256``.  All operations are strict: any network
+``data/raw/checksums.sha256``. All operations are strict: any network
 error or checksum mismatch raises an exception and aborts the pipeline.
 """
 
@@ -13,14 +13,14 @@ from pathlib import Path
 
 # Project utilities
 from utils.logging_config import get_logger
-from utils.config import get_data_path
 from utils.checksums import (
     generate_checksums_for_directory,
-    compute_sha256,
 )
-
 # Re‑use the robust download implementation from the existing module
 from data_ingestion.download import download_file
+
+# llmxive toolkit paths helper for reliable project‑wide directories
+from llmxive_toolkit import paths
 
 logger = get_logger(__name__)
 
@@ -60,11 +60,12 @@ def write_checksum_file(directory: Path, checksum_path: Path):
     to *checksum_path* in the classic ``<checksum>  <relative_path>`` format.
     """
     logger.info(f"Generating checksums for directory {directory}")
+    # ``generate_checksums_for_directory`` expects a string path
     checksums = generate_checksums_for_directory(str(directory))
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with open(checksum_path, "w") as f:
         for rel_path, checksum in checksums.items():
-            f.write(f"{checksum}  {rel_path}\n")
+            f.write(f"{checksum}  {rel_path}\\n")
     logger.info(f"Checksum file written to {checksum_path}")
 
 # ----------------------------------------------------------------------
@@ -78,7 +79,8 @@ def main():
     2. Verify that the file size is > 1 KB (handled by ``download_file``).
     3. Generate ``checksums.sha256`` for everything under ``data/raw/``.
     """
-    raw_dir = get_data_path() / "raw"
+    # Use the toolkit to obtain a reliable ``data/raw`` directory
+    raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     # Step 1 – download
