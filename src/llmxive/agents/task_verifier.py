@@ -667,6 +667,29 @@ def claimed_done_keys(tasks_text: str) -> set[str]:
     return out
 
 
+def _definition_signature(lines: list[str], i: int, rest: str) -> str:
+    """Hash of what task line ``i`` asks for, without marks and annotations."""
+    definition = rest.strip() + task_continuation(lines, i)
+    definition = re.sub(r"<!--.*?-->", "", definition, flags=re.DOTALL)
+    return _evidence_hash(" ".join(_VOLATILE_MARK_RE.sub("", definition).split()))
+
+
+def definition_signatures(tasks_text: str) -> dict[str, str]:
+    """``{task key: signature of its current definition}``.
+
+    A re-plan reuses task ids for different work (batch 1, 2026-10-11: 40 of 74
+    ids carried more than one definition within a run), so a history kept per
+    id alone mixes unrelated tasks.
+    """
+    lines = tasks_text.splitlines()
+    out: dict[str, str] = {}
+    for i, key in task_keys(lines).items():
+        match = _TASK_LINE_RE.match(lines[i])
+        if match is not None:
+            out[key] = _definition_signature(lines, i, match.group(3))
+    return out
+
+
 def task_verification_state_path(project_dir: Path, tasks_path: Path) -> Path:
     root = project_dir / "paper" if tasks_path.resolve().is_relative_to((project_dir / "paper").resolve()) else project_dir
     return root / ".specify/memory/task_verify.yaml"
@@ -895,10 +918,7 @@ def run_verification_pass(
     for i, key in keys.items():
         match = _TASK_LINE_RE.match(lines[i])
         assert match is not None
-        definition = match.group(3).strip() + task_continuation(lines, i)
-        definition = re.sub(r"<!--.*?-->", "", definition, flags=re.DOTALL)
-        definition = " ".join(_VOLATILE_MARK_RE.sub("", definition).split())
-        signature = _evidence_hash(definition)
+        signature = _definition_signature(lines, i, match.group(3))
         previous = feedback.get(key)
         if isinstance(previous, dict) and previous.get("task") == signature:
             current_feedback[key] = {"task": signature}
@@ -1082,7 +1102,8 @@ def run_verification_pass(
     for entry in ledger:
         values = _LEDGER_VALUES.get(entry["kind"])
         if values:
-            scorecard.record(state_path.parent, entry["task"], entry["kind"], dict(values))
+            scorecard.record(state_path.parent, entry["task"], entry["kind"], dict(values),
+                             definition=str(feedback.get(entry["task"], {}).get("task", "")))
     _write_notes(notes_path, [
         (key, entry["reason"]) for key, entry in feedback.items() if entry.get("reason")
     ])

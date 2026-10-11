@@ -9,12 +9,16 @@ observations changed nothing. None of that was visible to the pipeline.
 The harness, never a model, appends one line per observation to
 ``<memory dir>/scorecard.jsonl``::
 
-    {"at": ..., "task": "T005", "source": "run", "values": {"run:code/a.py": 1,
-     "test:tests/test_a.py::test_sum": 0}}
+    {"at": ..., "task": "T005", "definition": "<hash>", "source": "run",
+     "values": {"run:code/a.py --n 10": 1, "test:tests/test_a.py::test_sum": 0}}
+
+``definition`` is the hash of what the task asked for when the observation was
+made: a re-plan reuses task ids for different work, and their histories must
+not be read as one.
 
 Criteria and their values:
 
-* ``run:<script>`` -- 1 when the script exited 0, else 0.
+* ``run:<script> <arguments>`` -- 1 when that command exited 0, else 0.
 * ``test:<pytest node id>`` -- 1 when the test passed, else 0.
 * ``files`` -- 0 when a required file is missing or invalid.
 * ``judge`` -- 1 when the independent verifier accepted the task, else 0.
@@ -43,22 +47,27 @@ def scorecard_path(memory_dir: Path) -> Path:
     return memory_dir / SCORECARD_NAME
 
 
-def run_values(script: str, returncode: int, stdout: str, *, is_test: bool) -> Values:
-    """The criteria one executed script or test module settles."""
-    values: Values = {f"run:{script}": int(returncode == 0)}
+def run_values(script: str, args: object, returncode: int, stdout: str, *, is_test: bool) -> Values:
+    """The criteria one executed script or test module settles.
+
+    The same script run with other arguments is another check: 33 of 112
+    scripts in batch 1 ran under two or more tasks.
+    """
+    command = " ".join([script, *(str(arg) for arg in args)]) if isinstance(args, list) and not is_test else script
+    values: Values = {f"run:{command}": int(returncode == 0)}
     if is_test:
         for node, outcome in _PYTEST_LINE.findall(stdout):
             values[f"test:{node}"] = int(outcome == "PASSED")
     return values
 
 
-def record(memory_dir: Path, task: str, source: str, values: Values) -> None:
+def record(memory_dir: Path, task: str, source: str, values: Values, *, definition: str = "") -> None:
     """Append one observation. A measurement never fails the step it measures."""
     if not values:
         return
     line = json.dumps({
         "at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),
-        "task": task, "source": source, "values": values,
+        "task": task, "definition": definition, "source": source, "values": values,
     }, sort_keys=True)
     try:
         memory_dir.mkdir(parents=True, exist_ok=True)
@@ -68,8 +77,9 @@ def record(memory_dir: Path, task: str, source: str, values: Values) -> None:
         LOGGER.warning("[scorecard] could not append to %s: %s", scorecard_path(memory_dir), exc)
 
 
-def history(memory_dir: Path, task: str | None = None) -> list[dict]:
-    """Every observation in the order it was made, optionally for one task."""
+def history(memory_dir: Path, task: str | None = None, *, definition: str | None = None) -> list[dict]:
+    """Every observation in the order it was made, optionally for one task
+    and one definition of it."""
     try:
         text = scorecard_path(memory_dir).read_text(encoding="utf-8")
     except OSError:
@@ -80,15 +90,16 @@ def history(memory_dir: Path, task: str | None = None) -> list[dict]:
             row = json.loads(line)
         except ValueError:
             continue  # a torn final line from an interrupted run
-        if isinstance(row, dict) and isinstance(row.get("values"), dict) and (task is None or row.get("task") == task):
+        if isinstance(row, dict) and isinstance(row.get("values"), dict) and (task is None or row.get("task") == task) and (
+                definition is None or row.get("definition") == definition):
             rows.append(row)
     return rows
 
 
-def current(memory_dir: Path, task: str) -> Values:
+def current(memory_dir: Path, task: str, *, definition: str | None = None) -> Values:
     """The latest value of every criterion ever observed for ``task``."""
     state: Values = {}
-    for row in history(memory_dir, task):
+    for row in history(memory_dir, task, definition=definition):
         state.update(row["values"])
     return state
 

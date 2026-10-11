@@ -154,3 +154,26 @@ def test_which_run_wrote_a_file_does_not_change_what_was_verified(tmp_path: Path
     (project / "data/results.md").write_text("different\n", encoding="utf-8")
     changed = task_verifier.gather_evidence(project, task)
     assert task_verifier._verification_hash(task, "", changed) != task_verifier._verification_hash(task, "", after)
+
+
+def test_a_reply_may_not_hand_write_a_file_a_script_produces(tmp_path: Path) -> None:
+    """Batch 1 run 2 (2026-10-11): a reply for T019 wrote `data/benchmark_report.txt`
+    itself (10.0 s, 100.0 MB, dated 2026-01-01) over the report the benchmark
+    script had measured. The tests of the tasks that owned the report still passed."""
+    project = _send(tmp_path, "T008", "code/write_methods_doc.py", METHODS)
+    measured = (project / "data/results.md").read_text(encoding="utf-8")
+    feature = project / "specs/001-study"
+    document = {"task_id": "T009", "verdict": "completed", "artifacts": [
+        {"path": "data/results.md", "contents": "# Methods\n\nwall_time: 10.0 s\n"}]}
+    ImplementerAgent().write_artifacts(
+        SimpleNamespace(project_dir=project, project_id=project.name),
+        {"tasks_path": str(feature / "tasks.md"), "feature_dir": str(feature),
+         "next_task_id": "T009", "all_complete": False},
+        ChatResponse(text=yaml.safe_dump(document), model="test", backend="dartmouth"))
+    assert (project / "data/results.md").read_text(encoding="utf-8") == measured
+    refusal = (project / "code/.tasks/T009.artifact-write.log").read_text(encoding="utf-8")
+    assert "`data/results.md` is produced by running `code/write_methods_doc.py` (T008)" in refusal
+    assert "- [ ] T009" in (feature / "tasks.md").read_text(encoding="utf-8")
+    # The script itself can still be changed, and a file no run produced can be written.
+    _send(tmp_path, "T009", "code/write_methods_doc.py", METHODS.replace("kept", "kept again"))
+    assert (project / "data/methods_only.txt").read_text(encoding="utf-8") == "kept again\n"

@@ -501,6 +501,23 @@ class ImplementerAgent(SlashCommandAgent):
                             f"this task's `artifacts` list."
                         )
                         continue
+                # A file some script's run produced is that script's output.
+                # Written by hand it is an invented result that the producing
+                # task's tests may still pass (batch 1 run 2, 2026-10-11: a
+                # hand-written benchmark report replaced the measured one).
+                from llmxive.speckit import output_writers
+                produced_by = output_writers.last_writer(
+                    project_root, target.relative_to(project_root).as_posix(),
+                    mechanical_output.get("task_log_dir", "code/.tasks"))
+                if produced_by and not relpath.endswith((".py", ".sh")):
+                    refuse(
+                        f"[implementer] refusing to write {relpath!r}: "
+                        f"`{target.relative_to(project_root).as_posix()}` is produced by running "
+                        f"`{produced_by[0]}`" + (f" ({produced_by[1]})" if produced_by[1] else "")
+                        + ". Change that script so it writes the right content and request "
+                        "its execution; do not write its output by hand."
+                    )
+                    continue
                 recovered = prepare_artifact_directory(project_root, target.parent)
                 written.extend(str(path.relative_to(repo)) for path in recovered)
                 target.write_text(contents, encoding="utf-8")
@@ -634,12 +651,16 @@ class ImplementerAgent(SlashCommandAgent):
                 )
                 written.append(str(log_path.relative_to(repo)))
                 # One number per executed check, kept over time (see scorecard).
-                from llmxive.agents.task_verifier import task_verification_state_path
+                from llmxive.agents.task_verifier import (
+                    definition_signatures,
+                    task_verification_state_path,
+                )
                 from llmxive.speckit import scorecard
+                tasks_file = Path(mechanical_output["tasks_path"])
                 scorecard.record(
-                    task_verification_state_path(project_root, Path(mechanical_output["tasks_path"])).parent,
-                    task_id, "run",
-                    scorecard.run_values(relpath, result.returncode, result.stdout, is_test=is_test))
+                    task_verification_state_path(project_root, tasks_file).parent, task_id, "run",
+                    scorecard.run_values(relpath, script_args, result.returncode, result.stdout, is_test=is_test),
+                    definition=definition_signatures(tasks_file.read_text(encoding="utf-8")).get(task_id, ""))
                 registry = log_path.parent / output_writers.REGISTRY_NAME
                 if registry.is_file() and str(registry.relative_to(repo)) not in written:
                     written.append(str(registry.relative_to(repo)))

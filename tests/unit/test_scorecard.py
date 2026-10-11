@@ -59,6 +59,38 @@ def test_a_test_module_records_one_number_per_test(tmp_path: Path) -> None:
     assert scorecard.current(memory, "T001") == {"run:code/make.py": 1}
 
 
+def test_arguments_and_the_task_definition_are_part_of_the_record(tmp_path: Path) -> None:
+    from llmxive.agents.task_verifier import definition_signatures
+
+    project = tmp_path / "projects/PROJ-913-scorecard"
+    feature = project / "specs/001-study"
+    feature.mkdir(parents=True)
+    tasks = feature / "tasks.md"
+    memory = project / ".specify/memory"
+
+    def send(args: list) -> None:
+        document = {"task_id": "T001", "verdict": "completed", "artifacts": [
+            {"path": "code/make.py", "execute": True, "args": args,
+             "contents": "import sys\nraise SystemExit(0 if sys.argv[1:] == ['--n', '3'] else 2)\n"}]}
+        ImplementerAgent().write_artifacts(
+            SimpleNamespace(project_dir=project, project_id=project.name),
+            {"tasks_path": str(tasks), "feature_dir": str(feature), "next_task_id": "T001", "all_complete": False},
+            ChatResponse(text=yaml.safe_dump(document), model="test", backend="dartmouth"))
+
+    tasks.write_text("- [ ] T001 Run `code/make.py --n 3`\n", encoding="utf-8")
+    first = definition_signatures(tasks.read_text(encoding="utf-8"))["T001"]
+    send(["--n", 3])
+    send(["--n", 4])
+    assert scorecard.current(memory, "T001") == {"run:code/make.py --n 3": 1, "run:code/make.py --n 4": 0}
+    # A re-plan gives the id to other work: its history starts empty.
+    tasks.write_text("- [ ] T001 Run `code/make.py --n 4` instead\n", encoding="utf-8")
+    second = definition_signatures(tasks.read_text(encoding="utf-8"))["T001"]
+    assert first != second
+    send(["--n", 4])
+    assert scorecard.current(memory, "T001", definition=second) == {"run:code/make.py --n 4": 0}
+    assert len(scorecard.history(memory, "T001", definition=first)) == 2
+
+
 def test_delta_counts_only_measured_changes() -> None:
     before = {"run:a.py": 1, "test:t::x": 0, "test:t::y": 1, "judge": None}
     after = {"run:a.py": 0, "test:t::x": 1, "test:t::y": 1, "test:t::new": 0, "judge": 1}
