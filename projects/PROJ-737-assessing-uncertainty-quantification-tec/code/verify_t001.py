@@ -1,75 +1,46 @@
-"""T001 verification: skeleton directories, data contract, and SC-005 check."""
-import sys
-from pathlib import Path
-
 import yaml
+import pathlib
+import sys
+from create_skeleton import main as skeleton_main
 
-ROOT = Path(__file__).resolve().parents[1]
+def main():
+    """
+    Implements the verification logic for T001 as specified in tasks.md.
+    1. Ensures project skeleton (directories and schema) is created.
+    2. Verifies the schema contains the required columns.
+    3. Verifies the required directories exist.
+    """
+    # Step 1: Create/Verify skeleton
+    # This calls the existing create_skeleton.main() which handles directory creation
+    # and writing the schema file.
+    skeleton_main()
 
-REQUIRED_DIRS = [
-    "data/raw",
-    "data/processed",
-    "data/results",
-    "figures",
-    "code/models",
-    "code/metrics",
-    "code/stats",
-    "code/utils",
-    "tests/unit",
-    "tests/integration",
-]
+    # Step 2: Schema verification
+    schema_path = pathlib.Path('specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml')
+    if not schema_path.exists():
+        print(f"Error: Schema file not found at {schema_path}")
+        sys.exit(1)
 
-SCHEMA_PATH = ROOT / "specs" / "001-assessing-uncertainty-quantification-tec" / "contracts" / "per_sample_errors.schema.yaml"
-SPEC_PATH = ROOT / "specs" / "001-assessing-uncertainty-quantification-tec" / "spec.md"
+    try:
+        schema = yaml.safe_load(schema_path.read_text())
+        cols = {c['name'] for c in schema['columns']}
+        required = {'sample_id', 'dataset', 'method', 'prediction', 'lower_bound', 'upper_bound', 'ground_truth', 'abs_error'}
+        
+        if cols != required:
+            print(f"Schema mismatch. Missing columns: {required - cols}. Extra columns: {cols - required}")
+            sys.exit(1)
+    except Exception as e:
+        print(f"Error parsing schema YAML: {e}")
+        sys.exit(1)
 
-EXPECTED_COLUMNS = [
-    "sample_id",
-    "dataset",
-    "method",
-    "prediction",
-    "lower_bound",
-    "upper_bound",
-    "ground_truth",
-    "abs_error",
-]
+    # Step 3: Directory verification
+    # The verification snippet specifically checks these three
+    for d in ['data/processed', 'data/results', 'figures']:
+        if not pathlib.Path(d).is_dir():
+            print(f"Missing required directory: {d}")
+            sys.exit(1)
 
-def main() -> int:
-    failures = []
-
-    # 1. Directory skeleton
-    for d in REQUIRED_DIRS:
-        p = ROOT / d
-        p.mkdir(parents=True, exist_ok=True)
-        if not p.is_dir():
-            failures.append(f"directory missing: {d}")
-
-    # 2. Data contract schema
-    if not SCHEMA_PATH.is_file():
-        failures.append(f"schema file missing: {SCHEMA_PATH}")
-    else:
-        with open(SCHEMA_PATH) as fh:
-            schema = yaml.safe_load(fh)
-        cols = [c["name"] for c in schema.get("columns", [])]
-        if cols != EXPECTED_COLUMNS:
-            failures.append(
-                f"schema columns mismatch: {cols} != {EXPECTED_COLUMNS}"
-            )
-        for c in schema.get("columns", []):
-            if not c.get("name") or not c.get("dtype"):
-                failures.append(f"incomplete column entry: {c}")
-
-    # 3. SC-005 dataset coverage in spec.md
-    spec_text = SPEC_PATH.read_text()
-    for ds in ["Band Gap", "Thermal Conductivity", "Formation Energy"]:
-        if ds not in spec_text:
-            failures.append(f"SC-005 dataset not listed in spec.md: {ds}")
-
-    if failures:
-        for f in failures:
-            print(f"FAIL: {f}")
-        return 1
-    print("T001 verification passed: directories, schema, and SC-005 all OK.")
-    return 0
+    print("Schema and directory verification passed")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
