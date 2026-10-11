@@ -41,8 +41,8 @@ check jsonschema
 check matplotlib
 
 if [ "$fail" -ne 0 ]; then
-  echo "env-check FAILED" | tee -a "$LOG"
+  echo "env-check FAILED"
   exit 1
 fi
-echo "env-check PASSED: all required modules importable" | tee -a "$LOG"
+echo "env-check PASSED: all required modules importable"
 exit 0
