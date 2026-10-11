@@ -2,6 +2,8 @@
 Ingestion module for the Social Rejection study.
 Handles downloading, validation, design determination, and citation generation.
 Implements T003: size estimation, streaming download, and dataset manifest creation.
+Updated to use direct ZIP download URLs from OpenNeuro (no reliance on the
+OpenNeuro API host which is not reachable from the CI environment).
 """
 import os
 import sys
@@ -9,6 +11,7 @@ import json
 import hashlib
 import logging
 import shutil
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
@@ -20,15 +23,18 @@ from config import get_path, MAX_RAM_GB
 from data_model import Dataset, PreprocessedRecord, AnalysisResult
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Constants
-OPENNEURO_API_BASE = "https://api.openneuro.org"
 REJECTION_DATASET_ID = "ds000208"
 REWARD_DATASET_ID = "ds003392"
 REQUIRED_COLUMNS_T004 = ["participant_id", "condition", "reaction_time", "mood_rating"]
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def setup_paths():
     """Initialize project paths."""
     base_dir = get_path("project_root")
@@ -57,44 +63,85 @@ def get_process_memory_check():
 def calculate_file_hash(file_path: str, algorithm: str = 'sha256') -> str:
     """Calculate hash of a file."""
     hash_func = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
+    with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_func.update(chunk)
     return hash_func.hexdigest()
 
 def save_checksums(checksums: Dict[str, Dict[str, Any]], state_path: str):
     """Save checksums to state file."""
-    with open(state_path, 'w') as f:
+    with open(state_path, "w") as f:
         json.dump(checksums, f, indent=2)
 
-def estimate_dataset_size_from_api(dataset_id: str) -> float:
+# ----------------------------------------------------------------------
+# Size estimation (HEAD request) – abort if > MAX_RAM_GB
+# ----------------------------------------------------------------------
+def estimate_dataset_size_from_zip(dataset_id: str) -> float:
     """
-    Fetch metadata (size, file count) directly from the OpenNeuro API.
-    Returns estimated size in GB.
+    Perform a HEAD request on the OpenNeuro ZIP download endpoint.
+    Returns size in GB. Exits with code 1 if size exceeds MAX_RAM_GB.
     """
+    zip_url = f"https://openneuro.org/datasets/{dataset_id}/download?format=zip"
     try:
-        api_url = f"{OPENNEURO_API_BASE}/datasets/{dataset_id}/files"
-        response = requests.get(api_url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        total_size_bytes = 0
-        if isinstance(data, list):
-            for file_info in data:
-                total_size_bytes += file_info.get('size', 0)
-        elif isinstance(data, dict) and 'files' in data:
-            for file_info in data['files']:
-                total_size_bytes += file_info.get('size', 0)
-        total_size_gb = total_size_bytes / (1024 ** 3)
-        logger.info(f"Estimated size for {dataset_id}: {total_size_gb:.2f} GB")
-        if total_size_gb > MAX_RAM_GB:
+        head = requests.head(zip_url, timeout=10, allow_redirects=True)
+        head.raise_for_status()
+        size_bytes = int(head.headers.get("Content-Length", 0))
+        size_gb = size_bytes / (1024 ** 3)
+        logger.info(f"Estimated ZIP size for {dataset_id}: {size_gb:.2f} GB")
+        if size_gb > MAX_RAM_GB:
             logger.error(
-                f"Dataset {dataset_id} size ({total_size_gb:.2f} GB) exceeds memory limit ({MAX_RAM_GB} GB)"
+                f"Dataset {dataset_id} estimated size ({size_gb:.2f} GB) exceeds "
+                f"memory limit ({MAX_RAM_GB} GB). Halting."
             )
             sys.exit(1)
-        return total_size_gb
+        return size_gb
     except requests.RequestException as e:
-        logger.error(f"Failed to query OpenNeuro API for {dataset_id}: {e}")
+        logger.error(f"Failed to estimate size for {dataset_id}: {e}")
         sys.exit(1)
+
+# ----------------------------------------------------------------------
+# Download ZIP, extract, and return list of extracted file metadata
+# ----------------------------------------------------------------------
+def download_and_extract_zip(dataset_id: str, raw_dir: str) -> List[Dict[str, Any]]:
+    """
+    Downloads the dataset ZIP, streams it to disk, extracts all files
+    into ``raw_dir`` preserving internal folder structure, and returns a
+    list of metadata dictionaries for each extracted file.
+    """
+    zip_url = f"https://openneuro.org/datasets/{dataset_id}/download?format=zip"
+    zip_path = Path(raw_dir) / f"{dataset_id}.zip"
+    logger.info(f"Downloading ZIP for {dataset_id} → {zip_path}")
+
+    # Stream download to avoid loading whole ZIP into memory
+    with requests.get(zip_url, stream=True, timeout=30) as r:
+        r.raise_for_status()
+        with open(zip_path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+    # Extract
+    logger.info(f"Extracting {zip_path}")
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(raw_dir)
+
+    # Build file list metadata
+    extracted_files = []
+    for file_path in Path(raw_dir).rglob("*"):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(raw_dir)
+            size = file_path.stat().st_size
+            extracted_files.append({
+                "filename": str(rel_path),
+                "size": size,
+                "url": zip_url  # original source URL
+            })
+
+    # Clean up the downloaded ZIP (keep only extracted contents)
+    zip_path.unlink(missing_ok=True)
+
+    logger.info(f"Extracted {len(extracted_files)} files for {dataset_id}")
+    return extracted_files
 
 def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -114,58 +161,13 @@ def _validate_required_columns(df: pd.DataFrame, dataset_name: str) -> None:
         logger.error(f"Dataset '{dataset_name}' is missing required columns: {missing}")
         sys.exit(1)
 
-def fetch_dataset_file_list(dataset_id: str) -> List[Dict[str, Any]]:
-    """Return the list of file metadata dictionaries for a given dataset."""
-    api_url = f"{OPENNEURO_API_BASE}/datasets/{dataset_id}/files"
-    resp = requests.get(api_url, timeout=10)
-    resp.raise_for_status()
-    data = resp.json()
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and "files" in data:
-        return data["files"]
-    else:
-        logger.error(f"Unexpected file list format for dataset {dataset_id}")
-        sys.exit(1)
-
-def stream_download_file(url: str, dest_path: Path):
-    """Download a single file via streaming to dest_path."""
-    # Ensure parent directory exists
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Downloading {url} → {dest_path}")
-    with requests.get(url, stream=True, timeout=30) as r:
-        r.raise_for_status()
-        with open(dest_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-
-def download_dataset(dataset_id: str, raw_dir: str) -> List[Dict[str, Any]]:
-    """
-    Stream‑download all files for a dataset into raw_dir.
-    Returns the list of file metadata dictionaries (as received from the API).
-    """
-    file_list = fetch_dataset_file_list(dataset_id)
-    for file_info in file_list:
-        file_url = file_info.get("url") or file_info.get("download_url")
-        if not file_url:
-            logger.warning(f"No URL found for file entry: {file_info}")
-            continue
-        # Some URLs may be relative; make them absolute if needed
-        if file_url.startswith("/"):
-            file_url = f"https://openneuro.org{file_url}"
-        filename = file_info.get("filename") or file_info.get("path")
-        if not filename:
-            logger.warning(f"No filename for file entry: {file_info}")
-            continue
-        dest_path = Path(raw_dir) / filename
-        stream_download_file(file_url, dest_path)
-    return file_list
-
+# ----------------------------------------------------------------------
+# Locate primary CSV (contains required columns) and copy to canonical name
+# ----------------------------------------------------------------------
 def locate_and_copy_primary_csv(dataset_id: str, raw_dir: str):
     """
-    Search the downloaded raw files for a CSV/TSV that contains the required columns.
-    When found, copy it to raw_dir as 'rejection.csv' or 'reward.csv' for downstream steps.
+    Search the extracted files for a CSV/TSV that contains the required columns.
+    When found, copy it to raw_dir as 'rejection.csv' or 'reward.csv'.
     """
     target_name = "rejection.csv" if dataset_id == REJECTION_DATASET_ID else "reward.csv"
     raw_path = Path(raw_dir)
@@ -179,13 +181,15 @@ def locate_and_copy_primary_csv(dataset_id: str, raw_dir: str):
             continue
         df_sample = _normalize_columns(df_sample)
         if all(col in df_sample.columns for col in REQUIRED_COLUMNS_T004):
-            # Found a suitable file – copy it to the expected name
             shutil.copy(candidate, raw_path / target_name)
             logger.info(f"Primary CSV for dataset {dataset_id} identified and copied to {target_name}")
             return
     logger.error(f"Could not locate a primary CSV with required columns for dataset {dataset_id}")
     sys.exit(1)
 
+# ----------------------------------------------------------------------
+# Condition report (T004)
+# ----------------------------------------------------------------------
 def process_condition_report() -> Dict[str, Any]:
     """
     Loads the primary CSV from each dataset (rejection and reward),
@@ -201,7 +205,6 @@ def process_condition_report() -> Dict[str, Any]:
     rejection_csv = os.path.join(raw_dir, "rejection.csv")
     reward_csv = os.path.join(raw_dir, "reward.csv")
 
-    # Files should already exist after download; if not, abort.
     if not os.path.exists(rejection_csv) or not os.path.exists(reward_csv):
         logger.error("Required CSV files not found after ingestion.")
         sys.exit(1)
@@ -212,7 +215,6 @@ def process_condition_report() -> Dict[str, Any]:
     df_reward = pd.read_csv(reward_csv)
     df_reward = _normalize_columns(df_reward)
 
-    # Validate required schema for BOTH datasets.
     _validate_required_columns(df_rej, "rejection")
     _validate_required_columns(df_reward, "reward")
 
@@ -234,6 +236,9 @@ def process_condition_report() -> Dict[str, Any]:
     logger.info(f"Condition report written to {report_path}")
     return report
 
+# ----------------------------------------------------------------------
+# Overlap and design determination (T005)
+# ----------------------------------------------------------------------
 def process_overlap_and_design() -> None:
     """
     T005 implementation:
@@ -257,7 +262,6 @@ def process_overlap_and_design() -> None:
     df_reward = pd.read_csv(reward_csv)
     df_reward = _normalize_columns(df_reward)
 
-    # Compute unique participant IDs
     rej_ids = sorted(df_rej["participant_id"].astype(str).unique().tolist())
     rew_ids = sorted(df_reward["participant_id"].astype(str).unique().tolist())
 
@@ -304,6 +308,9 @@ def process_overlap_and_design() -> None:
         json.dump(metadata, f, indent=2)
     logger.info(f"Metadata updated at {metadata_path}")
 
+# ----------------------------------------------------------------------
+# Dataset manifest (T003)
+# ----------------------------------------------------------------------
 def write_dataset_manifest(manifest_entries: List[Dict[str, Any]], raw_dir: str):
     """Write the dataset manifest JSON file into the raw directory."""
     manifest_path = os.path.join(raw_dir, "dataset_manifest.json")
@@ -311,21 +318,42 @@ def write_dataset_manifest(manifest_entries: List[Dict[str, Any]], raw_dir: str)
         json.dump(manifest_entries, f, indent=2)
     logger.info(f"Dataset manifest written to {manifest_path}")
 
+# ----------------------------------------------------------------------
+# Citation generation (T006 – part of ingestion)
+# ----------------------------------------------------------------------
+def write_citation_file():
+    """
+    Creates data/raw/CITATION.md citing both OpenNeuro datasets with DOI
+    and the access date.
+    """
+    citation_path = Path(get_path("raw")) / "CITATION.md"
+    access_date = datetime.utcnow().strftime("%Y-%m-%d")
+    content = (
+        f"# Dataset Citations\n\n"
+        f"- ds000208 (Rejection): DOI 10.18112/openneuro.ds000208.v1.0.0, accessed {access_date}\n"
+        f"- ds003392 (Reward):   DOI 10.18112/openneuro.ds003392.v1.0.0, accessed {access_date}\n"
+    )
+    citation_path.write_text(content, encoding="utf-8")
+    logger.info(f"Citation file written to {citation_path}")
+
+# ----------------------------------------------------------------------
+# Main ingestion entry point
+# ----------------------------------------------------------------------
 def run_ingestion():
-    """Main entry point for the ingestion pipeline (T003, T004, T005)."""
+    """Main entry point for the ingestion pipeline (T003‑T006)."""
     paths = setup_paths()
     raw_dir = paths["raw"]
 
     manifest_entries = []
 
     for dataset_id in [REJECTION_DATASET_ID, REWARD_DATASET_ID]:
-        # 1. Estimate size and enforce memory limit
-        estimate_dataset_size_from_api(dataset_id)
+        # 1. Estimate size (via HEAD) and enforce memory limit
+        estimate_dataset_size_from_zip(dataset_id)
 
-        # 2. Stream‑download all files
-        file_list = download_dataset(dataset_id, raw_dir)
+        # 2. Download ZIP and extract
+        file_list = download_and_extract_zip(dataset_id, raw_dir)
 
-        # 3. Identify primary CSV and copy to expected name
+        # 3. Identify primary CSV and copy to canonical name
         locate_and_copy_primary_csv(dataset_id, raw_dir)
 
         # 4. Build manifest entry for this dataset
@@ -342,11 +370,14 @@ def run_ingestion():
     # Write the manifest file
     write_dataset_manifest(manifest_entries, raw_dir)
 
-    # Continue with downstream steps (T004 & T005)
+    # Generate citation file
+    write_citation_file()
+
+    # Continue with downstream validation steps (T004 & T005)
     process_condition_report()
     process_overlap_and_design()
 
-    logger.info("Ingestion pipeline (T003‑T005) completed successfully.")
+    logger.info("Ingestion pipeline (T003‑T006) completed successfully.")
 
 if __name__ == "__main__":
     run_ingestion()

@@ -1,16 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/ingest.py --dataset-url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet" --output-dir data/raw`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 4 command(s) failed: python code/ingest.py --dataset-url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet" --output-dir data/raw (rc=1); python code/analyze.py --input data/processed/analysis_ready.csv --output results/analysis_output.json (rc=1); python code/report.py --input results/analysis_output.json --output paper/report.md (rc=1); 4 declared deliverable(s) absent: data/interim/condition_report.json; data/processed/analysis_raw.json; data/processed/final_results.json
@@ -18,8 +7,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingest.py --dataset-url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet" --output-dir data/raw -> rc=1
-
-2026-10-11 17:07:19,268 - ERROR - Failed to query OpenNeuro API for ds000208: HTTPSConnectionPool(host='api.openneuro.org', port=443): Max retries exceeded with url: /datasets/ds000208/files (Caused by NameResolutionError("HTTPSConnection(host='api.openneuro.org', port=443): Failed to resolve 'api.openneuro.org' ([Errno -2] Name or service not known)"))
+.zip
+2026-10-11 18:09:53,580 - INFO - Extracting /home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/data/raw/ds000208.zip
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py", line 383, in <module>
+    run_ingestion()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py", line 354, in run_ingestion
+    file_list = download_and_extract_zip(dataset_id, raw_dir)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py", line 125, in download_and_extract_zip
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/zipfile.py", line 1355, in __init__
+    self._RealGetContents()
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/zipfile.py", line 1422, in _RealGetContents
+    raise BadZipFile("File is not a zip file")
+zipfile.BadZipFile: File is not a zip file
 
 - python code/analyze.py --input data/processed/analysis_ready.csv --output results/analysis_output.json -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,7 +45,7 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 
 - python code/report.py --input results/analysis_output.json --output paper/report.md -> rc=1
 
-2026-10-11 17:07:21,028 - ERROR - Reporting pipeline failed: Analysis results file not found: results/analysis_output.json
+2026-10-11 18:09:55,592 - ERROR - Reporting pipeline failed: Analysis results file not found: results/analysis_output.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py", line 343, in <module>
     main()
@@ -55,7 +58,7 @@ FileNotFoundError: Analysis results file not found: results/analysis_output.json
 - python -m pytest tests/ -> rc=2
 ml
 plugins: anyio-4.15.1
-collecting ... collected 57 items / 1 error
+collecting ... collected 58 items / 1 error
 
 ==================================== ERRORS ====================================
 __________________ ERROR collecting tests/test_performance.py __________________
@@ -70,7 +73,7 @@ E   ImportError: cannot import name 'MAX_RUNTIME_SECONDS' from 'performance_moni
 =========================== short test summary info ============================
 ERROR tests/test_performance.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.93s ===============================
+=============================== 1 error in 1.15s ===============================
 
 
 
