@@ -403,11 +403,20 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             continue
         if f.suffix == ".py":
             python_sources.append(f)
+        # Which run produced the file being judged. When that is another
+        # task's script, a section this task wrote may have been regenerated
+        # away, and the reason for a rejection should be able to say so.
+        from llmxive.speckit.output_writers import last_writer
+        writer = last_writer(project_dir.resolve(), f.relative_to(project_dir.resolve()).as_posix(),
+                             execution_log_dir)
         chunks.append(
             f"- `{rel}` (resolved: `{f.relative_to(project_dir.resolve())}`, "
             + (f"repository-relative: `{f.relative_to(repository_root)}`, "
                if repository_root is not None else "")
-            + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
+            + f"{size} bytes, sha256={digest}"
+            + (f", last written by a run of `{writer[0]}`" + (f" for {writer[1]}" if writer[1] else "")
+               if writer else "")
+            + f"):\n```\n{head}\n```"
             + ("" if size <= limit else "\n…(truncated)")
         )
     chunks.extend(_pattern_evidence(project_dir, task_text))
