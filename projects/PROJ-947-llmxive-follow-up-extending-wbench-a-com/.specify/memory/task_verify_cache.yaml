@@ -12,6 +12,18 @@ T002:
     \ `tests/contract/`) and confirmed each exists and contains a placeholder `__init__.py`\
     \ file as specified."
   sig: 039c6900c16c16e81d046404e0f3e554f3e34d8fee531bb155ea67ec94d632dc
+T003:
+  c: false
+  h: 4527166a98c9b5bc260dc50cc6fd0e1a37c61eaf57b3e5f1b5a1acc6677c0a1b
+  r: The current `code/requirements.txt` exists with all required pinned packages
+    (including `opencv-python-headless==4.7.0.72`, which appears to be a fix for the
+    earlier failing `4.8.0` pin), but the only execution evidence is a historical
+    `pip install -r requirements.txt` run that FAILED (exit 1, "No matching distribution
+    found for opencv-python-headless==4.8.0"). There is no evidence that the corrected
+    file was ever re-installed successfully in a clean venv, which is the task's explicit
+    verification criterion. The implementer should re-run the install test against
+    the updated file (and confirm t
+  sig: 9a3cc96856d7fc9c3c0e76b94892278c42e8d67b040c21e4ae2964ab8c91bb61
 T004:
   c: true
   h: 0de2d69c0d4b5cae20a7956e44a1a9af66f72a83d59f84315757cdf5004fc3d1
@@ -21,15 +33,17 @@ T004:
     \ created and non\u2011empty where appropriate."
   sig: c91edc467e770e223dacd14c7602bc36352e05c79aa4dcf28de2f3b0cd10070a
 T005:
-  c: true
-  h: 05fc1af0237d58b97f2805e11db11f51095c3a7d0913fa404a6c5e6f34e372c3
-  r: '`code/config.py` exists (9044 bytes) and defines the required module-level attributes:
-    `SEED = 42`, `RAM_LIMIT_GB = 6.5`, and `MODEL_PATHS` (dict), plus a full `Config`
-    dataclass consistent with those constants. Its imports (`code.utils.logging`,
-    `code.utils.errors`) resolve to real, non-stub files present in the project, including
-    the `utils/logging.py` compatibility shim needed by `errors.py`, so `import code.config`
-    should succeed and expose the expected attributes.'
-  sig: 931eeb487124d33c04bbc91870b59c6b4f11b92b0ea9775c645cc4f66cdbee2c
+  c: false
+  h: 14a8d51fad863d0fdbc3fd7aa4c92972b4bc2dde04bf6932d75855ddf23cfce2
+  r: "`code/config.py` exists with the required constants (`SEED=42`, `RAM_LIMIT_GB=6.5`,\
+    \ `MODEL_PATHS`), but importing `code.config` cannot succeed: it imports `code.utils.errors`,\
+    \ which imports `utils.logging`, a shim that re-exports `log_event`, `fail_loudly`,\
+    \ and `JsonFormatter` from `code.utils.logging` \u2014 symbols that module does\
+    \ not define (it only defines `JsonLogFormatter` and logger-first wrappers), so\
+    \ the import chain raises `ImportError`. Additionally, `config.py` calls `log_error(msg)`/`log_info(msg)`\
+    \ with a single string argument, while the logging wrappers require a logger as\
+    \ the first"
+  sig: 9eb4508b40e0dc7d4926698de74cb60518be6b446d47eecc8623c1591a8c07dd
 T019:
   c: false
   h: 29480e40b96ad67001a0f62667c2e96c5e65b0c3890556d2127ea51bd303b8a5

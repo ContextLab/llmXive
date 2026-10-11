@@ -1,7 +1,7 @@
 # Core data processing
 datasets==2.14.0
-pandas==2.0.0
-numpy==2.0.0
+pandas==2.2.2
+numpy==1.26.4
 networkx==3.2.1
 
 # Scientific computing
