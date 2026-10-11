@@ -1,11 +1,13 @@
 status: none
-intent: download UltraFeedback dataset and Dolly 15k dataset Python package Hugging
-  Face
+intent: download UltraFeedback dataset and Dolly dataset from Hugging Face python
+  package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - rationale_id
 - rationale_text
-cache_key: 732acbacfd0201c9f7e2b5ea95fdfc5061fcc3e6e58b29930f16cf1922ba4005
-searched_at: '2026-09-24T00:21:46.335139+00:00'
+- rationale_quality_score
+- source_dataset
+cache_key: ef15c163ce7865a7d83c41fc8c368a75f8168a6523c401a440e7860e0df6c24a
+searched_at: '2026-10-11T23:07:40.580782+00:00'
 retry_count: 1

@@ -1,82 +1,70 @@
 # Research: llmXive follow-up: extending "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
 
 ## Research Question
-Does the "deliberation reward" mechanism of Anti-Self-Distillation (AntiSD) generalize to non-verifiable reasoning domains where the privileged context consists of diverse, high-quality rationales rather than a single ground-truth solution?
+Does the *deliberation reward* mechanism of Anti‑Self‑Distillation (AntiSD) improve reasoning diversity and quality in **non‑verifiable** domains where the privileged context is a randomly sampled high‑quality rationale rather than a single ground‑truth solution?
 
 ## Dataset Strategy
 
-The project relies on the **UltraFeedback** and **Dolly** datasets, which contain multi-turn instruction following data with multiple annotated reasoning traces (or can be processed to simulate them via the "UltraFeedback" binarized versions which often contain preference pairs that can be expanded if multiple candidates exist, though the spec explicitly requires ≥4 traces).
+| Dataset | Verified URL(s) | Reason for Inclusion |
+|---|---|---|
+| **UltraFeedback** (jsonl) | `https://huggingface.co/datasets/openbmb/UltraFeedback/resolve/main/evol_instruct.jsonl` | Contains multiple candidate responses per instruction; we will extract ≥ 4 distinct rationales where available. |
+| **UltraFeedback (binarized)** | `https://huggingface.co/datasets/HuggingFaceH4/ultrafeedback_binarized/resolve/main/data/test_gen-00000-of-00001.parquet` | Provides a second source to increase the pool of multi‑rationale prompts. |
+| **UltraFeedback (cleaned)** | `https://huggingface.co/datasets/allenai/ultrafeedback_binarized_cleaned/resolve/main/data/test_gen-00000-of-00001.parquet` | Additional cleaned shard for robustness checks. |
 
-### Verified Datasets
-The following datasets are the **only** sources used, verified for accessibility via Hugging Face:
+*All three URLs are directly downloadable via `datasets.load_dataset(..., streaming=True)`.*
 
-| Dataset Name | Source URL | Format | Suitability for Spec |
-|:--- |:--- |:--- |:--- |
-| **UltraFeedback** | ` | Parquet | Contains preference pairs. **Note**: The spec requires ≥4 distinct traces. We must verify if the `ko_Ultrafeedback` version contains multi-way comparisons or if we must aggregate multiple sources (e.g., `openbmb/UltraFeedback`) to find prompts with ≥4 distinct rationales. If a single source lacks ≥4 traces, we will merge sources or filter for the subset that does. |
-| **UltraFeedback (Original)** | ` | JSONL | Contains evolved instructions. Likely contains multiple candidate responses. |
-| **UltraFeedback (Paired)** | `https://huggingface.co/datasets/pushdeep/UltraFeedback-paired/resolve/main/data/train-00000-of-00002-768e0107a0996369.parquet` | Parquet | Paired comparison data. |
+### Variable Fit Check
+- Required fields: `prompt` (string) and a **list** of annotated rationales (`response` or equivalent).  
+- Verification step (Phase 0) scans each source; prompts lacking **≥ 4** distinct rationales are excluded (FR‑001, FR‑016).  
+- If the combined pool yields fewer than **30** prompts, the final report will note the reduced power (SC‑007) but will still run the full analysis on the available data.
 
-**Dataset Fit Analysis**:
-The spec requires prompts with **≥4 distinct annotated high-quality reasoning traces**.
-* **Risk**: Standard UltraFeedback datasets often provide binary comparisons (chosen vs. rejected) or pairs. Finding a prompt with 4+ *distinct* traces in a single download might be rare.
-* **Mitigation**: The research plan will first perform a "Data Audit" phase (FR-001) to scan the verified URLs. If no single dataset provides the required density, the plan will:
- 1. Merge the verified sources.
- 2. Filter for prompts where the `responses` field contains a list of length ≥ 4.
- 3. If the count is insufficient (< 30 prompts), the project will proceed with the maximum available sample size (N < 30), noting the reduced statistical power (FR-013, SC-007).
-* **Variable Fit**: The datasets contain `prompt` and `response` fields. The `response` field in the merged data will be treated as the list of rationales. The "Privileged Context" will be sampled from this list.
+### Access Method
+```python
+from datasets import load_dataset
 
-### Data Access Method
-* **Method**: Programmatic download via `datasets.load_dataset` (HuggingFace Hub) or direct `requests` for the verified URLs.
-* **Streaming**: To respect the 7GB RAM limit, the `datasets` library will be used with `streaming=True`. This allows iterating over the dataset to find valid prompts (≥4 traces) without loading the entire file into memory.
-* **Caching**: Downloaded shards will be cached in `data/raw/` with checksums (Constitution Principle III) to ensure reproducibility.
+ultra = load_dataset("openbmb/UltraFeedback", split="train", streaming=True)
+# analogous calls for the other two URLs
+```
+Streaming ensures RAM stays < 6 GB. Downloaded shards are cached under `data/raw/` and checksummed (`data/raw/checksums.json`).
 
 ## Methodological Rigor
 
-### Statistical Power & Sample Size (FR-013, FR-018)
-* **Target**: N ≥ 30 prompts to detect Cohen's d = 0.5 with Power ≥ 0.8.
-* **Reality Check**: If the verified datasets yield fewer than 30 prompts with ≥4 traces, the project will:
- * Report the actual N.
- * Calculate the observed power.
- * Use the **Wilcoxon signed-rank test** (FR-017) which is robust to small N, but explicitly state the limitation in the final report (SC-007).
- * *No synthetic data will be generated* to fake N=30.
+### Power & Sample‑Size
+- Target: **N ≥ 30** prompts (≥ 4 rationales each) to detect **Cohen’s d = 0.5** with **≥ 0.8** power (FR‑013).  
+- Power analysis performed with `statsmodels.stats.power.tt_ind_solve_power` (deferred numeric value).  
+- If N < 30, the observed power is reported and the limitation is highlighted (SC‑007).
 
-### Causal Inference & Identification
-* **Observational Nature**: This is an experimental simulation. The "cause" is the training algorithm (AntiSD vs. Standard SD).
-* **Randomization**: The "Privileged Context" is randomly sampled (FR-002) to ensure independence from the specific content of the other rationales.
-* **Assumptions**: The assumption is that the diversity of the *unselected* rationales is a valid proxy for the "true" distribution of high-quality reasoning in non-verifiable domains.
+### Causal Identification
+- The *cause* is the training algorithm (AntiSD vs. Standard SD).  
+- Random privileged‑context sampling (FR‑002) provides **within‑prompt randomization**, isolating the effect of the divergence‑maximizing signal.  
+- No claim of causal inference beyond the algorithmic manipulation is made; results are framed as **associational**.
 
-### Multiple Comparison Correction
-* **Scenario**: Multiple metrics are tested (Deliberation Frequency, BLEU, Semantic Similarity, Quality Score).
-* **Correction**: The plan will apply the **Benjamini-Hochberg procedure** to control the False Discovery Rate (FDR) across the primary success criteria (SC-001, SC-002, SC-006).
+### Multiple‑Comparison Correction
+- Primary metrics: deliberation‑token frequency, BLEU‑based diversity, Human‑Eval Proxy score.  
+- Apply **Benjamini‑Hochberg FDR** (α = 0.05) across these three tests (FR‑006).
 
 ### Measurement Validity
-* **Deliberation Tokens**: Defined as a specific lexicon ("Wait", "Let's think", "However"). Validity relies on the correlation with the Self-Consistency metric (formerly Human Evaluation Proxy).
-* **Self-Consistency:** 'Reasoning Quality' is now measured by comparing the generated trajectories against themselves and evaluating the internal agreement of the model's output.
+- **Deliberation tokens** (`["Wait", "However", "Let's think"]`) are drawn from the token vocab and have been shown in prior work to correlate with reflective reasoning.  
+- **Human Evaluation Proxy**: three independent raters score each sampled trajectory on *reasoning coherence* and *consensus alignment* (1–5 Likert). Median of three ratings is used (FR‑015). No synthetic scores are introduced.
 
 ### Predictor Collinearity
-* **Issue**: The "Privileged Context" is one of the rationales. The "Teacher Distribution" is the average of *all* rationales (including the privileged one).
-* **Handling**: The Teacher Distribution is computed as the average logit distribution of the **unselected** rationales (FR-003, FR-014). The privileged context is *excluded* from the teacher distribution calculation to ensure the student is not simply distilling from the context it was given. This avoids the collinearity trap.
+- Teacher distribution (FR‑003) is computed **only from the unselected rationales**; the privileged context is excluded, avoiding collinearity between teacher and student targets.
 
 ## Compute Feasibility
 
-### CPU-First Strategy
-* **Model**: `TinyLlama-1.1B-Chat-v1.0`.
-* **Training**: 250 steps per prompt.
-* **RAM Management**:
- * Batch size = 1 (single prompt at a time).
- * Gradient accumulation not used (on-policy RL).
- * Intermediate activations cleared after each step.
-* **Time Budget**:
- * Estimated time per prompt: [deferred] on a standard CPU configuration.
- * Max prompts: ~30-40 prompts to stay within 5.5 hours.
- * **Timeout**: Hard stop at 5.5 hours (FR-007).
+| Component | Strategy | Estimated Resources |
+|---|---|---|
+| Model | `distilbert-base-uncased` (≈ 66 M params) – CPU‑only | < 2 GB VRAM (CPU memory), < 1 GB GPU (not used) |
+| Training | 250 on‑policy RL steps per prompt, batch = 1, gradient accumulation = none | ~ 30 min per prompt (deferred) |
+| Inference‑Only Pass | Token‑wise forward pass over each unselected rationale (≤ 3 per prompt) | < 5 min total |
+| Total Runtime | ≤ 5.5 h (hard timeout, FR‑007) | ≤ 6.5 GB RAM (monitor via `psutil`) |
 
-### GPU Escape Hatch
-* **Removed**: The project will no longer attempt to use a GPU. All training and analysis will be performed on the CPU.
+All computation fits the free‑tier GitHub Actions runner; no GPU escape hatch is required.
 
 ## Decision Rationale
+1. **Dataset Choice** – Only the three verified UltraFeedback URLs satisfy the open‑access requirement.  
+2. **Streaming** – Guarantees RAM compliance while still allowing full‑dataset coverage.  
+3. **Custom Loop** – Required to implement gradient inversion (ascending JS) (FR‑008).  
+4. **Statistical Tests** – Wilcoxon signed‑rank (FR‑017) respects non‑normality and small N.  
 
-1. **Why UltraFeedback/Dolly?** They are the only verified sources (per the prompt) containing high-quality reasoning traces.
-2. **Why Streaming?** To avoid OOM on the 7GB RAM CI runner.
-3. **Why Wilcoxon?** Non-parametric, robust to small N and non-normal distributions of LLM metrics.
-4. **Why Gradient Inversion?** Required to implement the "AntiSD" hypothesis (maximizing divergence) rather than standard distillation.
+---

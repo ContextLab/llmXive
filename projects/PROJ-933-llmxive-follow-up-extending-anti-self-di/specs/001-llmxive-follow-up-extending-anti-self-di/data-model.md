@@ -1,71 +1,85 @@
 # Data Model: llmXive follow-up: extending "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
 
 ## Overview
-This document defines the data structures for the ingestion, training, and analysis phases. All data is stored in `data/` as JSON/Parquet/CSV.
+All artifacts are stored under `data/` as JSON, JSONL, CSV, or Parquet files. Schemas are enforced via the YAML contracts in `contracts/`.
 
-## 1. Ingested Dataset Schema
-**Source**: `data/raw/ultrafeedback_filtered.parquet`
-**Description**: The subset of UltraFeedback/Dolly containing only prompts with ≥4 distinct reasoning traces.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `prompt_id` | `string` | Unique identifier for the prompt. |
-| `prompt_text` | `string` | The user query. |
-| `rationales` | `list[string]` | List of all ≥4 annotated reasoning traces for this prompt. |
-| `rationale_count` | `int` | Number of rationales (must be ≥4). |
-| `source` | `string` | Origin dataset (e.g., "UltraFeedback"). |
-
-## 2. Context Simulation State
-**Source**: `data/processed/context_split.jsonl`
-**Description**: The state after randomly sampling the "Privileged Context" and separating the "Target Distribution".
+### 1. Ingested Dataset Schema (`dataset.schema.yaml`)
+*File*: `data/raw/ultrafeedback_filtered.parquet`  
+*Description*: Subset of UltraFeedback/Dolly with ≥ 4 rationales per prompt.
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `prompt_id` | `string` | Reference to the original prompt. |
-| `privileged_rationale_idx` | `int` | Index of the sampled privileged context. |
-| `privileged_context` | `string` | The text of the sampled privileged rationale. |
-| `unselected_indices` | `list[int]` | Indices of the remaining rationales. |
-| `unselected_texts` | `list[string]` | Text of the unselected rationales (Target Distribution). |
-| `teacher_logits` | `list[float]` | (Optional) Pre-computed average logits from the Inference-Only Pass. |
+|---|---|---|
+| `prompt_id` | `string` | Unique identifier. |
+| `prompt_text` | `string` | Original user query. |
+| `rationales` | `array[string]` | All distinct high‑quality rationales (≥ 4). |
+| `rationale_count` | `integer` | Must be ≥ 4. |
+| `source` | `string` | Dataset origin (`UltraFeedback`, `Dolly`). |
 
-## 3. Training Trajectory Log
-**Source**: `data/results/training_run_<run_id>.jsonl`
-**Description**: Log of the training process, including loss, divergence, and generated tokens.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `step` | `int` | Training step number (1 to 250). |
-| `prompt_id` | `string` | Reference to the prompt. |
-| `condition` | `string` | "AntiSD" or "StandardSD". |
-| `loss` | `float` | Current loss value. |
-| `js_divergence` | `float` | Jensen-Shannon divergence between student and teacher. |
-| `gradient_dot_product` | `float` | Dot product of AntiSD gradient and standard gradient (should be negative). |
-| `generated_trajectory` | `string` | The generated text at this step (or final step). |
-| `deliberation_count` | `int` | Count of deliberation tokens in the trajectory. |
-| `deliberation_tokens` | `list[string]` | List of specific tokens found (e.g., ["Wait", "However"]). |
-
-## 4. Analysis Results
-**Source**: `data/results/analysis_results.json`
-**Description**: Aggregated statistical results for the final report.
+### 2. Context Simulation State (`context_split.jsonl`)
+*File*: `data/processed/context_split.jsonl`  
+*Description*: Result of random privileged‑context sampling.
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `sample_size` | `int` | Total number of prompts processed. |
-| `power_analysis` | `object` | Calculated statistical power. |
-| `metrics` | `object` | Aggregated metrics per condition. |
-| `wilcoxon_results` | `object` | P-values, test statistics for each metric comparison. |
-| `correlation_results` | `object` | Pearson r and p-value for Deliberation vs. Self-Consistency. |
+|---|---|---|
+| `prompt_id` | `string` | Reference to original prompt. |
+| `privileged_rationale_idx` | `integer` | Index of sampled privileged context. |
+| `privileged_context` | `string` | Text of the privileged rationale. |
+| `unselected_indices` | `array[integer]` | Indices of remaining rationales. |
+| `unselected_texts` | `array[string]` | Texts of the target distribution. |
+| `teacher_logits_path` | `string` | Path to the corresponding `teacher_logits_raw.jsonl` entry (see schema below). |
 
-## 5. Human Evaluation Proxy Data
-**Source**: `data/results/human_eval_scores.csv`
-**Description**: Scores assigned to generated trajectories.
+### 3. Teacher Logits (`teacher_logits_raw.jsonl`)
+*File*: `data/processed/teacher_logits_raw.jsonl`  
+*Description*: Logits (pre‑softmax) averaged across all **unselected** rationales for each prompt (used to compute the teacher distribution).
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `trajectory_id` | `string` | Unique ID for the generated trajectory. |
-| `prompt_id` | `string` | Reference to the prompt. |
-| `condition` | `string` | "AntiSD" or "StandardSD". |
-| `rater_1_score` | `int` | Score 1-5 from Rater 1. |
-| `rater_2_score` | `int` | Score 1-5 from Rater 2. |
-| `rater_3_score` | `int` | Score 1-5 from Rater 3. |
-| `median_score` | `float` | Median of the three scores. |
+|---|---|---|
+| `prompt_id` | `string` | Prompt reference. |
+| `teacher_logits` | `array[number]` | Averaged logits vector (same length as model vocab). |
+| `logits_source` | `string` | Identifier of the source dataset shard. |
+
+### 4. Training Trajectory Log (`training_run_<run_id>.jsonl`)
+*File*: `data/results/training_run_*.jsonl`  
+*Schema*: `training_output.schema.yaml`
+
+| Field | Type | Description |
+|---|---|---|
+| `step` | `integer` | Training step (1‑250). |
+| `prompt_id` | `string` | Prompt reference. |
+| `condition` | `string` | `"AntiSD"` or `"StandardSD"`. |
+| `loss` | `number` | Current loss. |
+| `js_divergence` | `number` | JS divergence (student vs. teacher). |
+| `gradient_dot_product` | `number` | Dot product of AntiSD gradient and standard gradient (negative expected). |
+| `generated_trajectory` | `string` | Tokens generated at this step (or final). |
+| `deliberation_count` | `integer` | Number of deliberation tokens in the trajectory. |
+| `deliberation_tokens` | `array[string]` | List of detected deliberation tokens. |
+
+### 5. Human Evaluation Proxy Scores (`human_eval_scores.csv`)
+*File*: `data/results/human_eval_scores.csv`  
+*Schema*: `output.schema.yaml` (aggregated per‑prompt/condition).
+
+| Field | Type | Description |
+|---|---|---|
+| `trajectory_id` | `string` | Unique trajectory identifier. |
+| `prompt_id` | `string` | Prompt reference. |
+| `condition` | `string` | `"AntiSD"` or `"StandardSD"`. |
+| `rater_1_score` | `integer` | 1‑5 Likert. |
+| `rater_2_score` | `integer` | 1‑5 Likert. |
+| `rater_3_score` | `integer` | 1‑5 Likert. |
+| `median_score` | `number` | Median of three raters. |
+
+### 6. Analysis Results (`analysis_results.json`)
+*File*: `data/results/analysis_results.json`  
+*Schema*: `analysis_results.schema.yaml`
+
+| Field | Type | Description |
+|---|---|---|
+| `sample_size` | `integer` | Number of prompts included after filtering. |
+| `power_analysis` | `object` | Contains `power`, `effect_size`, `n`. |
+| `metrics` | `object` | Aggregated per‑condition means for deliberation frequency, BLEU, quality score. |
+| `wilcoxon_results` | `object` | p‑values & statistics for each primary metric. |
+| `correlation_results` | `object` | Pearson `r` and p‑value linking deliberation frequency ↔ Human‑Eval Proxy. |
+
+All files are version‑controlled; any modification produces a new hash recorded in `state/projects/…yaml`.
+
+---
