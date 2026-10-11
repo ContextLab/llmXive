@@ -690,6 +690,18 @@ def definition_signatures(tasks_text: str) -> dict[str, str]:
     return out
 
 
+def rejection_reason(project_dir: Path, tasks_path: Path, key: str) -> str:
+    """Why the verifier last rejected task ``key``, or ``""``."""
+    import yaml
+
+    path = task_verification_state_path(project_dir, tasks_path).with_suffix(".feedback.yaml")
+    try:
+        entry = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get(key)
+    except (OSError, yaml.YAMLError, AttributeError):
+        return ""
+    return str(entry.get("reason") or "") if isinstance(entry, dict) else ""
+
+
 def task_verification_state_path(project_dir: Path, tasks_path: Path) -> Path:
     root = project_dir / "paper" if tasks_path.resolve().is_relative_to((project_dir / "paper").resolve()) else project_dir
     return root / ".specify/memory/task_verify.yaml"

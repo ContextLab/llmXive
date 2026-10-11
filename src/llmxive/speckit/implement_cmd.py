@@ -13,6 +13,7 @@ Stage transitions:
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -119,6 +120,10 @@ class ImplementerAgent(SlashCommandAgent):
         # rather than re-author them.
         task_line = mechanical_output["next_task_line"] or ""
         reference_text = task_line
+
+        focused = self._focused_retry_prompt(ctx, mechanical_output, task_line)
+        if focused is not None:
+            return [ChatMessage(role="system", content=system), ChatMessage(role="user", content=focused)]
 
         user_parts = [
             f"# tasks.md\n\n{mechanical_output['tasks_text']}",
@@ -235,6 +240,66 @@ class ImplementerAgent(SlashCommandAgent):
             ChatMessage(role="system", content=system),
             ChatMessage(role="user", content=user),
         ]
+
+    def _focused_retry_prompt(
+        self, ctx: SlashCommandContext, mechanical_output: dict[str, Any], task_line: str,
+    ) -> str | None:
+        """A short prompt for a task that was already attempted, or ``None``.
+
+        EXPERIMENTAL, selected with ``LLMXIVE_IMPLEMENTER_PROMPT=focused`` and
+        measured with ``scripts/maintenance/task_replay_bench.py``. The full
+        prompt for a retry was 90,000 to 127,000 characters in the 2026-10-11
+        runs, with the one rejection that mattered in a block shared with other
+        tasks' rejections. This one carries the task, the requirements, the
+        files the task and its own records name, and ends with the review of
+        the previous attempt.
+        """
+        if os.environ.get("LLMXIVE_IMPLEMENTER_PROMPT") != "focused":
+            return None
+        from llmxive.agents.task_verifier import rejection_reason
+
+        task_id = mechanical_output["next_task_id"]
+        log_dir = ctx.project_dir / mechanical_output.get("task_log_dir", "code/.tasks")
+        logs = sorted(log_dir.glob(f"{task_id}.*.log"), key=lambda path: path.stat().st_mtime_ns, reverse=True)[:3]
+        reason = rejection_reason(ctx.project_dir, Path(mechanical_output["tasks_path"]), task_id)
+        if not logs and not reason:
+            return None  # a first attempt gets the full prompt
+        parts = [f"# The task\n\n{task_line}",
+                 f"# completed task ids\n{mechanical_output['completed_task_ids']}"]
+        feature_dir = Path(mechanical_output["feature_dir"])
+        for name in ("spec.md", "quickstart.md"):
+            if (feature_dir / name).is_file():
+                parts.append(f"# Active {name} (authoritative requirements and run instructions)\n\n"
+                             + (feature_dir / name).read_text(encoding="utf-8"))
+        records = []
+        for path in logs:
+            body = path.read_text(encoding="utf-8", errors="replace")
+            records.append(f"## {path.name}\n\n" + (body if len(body) <= 12000 else
+                                                      "[Earlier log output truncated]\n" + body[-12000:]))
+        existing_api = _summarize_existing_code(ctx.project_dir)
+        if existing_api:
+            parts.append("# Existing project API surface (every name you import or call MUST come "
+                         "from this list, not invented)\n\n" + existing_api)
+        referenced = _inline_referenced_files(ctx.project_dir, "\n".join([task_line, reason, *records]))
+        if referenced:
+            parts.append("# The files as they are now (a submitted attempt under review; "
+                         "modify these, do not invent new APIs)\n\n" + referenced)
+        parts.append(
+            "# Review of the previous attempt at this task\n\n"
+            "The files above were submitted for this task and did NOT pass. An independent "
+            "reviewer and the platform's own runs found:\n\n"
+            + (f"**Reviewer:** {reason}\n\n" if reason else "")
+            + ("\n\n".join(records) if records else "(no run records)")
+        )
+        parts.append(
+            "# What to do\n\n"
+            f"Fix exactly what the review says is wrong with task {task_id}, and nothing else. "
+            "If the review names a failing test or command, make it pass and request its "
+            "execution. If the defect is in a file the review names (a test, a helper, another "
+            "script), fix THAT file. Return the YAML implementation report with the complete "
+            "contents of every file you change. Never fabricate data or results."
+        )
+        return "\n\n".join(parts)
 
     def _mark_task_skipped(
         self, mechanical_output: dict[str, Any], reason: str, exc: Exception | None
