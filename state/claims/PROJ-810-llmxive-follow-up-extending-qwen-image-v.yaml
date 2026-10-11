@@ -4986,3 +4986,55 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T16:38:36Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: pipeline uses verified open resources benchmark parquet dataset and tiny-vae
+    model
+  claim_id: c_35cd278d
+  context: 'Important: The pipeline now uses verified open resources (benchmark parquet
+    dataset and tiny-vae model). No unverified Omni-Doc-1 or Qwen-Image-VAE-2.0 resources
+    are required.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline now uses verified open resources (benchmark parquet dataset
+    and tiny-vae model).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:43:45Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: no unverified Omni-Doc-1 or Qwen-Image-VAE-2.0 resources are required
+  claim_id: c_b31e9960
+  context: 'Important: The pipeline now uses verified open resources (benchmark parquet
+    dataset and tiny-vae model). No unverified Omni-Doc-1 or Qwen-Image-VAE-2.0 resources
+    are required.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No unverified Omni-Doc-1 or Qwen-Image-VAE-2.0 resources are required.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:43:45Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: optional GPU fallback is only for the model loading step
+  claim_id: c_cf289914
+  context: If either resource cannot be fetched, the script logs an error and aborts;
+    the optional GPU fallback is only for the model loading step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the optional GPU fallback is only for the model loading step.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:43:46Z'

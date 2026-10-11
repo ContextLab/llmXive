@@ -1,14 +1,3 @@
-T000:
-  c: false
-  h: bc4b8b4675ea9c368f41215076e22c0f889ed90013c4438a2bb8304d7da766fe
-  r: "The repository contains the `separability.py` source file, but the required\
-    \ output file `data/results/power_analysis.json` is absent, indicating the script\
-    \ was never run or did not produce the mandated JSON. Additionally, the shown\
-    \ code is truncated before the part that would compute the achieved power and\
-    \ set a `\"status\":\"INCONCLUSIVE\"` when power\u202F<\u202F0.8, so the required\
-    \ logic may be missing. The implementer must execute the script to generate the\
-    \ JSON with the fields `N_required`, `effect_size`, `power`, `N_audit`, and `status`,\
-    \ and ensure the status logic is present."
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,9 +20,3 @@ T016:
     \ yet the required `code/models/vae_loader.py` file is missing, so the test cannot\
     \ be executed. The missing implementation and incomplete test need to be added\
     \ for the task to be satisfied."
-T032:
-  c: false
-  h: 77a068efaef8597a21f082895b6b6f497a5205c24ce0de97d03662de302fb975
-  r: "The required deliverable `data/manual/verification_queue.csv` is missing from\
-    \ the repository, so no evidence of the fallback logic or sampled entries is present.\
-    \ Without this file the task\u2019s core requirement is not satisfied."

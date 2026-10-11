@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project bootstrap & verification  
 
-- [ ] T001 [P] Establish external‑resource verification and quick‑start guide.  
+- [ ] T001 [P] Establish external‑resource verification and quick‑start guide.   <!-- FAILED-IN-EXECUTION: code/boot/verify_resources.py exit=1 -->
   *Implement a script `code/boot/verify_resources.py` that HEAD‑checks the dataset URL (`https://huggingface.co/datasets/omnineura/Omni-Doc-1`) and the VAE model URL (`https://huggingface.co/Qwen/Qwen-Image-VAE-2.0`).*  
   *Write `quickstart.md` with the command `python -m code.main --config config.yaml` and a description of the required environment.*  
   *Verification*: `verify_resources.py` exits with status 0 and creates `data/raw/download_status.json`; `quickstart.md` exists and contains the command line.
