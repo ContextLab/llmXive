@@ -1,25 +1,2 @@
-# Project-specific environment configuration for PROJ-399
-# This file sets environment variables for the R session.
-# These settings ensure reproducibility and proper paths.
-
-# Set the project root relative to the code directory
-R_PROJECT_ROOT="../.."
-
-# Disable interactive prompts for non-interactive runs (CI/CD)
-R_INTERACTIVE=FALSE
-
-# Set locale for consistent string sorting and formatting
-LC_ALL=C
-
-# Ensure renv uses the project library
-R_LIBS_USER=../.R/library
-
-# Disable CRAN mirror prompts
-R_REMOTES_NO_ERRORS_FROM_WARNINGS=false
-
-# Path to the config file for seed management
-R_CONFIG_FILE=../code/config.yaml
-
-# Disable specific warnings that clutter logs in CI
-# (Optional: uncomment if specific noise needs suppression)
-# R_DISABLE_BUILT_IN_CHECKS=true
+# Environment variables for reproducible analysis
+SEED=12345

@@ -1,18 +1,37 @@
+T001:
+  c: false
+  h: e487eb0e3dd9287a233ffb55e8ae4295d19ae3fbd77baf5f59ecd0aab8da5d3e
+  r: The required directories `projects/PROJ-399-the-impact-of-framing-on-perceived-sever/data/raw/`,
+    `data/processed/`, `results/plots/`, and `.github/workflows/` are reported as
+    MISSING, so the project structure does not match the specification despite the
+    presence of `docs/project_structure.md`.
+  sig: c606cacdcc0f8c89b4dc303091f1e0ea790ab19a0721e39f9c20f9cded7bc86c
+T002:
+  c: false
+  h: 8a32b5e9a46b74f029cca1c0c4a42e48aee0c41736b9368f4e8e33c0f9d0155b
+  r: The artifacts `code/DESCRIPTION` and `code/NAMESPACE` are missing entirely. Additionally,
+    the `code/renv.lock` file is missing the required `testthat>=3.1.0` dependency.
+  sig: effb69ed26aae20581a95d09e8c4cf1f72dd848680bb35513f316ee6248518bc
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration artifacts (e.g., a `.lintr` file, RStudio\
-    \ project settings, or CI scripts invoking `lintr`) are present, and the provided\
-    \ evidence only describes simulation analysis requirements, not the required R\
-    \ linting setup. The task\u2019s requirement to configure linting/formatting tools\
-    \ is therefore unmet."
+  h: e8696d56707f8f54ed86484e626e18c9e20c2b786fbb5a87dd2ff58dafb51892
+  r: No evidence of linting or formatting configuration files (e.g., `.lintr`) or
+    related setup scripts was provided in the artifacts.
+  sig: 25f626cba1d48a0eab808d0bfe6cd65681c4ba3a97e8d2db08b05f5e18b00b46
+T005:
+  c: true
+  h: a3fd90579b5675c1052323eccc3d8a3f5a850542fc223564e8644c38b36527e2
+  r: I checked `code/config.yaml` for the seed value and `code/utils.R` for the `load_config`
+    and `set_random_seed` functions. The implementation correctly loads the seed from
+    the configuration file and applies it using `set.seed()`, avoiding hardcoding.
+  sig: 93c5136b55b22ce18db9400683020f12c98f5422c2f811922fbed419325f6396
 T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided artifacts contain only the feature specification and user stories;\
-    \ there is no `.Renviron` file, `renv` directory, lockfile, or any other environment\u2011\
-    configuration artifact present. Consequently, the requirement to set up environment\
-    \ configuration management has not been fulfilled."
+  h: 48b076ab324d58e20a7ea80e85c7b67ccce844e254993559ea7096b5345e8d5c
+  r: No evidence of environment configuration management was provided. There are no
+    `.Renviron`, `renv.lock`, or `renv/` directory artifacts present in the project
+    root to verify the setup.
+  sig: ba77840d8e35627e67fd55a5f40347acc4e21a4e50a02fe08ea929eaaceb2203
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,6 +53,15 @@ T010:
   r: The required artifact `tests/test_data_generation.R` does not exist on disk,
     so no test code validates the `severity_rating` range or `framing_condition` assignment.
     The implementer must add the missing test file with the appropriate checks.
+T011:
+  c: false
+  h: 26ca3e2f05b08253893769810d2fd4ffd1b54110ce2e6c7ba56b2af25a61c30e
+  r: The file `tests/test_statistics.R` contains tests for power calculation logic
+    (related to User Story 3), but it completely lacks the integration tests for the
+    mixed-effects model output format required by T011 and User Story 1. There is
+    no evidence of tests verifying the "harm" framing coefficient, p-values, or Cohen's
+    d.
+  sig: 7d236f35d2fa32cf724211cf72478edc2165fb5fa896835cb18cac4d90ea7397
 T013c:
   c: false
   h: c7b5d1a5bb3cc3b2504d1283d5a52d65eba8d6e213ba93ff0ecdf1094c8490ae

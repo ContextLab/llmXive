@@ -1,31 +1,17 @@
-# Configuration for the lintr package
-# Enforces consistent R style and catches common errors
-exclude:
-  - "renv/"
-  - "tests/testthat.R"
-linters:
-  - trailing_whitespace_linter()
-  - line_length_linter(120)
-  - object_name_linter()
-  - assignment_linter()
-  - paren_body_linter()
-  - brace_linter()
-  - comma_linter()
-  - function_brace_linter()
-  - pipe_continuation_linter()
-  - single_quotes_linter()
-  - spaces_inside_linter()
-  - spaces_left_parentheses_linter()
-  - TODO_comment_linter()
-  - unnecessary_concatenation_linter()
-  - unneeded_concatenation_linter()
-  - whitespace_linter()
-  - xml_nodes_to_sax_linter()
-exclusions:
-  tests/:
-    - trailing_whitespace_linter
-    - line_length_linter
-  code/0*_data_prep.R:
-    - line_length_linter
-  code/0*_analysis.R:
-    - line_length_linter
+# lintr configuration for PROJ-399 (R 4.3+ project)
+# Applied via options(lintr.linter_file = "code/.lintr") in code/lint.R
+linters: with_defaults(
+  closed_curly_linter = NULL,
+  open_curly_linter = NULL,
+  line_length_linter(100),
+  object_name_linter = NULL,
+  object_usage_linter = NULL,
+  cyclocomp_linter = NULL,
+  object_length_linter = NULL
+)
+exclusions: list(
+  "renv",
+  "renv.lock",
+  "NAMESPACE"
+)
+exclude: "# nolint start: object_name_linter."
