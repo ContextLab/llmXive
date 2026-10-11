@@ -9,7 +9,7 @@ Each task is a concrete, unchecked work item that produces a real artifact on th
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] **Curate a citation‑backed solder‑hardness dataset**   <!-- FAILED: unspecified -->
+- [ ] **T001** [US1] **Curate a citation‑backed solder‑hardness dataset**   <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
   *Create* `data/raw/solder_hardness_curated.csv` (real rows extracted from open‑access literature and the Materials Project, NIST, OpenAlloy) with columns `id,source_citation,source_url,alloy_family,elements,hardness_hv,hardness_unit,temperature_c,notes`.  
   *Also create* `data/raw/curation_notes.md` documenting the literature search, per‑source record counts, and any gaps.  
   *Compute* SHA‑256 of the CSV and write it to `data/checksums.txt`.  

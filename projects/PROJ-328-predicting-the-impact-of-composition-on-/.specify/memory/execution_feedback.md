@@ -28,8 +28,8 @@ edicting-the-impact-of-composition-on-/code/ingestion/cleaner.py", line 16, in <
     from config import get_composition_sum_threshold, get_max_elements
 ImportError: cannot import name 'get_composition_sum_threshold' from partially initialized module 'config' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-328-predicting-the-impact-of-composition-on-/code/config.py)
 
-2026-10-11 02:30:15,865 - __main__ - CRITICAL - Critical step T013: Data Cleaner failed. Stopping pipeline.
-2026-10-11 02:30:15,865 - __main__ - ERROR - Pipeline failed. Failed steps: ['T012d-Execute: Literature Scraper', 'T013: Data Cleaner']
+2026-10-11 02:32:23,721 - __main__ - CRITICAL - Critical step T013: Data Cleaner failed. Stopping pipeline.
+2026-10-11 02:32:23,721 - __main__ - ERROR - Pipeline failed. Failed steps: ['T012d-Execute: Literature Scraper', 'T013: Data Cleaner']
 
 
 

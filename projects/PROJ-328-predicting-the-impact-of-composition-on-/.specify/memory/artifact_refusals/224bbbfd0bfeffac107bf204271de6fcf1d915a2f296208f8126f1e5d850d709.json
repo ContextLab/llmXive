@@ -1,0 +1,7 @@
+{
+  "task_id": "T017",
+  "fingerprint": "62433ff1fc6fcc8621b6d305399931e163b078b9f8883c0284fa5e92f074b209",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/test_api_fetcher.py': SyntaxError at line 26: invalid syntax. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 1035"
+}
