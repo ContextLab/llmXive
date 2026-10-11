@@ -7,14 +7,12 @@
 
 **Organization**: Tasks are grouped by research phase and by user story to enable independent implementation and testing.
 
----
+---  
 
 ## Phase 1: Setup and First End‑to‑End Analysis  
 
 **Goal**: Establish project scaffolding, verify that the pipeline can run on a tiny synthetic example, and produce a reproducible end‑to‑end result.
 
-| ID | Status | Description |
-|----|--------|-------------|
 - [ ] T001a1 [P] Create `code/` directory and sub‑directories: `synthetic`, `metrics`, `analysis`, `io`  
   - **Verification**: Directory tree exists and is tracked in Git.  
 - [ ] T001a2 [P] Create `data/` directory and sub‑directories: `raw`, `synthetic`, `processed`, `validation`  
@@ -42,7 +40,7 @@
 
 **Checkpoint**: The repository now contains a valid Python package layout, configuration, and a runnable CLI stub.
 
----
+---  
 
 ## Phase 2: Core Infrastructure and Synthetic Data Generation  
 
@@ -57,12 +55,16 @@
   - **Verification**: JSON file validates against a generated schema test.  
 - [ ] T009 [S] Acquire 2–5 real, flux‑calibrated HST FITS images (e.g., NGC 7009, NGC 6543) via `astroquery.mast`, verify checksums, and store in `data/validation/` together with `validation_manifest.json` and a short `validation_report.md` (qualitative only, Constitution VII)  
   - **Verification**: Manifest lists at least two images; report references file paths and includes WCS checks.  
+- [ ] T010a [S] Implement `code/io/loader.py` to ingest flux‑calibrated HST FITS images, extract pixel data and required metadata (exposure time, filter, pixel scale, WCS).  
+  - **Verification**: Loader returns an `ImageSet` object; raises `ValueError` if any required header keyword is missing.  
+- [ ] T010b [S] Add validation step in the loader to abort with a clear error if any of the required metadata fields (exposure time, filter, pixel scale) are missing or malformed.  
+  - **Verification**: Missing field triggers an exception with message “Required metadata <field> missing from <filename>”.  
 - [ ] T046b [P] Implement `validate_pipeline_state()` in `code/main.py` to abort with clear errors if `gt_metadata.json` or `validation_manifest.json` are missing  
   - **Verification**: Running the CLI without those files exits with status 1 and prints the expected message.  
 
-**Checkpoint**: Synthetic data, real‑data manifest, and validation logic are in place; the pipeline can now be exercised on known inputs.
+**Checkpoint**: Synthetic data, real‑data manifest, loader, and validation logic are in place; the pipeline can now be exercised on known inputs.
 
----
+---  
 
 ## Phase 3: User Story 1 – Noise‑Induced Bias on Ellipticity (Priority P1)
 
@@ -86,10 +88,12 @@
   - **Verification**: Log file contains a line “Noise bias regression completed”.  
 - [ ] T017 [P] Add detailed logging of noise parameters, random seeds, and regression outcomes to `logs/research.log` (FR‑008)  
   - **Verification**: Log entries include timestamp, `sigma`, and regression coefficients.  
+- [ ] T062 [S] Generate a significance summary report (`reports/sc001_significance.md`) that explicitly states whether any artifact type achieved p < 0.05 after Bonferroni correction, satisfying SC‑001.  
+  - **Verification**: Report contains a table with artifact type, p‑value, and a pass/fail statement.  
 
-**Checkpoint**: US1 can be executed independently; all unit tests now pass.
+**Checkpoint**: US1 can be executed independently; all unit tests now pass; significance is formally reported.
 
----
+---  
 
 ## Phase 4: User Story 2 – Saturation‑Induced Bias on Asymmetry (Priority P2)
 
@@ -114,7 +118,7 @@
 
 **Checkpoint**: US2 runs independently; all associated unit tests now pass.
 
----
+---  
 
 ## Phase 5: User Story 3 – Calibration Functions (Priority P3)
 
@@ -124,10 +128,10 @@
   - **Verification**: Test fails before implementation.  
 - [ ] T026 [P] Unit test `tests/unit/test_validation.py::test_correction_application` ensuring that applying the inverse correction yields residual bias within the required tolerance (FR‑007)  
   - **Verification**: Test fails before implementation.  
-- [ ] T027 [P] Implement `code/analysis/regression.py` to fit linear or polynomial models (auto‑select via AIC) for each metric‑artifact pair and store the chosen model parameters in `data/processed/calibration_functions.json` (FR‑005, FR‑006)  
-  - **Verification**: JSON file contains keys `ellipticity_model` and `asymmetry_model` with `coefficients`, `model_type`, `r_squared`, `p_value`.  
 - [ ] T041 [S] Implement `code/analysis/validation.py::aggregate_bias_data()` to merge `noise_sweep_data.csv` and `saturation_sweep.csv` into `data/processed/aggregated_bias.csv` (FR‑007)  
   - **Verification**: Aggregated CSV contains 700 rows (150 noise + 550 saturation).  
+- [ ] T027 [P] Implement `code/analysis/regression.py` to fit linear or polynomial models (auto‑select via AIC) for each metric‑artifact pair and store the chosen model parameters in `data/processed/calibration_functions.json` (FR‑005, FR‑006)  
+  - **Verification**: JSON file contains keys `ellipticity_model` and `asymmetry_model` with `coefficients`, `model_type`, `r_squared`, `p_value`.  
 - [ ] T028 [S] Extend `code/analysis/validation.py::apply_corrections()` to use the calibration functions on a held‑out subset (20 % of synthetic images), compute residual bias statistics, and write `data/processed/validation_results.csv` (FR‑007)  
   - **Verification**: CSV includes `metric`, `residual_bias_mean`, `p_value`.  
 - [ ] T029a [S] Add `run_us3_orchestration()` in `code/main.py` that calls aggregation, regression, and validation steps in sequence (FR‑001, FR‑008)  
@@ -138,10 +142,12 @@
   - **Verification**: Report contains the required fields; if power < 80 % a “Limitation” paragraph is present.  
 - [ ] T031 [S] Save final calibration functions to `data/processed/calibration_functions.json` and generate a short validation summary `data/processed/calibration_summary.md` linking to the regression and validation CSVs (SC‑002)  
   - **Verification**: JSON and markdown files exist and reference the correct CSVs.  
+- [ ] T060 [S] Apply the derived calibration functions to the manually vetted HST validation set (from T009) and record bias reduction metrics in `data/validation/real_calibration_results.csv` (Constitution VII).  
+  - **Verification**: CSV contains before/after bias for ellipticity and asymmetry on real images.  
 
-**Checkpoint**: All calibration steps are automated; regression models are persisted and validated on held‑out data.
+**Checkpoint**: All calibration steps are automated; regression models are persisted and validated on both synthetic held‑out data and real HST validation data.
 
----
+---  
 
 ## Phase N: Polish & Cross‑Cutting Concerns  
 
@@ -171,8 +177,12 @@
   - **Verification**: `validation_results.csv` contains columns `cv_fold`, `residual_mean`, `residual_ci_lower`, `residual_ci_upper`.  
 - [ ] T046c [P] Wire full orchestration in `code/main.py`: `--run-all` executes US1 → US2 → US3 in order, aborting on any failure (FR‑001, FR‑008)  
   - **Verification**: CLI `--run-all` completes and prints “Pipeline completed successfully”.  
+- [ ] T057c [P] Run code‑quality audit (`ruff check .` and `black --check .`), capture full textual reports in `logs/ruff_report.txt` and `logs/black_report.txt`, and fix any reported issues.  
+  - **Verification**: Both log files exist and contain the line “No issues found”.  
+- [ ] T058c [P] Refresh project documentation: update `README.md`, `quickstart.md`, and `research.md` with current implementation details, file locations, and CLI usage; add a “Generated on <date>” footer and cross‑references to code modules.  
+  - **Verification**: Each markdown file includes the updated sections, the footer line, and links to the appropriate source files.  
 
----
+---  
 
 ## Phase N+1: Review‑Resolution & Robustness Enhancements  
 
@@ -182,14 +192,14 @@
   - **Verification**: Missing file triggers the expected exception.  
 - [ ] T052 [S] Extend `code/analysis/power_analysis.py` to compute and report the Minimum Detectable Effect Size (MDES) in `power_analysis_report.md` (replaces cancelled T049)  
   - **Verification**: Report includes a line “Minimum Detectable Effect Size: …”.  
-- [ ] T053 [S] Extend `code/io/writer.py` to generate `data/processed/run_manifest.json` capturing git commit, environment variables, artifact parameters, and timestamp (replaces cancelled T050)  
+- [ ] T053 [S] Update `code/io/writer.py` to generate `data/processed/run_manifest.json` capturing git commit, environment variables, artifact parameters, and timestamp (replaces cancelled T050)  
   - **Verification**: Manifest file exists and contains the required keys.  
 - [ ] T054 [S] Update noise injection to detect “extreme” σ > 0.10, log a warning, and skip metric calculation for that image (replaces cancelled T048 part 1)  
   - **Verification**: Log entry “Noise σ = 0.12 exceeds maximum; skipping image …”.  
 - [ ] T055 [S] Update saturation logic to detect “extreme” fraction > 0.5, log a warning, and skip metric calculation (replaces cancelled T048 part 2)  
   - **Verification**: Log entry as described in T043.  
 
----
+---  
 
 ## Phase N+2: Final Integration & Reporting  
 
@@ -197,21 +207,64 @@
 
 - [ ] T056 [S] Generate `docs/reports/001-final-bias-analysis.md` synthesising plots of bias vs. artifact intensity, regression tables, calibration functions, power‑analysis limitations, and qualitative HST validation results (SC‑001 – SC‑004)  
   - **Verification**: Report contains at least one figure (`figures/bias_vs_noise.png`) and references `calibration_functions.json`.  
-- [ ] T057 [P] **Run code quality audit**: execute `ruff check .` and `black --check .`, capture the full textual reports in `logs/ruff_report.txt` and `logs/black_report.txt`, fix any reported issues, and commit the cleaned code (FR‑008)  
-  - **Verification**: Both log files exist and contain “No issues found”.  
-- [ ] T058 [P] **Refresh project documentation**: update `README.md`, `quickstart.md`, and `research.md` to reflect the latest implementation details, file locations, and CLI usage; ensure each file contains a “Generated on <date>” footer and cross‑references to the relevant code modules (FR‑008)  
-  - **Verification**: Each markdown file includes the updated sections and the footer line.  
+- [ ] T057 [P] Run code quality audit: execute `ruff check .` and `black --check .`; capture the full textual reports in `logs/ruff_report.txt` and `logs/black_report.txt`; fix any reported issues; commit the cleaned code (FR‑008)  
+  - **Verification**: Both log files exist and contain the line “No issues found”.  
+- [ ] T058 [P] Refresh project documentation: update `README.md`, `quickstart.md`, and `research.md` to reflect the latest implementation details, file locations, and CLI usage; ensure each file contains a “Generated on <date>” footer and cross‑references to the relevant code modules (FR‑008)  
+  - **Verification**: Each markdown file includes the updated sections, the footer line, and links to the appropriate source files.  
 - [ ] T059 [P] Execute the full pipeline (`python -m code.main --run-all`) in a clean virtual environment and verify that it completes without manual intervention, producing all expected artefacts (calibration JSON, validation CSVs, reports, logs) (Constitution I)  
   - **Verification**: CI run logs show “Pipeline completed successfully” and all expected files are present.  
 
----
+---  
+
+## Phase N+3: Expanded Contract & Entity Coverage (New)
+
+**Goal**: Close remaining specification coverage gaps identified by the panel.
+
+- [ ] T075 [P] Add contract test `tests/contract/test_artifact_config_schema.py` that validates `contracts/artifact_config.schema.yaml` against example JSON instances.  
+  - **Verification**: Test passes confirming schema compliance.  
+- [ ] T076 [P] Add contract test `tests/contract/test_imageset_schema.py` that validates the newly created `contracts/imageset.schema.yaml` against example ImageSet JSON.  
+  - **Verification**: Test passes confirming schema compliance.  
+- [ ] T077 [P] Add contract test `tests/contract/test_morphology_metrics_schema.py` that validates `contracts/morphology_metrics.schema.yaml` against example metric JSON.  
+  - **Verification**: Test passes confirming schema compliance.  
+- [ ] T078 [S] Create `contracts/imageset.schema.yaml` defining the ImageSet entity per the data‑model (required fields: id, source, filename, metadata, ground_truth).  
+  - **Verification**: Schema file exists and a sample JSON validates against it.  
+- [ ] T079 [S] Unit test `tests/unit/test_imageset.py::test_imageset_object` verifies that `ImageSet` objects produced by the loader conform to the ImageSet schema.  
+  - **Verification**: Test passes for both synthetic and real images.  
+- [ ] T080 [S] Unit test `tests/unit/test_artifact_config.py::test_artifact_config_object` verifies that `ArtifactConfig` instances generated by `code/config.py` match the schema.  
+  - **Verification**: Test passes for default and custom configurations.  
+- [ ] T081 [S] Unit test `tests/unit/test_morphology_metrics.py::test_metrics_schema` verifies that metric dictionaries written by `code/metrics/*` conform to `MorphologyMetrics` schema.  
+  - **Verification**: Test passes for all processed images.  
+- [ ] T082 [S] Unit test `tests/unit/test_verification_log.py::test_log_creation` verifies that `code/io/writer.py` creates a `VerificationLog` JSON file containing timestamp, seeds, library versions, and checksums.  
+  - **Verification**: Test passes and the log file validates against a defined schema.  
+
+---  
+
+## Phase N+4: Edge‑Case Robustness (New)
+
+**Goal**: Ensure graceful handling of corrupted or non‑FITS inputs as required by the specification’s edge cases.
+
+- [ ] T083 [S] Extend `code/io/loader.py` to detect non‑FITS files and raise `ValueError` with message “File <path> is not a valid FITS file”.  
+  - **Verification**: Test `tests/unit/test_loader.py::test_non_fits_rejection` passes.  
+- [ ] T084 [S] Add unit test `tests/unit/test_loader.py::test_corrupted_fits_rejection` that ensures a corrupted FITS file triggers a clear error.  
+  - **Verification**: Test passes confirming error handling.  
+
+---  
+
+## Phase N+5: Full Metadata Validation (New)
+
+**Goal**: Fully satisfy FR‑009 by explicitly checking all required metadata fields.
+
+- [ ] T085 [S] Add unit tests `tests/unit/test_loader.py::test_missing_exposure_time`, `::test_missing_filter`, and `::test_missing_pixel_scale` that verify the loader aborts with a clear error when any of these fields are absent.  
+  - **Verification**: Each test passes, confirming precise error messages.  
+
+---  
 
 ## Dependencies & Execution Order  
 
-- **Setup (Phase 1)** → **Core Infrastructure (Phase 2)** → **User Stories (Phases 3‑5)** → **Polish (Phase N)** → **Review‑Resolution (Phase N+1)** → **Final Integration (Phase N+2)**.  
+- **Setup (Phase 1)** → **Core Infrastructure (Phase 2)** → **User Stories (Phases 3‑5)** → **Polish (Phase N)** → **Review‑Resolution (Phase N+1)** → **Final Integration (Phase N+2)** → **Contract & Entity Coverage (Phase N+3)** → **Edge‑Case Robustness (Phase N+4)** → **Full Metadata Validation (Phase N+5)**.  
 - Within each phase, tasks marked `[P]` may run in parallel; tasks marked `[S]` must respect the indicated predecessor order.  
 - All scientific requirements (FR‑001 – FR‑009, SC‑001 – SC‑004) are satisfied by the tasks above.  
 
 ---  
 
-*End of tasks.md*
+*End of tasks.md*===
