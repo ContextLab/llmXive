@@ -12,7 +12,7 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
 
 ## Phase 0 – Project Setup & Infrastructure
 
-- [ ] T001 [P] **Create core directories**  
+- [X] T001 [P] **Create core directories**  
   `data/raw`, `data/processed`, `data/assets`, `code`, `artifacts`, `tests` (add a `.gitkeep` in each).  
   **Verification**: `git ls-files` shows the directories and a `.gitkeep` file inside each.
 
@@ -27,15 +27,15 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
 
 ## Phase 1 – Data Acquisition & Integrity
 
-- [ ] T003 [P] **Define checksum schema**  
+- [X] T003 [P] **Define checksum schema**  
   Create `data/raw/checksums_schema.yaml` describing the JSON structure (`file_path`, `sha256`). Also create an empty `data/raw/checksums.json`.  
   **Verification**: Both files are present and `yamllint` passes on the schema.
 
-- [ ] T004 [US1] **Download QM9 subset & record checksum**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [X] T004 [US1] **Download QM9 subset & record checksum**
   Stream the QM9 dataset (≈100 k molecules) via `torch_geometric.datasets.QM9` to `data/raw/qm9_subset.parquet`. Compute its SHA‑256 hash and add an entry to `data/raw/checksums.json` per the schema.  
   **Verification**: `data/raw/qm9_subset.parquet` exists, is non‑empty, and the hash in `checksums.json` matches the computed value.
 
-- [ ] T005 [US1] **Curate reference substructures CSV & checksum**  
+- [ ] T005 [US1] **Curate reference substructures CSV & checksum**   <!-- FAILED-IN-EXECUTION: code/data/curate_reference_substructures.py exit=1 -->
   Download the curated reference substructures (DOI cited in `spec.md`) to `data/raw/reference_substructures_raw.csv`. Compute its SHA‑256 and record in `checksums.json`.  
   **Verification**: File exists, checksum entry matches, and the CSV has the required columns (`smiles`, `source_doi`, `description`).
 

@@ -1,15 +1,16 @@
 status: none
-intent: download QM9 molecular dataset with graph features via Python package dataset
+intent: QM9 dataset download python package for graph neural networks python package
+  dataset
 required_fields:
 - smiles
-- atomic_number
+- atomic_numbers
 - hybridization
 - formal_charge
 - bond_type
-- conjugation
-- homo
-- lumo
-- gap
-cache_key: ecabdf823f9dbd11a3f49de1dc2c79a51723db118c9a14cb05a19dd9682af20c
-searched_at: '2026-10-11T18:13:20.921414+00:00'
+- bond_conjugation
+- homo_energy
+- lumo_energy
+- homo_lumo_gap
+cache_key: 7b95584104e26769802ae77637177f5b014462dff3d010f09e1df607e5464542
+searched_at: '2026-10-11T20:12:54.283944+00:00'
 retry_count: 1

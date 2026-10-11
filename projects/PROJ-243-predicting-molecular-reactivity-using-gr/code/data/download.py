@@ -98,7 +98,7 @@ def download_qm9_subset(output_dir: Path, subset_size: int = 100_000) -> Path:
     # ``QM9`` will download the raw files into ``output_dir`` if they are not
     # already present.  The dataset is small enough to fit into memory on the
     # CI runner, so we load it fully and then slice.
-    dataset = QM9(root=str(output_dir), download=True)
+    dataset = QM9(root=str(output_dir))  # No ``download`` argument – it auto‑downloads.
 
     total_available = len(dataset)
     if total_available == 0:
