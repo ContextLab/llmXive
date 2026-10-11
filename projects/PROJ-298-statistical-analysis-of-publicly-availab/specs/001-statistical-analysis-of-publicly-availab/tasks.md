@@ -95,7 +95,7 @@
  - **MUST** implement classification logic: if p >= 0.05 AND power < 0.8, classify as "Insufficient Data"; if p >= 0.05 AND power >= 0.8, classify as "Stable". **CRITICAL**: The threshold of 0.05 MUST be applied to the *adjusted* q-values resulting from the Benjamini-Hochberg correction, as ratified in T014a.
  - **MUST** output intermediate results to `data/processed/trend_intermediate.json`. (See FR-003)
 - [X] T014c [US1] **requires T014a, T014b, T013** Implement post-hoc power analysis (MDES + Power Estimate) in `code/analysis/trends.py`.
- - **MUST** calculate MDES via Monte Carlo (multiple iterations with a fixed random seed) by injecting linear trends of varying slopes into the pre-whitened residuals of the top 50 tags to determine the slope magnitude detectable at {{claim:c_2ac20d57}} (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)).
+ - **MUST** calculate MDES via Monte Carlo (multiple iterations with a fixed random seed) by injecting linear trends of varying slopes into the pre-whitened residuals of the top 50 tags to determine the slope magnitude detectable at 80% power with alpha=0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)).
  - **MUST** estimate variance from the pre-whitened residuals of the top 50 tags.
  - **MUST** if the post-hoc power analysis (MDES) indicates power < 0.8 for a specific tag, flag this tag in `data/processed/power_warnings.log` and exclude it from the "Stable" classification pool, re-classifying it as "Insufficient Data" regardless of the p-value.
  - **MUST** update `trend_intermediate.json` with power estimates and MDES values. (See FR-013, T057 MERGED)
