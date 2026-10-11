@@ -1,0 +1,97 @@
+T001:
+  reason: "Checked the `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/`\
+    \ directory listing. While `src/` and `tests/` exist, the required sub\u2011directories\
+    \ `data/imagenet_trace`, `data/imagenet_benchmark`, `data/routing_cache`, `data/results`,\
+    \ and `docs/` are not present in the provided artifact tree. These missing folders\
+    \ mean the project structure does not match the specification."
+  task: 53cde91177abe912b17b31e7eb4e4188c86bd25afb2fbc7385b02bb33e9378dd
+T002:
+  reason: The `requirements.txt` file exists but still lists `bitsandbytes` (and extra
+    packages) even though the task explicitly required its removal; thus the content
+    does not match the specification.
+  task: f5e57ade07aaae2125de52cd90752abc679ba5de885873aa10fe92b738c01a38
+T003:
+  reason: "The project root contains no linting or formatting configuration files\
+    \ (e.g., `pyproject.toml` with Black/Ruff settings, `.flake8`, or `.ruff.toml`)\
+    \ and no evidence of a linting/formatting setup script or CI integration. Without\
+    \ these artifacts, the requirement to \u201CConfigure linting (ruff/flake8) and\
+    \ formatting (black) tools\u201D is not satisfied. Adding the appropriate configuration\
+    \ files and confirming they are applied would be needed."
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T005:
+  reason: "The provided `model_loader.py` is a placeholder that loads a generic `StableDiffusionPipeline`\
+    \ from a non\u2011existent \u201Cfacebook/sit-xl-2\u201D ID and contains no evidence\
+    \ that the actual SiT\u2011XL model with DAR is loaded, nor any test showing successful\
+    \ import or a float\u201116 load without OOM on a CPU runner. The task requires\
+    \ loading the canonical SiT\u2011XL model with DAR enabled in low\u2011precision\
+    \ (float16) and proof that it fits within the runner\u2019s memory limits, which\
+    \ is missing."
+  task: 0509c023bcb06a6348493d3fc3254ed830a0ca63a2893dd98b2fca4d1b3dacd9
+T006:
+  reason: "The `calculate_fid` implementation loads the Inception model with `Inception_V3_Weights.DEFAULT`\
+    \ (not explicitly the required `IMAGENET1K_V1`/configured version) and only resizes\
+    \ images to 299\xD7299; it never performs the required center\u2011crop step.\
+    \ Moreover, it extracts the model\u2019s final logits rather than the pool\u2011\
+    3 features normally used for FID, so the function does not meet the specified\
+    \ preprocessing and weight\u2011loading constraints."
+  task: 5ea7649c5c9a4a1a1caa2270eff8411f727fadc73aaf29e3390c75f8e68ed9a8
+T007:
+  task: 411db153371d8cd7ca5b78b79a4538ce90e3de70d3b4f1525837cbc6749dc5b6
+T008:
+  task: ddbb2e47c39d23701a772e6e7ace33c889d79e71cae1688b402af612fe8729e2
+T009:
+  task: 26b1c56ea5bd6aa5fc778cdd1f2c252b11def8ea1a3609412b8d538d42021fc6
+T011:
+  task: f14bc8d110f5d4ac5ff53ebf15247706166f01a30acf0ca3ddc50bae0ea66413
+T012:
+  task: 4ee3419d7f4c3d172441a7f8b6fc074edb22089424a21796d10fd07cc3ed924a
+T013:
+  task: d9df0d224c1663be64a7fb7d58a4d43ccf6ec1989ddb660b2a3de351caad3d96
+T016:
+  task: e071ea6e0b9d647d64c77d0705978a3797dfbc8b6054bf5e8613af991f6dac4b
+T017:
+  task: 55e4442f1ad07bd285cf2aea1d3f59382abe0fb05154617fc377a87fc96c0e73
+T018:
+  task: 95eae64fb3c19be86385f920a288282f96adbbc1f9648cd7b2874ff4a8f7cedd
+T019:
+  task: 0d62f0113cb7b07bb436dfc536a8edc671c57fbb9bf078e1f544887e4d9ceeee
+T023:
+  task: 89532017ec980b25261f42a1312db54697aa9d3e90d14211f57069e6eaf28d86
+T024:
+  task: ec7dae290d720a0b5f899a3cb967b4b507f4df96107b66f13b2bcc030a4ae2fd
+T025:
+  task: 924db8181978479fd9d36ba96d89e383001b4a93e74579795ff15b715041c8d3
+T026:
+  task: c715cbd16fdcf26c37a3844cab87946769acbc02befc8336eb17779a1daa0872
+T027:
+  task: f8cd2b62311d1392992ac9cc173d83bb79420843954fa01c1ca270f17ce40f29
+T028:
+  task: 8fa24baf5e83152858c746dff13d758607535b58c5153ba7c0e20d10c091293e
+T030a:
+  task: f42212c30722b95787a91c5f97c32f772cede2a5a576e215aeae34996d8fcaaf
+T030b:
+  task: 046c6d4e8b1539b02f9aac1b04b41fdfe3debef4216d1d6e6127ad9eeaaa0c46
+T030c:
+  task: 409ccf82f0a6fa13217b8022113e181dd225df135e890c98e3147321e411fe45
+T031a:
+  task: 2a77c2ec55c72072323bad73d29f49252cb2ce98d703fcc323dcead75efaf877
+T031b:
+  task: a76faea53e1a9826c9f98ce4dbdfdddf901a3908ebb28731be3d0448aa51f81c
+T031c:
+  task: 0e3912596a9b89867fbabe19d23a5e8478c76358012932e33f25b4ac6f5d4eba
+T032a:
+  task: e79a06c5f9d59319500611e3f1668dd96e909e9990b791996fc1f8b8a80e0443
+T033:
+  task: 0c023c07943c9fd5a56d9dc994969f560bed2ff5df762839edcbcd9995de50a0
+T034:
+  task: 63151a1f2e05fc98c3840e540411e8ab3152fadfff623612b2b7275015f7c217
+T035:
+  task: e5e96db965b7f0adb05d61bbf26ae5805486cc676f693b9a6f902a67c27ac543
+T039:
+  task: 7643290710d7c81d245d9c7d56143bf96331a3122147fb3a7108553d228dd4de
+T044:
+  task: eb6f88fc207ddd8a68aab5c6014c6bbdeaf31b725e3c8c130004a9141cb31606
+T045:
+  task: a15a6427ee9208c00bc4aeae0a2634e951c031f5c9e0cfb5d6ef8e5ef3cdb4e0
+T046:
+  task: aa509fc3a5408bf1e96acc3bb18973948cb4c94f6a66a10d1fb0ffa30c1481f2

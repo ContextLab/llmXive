@@ -1,12 +1,15 @@
 status: none
-intent: download ImageNet 1k validation split via huggingface datasets python package
-  dataset
+intent: download ImageNet 1k validation set and SiT-XL/2 pretrained model with DAR
+  python package dataset
 required_fields:
 - image_id
-- image_path
-- label
-- label_name
-- synset
-cache_key: 98098490764ce31d4665d0953825d50a1f61629ec902244731a12db4466fe5ba
-searched_at: '2026-08-22T18:38:53.880566+00:00'
+- image_file_path
+- class_label
+- image_array
+- model_name
+- pretrained_weights_file
+- dar_enabled_flag
+- routing_weight_matrix_shape
+cache_key: 65da13f39a7dfa9a81c1f844741af3866ac3353358d2a7b6785b1a715c089385
+searched_at: '2026-10-11T15:27:13.697405+00:00'
 retry_count: 1

@@ -1,3 +1,58 @@
+T001:
+  c: false
+  h: 613c7c0d8b72fbf22bd76908675b5196b1f34586589b68210933f7dcfddd1190
+  r: "Checked the `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/`\
+    \ directory listing. While `src/` and `tests/` exist, the required sub\u2011directories\
+    \ `data/imagenet_trace`, `data/imagenet_benchmark`, `data/routing_cache`, `data/results`,\
+    \ and `docs/` are not present in the provided artifact tree. These missing folders\
+    \ mean the project structure does not match the specification."
+  sig: d4e5a921ade570d1372001ebd0fd8f6b00df7363788259ebe34acecacf20eb28
+T002:
+  c: false
+  h: 037b20779f8516320be7f498b470c151cc1cf2852ba71e60ce4b51fd2d6d0513
+  r: The `requirements.txt` file exists but still lists `bitsandbytes` (and extra
+    packages) even though the task explicitly required its removal; thus the content
+    does not match the specification.
+  sig: 78b912bd3dcf08b5dc7e75ef306b62b9a89773b41315d964c6d4f3c9b95be6b9
+T003:
+  c: false
+  h: 7d8393456f689aeb409dab582b4179ad0d6181b67d6665497615c26e801b6cd1
+  r: "The project root contains no linting or formatting configuration files (e.g.,\
+    \ `pyproject.toml` with Black/Ruff settings, `.flake8`, or `.ruff.toml`) and no\
+    \ evidence of a linting/formatting setup script or CI integration. Without these\
+    \ artifacts, the requirement to \u201CConfigure linting (ruff/flake8) and formatting\
+    \ (black) tools\u201D is not satisfied. Adding the appropriate configuration files\
+    \ and confirming they are applied would be needed."
+  sig: 92e2c3749f5d154d72f10f5a6b91207b4c95618fef57e3fcce5b4ebe8f70cb46
+T005:
+  c: false
+  h: 933d2e88fee407f66ed89edb0c087ccfc03e79eb18894c09fe47425d1b43ccb3
+  r: "The provided `model_loader.py` is a placeholder that loads a generic `StableDiffusionPipeline`\
+    \ from a non\u2011existent \u201Cfacebook/sit-xl-2\u201D ID and contains no evidence\
+    \ that the actual SiT\u2011XL model with DAR is loaded, nor any test showing successful\
+    \ import or a float\u201116 load without OOM on a CPU runner. The task requires\
+    \ loading the canonical SiT\u2011XL model with DAR enabled in low\u2011precision\
+    \ (float16) and proof that it fits within the runner\u2019s memory limits, which\
+    \ is missing."
+  sig: 6d8ba53a9619614da767c9c8feb57d22736f30860678fd5248ecbbf84b8628e5
+T006:
+  c: false
+  h: 16423bd06d5760d5b22803f95cfe598b5ec1b23f5a8cef4af0233c64c3853120
+  r: "The `calculate_fid` implementation loads the Inception model with `Inception_V3_Weights.DEFAULT`\
+    \ (not explicitly the required `IMAGENET1K_V1`/configured version) and only resizes\
+    \ images to 299\xD7299; it never performs the required center\u2011crop step.\
+    \ Moreover, it extracts the model\u2019s final logits rather than the pool\u2011\
+    3 features normally used for FID, so the function does not meet the specified\
+    \ preprocessing and weight\u2011loading constraints."
+  sig: e879ad656bfd3cc5420eb048ce2c9301ab02448403fac81d23ca746bfa4bacc3
+T007:
+  c: true
+  h: e44f1c135e6d42e9ac917a3f62e89ab8a504c8bd5f86ea0ad24827664b92f350
+  r: Checked `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/utils.py`;
+    it defines `batch_iterator(iterable, batch_size)` yielding fixed-size chunks and
+    `memory_guard(threshold_gb)` that returns `True` or raises `MemoryError` when
+    usage meets/exceeds the threshold.
+  sig: d33780d6f35275a3d6c4e785a21b3b07eb0b9037ca0f39e700431ec64f038c25
 T012:
   c: false
   h: c9d9394f55796f89b498566626194d9cb301259dfb523f4bd2f79cdefc3dfda3

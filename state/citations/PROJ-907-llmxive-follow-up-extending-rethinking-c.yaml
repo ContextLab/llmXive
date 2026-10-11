@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/facebook/sit-xlarge-2
   verified_at: '2026-08-22T18:53:31.936445Z'
-- artifact_hash: 7d5dd87a6f4245f3efc78398345d8a1b4cbc82f81d933ca31be01fbae4712de0
+- artifact_hash: bf23b00db2ea6e1755f62785d99459d22254ac6e33203e5ac1d9246295322d3e
   artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-10-06T03:02:56.437067Z'
+  verified_at: '2026-10-11T15:26:11.088346Z'
