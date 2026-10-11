@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan (code/, data/, results/, state/)
+- [ ] T001 Create project structure per implementation plan (code/, data/, results/, state/)
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (datasets, transformers, accelerate, torch-cpu, scikit-learn, pytest)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 [P] Setup `checksum.py` script for artifact versioning (Constitution Principle V)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T004 [P] Setup `checksum.py` script for artifact versioning (Constitution Principle V)
 
 ---
 
@@ -59,9 +59,9 @@
 - [X] T005 Implement `code/utils/sandbox.py` with hard 5s timeout and 500MB memory limit wrappers (FR-005)
 - [X] T006 Implement `code/utils/logger.py` for structured JSON logging of pipeline stages
 - [X] T007 Create `code/data/download.py` to fetch `codeparrot/codesearchnet-python` via `datasets` library (FR-001)
-- [X] T008 Create `code/data/extract.py` to parse raw parquet and isolate top-level function definitions via `ast` (US-1)
-- [X] T009 Create `code/data/validate.py` for syntax checking and import mocking (FR-001, FR-010)
-- [X] T010 Create `code/data/preprocess.py` to sanitize code (remove I/O/network calls, mock stdlib) (FR-011)
+- [~] T008 Create `code/data/extract.py` to parse raw parquet and isolate top-level function definitions via `ast` (US-1)
+- [~] T009 Create `code/data/validate.py` for syntax checking and import mocking (FR-001, FR-010)
+- [~] T010 Create `code/data/preprocess.py` to sanitize code (remove I/O/network calls, mock stdlib) (FR-011)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,18 +77,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T011 [P] [US1] Unit test for `download.py` to verify file count and checksum in `tests/unit/test_download.py`; tests components of the full pipeline flow
-- [X] T012 [P] [US1] Unit test for `validate.py` to ensure `SyntaxError` functions are excluded in `tests/unit/test_validate.py`; tests components of the full pipeline flow
-- [X] T013 [P] [US1] Integration test for the full pipeline (download -> validate -> preprocess) in `tests/integration/test_data_pipeline.py`
+- [~] T011 [P] [US1] Unit test for `download.py` to verify file count and checksum in `tests/unit/test_download.py`; tests components of the full pipeline flow
+- [~] T012 [P] [US1] Unit test for `validate.py` to ensure `SyntaxError` functions are excluded in `tests/unit/test_validate.py`; tests components of the full pipeline flow
+- [~] T013 [P] [US1] Integration test for the full pipeline (download -> validate -> preprocess) in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T014a [US1] Define strata boundaries (0-10, 11-50, 51+ LOC) and sampling weights for 200 functions in `code/data/sample.py` (FR-008) <!-- FAILED: unspecified -->
-- [ ] T014b [US1] Implement sampling function to extract 200 functions from the **validated pool (output of T009, filtered for <=3 external imports)** in `code/data/sample.py` (FR-001, FR-008). **Output**: `data/processed/validated_functions.jsonl`. **Verify**: Count == 200.
-- [ ] T014c [US1] Generate the stratified pilot sample of 50 functions from `data/processed/validated_functions.jsonl` in `code/data/sample.py` (FR-008). **Output**: `data/processed/pilot_sample.jsonl`. **Verify**: 50 functions distributed across strata.
-- [X] T015 [Shared] Implement functional equivalence check logic (AST diff + Type-aware random inputs) in `code/benchmark/equivalence.py` with clear I/O contracts (Input: original_code, simplified_code, random_inputs; Output: bool, drift_log). **Deliverable**: `code/benchmark/equivalence.py`. **Verify**: Run on a set of pairs, expect matches. **Note**: This logic MUST be invoked during Phase 4 (Simplification) to satisfy FR-007 and is used by T016 and T033. (FR-006, FR-007, FR-012)
+- [~] T014a [US1] Define strata boundaries (0-10, 11-50, 51+ LOC) and sampling weights for 200 functions in `code/data/sample.py` (FR-008) <!-- FAILED: unspecified -->
+- [~] T014b [US1] Implement sampling function to extract 200 functions from the **validated pool (output of T009, filtered for <=3 external imports)** in `code/data/sample.py` (FR-001, FR-008). **Output**: `data/processed/validated_functions.jsonl`. **Verify**: Count == 200.
+- [ ] T014c [US1] Generate the stratified pilot sample of 50 functions from `data/processed/validated_functions.jsonl` in `code/data/sample.py` (FR-008). **Output**: `data/processed/pilot_sample.jsonl`. **Verify**: 50 functions distributed across strata. <!-- FAILED-IN-EXECUTION: code/data/generate_pilot_sample.py exit=1 -->
+- [~] T015 [Shared] Implement functional equivalence check logic (AST diff + Type-aware random inputs) in `code/benchmark/equivalence.py` with clear I/O contracts (Input: original_code, simplified_code, random_inputs; Output: bool, drift_log). **Deliverable**: `code/benchmark/equivalence.py`. **Verify**: Run on a set of pairs, expect matches. **Note**: This logic MUST be invoked during Phase 4 (Simplification) to satisfy FR-007 and is used by T016 and T033. (FR-006, FR-007, FR-012)
 - [ ] T017 [US1] Implement full data pipeline orchestrator in `code/main_data.py` to produce `data/processed/functions.jsonl`
-- [X] T018 [US1] Add logging for exclusion reasons (syntax error, import failure, equivalence drift) in `code/utils/logger.py`
+- [~] T018 [US1] Add logging for exclusion reasons (syntax error, import failure, equivalence drift) in `code/utils/logger.py`
 
 **Checkpoint**: At this point, User Stories should be fully functional and testable independently with a validated dataset (simplification logic pending).
 
@@ -103,16 +103,16 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T019 [P] [US2] Unit test for `loader.py` to verify model loads in 4-bit precision on CPU within 7GB RAM in `tests/unit/test_model_loader.py`
-- [X] T020 [P] [US2] Unit test for `simplify.py` to ensure retry logic handles generation failures in `tests/unit/test_simplify.py`
-- [X] T021 [P] [US2] Integration test for simplification of a batch of functions in `tests/integration/test_simplification.py`
+- [~] T020 [P] [US2] Unit test for `simplify.py` to ensure retry logic handles generation failures in `tests/unit/test_simplify.py`
+- [~] T021 [P] [US2] Integration test for simplification of a batch of functions in `tests/integration/test_simplification.py`
 
 ### Implementation for User Story 2
 
 - [ ] T016 [US2] **Pilot Gate**: Execute pilot validation on `data/processed/pilot_sample.jsonl` (50 functions) to verify ≥10 valid, equivalent pairs per stratum. **Mandatory Step**: Invoke T015 equivalence check logic for each pair. **Output**: `results/pilot_validation_report.json`. **Verify**: Report contains ≥10 valid pairs per stratum. (FR-008, FR-006) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T022 [P] [US2] Implement `code/models/loader.py` to load CodeLlama model (4-bit, CPU) with `accelerate` (FR-002)
-- [X] T023 [US2] Implement `code/models/simplify.py` with the standard simplification prompt and retry logic (configurable retry limit) (FR-002, US-2)
-- [X] T024 [US2] Implement AST validation for generated code in `code/models/simplify.py`; **integrate into T023 retry loop (a limited number of retries) before discard** (US-2)
-- [X] T025 [US2] Create `code/main_simplify.py` to process `data/processed/validated_functions.jsonl` and output `data/processed/simplified_functions.jsonl`
+- [~] T022 [P] [US2] Implement `code/models/loader.py` to load CodeLlama model (4-bit, CPU) with `accelerate` (FR-002)
+- [~] T023 [US2] Implement `code/models/simplify.py` with the standard simplification prompt and retry logic (configurable retry limit) (FR-002, US-2)
+- [~] T024 [US2] Implement AST validation for generated code in `code/models/simplify.py`; **integrate into T023 retry loop (a limited number of retries) before discard** (US-2)
+- [~] T025 [US2] Create `code/main_simplify.py` to process `data/processed/validated_functions.jsonl` and output `data/processed/simplified_functions.jsonl`
 - [ ] T026 [US2] Add functional drift detection: run equivalence check (T015) on simplified code; log pairs with drift in `results/simplification_log.json` (FR-007)
 
 **Checkpoint**: Pilot validation passed. Proceed to full simplification.
@@ -141,8 +141,8 @@
 
 ### Implementation for User Story 3
 
-- [X] T031 [P] [US3] Implement `code/benchmark/runner.py` to execute code repeatedly using `time.perf_counter()` and `tracemalloc`. **Integrate sandbox.py wrappers into a multi-iteration loop to enforce 5s/500MB limits on EVERY iteration** (FR-003, FR-005, FR-009)
-- [X] T032 [US3] Implement `code/benchmark/stats.py` with Shapiro-Wilk normality check, t-test/Wilcoxon selection, and Bonferroni correction. **Perform statistical tests on the distribution of N=200 means (not raw iterations)** as required by FR-009 and SC-001/SC-002. (FR-004, SC-001, SC-002)
+- [~] T031 [P] [US3] Implement `code/benchmark/runner.py` to execute code repeatedly using `time.perf_counter()` and `tracemalloc`. **Integrate sandbox.py wrappers into a multi-iteration loop to enforce 5s/500MB limits on EVERY iteration** (FR-003, FR-005, FR-009)
+- [~] T032 [US3] Implement `code/benchmark/stats.py` with Shapiro-Wilk normality check, t-test/Wilcoxon selection, and Bonferroni correction. **Perform statistical tests on the distribution of N=200 means (not raw iterations)** as required by FR-009 and SC-001/SC-002. (FR-004, SC-001, SC-002)
 - [~] T033 [US3] Create `code/main_benchmark.py` to orchestrate the full run: load **`data/processed/valid_pairs.jsonl`** (output of T026b), run benchmarks, aggregate means, run stats
 - [ ] T034 [US3] Generate `results/summary.csv` with mean deltas, std, p-values, and significance flags (US-3)
 - [ ] T035b [US3] Generate `results/statistical_summary.json` with p-values and significance flags derived from SC-001/SC-002 metrics (NO narrative text) (SC-001, SC-002)

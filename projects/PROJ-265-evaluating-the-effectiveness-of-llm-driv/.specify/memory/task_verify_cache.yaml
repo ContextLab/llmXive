@@ -1,3 +1,53 @@
+T002:
+  c: true
+  h: 88785111020670b7f231273faa0c136fe10a693565ca25f2ef03675ae1c8a664
+  r: "Checked the `requirements.txt` file (projects/PROJ-265-evaluating-the-effectiveness-of-llm-driv/requirements.txt)\
+    \ which exists, is non\u2011empty, and lists all required packages (datasets,\
+    \ transformers, accelerate, torch\u2011cpu, scikit\u2011learn, pytest) along with\
+    \ additional optional tools."
+  sig: 3bf3bdb712931a05253a7b0353db82e896c32c3fa3a28e92a0b238f07f1fc778
+T003:
+  c: false
+  h: 7ada64795654c7b8daf76db3b9e5c52c3f77365dcb173af16579b2edc6e20cc0
+  r: "The evidence contains no linting or formatting configuration files (e.g., `.ruff.toml`,\
+    \ `pyproject.toml` with Black settings, or a pre\u2011commit hook) and no scripts\
+    \ showing ruff/black integration. Without these artifacts the requirement to \u201C\
+    configure linting (ruff) and formatting (black) tools\u201D is not satisfied.\
+    \ Adding the appropriate config files and confirming they run would resolve the\
+    \ issue."
+  sig: 8952c3e92754573a5f8b8fbe6376e71b05ef11cd7cb99cbee4dc9ca97a19293d
+T004:
+  c: false
+  h: fa594fc757ce083c3ae2b9b96ca416be95c5cd1d64a99c26957ac572c73883e2
+  r: The evidence contains no `checksum.py` script (or any related files) in the project
+    root or subdirectories, nor any documentation or execution logs showing that such
+    a script was created and functions for artifact versioning. Without the required
+    script, the task is not satisfied.
+  sig: 58bd03f2524f291b57c0e74e393387939fde481e1573afc29bfe1045eeea1c19
+T005:
+  c: true
+  h: 6d2425baa5f0665c9a9460b9cea518f801afa94f7ce8fa6a25d718822fc2730d
+  r: "Checked the `code/utils/sandbox.py` file (10678\u202Fbytes) which defines default\
+    \ 5\u2011second timeout and 500\u202FMB memory\u2011limit constants, provides\
+    \ `_resource_limits` for in\u2011process limits, and `run_in_sandbox` / `run_code_with_limits`\
+    \ functions that apply those limits and expose a CLI. The implementation is non\u2011\
+    empty and fulfills the requested hard timeout and memory\u2011limit wrappers."
+  sig: d2a3e4942a36117a1739a2037fc3efa201ef6555e7d28c76ced72c400cf9a1a2
+T006:
+  c: true
+  h: 66ae78dc6d75df54e77148704c521b08e41c629e24f8c72efca86f5cc74adbf7
+  r: "Checked the `code/utils/logger.py` file (5599\u202Fbytes) which defines a JSONFormatter,\
+    \ a configured logger, stage\u2011start/completion/error/exclusion helpers, a\
+    \ generic log_message, and a StageTimer context manager, all outputting structured\
+    \ JSON as required. The implementation is complete and functional, not a stub."
+  sig: b5a7a8841b291759ff2292db1879bf1627ab3f1beb0f6512aa5eebb1fd7304c1
+T007:
+  c: true
+  h: 0e80255b47af0dc3c2c4aadff58052f369a63f88d1140c306373dcd8e55823cf
+  r: "The artifact `code/data/download.py` exists, is non\u2011empty, and contains\
+    \ concrete code that imports the `datasets` library, loads the `codeparrot/codesearchnet-python`\
+    \ dataset, and saves it locally, fulfilling the required functionality."
+  sig: 5a15726c9731671b3c2d690596edd5913dab44e895a998bbb21538d5c95be1d0
 T014b:
   c: false
   h: c371bda8eacf6beaeaacc15850437cc234d3e04bf722d2d333f7f81bfb5457ce
