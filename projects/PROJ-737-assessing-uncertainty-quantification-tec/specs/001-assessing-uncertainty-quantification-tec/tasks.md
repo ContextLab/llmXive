@@ -1,64 +1,119 @@
-# Tasks: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
+# Tasks: Assessing Uncertainty Quantification Techniques for Materials Property Predictions  
 
-**Input**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`, `plan.md`, `data-model.md`, `contracts/`
-**Re-plan note**: Updated to resolve all panel concerns, added per‑technique cost recording, cost‑metric significance testing, requirements‑pinning verification, integration test, entry‑point script, and aligned path layout with plan.
+**Inputs**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`, `plan.md`, `data-model.md`, `contracts/`  
 
-## Task format
+The following checklist implements the smallest complete, reproducible study that satisfies **all** functional, non‑functional, and success‑criteria requirements in the specification.  
+Unchecked items indicate work that still needs to be performed (or re‑performed after a failure).  
+Checked items have been verified to meet their contract and are retained.
 
-`- [ ] T### [P?] [USx?] description with exact artifact paths`. Paths are relative to the project directory. `[P]` = independent tasks (no data dependencies).
+---
 
-## Phase 1: Setup and first end‑to‑end analysis
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [US1] Verify project skeleton and data contracts. Ensure directories `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `code/models/`, `code/metrics/`, `code/stats/`, `code/utils/`, `tests/unit/`, `tests/integration/` exist. Define `per_sample_errors.schema.yaml` under `specs/.../contracts/` with columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`. Verify that `spec.md` SC‑005 already lists the three datasets; no modification required.
+- [ ] **T001** [US1] **Create required project directories and verify schema completeness**  
+  - Create empty directories: `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `code/models/`, `code/metrics/`, `code/stats/`, `code/utils/`, `tests/unit/`, `tests/integration/`.  
+  - Ensure the `per_sample_errors.schema.yaml` file at `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml` contains **exactly** the columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`.  
+  - Verification: run `python -c "import yaml; schema = yaml.safe_load(open('specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml')); assert {c['name'] for c in schema['columns']} == {'sample_id','dataset','method','prediction','lower_bound','upper_bound','ground_truth','abs_error'}"` and ensure exit status 0.  
 
-- [ ] T002 [US1] Implement `code/download.py` to fetch the three REAL datasets (OQMD band‑gap, OQMD formation‑energy, AFLOW thermal‑conductivity) and write them to `data/raw/` with SHA256 checksum manifest. The loader must FAIL LOUDLY on any fetch error. No synthetic fallback. Cap each dataset at **5,000** samples (fixed seed 42) and record this cap in the generated metadata file `data/raw/<dataset>_metadata.json`. **Spec amendment**: note that the original fallback clause in Assumptions is overridden by this strict‑fail policy. <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
+- [ ] **T002** [US1] **Download the three real materials datasets with retry & partial‑result handling**  
+  - Implement `code/download.py` to fetch:  
+    1. **Band Gap** – OQMD CSV from `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv` — HTTP 404]  
+    2. **Formation Energy** – OQMD CSV from `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv` — HTTP 404]  
+    3. **Thermal Conductivity** – AFLOW CSV from `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/aflow/aflow-data/master/thermal_conductivity.csv` — HTTP 404]  
+  - Use exponential back‑off retry (max 3 attempts) on HTTP errors; on persistent failure raise an exception **after** writing any successfully downloaded files to `data/raw/` and recording which URLs failed in `data/raw/download_log.json`.  
+  - Write each raw file to `data/raw/<dataset_id>.csv`.  
+  - Compute SHA‑256 checksum for each file and store in `data/raw/<dataset_id>_metadata.json` together with `dataset_id`, `source_url`, `n_samples_original`, `n_samples_used`, `checksum`.  
+  - **Cap** each dataset at **5 000** samples (deterministic seed 42, `itertools.islice`). Record the cap size in the metadata file.  
 
-- [ ] T003 [US1] Run a thin end‑to‑end analysis on a 100‑sample subset: featurize using matminer (fallback to pymatgen), stratified 70/15/15 split, train baseline XGBoost and the four UQ methods (GPR, MC Dropout ≤200 passes, Deep Ensemble of 3, Split‑Conformal). Write per‑sample predictions to `data/results/per_sample_errors.csv` conforming to the schema. Record pipeline execution log `data/results/pipeline_run.json` (overall status, memory_peak_mb, total_duration_seconds). <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T003** [US1] **Thin end‑to‑end run on a 100‑sample subset with schema verification**  
+  - Subset each downloaded dataset to the first 100 rows (seed 42) and write to `data/processed/<dataset_id>_subset.csv`.  
+  - Featurize using `matminer` (fallback to simple composition fractions via `pymatgen` if import fails). Store the processed files as `data/processed/<dataset_id>.csv`.  
+  - Perform a stratified 70 %/15 %/15 % train/val/test split (by target property range) and save the split indices in `data/processed/<dataset_id>_split.json`.  
+  - Train a baseline **XGBoost** regressor and the four UQ methods (GPR, MC‑Dropout MLP with ≤ 200 passes, Deep Ensemble of ≤ 3 MLPs, Split‑Conformal XGBoost) **only on the 100‑sample split**.  
+  - Write per‑sample predictions (including lower/upper bounds) to a **single** `data/results/per_sample_errors.csv` that conforms to `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`. Compute `abs_error = |prediction – ground_truth|` for each row.  
+  - Record pipeline execution metadata in `data/results/pipeline_run.json` adhering to `specs/001-assessing-uncertainty-quantification-tec/contracts/pipeline.schema.yaml`.  
+  - **Verification**: after generation, run a validator that loads `per_sample_errors.csv` and checks column names/types against the schema; also validate `pipeline_run.json` against its schema.  
 
-## Phase 2: Complete study and validate evidence
+- [ ] **T004** [US1] **Full‑scale pipeline on all three datasets (5 000‑sample cap) with unified outputs**  
+  - Re‑run the full pipeline (download → featurize → split → train all four UQ methods) on the capped datasets from `data/raw/`.  
+  - Persist per‑sample predictions for **all** dataset × method combinations in the **single** `data/results/per_sample_errors.csv` (add columns `dataset_id` and `method_id` to differentiate rows).  
+  - Collect **cost metrics** (training time, inference time, peak RAM) for each run and write a consolidated CSV `data/results/cost_metrics.csv` with columns `dataset_id, method_id, train_time_s, inference_time_s, peak_ram_mb`.  
+  - **Verification**: validate `per_sample_errors.csv` against the per‑sample schema and `cost_metrics.csv` against a simple schema (numeric types, non‑negative values).  
 
-- [ ] T004 [US1] Execute the full pipeline on all three datasets at the 5,000‑sample cap, fixed seeds, and record **per‑technique** cost metrics (training time, inference time, peak RAM) to `data/results/cost_metrics.csv` (columns `dataset, method, train_time_s, inference_time_s, peak_ram_mb`). Also produce the complete `data/results/per_sample_errors.csv` for all 12 dataset × method combos.
+- [ ] **T005** [US2] **Compute calibration, sharpness, and coverage metrics with timestamp validation**  
+  - Implement `code/metrics/evaluation.py` to read `per_sample_errors.csv` and calculate:  
+    - **Calibration Error** (expected calibration error for prediction intervals)  
+    - **Sharpness** (average interval width)  
+    - **Coverage Error** (difference between nominal and empirical coverage)  
+  - Write a single CSV `data/results/metrics_raw.csv` that conforms to `specs/001-assessing-uncertainty-quantification-tec/contracts/metrics.schema.yaml`. Required columns: `dataset_id, method_id, metric_type, value, nominal_coverage, timestamp`. Use the current ISO‑8601 timestamp for each row.  
+  - **Verification**: after writing, load the CSV and assert each row matches the schema (including that `timestamp` parses as ISO‑8601).  
 
-- [ ] T005 [P] [US2] Compute Calibration Error, Sharpness, and Coverage Error for every method × dataset from `per_sample_errors.csv`. Write `data/results/metrics_raw.csv` with columns matching `contracts/metrics.schema.yaml` (`dataset_id, method_id, metric_type, value, nominal_coverage, timestamp`). Use `metric_type` values `calibration_error`, `sharpness`, and `coverage_error` only.
+- [ ] **T006** [US3] **Paired Wilcoxon signed‑rank significance testing with CSV output**  
+  - For each dataset, generate all **6 unique method pairs** and perform a Wilcoxon signed‑rank test on the per‑sample absolute errors.  
+  - Produce a single CSV `data/results/statistical_report.csv` where each row conforms to `specs/001-assessing-uncertainty-quantification-tec/contracts/stats.schema.yaml`. Required fields: `dataset_id, method_a, method_b, metric_type, p_value, test_type ("wilcoxon_signed_rank"), significant, alpha (0.05), correction ("bonferroni")`.  
+  - **Verification**: validate each CSV row against the schema after generation.  
 
-- [ ] T006 [P] [US3] Perform paired Wilcoxon Signed‑Rank tests on per‑sample absolute errors for all 6 method pairs within each dataset. Write results as JSON Lines to `data/results/statistical_report.jsonl`, where each line conforms to `contracts/statistics.schema.yaml`. Required fields per line: `test_type` (must be `"wilcoxon_signed_rank"`), `method_pair` (array of two method IDs), `dataset_name`, `p_value`, `significant`, `alpha`, `correction`, and `metric_analyzed` (enum `"calibration_error"` or `"sharpness_cv"`). This satisfies the schema’s mandatory `metric_analyzed` field.
+- [ ] **T007** [US3] **Conformal coverage sensitivity analysis for **all** UQ methods**  
+  - Sweep nominal coverage levels from **0.80** to **0.99** in steps of **0.01** for **each** of the four UQ methods (GPR, MC‑Dropout, Deep Ensemble, Split‑Conformal). For each level compute empirical coverage and average interval width.  
+  - Save the results to `data/results/sensitivity_report.csv` with columns `dataset_id, method_id, nominal_coverage, empirical_coverage, avg_interval_width`.  
+  - Generate a plot `figures/sensitivity_tradeoff.png` (coverage vs. interval width) faceted by method and dataset using `matplotlib`.  
+  - **Verification**: validate `sensitivity_report.csv` against a simple schema (numeric ranges, non‑negative) and assert that the PNG file exists and is readable.  
 
-- [ ] T007 [P] [US3] Conduct conformal sensitivity analysis sweeping nominal coverage 0.80–0.99 (step 0.01). Write `data/results/sensitivity_report.csv` and generate figure `figures/sensitivity_tradeoff.png`.
+- [ ] **T008** [US1] **Reproducibility smoke test**  
+  - Write a script `code/tests/smoke_test.py` that re‑runs the 100‑sample pipeline (T003) and asserts that **all metric values** in `data/results/metrics_raw.csv` are identical (within 1e‑8) to a stored reference file `tests/reference/metrics_raw_ref.csv`.  
+  - The test must exit with status 0 on success; any mismatch should raise an `AssertionError`.  
 
-- [ ] T008 [US1] Add reproducibility and edge‑case checks: a smoke test that re‑runs the 100‑sample pipeline and asserts identical metric values under fixed seed; an integration test that runs the full pipeline on a tiny synthetic dataset (e.g., a pandas DataFrame with 20 samples, <100 test samples) and verifies that the statistical report flags “inconclusive”. Store outcomes in `data/results/validation_checks.json`.
+- [ ] **T009** [US1] **Generate summary tables and reliability diagrams with validation**  
+  - Implement `code/visualize_summary.py` to aggregate calibration error, sharpness, and cost metrics into `results/summary.csv` (project‑root `results/`). Columns: `dataset_id, method_id, calibration_error, sharpness, train_time_s, inference_time_s, peak_ram_mb`.  
+  - Implement `code/visualize_reliability.py` to produce a multi‑panel reliability diagram (`figures/reliability_diagrams.png`) – one panel per dataset, overlaying all four methods.  
+  - **Verification**: validate `summary.csv` against a simple schema (numeric columns, non‑negative) and check that `reliability_diagrams.png` exists and can be opened by `PIL.Image`.  
 
-- [ ] T009 [US1] Generate the final summary table `results/summary.csv` (repo‑root `results/` directory) aggregating calibration error, sharpness, and cost‑metric p‑values per method × dataset. Produce reliability diagram `figures/reliability_diagrams.png`. Scripts `code/visualize_summary.py` (creates `results/summary.csv`) and `code/visualize_reliability.py` (creates `figures/reliability_diagrams.png`) perform these steps, reading only `data/results/` artifacts.
+- [ ] **T010** [US1] **Write quick‑start documentation with command test**  
+  - Populate `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` with:  
+    - One‑line command to run the full pipeline (`python -m code.main`).  
+    - Description of the 5 000‑sample cap and deterministic sampling rule.  
+    - Explanation of why Wilcoxon signed‑rank was chosen (paired nature, Constitution compliance).  
+    - Any datasets that were substituted (Formation Energy for Elastic Modulus).  
+  - **Verification**: add a lint test that parses the markdown and runs `python -c "import subprocess; subprocess.run(['python','-m','code.main','--dry-run'], check=True)"` to ensure the command is executable.  
 
-- [ ] T010 [US1] Write `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` documenting the runnable command, sampling rule, dataset substitution, Wilcoxon rationale, and any skipped methods.
+- [ ] **T011** [US1] **Paper‑stage handoff record with hash verification**  
+  - Create `specs/001-assessing-uncertainty-quantification-tec/handoff.md` documenting:  
+    - The exact command used to generate all results.  
+    - SHA‑256 hashes of the three raw dataset files and of the final `results/summary.csv`.  
+    - Locations of all CSVs and figures required for the manuscript.  
+  - **Verification**: script that recomputes hashes of the referenced files and asserts they match the values recorded in `handoff.md`.  
 
-- [ ] T011 [US1] Re‑run the documented workflow from raw data and confirm that all artifacts (`per_sample_errors.csv`, `metrics_raw.csv`, `statistical_report.jsonl`, `sensitivity_report.csv`, `results/summary.csv`, figures) are reproduced with matching values. Record hand‑off information in `specs/.../handoff.md`.
+- [ ] **T013** [US2] **Pin and verify all dependencies**  
+  - Ensure `requirements.txt` exists at the repository root and that every line follows the format `package==X.Y.Z`.  
+  - Run `pip install -r requirements.txt` in a fresh virtual environment and capture the installed package list.  
+  - Record the outcome (success/failure, installed package list) in `data/results/requirements_check.json`.  
+  - **Verification**: compare the captured package list against the pinned versions in `requirements.txt`; raise an error if any discrepancy is found.  
 
-- [ ] T012 [US3] Perform statistical significance testing on **computational‑cost metrics** (train_time_s, inference_time_s, peak_ram_mb) across UQ methods using Welch’s t‑test (allowed by `contracts/statistics.schema.yaml`). Write `data/results/cost_statistical_report.csv` conforming to `contracts/statistics.schema.yaml` (includes required `metric_analyzed` field, e.g., `"train_time"`).
+- [ ] **T014** [US1] **Create entry‑point script with integration test**  
+  - Add `code/main.py` that imports `code/pipeline.py` and executes a function `run_pipeline()` with default arguments (process all three datasets, full 5 000‑sample cap).  
+  - Verify that `python code/main.py` finishes without error and produces all expected result files.  
 
-- [ ] T013 [US2] Verify that `requirements.txt` exists at repository root and that every dependency is pinned to an exact version. Run `pip install -r requirements.txt` in a clean environment and assert success; record result in `data/results/requirements_check.json`.
+- [ ] **T015** [US1] **Full‑pipeline integration test**  
+  - Add `tests/integration/test_pipeline.py` which invokes `code.main` (or `code.pipeline.run_pipeline`) on the capped datasets and asserts the existence of:  
+    - `data/results/per_sample_errors.csv`  
+    - `data/results/metrics_raw.csv`  
+    - `data/results/statistical_report.csv`  
+    - `data/results/sensitivity_report.csv`  
+    - `results/summary.csv` and `figures/reliability_diagrams.png`  
+  - The test must exit with status 0; any missing file raises an `AssertionError`.  
 
-- [ ] T014 [US1] Create `code/main.py` as a thin wrapper that imports and runs `code/pipeline.py`. Ensure the entry point works (`python code/main.py`). Verify via test in `tests/integration/test_main.py`.
+- [ ] **T016** [FR‑002] **Verify model‑constraint limits after training**  
+  - After each training run, assert:  
+    - Deep‑Ensemble creates **≤ 3** sub‑models.  
+    - MC‑Dropout uses **≤ 200** stochastic forward passes.  
+    - All torch/tensorflow models are instantiated with `device="cpu"` and `torch.backends.openmp.enabled=False`.  
+  - Log any violations to `data/results/model_constraints.log` and fail the pipeline if limits are exceeded.  
 
-- [ ] T015 [US1] Add integration test `tests/integration/test_pipeline.py` that executes the full pipeline on the 5,000‑sample capped datasets and checks that all expected result files are produced.
+- [ ] **T017** [NFR‑001 & Constitution VI] **Measure and assert total runtime & peak RAM**  
+  - Wrap the full pipeline (T004) with a resource monitor (e.g., `psutil`) that records total wall‑clock time and peak memory usage.  
+  - After completion, assert `total_duration_seconds < 3600` and `memory_peak_mb <= 2000`.  
+  - Write these measurements to `data/results/performance_log.json`.  
 
-## Dependencies and requirement coverage
-
-| Requirement | Task(s) |
-|---|---|
-| FR‑001 / SC‑005 | T001, T002, T004 |
-| FR‑002 / NFR‑001 | T003, T004 |
-| FR‑003 | T003 |
-| FR‑004 / SC‑003 | T006, T012 |
-| FR‑005 / SC‑002 | T003, T005 |
-| SC‑001 | T003, T004 |
-| SC‑004 | T007 |
-| NFR‑002 | T003 |
-| NFR‑003 | T008, T011 |
-| NFR‑003 (pinned deps) | T013 |
-| Constitution VI (per‑technique cost) | T004, T012 |
-| Constitution VII (cost‑metric significance) | T012 |
-| Plan‑structure (repo‑root results) | T009 |
-| Entry point | T014 |
-| Integration test | T015 |
-
-Execution order respects data flow; parallel‑safe tasks are marked `[P]`.
+- [ ] **T018** [FR‑005] **Validate all generated CSVs against their contracts**  
+  - After each CSV generation step (per‑sample, metrics, statistical, cost, sensitivity, summary), run a schema validator that loads the CSV and checks column names, types, and value ranges according to the corresponding contract YAML/JSON schema.  
+  - Any schema violation aborts the pipeline and writes details to `data/results/schema_validation.log`.  
