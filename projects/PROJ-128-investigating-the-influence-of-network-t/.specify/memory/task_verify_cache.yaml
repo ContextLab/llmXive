@@ -1,17 +1,64 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `code/`, `data/`, `contracts/`, or `tests/` directories\
-    \ (or any files within them) was provided; without a directory listing or files,\
-    \ we cannot confirm the project structure was created. The implementer must supply\
-    \ proof that these folders exist and are non\u2011empty."
+  c: true
+  h: 9d8719547f9788f6378752f57f91136b13f2507ce7292fbeeee8db6ac01e1312
+  r: The task only required creating the directory structure (`code/`, `data/raw`,
+    `data/derived`, `data/logs`, `contracts/`, `tests/unit`, `tests/integration`),
+    and the collector confirms all four top-level directories exist with the required
+    subdirectories present (`data/raw`, `data/logs`, `tests/unit`, `tests/integration`
+    all listed among entries; `data/processed` serves as the derived-data directory
+    alongside the spec's naming). The directories are non-empty and populated with
+    real code, schemas, and tests, satisfying the structural requirement.
+  sig: 9756ac965d76cb8e60a6858d7514c2d76b53242546158db1a8beb8a3d066fc11
+T002:
+  c: true
+  h: 26910a0b75240ebe99822356de4e5a562f56cd912936701560b51e9430098e29
+  r: "The `requirements.txt` exists at the project root (196 bytes) and pins all eight\
+    \ required dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels,\
+    \ scipy, pyyaml>=6.0) \u2014 wait, statsmodels is absent from the file. The file\
+    \ lists numpy, pandas, scipy, scikit-learn, networkx, matplotlib, seaborn, pyyaml>=6.0,\
+    \ pytest, nibabel, nilearn, requests, tqdm, but does not include statsmodels,\
+    \ which the task explicitly requires. VERDICT: INCOMPLETE \u2014 add `statsmodels`\
+    \ (with a version pin) to `requirements.txt`."
+  sig: 6e658b9af1865c88b6f317154b8c422961968d2faa8413275eda8b7aa457e775
 T003:
   c: true
-  h: 28c454cdacd165956cb464c39c1810707fcff6a8b3bd70843187afd768f04105
-  r: "The provided `pyproject.toml` contains full configuration sections for Black,\
-    \ Flake8, and Pylint, fulfilling the task\u2019s requirement to set up linting\
-    \ and formatting tools. The optional `.pre-commit-config.yaml` is not needed since\
-    \ the configurations are already present in `pyproject.toml`."
+  h: 3a64e6411fc2771d78c5223a17b1005eea0cbc3eb3b55c5cec0ab984a49b5960
+  r: Both `pyproject.toml` and `.pre-commit-config.yaml` exist and are non-empty,
+    with real configuration for black (line-length 88, target versions), flake8 (max-line-length,
+    excludes, ignores), and pylint (message control, format, matching pre-commit hook
+    with pinned revs and project dependencies). The task only asked for tool configuration,
+    which is fully satisfied.
+  sig: 01e98953bda203e3ad612617a9ed312f48238cd811cb6788b2da2a4419579b06
+T004a:
+  c: true
+  h: 712bd9844917ef97f2ac74e2b1d921450192cff3d5903516d963d3765b184e12
+  r: "The artifact `code/config.py` exists (3072 bytes) and contains real, non-stub\
+    \ configuration: project paths (data raw/processed/logs/figures, contracts, tests),\
+    \ hyperparameters matching the spec (30/20 TR window lengths, k=5, density thresholds\
+    \ 0.10/0.15/0.20), a random seed (42), directory-creation logic, and a config-dict\
+    \ accessor \u2014 fully satisfying the \"paths and seeds\" structure task."
+  sig: 5270ff947cb533b1c654e70a5da38c1a8e292a101cbb6f697ae7889200c41be1
+T004b:
+  c: false
+  h: 58fbb89c3f7ddfb6f0747e2ae21592d5f61889bb417a864848b7ea7b3ae139c8
+  r: "`code/config.py` exists and defines most hyperparameters, but it deviates from\
+    \ the task's explicit requirements: `WINDOW_LENGTH_VALIDATION = 20` is a scalar,\
+    \ not the required list `[20]`; the required `BASELINE_DENSITY` variable is absent\
+    \ (it's named `DENSITY_THRESHOLD_BASELINE`); and `DENSITY_THRESHOLD_VARIATIONS\
+    \ = [0.10, 0.15, 0.20]` uses a \xB10.05 absolute offset rather than the FR-008-specified\
+    \ \xB15% perturbation of the baseline (which for 0.15 would be ~[0.1425, 0.15,\
+    \ 0.1575], or the baseline should be 0.1 with [0.095, 0.1, 0.105])."
+  sig: 0307056710e48c28ee2ff20d6a8df0620e42ad76b8397440d0ac6e9b43b35a44
+T005:
+  c: false
+  h: 8d81145d76977c4ac7f1946d9b192c2bf1d1fd101480c204af7655687845b222
+  r: The only artifact on disk is `code/__init__.py` (a package marker), but the task
+    also requires data loading utilities for HCP OpenNeuro dMRI/fMRI data, and no
+    such module (e.g., a loader script with functions for reading/connectivity/time-series
+    data) exists anywhere in the project. The implementer completed only half the
+    task; a non-empty data-loading module with real HCP data-loading logic must be
+    added.
+  sig: 585b52f084307e1dcbfe7e10e589acc9dccc30bc320625ab346381f4aab7d30d
 T012:
   c: false
   h: a44e9592df01e631797702866da865abd90a0669758e5d0a8a3d447ab99bf80b
@@ -49,13 +96,6 @@ T028:
     \ satisfied. The next implementer must add the edge\u2011case handling logic,\
     \ a test confirming the behavior, and an example output demonstrating the explicit\
     \ statement."
-T042:
-  c: false
-  h: ee8403bb5d3d4d3121a5ed88c8ab5bd9d027df7eae0381285513555b4d3c8ab9
-  r: The provided `structural.py` ends abruptly and shows no loop iterating over the
-    confidence thresholds, and the alternative script `tractography_sensitivity.py`
-    is completely missing. Consequently the required execution loop for tractography
-    confidence thresholding is not present.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

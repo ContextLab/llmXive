@@ -1,0 +1,142 @@
+T001:
+  task: bf73a8acacc7b02a47a855e5442bb180c4c1b90d7c6d467ba38a1f0c06ad5a34
+T001a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/logs/exclusion_log.json,
+    data/raw/verified_manifest.json'
+  task: 3a4f0dcc936408fb2fae4f52ada5061273dcade590a08109238c71cc2b2d710c
+T002:
+  task: 78ad4d8c016442cca743b65e86089966dad7b69c06a045f48ad0f20732cdbe91
+T003:
+  task: 65d1d6842884ede345b7497961ad4b9341ca0b6bb176357c3b2b055c0f3c9b0a
+T004a:
+  task: 8d07ac9254bfcafa0807fcd39fc1e6abbb0efc88f55f501141185abe0b1b6d3e
+T004b:
+  reason: "`code/config.py` exists and defines most hyperparameters, but it deviates\
+    \ from the task's explicit requirements: `WINDOW_LENGTH_VALIDATION = 20` is a\
+    \ scalar, not the required list `[20]`; the required `BASELINE_DENSITY` variable\
+    \ is absent (it's named `DENSITY_THRESHOLD_BASELINE`); and `DENSITY_THRESHOLD_VARIATIONS\
+    \ = [0.10, 0.15, 0.20]` uses a \xB10.05 absolute offset rather than the FR-008-specified\
+    \ \xB15% perturbation of the baseline (which for 0.15 would be ~[0.1425, 0.15,\
+    \ 0.1575], or the baseline should be 0.1 with [0.095, 0.1, 0.105])."
+  task: dc72f4f5f6832dfb1b09980b530d14dfe91715c6c46de91f06ad889a46f095cc
+T005:
+  reason: The only artifact on disk is `code/__init__.py` (a package marker), but
+    the task also requires data loading utilities for HCP OpenNeuro dMRI/fMRI data,
+    and no such module (e.g., a loader script with functions for reading/connectivity/time-series
+    data) exists anywhere in the project. The implementer completed only half the
+    task; a non-empty data-loading module with real HCP data-loading logic must be
+    added.
+  task: 44773eb09ce00c31fba45c1f85ade48672708ea57118c9466defcca11ae1815a
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: code/structural.py'
+  task: 1fa66f36787beb678f35c507f8f0d082770778f3736b9dd413540283880232fd
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: code/functional.py'
+  task: 2ed336bdf264f5f60a25e16c36a781874b2790929190eb88d7c11aa25c36a573
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: code/correlation.py'
+  task: 3ce51748758e36746a8463e266eff746270d5bf1a504c58e5eb7120d7c93d63a
+T009:
+  task: a3bd9e36ab0d6036bbb7ff6b01191ffe1184a2f5b7d8d46b0a8ad26b6d6a8afb
+T009a:
+  task: 896d3ecc6779c570382bcf94775889b0e676576ce742233e4f3f31f8d4bf5936
+T010:
+  task: 70a7a7ac8cb37df8f63ada38e427afb7f10fc90c1b858686ab015f0061281dab
+T012:
+  task: f0172bc42ad4e777239cb6b941664f4ad14810efc28e622611ae5f966950da29
+T013:
+  task: 908b6ff3e38cb91e06e02f5442cc4fd828eaf047b9abfaee3bcd7fe00d755cf4
+T013b:
+  task: 0e760c9cee10cdc1a01cee01841574ff6fb85d10a8809cad49eb08f9b345f698
+T014:
+  task: c5810eb489b6a95784425a2838beb3189d936af8073784c1487096feec20d76e
+T015a:
+  task: eb52bf58c2402176424110bae4d5ea3591e91979b3bfaf535944748d1d64d99f
+T015b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/structural.py, data/derived/structural_density_sensitivity.csv'
+  task: cc42a14f67ca0ee5c3158bb79860e049663fc269ecfe3a9cbe8d92074e949dd1
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: code/functional.py, data/derived/loo_centroids_all_subjects.npz,
+    data/logs/methodology_deviations.json, data/derived/state_assignments_per_subject.csv'
+  task: 7c9a1273332b3e654dc8151d5eac8b94e658d3411c5648af0c0f463377f05aa7
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: code/functional.py, data/derived/loo_centroids_all_subjects.npz,
+    data/derived/state_assignments.csv, data/derived/dynamic_metrics.csv, data/logs/exclusion_log.json'
+  task: d69b37917e768ed17a1490c4a475be883a588263e69c14723b15cbea6997c04c
+T018:
+  task: 7d62cebbf1c24d1f88204d7c64b50d60637e21da787814fb4a92e422e065222e
+T019a:
+  task: 84ddfbc80f01730d90680f897235b6386c224cac82ff0ac8fd440116786c89c6
+T019b:
+  task: 633def6ca47f08b9a6b65ddc79e29d7135935ee1ab8fca0c0f79d655a6a3856c
+T021:
+  task: 9d9c13e2d893e8d8a0a2050692a41fad6a07969051c03450ad0d5393f52e52f7
+T022:
+  task: bb39fe5814db537005649ff0eda9c37aafb03f85aad391a094ecb3c078472d8d
+T023:
+  task: 92d0866010660d30ee6422a237bb61206e542e18af038d433cf932bb61c51920
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: code/correlation.py'
+  task: b7ef991a99d9eef3eb2e1fe8e1fb23782501d0fb234e6d1d32b677fb4252b45e
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: code/correlation.py'
+  task: b59f611f6227b8660b93010d43b4efa367144e756c97c14aa12aace30ddf6d80
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: code/correlation.py'
+  task: 93973c0e4e8634e3843f601080cec3d36b3b25443a79e1db2c6fcfb5d8858cbe
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/correlation_results.csv'
+  task: 61e4df09165b56adf53b0a85bd45f3d6df7cba11b166d6a257a1c79f0e7c0730
+T028:
+  task: 7d74e5a7b821d3f7d1bb1ce0da3f5d7a1eaaec03cffd21dc07fd50ccfeec5389
+T029:
+  task: 13eb330f87128540bf1b6ab75f1de3d351f9a977cb77fcc80651c8d2caf4ec94
+T030:
+  task: a19a7323d1aa7bbdc10439b081fe88e279496290a5951476652899d23d908ebe
+T031:
+  task: 76a12d5fa836fb17777f470d1c0dc92cac4de2cd0e24457ab629e46409846555
+T032:
+  task: b735d17d6ed858d7bf3d4310b47276de0f7390a4f3e4b41ace47d84f1aed2580
+T033a:
+  task: 70805b453ffe241cce5d85d5baa582f4484cd16188851492b68d8e4acc89a3eb
+T033b:
+  task: 4fa0239a02ab3f204d0f775bdaa200c146b709ad897077594849ff1f4476a994
+T034:
+  task: 1d11943b6e2709db7319a47e814299b2607a40493a87527382ed26e9066d28ea
+T035:
+  task: 5eafe012b6d09ce89d0578457399938d637260457ccd8cf659a588178529a69e
+T040:
+  task: 7bd055106bc4702702757aa2c64a753841aea3bbf0678197d3649d4e60e95cdd
+T041:
+  task: dea3610a3ec0ad119bfb8a0441a0ff728920763ec1c4e77fbf1a7106e33786ca
+T042a:
+  task: dbf5b6de8ff99436a5470a5abc4bd1bf03624dd5e7de80ac334c7233eb039169
+T042b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/tractography_sensitivity_metrics.csv'
+  task: c836481135f2184fff2d9bd238009644a96b249405b8520aaa86c3ce75e2f2f3
+T043:
+  task: 5ea0042f95dfdbf3c4d8c625606964a67cd37c313f28a576d0ee74b994a84115
+T044:
+  task: 8ca56c4756247242aea5cb8ac19aea5b5fe43d8c5eae5e77e87c3a87fcb2dd8b
+T050:
+  task: 69e32fb7aca9ab06bba411eda89adda58a8566eda403751e4d9ac2936850d41a
+T051:
+  task: 49606408c5f5e7e3b010b23093f999e884fb42f89e2c2c0869dc2eb84bd9a764
+T052:
+  task: e7f535e8fbcc57470baab59f2ac87082d1dedf9c5c4db1c101eb4b700d990648
+T053:
+  task: 42b144b1d7f5908704f5ea553305624642f6db946ff374b24c3891c4988d059d
+T060:
+  reason: 'declared artifact(s) missing/empty/invalid: code/structural.py, code/functional.py,
+    data/logs/data_source_verification.json'
+  task: 9678a247068c2a2d9c791e751a738d64a8b9304ac8e6e6c1af2a1f944b592c41
+T061:
+  reason: 'declared artifact(s) missing/empty/invalid: data/logs/resource_budget_estimate.json'
+  task: 051aecb23af523cab1a4cccdab83a29b1430c9e13a65060735550fe5b715d7c8
+T062:
+  task: 47b35d8fd2c01264802986dd86516237ddbb6e359c2b6a64470d211f8f94d8ef
+T063:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/constitution_audit.md'
+  task: 3b21ef12cc01bdd8c6ea61ef360906a5a0006aa9377eac6b37275459d1ca258b
+T064:
+  task: 2e2a9adb60ee16ded0e43d31a3bc1549b4d43feb7d8aca32922408859a284c9f
