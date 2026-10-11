@@ -31,6 +31,55 @@ _DIRECTORY_PATH_RE = re.compile(
 )
 
 
+#: A rooted artifact path written as a PATTERN: ``data/counts_N{N}_p{p}.csv``,
+#: ``figures/<model>_loss.png``, ``data/raw/*.json``. `_ROOTED_PATH_RE` cannot
+#: match these (its path class has no braces), so a task that produces a family
+#: of files named none of them as far as the evidence collector could tell.
+_PATTERN_PATH_RE = re.compile(
+    r"(?<![\w./-])((?:code|data|figures|results|outputs|src|tests?|scripts|docs|models|reports|"
+    r"paper|contracts)/[\w./-]*(?:\{[^{}\s`]{1,32}\}|<[\w-]{1,32}>|\*)[\w./{}<>*-]*\.\w+)"
+)
+_PLACEHOLDER_RE = re.compile(r"\{[^{}]*\}|<[\w-]+>|\*+")
+
+
+def declared_patterns(task_text: str) -> list[tuple[str, str]]:
+    """``(pattern as written, glob)`` for every templated artifact path in a task.
+
+    Measured 2026-10-11: 211 of 734 project task lists name outputs this way.
+    Each placeholder becomes ``*``; the glob never crosses a directory unless
+    the task wrote a ``/`` there itself.
+    """
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for m in _PATTERN_PATH_RE.finditer(task_text):
+        written = m.group(1)
+        if written in seen or ".." in Path(written).parts:
+            continue
+        seen.add(written)
+        out.append((written, _PLACEHOLDER_RE.sub("*", written)))
+    return out
+
+
+def resolve_pattern(project_dir: Path, glob: str, *, limit: int = 500) -> list[Path]:
+    """Files inside the project matching ``glob``, sorted. Never leaves the project.
+
+    A pattern that names a source/test path is also tried under ``code/``, the
+    same shorthand :func:`resolve_project_path` honours for literal paths.
+    """
+    root = project_dir.resolve()
+    bases = [root]
+    if Path(glob).parts[:1] in (("src",), ("test",), ("tests",), ("scripts",)):
+        bases.append(root / "code")
+    for base in bases:
+        found = sorted(
+            p for p in base.glob(glob)
+            if p.is_file() and not p.is_symlink() and p.resolve().is_relative_to(root)
+        )
+        if found:
+            return found[:limit]
+    return []
+
+
 def declared_paths(task_text: str) -> list[str]:
     """Every artifact path a task line references (rooted paths + build/config
     files), de-duplicated in first-seen order."""
