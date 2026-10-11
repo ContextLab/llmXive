@@ -1,12 +1,7 @@
 T001:
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
-  reason: The collector's evidence lists only `requirements.txt`, `pyproject.toml`,
-    and `ruff.toml`; the required `.flake8` file is missing entirely. Additionally,
-    there is no execution evidence that `pip install -r requirements.txt`, `ruff check
-    .`, or `black --check .` were run and passed, and `ruff.toml` places `target-version`
-    under `[lint]` where it is not a valid key (it belongs at top level), so `ruff
-    check .` would error.
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint.sh exit=1'
   task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
 T003:
   task: 4b43f349955989a58c04892e67d9de7f6e535f3d9a5dcdf4ed23892970b9ffe7

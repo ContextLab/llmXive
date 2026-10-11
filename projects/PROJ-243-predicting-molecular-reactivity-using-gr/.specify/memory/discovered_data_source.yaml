@@ -1,16 +1,14 @@
 status: none
-intent: QM9 dataset download python package for graph neural networks python package
+intent: QM9 dataset with reference substructures and kinetic dataset python package
   dataset
 required_fields:
 - smiles
-- atomic_numbers
+- atomic_number
 - hybridization
 - formal_charge
 - bond_type
 - bond_conjugation
-- homo_energy
-- lumo_energy
 - homo_lumo_gap
-cache_key: 7b95584104e26769802ae77637177f5b014462dff3d010f09e1df607e5464542
-searched_at: '2026-10-11T20:12:54.283944+00:00'
+cache_key: 98bda8c419115e98d87f681036743af8af437e118f871d232b6bf27ff8b20f28
+searched_at: '2026-10-11T20:18:57.962019+00:00'
 retry_count: 1
