@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 run-book script(s) missing (plan/impl path mismatch): python main.py --stage download; python main.py --stage preprocess; python main.py --stage entropy; 1 command(s) failed: python -m pytest tests/ (rc=1); 8 declared deliverable(s) absent: data/processed/behavioral_scores.csv; data/processed/effect_sizes.json; data/processed/entropy_metrics.csv
+**Summary**: 5 run-book script(s) missing (plan/impl path mismatch): python main.py --stage download; python main.py --stage preprocess; python main.py --stage entropy; 1 command(s) failed: python -m pytest tests/ (rc=2); 8 declared deliverable(s) absent: data/processed/behavioral_scores.csv; data/processed/effect_sizes.json; data/processed/entropy_metrics.csv
 
 ## Failing / missing run-book commands
 
@@ -14,27 +14,42 @@ ModuleNotFoundError: No module named 'neurokit2'
 
 - python main.py --stage download -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-454-investigating-the-relationship-between-n/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
 
 - python main.py --stage preprocess -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-454-investigating-the-relationship-between-n/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
 
 - python main.py --stage entropy -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-454-investigating-the-relationship-between-n/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
 
 - python main.py --stage analyze -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-454-investigating-the-relationship-between-n/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
 
 - python main.py --stage sensitivity -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-454-investigating-the-relationship-between-n/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/main.py': [Errno 2] No such file or directory
 
-- python -m pytest tests/ -> rc=1
+- python -m pytest tests/ -> rc=2
+w_logger() takes 0 positional arguments but 1 was given
+_ ERROR collecting projects/PROJ-454-investigating-the-relationship-between-n/tests/unit/test_environment_config.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/tests/unit/test_environment_config.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_environment_config.py:15: in <module>
+    from config.environment_config import (
+E   ModuleNotFoundError: No module named 'config.environment_config'; 'config' is not a package
+=========================== short test summary info ============================
+ERROR tests/unit/test_behavioral_extraction.py
+ERROR tests/unit/test_compute_entropy.py - TypeError: setup_data_flow_logger(...
+ERROR tests/unit/test_environment_config.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 1.01s ===============================
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-454-investigating-the-relationship-between-n/code/.venv/bin/python: No module named pytest
 
 
 ## Declared deliverables still missing
@@ -64,7 +79,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/behavioral_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/effect_sizes.json` is declared but was NOT written. Scripts referencing it:
     - `code/05_generate_report.py` — NOT invoked by the run-book
-    - `code/utils/stats_utils.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/effect_sizes.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/entropy_metrics.csv` is declared but was NOT written. Scripts referencing it:
     - `code/04_regression_analysis.py` — NOT invoked by the run-book

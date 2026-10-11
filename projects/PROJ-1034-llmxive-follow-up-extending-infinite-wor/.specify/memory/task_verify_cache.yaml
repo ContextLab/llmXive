@@ -1,3 +1,71 @@
+T001a:
+  c: true
+  h: aaaa838d87b6475a11989fd0d0bf8fcd80098ee67049c63cd125e108a833048a
+  r: "Checked the execution log `code/.tasks/T001a.code_setup_dirs.py.log` which shows\
+    \ a successful run of `setup_dirs.py` (exit\u202F0) and stdout confirming that\
+    \ all nine required directories (`src/sim`, `src/analysis`, `src/data`, `src/cli`,\
+    \ `src/tests`, `data/raw`, `data/processed`, `docs`, `state`) were created. The\
+    \ directories exist as indicated, fulfilling the task\u2019s specification."
+  sig: 19e7022f1b1c2a1dfe12056a5b58fcff31aee98a79e454889e9beb4e64db19da
+T001b:
+  c: false
+  h: 8a87189e18b3393eff6f0f6bdd9f6bd8169f306f176c992950edd29938afc1ec
+  r: The evidence includes all required `src/*/__init__.py` files and the two `data/*/.gitkeep`
+    files, but the `docs/.gitkeep` and `state/.gitkeep` files are absent from the
+    listed artifacts. These missing files prevent the task from being fully satisfied.
+  sig: 13511dee910d0af5a3dbaffb2d5dd1316d1016de8d7e3ac931eac252b3b57056
+T002:
+  c: true
+  h: 389d66101de4adb5f86ee11bf76ba82cb64797db06a330f9a9cb775d70171944
+  r: "The `requirements.txt` file was found at `projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/requirements.txt`\
+    \ (189\u202Fbytes) and contains exactly the required package specifications, including\
+    \ the pinned `torch==2.1.0+cpu` line (with an added index URL, which does not\
+    \ violate the requirement). No other artifacts are needed for this task."
+  sig: f94cda216a854efcfcde086176b8a11b15cb880b4a164f4c95b18c571b953114
+T003:
+  c: true
+  h: 825e6a442347dbb69f2fe0d4cae556395fcc9622bc29c06ed0babacd6b783124
+  r: "Checked the `pypy.toml` file (1858\u202Fbytes) at the project root, which contains\
+    \ a full `[tool.ruff]` section configuring linting rules, includes/excludes, and\
+    \ a `[tool.ruff.format]` section specifying formatting conventions, satisfying\
+    \ the task\u2019s requirement to configure ruff linting and formatting via `pypy.toml`."
+  sig: 5f89f5df4f32b13424fb0753d09babad0b5595e50fe5acc9a1dd331fc12773c5
+T004:
+  c: false
+  h: 651816b1aa849bd60070a39af93da9afb8011be5f1c918f9459aee195f2ce8e7
+  r: "The file `src/sim/eco_director.py` exists but its `_step()` is an explicit placeholder\
+    \ (\"Placeholder for actual CA logic\") that fabricates metrics (coherence_score=0.0,\
+    \ diversity_score=0.0, step_latency=0.0) with no real CA update logic, and the\
+    \ memory check is a stub. The task's core requirements \u2014 schema definition,\
+    \ a real update loop, and a runtime parameter injection mechanism (CLI args +\
+    \ YAML loader) \u2014 are entirely absent: there is no CLI argument parsing, no\
+    \ YAML loader, and no parameter injection anywhere in the artifact."
+  sig: 456a666eb6c044cc4c20f4af1c5b8c6fc0d0692ea0bc1cbc1391ae2030157abe
+T005:
+  c: true
+  h: adff8046d4e925946a39f285f58dbbe6cb21509b0a9a5dbabcb4e69738df808d
+  r: "Checked `src/sim/neural_baseline.py` (1342\u202Fbytes) which defines a `NeuralBaseline`\
+    \ class with a throttling factor, uses only standard\u2011library modules, and\
+    \ imports the required `SimulationRun` and `MetricRecord` from `src/data_models.py`.\
+    \ The implementation runs on CPU, respects the throttle, records step latency,\
+    \ and returns a populated `SimulationRun`, satisfying the task\u2019s requirement."
+  sig: c975e8f5e7458db91e46478f83eec73268fa69bccece7dcf510ad91eb20da5a2
+T007:
+  c: true
+  h: 6ca565e8a5341ce490de4d20d70c93be054076ce9611c1868e739bc374ce9541
+  r: "`src/data_models.py` exists (803 bytes) and defines all three required dataclasses\
+    \ \u2014 `SimulationRun`, `MetricRecord`, and `ParameterGrid` \u2014 with substantive,\
+    \ appropriate fields (e.g., coherence/diversity/latency metrics, run status/config,\
+    \ parameter grid structure), no stubs or placeholders."
+  sig: 36f3b9cf2a8a9f84dd56daf3f5092d0ede27658b9e217ccf7d11471d47b5bdd6
+T010b:
+  c: true
+  h: 5b421a33a6c55acdf9fff4234df029c6eaba066ec899911faddc795603debf1a
+  r: "Checked `src/analysis/novelty.py` (15498\u202Fbytes) which defines `calculate_event_entropy(transitions:\
+    \ list) -> float` and `quantify_novelty(events: list, base_entropy: float, method:\
+    \ str = \"default\") -> float` with full implementations, error handling, and\
+    \ a configurable `method` argument supporting multiple novelty calculations."
+  sig: 357fec38743443366aac51cd208f2a274051e4e91aecf2991afc7c39946b9b8c
 T019:
   c: false
   h: ce2c8c1687e344c040a912b5a13803cf319ef6b6a31b902df2a2a6805dcb850f

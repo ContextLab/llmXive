@@ -18,12 +18,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.cli.run_simulation --agent ca_eco_director --steps 2000 --seed 42 -> rc=2
-    usage: run_simulation.py [-h] [--steps STEPS] [--memory-limit MEMORY_LIMIT]
+
+usage: run_simulation.py [-h] [--steps STEPS] [--memory-limit MEMORY_LIMIT]
                          [--time-limit TIME_LIMIT] [--output OUTPUT]
 run_simulation.py: error: unrecognized arguments: --agent ca_eco_director --seed 42
+
 - python -m src.cli.run_simulation --mode sweep --steps 2000 --seed 42 -> rc=2
-    usage: run_simulation.py [-h] [--steps STEPS] [--memory-limit MEMORY_LIMIT]
+
+usage: run_simulation.py [-h] [--steps STEPS] [--memory-limit MEMORY_LIMIT]
                          [--time-limit TIME_LIMIT] [--output OUTPUT]
 run_simulation.py: error: unrecognized arguments: --mode sweep --seed 42
+
 - python -m src.cli.validate_data --path data/raw/ -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/code/.venv/bin/python: No module named src.cli.validate_data
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1034-llmxive-follow-up-extending-infinite-wor/bin/python: No module named src.cli.validate_data
+
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

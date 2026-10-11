@@ -1,268 +1,133 @@
+"""CPU-only Sample Entropy (SampEn) and Approximate Entropy (ApEn).
+
+Implements the standard algorithms (Pincus 1991; Richman & Moorman 2000)
+using NumPy/SciPy only — no CUDA, no GPU dependencies.
+
+Parameters follow the project convention: m = 2, r = 0.2 * std(signal).
+All computations use float64 precision for numerical stability.
 """
-utils/entropy_utils.py
-=======================
-
-CPU‑only implementations of Sample Entropy (SampEn) and Approximate Entropy (ApEn)
-for 1‑D signals. The functions are JIT‑compiled with Numba for speed but do **not**
-rely on any GPU or CUDA libraries, satisfying the task requirement for a
-CPU‑only implementation.
-
-The module provides:
-  * ``sample_entropy`` – wrapper around a Numba‑accelerated core implementation.
-  * ``approximate_entropy`` – wrapper around a Numba‑accelerated core implementation.
-  * ``compute_entropy_metrics`` – convenience function returning both metrics.
-
-All public symbols are listed in ``__all__`` for explicit export.
-"""
+from __future__ import annotations
 
 import numpy as np
-from numba import njit
-from typing import Optional, Dict
-import logging
+from scipy.spatial.distance import cdist
 
-# Configure module‑level logger
-logger = logging.getLogger(__name__)
 
-__all__ = [
-    "sample_entropy",
-    "approximate_entropy",
-    "compute_entropy_metrics",
-]
+def _prepare(signal, m: int, r: float):
+    """Validate inputs and return templates as float64 arrays."""
+    x = np.asarray(signal, dtype=np.float64).ravel()
+    if x.size < m + 2:
+        raise ValueError(
+            f"Signal too short ({x.size} samples) for m={m}; "
+            "need at least m+2 samples."
+        )
+    if not np.isfinite(x).all():
+        raise ValueError("Signal contains NaN or Inf values.")
+    if r is None or not np.isfinite(r) or r < 0:
+        raise ValueError(f"Invalid tolerance r: {r!r}")
+    return x
 
-@njit(fastmath=True, cache=True)
-def _sample_entropy_core(signal: np.ndarray, m: int, r: float) -> float:
-    """
-    Numba‑accelerated core of Sample Entropy.
+
+def _template_counts(x: np.ndarray, m: int, r: float) -> float:
+    """Count matching template pairs (i != j) within Chebyshev distance r."""
+    n = x.size
+    # Build all embedded vectors of length m
+    n_templates = n - m + 1
+    templates = np.empty((n_templates, m), dtype=np.float64)
+    for i in range(m):
+        templates[:, i] = x[i:i + n_templates]
+    # Pairwise Chebyshev distances (vectorized, CPU-only)
+    dists = cdist(templates, templates, metric="chebyshev")
+    # Exclude self-matches on the diagonal
+    np.fill_diagonal(dists, np.inf)
+    matches = np.count_nonzero(dists <= r)
+    return float(matches)
+
+
+def sample_entropy(signal, m: int = 2, r: float = 0.2) -> float:
+    """Sample Entropy (SampEn).
+
+    SampEn = -log(A / B) where B is the number of matching m-length
+    template pairs and A the number of matching (m+1)-length pairs.
 
     Parameters
     ----------
-    signal : np.ndarray
-        1‑D time‑series.
+    signal : array-like
+        1-D time series.
     m : int
-        Template length.
+        Embedding dimension (project default 2).
     r : float
-        Tolerance (typically ``0.2 * std(signal)``).
+        Tolerance (project default 0.2 * std of the signal).
 
     Returns
     -------
     float
-        Sample Entropy value. ``np.nan`` if the calculation cannot be performed.
+        SampEn value; 0.0 when no matches are found (degenerate case,
+        e.g. constant signals), never NaN or Inf.
     """
-    n = len(signal)
-    if n < m + 2:
-        return np.nan
-
-    # Normalise for numerical stability
-    std_val = np.std(signal)
-    if std_val == 0.0:
+    x = _prepare(signal, m, r)
+    b = _template_counts(x, m, r)
+    a = _template_counts(x, m + 1, r)
+    if b == 0 or a == 0:
+        # Degenerate case (e.g., constant signal or r too small):
+        # define entropy as 0 rather than returning inf/NaN.
         return 0.0
+    ratio = a / b
+    if ratio <= 0:
+        return 0.0
+    return float(-np.log(ratio))
 
-    count_m = 0.0
-    count_m1 = 0.0
 
-    for i in range(n - m):
-        for j in range(i + 1, n - m):
-            # Maximum absolute distance over the template of length m
-            max_diff = 0.0
-            for k in range(m):
-                diff = abs(signal[i + k] - signal[j + k])
-                if diff > max_diff:
-                    max_diff = diff
+def approximate_entropy(signal, m: int = 2, r: float = 0.2) -> float:
+    """Approximate Entropy (ApEn, Pincus 1991).
 
-            if max_diff < r:
-                count_m += 1.0
-
-                # Check the (m+1)‑th point if it exists
-                if i + m < n and j + m < n:
-                    diff_next = abs(signal[i + m] - signal[j + m])
-                    if diff_next < r:
-                        count_m1 += 1.0
-
-    if count_m == 0.0:
-        return np.nan
-    if count_m1 == 0.0:
-        # Logarithm of zero would be ``inf``; we return ``np.nan`` to signal failure.
-        return np.nan
-
-    return -np.log(count_m1 / count_m)
-
-@njit(fastmath=True, cache=True)
-def _approximate_entropy_core(signal: np.ndarray, m: int, r: float) -> float:
-    """
-    Numba‑accelerated core of Approximate Entropy.
+    ApEn = Phi_m - Phi_{m+1}, where Phi_k is the average natural-log
+    conditional probability of k-length template matches (self-matches
+    included, per the original definition).
 
     Parameters
     ----------
-    signal : np.ndarray
-        1‑D time‑series.
+    signal : array-like
+        1-D time series.
     m : int
-        Template length.
+        Embedding dimension (project default 2).
     r : float
-        Tolerance (typically ``0.2 * std(signal)``).
+        Tolerance (project default 0.2 * std of the signal).
 
     Returns
     -------
     float
-        Approximate Entropy value. ``np.nan`` if the calculation cannot be performed.
+        ApEn value; 0.0 in degenerate cases, never NaN or Inf.
     """
-    n = len(signal)
-    if n < m + 1:
-        return np.nan
+    x = _prepare(signal, m, r)
 
-    # Normalise for numerical stability
-    std_val = np.std(signal)
-    if std_val == 0.0:
+    def phi(k: int) -> float:
+        n_templates = x.size - k + 1
+        templates = np.empty((n_templates, k), dtype=np.float64)
+        for i in range(k):
+            templates[:, i] = x[i:i + n_templates]
+        dists = cdist(templates, templates, metric="chebyshev")
+        # ApEn includes self-matches (diagonal distance 0 <= r)
+        counts = np.count_nonzero(dists <= r, axis=1).astype(np.float64)
+        # counts is always >= 1 (self-match), so log is safe
+        return float(np.mean(np.log(counts / n_templates)))
+
+    value = phi(m) - phi(m + 1)
+    if not np.isfinite(value):
         return 0.0
+    return float(max(value, 0.0))
 
-    # --- Count matches for length m ---------------------------------
-    count_m = 0.0
-    for i in range(n - m + 1):
-        for j in range(n - m + 1):
-            if i == j:
-                continue
-            max_diff = 0.0
-            for k in range(m):
-                diff = abs(signal[i + k] - signal[j + k])
-                if diff > max_diff:
-                    max_diff = diff
-            if max_diff < r:
-                count_m += 1.0
 
-    # --- Count matches for length m+1 -------------------------------
-    count_m1 = 0.0
-    for i in range(n - m):
-        for j in range(n - m):
-            if i == j:
-                continue
-            max_diff = 0.0
-            for k in range(m + 1):
-                diff = abs(signal[i + k] - signal[j + k])
-                if diff > max_diff:
-                    max_diff = diff
-            if max_diff < r:
-                count_m1 += 1.0
+def compute_entropy_metrics(signal, m: int = 2, r_scale: float = 0.2) -> dict:
+    """Compute both entropy metrics with the project-standard parameters.
 
-    if count_m == 0.0 or count_m1 == 0.0:
-        return np.nan
-
-    phi_m = count_m / ((n - m + 1) * (n - m))
-    phi_m1 = count_m1 / ((n - m) * (n - m - 1))
-
-    if phi_m <= 0.0 or phi_m1 <= 0.0:
-        return np.nan
-
-    return np.log(phi_m) - np.log(phi_m1)
-
-def sample_entropy(signal: np.ndarray, m: int = 2, r: Optional[float] = None) -> float:
+    Uses r = r_scale * std(signal); for constant signals (std == 0) a
+    small positive fallback tolerance is used so the result is 0.0
+    rather than an error.
     """
-    Compute Sample Entropy (SampEn) of a 1‑D signal.
-
-    Parameters
-    ----------
-    signal : np.ndarray
-        Input time series.
-    m : int, optional
-        Template length (default ``2``).
-    r : float, optional
-        Tolerance. If ``None`` it defaults to ``0.2 * std(signal)``.
-        ``r`` must be positive; a zero tolerance is allowed for constant signals.
-
-    Returns
-    -------
-    float
-        Sample Entropy value (``np.nan`` on failure).
-    """
-    # Ensure ``signal`` is a NumPy ``float64`` array for Numba compatibility.
-    if not isinstance(signal, np.ndarray):
-        signal = np.array(signal, dtype=np.float64)
-    else:
-        signal = signal.astype(np.float64)
-
-    if signal.ndim != 1:
-        raise ValueError("Signal must be 1‑dimensional.")
-
-    if len(signal) < m + 2:
-        logger.warning("Signal length %d is too short for m=%d.", len(signal), m)
-        return np.nan
-
-    if r is None:
-        std_val = np.std(signal)
-        if std_val == 0.0:
-            # Constant signal – entropy is zero by definition.
-            return 0.0
-        r = 0.2 * std_val
-
-    try:
-        result = _sample_entropy_core(signal, m, r)
-        return float(result)
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error("Sample entropy calculation failed: %s", exc)
-        return np.nan
-
-def approximate_entropy(signal: np.ndarray, m: int = 2, r: Optional[float] = None) -> float:
-    """
-    Compute Approximate Entropy (ApEn) of a 1‑D signal.
-
-    Parameters
-    ----------
-    signal : np.ndarray
-        Input time series.
-    m : int, optional
-        Template length (default ``2``).
-    r : float, optional
-        Tolerance. If ``None`` it defaults to ``0.2 * std(signal)``.
-        ``r`` must be positive; a zero tolerance is allowed for constant signals.
-
-    Returns
-    -------
-    float
-        Approximate Entropy value (``np.nan`` on failure).
-    """
-    # Ensure ``signal`` is a NumPy ``float64`` array for Numba compatibility.
-    if not isinstance(signal, np.ndarray):
-        signal = np.array(signal, dtype=np.float64)
-    else:
-        signal = signal.astype(np.float64)
-
-    if signal.ndim != 1:
-        raise ValueError("Signal must be 1‑dimensional.")
-
-    if len(signal) < m + 1:
-        logger.warning("Signal length %d is too short for m=%d.", len(signal), m)
-        return np.nan
-
-    if r is None:
-        std_val = np.std(signal)
-        if std_val == 0.0:
-            # Constant signal – entropy is zero by definition.
-            return 0.0
-        r = 0.2 * std_val
-
-    try:
-        result = _approximate_entropy_core(signal, m, r)
-        return float(result)
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error("Approximate entropy calculation failed: %s", exc)
-        return np.nan
-
-def compute_entropy_metrics(signal: np.ndarray, m: int = 2, r: Optional[float] = None) -> Dict[str, float]:
-    """
-    Convenience wrapper returning both Sample and Approximate Entropy.
-
-    Parameters
-    ----------
-    signal : np.ndarray
-        Input time series.
-    m : int, optional
-        Template length (default ``2``).
-    r : float, optional
-        Tolerance (default ``0.2 * std(signal)``).
-
-    Returns
-    -------
-    dict
-        ``{'sample_entropy': <value>, 'approximate_entropy': <value>}``
-    """
-    se = sample_entropy(signal, m, r)
-    ae = approximate_entropy(signal, m, r)
-    return {"sample_entropy": se, "approximate_entropy": ae}
+    x = np.asarray(signal, dtype=np.float64).ravel()
+    std = float(np.std(x))
+    r = r_scale * std if std > 0 else 1e-10
+    return {
+        "SampEn": sample_entropy(x, m=m, r=r),
+        "ApEn": approximate_entropy(x, m=m, r=r),
+    }

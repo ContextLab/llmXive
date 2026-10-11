@@ -1,24 +1,21 @@
 T001:
-  c: false
-  h: 06fadf81a40e24d8717b72b3cfe467527eb1d4055279c7e43c01685e01d0a3d8
-  r: The `data/raw/` directory, which the task explicitly requires, is missing, and
-    there is no evidence (e.g., CI logs) that `pip install -r requirements.txt` succeeds
-    on a clean runner. These gaps must be addressed for the task to be considered
-    complete.
-T004:
-  c: false
-  h: d167d058a6a11ca8ee9a11a191caea3e794a1110ebfbb23637cf2656b8acb4f5
-  r: No `utils/resource_monitor.py` file or any log output (`logs/resource_usage.log`)
-    was provided, so there is no evidence that RAM/Disk usage is being logged or that
-    the abort thresholds are enforced. The required artifact and verification log
-    are missing.
+  c: true
+  h: e66377cf687026cb15d32a3ec272ec6ad4a983adca5895eea21278347d6e1158
+  r: All required directories (`code/`, `data/raw/`, `data/processed/`, `tests/`,
+    `specs/`) exist with content, and the root `requirements.txt` contains all ten
+    pinned packages at the exact specified versions (plus psutil). The execution log
+    shows `setup_project.py` ran with exit 0 and successfully imported every pinned
+    dependency, confirming the environment installs and works.
+  sig: 6ab5e890f7a8c1e2ca29cbf66099e1cfae13dc9d879004b2b7d837c99ac3a788
 T005:
-  c: false
-  h: 791aa1a6cab12944b4bd4eeb26b9c0fd9de72b99d93aa47300d7af0a84fc8f7c
-  r: "The repository contains only the unit\u2011test file; there is no provided `utils/entropy_utils.py`\
-    \ implementation (or any evidence that it exists, is non\u2011empty, and passes\
-    \ the tests). Without the actual module or test run results, the task\u2019s requirement\
-    \ cannot be verified."
+  c: true
+  h: 1cfa29c2a191a8a36358b2917bb85fb04baa5b38fe3a6413d7eebf691ff6cc0c
+  r: The test file `tests/unit/test_entropy.py` exists with three real tests, and
+    the implementation `code/utils/entropy_utils.py` (which the tests import via sys.path)
+    contains genuine CPU-only NumPy/SciPy SampEn and ApEn implementations, not stubs.
+    The execution log shows `pytest` ran with exit 0 and all 3 tests passed, matching
+    the task's verification criterion.
+  sig: d1e3d3c808763b0798e486364994cdb7047cd8d259790635bd120ee48a4d00c1
 T006:
   c: false
   h: afe03863ae1f3151d441c70da8ce556705b6cdd310a5bf2e0b193612d1ae6ccb
@@ -35,11 +32,13 @@ T007:
     \ log output are missing."
 T008:
   c: true
-  h: cd8ad326653423d6ad6c5bfc16d6a4dddcca8421c3b0e2470de5cfd0819dc2f1
-  r: "The `code/config.py` file exists and defines the required module\u2011level\
-    \ constants `OPENNEURO_DATASET_IDS`, `SNR_THRESHOLD`, `ARTIFACT_THRESHOLD`, and\
-    \ `SEED` with the exact values specified in task T008. Importing the module yields\
-    \ those values unchanged."
+  h: d19a4192f389742e3c28e82ff0542b01b648897e45ef7fd43f5f3793dd4fd1b0
+  r: '`code/config.py` exists (5985 bytes) and defines the exact module-level constants
+    required: `OPENNEURO_DATASET_IDS = ["ds000246", "ds003104"]`, `SNR_THRESHOLD =
+    5.0`, `ARTIFACT_THRESHOLD = 0.2`, `SEED = 42`, directly importable from `config`.
+    The extra Config dataclass and helpers are additive and don''t alter the required
+    values.'
+  sig: 82fa7bc1be558727cbcedd33539907c8579807054f926daffca665936b8d6ea1
 T010:
   c: false
   h: 59d899e8c0dc30dfe889c06b368306efe92da36f8b073f06265e67d524c482c1

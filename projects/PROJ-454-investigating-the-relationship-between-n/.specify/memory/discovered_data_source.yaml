@@ -1,19 +1,16 @@
 status: none
-intent: download EEG resting state dataset with Wisconsin Card Sorting Test scores
-  OpenNeuro python package dataset
+intent: OpenNeuro ds000246 ds003104 resting state EEG dataset download python package
+  dataset
 required_fields:
 - participant_id
 - age
-- sex
-- eeg_raw_file_path
-- eeg_sampling_rate
-- eeg_channel_names
-- eeg_bad_channels
-- eeg_preprocessed_epochs
+- eeg_signal
+- sampling_rate
+- channel_names
+- timestamps
 - wcst_total_correct
-- wcst_perseverative_errors
 - wcst_categories_completed
-- sample_entropy_delta
-cache_key: b6e8343302c7e5fcbbf9bfc1785723ac0afbeff1225a7950577d6346175656e8
-searched_at: '2026-10-09T13:44:37.980601+00:00'
+- wcst_perseverative_errors
+cache_key: 18900912eac1356009ac64069335c431802129acbba1d5d3d0b3393d49f2c095
+searched_at: '2026-10-11T03:35:35.002082+00:00'
 retry_count: 1

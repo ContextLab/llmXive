@@ -7,11 +7,11 @@ All tasks follow the canonical `- [ ] T### [P?] [USx?] description …` format. 
 
 ## Phase 1: Project Setup (already verified)
 
-- [ ] T001 Establish the project layout, create `code/`, `data/raw/`, `data/processed/`, `tests/`, and `specs/` directories; add a pinned `requirements.txt` (MNE 1.6.0, statsmodels 0.14.0, NumPy 1.24.0, pandas 2.0.0, PyYAML 6.0.1, requests 2.31.0, scikit‑learn 1.3.0, numba 0.58.0, jsonschema 4.19.0, huggingface_hub 0.19.0). **Verification**: `pip install -r requirements.txt` succeeds on a clean CI runner.
+- [X] T001 Establish the project layout, create `code/`, `data/raw/`, `data/processed/`, `tests/`, and `specs/` directories; add a pinned `requirements.txt` (MNE 1.6.0, statsmodels 0.14.0, NumPy 1.24.0, pandas 2.0.0, PyYAML 6.0.1, requests 2.31.0, scikit‑learn 1.3.0, numba 0.58.0, jsonschema 4.19.0, huggingface_hub 0.19.0). **Verification**: `pip install -r requirements.txt` succeeds on a clean CI runner.
 
 - [ ] T004 Setup `utils/resource_monitor.py` to log RAM/Disk usage and abort if >7 GB RAM or >14 GB disk is consumed. **Verification**: Log entry appears in `logs/resource_usage.log` during any script run.
 
-- [ ] T005 [P] Implement `utils/entropy_utils.py` with CPU‑only Sample Entropy and Approximate Entropy (no CUDA). **Verification**: Unit tests in `tests/unit/test_entropy.py` pass.
+- [X] T005 [P] Implement `utils/entropy_utils.py` with CPU‑only Sample Entropy and Approximate Entropy (no CUDA). **Verification**: Unit tests in `tests/unit/test_entropy.py` pass.
 
 - [ ] T006 [P] Implement `utils/stats_utils.py` providing OLS regression and Benjamini‑Hochberg FDR functions. **Verification**: `tests/unit/test_stats.py` passes.
 

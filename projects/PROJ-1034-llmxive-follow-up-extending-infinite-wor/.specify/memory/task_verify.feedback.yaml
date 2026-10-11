@@ -1,0 +1,232 @@
+T001a:
+  task: 97f189e1566129800070739fd764bd3fb1f483a8dbbfc7ac6562d2a294e9685f
+T001b:
+  reason: The evidence includes all required `src/*/__init__.py` files and the two
+    `data/*/.gitkeep` files, but the `docs/.gitkeep` and `state/.gitkeep` files are
+    absent from the listed artifacts. These missing files prevent the task from being
+    fully satisfied.
+  task: ce30d50f8e1e2762416c8181f9c50f5d386346a486cdfe943e62a966b60bc368
+T002:
+  task: 63a544f6021e49178d4779dc6009eb1c27ffa605e171d0816a6310c34b79fbd0
+T003:
+  task: be2281ff3a30ec95af5bd55ea24ea1ebe3c81a8fcdb396f51960409e627608c6
+T004:
+  reason: "The file `src/sim/eco_director.py` exists but its `_step()` is an explicit\
+    \ placeholder (\"Placeholder for actual CA logic\") that fabricates metrics (coherence_score=0.0,\
+    \ diversity_score=0.0, step_latency=0.0) with no real CA update logic, and the\
+    \ memory check is a stub. The task's core requirements \u2014 schema definition,\
+    \ a real update loop, and a runtime parameter injection mechanism (CLI args +\
+    \ YAML loader) \u2014 are entirely absent: there is no CLI argument parsing, no\
+    \ YAML loader, and no parameter injection anywhere in the artifact."
+  task: 2e0795d270ece8ad03767f3c6e63e535d2e8450db7e41554728ab2ce96e27140
+T005:
+  task: 836980064d63281a617073b8dd8885a963f269011c48001a3e0ffd3f5ae05f35
+T006a:
+  task: 4e721e4c31a833b35864d157f40c8614b7d92f664d5f7f4d69a51eb288237f0b
+T006b:
+  task: 126dd34f1337b9bff09dab33a41839d19878d98a203ec12cf091a0dfe706177c
+T006c:
+  task: f72bb95219568a091d4678b3ff09fa0c105bb2422115940dda3c6ec47b529b4f
+T006d:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_termination_signal.py'
+  task: 5bad57fc942f2d6f8dbc8a02ee44cb93c0c96e800936e3baac6403c71a9a6de8
+T006d1:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_termination_trigger.py'
+  task: 6226a4e8bc5916828cfc905dd796a0d06142b100a019d166dbd4011df160eea0
+T006d2_test:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_log_content.py'
+  task: 50a62f5b4599758d9aa94941ab37aeef174bf3cb38c6907396eb992ed9da851a
+T006e:
+  task: 5e72a2bea9150216d3dc77673eea2cd3f33df8463b4f24416b2d0ecc17ef53f9
+T007:
+  task: f42373414f583b90c27ef9f1af1f218107948c1b70492576189f5b2a954f8599
+T008a:
+  task: 2b922930a356629a8fbda40738700798023cc0b446ee3d6a7f246bbd609d9937
+T008b:
+  task: 60cb745f7676ce61cffd99310c62c16ce203f3428752a8db45bcc968790872cc
+T008c:
+  task: 01c51e832ece713c9a84f8bc225f2c798ef51c12ee31f6ba9994587d884b1e7e
+T009:
+  task: 008069dda2114373534ab0cd2e8443c38d4e8b3c18d907816ece1b0653768a15
+T010:
+  task: db6dbeebc28e55651bf1eb1c90ec0bd373af2438d19406cf144e7b4898eb8909
+T010b:
+  task: 6d272c7d68005b133af5f827a3916a87da5cc2334a58f3c60e96ba61aa1861c4
+T011a:
+  task: ba929ef752f2302b15666661e92b3fb8eb86dae225627c8ea76b54cc4b342fe7
+T011b:
+  task: d0fec4da57931322b3ade037cbdfb0d01c415e1cbfa910dfb0a983b59a448c55
+T012:
+  task: bfe4e19e3afed8cf094940bd19419627473b03af5ede3e49cf9b3dd479af3fb5
+T013:
+  task: 5fd2f89e8853e30d234b55d280f5f209362dc44418f7c21bb1a30d18a91fedcf
+T015b:
+  task: 06255e8683c0c98df3e5e8943e6f88a018b194ca2a342186ff4130f250ed94b6
+T015c:
+  task: b7ec07ebc18b2c23d0271af42d2bb975f7fc0e6ac352f8df5d5083f3181db0ee
+T016a:
+  reason: 'declared artifact(s) missing/empty/invalid: config/default.yaml'
+  task: d4f72e95d9a55d6b95194e87f89b6aaeef38fccb70e605c6ac037778d668c4b0
+T016b:
+  task: a8c0feda0ca5e0eae362bbb950930a7180cbe2eb661503c54c121f4d9b6fa4f8
+T016c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_baseline_partial.py,
+    data/raw/baseline_partial.parquet'
+  task: 60bdd467398b5bef85ad5958f64b16f8a4bff8267ef2ae5ea3db62536d4d4585
+T016d:
+  task: 96c27bb0ce86b3a3072bcc3e10fa17e631fa164d62ce4c5480cc79daf0b2e828
+T017:
+  task: a9b97bda4da26a71945dc5174d837e25a0932c20f28a56eb25983ba61776984a
+T018:
+  task: 860a421b51f9ee0320d8aea4f25b364484d6bf23a57b8801bef477aafd8151db
+T018b:
+  task: 92b16285d9df4f99636c9f8e507f2054770513918ea872936197dc5b5f71654a
+T018c:
+  task: 659a957149177dfb3486339a808008da89608afa2db9477cd86d0dbec749b203
+T018d:
+  task: 39258f07866d5c507f2c7b200de1990a1b884fed2b2ee5404630f96d9346007f
+T019:
+  task: acd7cc5a29d514c39692e30ff5a33edae4954685f611a9ccaa4dfd57838e8767
+T020a:
+  task: 63331ed503cceb9e87ca0458ff3edcd365bf261bef9ae09cda87e7d80ff9b47c
+T020b:
+  task: 0725df048fd2e3602b4313eddef2762887c12eb8aa1c57c99b39f9124990435d
+T020c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/lmm_results.csv'
+  task: b4f79fefe3bba4fe2c4e93b6187e8182c7f3fe8a13ca3385a2aded9b6d15df3a
+T021a:
+  task: 4c4bd81007a8420f4b4bb47bcb83d8655b049ac0aafd25f77d43448da5fb389a
+T022:
+  task: f731c4c8f8887661cc9453e8a655dc7540e8264668e34686565baaf89c0cd313
+T023:
+  task: 6a24eb3068e47e6d6712ccf7416e91911d8056dd7aedbec374c25f848731bf5a
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/filter.py'
+  task: 6617c781b68bc5296caed40b3d2da32ce8ef1cadcbf6e9412f132f31c4b39099
+T024b:
+  task: f297ad572f2f0d4127ad2f648e7fe826481894cee6f0bdc5b42dfd8f171913d5
+T025:
+  task: 100012d63f9e60654f9df93a68e9855653b19545f20f768ea9e449dc5806a167
+T026a:
+  task: 25909139c7ee1d5cb42be0ca4abb829d1b2b88db9f33bac2d94e33b0c8d504bb
+T026b:
+  task: 6e0279343ae1a3cc76185a93d0a6f7e39f7e88148c2afffe899721b6ce86e367
+T027:
+  task: fe63a3bbca7c42d533beec1ae799752951bd8ed7f96317edf832fe9a4c05e1cd
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/anova_runner.py'
+  task: 173db3e6b1b744de0f24b35816c5b767699bc695fb160fbfca1dbdafcfd9b76e
+T029:
+  task: 994a1831c2d794081141d156f86251c5330e6e853007fb385835395a17d202f4
+T029b:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/sensitivity_report.md'
+  task: 1d1bc1cb56f9cf9e20fda0be56b7efa7b0683ee38c0a46a9ef68d99e16e07164
+T030a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/parity_test.py'
+  task: 91ac95c96ea02f6319aa40f72169b495fe951149cf41234615da566d205a1b51
+T030b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/latency_calc.py'
+  task: cb1dd017e92d4efb493d4f80c4cbe9fdd5eda18c267fe504bea3ffb8c7f3ca14
+T032:
+  task: fd0e2c429e5b0b66c67e91d93b12f0403cc4c52f0c889afe3f6004485339ab45
+T032c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/config_consumption_log.json'
+  task: 53ec2c7e76d2c214ed248802a7ef4ed5a487a98de62556cf9ee6dd18cba109c4
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/report.md, data/processed/summary.csv,
+    docs/report_template.md'
+  task: 2144134d806e08ec4bd599783d555ee759d27ed332d30f6582ad606a5084610b
+T033a:
+  task: b5f464fce5baf2469d16eb9ca2feffd9e2af257270a08b82c8c32a76411835db
+T033b:
+  task: f5b72cf4b53d681a2ce559cb6b4267dc4996207367e52db2ddc071915baf2108
+T033c:
+  task: 91f330c1747eb983020eb84003055b3ec2161d779da175ee5bb671729665c599
+T034:
+  task: 0ad636a7e247c3a21fa2eff6101ce936b497c0f2cdb04967117d1f0a671d89e3
+T034a:
+  task: 47831f931dd846bc707524e589f77e78cdebb2c64440c65f19c03c752822277a
+T034b:
+  task: 95aca848aa70cc444862a86b6556b3f280dd58ea6ffd44ff69e91cebc46da9b6
+T035:
+  task: 00fcd6cefa0ae55a5740eb14558028b431c0d2b00f792fe20fa3142c24abcdd9
+T036:
+  task: cb6604237cb065e57e3b9400d445730ea5216379dce1f18ec961c278cbe42982
+T037:
+  task: 05f462c8ffbc4ae99c75cd01b62c1c0efd1c7b53f7333965e4170063335ccf36
+T038:
+  task: ba4303cc03712d6435d15efd2c8e7eb83f77ace460ef5f8a77191292c98a3b79
+T039:
+  task: 8f56bae01cb0395b39361f0c90e6480860ff05925c0e082d83e6ab16e3128834
+T040:
+  task: 856cdf334a50ff223cab64fc5108ee2b94c616f181ba120a69136edc87bd8933
+T041:
+  task: 4210f6eb2c6374181dd7853f89ce2df619e715fef9cb9f35dadf112b0f312d43
+T042:
+  task: 3b6516ab41739c26fa1e70b9a19ef1bf3682168ed0938b661286d51bbb82114e
+T043:
+  task: a7c71db58ed3f388e79ec731e60fa099a53338cebce457370e0ab79197060dee
+T051:
+  task: d099e8d784ab10a212ef59d16e8639aa6b58ed8db4a8db9c4a1ca09ba80a2c2f
+T053:
+  task: 6dac44f4f1d3c2c6ff8abaa1d1bb5b76445a4366d1ef3dc016d0412f06a1a1c7
+T054:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/acm_validator.py'
+  task: 2bb55c211b1b927617d5914245abcbe50b644e9d8b2e9256565dd60947d19e5c
+T054a:
+  task: 0b5a405110dd4c2435eb2e35e069124fcdd4c6766ec8f432b1e66b2a311a3d71
+T055:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/latency_calc.py'
+  task: 58fc2fa41604b65af8b9a590786726b430aadd4adadb3d42693613f82c3f063b
+T056:
+  task: c59e5d974126eff50dc06bc13ca699ebcdd3adba7c73c7d17e294e117cb452d1
+T057:
+  task: d9846dfe47961bc225ffde7732d60a1add3e425d2fb1f442c4c695c6a24517c4
+T057a:
+  task: 7e4259045fd1372d2b116ff3539dc22553a7f1c2d86959cb61c90ab2fb88b615
+T058:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/parity_test.py'
+  task: feea2677204d47357c58704defd91fcc5778290a9e56a3d61d97837dffb68f35
+T059:
+  task: 825521fa03a5016261ea81529ef4a8a71dea648ef1f629e852ecbe3aabbae03c
+T060:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/power_analysis.py'
+  task: 727afdae483f62bf3e19c56da0dca003dae9ea685b71ab990fd75e961e9f75e5
+T060a:
+  task: 836bb834215803b665b549754ad8f50fa682601941687ddddd058bed82eb6afb
+T062:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/verify_sc006.py,
+    data/processed/sc006_status.json'
+  task: 0c6c79df78634515c1ac18e28f46270d761cabf05e0c4192b69aa746edc4d7b1
+T063:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/verify_acf_adjustment.py'
+  task: 774089e6f451fb8bda47df86b66b4ae0765e9c700c767a358fb8a44204180875
+T063a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/acf_adjustment_log.json'
+  task: edc48b8f951b7db93eac8c20b5b98d5f59df3c84e7db0a4cb23fa37c7976b400
+T064:
+  task: b74811a35d4ba031c742c7674a25708884df54cd36c44970c01d1c68e97a2261
+T065:
+  task: 233bbb54f567bbbffca985725bf34980b06ae93fb92cb15c2f2cb9501ce82977
+T066:
+  task: b9b78e067519c4f8a92ed3893eed55164450ddc253ff5abafc0d09065ee7995c
+T067:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/latency_calc.py'
+  task: 3d279d8636d2206e5018bdcf7ef0726dcf287bd270562e1d3fdaff1d14818505
+T068:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/verify_acf_adjustment.py'
+  task: ae2170061fbf0582662873d3b64d41914dc6a5f35476144998d06907e28f78cf
+T069:
+  task: bb41306c12afe96836481b941fbaad892298a3da7ad8aac0c66bba296b109d49
+T070:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/verify_streaming.py'
+  task: ba7746cb0d84e29e1a6382343272ce1de00b78b24b3e2d6625cba2e69c6f5c95
+T071:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/latency_calc.py,
+    data/processed/permutation_seed.json'
+  task: 841f217cddbc29faaacec8de3656db2c69061380c403c1c11c296a51ba07a191
+T072:
+  task: 01b8e1811e033591933a46e8cdb47535aa824f69ab735c7a38699aa1ec692fdd
+T073:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/verify_novelty_independence.py'
+  task: f5748109ba05ab14cae512a3c0f6debb0be01cd0908f71e0f9b38a48ecc8ecf9

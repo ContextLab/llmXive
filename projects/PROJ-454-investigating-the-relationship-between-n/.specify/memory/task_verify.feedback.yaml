@@ -1,20 +1,15 @@
 T001:
-  reason: The `data/raw/` directory, which the task explicitly requires, is missing,
-    and there is no evidence (e.g., CI logs) that `pip install -r requirements.txt`
-    succeeds on a clean runner. These gaps must be addressed for the task to be considered
-    complete.
   task: cc17ab4601250f8693d50edb8e69e9ffe3b115e1700d13c157473f723b615108
 T004:
-  reason: No `utils/resource_monitor.py` file or any log output (`logs/resource_usage.log`)
-    was provided, so there is no evidence that RAM/Disk usage is being logged or that
-    the abort thresholds are enforced. The required artifact and verification log
-    are missing.
+  reason: The only evidence is a historical `--self-check` run (exit 0) printing a
+    ram/disk line; the actual artifacts `code/utils/resource_monitor.py` and `logs/resource_usage.log`
+    were not confirmed to exist on disk with real content, and nothing demonstrates
+    the required abort behavior at >7 GB RAM / >14 GB disk (e.g., threshold constants,
+    abort logic, or a test triggering them). The next implementer should provide the
+    monitor script with explicit limit checks and a current, non-empty `logs/resource_usage.log`
+    entry from an actual script run.
   task: 4a33e2b36ffe95ab00bef539d9a44574adb74b65f23a7ce2b37cff1607b720d6
 T005:
-  reason: "The repository contains only the unit\u2011test file; there is no provided\
-    \ `utils/entropy_utils.py` implementation (or any evidence that it exists, is\
-    \ non\u2011empty, and passes the tests). Without the actual module or test run\
-    \ results, the task\u2019s requirement cannot be verified."
   task: eef49759d212508313c2a981e56a27dc980c1222c97a0a1946b4e49fdd631d58
 T006:
   reason: "The repository only shows the unit\u2011test file; there is no evidence\

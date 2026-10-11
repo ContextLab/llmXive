@@ -1,0 +1,63 @@
+# pypy.toml — linting & formatting configuration for the llmXive follow-up project.
+# NOTE: filename kept as "pypy.toml" per tasks.md T003; ruff users can point ruff
+# at this file via `ruff check --config pypy.toml` or symlink it as pyproject.toml.
+# It uses the standard ruff `[tool.ruff]` table layout.
+
+[tool.ruff]
+# Project targets Python 3.11 (see plan.md).
+target-version = "py311"
+line-length = 100
+
+# Directories to lint: source, tests, and CLI scripts.
+include = [
+    "src/**/*.py",
+    "tests/**/*.py",
+    "code/**/*.py",
+]
+
+# Generated artifacts, virtual environments, and data directories are excluded.
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "data",
+    "figures",
+    "results",
+    "docs",
+    "state",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+# Enable a practical rule set:
+#   E/W  - pycodestyle errors and warnings
+#   F    - pyflakes (unused imports, undefined names)
+#   I    - isort-style import ordering
+#   B    - flake8-bugbear (common bug patterns)
+#   UP   - pyupgrade (modernize syntax for py311)
+#   N    - pep8-naming
+select = ["E", "W", "F", "I", "B", "UP", "N"]
+
+# Rules that conflict with research-code conventions or line-length limits.
+ignore = [
+    "E501",  # long lines handled by formatter where possible
+    "B008",  # argparse defaults in function signatures are idiomatic here
+    "N803",  # allow uppercase math-style names (e.g., X, Y) in analysis code
+    "N806",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "sim", "analysis", "data", "cli"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests may use asserts and fixtures freely.
+"tests/**" = ["B011"]
+# Legacy top-level scripts under code/ keep their existing style.
+"code/*.py" = ["N999"]
+
+[tool.ruff.format]
+# Formatting conventions for the project.
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+docstring-code-format = true

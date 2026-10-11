@@ -1,13 +1,15 @@
 status: none
-intent: Stochastic Physics Sandbox cellular automata LingBot robotic trajectories
-  python package dataset
+intent: cellular automata stochastic physics sandbox dataset python package for simulation
+  baseline
 required_fields:
 - time_step
 - grid_state
-- external_noise_vector
-- agent_collision_events
-- random_force_vector
-- state_history_window
-cache_key: a93c7ebd1af640a09a31bc4032698ad5b404203b14bda8659e76fd71861b02f8
-searched_at: '2026-10-02T19:42:21.839886+00:00'
+- external_noise
+- agent_collisions
+- next_grid_state
+- neighborhood_radius
+- memory_depth
+- update_function
+cache_key: bbf74082c88470de9f063a4d7e6e1edf545f4f18dd85ad7f00c9557d451966ed
+searched_at: '2026-10-11T03:49:13.330865+00:00'
 retry_count: 1
