@@ -1,9 +1,4 @@
 T001:
-  reason: The evidence provided does not show the six required directories (`data/raw`,
-    `data/processed`, `data/assets`, `code`, `artifacts`, `tests`) nor the `.gitkeep`
-    files inside each; no file listings or directory structures are present to confirm
-    they exist. The implementer must add these directories with a `.gitkeep` file
-    in each and provide evidence (e.g., `git ls-files` output) that they are tracked.
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/run_lint.sh exit=1'

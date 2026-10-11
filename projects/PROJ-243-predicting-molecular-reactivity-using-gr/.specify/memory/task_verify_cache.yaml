@@ -1,12 +1,11 @@
 T001:
-  c: false
-  h: 7ae7cc8ce522bdaec5f575ab89a82e2c579872baa2c9210d3ee7e801df4e10ce
-  r: The evidence provided does not show the six required directories (`data/raw`,
-    `data/processed`, `data/assets`, `code`, `artifacts`, `tests`) nor the `.gitkeep`
-    files inside each; no file listings or directory structures are present to confirm
-    they exist. The implementer must add these directories with a `.gitkeep` file
-    in each and provide evidence (e.g., `git ls-files` output) that they are tracked.
-  sig: bcfb5a69cd7bfe62af16f70bef44d3698e1c9ad0ff206733975f825c18de3688
+  c: true
+  h: f68d3fd61029752cfb6aa80ee5307ae89e47b793b0fc025488d73a1ba9fafff1
+  r: The execution log shows `code/setup_dirs.py` ran successfully (exit 0) and verified
+    all six required directories (`data/raw`, `data/processed`, `data/assets`, `code`,
+    `artifacts`, `tests`) each contain a `.gitkeep` file, matching the task's requirement
+    exactly.
+  sig: 27b224d62f91bf93f1383c629b466400caa0ed5ffc68113bcb303bb525b8a6d9
 T003:
   c: false
   h: e81985365fe3a2eae8a47a26b5dc1b0a5b1d33bf63fc82d10d096e924739feee

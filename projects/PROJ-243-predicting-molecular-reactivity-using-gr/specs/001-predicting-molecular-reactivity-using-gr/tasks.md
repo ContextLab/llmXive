@@ -12,11 +12,11 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
 
 ## Phase 0 – Project Setup & Infrastructure
 
-- [ ] T001 [P] **Create core directories**  
+- [X] T001 [P] **Create core directories**  
   `data/raw`, `data/processed`, `data/assets`, `code`, `artifacts`, `tests` (add a `.gitkeep` in each).  
   **Verification**: `git ls-files` shows the directories and a `.gitkeep` file inside each.
 
-- [ ] T002 [P] **Add configuration & linting files**   <!-- FAILED-IN-EXECUTION: code/run_lint.sh exit=1 -->
+- [ ] T002 [P] **Add configuration & linting files**   <!-- FAILED-IN-EXECUTION: code/run_lint.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.sh exit=1 -->
   - `requirements.txt` (pinned versions of `torch`, `rdkit`, `torch-geometric`, `scikit-learn`, `pandas`, `datasets`, `pyyaml`, `requests`, `black`, `ruff`, `pytest`).  
   - `pyproject.toml` (Black config).  
   - `.flake8` and `ruff.toml` (flake8/ruff settings).  

@@ -1,16 +1,14 @@
 status: none
-intent: download QM9, Reference Substructures, and Kinetic Dataset python package
+intent: download QM9 dataset parquet python package for graph preprocessing python
+  package dataset
 required_fields:
-- molecule_id
 - smiles
-- atomic_numbers
-- hybridizations
-- formal_charges
-- bond_types
-- bond_conjugations
-- homo_energy
-- lumo_energy
-- gap
-cache_key: 66539aaedca1719b2f201f4d9a1848f97a066185263fedc99147134c827e4e3f
-searched_at: '2026-10-11T21:15:39.730590+00:00'
+- atomic_number
+- hybridization
+- formal_charge
+- bond_type
+- bond_conjugation
+- homo_lumo_gap
+cache_key: 841a7efbd3a91c29cced67875539086cacd3edd7e17039224e4996351d0a0e68
+searched_at: '2026-10-11T22:13:33.652171+00:00'
 retry_count: 1
