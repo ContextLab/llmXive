@@ -9,7 +9,7 @@
 
 - [X] T001 [P] Create project scaffold, `requirements.txt`, `.flake8`, `pyproject.toml`, and `quickstart.md`; add `.gitkeep` files in all new directories (`code/`, `data/raw/`, `data/processed/`, `models/`, `metrics/`, `logs/`, `reports/`, `tests/`, `contracts/`).
 - [X] T002 [P] Add `code/config.py` with global constants (species list, paths, `THINNING_DISTANCE_KM`, random seeds, `n_jobs=2`).
-- [ ] T003 [P] Initialise logging configuration (`logs/` with format `%(asctime)s - %(name)s - %(levelname)s - %(message)s`) and create YAML schema for `logs/preprocess_counts.yaml`. <!-- FAILED-IN-EXECUTION: code/init_logging.py exit=-1 -->
+- [ ] T003 [P] Initialise logging configuration (`logs/` with format `%(asctime)s - %(name)s - %(levelname)s - %(message)s`) and create YAML schema for `logs/preprocess_counts.yaml`.
 
 ---
 

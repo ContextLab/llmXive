@@ -1,12 +1,11 @@
 T001:
   c: true
-  h: 5e52771bc4ffa58abc4e9652dff1b212d256d8421ef2d62915a4bc8683aae735
-  r: "Checked that `requirements.txt`, `pyproject.toml`, `quickstart.md`, and a `.flake8`\
-    \ file exist, and that the scaffold log shows `.gitkeep` files created in every\
-    \ required directory (`code/`, `data/raw/`, `data/processed/`, `models/`, `metrics/`,\
-    \ `logs/`, `reports/`, `tests/`, `contracts/`). All required artifacts are present\
-    \ and non\u2011empty."
-  sig: a735aa13eb79be8237662af3f93d1ef37383f4315779895bcbb120aef4128e49
+  h: 17f0709f6e62ef6d8747104babb3a9404321cac0356771327b269ec8c15e600d
+  r: "Checked that `requirements.txt`, `.flake8`, `pyproject.toml`, and `quickstart.md`\
+    \ exist and are non\u2011empty, and that the scaffold log confirms `.gitkeep`\
+    \ files were created in every required directory (`code/`, `data/raw/`, `data/processed/`,\
+    \ `models/`, `metrics/`, `logs/`, `reports/`, `tests/`, `contracts/`)."
+  sig: 6c2d91427abaed11c69706ba5744940988fb611cbc101c935e658586b4583f05
 T002:
   c: true
   h: 3e187be207ae5d7f8de8abfd65104c30f32f56089ec4fce2763935722e5e222a
@@ -15,6 +14,16 @@ T002:
     \ sets `N_JOBS = 2` as required. All requested global constants are present and\
     \ correctly set."
   sig: a356d187b54eab76423cee941bd3291105ae148f4a0f0b3bb03906ccb0104e86
+T003:
+  c: false
+  h: 6cd20ca29aee60eb4f3363a8912627bc67f30cbee439aa51c11a2438ad9967ed
+  r: "The logging initialization is evidenced by a successful run of `init_logging.py`\
+    \ and a correctly\u2011formatted log line, and the `logs/` directory exists. However,\
+    \ `logs/preprocess_counts.yaml` only contains placeholder example values and a\
+    \ comment stating it is a placeholder, not an actual schema definition; thus the\
+    \ required YAML schema is not genuinely provided. The task needs a real schema\
+    \ (e.g., key definitions, types) rather than stub data."
+  sig: 3667f44f48dc475ede6640448bc52ce1077ce9a95431b94faccd0aa963b0e46c
 T004:
   c: false
   h: 40bfec2dcd0a21768afd9363a51703eae5fcff5d0203c050d01f1cfa32a2c0f4

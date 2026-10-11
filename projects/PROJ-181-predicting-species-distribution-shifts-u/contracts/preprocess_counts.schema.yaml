@@ -1,0 +1,20 @@
+# YAML schema for logs/preprocess_counts.yaml
+# Defines the required structure for logging preprocessing counts.
+type: map
+mapping:
+  species:
+    type: str
+    required: true
+  before_count:
+    type: int
+    required: true
+  after_count:
+    type: int
+    required: true
+  timestamp:
+    type: str
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    required: true
+  distance_used_km:
+    type: float
+    required: true

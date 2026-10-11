@@ -3,8 +3,12 @@ T001:
 T002:
   task: 268e6518d89a8bb43601414c10f8474a10d5ef2bfb3f737be3cdb3659fa17f35
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/init_logging.py
-    exit=-1'
+  reason: "The logging initialization is evidenced by a successful run of `init_logging.py`\
+    \ and a correctly\u2011formatted log line, and the `logs/` directory exists. However,\
+    \ `logs/preprocess_counts.yaml` only contains placeholder example values and a\
+    \ comment stating it is a placeholder, not an actual schema definition; thus the\
+    \ required YAML schema is not genuinely provided. The task needs a real schema\
+    \ (e.g., key definitions, types) rather than stub data."
   task: 998d91bb7d88460ccbfdaba51c346946f170f95ad93a9221237849c5f812b7de
 T004:
   reason: "The provided `code/download.py` defines helper functions but lacks a runnable\
