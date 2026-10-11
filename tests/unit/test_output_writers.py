@@ -132,3 +132,25 @@ def test_a_test_that_runs_the_script_does_not_take_the_file_over(tmp_path: Path)
     assert output_writers.last_writer(project, "data/results.md") == ("code/write_methods_doc.py", "T008")
     project = _send(tmp_path, "T008", "code/write_methods_doc.py", None)
     assert "replaces" not in _log(project, "T008", "code/write_methods_doc.py")
+
+
+def test_which_run_wrote_a_file_does_not_change_what_was_verified(tmp_path: Path) -> None:
+    """Batch 1 (2026-10-11): 46 of 269 re-judgements of an accepted task had
+    byte-identical evidence; only this note differed, because another task's
+    run had rewritten the same bytes. Four of those re-judgements flipped the
+    verdict."""
+    from llmxive.agents import task_verifier
+
+    _send(tmp_path, "T008", "code/write_methods_doc.py", METHODS)
+    project = tmp_path / "projects/PROJ-912-writers"
+    task = "T008 Write `data/results.md` with the citation."
+    before = task_verifier.gather_evidence(project, task)
+    # Another task runs the same script: same bytes, a different recorded writer.
+    _send(tmp_path, "T009", "code/write_methods_doc.py", None)
+    after = task_verifier.gather_evidence(project, task)
+    assert "for T008" in before and "for T009" in after  # the verifier still reads it
+    assert task_verifier._verification_hash(task, "", before) == task_verifier._verification_hash(task, "", after)
+    # A change of content is still a change of evidence.
+    (project / "data/results.md").write_text("different\n", encoding="utf-8")
+    changed = task_verifier.gather_evidence(project, task)
+    assert task_verifier._verification_hash(task, "", changed) != task_verifier._verification_hash(task, "", after)
