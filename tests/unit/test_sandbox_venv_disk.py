@@ -23,7 +23,7 @@ from llmxive import sandbox
 
 
 def _fake_venv(projects: Path, pid: str) -> Path:
-    v = projects / pid / "code" / ".venv"
+    v = sandbox.venv_dir(projects / pid)
     (v / "bin").mkdir(parents=True)
     (v / "bin" / "python").write_text("#!/bin/sh\n", encoding="utf-8")
     (v / "lib").mkdir()

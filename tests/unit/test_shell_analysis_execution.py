@@ -73,7 +73,7 @@ def test_shell_timeout_stops_python_child_before_late_write(tmp_path):
 def test_shell_path_failure_never_creates_venv(tmp_path,path):
     result = sandbox.run_shell_script(project_dir=tmp_path,script_relpath=path)
     assert not result.ok and 'project-local' in result.stderr
-    assert not (tmp_path/'code/.venv').exists()
+    assert not sandbox.venv_dir(tmp_path).exists()
 
 
 def test_direct_script_runbook_and_shell_injection_are_literal(tmp_path):

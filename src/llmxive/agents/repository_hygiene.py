@@ -36,6 +36,7 @@ REQUIRED_GITIGNORE = (
     ".env",
     ".env.*",
     ".venv",
+    ".llmxive-venvs/",
     "state/run-log/*/in-progress/",
     "state/run-log/*/.invalid/",
 )

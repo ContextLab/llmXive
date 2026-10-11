@@ -35,9 +35,9 @@ def test_run_in_venv_uses_the_project_venv_python(tmp_path: Path) -> None:
     )
     assert res.ok, res.stderr
     exe = res.stdout.strip()
-    # The reported interpreter must live INSIDE the project's code/.venv — not
-    # the base interpreter the venv symlink points at.
-    assert str((proj / "code" / ".venv").resolve()) in exe or "code/.venv" in exe, exe
+    # The reported interpreter must live INSIDE the project's venv — not the
+    # base interpreter the venv symlink points at.
+    assert Path(exe).is_relative_to(sandbox.venv_dir(proj)), exe
 
 
 def test_run_in_venv_sees_venv_only_site_packages(tmp_path: Path) -> None:
@@ -136,4 +136,66 @@ def test_run_in_venv_rejects_external_working_directory_before_execution(tmp_pat
     assert not result.ok
     assert "working directory escapes" in result.stderr
     assert not (tmp_path / "leak.csv").exists()
+    assert not sandbox.venv_dir(proj).exists()
     assert not (proj / "code" / ".venv").exists()
+
+
+# --- the venv is the platform's, and lives outside the project ----------------
+
+
+def test_the_venv_is_never_inside_the_project(tmp_path: Path) -> None:
+    for proj in (tmp_path / "projects" / "PROJ-X", tmp_path / "bare-workspace"):
+        (proj / "code").mkdir(parents=True)
+        venv = sandbox.venv_dir(proj)
+        assert venv.is_absolute()
+        assert not venv.is_relative_to(proj.resolve()) and not venv.is_relative_to(proj)
+    repo_style = sandbox.venv_dir(tmp_path / "projects" / "PROJ-X")
+    assert repo_style == tmp_path / sandbox.VENV_ROOT_NAME / "PROJ-X"
+    # Two bare workspaces that share a parent do not share a root, so creating
+    # one's venv can never evict the other's.
+    assert sandbox.venv_root(tmp_path / "a") != sandbox.venv_root(tmp_path / "b")
+
+
+def test_a_project_that_deletes_code_venv_cannot_break_its_own_run(tmp_path: Path) -> None:
+    """The PROJ-9999 canary failure, byte for byte in its mechanism.
+
+    The generated ``conftest.py`` ran ``shutil.rmtree("code/.venv")`` in
+    ``pytest_configure`` to hide site-packages from the project's own import
+    scan. When the venv lived there, pytest deleted the interpreter it was
+    running from and every test module died on its first third-party import.
+    """
+    proj = tmp_path / "projects" / "PROJ-X"
+    (proj / "code").mkdir(parents=True)
+    (proj / "tests").mkdir()
+    py = sandbox.ensure_venv(proj)
+    site = next(sandbox.venv_dir(proj).glob("lib/python*/site-packages"))
+    (site / "only_in_the_venv.py").write_text("VALUE = 41\n", encoding="utf-8")
+    (proj / "conftest.py").write_text(
+        "import shutil\nfrom pathlib import Path\n\n"
+        "def pytest_configure(config):\n"
+        "    venv = Path(__file__).parent / 'code' / '.venv'\n"
+        "    if venv.is_dir():\n"
+        "        shutil.rmtree(venv)\n",
+        encoding="utf-8",
+    )
+    (proj / "tests" / "test_dep.py").write_text(
+        "def test_dep():\n    import only_in_the_venv\n    assert only_in_the_venv.VALUE == 41\n",
+        encoding="utf-8",
+    )
+    import subprocess
+
+    subprocess.run([str(py), "-m", "pip", "install", "-q", "pytest"], check=True, capture_output=True)
+    for _ in range(2):  # the second run is the one that used to find no venv
+        res = sandbox.run_in_venv(project_dir=proj, args=["-m", "pytest", "-q", "tests/"], timeout_s=300)
+        assert res.ok, res.stdout + res.stderr
+    assert py.exists()
+
+
+def test_a_venv_left_inside_the_project_is_removed(tmp_path: Path) -> None:
+    proj = tmp_path / "projects" / "PROJ-X"
+    legacy = proj / "code" / ".venv"
+    (legacy / "bin").mkdir(parents=True)
+    (legacy / "bin" / "python").write_text("#!/bin/sh\n", encoding="utf-8")
+    py = sandbox.ensure_venv(proj)
+    assert not legacy.exists()
+    assert py.exists() and py.is_relative_to(sandbox.venv_dir(proj))
