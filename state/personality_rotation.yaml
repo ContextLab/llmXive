@@ -1,12 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-10-11T06:04:28.320148+00:00'
+last_used: richard-feynman
+last_used_at: '2026-10-11T08:04:28.705185+00:00'
 last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-23T22:54:16.370943+00:00'
-  ended_at: '2026-06-23T23:25:53.591403+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-23T23:25:53.591403+00:00'
   ended_at: '2026-06-23T23:49:25.775783+00:00'
@@ -1220,3 +1215,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-336-investigating-the-impact-of-simulated-se/reviews/research/marie-curie-simulated__2026-10-11__research.md
+- slug: richard-feynman
+  started_at: '2026-10-11T06:04:28.320148+00:00'
+  ended_at: '2026-10-11T08:04:28.705185+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-021-understanding-oceanic-phytoplankton-comm/reviews/research/richard-feynman-simulated__2026-10-11__research.md
