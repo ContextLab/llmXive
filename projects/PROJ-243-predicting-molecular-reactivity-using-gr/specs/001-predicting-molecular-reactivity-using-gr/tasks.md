@@ -35,7 +35,7 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
   Stream the QM9 dataset (≈100 k molecules) via `torch_geometric.datasets.QM9` to `data/raw/qm9_subset.parquet`. Compute its SHA‑256 hash and add an entry to `data/raw/checksums.json` per the schema.  
   **Verification**: `data/raw/qm9_subset.parquet` exists, is non‑empty, and the hash in `checksums.json` matches the computed value.
 
-- [X] T005 [US1] **Curate reference substructures CSV & checksum**
+- [ ] T005 [US1] **Curate reference substructures CSV & checksum**
   Download the curated reference substructures (DOI cited in `spec.md`) to `data/raw/reference_substructures_raw.csv`. Compute its SHA‑256 and record in `checksums.json`.  
   **Verification**: File exists, checksum entry matches, and the CSV has the required columns (`smiles`, `source_doi`, `description`).
 

@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-11T21:21:52Z",
-  "project_id": "PROJ-243-predicting-molecular-reactivity-using-gr"
+  "updated_at": "2026-10-11T22:29:44Z",
+  "project_id": "PROJ-243-predicting-molecular-reactivity-using-gr",
+  "replan_rounds": 1
 }

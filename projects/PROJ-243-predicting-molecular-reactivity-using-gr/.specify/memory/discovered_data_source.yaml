@@ -1,14 +1,15 @@
 status: none
-intent: QM9 dataset with reference substructures and kinetic dataset python package
-  dataset
+intent: QM9 parquet download with reference substructures and kinetic dataset python
+  package dataset
 required_fields:
-- SMILES
+- smiles
 - atomic_number
 - hybridization
 - formal_charge
 - bond_type
-- conjugation
-- HOMO_LUMO_gap
-cache_key: efdf51e1f87d29fc14ca46b46f565d27eab9fc9065cc69ec8c1f42534ff91ef5
-searched_at: '2026-10-11T22:27:25.999430+00:00'
+- bond_conjugation
+- homo_lumo_gap
+- dft_properties
+cache_key: 6037057dfb1bdfc292c3c4fe1ddef7b7e2685ebd844a93c20f88846903cc6a30
+searched_at: '2026-10-11T22:29:27.705499+00:00'
 retry_count: 1

@@ -1,12 +1,12 @@
 T001:
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
-  reason: The repository contains `requirements.txt`, `pyproject.toml`, and `ruff.toml`,
-    and the install log shows the requirements install successfully, but there is
-    no `.flake8` file present and the provided linting log does not include the output
-    of `ruff check .` or `black --check .` confirming they pass without errors. Adding
-    the missing `.flake8` file and supplying evidence that both ruff and black checks
-    succeed is required.
+  reason: "The project contains `requirements.txt`, `pyproject.toml`, and `ruff.toml`,\
+    \ and the requirements file pins all listed packages, but there is no `.flake8`\
+    \ file in the repository and the provided log only shows package installation\u2014\
+    not the required `ruff check .` or `black --check .` executions. Adding a `.flake8`\
+    \ configuration file and evidence that both linting and Black formatting pass\
+    \ is needed."
   task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
 T003:
   reason: "The `data/raw/checksums_schema.yaml` file exists and appears valid, but\
@@ -18,6 +18,11 @@ T003:
 T004:
   task: f05715c1b6c34eaaa9a72a319ee5e838fdca3c7ed2428f9c6e96725257c684fa
 T005:
+  reason: "The `data/raw/reference_substructures_raw.csv` file exists and has the\
+    \ required columns, but `data/raw/checksums.json` lacks a checksum entry for this\
+    \ CSV (it only contains an entry for `qm9_subset`). The task requires the SHA\u2011\
+    256 of the reference substructures CSV to be recorded in `checksums.json`, which\
+    \ is currently missing. Add the correct checksum entry for `reference_substructures_raw.csv`."
   task: 6544ad0033b0cab68d101c6736188511d86eb07afd3eeff001c0b708eab7e767
 T006:
   task: 7ea02df71fd2e3baebff7bccf630d86a7f68ad4e66466f4491df3c184077f35c
