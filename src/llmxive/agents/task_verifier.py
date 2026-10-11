@@ -239,6 +239,62 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     return None, ""
 
 
+#: How many files matching one pattern have their CONTENTS quoted (first and last).
+_PATTERN_QUOTED = 2
+_PATTERN_BYTES_PER_FILE = 3000
+
+
+def _pattern_evidence(project_dir: Path, task_text: str, files_used: int) -> list[str]:
+    """Evidence for outputs a task names by PATTERN rather than one by one.
+
+    PROJ-9999 canary, 2026-10-11. Task T004 declared its outputs as
+    ``data/counts_N{N}_p{p}.csv`` "for all 12 combinations". All 24 files were
+    on disk and the run log showed each passing schema validation, but the
+    collector resolved literal paths only, so the verifier was shown none of
+    them and wrote: "none of the 12 required data/counts_N{N}_p{p}.csv/.json
+    output files were confirmed to exist". Three rejections of correct work
+    later the task was recorded UNVERIFIABLE and the project was kicked back.
+
+    Every match is LISTED with its size and digest (so a count claim can be
+    checked and the verdict cache invalidates when any of them changes); the
+    first and last are QUOTED, within what is left of the file budget.
+    """
+    from llmxive.project_paths import declared_patterns, resolve_pattern
+
+    root = project_dir.resolve()
+    chunks: list[str] = []
+    for written, glob in declared_patterns(task_text):
+        matches = resolve_pattern(project_dir, glob)
+        if not matches:
+            chunks.append(f"- `{written}` (pattern `{glob}`): NO MATCHING FILE exists")
+            continue
+        listing = []
+        for f in matches:
+            try:
+                with f.open("rb") as source:
+                    digest = hashlib.file_digest(source, "sha256").hexdigest()
+                listing.append(f"  - `{f.relative_to(root)}` ({f.stat().st_size} bytes, sha256={digest})")
+            except OSError as exc:
+                listing.append(f"  - `{f.relative_to(root)}` (unreadable: {exc})")
+        chunk = (f"- `{written}` (pattern `{glob}`): {len(matches)} matching file(s) exist, "
+                 "collector-confirmed:\n" + "\n".join(listing))
+        quoted = [matches[0]] if len(matches) == 1 else [matches[0], matches[-1]]
+        for f in quoted[:_PATTERN_QUOTED]:
+            if files_used >= _MAX_EVIDENCE_FILES:
+                chunk += "\n  (contents not quoted: file evidence limit reached)"
+                break
+            files_used += 1
+            try:
+                with f.open("rb") as source:
+                    head = source.read(_PATTERN_BYTES_PER_FILE).decode("utf-8", errors="replace")
+            except OSError:
+                continue
+            chunk += (f"\n  contents of `{f.relative_to(root)}`:\n```\n{head}\n```"
+                      + ("" if f.stat().st_size <= _PATTERN_BYTES_PER_FILE else "\n…(truncated)"))
+        chunks.append(chunk)
+    return chunks
+
+
 def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Collect the artifacts a task references (head of each) as evidence text.
 
@@ -303,6 +359,7 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
             + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
         )
+    chunks.extend(_pattern_evidence(project_dir, task_text, file_count))
     dependencies = local_import_evidence(project_root, python_sources)
     if dependencies:
         chunks.append(dependencies)
