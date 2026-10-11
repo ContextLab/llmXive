@@ -112,7 +112,8 @@ root = paths.root                             # the project directory, whatever 
 ```
 
 - `paths.data(...)`, `paths.figures(...)`, `paths.results(...)`, `paths.docs(...)`,
-  `paths.code(...)` and `paths.path(...)` return a `pathlib.Path` inside the project
+  `paths.code(...)`, `paths.path(...)` and `paths.<any top-level folder>(...)` (for example
+  `paths.outputs("plot.png")`) return a `pathlib.Path` inside the project
   and create the folder it lives in. They do not create the file.
 - So do NOT write directory-creation scripts, `ensure_dirs` helpers, a logging
   module, or `sys.path` edits to find the project root. Do NOT create a file

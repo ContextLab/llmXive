@@ -207,3 +207,15 @@ def test_an_unbuildable_base_environment_does_not_stop_a_project(tmp_path, monke
     res = sandbox.run_in_venv(
         project_dir=proj, args=["-c", "from llmxive_toolkit import paths; print(paths.root.name)"], timeout_s=120)
     assert res.ok and res.stdout.strip() == "PROJ-Y", res.stdout + res.stderr
+
+
+def test_any_top_level_folder_is_a_path_helper(tmp_path, monkeypatch) -> None:
+    """Canary, 2026-10-11: `paths.outputs("tv_plot.png")` raised AttributeError."""
+    tk = _toolkit(monkeypatch, tmp_path)
+    out = tk.paths.outputs("tv_plot.png")
+    assert out == tmp_path.resolve() / "outputs" / "tv_plot.png" and out.parent.is_dir()
+    assert tk.paths.models() == tmp_path.resolve() / "models" and tk.paths.models().is_dir()
+    with pytest.raises(ValueError, match="outside the project"):
+        tk.paths.outputs("..", "..", "x.txt")
+    with pytest.raises(AttributeError):
+        tk.paths._private  # noqa: B018
