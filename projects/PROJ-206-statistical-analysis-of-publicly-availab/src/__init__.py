@@ -1,3 +1,1 @@
-"""
-Top-level package for the statistical analysis project.
-"""
+"""PROJ-206 source package: election poll aggregation analysis."""

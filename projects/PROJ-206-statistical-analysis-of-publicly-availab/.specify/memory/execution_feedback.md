@@ -31,13 +31,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/data/download.py -> rc=1
-2026-10-11 16:27:25 - __main__ - INFO - Starting data acquisition (T006).
-2026-10-11 16:27:25 - __main__ - WARNING - RealClearPolitics (RCP) data is excluded from the pipeline per project constraints.
-2026-10-11 16:27:25 - __main__ - INFO - Fetching FiveThirtyEight polls from https://projects.fivethirtyeight.com/polls/house-polls.csv
-2026-10-11 16:27:25 - __main__ - ERROR - Error parsing FiveThirtyEight data: Error tokenizing data. C error: Expected 1 fields in line 5, saw 2
+2026-10-11 16:42:48 - __main__ - INFO - Starting data acquisition (T006).
+2026-10-11 16:42:48 - __main__ - WARNING - RealClearPolitics (RCP) data is excluded from the pipeline per project constraints.
+2026-10-11 16:42:48 - __main__ - INFO - Fetching FiveThirtyEight polls from https://projects.fivethirtyeight.com/polls/house-polls.csv
+2026-10-11 16:42:48 - __main__ - ERROR - Error parsing FiveThirtyEight data: Error tokenizing data. C error: Expected 1 fields in line 5, saw 2
 
-2026-10-11 16:27:25 - __main__ - ERROR - Critical: Failed to fetch FiveThirtyEight poll data. Aborting.
+2026-10-11 16:42:48 - __main__ - ERROR - Critical: Failed to fetch FiveThirtyEight poll data. Aborting.
 
+WARNING (pytensor.tensor.blas): Using NumPy C-API based implementation for BLAS functions.
 
 - python src/data/harmonize.py -> rc=1
 
@@ -74,7 +75,7 @@ casts', 'properties': {'ci_coverage': {'description': 'Check if actual outcome f
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_dataset_schema_is_valid - assert ...
 FAILED tests/contract/test_schemas.py::test_forecast_schema_is_valid - Assert...
-========================= 2 failed, 1 passed in 0.37s ==========================
+========================= 2 failed, 1 passed in 0.38s ==========================
 
 
 
@@ -117,6 +118,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/poll_data_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
-A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+A script in this project created `.github/`, `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
 
 Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

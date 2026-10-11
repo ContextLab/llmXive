@@ -1,3 +1,1 @@
-"""
-Utility subpackage for configuration, logging, and state handling.
-"""
+"""Shared utilities sub-package (T001)."""

@@ -1,3 +1,1 @@
-"""
-Data acquisition and preprocessing subpackage.
-"""
+"""Data acquisition and harmonization sub-package (T001)."""

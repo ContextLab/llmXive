@@ -10,14 +10,14 @@ T001:
     \ satisfy the stated verification criterion."
   sig: f7a6e1cb1492bb210a02f2cf9d81c163a8103f9f0e9f17160ee2b6dbe9141fcc
 T002:
-  c: false
-  h: c2c464d7cafe819e36af32ecfce3e34e7df579bd852b81e2575aa07945e5faea
-  r: "`requirements.txt` exists with all required packages pinned, but `src/utils/config.py`\
-    \ contains no `set_seed()` function at all \u2014 its own docstring even says\
-    \ \"seed handling is elsewhere\" \u2014 and it does not seed `numpy`, `random`,\
-    \ or PyMC. The task's core reproducibility requirement (a `set_seed()` function\
-    \ pinning all three RNGs, called at the start of scripts) is unmet."
-  sig: c65eb6a4ccf33d170f676533262ab4862f65e7137d46837a80b9ac7fa575785f
+  c: true
+  h: 895d0d55a60a67850d629caf65c03434409dbb7029d4d9c6458b1a7df9825641
+  r: "Checked the `requirements.txt` (161\u202Fbytes) which pins exact versions for\
+    \ all listed packages, and the `src/utils/config.py` (4.7\u202FKB) which defines\
+    \ a `set_seed()` function that seeds `random`, `numpy`, and PyMC (with import\u2011\
+    time call) and passes its unit\u2011test suite. The provided test log shows all\
+    \ six config tests succeed, confirming correct implementation."
+  sig: 1f2dcf7253c2ec1c652aed2626e002a41356d87ce9575ff0ad3a2b85289c5dfa
 T003:
   c: false
   h: e73aca2aaa92b8763743685f480712ff52e179ba14bd5a213ea5c16999e0c01f

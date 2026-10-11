@@ -1,3 +1,1 @@
-"""
-Modeling subpackage containing frequentist and Bayesian models.
-"""
+"""Forecasting models sub-package (T001)."""

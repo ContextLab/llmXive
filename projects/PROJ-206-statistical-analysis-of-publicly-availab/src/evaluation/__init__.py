@@ -1,3 +1,1 @@
-"""
-Evaluation subpackage for metrics and meta‑analysis.
-"""
+"""Evaluation and metrics sub-package (T001)."""

@@ -8,11 +8,6 @@ T001:
     \ satisfy the stated verification criterion."
   task: 98b96123fbf66ff9cca561f6d6bfa82f2970d6e1ce34916831468bffc5b85952
 T002:
-  reason: "`requirements.txt` exists with all required packages pinned, but `src/utils/config.py`\
-    \ contains no `set_seed()` function at all \u2014 its own docstring even says\
-    \ \"seed handling is elsewhere\" \u2014 and it does not seed `numpy`, `random`,\
-    \ or PyMC. The task's core reproducibility requirement (a `set_seed()` function\
-    \ pinning all three RNGs, called at the start of scripts) is unmet."
   task: 735db3d15b2e002b6bf308c472a4f34dfad0adf05dbccf2e3906bba824daf0e2
 T003:
   reason: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist

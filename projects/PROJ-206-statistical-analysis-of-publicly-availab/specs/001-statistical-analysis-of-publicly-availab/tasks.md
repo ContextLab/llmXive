@@ -11,7 +11,7 @@ The checklist follows the platform‑required format. Checked boxes (`[X]`) indi
 - [ ] T001 Establish core source layout – create `src/` package with sub‑modules `data/`, `models/`, `evaluation/`, `utils/`.  
   - **Verification**: `tree -L 2 src/` shows the expected directories and an empty `__init__.py` in each.
 
-- [ ] T002 Create `requirements.txt` pinned to exact versions (pandas, numpy, scipy, pymc v5, arviz, requests, pyyaml, statsmodels, pytest) and implement `src/utils/config.py` to pin global random seeds for `numpy`, `random`, and `PyMC` to ensure absolute reproducibility (Constitution I).  
+- [X] T002 Create `requirements.txt` pinned to exact versions (pandas, numpy, scipy, pymc v5, arviz, requests, pyyaml, statsmodels, pytest) and implement `src/utils/config.py` to pin global random seeds for `numpy`, `random`, and `PyMC` to ensure absolute reproducibility (Constitution I).  
   - **Verification**: `pip install -r requirements.txt` succeeds; `src/utils/config.py` contains a `set_seed()` function that is called at the start of all scripts.
 
 - [ ] T003 Add linting and formatting configuration files (`.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) and ensure they are invoked by the CI workflow.  
