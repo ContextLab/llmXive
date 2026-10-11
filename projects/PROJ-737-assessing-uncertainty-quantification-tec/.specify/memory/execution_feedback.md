@@ -7,18 +7,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-eaturizers.composition.element import ElementFraction
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/matminer/featurizers/composition/element.py", line 202, in <module>
-    class BandCenter(BaseFeaturizer):
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/matminer/featurizers/composition/element.py", line 210, in BandCenter
-    magpie_data = MagpieData()
-                  ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/matminer/utils/data.py", line 217, in __init__
-    self.all_elemental_props[descriptor_name][Element.from_Z(atomic_no).symbol] = prop_value
-                                              ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/pymatgen/core/periodic_table.py", line 541, in from_Z
-    raise ValueError(f"Unexpected atomic number {Z=}")
-ValueError: Unexpected atomic number Z=119
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 28, in <module>
+    from pipeline import main as pipeline_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 20, in <module>
+    from models.mc_dropout import run_mc_dropout, main as mc_dropout_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py", line 57, in <module>
+    X_train: pd.DataFrame,
+             ^^
+NameError: name 'pd' is not defined. Did you mean: 'id'?
 
 
 ## Declared deliverables still missing

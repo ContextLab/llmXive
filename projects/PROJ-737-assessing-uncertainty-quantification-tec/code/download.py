@@ -11,8 +11,8 @@ Datasets fetched:
 - AFLOW Thermal Conductivity
 
 The module caps each dataset at 5,000 samples using a fixed random seed
-(42), writes the CSV files to ``data/raw/``, computes an MD5 checksum for
-each file, and generates a JSON metadata file containing the checksum,
+(42), writes the CSV files to ``data/raw/``, computes a **SHA256** checksum
+for each file, and generates a JSON metadata file containing the checksum,
 number of samples, and cap information.
 
 Any failure during download or processing raises an exception, causing
@@ -37,7 +37,8 @@ logger = logging.getLogger(__name__)
 
 # Constants
 DATA_RAW_DIR = Path("data/raw")
-CHECKSUMS_FILE = DATA_RAW_DIR / "checksums.txt"
+# SHA256 manifest file – each line: dataset_key,filename,checksum
+CHECKSUMS_FILE = DATA_RAW_DIR / "sha256_manifest.txt"
 SAMPLE_CAP = 5000
 RANDOM_SEED = 42
 
@@ -60,13 +61,13 @@ DATASETS: Dict[str, Dict[str, Any]] = {
     }
 }
 
-def compute_md5(filepath: Path) -> str:
-    """Compute MD5 checksum of a file."""
-    hash_md5 = hashlib.md5()
+def compute_sha256(filepath: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    hash_sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
 
 def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Cap the dataframe to SAMPLE_CAP rows using a fixed random seed."""
@@ -102,7 +103,7 @@ def write_metadata(
         "filename": filename,
         "num_samples": int(df.shape[0]),
         "cap_applied": SAMPLE_CAP,
-        "checksum_md5": checksum,
+        "checksum_sha256": checksum,
         "download_timestamp": pd.Timestamp.utcnow().isoformat()
     }
     metadata_path = DATA_RAW_DIR / f"{dataset_key}_metadata.json"
@@ -111,11 +112,11 @@ def write_metadata(
     logger.info(f"Wrote metadata to {metadata_path}")
 
 def append_checksum_record(dataset_key: str, filename: str, checksum: str) -> None:
-    """Append a line to the checksum manifest file."""
+    """Append a line to the SHA256 checksum manifest file."""
     CHECKSUMS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(CHECKSUMS_FILE, "a") as f:
         f.write(f"{dataset_key},{filename},{checksum}\n")
-    logger.info(f"Appended checksum for {filename} to {CHECKSUMS_FILE}")
+    logger.info(f"Appended SHA256 checksum for {filename} to {CHECKSUMS_FILE}")
 
 def download_all() -> None:
     """Download all required datasets, enforce caps, and write metadata."""
@@ -137,10 +138,10 @@ def download_all() -> None:
         # Save to CSV
         saved_path = save_dataset(df_capped, cfg["filename"], key)
 
-        # Compute checksum
-        checksum = compute_md5(saved_path)
+        # Compute SHA256 checksum
+        checksum = compute_sha256(saved_path)
 
-        # Record checksum
+        # Record checksum in manifest
         append_checksum_record(key, cfg["filename"], checksum)
 
         # Write per‑dataset metadata

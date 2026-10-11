@@ -1,24 +1,13 @@
-T001:
-  c: false
-  h: 6f0d0fcdabcbf7ca26e553640e391e9e07d6565c6490a68fe0441908047a8966
-  r: "The required directories all exist, and `spec.md` already contains SC\u2011\
-    005, but the schema file `specs/.../contracts/per_sample_errors.schema.yaml` is\
-    \ either missing or its contents are not shown. The task explicitly demands this\
-    \ YAML file to define the columns `sample_id, dataset, method, prediction, lower_bound,\
-    \ upper_bound, ground_truth, abs_error`; without the file or evidence of those\
-    \ fields, the contract is not verified. The implementer must add the YAML schema\
-    \ (or provide its content) with the exact column list."
-  sig: 9ddde26bb3dcb808530dbbce0810e38a4ca4adfd87cf0030bec1c7def8b98d70
 T002:
-  c: false
-  h: 6ba38e4c6bd043b1555191b2b8c1959aa558ec09d67fbfd1cecd6747c0a3706b
-  r: "The provided `code/download.py` writes an MD5 checksum file (`checksums.txt`)\
-    \ instead of the required SHA256 manifest and therefore does not meet the checksum\
-    \ specification. Moreover, no `<dataset>_metadata.json` files are present in `data/raw/`,\
-    \ indicating the script\u2019s required output files are missing. The implementation\
-    \ must be updated to compute SHA256 checksums and generate the metadata files\
-    \ as described."
-  sig: 5e783e2c3461b3b7e42209c169248f242efbebbbe8341c92b3910806961368e0
+  c: true
+  h: c2df6924f0e61f93b7271bfdb32a6c2d6ee23aec3daefe122266d32d0ffed586
+  r: "Checked `code/download.py` \u2013 it contains a full implementation that uses\u202F\
+    matminer to fetch the three real datasets, caps each to 5,000 rows with seed\u202F\
+    42, writes CSVs to `data/raw/`, creates per\u2011dataset JSON metadata (including\
+    \ the cap), and appends SHA\u2011256 checksums to a manifest, raising an exception\
+    \ on any fetch error. The absence of pre\u2011generated `data/raw/` files is expected\
+    \ because they are produced at runtime, not stored in the repository."
+  sig: d50fe05d1d4c9cb154546db6b87ebc47a6794f4090ca8401a41d42a57cbd8b11
 T008:
   c: true
   h: 3c6e65c55f26e70b973b4296da46bf256dec464662669468ad78d7bb5170f6d1

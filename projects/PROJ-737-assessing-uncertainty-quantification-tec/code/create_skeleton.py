@@ -56,14 +56,14 @@ def _create_schema() -> None:
 
     yaml_text = (
         "columns:\n"
-        "  - sample_id\n"
-        "  - dataset\n"
-        "  - method\n"
-        "  - prediction\n"
-        "  - lower_bound\n"
-        "  - upper_bound\n"
-        "  - ground_truth\n"
-        "  - abs_error\n"
+        "  - name: sample_id\n"
+        "  - name: dataset\n"
+        "  - name: method\n"
+        "  - name: prediction\n"
+        "  - name: lower_bound\n"
+        "  - name: upper_bound\n"
+        "  - name: ground_truth\n"
+        "  - name: abs_error\n"
     )
     schema_path.write_text(yaml_text, encoding="utf-8")
     log.info(f"Created schema file: {schema_path}")
