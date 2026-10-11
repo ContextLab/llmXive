@@ -1,68 +1,85 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Model Performance Metrics Schema
-description: Schema for validating model comparison and evaluation metrics artifacts (e.g., model_comparison.csv, significance_test.json).
+title: ModelPerformance
+description: |
+  Schema for model evaluation results on a specific dataset split and basin.
+  Contains metrics (RMSE, R², MAE) and metadata about the evaluation context.
+  Used to validate outputs from T020 (model comparison) and T020a-T020c (basin variance).
 type: object
 required:
   - model_name
-  - metrics
+  - basin
+  - split
+  - rmse
+  - r2
+  - mae
 properties:
   model_name:
     type: string
-    description: Name of the model (e.g., "RandomForest", "SimpleVLM")
+    description: Name of the model (e.g., "random_forest", "vlm_clip")
     enum:
-      - RandomForest
-      - SimpleVLM
-  metrics:
-    type: object
-    description: Dictionary of performance metrics
-    required:
-      - rmse
-      - r2
-      - mae
-    properties:
-      rmse:
-        type: number
-        description: Root Mean Squared Error
-        minimum: 0
-      r2:
-        type: number
-        description: Coefficient of Determination
-      mae:
-        type: number
-        description: Mean Absolute Error
-        minimum: 0
-      basin_breakdown:
-        type: array
-        description: Optional per-basin metrics
-        items:
-          type: object
-          required:
-            - basin
-            - r2
-            - rmse
-            - mae
-          properties:
-            basin:
-              type: string
-            r2:
-              type: number
-            rmse:
-              type: number
-            mae:
-              type: number
-  training_time_seconds:
-    type: number
-    description: Total wall-clock training time
-    minimum: 0
-  inference_time_per_sample_ms:
-    type: number
-    description: Average inference latency
-    minimum: 0
-  status:
+      - random_forest
+      - vlm_clip
+      - vlm_tiny
+  basin:
     type: string
-    description: Status of the model run
+    description: Ocean basin on which evaluation was performed
     enum:
-      - success
-      - failed
-      - partial
+      - north_atlantic
+      - south_atlantic
+      - north_pacific
+      - south_pacific
+      - indian_ocean
+      - southern_ocean
+      - arctic
+      - global
+  split:
+    type: string
+    description: Dataset split used for evaluation
+    enum:
+      - train
+      - val
+      - test
+  rmse:
+    type: number
+    description: Root Mean Squared Error (chlorophyll_a prediction error in mg/m³)
+    minimum: 0
+  r2:
+    type: number
+    description: R² coefficient of determination (fraction of variance explained)
+    minimum: -1
+    maximum: 1
+  mae:
+    type: number
+    description: Mean Absolute Error (average absolute prediction error in mg/m³)
+    minimum: 0
+  n_samples:
+    type: integer
+    description: Number of samples used in evaluation
+    minimum: 1
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 datetime when evaluation was performed
+  notes:
+    type: string
+    description: Optional notes or warnings (e.g., "VLM training failed, baseline used")
 additionalProperties: false
+examples:
+  - model_name: random_forest
+    basin: north_atlantic
+    split: test
+    rmse: 0.28
+    r2: 0.72
+    mae: 0.19
+    n_samples: 450
+    timestamp: "2026-10-11T08:30:00Z"
+    notes: null
+  - model_name: vlm_clip
+    basin: north_atlantic
+    split: test
+    rmse: 0.24
+    r2: 0.78
+    mae: 0.16
+    n_samples: 450
+    timestamp: "2026-10-11T08:35:00Z"
+    notes: null

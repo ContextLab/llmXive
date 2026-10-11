@@ -1,12 +1,15 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-021-understanding-oceanic-phytoplankton-comm"
+name = "phytoplankton-vlm-analysis"
 version = "0.1.0"
-description = "Understanding Oceanic Phytoplankton Communities through Remote Sensing"
+description = "Understanding Oceanic Phytoplankton Communities through Remote Sensing and Oceanographic Data"
 requires-python = ">=3.11"
+authors = [
+    {name = "llmXive", email = "research@llmxive.org"}
+]
 dependencies = [
     "pandas",
     "numpy",
@@ -18,58 +21,29 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "datasets",
+    "copernicusmarine",
+    "psutil",
+    "pyyaml",
+    "requests",
+    "jsonschema"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
+    "pytest>=7.0",
+    "pytest-cov",
+    "black",
+    "ruff"
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-include = ["utils*"]
+[tool.setuptools]
+packages = ["code"]
 
 [tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.git
-    | \.mypy_cache
-    | \.pytest_cache
-    | __pycache__
-    | data
-)/
-'''
+line-length = 100
+target-version = ["py311"]
 
 [tool.ruff]
+line-length = 100
 target-version = "py311"
-line-length = 88
-src = ["code", "tests"]
-extend-exclude = [
-    "data",
-    "figures",
-    "specs",
-]
-
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["utils", "01_fetch_modis", "02_preprocessing", "03_model_training", "04_evaluation", "05_versioning_state"]
-force-sort-within-sections = true
+select = ["E", "F", "W"]

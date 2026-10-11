@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-021-understanding-oceanic-phytoplankton-comm/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, torch, transformers, xarray, netCDF4, matplotlib, seaborn, datasets)
+- [X] T002 Initialize Python 3.11 project with dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, torch, transformers, xarray, netCDF4, matplotlib, seaborn, datasets)
 - [~] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create configuration manager in `code/utils/config.py` (seeds, paths, hyperparameters, memory limits)
-- [ ] T005 [P] Implement CPU-only data loader utilities in `code/utils/data_loaders.py` (streaming, sampling to fit available RAM, strict error handling: NO synthetic fallback)
-- [ ] T006 Create base schema definitions in `specs/001-phytoplankton-vlm-analysis/contracts/` (phytoplankton_sample.schema.yaml, model_performance.schema.yaml)
+- [X] T005 [P] Implement CPU-only data loader utilities in `code/utils/data_loaders.py` (streaming, sampling to fit available RAM, strict error handling: NO synthetic fallback)
+- [X] T006 Create base schema definitions in `specs/001-phytoplankton-vlm-analysis/contracts/` (phytoplankton_sample.schema.yaml, model_performance.schema.yaml)
 - [~] T007 [P] Implement versioning utility in `code/05_versioning_state.py` (SHA-256 hashing logic to be called by Advancement-Evaluator Agent, not standalone script)
 - [~] T008 Setup logging infrastructure in `code/utils/logging_config.py` (structured logs for pipeline monitoring)
 - [~] T009a [P] Create `aligned_dataset.schema.yaml` in `specs/001-phytoplankton-vlm-analysis/contracts/`. **Definition**: Must include fields: `lat` (float), `lon` (float), `timestamp` (datetime), `basin` (string), `temp` (float), `salinity` (float), `nutrients` (float), `chlorophyll_a` (float), `quality_flags` (int). **Depends on**: None.

@@ -10,3 +10,6 @@ seaborn
 datasets
 copernicusmarine
 psutil
+pyyaml
+requests
+jsonschema
