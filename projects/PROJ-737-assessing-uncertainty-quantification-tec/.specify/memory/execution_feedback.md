@@ -13,10 +13,7 @@ Traceback (most recent call last):
     from pipeline import main as pipeline_main
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 20, in <module>
     from models.mc_dropout import run_mc_dropout, main as mc_dropout_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py", line 57, in <module>
-    X_train: pd.DataFrame,
-             ^^
-NameError: name 'pd' is not defined. Did you mean: 'id'?
+ImportError: cannot import name 'main' from 'models.mc_dropout' (/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py)
 
 
 ## Declared deliverables still missing

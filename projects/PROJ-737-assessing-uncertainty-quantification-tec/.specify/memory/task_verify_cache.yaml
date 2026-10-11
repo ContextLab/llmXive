@@ -1,13 +1,22 @@
+T001:
+  c: false
+  h: 0224b92044caec1013689e357dea790dcb82f90e5bb1df84cbfd709c71a3f5e9
+  r: "The required `per_sample_errors.schema.yaml` contract is either missing or does\
+    \ not define the full column list (the unit test reports \u201Cincomplete column\
+    \ entry\u201D for each required field), causing the skeleton verification test\
+    \ to fail. The directory structure is present, but the schema file must be created/filled\
+    \ with the specified columns."
+  sig: 54c9b9d7b8c657c5b58cf472ec7b3b032cee20dd4494f4457c9d97f1ad2a3b97
 T002:
-  c: true
-  h: c2df6924f0e61f93b7271bfdb32a6c2d6ee23aec3daefe122266d32d0ffed586
-  r: "Checked `code/download.py` \u2013 it contains a full implementation that uses\u202F\
-    matminer to fetch the three real datasets, caps each to 5,000 rows with seed\u202F\
-    42, writes CSVs to `data/raw/`, creates per\u2011dataset JSON metadata (including\
-    \ the cap), and appends SHA\u2011256 checksums to a manifest, raising an exception\
-    \ on any fetch error. The absence of pre\u2011generated `data/raw/` files is expected\
-    \ because they are produced at runtime, not stored in the repository."
-  sig: d50fe05d1d4c9cb154546db6b87ebc47a6794f4090ca8401a41d42a57cbd8b11
+  c: false
+  h: 45313ebe7dd2f6e5e46f336f0966aeda332403ccb16bde1934afc3d2e528b548
+  r: "The repository contains `code/download.py` which implements the required download,\
+    \ capping, checksum, and metadata logic, but the `data/raw/` directory is empty\
+    \ \u2013 no CSV dataset files, no `<dataset>_metadata.json` files, and no `sha256_manifest.txt`.\
+    \ Additionally, the unit\u2011test log shows failures (NameError in the tests),\
+    \ indicating the implementation has not been verified to work. The required output\
+    \ artifacts are missing, so the task is not fully satisfied."
+  sig: 4d3fc9b509e17551294adadc4c0bdcf9eb96b2ffb0f5ca6aab24e2962094708a
 T008:
   c: true
   h: 3c6e65c55f26e70b973b4296da46bf256dec464662669468ad78d7bb5170f6d1

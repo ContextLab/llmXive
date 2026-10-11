@@ -1,12 +1,18 @@
 T001:
-  reason: The required directories `data/raw/`, `data/processed/`, `data/results/`,
-    and `figures/` are missing, and although `per_sample_errors.schema.yaml` exists
-    under `specs/.../contracts/`, its contents have not been shown to confirm it defines
-    the exact columns (`sample_id, dataset, method, prediction, lower_bound, upper_bound,
-    ground_truth, abs_error`). The implementer must add the missing directories and
-    ensure the schema file contains the specified fields.
+  reason: "The required `per_sample_errors.schema.yaml` contract is either missing\
+    \ or does not define the full column list (the unit test reports \u201Cincomplete\
+    \ column entry\u201D for each required field), causing the skeleton verification\
+    \ test to fail. The directory structure is present, but the schema file must be\
+    \ created/filled with the specified columns."
   task: f7936ff2c818ab9574f4f8c1b0b0fb803e2dfcfc08ded6005183f432c2831c9e
 T002:
+  reason: "The repository contains `code/download.py` which implements the required\
+    \ download, capping, checksum, and metadata logic, but the `data/raw/` directory\
+    \ is empty \u2013 no CSV dataset files, no `<dataset>_metadata.json` files, and\
+    \ no `sha256_manifest.txt`. Additionally, the unit\u2011test log shows failures\
+    \ (NameError in the tests), indicating the implementation has not been verified\
+    \ to work. The required output artifacts are missing, so the task is not fully\
+    \ satisfied."
   task: 0314df1f1c2b3467de15130299f7fec217c30bb33578ba1d67e115868d87dfb4
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
