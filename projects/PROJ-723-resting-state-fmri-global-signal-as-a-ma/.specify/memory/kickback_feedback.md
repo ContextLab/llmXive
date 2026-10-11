@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T042` (rejected 1x): The provided `code/robustness.py` contains a `check_collinearity_flag` function but the rest of the script (including the logic that would skip the calculation and write `status: 'skipped'` to `data/results/partial_corr.json`) is truncated and not present. Moreover, the required `data/results/partial_corr.json` file does not exist, indicating the skipping behavior was never executed. The task’s core requirement—to dynamically read the flag and, when true, write a “skipped” status file—is therefore not fulfilled.
-- `T044` (rejected 1x): The repository contains a `log_exclusion` helper that writes to `data/logs/exclusions.log`, but the log file is absent and the ingestion script never reaches the exclusion logic (it raises `NotImplementedError` for data loading). Consequently no actual exclusions are logged, and the required numeric threshold values are never recorded. The task’s requirement is therefore not fulfilled.
+- `task-format` (rejected 1x): Tasker produced only 0 task IDs (need >= 5; total chars: 11700). Regenerate the complete tasks.md as canonical '- [ ] T### description' checkbox items, not task tables or fenced examples. Preserve every scientific requirement, path and verification step; do not add empty tasks or discard requirements to satisfy the format.
 
 ## Required change
 
