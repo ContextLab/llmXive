@@ -29,10 +29,10 @@
 - [X] T001a Create `code/`, `data/`, `tests/`, `outputs/` directories
 - [X] T001b Create `data/benchmarks/`, `data/benchmarks/raw/`, `data/benchmarks/processed/`, `data/generated/`, `data/coverage_reports/`, `data/processed/`, `outputs/` subdirectories. **Validation**: Verify all directories exist after creation.
 
-- [X] T002a Create `requirements.txt` with pinned versions (pytest, pytest-cov>=4.0.0, pandas, scipy, statsmodels, transformers, datasets, openai, huggingface_hub, matplotlib, seaborn, bitsandbytes)
-- [X] T002b Create virtualenv and install dependencies from `requirements.txt`
+- [ ] T002a Create `requirements.txt` with pinned versions (pytest, pytest-cov>=4.0.0, pandas, scipy, statsmodels, transformers, datasets, openai, huggingface_hub, matplotlib, seaborn, bitsandbytes)
+- [ ] T002b Create virtualenv and install dependencies from `requirements.txt`
 
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -44,23 +44,23 @@
 
 - [ ] T004 Implement `code/config.py` for seed management, API key loading (`LLM_API_KEY`), and model fallback logic. **Specifics**: Define a function `get_model_chain()` that returns an ordered list of models representing a hierarchy from proprietary to open-source architectures. Implement logic to attempt the Primary Model first, and if inaccessible, fall back to the next in the chain. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T005 [P] Implement `code/utils.py` with exponential backoff retry logic for API rate limits. **Specifics**: Implement a retry mechanism with an initial wait duration, an exponential backoff factor of **2x**, and a maximum of **3 attempts**.
-- [X] T057 [US1] Implement strict "fail-loud" data loading in `code/dataset_loader.py`. **Logic**: If `datasets.load_dataset("mbpp")` or `datasets.load_dataset("google-research-datasets/human_eval")` fails to fetch the dataset (e.g., network error, invalid ID), raise a `RuntimeError` immediately to abort the build (Constitution Principle II). However, if the dataset loads successfully but a *specific task* within it lacks a test suite, log a warning and exclude *only that task* from processing (Spec Edge Cases).
-- [X] T058 [US1] Add explicit verification step in `code/dataset_loader.py` to log the exact version hash or commit ID of the MBPP and HumanEval datasets fetched, ensuring traceability for Principle VII (Benchmark Dataset Integrity).
-- [X] T006a [P] Implement `code/dataset_loader.py` to ingest MBPP via `datasets.load_dataset("mbpp")` and save raw canonical files unchanged to `data/benchmarks/raw/mbpp/`
-- [X] T006b [P] Implement `code/dataset_loader.py` to ingest HumanEval via `datasets.load_dataset("google-research-datasets/human_eval")` and save raw canonical files unchanged to `data/benchmarks/raw/humaneval/`
-- [X] T006c [P] Create `contracts/task_catalog.schema.yaml` defining the schema for task catalog validation. **Note**: This task creates the schema file required by T006d.
-- [X] T006d [P] Extend `code/dataset_loader.py` to validate required fields (`task_id`, `prompt`, `human_solution`, `test_suite`) against `contracts/task_catalog.schema.yaml` and save a normalized JSON catalog to `data/benchmarks/processed/catalog.json`. Keys MUST include: `task_id`, `prompt`, `human_solution`, `test_suite_path`, `difficulty`, `code_patterns`.
-- [X] T007 Implement `code/test_transformer.py` to convert MBPP/HumanEval string-based test suites into executable `.py` files in `data/benchmarks/processed/tests/`, handling missing test suites by logging warnings
+- [~] T057 [US1] Implement strict "fail-loud" data loading in `code/dataset_loader.py`. **Logic**: If `datasets.load_dataset("mbpp")` or `datasets.load_dataset("google-research-datasets/human_eval")` fails to fetch the dataset (e.g., network error, invalid ID), raise a `RuntimeError` immediately to abort the build (Constitution Principle II). However, if the dataset loads successfully but a *specific task* within it lacks a test suite, log a warning and exclude *only that task* from processing (Spec Edge Cases).
+- [~] T058 [US1] Add explicit verification step in `code/dataset_loader.py` to log the exact version hash or commit ID of the MBPP and HumanEval datasets fetched, ensuring traceability for Principle VII (Benchmark Dataset Integrity).
+- [~] T006a [P] Implement `code/dataset_loader.py` to ingest MBPP via `datasets.load_dataset("mbpp")` and save raw canonical files unchanged to `data/benchmarks/raw/mbpp/`
+- [~] T006b [P] Implement `code/dataset_loader.py` to ingest HumanEval via `datasets.load_dataset("google-research-datasets/human_eval")` and save raw canonical files unchanged to `data/benchmarks/raw/humaneval/`
+- [~] T006c [P] Create `contracts/task_catalog.schema.yaml` defining the schema for task catalog validation. **Note**: This task creates the schema file required by T006d.
+- [~] T006d [P] Extend `code/dataset_loader.py` to validate required fields (`task_id`, `prompt`, `human_solution`, `test_suite`) against `contracts/task_catalog.schema.yaml` and save a normalized JSON catalog to `data/benchmarks/processed/catalog.json`. Keys MUST include: `task_id`, `prompt`, `human_solution`, `test_suite_path`, `difficulty`, `code_patterns`.
+- [~] T007 Implement `code/test_transformer.py` to convert MBPP/HumanEval string-based test suites into executable `.py` files in `data/benchmarks/processed/tests/`, handling missing test suites by logging warnings
 - [ ] T009 [P] [US1] Implement `code/llm_generator.py` with logic to call LLM API (or local CPU inference for fallback models) and save generated code to `generated/{task_id}.py`. **Constraint**: Implement the fallback logic defined in FR-002. **Specifics**: Use `get_model_chain()` from config. For the Primary Model (`gpt`), retry up to **3 times** with exponential backoff. If all retries fail, switch to the next model in the chain (`code-llama-7b`), and repeat. If all models fail, mark the task as "generation failed". Log the model used for each task.
-- [X] T010 [P] [US1] Contract test for dataset loading in `tests/unit/test_dataset_loader.py`
-- [X] T011 [P] [US1] Integration test for end-to-end generation and coverage on multiple tasks in `tests/integration/test_pipeline_us1.py`
-- [X] T012 [US1] Implement `code/coverage_runner.py` to execute `pytest --cov` on generated files. **Validation**: For HumanEval tasks, run `pytest --cov` (WITHOUT `--cov-branch` flag). Parse output and save to `coverage_reports/{task_id}.json`. **Crucial**: The JSON record MUST contain `branch_coverage: "N/A"` for HumanEval tasks to satisfy FR-009. For other tasks, measure both line and branch coverage.
+- [~] T010 [P] [US1] Contract test for dataset loading in `tests/unit/test_dataset_loader.py`
+- [~] T011 [P] [US1] Integration test for end-to-end generation and coverage on multiple tasks in `tests/integration/test_pipeline_us1.py`
+- [~] T012 [US1] Implement `code/coverage_runner.py` to execute `pytest --cov` on generated files. **Validation**: For HumanEval tasks, run `pytest --cov` (WITHOUT `--cov-branch` flag). Parse output and save to `coverage_reports/{task_id}.json`. **Crucial**: The JSON record MUST contain `branch_coverage: "N/A"` for HumanEval tasks to satisfy FR-009. For other tasks, measure both line and branch coverage.
 - [ ] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
  1. Add `argparse` arguments: `--num-tasks`, `--output-dir`, `--dataset`, `--model`, `--perform-regression`.
  2. Implement `try/except` blocks for `SyntaxError` and generic `Exception` during execution.
  3. On failure, write a JSON record to `coverage_reports/{task_id}.json` with schema: `{ "task_id": "...", "status": "failed", "error_message": "...", "timestamp": "..." }`.
  4. Continue processing subsequent tasks without aborting.
-- [X] T014 [US1] Add logging for model used, generation success/failure, and coverage results.
+- [~] T014 [US1] Add logging for model used, generation success/failure, and coverage results.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -74,20 +74,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T022 [P] [US2] Unit test for Shapiro-Wilk normality test logic in `tests/unit/test_analyzer.py`
-- [X] T023 [P] [US2] Unit test for sensitivity analysis thresholds in `tests/unit/test_analyzer.py`
+- [~] T022 [P] [US2] Unit test for Shapiro-Wilk normality test logic in `tests/unit/test_analyzer.py`
+- [~] T023 [P] [US2] Unit test for sensitivity analysis thresholds in `tests/unit/test_analyzer.py`
 
 ### Implementation for User Story 2
 
-- [X] T024 [US2] Implement `code/analyzer.py` to load `coverage_reports/`, pair LLM and human results by `task_id`, and calculate coverage differences. **Logic**: Explicitly validate that every LLM task_id has a corresponding human baseline task_id (FR-015) before pairing. If a pair is missing, log a warning and exclude it. **Note**: This task depends on US1 completion (`coverage_reports/` generation).
-- [X] T025 [US2] Implement Shapiro-Wilk normality test (FR-016) in `code/analyzer.py`. **Logic**: If Shapiro-Wilk p-value < 0.05 (indicating non-normal distribution), execute Wilcoxon signed-rank test; otherwise, execute paired t-test. **Output**: Include `test_type` (t-test or Wilcoxon) in `data/processed/stats_summary.csv`. **Note**: Do NOT implement LMM/GLMM; strictly follow FR-005/FR-016.
-- [X] T026 [US2] Implement statistical summary generation (FR-005) to output `data/processed/stats_summary.csv` with mean difference, p-value, Cohen's d, and test type.
-- [X] T027 [US2] Implement family-wise error correction (Bonferroni or Holm-Bonferroni) for subgroup hypothesis tests (FR-006). **Scope**: Apply correction ONLY to subgroup tests for difficulty tiers (easy, medium, hard) and code patterns (loops, conditionals, recursion). Explicitly exclude sensitivity analysis (FR-011) and other subgroups from this correction. **Output**: Write corrected p-values to `data/processed/corrected_pvalues.csv`.
-- [X] T028 [US2] Implement exclusion rate calculation (FR-014) and add to final summary. **Output**: Calculate percentage of tasks excluded (missing test suites, generation failures) as `excluded_count / total_count` and write to `data/processed/summary.csv` with column `exclusion_rate`.
-- [X] T029 [US2] Implement sensitivity analysis (FR-011) across thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and output `data/processed/sensitivity_report.csv`. **Constraint**: Explicitly exclude these thresholds from family-wise error correction as per FR-011. **Verification**: Programmatically check the sign of the mean coverage gap across all thresholds. If a sign flip is detected, **log a warning and document the flip in the report**, but DO NOT raise a runtime error or fail the build (aligns with SC-003).
-- [X] T052 [US2] Implement FR-010 (Associational Language) in `code/analyzer.py` and `code/visualizer.py`. **Logic**: Ensure all output strings, logs, and summary reports explicitly use language such as "association", "correlation", or "difference" and strictly avoid causal terms like "cause", "effect", or "impact" when describing results.
+- [~] T024 [US2] Implement `code/analyzer.py` to load `coverage_reports/`, pair LLM and human results by `task_id`, and calculate coverage differences. **Logic**: Explicitly validate that every LLM task_id has a corresponding human baseline task_id (FR-015) before pairing. If a pair is missing, log a warning and exclude it. **Note**: This task depends on US1 completion (`coverage_reports/` generation).
+- [~] T025 [US2] Implement Shapiro-Wilk normality test (FR-016) in `code/analyzer.py`. **Logic**: If Shapiro-Wilk p-value < 0.05 (indicating non-normal distribution), execute Wilcoxon signed-rank test; otherwise, execute paired t-test. **Output**: Include `test_type` (t-test or Wilcoxon) in `data/processed/stats_summary.csv`. **Note**: Do NOT implement LMM/GLMM; strictly follow FR-005/FR-016.
+- [ ] T026 [US2] Implement statistical summary generation (FR-005) to output `data/processed/stats_summary.csv` with mean difference, p-value, Cohen's d, and test type.
+- [ ] T027 [US2] Implement family-wise error correction (Bonferroni or Holm-Bonferroni) for subgroup hypothesis tests (FR-006). **Scope**: Apply correction ONLY to subgroup tests for difficulty tiers (easy, medium, hard) and code patterns (loops, conditionals, recursion). Explicitly exclude sensitivity analysis (FR-011) and other subgroups from this correction. **Output**: Write corrected p-values to `data/processed/corrected_pvalues.csv`.
+- [ ] T028 [US2] Implement exclusion rate calculation (FR-014) and add to final summary. **Output**: Calculate percentage of tasks excluded (missing test suites, generation failures) as `excluded_count / total_count` and write to `data/processed/summary.csv` with column `exclusion_rate`.
+- [ ] T029 [US2] Implement sensitivity analysis (FR-011) across thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and output `data/processed/sensitivity_report.csv`. **Constraint**: Explicitly exclude these thresholds from family-wise error correction as per FR-011. **Verification**: Programmatically check the sign of the mean coverage gap across all thresholds. If a sign flip is detected, **log a warning and document the flip in the report**, but DO NOT raise a runtime error or fail the build (aligns with SC-003).
+- [~] T052 [US2] Implement FR-010 (Associational Language) in `code/analyzer.py` and `code/visualizer.py`. **Logic**: Ensure all output strings, logs, and summary reports explicitly use language such as "association", "correlation", or "difference" and strictly avoid causal terms like "cause", "effect", or "impact" when describing results.
 - [ ] T053 [US2] Implement Regression Mode Trigger in `code/main.py`. **Logic**: If the `--perform-regression` flag is set, enable the multi-variable regression model path required for FR-013 (VIF calculation). If not set, skip regression-specific steps.
-- [X] T061 [US2] Implement Multi-Variable Regression Model in `code/analyzer.py`. **Logic**: If `--perform-regression` is set, fit a model: `Coverage ~ Model_Type + Difficulty + Loop_Count + Conditional_Count`. This model is required to trigger the VIF calculation in T045.
+- [~] T061 [US2] Implement Multi-Variable Regression Model in `code/analyzer.py`. **Logic**: If `--perform-regression` is set, fit a model: `Coverage ~ Model_Type + Difficulty + Loop_Count + Conditional_Count`. This model is required to trigger the VIF calculation in T045.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -101,16 +101,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T039 [P] [US3] Unit test for pattern extraction logic in `tests/unit/test_visualizer.py`
-- [X] T040 [P] [US3] Integration test for visualization generation in `tests/integration/test_visualizer.py`
+- [~] T039 [P] [US3] Unit test for pattern extraction logic in `tests/unit/test_visualizer.py`
+- [~] T040 [P] [US3] Integration test for visualization generation in `tests/integration/test_visualizer.py`
 
 ### Implementation for User Story 3
 
-- [X] T041 [P] [US3] Implement `code/visualizer.py` to extract code patterns (loops, conditionals, recursion) from solutions and annotate the dataset.
-- [X] T042 [US3] Implement stratification logic (FR-007) to group data by difficulty, pattern, and boundary-case presence.
-- [X] T043 [US3] Implement generation of stratified CSVs (e.g., `stratified_loops.csv`) and PNG visualizations (box-plots, bar-charts) with 800x600 resolution, axis labels, and legends (FR-008), saving to `outputs/`.
-- [X] T044 [US3] Implement logic to calculate and report mean branch-coverage gaps for specific difficulty tiers (e.g., "hard") in `stratified_summary.csv`. **Deliverable**: Add a function to `code/visualizer.py` that filters `coverage_pairs.csv` for `difficulty="hard"` AND `branch_coverage != "N/A"`, calculates `mean(branch_coverage_gap)`, and appends the result as a row in `outputs/stratified_summary.csv` with columns: `[pattern, difficulty, mean_gap, count]`. **Constraint**: Explicitly exclude tasks where `branch_coverage == "N/A"` (HumanEval) from this calculation.
-- [X] T045 [US3] Implement Collinearity Diagnostics (VIF) in `code/analyzer.py`. **Dependency**: This task depends on code pattern counts generated in T041 and the Regression Model in T061. **Condition**: Execute ONLY if the `--perform-regression` flag (defined in T053) is set AND the regression model (T061) has been fitted. If not, skip VIF calculation as per FR-013.
+- [~] T041 [P] [US3] Implement `code/visualizer.py` to extract code patterns (loops, conditionals, recursion) from solutions and annotate the dataset.
+- [~] T042 [US3] Implement stratification logic (FR-007) to group data by difficulty, pattern, and boundary-case presence.
+- [~] T043 [US3] Implement generation of stratified CSVs (e.g., `stratified_loops.csv`) and PNG visualizations (box-plots, bar-charts) with 800x600 resolution, axis labels, and legends (FR-008), saving to `outputs/`.
+- [~] T044 [US3] Implement logic to calculate and report mean branch-coverage gaps for specific difficulty tiers (e.g., "hard") in `stratified_summary.csv`. **Deliverable**: Add a function to `code/visualizer.py` that filters `coverage_pairs.csv` for `difficulty="hard"` AND `branch_coverage != "N/A"`, calculates `mean(branch_coverage_gap)`, and appends the result as a row in `outputs/stratified_summary.csv` with columns: `[pattern, difficulty, mean_gap, count]`. **Constraint**: Explicitly exclude tasks where `branch_coverage == "N/A"` (HumanEval) from this calculation.
+- [~] T045 [US3] Implement Collinearity Diagnostics (VIF) in `code/analyzer.py`. **Dependency**: This task depends on code pattern counts generated in T041 and the Regression Model in T061. **Condition**: Execute ONLY if the `--perform-regression` flag (defined in T053) is set AND the regression model (T061) has been fitted. If not, skip VIF calculation as per FR-013.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -120,14 +120,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T046 [P] Documentation updates: Update `quickstart.md` with execution instructions and `data-model.md` with schema details.
-- [X] T047 Code cleanup: Ensure all error handling (API limits, syntax errors) is robust and logs are informative.
-- [X] T048 [P] Performance optimization: Implement optimizations to ensure the pipeline can process ≥100 tasks within 6 hours on CPU-only runner (SC-005).
-- [X] T048b [P] Performance verification: Run the pipeline on a representative sample and verify execution time meets SC-005 (≤6 hours). Record results in `outputs/performance_report.txt`.
-- [X] T049 [P] Add unit tests for edge cases (missing test suite, generation failure) in `tests/unit/`.
-- [X] T050 [P] Run `quickstart.md` validation to ensure reproducibility.
+- [~] T046 [P] Documentation updates: Update `quickstart.md` with execution instructions and `data-model.md` with schema details.
+- [~] T047 Code cleanup: Ensure all error handling (API limits, syntax errors) is robust and logs are informative.
+- [~] T048 [P] Performance optimization: Implement optimizations to ensure the pipeline can process ≥100 tasks within 6 hours on CPU-only runner (SC-005).
+- [ ] T048b [P] Performance verification: Run the pipeline on a representative sample and verify execution time meets SC-005 (≤6 hours). Record results in `outputs/performance_report.txt`.
+- [~] T049 [P] Add unit tests for edge cases (missing test suite, generation failure) in `tests/unit/`.
+- [~] T050 [P] Run `quickstart.md` validation to ensure reproducibility.
 
-- [X] T060 [US3] Add a pre-flight check in `code/visualizer.py` to verify that the `coverage_pairs.csv` contains sufficient data points (n >= 30) for each stratification group (difficulty/pattern) before generating visualizations, preventing misleading plots from sparse data.
+- [~] T060 [US3] Add a pre-flight check in `code/visualizer.py` to verify that the `coverage_pairs.csv` contains sufficient data points (n >= 30) for each stratification group (difficulty/pattern) before generating visualizations, preventing misleading plots from sparse data.
 
 ---
 
