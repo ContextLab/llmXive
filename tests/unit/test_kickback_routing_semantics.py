@@ -152,3 +152,54 @@ def test_full_revision_kickback_resets_revision_round_budget(tmp_path):
     assert (archives[0] / "legacy-auto-revisions" / "round-3" / "tasks.md").read_text() == "x"
     assert (archives[0] / "revision_history.yaml").is_file()
     assert not (hist / "revision_history.yaml").exists(), "revision_history must be cleared"
+
+
+def _marker_concern(artifact: str = "projects/P/paper/specs/001-paper/spec.md"):
+    from llmxive.convergence.engine import _unverified_marker_concerns
+
+    (concern,) = _unverified_marker_concerns(
+        {artifact: "FR-009 The TV distance is 0.12 [UNRESOLVED-CLAIM: c_1b4afe65 — status=not_enough_info]."},
+        stage="paper_clarified", reviewer="deterministic")
+    return concern
+
+
+def test_an_unverified_claim_in_the_paper_spec_is_revised_in_the_paper_spec():
+    """Reliability batch 1, run 5 (2026-10-11): research was accepted and the
+    paper spec written; every reviewer concern was resolved, but one sentence of
+    the paper spec still carried an unresolved-claim marker. That was routed as
+    a science failure to the research planner: research acceptance was dropped,
+    the plan and tasks were regenerated, and the run ended 32 minutes later in
+    research implementation. Re-planning the research cannot change a sentence
+    of the paper spec."""
+    from llmxive.convergence.kickback import route_kickback
+
+    spec = reviewspecs._spec_paper_spec()
+    record = route_kickback(spec, [_marker_concern()])
+    assert record.to_stage == "paper_specified"
+    assert "c_1b4afe65" in record.reason  # the next worker is told which claim
+    # The same in-place route the panel already uses for writing-level residue.
+    assert record.to_stage == spec.kickback_routing[Severity.WRITING]
+    assert Stage(record.to_stage) in STAGE_TO_AGENT
+
+
+def test_a_reviewers_science_concern_about_the_paper_spec_still_goes_to_research():
+    from llmxive.convergence.kickback import route_kickback
+    from llmxive.convergence.types import Concern
+
+    spec = reviewspecs._spec_paper_spec()
+    raised = Concern(id="scope-000001", reviewer="scope_vs_research", severity=Severity.SCIENCE,
+                     artifact="projects/P/paper/specs/001-paper/spec.md", location="FR-003",
+                     text="The paper claims an effect the research did not measure.", round=1)
+    assert route_kickback(spec, [raised]).to_stage == "clarified"
+    # A marker alongside a reviewer's science concern does not soften the route.
+    assert route_kickback(spec, [raised, _marker_concern()]).to_stage == "clarified"
+
+
+def test_research_stage_markers_are_routed_as_before():
+    from llmxive.convergence.kickback import route_kickback
+
+    for build in (reviewspecs._spec_research_spec, reviewspecs._spec_research_plan,
+                  reviewspecs._spec_research_tasks, reviewspecs._spec_paper_plan,
+                  reviewspecs._spec_paper_tasks):
+        spec = build()
+        assert route_kickback(spec, [_marker_concern()]).to_stage == spec.kickback_routing[Severity.SCIENCE]

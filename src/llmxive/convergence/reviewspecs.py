@@ -293,6 +293,10 @@ def _spec_paper_spec() -> ReviewSpec:
             Severity.SCIENCE: "clarified",
             Severity.FATAL: "clarified",
         },
+        # An unverified claim left in the paper spec is a sentence of the paper
+        # spec. Sending it to the research planner dropped an accepted research
+        # stage (batch 1 run 5, 2026-10-11) and could not change that sentence.
+        marker_route="paper_specified",
         overflow_goal="preserve every FR/SC id + the research spec verbatim",
         advance_stage="paper_planned",
         constitution_input=True,

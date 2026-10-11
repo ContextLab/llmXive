@@ -40,6 +40,14 @@ def _nearest_routing(routing: dict[Severity, str], worst: Severity) -> str:
     raise ValueError(f"ReviewSpec for stage {worst!r} has empty kickback_routing")
 
 
+def _is_marker_backstop(concern: Concern) -> bool:
+    """Whether ``concern`` is the deterministic unverified-claim backstop
+    (``engine._unverified_marker_concerns``), not a reviewer's finding."""
+    from llmxive.agents.citation_guard import find_unverified_markers
+
+    return concern.id.startswith("unverif") and bool(find_unverified_markers(concern.text))
+
+
 def route_kickback(spec: ReviewSpec, unresolved: list[Concern]) -> KickbackRecord:
     """Pick the worst unresolved severity, map it to a prior stage, and emit a
     KickbackRecord carrying full provenance (FR-014)."""
@@ -47,6 +55,10 @@ def route_kickback(spec: ReviewSpec, unresolved: list[Concern]) -> KickbackRecor
         raise ValueError("route_kickback() requires at least one unresolved concern")
     worst = worst_severity([c.severity for c in unresolved])
     to_stage = _nearest_routing(spec.kickback_routing, worst)
+    if spec.marker_route is not None and all(_is_marker_backstop(c) for c in unresolved):
+        # Nothing a reviewer raised is open: only the document's own unverified
+        # claim(s). The stage that revises this document is what can clear them.
+        to_stage = spec.marker_route
     artifact_links = sorted({c.artifact for c in unresolved} | set(spec.artifacts))
     reason = (
         f"{len(unresolved)} concern(s) remained unresolved after {spec.max_rounds} "
