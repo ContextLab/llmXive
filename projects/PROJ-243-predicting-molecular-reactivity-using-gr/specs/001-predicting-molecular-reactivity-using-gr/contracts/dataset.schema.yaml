@@ -14,11 +14,11 @@ properties:
         description: "Version of the preprocessing pipeline."
       checksum:
         type: "string"
-        description: "SHA-256 checksum of the raw source file."
+        description: "SHA‑256 checksum of the raw source file."
     required:
-      - "source"
-      - "version"
-      - "checksum"
+      - source
+      - version
+      - checksum
   graphs:
     type: "array"
     description: "List of molecular graph objects."
@@ -33,7 +33,7 @@ properties:
           description: "SMILES string of the molecule."
         node_features:
           type: "array"
-          description: "List of node feature vectors."
+          description: "List of node feature objects."
           items:
             type: "object"
             properties:
@@ -46,13 +46,13 @@ properties:
               num_neighbors:
                 type: "integer"
             required:
-              - "atomic_number"
-              - "hybridization"
-              - "formal_charge"
-              - "num_neighbors"
+              - atomic_number
+              - hybridization
+              - formal_charge
+              - num_neighbors
         edge_features:
           type: "array"
-          description: "List of edge feature vectors."
+          description: "List of edge feature objects."
           items:
             type: "object"
             properties:
@@ -64,34 +64,34 @@ properties:
               in_ring:
                 type: "boolean"
             required:
-              - "bond_type"
-              - "conjugation"
-              - "in_ring"
+              - bond_type
+              - conjugation
+              - in_ring
         target:
           type: "object"
           properties:
             homo_lumo_gap:
               type: "number"
-              description: "HOMO-LUMO gap in eV."
+              description: "HOMO‑LUMO gap in eV."
           required:
-            - "homo_lumo_gap"
+            - homo_lumo_gap
         split:
           type: "string"
           enum:
             - "train"
             - "val"
             - "test"
-          description: "Scaffold-based split assignment."
+          description: "Scaffold‑based split assignment."
         similarity_score:
           type: "number"
           description: "Max Tanimoto similarity to training set (used for filtering)."
       required:
-        - "molecule_id"
-        - "smiles"
-        - "node_features"
-        - "edge_features"
-        - "target"
-        - "split"
+        - molecule_id
+        - smiles
+        - node_features
+        - edge_features
+        - target
+        - split
 required:
-  - "metadata"
-  - "graphs"
+  - metadata
+  - graphs

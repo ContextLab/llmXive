@@ -1,81 +1,70 @@
 # Data Model: Predicting Molecular Reactivity
 
 ## Overview
-This document defines the data schemas, transformations, and storage formats for the molecular reactivity prediction pipeline. All data flows from `data/raw` (immutable) to `data/processed` (derived) to `artifacts` (results).
+Defines schemas, transformations, and storage formats for the end‑to‑end pipeline. All artifacts are validated against JSON‑Schema contracts under `contracts/`.
 
 ## Data Flow
 
-1. **Raw Data**: Downloaded from verified sources (QM9 Parquet) or curated static assets (Reference/Kinetic CSVs).
-2. **Processed Data**:
-   - `graphs.pt`: Serialized list of PyTorch Geometric `Data` objects.
-   - `splits/`: JSON files containing train/test indices based on Murcko scaffolds.
-3. **Artifacts**:
-   - `metrics.json`: Aggregated performance metrics.
-   - `predictions.parquet`: Test set predictions with ground truth.
-   - `attribution_maps.json`: Feature importance scores.
+1. **Raw Data** (`data/raw/`) – immutable downloads and curated CSV assets.  
+2. **Processed Data** (`data/processed/`) – graph objects (`graphs.pt`) and scaffold split indices.  
+3. **Artifacts** (`artifacts/`) – model checkpoints, predictions, metrics, attribution maps, logs, and checksums.
 
 ## Schema Definitions
 
-### 1. Molecular Graph Node Features
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `atomic_number` | int | Atomic number (e.g., 6 for Carbon). |
-| `hybridization` | int | Hybridization state (e.g., SP, SP2, SP3). |
-| `formal_charge` | int | Formal charge of the atom. |
-| `num_neighbors` | int | Degree of the node. |
+### 1. Molecular Graph (see `contracts/dataset.schema.yaml`)
+- `molecule_id`: string  
+- `smiles`: string  
+- `node_features`: list of objects (`atomic_number`, `hybridization`, `formal_charge`, `num_neighbors`)  
+- `edge_features`: list of objects (`bond_type`, `conjugation`, `in_ring`)  
+- `target`: object (`homo_lumo_gap`: float)  
+- `split`: enum(`train`, `val`, `test`)  
+- `similarity_score`: float (max Tanimoto to training set)
 
-### 2. Molecular Graph Edge Features
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `bond_type` | int | Bond type (1: Single, 2: Double, 3: Triple, 4: Aromatic). |
-| `conjugation` | bool | Whether the bond is conjugated. |
-| `in_ring` | bool | Whether the bond is part of a ring. |
+### 2. Checksum File (`data/raw/checksums.json`)
+Conforms to `contracts/checksums.schema.yaml`:
 
-### 3. Target Variable (DFT Property)
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `homo_lumo_gap` | float | HOMO-LUMO gap in eV (target for regression). Derived as `lumo - homo` from QM9 columns `lumo` and `homo`. |
-| `energy` | float | Total energy (optional, for multi-task). |
+```json
+{
+  "file_path": "data/raw/qm9_subset.parquet",
+  "sha256": "<hex>"
+}
+```
 
-### 4. Split Metadata
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `scaffold_id` | str | Murcko scaffold hash. |
-| `split` | str | "train", "val", or "test". |
-| `similarity_score` | float | Max Tanimoto similarity to any training molecule (used for filtering). |
+Multiple entries are stored as a JSON array.
 
-### 5. Attribution Map
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `molecule_id` | str | Unique identifier for the molecule. |
-| `node_importance` | list[float] | Importance score per node. |
-| `edge_importance` | list[float] | Importance score per edge. |
-| `top_substructure` | str | SMILES of the most important subgraph. |
-| `alignment_score` | float | Tanimoto similarity against the closest reference substructure (0.0 to 1.0). |
-| `null_model_score` | float | Baseline score from random subgraph selection. |
+### 3. Model Predictions (`contracts/model-output.schema.yaml`)
+- `graph_id`: string  
+- `actual_gap`: float  
+- `predicted_gap`: float  
+- `error`: float (`predicted_gap - actual_gap`)  
+- `model_name`: enum(`spectral_gnn`, `heterophily_gnn`, `random_forest`)
 
-### 6. Curated Reference Substructure
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `smiles` | str | SMILES of the substructure. |
-| `source_doi` | str | DOI of the literature source. |
-| `description` | str | Description of the reactivity. |
+### 4. Evaluation Metrics (`contracts/metrics.schema.yaml`)
+- Per‑model `mse`, `mae`, `pearson_r`  
+- `statistical_tests` array (paired t‑test, p‑value, Bonferroni‑adjusted α, significance flag)  
+- `interpretability` block (`alignment_score`, `top_features`, `reference_source_type`)
 
-### 7. Curated Kinetic Entry
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `smiles` | str | SMILES of the molecule. |
-| `reaction_rate` | float | Experimental reaction rate (units: 1/s). |
-| `reaction_type` | str | Type of reaction (e.g., "thermodynamic", "kinetic"). |
-| `source_doi` | str | DOI of the literature source. |
+### 5. Attribution Maps (`contracts/attribution.schema.yaml`)
+- `molecule_id`: string  
+- `node_importance`: array[float]  
+- `edge_importance`: array[float]  
+- `top_substructures`: array of objects (`substructure_smiles`, `importance_score`, `matches_reference`)  
+- `alignment_score`: float (0 – 1)  
+- `recall_at_k`: float  
+- `null_model_score`: float
+
+### 6. Final Output (`contracts/output.schema.yaml`)
+Aggregates `metrics`, `statistical_test`, `predictions` (list of per‑model predictions), and `attribution.top_features`.
 
 ## Storage Formats
-- **Raw Data**: Parquet (for QM9), CSV (for static assets).
-- **Processed Graphs**: PyTorch `.pt` (binary).
-- **Metrics/Predictions**: JSON and Parquet.
-- **Checksums**: `data/raw/checksums.json` (SHA-256 hashes).
+- **Parquet** – QM9 raw & predictions (efficient columnar storage).  
+- **CSV** – Curated reference & kinetic assets.  
+- **PyTorch `.pt`** – Serialized `torch_geometric` graphs.  
+- **JSON** – Metrics, attribution, checksums, logs.
 
 ## Data Hygiene Rules
-- **Immutability**: Files in `data/raw` are never modified. New versions are written to `data/raw/v2/`.
-- **Checksums**: Every file in `data/raw` must have a corresponding entry in `checksums.json`.
-- **Validation**: Preprocessing scripts must validate that node/edge feature counts match the expected schema before saving.
+- **Immutability**: Files under `data/raw/` are never overwritten. New versions go to `data/raw/v2/`.  
+- **Checksums**: Every raw file must have a corresponding entry in `checksums.json`. Validation is performed in **T006** and **T007**.  
+- **Schema Validation**: After each generation step, the corresponding contract schema is validated; failures abort the pipeline.  
+
+---

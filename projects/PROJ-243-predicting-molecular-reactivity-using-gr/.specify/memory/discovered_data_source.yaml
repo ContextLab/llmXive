@@ -1,15 +1,14 @@
 status: none
-intent: QM9 parquet download with reference substructures and kinetic dataset python
-  package dataset
+intent: download QM9 MoleculeNet dataset python package with graph node atomic number
+  hybridization formal charge
 required_fields:
+- molecule_id
 - smiles
-- atomic_number
-- hybridization
-- formal_charge
-- bond_type
-- bond_conjugation
-- homo_lumo_gap
-- dft_properties
-cache_key: 6037057dfb1bdfc292c3c4fe1ddef7b7e2685ebd844a93c20f88846903cc6a30
-searched_at: '2026-10-11T22:29:27.705499+00:00'
+- node_atomic_number
+- node_hybridization
+- node_formal_charge
+- edge_bond_type
+- edge_conjugation
+cache_key: 231c785a2d69a214bc5e283279c193d94f8cbd387610a81ef4caa4a9b04fc6e7
+searched_at: '2026-10-11T22:33:03.131908+00:00'
 retry_count: 1

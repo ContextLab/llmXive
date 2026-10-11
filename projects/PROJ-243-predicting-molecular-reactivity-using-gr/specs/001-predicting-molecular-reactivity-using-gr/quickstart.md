@@ -1,104 +1,119 @@
 # Quickstart: Predicting Molecular Reactivity
 
 ## Prerequisites
-- Python 3.10+
+- Python 3.10+
 - Git
-- (Optional) Docker for local testing
+- (Optional) Docker for local CI simulation
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-243-predicting-molecular-reactivity-using-gr
- ```
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-243-predicting-molecular-reactivity-using-gr
 
-2. **Create virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+# 3. Install dependencies
+pip install -r requirements.txt
 
-4. **Verify environment**:
- ```bash
- python -c "import torch; import rdkit; print('Dependencies OK')"
- ```
+# 4. Verify linting and formatting (required by T002)
+ruff check . --output-format=json > artifacts/ruff_report.json
+black --check . > artifacts/black_report.txt
+# Both commands must exit with status 0; otherwise fix the reported issues.
+```
 
 ## Data Setup
 
-1. **Create directories**:
- ```bash
- mkdir -p data/raw data/processed data/assets artifacts/logs
- touch data/raw/.gitkeep data/processed/.gitkeep data/assets/.gitkeep artifacts/logs/.gitkeep
- ```
-
-2. **Curate Static Assets**:
- - **Reference Substructures**: Create `data/raw/reference_substructures_raw.csv` with known reactive substructures extracted from *J. Chem. Inf. Model.* 2020, 60, 12, 5785–5796 (). **Extract Table 2, Entries 1-50**.
- - **Kinetic Dataset**: Create `data/raw/kinetic_dataset_raw.csv` with ≥20 molecules and experimental rates extracted from *J. Phys. Chem. A* 2018, 122, 15, 4053–4062 (). **Extract Table 3, Entries 1-20**.
- - *See `specs/001-predicting-molecular-reactivity/research.md` for sources.*
-
-3. **Download QM9**:
- The `code/data/download.py` script handles this.
- ```bash
- python code/data/download.py --dataset qm9 --output data/raw
- ```
- *Note: This uses `torch_geometric.datasets.QM9` to ensure canonical source.*
-
-4. **Generate Checksums**:
- ```bash
- python code/utils/checksums.py --dir data/raw --output data/raw/checksums.json
- ```
-
-## Running the Pipeline
-
-### 1. Preprocessing
-Convert SMILES to graphs and split data.
 ```bash
-python code/data/preprocess.py --input data/raw/qm9_subset.parquet --output data/processed
-```
-*Note: This will generate `exclusion_report.json` and `memory_adjustment.log` if needed.*
+# Create required directories
+mkdir -p data/raw data/processed data/assets artifacts/logs
+touch data/raw/.gitkeep data/processed/.gitkeep data/assets/.gitkeep artifacts/logs/.gitkeep
 
-### 2. Training
-Train Spectral GNN, Heterophily GNN, and Random Forest.
-```bash
-python code/train/trainer.py --epochs 50 --device cpu
-```
-*Note: This will automatically detect memory usage and adjust batch size.*
+# 1. Curate static assets (copy the CSVs provided in the repo)
+#    - reference_substructures_raw.csv (50 rows)
+#    - kinetic_dataset_raw.csv (≥20 rows)
 
-### 3. Evaluation & Attribution
-Generate metrics and feature importance maps.
-```bash
-python code/train/eval.py --model-path artifacts/models/ --output artifacts/
-python code/interpret/explainer.py --model-path artifacts/models/ --output artifacts/
-```
-*Note: The explainer output is validated against `contracts/attribution.schema.yaml`.*
+# 2. Compute empty checksums file (T003)
+echo "{}" > data/raw/checksums.json
 
-### 4. Validation
-Validate HOMO-LUMO proxy against kinetic data.
-```bash
-python code/interpret/validate_proxy.py --predictions artifacts/predictions.parquet --kinetic data/raw/kinetic_dataset_raw.csv
+# 3. Download QM9 subset (streamed)
+python code/data/download.py --dataset qm9 --output data/raw
+# The script streams to data/raw/qm9_subset.parquet.
+
+# 4. Populate checksums (T006)
+python code/utils/checksums.py --dir data/raw --output data/raw/checksums.json
+# This updates the previously empty JSON with SHA‑256 hashes.
 ```
 
-### 5. SSoT Enforcement
-Ensure all figures trace to the artifacts.
+## Running the Full Pipeline
+
+### 1. Preprocess
 ```bash
-python code/utils/ssot.py --metrics artifacts/metrics.json --predictions artifacts/predictions.parquet
+python code/data/preprocess.py \
+  --input data/raw/qm9_subset.parquet \
+  --output data/processed
+# Generates graphs.pt, exclusion_report.json, and memory_adjustment.log.
+```
+
+### 2. Train Models
+```bash
+python code/train/trainer.py \
+  --epochs 50 \
+  --device cpu \
+  --early-stop-patience 5
+# Produces model checkpoints under artifacts/models/.
+```
+
+### 3. Evaluate & Test
+```bash
+python code/train/eval.py \
+  --model-dir artifacts/models/ \
+  --output artifacts/
+# Writes predictions.parquet, metrics.json (incl. paired t‑test).
+```
+
+### 4. Attribution
+```bash
+python code/interpret/explainer.py \
+  --model-dir artifacts/models/ \
+  --output artifacts/
+# Generates attribution_maps.json validated against contracts/attribution.schema.yaml.
+```
+
+### 5. Proxy Validation
+```bash
+python code/interpret/validate_proxy.py \
+  --predictions artifacts/predictions.parquet \
+  --kinetic data/raw/kinetic_dataset_raw.csv \
+  --output artifacts/
+# Produces kinetic_correlation.png and kinetic_report.txt.
+```
+
+### 6. Single‑Source‑of‑Truth Check
+```bash
+python code/utils/ssot.py \
+  --metrics artifacts/metrics.json \
+  --predictions artifacts/predictions.parquet
+# Logs verification result to artifacts/ssot.log.
 ```
 
 ## Expected Artifacts
 After a successful run, `artifacts/` should contain:
-- `metrics.json`: MSE, MAE, Pearson R for all models.
-- `predictions.parquet`: Test set predictions.
-- `attribution_maps.json`: Feature importance scores.
-- `exclusion_report.json`: Log of invalid SMILES.
-- `logs/pipeline.log`: Detailed execution log.
+
+- `metrics.json` (performance & statistical tests)  
+- `predictions.parquet` (test‑set predictions)  
+- `attribution_maps.json` (explanation data)  
+- `exclusion_report.json` (invalid SMILES log)  
+- `memory_adjustment.log` (any batch‑size reductions)  
+- `checksums_artifacts.json` (SHA‑256 of all output files)  
+- `ssot.log` (single‑source‑of‑truth validation)  
 
 ## Troubleshooting
-- **Memory Error**: The script should auto-reduce batch size. If it fails, manually set `--batch-size 32` in `trainer.py`.
-- **Download Failed**: Check network connectivity. The script retries 3 times.
-- **Invalid SMILES**: Check `artifacts/exclusion_report.json`. If > 0.1%, investigate the `data/raw` source.
+- **Lint/format failures**: Fix reported style issues, then re‑run the `ruff`/`black` commands.  
+- **Memory OOM**: Reduce batch size via `--batch-size` flag in `trainer.py`; the script will also auto‑adjust.  
+- **Download errors**: The downloader retries up to 3 times with exponential backoff; persistent failure aborts with a clear error message.  
+
+---

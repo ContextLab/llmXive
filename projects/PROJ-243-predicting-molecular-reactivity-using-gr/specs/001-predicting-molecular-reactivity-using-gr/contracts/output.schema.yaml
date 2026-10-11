@@ -17,9 +17,9 @@ properties:
           pearson_r:
             type: "number"
         required:
-          - "mse"
-          - "mae"
-          - "pearson_r"
+          - mse
+          - mae
+          - pearson_r
       hetero_gnn:
         type: "object"
         properties:
@@ -30,9 +30,9 @@ properties:
           pearson_r:
             type: "number"
         required:
-          - "mse"
-          - "mae"
-          - "pearson_r"
+          - mse
+          - mae
+          - pearson_r
       random_forest:
         type: "object"
         properties:
@@ -43,16 +43,16 @@ properties:
           pearson_r:
             type: "number"
         required:
-          - "mse"
-          - "mae"
-          - "pearson_r"
+          - mse
+          - mae
+          - pearson_r
     required:
-      - "spectral_gnn"
-      - "hetero_gnn"
-      - "random_forest"
+      - spectral_gnn
+      - hetero_gnn
+      - random_forest
   statistical_test:
     type: "object"
-    description: "Results of the paired t-test between GNNs and RF."
+    description: "Results of the paired t‑test between GNNs and RF."
     properties:
       comparison:
         type: "string"
@@ -62,9 +62,9 @@ properties:
       significant:
         type: "boolean"
     required:
-      - "comparison"
-      - "p_value"
-      - "significant"
+      - comparison
+      - p_value
+      - significant
   predictions:
     type: "array"
     description: "List of individual predictions."
@@ -82,11 +82,11 @@ properties:
         rf_pred:
           type: "number"
       required:
-        - "molecule_id"
-        - "ground_truth"
-        - "spectral_gnn_pred"
-        - "hetero_gnn_pred"
-        - "rf_pred"
+        - molecule_id
+        - ground_truth
+        - spectral_gnn_pred
+        - hetero_gnn_pred
+        - rf_pred
   attribution:
     type: "object"
     description: "Top 5 features identified by GNNExplainer."
@@ -103,13 +103,13 @@ properties:
             description:
               type: "string"
           required:
-            - "feature_name"
-            - "importance_score"
-            - "description"
+            - feature_name
+            - importance_score
+            - description
     required:
-      - "top_features"
+      - top_features
 required:
-  - "metrics"
-  - "statistical_test"
-  - "predictions"
-  - "attribution"
+  - metrics
+  - statistical_test
+  - predictions
+  - attribution
