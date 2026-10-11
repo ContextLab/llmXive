@@ -1,11 +1,9 @@
 T001:
-  c: true
-  h: 7e695f3265e83cdd67ca6f699e3a578c0bda85e0100e433b8a72cb43f538402d
-  r: All ten required directories exist (data/raw, data/processed, data/results, figures,
-    code/models, code/metrics, code/stats, code/utils, tests/unit, tests/integration),
-    and the schema file at `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`
-    contains exactly the eight required columns including `abs_error`. The verification
-    test (`tests/unit/test_verify_t001.py`) ran with exit code 0 and passed, matching
-    the task's verification requirement. (The placeholder raw data and empty per-sample
-    CSV are concerns for later tasks, not T001's scope.)
-  sig: 958810f5fd9c88700bfdc35c2f8da8c0790bab0bd99d2f00c204f5b775c3955c
+  c: false
+  h: 6bbf542d6de905eb637581edef2809ac60670bb60fc7f3bf86765541874b7731
+  r: "The schema file correctly contains all eight required columns, but three of\
+    \ the required directories \u2014 `data/raw/`, `data/processed/`, and `figures/`\
+    \ \u2014 do not exist, so the task's verification script would fail its directory\
+    \ assertions. The implementer must create those missing directories (the other\
+    \ seven exist)."
+  sig: db18506760f580c58ee85300a982c5e60f6d6981633385128d4d075aef9ca2df

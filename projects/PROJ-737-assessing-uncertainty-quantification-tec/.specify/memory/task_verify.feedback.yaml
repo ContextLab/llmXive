@@ -1,4 +1,9 @@
 T001:
+  reason: "The schema file correctly contains all eight required columns, but three\
+    \ of the required directories \u2014 `data/raw/`, `data/processed/`, and `figures/`\
+    \ \u2014 do not exist, so the task's verification script would fail its directory\
+    \ assertions. The implementer must create those missing directories (the other\
+    \ seven exist)."
   task: 48651dd18438fb43f64c945c946058fa0785d2ef6c465ab0efb02282f5b8dfd3
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/tests/test_download.py
