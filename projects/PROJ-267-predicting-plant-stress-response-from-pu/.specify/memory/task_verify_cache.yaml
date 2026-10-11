@@ -1,13 +1,13 @@
 T001:
   c: false
-  h: 9a9e060d6351f230b995c3ab82dc19f57c34dfd5bc5209b8ffb90fc700b50865
-  r: "The skeleton includes the required directories `data/raw/`, `data/processed/`,\
-    \ `docs/`, `results/`, the `requirements.txt`, `code/main.py` with a functional\
-    \ `--stage noop` option, and `docs/structure.txt`. However, the `logs/` directory\
-    \ is not present in the repository snapshot, violating the task\u2019s requirement\
-    \ for a `logs/` folder. Adding an empty `logs/` (e.g., with a `.gitkeep`) will\
-    \ complete the skeleton."
-  sig: 586ffee8afe4d3af9092349ce80e5b05e8a9294639ca5a39a76cba552b64dcf5
+  h: e4aafce9b87bcf30a1cf880d8942d706dd898e32fb12b17e86510f4fadd7ec9e
+  r: "The skeleton directories, `requirements.txt`, `code/main.py` with a `--stage\
+    \ noop` option, and `docs/structure.txt` are present and correctly populated.\
+    \ However, there is no execution evidence showing that `python -m code.main --stage\
+    \ noop` actually runs and exits with status\u202F0 (or that the quickstart command\
+    \ runs successfully), which is a required part of the task. A test run log or\
+    \ similar proof is needed."
+  sig: 41f444675f7f06440df2902f8e1342f3f149f734a0659dc58d60bf6b447b8145
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

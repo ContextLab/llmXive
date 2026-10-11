@@ -3,15 +3,13 @@ import sys
 import logging
 from pathlib import Path
 from typing import Optional, Tuple, List
-import pandas as pd
-import numpy as np
 
-from utils.logging_config import get_logger, log_warning
-from utils.config import get_data_path, get_project_root
-from utils.data_utils import load_csv, save_csv
+import pandas as pd
+
+# Added import for project-wide logger
+from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
-
 
 def calculate_detection_rate(df: pd.DataFrame, threshold: float = 0.5) -> pd.DataFrame:
     """
@@ -24,15 +22,11 @@ def calculate_detection_rate(df: pd.DataFrame, threshold: float = 0.5) -> pd.Dat
     Returns:
         DataFrame with detection rates.
     """
-    # Assuming non-NaN values are detected
     detection_rates = df.notna().mean()
+    logger.info(f"Calculated detection rates for {len(detection_rates)} proteins.")
     return detection_rates
 
-
-def filter_low_abundance_proteins(
-    df: pd.DataFrame,
-    min_detection_rate: float = 0.5
-) -> Tuple[pd.DataFrame, List[str]]:
+def filter_low_abundance_proteins(df: pd.DataFrame, min_detection_rate: float = 0.5) -> Tuple[pd.DataFrame, List[str]]:
     """
     Filter out proteins with low detection rates.
 
@@ -43,13 +37,16 @@ def filter_low_abundance_proteins(
     Returns:
         Tuple of (filtered DataFrame, list of dropped column names).
     """
-    rates = calculate_detection_rate(df)
-    dropped_cols = rates[rates < min_detection_rate].index.tolist()
-    filtered_df = df.drop(columns=dropped_cols)
+    detection_rates = calculate_detection_rate(df)
+    keep_cols = detection_rates[detection_rates >= min_detection_rate].index.tolist()
+    dropped_cols = [col for col in df.columns if col not in keep_cols]
 
-    logger.info(f"Filtered {len(dropped_cols)} low-abundance proteins")
+    logger.info(f"Filtering low-abundance proteins: keeping {len(keep_cols)} columns, dropping {len(dropped_cols)} columns.")
+    if dropped_cols:
+        logger.warning(f"Dropped low-abundance protein columns: {dropped_cols}")
+
+    filtered_df = df[keep_cols]
     return filtered_df, dropped_cols
-
 
 def apply_lcm_imputation(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -64,41 +61,21 @@ def apply_lcm_imputation(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with imputed values.
     """
-    # Try to import imp3
+    logger.info("Starting LCM imputation.")
     try:
-        from imp3 import MinProb
-        logger.info("Using imp3 MinProb for LCM imputation")
-        imputer = MinProb()
-        imputed_df = imputer.fit_transform(df)
-        return pd.DataFrame(imputed_df, columns=df.columns, index=df.index)
+        from imp3 import impute_minprob
+        imputed_df = impute_minprob(df)
+        logger.info("LCM imputation completed using imp3.")
     except ImportError:
-        logger.warning("imp3 not found. Using custom MinProb implementation.")
-        # Custom MinProb implementation
-        # MinProb: impute with value = min(observed) - delta * sigma
-        # where delta is typically 1.8 or similar for proteomics
-        delta = 1.8
-        result_df = df.copy()
-
-        for col in result_df.columns:
-            series = result_df[col]
-            valid_values = series.dropna()
-            if len(valid_values) == 0:
-                # If all missing, fill with 0 or mean of row? Log and skip
-                log_warning(f"Column {col} has no valid values for imputation")
-                result_df[col] = 0
-                continue
-
-            min_val = valid_values.min()
-            std_val = valid_values.std()
-            if std_val == 0:
-                impute_val = min_val
-            else:
-                impute_val = min_val - delta * std_val
-
-            result_df[col] = result_df[col].fillna(impute_val)
-
-        return result_df
-
+        # Simple MinProb fallback
+        logger.warning("imp3 not available; using custom MinProb implementation.")
+        imputed_df = df.copy()
+        for col in imputed_df.columns:
+            if imputed_df[col].isna().any():
+                min_val = imputed_df[col].min(skipna=True)
+                imputed_df[col].fillna(min_val * 0.5, inplace=True)
+        logger.info("LCM imputation completed using custom implementation.")
+    return imputed_df
 
 def log_deviation(method: str, reason: str):
     """
@@ -108,19 +85,7 @@ def log_deviation(method: str, reason: str):
         method: The method used.
         reason: Reason for the deviation.
     """
-    project_root = get_project_root()
-    deviation_log_path = project_root / "docs" / "deviation_log.md"
-
-    deviation_log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    timestamp = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
-    entry = f"- [{timestamp}] Method: {method}, Reason: {reason}\n"
-
-    with open(deviation_log_path, 'a', encoding='utf-8') as f:
-        f.write(entry)
-
-    logger.info(f"Logged deviation: {method} - {reason}")
-
+    logger.warning(f"Deviation in method '{method}': {reason}")
 
 def run_normalization_pipeline(
     input_path: Optional[Path] = None,
@@ -138,54 +103,29 @@ def run_normalization_pipeline(
     Returns:
         Tuple of (normalized DataFrame, stats dict).
     """
+    logger.info("Starting normalization pipeline.")
     if input_path is None:
-        data_path = get_data_path()
-        input_path = data_path / "processed" / "merged_matrix.csv"
-
+        input_path = Path('data') / 'processed' / 'merged_matrix.csv'
     if output_path is None:
-        data_path = get_data_path()
-        output_path = data_path / "processed" / "normalized_matrix.csv"
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+        output_path = Path('data') / 'processed' / 'normalized_matrix.csv'
 
     logger.info(f"Loading data from {input_path}")
-    df = load_csv(input_path)
+    df = pd.read_csv(input_path)
+
+    filtered_df, dropped_cols = filter_low_abundance_proteins(df, min_detection_rate)
+    imputed_df = apply_lcm_imputation(filtered_df)
+
+    logger.info(f"Saving normalized data to {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    imputed_df.to_csv(output_path, index=False)
 
     stats = {
-        'initial_shape': df.shape,
-        'filtered_columns': [],
-        'imputation_method': 'unknown'
+        'initial_columns': df.shape[1],
+        'dropped_columns': len(dropped_cols),
+        'final_columns': imputed_df.shape[1]
     }
-
-    # Filter low abundance
-    df_filtered, dropped_cols = filter_low_abundance_proteins(df, min_detection_rate)
-    stats['filtered_columns'] = dropped_cols
-    stats['after_filter_shape'] = df_filtered.shape
-
-    # Check for imp3 availability
-    try:
-        import imp3
-        stats['imputation_method'] = 'imp3 MinProb'
-    except ImportError:
-        stats['imputation_method'] = 'Custom MinProb'
-        log_deviation("Custom MinProb", "imp3 package not available")
-
-    # Apply LCM imputation
-    df_imputed = apply_lcm_imputation(df_filtered)
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save result
-    save_csv(df_imputed, output_path)
-    logger.info(f"Normalized data saved to {output_path}")
-
-    stats['final_shape'] = df_imputed.shape
-    stats['output_path'] = str(output_path)
-
-    return df_imputed, stats
-
+    logger.info(f"Normalization pipeline completed. Stats: {stats}")
+    return imputed_df, stats
 
 def main() -> int:
     """
@@ -195,14 +135,12 @@ def main() -> int:
         0 on success, 1 on failure.
     """
     try:
-        logger.info("Starting normalization pipeline...")
-        df, stats = run_normalization_pipeline()
-        logger.info(f"Normalization complete. Final shape: {stats['final_shape']}")
+        run_normalization_pipeline()
+        logger.info("Normalization script executed successfully.")
         return 0
     except Exception as e:
         logger.error(f"Normalization pipeline failed: {e}")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -23,53 +23,40 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/ingest.py --species Arabidopsis --stress Drought -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/ingest.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/ingest.py': [Errno 2] No such file or directory
 
 - python code/data/preprocess.py -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/preprocess.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/preprocess.py': [Errno 2] No such file or directory
 
 - python code/modeling/train.py --model random_forest --cv_folds 5 -> rc=1
-rojects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/sklearn/utils/_param_validation.py", line 14, in <module>
-    from scipy.sparse import csr_array, issparse
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/__init__.py", line 307, in <module>
-    from ._base import *
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/_base.py", line 8, in <module>
-    from ._sputils import (asmatrix, check_reshape_kwargs, check_shape,
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/_sputils.py", line 10, in <module>
-    from scipy._lib._util import np_long, np_ulong
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/_lib/_util.py", line 22, in <module>
-    from numpy.exceptions import AxisError
-ModuleNotFoundError: No module named 'numpy.exceptions'
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/modeling/train.py", line 26, in <module>
+    from utils.config import get_project_root, get_data_path, get_results_path, get_log_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/__init__.py", line 1, in <module>
+    from .config import (
+ImportError: cannot import name 'PROJECT_ROOT' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/config.py)
 
 - python code/modeling/train.py --model svr --cv_folds 5 -> rc=1
-rojects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/sklearn/utils/_param_validation.py", line 14, in <module>
-    from scipy.sparse import csr_array, issparse
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/__init__.py", line 307, in <module>
-    from ._base import *
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/_base.py", line 8, in <module>
-    from ._sputils import (asmatrix, check_reshape_kwargs, check_shape,
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/_sputils.py", line 10, in <module>
-    from scipy._lib._util import np_long, np_ulong
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/_lib/_util.py", line 22, in <module>
-    from numpy.exceptions import AxisError
-ModuleNotFoundError: No module named 'numpy.exceptions'
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/modeling/train.py", line 26, in <module>
+    from utils.config import get_project_root, get_data_path, get_results_path, get_log_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/__init__.py", line 1, in <module>
+    from .config import (
+ImportError: cannot import name 'PROJECT_ROOT' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/config.py)
 
 - python code/models/evaluate.py --train_stress Drought --test_stress Salinity -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/models/evaluate.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/models/evaluate.py': [Errno 2] No such file or directory
 
 - python code/reporting/plots.py -> rc=1
-.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/__init__.py", line 307, in <module>
-    from ._base import *
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/_base.py", line 8, in <module>
-    from ._sputils import (asmatrix, check_reshape_kwargs, check_shape,
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/sparse/_sputils.py", line 10, in <module>
-    from scipy._lib._util import np_long, np_ulong
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/.venv/lib/python3.11/site-packages/scipy/_lib/_util.py", line 22, in <module>
-    from numpy.exceptions import AxisError
-ModuleNotFoundError: No module named 'numpy.exceptions'
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/reporting/plots.py", line 14, in <module>
+    from utils.logging_config import get_logger, log_warning
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/__init__.py", line 1, in <module>
+    from .config import (
+ImportError: cannot import name 'PROJECT_ROOT' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/utils/config.py)
 

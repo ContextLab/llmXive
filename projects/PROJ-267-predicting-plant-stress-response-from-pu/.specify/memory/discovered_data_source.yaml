@@ -1,17 +1,18 @@
 status: none
-intent: download GEO and ProteomeXchange plant proteomics transcriptomics dataset
-  biomaRt reference python package dataset
+intent: Arabidopsis rice wheat drought salinity heat GEO ProteomeXchange proteomics
+  transcriptomics download python package dataset
 required_fields:
-- sample_id
 - species
 - stress_condition
+- sample_id
+- accession_id
 - protein_id
 - protein_abundance
 - gene_id
-- gene_expression
-- detection_rate
-- imputed_flag
+- transcript_expression
 - publication_date
-cache_key: 15a73ffeda99dab5b4cec12bc211dae6a9ca4708c6b1450aa1ff6ee864d0ef81
-searched_at: '2026-10-09T18:50:16.052527+00:00'
+- sample_group
+- metadata
+cache_key: b14eb4ec2029d874347b3d0d2fa252357dea03dcfebf696fc024473c7adcc766
+searched_at: '2026-10-11T06:19:45.123788+00:00'
 retry_count: 1
