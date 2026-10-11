@@ -17,9 +17,14 @@ T005:
 T005a:
   task: 9cf84e30b716a093a20f8e73f8cd66350eac48c4898fb98094a7cebaca8e4134
 T005c:
-  reason: 'declared artifact(s) missing/empty/invalid: data/manifests/datasets.yaml'
   task: e112f04cd3486fa591359bbf09c84216f1687204c2288bc5b4735d448cec7c5a
 T006a:
+  reason: "The provided `code/dependency_injector.py` defines `ar1_inject` and related\
+    \ utilities, but it accepts any `rho` value, does not enforce the required discrete\
+    \ set\u202F{0,\u202F0.1,\u202F0.2,\u202F0.3,\u202F0.5}, and does not implement\
+    \ a dedicated vectorized AR\u2011resampling routine as specified. Consequently\
+    \ the module does not satisfy FR\u2011003\u2019s restriction on strength values\
+    \ nor the required AR\u2011resampling functionality."
   task: be39ec176059550cd4c8ba207fb8d46e6041861a22730a1428e6504dc0cbdee9
 T006b:
   task: 9a644874d21ccdaf43ef4c2e174269f3dfae905cb7f61ee05daa03e06af11fca
@@ -131,11 +136,7 @@ T034:
 T035:
   task: 4917813c995170660d0fefb1c85e0590366b6813e1fde35e316d9d646bb5ea6d
 T035b:
-  reason: "Checked `code/data_loader.py` (7\u202FKB) \u2013 it only fetches, validates,\
-    \ and records checksums; it contains no logic to compute theoretical power, no\
-    \ reference to a replication target, and never writes a `results/power_report.json`.\
-    \ Moreover, the required `results/power_report.json` file is missing. The task\u2019\
-    s core requirement (power verification and warning log) is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 56fc90b5e6a56598e3797d851d89c78ca9167a6b209a41c19c21482ac34d3d0d
 T037:
   reason: "The provided `code/dependency_injector.py` generates spatial proxies with\
@@ -146,10 +147,20 @@ T037:
     \ handling follows the specification."
   task: e18fd20325e508052ee85e85a6ce225051ac0afe9081dd86a9657dbb256dbe4e
 T037b:
+  reason: "The provided `code/dependency_injector.py` contains many injection and\
+    \ validation utilities, but it does **not** implement the required FR\u2011003\
+    \ mapping logic: there is no function that computes a silhouette score for the\
+    \ K\u2011Means proxy and converts it to the dependency strength `r` using `r =\
+    \ (silhouette_score - min_score) / (max_score - min_score)`. Adding such a mapping\
+    \ function (or extending an existing one) is needed to satisfy the task."
   task: 83312962013594669fedb76cbae3e0b957bc61aed39cf67e48b9d0e271f1b199
 T040:
   task: c19fff40611f86726bf69ed90c4124741135f72756fa790762961564b1c6d064
 T041:
+  reason: "The provided `code/dependency_injector.py` does not compute a silhouette\
+    \ score nor enforce the required >\u202F0.25 threshold, and the expected output\
+    \ file `data/manifests/spatial_proxy_validation.json` is missing. Consequently\
+    \ the FR\u2011003 validation logic and report generation are not satisfied."
   task: 69f56bfaecb7ee3d8c952f112c135f07983fbb0a36599c2198b8ee7f536e895e
 T043:
   task: fc782f4cec3682e521ebb1f176dbae20e44a535eceeb64c794ba2b27f70427f2

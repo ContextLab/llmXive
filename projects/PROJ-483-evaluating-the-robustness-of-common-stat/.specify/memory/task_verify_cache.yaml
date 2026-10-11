@@ -1,13 +1,11 @@
 T001:
   c: true
-  h: c6f5b87f9c86396f8060c39d3bbab88c1df26bec71da1b07d93263c9ba68d391
-  r: "Checked the project root `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`\
-    \ and confirmed it contains the expected top\u2011level files (README.md, pyproject.toml,\
-    \ requirements.txt) and the full set of sub\u2011directories required by the implementation\
-    \ plan (code/, data/, docs/, results/, specs/, src/, tests/, etc.). All required\
-    \ artifacts exist and are non\u2011empty (place\u2011holder files like `.gitkeep`\
-    \ are intentional)."
-  sig: 191614401314bf3f3a0f3000ded75e3ec298e7ba77f1de7ad07ca8dc394c5455
+  h: 5cfe4dae20a0a7a21cccffbb876d7ea5e866ac14cf53af1d724374eeab430f03
+  r: Checked the existence of the project root `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`
+    and its full directory tree (code, data, docs, results, specs, src, tests, etc.),
+    confirming the required structure is present. No required files are missing or
+    empty.
+  sig: d8d0badd2c276c9223bffad9d5247ad3b8af94d2fa7e687632f17e29fe06a42b
 T002:
   c: true
   h: 2082d52c1a722d0cd43e68f193b8320fd4486597856edea4f7164e4ddbb52519
@@ -48,17 +46,6 @@ T004b-schema:
     \ appropriate JSON\u2011Schema types and constraints. Its content matches exactly\
     \ what the task specified."
   sig: d76bb44cb21dec164aee8566325716a11def6d967016bb64fae8c02972f67211
-T005:
-  c: false
-  h: 7d4d9bda053e31947c6696133691b0b1760e9766a1461e153caf555f47d12358
-  r: "The `code/data_loader.py` fetches and saves the datasets and writes `checksums.json`,\
-    \ but its `validate_dataset` function only checks for the presence of numeric\
-    \ or categorical columns and a minimum row count. It does **not** verify that\
-    \ continuous variables have variance\u202F>\u202F0 nor that categorical variables\
-    \ have at least two unique levels, as required by FR\u2011001. Implement the missing\
-    \ variance and unique\u2011level checks (and any related tests) to satisfy the\
-    \ task."
-  sig: b3c67529bed9199231be6876effc325b2e458eff3f66992f00bd08cc61e6518c
 T005a:
   c: true
   h: de1ed49c6b786752050b4d3268a21e6e1c4e2b5480dbf309eadced3c16b680fc
@@ -68,14 +55,23 @@ T005a:
     \ as specified."
   sig: 6b8477e5516651e6b10bdc5f426bb0994df01a23987f762c06ffb92d74b77630
 T005c:
+  c: true
+  h: 8bf7ffffa0934f3453569facf649bc1415c3c00213a5c009ccc936aac1b06c6d
+  r: "Checked `data/manifests/datasets.yaml`, which contains the required UCI Adult\
+    \ and UCI Credit Card Default entries with correct, reachable URLs and appropriate\
+    \ mixed-type descriptions. The file is non\u2011empty and meets the task\u2019\
+    s specifications."
+  sig: 55d32b6e62022a1e5dbd570bda1c0fc303b63933d779062c85cb5781b60bc0fb
+T006a:
   c: false
-  h: fcf0fac1866ef61528cd79017b3c6cd2428883e9e20166ab6a0760fe1cb6530f
-  r: The `data/manifests/datasets.yaml` file is present, but it does not contain an
-    entry for the mandatory **UCI Credit Card Default** dataset; only the Adult dataset
-    and other unrelated datasets are listed. Adding a verified URL entry for the Credit
-    Card Default dataset (with its mixed continuous and categorical variables) is
-    required to satisfy the task.
-  sig: 1e6df84759520204fc9c58c312a8fcadf376ab891896ef9e9bab81741dad468a
+  h: 00cb2ab989b41171ed2bd10e6597445d610e6b918c99de70d1149e39f2dd7451
+  r: "The provided `code/dependency_injector.py` defines `ar1_inject` and related\
+    \ utilities, but it accepts any `rho` value, does not enforce the required discrete\
+    \ set\u202F{0,\u202F0.1,\u202F0.2,\u202F0.3,\u202F0.5}, and does not implement\
+    \ a dedicated vectorized AR\u2011resampling routine as specified. Consequently\
+    \ the module does not satisfy FR\u2011003\u2019s restriction on strength values\
+    \ nor the required AR\u2011resampling functionality."
+  sig: 9eeeea9303f6a79f3b9e30d694ffd0ec47f887ebec903ff6242ce091f7899e6a
 T014:
   c: false
   h: 0449617f5c0e38f170fe9565d67f731238035899044cf0c4e1fb1023c0878798
@@ -105,13 +101,12 @@ T034:
     unmet.
 T035:
   c: true
-  h: 5a676910efa1fed143e82afeda0e83055e38a4c9616b3898f2bada079e5cc45c
-  r: "The `code/data_loader.py` file implements N\u2011check validation, skips datasets\
-    \ with fewer than 50 rows, records violations in `results/validation_report.json`,\
-    \ and raises a `CriticalValidationError` when no datasets pass validation. The\
-    \ accompanying `results/validation_report.json` shows the expected structure with\
-    \ violations and counts."
-  sig: e1e132878a243e42fff512253b7e19c5796a218da3eedce2d95f164076d0156e
+  h: 22a9c552111ec618140028794d04f957c43d5fe34130f65519b7fedb7f794c1f
+  r: "Checked `code/data_loader.py` for the required N\u2011<\u202F50 validation,\
+    \ skipping logic, violation logging to `results/validation_report.json`, and the\
+    \ critical error raise when no datasets pass; the implementation and the generated\
+    \ JSON report demonstrate all these behaviors."
+  sig: 07af472bfaa20ecbc3fe8d8c1302658c8e7fe3bf616ead865c755bcacdabaa1d
 T035b:
   c: false
   h: 9d44e904b6bae52576dd043cc156f9a6fccf33b00da9c55e74f66b4ab48cb38a
@@ -131,6 +126,16 @@ T037:
     \ the proxy generation to use `k=3` (or make it configurable) and ensure failure\
     \ handling follows the specification."
   sig: 9ab19735a3f0f059cfdb601ea334137bc971671af9d70a0aeff8e47fbde523d0
+T037b:
+  c: false
+  h: 70386b773e0a38d7c7cb80add7bd51695dfead7945aeead64f1d6e70a7cb2319
+  r: "The provided `code/dependency_injector.py` contains many injection and validation\
+    \ utilities, but it does **not** implement the required FR\u2011003 mapping logic:\
+    \ there is no function that computes a silhouette score for the K\u2011Means proxy\
+    \ and converts it to the dependency strength `r` using `r = (silhouette_score\
+    \ - min_score) / (max_score - min_score)`. Adding such a mapping function (or\
+    \ extending an existing one) is needed to satisfy the task."
+  sig: 58a6efc58b05d2c9fae77c549ff8ff0da096b8a33cf0e7f2d749c0a50ccbb93e
 T040:
   c: false
   h: cc1bba15a2456401a67d28f25e85ffbc80e955bcbddcbe12105ebd123c1113fb
@@ -141,3 +146,11 @@ T040:
     \ or \u201Cinjected dependency violates normality assumptions\u201D nor any code\
     \ that writes to the specified JSON report. The missing report file and incomplete\
     \ edge\u2011case logic mean the task is not fully satisfied."
+T041:
+  c: false
+  h: 16f06532fc4fd43c6a5eea69b933b0ddbd0ff16741f051955ed5b129ec2afc28
+  r: "The provided `code/dependency_injector.py` does not compute a silhouette score\
+    \ nor enforce the required >\u202F0.25 threshold, and the expected output file\
+    \ `data/manifests/spatial_proxy_validation.json` is missing. Consequently the\
+    \ FR\u2011003 validation logic and report generation are not satisfied."
+  sig: b403550a2271e4d3d020f199b113793c7d9a6d99886db7a168f4f600dc348d13

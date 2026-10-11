@@ -61,7 +61,6 @@ def load_simulation_configs(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     # Load dataset IDs from manifest
     manifest_path = MANIFESTS_DIR / "datasets.yaml"
     if manifest_path.exists():
-        # Simple YAML parsing for manifest
         import yaml
         with open(manifest_path, 'r') as f:
             manifest = yaml.safe_load(f)
@@ -202,11 +201,9 @@ def generate_and_save_spatial_proxies(dataset_names: List[str]) -> None:
             print(f"Failed to read {csv_path}: {e}")
             continue
         
-        # Use numeric columns for proxy generation; fallback to all columns if none numeric
+        # Use numeric columns for proxy generation; fallback to encoded version
         numeric_df = df.select_dtypes(include=[np.number])
         if numeric_df.empty:
-            # If no numeric columns, use the entire dataframe after converting to numeric via factorization
-            # Simple fallback: attempt to encode object columns as category codes
             encoded = df.apply(lambda col: col.astype('category').cat.codes if col.dtype == 'object' else col)
             data_array = encoded.to_numpy()
         else:
@@ -216,8 +213,8 @@ def generate_and_save_spatial_proxies(dataset_names: List[str]) -> None:
             print(f"No usable data for spatial proxy in dataset {name}; skipping.")
             continue
         
-        # Generate proxy
-        proxy = generate_spatial_proxy(data_array, n_clusters=5, seed=42)
+        # Generate proxy with k=3 as required by T037
+        proxy = generate_spatial_proxy(data_array, n_clusters=3, seed=42)
         
         # Save proxy report
         proxy_report_path = MANIFESTS_DIR / f"spatial_proxy_{name}.json"
@@ -258,7 +255,6 @@ def main():
         perf_log["steps"].append({"step": "load_datasets", "status": "success"})
 
         # 4. Generate Spatial Proxies (if needed for spatial dependency)
-        # Use dataset names from the successful checksums
         dataset_names = list(checksums.keys())
         if dataset_names:
             print("Generating spatial proxies for datasets...")
