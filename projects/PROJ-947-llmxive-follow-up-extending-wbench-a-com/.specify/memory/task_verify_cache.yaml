@@ -1,9 +1,27 @@
-T003:
+T001:
   c: true
-  h: 797725104da221a10b35f271c494f31f9ef119acc72702c233cc7c826e394780
-  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and correctly\
-    \ configures both ruff (linting) and black (formatting) as required. The missing\
-    \ `pre-commit-config.yaml` at the repository root is irrelevant to this task."
+  h: c8fb2618dea13493c1f6bd3f1d481943a4481e2fe909aeca74bcbf7600c1d112
+  r: "The collector shows that the project root contains the four required top\u2011\
+    level directories `code/`, `tests/`, `data/`, and `results/`, each with files\
+    \ (e.g., `.gitkeep`) confirming they are non\u2011empty. This matches the task\u2019\
+    s specification of creating and listing those directories."
+  sig: 1a1b2d3f5dc087c896a7f1c0c2861f352edd06979c5fee42362bc887515bd139
+T002:
+  c: true
+  h: cad5fd03d4c70ef9870bd615f6c9639b6fb09b6e4b52146ff30a9a9732f89979
+  r: "Checked the three required test sub\u2011directories (`tests/unit/`, `tests/integration/`,\
+    \ `tests/contract/`) under the project root; each directory exists and includes\
+    \ a `__init__.py` placeholder file as specified."
+  sig: 018090c2c56500c244d7b19cd560fd08fdce7974fed0466e01161a51275de96b
+T003:
+  c: false
+  h: b5b968ee7c07d8b9fe029b2724d669cd67c914b61bc96ac004a3fa7e7da84694
+  r: "The provided `requirements.txt` exists and contains the required pinned packages,\
+    \ but there is no evidence (e.g., command output, logs, or screenshots) showing\
+    \ that `pip install -r requirements.txt` actually succeeded in a clean virtual\
+    \ environment. Without that installation verification, the task\u2019s requirement\
+    \ is not fully satisfied."
+  sig: d34343d38611e1ff912333d7d4207bff00eee0a5d41c1bf21dd0c1664d242fb8
 T019:
   c: false
   h: 29480e40b96ad67001a0f62667c2e96c5e65b0c3890556d2127ea51bd303b8a5

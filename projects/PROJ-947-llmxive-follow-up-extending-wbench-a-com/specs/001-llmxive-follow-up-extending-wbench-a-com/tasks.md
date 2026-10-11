@@ -13,10 +13,10 @@ The tasks are ordered to respect data flow and the research phases described in 
 | Establish a clean repository layout that the execution engine can discover. | All directories must exist (even if empty) and be visible in a `git ls‑tree` listing. |
 | Provide a minimal runnable command that downloads a tiny WBench sample and runs the full pipeline on it. | The command must complete without error and produce a CSV under `data/results/` with the required columns. |
 
-- [ ] T001 [P] **Create top‑level project directories** `code/`, `tests/`, `data/`, `results/`.  
+- [X] T001 [P] **Create top‑level project directories** `code/`, `tests/`, `data/`, `results/`.  
   *Verification*: Run `ls -d */` at repo root and confirm the four directories are listed.
 
-- [ ] T002 **Create test sub‑directories** `tests/unit/`, `tests/integration/`, `tests/contract/`.  
+- [X] T002 **Create test sub‑directories** `tests/unit/`, `tests/integration/`, `tests/contract/`.  
   *Verification*: `ls tests/` must show the three folders; each contains a placeholder `__init__.py` file.
 
 - [ ] T003 [P] **Add `requirements.txt`** with pinned versions for the scientific stack (datasets, pandas, networkx, scipy, scikit‑learn, torch, transformers, opencv‑python‑headless).  

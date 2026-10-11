@@ -1,1 +1,1 @@
-"""Contract tests validating data schemas and interfaces."""
+"""Contract test package placeholder."""
