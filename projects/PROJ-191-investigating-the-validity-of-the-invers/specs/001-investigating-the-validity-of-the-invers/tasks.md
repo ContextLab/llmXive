@@ -43,13 +43,13 @@
 
 **Purpose**: Project initialization, pre‑flight checks, and basic structure
 
-- [ ] T001-A-INIT-CODE Create the code directory tree at the repository root: `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/code`.
+- [X] T001-A-INIT-CODE Create the code directory tree at the repository root: `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/code`.
 
-- [ ] T001-B-INIT-DATA Create the data directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/data/` including `data/raw/`, `data/processed/`, `data/results/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/data/{raw,processed,results}`.
+- [X] T001-B-INIT-DATA Create the data directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/data/` including `data/raw/`, `data/processed/`, `data/results/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/data/{raw,processed,results}`.
 
-- [ ] T001-C-INIT-TEST Create the test directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/tests/` including `tests/unit/`, `tests/contract/`, `tests/integration/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`.
+- [X] T001-C-INIT-TEST Create the test directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/tests/` including `tests/unit/`, `tests/contract/`, `tests/integration/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`.
 
-- [ ] T002-A [P] Initialize a Python project virtual environment.
+- [X] T002-A [P] Initialize a Python project virtual environment.
  1. Run `python -m venv venv` in the root directory `projects/PROJ-191-investigating-the-validity-of-the-invers/`.
  2. Verify `venv/bin/activate` exists.
  3. **Constraint**: Ensure the virtual environment is using a compatible Python version. If not, create a new venv with `python3.11 -m venv venv`.
@@ -70,7 +70,7 @@
  ```
  2. **Execute**: Activate the environment (`source venv/bin/activate`) and run `pip install -r projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`.
 
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and adding `[tool.black]` / `[tool.ruff]` sections to `pyproject.toml` in the `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` directory.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and adding `[tool.black]` / `[tool.ruff]` sections to `pyproject.toml` in the `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` directory.
 
 ---
 
@@ -80,9 +80,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement versioning utility for atomic state updates in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/utils/versioning.py`.
-- [X] T005 [P] Setup logging infrastructure and configuration management in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/config.py`.
-- [X] T006 [P] Create base data model for `HarmonizedDataset` in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/data/models.py`. **Alignment**: This alignes with the plan's "Project Structure" section. **Definition**: Implement a Pydantic model with fields `separation_m` (np.ndarray, shape (N,)), `force_n` (np.ndarray, shape (N,)), `covariance_matrix` (np.ndarray, shape (N, N)), and `metadata` (dict).
+- [~] T004 [P] Implement versioning utility for atomic state updates in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/utils/versioning.py`.
+- [~] T005 [P] Setup logging infrastructure and configuration management in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/config.py`.
+- [~] T006 [P] Create base data model for `HarmonizedDataset` in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/data/models.py`. **Alignment**: This alignes with the plan's "Project Structure" section. **Definition**: Implement a Pydantic model with fields `separation_m` (np.ndarray, shape (N,)), `force_n` (np.ndarray, shape (N,)), `covariance_matrix` (np.ndarray, shape (N, N)), and `metadata` (dict).
 
 **Checkpoint**: Foundation ready – user story implementation can now begin in parallel.
 
@@ -98,13 +98,13 @@
 
 ### Tests for User Story 1 (OPTIONAL)
 
-- [X] T010 [P] [US1] Unit test for SI unit conversion logic in `tests/unit/test_harmonize.py`.
-- [X] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_harmonized_dataset.py`.
-- [X] T012 [P] [US1] Integration test for end‑to‑end download and harmonization in `tests/integration/test_data_pipeline.py`.
+- [~] T010 [P] [US1] Unit test for SI unit conversion logic in `tests/unit/test_harmonize.py`.
+- [~] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_harmonized_dataset.py`.
+- [~] T012 [P] [US1] Integration test for end‑to‑end download and harmonization in `tests/integration/test_data_pipeline.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T013-VALIDATE-IDS [US1] **ID Verification**: Implement `code/data/validator.py` to verify arXiv IDs using native HTTP requests.
+- [~] T013-VALIDATE-IDS [US1] **ID Verification**: Implement `code/data/validator.py` to verify arXiv IDs using native HTTP requests.
  1. Use `requests` to fetch metadata for `arXiv:2106.08611` and `arXiv:2305.06325` from `https://export.arxiv.org/api/query?id_list=2106.08611,2305.06325`.
  2. Verify the ID exists and returns a valid response (HTTP success status).
  3. Raise `RuntimeError` if the ID is invalid or the source is unreachable.
@@ -165,13 +165,13 @@
 
 ### Tests for User Story 2 (OPTIONAL)
 
-- [X] T018 [P] [US2] Unit test for Yukawa force model implementation in `tests/unit/test_physics.py`.
-- [X] T019 [P] [US2] Unit test for log‑likelihood function with full covariance in `tests/unit/test_likelihood.py`.
-- [X] T020 [P] [US2] Integration test for MCMC convergence detection in `tests/integration/test_mcmc_diagnostics.py`.
+- [~] T018 [P] [US2] Unit test for Yukawa force model implementation in `tests/unit/test_physics.py`.
+- [~] T019 [P] [US2] Unit test for log‑likelihood function with full covariance in `tests/unit/test_likelihood.py`.
+- [~] T020 [P] [US2] Integration test for MCMC convergence detection in `tests/integration/test_mcmc_diagnostics.py`.
 
 ### Implementation for User Story 2
 
-- [X] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
+- [~] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
 - [ ] T022 [P] [US2] Implement log‑likelihood function using the **full diagonal covariance matrix** from T015-COV-CONSTRUCT. Employ Cholesky decomposition for numerical stability. **Constraint**: Use `numpy.memmap` to load the covariance matrix to avoid RAM overflow. **Dependency**: Runs after T015-COV-CONSTRUCT and T021.
 
 - [ ] T023-MCMC [US2] **MCMC Execution**: Implement `emcee` runner in `code/inference/mcmc.py`.
@@ -182,7 +182,7 @@
  5. Load the dataset from `data/processed/covariance_matrix_full.npy` (T015-COV-CONSTRUCT) using **`numpy.memmap`**. **Do NOT load from `subsampled_data.json` as that artifact is forbidden.**
  6. Store chains in `data/results/mcmc_chains.npy`. **Dependency**: Runs after T022 and T015-COV-CONSTRUCT.
 
-- [X] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
+- [~] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
 - [ ] T025-INJECTION [US2] **Injection‑Recovery Test**: Implement `code/robustness/injection.py`.
  1. Generate synthetic data with a known non-zero α and realistic noise using the full covariance matrix from the loaded dataset.
  2. Run a local inference instance (re‑using T021/T022 logic, independent of T023‑MCMC).
@@ -209,8 +209,8 @@
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [X] T028 [P] [US3] Unit test for leave‑one‑out logic in `tests/unit/test_cross_val.py`.
-- [X] T029 [P] [US3] Integration test for uncertainty inflation stability in `tests/integration/test_robustness.py`.
+- [~] T028 [P] [US3] Unit test for leave‑one‑out logic in `tests/unit/test_cross_val.py`.
+- [~] T029 [P] [US3] Integration test for uncertainty inflation stability in `tests/integration/test_robustness.py`.
 
 ### Implementation for User Story 3
 
@@ -229,15 +229,15 @@
  3. Output a `subset_harmonized` artifact at `data/processed/loo_subset_{id}_harmonized.json`.
  4. **Dependency**: Runs after T013-PARSE and within the T030-LOO loop.
 
-- [X] T002-CONFIG-INFLATION [US3] **Define Inflation Factor Configuration**: Implement logic in `code/config.py` to load or create the systematic uncertainty inflation factor.
+- [~] T002-CONFIG-INFLATION [US3] **Define Inflation Factor Configuration**: Implement logic in `code/config.py` to load or create the systematic uncertainty inflation factor.
  1. Attempt to read the key `inflation_factor` from `data/processed/config.json`.
  2. **Default**: If the key is missing or the file does not exist, **set a default value of 2.0** (as per the plan's '[deferred]' intent) and log a warning. Do NOT raise a RuntimeError.
  3. Store the loaded value in `data/processed/config.json` for downstream tasks.
  4. **Dependency**: Runs after T002/T005 (config setup).
 
-- [X] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read `INFLATION_FACTOR` from `data/processed/config.json` (defined in T002-CONFIG-INFLATION). Apply it multiplicatively to the covariance matrix. **Re-run inference** (T022/T023 logic) with modified inputs. Verify that the Bayes factor changes by a negligible amount; log the result. **Dependency**: Runs after T023-MCMC and T002-CONFIG-INFLATION.
+- [~] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read `INFLATION_FACTOR` from `data/processed/config.json` (defined in T002-CONFIG-INFLATION). Apply it multiplicatively to the covariance matrix. **Re-run inference** (T022/T023 logic) with modified inputs. Verify that the Bayes factor changes by a negligible amount; log the result. **Dependency**: Runs after T023-MCMC and T002-CONFIG-INFLATION.
 
-- [X] T033 [US3] Calculate the robustness metrics in `code/robustness/metrics.py`.
+- [~] T033 [US3] Calculate the robustness metrics in `code/robustness/metrics.py`.
  1. **Metric 1**: Calculate the **Coefficient of Variation (CV)** of the 95th percentile credible upper limits: `std / mean`.
  2. **Zero-Check**: If `mean_limit < 1e-10`, set `relative_shift = 0.0` and log a warning "Mean limit near zero; metric set to 0.0".
  3. **Acceptance Criterion**: Verify `CV < 0.15` as defined in SC-003.
@@ -260,10 +260,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T034 [P] Generate visualization plots for posteriors and Bayes factors in `code/utils/plotting.py`.
-- [X] T035-A [P] Update `README.md` with project overview, prerequisites, and high‑level run command.
-- [X] T035-B [P] Update `docs/quickstart.md` with detailed pipeline execution instructions, data paths, and troubleshooting guide.
-- [X] T036 Run full pipeline end‑to‑end validation and verify `state/projects/PROJ-191...yaml` updates correctly.
+- [~] T034 [P] Generate visualization plots for posteriors and Bayes factors in `code/utils/plotting.py`.
+- [~] T035-A [P] Update `README.md` with project overview, prerequisites, and high‑level run command.
+- [~] T035-B [P] Update `docs/quickstart.md` with detailed pipeline execution instructions, data paths, and troubleshooting guide.
+- [ ] T036 Run full pipeline end‑to‑end validation and verify `state/projects/PROJ-191...yaml` updates correctly.
  1. Verify `data/results/validity_report.json` exists and contains `pass=true`.
  2. Log success or failure.
  3. **Dependency**: Runs after T039.

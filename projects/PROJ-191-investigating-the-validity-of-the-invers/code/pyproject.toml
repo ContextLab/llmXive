@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-investigation"
+name = "investigating-inverse-square-law"
 version = "0.1.0"
-description = "Investigating the Validity of the Inverse-Square Law at Sub-Millimeter Scales"
+description = "Investigating the validity of the inverse-square law at sub-millimeter scales"
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "numpy==1.26.4",
@@ -21,15 +22,15 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff==0.6.9",
-    "black==24.8.0",
+    "ruff==0.5.0",
+    "black==24.4.2",
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py310']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
     | \.hg
@@ -44,30 +45,16 @@ extend-exclude = '''
 '''
 
 [tool.ruff]
-line-length = 100
+line-length = 88
 target-version = "py310"
 src = ["code", "tests"]
 
 [tool.ruff.lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-    "UP",
-    "ANN",
-]
-ignore = [
-    "ANN001",
-    "ANN201",
-    "B008",
-]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]
 
-[tool.ruff.lint.isort]
-known-first-party = ["data", "models", "inference", "robustness", "utils", "agents", "tools"]
-force-single-line = true
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

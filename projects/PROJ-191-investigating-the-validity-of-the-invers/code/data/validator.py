@@ -1,16 +1,52 @@
 """
-arXiv ID verification module.
-Validates that specified arXiv IDs exist and are accessible via HTTP.
+arXiv ID verification module (T013-VALIDATE-IDS).
+
+Verifies that the arXiv IDs referenced by this project
+(arXiv:2106.08611 and arXiv:2305.06325) exist and are accessible
+via the public arXiv export API, using native HTTP requests only.
+No external CLI agents are invoked.
 """
+import sys
+import xml.etree.ElementTree as ET
+
 import requests
-import logging
-from pathlib import Path
 
 from config import get_logger
 
 logger = get_logger(__name__)
 
 ARXIV_API_BASE = "https://export.arxiv.org/api/query"
+ATOM_NS = "{http://www.w3.org/2005/Atom}"
+
+def _fetch_entries(arxiv_id: str, timeout: int):
+    """Fetch the Atom feed entries for a single arXiv ID."""
+    clean_id = arxiv_id.replace("arXiv:", "").strip()
+    if not clean_id:
+        raise RuntimeError(f"Invalid arXiv ID format: {arxiv_id!r}")
+
+    params = {"id_list": clean_id, "max_results": 1}
+    try:
+        response = requests.get(ARXIV_API_BASE, params=params, timeout=timeout)
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(
+            f"Source unreachable: failed to contact arXiv API for ID {clean_id}: {e}"
+        ) from e
+
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"arXiv API returned HTTP {response.status_code} for ID {clean_id}"
+        )
+
+    # Parse the Atom XML feed to confirm the entry genuinely exists.
+    try:
+        root = ET.fromstring(response.text)
+    except ET.ParseError as e:
+        raise RuntimeError(
+            f"arXiv API returned malformed XML for ID {clean_id}: {e}"
+        ) from e
+
+    entries = root.findall(f"{ATOM_NS}entry")
+    return clean_id, entries
 
 def validate_arxiv_id(arxiv_id: str, timeout: int = 10) -> bool:
     """
@@ -26,60 +62,63 @@ def validate_arxiv_id(arxiv_id: str, timeout: int = 10) -> bool:
     Raises:
         RuntimeError: If the ID is invalid or the source is unreachable.
     """
-    # Normalize ID: remove 'arXiv:' prefix if present
-    clean_id = arxiv_id.replace("arXiv:", "").strip()
-    if not clean_id:
-        raise RuntimeError(f"Invalid arXiv ID format: {arxiv_id}")
+    clean_id, entries = _fetch_entries(arxiv_id, timeout)
 
-    params = {
-        "id_list": clean_id,
-        "max_results": 1
-    }
+    if not entries:
+        raise RuntimeError(
+            f"arXiv ID {clean_id} not found in database (API returned no entries)."
+        )
 
-    try:
-        logger.info(f"Validating arXiv ID: {clean_id} via API...")
-        response = requests.get(ARXIV_API_BASE, params=params, timeout=timeout)
-        response.raise_for_status()
+    entry = entries[0]
+    entry_id_el = entry.find(f"{ATOM_NS}id")
+    title_el = entry.find(f"{ATOM_NS}title")
+    if entry_id_el is None or not (entry_id_el.text or "").strip():
+        raise RuntimeError(
+            f"arXiv ID {clean_id} returned an entry without an identifier."
+        )
 
-        # Check if the XML response contains the entry
-        # A simple check: if status is 200 and the ID appears in the response
-        if clean_id not in response.text:
-            # Sometimes the API returns 200 but no entries if ID not found
-            logger.warning(f"arXiv ID {clean_id} returned 200 but not found in response.")
-            # Try to parse or check for specific error tags if needed
-            # For now, rely on text presence as a heuristic
-            if "no entries" in response.text.lower():
-                raise RuntimeError(f"arXiv ID {clean_id} not found in database.")
-            # If it's just not in the snippet but status is 200, we might assume it's okay
-            # But strict validation: let's check the entry id specifically if possible
-            # Simplified: if 200 and no obvious error, assume valid for this context
-            # However, the prompt asks to raise if invalid.
-            # Let's assume 200 + no "no entries" is valid.
-            pass
+    # The API echoes the canonical abs URL, e.g.
+    # http://arxiv.org/abs/2106.08611v1
+    if clean_id not in entry_id_el.text:
+        raise RuntimeError(
+            f"arXiv ID mismatch: requested {clean_id}, API returned "
+            f"{entry_id_el.text}"
+        )
 
-        logger.info(f"arXiv ID {clean_id} validated successfully.")
-        return True
+    title = (title_el.text or "").strip() if title_el is not None else ""
+    logger.info(
+        f"arXiv ID {clean_id} validated successfully (title: {title!r})."
+    )
+    return True
 
-    except requests.exceptions.RequestException as e:
-        raise RuntimeError(f"Failed to reach arXiv API for ID {clean_id}: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Validation failed for arXiv ID {clean_id}: {e}")
+def validate_required_ids(timeout: int = 10) -> dict:
+    """
+    Validate all arXiv IDs required by this project.
+
+    Returns:
+        Dict mapping each arXiv ID to True on success.
+
+    Raises:
+        RuntimeError: If any required ID is invalid or unreachable.
+    """
+    required_ids = ["2106.08611", "2305.06325"]
+    results = {}
+    for aid in required_ids:
+        results[aid] = validate_arxiv_id(aid, timeout=timeout)
+    return results
 
 def main():
     """CLI entry point for validation."""
-    ids_to_check = ["2106.08611", "2305.06325"]
     logger.info("Starting arXiv ID validation...")
-    for aid in ids_to_check:
-        try:
-            if validate_arxiv_id(aid):
-                logger.info(f"  [OK] {aid}")
-            else:
-                logger.error(f"  [FAIL] {aid}")
-        except RuntimeError as e:
-            logger.error(f"  [ERROR] {aid}: {e}")
-            return 1
-    logger.info("All IDs validated.")
+    try:
+        results = validate_required_ids()
+    except RuntimeError as e:
+        logger.error(f"Validation failed: {e}")
+        return 1
+    for aid, ok in results.items():
+        logger.info(f"  [{'OK' if ok else 'FAIL'}] arXiv:{aid}")
+    logger.info("All required arXiv IDs validated.")
     return 0
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

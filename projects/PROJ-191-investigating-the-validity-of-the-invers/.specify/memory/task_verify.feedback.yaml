@@ -1,0 +1,95 @@
+T001-A-INIT-CODE:
+  task: 3d19823c06babd2fc0c519118e454abe910c4d49773551c305e3e5ba0c7cf4e0
+T001-B-INIT-DATA:
+  task: baecb6ba8cd7ed982e58df1dd52d09596e7a90a32fc2fdccf00ace3912e4f026
+T001-C-INIT-TEST:
+  task: 7b1c9a50a194def8f9fddbba4077ff2e76d452429f192de56f9a78b64451b53b
+T002-A:
+  task: 3cf9c56a8e7f265bdf83138a8686cdd75f204c9818b3833f46c62cc4a081c99f
+T002-B:
+  reason: "The required `code/requirements.txt` exists with the exact ten pinned versions\
+    \ (including `psutil==5.9.8`), but there is no evidence the second requirement\
+    \ \u2014 actually executing `pip install -r projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`\
+    \ in the activated venv \u2014 was performed (no install log, pip freeze output,\
+    \ or execution record). The implementer must provide or produce evidence of the\
+    \ installation run (e.g., a saved `pip install` log or `pip list`/`pip freeze`\
+    \ showing the pinned versions installed in the venv)."
+  task: be63d0d5cd345411597ac6627b1c2de33ee7f573760657728693d5c8fcc0b770
+T002-CONFIG-INFLATION:
+  task: b710d6d89533340f7c8aa8917bfeaee258e7b4848d3dcc90f3c18ca343c8b785
+T003:
+  task: b21d5e4c5ce9d050f57cf9fa1379fb0d086227352a29bfb0e9c6ea3791798127
+T004:
+  task: c25b3fced816a99a3889d7307499e841eea0bbff587e223564ab292826fa78bd
+T005:
+  task: 3ddc707f75ae7fee4b3f3faa3186d96e73dbe4a364ce7d4c640aa1f7d483652a
+T006:
+  task: 8b17e72c796ba98a71a396f8cda653e89a5a931768a55f67f7ac3da4e65e653a
+T010:
+  task: ae6a3420444bb92e345ae5b02e326e5a1d9b1b801d2b1df579a981260a94ad90
+T011:
+  task: 9e5565a6739b982bc844c530c1940b3e2857c9e0b559a23007bea0d84a9b937a
+T012:
+  task: e98a134efb7c5da5641443ffb7fc7b5608d3957e913f2dc834c9a174d98d4b4d
+T013-DATA:
+  task: 4d9e49a99ec6074657acd9c4ada46d71698905d54d8530c7a67e8e5dd2bcfb96
+T013-ORCH-ROUTE:
+  task: c55f619d866c894cd5a58d48346d73468c76891a7a028a35776a146d45da22b8
+T013-PARSE:
+  task: 9b83a349bfbf2c63d24fcb1da08e3aab1b62a912da413159f2d567561324d373
+T013-VALIDATE-IDS:
+  task: d1b2e4f6e9da057b519ed1f20e7c677b1066fd864b1beffc501941dc309720e9
+T014:
+  task: b916a0545a82bd3d186ce0511ac915521e24eb0e7bf7dcc473d6d8cdabe0f16e
+T015-COV-CONSTRUCT:
+  task: dbe256711f604b6d6c76e07364ed8a75bf2c971b7baecefbfb3d1a6b29ce020e
+T015-COV-LOG:
+  task: 0c5a101862239c2a7b6e0822744bdcb677ef434242c6b12cd32c843b917287ee
+T018:
+  task: be3a74b15f4650713c2aacd531784efc63e4bc619da884232b5b7ac190e786c3
+T019:
+  task: 4dddc1253de3d1b2d18ebb8021f380658e64b6a55051bd9ce4988e3eb3d4e54b
+T020:
+  task: 6fde7476901ec3c2e10cdffed2c10b988b90235360d6d81291f6e9ad8269a75b
+T021:
+  task: f372027c81c61e3418c062f71e03ca109bec0838cad23a8d5e16438db5ab0595
+T022:
+  task: 4365bdf26091a0414ef0cb73a8505f920577f9728ab673cd38c644992b56776f
+T023-MCMC:
+  task: 3f794822b26df420d76a724ec8e175ea22ec1e5c4af5664d01b80157c2735570
+T024:
+  task: 865c142ef2c00aa8de234e0a262f9bfa295da7ea29318cdff567a3b9c9dc2d23
+T025-INJECTION:
+  task: 205895d5bf94ce55e87360e5cce77d9d6de28b28819045e38f10a270dba41242
+T026-NULL-SIM:
+  task: 82e18fdb5cca3a0edd7f811de16ea4a62086aeb4e97c43a12d91769b6017675d
+T027-DECIDE:
+  task: 124883462b8da4f1aef5d8b475edec57f0364c49d2b689e1b3973cea6aa88f73
+T028:
+  task: 22c16664d3f57cff1b05b27366fc62eb998a9eb307304d34d9e6cbaaf1c7f0f9
+T029:
+  task: 1feecd9f949cdc4162cf44ff8656f2f8fae8c35887d74a021eead0716b3af4d7
+T030-LOO:
+  task: 9f1633652d79634a09264876ab33672e8f200f6daceb2683aea0777c5f668398
+T030-LOO-REHARMONIZE:
+  task: 899170dccd2e78e95abf54ff4c4fd44edb092b463d984608cceea2ed8a234a6e
+T031:
+  task: 2aadd8658d92b6f1089f7640e3d23dd89843ae0bc5f714d2ed5f5b9912ded1e5
+T033:
+  task: 52dcc092a20f92964c6153cc40663cc24cb5970e7b9be50fd798044d380b192f
+T034:
+  task: eb0204eff1b2db8fabad0d5f6615b9744804eeaae3ade31a9711bfef5c45bab0
+T035-A:
+  task: b39d0630f454cc526e36f9ab28a22b638dc651d1627b8d43a09642afefe15aa8
+T035-B:
+  task: a83ff9df14eb907927264d58ee2317a63cfe630bd1f852cc7bb33a204910241a
+T036:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-191...yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: f29c6146da4c938dc16e0b904d0eba90c91fe7710fcd2aba0793a18628f231b5
+T039-REPORT:
+  task: d2d3636cbd68068c91b88210f785696e3e6367f3d9c533142074a64ef5d9b040
+T040-LITERATURE-COMP:
+  task: 933be2b2e9bc0cfa0fe4217c3497bcdb9c2a291a7a2e42492b24783a9ad9381b
