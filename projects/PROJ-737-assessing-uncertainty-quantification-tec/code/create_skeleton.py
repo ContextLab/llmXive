@@ -54,24 +54,6 @@ def _create_schema() -> None:
         log.debug(f"Schema file already exists: {schema_path}")
         return
 
-    schema_content = {
-        "columns": [
-            "sample_id",
-            "dataset",
-            "method",
-            "prediction",
-            "lower_bound",
-            "upper_bound",
-            "ground_truth",
-            "abs_error",
-        ]
-    }
-
-    # Write as YAML – using a simple JSON dump because PyYAML is not
-    # required for a static file; the content is small and deterministic.
-    # The file is deliberately simple and human‑readable.
-    yaml_text = "\n".join([f"{key}:" if isinstance(value, dict) else f"{key}:" for key, value in schema_content.items()])
-    # Better to use proper YAML formatting:
     yaml_text = (
         "columns:\n"
         "  - sample_id\n"
