@@ -5038,3 +5038,96 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-11T18:43:46Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: pipeline uses verified open resources and does not require unverified
+    Omni-Doc-1 or Qwen-Image-VAE-2.0 resources
+  claim_id: c_abae8697
+  context: "Important: The pipeline now uses verified open resources (benchmark parquet\
+    \ dataset and tiny\u2011vae model). No unverified Omni\u2011Doc\u20111 or Qwen\u2011\
+    Image\u2011VAE\u20112.0 resources are required."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline now uses verified open resources (benchmark parquet dataset\
+    \ and tiny\u2011vae model). No unverified Omni\u2011Doc\u20111 or Qwen\u2011Image\u2011\
+    VAE\u20112.0 resources are required."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:44:40Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: experiment_output.json conforms to output.schema.yaml
+  claim_id: c_406f57ec
+  context: "Output Verification \u2013 data/results/experiment_output.json \u2013\
+    \ conforms to contracts/output.schema.yaml."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`data/results/experiment_output.json` \u2013 conforms to `contracts/output.schema.yaml`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:44:40Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: script logs DataUnavailableError and aborts when verified dataset is
+    missing, with no fallback
+  claim_id: c_d2612825
+  context: "Troubleshooting \u2013 Missing verified dataset \u2013 The script logs\
+    \ DataUnavailableError and aborts; no fallback to a non\u2011verified dataset\
+    \ is attempted."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Missing verified dataset \u2013 The script logs `DataUnavailableError`\
+    \ and aborts; no fallback to a non\u2011verified dataset is attempted."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:44:41Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: script logs ModelUnavailableError and triggers GPU fallback, setting
+    cpu_feasibility to rejected
+  claim_id: c_8cb73c95
+  context: "Troubleshooting \u2013 Model cannot load on CPU \u2013 The script logs\
+    \ ModelUnavailableError and automatically triggers the optional GPU escape hatch;\
+    \ cpu_feasibility will be set to \"rejected\" in the final JSON."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Model cannot load on CPU \u2013 The script logs `ModelUnavailableError`\
+    \ and automatically triggers the optional GPU escape hatch; `cpu_feasibility`\
+    \ will be set to \"rejected\" in the final JSON."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:44:42Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: GPU fallback runs phases 4-11 on Kaggle GPU with 8-bit quantization when
+    CPU loading fails
+  claim_id: c_e1f432a3
+  context: "Phase 12 \u2013 (Optional) Runs Phases\u202F4\u201111 on a Kaggle free\
+    \ GPU with 8\u2011bit quantization if CPU loading fails."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Optional GPU fallback runs Phases\u202F4\u201111 on a Kaggle free GPU\
+    \ with 8\u2011bit quantization if CPU loading fails."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T18:44:42Z'

@@ -43,7 +43,7 @@ All phases are orchestrated via `code/src/main.py`. Use the `--phase` flag to ru
 > **Important**: The pipeline now uses **verified** open resources (benchmark parquet dataset and tiny‑vae model). No unverified Omni‑Doc‑1 or Qwen‑Image‑VAE‑2.0 resources are required. If either resource cannot be fetched, the script logs an error and aborts; the optional GPU fallback is only for the *model* loading step.
 
 ## Output Verification
-- `data/results/experiment_output.json` – conforms to `contracts/output.schema.yaml`.
+- `data/results/experiment_output.json` – conforms to `contracts/output.schema.yaml`. [UNRESOLVED-CLAIM: c_406f57ec — status=not_enough_info]
 - `data/results/metrics.json` – per‑metric values (populated only when resources are available).
 - `data/results/plots/` – PCA scatter plot, example edited images (if generated).
 
@@ -52,5 +52,3 @@ All phases are orchestrated via `code/src/main.py`. Use the `--phase` flag to ru
 - **Model cannot load on CPU** – The script logs `ModelUnavailableError` and automatically triggers the optional GPU escape hatch; `cpu_feasibility` will be set to `"rejected"` in the final JSON.
 - **Out‑of‑memory on CPU** – Reduce the sample size via `--sample-size N`; the power analysis will be updated accordingly.
 - **PaddleOCR import error** – Ensure `paddlepaddle‑cpu` and `paddleocr` are installed from the pinned `requirements.txt`.
-
----
