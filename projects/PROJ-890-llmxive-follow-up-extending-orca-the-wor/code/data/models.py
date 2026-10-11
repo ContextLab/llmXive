@@ -6,11 +6,11 @@ Includes Pydantic and dataclass versions for flexibility.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
-from uuid import uuid4
+from typing import Any, Dict, List
+
 import numpy as np
 from pydantic import BaseModel, Field, field_validator
-from typing import Union
+
 
 # Dataclass versions for internal use
 @dataclass

@@ -7,12 +7,12 @@ This test runs the validation logic end-to-end by:
 3. Reporting detailed failure information
 """
 
-import os
-import sys
 import csv
+import sys
+from pathlib import Path
+
 import numpy as np
 import pytest
-from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -35,7 +35,7 @@ class TestLatentValidationIntegration:
     def test_full_validation_pipeline(self, latents_path, config):
         """
         Run the complete validation pipeline on the extracted latents.
-        
+
         This simulates what a CI/CD pipeline would do:
         1. Verify file exists
         2. Load data
@@ -47,7 +47,7 @@ class TestLatentValidationIntegration:
 
         # Load data
         latents = []
-        with open(latents_path, "r", encoding="utf-8") as f:
+        with open(latents_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 vector_str = row["latent_vector"].strip("[]")
@@ -99,7 +99,7 @@ class TestLatentValidationIntegration:
             pytest.skip("Latents CSV not found.")
 
         vectors = []
-        with open(latents_path, "r", encoding="utf-8") as f:
+        with open(latents_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 vector_str = row["latent_vector"].strip("[]")
@@ -110,7 +110,7 @@ class TestLatentValidationIntegration:
             pytest.skip("No vectors to analyze")
 
         all_vectors = np.vstack(vectors)
-        
+
         # Verify we can compute basic statistics without error
         stats = {
             "mean": np.mean(all_vectors),

@@ -5,10 +5,9 @@ Utility for monitoring and managing memory usage during processing.
 Dynamically adjusts batch sizes based on available memory.
 """
 
-import psutil
 import logging
-from typing import Tuple, Optional
-from config import MAX_MEMORY_GB, MEMORY_WARNING_THRESHOLD, MEMORY_CRITICAL_THRESHOLD
+
+import psutil
 
 logger = logging.getLogger(__name__)
 

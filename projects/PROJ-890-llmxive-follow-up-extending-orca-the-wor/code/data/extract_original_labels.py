@@ -8,18 +8,17 @@ Output: data/processed/original_labels.csv
 Columns: scenario_id, original_outcome
 """
 
-import os
-import sys
 import csv
 import json
 import logging
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 # Project root imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import get_config, ensure_directories
-from utils.audit_logger import log_skipped_file, log_audit_event
+from config import ensure_directories, get_config
+from utils.audit_logger import log_audit_event, log_skipped_file
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +51,7 @@ def load_filtered_metadata(config: Dict[str, Any]) -> List[Dict[str, Any]]:
         )
 
     logger.info(f"Loading filtered metadata from {input_path}")
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(input_path, encoding="utf-8") as f:
         try:
             data = json.load(f)
         except json.JSONDecodeError as e:
@@ -139,7 +138,7 @@ def run_extraction_pipeline(metadata: List[Dict[str, Any]], output_path: Path) -
 
             if not outcome:
                 logger.warning(f"Could not extract outcome for scenario_id: {scenario_id}. Skipping.")
-                log_skipped_file(f"extract_original_labels", str(scenario_id), "Missing outcome field")
+                log_skipped_file("extract_original_labels", str(scenario_id), "Missing outcome field")
                 skipped_count += 1
                 continue
 

@@ -1,15 +1,11 @@
-import os
 import sys
-import tempfile
-import shutil
 from pathlib import Path
-import pytest
 
 # Add the code directory to the path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from setup_data_dirs import main
 from config import ensure_directories
+
 
 class TestProjectStructure:
     """Test that the project structure is created correctly."""
@@ -18,7 +14,7 @@ class TestProjectStructure:
         """Test that ensure_directories creates all required directories."""
         # Temporarily override the project root for testing
         original_project_root = Path(__file__).resolve().parent.parent
-        
+
         # We test ensure_directories by calling it and checking the result
         # Since it uses the global _PROJECT_ROOT, we verify the logic
         result = ensure_directories()
@@ -28,7 +24,7 @@ class TestProjectStructure:
         """Test that main() creates the directory structure."""
         # Create a temporary directory to act as project root
         # This is a simplified test; in real usage, the script runs from project root
-        
+
         # We verify the directories exist after running ensure_directories
         # Since main() calls ensure_directories indirectly or replicates its logic
         result = ensure_directories()
@@ -41,9 +37,9 @@ class TestProjectStructure:
             'data/raw', 'data/processed', 'data/validation',
             'data/models', 'data/results', 'data/logs'
         ]
-        
+
         base_path = Path(__file__).resolve().parent.parent
-        
+
         for dir_path in required_dirs:
             full_path = base_path / dir_path
             # Note: In a real test environment, these might not exist yet if setup hasn't run
@@ -55,7 +51,7 @@ class TestProjectStructure:
         """Specific test for data subdirectories."""
         data_dirs = ['raw', 'processed', 'validation', 'models', 'results', 'logs']
         base_path = Path(__file__).resolve().parent.parent / 'data'
-        
+
         for subdir in data_dirs:
             # These should exist after running the setup script
             # We check if they exist to validate the setup

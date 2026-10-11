@@ -1,13 +1,12 @@
 import os
 import sys
 from pathlib import Path
-import tempfile
-import pytest
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from setup_linting import check_file_exists, main
+from setup_linting import check_file_exists
+
 
 class TestCheckFileExists:
     def test_existing_file(self, tmp_path):
@@ -31,7 +30,7 @@ class TestMain:
             # Mock the script location to be in a 'code' subdirectory
             (tmp_path / "code").mkdir()
             script_path = tmp_path / "code" / "setup_linting.py"
-            
+
             # Temporarily patch the __file__ attribute of the module
             # We can't easily do this with import, so we test the logic directly
             # by checking if the expected files are missing in a temp dir
@@ -40,7 +39,7 @@ class TestMain:
                 missing.append("pyproject.toml")
             if not (tmp_path / ".flake8").exists():
                 missing.append(".flake8")
-            
+
             assert len(missing) == 2
         finally:
             os.chdir(original_cwd)
@@ -50,12 +49,12 @@ class TestMain:
         # Create the required config files
         (tmp_path / "pyproject.toml").touch()
         (tmp_path / ".flake8").touch()
-        
+
         # Create 'code' directory and place a dummy script there
         # to match the expected relative path structure
         code_dir = tmp_path / "code"
         code_dir.mkdir()
-        
+
         original_cwd = os.getcwd()
         original_file = None
         try:

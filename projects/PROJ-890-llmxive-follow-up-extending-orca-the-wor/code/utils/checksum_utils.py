@@ -1,9 +1,8 @@
-import os
 import hashlib
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +24,12 @@ def compute_file_checksum(file_path: Path) -> str:
 def generate_checksum_manifest(base_dir: Path, relative_paths: List[str], output_path: Path) -> Dict:
     """
     Generate a JSON manifest of checksums for a list of files relative to base_dir.
-    
+
     Args:
         base_dir: The root directory containing the files.
         relative_paths: List of relative file paths to include.
         output_path: Path where the manifest JSON will be written.
-    
+
     Returns:
         The manifest dictionary.
     """
@@ -44,25 +43,25 @@ def generate_checksum_manifest(base_dir: Path, relative_paths: List[str], output
         if not full_path.exists():
             logger.warning(f"File missing for manifest generation: {full_path}")
             continue
-        
+
         checksum = compute_file_checksum(full_path)
         manifest["files"][rel_path] = checksum
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
-    
+
     logger.info(f"Checksum manifest written to {output_path}")
     return manifest
 
 def verify_checksums(base_dir: Path, manifest_path: Path) -> Tuple[bool, List[str]]:
     """
     Verify files against a checksum manifest.
-    
+
     Args:
         base_dir: The root directory containing the files.
         manifest_path: Path to the JSON manifest.
-    
+
     Returns:
         Tuple of (all_valid, list_of_failed_files).
     """
@@ -71,7 +70,7 @@ def verify_checksums(base_dir: Path, manifest_path: Path) -> Tuple[bool, List[st
         return False, ["Manifest not found"]
 
     try:
-        with open(manifest_path, "r", encoding="utf-8") as f:
+        with open(manifest_path, encoding="utf-8") as f:
             manifest = json.load(f)
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in manifest: {e}")
@@ -127,7 +126,7 @@ def main():
       - Verify: python code/utils/checksum_utils.py verify
     """
     import sys
-    
+
     if len(sys.argv) < 2:
         print("Usage: python code/utils/checksum_utils.py <command> [args]")
         print("Commands: init, generate, verify")
@@ -141,7 +140,7 @@ def main():
     if command == "init":
         initialize_data_structure(data_root)
         print(f"Data structure initialized at {data_root}")
-    
+
     elif command == "generate":
         if len(sys.argv) < 3:
             print("Usage: generate <relative_path1> [relative_path2] ...")
@@ -150,7 +149,7 @@ def main():
         manifest_path = data_root / "manifest.json"
         generate_checksum_manifest(data_root, relative_paths, manifest_path)
         print(f"Manifest generated at {manifest_path}")
-    
+
     elif command == "verify":
         manifest_path = data_root / "manifest.json"
         all_valid, failed = verify_checksums(data_root, manifest_path)
@@ -159,7 +158,7 @@ def main():
         else:
             print(f"Verification failed for {len(failed)} files: {failed}")
             sys.exit(1)
-    
+
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)

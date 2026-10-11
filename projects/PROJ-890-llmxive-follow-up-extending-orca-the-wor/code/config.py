@@ -1,6 +1,4 @@
-import os
 from pathlib import Path
-from typing import Optional
 
 # Project root is assumed to be the directory containing this file's parent
 # When running as a module, we resolve relative to the file location
@@ -53,11 +51,11 @@ def get_config() -> dict:
 def ensure_directories() -> bool:
     """
     Ensure all required project directories exist.
-    
+
     Creates:
     - code/, tests/, data/raw/, data/processed/, data/validation/,
       data/models/, data/results/, data/logs/, docs/, specs/
-    
+
     Returns:
         True if all directories exist or were created successfully, False otherwise.
     """
@@ -66,12 +64,12 @@ def ensure_directories() -> bool:
         'data/raw', 'data/processed', 'data/validation',
         'data/models', 'data/results', 'data/logs'
     ]
-    
+
     for dir_path in dirs_to_create:
         full_path = _PROJECT_ROOT / dir_path
         try:
             full_path.mkdir(parents=True, exist_ok=True)
         except Exception:
             return False
-    
+
     return True

@@ -2,10 +2,10 @@
 Unit tests to verify linting and formatting configuration setup.
 These tests ensure that the required configuration files exist and are valid.
 """
-import os
-import toml
-import pytest
 from pathlib import Path
+
+import toml
+
 
 # Helper to find project root
 def get_project_root():
@@ -25,7 +25,7 @@ def test_pyproject_toml_exists():
 def test_pyproject_toml_has_ruff_config():
     """Test that pyproject.toml contains ruff configuration."""
     config_path = PROJECT_ROOT / "pyproject.toml"
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         config = toml.load(f)
 
     assert "tool" in config, "No 'tool' section in pyproject.toml"
@@ -36,7 +36,7 @@ def test_pyproject_toml_has_ruff_config():
 def test_pyproject_toml_has_black_config():
     """Test that pyproject.toml contains black configuration."""
     config_path = PROJECT_ROOT / "pyproject.toml"
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         config = toml.load(f)
 
     assert "tool" in config, "No 'tool' section in pyproject.toml"
@@ -50,7 +50,7 @@ def test_flake8_config_exists():
 def test_flake8_config_valid():
     """Test that .flake8 file has valid configuration."""
     config_path = PROJECT_ROOT / ".flake8"
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         content = f.read()
 
     assert "[flake8]" in content, "Missing [flake8] section in .flake8"
@@ -59,7 +59,7 @@ def test_flake8_config_valid():
 def test_dev_dependencies_included():
     """Test that dev dependencies (ruff, black, isort) are in pyproject.toml."""
     config_path = PROJECT_ROOT / "pyproject.toml"
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         config = toml.load(f)
 
     dev_deps = config.get("project", {}).get("optional-dependencies", {}).get("dev", [])

@@ -1,30 +1,28 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-**Verdict**: pass
 
-The question investigates a substantive relationship in machine learning theory: whether the semantic structure of training data (phenomenon) causally influences the efficacy of agentic fine-tuning (outcome). While it proposes a specific lightweight method (clustering) as the tool for discovery, the core scientific inquiry is about the existence and shape of the "diversity penalty" curve, not merely whether the clustering algorithm runs within a budget.
+**Verdict**: pass
+The question asks about a substantive phenomenon — whether the "diversity penalty" in multi-source agentic fine-tuning is driven by semantic overlap of task instructions, and whether that overlap reflects reasoning structure rather than surface phrasing. This is a question about the data itself and the mechanism of performance dilution, not about whether a particular method performs within a budget. The CPU-tractability motivation is a practical framing in the motivation section, not the question itself.
 
 ### Circularity check
-**Verdict**: concern
 
-The predictor (semantic similarity of instructions derived from embeddings) and the predicted variable (benchmark performance) are nominally distinct, but there is a risk of indirect circularity. Benchmark performance on agentic tasks is heavily driven by the ability to follow instructions; if the embedding model captures the same semantic nuances that the benchmark evaluates, the correlation may be tautological (i.e., "instructions that look similar to the model are instructions the model can solve"). However, since the benchmark measures execution accuracy on external tasks rather than instruction adherence alone, it is not a direct mechanical guarantee, warranting a concern rather than a fail.
+**Verdict**: pass
+The predictor (instruction embeddings computed from the OpenThoughts-Agent task text) and the predicted variable (benchmark accuracies from the original paper's external evaluation of trained models) come from fully independent sources. The relationship, if found, is empirically informative rather than mechanically guaranteed. The idea's "Independence Check" step correctly identifies this.
 
 ### Triviality check
-**Verdict**: pass
 
-A positive result (strong correlation) would provide a vital, compute-efficient heuristic for data curation, directly addressing the "brute-force" problem in the field. Conversely, a null result (no correlation) would be equally significant, implying that semantic diversity is a red herring and that performance dilution arises from other factors like reasoning trajectory complexity or domain-specific knowledge gaps. Both outcomes would shift the theoretical understanding of agentic data recipes.
+**Verdict**: concern
+Either direction of the correlation would be informative (a strong overlap→penalty link enables cheap data curation; a null result argues the diversity penalty is driven by something other than instruction semantics). However, the expected effect size (r > 0.8) and the validation design raise a statistical-power concern: the original paper's ablation tables likely contain only a handful of distinct mixes, so fitting a quadratic relationship and claiming r > 0.8 from few data points risks an uninformative curve-fit. The question is not trivial, but the answer as operationalized could be.
 
 ### Question-narrowing check
-**Verdict**: pass
 
-The question explicitly names a domain relationship: the link between "semantic overlap" and "performance dilution" in agentic training. It does not frame the question as "Can algorithm X run on CPU within Y hours?" but rather uses the CPU constraint as a motivation for the *utility* of the discovered relationship, keeping the scientific question focused on the data's properties.
+**Verdict**: pass
+The research question names a domain relationship (semantic overlap → diversity penalty) and a mechanistic distinction (reasoning structure vs. phrasing). It does not condition on any implementation budget or specific tool.
 
 ### Overall verdict
-**Verdict**: validator_revise
 
-The core question is strong but risks conflating the predictor's signal with the outcome's signal due to the shared reliance on instruction semantics. To ensure the result is empirically informative and not a tautology of the embedding model's biases, the question should explicitly distinguish between "instructional similarity" and "reasoning capability."
-[REVISED]
-Does the semantic overlap of task instructions in agentic training data predict the "diversity penalty" (performance dilution) observed when mixing task sources, specifically distinguishing whether this correlation arises from shared reasoning structures rather than mere instructional phrasing similarity?
-[/REVISED]
-This reframing forces the analysis to control for the possibility that the embedding model and the benchmark are measuring the same surface-level features, ensuring the "diversity penalty" is a genuine phenomenon of data composition rather than an artifact of the measurement tool.
+**Verdict**: validated
+All four core checks pass; the question is substantive, non-circular, and non-trivial. Two concerns should be addressed during flesh-out revision but do not undermine the question itself: (1) the phrasing-vs-reasoning-structure distinction is central to the research question but the methodology only specifies one embedding type (`all-MiniLM-L6-v2`, a phrasing-level encoder) — a second representation capturing reasoning structure (e.g., embeddings of solution trajectories or reasoning traces) is needed for the question's key contrast to be answerable; and (2) the validation set size from the original paper's ablations should be counted and reported so the correlation claim is statistically honest. These are refinement items, not reframings.
+
+**Verdict**: validated

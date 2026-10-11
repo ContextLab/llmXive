@@ -5,14 +5,12 @@ Implements the data download and filtering logic for the Orca dataset.
 Fetches real data from HuggingFace and filters for physical interactions.
 """
 
-import os
-import sys
-import logging
 import json
+import logging
 import random
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import numpy as np
+from typing import Any, Dict, List
 
 # Ensure code/ is in path for relative imports if running as script
 _project_root = Path(__file__).resolve().parent.parent
@@ -20,7 +18,7 @@ if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 
 from config import ensure_directories, get_config
-from utils.audit_logger import log_skipped_file, log_audit_event
+from utils.audit_logger import log_skipped_file
 
 # Configure logging
 logging.basicConfig(
@@ -80,14 +78,14 @@ def filter_physical_interactions(
         # Assuming 'metadata' contains 'optical_flow_magnitude'
         # If the actual dataset structure is different, this needs adjustment.
         metadata = item.get("metadata", {})
-        
+
         # Handle case where metadata might be a JSON string
         if isinstance(metadata, str):
             try:
                 metadata = json.loads(metadata)
             except json.JSONDecodeError:
                 metadata = {}
-        
+
         if not isinstance(metadata, dict):
             metadata = {}
 
@@ -136,7 +134,7 @@ def save_subset_to_csv(data: List[Dict[str, Any]], output_path: Path, n_samples:
         logger.info(f"Randomly selected {n_samples} samples for subset.")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Determine columns from the first item (assuming uniform structure)
     if not subset:
         logger.warning("Subset is empty. Creating empty CSV with no columns.")
@@ -147,11 +145,11 @@ def save_subset_to_csv(data: List[Dict[str, Any]], output_path: Path, n_samples:
     # Flatten nested metadata if necessary, or select specific fields
     # We will save 'video_id', 'prompt', and 'metadata' (as JSON string) for usability
     fieldnames = ['video_id', 'prompt', 'metadata']
-    
+
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
-        
+
         for item in subset:
             row = {
                 'video_id': item.get('video_id', ''),

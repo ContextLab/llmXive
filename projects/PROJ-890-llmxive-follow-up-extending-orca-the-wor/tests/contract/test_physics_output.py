@@ -8,16 +8,13 @@ expected data structure and field definitions required by downstream tasks
 It ensures that the `code/data/physics_verify.py` module produces output
 compatible with the `data/validation/physics_ground_truth_subset.csv` schema.
 """
-import pytest
 import csv
-import json
-import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+
+import pytest
 
 # Import the config to ensure we are testing against the correct paths
-from config import get_config, ensure_directories
-from data.models import PhysicalScenarioPydantic, LatentVectorPydantic
+from config import ensure_directories
 
 # Path constants relative to project root
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -56,8 +53,8 @@ class TestPhysicsOutputContract:
         - simulated_outcome
         """
         required_columns = {"scenario_id", "counterfactual_prompt", "simulated_outcome"}
-        
-        with open(PHYSICS_OUTPUT_FILE, mode='r', encoding='utf-8') as f:
+
+        with open(PHYSICS_OUTPUT_FILE, encoding='utf-8') as f:
             reader = csv.DictReader(f)
             actual_columns = set(reader.fieldnames) if reader.fieldnames else set()
 
@@ -80,19 +77,19 @@ class TestPhysicsOutputContract:
         errors = []
         row_count = 0
 
-        with open(PHYSICS_OUTPUT_FILE, mode='r', encoding='utf-8') as f:
+        with open(PHYSICS_OUTPUT_FILE, encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 row_count += 1
-                
+
                 # Check scenario_id
                 if not row.get("scenario_id") or not isinstance(row["scenario_id"], str):
                     errors.append(f"Row {row_count}: 'scenario_id' is missing or not a string.")
-                
+
                 # Check counterfactual_prompt
                 if not row.get("counterfactual_prompt") or not isinstance(row["counterfactual_prompt"], str):
                     errors.append(f"Row {row_count}: 'counterfactual_prompt' is missing or not a string.")
-                
+
                 # Check simulated_outcome
                 if not row.get("simulated_outcome") or not isinstance(row["simulated_outcome"], str):
                     errors.append(f"Row {row_count}: 'simulated_outcome' is missing or not a string.")
@@ -113,7 +110,7 @@ class TestPhysicsOutputContract:
         critical_fields = ["scenario_id", "counterfactual_prompt", "simulated_outcome"]
         null_count = 0
 
-        with open(PHYSICS_OUTPUT_FILE, mode='r', encoding='utf-8') as f:
+        with open(PHYSICS_OUTPUT_FILE, encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 for field in critical_fields:
@@ -145,7 +142,7 @@ class TestPhysicsOutputContract:
 
         invalid_outcomes = set()
 
-        with open(PHYSICS_OUTPUT_FILE, mode='r', encoding='utf-8') as f:
+        with open(PHYSICS_OUTPUT_FILE, encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 outcome = row.get("simulated_outcome", "").strip()
@@ -165,7 +162,7 @@ class TestPhysicsOutputContract:
         scenario_ids = []
         duplicates = set()
 
-        with open(PHYSICS_OUTPUT_FILE, mode='r', encoding='utf-8') as f:
+        with open(PHYSICS_OUTPUT_FILE, encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 sid = row.get("scenario_id")

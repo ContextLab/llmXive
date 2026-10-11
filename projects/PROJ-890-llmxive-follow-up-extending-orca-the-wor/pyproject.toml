@@ -48,6 +48,17 @@ exclude = '''
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -61,17 +72,17 @@ ignore = [
     "E501", # line too long (black handles this)
     "B008", # do not perform function calls in argument defaults
 ]
-exclude = [
-    ".git",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "build",
-    "dist",
-]
+fixable = ["ALL"]
+unfixable = []
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

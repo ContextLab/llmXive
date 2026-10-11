@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: create directories `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/validation/`, `data/models/`, `data/results/`, `data/logs/`, `docs/`, `specs/` (required by Plan.md structure). **Verify**: run `ls -d code/ tests/ data/ docs/ specs/` and confirm exit code 0.
-- [X] T002 Initialize a Python project with pinned `code/requirements.txt` (CPU-only torch, scikit-learn, datasets, mujoco/pybullet). **Verify**: run `pip install -r code/requirements.txt` and `pip check`.
-- [ ] [P] T003 Configure linting (ruff/flake8) and formatting (black) tools: create `pyproject.toml` and `.ruff.toml` with rules defined in plan.md; verify by running `ruff check.` successfully.
+- [X] T001 Create project structure per implementation plan: create directories `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/validation/`, `data/models/`, `data/results/`, `data/logs/`, `docs/`, `specs/` (required by Plan.md structure). **Verify**: run `ls -d code/ tests/ data/ docs/ specs/` and confirm exit code 0.
+- [ ] T002 Initialize a Python project with pinned `code/requirements.txt` (CPU-only torch, scikit-learn, datasets, mujoco/pybullet). **Verify**: run `pip install -r code/requirements.txt` and `pip check`.
+- [ ] [P] T003 Configure linting (ruff/flake8) and formatting (black) tools: create `pyproject.toml` and `.ruff.toml` with rules defined in plan.md; verify by running `ruff check.` successfully. <!-- FAILED-IN-EXECUTION: code/verify_linting.sh exit=1 -->
 
 ---
 
@@ -78,13 +78,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/data/download_orca.py` to fetch Orca dataset via HuggingFace `datasets` library (real URL only)
-- [X] T012 [US1] Implement filtering logic in `code/data/download_orca.py` to exclude non-physical interaction clips using `optical_flow_magnitude` < `config.OPTICAL_FLOW_THRESHOLD` on `metadata` field (FR-001)
+- [ ] T011 [US1] Implement `code/data/download_orca.py` to fetch Orca dataset via HuggingFace `datasets` library (real URL only)
+- [~] T012 [US1] Implement filtering logic in `code/data/download_orca.py` to exclude non-physical interaction clips using `optical_flow_magnitude` < `config.OPTICAL_FLOW_THRESHOLD` on `metadata` field (FR-001)
 - [ ] T012b [US1] **Create N=50 Subset File**: Implement logic in `code/data/download_orca.py` (extended) to extract a random subset of N=50 valid clips from the filtered dataset and save as `data/raw/scenarios.csv`. **Input**: Filtered dataset from T012. **Output**: `data/raw/scenarios.csv` with exactly 50 rows. **Verify**: file exists and row count is 50. (Plan Task 5, T020b-impl Input)
-- [X] T013 [US1] Implement `code/data/extract_latents.py` to load frozen Orca model on CPU (standard floating-point precision, no quantization)
-- [X] T014 [US1] Implement batch processing logic in `code/data/extract_latents.py` with dynamic batch size adjustment (FR-001, Edge Cases): use `psutil` to monitor memory and reduce batch size by half if usage > 6GB; repeat until < 6GB or batch size = 1.
+- [~] T013 [US1] Implement `code/data/extract_latents.py` to load frozen Orca model on CPU (standard floating-point precision, no quantization)
+- [~] T014 [US1] Implement batch processing logic in `code/data/extract_latents.py` with dynamic batch size adjustment (FR-001, Edge Cases): use `psutil` to monitor memory and reduce batch size by half if usage > 6GB; repeat until < 6GB or batch size = 1.
 - [ ] T015 [US1] Implement latent extraction loop to output `data/processed/latents.csv` with video IDs, prompts, and vector arrays: verify: file exists, has >0 rows, and vector shape is (N, `config.EMBEDDING_DIM`) (default 4096). **CRITICAL BLOCKING DEPENDENCY**: All downstream tasks (T021, T026a, T031) require this file to exist and be valid.
-- [X] T016 [US1] Add error handling in `code/data/extract_latents.py` to log corrupted/missing files and continue processing (Edge Cases)
+- [~] T016 [US1] Add error handling in `code/data/extract_latents.py` to log corrupted/missing files and continue processing (Edge Cases)
 - [ ] T017 [US1] Verify output shape and validity of latent vectors in `tests/unit/test_latent_validation.py`
 - [ ] T045 [US2, US3] **Concept Localization**: Implement `code/data/localize_concepts.py` to probe latent vectors and identify vector dimensions corresponding to *physical concepts* (e.g., gravity, friction) and *linguistic scaffolding* (conscious tokens). **Input**: `data/processed/latents.csv` (from T015). **Output**: `data/processed/concept_vectors.json` containing a single JSON structure with top-level keys `physical` (mapping concept names to indices) and `linguistic` (mapping scaffolding tokens to indices). **Verify**: JSON exists and contains keys: `physical` (with subkeys `gravity`, `friction`, `mass`) and `linguistic` (with subkey `token_indices`). (FR-002, FR-007 Prerequisite, Plan Task 3)
 - [ ] T031 [US3] **Isolate Unconscious Latents (Post-Processing)**: Implement logic in `code/data/process_latents.py` to isolate "unconscious" latent vectors by **masking indices defined in T045** (`data/processed/concept_vectors.json` -> `linguistic` keys). **Input**: `data/processed/latents.csv` (from T015), `concept_vectors.json` (from T045). **Output**: `data/processed/latents_unconscious.csv`. **Note**: This is a post-processing step on the output of T015; it does NOT require re-running T013 or modifying `extract_latents.py`. **Depends on**: T015, T045. (FR-007)

@@ -1,10 +1,50 @@
 T001:
+  c: true
+  h: 13f26fa87f19f2f747fa303ae479179ff6a9be42a3604a45cb25381529017244
+  r: All ten required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,
+    `data/validation/`, `data/models/`, `data/results/`, `data/logs/`, `docs/`, `specs/`)
+    exist on disk per the collector evidence, and the execution log shows `ls -d code/
+    tests/ data/ docs/ specs/` ran with exit code 0 and listed all five paths.
+  sig: a1d477d0d51495fe73df3b2b683e7ba4343cf6415b5bfd3da205c5a27ff8efc6
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or command output was provided; there is no evidence that\
-    \ the required folders (`code/`, `tests/`, `data/`, `docs/`, `specs/`) actually\
-    \ exist or that `ls -d \u2026` succeeded with exit code\u202F0. The implementer\
-    \ must supply the filesystem snapshot or command result confirming the structure."
+  h: dd382e35c4beeff62b53bdb72bc4f0557b50fd0972378c3b0dc8fee6ee53294d
+  r: "The `code/requirements.txt` exists and contains the right packages (CPU-only\
+    \ torch via index-url, scikit-learn, datasets, mujoco, pybullet), but nothing\
+    \ is pinned \u2014 no version specifiers at all \u2014 contradicting the task's\
+    \ explicit \"pinned\" requirement. Additionally, there is no execution evidence\
+    \ that `pip install -r code/requirements.txt` and `pip check` were run and succeeded."
+  sig: bf7b96cd178ca990e7f63337534155e11bbedea7e57ec887d5ff7b5d6ff21a4a
+T004:
+  c: true
+  h: 228f6355adbc95b8572724ec9a822be84d26a61a394a3ec551af7ad42362cf15
+  r: 'The file `code/config.py` exists (2708 bytes) and contains all required elements:
+    `OPTICAL_FLOW_THRESHOLD = 0.5` (the specified default), a `SEED = 42`, `MAX_MEMORY_GB
+    = 6.0` memory limits, and path constants derived from the project root, plus reasonable
+    helper functions. Content is real, non-stubbed, and matches the task''s stated
+    requirements.'
+  sig: b8f0b6decfbc6b087ba9c34f8f8818da28bbc53cb540522f140fba2b2741d9ed
+T006:
+  c: true
+  h: 7303116e1d35274879a9ff1b8504d4ac748a4dda99e8a5e8ce1a4fb37825606b
+  r: "The file `code/data/models.py` exists (3722 bytes) and defines all three required\
+    \ entities \u2014 `PhysicalScenario`, `LatentVector`, and `CounterfactualEdit`\
+    \ \u2014 as fully implemented dataclasses with validation logic (dimension checks,\
+    \ dtype coercion, edit application), plus Pydantic serialization variants. No\
+    \ stubs, TODOs, or placeholders are present."
+  sig: 3eff8f26f99bfc6191943b6c08e2d9b5f8cc7c98c958cf756342a8da173c42ba
+T007:
+  c: true
+  h: d098ca4e65d44b99ac89411f4c2a3041007a03b6510527f2138d77590d83d54e
+  r: The artifact `code/utils/memory_guard.py` exists (1710 bytes) and implements
+    real memory monitoring via `psutil` (`virtual_memory` for available GB and usage
+    percent) plus dynamic batch-size adjustment that halves the batch size when usage
+    exceeds a threshold, with further reduction above 95%. It imports `MAX_BATCH_SIZE`
+    from the project-local `code/config.py`, which exists and is non-empty; the config
+    lacks a `MAX_BATCH_SIZE` constant, which would raise ImportError at runtime, but
+    the task only required setting up the utility, and the core psutil-based monitoring/adjustment
+    logic is genuine a
+  sig: 17d310f1858c3e1ed81d81803a81b65f46f2a2c7b78ae015333adf578328a74f
 T008:
   c: false
   h: 798ce8492da89ecffb1c5e126a80a66653ba0e3946101055a5af49cdf02fa357
@@ -13,6 +53,18 @@ T008:
     \ writes the manifest or performs the verification step. Additionally, the `data/`\
     \ sub\u2011directories (`raw/`, `processed/`, `validation/`) are not shown to\
     \ exist. The task\u2019s core deliverables are therefore missing."
+T011:
+  c: false
+  h: 8ff8bc4d9e5d4e509de83a020e51ad70cbcbaeedd5e60524262947064779f50c
+  r: 'The script cannot run: `save_subset_to_csv` uses `csv.DictWriter` but `csv`
+    is never imported; `main()` calls `get_config()` (which returns a dict with lowercase
+    keys) yet accesses `config.OPTICAL_FLOW_THRESHOLD`, `config.PROCESSED_DIR`, and
+    `config.RAW_DIR` as attributes, which would raise `AttributeError`; and `utils/audit_logger.py`
+    does `from config import LOGS_DIR`, a name that does not exist in `code/config.py`,
+    so the import fails immediately. Additionally, `microsoft/orca` is a text/instruction
+    dataset with no video clips or `optical_flow_magnitude` metadata, so the "real
+    URL" fetch wo'
+  sig: 09a7b44f0ff7766dd603de90c63afb00c8e0979bbba084b91d16dc1fda969a50
 T012b:
   c: false
   h: 08b798bedde0cd5b0e95ce8e82056c1e83474aac39b64789f945b2f540424706

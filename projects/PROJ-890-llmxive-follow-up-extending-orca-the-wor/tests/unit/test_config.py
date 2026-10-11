@@ -1,22 +1,13 @@
 """
 Unit tests for the global configuration module.
 """
-import os
-import pytest
-from pathlib import Path
-
 # Ensure code is in path
 import sys
+from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from config import (
-    ensure_directories,
-    OPTICAL_FLOW_THRESHOLD,
-    RANDOM_SEED,
-    MAX_MEMORY_GB,
-    DATA_DIR,
-    PROCESSED_DATA_DIR
-)
+from config import MAX_MEMORY_GB, OPTICAL_FLOW_THRESHOLD, RANDOM_SEED
 
 
 def test_optical_flow_threshold_default():
@@ -37,9 +28,8 @@ def test_max_memory_gb():
 def test_ensure_directories_creates_folders(tmp_path, monkeypatch):
     """Test that ensure_directories creates the required folder structure."""
     # Monkeypatch the root path to use a temp directory
-    from config import _ROOT
     monkeypatch.setattr("config._ROOT", tmp_path)
-    
+
     # Re-run the function to pick up the new path
     # We need to reload the module or call the logic directly
     # Since ensure_directories uses global _ROOT, we simulate the logic
@@ -51,10 +41,10 @@ def test_ensure_directories_creates_folders(tmp_path, monkeypatch):
         tmp_path / "figures",
         tmp_path / "logs",
     ]
-    
+
     for d in dirs_to_create:
         d.mkdir(parents=True, exist_ok=True)
-    
+
     for d in dirs_to_create:
         assert d.exists(), f"Directory {d} was not created"
         assert d.is_dir(), f"{d} is not a directory"

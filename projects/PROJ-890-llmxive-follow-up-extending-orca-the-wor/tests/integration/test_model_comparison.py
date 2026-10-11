@@ -14,26 +14,24 @@ Prerequisites:
 - T024 (baseline_pixel.py) must be implemented.
 - T025 (stats.py) must be implemented.
 """
-import os
-import sys
 import csv
 import json
-import tempfile
-import shutil
 import logging
+import shutil
+import sys
+import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+
 import numpy as np
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
-from config import get_config, ensure_directories
-from data.models import LatentVectorPydantic
-from models.train_readout import train_readout_model
-from models.baseline_pixel import train_pixel_baseline
 from analysis.stats import perform_paired_ttest
+from config import ensure_directories, get_config
+from models.baseline_pixel import train_pixel_baseline
+from models.train_readout import train_readout_model
 
 # Configure logging for the test
 logging.basicConfig(
@@ -95,27 +93,27 @@ def test_end_to_end_training_and_comparison():
     # 1. Setup temporary directory for test artifacts
     temp_dir = tempfile.mkdtemp(prefix="orca_test_integration_")
     temp_path = Path(temp_dir)
-    
+
     try:
         # Ensure data directories exist (simulating T008)
         ensure_directories()
-        
+
         # Define paths for mock data
         latents_path = temp_path / "latents.csv"
         labels_path = temp_path / "original_labels.csv"
         frames_cache_path = temp_path / "frame_cache.npy"
         output_metrics_path = temp_path / "comparison_results.json"
-        
+
         # 2. Generate mock prerequisite data (T015, T020a)
         _generate_mock_latents_csv(latents_path, n_samples=50)
         _generate_mock_original_labels_csv(labels_path, n_samples=50)
         _generate_mock_frames_cache(frames_cache_path, n_samples=50)
-        
+
         # 3. Prepare arguments for training scripts
         # Note: In a real scenario, these paths would point to data/processed/
         # We use temp paths here to avoid dependency on actual file system state
         config = get_config()
-        
+
         # --- Step A: Train Latent Model (T023) ---
         logger.info("Starting Latent Model Training...")
         try:
@@ -167,9 +165,9 @@ def test_end_to_end_training_and_comparison():
         assert "accuracy" in pixel_metrics, "Pixel model metrics missing accuracy"
         assert isinstance(p_value, float), "p-value must be a float"
         assert 0.0 <= p_value <= 1.0, "p-value must be between 0 and 1"
-        
+
         logger.info("✅ Integration Test PASSED: End-to-end training and comparison successful.")
-        
+
     finally:
         # Cleanup
         if temp_path.exists():

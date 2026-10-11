@@ -6,10 +6,8 @@ Audit logging infrastructure to capture skipped files, ambiguous prompts, and ev
 
 import json
 import logging
-import os
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from config import LOGS_DIR
 
@@ -19,7 +17,7 @@ _logger = logging.getLogger(__name__)
 def _load_audit_log() -> List[Dict[str, Any]]:
     """Loads the audit log from disk."""
     if _audit_log_path.exists():
-        with open(_audit_log_path, 'r') as f:
+        with open(_audit_log_path) as f:
             return json.load(f)
     return []
 
