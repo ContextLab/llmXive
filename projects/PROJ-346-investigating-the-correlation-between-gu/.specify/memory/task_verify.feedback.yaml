@@ -1,0 +1,105 @@
+T001a:
+  task: 28fea1a7a744fa2533e95fc7126dc50515a5727ce86b92f3d114f976f4a81ac0
+T001b:
+  reason: The required `projects/PROJ-346-investigating-the-correlation-between-gu/data/raw/`
+    directory is missing, so the prescribed project data structure is not fully created.
+    The other directories exist, but the missing raw data folder prevents completion.
+  task: c1cfab0ffad37b195549aacb4da579b082a2f737c9517a83ad18f8969c8fec63
+T002:
+  reason: "The provided `requirements.txt` exists and contains all the required runtime\
+    \ packages, but there is no evidence of linting configuration (e.g., a `.flake8`\
+    \ file, `pyproject.toml`/`setup.cfg` for Black, or inclusion of `flake8`/`black`\
+    \ in a dev\u2011requirements file). Without these artifacts the task\u2019s \u201C\
+    configure linting (flake8/black)\u201D requirement is unmet."
+  task: 93fbc20e86c8c1bfd12fcbe722a2606a3f6f5ff1cc6edd21441df41506cf58c9
+T003:
+  reason: "The evidence only shows the project root path and contains no files or\
+    \ code that define or manage environment variables for the AGP, NHANES, or UK\
+    \ Biobank dataset URLs (e.g., no `.env` template, settings module, or documentation\
+    \ of required variables). Consequently, the required artifact for \u201Cenvironment\
+    \ variable management for dataset URLs\u201D is missing."
+  task: 8be9ea26cfce1fb565102a5d2a1bb2a28acad9fbc7f4d7e219baee59c270668d
+T004:
+  task: 0a79fd54c28753719476c35c8e541b1cb5bd3e23522320164ea8fa469cc7d81d
+T005:
+  reason: "The `contracts/dataset.schema.yaml` file does not contain the required\
+    \ Pydantic\u2011v2 model dump with the exact fields `taxon_name`, `relative_abundance`,\
+    \ `sample_id` (MicrobialTaxa) and `task_type`, `z_score`, `participant_id` (CognitiveScore);\
+    \ instead it defines a different JSON\u2011Schema with unrelated properties. Consequently\
+    \ the schema does not meet the task specification, and the provided unit tests\
+    \ (which expect a dict with a `properties` key) would fail\u2014no evidence of\
+    \ a successful `pytest` run is present. The task needs a correctly\u2011formatted\
+    \ schema file and passing tests."
+  task: c3ae57c4c80aa9f66d9f0e9720c8f81ed53f682afe4a28d55a24c57e6bdb121a
+T006:
+  task: 2f073c7976769808ee2ffe4e567e4584277bb0e119d4d68f3e100ba5ec68a471
+T007:
+  task: 103bcafd6c44135f7b179e2b472eaa953d340948b6f436f433b216bd35e2ea8b
+T008a:
+  task: bd8f7a8cbe23c383bb653bb1ac5d59b8ed1b381bed5e3d35513fb915d1e6e70e
+T009a:
+  task: 2c8ad15f2c19c5b85d147797452b612b417c796c98b6fa6045963d43a52fba85
+T010a:
+  task: e4bae446c28b985b50e81adda1a77dc4829ee204b9dde8de1d81a2b45e65a9f6
+T011:
+  task: 12f7774a5500c43f39fec7ad3ea34b556f9d180f26fc151e189c832454dc8fff
+T012:
+  task: 357b789624fd8d404f88dfe8bfb6ae91b72fcdf486bbd0b05be53fc52a3cda5a
+T012b:
+  task: 4cb423706c47c80cd81b4ffcbf56bbf86d2d5d1036cbe5a7dd3e22bde0539c68
+T013:
+  task: 01e8cd70ca314579b2b20f33d06ff1ce23e66bcaf6358ccbc3d3006972c368d3
+T014:
+  task: bcfd32c9e7135a2e30f4980d363653653bef26677ed35dcee42db75e001c17ae
+T015:
+  task: 2285e0ee51fc7f0cffed7432086d93cc74517f863942f90659f3fbf838e9b429
+T016:
+  task: 7c712e60762849507d57dadcc2d4363e1b47ecee63bab262d2c9af0f98020fe9
+T017b:
+  task: 2d69707f2ffeeeaf08a4771f37ea5cf773744b2fcf6f830b7cb1a97a324431c8
+T017d:
+  task: e21d7e88fd304525785f57fb444d7aa98333631dee7e19504504c6e622b9569a
+T018:
+  task: 0a412b3a1ab00adfc450e21485546c2639251531cdc72513cc6f35e9e217d10c
+T019:
+  task: 1e49f4fa0e00c9721f160216da7af68a09ac16776b055608440f31ed2a948870
+T020:
+  task: ef6091f029a80c2d981d2c6b27250b1c1b07a1f2717145e3aa9c9956ad5f660b
+T021:
+  task: 6aae6c174ed14869f19adc5f4c30578b2f8c9090ac115eb78b969836be5c54f1
+T022:
+  task: 2608725dc3d71385465e060ab0e62bb0c271b73c01429cff5e190f938bdfeffd
+T023:
+  task: 54bb369135202839d16afb743cb64d4789cc098f4d975e433703d985312fc548
+T025:
+  task: b0abd3f231c27cbdac9d85541373917b58441bcd3ac02eefd5198130810a1dec
+T026:
+  task: 92040f8b28ed156e037b92c01409d45bff394a462294adeeb42e8b64452ef7ff
+T029:
+  task: 672f4763c734686b00e046e96cad0c3a401c3ee0827999da5486a6e31cf38409
+T030:
+  task: a50cebe02ec1d977b26911237c90cd3172990dbef10b564fbfd6176d489332a0
+T031:
+  task: e805e1a8cf913d510d1ecdae1788f6856ad6f3829acaa354eb5889fe48cdd107
+T032:
+  task: a1882e4657e2b181ad9753ddd355e59c5860522e9c0b144b6046b1c19efb608a
+T033:
+  task: 4a08982b329eac6b9e3e9fb87c854b06eb1ea6f7a84209f0a0f3a1ffb3c6e969
+T034:
+  task: 18053b2cb90435231aaf48fd717d1f6146b6081463ad1be9b352852e8cebc6eb
+T035:
+  task: f87be953dd39c7e31cf270373d25b52b9353589d396cf423edfe99fae1e06be7
+T036a:
+  task: aae7ca4ad0d1fb47e3b07cc3164d273f3fb9cb83b472177368e4ce600f79a048
+T036b:
+  task: c1078e50209de6ffc5b9b78639fc5c6631017f096a66277643bd4cec991784dc
+T036c:
+  task: 6393b55118ac2df8d04fbf5d307cbba09a840289a7d749cda9b0fe0a5f47f6fc
+T036d:
+  task: eac0790a6b522950079e94afaa3444a5e9c47be970962b8627d955a5c77c730c
+T037:
+  task: 4bf18b2dbbc87271fcc397ab263e6663a7f312ccc315d634b628c89db6ae0457
+T038:
+  task: 84ff3f0fe0136b5056c31188dd13638dcf6e38b93f89093db300934f68f97975
+T039:
+  task: 156f31d0ddd89b1ad9947e9e41c563a775780e498fe0e115c145478bf1d7841a

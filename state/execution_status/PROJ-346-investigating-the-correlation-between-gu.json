@@ -9,11 +9,11 @@
     "python code/02_preprocess.py -> rc=1\n    Raw data files missing. Cannot perform preprocessing.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/02_preprocess.py\", line 130, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/02_preprocess.py\", line 106, in main\n    raise FileNotFoundError(\"Raw data files missing.\")\nFileNotFoundError: Raw data files missing.",
     "python code/07_gap_report.py -> rc=1\n    Generating Data Gap Report (FR-008 fallback)...\n2026-08-07 20:47:28,852 - gap_report - INFO - Writing gap report to /home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/processed/data_gap_report.json\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/07_gap_report.py\", line 81, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/07_gap_report.p"
   ],
-  "fix_rounds": 2,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-07T20:47:30Z"
+  "updated_at": "2026-10-11T16:15:25Z"
 }
