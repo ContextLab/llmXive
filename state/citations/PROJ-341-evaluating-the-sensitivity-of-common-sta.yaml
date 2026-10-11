@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
-- artifact_hash: d2aa512a84f51fcf49945ea3c38c83cea556c02ada26c0b49eecee4db5130a69
+- artifact_hash: 8c740dca0423af1fc1b52b88ec0deea140f8d352681da1ce24a2cc32fe5d3756
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://www.wikidata.org/wiki/Q18615098
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-09-09T12:46:03.854738Z'
+  verified_at: '2026-10-11T05:14:56.338524Z'

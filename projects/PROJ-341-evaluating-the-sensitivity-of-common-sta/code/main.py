@@ -1,7 +1,10 @@
 """
 Main entry point for the simulation pipeline.
 Orchestrates simulation, aggregation, threshold finding, visualization, and validation.
-Implements streaming/batch processing to respect memory constraints (< 7GB RAM).
+Implements streaming/batch processing to respect memory constraints (< 7GB RAM) and
+adds a pre‑flight check that estimates total runtime based on a benchmark of a
+single iteration. If the estimated total runtime exceeds the 6‑hour CI limit,
+the pipeline aborts fast with a clear error message.
 """
 from __future__ import annotations
 
@@ -138,6 +141,98 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+# ----------------------------------------------------------------------
+# Pre‑flight runtime estimation
+# ----------------------------------------------------------------------
+
+def benchmark_single_iteration(sample_size: int, test_type: str, alpha: float, effect_size: float) -> float:
+    """
+    Run a *single* iteration of the simulation and return the elapsed time.
+    This is used to extrapolate the total runtime for the full grid.
+    """
+    start = time.time()
+    # We deliberately request only one iteration to keep the benchmark cheap.
+    _ = run_simulation_condition(
+        sample_size=sample_size,
+        iterations=1,
+        test_type=test_type,
+        alpha=alpha,
+        effect_size=effect_size
+    )
+    return time.time() - start
+
+
+def estimate_total_runtime(args: argparse.Namespace) -> float:
+    """
+    Estimate the total runtime (seconds) for the full simulation based on:
+    - Number of sample sizes (min‑n … max‑n step)
+    - Number of test types (all → 3, otherwise 1)
+    - Number of effect sizes (fixed at 3 per spec)
+    - Number of hypothesis states (null & alternative → 2)
+    - Iterations per condition (args.iterations)
+    - Benchmark of a single iteration (measured at runtime)
+
+    Returns the estimated total seconds.
+    """
+    # 1. Count sample sizes
+    sample_sizes = list(range(args.min_n, args.max_n + 1, args.step))
+    n_samples = len(sample_sizes)
+
+    # 2. Test types
+    test_count = 3 if args.test == "all" else 1
+
+    # 3. Effect sizes – the specification defines three canonical values.
+    effect_count = 3
+
+    # 4. Hypotheses (null & alternative)
+    hypothesis_count = 2
+
+    # 5. Total number of *condition* runs
+    total_conditions = n_samples * test_count * effect_count * hypothesis_count
+
+    # 6. Total iterations across all conditions
+    total_iterations = total_conditions * args.iterations
+
+    # 7. Benchmark a single iteration (use the smallest sample size to be conservative)
+    benchmark_test = "t-test" if args.test == "all" else args.test
+    single_time = benchmark_single_iteration(
+        sample_size=args.min_n,
+        test_type=benchmark_test,
+        alpha=args.alpha,
+        effect_size=args.effect_size
+    )
+
+    # 8. Extrapolate
+    estimated_seconds = single_time * total_iterations
+    return estimated_seconds
+
+
+def pre_flight_check(args: argparse.Namespace) -> None:
+    """
+    Perform a quick sanity check before launching the full simulation.
+    If the estimated runtime exceeds the CI limit, abort with a clear message.
+    """
+    estimated = estimate_total_runtime(args)
+    logger.log(
+        "PRE_FLIGHT_ESTIMATE",
+        estimated_seconds=estimated,
+        limit_seconds=MAX_RUNTIME_SECONDS,
+        message="Estimated total runtime for full simulation."
+    )
+    if estimated > MAX_RUNTIME_SECONDS:
+        msg = (
+            f"Estimated runtime {estimated/3600:.2f}h exceeds the CI limit of "
+            f"{MAX_RUNTIME_SECONDS/3600:.2f}h. Aborting early. "
+            f"Consider reducing --max-n, --iterations, or selecting a single test."
+        )
+        logger.log("PRE_FLIGHT_ABORT", reason=msg)
+        sys.exit(msg)
+
+
+# ----------------------------------------------------------------------
+# Simulation batch processing (unchanged apart from pre‑flight hook)
+# ----------------------------------------------------------------------
+
 def run_simulation_batch(
     min_n: int,
     max_n: int,
@@ -243,6 +338,12 @@ def run_simulation_batch(
 
 def run_simulation(args: argparse.Namespace) -> Dict[str, Any]:
     """Run the full simulation with batch processing."""
+    # ------------------------------------------------------------------
+    # Pre‑flight runtime check
+    # ------------------------------------------------------------------
+    pre_flight_check(args)
+    # ------------------------------------------------------------------
+
     start_time = time.time()
     tracemalloc.start()
     

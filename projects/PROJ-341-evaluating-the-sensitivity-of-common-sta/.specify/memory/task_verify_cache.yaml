@@ -1,3 +1,58 @@
+T001a:
+  c: false
+  h: 176bac5806a8e910c6669ffd5780f7ea764766fb737042d2154e93adba46bdaf
+  r: "The `code/` and `tests/` directories exist, but the required `data/` directory\
+    \ and its subfolders (`data/raw/`, `data/simulation/`, `data/visualization/`,\
+    \ `data/reports/`) are missing. The task\u2019s core requirement of creating the\
+    \ full project directory structure is not satisfied."
+  sig: d167de4c60c32d87252b9137a9609b8f0acb0796125a86b7be8c1d4a066a32ed
+T001b:
+  c: false
+  h: 8359cfd22706b52e3f61d08f46362562d0aea04e6b65d1f041629b94b16fe201
+  r: Checked the repository and found only `requirements.txt` present with the correct
+    package list; the required `.gitignore` and `README.md` files are missing. The
+    task is not fully satisfied until those two configuration files are added.
+  sig: ecf7653c8bac4c2927340286639d9ef9e1776515005b7d81d8521ac8708fd045
+T006:
+  c: true
+  h: 2a3f8a9135b4d2872d415d31b1e8827191d95a012e3964445c7662c8c6aebc2d
+  r: "Checked `code/simulation/__init__.py`, which defines a `SeedManager` with deterministic\
+    \ seed sequencing, a global accessor, `get_rng` that returns a NumPy RNG seeded\
+    \ from the manager (or a provided seed), and `set_seed` to reset the sequence\u2014\
+    fulfilling the required deterministic random seed manager."
+  sig: 5a0037857dbf07314949767efa3454b5a7733dc3886d9fd58cff650688c222a2
+T007:
+  c: true
+  h: abd78f901df9d5c55abac4e9750cc61c2a0672a8cc46f3d47df57185b95afd7b
+  r: "Checked `code/simulation/data_generator.py` (5348\u202Fbytes) which defines\
+    \ functional `generate_normal_data` and `generate_multinomial_data` utilities\
+    \ (plus validation, RNG handling, and additional generators). The file is non\u2011\
+    empty, imports resolve, and meets the requirement to support Normal and Multinomial\
+    \ distributions."
+  sig: 95a5f74f40588679a28f8f087b742839f907e6838c69a2bbf1d600f5b993a445
+T010:
+  c: false
+  h: 6c534ed120ca1f7875ac4c15c835cc0b4386d5476543497558402808d775eae3
+  r: The file `tests/unit/test_data_generator.py` exists, but the test calls `generate_normal_data(100,
+    mean=5, std=2, seed=42)`, which does not match the function signature (`generate_normal_data(mean,
+    std, n, rng=None)`) and includes an unsupported `seed` argument. Consequently
+    the unit test will raise a `TypeError` and does not actually verify that the generated
+    data respects the specified distribution parameters. The test needs to be corrected
+    to use the proper arguments (e.g., `generate_normal_data(mean=5, std=2, n=100)`)
+    and optionally pass a reproducible RNG.
+  sig: f686d382f38b5e40743da8623c07e8c9f5e2d4dc937eecd284c6de2dcbe976cd
+T011a:
+  c: false
+  h: f698d7caf25376ed263d4426df6e7a1fe184319e0936530e7989309fca18d9c5
+  r: "The provided `tests/unit/test_chi_squared_fallback.py` contains a `test_chi_squared_fallback_2x2`\
+    \ that does not match the task specification: it calls `run_chi_squared_with_fallback`\
+    \ as if it returns a tuple, asserts a non\u2011existent method name `\"fisher_fallback\"\
+    ,` and misuses `check_low_expected_counts`. The actual utility returns a dict\
+    \ with method values like `\"fisher_exact\"` or `\"chi2_yates\"`. Consequently\
+    \ the test will fail and does not correctly verify that a 2\xD72 table with expected\
+    \ count\u202F\u2248\u202F3 triggers the Fisher/Yates fallback. The test must be\
+    \ rewritten to call the function correctly, ch"
+  sig: 1bc8858b56482072bb2c2269003d0655053f570c547d4dedeafc1d27d1960da7
 T031:
   c: false
   h: eb4543ce48f7f9656949354030433bf3001631f3c287f0d778d71116fb0a802a
