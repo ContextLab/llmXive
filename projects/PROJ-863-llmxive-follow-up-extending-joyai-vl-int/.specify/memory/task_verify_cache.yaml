@@ -1,24 +1,56 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file artifacts were provided showing that the required
-    folders (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`,
-    `tests/`) actually exist in the repository. Without concrete evidence of these
-    paths, the task requirement is not satisfied. The implementer must add the project
-    structure and show its presence (e.g., a directory tree or file list).
+  h: 24225c9100c62a386e19fccce0fb566e945dc9026a3889733297e715b821ad0c
+  r: The evidence shows only a `tests/` directory (with its contents) exists; there
+    is no evidence that the required `src/data_synthesis`, `src/feature_extraction`,
+    `src/baseline`, or `src/scheduler` directories were created in the project root.
+    These missing source folders mean the project structure does not meet the task
+    specification.
+  sig: 0b7ca4b6548c6e26ddc0d36f03672905bc3c1a428e59bb441186d5ace7566024
+T002:
+  c: true
+  h: c2858869eaf52aae77990506150977aa9daad5c85ad846d6e9f717abf76b3c9e
+  r: "Checked the `requirements.txt` file (586\u202Fbytes) present at the project\
+    \ root; it includes the required CPU\u2011only `torch` as well as `transformers`,\
+    \ `scikit-learn`, `opencv-python`, and `datasets`, satisfying the task\u2019s\
+    \ specification."
+  sig: f416512ef730ac031bd318603aee218ce19e1fa16eaf612f1831d7d7dc18589b
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
-    `.ruff.toml`, or `black.toml`) or related setup scripts were provided; the evidence
-    contains only the task description without any actual artifact. The required configuration
-    artifacts are missing.
+  h: 1c8064d768cd8fe14c09b97beabdb3753f288500abca4739726e83b707987b47
+  r: "The evidence contains no configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `.pre-commit-config.yaml`) or scripts that set up Ruff linting or Black formatting,\
+    \ nor any logs showing these tools were run. Without those artifacts, the task\
+    \ \u201CConfigure linting (ruff) and formatting (black) tools\u201D is not satisfied.\
+    \ Adding the appropriate config files and/or documentation of their integration\
+    \ is required."
+  sig: 0235c0d73de8a6b2a070b34cd49516bf67ea3253d85f829174d5620e3cb83963
 T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest configuration files (e.g., `pytest.ini`, `conftest.py`) or marker definitions
-    for CPU resource limits are present in the provided artifacts. Consequently, the
-    requirement to set up pytest with CPU limit markers is not satisfied.
+  h: d343f160d344524ffe3368c3de8dad69b965862ecc28d27d987ae6f888a94972
+  r: "No pytest configuration file (e.g.,\u202Fpytest.ini or conftest.py) defining\
+    \ CPU\u2011resource\u2011limit markers was found in the provided artifact list;\
+    \ without such a file the requirement \u201CSetup `pytest` configuration with\
+    \ CPU resource limit markers\u201D is not satisfied."
+  sig: 16e96069e49c15f5259c312908b123391630d8f69a159e40c98ebe45596a33fd
+T005:
+  c: true
+  h: f98ca9c6d938e357095bb77052cfa494848f44fbea9c74ce55c5cc1ea53e1887
+  r: "Checked the provided `src/utils/logging.py` (8730\u202Fbytes) which defines\
+    \ a full logging system, functions to log stage start/end, data sources, VLM API\
+    \ calls, metrics, and includes `verify_zero_vlm_calls` to ensure no VLM calls\
+    \ occur during labeling, fulfilling FR\u2011001.1."
+  sig: d980965ed6ce1e89a9b4ea16585b0591d5825df19c01973ba7d42e6e85663cb4
+T006:
+  c: true
+  h: 7606353e726770847a34a72dfeacdbac37e874aece3f0cbcc2f52da93a55cf46
+  r: "Checked the `src/utils/validation.py` file (10150\u202Fbytes) which provides\
+    \ a full `ValidationError` class, `validate_schema` and `validate_jsonl_schema`\
+    \ functions with comprehensive type, range, length, pattern, enum, nested object,\
+    \ and array checks, plus concrete schema definitions for synthetic frames, internal\
+    \ states, scheduler decisions, and manifest entries. The implementation is concrete,\
+    \ non\u2011stub, and fulfills the schema\u2011validation requirement."
+  sig: 142ac828fb832055d2e28867f3fd5e5bac8a8479a0f18fb82f12d90b4029c40f
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

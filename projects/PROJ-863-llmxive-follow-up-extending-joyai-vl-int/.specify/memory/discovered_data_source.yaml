@@ -1,0 +1,10 @@
+status: none
+intent: synthetic fall detection video dataset with labels python package dataset
+required_fields:
+- video_path
+- frame_timestamp
+- label
+- event_type
+cache_key: 7c7237fae240086dd37917597116d4294e990790a86a6387e4c13aa4dcb10f14
+searched_at: '2026-10-11T11:16:21.549327+00:00'
+retry_count: 1

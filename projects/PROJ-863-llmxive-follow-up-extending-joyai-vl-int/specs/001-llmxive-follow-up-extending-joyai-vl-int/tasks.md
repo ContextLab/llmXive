@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`, `tests/`)
+- [ ] T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`, `tests/`)
 - [X] T002 Initialize Python project with `requirements.txt` (CPU-only `torch`, `transformers`, `scikit-learn`, `opencv-python`, `datasets`)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 [P] Setup `pytest` configuration with CPU resource limit markers
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T004 [P] Setup `pytest` configuration with CPU resource limit markers
 
 ---
 
@@ -58,9 +58,9 @@
 
 - [X] T005 Implement `src/utils/logging.py` for execution logging (FR-001.1)
 - [X] T006 Implement `src/utils/validation.py` for schema validation (FR-002, Edge Cases)
-- [X] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
-- [X] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
-- [X] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
+- [~] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
+- [~] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
+- [~] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,19 +77,19 @@
 > **NOTE**: Write these tests FIRST (TDD). These tasks are to WRITE the test code. The tests will FAIL until implementation (T013-T017) is complete.
 > **[P] Clarification**: T010-T012 are "Test Code Writing" tasks. They can be written in parallel with T013-T017 "Implementation" tasks because they depend on the interface definition, not the implementation completion.
 
-- [X] T010 [P] [US1] Write contract test code: Verify labeling logic uses only visual events in `tests/unit/test_visual_labeler.py`
-- [X] T011 [P] [US1] Write integration test code: Verify execution log contains zero VLM calls in `tests/integration/test_data_pipeline.py`
-- [X] T012 [P] [US1] Write test code: Verify deterministic rule application for ambiguous events (sitting vs. falling) in `tests/unit/test_visual_labeler.py`
+- [~] T010 [P] [US1] Write contract test code: Verify labeling logic uses only visual events in `tests/unit/test_visual_labeler.py`
+- [~] T011 [P] [US1] Write integration test code: Verify execution log contains zero VLM calls in `tests/integration/test_data_pipeline.py`
+- [~] T012 [P] [US1] Write test code: Verify deterministic rule application for ambiguous events (sitting vs. falling) in `tests/unit/test_visual_labeler.py`
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `src/data_synthesis/generator.py` to produce video content. **CI Mode**: Generate a subset (e.g., hours) to fit 6h runtime. **Non-CI Mode**: Generate full hours. Use chunked streaming to write directly to disk (FR-001). <!-- FAILED: unspecified -->
-- [X] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
-- [X] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
-- [X] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
-- [X] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
-- [X] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
-- [X] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`
+- [~] T013 [US1] Implement `src/data_synthesis/generator.py` to produce video content. **CI Mode**: Generate a subset (e.g., hours) to fit 6h runtime. **Non-CI Mode**: Generate full hours. Use chunked streaming to write directly to disk (FR-001). <!-- FAILED: unspecified -->
+- [~] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
+- [~] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
+- [~] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
+- [~] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
+- [~] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
+- [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,17 +103,17 @@
 
 ### Tests for User Story 2 (Mandatory per Spec) ⚠️
 
-- [X] T018 [P] [US2] Write contract test: Verify feature keys exclude final token logits in `tests/unit/test_feature_extractor.py`
-- [X] T019 [P] [US2] Write integration test: Verify 1:1 temporal alignment between input frames and output features in `tests/integration/test_feature_pipeline.py`
-- [X] T020 [P] [US2] Write test code: Verify graceful failure on dimension mismatch (Edge Case) in `tests/unit/test_feature_extractor.py`
+- [~] T018 [P] [US2] Write contract test: Verify feature keys exclude final token logits in `tests/unit/test_feature_extractor.py`
+- [~] T019 [P] [US2] Write integration test: Verify 1:1 temporal alignment between input frames and output features in `tests/integration/test_feature_pipeline.py`
+- [~] T020 [P] [US2] Write test code: Verify graceful failure on dimension mismatch (Edge Case) in `tests/unit/test_feature_extractor.py`
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `src/feature_extraction/extractor.py` to load JoyAI-VL-Interaction (CPU mode) and extract hidden states/attention maps
-- [X] T022 [US2] Integrate `src/feature_extraction/streaming.py` (from T008) to process video in fixed-size chunks (e.g., a predefined number of frames) ensuring RAM < 6GB
-- [X] T023 [US2] Implement dimension validation against a hardcoded schema; **must raise a `ValueError` with a clear, formatted message containing "Expected: X, Actual: Y" if a mismatch occurs** (Edge Case)
-- [X] T024 [US2] Implement logic to explicitly exclude final token logits and generated text from output vectors
-- [ ] T025 [US2] Export extracted features to `data/features/*.jsonl` with temporal alignment metadata
+- [ ] T021 [US2] Implement `src/feature_extraction/extractor.py` to load JoyAI-VL-Interaction (CPU mode) and extract hidden states/attention maps
+- [~] T022 [US2] Integrate `src/feature_extraction/streaming.py` (from T008) to process video in fixed-size chunks (e.g., a predefined number of frames) ensuring RAM < 6GB
+- [~] T023 [US2] Implement dimension validation against a hardcoded schema; **must raise a `ValueError` with a clear, formatted message containing "Expected: X, Actual: Y" if a mismatch occurs** (Edge Case)
+- [~] T024 [US2] Implement logic to explicitly exclude final token logits and generated text from output vectors
+- [ ] T025 [US2] Export extracted features to `data/features/*.jsonl` with temporal alignment metadata <!-- FAILED-IN-EXECUTION: code/src/feature_extraction/export_features.py exit=1 -->
 
 **Checkpoint**: Feature extraction ready for training phase
 
@@ -145,8 +145,8 @@
 
 ### Tests for User Story 3 (Mandatory per Spec) ⚠️
 
-- [X] T030 [P] [US3] Integration test: Verify training completes within 6h, <7GB RAM, **and measures/records inference latency** in `tests/integration/test_training_pipeline.py`
-- [X] T031 [P] [US3] Contract test: Verify "Interruption Reduction Rate" and "Safety Recall" are calculated separately in `tests/unit/test_eval_metrics.py`
+- [~] T030 [P] [US3] Integration test: Verify training completes within 6h, <7GB RAM, **and measures/records inference latency** in `tests/integration/test_training_pipeline.py`
+- [~] T031 [P] [US3] Contract test: Verify "Interruption Reduction Rate" and "Safety Recall" are calculated separately in `tests/unit/test_eval_metrics.py`
 - [ ] T032 [P] [US3] Test Mutual Information calculation and partial correlation analysis in `tests/unit/test_statistical_analysis.py`
 
 ### Implementation for User Story 3
