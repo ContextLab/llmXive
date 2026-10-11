@@ -65,4 +65,28 @@ def strip_trailing_markers(lines: list[str]) -> list[str]:
     return kept
 
 
-__all__ = ["parse_yaml_lenient", "strip_trailing_markers"]
+#: A line that opens a fenced block (``` or ```yaml) or closes one (```).
+_FENCE_LINE_RE = re.compile(r"```[\w-]*[ \t]*")
+
+
+def outer_fenced_body(text: str) -> str:
+    """Return what lies between the first fence line and the last bare one.
+
+    A model asked for one fenced document often adds a sentence before it or a
+    justification after it. Callers that removed a fence only when it closed on
+    the reply's LAST line then handed the whole reply to the parser, which
+    failed on the backtick and lost the answer (canary 9, 2026-10-11: a
+    reviser's self-audit ended ``` and continued "Audit notes supporting the
+    verdict: ..."). The outermost pair is used, so a fence quoted inside the
+    document stays part of it. Text with no such pair is returned stripped.
+    """
+    raw = (text or "").strip()
+    lines = raw.splitlines()
+    opening = next((i for i, ln in enumerate(lines) if _FENCE_LINE_RE.fullmatch(ln.strip())), None)
+    closing = next((i for i in range(len(lines) - 1, -1, -1) if lines[i].strip() == "```"), None)
+    if opening is None or closing is None or closing <= opening:
+        return raw
+    return "\n".join(lines[opening + 1:closing]).strip()
+
+
+__all__ = ["outer_fenced_body", "parse_yaml_lenient", "strip_trailing_markers"]
