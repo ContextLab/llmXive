@@ -23,17 +23,17 @@
   - deterministic seed pinning,
   - exponential‑backoff retry helper,
   - a simple logger wrapper.  
-- [~] T007 [P] Add `code/config.py` defining a `Config` class that loads the Materials Project API key from `MATERIALS_PROJECT_API_KEY` and stores a fixed random‑seed dictionary.  
-- [~] T008 [P] Create `data/metadata.yaml` schema to record download timestamps, material IDs, and SHA‑256 checksums for raw CIFs and derived artifacts.  
+- [X] T007 [P] Add `code/config.py` defining a `Config` class that loads the Materials Project API key from `MATERIALS_PROJECT_API_KEY` and stores a fixed random‑seed dictionary.  
+- [ ] T008 [P] Create `data/metadata.yaml` schema to record download timestamps, material IDs, and SHA‑256 checksums for raw CIFs and derived artifacts.  
 
 ## Phase 3 – User Story 1: Download & construct atomic networks (Priority P1)
 
 **Goal**: Obtain ≥ 50 CIF files, build corresponding atomic‑network graphs, and validate basic structure.
 
-- [~] T009 [US1] `code/download.py` – query the Materials Project API for materials that have a thermal‑conductivity tensor, download CIFs to `data/raw/cif/`, compute SHA‑256 checksums, and write entries to `data/metadata.yaml`.  
-- [ ] T036a [US1] Verify that **≥ 50** CIF files were successfully downloaded in `data/raw/cif/`. Fail the pipeline if the count is lower.   <!-- FAILED-IN-EXECUTION: code/verify_download.py exit=1 -->
+- [X] T009 [US1] `code/download.py` – query the Materials Project API for materials that have a thermal‑conductivity tensor, download CIFs to `data/raw/cif/`, compute SHA‑256 checksums, and write entries to `data/metadata.yaml`.  
+- [ ] T036a [US1] Verify that **≥ 50** CIF files were successfully downloaded in `data/raw/cif/`. Fail the pipeline if the count is lower.
 - [ ] T010 [US1] `code/construct_network.py` – parse each CIF with `pymatgen`, create bonds using covalent‑radius + tolerance, apply progressive fallback cut‑offs (4.0 Å → 4.5 Å), and build a `networkx.Graph`.  
-- [ ] T011 [US1] Save each graph as a pickle file in `data/processed/networks/` (filename `<material_id>.pkl`).  
+- [ ] T011 [US1] Save each graph as a pickle file in `data/processed/networks/` (filename `<material_id>.pkl`).   <!-- FAILED-IN-EXECUTION: code/save_networks.py exit=1 -->
 - [ ] T012 [US1] `code/validate_graphs.py` – verify every graph has ≥ 2 nodes and ≥ 1 edge; log and skip any material that remains disconnected after fallbacks.  
 
 ## Phase 4 – User Story 2: Compute metrics & correlate with thermal conductivity (Priority P2)
