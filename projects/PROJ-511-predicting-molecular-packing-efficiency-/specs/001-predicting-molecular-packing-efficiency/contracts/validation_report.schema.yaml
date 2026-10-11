@@ -71,13 +71,16 @@ properties:
       properties:
         threshold:
           type: "number"
-        pearson_r:
+        spearman_rho:
+          type: "number"
+        mae:
           type: "number"
         p_value:
           type: "number"
       required:
         - threshold
-        - pearson_r
+        - spearman_rho
+        - mae
         - p_value
     description: "Results of the threshold sweep {0.5, 0.6, 0.7}."
   residual_analysis:
@@ -85,7 +88,7 @@ properties:
     properties:
       correlation_with_composition:
         type: "number"
-        description: "Correlation of model residuals with atom-type composition."
+        description: "Correlation of model residuals with atom‑type composition."
     required:
       - correlation_with_composition
   target_distribution:

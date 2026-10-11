@@ -20,9 +20,6 @@ properties:
   pc_raw:
     type: "number"
     description: "Raw Packing Coefficient (Primary Target)."
-  cape:
-    type: "number"
-    description: "Composition-Adjusted Packing Efficiency (Diagnostic only)."
   radius_of_gyration:
     type: "number"
     description: "Radius of gyration in Angstroms."
@@ -64,5 +61,5 @@ required:
   - lattice_system
   - has_solvent
   - atom_count
-  - fingerprint_vector
   - atom_type_counts
+  - fingerprint_vector

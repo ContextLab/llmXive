@@ -1,14 +1,9 @@
 status: none
-intent: Crystallography Open Database organic molecules CIF download python package
-  dataset
+intent: pymatgen Crystallography Open Database CIF download python package dataset
 required_fields:
-- cif_id
+- cod_id
 - smiles
 - packing_coefficient
-- generated_flag
-- unit_cell_volume
-- lattice_system
-- solvent_flag
-cache_key: 49e530b83c5219104d667dcaa43aae9dbb0613cd5e91e8ed258ff92ae8ee15df
-searched_at: '2026-10-11T06:10:30.003538+00:00'
+cache_key: 0c75283a07f0587fef38fa337d9888032ebf5438e95c80f72ec8a4221d4c0c42
+searched_at: '2026-10-11T08:09:20.144150+00:00'
 retry_count: 1
