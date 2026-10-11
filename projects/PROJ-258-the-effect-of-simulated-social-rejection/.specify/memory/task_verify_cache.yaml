@@ -1,13 +1,12 @@
 T001:
   c: true
-  h: 039ed911fe3b82787d5fc2c04b8ebd73021cfe36c8ed829433150b97f01145c6
-  r: All required directories exist (`code/`, `data/raw/`, `data/interim/`, `data/processed/`,
-    `tests/`, `reports/`), with `__init__.py` markers in `code/` and `tests/`; `requirements.txt`
-    contains all six required packages (plus extras), and `quickstart.md` documents
-    both `pip install -r requirements.txt` and `python -m code.pipeline`. The quickstart's
-    note that the pipeline entry point is a placeholder is acceptable for this scaffolding
-    task, which only requires directory layout, placeholders, requirements, and documentation.
-  sig: ff2dc5e527d854ebfbccef223ef78e37ba064255673ed32013064aa2e8a65701
+  h: cd4abdccb438960a6fbe12091b3fe0561501d361a59504121ec3da75cf242884
+  r: Checked the directory layout (code/, data/raw/, data/interim/, data/processed/,
+    tests/, reports/), the presence of `__init__.py` files in `code/` and `tests/`,
+    the `requirements.txt` containing the required six packages, and the `quickstart.md`
+    documenting both the pip install command and the `python -m code.pipeline` invocation.
+    All required artifacts exist and contain the appropriate content.
+  sig: 3862f72a71a2acb3c73122e66e06a8b7fc1e9f9f357e9beffca7c3b5aae689bd
 T002:
   c: true
   h: b86f67745bc1e257525d6115c2f5046f032d8fdc2957cd653943a281d8e83c4a
@@ -17,6 +16,18 @@ T002:
     The extra helpers and directory-creation side effect are harmless additions that
     don''t conflict with the requirements.'
   sig: 9695895221f9bd8385a835a525048d854805b83ef96c9183c2f5d6f0a370605c
+T003:
+  c: false
+  h: f326df69a3bf323807bc2ada38868cd41c7f2865ff0c637e2e44b7b6f3c6a6cc
+  r: "The provided `code/ingest.py` only accepts arbitrary `--dataset-url` arguments,\
+    \ performs a HEAD request on each URL, and writes a manifest for the single HuggingFace\u2011\
+    mirrored file that was actually downloaded. It never queries the OpenNeuro API\
+    \ for the specific datasets ds000208 and ds003392, does not sum file sizes across\
+    \ all files in each dataset, and the execution log shows only one URL being processed.\
+    \ Consequently the script does not download both required datasets nor produce\
+    \ a manifest containing two entries as stipulated. The task\u2019s core requirements\
+    \ are therefore unmet."
+  sig: 01cd2fd4f43c6c857e2131f4c641a1da022b9e3809725cdcd7758cafce987895
 T005:
   c: false
   h: 42cda291d0af7d3d6f638660b4845e5480478f65bdf4d56a787c87ccb1418328
