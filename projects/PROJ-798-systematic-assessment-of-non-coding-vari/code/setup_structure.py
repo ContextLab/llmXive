@@ -1,59 +1,86 @@
-#!/usr/bin/env python3
 """
-create_structure.py
+setup_structure.py
 
-Creates the required project directory layout and records a manifest file.
-The manifest is written to ``data/results/structure_manifest.txt`` and contains a
-sorted list of all directories under ``code``, ``data`` and ``tests``.
-This satisfies the verification step:
+Creates the project directory layout required by T001 and records a
+structure manifest at ``data/results/structure_manifest.txt``.
 
-    find code data tests -type d | sort > data/results/structure_manifest.txt
-
-The script exits with a non‑zero status if any step fails, ensuring loud failure
-on missing system utilities.
+The manifest lists every required directory as a project-relative path
+(e.g. ``code/data_ingestion``, ``data/raw``, ``tests/unit``), sorted and
+unique, so the CI verifier can check that all required directories exist.
 """
 
 import subprocess
+import sys
 from pathlib import Path
 
+from llmxive_toolkit import paths
+
+# Project root (paths.root is the project directory regardless of cwd)
+ROOT = paths.root
+
+REQUIRED_DIRS = [
+    "code",
+    "code/data_ingestion",
+    "code/scoring",
+    "code/analysis",
+    "code/utils",
+    "data/raw",
+    "data/derived",
+    "data/results",
+    "tests",
+    "tests/unit",
+    "tests/integration",
+    "tests/contract",
+]
+
 def main() -> None:
-    # Required directory paths (relative to the repository root)
-    required_dirs = [
-        Path("code"),
-        Path("code/data_ingestion"),
-        Path("code/scoring"),
-        Path("code/analysis"),
-        Path("code/utils"),
-        Path("data/raw"),
-        Path("data/derived"),
-        Path("data/results"),
-        Path("tests/unit"),
-        Path("tests/integration"),
-        Path("tests/contract"),
-    ]
+    # Create every required directory
+    for rel in REQUIRED_DIRS:
+        (ROOT / rel).mkdir(parents=True, exist_ok=True)
 
-    # Create each directory (parents=True allows nested creation)
-    for d in required_dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    # Collect all directories under code/, data/, tests/ as relative paths
+    rel_dirs = set()
+    for top in ("code", "data", "tests"):
+        top_path = ROOT / top
+        if not top_path.is_dir():
+            continue
+        rel_dirs.add(top)
+        for p in top_path.rglob("*"):
+            if p.is_dir():
+                # Skip virtual environments and caches
+                parts = p.relative_to(ROOT).parts
+                if any(
+                    seg in (".venv", "venv", "__pycache__", ".pytest_cache")
+                    for seg in parts
+                ):
+                    continue
+                rel_dirs.add(str(p.relative_to(ROOT)))
 
-    # Path for the manifest file
-    manifest_path = Path("data/results/structure_manifest.txt")
+    # Verify every required directory exists
+    missing = [rel for rel in REQUIRED_DIRS if not (ROOT / rel).is_dir()]
+    if missing:
+        raise RuntimeError(f"Missing required directories: {missing}")
 
-    # Use the system ``find`` command to generate the full directory list.
-    # ``check=True`` ensures the script fails loudly if ``find`` is unavailable
-    # or returns a non‑zero exit status.
-    result = subprocess.run(
-        ["find", "code", "data", "tests", "-type", "d"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    # Write the manifest (sorted, unique, one path per line)
+    manifest_path = paths.data("results", "structure_manifest.txt")
+    lines = sorted(rel_dirs)
+    manifest_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    # Sort the output to guarantee deterministic ordering
-    dirs = sorted(line.strip() for line in result.stdout.splitlines() if line.strip())
+    # Sanity check: manifest must contain all required directories
+    written = set(manifest_path.read_text(encoding="utf-8").split())
+    missing_in_manifest = [rel for rel in REQUIRED_DIRS if rel not in written]
+    if missing_in_manifest:
+        raise RuntimeError(
+            f"Manifest is missing required directories: {missing_in_manifest}"
+        )
+    if len(written) < 11:
+        raise RuntimeError(
+            f"Manifest contains only {len(written)} unique directories; "
+            "at least 11 are required."
+        )
 
-    # Write the sorted list to the manifest file, ending with a newline.
-    manifest_path.write_text("\n".join(dirs) + "\n")
+    print(f"Wrote {manifest_path} with {len(written)} unique directories.")
+    print("Required directories present:", ", ".join(REQUIRED_DIRS))
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 status: none
-intent: dbSNP155 common SNPs ENCODEv4 regulatory BED Roadmap Epigenomics BED JASPAR2024
-  PWM python package dataset
+intent: dbSNP build 155 common SNPs ENCODE v4 regulatory BED Roadmap GC-matched control
+  python package dataset
 required_fields:
 - chromosome
 - position
@@ -8,10 +8,11 @@ required_fields:
 - reference_allele
 - alternate_allele
 - minor_allele_frequency
+- genome_build
 - regulatory_region_type
-- regulatory_region_identifier
+- region_start
+- region_end
 - gc_content
-- control_flag
-cache_key: 6d218867e10db7760bab55aab5b659b74abd5f812e7050f660969e260c000da4
-searched_at: '2026-10-11T00:16:42.661868+00:00'
+cache_key: 1ba1adaa9a6042a01ced3055fefedd9e2fac8dcd2e1c3880182d0e0c889c6886
+searched_at: '2026-10-11T02:25:58.469770+00:00'
 retry_count: 1

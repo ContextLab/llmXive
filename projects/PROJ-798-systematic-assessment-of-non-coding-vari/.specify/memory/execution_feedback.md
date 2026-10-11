@@ -8,11 +8,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py  --dbsnp-ftp "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/"  --jaspar-url "http://jaspar.genereg.net/"  --gwas-ftp "ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/"  --output-dir data/output -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-798-systematic-assessment-of-non-coding-vari/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/main.py': [Errno 2] No such file or directory
 
 - python code/utils/checksum.py data/output/ -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/utils/checksum.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-798-systematic-assessment-of-non-coding-vari/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/utils/checksum.py': [Errno 2] No such file or directory
 
 
 ## Declared deliverables still missing

@@ -1,8 +1,4 @@
 T001:
-  reason: "The required directories exist, but `data/results/structure_manifest.txt`\
-    \ does not list the specified project layout (e.g., `code/data_ingestion`, `data/raw`,\
-    \ `tests/unit`, etc.). The manifest only contains the virtual\u2011environment\
-    \ paths, so it fails the \u201Clist every required directory\u201D check."
   task: f1e95fed63a95063ec8f06afd8dcc9da6b793d264d363290960ff76089e47df2
 T002:
   reason: "The repository does not contain the required `.gitignore` file (or its\

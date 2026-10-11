@@ -11,7 +11,7 @@ The list below follows the platform’s research‑task template and covers all 
 | Goal | Run a minimal, fully‑real pipeline on a small, real input set and verify that every downstream step can be executed. |
 |------|------------------------------------------------------------|
 
-- [ ] T001 [US1] **Create the project directory layout** and record a manifest.  
+- [X] T001 [US1] **Create the project directory layout** and record a manifest.  
   *Path*: `code/`, `code/data_ingestion/`, `code/scoring/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/derived/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.  
   *Verification*:  
   ```text
