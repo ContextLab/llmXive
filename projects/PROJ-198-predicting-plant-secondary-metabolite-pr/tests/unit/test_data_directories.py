@@ -10,7 +10,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 
-
 def test_data_directories_exist(tmp_path):
     """
     Test that the data directory structure is correctly created.

@@ -65,7 +65,7 @@ ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
 ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
 !!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 8 warnings, 15 errors in 1.14s ========================
+======================== 8 warnings, 15 errors in 0.87s ========================
 
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
