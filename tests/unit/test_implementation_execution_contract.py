@@ -53,7 +53,7 @@ def test_implementer_executes_required_cli_arguments_as_literal_strings(tmp_path
 def test_invalid_argv_fails_without_running(tmp_path, args):
     result = sandbox.run_python_script(project_dir=tmp_path, script_relpath='run.py', script_args=args)
     assert not result.ok and 'list of strings' in result.stderr
-    assert not (tmp_path/'.venv').exists()
+    assert not sandbox.venv_dir(tmp_path).exists()
 
 
 def test_implementer_receives_active_spec_plan_runbook_and_original_idea(tmp_path):
@@ -100,5 +100,5 @@ def test_numeric_normalization_does_not_coerce_other_yaml_values(tmp_path, value
          'next_task_id': 'T001', 'all_complete': False},
         ChatResponse(text=yaml.safe_dump(document), model='test', backend='dartmouth'))
     assert not (project/'result.json').exists()
-    assert not (project/'.venv').exists()
+    assert not sandbox.venv_dir(project).exists()
     assert 'list of strings' in (project/'code/.tasks/T001.code_run.py.log').read_text()

@@ -25,7 +25,7 @@ def test_run_pytest_with_relative_project_dir(tmp_path: Path) -> None:
     Uses a real venv (created with --system-site-packages so the already
     installed pytest is visible — no downloads) and a real subprocess run
     of pytest. On the buggy code this raises FileNotFoundError because the
-    relative 'projects/PROJ-relative/code/.venv/bin/python' is looked up
+    relative venv python path is looked up
     under the changed cwd (projects/PROJ-relative/code).
     """
     # Build the project tree under tmp_path, then chdir there so the
@@ -33,7 +33,7 @@ def test_run_pytest_with_relative_project_dir(tmp_path: Path) -> None:
     proj = tmp_path / "projects" / "PROJ-relative"
     code = proj / "code"
     (code / "tests").mkdir(parents=True)
-    venv = code / ".venv"
+    venv = sandbox.venv_dir(proj)
     subprocess.run(
         [sys.executable, "-m", "venv", "--system-site-packages", str(venv)],
         check=True,
@@ -70,7 +70,7 @@ def test_run_pytest_reports_failing_tests_with_relative_project_dir(
     proj = tmp_path / "projects" / "PROJ-relative"
     code = proj / "code"
     (code / "tests").mkdir(parents=True)
-    venv = code / ".venv"
+    venv = sandbox.venv_dir(proj)
     subprocess.run(
         [sys.executable, "-m", "venv", "--system-site-packages", str(venv)],
         check=True,

@@ -138,6 +138,8 @@ celerybeat.pid
 .env
 .envrc
 .venv
+# Per-project analysis venvs, kept outside projects/ (llmxive.sandbox.venv_dir).
+.llmxive-venvs/
 env/
 venv/
 ENV/

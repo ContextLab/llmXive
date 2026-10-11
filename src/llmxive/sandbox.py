@@ -7,8 +7,11 @@ flagging. This module gives the agents a deterministic, restricted
 sandbox in which to execute scripts and verify their output.
 
 Design constraints:
-  - Run inside a per-project venv at projects/<id>/code/.venv so
-    requirements.txt is honored without polluting the global env.
+  - Run inside a per-project venv so requirements.txt is honored without
+    polluting the global env. The venv lives OUTSIDE the project, at
+    ``<repo>/.llmxive-venvs/<id>`` (see :func:`venv_dir`): it is the
+    platform's, and generated code must not be able to see it in its own
+    source tree, scan it, or delete it.
   - Cap wall-clock time per script (default 600 s).
   - Cap memory via shell ulimit on POSIX (best-effort; not a
     security boundary — the agents are trusted code we wrote, this
@@ -52,8 +55,54 @@ class ExecutionResult:
     timed_out: bool = False
 
 
+#: Directory, beside ``projects/``, that holds every per-project venv.
+VENV_ROOT_NAME = ".llmxive-venvs"
+
+
+def venv_root(project_dir: Path) -> Path:
+    """The directory that holds this project's venv.
+
+    ``<repo>/.llmxive-venvs`` for a ``projects/<id>`` directory, shared with the
+    other projects so one sweep can bound disk. Any other layout (a bare
+    workspace) gets a root of its own beside it, ``.<name>.llmxive-venvs``, so
+    unrelated workspaces that merely share a parent never evict each other.
+    Absolute, and never inside ``project_dir``.
+    """
+    here = Path(os.path.abspath(project_dir))
+    if here.parent.name == "projects":
+        return here.parent.parent / VENV_ROOT_NAME
+    return here.parent / f".{here.name}{VENV_ROOT_NAME}"
+
+
+def venv_dir(project_dir: Path) -> Path:
+    """Where this project's venv lives: OUTSIDE the project, by design.
+
+    It used to be ``projects/<id>/code/.venv`` — inside the source tree the
+    generated analysis owns. Every scan of ``code/`` then had to remember to
+    skip it (the fabrication guard once reported 143 false positives from a
+    single venv), and generated code met it too. Observed, PROJ-9999 totient
+    canary, 2026-10-10: the project's own prohibited-import test walked
+    ``code/**/*.py``, found ``scipy`` in site-packages, and the implementer
+    "fixed" the false failure by writing a ``conftest.py`` whose
+    ``pytest_configure`` runs ``shutil.rmtree("code/.venv")``. Pytest was
+    running FROM that venv, so every later import died ``ModuleNotFoundError:
+    No module named 'numpy'``; the run-book could never pass, the round cap
+    was exhausted and the project was kicked back to ``clarified``.
+
+    The interpreter that runs a project's code is the platform's, not the
+    project's. Keeping it out of the project removes the whole class: nothing
+    the project scans, cleans or rewrites under its own directory can reach it.
+    """
+    return venv_root(project_dir) / Path(os.path.abspath(project_dir)).name
+
+
+def _legacy_venv(project_dir: Path) -> Path:
+    """The pre-move location, removed on sight (a venv is a rebuildable cache)."""
+    return Path(project_dir) / "code" / ".venv"
+
+
 def ensure_venv(project_dir: Path) -> Path:
-    """Create or reuse the project's code/.venv. Returns the python path.
+    """Create or reuse the project's venv (:func:`venv_dir`). Returns the python path.
 
     Re-runs `pip install -r requirements.txt` whenever requirements.txt
     has been modified since the last sync (tracked via a side-car
@@ -62,9 +111,12 @@ def ensure_venv(project_dir: Path) -> Path:
     (lazy creation by the first execute:true script), so pip install
     becomes a no-op and every later script hits ModuleNotFoundError.
     """
-    venv = project_dir / "code" / ".venv"
+    venv = venv_dir(project_dir)
     py = venv / "bin" / "python"
     needs_create = not py.exists()
+    legacy = _legacy_venv(project_dir)
+    if legacy.is_dir() and not legacy.is_symlink():
+        shutil.rmtree(legacy, ignore_errors=True)
     if needs_create:
         # Bound runner disk BEFORE building another 1.2 GB venv: one advance worker
         # runs up to 10 projects per job and the venvs used to accumulate until the
@@ -432,7 +484,7 @@ def run_pytest(
     import time
     # ABSOLUTE but SYMLINK-PRESERVING (same rationale as run_in_venv): the
     # subprocess below runs with cwd=project_dir/code, so a RELATIVE
-    # venv-python path (e.g. 'projects/PROJ-x/code/.venv/bin/python' when
+    # venv-python path (e.g. '.llmxive-venvs/PROJ-x/bin/python' when
     # project_dir itself is relative) would resolve against the changed cwd
     # and vanish — FileNotFoundError. ``os.path.abspath`` anchors it to the
     # ORIGINAL cwd without dereferencing the venv's bin/python symlink.
@@ -470,13 +522,13 @@ def run_pytest(
 
 def cleanup_venv(project_dir: Path) -> None:
     """Remove the project's venv (used by tests)."""
-    venv = project_dir / "code" / ".venv"
-    if venv.exists():
-        shutil.rmtree(venv, ignore_errors=True)
+    for venv in (venv_dir(project_dir), _legacy_venv(project_dir)):
+        if venv.exists():
+            shutil.rmtree(venv, ignore_errors=True)
 
 
 def evict_other_project_venvs(project_dir: Path) -> int:
-    """Delete every OTHER project's ``code/.venv``, keeping this project's.
+    """Delete every OTHER project's venv, keeping this project's.
 
     A project venv is up to 1.2 GB (torch et al.) and ONE advance worker runs up to
     ``--max-tasks 10`` projects in a single job, so they piled up until the runner
@@ -487,18 +539,22 @@ def evict_other_project_venvs(project_dir: Path) -> int:
     runner, and the CURRENT project's venv is deliberately preserved so it is still
     reused across ticks within the job. Returns the number of venvs removed.
     """
-    project_dir = Path(project_dir)
-    projects_root = project_dir.parent
-    if not projects_root.is_dir():
-        return 0
+    mine = venv_dir(project_dir)
     removed = 0
-    for sibling in projects_root.iterdir():
-        if not sibling.is_dir() or sibling.resolve() == project_dir.resolve():
-            continue
-        venv = sibling / "code" / ".venv"
-        if venv.is_dir():
-            shutil.rmtree(venv, ignore_errors=True)
-            removed += 1
+    root = venv_root(project_dir)
+    if root.is_dir():
+        for other in root.iterdir():
+            if other.is_dir() and not other.is_symlink() and other != mine:
+                shutil.rmtree(other, ignore_errors=True)
+                removed += 1
+    # Venvs left where they used to live, inside sibling projects.
+    projects_root = Path(os.path.abspath(project_dir)).parent
+    if projects_root.is_dir():
+        for sibling in projects_root.iterdir():
+            legacy = _legacy_venv(sibling)
+            if sibling.is_dir() and legacy.is_dir() and not legacy.is_symlink():
+                shutil.rmtree(legacy, ignore_errors=True)
+                removed += 1
     if removed:
         logger.info(
             "evicted %d other project venv(s) to bound runner disk (keeping %s)",
@@ -508,6 +564,7 @@ def evict_other_project_venvs(project_dir: Path) -> int:
 
 
 __all__ = [
+    "VENV_ROOT_NAME",
     "ExecutionResult",
     "cleanup_venv",
     "ensure_venv",
@@ -515,4 +572,6 @@ __all__ = [
     "run_pytest",
     "run_python_script",
     "run_shell_script",
+    "venv_dir",
+    "venv_root",
 ]
