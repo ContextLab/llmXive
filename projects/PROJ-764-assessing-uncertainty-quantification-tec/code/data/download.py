@@ -1,160 +1,129 @@
-import os
-import sys
+import json
 import logging
 import time
-import json
-import hashlib
 from pathlib import Path
-import hashlib
+from hashlib import sha256
 
-# Attempt to import datasets. If missing, the script will fail loudly as per requirements.
+# Import the verified datasets library; will raise if not installed.
 try:
     from datasets import load_dataset, concatenate_datasets
-except ImportError:
+except ImportError as e:
     raise ImportError(
         "The 'datasets' package is required. Please install it via 'pip install datasets'."
-    )
+    ) from e
 
-logger = logging.getLogger(__name__)
+# Use the shared logger from llmxive_toolkit if available; otherwise fall back to std lib.
+try:
+    from llmxive_toolkit import get_logger, paths
+    log = get_logger(__name__)
+    data_root = paths.data  # callable that creates paths inside the project
+except Exception:  # pragma: no cover
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+    log = logging.getLogger(__name__)
+
+    def data_root(*subpaths):
+        """Fallback helper mimicking llmxive_toolkit.paths.data."""
+        p = Path("data", *subpaths)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p
 
 def calculate_sha256(file_path: str) -> str:
-    """Calculate SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
+    """Calculate SHA‑256 hash of a file."""
+    h = sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for block in iter(lambda: f.read(8192), b""):
+            h.update(block)
+    return h.hexdigest()
 
-def download_oqmd_dataset(output_path: str, max_retries: int = 3):
+def download_oqmd_dataset(output_path: Path, max_retries: int = 3) -> None:
     """
-    Download the OQMD dataset from the verified HuggingFace source.
-    Implements retry logic with exponential backoff.
+    Download the OQMD subset from the verified Hugging Face source
+    and materialize it as a Parquet file.
+    Implements exponential‑backoff retry logic.
     """
-    # Verified source as per execution feedback
     dataset_name = "jablonkagroup/oqmd"
     config_name = "raw_data"
-    
+
     attempt = 0
     while attempt < max_retries:
         try:
-            logger.info(f"Attempting to download {dataset_name} (Attempt {attempt + 1}/{max_retries})...")
+            log.info(
+                f"Attempt {attempt + 1}/{max_retries}: loading {dataset_name} "
+                f"(config={config_name})..."
+            )
             ds_dict = load_dataset(dataset_name, config_name, trust_remote_code=True)
-            
-            # Combine all splits into a single Dataset
+
+            # Combine all splits into one Dataset
             if isinstance(ds_dict, dict):
                 ds = concatenate_datasets(list(ds_dict.values()))
             else:
                 ds = ds_dict
-            
-            logger.info(f"Dataset loaded successfully. Total records: {len(ds)}")
-            
-            # Materialize to parquet
-            logger.info(f"Materializing dataset to {output_path}...")
-            ds.to_parquet(output_path)
-            
-            logger.info("Dataset materialization complete.")
-            return True
-            
-        except Exception as e:
+
+            log.info(f"Dataset loaded successfully – {len(ds)} records.")
+            log.info(f"Writing dataset to {output_path} ...")
+            ds.to_parquet(str(output_path))
+            log.info("Dataset materialization complete.")
+            return
+        except Exception as exc:  # pragma: no cover
             attempt += 1
             if attempt < max_retries:
-                wait_time = 2 ** attempt
-                logger.warning(f"Download failed: {e}. Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
+                wait = 2 ** attempt
+                log.warning(
+                    f"Download failed (attempt {attempt}/{max_retries}): {exc}. "
+                    f"Retrying in {wait} seconds..."
+                )
+                time.sleep(wait)
             else:
-                logger.error(f"Failed to download dataset after {max_retries} attempts: {e}")
-                raise RuntimeError(f"Data download failed after {max_retries} attempts. Error: {e}")
+                log.error(f"All download attempts failed: {exc}")
+                raise RuntimeError(
+                    f"Failed to download OQMD dataset after {max_retries} attempts."
+                ) from exc
 
-def validate_structural_descriptors(df):
-    """Check for presence of structural descriptors."""
-    structural_features = ['radius', 'packing_fraction', 'volume_per_atom', 'spacegroup']
-    present = [f for f in structural_features if f in df.columns]
-    missing = [f for f in structural_features if f not in df.columns]
-    return present, missing
-
-def extract_structural_features(df):
-    """Extract structural features if available."""
-    structural_features = ['radius', 'packing_fraction']
-    available = [f for f in structural_features if f in df.columns]
-    if available:
-        return df[available]
-    return None
-
-def update_validation_report(report_path: str, structural_features_present: bool, missing_features: list):
-    """Update or create the validation report."""
-    report = {
-        "structural_features_available": structural_features_present,
-        "available_features": [],
-        "missing_features": missing_features
-    }
-    if structural_features_present:
-        # This would be populated by extract_structural_features logic
-        pass
-    
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-def update_config_structural_flag(config_path: str, has_structural: bool):
-    """Update config.yaml to reflect structural feature availability."""
-    import yaml
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    if 'data' not in config:
-        config['data'] = {}
-    config['data']['structural_features_available'] = has_structural
-    
-    with open(config_path, 'w') as f:
-        yaml.dump(config, f)
-
-def materialize_dataset(dataset, output_path: str):
-    """Save the dataset to a parquet file."""
-    dataset.to_parquet(output_path)
-    logger.info(f"Dataset saved to {output_path}")
-
-def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    raw_dir = Path("data/raw")
+def main() -> None:
+    """
+    Entry point for task T001a.
+    - Downloads the OQMD subset (if not present).
+    - Computes & stores a SHA‑256 checksum.
+    - On subsequent runs, verifies the checksum and aborts on mismatch.
+    """
+    # Resolve output locations
+    raw_dir = data_root("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    output_path = str(raw_dir / "oqmd.parquet")
-    checksum_path = str(raw_dir / "checksums.json")
-    validation_report_path = "data/validation_report.json"
-    config_path = "code/config.yaml"
-    
-    # Download and materialize
-    success = download_oqmd_dataset(output_path)
-    
-    if success:
-        # Calculate checksum
-        sha256 = calculate_sha256(output_path)
-        checksum_data = {
-            "filename": "oqmd.parquet",
-            "sha256": sha256
-        }
-        with open(checksum_path, 'w') as f:
-            json.dump(checksum_data, f, indent=2)
-        logger.info(f"Checksum saved to {checksum_path}: {sha256}")
-        
-        # Validate structural descriptors
-        # Note: We need to load the parquet to check columns, but for the download script
-        # we assume the schema based on the dataset description or load a sample.
-        # To be safe and avoid full load in download script, we'll just note the check.
-        # The actual validation is done in preprocess.py or a separate step.
-        # For this task, we write a placeholder report indicating structural features
-        # are to be checked in the next step, or we load a sample.
-        # Let's load a sample to be rigorous.
-        import pandas as pd
-        sample_df = pd.read_parquet(output_path)
-        present, missing = validate_structural_descriptors(sample_df)
-        
-        structural_available = len(present) > 0
-        update_validation_report(validation_report_path, structural_available, missing)
-        logger.info(f"Validation report saved to {validation_report_path}")
-        
-        # Update config if needed (optional step, but good for consistency)
-        # update_config_structural_flag(config_path, structural_available)
+
+    parquet_path = raw_dir / "oqmd_subset.parquet"
+    checksum_path = data_root("checksums.json")
+
+    # If the dataset already exists, verify its integrity.
+    if parquet_path.exists() and checksum_path.exists():
+        log.info(f"Found existing dataset at {parquet_path}. Verifying checksum...")
+        with open(checksum_path, "r") as f:
+            saved = json.load(f)
+        expected = saved.get("sha256")
+        actual = calculate_sha256(str(parquet_path))
+        if expected != actual:
+            raise RuntimeError(
+                f"Checksum mismatch for {parquet_path} – expected {expected}, got {actual}."
+            )
+        log.info("Checksum verification passed – existing dataset is valid.")
+        return
+
+    # Otherwise, download the dataset.
+    log.info("Downloading OQMD subset...")
+    download_oqmd_dataset(parquet_path)
+
+    # Compute and persist checksum.
+    log.info("Computing SHA‑256 checksum for the downloaded file...")
+    current_hash = calculate_sha256(str(parquet_path))
+    checksum_record = {
+        "filename": parquet_path.name,
+        "sha256": current_hash,
+    }
+    with open(checksum_path, "w") as f:
+        json.dump(checksum_record, f, indent=2)
+    log.info(f"Checksum written to {checksum_path}: {current_hash}")
 
 if __name__ == "__main__":
     main()

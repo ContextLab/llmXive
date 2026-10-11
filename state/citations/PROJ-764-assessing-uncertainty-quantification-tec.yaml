@@ -53,7 +53,7 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&xip=UGN9qLc67Uw&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&Expires=1791360244&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmeGlwPVVHTjlxTGM2N1V3JnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0YXJnZXRzLmNzdiUzQitmaWxlbmFtZSUzRCUyMnRhcmdldHMuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTEzNjAyNDR9fX1dfQ__&Signature=MEYCIQCyZQtA7ZsmqgPyCdlPAkfX6rK6j0qGdzTs%7EwBaLaOidwIhAKzQ0ICotXum4GnaKkdJH7D4q30B7DcUaz6FtLOb0hBx&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-07T07:04:04.019582Z'
-- artifact_hash: ee0eb12a1c413b6fcb2d943220fd8746cf827761d6bf05a7485363a340b0a317
+- artifact_hash: e2223d40e3e83ce0b85f8490023f9d4b1ec0724bcfa121fa440f55e97ee6d834
   artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://huggingface.co/datasets/OQMD/OQMD-Subset`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/OQMD/OQMD-Subset
-  verified_at: '2026-10-11T10:16:51.315417Z'
+  verified_at: '2026-10-11T10:19:17.779923Z'

@@ -1,9 +1,7 @@
 status: none
-intent: download Open Quantum Materials Database subset from Hugging Face python package
-  dataset
+intent: Open Quantum Materials Database OQMD Hugging Face python package dataset
 required_fields:
 - material_id
-- formula
 - composition
 - structure
 - formation_energy_per_atom
@@ -11,6 +9,6 @@ required_fields:
 - band_gap
 - atomic_radius
 - packing_fraction
-cache_key: 608a83ff8444d499a894dedde171d6eae8b28e692b43fbc2d847ead5e65525c2
-searched_at: '2026-10-07T06:52:30.128229+00:00'
+cache_key: 0204e7050cd3505782f2e7e9296e92541959ec473fb1d8772fb64a8bbd5d8d2b
+searched_at: '2026-10-11T10:20:02.964617+00:00'
 retry_count: 1

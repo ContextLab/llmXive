@@ -16,7 +16,7 @@
 
 ## Phase 1: Data acquisition & preprocessing
 
-- [ ] T001a [FR-001] [MaterialSample] **Download OQMD subset**  
+- [ ] T001a [FR-001] [MaterialSample] **Download OQMD subset**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *Implementation file*: `code/data/download.py`  
   *Outputs*:  
   - `data/raw/oqmd_subset.parquet` – raw dataset fetched from the verified Hugging Face URL (`https://huggingface.co/datasets/OQMD/OQMD-Subset`).  

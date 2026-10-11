@@ -14,13 +14,6 @@ T006c:
     % variance condition. Moreover, the required input file `data/processed/raw_train.csv`\
     \ and the output `data/processed/pca_transformer.pkl` are absent, so the task\u2019\
     s core functionality is not present."
-T006d:
-  c: false
-  h: cff7a5b9377a3d49f66aa88e0930801a4d94e723bbb83d8ff5a6e4388811f649
-  r: "The required PCA transformer file (`data/processed/pca_transformer.pkl`) and\
-    \ the three transformed feature CSVs are absent, and the generated `data/validation_report.json`\
-    \ does not follow the specified schema (`excluded_count` and `missing_columns`).\
-    \ Consequently the task\u2019s output artifacts are missing or malformed."
 T012:
   c: false
   h: b973ea144b028df1fe53024708dd1919487f7b776425b97856615979e6696aca
@@ -30,14 +23,6 @@ T012:
     \ Moreover, the required `baseline_nn_arch.pt` file is missing, and there is no\
     \ evidence of a log entry confirming the parameter count. These essential artifacts\
     \ must be added to satisfy the task."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No model files were provided; the required `results/models/ensemble/ensemble_seed_42.pt`\
-    \ \u2026 `ensemble_seed_46.pt` are missing (or empty). Consequently the task\u2019\
-    s core deliverable\u2014training five independently seeded models and saving them\u2014\
-    has not been demonstrated. The next implementer must run the ensemble training\
-    \ loop and supply the five non\u2011empty `.pt` files in the specified directory."
 T014:
   c: false
   h: f4f086597cf476bb473e680d41c5edcb31c3a8a1596235150434f0289b45ca4b
@@ -46,9 +31,3 @@ T014:
     are absent, so the training and inference steps were not performed and the verification
     conditions are not met. The missing model checkpoint and CSV file must be generated
     for the task to be considered complete.
-T025a:
-  c: false
-  h: 9af9028c3867c810131aa46bbb9d3080a769b231b6bdb42f36b9aa57d661e75d
-  r: The required output file `results/ece_scores_by_seed.json` is missing, so the
-    aggregated ECE scores for the three seed runs have not been provided. Without
-    this artifact, the task is not satisfied.
