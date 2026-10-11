@@ -1,18 +1,14 @@
 status: none
-intent: Arabidopsis rice wheat drought salinity heat GEO ProteomeXchange proteomics
-  transcriptomics download python package dataset
+intent: NCBI GEO ProteomeXchange Arabidopsis rice wheat drought salinity heat proteomics
+  transcriptomics python package dataset
 required_fields:
+- protein_abundance
+- gene_expression_value
+- sample_id
 - species
 - stress_condition
-- sample_id
-- accession_id
 - protein_id
-- protein_abundance
 - gene_id
-- transcript_expression
-- publication_date
-- sample_group
-- metadata
-cache_key: b14eb4ec2029d874347b3d0d2fa252357dea03dcfebf696fc024473c7adcc766
-searched_at: '2026-10-11T06:19:45.123788+00:00'
+cache_key: ce4c21ec8e701e59a12c64976ad0ccf0397d076e35efffefba4d1427c61585e1
+searched_at: '2026-10-11T07:29:58.687332+00:00'
 retry_count: 1
