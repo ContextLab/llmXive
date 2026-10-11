@@ -1,11 +1,13 @@
 status: none
-intent: Omni-Doc-1 TokenBench dataset download HuggingFace python package dataset
+intent: Omni-Doc-1 TokenBench dataset download Python package with ground truth bounding
+  boxes disentanglement_lib
 required_fields:
 - image_id
 - image_path
-- text_bounding_boxes
-- visual_bounding_boxes
-- split
-cache_key: 21340725e750f9c33a5f81241bb63039288aa013dba0939c1e96c55b73d29929
-searched_at: '2026-10-11T15:10:34.069317+00:00'
+- bbox
+- label
+- width
+- height
+cache_key: e06c6c6824d2ea74357134b5bbcb92a815056607f63b5503ba877b79a008664d
+searched_at: '2026-10-11T16:11:14.324816+00:00'
 retry_count: 1

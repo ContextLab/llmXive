@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Latent Vector Schema"
-description: "Schema for the encoded latent vectors extracted by the Qwen-Image-VAE encoder."
+description: "Schema for the encoded latent vectors extracted by the Qwen‑Image‑VAE encoder."
 type: "object"
 properties:
   latent_id:
@@ -13,16 +13,16 @@ properties:
     type: "array"
     items:
       type: "number"
-    description: "The high-dimensional latent representation."
+    description: "The high‑dimensional latent representation."
   modality:
     type: "string"
     enum:
       - "text"
       - "image"
-    description: "The ground-truth modality label."
+    description: "The ground‑truth modality label."
   encoder_version:
     type: "string"
-    description: "Version of the Qwen-Image-VAE encoder used."
+    description: "Version of the Qwen‑Image‑VAE encoder used."
 required:
   - "latent_id"
   - "crop_id"
