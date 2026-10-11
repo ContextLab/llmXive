@@ -1,20 +1,24 @@
-# YAML schema for logs/preprocess_counts.yaml
-# Defines the required structure for logging preprocessing counts.
-type: map
-mapping:
-  species:
-    type: str
-    required: true
-  before_count:
-    type: int
-    required: true
-  after_count:
-    type: int
-    required: true
-  timestamp:
-    type: str
-    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
-    required: true
-  distance_used_km:
-    type: float
-    required: true
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Preprocess Counts Schema
+description: "Schema for logging the number of occurrence records before and after spatial thinning per species."
+type: array
+items:
+  type: object
+  properties:
+    species:
+      type: string
+      description: "The Latin name of the species."
+    before_count:
+      type: integer
+      description: "Number of records before spatial thinning."
+    after_count:
+      type: integer
+      description: "Number of records after spatial thinning."
+    timestamp:
+      type: string
+      format: date-time
+      description: "ISO 8601 timestamp of the operation."
+    distance_used_km:
+      type: number
+      description: "The thinning distance threshold used in kilometers."
+  required: [species, before_count, after_count, timestamp, distance_used_km]

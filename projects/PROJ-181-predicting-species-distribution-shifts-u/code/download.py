@@ -1,15 +1,19 @@
 """
 Download script for the species distribution modelling pipeline.
 
-This script supports three primary actions:
-1. Download GBIF occurrence records for a list of species.
-2. Download WorldClim bioclimatic rasters (historical, recent).
-3. Download CMIP6 future bioclimatic rasters (SSP2‑4.5, 2050).
+This script now supports a default no‑argument mode that performs the
+full data acquisition required by task T004:
+  1. Historical GBIF occurrences (1970‑2000) → data/raw/occurrence_1970_2000.csv
+  2. Recent GBIF occurrences (2005‑2020) → data/raw/occurrence_2005_2020.csv
+  3. WorldClim historical rasters (bio1‑bio19) → data/raw/climate_historical/
+  4. WorldClim recent rasters (bio1‑bio19) → data/raw/climate_recent/
+  5. CMIP6 SSP2‑4.5 future rasters (2050, bio1‑bio19) → data/raw/climate_future/
+  6. Verification that each raster directory contains exactly 19 *.tif files.
+     The script exits with code 1 if any required file is missing.
 
-All downloads are recorded in the project manifest and verified for
-completeness. The script is deliberately tolerant: any unexpected
-arguments are ignored so it can be called from the quick‑start run‑book
-without raising spurious errors.
+All downloads are streamed, recorded in the project manifest, and
+validated for a minimal file size (>100 KB). The script uses the
+configuration defined in ``code/config.py``.
 """
 
 import argparse
@@ -25,7 +29,14 @@ from typing import List, Optional
 import requests
 
 # Project imports
-from config import DATA_DIR, SPECIES_LIST, PROJECT_ROOT
+from config import (
+    DATA_DIR,
+    HISTORICAL_END_YEAR,
+    HISTORICAL_START_YEAR,
+    RECENT_END_YEAR,
+    RECENT_START_YEAR,
+    SPECIES_LIST,
+)
 from manifest_manager import compute_sha256
 from logging_config import get_download_logger
 
@@ -99,7 +110,7 @@ def _record_file_in_manifest(
     size_bytes = file_path.stat().st_size
     timestamp = datetime.utcnow().isoformat()
 
-    dataset_key = file_path.relative_to(PROJECT_ROOT).as_posix()
+    dataset_key = file_path.relative_to(Path.cwd()).as_posix()
     manifest["datasets"][dataset_key] = {
         "file_path": dataset_key,
         "source_url": source_url,
@@ -289,9 +300,8 @@ def download_worldclim_bioclim_variables(
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Historical (1970‑2000) base URL – same files are used for the recent
-    # period in the public WorldClim distribution; the only difference
-    # is the metadata folder name.
+    # Base URL – same files are used for both periods; only the
+    # directory name differs in our storage layout.
     base_url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/bioclim/WC2.1_10m_bio"
 
     for i in range(1, 20):
@@ -301,9 +311,7 @@ def download_worldclim_bioclim_variables(
         dest = output_dir / filename
         _download_raster(url, dest)
 
-    # Record the whole collection as a dataset entry (checksum of the
-    # directory is not meaningful, but we keep a high‑level entry for
-    # completeness).
+    # High‑level manifest entry for the collection
     _record_file_in_manifest(
         file_path=output_dir,
         source_url=base_url,
@@ -396,7 +404,54 @@ def _parse_year_range(arg: str) -> tuple[int, int]:
     return start, end
 
 
+def _run_occurrence_download(start_year: int, end_year: int) -> Path:
+    """Download occurrences for the given year range and return the output path."""
+    species = _load_species_list(None)
+    output_filename = f"occurrence_{start_year}_{end_year}.csv"
+    output_path = DATA_DIR / "raw" / output_filename
+    fetch_gbif_occurrences(
+        species_list=species,
+        year_start=start_year,
+        year_end=end_year,
+        output_path=output_path,
+    )
+    if not output_path.is_file() or output_path.stat().st_size == 0:
+        logger.error(f"Failed to create occurrence file {output_path}")
+        sys.exit(1)
+    logger.info(f"Occurrence download completed: {output_path}")
+    return output_path
+
+
+def _run_climate_downloads() -> None:
+    """Download historical, recent and future climate rasters."""
+    # Historical
+    hist_dir = DATA_DIR / "raw" / "climate_historical"
+    download_worldclim_bioclim_variables("historical", hist_dir)
+    if not verify_climate_rasters(hist_dir):
+        sys.exit(1)
+
+    # Recent
+    recent_dir = DATA_DIR / "raw" / "climate_recent"
+    download_worldclim_bioclim_variables("recent", recent_dir)
+    if not verify_climate_rasters(recent_dir):
+        sys.exit(1)
+
+    # Future (SSP245 2050)
+    future_dir = DATA_DIR / "raw" / "climate_future"
+    download_cmip6_future_bioclim_variables(
+        scenario="SSP245", year="2050", output_dir=future_dir
+    )
+    if not verify_climate_rasters(future_dir):
+        sys.exit(1)
+
+
 def main() -> None:
+    """
+    When called without arguments the script performs the full
+    data‑acquisition workflow required by task T004. Optional
+    arguments allow more granular control (e.g., only downloading
+    climate rasters or a specific occurrence period).
+    """
     parser = argparse.ArgumentParser(
         description="Download occurrence and climate data for the SDM pipeline."
     )
@@ -435,7 +490,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # ------------------------------------------------------------------
-    # Climate raster download mode
+    # Climate raster download mode (granular)
     # ------------------------------------------------------------------
     if args.climate:
         if args.climate in {"historical", "recent"}:
@@ -455,12 +510,17 @@ def main() -> None:
         return
 
     # ------------------------------------------------------------------
-    # Occurrence download mode
+    # Occurrence download mode (granular)
     # ------------------------------------------------------------------
-    if not args.year_range:
-        parser.error("--year-range is required when downloading occurrences.")
+    if args.year_range:
+        start_year, end_year = args.year_range
+    else:
+        # Default behaviour: use the configuration ranges based on the target
+        if args.target == "historical":
+            start_year, end_year = HISTORICAL_START_YEAR, HISTORICAL_END_YEAR
+        else:
+            start_year, end_year = RECENT_START_YEAR, RECENT_END_YEAR
 
-    start_year, end_year = args.year_range
     species = _load_species_list(args.species_list)
 
     output_filename = f"occurrence_{start_year}_{end_year}.csv"
@@ -473,12 +533,27 @@ def main() -> None:
         output_path=output_path,
     )
 
-    # Verify that the file was created and is non‑empty
     if not output_path.is_file() or output_path.stat().st_size == 0:
         logger.error(f"Failed to create occurrence file {output_path}")
         sys.exit(1)
 
     logger.info(f"Occurrence download completed: {output_path}")
+
+    # ------------------------------------------------------------------
+    # If no arguments were supplied, run the full pipeline
+    # ------------------------------------------------------------------
+    if len(sys.argv) == 1:
+        # No explicit args -> perform all required steps
+        logger.info("Running full data acquisition (T004) with default settings.")
+        # Historical occurrences already downloaded above (default target is historical)
+        # Now download recent occurrences
+        _run_occurrence_download(RECENT_START_YEAR, RECENT_END_YEAR)
+        # Climate rasters
+        _run_climate_downloads()
+        logger.info("All required data have been downloaded and verified.")
+    else:
+        # When specific arguments were used we already performed the requested action.
+        pass
 
 
 if __name__ == "__main__":

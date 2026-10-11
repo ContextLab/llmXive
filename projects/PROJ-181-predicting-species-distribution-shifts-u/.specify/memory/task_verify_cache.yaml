@@ -1,15 +1,14 @@
 T001:
   c: false
-  h: 72ce84de92f13088b57d889ffd696f6b71bc4d2c192953831f7224bc92663996
-  r: "The required root-level `.flake8` was not confirmed at the project root (a `.flake8`\
-    \ appears only inside `code/`), and the directories `logs/` and `metrics/` \u2014\
-    \ explicitly required with `.gitkeep` files \u2014 are absent from the collected\
-    \ evidence entirely. Additionally, `data/manifest.json` contains obviously fabricated\
-    \ placeholder checksums (e.g., `a1b2c3d4e5f6...`) and file sizes for datasets\
-    \ that don't exist, which is not part of this scaffold task and should not have\
-    \ been generated. Fix: create root `.flake8`, create `logs/` and `metrics/` with\
-    \ `.gitkeep`, and remove the fabricated manifest."
-  sig: 61158b2698b7ceca0dabe96dbd71abcfeb7568fdc5f91e007f68d612efbe023f
+  h: a609cf8fa6883f5a067e817c31eaada08c5a41f386c025ca2ff474f8379b6ab5
+  r: The scaffold created the required files `requirements.txt`, `pyproject.toml`,
+    `quickstart.md` and a `.flake8` (found inside `code/`), and the directories `code/`,
+    `data/raw/`, `data/processed/`, `models/`, `reports/`, `tests/`, and `contracts/`
+    each contain a `.gitkeep`. However, there is no evidence of a `.gitkeep` in the
+    `metrics/` and `logs/` directories, and the `.flake8` file is not at the project
+    root as implied by the task description. Adding those missing `.gitkeep` files
+    (and placing `.flake8` at the root) is needed to satisfy T001.
+  sig: 0d1d625696ff05338d0e301cc05a47edd8f43fe1a6fd9f41b44322d91bf6029d
 T002:
   c: true
   h: 3e187be207ae5d7f8de8abfd65104c30f32f56089ec4fce2763935722e5e222a
@@ -20,24 +19,12 @@ T002:
   sig: a356d187b54eab76423cee941bd3291105ae148f4a0f0b3bb03906ccb0104e86
 T003:
   c: false
-  h: 6cd20ca29aee60eb4f3363a8912627bc67f30cbee439aa51c11a2438ad9967ed
-  r: "The logging initialization is evidenced by a successful run of `init_logging.py`\
-    \ and a correctly\u2011formatted log line, and the `logs/` directory exists. However,\
-    \ `logs/preprocess_counts.yaml` only contains placeholder example values and a\
-    \ comment stating it is a placeholder, not an actual schema definition; thus the\
-    \ required YAML schema is not genuinely provided. The task needs a real schema\
-    \ (e.g., key definitions, types) rather than stub data."
-  sig: 3667f44f48dc475ede6640448bc52ce1077ce9a95431b94faccd0aa963b0e46c
-T004:
-  c: false
-  h: 40bfec2dcd0a21768afd9363a51703eae5fcff5d0203c050d01f1cfa32a2c0f4
-  r: "The provided `code/download.py` defines helper functions but lacks a runnable\
-    \ entry point that performs the six required download steps, creates the specified\
-    \ CSV files and raster directories, and exits with code\u202F1 when any expected\
-    \ file is missing. Consequently the expected output artifacts (`data/raw/occurrence_1970_2000.csv`,\
-    \ `data/raw/occurrence_2005_2020.csv`, `data/raw/climate_historical/`, `data/raw/climate_recent/`,\
-    \ `data/raw/climate_future/`) are absent. The script therefore does not satisfy\
-    \ the task\u2019s functional requirements."
+  h: e40d9c997251a49116816ab4298a8235713b464163bad81ebf973f9d15da4fcd
+  r: The only artifact present is `logs/preprocess_counts.yaml`, which contains an
+    empty list and no schema definition, and there is no evidence of a logging configuration
+    (e.g., a Python logging setup or config file) that writes to `logs/` with the
+    required format. Both the logging initialization and the YAML schema are missing.
+  sig: c330715663aa502c1629e540bd3f9b84df7154904f706a03d1e416675ee993ae
 T010:
   c: false
   h: b9467b5219cb4420ec97ac1c45b70ba7557a15714e5524bb42d8e8716661d656

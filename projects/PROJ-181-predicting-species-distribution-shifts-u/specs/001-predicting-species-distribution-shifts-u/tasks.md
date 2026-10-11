@@ -15,7 +15,7 @@
 
 ## Phase 1 – Data acquisition (User Story 1)
 
-- [ ] T004 [US1] Implement `code/download.py` to: <!-- FAILED-IN-EXECUTION: code/download.py exit=-1 (TIMEOUT) -->
+- [ ] T004 [US1] Implement `code/download.py` to: <!-- FAILED-IN-EXECUTION: code/download.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/download.py exit=-1 (TIMEOUT) -->
  1. **Historical occurrences** (1970‑2000) → `data/raw/occurrence_1970_2000.csv` (GBIF API, pagination, species list from `config.py`, required columns `source_identifier`, `download_timestamp`, `original_dataset_name`).
  2. **Recent occurrences** (2005‑2020) → `data/raw/occurrence_2005_2020.csv` (same logic, different year filter).
  3. **WorldClim historical rasters** (bio1‑bio19, 1970‑2000) → `data/raw/climate_historical/` (subset to each species’ bounding box).
