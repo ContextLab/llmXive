@@ -1,0 +1,111 @@
+T001a:
+  reason: The evidence shows that the `data/` directory exists, but the required `data/raw/`
+    subdirectory is missing. The task explicitly demands creation of both directories,
+    so the implementation is not complete.
+  task: 214734118313de36634d116c53ffdbddc261ea3cb790f64fec9974ef1ec42cdc
+T001b:
+  task: d61395421047392b0268817e3afa38079a66069f5d2d128f1700c2d6498fc636
+T001c:
+  reason: The evidence shows that `tests/`, `tests/unit/`, and `tests/contract/` directories
+    exist, but the required `data/processed/`, `output/`, `output/figures/`, and `logs/`
+    directories are missing. These absent directories must be created to satisfy the
+    task.
+  task: 446bdd0b628c116c62e32c2b7fd6502709f1ff8b27441fec14fd11d98825c131
+T002:
+  reason: "The evidence only shows the project root path; there is no pyproject.toml,\
+    \ requirements.txt, environment.yml, or any other manifest that lists Python\u202F\
+    3.11 and the required packages (pandas, numpy, scipy, scikit\u2011learn, requests,\
+    \ pyyaml, tqdm, pytest). Without such a file the claim of an initialized Python\u202F\
+    3.11 project with those dependencies is unsupported."
+  task: 425ea4c4bd3f80fe3d801e2089b02480eaf2210a894baa962a1f03af38b44bf8
+T003:
+  reason: No configuration files or scripts for ruff linting or black formatting are
+    present in the provided artifact list (e.g., no `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`, or similar files), so the task of configuring these
+    tools is not demonstrated. The implementer has not supplied any evidence that
+    the tools are installed, configured, or integrated into the project.
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: 7a3827710195010ebe5eb9eff6e787f9b366a12becf0277ab919de0ab3b752d3
+T005:
+  task: b66f24b8753059dcd3a5b5db053c61294a586da4487387779d924b8dc8cc63e5
+T006:
+  task: 5dc53af70089b56886474a312c0b270d01e86d8486300954307580a80d2313c2
+T007:
+  task: 60be95b4b3aff7e08b795cc3703f69c682f6987826b071797f520b42702a6066
+T008:
+  task: eccf08d8dbbce8e776092d02a5501e168a461dd03c50611ba8f0792d581605b4
+T008b:
+  task: 9f6d6ec1ca1187f2a87ec06e344aa2536917dabcb66ef2c9d6256f7aaaa723b3
+T009:
+  task: 49acd683675813a333123a82a8fe5ebb30e12d2cf505bf211d300da94f1db903
+T010:
+  task: fee53ef51b3fbaeab298b19d748ef898d23b4e3cd9dceaea16dfe7cc1cc09916
+T011:
+  reason: 'Requested task execution failed; rerun successfully: code/discovery/query_geno.py
+    exit=1'
+  task: e1079aa7e3ec582cf8d3d28f9a39d50e47cb8e3d79116eb4252706c3d11b2b86
+T012:
+  task: 3be1cb88a52c84bcdf91f6592edc42c217942498247a1021973bfb4ba13a53e3
+T013:
+  task: 12c8468c1bee3467319001044e762f48ce30b1aa506ec43c887b9805d9a34308
+T014:
+  task: 02ce8b15f3b15e8e560cd3d2fb42bd3dac5464f3713d957ca2a2e0f8149c7a80
+T015:
+  task: 4a77de0f7f51ec6d75a16dd8aa5ba3daba6b7052a569db66f3f347cf21b352d0
+T016:
+  task: 1e1215623abec2487ca7a6ef0c267f8f21eb93f706d72d90811f8d303241980c
+T017:
+  task: 7daf109cf55720fb77ecf4ad96f9de22ff7badeea8f3a5aee29a33509648990b
+T018:
+  task: c1ccddfcdf4dd8df5cf152869d236bbea302ef47dc267d21852becb5cd6c7877
+T019:
+  task: d31c95cd0acbf90aeb55c5fb4a38f8d7ae1ac2bf8baa000cec168b2555f55486
+T020:
+  task: f34f3514d0d59f8487469a58653c476e2ce6a607f9258f8150ba68d1e92e6a29
+T022:
+  task: eaae4d3714651365d522ae41c34c53306d6f00d0cba2271b4f6439ec61ae2169
+T023:
+  task: ef06db027af23a8c5017e773d10fbdf838bb1a4683e6ceb838a7196a2eea33eb
+T024:
+  task: ad1d0e5ca381ca384d11a047c6e59d0b064ca44fde433dafff915eea4e19b060
+T025:
+  task: 642920cda30b3c377ae1c781b9b1e8ea5dea31c8be3198fc92c02dea7231f9fd
+T026:
+  task: c04febc0bd2a4f7a6cb8fe041c33f35dc2c40a7741e1f566959ed1723c089bbe
+T027:
+  task: 8c6f6f58151bc353dbea47a91418a897ca9b7795a7621022376b44dfe01b7881
+T028:
+  task: de25bfe9d544499373eda4e337e4d0cc0e580d0ec8a4b7fdf27fdcf0c01c6b22
+T029:
+  task: 7404e1fe998fde41910afa5691fb63c0a0a5253ac6f68289544d6e6da60c1260
+T030:
+  task: d215fa7542a1657fa110139be0a855108896c4a4e247e3f15f6c7efca33d34b2
+T031:
+  task: ba19cf765ee1411a67b6be1dbdbfdaf45a3a537574ff01177ed42902710eeba4
+T032:
+  task: fc8701ff48038c4598293824d17e3a1b363247318e5644ae7e2b547831817e85
+T033:
+  task: dfa025edb11d2b489128d5d837e1edd5f50a1fdc1bcb15aaae7dfdbfaab5cd6f
+T034:
+  task: 12eccf12b07f2e7e07d3e42bb7c7648590aa4e1733e9642a0b8cb399169ffeee
+T035:
+  task: 998cbf0996cc2f9284cdee6b4bcce464cd14489267b3e19533071288ac038e8d
+T036:
+  task: d3262ce4d0d05ddcdae02115cdd364b0933d34eb51585bca74682ccc67dfa73d
+T037:
+  task: b445cdac869399987bd5f27f91181ff97385b7255173b30fe7fee5c195485838
+T038:
+  task: 73051696065a307772c16617995e44ea0d8309d0eb5658d1d45b615e17963805
+T039:
+  task: 85cf2405a3ab6dabff7a04213c2ca42a8d530712016b40307d9d130afbb4acf6
+T040:
+  task: 41690ca2fa31d0c7c2142b8ef9d8a7364e3fe2f20a8665c0ec51bf8c1def43d6
+T041:
+  task: 02146f51273fcd93fe07db554f4acd2f937f9170a261b3dc8e120fbb1127eaed
+T042:
+  task: 366162663573fbd97b5eddd4196ba6a9ab72d918e3d5a4aadfaa4c2ffcfeabdc
+T043:
+  task: ecb8b12ae5a0e66f4dca1def3e0e9836c6183fb9ba955be30036cc7431df920b
+T044:
+  task: ca0453b5e4e87db1ae6c14d632fc3c12e7b6bf7a9c55a5b0f221bd2b8f827e07

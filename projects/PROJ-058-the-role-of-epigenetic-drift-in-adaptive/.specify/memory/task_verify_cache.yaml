@@ -1,3 +1,53 @@
+T001a:
+  c: false
+  h: a6b1987b3df64eb562972d2160c3c1d6d8616221bef30f06999fa66021b1023f
+  r: The evidence shows that the `data/` directory exists, but the required `data/raw/`
+    subdirectory is missing. The task explicitly demands creation of both directories,
+    so the implementation is not complete.
+  sig: 1b2f872c68197452d676b5a7a4133bfbe6672028d1ebaa0e48c8af61823ba374
+T001b:
+  c: true
+  h: 1283de504e1b3195e7eeb40a17d9d4f14bf0724e109ba77b49c46f8605b1cc1e
+  r: The evidence shows that `code/`, `code/discovery/`, `code/preprocess/`, `code/analysis/`,
+    and `code/viz/` directories all exist under the project root and contain files,
+    satisfying the creation requirement.
+  sig: 6731bf4f1e9522793aec00b27501f8ec7e704cb3d75ecfdd2d0dfb0882cc0ec2
+T001c:
+  c: false
+  h: ffef82c6f75f8e370373061a11221b7740f3dea4725944104f62f7be9ece7fb9
+  r: The evidence shows that `tests/`, `tests/unit/`, and `tests/contract/` directories
+    exist, but the required `data/processed/`, `output/`, `output/figures/`, and `logs/`
+    directories are missing. These absent directories must be created to satisfy the
+    task.
+  sig: ff5d7907cbe974165ae7147a22e5d9692b3d0c667c7ae1e31c7c679d28f191a7
+T002:
+  c: false
+  h: 476588f53154bea7b58706c48a35a36995d3f3605ed76fd3d120f5e2996353c2
+  r: "The evidence only shows the project root path; there is no pyproject.toml, requirements.txt,\
+    \ environment.yml, or any other manifest that lists Python\u202F3.11 and the required\
+    \ packages (pandas, numpy, scipy, scikit\u2011learn, requests, pyyaml, tqdm, pytest).\
+    \ Without such a file the claim of an initialized Python\u202F3.11 project with\
+    \ those dependencies is unsupported."
+  sig: ce630fbc301b0bb6303061b8f22f8c21ed7415330f5a1d4587398b837ae308b1
+T003:
+  c: false
+  h: 18d3cfdf733ec69e1cd14115199a55f9c33046ddab1bdd6bde689a32f2a7a015
+  r: No configuration files or scripts for ruff linting or black formatting are present
+    in the provided artifact list (e.g., no `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`,
+    or similar files), so the task of configuring these tools is not demonstrated.
+    The implementer has not supplied any evidence that the tools are installed, configured,
+    or integrated into the project.
+  sig: db315efa39b18d02a7eb3e09f56792056cdab9ecee63c73ce3283ee7f92e98b6
+T004:
+  c: true
+  h: 960cc93835976bb5276f9ae3b548f5c91bfe069ad0e6407f40b7e52271c4554b
+  r: "Checked the `code/config.py` file (resolved path `code/config.py`, 4125\u202F\
+    bytes) which defines project\u2011root path constants, directory paths, functions\
+    \ to set random seeds for `random`, `numpy` and optional `torch`, utilities to\
+    \ read environment variables (string, int, float), runtime configuration variables,\
+    \ and a helper to create required directories. This fully implements path management,\
+    \ seed handling, and environment\u2011variable access as required."
+  sig: 7b284c765ce80ef0d5604f871c9e48b23e2ca998c53d7bb663228815d25dd4c7
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
