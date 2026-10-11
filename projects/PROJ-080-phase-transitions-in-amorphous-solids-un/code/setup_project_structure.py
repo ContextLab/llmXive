@@ -1,24 +1,24 @@
 """Setup project directory hierarchy for the Phase Transitions in Amorphous Solids pipeline.
 
-This script creates the following directories relative to the project root
-(the directory that contains the ``code`` folder):
+This script creates the following directories relative to the repository root,
+specifically under the project folder
+``projects/PROJ-080-phase-transitions-in-amorphous-solids-un``:
 
 - data/raw
 - data/processed
-- code               (ensured to exist)
+- code
 - tests/unit
 - tests/integration
 - specs/contracts
 
 The script can be invoked without arguments; it will infer the project
-root as the parent directory of this script's ``code`` folder. An optional
-``--project-root`` flag allows overriding the inferred location.
+root as ``projects/PROJ-080-phase-transitions-in-amorphous-solids-un``.
+An optional ``--project-root`` flag allows overriding the inferred location.
 """
 
 import argparse
 import sys
 from pathlib import Path
-
 
 def _create_directories(root: Path) -> None:
     """Create the required directory tree under *root*."""
@@ -33,7 +33,6 @@ def _create_directories(root: Path) -> None:
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
-
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Create the directory hierarchy required for the pipeline."
@@ -43,8 +42,9 @@ def main() -> None:
         type=str,
         default=None,
         help=(
-            "Path to the project root. If omitted, the script infers the root as the "
-            "parent directory of this script's ``code`` folder."
+            "Path to the project root. If omitted, defaults to "
+            "projects/PROJ-080-phase-transitions-in-amorphous-solids-un "
+            "relative to the repository root."
         ),
     )
     args = parser.parse_args()
@@ -53,9 +53,9 @@ def main() -> None:
     if args.project_root:
         project_root = Path(args.project_root).expanduser().resolve()
     else:
-        # ``__file__`` points to ``.../code/setup_project_structure.py``
-        # Its parent is ``code``; the project root is one level up.
-        project_root = Path(__file__).resolve().parent.parent
+        # Repository root is the parent of the ``code`` folder containing this script
+        repo_root = Path(__file__).resolve().parent.parent
+        project_root = repo_root / "projects" / "PROJ-080-phase-transitions-in-amorphous-solids-un"
 
     try:
         _create_directories(project_root)
@@ -63,7 +63,6 @@ def main() -> None:
     except Exception as exc:  # pragma: no cover – unexpected I/O errors
         print(f"Failed to create directories: {exc}", file=sys.stderr)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

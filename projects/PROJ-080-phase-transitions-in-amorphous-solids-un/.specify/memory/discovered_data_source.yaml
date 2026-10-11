@@ -1,18 +1,19 @@
 status: none
-intent: OpenKIM LAMMPS shear MD trajectory with stress tensor python package dataset
+intent: amorphous glass shear molecular dynamics trajectory dataset site:materialscloud.org
+  python package dataset
 required_fields:
-- timestep
 - particle_id
+- timestep
 - x
 - y
 - z
-- box_length_x
-- box_length_y
-- box_length_z
-- box_angle_alpha
-- box_angle_beta
-- box_angle_gamma
-- sigma_xx
-cache_key: e38fa6240ca33660e461d4f05f062602e594c154bdc8aa2071c110435e3e7829
-searched_at: '2026-10-11T02:32:47.965908+00:00'
+- box_vectors
+- stress_tensor_xx
+- stress_tensor_yy
+- stress_tensor_zz
+- stress_tensor_xy
+- stress_tensor_xz
+- stress_tensor_yz
+cache_key: 3f8d4aa621143d34d9180748363322020f37dd603811e50dcf968633db3517cf
+searched_at: '2026-10-11T02:33:56.094169+00:00'
 retry_count: 1
