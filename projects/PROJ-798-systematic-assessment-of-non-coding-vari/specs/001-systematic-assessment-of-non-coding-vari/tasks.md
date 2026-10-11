@@ -11,7 +11,7 @@ The list below follows the platform’s research‑task template and covers all 
 | Goal | Run a minimal, fully‑real pipeline on a small, real input set and verify that every downstream step can be executed. |
 |------|------------------------------------------------------------|
 
-- [X] T001 [US1] **Create the project directory layout** and record a manifest.  
+- [ ] T001 [US1] **Create the project directory layout** and record a manifest.  
   *Path*: `code/`, `code/data_ingestion/`, `code/scoring/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/derived/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.  
   *Verification*:  
   ```text
@@ -36,7 +36,7 @@ The list below follows the platform’s research‑task template and covers all 
   *Path*: `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py`.  
   *Verification*: `python -c "import pytest, pkgutil; assert pkgutil.find_loader('tests.unit')"` must succeed. The CI runner must be able to import each package without `ImportError`.
 
-- [ ] T004 [US1] **Implement dbSNP common‑SNP fetch** (MAF > 1 %) for GRCh38 build 155.   <!-- FAILED-IN-EXECUTION: code/data_ingestion/fetch_dbsnp.py exit=1 -->
+- [ ] T004 [US1] **Implement dbSNP common‑SNP fetch** (MAF > 1 %) for GRCh38 build 155.   <!-- FAILED-IN-EXECUTION: code/data_ingestion/fetch_dbsnp.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Path*: `code/data_ingestion/fetch_dbsnp.py`.  
   *Behavior*: Stream each chromosome VCF (`chr*.common_snps.vcf.gz`) from `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`, filter by MAF > 0.01, write to `data/raw/snps_raw.parquet`. Log every downloaded URL, build version, timestamp, and SHA‑256 checksum in `data/raw/source_log.txt`. Fail loudly if any download fails.  
   *Verification*: `data/raw/snps_raw.parquet` must contain a column `maf` with a minimum ≥ 0.01; `source_log.txt` must contain at least one URL and a matching checksum line.

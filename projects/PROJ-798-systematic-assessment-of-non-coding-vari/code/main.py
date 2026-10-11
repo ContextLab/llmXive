@@ -10,6 +10,7 @@ independently.
 
 import argparse
 import sys
+from pathlib import Path
 
 # Import the fetch routine that implements the required behaviour.
 from data_ingestion.fetch_dbsnp import main as fetch_dbsnp_main
@@ -38,7 +39,13 @@ def _parse_args():
 
 def main():
     # Parse arguments (they are optional for now)
-    _ = _parse_args()
+    args = _parse_args()
+
+    # Ensure the requested output directory exists so downstream
+    # verification steps (e.g., checksum verification) do not fail.
+    if args.output_dir:
+        out_path = Path(args.output_dir)
+        out_path.mkdir(parents=True, exist_ok=True)
 
     # Run the dbSNP fetch step – this creates
     # ``data/raw/snps_raw.parquet`` and logs provenance.

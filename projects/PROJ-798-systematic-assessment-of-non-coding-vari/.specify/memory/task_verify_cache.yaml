@@ -1,12 +1,24 @@
 T001:
-  c: true
-  h: cd53825cb5cac11afecf4e01b2adcc97b9620c385a00db13f25918255f1890ec
-  r: "Checked that all required directories (`code/`, `code/data_ingestion/`, `code/scoring/`,\
-    \ `code/analysis/`, `code/utils/`, `data/raw/`, `data/derived/`, `data/results/`,\
-    \ `tests/unit/`, `tests/integration/`, `tests/contract/`) exist and that `data/results/structure_manifest.txt`\
-    \ is present, non\u2011empty, and lists each of these directories (along with\
-    \ additional ones)."
-  sig: 16061a63ac1b096d8560ae3d160361ecf6872af56821b247c0f5ceaee882b2ca
+  c: false
+  h: 1ec9dfce24e9bcaf1b0e7de960cf4356b3dd9946193222e6f4e10d8344e9b900
+  r: "The manifest `data/results/structure_manifest.txt` lists 14 paths including\
+    \ `code/analysis` and `data/derived`, but the collector confirms those two required\
+    \ directories do not actually exist on disk \u2014 the manifest does not reflect\
+    \ reality (it appears fabricated or the dirs were removed). The task requires\
+    \ the directories to exist and the manifest to be generated via `find code data\
+    \ tests -type d | sort`; re-create `code/analysis/` and `data/derived/` and regenerate\
+    \ the manifest from an actual `find` run."
+  sig: 3bb98b7d96006981ab947decbbb343a4910b1aa5084429668f492c0f572a8079
+T002:
+  c: false
+  h: 15c47d3c4469af9877cbdfdeb504404049e02db40d3cd45bfe0d57f7a78d20c4
+  r: The required `.gitignore` file at the repository root is not present in the collected
+    evidence at all (no artifact path for it was resolved), so there is no file to
+    contain the required exclusion patterns. Additionally, the verification commands
+    (`git check-ignore` on `data/raw/snps_raw.vcf.gz` and `data/raw/source_log.txt`)
+    have no execution evidence, and `data/derived/` is missing, so the pattern `data/derived/*`
+    could not be meaningfully exercised.
+  sig: 2797fed9a60a5d4d94a9a68a082abc6124dd171133856310bc2c20d709c525fb
 T003:
   c: true
   h: 51c878251d8fe2f59b0d5da62f81883f4199d8d0ed6863e3912541f9a1e8c59b

@@ -26,7 +26,15 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
-import pyarrow  # noqa: F401  (ensures pyarrow is available for parquet)
+
+# Attempt to import pyarrow only to ensure the optional dependency is present.
+# If it cannot be imported (e.g., due to NumPy version mismatch), we simply
+# continue – pandas will fall back to another parquet engine (fastparquet)
+# which we declare as a required package in ``code/requirements.txt``.
+try:
+    import pyarrow  # noqa: F401
+except Exception:
+    pyarrow = None  # optional; pandas will use fastparquet instead
 
 # Project‑specific utilities
 from config import ensure_data_dirs, set_seeds
@@ -184,10 +192,10 @@ def main() -> None:
             "No SNPs passed the MAF > 0.01 filter across processed chromosomes."
         )
 
-    # Write to Parquet
+    # Write to Parquet using fastparquet (declared in requirements.txt)
     logger.info("Writing %d total records to %s", len(all_records), OUTPUT_PARQUET)
     df = pd.DataFrame(all_records)
-    df.to_parquet(OUTPUT_PARQUET, index=False)
+    df.to_parquet(OUTPUT_PARQUET, index=False, engine="fastparquet")
 
     logger.info("dbSNP fetch completed successfully.")
 

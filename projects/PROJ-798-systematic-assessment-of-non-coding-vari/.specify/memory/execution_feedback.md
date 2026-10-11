@@ -9,15 +9,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py  --dbsnp-ftp "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/"  --jaspar-url "http://jaspar.genereg.net/"  --gwas-ftp "ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/"  --output-dir data/output -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/main.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/main.py", line 16, in <module>
     from data_ingestion.fetch_dbsnp import main as fetch_dbsnp_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/fetch_dbsnp.py", line 29, in <module>
-    import pyarrow  # noqa: F401  (ensures pyarrow is available for parquet)
-    ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-798-systematic-assessment-of-non-coding-vari/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/fetch_dbsnp.py", line 41, in <module>
+    from data_ingestion import (
+ImportError: cannot import name 'log_source_lineage' from 'data_ingestion' (/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/__init__.py)
 
 - python code/utils/checksum.py data/output/ -> rc=1
 
