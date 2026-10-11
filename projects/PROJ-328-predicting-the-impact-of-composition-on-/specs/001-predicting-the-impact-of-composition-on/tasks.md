@@ -9,13 +9,13 @@ Each task is a concrete, unchecked work item that produces a real artifact on th
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] **Curate a citation‑backed solder‑hardness dataset**  
+- [ ] **T001** [US1] **Curate a citation‑backed solder‑hardness dataset**   <!-- FAILED: unspecified -->
   *Create* `data/raw/solder_hardness_curated.csv` (real rows extracted from open‑access literature and the Materials Project, NIST, OpenAlloy) with columns `id,source_citation,source_url,alloy_family,elements,hardness_hv,hardness_unit,temperature_c,notes`.  
   *Also create* `data/raw/curation_notes.md` documenting the literature search, per‑source record counts, and any gaps.  
   *Compute* SHA‑256 of the CSV and write it to `data/checksums.txt`.  
   **Verification**: CSV parses with pandas, contains ≥ 50 rows, every row has a non‑empty `source_citation` and numeric `hardness_hv`. The hash in `checksums.txt` matches the file.
 
-- [ ] **T017** [US1] **API data fetcher**  
+- [ ] **T017** [US1] **API data fetcher**   <!-- FAILED-IN-EXECUTION: code/ingestion/api_fetcher.py exit=1 -->
   Fetch raw composition‑hardness data from the Materials Project (or other open API) using a lightweight script `code/ingestion/api_fetcher.py`.  
   Store the JSON response as `data/raw/api_fetched.json`.  
   Compute SHA‑256 of this file and **append** the hash to `data/checksums.txt`.  
