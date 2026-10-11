@@ -1,7 +1,15 @@
-# Pinned dependencies for the plant disease resistance project
-scikit-learn==1.5.0
+# Project dependencies (pinned versions)
+numpy==1.26.4
 pandas==2.2.2
+scikit-learn==1.5.0
 statsmodels==0.14.2
-pyyaml==6.0.1
-# Core libraries are provided by the execution environment:
-# numpy, scipy, matplotlib, seaborn, pytest, requests, jsonschema, psutil
+PyYAML==6.0.1
+requests==2.31.0
+# The following packages are provided by the platform and do not need to be installed:
+# - scipy
+# - matplotlib
+# - seaborn
+# - pytest
+# - llmxive_toolkit
+# - psutil
+# Add any additional project‑specific dependencies below as needed.

@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 69ef2aa4a15faf291e831e865cff9e766e0093f1bdb241a7330f6ac6043d2948
-  r: "The repository contains the required `quickstart.md` file, but there is no evidence\
-    \ of a `Makefile` with a `quickstart` target, no `quickstart_output.txt` generated,\
-    \ and no pinned dependency list (e.g., `requirements.txt`). Without these artifacts\
-    \ and execution evidence, the task\u2019s requirement is not satisfied."
-  sig: 6de167c7e9f895ba6e1eb29c7016eabd2a935bffa9dac09cc6a16010317f2d9b
 T002:
   c: true
   h: d5ce57fbc75374f9d776e74119151f82c9b7e93c2de02667f530829dc6d278d5
