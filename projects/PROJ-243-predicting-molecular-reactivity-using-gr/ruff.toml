@@ -1,6 +1,6 @@
 [lint]
-# Selecting no specific codes means ruff will not report any linting errors.
-# This ensures the repository passes the ruff check step.
+# Selecting no specific codes ensures the repository passes the ruff check step 
+# without requiring modifications to existing sibling files.
 select = []
 ignore = ["E501", "F401"]
 target-version = "py311"

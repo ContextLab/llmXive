@@ -1,18 +1,23 @@
 T001:
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/run_lint.sh exit=1'
+  reason: The repository contains `requirements.txt`, `pyproject.toml`, and `ruff.toml`,
+    and the install log shows the requirements install successfully, but there is
+    no `.flake8` file present and the provided linting log does not include the output
+    of `ruff check .` or `black --check .` confirming they pass without errors. Adding
+    the missing `.flake8` file and supplying evidence that both ruff and black checks
+    succeed is required.
   task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
 T003:
-  reason: The required `data/raw/checksums_schema.yaml` file is missing, and the `data/raw/checksums.json`
-    file is not empty (it contains checksum data) whereas the task demanded an empty
-    JSON file. Both artifacts must exist and meet the specified content criteria.
+  reason: "The `data/raw/checksums_schema.yaml` file exists and appears valid, but\
+    \ the required `data/raw/checksums.json` is not empty\u2014it contains entries\
+    \ with keys `file`, `hash`, and `path` that do not match the schema\u2019s `file_path`\
+    \ and `sha256` fields. The task explicitly demanded an empty `checksums.json`,\
+    \ so this requirement is unmet."
   task: 4b43f349955989a58c04892e67d9de7f6e535f3d9a5dcdf4ed23892970b9ffe7
 T004:
   task: f05715c1b6c34eaaa9a72a319ee5e838fdca3c7ed2428f9c6e96725257c684fa
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/data/curate_reference_substructures.py
-    exit=1'
   task: 6544ad0033b0cab68d101c6736188511d86eb07afd3eeff001c0b708eab7e767
 T006:
   task: 7ea02df71fd2e3baebff7bccf630d86a7f68ad4e66466f4491df3c184077f35c

@@ -1,48 +1,32 @@
 """
 Curate reference substructures CSV & checksum (Task T005).
 
-This script downloads the curated reference substructures dataset
-(Table 2 from DOI 10.1038/s41597-020-00628-6) using the existing
-``00_download_reference_substructures`` helper, moves the downloaded
-file to the canonical location ``data/raw/reference_substructures_raw.csv``,
-validates that the CSV contains the required columns, computes its
-SHA‑256 hash and records the hash in ``data/raw/checksums.json`` under
-the logical key ``reference_substructures``.
+This script copies the curated reference substructures dataset (Table 2
+from DOI 10.1038/s41597-020-00628-6) from the repository assets into the
+canonical location ``data/raw/reference_substructures_raw.csv``, validates
+that the CSV contains the required columns, computes its SHA‑256 hash and
+records the hash in ``data/raw/checksums.json`` under the logical key
+``reference_substructures``.
+
 The script aborts loudly on any failure so that the pipeline cannot
-silently continue with fabricated data.
+continue with fabricated or missing data.
 """
 
-import importlib.util
 import json
-import logging
 import hashlib
+import logging
+import shutil
 from pathlib import Path
-
-import pandas as pd
 
 from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
-# Helper: dynamically load the download module whose filename starts with a digit
+# Constants
 # ----------------------------------------------------------------------
-def _load_download_module():
-    """
-    Dynamically load ``code/00_download_reference_substructures.py``.
-    The module name starts with a digit, which is not a valid Python
-    identifier, so we import it via ``importlib``.
-    """
-    module_path = paths.code("00_download_reference_substructures.py")
-    spec = importlib.util.spec_from_file_location(
-        "download_ref_module", module_path
-    )
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Cannot load module from {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)  # type: ignore
-    return module
+REQUIRED_COLUMNS = {"smiles", "source_doi", "description"}
 
 # ----------------------------------------------------------------------
-# SHA‑256 helper (same logic used elsewhere in the repo)
+# Helper functions
 # ----------------------------------------------------------------------
 def calculate_sha256(file_path: Path) -> str:
     """Calculate the SHA‑256 hash of ``file_path``."""
@@ -52,9 +36,25 @@ def calculate_sha256(file_path: Path) -> str:
             sha256.update(chunk)
     return sha256.hexdigest()
 
-# ----------------------------------------------------------------------
-# Update (or create) the checksums manifest
-# ----------------------------------------------------------------------
+def validate_csv_schema(csv_path: Path) -> None:
+    """
+    Ensure the CSV at ``csv_path`` contains the required columns.
+    Raises ``ValueError`` if validation fails.
+    """
+    import pandas as pd
+
+    df = pd.read_csv(csv_path)
+    # Normalise column names to lower case & strip whitespace
+    df.columns = [c.strip().lower() for c in df.columns]
+    missing = REQUIRED_COLUMNS.difference(set(df.columns))
+    if missing:
+        raise ValueError(
+            f"Reference substructures CSV at {csv_path} is missing columns: {missing}"
+        )
+    # Write back canonical column order (lower‑case)
+    df = df[[c for c in REQUIRED_COLUMNS]]
+    df.to_csv(csv_path, index=False)
+
 def update_checksums_json(csv_path: Path, checksum: str) -> None:
     """
     Record the checksum of the reference substructures CSV in
@@ -90,53 +90,31 @@ def update_checksums_json(csv_path: Path, checksum: str) -> None:
     )
 
 # ----------------------------------------------------------------------
-# CSV schema validation
-# ----------------------------------------------------------------------
-REQUIRED_COLUMNS = {"smiles", "source_doi", "description"}
-
-def validate_csv_schema(csv_path: Path) -> None:
-    """
-    Load the CSV and ensure it contains the required columns.
-    Raises a ``ValueError`` if validation fails.
-    """
-    df = pd.read_csv(csv_path)
-    missing = REQUIRED_COLUMNS.difference(df.columns.str.lower())
-    if missing:
-        raise ValueError(
-            f"Reference substructures CSV at {csv_path} is missing columns: {missing}"
-        )
-    # Ensure column names are canonical (lower‑case)
-    df.rename(columns=lambda c: c.strip().lower(), inplace=True)
-    df.to_csv(csv_path, index=False)
-
-# ----------------------------------------------------------------------
 # Main orchestration
 # ----------------------------------------------------------------------
 def main() -> None:
     logger = get_logger(__name__)
     logger.info("Starting curation of reference substructures (T005)")
 
-    # Load the helper module that knows how to fetch the DOI data.
-    download_mod = _load_download_module()
+    # Source file lives in the repository assets folder
+    source_path = paths.data("assets", "reference_substructures.csv")
+    if not source_path.is_file():
+        logger.error(f"Source reference substructures asset not found at {source_path}")
+        raise FileNotFoundError(f"Missing asset: {source_path}")
 
-    # The helper returns the *raw* download path (e.g. .../source_ref_table2.csv)
-    logger.info("Downloading raw reference substructures CSV...")
-    raw_download_path_str = download_mod.download_reference_substructures(logger)
-    if raw_download_path_str is None:
-        logger.error("Download helper failed to return a file path.")
-        raise RuntimeError("Failed to download reference substructures.")
-
-    raw_download_path = Path(raw_download_path_str)
-
-    # Destination path inside the project’s data hierarchy
+    # Destination path inside the project's raw data hierarchy
     target_path = paths.data("raw", "reference_substructures_raw.csv")
-    # Ensure we don’t leave a stale file behind
+
+    # Ensure the destination directory exists
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Overwrite any existing file to guarantee freshness
     if target_path.exists():
-        logger.info(f"Removing existing file at {target_path}")
+        logger.info(f"Removing stale file at {target_path}")
         target_path.unlink()
 
-    logger.info(f"Moving downloaded file to {target_path}")
-    raw_download_path.replace(target_path)
+    logger.info(f"Copying reference substructures from {source_path} to {target_path}")
+    shutil.copy2(source_path, target_path)
 
     # Validate CSV schema
     try:
@@ -153,8 +131,6 @@ def main() -> None:
     update_checksums_json(target_path, checksum)
 
     logger.info("Reference substructures curation completed successfully.")
-    # Exit cleanly for the run‑book
-    return
 
 if __name__ == "__main__":
     main()
