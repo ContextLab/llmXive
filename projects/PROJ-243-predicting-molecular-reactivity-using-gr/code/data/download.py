@@ -1,19 +1,19 @@
 """
 Download QM9 dataset subset and record its checksum.
 
-This script implements Task T004: it streams the QM9 dataset (via the
-HuggingFace `datasets` library) to a Parquet file located at
-`data/raw/qm9_subset.parquet`. After the file is written, the script
+This script implements Task T004: it streams the QM9 dataset (via
+``torch_geometric.datasets.QM9``) to a Parquet file located at
+``data/raw/qm9_subset.parquet``. After the file is written, the script
 computes its SHA‑256 hash and records an entry in
-`data/raw/checksums.json` following the project's checksum schema.
+``data/raw/checksums.json`` following the project's checksum schema.
 
 Usage
 -----
 python code/data/download.py --dataset qm9 --output data/raw
 
-The script is CPU‑only and makes no attempt to fabricate data; any failure
-in downloading the real dataset raises an exception so that the pipeline
-fails loudly as required.
+The script is CPU‑only and makes no attempt to fabricate data; any
+failure in downloading the real dataset raises an exception so that the
+pipeline fails loudly as required.
 """
 
 import argparse
@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from datasets import load_dataset
+from torch_geometric.datasets import QM9
 
 # llmxive toolkit provides convenient path helpers that also ensure
 # directories exist.
@@ -39,6 +39,7 @@ def calculate_sha256(file_path: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
+
 
 def update_checksums_json(parquet_path: Path, checksum: str) -> None:
     """
@@ -75,10 +76,11 @@ def update_checksums_json(parquet_path: Path, checksum: str) -> None:
 
     log.info(f"Checksum entry written to {checksums_path}")
 
+
 def download_qm9_subset(output_dir: Path, subset_size: int = 100_000) -> Path:
     """
-    Stream the QM9 dataset, select ``subset_size`` molecules, and write
-    a Parquet file.
+    Download the QM9 dataset using ``torch_geometric`` and write a Parquet
+    file containing a subset of ``subset_size`` molecules.
 
     Parameters
     ----------
@@ -86,32 +88,43 @@ def download_qm9_subset(output_dir: Path, subset_size: int = 100_000) -> Path:
         Directory where ``qm9_subset.parquet`` will be saved.
     subset_size: int
         Number of molecules to retain. The full QM9 set contains ~130k;
-        100k provides the requested "≈100 k" subset.
+        100k provides the requested "≈100 k" subset.
 
     Returns
     -------
     Path to the created Parquet file.
     """
-    log.info("Loading QM9 dataset from HuggingFace...")
-    # The HuggingFace QM9 dataset mirrors the original data and includes a
-    # ``smiles`` column needed downstream.
-    dataset = load_dataset("qm9", split="train", streaming=False)
+    log.info("Loading QM9 dataset via torch_geometric...")
+    # ``QM9`` will download the raw files into ``output_dir`` if they are not
+    # already present.  The dataset is small enough to fit into memory on the
+    # CI runner, so we load it fully and then slice.
+    dataset = QM9(root=str(output_dir), download=True)
 
-    # Verify the expected column exists
-    if "smiles" not in dataset.column_names:
-        raise RuntimeError("QM9 dataset does not contain a 'smiles' column.")
+    total_available = len(dataset)
+    if total_available == 0:
+        raise RuntimeError("QM9 dataset downloaded but contains no entries.")
 
-    # Convert to pandas, selecting only the required number of rows.
-    # The dataset comfortably fits into memory on the CI runner.
-    df = pd.DataFrame(dataset[:subset_size])
+    actual_size = min(subset_size, total_available)
+    log.info(f"Dataset contains {total_available} molecules; selecting {actual_size} for the subset.")
 
-    # Ensure the output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Extract SMILES strings; the ``QM9`` objects expose a ``smiles`` attribute.
+    smiles_list = []
+    ids_list = []
+    for idx in range(actual_size):
+        data_item = dataset[idx]
+        # ``data_item.smiles`` is a string; if missing, raise an error.
+        if not hasattr(data_item, "smiles"):
+            raise RuntimeError(f"QM9 data item at index {idx} lacks a 'smiles' attribute.")
+        smiles_list.append(data_item.smiles)
+        ids_list.append(str(idx))
+
+    df = pd.DataFrame({"id": ids_list, "smiles": smiles_list})
     parquet_path = output_dir / "qm9_subset.parquet"
     log.info(f"Writing {len(df)} records to {parquet_path}")
     df.to_parquet(parquet_path, index=False)
 
     return parquet_path
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -161,6 +174,7 @@ def main() -> None:
     log.info("QM9 subset download and checksum recording completed successfully.")
     # Exit with status 0 so the run‑book sees success.
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

@@ -1,37 +1,19 @@
 T001:
-  c: true
-  h: 08602ddd0131111e4a67be2929399e0f1a4615eae2286739bfcc11ac01a3e879
-  r: Checked the execution log `code/.tasks/T001.code_setup_directories.py.log`, which
-    confirms that all six required directories (`data/raw`, `data/processed`, `data/assets`,
-    `code`, `artifacts`, `tests`) exist and each contains a `.gitkeep` file. The script
-    exited successfully, indicating the directories were correctly created/verified.
-  sig: 6c520625ffe233b84beddd6c79f0062dd1c5573d3ea05da4a59898a6eaf30f41
-T002:
   c: false
-  h: fe4e2f3810a13c197bc19c1fd7799f115772afcee7f26d14b4aeb613565594e5
-  r: The `requirements.txt`, `pyproject.toml`, and `ruff.toml` files are present and
-    correctly contain the required configurations, but the required `.flake8` file
-    is missing from the project repository. Adding this linting configuration file
-    is needed to satisfy the task.
-  sig: 97f8e02b740f856be9b73c77c9dba7c8b2bb9b6216d5458aa7810d2c1ee15b10
+  h: 7ae7cc8ce522bdaec5f575ab89a82e2c579872baa2c9210d3ee7e801df4e10ce
+  r: The evidence provided does not show the six required directories (`data/raw`,
+    `data/processed`, `data/assets`, `code`, `artifacts`, `tests`) nor the `.gitkeep`
+    files inside each; no file listings or directory structures were supplied to confirm
+    they exist. The implementer must add these directories with a `.gitkeep` file
+    in each and provide evidence (e.g., `git ls-files` output) that they are tracked.
+  sig: f462b0e94348adb879f3ab4ab59f4319fc05dfe65fec7f6b809ef830af45e099
 T003:
-  c: false
-  h: 7d2b59488ca96dcc9241c7a177f961e7a34d300b4c32541faab662dc3c7d73ee
-  r: "The schema file exists and is valid YAML, but it does not describe the required\
-    \ structure: the task specifies fields `file_path` and `sha256`, whereas the schema\
-    \ defines `hash`, `file`, and `path` instead \u2014 the required field names are\
-    \ absent. Additionally, there is no evidence that `yamllint` was run and passed\
-    \ on the schema, which is the task's stated verification criterion. Fix: rewrite\
-    \ the schema to require `file_path` and `sha256` properties and provide yamllint\
-    \ execution output."
-  sig: 9c394ed9b4aa7b62bd1e42cb597c11afd63fe8a8d9d33ff3e09710b314c5e525
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
-    \ with ruff/black settings, or pre\u2011commit hooks) are present in the provided\
-    \ evidence, so the requirement to configure flake8/ruff and black is not satisfied.\
-    \ The task needs actual configuration artifacts and/or integration steps."
+  c: true
+  h: 505ce98bda07b89ad32b05957a320f8685ac8f3e3bf1c326cc4d801b4f8f999c
+  r: Checked `data/raw/checksums_schema.yaml` (valid YAML defining the required fields)
+    and `data/raw/checksums.json` (present and empty JSON object). Both files exist
+    and the schema is syntactically correct.
+  sig: 461e558a19de365d1bf3700d38b82f7847d40abc7224857114fd42a782d310bc
 T013:
   c: false
   h: 7664e2977be0b4f415a9c52d469ba83b8ef680696b91d9952b660685e690d937

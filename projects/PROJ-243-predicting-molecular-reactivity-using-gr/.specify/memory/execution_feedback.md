@@ -18,17 +18,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py --dataset qm9 --output data/raw -> rc=1
-3-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/datasets/load.py", line 2587, in load_dataset
-    builder_instance = load_dataset_builder(
-                       ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-243-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/datasets/load.py", line 2259, in load_dataset_builder
-    dataset_module = dataset_module_factory(
-                     ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-243-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/datasets/load.py", line 1904, in dataset_module_factory
-    raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-243-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/datasets/load.py", line 1850, in dataset_module_factory
-    raise DatasetNotFoundError(
-datasets.exceptions.DatasetNotFoundError: Dataset 'qm9' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/qm9 to ask for access.
+
+2026-10-11 17:15:28,213 INFO __main__: Loading QM9 dataset via torch_geometric...
+2026-10-11 17:15:28,213 ERROR __main__: Failed to download or write QM9 subset: QM9.__init__() got an unexpected keyword argument 'download'
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-243-predicting-molecular-reactivity-using-gr/code/data/download.py", line 156, in main
+    parquet_path = download_qm9_subset(raw_dir)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-243-predicting-molecular-reactivity-using-gr/code/data/download.py", line 101, in download_qm9_subset
+    dataset = QM9(root=str(output_dir), download=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: QM9.__init__() got an unexpected keyword argument 'download'
 
 - python code/utils/checksums.py --dir data/raw --output data/raw/checksums.json -> rc=2
 
