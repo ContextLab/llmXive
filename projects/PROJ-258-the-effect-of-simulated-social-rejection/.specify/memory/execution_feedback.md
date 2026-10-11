@@ -7,22 +7,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingest.py --dataset-url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet" --output-dir data/raw -> rc=1
-.zip
-2026-10-11 18:09:53,580 - INFO - Extracting /home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/data/raw/ds000208.zip
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py", line 383, in <module>
-    run_ingestion()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py", line 354, in run_ingestion
-    file_list = download_and_extract_zip(dataset_id, raw_dir)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py", line 125, in download_and_extract_zip
-    with zipfile.ZipFile(zip_path, "r") as zip_ref:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/zipfile.py", line 1355, in __init__
-    self._RealGetContents()
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/zipfile.py", line 1422, in _RealGetContents
-    raise BadZipFile("File is not a zip file")
-zipfile.BadZipFile: File is not a zip file
+
+2026-10-11 19:06:19,768 - ERROR - Failed to estimate size for ds000208: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000208/download?format=zip
 
 - python code/analyze.py --input data/processed/analysis_ready.csv --output results/analysis_output.json -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -45,7 +31,7 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 
 - python code/report.py --input results/analysis_output.json --output paper/report.md -> rc=1
 
-2026-10-11 18:09:55,592 - ERROR - Reporting pipeline failed: Analysis results file not found: results/analysis_output.json
+2026-10-11 19:06:21,110 - ERROR - Reporting pipeline failed: Analysis results file not found: results/analysis_output.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py", line 343, in <module>
     main()
@@ -73,7 +59,7 @@ E   ImportError: cannot import name 'MAX_RUNTIME_SECONDS' from 'performance_moni
 =========================== short test summary info ============================
 ERROR tests/test_performance.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.15s ===============================
+=============================== 1 error in 0.68s ===============================
 
 
 

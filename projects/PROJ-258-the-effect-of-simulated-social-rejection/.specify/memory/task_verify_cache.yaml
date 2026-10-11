@@ -1,14 +1,13 @@
 T001:
   c: true
-  h: 1393c10bef1910eeabcac4185b48a9a8ce583b88916b852e65c777f0753d1cd0
+  h: 039ed911fe3b82787d5fc2c04b8ebd73021cfe36c8ed829433150b97f01145c6
   r: All required directories exist (`code/`, `data/raw/`, `data/interim/`, `data/processed/`,
-    `tests/`, `reports/`) with `__init__.py` markers in `code/` and `tests/`; `requirements.txt`
-    contains all six required packages (plus extras); and `quickstart.md` documents
+    `tests/`, `reports/`), with `__init__.py` markers in `code/` and `tests/`; `requirements.txt`
+    contains all six required packages (plus extras), and `quickstart.md` documents
     both `pip install -r requirements.txt` and `python -m code.pipeline`. The quickstart's
-    note that the pipeline entry point is a placeholder is acceptable since implementing
-    the pipeline is not part of T001, which only asked for layout, placeholders, requirements,
-    and documentation.
-  sig: 541945d551fb46efed2c1e7a629770db258ea9b58fc453bcbe342365129da4b4
+    note that the pipeline entry point is a placeholder is acceptable for this scaffolding
+    task, which only requires directory layout, placeholders, requirements, and documentation.
+  sig: ff2dc5e527d854ebfbccef223ef78e37ba064255673ed32013064aa2e8a65701
 T002:
   c: true
   h: b86f67745bc1e257525d6115c2f5046f032d8fdc2957cd653943a281d8e83c4a
