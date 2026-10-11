@@ -36,20 +36,20 @@ properties:
     type: string
     description: "Empty string representing the no‑comment baseline."
   BLEU:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "BLEU score normalized to [0,1]."
+    type:
+      - number
+      - "null"
+    description: "BLEU score normalized to [0,1]; null for non‑LLM rows."
   ROUGE_L:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "ROUGE‑L score normalized to [0,1]."
+    type:
+      - number
+      - "null"
+    description: "ROUGE‑L score normalized to [0,1]; null for non‑LLM rows."
   Semantic_Similarity:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Cosine similarity between comment and docstring embeddings."
+    type:
+      - number
+      - "null"
+    description: "Cosine similarity between comment and docstring embeddings; null for non‑LLM rows."
   completion_time_sec:
     type: number
     minimum: 0.0
@@ -63,3 +63,4 @@ properties:
     minimum: 1
     maximum: 5
     description: "Likert rating of how helpful the comment was (1‑5)."
+

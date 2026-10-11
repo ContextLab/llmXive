@@ -1,7 +1,7 @@
 # Research: Evaluating the Impact of LLM-Generated Code Comments on Code Readability
 
 ## Objective
-Quantify how LLM‑generated comments affect developer task performance (completion time, accuracy) relative to human‑written docstrings and a no‑comment baseline, and assess whether standard automated readability metrics (BLEU, ROUGE‑L, Sentence‑BERT similarity) predict those human outcomes.
+Quantify how **LLM‑generated comments causally affect** developer task performance (completion time, accuracy) relative to human‑written docstrings and a no‑comment baseline, and assess whether standard automated readability metrics (BLEU, ROUGE‑L, Sentence‑BERT similarity) predict those human outcomes.
 
 ## Dataset Strategy
 | Requirement | Source | Loader | Remarks |
@@ -21,7 +21,8 @@ All datasets are openly downloadable; no gated data required.
 1. **Download** the three CodeSearchNet parquet files, verify SHA‑256 checksums (recorded in `data/artifact_hashes.yaml`).  
 2. **Extract** fields `code` (string) and `docstring` (string).  
 3. **Validate** each docstring: non‑empty, length ≥ 5 tokens, and passes a simple Python `ast.parse` sanity check. Invalid records are written to `excluded_records.json` with a `reason` field.  
-4. **Select** a random seed‑controlled subset of **N = 500** snippets (ensures ≥ 30 per experimental condition after human study).  
+4. **Assign** a UUID `snippet_id` to every retained record.  
+5. **Select** a random‑seed‑controlled subset of **N = 500** snippets (ensures ≥ 30 per experimental condition after human study).  
 
 ### 2. Comment Generation (LLM)
 - Use **CodeLlama‑7B‑Instruct** via the HF Inference API (`/v1/completions`).  
@@ -36,24 +37,29 @@ All datasets are openly downloadable; no gated data required.
 ### 3. Automated Readability Metrics
 - **BLEU**: `nltk.translate.bleu_score.sentence_bleu` with smoothing (`method1`). Normalized to 0‑1.  
 - **ROUGE‑L**: `rouge_score.rouge_scorer.RougeScorer(['rougeL'])`. Normalized to 0‑1.  
-- **Semantic similarity**: cosine similarity between Sentence‑BERT embeddings of the comment and the original docstring.  
+- **Semantic similarity**: cosine similarity between Sentence‑BERT embeddings of the **LLM comment** and the **human docstring**.  
+- **Auxiliary metrics**: comment character length and Flesch‑Kincaid readability (computed via `textstat`).  
 - **Fallback**: If `all-MiniLM-L6-v2` fails to load, automatically switch to `paraphrase-MiniLM-L3-v2`.  
+- **Note**: For the human and no‑comment conditions, the three primary metric fields are set to `null` to avoid deterministic encoding of condition.  
 
 ### 4. Human Study
-- Participants (≥ 30 per condition) perform a **code‑modification task** on each snippet under the assigned comment condition.  
-- Metrics collected: `completion_time_sec`, `accuracy` (binary correct/incorrect), and `subjective_helpfulness` (1‑5 Likert).  
-- Recruitment tools are validated before launch (e.g., Prolific, MTurk) – logged in `human_study_setup.log`.  
+- **Design**: **Between‑subject randomised experiment**. Each participant is assigned **once** to a single condition (`llm`, `human`, or `none`) for **all** snippets they evaluate, eliminating order and skill confounds.  
+- **Recruitment**: Validated via Prolific (or MTurk) – logged in `human_study_setup.log`.  
+- **Task**: Code‑modification task on each snippet under the assigned comment condition.  
+- **Metrics collected**: `completion_time_sec`, `accuracy` (binary correct/incorrect), and `subjective_helpfulness` (1‑5 Likert).  
+- **Data file**: `human_study_responses.csv` (matches the schema in `contracts/dataset.schema.yaml`).  
 
 ### 5. Statistical Analyses
 | Analysis | Method | Software | Multiple‑Comparison Correction |
 |----------|--------|----------|--------------------------------|
 | Power analysis | `FTestAnovaPower` (effect size = 0.25, α = 0.05) | `statsmodels.stats.power` | N/A |
 | One‑way ANOVA (time) | `statsmodels.stats.anova.anova_lm` | `statsmodels` | N/A |
-| One‑way ANOVA (accuracy) | `statsmodels.stats.anova.anova_lm` (after arcsine sqrt transform) | `statsmodels` | N/A |
-| Correlation (metric ↔ outcome) | Pearson r, two‑tailed | `scipy.stats.pearsonr` | Bonferroni (α/3) for the three metric‑outcome pairs |
+| One‑way ANOVA (accuracy) | `statsmodels.stats.anova.anova_lm` (after arcsine‑sqrt transform) | `statsmodels` | N/A |
+| Correlation (metric ↔ outcome) | Pearson r, two‑tailed (LLM condition only) | `scipy.stats.pearsonr` | Bonferroni (α/4) for the four metric‑outcome pairs |
 
-- **Assumptions**: Normality of residuals (checked via Shapiro‑Wilk), homogeneity of variance (Levene’s test).  
-- **Causal claim**: None. Results are framed as **associational** because the study is experimental with random assignment of comment condition, satisfying isolation principle VII.  
+- **Power analysis**: Target effect size f = 0.25, α = 0.05 → required ≈ 60 participants per group; we aim for **60 per condition**.  
+- **Assumptions**: Normality of residuals (Shapiro‑Wilk), homogeneity of variance (Levene’s test).  
+- **Causal claim**: Because participants are randomised to comment condition, differences in outcomes can be interpreted **causally** (subject to achieving the planned power).  
 
 ### 6. Reporting
 - Generate CSV tables (`anova_results.csv`, `correlations.csv`), PDF figures (`time_by_condition.pdf`, `corr_heatmap.png`).  
@@ -68,9 +74,11 @@ All datasets are openly downloadable; no gated data required.
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| HF API quota exhausted | Pipeline stops early | Use exponential back‑off; limit total snippets to 500; monitor usage via `X-RateLimit-Remaining` header. |
+| HF API quota exhausted | Pipeline stops early | Use exponential back‑off; limit total snippets to 500; monitor usage via `X-RateLimit-Remaining`. |
 | Code snippet > context window | Truncated comment may be low quality | Log truncation; later analysis can flag these rows. |
-| Human study recruitment shortfall | Power < 0.80 | Power analysis performed upfront; if recruitment fails, report limitation per SC‑005. |
-| Metric‑human correlation weak | May not validate automated metrics | Still report correlation values; discuss in `results_summary.md`. |
+| Human study recruitment shortfall | Power < 0.80 | Power analysis performed upfront; target an appropriate sample size per group; if recruitment fails, report limitation per SC‑005. |
+| Metric‑human correlation weak | May not validate automated metrics | Still report correlation values; discuss limitations; auxiliary metrics provide additional insight. |
 
 ---
+
+
