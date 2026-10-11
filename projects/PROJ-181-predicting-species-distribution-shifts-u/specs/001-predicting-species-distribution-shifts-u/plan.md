@@ -1,153 +1,170 @@
 # Implementation Plan: Predicting Species Distribution Shifts Using Historical Occurrence Records and Climate Data
 
-**Branch**: `001-predicting-species-distribution-shifts` | **Date**: 2024-05-22 | **Spec**: `specs/001-predicting-species-distribution-shifts/spec.md`
+**Branch**: `001-predicting-species-distribution-shifts` | **Date**: 2024-10-11 | **Spec**: `specs/001-predicting-species-distribution-shifts/spec.md`  
 **Input**: Feature specification from `/specs/001-predicting-species-distribution-shifts/spec.md`
 
 ## Summary
+Implement a fully reproducible, CPU‑only pipeline that (1) downloads North American bird occurrence records (historical 1970‑2000, recent 2005‑2020) via the GBIF API, (2) downloads WorldClim v2.1 climate rasters (historical) and WorldClim CMIP6 SSP2‑4.5 future rasters (2050), (3) preprocesses the data (breeding‑season filter, duplicate removal, spatial thinning, climate extraction), (4) trains three SDM algorithms (Random Forest, Bioclim, MaxEnt‑style surrogate) using spatial block cross‑validation, (5) evaluates models on recent data, (6) projects models onto future climate, (7) computes a niche‑stability metric (`delta_Suitability`) and runs hierarchical bootstrap resampling with multiple‑comparison correction, and (8) generates all required artifacts (models, metrics, logs, reports) while satisfying every functional requirement (FR‑001‑FR‑011) and success criterion (SC‑001‑SC‑003).
 
-This project implements a computational pipeline to predict species distribution shifts by training Species Distribution Models (SDMs) on historical North American bird occurrence records from a multi-decadal period and WorldClim v2 climate data. The core technical approach involves CPU-optimized machine learning (Random Forest, Bioclim, and a MaxEnt-style implementation via `scikit-learn` surrogate) validated via spatial block cross-validation.
-
-**Critical Methodological Correction**: The evaluation of "niche stability" is redefined to avoid temporal mismatch. We do not evaluate future projections against future occurrences (which do not exist). Instead, we:
-1. Validate the historical model (1970-2000) against 2005-2020 occurrences using **2005-2020 climate** data to calculate AUC/TSS.
-2. Project the same historical model to the **2050 climate** data *at the same 2005-2020 occurrence locations*.
-3. Calculate `delta_Suitability` (Mean Suitability Shift) as the difference between the mean predicted suitability under 2050 climate vs. 2005-2020 climate. This measures the model's sensitivity to future climate change, isolating the "niche shift" signal without requiring future occurrence data.
-   - **Statistical Test**: The hierarchical bootstrap (FR-010) is applied to the distribution of `delta_Suitability` values, not AUC/TSS, to test for niche stability.
-
-The system explicitly handles data scarcity (flagging species with <100 records), performs rigorous statistical testing (hierarchical bootstrap, multiple-comparison correction), and outputs associational findings with strict provenance tracking as mandated by the project constitution.
+All steps are deterministic, checksum‑verified, and fully reproducible on a GitHub Actions free‑tier runner (2 CPU cores, ≈ 7 GB RAM, ≤ 6 h). No GPU is used; the pipeline will abort if a CUDA device is detected (FR‑004).
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn`, `geopandas`, `rasterio`, `pandas`, `requests`, `pyyaml`, `numpy`, `matplotlib`, `seaborn`, `statsmodels`  
-**Storage**: Local file system (`data/raw`, `data/processed`, `models`, `metrics`); no external database.  
-**Testing**: `pytest` (unit tests for data parsing, integration tests for pipeline execution).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
-**Project Type**: Computational research pipeline / CLI tool.  
-**Performance Goals**: Full workflow (download, preprocess, train, evaluate) must complete within 360 minutes (6 hours). Memory usage must stay <7 GB.  
-**Constraints**: CPU-only execution (no CUDA); no access to gated datasets (ADNI, HCP, etc.); strict adherence to open data sources (GBIF, WorldClim v2.1, WorldClim CMIP6).  
-**Scale/Scope**: Representative subset of North American bird species to fit within compute limits.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `scikit-learn`, `geopandas`, `rasterio`, `pandas`, `numpy`, `pygbif`, `pyyaml`, `matplotlib`, `seaborn`, `statsmodels`, `tqdm`  
+- **Storage**: Local file system under `data/`, `models/`, `metrics/`, `logs/`  
+- **Testing**: `pytest` (unit & integration)  
+- **Target Platform**: Linux CI runner (GitHub Actions free tier)  
+- **Project Type**: Computational research pipeline / CLI tool  
+- **Performance Goals**: End‑to‑end runtime ≤ 360 min, peak RAM ≤ 7 GB  
+- **Constraints**: CPU‑only, open‑source data only, strict reproducibility (Constitution Principles I‑VII)
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Evidence / Action Plan |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `requirements.txt` will pin all versions. Random seeds (`np.random.seed`, `random.seed`, `sklearn` `random_state`) will be set in `code/config.py`. Data download scripts will fetch from canonical GBIF/WorldClim URLs. |
-| **II. Verified Accuracy** | **PASS** | All citations in `research.md` and `data-model.md` will be verified against the "# Verified datasets" block provided in the prompt. No fabricated URLs will be used. |
-| **III. Data Hygiene** | **PASS** | `code/download.py` will write raw data to `data/raw/`. `code/preprocess.py` will write derived data to `data/processed/`. Checksums (SHA-256) will be generated and stored in `state/projects/...yaml`. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (AUC, TSS, Suitability Shift) will be written to `metrics/` JSON files. The paper generation script will read *only* from these files. No hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | **PASS** | **Mechanism**: After every artifact write (data, model, metric), the `code/utils/versioning.py` script will compute the content hash and update `state/projects/PROJ-181-...yaml` with the new hash and timestamp. This script is invoked at the end of each pipeline phase. |
-| **VI. Ecological Data Provenance** | **PASS** | `data/raw/*.csv` will include columns: `source_id`, `download_timestamp`, `original_dataset_name`. The `code/download.py` script will explicitly populate `original_dataset_name` from the GBIF API response. `data/climate/` will include a `provenance.yaml` with WorldClim/CMIP6 version tags. |
-| **VII. Model Evaluation Transparency** | **PASS** | `metrics/` will contain `model_performance.json` with AUC/TSS, effect sizes, p-values, and seeds for every species/model combination. |
+| Principle | Status | Action |
+|-----------|--------|--------|
+| **I. Reproducibility** | PASS | Pin all package versions in `code/requirements.txt`; set random seeds (`np.random.seed`, `random.seed`, `sklearn` `random_state`) in `code/config.py`. |
+| **II. Verified Accuracy** | PASS | All external citations are limited to the verified URLs listed in the “Verified datasets” block. |
+| **III. Data Hygiene** | PASS | Raw files are stored under `data/raw/` unchanged; every transformation writes a new file under `data/processed/`. SHA‑256 checksums are recorded in `state/projects/PROJ-181-...yaml`. |
+| **IV. Single Source of Truth** | PASS | All numbers used in the manuscript are read from JSON/YAML files in `metrics/` and `results/`. |
+| **V. Versioning Discipline** | PASS | `code/versioning.py` computes content hashes after each artifact write and updates the project state file. |
+| **VI. Ecological Data Provenance** | PASS | Occurrence CSVs contain `source_id`, `download_timestamp`, and `dataset_name`. Climate raster provenance is stored in `data/climate/provenance.yaml`. |
+| **VII. Model Evaluation Transparency** | PASS | Every model’s AUC, TSS, `delta_Suitability`, p‑values, and effect sizes are saved in `metrics/model_metrics.json`. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-predicting-species-distribution-shifts/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── occurrence_record.schema.yaml
-│   ├── climate_raster.schema.yaml
-│   ├── climate_variable.schema.yaml
-│   ├── data_sufficiency.schema.yaml
-│   ├── model_artifact.schema.yaml
-│   ├── model_metrics.schema.yaml
-│   └── occurrence.schema.yaml
-└── tasks.md             # Phase 2 output
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── occurrence_record.schema.yaml
+    ├── occurrence.schema.yaml
+    ├── climate_raster.schema.yaml
+    ├── climate_variable.schema.yaml
+    ├── data_sufficiency.schema.yaml
+    ├── model_artifact.schema.yaml
+    ├── model_metrics.schema.yaml
+    └── performance_metric.schema.yaml
 
-### Source Code (repository root)
-
-```text
 code/
-├── config.py            # Configuration (species list, paths, seeds, thresholds)
-├── download.py          # Data acquisition (GBIF, WorldClim, CMIP6)
-├── preprocess.py        # Cleaning, thinning, feature extraction
-├── train.py             # Model training (RF, Bioclim, MaxEnt-style)
-├── evaluate.py          # Projection, AUC/TSS calculation, statistical tests
+├── config.py                # Global constants, species list, seeds
+├── download.py              # GBIF & WorldClim fetcher with checksum verification
+├── preprocess.py            # Filtering, thinning, raster extraction, logging
+├── train.py                 # Spatial block CV, model fitting
+├── evaluate.py              # Projection, metric calculation, bootstrap
+├── report.py                # Table/figure generation
 ├── utils/
-│   ├── spatial.py       # Spatial thinning, block generation
-│   ├── gpu_check.py     # CPU/GPU verification (FR-004)
-│   └── stats.py         # Bootstrap, multiple-comparison correction
-├── versioning.py        # Hash update for Constitution Principle V
-└── main.py              # Orchestration script
+│   ├── spatial.py
+│   ├── gpu_check.py
+│   ├── stats.py
+│   └── logging_config.py   # Sets up Python logging to `logs/`
+├── versioning.py            # Hash & timestamp updater
+└── main.py                  # Orchestrates the pipeline
 
 data/
 ├── raw/
 │   ├── occurrence_1970_2000.csv
 │   ├── occurrence_2005_2020.csv
-│   └── climate/         # Raster files (GeoTIFF)
+│   └── climate/            # WorldClim GeoTIFF tiles
 ├── processed/
-│   └── features.csv     # Merged occurrence + climate data
-└── metrics/             # Moved from data/metrics/ to align with Principle IV
-    └── data_sufficiency.json
+│   └── features.csv
+└── manifest.json           # Records file paths, sizes, SHA‑256 checksums
+
+models/
+├── *.pkl                   # Serialized SDM artifacts
+└── version.txt
 
 metrics/
-└── model_performance.json
+├── model_performance.json
+├── data_sufficiency.json
+└── .gitkeep                # Ensures directory exists in repo
 
 logs/
-└── gpu_check.log
-```
+├── download.log
+├── preprocess.log
+├── train.log
+├── evaluate.log
+└── .gitkeep
 
-**Structure Decision**: Single-project structure selected. The pipeline is linear (Download -> Preprocess -> Train -> Evaluate), making a monolithic `code/` directory with modular scripts the most efficient approach for CI execution. No separate backend/frontend is required as the output is a research artifact (reports/tables), not a user-facing service.
+results/
+├── summary_table.csv
+└── .gitkeep
+
+reports/
+├── findings.md
+└── .gitkeep
+
+tests/
+├── unit/
+├── integration/
+└── contract/
+    └── schema_validation.py
+
+.gitkeep files are placed in every empty directory (including `metrics/` and `logs/`).  
+`.flake8` is located at the repository root as required by the linting task.
 
 ## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Hierarchical Bootstrap** | FR-010 requires accounting for dependence structure in `delta_Suitability` across species. | Standard t-tests assume independence between species, which is violated by shared environmental variables and phylogenetic relationships. |
-| **Spatial Block CV** | FR-007 requires spatial independence to avoid overfitting to spatial autocorrelation. | Random K-fold CV leaks spatial information, inflating AUC estimates artificially high. |
-| **CPU-Only Constraint** | Compute budget is limited to GitHub Actions free tier (no GPU). | GPU-accelerated libraries (e.g., `xgboost` with CUDA) are not permitted; `scikit-learn` CPU backends are the only viable option for reproducibility on the target runner. |
-| **Data Sufficiency Flag** | FR-006/FR-011 require statistical power validation (n >= 100). | Blindly training on sparse data leads to unstable models and meaningless AUC scores; the flag prevents reporting unreliable results. |
-| **Temporal Mismatch Resolution** | The original spec's "2050 projection vs 2005-2020 reality" comparison was invalid. | We now compare model outputs at the *same locations* under different climate scenarios (2005-2020 vs 2050), calculating the difference in mean suitability (delta_Suitability) rather than AUC against future ground truth. |
-| **Data Sufficiency Schema** | FR-006 requires logging specific counts for flagged species. | Referenced `contracts/data_sufficiency.schema.yaml` to ensure the flag includes the exact `recordCount` for `INSUFFICIENT_DATA` species. |
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| Hierarchical Bootstrap (FR‑010) | Needed to respect species‑level dependence; simple t‑test would inflate Type I error. | Ignoring hierarchy would breach FR‑010. |
+| Spatial Block CV (FR‑007) | Prevents spatial leakage; random CV would produce over‑optimistic AUC. | Random split rejected for same reason. |
+| Checksum Verification (T010) | Guarantees data integrity; without it the pipeline could silently use corrupted rasters. | Skipping checksum would violate FR‑001 and Constitution III. |
+| Logging Configuration (T003) | Required for reproducible audit trails; empty logs fail verification. | No‑log approach omitted required provenance. |
+| .gitkeep in `metrics/` & `logs/` (T001) | Required directory placeholders for CI; missing files cause verification failure. | Omitted placeholders not acceptable. |
+| GPU Abort (FR‑004) | Enforces CPU‑only constraint on free‑tier runner. | Allowing CUDA would breach FR‑004. |
 
 ## Implementation Phases
 
-### Phase 0: Data Acquisition (FR-001, FR-002, FR-014)
-1.  **Download Historical Occurrences**: Fetch 1970-2000 records via GBIF API. Filter for breeding season. Save to `data/raw/occurrence_1970_2000.csv`.
-2.  **Download Recent Occurrences**: Fetch 2005-2020 records via GBIF API. Save to `data/raw/occurrence_2005_2020.csv`.
-3.  **Download Climate Rasters**:
-    -   **Historical**: Download WorldClim (Bio1-Bio19) for 1970-2000.
-    -   **Future**: Download WorldClim CMIP (SSP2-4.5) for 2050 (2041-2060) using specific `wget` patterns.
-    -   **Validation**: Ensure all 19 variables are present for every record.
-4.  **Metadata**: Populate `original_dataset_name` and `download_timestamp` columns in CSVs. The CSVs will conform to the Darwin Core (DwC-A) standard or explicitly map to the GBIF API schema version used.
+| Phase | FR / SC addressed | Tasks (script → output) |
+|-------|-------------------|--------------------------|
+| **0 – Setup** | I‑VII, T001 | Create `.gitkeep` files, place `.flake8` at repo root, add `code/requirements.txt` (includes `pygbif`). |
+| **1 – Data Acquisition** | FR‑001, FR‑002, T004, T010 | `download.py` → `data/raw/occurrence_*.csv`, `data/raw/climate/` GeoTIFFs, `data/manifest.json` (includes SHA‑256). |
+| **2 – Preprocessing** | FR‑003, FR‑014, T003 | `preprocess.py` → `data/processed/features.csv`, `logs/preprocess.log`, `metrics/data_sufficiency.json` (schema `data_sufficiency.schema.yaml`). |
+| **3 – Power‑Analysis Gate** | FR‑011, FR‑006 | Within `preprocess.py` → flag species with `<100` records or power < 0.8; update `metrics/data_sufficiency.json`. |
+| **4 – GPU Check** | FR‑004 | `utils/gpu_check.py` runs at start of `train.py`; aborts with clear log if CUDA present. |
+| **5 – Model Training** | FR‑004, FR‑007, FR‑008 | `train.py` → `models/*.pkl`, `logs/train.log`. Adds disclaimer string to all report artifacts (FR‑008). |
+| **6 – Evaluation & Projection** | FR‑005, FR‑009, FR‑010, SC‑001, SC‑003 | `evaluate.py` → `metrics/model_performance.json`, `results/summary_table.csv`, `logs/evaluate.log`. Performs hierarchical bootstrap, Benjamini‑Hochberg correction, computes `delta_Suitability`. |
+| **7 – Report Generation** | SC‑001, SC‑003, FR‑008 | `report.py` → `reports/findings.md` (includes associational disclaimer). |
+| **8 – Versioning & Hash Update** | V (Constitution V) | `versioning.py` updates `state/projects/PROJ-181-...yaml` after each artifact creation. |
+| **9 – Testing** | All FR/SC | `pytest` suite validates schema compliance (`contracts/*.schema.yaml`), reproducibility (seeded runs), and that no GPU is used. |
 
-### Phase 1: Preprocessing (FR-003, FR-014)
-1.  **Spatial Thinning**: Apply spatial thinning using the **dynamic 95th percentile of nearest-neighbor distances** as the default threshold. If calculation fails (< 3 points), fall back to a fixed 10km threshold.
-2.  **Climate Extraction**: Sample WorldClim rasters at occurrence coordinates. Impute missing values via nearest neighbor or exclude.
-3.  **Data Sufficiency Check**: Count records per species. If `count < 100`, flag as `INSUFFICIENT_DATA`. Log the **specific count** for *every* species (including flagged ones) in `metrics/data_sufficiency.json` (Schema: `contracts/data_sufficiency.schema.yaml`).
+### Detailed Task List (≈12 tasks)
 
-### Phase 2: Power Analysis Gate (FR-011)
-1.  **Calculate Power**: Perform a one-sample proportion test (alpha=0.05) to detect effect size `Cohen's h = 0.50` (source: Wikipedia). This compares the proportion of 'suitable' predictions (suitability > 0.5) against a null expectation of 0.5.
-2.  **Gate**: If calculated power < 0.80 for a species, flag it as `INSUFFICIENT_DATA` and exclude from aggregation. Log the **power value** and the **record count** in `metrics/data_sufficiency.json`.
+1. **Create repository scaffolding** – add missing `.gitkeep` in `metrics/` & `logs/`, place `.flake8` at root.  
+2. **Write `requirements.txt`** – pin exact versions (e.g., `scikit-learn==1.5.0`, `pygbif==0.13.0`).  
+3. **Implement `code/utils/gpu_check.py`** – simple `torch.cuda.is_available()` guard; log outcome.  
+4. **Develop `code/download.py`** –  
+   - GBIF occurrence fetch via `pygbif.occurrences.search` with pagination, rate‑limit back‑off.  
+   - WorldClim raster download via `wget` using verified URLs (`https://worldclim.org/data/worldclim21.html`, `https://worldclim.org/data/cmip6.html`).  
+   - Compute SHA‑256 for each file, compare against known values (if available) or record for future verification.  
+   - Write entries to `data/manifest.json`.  
+5. **Add checksum verification logic** – abort with error if mismatch (fulfills T010).  
+6. **Implement `code/preprocess.py`** –  
+   - Filter by breeding months (species‑specific month ranges stored in `config.py`).  
+   - Remove exact duplicate coordinates.  
+   - Spatial thinning using `spatial.thin_points` (dynamic 95th‑percentile distance, fallback 10 km).  
+   - Extract climate variables with `rasterio.sample`.  
+   - Impute missing climate values via nearest‑neighbor (or drop).  
+   - Log counts before/after each step to `logs/preprocess.log`.  
+   - Output `data/processed/features.csv` and `metrics/data_sufficiency.json`.  
+7. **Power analysis** – within `preprocess.py`, compute power for Cohen’s h = 0.50 using `statsmodels.stats.power.NormalIndPower`; flag insufficient species.  
+8. **Write `code/train.py`** –  
+   - Generate spatial blocks (`utils.spatial.create_blocks`).  
+   - For each species with sufficient data, fit RF (`RandomForestClassifier`), Bioclim (range envelope), MaxEnt‑style (logistic regression with L2 penalty).  
+   - Store models as pickle files under `models/`.  
+   - Log training duration; ensure no CUDA usage.  
+9. **Write `code/evaluate.py`** –  
+   - Load models, compute predictions on recent occurrences with 2005‑2020 climate.  
+   - Compute AUC/TSS (`sklearn.metrics`).  
+   - Project same models onto 2050 climate at identical locations; compute mean suitability per species.  
+   - Calculate `delta_Suitability`.  
+   - Perform hierarchical bootstrap (species → spatial block) on `delta_Suitability` (10 000 iterations).  
+   - Apply Benjamini‑Hochberg correction across threshold sweep {0.01, 0.05, 0.10}.  
+   - Write `metrics/model_performance.json` and `results/summary_table.csv`.  
+10. **Add associational disclaimer** – `utils.logging_config.py` appends the string `"Findings are associational and assume niche stability"` to every generated report file.  
+11. **Create `code/report.py`** – generate Markdown tables & figures (using `matplotlib`/`seaborn`) summarizing metrics, bootstrap confidence intervals, and the disclaimer.  
+12. **Run `code/versioning.py`** after each phase to update hashes in the project state file.  
 
-### Phase 3: Model Training (FR-004, FR-007)
-1.  **GPU Check**: Run `code/utils/gpu_check.py`. If `torch.cuda.is_available()` is True, exit with code 1 and log to `logs/gpu_check.log`.
-2.  **Spatial Block Generation**: Divide the study area bounding box into an equidistant grid, forming K=5 contiguous blocks. Rotate the held-out block index for each fold to ensure spatial independence.
-3.  **Null Model**: Train a null model (predicting mean prevalence) to establish a baseline AUC (SC-001).
-4.  **Train Models**: Train RF, Bioclim, and MaxEnt-style models using spatial block CV.
+All tasks are deterministic, logged, and produce artifacts that can be validated against the JSON/YAML schemas in `contracts/`.
 
-### Phase 4: Evaluation & Projection (FR-005, FR-009, FR-010)
-1.  **Historical Validation**: Evaluate models on 2005-2020 occurrences using **2005-2020 climate**. Calculate AUC/TSS.
-2.  **Future Projection**: Project models to **2050 climate** at the **same 2005-2020 occurrence locations**. Calculate suitability scores.
-3.  **Niche Stability Metric**: Calculate `delta_Suitability` = (Mean Suitability @ 2050 Climate) - (Mean Suitability @ 2005-2020 Climate). This measures the change in predicted suitability driven solely by the climate variable shift.
-4.  **Threshold Sweep**: Iterate through the exact threshold set defined by absolute differences including small increments from baseline 0.50, resulting in thresholds near 0.50. The summary table will explicitly report the **delta values** {0.01, 0.05, 0.10} and the corresponding rates.
-5.  **Statistical Testing**:
-    -   **Hierarchical Bootstrap**: Resample Species (Level 1) -> Resample Spatial Blocks (Level 2) within species. **Target Metric**: `delta_Suitability`.
-    -   **Multiple-Comparison Correction**: Apply Benjamini-Hochberg correction for threshold sweeps (FR-005).
-6.  **Report Generation**: Programmatically append the exact string "Findings are associational and assume niche stability" to the footer of all generated reports and JSON metadata files.
-
-## Success Criteria
-
-- **SC-001**: Predictive performance (AUC) measured against null model baseline.
-- **SC-002**: Total compute time < 360 minutes.
-- **SC-003**: Sensitivity analysis results reported in a summary table across the swept threshold set {0.01, 0.05, 0.10} (absolute differences from 0.50), explicitly listing the delta values and corresponding rates.
+---

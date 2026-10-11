@@ -1,8 +1,7 @@
 # Data Model: Predicting Species Distribution Shifts
 
 ## 1. Entity Relationship Overview
-
-The data model consists of three primary entities: `OccurrenceRecord`, `ClimateRaster`, and `ModelArtifact`. These entities are linked via spatial coordinates and temporal metadata.
+The model comprises five primary entities: `OccurrenceRecord`, `ClimateVariable`, `ModelArtifact`, `ModelMetrics`, and `DataSufficiency`. Relationships are anchored on spatial coordinates and temporal metadata.
 
 ```mermaid
 erDiagram
@@ -10,97 +9,91 @@ erDiagram
     OccurrenceRecord ||--o{ ModelPrediction : "used_for"
     ModelArtifact ||--o{ ModelPrediction : "generates"
     ClimateRaster ||--o{ ClimateVariable : "contains"
+    ModelArtifact ||--o{ ModelMetrics : "evaluated_by"
+    ModelArtifact ||--o{ DataSufficiency : "checked_by"
 ```
 
 ## 2. Data Entities
 
 ### 2.1 OccurrenceRecord
-Represents a single species sighting.
-- **Source**: GBIF / eBird
-- **Timeframe**: 1970-2000 (Training), 2005-2020 (Testing)
-- **Attributes**:
-  - `id`: UUID (generated)
-  - `species_name`: String (Latin name)
-  - `latitude`: Float
-  - `longitude`: Float
-  - `event_date`: Date (YYYY-MM-DD)
-  - `source_id`: String (GBIF key or eBird ID)
-  - `download_timestamp`: ISO8601
-  - `breeding_season`: Boolean (derived)
-  - `thinned`: Boolean (derived)
-  - `dataset_name`: String (Original dataset name from GBIF, required by Constitution Principle VI)
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | UUID (string) | Unique identifier generated during preprocessing. |
+| `species_name` | string | Latin name of the bird species. |
+| `latitude` | float | WGS84 latitude (‑90 → 90). |
+| `longitude` | float | WGS84 longitude (‑180 → 180). |
+| `event_date` | date (YYYY‑MM‑DD) | Observation date. |
+| `source_id` | string | Original GBIF/eBird identifier. |
+| `download_timestamp` | datetime (ISO‑8601) | When the record was fetched (Constitution VI). |
+| `breeding_season` | boolean | True if the record falls within the species‑specific breeding months. |
+| `thinned` | boolean | True if the record survived spatial thinning. |
+| `dataset_name` | string | Name of the original dataset (e.g., “GBIF”). |
 
 ### 2.2 ClimateVariable
-Derived environmental data point for an occurrence.
-- **Source**: WorldClim v2 (Historical), CMIP6 (Future)
-- **Attributes**:
-  - `record_id`: Foreign Key (OccurrenceRecord)
-  - `variable_name`: String (e.g., "bio1", "bio12")
-  - `value`: Float
-  - `raster_source`: String (URL/Version)
-  - `year`: Integer (1970-2000 or 2050)
+| Field | Type | Description |
+|-------|------|-------------|
+| `occurrence_id` | string (FK → `OccurrenceRecord.id`) | Link to occurrence. |
+| `variable_name` | string (e.g., `bio1`) | Bioclim variable. |
+| `value` | float | Extracted climate value. |
+| `raster_source` | string (URL/identifier) | Provenance of the raster. |
+| `year` | integer | Year of the climate data (e.g., 2000, 2050). |
 
 ### 2.3 ModelArtifact
-Serialized trained model.
-- **Attributes**:
-  - `model_id`: UUID
-  - `algorithm`: String ("RF", "Bioclim", "MaxEnt")
-  - `species`: String
-  - `training_period`: String ("1970-2000")
-  - `file_path`: String (relative to `models/`)
-  - `checksum`: String (SHA-256)
-  - `hyperparameters`: JSON
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_id` | UUID (string) | Unique model identifier. |
+| `algorithm` | string (`RF`, `Bioclim`, `MaxEnt`) | Algorithm used. |
+| `species` | string | Target species. |
+| `training_period` | string (`1970-2000`) | Temporal window of training data. |
+| `file_path` | string | Relative path under `models/`. |
+| `checksum` | string (SHA‑256) | File integrity hash. |
+| `hyperparameters` | JSON object | Algorithm‑specific settings. |
+| `seed` | integer | Random seed used for reproducibility. |
 
 ### 2.4 ModelMetrics
-Performance evaluation results.
-- **Attributes**:
-  - `metric_id`: UUID
-  - `model_id`: Foreign Key
-  - `test_set_period`: String ("2005-2020")
-  - `auc`: Float
-  - `tss`: Float
-  - `threshold`: Float
-  - `sample_size`: Integer
-  - `status`: String ("PASS", "INSUFFICIENT_DATA")
-  - `delta_suitability`: Float (Mean Suitability Shift)
+| Field | Type | Description |
+|-------|------|-------------|
+| `metric_id` | UUID (string) | Unique identifier. |
+| `model_id` | string (FK → `ModelArtifact.model_id`) | Associated model. |
+| `test_set_period` | string (`2005-2020`) | Validation period. |
+| `auc` | float (0 → 1) | Area Under the ROC Curve. |
+| `tss` | float (‑1 → 1) | True Skill Statistic. |
+| `threshold` | float | Probability cutoff used for TSS. |
+| `sample_size` | integer | Number of validation records. |
+| `status` | string (`PASS` / `INSUFFICIENT_DATA`) | Sufficiency flag. |
+| `delta_suitability` | float | Mean suitability shift (2050 – 2005‑2020). |
+| `p_value` | float (0 → 1) | From hierarchical bootstrap. |
+| `effect_size` | float | Cohen’s h (expected = 0.50). |
+| `corrected_p_value` | float (0 → 1) | After Benjamini‑Hochberg correction. |
 
 ### 2.5 DataSufficiency
-Log of data sufficiency checks.
-- **Attributes**:
-  - `species`: String
-  - `period`: String ("1970-2000" or "2005-2020")
-  - `recordCount`: Integer (Specific count of records)
-  - `status`: String ("SUFFICIENT", "INSUFFICIENT_DATA")
-  - `power_value`: Float (Calculated power for Cohen's h=0.50)
+| Field | Type | Description |
+|-------|------|-------------|
+| `species` | string | Species name. |
+| `period` | string (`1970-2000` or `2005-2020`) | Temporal window. |
+| `recordCount` | integer | Number of records after thinning. |
+| `status` | string (`SUFFICIENT` / `INSUFFICIENT_DATA`) | Flag per FR‑006. |
+| `power_value` | float | Calculated power for detecting h = 0.50 (FR‑011). |
 
 ## 3. File Formats
 
-### 3.1 CSV (Occurrence Data)
-- **Delimiter**: `,`
-- **Encoding**: `utf-8`
-- **Standard**: Darwin Core (DwC-A) or GBIF API schema.
-- **Columns**: `id, species_name, latitude, longitude, event_date, source_id, download_timestamp, breeding_season, thinned, dataset_name`
-
-### 3.2 JSON (Metrics & Config)
-- **Structure**: Standard JSON.
-- **Validation**: Validated against `contracts/model_metrics.schema.yaml` and `contracts/data_sufficiency.schema.yaml`.
-
-### 3.3 GeoTIFF (Climate Rasters)
-- **Format**: Uncompressed GeoTIFF (or LZW compressed).
-- **Projection**: WGS84 (EPSG:4326).
-- **Resolution**: 30 arc-seconds (~1km).
+| Artifact | Format | Validation |
+|----------|--------|------------|
+| Raw occurrence CSVs | UTF‑8, comma‑separated, Darwin Core fields | `contracts/occurrence.schema.yaml` |
+| Processed features CSV | UTF‑8, comma‑separated (one row per thinned occurrence + 19 climate vars) | `contracts/occurrence_record.schema.yaml` |
+| Climate rasters | GeoTIFF (LZW compressed) | `contracts/climate_raster.schema.yaml` |
+| Model files | Pickle (`.pkl`) | `contracts/model_artifact.schema.yaml` |
+| Metric JSONs | JSON | `contracts/model_metrics.schema.yaml` |
+| Data sufficiency JSON | JSON | `contracts/data_sufficiency.schema.yaml` |
+| Logging configuration | YAML (Python `logging.config.dictConfig`) | `logs/preprocess_counts.yaml` (schema not required but must follow logging spec). |
 
 ## 4. Data Flow
+1. **Download** (`code/download.py`) → `data/raw/` (occurrence CSVs, climate GeoTIFFs).  
+2. **Preprocess** (`code/preprocess.py`) → `data/processed/features.csv` + `metrics/data_sufficiency.json`.  
+3. **Train** (`code/train.py`) → `models/*.pkl` + `metrics/model_artifact.json`.  
+4. **Evaluate** (`code/evaluate.py`) → `metrics/model_performance.json` + `results/summary_table.csv`.  
+5. **Report** (`code/report.py`) → `reports/findings.md`.  
 
-1.  **Ingestion**: `download.py` fetches raw CSV/GeoTIFF -> `data/raw/`.
-2.  **Transformation**: `preprocess.py` reads raw, applies thinning, extracts climate -> `data/processed/features.csv`.
-3.  **Training**: `train.py` reads features -> trains models -> writes `models/`.
-4.  **Evaluation**: `evaluate.py` reads models + future climate -> calculates metrics -> writes `metrics/model_performance.json`.
+All intermediate files are immutable; new derivations receive fresh filenames and are logged with checksums (Constitution III).
 
-## 5. Constraints & Validations
-
-- **Coordinates**: Latitude [-90, 90], Longitude [-180, 180].
-- **Dates**: Must be within specified timeframes (1970-2000 or 2005-2020).
-- **Missing Values**: Climate variables must not be null; if null, the record is excluded.
-- **Uniqueness**: `id` must be unique per record.
-- **Data Sufficiency**: `recordCount` must be logged for every species, regardless of status.
+---

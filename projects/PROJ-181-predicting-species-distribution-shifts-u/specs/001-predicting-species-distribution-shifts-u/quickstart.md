@@ -1,92 +1,113 @@
 # Quickstart: Predicting Species Distribution Shifts
 
 ## Prerequisites
-
-- **Python**: 3.11+
-- **System Dependencies**: `gdal`, `libgeos` (for `geopandas`/`rasterio`).
-- **Access**: Internet connectivity for GBIF and WorldClim downloads.
+- **Python** 3.11 or newer
+- **System libraries**: GDAL ≥ 3.0, GEOS ≥ 3.8 (required by `geopandas` & `rasterio`)
+- **Internet** access for GBIF and WorldClim downloads
+- **Git** (to clone the repository)
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-181-predicting-species-distribution-shifts-u
- ```
+1. **Clone the repository**  
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-181-predicting-species-distribution-shifts-u
+   ```
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2. **Create a virtual environment**  
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
+3. **Install Python dependencies**  
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-4. **Verify system dependencies** (Linux/Mac):
- ```bash
- # Ensure GDAL and GEOS are installed
- brew install gdal geos # macOS
- sudo apt-get install libgdal-dev libgeos-dev # Ubuntu/Debian
- ```
+4. **Install system dependencies** (Linux/macOS)  
+   ```bash
+   # macOS
+   brew install gdal geos
+
+   # Ubuntu/Debian
+   sudo apt-get update
+   sudo apt-get install -y libgdal-dev libgeos-dev
+   ```
+
+5. **Verify linting configuration**  
+   The project root contains a `.flake8` file (required by T001). Run:  
+   ```bash
+   flake8 .
+   ```
 
 ## Configuration
-
-Edit `code/config.py` to define:
-- `SPECIES_LIST`: List of target bird species (Latin names).
-- `THINNING_DISTANCE`: Minimum distance in km (default 10).
-- `SEED`: Random seed for reproducibility (default 42).
-- `DATA_PATHS`: Paths to raw and processed data directories.
+Edit `code/config.py` to set:
+- `SPECIES_LIST`: list of target bird species (Latin names).  
+- `THINNING_DISTANCE_KM`: default minimum distance for spatial thinning (default = 10 km).  
+- `SEED`: random seed for reproducibility (default = 42).  
+- `DATA_PATHS`: dictionary with keys `raw`, `processed`, `climate`, `models`, `metrics`, `logs`.
 
 ## Running the Pipeline
+The pipeline is orchestrated via `code/main.py`. Each sub‑command creates the required artifacts and logs.
 
-The pipeline is executed sequentially via `main.py`.
+### Step 0 – Scaffold verification (T001)
+```bash
+python code/main.py scaffold
+```
+Creates missing `.gitkeep` files in `metrics/` and `logs/` and confirms the root‑level `.flake8`.
 
-### Step 1: Download Data
-Downloads historical and recent occurrence records from GBIF and climate rasters from WorldClim/CMIP6.
+### Step 1 – Download Data (T004, T010)
 ```bash
 python code/main.py download
 ```
-*Output*: `data/raw/occurrence_1970_2000.csv`, `data/raw/occurrence_2005_2020.csv`, `data/raw/climate/`
+- Fetches historical & recent GBIF occurrences.  
+- Downloads WorldClim v2.1 and CMIP6 rasters.  
+- Computes SHA‑256 checksums; aborts on mismatch.  
+- Populates `data/manifest.json`.
 
-### Step 2: Preprocess Data
-Filters, thins, and extracts climate variables.
+### Step 2 – Preprocess (T003)
 ```bash
 python code/main.py preprocess
 ```
-*Output*: `data/processed/features.csv`, `metrics/data_sufficiency.json`
+- Filters breeding‑season records, removes duplicates, applies spatial thinning.  
+- Extracts climate variables, logs counts before/after each operation to `logs/preprocess.log`.  
+- Writes `data/processed/features.csv` and `metrics/data_sufficiency.json`.
 
-### Step 3: Train Models
-Trains RF, Bioclim, and MaxEnt-style models with spatial block CV.
+### Step 3 – Train Models (FR‑004)
 ```bash
 python code/main.py train
 ```
-*Output*: `models/*.pkl`, `logs/gpu_check.log`
+- Checks for CUDA (`utils/gpu_check.py`) and exits if a GPU is present.  
+- Performs spatial block cross‑validation, trains RF, Bioclim, and MaxEnt‑style models.  
+- Saves model pickles under `models/` and logs to `logs/train.log`.
 
-### Step 4: Evaluate & Project
-Projects models to 2050, calculates AUC/TSS, and runs statistical tests on `delta_Suitability`.
+### Step 4 – Evaluate & Project (FR‑005, FR‑009, FR‑010)
 ```bash
 python code/main.py evaluate
 ```
-*Output*: `metrics/model_performance.json`, `results/summary_table.csv`
+- Calculates AUC/TSS on recent occurrences (2005‑2020).  
+- Projects models onto 2050 climate, computes `delta_Suitability`.  
+- Runs hierarchical bootstrap (10 000 iterations) and Benjamini‑Hochberg correction.  
+- Outputs `metrics/model_performance.json` and `results/summary_table.csv`.
 
-### Step 5: Generate Report
-(Optional) Generates a summary report from metrics.
+### Step 5 – Generate Report
 ```bash
 python code/main.py report
 ```
+Creates `reports/findings.md` containing tables, figures, and the mandatory disclaimer:  
+> **Findings are associational and assume niche stability** (FR‑008).
 
 ## Troubleshooting
 
-- **GDAL Errors**: Ensure `libgdal` is installed and `GDAL_DATA` environment variable is set.
-- **GBIF Rate Limit**: The script includes exponential backoff. If it fails repeatedly, wait and retry.
-- **Memory Error**: Reduce `SPECIES_LIST` size or increase swap space on the runner.
-- **GPU Detected**: The pipeline will exit with code 1 if a GPU is detected (enforcing CPU-only constraint). [UNRESOLVED-CLAIM: c_dc46bd5e — status=not_enough_info] Check `logs/gpu_check.log`.
+| Issue | Likely Cause | Fix |
+|-------|--------------|-----|
+| **GDAL / GEOS import errors** | System libraries missing | Install via `brew` (macOS) or `apt-get` (Ubuntu) as shown above. |
+| **GBIF rate‑limit errors** | Too many rapid API calls | The downloader implements exponential back‑off; re‑run after a short wait. |
+| **GPU detected & pipeline aborts** | Runner has CUDA enabled (unlikely on free tier) | Ensure `torch` is not installed, or run on a pure‑CPU runner. |
+| **Checksum mismatch** | Corrupted raster download | Delete the offending file and re‑run `code/main.py download`. |
+| **Insufficient records for a species** | `<100` records after thinning | Species will be flagged as `INSUFFICIENT_DATA`; check `metrics/data_sufficiency.json`. |
 
-## Expected Outputs
+All generated files conform to the JSON/YAML schemas in `specs/001-predicting-species-distribution-shifts/contracts/`.
 
-- `metrics/model_performance.json`: JSON file containing AUC, TSS, and statistical test results for each species (including `delta_suitability`).
-- `metrics/data_sufficiency.json`: Log of species with <100 records (flagged as `INSUFFICIENT_DATA`), including specific record counts and power values.
-- `results/summary_table.csv`: Aggregated performance metrics with multiple-comparison corrections applied, explicitly listing threshold deltas {0.01, 0.05, 0.10}.
+---

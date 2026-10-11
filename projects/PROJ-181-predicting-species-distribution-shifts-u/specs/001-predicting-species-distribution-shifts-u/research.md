@@ -1,97 +1,84 @@
 # Research: Predicting Species Distribution Shifts Using Historical Occurrence Records and Climate Data
 
 ## 1. Problem Definition & Scope
+We assess the reliability of Species Distribution Models (SDMs) for forecasting North American bird range shifts under climate change. The central hypothesis is that models trained on historic occurrence (1970‑2000) will show a measurable change in predicted suitability when climate is projected to 2050, indicating niche non‑stationarity. All findings are framed as **associational** (FR‑008) and no causal inference is claimed.
 
-The research aims to quantify the reliability of Species Distribution Models (SDMs) in predicting range shifts under climate change. The core hypothesis is that models trained on historical data will exhibit significant changes in predicted suitability when projected onto future climates compared to historical validation sets, indicating niche instability or non-stationarity.
-
-**Critical Methodological Correction**: The evaluation of "niche stability" is redefined to avoid temporal mismatch. We do not evaluate 2050 projections against 2050 occurrences (which do not exist). Instead, we:
-1. Validate the historical model (1970-2000) against 2005-2020 occurrences using **2005-2020 climate** data.
-2. Project the same historical model to the **2050 climate** data *at the same 2005-2020 occurrence locations*.
-3. Calculate `delta_Suitability` (Mean Suitability Shift) as the difference between the mean predicted suitability under 2050 climate vs. 2005-2020 climate. This measures the model's sensitivity to future climate change, isolating the "niche shift" signal without requiring future occurrence data.
-
-**Scope**:
-- **Target Taxa**: North American bird species (subset of ~20-50 common species).
-- **Timeframes**: Historical (1970-2000) vs. Recent (2005-2020) vs. Future (2050).
-- **Data Sources**: GBIF/eBird (occurrence), WorldClim v2 (historical climate), WorldClim CMIP6 (future climate).
-- **Constraints**: CPU-only execution, <6h runtime, <7GB RAM.
+### Scope
+- **Taxa**: ~20–50 common North American bird species (selected to meet compute limits).  
+- **Temporal windows**: Historical (1970‑2000), Recent (2005‑2020) for validation, Future (2050, SSP2‑4.5) for projection.  
+- **Data sources**: GBIF/eBird API (occurrences), WorldClim v2.1 (historical climate), WorldClim CMIP6 (future climate).  
+- **Constraints**: CPU‑only execution on GitHub Actions free tier; total runtime ≤ 6 h; RAM ≤ 7 GB.
 
 ## 2. Dataset Strategy
+Only open, programmatically accessible datasets are used. No gated data are involved.
 
-The project relies on open, programmatic data sources. No access-gated datasets (e.g., ADNI, HCP) are used. Synthetic datasets are not used for training or validation.
+| Dataset | Source / Verified URL | Role | Verification |
+|---------|----------------------|------|--------------|
+| Historical Occurrences (1970‑2000) | GBIF API (`pygbif`) – programmatic fetch (verified by executed code) | Training occurrences | **Verified** (GBIF API reachable) |
+| Recent Occurrences (2005‑2020) | GBIF API (`pygbif`) – programmatic fetch | Out‑of‑time validation | **Verified** |
+| Historical Climate | WorldClim v2.1 – <https://worldclim.org/data/worldclim21.html> (download via `wget`) | Predictor variables (Bio1‑Bio19) for training | **Verified** |
+| Future Climate (2050, SSP2‑4.5) | WorldClim CMIP6 – <https://worldclim.org/data/cmip6.html> (download via `wget`) | Predictor variables for projection | **Verified** |
 
-| Dataset | Source / Verified URL | Usage | Verification Status |
-| :--- | :--- | :--- | :--- |
-| **Historical Occurrences** | GBIF API (via `occurrence` endpoint) | Training data (1970-2000). Filtered by breeding season, thinning. | **Verified**: API is public. No direct static URL; programmatic fetch required. |
-| **Recent Occurrences** | GBIF API (via `occurrence` endpoint) | Evaluation data (2005-2020). Used for out-of-time validation. | **Verified**: API is public. |
-| **Historical Climate** | WorldClim v2.1 (https://worldclim.org/data/worldclim21.html) | Predictor variables (Bio1-Bio19). 1970-2000 baseline. | **Verified**: Direct download available via `wget`/`rasterio`. |
-| **Future Climate** | WorldClim CMIP6 (SSP2-4.5) via WorldClim (https://worldclim.org/data/cmip6.html) | Future predictor variables (2041-2060). Downloaded via `wget` with specific file patterns. | **Verified**: Available via programmatic download from WorldClim. |
-
-**Note on SDM Datasets**: No single verified "SDM" dataset URL exists. The project will construct the SDM dataset dynamically by joining occurrence records with climate rasters at runtime.
-
-**Data Availability & Feasibility**:
-- **GBIF**: Accessible via `requests` or `pygbif`. Rate limits handled via exponential backoff.
-- **WorldClim/CMIP6**: Large rasters (multi-gigabyte scale). The plan streams or downloads specific tiles needed for the species' bounding boxes to stay within RAM limits.
-- **CPU Feasibility**: All processing (thinning, feature extraction, RF training) is CPU-tractable. No GPU acceleration is planned.
-
-**Data Standard**: Downloaded CSVs will conform to the Darwin Core (DwC-A) standard or explicitly map to the GBIF API schema version used.
+All rasters are stored as GeoTIFFs (30 arc‑seconds, EPSG:4326). Downloads are streamed tile‑by‑tile to keep RAM usage low.
 
 ## 3. Methodology
 
-### 3.1 Data Preprocessing (FR-001, FR-003, FR-014)
-1.  **Download**: Fetch occurrence records for target species.
-2.  **Filter**: Remove records outside breeding months (species-specific logic).
-3.  **Dedup**: Remove exact coordinate duplicates.
-4.  **Thinning**: Apply spatial thinning (max distance method) using the **dynamic 95th percentile of nearest-neighbor distances** as the default threshold. If calculation fails (< 3 points), fall back to a fixed 10km threshold.
-    - *Rationale*: Reduces spatial autocorrelation, preventing inflated model performance.
-5.  **Climate Extraction**: Sample WorldClim rasters at occurrence coordinates. Impute missing values via nearest neighbor or exclude.
-6.  **Variable Validation**: Ensure all 19 predictor variables are present for every record.
+### 3.1 Data Preprocessing (FR‑001, FR‑003, FR‑014)
+1. **Download** raw occurrence CSVs and climate GeoTIFFs.  
+2. **Filter** records to species‑specific breeding months (defined in `config.py`).  
+3. **Deduplicate** exact coordinate matches.  
+4. **Spatial thinning**:  
+   - Compute nearest‑neighbor distances, take the 95th percentile as `min_distance`.  
+   - If fewer than three points, fallback to a fixed 10 km threshold.  
+   - Apply `utils.spatial.thin_points`.  
+5. **Climate extraction**: Sample each raster at occurrence coordinates using `rasterio.sample`. Missing raster values are imputed via nearest‑neighbor interpolation; points still missing after imputation are excluded.  
+6. **Data‑sufficiency check** (FR‑006, FR‑011):  
+   - Count records per species after thinning.  
+   - Compute statistical power for detecting Cohen’s h = 0.50 (effect size = 0.50, source: Wikipedia).  
+   - Flag species with `<100` records **or** power < 0.8 as `INSUFFICIENT_DATA`.  
+   - Log counts and power values in `metrics/data_sufficiency.json` (schema `data_sufficiency.schema.yaml`).  
 
-### 3.2 Model Training (FR-002, FR-004, FR-007)
-Three algorithms will be implemented:
-1.  **Bioclim**: Range-based envelope model (non-parametric).
-2.  **Random Forest**: Ensemble tree method (`sklearn.ensemble.RandomForestClassifier`).
-3.  **MaxEnt-style**: Implemented via `sklearn` surrogate (Regularized GLM or specific RF configuration mimicking MaxEnt's regularization). *Note: True MaxEnt is Java-based; a Python-native approximation will be used to ensure CPU/CI compatibility.*
+### 3.2 Model Training (FR‑004, FR‑007)
+- **Algorithms**: Random Forest (`sklearn.ensemble.RandomForestClassifier`), Bioclim (range envelope), MaxEnt‑style surrogate (logistic regression with L2 regularization).  
+- **Spatial block cross‑validation**:  
+  - Divide the study area bounding box into a 5 × 5 grid (K = 5 blocks).  
+  - Rotate held‑out block for each fold, ensuring spatial independence (FR‑007).  
+- **CPU‑only enforcement**: `utils.gpu_check.py` aborts if CUDA is detected (FR‑004).  
+- **Null model**: Predicts mean prevalence; its AUC serves as the baseline for SC‑001.  
 
-**Validation Strategy**:
-- **Spatial Block Cross-Validation**: Divide the study area bounding box into a 5x5 equidistant grid, forming 5 contiguous blocks. Rotate the held-out block index (0 to 4) for each fold to ensure spatial independence (FR-007).
-- **Train/Test Split**: [deferred] training, [deferred] validation (spatially blocked).
+### 3.3 Evaluation & Projection (FR‑005, FR‑009, FR‑010)
+1. **Historical validation**: Compute AUC and TSS on recent (2005‑2020) occurrences using the *contemporary* climate (2005‑2020 WorldClim).  
+2. **Future projection**: Predict suitability at the *same* recent occurrence locations under 2050 climate.  
+3. **Niche‑stability metric**: `delta_Suitability = mean(suitability_2050) – mean(suitability_2005‑2020)`. This directly measures the impact of climate change on predicted suitability without requiring future occurrence data.  
+4. **Threshold sweep** (FR‑005): Evaluate suitability thresholds at 0.49, 0.51, 0.55, 0.60 (baseline 0.5 ± {0.01, 0.05, 0.10}). Record false‑positive/negative rates for each.  
+5. **Hierarchical bootstrap** (FR‑010):  
+   - Level 1: Resample species with replacement.  
+   - Level 2: Within each species, resample spatial blocks.  
+   - Perform 10 000 iterations on `delta_Suitability`.  
+6. **Multiple‑comparison correction**: Apply Benjamini‑Hochberg to the four threshold tests (FR‑005).  
+7. **Report**: Store all metrics in `metrics/model_performance.json` (schema `model_metrics.schema.yaml`). Append the disclaimer `"Findings are associational and assume niche stability"` to every report file (FR‑008).
 
-### 3.3 Future Projection & Evaluation (FR-005, FR-009, FR-010)
-1.  **Historical Validation**: Evaluate models on 2005-2020 occurrences using **2005-2020 climate**. Calculate AUC/TSS.
-2.  **Future Projection**: Project models to **2050 climate** at the **same 2005-2020 occurrence locations**. Calculate suitability scores.
-3.  **Niche Stability Metric**: Calculate `delta_Suitability` (Mean Suitability Shift) = (Mean Suitability @ 2050 Climate) - (Mean Suitability @ 2005-2020 Climate). This measures the change in predicted suitability driven solely by the climate variable shift.
-    - **Correction**: This metric replaces the invalid "delta AUC" calculation against future occurrences.
-4.  **Threshold Sweep**: Iterate through the exact threshold set defined by absolute differences {0.01, 0.05, 0.10} from baseline 0.50, resulting in thresholds {0.49, 0.51, 0.55, 0.60}.
-5.  **Statistical Testing**:
-    -   **Hierarchical Bootstrap**: Two-level resampling: Level 1 (Species) -> Level 2 (Spatial Blocks within Species). **Target Metric**: `delta_Suitability`. This accounts for both inter-species variation and spatial autocorrelation structure within species.
-    -   **Multiple-Comparison Correction**: Apply Benjamini-Hochberg correction for threshold sweeps (FR-005).
+### 3.4 Statistical Rigor
+- **Multiple‑comparison**: Benjamini‑Hochberg (FDR = 0.05).  
+- **Power analysis**: Conducted pre‑training (FR‑011).  
+- **Collinearity**: Acknowledge high correlation among Bioclim variables; Random Forest inherently handles it.  
+- **Associational framing**: Explicit disclaimer added per FR‑008.  
 
-### 3.4 Power Analysis (FR-011)
-- **Effect Size**: Cohen's h = 0.50 (Verified: Wikipedia). This represents the difference between the proportion of 'suitable' predictions (suitability > 0.5) and a null expectation of 0.5 (random suitability).
-- **Threshold**: Minimum 100 records per species for statistical power (Power ≥ 0.8).
-- **Action**: If `count < 100` or calculated power < 0.8, flag as `INSUFFICIENT_DATA` and exclude from aggregation (FR-006). Log the specific count and power value.
-
-## 4. Statistical Rigor & Assumptions
-
-- **Associational Nature**: All findings are explicitly framed as associational. No causal claims (e.g., "climate change *caused* the shift") are made without experimental manipulation. The report will append: "Findings are associational and assume niche stability".
-- **Collinearity**: Climate variables (e.g., Bio1 vs Bio12) are often correlated. The Random Forest implementation handles this, but Bioclim assumes independence. Collinearity will be acknowledged in the report.
-- **Multiple Comparisons**: Threshold sweeps (FR-005) and model comparisons (FR-010) require correction to control Family-Wise Error Rate (FWER).
-- **Sample Size**: The 100-record threshold is a conservative proxy for power. A formal post-hoc power analysis will be logged.
-
-## 5. Risks & Mitigations
-
+## 4. Risks & Mitigations
 | Risk | Mitigation |
-| :--- | :--- |
-| **GBIF API Rate Limits** | Implement exponential backoff; cache responses in `data/raw/` to avoid re-fetching. |
-| **Missing Climate Data** | Exclude points with null climate values; log count. |
-| **Insufficient Data (<100 records)** | Flag species; exclude from final aggregation; report as a limitation. |
-| **Runtime > 6h** | Limit number of species; use subsampling for bootstrap if necessary; optimize `rasterio` reading. |
-| **Memory Overflow** | Stream rasters; process species sequentially; avoid loading all rasters into RAM simultaneously. |
+|------|------------|
+| GBIF API rate limits | Exponential back‑off, caching raw responses in `data/raw/`. |
+| Missing raster tiles | Nearest‑neighbor imputation; log number of excluded points. |
+| Insufficient records | Species flagged and excluded; report limitation. |
+| Runtime > 6 h | Limit species list, use streaming raster reads, reduce bootstrap iterations if needed (still ≥ 5 000). |
+| Memory overflow | Process species sequentially; never load all rasters simultaneously. |
+| Unexpected GPU presence | `gpu_check.py` aborts early with clear log. |
 
-## 6. Decision Rationale
+## 5. Decision Rationale
+- **CPU‑first**: Free‑tier CI provides only CPUs; all chosen libraries run efficiently on CPU.  
+- **Spatial block CV**: Prevents inflated AUC from spatial autocorrelation (essential for ecological validity).  
+- **Hierarchical bootstrap**: Captures dependence across species and spatial blocks, satisfying FR‑010.  
+- **Delta suitability**: Provides a defensible niche‑stability metric without requiring unavailable future occurrence data.  
+- **Open data only**: Guarantees reproducibility on CI; no gated datasets used.  
 
-- **CPU-First**: The free-tier CI runner has no GPU. Using `scikit-learn` and `rasterio` ensures compatibility.
-- **Spatial Block CV**: Essential for ecological data to avoid spatial leakage. Random CV would yield overly optimistic AUC.
-- **Hierarchical Bootstrap**: Standard t-tests fail on ecological data due to species-level dependence. Bootstrap preserves the hierarchy.
-- **No Synthetic Data**: The plan uses real GBIF/WorldClim data. Synthetic stand-ins are rejected as fabrication.
-- **Temporal Mismatch Resolution**: The redefined evaluation metric (comparing model outputs at the same locations under different climate scenarios) is the only valid way to assess niche stability without 2050 occurrence data. The statistical test is now applied to `delta_Suitability`.
+---

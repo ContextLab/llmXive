@@ -1,10 +1,10 @@
 status: verified
 kind: pypi_package
 ref: pygbif
-access_python: "from pygbif import occurrences as occ\n\nres = occ.search()\nrecords\
-  \ = res.get('results', [])\nif not records:\n    raise ValueError('No occurrence\
-  \ records returned')\nprint(f\"RECORDS={len(records)}\")\nprint('FIELDS=' + ','.join(records[0].keys()))"
-record_count: 300
+access_python: "from pygbif import occurrences as occ\n\nresp = occ.search(limit=10)\n\
+  results = resp.get('results')\nif not results:\n    raise RuntimeError('No occurrence\
+  \ records returned')\nprint(f\"RECORDS={len(results)}\")\nprint('FIELDS=' + ','.join(list(results[0].keys())))"
+record_count: 10
 sample_fields:
 - key
 - datasetKey
@@ -84,7 +84,7 @@ sample_fields:
 - http://unknown.org/griddedDataset
 - collectionCode
 - gbifID
-field_coverage: 0.818
+field_coverage: 0.75
 required_fields:
 - species
 - decimalLatitude
@@ -92,11 +92,8 @@ required_fields:
 - eventDate
 - year
 - month
-- day
-- basisOfRecord
-- countryCode
-- bioclim_temperature_mean
-- bioclim_precipitation_mean
-intent: download North American bird occurrence GBIF eBird dataset with WorldClim
-  v2 climate rasters python package dataset
-cache_key: a4becc7ebb924131106718b1244160784e5c47d612953bd33d1976d1673c7cc5
+- bio1_temperature
+- bio12_precipitation
+intent: download GBIF North American bird occurrence records with WorldClim v2 climate
+  variables python package dataset
+cache_key: 7622d27242a48cd42829046657ba918a62c73531d461779e9d86517bb65a9f29
