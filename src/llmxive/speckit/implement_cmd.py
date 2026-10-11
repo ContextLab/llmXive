@@ -633,6 +633,13 @@ class ImplementerAgent(SlashCommandAgent):
                     encoding="utf-8",
                 )
                 written.append(str(log_path.relative_to(repo)))
+                # One number per executed check, kept over time (see scorecard).
+                from llmxive.agents.task_verifier import task_verification_state_path
+                from llmxive.speckit import scorecard
+                scorecard.record(
+                    task_verification_state_path(project_root, Path(mechanical_output["tasks_path"])).parent,
+                    task_id, "run",
+                    scorecard.run_values(relpath, result.returncode, result.stdout, is_test=is_test))
                 registry = log_path.parent / output_writers.REGISTRY_NAME
                 if registry.is_file() and str(registry.relative_to(repo)) not in written:
                     written.append(str(registry.relative_to(repo)))

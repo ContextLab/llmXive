@@ -766,6 +766,17 @@ def _mark_counts(lines: list[str]) -> dict[str, int]:
     return out
 
 
+#: What each ledger decision settles on the task's scorecard. A failed run is
+#: already recorded by the implementer that ran it; ``unverifiable`` is a
+#: routing outcome, not a measurement.
+_LEDGER_VALUES: dict[str, dict[str, int]] = {
+    "accepted": {"judge": 1},
+    "judged": {"judge": 0},
+    "replayed": {"judge": 0},
+    "missing_artifact": {"files": 0},
+}
+
+
 def _append_ledger(path: Path, entries: list[dict[str, str]]) -> None:
     """Append this pass's decisions to the project's verification ledger.
 
@@ -1058,6 +1069,12 @@ def run_verification_pass(
     else:
         feedback_path.unlink(missing_ok=True)
     _append_ledger(state_path.with_suffix(".ledger.jsonl"), ledger)
+    # The same decisions as numbers per criterion (see speckit.scorecard).
+    from llmxive.speckit import scorecard
+    for entry in ledger:
+        values = _LEDGER_VALUES.get(entry["kind"])
+        if values:
+            scorecard.record(state_path.parent, entry["task"], entry["kind"], dict(values))
     _write_notes(notes_path, [
         (key, entry["reason"]) for key, entry in feedback.items() if entry.get("reason")
     ])

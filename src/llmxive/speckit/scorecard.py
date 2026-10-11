@@ -1,0 +1,107 @@
+"""One number per criterion per attempt, kept over time, for every task.
+
+A task's verdict used to be prose plus accept/reject, and nothing recorded what
+had been measured on the way. Batch 1 of the 2026-10-11 reliability runs,
+rebuilt from the verifier's saved calls: 44 observations made a passing check
+fail against 64 that made a failing one pass, and 393 of 499 consecutive
+observations changed nothing. None of that was visible to the pipeline.
+
+The harness, never a model, appends one line per observation to
+``<memory dir>/scorecard.jsonl``::
+
+    {"at": ..., "task": "T005", "source": "run", "values": {"run:code/a.py": 1,
+     "test:tests/test_a.py::test_sum": 0}}
+
+Criteria and their values:
+
+* ``run:<script>`` -- 1 when the script exited 0, else 0.
+* ``test:<pytest node id>`` -- 1 when the test passed, else 0.
+* ``files`` -- 0 when a required file is missing or invalid.
+* ``judge`` -- 1 when the independent verifier accepted the task, else 0.
+
+``None`` means the check could not be run, which is not a failure.
+"""
+
+from __future__ import annotations
+
+import datetime
+import json
+import logging
+import re
+from pathlib import Path
+
+LOGGER = logging.getLogger(__name__)
+
+SCORECARD_NAME = "scorecard.jsonl"
+#: ``path::test PASSED`` as ``pytest -v`` prints it, with or without the progress column.
+_PYTEST_LINE = re.compile(r"^(\S+::\S+) (PASSED|FAILED|ERROR)\b", re.MULTILINE)
+
+Values = dict[str, int | None]
+
+
+def scorecard_path(memory_dir: Path) -> Path:
+    return memory_dir / SCORECARD_NAME
+
+
+def run_values(script: str, returncode: int, stdout: str, *, is_test: bool) -> Values:
+    """The criteria one executed script or test module settles."""
+    values: Values = {f"run:{script}": int(returncode == 0)}
+    if is_test:
+        for node, outcome in _PYTEST_LINE.findall(stdout):
+            values[f"test:{node}"] = int(outcome == "PASSED")
+    return values
+
+
+def record(memory_dir: Path, task: str, source: str, values: Values) -> None:
+    """Append one observation. A measurement never fails the step it measures."""
+    if not values:
+        return
+    line = json.dumps({
+        "at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),
+        "task": task, "source": source, "values": values,
+    }, sort_keys=True)
+    try:
+        memory_dir.mkdir(parents=True, exist_ok=True)
+        with scorecard_path(memory_dir).open("a", encoding="utf-8") as stream:
+            stream.write(line + "\n")
+    except OSError as exc:
+        LOGGER.warning("[scorecard] could not append to %s: %s", scorecard_path(memory_dir), exc)
+
+
+def history(memory_dir: Path, task: str | None = None) -> list[dict]:
+    """Every observation in the order it was made, optionally for one task."""
+    try:
+        text = scorecard_path(memory_dir).read_text(encoding="utf-8")
+    except OSError:
+        return []
+    rows = []
+    for line in text.splitlines():
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue  # a torn final line from an interrupted run
+        if isinstance(row, dict) and isinstance(row.get("values"), dict) and (task is None or row.get("task") == task):
+            rows.append(row)
+    return rows
+
+
+def current(memory_dir: Path, task: str) -> Values:
+    """The latest value of every criterion ever observed for ``task``."""
+    state: Values = {}
+    for row in history(memory_dir, task):
+        state.update(row["values"])
+    return state
+
+
+def delta(before: Values, after: Values) -> tuple[list[str], list[str]]:
+    """``(improved, regressed)``: criteria that went 0 -> 1 and 1 -> 0.
+
+    A criterion seen for the first time, or one that could not be run, is
+    neither: only a measured change counts.
+    """
+    improved = sorted(k for k, v in after.items() if v == 1 and before.get(k) == 0)
+    regressed = sorted(k for k, v in after.items() if v == 0 and before.get(k) == 1)
+    return improved, regressed
+
+
+__all__ = ["SCORECARD_NAME", "Values", "current", "delta", "history", "record", "run_values", "scorecard_path"]
