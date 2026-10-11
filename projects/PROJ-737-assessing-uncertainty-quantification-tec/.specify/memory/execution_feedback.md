@@ -13,9 +13,10 @@ Traceback (most recent call last):
     from pipeline import main as pipeline_main
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 21, in <module>
     from models.mc_dropout import run_mc_dropout, main as mc_dropout_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py", line 20, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py", line 43, in <module>
+    class SimpleDropoutMLP(nn.Module):
+                           ^^
+NameError: name 'nn' is not defined. Did you mean: 'np'?
 
 
 ## Declared deliverables still missing
