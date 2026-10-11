@@ -8,23 +8,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py download -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
 
 - python code/main.py preprocess -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
 
 - python code/main.py train -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
 
 - python code/main.py evaluate -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
 
 - python code/main.py report -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
 
 ## Platform-owned paths written inside the project
 

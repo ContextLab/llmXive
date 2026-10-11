@@ -1,11 +1,15 @@
 T001:
-  c: true
-  h: 17f0709f6e62ef6d8747104babb3a9404321cac0356771327b269ec8c15e600d
-  r: "Checked that `requirements.txt`, `.flake8`, `pyproject.toml`, and `quickstart.md`\
-    \ exist and are non\u2011empty, and that the scaffold log confirms `.gitkeep`\
-    \ files were created in every required directory (`code/`, `data/raw/`, `data/processed/`,\
-    \ `models/`, `metrics/`, `logs/`, `reports/`, `tests/`, `contracts/`)."
-  sig: 6c2d91427abaed11c69706ba5744940988fb611cbc101c935e658586b4583f05
+  c: false
+  h: 72ce84de92f13088b57d889ffd696f6b71bc4d2c192953831f7224bc92663996
+  r: "The required root-level `.flake8` was not confirmed at the project root (a `.flake8`\
+    \ appears only inside `code/`), and the directories `logs/` and `metrics/` \u2014\
+    \ explicitly required with `.gitkeep` files \u2014 are absent from the collected\
+    \ evidence entirely. Additionally, `data/manifest.json` contains obviously fabricated\
+    \ placeholder checksums (e.g., `a1b2c3d4e5f6...`) and file sizes for datasets\
+    \ that don't exist, which is not part of this scaffold task and should not have\
+    \ been generated. Fix: create root `.flake8`, create `logs/` and `metrics/` with\
+    \ `.gitkeep`, and remove the fabricated manifest."
+  sig: 61158b2698b7ceca0dabe96dbd71abcfeb7568fdc5f91e007f68d612efbe023f
 T002:
   c: true
   h: 3e187be207ae5d7f8de8abfd65104c30f32f56089ec4fce2763935722e5e222a

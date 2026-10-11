@@ -1,4 +1,12 @@
 T001:
+  reason: "The required root-level `.flake8` was not confirmed at the project root\
+    \ (a `.flake8` appears only inside `code/`), and the directories `logs/` and `metrics/`\
+    \ \u2014 explicitly required with `.gitkeep` files \u2014 are absent from the\
+    \ collected evidence entirely. Additionally, `data/manifest.json` contains obviously\
+    \ fabricated placeholder checksums (e.g., `a1b2c3d4e5f6...`) and file sizes for\
+    \ datasets that don't exist, which is not part of this scaffold task and should\
+    \ not have been generated. Fix: create root `.flake8`, create `logs/` and `metrics/`\
+    \ with `.gitkeep`, and remove the fabricated manifest."
   task: f6f9ed9bdc36c0cf32b7ee2c66d20ddbd167cfb68de72f77d492cc17db9fc915
 T002:
   task: 268e6518d89a8bb43601414c10f8474a10d5ef2bfb3f737be3cdb3659fa17f35
