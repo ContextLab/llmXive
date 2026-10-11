@@ -65,7 +65,7 @@ def load_simulation_configs(config: Dict[str, Any]) -> List[Dict[str, Any]]:
         import yaml
         with open(manifest_path, 'r') as f:
             manifest = yaml.safe_load(f)
-            sweep_params["dataset_ids"] = [d['id'] for d in manifest.get('datasets', [])]
+            sweep_params["dataset_ids"] = [d['name'] for d in manifest.get('datasets', [])]
     else:
         raise FileNotFoundError(f"Dataset manifest not found at {manifest_path}")
 
@@ -93,10 +93,6 @@ def run_aggregated_simulation(configs: List[Dict[str, Any]], base_config: Dict[s
     """
     all_results = []
     edge_case_data = []
-
-    # Pre-allocate lists for aggregation to avoid repeated appends in loop if possible,
-    # but we must run sequentially per config for state isolation in some injectors.
-    # We collect raw p-values per config.
 
     for i, cfg in enumerate(configs):
         print(f"Running config {i+1}/{len(configs)}: {cfg['dataset_id']} - {cfg['dependency_type']} - r={cfg['r']} - {cfg['test_type']}")
@@ -142,7 +138,6 @@ def run_aggregated_simulation(configs: List[Dict[str, Any]], base_config: Dict[s
     full_df = pd.concat(all_results, ignore_index=True)
 
     # Vectorized Aggregation
-    # Group by config parameters and calculate metrics in bulk
     group_cols = ["dataset_id", "dependency_type", "r", "test_type"]
     
     # Ensure p-value column exists
@@ -152,7 +147,6 @@ def run_aggregated_simulation(configs: List[Dict[str, Any]], base_config: Dict[s
     alpha = base_config.get("alpha", 0.05)
 
     # Calculate Type I Error Rate (proportion of p < alpha)
-    # This is a vectorized boolean operation followed by a groupby mean
     full_df["is_significant"] = full_df["p_value"] < alpha
     
     aggregated = full_df.groupby(group_cols, as_index=False).agg(
@@ -164,20 +158,17 @@ def run_aggregated_simulation(configs: List[Dict[str, Any]], base_config: Dict[s
     aggregated["error_rate"] = aggregated["significant_count"] / aggregated["count"]
     
     # Calculate Clopper-Pearson Confidence Intervals
-    # We apply the function row-wise, but the data preparation is vectorized
     def calculate_ci(row):
         return clopper_pearson_ci(
             k=int(row["significant_count"]),
             n=int(row["count"]),
             alpha=alpha
         )
-
     ci_results = aggregated.apply(calculate_ci, axis=1)
     aggregated["ci_lower"] = [x[0] for x in ci_results]
     aggregated["ci_upper"] = [x[1] for x in ci_results]
 
     # Verify monotonicity trend per dataset/test/dependency
-    # This requires sorting and comparing adjacent r values
     aggregated = update_aggregated_with_trend(aggregated, base_config)
 
     return aggregated
@@ -190,13 +181,56 @@ def run_power_analysis(base_config: Dict[str, Any]):
         print("Power analysis skipped (not configured).")
         return
 
-    # Similar structure to Type I error but with effect injection
-    # Re-using run_simulation with effect=True logic if implemented there
-    # For this task, we assume the runner handles effect injection if requested
-    # and we focus on the aggregation vectorization.
+    # Placeholder: actual power analysis implementation would mirror
+    # run_aggregated_simulation but with effect injection.
     print("Power analysis sweep starting...")
-    # Implementation would mirror run_aggregated_simulation but with effect parameters
-    # and calculating power instead of Type I error.
+
+def generate_and_save_spatial_proxies(dataset_names: List[str]) -> None:
+    """
+    For each dataset name, load the raw CSV, generate a spatial proxy,
+    save the proxy report, validate the proxy, and save the validation report.
+    """
+    for name in dataset_names:
+        csv_path = DATA_DIR / "raw" / f"{name}.csv"
+        if not csv_path.exists():
+            print(f"Dataset file {csv_path} not found; skipping spatial proxy generation.")
+            continue
+        
+        try:
+            df = pd.read_csv(csv_path)
+        except Exception as e:
+            print(f"Failed to read {csv_path}: {e}")
+            continue
+        
+        # Use numeric columns for proxy generation; fallback to all columns if none numeric
+        numeric_df = df.select_dtypes(include=[np.number])
+        if numeric_df.empty:
+            # If no numeric columns, use the entire dataframe after converting to numeric via factorization
+            # Simple fallback: attempt to encode object columns as category codes
+            encoded = df.apply(lambda col: col.astype('category').cat.codes if col.dtype == 'object' else col)
+            data_array = encoded.to_numpy()
+        else:
+            data_array = numeric_df.to_numpy()
+        
+        if data_array.size == 0:
+            print(f"No usable data for spatial proxy in dataset {name}; skipping.")
+            continue
+        
+        # Generate proxy
+        proxy = generate_spatial_proxy(data_array, n_clusters=5, seed=42)
+        
+        # Save proxy report
+        proxy_report_path = MANIFESTS_DIR / f"spatial_proxy_{name}.json"
+        save_spatial_proxy_report(proxy, str(proxy_report_path))
+        
+        # Validate proxy
+        validation = validate_feature_space_proxy(proxy, df)
+        
+        # Save validation report
+        validation_report_path = MANIFESTS_DIR / f"spatial_proxy_validation_{name}.json"
+        save_proxy_validation_report(validation, str(validation_report_path))
+        
+        print(f"Spatial proxy and validation saved for dataset {name}.")
 
 def main():
     """
@@ -214,25 +248,21 @@ def main():
         perf_log["steps"].append({"step": "load_config", "status": "success"})
 
         # 2. Pre-flight Check (Memory/Resource estimation)
-        # Estimate memory: n_replications * dataset_size * bytes_per_float
-        # If too high, log warning. (Simplified for this implementation)
         n_rep = config.get("n_replications", 1000)
         print(f"Estimated replications: {n_rep}")
         perf_log["steps"].append({"step": "preflight_check", "status": "success"})
 
         # 3. Load Datasets (Validation happens inside load_datasets)
         print("Loading and validating datasets...")
-        load_datasets() # Ensures data/raw/ exists and is valid
+        checksums = load_datasets()  # Ensures data/raw/ exists and is valid
         perf_log["steps"].append({"step": "load_datasets", "status": "success"})
 
         # 4. Generate Spatial Proxies (if needed for spatial dependency)
-        # Check if spatial is in sweep
-        # This is a one-time cost per dataset
-        print("Generating spatial proxies...")
-        generate_spatial_proxy()
-        save_spatial_proxy_report()
-        validate_feature_space_proxy()
-        save_proxy_validation_report()
+        # Use dataset names from the successful checksums
+        dataset_names = list(checksums.keys())
+        if dataset_names:
+            print("Generating spatial proxies for datasets...")
+            generate_and_save_spatial_proxies(dataset_names)
         perf_log["steps"].append({"step": "spatial_proxy", "status": "success"})
 
         # 5. Run Type I Error Simulation Sweep

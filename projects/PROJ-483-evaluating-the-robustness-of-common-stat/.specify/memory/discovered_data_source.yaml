@@ -1,9 +1,8 @@
 status: none
-intent: OpenML Python package dataset for UCI Machine Learning Repository continuous
-  data python package dataset
+intent: UCI Machine Learning Repository Iris dataset OpenML python package dataset
 required_fields:
-- numeric_measure
-- group_label
-cache_key: ebf35be8f7b3f2ee424483d51dc29e79eecbd0de213150a8205426c1ecbc5f42
-searched_at: '2026-10-11T22:16:30.869909+00:00'
+- continuous_feature
+- categorical_label
+cache_key: 5723cc0f06f365e0a674879a47fde0915e01c595990a19145635ec725be70323
+searched_at: '2026-10-11T22:21:59.249289+00:00'
 retry_count: 1

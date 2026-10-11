@@ -50,6 +50,8 @@ def validate_dataset(df: pd.DataFrame, dataset_info: Dict[str, Any], violations:
     - At least one numeric column (for t-test/ANOVA)
     - At least one categorical column OR target is categorical (for chi-squared)
     - Minimum 50 rows (FR-001)
+    - Continuous variables must have variance > 0
+    - Categorical variables must have at least 2 unique levels
     
     Args:
         df: The loaded DataFrame.
@@ -100,6 +102,34 @@ def validate_dataset(df: pd.DataFrame, dataset_info: Dict[str, Any], violations:
 
     if not has_categorical:
         print(f"Warning: Dataset {name} has no categorical columns. T-test/ANOVA only.")
+
+    # Additional FR-001 checks -------------------------------------------------
+    # 1) Continuous variables must have variance > 0
+    for col in numeric_cols:
+        if df[col].var(ddof=0) == 0:
+            violation = {
+                "dataset": name,
+                "reason": f"Numeric column '{col}' has zero variance",
+                "column": col,
+                "status": "skipped"
+            }
+            violations.append(violation)
+            print(f"Dataset {name}: numeric column '{col}' has zero variance. Skipping.")
+            return False
+
+    # 2) Categorical variables must have at least 2 unique levels
+    for col in categorical_cols:
+        if df[col].nunique() < 2:
+            violation = {
+                "dataset": name,
+                "reason": f"Categorical column '{col}' has fewer than 2 unique levels",
+                "column": col,
+                "status": "skipped"
+            }
+            violations.append(violation)
+            print(f"Dataset {name}: categorical column '{col}' has <2 unique levels. Skipping.")
+            return False
+    # -------------------------------------------------------------------------
 
     return True
 

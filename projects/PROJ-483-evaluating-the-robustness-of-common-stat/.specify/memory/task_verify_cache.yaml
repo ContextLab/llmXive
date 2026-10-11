@@ -1,12 +1,13 @@
 T001:
   c: true
-  h: 2c6c55d1273d3ef531f1137d5dbb467dc9f852d459fb3fa4252130aa3ae30a36
+  h: c6f5b87f9c86396f8060c39d3bbab88c1df26bec71da1b07d93263c9ba68d391
   r: "Checked the project root `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`\
-    \ and confirmed it contains the expected hierarchy (code/, data/, docs/, results/,\
-    \ specs/, src/, tests/, contracts/, .gitignore, README.md, pyproject.toml, requirements.txt,\
-    \ etc.) and non\u2011empty placeholder files, satisfying the \u201Ccreate project\
-    \ structure per implementation plan\u201D requirement."
-  sig: 2f97a382dd9467c31e4443c9251c4e12700fdaa015a88c741e68017ceb520b86
+    \ and confirmed it contains the expected top\u2011level files (README.md, pyproject.toml,\
+    \ requirements.txt) and the full set of sub\u2011directories required by the implementation\
+    \ plan (code/, data/, docs/, results/, specs/, src/, tests/, etc.). All required\
+    \ artifacts exist and are non\u2011empty (place\u2011holder files like `.gitkeep`\
+    \ are intentional)."
+  sig: 191614401314bf3f3a0f3000ded75e3ec298e7ba77f1de7ad07ca8dc394c5455
 T002:
   c: true
   h: 2082d52c1a722d0cd43e68f193b8320fd4486597856edea4f7164e4ddbb52519
@@ -24,22 +25,20 @@ T003:
     \ tools in `pyproject.toml`."
   sig: 98bff38d656c23b88f9f39c4dcd7a97a13ab96d3b308297dbcb0fba23d297db0
 T004:
-  c: false
-  h: faa29deaff8de527e0247cd74894b82d8ef73911ff59a8e2215237b571629671
-  r: "The required schema file `contracts/config_schema.schema.yaml` is missing, and\
-    \ `code/config.py` validates against a different (non\u2011existent) schema path\
-    \ `contracts/simulation_config.schema.yaml` instead of the specified `contracts/config_schema.schema.yaml`.\
-    \ Consequently the loader cannot perform the required validation."
-  sig: c83ac0de7bbe4899016a1d01ff10b635596601693543dda22eb51d1eb9cac727
+  c: true
+  h: 7997f5a50c7c1c55f9f22bc66dd1e4f84db5d3664013f51ef6a0e0f466eec90a
+  r: Checked `code/config.py` which implements loading of `code/config.yaml` and validates
+    it against `contracts/config_schema.schema.yaml` using a recursive validator,
+    and verified that `code/config.yaml` conforms to the required schema fields and
+    types.
+  sig: 43ac35a7ea24723a2393cbc422102827577aa427707925e0ff2f082dcbb72cba
 T004b-populate:
-  c: false
-  h: 43b67d123068d213cb88a91b87f9e1dd811d9780790ed10ccf3f19502c71598c
-  r: "Checked `code/config.yaml`; while it includes `seed: 42` and `n_replications:\
-    \ 10000`, it lacks the required keys `use_real_data` and `use_streaming`, and\
-    \ the `dependency_strengths` list does not match `[0.0, 0.1, 0.2, 0.3, 0.5]` (it\
-    \ has a different field name and values). The task\u2019s specification is not\
-    \ fully satisfied."
-  sig: 8d72c6726bf981fa79d2352bb478ac4334c6be61305a4b00cb9e69390054d26d
+  c: true
+  h: d60c05242b3879d22ff2a8a6ffad1b57ae827434e27b8ed92f8509da992f5ac5
+  r: "Checked `code/config.yaml` (392\u202Fbytes) which contains `seed: 42`, `n_replications:\
+    \ 10000`, the exact `dependency_strengths` list, `use_real_data: true`, and `use_streaming:\
+    \ false` as required. The file exists and matches the specified defaults."
+  sig: 9ca5fb0cf27d2f944caba00888f2e6c1cd0175a6799a3afb7d8b501b9973a965
 T004b-schema:
   c: true
   h: e991f8b095f44492f45db7a1df1ebb518b6f7e1f89d93773aba964768abaa10b
@@ -61,14 +60,13 @@ T005:
     \ task."
   sig: b3c67529bed9199231be6876effc325b2e458eff3f66992f00bd08cc61e6518c
 T005a:
-  c: false
-  h: 6e7bb283f0518c291e8d99e4f828b90136713be9772b196e10c637576400073d
-  r: "The provided `contracts/dataset_schema.schema.yaml` defines fields like `file_path`,\
-    \ `checksum`, `sample_size`, and `variable_types`, but it does **not** include\
-    \ the required `variable_names` (with continuous/categorical options), `target_column`,\
-    \ or `data_type` fields, nor does it match the exact schema specification requested.\
-    \ The task\u2019s required fields are missing or incorrectly named."
-  sig: 11e90506a2aa2969cdad121d4f224d443567b7d8459ceffad87f0c63dc678b50
+  c: true
+  h: de1ed49c6b786752050b4d3268a21e6e1c4e2b5480dbf309eadced3c16b680fc
+  r: "The `contracts/dataset_schema.schema.yaml` file exists (1219\u202Fbytes) and\
+    \ defines the required fields `dataset_id`, `source_url`, `variable_names` (with\
+    \ `continuous` and `categorical` arrays), `target_column`, and `data_type` exactly\
+    \ as specified."
+  sig: 6b8477e5516651e6b10bdc5f426bb0994df01a23987f762c06ffb92d74b77630
 T005c:
   c: false
   h: fcf0fac1866ef61528cd79017b3c6cd2428883e9e20166ab6a0760fe1cb6530f
@@ -107,12 +105,13 @@ T034:
     unmet.
 T035:
   c: true
-  h: 6fb13103d92ad4b5245214eaecc42c8d84adf30aea5c369c4dbcd63f06861014
-  r: "Checked `code/data_loader.py` which implements N\u2011check (<\u202F50) that\
-    \ skips the dataset, records a violation in `results/validation_report.json`,\
-    \ continues processing remaining datasets, and raises a clear error when no datasets\
-    \ pass validation. The validation report file is present and written as specified."
-  sig: af7faf79946d5c7df3af0e586189c7efb5286219e63edd4a14453f550118f746
+  h: 5a676910efa1fed143e82afeda0e83055e38a4c9616b3898f2bada079e5cc45c
+  r: "The `code/data_loader.py` file implements N\u2011check validation, skips datasets\
+    \ with fewer than 50 rows, records violations in `results/validation_report.json`,\
+    \ and raises a `CriticalValidationError` when no datasets pass validation. The\
+    \ accompanying `results/validation_report.json` shows the expected structure with\
+    \ violations and counts."
+  sig: e1e132878a243e42fff512253b7e19c5796a218da3eedce2d95f164076d0156e
 T035b:
   c: false
   h: 9d44e904b6bae52576dd043cc156f9a6fccf33b00da9c55e74f66b4ab48cb38a
@@ -122,6 +121,16 @@ T035b:
     \ Moreover, the required `results/power_report.json` file is missing. The task\u2019\
     s core requirement (power verification and warning log) is not satisfied."
   sig: 1ed9ca54fecb9be8a3734b79ff99a9652c4aa492233cd94925de87b99fd735cd
+T037:
+  c: false
+  h: 1d5cd6c0be8defd02dde94e1f2663a3ef29ef95c96801a76345cbe0a0222df47
+  r: "The provided `code/dependency_injector.py` generates spatial proxies with a\
+    \ default of `n_clusters=5` (K\u2011Means\u202Fk=5) and the saved `spatial_proxy_report.json`\
+    \ records `n_clusters: 5`. The task explicitly requires using K\u2011Means with\
+    \ **k=3** (and to skip injection on failure), which is not implemented. Adjust\
+    \ the proxy generation to use `k=3` (or make it configurable) and ensure failure\
+    \ handling follows the specification."
+  sig: 9ab19735a3f0f059cfdb601ea334137bc971671af9d70a0aeff8e47fbde523d0
 T040:
   c: false
   h: cc1bba15a2456401a67d28f25e85ffbc80e955bcbddcbe12105ebd123c1113fb

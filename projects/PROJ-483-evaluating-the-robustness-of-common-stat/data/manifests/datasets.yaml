@@ -13,7 +13,15 @@ datasets:
     description: UCI Adult Income dataset. Contains continuous (age, fnlwgt, education-num, capital-gain, capital-loss, hours-per-week) and categorical features.
     target: income
     type: binary_classification
-    
+
+  - name: credit_card_default
+    # Verified: Direct link to the Credit Card Default dataset (UCI)
+    # Status: Active. Returns an Excel file; pandas can read it via read_excel if needed.
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/00350/default%20of%20credit%20card%20clients.xls
+    description: UCI Credit Card Default dataset. Mixed types: continuous (LIMIT_BAL, BILL_AMT1‑6, PAY_AMT1‑6) and categorical (SEX, EDUCATION, MARRIAGE). Suitable for t-tests, ANOVA, and chi-squared tests.
+    target: default_payment_next_month
+    type: binary_classification
+
   - name: wine
     # Verified: Direct link to wine.data file (UCI)
     # Status: Active. Standard UCI Wine dataset.
@@ -21,7 +29,7 @@ datasets:
     description: UCI Wine dataset. Contains 13 continuous chemical features derived from analysis of Italian wines.
     target: class
     type: multiclass_classification
-    
+
   - name: iris
     # Verified: Direct link to iris.data file (UCI)
     # Status: Active. Classic Fisher's Iris dataset.
@@ -29,7 +37,7 @@ datasets:
     description: UCI Iris dataset. Contains 4 continuous features (sepal length/width, petal length/width).
     target: class
     type: multiclass_classification
-    
+
   - name: openml_titanic
     # Verified: OpenML Dataset ID 18 (Titanic) download link.
     # Status: Active. Persistent OpenML URL.
