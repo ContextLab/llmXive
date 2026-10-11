@@ -1,0 +1,81 @@
+T001:
+  reason: The task explicitly requires creating `data/raw/` and `data/processed/`,
+    but the collector reports both as MISSING; only `code/`, `tests/`, and `results/`
+    exist. The implementer must create the two missing data directories (e.g., via
+    the existing `setup_directories.py` or directly) to satisfy T001.
+  task: 3eed2bb19de45f966555d2016e96d1e2786b3596ff836a7777a40b4e7f5cbeb4
+T002:
+  task: 5d55f8e8a8bf01e66f9f6e4a1eb6dab13a1d88e1d8f7d47e88f91322dae2a100
+T003:
+  reason: "The `pyproject.toml` exists with the required `[tool.black] line-length\
+    \ = 88` config, but the evidence shows no `.flake8` file at the project root (or\
+    \ anywhere) \u2014 the task explicitly requires creating `.flake8` with `max-line-length=88`\
+    \ and `ignore=E203,W503`, and that artifact is missing entirely."
+  task: 67e30ff39f2825ad834a369245c136bb194ef954b42eea13a0023dfa2a2ad72a
+T004:
+  task: 6689ff79d81b4c917ebf69cb767665ab79b7a2a53057b0c27847d9cb2012bd32
+T005:
+  reason: "`code/utils.py` exists and implements logging helpers (`setup_logging`,\
+    \ `log_simulation_result`) and checksum verification (`calculate_checksum`, `verify_checksum`),\
+    \ but it contains no plotting scaffolding whatsoever \u2014 no matplotlib import,\
+    \ no plot helper functions, or any related stub \u2014 which is a required third\
+    \ component of T005. The implementer must add plotting scaffolding (e.g., a function\
+    \ to save coverage-vs-phi or ordered-vs-shuffled comparison figures to the results\
+    \ directory)."
+  task: e893d0417ddb3a200235a5ad1c95f5579ac304caf3db3e255e266102c5bdc94e
+T005b:
+  reason: "The required function `hash_synthetic_params(seed: int, phi: float, n:\
+    \ int) -> str` is absent from `code/utils.py` \u2014 the file contains only pre-existing\
+    \ utilities (setup_logging, calculate_checksum, verify_checksum, log_simulation_result,\
+    \ load_simulation_logs), none of which provides the deterministic hash of synthetic\
+    \ data parameters for integrity tracking. The implementer must add this function,\
+    \ e.g. hashing a canonical serialization of (seed, phi, n) via SHA256."
+  task: 50043786cf02f1b8a742f474b64b0e7bfeac40b30c1b61a7340e1a58fbd6e4c4
+T006:
+  task: 148c692b8ce48821c96a81293a54821f829bf6e04d8de108d5532e7324fde3c5
+T007:
+  task: 5414a772041bb5147dc8ab45280329beea74937c150045d7ffea31b8a0c472c0
+T008:
+  task: 63ed8bbd16176a7b90666f0ee04e1fb77511df29cef0792e578f883398803097
+T009:
+  task: bde2aec36bd9ef2caf3f94b263eb940304ce1bbbc75336ae40994430f488dd61
+T010:
+  task: 09ca710be360e20078213b4c92d3045fccf64a42db91e7e3fe891e4ee1856f2b
+T011:
+  task: ca9faafd29ee889e8d460e1bc0da9d4d459d2917c00d7e9ed89757de3e302e12
+T012:
+  task: 5d286f17ef7a905fd8505519322ad41462a514ab2e7d4a1060f057e7481acb1a
+T013:
+  task: da76ff0ba7d1cd84fd67ab9f6d26d8a244b1fc84dc9f33ccae7d0f43f2c7cf20
+T014:
+  task: 76de90cc456ae05e548fcc6c05a7715742369243e3940d755c8e119171cbedaa
+T015:
+  task: 0dfae910ac3f13afa16cbd2510a8a827dd8c9cdc79ea7535fbadaece0851c289
+T016:
+  task: 18c76c73162ab59e70edab49617610ecf939ca577f82b8aa7bc72ec87c0fdda8
+T018:
+  task: 066473d6eaa9b8212fc9793887412c4dc3c992a9f137c9104f57896566bd4659
+T019:
+  task: df637cfdb94306e0186e5624e5d3a53053d9424b41444aff7741afe0db2f4e50
+T020:
+  task: 554572eae100cfd1b1996a11db435553f109f725654de66d5cced3ea2b578245
+T021:
+  task: 962792a5cf001cd30cd0fec94b85e356b9842476e88421b1f87985fd0d4d6579
+T022:
+  task: 6ec3b9c2a9eac67e8d9d8933e6aa507398266d9751459cb27e04e8c8b4836247
+T023:
+  task: cbca71ccf8ffb4120d9c7741d32c5f898a02638bf823a8e7e6165675bc0f20bf
+T024:
+  task: 304c32bdcfb08d0304b6b5d715bf044414155af3af8bf1e12911091fd701ed5e
+T025:
+  task: 3b7406e090d27fbe3578efb5057a5e90121cf9b6ca8dc8cf5d2f7854fa2f12d9
+T027:
+  task: f37b1388a30376169e6fe306b95a291b9efa227952093577d4dfadafa273eaa6
+T029:
+  task: 16332d9bc0d378244e39f596c5ea92628034c7b843ecc3c0d8f462d2ad2aa9a0
+T030:
+  task: 3c877e81eab4274b1e18e192ac5b7bcd07200aeab4ee42988f3dfbb3e4576432
+T037:
+  task: 7f5af90863cadef5e653d35731e4cd5459932c03ca9caa504246d7eeb438983e
+T039:
+  task: 62fe85bef97837109368de3d4ef7fd55ec41131fff01e307ad6ed97363e764d2

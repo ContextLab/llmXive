@@ -20,9 +20,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 [P] Initialize project directory structure: Create `code/`, `tests/`, `data/raw/`, `data/processed/`, and `results/` directories.
+- [ ] T001 [P] Initialize project directory structure: Create `code/`, `tests/`, `data/raw/`, `data/processed/`, and `results/` directories.
 - [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` containing: `numpy>=1.24`, `pandas>=2.0`, `scikit-learn>=1.2`, `statsmodels>=0.14`, `scipy>=1.10`, `pyyaml>=6.0`, `pytest>=7.4`. Use major.minor version pinning.
-- [X] T003 [P] Configure linting and formatting: Create `.flake8` (max-line-length=88, ignore=E203,W503) and `pyproject.toml` (black config: line-length=88)
+- [ ] T003 [P] Configure linting and formatting: Create `.flake8` (max-line-length=88, ignore=E203,W503) and `pyproject.toml` (black config: line-length=88)
 
 ---
 
@@ -33,12 +33,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/config.py` for configuration, random seeds, and path management
-- [X] T005 [P] Implement `code/utils.py` for logging helpers, checksum verification, and plotting scaffolding
-- [X] T005b [S] [Dependency: T005] Implement `code/utils.py` extension for Synthetic Data Checksumming: Add function `def hash_synthetic_params(seed: int, phi: float, n: int) -> str` to generate a deterministic hash for synthetic data integrity tracking per Constitution Principle III.
-- [X] T006 [P] Create `code/data_generation.py` stub with function signature `def generate_ar1(phi: float, n: int, seed: int) -> np.ndarray`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation. <!-- FAILED: unspecified -->
-- [X] T007 [P] Create `code/bootstrap_engine.py` stub with function signature `def standard_bootstrap(data: np.ndarray, n_resamples: int, seed: int) -> list`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation.
-- [X] T008 [P] Create `code/metrics.py` stub with function signatures: `def calculate_coverage(cis: list, true_mean: float) -> float`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation.
-- [X] T009 [P] Create `code/runner.py` stub with entry point `def run_simulation(phi: float, n: int, seed: int) -> dict`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation. <!-- FAILED: unspecified -->
+- [ ] T005 [P] Implement `code/utils.py` for logging helpers, checksum verification, and plotting scaffolding
+- [ ] T005b [S] [Dependency: T005] Implement `code/utils.py` extension for Synthetic Data Checksumming: Add function `def hash_synthetic_params(seed: int, phi: float, n: int) -> str` to generate a deterministic hash for synthetic data integrity tracking per Constitution Principle III.
+- [~] T006 [P] Create `code/data_generation.py` stub with function signature `def generate_ar1(phi: float, n: int, seed: int) -> np.ndarray`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation. <!-- FAILED: unspecified -->
+- [~] T007 [P] Create `code/bootstrap_engine.py` stub with function signature `def standard_bootstrap(data: np.ndarray, n_resamples: int, seed: int) -> list`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation.
+- [~] T008 [P] Create `code/metrics.py` stub with function signatures: `def calculate_coverage(cis: list, true_mean: float) -> float`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation.
+- [~] T009 [P] Create `code/runner.py` stub with entry point `def run_simulation(phi: float, n: int, seed: int) -> dict`. **Requirement**: The stub must raise `NotImplementedError` if called before implementation. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,17 +54,17 @@
 
 > **NOTE**: Write these tests FIRST to ensure they FAIL before implementation.
 
-- [X] T010 [P] [US1] Unit test for AR(1) generation in `tests/test_data_generation.py`: <!-- FAILED: unspecified -->
+- [~] T010 [P] [US1] Unit test for AR(1) generation in `tests/test_data_generation.py`: <!-- FAILED: unspecified -->
  - Function: `test_generate_ar1_returns_correct_mean_and_phi`.
  - Input: `phi=0.8`, `n=100`, `seed=42`.
  - Logic: Generate series, estimate phi using `statsmodels.tsa.ar_model.AutoReg`, calculate mean.
  - Assertion: `assert abs(estimated_phi - 0.8) < 0.05` and `abs(mean - 0.0) < 0.01`.
-- [X] T011 [P] [US1] Unit test for bootstrap CI calculation in `tests/test_bootstrap_engine.py`:
+- [~] T011 [P] [US1] Unit test for bootstrap CI calculation in `tests/test_bootstrap_engine.py`:
  - Function: `test_standard_bootstrap_ci_bounds`.
  - Input: `data = np.random.normal(0, 1, 1000)`, `n_resamples=1000`, `seed=42`.
  - Logic: Run bootstrap, calculate 95% CI.
  - Assertion: `assert ci_lower < 0 < ci_upper` and `assert ci_width > 0`. (Note: Specific width value is `[deferred]` to avoid empirical hardcoding).
-- [X] T012 [P] [US1] Integration test for coverage calculation in `tests/test_metrics.py`:
+- [~] T012 [P] [US1] Integration test for coverage calculation in `tests/test_metrics.py`:
  - Function: `test_coverage_degradation_at_high_phi`.
  - Input: `phi=0.8`, `n=100`, `trials=1000`, `seed=42`.
  - Logic: Run simulation, calculate coverage.
@@ -72,10 +72,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data_generation.py`: Generate AR(1) series using algorithm `y_t = phi * y_{t-1} + epsilon` (epsilon ~ N(0,1)). Output: `numpy.ndarray`.
-- [X] T014 [US1] Implement `code/bootstrap_engine.py`: Standard non-parametric bootstrap (a sufficient number of resamples). Use `np.random.choice(data, size=n, replace=True)`. Output: List of bootstrap means.
-- [X] T015 [US1] Implement `code/metrics.py`: Calculate empirical coverage probability. Input: List of CIs. Logic: `sum(1 for ci in cis if ci[0] <= true_mean <= ci[1]) / len(cis)`.
-- [X] T016 [US1] Implement `code/runner.py` (US-1 Scope): Orchestrate simulation batches for **Ordered** data only. Logic: Nested loops for $\phi$ in [0.0, 0.9] (step 0.1) and $N \in \{50, 100, 200\}$. Output: JSON log to `results/simulation_logs.json`. **Schema**: Each entry must contain keys: `phi` (float), `n` (int), `seed` (int), `coverage` (float), `ci_bounds` (list of 2 floats), `condition` (string: "ordered"). **Note**: This task strictly implements US-1 logic. Shuffled logic is handled in US-2.
+- [~] T013 [US1] Implement `code/data_generation.py`: Generate AR(1) series using algorithm `y_t = phi * y_{t-1} + epsilon` (epsilon ~ N(0,1)). Output: `numpy.ndarray`.
+- [~] T014 [US1] Implement `code/bootstrap_engine.py`: Standard non-parametric bootstrap (a sufficient number of resamples). Use `np.random.choice(data, size=n, replace=True)`. Output: List of bootstrap means.
+- [~] T015 [US1] Implement `code/metrics.py`: Calculate empirical coverage probability. Input: List of CIs. Logic: `sum(1 for ci in cis if ci[0] <= true_mean <= ci[1]) / len(cis)`.
+- [~] T016 [US1] Implement `code/runner.py` (US-1 Scope): Orchestrate simulation batches for **Ordered** data only. Logic: Nested loops for $\phi$ in [0.0, 0.9] (step 0.1) and $N \in \{50, 100, 200\}$. Output: JSON log to `results/simulation_logs.json`. **Schema**: Each entry must contain keys: `phi` (float), `n` (int), `seed` (int), `coverage` (float), `ci_bounds` (list of 2 floats), `condition` (string: "ordered"). **Note**: This task strictly implements US-1 logic. Shuffled logic is handled in US-2.
 
 **Checkpoint**: US-1 is fully functional; coverage degradation is measurable.
 
@@ -89,12 +89,12 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [X] T018 [P] [US2] Unit test for data shuffling in `tests/test_bootstrap_engine.py`:
+- [~] T018 [P] [US2] Unit test for data shuffling in `tests/test_bootstrap_engine.py`:
  - Function: `test_shuffle_preserves_marginal_distribution`.
  - Input: `data = np.random.normal(0, 1, 1000)`.
  - Logic: Shuffle data, perform Kolmogorov-Smirnov test against original.
  - Assertion: `assert p_value > 0.05`.
-- [X] T019 [P] [US2] [FR-005-AMEND] Unit test for McNemar's test in `tests/test_metrics.py`:
+- [~] T019 [P] [US2] [FR-005-AMEND] Unit test for McNemar's test in `tests/test_metrics.py`:
  - Function: `test_mcnemar_test_logic`.
  - Mock contingency table representing a dominant count for the Ordered Covered condition relative to the Shuffled Covered condition.
  - Logic: Run `statsmodels.stats.contingency.mcnemar`.
@@ -103,13 +103,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] [Dependency: T014] Implement `code/bootstrap_engine.py` extension: Add function `def shuffled_bootstrap(data: np.ndarray, n_resamples: int, seed: int) -> list`. Logic: Shuffle input data before resampling.
+- [~] T020 [P] [US2] [Dependency: T014] Implement `code/bootstrap_engine.py` extension: Add function `def shuffled_bootstrap(data: np.ndarray, n_resamples: int, seed: int) -> list`. Logic: Shuffle input data before resampling.
  - Note: Can run in parallel with T015/T016 *after* T014 is implemented, but execution of the paired test requires T014 and T020 to be complete.
-- [X] T021 [US2] Implement `code/metrics.py` to calculate magnitude of coverage drop. Logic: `abs(empirical_coverage - 0.95)`.
-- [X] T022 [US2] [FR-005-AMEND] Implement `code/metrics.py` McNemar's test for paired outcomes. Input: Contingency table of (Ordered Covered, Shuffled Covered) counts. Logic: Use `statsmodels.stats.contingency.mcnemar`.
+- [~] T021 [US2] Implement `code/metrics.py` to calculate magnitude of coverage drop. Logic: `abs(empirical_coverage - 0.95)`.
+- [~] T022 [US2] [FR-005-AMEND] Implement `code/metrics.py` McNemar's test for paired outcomes. Input: Contingency table of (Ordered Covered, Shuffled Covered) counts. Logic: Use `statsmodels.stats.contingency.mcnemar`.
  - **Constraint Justification**: This task implements McNemar's test per the Plan's 'Complexity Tracking' section (FR-005-AMEND) for paired data, overriding the Spec's generic Z-test (FR-005) to ensure statistical validity. The Plan authorizes this methodological deviation.
-- [X] T023 [US2] Update `code/runner.py` (US-2 Scope): Execute paired simulations (Ordered + Shuffled) for each trial. Logic: Loop must run both bootstrap types for the same seed. Output: JSON log to `results/simulation_logs.json`. **Schema**: Each entry must contain keys: `phi` (float), `n` (int), `seed` (int), `ordered_coverage` (float), `shuffled_coverage` (float), `diff` (float), `p_value` (float), `condition` (string: "paired").
-- [X] T024 [S] [US2] Create `results/coverage_metrics.csv` with headers [phi, n, ordered_cov, shuffled_cov, diff, p_value] and implement logic to append rows. Logic: Calculate `diff` as `ordered_cov - shuffled_cov`. **Formatting**: `p_value` must be formatted as a float with 6 decimal places.
+- [~] T023 [US2] Update `code/runner.py` (US-2 Scope): Execute paired simulations (Ordered + Shuffled) for each trial. Logic: Loop must run both bootstrap types for the same seed. Output: JSON log to `results/simulation_logs.json`. **Schema**: Each entry must contain keys: `phi` (float), `n` (int), `seed` (int), `ordered_coverage` (float), `shuffled_coverage` (float), `diff` (float), `p_value` (float), `condition` (string: "paired").
+- [~] T024 [S] [US2] Create `results/coverage_metrics.csv` with headers [phi, n, ordered_cov, shuffled_cov, diff, p_value] and implement logic to append rows. Logic: Calculate `diff` as `ordered_cov - shuffled_cov`. **Formatting**: `p_value` must be formatted as a float with 6 decimal places.
 
 **Checkpoint**: US-2 complete; mechanism of bias (temporal dependence) is isolated and quantified.
 
@@ -129,22 +129,22 @@
 ### Parallel Report Generation & Verification
 **⚠️ CRITICAL**: These tasks depend on T030 (Simulation Completion) but can run in parallel with each other.
 
-- [X] T025 [P] Generate Sensitivity Analysis Report in `results/sensitivity_analysis.md` (per FR-011):
+- [~] T025 [P] Generate Sensitivity Analysis Report in `results/sensitivity_analysis.md` (per FR-011):
  - Structure: Markdown sections "Sensitivity by N", "Plots".
  - Logic: Aggregate results from `results/coverage_metrics.csv` comparing N=50, 100, 200 to confirm effect is not small-sample artifact.
-- [X] T027 [P] Generate summary report in `results/summary_report.md`. Structure: Markdown sections "Summary", "Coverage Table", "Significance Table".
-- [X] T029 [P] Create `quickstart.md` with instructions: Prerequisites, Install command, Run command (`python code/runner.py --full`), Expected output.
-- [X] T037 [P] [Dependency: T030] Create `tests/test_reproducibility.py`:
+- [~] T027 [P] Generate summary report in `results/summary_report.md`. Structure: Markdown sections "Summary", "Coverage Table", "Significance Table".
+- [~] T029 [P] Create `quickstart.md` with instructions: Prerequisites, Install command, Run command (`python code/runner.py --full`), Expected output.
+- [~] T037 [P] [Dependency: T030] Create `tests/test_reproducibility.py`:
  - Function: `def verify_reproducibility() -> bool`.
  - Logic: Run `runner.py --seed=42` twice. Capture content hash of `results/coverage_metrics.csv` for both runs. Assert hashes match.
  - Note: Must complete after T030.
-- [X] T039 [P] [Dependency: T030] Execute reproducibility verification:
+- [~] T039 [P] [Dependency: T030] Execute reproducibility verification:
  - Command: `pytest tests/test_reproducibility.py::verify_reproducibility`.
  - Logic: Assert `results/coverage_metrics.csv` content hash is identical across runs.
  - Note: Must complete after T030.
 
 ### Sequential Simulation Run
-- [X] T030 [S] Run full simulation batch (**Synthetic Only**). Command: `python code/runner.py --full`. Verify: Execution time < 6 hours.
+- [~] T030 [S] Run full simulation batch (**Synthetic Only**). Command: `python code/runner.py --full`. Verify: Execution time < 6 hours.
  - Note: Scope is strictly Synthetic (US-1 + US-2) as US-3 is BLOCKED. SC-004 feasibility is satisfied by this reduced scope.
 
 ---
