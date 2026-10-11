@@ -1,5 +1,6 @@
 """Research source locations shared by execution, context, and evidence checks."""
 
+import ast
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -36,3 +37,24 @@ def source_files(project_dir: Path, suffixes: tuple[str, ...] = (".py",)) -> Ite
 def is_pytest_module(name: str) -> bool:
     """Whether a file NAME is one pytest collects by default (``test_*.py``, ``*_test.py``)."""
     return name.endswith(".py") and (name.startswith("test_") or name.endswith("_test.py"))
+
+
+def has_code(name: str, text: str) -> bool:
+    """Whether ``text``, as the contents of a file called ``name``, does anything.
+
+    A Python file of comments and a docstring, or a shell script of comments,
+    has none. Python that does not parse is counted as code: what it holds is
+    unknown, and the caller is deciding whether something would be lost. Any
+    other kind of file has content if it is not blank.
+    """
+    lowered = name.lower()
+    if lowered.endswith(".py"):
+        try:
+            body = ast.parse(text).body
+        except (SyntaxError, ValueError):
+            return True
+        return any(not (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant))
+                   for node in body)
+    if lowered.endswith(".sh"):
+        return any(line.strip() and not line.lstrip().startswith("#") for line in text.splitlines())
+    return bool(text.strip())

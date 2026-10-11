@@ -395,6 +395,41 @@ class ImplementerAgent(SlashCommandAgent):
                     if not art.get("execute"):
                         refuse(f"[implementer] refused empty contents without execution: {relpath!r}")
                     continue
+                from llmxive.project_files import SOURCE_DIRS, has_code
+
+                # A script is one file. A second copy at the project root that
+                # re-exports the first (canary 10: `from code.run_analysis
+                # import main`) gives the task's bare filename two meanings.
+                if "/" not in rel and rel.endswith(".py"):
+                    twin = next((f"{d}/{rel}" for d in SOURCE_DIRS if (project_root / d / rel).is_file()), None)
+                    if twin is not None:
+                        refuse(
+                            f"[implementer] refused {relpath!r}: `{twin}` already exists. "
+                            "Edit that file; do not add a second copy or a re-exporting "
+                            "wrapper at the project root."
+                        )
+                        continue
+                # "Run it as it is", said with a comment where the contents go,
+                # must not erase the script. Canary 10 lost a 16 KB driver to
+                # `# The file exists already; this entry requests execution
+                # without modification.` and three accepted tasks with it.
+                if (target.is_file() and not target.is_symlink()
+                        and target.suffix.lower() in {".py", ".sh"}
+                        and not has_code(target.name, contents)
+                        and has_code(target.name, target.read_text(encoding="utf-8", errors="replace"))):
+                    if art.get("execute"):
+                        print(
+                            f"[implementer] kept existing {relpath!r}: the reply's contents hold "
+                            "no code, so the file is run as it is"
+                        )
+                    else:
+                        refuse(
+                            f"[implementer] refused {relpath!r}: it would replace working code "
+                            "with a file that has none. To leave a file unchanged, leave it out "
+                            "of `artifacts`; to re-run it unchanged, give `path`, `execute: true` "
+                            "and `args` and omit `contents`."
+                        )
+                    continue
                 # The feature directory has ONE name. Code that hard-codes the
                 # slug the model invented reads a path that does not exist.
                 if canonical_spec_dirname:
