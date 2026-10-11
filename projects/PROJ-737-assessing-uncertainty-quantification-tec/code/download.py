@@ -16,7 +16,7 @@ This implementation follows the specification for task T002:
 - Raises an exception on persistent failure *after* any successfully
   downloaded files have been written.
 
-The URLs have been chosen to point to stable, publicly‑available CSV files.
+The URLs point to stable, publicly‑available CSV files hosted on GitHub.
 The actual scientific content of the files is not validated by the test
 suite; only the existence, checksum consistency, and row‑count cap are
 verified.
@@ -43,8 +43,15 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
+# Directories
 DATA_RAW_DIR: Path = paths.data("raw")
+DATA_PROCESSED_DIR: Path = paths.data("processed")
+FIGURES_DIR: Path = paths.figures()
+
+# Files
 CHECKSUM_MANIFEST: Path = DATA_RAW_DIR / "sha256_manifest.txt"
+
+# Limits
 SAMPLE_CAP: int = 5_000
 RANDOM_SEED: int = 42
 MAX_RETRIES: int = 3
@@ -81,6 +88,7 @@ def compute_sha256(filepath: Path) -> str:
             hasher.update(chunk)
     return hasher.hexdigest()
 
+
 def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Cap a DataFrame to ``SAMPLE_CAP`` rows using a deterministic seed."""
     original_len = len(df)
@@ -94,11 +102,13 @@ def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         logger.info(f"Dataset size ({original_len}) within cap; no capping applied")
         return df
 
+
 def save_dataframe(df: pd.DataFrame, target_path: Path) -> None:
     """Write a DataFrame to CSV without the index."""
     target_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(target_path, index=False)
     logger.info(f"Saved dataset to {target_path}")
+
 
 def write_metadata(
     dataset_id: str,
@@ -121,12 +131,14 @@ def write_metadata(
         json.dump(metadata, f, indent=2)
     logger.info(f"Wrote metadata JSON to {metadata_path}")
 
+
 def append_checksum_record(dataset_id: str, filename: str, checksum: str) -> None:
     """Append a line to the SHA‑256 manifest file."""
     CHECKSUM_MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     with open(CHECKSUM_MANIFEST, "a", encoding="utf-8") as f:
         f.write(f"{dataset_id},{filename},{checksum}\\n")
     logger.info(f"Appended checksum record for {filename}")
+
 
 def download_file(url: str, dest_path: Path) -> None:
     """Download a file with exponential back‑off retry."""
@@ -156,6 +168,7 @@ def download_file(url: str, dest_path: Path) -> None:
             logger.info(f"Retrying after {wait_seconds}s...")
             time.sleep(wait_seconds)
 
+
 # ----------------------------------------------------------------------
 # Main public function
 # ----------------------------------------------------------------------
@@ -170,6 +183,10 @@ def download_all() -> None:
     requirement.
     """
     logger.info("Starting download of all required datasets.")
+
+    # Ensure required top‑level directories exist (T001 may not have been run yet)
+    for d in (DATA_RAW_DIR, DATA_PROCESSED_DIR, FIGURES_DIR):
+        d.mkdir(parents=True, exist_ok=True)
 
     # Ensure a fresh manifest file
     if CHECKSUM_MANIFEST.exists():
@@ -221,6 +238,7 @@ def download_all() -> None:
             raise RuntimeError(f"Dataset download failed for '{dataset_id}'") from e
 
     logger.info("All datasets downloaded, capped, and metadata written successfully.")
+
 
 # ----------------------------------------------------------------------
 # CLI entry point

@@ -1,7 +1,0 @@
-{
-  "task_id": "T002",
-  "fingerprint": "b8f0d97e213401b7eb9092a6a1feeb834871723be9e6aa0b5dcd78d9e3207bc5",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refused 'download.py': `code/download.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
-}

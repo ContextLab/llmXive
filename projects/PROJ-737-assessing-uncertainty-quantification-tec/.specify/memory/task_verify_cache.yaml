@@ -1,9 +1,9 @@
 T001:
-  c: false
-  h: 6bbf542d6de905eb637581edef2809ac60670bb60fc7f3bf86765541874b7731
-  r: "The schema file correctly contains all eight required columns, but three of\
-    \ the required directories \u2014 `data/raw/`, `data/processed/`, and `figures/`\
-    \ \u2014 do not exist, so the task's verification script would fail its directory\
-    \ assertions. The implementer must create those missing directories (the other\
-    \ seven exist)."
-  sig: db18506760f580c58ee85300a982c5e60f6d6981633385128d4d075aef9ca2df
+  c: true
+  h: b952cd9105583b3dcdce0ab28597faec0d0ee7eaa27c1d647dc807a0ad048e28
+  r: All ten required directories exist (confirmed by the collector with non-empty
+    listings), and `specs/.../per_sample_errors.schema.yaml` contains exactly the
+    eight required columns including `abs_error` with appropriate dtypes, so the verification
+    script's assertions would pass. The fabricated raw data and empty per_sample_errors.csv
+    are concerns for later pipeline tasks, not this directory/schema setup task.
+  sig: 0902ed1609ce9323456a51a08a28dbe7bac0617939e22f00062f25c2d82ffdd7
