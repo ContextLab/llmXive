@@ -1,1 +1,4 @@
-fastparquet>=0.12.0
+pandas
+fastparquet
+# Existing environment already provides: numpy, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil

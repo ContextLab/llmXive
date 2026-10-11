@@ -11,9 +11,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/main.py", line 16, in <module>
     from data_ingestion.fetch_dbsnp import main as fetch_dbsnp_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/fetch_dbsnp.py", line 41, in <module>
-    from data_ingestion import (
-ImportError: cannot import name 'log_source_lineage' from 'data_ingestion' (/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/data_ingestion/__init__.py", line 9, in <module>
+    from .data_ingestion import (
+ModuleNotFoundError: No module named 'data_ingestion.data_ingestion'
 
 - python code/utils/checksum.py data/output/ -> rc=1
 

@@ -1,24 +1,22 @@
 T001:
-  c: false
-  h: 1ec9dfce24e9bcaf1b0e7de960cf4356b3dd9946193222e6f4e10d8344e9b900
-  r: "The manifest `data/results/structure_manifest.txt` lists 14 paths including\
-    \ `code/analysis` and `data/derived`, but the collector confirms those two required\
-    \ directories do not actually exist on disk \u2014 the manifest does not reflect\
-    \ reality (it appears fabricated or the dirs were removed). The task requires\
-    \ the directories to exist and the manifest to be generated via `find code data\
-    \ tests -type d | sort`; re-create `code/analysis/` and `data/derived/` and regenerate\
-    \ the manifest from an actual `find` run."
-  sig: 3bb98b7d96006981ab947decbbb343a4910b1aa5084429668f492c0f572a8079
+  c: true
+  h: f6247316b501b74dc67f5ffa1f5840ba8d3aa5bfe1c93608795e11345d7d5bd5
+  r: All 11 required directories exist (code, code/data_ingestion, code/scoring, code/analysis,
+    code/utils, data/raw, data/derived, data/results, tests/unit, tests/integration,
+    tests/contract), and `data/results/structure_manifest.txt` exists, is non-empty,
+    and lists 14 unique directory paths including every required one. The execution
+    log confirms the manifest-generating script ran with exit code 0.
+  sig: 7d795b74e8cfcbcc01e0a31e2426612f5e23c2ae1e07c24803fa497e8e25e643
 T002:
   c: false
-  h: 15c47d3c4469af9877cbdfdeb504404049e02db40d3cd45bfe0d57f7a78d20c4
-  r: The required `.gitignore` file at the repository root is not present in the collected
-    evidence at all (no artifact path for it was resolved), so there is no file to
-    contain the required exclusion patterns. Additionally, the verification commands
-    (`git check-ignore` on `data/raw/snps_raw.vcf.gz` and `data/raw/source_log.txt`)
-    have no execution evidence, and `data/derived/` is missing, so the pattern `data/derived/*`
-    could not be meaningfully exercised.
-  sig: 2797fed9a60a5d4d94a9a68a082abc6124dd171133856310bc2c20d709c525fb
+  h: 520395c895ce34c457fed75a5f931ba43c7da2c4d23e27f2ee823b301a48f20a
+  r: "The required `.gitignore` file at the repository (project) root is not present\
+    \ in the collected evidence at all \u2014 no artifact entry exists for it. Without\
+    \ the file, the required exclusion patterns cannot be verified, and the `git check-ignore`\
+    \ verification commands (exit 0 for `data/raw/snps_raw.vcf.gz`, exit 1 for `data/raw/source_log.txt`)\
+    \ cannot pass; the implementer must create `.gitignore` with the exact five specified\
+    \ patterns."
+  sig: dcdd5a7b8fa6e604fa4a5726a7335d307bf23deca24db37414e1fd34ff065ec7
 T003:
   c: true
   h: 51c878251d8fe2f59b0d5da62f81883f4199d8d0ed6863e3912541f9a1e8c59b

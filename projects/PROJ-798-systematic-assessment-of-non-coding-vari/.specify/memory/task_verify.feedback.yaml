@@ -1,19 +1,12 @@
 T001:
-  reason: "The manifest `data/results/structure_manifest.txt` lists 14 paths including\
-    \ `code/analysis` and `data/derived`, but the collector confirms those two required\
-    \ directories do not actually exist on disk \u2014 the manifest does not reflect\
-    \ reality (it appears fabricated or the dirs were removed). The task requires\
-    \ the directories to exist and the manifest to be generated via `find code data\
-    \ tests -type d | sort`; re-create `code/analysis/` and `data/derived/` and regenerate\
-    \ the manifest from an actual `find` run."
   task: f1e95fed63a95063ec8f06afd8dcc9da6b793d264d363290960ff76089e47df2
 T002:
-  reason: The required `.gitignore` file at the repository root is not present in
-    the collected evidence at all (no artifact path for it was resolved), so there
-    is no file to contain the required exclusion patterns. Additionally, the verification
-    commands (`git check-ignore` on `data/raw/snps_raw.vcf.gz` and `data/raw/source_log.txt`)
-    have no execution evidence, and `data/derived/` is missing, so the pattern `data/derived/*`
-    could not be meaningfully exercised.
+  reason: "The required `.gitignore` file at the repository (project) root is not\
+    \ present in the collected evidence at all \u2014 no artifact entry exists for\
+    \ it. Without the file, the required exclusion patterns cannot be verified, and\
+    \ the `git check-ignore` verification commands (exit 0 for `data/raw/snps_raw.vcf.gz`,\
+    \ exit 1 for `data/raw/source_log.txt`) cannot pass; the implementer must create\
+    \ `.gitignore` with the exact five specified patterns."
   task: 5db875919000366551154095583cc5a9263d145b7e54412e8accadfa93c6b6be
 T003:
   task: 932d1a332e7af45b961c7caf00f986c61e9af44e4ace5c23c72e549d4b4770c0

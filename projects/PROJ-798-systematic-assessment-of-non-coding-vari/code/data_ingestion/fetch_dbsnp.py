@@ -38,7 +38,9 @@ except Exception:
 
 # Project‑specific utilities
 from config import ensure_data_dirs, set_seeds
-from data_ingestion import (
+# Import directly from the sibling module (not the package) to avoid the
+# ``data_ingestion`` name clash that caused an ImportError.
+from .data_ingestion import (
     log_source_lineage,
     list_ftp_directory,
     download_ftp_file,
