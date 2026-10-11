@@ -7,19 +7,19 @@ import json
 import sys
 import os
 
-# Add parent to path for local imports if running as script
+# Ensure the project root is on the path when run as a script
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config import get_logger, ProjectConfig
 from data.models import HarmonizedDataset
-from data.parsers import parse_arxiv_2106_08611, parse_arxiv_2305_06325
+from data.parsers import parse_arxiv_2106_08611, parse_arxiv_2305_06325, parse_raw_data
 
 logger = get_logger(__name__)
 
-# Constants
-DYNE_TO_NEWTON = 1e-5
-MICROMETER_TO_METER = 1e-6
+# Conversion constants
+DYNE_TO_NEWTON = 1e-5          # 1 dyne = 1e-5 N
+MICROMETER_TO_METER = 1e-6    # 1 µm = 1e-6 m
 
 def dynes_to_newtons(force_dyne: np.ndarray) -> np.ndarray:
     """Convert force from dynes to Newtons."""
@@ -31,373 +31,286 @@ def micrometers_to_meters(separation_um: np.ndarray) -> np.ndarray:
 
 def convert_to_si(dataset: HarmonizedDataset) -> HarmonizedDataset:
     """
-    Convert all force and separation values in the dataset to SI units.
-    
-    Args:
-        dataset: A HarmonizedDataset object with values in cgs/um.
-        
-    Returns:
-        A new HarmonizedDataset object with values in SI (N, m).
+    Convert a raw ``HarmonizedDataset`` (which may contain values in
+    dynes and micrometers) to SI units (Newtons, meters).
+
+    The upstream parsers currently populate the fields ``force_n`` and
+    ``separation_m`` with the *raw* values (the naming follows the
+    historic convention of the project).  This function checks the
+    magnitude of the data to decide whether a conversion is required.
     """
     logger.info("Converting dataset to SI units...")
-    
-    force_n = dynes_to_newtons(dataset.force_n)
-    separation_m = micrometers_to_meters(dataset.separation_m)
-    
-    # Covariance matrix units: (N^2) since force is squared
-    # If the input covariance was in (dyne^2), we need to scale it.
-    # Assuming input covariance is in (dyne^2) based on typical cgs data.
-    cov_matrix_si = dataset.covariance_matrix * (DYNE_TO_NEWTON ** 2)
-    
+
+    # Determine if conversion is needed by inspecting the typical magnitude.
+    # Dynes are ~1e-5 N, micrometers are ~1e-6 m.  If the values are > 1e-3,
+    # we assume they are already in SI.
+    force_raw = np.asarray(dataset.force_n)
+    sep_raw = np.asarray(dataset.separation_m)
+
+    # Convert force if it looks like dynes
+    if np.abs(force_raw).max() > 1e-3:
+        logger.debug("Force values appear to be in dynes; converting to Newtons.")
+        force_si = dynes_to_newtons(force_raw)
+    else:
+        logger.debug("Force values already appear to be in Newtons.")
+        force_si = force_raw
+
+    # Convert separation if it looks like micrometers
+    if sep_raw.max() > 1e-3:
+        logger.debug("Separation values appear to be in micrometers; converting to meters.")
+        separation_si = micrometers_to_meters(sep_raw)
+    else:
+        logger.debug("Separation values already appear to be in meters.")
+        separation_si = sep_raw
+
+    # Convert covariance matrix units (force squared)
+    cov_raw = np.asarray(dataset.covariance_matrix)
+    if cov_raw.ndim == 2 and cov_raw.shape[0] == cov_raw.shape[1]:
+        # Assume covariance is expressed in (force_units)^2.
+        # If we converted force by DYNE_TO_NEWTON, scale covariance by that factor squared.
+        if np.abs(force_raw).max() > 1e-3:
+            cov_si = cov_raw * (DYNE_TO_NEWTON ** 2)
+        else:
+            cov_si = cov_raw
+    else:
+        cov_si = cov_raw
+
     return HarmonizedDataset(
-        separation_m=separation_m,
-        force_n=force_n,
-        covariance_matrix=cov_matrix_si,
-        metadata=dataset.metadata
+        separation_m=separation_si,
+        force_n=force_si,
+        covariance_matrix=cov_si,
+        metadata=dataset.metadata,
     )
 
 def align_to_grid(
-    datasets: List[HarmonizedDataset], 
+    datasets: List[HarmonizedDataset],
     grid_resolution: float = 1e-8,
-    grid_range: Optional[Tuple[float, float]] = None
+    grid_range: Optional[Tuple[float, float]] = None,
 ) -> HarmonizedDataset:
     """
-    Align multiple datasets to a common separation distance grid using linear interpolation.
-    
-    Handles edge cases:
-    - Non-overlapping separation ranges: Logs warning and excludes non-overlapping regions.
-    - Missing points: Interpolates if within the convex hull of the data.
-    
-    Args:
-        datasets: List of HarmonizedDataset objects (already in SI units).
-        grid_resolution: Spacing of the output grid in meters (default 10 nm).
-        grid_range: Optional (min, max) separation range. If None, inferred from overlap.
-        
-    Returns:
-        A single merged HarmonizedDataset on the common grid.
+    Align multiple ``HarmonizedDataset`` objects onto a common separation grid.
+
+    Edge‑case handling:
+    * If the datasets have no overlapping separation range, a warning is logged
+      and an empty ``HarmonizedDataset`` (zero‑length arrays) is returned.
+    * Missing points within the overlapping region are filled by linear interpolation.
     """
     if not datasets:
         raise ValueError("No datasets provided for alignment.")
-    
-    # Determine common grid range
+
+    # Determine the common separation range
     if grid_range:
         min_sep, max_sep = grid_range
     else:
-        # Find the intersection of all ranges
-        all_mins = [d.separation_m.min() for d in datasets]
-        all_maxs = [d.separation_m.max() for d in datasets]
-        min_sep = max(all_mins)
-        max_sep = min(all_maxs)
-        
+        # Intersection of all ranges
+        mins = [d.separation_m.min() for d in datasets]
+        maxs = [d.separation_m.max() for d in datasets]
+        min_sep = max(mins)
+        max_sep = min(maxs)
+
         if min_sep >= max_sep:
-            raise ValueError("No overlapping separation range found between datasets.")
-        
-        logger.warning(
-            f"Inferred common separation range: [{min_sep:.2e}, {max_sep:.2e}] m. "
-            f"Non-overlapping regions excluded."
+            logger.warning(
+                "No overlapping separation range found among the provided datasets. "
+                "Returning an empty harmonized dataset."
+            )
+            # Return empty dataset
+            return HarmonizedDataset(
+                separation_m=np.array([]),
+                force_n=np.array([]),
+                covariance_matrix=np.empty((0, 0)),
+                metadata={"source_ids": []},
+            )
+
+        logger.info(
+            f"Inferred common separation range: [{min_sep:.2e}, {max_sep:.2e}] m."
         )
 
-    # Create the common grid
-    # Ensure we cover the range inclusive
+    # Build the common grid (inclusive of endpoints)
     num_points = int(np.ceil((max_sep - min_sep) / grid_resolution)) + 1
     common_grid = np.linspace(min_sep, max_sep, num_points)
-    
-    # Prepare lists for aggregation
-    aligned_forces = []
-    aligned_covs = [] # List of (index_mask, cov_block) if we were doing sparse, but here we assume diagonal or full dense per run
-    
-    # We will construct a combined covariance matrix. 
-    # Since datasets are independent experimental runs, the cross-covariance between runs is 0.
-    # We will stack the data. However, the task implies aligning to a *common grid* for a single 
-    # harmonized dataset. If we interpolate multiple runs onto the same grid points, we have 
-    # multiple force measurements at the same grid point.
-    # 
-    # Strategy: For each grid point, if multiple runs have data, we average them (weighted by uncertainty).
-    # If only one run has data, we use that.
-    # This requires handling the covariance carefully.
-    # 
-    # Simplified Strategy per Plan: "Align on a common grid".
-    # We will interpolate each dataset onto the common grid.
-    # Then we concatenate them? Or average? 
-    # The plan says "construct a single CSV/JSON file containing aligned force data...".
-    # Usually, this means creating a unified dataset where each row is a unique separation point,
-    # and if multiple experiments measured that point, they are combined or stored as multiple entries.
-    # Given the "HarmonizedDataset" model has 1D arrays, we likely need to merge them.
-    # Let's assume we stack the interpolated data points. If the grid is identical, we have N_points * N_runs rows?
-    # Or we average at the grid points.
-    # 
-    # Let's look at the model: `separation_m` (N,), `force_n` (N,).
-    # If we align to a grid, we get N_grid points.
-    # If we have multiple runs, we might have multiple force values at the same separation.
-    # To fit the model, we can either:
-    # 1. Keep them as separate rows (duplicate separation_m values).
-    # 2. Average them.
-    # 
-    # The plan mentions "full covariance matrix". If we duplicate rows, the covariance matrix
-    # must be block diagonal (assuming independent runs).
-    # 
-    # Let's implement Strategy 1: Stack all interpolated points.
-    # This preserves all data. The separation_m array will have duplicates.
-    
-    total_points = 0
+
+    # Containers for interpolated forces and per‑run covariance blocks
+    interpolated_forces = []
+    cov_blocks = []
+
     for ds in datasets:
-        # Check for overlap
-        if ds.separation_m.max() < min_sep or ds.separation_m.min() > max_sep:
-            logger.warning(f"Dataset {ds.metadata.get('id', 'unknown')} has no overlap with common grid. Skipping.")
-            continue
-        
-        # Clip to common range
+        # Mask to the overlapping region
         mask = (ds.separation_m >= min_sep) & (ds.separation_m <= max_sep)
         if not np.any(mask):
+            logger.warning(
+                f"Dataset {ds.metadata.get('id', 'unknown')} does not overlap with the common grid; skipping."
+            )
             continue
-            
-        x_orig = ds.separation_m[mask]
-        y_orig = ds.force_n[mask]
-        
-        # Interpolate to common grid
-        # Use linear interpolation. Extrapolate with NaN or clip?
-        # We only care about the common range, so no extrapolation needed if we clipped correctly.
-        y_interp = np.interp(common_grid, x_orig, y_orig)
-        
-        # Check for NaNs (shouldn't happen if we clipped to valid range, but good to check)
-        if np.any(np.isnan(y_interp)):
-            logger.warning(f"Interpolation resulted in NaNs for dataset {ds.metadata.get('id', 'unknown')}.")
-            # Fill with NaN or drop? We'll keep NaNs and handle in covariance if needed, 
-            # but for now, let's assume valid interpolation.
-            
-        aligned_forces.append(y_interp)
-        total_points += len(common_grid)
 
-    if not aligned_forces:
-        raise ValueError("No data points remained after filtering for overlapping range.")
+        x = ds.separation_m[mask]
+        y = ds.force_n[mask]
 
-    # Concatenate forces
-    final_forces = np.concatenate(aligned_forces)
-    # Repeat the grid for each dataset
-    final_separations = np.tile(common_grid, len(aligned_forces))
-    
-    # Construct Covariance Matrix
-    # Since runs are independent, the full covariance is block diagonal.
-    # Each block corresponds to the covariance of one run's interpolated points.
-    # Interpolation introduces correlations even if original data was uncorrelated.
-    # However, for this task, we will approximate the covariance of the interpolated points
-    # by scaling the original covariance or assuming diagonal if not provided.
-    # The plan says "construct a full covariance matrix".
-    # If the input datasets have full covariance, we need to propagate the interpolation error.
-    # This is complex. A simpler approach for the "harmonized" step is to assume the 
-    # covariance provided in the input is the uncertainty of the measurement.
-    # If we interpolate, the uncertainty at the grid points is a linear combination.
-    # 
-    # Given the complexity and the fact that T015 handles "Covariance Construction" specifically,
-    # we will assume the input datasets have a covariance matrix that represents the 
-    # uncertainty at their measured points. 
-    # For the harmonized output, we will construct a block-diagonal matrix where each block
-    # is the covariance of the *interpolated* points.
-    # 
-    # To keep it simple and robust: We will assume the input covariance is diagonal (uncorrelated points)
-    # or we will just take the diagonal of the input covariance and assume it applies to the interpolated points
-    # (a simplification). 
-    # Actually, the plan for T015 says "Primary Strategy: Since source data lacks off-diagonal terms... construct a diagonal covariance".
-    # So we can assume the input covariance is diagonal or we treat it as such for the interpolation step.
-    # 
-    # Let's construct a block diagonal matrix.
-    # If the input covariance is full, we need to transform it.
-    # If the input covariance is diagonal, we just map the values.
-    
-    # We will assume the input `covariance_matrix` in HarmonizedDataset is the full covariance of the original points.
-    # We need to compute the covariance of the interpolated points.
-    # y_interp = sum(w_i * y_i). Cov(y_interp) = w^T Cov(y) w.
-    # This is expensive if we do it for every grid point.
-    # 
-    # Alternative: Since T015 will "construct" the covariance matrix based on uncertainties,
-    # we can just store the interpolated forces and separations, and T015 will rebuild the covariance
-    # from the uncertainty estimates (which we might need to interpolate too).
-    # 
-    # But the HarmonizedDataset model expects a covariance matrix.
-    # Let's assume the input covariance is diagonal (as per T015 primary strategy).
-    # Then the interpolated point's variance is sum(w_i^2 * var_i).
-    # 
-    # For now, to satisfy the "real code" requirement without over-engineering:
-    # We will create a diagonal covariance matrix for the harmonized data by interpolating
-    # the standard deviations (sqrt of diagonal) and squaring them back.
-    # This is an approximation but valid if correlations are weak.
-    
-    final_covariance = np.zeros((total_points, total_points))
-    
-    current_idx = 0
-    for ds in datasets:
-        mask = (ds.separation_m >= min_sep) & (ds.separation_m <= max_sep)
-        if not np.any(mask):
-            continue
-            
-        x_orig = ds.separation_m[mask]
-        # Assume diagonal covariance for simplicity in this step, or extract diagonal
-        # If the input is full, we take the diagonal for this approximation
+        # Linear interpolation onto the common grid
+        y_interp = np.interp(common_grid, x, y)
+
+        interpolated_forces.append(y_interp)
+
+        # Build diagonal covariance for this block
+        # Extract the diagonal (or treat the whole matrix as diagonal if necessary)
         if ds.covariance_matrix.ndim == 2:
-            diag_vals = np.diag(ds.covariance_matrix)
+            diag = np.diag(ds.covariance_matrix)
         else:
-            diag_vals = ds.covariance_matrix
-            
-        y_std = np.sqrt(diag_vals)
-        
-        # Interpolate standard deviation to common grid
-        std_interp = np.interp(common_grid, x_orig, y_std)
-        
-        # Reconstruct diagonal covariance for this block
-        block_size = len(common_grid)
-        final_covariance[current_idx:current_idx+block_size, current_idx:current_idx+block_size] = np.diag(std_interp**2)
-        
-        current_idx += block_size
+            diag = ds.covariance_matrix
+        std = np.sqrt(diag[mask])
 
-    logger.info(f"Aligned {len(datasets)} datasets to grid of {len(common_grid)} points. "
-                f"Total points in harmonized dataset: {total_points}.")
-                
+        # Interpolate standard deviations onto the grid
+        std_interp = np.interp(common_grid, x, std)
+        cov_block = np.diag(std_interp ** 2)
+        cov_blocks.append(cov_block)
+
+    if not interpolated_forces:
+        logger.warning("All datasets were excluded during alignment; returning empty dataset.")
+        return HarmonizedDataset(
+            separation_m=np.array([]),
+            force_n=np.array([]),
+            covariance_matrix=np.empty((0, 0)),
+            metadata={"source_ids": []},
+        )
+
+    # Stack forces and build block‑diagonal covariance
+    final_forces = np.concatenate(interpolated_forces)
+    final_separations = np.tile(common_grid, len(interpolated_forces))
+
+    # Assemble block‑diagonal covariance matrix
+    total_len = final_forces.size
+    final_cov = np.zeros((total_len, total_len))
+    idx = 0
+    for block in cov_blocks:
+        block_len = block.shape[0]
+        final_cov[idx : idx + block_len, idx : idx + block_len] = block
+        idx += block_len
+
+    # Compile metadata
+    source_ids = [d.metadata.get("id", "unknown") for d in datasets]
+
     return HarmonizedDataset(
         separation_m=final_separations,
         force_n=final_forces,
-        covariance_matrix=final_covariance,
-        metadata={"source_ids": [d.metadata.get("id", "unknown") for d in datasets]}
+        covariance_matrix=final_cov,
+        metadata={"source_ids": source_ids},
     )
 
-def harmonize_experiment(raw_data_path: Path, output_path: Path) -> HarmonizedDataset:
+def harmonize_experiment(raw_data_path: Path, output_path: Optional[Path] = None) -> HarmonizedDataset:
     """
-    Main pipeline step to parse, convert, and harmonize a single experiment.
-    If multiple runs are found in the path, they are merged.
+    Process a raw data file or directory and return a harmonized dataset.
+
+    The function:
+    1. Parses the raw CSV(s) using the project's parsers.
+    2. Converts all values to SI units.
+    3. Aligns the (potentially multiple) runs onto a common grid.
+    4. Optionally writes the result to ``output_path`` using ``save_harmonized_data``.
     """
     logger.info(f"Processing raw data from {raw_data_path}")
-    
-    # Parse raw data
-    # The parser functions are specific to arXiv IDs. We need a generic parser or detect ID.
-    # For this task, we assume the input path contains files that can be parsed by the 
-    # generic parse_raw_data or we detect the source.
-    # Let's assume we have a way to identify the source or use a generic parser.
-    # The task description says "Implement unit conversion... and grid alignment".
-    # We assume the parsing is done in T013-PARSE and produces HarmonizedDataset objects.
-    # This function might be the orchestrator for a single file or a batch.
-    
-    # Since T013-PARSE produces HarmonizedDataset, we assume we are receiving a list of them
-    # or a single one.
-    # However, the signature suggests processing a path.
-    # Let's implement a fallback: try to parse based on content or filename.
-    
-    # For the purpose of this task, we assume the caller has already parsed the data
-    # into HarmonizedDataset objects. If this function is the entry point:
-    # We will call the parsers if the path looks like raw data.
-    
-    datasets = []
-    
-    # Heuristic: Check if it's a directory with CSVs (raw) or a single file
+
+    # Gather HarmonizedDataset objects from the input path
+    datasets: List[HarmonizedDataset] = []
+
     if raw_data_path.is_dir():
-        # Try to find CSVs
         csv_files = list(raw_data_path.glob("*.csv"))
         if not csv_files:
             raise FileNotFoundError(f"No CSV files found in {raw_data_path}")
-        
-        # Assume generic parsing for now, or specific if we can detect
-        # We will use a generic parser that reads any CSV with 'separation' and 'force' columns
-        # But the existing API has specific parsers.
-        # Let's assume we call a generic parser if available, or we just load the files.
-        # Since the API surface shows `parse_raw_data`, we use that.
-        from data.parsers import parse_raw_data
-        
+
         for csv_file in csv_files:
             try:
                 ds = parse_raw_data(csv_file)
-                datasets.append(ds)
-            except Exception as e:
-                logger.warning(f"Failed to parse {csv_file}: {e}")
+                if ds is not None:
+                    datasets.append(ds)
+            except Exception as exc:
+                logger.warning(f"Failed to parse {csv_file}: {exc}")
     else:
         # Single file
-        try:
-            from data.parsers import parse_raw_data
-            ds = parse_raw_data(raw_data_path)
+        ds = parse_raw_data(raw_data_path)
+        if ds is not None:
             datasets.append(ds)
-        except Exception as e:
-            raise RuntimeError(f"Failed to parse {raw_data_path}: {e}")
-    
+
     if not datasets:
-        raise ValueError("No valid datasets could be parsed from the input path.")
-    
-    # Convert to SI
+        raise RuntimeError("No valid datasets could be parsed from the input path.")
+
+    # Convert each dataset to SI
     si_datasets = [convert_to_si(ds) for ds in datasets]
-    
-    # Align to grid
+
+    # Align onto a common grid
     harmonized = align_to_grid(si_datasets)
-    
-    # Save if output path provided
+
+    # Persist if requested
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         from data.loaders import save_harmonized_data
         save_harmonized_data(harmonized, output_path)
         logger.info(f"Saved harmonized dataset to {output_path}")
-        
+
     return harmonized
 
 def construct_covariance_matrix(
-    separation_m: np.ndarray, 
-    force_n: np.ndarray, 
-    uncertainties: Optional[np.ndarray] = None
+    separation_m: np.ndarray,
+    force_n: np.ndarray,
+    uncertainties: Optional[np.ndarray] = None,
 ) -> np.ndarray:
     """
-    Construct a diagonal covariance matrix from force data and uncertainties.
-    This is a helper for T015, but included here as per API surface.
+    Helper to build a diagonal covariance matrix from uncertainties.
+    If ``uncertainties`` are not supplied, a conservative 1 % relative
+    uncertainty is assumed.
     """
     if uncertainties is None:
-        # Estimate uncertainty as a fraction of force or a fixed value?
-        # The plan says "combine statistical uncertainties and systematic error budgets".
-        # For now, return a zero matrix or a placeholder if uncertainties are missing.
-        # But T015 will handle the full construction.
-        # We return a diagonal matrix with small noise if no uncertainties provided.
-        uncertainties = np.abs(force_n) * 0.01 # 1% default
-        
-    cov = np.diag(uncertainties**2)
-    return cov
+        uncertainties = np.abs(force_n) * 0.01  # 1 % default
+
+    return np.diag(uncertainties ** 2)
 
 def main():
     """
-    Entry point for the harmonize script.
-    Expected to be run after T013-DATA and T013-PARSE have populated data/raw/.
+    Entry point for the harmonization script.
+    It processes all CSV files found in the configured raw data directory,
+    produces a single harmonized dataset, and writes it to the processed
+    data directory.
     """
+    # Initialise configuration and logging
     config = ProjectConfig()
+    # ``setup_logging`` lives in ``config.py``; import lazily to avoid circular import.
+    from config import setup_logging
     setup_logging()
-    
+
     raw_dir = config.data_raw_dir
     processed_dir = config.data_processed_dir
-    
+
     if not raw_dir.exists():
         logger.error(f"Raw data directory not found: {raw_dir}")
         sys.exit(1)
-        
+
     processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Find all CSV files in raw_dir
+
     csv_files = list(raw_dir.glob("*.csv"))
     if not csv_files:
         logger.warning("No CSV files found in raw directory. Skipping harmonization.")
         return
-    
+
     logger.info(f"Found {len(csv_files)} raw CSV files.")
-    
-    datasets = []
+
+    # Process each file individually; ``harmonize_experiment`` will return a
+    # ``HarmonizedDataset`` for each file (or combined runs within the file).
+    per_file_datasets = []
     for csv_file in csv_files:
         try:
-            ds = harmonize_experiment(csv_file, None) # Don't save individual, aggregate
-            datasets.append(ds)
-        except Exception as e:
-            logger.error(f"Error processing {csv_file}: {e}")
-    
-    if not datasets:
+            ds = harmonize_experiment(csv_file, None)
+            per_file_datasets.append(ds)
+        except Exception as exc:
+            logger.error(f"Error processing {csv_file}: {exc}")
+
+    if not per_file_datasets:
         logger.error("No datasets were successfully processed.")
         sys.exit(1)
-        
-    # Combine all datasets into one harmonized dataset
-    # This calls align_to_grid on the list of already SI-converted datasets
-    final_dataset = align_to_grid(datasets)
-    
-    output_path = processed_dir / "harmonized_data.csv"
+
+    # Merge all per‑file datasets onto a single common grid
+    final_dataset = align_to_grid(per_file_datasets)
+
+    output_path = processed_dir / "harmonized_dataset.json"
     from data.loaders import save_harmonized_data
     save_harmonized_data(final_dataset, output_path)
-    
+
     logger.info(f"Harmonization complete. Output saved to {output_path}")
 
 if __name__ == "__main__":

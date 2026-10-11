@@ -14,7 +14,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/models/physics.py: self-declared fabricated metric — “…data/config # For now, we use placeholder values that would be calibrated M_S…”; code/data/generate_harmonized_output.py: synthetic/fake INPUT data not authorized by the spec — “…int = 100):     """     Generate synthetic raw data files that mimi…”; code/injection_recovery.py: synthetic/fake INPUT data not authorized by the spec — “…nt (alpha) injected into simulated data is recovered within the…”; 4 run-book script(s) missing (plan/impl path mismatch): python main.py --step download_harmonize; python main.py --step infer; python main.py --step robustness; 1 command(s) failed: python -m pytest tests/ (rc=2); 8 declared deliverable(s) absent: data/processed/config.json; data/processed/data_config.json; data/processed/run_count.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/models/physics.py: self-declared fabricated metric — “…data/config # For now, we use placeholder values that would be calibrated M_S…”; code/data/generate_harmonized_output.py: synthetic/fake INPUT data not authorized by the spec — “…int = 100):     """     Generate synthetic raw data files that mimi…”; code/injection_recovery.py: synthetic/fake INPUT data not authorized by the spec — “…nt (alpha) injected into simulated data is recovered within the…”; 4 run-book script(s) missing (plan/impl path mismatch): python main.py --step download_harmonize; python main.py --step infer; python main.py --step robustness; 1 command(s) failed: python -m pytest tests/ (rc=2); 7 declared deliverable(s) absent: data/processed/config.json; data/processed/data_config.json; data/results/bayes_factor.json
 
 ## Failing / missing run-book commands
 
@@ -35,12 +35,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-191-investigating-the-validity-of-the-invers/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-191-investigating-the-validity-of-the-invers/main.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -> rc=2
-ness.uncertainty import inflate_covariance, main
-code/robustness/uncertainty.py:27: in <module>
-    from inference.mcmc import run_mcmc
-code/inference/mcmc.py:13: in <module>
-    from models.likelihood import YukawaLikelihood, NewtonianLikelihood, load_covariance_matrix
-E   ImportError: cannot import name 'YukawaLikelihood' from 'models.likelihood' (/home/runner/work/llmXive/llmXive/projects/PROJ-191-investigating-the-validity-of-the-invers/code/models/likelihood.py)
+nit/test_download_run_count.py:16
+  /home/runner/work/llmXive/llmXive/projects/PROJ-191-investigating-the-validity-of-the-invers/tests/unit/test_download_run_count.py:16: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_mcmc_diagnostics.py - TypeError: setup_logging()...
 ERROR tests/integration/test_pipeline_runner.py
@@ -54,7 +53,7 @@ ERROR tests/unit/test_nested_sampling.py
 ERROR tests/unit/test_sc002_verifier.py
 ERROR tests/unit/test_uncertainty.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 11 errors in 1.50s ==============================
+======================== 1 warning, 11 errors in 1.13s =========================
 
 
 
@@ -62,7 +61,6 @@ ERROR tests/unit/test_uncertainty.py
 
 - data/processed/config.json
 - data/processed/data_config.json
-- data/processed/run_count.json
 - data/results/bayes_factor.json
 - data/results/mcmc_chains.npy
 - data/results/null_baseline_report.json
@@ -86,12 +84,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/data_config.json` is declared but was NOT written. Scripts referencing it:
     - `code/inference/mcmc.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/data_config.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/run_count.json` is declared but was NOT written. Scripts referencing it:
-    - `code/data/fallback_logic.py` — NOT invoked by the run-book
-    - `code/pipeline_runner.py` — NOT invoked by the run-book
-    - `code/robustness/cross_val.py` — NOT invoked by the run-book
-    - `code/state_manager_patch.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/run_count.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/bayes_factor.json` is declared but was NOT written. Scripts referencing it:
     - `code/agents/sc002_verifier.py` — NOT invoked by the run-book
     - `code/inference/nested.py` — NOT invoked by the run-book

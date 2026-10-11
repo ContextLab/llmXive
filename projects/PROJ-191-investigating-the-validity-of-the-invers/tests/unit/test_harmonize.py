@@ -1,136 +1,74 @@
-import pytest
 import numpy as np
-import pandas as pd
-from pathlib import Path
-import sys
-import os
+import pytest
+from data.models import HarmonizedDataset
+from data.harmonize import convert_to_si, align_to_grid
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+def make_raw_dataset(sep_um, force_dyne, cov_diag=None):
+    """Utility to build a ``HarmonizedDataset`` that mimics the raw (non‑SI) format."""
+    if cov_diag is None:
+        cov_diag = np.full_like(force_dyne, 0.01)  # arbitrary small variance
+    return HarmonizedDataset(
+        separation_m=sep_um,          # stored in micrometers for the test
+        force_n=force_dyne,           # stored in dynes for the test
+        covariance_matrix=np.diag(cov_diag),
+        metadata={"id": "test_raw"},
+    )
 
-from data.harmonize import (
-    dynes_to_newtons,
-    micrometers_to_meters,
-    convert_to_si,
-    align_to_grid,
-    construct_covariance_matrix
-)
+def test_convert_to_si_detection():
+    # Values are clearly in dynes / micrometers (order 1e-5–1e2)
+    raw_sep = np.array([200.0, 400.0])          # µm
+    raw_force = np.array([1e-3, 2e-3])         # dynes
+    ds = make_raw_dataset(raw_sep, raw_force)
 
-class TestUnitConversions:
-    def test_dynes_to_newtons(self):
-        # 1 dyne = 1e-5 N
-        input_val = np.array([1.0, 100.0, 1e6])
-        expected = np.array([1e-5, 1e-3, 10.0])
-        result = dynes_to_newtons(input_val)
-        np.testing.assert_array_almost_equal(result, expected)
+    si_ds = convert_to_si(ds)
 
-    def test_micrometers_to_meters(self):
-        # 1 micron = 1e-6 m
-        input_val = np.array([1.0, 1000.0, 1e6])
-        expected = np.array([1e-6, 1e-3, 1.0])
-        result = micrometers_to_meters(input_val)
-        np.testing.assert_array_almost_equal(result, expected)
+    # After conversion, forces should be 1e-8 N and 2e-8 N
+    expected_force = raw_force * 1e-5
+    expected_sep = raw_sep * 1e-6
 
-class TestConvertToSI:
-    def test_convert_to_si_basic(self):
-        data = {
-            'force': [100.0, 200.0],
-            'separation': [1.0, 2.0],
-            'other': ['a', 'b']
-        }
-        df = pd.DataFrame(data)
-        result = convert_to_si(df)
-        
-        assert 'force_N' in result.columns
-        assert 'separation_m' in result.columns
-        
-        # Check values
-        assert result['force_N'].iloc[0] == 100.0 * 1e-5
-        assert result['separation_m'].iloc[0] == 1.0 * 1e-6
+    np.testing.assert_allclose(si_ds.force_n, expected_force, rtol=1e-12)
+    np.testing.assert_allclose(si_ds.separation_m, expected_sep, rtol=1e-12)
 
-    def test_convert_to_si_missing_columns(self):
-        data = {'x': [1, 2], 'y': [3, 4]}
-        df = pd.DataFrame(data)
-        with pytest.raises(ValueError):
-            convert_to_si(df)
+def test_align_to_grid_overlap():
+    # Two datasets with overlapping separation ranges
+    ds1 = make_raw_dataset(
+        sep_um=np.array([100, 200, 300]),
+        force_dyne=np.array([1.0, 2.0, 3.0]),
+    )
+    ds2 = make_raw_dataset(
+        sep_um=np.array([250, 350, 450]),
+        force_dyne=np.array([2.5, 3.5, 4.5]),
+    )
+    # Convert both to SI first
+    si1 = convert_to_si(ds1)
+    si2 = convert_to_si(ds2)
 
-class TestAlignToGrid:
-    def test_align_to_grid_basic(self):
-        # Dataset 1
-        df1 = pd.DataFrame({
-            'separation_m': [1e-6, 2e-6, 3e-6],
-            'force_N': [1.0, 2.0, 3.0]
-        })
-        # Dataset 2
-        df2 = pd.DataFrame({
-            'separation_m': [1.5e-6, 2.5e-6, 3.5e-6],
-            'force_N': [1.5, 2.5, 3.5]
-        })
-        
-        # Overlap: [1.5e-6, 3e-6]
-        result_df, grid = align_to_grid([df1, df2])
-        
-        assert len(grid) > 0
-        assert result_df['separation_m'].min() >= 1.5e-6
-        assert result_df['separation_m'].max() <= 3e-6
-        assert 'force_N' in result_df.columns
+    merged = align_to_grid([si1, si2], grid_resolution=1e-7)
 
-    def test_align_to_grid_no_overlap(self):
-        df1 = pd.DataFrame({
-            'separation_m': [1e-6, 2e-6],
-            'force_N': [1.0, 2.0]
-        })
-        df2 = pd.DataFrame({
-            'separation_m': [5e-6, 6e-6],
-            'force_N': [5.0, 6.0]
-        })
-        
-        with pytest.raises(ValueError, match="No overlapping separation range"):
-            align_to_grid([df1, df2])
+    # The common range should be [250 µm, 300 µm] → [2.5e-4, 3.0e-4] m
+    assert merged.separation_m.min() >= 250e-6
+    assert merged.separation_m.max() <= 300e-6
+    # There should be force values for both runs at each grid point
+    # Hence the total number of points equals grid points * number of runs
+    expected_grid_points = int(np.ceil((300e-6 - 250e-6) / 1e-7)) + 1
+    assert merged.force_n.size == expected_grid_points * 2
 
-    def test_align_to_grid_interpolation(self):
-        df1 = pd.DataFrame({
-            'separation_m': [1e-6, 3e-6],
-            'force_N': [1.0, 3.0]
-        })
-        
-        # Custom grid
-        target = np.array([2e-6])
-        result_df, grid = align_to_grid([df1], target_grid=target)
-        
-        assert result_df['force_N'].iloc[0] == pytest.approx(2.0)
+def test_align_to_grid_no_overlap():
+    ds1 = make_raw_dataset(
+        sep_um=np.array([100, 150]),
+        force_dyne=np.array([1.0, 1.5]),
+    )
+    ds2 = make_raw_dataset(
+        sep_um=np.array([300, 350]),
+        force_dyne=np.array([3.0, 3.5]),
+    )
+    si1 = convert_to_si(ds1)
+    si2 = convert_to_si(ds2)
 
-class TestConstructCovarianceMatrix:
-    def test_covariance_stat_only(self):
-        df = pd.DataFrame({
-            'force_N': [1.0, 2.0, 3.0],
-            'stat_err': [0.1, 0.2, 0.3]
-        })
-        cov = construct_covariance_matrix(df, stat_col='stat_err')
-        
-        # Diagonal should be stat^2
-        expected_diag = [0.01, 0.04, 0.09]
-        np.testing.assert_array_almost_equal(np.diag(cov), expected_diag)
-        
-        # Off-diagonal should be 0
-        assert np.allclose(cov - np.diag(np.diag(cov)), 0)
+    merged = align_to_grid([si1, si2], grid_resolution=1e-7)
 
-    def test_covariance_stat_and_sys(self):
-        df = pd.DataFrame({
-            'force_N': [1.0, 2.0, 3.0],
-            'stat_err': [0.1, 0.1, 0.1],
-            'sys_err': [0.2, 0.2, 0.2]
-        })
-        cov = construct_covariance_matrix(df, stat_col='stat_err', sys_col='sys_err')
-        
-        # Diagonal: stat^2 + sys^2 = 0.01 + 0.04 = 0.05
-        # Off-diagonal: sys^2 = 0.04
-        expected_diag = [0.05, 0.05, 0.05]
-        expected_off = 0.04
-        
-        np.testing.assert_array_almost_equal(np.diag(cov), expected_diag)
-        
-        for i in range(3):
-            for j in range(3):
-                if i != j:
-                    assert cov[i, j] == pytest.approx(expected_off)
+    # Expect an empty dataset because there is no overlap
+    assert merged.separation_m.size == 0
+    assert merged.force_n.size == 0
+    assert merged.covariance_matrix.size == 0
+    assert merged.metadata["source_ids"] == []

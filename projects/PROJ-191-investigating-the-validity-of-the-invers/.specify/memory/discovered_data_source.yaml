@@ -1,13 +1,12 @@
 status: none
-intent: arXiv primary experimental data force separation calibration curves dataset
-  python package dataset
+intent: Casimir force separation dataset from arXiv supplementary python package dataset
 required_fields:
 - run_id
 - separation_m
 - force_N
-- statistical_uncertainty
-- systematic_uncertainty
-- total_covariance_matrix
-cache_key: 7415d7bc6689f9a86d6d7bb2cb2d802db82d97b5dc772d912f15fe00e8781521
-searched_at: '2026-10-11T11:19:31.884037+00:00'
+- statistical_error_N
+- systematic_error_N
+- covariance_matrix
+cache_key: 3041470e7da37d135d5905a968d37d5a94e0512ec93e53d69927931aeb5b74a3
+searched_at: '2026-10-11T11:32:27.161951+00:00'
 retry_count: 1

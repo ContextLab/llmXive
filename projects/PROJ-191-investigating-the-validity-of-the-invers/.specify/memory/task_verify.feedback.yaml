@@ -1,23 +1,34 @@
 T001-A-INIT-CODE:
   task: 3d19823c06babd2fc0c519118e454abe910c4d49773551c305e3e5ba0c7cf4e0
 T001-B-INIT-DATA:
+  reason: "The `projects/PROJ-191-investigating-the-validity-of-the-invers/data/`\
+    \ tree with `raw/`, `processed/`, and `results/` sub\u2011directories does exist,\
+    \ but the only evidence of creation is a Python script log (`code/.tasks/T001-B-INIT-DATA.code_init_data_tree.py.log`).\
+    \ No artifact (e.g., shell command output or script invoking `mkdir -p \u2026\
+    `) demonstrates that the required `mkdir -p \u2026` command was actually run,\
+    \ so the procedural requirement is not satisfied."
   task: baecb6ba8cd7ed982e58df1dd52d09596e7a90a32fc2fdccf00ace3912e4f026
 T001-C-INIT-TEST:
+  reason: The required `tests/`, `tests/unit/`, `tests/contract/`, and `tests/integration/`
+    directories exist, but the provided log only shows a Python script ensuring the
+    directories; there is no evidence that the exact shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`
+    was executed as required.
   task: 7b1c9a50a194def8f9fddbba4077ff2e76d452429f192de56f9a78b64451b53b
 T002-A:
   task: 3cf9c56a8e7f265bdf83138a8686cdd75f204c9818b3833f46c62cc4a081c99f
 T002-B:
-  reason: "The required `code/requirements.txt` exists with the exact ten pinned versions\
-    \ (including `psutil==5.9.8`), but there is no evidence the second requirement\
-    \ \u2014 actually executing `pip install -r projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`\
-    \ in the activated venv \u2014 was performed (no install log, pip freeze output,\
-    \ or execution record). The implementer must provide or produce evidence of the\
-    \ installation run (e.g., a saved `pip install` log or `pip list`/`pip freeze`\
-    \ showing the pinned versions installed in the venv)."
   task: be63d0d5cd345411597ac6627b1c2de33ee7f573760657728693d5c8fcc0b770
 T002-CONFIG-INFLATION:
   task: b710d6d89533340f7c8aa8917bfeaee258e7b4848d3dcc90f3c18ca343c8b785
 T003:
+  reason: The evidence shows a `.ruff.toml` file exists in the project root and a
+    `pyproject.toml` with the required `[tool.black]` and `[tool.ruff]` sections,
+    but the task specifically required these artifacts **inside `projects/PROJ-191-investigating-the-validity-of-the-invers/code/`**.
+    While a `pyproject.toml` and a `.ruff.toml` are listed in that `code/` directory,
+    their contents are not provided, so we cannot verify that the required sections
+    are present there. The implementer must supply the `code/pyproject.toml` (and
+    optionally the `code/.ruff.toml`) showing the `[tool.black]` and `[tool.ruff]`
+    c
   task: b21d5e4c5ce9d050f57cf9fa1379fb0d086227352a29bfb0e9c6ea3791798127
 T004:
   task: c25b3fced816a99a3889d7307499e841eea0bbff587e223564ab292826fa78bd

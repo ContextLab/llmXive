@@ -45,16 +45,16 @@
 
 - [X] T001-A-INIT-CODE Create the code directory tree at the repository root: `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/code`.
 
-- [X] T001-B-INIT-DATA Create the data directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/data/` including `data/raw/`, `data/processed/`, `data/results/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/data/{raw,processed,results}`.
+- [ ] T001-B-INIT-DATA Create the data directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/data/` including `data/raw/`, `data/processed/`, `data/results/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/data/{raw,processed,results}`.
 
-- [X] T001-C-INIT-TEST Create the test directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/tests/` including `tests/unit/`, `tests/contract/`, `tests/integration/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`.
+- [ ] T001-C-INIT-TEST Create the test directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/tests/` including `tests/unit/`, `tests/contract/`, `tests/integration/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`.
 
 - [X] T002-A [P] Initialize a Python project virtual environment.
  1. Run `python -m venv venv` in the root directory `projects/PROJ-191-investigating-the-validity-of-the-invers/`.
  2. Verify `venv/bin/activate` exists.
  3. **Constraint**: Ensure the virtual environment is using a compatible Python version. If not, create a new venv with `python3.11 -m venv venv`.
 
-- [ ] T002-B [P] Install pinned dependencies.
+- [X] T002-B [P] Install pinned dependencies.
  1. Create `requirements.txt` at `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt` (as per plan structure) with the following EXACT pinned versions:
  ```
  numpy==1.26.4
@@ -70,7 +70,7 @@
  ```
  2. **Execute**: Activate the environment (`source venv/bin/activate`) and run `pip install -r projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`.
 
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and adding `[tool.black]` / `[tool.ruff]` sections to `pyproject.toml` in the `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` directory.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and adding `[tool.black]` / `[tool.ruff]` sections to `pyproject.toml` in the `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` directory.
 
 ---
 
@@ -110,20 +110,20 @@
  3. Raise `RuntimeError` if the ID is invalid or the source is unreachable.
  4. Do NOT invoke any external CLI agents.
 
-- [ ] T013-DATA [US1] **Data Acquisition**: Implement `code/data/download.py` to **fetch** arXiv:2106.08611 and arXiv:2305.06325.
+- [~] T013-DATA [US1] **Data Acquisition**: Implement `code/data/download.py` to **fetch** arXiv:2106.08611 and arXiv:2305.06325.
  1. Call `code/data/validator.py` (T013-VALIDATE-IDS) first. On failure, raise `RuntimeError`.
  2. Unpack tarballs to `data/raw/`.
  3. Scan for files matching `*_run*.csv` (or metadata `experiment_id`) to count independent experimental runs.
  4. Write the count of runs to `data/processed/run_count.json`.
  5. **Dependency**: Runs after T013-VALIDATE-IDS.
 
-- [ ] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to parse the raw CSV files extracted by T013‑DATA.
+- [~] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to parse the raw CSV files extracted by T013‑DATA.
  1. Read headers, map columns to force, separation, and uncertainty fields.
  2. **Calibration Extraction**: Search for files matching regex patterns `calibration.*csv` or `calib.*dat` within the tarball. Extract force-vs-separation data or calibration parameters.
  3. Construct intermediate `HarmonizedDataset` objects.
  4. **Dependency**: Runs after T013-DATA.
 
-- [ ] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge‑case handling**: Detect non‑overlapping separation ranges; interpolate missing points or exclude non‑overlapping regions and log a warning as required by the spec.
+- [~] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge‑case handling**: Detect non‑overlapping separation ranges; interpolate missing points or exclude non‑overlapping regions and log a warning as required by the spec.
 
 - [ ] T027-DECIDE [US1] **Memory Strategy Decision**: Implement logic in `code/data/config.py` to enforce `numpy.memmap` for the covariance matrix.
  1. **Check**: Read the raw data size and check available RAM using `psutil.virtual_memory().available`.
