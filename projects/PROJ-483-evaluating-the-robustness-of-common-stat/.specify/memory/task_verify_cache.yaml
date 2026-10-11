@@ -1,11 +1,13 @@
 T001:
   c: true
-  h: 5cfe4dae20a0a7a21cccffbb876d7ea5e866ac14cf53af1d724374eeab430f03
-  r: Checked the existence of the project root `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`
-    and its full directory tree (code, data, docs, results, specs, src, tests, etc.),
-    confirming the required structure is present. No required files are missing or
-    empty.
-  sig: d8d0badd2c276c9223bffad9d5247ad3b8af94d2fa7e687632f17e29fe06a42b
+  h: 82f944f9447b559baa171e50cb6abcc9206c314f4c8417dfdce4c5aaeb7e4b9c
+  r: The project directory `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`
+    exists with the full expected structure (code/, data/, docs/, specs/, src/, tests/,
+    results/, contracts/, idea/, README.md, pyproject.toml, requirements.txt, .gitignore/.gitkeep),
+    and contains non-empty populated artifacts (e.g., data/raw CSVs, manifests, results
+    JSONs). T001 only requires creating the project structure per the implementation
+    plan, which is satisfied; deeper simulation requirements belong to later tasks.
+  sig: 4793e980385958b91b7a0907b2cc58db67b87fe7df636f0d6b96afdcb409be21
 T002:
   c: true
   h: 2082d52c1a722d0cd43e68f193b8320fd4486597856edea4f7164e4ddbb52519
@@ -72,6 +74,18 @@ T006a:
     \ the module does not satisfy FR\u2011003\u2019s restriction on strength values\
     \ nor the required AR\u2011resampling functionality."
   sig: 9eeeea9303f6a79f3b9e30d694ffd0ec47f887ebec903ff6242ce091f7899e6a
+T006b-map:
+  c: false
+  h: c5fabe8c406549b5b3dedf7ffb66a7141f83a6de24aa661cb29c7a41b12e610b
+  r: "The file `code/dependency_injector.py` exists and contains a `block_bootstrap`\
+    \ function, but the task's core requirement \u2014 the r-mapping/block-size heuristic\
+    \ `block_size = max(MIN_BLOCK_SIZE, int(np.sqrt(N)))` with a `MIN_BLOCK_SIZE`\
+    \ constant \u2014 is entirely absent: there is no `MIN_BLOCK_SIZE` constant, no\
+    \ `sqrt(N)`-based block size computation, and no function translating the sweep\
+    \ parameter r / sample size N into a block size (the existing `block_bootstrap`\
+    \ requires the caller to pass `block_size` directly). The implementer must add\
+    \ the mapping logic (e.g., a `map_r_to_block_size(N)` function"
+  sig: f05c3f8c8685ee0192ae3ff57119f03d6eb9be8389fbe6c916dc845b2a77b7dc
 T014:
   c: false
   h: 0449617f5c0e38f170fe9565d67f731238035899044cf0c4e1fb1023c0878798
@@ -101,41 +115,47 @@ T034:
     unmet.
 T035:
   c: true
-  h: 22a9c552111ec618140028794d04f957c43d5fe34130f65519b7fedb7f794c1f
-  r: "Checked `code/data_loader.py` for the required N\u2011<\u202F50 validation,\
-    \ skipping logic, violation logging to `results/validation_report.json`, and the\
-    \ critical error raise when no datasets pass; the implementation and the generated\
-    \ JSON report demonstrate all these behaviors."
-  sig: 07af472bfaa20ecbc3fe8d8c1302658c8e7fe3bf616ead865c755bcacdabaa1d
+  h: e1c493eef58b9d7ddc9c476d98ee2c49df40a250582c9c43c57cab11187dd59f
+  r: '`code/data_loader.py` exists (9.8 KB) and implements the required logic: N <
+    50 check with violation records including `{"reason": "N < 50", "status": "skipped"}`,
+    writing to `results/validation_report.json`, skipping invalid datasets while continuing
+    with valid ones, and raising `CriticalValidationError` when no valid datasets
+    remain. The validation report on disk shows the pipeline ran (3 attempted, 1 succeeded,
+    2 skipped with logged violations), consistent with the code''s behavior; the skips
+    are due to fetch/parse errors rather than N<50, but the required validation and
+    reporting logic is g'
+  sig: 1cc7477ef450c5ff7bfe9b0599fe4de8f75afa47a2ecb966ca7f4a2301ae9805
 T035b:
-  c: false
-  h: 9d44e904b6bae52576dd043cc156f9a6fccf33b00da9c55e74f66b4ab48cb38a
-  r: "Checked `code/data_loader.py` (7\u202FKB) \u2013 it only fetches, validates,\
-    \ and records checksums; it contains no logic to compute theoretical power, no\
-    \ reference to a replication target, and never writes a `results/power_report.json`.\
-    \ Moreover, the required `results/power_report.json` file is missing. The task\u2019\
-    s core requirement (power verification and warning log) is not satisfied."
-  sig: 1ed9ca54fecb9be8a3734b79ff99a9652c4aa492233cd94925de87b99fd735cd
+  c: true
+  h: 810c6cbfd5dfffb3c0c8519c232eb9de1d532ca2a92a7198d8c006ae37898b58
+  r: '`code/data_loader.py` implements the theoretical power calculation via `statsmodels`
+    `TTestIndPower` (SC-001), computes it for every successfully validated dataset,
+    and writes `results/power_report.json` with per-dataset power and a `power_warning`
+    flag for power < 0.80. The execution log (exit 0) confirms the report was actually
+    generated; the on-disk report shows adult_income (n=32561, power=1.0, no warning
+    needed), and the two other datasets failed fetch/parse for reasons outside this
+    task''s power-verification scope.'
+  sig: 88e1f2b28262884c2fc8dbef4ce663b6182c8524f97d13bcc87b62d71a3d7459
 T037:
-  c: false
-  h: 1d5cd6c0be8defd02dde94e1f2663a3ef29ef95c96801a76345cbe0a0222df47
-  r: "The provided `code/dependency_injector.py` generates spatial proxies with a\
-    \ default of `n_clusters=5` (K\u2011Means\u202Fk=5) and the saved `spatial_proxy_report.json`\
-    \ records `n_clusters: 5`. The task explicitly requires using K\u2011Means with\
-    \ **k=3** (and to skip injection on failure), which is not implemented. Adjust\
-    \ the proxy generation to use `k=3` (or make it configurable) and ensure failure\
-    \ handling follows the specification."
-  sig: 9ab19735a3f0f059cfdb601ea334137bc971671af9d70a0aeff8e47fbde523d0
+  c: true
+  h: 161ac5d54f8cae46dbfc5d798ee14fcf783bfcbc0923d66206470c98329ebe8d
+  r: '`code/dependency_injector.py` implements `generate_spatial_proxy` with K-Means
+    k=3 (plus validation and report-saving helpers), and `data/manifests/spatial_proxy_report.json`
+    is a 293KB non-empty report containing real cluster labels/centroids for the adult_income
+    dataset, produced by an actual execution of `code/generate_spatial_proxy.py` (exit
+    0). The two datasets whose raw files were missing were skipped rather than falling
+    back, matching the task''s "skip, do NOT fallback" instruction, and the unit tests
+    for the proxy passed.'
+  sig: a4d8ced2c24c41c76f016a4af25778dd3848751b2633791889df98e97bd2f3a0
 T037b:
-  c: false
-  h: 70386b773e0a38d7c7cb80add7bd51695dfead7945aeead64f1d6e70a7cb2319
-  r: "The provided `code/dependency_injector.py` contains many injection and validation\
-    \ utilities, but it does **not** implement the required FR\u2011003 mapping logic:\
-    \ there is no function that computes a silhouette score for the K\u2011Means proxy\
-    \ and converts it to the dependency strength `r` using `r = (silhouette_score\
-    \ - min_score) / (max_score - min_score)`. Adding such a mapping function (or\
-    \ extending an existing one) is needed to satisfy the task."
-  sig: 58a6efc58b05d2c9fae77c549ff8ff0da096b8a33cf0e7f2d749c0a50ccbb93e
+  c: true
+  h: 9d7907799da6b218ceeac2a1f42bf2c54bc96bccaeb7d14ec00b0307ca367462
+  r: 'The file `code/dependency_injector.py` exists (14.5 KB) and implements the required
+    mapping logic: `map_silhouette_to_r` uses exactly the specified formula `r = (silhouette_score
+    - min_score) / (max_score - min_score)`, plus a `proxy_to_r` helper that computes
+    the silhouette score from proxy labels and applies the mapping. The test log shows
+    `test_proxy_to_r_mapping` passed (exit 0), confirming the logic executes correctly.'
+  sig: 3842214b84f8b027a306b3375e81cc9af065038af6a972204c3777c2709ebe6c
 T040:
   c: false
   h: cc1bba15a2456401a67d28f25e85ffbc80e955bcbddcbe12105ebd123c1113fb

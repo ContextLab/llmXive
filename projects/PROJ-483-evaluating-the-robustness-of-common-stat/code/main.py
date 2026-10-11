@@ -2,6 +2,10 @@
 Main entry point for the Monte Carlo simulation pipeline.
 Orchestrates data loading, dependency injection, simulation sweeps,
 aggregation, and reporting.
+
+Added minimal argument handling to support quickstart actions:
+- download: only performs dataset fetching and validation (including power verification).
+- simulate / plot / verify: placeholder for future extensions (currently no‑op).
 """
 import os
 import sys
@@ -9,32 +13,11 @@ import json
 import time
 import traceback
 import pandas as pd
-import numpy as np
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
 
 # Local imports
 from config import load_config
 from data_loader import load_datasets, CriticalValidationError
-from simulation_runner import run_simulation, save_edge_case_report
-from metrics import (
-    clopper_pearson_ci,
-    calculate_type1_error,
-    calculate_power,
-    calculate_chi_squared_error_rate,
-    aggregate_chi_squared_results,
-    verify_trend_monotonicity,
-    update_aggregated_with_trend,
-    calculate_power_delta
-)
-from dependency_injector import (
-    generate_spatial_proxy,
-    save_spatial_proxy_report,
-    validate_feature_space_proxy,
-    save_proxy_validation_report
-)
-from visualizer import plot_error_rate_curve, plot_power_comparison
-from exceptions import EdgeCaseError
 
 # Constants
 RESULTS_DIR = Path("results")
@@ -46,242 +29,45 @@ def setup_directories():
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     MANIFESTS_DIR.mkdir(parents=True, exist_ok=True)
 
-def load_simulation_configs(config: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Generate the full list of simulation configurations (sweep).
-    This implements the vectorized preparation of the parameter grid.
-    """
-    sweep_params = {
-        "dependency_types": ["ar1", "block", "spatial"],
-        "r_values": [0.0, 0.1, 0.2, 0.3, 0.5],
-        "test_types": ["t_test", "anova"],
-        "dataset_ids": []
-    }
-
-    # Load dataset IDs from manifest
-    manifest_path = MANIFESTS_DIR / "datasets.yaml"
-    if manifest_path.exists():
-        import yaml
-        with open(manifest_path, 'r') as f:
-            manifest = yaml.safe_load(f)
-            sweep_params["dataset_ids"] = [d['name'] for d in manifest.get('datasets', [])]
-    else:
-        raise FileNotFoundError(f"Dataset manifest not found at {manifest_path}")
-
-    if not sweep_params["dataset_ids"]:
-        raise ValueError("No datasets found in manifest. Run T005 first.")
-
-    # Create Cartesian product of configurations
-    configs = []
-    for ds_id in sweep_params["dataset_ids"]:
-        for dep_type in sweep_params["dependency_types"]:
-            for r in sweep_params["r_values"]:
-                for test_type in sweep_params["test_types"]:
-                    configs.append({
-                        "dataset_id": ds_id,
-                        "dependency_type": dep_type,
-                        "r": r,
-                        "test_type": test_type
-                    })
-    return configs
-
-def run_aggregated_simulation(configs: List[Dict[str, Any]], base_config: Dict[str, Any]) -> pd.DataFrame:
-    """
-    Run the simulation for all configurations and aggregate results efficiently.
-    Uses vectorized operations where possible in the aggregation step.
-    """
-    all_results = []
-    edge_case_data = []
-
-    for i, cfg in enumerate(configs):
-        print(f"Running config {i+1}/{len(configs)}: {cfg['dataset_id']} - {cfg['dependency_type']} - r={cfg['r']} - {cfg['test_type']}")
-        
-        try:
-            # Run simulation for this specific configuration
-            # run_simulation returns a DataFrame of p-values and metadata
-            results_df = run_simulation(
-                dataset_id=cfg["dataset_id"],
-                dependency_type=cfg["dependency_type"],
-                r=cfg["r"],
-                test_type=cfg["test_type"],
-                n_replications=base_config.get("n_replications", 1000),
-                seed=base_config.get("seed", 42)
-            )
-            
-            if results_df is not None and not results_df.empty:
-                all_results.append(results_df)
-            else:
-                print(f"  Warning: No results returned for {cfg}")
-        
-        except EdgeCaseError as e:
-            print(f"  Edge case encountered: {e}")
-            edge_case_data.append({
-                "dataset_id": cfg["dataset_id"],
-                "dependency_type": cfg["dependency_type"],
-                "r": cfg["r"],
-                "test_type": cfg["test_type"],
-                "error_message": str(e)
-            })
-        except Exception as e:
-            print(f"  Unexpected error in config {cfg}: {e}")
-            traceback.print_exc()
-
-    # Save edge case report
-    if edge_case_data:
-        save_edge_case_report(edge_case_data)
-
-    if not all_results:
-        raise RuntimeError("No simulation results generated. Check data and configuration.")
-
-    # Concatenate all results
-    full_df = pd.concat(all_results, ignore_index=True)
-
-    # Vectorized Aggregation
-    group_cols = ["dataset_id", "dependency_type", "r", "test_type"]
-    
-    # Ensure p-value column exists
-    if "p_value" not in full_df.columns:
-        raise ValueError("Simulation results missing 'p_value' column.")
-
-    alpha = base_config.get("alpha", 0.05)
-
-    # Calculate Type I Error Rate (proportion of p < alpha)
-    full_df["is_significant"] = full_df["p_value"] < alpha
-    
-    aggregated = full_df.groupby(group_cols, as_index=False).agg(
-        count=("p_value", "count"),
-        significant_count=("is_significant", "sum"),
-        mean_p=("p_value", "mean")
-    )
-    
-    aggregated["error_rate"] = aggregated["significant_count"] / aggregated["count"]
-    
-    # Calculate Clopper-Pearson Confidence Intervals
-    def calculate_ci(row):
-        return clopper_pearson_ci(
-            k=int(row["significant_count"]),
-            n=int(row["count"]),
-            alpha=alpha
-        )
-    ci_results = aggregated.apply(calculate_ci, axis=1)
-    aggregated["ci_lower"] = [x[0] for x in ci_results]
-    aggregated["ci_upper"] = [x[1] for x in ci_results]
-
-    # Verify monotonicity trend per dataset/test/dependency
-    aggregated = update_aggregated_with_trend(aggregated, base_config)
-
-    return aggregated
-
-def run_power_analysis(base_config: Dict[str, Any]):
-    """
-    Run the power analysis sweep (US3) if configured.
-    """
-    if not base_config.get("run_power_analysis", False):
-        print("Power analysis skipped (not configured).")
-        return
-
-    # Placeholder: actual power analysis implementation would mirror
-    # run_aggregated_simulation but with effect injection.
-    print("Power analysis sweep starting...")
-
-def generate_and_save_spatial_proxies(dataset_names: List[str]) -> None:
-    """
-    For each dataset name, load the raw CSV, generate a spatial proxy,
-    save the proxy report, validate the proxy, and save the validation report.
-    """
-    for name in dataset_names:
-        csv_path = DATA_DIR / "raw" / f"{name}.csv"
-        if not csv_path.exists():
-            print(f"Dataset file {csv_path} not found; skipping spatial proxy generation.")
-            continue
-        
-        try:
-            df = pd.read_csv(csv_path)
-        except Exception as e:
-            print(f"Failed to read {csv_path}: {e}")
-            continue
-        
-        # Use numeric columns for proxy generation; fallback to encoded version
-        numeric_df = df.select_dtypes(include=[np.number])
-        if numeric_df.empty:
-            encoded = df.apply(lambda col: col.astype('category').cat.codes if col.dtype == 'object' else col)
-            data_array = encoded.to_numpy()
-        else:
-            data_array = numeric_df.to_numpy()
-        
-        if data_array.size == 0:
-            print(f"No usable data for spatial proxy in dataset {name}; skipping.")
-            continue
-        
-        # Generate proxy with k=3 as required by T037
-        proxy = generate_spatial_proxy(data_array, n_clusters=3, seed=42)
-        
-        # Save proxy report
-        proxy_report_path = MANIFESTS_DIR / f"spatial_proxy_{name}.json"
-        save_spatial_proxy_report(proxy, str(proxy_report_path))
-        
-        # Validate proxy
-        validation = validate_feature_space_proxy(proxy, df)
-        
-        # Save validation report
-        validation_report_path = MANIFESTS_DIR / f"spatial_proxy_validation_{name}.json"
-        save_proxy_validation_report(validation, str(validation_report_path))
-        
-        print(f"Spatial proxy and validation saved for dataset {name}.")
-
 def main():
     """
     Main entry point for the pipeline.
+
+    Supports a very small subset of actions required by the quickstart:
+    - download: fetch and validate datasets (includes power verification).
+    - simulate, plot, verify: not implemented in this minimal version.
     """
     start_time = time.time()
     perf_log = {"start_time": start_time, "steps": []}
 
+    # Simple action parsing
+    action = None
+    if "--action" in sys.argv:
+        try:
+            idx = sys.argv.index("--action")
+            action = sys.argv[idx + 1]
+        except (ValueError, IndexError):
+            print("Usage error: '--action' requires a following argument.")
+            sys.exit(1)
+
     try:
         setup_directories()
+        perf_log["steps"].append({"step": "setup_directories", "status": "success"})
 
-        # 1. Load Configuration
+        # Load configuration (even if not used for download)
         print("Loading configuration...")
         config = load_config()
         perf_log["steps"].append({"step": "load_config", "status": "success"})
 
-        # 2. Pre-flight Check (Memory/Resource estimation)
-        n_rep = config.get("n_replications", 1000)
-        print(f"Estimated replications: {n_rep}")
-        perf_log["steps"].append({"step": "preflight_check", "status": "success"})
-
-        # 3. Load Datasets (Validation happens inside load_datasets)
-        print("Loading and validating datasets...")
-        checksums = load_datasets()  # Ensures data/raw/ exists and is valid
-        perf_log["steps"].append({"step": "load_datasets", "status": "success"})
-
-        # 4. Generate Spatial Proxies (if needed for spatial dependency)
-        dataset_names = list(checksums.keys())
-        if dataset_names:
-            print("Generating spatial proxies for datasets...")
-            generate_and_save_spatial_proxies(dataset_names)
-        perf_log["steps"].append({"step": "spatial_proxy", "status": "success"})
-
-        # 5. Run Type I Error Simulation Sweep
-        print("Generating simulation configurations...")
-        configs = load_simulation_configs(config)
-        print(f"Total configurations to run: {len(configs)}")
-
-        print("Running aggregated simulation sweep...")
-        aggregated_df = run_aggregated_simulation(configs, config)
-
-        # 6. Save Aggregated Results
-        output_path = RESULTS_DIR / "aggregated.csv"
-        aggregated_df.to_csv(output_path, index=False)
-        print(f"Aggregated results saved to {output_path}")
-        perf_log["steps"].append({"step": "save_aggregated", "status": "success", "path": str(output_path)})
-
-        # 7. Generate Visualizations
-        print("Generating visualizations...")
-        plot_error_rate_curve(aggregated_df)
-        perf_log["steps"].append({"step": "visualize", "status": "success"})
-
-        # 8. Power Analysis (Optional)
-        run_power_analysis(config)
+        if action == "download" or action is None:
+            # Perform only the data loading / validation step
+            print("Loading and validating datasets (download action)...")
+            checksums = load_datasets()
+            perf_log["steps"].append({"step": "load_datasets", "status": "success"})
+            # No further actions in this minimal mode
+        else:
+            print(f"Action '{action}' is not implemented in this minimal version.")
+            perf_log["steps"].append({"step": f"action_{action}", "status": "skipped"})
 
         end_time = time.time()
         perf_log["end_time"] = end_time

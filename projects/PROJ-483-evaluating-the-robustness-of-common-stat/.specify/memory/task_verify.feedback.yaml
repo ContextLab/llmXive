@@ -31,6 +31,14 @@ T006b:
 T006b-Null:
   task: 287f339e3381898077a888ecd4045b7187d42566405196e3d04b82022be7ae7b
 T006b-map:
+  reason: "The file `code/dependency_injector.py` exists and contains a `block_bootstrap`\
+    \ function, but the task's core requirement \u2014 the r-mapping/block-size heuristic\
+    \ `block_size = max(MIN_BLOCK_SIZE, int(np.sqrt(N)))` with a `MIN_BLOCK_SIZE`\
+    \ constant \u2014 is entirely absent: there is no `MIN_BLOCK_SIZE` constant, no\
+    \ `sqrt(N)`-based block size computation, and no function translating the sweep\
+    \ parameter r / sample size N into a block size (the existing `block_bootstrap`\
+    \ requires the caller to pass `block_size` directly). The implementer must add\
+    \ the mapping logic (e.g., a `map_r_to_block_size(N)` function"
   task: 45f8d66a14ec228e852e3ab24af6e47aebd969df9c5e477aa151cf4fddadb852
 T006c-map:
   task: 5bfcce44aada0f4f4749595b6207a4e051d66298b2035dca2c6e710cde66cbc8
@@ -136,31 +144,16 @@ T034:
 T035:
   task: 4917813c995170660d0fefb1c85e0590366b6813e1fde35e316d9d646bb5ea6d
 T035b:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 56fc90b5e6a56598e3797d851d89c78ca9167a6b209a41c19c21482ac34d3d0d
 T037:
-  reason: "The provided `code/dependency_injector.py` generates spatial proxies with\
-    \ a default of `n_clusters=5` (K\u2011Means\u202Fk=5) and the saved `spatial_proxy_report.json`\
-    \ records `n_clusters: 5`. The task explicitly requires using K\u2011Means with\
-    \ **k=3** (and to skip injection on failure), which is not implemented. Adjust\
-    \ the proxy generation to use `k=3` (or make it configurable) and ensure failure\
-    \ handling follows the specification."
   task: e18fd20325e508052ee85e85a6ce225051ac0afe9081dd86a9657dbb256dbe4e
 T037b:
-  reason: "The provided `code/dependency_injector.py` contains many injection and\
-    \ validation utilities, but it does **not** implement the required FR\u2011003\
-    \ mapping logic: there is no function that computes a silhouette score for the\
-    \ K\u2011Means proxy and converts it to the dependency strength `r` using `r =\
-    \ (silhouette_score - min_score) / (max_score - min_score)`. Adding such a mapping\
-    \ function (or extending an existing one) is needed to satisfy the task."
   task: 83312962013594669fedb76cbae3e0b957bc61aed39cf67e48b9d0e271f1b199
 T040:
   task: c19fff40611f86726bf69ed90c4124741135f72756fa790762961564b1c6d064
 T041:
-  reason: "The provided `code/dependency_injector.py` does not compute a silhouette\
-    \ score nor enforce the required >\u202F0.25 threshold, and the expected output\
-    \ file `data/manifests/spatial_proxy_validation.json` is missing. Consequently\
-    \ the FR\u2011003 validation logic and report generation are not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/validate_spatial_proxy.py
+    exit=1'
   task: 69f56bfaecb7ee3d8c952f112c135f07983fbb0a36599c2198b8ee7f536e895e
 T043:
   task: fc782f4cec3682e521ebb1f176dbae20e44a535eceeb64c794ba2b27f70427f2

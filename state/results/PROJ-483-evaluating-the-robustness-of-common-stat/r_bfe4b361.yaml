@@ -1,0 +1,15 @@
+captured:
+  path: data/manifests/checksums.json
+  sha256: c32ce927519dc16f404ec3e8c5d394c9401d31701995cf98ce3f03c15c8de20b
+created_at: '2026-10-11T22:30:04Z'
+env_sha: c32ce927519dc16f
+hmac: c507f7559bd53b2e6ccbfd8750d66a4811842440a89087e7c7d14c4829059b0e
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: bfe4b36101b4b4bfde4678e3aad0569991324e32c77556a61d3fdc5d25c0da62
+producer:
+  artifact: data/manifests/checksums.json
+  stage: implementation_preview
+result_id: r_bfe4b361
+value: data/manifests/checksums.json

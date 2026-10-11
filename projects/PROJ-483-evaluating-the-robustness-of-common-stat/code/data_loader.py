@@ -150,6 +150,17 @@ def _compute_theoretical_power(n: int, effect_size: float = 0.5, alpha: float = 
     # Assuming equal group sizes, each group gets n/2 observations
     return analysis.power(effect_size=effect_size, nobs1=n / 2, alpha=alpha, ratio=1.0)
 
+def _serialize_json_safe(obj):
+    """
+    Helper for json.dump to convert NumPy scalar types to native Python types.
+    """
+    import numpy as np
+    if isinstance(obj, (np.integer, np.floating)):
+        return obj.item()
+    if isinstance(obj, np.bool_):
+        return bool(obj)
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
 def load_datasets(
     manifest_path: str = str(Path('data') / 'manifests' / 'datasets.yaml'),
     data_raw_dir: str = str(Path('data') / 'raw'),
@@ -207,9 +218,9 @@ def load_datasets(
                 power = _compute_theoretical_power(n=len(df))
                 power_reports.append({
                     "dataset": name,
-                    "n_rows": len(df),
-                    "theoretical_power": power,
-                    "power_warning": power < 0.80
+                    "n_rows": int(len(df)),
+                    "theoretical_power": float(power),
+                    "power_warning": bool(power < 0.80)
                 })
                 
         except Exception as e:
@@ -225,7 +236,7 @@ def load_datasets(
 
     # Save checksums
     with open(checksums_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
+        json.dump(checksums, f, indent=2, default=_serialize_json_safe)
     print(f"Checksums saved to {checksums_path}")
 
     # Write validation report
@@ -237,13 +248,13 @@ def load_datasets(
         "report_generated_at": pd.Timestamp.now().isoformat()
     }
     with open(validation_report_path, 'w') as f:
-        json.dump(report_data, f, indent=2)
+        json.dump(report_data, f, indent=2, default=_serialize_json_safe)
     print(f"Validation report saved to {validation_report_path}")
 
     # Write power report (T035b)
     power_report_path = results_path / "power_report.json"
     with open(power_report_path, 'w') as f:
-        json.dump(power_reports, f, indent=2)
+        json.dump(power_reports, f, indent=2, default=_serialize_json_safe)
     print(f"Power report saved to {power_report_path}")
 
     # Critical check: If all fetched datasets failed validation
