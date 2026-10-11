@@ -14,13 +14,13 @@ T002:
   sig: 081b8edb3fa2b67ec01b1d43bcb4db90f8b3087075e322bec5d57cc449db10d4
 T003:
   c: true
-  h: ca3c9ff3bcb9fb58ac1dd8b4e0c5ecfa81bfe3032f7b73ef95d8e7668565ef4b
-  r: "The evidence shows that the directories `data/processed/`, `models/`, `results/`,\
-    \ and `code/` exist in the project root (as listed in the collector\u2011confirmed\
-    \ artifact tree). The creation is confirmed by the test log `tests/test_create_project_layout.py`\
-    \ (passed) and the execution log of `create_project_layout.py` which reports successful\
-    \ directory creation."
-  sig: 87424538a027e79ef6470b0e69c5989d365e2d6394d4e8360b01eaf22734e562
+  h: c2b7fb733dd54634d9e4e135206eb815559360032ec921656d815cdb33274cf7
+  r: "The evidence shows that the four required directories (`data/processed/`, `models/`,\
+    \ `results/`, `code/`) exist under the project root, with logs from `create_project_layout.py`\
+    \ confirming they were created and a pytest run (`tests/test_create_project_layout.py`)\
+    \ passing. This satisfies the task\u2019s sole requirement of establishing the\
+    \ specified project\u2011level folder layout."
+  sig: f2d236b7141eb325e46b21a14a48ebce114da82e4472c1bd0ddfda22027cdc1e
 T004:
   c: true
   h: 9a6992f4674c277521afad67690cf0cfc8762319a49661bd192c9250952c501e
@@ -54,24 +54,25 @@ T007:
     \ returning a fixed dictionary of seeds."
   sig: 212c225d7a839570ad8c2e3d11cdb50a33248de01d23a757b8aa63577a425b01
 T008:
-  c: false
-  h: c111ebc6592e14cfd28160d7ec0b79cb609480d350b8d071832b84166f714bf4
-  r: "The provided `data/metadata.yaml` exists and records timestamps, material IDs,\
-    \ and SHA\u2011256 hashes for raw CIFs, but it does not include entries (or a\
-    \ defined section) for derived\u2011artifact checksums and does not present an\
-    \ explicit schema definition (e.g., field types, required keys). To satisfy the\
-    \ task, the file must define a schema covering both raw CIFs and derived artifacts\
-    \ and record their SHA\u2011256 checksums."
-  sig: 1235bea6bfcba59d8e78503b547a024fa4e96ba89437826fcdd06222fb423368
-T009:
   c: true
-  h: 65a1787779cb72aa4d53ac48acd75b15e161a6a95cc02c9a7d6cdd546f5c8670
-  r: "Checked `code/download.py` (implements API query, CIF download, SHA\u2011256\
-    \ hashing, metadata updates) and the resulting `data/raw/cif/` directory (5 CIF\
-    \ files) plus `data/metadata.yaml` (contains hash entries for each downloaded\
-    \ file). The script runs successfully (log shows download and metadata writing),\
-    \ fulfilling the task\u2019s requirements."
-  sig: ceff22b498989c59e785f15c7f7f5a8e2cea18388e9a5d8f20924f1f13c621ff
+  h: c701bada69507a9ce381fa8189f9d43050ba7f78cf9d387b75e4446ab2c77f6b
+  r: "Checked the `data/metadata.yaml` file (1340\u202Fbytes) which contains entries\
+    \ for each download with `material_id`, `timestamp`, and `cif_hash` (SHA\u2011\
+    256 of the raw CIF), as well as a `derived_artifacts` list recording artifact\
+    \ paths, their SHA\u2011256 checksums, and timestamps\u2014fulfilling the required\
+    \ schema."
+  sig: d09c4121e569fc238349adfaf4dc05ab81432c85c63b889f3595d5dd2717a839
+T009:
+  c: false
+  h: 713dac2e81d173ebff4156b05779fdce849e094b89bd073686556556487778bd
+  r: "The `data/raw/cif/` directory contains only 5 CIF files (log shows `--limit\
+    \ 5`), far fewer than the required \u226550 and the script does not query the\
+    \ Materials Project API but downloads a public zip archive instead. Moreover,\
+    \ the metadata entries do not follow the fields the task specifies (the script\
+    \ writes `cif_sha256`/`download_timestamp` but `metadata.yaml` contains `cif_hash`/`timestamp`).\
+    \ These missing/incorrect artifacts mean the task\u2019s requirements are not\
+    \ satisfied."
+  sig: 8a62adb37811c631cf6eee00a4101a45bcdeefa49aa3c0f79507e5ce387d6f7a
 T010:
   c: false
   h: 70f47dc48f580b6923c389caaf0fa974c483e0f98d9b14951b0d48b1c1d8a564
@@ -97,11 +98,3 @@ T017:
     \ tests) was provided, nor any output (such as updated p\u2011values or a report)\
     \ demonstrating that the correction was applied. The required artifact is missing,\
     \ so the task is not satisfied."
-T036a:
-  c: false
-  h: 6b4826c3cb192eeba88895f541305466227e3fa57160ed4aebff9d7649da1691
-  r: "The `data/raw/cif/` directory contains only 5 CIF files, far short of the required\u202F\
-    \u2265\u202F50. The verification script correctly reports \u201CInsufficient CIF\
-    \ files: 5 found, 50 required,\u201D and no additional CIF files are present to\
-    \ satisfy the task. The pipeline therefore does not meet the download requirement."
-  sig: 1b8273d1cf0552d79831417509956da35bff5923403554bfafe3bed5bfee635a

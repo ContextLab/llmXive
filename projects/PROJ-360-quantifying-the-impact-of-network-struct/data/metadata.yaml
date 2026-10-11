@@ -18,3 +18,13 @@ downloads:
 materials: []
 project_id: PROJ-360-quantifying-the-impact-of-network-struct
 schema_version: 1.0.0
+derived_artifacts:
+- artifact_path: results/correlations.json
+  sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  timestamp: '2026-10-11T23:24:15.620270+00:00'
+- artifact_path: results/model_performance.json
+  sha256: 922fe124cea425a0cead003e8eca62a1ca0a801399da9c1aed4da125b44dedec
+  timestamp: '2026-10-11T23:24:15.620270+00:00'
+- artifact_path: results/quickstart_validation_report.json
+  sha256: def60245099060cfe0cd308d4b274780cc3c92fcf19a4bc88c47984f343c3c0e
+  timestamp: '2026-10-11T23:24:15.620270+00:00'

@@ -10,11 +10,11 @@
     "python code/download.py --limit 50 --output data/raw/cif/ -> rc=1\n    2026-07-22 15:17:18,080 - download_logger - ERROR - MP_API_KEY not set in environment. Please set MP_API_KEY environment variable.",
     "python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/ -> rc=1\n    2026-07-22 15:17:19,493 - network_logger - ERROR - No CIF files found in data/raw/cif"
   ],
-  "fix_rounds": 4,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-22T15:17:23Z"
+  "updated_at": "2026-10-11T23:25:03Z"
 }
