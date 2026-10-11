@@ -53,16 +53,18 @@ _session.headers.update({
 })
 
 
-def _eutils_get(params: Dict[str, str]) -> requests.Response:
-    """GET an EUtils endpoint with retries, rate limiting and SSL verification."""
+def _eutils_get(endpoint: str, params: Dict[str, str]) -> requests.Response:
+    """GET an EUtils endpoint (e.g. 'esearch.fcgi') with retries,
+    rate limiting and SSL verification."""
+    url = f"{EUTILS}/{endpoint}"
     last_exc: Optional[Exception] = None
     for attempt in range(RETRIES):
         try:
-            resp = _session.get(EUTILS + "/.fcgi", params=params,
+            resp = _session.get(url, params=params,
                                 timeout=REQUEST_TIMEOUT, verify=True)
             if resp.status_code in (429, 500, 502, 503):
                 last_exc = RuntimeError(
-                    f"EUtils HTTP {resp.status_code} for params {params}")
+                    f"EUtils HTTP {resp.status_code} for {url}")
                 time.sleep(2 ** attempt)
                 continue
             resp.raise_for_status()
@@ -75,7 +77,8 @@ def _eutils_get(params: Dict[str, str]) -> requests.Response:
         except requests.RequestException as e:
             last_exc = e
             time.sleep(2 ** attempt)
-    raise RuntimeError(f"EUtils request failed after {RETRIES} attempts: {last_exc}")
+    raise RuntimeError(
+        f"EUtils request failed after {RETRIES} attempts: {last_exc}")
 
 
 def check_ssl_verification() -> bool:
@@ -85,7 +88,7 @@ def check_ssl_verification() -> bool:
     Returns True if verification passes, False otherwise.
     """
     try:
-        resp = _session.get(EUTILS + "/einfo.fcgi",
+        resp = _session.get(f"{EUTILS}/einfo.fcgi",
                             params={"db": "sra"},
                             timeout=REQUEST_TIMEOUT, verify=True)
         return resp.status_code == 200
@@ -99,7 +102,7 @@ def check_ssl_verification() -> bool:
 
 def _esearch_sra(project_id: str) -> Tuple[int, str, str]:
     """Run esearch on db=sra for a BioProject; return (count, webenv, query_key)."""
-    resp = _eutils_get({
+    resp = _eutils_get("esearch.fcgi", {
         "db": "sra",
         "term": f"{project_id}[BioProject]",
         "usehistory": "y",
@@ -116,7 +119,7 @@ def _esearch_sra(project_id: str) -> Tuple[int, str, str]:
 
 def _efetch_runinfo(webenv: str, query_key: str) -> List[Dict[str, str]]:
     """Fetch the SRA runinfo CSV for an esearch result set."""
-    resp = _eutils_get({
+    resp = _eutils_get("efetch.fcgi", {
         "db": "sra",
         "rettype": "runinfo",
         "retmode": "csv",
@@ -152,7 +155,7 @@ def _fetch_biosample_attributes(accessions: List[str]) -> Dict[str, List[Tuple[s
     for i in range(0, len(accessions), batch_size):
         batch = accessions[i:i + batch_size]
         try:
-            resp = _eutils_get({
+            resp = _eutils_get("esummary.fcgi", {
                 "db": "biosample",
                 "id": ",".join(batch),
                 "retmode": "json",
