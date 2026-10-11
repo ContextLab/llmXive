@@ -31,7 +31,7 @@ Checked items have been verified to meet their contract and are retained.
     ```  
     The command must exit with status 0.
 
-- [ ] **T002** [US1] **Download the three real materials datasets with robust retry and deterministic capping**   <!-- FAILED-IN-EXECUTION: code/tests/test_download.py exit=1 -->
+- [ ] **T002** [US1] **Download the three real materials datasets with robust retry and deterministic capping**   <!-- FAILED-IN-EXECUTION: code/tests/test_download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/tests/test_download.py exit=1 -->
   - Implement `code/download.py` to fetch the following CSVs (all URLs are publicly reachable as of the specification date):  
     1. **Band Gap** – `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv` — HTTP 404] → `data/raw/band_gap.csv`  
     2. **Formation Energy** – `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv` — HTTP 404] → `data/raw/formation_energy.csv`  
