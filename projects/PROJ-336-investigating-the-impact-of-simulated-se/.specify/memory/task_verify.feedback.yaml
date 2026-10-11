@@ -1,19 +1,8 @@
 T001:
   task: 0db1cd92056099ab947367d111e83bba3f463cd6952ffe3bfb4d093035e460e3
 T002:
-  reason: "The repository contains a correctly\u2011pinned `requirements.txt`, but\
-    \ the provided unit test looks for the file in `code/requirements.txt` (three\
-    \ directories up from the test file) where it does not exist, so the test would\
-    \ fail. No execution evidence is shown that `pip install -r requirements.txt`\
-    \ succeeds. The task therefore lacks a passing verification step."
   task: f9cd3455af7241a4c53896927a6df6e20113d4579c81c6f16c4dbf53781b2c22
 T003:
-  reason: "The `quickstart.md` file exists and correctly documents the `python -m\
-    \ src.main --sample 1` command and required environment variables, but there is\
-    \ no evidence of a CI workflow (e.g., a GitHub Actions/YAML file or test log)\
-    \ that actually runs `python -m src.main --dry\u2011run` and verifies it exits\
-    \ with status\u202F0. Without that execution evidence, the verification step of\
-    \ the task is unproven."
   task: e184ddae40826ab3f8bfa88407b413a2541834fd894f68e55e98c87709a74e99
 T004:
   task: 324a3bdf550dd53b269d7ef5dc80bb9ecff3fa1af5b309dab9c0ebfa1c350935

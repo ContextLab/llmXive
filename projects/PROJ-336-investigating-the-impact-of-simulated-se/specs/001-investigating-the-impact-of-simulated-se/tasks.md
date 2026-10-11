@@ -11,10 +11,10 @@
   *Creates*: empty folders at the repository root.  
   *Verification*: run `tree -L 2` and confirm the four directories exist; CI test `tests/integration/test_structure.py` checks for their presence.
 
-- [ ] **T002** [ ] Initialize a Python 3.11 project with a pinned `requirements.txt` containing the exact versions needed for the pipeline (e.g., `nibabel==5.1.0`, `numpy==1.26.2`, `pandas==2.2.0`, `networkx==3.2`, `scikit-learn==1.4.0`, `scipy==1.12.0`, `matplotlib==3.8.2`, `seaborn==0.13.2`, `bids-validator==1.14.0`, `requests==2.31.0`).  
+- [X] **T002** [ ] Initialize a Python 3.11 project with a pinned `requirements.txt` containing the exact versions needed for the pipeline (e.g., `nibabel==5.1.0`, `numpy==1.26.2`, `pandas==2.2.0`, `networkx==3.2`, `scikit-learn==1.4.0`, `scipy==1.12.0`, `matplotlib==3.8.2`, `seaborn==0.13.2`, `bids-validator==1.14.0`, `requests==2.31.0`).  
   *Verification*: `pip install -r requirements.txt` completes without version conflicts; `tests/unit/test_requirements.py` parses the file and asserts the presence of all required packages.
 
-- [ ] **T003** [ ] Add a `quickstart.md` that documents a single‑command end‑to‑end run (`python -m src.main --sample 1`) and lists required environment variables.  
+- [X] **T003** [ ] Add a `quickstart.md` that documents a single‑command end‑to‑end run (`python -m src.main --sample 1`) and lists required environment variables.  
   *Verification*: CI runs `python -m src.main --dry-run` and checks that the command exits with status 0.
 
 ---

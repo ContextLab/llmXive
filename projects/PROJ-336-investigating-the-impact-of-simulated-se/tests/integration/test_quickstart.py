@@ -1,10 +1,11 @@
 """
-Integration test for the quickstart verification.
+Integration test for the quickstart documentation.
 
-The CI workflow expects that ``python -m src.main --dry-run`` exits
-with status code 0. This test reproduces that check by invoking the
-module as a subprocess and asserting the return code.
+The quickstart specifies that the command ``python -m src.main --dry-run``
+must exit with status 0. This test runs that command in a subprocess and
+asserts the exit code.
 """
+
 import subprocess
 import sys
 import os
@@ -12,41 +13,34 @@ import unittest
 from pathlib import Path
 
 class TestQuickstartDryRun(unittest.TestCase):
-    """Ensure the dry‑run mode exits cleanly."""
+    """Verify that the dry‑run command succeeds."""
 
-    def test_dry_run_exit_code(self):
-        """
-        Run ``python -m src.main --dry-run`` and verify it returns 0.
-        The test is executed from the project root, mirroring the CI
-        environment.
-        """
-        # Construct the command; use the same Python interpreter that
-        # runs the tests to avoid version mismatches.
-        cmd = [
-            sys.executable,
-            "-m",
-            "src.main",
-            "--dry-run"
-        ]
+    def test_dry_run_exits_successfully(self):
+        """Run ``python -m src.main --dry-run`` and check return code."""
+        # Resolve the path to the project root (the directory containing this test file's parent)
+        project_root = Path(__file__).resolve().parents[2]
 
-        # Execute the command, capturing stdout/stderr for debugging.
+        # Build the command: python -m src.main --dry-run
+        cmd = [sys.executable, "-m", "src.main", "--dry-run"]
+
+        # Execute the command in the project root to ensure module resolution works.
         result = subprocess.run(
             cmd,
-            cwd=Path(__file__).resolve().parents[2],  # project root
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            cwd=project_root,
+            capture_output=True,
             text=True,
+            timeout=120,
         )
 
-        # If the command failed, include its output in the assertion
-        # message to aid debugging.
+        # Debug output in case of failure
+        sys.stdout.write(result.stdout)
+        sys.stderr.write(result.stderr)
+
+        # Assert that the process exited with code 0.
         self.assertEqual(
             result.returncode,
             0,
-            msg=(
-                f"Expected exit code 0, got {result.returncode}\\n"
-                f"STDOUT:\\n{result.stdout}\\nSTDERR:\\n{result.stderr}"
-            )
+            msg="Dry‑run command did not exit cleanly (expected 0).",
         )
 
 if __name__ == "__main__":

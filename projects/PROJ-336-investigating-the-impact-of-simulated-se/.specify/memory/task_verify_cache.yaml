@@ -6,6 +6,26 @@ T001:
     which asserts their existence. The creation log confirms the directories were
     successfully generated.
   sig: 93ecd69e8b080a14ba773bd9e1d69576b42d8560e4dae89c4d6e68d9d47a3ff9
+T002:
+  c: true
+  h: 6b679da209a3b2fc4173f83d5f05034662b4b26a6d03bcae7a66ef9ef56a1b77
+  r: The `requirements.txt` exists with all ten required packages at the exact pinned
+    versions, and `tests/unit/test_requirements.py` parses the file and asserts presence
+    and exact versions of every required package, matching the task's verification
+    criteria.
+  sig: e58bfb2b83fae6608544330698736aaa47a5b3483260168e00cb7867885e55c5
+T003:
+  c: true
+  h: 0f4e34ee2fa42c9b2cd605c268535e94261921b6ac08e65f9be7444186aef90f
+  r: 'The `quickstart.md` artifact exists (3200 bytes) at the project root and genuinely
+    satisfies the task: it documents the single-command end-to-end run (`python -m
+    src.main --sample 1`), explains what the command does and its outputs, lists the
+    environment variables (`OPENNEURO_API_KEY`, `DATA_ROOT`) with defaults, and documents
+    the CI dry-run command (`python -m src.main --dry-run`) with its expected exit
+    status 0. The task is a documentation deliverable, and the content matches the
+    requested kind and detail; the unresolved-claim marker on the dry-run''s actual
+    execution is a CI verification con'
+  sig: 4c99625992220ddf7e36760f0a817adb565c0d2ebbb802d3d871e4bb513dc431
 T004:
   c: true
   h: 028b260f2f45f1a2fc99c0d90828cb1c2a22782e4538af9cf792918335ffc848

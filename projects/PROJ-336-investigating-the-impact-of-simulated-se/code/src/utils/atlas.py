@@ -1,269 +1,289 @@
 """
 Atlas management module for downloading and caching brain atlases.
 
-This module handles the retrieval of Schaefer and AAL atlases from the
-NeuroSynth/GitHub repositories with version pinning to ensure reproducibility.
-It provides utilities to download the atlas files, cache them locally, and load
-both the NIfTI image and a table of ROI labels.
+This module provides functionality to download the Schaefer‑400 and AAL‑200
+atlases, cache them under ``data/atlas/`` and load both the NIfTI image and
+a DataFrame of ROI labels.
 
-The public API matches the original specification:
+Public API:
   - download_file(url, destination, timeout=300) -> bool
   - get_atlas_path(atlas_key=DEFAULT_ATLAS_KEY, force_download=False) -> Path
-  - load_atlas_labels(atlas_key=DEFAULT_ATLAS_KEY) -> Dict[int, str]
-  - load_atlas(atlas_key=DEFAULT_ATLAS_KEY) -> Tuple[nib.Nifti1Image, pd.DataFrame]
-
-The implementation has been extended so that ``load_atlas`` now returns a
-``pandas.DataFrame`` (instead of a plain ``dict``) containing the ROI index
-and the corresponding label, while ``load_atlas_labels`` retains the original
-dictionary return type for backward compatibility with existing tests.
+  - load_atlas_labels(name: str = DEFAULT_ATLAS_KEY) -> Dict[int, str]
+  - load_atlas(name: str = DEFAULT_ATLAS_KEY) -> Tuple[nib.Nifti1Image, pd.DataFrame]
 """
 import os
 import logging
 import hashlib
-import tempfile
+import requests
 from pathlib import Path
-from typing import Optional, Tuple, Dict, Any
+from typing import Tuple, Dict
 
-import numpy as np
 import nibabel as nib
 import pandas as pd
+from llmxive_toolkit import paths
 
-# Configure logging
+# Configure module logger
 logger = logging.getLogger(__name__)
 
-# Atlas configuration with version pinning
+# Atlas configuration with version‑pinned URLs
 ATLAS_CONFIG = {
     "schaefer_400": {
         "name": "Schaefer400",
         "version": "2018.11.01",
-        "github_url": "https://github.com/YeoJT/Yeo2018_SchaeferAtlas/raw/master/Schaefer2018_400Parcels_7Networks_order_FSLMNI152.nii.gz",
+        "nii_url": "https://github.com/YeoJT/Yeo2018_SchaeferAtlas/raw/master/Schaefer2018_400Parcels_7Networks_order_FSLMNI152.nii.gz",
         "labels_url": "https://raw.githubusercontent.com/YeoJT/Yeo2018_SchaeferAtlas/master/Schaefer2018_400Parcels_7Networks_order.txt",
         "description": "Schaefer 400 ROI atlas with 7 networks"
     },
     "aal": {
-        "name": "AAL",
+        "name": "AAL200",
         "version": "3.0.1",
-        "github_url": "https://github.com/garyfal/brain-atlas/raw/master/AAL3.nii",
+        "nii_url": "https://github.com/garyfal/brain-atlas/raw/master/AAL3.nii",
         "labels_url": "https://raw.githubusercontent.com/garyfal/brain-atlas/master/AAL3.txt",
-        "description": "Automated Anatomical Labeling (AAL) atlas"
+        "description": "Automated Anatomical Labeling (AAL) atlas (200 ROIs)"
     }
 }
 
-# Default atlas to use
+# Default atlas identifier (matches the key in ATLAS_CONFIG)
 DEFAULT_ATLAS_KEY = "schaefer_400"
 
 
 def _get_cache_dir() -> Path:
-    """Get the cache directory for atlases."""
-    cache_dir = Path(os.environ.get("LLMXIVE_CACHE_DIR", "data/cache"))
+    """
+    Return the directory used for caching atlas files.
+
+    The cache lives under ``data/atlas/`` (created via
+    ``llmxive_toolkit.paths.ensure_dir``). Tests patch this function,
+    so the implementation must be a single call that can be overridden.
+    """
+    cache_dir = paths.data("atlas")
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir
 
 
 def _calculate_file_hash(file_path: Path) -> str:
-    """Calculate SHA256 hash of a file for integrity verification."""
-    sha256_hash = hashlib.sha256()
+    """Calculate the SHA256 hash of ``file_path``."""
+    sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for block in iter(lambda: f.read(4096), b""):
+            sha256.update(block)
+    return sha256.hexdigest()
 
 
 def download_file(url: str, destination: Path, timeout: int = 300) -> bool:
     """
-    Download a file from a URL with progress logging and integrity check.
+    Download a file from ``url`` to ``destination`` with progress logging.
 
-    Args:
-        url: The URL to download from
-        destination: Path where the file should be saved
-        timeout: Request timeout in seconds
+    Parameters
+    ----------
+    url: str
+        URL of the file to download.
+    destination: Path
+        Full path (including filename) where the file will be saved.
+    timeout: int, optional
+        Request timeout in seconds (default: 300).
 
-    Returns:
-        True if download successful, False otherwise
+    Returns
+    -------
+    bool
+        ``True`` if the download succeeds; raises on failure.
 
-    Raises:
-        requests.exceptions.RequestException: If download fails
-        ValueError: If destination directory doesn't exist
+    Raises
+    ------
+    requests.exceptions.RequestException
+        If the HTTP request fails.
+    ValueError
+        If the parent directory of ``destination`` does not exist.
     """
     if not destination.parent.exists():
         raise ValueError(f"Destination directory {destination.parent} does not exist")
 
-    logger.info(f"Downloading {url} to {destination}")
+    logger.info(f"Downloading {url} → {destination}")
 
     try:
         response = requests.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
 
-        total_size = int(response.headers.get('content-length', 0))
+        total = int(response.headers.get("content-length", 0))
         downloaded = 0
 
-        with open(destination, 'wb') as f:
+        with open(destination, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
                     downloaded += len(chunk)
-                    if total_size > 0:
-                        progress = (downloaded / total_size) * 100
-                        logger.debug(f"Download progress: {progress:.1f}%")
+                    if total:
+                        pct = (downloaded / total) * 100
+                        logger.debug(f"Download progress: {pct:.1f}%")
 
-        logger.info(f"Successfully downloaded {destination} ({downloaded} bytes)")
+        logger.info(f"Finished downloading {destination} ({downloaded} bytes)")
         return True
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download from {url}: {e}")
+    except requests.exceptions.RequestException as exc:
+        logger.error(f"Error downloading {url}: {exc}")
         raise
 
 
 def get_atlas_path(atlas_key: str = DEFAULT_ATLAS_KEY, force_download: bool = False) -> Path:
     """
-    Get the path to an atlas file, downloading it if necessary.
+    Return the cached path of the atlas NIfTI file, downloading it if necessary.
 
-    Args:
-        atlas_key: Key from ATLAS_CONFIG (e.g., 'schaefer_400', 'aal')
-        force_download: If True, re-download even if cached
+    Parameters
+    ----------
+    atlas_key: str
+        Key from ``ATLAS_CONFIG`` (e.g., ``'schaefer_400'`` or ``'aal'``).
+    force_download: bool, optional
+        Re‑download even if a cached file exists.
 
-    Returns:
-        Path to the atlas file
+    Returns
+    -------
+    Path
+        Path to the cached ``.nii.gz`` file.
 
-    Raises:
-        KeyError: If atlas_key is not found in ATLAS_CONFIG
-        RuntimeError: If download fails
+    Raises
+    ------
+    KeyError
+        If ``atlas_key`` is unknown.
+    RuntimeError
+        If the download fails.
     """
     if atlas_key not in ATLAS_CONFIG:
         raise KeyError(
-            f"Atlas '{atlas_key}' not found in ATLAS_CONFIG. "
-            f"Available: {list(ATLAS_CONFIG.keys())}"
+            f"Atlas '{atlas_key}' not found. Available keys: {list(ATLAS_CONFIG)}"
         )
 
-    config = ATLAS_CONFIG[atlas_key]
+    cfg = ATLAS_CONFIG[atlas_key]
     cache_dir = _get_cache_dir()
-
-    # Create filename based on atlas name and version
-    filename = f"{config['name']}_{config['version']}.nii.gz"
+    filename = f"{cfg['name']}_{cfg['version']}.nii.gz"
     atlas_path = cache_dir / filename
 
-    # Download if not exists or forced
     if force_download or not atlas_path.exists():
-        logger.info(f"Atlas {atlas_path} not found or force_download=True. Downloading...")
+        logger.info(f"Atlas file not present (or force_download=True). Downloading {cfg['name']}...")
         try:
-            download_file(config["github_url"], atlas_path)
-        except Exception as e:
-            logger.error(f"Failed to download atlas: {e}")
-            raise RuntimeError(f"Failed to download atlas {config['name']}: {e}")
+            download_file(cfg["nii_url"], atlas_path)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to download atlas {cfg['name']}: {exc}")
 
-    logger.info(f"Using atlas from cache: {atlas_path}")
+    logger.debug(f"Using cached atlas at {atlas_path}")
     return atlas_path
 
 
-def load_atlas_labels(atlas_key: str = DEFAULT_ATLAS_KEY) -> Dict[int, str]:
+def _resolve_name_to_key(name: str) -> str:
     """
-    Load atlas ROI labels from the labels file.
+    Helper to map a user‑friendly name (e.g., ``'Schaefer400'``) to the
+    internal ``ATLAS_CONFIG`` key.
 
-    Args:
-        atlas_key: Key from ATLAS_CONFIG
-
-    Returns:
-        Dictionary mapping ROI index (1‑based) to label name
-
-    Raises:
-        RuntimeError: If labels file cannot be downloaded or parsed
+    The mapping is case‑insensitive and accepts the exact keys used in
+    ``ATLAS_CONFIG``.
     """
-    if atlas_key not in ATLAS_CONFIG:
-        raise KeyError(f"Atlas '{atlas_key}' not found in ATLAS_CONFIG")
+    lowered = name.lower()
+    if lowered in ATLAS_CONFIG:
+        return lowered
+    if "schaefer" in lowered:
+        return "schaefer_400"
+    if "aal" in lowered:
+        return "aal"
+    raise KeyError(f"Unrecognised atlas name '{name}'. Valid names: {list(ATLAS_CONFIG)}")
 
-    config = ATLAS_CONFIG[atlas_key]
+
+def load_atlas_labels(name: str = DEFAULT_ATLAS_KEY) -> Dict[int, str]:
+    """
+    Load ROI label mappings for the requested atlas.
+
+    Parameters
+    ----------
+    name: str
+        Atlas identifier (e.g., ``'Schaefer400'`` or ``'AAL200'``).
+
+    Returns
+    -------
+    dict[int, str]
+        Mapping from ROI index (1‑based) to label string.
+
+    Raises
+    ------
+    RuntimeError
+        If the label file cannot be downloaded or parsed.
+    """
+    key = _resolve_name_to_key(name)
+    cfg = ATLAS_CONFIG[key]
     cache_dir = _get_cache_dir()
-    labels_filename = f"{config['name']}_labels.txt"
-    labels_path = cache_dir / labels_filename
+    labels_file = cache_dir / f"{cfg['name']}_labels.txt"
 
-    if not labels_path.exists():
-        logger.info(f"Downloading labels for {config['name']}...")
+    if not labels_file.exists():
+        logger.info(f"Downloading label file for {cfg['name']}...")
         try:
-            download_file(config["labels_url"], labels_path)
-        except Exception as e:
-            raise RuntimeError(f"Failed to download labels for {config['name']}: {e}")
+            download_file(cfg["labels_url"], labels_file)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to download labels for {cfg['name']}: {exc}")
 
     labels: Dict[int, str] = {}
     try:
-        with open(labels_path, 'r') as f:
+        with open(labels_file, "r") as f:
             for line in f:
                 line = line.strip()
-                if not line or line.startswith('#'):
+                if not line or line.startswith("#"):
                     continue
                 parts = line.split()
                 if len(parts) >= 2:
-                    roi_idx = int(parts[0])
-                    roi_name = " ".join(parts[1:])
-                    labels[roi_idx] = roi_name
-    except Exception as e:
-        raise RuntimeError(f"Failed to parse labels file: {e}")
+                    idx = int(parts[0])
+                    label = " ".join(parts[1:])
+                    labels[idx] = label
+    except Exception as exc:
+        raise RuntimeError(f"Error parsing label file {labels_file}: {exc}")
 
-    logger.info(f"Loaded {len(labels)} ROI labels for {config['name']}")
+    logger.debug(f"Loaded {len(labels)} labels for {cfg['name']}")
     return labels
 
 
-def load_atlas(atlas_key: str = DEFAULT_ATLAS_KEY) -> Tuple[nib.Nifti1Image, pd.DataFrame]:
+def load_atlas(name: str = DEFAULT_ATLAS_KEY) -> Tuple[nib.Nifti1Image, pd.DataFrame]:
     """
-    Load an atlas image and its labels.
+    Load the atlas NIfTI image and a DataFrame of ROI labels.
 
-    Args:
-        atlas_key: Key from ATLAS_CONFIG
+    Parameters
+    ----------
+    name: str
+        Atlas identifier (e.g., ``'Schaefer400'`` or ``'AAL200'``).
 
-    Returns:
-        Tuple of (NIfTI image, pandas DataFrame with columns ['ROI', 'Label'])
+    Returns
+    -------
+    tuple
+        ``(nib.Nifti1Image, pandas.DataFrame)`` where the DataFrame has
+        columns ``['ROI', 'Label']``.
 
-    Raises:
-        RuntimeError: If atlas cannot be loaded
+    Raises
+    ------
+    RuntimeError
+        If the image cannot be loaded.
     """
-    atlas_path = get_atlas_path(atlas_key)
+    key = _resolve_name_to_key(name)
 
+    # Load the image
+    atlas_path = get_atlas_path(key)
     try:
         img = nib.load(atlas_path)
-        logger.info(f"Loaded atlas image: {atlas_path}")
-        logger.info(f"Image shape: {img.shape}, affine: {img.affine}")
-    except Exception as e:
-        raise RuntimeError(f"Failed to load atlas image from {atlas_path}: {e}")
+        logger.info(f"Loaded atlas image from {atlas_path} (shape={img.shape})")
+    except Exception as exc:
+        raise RuntimeError(f"Failed to load NIfTI image for atlas {key}: {exc}")
 
-    # Load the label dictionary (kept for backward compatibility)
-    label_dict = load_atlas_labels(atlas_key)
-
-    # Convert the dictionary to a DataFrame for the public API
+    # Load labels (dictionary) and convert to DataFrame
+    label_dict = load_atlas_labels(key)
     df = pd.DataFrame(
         [(roi, label) for roi, label in sorted(label_dict.items())],
         columns=["ROI", "Label"]
     )
-
     return img, df
 
 
-def main():
-    """Main entry point for testing atlas functionality."""
+def main() -> None:
+    """Simple sanity‑check entry point used during development."""
     logging.basicConfig(level=logging.INFO)
-
-    print("Testing Atlas Module")
-    print("=" * 50)
-
-    # Test Schaefer 400
-    print("\n1. Testing Schaefer 400 Atlas:")
-    try:
-        img, df = load_atlas("schaefer_400")
-        print(f"   Image shape: {img.shape}")
-        print(f"   Number of ROIs: {len(df)}")
-        print(f"   Sample rows:\n{df.head()}")
-    except Exception as e:
-        print(f"   ERROR: {e}")
-
-    # Test AAL
-    print("\n2. Testing AAL Atlas:")
-    try:
-        img, df = load_atlas("aal")
-        print(f"   Image shape: {img.shape}")
-        print(f"   Number of ROIs: {len(df)}")
-        print(f"   Sample rows:\n{df.head()}")
-    except Exception as e:
-        print(f"   ERROR: {e}")
-
-    print("\nAtlas module test complete.")
+    print("Atlas module sanity check")
+    for test_name in ["schaefer_400", "aal", "Schaefer400", "AAL200"]:
+        try:
+            img, df = load_atlas(test_name)
+            print(f"{test_name}: image shape={img.shape}, ROIs={len(df)}")
+        except Exception as e:
+            print(f"{test_name}: ERROR -> {e}")
 
 
 if __name__ == "__main__":
