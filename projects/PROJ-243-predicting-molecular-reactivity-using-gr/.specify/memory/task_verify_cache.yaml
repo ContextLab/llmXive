@@ -1,12 +1,11 @@
 T001:
-  c: false
-  h: 7ae7cc8ce522bdaec5f575ab89a82e2c579872baa2c9210d3ee7e801df4e10ce
-  r: "The evidence does not show any of the required directories (`data/raw`, `data/processed`,\
-    \ `data/assets`, `code`, `artifacts`, `tests`) nor the `.gitkeep` files inside\
-    \ them; no `git ls-files` output or file listings are provided to confirm their\
-    \ existence. The implementer\u2019s claim cannot be verified without concrete\
-    \ artifacts."
-  sig: 544e29e4436b5f621c1197dcc3d7349aa078076d6b04b0baa1fcb253abf32e03
+  c: true
+  h: 08602ddd0131111e4a67be2929399e0f1a4615eae2286739bfcc11ac01a3e879
+  r: Checked the execution log `code/.tasks/T001.code_setup_directories.py.log`, which
+    confirms that all six required directories (`data/raw`, `data/processed`, `data/assets`,
+    `code`, `artifacts`, `tests`) exist and each contains a `.gitkeep` file. The script
+    exited successfully, indicating the directories were correctly created/verified.
+  sig: 6c520625ffe233b84beddd6c79f0062dd1c5573d3ea05da4a59898a6eaf30f41
 T002:
   c: false
   h: fe4e2f3810a13c197bc19c1fd7799f115772afcee7f26d14b4aeb613565594e5

@@ -1,9 +1,4 @@
 T001:
-  reason: "The evidence does not show any of the required directories (`data/raw`,\
-    \ `data/processed`, `data/assets`, `code`, `artifacts`, `tests`) nor the `.gitkeep`\
-    \ files inside them; no `git ls-files` output or file listings are provided to\
-    \ confirm their existence. The implementer\u2019s claim cannot be verified without\
-    \ concrete artifacts."
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
   reason: The `requirements.txt`, `pyproject.toml`, and `ruff.toml` files are present
@@ -12,8 +7,12 @@ T002:
     file is needed to satisfy the task.
   task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
 T003:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/checksums_schema.yaml,
+    data/raw/checksums.json'
   task: 4b43f349955989a58c04892e67d9de7f6e535f3d9a5dcdf4ed23892970b9ffe7
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: f05715c1b6c34eaaa9a72a319ee5e838fdca3c7ed2428f9c6e96725257c684fa
 T005:
   task: 6544ad0033b0cab68d101c6736188511d86eb07afd3eeff001c0b708eab7e767

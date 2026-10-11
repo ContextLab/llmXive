@@ -1,18 +1,14 @@
 status: none
-intent: QM9 dataset download parquet MoleculeNet Open Graph Benchmark python package
-  dataset
+intent: QM9 dataset reference substructures kinetic dataset RDKit graph CPU python
+  package dataset
 required_fields:
-- molecule_id
 - smiles
-- atomic_numbers
+- atomic_number
 - hybridization
 - formal_charge
-- bond_indices
-- bond_types
+- bond_type
 - bond_conjugation
-- homo_energy
-- lumo_energy
 - homo_lumo_gap
-cache_key: dc7b899e29444c549b9364093038aa3440ad54125273642fa02c86ece212ca72
-searched_at: '2026-10-09T20:27:18.894503+00:00'
+cache_key: 0904699cdeb15bb8ce7219567cac337a4e88df735c66f7fd97bd93acdc6ae9ca
+searched_at: '2026-10-11T06:19:21.917977+00:00'
 retry_count: 1

@@ -1,134 +1,166 @@
+"""
+Download QM9 dataset subset and record its checksum.
+
+This script implements Task T004: it streams the QM9 dataset (via the
+HuggingFace `datasets` library) to a Parquet file located at
+`data/raw/qm9_subset.parquet`. After the file is written, the script
+computes its SHA‑256 hash and records an entry in
+`data/raw/checksums.json` following the project's checksum schema.
+
+Usage
+-----
+python code/data/download.py --dataset qm9 --output data/raw
+
+The script is CPU‑only and makes no attempt to fabricate data; any failure
+in downloading the real dataset raises an exception so that the pipeline
+fails loudly as required.
+"""
+
+import argparse
+import hashlib
+import json
 import os
 import sys
-import time
-import logging
-import hashlib
-import urllib.request
-import urllib.error
-from typing import Optional, Tuple
-from config import get_config
+from pathlib import Path
 
-def setup_script_logging() -> logging.Logger:
-    """Configure logging for download scripts."""
-    logger = logging.getLogger("download")
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    return logger
+import pandas as pd
+from datasets import load_dataset
 
-def download_with_retry(
-    url: str,
-    output_path: str,
-    max_retries: int = 3,
-    backoff_factor: float = 2.0,
-    logger: Optional[logging.Logger] = None,
-) -> Tuple[bool, str]:
+# llmxive toolkit provides convenient path helpers that also ensure
+# directories exist.
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
+
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA‑256 hash of a file."""
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def update_checksums_json(parquet_path: Path, checksum: str) -> None:
     """
-    Download a file from a URL with exponential backoff retry logic.
+    Record the checksum of the QM9 subset in ``data/raw/checksums.json``.
 
-    Args:
-        url: The URL to download from.
-        output_path: The local path to save the file to.
-        max_retries: Maximum number of retry attempts.
-        backoff_factor: Factor for exponential backoff in seconds.
-        logger: Optional logger instance.
-
-    Returns:
-        Tuple of (success: bool, message: str)
+    The project's checksum schema (see ``data/raw/checksums_schema.yaml``)
+    expects a mapping from a logical name to an object containing at least
+    the hash, file name and path.  We use the logical name ``qm9_subset``.
     """
-    if logger is None:
-        logger = setup_script_logging()
+    checksums_path = Path(__file__).resolve().parents[3] / "data" / "raw" / "checksums.json"
+    # Ensure the parent directory exists (it should, but be defensive)
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
 
-    attempt = 0
-    while attempt < max_retries:
+    if checksums_path.is_file():
         try:
-            logger.info(f"Attempting download (attempt {attempt + 1}/{max_retries}) from {url}")
-            urllib.request.urlretrieve(url, output_path)
-            logger.info(f"Successfully downloaded to {output_path}")
-            return True, "Download successful"
-        except urllib.error.URLError as e:
-            attempt += 1
-            if attempt == max_retries:
-                logger.error(f"Failed to download after {max_retries} attempts: {e}")
-                return False, f"URLError: {e}"
-            wait_time = backoff_factor ** attempt
-            logger.warning(f"Download failed: {e}. Retrying in {wait_time}s...")
-            time.sleep(wait_time)
-        except Exception as e:
-            logger.error(f"Unexpected error during download: {e}")
-            return False, f"Unexpected error: {e}"
+            with checksums_path.open("r", encoding="utf-8") as f:
+                manifest = json.load(f)
+        except json.JSONDecodeError:
+            log.warning("Existing checksums.json is malformed – starting fresh.")
+            manifest = {}
+    else:
+        manifest = {}
 
-    return False, "Max retries exceeded"
+    # Populate entry – follow the structure used elsewhere in the repo
+    entry = {
+        "hash": checksum,
+        "file": parquet_path.name,
+        "path": str(parquet_path)
+    }
+    manifest["qm9_subset"] = entry
 
-def calculate_sha256(file_path: str) -> str:
-    """Calculate the SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    with checksums_path.open("w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
 
-def orchestrate_download(
-    dataset_name: str,
-    url: str,
-    output_filename: str,
-    expected_hash: Optional[str] = None,
-    logger: Optional[logging.Logger] = None,
-) -> bool:
+    log.info(f"Checksum entry written to {checksums_path}")
+
+def download_qm9_subset(output_dir: Path, subset_size: int = 100_000) -> Path:
     """
-    Orchestrate the download of a dataset, verifying the checksum if provided.
+    Stream the QM9 dataset, select ``subset_size`` molecules, and write
+    a Parquet file.
 
-    Args:
-        dataset_name: Name of the dataset for logging.
-        url: URL to download from.
-        output_filename: Filename to save as (relative to data/raw).
-        expected_hash: Expected SHA-256 hash for verification.
-        logger: Optional logger.
+    Parameters
+    ----------
+    output_dir: Path
+        Directory where ``qm9_subset.parquet`` will be saved.
+    subset_size: int
+        Number of molecules to retain. The full QM9 set contains ~130k;
+        100k provides the requested “≈100 k” subset.
 
-    Returns:
-        True if download and verification succeed, False otherwise.
+    Returns
+    -------
+    Path to the created Parquet file.
     """
-    if logger is None:
-        logger = setup_script_logging()
+    log.info("Loading QM9 dataset from HuggingFace...")
+    # The HuggingFace QM9 dataset mirrors the original data and includes a
+    # ``smiles`` column needed downstream.
+    dataset = load_dataset("qm9", split="train", streaming=False)
 
-    config = get_config()
-    raw_dir = os.path.join(config["data_dir"], "raw")
-    os.makedirs(raw_dir, exist_ok=True)
+    # Verify the expected column exists
+    if "smiles" not in dataset.column_names:
+        raise RuntimeError("QM9 dataset does not contain a 'smiles' column.")
 
-    output_path = os.path.join(raw_dir, output_filename)
+    # Convert to pandas, selecting only the required number of rows.
+    # The dataset comfortably fits into memory on the CI runner.
+    df = pd.DataFrame(dataset[:subset_size])
 
-    # Download
-    success, msg = download_with_retry(url, output_path, logger=logger)
-    if not success:
-        logger.error(f"Download failed for {dataset_name}: {msg}")
-        return False
+    # Ensure the output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    parquet_path = output_dir / "qm9_subset.parquet"
+    log.info(f"Writing {len(df)} records to {parquet_path}")
+    df.to_parquet(parquet_path, index=False)
 
-    # Verify checksum if expected hash is provided
-    if expected_hash:
-        logger.info(f"Verifying checksum for {output_filename}...")
-        actual_hash = calculate_sha256(output_path)
-        if actual_hash != expected_hash:
-            logger.error(
-                f"Checksum mismatch for {dataset_name}. "
-                f"Expected: {expected_hash}, Got: {actual_hash}"
-            )
-            return False
-        logger.info("Checksum verification passed.")
+    return parquet_path
 
-    return True
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Download QM9 subset and record its SHA‑256 checksum."
+    )
+    parser.add_argument(
+        "--dataset",
+        required=True,
+        help="Name of the dataset to download (currently only 'qm9' is supported).",
+    )
+    parser.add_argument(
+        "--output",
+        required=True,
+        help="Directory where the raw files will be stored (e.g., data/raw).",
+    )
+    args = parser.parse_args()
 
-def main():
-    """Entry point for manual execution."""
-    logger = setup_script_logging()
-    logger.info("Starting download orchestration.")
-    # Example usage would be passed via CLI args or config
-    # For now, just log that it's ready
-    logger.info("Ready to orchestrate downloads.")
+    if args.dataset.lower() != "qm9":
+        log.error("Only the 'qm9' dataset is supported by this script.")
+        sys.exit(1)
+
+    # Resolve the output directory using pathlib for safety.
+    raw_dir = Path(args.output).resolve()
+    if not raw_dir.is_dir():
+        log.info(f"Creating output directory: {raw_dir}")
+        raw_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        parquet_path = download_qm9_subset(raw_dir)
+    except Exception as exc:
+        log.exception(f"Failed to download or write QM9 subset: {exc}")
+        sys.exit(1)
+
+    try:
+        checksum = calculate_sha256(parquet_path)
+        log.info(f"SHA‑256 for {parquet_path.name}: {checksum}")
+    except Exception as exc:
+        log.exception(f"Failed to compute checksum: {exc}")
+        sys.exit(1)
+
+    try:
+        update_checksums_json(parquet_path, checksum)
+    except Exception as exc:
+        log.exception(f"Failed to update checksums.json: {exc}")
+        sys.exit(1)
+
+    log.info("QM9 subset download and checksum recording completed successfully.")
+    # Exit with status 0 so the run‑book sees success.
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
