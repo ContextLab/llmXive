@@ -1,11 +1,14 @@
-python-dotenv  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-networkx  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-pymatgen  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+# Pinned dependencies for the PROJ-360 project
+# Python 3.11 compatible versions
+pymatgen==2024.5.1
+networkx==3.2.1
+scikit-learn==1.4.2
+pandas==2.2.2
+requests==2.32.0
+numpy==1.26.4
+statsmodels==0.14.2
+python-dotenv==1.0.1
+matplotlib==3.8.4
+scipy==1.13.0
+pyyaml==6.0.1
+# End of pinned requirements. Add additional packages here if new scripts require them.
