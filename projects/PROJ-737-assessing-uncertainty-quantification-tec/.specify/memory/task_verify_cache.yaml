@@ -1,17 +1,24 @@
 T001:
   c: false
-  h: 94feb11bf30b8a4c87ddee3dd06ab84e727cf1396f9fd8490d801b4ceffe0aeb
-  r: "The required directories exist, and `spec.md` already lists the three datasets,\
-    \ but the `per_sample_errors.schema.yaml` file is either missing or its contents\
-    \ are not provided, so we cannot confirm it defines the required columns (including\
-    \ `abs_error`). The task\u2019s data\u2011contract definition is therefore incomplete."
-  sig: fb831243ba6fcfc503c448c415a0c14cd76323f0446cc5f7afc69c2f15660661
+  h: 6f0d0fcdabcbf7ca26e553640e391e9e07d6565c6490a68fe0441908047a8966
+  r: "The required directories all exist, and `spec.md` already contains SC\u2011\
+    005, but the schema file `specs/.../contracts/per_sample_errors.schema.yaml` is\
+    \ either missing or its contents are not shown. The task explicitly demands this\
+    \ YAML file to define the columns `sample_id, dataset, method, prediction, lower_bound,\
+    \ upper_bound, ground_truth, abs_error`; without the file or evidence of those\
+    \ fields, the contract is not verified. The implementer must add the YAML schema\
+    \ (or provide its content) with the exact column list."
+  sig: 9ddde26bb3dcb808530dbbce0810e38a4ca4adfd87cf0030bec1c7def8b98d70
 T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or Black config) or any lint/format check reports are present. Without
-    these artifacts, the requirement to configure ruff and black is not satisfied.
+  h: 6ba38e4c6bd043b1555191b2b8c1959aa558ec09d67fbfd1cecd6747c0a3706b
+  r: "The provided `code/download.py` writes an MD5 checksum file (`checksums.txt`)\
+    \ instead of the required SHA256 manifest and therefore does not meet the checksum\
+    \ specification. Moreover, no `<dataset>_metadata.json` files are present in `data/raw/`,\
+    \ indicating the script\u2019s required output files are missing. The implementation\
+    \ must be updated to compute SHA256 checksums and generate the metadata files\
+    \ as described."
+  sig: 5e783e2c3461b3b7e42209c169248f242efbebbbe8341c92b3910806961368e0
 T008:
   c: true
   h: 3c6e65c55f26e70b973b4296da46bf256dec464662669468ad78d7bb5170f6d1

@@ -13,7 +13,7 @@
 
 - [ ] T002 [US1] Implement `code/download.py` to fetch the three REAL datasets (OQMD band‑gap, OQMD formation‑energy, AFLOW thermal‑conductivity) and write them to `data/raw/` with SHA256 checksum manifest. The loader must FAIL LOUDLY on any fetch error. No synthetic fallback. Cap each dataset at **5,000** samples (fixed seed 42) and record this cap in the generated metadata file `data/raw/<dataset>_metadata.json`. **Spec amendment**: note that the original fallback clause in Assumptions is overridden by this strict‑fail policy.
 
-- [ ] T003 [US1] Run a thin end‑to‑end analysis on a 100‑sample subset: featurize using matminer (fallback to pymatgen), stratified 70/15/15 split, train baseline XGBoost and the four UQ methods (GPR, MC Dropout ≤200 passes, Deep Ensemble of 3, Split‑Conformal). Write per‑sample predictions to `data/results/per_sample_errors.csv` conforming to the schema. Record pipeline execution log `data/results/pipeline_run.json` (overall status, memory_peak_mb, total_duration_seconds).
+- [ ] T003 [US1] Run a thin end‑to‑end analysis on a 100‑sample subset: featurize using matminer (fallback to pymatgen), stratified 70/15/15 split, train baseline XGBoost and the four UQ methods (GPR, MC Dropout ≤200 passes, Deep Ensemble of 3, Split‑Conformal). Write per‑sample predictions to `data/results/per_sample_errors.csv` conforming to the schema. Record pipeline execution log `data/results/pipeline_run.json` (overall status, memory_peak_mb, total_duration_seconds). <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
 
 ## Phase 2: Complete study and validate evidence
 

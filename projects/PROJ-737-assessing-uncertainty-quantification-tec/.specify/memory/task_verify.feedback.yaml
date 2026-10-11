@@ -1,12 +1,22 @@
 T001:
-  reason: "The required directories exist, and `spec.md` already lists the three datasets,\
-    \ but the `per_sample_errors.schema.yaml` file is either missing or its contents\
-    \ are not provided, so we cannot confirm it defines the required columns (including\
-    \ `abs_error`). The task\u2019s data\u2011contract definition is therefore incomplete."
+  reason: "The required directories all exist, and `spec.md` already contains SC\u2011\
+    005, but the schema file `specs/.../contracts/per_sample_errors.schema.yaml` is\
+    \ either missing or its contents are not shown. The task explicitly demands this\
+    \ YAML file to define the columns `sample_id, dataset, method, prediction, lower_bound,\
+    \ upper_bound, ground_truth, abs_error`; without the file or evidence of those\
+    \ fields, the contract is not verified. The implementer must add the YAML schema\
+    \ (or provide its content) with the exact column list."
   task: f7936ff2c818ab9574f4f8c1b0b0fb803e2dfcfc08ded6005183f432c2831c9e
 T002:
+  reason: "The provided `code/download.py` writes an MD5 checksum file (`checksums.txt`)\
+    \ instead of the required SHA256 manifest and therefore does not meet the checksum\
+    \ specification. Moreover, no `<dataset>_metadata.json` files are present in `data/raw/`,\
+    \ indicating the script\u2019s required output files are missing. The implementation\
+    \ must be updated to compute SHA256 checksums and generate the metadata files\
+    \ as described."
   task: 0314df1f1c2b3467de15130299f7fec217c30bb33578ba1d67e115868d87dfb4
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: b4ede29f89d9a221b6f7d7ed9ad7ef9bf22891118d4b8b6bcf250444f53853bb
 T004:
   task: 61bb17c504879a4821d80b4a99fac17bf0e02508541bae10f0fecd298ead8bf3
