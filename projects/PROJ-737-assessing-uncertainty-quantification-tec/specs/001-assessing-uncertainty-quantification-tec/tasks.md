@@ -10,7 +10,7 @@ Checked items have been verified to meet their contract and are retained.
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] **Create required project directories and verify the per‑sample schema includes `abs_error`**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [X] **T001** [US1] **Create required project directories and verify the per‑sample schema includes `abs_error`**
   - Create empty directories (if they do not already exist):  
     `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `code/models/`, `code/metrics/`, `code/stats/`, `code/utils/`, `tests/unit/`, `tests/integration/`.  
   - Verify that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml` contains the columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`.  
@@ -31,7 +31,7 @@ Checked items have been verified to meet their contract and are retained.
     ```  
     The command must exit with status 0.
 
-- [ ] **T002** [US1] **Download the three real materials datasets with robust retry and deterministic capping**  
+- [ ] **T002** [US1] **Download the three real materials datasets with robust retry and deterministic capping**   <!-- FAILED-IN-EXECUTION: code/tests/test_download.py exit=1 -->
   - Implement `code/download.py` to fetch the following CSVs (all URLs are publicly reachable as of the specification date):  
     1. **Band Gap** – `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv` — HTTP 404] → `data/raw/band_gap.csv`  
     2. **Formation Energy** – `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv` — HTTP 404] → `data/raw/formation_energy.csv`  

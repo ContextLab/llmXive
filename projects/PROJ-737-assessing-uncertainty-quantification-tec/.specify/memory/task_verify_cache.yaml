@@ -1,0 +1,11 @@
+T001:
+  c: true
+  h: 9a6775feee139a5d82cd437b5f2c5b6c23f8a3d72294f0ac0d0add1199a60342
+  r: All ten required directories exist (data/raw, data/processed, data/results, figures,
+    code/models, code/metrics, code/stats, code/utils, tests/unit, tests/integration),
+    and the schema file at `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`
+    contains exactly the eight required columns (sample_id, dataset, method, prediction,
+    lower_bound, upper_bound, ground_truth, abs_error). The verification test (`tests/unit/test_verify_t001.py`)
+    was executed by the platform and passed with exit code 0, confirming the schema
+    and directory checks succeed.
+  sig: 2936adb28ddf10939d9599cf984388c2160210560e33f7c770b2dcd254201050
