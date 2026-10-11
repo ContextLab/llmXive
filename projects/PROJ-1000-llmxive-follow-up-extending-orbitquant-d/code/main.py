@@ -25,6 +25,7 @@ from config import Config
 def run_init_phase() -> None:
     """
     Initialization phase – creates required directories and prints a confirmation message.
+    Note: 'state/' is omitted as it is platform-owned.
     """
     cfg = Config()
 
@@ -42,7 +43,6 @@ def run_init_phase() -> None:
         cfg.tests_dir,
         cfg.raw_data_dir,
         cfg.processed_data_dir,
-        cfg.state_dir,
     ]
 
     for d in subdirs:

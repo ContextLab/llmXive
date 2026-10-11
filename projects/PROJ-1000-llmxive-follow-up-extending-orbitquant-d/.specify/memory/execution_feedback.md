@@ -66,7 +66,7 @@ ERROR tests/unit/test_router_inference.py
 ERROR tests/unit/test_timing.py - FileNotFoundError: [Errno 2] No such file o...
 ERROR tests/unit/test_validate_clustering.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 5.24s ===============================
+============================== 9 errors in 3.71s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -89,7 +89,7 @@ ERROR tests/integration/test_full_pipeline.py - FileNotFoundError: [Errno 2] ...
 ERROR tests/integration/test_generate_correlation_results.py
 ERROR tests/integration/test_preprocess.py - RuntimeError: The 'datasets' lib...
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 4.56s ===============================
+============================== 5 errors in 3.14s ===============================
 
 
 
@@ -101,6 +101,43 @@ ERROR tests/integration/test_preprocess.py - RuntimeError: The 'datasets' lib...
 - data/processed/final_evaluation_report.json
 - data/processed/prompts.csv
 - data/processed/quantized_activations.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `pycocotools` to the project's `requirements.txt` and `pip install pycocotools`.
+- **Verified**: this loads **25014** real records with fields: image_id, file_name, height, width, caption.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import urllib.request, zipfile, json, os, tempfile
+url = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
+with urllib.request.urlopen(url) as resp:
+    data = resp.read()
+with tempfile.TemporaryDirectory() as td:
+    zip_path = os.path.join(td, "coco.zip")
+    with open(zip_path, "wb") as f:
+        f.write(data)
+    with zipfile.ZipFile(zip_path, "r") as z:
+        with z.open('annotations/captions_val2017.json') as jf:
+            coco_data = json.load(jf)
+img_map = {img['id']: img for img in coco_data['images']}
+records = []
+for ann in coco_data['annotations']:
+    img = img_map[ann['image_id']]
+    records.append({
+        'image_id': ann['image_id'],
+        'file_name': img['file_name'],
+        'height': img['height'],
+        'width': img['width'],
+        'caption': ann['caption']
+    })
+print(f"RECORDS={len(records)}")
+print("FIELDS=image_id,file_name,height,width,caption")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

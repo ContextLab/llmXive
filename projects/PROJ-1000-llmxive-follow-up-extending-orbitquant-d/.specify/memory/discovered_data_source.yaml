@@ -1,12 +1,30 @@
-status: none
-intent: download MS COCO 2017 validation captions and prompt collection via HuggingFace
-  python package dataset
+status: verified
+kind: pypi_package
+ref: pycocotools
+access_python: "import urllib.request, zipfile, json, os, tempfile\nurl = \"http://images.cocodataset.org/annotations/annotations_trainval2017.zip\"\
+  \nwith urllib.request.urlopen(url) as resp:\n    data = resp.read()\nwith tempfile.TemporaryDirectory()\
+  \ as td:\n    zip_path = os.path.join(td, \"coco.zip\")\n    with open(zip_path,\
+  \ \"wb\") as f:\n        f.write(data)\n    with zipfile.ZipFile(zip_path, \"r\"\
+  ) as z:\n        with z.open('annotations/captions_val2017.json') as jf:\n     \
+  \       coco_data = json.load(jf)\nimg_map = {img['id']: img for img in coco_data['images']}\n\
+  records = []\nfor ann in coco_data['annotations']:\n    img = img_map[ann['image_id']]\n\
+  \    records.append({\n        'image_id': ann['image_id'],\n        'file_name':\
+  \ img['file_name'],\n        'height': img['height'],\n        'width': img['width'],\n\
+  \        'caption': ann['caption']\n    })\nprint(f\"RECORDS={len(records)}\")\n\
+  print(\"FIELDS=image_id,file_name,height,width,caption\")"
+record_count: 25014
+sample_fields:
+- image_id
+- file_name
+- height
+- width
+- caption
+field_coverage: 1.0
 required_fields:
 - image_id
-- image_file
+- file_name
+- height
+- width
 - caption
-- prompt_id
-- prompt_text
-cache_key: dccc5d58c4c365afc6aa09ac5e9a1d6f532e037eea164327357703290e64c0d7
-searched_at: '2026-10-11T01:40:30.762765+00:00'
-retry_count: 1
+intent: download MS COCO 2017 validation captions python package dataset
+cache_key: 55bf60add722d342514839da44065c3d6b2a87f1f192a2fa372d8cc28394d284
