@@ -68,7 +68,7 @@
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
   verified_at: '2026-07-04T18:28:11.812036Z'
-- artifact_hash: 5bc5d2f292ef9bdce8a252632cb3b65eb13be1916bccbedfe944be4d61f999a9
+- artifact_hash: fa533098e305a848f953c1e0bf24ab3271790fed6de98c2c3d6c316e3fa35bab
   artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -79,15 +79,4 @@
   value: https://projects.fivethirtyeight.com/polls/`
   verification_status: pending
   verified_against_url: https://abcnews.com/politics
-  verified_at: '2026-10-11T16:19:00.200027Z'
-- artifact_hash: 5bc5d2f292ef9bdce8a252632cb3b65eb13be1916bccbedfe944be4d61f999a9
-  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://static01.nyt.com/newsgraphics/2020/10/28/realclearpolitics-polls/rcp_polls.csv`
-  verification_status: mismatch
-  verified_against_url: https://static01.nyt.com/newsgraphics/2020/10/28/realclearpolitics-polls/rcp_polls.csv
-  verified_at: '2026-10-11T16:19:00.200027Z'
+  verified_at: '2026-10-11T16:24:09.249812Z'
