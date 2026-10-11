@@ -23,10 +23,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 line (T010c)...
-2026-10-11 07:14:55,484 - llmXive - INFO - Running Age Exclusion (T012a)...
-2026-10-11 07:14:55,813 - llmXive - ERROR - T012a failed: 2026-10-11 07:14:55,768 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
-2026-10-11 07:14:55,768 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
-2026-10-11 07:14:55,768 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-11 13:10:19,555 - llmXive - INFO - Running Age Exclusion (T012a)...
+2026-10-11 13:10:19,955 - llmXive - ERROR - T012a failed: 2026-10-11 13:10:19,890 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
+2026-10-11 13:10:19,890 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-11 13:10:19,890 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 155, in <module>
     main()
@@ -49,9 +49,9 @@ TypeError: ensure_dirs() missing 1 required positional argument: 'config'
 
 - python code/task_t012a_age_exclusion.py -> rc=1
 
-2026-10-11 07:14:56,431 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
-2026-10-11 07:14:56,431 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
-2026-10-11 07:14:56,431 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-11 13:10:20,691 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
+2026-10-11 13:10:20,691 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-11 13:10:20,691 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 155, in <module>
     main()
@@ -64,16 +64,16 @@ FileNotFoundError: Raw dataset not found at data/raw/raw_dataset.csv
 
 - python code/task_t012b_score_exclusion.py -> rc=1
 
-2026-10-11 07:14:56,755 - ERROR - File not found: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/cleaned_age_filtered.csv
+2026-10-11 13:10:21,092 - ERROR - File not found: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/cleaned_age_filtered.csv
 
 - python code/task_t012d_mmse_flag.py -> rc=1
 
-2026-10-11 07:14:57,081 - llmXive - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-11 13:10:21,520 - llmXive - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
 
 - python code/task_t012e_mmse_exclusion.py -> rc=1
 
-2026-10-11 07:14:57,408 - llmXive - INFO - Starting T012e: MMSE Exclusion and Robustness Prep
-2026-10-11 07:14:57,408 - llmXive - ERROR - File not found: MMSE flag not found at /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/mmse_flag.json
+2026-10-11 13:10:21,932 - llmXive - INFO - Starting T012e: MMSE Exclusion and Robustness Prep
+2026-10-11 13:10:21,933 - llmXive - ERROR - File not found: MMSE flag not found at /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/mmse_flag.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012e_mmse_exclusion.py", line 148, in <module>
     main()
@@ -86,15 +86,15 @@ FileNotFoundError: MMSE flag not found at /home/runner/work/llmXive/llmXive/proj
 
 - python code/task_t014a_create_cleaned_dataset.py -> rc=1
 
-2026-10-11 07:14:57,735 - llmXive - INFO - Starting T014a: Generate Cleaned Dataset at 2026-10-11T07:14:57.735398
-2026-10-11 07:14:57,735 - llmXive - WARNING - Exclusion log not found at data/processed/exclusion_log.json. Proceeding without it.
-2026-10-11 07:14:57,735 - llmXive - WARNING - MMSE flag not found at data/processed/mmse_flag.json. Assuming MMSE filtering was not applied.
-2026-10-11 07:14:57,735 - llmXive - INFO - MMSE filtering applied: False
-2026-10-11 07:14:57,735 - llmXive - ERROR - Data not found: Input dataset not found at data/processed/cleaned_dataset.csv
+2026-10-11 13:10:22,339 - llmXive - INFO - Starting T014a: Generate Cleaned Dataset at 2026-10-11T13:10:22.339272
+2026-10-11 13:10:22,339 - llmXive - WARNING - Exclusion log not found at data/processed/exclusion_log.json. Proceeding without it.
+2026-10-11 13:10:22,339 - llmXive - WARNING - MMSE flag not found at data/processed/mmse_flag.json. Assuming MMSE filtering was not applied.
+2026-10-11 13:10:22,339 - llmXive - INFO - MMSE filtering applied: False
+2026-10-11 13:10:22,339 - llmXive - ERROR - Data not found: Input dataset not found at data/processed/cleaned_dataset.csv
 
 - python code/task_t014b_validity_metrics.py -> rc=1
 
-2026-10-11 07:14:58,063 - llmXive - INFO - Starting T014b: Validity Metrics Calculation
+2026-10-11 13:10:22,751 - llmXive - INFO - Starting T014b: Validity Metrics Calculation
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t014b_validity_metrics.py", line 144, in <module>
     main()
@@ -108,8 +108,8 @@ KeyError: 'data_raw'
 
 - python code/analysis.py -> rc=1
 
-2026-10-11 07:14:58,753 - INFO - Starting statistical analysis (T018: Welch's t-test)
-2026-10-11 07:14:58,753 - ERROR - Data Error: Cleaned dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/final_cleaned_dataset.csv
+2026-10-11 13:10:23,484 - INFO - Starting statistical analysis (T018: Welch's t-test)
+2026-10-11 13:10:23,484 - ERROR - Data Error: Cleaned dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/data/processed/final_cleaned_dataset.csv
 
 - python code/task_t027b_mmse_robustness_analysis.py -> rc=1
 
@@ -120,9 +120,9 @@ ImportError: cannot import name 't_ind_solve_power' from 'statsmodels.stats.powe
 
 - python code/generate_robustness_summary.py -> rc=1
 
-2026-10-11 07:14:59,479 - INFO - Starting T053: Robustness Summary Report Generation
-2026-10-11 07:14:59,479 - INFO - Loading primary report from data/results/primary_analysis_report.json
-2026-10-11 07:14:59,479 - ERROR - Missing required input file: Required file not found: data/results/primary_analysis_report.json
+2026-10-11 13:10:24,410 - INFO - Starting T053: Robustness Summary Report Generation
+2026-10-11 13:10:24,410 - INFO - Loading primary report from data/results/primary_analysis_report.json
+2026-10-11 13:10:24,410 - ERROR - Missing required input file: Required file not found: data/results/primary_analysis_report.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/generate_robustness_summary.py", line 239, in <module>
     main()
@@ -135,9 +135,9 @@ FileNotFoundError: Required file not found: data/results/primary_analysis_report
 
 - python -m pytest tests/integration/test_full_pipeline.py -v -> rc=1
 (T012a)...
-2026-10-11 07:15:00,333 - llmXive - ERROR - T012a failed: 2026-10-11 07:15:00,287 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
-2026-10-11 07:15:00,288 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
-2026-10-11 07:15:00,288 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-11 13:10:25,264 - llmXive - ERROR - T012a failed: 2026-10-11 13:10:25,207 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
+2026-10-11 13:10:25,207 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-11 13:10:25,207 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 155, in <module>
     main()
@@ -147,7 +147,7 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 44, in load_raw_dataset
     raise FileNotFoundError(f"Raw dataset not found at {input_path}")
 FileNotFoundError: Raw dataset not found at data/raw/raw_dataset.csv
-=============================== 1 error in 0.40s ===============================
+=============================== 1 error in 0.47s ===============================
 
 
 

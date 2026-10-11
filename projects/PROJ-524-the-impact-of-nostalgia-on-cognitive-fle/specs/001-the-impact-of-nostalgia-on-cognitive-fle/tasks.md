@@ -4,7 +4,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T101 [US1] **Acquire a real WCST dataset**   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
+- [ ] T101 [US1] **Acquire a real WCST dataset**   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
   Implement `fetch_data()` in `code/ingestion.py`.  
   - Probe public sources in deterministic order: (a) OpenML datasets filtered by keywords `["WCST","card‑sorting","executive function"]`; select the dataset with the **largest row count**, breaking ties by the **lowest OpenML ID**. (b) If none, attempt `datasets.load_dataset("<huggingface‑repo>", name="wcst", split="train", streaming=False)`.  
   - Write raw CSV to `data/raw/raw_dataset.csv`.  

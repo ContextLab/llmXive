@@ -9,11 +9,10 @@ import pandas as pd
 import openml
 from datasets import load_dataset
 
-from utils import setup_logging, log_info, log_warning, log_error
+from llmxive_toolkit import paths, get_logger
 from config import get_config, ensure_dirs
 
-setup_logging()
-logger = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 class RealDataFetchFailed(Exception):
     """Raised when all real data sources fail to provide a usable dataset."""
@@ -52,7 +51,7 @@ def fetch_data() -> Tuple[pd.DataFrame, str, str]:
     """
     # (a) OpenML Probe
     try:
-        log_info("Probing OpenML for WCST datasets...")
+        log.info("Probing OpenML for WCST datasets...")
         datasets_df = openml.datasets.list_datasets()
         keywords = ["WCST", "card-sorting", "executive function"]
         
@@ -65,7 +64,7 @@ def fetch_data() -> Tuple[pd.DataFrame, str, str]:
             # Select largest row count, break ties by lowest ID
             best = filtered.sort_values(by=['numInstances', 'dataset_id'], ascending=[False, True]).iloc[0]
             dataset_id = int(best['dataset_id'])
-            log_info(f"Found OpenML dataset ID {dataset_id} ('{best['name']}') with {best['numInstances']} rows.")
+            log.info(f"Found OpenML dataset ID {dataset_id} ('{best['name']}') with {best['numInstances']} rows.")
             
             dataset = openml.datasets.get_dataset(dataset_id)
             df = dataset.get_data()
@@ -73,16 +72,14 @@ def fetch_data() -> Tuple[pd.DataFrame, str, str]:
             recipe = f"openml.datasets.get_dataset({dataset_id}).get_data()"
             return df, f"OpenML ID {dataset_id}", recipe
     except Exception as e:
-        log_warning(f"OpenML fetch failed: {e}")
+        log.warning(f"OpenML fetch failed: {e}")
 
     # (b) HuggingFace Probe
     try:
-        log_info("Probing HuggingFace for WCST datasets...")
-        # The spec mentions <huggingface-repo> as a placeholder.
-        # We attempt a search or a known candidate if available. 
-        # Since no specific repo was provided, we try a generic known pattern or common repo.
-        # In a real scenario, we'd use a verified repo. Here we implement the logic.
-        # We try 'cognitive_flexibility/wcst' as a representative attempt.
+        log.info("Probing HuggingFace for WCST datasets...")
+        # Attempt a search or a known candidate if available.
+        # Per spec: datasets.load_dataset("<huggingface-repo>", name="wcst", split="train", streaming=False)
+        # Since no verified repo was provided in context, we try a representative attempt.
         hf_repo = "cognitive_flexibility/wcst" 
         dataset = load_dataset(hf_repo, name="wcst", split="train", streaming=False)
         df = pd.DataFrame(dataset)
@@ -90,10 +87,10 @@ def fetch_data() -> Tuple[pd.DataFrame, str, str]:
         recipe = f"datasets.load_dataset('{hf_repo}', name='wcst', split='train')"
         return df, f"HuggingFace {hf_repo}", recipe
     except Exception as e:
-        log_warning(f"HuggingFace fetch failed: {e}")
+        log.warning(f"HuggingFace fetch failed: {e}")
 
     # Final Failure
-    log_error("All real data sources failed.")
+    log.error("All real data sources failed.")
     raise RealDataFetchFailed("Could not acquire real WCST data from OpenML or HuggingFace.")
 
 def main():
@@ -104,13 +101,13 @@ def main():
     try:
         df, source, recipe = fetch_data()
     except RealDataFetchFailed as e:
-        log_error(str(e))
+        log.error(str(e))
         raise
 
-    # Write raw CSV
-    raw_path = Path(config['paths']['raw']) / 'raw_dataset.csv'
+    # Write raw CSV to data/raw/raw_dataset.csv
+    raw_path = paths.data("raw", "raw_dataset.csv")
     df.to_csv(raw_path, index=False)
-    log_info(f"Raw dataset written to {raw_path}")
+    log.info(f"Raw dataset written to {raw_path}")
 
     # Compute SHA-256 checksum of the file
     sha256_hash = hashlib.sha256()
@@ -122,7 +119,7 @@ def main():
     # Determine column mapping and condition labels
     mapping, has_condition_labels = get_column_mapping(df)
 
-    # Write metadata.json
+    # Write metadata.json to data/raw/metadata.json
     metadata = {
         "dataset_source": source,
         "fetch_recipe": recipe,
@@ -132,12 +129,12 @@ def main():
         "column_mapping": mapping
     }
     
-    metadata_path = Path(config['paths']['raw']) / 'metadata.json'
+    metadata_path = paths.data("raw", "metadata.json")
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f, indent=2)
     
-    log_info(f"Metadata written to {metadata_path}")
-    log_info(f"Successfully acquired dataset from {source}. Mapping: {mapping}")
+    log.info(f"Metadata written to {metadata_path}")
+    log.info(f"Successfully acquired dataset from {source}. Mapping: {mapping}")
 
 if __name__ == "__main__":
     main()
