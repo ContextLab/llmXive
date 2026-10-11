@@ -5,8 +5,9 @@ This script downloads the curated reference substructures dataset
 (Table 2 from DOI 10.1038/s41597-020-00628-6) using the existing
 ``00_download_reference_substructures`` helper, moves the downloaded
 file to the canonical location ``data/raw/reference_substructures_raw.csv``,
-computes its SHA‑256 hash and records the hash in
-``data/raw/checksums.json`` under the logical key ``reference_substructures``.
+validates that the CSV contains the required columns, computes its
+SHA‑256 hash and records the hash in ``data/raw/checksums.json`` under
+the logical key ``reference_substructures``.
 The script aborts loudly on any failure so that the pipeline cannot
 silently continue with fabricated data.
 """
@@ -14,13 +15,15 @@ silently continue with fabricated data.
 import importlib.util
 import json
 import logging
-import os
 import hashlib
 from pathlib import Path
+
+import pandas as pd
+
 from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
-# Helper: load the existing download module (named with a leading digit)
+# Helper: dynamically load the download module whose filename starts with a digit
 # ----------------------------------------------------------------------
 def _load_download_module():
     """
@@ -52,7 +55,7 @@ def calculate_sha256(file_path: Path) -> str:
 # ----------------------------------------------------------------------
 # Update (or create) the checksums manifest
 # ----------------------------------------------------------------------
-def update_checksums_json(parquet_path: Path, checksum: str) -> None:
+def update_checksums_json(csv_path: Path, checksum: str) -> None:
     """
     Record the checksum of the reference substructures CSV in
     ``data/raw/checksums.json`` under the key ``reference_substructures``.
@@ -74,8 +77,8 @@ def update_checksums_json(parquet_path: Path, checksum: str) -> None:
 
     entry = {
         "hash": checksum,
-        "file": parquet_path.name,
-        "path": str(parquet_path),
+        "file": csv_path.name,
+        "path": str(csv_path),
     }
     manifest["reference_substructures"] = entry
 
@@ -85,6 +88,26 @@ def update_checksums_json(parquet_path: Path, checksum: str) -> None:
     get_logger(__name__).info(
         f"Checksum entry for reference substructures written to {checksums_path}"
     )
+
+# ----------------------------------------------------------------------
+# CSV schema validation
+# ----------------------------------------------------------------------
+REQUIRED_COLUMNS = {"smiles", "source_doi", "description"}
+
+def validate_csv_schema(csv_path: Path) -> None:
+    """
+    Load the CSV and ensure it contains the required columns.
+    Raises a ``ValueError`` if validation fails.
+    """
+    df = pd.read_csv(csv_path)
+    missing = REQUIRED_COLUMNS.difference(df.columns.str.lower())
+    if missing:
+        raise ValueError(
+            f"Reference substructures CSV at {csv_path} is missing columns: {missing}"
+        )
+    # Ensure column names are canonical (lower‑case)
+    df.rename(columns=lambda c: c.strip().lower(), inplace=True)
+    df.to_csv(csv_path, index=False)
 
 # ----------------------------------------------------------------------
 # Main orchestration
@@ -114,6 +137,14 @@ def main() -> None:
 
     logger.info(f"Moving downloaded file to {target_path}")
     raw_download_path.replace(target_path)
+
+    # Validate CSV schema
+    try:
+        validate_csv_schema(target_path)
+        logger.info("CSV schema validation passed.")
+    except Exception as e:
+        logger.error(f"CSV schema validation failed: {e}")
+        raise
 
     # Compute checksum and update manifest
     checksum = calculate_sha256(target_path)

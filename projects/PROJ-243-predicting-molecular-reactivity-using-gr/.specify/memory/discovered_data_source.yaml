@@ -1,14 +1,16 @@
 status: none
-intent: QM9 dataset with reference substructures and kinetic dataset python package
-  dataset
+intent: download QM9, Reference Substructures, and Kinetic Dataset python package
 required_fields:
+- molecule_id
 - smiles
-- atomic_number
-- hybridization
-- formal_charge
-- bond_type
-- bond_conjugation
-- homo_lumo_gap
-cache_key: 98bda8c419115e98d87f681036743af8af437e118f871d232b6bf27ff8b20f28
-searched_at: '2026-10-11T20:18:57.962019+00:00'
+- atomic_numbers
+- hybridizations
+- formal_charges
+- bond_types
+- bond_conjugations
+- homo_energy
+- lumo_energy
+- gap
+cache_key: 66539aaedca1719b2f201f4d9a1848f97a066185263fedc99147134c827e4e3f
+searched_at: '2026-10-11T21:15:39.730590+00:00'
 retry_count: 1
