@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T059', 'T060']
+- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T022', 'T025', 'T032', 'T035', 'T059']
 
 ## Required change
 
