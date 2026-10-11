@@ -49,13 +49,21 @@ def changed(before: dict[str, tuple[int, int]], after: dict[str, tuple[int, int]
     return sorted(rel for rel, state in after.items() if before.get(rel) != state)
 
 
-def record(log_dir: Path, script: str, task_id: str, files: list[str]) -> dict[str, tuple[str, str]]:
+def record(
+    log_dir: Path, script: str, task_id: str, files: list[str], *, owns: bool = True,
+) -> dict[str, tuple[str, str]]:
     """Make ``script`` the writer of ``files``; return the ones it took over.
 
     The result maps each file whose previous writer was a DIFFERENT script to
     that ``(script, task id)``. A script rewriting its own output, and the run
     script's own source file, are not takeovers.
+
+    ``owns=False`` is a test run: a test that executes the script it checks
+    makes the script rewrite its own output. The script stays the recorded
+    writer and nothing is reported as taken over.
     """
+    if not owns:
+        return {}
     registry = log_dir / REGISTRY_NAME
     try:
         writers = json.loads(registry.read_text(encoding="utf-8"))

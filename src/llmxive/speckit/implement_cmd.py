@@ -619,7 +619,8 @@ class ImplementerAgent(SlashCommandAgent):
                 # script: a rerun that regenerates a file erases whatever only
                 # the other script put there.
                 files_written = output_writers.changed(files_before, output_writers.snapshot(project_root))
-                taken_over = output_writers.record(log_path.parent, relpath, task_id, files_written)
+                taken_over = output_writers.record(
+                    log_path.parent, relpath, task_id, files_written, owns=not is_test)
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"

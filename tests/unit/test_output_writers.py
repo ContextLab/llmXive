@@ -109,3 +109,26 @@ def test_the_verifier_is_told_which_run_last_wrote_the_file_it_judges(tmp_path: 
     # A file no run is recorded for carries no such note.
     (project / "data/by_hand.md").write_text("x\n", encoding="utf-8")
     assert "last written" not in task_verifier.gather_evidence(project, "T010 Check `data/by_hand.md`.")
+
+
+TEST_THAT_RUNS_THE_SCRIPT = (
+    "import subprocess, sys\n"
+    "def test_methods_doc_is_written():\n"
+    "    assert subprocess.run([sys.executable, 'code/write_methods_doc.py']).returncode == 0\n"
+)
+
+
+def test_a_test_that_runs_the_script_does_not_take_the_file_over(tmp_path: Path) -> None:
+    """Batch 1 run 2 (2026-10-11): `tests/benchmark_test.py` ran the benchmark
+    script, and its log told the implementer the test "replaces the version
+    written by `scripts/benchmark_full_run.py` (T016) ... one script should
+    write the whole file". The script was the only writer."""
+    _send(tmp_path, "T008", "code/write_methods_doc.py", METHODS)
+    project = _send(tmp_path, "T009", "tests/test_methods_doc.py", TEST_THAT_RUNS_THE_SCRIPT)
+    log = _log(project, "T009", "tests/test_methods_doc.py")
+    assert "passed" in log and "- `data/results.md`\n" in log
+    assert "replaces" not in log
+    # The script is still the recorded writer, for the verifier and for later runs.
+    assert output_writers.last_writer(project, "data/results.md") == ("code/write_methods_doc.py", "T008")
+    project = _send(tmp_path, "T008", "code/write_methods_doc.py", None)
+    assert "replaces" not in _log(project, "T008", "code/write_methods_doc.py")
