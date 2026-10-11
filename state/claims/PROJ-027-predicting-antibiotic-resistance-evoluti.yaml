@@ -107,3 +107,82 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-09T14:29:51Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline can be set up and run in under 15 minutes
+  claim_id: c_16bfd1a0
+  context: Quick Start Guide opening sentence stating the pipeline can be ready in
+    under 15 minutes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Get up and running with the antibiotic resistance prediction pipeline
+    in under 15 minutes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T23:07:09Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline generates feature_matrix.csv containing genomic features and
+    phenotype columns
+  claim_id: c_1875da12
+  context: Step 5 Verify Outputs lists expected files including feature_matrix.csv.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'You should see: feature_matrix.csv with genomic features and phenotype
+    columns'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T23:07:09Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates model pickle files in data/models directory
+  claim_id: c_cd35c91d
+  context: Step 5 Verify Outputs lists expected model pickle files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Model pickle files under data/models/
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T23:07:09Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline outputs metrics.json, permutation_results.json, and sensitivity_sweep.csv
+  claim_id: c_39b6bc64
+  context: Step 5 Verify Outputs lists these JSON and CSV result files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: metrics.json, permutation_results.json, sensitivity_sweep.csv are produced
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T23:07:09Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline generates ROC, PR, and feature importance plots in figures directory
+  claim_id: c_e74634e8
+  context: Step 5 Verify Outputs mentions ROC/PR/feature importance plots in figures.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: ROC/PR/feature importance plots in figures
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T23:07:09Z'

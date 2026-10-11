@@ -1,16 +1,19 @@
 """
 Main entry point for the antibiotic resistance prediction pipeline.
 
-This script orchestrates the five pipeline stages:
+This script orchestrates the pipeline stages:
   1. Ingestion
-  2. Contract validation (pytest)
-  3. Modeling (training)
-  4. Validation (permutation + sensitivity)
-  5. Versioning / state finalization (hash artifacts)
+  2. Modeling (training)
+  3. Validation (permutation test + sensitivity analysis)
+  4. Visualization
+  5. Contract validation (pytest) – executed **after** all data‑producing stages
+  6. Versioning / state finalization (hash artifacts)
 
-It now records runtime statistics (start/end timestamps, duration,
+It records runtime statistics (start/end timestamps, duration,
 and peak RSS memory usage) and writes them to
-`data/processed/pipeline_runtime.json`.
+`data/processed/pipeline_runtime.json`.  If any stage fails, the
+script exits with a non‑zero code; contract validation aborts the
+pipeline with a dedicated exit code (E001 → 1).
 """
 
 import argparse
@@ -112,21 +115,6 @@ def stage_ingest(args: argparse.Namespace) -> int:
     return rc
 
 
-def stage_contract_validation() -> int:
-    """
-    Run pytest on the contract tests. Abort on failure.
-    """
-    # Use the pytest console script directly; this works even if the
-    # virtual‑env Python does not have the pytest module installed.
-    cmd = ["pytest", "tests/contract/"]
-    rc = run_subprocess(cmd, "contract_validation")
-    if rc != 0:
-        logger.error("Contract validation failed – aborting pipeline.")
-        sys.exit(EXIT_CONTRACT_FAILED)
-    _update_peak_memory()
-    return rc
-
-
 def stage_train(args: argparse.Namespace) -> int:
     """
     Model training stage.
@@ -196,6 +184,19 @@ def stage_viz(args: argparse.Namespace) -> int:
     return rc
 
 
+def stage_contract_validation() -> int:
+    """
+    Run pytest on the contract tests. Abort on failure.
+    """
+    cmd = ["pytest", "tests/contract/"]
+    rc = run_subprocess(cmd, "contract_validation")
+    if rc != 0:
+        logger.error("Contract validation failed – aborting pipeline.")
+        sys.exit(EXIT_CONTRACT_FAILED)
+    _update_peak_memory()
+    return rc
+
+
 def stage_hash_artifacts() -> int:
     """
     Final stage – compute SHA256 hashes for all data and code artifacts.
@@ -217,10 +218,10 @@ def parse_args() -> argparse.Namespace:
         "--stage",
         choices=[
             "ingest",
-            "contract",
             "train",
             "validate",
             "viz",
+            "contract",
             "hash",
             "full",
         ],
@@ -283,62 +284,53 @@ def _write_runtime_report() -> None:
 def main() -> int:
     args = parse_args()
 
-    if args.stage == "ingest":
-        rc = stage_ingest(args)
+    # Helper to run a stage and write the runtime report afterwards
+    def run_and_report(stage_func, *stage_args):
+        rc = stage_func(*stage_args)
         _write_runtime_report()
         return rc
 
-    if args.stage == "contract":
-        rc = stage_contract_validation()
-        _write_runtime_report()
-        return rc
+    if args.stage == "ingest":
+        return run_and_report(stage_ingest, args)
 
     if args.stage == "train":
-        rc = stage_train(args)
-        _write_runtime_report()
-        return rc
+        return run_and_report(stage_train, args)
 
     if args.stage == "validate":
-        rc = stage_validate(args)
-        _write_runtime_report()
-        return rc
+        return run_and_report(stage_validate, args)
 
     if args.stage == "viz":
-        rc = stage_viz(args)
-        _write_runtime_report()
-        return rc
+        return run_and_report(stage_viz, args)
+
+    if args.stage == "contract":
+        return run_and_report(stage_contract_validation)
 
     if args.stage == "hash":
-        rc = stage_hash_artifacts()
-        _write_runtime_report()
-        return rc
+        return run_and_report(stage_hash_artifacts)
 
-    # Full pipeline execution
+    # Full pipeline execution – note the reordered contract validation
     rc = stage_ingest(args)
     if rc != 0:
-        _write_runtime_report()
         return rc
-
-    # Contract validation is mandatory and aborts on failure
-    stage_contract_validation()
 
     rc = stage_train(args)
     if rc != 0:
-        _write_runtime_report()
         return rc
 
     rc = stage_validate(args)
     if rc != 0:
-        _write_runtime_report()
         return rc
 
     rc = stage_viz(args)
     if rc != 0:
-        _write_runtime_report()
+        return rc
+
+    # Contract validation **after** all data‑producing stages
+    rc = stage_contract_validation()
+    if rc != 0:
         return rc
 
     rc = stage_hash_artifacts()
-    _write_runtime_report()
     return rc
 
 
