@@ -1,3 +1,11 @@
+T001:
+  c: true
+  h: 71de2840d50f83176c6397ea89b6d4bc62ba1363aad338de4c364703e02698d2
+  r: "Checked the presence and content of `code/data/download.py`, which implements\
+    \ a real download using `openneuro-cli` (constructs and runs the appropriate subprocess\
+    \ command, verifies the result, and raises errors if the CLI is missing). The\
+    \ file exists, is non\u2011empty, and matches the task\u2019s requirement."
+  sig: 3c9d963b4b6cf1d23b12b51b030f51aca7b0a6a4bdb00f58d6e0ec6625221af2
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,6 +51,14 @@ T006:
   r: No evidence of a Git repository being initialized nor a `.gitignore` file for
     data and artifacts is provided; the claim lacks any displayed artifact or path
     confirming the required files exist.
+T007:
+  c: true
+  h: 32ca807418eb098541293f0a311f8604f87ff3f0bd59d8cbd223431871a5bb8d
+  r: "The `code/requirements.txt` file is present (114\u202Fbytes) and lists all required\
+    \ dependencies (`pandas`, `numpy`, `networkx`, `scikit-learn`, `statsmodels`,\
+    \ `nilearn`, `openneuro-cli`, `matplotlib`, `seaborn`, `pymvpa`) along with additional\
+    \ tooling, satisfying the initialization task."
+  sig: 1b54de8c87195455aebac6bc5e54ea493a1fa013be02a36962e6e6b19ee1e7c1
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,3 +66,36 @@ T008:
     or `black` config) or documentation of linting/formatting setup are present; the
     implementer provided no artifacts related to flake8 or black, so the requirement
     is not satisfied.
+T010:
+  c: true
+  h: 9ad001c40c6dcf8fbb4ad137c25b9c9342c1e5abfee6f8373dce6b47a6eda202
+  r: "Checked `code/utils/logging.py`, which defines a logger setup, a `Timer` context\
+    \ manager that records wall\u2011clock elapsed time, and functions (`get_resource_usage`/`log_memory_usage`)\
+    \ that report current RAM usage, fulfilling the requested logging infrastructure."
+  sig: 23bce5558eb5e806db3cd1c0c92cbd5aa1d1975da580c67497af71cf9d068572
+T011:
+  c: true
+  h: 37ff4a62ef10d91e80434bbb933347c9d06fa3dd42c99a865fd2a4424e93258e
+  r: "Checked `code/utils/metrics.py` (9741\u202Fbytes) which defines `generate_report`,\
+    \ `save_report` (defaulting to `data/artifacts/reproducibility_report.json`),\
+    \ and a CLI entry point to run the report, fulfilling the requirement to set up\
+    \ a reproducibility reporting utility that creates the JSON file. The supporting\
+    \ `code/utils/logging.py` is present, ensuring the utility can import needed functions."
+  sig: cbaee93ddcd5df3b4b67ade192000aff09a8520235495cc918bee75d9a980b7e
+T012:
+  c: true
+  h: 19e07efc896d60a1f2b2068fd031a0a3ed987d67c11a324abdbcee792486120f
+  r: "The `code/__init__.py` imports `Subject` and `ConnectivityMatrix` from `code/data/subject.py`\
+    \ and `code/data/connectivity_matrix.py`, and both of those files contain fully\
+    \ implemented data\u2011model classes (a dataclass for `Subject` and a class for\
+    \ `ConnectivityMatrix`). All required artifacts exist and contain concrete, functional\
+    \ code."
+  sig: d13b24f140c1e6ac81ae1d59ab225c7ef7c8c576b893fb6b68ef1248ec533566
+T013:
+  c: true
+  h: bf9766d9447b53b7106334b858bb46fd77d9cf0ff1cc7627af731b7bf2e40d80
+  r: "Checked `code/utils/config.py` (4945\u202Fbytes) which defines dataclasses for\
+    \ dataset URLs (`dataset_url`) and various thresholds (e.g., `threshold_fd`, `min_retention_rate`,\
+    \ `vif_threshold`, `pvalue_threshold`) plus accessor functions, fulfilling the\
+    \ environment configuration management requirement."
+  sig: 5e945669bcaacc930636bbfc7ca27ecbe541119b1ebad2d159a5eca9d92825c9
