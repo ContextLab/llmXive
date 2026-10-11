@@ -11,7 +11,7 @@
   *Path(s):* `code/`, `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`  
   *Verification:* Run `tree` (or equivalent) at the repository root and confirm all listed directories exist.
 
-- [ ] **T002** [P] **Add linting & formatting configuration**   <!-- FAILED-IN-EXECUTION: code/scripts/run_lint_check.py exit=2 -->
+- [ ] **T002** [P] **Add linting & formatting configuration**
   *Path(s):* `.ruff.toml`, `.flake8`, `pyproject.toml` (Black section) at repository root  
   *Verification:* `ruff --quiet .` and `black --check .` complete with exit‑code 0.
 
@@ -23,11 +23,11 @@
 
 ## Phase 2 – Core scientific foundations  
 
-- [ ] **T004** [ ] **Implement Pydantic schemas**  
+- [X] **T004** [ ] **Implement Pydantic schemas**  
   *Path:* `code/models/schemas.py` (Species, BGCFeature, Metabolite, ModelOutput)  
   *Verification:* Sample JSON objects validate against the models without errors.
 
-- [ ] **T005** [ ] **Configuration loader, seed manager & logging**  
+- [ ] **T005** [ ] **Configuration loader, seed manager & logging**   <!-- FAILED-IN-EXECUTION: code/scripts/run_lint_check.py exit=2 -->
   *Path(s):* `code/config.py` (loads `spec.yaml`, sets global random seed), `code/utils/logging.py` (file + console handlers)  
   *Verification:* `config.seed` is reproducible, and a run creates `logs/run.log` containing INFO‑level messages.
 

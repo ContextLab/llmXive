@@ -1,14 +1,19 @@
 status: none
-intent: download plant genome RefSeq and metabolomics MetaboLights matched dataset
+intent: NCBI RefSeq Phytozome MetaboLights plant genome metabolome paired dataset
   python package dataset
 required_fields:
 - species_name
-- genome_accession
-- assembly_fasta_url
-- annotation_gff_url
+- ncbi_taxonomy_id
+- genome_assembly_accession
+- gff_url
+- bgc_type
+- bgc_presence
+- bgc_count
 - metabolite_inchikey
-- metabolite_abundance
-- sample_id
-cache_key: 547f1778d802fa970a3baa9a70d78afde3bc6a9b3add43f6dfc1769d5b367b74
-searched_at: '2026-10-11T06:24:20.711132+00:00'
+- metabolite_name
+- metabolite_class
+- raw_abundance
+- log_abundance
+cache_key: 72cd7d75aa8f10c6dcd34737b256033f6e1b96acc14831fc80f27e3021eeddd3
+searched_at: '2026-10-11T07:16:27.801153+00:00'
 retry_count: 1

@@ -1,19 +1,29 @@
 T001:
   task: 7c2825e128f6cb3d57fc0a572a0276aff451d540d0ba9e3743a5891469a4d0fb
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/run_lint_check.py
-    exit=2'
+  reason: "The config files (`.ruff.toml`, `pyproject.toml` with a `[tool.black]`\
+    \ section) exist and are non-empty, but `.flake8` is missing entirely from the\
+    \ artifacts. Moreover, the execution log shows the verification commands actually\
+    \ failed: `ruff --quiet .` exited with code 2 (\"unrecognized subcommand '.'\"\
+    ) and `black --check .` failed with \"Command not found\", yet the wrapper script\
+    \ exited 0 and falsely reported completion \u2014 the required exit-code-0 verification\
+    \ was never achieved."
   task: ac252081749a22a4ccb6489180b1dbdf5d0ff608f1b1a4c7227c078b1b97efae
 T003:
-  reason: "The repository contains `code/config.py` and the `config.env_manager` implementation,\
-    \ but the required `.env.example` template file is not present, and there is no\
-    \ execution evidence showing that sourcing it makes `config.get(\"NCBI_API_KEY\"\
-    )` and `config.get(\"PMDB_API_TOKEN\")` return non\u2011empty strings. Both the\
-    \ template and the runtime verification are missing."
+  reason: 'The required `.env.example` template is absent from the evidence (no such
+    file was resolved), and the env loading in `code/config_env.py` uses `pydantic-settings`
+    plus a hand-rolled parser rather than `python-dotenv` as specified. Additionally,
+    the verification criterion would fail: `config.get("PMDB_API_TOKEN")` returns
+    `None` because the code only defines/reads `PMDB_TOKEN` (the `EnvManager.get`
+    falls back to `getattr(self._config, key, None)`, and no `PMDB_API_TOKEN` field
+    exists), and there is no execution evidence that either key returns a non-empty
+    string after sourcing the template.'
   task: 8e7f82b684dfa083eab5e43e12f5c56e6dc6a8dab73b43a149d0f65f69ad9945
 T004:
   task: e8468989b9a16520402e43f5f289f5146a35cd652e4d06fff345ea325c53a01d
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/run_lint_check.py
+    exit=2'
   task: 027e56ebc23548e1425df2666f9617d98e029d9f7f5cdbb343128db6ff42b167
 T006:
   task: 8d6affb841f6efc3e4fce2a63f151808fd01d79a18a266be67201d0c69b14fc9

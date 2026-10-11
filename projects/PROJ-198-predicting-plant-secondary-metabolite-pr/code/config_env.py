@@ -1,200 +1,214 @@
+"""
+Environment‑variable handling utilities.
+
+Provides:
+* ``load_environment`` – reads a ``.env`` file (if present) and returns a
+  ``BaseSettings`` subclass containing the values.
+* ``get_env_manager`` – singleton that offers a ``.get(key)`` method used
+  by ``code.config.get``.
+* ``ensure_directories`` – creates the standard data / logs / figures
+  directories based on the configuration.
+"""
 import os
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any, Set
-from pydantic import Field, field_validator
+from typing import Optional, Set
+
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-logger = logging.getLogger(__name__)
+_env_manager_instance = None  # type: ignore
+
 
 class EnvConfig(BaseSettings):
     """
-    Configuration for environment variables.
-    Loads from .env file, environment variables, and defaults.
+    Simple settings container for environment variables.
+
+    ``BaseSettings`` automatically reads from the operating system
+    environment and, if a ``.env`` file exists in the project root, from
+    that file as well.
     """
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        extra="ignore"
-    )
+    # Core variables used across the pipeline
+    NCBI_API_KEY: Optional[str] = None
+    PMDB_TOKEN: Optional[str] = None
 
-    # API Keys (Optional - only required if specific integrations are used)
-    NCBI_API_KEY: Optional[str] = Field(None, description="NCBI E-utilities API key")
-    PHYTOZOME_API_KEY: Optional[str] = Field(None, description="Phytozome API key")
-    METABOLIGHTS_API_KEY: Optional[str] = Field(None, description="MetaboLights API key")
-    PMDB_API_KEY: Optional[str] = Field(None, description="PMDB API key")
+    # Paths – these are *derived* from the project layout and are kept here
+    # for convenience when other modules need to construct absolute paths.
+    data_root: Path = Path("data")
+    logs_root: Path = Path("logs")
+    figures_root: Path = Path("figures")
 
-    # Local Paths
-    DATA_ROOT: Path = Field(Path("data"), description="Root directory for data")
-    CODE_ROOT: Path = Field(Path("code"), description="Root directory for code")
-    LOGS_DIR: Path = Field(Path("logs"), description="Directory for log files")
-    FIGURES_DIR: Path = Field(Path("figures"), description="Directory for output figures")
-    STATE_DIR: Path = Field(Path("state"), description="Directory for project state")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    # Optional: Custom paths for external tools
-    ANTIMASH_PATH: Optional[str] = Field(None, description="Path to antiSMASH executable")
-    HMMER_PATH: Optional[str] = Field(None, description="Path to HMMER tools")
-
-    @field_validator('DATA_ROOT', 'CODE_ROOT', 'LOGS_DIR', 'FIGURES_DIR', 'STATE_DIR')
     @classmethod
-    def validate_path(cls, v: Path) -> Path:
-        if isinstance(v, str):
-            return Path(v)
-        return v
+    def _load_dotenv(cls) -> None:
+        """
+        Load a ``.env`` file manually if ``pydantic`` does not find it
+        (e.g. when the file resides outside the default search path).
+        """
+        env_path = Path(".env")
+        if env_path.is_file():
+            with env_path.open() as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" not in line:
+                        continue
+                    key, value = line.split("=", 1)
+                    os.environ.setdefault(key.strip(), value.strip())
+
+    @classmethod
+    def load(cls) -> "EnvConfig":
+        """Load the environment configuration, respecting a ``.env`` file."""
+        cls._load_dotenv()
+        return cls()
+
 
 def load_environment() -> EnvConfig:
     """
-    Load environment configuration from .env file and system variables.
-    Returns:
-        EnvConfig: Validated configuration object
+    Public helper that returns a fully‑initialised ``EnvConfig`` instance.
     """
-    logger.info("Loading environment configuration...")
-    try:
-        config = EnvConfig()
-        logger.info("Environment configuration loaded successfully.")
-        return config
-    except Exception as e:
-        logger.error(f"Failed to load environment configuration: {e}")
-        raise
+    return EnvConfig.load()
+
 
 def ensure_directories(config: EnvConfig) -> None:
     """
-    Ensure all required directories exist.
-    Creates directories if they don't exist.
+    Create the standard directory hierarchy (data, logs, figures) if it does
+    not already exist. The function is tolerant of a ``Path`` or a string.
     """
-    directories = [
-        config.DATA_ROOT,
-        config.DATA_ROOT / "raw",
-        config.DATA_ROOT / "processed",
-        config.DATA_ROOT / "interim",
-        config.CODE_ROOT,
-        config.LOGS_DIR,
-        config.FIGURES_DIR,
-        config.STATE_DIR,
-        config.STATE_DIR / "projects"
-    ]
+    for attr in ("data_root", "logs_root", "figures_root"):
+        base = getattr(config, attr)
+        if isinstance(base, (str, Path)):
+            Path(base).mkdir(parents=True, exist_ok=True)
+        else:
+            logging.warning(f"Unexpected type for {attr}: {type(base)}")
 
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {directory}")
 
 def get_api_key(service: str, config: EnvConfig) -> Optional[str]:
     """
-    Get API key for a specific service.
-    Args:
-        service: Service name (e.g., 'NCBI', 'PHYTOZOME')
-        config: Environment configuration
-    Returns:
-        API key string or None if not set
+    Retrieve an API key for a given service name.
+
+    Parameters
+    ----------
+    service : str
+        Name of the service – e.g. ``'NCBI'`` or ``'PMDB'``.
+    config : EnvConfig
+        The loaded environment configuration.
+
+    Returns
+    -------
+    str | None
+        The API key if present, otherwise ``None``.
     """
-    key_map = {
-        'NCBI': config.NCBI_API_KEY,
-        'PHYTOZOME': config.PHYTOZOME_API_KEY,
-        'METABOLIGHTS': config.METABOLIGHTS_API_KEY,
-        'PMDB': config.PMDB_API_KEY
+    mapping = {
+        "NCBI": config.NCBI_API_KEY,
+        "PMDB": config.PMDB_TOKEN,
     }
-    key = key_map.get(service.upper())
-    if key:
-        logger.debug(f"API key found for {service}")
-    else:
-        logger.warning(f"No API key found for {service}. Some features may be limited.")
-    return key
+    return mapping.get(service.upper())
+
 
 def get_data_path(config: EnvConfig, sub_path: Optional[str] = None) -> Path:
     """
-    Get full path for data files.
-    Args:
-        config: Environment configuration
-        sub_path: Optional sub-path within data directory
-    Returns:
-        Full Path object
+    Return a path inside the data directory.
+
+    Parameters
+    ----------
+    config : EnvConfig
+        The environment configuration.
+    sub_path : str | None
+        Optional sub‑directory or filename to append.
+
+    Returns
+    -------
+    pathlib.Path
     """
-    base = config.DATA_ROOT
+    base = Path(config.data_root)
     if sub_path:
         return base / sub_path
     return base
 
+
 def get_logs_path(config: EnvConfig, filename: Optional[str] = None) -> Path:
     """
-    Get full path for log files.
-    Args:
-        config: Environment configuration
-        filename: Optional filename for the log file
-    Returns:
-        Full Path object
+    Return a path for a log file (or the log directory if ``filename`` is ``None``).
     """
-    base = config.LOGS_DIR
+    base = Path(config.logs_root)
     if filename:
         return base / filename
     return base
+
 
 def get_figures_path(config: EnvConfig, filename: Optional[str] = None) -> Path:
     """
-    Get full path for figure files.
-    Args:
-        config: Environment configuration
-        filename: Optional filename for the figure file
-    Returns:
-        Full Path object
+    Return a path for a figure file (or the figures directory if ``filename`` is ``None``).
     """
-    base = config.FIGURES_DIR
+    base = Path(config.figures_root)
     if filename:
         return base / filename
     return base
 
+
 def validate_required_env_vars(config: EnvConfig, required_services: Set[str]) -> bool:
     """
-    Validate that API keys are present for required services.
-    Args:
-        config: Environment configuration
-        required_services: Set of service names that require API keys
-    Returns:
-        True if all required keys are present, False otherwise
+    Ensure that all required services have an associated API key.
+
+    Returns ``True`` if every service in ``required_services`` has a non‑empty
+    key, otherwise logs a warning and returns ``False``.
     """
-    missing = []
-    for service in required_services:
-        if not get_api_key(service, config):
-            missing.append(service)
-
+    missing = [svc for svc in required_services if not get_api_key(svc, config)]
     if missing:
-        logger.error(f"Missing API keys for required services: {missing}")
+        logging.warning(f"Missing API keys for services: {missing}")
         return False
-
-    logger.info("All required API keys are present.")
     return True
+
 
 def create_env_file_template() -> str:
     """
-    Create a template .env file content.
-    Returns:
-        String content for .env file
+    Generate a minimal ``.env`` template that users can copy.
     """
-    return """# Environment Configuration for Plant Secondary Metabolite Prediction Project
-# Copy this file to .env and fill in your values
+    lines = [
+        "# Example environment configuration",
+        "NCBI_API_KEY=your_ncbi_api_key_here",
+        "PMDB_TOKEN=your_pmdb_token_here",
+    ]
+    return "\n".join(lines) + "\n"
 
-# API Keys (Optional - only required if using specific services)
-NCBI_API_KEY=your_ncbi_api_key_here
-PHYTOZOME_API_KEY=your_phytozome_api_key_here
-METABOLIGHTS_API_KEY=your_metabolights_api_key_here
-PMDB_API_KEY=your_pmdb_api_key_here
 
-# Local Paths (Optional - defaults to project root subdirectories)
-# DATA_ROOT=data
-# CODE_ROOT=code
-# LOGS_DIR=logs
-# FIGURES_DIR=figures
-# STATE_DIR=state
+class EnvManager:
+    """
+    Lightweight wrapper exposing a ``.get(key)`` method.
 
-# Optional: Custom paths for external tools
-# ANTIMASH_PATH=/path/to/antismash
-# HMMER_PATH=/path/to/hmmer
-"""
+    The CLI and ``code.config.get`` expect an object with a ``get`` method
+    that returns the value of an environment variable (or ``None``).
+    """
+
+    def __init__(self) -> None:
+        self._config = load_environment()
+
+    def get(self, key: str) -> Optional[str]:
+        """
+        Retrieve the environment variable ``key``.  ``os.getenv`` is checked
+        first so that values set at runtime override the ``.env`` file.
+        """
+        return os.getenv(key) or getattr(self._config, key, None)
+
+
+def get_env_manager() -> EnvManager:
+    """
+    Return a singleton ``EnvManager`` instance.
+
+    The function is deliberately simple – it creates the manager on first
+    call and re‑uses it thereafter.
+    """
+    global _env_manager_instance
+    if _env_manager_instance is None:
+        _env_manager_instance = EnvManager()
+    return _env_manager_instance
+
 
 def get_env_config() -> EnvConfig:
     """
-    Get the global environment configuration.
-    Returns:
-        EnvConfig: Validated configuration object
+    Backwards‑compatible accessor used by older code.
     """
     return load_environment()

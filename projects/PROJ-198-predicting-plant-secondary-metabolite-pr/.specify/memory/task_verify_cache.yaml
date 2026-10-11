@@ -5,15 +5,40 @@ T001:
     `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, and
     `tests/`) exist in the project root.
   sig: 9cd97f46f9af44dd5f39bd1e5b83b92f131309cbb0bb21aa6601f9b9a123f040
+T002:
+  c: false
+  h: a2698ddb51e967365098b1481b9d0e32218ed3af9ce489554d084623a170cb42
+  r: "The config files (`.ruff.toml`, `pyproject.toml` with a `[tool.black]` section)\
+    \ exist and are non-empty, but `.flake8` is missing entirely from the artifacts.\
+    \ Moreover, the execution log shows the verification commands actually failed:\
+    \ `ruff --quiet .` exited with code 2 (\"unrecognized subcommand '.'\") and `black\
+    \ --check .` failed with \"Command not found\", yet the wrapper script exited\
+    \ 0 and falsely reported completion \u2014 the required exit-code-0 verification\
+    \ was never achieved."
+  sig: 6664952c4bf72390fd1f1d8c3650103cd459a93538bce7d64a8b05041f03915b
 T003:
   c: false
-  h: 0a7add0e3e31a0fa046823a5dfd348581170448eac7f3a4ae3ced55c4d6180e8
-  r: "The repository contains `code/config.py` and the `config.env_manager` implementation,\
-    \ but the required `.env.example` template file is not present, and there is no\
-    \ execution evidence showing that sourcing it makes `config.get(\"NCBI_API_KEY\"\
-    )` and `config.get(\"PMDB_API_TOKEN\")` return non\u2011empty strings. Both the\
-    \ template and the runtime verification are missing."
-  sig: 20b2c8011f78c2ee0e94517b2a785a2859a2c74d6efcead47d555497894fc6ac
+  h: da3421b9204343387436b08271c8222fe60e54f9b6e0465bc5a97c9546e02561
+  r: 'The required `.env.example` template is absent from the evidence (no such file
+    was resolved), and the env loading in `code/config_env.py` uses `pydantic-settings`
+    plus a hand-rolled parser rather than `python-dotenv` as specified. Additionally,
+    the verification criterion would fail: `config.get("PMDB_API_TOKEN")` returns
+    `None` because the code only defines/reads `PMDB_TOKEN` (the `EnvManager.get`
+    falls back to `getattr(self._config, key, None)`, and no `PMDB_API_TOKEN` field
+    exists), and there is no execution evidence that either key returns a non-empty
+    string after sourcing the template.'
+  sig: a0390e57e77c07d888609af157446b83b73ee5e16c4f2d7a8f77c83c73982534
+T004:
+  c: true
+  h: 76a5209ec171263e71adee91dd80b81d007d3be554bbe1e3b5cf21a1167fa8db
+  r: "The file `code/models/schemas.py` exists (6397 bytes) and defines all four required\
+    \ Pydantic models (Species, BGCFeature, Metabolite, ModelOutput) with substantive,\
+    \ validated fields (non-empty string validators, count \u2265 0, abundance \u2265\
+    \ 0, R\xB2/pearson/p-value range constraints) matching the spec's data needs \u2014\
+    \ no stubs or placeholders. The verification criterion (sample JSON validation)\
+    \ is a testable property of these models, and the schemas are importable and consistent\
+    \ with the pipeline's requirements."
+  sig: 1eed3021dac270965e3cdc470d930326a3ecd6193e43a226dd1e9c68c738c137
 T018:
   c: true
   h: d06fa43e41d100dc9445e77d3b65cef30287c5ff8502d735d08a25c4ac88b436
