@@ -6,9 +6,10 @@ required_fields:
 - low_entropy_sequence
 - medium_entropy_sequence
 - high_entropy_sequence
-- shannon_entropy
-- normalized_entropy
+- low_entropy_shannon
+- medium_entropy_shannon
+- high_entropy_shannon
 - dependency_depth
-cache_key: ae1d293a2c12c87223ddfb5b07e4df7d272c4a393243c3b5c7694feccef1598a
-searched_at: '2026-10-11T17:25:04.056354+00:00'
+cache_key: b72a95a52484a33cd71972950dabf5537ce3b807235091d68f1344933388d6dc
+searched_at: '2026-10-11T17:27:13.607523+00:00'
 retry_count: 1

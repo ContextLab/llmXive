@@ -2,8 +2,8 @@
 Dummy script to verify that the structured JSON logger works.
 
 It obtains a logger via ``get_logger`` and emits a single INFO level
-message. The console handler in ``code/utils/logging.py`` writes JSON
-to stdout, so running this script should produce one JSON line.
+message. The console handler in ``code/utils/logging.py`` writes JSON to
+stdout, so running this script should produce one JSON line.
 """
 
 from utils.logging import get_logger, log_info

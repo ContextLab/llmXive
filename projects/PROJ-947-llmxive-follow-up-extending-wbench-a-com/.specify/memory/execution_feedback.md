@@ -83,7 +83,7 @@ E   ImportError: cannot import name 'estimate_model_ram_usage' from 'inference.r
 ERROR tests/integration/entropy/test_generator.py
 ERROR tests/unit/inference/test_runner.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 2 skipped, 2 errors in 1.46s =========================
+========================= 2 skipped, 2 errors in 1.49s =========================
 
 
 

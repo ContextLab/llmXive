@@ -20,6 +20,10 @@ from pathlib import Path
 from typing import Any, Dict, Optional, List
 from dataclasses import dataclass, field
 
+# Import logging and error utilities using the correct package path.
+from code.utils.logging import get_logger, log_info, log_error, log_warning
+from code.utils.errors import fail_loudly, SyntheticFallbackForbiddenError
+
 # Public module‑level constants required by the verification step.
 # These are deliberately kept simple and immutable.
 SEED: int = 42                     # Default random seed for reproducibility
@@ -106,15 +110,12 @@ class Config:
     def validate(self) -> None:
         """Perform strict validation of configuration."""
         if self.seed < 0:
-            from utils.errors import fail_loudly
             fail_loudly("Seed must be non‑negative")
         
         if self.max_ram_gb <= 0:
-            from utils.errors import fail_loudly
             fail_loudly("max_ram_gb must be positive")
         
         if self.min_variance_threshold < 0:
-            from utils.errors import fail_loudly
             fail_loudly("min_variance_threshold must be non‑negative")
     
     def to_dict(self) -> Dict[str, Any]:
@@ -154,14 +155,12 @@ def get_config(overrides: Optional[Dict[str, Any]] = None) -> Config:
             try:
                 env_overrides["seed"] = int(os.environ["LLMXIVE_SEED"])
             except ValueError:
-                from utils.logging import log_error
                 log_error(f"Invalid LLMXIVE_SEED value: {os.environ['LLMXIVE_SEED']}")
         
         if "LLMXIVE_MAX_RAM_GB" in os.environ:
             try:
                 env_overrides["max_ram_gb"] = float(os.environ["LLMXIVE_MAX_RAM_GB"])
             except ValueError:
-                from utils.logging import log_error
                 log_error(f"Invalid LLMXIVE_MAX_RAM_GB value: {os.environ['LLMXIVE_MAX_RAM_GB']}")
         
         if "LLMXIVE_STRICT_MODE" in os.environ:
@@ -173,7 +172,6 @@ def get_config(overrides: Optional[Dict[str, Any]] = None) -> Config:
         
         _config_instance = Config(**env_overrides)
         _config_instance.validate()
-        from utils.logging import log_info
         log_info(f"Configuration initialized with seed={_config_instance.seed}, strict_mode={_config_instance.strict_mode}")
     
     return _config_instance
@@ -195,7 +193,6 @@ def load_config_from_file(path: str) -> Config:
     """
     path_obj = Path(path)
     if not path_obj.exists():
-        from utils.errors import fail_loudly
         fail_loudly(f"Configuration file not found: {path}")
     
     try:
@@ -208,15 +205,12 @@ def load_config_from_file(path: str) -> Config:
             if hasattr(Config, key):
                 overrides[key] = value
             else:
-                from utils.logging import log_warning
                 log_warning(f"Ignoring unknown config key: {key}")
         
         return get_config(overrides)
     except json.JSONDecodeError as e:
-        from utils.errors import fail_loudly
         fail_loudly(f"Invalid JSON in config file {path}: {e}")
     except Exception as e:
-        from utils.errors import fail_loudly
         fail_loudly(f"Failed to load config from {path}: {e}")
 
 def save_config_to_file(cfg: Config, path: str) -> None:
@@ -233,7 +227,6 @@ def save_config_to_file(cfg: Config, path: str) -> None:
     with open(path_obj, "w") as f:
         json.dump(cfg.to_dict(), f, indent=2)
     
-    from utils.logging import log_info
     log_info(f"Configuration saved to {path}")
 
 # Main entry point for CLI usage
@@ -259,7 +252,6 @@ def main() -> None:
             cfg.validate()
             print("Configuration is valid.")
         except Exception as e:
-            from utils.errors import fail_loudly
             fail_loudly(f"Configuration validation failed: {e}")
     
     if args.show:

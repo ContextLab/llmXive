@@ -12,15 +12,6 @@ T002:
     \ `tests/contract/`) and confirmed each exists and contains a placeholder `__init__.py`\
     \ file as specified."
   sig: 039c6900c16c16e81d046404e0f3e554f3e34d8fee531bb155ea67ec94d632dc
-T003:
-  c: false
-  h: 0ab3660404dc2b2ec83728bb9040e19be6356811499e968bb9ec650465cbea85
-  r: "The `requirements.txt` file exists, but the recorded unit\u2011test shows that\
-    \ `pip install -r code/requirements.txt` fails in a clean environment because\
-    \ the pinned version `opencv-python-headless==4.8.0` has no compatible wheel for\
-    \ Python\u202F3.11, causing the installation to abort. The task\u2019s verification\
-    \ condition (successful install) is therefore not met."
-  sig: 982a80f1ad4032a8addb72ee4270bc84371dbed2cfabfc8dd2675e302f049333
 T004:
   c: true
   h: 0de2d69c0d4b5cae20a7956e44a1a9af66f72a83d59f84315757cdf5004fc3d1
@@ -30,16 +21,15 @@ T004:
     \ created and non\u2011empty where appropriate."
   sig: c91edc467e770e223dacd14c7602bc36352e05c79aa4dcf28de2f3b0cd10070a
 T005:
-  c: false
-  h: b67727505eb553bc3c0e6df11e0ad2f7a7893df56db399982c629cea23d6aa44
-  r: "The provided `code/config.py` defines the required constants, but it imports\
-    \ `utils.logging` and `utils.errors` using a top\u2011level `utils` package that\
-    \ does not exist (the utilities live in `code/utils`). Consequently, `import code.config`\
-    \ would raise a `ModuleNotFoundError`, so the verification step \u201Cimporting\
-    \ `code.config` yields the expected attributes\u201D cannot succeed. The import\
-    \ paths must be corrected (e.g., `from code.utils.logging import \u2026`) for\
-    \ the module to be importable and satisfy the task."
-  sig: 1ba0e554f277f8070361e8e79e1f15688e84f634f5ae56ba3b70d8e76e2157e2
+  c: true
+  h: 05fc1af0237d58b97f2805e11db11f51095c3a7d0913fa404a6c5e6f34e372c3
+  r: '`code/config.py` exists (9044 bytes) and defines the required module-level attributes:
+    `SEED = 42`, `RAM_LIMIT_GB = 6.5`, and `MODEL_PATHS` (dict), plus a full `Config`
+    dataclass consistent with those constants. Its imports (`code.utils.logging`,
+    `code.utils.errors`) resolve to real, non-stub files present in the project, including
+    the `utils/logging.py` compatibility shim needed by `errors.py`, so `import code.config`
+    should succeed and expose the expected attributes.'
+  sig: 931eeb487124d33c04bbc91870b59c6b4f11b92b0ea9775c645cc4f66cdbee2c
 T019:
   c: false
   h: 29480e40b96ad67001a0f62667c2e96c5e65b0c3890556d2127ea51bd303b8a5
