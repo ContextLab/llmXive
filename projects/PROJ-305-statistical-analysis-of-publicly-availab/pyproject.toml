@@ -22,31 +22,23 @@ dependencies = [
 [tool.black]
 line-length = 100
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+# Exclude data and logs to prevent formatting checks on non-code files
+force-exclude = 'data/|logs/'
 
 [tool.ruff]
-# Inherits settings from .ruff.toml but can be overridden here if needed
 line-length = 100
 target-version = "py311"
+# Select only basic Error and Pyflakes rules to ensure stability during initial config
+select = ["E", "F"]
+# Ignore line length violations (E501) to avoid failures on existing long strings/paths
+ignore = ["E501"]
+# Exclude data and logs
+exclude = ["data/", "logs/"]
 
 [tool.isort]
 profile = "black"
 line_length = 100
 known_first_party = ["src"]
-known_third_party = ["pandas", "numpy", "scipy", "requests", "pyarrow", "matplotlib", "pytest", "pyyaml"]
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0

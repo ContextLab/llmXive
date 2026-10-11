@@ -65,6 +65,24 @@ def _capture_tree_snapshot() -> None:
     output_path.write_text(result.stdout)
     log.info(f"Filesystem snapshot written to {output_path}")
 
+    # Verify the snapshot is non-empty and contains every required directory.
+    text = output_path.read_text()
+    if not text.strip():
+        raise RuntimeError("logs/structure.txt is empty; snapshot capture failed.")
+    required = [
+        "src", "src/data", "src/analysis", "src/utils", "src/validation",
+        "tests", "data", "data/raw", "data/processed",
+        "output", "output/figures", "output/temporal_profiles",
+        "contracts", "logs",
+    ]
+    lines = {line.strip("├─│└ ─") for line in text.splitlines()}
+    missing = [d for d in required if not any(d.split("/")[-1] in l for l in lines)]
+    if missing:
+        raise RuntimeError(
+            f"Snapshot missing entries for directories: {missing}"
+        )
+    log.info("Snapshot verified: non-empty and contains all required directories.")
+
 def main() -> None:
     """Entry point for the scaffolding script."""
     _create_directories()

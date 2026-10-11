@@ -43,9 +43,7 @@ usage: validate.py [-h] [--schema SCHEMA] file_path
 validate.py: error: the following arguments are required: file_path
 
 - python src/main.py -> rc=1
-2026-10-11 20:27:16,901 - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-11 20:27:16,972 - INFO - generated new fontManager
-2026-10-11 20:27:17,152 - INFO - No action specified. Use --full or --phase N
+2026-10-11 20:46:32,992 - INFO - No action specified. Use --full or --phase N
 
 
 

@@ -22,6 +22,9 @@ def _run_command(command: list[str]) -> subprocess.CompletedProcess:
 def main() -> None:
     """Execute ruff and black checks, writing their output to logs/lint.txt."""
     log_file: Path = paths.logs("lint.txt")
+    # Ensure logs directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    
     commands = [
         ["ruff", "check", "."],
         ["black", "--check", "."],

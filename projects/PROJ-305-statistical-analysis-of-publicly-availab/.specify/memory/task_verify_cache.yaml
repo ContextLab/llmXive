@@ -1,23 +1,17 @@
 T001:
   c: false
-  h: 40f9c3c9e5c02536e3e3d644a455cbddf91cd032f63ff8d0e11657382f486b06
-  r: "The directory tree itself was created (all 14 requested directories exist per\
-    \ the collector), and the execution log shows the script ran with exit 0 and claims\
-    \ a snapshot was written. However, the collector's artifact evidence contains\
-    \ no entry for `logs/` or `logs/structure.txt` \u2014 the one required output\
-    \ file of this task \u2014 so there is no current, on-disk evidence that the snapshot\
-    \ file exists and is non-empty, nor any evidence the grep verification passes.\
-    \ The implementer should confirm `logs/structure.txt` exists at the project root,\
-    \ is non-empty, and contains a line for each listed directo"
-  sig: c131b144a90030e8bb7a26d9d591753bdf9076c5d38dfe75e94f758a316afff3
+  h: 786ee575e9ae612a7fec20f55e09788ff8d27230e6c22e5da8e5fdfca08c9e1e
+  r: The required artifact `logs/structure.txt` is missing from the evidence provided
+    by the collector, and the `logs/` directory itself is not listed in the project
+    structure. While the execution logs claim the directory was created and the snapshot
+    was written, the actual filesystem evidence does not contain these items.
+  sig: 0813fc0a49cc16dd66c6047d67c41e03f83707fbfa86fa9b5193619114189a4f
 T002:
   c: false
-  h: a7caf22589693bab9576057e7b85b1f71dded0ca36ffe2ee7336b7d0d8075e37
-  r: README.md exists (313 bytes) and contains the exact required title plus a one-sentence
-    description, but the evidence shows no `.gitignore` artifact at the project root
-    (or anywhere), so the `test -s .gitignore` verification cannot pass. The implementer
-    must add a non-empty `.gitignore` with standard Python ignores.
-  sig: fc81ec158c21448bbee8c0d203e259ec0f7fe9faebf46ae729045da14dbe3e76
+  h: 886da919c023eb917956585c459878b53e60cfeed1327b6851fe441b11964122
+  r: The `README.md` file is correct, but the `.gitignore` file is missing from the
+    provided evidence.
+  sig: 914f5e85a8d74de072425ced95361663313ef22363272c34ebb8d26e4e52d6e0
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
