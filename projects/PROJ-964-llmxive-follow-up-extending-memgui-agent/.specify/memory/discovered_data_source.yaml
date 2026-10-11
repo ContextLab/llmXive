@@ -1,16 +1,16 @@
 status: none
-intent: MemGUI-3K dataset HuggingFace datasets download python package dataset
+intent: MemGUI dataset mobile app workflows GUI interactions python package dataset
 required_fields:
-- trajectory_id
-- step_index
 - app_name
-- screen_id
+- screen_state
 - action_type
+- action_target
 - action_parameters
-- depends_on_step_id
-- required_information
-- is_final_step
-- plausibility_rating
-cache_key: 849a163c2f4bfe0cadf9eba16b222c54b6a2a44f545461ec697a15bb13636783
-searched_at: '2026-09-07T16:19:04.843570+00:00'
+- resulting_state
+- step_index
+- trajectory_id
+- information_content
+- dependency_references
+cache_key: 5b50c0f184f33cc13878cdb6e8ce9248d83acdce768fab968884a121747eaa5f
+searched_at: '2026-10-11T14:21:42.543561+00:00'
 retry_count: 1

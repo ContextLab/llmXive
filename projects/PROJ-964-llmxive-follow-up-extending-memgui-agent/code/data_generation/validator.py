@@ -117,7 +117,7 @@ def validate_dependency_links(
         else:
             failed_ids.append(traj_id)
 
-    ratio = with_links / total
+    ratio = with_links / total if total > 0 else 0.0
     passed = ratio >= min_dependency_ratio
 
     return passed, {

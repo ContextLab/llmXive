@@ -1,3 +1,74 @@
+T001a:
+  c: false
+  h: 093fd70f2989a3a92e9a896401fa9c275da27523aa0a21c3ae8852900aace55b
+  r: The task T001a requires creating a `code/data_generation` directory AND creating
+    an `__init__.py` file within it. However, the evidence collector has provided
+    no artifact paths or confirmation that these items exist on disk. The task description
+    itself contains no substantive requirements beyond the directory and file creation,
+    yet no resolved artifact paths are reported for `code/data_generation/` or `code/data_generation/__init__.py`.
+    Without explicit evidence that these artifacts exist and are present (even if
+    empty, as `__init__.py` is intentionally minimal), the task cannot be verified
+    as
+  sig: 59d4fc2ae54f3575eba1a9421906380d7ca56b8bb31659c7c211176393a9428a
+T001b:
+  c: false
+  h: 1562c33eeff8d73ed18033314551f406947f243586752aec6a0a06d3ed5b99d3
+  r: The task T001b requires creating a `code/agents` directory AND creating an `__init__.py`
+    file within it. However, the evidence collector has provided no artifact paths
+    or confirmation that these directories/files exist in the project. The task description
+    itself is marked as "REJECTED/Obsolete" with a note to "See T001h for redo," which
+    indicates this task has been superseded and is no longer the active requirement.
+    Without explicit evidence that the `code/agents/` directory and `code/agents/__init__.py`
+    file exist at the project root (`projects/PROJ-964-llmxive-follow-up-extending-memgui-agen
+  sig: 22c49c96149b52f8e9a69a66bb9a7bfc57d1f80aa2385958dc105c63f09f3eb2
+T001c:
+  c: false
+  h: a0f1b30d94fa5323be34fc33144ba3c205364d187c818cb15b1286ede68d15bf
+  r: The task T001c requires creating a `code/retrieval` directory AND creating an
+    `__init__.py` file within it. However, the evidence collector has provided no
+    artifact paths or confirmation that these files exist in the project. The task
+    description itself contains no substantive requirements beyond the directory and
+    file creation, yet no evidence of their existence has been presented. Additionally,
+    the task is marked as "REJECTED/Obsolete" with a note to "See T001h for redo,"
+    which indicates this task has been superseded and should not be considered complete.
+    Without explicit confirmation from t
+  sig: 7d085fe90ffd446e700d751b78f646d04c714b6da9ee751f7dcd61599d83f34f
+T001d:
+  c: false
+  h: f2f3b04150db22ef7d08fe801913fe3a4b479d990b30ab3bf5a6cd83abe15b04
+  r: 'The task T001d requires creating a `code/evaluation` directory AND creating
+    an `__init__.py` file within it. However, no evidence has been provided showing
+    that these artifacts exist in the project. The collector report contains no resolved
+    artifact paths for `code/evaluation` or `code/evaluation/__init__.py`, and no
+    file listing or directory structure evidence confirms their presence. Additionally,
+    the task is marked as "REJECTED/Obsolete" with a note to "See T001h for redo,"
+    indicating this task has been superseded and should not be considered complete.
+    The implementer''s claim of completion '
+  sig: a6a26e9ca305c95808d0663cb68e1d84ad17b9c50899784e4e3f6567d1fb7122
+T001e:
+  c: false
+  h: a74143e04bddce861b7bb1c7a62d56c01ec2dab13cc2ee9d4fff42d98e885c38
+  r: The task T001e requires creating a `code/utils` directory AND creating an `__init__.py`
+    file within it. However, the evidence collector has provided no artifact paths
+    or confirmation that these directories/files exist in the project. The task description
+    itself contains no substantive requirements beyond the directory and file creation,
+    yet no resolved artifact paths are listed showing `code/utils/__init__.py` or
+    even `code/utils/` as existing. Without explicit evidence that these artifacts
+    exist at their expected locations in the project root, the task cannot be verified
+    as complete. Addition
+  sig: 3a4da586e15fb7fcb695aed3ad6445c5a9a691ca48cb3310d75fc64430ee002d
+T001f:
+  c: false
+  h: 96545337fcd32caa9d66707fe756065624a7e1d22680185ff42544b82d841838
+  r: "The task T001f is marked as \"REJECTED/Obsolete\" with an explicit instruction\
+    \ to \"See T001h for redo,\" which means this task should not be considered active\
+    \ or complete. The task itself has been superseded by T001h. Additionally, while\
+    \ a `tests/` directory structure does exist on disk with subdirectories (`contract/`,\
+    \ `integration/`, `unit/`) and some files (`__init__.py`, `conftest.py`, `test_placeholder.py`),\
+    \ the task provides no specification of what this directory structure should contain\
+    \ or how it should be organized\u2014only that it should be created. The presence\
+    \ of a placeholder test file a"
+  sig: b291672f1ef130462d7ae4e713598b367547866293b8e99b70a9e8fc2813c3bb
 T005:
   c: false
   h: bede40b72d59dbfa661c720a340c70101b499033dbd39ba384aa2a9fdde946de

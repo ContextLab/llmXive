@@ -42,14 +42,14 @@
 
 **Revision Note**: The following tasks (T001a, T001b, T003) are marked as **[X]** because they were previously rejected due to lack of evidence. The original attempts were incomplete. A new task T001h is added to explicitly re-initialize the structure if the previous state is invalid.
 
-- [X] T001a [P] **REJECTED/Obsolete**: Create `code/data_generation` directory AND create `__init__.py` (See T001h for redo)
-- [X] T001b [P] **REJECTED/Obsolete**: Create `code/agents` directory AND create `__init__.py` (See T001h for redo)
-- [X] T001c [P] **REJECTED/Obsolete**: Create `code/retrieval` directory AND create `__init__.py` (See T001h for redo)
-- [X] T001d [P] **REJECTED/Obsolete**: Create `code/evaluation` directory AND create `__init__.py` (See T001h for redo)
-- [X] T001e [P] **REJECTED/Obsolete**: Create `code/utils` directory AND create `__init__.py` (See T001h for redo)
-- [X] T001f [P] **REJECTED/Obsolete**: Create `tests/` directory structure (See T001h for redo)
-- [X] T001g [P] Create `code/main.py` (orchestration entry point)
-- [X] T001h [P] **REDO**: Re-initialize project structure: Create `code/` subdirectories (`data_generation`, `agents`, `retrieval`, `evaluation`, `utils`) AND create `__init__.py` in EACH AND create `tests/` structure with `__init__.py` in `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/` AND create `tests/test_placeholder.py`. **Verify**: Run `ls -R code/ tests/` to confirm structure.
+- [ ] T001a [P] **REJECTED/Obsolete**: Create `code/data_generation` directory AND create `__init__.py` (See T001h for redo)
+- [ ] T001b [P] **REJECTED/Obsolete**: Create `code/agents` directory AND create `__init__.py` (See T001h for redo)
+- [ ] T001c [P] **REJECTED/Obsolete**: Create `code/retrieval` directory AND create `__init__.py` (See T001h for redo)
+- [ ] T001d [P] **REJECTED/Obsolete**: Create `code/evaluation` directory AND create `__init__.py` (See T001h for redo)
+- [ ] T001e [P] **REJECTED/Obsolete**: Create `code/utils` directory AND create `__init__.py` (See T001h for redo)
+- [ ] T001f [P] **REJECTED/Obsolete**: Create `tests/` directory structure (See T001h for redo)
+- [~] T001g [P] Create `code/main.py` (orchestration entry point)
+- [~] T001h [P] **REDO**: Re-initialize project structure: Create `code/` subdirectories (`data_generation`, `agents`, `retrieval`, `evaluation`, `utils`) AND create `__init__.py` in EACH AND create `tests/` structure with `__init__.py` in `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/` AND create `tests/test_placeholder.py`. **Verify**: Run `ls -R code/ tests/` to confirm structure.
 
 ---
 
@@ -59,13 +59,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 [P] Create base `ExecutionLog` data model (dataclass) for structured decision recording in `code/utils/execution_log.py`
-- [X] T006 [P] Implement `code/utils/memory_profiler.py` to log peak memory footprint and inference latency to `data/synthetic_benchmark/memory_profile.json` (fields: `peak_memory_mb`, `latency_ms`, `agent_type`)
-- [X] T007 [P] Implement `code/data_generation/validator.py` to check dependency links in trajectories
-- [X] T008 [P] Implement `code/data_generation/coherence_validator.py` for semantic plausibility checks (automated only)
-- [X] T002 [P] Create `code/requirements.txt` with pinned versions of: `transformers`, `sentence-transformers`, `datasets`, `statsmodels`, `scipy`, `accelerate`, `pandas`, `pytest`, `bitsandbytes`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: Create `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections enforcing specific rules (e.g., line-length=88, target-version=py310)
-- [X] T004 [P] Setup deterministic random seed utilities: Implement `code/utils/config.py` with `set_seed(seed: int)` function; verify that `main.py` (T001g) calls `set_seed()` at startup with a fixed seed (e.g., 42)
+- [~] T005 [P] Create base `ExecutionLog` data model (dataclass) for structured decision recording in `code/utils/execution_log.py`
+- [~] T006 [P] Implement `code/utils/memory_profiler.py` to log peak memory footprint and inference latency to `data/synthetic_benchmark/memory_profile.json` (fields: `peak_memory_mb`, `latency_ms`, `agent_type`)
+- [~] T007 [P] Implement `code/data_generation/validator.py` to check dependency links in trajectories
+- [~] T008 [P] Implement `code/data_generation/coherence_validator.py` for semantic plausibility checks (automated only)
+- [~] T002 [P] Create `code/requirements.txt` with pinned versions of: `transformers`, `sentence-transformers`, `datasets`, `statsmodels`, `scipy`, `accelerate`, `pandas`, `pytest`, `bitsandbytes`
+- [~] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: Create `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections enforcing specific rules (e.g., line-length=88, target-version=py310)
+- [~] T004 [P] Setup deterministic random seed utilities: Implement `code/utils/config.py` with `set_seed(seed: int)` function; verify that `main.py` (T001g) calls `set_seed()` at startup with a fixed seed (e.g., 42)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,16 +83,16 @@
 
 ### Tests for User Story 1 (MANDATORY for MVP) ⚠️
 
-- [X] T009 [P] [US1] Write unit test for dependency link injection logic in `tests/unit/data_generation/test_dependency_injection.py` (Expected to fail initially; parallel-safe while failing)
-- [X] T010 [P] [US1] Write integration test for end-to-end trajectory generation in `tests/integration/data_generation/test_benchmark_gen.py` (Expected to fail initially; parallel-safe while failing)
+- [~] T009 [P] [US1] Write unit test for dependency link injection logic in `tests/unit/data_generation/test_dependency_injection.py` (Expected to fail initially; parallel-safe while failing)
+- [~] T010 [P] [US1] Write integration test for end-to-end trajectory generation in `tests/integration/data_generation/test_benchmark_gen.py` (Expected to fail initially; parallel-safe while failing)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/data_generation/synthetic_benchmark.py`: Load `UltraData-SFT-Agent-2609` (split=train, streaming=True) to extract state templates; **implement a generator function that yields trajectories one-by-one using streaming/batching to avoid memory overflow**, accumulating results to disk, ensuring the loop continues until **≥50 valid trajectories are persisted** complying with Spec FR-001; output `data/synthetic_benchmark/trajectories.jsonl` with annotated "dependency links". **Do NOT fail loudly if 50 are not immediately reachable; instead, optimize the generation loop (streaming/batching) to meet the ≥50 target.** <!-- FAILED: unspecified -->
-- [X] T012 [US1] Integrate `code/data_generation/coherence_validator.py` (automated) to validate dependency links and semantic consistency of the generated trajectories.
+- [ ] T011 [US1] Implement `code/data_generation/synthetic_benchmark.py`: Load `UltraData-SFT-Agent-2609` (split=train, streaming=True) to extract state templates; **implement a generator function that yields trajectories one-by-one using streaming/batching to avoid memory overflow**, accumulating results to disk, ensuring the loop continues until **≥50 valid trajectories are persisted** complying with Spec FR-001; output `data/synthetic_benchmark/trajectories.jsonl` with annotated "dependency links". **Do NOT fail loudly if 50 are not immediately reachable; instead, optimize the generation loop (streaming/batching) to meet the ≥50 target.** <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/data_generation/synthetic_benchmark.py exit=1 -->
+- [~] T012 [US1] Integrate `code/data_generation/coherence_validator.py` (automated) to validate dependency links and semantic consistency of the generated trajectories.
 - [ ] T013 [US1] Implement `code/data_generation/expert_system_validator.py`: An automated expert-system validator to review a subset (≥10) for "semantically plausible" rating (FR-007); output review results to `data/synthetic_benchmark/review_results.json`. **Trigger Mechanism**: If automated check fails (score < 80%), the script MUST generate `needs_human_review.json` with schema `{trajectory_id: str, reason: str, timestamp: str}` AND **The system will exit with a non-zero error code indicating failure.** to signal the need for human intervention. **Note**: Implements the 'expert-system' path; T013b/T013c handle the 'human-in-the-loop' path.
 - [ ] T013b [US1] Implement `code/data_generation/human_review_consumer.py`: A script to consume `needs_human_review.json` (if present), facilitate human review (e.g., via CLI or simple HTML report), and update `data/synthetic_benchmark/review_results.json` with human feedback; ensure the workflow completes the 'OR' clause of FR-007.
-- [X] T013c [US1] Implement `code/data_generation/human_review_trigger.py`: A wrapper script that detects exit code 42 from T013 (or presence of `needs_human_review.json`) and automatically invokes T013b (human_review_consumer.py). **This task defines the missing 'producer' mechanism for the human review fallback.**
+- [~] T013c [US1] Implement `code/data_generation/human_review_trigger.py`: A wrapper script that detects exit code 42 from T013 (or presence of `needs_human_review.json`) and automatically invokes T013b (human_review_consumer.py). **This task defines the missing 'producer' mechanism for the human review fallback.**
 
 **Trigger Mechanism for Human Review**: The hand-off between T013 and T013b is defined by the `needs_human_review.json` file and the exit code 42. T013c automates this detection and invocation.
 
@@ -108,18 +108,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T014 [P] [US2] Contract test for agent execution interface in `tests/contract/test_agent_interface.py`
-- [X] T015 [P] [US2] Integration test for baseline execution loop in `tests/integration/agents/test_baseline_execution.py`
+- [~] T014 [P] [US2] Contract test for agent execution interface in `tests/contract/test_agent_interface.py`
+- [~] T015 [P] [US2] Integration test for baseline execution loop in `tests/integration/agents/test_baseline_execution.py`
 
 ### Implementation for User Story 2
 
-- [X] T016 [P] [US2] Implement `code/agents/model_checker.py`: Perform a **static pre-verification** check against the "Verified datasets" block in **Plan.md** for "MemGUI-8B-SFT" or a pre-verified substitute. **Hardcode the list of allowed substitute model IDs**: `['microsoft/Phi-3-mini-4k-instruct', 'microsoft/Phi-3.5-mini-instruct']`. **Logic**: If "MemGUI-8B-SFT" is NOT found in the "Verified datasets" block of Plan.md, dynamically pivot to a substitute from the hardcoded list; **do NOT fail the build.**
-- [X] T017 [P] [US2] Implement `code/agents/base_conact.py` wrapper for the model selected by T016 (static verification) using `bitsandbytes` 4-bit quantization.
-- [X] T018 [US2] Configure `code/agents/base_conact.py` to force CPU-only execution (no CUDA) and manage memory footprint (<7GB).
-- [X] T019 [P] [US2] Define `code/evaluation/interfaces.py` with `RunnerProtocol` interface (methods: `run_trajectory`, `get_logs`) to decouple baseline and recall runners. **Prerequisite: T005 (ExecutionLog data model) must be defined before this task.**
+- [~] T016 [P] [US2] Implement `code/agents/model_checker.py`: Perform a **static pre-verification** check against the "Verified datasets" block in **Plan.md** for "MemGUI-8B-SFT" or a pre-verified substitute. **Hardcode the list of allowed substitute model IDs**: `['microsoft/Phi-3-mini-4k-instruct', 'microsoft/Phi-3.5-mini-instruct']`. **Logic**: If "MemGUI-8B-SFT" is NOT found in the "Verified datasets" block of Plan.md, dynamically pivot to a substitute from the hardcoded list; **do NOT fail the build.**
+- [~] T017 [P] [US2] Implement `code/agents/base_conact.py` wrapper for the model selected by T016 (static verification) using `bitsandbytes` 4-bit quantization.
+- [~] T018 [US2] Configure `code/agents/base_conact.py` to force CPU-only execution (no CUDA) and manage memory footprint (<7GB).
+- [~] T019 [P] [US2] Define `code/evaluation/interfaces.py` with `RunnerProtocol` interface (methods: `run_trajectory`, `get_logs`) to decouple baseline and recall runners. **Prerequisite: T005 (ExecutionLog data model) must be defined before this task.**
 - [ ] T020 [US2] Implement `code/evaluation/runner.py` (ATOMIC): Execute the baseline agent on `data/synthetic_benchmark/trajectories.jsonl`, record the exact step where "information decay" causes a failure, **implement explicit attribution logic to attribute the failure to missing context from a step >10 indices prior**, and generate `data/results/baseline_execution_logs.jsonl`. Adhere to `RunnerProtocol` (T019). **Prerequisite: T012 must be completed to ensure valid dependency links. Prerequisite: T005 (ExecutionLog) must be complete.**
-- [X] T021 [US2] Implement `code/evaluation/stats.py` preliminary analysis to calculate success rate trend (early vs late step).
-- [X] T022 [US2] Add `code/utils/memory_profiler.py` (T006) integration to log peak memory for baseline runs.
+- [~] T021 [US2] Implement `code/evaluation/stats.py` preliminary analysis to calculate success rate trend (early vs late step).
+- [~] T022 [US2] Add `code/utils/memory_profiler.py` (T006) integration to log peak memory for baseline runs.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,15 +135,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T023 [P] [US3] Unit test for retrieval query generation (no ground-truth leakage) in `tests/unit/retrieval/test_query_gen.py`
+- [~] T023 [P] [US3] Unit test for retrieval query generation (no ground-truth leakage) in `tests/unit/retrieval/test_query_gen.py`
 - [ ] T024 [P] [US3] Integration test for recall injection and re-execution in `tests/integration/retrieval/test_recall_injection.py`
 
 ### Implementation for User Story 3
 
-- [X] T025 [P] [US3] Implement `code/retrieval/index_builder.py` to build an in-memory index from the agent's folded history.
-- [X] T026 [P] [US3] Implement `code/retrieval/retriever.py` using `all-MiniLM-L6-v2` to generate embeddings for historical snippets.
-- [X] T027 [US3] Implement `code/retrieval/retriever.py` to generate queries based *solely* on the current goal state (no ground-truth metadata).
-- [X] T028 [US3] Implement `code/agents/recall_agent.py` to inject retrieved "memory flashes" into the prompt when similarity > threshold.
+- [~] T025 [P] [US3] Implement `code/retrieval/index_builder.py` to build an in-memory index from the agent's folded history.
+- [~] T026 [P] [US3] Implement `code/retrieval/retriever.py` using `all-MiniLM-L6-v2` to generate embeddings for historical snippets.
+- [~] T027 [US3] Implement `code/retrieval/retriever.py` to generate queries based *solely* on the current goal state (no ground-truth metadata).
+- [~] T028 [US3] Implement `code/agents/recall_agent.py` to inject retrieved "memory flashes" into the prompt when similarity > threshold.
 - [ ] T029 [US3] Implement `code/evaluation/recall_runner.py`: Execute the recall-enhanced agent on `data/synthetic_benchmark/trajectories.jsonl` adhering to `RunnerProtocol` (T019), generate `data/results/recall_execution_logs.jsonl`. **Implement as a subclass/adapter of the RunnerProtocol, not a direct extension of T020 file.**
 - [~] T030 [US3] Implement `code/evaluation/log_merger.py`: Merge `data/results/baseline_execution_logs.jsonl` (from T020) and `data/results/recall_execution_logs.jsonl` (from T029) into `data/results/combined_logs.csv` (long-form: `trajectory_id`, `step`, `success`, `agent_type`, `latency_ms`). **Preserve hierarchical structure required for GLMM analysis (T032) and the justification task (T031b).**
 - [ ] T031 [US3] Implement `code/evaluation/stats.py` to perform **Wilcoxon signed-rank test** as **Primary Analysis** comparing baseline vs recall success rates, complying with Spec FR-005.
