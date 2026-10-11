@@ -33,10 +33,17 @@ def run_subprocess(command: list, description: str) -> int:
     """
     logger.info(f"Running stage: {description}")
     logger.debug(f"Command: {' '.join(command)}")
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
     logger.debug(result.stdout)
     if result.returncode != 0:
-        logger.error(f"Stage '{description}' failed with exit code {result.returncode}")
+        logger.error(
+            f"Stage '{description}' failed with exit code {result.returncode}"
+        )
     else:
         logger.info(f"Stage '{description}' completed successfully")
     return result.returncode
@@ -54,7 +61,7 @@ def stage_ingest(args: argparse.Namespace) -> int:
         sys.executable,
         "code/01_ingest/download_ncbi.py",
         f"--bio_project={args.bio_project}",
-        f"--max-isolates={args.n_isolates}"
+        f"--max-isolates={args.n_isolates}",
     ]
     rc = run_subprocess(cmd_download, "download_ncbi")
     if rc != 0:
@@ -63,7 +70,7 @@ def stage_ingest(args: argparse.Namespace) -> int:
     # 2. Process metadata
     cmd_metadata = [
         sys.executable,
-        "code/01_ingest/ingest_metadata.py"
+        "code/01_ingest/ingest_metadata.py",
     ]
     rc = run_subprocess(cmd_metadata, "ingest_metadata")
     if rc != 0:
@@ -72,7 +79,7 @@ def stage_ingest(args: argparse.Namespace) -> int:
     # 3. Build feature matrix
     cmd_feature = [
         sys.executable,
-        "code/02_process/build_feature_matrix.py"
+        "code/02_process/build_feature_matrix.py",
     ]
     rc = run_subprocess(cmd_feature, "build_feature_matrix")
     return rc
@@ -82,7 +89,9 @@ def stage_contract_validation() -> int:
     """
     Run pytest on the contract tests. Abort on failure.
     """
-    cmd = [sys.executable, "-m", "pytest", "tests/contract/"]
+    # Use the pytest console script directly; this works even if the
+    # virtual‑env Python does not have the pytest module installed.
+    cmd = ["pytest", "tests/contract/"]
     rc = run_subprocess(cmd, "contract_validation")
     if rc != 0:
         logger.error("Contract validation failed – aborting pipeline.")
@@ -98,7 +107,7 @@ def stage_train(args: argparse.Namespace) -> int:
     cmd = [
         sys.executable,
         "code/03_model/train_models.py",
-        f"--antibiotic={args.antibiotic}"
+        f"--antibiotic={args.antibiotic}",
     ]
     return run_subprocess(cmd, "train_models")
 
@@ -109,12 +118,23 @@ def stage_validate(args: argparse.Namespace) -> int:
       - phylo_permutation.py
       - sensitivity_analysis.py
     """
+    # Ensure permutations is an integer; the quickstart guide sometimes
+    # uses the placeholder "[sufficient_permutations]".
+    try:
+        perms = int(args.permutations)
+    except (ValueError, TypeError):
+        logger.warning(
+            f"Invalid permutations argument '{args.permutations}'. "
+            "Falling back to default 1000."
+        )
+        perms = 1000
+
     # Permutation test
     cmd_perm = [
         sys.executable,
         "code/04_validate/phylo_permutation.py",
         f"--antibiotic={args.antibiotic}",
-        f"--permutations={args.permutations}"
+        f"--permutations={perms}",
     ]
     rc = run_subprocess(cmd_perm, "phylo_permutation")
     if rc != 0:
@@ -124,7 +144,7 @@ def stage_validate(args: argparse.Namespace) -> int:
     cmd_sens = [
         sys.executable,
         "code/04_validate/sensitivity_analysis.py",
-        f"--antibiotic={args.antibiotic}"
+        f"--antibiotic={args.antibiotic}",
     ]
     return run_subprocess(cmd_sens, "sensitivity_analysis")
 
@@ -136,7 +156,7 @@ def stage_viz(args: argparse.Namespace) -> int:
     cmd = [
         sys.executable,
         "code/05_viz/generate_plots.py",
-        f"--antibiotic={args.antibiotic}"
+        f"--antibiotic={args.antibiotic}",
     ]
     return run_subprocess(cmd, "generate_plots")
 
@@ -147,7 +167,7 @@ def stage_hash_artifacts() -> int:
     """
     cmd = [
         sys.executable,
-        "code/utils/hash_artifacts.py"
+        "code/utils/hash_artifacts.py",
     ]
     return run_subprocess(cmd, "hash_artifacts")
 
@@ -158,33 +178,42 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--stage",
-        choices=["ingest", "contract", "train", "validate", "viz", "hash", "full"],
+        choices=[
+            "ingest",
+            "contract",
+            "train",
+            "validate",
+            "viz",
+            "hash",
+            "full",
+        ],
         default="full",
-        help="Pipeline stage to execute (default: full run)"
+        help="Pipeline stage to execute (default: full run)",
     )
     parser.add_argument(
         "--n-isolates",
         type=int,
         default=1000,
-        help="Number of isolates to download during ingestion"
+        help="Number of isolates to download during ingestion",
     )
     parser.add_argument(
         "--bio_project",
         type=str,
         default="PRJNA528852",
-        help="NCBI BioProject identifier"
+        help="NCBI BioProject identifier",
     )
     parser.add_argument(
         "--antibiotic",
         type=str,
         default="ciprofloxacin",
-        help="Antibiotic class for training/validation/viz"
+        help="Antibiotic class for training/validation/viz",
     )
+    # Accept any string; we coerce to int later.
     parser.add_argument(
         "--permutations",
-        type=int,
-        default=1000,
-        help="Number of permutations for the permutation test"
+        type=str,
+        default="1000",
+        help="Number of permutations for the permutation test (integer)",
     )
     return parser.parse_args()
 

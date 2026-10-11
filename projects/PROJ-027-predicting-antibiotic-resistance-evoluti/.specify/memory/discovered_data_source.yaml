@@ -1,15 +1,15 @@
 status: none
-intent: NCBI Pathogen Detection E coli PRJNA528852 PRJNA492488 CARD RefSeq downloadable
-  dataset python package
+intent: NCBI BioProject PRJNA528852 PRJNA492488 E coli genome and AMR metadata download
+  python package dataset
 required_fields:
 - isolate_id
-- fasta_sequence
-- susceptibility_category
+- assembly_accession
+- genome_fasta_url
+- antibiotic
 - mic_value
+- susceptibility_category
 - snp_counts_per_gene
 - resistance_gene_presence
-- collection_date
-- source_location
-cache_key: 78f088b4197ec64f501f58d259cd84ddef4acaab6e57a01c415dca855e6cc3d8
-searched_at: '2026-10-09T14:31:32.974361+00:00'
+cache_key: 941aa658e6ca057f1feb795b6eec315f663299c90bd32b769ed7fa9438441cf8
+searched_at: '2026-10-11T17:13:24.856816+00:00'
 retry_count: 1
