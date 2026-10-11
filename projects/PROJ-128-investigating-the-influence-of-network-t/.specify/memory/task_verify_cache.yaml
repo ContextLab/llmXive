@@ -1,20 +1,18 @@
 T001:
   c: true
-  h: b5930453431614accebd87c053500b635de2ff96aaa920e219e4cbbecfad5dfb
-  r: "Checked the repository tree under `projects/PROJ-128-investigating-the-influence-of-network-t`;\
-    \ the top\u2011level `code/`, `data/`, `contracts/`, and `tests/` directories\
-    \ exist, and the required sub\u2011folders `data/raw`, `data/derived`, `data/logs`,\
-    \ `tests/unit`, and `tests/integration` are present."
-  sig: 2cdaabf6201b1c5e39d41ebacab2338a7b17437ce84ff5d03d3d27cdfdc4d6a8
+  h: b7bc13615c3c3c3828751e7c59194146961d6d6b170256aa9aa26bfaaa186bb2
+  r: 'Checked the repository tree: `code/`, `data/` (with `raw/`, `derived/`, `logs/`
+    subfolders), `contracts/`, and `tests/` (containing `unit/` and `integration/`)
+    all exist as confirmed by the directory listings in the evidence.'
+  sig: 2bffc6231b2ef060496c6a7638c1617fd7b8678141e834f8a1c31a6437a788aa
 T002:
-  c: false
-  h: e6af1b6b7802727e9b7d643f56e74926b0b2a342b7f732a24686321b4fd52b67
-  r: "The provided `requirements.txt` is missing the required `nilearn` and `networkx`\
-    \ packages and does not pin any versions (e.g., `numpy==1.26.0`). It also includes\
-    \ unrelated packages (matplotlib, seaborn, pytest, datasets, nibabel) that were\
-    \ not requested. The task\u2019s requirement for a fully pinned list of the specified\
-    \ dependencies is therefore not met."
-  sig: f01989690ab80a465b3f6b72b78a12eccb4d350e4c044c32c8d484fc5819c60a
+  c: true
+  h: 0a3becc0dc99e92045fde1b681d6dac53b5ea06f5550fca0a9c5a0e25ecc3d00
+  r: The `requirements.txt` file (resolved at `projects/PROJ-128-investigating-the-influence-of-network-t/requirements.txt`)
+    is present and contains entries for nilearn, networkx, scikit-learn, pandas, numpy,
+    statsmodels, scipy, and pyyaml>=6.0, with exact version pins for all except pyyaml
+    as required. No required dependency is missing or left as a placeholder.
+  sig: 4f35fdf360be614297c3be315fb083f38bf7ae9715c6f708ada41356eb332534
 T003:
   c: true
   h: 3a64e6411fc2771d78c5223a17b1005eea0cbc3eb3b55c5cec0ab984a49b5960
@@ -43,15 +41,20 @@ T004b:
     \ specified."
   sig: 162f497f8e223341d1b1a2f6fc6c905544e9a5ba80076172baae541f13665a77
 T005:
-  c: false
-  h: 8d81145d76977c4ac7f1946d9b192c2bf1d1fd101480c204af7655687845b222
-  r: The only artifact on disk is `code/__init__.py` (a package marker), but the task
-    also requires data loading utilities for HCP OpenNeuro dMRI/fMRI data, and no
-    such module (e.g., a loader script with functions for reading/connectivity/time-series
-    data) exists anywhere in the project. The implementer completed only half the
-    task; a non-empty data-loading module with real HCP data-loading logic must be
-    added.
-  sig: 585b52f084307e1dcbfe7e10e589acc9dccc30bc320625ab346381f4aab7d30d
+  c: true
+  h: f392af758be6ca3db8126827f368e30f9525f9be82604d9a034194fd2655c2d6
+  r: "Checked `code/__init__.py` (provides package import and re\u2011exports) and\
+    \ `code/preprocess/loader.py` (defines `_get_raw_data_dir`, `_validate_data_existence`,\
+    \ `load_hcp_dmri`, and `load_hcp_fmri`), which together fulfill the creation of\
+    \ the package initializer and the required HCP OpenNeuro dMRI/fMRI loading utilities."
+  sig: 77b01be80e4bda0b24f68e6632e6184868cabb5bd5863f6859ef83bc27302edf
+T006:
+  c: true
+  h: 820a0909cd8a66f9e133a1b6f2dddf163d0868afd7b9c3c148380fac37b09182
+  r: "Checked the `code/structural.py` file (5968\u202Fbytes) which defines the required\
+    \ wrapper functions, loads adjacency matrices, calls the core metric calculation,\
+    \ and provides a CLI entry point, fulfilling the skeleton implementation requirement."
+  sig: 8b9ed31b3adc7cd787efb5674640f87cf6c297123566f9c33e3343eee1c22fd2
 T009:
   c: true
   h: f9206b9a94bef12249d1a0340e3359401146d9ed701165728fef2ee14ad82aa8
@@ -69,12 +72,25 @@ T009a:
     \ execution, report generation, validation, and testing, fulfilling the documentation\
     \ requirement."
   sig: b8a336675fdd413ebce2b9d05c8464801ebd74839d589144dc27f742a164b48e
+T010:
+  c: false
+  h: 774267e5a3c07878c138d17bf2541a56fa4a54ee5fd7bf32b4ad985a7c3508c5
+  r: "The `data/` directory correctly contains the required subfolders (raw, derived,\
+    \ logs), but both required schema files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`\
+    \ are reported as missing. Without these files the task\u2019s contract\u2011\
+    setup requirement is not fulfilled."
+  sig: 16c89c0d08e4317c2d222cf3f47b3030634abf1826beca7f317e24d7fe07b8ca
 T012:
   c: false
-  h: a44e9592df01e631797702866da865abd90a0669758e5d0a8a3d447ab99bf80b
-  r: The required artifact `tests/unit/test_structural.py` does not exist in the repository,
-    so no unit test for `code/preprocess/structural.py` is provided. The task remains
-    unfinished.
+  h: a155b1eac98f435dfaec2e149053c3416478d9c1edd885dfb14f16acb617dc71
+  r: "The provided `tests/unit/test_structural.py` imports and tests functions from\
+    \ `preprocess.structural`, not the public API in `code/structural.py`. It checks\
+    \ for keys like `average_clustering_coefficient` and `num_nodes` that `code.structural.calculate_graph_metrics`\
+    \ does not return, so the unit test does not verify the graph\u2011metric calculation\
+    \ of `code/structural.py` as required. A proper test should import `code.structural`\
+    \ and assert the presence and correctness of its returned keys (`global_efficiency`,\
+    \ `clustering`, `modularity`)."
+  sig: a64e4cc694cd9b1d518bf017f11722fdb5ee5064056b2c9fcd0c824513505f67
 T015b:
   c: false
   h: dac337130aede19574e721da677236c89390d6b1c9a06ad1d27456a2e9aa668c

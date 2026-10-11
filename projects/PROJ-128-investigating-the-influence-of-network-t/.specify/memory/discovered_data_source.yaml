@@ -1,14 +1,13 @@
 status: none
-intent: download OpenNeuro ds000224 HCP BIDS dataset python package dataset
+intent: download OpenNeuro ds000224 Human Connectome Project preprocessed dMRI fMRI
+  BIDS python package dataset
 required_fields:
 - subject_id
-- dMRI_connectivity_matrix
-- fMRI_time_series
+- preprocessed_dMRI_connectivity_matrix
+- preprocessed_fMRI_time_series
 - parcellation_scheme
-- structural_global_efficiency
-- structural_average_clustering_coefficient
-- structural_modularity
-- dynamic_state_dwell_times
-cache_key: 694f432ffc67728a088842cef349ec56ac439e07fe4980da08332b0bbcf10924
-searched_at: '2026-10-11T05:22:12.556548+00:00'
+- session_id
+- acquisition_date
+cache_key: d714dbeb6e4d5b43f776355260a5a05ddf1da84a62e7678d693819661a381306
+searched_at: '2026-10-11T05:25:40.963293+00:00'
 retry_count: 1

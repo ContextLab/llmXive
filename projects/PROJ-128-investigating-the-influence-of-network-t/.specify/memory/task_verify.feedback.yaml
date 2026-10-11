@@ -5,11 +5,6 @@ T001a:
     data/raw/verified_manifest.json'
   task: 3a4f0dcc936408fb2fae4f52ada5061273dcade590a08109238c71cc2b2d710c
 T002:
-  reason: "The provided `requirements.txt` is missing the required `nilearn` and `networkx`\
-    \ packages and does not pin any versions (e.g., `numpy==1.26.0`). It also includes\
-    \ unrelated packages (matplotlib, seaborn, pytest, datasets, nibabel) that were\
-    \ not requested. The task\u2019s requirement for a fully pinned list of the specified\
-    \ dependencies is therefore not met."
   task: 78ad4d8c016442cca743b65e86089966dad7b69c06a045f48ad0f20732cdbe91
 T003:
   task: 65d1d6842884ede345b7497961ad4b9341ca0b6bb176357c3b2b055c0f3c9b0a
@@ -18,15 +13,8 @@ T004a:
 T004b:
   task: dc72f4f5f6832dfb1b09980b530d14dfe91715c6c46de91f06ad889a46f095cc
 T005:
-  reason: The only artifact on disk is `code/__init__.py` (a package marker), but
-    the task also requires data loading utilities for HCP OpenNeuro dMRI/fMRI data,
-    and no such module (e.g., a loader script with functions for reading/connectivity/time-series
-    data) exists anywhere in the project. The implementer completed only half the
-    task; a non-empty data-loading module with real HCP data-loading logic must be
-    added.
   task: 44773eb09ce00c31fba45c1f85ade48672708ea57118c9466defcca11ae1815a
 T006:
-  reason: 'declared artifact(s) missing/empty/invalid: code/structural.py'
   task: 1fa66f36787beb678f35c507f8f0d082770778f3736b9dd413540283880232fd
 T007:
   reason: 'declared artifact(s) missing/empty/invalid: code/functional.py'
@@ -39,8 +27,19 @@ T009:
 T009a:
   task: 896d3ecc6779c570382bcf94775889b0e676576ce742233e4f3f31f8d4bf5936
 T010:
+  reason: "The `data/` directory correctly contains the required subfolders (raw,\
+    \ derived, logs), but both required schema files `contracts/dataset.schema.yaml`\
+    \ and `contracts/output.schema.yaml` are reported as missing. Without these files\
+    \ the task\u2019s contract\u2011setup requirement is not fulfilled."
   task: 70a7a7ac8cb37df8f63ada38e427afb7f10fc90c1b858686ab015f0061281dab
 T012:
+  reason: "The provided `tests/unit/test_structural.py` imports and tests functions\
+    \ from `preprocess.structural`, not the public API in `code/structural.py`. It\
+    \ checks for keys like `average_clustering_coefficient` and `num_nodes` that `code.structural.calculate_graph_metrics`\
+    \ does not return, so the unit test does not verify the graph\u2011metric calculation\
+    \ of `code/structural.py` as required. A proper test should import `code.structural`\
+    \ and assert the presence and correctness of its returned keys (`global_efficiency`,\
+    \ `clustering`, `modularity`)."
   task: f0172bc42ad4e777239cb6b941664f4ad14810efc28e622611ae5f966950da29
 T013:
   task: 908b6ff3e38cb91e06e02f5442cc4fd828eaf047b9abfaee3bcd7fe00d755cf4

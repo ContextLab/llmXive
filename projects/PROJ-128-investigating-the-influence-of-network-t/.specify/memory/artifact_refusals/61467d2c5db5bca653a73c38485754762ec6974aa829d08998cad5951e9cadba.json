@@ -1,0 +1,7 @@
+{
+  "task_id": "T007",
+  "fingerprint": "982d2c0797ca3767ec412e088221fa618543470584aab8c22610eb21197155f7",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/functional.py': SyntaxError at line 303: invalid syntax. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 9554"
+}

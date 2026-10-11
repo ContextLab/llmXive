@@ -48,7 +48,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] **Create Project Directory Structure**: Create `code/`, `data/`, `contracts/`, `tests/` directories and subdirectories as defined in the Plan (`data/raw`, `data/derived`, `data/logs`, `contracts/`, `code/`, `tests/unit`, `tests/integration`). Verify structure exists.
-- [ ] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml>=6.0).
+- [X] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml>=6.0).
 - [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` or `.pre-commit-config.yaml`.
 
 ---
@@ -61,13 +61,13 @@ description: "Task list template for feature implementation"
 
 - [X] T004a [P] Create `code/config.py` structure for paths and seeds.
 - [X] T004b [P] Define hyperparameters in `code/config.py`: `WINDOW_LENGTH_BASELINE = 30` (in TRs), `WINDOW_LENGTH_VALIDATION = [20]` (in TRs), `WINDOW_STEP = 1` (in TRs), `K_MEANS_K = 5`. **Constraint**: Define `BASELINE_DENSITY` (to be derived or set, e.g., 0.1). **Logic**: `DENSITY_THRESHOLD_VARIATIONS = [BASELINE_DENSITY minus a small offset, BASELINE_DENSITY, BASELINE_DENSITY plus a small offset]`. **Rationale**: FR-008 specifies '±5%' perturbation; variations must be explicit numeric offsets, not vague heuristics.
-- [ ] T005 [P] Create `code/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
-- [ ] T006 [P] Implement `code/structural.py` skeleton with placeholder for graph metric calculation.
+- [X] T005 [P] Create `code/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
+- [X] T006 [P] Implement `code/structural.py` skeleton with placeholder for graph metric calculation.
 - [ ] T007 [P] Implement `code/functional.py` skeleton for sliding-window and state extraction.
 - [ ] T008 [P] Create `code/correlation.py` skeleton for statistical testing.
 - [X] T009 [P] Create `code/reports/generate_report.py` skeleton for final output.
 - [X] T009a [P] **Create Documentation**: Write `docs/quickstart.md` with instructions to run the full pipeline end-to-end, including environment setup and data fetching.
-- [~] T010 [P] Setup `data/` directory structure (raw, derived, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
+- [ ] T010 [P] Setup `data/` directory structure (raw, derived, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,7 +81,7 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T012 [P] [US1] Unit test for `code/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
+- [ ] T012 [P] [US1] Unit test for `code/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
 - [~] T013 [P] [US1] Unit test for `code/functional.py` LOSO k-means state extraction in `tests/unit/test_functional.py`.
 - [~] T013b [P] [US1] **CRITICAL**: Unit test for LOSO Independence Constraint in `tests/unit/test_functional.py`. Verify that for any subject `i`, the generated centroids are computed *exclusively* from the data of subjects `j != i`. Assert that subject `i`'s data is never included in the centroid generation step.
 - [~] T014 [P] [US1] Integration test for single-subject pipeline in `tests/integration/test_single_subject.py`.

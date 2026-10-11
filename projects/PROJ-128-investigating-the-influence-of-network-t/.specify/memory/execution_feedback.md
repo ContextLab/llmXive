@@ -11,17 +11,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-128-investigating-the-influence-of-network-t/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-128-investigating-the-influence-of-network-t/code/download_data.py': [Errno 2] No such file or directory
 
 - python code/analysis/completeness_report.py -> rc=1
-
+t found to be installed on your system.
+If this would cause problems for you,
+please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+        
+  import pandas as pd
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-128-investigating-the-influence-of-network-t/code/analysis/completeness_report.py", line 135, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-128-investigating-the-influence-of-network-t/code/analysis/completeness_report.py", line 105, in main
     total_cohort_size = structural_metrics['subject_id'].nunique() + len(exclusion_log)
                         ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-128-investigating-the-influence-of-network-t/lib/python3.11/site-packages/pandas/core/frame.py", line 4378, in __getitem__
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-128-investigating-the-influence-of-network-t/lib/python3.11/site-packages/pandas/core/frame.py", line 4090, in __getitem__
     indexer = self.columns.get_loc(key)
               ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-128-investigating-the-influence-of-network-t/lib/python3.11/site-packages/pandas/core/indexes/range.py", line 535, in get_loc
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-128-investigating-the-influence-of-network-t/lib/python3.11/site-packages/pandas/core/indexes/range.py", line 417, in get_loc
     raise KeyError(key)
 KeyError: 'subject_id'
 
@@ -46,16 +50,15 @@ KeyError: 'subject_id'
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-128-investigating-the-influence-of-network-t/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-128-investigating-the-influence-of-network-t/code/report_generator.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -> rc=2
-: Dict[str, Any]
-E   NameError: name 'Any' is not defined
-_________ ERROR collecting tests/unit/test_tractography_sensitivity.py _________
-tests/unit/test_tractography_sensitivity.py:20: in <module>
-    from analysis.tractography_sensitivity import (
-code/analysis/tractography_sensitivity.py:27: in <module>
-    from preprocess.structural import calculate_graph_metrics
-code/preprocess/structural.py:126: in <module>
-    config: Dict[str, Any]
-E   NameError: name 'Any' is not defined
+ a required dependency of pandas in the next major release of pandas (pandas 3.0),
+  (to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+  but was not found to be installed on your system.
+  If this would cause problems for you,
+  please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+          
+    import pandas as pd
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_robustness.py
 ERROR tests/integration/test_single_subject.py - NameError: name 'Any' is not...
@@ -65,7 +68,7 @@ ERROR tests/unit/test_structural.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_tractography.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_tractography_sensitivity.py - NameError: name 'Any' is ...
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.29s ===============================
+========================= 1 warning, 7 errors in 1.08s =========================
 
 
 

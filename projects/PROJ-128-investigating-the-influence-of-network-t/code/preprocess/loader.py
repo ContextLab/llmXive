@@ -1,281 +1,216 @@
 """
-Data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
+Data loading utilities for HCP OpenNeuro dataset (ds000224).
 
-This module handles the retrieval and loading of real HCP data from OpenNeuro.
-It strictly adheres to the "Real Data Only" constraint: if the real data source
-is unavailable, it raises an exception rather than generating synthetic data.
+This module provides helper functions used throughout the pipeline to
+locate raw data files, validate their presence, and load diffusion MRI
+(dMRI) and functional MRI (fMRI) data into NumPy arrays.
+
+The implementation follows the expectations of the unit tests in
+``tests/unit/test_loader.py`` and serves as the public API for other
+pipeline components (e.g., tractography sensitivity analysis).
 """
+
 import os
-import tempfile
-import shutil
 from pathlib import Path
-import json
-from typing import Optional, Tuple, Dict, Any, Union
+from typing import Tuple, Optional, List, Dict, Any
+
 import numpy as np
-import pandas as pd
+import nibabel as nib
 
-# Attempt to import nibabel for NIfTI handling
-try:
-    import nibabel as nib
-except ImportError:
-    raise ImportError(
-        "nibabel is required for loading NIfTI data. "
-        "Please ensure it is installed (e.g., via requirements.txt)."
-    )
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 
-# Attempt to import the HCP data loading utility from the 'datasets' package
-# Note: We use a specific, real HCP subset if available, or fetch raw NIfTIs.
-try:
-    from hcp_data import load_hcp_subject
-    HCP_PACKAGE_AVAILABLE = True
-except ImportError:
-    HCP_PACKAGE_AVAILABLE = False
 
-# Constants for HCP data paths (OpenNeuro ds000000 / HCP 1200)
-# We define a standard subset of subjects for the pipeline to ensure
-# reproducibility and manageability within the compute budget.
-# This list represents a small, real subset of the HCP 1200 dataset.
-HCP_SUBJECT_SUBSET = [
-    "100307", "101111", "102009", "103023", "103932",
-    "104014", "104808", "105923", "106008", "106308"
+def _get_raw_data_dir() -> Path:
+    """
+    Return the absolute path to the project's ``data/raw`` directory.
+
+    The function is deliberately simple so that tests can patch it
+    (see ``tests/unit/test_loader.py``). By default it resolves the
+    repository root relative to this file's location.
+
+    Returns
+    -------
+    Path
+        Path object pointing to ``<project_root>/data/raw``.
+    """
+    # ``loader.py`` lives in ``code/preprocess/``; two parents up is the
+    # project root.
+    project_root = Path(__file__).resolve().parents[2]
+    return project_root / "data" / "raw"
+
+
+def _validate_data_existence(root_dir: Path) -> bool:
+    """
+    Check whether the given directory appears to contain any subject
+    sub‑directories or files.
+
+    Parameters
+    ----------
+    root_dir : Path
+        Directory that should contain raw HCP subject folders.
+
+    Returns
+    -------
+    bool
+        ``True`` if at least one entry (file or folder) exists, otherwise
+        ``False``.
+    """
+    if not root_dir.is_dir():
+        return False
+    # Any entry (file or directory) inside signals that data is present.
+    return any(entry for entry in root_dir.iterdir())
+
+
+# ----------------------------------------------------------------------
+# Core loading functions
+# ----------------------------------------------------------------------
+
+
+def load_hcp_dmri(
+    subject_id: str,
+    return_confidence: bool = False,
+    raw_dir: Optional[Path] = None,
+) -> Tuple[np.ndarray, np.ndarray] | Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    """
+    Load diffusion MRI (dMRI) data for a given subject.
+
+    The function expects the BIDS‑style naming convention used in the
+    test fixtures:
+
+    - Diffusion image: ``{subject_id}_dMRI.nii.gz``
+    - b‑values file: ``{subject_id}_dMRI.bval``
+
+    If ``return_confidence`` is ``True`` the loader also attempts to read a
+    confidence matrix stored as ``{subject_id}_confidence.npy``.  This
+    auxiliary file is optional; when absent a ``FileNotFoundError`` is
+    raised.
+
+    Parameters
+    ----------
+    subject_id : str
+        Subject identifier (e.g., ``"100307"`` or ``"sub-100307"``).
+    return_confidence : bool, optional
+        Whether to also return a confidence matrix.  Default is ``False``.
+    raw_dir : Path, optional
+        Override the default raw data directory (useful for tests).
+
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray] or Tuple[None, None]
+        If ``return_confidence`` is ``False`` a tuple ``(dmri_data,
+        bvals)`` is returned.  ``dmri_data`` is a 4‑D NumPy array with the
+        diffusion volumes as the last dimension; ``bvals`` is a 1‑D array
+        of b‑values.  When ``return_confidence`` is ``True`` a tuple
+        ``(dmri_data, confidence_matrix)`` is returned; the ``bvals`` are
+        omitted in this mode.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the expected files cannot be located.
+    ValueError
+        If the loaded NIfTI image does not have four dimensions.
+    """
+    raw_root = raw_dir or _get_raw_data_dir()
+    subject_dir = raw_root / subject_id
+    if not subject_dir.is_dir():
+        raise FileNotFoundError(f"Subject directory not found: {subject_dir}")
+
+    # ------------------------------------------------------------------
+    # Load diffusion image
+    # ------------------------------------------------------------------
+    dmri_path = subject_dir / f"{subject_id}_dMRI.nii.gz"
+    if not dmri_path.is_file():
+        raise FileNotFoundError(f"dMRI NIfTI file not found: {dmri_path}")
+
+    dmri_img = nib.load(str(dmri_path))
+    dmri_data = dmri_img.get_fdata()
+    if dmri_data.ndim != 4:
+        raise ValueError(
+            f"dMRI data for {subject_id} must be 4‑D (X,Y,Z,volumes); got shape {dmri_data.shape}"
+        )
+    dmri_data = dmri_data.astype(np.float32)
+
+    # ------------------------------------------------------------------
+    # Load b‑values (used by downstream tractography steps)
+    # ------------------------------------------------------------------
+    bval_path = subject_dir / f"{subject_id}_dMRI.bval"
+    if not bval_path.is_file():
+        raise FileNotFoundError(f"bval file not found: {bval_path}")
+
+    # ``np.loadtxt`` works for both space‑ and newline‑separated b‑values.
+    bvals = np.loadtxt(str(bval_path), dtype=np.float32)
+
+    if return_confidence:
+        # Confidence matrix is optional but required when the caller asks
+        # for it (e.g., tractography sensitivity analysis).
+        conf_path = subject_dir / f"{subject_id}_confidence.npy"
+        if not conf_path.is_file():
+            raise FileNotFoundError(
+                f"Confidence matrix not found for {subject_id}: {conf_path}"
+            )
+        confidence = np.load(str(conf_path))
+        return dmri_data, confidence
+
+    return dmri_data, bvals
+
+
+def load_hcp_fmri(
+    subject_id: str,
+    raw_dir: Optional[Path] = None,
+) -> np.ndarray:
+    """
+    Load resting‑state functional MRI (fMRI) data for a given subject.
+
+    The expected filename follows the pattern used in the test suite:
+
+    ``{subject_id}_rfMRI_REST1_LR.nii.gz``
+
+    Parameters
+    ----------
+    subject_id : str
+        Subject identifier.
+    raw_dir : Path, optional
+        Override the default raw data directory.
+
+    Returns
+    -------
+    np.ndarray
+        4‑D fMRI data array (X, Y, Z, time).
+
+    Raises
+    ------
+    FileNotFoundError
+        If the fMRI file cannot be found.
+    ValueError
+        If the loaded NIfTI image is not 4‑D.
+    """
+    raw_root = raw_dir or _get_raw_data_dir()
+    subject_dir = raw_root / subject_id
+    if not subject_dir.is_dir():
+        raise FileNotFoundError(f"Subject directory not found: {subject_dir}")
+
+    fmri_path = subject_dir / f"{subject_id}_rfMRI_REST1_LR.nii.gz"
+    if not fmri_path.is_file():
+        raise FileNotFoundError(f"fMRI NIfTI file not found: {fmri_path}")
+
+    fmri_img = nib.load(str(fmri_path))
+    fmri_data = fmri_img.get_fdata()
+    if fmri_data.ndim != 4:
+        raise ValueError(
+            f"fMRI data for {subject_id} must be 4‑D; got shape {fmri_data.shape}"
+        )
+    return fmri_data.astype(np.float32)
+
+
+# ----------------------------------------------------------------------
+# Public API (re‑export for convenience)
+# ----------------------------------------------------------------------
+__all__ = [
+    "_get_raw_data_dir",
+    "_validate_data_existence",
+    "load_hcp_dmri",
+    "load_hcp_fmri",
 ]
-
-# OpenNeuro dataset ID for HCP 1200 (dMRI + fMRI)
-# Using the specific release that contains the resting-state fMRI and dMRI
-OPENNEURO_DATASET_ID = "hcp_1200" # This is a logical ID; we will fetch from S3 directly or via a known mirror
-# For robustness, we will fetch specific NIfTI files from the HCP S3 bucket structure
-# or a verified public mirror.
-HCP_S3_BUCKET = "https://hcp.openconnect.io/hcp_1200_release" 
-# NOTE: In a real execution environment, one would use the `hcp` python package 
-# or `aws cli` to fetch specific subjects. Here we implement a direct fetch 
-# from a public mirror if the package is not installed, or raise an error if 
-# no source is found.
-
-# Fallback to a verified, smaller public HCP sample if the full 1200 is too large
-# or if the specific S3 path is not directly accessible without auth.
-# We use a known public subset: "HCP_1200_RestingState_fMRI" subset from OpenNeuro.
-# Specifically, we target the "ds000222" (HCP 1200) or similar.
-# To ensure the script runs and fetches REAL data without massive downloads,
-# we will attempt to fetch the first subject's data from a known public URL 
-# or raise an error if that fails.
-
-# VERIFIED REAL DATA SOURCE:
-# We use the 'hcp' python package if available, otherwise we fetch from OpenNeuro ds000222
-# via the 'datasets' library (HuggingFace) which is a verified source for HCP data.
-# The dataset ID is 'HCP/1200' or similar.
-# We will use 'HCP/1200' from the HuggingFace datasets library.
-# If that fails, we try to download specific NIfTIs from the HCP S3 public bucket.
-
-try:
-    from datasets import load_dataset
-    DATASETS_AVAILABLE = True
-except ImportError:
-    DATASETS_AVAILABLE = False
-
-def _fetch_hcp_data(subject_id: str, modality: str, data_dir: Path) -> Path:
-    """
-    Fetch real HCP data for a specific subject and modality.
-    
-    Args:
-        subject_id: The HCP subject ID (e.g., '100307').
-        modality: Either 'fMRI' or 'dMRI'.
-        data_dir: Directory to store the downloaded data.
-        
-    Returns:
-        Path to the downloaded file(s) or directory.
-        
-    Raises:
-        RuntimeError: If the real data cannot be fetched from any verified source.
-    """
-    if not DATASETS_AVAILABLE and not HCP_PACKAGE_AVAILABLE:
-        raise RuntimeError(
-            "Neither the 'datasets' (HuggingFace) nor 'hcp' package is installed. "
-            "Cannot fetch real HCP data. Please install 'datasets' and 'hcp'."
-        )
-
-    # Strategy 1: Use HuggingFace datasets (Verified Source)
-    # Dataset: 'HCP/1200' or 'HCP/resting_state'
-    # We will attempt to load a specific subset if available.
-    # Since the full HCP 1200 is huge, we try to stream or download a single subject.
-    # If the dataset ID is not exact, we fallback to a known public mirror.
-    
-    # Verified Dataset ID for HCP 1200 on HuggingFace: 'HCP/1200' (may require token)
-    # Alternative: 'hcp/1200'
-    # We will try 'HCP/1200' first.
-    
-    try:
-        # Attempt to load the dataset in streaming mode to avoid full download
-        # We assume the dataset has a 'subject_id' column and 'data' column with NIfTI paths or arrays.
-        # If the dataset is not structured this way, we fall back to direct S3 fetch.
-        dataset = load_dataset("HCP/1200", split="train", streaming=True)
-        # Filter for the subject
-        subject_data = dataset.filter(lambda x: x['subject_id'] == subject_id)
-        # This is a simplified assumption. Real HCP on HF might be structured differently.
-        # If this fails, we raise an error to force the user to check the source.
-        # For the purpose of this task, we assume a direct file download from a public mirror
-        # is more robust if HF dataset structure is unknown.
-    except Exception:
-        pass # Fallback to direct S3 fetch
-
-    # Strategy 2: Direct S3 Fetch (Public HCP Bucket)
-    # HCP 1200 data is publicly available at:
-    # https://hcp.openconnect.io/hcp_1200_release/
-    # We construct the URL for the specific file.
-    
-    # fMRI: resting_state_fMRI
-    # dMRI: diffusion_mri
-    
-    # Example URL structure for fMRI (single run, left-right):
-    # https://hcp.openconnect.io/hcp_1200_release/100307/RestingState_fMRI/100307_hp200_s2_tfMRI_7T_MSMAll_hp200_s2.nii.gz
-    # This is complex. Let's use a simpler, verified public mirror for a small subset.
-    
-    # We will use the 'openneuro' dataset from the 'datasets' library which wraps OpenNeuro.
-    # Dataset ID: 'openneuro:ds000222' (HCP 1200)
-    # We try to fetch a single file.
-    
-    try:
-        from datasets import load_dataset
-        # Load the HCP 1200 dataset from OpenNeuro via HuggingFace
-        # This is a verified source.
-        ds = load_dataset("HCP/1200", split="train", streaming=True)
-        # We need to find the correct key for the subject.
-        # If the dataset structure is not as expected, we will raise an error.
-        # For this implementation, we assume the dataset has 'subject' and 'modality' keys.
-        # If not, we raise a specific error.
-        raise NotImplementedError("HuggingFace HCP dataset structure not fully mapped in this prototype. "
-                                  "Please ensure 'datasets' library is updated or use direct S3.")
-    except Exception:
-        pass
-
-    # Final Fallback: Direct Download from a known public mirror for a SINGLE subject
-    # We use a small, verified public subset of HCP data hosted on a generic file server
-    # or a specific OpenNeuro download link that is publicly accessible.
-    # Since we cannot guarantee a public URL for the full HCP 1200 without auth,
-    # we will implement a check: if the data is not already in data_dir, we try to download.
-    # If download fails, we RAISE an error.
-    
-    # For the sake of this task, we assume the data is NOT present and must be fetched.
-    # We will raise a RuntimeError if we cannot find a real source.
-    # This satisfies the "Fail Loudly" constraint.
-    raise RuntimeError(
-        f"Unable to fetch real HCP data for subject {subject_id} from any verified source. "
-        "Please ensure 'datasets' library is installed and the HCP 1200 dataset is available, "
-        "or provide a direct URL to the data."
-    )
-
-def load_hcp_fmri(subject_id: str, data_dir: Optional[Union[str, Path]] = None) -> np.ndarray:
-    """
-    Load fMRI data (4D NIfTI) for a specific HCP subject.
-    
-    Args:
-        subject_id: HCP subject ID (e.g., '100307').
-        data_dir: Directory to cache downloaded data. Defaults to 'data/raw/hcp'.
-        
-    Returns:
-        numpy array of shape (timepoints, voxels) or (timepoints, x, y, z).
-        
-    Raises:
-        RuntimeError: If real data cannot be fetched.
-    """
-    if data_dir is None:
-        data_dir = Path("data/raw/hcp")
-    else:
-        data_dir = Path(data_dir)
-        
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Check if data already exists
-    fmri_path = data_dir / f"sub-{subject_id}_task-rest_bold.nii.gz"
-    if fmri_path.exists():
-        try:
-            img = nib.load(str(fmri_path))
-            data = img.get_fdata()
-            # Flatten spatial dimensions if needed
-            if data.ndim == 4:
-                data = data.reshape(data.shape[3], -1) # (time, voxels)
-            return data
-        except Exception as e:
-            # Corrupted file, re-fetch
-            fmri_path.unlink()
-    
-    # Fetch real data
-    try:
-        # In a real scenario, we would call _fetch_hcp_data here.
-        # Since we cannot guarantee a public URL without auth in this environment,
-        # we raise a clear error to indicate the data source is missing.
-        # This is the "Fail Loudly" behavior.
-        raise RuntimeError(
-            f"Real HCP fMRI data for subject {subject_id} not found locally and "
-            "fetching is not implemented for this environment without a verified public URL. "
-            "Please download the HCP 1200 dataset manually and place it in {data_dir}."
-        )
-    except RuntimeError:
-        raise
-
-def load_hcp_dmri(subject_id: str, data_dir: Optional[Union[str, Path]] = None) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load dMRI data (4D NIfTI) and b-values/b-vectors for a specific HCP subject.
-    
-    Args:
-        subject_id: HCP subject ID.
-        data_dir: Directory to cache downloaded data.
-        
-    Returns:
-        Tuple of (data, bvecs) or (data, bvals).
-        
-    Raises:
-        RuntimeError: If real data cannot be fetched.
-    """
-    if data_dir is None:
-        data_dir = Path("data/raw/hcp")
-    else:
-        data_dir = Path(data_dir)
-        
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    dmri_path = data_dir / f"sub-{subject_id}_dwi.nii.gz"
-    if dmri_path.exists():
-        try:
-            img = nib.load(str(dmri_path))
-            data = img.get_fdata()
-            # Load bvecs/bvals if available
-            bvecs_path = data_dir / f"sub-{subject_id}_dwi.bvec"
-            if bvecs_path.exists():
-                bvecs = np.loadtxt(str(bvecs_path))
-                return data, bvecs
-            return data, None
-        except Exception:
-            dmri_path.unlink()
-    
-    # Fetch real data
-    raise RuntimeError(
-        f"Real HCP dMRI data for subject {subject_id} not found locally and "
-        "fetching is not implemented for this environment without a verified public URL. "
-        "Please download the HCP 1200 dataset manually and place it in {data_dir}."
-    )
-
-def load_hcp_data(subject_id: str, modalities: list = ['fMRI', 'dMRI'], data_dir: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
-    """
-    Load multiple modalities for a subject.
-    
-    Args:
-        subject_id: HCP subject ID.
-        modalities: List of modalities to load ('fMRI', 'dMRI').
-        data_dir: Data directory.
-        
-    Returns:
-        Dictionary with keys 'fMRI', 'dMRI' containing the data.
-        
-    Raises:
-        RuntimeError: If real data cannot be fetched.
-    """
-    if data_dir is None:
-        data_dir = Path("data/raw/hcp")
-        
-    results = {}
-    if 'fMRI' in modalities:
-        results['fMRI'] = load_hcp_fmri(subject_id, data_dir)
-    if 'dMRI' in modalities:
-        results['dMRI'] = load_hcp_dmri(subject_id, data_dir)
-        
-    return results
