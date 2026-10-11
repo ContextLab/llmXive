@@ -1,12 +1,14 @@
 status: none
-intent: "download \u03C4c-Bench dataset from Hugging Face Hub python package dataset"
+intent: official tauc-bench dataset download from HuggingFace python package dataset
 required_fields:
 - task_id
-- instruction
-- input
-- ground_truth_output
-- task_type
-- metadata
-cache_key: c3449dab10d7251f6b3b0daf4545cef0d208f8b9dfedcdf3ee29caba3e22a398
-searched_at: '2026-10-11T19:07:18.762466+00:00'
+- task_name
+- task_description
+- input_prompt
+- expected_output
+- baseline_success_status
+- baseline_total_api_calls
+- baseline_total_token_consumption
+cache_key: 1e25927525870dee58af6c20a0c301765eda1df6553841e9fd9dcce175a478f7
+searched_at: '2026-10-11T20:11:40.554133+00:00'
 retry_count: 1
