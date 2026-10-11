@@ -385,6 +385,11 @@ class ImplementerAgent(SlashCommandAgent):
                     if not art.get("execute"):
                         refuse(f"[implementer] refused empty contents without execution: {relpath!r}")
                     continue
+                # The feature directory has ONE name. Code that hard-codes the
+                # slug the model invented reads a path that does not exist.
+                if canonical_spec_dirname:
+                    from llmxive.speckit.feature_slug import canonicalize_feature_refs
+                    contents = canonicalize_feature_refs(contents, project_root, canonical_spec_dirname)
                 # Refuse to write content that's a unified-diff fragment.
                 # The implementer prompt forbids diffs, but Qwen
                 # occasionally returns one anyway and the script later

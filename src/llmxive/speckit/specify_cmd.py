@@ -274,7 +274,10 @@ class SpecifierAgent(SlashCommandAgent):
         prior_spec = (
             spec_path.read_text(encoding="utf-8") if spec_path.exists() else None
         )
-        spec_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
+        from llmxive.speckit.feature_slug import canonicalize_feature_branch
+        spec_text = canonicalize_feature_branch(
+            llm_response.text.strip(), ctx.project_dir, feature_dir.name)
+        spec_path.write_text(spec_text + "\n", encoding="utf-8")
 
         # Spec 009 FR-009 + FR-010: real-only guard. If the emitter produced a
         # template-classified artifact, discard it (restoring any prior spec),
