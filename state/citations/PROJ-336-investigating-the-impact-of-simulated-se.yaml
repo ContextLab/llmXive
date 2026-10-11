@@ -20,3 +20,15 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-07T00:36:02.957238Z'
+- artifact_hash: 8ffab42d216de95f7c9148d4cd203513e45b250ba7b4a8cc8d567931f4f9d8f5
+  artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub \xB7 Change is constant. GitHub keeps you ahead. \xB7 GitHub\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/
+  verification_status: pending
+  verified_against_url: https://github.com/
+  verified_at: '2026-10-11T05:15:06.680591Z'

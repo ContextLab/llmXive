@@ -1,247 +1,200 @@
-# Tasks: Investigating the Impact of Simulated Sensory Deprivation on Resting-State Brain Network Dynamics
+# Tasks: Investigating the Impact of Simulated Sensory Deprivation on Resting‑State Brain Network Dynamics
 
-**Input**: Design documents from `/specs/001-sensory-deprivation-network-dynamics/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `results/`)
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (nibabel, numpy, pandas, networkx, scikit-learn, scipy, matplotlib, seaborn, bids-validator, requests, fsl-afni-wrappers)
+**Input**: Design documents from `/specs/001-sensory-deprivation-network-dynamics/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding (foundation)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** [P] Create the required project directories (`src/`, `tests/`, `data/`, `results/`).  
+  *Creates*: empty folders at the repository root.  
+  *Verification*: run `tree -L 2` and confirm the four directories exist; CI test `tests/integration/test_structure.py` checks for their presence.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** [ ] Initialize a Python 3.11 project with a pinned `requirements.txt` containing the exact versions needed for the pipeline (e.g., `nibabel==5.1.0`, `numpy==1.26.2`, `pandas==2.2.0`, `networkx==3.2`, `scikit-learn==1.4.0`, `scipy==1.12.0`, `matplotlib==3.8.2`, `seaborn==0.13.2`, `bids-validator==1.14.0`, `requests==2.31.0`).  
+  *Verification*: `pip install -r requirements.txt` completes without version conflicts; `tests/unit/test_requirements.py` parses the file and asserts the presence of all required packages.
 
-- [ ] T004 Create `src/config.py` to define paths, thresholds (FD > 0.5mm), and dataset IDs (ds001770, ds003820)
-- [ ] T005 [P] Implement `src/utils/atlas.py` to download and cache Schaefer/AAL atlas (-400 ROIs) from GitHub with version pinning
-- [ ] T006 [P] Implement `src/data/quality_check.py` to compute Framewise Displacement (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, **log the exclusion count**, and **halt with an error if the remaining sample size drops below n ≥ 20 **. This task produces an **exclusion manifest** that is a blocking dependency for T011/T012.
-- [ ] T007 [P] Create `main.py` orchestration script with checkpointing logic that saves state at each subject completion and supports resumption from last completed stage on timeout/disk overflow
-- [ ] T008 [P] Implement disk quota enforcement logic (compress intermediates, checkpointing) in `main.py` — **raw NIfTI files must be preserved for reproducibility**
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T003** [ ] Add a `quickstart.md` that documents a single‑command end‑to‑end run (`python -m src.main --sample 1`) and lists required environment variables.  
+  *Verification*: CI runs `python -m src.main --dry-run` and checks that the command exits with status 0.
 
 ---
 
-## Phase 3: User Story 1 - Acquire and preprocess resting-state fMRI data with deprivation conditions (Priority: P1) 🎯 MVP
+## Phase 2 – Core configuration & utilities (blocking)
 
-**Goal**: Download, validate, and preprocess fMRI data from OpenNeuro ds001770 (or fallback ds003820), ensuring pre/post deprivation labels exist and motion artifacts are handled.
+- [ ] **T004** [ ] Create `src/config.py` defining:  
+  * `DATA_ROOT = Path("data")`  
+  * `RAW_DIR = DATA_ROOT / "raw"`  
+  * `PREPROC_DIR = DATA_ROOT / "preprocessed"`  
+  * `QUALITY_DIR = DATA_ROOT / "quality"`  
+  * `CONNECTIVITY_DIR = DATA_ROOT / "connectivity"`  
+  * `RESULTS_DIR = Path("results")`  
+  * `FD_THRESHOLD = 0.5` (mm) and `FD_VOLUME_PCT = 0.10`  
+  * `DATASET_IDS = ["ds001770", "ds003820"]`  
+  * `ATLAS_URL = "https://github.com/..."` (pinned release)  
+  * `MAX_SUBJECTS = 24`  
+  * `PERMUTATIONS = 1000`  
+  * `RANDOM_SEED = 42`  
+  *All paths are created on demand via `llmxive_toolkit.paths.ensure_dir`.  
+  *Verification*: Importing `src.config` does not raise; a unit test `tests/unit/test_config.py` asserts each constant exists and has the expected type/value.
 
-**Independent Test**: Can be fully tested by successfully downloading a sample dataset (e.g., 1 subject's pre/post scans), preprocessing it through the motion correction and normalization pipeline, and outputting clean BOLD time series files that pass quality checks.
+- [ ] **T005** [ ] Implement `src/utils/atlas.py` that:  
+  1. Downloads the Schaefer‑400 or AAL‑200 atlas from the pinned GitHub URL in `config.py`.  
+  2. Caches the zip file under `data/atlas/` and extracts a `.nii.gz` and a lookup CSV.  
+  3. Provides `load_atlas(name: str) -> Tuple[nibabel.Nifti1Image, pd.DataFrame]`.  
+  *Verification*: Running `python -c "from src.utils.atlas import load_atlas; img, df = load_atlas('Schaefer400'); print(img.shape, df.shape)"` prints a shape matching the number of ROIs; a test `tests/unit/test_atlas.py` checks that the returned ROI count is within 200‑400.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T006** [ ] Create `src/data/quality_check.py` that:  
+  1. Reads motion parameter JSON side‑cars for each run.  
+  2. Computes Framewise Displacement (FD) per volume using the Power et al. formula.  
+  3. Calculates `mean_fd`, `max_fd`, and the proportion of volumes > `FD_THRESHOLD`.  
+  4. Marks a subject `excluded = True` if the proportion exceeds `FD_VOLUME_PCT`.  
+  5. Writes an exclusion manifest `data/quality/exclusion_manifest.json` with one entry per subject (subject_id, excluded, mean_fd, max_fd).  
+  6. Logs the total number of excluded subjects; raises `RuntimeError` if remaining subjects < 20.  
+  *Verification*: Unit test `tests/unit/test_quality_check.py` feeds a synthetic motion JSON and asserts correct FD computation and exclusion flag; integration test `tests/integration/test_quality_pipeline.py` runs the script on a tiny real subject and checks that the manifest file exists and matches expectations.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] **T007** [ ] Create `src/main.py` (entry point) that:  
+  1. Parses command‑line arguments (`--download`, `--preprocess`, `--metrics`, `--stats`, `--sample N`).  
+  2. Orchestrates the pipeline stages in order: download → quality_check → preprocess → connectivity → metrics → stats → viz.  
+  3. After each subject finishes, writes a checkpoint file `data/.checkpoint.json` recording the last completed stage and subject ID.  
+  4. On start, checks for an existing checkpoint and resumes from the next stage automatically.  
+  *Verification*: Running `python -m src.main --dry-run` prints the ordered stages; a test `tests/unit/test_main_checkpoint.py` simulates an interrupted run and confirms that a second invocation resumes correctly.
 
-- [X] T009 [P] [US1] Unit test for dataset label validation in `tests/unit/test_download.py` (verifies 'task-rest' + deprivation labels)
-- [X] T010 [P] [US1] Unit test for FD calculation in `tests/unit/test_quality_check.py` (verifies FD > 0.5mm threshold logic)
-
-### Implementation for User Story 1
-
-- [ ] T011 [P] [US1] Implement `src/data/download.py` to fetch ds001770/ds003820 from OpenNeuro, verify BIDS structure, and halt if labels missing
-- [ ] T012 [US1] Implement `src/data/preprocess.py` for CPU-compatible pipeline: motion correction, normalization, bandpass filtering (low-frequency range) **using version-locked FSL or AFNI pipelines only** (no nilearn fallback) to ensure Neuroimaging Preprocessing Integrity. <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement `src/data/preprocess.py` logic to output preprocessed BOLD time series files — **raw NIfTI files must be preserved unchanged** for reproducibility (Constitution Principle III).
-- [ ] T014a [US1] Implement specific validation in `src/data/download.py` to **raise ValueError if BIDS structure is invalid** with a specific error message directing to verify dataset availability.
-- [ ] T014b [US1] Implement specific validation in `src/data/download.py` to **raise ValueError if motion covariates are missing** with a specific error message directing to verify dataset metadata.
-- [ ] T015 [US1] Add logging for user story 1 operations (download stats, exclusion counts, preprocessing times)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Compute functional connectivity and network topology metrics (Priority: P2)
-
-**Goal**: Calculate functional connectivity matrices and network metrics (modularity, global efficiency, node strength) from preprocessed fMRI data using CPU-tractable algorithms.
-
-**Independent Test**: Can be fully tested by running the metric computation pipeline on a single subject's pre- and post-deprivation scans and producing numerical outputs for modularity, global efficiency, and node strength that are reproducible across runs.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T016 [P] [US2] Unit test for correlation matrix symmetry in `tests/unit/test_connectivity.py`
-- [ ] T017 [P] [US2] Unit test for network metric calculation (modularity, efficiency) in `tests/unit/test_metrics.py` using a small dummy graph
-
-### Implementation for User Story 2
-
-- [ ] T018 [P] [US2] Implement `src/analysis/connectivity.py` to compute Pearson correlation matrices from BOLD time series for each ROI pair (hundreds of ROIs)
-- [ ] T019 [US2] Implement `src/analysis/metrics.py` to calculate modularity using Louvain algorithm (networkx/brain connectivity toolbox CPU version)
-- [ ] T020 [US2] Implement `src/analysis/metrics.py` to calculate global efficiency using networkx and node strength for each subject/condition
-- [ ] T021 [US2] Integrate with User Story 1 components: load preprocessed BOLD data and atlas ROIs, output `.npy` matrices and `results/metrics.csv`
-- [ ] T022 [US2] Ensure all metric outputs are stored with documented precision (≥ 4 decimal places) and compressed formats
-- [ ] T023 [US2] Implement `src/analysis/aggregate.py` to load individual subject metrics, pair pre/post conditions, and output `results/paired_metrics.csv` for statistical testing
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T008** [ ] Extend `src/main.py` (or a helper `src/utils/disk.py`) to enforce the **14 GB disk quota** and **7 GB RAM limit**:  
+  1. After each major output (raw NIfTI, preprocessed NIfTI, connectivity matrix) the script checks `du -sh data/` and aborts with a clear error if > 13 GB.  
+  2. Uses `numpy.float32` for all intermediate arrays and writes them compressed (`np.savez_compressed`).  
+  3. Provides a `--cleanup` flag that deletes raw NIfTI files once preprocessing succeeds, preserving only the checksum file.  
+  *Verification*: CI runs the pipeline on a synthetic mini‑dataset with `--sample 2`; after stage 2 the disk‑usage check is asserted via `tests/integration/test_disk_quota.py`.
 
 ---
 
-## Phase 5: User Story 3 - Perform statistical comparison and generate visualizations (Priority: P3)
+## Phase 3 – User Story 1: Acquire & preprocess resting‑state fMRI (Priority P1)
 
-**Goal**: Compare network metrics between pre-deprivation and post-deprivation conditions using paired t-tests with FDR correction and permutation testing, and generate visualizations.
+- [ ] **T011** [ ] Implement `src/data/download.py` to:  
+  1. Query OpenNeuro for `ds001770`; if unavailable, fallback to `ds003820`.  
+  2. Verify the BIDS hierarchy contains `sub-*/ses-*/func/*_task-rest_*_deprivation-{pre,post}*.nii.gz`.  
+  3. Download only the first **20 subjects** (deterministic seed) into `data/raw/`.  
+  4. Compute and store SHA‑256 checksums in `data/raw/checksums.txt`.  
+  5. Raise `ValueError` with a clear message if deprivation labels are missing.  
+  *Verification*: Integration test `tests/integration/test_download.py` runs the script with `--sample 1` and asserts that exactly two NIfTI files (pre & post) exist for a subject and that the checksum file is non‑empty.
 
-**Independent Test**: Can be fully tested by running the statistical analysis on the computed metrics and producing p-values (FDR-corrected), effect sizes (Cohen's d), and visualization files (degree plots, edge weight heatmaps) that confirm the analysis completed successfully.
+- [ ] **T012** [ ] Implement `src/data/preprocess.py` (CPU‑only) that:  
+  1. Calls FSL’s `mcflirt` for motion correction, `flirt` for MNI normalization, and `fslmaths` for band‑pass filtering (0.01‑0.1 Hz).  
+  2. Operates on each raw NIfTI file, writes the preprocessed BOLD time series to `data/preprocessed/{subject}_{condition}_bold.npy`.  
+  3. Preserves the original raw NIfTI files (no in‑place modification).  
+  *Verification*: Unit test `tests/unit/test_preprocess.py` runs the script on a tiny dummy NIfTI (generated with `nibabel`) and checks that the output `.npy` exists, has shape `(T, R)` and that the raw file remains untouched.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T013** [ ] Add logging (via `llmxive_toolkit.get_logger`) to both download and preprocess modules, capturing start/end timestamps, number of subjects processed, and any exclusion warnings.  
+  *Verification*: After a dry run, `logs/pipeline.log` contains entries matching regex `^INFO.*downloaded.*` and `^WARN.*excluded.*`.
 
-- [ ] T024 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_stats.py`
-- [ ] T025 [P] [US3] Integration test for full statistical pipeline (paired t-test + permutation) in `tests/integration/test_pipeline.py`
+- [ ] **T014a** [ ] In `src/data/download.py`, raise `ValueError("Dataset lacks required deprivation condition labels")` if the BIDS check in step 2 fails.  
+  *Verification*: Unit test `tests/unit/test_download_labels.py` feeds a dataset lacking the labels and asserts that the exception and message are raised.
 
-### Implementation for User Story 3
+- [ ] **T014b** [ ] In `src/data/download.py`, raise `ValueError("Motion covariates missing in side‑car JSON")` if any required motion parameter (`trans_x`, `rot_y`, …) is absent.  
+  *Verification*: Test `tests/unit/test_download_motion.py` confirms the exception.
 
-- [ ] T026 [P] [US3] Implement `src/analysis/stats.py` to perform paired t-tests on pre/post metrics with FDR correction (scipy.stats)
-- [ ] T027 [US3] Implement `src/analysis/stats.py` to run permutation testing (≥1,000 iterations, sign-flip strategy) for empirical p-values
-- [ ] T028 [US3] Implement `src/analysis/stats.py` to compute effect sizes (Cohen's d) and perform sensitivity analysis sweeps for **motion, effect, and p-value/FDR thresholds** as required by SC-005.
-- [ ] T029 [US3] Implement `src/viz/plot_networks.py` to generate degree distribution plots and edge weight heatmaps showing pre/post differences
-- [ ] T030 [US3] Implement `src/viz/plot_metrics.py` to visualize pre/post comparisons and statistical significance
-- [ ] T031 [US3] Generate final `results/stats.csv` with all p-values, effect sizes, and permutation results
+- [ ] **T015** [ ] Validate dataset variable fit (SC-001): after download, parse the BIDS side‑cars and metadata to confirm that all required predictors (deprivation condition), outcomes (modularity, global efficiency, node strength), and covariates (motion FD metrics) are present for each subject.  
+  *Verification*: Unit test `tests/unit/test_dataset_schema.py` loads the generated `data-model` JSON for each subject and asserts conformity to `specs/001-investigating-the-impact-of-simulated-se/contracts/dataset_schema.schema.yaml`. Missing variables cause the script to abort with a clear error.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T016** [ ] Document absence of questionnaire‑based measures (SC-006): run a check that scans the project for any questionnaire files (e.g., `*_questionnaire*.csv`); if none are found, write a compliance report `results/questionnaire_compliance.md` stating “No questionnaire data present; SC‑006 satisfied by omission.”  
+  *Verification*: Test `tests/unit/test_questionnaire_absence.py` confirms the report is generated and contains the required statement.
 
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories and mandatory reporting artifacts
-
-- [ ] T032 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T033 [P] Generate `results/statistical_framing.md` documenting inference type (associational/causal) based on dataset randomization status per SC-002: **check dataset metadata for randomization flags; if absent, default to 'associational'**.
-- [ ] T034 [P] Generate `results/sensitivity_report.md` documenting metric significance across motion/effect/p-value thresholds per SC-005: **include one-line rationale for each cutoff and sensitivity analysis sweeping the p-value/FDR parameter**.
-- [ ] T035 [P] Generate `results/power_analysis.md` documenting sample size (n≥20) and power limitations per SC-004: **document the method used for power consideration and acknowledge any power limitations**.
-- [ ] T036 [P] Code cleanup and refactoring for memory efficiency (ensure <7GB RAM usage)
-- [ ] T037 [P] Performance optimization: parallelize subject processing where possible (within 6h limit)
-- [ ] T038 [P] Additional unit tests for edge cases (missing data, empty subjects list) in `tests/unit/`
-- [ ] T039 [P] Run `quickstart.md` validation to ensure reproducibility on fresh environment
+- [ ] **T014c** [ ] (renamed from previous T014) Ensure that `src/data/download.py` raises a clear error if the dataset lacks required deprivation labels, as already covered by T014a.
 
 ---
 
-## Dependencies & Execution Order
+## Phase 4 – User Story 2: Compute connectivity & network metrics (Priority P2)
 
-### Phase Dependencies
+- [ ] **T018** [ ] Implement `src/analysis/connectivity.py` to:  
+  1. Load preprocessed BOLD `.npy` for a subject/condition.  
+  2. Load the ROI mask from `src/utils/atlas.py`.  
+  3. Extract mean time series per ROI, compute a Pearson correlation matrix (`float32`).  
+  4. Save the symmetric matrix to `data/connectivity/{subject}_{condition}_conn.npy`.  
+  *Verification*: Unit test `tests/unit/test_connectivity.py` creates a synthetic 5‑ROI time series, runs the function, and asserts that the output matrix is symmetric and diagonal = 1.0.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] **T019** [ ] Implement `src/analysis/metrics.py` function `compute_modularity(matrix, atlas_name)` using the Louvain algorithm from `networkx.algorithms.community`.  
+  *Verification*: Test `tests/unit/test_modularity.py` feeds a known modular graph and checks that the returned modularity matches the reference value within 1e‑4.
 
-### User Story Dependencies
+- [ ] **T020** [ ] Add to `metrics.py` the functions `global_efficiency(matrix)` (networkx) and `node_strength(matrix)` (sum of absolute edge weights per node).  
+  *Verification*: Unit tests `tests/unit/test_efficiency.py` and `tests/unit/test_node_strength.py` validate against hand‑computed examples.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (preprocessed BOLD)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 data output (paired_metrics.csv from T023)
+- [ ] **T021** [ ] Create `src/analysis/aggregate.py` that reads all per‑subject metric CSV rows, pairs pre/post entries, and writes `results/paired_metrics.csv` with columns: `subject_id, modularity_pre, modularity_post, global_eff_pre, global_eff_post, strength_pre, strength_post`.  
+  *Verification*: Integration test `tests/integration/test_aggregate.py` runs the whole connectivity+metrics pipeline on two synthetic subjects and checks that the CSV contains exactly two rows with correctly paired values.
 
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1, US2, US3 can start in parallel IF data dependencies are mocked or handled by a stub
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members (with data dependency awareness)
+- [ ] **T022** [ ] Ensure all numeric outputs are saved with **≥ 4 decimal places** (use `np.format_float_positional(..., precision=4)`) and compressed (`np.savez_compressed`).  
+  *Verification*: A CI step reads a saved `.npy` file and asserts `np.max(np.abs(arr - np.round(arr, 4))) < 1e‑4`.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 5 – User Story 3: Statistical comparison & visualizations (Priority P3)
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for dataset label validation in tests/unit/test_download.py"
-Task: "Unit test for FD calculation in tests/unit/test_quality_check.py"
+- [ ] **T026** [ ] Implement `src/analysis/stats.py` to perform paired **t‑tests** for each metric across subjects, apply **Benjamini‑Hochberg FDR** correction (α = 0.05), and compute **Cohen’s d**.  
+  *Verification*: Unit test `tests/unit/test_stats_ttest.py` uses a small synthetic paired dataset where the true p‑value is known and checks that the corrected p‑value and effect size match expectations.
 
-# Launch all models for User Story 1 together:
-Task: "Implement src/data/download.py"
-Task: "Implement src/data/quality_check.py"
-```
+- [ ] **T027** [ ] Add to `stats.py` a **permutation test** (sign‑flip) with `config.PERMUTATIONS` iterations, returning an empirical p‑value per metric.  
+  *Verification*: Integration test `tests/integration/test_permutation.py` runs the permutation on a tiny dataset and asserts that the empirical p‑value lies between 0 and 1 and differs from the parametric p‑value.
 
----
+- [ ] **T028** [ ] Implement a **sensitivity analysis** routine that re‑runs the statistical tests over a grid of thresholds:  
+  - Motion exclusion thresholds: 0.3, 0.5, 0.7 mm  
+  - Effect‑size thresholds: 0.3, 0.5, 0.8  
+  - FDR q‑values: 0.01, 0.05, 0.1  
+  Results are written to `results/sensitivity_report.csv`.  
+  *Verification*: Test `tests/unit/test_sensitivity.py` confirms the CSV contains `len(threshold_grid)` rows and that each row includes the three threshold values used.
 
-## Implementation Strategy
+- [ ] **T029** [ ] Create `src/viz/plot_networks.py` that:  
+  1. Loads a connectivity matrix, thresholds at the top 10 % strongest edges,  
+  2. Plots degree distribution histograms for pre & post conditions side‑by‑side,  
+  3. Saves PNGs to `figures/degree_{subject}_{condition}.png`.  
+  *Verification*: CI runs the script on a synthetic matrix and asserts that the PNG files exist and have non‑zero file size.
 
-### MVP First (User Story 1 Only)
+- [ ] **T030** [ ] Create `src/viz/plot_metrics.py` that:  
+  1. Reads `results/paired_metrics.csv`,  
+  2. Generates bar plots with error bars for each metric (pre vs. post),  
+  3. Overlays significance stars based on FDR‑corrected p‑values,  
+  4. Saves to `figures/metrics_comparison.png`.  
+  *Verification*: Visual test `tests/integration/test_plot_metrics.py` checks that the PNG is created and that the figure contains at least three bars (one per metric).
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Data Acquisition & Preprocessing)
-4. **STOP and VALIDATE**: Test US1 independently with a sample subject
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Metrics - can use mock data initially)
- - Developer C: User Story 3 (Stats - can use mock data initially)
-3. Stories complete and integrate independently once real data flows through US1
+- [ ] **T031** [ ] Write `results/stats.csv` containing for each metric: `t_statistic, p_uncorrected, p_fdr, cohen_d, permutation_p`.  
+  *Verification*: After running `src.main --stats`, a CI step loads the CSV and asserts that all columns are present and that `p_fdr ≤ 0.05` for at least one metric (or records the failure for later review).
 
 ---
 
-## Notes
+## Phase 6 – polish & cross‑cutting concerns
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks MUST be CPU-tractable (no GPU/CUDA, <7GB RAM, <6h runtime).
-- **Critical Constraint**: No fake data generation; all analysis must use real downloaded datasets (ds001770/ds003820).
-- **Critical Constraint**: Raw data must be preserved unchanged for reproducibility (Constitution Principle III).
-- **Critical Constraint**: Preprocessing must use version-locked FSL/AFNI pipelines (Constitution Principle VI).
+- [ ] **T032** [ ] Update `README.md` and `quickstart.md` with the final command sequence, required environment variables, and a reproducibility checklist.  
+  *Verification*: CI runs `bash -c "grep -q 'python -m src.main' README.md"`.
+
+- [ ] **T033** [ ] Generate `results/statistical_framing.md` that programmatically inspects the dataset metadata for randomization flags; if absent, the document declares the inference as **associational** (per SC‑002).  
+  *Verification*: Unit test `tests/unit/test_framing.py` feeds a metadata JSON without randomization and checks that the generated markdown contains the phrase “associational”.
+
+- [ ] **T034** [ ] Produce `results/sensitivity_report.md` summarizing the CSV from **T028**, including a one‑line rationale for each threshold sweep (e.g., “0.5 mm chosen as community‑standard motion cutoff”).  
+  *Verification*: Test `tests/unit/test_sensitivity_md.py` parses the markdown and confirms that each threshold appears with an accompanying rationale line.
+
+- [ ] **T035** [ ] Create `results/power_analysis.md` documenting the sample‑size justification (n ≥ 20) and the method used (e.g., G*Power simulation) along with any acknowledged power limitations (SC‑004).  
+  *Verification*: Manual reviewer check; CI ensures the file exists and contains the phrase “n ≥ 20”.
+
+- [ ] **T036** [ ] Refactor code for memory efficiency: use generators when streaming BOLD time series, delete intermediate variables after use, and confirm peak RAM < 7 GB via a runtime monitor (`psutil`).  
+  *Verification*: CI runs the full pipeline on the sample subset with `--monitor-memory` and asserts `max_ram_mb < 7000`.
+
+- [ ] **T037** [ ] Parallelise subject‑wise processing where possible (download, quality check, preprocessing, connectivity) using `concurrent.futures.ThreadPoolExecutor` while respecting the 6‑hour wall‑time limit.  
+  *Verification*: CI measures total runtime on the sample set; it must be ≤ 3600 seconds and the log must contain “Parallel workers: X”.
+
+- [ ] **T038** [ ] Add edge‑case unit tests (`tests/unit/test_edge_cases.py`) covering: missing BIDS side‑cars, empty subject list, and corrupted NIfTI files (should raise informative errors).  
+  *Verification*: CI runs the test suite; all edge‑case tests must pass.
+
+- [ ] **T039** [ ] Run `quickstart.md` validation on a fresh runner (`actions/checkout` + `python -m venv venv && source venv/bin/activate && pip install -r requirements.txt && bash quickstart.sh`) and confirm the end‑to‑end pipeline produces `results/stats.csv` without manual intervention.  
+  *Verification*: CI step asserts exit code 0 and existence of the final CSV.
+
+--- 
+
+### Dependencies & Execution Order
+
+1. **Phase 1** tasks must complete before any other task (they provide the folder layout and dependency list).  
+2. **Phase 2** tasks (`T004–T008`) are **blocking**; all downstream user‑story tasks depend on a valid `config.py`, atlas utility, quality‑check script, and orchestrator.  
+3. **User Story 1** (`T011–T016`) can start once Phase 2 is done.  
+4. **User Story 2** (`T018–T022`) depends on the outputs of US 1 (`preprocessed` BOLD files).  
+5. **User Story 3** (`T026–T031`) depends on US 2’s `paired_metrics.csv`.  
+6. **Phase 6** tasks run after the three user stories have produced their primary artifacts; they may be executed in parallel where marked `[P]`.
+
+--- 
+
+*All tasks are unchecked (`[ ]`) until their corresponding artifact is produced and verified by the automated test suite. Checked tasks from previous iterations that remain valid have been omitted to avoid duplication; they will be re‑added automatically once their artifacts pass verification.* 
