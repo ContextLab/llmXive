@@ -1,16 +1,13 @@
 [flake8]
-# Maximum line length (handled by Black)
+# Extend flake8 configuration as needed
 max-line-length = 88
-# Exclude common directories
 exclude =
     .git,
     __pycache__,
     build,
     dist,
     .venv,
-    .mypy_cache,
-    .ruff_cache
-# Ignore specific warnings
+    venv
 ignore =
-    E203,  # whitespace before ':', handled by Black
-    W503   # line break before binary operator, handled by Black
+    E203,  # whitespace before ':', handled by black
+    W503   # line break before binary operator, handled by black

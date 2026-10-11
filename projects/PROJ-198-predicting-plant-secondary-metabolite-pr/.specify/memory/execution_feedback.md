@@ -23,10 +23,6 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/cli/main.py --step download_and_align -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_fields.py:127: UserWarning: Field "model_cache_path" has conflict with protected namespace "model_".
-
-You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
-  warnings.warn(
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
     from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
@@ -36,10 +32,6 @@ ImportError: cannot import name 'BGCType' from 'models.bgc' (/home/runner/work/l
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_fields.py:127: UserWarning: Field "model_cache_path" has conflict with protected namespace "model_".
-
-You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
-  warnings.warn(
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
     from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite
@@ -48,17 +40,19 @@ Traceback (most recent call last):
 ImportError: cannot import name 'BGCType' from 'models.bgc' (/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/bgc.py)
 
 - python -m pytest tests/ -> rc=2
-y
+s://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/integration/test_align.py
 ERROR tests/integration/test_quickstart_validation.py
 ERROR tests/models/test_models.py
+ERROR tests/test_config.py
 ERROR tests/unit/test_align.py
-ERROR tests/unit/test_cleanup_refactor.py - AttributeError: 'NoneType' object...
-ERROR tests/unit/test_data_directories.py - NameError: name 'List' is not def...
+ERROR tests/unit/test_cleanup_refactor.py
+ERROR tests/unit/test_data_directories.py
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_download.py
 ERROR tests/unit/test_edge_cases.py
 ERROR tests/unit/test_env_manager.py
-ERROR tests/unit/test_eval.py - AttributeError: 'NoneType' object has no attr...
 ERROR tests/unit/test_linting_config.py
 ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_models.py
@@ -66,18 +60,14 @@ ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_preprocess.py
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
-ERROR tests/unit/test_sensitivity.py - AttributeError: 'NoneType' object has ...
+ERROR tests/unit/test_sensitivity.py
 ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
-!!!!!!!!!!!!!!!!!!! Interrupted: 21 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 9 warnings, 21 errors in 2.35s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 20 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 8 warnings, 20 errors in 2.28s ========================
 
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_fields.py:127: UserWarning: Field "model_cache_path" has conflict with protected namespace "model_".
-
-You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
-  warnings.warn(
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 16, in <module>
     from code.data.preprocess import run_antiSMASH_wrapper, harmonize_metabolites, map_bgc_to_metabolite

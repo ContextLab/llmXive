@@ -11,11 +11,11 @@
   *Path(s):* `code/`, `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`  
   *Verification:* Run `tree` (or equivalent) at the repository root and confirm all listed directories exist.
 
-- [ ] **T002** [P] **Add linting & formatting configuration** <!-- FAILED-IN-EXECUTION: code/scripts/run_lint_check.py exit=2 -->
+- [ ] **T002** [P] **Add linting & formatting configuration**
   *Path(s):* `.ruff.toml`, `.flake8`, `pyproject.toml` (Black section) at repository root  
   *Verification:* `ruff --quiet .` and `black --check .` complete with exit‑code 0.
 
-- [ ] **T003** [P] **Add environment‑variable management**  
+- [ ] **T003** [P] **Add environment‑variable management**   <!-- FAILED-IN-EXECUTION: code/scripts/run_lint_check.py exit=2 -->
   *Path(s):* `.env.example` (template), `code/config.py` (loads variables via `python‑dotenv`)  
   *Verification:* After sourcing `.env.example`, `config.get("NCBI_API_KEY")` and `config.get("PMDB_API_TOKEN")` return non‑empty strings.
 

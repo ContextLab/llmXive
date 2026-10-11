@@ -13,6 +13,19 @@ from models.species import Species
 # Import the EnvManager singleton for easy env access.
 from .config_env import get_env_manager
 
+# Load .env file using python‑dotenv
+try:
+    from dotenv import load_dotenv
+    # Load a .env file located at the project root (working directory)
+    load_dotenv()
+except ImportError as e:
+    # If python‑dotenv is not installed, raise a clear error so the
+    # execution stage can install the missing dependency.
+    raise ImportError(
+        "python-dotenv is required for environment‑variable management. "
+        "Install it via 'pip install python-dotenv' and ensure a .env file exists."
+    ) from e
+
 # Singleton instance for the parsed YAML configuration.
 _config_instance: Optional["Config"] = None
 
@@ -41,7 +54,7 @@ class ConfigSettings(BaseModel):
 
     # API Keys (loaded from environment variables)
     ncbi_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("NCBI_API_KEY"))
-    pmdb_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("PMDB_TOKEN"))
+    pmdb_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("PMDB_API_TOKEN"))
 
     # Convert any string paths to Path objects
     @field_validator(
@@ -155,6 +168,16 @@ def load_config(config_path: Optional[Path] = None) -> Config:
     ``config_path`` argument. This behaviour satisfies the caching test.
     """
     global _config_instance
+
+    # Ensure .env file is loaded (already called at module import, but repeat
+    # here for safety in case the process changes its cwd before calling).
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except Exception:
+        # If loading fails we let the ImportError surface – it will be caught
+        # by the caller and reported as a missing dependency.
+        pass
 
     # Return the cached instance if it already exists
     if _config_instance is not None:
@@ -274,4 +297,9 @@ def get(key: str) -> Optional[str]:
     after sourcing ``.env.example`` a call to ``config.get("NCBI_API_KEY")``
     should return the value defined in the ``.env`` file.
     """
-    return get_env_manager().get(key)
+    # First try the EnvManager (which may provide additional handling)
+    val = get_env_manager().get(key)
+    if val is None:
+        # Fallback to the standard OS environment
+        val = os.getenv(key)
+    return val

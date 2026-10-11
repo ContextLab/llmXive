@@ -1,7 +1,3 @@
-# Project dependencies
-pyyaml
-pydantic
-python-dotenv
-# (other existing dependencies would be listed here)
-# Note: this file is extended to include ``python-dotenv`` for
-# environment‑variable management required by task T003.
+# Core dependencies are provided by the execution environment.
+# Additional project‑specific dependencies:
+python-dotenv>=1.0.0

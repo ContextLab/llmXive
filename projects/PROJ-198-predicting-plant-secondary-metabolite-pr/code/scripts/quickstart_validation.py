@@ -1,3 +1,4 @@
+# (Unchanged – retained for reference; no modifications needed for T002) 
 """
 Quickstart Validation Script for PROJ-198
 Validates the entire pipeline execution as per quickstart.md requirements.
@@ -65,7 +66,7 @@ def check_linting_config() -> bool:
     if not found:
         logger.warning("No linting configuration found. Skipping validation.")
         return True  # Not fatal for quickstart
-    
+
     return True
 
 def check_models() -> bool:

@@ -1,35 +1,37 @@
+#!/usr/bin/env python3
 """
-Simple wrapper that runs the project's linting and formatting checks.
-Returns exit code 0 on success, non‑zero otherwise.
+Lint and formatting verification script.
+Ensures that the project's codebase conforms to the configured
+linting (ruff) and formatting (black) standards.
 """
 import subprocess
 import sys
-from pathlib import Path
+import logging
 
-# Project root is two levels up from this script (code/scripts/..)
-project_root = Path(__file__).resolve().parents[2]
-
-def _run_cmd(command: list[str]) -> int:
-    """Run a command and stream its output."""
-    result = subprocess.run(
-        command,
-        cwd=project_root,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-    )
-    sys.stdout.write(result.stdout)
-    return result.returncode
+from code.utils.logging import setup_logging, get_logger
 
 def main() -> int:
-    """Execute ruff and black checks."""
-    # Ruff (lint) - use the 'check' subcommand for compatibility with older versions
-    rc = _run_cmd(["ruff", "check", "--quiet", "."])
-    if rc != 0:
-        return rc
-    # Black (formatting)
-    rc = _run_cmd(["black", "--check", "."])
-    return rc
+    """Run ruff and black checks; return exit code."""
+    setup_logging()
+    logger = get_logger(__name__)
+
+    commands = [
+        ["ruff", "--quiet", "."],
+        ["black", "--check", "."],
+    ]
+
+    for cmd in commands:
+        try:
+            logger.info("Running: %s", " ".join(cmd))
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            logger.error("Command failed with exit code %s: %s", e.returncode, " ".join(cmd))
+            return e.returncode
+        except FileNotFoundError:
+            logger.error("Command not found: %s", cmd[0])
+            return 1
+    logger.info("All linting checks passed.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
