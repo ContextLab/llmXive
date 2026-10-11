@@ -1,16 +1,18 @@
 T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: 6d0018531938dcffc62f3c46a58b452389f45aa211fc9de8a8c7dd948fb0da0f
 T002:
-  reason: The `requirements.txt` exists and contains all eight required packages,
-    but none of them are pinned or carry version specifiers (only the unrequested
-    `psutil>=5.9` has one), directly contradicting the task's requirement for a "pinned
-    requirements.txt" and its verification criterion that a unit test check "version
-    specifiers" for the listed packages. Fix by adding version pins (e.g., `mne==1.x`,
-    `scikit-learn==1.x`, etc.) for all eight packages.
   task: 4274834363396d919fc3580bf4926c3d9572a790908ca0d554e34fa4f37e73fb
 T003:
   task: 423c6720804d9476f5a65040f465054037919d708a766fb9844a9bb445a83898
 T004:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/log.txt`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 6364cf756e61c090c026e55f7a7223363b46c493b357902af96e364b6c92c89e
 T005:
   task: 3062f94623b24d54d3a2f2d6562b4b41e4747de9c8ea16af5148b5f7ba330c04

@@ -7,11 +7,11 @@
 
 ## Phase 0 – Project scaffolding (must be finished before any scientific work)
 
-- [X] **T001**  Create the required directory hierarchy **and** a helper script `scripts/create_dirs.sh` that runs `mkdir -p data/raw data/processed artifacts state code tests`.  
+- [ ] **T001**  Create the required directory hierarchy **and** a helper script `scripts/create_dirs.sh` that runs `mkdir -p data/raw data/processed artifacts state code tests`.  
   **Path(s)**: `data/raw/`, `data/processed/`, `artifacts/`, `state/`, `code/`, `tests/`, `scripts/create_dirs.sh`.  
   **Verification**: `scripts/create_dirs.sh` exits 0 and a CI test (`tests/integration/test_structure.py`) asserts that each of the six directories exists after script execution.
 
-- [ ] **T002**  Initialise a Python 3.11 project and add a pinned `requirements.txt` containing `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`.  
+- [X] **T002**  Initialise a Python 3.11 project and add a pinned `requirements.txt` containing `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`.  
   **Path**: `requirements.txt`.  
   **Verification**: `pip install -r requirements.txt` succeeds in CI; a unit test checks that the file contains at least the listed packages with version specifiers.
 
@@ -19,7 +19,7 @@
   **Path**: `pyproject.toml`.  
   **Verification**: `ruff check .` and `black --check .` both return exit‑code 0 in CI.
 
-- [X] **T004**  Implement `code/utils.py` with:  
+- [ ] **T004**  Implement `code/utils.py` with:  
   * deterministic seed pinning,  
   * a lightweight logger,  
   * `record_artifact_hash(filepath)` and `compute_checksum(filepath)` for Constitution Principles V & III.  

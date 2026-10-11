@@ -1,5 +1,15 @@
 projects:
   PROJ-712-predicting-individual-pain-sensitivity-f:
-    data_checksums: {}
+    data_checksums: !!python/object/apply:pathlib.PosixPath
+    - /
+    - home
+    - runner
+    - work
+    - llmXive
+    - llmXive
+    - projects
+    - PROJ-712-predicting-individual-pain-sensitivity-f
+    - data
+    - raw
     checksum_algorithm: SHA-256
     last_checksum_update: null
