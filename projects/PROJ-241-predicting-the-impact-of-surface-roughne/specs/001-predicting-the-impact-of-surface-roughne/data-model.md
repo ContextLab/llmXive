@@ -5,8 +5,8 @@
 |-------|------|-------------|----------|
 | `experiment_id` | string (UUID) | Unique identifier for each tribological test. | ✅ |
 | `pairing_id` | string | Identifier linking the two contacting materials. | ✅ |
-| `material_1_id` | string | Materials Project or NIST identifier for the first material. | ✅ |
-| `material_2_id` | string | Identifier for the second material. | ✅ |
+| `material_1_id` | string | Materials Project or NIST identifier for material 1. | ✅ |
+| `material_2_id` | string | Identifier for material 2. | ✅ |
 | `Sa` | float | Arithmetic mean surface height (µm). | ✅ |
 | `Sq` | float | Root‑mean‑square height (µm). | ✅ |
 | `Ssk` | float | Skewness of the surface height distribution. | ✅ |
@@ -27,20 +27,20 @@
 |-------|------|-------------|
 | `avg_hardness` | float | Mean of `hardness_1` and `hardness_2`. |
 | `avg_modulus` | float | Mean of `elastic_modulus_1` and `elastic_modulus_2`. |
-| `hardness_modulus_ratio_avg` | float | Mean of the two ratio fields. |
+| `hardness_modulus_ratio_avg` | float | Mean of the two hardness‑to‑modulus ratios. |
 
 ## Schema Validation
-The `contracts/tribology-dataset.schema.yaml` (see contract file) defines the exact JSON‑Schema for the processed CSV/Parquet file. All pipeline stages must validate their outputs against this schema using `jsonschema.validate`.
+The processed dataset must validate against `contracts/tribology-dataset.schema.yaml` (JSON‑Schema). Validation occurs after Phase 3 (preprocessing) and before modeling.
 
 ## Storage Layout
 ```
 data/
 ├── raw/
-│   └── openml_42123/               # streamed raw files (read‑only)
+│   └── openml_2352/                 # streamed raw files (read‑only)
 ├── intermediate/
-│   └── material_properties.json    # fetched from Materials Project / NIST
+│   └── material_properties.json      # fetched from Materials Project / NIST
 ├── processed/
-│   └── tribology_dataset.parquet   # conforms to schema
+│   └── tribology_dataset.parquet     # conforms to schema
 ```
 
 ---
