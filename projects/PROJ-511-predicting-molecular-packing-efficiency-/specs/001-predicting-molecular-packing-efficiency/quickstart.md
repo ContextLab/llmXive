@@ -36,7 +36,7 @@ python code/compute_descriptors.py \
     --input data/processed/with_smiles.csv \
     --output data/processed/with_descriptors.csv
 
-# 4. Encode SMILES with the frozen transformer (streaming)
+# 4. Encode SMILES with the frozen transformer (streaming, CPU‑only, batch size auto‑fallback)
 python code/encode_smiles.py \
     --input data/processed/with_descriptors.csv \
     --output data/processed/full_feature_matrix.csv
@@ -72,11 +72,10 @@ python code/report_generator.py \
 
 ## Verification Checklist
 - **Dataset size**: `full_feature_matrix.csv` contains **≥ 500** rows (SC‑001).  
-- **Primary model performance**: `validation_report.json` shows `spearman_rho ≥ 0.3` **and** Bonferroni‑corrected `p_value ≤ 0.05` (SC‑002).  
+- **Primary model performance**: `validation_report.json` shows `spearman_rho ≥ 0.3` **and** Bonferroni‑corrected `p_value ≤ 0.05`, indicating statistical significance at the conventional α = 0.05 level (SC‑002).  
 - **Null‑result check**: If `spearman_rho < 0.2`, the report must show `p_value ≥ 0.05` (SC‑003).  
-- **Robustness**: Sensitivity table shows variation of `spearman_rho` across thresholds ≤ ±0.05 (SC‑004).  
-- **Runtime**: Full pipeline completes ≤ 6 h on the GitHub Actions free tier (SC‑005).  
-- **Permutation‑test deviation**: If the 4‑hour timeout fires, `validation_report.json` records `actual_shuffles` and logs the deviation (SC‑006).  
+- **Robustness**: Sensitivity table shows variation of `spearman_rho` across thresholds ≤ ±0.05 (SC‑004 is not defined; robustness is captured by the sensitivity analysis).  
+- **Runtime**: Full pipeline completes ≤ 6 h on the GitHub Actions free‑tier runner (SC‑005).  
 
 Run the test suite to confirm all unit and integration tests pass:
 ```bash
@@ -86,10 +85,10 @@ pytest tests/
 ## Troubleshooting
 | Symptom | Possible Cause | Remedy |
 |---------|----------------|--------|
-| OOM during `encode_smiles.py` | Batch size too large for available RAM | Reduce `--batch-size` (default setting) or let the automatic Kaggle GPU escape hatch handle it. |
-| A relatively small number of records after filtering. | Atom‑count or volume filters too strict | Inspect `data/raw/cod.jsonl` and adjust `--max-atoms` or `--volume-range` parameters. |
-| Permutation test logs a timeout | CPU resources insufficient for a large number of shuffles | Accept the logged `actual_shuffles` (≥ 1 000) and note the deviation in the report (SC‑006). |
-| Missing COD data | No verified COD URL supplied | Provide a verified COD mirror URL or revise the scope to an open crystallographic dataset. |
+| OOM during `encode_smiles.py` | Batch size too large for available RAM | The script automatically reduces the batch size (64 → 32 → 16) and retries. |
+| Few records after filtering | Atom‑count or volume filters too strict | Inspect `data/raw/cod.jsonl` and adjust `--max-atoms` or `--volume-range` parameters. |
+| Permutation test takes longer than expected | Inefficient parallelization | Ensure `joblib` is using all available cores; the implementation is optimized to finish within 2 h. |
+| Missing COD data | No verified COD URL is supplied | Provide a verified COD mirror URL or adopt an open substitute as described in the Data Availability note. |
 
 ---
 

@@ -1,9 +1,12 @@
 status: none
-intent: pymatgen Crystallography Open Database CIF download python package dataset
+intent: Crystallography Open Database organic CIF download python package dataset
 required_fields:
-- cod_id
+- cif_id
 - smiles
 - packing_coefficient
-cache_key: 0c75283a07f0587fef38fa337d9888032ebf5438e95c80f72ec8a4221d4c0c42
-searched_at: '2026-10-11T08:09:20.144150+00:00'
+- atom_count
+- source_url
+- smiles_generated_flag
+cache_key: f44810814fb123e88cb87c9acd9aaf37cf1a37d0f6db785c39d56b4475275e58
+searched_at: '2026-10-11T08:33:34.490686+00:00'
 retry_count: 1

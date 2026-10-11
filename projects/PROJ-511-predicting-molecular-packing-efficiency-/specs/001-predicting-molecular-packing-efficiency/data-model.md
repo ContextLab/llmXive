@@ -12,15 +12,20 @@ Schemas define the structure of all data artifacts exchanged between pipeline st
 6. **Validation Report** → **HTML Report** (final deliverable)  
 
 ## Schemas
+The concrete JSON‑Schema definitions reside in the `contracts/` directory:
 
-### 1. Full Feature Matrix (`data/processed/full_feature_matrix.csv`)
+- `contracts/dataset.schema.yaml` – validates the full feature matrix (`data/processed/full_feature_matrix.csv`).  
+- `contracts/model.schema.yaml` – validates model checkpoint metadata (`data/artifacts/model_*.pt` + side‑car JSON).  
+- `contracts/validation_report.schema.yaml` – validates the validation report (`data/artifacts/validation_report.json`).  
+
+### Key Columns of the Full Feature Matrix (validated by `dataset.schema.yaml`)
 | Column | Type | Description |
 |--------|------|-------------|
 | `cod_id` | string | Unique COD identifier (provenance). |
 | `smiles` | string | Canonical SMILES (extracted or generated). |
 | `smiles_source` | string (`"extracted"` | `"generated"`) | Origin of SMILES. |
 | `unit_cell_volume` | number | Unit‑cell volume (Å³). |
-| `pc_raw` | number | **Primary target** – raw packing coefficient. |
+| `pc_raw` | number | Packing Coefficient (target). |
 | `radius_of_gyration` | number | 3‑D descriptor (Å). |
 | `asphericity` | number | 3‑D descriptor (0–1). |
 | `principal_moments` | string (JSON) | `[I1, I2, I3]` in Å⁴. |
@@ -31,13 +36,7 @@ Schemas define the structure of all data artifacts exchanged between pipeline st
 | `atom_type_counts` | string (JSON) | `{"C":10,"O":2,…}` (excluded from Primary Model). |
 | `fingerprint_vector` | string | Space‑separated float list (SMILES‑Transformer embedding). |
 
-**Required fields**: all except `temperature_K` (may be null).  
-
-### 2. Model Checkpoint Metadata (`data/artifacts/model_*.pt` + JSON side‑car)
-*Validated by `contracts/model.schema.yaml`.* Includes model type, layer sizes, total parameters, target variable, training config (seed, learning rate, batch size, epochs, train‑split ratio), and creation timestamp.
-
-### 3. Validation Report (`data/artifacts/validation_report.json`)
-*Validated by `contracts/validation_report.schema.yaml`.* Contains MAE, Spearman ρ, Pearson r, Shapiro‑Wilk statistics, permutation‑test results (including actual shuffles if timeout), Bonferroni correction details, VIF diagnostics, sensitivity‑analysis table, residual‑composition correlation, and target‑distribution diagnostics.
+**Required fields**: all listed above except `temperature_K` (may be null).  
 
 ## Transformation Logic
 1. **PC_raw** = `unit_cell_volume / sum(vdw_volume_i)` (FR‑003).  
