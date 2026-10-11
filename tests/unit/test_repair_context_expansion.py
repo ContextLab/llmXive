@@ -322,3 +322,62 @@ def test_replaced_away_source_must_be_reread_before_editing(repair_repo, monkeyp
     assert set(json.loads((output / 'source-context-revision-1.json').read_text())) == {related}
     assert set(json.loads((output / 'source-context-revision-2.json').read_text())) == {source, related}
     assert json.loads((output / 'context-request.json').read_text())['replaced_paths'] == [source]
+
+
+def test_a_selection_that_overflows_is_fitted_in_the_models_own_order(repair_repo, monkeypatch):
+    """Run 38089862803, attempt 3: three rounds, the same over-budget files, a crash.
+
+    The model was given every size and the budget and returned 275 KB three
+    times. Fitting is arithmetic, so the runner does it: files are kept in the
+    order the model listed them, one that would overflow is dropped WHOLE, and
+    smaller ones after it still get in. No second selection turn is spent.
+    """
+    repo, output, source, related, proposal = repair_repo
+    big_a, big_b = 'src/llmxive/big_a.py', 'src/llmxive/big_b.py'
+    (repo/big_a).write_text('#' + 'a'*150_000)
+    (repo/big_b).write_text('#' + 'b'*120_000)
+    prompts = []
+    seen = []
+
+    def ask(prompt, **kwargs):
+        prompts.append(prompt)
+        if len(prompts) == 1:
+            return {'paths': [big_a, big_b, source, related], 'problem': 'zero instead of 42'}
+        return proposal
+
+    original_propose = runner.propose_fix
+
+    def propose(*args, **kwargs):
+        seen.append((args[-2], args[-1]))
+        return original_propose(*args, **kwargs)
+
+    def baseline(path, tests, log, **kwargs):
+        raise RuntimeError('reached unchanged baseline gate')
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    monkeypatch.setattr(runner, 'propose_fix', propose)
+    monkeypatch.setattr(runner, 'isolated_tests', baseline)
+    with pytest.raises(RuntimeError, match='reached unchanged baseline gate'):
+        runner.run(repo, {}, output)
+    assert len(prompts) == 2, 'one selection and one proposal: no turn spent on arithmetic'
+    selection, context = seen[0]
+    assert list(context) == [big_a, source, related]
+    assert context[big_a] == (repo/big_a).read_text(), 'kept files are complete, never truncated'
+    assert selection['dropped_for_size'] == [big_b]
+    assert json.loads((output/'selection-fit.json').read_text()) == {
+        'kept': [big_a, source, related], 'dropped_for_size': [big_b]}
+    assert json.loads((output/'selection.json').read_text())['paths'] == [big_a, source, related]
+    # The model's own answer is preserved as it gave it.
+    assert json.loads((output/'selection-response.json').read_text())['paths'] == [big_a, big_b, source, related]
+    # The proposer is told what it is not looking at and how to get it.
+    assert 'SELECTED BUT NOT IN SOURCE' in prompts[1] and big_b in prompts[1].split('SELECTED BUT NOT IN SOURCE')[1].split('FILE_BYTES')[0]
+
+
+def test_fitting_decides_size_and_nothing_else(repair_repo):
+    repo, _output, source, related, _proposal = repair_repo
+    assert runner.fit_selection(repo, [source, related], [source, related]) == ([source, related], [])
+    # A path that is not selectable is left for read_context to refuse.
+    kept, dropped = runner.fit_selection(repo, ['private.txt', source], [source])
+    assert (kept, dropped) == (['private.txt', source], [])
+    with pytest.raises(ValueError, match='not in FILES'):
+        runner.read_context(repo, kept, [source], {})

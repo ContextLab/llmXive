@@ -479,6 +479,44 @@ def _progress(output: Path, phase: str) -> None:
     print(f"Repair phase: {phase}", flush=True)
 
 
+#: Byte budget for the complete, never-truncated source context.
+CONTEXT_BYTES = 250_000
+
+
+def fit_selection(repo: Path, paths: list[str], tree: list[str]) -> tuple[list[str], list[str]]:
+    """Split a selection into (kept, dropped) so the kept files fit CONTEXT_BYTES.
+
+    The selecting model is given every file's size and the budget, and still
+    could not make them add up. Observed, run 38089862803 attempt 3: it chose
+    ``implementer.py`` (106 KB) + ``graph.py`` (99 KB) + ``task_verifier.py``
+    (46 KB) -- 251 KB before any test file -- was told "275409 bytes > 250000
+    bytes; select fewer relevant files", and returned the SAME five files twice
+    more. The third rejection raised, and the run failed before a single fix
+    was proposed. Arithmetic is not a judgement call, so it is done here.
+
+    Files are kept in the model's own order, which is its priority, skipping
+    any that would overflow and continuing with smaller ones after it. Whole
+    files only: SOURCE is never truncated. A path that is not selectable is
+    left in ``kept`` untouched so :func:`read_context` rejects it with its own
+    message; this function decides size, nothing else.
+    """
+    kept: list[str] = []
+    dropped: list[str] = []
+    used = 0
+    for path in paths:
+        file = repo / path
+        if path in kept or path not in tree or file.is_symlink() or not file.is_file():
+            kept.append(path)
+            continue
+        size = len(file.read_text().encode())
+        if used + size > CONTEXT_BYTES:
+            dropped.append(path)
+            continue
+        used += size
+        kept.append(path)
+    return kept, dropped
+
+
 def read_context(repo: Path, paths: list[str], tree: list[str], context: dict[str, str]) -> dict[str, str]:
     """Read only inventoried platform files, retaining complete bounded snapshots."""
     if len(set(context) | set(paths)) > 12:
@@ -493,8 +531,8 @@ def read_context(repo: Path, paths: list[str], tree: list[str], context: dict[st
             raise ValueError("context cannot leave platform")
         context[path] = file.read_text()
     size = sum(len(text.encode()) for text in context.values())
-    if size > 250_000:
-        raise ValueError(f"complete context exceeds 250 KB: {size} bytes > 250000 bytes; "
+    if size > CONTEXT_BYTES:
+        raise ValueError(f"complete context exceeds 250 KB: {size} bytes > {CONTEXT_BYTES} bytes; "
                          "select fewer relevant files")
     return context
 
@@ -623,6 +661,10 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         + render_evidence(evidence)
         + "\nSELECTED PROBLEM:\n"
         + str(selection.get("problem"))
+        + ("\nSELECTED BUT NOT IN SOURCE (dropped whole to fit the byte budget; request one "
+           "with context_paths, replacing files you need less):\n"
+           + json.dumps(selection["dropped_for_size"])
+           if selection.get("dropped_for_size") else "")
         + "\nFILE_BYTES (read-only context request inventory):\n" + json.dumps(inventory)
         + "\nEXISTING_RELATED_TESTS:\n" + json.dumps(related_inventory)
     )
@@ -749,6 +791,17 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
             if (not isinstance(paths, list) or not 1 <= len(paths) <= 6
                     or not all(isinstance(path, str) for path in paths)):
                 raise ValueError("select 1-6 context files as path strings")
+            kept, dropped = fit_selection(repo, paths, tree)
+            # Nothing fits: every file is over budget on its own. There is no
+            # subset to keep, so the model is told the sizes and asked again.
+            if kept and dropped:
+                paths = kept
+                # Recorded, and handed to the proposer: it can still ask for a
+                # dropped file through its read-only context replacement turn.
+                selection = dict(selection, paths=paths, dropped_for_size=dropped)
+                (output / f"selection-fit{suffix}.json").write_text(
+                    json.dumps({"kept": paths, "dropped_for_size": dropped}, indent=2))
+                (output / "selection.json").write_text(json.dumps(selection, indent=2))
             context = read_context(repo, paths, tree, {})
         except (ValueError, TypeError) as exc:
             (output / f"selection-validation{suffix}.json").write_text(
