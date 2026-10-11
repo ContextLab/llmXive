@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "EEG Dataset Metadata Schema"
-description: "Schema for validating dataset metadata and event labels"
+description: "Schema for validating dataset metadata and event labels for MMN analysis"
 type: object
 properties:
   subject_id:
     type: string
-    description: "Unique subject identifier (e.g., sub-01)"
+    description: "Unique subject identifier (e.g., 'sub-01')"
   condition_label:
     type: string
     enum:
@@ -20,7 +20,7 @@ properties:
     description: "Stimulus classification"
   is_valid:
     type: boolean
-    description: "Flag indicating if the data passes quality control"
+    description: "Flag indicating if the subject passed quality control"
   artifact_rejection_rate:
     type: number
     minimum: 0

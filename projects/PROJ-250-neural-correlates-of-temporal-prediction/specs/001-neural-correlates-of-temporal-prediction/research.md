@@ -2,71 +2,73 @@
 
 ## Dataset Strategy
 
-The project relies on a publicly available EEG dataset that contains **both** "simple oddball" and "complex auditory scene" conditions as *independent* experimental variables.
+The research question requires an EEG dataset containing a structured auditory oddball paradigm with two distinct levels of scene complexity: "simple" (standard vs. deviant) and "complex" (auditory scene analysis).
 
-### Verified Datasets
-Based on the `# Verified datasets` block provided in the project context:
-
-| Dataset Name | Verified URL | Status | Notes |
-|--------------|--------------|--------|-------|
-| EEG (Resting/Events) | `https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv` | **Verified** | Contains event markers; **UNSUITABLE** for MMN (lacks structured oddball/complex paradigm). **Excluded from valid data path.** |
-| Seizure EEG (Train/Eval) | `https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/...` | **Verified** | Focused on seizures; **UNSUITABLE** for MMN. |
-| OpenNeuro (fSLR64k) | `https://huggingface.co/datasets/clane9/openneuro-fslr64k/...` | **Verified** | Structural/functional MRI data; **NOT EEG**. |
-| OpenNeuro ds000246 | **NO verified source in block** | **Reference Only** | Canonical Auditory Oddball dataset. **Lacks "complex" condition.** **Excluded from primary hypothesis path.** |
-
-**Critical Gap Analysis**:
-The spec requires a dataset with **both** "simple oddball" and "complex auditory scene" conditions.
-- The **neurofusion/eeg-restingstate** dataset is resting-state; it lacks the structured stimulus events (standard/deviant) required to calculate MMN. **It is excluded from the valid data path.**
-- The **OpenNeuro ds000246** is a standard oddball dataset. It typically contains only "simple" conditions (standard vs. deviant). It **does not** contain a "complex" auditory scene condition.
-- **Decision**: The plan **cannot** proceed with ds000246 as the primary source for the *complexity* hypothesis.
-- **Action**: The implementation MUST attempt to find an alternative open dataset with both conditions (e.g., a specific complex auditory scene dataset on OpenNeuro or Zenodo).
-- **Fallback**: If no such dataset is found, the pipeline **HALTS** with the error: "Dataset lacks required 'complex' condition; research question untestable with current data."
-- **No Synthetic Fallback**: Synthetic data is **NOT** permitted for scientific results. It may only be used to unit-test the *code logic* (mocking) in `tests/`.
+### Dataset Selection
+- **Target Dataset**: OpenNeuro `ds004510`.
+- **Verification Status**: This dataset is specified in the feature requirements (FR-001). However, it is **NOT** listed in the provided `# Verified datasets` block. 
+- **Risk**: If `ds004510` is unavailable or the URL is invalid, the pipeline will halt. No synthetic data will be used for results.
+- **Condition Mapping**: The pipeline will explicitly search `events.tsv` for `condition_label` values `simple` and `complex`. If the `complex` condition is missing or is a heuristic mapping of the `deviant` stimulus type, the process will halt (FR-008).
 
 ### Data Acquisition Plan
-1.  **Search**: Attempt to locate a dataset with both "simple" and "complex" conditions via OpenNeuro/Zenodo search (manual or script).
-2.  **Verify**: Check `participants.tsv` and `events.tsv` for `condition_label` (simple/complex) and `stimulus_type` (standard/deviant).
-3.  **Validate**: Ensure `condition_label` is an independent experimental variable, not a heuristic mapping of `stimulus_type`.
-4.  **Halt**: If "complex" is missing or derived heuristically from "deviant", halt.
+1. **Fetch**: Use `wget`/`curl` to retrieve `ds004510` from OpenNeuro.
+2. **Checksum**: Compute SHA-256 hash of the raw data for reproducibility.
+3. **Metadata Audit**: Parse BIDS `events.tsv` to ensure the presence of both `simple` and `complex` condition labels.
+
+## Preprocessing Pipeline
+
+Standard ERP preprocessing is applied to remove noise and prepare data for MMN quantification:
+
+1. **Bandpass Filtering**: 1–40 Hz (removes DC drift and high-frequency muscle noise).
+2. **ICA Artifact Rejection**: Identifies and removes ocular (blink, saccade) and muscle artifacts.
+3. **Average Mastoid Re-referencing**: Re-references all channels to the average of mastoid electrodes (TP9, TP10).
+4. **Baseline Subtraction**: For each epoch, the mean voltage of the pre-stimulus window (-200ms to 0ms) is subtracted from the entire epoch to remove DC offsets and slow drifts. This is a mandatory ERP preprocessing step.
+5. **Epoching**: Segments continuous data into -200ms to 500ms windows relative to stimulus onsets.
+6. **Condition Classification**: Epochs are labeled as "simple" or "complex" based on the `condition_label` in the BIDS `events.tsv`.
 
 ## Statistical Methodology
 
-### MMN Quantification (FR-004)
-- **Metric**: Mean amplitude difference (Deviant - Standard) in the **150–250 ms** window.
-- **Latency**: Peak time of the difference waveform in the same window.
-- **Electrodes**: Fronto-central cluster (e.g., Fz, FCz, Cz, F3, F4, FC3, FC4).
-- **Baseline Correction**: Pre-stimulus period (-200 to 0 ms).
-- **Signal Validity (SC-001)**: Calculate the baseline noise floor (standard deviation of pre-stimulus period). Compute SNR = `|mean_amplitude| / std_baseline`. Signal is valid if SNR ≥ 2.0.
+### MMN Quantification
+Mismatch Negativity (MMN) is the gold standard for detecting temporal prediction errors.
+- **Window of Interest**: 150–250 ms post-stimulus.
+- **Calculation**: $\text{MMN Amplitude} = \text{Mean}(\text{Deviant Epochs}) - \text{Mean}(\text{Standard Epochs})$.
+- **Electrodes**: Fronto-central cluster (Fz, FCz, Cz, F3, F4, FC3, FC4).
+- **Signal Validity (SNR)**: To ensure the MMN is not noise, the Signal-to-Noise Ratio is calculated as:
+  $$\text{SNR} = \frac{|\text{MMN Amplitude}|}{\text{SEM}(\text{Pre-stimulus Baseline } [-200, 0]\text{ms})}$$
+  where SEM = SD / sqrt(N) and N is the number of trials. A threshold of $\text{SNR} \ge 3.0$ is required for signal validity (FR-011). This ensures the mean difference is at least 3 standard errors above the baseline noise.
 
-### Statistical Testing (FR-005, SC-002, SC-003)
-- **Design**: **Two-Way ANOVA** or **Linear Mixed Model (LMM)** with factors: `Condition` (Simple, Complex) and `Stimulus` (Standard, Deviant).
-- **Primary Hypothesis**: Test for the **Interaction Effect** (`Condition * Stimulus`). This tests if the MMN (Deviant-Standard) differs between Simple and Complex conditions.
-- **Correction**: **FDR (Benjamini-Hochberg)** across all tested electrodes.
-- **Effect Size**: Cohen's *d* calculated for the interaction effect.
-- **Benchmark (SC-003)**: Compare Cohen's *d* against a literature benchmark (e.g., **d ≥ 0.5** from Näätänen et al., 2007) to determine practical significance.
-- **Validity**: If "complex" condition is not an independent experimental variable, the test is invalid and the pipeline halts.
+### Hypothesis Testing
+- **Primary Test**: Paired t-tests comparing MMN amplitude between "Simple" and "Complex" conditions.
+- **Multiple Comparison Correction**: Benjamini-Hochberg FDR correction applied across all tested electrodes to control the False Discovery Rate (FR-005).
+- **Practical Significance**: Cohen's $d$ is calculated for the effect size.
+  - **Benchmark**: $d \ge 0.5$ is considered a medium-to-large effect, based on established MMN literature (FR-010).
 
-### Topographic Consistency (SC-004)
-- **Metric**: Pearson correlation coefficient (r) between the observed topography and a **canonical MMN topography template**.
-- **Template Source**: A pre-computed template from a verified literature source or a canonical dataset (separate from ds000246 for the complex condition).
-- **Threshold**: r ≥ 0.8 indicates high consistency.
-- **Fallback**: If no template exists for the "complex" condition, report "N/A" and do not calculate.
+### Topographic Consistency and Validity
+To verify the neurophysiological validity of the result, the observed MMN topography is compared to a canonical template in two independent checks:
 
-## Compute Feasibility & Resource Management
+1. **Consistency Check (Simple Condition)**: The canonical template is generated by averaging the MMN topography (deviant minus standard) of the 'simple' condition across all subjects. The 'simple' condition is then correlated against this template to measure inter-subject homogeneity and verify that the simple condition exhibits the expected fronto-central MMN spatial distribution.
+   - **Metric**: Pearson correlation coefficient ($r$).
+   - **Success Criterion**: $r \ge 0.8$ indicates strong consistency with the canonical spatial distribution (SC-004).
 
-- **Environment**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM, 6h limit).
-- **Strategy**: **CPU-First**.
-  - MNE-Python and statsmodels are optimized for CPU.
-  - Data will be processed in **chunks** or **streamed** if the dataset > 7 GB.
-  - No GPU required for MMN analysis.
+2. **Validity Check (Complex Condition)**: The observed 'complex' condition MMN topography is independently correlated against the same canonical template (derived from 'simple') to assess whether the complex condition also exhibits a valid prediction error topography. This check is not circular because it uses a different condition as the test case.
+   - **Metric**: Pearson correlation coefficient ($r$).
+   - **Success Criterion**: $r \ge 0.8$ indicates the complex condition exhibits a neurophysiologically valid MMN topography.
 
-## Risk Mitigation
+## Compute Feasibility
 
-| Risk | Mitigation Strategy |
-|------|---------------------|
-| **Dataset Mismatch** | HALT if "complex" condition is missing or derived heuristically. No synthetic data for results. |
-| **Circular Logic** | Explicit check: If `condition_label` == `stimulus_type`, HALT. |
-| **Excessive Artifacts** | Exclude subjects with >50% rejected epochs; log exclusion count. |
-| **Missing Channels** | Interpolate <10% missing channels using spherical splines. |
-| **Multiple Comparisons** | Mandatory FDR correction. |
-| **Template Missing** | Report "N/A" for SC-004 if no canonical template is available. |
+- **CPU-First**: All calculations (filtering, ICA, t-tests, correlations) use `mne`, `scipy`, and `statsmodels`, which are CPU-optimized.
+- **Memory Management**: 
+  - Data is processed one subject at a time.
+  - MNE `Epochs` objects are stored as memory-mapped files if they exceed available RAM.
+- **GPU**: Not required. No deep learning or CUDA-based kernels are used.
+
+## Decision/Rationale Table
+
+| Decision | Rationale |
+|----------|-----------|
+| **1–40 Hz Filter** | Removes DC offset and high-frequency muscle noise while preserving the MMN component. |
+| **ICA Rejection** | Essential for removing EOG (blink) artifacts which overlap with the fronto-central MMN topography. |
+| **Baseline Subtraction** | Removes DC offsets and slow drifts from each epoch, a standard ERP preprocessing step. |
+| **FDR Correction** | Necessary because testing multiple electrodes increases the probability of Type I errors. |
+| **SNR ≥ 3.0 (using SEM)** | Ensures that reported MMNs are significantly above the baseline noise floor. SEM is the appropriate denominator for comparing a mean difference to baseline noise. |
+| **Topographic Consistency vs. Validity** | Two independent checks prevent circularity: consistency measures homogeneity within the simple condition, while validity tests the complex condition against the canonical template. |

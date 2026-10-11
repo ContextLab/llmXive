@@ -2,75 +2,60 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships used throughout the project. It ensures that the implementation adheres to the **Data Hygiene** and **Single Source of Truth** principles of the project constitution.
-
-## Entity Relationship Diagram (Conceptual)
-
-```mermaid
-erDiagram
-    SUBJECT ||--|{ EPOCH : contains
-    EPOCH ||--|{ MMN_METRIC : derived_from
-    EPOCH }|--|| CONDITION : classified_as
-    EPOCH }|--|| STIMULUS_TYPE : labeled_as
-    CONDITION ||--|{ MMN_METRIC : aggregated_in
-    MMN_METRIC ||--|{ STATISTICAL_RESULT : aggregated_in
-```
+This data model ensures traceability from raw EEG signals to statistical conclusions, adhering to the project's **Single Source of Truth** principle.
 
 ## Core Entities
 
-### 1. Subject
-Represents a single participant in the EEG study.
-- **Attributes**:
-  - `subject_id` (string): Unique identifier (e.g., "sub-01").
-  - `exclusion_reason` (string, optional): Reason for exclusion (e.g., "excessive artifacts").
-  - `artifact_rejection_rate` (float): Percentage of epochs rejected.
+### 1. EEG Dataset (Input)
+Represents the raw BIDS-formatted data.
+- `dataset_id`: String (e.g., "ds004510").
+- `raw_file_hash`: String (SHA-256).
+- `subjects`: List of Subject IDs.
 
-### 2. Epoch
-A segmented time-series of EEG data centered on a stimulus.
-- **Attributes**:
-  - `epoch_id` (string): Unique identifier (e.g., "sub-01_cond-simple_type-deviant").
-  - `subject_id` (string): Foreign key to Subject.
-  - `condition_label` (string): "simple" or "complex".
-  - `stimulus_type` (string): "standard" or "deviant".
-  - `time_window` (list[float]): Start and end time in seconds (e.g., [-0.2, 0.5]).
-  - `data` (array): Multi-dimensional array (channels x timepoints).
-  - `is_valid` (boolean): True if no NaNs and within artifact thresholds.
+### 2. Subject (Metadata)
+- `subject_id`: String (Unique identifier).
+- `is_excluded`: Boolean (True if >50% epochs rejected).
+- `exclusion_reason`: String (Optional).
+- `artifact_rejection_rate`: Float (Percentage of rejected epochs).
 
-### 3. MMN Metric (Aggregated Output)
-Derived quantitative measures of the MMN component, including statistical results. This entity unifies the metric and statistical result entities.
-- **Attributes**:
-  - `metric_id` (string): Unique identifier.
-  - `subject_id` (string): Aggregated subject ID.
-  - `condition_label` (string): "simple" or "complex".
-  - `electrode` (string): Channel name (e.g., "Fz").
-  - `amplitude_diff` (float): Mean voltage difference (deviant - standard) in µV.
-  - `latency_diff` (float): Peak latency difference in ms.
-  - `window_start` (float): Start of analysis window (ms).
-  - `window_end` (float): End of analysis window (ms).
-  - `snr_ratio` (float): Signal-to-Noise Ratio (`|mean| / std_baseline`).
-  - `signal_validity` (boolean): True if SNR >= 2.0.
-  - `t_statistic` (float): T-statistic from interaction test (or paired t-test if only one condition).
-  - `p_value` (float): Raw p-value.
-  - `p_value_fdr` (float): FDR-corrected p-value.
-  - `cohen_d` (float): Effect size (Cohen's d).
-  - `benchmark_reference` (string): Source of the effect size benchmark (e.g., "Näätänen et al., 2007").
-  - `practical_significance` (boolean): True if `cohen_d` >= 0.5 (or benchmark threshold).
-  - `topographic_correlation` (float): Pearson r vs. canonical template (or null).
-  - `significant` (boolean): True if `p_value_fdr` < 0.05.
+### 3. Epoch (Processed Signal)
+- `epoch_id`: String (Unique identifier).
+- `subject_id`: String (Foreign Key).
+- `condition_label`: Enum ("simple", "complex").
+- `stimulus_type`: Enum ("standard", "deviant").
+- `signal_data`: Array (Channels $\times$ Timepoints).
+- `time_window`: Range ([-0.2, 0.5] seconds).
+- `baseline_corrected`: Boolean (True if pre-stimulus mean [-200, 0]ms subtracted).
 
-## Data Flow
+### 4. MMN Metric (Aggregated Result)
+The primary unit of analysis, aggregating signal data into quantitative metrics.
+- `metric_id`: String.
+- `subject_id`: String (Foreign Key).
+- `electrode`: String (e.g., "Fz").
+- `condition_label`: Enum ("simple", "complex").
+- `amplitude_diff`: Float ($\mu$V, Deviant - Standard).
+- `latency_diff`: Float (ms).
+- `snr_ratio`: Float (|Amplitude| / SEM of pre-stimulus baseline).
+- `signal_validity`: Boolean ($\text{SNR} \ge 3.0$).
+- `t_statistic`: Float.
+- `p_value_fdr`: Float (FDR-corrected).
+- `cohen_d`: Float.
+- `practical_significance`: Boolean ($\text{Cohen's } d \ge 0.5$).
+- `topographic_correlation`: Float (Pearson $r$ vs. canonical template).
+- `validation_type`: Enum ("consistency_simple", "validity_complex") (Distinguishes whether this is a consistency check on simple or validity check on complex).
+- `significant`: Boolean ($p < 0.05$).
 
-1.  **Ingestion**: Raw BIDS data -> `raw/` (checksummed).
-2.  **Preprocessing**: `raw/` -> `processed/epochs.fif` (MNE format).
-3.  **Feature Extraction**: `epochs.fif` -> `results/metrics.csv` (MMN metrics).
-4.  **Statistical Analysis**: `metrics.csv` -> `results/stats.json` (Interaction test results).
-5.  **Visualization**: `stats.json` + `epochs.fif` -> `results/figures/`.
+## Data Flow & Transformations
 
-## Constraints & Validations
+1. **Raw $\to$ Processed**: `download.py` $\to$ `preprocess.py`. Raw BIDS files are filtered, ICA-cleaned, baseline-subtracted, and epoched into `.fif` files.
+2. **Processed $\to$ Metrics**: `analysis.py` computes mean differences in the 150–250ms window for each subject/electrode/condition.
+3. **Metrics $\to$ Statistics**: `analysis.py` performs paired t-tests across the subject cohort and applies FDR correction.
+4. **Statistics $\to$ Output**: Final results are written to `results/metrics.csv` and `results/stats.json`.
 
-- **No NaNs**: All epoch data must pass `np.isnan(data).any() == False`.
-- **Time Window**: All epochs must be strictly within -200ms to 500ms.
-- **Condition Labels**: Must be exactly "simple" or "complex" (independent experimental variables).
-- **Stimulus Types**: Must be exactly "standard" or "deviant".
-- **Circular Logic Check**: `condition_label` MUST NOT be derived from `stimulus_type`.
-- **Checksums**: Every file in `data/` must have a corresponding entry in `state/projects/PROJ-250-neural-correlates-of-temporal-prediction.yaml` with a valid SHA-256 hash.
+## Constraints
+
+- **Temporal Constraint**: All epoch data must be strictly within the -200ms to 500ms window.
+- **Baseline Correction Constraint**: Every epoch must have the pre-stimulus baseline (-200ms to 0ms) mean subtracted before analysis.
+- **Integrity Constraint**: `signal_validity` must be True for any result claimed as a "detected MMN".
+- **Independence Constraint**: `condition_label` must be an independent variable in the dataset metadata, not derived from `stimulus_type`.
+- **Topographic Validation Constraint**: `validation_type` must distinguish between consistency checks (simple vs. template) and validity checks (complex vs. template) to avoid circular reasoning.

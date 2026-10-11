@@ -2,86 +2,70 @@
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.x (recent versions)
 - Git
-- Access to a GitHub Actions runner (or local environment with 7 GB+ RAM).
+- GitHub Actions Runner or Linux environment with $\ge 7$ GB RAM.
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-250-neural-correlates-of-temporal-prediction
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins `mne`, `numpy`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`.*
+1. **Clone and Setup**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-250-neural-correlates-of-temporal-prediction
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`.
+The pipeline is executed in sequence via the `code/` directory.
 
-### Step 1: Download and Verify Data
+### 1. Data Acquisition
 ```bash
 python code/download.py
 ```
-- Downloads the dataset (OpenNeuro ds000246 or alternative with complex condition).
-- Verifies checksums and condition labels.
-- **HALTS** if "complex" condition is missing or derived heuristically.
-- Outputs to `data/raw/`.
+- Downloads an OpenNeuro dataset.
+- Verifies checksums and metadata.
+- **Halt Condition**: Stops if the "complex" condition is missing from the dataset.
 
-### Step 2: Preprocess Data
+### 2. Preprocessing
 ```bash
 python code/preprocess.py
 ```
-- Applies bandpass filter (1–40 Hz).
-- Runs ICA for artifact rejection.
+- Applies a low-frequency bandpass filter (up to 40 Hz).
+- Performs ICA artifact rejection.
 - Re-references to average mastoids.
-- Segments epochs (-200 to 500 ms).
-- Outputs to `data/processed/epochs.fif`.
+- Subtracts baseline (pre-stimulus mean over a standard temporal window preceding stimulus onset).
+- Segments data into epochs (pre-stimulus to post-stimulus window).
 
-### Step 3: Analyze MMN Metrics
+### 3. Analysis
 ```bash
 python code/analysis.py
 ```
-- Computes MMN amplitude and latency for simple/complex conditions.
-- Performs **Interaction Test** (ANOVA/LMM) with FDR correction.
-- Calculates SNR and signal validity.
-- Calculates topographic correlation against canonical template.
-- Compares effect size against literature benchmark.
-- Outputs `results/metrics.csv` and `results/stats.json`.
+- Computes MMN amplitude/latency.
+- Validates SNR above a standard threshold using SEM denominator.
+- Generates canonical MMN topography template from 'simple' condition.
+- Performs topographic consistency check (simple vs. template).
+- Performs topographic validity check (complex vs. template).
+- Performs paired t-tests with FDR correction.
+- Calculates Cohen's $d$ and topographic correlations.
 
-### Step 4: Generate Visualizations
+### 4. Visualization
 ```bash
 python code/visualize.py
 ```
-- Generates ERP waveforms, scalp topographies, and significance plots.
-- Outputs to `results/figures/`.
+- Generates ERP waveforms, scalp maps, and significance plots in `results/figures/`.
 
 ## Validation
 
-To verify the pipeline integrity:
+Run the contract tests to ensure data integrity and statistical validity:
 ```bash
 pytest tests/
 ```
-- Runs contract tests against `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`.
-- Checks for NaNs in epoch data.
-- Verifies that `p_value_fdr` < 0.05 implies `significant` = True.
-- Verifies `signal_validity` logic.
-- Verifies `practical_significance` logic.
-
-## Troubleshooting
-
-- **"Dataset lacks required 'complex' condition"**: The dataset does not contain the necessary experimental design. The pipeline halts as per FR-008. Check `research.md` for fallback options.
-- **"Circular Logic Detected"**: The `condition_label` was derived from `stimulus_type`. The pipeline halts to prevent invalid statistics.
-- **Memory Error**: If running locally, reduce the number of subjects or use streaming mode (if implemented).
-- **NaNs in Data**: The pipeline halts. Check preprocessing steps for ICA component rejection thresholds.
+This verifies:
+- `results/metrics.csv` matches `contracts/output.schema.yaml`.
+- `results/stats.json` matches `contracts/stats.schema.yaml`.
+- Signal validity logic (SNR above a standard threshold using SEM) is correctly applied.
+- FDR-corrected p-values are used for significance flags.
+- Topographic consistency and validity checks are properly distinguished.
