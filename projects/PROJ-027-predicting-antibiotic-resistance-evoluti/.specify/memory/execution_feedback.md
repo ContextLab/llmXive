@@ -9,19 +9,20 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/download_manifest.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/pipeline_runtime.json, data/processed/verification_summary.json, data/raw/download_manifest.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/download_manifest.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 (rc=1); python -m pytest tests/contract/ (rc=1); python code/main.py --stage train --antibiotic ciprofloxacin (rc=2)
+**Summary**: every produced artifact is gitignored (data/processed/pipeline_runtime.json, data/processed/verification_summary.json, data/raw/download_manifest.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 (rc=1); python -m pytest tests/contract/ (rc=1); python code/main.py --stage train --antibiotic ciprofloxacin (rc=2)
 
 ## Failing / missing run-book commands
 
 - python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 -> rc=1
-2026-10-11 17:12:41 - root - INFO - Running stage: download_ncbi
-2026-10-11 17:12:41 - root - INFO - Stage 'download_ncbi' completed successfully
-2026-10-11 17:12:41 - root - INFO - Running stage: ingest_metadata
-2026-10-11 17:12:42 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
+2026-10-11 19:13:39 - root - INFO - Running stage: download_ncbi
+2026-10-11 19:13:40 - root - INFO - Stage 'download_ncbi' completed successfully
+2026-10-11 19:13:40 - root - INFO - Running stage: ingest_metadata
+2026-10-11 19:13:40 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
+2026-10-11 19:13:40 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -39,23 +40,26 @@ FAILED tests/contract/test_phyl_permutation_schema.py::test_p_value_valid_range
 FAILED tests/contract/test_phyl_permutation_schema.py::test_significance_flag_consistent
 FAILED tests/contract/test_phyl_permutation_schema.py::test_permutation_count_positive
 FAILED tests/contract/test_phyl_permutation_schema.py::test_observed_statistic_numeric
-========================= 6 failed, 9 passed in 0.32s ==========================
+========================= 6 failed, 10 passed in 0.46s =========================
 
 
 - python code/main.py --stage train --antibiotic ciprofloxacin -> rc=2
-2026-10-11 17:12:43 - root - INFO - Running stage: train_models
-2026-10-11 17:12:43 - root - ERROR - Stage 'train_models' failed with exit code 2
+2026-10-11 19:13:41 - root - INFO - Running stage: train_models
+2026-10-11 19:13:41 - root - ERROR - Stage 'train_models' failed with exit code 2
+2026-10-11 19:13:41 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations] -> rc=2
-2026-10-11 17:12:44 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to default 1000.
-2026-10-11 17:12:44 - root - INFO - Running stage: phylo_permutation
-2026-10-11 17:12:44 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
+2026-10-11 19:13:41 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to default 1000.
+2026-10-11 19:13:41 - root - INFO - Running stage: phylo_permutation
+2026-10-11 19:13:41 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
+2026-10-11 19:13:41 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage viz --antibiotic ciprofloxacin -> rc=2
-2026-10-11 17:12:44 - root - INFO - Running stage: generate_plots
-2026-10-11 17:12:45 - root - ERROR - Stage 'generate_plots' failed with exit code 2
+2026-10-11 19:13:42 - root - INFO - Running stage: generate_plots
+2026-10-11 19:13:42 - root - ERROR - Stage 'generate_plots' failed with exit code 2
+2026-10-11 19:13:42 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python -m pytest tests/ -> rc=2
@@ -75,7 +79,7 @@ ERROR tests/test_setup_directories.py
 ERROR tests/unit/test_main_reproducible.py
 ERROR tests/unit/test_split_data.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.50s ===============================
+============================== 3 errors in 0.41s ===============================
 
 
 ## Platform-owned paths written inside the project

@@ -8,14 +8,22 @@ This script orchestrates the five pipeline stages:
   4. Validation (permutation + sensitivity)
   5. Versioning / state finalization (hash artifacts)
 
-It can be invoked for a single stage (using --stage) or for the full
-pipeline (default: run all stages in order).
+It now records runtime statistics (start/end timestamps, duration,
+and peak RSS memory usage) and writes them to
+`data/processed/pipeline_runtime.json`.
 """
 
 import argparse
 import subprocess
 import sys
+import json
+import datetime
 from pathlib import Path
+
+import psutil
+
+# llmxive toolkit helpers for path creation
+from llmxive_toolkit import paths
 
 # Initialize pipeline-wide logging
 from utils.logging import init_pipeline_logging, get_logger
@@ -49,6 +57,22 @@ def run_subprocess(command: list, description: str) -> int:
     return result.returncode
 
 
+# Global variables for runtime measurement
+_START_TIME = datetime.datetime.now(datetime.timezone.utc)
+_PEAK_MEMORY = psutil.Process().memory_info().rss  # bytes
+
+
+def _update_peak_memory() -> None:
+    """Update the global peak memory measurement if current usage is higher."""
+    global _PEAK_MEMORY
+    try:
+        current = psutil.Process().memory_info().rss
+        if current > _PEAK_MEMORY:
+            _PEAK_MEMORY = current
+    except Exception as e:
+        logger.warning(f"Unable to update peak memory: {e}")
+
+
 def stage_ingest(args: argparse.Namespace) -> int:
     """
     Ingestion stage:
@@ -64,6 +88,7 @@ def stage_ingest(args: argparse.Namespace) -> int:
         f"--max-isolates={args.n_isolates}",
     ]
     rc = run_subprocess(cmd_download, "download_ncbi")
+    _update_peak_memory()
     if rc != 0:
         return rc
 
@@ -73,6 +98,7 @@ def stage_ingest(args: argparse.Namespace) -> int:
         "code/01_ingest/ingest_metadata.py",
     ]
     rc = run_subprocess(cmd_metadata, "ingest_metadata")
+    _update_peak_memory()
     if rc != 0:
         return rc
 
@@ -82,6 +108,7 @@ def stage_ingest(args: argparse.Namespace) -> int:
         "code/02_process/build_feature_matrix.py",
     ]
     rc = run_subprocess(cmd_feature, "build_feature_matrix")
+    _update_peak_memory()
     return rc
 
 
@@ -96,6 +123,7 @@ def stage_contract_validation() -> int:
     if rc != 0:
         logger.error("Contract validation failed – aborting pipeline.")
         sys.exit(EXIT_CONTRACT_FAILED)
+    _update_peak_memory()
     return rc
 
 
@@ -109,7 +137,9 @@ def stage_train(args: argparse.Namespace) -> int:
         "code/03_model/train_models.py",
         f"--antibiotic={args.antibiotic}",
     ]
-    return run_subprocess(cmd, "train_models")
+    rc = run_subprocess(cmd, "train_models")
+    _update_peak_memory()
+    return rc
 
 
 def stage_validate(args: argparse.Namespace) -> int:
@@ -137,6 +167,7 @@ def stage_validate(args: argparse.Namespace) -> int:
         f"--permutations={perms}",
     ]
     rc = run_subprocess(cmd_perm, "phylo_permutation")
+    _update_peak_memory()
     if rc != 0:
         return rc
 
@@ -146,7 +177,9 @@ def stage_validate(args: argparse.Namespace) -> int:
         "code/04_validate/sensitivity_analysis.py",
         f"--antibiotic={args.antibiotic}",
     ]
-    return run_subprocess(cmd_sens, "sensitivity_analysis")
+    rc = run_subprocess(cmd_sens, "sensitivity_analysis")
+    _update_peak_memory()
+    return rc
 
 
 def stage_viz(args: argparse.Namespace) -> int:
@@ -158,7 +191,9 @@ def stage_viz(args: argparse.Namespace) -> int:
         "code/05_viz/generate_plots.py",
         f"--antibiotic={args.antibiotic}",
     ]
-    return run_subprocess(cmd, "generate_plots")
+    rc = run_subprocess(cmd, "generate_plots")
+    _update_peak_memory()
+    return rc
 
 
 def stage_hash_artifacts() -> int:
@@ -169,7 +204,9 @@ def stage_hash_artifacts() -> int:
         sys.executable,
         "code/utils/hash_artifacts.py",
     ]
-    return run_subprocess(cmd, "hash_artifacts")
+    rc = run_subprocess(cmd, "hash_artifacts")
+    _update_peak_memory()
+    return rc
 
 
 def parse_args() -> argparse.Namespace:
@@ -218,30 +255,68 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _write_runtime_report() -> None:
+    """
+    Write the runtime JSON report to `data/processed/pipeline_runtime.json`.
+    """
+    end_time = datetime.datetime.now(datetime.timezone.utc)
+    duration = (end_time - _START_TIME).total_seconds()
+
+    runtime_path = paths.data("processed", "pipeline_runtime.json")
+    runtime_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report = {
+        "start_time": _START_TIME.isoformat(),
+        "end_time": end_time.isoformat(),
+        "duration_seconds": duration,
+        "peak_memory_bytes": _PEAK_MEMORY,
+    }
+
+    try:
+        with open(runtime_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Pipeline runtime written to {runtime_path}")
+    except Exception as e:
+        logger.error(f"Failed to write pipeline runtime report: {e}")
+
+
 def main() -> int:
     args = parse_args()
 
     if args.stage == "ingest":
-        return stage_ingest(args)
+        rc = stage_ingest(args)
+        _write_runtime_report()
+        return rc
 
     if args.stage == "contract":
-        return stage_contract_validation()
+        rc = stage_contract_validation()
+        _write_runtime_report()
+        return rc
 
     if args.stage == "train":
-        return stage_train(args)
+        rc = stage_train(args)
+        _write_runtime_report()
+        return rc
 
     if args.stage == "validate":
-        return stage_validate(args)
+        rc = stage_validate(args)
+        _write_runtime_report()
+        return rc
 
     if args.stage == "viz":
-        return stage_viz(args)
+        rc = stage_viz(args)
+        _write_runtime_report()
+        return rc
 
     if args.stage == "hash":
-        return stage_hash_artifacts()
+        rc = stage_hash_artifacts()
+        _write_runtime_report()
+        return rc
 
     # Full pipeline execution
     rc = stage_ingest(args)
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     # Contract validation is mandatory and aborts on failure
@@ -249,17 +324,21 @@ def main() -> int:
 
     rc = stage_train(args)
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     rc = stage_validate(args)
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     rc = stage_viz(args)
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     rc = stage_hash_artifacts()
+    _write_runtime_report()
     return rc
 
 

@@ -2,6 +2,8 @@
   "projects": {
     "PROJ-027-predicting-antibiotic-resistance-evoluti": {
       "data_hashes": {
+        "data/processed/pipeline_runtime.json": "0cafc9f2fe239641e7c6991dcb28aa8f0b2e6831945da22eb0f7c0f06e290227",
+        "data/processed/verification_summary.json": "0af78445984474844e4ffe03979b4d4b73116b09f632226b520396c75951be06",
         "data/raw/download_manifest.json": "2bafd88e6acf5776a0a316a14dba276ba454196ff4ab1ee8a5a7551087cb9150"
       },
       "code_hashes": {
@@ -20,12 +22,14 @@
         "code/03_model/save_models.py": "ecfc7f3a1618df535e0e6dd5317aa3ca7a7e85e18f1c35712dbf229e5b790665",
         "code/03_model/split_data.py": "b39a1f7e0058ec046f08e396673f86b97e2bada809c554e1422ae1d359587eea",
         "code/03_model/train_models.py": "2f68af1df5abe1101ce2785f42bff3f69f0edaad32877445c89c3272559c4a18",
+        "code/03_model/verify_results.py": "53f440c8bf5935ae0dcbdffdabb7bd70f413c3be22765b8daf4f3ddd7f830038",
         "code/04_validate/sensitivity_analysis.py": "1e4d99a309ee48b41b6ef7a7e67ae31f3532509783400743affbf6a9eda70f1c",
+        "code/04_validate/verify_statistics.py": "53d0d966c683dddb22187ea0da376117b2de8e05df3c759acf475213f551e615",
         "code/05_viz/generate_plots.py": "e170e4f253e68b8526ed7379b9c74f3868205bfec0f7c5cedb7d54f3a16a0567",
         "code/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "code/config.yaml": "fdfe1f379d5044bc798075a5a4cd5f6c9d679d98e5d4ab272d13198199441c4f",
         "code/finalize_research.py": "b9907ed5b282fa15c2ff487976ecd3398f6bc00c5fe52c9a04231e9cdf98b650",
-        "code/main.py": "600884f4a0e516a456e85b8c170ab325bd5450ec79c42bf68d78b5bf356a1b69",
+        "code/main.py": "7d6a290741334bd10625914343b5e71bfecb792995ff896dc1ab17060af83e98",
         "code/pyproject.toml": "f51e63f7444148e41496075a555e3a6ac3b7444eb23196f3c0ce4050082cf520",
         "code/setup_data_dirs.py": "6fb37996123d6152d83ad043bac3be473c2a2d144d6df8d63a640b317a4143c6",
         "code/setup_directories.py": "0d796d3861ca529d7db6a0a313b6e87d665f93eb9951571f46cef71e56d88c02",
@@ -44,6 +48,8 @@
         "code/verify_env.py": "81f8f9102e0037181744111fdb9641290726f1b8e37ccf2b39dc70cdff2e9ba2"
       },
       "artifact_hashes": {
+        "data/processed/pipeline_runtime.json": "0cafc9f2fe239641e7c6991dcb28aa8f0b2e6831945da22eb0f7c0f06e290227",
+        "data/processed/verification_summary.json": "0af78445984474844e4ffe03979b4d4b73116b09f632226b520396c75951be06",
         "data/raw/download_manifest.json": "2bafd88e6acf5776a0a316a14dba276ba454196ff4ab1ee8a5a7551087cb9150",
         "code/.black.toml": "0e865dfb4c77a33b9ae41e83cfdae463e12b90d69b8c1bb963c1b0f6993fc052",
         "code/.ruff.toml": "9c2d04ee39d758c0d3ec1dee7ae4e7bcc9fa0d81d6326eec5950dc8fc1971def",
@@ -60,12 +66,14 @@
         "code/03_model/save_models.py": "ecfc7f3a1618df535e0e6dd5317aa3ca7a7e85e18f1c35712dbf229e5b790665",
         "code/03_model/split_data.py": "b39a1f7e0058ec046f08e396673f86b97e2bada809c554e1422ae1d359587eea",
         "code/03_model/train_models.py": "2f68af1df5abe1101ce2785f42bff3f69f0edaad32877445c89c3272559c4a18",
+        "code/03_model/verify_results.py": "53f440c8bf5935ae0dcbdffdabb7bd70f413c3be22765b8daf4f3ddd7f830038",
         "code/04_validate/sensitivity_analysis.py": "1e4d99a309ee48b41b6ef7a7e67ae31f3532509783400743affbf6a9eda70f1c",
+        "code/04_validate/verify_statistics.py": "53d0d966c683dddb22187ea0da376117b2de8e05df3c759acf475213f551e615",
         "code/05_viz/generate_plots.py": "e170e4f253e68b8526ed7379b9c74f3868205bfec0f7c5cedb7d54f3a16a0567",
         "code/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "code/config.yaml": "fdfe1f379d5044bc798075a5a4cd5f6c9d679d98e5d4ab272d13198199441c4f",
         "code/finalize_research.py": "b9907ed5b282fa15c2ff487976ecd3398f6bc00c5fe52c9a04231e9cdf98b650",
-        "code/main.py": "600884f4a0e516a456e85b8c170ab325bd5450ec79c42bf68d78b5bf356a1b69",
+        "code/main.py": "7d6a290741334bd10625914343b5e71bfecb792995ff896dc1ab17060af83e98",
         "code/pyproject.toml": "f51e63f7444148e41496075a555e3a6ac3b7444eb23196f3c0ce4050082cf520",
         "code/setup_data_dirs.py": "6fb37996123d6152d83ad043bac3be473c2a2d144d6df8d63a640b317a4143c6",
         "code/setup_directories.py": "0d796d3861ca529d7db6a0a313b6e87d665f93eb9951571f46cef71e56d88c02",
@@ -83,7 +91,7 @@
         "code/validate/phylo_permutation.py": "1f6e3408066ed5cdee85adbb2a4e4e07f4175b30319f1e70be60e29296e174fb",
         "code/verify_env.py": "81f8f9102e0037181744111fdb9641290726f1b8e37ccf2b39dc70cdff2e9ba2"
       },
-      "updated_at": "2026-10-11T17:12:44.107397",
+      "updated_at": "2026-10-11T19:13:41.979563",
       "current_stage": "research_accepted",
       "research_complete": true
     }

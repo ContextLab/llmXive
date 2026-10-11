@@ -2,12 +2,32 @@ T101:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 35659ee48a5a90512b499152efe34d2d1dcc7d62c97fcc755588c4e464f1d33d
 T102:
+  reason: "Checked `code/main.py` \u2013 it records timestamps and peak RSS and writes\
+    \ `data/processed/pipeline_runtime.json` (which exists and contains the required\
+    \ four keys with values under the 6\u2011hour and 7\u202FGB limits). However,\
+    \ the script never checks those limits or raises an explicit error when they are\
+    \ exceeded, violating the task\u2019s requirement that failures be reported as\
+    \ explicit errors rather than just logged. Adding limit\u2011checking logic and\
+    \ error reporting is needed."
   task: 97914ea6b03ba577f6e01ad4e728a8527757ea06ed6118011b7226e6334bec4a
 T103:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-027-predict-antibiotic-resistance-evoluti.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: e51f45b882c9d5db873cdf87dae0b9d0febf5fd7a13fa870880be332820c6e09
 T104:
+  reason: "The script `code/03_model/verify_results.py` exists and runs (exit\u202F\
+    0) and writes `data/processed/verification_summary.json`, but the required input\
+    \ artifacts `data/models/metrics.json`, `data/processed/feature_ranking.csv`,\
+    \ and `data/processed/class_to_genes.json` are all missing. Consequently the verification\
+    \ cannot perform the AUC\u2011ROC, mechanism\u2011blind, and top\u201110 ranking\
+    \ checks, and the summary records errors and an overall failure. These files must\
+    \ be provided with valid content for the task to be satisfied."
   task: db6b3fed6d2de215b18954ffe0180c77040ab94cd7315127a22519efef825cc6
 T105:
+  reason: 'Requested task execution failed; rerun successfully: code/04_validate/verify_statistics.py
+    exit=1'
   task: b1b4153048417f7f2715a867bd6a1205e64f3bf93dd503d3cd67ce4d920c4057
 T106:
   task: 65d2e5b341955bb0519b91481a380ebf3d509c2226a315c8d9ab6db1f6d54e4b
