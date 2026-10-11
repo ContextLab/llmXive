@@ -1,3 +1,4 @@
+# Project dependencies
 pandas
 numpy
 scipy
@@ -5,4 +6,4 @@ statsmodels
 pyyaml
 openml
 datasets
-# Existing dependencies (if any) should be retained; add the above if missing.
+# Existing dependencies (if any) are retained above.

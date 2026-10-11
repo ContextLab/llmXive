@@ -1,14 +1,17 @@
 status: none
-intent: OpenNeuro WCST aging dataset OR ICPSR nostalgia cognition adults OR UK Biobank
-  function python package dataset
+intent: OpenNeuro ICPSR UK Biobank HuggingFace WCST aging nostalgia python package
+  dataset
 required_fields:
 - participant_id
 - age
-- wcst_categories_completed
+- gender
+- education_level
+- wcst_categories_achieved
 - wcst_perseverative_errors
-- wcst_total_errors
-- nostalgia_label
+- wcst_nonperseverative_errors
+- wcst_trials_to_complete
+- nostalgia_condition
 - mmse_score
-cache_key: 4f4c45dea809ba691ec7f5abca362af399deb29297d1f14b98d3d79c1a90261c
-searched_at: '2026-10-10T06:36:55.605363+00:00'
+cache_key: 729a90d20d1d4f6f5ac27606423c8e874c5c33bbcfe630e68eb2e29897f6a61a
+searched_at: '2026-10-11T00:21:01.888375+00:00'
 retry_count: 1
