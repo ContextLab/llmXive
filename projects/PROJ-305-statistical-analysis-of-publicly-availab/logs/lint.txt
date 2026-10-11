@@ -4,7 +4,7 @@ ruff failed
   Cause: Failed to parse /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/.ruff.toml
   Cause: TOML parse error at line 1, column 1
   |
-1 | # Minimal Ruff configuration – no rules are enforced beyond syntax checking.
+1 | [tool.ruff]
   | ^
 unknown field `tool`
 
@@ -12,52 +12,59 @@ unknown field `tool`
 Command exited with non‑zero status 2\n$ black --check .
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/output/__init__.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/run_lint.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/scripts/setup_linting.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/scripts/gpu_check.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/copy_contracts.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/create_structure.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/scripts/gpu_check.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/scripts/setup_linting.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/setup_project.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/setup_structure.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/analysis/sensitivity_output.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/analysis/signal_output.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/analysis/sensitivity.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/utils/config.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/analysis/temporal.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/main.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/analysis/disproportionality.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/data/validate.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/data/download.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/data/download_meddra.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/data/clean.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/utils/config.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/main.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/integration/test_t026_signal_output.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_clean_t016.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_clean.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_linting.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_clean_t016.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_disproportionality.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_linting.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_download_meddra.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/src/utils/plots.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_linting_config.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_plots.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_sensitivity.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_setup_project.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_sensitivity_output.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_setup_project.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_t003_linting_config.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_signal_output.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_temporal.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_validate_e_schema_missing.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_validate.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_t027_sensitivity.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/tests/unit/test_validate_e_schema_missing.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/validate.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/utils/config.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/integration/test_pipeline.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/main.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/integration/test_pipeline.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/analysis/disproportionality.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/integration/test_signal_detection.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_bh_correction.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/analysis/disproportionality.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_download.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/integration/test_temporal_profiles.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_download.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_download_meddra.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_disproportionality.py
-would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_validate_e_schema_missing.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_t022_disproportionality.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_signal_schema.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_validate_e_schema_missing.py
 would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/tests/unit/test_validate.py
 
 Oh no! 💥 💔 💥
-46 files would be reformatted, 3 files would be left unchanged.
+53 files would be reformatted, 4 files would be left unchanged.
 
 Command exited with non‑zero status 1\n

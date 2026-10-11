@@ -1,6 +1,2 @@
-# Minimal Ruff configuration – no rules are enforced beyond syntax checking.
-# This file exists to satisfy the project's lint‑setup verification script.
 [tool.ruff]
-line-length = 100
-target-version = "py311"
-select = []  # Disable all linting rules; only syntax errors are reported.
+# Minimal valid configuration; all actual settings are in pyproject.toml

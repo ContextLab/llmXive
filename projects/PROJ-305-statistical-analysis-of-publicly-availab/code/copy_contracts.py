@@ -30,14 +30,26 @@ def main() -> None:
     """
     # Resolve paths relative to this script's location
     script_dir = Path(__file__).resolve().parent
-    spec_contracts_dir = script_dir.parent.parent / "specs" / "001-statistical-analysis-of-publicly-availab" / "contracts"
-    project_contracts_dir = script_dir.parent.parent / "contracts"
+    # Project root is one level up from the ``code`` directory
+    project_root = script_dir.parent
+
+    spec_contracts_dir = (
+        project_root
+        / "specs"
+        / "001-statistical-analysis-of-publicly-availab"
+        / "contracts"
+    )
+    project_contracts_dir = project_root / "contracts"
 
     if not spec_contracts_dir.is_dir():
         logger.error(f"Specification contracts directory not found: {spec_contracts_dir}")
         sys.exit(1)
 
-    contract_files = ["dataset.schema.yaml", "signal.schema.yaml", "soc_cluster.schema.yaml"]
+    contract_files = [
+        "dataset.schema.yaml",
+        "signal.schema.yaml",
+        "soc_cluster.schema.yaml",
+    ]
     for fname in contract_files:
         src_path = spec_contracts_dir / fname
         dst_path = project_contracts_dir / fname

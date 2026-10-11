@@ -51,13 +51,6 @@ properties:
       type: string
       enum: ["ROR", "PRR", "IC"]
     description: "List of metrics that met the threshold criteria."
-  background_rate_status:
-    type: string
-    description: "Background rate availability status."
-    enum:
-      - UNKNOWN
-      - KNOWN
-    default: UNKNOWN
 required:
   - SOC_CODE
   - SOC_NAME
@@ -74,5 +67,4 @@ required:
   - p_value_adj
   - is_signal
   - signal_metrics
-  - background_rate_status
 additionalProperties: true

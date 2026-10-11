@@ -30,13 +30,13 @@ ERROR:__main__:Failed to download https://vaers.hhs.gov/data/datasets/vaersdata2
 ERROR:__main__:Failed to download data for years: [2020, 2021, 2022, 2023]
 
 - python src/data/validate.py -> rc=3
-2026-10-11 22:09:02,975 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.csv
+2026-10-11 23:08:56,651 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.csv
 
 
 - python src/main.py -> rc=1
-2026-10-11 22:09:03,887 - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-11 22:09:03,925 - INFO - generated new fontManager
-2026-10-11 22:09:04,106 - INFO - No action specified. Use --full or --phase N
+2026-10-11 23:08:57,592 - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-11 23:08:57,606 - INFO - generated new fontManager
+2026-10-11 23:08:57,789 - INFO - No action specified. Use --full or --phase N
 
 
 

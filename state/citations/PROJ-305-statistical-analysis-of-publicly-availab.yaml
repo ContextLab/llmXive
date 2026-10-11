@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65b55d93a17a940832db690c/213b157dff9ac87c44cf3dc5d40e92a48e6dd954c5f83154a56ce43c8061f785?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1783800669&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjViNTVkOTNhMTdhOTQwODMyZGI2OTBjLzIxM2IxNTdkZmY5YWM4N2M0NGNmM2RjNWQ0MGU5MmE0OGU2ZGQ5NTRjNWY4MzE1NGE1NmNlNDNjODA2MWY3ODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4MDA2Njl9fX1dfQ__&Signature=MEUCIHeWir7HA7hQ0jpXj98PNf1xFUlGNdWV6MeuX2a%7ENKCgAiEAyxbjKg%7Ej-H%7EEbPSLo6wxdvzXvJ7qMH%7E-R6nBiyBRWbo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-11T19:11:09.798988Z'
-- artifact_hash: 6430a773fcd6e0bddff30aab915a8cac8aec77d4e15d711ac470b5b076214785
+- artifact_hash: 41d07a53c1505fa0317bcc7cd81c72b85b4026abf3ef65be99bf9a7ae536f518
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://vaers.hhs.gov/data/datasets/VAERSDATA{year}.CSV`
   verification_status: mismatch
   verified_against_url: https://vaers.hhs.gov/data/datasets/VAERSDATA%7Byear%7D.CSV
-  verified_at: '2026-10-11T22:09:00.747273Z'
-- artifact_hash: 6430a773fcd6e0bddff30aab915a8cac8aec77d4e15d711ac470b5b076214785
+  verified_at: '2026-10-11T23:08:55.197810Z'
+- artifact_hash: 41d07a53c1505fa0317bcc7cd81c72b85b4026abf3ef65be99bf9a7ae536f518
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://raw.githubusercontent.com/meddra/meddra-mappings/master/meddra_soc.csv`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/meddra/meddra-mappings/master/meddra_soc.csv
-  verified_at: '2026-10-11T22:09:00.747273Z'
+  verified_at: '2026-10-11T23:08:55.197810Z'

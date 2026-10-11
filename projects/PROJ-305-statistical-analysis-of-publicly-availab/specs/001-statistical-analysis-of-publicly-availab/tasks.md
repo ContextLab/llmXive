@@ -12,7 +12,7 @@
   - **Action**: Run a script that creates the directories (using `pathlib.Path.mkdir(parents=True, exist_ok=True)`) and then executes `tree -a -L 3 > logs/structure.txt`.  
   - **Verification**: `grep -E "src|data|output|contracts|logs" logs/structure.txt` must return a line for each listed directory; the file must be non‑empty.
 
-- [ ] **T002** Add project‑level stub files with the correct title.  
+- [X] **T002** Add project‑level stub files with the correct title.  
   - **Files**: `.gitignore` (standard Python ignores) and `README.md` containing the exact project title **“Statistical Analysis of Publicly Available COVID‑19 Vaccine Adverse Event Reports”** plus a one‑sentence description.  
   - **Verification**: `grep -q "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports" README.md` and `test -s .gitignore`.
 
@@ -24,7 +24,7 @@
 
 ## Phase 1 – Contracts & core utilities  
 
-- [ ] **T004** Copy the JSON‑Schema contracts from the specification into the project’s contract directory.   <!-- FAILED-IN-EXECUTION: code/copy_contracts.py exit=1 -->
+- [X] **T004** Copy the JSON‑Schema contracts from the specification into the project’s contract directory.
   - **Sources → Destinations**:  
     - `specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml` → `contracts/dataset.schema.yaml`  
     - `specs/001-statistical-analysis-of-publicly-availab/contracts/signal.schema.yaml` → `contracts/signal.schema.yaml`  

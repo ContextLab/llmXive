@@ -1,176 +1,179 @@
-├── .gitignore
-├── .gitkeep
-├── .pre-commit-config.yaml
-├── .python-version
-├── .ruff.toml
-├── .runtime-home
-├── .specify
-│   ├── memory
-│   │   ├── constitution.md
-│   │   ├── convergence_trail
-│   │   │   ├── plan-001.jsonl
-│   │   │   └── spec-001.jsonl
-│   │   ├── discovered_data_source.yaml
-│   │   ├── execution_feedback.md
-│   │   ├── research_question_validated.yaml
-│   │   ├── task_verifier_notes.md
-│   │   ├── task_verify.feedback.yaml
-│   │   ├── task_verify_cache.yaml
-│   │   └── tasker_rounds.yaml
-│   ├── scripts
-│   │   └── bash
-│   │       ├── check-prerequisites.sh
-│   │       ├── common.sh
-│   │       ├── create-new-feature.sh
-│   │       └── setup-plan.sh
-│   └── templates
-│       ├── checklist-template.md
-│       ├── constitution-template.md
-│       ├── plan-template.md
-│       ├── spec-template.md
-│       └── tasks-template.md
-├── Makefile
-├── README.md
-├── activity.jsonl
-├── code
-│   ├── .black.toml
-│   ├── .flake8
-│   ├── .gitignore
-│   ├── .gitkeep
-│   ├── .ruff.toml
-│   ├── .tasks
-│   │   └── T016b.atomize.yaml
-│   ├── Makefile
-│   ├── README.md
-│   ├── __init__.py
-│   ├── contracts
-│   │   ├── .gitkeep
-│   │   ├── dataset.schema.yaml
-│   │   └── signal.schema.yaml
-│   ├── create_structure.py
-│   ├── data
-│   │   ├── .gitkeep
-│   │   ├── __init__.py
-│   │   └── raw
-│   │       └── placeholder.txt
-│   ├── figures
-│   │   └── .gitkeep
-│   ├── output
-│   │   ├── .gitkeep
-│   │   ├── __init__.py
-│   │   └── signals.csv
-│   ├── pyproject.toml
-│   ├── requirements-dev.txt
-│   ├── requirements.txt
-│   ├── run_lint.py
-│   ├── scripts
-│   │   ├── gpu_check.py
-│   │   └── setup_linting.py
-│   ├── setup_project.py
-│   ├── setup_structure.py
-│   ├── specs
-│   │   └── .gitkeep
-│   ├── src
-│   │   ├── .gitkeep
-│   │   ├── __init__.py
-│   │   ├── analysis
-│   │   │   ├── disproportionality.py
-│   │   │   ├── sensitivity.py
-│   │   │   ├── sensitivity_output.py
-│   │   │   ├── signal_output.py
-│   │   │   └── temporal.py
-│   │   ├── data
-│   │   │   ├── clean.py
-│   │   │   ├── download.py
-│   │   │   ├── download_meddra.py
-│   │   │   └── validate.py
-│   │   ├── main.py
-│   │   └── utils
-│   │       ├── config.py
-│   │       └── plots.py
-│   └── tests
-│       ├── .gitkeep
-│       ├── __init__.py
-│       ├── integration
-│       │   └── test_t026_signal_output.py
-│       └── unit
-│           ├── test_clean.py
-│           ├── test_clean_t016.py
-│           ├── test_disproportionality.py
-│           ├── test_download_meddra.py
-│           ├── test_linting.py
-│           ├── test_linting_config.py
-│           ├── test_plots.py
-│           ├── test_sensitivity.py
-│           ├── test_sensitivity_output.py
-│           ├── test_setup_project.py
-│           ├── test_signal_output.py
-│           ├── test_t003_linting_config.py
-│           ├── test_t027_sensitivity.py
-│           ├── test_temporal.py
-│           ├── test_validate.py
-│           └── test_validate_e_schema_missing.py
-├── contracts
-│   ├── .gitkeep
-│   ├── dataset.schema.yaml
-│   └── signal.schema.yaml
-├── data
-│   ├── .gitkeep
-│   ├── processed
-│   └── raw
-├── figures
-│   └── .gitkeep
-├── idea
-│   ├── research_question_validation.md
-│   └── statistical-analysis-of-publicly-availab.md
-├── logs
-│   ├── lint.txt
-│   └── structure.txt
-├── output
-│   ├── .gitkeep
-│   ├── figures
-│   └── temporal_profiles
-├── pyproject.toml
-├── requirements.txt
-├── scripts
-│   ├── format.sh
-│   └── lint.sh
-├── setup.cfg
-├── specs
-│   └── 001-statistical-analysis-of-publicly-availab
-│       ├── contracts
-│       │   ├── dataset.schema.yaml
-│       │   ├── signal.schema.yaml
-│       │   └── soc_cluster.schema.yaml
-│       ├── data-model.md
-│       ├── plan.md
-│       ├── quickstart.md
-│       ├── research.md
-│       ├── spec.md
-│       └── tasks.md
-├── src
-│   ├── .gitkeep
-│   ├── analysis
-│   │   └── disproportionality.py
-│   ├── data
-│   │   ├── download.py
-│   │   └── validate.py
-│   ├── main.py
-│   ├── utils
-│   │   └── config.py
-│   └── validation
-└── tests
-    ├── .gitkeep
-    ├── integration
-    │   ├── test_pipeline.py
-    │   ├── test_signal_detection.py
-    │   └── test_temporal_profiles.py
-    └── unit
-        ├── test_bh_correction.py
-        ├── test_disproportionality.py
-        ├── test_download.py
-        ├── test_download_meddra.py
-        ├── test_signal_schema.py
-        ├── test_t022_disproportionality.py
-        ├── test_validate.py
-        └── test_validate_e_schema_missing.py
+.gitignore
+.gitkeep
+.pre-commit-config.yaml
+.python-version
+.ruff.toml
+.runtime-home/
+.specify/
+.specify/memory/
+.specify/memory/constitution.md
+.specify/memory/convergence_trail/
+.specify/memory/convergence_trail/plan-001.jsonl
+.specify/memory/convergence_trail/spec-001.jsonl
+.specify/memory/discovered_data_source.yaml
+.specify/memory/execution_feedback.md
+.specify/memory/research_question_validated.yaml
+.specify/memory/task_verifier_notes.md
+.specify/memory/task_verify.feedback.yaml
+.specify/memory/task_verify.yaml
+.specify/memory/task_verify_cache.yaml
+.specify/memory/tasker_rounds.yaml
+.specify/scripts/
+.specify/scripts/bash/
+.specify/scripts/bash/check-prerequisites.sh
+.specify/scripts/bash/common.sh
+.specify/scripts/bash/create-new-feature.sh
+.specify/scripts/bash/setup-plan.sh
+.specify/templates/
+.specify/templates/checklist-template.md
+.specify/templates/constitution-template.md
+.specify/templates/plan-template.md
+.specify/templates/spec-template.md
+.specify/templates/tasks-template.md
+Makefile
+README.md
+activity.jsonl
+code/
+code/.black.toml
+code/.flake8
+code/.gitignore
+code/.gitkeep
+code/.ruff.toml
+code/.tasks/
+code/.tasks/T016b.atomize.yaml
+code/Makefile
+code/README.md
+code/__init__.py
+code/contracts/
+code/contracts/.gitkeep
+code/contracts/dataset.schema.yaml
+code/contracts/signal.schema.yaml
+code/copy_contracts.py
+code/create_structure.py
+code/data/
+code/data/.gitkeep
+code/data/__init__.py
+code/data/raw/
+code/data/raw/placeholder.txt
+code/figures/
+code/figures/.gitkeep
+code/output/
+code/output/.gitkeep
+code/output/__init__.py
+code/output/signals.csv
+code/pyproject.toml
+code/requirements-dev.txt
+code/requirements.txt
+code/run_lint.py
+code/scripts/
+code/scripts/gpu_check.py
+code/scripts/setup_linting.py
+code/setup_project.py
+code/setup_structure.py
+code/specs/
+code/specs/.gitkeep
+code/src/
+code/src/.gitkeep
+code/src/__init__.py
+code/src/analysis/
+code/src/analysis/disproportionality.py
+code/src/analysis/sensitivity.py
+code/src/analysis/sensitivity_output.py
+code/src/analysis/signal_output.py
+code/src/analysis/temporal.py
+code/src/data/
+code/src/data/clean.py
+code/src/data/download.py
+code/src/data/download_meddra.py
+code/src/data/validate.py
+code/src/main.py
+code/src/utils/
+code/src/utils/config.py
+code/src/utils/plots.py
+code/tests/
+code/tests/.gitkeep
+code/tests/__init__.py
+code/tests/integration/
+code/tests/integration/test_t026_signal_output.py
+code/tests/unit/
+code/tests/unit/test_clean.py
+code/tests/unit/test_clean_t016.py
+code/tests/unit/test_disproportionality.py
+code/tests/unit/test_download_meddra.py
+code/tests/unit/test_linting.py
+code/tests/unit/test_linting_config.py
+code/tests/unit/test_plots.py
+code/tests/unit/test_sensitivity.py
+code/tests/unit/test_sensitivity_output.py
+code/tests/unit/test_setup_project.py
+code/tests/unit/test_signal_output.py
+code/tests/unit/test_t003_linting_config.py
+code/tests/unit/test_t027_sensitivity.py
+code/tests/unit/test_temporal.py
+code/tests/unit/test_validate.py
+code/tests/unit/test_validate_e_schema_missing.py
+contracts/
+contracts/.gitkeep
+contracts/dataset.schema.yaml
+contracts/signal.schema.yaml
+contracts/soc_cluster.schema.yaml
+data/
+data/.gitkeep
+data/processed/
+data/raw/
+figures/
+figures/.gitkeep
+idea/
+idea/research_question_validation.md
+idea/statistical-analysis-of-publicly-availab.md
+logs/
+logs/lint.txt
+logs/structure.txt
+output/
+output/.gitkeep
+output/figures/
+output/temporal_profiles/
+pyproject.toml
+requirements.txt
+scripts/
+scripts/format.sh
+scripts/lint.sh
+setup.cfg
+specs/
+specs/001-statistical-analysis-of-publicly-availab/
+specs/001-statistical-analysis-of-publicly-availab/contracts/
+specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml
+specs/001-statistical-analysis-of-publicly-availab/contracts/signal.schema.yaml
+specs/001-statistical-analysis-of-publicly-availab/contracts/soc_cluster.schema.yaml
+specs/001-statistical-analysis-of-publicly-availab/data-model.md
+specs/001-statistical-analysis-of-publicly-availab/plan.md
+specs/001-statistical-analysis-of-publicly-availab/quickstart.md
+specs/001-statistical-analysis-of-publicly-availab/research.md
+specs/001-statistical-analysis-of-publicly-availab/spec.md
+specs/001-statistical-analysis-of-publicly-availab/tasks.md
+src/
+src/.gitkeep
+src/analysis/
+src/analysis/disproportionality.py
+src/data/
+src/data/download.py
+src/data/validate.py
+src/main.py
+src/utils/
+src/utils/config.py
+src/validation/
+tests/
+tests/.gitkeep
+tests/integration/
+tests/integration/test_pipeline.py
+tests/integration/test_signal_detection.py
+tests/integration/test_temporal_profiles.py
+tests/unit/
+tests/unit/test_bh_correction.py
+tests/unit/test_disproportionality.py
+tests/unit/test_download.py
+tests/unit/test_download_meddra.py
+tests/unit/test_signal_schema.py
+tests/unit/test_t022_disproportionality.py
+tests/unit/test_validate.py
+tests/unit/test_validate_e_schema_missing.py

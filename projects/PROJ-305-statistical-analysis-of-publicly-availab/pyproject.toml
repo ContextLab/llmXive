@@ -1,50 +1,41 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[project]
-name = "llmxive-covid-vaers-analysis"
-version = "0.1.0"
-description = "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports"
-requires-python = ">=3.11"
-dependencies = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "requests",
-    "pyarrow",
-    "matplotlib",
-    "pytest",
-    "pytest-cov",
-    "pyyaml",
-]
-
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ['py311']
-# Exclude data and logs to prevent formatting checks on non-code files
-force-exclude = 'data/|logs/'
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-# Select only basic Error and Pyflakes rules to ensure stability during initial config
-select = ["E", "F"]
-# Ignore line length violations (E501) to avoid failures on existing long strings/paths
-ignore = ["E501"]
-# Exclude data and logs
-exclude = ["data/", "logs/"]
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["src"]
+line_length = 120
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-pythonpath = ["code"]
-addopts = "-v --cov=code/src --cov-report=term-missing"
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+]
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]
