@@ -1,13 +1,13 @@
 status: none
-intent: Download scientific document corpus MixSub-LLaMA-3.2 layout annotations python
-  package dataset
+intent: download MixSub-LLaMA-3.2 scientific document layout dataset with bounding
+  box annotations python package dataset
 required_fields:
 - document_id
 - page_number
 - text
-- layout_bounding_boxes
-- image_file
+- bounding_boxes
+- image_path
 - metadata
-cache_key: 6cacf9c59d861fe9bd4a3e2e8b45043e4e61938f7a540e95c619e969cdf122c4
-searched_at: '2026-10-11T02:20:21.552364+00:00'
+cache_key: b93206d2105986497fe4cc622b4fc30d63734141c643cd180878f0956bc3dc3f
+searched_at: '2026-10-11T08:10:19.182869+00:00'
 retry_count: 1

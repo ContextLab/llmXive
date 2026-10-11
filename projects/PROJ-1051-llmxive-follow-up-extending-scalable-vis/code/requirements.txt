@@ -1,23 +1,20 @@
-# Core dependencies (already available in the base environment)
-# Additional explicit dependency for dataset handling
-datasets==2.20.0
-# The following are already present in the base environment but are listed for clarity
+# Project dependencies
+# Core libraries (already available in the environment)
 numpy
 pandas
-tqdm
-jsonschema
-psutil
-# Torch and transformers are required later in the pipeline; they are not needed for the download step
-# but are pinned here for reproducibility of the whole project.
-torch==2.3.0
-transformers==4.44.0
 scipy
-scikit-learn
 matplotlib
+scikit-learn
+statsmodels
 seaborn
 pytest
 PyYAML
 requests
 jsonschema
 psutil
-# End of requirements
+
+# Additional libraries needed for this project
+torch==2.3.0
+transformers==4.44.0
+datasets==2.20.0
+pyarrow==14.0.2
