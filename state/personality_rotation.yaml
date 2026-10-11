@@ -1,14 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-10-11T00:05:22.077939+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-10-11T02:18:48.474309+00:00'
 last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-23T20:44:07.012634+00:00'
-  ended_at: '2026-06-23T21:33:34.821931+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-762-quantifying-hallucination-in-llm-generat/reviews/research/_held/dan-rockmore-simulated__2026-06-23__research.md
 - slug: dan-rockmore
   started_at: '2026-06-23T21:33:34.821931+00:00'
   ended_at: '2026-06-23T22:27:28.973472+00:00'
@@ -1218,3 +1211,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-412-predicting-molecular-surface-area-from-g/reviews/research/geoffrey-west-simulated__2026-10-11__research.md
+- slug: john-von-neumann
+  started_at: '2026-10-11T00:05:22.077939+00:00'
+  ended_at: '2026-10-11T02:18:48.474309+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/reviews/research/john-von-neumann-simulated__2026-10-11__research.md
