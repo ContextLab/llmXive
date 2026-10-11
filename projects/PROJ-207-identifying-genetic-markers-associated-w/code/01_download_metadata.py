@@ -1,263 +1,336 @@
 """
-NCBI Metadata Fetcher for Honeybee CCD Study.
+NCBI Metadata Fetcher for Honeybee CCD Study (T003).
 
-Fetches metadata ONLY from NCBI BioProject PRJNA639195 (CCD) and PRJNA566029 (Healthy)
-to determine sample size and Varroa coverage. Does NOT download FASTQ files.
+Fetches metadata ONLY from NCBI BioProject PRJNA639195 (CCD) and
+PRJNA566029 (Healthy) via the NCBI EUtils REST API (replacing the
+unavailable Entrez Direct command-line tools). Does NOT download
+FASTQ files.
 
-Implements FR-001: Data Source Verification and FR-012: Power Analysis Input.
+Implements FR-001 (SSL-validated download, hard stop on certificate
+failure) and provides the sample count required by FR-012.
+
+Outputs:
+  - data/processed/ncbi_metadata.json
+  - data/processed/ncbi_fetch_log.json
+  - data/processed/ncbi_metadata_checksum.txt
 """
-import os
 import sys
 import json
-import argparse
-import subprocess
 import time
 import hashlib
+import argparse
+import csv
+import io
+import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
+
+import requests
+
+try:
+    from llmxive_toolkit import paths
+    OUTPUT_DIR = paths.data("processed")
+except Exception:
+    OUTPUT_DIR = Path("data/processed")
 
 # Constants
 CCD_PROJECT = "PRJNA639195"
 HEALTHY_PROJECT = "PRJNA566029"
-OUTPUT_DIR = Path("data/processed")
 OUTPUT_FILE = OUTPUT_DIR / "ncbi_metadata.json"
 FETCH_LOG = OUTPUT_DIR / "ncbi_fetch_log.json"
 CHECKSUM_FILE = OUTPUT_DIR / "ncbi_metadata_checksum.txt"
 
-# Error codes
+EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 ERR_SAMPLE_SIZE_INSUFFICIENT = "ERR_SAMPLE_SIZE_INSUFFICIENT"
 SSL_VERIFY_FAILED = "SSL Verification Failed"
+REQUEST_TIMEOUT = 60
+RETRIES = 4
+
+_session = requests.Session()
+_session.headers.update({
+    "User-Agent": "llmXive-PROJ207-metadata-fetcher/1.0"
+})
+
+
+def _eutils_get(params: Dict[str, str]) -> requests.Response:
+    """GET an EUtils endpoint with retries, rate limiting and SSL verification."""
+    last_exc: Optional[Exception] = None
+    for attempt in range(RETRIES):
+        try:
+            resp = _session.get(EUTILS + "/.fcgi", params=params,
+                                timeout=REQUEST_TIMEOUT, verify=True)
+            if resp.status_code in (429, 500, 502, 503):
+                last_exc = RuntimeError(
+                    f"EUtils HTTP {resp.status_code} for params {params}")
+                time.sleep(2 ** attempt)
+                continue
+            resp.raise_for_status()
+            time.sleep(0.4)  # NCBI rate limit: max 3 req/s
+            return resp
+        except requests.exceptions.SSLError as e:
+            # Certificate failure: hard stop, never proceed unverified.
+            print(f"{SSL_VERIFY_FAILED}: {e}", file=sys.stderr)
+            sys.exit(1)
+        except requests.RequestException as e:
+            last_exc = e
+            time.sleep(2 ** attempt)
+    raise RuntimeError(f"EUtils request failed after {RETRIES} attempts: {last_exc}")
+
 
 def check_ssl_verification() -> bool:
     """
-    Validates SSL certificates using a verified CA bundle.
+    Validates SSL certificates using a verified CA bundle by connecting
+    to the NCBI EUtils endpoint with certificate verification enabled.
     Returns True if verification passes, False otherwise.
     """
     try:
-        # Use certifi bundle for consistent SSL verification
-        import ssl
-        import certifi
-
-        context = ssl.create_default_context(cafile=certifi.where())
-        # Test connection to NCBI
-        with context.wrap_socket(
-            __import__('socket').create_connection(("eutils.ncbi.nlm.nih.gov", 443)),
-            server_hostname="eutils.ncbi.nlm.nih.gov",
-        ) as sock:
-            return True
-    except Exception as e:
-        print(f"SSL Verification Failed: {e}", file=sys.stderr)
+        resp = _session.get(EUTILS + "/einfo.fcgi",
+                            params={"db": "sra"},
+                            timeout=REQUEST_TIMEOUT, verify=True)
+        return resp.status_code == 200
+    except requests.exceptions.SSLError as e:
+        print(f"{SSL_VERIFY_FAILED}: {e}", file=sys.stderr)
         return False
+    except requests.RequestException as e:
+        print(f"SSL/connection check failed: {e}", file=sys.stderr)
+        return False
+
+
+def _esearch_sra(project_id: str) -> Tuple[int, str, str]:
+    """Run esearch on db=sra for a BioProject; return (count, webenv, query_key)."""
+    resp = _eutils_get({
+        "db": "sra",
+        "term": f"{project_id}[BioProject]",
+        "usehistory": "y",
+        "retmax": "0",
+    })
+    root = ET.fromstring(resp.text)
+    count = int(root.findtext("Count") or 0)
+    webenv = root.findtext("WebEnv") or ""
+    query_key = root.findtext("QueryKey") or ""
+    if count == 0 or not webenv:
+        raise RuntimeError(f"No SRA entries found for {project_id}")
+    return count, webenv, query_key
+
+
+def _efetch_runinfo(webenv: str, query_key: str) -> List[Dict[str, str]]:
+    """Fetch the SRA runinfo CSV for an esearch result set."""
+    resp = _eutils_get({
+        "db": "sra",
+        "rettype": "runinfo",
+        "retmode": "csv",
+        "query_key": query_key,
+        "WebEnv": webenv,
+    })
+    reader = csv.DictReader(io.StringIO(resp.text))
+    rows = [r for r in reader if r.get("Run")]
+    if not rows:
+        raise RuntimeError("runinfo CSV contained no runs")
+    return rows
+
+
+def _find_attribute_pairs(obj: Any) -> List[Tuple[str, str]]:
+    """Recursively locate (name, value) attribute pairs in BioSample JSON."""
+    pairs: List[Tuple[str, str]] = []
+    if isinstance(obj, dict):
+        name, value = obj.get("name"), obj.get("value")
+        if isinstance(name, str) and isinstance(value, str):
+            pairs.append((name, value))
+        for v in obj.values():
+            pairs.extend(_find_attribute_pairs(v))
+    elif isinstance(obj, list):
+        for item in obj:
+            pairs.extend(_find_attribute_pairs(item))
+    return pairs
+
+
+def _fetch_biosample_attributes(accessions: List[str]) -> Dict[str, List[Tuple[str, str]]]:
+    """Fetch BioSample summaries (batched) and return attribute pairs per accession."""
+    out: Dict[str, List[Tuple[str, str]]] = {}
+    batch_size = 150
+    for i in range(0, len(accessions), batch_size):
+        batch = accessions[i:i + batch_size]
+        try:
+            resp = _eutils_get({
+                "db": "biosample",
+                "id": ",".join(batch),
+                "retmode": "json",
+            })
+            data = resp.json().get("result", {})
+        except (RuntimeError, ValueError) as e:
+            print(f"Warning: BioSample summary fetch failed for batch: {e}",
+                  file=sys.stderr)
+            continue
+        for acc in batch:
+            entry = data.get(acc)
+            if isinstance(entry, dict):
+                out[acc] = _find_attribute_pairs(entry)
+    return out
+
+
+def _extract_varroa(pairs: List[Tuple[str, str]]) -> Optional[Any]:
+    for name, value in pairs:
+        if "varroa" in name.lower():
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return value
+    return None
+
+
+def _extract_region(pairs: List[Tuple[str, str]]) -> Optional[str]:
+    for name, value in pairs:
+        low = name.lower()
+        if "geo" in low or "location" in low or "region" in low:
+            if value and value.strip():
+                return value.strip()
+    return None
+
+
+def _extract_year(pairs: List[Tuple[str, str]]) -> Optional[int]:
+    for name, value in pairs:
+        if "date" in name.lower() or "year" in name.lower():
+            m = re.search(r"(19|20)\d{2}", str(value))
+            if m:
+                return int(m.group(0))
+    return None
+
 
 def fetch_project_metadata(project_id: str) -> Optional[Dict[str, Any]]:
     """
-    Fetch metadata for a specific BioProject using Entrez Direct (efetch).
-    Returns parsed JSON metadata or None on failure.
+    Fetch metadata for a specific BioProject via the NCBI EUtils REST API.
+    Returns a dict with project_id, accession_count and per-sample records,
+    or None on failure.
     """
-    # First, get SRA accessions for this BioProject
-    esearch_cmd = [
-        "esearch", "-db", "sra", "-query", f"{project_id}[BioProject]"
-    ]
-
     try:
-        # Run esearch to get accession IDs
-        search_result = subprocess.run(
-            esearch_cmd,
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=30,
-        )
-
-        # Parse the XML to get IDs (simplified: assume esearch returns ID list)
-        id_list_cmd = [
-            "xtract", "-pattern", "Id", "-element", "Id"
-        ]
-        id_result = subprocess.run(
-            id_list_cmd,
-            input=search_result.stdout,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-
-        accession_ids = id_result.stdout.strip().split("\n")
-        if not accession_ids or (len(accession_ids) == 1 and not accession_ids[0]):
-            print(f"No SRA accessions found for {project_id}", file=sys.stderr)
-            return None
-
-        # Fetch detailed metadata for each accession
-        all_metadata = []
-        for acc in accession_ids:
-            efetch_cmd = [
-                "efetch", "-db", "sra", "-id", acc, "-format", "json"
-            ]
-            try:
-                fetch_result = subprocess.run(
-                    efetch_cmd,
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                    timeout=60,
-                )
-                meta = json.loads(fetch_result.stdout)
-                all_metadata.append(meta)
-            except subprocess.CalledProcessError as e:
-                print(f"Warning: Failed to fetch metadata for {acc}: {e}", file=sys.stderr)
-                continue
-
-        return {
-            "project_id": project_id,
-            "accession_count": len(all_metadata),
-            "accessions": all_metadata,
-        }
-
-    except subprocess.TimeoutExpired:
-        print(f"Timeout fetching metadata for {project_id}", file=sys.stderr)
-        return None
-    except subprocess.CalledProcessError as e:
+        count, webenv, query_key = _esearch_sra(project_id)
+        print(f"  {project_id}: {count} SRA entries found", flush=True)
+        rows = _efetch_runinfo(webenv, query_key)
+    except RuntimeError as e:
         print(f"Error fetching metadata for {project_id}: {e}", file=sys.stderr)
         return None
-    except Exception as e:
-        print(f"Unexpected error fetching {project_id}: {e}", file=sys.stderr)
-        return None
+
+    # Deduplicate runs by BioSample (fall back to Run accession).
+    samples: Dict[str, Dict[str, str]] = {}
+    for row in rows:
+        bio_sample = (row.get("BioSample") or "").strip()
+        key = bio_sample if bio_sample else row["Run"]
+        if key not in samples:
+            samples[key] = row
+
+    # Enrich with BioSample attributes (geographic region, collection
+    # date, Varroa load where the submitters recorded it).
+    bio_accessions = [k for k in samples if k.startswith("SAM")]
+    attr_map = _fetch_biosample_attributes(bio_accessions)
+
+    records: List[Dict[str, Any]] = []
+    for key, row in samples.items():
+        pairs = attr_map.get(key, [])
+        records.append({
+            "sample_accession": key,
+            "run_accession": row.get("Run", ""),
+            "bio_project": row.get("BioProject", project_id),
+            "library_strategy": row.get("LibraryStrategy", "WGS"),
+            "instrument_platform": row.get("Platform", "Unknown"),
+            "varroa_load": _extract_varroa(pairs),
+            "geographic_region": _extract_region(pairs),
+            "sampling_year": _extract_year(pairs),
+        })
+
+    return {
+        "project_id": project_id,
+        "accession_count": count,
+        "records": records,
+    }
+
 
 def extract_sample_info(metadata: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Extract relevant sample information from fetched metadata.
+    Extract sample records with the CCD status derived from the source
+    BioProject (PRJNA639195 = CCD cases, PRJNA566029 = healthy controls),
+    per the study design.
     """
+    ccd_status = "CCD" if metadata["project_id"] == CCD_PROJECT else "Healthy"
     samples = []
-    project_id = metadata.get("project_id", "Unknown")
-
-    for accession_data in metadata.get("accessions", []):
-        # Navigate the JSON structure to find sample info
-        # This structure varies by NCBI response, so we handle common patterns
-        run_info = accession_data.get("runs", {}).get("run", [])
-        if isinstance(run_info, dict):
-            run_info = [run_info]
-
-        for run in run_info:
-            sample_ref = run.get("attributes", {})
-            if isinstance(sample_ref, list):
-                # Convert list of dicts to dict if needed
-                attrs = {}
-                for item in sample_ref:
-                    if isinstance(item, dict):
-                        key = item.get("tag", "")
-                        val = item.get("value", "")
-                        attrs[key] = val
-                sample_ref = attrs
-
-            sample_info = {
-                "accession": run.get("accession", "Unknown"),
-                "instrument_platform": run.get("model", "Unknown"),
-                "ccd_status": sample_ref.get("ccd_status", "Unknown"),
-                "varroa_load": sample_ref.get("varroa_load", "Unknown"),
-                "geographic_region": sample_ref.get("geographic_region", "Unknown"),
-                "library_strategy": run.get("library_strategy", "WGS"),
-            }
-            samples.append(sample_info)
-
+    for rec in metadata.get("records", []):
+        samples.append({
+            "sample_accession": rec["sample_accession"],
+            "run_accession": rec.get("run_accession", ""),
+            "ccd_status": ccd_status,
+            "varroa_load": rec.get("varroa_load"),
+            "geographic_region": rec.get("geographic_region") or "Unknown",
+            "sampling_year": rec.get("sampling_year"),
+            "library_strategy": rec.get("library_strategy", "WGS"),
+            "instrument_platform": rec.get("instrument_platform", "Unknown"),
+        })
     return samples
 
+
 def validate_ccd_criteria(samples: List[Dict[str, Any]]) -> Dict[str, int]:
-    """
-    Validate samples against CCD criteria (FR-011).
-    Returns counts of valid CCD, valid Healthy, and ambiguous samples.
-    """
-    ccd_count = 0
-    healthy_count = 0
-    ambiguous_count = 0
-
-    for sample in samples:
-        status = sample.get("ccd_status", "").lower()
-        if status in ["ccd", "colony collapse", "cccd"]:
-            ccd_count += 1
-        elif status in ["healthy", "control", "normal"]:
-            healthy_count += 1
-        else:
-            ambiguous_count += 1
-
+    """Validate samples against CCD criteria (FR-011) mapping."""
+    ccd_count = sum(1 for s in samples if s.get("ccd_status") == "CCD")
+    healthy_count = sum(1 for s in samples if s.get("ccd_status") == "Healthy")
     return {
         "ccd": ccd_count,
         "healthy": healthy_count,
-        "ambiguous": ambiguous_count,
+        "ambiguous": len(samples) - ccd_count - healthy_count,
         "total": len(samples),
     }
 
+
 def calculate_varroa_coverage(samples: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the percentage of samples with Varroa data.
-    """
+    """Percentage of samples with Varroa data."""
     if not samples:
         return 0.0
-
-    with_varroa = sum(1 for s in samples if s.get("varroa_load") not in ["Unknown", None, ""])
+    with_varroa = sum(
+        1 for s in samples
+        if s.get("varroa_load") not in (None, "", "Unknown")
+    )
     return (with_varroa / len(samples)) * 100
 
+
 def calculate_checksum(file_path: Path) -> str:
-    """
-    Calculate SHA-256 checksum of a file.
-    """
+    """Calculate SHA-256 checksum of a file."""
     sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
 
+
 def main():
-    """
-    Main entry point for metadata fetch.
-    """
+    """Main entry point for metadata fetch."""
     parser = argparse.ArgumentParser(
         description="Fetch metadata from NCBI BioProjects for CCD study"
     )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=str(OUTPUT_FILE),
-        help="Output path for metadata JSON (default: data/processed/ncbi_metadata.json)",
-    )
-    parser.add_argument(
-        "--log",
-        type=str,
-        default=str(FETCH_LOG),
-        help="Output path for fetch log (default: data/processed/ncbi_fetch_log.json)",
-    )
-    parser.add_argument(
-        "--checksum",
-        type=str,
-        default=str(CHECKSUM_FILE),
-        help="Output path for SHA-256 checksum file (default: data/processed/ncbi_metadata_checksum.txt)",
-    )
-
+    parser.add_argument("--output", type=str, default=str(OUTPUT_FILE))
+    parser.add_argument("--log", type=str, default=str(FETCH_LOG))
+    parser.add_argument("--checksum", type=str, default=str(CHECKSUM_FILE))
     args = parser.parse_args()
+
     output_path = Path(args.output)
     log_path = Path(args.log)
     checksum_path = Path(args.checksum)
+    for p in (output_path, log_path, checksum_path):
+        p.parent.mkdir(parents=True, exist_ok=True)
 
-    # Ensure output directories exist
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    checksum_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # SSL Hard-Stop
+    # SSL Hard-Stop (FR-001)
     if not check_ssl_verification():
-        print(f"{SSL_VERIFY_FAILED}: Could not verify SSL certificates.", file=sys.stderr)
+        print(f"{SSL_VERIFY_FAILED}: Could not verify SSL certificates.",
+              file=sys.stderr)
         sys.exit(1)
 
     print(f"Fetching metadata for {CCD_PROJECT} and {HEALTHY_PROJECT}...")
-
-    # Fetch metadata for both projects
     ccd_meta = fetch_project_metadata(CCD_PROJECT)
     healthy_meta = fetch_project_metadata(HEALTHY_PROJECT)
 
     if not ccd_meta and not healthy_meta:
-        print("Failed to fetch metadata from both projects. Exiting.", file=sys.stderr)
+        print("Failed to fetch metadata from both projects. Exiting.",
+              file=sys.stderr)
         sys.exit(1)
 
-    # Combine samples
-    all_samples = []
+    all_samples: List[Dict[str, Any]] = []
     if ccd_meta:
         all_samples.extend(extract_sample_info(ccd_meta))
     if healthy_meta:
@@ -267,44 +340,38 @@ def main():
         print("No samples found in metadata. Exiting.", file=sys.stderr)
         sys.exit(1)
 
-    # Validate CCD criteria
     validation = validate_ccd_criteria(all_samples)
     varroa_coverage = calculate_varroa_coverage(all_samples)
+    n_samples = len(all_samples)
 
-    # Log fetch details
     fetch_log = {
         "ccd_project": CCD_PROJECT,
         "healthy_project": HEALTHY_PROJECT,
-        "ccd_runs_found": ccd_meta["accession_count"] if ccd_meta else 0,
-        "healthy_runs_found": healthy_meta["accession_count"] if healthy_meta else 0,
-        "total_samples": len(all_samples),
+        "ccd_entries_found": ccd_meta["accession_count"] if ccd_meta else 0,
+        "healthy_entries_found": healthy_meta["accession_count"] if healthy_meta else 0,
+        "total_samples": n_samples,
         "validation": validation,
         "varroa_coverage_percent": varroa_coverage,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
-
-    # Write fetch log
     with open(log_path, "w") as f:
         json.dump(fetch_log, f, indent=2)
 
-    print(f"Fetch complete. Found {len(all_samples)} total samples.")
-    print(f"CCD: {validation['ccd']}, Healthy: {validation['healthy']}, Ambiguous: {validation['ambiguous']}")
+    print(f"Fetch complete. Found {n_samples} total samples.")
+    print(f"CCD: {validation['ccd']}, Healthy: {validation['healthy']}, "
+          f"Ambiguous: {validation['ambiguous']}")
     print(f"Varroa coverage: {varroa_coverage:.1f}%")
 
     # Sample Count Check (FR-012)
-    n_samples = len(all_samples)
     if n_samples < 80:
-        print(
-            f"{ERR_SAMPLE_SIZE_INSUFFICIENT}: Only {n_samples} samples found. Minimum required: 80.",
-            file=sys.stderr,
-        )
+        print(f"{ERR_SAMPLE_SIZE_INSUFFICIENT}: Only {n_samples} samples found. "
+              f"Minimum required: 80.", file=sys.stderr)
         sys.exit(1)
 
-    # Prepare output metadata
     output_data = {
         "ccd_project_id": CCD_PROJECT,
         "healthy_project_id": HEALTHY_PROJECT,
-        "n_samples": n_samples,
+        "sample_count": n_samples,
         "ccd_count": validation["ccd"],
         "healthy_count": validation["healthy"],
         "ambiguous_count": validation["ambiguous"],
@@ -312,24 +379,24 @@ def main():
         "samples": all_samples,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
-
-    # Write output JSON
     with open(output_path, "w") as f:
         json.dump(output_data, f, indent=2)
-
     print(f"Metadata written to {output_path}")
     print(f"Log written to {log_path}")
 
-    # Compute and write checksum
+    # Compute and write SHA-256 checksum (sha256sum-compatible format).
     checksum = calculate_checksum(output_path)
     with open(checksum_path, "w") as f:
-        f.write(checksum + "\n")
+        f.write(f"{checksum}  {output_path.name}\n")
     print(f"SHA-256 checksum written to {checksum_path}")
 
-    # Verify output exists
-    if not output_path.exists():
-        print(f"Error: Output file {output_path} was not created.", file=sys.stderr)
+    # Verify checksum round-trip.
+    stored = checksum_path.read_text().split()[0]
+    if stored != calculate_checksum(output_path):
+        print("Error: checksum verification failed after write.",
+              file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

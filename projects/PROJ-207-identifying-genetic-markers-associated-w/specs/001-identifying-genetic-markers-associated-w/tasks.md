@@ -11,14 +11,14 @@ All paths are relative to the repository root.
   `mkdir -p code/ data/raw/ data/interim/ data/processed/ docs/ tests/`  
   *Verification*: `test -d code && test -d data/raw && test -d data/processed`.
 
-- [ ] T002 [P] Create a pinned `requirements.txt` containing the CPU‑tractable scientific stack (plink2, freebayes, bwa, scikit‑learn, pandas, numpy, statsmodels, pyyaml, requests, biopython, samtools).  
+- [X] T002 [P] Create a pinned `requirements.txt` containing the CPU‑tractable scientific stack (plink2, freebayes, bwa, scikit‑learn, pandas, numpy, statsmodels, pyyaml, requests, biopython, samtools).  
   *Verification*: `grep -E "plink2|freebayes|bwa|scikit-learn" requirements.txt`.
 
 ---
 
 ## Phase 1 – Real‑data acquisition (metadata → full FASTQ)  
 
-- [ ] T003 [US1] Download **metadata only** (`code/01_download_metadata.py`)   <!-- FAILED-IN-EXECUTION: code/01_download_metadata.py exit=1 -->
+- [ ] T003 [US1] Download **metadata only** (`code/01_download_metadata.py`)   <!-- FAILED-IN-EXECUTION: code/01_download_metadata.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_metadata.py exit=1 -->
   *Source*: NCBI BioProject PRJNA639195 (CCD) & PRJNA566029 (healthy) via Entrez Direct.  
   *Requirements*: SSL‑validated download; abort loudly on any certificate error.  
   *Outputs*: `data/processed/ncbi_metadata.json` (fields: `sample_accession`, `ccd_status`, `varroa_load`, `geographic_region`, `sampling_year`).  

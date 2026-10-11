@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://useast.ensembl.org/Apis_mellifera/Info/Index?redirectsrc=//www.ensembl.org%2FApis_mellifera%2FInfo%2FIndex
   verified_at: '2026-08-01T12:48:16.115569Z'
-- artifact_hash: 6a3062cabe3a588b9ce46fd80e79bf59ff30eb5b0f3123a583c728ea01702ad8
+- artifact_hash: 66919dfd21d8b4314b6fcd700ed194babb0bbb8c0dc31c4bbb0296dcb6c16109
   artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://rest.ensembl.org/variation/honeybee/
   verification_status: unreachable
   verified_against_url: https://rest.ensembl.org/variation/honeybee/
-  verified_at: '2026-10-11T14:26:02.450299Z'
+  verified_at: '2026-10-11T14:31:21.867253Z'

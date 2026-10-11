@@ -1,14 +1,6 @@
 T001:
   task: a43069c56e27aac2ac1457be02b87171b9a9da7e9e7acf8e9342a850ec7453ea
 T002:
-  reason: "The `requirements.txt` file exists and lists all required packages, but\
-    \ only `biopython` and `samtools` are version\u2011pinned; the other required\
-    \ packages (plink2, freebayes, bwa, scikit\u2011learn, pandas, numpy, statsmodels,\
-    \ pyyaml, requests) lack explicit version specifications, violating the \u201C\
-    pinned\u201D requirement. Additionally, an unrelated package (`dwgsim`) is included,\
-    \ which is not part of the requested stack. The implementer must pin every listed\
-    \ package to a specific version (e.g., `plink2==X.Y.Z`) and may remove unnecessary\
-    \ extras."
   task: 9ad211aa9f0d7bd889a59f398bb56b30d7564d09d7c58ca50cb1e631bd69ef63
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/01_download_metadata.py

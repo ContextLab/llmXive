@@ -1,22 +1,21 @@
 T001:
   c: true
-  h: cfc57ca4e15d8e7d381ad8ab24376f529826f1eb2f8cfff7da695b73721efd99
-  r: Checked that the `code/`, `data/raw/`, `data/interim/`, `data/processed/`, `docs/`,
-    and `tests/` directories exist (each contains a `.gitkeep` placeholder) and that
-    the provided pytest run (`tests/test_project_layout.py`) passed, confirming the
-    required directories were created.
-  sig: 66d42ac0d55a4ac1afb0f790876787b2469bfca48a04ee8b6de32d76c57e6802
+  h: f0563501963e8d6534d6899ab8768a830815ad6859e22e7c2bc6b4fceae792c0
+  r: All required directories (code/, data/raw/, data/interim/, data/processed/, docs/,
+    tests/) exist and are non-empty, matching the task's mkdir specification. The
+    verification test `tests/test_project_layout.py::test_directories_created` passed
+    (exit 0) per the execution log, confirming the layout requirement.
+  sig: 769bfc7ccfe8217e60bcfe2fed254ce2138be699a441175b1b7024c6570bbb52
 T002:
-  c: false
-  h: 003e5bd0a86544fc72c9dacfa904522b8e9c196eb2d5d7df8bc56795faeb1980
-  r: "The `requirements.txt` file exists and lists all required packages, but only\
-    \ `biopython` and `samtools` are version\u2011pinned; the other required packages\
-    \ (plink2, freebayes, bwa, scikit\u2011learn, pandas, numpy, statsmodels, pyyaml,\
-    \ requests) lack explicit version specifications, violating the \u201Cpinned\u201D\
-    \ requirement. Additionally, an unrelated package (`dwgsim`) is included, which\
-    \ is not part of the requested stack. The implementer must pin every listed package\
-    \ to a specific version (e.g., `plink2==X.Y.Z`) and may remove unnecessary extras."
-  sig: c047bdc78b3594903532f0890aa90fc7eaee5aebc0340f284f19fef293aa2b5d
+  c: true
+  h: 2c45aec2a1e07a56a2e9257711d3313f63da81516e82daab67358c1d0bbf8ac0
+  r: The `requirements.txt` exists (756 bytes) and contains all required packages
+    with pinned versions, including plink2, freebayes, bwa, scikit-learn (verified
+    via the file contents matching the grep pattern), plus samtools, pandas, numpy,
+    statsmodels, pyyaml, requests, and biopython. The non-pip tools are documented
+    with a conda install command, which is a reasonable interpretation of the manifest
+    requirement.
+  sig: f46f9fa33befc949dc14aecd44cb90776358c296ab61ef01b0a44926d923520c
 T017:
   c: true
   h: b8dd413a92037ea0c6fa8f10839527bd5ab205089be3931571dcc6fd598fd75e
