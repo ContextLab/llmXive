@@ -5,7 +5,7 @@ type: object
 properties:
   dataset_id:
     type: string
-    description: "Unique identifier for the dataset (e.g., 'elastic_modulus')."
+    description: "Unique identifier for the dataset (e.g., 'band_gap')."
   source_url:
     type: string
     format: uri

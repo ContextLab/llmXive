@@ -1,83 +1,61 @@
 # Research: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
 
 ## Problem Statement
-How do Gaussian‑process regression, Monte‑Carlo dropout, deep ensembles, and conformal prediction differ in calibration error and prediction‑interval sharpness when applied to machine‑learning models that predict materials properties such as **Band Gap**, **Thermal Conductivity**, and **Formation Energy** (proxy for Elastic Modulus)?
+Evaluate how Gaussian‑process regression, Monte‑Carlo dropout, deep ensembles, and split‑conformal prediction differ in calibration error and prediction‑interval sharpness when predicting three materials properties: **Band Gap**, **Thermal Conductivity**, and **Formation Energy** (used as a proxy for Elastic Modulus).
 
 ## Dataset Strategy
 
-The plan relies on three specific materials property datasets. Per the `# Verified datasets` block, the following sources are used.
+The plan uses three open‑access datasets verified in the project’s “# Verified datasets” block.
 
-| Property | Target Dataset (Verified Source) | URL / Loader | Notes on Variable Fit |
-|:--- |:--- |:--- |:--- |
-| **Band Gap** | **OQMD** | ` | Contains `band_gap` target. Features likely include composition. **Fit**: Good. |
-| **Thermal Conductivity** | **AFLOW** | ` | Contains thermal conductivity target. **Fit**: Good. |
-| **Elastic Modulus (Proxy)** | **OQMD (Formation Energy)** | ` | **Critical Gap**: No verified URL explicitly provides "Elastic Modulus". The verified OQMD dataset contains `formation_energy_per_atom`. **Decision**: Substitute "Elastic Modulus" with "Formation Energy" to maintain N=3 datasets. This changes the research scope slightly but preserves the comparative methodology. |
+| Property | Target Dataset (Verified Source) | URL / Loader | Variable Fit |
+|----------|----------------------------------|--------------|--------------|
+| **Band Gap** | OQMD (Band Gap) | `datasets.load_dataset("oqmd/oqmd", split="train")`<br>URL: `https://huggingface.co/datasets/oqmd/oqmd` | Contains `band_gap` target; composition features available. |
+| **Thermal Conductivity** | AFLOW (Thermal Conductivity) | `datasets.load_dataset("aflow/aflow", name="thermal_conductivity")`<br>URL: `https://huggingface.co/datasets/aflow/aflow` | Contains `thermal_conductivity` target; composition features available. |
+| **Formation Energy** (proxy for Elastic Modulus) | OQMD (Formation Energy) | `datasets.load_dataset("oqmd/oqmd", split="train")`<br>URL: `https://huggingface.co/datasets/oqmd/oqmd` | Contains `formation_energy_per_atom`; suitable as a fundamental property proxy. |
 
-**Dataset Variable Fit Assessment**:
-- **OQMD (Band Gap)**: Verified to have `band_gap` target. Features are composition-based. **Fit**: Good.
-- **AFLOW (Thermal Conductivity)**: Verified to have thermal conductivity target. **Fit**: Good.
-- **OQMD (Formation Energy)**: Verified to have `formation_energy_per_atom`. **Fit**: Good for a fundamental property comparison.
-- **Elastic Modulus**: No verified source. **Mitigation**: Use Formation Energy as the third property. The research question is interpreted as comparing UQ robustness across *fundamental material properties* rather than specifically Elastic Modulus.
+**Dataset Variable Fit Assessment**  
+- All three datasets provide a numeric target column and compositional descriptors compatible with `matminer`.  
+- No verified Elastic Modulus dataset exists; the substitution with Formation Energy is **explicitly documented** and **treated as a proxy**. This limitation is noted in the results interpretation (see “Construct Validity” discussion).
+
+### Construct Validity Note
+Elastic Modulus is a mechanical property distinct from Formation Energy. Because an open, directly downloadable Elastic Modulus dataset is unavailable, Formation Energy is used as a scientifically reasonable proxy reflecting bonding strength and material stability. All conclusions about UQ performance on Elastic Modulus are therefore **qualitative** and will be qualified accordingly.
 
 ## UQ Methodology
 
-### 1. Gaussian Process Regression (GPR)
-- **Approach**: Standalone model.
-- **Implementation**: `sklearn.gaussian_process.GaussianProcessRegressor` with RBF kernel.
-- **Feasibility**: O(N^3) complexity. **Constraint**: Must limit dataset to ≤ 2,000 samples. If N > 2000, downsample or use `SparseGaussianProcess` (if available in sklearn).
-- **Output**: Mean and Variance (σ²). Prediction Interval = Mean ± 1.96 * σ.
+| Method | Baseline Model | Key Settings (CPU‑only) | Output |
+|--------|----------------|--------------------------|--------|
+| **GPR** | Stand‑alone `sklearn.gaussian_process.GaussianProcessRegressor` (RBF kernel) | `alpha=1e-6`, max samples = 2000 (downsample if larger) | Mean ± 1.96·σ |
+| **MC Dropout** | Small MLP (`torch.nn.Sequential` with dropout) | 50 stochastic forward passes, dropout = 0.2, ≤ 2 M params | Empirical mean & variance |
+| **Deep Ensemble** | Same MLP architecture, trained 3 times with different seeds | Sequential training, ensemble size = 3 | Ensemble mean & variance |
+| **Split‑Conformal** | XGBoost regressor | [deferred] calibration hold‑out, nominal coverage α varied in sensitivity sweep | Prediction interval `[L, U]` achieving target coverage |
 
-### 2. Monte Carlo (MC) Dropout
-- **Approach**: Apply dropout at inference time to a baseline neural network.
-- **Baseline**: A small Multi-Layer Perceptron (MLP).
-- **Feasibility**: Requires multiple forward passes (e.g., 50 passes). CPU-only is fine for small MLPs.
-- **Constraint**: Model must be small (< 2M params) to fit in memory alongside the ensemble.
-- **Output**: Mean and Variance of 50 predictions.
+## Metric Definitions
 
-### 3. Deep Ensembles
-- **Approach**: Train K independent models (K=3) with different seeds.
-- **Baseline**: Same small MLP as MC Dropout.
-- **Feasibility**: Training 3 models sequentially. Inference is K forward passes.
-- **Constraint**: Must reduce ensemble size to 3 to stay within 2GB RAM during training.
-- **Output**: Mean and Variance of K predictions.
+- **Expected Calibration Error (ECE)**: The average absolute difference between the nominal confidence level and the empirical coverage across a set of prediction intervals. Computed per‑sample as `|α - empirical_coverage|` and then averaged.
+- **Sharpness**: The average width of the prediction intervals, i.e., `mean(U - L)` across all test samples. Lower values indicate more informative (tighter) intervals, assuming calibration is adequate.
 
-### 4. Split-Conformal Prediction
-- **Approach**: Train a baseline model (e.g., XGBoost), calculate non-conformity scores on a calibration set, and determine quantile for the prediction interval.
-- **Feasibility**: Very low compute cost.
-- **Constraint**: Requires a hold-out calibration set (10-20% of data).
-- **Output**: Prediction Interval [L, U] such that P(Y ∈ [L, U]) ≥ 1-α.
+## Statistical Analysis Plan (Revised)
 
-## Statistical Analysis Plan
+- **Wilcoxon Signed‑Rank Test** is applied to **per‑sample absolute errors** (for Sharpness) **and to per‑sample calibration residuals** (for Calibration Error). This respects the paired nature of the data because the same test set is used for all methods.
+- **α = 0.05** significance threshold.
+- **Bonferroni correction** is applied across the 18 pairwise comparisons (6 method pairs × 3 datasets), yielding an adjusted α = 0.05/18.
+- **Sensitivity Analysis**: Sweep nominal coverage α from 0.80 to 0.99 (step = 0.01) for the split‑conformal method; record average interval width and empirical coverage error.
 
-### Significance Testing (FR-004, SC-001) - **CORRECTED**
-- **Test**: **Paired Wilcoxon Signed-Rank Test** (non-parametric) or Paired t-test.
-- **Unit of Analysis**: **Per-sample prediction errors** (or interval widths) across the test set.
-- **Rationale**: All methods are evaluated on the **same test set**. Therefore, the errors are **paired** (dependent), not independent. The previous "independent-sample" logic was a category error.
-- **Procedure**:
- 1. For each method, calculate the per-sample error (or interval width) for every sample in the test set.
- 2. Compare the distribution of these per-sample values between Method A and Method B using the Wilcoxon Signed-Rank test.
- 3. This provides N > 1 observations (one per test sample) for the test, satisfying statistical requirements.
-- **Correction**: No multiple-comparison correction is applied *within* the test (as per FR-004), but the plan will report the number of tests run.
+## Power Analysis
 
-### Sensitivity Analysis (FR-005, SC-004)
-- **Method**: Sweep Conformal Prediction nominal coverage (α) from 0.80 to 0.99 in steps of 0.01.
-- **Metric**: Plot/Report Average Interval Width vs. Coverage Error.
+With a minimum test set size of **100 samples per dataset**, the Wilcoxon signed‑rank test provides roughly **[deferred] power** to detect a medium effect size (Cohen’s d ≈ 0.5) at the corrected α level. Smaller effects may remain undetected; this limitation will be transparently reported in the results.
 
 ## Compute Feasibility & Constraints
 
-- **RAM Limit**: 2 GB.
- - **Strategy**: Limit dataset to [deferred] samples per property.
- - **Deep Ensembles**: Train 3 models sequentially.
- - **GPR**: Use `sklearn` with `alpha` regularization; if N > 2000, downsample.
-- **Time Limit**: 1 hour.
- - **Strategy**: Parallelize dataset loading (if possible) but serialize training to manage memory.
- - **Fallback**: If a method fails (e.g., GPR convergence), log error and skip to next method.
+- **RAM**: ≤ 2 GB by capping dataset size (≤ 5 k samples per property) and limiting model footprints.  
+- **Time**: ≤ 1 h by training models sequentially, using small MLPs, and limiting GPR to ≤ 2000 samples.  
+- **Fallbacks**: If `matminer` fails, simple composition counts (e.g., element fractions) are generated with pure `pandas`.
 
 ## Assumptions & Risks
 
-- **Assumption**: `matminer` can be installed and run on CPU without GPU dependencies.
-- **Risk**: If `matminer` fails or requires heavy dependencies, fallback to simple composition features (e.g., atomic number counts) using `pandas`.
-- **Risk**: Elastic Modulus data not found in verified sources.
- - **Mitigation**: Use Formation Energy (OQMD) as the third property. This is documented as a scope adjustment.
-- **Risk**: GPR underfitting due to N=2000 cap.
- - **Mitigation**: Use kernel approximation or strict N cap; acknowledge potential bias in results.
+- `matminer` installs without GPU dependencies.  
+- Verified URLs remain reachable; if a URL becomes unavailable, the pipeline logs the failure and continues with remaining datasets.  
+- Using Formation Energy as a proxy may affect direct comparability to Elastic Modulus; results will be interpreted with this caveat.
+
+---
+

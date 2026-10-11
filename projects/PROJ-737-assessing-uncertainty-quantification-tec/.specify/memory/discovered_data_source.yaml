@@ -1,11 +1,10 @@
 status: none
-intent: download OQMD materials dataset python package band_gap formation_energy_per_atom
-  python package dataset
+intent: download OQMD band_gap and formation_energy_per_atom as python package dataset
 required_fields:
 - material_id
-- composition
+- formula
 - band_gap
 - formation_energy_per_atom
-cache_key: f30f6dbb509d0a89f4bb0b8670a6f2cf80901d02be27b4a18950dcc308071775
-searched_at: '2026-10-11T10:19:10.786140+00:00'
+cache_key: 5759745bbdd2d01b8b276247eaf79209fbd609dc351785ca9084fa7a97ab979a
+searched_at: '2026-10-11T13:14:19.086920+00:00'
 retry_count: 1

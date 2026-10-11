@@ -1,66 +1,71 @@
 # Data Model: Assessing Uncertainty Quantification Techniques
 
-## Entity Relationship Overview
+## Entity Overview
 
-The system processes three main entities: `MaterialsDataset`, `UQMethod`, and `EvaluationMetric`.
+| Entity | Description |
+|--------|-------------|
+| **MaterialsDataset** | Represents a specific property dataset (Band Gap, Thermal Conductivity, Formation Energy). |
+| **UQMethod** | Encapsulates a UQ technique and its configuration. |
+| **EvaluationMetric** | Stores a scalar metric (Calibration Error, Sharpness, Coverage Error) for a method‑dataset pair. |
+| **StatisticalTestResult** | Holds the outcome of a paired Wilcoxon test between two methods on a given dataset. |
 
-### 1. MaterialsDataset
-Represents a specific property dataset (Elastic Modulus, Band Gap, Thermal Conductivity).
+### MaterialsDataset
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `dataset_id` | `str` | Unique identifier (e.g., "elastic_modulus", "band_gap"). |
-| `source_url` | `str` | URL from `# Verified datasets`. |
-| `property_name` | `str` | Name of the target property. |
-| `n_samples` | `int` | Total samples after loading. |
-| `n_train` | `int` | Training set size. |
-| `n_val` | `int` | Validation set size. |
-| `n_test` | `int` | Test set size. |
-| `features` | `list[str]` | List of feature column names. |
-| `target` | `str` | Target column name. |
+| Field | Type | Notes |
+|-------|------|-------|
+| dataset_id | string | e.g., `band_gap`, `thermal_conductivity`, `formation_energy`. |
+| source_url | string (URI) | Verified URL from `research.md`. |
+| property_name | string | Human‑readable target name. |
+| n_samples | integer ≥ 1 | Total rows after loading. |
+| n_train | integer ≥ 1 | Training rows. |
+| n_val | integer ≥ 0 | Validation rows. |
+| n_test | integer ≥ 1 | Test rows (≥ 100 per SC‑001). |
+| features | array[string] | Feature column names after featurization. |
+| target | string | Target column name. |
+| checksum | string | SHA‑256 of the processed CSV. |
 
-### 2. UQMethod
-Represents a UQ technique and its configuration.
+### UQMethod
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `method_id` | `str` | "gpr", "mc_dropout", "deep_ensemble", "conformal". |
-| `baseline_model` | `str` | "xgboost", "mlp", "gpr_standalone". |
-| `hyperparams` | `dict` | JSON-serializable hyperparameters (e.g., `{"n_estimators": 100}`). |
-| `n_iterations` | `int` | Number of MC passes or ensemble size. |
-| `status` | `str` | "success", "failed", "skipped". |
-| `error_msg` | `str` | Error message if failed. |
+| Field | Type |
+|-------|------|
+| method_id | enum: `gpr`, `mc_dropout`, `deep_ensemble`, `conformal` |
+| baseline_model | string (e.g., `xgboost`, `mlp`, `gpr_standalone`) |
+| hyperparams | object (JSON‑serialisable) |
+| n_iterations | integer (MC passes or ensemble size) |
+| status | enum: `success`, `failed`, `skipped` |
+| error_msg | string (optional) |
 
-### 3. EvaluationMetric
-The result of a single UQ method on a specific dataset.
+### EvaluationMetric
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `dataset_id` | `str` | Foreign key to `MaterialsDataset`. |
-| `method_id` | `str` | Foreign key to `UQMethod`. |
-| `metric_type` | `str` | "calibration_error", "sharpness", "coverage_error". |
-| `value` | `float` | Calculated scalar value. |
-| `nominal_coverage` | `float` | Target coverage (e.g., 0.95) for interval metrics. |
-| `timestamp` | `str` | ISO 8601 timestamp of calculation. |
+| Field | Type |
+|-------|------|
+| dataset_id | string |
+| method_id | string |
+| metric_type | enum: `calibration_error`, `sharpness`, `coverage_error` |
+| value | number |
+| nominal_coverage | number ∈ [0,1] (only for interval metrics) |
+| timestamp | string (ISO‑8601) |
 
-### 4. StatisticalTestResult
-Result of the significance test.
+### StatisticalTestResult
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `dataset_id` | `str` | Dataset context. |
-| `method_a` | `str` | First method. |
-| `method_b` | `str` | Second method. |
-| `metric_type` | `str` | "calibration_error" or "sharpness". |
-| `p_value` | `float` | P-value from Welch's t-test or Mann-Whitney U. |
-| `test_type` | `str` | "welch_t", "mann_whitney_u". |
-| `significant` | `bool` | True if p < 0.05. |
+| Field | Type |
+|-------|------|
+| dataset_id | string |
+| method_a | string |
+| method_b | string |
+| metric_type | enum: `calibration_error`, `sharpness` |
+| p_value | number ∈ [0,1] |
+| test_type | enum: `wilcoxon_signed_rank` |
+| significant | boolean |
 
 ## Data Flow
 
-1. **Ingest**: `download.py` fetches raw CSV/Parquet from verified URLs.
-2. **Preprocess**: `featurize.py` generates features (composition/structure) and splits data (Stratified by property).
-3. **Train**: `models/` submodules train the baseline and apply UQ.
-4. **Evaluate**: `metrics/evaluation.py` calculates Calibration Error and Sharpness.
-5. **Analyze**: `stats/significance.py` performs pairwise tests.
-6. **Output**: `results/summary.csv` aggregates all metrics.
+1. **download.py** → raw CSVs in `data/raw/`.  
+2. **featurize.py** → `data/processed/<dataset_id>.csv`.  
+3. **models/** → trained artefacts (saved as `results/models/<method_id>_<dataset_id>.pt` or `.pkl`).  
+4. **metrics/evaluation.py** → `results/metrics_<dataset_id>.csv`.  
+5. **stats/significance.py** → `results/statistical_report.csv`.  
+6. **pipeline.py** aggregates all CSVs into `results/summary.csv`.
+
+---
+

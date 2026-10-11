@@ -26,12 +26,24 @@ properties:
   test_type:
     type: string
     enum:
+      - "wilcoxon_signed_rank"
       - "welch_t"
       - "mann_whitney_u"
     description: "Type of statistical test used."
   significant:
     type: boolean
-    description: "True if p < 0.05."
+    description: "True if p < alpha."
+  alpha:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "The significance level used for the test (e.g., 0.05 or Bonferroni-corrected value)."
+  correction:
+    type: string
+    enum:
+      - "bonferroni"
+      - "none"
+    description: "The multiple-comparison correction method applied."
 required:
   - dataset_id
   - method_a
@@ -40,4 +52,6 @@ required:
   - p_value
   - test_type
   - significant
+  - alpha
+  - correction
 additionalProperties: false

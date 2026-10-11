@@ -2,56 +2,62 @@
 
 ## Prerequisites
 
-- Python +
-- Git
-- GitHub Actions Runner (or local machine with ≥2GB RAM)
+- Python 3.11+  
+- Git  
+- Internet access (for dataset download)  
+- ≤ 2 GB RAM (GitHub Actions runner or local machine)
 
 ## Installation
 
-1. **Clone the repository** (or the specific feature branch):
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-737-assessing-uncertainty-quantification-tec
-   git checkout 001-assessing-uq-techniques
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` pins versions to ensure reproducibility.*
-
-## Running the Pipeline
-
-Execute the full workflow (Download -> Featurize -> Train -> Evaluate -> Stats):
-
 ```bash
-python code/main.py
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-737-assessing-uncertainty-quantification-tec
+git checkout 001-assessing-uq-techniques
+
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r code/requirements.txt
 ```
 
-### Parameters
-- `--dataset`: Optional. Specify a single dataset (e.g., `band_gap`) to skip others.
-- `--method`: Optional. Run only a specific UQ method (e.g., `gpr`).
-- `--max-samples`: Optional. Limit dataset size (default: a substantial number) to ensure RAM compliance.
+## Running the Full Pipeline
+
+```bash
+python code/main.py \
+    --max-samples 5000 \
+    --mc-dropout-passes 50 \
+    --ensemble-size 3 \
+    --coverage-sweep-start 0.80 \
+    --coverage-sweep-stop 0.99 \
+    --coverage-sweep-step 0.01
+```
+
+### Optional Flags
+
+| Flag | Description |
+|------|-------------|
+| `--dataset <id>` | Run only on a specific dataset (`band_gap`, `thermal_conductivity`, `formation_energy`). |
+| `--method <id>` | Run only a single UQ method (`gpr`, `mc_dropout`, `deep_ensemble`, `conformal`). |
+| `--max-samples N` | Upper bound on samples per dataset to respect RAM limits. |
+| `--seed <int>` | Override the default random seed. |
 
 ## Expected Outputs
 
-1. **Console**: Progress logs and any skipped method warnings.
-2. **Files**:
-   - `data/processed/`: Featurized datasets (CSV/Parquet).
-   - `results/metrics.csv`: Per-method metrics (Calibration Error, Sharpness).
-   - `results/stats_results.csv`: P-values for pairwise comparisons.
-   - `results/sensitivity_conformal.csv`: Sensitivity analysis for Conformal Prediction.
-   - `logs/execution.log`: Full execution log including errors.
+- `data/raw/` – downloaded CSVs (checksummed).  
+- `data/processed/` – featurized train/val/test splits (automatically created).  
+- `results/metrics_*.csv` – Calibration Error, Sharpness, Coverage per method.  
+- `results/statistical_report.csv` – Paired Wilcoxon p‑values & significance flags (conforms to `contracts/stats.schema.yaml`).  
+- `results/sensitivity_conformal.csv` – Coverage sweep results.  
+- `logs/execution.log` – Timestamped step‑by‑step log (including memory usage).  
 
 ## Troubleshooting
 
-- **RAM Error**: If you encounter `MemoryError`, reduce `--max-samples` to 1000.
-- **Dataset Missing**: If a specific property (e.g., Elastic Modulus) is missing, check `logs/execution.log` for the "Data Gap" warning. The pipeline will continue with available properties.
-- **GPR Convergence**: If GPR fails, the pipeline logs the error and skips that method for the dataset.
+- **MemoryError**: Reduce `--max-samples` (e.g., to 2000).  
+- **Dataset download failure**: Verify internet connectivity; the script logs the exact URL that failed.  
+- **GPR convergence issues**: The pipeline will automatically down‑sample to ≤ 2000 points and retry.
+
+---
+
