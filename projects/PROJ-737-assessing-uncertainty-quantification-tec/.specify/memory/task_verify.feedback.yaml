@@ -1,40 +1,35 @@
 T001:
-  reason: "The directories `data/processed/`, `data/results/`, and `figures/` are\
-    \ reported MISSING, which the task explicitly requires to exist. Additionally,\
-    \ the schema evidence (`per_sample_errors_schema_example.csv` / `.json`) lists\
-    \ only `sample_id, method, prediction, lower_bound, upper_bound, ground_truth,\
-    \ dataset` \u2014 the required `abs_error` column is absent, so the data contract\
-    \ does not match the task's specified columns (the `per_sample_errors.schema.yaml`\
-    \ in `specs/.../contracts/` exists but its content was not shown to include `abs_error`,\
-    \ and the example contradicts it). The implementer must c"
-  task: f7936ff2c818ab9574f4f8c1b0b0fb803e2dfcfc08ded6005183f432c2831c9e
-T002:
-  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
-  task: 0314df1f1c2b3467de15130299f7fec217c30bb33578ba1d67e115868d87dfb4
-T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: b4ede29f89d9a221b6f7d7ed9ad7ef9bf22891118d4b8b6bcf250444f53853bb
+  task: 48651dd18438fb43f64c945c946058fa0785d2ef6c465ab0efb02282f5b8dfd3
+T002:
+  task: 882ecaf0c1e977451ab1a731fa7d3f5eb6103418339993daeed6a0d9938e6f9b
+T003:
+  task: 09e67e6bef0218880ed780ae56e282d560f7957fc6d4d6cca4d77f16971dc4aa
 T004:
-  task: 61bb17c504879a4821d80b4a99fac17bf0e02508541bae10f0fecd298ead8bf3
+  task: e74be0cf571cd489c632500cc94e3aa213851b9e04f6ccc801813058434dbc93
 T005:
-  task: 0c003630036ca191e1db59074967bb0592737ed0184e3330d89de846587a764e
+  task: 484d0ed728c5488ba14817b0f9aaeab20cf35ca5161ab3b353360de141b5477b
 T006:
-  task: 7a1b079b3610fb25c8aea752ca483ef8942230d8a438202df21ab6c440b2a887
+  task: db65c6fba4bc370b4e901e3790f3681b92c432eed185b9d818e8ec3c5ff037a4
 T007:
-  task: bbc9775e86c8b11835d4a19d5a5b935d35504025259f168d0f4f8f865b404e94
+  task: b69957bdde72c87214c63b09f857c7f9a55830f002482001f17683a04b928914
 T008:
-  task: 7a868f96f05d89d2e26f73172f2d1f15f765e55196941732c6f23483548dd371
+  task: 3c105c9ae8488f1f2a628ef610d6131f5d11b2202ab54021952533038ebd85a7
 T009:
-  task: 04fea6e93b11dcdea8923f488db69aa1d856f14928cae52d01db9a3523cdc015
+  task: 1174fcc29344718b1964431526d04d66100c0524a0c628b683a4d39d7ac62c78
 T010:
-  task: 43c8babc671f2a878d2fc0a7f6049fa61a0fd685bc84a54afb96a497252e35cd
+  task: f3eb97e5e9d4c2608cc961c99e192e9577f45229212e098288b4e62d4731422d
 T011:
-  task: dbf1f02a4ee17b3b0c8d26d72d285344a061f29c0479c201111628a91a9a6599
+  task: 13c41ea767ec50b9d5d62d7d6f8df448ec46e2a038d35b316583d6ee3aece55b
 T012:
-  task: e42e7da47181096da2c8f79a8907f67845f90e1d879735cd138e77ab8fd42601
+  task: 0b8e2af37bc9a24ea09b5b902378d7c319f3dad956f42441b92687dd4d34c563
 T013:
-  task: 1bbe5660a602482eb517ad0fa5d8909e0db9b590d10822d8a205c1ff6e821a78
+  task: 9f997ee9ee970d6f93c0c1141352735930e7566ac44d6829714c5706cf370d8f
 T014:
-  task: 3fdf3f14a13cabb0a893125fe8b2a7293fdf7403b754699ba6daadd8cf394ff4
-T015:
-  task: bda3c6471e851606e5001c1a352576b956d38d26ddab08af181f1d623f8df568
+  task: 98b2ccd01b55b8973efa4f31ee02c054ba3ccdccd1ec8808b844953025ae6830
+T016:
+  task: a738091f4d06d59ee3efa035f7b4205d93865c2ed3af9413a94b06765e67367e
+T021:
+  task: 1464e85c759e6fbfda27f924b3671846f97b2601e4ef944f0bae6c84f28eb83a
+T022:
+  task: 571d22a5909ae7c0d2505d010c9c8cf520d9967c446e0d2b9c9035c4879687d3

@@ -27,6 +27,10 @@ import psutil
 # Import the orchestrator defined in the existing code base.
 from pipeline import main as pipeline_main
 
+# Import the skeleton‑creation helper that ensures required directories
+# and the per‑sample schema exist before any pipeline work begins.
+from create_skeleton import main as skeleton_main
+
 def _write_pipeline_log(start_ts: float, end_ts: float, status: str) -> None:
     """Write a small JSON log describing the pipeline execution.
 
@@ -64,6 +68,10 @@ def _parse_cli() -> argparse.Namespace:
 def main() -> None:
     """Execute the pipeline and record a minimal execution log."""
     args = _parse_cli()
+
+    # First, ensure the project skeleton (directories + schema) exists.
+    # This satisfies task T001 requirements before any heavy processing.
+    skeleton_main()
 
     # Communicate the sample cap to downstream modules via env‑var.
     os.environ["MAX_SAMPLES"] = str(args.max_samples)
