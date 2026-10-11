@@ -1,164 +1,71 @@
 # Tasks: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
-**Input**: Design documents from `/specs/001-unveiling-hidden-correlations/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, data-model.md, contracts (dataset, model_output, visualization schemas), prior tasks.md with verified work.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Organization**: Consolidated from the prior task list into substantive research tasks. Verified completed work (schema validation, config, preprocessing/model/viz unit tests, GPR trainer, baseline, metrics, stratified analysis, contour/heatmap/PDP plots, linting, download/independence unit tests) is preserved as checked. Pending work is regrouped without dropping any acceptance criterion. Paths are relative to the project root (`code/`, `data/`, `results/`, `docs/`).
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+## Phase 1: Setup and first end-to-end analysis
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 [P] [US1] Establish the runnable pipeline entry point and real data source. Implement `code/data/download.py` to fetch the NIST AM-Bench (Zenodo) AM alloy dataset via a concrete reachable URL (Zenodo record download or `requests` with retry + backoff, max 3 attempts); on failure raise `FileNotFoundError` with the exact message "No verified source found for AM-Machine-Learning dataset. Automated download failed after retries. Please manually place a valid CSV file at `data/raw/am_raw_data.csv`." — NO synthetic/mock fallback anywhere (FR-001, edge case: download failure). Save raw CSV to `data/raw/am_raw_data.csv`. Document the runnable command (`python code/main.py --stage ingest`) in the feature's `quickstart.md`.
+  - Verify: script downloads real data or fails loudly with the exact message; no `generate_synthetic`/`mock`/random fallback exists in `code/data/download.py`.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T002 [US1] Complete data validation and preprocessing (FR-001, FR-002, US-1 acceptance scenarios 1–3, edge cases). In `code/data/preprocess.py` (reusing the verified `schema_validator.py`, `config.py`, logger, and unit tests already in place):
+  - Validate N ≥ 50; if fewer, halt with the exact error "Insufficient data for GPR training; minimum 50 samples required."
+  - Detect zero-variance features (e.g., Layer Thickness), log a warning, exclude them; if VIF > 5 for any predictor, log a warning and record derived columns (e.g., `energy_density`) in `data/processed/excluded_columns.yaml` rather than feeding them to the model (Constitution VII).
+  - Run source-independence validation in `code/data/validate_source_independence.py`: predictor and target column sets must be strictly disjoint; halt on any overlap or missing `data/raw/source_independence_log.txt` (JSON `{"predictors": [...], "targets": [...]}`) with a clear Constitution Principle VII error.
+  - Scope detection: if `fatigue_life` is absent, log `[SCOPE] Reduced scope: fatigue_life missing; analysis restricted to yield_strength and ductility.` to `data/processed/preprocessing.log` and write `data/processed/target_config.json` with `{"active_targets": ["yield_strength", "ductility"]}`.
+  - Median-impute missing numeric values (log imputation counts), one-hot encode `alloy_type` into `is_<type>` binary columns and drop the original, stratified train/test split (70/15/15) BEFORE scaling, fit `MinMaxScaler` on train only, save `data/processed/train.csv`, `test.csv`, `normalization_bounds.json`, `original_target.npy`, and imputation/dropped-column/normalization entries in `data/processed/preprocessing.log`.
+  - Verify: processed CSVs have no missing values, all normalized columns strictly within [0,1], binary alloy columns present, log entries recorded; `tests/unit/test_preprocess.py` and `tests/integration/test_pipeline.py` pass.
 
-## Path Conventions
+- [ ] T003 [US2] Run the first end-to-end GPR analysis on the real preprocessed data. Wire `code/main.py` to execute ingest → preprocess → train → evaluate using the verified `code/models/gpr_trainer.py` (RBF kernel, 5-fold CV maximizing log marginal likelihood, seed 42), `code/models/baseline_trainer.py` (linear regression), and `code/models/metrics.py`. Produce `results/metrics.json` conforming to `model_output.schema.yaml` with real measured `r2_score`, `rmse`, `mae`, `rmse_percentage_range` (null if test-set range < 1e-6), `baseline_r2`, `delta_r2`, `percentage_improvement`, optimized `hyperparameters` (length_scale, sigma), and `sample_size`/`sampling_method`/`representativeness_limitation` documentation keys (T054 revision concern). Save the serialized GPR model artifact.
+  - Verify: `results/metrics.json` exists, validates against the schema, and all values are computed from the real dataset; repeated runs with seed 42 produce identical metrics and artifacts (US-2 scenario 3).
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `android/src/` or `ios/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+**Checkpoint**: The documented command executes end-to-end on real data and its numerical outputs are checkable. No report writing from expected or invented results.
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 2: Complete the study and validate its evidence
 
-**Purpose**: Project initialization and basic structure
+- [ ] T004 [US3] Compute permutation importance and correlate against a baseline (FR-006, SC-004). Using the trained GPR, compute permutation importance over all predictor features and write `results/permutation_importance.json` (feature_name, importance_score per feature). Then in `code/analysis/importance.py`: load `data/baseline_importance.json` if present, else `data/literature_baseline_importance.json`, else fall back to a stability analysis (re-computed importance across CV folds) and log that SC-004 is "Partially Met" — never raise on a missing baseline. Compute Spearman rank correlation between model importance and the baseline and record it as `importance_correlation` in `results/metrics.json`.
+  - Verify: importance file lists every feature with real scores; correlation value or documented fallback present in `results/metrics.json`; `tests/unit/test_importance.py` passes.
 
-- [ ] T001A [P] Create data directory structure: `projects/PROJ-053-unveiling-hidden-correlations-between-pr/data/`, `data/raw/`, `data/processed/`, `results/`, `docs/`, `state/`
-- [ ] T001B [P] Create test directory structure: `tests/`, `tests/unit/`, `tests/integration/`
-- [ ] T001C-1 [P] Create `code/` directory.
-- [ ] T001C-2 [P] Create `code/__init__.py`.
-- [ ] T001C-3 [P] Create `code/config.py`.
-- [ ] T001D [P] Create configuration and dependency files: `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/requirements.txt` (initially empty), `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/config.py` (initially empty), `contracts/` directory
+- [ ] T005 [US3] Quantify uncertainty and flag high-uncertainty regimes (FR-007, SC-003, US-3 scenario 2). In `code/analysis/uncertainty.py`: extract predictive means and standard deviations on the test set, compute the fraction of test samples with σ > 2× median σ, record `high_uncertainty_ratio` in `results/metrics.json`, and write the coordinates of flagged parameter regions to `results/high_uncertainty_regions.csv` for future data-collection prioritization.
+  - Verify: ratio in [0,1] present in `results/metrics.json`; CSV lists real parameter coordinates of flagged regions; `tests/unit/test_viz.py` threshold test passes.
 
-**Phase 1 Complete - Foundation Ready**
+- [ ] T006 [US2] Produce the residual analysis and confounder report (plan T055/T030, SC-001 support). In `code/models/residual_analysis.py`: analyze GPR test-set residuals for heteroscedasticity (e.g., Breusch-Pagan or Spearman correlation of |residual| with fitted values) and non-linearity via a permutation test comparing GPR R² to the linear baseline; write `results/residual_analysis.json` with `heteroscedasticity_detected` (boolean) and `method_used`. Ensure per-alloy stratified metrics from the verified `code/models/stratified_analysis.py` are written to `results/confounder_analysis.json`.
+  - Verify: `results/residual_analysis.json` exists (prior rejection: file was missing) with real computed values; `results/confounder_analysis.json` contains per-alloy-type R²/RMSE/MAE.
 
----
+- [ ] T007 [US3] Generate all specified figures from the validated outputs (FR-005, US-3 scenarios 1–3). Using the verified `code/viz/contour_plots.py`, `code/viz/importance.py`: generate contour plots of predicted yield strength (and ductility) over laser power × scan speed in physical units (via `normalization_bounds.json`), uncertainty heatmaps with σ > 2× median regions colored red, and partial dependence plots for the top-3 parameters from `results/permutation_importance.json`. Write PNGs (each ≤ 5 MB) to `results/plots/` with sidecar JSON metadata conforming to `visualization.schema.yaml` (file_name, x_axis, y_axis, z_axis, uncertainty_flag, max/median uncertainty).
+  - Verify: PNGs and sidecar JSONs exist and match the schema; heatmap red regions correspond to flagged cells from T005; `tests/integration/test_pipeline.py` viz tests pass.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T008 [P] Add runtime, memory, and feasibility checks (SC-005, plan T040/T047). Wrap the full pipeline in a timer and write `results/runtime.json` with `runtime_seconds` and `feasibility_status` ("PASSED"/"FAILED", warning only, never abort) compared against the free-tier CI limit when `GITHUB_ACTIONS` is set. Profile peak memory during GPR training (memory_profiler or `resource`/tracemalloc) and write `results/memory_profile.json` with `max_memory_mb` and status; if usage ≥ 7340 MB or N > 500, apply the sparse-GPR fallback in `code/models/gpr_trainer.py` (inducing-point/FITC-style approximation, documented in `requirements.txt` if a new dependency is added) and re-profile.
+  - Verify: both JSON artifacts contain real measured values; runtime recorded in `results/metrics.json` as `runtime_seconds`.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Phase 3: Reproducible results and paper handoff
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T009 [US1] [US2] [US3] Write the methods/results account in `docs/paper.md` (draft) linked directly to the actual output cells: metrics from `results/metrics.json`, importance ranking, uncertainty ratio, residual/confounder findings, and the generated figures. Include explicit data provenance (NIST AM-Bench source and access date), the scope-reduction log entry if `fatigue_life` was absent, which importance baseline source was used (user JSON, literature, or stability fallback), and honest limitations (epistemic-only uncertainty; sample size and representativeness constraints from T003's documentation keys). Describe negative findings (e.g., GPR not beating the linear baseline) honestly rather than thresholding.
+  - Verify: every numeric claim in `docs/paper.md` traces to a `results/` artifact; no hand-typed values.
 
-- [X] T006 [P] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/schema_validator.py` to validate CSV against `contracts/dataset.schema.yaml`. **Logic**: Load the YAML schema, read the CSV, and verify all required columns exist and contain numeric data (parsing strings as floats if necessary). Raise a `ValueError` if validation fails. **Deliverable**: `code/data/schema_validator.py`. **Verify**: Script runs without error on a valid CSV and raises `ValueError` on an invalid CSV.
-- [X] T007 Setup `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/config.py` to manage paths (`data/raw/`, `data/processed/`, `results/`) and random seeds (fixed)
-- [X] T009 Configure error handling and logging infrastructure in `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/config.py` and `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/utils/logger.py`
-- [X] T010 Create `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/config.py` keys for manual data placement paths (e.g., `MANUAL_DATA_PATHS`)
+- [ ] T010 [US1] Finalize reproducibility and paper-stage handoff. Update `README.md`/`quickstart.md` with installation steps, pinned `requirements.txt`, the documented end-to-end command, and manual data placement instructions ("Download a valid AM alloy dataset and save it as `data/raw/am_raw_data.csv`"). Re-run the full documented workflow from `data/raw/am_raw_data.csv` with `PYTHONHASHSEED=0` and seed 42, confirm identical `results/metrics.json` and model artifacts, confirm all unit/integration tests pass, and record the paper-stage handoff (layout, PDF compilation, publication belong to the subsequent paper pipeline) in `docs/paper.md` final version.
+  - Verify: fresh re-run reproduces byte-identical metrics; tests green; handoff section present.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel.
+## Dependencies and requirement coverage
 
----
+| Requirement | Task(s) | Demonstrating command |
+|---|---|---|
+| FR-001 (download/validate ≥50 samples, real source) | T001, T002 | `python code/main.py --stage ingest` |
+| FR-002 (impute, normalize, encode) | T002 | `pytest tests/unit/test_preprocess.py` |
+| FR-003 (GPR RBF, 5-fold CV) | T003 | `python code/main.py --stage train` |
+| FR-004 (R²/RMSE/MAE JSON) | T003 | inspect `results/metrics.json` vs schema |
+| FR-005 (contour plots, heatmaps) | T007 | inspect `results/plots/` + sidecars |
+| FR-006 (permutation importance) | T004 | inspect `results/permutation_importance.json` |
+| FR-007 (σ > 2× median flags) | T005 | inspect `results/high_uncertainty_regions.csv` |
+| SC-001 (GPR vs linear baseline) | T003, T006 | `delta_r2` in `results/metrics.json` |
+| SC-002 (RMSE % of range) | T003 | `rmse_percentage_range` |
+| SC-003 (high-uncertainty fraction) | T005 | `high_uncertainty_ratio` |
+| SC-004 (importance correlation) | T004 | `importance_correlation` |
+| SC-005 (runtime feasibility) | T008 | `results/runtime.json` |
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+Execution order: T001 → T002 → T003 → (T004, T005, T006 in sequence after T003; T007 after T004+T005; T008 after T003) → T009 → T010. T008 is [P] relative to T004–T007 (different files). Research scripts write only project-owned paths (`data/`, `results/`, `code/`, `docs/`); platform state under `state/` is never touched.
 
-**Goal**: A researcher uploads or downloads a raw public AM alloy dataset and receives a clean, normalized CSV ready for modeling, with missing values handled and categorical variables encoded.
+## Revision behavior
 
-**Independent Test**: Can be fully tested by running the preprocessing script on a known raw dataset file and verifying the output CSV contains normalized numeric columns, one-hot encoded alloy types, and no missing values, with a log file confirming the imputation and normalization steps.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T011 [P] [US1] Unit test for median imputation logic in `tests/unit/test_preprocess.py`
-- [X] T012 [P] [US1] Unit test for one-hot encoding of `alloy_type` in `tests/unit/test_preprocess.py`
-- [X] T013 [P] [US1] Integration test for full pipeline from raw CSV to processed CSV in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 1
-
-- [ ] T014A-1 [US1] [DEPENDS ON T006, T010] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/download.py` (Part 1: Verified Source Download). **Action**: Implement logic to attempt download from verified sources (Zenodo, HuggingFace, UCI) for AM alloy datasets. Include retry logic with backoff. If successful, save to `data/raw/am_raw_data.csv` and log checksum. **Constraint**: If all verified sources fail, proceed to T014B-1. **Deliverable**: `code/data/download.py` with download logic. **Verify**: Script successfully downloads from a verified source or fails with a clear error after retries.
-- [ ] T014B-1 [US1] [DEPENDS ON T014A-1] **Manual Data Placement Enforcement (Check)**. **Action**: Check for the existence of `data/raw/am_raw_data.csv`. If missing, raise a `FileNotFoundError` with the exact message: "No verified source found for AM-Machine-Learning dataset. Automated download failed after retries. Please manually place a valid CSV file at `data/raw/am_raw_data.csv`." **Deliverable**: `code/data/download.py` updated with check. **Verify**: Script raises error when file is missing after download failure.
-- [ ] T015B-1 [US1] [DEPENDS ON T014A-1] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/validate_source_independence.py` (Part 1: Log Validation). **Action**: Check for the existence of `data/raw/source_independence_log.txt`. **Constraint**: If missing, HALT execution with error: "Constitution Principle VII Violation: Source independence log missing. Predictor and target data streams must be verified as independent. Please provide `data/raw/source_independence_log.txt`." **Deliverable**: `code/data/validate_source_independence.py`. **Verify**: Script halts if log is missing.
-- [ ] T015B-2 [US1] [DEPENDS ON T015B-1] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/validate_source_independence.py` (Part 2: Content Validation). **Action**: Parse `source_independence_log.txt` (JSON format: `{"predictors": ["col1",...], "targets": ["col2",...]}`). Verify that these columns exist in the raw CSV. If any listed column is missing in the CSV, **HALT execution** with an error detailing the missing column. **Deliverable**: `code/data/validate_source_independence.py`. **Verify**: Script halts if columns in log are missing in CSV.
-- [ ] T016A-1 [US1] [DEPENDS ON T015B-2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 1: Scope Detection). **Action**: Check for column named `fatigue_life` (case-insensitive). If missing, write a log entry to `data/processed/preprocessing.log`: `[SCOPE] Reduced scope: fatigue_life missing; analysis restricted to yield_strength and ductility. (See Plan Assumption: Dataset-variable fit)`. **Deliverable**: Log entry in `data/processed/preprocessing.log`. **Verify**: Log contains scope reduction entry.
-- [ ] T016A-2 [US1] [DEPENDS ON T016A-1] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 2: Target Reconfiguration). **Action**: If `fatigue_life` is missing, write `data/processed/target_config.json` with `{"active_targets": ["yield_strength", "ductility"]}`. **This artifact is mandatory**. **Deliverable**: `data/processed/target_config.json`. **Verify**: File exists and contains correct JSON.
-- [ ] T016A-3 [US1] [DEPENDS ON T016A-2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 3: Sample Count Check). **Action**: Verify if N < 50. If so, **HALT execution** with the **exact** error message: "Insufficient data for GPR training; minimum 50 samples required." **Deliverable**: Error handling in `code/data/preprocess.py`. **Verify**: Script halts with correct error if N < 50.
-- [ ] T016B-1 [US1] [DEPENDS ON T016A-3] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 2: Imputation). **Action**: Median‑impute missing numeric values; log counts. **Deliverable**: Imputed dataset. **Verify**: No missing values remain.
-- [ ] T016B-2 [US1] [DEPENDS ON T016B-1] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 2.1: Encoding). **Action**: One‑Hot Encoding: Encode `alloy_type` into binary columns (`is_<type>`), then drop original column. **Deliverable**: Encoded dataset. **Verify**: `alloy_type` column removed, binary columns added.
-- [ ] T016C-1 [US1] [DEPENDS ON T016B-2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 3: Split). **Action**: Perform train-test split (stratified by `alloy_type` if present) **before** scaling. **Deliverable**: Split datasets. **Verify**: Train and test sets created.
-- [ ] T016C-2 [US1] [DEPENDS ON T016C-1] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 3.1: Target Preservation). **Action**: Preserve Original Target: Save the original (unnormalized) target vector to `data/processed/original_target.npy` for later metric calculation (T029A). **Deliverable**: `data/processed/original_target.npy`. **Verify**: File exists.
-- [ ] T016C-3 [US1] [DEPENDS ON T016C-2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 3.2: Normalization). **Action**: Fit `MinMaxScaler` on training set only; transform train and test. **Deliverable**: Normalized datasets. **Verify**: Values in [0,1].
-- [ ] T016C-4 [US1] [DEPENDS ON T016C-3] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 3.3: Artifact Generation). **Action**: Save min/max values to `data/processed/normalization_bounds.json`. Output: Write `data/processed/train.csv` and `data/processed/test.csv`. **Deliverable**: `data/processed/normalization_bounds.json`, `train.csv`, `test.csv`. **Verify**: Files exist.
-- [ ] T016D [US1] [DEPENDS ON T014A-1, T014B-1, T015B-2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/preprocess.py` (Part 4: Filter and Save Intermediate Dataset). **Action**: Load raw CSV, calculate Variance Inflation Factor (VIF) for predictors. If VIF > 5 for any feature, log a WARNING and construct `energy_density` feature. Drop zero-variance columns. Save intermediate dataset to `data/processed/filtered.csv`. **Deliverable**: `data/processed/filtered.csv`. **Verify**: File exists with correct columns.
-- [ ] T015B-3 [US1] [DEPENDS ON T016D] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/validate_source_independence.py` (Part 3: Exclusion List Generation). **Action**: Check for derived feature columns (e., `energy_density`). If found, log a WARNING and add to `data/processed/excluded_columns.yaml`. **Output**: Write `data/processed/excluded_columns.yaml` listing excluded columns (initially just derived columns). **Deliverable**: `data/processed/excluded_columns.yaml`. **Verify**: File exists and contains expected columns.
-- [X] T022 [US1] [DEPENDS ON T016C-4] Write log entries for imputation counts, dropped columns, and normalization stats to `data/processed/preprocessing.log`. **Action**: Ensure the log file contains entries for `imputation_count`, `dropped_columns`, and `normalization_bounds` with specific values. **Deliverable**: Updated `data/processed/preprocessing.log`. **Verify**: Log contains entries with specific values.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Gaussian Process Regression Model Training and Validation (Priority: P2)
-
-**Goal**: A researcher trains a Gaussian Process Regression model to predict mechanical properties from processing parameters and receives performance metrics (R², RMSE) documenting the model's predictive capability.
-
-**Independent Test**: Can be fully tested by executing the training script on the preprocessed data, verifying the model object is saved, and checking a results JSON file for R² and RMSE values that are reported (without arbitrary pass/fail thresholds).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T023 [P] [US2] Unit test for GPR hyperparameter optimization in `tests/unit/test_gpr.py`
-- [X] T024 [P] [US2] Integration test for model training and metric calculation in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 2
-
-- [X] T025 [US2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/models/baseline_trainer.py` to train Linear Regression on the same training set for SC‑001 comparison
-- [X] T026 [US2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/models/gpr_trainer.py` to train GPR with RBF kernel using k‑fold cross‑validation to maximize log marginal likelihood **and output permutation_importance.json**. **Deliverable**: GPR model object and `results/permutation_importance.json`. **Verify**: Model saved and importance file generated.
-- [X] T027 [US2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/models/metrics.py` to calculate R², RMSE, and MAE on a held‑out test set
-- [X] T030 [US2] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/models/stratified_analysis.py`:
- - Group the processed data by `alloy_type` (if present) and compute per‑group R², RMSE, MAE using the trained GPR model.
- - Write a structured JSON artifact `results/confounder_analysis.json` containing a dictionary keyed by alloy type with the metrics.
-- [ ] T029A [US2] [DEPENDS ON T026, T027, T016C-4] Calculate and Save Metrics. **Action**: Calculate raw metrics (GPR R², RMSE, MAE; Baseline R², RMSE, MAE). Handle edge case for `rmse_percentage_of_range` (if range < 1e-6, set to null). Calculate `delta_r2` and `percentage_improvement`. Save all metrics to `results/metrics.json` with fixed precision. **Deliverable**: `results/metrics.json`. **Verify**: File exists with correct schema.
-- [ ] T031A [US3] [DEPENDS ON T026, T016C-4] Load, Validate, and Correlate Baseline. **Action**: Check for `data/baseline_importance.json` first. If missing, check `data/literature_baseline_importance.json`. If both missing, use stability analysis as a fallback and log that SC-004 is "Partially Met". Calculate correlation between permutation importance (loaded from `results/permutation_importance.json`) and baseline. **Deliverable**: Correlation value in `results/metrics.json`. **Verify**: Value calculated or fallback logged.
-- [ ] T031B [US3] [DEPENDS ON T026, T016C-4] Implement Uncertainty Quantification. **Action**: Calculate percentage of test samples in "high uncertainty" regions (σ > 2× median) and save to `results/metrics.json` as `high_uncertainty_percentage`. **Deliverable**: `results/metrics.json` updated. **Verify**: Value calculated.
-- [ ] T055 [US2] [DEPENDS ON T029A, T026, T016C-4] Perform Residual Analysis. **Action**: Analyze residuals of GPR model. Test for non-linearity using permutation test. Save results to `results/residual_analysis.json`. **Deliverable**: `results/residual_analysis.json`. **Verify**: File exists.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Uncertainty Quantification and Visualization (Priority: P3)
-
-**Goal**: A researcher views contour plots of predicted mechanical properties overlaid with uncertainty heatmaps to identify parameter regimes with high prediction confidence versus those requiring further experimentation.
-
-**Independent Test**: Can be fully tested by running the visualization script, confirming PNG files are generated, and verifying that regions with high predicted standard deviation (σ) are correctly highlighted in red on the uncertainty heatmap.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T033 [P] [US3] Unit test for uncertainty threshold calculation (multiplier of median) in `tests/unit/test_viz.py`
-- [X] T034 [P] [US3] Integration test for contour and heatmap generation in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 3
-
-- [X] T035 [US3] [DEPENDS ON T016C-4, T026] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/viz/contour_plots.py` to generate contour plots of predicted Yield Strength vs. Laser Power and Scan Speed. **Action**: Load `data/processed/normalization_bounds.json` to convert normalized axes back to physical units and annotate plot titles/labels accordingly.
-- [X] T036 [US3] [DEPENDS ON T016C-4, T026] Extend `contour_plots.py` to generate uncertainty heatmaps where σ > 2× median is colored red. **Action**: Load `data/processed/normalization_bounds.json` to annotate axes with physical units.
-- [X] T037 [US3] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/viz/importance.py` to generate Partial Dependence Plots (PDPs) for the top influential parameters (as identified by permutation importance).
-- [ ] T040-1 [US3] [DEPENDS ON data/processed/train.csv, data/processed/test.csv] Measure total pipeline time (preprocessing → training → viz) using `time.time()`. **Deliverable**: Runtime value. **Verify**: Value recorded.
-- [ ] T040-2 [US3] [DEPENDS ON T040-1] Dynamic limit detection. **Action**: Check `os.environ.get('GITHUB_ACTIONS')`. If `GITHUB_ACTIONS` is set (CI environment): Compare against `config.TIME_LIMIT_SECONDS` (default a standard duration of several hours). If runtime < limit: Set `feasibility_status: "PASSED"`. If runtime >= limit: **log** warning, set `feasibility_status: "FAILED"`, and **do not abort**. If `GITHUB_ACTIONS` is NOT set: Log warning if runtime exceeds a predefined threshold. **Deliverable**: Feasibility status. **Verify**: Status set correctly.
-- [ ] T042A [US1] [DEPENDS ON data/processed/train.csv, data/processed/test.csv, data/processed/excluded_columns.yaml] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main_us1.py` to orchestrate ONLY User Story 1 (download -> preprocess -> validate). CLI: `--input <raw.csv>` `--output <processed.csv>`. Validate file extensions, enforce `PYTHONHASHSEED=0`. **Note**: Optional orchestration helper for independent US1 testing.
-- [ ] T042B [US2] [DEPENDS ON T029A, T031A, T031B, T039, T016C-4] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main_us2.py` to orchestrate ONLY User Story 2 (preprocess -> train -> eval). **Action**: Wait for `results/metrics.json` to be fully populated by T029A, T031A, T031B, T039. Validate extensions, enforce reproducibility seed. **Note**: This task depends on the `results/metrics.json` artifact to ensure all metrics are ready for the orchestration flow. **Deliverable**: Orchestration script. **Verify**: Script runs successfully.
-- [ ] T043 [US3] [DEPENDS ON results/metrics.json, results/contour_plots/, results/uncertainty_heatmaps/, results/confounder_analysis.json] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main_e2e.py` to orchestrate the full pipeline (download -> preprocess -> train -> viz -> report). CLI: `--input <raw.csv>` `--output-dir <out_dir>`. Enforce `PYTHONHASHSEED=0`.
-- [ ] T044 [US3] [DEPENDS ON T030, T040-3] Generate `docs/paper.md` compiling metrics, plots, and explicit data provenance acknowledgment (Draft version). This task consumes the scope‑reduction log entry from T016A-1 if applicable, references the baseline importance source used in T031A, and includes the confounder analysis from `results/confounder_analysis.json` (T030).
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T045A [P] Create/update `README.md` with installation steps, dependencies, and **manual data placement instructions**. **Action**: Explicitly state that the system requires manual data placement if automated download fails. Provide instructions: "Manual Data Placement: Download a valid AM alloy dataset and save it as `data/raw/am_raw_data.csv`."
-- [ ] T045B [P] Finalize `docs/paper.md` with final metrics, plots, and data provenance acknowledgment (Final version).
-- [X] T046 [P] Run `flake8` on all `code/` files. **Tool**: `flake8`. **Config**: `.flake8` (create if missing). **Flags**: `--ignore=E501,W605 --max-line-length=100`. **Output**: Save report to `results/linting_report.txt`. **Action**: Fix all errors except unused imports.
-- [ ] T047A [P] Profile Memory and Save Report. **Action**: Ensure `memory_profiler` is installed (add to `requirements.txt`). Profile memory usage in `preprocess.py` using `memory_profiler`. **Command**: `python -m memory_profiler code/data/preprocess.py`. Use the `@profile` decorator on the main function. Write `results/memory_profile.json` with `max_memory_mb` and `status: "OK"` or `"WARNING"`. **Deliverable**: `results/memory_profile.json`. **Verify**: File exists.
-- [ ] T047B [P] Optimize Memory Usage if Necessary. **Action**: Read `results/memory_profile.json`. If `max_memory_mb >= 7340` (7 GB): Convert numeric columns to `dtype='float32'`. Use chunked reading for large CSVs. Drop unused columns immediately. Re-run profile to verify optimized usage < 7340 MB. Log final result. **Deliverable**: Updated `results/memory_profile.json`. **Verify**: Usage < 7340 MB.
-- [X] T051 [P] Unit test for manual data placement validation in T014B-1 in `tests/unit/test_download.py`. **Logic**: This test validates that the error message is correct AND that a `SystemExit` (or equivalent exception) is raised when `data/raw/am_raw_data.csv` is missing and download fails.
-- [X] T052 [P] Unit test for 'baseline required' behavior in T031B-1 in `tests/unit/test_importance.py`. **Logic**: The test should verify that a `ValueError` is NOT raised if config citation is missing and no user file is found, ensuring the pipeline continues with null correlation or stability proxy.
-
----
-
-## Phase 7: Revision & Review (Addressing Analysis Concerns)
-
-**Purpose**: Address specific concerns raised during the `/speckit.analyze` phase regarding data integrity, reproducibility, and edge cases.
-
-- [ ] T053 [P] [REVISION] Implement Strict Data Loader. **Action**: Remove any `try/except` blocks that fall back to synthetic data in `code/data/download.py`. Ensure that if the manual file check (T014B-1) fails, the script raises a `FileNotFoundError` and exits immediately. **Deliverable**: Updated `code/data/download.py`. **Verify**: No synthetic fallback logic exists; script raises error and exits.
-- [ ] T054 [P] [REVISION] Update Metrics Documentation. **Action**: Add explicit sample size and sampling method documentation to `results/metrics.json`. If the dataset is sampled (e.g., for memory constraints), record `sample_size`, `sampling_method` (e.g., "first_N_rows", "random_seed_42"), and `representativeness_limitation` in the JSON output. **Deliverable**: Updated `results/metrics.json`. **Verify**: Keys present.
-- [ ] T057 [P] [REVISION] Implement Sparse GPR Fallback. **Action**: In `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/models/gpr_trainer.py`, if N > 500, automatically switch to `GPy` library using `GPy.models.GPRegression` with FITC (Fully Independent Training Conditional) or VFE (Variational Free Energy) approximation. **Constraint**: Only use `GPy` if `scikit-learn` GPR fails due to memory constraints. Document this dependency addition in `requirements.txt` and `results/memory_profile.json`. **Deliverable**: Updated `code/models/gpr_trainer.py`. **Verify**: Logic present and GPy used when N > 500.
-- [ ] T058 [P] [REVISION] Implement Source Independence Validation. **Action**: In `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data/validate_source_independence.py`, ensure that the predictor columns and target columns are strictly disjoint. If any overlap is detected, halt with a clear error message. **Deliverable**: Updated `code/data/validate_source_independence.py`. **Verify**: Logic present and script halts on overlap.
+Verified completed work (T006/T007/T009/T010/T011–T013, T022–T027, T030, T033–T037, T046, T051, T052 from the prior list) is preserved inside the consolidated tasks above; their acceptance criteria are carried forward, not erased. The two verifier rejections are addressed: the missing `schema.yaml` artifact is covered by T002's schema validation against the active contracts, and the missing `results/residual_analysis.json` is the explicit deliverable of T006. Analyze revision concerns (no synthetic fallback — T001; sample-size documentation — T003; sparse GPR — T008; strict source-independence disjointness — T002) are folded into the consolidated tasks without duplication.
