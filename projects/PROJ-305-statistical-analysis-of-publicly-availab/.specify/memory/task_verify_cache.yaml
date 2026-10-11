@@ -1,3 +1,23 @@
+T001:
+  c: false
+  h: 40f9c3c9e5c02536e3e3d644a455cbddf91cd032f63ff8d0e11657382f486b06
+  r: "The directory tree itself was created (all 14 requested directories exist per\
+    \ the collector), and the execution log shows the script ran with exit 0 and claims\
+    \ a snapshot was written. However, the collector's artifact evidence contains\
+    \ no entry for `logs/` or `logs/structure.txt` \u2014 the one required output\
+    \ file of this task \u2014 so there is no current, on-disk evidence that the snapshot\
+    \ file exists and is non-empty, nor any evidence the grep verification passes.\
+    \ The implementer should confirm `logs/structure.txt` exists at the project root,\
+    \ is non-empty, and contains a line for each listed directo"
+  sig: c131b144a90030e8bb7a26d9d591753bdf9076c5d38dfe75e94f758a316afff3
+T002:
+  c: false
+  h: a7caf22589693bab9576057e7b85b1f71dded0ca36ffe2ee7336b7d0d8075e37
+  r: README.md exists (313 bytes) and contains the exact required title plus a one-sentence
+    description, but the evidence shows no `.gitignore` artifact at the project root
+    (or anywhere), so the `test -s .gitignore` verification cannot pass. The implementer
+    must add a non-empty `.gitignore` with standard Python ignores.
+  sig: fc81ec158c21448bbee8c0d203e259ec0f7fe9faebf46ae729045da14dbe3e76
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
@@ -6,55 +26,3 @@ T011:
     (truncated) does not contain a test that asserts an `E_SCHEMA_MISSING` exception
     is raised for missing columns; it only checks for a generic `SystemExit`. Both
     the required source file and the specific test for `E_SCHEMA_MISSING` are missing.
-T019:
-  c: false
-  h: d0b2661ff4d5139c18e22e8de91ac06044090ffd003a388f40d65d1043b60c5d
-  r: "The required unit\u2011test file `tests/unit/test_disproportionality.py` is\
-    \ missing; no test code is present to verify ROR/PRR/IC calculations or continuity\
-    \ correction. The task therefore is not satisfied."
-T022:
-  c: false
-  h: 70376ca5305becd099edd7ae01e925931ac563bd06fe5c4f8594712758f9ef32
-  r: "The repository contains a `src/analysis/disproportionality.py` file, but it\
-    \ only defines helper functions and does not include code that reads the required\
-    \ `data/processed/cleaned_vaers_full_non_covid.parquet` file, iterates over all\
-    \ SOCs, or writes out the 2\xD72 tables. Moreover, the specified input parquet\
-    \ file is absent from the project. Both the missing data file and the incomplete\
-    \ script prevent the task from being fulfilled."
-T025b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/signals.csv` file or its contents were presented, so we cannot confirm\
-    \ the required columns, values, or the `background_rate_status` setting. The implementer\
-    \ must supply the actual CSV file with the specified schema and ensure all rows\
-    \ have `background_rate_status` set to \u201CUNKNOWN\u201D."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/sensitivity_analysis.csv` file or its contents were presented; therefore\
-    \ the required delta\u2011metrics CSV with the specified columns does not exist\
-    \ in the provided evidence. The task remains unfinished."
-T030:
-  c: false
-  h: bdcc28600994aee9e860628962de8e12d9af16f7ebeaa77a9cb4d4069f16d077
-  r: Both required artifacts (`src/analysis/temporal.py` and `tests/unit/test_temporal.py`)
-    are missing from the repository, so no unit test or implementation exists to verify
-    the weekly aggregation logic. The task is therefore not satisfied.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required files (`output/signals.csv` with identified top\u2011\
-    5 SOCs, or the fallback `output/temporal_profiles/empty_signal_warning.txt`) was\
-    \ provided, nor any indication that T026 was satisfied. The implementer\u2019\
-    s claim cannot be verified without these artifacts."
-T039:
-  c: false
-  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
-  r: "The required `src/main.py` file is missing, so no memory\u2011check logic, logging\
-    \ to `logs/memory.log`, or exit code `E_MEMORY_LIMIT` can be verified. The deliverable\
-    \ artifact does not exist."
-T040:
-  c: false
-  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
-  r: "The required file `src/main.py` does not exist, so no memory\u2011check logic,\
-    \ logging, or exit code can be present. The deliverable artifact is missing entirely."
