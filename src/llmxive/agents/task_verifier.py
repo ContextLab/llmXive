@@ -39,7 +39,7 @@ from llmxive.agents._task_verdict_receipt import authentic_verdict, signed_verdi
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
 from llmxive.claims.task_requirements import read_task_document
-from llmxive.project_paths import _ROOTED_PATH_RE
+from llmxive.project_paths import _ROOTED_PATH_RE, declared_root_files
 from llmxive.project_paths import declared_paths as _declared_paths
 from llmxive.project_paths import resolve_project_path as _evidence_path
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
@@ -105,6 +105,14 @@ _PATH_RE = _ROOTED_PATH_RE
 
 _MAX_EVIDENCE_FILES = 6
 _MAX_BYTES_PER_FILE = 12000
+#: A source file is quoted further than a data file: what a task asks for is
+#: often a function near the END of a script. Canary 6's whole project was one
+#: 20 KB script, and the function its figure task named began 14 KB in.
+_MAX_BYTES_PER_SOURCE = 30_000
+#: Bytes one task may quote from source files at that higher limit; past it, a
+#: further source file gets the base limit.
+_SOURCE_QUOTE_BUDGET = 60_000
+_SOURCE_SUFFIXES = {".py", ".sh", ".r", ".jl"}
 #: Cap bytes read when VALIDATING a data/JSON artifact (parse cheaply, not fully).
 _VALIDATE_MAX_BYTES = 200_000
 _DATA_EXTS = {".csv", ".tsv"}
@@ -309,6 +317,25 @@ def _pattern_evidence(project_dir: Path, task_text: str) -> list[str]:
     return chunks
 
 
+_TOOLKIT_IMPORT_RE = re.compile(r"^\s*(?:from|import)\s+llmxive_toolkit\b", re.MULTILINE)
+_TOOLKIT_NOTE = (
+    "# Platform-provided module\n"
+    "`llmxive_toolkit` (`paths`, `project_root`, `get_logger`, `setup_logging`) is "
+    "installed by the platform on every project's import path. It is not a project "
+    "file: its absence from the project tree is not a defect, and a project must "
+    "not add its own copy."
+)
+
+
+def _imports_toolkit(source: Path) -> bool:
+    try:
+        with source.open("rb") as stream:
+            head = stream.read(_VALIDATE_MAX_BYTES).decode("utf-8", errors="replace")
+    except OSError:
+        return False
+    return bool(_TOOLKIT_IMPORT_RE.search(head))
+
+
 def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Collect the artifacts a task references (head of each) as evidence text.
 
@@ -317,8 +344,9 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
     instead of the "no artifact path" prose fallback."""
     from llmxive.execution.platform_paths import platform_shadow
 
-    paths = _declared_paths(task_text)
+    paths = [*_declared_paths(task_text), *declared_root_files(project_dir, task_text)]
     file_count = 0
+    source_bytes = 0
     python_sources: list[Path] = []
     chunks: list[str] = []
     project_root = project_dir.resolve()
@@ -360,7 +388,12 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             with f.open("rb") as source:
                 digest = hashlib.file_digest(source, "sha256").hexdigest()
                 source.seek(0)
-                head = source.read(_MAX_BYTES_PER_FILE).decode("utf-8", errors="replace")
+                limit = _MAX_BYTES_PER_FILE
+                if (f.suffix.lower() in _SOURCE_SUFFIXES
+                        and source_bytes + min(size, _MAX_BYTES_PER_SOURCE) <= _SOURCE_QUOTE_BUDGET):
+                    limit = _MAX_BYTES_PER_SOURCE
+                    source_bytes += min(size, limit)
+                head = source.read(limit).decode("utf-8", errors="replace")
         except OSError as exc:
             chunks.append(f"- `{rel}`: unreadable ({exc})")
             continue
@@ -371,9 +404,11 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             + (f"repository-relative: `{f.relative_to(repository_root)}`, "
                if repository_root is not None else "")
             + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
-            + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
+            + ("" if size <= limit else "\n…(truncated)")
         )
     chunks.extend(_pattern_evidence(project_dir, task_text))
+    if any(_imports_toolkit(source) for source in python_sources):
+        chunks.append(_TOOLKIT_NOTE)
     dependencies = local_import_evidence(project_root, python_sources)
     if dependencies:
         chunks.append(dependencies)

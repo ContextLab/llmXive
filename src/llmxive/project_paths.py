@@ -105,6 +105,32 @@ def declared_paths(task_text: str) -> list[str]:
     return out
 
 
+_BARE_FILE_RE = re.compile(
+    r"`([\w.-]+\.(?:md|py|sh|txt|csv|tsv|json|png|pdf|svg|tex|bib|ipynb))`")
+
+
+def declared_root_files(project_dir: Path, task_text: str) -> list[str]:
+    """Backticked bare filenames in a task that ARE files at the project root.
+
+    :func:`declared_paths` needs a known directory or a config filename, so
+    "add a `README.md` entry at the project root" declared nothing. A bare name
+    is ambiguous text (`scipy.stats`, `json.dump`), so this never reports a
+    name as missing: only a real, regular, in-project file at the root counts,
+    and only when :func:`declared_paths` has not already found it.
+    """
+    known = set(declared_paths(task_text))
+    root = project_dir.resolve()
+    out: list[str] = []
+    for match in _BARE_FILE_RE.finditer(task_text):
+        name = match.group(1)
+        candidate = project_dir / name
+        if (name in known or name in out or candidate.is_symlink() or not candidate.is_file()
+                or candidate.resolve().parent != root):
+            continue
+        out.append(name)
+    return out
+
+
 def resolve_project_path(project_dir: Path, rel: str) -> Path | None:
     """Resolve declared paths within this project, including its code layout.
 

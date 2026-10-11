@@ -192,8 +192,9 @@ def _skip_path(p: Path) -> bool:
         return True
     if "tests" in p.parts or "test" in p.parts:
         return True
-    name = p.name
-    return name == "conftest.py" or name.startswith("test_") or name.endswith("_test.py")
+    from llmxive.project_files import is_pytest_module
+
+    return p.name == "conftest.py" or is_pytest_module(p.name)
 
 
 def find_code_fabrication(project_dir: Path) -> list[str]:

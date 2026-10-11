@@ -31,3 +31,8 @@ def source_files(project_dir: Path, suffixes: tuple[str, ...] = (".py",)) -> Ite
                 continue
             if path.is_file() and path.suffix.lower() in suffixes:
                 yield path
+
+
+def is_pytest_module(name: str) -> bool:
+    """Whether a file NAME is one pytest collects by default (``test_*.py``, ``*_test.py``)."""
+    return name.endswith(".py") and (name.startswith("test_") or name.endswith("_test.py"))

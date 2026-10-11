@@ -359,6 +359,21 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     return env
 
 
+def _venv_environment(project_dir: Path, py: Path) -> dict[str, str]:
+    """The environment EVERY project process runs in: analysis paths plus the venv.
+
+    The venv's ``bin`` is first on PATH and ``VIRTUAL_ENV`` is set, so a child
+    the project starts (``python``, ``pytest``, ``bash run_all.sh``) is in the
+    same environment as its parent. Only the shell runner used to do this; a
+    Python script that started ``bash code/run_all.sh`` got the system
+    interpreter for everything below it.
+    """
+    env = _analysis_env(project_dir, analysis_environment(project_dir))
+    env["PATH"] = str(py.parent) + os.pathsep + env.get("PATH", "")
+    env["VIRTUAL_ENV"] = str(py.parent.parent)
+    return env
+
+
 def _explicit_script_package_root(
     project_dir: Path, args: list[str], run_cwd: Path,
 ) -> Path | None:
@@ -429,7 +444,7 @@ def run_in_venv(
         return ExecutionResult(False, -1, "", "working directory escapes the project directory", 0.0)
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
-    env = _analysis_env(project_dir, analysis_environment(project_dir))
+    env = _venv_environment(project_dir, py)
     package_root = _explicit_script_package_root(project_dir, args, run_cwd)
     if package_root is not None:
         paths = env["PYTHONPATH"].split(os.pathsep)
@@ -552,9 +567,7 @@ def run_shell_script(
         return ExecutionResult(False, -1, "", "supported shell interpreter unavailable", 0.0)
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
-    env = _analysis_env(project_dir, analysis_environment(project_dir))
-    env["PATH"] = str(py.parent) + os.pathsep + env.get("PATH", "")
-    env["VIRTUAL_ENV"] = str(py.parent.parent)
+    env = _venv_environment(project_dir, py)
     started = time.monotonic()
     proc = subprocess.Popen(
         [executable, str(script), *script_args], cwd=project_dir.resolve(),
@@ -584,33 +597,26 @@ def run_shell_script(
     )
 
 
-def run_pytest(
-    *,
-    project_dir: Path,
-    test_path: str = "tests/",
-    timeout_s: int = 600,
-) -> ExecutionResult:
-    """Run pytest inside the project's venv."""
+def _pytest(project_dir: Path, argv: list[str], *, cwd: Path, timeout_s: int) -> ExecutionResult:
     import time
     # ABSOLUTE but SYMLINK-PRESERVING (same rationale as run_in_venv): the
-    # subprocess below runs with cwd=project_dir/code, so a RELATIVE
-    # venv-python path (e.g. '.llmxive-venvs/PROJ-x/bin/python' when
-    # project_dir itself is relative) would resolve against the changed cwd
-    # and vanish — FileNotFoundError. ``os.path.abspath`` anchors it to the
-    # ORIGINAL cwd without dereferencing the venv's bin/python symlink.
+    # subprocess below runs with a changed cwd, so a RELATIVE venv-python path
+    # (e.g. '.llmxive-venvs/PROJ-x/bin/python' when project_dir itself is
+    # relative) would resolve against that cwd and vanish — FileNotFoundError.
+    # ``os.path.abspath`` anchors it to the ORIGINAL cwd without dereferencing
+    # the venv's bin/python symlink.
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
-    code_dir = project_dir / "code"
     started = time.time()
     timed_out = False
     try:
         proc = subprocess.run(
-            [str(py), "-m", "pytest", test_path, "-x", "--tb=short", "-q"],
-            cwd=str(code_dir),
+            [str(py), "-m", "pytest", *argv],
+            cwd=str(cwd),
             timeout=timeout_s,
             capture_output=True,
             text=True,
-            env=_analysis_env(project_dir, analysis_environment(project_dir)),
+            env=_venv_environment(project_dir, py),
         )
         rc = proc.returncode
         out = proc.stdout
@@ -627,6 +633,54 @@ def run_pytest(
         stderr=err,
         duration_s=time.time() - started,
         timed_out=timed_out,
+    )
+
+
+def run_pytest(
+    *,
+    project_dir: Path,
+    test_path: str = "tests/",
+    timeout_s: int = 600,
+) -> ExecutionResult:
+    """Run pytest inside the project's venv, from the project's ``code/``."""
+    return _pytest(project_dir, [test_path, "-x", "--tb=short", "-q"],
+                   cwd=project_dir / "code", timeout_s=timeout_s)
+
+
+def run_pytest_file(
+    *,
+    project_dir: Path,
+    test_relpath: str,
+    script_args: list[str] | None = None,
+    timeout_s: int = 600,
+) -> ExecutionResult:
+    """Run ONE test module with pytest, from the project root, and name each test.
+
+    ``python tests/test_x.py`` exits 0 having run nothing: a test module has no
+    entry point. This is how a test file is actually executed, so its log holds
+    a pytest session (``-v``: one PASSED/FAILED line per test) and its exit
+    code means what the tests found. The project is the rootdir and no cache
+    directory is written, so the run leaves nothing behind in the project.
+    """
+    if script_args is None:
+        script_args = []
+    if (not isinstance(script_args, list)
+            or any(not isinstance(arg, str) or "\0" in arg for arg in script_args)):
+        return ExecutionResult(ok=False, returncode=-1, stdout="",
+            stderr="script args must be a list of strings without null bytes", duration_s=0.0)
+    root = project_dir.resolve()
+    test = (project_dir / test_relpath).resolve()
+    if not test.is_relative_to(root):
+        return ExecutionResult(ok=False, returncode=-1, stdout="",
+                               stderr="test file escapes the project directory", duration_s=0.0)
+    if not test.is_file():
+        return ExecutionResult(ok=False, returncode=-1, stdout="",
+                               stderr=f"test file not found: {test}", duration_s=0.0)
+    return _pytest(
+        project_dir,
+        [str(test.relative_to(root)), "-v", "--tb=short", "-p", "no:cacheprovider",
+         f"--rootdir={root}", *script_args],
+        cwd=root, timeout_s=timeout_s,
     )
 
 
