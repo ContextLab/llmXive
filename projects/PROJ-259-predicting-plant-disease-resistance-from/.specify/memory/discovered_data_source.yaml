@@ -1,14 +1,12 @@
 status: none
-intent: Arabidopsis thaliana paired genotype metabolome resistance phenotype 1001
-  Genomes MetaboLights python package dataset
+intent: download paired plant SNP metabolomics resistance dataset from 1001 Genomes
+  and MetaboLights python package dataset
 required_fields:
 - sample_id
-- snp_id
-- genotype
-- metabolite_id
-- metabolite_concentration
+- snp_genotype
+- metabolite_profile
 - resistance_phenotype
 - species
-cache_key: 54a2a84bf9840cc1a561cdd07184f78a43d28d65de107ee9fba271f5ff23c262
-searched_at: '2026-10-11T21:25:40.023702+00:00'
+cache_key: 8e8d3205857eb56bbc59d966b48f58a20b3f906491b3770b043830bba4662fb7
+searched_at: '2026-10-11T21:27:54.602221+00:00'
 retry_count: 1

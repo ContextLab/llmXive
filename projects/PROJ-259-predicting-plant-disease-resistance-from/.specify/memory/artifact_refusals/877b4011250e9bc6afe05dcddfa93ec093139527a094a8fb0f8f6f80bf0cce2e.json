@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "bbdc4b694abc666c619ae709b20b4d5be43baea1aa32b7d345c0aa8da3dd93d5",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/download.py': imports nonexistent names from sibling files: `from data.generate_synthetic import generate_synthetic_data` (available: Any, Dict, EFFECT_SIZE, NOISE_STD, N_METABOLITES, N_SAMPLES, N_SNPS, Path...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

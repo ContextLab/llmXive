@@ -29,6 +29,14 @@ T006:
     Without the schema, the validation test cannot pass.
   task: 1791483236114685dec2f0cff04c84440aebc5087f9e905ab44815945717c1ad
 T007:
+  reason: "The Dockerfile itself exists (3,929 bytes) and is a plausible, non-stub\
+    \ container spec (Python 3.11-slim, fastp/bcftools, pip install from requirements.txt,\
+    \ sensible CMD). However, the task's verification criterion \u2014 that the image\
+    \ actually builds and `docker run <image> echo ok` succeeds \u2014 has no supporting\
+    \ evidence: no build log, image ID, or run output was supplied. Additionally,\
+    \ the build depends on a top-level `requirements.txt` being COPY-able and on `fastp`\
+    \ being installable via apt in the base image; neither is confirmed by the collected\
+    \ artifacts, so build success cannot be establishe"
   task: 84d9c7f0766608731429c7b59dcf602722dd5d4342c54ba28a552919b1aa6762
 T008:
   task: 9869c4f5d7a929cbbf10cd43d9bc7c4449c011faaa13f365b212d728eeb28d6f

@@ -1,12 +1,5 @@
 .PHONY: quickstart
-
 quickstart:
-	@python - <<'PY'
-import sys
-from pathlib import Path
-
-banner = "=== QUICKSTART SUCCESS ==="
-output_path = Path("quickstart_output.txt")
-output_path.write_text(banner + "\n")
-print(banner)
-PY
+	@echo "Running quickstart..." > quickstart_output.txt
+	@python -c "import scikit_learn, pandas, statsmodels; print('OK')" >> quickstart_output.txt
+	@echo "Quickstart completed" >> quickstart_output.txt

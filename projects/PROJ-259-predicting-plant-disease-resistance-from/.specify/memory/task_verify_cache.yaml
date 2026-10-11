@@ -47,6 +47,28 @@ T006:
     causing the test to raise a `FileNotFoundError` and fail (see the execution log).
     Without the schema, the validation test cannot pass.
   sig: 33f42805f234eca6b3bd4d056a8472226a8878737bce71d5a4a5558a09a9c5c6
+T007:
+  c: false
+  h: 9ee31cc162d0963dbbdd1b10f7ada675b5f582a6c6c4938d999561b9ae4cee66
+  r: "The Dockerfile itself exists (3,929 bytes) and is a plausible, non-stub container\
+    \ spec (Python 3.11-slim, fastp/bcftools, pip install from requirements.txt, sensible\
+    \ CMD). However, the task's verification criterion \u2014 that the image actually\
+    \ builds and `docker run <image> echo ok` succeeds \u2014 has no supporting evidence:\
+    \ no build log, image ID, or run output was supplied. Additionally, the build\
+    \ depends on a top-level `requirements.txt` being COPY-able and on `fastp` being\
+    \ installable via apt in the base image; neither is confirmed by the collected\
+    \ artifacts, so build success cannot be establishe"
+  sig: 8be5d734b3f2fc66ea91ffb11458d3a02ad1de4fc8d39c1b5201cca25d4ca4a1
+T008:
+  c: true
+  h: cfbac13128d7998632c14a76cd0d64d3efddb0ebae2777d0f1b2320af60f2f17
+  r: 'The file `code/utils/dummy_monitor.py` exists (1591 bytes) and contains a real,
+    non-stub-behavior implementation of a no-op context manager: `DummyMonitor` with
+    `__enter__`/`__exit__` and a `monitor` factory, which matches the task''s explicit
+    requirement that importing the module and calling its context manager raises no
+    exception. The task itself asked for a stub to be replaced later, so the no-op
+    design is intentional and correct.'
+  sig: 6898a465a408fdefaa8ba243408c0a8a3012f5ec8d967fbce4e303123870be15
 T011:
   c: false
   h: 048986a2ebd05d4f769fd88f177ced253476dda40f37863b55157204e58acacd

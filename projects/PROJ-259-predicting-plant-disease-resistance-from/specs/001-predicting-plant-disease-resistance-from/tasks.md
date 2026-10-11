@@ -31,11 +31,11 @@ Completed tasks (T001–T065) are preserved as‑is; the four verifier‑rejecte
     Path: `tests/contract/test_dataset_schema.py`  
     **Verification**: Run the test against `data/data_manifest.yaml`; it must pass.  
 
-- [~] T007 Write Dockerfile that builds a reproducible container (≤ 6 h runtime).  
+- [ ] T007 Write Dockerfile that builds a reproducible container (≤ 6 h runtime).  
     Path: `Dockerfile`  
     **Verification**: Build Docker image and run `docker run <image> echo ok`; build must complete within 6 h.  
 
-- [~] T008 Add resource‑monitor stub (`code/utils/dummy_monitor.py`) – later replaced by real implementation.  
+- [X] T008 Add resource‑monitor stub (`code/utils/dummy_monitor.py`) – later replaced by real implementation.  
     Path: `code/utils/dummy_monitor.py`  
     **Verification**: Import `dummy_monitor` and call its context manager; no exception should be raised.  
 
