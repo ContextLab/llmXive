@@ -1,223 +1,112 @@
-# Tasks: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic
+# Tasks: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic  
 
-**Input**: `spec.md`, `plan.md`, `data-model.md`, contracts, and any reviewer feedback.  
+**Inputs**: `spec.md`, `plan.md`, `data‑model.md`, JSON‑Schema contracts, and any reviewer feedback.  
 All paths are relative to the repository root.
 
 ---
 
-## Phase 1 – Project Setup (already completed)
+## Phase 1 – Project bootstrap (already completed)
 
-- [ ] T001 Create the standard project layout (`code/`, `data/`, `tests/`, `docs/`) and add placeholder `__init__.py` files.  
-  *Verification*: `tree` shows all directories; `git status` reports no missing folders.
-
-- [ ] T002 Initialise `requirements.txt` with pinned versions of Python 3.11, `torch` (CPU), `networkx`, `scikit‑learn`, `xgboost`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `captum`, `pytest`, `pytest‑memprof`.  
-  *Verification*: `pip install -r requirements.txt` succeeds without warnings.
-
-- [ ] T003 Configure linting (`ruff`) and formatting (`black`) via `pyproject.toml`.  
-  *Verification*: `ruff check .` and `black --check .` both return exit‑code 0.
+- [ ] T001 **Create project layout & basic utilities**  
+  *Creates* `code/`, `data/`, `tests/`, `docs/` directories, adds placeholder `__init__.py` files, writes `requirements.txt` (pinned Python 3.11, `torch`‑CPU, `networkx`, `scikit‑learn`, `xgboost`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `captum`, `pytest`, `pytest‑memprof`), configures `pyproject.toml` for `ruff` & `black`, implements deterministic seed handling (`code/utils/seed.py`), implements a RAM‑limit wrapper (`code/utils/memory_monitor.py`), and adds the canonical JSON‑Schema contracts (`contracts/dataset.schema.yaml`, `contracts/graph.schema.yaml`).  
+  *Verification*: `tree` shows all directories; `pip install -r requirements.txt` succeeds; `seed.set_seed(42)` yields reproducible RNG state; `memory_monitor.run_with_limit` raises `MemoryLimitError` when a dummy allocation exceeds 7 GB; `jsonschema.validate` passes on sample files.
 
 ---
 
-## Phase 2 – Foundational Infrastructure (already completed)
+## Phase 2 – Data acquisition & preprocessing  
 
-- [ ] T004 Implement deterministic seed handling in `code/utils/seed.py`.  
-  *Verification*: `seed.set_seed(42)` produces reproducible NumPy and PyTorch RNG states.
+- [ ] T002 **Download and register the active NetFlow dataset**  
+  *Action*:  
+  1. Attempt to download **CTU‑13 Scenario 1** NetFlow CSV from `https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv` into `data/raw/ctu13_scenario1.csv`.  
+  2. If the download fails, fall back to the verified **NF‑BoT‑IoT‑v3** Parquet dataset via `datasets.load_dataset("nfdatasets/bot_iot_v3", split="train")` and store as `data/raw/bot_iot_v3.parquet`.  
+  3. Compute SHA‑256 checksums and write side‑car files (`*.sha256`).  
+  4. Record the chosen dataset name in `code/config.yaml` under `active_dataset`.  
+  *Verification*: The chosen file exists, its checksum matches the published value, and `config.yaml` contains `active_dataset: ctu13` or `bot_iot`.
 
-- [ ] T005 Implement `code/utils/memory_monitor.py` that wraps a callable, records peak RAM with `tracemalloc`, and raises `MemoryLimitError` if > 7 GB.  
-  *Verification*: Unit test in `tests/test_memory_limits.py` triggers the error when a dummy allocation exceeds the limit.
+- [ ] T003 **Ingest NetFlow records and build the raw directed graph (memory‑bounded)**  
+  *Sub‑steps*:  
+  1. **Ingestion** – `code/data/ingest_netflow.py` reads the active raw file (CSV or Parquet), validates each row against `contracts/dataset.schema.yaml` using `jsonschema`, hashes IP addresses with SHA‑256, and writes a cleaned Parquet file `data/processed/raw_flows.parquet` plus its checksum `raw_flows.parquet.sha256`.  
+  2. **Graph construction** – `code/data/build_graph.py` loads `raw_flows.parquet`, creates a `networkx.DiGraph` where node IDs are the hashed IPs, edge attribute `weight` equals the packet count, and timestamps are preserved. The construction is wrapped by `memory_monitor.run_with_limit(limit_gb=7)`. On success the graph is serialized to compressed GraphML `data/processed/graph_raw.graphml.gz` with checksum `graph_raw.graphml.gz.sha256`.  
+  *Verification*:  
+  - The Parquet file can be read without schema violations.  
+  - The GraphML file loads via `nx.readwrite.graphml.read_graphml` and reports `G.number_of_nodes() <= 10 000` (raw size).  
+  - `data/results/memory_usage.json` records `"peak_memory_gb"` ≤ 7.0.  
+  - Side‑car checksum files match the actual file hashes.
 
-- [ ] T006 Add the canonical JSON‑Schema contracts `contracts/dataset.schema.yaml` and `contracts/graph.schema.yaml`.  
-  *Verification*: `jsonschema.validate` against sample files passes.
+- [ ] T004 **Validate graph size and perform deterministic subsampling**  
+  *Action*: `code/data/subsample_graph.py` reads `graph_raw.graphml.gz` and:  
+  1. Extracts the **largest weakly connected component (LCC)** and writes it to `data/processed/graph_lcc.graphml.gz` (+ checksum).  
+  2. If the LCC node count > 5 000, selects the top 5 000 nodes by degree (preserving all anomalous nodes) to create a deterministic induced subgraph `data/processed/graph_subsampled.graphml.gz` (+ checksum).  
+  3. Updates `code/config.yaml` with `final_graph_path` pointing to the resulting graph (either LCC or subsampled).  
+  *Verification*:  
+  - `G = nx.readwrite.graphml.read_graphml(... )` reports `G.number_of_nodes() == 5 000` (or ≤ 5 000 if the original graph was already smaller).  
+  - Both GraphML files exist and their `.sha256` files verify.  
+  - `config.yaml` contains the correct `final_graph_path`.
 
-- [ ] T007e_gen Generate `research.md` with a placeholder `target_auc` and temporal‑holdout split ratios.  
-  *Verification*: File exists and contains the required sections.
-
-- [ ] T007e_cfg Write `code/config.yaml` containing `target_auc: 0.75` (read from `research.md`).  
-  *Verification*: `yaml.safe_load` returns a dict with the key `target_auc`.
-
-- [ ] T007d Validate that `research.md` and `code/config.yaml` are present and consistent; abort if missing.  
-  *Verification*: Script exits with status 0 when both files are correct; otherwise raises `ConfigurationError`.
-
----
-
-## Phase 3 – Dataset Acquisition (re‑planned, previously failing)
-
-- [ ] T007a_download_ctu13 **Download CTU‑13 Scenario 1 NetFlow CSV**  
-  *Action*: Use `urllib.request` to fetch `[UNRESOLVED-CLAIM: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv` — HTTP 404].  
-  *Verification*: After download the script computes the SHA‑256 checksum of the file and stores it in `data/raw/ctu13_scenario1.csv.sha256`; the checksum is then compared against the published value (to be filled in after first successful download). If the download fails or checksum mismatches, raise a clear `DatasetDownloadError`.
-
-- [ ] T007b_download_bot_iot **Download NF‑BoT‑IoT‑v3 Parquet dataset** *(optional, requires spec amendment)*  
-  *Action*: Use `datasets.load_dataset("nfdatasets/bot_iot_v3", split="train", streaming=False)` (or direct URL `https://huggingface.co/datasets/nfdatasets/bot_iot_v3/resolve/main/bot_iot_v3.parquet`).  
-  *Verification*: After download compute the SHA‑256 checksum, store it in `data/raw/bot_iot_v3.parquet.sha256`, and compare to the official checksum. On failure raise `DatasetDownloadError`. Use of this dataset without a formal spec amendment will abort the pipeline.
-
-- [ ] T007c_select_dataset **Select active dataset**  
-  *Action*: If `data/raw/ctu13_scenario1.csv` exists and passes checksum → set `ACTIVE_DATASET=ctu13`; else if `data/raw/bot_iot_v3.parquet` is valid → set `ACTIVE_DATASET=bot_iot`. Write the chosen name into `code/config.yaml` under `active_dataset`.  
-  *Verification*: `config.yaml` contains the key `active_dataset` with value `ctu13` or `bot_iot`.
-
----
-
-## Phase 4 – User Story 1: Construct & Validate Network Traffic Graphs (P1)
-
-### 4.1 Interface Definitions
-
-- [ ] T010_define_ingest_interface **Define ingestion API** in `code/data/ingest_netflow.py`  
-  ```python
-  def ingest_netflow(input_path: str) -> pd.DataFrame:
-      """Read a NetFlow CSV or Parquet, validate against dataset.schema.yaml,
-      and return a DataFrame with columns {src_ip, dst_ip, packets, start_time, label}."""
-  ```  
-  *Verification*: `inspect.getsource` contains the docstring and type hints; unit test imports the function and checks its signature.
-
-- [ ] T012_define_graph_builder_interface **Define graph‑builder API** in `code/data/preprocess.py`  
-  ```python
-  def build_graph(flows_path: str) -> nx.DiGraph:
-      """Construct a directed graph from a parquet of flows, hash IPs,
-      assign edge weight = packet count, and return a NetworkX DiGraph."""
-  ```  
-  *Verification*: Presence of function with correct signature; `pytest` test imports and asserts `callable(build_graph)`.
-
-### 4.2 Implementation Steps
-
-- [ ] T011_implement_ingest **Implement NetFlow ingestion**  
-  *Action*: Read the file indicated by `ACTIVE_DATASET` (CSV for CTU‑13, Parquet for Bot‑IoT), enforce schema via `jsonschema`, hash IP addresses with SHA‑256, write the processed DataFrame to `data/processed/raw_flows_{scenario}.parquet`. Also write a side‑car hash file `raw_flows_{scenario}.parquet.sha256`.  
-  *Verification*: The parquet file exists, can be read without error, and its SHA‑256 matches the side‑car.
-
-- [ ] T013_implement_graph_builder **Build raw directed graph**  
-  *Action*: Load `raw_flows_{scenario}.parquet`, create a `networkx.DiGraph` where each node ID is the hashed IP, each edge carries `weight=packets` and timestamps. Serialize to compressed GraphML `data/processed/graph_{scenario}_raw.graphml.gz` and generate a `.sha256` side‑car.  
-  *Verification*: `nx.readwrite.graphml.read_graphml` loads the file; node count ≤ 10 000 for the raw graph; side‑car hash matches.
-
-- [ ] T014_memory_guard **Enforce 7 GB RAM limit during graph construction**  
-  *Action*: Wrap the body of `build_graph` with `memory_monitor.run_with_limit(limit_gb=7)`. On breach, raise `MemoryLimitError` with a user‑friendly message.  
-  *Verification*: Unit test artificially inflates memory usage and confirms the exception is raised.
-
-- [ ] **T014a_log_memory_usage** **Record peak memory usage**  
-  *Action*: `memory_monitor.run_with_limit` returns the peak RAM usage; write a JSON file `data/results/memory_usage.json` containing `{ "peak_memory_gb": <float> }`.  
-  *Verification*: The JSON file exists and the value is ≤ 7.0; the file is read by the verification script to confirm compliance with SC‑001.
-
-- [ ] T015_largest_connected_component **Extract Largest Weakly Connected Component (LCC)**  
-  *Action*: Load `graph_{scenario}_raw.graphml.gz`, compute the LCC using `nx.algorithms.components.weakly_connected_components`, write to `data/processed/graph_{scenario}_lcc.graphml.gz` plus hash file.  
-  *Verification*: Node count of LCC ≤ original node count; file exists and hash matches.
-
-- [ ] T016_degree_based_subsampling **Degree‑based fallback subsampling**  
-  *Precondition*: LCC node count > 5 000.  
-  *Action*: Sort nodes by degree descending, keep top 5 000, induce subgraph, write to `data/processed/graph_{scenario}_subsampled.graphml.gz` with hash.  
-  *Verification*: Resulting graph reports `G.number_of_nodes() == 5000`; hash side‑car present.
-
-- [ ] T017_orchestrate_subsampling **Conditional subsampling orchestrator**  
-  *Action*: After `build_graph` finishes, check `G.number_of_nodes()`.  
-  - If ≤ 5 000 → copy raw graph to `*_subsampled.graphml.gz`.  
-  - Else run `T015_largest_connected_component`; if LCC ≤ 5 000 → use LCC; otherwise invoke `T016_degree_based_subsampling`.  
-  All paths are logged; final graph path stored in `code/config.yaml` as `final_graph_path`.  
-  *Verification*: End‑to‑end script `code/data/run_graph_pipeline.py` exits with status 0 and the config entry points to an existing file whose node count ≤ 5 000 and whose hash matches the side‑car.
+- [ ] T005 **Temporal hold‑out split & feature engineering**  
+  *Action*: `code/data/split_and_features.py` performs:  
+  1. Loads `raw_flows.parquet`, sorts by `start_time`, splits 80 % earliest records to `data/processed/train_flows.parquet` and the remaining 20 % to `data/processed/test_flows.parquet` (both with checksums).  
+  2. Builds **training** and **test** graphs *only* from their respective flow files using the same graph builder logic, producing `graph_train.graphml.gz` and `graph_test.graphml.gz`.  
+  3. Computes node‑level structural features (degree, in/out degree, betweenness centrality, clustering coefficient, edge‑weight variance, temporal activity span) for each graph and writes Parquet feature tables `features_train.parquet` and `features_test.parquet` (with checksums).  
+  *Verification*:  
+  - Split files exist, contain the expected number of rows, and timestamps respect the 80/20 split.  
+  - Both graph files load and have ≤ 5 000 nodes.  
+  - Feature tables contain columns `node_id, degree, in_degree, out_degree, betweenness_centrality, clustering_coeff, edge_weight_variance, temporal_span, label`.  
+  - All checksum side‑cars validate.
 
 ---
 
-## Phase 5 – User Story 2: Compare GNN vs. Feature‑Engineered Baselines (P2)
+## Phase 3 – Model training, evaluation & statistical analysis  
 
-- [ ] T018_define_temporal_split **Temporal hold‑out split** (`code/data/splits.py`)  
-  *Action*: Load `raw_flows_{scenario}.parquet`, sort by `start_time`, split 80 % earliest timestamps → `train_split.parquet`, remaining 20 % → `test_split.parquet`. Construct the training graph **only** from `train_split.parquet` (using the same builder as T013) and store as `graph_{scenario}_train.graphml.gz`.  
-  *Verification*: Scripts assert `set(test_nodes) - set(train_nodes) == {}` and write both split files plus hashes. Additionally, the task now calls `extract_features` for both splits (see T018a/b) and records the resulting feature CSVs.
+- [ ] T006 **Define models & train across five random seeds**  
+  *Sub‑tasks*:  
+  1. **GCN** – `code/models/gcn.py` implements a 2‑layer Graph Convolutional Network (CPU‑only) using `torch` + `torch_geometric.nn.GCNConv` with early stopping (max 30 epochs, patience 5, `min_delta=1e‑4`).  
+  2. **Baselines** – `code/models/baselines.py` wraps `sklearn.ensemble.RandomForestClassifier` and `xgboost.XGBClassifier` (CPU).  
+  3. For each seed in `[0,1,2,3,4]`, set RNG via `utils.seed.set_seed`, load `features_train.parquet`, train the GCN (saving checkpoint `data/models/gcn_seed{seed}.pt`) and the two baselines (saving `rf_seed{seed}.pkl`, `xgb_seed{seed}.pkl`).  
+  *Verification*: All five checkpoint/pickle files exist, can be deserialized, and training logs contain a line indicating early‑stopping or max‑epoch termination.
 
-- [ ] **T018a_extract_train_features** **Extract structural features for training graph** (`code/analysis/feature_engineering.py`)  
-  *Action*: Load `graph_{scenario}_train.graphml.gz`, compute degree, betweenness, clustering, edge‑weight variance, temporal span per node, and write `data/processed/features_{scenario}_train.parquet`.  
-  *Verification*: Parquet file exists, can be read, and contains the expected columns.
+- [ ] T007 **Evaluate all models on the held‑out test set and aggregate results**  
+  *Action*: `code/models/evaluate.py` loads each trained model, the test feature table, generates predictions, and computes **Precision, Recall, F1‑Score, AUC‑ROC** (using `sklearn.metrics`). For every `(model, seed)` combination it writes a JSON record `data/results/metrics_{model}_seed{seed}.json`.  
+  *Aggregation*: `code/analysis/aggregate.py` reads the six JSON files per model, calculates mean ± std for each metric across seeds, and writes `data/results/aggregate_{model}.csv`.  
+  *Verification*: Each JSON contains keys `precision`, `recall`, `f1_score`, `auc_roc` with values in `[0,1]`; the CSV has columns `metric,mean,std` for the four metrics.
 
-- [ ] **T018b_extract_test_features** **Extract structural features for test graph** (`code/analysis/feature_engineering.py`)  
-  *Action*: Load the test graph derived from `test_split.parquet` (built similarly to training) and write `data/processed/features_{scenario}_test.parquet`.  
-  *Verification*: Parquet file exists and matches schema.
+- [ ] T008 **Statistical significance testing with multiple‑comparison correction**  
+  *Action*: `code/analysis/significance.py` performs:  
+  1. **Permutation tests** for the seven hypotheses (GCN vs RF, GCN vs XGB, and the top‑5 structural features vs. a null baseline). Uses 10 000 label permutations per hypothesis, computes the difference in mean F1‑score, and stores raw p‑values in `data/results/pvalues.json`.  
+  2. **Benjamini‑Hochberg (BH) correction** on the seven p‑values, producing adjusted q‑values in `data/results/bh_corrected.json` and a summary flag `significant: true` for any hypothesis with `q < 0.05`.  
+  *Verification*: `pvalues.json` holds seven entries with numeric p‑values; `bh_corrected.json` holds matching `q_value` fields and at least one entry where `significant` is `true`.
 
-- [ ] T019_define_gcn_interface **GCN model definition** (`code/models/gcn.py`)  
-  *Action*: Implement a 2‑layer Graph Convolutional Network using `torch.nn` with `torch_geometric.nn.GCNConv` (CPU only). Include early‑stopping logic (max 30 epochs, patience 5, `min_delta=1e-4`). Provide a `train()` method that accepts a seed and returns the best checkpoint path.  
-  *Verification*: Unit test constructs the model, runs a single epoch on a tiny synthetic graph, and checks that parameters are on `cpu`.
+- [ ] T009 **Model attribution & pattern‑level analysis**  
+  *Action*:  
+  1. **Integrated Gradients** – `code/analysis/attribution.py` runs Captum’s `IntegratedGradients` on the trained GCN (using the best‑seed checkpoint) to obtain attribution scores for each structural feature; results are written to `data/results/gcn_attributions.json`.  
+  2. **Random Forest feature importance** – `code/models/baselines.py` averages `feature_importances_` across the five RF seeds and writes `data/results/rf_importances.json`.  
+  3. **Bootstrap ranking comparison** – `code/analysis/patterns.py` resamples test predictions 1 000 times, computes rank differences between GCN attribution and RF importance for each feature, derives 95 % confidence intervals, and writes `data/results/distinct_patterns.json` (features whose CI excludes zero are marked `distinct: true`).  
+  *Verification*: All three JSON files exist; `distinct_patterns.json` contains at least one feature with `distinct: true`.
 
-- [ ] T020_train_gcn **Train GCN for 5 random seeds**  
-  *Action*: For each seed in `[0,1,2,3,4]`, set RNG, load `graph_{scenario}_train.graphml.gz`, generate node feature matrix (structural features from `features_{scenario}_train.parquet`), train with early stopping, save checkpoint to `data/models/gcn_{seed}.pt`. Log final epoch, validation loss, and early‑stop trigger.  
-  *Verification*: All five checkpoint files exist; each checkpoint can be loaded without error; training logs contain `EarlyStopping triggered` or `Reached max epochs`.
-
-- [ ] **T020c_extract_train_features** *(alias for T018a – kept for backward compatibility)* – *No additional action.*
-
-- [ ] T021_train_baselines **Train Random Forest & XGBoost for 5 seeds**  
-  *Action*: Load `data/processed/features_{scenario}_train.parquet`, fit `sklearn.ensemble.RandomForestClassifier` and `xgboost.XGBClassifier` (CPU). Save models to `data/models/rf_{seed}.pkl` and `data/models/xgb_{seed}.pkl`.  
-  *Verification*: Pickle files load successfully; `model.feature_importances_` is non‑empty.
-
-- [ ] T022_evaluate_models **Compute evaluation metrics on test split** (`code/models/metrics.py`)  
-  *Action*: For each seed and each model, load `features_{scenario}_test.parquet`, generate predictions, compute Precision, Recall, F1‑Score, AUC‑ROC using `sklearn.metrics`. Write a JSON record to `data/results/metrics_{scenario}_{model}_{seed}.json`.  
-  *Verification*: JSON file contains keys `precision`, `recall`, `f1_score`, `auc_roc`; values are floats in `[0,1]`.
-
-- [ ] T023_aggregate_metrics **Aggregate per‑model statistics**  
-  *Action*: Read all metric JSONs for a given model, compute mean ± std for each metric across seeds, write CSV `data/results/aggregate_{model}.csv`.  
-  *Verification*: CSV has header `metric,mean,std` and four rows (precision, recall, f1_score, auc_roc).
-
-- [ ] **T025a_wilcoxon_test** **Wilcoxon signed‑rank test on F1‑scores** (`code/analysis/significance_tests.py`)  
-  *Action*: Using the five seed‑wise F1‑scores for GCN vs. RF and GCN vs. XGB, perform Wilcoxon signed‑rank tests (two‑tailed). Store p‑values in `data/results/wilcoxon_pvalues.json`.  
-  *Verification*: JSON contains entries `gcn_vs_rf` and `gcn_vs_xgb` with numeric p‑values.
-
-- [ ] T025_permutation_tests **Run permutation tests for every hypothesis** (`code/analysis/significance_tests.py`)  
-  *Action*: For each of the seven hypotheses (including top‑5 structural features vs. null), perform 10 000 label permutations, compute the test statistic (difference in mean F1‑score), derive a two‑sided p‑value. Store results in `data/results/pvalues.json`.  
-  *Verification*: JSON contains 7 entries; each p‑value is a float in `(0,1)`.
-
-- [ ] T026_bh_correction **Apply Benjamini‑Hochberg correction** (`code/analysis/significance_tests.py`)  
-  *Action*: Load `pvalues.json`, sort, compute adjusted q‑values, write `data/results/bh_corrected.json`. Also write a summary flag `significant: true` for any hypothesis with `q < 0.05`.  
-  *Verification*: All 7 entries have both `p_value` and `q_value`; at least one entry has `significant: true`.
-
-- [ ] T027_gnn_attribution **Integrated Gradients for GCN** (`code/analysis/attribution.py`)  
-  *Action*: Using `captum.attr.IntegratedGradients`, compute attribution scores for each node feature, map scores back to the structural proxy names, write `data/results/gnn_attribution_{scenario}.json`.  
-  *Verification*: JSON contains a mapping `{feature_name: attribution_score}`; scores sum to ~1.0 after normalization.
-
-- [ ] T028_rf_feature_importance **Extract Random Forest feature importances** (`code/models/baselines.py`)  
-  *Action*: Load each RF model, average importances across seeds, write `data/results/rf_importances.json`.  
-  *Verification*: JSON lists the same 5 structural features with non‑negative importance values that sum to 1 after normalization.
-
-- [ ] T029_compare_rankings **Bootstrap confidence intervals & identify distinct patterns** (`code/analysis/patterns.py`)  
-  *Action*: Resample test predictions 1 000 times, compute rank of each feature in GNN attribution vs. RF importance, derive 95 % confidence intervals for rank differences. A pattern is “distinct” if the interval excludes 0. Write `data/results/distinct_patterns.json` listing those patterns.  
-  *Verification*: Output contains a list; each entry has `feature`, `rank_diff_ci_low`, `rank_diff_ci_high`, and a boolean `distinct`.
-
-- [ ] T030_distinct_pattern_auc **Evaluate predictive power of distinct patterns** (`code/models/evaluation.py`)  
-  *Action*: Build a reduced feature matrix containing only the distinct patterns, train a simple Logistic Regression (CPU) on the training split, evaluate AUC‑ROC on the test split, write `data/results/distinct_pattern_auc.json`.  
-  *Verification*: JSON contains key `auc_roc` with a float; value ≥ 0.0.
-
-- [ ] T031_enforce_target_auc **Check against target AUC from research.md** (`code/config.yaml` holds `target_auc`)  
-  *Action*: Load `target_auc`, compare with `distinct_pattern_auc`. Write a pass/fail flag to `data/results/threshold_enforcement.json`.  
-  *Verification*: JSON contains `target_auc`, `observed_auc`, `meets_target: true/false`.
+- [ ] T010 **Assess predictive power of distinct patterns and enforce target AUC**  
+  *Action*:  
+  1. Build a reduced feature matrix containing only the `distinct` structural features identified in T009. Train a simple Logistic Regression (CPU) on the training split (seed 0) and evaluate AUC‑ROC on the test split, writing `data/results/distinct_pattern_auc.json`.  
+  2. Load `target_auc` from `code/config.yaml` (populated from `research.md`) and compare it to the observed AUC; write a pass/fail flag to `data/results/target_auc_check.json`.  
+  *Verification*: `distinct_pattern_auc.json` contains `auc_roc` ≥ 0.0; `target_auc_check.json` contains fields `target_auc`, `observed_auc`, `meets_target` (`true` or `false`).
 
 ---
 
-## Phase 6 – Documentation, Verification & State Management
+## Phase 4 – Documentation, integrity checks & runtime reporting  
 
-- [ ] T032_write_quickstart **Create `docs/quickstart.md`**  
-  *Content*: Step‑by‑step commands to (1) install deps, (2) download dataset, (3) run `python code/data/run_graph_pipeline.py`, (4) train models via `python code/main.py`, (5) generate significance report.  
-  *Verification*: Markdown renders without broken links; all commands are present; file includes references to requirement IDs `FR-001`, `FR-003`, `SC-001`, `SC-004`.
+- [ ] T011 **Create user‑facing documentation**  
+  *Quick‑start* – `docs/quickstart.md` with step‑by‑step commands to (1) install dependencies, (2) download the dataset, (3) run the graph pipeline (`python code/data/run_graph_pipeline.py`), (4) train all models (`python code/main.py`), and (5) generate the statistical report (`python code/analysis/run_full_report.py`).  
+  *Data‑model description* – `docs/data_model.md` summarising `dataset.schema.yaml` and `graph.schema.yaml` with short example snippets.  
+  *Verification*: Both Markdown files render without broken links; they reference requirement IDs `FR‑001`, `FR‑003`, `SC‑001`, `SC‑004`.
 
-- [ ] T033_write_data_model_doc **Create `docs/data_model.md`** summarising `dataset.schema.yaml` and `graph.schema.yaml` with example snippets.  
-  *Verification*: File exists; schema sections are correctly quoted and the file contains the exact snippets from both schema files.
+- [ ] T012 **Verify artifact integrity and record total runtime**  
+  *Hash verification* – `code/utils/verify_hashes.py` scans all `*.sha256` side‑cars under `data/processed/` and `data/results/`, recomputes file hashes, and exits with status 0 only if every checksum matches.  
+  *Runtime measurement* – `code/utils/measure_runtime.py` wraps the full end‑to‑end pipeline (from dataset download to final statistical report) and writes `data/results/runtime.json` containing `{ "total_seconds": <float>, "within_limit": true/false }` where `within_limit` is `true` if the total ≤ 21 600 s (6 h).  
+  *Verification*: `runtime.json` exists and `within_limit` is `true`; `verify_hashes.py` exits with code 0 on a clean run.
 
-- [ ] T034_verify_hashes **Run hash verification script** (`code/utils/verify_hashes.py`)  
-  *Action*: Scan `data/processed/**/*.sha256`, recompute hashes, report mismatches, and exit with non‑zero status if any checksum differs.  
-  *Verification*: Script exits with status 0 when all hashes match; exits with non‑zero status and prints mismatched files when any differ.
+---  
 
-- [ ] **T037_update_hashes_state** **Aggregate artifact hashes into project state** (`state/projects/001-evaluating-the-use-of-graph-neural-netwo.yaml`)  
-  *Action*: Parse all `.sha256` side‑car files, build a map `artifact_hashes`, and write it into the state YAML under `artifact_hashes`.  
-  *Verification*: The state file parses without error and contains entries for every artifact produced in Phases 3‑6.
+### Execution order summary  
 
-- [ ] T035_finalize_state_manager **Update project state file** (`state/projects/001-evaluating-the-use-of-graph-neural-netwo.yaml`)  
-  *Action*: Insert `last_updated: <ISO‑timestamp>`, include `artifact_hashes` from T037, and list completed task IDs.  
-  *Verification*: YAML parses without error; `last_updated` is recent; `artifact_hashes` contains entries for every artifact produced in Phases 3‑6; the file includes a `runtime_seconds` field populated by T036.
+1. **T001** (bootstrap) → 2. **T002** (download) → 3. **T003** (ingest + raw graph) → 4. **T004** (validation + subsampling) → 5. **T005** (temporal split + features) → 6. **T006** (model definition + training) → 7. **T007** (evaluation + aggregation) → 8. **T008** (significance testing) → 9. **T009** (attribution + pattern analysis) → 10. **T010** (distinct‑pattern AUC + target check) → 11. **T011** (documentation) → 12. **T012** (hash verification + runtime).  
 
-- [ ] **T036_measure_runtime** **Measure total pipeline runtime**  
-  *Action*: Wrap the full end‑to‑end execution (from dataset download to final statistical report) with a timer, write `data/results/runtime.json` containing `{ "total_seconds": <float>, "within_limit": true/false }` where `within_limit` is true if total_seconds ≤ 21600 (6 hours).  
-  *Verification*: JSON file exists; `within_limit` is asserted true by the verification step.
-
----
-
-### Execution Order Summary
-
-1. **Phase 3** (T007a–T007c) must succeed before any ingestion or graph work.  
-2. **Phase 4** (T010–T017) builds and validates the graph, producing `final_graph_path`.  
-3. **Phase 5** (T018–T031) consumes the final graph to create train/test splits, extract features, train/evaluate models, and perform statistical analysis.  
-4. **Phase 6** (T032–T036) documents the pipeline, verifies data integrity, aggregates hashes, records runtime, and finalises project state.
-
-All tasks respect data‑flow constraints, enforce the 7 GB memory limit with recorded usage, and provide measurable outputs for every success criterion defined in the specification.  
-
---- 
-
-*Note*: Tasks marked **optional** (e.g., Bot‑IoT fallback) will abort the pipeline unless a formal spec amendment is provided, preserving the original functional requirements.  
+All tasks respect the data‑flow constraints, enforce the 7 GB RAM limit, use only real CTU‑13 (or verified fallback) data, and produce concrete, verifiable artifacts required by the specification.
