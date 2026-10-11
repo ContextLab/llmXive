@@ -1,3 +1,52 @@
+T001:
+  c: false
+  h: 69ef2aa4a15faf291e831e865cff9e766e0093f1bdb241a7330f6ac6043d2948
+  r: "The repository contains the required `quickstart.md` file, but there is no evidence\
+    \ of a `Makefile` with a `quickstart` target, no `quickstart_output.txt` generated,\
+    \ and no pinned dependency list (e.g., `requirements.txt`). Without these artifacts\
+    \ and execution evidence, the task\u2019s requirement is not satisfied."
+  sig: 6de167c7e9f895ba6e1eb29c7016eabd2a935bffa9dac09cc6a16010317f2d9b
+T002:
+  c: true
+  h: d5ce57fbc75374f9d776e74119151f82c9b7e93c2de02667f530829dc6d278d5
+  r: "Checked `code/download.py` and `code/preprocess.py` (both non\u2011empty and\
+    \ runnable) and the execution logs (`.tasks/T002.code_download.py.log`, `.tasks/T002.code_preprocess.py.log`)\
+    \ showing successful runs that created `data/raw/` with the three CSVs and `data/processed/combined_features.csv`\
+    \ without errors."
+  sig: eaf8a16b7dd0250c703a37bf1c1b2593f9e45df0b6b0b5809c3732414f5c421e
+T003:
+  c: true
+  h: 8b09bd246e9aac2ddb69d4ddf48d2d2ac0bcf59406fb19ed14602234d69341c9
+  r: Checked `code/cli.py` which implements the `--demo` flag and writes `data/results/small_demo.csv`,
+    and verified that `small_demo.csv` exists with the required columns `sample_id,feature_1,prediction`
+    and that the execution log shows a successful run of `python -m code.cli --demo`.
+  sig: 9616b5c654a76ba2c40688d02853ea48b038e59a30ac8663a5917a77d8678eef
+T004:
+  c: false
+  h: b1e52f89a9ebffc749c822f7328a279713ddf0d4fa5b7290dff5df2db68ff616
+  r: "The `tests/unit/test_download.py` file exists, but running `pytest -q tests/unit/test_download.py`\
+    \ fails (exit code\u202F1) because the `test_download_module_has_fetch_function`\
+    \ test reports that `code.download` does not expose any of the expected data\u2011\
+    fetching functions, causing the suite to not pass. The required verification of\
+    \ a zero\u2011exit\u2011code test run is therefore not satisfied."
+  sig: 5cb13da15dc06a6adeb4c7fddd974850a61a5522fb6a2b35a0435cfea9280caf
+T005:
+  c: false
+  h: 668aecdf0d929eb7ab26e02422b3f0c4c5f65cbdb7a9a6a3341b2212c2aef85c
+  r: "The integration test file `tests/integration/test_e2e_ci.py` exists, but the\
+    \ recorded pytest run fails (return code\u202F2, \u201Cunrecognized arguments:\
+    \ --ci-mode\u201D). The required verification that `pytest -q tests/integration/test_e2e_ci.py`\
+    \ succeeds is not met; the CLI does not support the `--ci-mode` flag needed for\
+    \ the test to pass. The test or the CLI must be corrected for the test to succeed."
+  sig: f69386b35b0d042b150000077487cbcd547c3a46143452b6af0b5abe9436e6b3
+T006:
+  c: false
+  h: e660524d7bfae33dd7f193e1355f9cbbdd120bd1d0cdb473f91324940ca86cc0
+  r: The test file `tests/contract/test_dataset_schema.py` exists, and `data/data_manifest.yaml`
+    is present, but the required schema file `contracts/dataset.schema.yaml` is missing,
+    causing the test to raise a `FileNotFoundError` and fail (see the execution log).
+    Without the schema, the validation test cannot pass.
+  sig: 33f42805f234eca6b3bd4d056a8472226a8878737bce71d5a4a5558a09a9c5c6
 T011:
   c: false
   h: 048986a2ebd05d4f769fd88f177ced253476dda40f37863b55157204e58acacd

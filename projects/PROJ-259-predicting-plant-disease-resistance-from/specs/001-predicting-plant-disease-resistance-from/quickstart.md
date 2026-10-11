@@ -4,7 +4,7 @@
 
 *   Python 3.11+
 *   Docker (optional, for containerized run)
-*   7 GB RAM available
+*   Adequate RAM is available.
 
 ## Installation
 

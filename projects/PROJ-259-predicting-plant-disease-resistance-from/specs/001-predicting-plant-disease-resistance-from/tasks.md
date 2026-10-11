@@ -11,11 +11,11 @@ Completed tasks (T001–T065) are preserved as‑is; the four verifier‑rejecte
     Path: `specs/001-predict-plant-disease-resistance/quickstart.md`  
     **Verification**: Run `make quickstart` and assert that `quickstart_output.txt` exists and contains the expected banner.  
 
-- [ ] T002 Implement core download‑preprocess pipeline (`code/download.py`, `code/preprocess.py`).  
+- [X] T002 Implement core download‑preprocess pipeline (`code/download.py`, `code/preprocess.py`).  
     Path: `code/download.py`, `code/preprocess.py`  
     **Verification**: Execute `python -m code.download` and `python -m code.preprocess` on synthetic data; assert that `data/raw/` and `data/processed/` files are created without error.  
 
-- [ ] T003 Connect CLI entry point (`code/cli.py`) and produce a small‑scale result file (`data/results/small_demo.csv`).  
+- [X] T003 Connect CLI entry point (`code/cli.py`) and produce a small‑scale result file (`data/results/small_demo.csv`).  
     Path: `code/cli.py`, `data/results/small_demo.csv`  
     **Verification**: Run `python -m code.cli --demo` and check that `small_demo.csv` contains columns `sample_id,feature_1,...,prediction`.  
 
@@ -31,11 +31,11 @@ Completed tasks (T001–T065) are preserved as‑is; the four verifier‑rejecte
     Path: `tests/contract/test_dataset_schema.py`  
     **Verification**: Run the test against `data/data_manifest.yaml`; it must pass.  
 
-- [ ] T007 Write Dockerfile that builds a reproducible container (≤ 6 h runtime).  
+- [~] T007 Write Dockerfile that builds a reproducible container (≤ 6 h runtime).  
     Path: `Dockerfile`  
     **Verification**: Build Docker image and run `docker run <image> echo ok`; build must complete within 6 h.  
 
-- [ ] T008 Add resource‑monitor stub (`code/utils/dummy_monitor.py`) – later replaced by real implementation.  
+- [~] T008 Add resource‑monitor stub (`code/utils/dummy_monitor.py`) – later replaced by real implementation.  
     Path: `code/utils/dummy_monitor.py`  
     **Verification**: Import `dummy_monitor` and call its context manager; no exception should be raised.  
 
