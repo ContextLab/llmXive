@@ -1,0 +1,62 @@
+T001:
+  task: a43069c56e27aac2ac1457be02b87171b9a9da7e9e7acf8e9342a850ec7453ea
+T002:
+  reason: "The `requirements.txt` file exists and lists all required packages, but\
+    \ only `biopython` and `samtools` are version\u2011pinned; the other required\
+    \ packages (plink2, freebayes, bwa, scikit\u2011learn, pandas, numpy, statsmodels,\
+    \ pyyaml, requests) lack explicit version specifications, violating the \u201C\
+    pinned\u201D requirement. Additionally, an unrelated package (`dwgsim`) is included,\
+    \ which is not part of the requested stack. The implementer must pin every listed\
+    \ package to a specific version (e.g., `plink2==X.Y.Z`) and may remove unnecessary\
+    \ extras."
+  task: 9ad211aa9f0d7bd889a59f398bb56b30d7564d09d7c58ca50cb1e631bd69ef63
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/01_download_metadata.py
+    exit=1'
+  task: 018ae8579648c6ba4601ee85680f7546a704ec277ad67bd24e6bdb974784acfc
+T004:
+  task: 508f9780108142c499dfec90d6e70509ef2ff3991f1bd5837521e7da75f0a8f4
+T005:
+  task: 11dc919da70343bcaeb0cf85ea687c019a821def677dd09bef79d2863f9b6133
+T006:
+  task: 158610ff0c9e566734a7c800531b9b274df1802884bd582b5cdbda85ff0e33cc
+T007:
+  task: 7eb7e3fe0673fe1855574b217a70a0fde91be81ffbbdaeefc11ee5c8de4c9ecc
+T008:
+  task: 1be28f64acb46af872d3b4af84d2fb50e3961ac9301973cc97edaa6f7314c3c4
+T009:
+  task: 79ff475e5e893b79987a1dd57b37e89780cc488807396f51dee36235b3f6a1ed
+T010:
+  task: f14e2bc002ec86253a17ff8600fe9794ad61356d10fde7c59f3a2af54f612421
+T011:
+  task: 45659ee49c719c9540fed1aaf321e2ca56ba6310a484c75acee3015c4898abc4
+T012:
+  task: db201982ce942f43640744503c01d8b11f1e5e2f26615e64875c582519379066
+T013:
+  task: 4ae38ab499a48fab6dc166488321f7119a7dce24c3c586989cfe3291a56e2fba
+T014:
+  task: 9445318c7aae59d65aa79e491b851c641e28804c9015d62134db5fb344cdb953
+T015:
+  task: 96f0e1ba07aabb7caa90813c7334c8a75a5300c5654290cc8d0014f65dbd0b07
+T016:
+  task: 86195a25ed03d92d7e4b004e71b63764e40f7c4d2d4bb004b5eb875e7291a634
+T017:
+  task: 8274523965918265427c799b5843b7dd882d54248413560053204564b13f29e6
+T018:
+  task: 847bf0b2bd5bd8f11f0995b5a6883a88e89a89a42faba87eadf1eb913e22d5ae
+T019:
+  task: d2d378876542cabe7587210e3392edb1b7a0a04f6a1dbff34068c76852742a49
+T020:
+  task: 338c4920496e4e6221b72a8dbd2f4d93e6fc3d2f9fed02e90e60fce8d1cd6823
+T021:
+  task: bf8b165734173e4a1b71f07fc38fcaa2ca0d4231dacd6662d110bb2540b2b896
+T022:
+  task: 8883d697769a8bb718f5d6e7484002a18c73fbd38e007cbf294dce517c022e30
+T023:
+  task: 113f87ffaf63a0818e80c65dc377f3480a4bd31c84c7629e058fae87a44c84ee
+T024:
+  task: 9ccc76017aab24cf843ed428a20a7aee3a8a3af9fe2ee799d25b91789656ee74
+T025:
+  task: 46389aa6f2bb5a73c5d65b0f1ceeba357b334e914515b128a4c3bb0440058160
+T026:
+  task: 1e91cb3bc5229ad6562ff72c24a3943f0cdd9bfcee1c9a2e501984f57a2d62cb

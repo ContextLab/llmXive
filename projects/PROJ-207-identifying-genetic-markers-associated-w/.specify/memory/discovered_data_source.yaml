@@ -1,17 +1,18 @@
 status: none
-intent: download Apis mellifera WGS dataset PRJNA639195 PRJNA566029 Hugging Face python
-  package dataset
+intent: download Hugging Face honeybee whole genome sequencing dataset PRJNA639195
+  PRJNA566029 BeeBase
 required_fields:
-- sample_id
 - chromosome
 - position
 - reference_allele
 - alternate_allele
 - genotype
+- quality
+- depth
 - health_status
 - geographic_region
 - sampling_year
 - varroa_mite_count
-cache_key: 4472070d9204b269dfe0ba721be99e8b17eb85fdb6d2edeaa745861f9cde84c8
-searched_at: '2026-08-30T23:11:21.983847+00:00'
+cache_key: 7a298ec6ddcaedc4048aaa7f4928c94ab1aa964272b932568eeaa09d9f8d75ee
+searched_at: '2026-10-11T14:27:06.259265+00:00'
 retry_count: 1

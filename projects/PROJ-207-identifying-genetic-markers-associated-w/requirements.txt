@@ -1,3 +1,5 @@
+# Pinned requirements for the honeybee CCD GWAS pipeline
+# Core scientific stack (CPU‑tractable)
 plink2
 freebayes
 bwa
@@ -8,3 +10,7 @@ statsmodels
 dwgsim
 pyyaml
 requests
+# Additional required packages
+biopython==1.81
+samtools==1.20
+# End of requirements.txt

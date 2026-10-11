@@ -7,7 +7,7 @@ All paths are relative to the repository root.
 
 ## Phase 0 – Project scaffolding  
 
-- [ ] T001 [P] Create the standard project directory layout  
+- [X] T001 [P] Create the standard project directory layout  
   `mkdir -p code/ data/raw/ data/interim/ data/processed/ docs/ tests/`  
   *Verification*: `test -d code && test -d data/raw && test -d data/processed`.
 
@@ -18,7 +18,7 @@ All paths are relative to the repository root.
 
 ## Phase 1 – Real‑data acquisition (metadata → full FASTQ)  
 
-- [ ] T003 [US1] Download **metadata only** (`code/01_download_metadata.py`)  
+- [ ] T003 [US1] Download **metadata only** (`code/01_download_metadata.py`)   <!-- FAILED-IN-EXECUTION: code/01_download_metadata.py exit=1 -->
   *Source*: NCBI BioProject PRJNA639195 (CCD) & PRJNA566029 (healthy) via Entrez Direct.  
   *Requirements*: SSL‑validated download; abort loudly on any certificate error.  
   *Outputs*: `data/processed/ncbi_metadata.json` (fields: `sample_accession`, `ccd_status`, `varroa_load`, `geographic_region`, `sampling_year`).  
