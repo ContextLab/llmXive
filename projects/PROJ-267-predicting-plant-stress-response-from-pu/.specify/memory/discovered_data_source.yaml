@@ -1,16 +1,18 @@
 status: none
-intent: download plant proteomics transcriptomics datasets Arabidopsis rice wheat
-  abiotic stress GEO PRIDE BioMart python package dataset
+intent: download Arabidopsis rice wheat drought salinity heat proteomics transcriptomics
+  GEO ProteomeXchange Ensembl Plants python package dataset
 required_fields:
 - species
 - stress_condition
 - sample_id
-- protein_id
+- protein_accession
 - protein_abundance
 - gene_id
-- transcript_counts
-- metadata_publication_date
-- sample_size
-cache_key: 30e71afb993b42e6ea473e9959d99c66d9d99ed15b64d35a9ac512de0a74ccfe
-searched_at: '2026-10-11T09:09:10.192912+00:00'
+- transcript_expression
+- experiment_accession
+- publication_date
+- tissue_type
+- organism_tax_id
+cache_key: d95a3689e805bc7579791fcfecee6b839fb3a0e3ca71c6813aa0f485b07e02f2
+searched_at: '2026-10-11T11:12:31.533713+00:00'
 retry_count: 1
