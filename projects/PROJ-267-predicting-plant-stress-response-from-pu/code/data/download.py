@@ -13,9 +13,7 @@ from pathlib import Path
 
 # Project utilities
 from utils.logging_config import get_logger
-from utils.checksums import (
-    generate_checksums_for_directory,
-)
+from utils.checksums import generate_checksums_for_directory
 # Re‑use the robust download implementation from the existing module
 from data_ingestion.download import download_file
 
@@ -65,7 +63,8 @@ def write_checksum_file(directory: Path, checksum_path: Path):
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with open(checksum_path, "w") as f:
         for rel_path, checksum in checksums.items():
-            f.write(f"{checksum}  {rel_path}\\n")
+            # Use a single newline character; avoid escaped ``\\n`` literals.
+            f.write(f"{checksum}  {rel_path}\n")
     logger.info(f"Checksum file written to {checksum_path}")
 
 # ----------------------------------------------------------------------

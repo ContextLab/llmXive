@@ -1,21 +1,16 @@
 """
 Entry point for the project pipeline.
-
-The original ``main.py`` (created in T001) supported a ``--stage noop``
-command that exited with status 0.  This implementation now imports the
-project‑wide logger defined in ``utils.logging_config`` so that *any*
-invocation of the script creates ``logs/pipeline.log`` and records a
-basic start‑up message.  Additional stages can be added later; for the
-purpose of T006 the ``noop`` stage is sufficient to demonstrate that the
-logger is used throughout the code base.
 """
-
 import argparse
 import sys
 
-# Import the shared logger.  Using the wrapper in ``utils.logging_config``
-# ensures compatibility with existing imports throughout the project.
-from utils.logging_config import get_logger
+# Import the shared logger. 
+# We use the full path from the project root to support 'python -m code.main'
+try:
+    from code.utils.logging_config import get_logger
+except ImportError:
+    # Fallback for direct script execution 'python code/main.py'
+    from utils.logging_config import get_logger
 
 log = get_logger(__name__)
 
@@ -32,10 +27,8 @@ def parse_args():
     return parser.parse_args()
 
 def run_noop():
-    """A no‑op stage that simply logs its execution."""
+    """A no‑op stage that simply logs its execution and exits 0."""
     log.info("Running NOOP stage – pipeline start")
-    # No further processing; this satisfies the verification that a
-    # pipeline run creates the log file.
     log.info("NOOP stage completed successfully")
     return 0
 

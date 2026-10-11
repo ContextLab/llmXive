@@ -10,7 +10,7 @@ that every pipeline component that imports ``get_logger`` (or the helper
 `logs/pipeline.log`.
 """
 
-from .logger import get_logger as _get_logger
+from utils.logger import get_logger as _get_logger
 
 __all__ = [
     "get_logger",

@@ -1,13 +1,10 @@
 T001:
   c: false
-  h: 125da1730d8437bfb7ede299248ea6b284b13ae19a73141bc9e909497262a4b0
-  r: "The skeleton directories, `requirements.txt`, `code/main.py` with a `--stage\
-    \ noop` option, and `docs/structure.txt` are present and contain appropriate content.\
-    \ However, there is no execution evidence showing that `python -m code.main --stage\
-    \ noop` actually exits\u202F0, nor any proof that the commands documented in `quickstart.md`\
-    \ run successfully on a clean runner. Execution logs or test results are required\
-    \ to satisfy those verification steps."
-  sig: 5d6c9a7d7a073a36ea392ecae9deded780f872fd06044d243430691249063d68
+  h: 91f7dccd55886616a4aa8f51f0b36ea025b5323a73ef0342ce3173311c62bc01
+  r: "The logs/ directory is not present in the listed project tree, and there is\
+    \ no execution evidence showing that the commands documented in\u202Fquickstart.md\
+    \ run successfully on a clean runner. Both are required to satisfy the task."
+  sig: 0fd4c08a4ba78270c7e6fdb123a25dbfcdc5d2030ff2924093959221b13a050d
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,14 +22,14 @@ T005:
     \ task is not satisfied."
 T006:
   c: false
-  h: 7d9c78bd84906ac45baf53da8f40a291165018cabaadfbd79b075ec0620b0fcf
-  r: The repository contains a `code/utils/logger.py` that correctly configures a
-    logger writing to `logs/pipeline.log`, and a verification script reports success,
-    but there is no actual `logs/pipeline.log` file shown nor evidence that other
-    pipeline modules import and use this logger. Without the real log file containing
-    the required INFO/WARN entries and import usage across the codebase, the task
-    is not fully satisfied.
-  sig: 670838268fd1612a18d7b4f35c1bee1968810f87a0dbaea675dbad7457d6d976
+  h: b8350d05d06e88a363b9a6bde209da19787aaf4473d99a3e17b5375690dade43
+  r: Checked `code/utils/logger.py` (exists and writes to `logs/pipeline.log`) and
+    the verification log `code/.tasks/T006.code_utils_verify_logging.py.log` (shows
+    the log file was created and a warning was written). However, there is no evidence
+    that the rest of the pipeline modules import and use this logger, nor that `logs/pipeline.log`
+    contains the required entries for dropped rows, missing columns, or raised errors
+    after a real pipeline run. These artifacts must be added to satisfy the task.
+  sig: 558002e913d547f7f2c853fe66a4f8fb43d40153d817eefe7cd922e60616f20a
 T012:
   c: false
   h: 4196c01992af3b9c57e273d5a0d9687585e94c1533e876bf1e995b8d147e7541

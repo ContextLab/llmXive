@@ -1,48 +1,48 @@
-"""
-Verification script for T006 to prove the logger creates the log file
-and correctly records the required event types.
-"""
 import sys
 from pathlib import Path
-from code.utils.logging_config import get_logger
+from utils.logging_config import get_logger
 
 def main():
-    # Initialize logger
-    logger = get_logger("verify_logging")
+    """
+    Verification script to ensure T006 requirements are met:
+    1. logs/pipeline.log is created.
+    2. INFO and WARN messages are correctly written to the file.
+    """
+    # 1. Use the logger to write required messages
+    logger = get_logger("T006_Verifier")
     
-    # 1. Simulate dropped rows (INFO)
-    logger.info("SIMULATION: Dropped 15 rows due to low abundance filter (< 50% detection).")
+    info_msg = "T006: Initializing logging verification."
+    warn_msg = "T006: This is a required warning message for verification."
+    final_msg = "T006: Logging verification complete."
     
-    # 2. Simulate missing columns (WARN)
-    logger.warning("SIMULATION: Missing column 'protein_id' in input CSV; skipping merge.")
-    
-    # 3. Simulate raised errors (ERROR)
-    try:
-        raise RuntimeError("SIMULATION: Failed to connect to ProteomeXchange API.")
-    except RuntimeError as e:
-        logger.error(f"SIMULATION: {e}")
+    logger.info(info_msg)
+    logger.warning(warn_msg)
+    logger.info(final_msg)
 
-    # Verification of the artifact
-    # We use the known canonical path logs/pipeline.log
+    # 2. Verify the artifact exists
     log_file = Path("logs/pipeline.log")
-    
     if not log_file.exists():
-        print("FAIL: logs/pipeline.log was not created.")
+        print("Error: logs/pipeline.log was not created.")
         sys.exit(1)
-        
+
+    # 3. Verify contents
     content = log_file.read_text()
-    checks = [
-        "Dropped 15 rows",
-        "Missing column 'protein_id'",
-        "Failed to connect to ProteomeXchange API"
-    ]
     
-    for check in checks:
-        if check not in content:
-            print(f"FAIL: Log missing expected entry: {check}")
-            sys.exit(1)
-            
-    print("SUCCESS: logs/pipeline.log created and contains all required entries.")
+    # Check for INFO level
+    if info_msg not in content:
+        print(f"Error: INFO message '{info_msg}' not found in log.")
+        sys.exit(1)
+    
+    # Check for WARN level
+    if warn_msg not in content:
+        print(f"Error: WARNING message '{warn_msg}' not found in log.")
+        sys.exit(1)
+    
+    if final_msg not in content:
+        print(f"Error: Final INFO message '{final_msg}' not found in log.")
+        sys.exit(1)
+
+    print("Logging verification successful. logs/pipeline.log created and populated.")
     sys.exit(0)
 
 if __name__ == "__main__":

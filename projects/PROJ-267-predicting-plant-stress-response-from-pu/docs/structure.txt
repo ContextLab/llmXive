@@ -1,144 +1,111 @@
 .
-├── .runtime-home
-├── .specify
-│   ├── memory
-│   │   ├── artifact_refusals
-│   │   │   └── 9ba7d0652682e1fe75b90bd1ea8a1a69e679a0039c80fc9c85e10e2ff7ddc793.json
-│   │   ├── convergence_trail
-│   │   │   ├── plan-001.jsonl
-│   │   │   ├── plan-002.jsonl
-│   │   │   ├── plan-003.jsonl
-│   │   │   └── spec-001.jsonl
-│   │   ├── constitution.md
-│   │   ├── discovered_data_source.yaml
-│   │   ├── execution_feedback.md
-│   │   ├── research_question_validated.yaml
-│   │   ├── task_verifier_notes.md
-│   │   ├── task_verify.feedback.yaml
-│   │   ├── task_verify.yaml
-│   │   ├── task_verify_cache.yaml
-│   │   ├── tasker_rounds.yaml
-│   │   └── verified_facts.yaml
-│   ├── scripts
-│   │   └── bash
-│   │       ├── check-prerequisites.sh
-│   │       ├── common.sh
-│   │       ├── create-new-feature.sh
-│   │       └── setup-plan.sh
-│   └── templates
-│       ├── checklist-template.md
-│       ├── constitution-template.md
-│       ├── plan-template.md
-│       ├── spec-template.md
-│       └── tasks-template.md
-├── code
-│   ├── data_ingestion
-│   │   ├── __init__.py
-│   │   ├── completeness.py
-│   │   ├── download.py
-│   │   ├── logging_runner.py
-│   │   ├── merge.py
-│   │   ├── normalize.py
-│   │   ├── pipeline.py
-│   │   ├── sample_check.py
-│   │   ├── sanity_check.py
-│   │   ├── schema_validation_runner.py
-│   │   └── verify_sources.py
-│   ├── modeling
-│   │   ├── checkpoint.py
-│   │   ├── feature_importance.py
-│   │   └── train.py
-│   ├── reporting
-│   │   ├── generate_report.py
-│   │   ├── metrics.py
-│   │   └── plots.py
-│   ├── utils
-│   │   ├── __init__.py
-│   │   ├── checksums.py
-│   │   ├── config.py
-│   │   ├── data_utils.py
-│   │   ├── io.py
-│   │   ├── logger.py
-│   │   ├── logging_config.py
-│   │   └── schema_validator.py
-│   ├── .black
-│   ├── .editorconfig
-│   ├── .flake8
-│   ├── .pre-commit-config.yaml
-│   ├── __init__.py
-│   ├── main.py
-│   ├── pyproject.toml
-│   ├── requirements-dev.txt
-│   ├── requirements.txt
-│   ├── setup_data_dirs.py
-│   ├── setup_directories.py
-│   ├── setup_docs_dir.py
-│   ├── setup_environment.py
-│   ├── setup_linting.py
-│   ├── setup_linting.sh
-│   ├── setup_skeleton.py
-│   └── verify_directories.py
-├── data
-│   ├── processed
-│   │   └── .gitkeep
-│   └── raw
-│       └── .gitkeep
-├── docs
-│   ├── .gitkeep
-│   ├── deviation_log.md
-│   └── structure.txt
-├── idea
-│   ├── citation_resolution.json
-│   ├── predicting-plant-stress-response-from-pu.md
-│   └── research_question_validation.md
-├── logs
-│   └── .gitkeep
-├── results
-│   └── .gitkeep
-├── specs
-│   └── 001-predicting-plant-stress-response-from-pu
-│       ├── contracts
-│       │   ├── dataset.schema.yaml
-│       │   └── model_output.schema.yaml
-│       ├── data-model.md
-│       ├── plan.md
-│       ├── quickstart.md
-│       ├── research.md
-│       ├── spec.md
-│       └── tasks.md
-├── tests
-│   ├── unit
-│   │   ├── test_checksums.py
-│   │   ├── test_completeness.py
-│   │   ├── test_data_utils.py
-│   │   ├── test_download.py
-│   │   ├── test_edge_cases.py
-│   │   ├── test_ingestion.py
-│   │   ├── test_linting_setup.py
-│   │   ├── test_logger.py
-│   │   ├── test_logging.py
-│   │   ├── test_logging_config.py
-│   │   ├── test_plots.py
-│   │   ├── test_quickstart_validator.py
-│   │   ├── test_sample_check.py
-│   │   ├── test_schema_validation.py
-│   │   ├── test_schema_validator.py
-│   │   ├── test_setup_data_dirs.py
-│   │   ├── test_setup_docs.py
-│   │   ├── test_setup_docs_dir.py
-│   │   └── test_streaming.py
-│   ├── .gitkeep
-│   ├── conftest.py
-│   ├── test_data_dirs.py
-│   ├── test_linting_config.py
-│   ├── test_linting_setup.py
-│   ├── test_logging.py
-│   ├── test_setup_data_dirs.py
-│   ├── test_setup_directories.py
-│   └── test_verify_directories.py
-├── .flake8
-├── .pre-commit-config.yaml
-├── activity.jsonl
-├── pyproject.toml
-├── README.md
+└── README.md
+└── activity.jsonl
+├── code/
+  └── __init__.py
+  ├── data/
+    └── download.py
+  ├── data_ingestion/
+    └── __init__.py
+    └── completeness.py
+    └── download.py
+    └── logging_runner.py
+    └── merge.py
+    └── normalize.py
+    └── pipeline.py
+    └── sample_check.py
+    └── sanity_check.py
+    └── schema_validation_runner.py
+    └── verify_sources.py
+  └── main.py
+  ├── modeling/
+    └── checkpoint.py
+    └── feature_importance.py
+    └── train.py
+  └── pyproject.toml
+  ├── reporting/
+    └── generate_report.py
+    └── metrics.py
+    └── plots.py
+  └── requirements-dev.txt
+  └── requirements.txt
+  └── setup_data_dirs.py
+  └── setup_directories.py
+  └── setup_docs_dir.py
+  └── setup_environment.py
+  └── setup_linting.py
+  └── setup_linting.sh
+  └── setup_skeleton.py
+  ├── utils/
+    └── __init__.py
+    └── checksums.py
+    └── config.py
+    └── data_utils.py
+    └── io.py
+    └── logger.py
+    └── logging_config.py
+    └── schema_validator.py
+    └── verify_logging.py
+    └── verify_logging.sh
+  └── verify_directories.py
+  └── verify_noop.py
+├── data/
+  ├── processed/
+  ├── raw/
+├── docs/
+  └── deviation_log.md
+├── idea/
+  └── citation_resolution.json
+  └── predicting-plant-stress-response-from-pu.md
+  └── research_question_validation.md
+├── logs/
+└── pyproject.toml
 └── requirements.txt
+├── results/
+├── specs/
+  ├── 001-predicting-plant-stress-response-from-pu/
+    ├── contracts/
+      └── dataset.schema.yaml
+      └── model_output.schema.yaml
+    └── data-model.md
+    └── plan.md
+    └── quickstart.md
+    └── research.md
+    └── spec.md
+    └── tasks.md
+├── tests/
+  └── conftest.py
+  └── test_data_dirs.py
+  └── test_linting_config.py
+  └── test_linting_setup.py
+  └── test_logging.py
+  └── test_setup_data_dirs.py
+  └── test_setup_directories.py
+  └── test_verify_directories.py
+  ├── unit/
+    └── test_checksums.py
+    └── test_completeness.py
+    └── test_data_utils.py
+    └── test_download.py
+    └── test_edge_cases.py
+    └── test_ingestion.py
+    └── test_linting_setup.py
+    └── test_logger.py
+    └── test_logger_integration.py
+    └── test_logger_usage.py
+    └── test_logging.py
+    └── test_logging_config.py
+    └── test_noop_stage.py
+    └── test_plots.py
+    └── test_quickstart_validator.py
+    └── test_sample_check.py
+    └── test_schema_validation.py
+    └── test_schema_validator.py
+    └── test_setup_data_dirs.py
+    └── test_setup_docs.py
+    └── test_setup_docs_dir.py
+    └── test_streaming.py
+├── utils/
+  └── __init__.py
+  └── config.py
+  └── logging_config.py

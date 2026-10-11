@@ -1,19 +1,17 @@
 status: none
-intent: Plant abiotic stress multi-omics Arabidopsis rice wheat GEO ProteomeXchange
-  PRIDE biomaRt python package dataset
+intent: download plant abiotic stress proteomics transcriptomics GEO ProteomeXchange
+  Ensembl Plants python package dataset
 required_fields:
-- species
-- stress_condition
-- sample_id
-- accession_id
-- publication_date
-- sample_size
-- protein_id
-- protein_abundance
-- gene_id
-- transcript_expression
-- protein_to_gene_mapping_source
-- metadata_stress_label
-cache_key: 96430d52a1b5a80238ce61af855709f10a0d060469e79b50ffa6c6cda1242e67
-searched_at: '2026-10-11T15:21:11.981876+00:00'
+- SampleID
+- Species
+- StressCondition
+- ProteinID
+- GeneID
+- ProteinAbundance
+- GeneExpression
+- ReplicateID
+- PublicationDate
+- SourceDatabase
+cache_key: 264354ba65ddf3c32618d201235e75a3a8ab0d62324e4024d05eff207f445452
+searched_at: '2026-10-11T16:22:23.802243+00:00'
 retry_count: 1

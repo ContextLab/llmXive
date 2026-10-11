@@ -8,7 +8,7 @@ break the ``--stage noop`` execution path.
 
 import logging
 from pathlib import Path
-from .config import LOG_PATH
+from utils.config import LOG_PATH
 
 _logger: logging.Logger | None = None
 
