@@ -8,15 +8,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py  --max-samples 5000  --mc-dropout-passes 50  --ensemble-size 3  --coverage-sweep-start 0.80  --coverage-sweep-stop 0.99  --coverage-sweep-step 0.01 -> rc=1
 
+2026-10-11 16:08:45,521 - WARNING - PyTorch not available – MC Dropout will use the deterministic fallback.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 28, in <module>
     from pipeline import main as pipeline_main
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 21, in <module>
     from models.mc_dropout import run_mc_dropout, main as mc_dropout_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py", line 43, in <module>
-    class SimpleDropoutMLP(nn.Module):
-                           ^^
-NameError: name 'nn' is not defined. Did you mean: 'np'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py", line 80, in <module>
+    X_train: pd.DataFrame,
+             ^^
+NameError: name 'pd' is not defined. Did you mean: 'id'?
 
 
 ## Declared deliverables still missing

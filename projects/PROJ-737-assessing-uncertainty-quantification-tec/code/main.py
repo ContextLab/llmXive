@@ -1,7 +1,7 @@
 """
 Main entry point for the UQ pipeline.
 
-This script orchestrates the end‑to‑end analysis required by task T003.
+This script orchestrates the end‑to‑end analysis required by task T001.
 It delegates the heavy‑lifting to ``code/pipeline.py`` and records a
 simple execution log (status, peak memory usage, total duration) in
 ``data/results/pipeline_run.json``.  The pipeline itself writes the
