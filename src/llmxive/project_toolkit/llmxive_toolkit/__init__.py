@@ -74,7 +74,11 @@ class ProjectPaths:
         return self.path("figures", *parts)
 
     def results(self, *parts: str | _os.PathLike[str]) -> _Path:
-        return self.path("data", "results", *parts)
+        # ``paths.<folder>(x)`` is ``<project>/<folder>/x`` for EVERY folder.
+        # This was ``data/results`` until canary 8 (2026-10-11): its task said
+        # "write results/paper.md", its test read ``paths.results("paper.md")``,
+        # and the two were different files.
+        return self.path("results", *parts)
 
     def code(self, *parts: str | _os.PathLike[str]) -> _Path:
         return self.path("code", *parts)

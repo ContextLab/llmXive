@@ -118,7 +118,9 @@ root = paths.root                             # the project directory, whatever 
 - `paths.data(...)`, `paths.figures(...)`, `paths.results(...)`, `paths.docs(...)`,
   `paths.code(...)`, `paths.path(...)` and `paths.<any top-level folder>(...)` (for example
   `paths.outputs("plot.png")`) return a `pathlib.Path` inside the project
-  and create the folder it lives in. They do not create the file.
+  and create the folder it lives in. They do not create the file. The folder is always
+  the one named: `paths.results("paper.md")` is `results/paper.md`, and
+  `data/results/census.csv` is `paths.data("results", "census.csv")`.
 - So do NOT write directory-creation scripts, `ensure_dirs` helpers, a logging
   module, or `sys.path` edits to find the project root. Do NOT create a file
   named after a standard-library module (`logging.py`, `code.py`, `io.py`,

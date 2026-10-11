@@ -357,6 +357,16 @@ class ImplementerAgent(SlashCommandAgent):
                 except ValueError:
                     refuse(f"[implementer] refused out-of-project path: {relpath!r}")
                     continue
+                # The toolkit is the platform's. A project copy ("a minimal shim")
+                # is a second implementation with different paths.
+                from llmxive.project_toolkit import is_toolkit_copy
+                if is_toolkit_copy(rel):
+                    refuse(
+                        f"[implementer] refused {relpath!r}: `llmxive_toolkit` is provided by the "
+                        "platform and is already importable in every project run. Do not write "
+                        "a copy or shim of it; `from llmxive_toolkit import paths, get_logger` works as is."
+                    )
+                    continue
                 # Generated deliverables cannot author the evidence or reviewed
                 # requirements used to decide their own acceptance. Check both
                 # the proposal and resolved target so an in-project symlink

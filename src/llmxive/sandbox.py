@@ -187,12 +187,24 @@ def _link_platform_paths(venv: Path) -> None:
     site-packages on ``sys.path``: a package the project installed itself
     always wins over the base copy.
     """
-    from llmxive.project_toolkit import TOOLKIT_PATH
+    from llmxive.project_toolkit import TOOLKIT_NAME, TOOLKIT_PATH
 
     lines = [str(TOOLKIT_PATH)]
     base = ensure_base_env()
     if base is not None:
         lines.append(str(base))
+    # A ``.pth`` line that starts with ``import`` is executed at interpreter
+    # start. Loading the toolkit there BY FILE puts the PLATFORM's module in
+    # ``sys.modules``, so a copy a project left on its own path is never the
+    # one imported. No path order can do this: the script's directory, and the
+    # package root run_in_venv puts first, both outrank PYTHONPATH's tail.
+    package = TOOLKIT_PATH / TOOLKIT_NAME
+    lines.append(
+        "import importlib.util as _u, sys as _s; "
+        f"_p = _u.spec_from_file_location({TOOLKIT_NAME!r}, {str(package / '__init__.py')!r}, "
+        f"submodule_search_locations=[{str(package)!r}]); "
+        f"_m = _u.module_from_spec(_p); _s.modules[{TOOLKIT_NAME!r}] = _m; _p.loader.exec_module(_m)"
+    )
     body = "\n".join(lines) + "\n"
     for site in venv.glob("lib/python*/site-packages"):
         pth = site / _LINK_PTH
@@ -352,7 +364,14 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     # Prefer the code workspace over same-named project-root scaffolding. With
     # root first, an empty root/src package hides implemented code/src modules.
     # Python still searches the entry script's own directory before PYTHONPATH.
-    parts = [*(str((project_dir / root).resolve()) for root in SOURCE_DIRS), str(project_dir.resolve())]
+    from llmxive.project_toolkit import TOOLKIT_PATH
+
+    # The platform's toolkit comes FIRST. Canary 8 wrote its own
+    # ``llmxive_toolkit/`` "shim" at the project root; from PYTHONPATH it beat
+    # the real one (which was only on the venv's .pth) and resolved every path
+    # against the working directory instead of the project.
+    parts = [str(TOOLKIT_PATH),
+             *(str((project_dir / root).resolve()) for root in SOURCE_DIRS), str(project_dir.resolve())]
     if env.get("PYTHONPATH"):
         parts.append(env["PYTHONPATH"])
     env["PYTHONPATH"] = os.pathsep.join(parts)
