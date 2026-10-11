@@ -1,0 +1,82 @@
+T001:
+  reason: "The `src/` package with `data/`, `models/`, `evaluation/`, `utils/` directories\
+    \ exists, but the evidence does not confirm the required empty `__init__.py` in\
+    \ each sub-module \u2014 only a top-level `src/__init__.py` is shown, and the\
+    \ collector explicitly reports `models/` (the `__init__.py` within it) as MISSING.\
+    \ The implementer must create empty `__init__.py` files in `src/data/`, `src/models/`,\
+    \ `src/evaluation/`, and `src/utils/` (and confirm `src/models/` contents) to\
+    \ satisfy the stated verification criterion."
+  task: 98b96123fbf66ff9cca561f6d6bfa82f2970d6e1ce34916831468bffc5b85952
+T002:
+  reason: "`requirements.txt` exists with all required packages pinned, but `src/utils/config.py`\
+    \ contains no `set_seed()` function at all \u2014 its own docstring even says\
+    \ \"seed handling is elsewhere\" \u2014 and it does not seed `numpy`, `random`,\
+    \ or PyMC. The task's core reproducibility requirement (a `set_seed()` function\
+    \ pinning all three RNGs, called at the start of scripts) is unmet."
+  task: 735db3d15b2e002b6bf308c472a4f34dfad0adf05dbccf2e3906bba824daf0e2
+T003:
+  reason: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist
+    and are substantive, but `.flake8` is entirely absent from the collected artifacts,
+    and there is no CI workflow file or CI log evidence showing lint steps (`ruff
+    .`, `black --check .`, flake8) are invoked. The implementer must add `.flake8`
+    at the project root and wire the lint tools into the CI workflow with evidence
+    of execution.
+  task: ae7c8f823f24f88d74d67d91be3423a87f469c77f7be90ff414758ac88609dac
+T004:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/`
+    (shadows `state/`), `state/projects/README.md` (shadows `state/`). A project owns
+    data/, figures/, code/ and paper/; the platform owns state/ and derives artifact
+    hashes at verification time. Re-scope the step to write only project-owned outputs.'
+  task: 45fd7ddc578f81e6c5a60f3fc4c7c2208cbef8014785870dc7d6d7e791f3aeab
+T005:
+  reason: 'The two schema files exist at the resolved canonical paths and are syntactically
+    valid draft-07 JSON Schema documents, but the task''s stated verification is not
+    satisfied: the recorded run of `tests/contract/test_schemas.py` exited 1 with
+    `test_dataset_schema_is_valid` and `test_forecast_schema_is_valid` both FAILING,
+    and there is no evidence of a successful `yamllint` pass or a successful `jsonschema`
+    validation of the dummy CSV against each schema. Additionally, the schemas are
+    structured as meta-descriptions (field definitions nested under `properties.fields`
+    with `const` values) rather tha'
+  task: 02a3fa4005ef9c56f986deec586f946c5fe222a2d6ba5d67b06ab052c724d6fd
+T006:
+  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
+    exit=1'
+  task: cec4cc6dcf22694fa3d7eb0792d996d861a490ec52af49e3bf092828d1f0cda3
+T007:
+  task: 1570df5dfa10bf6efbe2c9fcbee737b78b94743a14bf50ae17460f25f50f10d4
+T008:
+  task: 16cb919e0c82bb12ba14046ba6897de6f4760f036d97fe10bf614e7ac4c8a33e
+T009:
+  task: 2c82a72b8b81f1a8bcfc3dd6d84b6dca1349d177ee92d68f34f2e0adea899b3f
+T010:
+  task: 0c73e500f7a48b873422c2629612cef8f1f8009e63d3713ecbd92d5d9b684927
+T011:
+  task: 428cafdbae4288cb5bf08cd99bc2b3411e644bd52cda46811d5c009e8410613d
+T012:
+  task: 9ec35961bb3bda5aec97b3b49c0aa1a3ab076d05135dcbb1d236dcec5b38690e
+T013:
+  task: 19b264a4750881e0c1f78d4abbc855dd6f5cab00fdaa942d4cf04ac3be5e2495
+T014:
+  task: 33322c2df7343e7c24f5aadf89fb25ca0a6ca4027aa0588435faca7e806e68d2
+T015:
+  task: 2a7782096e7f41f38619d4921eca93aebfe2f38a1f2cf886c4ab4a2ae6fe02ab
+T016:
+  task: ad0d50ee33d413178c58f54c42f459031c78cff11e69ad066e6cf842f8af03d0
+T017:
+  task: 80a6d6ccbbfa8d543f278ab841c79b4d4e45145ca02eb1ce0346ff2cadf2a064
+T018:
+  task: 2477b03fda1059f594ea230db7f5bd36695fb3f0fe8d63ab06a8ee42fd453880
+T019:
+  task: 492ce03197fa1d67002dd1d4fefc099fb19ab53f786579867ae2f49bced8e727
+T020:
+  task: 54230b694001b1a0849cc69390bec8fafa0b86cd87ec4d2b0da45a7745c102b2
+T021:
+  task: b01b6c1b42490dc19be9905ad687a07db0ce089a0e396d47d4d8162004f96439
+T022:
+  task: 3d65e624817b79571946f889d954c0eb99a774314680827a85109a33c522fadc
+T023:
+  task: e913fa8f44e05b5cb595ee806d8f2a7d0ff90164c3c22af1267fcf81e1b15be4
+T024:
+  task: 0d9616d7df3d1bb569282a18d8bbe8a35d2d2c21b419531897e683b87b443d58
+T025:
+  task: 89b7a99c2747dfbebf278eac774f33a66bdd9bd3e2fc59ea4a632dd5dab8f127

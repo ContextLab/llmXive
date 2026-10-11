@@ -200,5 +200,5 @@ properties:
             const: error
 metadata:
   version: "1.0.0"
-  source: "specs/001-statistical-poll-aggregation/contracts/dataset.schema.yaml"
+  source: "specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml"
   created_by: "T007 Implementation"

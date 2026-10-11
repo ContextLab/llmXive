@@ -1,3 +1,3 @@
 """
-llmXive Statistical Analysis Project Source Package.
+Top-level package for the statistical analysis project.
 """

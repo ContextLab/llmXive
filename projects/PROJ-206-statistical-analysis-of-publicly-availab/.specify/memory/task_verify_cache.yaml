@@ -1,3 +1,45 @@
+T001:
+  c: false
+  h: a5f9c1af085dc5a1da9428c3edeffdf16a7672ae212210b16f5c122fd3848408
+  r: "The `src/` package with `data/`, `models/`, `evaluation/`, `utils/` directories\
+    \ exists, but the evidence does not confirm the required empty `__init__.py` in\
+    \ each sub-module \u2014 only a top-level `src/__init__.py` is shown, and the\
+    \ collector explicitly reports `models/` (the `__init__.py` within it) as MISSING.\
+    \ The implementer must create empty `__init__.py` files in `src/data/`, `src/models/`,\
+    \ `src/evaluation/`, and `src/utils/` (and confirm `src/models/` contents) to\
+    \ satisfy the stated verification criterion."
+  sig: f7a6e1cb1492bb210a02f2cf9d81c163a8103f9f0e9f17160ee2b6dbe9141fcc
+T002:
+  c: false
+  h: c2c464d7cafe819e36af32ecfce3e34e7df579bd852b81e2575aa07945e5faea
+  r: "`requirements.txt` exists with all required packages pinned, but `src/utils/config.py`\
+    \ contains no `set_seed()` function at all \u2014 its own docstring even says\
+    \ \"seed handling is elsewhere\" \u2014 and it does not seed `numpy`, `random`,\
+    \ or PyMC. The task's core reproducibility requirement (a `set_seed()` function\
+    \ pinning all three RNGs, called at the start of scripts) is unmet."
+  sig: c65eb6a4ccf33d170f676533262ab4862f65e7137d46837a80b9ac7fa575785f
+T003:
+  c: false
+  h: e73aca2aaa92b8763743685f480712ff52e179ba14bd5a213ea5c16999e0c01f
+  r: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist and
+    are substantive, but `.flake8` is entirely absent from the collected artifacts,
+    and there is no CI workflow file or CI log evidence showing lint steps (`ruff
+    .`, `black --check .`, flake8) are invoked. The implementer must add `.flake8`
+    at the project root and wire the lint tools into the CI workflow with evidence
+    of execution.
+  sig: 7be49471bbe05c1dadcf659e3c4b054b8f5616992f200a2a1af4e3fbebbc2f5d
+T005:
+  c: false
+  h: dae616bc5661471f6c6ed1063159c0dd521baffff980cb6de0b53b7f4c667fa9
+  r: 'The two schema files exist at the resolved canonical paths and are syntactically
+    valid draft-07 JSON Schema documents, but the task''s stated verification is not
+    satisfied: the recorded run of `tests/contract/test_schemas.py` exited 1 with
+    `test_dataset_schema_is_valid` and `test_forecast_schema_is_valid` both FAILING,
+    and there is no evidence of a successful `yamllint` pass or a successful `jsonschema`
+    validation of the dummy CSV against each schema. Additionally, the schemas are
+    structured as meta-descriptions (field definitions nested under `properties.fields`
+    with `const` values) rather tha'
+  sig: 849f171e0ac59eba4330ede97af1acbc3dc1058e9181f5b3d7d4921dfb57ebdd
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -10,38 +52,3 @@ T022:
   r: "No code, script, or configuration file is provided that sets up a PyMC NUTS\
     \ sampler to run on CPU\u2011only, specifies the number of tuning steps, or fixes\
     \ random seeds. The required artifact is missing, so the task is not satisfied."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied no code, documentation, or example report demonstrating\
-    \ the added logic to frame findings as \u201Cpredictive accuracy\u201D and \u201C\
-    associational uncertainty.\u201D Without any artifact (e.g., modified report generation\
-    \ script, sample output, or test showing the new phrasing), the task requirement\
-    \ is not met. The missing deliverable is the implementation and evidence of the\
-    \ new framing in the output reports."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file was presented or described, and no mathematical formulations
-    or documentation of the architectural exceptions (T021, T026, T009b) were provided.
-    The required artifact is missing, so the task is not satisfied.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `quickstart.md` file was found in the provided artifacts, and thus there are
-    no Polish-language instructions for running the full pipeline on CPU. The required
-    documentation is missing.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides only the feature specification and user stories; there are
-    no checksum files, verification logs, or any evidence that artifacts in `state/projects/`
-    have been checked for valid checksums, nor any audit showing that data was not
-    manually fabricated. The required artifacts to prove checksum validation and data
-    integrity are missing.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md file or excerpt showing a summary of the comparative results and\
-    \ limitations was provided. Without the documented updates, the task\u2019s requirement\
-    \ is not met."

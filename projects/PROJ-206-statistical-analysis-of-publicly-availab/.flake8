@@ -1,0 +1,19 @@
+[flake8]
+# Align with Black's line length
+max-line-length = 88
+# Ignore rules that conflict with Black formatting
+extend-ignore = E203, W503
+# Enable all default checks
+select = E,F,W,C90
+# Exclude common directories
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    build,
+    dist,
+    data,
+    state,
+    .eggs
