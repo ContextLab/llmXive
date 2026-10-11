@@ -1,3 +1,45 @@
+T001:
+  c: false
+  h: 9cd7d201644c2e14dbada649193de80396557fbf6db9c702a5205415e793a7cf
+  r: The `scripts/init_project.py` file exists and contains code to create the required
+    directories, but there is no evidence that the script was actually run, and the
+    expected directories (`data/raw/`, `data/processed/`, `data/qualitative/`, `specs/contracts/`)
+    are still missing. The task requires successful execution of the script to scaffold
+    those folders.
+  sig: 116899a540dfb1a49b97f868677784ef9130bc6acc95d186e5d360a95ded32e2
+T004:
+  c: false
+  h: 74c19e05331d0c5a39f5af9a3744cd103f8f966cdfc73b834bb10907cd753d15
+  r: "The provided `code/config.py` does not define a `MARKER_DICTS` constant (the\
+    \ verification script expects it) and its `model_id` is `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF`\
+    \ instead of the required primary `TheBloke/TinyLlama-Chat-v-GGUF`; it also lacks\
+    \ the secondary model IDs `mistralai/Mistral-7B-Instruct-v0.2` and `meta-llama/Llama-7b-chat-hf`.\
+    \ These omissions mean the task\u2019s specifications are not satisfied."
+  sig: 7fce0c2f59e831b59ea1512ed5d0cddb56bfe634a573347f512706810e785d2e
+T005:
+  c: true
+  h: dd425793ca1be2d6c0f5b8848908790bf31f380280539c87792ff68f93db9d43
+  r: "The `code/utils/logging.py` file (5935\u202Fbytes) defines a JSON\u2011based\
+    \ `LogEntry` and `ReproducibleLogger` for structured logging, provides a `capture_warning`\
+    \ decorator to record warnings, and implements a `retry_on_failure` decorator\
+    \ with exponential backoff and logging of retry attempts, fulfilling the required\
+    \ logging, warning capture, and multi\u2011attempt retry logic."
+  sig: 2d3f92e960d92cded2cc7868dfcc7d631e636b219349d2903a4e3a34edbbaa32
+T006:
+  c: false
+  h: bffd4cfca53c83915808907a0fcef3b94f25c20f4af9df660b8a70b13a0dba00
+  r: "The repository contains `code/utils/io.py`, but it does not provide a command\u2011\
+    line interface (no `if __name__ == '__main__'` or argparse handling for `--validate-schema`).\
+    \ Moreover, the required test files `data/test.json` and `specs/contracts/test.schema.yaml`\
+    \ are missing, so the verification command cannot be executed."
+  sig: 6ee7c6ed4fce75354be10b06550cb8a659691e967937881e87539cfa489a4b9f
+T007:
+  c: false
+  h: 8f6842b8ed52d6ac8e3742bac828badc8666caa640ca7b5fd10831d94c990086
+  r: The required `generation_log.schema.yaml` and `final_report.schema.yaml` files
+    are missing, and the existing schema files are located under `specs/001-phenomenological-ai-first-person-experie/`
+    rather than the required `specs/contracts/` directory.
+  sig: 9705792136e372513a05e361ba9c609fb8aa09b812c1d2dee58ccd27717e7b60
 T009:
   c: false
   h: 1e9716a092bbeb087afa24800d974f45b5d4191f69abb891b4cf8d61b84c7d7c
@@ -14,3 +56,12 @@ T009d:
     so the deliverable and verification step are not satisfied. The next implementer
     must add code to generate and save the report and ensure the file exists with
     the calculated metrics.
+T020:
+  c: false
+  h: 7de44bc8babbfc821f4d7c209e025a6088bb40faa19f1475b4e6820a3a99168f
+  r: "The provided `code/validation/rubric.md` does not contain the required literal\
+    \ headings \u201CMarker Density\u201D or \u201CStructural Integrity\u201D (only\
+    \ \u201CTemporal Coherence\u201D, \u201CSensory Detail\u201D, etc.), so the verification\
+    \ greps would return 0 for those terms. The rubric therefore fails to meet the\
+    \ task\u2019s specified content."
+  sig: eb0ec580e05ca4268d57453ece9bf6cdae9b726fa05c14aff97635dbbe118c3b
