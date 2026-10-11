@@ -560,9 +560,10 @@ class ImplementerAgent(SlashCommandAgent):
             failed_scripts = [(p, r) for p, r in execute_results if not r.ok]
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
-            text = clear_retried_execution_failures(
-                text, task_id, {path for path, result in execute_results if result.ok}
-            )
+            succeeded = {path for path, result in execute_results if result.ok}
+            succeeded |= _superseded_failures(
+                project_root / mechanical_output.get("task_log_dir", "code/.tasks"), task_id, text)
+            text = clear_retried_execution_failures(text, task_id, succeeded)
             if failed_scripts:
                 fail_summary = "; ".join(
                     f"{p} exit={r.returncode}{' (TIMEOUT)' if r.timed_out else ''}"
@@ -1231,6 +1232,66 @@ def _inline_referenced_files(
         if len(chunks) >= max_files:
             break
     return "\n\n".join(chunks)
+
+
+_LOG_HEADER_RE = re.compile(r"^# (?P<path>.+) \(exit (?P<code>-?\d+), .*ok=(?P<ok>True|False)\)\s*$")
+
+
+def _execution_record(log: Path) -> tuple[str, bool, str] | None:
+    """``(script, ok, arguments line)`` from one execution log, or ``None``."""
+    try:
+        lines = log.read_text(encoding="utf-8", errors="replace").splitlines()[:4]
+    except OSError:
+        return None
+    header = _LOG_HEADER_RE.match(lines[0]) if lines else None
+    if header is None:
+        return None
+    arguments = next((ln for ln in lines if ln.startswith("Arguments: ")), "")
+    return header.group("path"), header.group("ok") == "True", arguments
+
+
+def _superseded_failures(log_dir: Path, task_id: str, tasks_text: str) -> set[str]:
+    """Scripts in this task's failure marker that have since run successfully.
+
+    A marker names every script that failed under a task and is cleared only
+    when ALL of them have succeeded. A script fixed and re-run under a LATER
+    task never counted. PROJ-9999 canary, 2026-10-11: T006's marker read
+    ``src/stage_figure.py exit=1; src/pipeline.py exit=1``. The figure stage was
+    fixed and re-run under T006 (exit 0); the pipeline was re-run, with the same
+    arguments, under T009 (exit 0). The marker stayed, the verifier rejected
+    T006 on it three times without looking at anything else, and a project
+    with 8 of 9 tasks done was kicked back.
+
+    A failure is superseded only by a real, later execution of the SAME script
+    with the SAME arguments that exited 0 -- read from the execution logs the
+    platform itself wrote, never from anything the model claims.
+    """
+    from llmxive.speckit.task_lines import EXECUTION_FAILURE_RE, TASK_LINE_RE, mask_fenced_code
+
+    line = next((m for m in TASK_LINE_RE.finditer(mask_fenced_code(tasks_text))
+                 if m.group("id") == task_id), None)
+    if line is None or not log_dir.is_dir():
+        return set()
+    marked: set[str] = set()
+    for failure in EXECUTION_FAILURE_RE.finditer(tasks_text[line.start():line.end()]):
+        marked.update(re.findall(r"(?:^|; )(.+?) exit=-?\d+", failure.group(1)))
+    superseded: set[str] = set()
+    for script in marked:
+        mine = log_dir / f"{task_id}.{script.replace('/', '_')}.log"
+        failed = _execution_record(mine)
+        if failed is None or failed[0] != script or failed[1]:
+            continue
+        try:
+            failed_at = mine.stat().st_mtime
+        except OSError:
+            continue
+        for other in log_dir.glob(f"*.{script.replace('/', '_')}.log"):
+            record = _execution_record(other)
+            if (other != mine and record is not None and record[0] == script and record[1]
+                    and record[2] == failed[2] and other.stat().st_mtime > failed_at):
+                superseded.add(script)
+                break
+    return superseded
 
 
 def _regex_parse_implementer(text: str) -> dict[str, Any] | None:

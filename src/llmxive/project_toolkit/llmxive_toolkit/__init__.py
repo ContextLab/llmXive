@@ -82,6 +82,23 @@ class ProjectPaths:
     def docs(self, *parts: str | _os.PathLike[str]) -> _Path:
         return self.path("docs", *parts)
 
+    def __getattr__(self, name: str):
+        """``paths.<folder>(...)`` for any other top-level folder of the project.
+
+        ``paths.outputs("tv_plot.png")``, ``paths.models(...)``, ``paths.logs(...)``:
+        the first run that used this module reached for ``paths.outputs``, which
+        did not exist, and the stage died on AttributeError. A folder name is
+        not worth a failed run.
+        """
+        if name.startswith("_") or not name.isidentifier():
+            raise AttributeError(name)
+
+        def folder(*parts: str | _os.PathLike[str]) -> _Path:
+            return self.path(name, *parts)
+
+        folder.__name__ = name
+        return folder
+
     def __repr__(self) -> str:
         return f"ProjectPaths(root={str(self.root)!r})"
 

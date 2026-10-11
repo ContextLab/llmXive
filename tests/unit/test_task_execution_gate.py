@@ -78,3 +78,49 @@ def test_only_actual_successful_failed_paths_are_cleared():
     assert clear_retried_execution_failures(text, 'T001', {'scripts/a.sh'}) == text
     result = clear_retried_execution_failures(text, 'T001', {'scripts/a.sh', 'scripts/b.sh'})
     assert result == '- [ ] T001 Run scripts/a.sh <!-- keep audit -->\n- [X] T001a Unrelated\n'
+
+
+def _log(directory, task, script, *, ok, arguments='[]'):
+    path = directory / f"{task}.{script.replace('/', '_')}.log"
+    path.write_text(f"# {script} (exit {0 if ok else 1}, 0.1s, ok={ok})\n\nArguments: {arguments}\n\n## stdout\n")
+    return path
+
+
+def test_a_failure_is_superseded_by_a_later_identical_successful_run(tmp_path):
+    """PROJ-9999 canary: T006 failed src/pipeline.py; T009 later ran it clean with
+    the same arguments. T006's marker never cleared and it was rejected 3x."""
+    import os
+
+    from llmxive.speckit.implement_cmd import _superseded_failures
+    from llmxive.speckit.task_lines import clear_retried_execution_failures
+
+    logs = tmp_path / 'code/.tasks'
+    logs.mkdir(parents=True)
+    text = ('- [~] T006 Figure stage <!-- FAILED-IN-EXECUTION: src/stage_figure.py exit=1; src/pipeline.py exit=1 -->\n'
+            '- [X] T009 Orchestrator\n')
+    failed = _log(logs, 'T006', 'src/pipeline.py', ok=False)
+    os.utime(failed, (1000, 1000))
+    later = _log(logs, 'T009', 'src/pipeline.py', ok=True)
+    os.utime(later, (2000, 2000))
+    assert _superseded_failures(logs, 'T006', text) == {'src/pipeline.py'}
+    # With the figure stage re-run under T006 itself, the whole marker clears.
+    cleared = clear_retried_execution_failures(text, 'T006', {'src/stage_figure.py', 'src/pipeline.py'})
+    assert cleared == '- [~] T006 Figure stage\n- [X] T009 Orchestrator\n'
+
+
+@pytest.mark.parametrize('case', ['earlier_success', 'different_arguments', 'later_failure', 'own_log_missing'])
+def test_only_a_real_later_identical_success_supersedes(tmp_path, case):
+    import os
+
+    from llmxive.speckit.implement_cmd import _superseded_failures
+
+    logs = tmp_path / 'code/.tasks'
+    logs.mkdir(parents=True)
+    text = '- [~] T006 Figure stage <!-- FAILED-IN-EXECUTION: src/pipeline.py exit=1 -->\n'
+    if case != 'own_log_missing':
+        os.utime(_log(logs, 'T006', 'src/pipeline.py', ok=False, arguments="['--n', '5']"), (1000, 1000))
+    other = _log(logs, 'T009', 'src/pipeline.py',
+                 ok=case != 'later_failure',
+                 arguments="['--n', '7']" if case == 'different_arguments' else "['--n', '5']")
+    os.utime(other, (500, 500) if case == 'earlier_success' else (2000, 2000))
+    assert _superseded_failures(logs, 'T006', text) == set()
