@@ -1,4 +1,12 @@
 T001:
+  reason: "The directories `data/processed/`, `data/results/`, and `figures/` are\
+    \ reported MISSING, which the task explicitly requires to exist. Additionally,\
+    \ the schema evidence (`per_sample_errors_schema_example.csv` / `.json`) lists\
+    \ only `sample_id, method, prediction, lower_bound, upper_bound, ground_truth,\
+    \ dataset` \u2014 the required `abs_error` column is absent, so the data contract\
+    \ does not match the task's specified columns (the `per_sample_errors.schema.yaml`\
+    \ in `specs/.../contracts/` exists but its content was not shown to include `abs_error`,\
+    \ and the example contradicts it). The implementer must c"
   task: f7936ff2c818ab9574f4f8c1b0b0fb803e2dfcfc08ded6005183f432c2831c9e
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'

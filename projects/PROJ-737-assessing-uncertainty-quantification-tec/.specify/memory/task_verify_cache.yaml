@@ -1,23 +1,15 @@
 T001:
-  c: true
-  h: 4867c5b8db91b8b3a5b6e6b2d9690e0939215c489abd32868f93f1218e0483ed
-  r: "All ten required directories exist (confirmed by the collector), `specs/001-.../contracts/per_sample_errors.schema.yaml`\
-    \ exists and was created by the executed `code/create_skeleton.py` (exit 0), and\
-    \ `tests/unit/test_t001.py` \u2014 which explicitly checks directory existence,\
-    \ schema correctness, and SC-005 dataset listing \u2014 passed (3/3, exit 0).\
-    \ The spec.md SC-005 section lists Band Gap, Thermal Conductivity, and Formation\
-    \ Energy as required, unmodified."
-  sig: c56e0f63df66c70dda6fb6ddb542bb71b0ee2c1163ca8fd925da0abc7a5c6ecf
-T002:
   c: false
-  h: 45313ebe7dd2f6e5e46f336f0966aeda332403ccb16bde1934afc3d2e528b548
-  r: "The repository contains `code/download.py` which implements the required download,\
-    \ capping, checksum, and metadata logic, but the `data/raw/` directory is empty\
-    \ \u2013 no CSV dataset files, no `<dataset>_metadata.json` files, and no `sha256_manifest.txt`.\
-    \ Additionally, the unit\u2011test log shows failures (NameError in the tests),\
-    \ indicating the implementation has not been verified to work. The required output\
-    \ artifacts are missing, so the task is not fully satisfied."
-  sig: 4d3fc9b509e17551294adadc4c0bdcf9eb96b2ffb0f5ca6aab24e2962094708a
+  h: 9a609b277afafaae157f576e2d9f6fcd66eefacbd49ac6e49afabb6f13b394fe
+  r: "The directories `data/processed/`, `data/results/`, and `figures/` are reported\
+    \ MISSING, which the task explicitly requires to exist. Additionally, the schema\
+    \ evidence (`per_sample_errors_schema_example.csv` / `.json`) lists only `sample_id,\
+    \ method, prediction, lower_bound, upper_bound, ground_truth, dataset` \u2014\
+    \ the required `abs_error` column is absent, so the data contract does not match\
+    \ the task's specified columns (the `per_sample_errors.schema.yaml` in `specs/.../contracts/`\
+    \ exists but its content was not shown to include `abs_error`, and the example\
+    \ contradicts it). The implementer must c"
+  sig: f48a34be0213faf3be8f1f211defbb6d5f05ce2599c51b2cb4a6e93a49b048a1
 T008:
   c: true
   h: 3c6e65c55f26e70b973b4296da46bf256dec464662669468ad78d7bb5170f6d1

@@ -1,1 +1,2 @@
-matminer==0.10.2
+matminer==0.7.3
+pymatgen==2024.1.1
