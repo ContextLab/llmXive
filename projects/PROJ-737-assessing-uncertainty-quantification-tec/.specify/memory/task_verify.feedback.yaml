@@ -1,10 +1,16 @@
 T001:
+  reason: "The required directories all exist and the schema file at `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
+    \ correctly lists the `abs_error` column, but there is no evidence that the verification\
+    \ Python snippet was actually executed and exited with status\u202F0 (no command\u2011\
+    run log, stdout, or exit\u2011code capture is provided). The task remains incomplete\
+    \ until a successful run of the verification command is demonstrated."
   task: 48651dd18438fb43f64c945c946058fa0785d2ef6c465ab0efb02282f5b8dfd3
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/tests/test_download.py
     exit=1'
   task: 882ecaf0c1e977451ab1a731fa7d3f5eb6103418339993daeed6a0d9938e6f9b
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 09e67e6bef0218880ed780ae56e282d560f7957fc6d4d6cca4d77f16971dc4aa
 T004:
   task: e74be0cf571cd489c632500cc94e3aa213851b9e04f6ccc801813058434dbc93

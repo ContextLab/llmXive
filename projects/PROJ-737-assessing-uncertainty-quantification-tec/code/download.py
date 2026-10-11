@@ -135,8 +135,9 @@ def write_metadata(
 def append_checksum_record(dataset_id: str, filename: str, checksum: str) -> None:
     """Append a line to the SHA‑256 manifest file."""
     CHECKSUM_MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+    # Correct newline handling: write an actual newline character.
     with open(CHECKSUM_MANIFEST, "a", encoding="utf-8") as f:
-        f.write(f"{dataset_id},{filename},{checksum}\\n")
+        f.write(f"{dataset_id},{filename},{checksum}\n")
     logger.info(f"Appended checksum record for {filename}")
 
 

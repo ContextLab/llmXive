@@ -1,9 +1,9 @@
 T001:
-  c: true
-  h: b952cd9105583b3dcdce0ab28597faec0d0ee7eaa27c1d647dc807a0ad048e28
-  r: All ten required directories exist (confirmed by the collector with non-empty
-    listings), and `specs/.../per_sample_errors.schema.yaml` contains exactly the
-    eight required columns including `abs_error` with appropriate dtypes, so the verification
-    script's assertions would pass. The fabricated raw data and empty per_sample_errors.csv
-    are concerns for later pipeline tasks, not this directory/schema setup task.
-  sig: 0902ed1609ce9323456a51a08a28dbe7bac0617939e22f00062f25c2d82ffdd7
+  c: false
+  h: 11cf9391e04b55281a778e679d83263e6ebefb247fd031239efd9634a82a27bc
+  r: "The required directories all exist and the schema file at `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
+    \ correctly lists the `abs_error` column, but there is no evidence that the verification\
+    \ Python snippet was actually executed and exited with status\u202F0 (no command\u2011\
+    run log, stdout, or exit\u2011code capture is provided). The task remains incomplete\
+    \ until a successful run of the verification command is demonstrated."
+  sig: 70ea44db0e6d9afc17b6d9c08a1362e18bbce09257fde3e0bf8a5678a215a147
