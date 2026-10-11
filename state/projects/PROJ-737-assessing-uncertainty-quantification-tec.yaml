@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T08:10:53.195720Z'
-current_stage: in_progress
+current_stage: clarified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-737-assessing-uncertainty-quantification-tec
-last_run_id: b5c38e86-beb4-4ff7-9410-b36abc5f0e55
+last_run_id: ee8916dc-3ec0-48b8-93de-77a538a35127
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec
 title: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
-updated_at: '2026-10-11T13:35:22.940191Z'
+updated_at: '2026-10-11T21:20:37.672727Z'

@@ -1,14 +1,12 @@
 T001:
   task: 48651dd18438fb43f64c945c946058fa0785d2ef6c465ab0efb02282f5b8dfd3
 T002:
-  reason: The `code/download.py` script and its tests run successfully and produce
-    the required files, metadata, and checksum manifest, but the downloaded CSVs are
-    placeholder datasets (iris, tips, planets) rather than the three real materials
-    datasets specified in the task (Band Gap, Formation Energy, Thermal Conductivity).
-    The `source_url` fields in the metadata point to these placeholder URLs, violating
-    the core requirement to fetch the actual materials property CSVs. The task must
-    be fixed by using the correct URLs (or equivalent real materials datasets) and
-    updating the metadata accordingly.
+  reason: The `code/download.py` script and its tests succeed, but the downloaded
+    files are not the required materials datasets. The CSVs contain the Iris, Tips,
+    and Planets example data from seaborn, and the metadata `source_url` fields point
+    to those unrelated URLs instead of the OQMD/AFLOW URLs specified in the task.
+    Consequently the core requirement of fetching the three real materials property
+    datasets is not met.
   task: 882ecaf0c1e977451ab1a731fa7d3f5eb6103418339993daeed6a0d9938e6f9b
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'

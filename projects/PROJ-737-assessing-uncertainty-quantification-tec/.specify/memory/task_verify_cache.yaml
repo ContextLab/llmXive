@@ -1,20 +1,9 @@
 T001:
   c: true
-  h: 2e827d4e059dbaa8f357cbc913cbb249dfa11bd3bcaf051f8dcefcbb2aace377
-  r: "Checked that all required directories exist (including `data/processed/`, `data/results/`,\
-    \ `figures/`, etc.) and that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
+  h: 9086d75e15a5f169c01259dcdf044a7e07a1f3074a56774ea9ae71e4ebd60d78
+  r: "Checked that all required directories exist (including `data/processed`, `data/results`,\
+    \ `figures`, etc.) and that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
     \ lists the eight required columns, including `abs_error`. The verification script\
-    \ ran successfully (exit\u202F0) as shown in the log."
-  sig: b4e33babc8f7b289239792d068834108e99617ba8ce96045b35ea0da5a23d8c7
-T002:
-  c: false
-  h: 4aa8f1c889ccb8588be66c2ccad44256788da612a9f405769cdadc804b22d6c7
-  r: The `code/download.py` script and its tests run successfully and produce the
-    required files, metadata, and checksum manifest, but the downloaded CSVs are placeholder
-    datasets (iris, tips, planets) rather than the three real materials datasets specified
-    in the task (Band Gap, Formation Energy, Thermal Conductivity). The `source_url`
-    fields in the metadata point to these placeholder URLs, violating the core requirement
-    to fetch the actual materials property CSVs. The task must be fixed by using the
-    correct URLs (or equivalent real materials datasets) and updating the metadata
-    accordingly.
-  sig: 524fc4bb3c822495d9308a59cde1ef3045e954d8907c88b0c8d8b19ac8b2785d
+    \ ran successfully (exit\u202F0) and printed \u201CSchema and directory verification\
+    \ passed\u201D."
+  sig: 16a02b6f5f20adc1bcb5bb7dad490e8c8673e4a449ae86e74d65a4d926901260

@@ -41,7 +41,7 @@ Checked items have been verified to meet their contract and are retained.
   - **Cap** each dataset at **5 000** samples (deterministic seed 42, `itertools.islice`). Record the cap size in the metadata file.  
   - **Verification**: a script `code/tests/test_download.py` loads each metadata JSON, confirms the file exists, checksum matches, and `n_samples_used ≤ 5000`. The test must exit with status 0.
 
-- [ ] **T003** [US1] **Thin end‑to‑end run on a 100‑sample subset with full schema validation**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T003** [US1] **Thin end‑to‑end run on a 100‑sample subset with full schema validation**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - Subset each downloaded dataset to the first 100 rows (seed 42) and write `data/processed/<dataset_id>_subset.csv`.  
   - Featurize using `matminer` (fallback to simple composition fractions via `pymatgen` if `matminer` import fails). Store the processed files as `data/processed/<dataset_id>.csv`.  
   - Perform a stratified 70 %/15 %/15 % train/val/test split by target property range; save split indices in `data/processed/<dataset_id>_split.json`.  

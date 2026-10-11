@@ -1,13 +1,8 @@
 """
-MC Dropout model implementation with safe handling of optional Torch dependency.
-
-This module defines a simple dropout‑enabled MLP (`SimpleDropoutMLP`) when
-PyTorch is available. If PyTorch cannot be imported, the module falls back
-to a deterministic implementation that uses training‑set statistics to
-construct constant prediction intervals (see `_run_fallback`).
-
-The public API (`run_mc_dropout`) is used by the pipeline orchestrator and
-must remain import‑compatible with existing code.
+MC Dropout model implementation for uncertainty quantification.
+Provides functions to run MC Dropout inference with optional fallback
+when PyTorch is unavailable. The module is compatible with the pipeline
+defined in `code/main.py`.
 """
 
 import logging
@@ -17,65 +12,56 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 import numpy as np
+import pandas as pd  # Added import to resolve NameError in type hints
 
-# ----------------------------------------------------------------------
-# Optional Torch import – the rest of the module works without it.
-# ----------------------------------------------------------------------
+# Attempt to import torch; if unavailable, the fallback will be used.
 try:
     import torch
     import torch.nn as nn
-except ImportError:  # pragma: no cover
-    torch = None
-    nn = None
-    logging.getLogger(__name__).warning(
-        "PyTorch not available – MC Dropout will use the deterministic fallback."
-    )
+    import torch.nn.functional as F
+    TORCH_AVAILABLE = True
+except Exception:  # pragma: no cover
+    TORCH_AVAILABLE = False
 
-# ----------------------------------------------------------------------
-# Helper to set deterministic seeds across libraries
-# ----------------------------------------------------------------------
+from utils.logger import get_logger
+
+log = get_logger(__name__)
+
+
 def _set_random_seeds(seed: int = 42) -> None:
-    """Fix random seeds for reproducibility across numpy, random and torch."""
+    """
+    Fix random seeds for reproducibility across numpy, random and torch.
+    """
     random.seed(seed)
     np.random.seed(seed)
-    if torch is not None:
+    if TORCH_AVAILABLE:
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+    log.debug(f"Random seeds set to {seed}")
 
-# ----------------------------------------------------------------------
-# SimpleDropoutMLP – defined only when Torch is present.
-# ----------------------------------------------------------------------
-if nn is not None:
-    class SimpleDropoutMLP(nn.Module):
-        """
-        A minimal multi‑layer perceptron with dropout for MC‑Dropout inference.
 
-        The architecture is deliberately tiny to satisfy the CPU‑only,
-        <2 GB RAM constraint. It consists of two hidden layers with ReLU
-        activations and a dropout layer placed after each hidden layer.
-        """
+class MC_Dropout_MLP(nn.Module):
+    """
+    Simple MLP with dropout layers for MC Dropout.
+    """
+    def __init__(self, input_dim: int, hidden_dims: list = [64, 32], dropout_p: float = 0.1):
+        super(MC_Dropout_MLP, self).__init__()
+        layers = []
+        prev_dim = input_dim
+        for hidden_dim in hidden_dims:
+            layers.append(nn.Linear(prev_dim, hidden_dim))
+            layers.append(nn.ReLU())
+            layers.append(nn.Dropout(p=dropout_p))
+            prev_dim = hidden_dim
+        layers.append(nn.Linear(prev_dim, 1))
+        self.network = nn.Sequential(*layers)
 
-        def __init__(self, input_dim: int, hidden_dim: int = 64, dropout_p: float = 0.1):
-            super().__init__()
-            self.net = nn.Sequential(
-                nn.Linear(input_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Dropout(p=dropout_p),
-                nn.Linear(hidden_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Dropout(p=dropout_p),
-                nn.Linear(hidden_dim, 1),
-            )
+    def forward(self, x):
+        return self.network(x)
 
-        def forward(self, x):
-            return self.net(x)
-else:
-    # Define a placeholder so that type‑checkers and downstream code see a name.
-    SimpleDropoutMLP = None  # type: ignore
 
-# ----------------------------------------------------------------------
-# Core MC‑Dropout execution paths
-# ----------------------------------------------------------------------
 def _run_with_torch(
     X_train: pd.DataFrame,
     y_train: pd.Series,
@@ -100,71 +86,67 @@ def _run_with_torch(
         Columns: ``prediction``, ``lower_bound``, ``upper_bound``,
         ``ground_truth``.  ``sample_id`` is added later by the pipeline.
     """
-    import torch
-    import torch.nn as nn
-    import torch.optim as optim
-    from torch.utils.data import TensorDataset, DataLoader
-
     _set_random_seeds()
 
-    # Convert data to torch tensors
-    X_tr = torch.from_numpy(X_train.values.astype(np.float32))
-    y_tr = torch.from_numpy(y_train.values.astype(np.float32).reshape(-1, 1))
-    X_te = torch.from_numpy(X_test.values.astype(np.float32))
-    y_te = torch.from_numpy(y_test.values.astype(np.float32).reshape(-1, 1))
+    device = torch.device("cpu")
+    log.info(f"Using device: {device}")
 
-    train_dataset = TensorDataset(X_tr, y_tr)
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    # Standardize features
+    from sklearn.preprocessing import StandardScaler
 
-    model = SimpleDropoutMLP(input_dim=X_train.shape[1])
-    model.train()
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Convert to tensors
+    X_train_tensor = torch.FloatTensor(X_train_scaled).to(device)
+    y_train_tensor = torch.FloatTensor(y_train.values).unsqueeze(1).to(device)
+    X_test_tensor = torch.FloatTensor(X_test_scaled).to(device)
+
+    input_dim = X_train_scaled.shape[1]
+    model = MC_Dropout_MLP(input_dim).to(device)
+
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    # Simple training loop – limited epochs to stay within runtime budget
-    for epoch in range(20):
-        for xb, yb in train_loader:
-            optimizer.zero_grad()
-            preds = model(xb)
-            loss = criterion(preds, yb)
-            loss.backward()
-            optimizer.step()
+    n_epochs = 200
+    model.train()
+    for epoch in range(n_epochs):
+        optimizer.zero_grad()
+        outputs = model(X_train_tensor)
+        loss = criterion(outputs, y_train_tensor)
+        loss.backward()
+        optimizer.step()
+        if (epoch + 1) % 50 == 0:
+            log.debug(f"Epoch {epoch+1}/{n_epochs}, loss: {loss.item():.4f}")
 
+    # MC Dropout inference
     model.eval()
-    # Enable dropout at inference time
-    def enable_dropout(m):
-        if isinstance(m, nn.Dropout):
-            m.train()
-
-    model.apply(enable_dropout)
-
-    # Collect stochastic predictions
     preds = []
     with torch.no_grad():
         for _ in range(max_passes):
-            out = model(X_te).cpu().numpy().flatten()
-            preds.append(out)
+            out = model(X_test_tensor)
+            preds.append(out.cpu().numpy().squeeze())
+    preds = np.stack(preds)  # shape: (max_passes, n_samples)
 
-    preds = np.stack(preds, axis=0)  # shape (passes, n_samples)
     mean_pred = preds.mean(axis=0)
     std_pred = preds.std(axis=0)
 
-    # Construct symmetric intervals (e.g., 1.96*std for 95% CI)
-    # Here we use 1.0 * std to stay within the 0.8–0.99 nominal range;
-    # the exact multiplier is not critical for the pipeline.
-    interval_width = std_pred
-    lower = mean_pred - interval_width
-    upper = mean_pred + interval_width
+    # 95% confidence interval (approx 1.96 * std)
+    alpha = 1.96
+    lower = mean_pred - alpha * std_pred
+    upper = mean_pred + alpha * std_pred
 
-    result = pd.DataFrame(
-        {
-            "prediction": mean_pred,
-            "lower_bound": lower,
-            "upper_bound": upper,
-            "ground_truth": y_test.values,
-        }
-    )
-    return result
+    results = pd.DataFrame({
+        "prediction": mean_pred,
+        "lower_bound": lower,
+        "upper_bound": upper,
+        "ground_truth": y_test.values,
+    })
+
+    log.info(f"MC Dropout completed with {max_passes} passes.")
+    return results
+
 
 def _run_fallback(
     X_train: pd.DataFrame,
@@ -180,22 +162,21 @@ def _run_fallback(
     constant prediction interval for every test sample.
     """
     _set_random_seeds()
-    mean_target = y_train.mean()
-    std_target = y_train.std()
+    mean = y_train.mean()
+    std = y_train.std()
+    alpha = 1.96
+    lower = mean - alpha * std
+    upper = mean + alpha * std
+    n = len(X_test)
+    results = pd.DataFrame({
+        "prediction": np.full(n, mean),
+        "lower_bound": np.full(n, lower),
+        "upper_bound": np.full(n, upper),
+        "ground_truth": y_test.values,
+    })
+    log.warning("PyTorch not available – using deterministic fallback for MC Dropout.")
+    return results
 
-    # Use the same interval width for all samples
-    lower = np.full_like(y_test, mean_target - std_target, dtype=float)
-    upper = np.full_like(y_test, mean_target + std_target, dtype=float)
-
-    result = pd.DataFrame(
-        {
-            "prediction": np.full_like(y_test, mean_target, dtype=float),
-            "lower_bound": lower,
-            "upper_bound": upper,
-            "ground_truth": y_test.values,
-        }
-    )
-    return result
 
 def run_mc_dropout(
     data_dict: Dict[str, Any],
@@ -220,24 +201,32 @@ def run_mc_dropout(
         Columns: ``prediction``, ``lower_bound``, ``upper_bound``, ``ground_truth``.
         ``sample_id`` is added later by the pipeline if missing.
     """
+    required_keys = {"X_train", "y_train", "X_test", "y_test"}
+    if not required_keys.issubset(data_dict):
+        missing = required_keys - data_dict.keys()
+        log.error(f"run_mc_dropout missing required keys: {missing}")
+        return None
+
     X_train = data_dict["X_train"]
     y_train = data_dict["y_train"]
     X_test = data_dict["X_test"]
     y_test = data_dict["y_test"]
 
-    if torch is not None and nn is not None and SimpleDropoutMLP is not None:
+    if TORCH_AVAILABLE:
         try:
             return _run_with_torch(X_train, y_train, X_test, y_test, max_passes)
-        except Exception as e:
-            logging.getLogger(__name__).error(
-                f"MC‑Dropout with Torch failed ({e}); falling back to deterministic version."
-            )
-            # fall through to fallback
-    # Either Torch is unavailable or the Torch path crashed
-    return _run_fallback(X_train, y_train, X_test, y_test, max_passes)
+        except Exception as exc:
+            log.error(f"MC Dropout with torch failed: {exc}")
+            # Fall back to deterministic version
+            return _run_fallback(X_train, y_train, X_test, y_test, max_passes)
+    else:
+        return _run_fallback(X_train, y_train, X_test, y_test, max_passes)
+
 
 def main() -> None:
     """Minimal entry point for ``python -m code.models.mc_dropout``."""
-    logging.getLogger(__name__).info("Running MC‑Dropout module as a script – no action performed.")
-    # This script is primarily intended to be imported; the CLI does not
-    # perform any work beyond a placeholder log message.
+    log.info("MC Dropout module loaded. Run via pipeline for full execution.")
+
+
+if __name__ == "__main__":
+    main()
