@@ -1,0 +1,12 @@
+status: none
+intent: "download \u03C4c-Bench dataset from Hugging Face Hub python package dataset"
+required_fields:
+- task_id
+- instruction
+- input
+- ground_truth_output
+- task_type
+- metadata
+cache_key: c3449dab10d7251f6b3b0daf4545cef0d208f8b9dfedcdf3ee29caba3e22a398
+searched_at: '2026-10-11T19:07:18.762466+00:00'
+retry_count: 1
