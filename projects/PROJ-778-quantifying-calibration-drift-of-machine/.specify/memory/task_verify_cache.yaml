@@ -1,10 +1,23 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/`, `data/`, or `tests/` directories (or any listing of such structure)\
-    \ were provided; the evidence contains no files or folder listings to confirm\
-    \ the required project layout exists. The task\u2019s core deliverable is therefore\
-    \ missing."
+  c: true
+  h: 35a0a9df53e17bde9a5fe15df9775733755feea154ec508b40f142074ccb1aac
+  r: 'The required `code/`, `data/`, and `tests/` directories all exist with substantive
+    contents (12, 7, and 3 entries respectively, including subdirectories like `utils/`,
+    `raw/`, `processed/`, `models/`, `figures/`, `unit/`, `integration/`), and the
+    setup script `code/setup_project_structure.py` executed successfully (exit 0)
+    writing a structure manifest. The lint_config_summary.json showing `ruff_check_passed:
+    false` pertains to a later lint task, not this structural task, so it does not
+    affect this verdict.'
+  sig: 1b38fae5dd352c181c49d657202fc60dd088ca186a7d27804b64bd999a36bc0a
+T002:
+  c: true
+  h: 7e338ea9c1da424b9446a695653f9e78877d62315647da3f3d4ea72c7af7b84e
+  r: The `requirements.txt` exists at the project root (280 bytes) and contains all
+    eight required packages (scikit-learn, pandas, numpy, scipy, statsmodels, ruptures,
+    requests, pyyaml) with version constraints, plus reasonable extras (matplotlib,
+    seaborn, pytest, ruff, black). The task only asked for project initialization
+    with this requirements file, and the artifact matches that requirement.
+  sig: 844c79e930f9fd262507d3e9145ca1bdd60fcfe54351691f6866c85cebbbc5b0
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,6 +25,41 @@ T003:
     `pyproject.toml` with Black settings, or related CI scripts) were provided or
     referenced, so the required artifact for configuring ruff/flake8 and Black is
     missing. The task therefore remains incomplete.
+T004:
+  c: true
+  h: 7beeb4a03facb9d039899f9729ab1e2a4f37592959408f076cf4b3db6c8a8101
+  r: The file `contracts/dataset_schema.yaml` exists (1320 bytes) and defines all
+    12 required columns (age, workclass, education, occupation, relationship, race,
+    sex, capital-gain, capital-loss, hours-per-week, native-country, income) with
+    the specified types (int, str, float), plus consistent target/feature column lists.
+  sig: 878eb5624e114cb231c7898da7e5989a7fc9f8d8cda243e110cee0f607b7b2f9
+T005:
+  c: true
+  h: acdefa9647d271398566baff18753da83ae749f88dcbc9def585b31212cdd6f7
+  r: "The file `contracts/metric_record_schema.yaml` exists (1826 bytes) and defines\
+    \ all 16 required fields \u2014 year, model_type, ece_5/10/20, brier, pca_shift,\
+    \ key_feature_shift, rho_5/10/20, rho_diff_5_10, rho_diff_10_20, max_rho_diff,\
+    \ p_value_wls, change_point_year \u2014 each with type and description, matching\
+    \ the task's stated JSON structure requirement."
+  sig: 855ca4b442589bd09e0f9ff64ab6d575c1c306247d728cc282207aa6a06588a8
+T006:
+  c: true
+  h: 43a51f13d25fa8cab54398711f49e208ecfb20cfda9e8dc42bf8f4b602a14bde
+  r: 'The artifact `code/utils/config.py` exists (2315 bytes) and implements path
+    and parameter configuration: project-root resolution, YAML config loading with
+    defaults, dot-key path resolution (`get_path`), and directory creation (`ensure_directories`).
+    No stubs, TODOs, or placeholders; content matches the task''s requirement.'
+  sig: 36f5ff70c480f6191ac84f29fb23626ff653d2e72a547174b7cf820c3d4e3620
+T007:
+  c: true
+  h: 1554f306a98b31bd5761356b8a177acb73303d1ca5ded41ea0c9d4ac63a6e3c2
+  r: '`code/utils/metrics.py` exists (5764 bytes) with fully implemented `pca_shift(train_features,
+    test_features, n_components=0.95)` and `key_feature_shift(train_features, test_features,
+    feature_names=...)` operating on raw feature vectors, including formula references
+    in docstrings, and no `wasserstein_dist` function. The extra ECE/Brier/Spearman
+    functions are real implementations, not stubs, and don''t conflict with the task''s
+    requirements.'
+  sig: 6c3733eff837ce73dfe2adc3f257be23010abdfb431bfbc4d6a41d775faccb6e
 T014:
   c: false
   h: d3d00afd8bfc39be0f9d0aa9e62f6ace82b303bcaefdd05526961bbf48e843d4

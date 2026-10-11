@@ -1,42 +1,25 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["venv", ".venv", "data", "figures", "docs"]
 
-[project]
-name = "calibration-drift-analysis"
-version = "0.1.0"
-description = "Quantifying Calibration Drift of Machine Learning Classifiers Over Time"
-requires-python = ">=3.11"
-dependencies = [
-    "scikit-learn",
-    "pandas",
-    "numpy",
-    "scipy",
-    "statsmodels",
-    "ruptures",
-    "requests",
-    "pyyaml",
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = [
+  "E501",  # line length handled by formatter
+  "E402",  # module-level imports after sys.path manipulation in numbered scripts
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
+[tool.ruff.lint.per-file-ignores]
+"code/0*.py" = ["E402"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = "venv|.venv|data|figures|docs"
+
+[tool.ruff.lint.isort]
+known-first-party = ["utils"]

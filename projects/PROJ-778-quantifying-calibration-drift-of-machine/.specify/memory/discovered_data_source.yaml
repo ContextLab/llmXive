@@ -1,0 +1,39 @@
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml, pandas as pd\n\nds = openml.datasets.get_dataset(1590)\
+  \  # UCI Adult dataset\ndf, *_ = ds.get_data(dataset_format='dataframe')\nprint(f\"\
+  RECORDS={len(df)}\")\ndesired = [\"year\",\"age\",\"workclass\",\"fnlwgt\",\"education\"\
+  ,\"education-num\",\"marital-status\",\"occupation\",\"relationship\",\"race\",\"\
+  sex\",\"capital-gain\"]\npresent = [c for c in desired if c in df.columns]\nif present:\n\
+  \    print(\"FIELDS=\" + \",\".join(present))"
+record_count: 48842
+sample_fields:
+- age
+- workclass
+- fnlwgt
+- education
+- education-num
+- marital-status
+- occupation
+- relationship
+- race
+- sex
+- capital-gain
+field_coverage: 0.917
+required_fields:
+- year
+- age
+- workclass
+- fnlwgt
+- education
+- education-num
+- marital-status
+- occupation
+- relationship
+- race
+- sex
+- capital-gain
+intent: OpenML repository UCI Adult and Credit Card Default yearly snapshots python
+  package dataset
+cache_key: f1971ae89dd212e3195f261a047634a555558bd1355e4ee806472ac369e6ddef
