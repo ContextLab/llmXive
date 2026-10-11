@@ -1,17 +1,57 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code/` and `tests/` directories is provided; the
-    claim lacks any artifact showing that these folders exist and contain files. The
-    implementer must create and show the directory structure.
+  c: true
+  h: 3d794b03239ef916716850617286a0b7a7f360ab3f86c61b1189de1fd8693090
+  r: "The evidence shows that the project root contains both a populated `code/` directory\
+    \ (21 entries) and a populated `tests/` directory (15 entries), as confirmed by\
+    \ the directory listing in `code/.tasks/T001.code_ensure_structure.py.log`. This\
+    \ satisfies the task\u2019s sole requirement of creating the `code/` and `tests/`\
+    \ directory structure."
+  sig: bc7c3e98215de5a95958829e543ee31c6c0e3effe4ecf1bceae6369fa171259f
 T002:
+  c: true
+  h: 6d6d38712b727973021630f4bd2f078eab02de9bd11186a467dad957c7e38208
+  r: "The evidence shows that the five required directories (`data/raw/`, `data/processed/`,\
+    \ `data/results/`, `data/logs/`, `contracts/`) exist in the project root, each\
+    \ containing a `.gitkeep` placeholder file, and the execution log from `setup_directories.py`\
+    \ confirms they were successfully created. This satisfies the task\u2019s requirement\
+    \ to establish the specified project directory structure."
+  sig: 4b2a5bab0f4583ebf29fce6c8744628e476234f47408345df757b59038a25093
+T003:
+  c: true
+  h: af82254cdd4f68751a6f307133663e05bc44874b72e64bc89505feddcb8a5cc3
+  r: "The `code/__init__.py` file exists at the expected location (`code/__init__.py`),\
+    \ is non\u2011empty (48\u202Fbytes) and contains a module docstring, satisfying\
+    \ the requirement to create the package initializer."
+  sig: eee069bfc66fbf3ab0fabacd1064416a4b37e91048135424cc231041dd7b6592
+T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `data/results/`,\
-    \ `data/logs/`, `contracts/`) is present in the provided artifacts; the implementer\
-    \ did not supply any file\u2011system listing or screenshots showing the structure.\
-    \ The task cannot be considered completed until these directories exist and are\
-    \ non\u2011empty."
+  h: f97bd445107d615d99dbf59a591c6a0d58bbf6e541529b21302fb6888fbba89f
+  r: "The `requirements.txt` file is present, but it lists the required packages without\
+    \ any version pins (e.g., `requests` instead of `requests==X.Y.Z`) and adds unrelated\
+    \ tooling entries, violating the task\u2019s explicit demand for a pinned\u2011\
+    version requirements file."
+  sig: 1035668b4c5a2b186d89c0d25fc1512fcca07d8a2b77cc696418999ba9cfc178
+T005:
+  c: false
+  h: c59c06ba51042cdff8bafdca7b57dec68842ce3419337e13dda7a953991d9472
+  r: "The only artifact provided is the `requirements.txt` file; there is no evidence\
+    \ of a created virtual environment (e.g., a `venv/` directory, activation scripts,\
+    \ or a `pyproject.toml`/`Pipfile.lock`) nor any proof that the listed dependencies\
+    \ were installed (e.g., `pip freeze` output, installation logs, or a test import\
+    \ script). The task\u2019s core requirement\u2014creating a virtual environment\
+    \ and installing the dependencies\u2014is therefore unmet."
+  sig: 5c5981740a4d75e479ae79d5fdc38fd457a868869acf600be3654a29672a1f56
+T006:
+  c: true
+  h: 9338f6424d8ea3af7b6282b3711b68a04f0453f94d3d744e8b8295baf7822517
+  r: "Checked the `contracts/dataset.schema.yaml` file (3634\u202Fbytes) which defines\
+    \ a JSON\u2011Schema with the required fields `star_id`, `flare_count`, `radius`,\
+    \ `mass`, `semi_major_axis`, `density`, and `age` (all with appropriate types\
+    \ and constraints) and references `data/processed/merged_filtered.csv`. The presence\
+    \ of additional optional properties does not violate the task, which only required\
+    \ the schema for the listed columns. The missing CSV is not part of this task\u2019\
+    s deliverable."
+  sig: 9c9d316c6a00728342ced1ef750779badd52e045808018f21854a22fa46f71ff
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

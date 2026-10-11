@@ -1,0 +1,13 @@
+status: none
+intent: download MAST TESS flare catalog and NASA Exoplanet Archive dataset python
+  package dataset
+required_fields:
+- star_id
+- flare_count
+- planet_radius
+- planet_mass
+- semi_major_axis
+- host_density
+cache_key: d7897fcabc6cea256d2e8be731fd7b588d5c40ebd52a702d1db2a5db80c3ca5f
+searched_at: '2026-10-11T09:20:14.630363+00:00'
+retry_count: 1
