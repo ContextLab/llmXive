@@ -1,17 +1,1 @@
-# Core dependencies (already available in the runner)
-numpy
-pandas
-scikit-learn
-xgboost
-matplotlib
-seaborn
-scipy
-statsmodels
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional packages required for the UQ pipeline
-torch==2.2.0
+python-dotenv==1.0.0

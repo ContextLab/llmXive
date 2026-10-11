@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/aflow/aflow
   verified_at: '2026-10-11T13:29:12.116147Z'
-- artifact_hash: a480badd2ef235cafa8bac653a1dcf8b8a1ad8ff89fa9adcda165d669eba7641
+- artifact_hash: f320403eb955c93598fd3990ff9fdf0e21a2ea793d54597bbbe58896f548a923
   artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv
-  verified_at: '2026-10-11T13:42:19.322522Z'
-- artifact_hash: a480badd2ef235cafa8bac653a1dcf8b8a1ad8ff89fa9adcda165d669eba7641
+  verified_at: '2026-10-11T14:13:19.955064Z'
+- artifact_hash: f320403eb955c93598fd3990ff9fdf0e21a2ea793d54597bbbe58896f548a923
   artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv
-  verified_at: '2026-10-11T13:42:19.322522Z'
-- artifact_hash: a480badd2ef235cafa8bac653a1dcf8b8a1ad8ff89fa9adcda165d669eba7641
+  verified_at: '2026-10-11T14:13:19.955064Z'
+- artifact_hash: f320403eb955c93598fd3990ff9fdf0e21a2ea793d54597bbbe58896f548a923
   artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://raw.githubusercontent.com/aflow/aflow-data/master/thermal_conductivity.csv`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/aflow/aflow-data/master/thermal_conductivity.csv
-  verified_at: '2026-10-11T13:42:19.322522Z'
+  verified_at: '2026-10-11T14:13:19.955064Z'

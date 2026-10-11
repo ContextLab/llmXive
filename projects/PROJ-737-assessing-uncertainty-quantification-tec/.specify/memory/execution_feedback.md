@@ -11,11 +11,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 28, in <module>
     from pipeline import main as pipeline_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 27, in <module>
-    from config import get_config
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/config.py", line 11, in <module>
-    from dotenv import load_dotenv
-ModuleNotFoundError: No module named 'dotenv'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/pipeline.py", line 21, in <module>
+    from models.mc_dropout import run_mc_dropout, main as mc_dropout_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/models/mc_dropout.py", line 20, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 
 ## Declared deliverables still missing
