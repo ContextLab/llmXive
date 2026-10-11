@@ -1,3 +1,35 @@
+T001:
+  c: false
+  h: 9f48b54a6553c731fa40f500ac6463fd7067d6e778c208e012e757d6de86a1fb
+  r: "The directory tree itself was created (all listed directories exist per the\
+    \ collector), and the execution log shows the script ran with exit 0 and claims\
+    \ it wrote `logs/structure.txt`. However, the collector's artifact evidence includes\
+    \ no entry for `logs/` or `logs/structure.txt` \u2014 the required snapshot file\
+    \ is not confirmed to exist on disk, and it is the task's key verification artifact\
+    \ (must be non-empty and grep-able for each listed directory). The next implementer\
+    \ should ensure `logs/structure.txt` is actually present and contains the `tree\
+    \ -a -L 3` output covering all 14 directories."
+  sig: 43974dde57c7675d335877c8f34e8e36bf4ac6f025576ee0d3cd50b00099ddcb
+T002:
+  c: false
+  h: d53495191c017721c04a8dca6bdec8811284448a11a8aede174d1f6d96e185e0
+  r: The README.md exists with the exact required title and a one-sentence description,
+    but the `.gitignore` file is absent from the evidence (no resolved path or content
+    shown), so the `test -s .gitignore` verification cannot pass. The implementer
+    must add a non-empty `.gitignore` with standard Python ignores at the project
+    root.
+  sig: 56fd325f2b9cb043192630949b7276ad7bf798ffb3d660b3a1e3bcc5b11b5013
+T003:
+  c: false
+  h: 7dacf45942ca5768ea558f20ca3c545b5d22225065edf3dab7b9a33771387757
+  r: "The captured `logs/lint.txt` shows both commands failing: `ruff check .` exited\
+    \ with status 2 due to an unparseable `.ruff.toml` (unknown field `tool`), and\
+    \ `black --check .` exited with status 1 with 46 files needing reformatting \u2014\
+    \ the task requires both to exit 0. The pyproject.toml configuration itself is\
+    \ reasonable, but the verification requirement is not met; the implementer must\
+    \ fix/remove the conflicting `.ruff.toml`, format the codebase (or adjust excludes),\
+    \ and re-run both tools to exit 0 with output captured in `logs/lint.txt`."
+  sig: 2cadcaed26bfd1d63a2971832beb1bb18a0a07096a9c8b95d90dc8f9995ef134
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d

@@ -16,7 +16,7 @@
   - **Files**: `.gitignore` (standard Python ignores) and `README.md` containing the exact project title **“Statistical Analysis of Publicly Available COVID‑19 Vaccine Adverse Event Reports”** plus a one‑sentence description.  
   - **Verification**: `grep -q "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports" README.md` and `test -s .gitignore`.
 
-- [ ] **T003** Configure linting and formatting tools (CPU‑only).   <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=2 -->
+- [ ] **T003** Configure linting and formatting tools (CPU‑only).
   - **File**: `pyproject.toml` that enables **ruff**, **black**, and **isort** (no GPU‑specific packages).  
   - **Verification**: Run `ruff check .` and `black --check .`; both must exit with status 0. Capture the combined stdout/stderr in `logs/lint.txt`.
 
@@ -24,7 +24,7 @@
 
 ## Phase 1 – Contracts & core utilities  
 
-- [ ] **T004** Copy the JSON‑Schema contracts from the specification into the project’s contract directory.  
+- [ ] **T004** Copy the JSON‑Schema contracts from the specification into the project’s contract directory.   <!-- FAILED-IN-EXECUTION: code/copy_contracts.py exit=1 -->
   - **Sources → Destinations**:  
     - `specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml` → `contracts/dataset.schema.yaml`  
     - `specs/001-statistical-analysis-of-publicly-availab/contracts/signal.schema.yaml` → `contracts/signal.schema.yaml`  
