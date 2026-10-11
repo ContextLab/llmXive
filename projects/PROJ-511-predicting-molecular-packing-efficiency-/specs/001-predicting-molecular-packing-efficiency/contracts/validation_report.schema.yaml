@@ -32,6 +32,7 @@ properties:
     required:
       - n_shuffles
       - p_value
+      - actual_shuffles
   bonferroni_correction:
     type: "object"
     properties:

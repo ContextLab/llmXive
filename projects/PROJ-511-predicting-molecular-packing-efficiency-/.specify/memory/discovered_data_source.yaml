@@ -1,11 +1,14 @@
 status: none
-intent: Crystallography Open Database organic molecules SMILES packing coefficient
-  python package dataset
+intent: Crystallography Open Database organic molecules CIF download python package
+  dataset
 required_fields:
 - cif_id
 - smiles
 - packing_coefficient
 - generated_flag
-cache_key: a1e9d4243bc6121eaae55b0a471da3065e670f54cb3f1a485c879a19d455c28d
-searched_at: '2026-09-03T18:50:50.504183+00:00'
+- unit_cell_volume
+- lattice_system
+- solvent_flag
+cache_key: 49e530b83c5219104d667dcaa43aae9dbb0613cd5e91e8ed258ff92ae8ee15df
+searched_at: '2026-10-11T06:10:30.003538+00:00'
 retry_count: 1

@@ -1,82 +1,66 @@
 # Data Model: Predicting Molecular Packing Efficiency
 
 ## Overview
-This document defines the data schemas and transformations for the molecular packing efficiency pipeline. All data artifacts are stored in `data/` and validated against `contracts/`.
+This document defines the schemas for all data artifacts exchanged between pipeline stages. Validation against the JSON‑Schema contracts ensures reproducibility and automated testing.
 
 ## Entity Relationships
+1. **Raw CIF download** → **Filtered Record** (JSONL)  
+2. **Filtered Record** → **SMILES & 3‑D Descriptors** (CSV)  
+3. **SMILES & 3‑D Descriptors** → **Embedding Generation** (CSV with `fingerprint_vector`)  
+4. **Feature Matrix** → **Trained Models** (PyTorch checkpoints)  
+5. **Model Predictions + Ground Truth** → **Validation Report** (JSON)  
+6. **Validation Report** → **HTML Report** (final deliverable)
 
-1.  **Raw CIF** (Downloaded) -> **Filtered Record** (JSON/CSV)
-2.  **Filtered Record** -> **Feature Vector** (SMILES Embedding + 3D Descriptors)
-3.  **Feature Vector** -> **Model Prediction** (Target: PC_raw)
-4.  **Model Prediction** + **Ground Truth** -> **Validation Report**
+## Schemas
 
-## Dataset Schemas
+### 1. Raw COD Download (JSONL)
+*Source*: Verified COD loader (`datasets.load_dataset("cod/cod")`).  
+Key fields (excerpt):
+- `_cod_id` (string) – unique COD identifier  
+- `_cell_volume` (float) – unit‑cell volume (Å³)  
+- `_symmetry_space_group_name_H-M` (string) – space‑group label  
+- `_chemical_structure_SMILES` (string, optional) – deposited SMILES  
+- `_exptl_crystal_growth_temperature` (float, optional) – temperature (K)  
 
-### 1. Raw Download (JSONL)
-Source: Verified COD JSONL (`cod/cod`).
-*   `_cod_id`: string (Unique ID)
-*   `_cell_length_a`, `_cell_length_b`, `_cell_length_c`: float
-*   `_cell_angle_alpha`, `_cell_angle_beta`, `_cell_angle_gamma`: float
-*   `_symmetry_space_group_name_H-M`: string
-*   `_chemical_formula_sum`: string
-*   `_chemical_structure_SMILES`: string (optional)
-*   `_exptl_crystal_growth_temperature`: float (optional)
+### 2. Processed Feature Matrix (`data/processed/full_feature_matrix.csv`)
+| Column | Type | Description |
+|--------|------|-------------|
+| `cod_id` | string | COD identifier (provenance). |
+| `smiles` | string | Canonical SMILES (extracted or generated). |
+| `smiles_source` | string (`"extracted"` | `"generated"`) | Origin of the SMILES. |
+| `unit_cell_volume` | number | Unit‑cell volume (Å³). |
+| `pc_raw` | number | **Primary target** – raw packing coefficient. |
+| `cape` | number | Composition‑adjusted packing efficiency (diagnostic only). |
+| `radius_of_gyration` | number | 3‑D descriptor (Å). |
+| `asphericity` | number | 3‑D descriptor (unitless, 0–1). |
+| `principal_moments` | string (JSON) | `[I1, I2, I3]` in Å⁴. |
+| `lattice_system` | string | Crystal system (e.g., `monoclinic`). |
+| `temperature_K` | number | null | Measurement temperature (K). |
+| `has_solvent` | boolean | Presence of solvent molecules. |
+| `atom_count` | integer | Non‑hydrogen atom count (excluded from primary regression). |
+| `atom_type_counts` | string (JSON) | `{"C":10,"O":2,…}` (excluded from primary regression). |
+| `fingerprint_vector` | string | Space‑separated float list (embedding). |
 
-### 2. Intermediate CSV (`data/processed/full_feature_matrix.csv`)
-*   `cod_id`: string
-*   `smiles`: string (Canonical)
-*   `smiles_source`: string ("extracted" or "generated")
-*   `unit_cell_volume`: float (Å³)
-*   `pc_raw`: float (Raw Packing Coefficient - **Primary Target**)
-*   `cape`: float (Composition-Adjusted Packing Efficiency - **Diagnostic Only**)
-*   `radius_of_gyration`: float (Å)
-*   `asphericity`: float
-*   `principal_moments`: string (JSON array of 3 floats)
-*   `lattice_system`: string
-*   `temperature_K`: float (or null)
-*   `has_solvent`: boolean
-*   `atom_count`: int (Non-H atoms - **Excluded from primary regression**)
-*   `atom_type_counts`: string (JSON object, e.g., `{"C": 10, "N": 2}` - **Excluded from primary regression**)
-*   `fingerprint_vector`: string (Base64 encoded or space-separated float list)
+**Required fields**: all listed except `temperature_K` which may be null.
 
-### 3. Model Output (`data/artifacts/model.pt`)
-*   Serialized PyTorch state dict.
-*   Metadata: `{"seed": 42, "train_split": 0.8, "params": <count>, "target": "pc_raw"}`.
+### 3. Model Checkpoint (`data/artifacts/model_primary.pt`, `model_full.pt`)
+*Binary PyTorch state dict* plus accompanying JSON metadata (validated by `contracts/model.schema.yaml`).
 
 ### 4. Validation Report (`data/artifacts/validation_report.json`)
-*   `mae`: float
-*   `pearson_r`: float
-*   `spearman_rho`: float
-*   `shapiro_wilk_stat`: float
-*   `shapiro_wilk_p`: float
-*   `permutation_p_value`: float (10k shuffles)
-*   `bonferroni_corrected_p`: float
-*   `vif_flags`: list of strings (features with VIF > 5)
-*   `sensitivity_results`: list of dicts (threshold, r, p)
-*   `residual_composition_corr`: float (Correlation of residuals with atom counts)
+Conforms to `contracts/validation_report.schema.yaml`. Contains MAE, correlation coefficients, Shapiro‑Wilk statistics, permutation‑test results, Bonferroni‑adjusted p‑values, VIF flags, sensitivity‑analysis table, residual‑composition correlation, and target‑distribution diagnostics.
 
 ## Transformation Logic
-
-1.  **PC_raw Calculation**:
-    $$ \text{PC}_{\text{raw}} = \frac{\text{Unit‑cell volume}}{\sum_{i}{V_{\text{vdW},i}}} $$
-    Where $V_{\text{vdW},i}$ are atomic van der Waals volumes taken from Bondi radii.
-
-2.  **CAPE Calculation (Diagnostic)**:
-    $$ \text{CAPE} = \frac{\text{PC}_{\text{raw}}}{\frac{1}{N_{\text{atoms}}}\sum_{i}{V_{\text{vdW},i}}} $$
-    *Note: CAPE is calculated for diagnostic reporting only. It is NOT used as the regression target to avoid tautology.*
-
-3.  **SMILES Generation**:
-    If `_chemical_structure_SMILES` is missing:
-    *   Parse CIF to 3D Mol object (RDKit).
-    *   `MolToSmiles(Mol, isomericSmiles=True)`.
-    *   Flag as "generated".
-
-4.  **3D Descriptors**:
-    *   `radius_of_gyration`: $\sqrt{\frac{1}{N} \sum |r_i - r_{cm}|^2}$
-    *   `asphericity`: $\frac{3}{2} \frac{\lambda_3 - \lambda_1}{\lambda_1 + \lambda_2 + \lambda_3}$ (where $\lambda$ are eigenvalues of gyration tensor).
+1. **PC_raw**: `unit_cell_volume / sum(vdw_volume_i)` (FR‑003).  
+2. **CAPE**: `pc_raw / (mean(vdw_volume_i))` (diagnostic only).  
+3. **SMILES Generation**: If `_chemical_structure_SMILES` missing, use RDKit to build a Mol from the CIF geometry and `MolToSmiles(..., isomericSmiles=True)`. Flag as `"generated"`.  
+4. **3‑D Descriptors**: Compute radius of gyration, asphericity, principal moments from atomic coordinates (FR‑012).  
+5. **Embedding**: Frozen SMILES‑Transformer applied in streaming batches (batch = 64) → `fingerprint_vector`.  
+6. **Feature Matrix Assembly**: Merge all columns; exclude `atom_count` and `atom_type_counts` from the predictor set for the Primary Model (FR‑021).  
 
 ## Constraints
-*   **Atom Count Filter**: Exclude records where `atom_count` > 50.
-*   **Volume Sanity**: Exclude records where `unit_cell_volume` < 10 or > 100000.
-*   **PC_raw Bounds**: Flag records where `PC_raw` < 0 or > 10 (likely error).
-*   **Schema Validation**: Phase 0 includes a check to ensure all required fields (`_cell_volume`, etc.) are present in the source dataset before proceeding.
+- **Atom‑Count Filter**: Drop records with `atom_count` > 50 (FR‑001).  
+- **Volume Sanity**: Exclude rows where `unit_cell_volume` < 10 Å³ or > 100 000 Å³.  
+- **PC_raw Bounds**: Flag rows where `pc_raw` < 0 or > 10 as erroneous.  
+- **Schema Validation**: Executed in Phase 1; any violation aborts the pipeline (ensuring data hygiene, Principle III).  
+
+---

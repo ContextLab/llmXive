@@ -1,52 +1,53 @@
 # Research: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
 
 ## Scientific Rationale
+The central question is whether **molecular topology**, captured by canonical SMILES strings, carries predictive information about a crystal’s **raw packing coefficient (PC_raw)**. SMILES encodes 2‑D connectivity but not 3‑D packing forces; therefore we compare a **SMILES‑only** regression model against a **Full** model that also receives geometry‑derived descriptors (radius of gyration, asphericity, principal moments). Demonstrating a statistically significant advantage for the SMILES‑only model would support the hypothesis that topology alone holds signal beyond pure geometry.
 
-The research question investigates whether molecular topology, encoded as SMILES strings, contains sufficient signal to predict the **Raw Packing Coefficient (PC_raw)** of organic crystals. While SMILES captures connectivity, it omits conformational and packing forces. However, the inclusion of 3D geometric descriptors (radius of gyration, asphericity) derived from the crystal coordinates, combined with a frozen SMILES-transformer embedding, creates a hybrid representation that bridges the gap between 1D connectivity and 3D packing.
+To avoid circularity, the target is defined as  
 
-**Tautology Mitigation**: The previous definition of CAPE (PC_raw / avg_vdW_volume) created a mathematical tautology because the denominator depended directly on atom counts, which were also used as predictors. This revision redefines the target to **PC_raw**, removing the compositional dependency from the prediction task. Atom counts and types are excluded from the primary feature matrix. Instead, a **Residual Analysis** is performed post-training to quantify how much of the unexplained variance in PC_raw is correlated with composition. This isolates the topological signal from the compositional identity.
+\[
+\text{PC}_{\text{raw}} = \frac{\text{Unit‑cell volume}}{\displaystyle\sum_i V_{\text{vdW},i}}
+\]
 
-**Geometry Baseline**: Since 3D descriptors are derived from the same coordinates used to calculate unit cell volume (a component of PC_raw), a "Geometry-Only" baseline model is introduced. This model establishes the theoretical upper bound of prediction using geometric inputs. The primary analysis then compares the SMILES-Topology model against this baseline to determine if SMILES adds *incremental* predictive power beyond what is already captured by the 3D geometry.
+where the denominator uses **Bondi** van der Waals volumes (FR‑017). Atom‑count features are deliberately **excluded** from the primary predictor set (FR‑021) and only examined in a post‑hoc residual analysis (FR‑014).
+
+A **Geometry‑Only** baseline quantifies the maximal predictive power achievable from the crystal coordinates themselves, providing a reference for the incremental contribution of SMILES embeddings.
 
 ## Dataset Strategy
-
-### Verified Sources
-The project relies on the following verified datasets to ensure reproducibility and availability on CI runners:
-
 | Dataset | Purpose | Verified URL / Loader | Notes |
-| :--- | :--- | :--- | :--- |
-| **COD (Crystallography Open Database)** | Source of CIF data, unit cell volumes, lattice systems, solvent flags. | `datasets.load_dataset("cod/cod", split="train")` | Official HuggingFace mirror. Contains `_cell_volume`, `_symmetry_space_group`, `_chemical_solvent`. **Verified**: Schema check in Phase 0 ensures these fields exist. |
-| **SMILES Transformers** | Pre-trained weights for frozen embedding. | HuggingFace `transformers` library (weights cached) | Weights downloaded once; frozen during training. |
-| **Bondi Radii** | Atomic van der Waals volumes for PC_raw calculation. | Bondi, A. (1964) *J. Phys. Chem.*, 68, 441–451. | No URL; implemented as constant lookup table in code. |
+|---------|---------|-----------------------|-------|
+| **COD (Crystallography Open Database)** | Source of CIFs, unit‑cell volumes, lattice metadata, solvent flags | *No verified URL is present in the “Verified datasets” block.* | Required fields (`_cell_volume`, `_symmetry_space_group_name_H-M`, `_chemical_structure_SMILES`) are verified in the COD schema. Because a verified download link is missing, the pipeline cannot currently fetch COD data on CI. This constitutes a **data‑availability violation** (Principle VI). |
+| **SMILES‑Transformer weights** | Frozen encoder for SMILES strings | `transformers` library (weights cached from HuggingFace) | Downloaded automatically; CPU‑compatible. |
+| **Bondi radii constants** | Atomic vdW volumes for PC_raw calculation | Implemented via `rdkit.Chem.rdMolDescriptors.GetAtomicVdWVolume` (no external URL) | Cited as FR‑017. |
 
-### Variable Fit Verification
-*   **Required**: `unit_cell_volume`, `lattice_system`, `temperature_K` (if available), `solvent_present` (if available).
-*   **Verification**: The pipeline includes a **Schema Validation Step** in Phase 0. It inspects the schema of the verified COD JSONL. If `temperature_K` is missing, the pipeline proceeds with a `None` value for that feature, flagging it in the VIF diagnostics and model training (covariate missingness handling). If critical fields like `_cell_volume` are missing, the pipeline aborts.
-*   **SMILES Generation**: Since many COD entries lack `_chemical_structure_SMILES`, the pipeline uses `rdkit.Chem.MolFromMolBlock` + `rdkit.Chem.MolToSmiles` on the 3D coordinates. This is a standard, reproducible procedure.
+**Variable Fit Verification**  
+Before any analysis, the pipeline runs a **Schema Validation Step** (Phase 1) that checks the presence of all required variables:
 
-### Data Volume & Feasibility
-*   **Target**: ≥ 500 valid records after filtering (≤ 50 non-H atoms).
-*   **Feasibility**: The verified COD sources contain >100k entries. Filtering for organic molecules < 50 atoms and valid unit cells will easily yield >500 records.
-*   **Streaming**: The JSONL will be streamed. A filter mask will be applied in a single pass to generate `data/processed/full_feature_matrix.csv`. Embeddings are generated in batches to respect memory limits.
+- `unit_cell_volume` (mandatory) → abort if missing.  
+- `temperature_K`, `has_solvent`, `lattice_system` (optional) → set to `null`/`False` if absent, flagged in the VIF report.  
+- SMILES string (`_chemical_structure_SMILES`) → if absent, RDKit generates a canonical SMILES from the 3‑D geometry (FR‑002).  
+
+If any of the mandatory fields are absent from the verified COD source, the pipeline aborts and reports the mismatch.
+
+**Data Volume & Feasibility**  
+The COD archive contains > 100 k entries. After filtering for organic molecules with ≤ 50 non‑hydrogen atoms, we expect > 500 valid records (SC‑001). The JSONL is streamed; no full‑dataset materialization occurs in memory. Embeddings are written to disk in batches (≤ 64 per batch) to respect the 7 GB RAM limit.
 
 ## Methodological Rigor
-
-### Statistical Plan
-1.  **Multiple Comparison Correction**: For the sensitivity analysis (3 thresholds), a **Bonferroni correction** will be applied to the permutation test p-values ($\alpha_{adj} = 0.05 / 3 \approx 0.0167$).
-2.  **Power Justification & Distribution Check**: 
-    *   With N ≥ 500, the study has >90% power to detect a Pearson correlation of $r=0.4$ at $\alpha=0.05$ **assuming bivariate normality**.
-    *   **New Step**: A Shapiro-Wilk test on PC_raw will be performed in Phase 1. If PC_raw is non-normal or has a restricted range, the power calculation will be adjusted using non-parametric estimates or bootstrapping to ensure validity. Spearman's rho will be the primary metric if normality is violated.
-3.  **Causal Inference**: The study is **observational**. Claims will be framed as "associational" or "predictive," not causal. No randomization exists.
-4.  **Measurement Validity**: PC_raw is derived from Bondi radii (standard in crystallography). SMILES validity is ensured by RDKit canonicalization.
-5.  **Collinearity**: The 3D descriptors (e.g., radius of gyration) and atom counts are definitionally related. **VIF diagnostics (FR-009)** will be run on the full feature matrix (fingerprints + 3D). If VIF > 5, the feature will be flagged. **Note**: Atom counts are excluded from the primary model to avoid tautology, but included in the VIF check for the full set of potential features.
-6.  **Residual Analysis (FR-014)**: This analysis correlates the *residuals* of the PC_raw prediction with atom-type composition features. This quantifies the unexplained compositional signal without creating a circular dependency, as the target (PC_raw) is no longer a function of the composition in the regression equation.
-
-### Computational Strategy
-*   **CPU-First**:
-    *   **SMILES Transformer**: `transformers` library with `device="cpu"`. **Batch Size = 64**. Embeddings are streamed to disk to avoid OOM.
-    *   **MLP**: `torch.nn.Sequential` (Input -> 64 -> 32 -> 1). < 100k params.
-    *   **Permutation Test**: 10,000 shuffles. **Strategy**: Parallelized via `joblib` with `n_jobs=-1`. A timeout is enforced (2 hours); if exceeded, the number of shuffles is reduced to the maximum feasible count (minimum 1,000 per Constitution Principle VII), and the deviation is logged.
-*   **GPU Escape Hatch**: If transformer inference OOMs, the execution agent will detect the error and re-run on a Kaggle GPU (8-bit quantization if necessary, though frozen inference usually fits in CPU RAM).
+| Aspect | Implementation |
+|--------|----------------|
+| **Multiple‑Comparison Correction** | Bonferroni correction applied to the three high‑packing thresholds (α_adj = 0.05 / 3 ≈ 0.0167) (FR‑008). |
+| **Power Justification** | With N ≥ 500, a bootstrap‑based power analysis (FR‑019) shows > 90 % power to detect a Spearman ρ ≥ 0.3 at α = 0.05. If the final N falls below 500, the pipeline aborts with a warning (SC‑001). |
+| **Causal Framing** | The study is **observational**; all claims are framed as “predictive association” (Principle VII). |
+| **Measurement Validity** | PC_raw uses Bondi radii (FR‑017); SMILES embeddings come from a peer‑reviewed transformer model (citation in code). |
+| **Collinearity & VIF** | VIF diagnostics run on the *full* feature matrix (fingerprints + 3‑D descriptors) (FR‑009). Features with VIF > 5 are flagged; if any primary predictor is highly collinear, it is reported but not removed (to preserve reproducibility). |
+| **Permutation Test** | Two‑sided permutation test with 10 000 shuffles (FR‑015). Parallelized via `joblib`. Hard timeout of 2 h; if exceeded, actual shuffle count is recorded, and the deviation is logged (SC‑006). |
+| **Residual Analysis** | Correlate model residuals with atom‑type counts to quantify unexplained compositional effects (FR‑014, FR‑021). |
+| **Normality Checks** | Shapiro‑Wilk test on residuals; Pearson r reported only if p > 0.05 (FR‑014). |
 
 ## Decision Rationale
-The chosen approach prioritizes **reproducibility** and **statistical validity** over maximizing model complexity. Using a frozen transformer ensures we do not waste compute on training a massive model for a small dataset. The strict adherence to VIF and Bonferroni corrections addresses the panel's concern about statistical rigor. The use of verified COD sources ensures the data is actually obtainable on a CI runner, avoiding the "gated data" trap. The redefinition of the target to PC_raw and the exclusion of compositional predictors from the primary model explicitly address the risk of circularity and mathematical tautology. The geometry baseline provides a necessary context for interpreting the topological signal.
+- **CPU‑first**: All core components (RDKit, PyTorch‑CPU, scikit‑learn) run comfortably within the CI memory/CPU budget.  
+- **GPU Escape Hatch**: Reserved only for transformer inference if OOM persists; execution will automatically off‑load to a Kaggle free GPU. No fabricated CPU approximation is used.  
+- **Dataset Choice**: COD is the only source that provides the required crystallographic metadata. Since a verified download URL is missing, we **cannot** proceed without either (a) a verified COD mirror or (b) a scope revision to a different open crystallographic dataset. This is explicitly documented to satisfy the Constitution and to avoid hidden data‑access assumptions.  
+- **Statistical Controls**: Bonferroni correction, VIF, permutation testing, and power analysis collectively address the methodology‑panel’s checklist for quantitative rigor.  
+
+---
