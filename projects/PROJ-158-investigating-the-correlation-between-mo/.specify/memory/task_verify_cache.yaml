@@ -1,14 +1,54 @@
 T001:
+  c: true
+  h: 296e2759d11dd0ad4daf26ace0ae71bf9e2c00a4efebfa75da3f2fbcd535e02f
+  r: The execution log shows `code/setup_project.py` exited 0 and created all eight
+    required directories (`code/data`, `code/models`, `code/analysis`, `code/utils`,
+    `data/raw`, `data/processed`, `results`, `tests`) plus the four `__init__.py`
+    files in the `code/` subdirectories, with verification passing. The collector's
+    directory listing of `code/` confirms the subdirectories and `__init__.py` currently
+    exist on disk, matching the task's requirements.
+  sig: 57fac49aedf06e7b4c2194f52d5037a7f1de9d8f561c241199b08e2d800f9601
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or `__init__.py` files are presented in the evidence; the\
-    \ required `code/data`, `code/models`, `code/analysis`, `code/utils`, `data/raw`,\
-    \ `data/processed`, `results`, and `tests` folders (with empty `__init__.py` in\
-    \ each `code/` subdirectory) are not shown, so the task\u2019s structural requirement\
-    \ is not satisfied."
+  h: ee36b35f76be1d65df3adc1aa89c5b216405b722e9362f4e516896491592c303
+  r: The `code/requirements.txt` exists but pins `pandas==2.1.3` and `rdkit==2023.9.4`,
+    contradicting the task's required `pandas==2.1.4` and `rdkit==2023.9.5`. Additionally,
+    there is no evidence (log/output) that `pip install -r code/requirements.txt --dry-run`
+    was executed to verify the installation.
+  sig: 6381f038e5d0cd819654680714f31a25b10166003590008425dd1ac0b979f06a
 T003:
+  c: true
+  h: 243fbdd7205c897a3b71a630470d16a8edd62d91b9e38189eba335f423273894
+  r: 'Both required files exist and are non-empty with substantive, coherent configuration:
+    `.ruff.toml` sets target-version, line-length, lint rule selections/ignores, isort
+    and per-file-ignores, and `pyproject.toml` includes a `[tool.black]` section (line-length
+    100, py311, standard excludes) plus consistent project metadata and dev dependencies
+    for ruff/black.'
+  sig: 58bd1de2c5672afc95595f2f82469979610cffbeebaaf47ae29f0de5985bfb01
+T004:
+  c: true
+  h: af3d15e81401be9cf211f30d353b6062bbe9a92745a3e1f0ea98009043b26701
+  r: The file `code/utils/config.py` exists (1941 bytes) and defines `SEED = 42`,
+    `DEVICE = "cpu"` (forced CPU), and a full set of path constants (ROOT, DATA_DIR,
+    RESULTS_DIR, etc.) plus helper functions, matching the task's requirements. The
+    checksum placeholder comment is a minor note but not part of this task's scope.
+  sig: 9b6845813acb3dcc42ce5d856bb8d8685654b5d19f8f15a890e51f3076a217fb
+T005:
   c: false
-  h: 07f4767b92262fdc29b30c2db02cda5df758ab18ef32aaa711860fb621e97942
-  r: The `pyproject.toml` with a Black configuration is present, but the required
-    `.ruff.toml` file is missing entirely, so the linting tool is not configured as
-    specified. The task therefore is not fully satisfied.
+  h: 43676873f41c96f30468a3e156f856f5d42d7bd4d43aaa89ce03c766df21a118
+  r: "`code/utils/logger.py` exists and mostly matches the requirement (file + stdout\
+    \ handlers, `code/logs/app.log`), but it references `sys.stdout` in the console\
+    \ handler without importing `sys`, so calling `setup_logger()` raises a `NameError`\
+    \ \u2014 the function cannot actually run. Fix by adding `import sys` (or using\
+    \ `logging.StreamHandler()` defaulting to stderr/stdout)."
+  sig: 7f1e0d065458836c622f73ac0498f14fbd6ed735a5b38b5c35cf2e6743fef2f1
+T006:
+  c: true
+  h: a703c470d95ad3a7c41010b763d1021b2ef19a6e38cfad5f14950faf0c0f9603
+  r: '`code/utils/data_loader.py` exists (919 bytes) and defines both required functions
+    with the correct signatures: `load_csv(path) -> pd.DataFrame` (with existence
+    check and `pd.read_csv`) and `save_csv(df, path) -> None` (with parent-directory
+    creation and `df.to_csv`). The `utils.logger` dependency it imports is present
+    at `code/utils/logger.py` (a minor `sys.stdout` bug in the logger is outside this
+    task''s scope), and the content is real implementation, not a stub.'
+  sig: c71af06091823cdb40e55a301a2fb92a240b003362ba725f9274d2d8839c600d

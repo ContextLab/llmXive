@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure: Execute `mkdir -p code/data code/models code/analysis code/utils data/raw data/processed results tests` and create empty `__init__.py` files in each `code/` subdirectory.
-- [X] T002 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_82eda097 — status=not_enough_info] project: Create `code/requirements.txt` with pinned versions for `{{claim:c_dc22c00d}} `, `torch-geometric==2.4.0 [UNRESOLVED-CLAIM: c_064d5aca — status=not_enough_info] `, `{{claim:c_22d5dbc4}} `, `scikit-learn==1.3.2 [UNRESOLVED-CLAIM: c_846c8cb5 — status=not_enough_info] `, `{{claim:c_f4e6ec6d}} `, `{{claim:c_f954c24c}} `, `{{claim:c_8d0fe271}} `. Verify installation with `pip install -r code/requirements.txt --dry-run`. Ensure the environment uses Python. <!-- FAILED: unspecified -->
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` (for black) with standard configuration.
+- [X] T001 Create project structure: Execute `mkdir -p code/data code/models code/analysis code/utils data/raw data/processed results tests` and create empty `__init__.py` files in each `code/` subdirectory.
+- [ ] T002 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_82eda097 — status=not_enough_info] project: Create `code/requirements.txt` with pinned versions for `torch==2.1.0 `, `torch-geometric==2.4.0 [UNRESOLVED-CLAIM: c_064d5aca — status=not_enough_info] `, `rdkit==2023.9.5 `, `scikit-learn==1.3.2 [UNRESOLVED-CLAIM: c_846c8cb5 — status=not_enough_info] `, `pandas==2.1.4 `, `pyyaml==6.0.1 `, `requests==2.31.0 `. Verify installation with `pip install -r code/requirements.txt --dry-run`. Ensure the environment uses Python. <!-- FAILED: unspecified -->
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` (for black) with standard configuration.
 
 ---
 
@@ -58,10 +58,10 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [X] T004 [P] Implement `code/utils/config.py`: Define `SEED`, `DEVICE` (force 'cpu'), and path constants.
-- [X] T005 [P] Implement `code/utils/logger.py`: Define `setup_logger()` returning a logger that writes to `code/logs/app.log` and stdout.
+- [ ] T005 [P] Implement `code/utils/logger.py`: Define `setup_logger()` returning a logger that writes to `code/logs/app.log` and stdout.
 - [X] T006 [P] Implement `code/utils/data_loader.py`: Define `load_csv(path: str) -> pd.DataFrame` and `save_csv(df: pd.DataFrame, path: str) -> None`.
-- [X] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
-- [X] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3, backoff_factor=2)` for exponential backoff.
+- [~] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
+- [~] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3, backoff_factor=2)` for exponential backoff.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,13 +75,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [X] T009 [US1] Implement `code/data/download.py` (Download Only):
+- [~] T009 [US1] Implement `code/data/download.py` (Download Only):
  1. Download `dssc_dataset.csv` from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127, DOI: 10.5281/zenodo.4921127) to `data/raw/dssc_dataset.csv`.
  2. Implement retry logic with exponential backoff on failure.
  3. On failure after retries, fail gracefully with a clear error message indicating the source URL and expected format.
  4. Do NOT perform checksum verification in this task; ensure file is written to disk.
  5. This task must complete successfully before T010 can run.
-- [X] T010 [US1] Implement `code/data/download.py` (Verification):
+- [~] T010 [US1] Implement `code/data/download.py` (Verification):
  1. Read the file `data/raw/dssc_dataset.csv` (produced by T009) to confirm existence.
  2. Verify the file checksum against a **static, hardcoded expected checksum value** (to be provided by the researcher in `code/utils/config.py`). **Do NOT fetch from Zenodo API**.
  3. If the checksum is missing or mismatched, log to `data/processed/review_queue.json` and proceed to allow downstream processing (do not halt).
@@ -89,15 +89,15 @@ Examples of foundational tasks (adjust based on your project):
  5. If deviant, append entry to `data/processed/review_queue.json` with format `{"smiles": <s>, "value": <v>, "unit": <u>, "status": "flagged_for_review"}`.
  6. **Do NOT raise an error or halt the pipeline** for PCE anomalies; simply log them to the review queue and proceed.
  *(Depends on T009)*
-- [X] T011 [US1] Implement `code/data/preprocess.py`: Load raw CSV, remove salts, canonicalize tautomers, and generate canonical SMILES using RDKit (FR-002).
+- [~] T011 [US1] Implement `code/data/preprocess.py`: Load raw CSV, remove salts, canonicalize tautomers, and generate canonical SMILES using RDKit (FR-002).
  *(Depends on T010)*
-- [X] T012 [US1] Implement `code/data/preprocess.py`: Compute atom features (atomic number, hybridization) and bond features (type, aromaticity) for each molecule.
+- [~] T012 [US1] Implement `code/data/preprocess.py`: Compute atom features (atomic number, hybridization) and bond features (type, aromaticity) for each molecule.
  *(Depends on T011)*
-- [X] T013 [US1] Implement `code/data/preprocess.py`: Handle invalid SMILES by logging to `failed_molecules.log` with format `SMILES: <string> | Error: <message>` and excluding from training set.
+- [~] T013 [US1] Implement `code/data/preprocess.py`: Handle invalid SMILES by logging to `failed_molecules.log` with format `SMILES: <string> | Error: <message>` and excluding from training set.
  *(Depends on T012)*
-- [X] T014 [US1] Implement `code/data/preprocess.py`: Export standardized data to `data/processed/graph_data.pt` (PyTorch Geometric format) and `data/processed/cleaned_data.csv`.
+- [~] T014 [US1] Implement `code/data/preprocess.py`: Export standardized data to `data/processed/graph_data.pt` (PyTorch Geometric format) and `data/processed/cleaned_data.csv`.
  *(Depends on T013)*
-- [X] T015 [P] [US1] Unit test: Verify salt removal and tautomer canonicalization on known edge cases in `tests/unit/test_preprocess.py` (use mock/static test data).
+- [~] T015 [P] [US1] Unit test: Verify salt removal and tautomer canonicalization on known edge cases in `tests/unit/test_preprocess.py` (use mock/static test data).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,11 +111,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [X] T016 [P] [US2] Implement `code/data/split.py`: Extract Bemis-Murcko scaffolds and perform scaffold-aware 5-fold cross-validation split [UNRESOLVED-CLAIM: c_a372bd05 — status=not_enough_info] (FR-004).
-- [X] T017 [P] [US2] Implement `code/models/gcn.py`: Define GCN architecture (≤2 layers, hidden size 128) [UNRESOLVED-CLAIM: c_8fd9276e — status=not_enough_info] optimized for CPU execution (FR-003).
-- [X] T018 [P] [US2] Implement `code/models/rf.py`: Generate Morgan fingerprints and train Random Forest baseline (FR-005).
+- [~] T016 [P] [US2] Implement `code/data/split.py`: Extract Bemis-Murcko scaffolds and perform scaffold-aware 5-fold cross-validation split [UNRESOLVED-CLAIM: c_a372bd05 — status=not_enough_info] (FR-004).
+- [~] T017 [P] [US2] Implement `code/models/gcn.py`: Define GCN architecture (≤2 layers, hidden size 128) [UNRESOLVED-CLAIM: c_8fd9276e — status=not_enough_info] optimized for CPU execution (FR-003).
+- [~] T018 [P] [US2] Implement `code/models/rf.py`: Generate Morgan fingerprints and train Random Forest baseline (FR-005).
  *(Note: File name corrected to match plan.md structure)*
-- [X] T019 [US2] Implement `code/models/train.py`:
+- [~] T019 [US2] Implement `code/models/train.py`:
  1. Implement the core GCN training loop logic (forward/backward pass) for a sufficient number of epochs per fold to ensure model convergence.
  2. Wrap the training loop with a hard timeout of a predefined duration..
  3. If timeout is reached, save partial weights to `results/model_artifacts/` and exit with status code "Time Limit Exceeded" (do NOT reduce epochs).
@@ -124,17 +124,17 @@ Examples of foundational tasks (adjust based on your project):
  6. **Save intermediate fold-wise metrics (MAE, RMSE, R²) to `results/fold_metrics.json` as the final step of this task.** (Do NOT perform final aggregation here).
  *(Note: This task saves intermediate fold data; final aggregation happens in T023.)*
  *(Depends on T016, T017, T018)*
-- [X] T021 [US2] Implement `code/analysis/stats.py`: Compute fold-wise MAE, RMSE, and R² for both models from the results generated in T019.
+- [~] T021 [US2] Implement `code/analysis/stats.py`: Compute fold-wise MAE, RMSE, and R² for both models from the results generated in T019.
  *(Note: Aligns with plan.md's statistical methodology)*
  *(Depends on T019)*
-- [X] T022 [US2] Implement `code/analysis/stats.py`:
+- [~] T022 [US2] Implement `code/analysis/stats.py`:
  1. Perform **paired t-test** (PRIMARY) on fold-wise MAE between GCN and RF as required by **FR-006** and **SC-003**.
  2. Calculate **Cohen's d** (PRIMARY) effect size as required by SC-003.
  3. (Optional) Also compute Wilcoxon signed-rank test and Cliff's Delta for robustness check, but ensure t-test/Cohen's d are the primary reported metrics.
  4. Output p-value and effect sizes to `results/stats_summary.json`.
  *(Note: Primary method follows Spec FR-006 and SC-003 which mandate t-test/Cohen's d.)*
  *(Depends on T021)*
-- [ ] T023 [US2] Implement `code/analysis/merge.py`:
+- [ ] T023 [US2] Implement `code/analysis/merge.py`: <!-- FAILED-IN-EXECUTION: code/analysis/merge.py exit=1 -->
  1. Read `results/fold_metrics.json` (from T019) and `results/stats_summary.json` (from T022).
  2. Merge these artifacts into a single comprehensive report.
  3. Save the final merged report to `data/outputs/metrics.json` (per Constitution Principle IV).

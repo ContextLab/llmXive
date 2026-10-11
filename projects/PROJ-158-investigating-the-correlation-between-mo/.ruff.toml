@@ -17,9 +17,9 @@ select = [
     "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501", # Line too long (handled by formatter)
-    "B008", # Do not perform function call in argument defaults (common in ML)
-    "SIM105", # Use `contextlib.suppress` instead of try/except (optional style)
+    "E501",    # Line too long (handled by formatter)
+    "B008",    # Do not perform function call in argument defaults (common in ML)
+    "SIM105",  # Use `contextlib.suppress` instead of try/except (optional style)
 ]
 
 [lint.isort]

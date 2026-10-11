@@ -20,6 +20,14 @@ dependencies = [
     "tqdm>=4.66.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+
 [tool.black]
 line-length = 100
 target-version = ['py311']
@@ -43,11 +51,3 @@ exclude = '''
 where = ["code"]
 # Exclude test packages from the main install
 exclude = ["tests*"]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-]

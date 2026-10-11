@@ -1,0 +1,12 @@
+status: none
+intent: Nazeer et al. DSSC dataset Zenodo DSSC2024 pcee DSSC-Final-Datasets.jsonl
+  python package dataset
+required_fields:
+- smiles
+- canonical_smiles
+- atom_features
+- bond_features
+- pce
+cache_key: 3462d2b538e9316f192b518b5d884becbea75953ea03f1a879c34832539fdbbb
+searched_at: '2026-10-11T04:25:15.272518+00:00'
+retry_count: 1
