@@ -38,7 +38,7 @@ name: CPU-Only CI
 on: [push, pull_request]
 jobs:
  test:
- {{claim:c_63d1f9b3}}
+ runs-on: ubuntu-latest (2604.27148, https://arxiv.org/abs/2604.27148)
  timeout-minutes:
  container: python:3.11-slim
  steps:
@@ -255,7 +255,7 @@ properties:
  ```
  **Logic**: `completeness_pct` = `(valid_rows / total_rows) * 100` if `total_rows > 0` else 0.0. **Must explicitly map to SC-004.** **Dependency**: T027, T016, T017, T018 (Direct ingestion outputs).
 - [X] T028b-1 [US1] **Scarcity Check - Count**: Count rows in `data/processed/alloys_raw.csv` after T021 filtering. **Output**: Store count `N`. **Dependency**: T027.
-- [X] T028b-2 [US1] **Scarcity Check - Write Flag**: {{claim:c_cd909298}} **Schema**: JSON with keys `n` (int) and `threshold` (int). **Dependency**: T028b-1.
+- [X] T028b-2 [US1] **Scarcity Check - Write Flag**: If N < 50, write `data/.scarcity_warning` with content `{"n": N, "threshold": 50}`. **Schema**: JSON with keys `n` (int) and `threshold` (int). **Dependency**: T028b-1.
 - [X] T028b-3 [US1] **Scarcity Check - Trigger Warning**: If N < 50, call function `check_and_warn()` in `code/src/validation/scarcity_warning.py`. **If N = 0, log a CRITICAL warning and proceed ** (do not halt). **Dependency**: T028b-2.
 - [X] T046 [US1] **Data Scarcity Warning Generation**: Generate `docs/reports/data_scarcity_warning.md` if N < 50 (FR-008). **Triggered by T028b-3 (flag file check).** **Content**: Must include:
  1. Count of data points (N).
@@ -305,7 +305,7 @@ properties:
 
 - [X] T059 [P] [US3] **Bootstrapping Resample Count Verification**: Implement `code/src/validation/bootstrap_validation.py` (T042) to include a runtime check that `n_resamples` is set to at least 1000. **Logic**: If `n_resamples < 1000`, raise a `ValueError` with the message "Bootstrapping requires at least 1000 resamples for robust CI estimation. " **Rationale**: Ensures SC-002 (95% CI via 1000 resamples) is strictly enforced and not accidentally reduced during debugging. **Dependency**: None (Independent check).
 - [X] T041 [P] [US3] Implement `code/src/validation/null_model_comparison.py` to perform F-test against mean prediction (SC-001).
-- [X] T042 [US3] Implement `code/src/validation/bootstrap_validation.py` to compute a confidence interval for R² with **a sufficient number of resamples** (SC-002). **Logic**: Perform a sufficient number of bootstrap resamples to ensure robust statistical inference. {{claim:c_578c21be}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) **Dependency**: T059.
+- [X] T042 [US3] Implement `code/src/validation/bootstrap_validation.py` to compute a confidence interval for R² with **a sufficient number of resamples** (SC-002). **Logic**: Perform a sufficient number of bootstrap resamples to ensure robust statistical inference. Set `n_resamples=1000` explicitly. (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) **Dependency**: T059.
 - [X] T043 [US3] Implement `code/src/validation/pdp_generator.py` to generate Partial Dependence Plots for top features (SC-003).
 - [X] T044 [US3] Implement `code/src/validation/stratified_analysis.py` to group by `synthesis_method` and run models within strata (addressing microstructure confounders).
 - [X] T045 [US3] Implement `code/src/validation/stratified_reporter.py` to report stratified results as **PRIMARY INTERPRETATION** if global SC-006 is not met, but still report global SC-006 as the 'Benchmark'. **Clarifies hierarchy: Global is Benchmark, Stratified is Interpretation.**
