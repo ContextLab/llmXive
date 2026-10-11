@@ -1,17 +1,14 @@
 status: none
-intent: OpenNeuro WCST aging nostalgia dataset ICPSR cognitive flexibility elderly
-  download python package dataset
+intent: OpenNeuro ICPSR UK Biobank HuggingFace WCST aging nostalgia python package
+  dataset
 required_fields:
 - participant_id
 - age
-- sex
-- education_level
+- wcst_total_correct
 - wcst_categories_completed
-- wcst_total_errors
-- wcst_trials_to_complete
 - wcst_perseverative_errors
-- nostalgia_condition_label
+- nostalgia_condition
 - mmse_score
-cache_key: 52ff9379cc0e89a22913351a9e0420b96062d45d2e17c481cfe8a60cc1b5ddbe
-searched_at: '2026-10-11T01:34:45.282462+00:00'
+cache_key: 63196077124f6d464673382d185ee6a43fd358832f00ca1d8f4619bac3cb086a
+searched_at: '2026-10-11T02:20:27.051020+00:00'
 retry_count: 1

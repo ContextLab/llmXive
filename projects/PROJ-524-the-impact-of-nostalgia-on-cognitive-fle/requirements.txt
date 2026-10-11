@@ -1,9 +1,5 @@
-# Project dependencies
-pandas
-numpy
-scipy
-statsmodels
-pyyaml
+# Existing dependencies are provided by the platform.
+# Additional packages required for real data acquisition:
 openml
 datasets
-# Existing dependencies (if any) are retained above.
+```
