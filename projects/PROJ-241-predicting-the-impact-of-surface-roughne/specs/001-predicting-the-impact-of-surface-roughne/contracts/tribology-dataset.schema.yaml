@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Tribology Experiment Dataset"
+description: "Schema for the processed tribology dataset used in the prediction pipeline."
+type: object
+additionalProperties: false
+required:
+  - experiment_id
+  - pairing_id
+  - material_1_id
+  - material_2_id
+  - Sa
+  - Sq
+  - Ssk
+  - Sku
+  - Sp
+  - Sv
+  - elastic_modulus_1
+  - elastic_modulus_2
+  - hardness_1
+  - hardness_2
+  - hardness_modulus_ratio_1
+  - hardness_modulus_ratio_2
+  - coeff_friction
+  - wear_rate
+properties:
+  experiment_id:
+    type: string
+    description: "UUID for the experiment."
+    pattern: "^[0-9a-fA-F-]{36}$"
+  pairing_id:
+    type: string
+    description: "Identifier linking the two materials."
+  material_1_id:
+    type: string
+    description: "Materials Project or NIST identifier for material 1."
+  material_2_id:
+    type: string
+    description: "Materials Project or NIST identifier for material 2."
+  Sa:
+    type: number
+    description: "Arithmetic mean surface height (µm)."
+  Sq:
+    type: number
+    description: "Root‑mean‑square height (µm)."
+  Ssk:
+    type: number
+    description: "Skewness of surface height distribution."
+  Sku:
+    type: number
+    description: "Kurtosis of surface height distribution."
+  Sp:
+    type: number
+    description: "Maximum peak height (µm)."
+  Sv:
+    type: number
+    description: "Maximum valley depth (µm)."
+  elastic_modulus_1:
+    type: number
+    description: "Elastic modulus of material 1 (GPa)."
+  elastic_modulus_2:
+    type: number
+    description: "Elastic modulus of material 2 (GPa)."
+  hardness_1:
+    type: number
+    description: "Hardness of material 1 (HV)."
+  hardness_2:
+    type: number
+    description: "Hardness of material 2 (HV)."
+  hardness_modulus_ratio_1:
+    type: number
+    description: "Hardness divided by elastic modulus for material 1."
+  hardness_modulus_ratio_2:
+    type: number
+    description: "Hardness divided by elastic modulus for material 2."
+  coeff_friction:
+    type: number
+    description: "Measured coefficient of friction (dimensionless)."
+  wear_rate:
+    type: number
+    description: "Wear rate (mm³ N⁻¹ m⁻¹)."
+  avg_hardness:
+    type: number
+    description: "Mean hardness of the two materials."
+  avg_modulus:
+    type: number
+    description: "Mean elastic modulus of the two materials."
+  hardness_modulus_ratio_avg:
+    type: number
+    description: "Mean hardness‑to‑modulus ratio across the pair."

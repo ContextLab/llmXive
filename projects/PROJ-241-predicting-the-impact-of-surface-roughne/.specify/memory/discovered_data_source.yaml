@@ -1,0 +1,19 @@
+status: none
+intent: OpenML surface roughness tribology dataset and NIST materials data repository
+  python package dataset
+required_fields:
+- material_id
+- surface_profile_id
+- Ra
+- Rz
+- Rq
+- Rsk
+- Rku
+- coefficient_of_friction
+- wear_rate
+- material_name
+- composition
+- density
+cache_key: 76bc0248101c0329d3f2f46fdee7a8821c450e226987b1736e67ed66a69b202c
+searched_at: '2026-10-11T13:09:50.780708+00:00'
+retry_count: 1

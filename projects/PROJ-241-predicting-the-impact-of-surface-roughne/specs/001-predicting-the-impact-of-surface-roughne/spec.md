@@ -45,7 +45,7 @@ A researcher wants to identify the most important roughness and material descrip
 
 **Why this priority**: This provides insights into the underlying relationships between surface characteristics, material properties, and tribological performance, guiding surface engineering efforts.
 
-**Independent Test**: SHAP value plots are generated, and the top 5 most important features are visually inspected and verified to align with domain knowledge.
+**Independent Test**: SHAP value plots are generated, and the most important features are visually inspected and verified to align with domain knowledge.
 
 **Acceptance Scenarios**:
 
@@ -99,4 +99,4 @@ A researcher wants to identify the most important roughness and material descrip
 - The `pySurf`, `numpy`, `pandas`, `scikit-learn`, `shap`, `matplotlib`, and `requests` libraries will be readily available and compatible with the execution environment.
 - The dataset size will be sufficient to train and evaluate the models effectively (≥ 200 data points).
 - Data will have no missing values in material pairings.
-- The OpenML dataset ID 42123 contains the ground truth (coefficient of friction and wear rate) paired with surface roughness parameters.
+- The OpenML dataset containing the ground truth (coefficient of friction and wear rate) paired with surface roughness parameters.
