@@ -119,6 +119,9 @@ log = get_logger(__name__)                    # optional: get_logger(__name__, l
 out = paths.data("results", "census.csv")     # <project>/data/results/census.csv; the folder now exists
 fig = paths.figures("tv_vs_n.png")            # <project>/figures/tv_vs_n.png
 root = paths.root                             # the project directory, whatever the working directory is
+
+from llmxive_toolkit import save_figure
+save_figure(fig, fig_path)                    # writes tv_vs_n.png AND tv_vs_n.figure.json
 ```
 
 - `paths.data(...)`, `paths.figures(...)`, `paths.results(...)`, `paths.docs(...)`,
@@ -127,6 +130,12 @@ root = paths.root                             # the project directory, whatever 
   and create the folder it lives in. They do not create the file. The folder is always
   the one named: `paths.results("paper.md")` is `results/paper.md`, and
   `data/results/census.csv` is `paths.data("results", "census.csv")`.
+- Save every figure with `save_figure(fig, path)` (or `save_figure(path)` for the current
+  pyplot figure), not `fig.savefig`. It writes the image and, beside it,
+  `<name>.figure.json`: titles, axis labels and scales, legend entries and every plotted
+  series with its number of points and ranges, read from the figure you drew. The reviewer
+  cannot open an image and reads that record instead. Give every series a `label=`, call
+  `ax.legend()`, and set the axis labels. Never write a `.figure.json` yourself.
 - So do NOT write directory-creation scripts, `ensure_dirs` helpers, a logging
   module, or `sys.path` edits to find the project root. Do NOT create a file
   named after a standard-library module (`logging.py`, `code.py`, `io.py`,

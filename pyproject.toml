@@ -29,6 +29,8 @@ dependencies = [
   "pypdf>=4",
   # Paper-stage
   "matplotlib",
+  # Read by the task verifier to measure image artifacts (size, blankness).
+  "pillow",
   "seaborn",
   "numpy",
   "scipy",

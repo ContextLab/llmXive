@@ -29,10 +29,12 @@ Criteria and their values:
 
 from __future__ import annotations
 
+import contextlib
 import datetime
 import json
 import logging
 import re
+from collections.abc import Iterator
 from pathlib import Path
 
 LOGGER = logging.getLogger(__name__)
@@ -42,6 +44,20 @@ SCORECARD_NAME = "scorecard.jsonl"
 _PYTEST_LINE = re.compile(r"^(\S+::\S+) (PASSED|FAILED|ERROR)\b", re.MULTILINE)
 
 Values = dict[str, int | None]
+
+_suspended = False
+
+
+@contextlib.contextmanager
+def suspended() -> Iterator[None]:
+    """Record nothing inside the block: a candidate that is tried and put back
+    is not part of the task's history; the one that is applied is."""
+    global _suspended
+    previous, _suspended = _suspended, True
+    try:
+        yield
+    finally:
+        _suspended = previous
 
 
 def scorecard_path(memory_dir: Path) -> Path:
@@ -68,7 +84,7 @@ def run_values(script: str, args: object, returncode: int, stdout: str, *, is_te
 
 def record(memory_dir: Path, task: str, source: str, values: Values, *, definition: str = "") -> None:
     """Append one observation. A measurement never fails the step it measures."""
-    if not values:
+    if not values or _suspended:
         return
     line = json.dumps({
         "at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),

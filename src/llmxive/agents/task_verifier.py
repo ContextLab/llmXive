@@ -340,6 +340,52 @@ def _imports_toolkit(source: Path) -> bool:
     return bool(_TOOLKIT_IMPORT_RE.search(head))
 
 
+_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tif", ".tiff", ".webp"}
+
+
+def _image_evidence(image: Path) -> str:
+    """What can be measured about an image, and the record of what it shows.
+
+    The bytes of a PNG decoded as text told the verifier nothing, and tasks
+    that named what a figure must show were rejected for "no evidence the
+    image shows that" on every attempt (2026-10-11). This reports the pixel
+    size and how much of the image differs from its background, measured
+    here, and quotes the ``.figure.json`` record that
+    ``llmxive_toolkit.save_figure`` writes from the figure object.
+    """
+    from llmxive.project_toolkit.llmxive_toolkit.figures import record_path
+
+    lines = []
+    try:
+        from PIL import Image
+
+        with Image.open(image) as picture:
+            picture.load()
+            small = picture.convert("RGB").resize((min(picture.width, 256), min(picture.height, 256)))
+            counts = sorted((count for count, _ in small.getcolors(maxcolors=256 * 256)), reverse=True)
+            other = 1 - counts[0] / sum(counts)
+            lines.append(
+                f"image measured by the platform: {picture.format} {picture.width}x{picture.height} px; "
+                f"{other:.1%} of pixels differ from the most common colour"
+                + (" (a blank or nearly blank image)" if other < 0.005 else ""))
+    except Exception as exc:  # an unreadable image is itself the evidence
+        lines.append(f"image could NOT be opened as an image: {type(exc).__name__}: {exc}")
+    record = record_path(image)
+    if record.is_file():
+        try:
+            text = record.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            text = f"(unreadable: {exc})"
+        lines.append(
+            f"what the figure shows, as recorded in `{record.name}` when it was saved "
+            "(titles, axes, legend, plotted series):\n" + text[:6000])
+    else:
+        lines.append(
+            f"no `{record.name}` beside it: the figure was not saved with "
+            "`llmxive_toolkit.save_figure`, so nothing readable says what it shows")
+    return "\n".join(lines)
+
+
 def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Collect the artifacts a task references (head of each) as evidence text.
 
@@ -401,6 +447,9 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
         except OSError as exc:
             chunks.append(f"- `{rel}`: unreadable ({exc})")
             continue
+        if f.suffix.lower() in _IMAGE_SUFFIXES:
+            head = _image_evidence(f)
+            limit = size  # measured, not quoted: nothing was cut off
         if f.suffix == ".py":
             python_sources.append(f)
         # Which run produced the file being judged. When that is another
@@ -688,6 +737,18 @@ def definition_signatures(tasks_text: str) -> dict[str, str]:
         if match is not None:
             out[key] = _definition_signature(lines, i, match.group(3))
     return out
+
+
+def rejection_reason(project_dir: Path, tasks_path: Path, key: str) -> str:
+    """Why the verifier last rejected task ``key``, or ``""``."""
+    import yaml
+
+    path = task_verification_state_path(project_dir, tasks_path).with_suffix(".feedback.yaml")
+    try:
+        entry = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get(key)
+    except (OSError, yaml.YAMLError, AttributeError):
+        return ""
+    return str(entry.get("reason") or "") if isinstance(entry, dict) else ""
 
 
 def task_verification_state_path(project_dir: Path, tasks_path: Path) -> Path:

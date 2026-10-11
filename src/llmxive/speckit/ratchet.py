@@ -82,21 +82,28 @@ def regressions(before: scorecard.Values, after: scorecard.Values, rewritten: se
     return sorted(broken)
 
 
-@dataclass
-class Attempt:
-    """The state of a project just before one implementer attempt."""
+class Snapshot:
+    """A copy of a project's files that can be put back any number of times."""
 
-    project_root: Path
-    task_id: str
-    memory_dir: Path
-    definition: str
-    store: Path
-    files: dict[str, tuple[int, int]]
-    before: scorecard.Values
-    modules: list[str] = field(default_factory=list)
+    def __init__(self, project_root: Path, store: Path, files: dict[str, tuple[int, int]]) -> None:
+        self.project_root, self.store, self.files = project_root, store, files
 
-    def _restore(self) -> list[str]:
-        """Put every file back; return what the attempt had changed."""
+    @classmethod
+    def take(cls, project_root: Path) -> Snapshot | None:
+        """``None`` when the project is too large to copy."""
+        files = _walk(project_root)
+        if sum(size for size, _ in files.values()) > MAX_SNAPSHOT_BYTES:
+            LOGGER.warning("[ratchet] %s is too large to copy", project_root.name)
+            return None
+        store = Path(tempfile.mkdtemp(prefix="llmxive-attempt-"))
+        for rel in files:
+            target = store / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(project_root / rel, target)
+        return cls(project_root, store, files)
+
+    def restore(self) -> list[str]:
+        """Put every file back; return what had changed."""
         now = _walk(self.project_root)
         undone = []
         for rel in sorted(now):
@@ -111,6 +118,24 @@ class Attempt:
                 undone.append(rel)
         return undone
 
+    def close(self) -> None:
+        shutil.rmtree(self.store, ignore_errors=True)
+
+
+@dataclass
+class Attempt:
+    """The state of a project just before one implementer attempt."""
+
+    project_root: Path
+    task_id: str
+    memory_dir: Path
+    definition: str
+    snapshot: Snapshot
+    before: scorecard.Values
+    modules: list[str] = field(default_factory=list)
+    #: How many tests passed after the attempt (set by :meth:`settle`).
+    passing_after: int = 0
+
     def settle(self) -> tuple[bool, list[str]]:
         """Run the tests again; keep the attempt or undo it.
 
@@ -121,11 +146,12 @@ class Attempt:
         try:
             now = _walk(self.project_root)
             modules = _test_modules(now)
-            rewritten = {rel for rel in self.modules if rel in now and now[rel] != self.files[rel]}
+            rewritten = {rel for rel in self.modules if rel in now and now[rel] != self.snapshot.files[rel]}
             if modules:
                 result = sandbox.run_pytest_modules(
                     project_dir=self.project_root, test_relpaths=modules, timeout_s=TEST_TIMEOUT_S)
                 after = scorecard.pytest_outcomes(result.stdout)
+                self.passing_after = sum(1 for value in after.values() if value == 1)
                 broken = regressions(self.before, after, rewritten)
                 if result.timed_out and not broken:
                     broken = [f"the project's tests no longer finish within {TEST_TIMEOUT_S} s"]
@@ -136,12 +162,13 @@ class Attempt:
             if not broken:
                 scorecard.record(self.memory_dir, self.task_id, "attempt", {"kept": 1}, definition=self.definition)
                 return True, []
-            undone = self._restore()
+            undone = self.snapshot.restore()
+            self.passing_after = sum(1 for value in self.before.values() if value == 1)
             scorecard.record(self.memory_dir, self.task_id, "attempt", {"kept": 0}, definition=self.definition)
             self._write_record(broken, undone, output)
             return False, broken
         finally:
-            shutil.rmtree(self.store, ignore_errors=True)
+            self.snapshot.close()
 
     def record_path(self) -> Path:
         return self.project_root / RESEARCH_LOG_DIR / f"{self.task_id}.attempt-not-kept.log"
@@ -172,12 +199,8 @@ def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *
 
     if log_dir != RESEARCH_LOG_DIR:
         return None
-    files = _walk(project_root)
-    modules = _test_modules(files)
+    modules = _test_modules(_walk(project_root))
     if not modules:
-        return None
-    if sum(size for size, _ in files.values()) > MAX_SNAPSHOT_BYTES:
-        LOGGER.warning("[ratchet] %s is too large to copy; attempt at %s is not guarded", project_root.name, task_id)
         return None
     result = sandbox.run_pytest_modules(project_dir=project_root, test_relpaths=modules, timeout_s=TEST_TIMEOUT_S)
     before = scorecard.pytest_outcomes(result.stdout)
@@ -188,13 +211,9 @@ def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *
     if not any(value == 1 for value in before.values()):
         return None  # nothing passes, so nothing can be broken
     # The tests may write files; copy what they left, which is what the attempt starts from.
-    files = _walk(project_root)
-    store = Path(tempfile.mkdtemp(prefix="llmxive-attempt-"))
-    for rel in files:
-        target = store / rel
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(project_root / rel, target)
-    return Attempt(project_root, task_id, memory_dir, definition, store, files, before, modules)
-
+    snapshot = Snapshot.take(project_root)
+    if snapshot is None:
+        return None
+    return Attempt(project_root, task_id, memory_dir, definition, snapshot, before, modules)
 
 __all__ = ["MAX_SNAPSHOT_BYTES", "Attempt", "begin", "regressions"]

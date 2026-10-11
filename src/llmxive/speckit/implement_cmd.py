@@ -13,6 +13,7 @@ Stage transitions:
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -231,10 +232,13 @@ class ImplementerAgent(SlashCommandAgent):
             "task's `artifacts` list or use a different name that does."
         )
         user = "\n\n".join(user_parts)
-        return [
+        messages = [
             ChatMessage(role="system", content=system),
             ChatMessage(role="user", content=user),
         ]
+        # Kept so a retry can ask for further independent replies to the same prompt.
+        self._last_prompt = (mechanical_output["next_task_id"], messages)
+        return messages
 
     def _mark_task_skipped(
         self, mechanical_output: dict[str, Any], reason: str, exc: Exception | None
@@ -261,14 +265,104 @@ class ImplementerAgent(SlashCommandAgent):
         mechanical_output: dict[str, Any],
         llm_response: ChatResponse,
     ) -> list[str]:
-        """Apply one implementer reply, and undo it if it broke a passing test."""
+        """Apply one implementer reply, and undo it if it broke a passing test.
+
+        For a task that was already attempted, several independent replies are
+        tried and the best by executed checks is the one applied (see
+        :data:`RETRY_CANDIDATES`).
+        """
         task_id = mechanical_output.get("next_task_id")
         if mechanical_output.get("all_complete") or not task_id:
             return self._write_attempt(ctx, mechanical_output, llm_response)
+        from llmxive.speckit import ratchet, scorecard
+
+        others = self._more_candidates(ctx, mechanical_output)
+        snapshot = ratchet.Snapshot.take(ctx.project_dir) if others else None
+        if snapshot is None:
+            return self._guarded_attempt(ctx, mechanical_output, llm_response)[0]
+        candidates = [llm_response, *others]
+        scores: list[tuple[bool, bool, int]] = []
+        try:
+            with scorecard.suspended():
+                for candidate in candidates:
+                    scores.append(self._guarded_attempt(ctx, mechanical_output, candidate)[1])
+                    snapshot.restore()
+        finally:
+            snapshot.close()
+        # Kept, then claimed complete, then most passing tests; the earliest on a tie.
+        best = max(range(len(candidates)), key=lambda i: (scores[i], -i))
+        print(f"[implementer] {task_id}: {len(candidates)} candidate attempts, "
+              f"(kept, claimed, passing tests) = {scores}; applying candidate {best + 1}")
+        written, _ = self._guarded_attempt(ctx, mechanical_output, candidates[best])
+        from llmxive.agents.task_verifier import definition_signatures, task_verification_state_path
+
+        tasks_path = Path(mechanical_output["tasks_path"])
+        scorecard.record(
+            task_verification_state_path(ctx.project_dir, tasks_path).parent, task_id, "candidates",
+            {"candidates": len(candidates), "candidates_claimed": sum(1 for _, claimed, _ in scores if claimed)},
+            definition=definition_signatures(tasks_path.read_text(encoding="utf-8")).get(task_id, ""))
+        return written
+
+    def _more_candidates(self, ctx: SlashCommandContext, mechanical_output: dict[str, Any]) -> list[ChatResponse]:
+        """Further independent replies for a task that was already attempted.
+
+        A first attempt gets one reply. So does a paper task, and any task when
+        ``LLMXIVE_RETRY_CANDIDATES`` is 1. A reply that cannot be obtained is
+        left out; the attempt goes ahead with those that can.
+        """
+        try:
+            wanted = int(os.environ.get("LLMXIVE_RETRY_CANDIDATES", RETRY_CANDIDATES))
+        except ValueError:
+            wanted = RETRY_CANDIDATES
+        task_id = mechanical_output["next_task_id"]
+        log_dir = mechanical_output.get("task_log_dir", "code/.tasks")
+        prompt = getattr(self, "_last_prompt", None)
+        if wanted <= 1 or log_dir != "code/.tasks" or prompt is None or prompt[0] != task_id:
+            return []
+        from llmxive.agents.task_verifier import rejection_reason
+
+        attempted = any((ctx.project_dir / log_dir).glob(f"{task_id}.*.log")) or bool(
+            rejection_reason(ctx.project_dir, Path(mechanical_output["tasks_path"]), task_id))
+        if not attempted:
+            return []
+        from concurrent.futures import ThreadPoolExecutor
+
+        from llmxive.backends.router import chat_with_fallback
+
+        def ask(_: int) -> ChatResponse | None:
+            try:
+                return chat_with_fallback(
+                    prompt[1], default_backend=ctx.default_backend.value,
+                    fallback_backends=[b.value for b in ctx.fallback_backends], model=ctx.default_model)
+            except Exception as exc:  # one missing candidate must not cost the attempt
+                print(f"[implementer] {task_id}: a further candidate reply failed: {type(exc).__name__}: {exc}"[:300])
+                return None
+
+        with ThreadPoolExecutor(max_workers=wanted - 1) as pool:
+            return [reply for reply in pool.map(ask, range(wanted - 1)) if reply is not None]
+
+    def _guarded_attempt(
+        self,
+        ctx: SlashCommandContext,
+        mechanical_output: dict[str, Any],
+        llm_response: ChatResponse,
+    ) -> tuple[list[str], tuple[bool, bool, int]]:
+        """Apply one reply under the ratchet.
+
+        Returns the written paths and ``(kept, claimed, passing tests)``:
+        whether the attempt broke no passing test, whether the task now stands
+        claimed complete, and how many of the project's tests pass.
+        """
         from llmxive.agents.task_verifier import definition_signatures, task_verification_state_path
         from llmxive.speckit import ratchet
 
+        task_id = mechanical_output["next_task_id"]
         tasks_path = Path(mechanical_output["tasks_path"])
+
+        def claimed() -> bool:
+            return any(m.group("id") == task_id and m.group("status") in {"X", "x"}
+                       for m in _TASK_RE.finditer(mask_fenced_code(tasks_path.read_text(encoding="utf-8"))))
+
         attempt = ratchet.begin(
             ctx.project_dir, task_id,
             task_verification_state_path(ctx.project_dir, tasks_path).parent,
@@ -277,10 +371,10 @@ class ImplementerAgent(SlashCommandAgent):
         )
         written = self._write_attempt(ctx, mechanical_output, llm_response)
         if attempt is None:
-            return written
+            return written, (True, claimed(), 0)
         kept, broken = attempt.settle()
         if kept:
-            return written
+            return written, (True, claimed(), attempt.passing_after)
         # The files are back as they were, the task line included. Mark it the
         # way a failed command is marked, so the bounded retry accounting that
         # already exists for failed runs applies to it.
@@ -292,7 +386,8 @@ class ImplementerAgent(SlashCommandAgent):
             mark_task(text, task_id, "~", f" <!-- FAILED-IN-EXECUTION: {summary} -->"), encoding="utf-8")
         print(f"[implementer] attempt at {task_id} not kept: it broke {len(broken)} passing test(s) "
               f"({', '.join(broken[:3])}{' ...' if len(broken) > 3 else ''}); files restored")
-        return [str(path.relative_to(repo)) for path in (attempt.record_path(), tasks_path)]
+        return ([str(path.relative_to(repo)) for path in (attempt.record_path(), tasks_path)],
+                (False, False, attempt.passing_after))
 
     def _write_attempt(
         self,
@@ -773,6 +868,14 @@ class ImplementerAgent(SlashCommandAgent):
 
 
 ARTIFACT_REFUSAL_CAP = 3
+
+#: Independent replies requested for a task that was already attempted. The
+#: best by executed checks is applied. Measured on the stuck tasks of three
+#: finished runs (2026-10-11, single replies): 3 of 13, 1 of 11 and 0 of 4 were
+#: accepted, and the same prompt gave 1 of 4, 2 of 3 and 0 of 6 in three rounds,
+#: so one reply per retry mostly measures luck. ``LLMXIVE_RETRY_CANDIDATES``
+#: overrides it; 1 turns it off.
+RETRY_CANDIDATES = 3
 
 
 def _artifact_refusal_path(ctx: SlashCommandContext, task_id: str) -> Path:
