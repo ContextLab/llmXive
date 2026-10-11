@@ -1,1 +1,4 @@
-"""Shared utilities sub-package (T001)."""
+"""
+Utilities subpackage for the project.
+Includes logging, configuration, and state‑management helpers.
+"""

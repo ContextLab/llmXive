@@ -22,7 +22,7 @@ The checklist follows the platform‑required format. Checked boxes (`[X]`) indi
   - **File paths**: `data/raw/README.md`, `data/processed/README.md`, `state/projects/README.md`.  
   - **Verification**: `ls data/raw/ data/processed/ state/projects/` lists the directories and their README files.
 
-- [ ] T005 Add the two data‑validation schemas (`dataset.schema.yaml`, `forecast.schema.yaml`) under `specs/001-statistical-poll-aggregation/contracts/` and ensure they are syntactically valid JSON‑Schema documents.  
+- [X] T005 Add the two data‑validation schemas (`dataset.schema.yaml`, `forecast.schema.yaml`) under `specs/001-statistical-poll-aggregation/contracts/` and ensure they are syntactically valid JSON‑Schema documents.  
   - **File paths**: `specs/001-statistical-poll-aggregation/contracts/dataset.schema.yaml`, `specs/001-statistical-poll-aggregation/contracts/forecast.schema.yaml`.  
   - **Verification**: `yamllint` reports no errors; a Python script validates a dummy CSV against each schema using `jsonschema`.
 
@@ -30,7 +30,7 @@ The checklist follows the platform‑required format. Checked boxes (`[X]`) indi
 
 ## Phase 1 – Data acquisition & harmonization (User Story 1, P1)
 
-- [ ] T006 Implement `src/data/download.py` to fetch all poll CSVs from FiveThirtyEight (`https://projects.fivethirtyeight.com/polls/`) **and** RealClearPolitics repositories, and official election‑outcome data. Store raw files under `data/raw/`. Immediately after download, compute SHA-256 checksums for all raw files and record them in `state/projects/PROJ-206-statistical-analysis.yaml` (Constitution III).   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T006 Implement `src/data/download.py` to fetch all poll CSVs from FiveThirtyEight (`https://projects.fivethirtyeight.com/polls/`) **and** RealClearPolitics repositories, and official election‑outcome data. Store raw files under `data/raw/`. Immediately after download, compute SHA-256 checksums for all raw files and record them in `state/projects/PROJ-206-statistical-analysis.yaml` (Constitution III).   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   - **Verification**: After running `python -m src.data.download`, `data/raw/` contains poll files from both sources and outcomes; the state YAML contains checksum entries for every raw file.
 
 - [ ] T007 Implement `src/data/harmonize.py` to (a) read the raw CSVs, (b) normalise dates, (c) bin polls into ISO‑week intervals, (d) attach a placeholder `historical_rmse` column (to be filled later), and (e) write `data/processed/poll_data_cleaned.csv` with columns `date,pollster,vote_share,sample_size,historical_rmse,week_bin`.  

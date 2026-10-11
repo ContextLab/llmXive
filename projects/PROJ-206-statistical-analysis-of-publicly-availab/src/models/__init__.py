@@ -1,1 +1,4 @@
-"""Forecasting models sub-package (T001)."""
+"""
+Models subpackage for the project.
+Contains implementations of frequentist and Bayesian forecasting models.
+"""

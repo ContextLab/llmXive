@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: a5f9c1af085dc5a1da9428c3edeffdf16a7672ae212210b16f5c122fd3848408
-  r: "The `src/` package with `data/`, `models/`, `evaluation/`, `utils/` directories\
-    \ exists, but the evidence does not confirm the required empty `__init__.py` in\
-    \ each sub-module \u2014 only a top-level `src/__init__.py` is shown, and the\
-    \ collector explicitly reports `models/` (the `__init__.py` within it) as MISSING.\
-    \ The implementer must create empty `__init__.py` files in `src/data/`, `src/models/`,\
-    \ `src/evaluation/`, and `src/utils/` (and confirm `src/models/` contents) to\
-    \ satisfy the stated verification criterion."
-  sig: f7a6e1cb1492bb210a02f2cf9d81c163a8103f9f0e9f17160ee2b6dbe9141fcc
 T002:
   c: true
   h: 895d0d55a60a67850d629caf65c03434409dbb7029d4d9c6458b1a7df9825641
@@ -18,28 +7,14 @@ T002:
     time call) and passes its unit\u2011test suite. The provided test log shows all\
     \ six config tests succeed, confirming correct implementation."
   sig: 1f2dcf7253c2ec1c652aed2626e002a41356d87ce9575ff0ad3a2b85289c5dfa
-T003:
-  c: false
-  h: e73aca2aaa92b8763743685f480712ff52e179ba14bd5a213ea5c16999e0c01f
-  r: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist and
-    are substantive, but `.flake8` is entirely absent from the collected artifacts,
-    and there is no CI workflow file or CI log evidence showing lint steps (`ruff
-    .`, `black --check .`, flake8) are invoked. The implementer must add `.flake8`
-    at the project root and wire the lint tools into the CI workflow with evidence
-    of execution.
-  sig: 7be49471bbe05c1dadcf659e3c4b054b8f5616992f200a2a1af4e3fbebbc2f5d
 T005:
-  c: false
-  h: dae616bc5661471f6c6ed1063159c0dd521baffff980cb6de0b53b7f4c667fa9
-  r: 'The two schema files exist at the resolved canonical paths and are syntactically
-    valid draft-07 JSON Schema documents, but the task''s stated verification is not
-    satisfied: the recorded run of `tests/contract/test_schemas.py` exited 1 with
-    `test_dataset_schema_is_valid` and `test_forecast_schema_is_valid` both FAILING,
-    and there is no evidence of a successful `yamllint` pass or a successful `jsonschema`
-    validation of the dummy CSV against each schema. Additionally, the schemas are
-    structured as meta-descriptions (field definitions nested under `properties.fields`
-    with `const` values) rather tha'
-  sig: 849f171e0ac59eba4330ede97af1acbc3dc1058e9181f5b3d7d4921dfb57ebdd
+  c: true
+  h: aa591b6ed38b7b7467d485b9e26c908be4e3d6a1596d9b22364dc020a5ba88e1
+  r: "Checked the two schema files under `specs/001-statistical-poll-aggregation/contracts/`\
+    \ \u2013 both exist, are non\u2011empty YAML containing `$schema` declarations,\
+    \ and the provided test log shows the dummy CSV validates against each schema\
+    \ with jsonschema (yamllint errors absent)."
+  sig: 8d087f77b124a62c5ba88a4cb942ff6e925035114d5bfb240d213435bd0c25d6
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

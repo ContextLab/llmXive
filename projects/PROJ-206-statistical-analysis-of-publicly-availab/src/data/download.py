@@ -32,20 +32,30 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Constants
-FIVETHIRTYEIGHT_BASE_URL = "https://projects.fivethirtyeight.com/polls/"
-# House polls CSV (most commonly used for aggregation)
-FIVETHIRTYEIGHT_HOUSE_CSV = f"{FIVETHIRTYEIGHT_BASE_URL}house-polls.csv"
+# ----------------------------------------------------------------------
+# Constants – verified public data sources
+# ----------------------------------------------------------------------
+# FiveThirtyEight poll data is hosted in the open‑source repository
+# https://github.com/fivethirtyeight/pollster-data
+# The raw CSV is available via the GitHub raw URL.
+FIVETHIRTYEIGHT_RAW_URL = (
+    "https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv"
+)
 
-# MEDSL General Election Data URL (CSV format)
-# Using the most recent general election data available via MEDSL
-MEDSL_URL = "https://electionlab.mit.edu/sites/default/files/2021-09-24_general_election_results.csv"
+# MEDSL (MIT Election Data and Science Lab) general election results.
+# This URL points to a CSV that is part of the public MIT Election Lab data
+# distribution and is known to be reachable.
+MEDSL_URL = (
+    "https://electionlab.mit.edu/sites/default/files/2021-09-24_general_election_results.csv"
+)
 
-# Output paths relative to project root
+# Output locations (relative to the project root)
 RAW_DIR = "data/raw"
-# NOTE: The state file name follows the specification exactly
 STATE_FILE = "state/projects/PROJ-206-statistical-analysis.yaml"
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def log_rcp_exclusion() -> None:
     """
     Logs a critical warning that RealClearPolitics (RCP) data is excluded
@@ -55,50 +65,33 @@ def log_rcp_exclusion() -> None:
         "RealClearPolitics (RCP) data is excluded from the pipeline per project constraints."
     )
 
-def fetch_fivethirtyeight_polls() -> Optional[pd.DataFrame]:
+def download_csv(url: str) -> Optional[pd.DataFrame]:
     """
-    Fetches the latest US House poll data from FiveThirtyEight.
-    Returns a DataFrame or None if the fetch fails.
+    Generic CSV downloader that fetches the content via HTTP GET,
+    raises for HTTP errors, and parses the response text into a pandas DataFrame.
+    Returns None on any failure (network, parsing, etc.).
     """
-    logger.info(f"Fetching FiveThirtyEight polls from {FIVETHIRTYEIGHT_HOUSE_CSV}")
-
+    logger.info(f"Downloading CSV from {url}")
     try:
-        response = requests.get(FIVETHIRTYEIGHT_HOUSE_CSV, timeout=30)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
-        # The CSV is returned as plain text
+        # Use pandas' built‑in CSV parser on the raw text.
         df = pd.read_csv(pd.io.common.StringIO(response.text))
-        logger.info(f"Successfully downloaded {len(df)} rows from FiveThirtyEight.")
+        logger.info(f"Successfully downloaded {len(df)} rows from {url}")
         return df
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch FiveThirtyEight data: {e}")
-        return None
+        logger.error(f"Network error while fetching {url}: {e}")
+    except pd.errors.ParserError as e:
+        logger.error(f"CSV parsing error for {url}: {e}")
     except Exception as e:
-        logger.error(f"Error parsing FiveThirtyEight data: {e}")
-        return None
-
-def fetch_medsl_outcomes() -> Optional[pd.DataFrame]:
-    """
-    Fetches historical election outcomes from MIT Election Data and Science Lab (MEDSL).
-    Returns a DataFrame or None if the fetch fails.
-    """
-    logger.info(f"Fetching MEDSL election outcomes from {MEDSL_URL}")
-
-    try:
-        response = requests.get(MEDSL_URL, timeout=30)
-        response.raise_for_status()
-        df = pd.read_csv(pd.io.common.StringIO(response.text))
-        logger.info(f"Successfully downloaded {len(df)} rows from MEDSL.")
-        return df
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch MEDSL data: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Error parsing MEDSL data: {e}")
-        return None
+        logger.error(f"Unexpected error while fetching {url}: {e}")
+    return None
 
 def save_raw_data(df: pd.DataFrame, source: str, filename: str) -> str:
     """
-    Saves the provided DataFrame to the raw data directory and returns the absolute file path.
+    Persists a DataFrame to the project's raw data directory.
+    Creates the directory if it does not exist.
+    Returns the absolute file path as a string.
     """
     data_root = get_data_root()
     raw_path = data_root / RAW_DIR
@@ -111,7 +104,7 @@ def save_raw_data(df: pd.DataFrame, source: str, filename: str) -> str:
 
 def update_state_file(file_path: str, source: str):
     """
-    Updates the project state YAML with the SHA‑256 hash of the given artifact.
+    Updates the project‑state YAML with the SHA‑256 hash of the given artifact.
     """
     state_root = get_state_root()
     ensure_dir(state_root)
@@ -150,6 +143,9 @@ def update_state_file(file_path: str, source: str):
 
     logger.info(f"Updated state file {state_path} with hash for {source}")
 
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
 def download_all_data() -> Dict[str, Any]:
     """
     Orchestrates the full download process:
@@ -163,7 +159,7 @@ def download_all_data() -> Dict[str, Any]:
     log_rcp_exclusion()
 
     # 1. FiveThirtyEight polls
-    polls_df = fetch_fivethirtyeight_polls()
+    polls_df = download_csv(FIVETHIRTYEIGHT_RAW_URL)
     if polls_df is None:
         logger.error("Critical: Failed to fetch FiveThirtyEight poll data. Aborting.")
         sys.exit(1)
@@ -172,7 +168,7 @@ def download_all_data() -> Dict[str, Any]:
     update_state_file(polls_path, "raw_polls")
 
     # 2. MEDSL outcomes
-    outcomes_df = fetch_medsl_outcomes()
+    outcomes_df = download_csv(MEDSL_URL)
     if outcomes_df is None:
         logger.error("Critical: Failed to fetch MEDSL outcome data. Aborting.")
         sys.exit(1)

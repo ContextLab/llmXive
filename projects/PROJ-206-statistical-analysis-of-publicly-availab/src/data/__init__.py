@@ -1,1 +1,4 @@
-"""Data acquisition and harmonization sub-package (T001)."""
+"""
+Data subpackage for the project.
+Provides modules for data acquisition, harmonization, and weighting.
+"""

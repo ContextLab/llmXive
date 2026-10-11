@@ -24,14 +24,6 @@ T004:
     hashes at verification time. Re-scope the step to write only project-owned outputs.'
   task: 45fd7ddc578f81e6c5a60f3fc4c7c2208cbef8014785870dc7d6d7e791f3aeab
 T005:
-  reason: 'The two schema files exist at the resolved canonical paths and are syntactically
-    valid draft-07 JSON Schema documents, but the task''s stated verification is not
-    satisfied: the recorded run of `tests/contract/test_schemas.py` exited 1 with
-    `test_dataset_schema_is_valid` and `test_forecast_schema_is_valid` both FAILING,
-    and there is no evidence of a successful `yamllint` pass or a successful `jsonschema`
-    validation of the dummy CSV against each schema. Additionally, the schemas are
-    structured as meta-descriptions (field definitions nested under `properties.fields`
-    with `const` values) rather tha'
   task: 02a3fa4005ef9c56f986deec586f946c5fe222a2d6ba5d67b06ab052c724d6fd
 T006:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

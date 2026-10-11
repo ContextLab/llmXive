@@ -26,17 +26,16 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/src/evaluation/reporting.py: self-declared fabricated metric — “…ld load them here.          # Simulated metrics based on typical outputs fro…”; code/verify_artifacts.py: self-declared fabricated metric — “…# Check for obvious placeholder values         # Common fabrication…”; code/verify_artifacts.py: self-declared fabricated metric — “…olumn '{col}' contains likely placeholder value: {val}")                 elif…”; every produced artifact is gitignored (data/processed/dummy_poll.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python src/data/download.py (rc=1); python src/data/harmonize.py (rc=1); python code/src/main.py --run-all (rc=1); 4 declared deliverable(s) absent: data/processed/bayesian_forecasts.csv; data/processed/frequentist_forecasts.csv; data/processed/meta_analysis_results.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/src/evaluation/reporting.py: self-declared fabricated metric — “…ld load them here.          # Simulated metrics based on typical outputs fro…”; code/verify_artifacts.py: self-declared fabricated metric — “…# Check for obvious placeholder values         # Common fabrication…”; code/verify_artifacts.py: self-declared fabricated metric — “…olumn '{col}' contains likely placeholder value: {val}")                 elif…”; every produced artifact is gitignored (data/processed/dummy_poll.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python src/data/download.py (rc=1); python src/data/harmonize.py (rc=1); python code/src/main.py --run-all (rc=1); 4 declared deliverable(s) absent: data/processed/bayesian_forecasts.csv; data/processed/frequentist_forecasts.csv; data/processed/meta_analysis_results.csv
 
 ## Failing / missing run-book commands
 
 - python src/data/download.py -> rc=1
-2026-10-11 16:42:48 - __main__ - INFO - Starting data acquisition (T006).
-2026-10-11 16:42:48 - __main__ - WARNING - RealClearPolitics (RCP) data is excluded from the pipeline per project constraints.
-2026-10-11 16:42:48 - __main__ - INFO - Fetching FiveThirtyEight polls from https://projects.fivethirtyeight.com/polls/house-polls.csv
-2026-10-11 16:42:48 - __main__ - ERROR - Error parsing FiveThirtyEight data: Error tokenizing data. C error: Expected 1 fields in line 5, saw 2
-
-2026-10-11 16:42:48 - __main__ - ERROR - Critical: Failed to fetch FiveThirtyEight poll data. Aborting.
+2026-10-11 16:46:28 - __main__ - INFO - Starting data acquisition (T006).
+2026-10-11 16:46:28 - __main__ - WARNING - RealClearPolitics (RCP) data is excluded from the pipeline per project constraints.
+2026-10-11 16:46:28 - __main__ - INFO - Downloading CSV from https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv
+2026-10-11 16:46:28 - __main__ - ERROR - Network error while fetching https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv
+2026-10-11 16:46:28 - __main__ - ERROR - Critical: Failed to fetch FiveThirtyEight poll data. Aborting.
 
 WARNING (pytensor.tensor.blas): Using NumPy C-API based implementation for BLAS functions.
 
@@ -70,14 +69,6 @@ Traceback (most recent call last):
                              ^^^^^
 NameError: name 'Union' is not defined
 
-- python -m pytest tests/contract/ -> rc=1
-casts', 'properties': {'ci_coverage': {'description': 'Check if actual outcome falls within CI (SC-002)', 'properties': {'actual_coverage_min': {...}, 'severity': {...}, 'target_coverage': {...}}, 'required': ['target_coverage', 'actual_coverage_min'], 'type': 'object'}, 'convergence_check': {'description': 'Bayesian model convergence check', 'properties': {'max_r_hat': {...}, 'severity': {...}}, 'required': ['max_r_hat', 'severity'], 'type': 'object'}, 'forecast_order': {'description': 'Forecasts must be ordered by week_bin', 'properties': {'ascending': {...}, 'severity': {...}}, 'required': ['ascending', 'severity'], 'type': 'object'}, 'weight_normalization': {'description': 'Weights must sum to 1.0 (for weighted average)', 'properties': {'severity': {...}, 'tolerance': {...}}, 'required': ['tolerance', 'severity'], 'type': 'object'}}, 'type': 'object'}}, ...}
-=========================== short test summary info ============================
-FAILED tests/contract/test_schemas.py::test_dataset_schema_is_valid - assert ...
-FAILED tests/contract/test_schemas.py::test_forecast_schema_is_valid - Assert...
-========================= 2 failed, 1 passed in 0.38s ==========================
-
-
 
 ## Declared deliverables still missing
 
@@ -92,11 +83,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/bayesian_forecasts.csv` is declared but was NOT written. Scripts referencing it:
     - `code/code/verify_artifacts.py` — NOT invoked by the run-book
+    - `code/create_data_hierarchy.py` — NOT invoked by the run-book
     - `code/src/evaluation/metrics.py` — IS a run-book command
     - `code/src/models/bayesian.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/bayesian_forecasts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/frequentist_forecasts.csv` is declared but was NOT written. Scripts referencing it:
     - `code/code/verify_artifacts.py` — NOT invoked by the run-book
+    - `code/create_data_hierarchy.py` — NOT invoked by the run-book
     - `code/src/evaluation/meta_analysis.py` — NOT invoked by the run-book
     - `code/src/evaluation/metrics.py` — IS a run-book command
     - `code/src/models/frequentist.py` — NOT invoked by the run-book
@@ -108,13 +101,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/meta_analysis_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/poll_data_cleaned.csv` is declared but was NOT written. Scripts referencing it:
     - `code/code/verify_artifacts.py` — NOT invoked by the run-book
+    - `code/create_data_hierarchy.py` — NOT invoked by the run-book
     - `code/src/data/harmonize.py` — NOT invoked by the run-book
     - `code/src/data/weights.py` — NOT invoked by the run-book
     - `code/src/models/bayesian.py` — NOT invoked by the run-book
     - `code/src/models/frequentist.py` — NOT invoked by the run-book
     - `code/src/utils/state_manager.py` — NOT invoked by the run-book
     - `code/validate_schemas.py` — NOT invoked by the run-book
-    - `src/data/harmonize.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/poll_data_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
