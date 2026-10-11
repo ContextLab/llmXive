@@ -1,9 +1,52 @@
+T001a:
+  c: false
+  h: a58a18c8dd4e53ac46c115473342624a1b20cc38bc25b89104adf743b7beba09
+  r: "The project root `projects/PROJ-160-investigating-the-impact-of-early-life-s/`\
+    \ exists, and `plan.md` is present, but the directory layout described in `plan.md`\
+    \ (e.g., a `data/` folder with `raw/` and `processed/` sub\u2011folders) is not\
+    \ found in the actual file list. The missing `data/` hierarchy means the root\
+    \ project structure does not fully match the specification."
+  sig: 0ec9781c5832779a0f21bbbb332b5ab82dffc12204f9ec32a6341bcef84c5568
+T001b:
+  c: false
+  h: bc4b1baf7b41267dd34d9e55a5124db6141eacf1fcab835dbf45dc248353db1e
+  r: The `code/`, `tests/`, and `contracts/` subdirectories are present, but the required
+    `data/raw/` and `data/processed/` directories are missing inside `projects/PROJ-160-investigating-the-impact-of-early-life-s/`.
+    These must be created to satisfy the task.
+  sig: 13595d96f012b242126ebf3bc15f3f9c479b71089777823a154260a560006e50
+T002a:
+  c: true
+  h: da5e84b702aa9c8fd79d6fa66cbb576ce30e4e6758a8e00c88dca6d3ca8ed04f
+  r: Checked `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt`;
+    it contains all required dependencies (`pandas`, `numpy`, `scipy`, `statsmodels`,
+    `scikit-learn`, `pyyaml`, `requests`, `joblib`, `pytest`) and thus satisfies the
+    task.
+  sig: 334d269d63130957a946ed5b9765ec14ebe5b9ffa62a93a05d33853ea4068c30
 T002b:
   c: false
-  h: 869cf3895a3ef9fe7160c34abbb1ebc61b48bbb7276c9b63d82909c743751666
-  r: The required `requirements.txt` file is missing, so no dependencies could be
-    installed or verified in a virtual environment. Without the file, the implementer
-    could not fulfill the installation and verification steps.
+  h: a4fd6430f000148abbb594e424df76611740e953ae9bbda449139f1cfd3a7ded
+  r: "Checked the `requirements.txt` file (present) and the `code/.tasks/T002b.code_setup_venv.sh.log`\
+    \ which shows the virtualenv creation and package installation, but there is no\
+    \ artifact (e.g., pip\u2011list output) demonstrating that `python -m pip list`\
+    \ was run and that all listed packages are indeed installed. The verification\
+    \ step is missing."
+  sig: 09b49345162debab77cde3e2024ff4d0dc8ea6b9ee67bdcdd184a48416874c10
+T003:
+  c: true
+  h: b9da82996d61de72f1081f1388e3c6cc6d990dbb19f2a773dd743923208dfd8e
+  r: "Checked the `.pre-commit-config.yaml` file (637\u202Fbytes) located at the project\
+    \ root, which defines black, isort, flake8, and pylint hooks with appropriate\
+    \ revisions and arguments, satisfying the required linting and formatting configuration."
+  sig: 299a22be800769397fe778d502a39c80ed0af19da0caa2814b13a547cb820dd3
+T004:
+  c: false
+  h: a56a1c81f3c23a1af63d7b511af23e7a0de048acdb662d9aec3fe63b9eaccbd3
+  r: "The `code/config.py` file exists and defines many path constants and `ABCD_RELEASE\
+    \ = \"4.0\"`, but the required random\u2011seed constant is not placed on line\u202F\
+    12 as the task specifies (line\u202F12 is a comment, the `RANDOM_SEED` definition\
+    \ appears later). The task\u2019s explicit line\u2011number requirement is therefore\
+    \ not satisfied."
+  sig: c58d37849cd35893bd746071c9f197d6e6a5dc71c2729fdd4b46d5d8c0e09a64
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
