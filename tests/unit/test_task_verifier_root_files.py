@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from llmxive.agents import task_verifier
-from llmxive.project_paths import declared_root_files
+from llmxive.project_paths import declared_existing_files
 
 TASK = ("T015 Paper-stage hand-off - add a `README.md` entry at the project root "
         "linking to `data/paper.md`.")
@@ -37,17 +37,17 @@ def test_only_names_that_exist_at_the_root_are_added(project: Path) -> None:
             "update `README.md` and `data/paper.md`, and keep `paper.md` in sync.")
     (project / "run_all.sh").write_text("#!/bin/bash\n", encoding="utf-8")
     # `notes.md` does not exist; `paper.md` exists only under data/, not at the root.
-    assert declared_root_files(project, text) == ["run_all.sh", "README.md"]
+    assert declared_existing_files(project, text) == ["run_all.sh", "README.md"]
 
 
 def test_a_name_already_declared_as_a_path_is_not_repeated(project: Path) -> None:
     (project / "requirements.txt").write_text("numpy==1.26.4\n", encoding="utf-8")
     text = "T000 Pin dependencies in `requirements.txt`."
-    assert declared_root_files(project, text) == []
+    assert declared_existing_files(project, text) == []
     assert task_verifier.gather_evidence(project, text).count("- `requirements.txt` (resolved") == 1
 
 
 def test_a_root_file_does_not_escape_the_project(project: Path, tmp_path: Path) -> None:
     (tmp_path / "secret.md").write_text("outside", encoding="utf-8")
     (project / "link.md").symlink_to(tmp_path / "secret.md")
-    assert declared_root_files(project, "T002 Read `link.md`.") == []
+    assert declared_existing_files(project, "T002 Read `link.md`.") == []
