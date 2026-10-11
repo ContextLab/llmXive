@@ -1,3 +1,61 @@
+T001:
+  c: true
+  h: 985fa985590d0d847bcb0961012423075adbe22c819deb4a268c1866accde8ed
+  r: "The project root `projects/PROJ-021-understanding-oceanic-phytoplankton-comm/`\
+    \ exists with the expected sub\u2011directories and files (code/, data/, specs/,\
+    \ tests/, README, etc.), satisfying the requirement to create the prescribed project\
+    \ structure."
+  sig: 0ed7d0bd2d8748b7c7347a80f45463a785ef7a4dd12e46f4e568e76f9a105e47
+T002:
+  c: false
+  h: 164fd4ed408e24ebdba703d08d74732364c7dfb8b1691170f5532b66d312fa46
+  r: "The only artifact found is `code/requirements.txt`, which correctly lists all\
+    \ required packages (and a few extras), but there is no evidence that the project\
+    \ is explicitly set up for Python\u202F3.11 (e.g., no `pyproject.toml`, `setup.cfg`,\
+    \ or other version\u2011specifying file) nor any other initialization files (e.g.,\
+    \ `__init__.py`, starter script). Adding a manifest that declares `requires\u2011\
+    python = \">=3.11\"` (or equivalent) would satisfy the task."
+  sig: 09874dc7d094d5113aca6b08dfda65698717e222b9d53c8c9c362382646e1fb6
+T004:
+  c: true
+  h: 24afce4cf26964a8b8808ab8a851ebfa22f8dd3283959582c8ee8cda62fab73d
+  r: 'The artifact `code/utils/config.py` exists, is non-empty (2342 bytes), and contains
+    a fully functional configuration manager that addresses all stated requirements:
+
+
+    1. **Seeds**: `random_seed` field (default 42) with environment variable override
+    support via `RANDOM_SEED`.
+
+    2. **Paths**: Multiple path fields (`project_root`, `data_root`, `code_root`,
+    `specs_root`, `state_root`) with a `get_path()` method for resolving relative
+    paths.
+
+    3. **Hyperparameters**: Model-specific settings including `rf_max_trees` (500),
+    `vlm_patience` (3), `vlm_fallback_threshold` (0.05), and dataset parameters (`min_'
+  sig: 6b1f8d70a627fcaa0d775e4a77470267feeda3840fc19361e909c596e0b0ee3b
+T005:
+  c: false
+  h: 4657283f842272cd42c90a07752b57da6e0d6f4bf9c75c1de57966ad428e0e84
+  r: "The `code/utils/data_loaders.py` file exists but contains only placeholder/stub\
+    \ implementations that do not satisfy the task requirements. Specifically:\n\n\
+    1. **`stream_netcdf_by_chunk()`**: Contains only a comment saying \"Implementation\
+    \ would use xarray's open_dataset with chunks\" and yields an empty `xr.Dataset()`.\
+    \ This is a non-functional stub, not a working streaming implementation.\n\n2.\
+    \ **`sample_to_ram_limit()`**: Marked as a placeholder with no actual sampling\
+    \ logic\u2014it simply returns the dataset unchanged. The task requires \"sampling\
+    \ to fit available RAM,\" which is not implemented.\n\n3. **`"
+  sig: 605ab2b0dea4da22f20856b22529cc92ba32782297fe193767a45d8a5f6c068e
+T006:
+  c: false
+  h: 86c41453f988c63accb9f9097b2aaeb07906a5c4339ad0349c20f217db52e0f6
+  r: 'The task requires creating two specific schema definition files in `specs/001-phytoplankton-vlm-analysis/contracts/`:
+    `phytoplankton_sample.schema.yaml` and `model_performance.schema.yaml`. While
+    the directory exists and contains 5 entries, the evidence explicitly shows both
+    required files are MISSING (file does not exist). The directory contains `.gitkeep`,
+    `aligned_dataset.schema.yaml`, and `feature_importance.schema.yaml`, but the two
+    files specified in the task are absent. Without these schema definitions, the
+    task is incomplete regardless of whether other schema files exist in the directo'
+  sig: 4373e1548bbb1512c903ec667837a7b760759a2b93817c0b8f77f6ff477402a5
 T011c:
   c: false
   h: e98e0724f5968e24bf4b6c8e766ccb627c47f89c3f45710ff0e4b31f5f541b16

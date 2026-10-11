@@ -1,0 +1,139 @@
+T001:
+  task: c673b5c30b04dd6f0adb2c2b9c4da8d8ec89e811ae1306cdca9556df3c166caf
+T002:
+  reason: "The only artifact found is `code/requirements.txt`, which correctly lists\
+    \ all required packages (and a few extras), but there is no evidence that the\
+    \ project is explicitly set up for Python\u202F3.11 (e.g., no `pyproject.toml`,\
+    \ `setup.cfg`, or other version\u2011specifying file) nor any other initialization\
+    \ files (e.g., `__init__.py`, starter script). Adding a manifest that declares\
+    \ `requires\u2011python = \">=3.11\"` (or equivalent) would satisfy the task."
+  task: 636322f4740168bdd57d2ec4a80542e4de8c9fb3141b232ed662dec462836738
+T003:
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: aaf06fa98e41d482faad72e090e17876dab47f7473e22160945f96d19180326a
+T005:
+  reason: "The `code/utils/data_loaders.py` file exists but contains only placeholder/stub\
+    \ implementations that do not satisfy the task requirements. Specifically:\n\n\
+    1. **`stream_netcdf_by_chunk()`**: Contains only a comment saying \"Implementation\
+    \ would use xarray's open_dataset with chunks\" and yields an empty `xr.Dataset()`.\
+    \ This is a non-functional stub, not a working streaming implementation.\n\n2.\
+    \ **`sample_to_ram_limit()`**: Marked as a placeholder with no actual sampling\
+    \ logic\u2014it simply returns the dataset unchanged. The task requires \"sampling\
+    \ to fit available RAM,\" which is not implemented.\n\n3. **`"
+  task: 77927c126bfbc524a72bb9684cc72bbd184a6a4ba6607431a49060b4171d77f3
+T006:
+  reason: 'The task requires creating two specific schema definition files in `specs/001-phytoplankton-vlm-analysis/contracts/`:
+    `phytoplankton_sample.schema.yaml` and `model_performance.schema.yaml`. While
+    the directory exists and contains 5 entries, the evidence explicitly shows both
+    required files are MISSING (file does not exist). The directory contains `.gitkeep`,
+    `aligned_dataset.schema.yaml`, and `feature_importance.schema.yaml`, but the two
+    files specified in the task are absent. Without these schema definitions, the
+    task is incomplete regardless of whether other schema files exist in the directo'
+  task: 9cfb3e726561f8e96dbdb05279aaab79eb3df85f0e8852c092d84ae19093fbc1
+T007:
+  task: d7dff5a27f3f8ac7629e68bba8a6c0baa59beb2fbb0b04620960731082ddc014
+T008:
+  task: aa75c670b6cc7af768e22929240738736df4faca717296110d8ed95cde1243b7
+T009:
+  task: 79f157a1b223a48aad9580260d7a725cbf40c23d30e9e676fa1f5763ab1aef0f
+T009a:
+  task: 1144f0fbf930a034c15d2d25a82514e7ad36ed01a23673431a14a666f1a68719
+T010:
+  task: e31125b2b7923bff100a258774faa80c9aaa79dd8e6ff2c2f1558fdebb689476
+T011a:
+  reason: 'Requested task execution failed; rerun successfully: code/01_fetch_reanalysis.py
+    exit=1'
+  task: a50dd982655589703ed986bd7ad9032510e8daba42f8d6331d005bc7bc26ffda
+T011a_verify:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: e93213dbd7fb255f31936444aee2987aa5f19633cf1ee26ab50890b8a425ee9b
+T011b:
+  task: cddcfe76e7bbcab53c221cda905de3ebd9ed9634d1d1e7b22b1690c397d0382d
+T011b_verify:
+  task: fea064b013e948a5eebba3bb2ebfa62b0f2134a959f00ba0ad0971533f74fe5a
+T011c:
+  task: 422293e9a9cf4259032ac8b9e8ac331cc73e1f21cc84a467276080f82884563d
+T011c_verify:
+  task: 43b82b361d02192ee22a2c1ec9408f8588b382bc344ac2d7aae9efb221f8a8f0
+T012:
+  task: 13016d07de52ffb3c103f391bc6d6b155e6b40db574f0c25ef0982cfe50541dc
+T012a:
+  task: 9dd9ab430f5e0b5000e978571e2c0c5dade11bcb898a833cdc28ad8a427d4798
+T012b:
+  task: ed1557a53750eec8540fd93710386daaf49c60e9c673e0510ede55ad6ed0d8af
+T012c:
+  task: 7d766d829ae3ae4453b42411033078869e2ed434bfe69ec00519ee8d330c6620
+T013:
+  task: 094ee9c9624509fc589757035460e0d9726bc7dd817f6a188a0223d67e55dec0
+T013a:
+  task: 05a84fe248cb07ad9e7f54292af95a30260e7114d88e4782bd14494fe88119f8
+T013b:
+  task: 7643aedcbc2065b564753f54585f3304861b5921a1ebece5489654558d3acabd
+T015a:
+  task: 5d3cc857e50ec4bf5e5e12671b9c1568714adc40e4210c3d05ffcd3a280054f3
+T015b:
+  task: e6617335e5ebd400ddf2eac1de26b426b7ae8e038bb71ad8c856231d3673ba09
+T017:
+  task: 75f34d8a455c0b21d6ccc5556811840f44afe37bfaebfee24b04b5ac7305597d
+T017a:
+  task: ba6756c433aed6861c53480b0990a491e12e588f762431fbb3195e027d2dbb22
+T018:
+  task: b9b0daee239c9e89ac81714bb1011e2cefb88c5592e48ed2466d66596b67b2ce
+T019:
+  task: ab1688878625302dea0d42c67435071620466eb491d159f9089a025d8c0ee3c5
+T019a:
+  task: 29ad7481b61e6b901a0bd8779460df14dffe3b5d379da5c13bb1de90647b4cb3
+T020:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 701fd50652bde3a06756f2b6201cbb8523d346f056c2355fc8069e902909676d
+T020_pred:
+  task: 345ff3d5086c943f3973e8ba4ea0fd7d0bf8270d57ed8c27927084b64869fe04
+T020a:
+  task: 31eb935e5ced441b7c9034d41de767408ff8d7793112a38d18862e58d6901bcf
+T020b:
+  task: e7ea61fbaccdddbff115a35d1feec52030fe55ee1fabe62fea7a80e64a3d109d
+T020c:
+  task: 3ff2d0a29a460a2bea21b7b027ec05936645f5862bd6101f1d138f11d69074a9
+T021:
+  task: df2409d796e219548e85057a774938e17c3765f4c4c6f4e547427c731efc4ebe
+T022:
+  task: 06c6227012e10b663afe3d839ac6b63f9c4fea2a3d588bbff247f67ae9f21da7
+T023:
+  task: fd74ca7d4ca18ac3047bafc02ce941c8fb7145d68a6ed04524edcf5f54ad5205
+T024:
+  task: 8d560a9b3583907c8ea8565c94bbd03d87f4217deae313a0aa2cbf28c7614cf5
+T025:
+  task: c136b929334099c38dd099096ce0e75c08b0ea7eb72564bc0429bcd16d1aa796
+T026:
+  task: e4decdf12df740ca66c64cea3f8cb18f467c378b5db2482a0d5d199c24d45298
+T028:
+  task: 7c93bb781151b2aaa4365b34d137de08802331c72717eaeb13913a6b93e991cd
+T029:
+  task: e52ac4c71595314f10347ce657f584cb71733e696982efa8b3322edb1fdfa1d1
+T030:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: e62b724cf43e6ee579373caded004b87f1d49224e6c06cfdbe85a8d1692c53b5
+T031:
+  task: 4f0f1a80d9a2cc15056e87276cde2ec3e8d913ce7d91a0432c39ff056e2d2a25
+T032:
+  task: 54b489f9be387dca9244e1ddeaac9ff64991ac7d3384fab36cd181fdcdb47797
+T039:
+  task: ead70fdbc68a742543e3a800c5145d460f52142d6aab9dc7c49671f56220d3db
+T041:
+  task: 061aae7c5675df8ac94c3d2224d2a6327856b284bf844dc2a763d2094a4a8a48
+T050:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/...yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 05d877cbe9e31517d40ed837a8a0c4dfa82378d46ab4b12ea40ddbd87704b89b
