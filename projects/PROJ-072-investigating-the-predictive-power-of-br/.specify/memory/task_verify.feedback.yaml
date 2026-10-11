@@ -1,0 +1,156 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 1f6c4577c3e5431d6b42ab31d5c10a8d31de0927b1eb484d160ea8ff2eef0289
+T002:
+  task: 54424ed8295c3480734f2d1f176410ba66ac696043f04c5cb23620368be70123
+T003:
+  reason: "The evidence contains no linting or formatting configuration files (e.g.,\
+    \ a `pyproject.toml` or `.ruff.toml` specifying ruff rules, a `black` configuration\
+    \ section, or a `pre-commit` hook invoking these tools). Without these artifacts,\
+    \ we cannot confirm that ruff and black have been set up for the project. Adding\
+    \ the appropriate configuration files and, optionally, a CI script or pre\u2011\
+    commit hook would satisfy the task."
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 833023d00fcd28b01a0c62d59ea9cf90ff459a9cf4b4f16aa4dfae09f860ad27
+T006:
+  reason: The `code/__init__.py` file exists, but it only contains a docstring and
+    a version string; there is no logging configuration (e.g., importing `logging`
+    and setting up handlers or `basicConfig`). The task required both the file creation
+    **and** the logging infrastructure, which is not present. Adding proper logging
+    setup to `__init__.py` (or an appropriate module) is needed.
+  task: 748aa5baf663e21868cfc87e97c383f45b521934ee94432b2f4eb8ec32a0fd12
+T007:
+  task: 09e4ec09be47da9ce764d975dea746aaccb940c062f93229699bb68353808c8e
+T008:
+  reason: "The provided `code/main.py` implements the 6\u2011hour runtime limit and\
+    \ a DATA_GAP check, but it does **not** include any memory\u2011usage monitoring\
+    \ with `psutil` (checking >7\u202FGB RAM for 5 consecutive seconds) nor does it\
+    \ exit with code\u202F1 when that memory threshold is exceeded. Adding the required\
+    \ psutil\u2011based memory guard and the correct exit code is needed."
+  task: b418c184aa73301e4654f8bb6ace228fcc438abd12867b60e69a72823910d3b8
+T009:
+  reason: "The `tests/unit/test_preprocessing.py` file does not contain the required\
+    \ `test_download_url_exists` or `test_download_checksum` unit tests; it only tests\
+    \ metadata loading functions. Consequently, the task\u2019s specified tests are\
+    \ missing, and the referenced raw data file `data/raw/ds000030.zip` is also absent.\
+    \ The implementer must add the two download\u2011validation tests (and provide\
+    \ a real or mock dataset file for checksum verification)."
+  task: 4f10194151c88aa8eb135c8bb22c76d20e34add1d36ce76a50ff567176f569b4
+T010:
+  task: 8ba37c1bcdda383079f9cbe3e2d30d1c9d6e40d913cb2de3012a78e1cf8b135a
+T011:
+  task: bc1c77c19e8a365039c6f53244b67a6704175d625b217a84ff836e2afcd5b17b
+T012:
+  task: 1401f711952595cf1a76c909ca6437cba17708dd5223e7843ed375c3589660c8
+T013:
+  task: f8b4d10bd434167baba80b28c369b2f558acd021056a5f1624eb77a8e978dc8b
+T014:
+  task: 4d6c53fe2afacd1588199d91fa61c6b00f5253fc60acd4a163efdfef2e4ef549
+T014b:
+  task: 06b80610f32cfc20ab69463ef2b685bee685b374d0704eb7534c8d4afa24bfbd
+T015:
+  task: 6d25bb7f8904eabe4ddbbd4cae1fae0e83da6306cd578665b8f1914e84f028d1
+T015.5:
+  task: f754213899cf0654ff524f06d0772ea4f71be8f14b2a72e5dd96f46f5c844207
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: code/preprocessing/validate.py,
+    data/metadata/anomaly_log.txt'
+  task: c392696377fbff951d73cac760069848e480548af72cde15767f2a22652b5603
+T017:
+  task: 6bfd3a145a22d999b3f1ebb5bcb1bfbb8369f9f4ca2921178df6b0dd4ce9ff2f
+T018:
+  task: 1c15f9c310634326a7ed59d346c9ea8aeac3c63fee7ba4b14f810bf253c27977
+T019:
+  task: 119cd25d10a5645e1620efded5ef5b0c5c93aa23970da73c1e15ba3e5a18d5b2
+T020:
+  task: 2b6ea3f3c7eb29629e827c75778bde00fc0d6ba7598d3cd6b6b819cc73683abb
+T021:
+  task: 4e1fe394eee9b5bea5a4535bcfdd5b2bcbf80f5b62cf4c7f3a0657f988ee6f21
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/features.csv'
+  task: fd3870fcf1bca47f5823cfebc06b10a60d58c9924ba31409420d4fe08e96fd1c
+T022b:
+  reason: 'Requested task execution failed; rerun successfully: code/graph_metrics/generate_dummy_features.py
+    exit=1; code/graph_metrics/verify.py exit=1'
+  task: b1931af0a3d5307f0420f138bccede4184a284a42be5913f3ad5381e3e03b54f
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/summary_stats.md'
+  task: 8c8b4913db6e1a46a32a46f8e139d11d2623a69f1f18722b47e22458bde150ea
+T024:
+  task: ac44b03e9c1081b6288fe0a3fb54ae83bfee6a9ac89e83bff58891d6eee63837
+T025:
+  task: f36f013dc5678c5c3f47c439337d09bf03228ec865a2c7f246e39968a621f7f1
+T026:
+  task: f5714fa2d16a961b10efc1943eb7fd2740bb32de6456297b477d9225b33a97b7
+T027a:
+  task: 47fe3454bbf690f0a6fddb35ef41a1312d0c7d64691087914acafef0b5a630ea
+T027b:
+  task: d59493ad41d2e929923141189d884e6b4d5ca09b2004c04b66f5da9fc7f8cb6b
+T027c:
+  task: ae92ae8c66f4580b37fc19f15c3ee35289dd310bd32a62a1b7529e5e33d7dba3
+T028:
+  task: 9f73bfb8140e59c1594f19f8807d2cd07f8c0d1e61733d2dd75902e98a3e6c89
+T029:
+  task: 717a4a9f92b2c0e3c309e12b8e336991ac9c8523f1ae19cfd138eb330c0ed409
+T030:
+  task: 59a38a3102b7d17d6fb54fd46f56e2911ac9fedc998889d33843cbd60abf0f3d
+T030b:
+  task: 50173ea8b10da42b02643b552867f7b7db4911a48c3a00e2c420b98714ce86bc
+T031:
+  task: 2f84b502744879b5cbb65ce258c47feb5c03de43e2623c02a8a398917165816f
+T031a:
+  task: c1e0f2320e824a2a73cfd98766c2e2fe80f14a88787854cd77ef0022a64bcadc
+T031b:
+  task: d811c8831a1a071c19f431527d15d35091d2fb68dd1991f1f5db8a928c2d1e67
+T032a:
+  task: 6a197b80b6d627c9c74c864961f6499601f2339ad696401ee6d5729f708ee70a
+T032b:
+  task: f4cb7fd1c5b4877858b212b978e342680a7af256037719deeaf2a92be7b612c6
+T033a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/features.csv,
+    docs/figures/heatmap.png'
+  task: 203a1c0d6698a8e32754798842b3e39d6269ebb0501a39621ca68d20a51cc115
+T033b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/results.json,
+    docs/figures/accuracy_bar.png'
+  task: 870bfb5be278f2e6659be2c74752531ca95c693e7b26ee4996f9dbf8db1d70bf
+T033c:
+  task: ca4d406d4f7f605958423cd35daae5f3419298a438c8ccc326215e0c3d26a450
+T034:
+  task: eb69bff06df643b8c7228645653cd2b1a975f759e7846230869a46fbd4037ed0
+T035:
+  task: 12bb3f57c9d8a5854a724d8b35b61a55df44fb3e38c61003fa1f8e6f7d77e36a
+T036:
+  task: b47fb1a6e7069e1cdd4e24e9966c33bee358465005bff22a51026b4b6d70f5af
+T037:
+  task: 5a5d070fc69185fcee98bc1f44351de8721caed133d8d017f419de4a9ab93114
+T038a:
+  task: 386d9a5c0388903b658de9a1547c22d73cec44080b0ddda71312aa20b3c952ae
+T038b:
+  task: 5aee0605fcb10687f4f400dff6f90f45ffeda230ad786db727b98e43003a40b7
+T038c:
+  task: cfaef3eda683ed17a5b90165ce36644b2a5172404d8d1329206417e25b1c3cc5
+T039a:
+  task: b641a1b1913e5bf3fcf0a2cf8d01aa246701898f79d5bd852dd6b30272e9e245
+T039b:
+  task: 6b6a59abe493a0c0bc384bc9ee87953b9951f2801b453b9b7eda15931aa0a7ed
+T039c:
+  task: 11ea08333c46bde4050f0a6e8ba40e1dd4e18ee8fb75498a8fdd6c7ca26fa006
+T040a:
+  task: c95360b2d5754bc67e9c43044516e76a8d07458903a4f1c7013704373941eb12
+T040b:
+  task: c8488e27fe3fefcc3735fb21e99ff007394fbf47abe2e9debfe044df22404dfc
+T040c:
+  task: 58ef46211db227320d58dcc8a5ef561081d4c2dfed2325fd467b94a884363186
+T041:
+  task: ed360302ad7b7c92e26e3d2adf82588e8b888fbda3210e2d3a5933e1660b22bd
+T042:
+  task: 513b40977ab3ac53851f85c2d4724242264ed7d6032dedbd2a8db5cd9764de10

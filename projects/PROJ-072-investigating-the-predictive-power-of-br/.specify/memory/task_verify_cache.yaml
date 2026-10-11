@@ -1,3 +1,58 @@
+T002:
+  c: true
+  h: 7be3f04a12f572bb62bb29503e2c8f0cddef1e8cf385f133d4d9587dca345a26
+  r: "Checked the `requirements.txt` file (117\u202Fbytes) located at the project\
+    \ root; it contains all required dependencies (nibabel, numpy, pandas, scikit-learn,\
+    \ networkx, bctpy, scipy, huggingface_hub, nilearn, pydantic, joblib) and is non\u2011\
+    empty, satisfying the initialization task."
+  sig: 7cd19c7199096ac5d3468f606a6d5a8843f9a3ddac7f269086fc6ef868c67d0e
+T003:
+  c: false
+  h: 16ee9502f7cdbbf7927797d75a74e9fdb6542618e7789eff9c009a0990ff7831
+  r: "The evidence contains no linting or formatting configuration files (e.g., a\
+    \ `pyproject.toml` or `.ruff.toml` specifying ruff rules, a `black` configuration\
+    \ section, or a `pre-commit` hook invoking these tools). Without these artifacts,\
+    \ we cannot confirm that ruff and black have been set up for the project. Adding\
+    \ the appropriate configuration files and, optionally, a CI script or pre\u2011\
+    commit hook would satisfy the task."
+  sig: a3091352524f4113d0f5a7cee63e051dfec3e5a4f5dc4504e466d1216185872d
+T006:
+  c: false
+  h: aeac73118fb7fb48fc3080ec861cb90e13da798ba42051bbee79f9b7528bf22b
+  r: The `code/__init__.py` file exists, but it only contains a docstring and a version
+    string; there is no logging configuration (e.g., importing `logging` and setting
+    up handlers or `basicConfig`). The task required both the file creation **and**
+    the logging infrastructure, which is not present. Adding proper logging setup
+    to `__init__.py` (or an appropriate module) is needed.
+  sig: 7c9fcb59d1c05059af8b0663155edfa22bb0a9b24586ea4c177213579bd88b4a
+T007:
+  c: true
+  h: ba32f018f4b93a42d90795bbfcb89fee61f24b215b5c87f059d0602dea99c528
+  r: "Checked the file `data/metadata/schema.yaml` (3279\u202Fbytes) which exists\
+    \ at the required path and contains concrete YAML definitions for the three Pydantic\
+    \ models\u202F\u2014\u202FSubject, ConnectivityMatrix, and FeatureVector\u202F\
+    \u2014\u202Fwith appropriate field names, types, and validation constraints. No\
+    \ placeholders or stubs are present."
+  sig: a4791d252d9642f8146790b70c15340e514acef6453464c8d5dbe7c38f870f9d
+T008:
+  c: false
+  h: c0003dfc8ac4f9d78f36b6f3bae0def649cff4b9499ec84dac1975ffa1d1bde6
+  r: "The provided `code/main.py` implements the 6\u2011hour runtime limit and a DATA_GAP\
+    \ check, but it does **not** include any memory\u2011usage monitoring with `psutil`\
+    \ (checking >7\u202FGB RAM for 5 consecutive seconds) nor does it exit with code\u202F\
+    1 when that memory threshold is exceeded. Adding the required psutil\u2011based\
+    \ memory guard and the correct exit code is needed."
+  sig: 5e5828a8939e8c3d4a49c4aa561b6224469d4a576460430d85bf5537088a3454
+T009:
+  c: false
+  h: f2d317d880997c066f547d5827227501c91890625e4f426ee13e44346b7e2060
+  r: "The `tests/unit/test_preprocessing.py` file does not contain the required `test_download_url_exists`\
+    \ or `test_download_checksum` unit tests; it only tests metadata loading functions.\
+    \ Consequently, the task\u2019s specified tests are missing, and the referenced\
+    \ raw data file `data/raw/ds000030.zip` is also absent. The implementer must add\
+    \ the two download\u2011validation tests (and provide a real or mock dataset file\
+    \ for checksum verification)."
+  sig: 26692f2ebb476c39f83c5bd7aea380bf0476a1b4c38e5e1b3addbf5957aeb209
 T011:
   c: false
   h: cd4b7ab569ab286878e51593d795ad8cb7154293e53a350f2e665aba2dd458d7
