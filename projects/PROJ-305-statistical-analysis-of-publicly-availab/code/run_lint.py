@@ -24,7 +24,7 @@ def main() -> None:
     log_file: Path = paths.logs("lint.txt")
     # Ensure logs directory exists
     log_file.parent.mkdir(parents=True, exist_ok=True)
-    
+
     commands = [
         ["ruff", "check", "."],
         ["black", "--check", "."],

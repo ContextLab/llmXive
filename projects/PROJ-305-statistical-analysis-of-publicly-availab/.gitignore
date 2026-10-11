@@ -3,40 +3,85 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# C extensions
+*.so
+
 # Distribution / packaging
-build/
-dist/
-*.egg-info/
-*.egg
-.eggs/
-sdist/
-wheels/
-
-# Virtual environments
-venv/
-.venv/
+.Python
 env/
-.env
+venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Test / coverage
-.pytest_cache/
-.coverage
-coverage.xml
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
 htmlcov/
 .tox/
-.hypothesis/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
 
-# Jupyter
-.ipynb_checkpoints/
+# Translations
+*.mo
+*.pot
 
-# Editors / OS
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+build/
+tmp/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# VS Code
 .vscode/
-.idea/
-*.swp
-.DS_Store
 
-# Project data and outputs
-data/raw/
-data/processed/
-output/
-logs/
+# PyCharm
+.idea/

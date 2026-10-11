@@ -1,13 +1,15 @@
 T001:
-  reason: The required artifact `logs/structure.txt` is missing from the evidence
-    provided by the collector, and the `logs/` directory itself is not listed in the
-    project structure. While the execution logs claim the directory was created and
-    the snapshot was written, the actual filesystem evidence does not contain these
-    items.
+  reason: "The directory tree exists and the setup script logged creation of the directories\
+    \ and a snapshot file, but there is no evidence that `logs/structure.txt` actually\
+    \ exists, is non\u2011empty, or contains the required grep\u2011matched lines\
+    \ for each listed directory. The verification step cannot be confirmed."
   task: 7a05fc7ae8e3c23695993ba53df0ca8373aac55059a7516e63527572beda3200
 T002:
-  reason: The `README.md` file is correct, but the `.gitignore` file is missing from
-    the provided evidence.
+  reason: "The README.md file is present and contains the exact project title plus\
+    \ a one\u2011sentence description, but the required `.gitignore` file is missing\
+    \ (no evidence of its existence or non\u2011empty content). Adding a non\u2011\
+    empty `.gitignore` with standard Python ignore patterns will be needed to satisfy\
+    \ the task."
   task: 3f5baf962ba451ddaba32ad9a1a6d929761bbc720e6b1be1d5dd58246ccb6ccc
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=2'

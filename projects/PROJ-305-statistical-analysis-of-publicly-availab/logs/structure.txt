@@ -1,152 +1,178 @@
-/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab
-├── .gitignore
-├── .gitkeep
-├── .pre-commit-config.yaml
-├── .python-version
-├── .ruff.toml
-├── .runtime-home
-│   ├── .cache
-│   │   └── matplotlib
-│   └── .config
-│       └── matplotlib
-├── .specify
-│   ├── memory
-│   │   ├── constitution.md
-│   │   ├── convergence_trail
-│   │   ├── discovered_data_source.yaml
-│   │   ├── execution_feedback.md
-│   │   ├── research_question_validated.yaml
-│   │   ├── task_verifier_notes.md
-│   │   ├── task_verify.feedback.yaml
-│   │   ├── task_verify.yaml
-│   │   ├── task_verify_cache.yaml
-│   │   └── tasker_rounds.yaml
-│   ├── scripts
-│   │   └── bash
-│   └── templates
-│       ├── checklist-template.md
-│       ├── constitution-template.md
-│       ├── plan-template.md
-│       ├── spec-template.md
-│       └── tasks-template.md
-├── Makefile
-├── README.md
-├── activity.jsonl
-├── code
-│   ├── .black.toml
-│   ├── .flake8
-│   ├── .gitignore
-│   ├── .gitkeep
-│   ├── .ruff.toml
-│   ├── .tasks
-│   │   ├── T001.code_create_structure.py.log
-│   │   ├── T003.code_run_lint.py.log
-│   │   └── T016b.atomize.yaml
-│   ├── Makefile
-│   ├── README.md
-│   ├── __init__.py
-│   ├── contracts
-│   │   ├── .gitkeep
-│   │   ├── dataset.schema.yaml
-│   │   └── signal.schema.yaml
-│   ├── create_structure.py
-│   ├── data
-│   │   ├── .gitkeep
-│   │   ├── __init__.py
-│   │   └── raw
-│   ├── figures
-│   │   └── .gitkeep
-│   ├── output
-│   │   ├── .gitkeep
-│   │   ├── __init__.py
-│   │   └── signals.csv
-│   ├── pyproject.toml
-│   ├── requirements-dev.txt
-│   ├── requirements.txt
-│   ├── run_lint.py
-│   ├── scripts
-│   │   ├── gpu_check.py
-│   │   └── setup_linting.py
-│   ├── setup_project.py
-│   ├── specs
-│   │   └── .gitkeep
-│   ├── src
-│   │   ├── .gitkeep
-│   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   ├── analysis
-│   │   ├── data
-│   │   ├── main.py
-│   │   └── utils
-│   └── tests
-│       ├── .gitkeep
-│       ├── __init__.py
-│       ├── integration
-│       └── unit
-├── contracts
-│   ├── .gitkeep
-│   ├── dataset.schema.yaml
-│   └── signal.schema.yaml
-├── data
-│   ├── .gitkeep
-│   ├── processed
-│   └── raw
-├── figures
-│   └── .gitkeep
-├── idea
-│   ├── research_question_validation.md
-│   └── statistical-analysis-of-publicly-availab.md
-├── logs
-│   ├── analysis.log
-│   ├── download.log
-│   ├── lint.txt
-│   ├── pipeline.log
-│   ├── structure.txt
-│   └── validate.log
-├── output
-│   ├── .gitkeep
-│   ├── figures
-│   └── temporal_profiles
-├── pyproject.toml
-├── requirements.txt
-├── scripts
-│   ├── format.sh
-│   └── lint.sh
-├── setup.cfg
-├── specs
-│   └── 001-statistical-analysis-of-publicly-availab
-│       ├── contracts
-│       ├── data-model.md
-│       ├── plan.md
-│       ├── quickstart.md
-│       ├── research.md
-│       ├── spec.md
-│       └── tasks.md
-├── src
-│   ├── .gitkeep
-│   ├── analysis
-│   │   └── disproportionality.py
-│   ├── data
-│   │   ├── download.py
-│   │   └── validate.py
-│   ├── main.py
-│   ├── utils
-│   │   └── config.py
-│   └── validation
-└── tests
-    ├── .gitkeep
-    ├── integration
-    │   ├── test_pipeline.py
-    │   ├── test_signal_detection.py
-    │   └── test_temporal_profiles.py
-    └── unit
-        ├── test_bh_correction.py
-        ├── test_disproportionality.py
-        ├── test_download.py
-        ├── test_download_meddra.py
-        ├── test_signal_schema.py
-        ├── test_t022_disproportionality.py
-        ├── test_validate.py
-        └── test_validate_e_schema_missing.py
-
-51 directories, 99 files
+PROJ-305-statistical-analysis-of-publicly-availab/
+│   .gitignore
+│   .gitkeep
+│   .pre-commit-config.yaml
+│   .python-version
+│   .ruff.toml
+│   Makefile
+│   README.md
+│   activity.jsonl
+│   pyproject.toml
+│   requirements.txt
+│   setup.cfg
+│   idea/
+│   │   research_question_validation.md
+│   │   statistical-analysis-of-publicly-availab.md
+│   code/
+│   │   .black.toml
+│   │   .flake8
+│   │   .gitignore
+│   │   .gitkeep
+│   │   .ruff.toml
+│   │   Makefile
+│   │   README.md
+│   │   __init__.py
+│   │   create_structure.py
+│   │   pyproject.toml
+│   │   requirements-dev.txt
+│   │   requirements.txt
+│   │   run_lint.py
+│   │   setup_project.py
+│   │   setup_structure.py
+│   │   figures/
+│   │   │   .gitkeep
+│   │   output/
+│   │   │   .gitkeep
+│   │   │   __init__.py
+│   │   │   signals.csv
+│   │   data/
+│   │   │   .gitkeep
+│   │   │   __init__.py
+│   │   │   raw/
+│   │   │   │   placeholder.txt
+│   │   specs/
+│   │   │   .gitkeep
+│   │   scripts/
+│   │   │   gpu_check.py
+│   │   │   setup_linting.py
+│   │   tests/
+│   │   │   .gitkeep
+│   │   │   __init__.py
+│   │   │   integration/
+│   │   │   │   test_t026_signal_output.py
+│   │   │   unit/
+│   │   │   │   test_clean.py
+│   │   │   │   test_clean_t016.py
+│   │   │   │   test_disproportionality.py
+│   │   │   │   test_download_meddra.py
+│   │   │   │   test_linting.py
+│   │   │   │   test_linting_config.py
+│   │   │   │   test_plots.py
+│   │   │   │   test_sensitivity.py
+│   │   │   │   test_sensitivity_output.py
+│   │   │   │   test_setup_project.py
+│   │   │   │   test_signal_output.py
+│   │   │   │   test_t003_linting_config.py
+│   │   │   │   test_t027_sensitivity.py
+│   │   │   │   test_temporal.py
+│   │   │   │   test_validate.py
+│   │   │   │   test_validate_e_schema_missing.py
+│   │   src/
+│   │   │   .gitkeep
+│   │   │   __init__.py
+│   │   │   main.py
+│   │   │   utils/
+│   │   │   │   config.py
+│   │   │   │   plots.py
+│   │   │   data/
+│   │   │   │   clean.py
+│   │   │   │   download.py
+│   │   │   │   download_meddra.py
+│   │   │   │   validate.py
+│   │   │   analysis/
+│   │   │   │   disproportionality.py
+│   │   │   │   sensitivity.py
+│   │   │   │   sensitivity_output.py
+│   │   │   │   signal_output.py
+│   │   │   │   temporal.py
+│   │   .tasks/
+│   │   │   T016b.atomize.yaml
+│   │   contracts/
+│   │   │   .gitkeep
+│   │   │   dataset.schema.yaml
+│   │   │   signal.schema.yaml
+│   .specify/
+│   │   templates/
+│   │   │   checklist-template.md
+│   │   │   constitution-template.md
+│   │   │   plan-template.md
+│   │   │   spec-template.md
+│   │   │   tasks-template.md
+│   │   memory/
+│   │   │   constitution.md
+│   │   │   discovered_data_source.yaml
+│   │   │   execution_feedback.md
+│   │   │   research_question_validated.yaml
+│   │   │   task_verifier_notes.md
+│   │   │   task_verify.feedback.yaml
+│   │   │   task_verify.yaml
+│   │   │   task_verify_cache.yaml
+│   │   │   tasker_rounds.yaml
+│   │   │   convergence_trail/
+│   │   │   │   plan-001.jsonl
+│   │   │   │   spec-001.jsonl
+│   │   scripts/
+│   │   │   bash/
+│   │   │   │   check-prerequisites.sh
+│   │   │   │   common.sh
+│   │   │   │   create-new-feature.sh
+│   │   │   │   setup-plan.sh
+│   figures/
+│   │   .gitkeep
+│   output/
+│   │   .gitkeep
+│   │   figures/
+│   │   temporal_profiles/
+│   data/
+│   │   .gitkeep
+│   │   raw/
+│   │   processed/
+│   .runtime-home/
+│   specs/
+│   │   001-statistical-analysis-of-publicly-availab/
+│   │   │   data-model.md
+│   │   │   plan.md
+│   │   │   quickstart.md
+│   │   │   research.md
+│   │   │   spec.md
+│   │   │   tasks.md
+│   │   │   contracts/
+│   │   │   │   dataset.schema.yaml
+│   │   │   │   signal.schema.yaml
+│   │   │   │   soc_cluster.schema.yaml
+│   scripts/
+│   │   format.sh
+│   │   lint.sh
+│   tests/
+│   │   .gitkeep
+│   │   integration/
+│   │   │   test_pipeline.py
+│   │   │   test_signal_detection.py
+│   │   │   test_temporal_profiles.py
+│   │   unit/
+│   │   │   test_bh_correction.py
+│   │   │   test_disproportionality.py
+│   │   │   test_download.py
+│   │   │   test_download_meddra.py
+│   │   │   test_signal_schema.py
+│   │   │   test_t022_disproportionality.py
+│   │   │   test_validate.py
+│   │   │   test_validate_e_schema_missing.py
+│   src/
+│   │   .gitkeep
+│   │   main.py
+│   │   utils/
+│   │   │   config.py
+│   │   validation/
+│   │   data/
+│   │   │   download.py
+│   │   │   validate.py
+│   │   analysis/
+│   │   │   disproportionality.py
+│   contracts/
+│   │   .gitkeep
+│   │   dataset.schema.yaml
+│   │   signal.schema.yaml
+│   logs/
+│   │   lint.txt
+│   │   structure.txt

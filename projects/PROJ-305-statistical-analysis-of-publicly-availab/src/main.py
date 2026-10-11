@@ -1,6 +1,4 @@
-import os
 import sys
-import gc
 import logging
 import argparse
 import tracemalloc
@@ -31,7 +29,7 @@ def setup_logging():
     """Configure logging for the pipeline."""
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
-    
+
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -94,7 +92,7 @@ def run_phase_data_acquisition(logger: logging.Logger):
     logger.info("=== PHASE: DATA ACQUISITION ===")
     if not check_memory_usage(MEMORY_LIMIT_GB, "data_acquisition", logger):
         sys.exit(EXIT_CODE_MEMORY_LIMIT)
-    
+
     fetch_vaers_data()
     logger.info("Phase completed: Data acquired")
 
@@ -103,13 +101,13 @@ def run_phase_3_cleaning(logger: logging.Logger):
     logger.info("=== PHASE 3: DATA CLEANING ===")
     if not check_memory_usage(CLEANING_MEMORY_LIMIT_GB, "data_cleaning", logger):
         sys.exit(EXIT_CODE_MEMORY_LIMIT)
-    
-    # Validate data first
-    validate_data()
-    
+
+    # Validate data first (using a default path; adjust as needed)
+    default_validation_path = Path("data/processed/cleaned_vaers.csv")
+    validate_data(default_validation_path)
+
     # Clean data
     process_data()
-    
     logger.info("Phase 3 completed: Data cleaned")
 
 def run_phase_4_analysis(logger: logging.Logger):
@@ -117,13 +115,14 @@ def run_phase_4_analysis(logger: logging.Logger):
     logger.info("=== PHASE 4: DISPROPORTIONALITY ANALYSIS ===")
     if not check_memory_usage(ANALYSIS_MEMORY_LIMIT_GB, "analysis", logger):
         sys.exit(EXIT_CODE_MEMORY_LIMIT)
-    
-    # Run analysis
-    results = run_analysis()
-    
-    # Generate signals CSV
+
+    # Run analysis with default file locations
+    analysis_input = "data/processed/cleaned_vaers.parquet"
+    analysis_output = "output/signals.csv"
+    results = run_analysis(analysis_input, analysis_output)
+
+    # Generate signals CSV (if needed)
     generate_signals_csv(results)
-    
     logger.info("Phase 4 completed: Analysis done")
 
 def run_phase_5_temporal(logger: logging.Logger):
@@ -142,9 +141,9 @@ def run_phase_6_sensitivity(logger: logging.Logger):
 def run_full_pipeline(logger: logging.Logger):
     """Run the full pipeline with phase ordering."""
     logger.info("Starting full pipeline execution...")
-    
+
     start_memory_profiling()
-    
+
     try:
         run_phase_1_setup(logger)
         run_phase_2_validation(logger)
@@ -153,10 +152,10 @@ def run_full_pipeline(logger: logging.Logger):
         run_phase_4_analysis(logger)
         run_phase_5_temporal(logger)
         run_phase_6_sensitivity(logger)
-        
+
         peak_mem = stop_memory_profiling()
         logger.info(f"Pipeline completed successfully. Peak memory: {peak_mem:.2f} GB")
-        
+
         # Save memory profile
         memory_profile = {
             "peak_memory_gb": round(peak_mem, 2),
@@ -167,7 +166,7 @@ def run_full_pipeline(logger: logging.Logger):
         output_dir.mkdir(exist_ok=True)
         with open(output_dir / "memory_profile.json", "w") as f:
             json.dump(memory_profile, f, indent=2)
-        
+
     except Exception as e:
         if tracemalloc.is_tracing():
             tracemalloc.stop()
@@ -180,9 +179,9 @@ def main():
     parser.add_argument("--full", action="store_true", help="Run full pipeline")
     parser.add_argument("--phase", type=int, choices=[1, 2, 3, 4, 5, 6], help="Run specific phase")
     args = parser.parse_args()
-    
+
     logger = setup_logging()
-    
+
     if args.full:
         run_full_pipeline(logger)
     elif args.phase:

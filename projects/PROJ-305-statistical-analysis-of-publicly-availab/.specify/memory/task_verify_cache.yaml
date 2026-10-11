@@ -1,17 +1,3 @@
-T001:
-  c: false
-  h: 786ee575e9ae612a7fec20f55e09788ff8d27230e6c22e5da8e5fdfca08c9e1e
-  r: The required artifact `logs/structure.txt` is missing from the evidence provided
-    by the collector, and the `logs/` directory itself is not listed in the project
-    structure. While the execution logs claim the directory was created and the snapshot
-    was written, the actual filesystem evidence does not contain these items.
-  sig: 0813fc0a49cc16dd66c6047d67c41e03f83707fbfa86fa9b5193619114189a4f
-T002:
-  c: false
-  h: 886da919c023eb917956585c459878b53e60cfeed1327b6851fe441b11964122
-  r: The `README.md` file is correct, but the `.gitignore` file is missing from the
-    provided evidence.
-  sig: 914f5e85a8d74de072425ced95361663313ef22363272c34ebb8d26e4e52d6e0
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
