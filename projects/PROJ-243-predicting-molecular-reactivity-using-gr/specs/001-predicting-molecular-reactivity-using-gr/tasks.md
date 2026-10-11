@@ -12,11 +12,11 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
 
 ## Phase 0 – Project Setup & Infrastructure
 
-- [X] T001 [P] **Create core directories**  
+- [~] T001 [P] **Create core directories**  
   `data/raw`, `data/processed`, `data/assets`, `code`, `artifacts`, `tests` (add a `.gitkeep` in each).  
   **Verification**: `git ls-files` shows the directories and a `.gitkeep` file inside each.
 
-- [ ] T002 [P] **Add configuration & linting files**  
+- [~] T002 [P] **Add configuration & linting files**  
   - `requirements.txt` (pinned versions of `torch`, `rdkit`, `torch-geometric`, `scikit-learn`, `pandas`, `datasets`, `pyyaml`, `requests`, `black`, `ruff`, `pytest`).  
   - `pyproject.toml` (Black config).  
   - `.flake8` and `ruff.toml` (flake8/ruff settings).  
@@ -31,7 +31,7 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
   Create `data/raw/checksums_schema.yaml` describing the JSON structure (`file_path`, `sha256`). Also create an empty `data/raw/checksums.json`.  
   **Verification**: Both files are present and `yamllint` passes on the schema.
 
-- [ ] T004 [US1] **Download QM9 subset & record checksum**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [ ] T004 [US1] **Download QM9 subset & record checksum**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   Stream the QM9 dataset (≈100 k molecules) via `torch_geometric.datasets.QM9` to `data/raw/qm9_subset.parquet`. Compute its SHA‑256 hash and add an entry to `data/raw/checksums.json` per the schema.  
   **Verification**: `data/raw/qm9_subset.parquet` exists, is non‑empty, and the hash in `checksums.json` matches the computed value.
 

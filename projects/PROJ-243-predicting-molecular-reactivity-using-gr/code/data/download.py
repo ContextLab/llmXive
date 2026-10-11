@@ -48,7 +48,7 @@ def update_checksums_json(parquet_path: Path, checksum: str) -> None:
     expects a mapping from a logical name to an object containing at least
     the hash, file name and path.  We use the logical name ``qm9_subset``.
     """
-    checksums_path = Path(__file__).resolve().parents[3] / "data" / "raw" / "checksums.json"
+    checksums_path = paths.data("raw", "checksums.json")
     # Ensure the parent directory exists (it should, but be defensive)
     checksums_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -86,7 +86,7 @@ def download_qm9_subset(output_dir: Path, subset_size: int = 100_000) -> Path:
         Directory where ``qm9_subset.parquet`` will be saved.
     subset_size: int
         Number of molecules to retain. The full QM9 set contains ~130k;
-        100k provides the requested “≈100 k” subset.
+        100k provides the requested "≈100 k" subset.
 
     Returns
     -------

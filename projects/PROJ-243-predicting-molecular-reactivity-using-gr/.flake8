@@ -1,18 +1,6 @@
 [flake8]
-max-line-length = 120
-extend-ignore = E203, W503, E501, F401
-exclude =
-    .git,
-    .hg,
-    .mypy_cache,
-    .tox,
-    .venv,
-    venv,
-    _build,
-    buck-out,
-    build,
-    dist,
-    data,
-    code/.venv
+max-line-length = 100
+extend-ignore = E203, W503, E501
+exclude = .git,__pycache__,venv,.venv,build,dist,.eggs,*.egg-info
 per-file-ignores =
     __init__.py:F401

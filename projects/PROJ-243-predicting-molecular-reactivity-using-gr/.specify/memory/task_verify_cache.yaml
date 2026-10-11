@@ -15,13 +15,16 @@ T002:
     is needed to satisfy the task.
   sig: 97f8e02b740f856be9b73c77c9dba7c8b2bb9b6216d5458aa7810d2c1ee15b10
 T003:
-  c: true
-  h: 4065cc76e45b59b9be124ce8ca82de860ced004d4a5b06080c6947871c659240
-  r: "The `data/raw/checksums_schema.yaml` file (586\u202Fbytes) defines the required\
-    \ `file_path` and `sha256` fields with proper YAML syntax, and the `data/raw/checksums.json`\
-    \ file (2\u202Fbytes) contains an empty JSON object `{}`. Both artifacts exist\
-    \ at the specified locations, and the schema appears syntactically valid for `yamllint`."
-  sig: a39c7ef9e6bf0d3e1978b59cd121a45de07b905be651f69bb271b26b0912efc7
+  c: false
+  h: 7d2b59488ca96dcc9241c7a177f961e7a34d300b4c32541faab662dc3c7d73ee
+  r: "The schema file exists and is valid YAML, but it does not describe the required\
+    \ structure: the task specifies fields `file_path` and `sha256`, whereas the schema\
+    \ defines `hash`, `file`, and `path` instead \u2014 the required field names are\
+    \ absent. Additionally, there is no evidence that `yamllint` was run and passed\
+    \ on the schema, which is the task's stated verification criterion. Fix: rewrite\
+    \ the schema to require `file_path` and `sha256` properties and provide yamllint\
+    \ execution output."
+  sig: 9c394ed9b4aa7b62bd1e42cb597c11afd63fe8a8d9d33ff3e09710b314c5e525
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

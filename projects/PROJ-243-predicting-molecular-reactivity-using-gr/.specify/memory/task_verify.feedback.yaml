@@ -7,8 +7,13 @@ T002:
     file is needed to satisfy the task.
   task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
 T003:
-  reason: 'declared artifact(s) missing/empty/invalid: data/raw/checksums_schema.yaml,
-    data/raw/checksums.json'
+  reason: "The schema file exists and is valid YAML, but it does not describe the\
+    \ required structure: the task specifies fields `file_path` and `sha256`, whereas\
+    \ the schema defines `hash`, `file`, and `path` instead \u2014 the required field\
+    \ names are absent. Additionally, there is no evidence that `yamllint` was run\
+    \ and passed on the schema, which is the task's stated verification criterion.\
+    \ Fix: rewrite the schema to require `file_path` and `sha256` properties and provide\
+    \ yamllint execution output."
   task: 4b43f349955989a58c04892e67d9de7f6e535f3d9a5dcdf4ed23892970b9ffe7
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/data/download.py
