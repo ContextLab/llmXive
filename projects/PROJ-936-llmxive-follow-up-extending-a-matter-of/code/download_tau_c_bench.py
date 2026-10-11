@@ -31,13 +31,14 @@ log = get_logger(__name__)
 # A list of candidate repository identifiers.  The first one that
 # succeeds is used.  These identifiers correspond to the official
 # τⁿ‑Bench HuggingFace repository (the exact name may vary across
-# releases).
+# releases).  The ``repo_type`` is set to ``dataset`` because the
+# default ``model`` type leads to a 401 error for public datasets.
 REPO_CANDIDATES = [
     "tau-c-bench/tau-c-bench",
     "tau_c_bench/tau_c_bench",
-    "tau-c-bench/τc-bench",
 ]
 FILENAME = "tasks.json"
+REPO_TYPE = "dataset"
 
 # ----------------------------------------------------------------------
 def download_tasks_json() -> Path:
@@ -53,7 +54,11 @@ def download_tasks_json() -> Path:
     for repo_id in REPO_CANDIDATES:
         try:
             log.info(f"Attempting to download {FILENAME} from repo '{repo_id}'.")
-            downloaded_path = hf_hub_download(repo_id=repo_id, filename=FILENAME)
+            downloaded_path = hf_hub_download(
+                repo_id=repo_id,
+                filename=FILENAME,
+                repo_type=REPO_TYPE,
+            )
             log.info(f"Successfully downloaded from '{repo_id}'.")
             return Path(downloaded_path)
         except Exception as exc:  # noqa: BLE001
