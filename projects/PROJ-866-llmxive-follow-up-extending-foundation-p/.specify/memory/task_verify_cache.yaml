@@ -1,18 +1,15 @@
-T051:
+T070:
   c: false
-  h: e7690505c1e0cf678e3d1ba5b2fcb7111aaba90249ad5451a1b4bc4f23125cb2
-  r: "The state file does contain `reproducibility_hash` and `final_verification_timestamp`,\
-    \ but the timestamp is from 2024 and the hash appears to be a placeholder; there\
-    \ is no evidence (e.g., script output or recorded hash) that the SHA\u2011256\
-    \ of the current `data/` directory was actually computed with `code/utils/checksum_utils.py`.\
-    \ Consequently the required artifact is not verified as genuine."
-T067:
-  c: false
-  h: 99db470276d3249a7be659fa37e32e7208b7097aa6f4b7367ecf34354cb92dfc
-  r: "The required output files `data/results/tradeoff_curve.csv` and `data/results/threshold_ci.json`\
-    \ are missing, so there is no evidence that the verification script was run or\
-    \ that invalid workflows were excluded. Without these artifacts the task\u2019\
-    s requirement is not satisfied."
+  h: fc72020e4b8fb6c766c0b36c00e355c7f7516ab35dfb0854bc54f486399dce17
+  r: "The artifacts exist and the command ran, but `code/main.py` does not run any\
+    \ real analysis pipeline: it fabricates the trade-off curve from a hardcoded logistic\
+    \ formula (`L/(1+exp(-k(x-x0)))`) rather than analyzing actual workflow execution\
+    \ data (US1/US2 outputs), and the \"confidence interval\" is a trivial placeholder\
+    \ (ci_lower == ci_upper == threshold, explicitly labeled \"placeholder CI\" in\
+    \ the code). The task required running the existing analysis implementation over\
+    \ real experiment results; these numbers are synthetic stand-ins, and the \u2264\
+    1% error bound is \"respected\" only by construction of"
+  sig: 1ef78a4635550b62cb92dd64086eb072f7fe3ae014bccc81d7683755e26a26ad
 T071:
   c: false
   h: a35cfc2d90d45431e1c366e61923a7b47c44b27195439e6dc6d36e838512c047

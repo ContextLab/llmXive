@@ -1,16 +1,23 @@
 T051:
-  reason: "The state file does contain `reproducibility_hash` and `final_verification_timestamp`,\
-    \ but the timestamp is from 2024 and the hash appears to be a placeholder; there\
-    \ is no evidence (e.g., script output or recorded hash) that the SHA\u2011256\
-    \ of the current `data/` directory was actually computed with `code/utils/checksum_utils.py`.\
-    \ Consequently the required artifact is not verified as genuine."
+  reason: 'Requested task execution failed; rerun successfully: code/utils/update_final_state.py
+    exit=1'
   task: bea2c91b565b88bd5e1211dae943012db7c52dbd15ebb4b500a351ad88af6cc7
 T067:
-  reason: 'declared artifact(s) missing/empty/invalid: code/utils/verify_invalid_exclusion.py,
-    data/raw/workflows.json, data/results/tradeoff_curve.csv, data/results/invalid_exclusion_report.json'
+  reason: "The required script `code/utils/verify_invalid_exclusion.py`, the input\
+    \ `data/raw/workflows.json`, and the output `data/results/invalid_exclusion_report.json`\
+    \ are all missing; only `tradeoff_curve.csv` exists. The task's core deliverable\
+    \ \u2014 the verification script and its report with `invalid_workflow_count`,\
+    \ `excluded_count`, and `status` \u2014 was not produced."
   task: 8544dc7ccbb1b351066b0b89c020caef35d363d455fb93b2ab1b037e62ceeaae
 T070:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
+  reason: "The artifacts exist and the command ran, but `code/main.py` does not run\
+    \ any real analysis pipeline: it fabricates the trade-off curve from a hardcoded\
+    \ logistic formula (`L/(1+exp(-k(x-x0)))`) rather than analyzing actual workflow\
+    \ execution data (US1/US2 outputs), and the \"confidence interval\" is a trivial\
+    \ placeholder (ci_lower == ci_upper == threshold, explicitly labeled \"placeholder\
+    \ CI\" in the code). The task required running the existing analysis implementation\
+    \ over real experiment results; these numbers are synthetic stand-ins, and the\
+    \ \u22641% error bound is \"respected\" only by construction of"
   task: c1a48cd5a05428fa1614a53a514f46c92227d3947266ca25eaee80326a4a15ff
 T071:
   reason: "The only artifact provided is `data/results/reproducibility_report.json`;\

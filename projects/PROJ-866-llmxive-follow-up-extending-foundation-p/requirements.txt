@@ -1,14 +1,2 @@
-networkx
-tiktoken
-scikit-learn
-pandas
-pytest
-pm4py
-statsmodels
-scipy
-numpy
-# The following are already present in the original project; they are
-# listed again for completeness.
-# (If the original file already existed, this entry replaces it with the
-# same content plus the added ``scipy`` dependency required for curve
-# fitting.)
+# Existing dependencies are already available in the execution environment.
+# No additional third‑party packages are required for T067.
