@@ -158,6 +158,10 @@ _DEFAULT_BREAKER_COOLDOWN_S = float(
     os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", "900.0")
 )
 
+#: The open circuit's wait grows to at most this many base cooldowns (2 hours at
+#: the default 900 s).
+_MAX_COOLDOWN_FACTOR = 8
+
 # A recovery probe asks ONE question: is this model answering at all? Asking it
 # with the next real request made the answer cost a full request budget --
 # ``_DEFAULT_REASONING_DEADLINE_S`` (360s) for a model whose breaker was opened
@@ -195,7 +199,8 @@ class _CircuitBreaker:
     :class:`BackendUnavailable` immediately WITHOUT invoking the inner callable
     (so the retry budget is not burned). After a cooldown, allow one recovery
     probe while concurrent callers still fail fast. A failed probe restarts the
-    cooldown; success resets the breaker. An explicit ModelDownError opens the
+    cooldown; success resets the breaker. The cooldown doubles each time a real
+    request is lost with no real answer in between (see ``_cooldown``). An explicit ModelDownError opens the
     circuit immediately because its full request budget has already been spent.
 
     Only :class:`TransientBackendError` counts as a failure — a
@@ -235,6 +240,17 @@ class _CircuitBreaker:
         self._lock = threading.Lock()
         self._consecutive_failures = 0
         self._first_failure_at: float | None = None
+        #: Real requests lost since the last real answer. A model that answers
+        #: the small liveness request and then hangs on the next real one would
+        #: otherwise cost a full deadline every cooldown, for as long as the
+        #: process runs; the wait doubles with each such loss instead.
+        self._relapses = 0
+
+    def _cooldown(self) -> float:
+        """How long the circuit stays open now: the base cooldown, doubled for
+        every real request lost since the last real answer, up to
+        :data:`_MAX_COOLDOWN_FACTOR` times."""
+        return self._cooldown_s * min(2 ** max(self._relapses - 1, 0), _MAX_COOLDOWN_FACTOR)
 
     def _is_open(self) -> bool:
         if self._opened_at is not None:
@@ -268,7 +284,7 @@ class _CircuitBreaker:
                 now = self._clock()
                 if self._opened_at is None:
                     self._opened_at = now
-                if self._probe_in_flight or now - self._opened_at < self._cooldown_s:
+                if self._probe_in_flight or now - self._opened_at < self._cooldown():
                     raise self._open_error()
                 self._probe_in_flight = probe = True
         if probe and self.liveness is not None:
@@ -298,6 +314,7 @@ class _CircuitBreaker:
                 # consumed a full request budget. Route around it immediately.
                 if probe or isinstance(exc, ModelDownError) or self._is_open():
                     self._opened_at = self._clock()
+                    self._relapses += 1
             raise
         except BaseException:
             # A failed/cancelled recovery probe must not leave the circuit stuck
@@ -309,6 +326,7 @@ class _CircuitBreaker:
         else:
             with self._lock:
                 self._reset()
+                self._relapses = 0  # a real answer, not a ping
             return result
         finally:
             if probe:

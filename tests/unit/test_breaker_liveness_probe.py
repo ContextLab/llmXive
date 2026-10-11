@@ -220,3 +220,43 @@ def test_each_model_breaker_knows_its_model_and_carries_the_check(monkeypatch):
     assert second.name == "zai-org.glm-5.3"
     assert first.liveness is not None and second.liveness is not None
     assert backend._breaker_for("openai.gpt-oss-120b") is first
+
+
+def _hang(br) -> None:
+    with pytest.raises(ModelDownError):
+        br.call(lambda: (_ for _ in ()).throw(ModelDownError("hung past its deadline")))
+
+
+def test_a_model_that_answers_a_ping_but_hangs_again_waits_longer_each_time():
+    """Three batches of acceptance runs, 2026-10-11: zai-org.glm-5.3 answered the
+    small liveness request and then hung on the next real one, every cooldown.
+    In batch 2 it hung on 17 of its 19 real requests (102 minutes across three
+    runs); each run lost 22-27% of its three hours to such hangs."""
+    clock = _FakeClock()
+    br = _opened(clock, lambda _name: True)          # hang 1 -> wait 900 s
+    clock.advance(901.0)
+    _hang(br)                                        # pinged alive, hung again -> wait 1800 s
+    clock.advance(901.0)
+    with pytest.raises(BackendUnavailable):
+        br.call(lambda: pytest.fail("called during the doubled cooldown"))
+    clock.advance(900.0)
+    _hang(br)                                        # third hang -> wait 3600 s
+    clock.advance(1801.0)
+    with pytest.raises(BackendUnavailable):
+        br.call(lambda: pytest.fail("called during the quadrupled cooldown"))
+    clock.advance(1800.0)
+    assert br.call(lambda: "answered") == "answered"  # a real answer clears the history
+    _hang(br)
+    clock.advance(901.0)
+    assert br.call(lambda: "answered") == "answered"  # back to the base cooldown
+
+
+def test_the_wait_stops_growing_at_eight_times_the_cooldown():
+    clock = _FakeClock()
+    br = _opened(clock, lambda _name: True, cooldown_s=100.0)
+    for wait in (100.0, 200.0, 400.0, 800.0, 800.0, 800.0):
+        clock.advance(wait - 1.0)
+        with pytest.raises(BackendUnavailable):
+            br.call(lambda: pytest.fail("called before the cooldown ended"))
+        clock.advance(2.0)
+        _hang(br)
