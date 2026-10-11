@@ -7,7 +7,7 @@
 
 ## Phase 1 – Project scaffolding (foundation)
 
-- [ ] **T001** [P] Create the required project directories (`src/`, `tests/`, `data/`, `results/`).  
+- [X] **T001** [P] Create the required project directories (`src/`, `tests/`, `data/`, `results/`).  
   *Creates*: empty folders at the repository root.  
   *Verification*: run `tree -L 2` and confirm the four directories exist; CI test `tests/integration/test_structure.py` checks for their presence.
 
@@ -43,7 +43,7 @@
   3. Provides `load_atlas(name: str) -> Tuple[nibabel.Nifti1Image, pd.DataFrame]`.  
   *Verification*: Running `python -c "from src.utils.atlas import load_atlas; img, df = load_atlas('Schaefer400'); print(img.shape, df.shape)"` prints a shape matching the number of ROIs; a test `tests/unit/test_atlas.py` checks that the returned ROI count is within 200‑400.
 
-- [ ] **T006** [ ] Create `src/data/quality_check.py` that:  
+- [ ] **T006** [ ] Create `src/data/quality_check.py` that:   <!-- FAILED-IN-EXECUTION: code/src/data/quality_check.py exit=1 -->
   1. Reads motion parameter JSON side‑cars for each run.  
   2. Computes Framewise Displacement (FD) per volume using the Power et al. formula.  
   3. Calculates `mean_fd`, `max_fd`, and the proportion of volumes > `FD_THRESHOLD`.  

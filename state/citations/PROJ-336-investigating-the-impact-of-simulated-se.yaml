@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-10-11T05:17:08.756665Z'
-- artifact_hash: f6199b9474959a3cd0c1a6f062d6bba9869c47842702b205ce3903c707631eb3
+- artifact_hash: 287dbf69e797e8b394530bc25052cc48755b22a2cfd5e65d7117f90a19838e77
   artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://github.com/
   verification_status: pending
   verified_against_url: https://github.com/
-  verified_at: '2026-10-11T05:17:24.604729Z'
+  verified_at: '2026-10-11T05:21:48.610797Z'

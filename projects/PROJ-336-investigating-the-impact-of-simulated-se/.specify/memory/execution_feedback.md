@@ -29,15 +29,12 @@ ValueError: Could not download ds001770. bids-dataset-download is not installed 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-336-investigating-the-impact-of-simulated-se/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-336-investigating-the-impact-of-simulated-se/src/data/preprocess.py': [Errno 2] No such file or directory
 
 - python code/src/data/quality_check.py --fd_threshold 0.5 --volume_threshold 0.10 -> rc=1
+Quality check failed: CRITICAL: Remaining sample size (0) is below minimum threshold (n ≥ 20). Halting execution.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-336-investigating-the-impact-of-simulated-se/code/src/data/quality_check.py", line 277, in <module>
-    exit(main())
-         ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-336-investigating-the-impact-of-simulated-se/code/src/data/quality_check.py", line 254, in main
-    data_root = Path(config.RAW_DATA_DIR)
-                     ^^^^^^^^^^^^^^^^^^^
-AttributeError: module 'src.config' has no attribute 'RAW_DATA_DIR'
+INFO:__main__:Starting quality check on dataset: /home/runner/work/llmXive/llmXive/projects/PROJ-336-investigating-the-impact-of-simulated-se/data/raw
+INFO:__main__:Found 0 subjects with motion data.
+INFO:__main__:Quality check complete. Included: 0, Excluded: 0
+ERROR:__main__:CRITICAL: Remaining sample size (0) is below minimum threshold (n ≥ 20). Halting execution.
 
 - python src/analysis/connectivity.py -> rc=2
 

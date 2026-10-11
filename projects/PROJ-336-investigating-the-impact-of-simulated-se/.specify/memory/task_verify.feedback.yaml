@@ -1,15 +1,11 @@
 T001:
-  reason: "The four required directories (`src/`, `tests/`, `data/`, `results/`) are\
-    \ present, but the CI verification script `tests/integration/test_structure.py`\u2014\
-    which the task specification cites as the means to confirm the structure\u2014\
-    does not exist, so the required verification artifact is missing."
   task: 0db1cd92056099ab947367d111e83bba3f463cd6952ffe3bfb4d093035e460e3
 T002:
-  reason: The `requirements.txt` file is present and correctly lists all required
-    packages, but the required test `tests/unit/test_requirements.py` is missing,
-    and there is no evidence that `pip install -r requirements.txt` was run successfully
-    to confirm no version conflicts. Both the test script and installation verification
-    are needed to satisfy the task.
+  reason: "The repository contains a correctly\u2011pinned `requirements.txt`, but\
+    \ the provided unit test looks for the file in `code/requirements.txt` (three\
+    \ directories up from the test file) where it does not exist, so the test would\
+    \ fail. No execution evidence is shown that `pip install -r requirements.txt`\
+    \ succeeds. The task therefore lacks a passing verification step."
   task: f9cd3455af7241a4c53896927a6df6e20113d4579c81c6f16c4dbf53781b2c22
 T003:
   reason: "The `quickstart.md` file exists and correctly documents the `python -m\
@@ -20,10 +16,23 @@ T003:
     \ the task is unproven."
   task: e184ddae40826ab3f8bfa88407b413a2541834fd894f68e55e98c87709a74e99
 T004:
+  reason: '`src/config.py` exists and defines all required constants, but the required
+    unit test `tests/unit/test_config.py` is missing, so the verification step is
+    not satisfied. Adding the test file (and ensuring it passes) is needed to complete
+    the task.'
   task: 324a3bdf550dd53b269d7ef5dc80bb9ecff3fa1af5b309dab9c0ebfa1c350935
 T005:
+  reason: "The provided `src/utils/atlas.py` exists but it caches files in `data/cache/`\
+    \ (not `data/atlas/`), never extracts a zip archive, and its API uses internal\
+    \ keys like `\"schaefer_400\"` rather than the required name string (e.g., `\"\
+    Schaefer400\"`). Consequently the verification command `load_atlas('Schaefer400')`\
+    \ would fail, and the required `data/atlas/` directory is missing. The task\u2019\
+    s download, caching, extraction, and function\u2011signature requirements are\
+    \ not met."
   task: 2d27400274b651540aa3e705f4d07ea55cd3ee87a10b65adc3bb7b44e9e212e1
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/quality_check.py
+    exit=1'
   task: 871e235cb8e326a31386bf6fdf6b4bd90bab5624e13463e3216221c65ff46d9d
 T007:
   task: d41f3a634d77e6f1177f4a5ee97197a1cf78ac96940a94ea2f4f24bfa3c61a23

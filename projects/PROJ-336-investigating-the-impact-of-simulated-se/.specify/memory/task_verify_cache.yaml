@@ -1,20 +1,20 @@
 T001:
-  c: false
-  h: 3c6f28caff54d3e7d6e0fb9498bec0346c8a48597066272c6f8f7314d48af259
-  r: "The four required directories (`src/`, `tests/`, `data/`, `results/`) are present,\
-    \ but the CI verification script `tests/integration/test_structure.py`\u2014which\
-    \ the task specification cites as the means to confirm the structure\u2014does\
-    \ not exist, so the required verification artifact is missing."
-  sig: 09a2b6fc233ee75bccd96878bf00066550ea78cfd70fb75f97559df3b64c314b
+  c: true
+  h: 7bd4ea82f8de5c7992265ed24294c9f9094c931a7180b773e9b28db45146e594
+  r: Checked the repository tree showing `src/`, `tests/`, `data/`, and `results/`
+    directories present, and the integration test `tests/integration/test_structure.py`
+    which asserts their existence. The creation log confirms the directories were
+    successfully generated.
+  sig: 93ecd69e8b080a14ba773bd9e1d69576b42d8560e4dae89c4d6e68d9d47a3ff9
 T002:
   c: false
-  h: 423e8a121bc20d8bf07cb2c0dbca8a77ce3fac1b210f30be801fa03d3dae0135
-  r: The `requirements.txt` file is present and correctly lists all required packages,
-    but the required test `tests/unit/test_requirements.py` is missing, and there
-    is no evidence that `pip install -r requirements.txt` was run successfully to
-    confirm no version conflicts. Both the test script and installation verification
-    are needed to satisfy the task.
-  sig: f3cd96436806d2c94de817de6a7bd0a581fada956fb52261f3ea368bf6e3c3bb
+  h: 6b679da209a3b2fc4173f83d5f05034662b4b26a6d03bcae7a66ef9ef56a1b77
+  r: "The repository contains a correctly\u2011pinned `requirements.txt`, but the\
+    \ provided unit test looks for the file in `code/requirements.txt` (three directories\
+    \ up from the test file) where it does not exist, so the test would fail. No execution\
+    \ evidence is shown that `pip install -r requirements.txt` succeeds. The task\
+    \ therefore lacks a passing verification step."
+  sig: 4ab84eb984f52cabe91cc29841aaf6ba5f19edc18794c2f868fa481ac98c4ff1
 T003:
   c: false
   h: 0f4e34ee2fa42c9b2cd605c268535e94261921b6ac08e65f9be7444186aef90f
@@ -24,6 +24,25 @@ T003:
     \ runs `python -m src.main --dry\u2011run` and verifies it exits with status\u202F\
     0. Without that execution evidence, the verification step of the task is unproven."
   sig: 97db00c328dc7821758f45f38278c37cc12543ba3bb22956e500d40b56ba4f1c
+T004:
+  c: false
+  h: 6fe2192953b249b5665f978a3b52626103a01e99b9fb17872e4c08f9d050a242
+  r: '`src/config.py` exists and defines all required constants, but the required
+    unit test `tests/unit/test_config.py` is missing, so the verification step is
+    not satisfied. Adding the test file (and ensuring it passes) is needed to complete
+    the task.'
+  sig: fd2104d98d54704467e11298902354ffffab076fb3f8e641121f7ca1d7040a9c
+T005:
+  c: false
+  h: 6b205f51473397e59cde54b81cc7465c36c741f1bbc28c986ac1883d08397d3f
+  r: "The provided `src/utils/atlas.py` exists but it caches files in `data/cache/`\
+    \ (not `data/atlas/`), never extracts a zip archive, and its API uses internal\
+    \ keys like `\"schaefer_400\"` rather than the required name string (e.g., `\"\
+    Schaefer400\"`). Consequently the verification command `load_atlas('Schaefer400')`\
+    \ would fail, and the required `data/atlas/` directory is missing. The task\u2019\
+    s download, caching, extraction, and function\u2011signature requirements are\
+    \ not met."
+  sig: fb5353a5559af0a51601d3d7ad07775281accea923d6c5bbe1cf396ee32ee0f9
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
