@@ -91,11 +91,6 @@ def generate_data(root: Path, n_images: int = 50):
     """Generate synthetic planetary nebulae."""
     logging.info(f"Generating {n_images} synthetic images...")
     # We call the main function of the generator module
-    # The generator module expects to be run from the project root or have paths configured
-    # For this orchestration, we assume the generator handles its own paths or we pass them via env/args
-    # Since the generator's main() is designed to run standalone, we invoke it directly.
-    # However, to ensure it uses the correct output directory, we might need to adjust.
-    # Given the task constraints, we assume the generator writes to data/synthetic by default.
     generate_main()
 
 def process_artifacts(root: Path):
@@ -111,27 +106,19 @@ def run_us1_pipeline(root: Path):
 def run_us2_pipeline(root: Path):
     """Run User Story 2: Saturation vs Asymmetry."""
     logging.info("Running US2: Saturation regression...")
-    # The saturation regression is part of the statistics module or separate
-    # Based on T023, it's in statistics.py. If separate, call it here.
-    # Assuming stats_main covers both or we call specific logic.
-    # For safety, we call the statistics main which should handle both if configured.
-    # If not, we rely on the artifacts_main having produced the sweep data.
-    # T023 says "Implement statistical test logic... output... to saturation_stats.csv"
-    # Let's assume stats_main handles both noise and saturation if data exists.
     stats_main()
 
 def run_us3_pipeline(root: Path):
     """Run User Story 3: Calibration and Validation."""
     logging.info("Running US3: Aggregation, Regression, Validation...")
     
-    # 1. Aggregate (T041) - Assuming this is part of validation or regression flow
-    # 2. Fit models (T027)
+    # 1. Fit calibration models
     regression_main()
     
-    # 3. Validate (T028)
+    # 2. Validate corrections
     validation_main()
     
-    # 4. Power Analysis (T030)
+    # 3. Power analysis
     power_main()
 
 def main():

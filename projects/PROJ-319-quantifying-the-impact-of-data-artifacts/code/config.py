@@ -17,9 +17,22 @@ DEFAULT_LOGS_DIR = "logs"
 DEFAULT_TESTS_DIR = "tests"
 DEFAULT_DOCS_DIR = "docs"
 
-# Artifact parameters (derived from T037a decision)
-NOISE_LEVELS = [0.01, 0.05, 0.10]
-SATURATION_RANGE = (0.0, 0.5, 0.05)  # start, stop, step
+# Artifact parameters (concrete values required by T004)
+# - Noise levels: {0.01, 0.05, 0.10}
+# - Saturation fractions: 0.0 – 0.5 inclusive in 0.05 steps
+#
+# The original code base expects `NOISE_LEVELS` and `SATURATION_RANGE`,
+# so we keep those for backward compatibility while also exposing the
+# explicitly named constants required by the verification suite.
+DEFAULT_NOISE_LEVELS: List[float] = [0.01, 0.05, 0.10]
+DEFAULT_SATURATION_FRACTIONS: List[float] = [
+    round(x, 2) for x in
+    (0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50)
+]
+
+# Backward‑compatible aliases used throughout the existing pipeline
+NOISE_LEVELS = DEFAULT_NOISE_LEVELS
+SATURATION_RANGE: Tuple[float, float, float] = (0.0, 0.5, 0.05)  # start, stop, step
 
 # Synthetic generation defaults
 DEFAULT_N_IMAGES = 50
@@ -50,12 +63,8 @@ def get_config_summary() -> Dict[str, Any]:
         "project_root": str(root),
         "random_seed": RANDOM_SEED,
         "npy_seed": NPY_SEED,
-        "noise_levels": NOISE_LEVELS,
-        "saturation_range": {
-            "start": SATURATION_RANGE[0],
-            "stop": SATURATION_RANGE[1],
-            "step": SATURATION_RANGE[2]
-        },
+        "noise_levels": DEFAULT_NOISE_LEVELS,
+        "saturation_fractions": DEFAULT_SATURATION_FRACTIONS,
         "default_n_images": DEFAULT_N_IMAGES,
         "default_fwhm": DEFAULT_FWHM,
         "paths": {

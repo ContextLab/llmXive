@@ -13,29 +13,29 @@
 
 **Goal**: Establish project scaffolding, verify that the pipeline can run on a tiny synthetic example, and produce a reproducible end‑to‑end result.
 
-- [ ] T001a1 [P] Create `code/` directory and sub‑directories: `synthetic`, `metrics`, `analysis`, `io`  
+- [X] T001a1 [P] Create `code/` directory and sub‑directories: `synthetic`, `metrics`, `analysis`, `io`  
   - **Verification**: Directory tree exists and is tracked in Git.  
-- [ ] T001a2 [P] Create `data/` directory and sub‑directories: `raw`, `synthetic`, `processed`, `validation`  
+- [X] T001a2 [P] Create `data/` directory and sub‑directories: `raw`, `synthetic`, `processed`, `validation`  
   - **Verification**: Directory tree exists.  
-- [ ] T001a3 [P] Create `tests/` directory and sub‑directories: `unit`, `contract`, `integration`  
+- [X] T001a3 [P] Create `tests/` directory and sub‑directories: `unit`, `contract`, `integration`  
   - **Verification**: Directory tree exists.  
 - [ ] T001a4 [P] Create `logs/` directory  
   - **Verification**: Directory exists.  
 - [ ] T001b [P] Initialise `.gitignore` (exclude `data/`, `__pycache__/`, `*.pyc`, `logs/`, `*.log`)  
   - **Verification**: `.gitignore` contains the listed patterns.  
-- [ ] T001c [P] Initialise `README.md` with a brief project overview and quick‑start instructions  
+- [X] T001c [P] Initialise `README.md` with a brief project overview and quick‑start instructions  
   - **Verification**: `README.md` exists and contains a “Quick‑start” section.  
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools via `pyproject.toml`  
+- [~] T003 [P] Configure linting (ruff) and formatting (black) tools via `pyproject.toml`  
   - **Verification**: `pyproject.toml` includes `[tool.ruff]` and `[tool.black]` sections.  
-- [ ] T002 [P] Initialise Python 3.11 project with `requirements.txt` (numpy, scikit‑image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)  
+- [~] T002 [P] Initialise Python 3.11 project with `requirements.txt` (numpy, scikit‑image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)  
   - **Verification**: `requirements.txt` lists the exact packages and versions.  
-- [ ] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and concrete artifact parameters (noise levels `{0.01,0.05,0.10}`, saturation range `0.0–0.5` in `0.05` steps)  
+- [~] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and concrete artifact parameters (noise levels `{0.01,0.05,0.10}`, saturation range `0.0–0.5` in `0.05` steps)  
   - **Verification**: `code/config.py` defines `DEFAULT_NOISE_LEVELS` and `DEFAULT_SATURATION_FRACTIONS`.  
-- [ ] T007 [P] Implement `code/io/writer.py` to save generated images and logs with SHA‑256 checksums for reproducibility (FR‑008)  
+- [~] T007 [P] Implement `code/io/writer.py` to save generated images and logs with SHA‑256 checksums for reproducibility (FR‑008)  
   - **Verification**: `writer.save_with_checksum()` creates a `.sha256` file beside each artifact.  
-- [ ] T008 [P] Setup `tests/unit/` structure and a minimal `pytest.ini` configuration  
+- [~] T008 [P] Setup `tests/unit/` structure and a minimal `pytest.ini` configuration  
   - **Verification**: `tests/unit/` exists and `pytest -q` discovers at least one test.  
-- [ ] T046a [P] Create CLI stub `code/main.py` with a `--run-all` flag and basic argument parsing (no pipeline logic yet)  
+- [ ] T046a [P] Create CLI stub `code/main.py` with a `--run-all` flag and basic argument parsing (no pipeline logic yet)   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - **Verification**: Running `python -m code.main --help` prints usage information.  
 
 **Checkpoint**: The repository now contains a valid Python package layout, configuration, and a runnable CLI stub.

@@ -1,50 +1,10 @@
-# Data directories (exclude all data, including raw, processed, synthetic, validation)
+# Exclude data directory
 data/
 
-# Python cache and compiled files
+# Python cache files
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Logs
+# Log files
 logs/
 *.log
-
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Testing and coverage
-.pytest_cache/
-.coverage
-htmlcov/
-coverage.xml
-.mypy_cache/
-
-# Jupyter notebooks
-.ipynb_checkpoints/
-
-# OS specific
-Thumbs.db
-.DS_Store

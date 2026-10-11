@@ -1,3 +1,0 @@
-"""
-Contract tests package.
-"""

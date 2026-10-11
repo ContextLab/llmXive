@@ -1,3 +1,49 @@
+T001a1:
+  c: true
+  h: 7f6e2aa2bb8d26df729d49ecc0d94454a897820abcc43557899933204829e921
+  r: "Checked the `code/` directory listing (shows `synthetic`, `metrics`, `analysis`,\
+    \ `io` sub\u2011folders) and the execution log `code/.tasks/T001a1.code_create_code_subdirs.py.log`\
+    \ confirming the script created all required sub\u2011directories successfully."
+  sig: 3d7ce05f2fa578a3cfd3f9575ffcab2b9cd5559476aa1d171684485ef7ebe04f
+T001a2:
+  c: true
+  h: 2473e2014a63f64cf715521d120f39156ede93c04ff4c29c90467df166017f96
+  r: "The `data/` directory with the required sub\u2011directories (`raw`, `synthetic`,\
+    \ `processed`, `validation`) is present (confirmed by the collector\u2019s directory\
+    \ hash) and the creation script ran successfully (log shows exit\u202F0 and lists\
+    \ the four paths)."
+  sig: 1207dc364693de035dfc749cf50baf7f8acef3322f736471ea3b13565ca69fca
+T001a3:
+  c: true
+  h: 8304519d01dc9371d4ef45a04ebaab88b13b7d7488ccf7c5d628863d0269c372
+  r: "The collector shows a `tests/` directory containing the required sub\u2011directories\
+    \ `unit`, `contract`, and `integration` (plus supporting files), satisfying the\
+    \ task\u2019s sole requirement."
+  sig: dd7aec06f169d09ebdba8ef3b6172f5af7f42d4d44705d743590a49fe4df3c0b
+T001a4:
+  c: false
+  h: ec830cff9fbfc0fcaf0e22025edd4c53adf908988d16b204024c24d8f832e0de
+  r: "The unit test `test_create_logs_dir` failed because the expected `logs/` directory\
+    \ was not found at the project root, even though `create_logs_dir.py` printed\
+    \ a success message. The script\u2019s behavior does not actually create the required\
+    \ `logs/` directory in the correct location, so the task\u2019s requirement is\
+    \ not satisfied."
+  sig: 82fb7e3ac31eba76eb3b6865a0671f44b02e9704dfe0deb601b52f0276347eb7
+T001b:
+  c: false
+  h: 7d8db18b78b4ed365e3117ff1f87b55abf51cd5db54efe0eab5c02287624763d
+  r: Checked for a `.gitignore` file at the project root; the evidence list shows
+    directories (`data/`, etc.) but no `.gitignore` artifact and no content confirming
+    the required exclusion patterns. The required file is missing or does not contain
+    the specified entries.
+  sig: 45478021eb228d84197f363f9047b0ba64d5541c16bb8041beec83397cd20913
+T001c:
+  c: true
+  h: 038123234c80dcd7cb4b0aa59366fa11dc57a50cc78646a4e8e5a1aa9249b2e1
+  r: "Checked the `README.md` file (projects/PROJ-319-quantifying-the-impact-of-data-artifacts/README.md)\
+    \ which exists, is non\u2011empty, and contains a \u201C## Quick\u2011start\u201D\
+    \ section with setup and execution instructions."
+  sig: 82fac42314a15716b18545c9e43f7cf40254c2fe8fcc574b6af56a1bd5f34ef8
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
