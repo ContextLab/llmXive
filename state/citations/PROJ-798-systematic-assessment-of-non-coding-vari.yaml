@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://www.encodeproject.org/annotations/v4/
   verified_at: '2026-07-12T10:46:52.754582Z'
-- artifact_hash: b86eda89cf46661732ab1a015415f6f32ea0a0dca934518b3d3c4719e2b617d7
+- artifact_hash: 931e6435694d3174ec8658bfdffd17b6618f1ee8cecc9cfdde025d76716e381a
   artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/research.md
   cite_id: c-001
   cited_authors: []
@@ -19,10 +19,10 @@
     A database of transcription factor binding profiles'
   kind: url
   value: http://jaspar.genereg.net/`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://jaspar.elixir.no/
-  verified_at: '2026-07-12T11:09:11.280952Z'
-- artifact_hash: b86eda89cf46661732ab1a015415f6f32ea0a0dca934518b3d3c4719e2b617d7
+  verified_at: '2026-10-11T04:43:56.113283Z'
+- artifact_hash: 931e6435694d3174ec8658bfdffd17b6618f1ee8cecc9cfdde025d76716e381a
   artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/research.md
   cite_id: c-002
   cited_authors: []
@@ -30,10 +30,10 @@
   fetched_title: df_instruct.csv
   kind: url
   value: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ManuBansal/33param_snp500/92adc3794f323a3cdc9206cd8215b4bd350bac86/df_instruct.csv?%2Fdatasets%2FManuBansal%2F33param_snp500%2Fresolve%2Fmain%2Fdf_instruct.csv=&etag=%228d0e0b95e6924e41d7343704626e83b013dc0a81%22
-  verified_at: '2026-07-12T11:09:11.280952Z'
-- artifact_hash: b86eda89cf46661732ab1a015415f6f32ea0a0dca934518b3d3c4719e2b617d7
+  verified_at: '2026-10-11T04:43:56.113283Z'
+- artifact_hash: 931e6435694d3174ec8658bfdffd17b6618f1ee8cecc9cfdde025d76716e381a
   artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/research.md
   cite_id: c-003
   cited_authors: []
@@ -41,10 +41,21 @@
   fetched_title: CADD.parquet
   kind: url
   value: https://huggingface.co/datasets/gonzalobenegas/gwas/resolve/main/features/CADD.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6603782a85170ce50836beb0/35b65e8a9893e8f4f574a2da2844e94a9a4d94fd24bb8b0cf40c04a31d664fbc?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27CADD.parquet%3B+filename%3D%22CADD.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783858152&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwMzc4MmE4NTE3MGNlNTA4MzZiZWIwLzM1YjY1ZThhOTg5M2U4ZjRmNTc0YTJkYTI4NDRlOTRhOWE0ZDk0ZmQyNGJiOGIwY2Y0MGMwNGEzMWQ2NjRmYmNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Q0FERC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyQ0FERC5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4NTgxNTJ9fX1dfQ__&Signature=MEUCIQDMfPkhN1KTxOjJTWCuD2flFsM8MyPZwAneEPM9KQ4VlAIgP-Ubilfwt14CTqul51lBpzBXg-fp-x8R0BQkNrvZAoQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-12T11:09:11.280952Z'
-- artifact_hash: bed031f70d61bcf77fbc2e9bdb6a7a4b7aac0273c16c20e2e48ded4f4488e909
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6603782a85170ce50836beb0/35b65e8a9893e8f4f574a2da2844e94a9a4d94fd24bb8b0cf40c04a31d664fbc?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27CADD.parquet%3B+filename%3D%22CADD.parquet%22%3B&xip=Ff4TAGjylmw&Expires=1791697437&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwMzc4MmE4NTE3MGNlNTA4MzZiZWIwLzM1YjY1ZThhOTg5M2U4ZjRmNTc0YTJkYTI4NDRlOTRhOWE0ZDk0ZmQyNGJiOGIwY2Y0MGMwNGEzMWQ2NjRmYmNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Q0FERC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyQ0FERC5wYXJxdWV0JTIyJTNCJnhpcD1GZjRUQUdqeWxtdyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxNjk3NDM3fX19XX0_&Signature=MEUCIQCp8nFx-Z7wQJRtmwKTbOLosR1ft-SZ82rNHY6h4fLV2QIgfcG8vtJWyQ1Qbx7T7ewMUokGlFt46U6ngruwLvlp0kA_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-11T04:43:56.113283Z'
+- artifact_hash: 931e6435694d3174ec8658bfdffd17b6618f1ee8cecc9cfdde025d76716e381a
+  artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-10-11T04:43:56.113283Z'
+- artifact_hash: ce487940a801597357416fbda6d63cd9e4f57744e2d9b5b5a837f7799f49e4df
   artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -54,6 +65,6 @@
     A database of transcription factor binding profiles'
   kind: url
   value: http://jaspar.genereg.net/
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://jaspar.elixir.no/
-  verified_at: '2026-07-12T11:09:38.059810Z'
+  verified_at: '2026-10-11T04:44:05.957668Z'

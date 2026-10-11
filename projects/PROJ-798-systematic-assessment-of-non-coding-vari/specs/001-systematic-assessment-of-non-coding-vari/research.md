@@ -1,83 +1,93 @@
 # Research: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities
 
 ## 1. Problem Statement & Hypothesis
+**Hypothesis**: Common non‑coding SNPs that reside in promoters/enhancers and substantially alter PWM‑derived binding affinities (|Δ Score| ≥ 2 bits) are enriched among GWAS Catalog lead SNPs relative to a GC‑matched non‑regulatory control set.
 
-**Hypothesis**: Non-coding SNPs located in regulatory regions that disrupt transcription factor (TF) binding motifs are enriched in GWAS loci for complex traits compared to SNPs in non-regulatory regions or control sets.
-
-**Key Challenge**: The analysis requires integrating massive genomic datasets (dbSNP, ENCODE, GWAS) and performing computationally intensive scoring (millions of SNP-TF pairs) on limited hardware (a constrained CPU configuration and restricted RAM).
+The study is **observational**; all conclusions are framed as associational.
 
 ## 2. Dataset Strategy
+Only **open, programmatically downloadable** sources are used (as required by the CI runner). When a spec‑listed source lacks a verified HuggingFace mirror, the canonical FTP/HTTP URL from the spec is employed.
 
-The following datasets are required. Per the project constraints, only verified sources from the provided list are cited. For datasets without a verified source in the list, the plan uses the canonical URLs specified in the `spec.md` and explicitly notes the lack of a verified HuggingFace mirror.
+| Dataset | Content | Canonical URL (from spec) | Verification Status |
+|---------|---------|---------------------------|---------------------|
+| dbSNP (common, MAF > 1 %) | Human SNP VCF (GRCh38) | `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/` | No verified mirror; used as‑is |
+| JASPAR 2024 PWMs | Human TF PWMs | ` (direct download) | No verified mirror; used as‑is |
+| ENCODE/Roadmap promoters & enhancers | BED intervals | `ftp://ftp.ebi.ac.uk/pub/databases/encode/` (v4) | No verified mirror; used as‑is |
+| GWAS Catalog lead SNPs | BED of lead SNP positions | `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/` | No verified mirror; used as‑is |
+| Sample CSV for unit tests | Small SNP table | ` | Verified |
+| Sample GWAS Parquet for unit tests | Small GWAS table | ` | Verified |
 
-| Dataset | Description | Source / URL | Status |
-|:--- |:--- |:--- |:--- |
-| **dbSNP (Common)** | Human SNPs (GRCh38, MAF > 1%) | `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/` | **NO verified source found** (Specified FTP path used). Fallback: 1000 Genomes Phase 3. |
-| **JASPAR 2024** | Human TF Position Weight Matrices (PWMs) | ` (Direct download) | **NO verified source found** (Specified HTTP path used). |
-| **ENCODE/Roadmap** | Promoter/Enhancer BED files | `ftp://ftp.ebi.ac.uk/pub/databases/encode/` (or similar) | **NO verified source found** (Specified FTP path used). |
-| **GWAS Catalog** | Lead SNPs for enrichment analysis | `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/` | **NO verified source found** (Specified FTP path used). |
-| **Reference: SNP (csv)** | Sample SNP data (for unit tests only) | ` | Verified. **Schema-Mirrored**: Manually curated to match production EBI/NCBI column structure (rsID, chr, pos, ref, alt) to ensure unit test validity. |
-| **Reference: GWAS (parquet)** | Sample GWAS data (for unit tests only) | ` | Verified. **Schema-Mirrored**: Manually curated to match production EBI/NCBI column structure (rsID, chr, pos, ref, alt) to ensure unit test validity. |
-
-**Critical Note on Data Availability**: The primary analysis relies on the canonical FTP sources listed in the `spec.md`. The "Verified datasets" block provided for this task does not contain a direct HuggingFace mirror for the full dbSNP build 155, JASPAR 2024, or ENCODE/Roadmap BED files. The implementation will fetch directly from the canonical FTP/HTTP sources as per the spec. If these sources are unreachable, the pipeline will fail with a clear error, adhering to the "Verified Accuracy" principle (no fabricated URLs).
+**Fallback**: If any primary FTP source is unreachable, the pipeline aborts with a clear error (no fabricated data).
 
 ## 3. Methodology & Statistical Rigor
 
-### 3.1 Data Ingestion & Filtering (FR-001)
-1. **Fetch**: Download common SNPs (MAF > 1%) from dbSNP build 155.
- * **Fallback Strategy**: If the full dbSNP VCF fetch fails or times out, automatically switch to the 1000 Genomes Phase 3 common variants subset (smaller, more stable) and log the switch.
- * **Chunking**: Download in chunks to prevent OOM. Verify checksums.
-2. **LD Pruning & Block Definition**:
- * Perform LD pruning (r² < 0.1) to identify a set of independent index SNPs.
- * **Crucially**, group all SNPs (both index and pruned) into **LD Blocks** based on their proximity to the nearest index SNP (within a 250kb window). This defines the correlation structure.
- * This step ensures that the "full unfiltered distribution" used in the KS test respects the non-independence of variants, and provides the unit for stratified permutation.
-3. **Filter**: Intersect SNPs with ENCODE/Roadmap BED files (promoters/enhancers).
-4. **Control Generation**: Generate a GC-matched non-regulatory control set.
- * **Stratified Matching**: For each regulatory SNP, sample a random genomic region with:
- * Same GC content (±2%).
- * Same TSS distance bin (±1kb bins).
- * Same LD Block ID (to preserve local correlation structure).
- * *Validation*: Verify overlap counts and GC/TSS/LD-distribution similarity.
+### 3.1 Data Ingestion & Filtering (FR‑001)
+1. **Streaming download** of the dbSNP VCF to keep RAM < 7 GB.  
+2. **MAF filter** (`MAF > 0.01`).  
+3. **LD pruning** (r² < 0.1) using `pysam`/`plink`‑style window; each SNP receives an `ld_block_id`.  
+4. **Stratification assignment**: Each SNP is assigned a `stratum_id` that is a composite of its GC‑content bin (e.g., 0.4–0.45), distance‑to‑TSS bin (e.g., 0–1 kb, 1–10 kb, etc.), and optionally a DNase‑I hypersensitivity bin (when available). This stratification preserves local genomic structure and baseline regulatory enrichment during permutation.  
+5. **Regulatory overlap** via `pybedtools` (≥ 1 bp overlap).  
+6. **GC‑matched control**: for every regulatory SNP, a random non‑regulatory region is sampled with GC content ± 2 % and the same `ld_block_id` and `stratum_id` to preserve local correlation structure and stratification.  
+7. **Checksums** recorded for all raw and derived files.
 
-### 3.2 Affinity Scoring (FR-002, FR-003)
-1. **Load PWMs**: Parse JASPAR 2024 matrices. Filter to a curated set of high-confidence human motifs (exclude low-confidence/short motifs).
-2. **Score**: For each SNP, extract the sequence window (length = PWM length) for both Ref and Alt alleles.
-3. **Calculate**: Compute $\Delta Score = Score_{alt} - Score_{ref}$ (log-odds).
-4. **Flag**: Set `is_large_magnitude` if $|\Delta Score| \ge 2$ bits.
- * *Constraint*: Do NOT filter data based on this flag; use only for reporting.
+### 3.2 PWM Loading & Affinity Scoring (FR‑002, FR‑003)
+* Load all human PWMs from JASPAR 2024, discarding motifs < 6 bp or with low information content.  
+* **Biophysical proxy limitation** – PWMs are a coarse model; we acknowledge this and will perform a **sensitivity analysis** using only high‑information PWMs (IC ≥ 1.5 bits per position) and optionally incorporating DNase‑I hypersensitivity scores as a covariate in downstream checks.  
+* For each SNP‑TF pair: extract a sequence window of length = PWM length, centered on the variant (using `pyfaidx` on the GRCh38 reference).  
+* Compute log‑odds scores for reference and alternate alleles; Δ Score = Score_alt − Score_ref.  
+* Flag `is_large_magnitude` when |Δ Score| ≥ 2 bits (report‑only).
 
-### 3.3 Statistical Enrichment (FR-004 - FR-008)
-**Dual-Test Strategy**:
-1. **KS Test (General Shift)**: Compare the observed $\Delta Score$ distribution (in-GWAS) vs. (out-of-GWAS) using the Kolmogorov-Smirnov test. This satisfies FR-005's requirement for "full unfiltered distribution" analysis.
-2. **Tail-Enrichment Test (Specific Disruption)**: Perform a Proportion Test (Fisher's Exact or Z-test) on the fraction of SNPs with $|\Delta Score| \ge 2$ bits. This addresses the specific "enrichment of large disruptions" hypothesis where KS may lack power.
+### 3.3 Enrichment Testing (FR‑004 → FR‑008)
 
-**Permutation & FDR (West-Stephens max-T)**:
-1. **TF Filtering**: Only perform permutation tests on TFs with ≥50 scored SNPs in the regulatory set. This reduces the multiple-testing burden from ~1000 to ~100-200, improving the stability of the max-T estimation within the N=100 constraint.
-2. **Null Distribution**: Perform $N=100$ permutations.
- * **Mechanism**: In **each** of the 100 iterations, a **SINGLE** random permutation of GWAS labels is applied to the **entire** SNP dataset. This label set is then used to recalculate the KS statistic (and Tail statistic) for **ALL** TFs simultaneously. This preserves the joint distribution of test statistics across correlated TFs.
- * **Stratified Permutation (Addressing LD Bias)**: To prevent Type I error inflation due to LD, label shuffling is **NOT** performed globally. Instead, GWAS status labels are shuffled **independently within each LD Block** and **within each GC-content/TSS-distance stratum**.
- * *Rationale*: This ensures that the null distribution preserves the local correlation structure (LD) and genomic confounding factors (GC/TSS) of the observed data. A SNP and its neighbors in the same LD block will effectively swap GWAS status together or remain together, preventing the artificial breaking of correlation structures that would bias the null.
-3. **FDR Correction**: Apply West-Stephens max-T permutation FDR correction across all tested TFs.
- * *Method*: The max-T statistic for each permutation is the maximum KS statistic observed across all TFs. The p-value for each TF is the proportion of permutations where the max-T statistic exceeds the observed KS statistic for that TF.
-4. **Threshold**: Significance at $\alpha = 0.05$ (corrected).
-5. **Limitation**: Acknowledge that with N=100, the minimum achievable p-value is 0.01. Results are considered "exploratory" if p-values are near this threshold.
+#### Stratification & Confound Control
+* Each SNP is assigned a `stratum_id` based on GC‑content bins, distance‑to‑TSS bins, and optionally DNase‑I hypersensitivity bins. This ensures that permutations preserve baseline regulatory enrichment and do not allow chromatin accessibility, TF expression proxies, or positional biases to drive spurious enrichment.
+* The GC‑matched control set is generated such that each control region shares the same `ld_block_id` and `stratum_id` as its matched regulatory SNP, ensuring that the control set is not only GC‑matched but also stratified identically.
 
-## 4. Compute Feasibility & Constraints
+#### KS Test (General Shift)
+* Compare the Δ Score distribution of SNPs **inside** GWAS loci **against the GC‑matched non‑regulatory control set** (NOT against raw "outside GWAS" SNPs, which may themselves be enriched for regulatory features) using a **block‑aware, stratified permutation KS**: 
+  - For each of **500** permutations, GWAS labels are shuffled **only within each (LD block, stratum) pair**, preserving LD dependence and stratification.
+  - The KS statistic is recomputed on each shuffled label set.
+  - The empirical p‑value is the proportion of permuted statistics ≥ observed.
+* A secondary KS comparison using the GC‑matched control set is performed and reported in the results summary for robustness.
+* This design ensures the reference distribution is uncontaminated by regulatory enrichment of the "outside GWAS" SNPs.
 
-- **Hardware**: 2 CPU, 7 GB RAM, No GPU.
-- **Strategy**:
- - **Batching**: Process SNPs in chunks (e.g., tens of thousands at a time) to stay within RAM limits.
- - **Permutations**: Limited to 100 as per spec (NFR-001) to ensure runtime < 6 hours.
- - **TF Filtering**: Limit to a subset of high-confidence TFs to reduce runtime.
- - **Libraries**: Use `scipy.stats.ks_2samp` and `numpy` for vectorized operations. Avoid heavy deep learning frameworks.
- - **Memory**: Use memory-mapped files or generators for large VCF/BED files.
+#### Tail‑Enrichment Test (Specific Disruption)
+* Proportion test (Fisher's exact) on the count of SNPs with |Δ Score| ≥ 2 bits inside vs. outside GWAS loci.  
+* **Threshold sensitivity** – we will repeat the tail test for |Δ Score| thresholds of multiple bit levels including lower, moderate, and higher magnitudes and report how results vary.
+
+#### Permutation Strategy (FR‑004, FR‑006)
+* **N = 500** permutations.  
+* In each permutation, GWAS labels are shuffled **within each (LD block, stratum) pair** to preserve local correlation, GC bias, TSS distance bias, and optional chromatin accessibility bias.  
+* The same shuffled label set is used for **all TFs** simultaneously, enabling West‑Stephens max‑T FDR correction.  
+* **Family‑wise error** is controlled by the max‑T approach; the minimal attainable p-value is very small (acknowledged as exploratory).
+
+#### FDR Correction (FR‑006)
+* Compute the maximum KS statistic across TFs for each permutation → empirical null distribution of maxima.  
+* Corrected p‑value for each TF = proportion of permutations where max‑T ≥ observed KS statistic.  
+
+#### Significance Threshold (FR‑008)
+* Apply α = 0.05 (corrected) – as verified from the Wikipedia source on p‑values (https://en.wikipedia.org/wiki/P-value).  
+
+### 3.4 Power & Limitations
+* With a large number of permutations the smallest non‑zero p‑value is 0.002; results near this bound are reported as **exploratory**.  
+* TFs with a minimal number of scored SNPs are excluded from permutation testing (reduces multiple‑testing burden).  
+* **Compute feasibility** – we limit the analysis to a subset of the most informative PWMs (IC ≥ 1.5 bits) and, if the full SNP set exceeds memory limits, we sub‑sample to a reduced set of SNPs. This keeps runtime ≤ 6 h on a 2‑CPU runner.
+
+## 4. Compute Feasibility (CPU‑first)
+* **Batch size**: 50 k SNP‑TF pairs per chunk (≈ 200 MB RAM).  
+* **Permutation loop**: vectorized NumPy operations; total runtime estimated ≤ 5 h on 2 CPU cores with the TF and SNP limits above.  
+* No GPU required; all libraries run on CPU.  
 
 ## 5. Risks & Mitigations
-
 | Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Data Source Unreachability** | Pipeline fails. | Use canonical FTP URLs from spec. If 404, fallback to 1000 Genomes subset. |
-| **Memory Overflow** | OOM on CI runner. | Implement strict chunking (large batches of SNPs) and garbage collection. |
-| **Runtime Exceedance** | Job timeout. | Limit permutations to 100. Profile code early. Filter TFs to high-confidence set. |
-| **Statistical Power** | Low power with N=100. | Acknowledge limitation in report; use Tail-Enrichment test for specific hypothesis. |
-| **LD Bias** | Anti-conservative p-values. | **Implemented Stratified Permutation**: Labels are shuffled within LD blocks and GC strata to preserve correlation structure. |
+|------|--------|------------|
+| FTP source unreachable | Pipeline aborts | Clear error message; no fallback to synthetic data. |
+| OOM on VCF parsing | Job failure | Streaming, chunked processing, memory‑mapped Parquet outputs. |
+| Insufficient permutation power | False negatives | 500 permutations; sensitivity analysis across thresholds; report exploratory nature. |
+| LD‑block & stratum shuffling bug | Inflated Type I error | Unit test verifies that label counts per (block, stratum) pair are preserved after each shuffle. |
+| Uncontrolled genomic confounds | Biased enrichment | Stratified GC‑matched control generation, stratified permutation (GC/TSS/chromatin bins), optional covariate adjustment using DNase‑I hypersensitivity. |
+| PWM coarse proxy | Mis‑measurement of true affinity | Sensitivity analysis using high‑information PWMs; explicit limitation discussion. |
+| KS independence violation | Inflated Type I error | Block‑aware, stratified permutation KS p‑value preserves LD and confound structure. |
+| Control set contamination | Biased reference distribution | GC‑matched control set is used as the reference; "outside GWAS" SNPs are excluded from KS test. |
+
+---

@@ -1,61 +1,57 @@
 # Quickstart: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities
 
-## 1. Prerequisites
+## Prerequisites
+- Python 3 (recent version)  
+- `git` (for cloning)  
+- Internet access (to download dbSNP, ENCODE, JASPAR, GWAS files)  
+- GitHub Actions runner or equivalent Linux environment (Multiple CPUs, 7 GB RAM)
 
-- Python 3.11+
-- `pip`
-- Access to the internet (for fetching data)
-- GitHub Actions runner (2 CPU, 7GB RAM) or local equivalent.
-
-## 2. Installation
-
+## Installation
 ```bash
 # Clone the repository
 git clone <repo-url>
 cd projects/PROJ-798-systematic-assessment-of-non-coding-vari
 
-# Create virtual environment
+# Set up a virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install pinned dependencies
 pip install -r code/requirements.txt
 ```
 
-## 3. Running the Pipeline
-
-The pipeline is executed via the `main.py` entry point.
-
+## Running the Full Pipeline
 ```bash
-# Run the full analysis
 python code/main.py \
   --dbsnp-ftp "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/" \
   --jaspar-url "http://jaspar.genereg.net/" \
+  --encode-ftp "ftp://ftp.ebi.ac.uk/pub/databases/encode/" \
   --gwas-ftp "ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/" \
+  --max-tf 200 \               # limit to the most informative PWMs (i.e., a limited subset of top-ranked PWMs)
+  --max-snps 500000 \          # optional sub‑sample to a limited number of SNPs for runtime safety
+  --permutations 500 \         # West‑Stephens max‑T permutation count with stratified shuffling
   --output-dir data/output
 ```
 
-### Steps Performed:
-1.  **Data Ingestion**: Fetches and filters SNPs, loads PWMs, fetches GWAS leads.
-2.  **Scoring**: Calculates $\Delta Score$ for all valid SNP-TF pairs.
-3.  **Permutation**: Runs 100 permutations for null distribution.
-4.  **Enrichment**: Performs KS tests and West-Stephens FDR correction.
-5.  **Reporting**: Generates `results_summary.csv` and `report.md`.
+The command performs, in order:
+1. **Data ingestion** (download, checksum, LD pruning, regulatory filtering, stratification assignment, GC‑matched control generation).  
+2. **Affinity scoring** (PWM loading, dynamic‑window Δ Score calculation).  
+3. **Permutation & enrichment** (Multiple stratified label shuffles within LD blocks and strata, KS test with block‑aware stratified permutation, tail‑enrichment test, West‑Stephens max‑T FDR).  
+4. **Reporting** (`results_summary.csv`, `report.md`).
 
-## 4. Verification
-
-After completion, verify the output:
-
+## Verification
 ```bash
-# Check for significant TFs
-grep "TRUE" data/output/results_summary.csv
+# Verify that the .gitignore behaves as expected
+git check-ignore -v data/raw/snps_raw.vcf.gz   # should exit successfully
+git check-ignore -v data/raw/source_log.txt   # should exit 1
 
-# Verify checksums
-python code/utils/checksum.py data/output/
+# Validate the final results against the contract schema
+python -m jsonschema -i data/output/results_summary.csv contracts/enrichment_result_schema.schema.yaml
 ```
 
-## 5. Troubleshooting
+## Troubleshooting
+- **Out‑of‑Memory**: Reduce `--max-snps` or increase `--batch-size` in `code/config.py`.  
+- **FTP 404**: Ensure the URLs are still active; the pipeline will abort with a clear message instead of fabricating data.  
+- **Runtime > 6 h**: Profile with `cProfile` and consider lowering the number of TFs (`--max-tf`) or SNPs (`--max-snps`).  
 
-- **OOM Error**: Reduce batch size in `config.py`.
-- **404 Error on Data**: Ensure the canonical FTP URLs in the spec are still active. The pipeline does not use fallback URLs.
-- **Slow Runtime**: Verify that permutations are capped at 100 and no GPU code is being invoked.
+---

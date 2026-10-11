@@ -1,6 +1,6 @@
 status: none
-intent: dbSNP build 155 SNP VCF ENCODE v4 promoter enhancer BED Roadmap Epigenomics
-  BED python package dataset
+intent: dbSNP build155 common SNPs ENCODE v4 regulatory BED Roadmap Epigenomics BED
+  JASPAR2024 PWM python package dataset
 required_fields:
 - chromosome
 - position
@@ -8,11 +8,9 @@ required_fields:
 - reference_allele
 - alternate_allele
 - minor_allele_frequency
-- build
-- regulatory_type
-- region_start
-- region_end
+- genome_build
+- regulatory_region_type
 - gc_content
-cache_key: 9827c1ef4499afa331a7d0abf0e8cf21b4df2931d82d1581bcfaea15c37c7363
-searched_at: '2026-10-11T04:16:32.100645+00:00'
+cache_key: 763edf537d6d96e0770b856ada4aeb99a8a0b2784a33dc90326f018fdfeaf8bc
+searched_at: '2026-10-11T04:22:51.893439+00:00'
 retry_count: 1

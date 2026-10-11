@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-27T19:37:58.622541Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-798-systematic-assessment-of-non-coding-vari
-last_run_id: 48bdf5ae-161c-44e5-9f63-24d8dcd824b0
+last_run_id: ccf137c9-ca3e-4253-8b8d-576849bb7111
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari
 title: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor
   Binding Affinities
-updated_at: '2026-10-11T04:16:46.320464Z'
+updated_at: '2026-10-11T04:44:09.925432Z'
