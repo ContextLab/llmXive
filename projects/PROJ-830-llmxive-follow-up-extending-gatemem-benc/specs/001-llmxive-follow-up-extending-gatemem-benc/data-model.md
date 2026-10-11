@@ -3,59 +3,60 @@
 ## 1. Entity Definitions
 
 ### Episode
-A single interaction instance from the GateMem dataset.
-- **Fields**:
-  - `episode_id`: Unique identifier (string).
-  - `domain`: Context domain (enum: "medical", "office", "education", "household").
-  - `user_role`: Role of the user (string).
-  - `intent`: User intent classification (string).
-  - `query`: User query text (string).
-  - `memory_state`: Current memory context (string).
-  - `leak_target`: Ground truth label for leakage (boolean: True if leak allowed, False if blocked).
-  - `deletion_request`: Boolean indicating if a deletion request is present.
-  - `deletion_log`: History of deletion requests (list of strings).
-  - `ground_truth_success`: Boolean indicating if the task was successful (from human annotation).
+| Field | Type | Description |
+|---|---|---|
+| `episode_id` | string | Unique identifier. |
+| `domain` | enum (`medical`, `office`, `education`, `household`) | Context domain. |
+| `user_role` | string | Role of the user (e.g., doctor, admin). |
+| `intent` | string | Classified intent (`query`, `deletion`, `extraction`, `other`). |
+| `query` | string | User query text. |
+| `memory_state` | string | Retrieved or full memory context. |
+| `leak_target` | boolean | Ground‑truth: *True* = allowed, *False* = leak should be blocked. |
+| `deletion_request` | boolean | Whether a deletion request is present. |
+| `deletion_log` | array[string] | History of deletion actions. |
+| `ground_truth_success` | boolean | Human‑annotated task success label. |
+| `ground_truth_deletion` | boolean | Ground truth indicating successful deletion compliance. |
 
 ### EvaluationResult
-The output of running a pipeline (Gatekeeper or Baseline) on an episode.
-- **Fields**:
-  - `episode_id`: Reference to the input episode.
-  - `pipeline_type`: "gatekeeper", "retrieval_only", or "long_context".
-  - `allowed`: Boolean indicating if the pipeline allowed the query.
-  - `generated_response`: LLM output (string).
-  - `task_success`: Boolean indicating if the generated response achieved the task (calculated).
-  - `latency_ms`: Wall-clock time in milliseconds.
-  - `peak_ram_mb`: Peak memory usage in MB.
+| Field | Type | Description |
+|---|---|---|
+| `episode_id` | string | Reference to the input episode. |
+| `pipeline_type` | enum (`gatekeeper`, `retrieval_only`, `long_context`) | Pipeline executed. |
+| `allowed` | boolean | Whether the query passed the gate. |
+| `generated_response` | string (optional) | LLM output (empty if blocked). |
+| `task_success` | boolean | Success vs. ground truth. |
+| `latency_ms` | number ≥ 0 | Wall‑clock inference time. |
+| `peak_ram_mb` | number ≥ 0 | Peak RAM usage. |
 
-### MetricAggregation
-Aggregated metrics for a specific pipeline and domain.
-- **Fields**:
-  - `pipeline_type`: "gatekeeper" or "baseline".
-  - `domain`: Domain name.
-  - `access_control_score`: Float (0.0 to 1.0).
-  - `utility_score`: Float (0.0 to 1.0).
-  - `forgetting_score`: Float (0.0 to 1.0).
-  - `conditional_utility`: Float (0.0 to 1.0).
-  - `overall_success_rate`: Float (0.0 to 1.0).
-  - `avg_latency_ms`: Float.
-  - `avg_peak_ram_mb`: Float.
+### MetricAggregation (per pipeline & domain)
+| Field | Type | Description |
+|---|---|---|
+| `pipeline_type` | enum (`gatekeeper`, `retrieval_only`, `long_context`) | |
+| `domain` | enum (`medical`, `office`, `education`, `household`) | |
+| `access_control_score` | float ∈ [0, 1] | Unauthorized exposure rate. |
+| `utility_score` | float ∈ [0, 1] | Task success rate. |
+| `conditional_utility` | float ∈ [0, 1] | Utility among allowed queries. |
+| `forgetting_score` | float ∈ [0, 1] | Deletion compliance rate. |
+| `avg_latency_ms` | float ≥ 0 | Mean inference latency. |
+| `avg_peak_ram_mb` | float ≥ 0 | Mean peak RAM. |
+| `total_episodes` | integer ≥ 0 | Number of episodes aggregated. |
 
 ## 2. Data Flow
-
-1. **Ingestion**: `data_loader.py` fetches GateMem JSONL, validates schema, and writes to `data/raw/`.
-2. **Validation**: **Variable Presence Check** ensures all required variables (outcome, predictors, covariates) are present.
-3. **Processing**: `pipeline.py` and `baselines/*.py` process episodes, generating `EvaluationResult` objects.
-4. **Aggregation**: `metrics/*.py` calculate scores (including Conditional Utility) and write to `data/processed/metrics.json`.
-5. **Analysis**: `stats/comparison.py` performs McNemar's Test and GLMM, writing statistical results to `data/processed/stats_results.json`.
-6. **Sampling**: `cli/run_evaluation.py` generates `data/samples/failure_cases.json` (stratified by domain).
-7. **Reporting**: `cli/generate_report.py` aggregates all results into `data/processed/final_report.json`.
+1. **Ingestion** – `utils/data_loader.py` streams GateMem JSONL → `data/raw/`.  
+2. **Validation** – Each record validated against `gatemem_episode.schema.yaml`.  
+3. **Processing** – `gatekeeper/pipeline.py` & `baselines/*.py` produce `EvaluationResult` objects written to `data/processed/<pipeline>_results.jsonl`.  
+4. **Aggregation** – `metrics/*` compute per‑episode scores and write `data/processed/unified_metrics.json` (list of objects containing `episode_id`, `domain`, and the three core scores).  
+5. **Statistical Analysis** – `stats/comparison.py` reads `unified_metrics.json`, fits GLMM or fallback tests, and writes `data/processed/statistical_results.json`.  
+6. **Failure‑Case Sampling** – `cli/run_evaluation.py` filters `unified_metrics.json` for false positives/negatives, stratifies by `domain`, and outputs `data/samples/failure_cases.json`.  
 
 ## 3. Schema Contracts
+All files must conform to the YAML schemas located under `specs/001-gatekeeper-governance/contracts/`:
 
-All data files MUST conform to the schemas defined in `specs/.../contracts/` (Canonical Source).
-- `specs/.../contracts/gatemem_episode.schema.yaml`: Validates raw input data.
-- `specs/.../contracts/evaluation_result.schema.yaml`: Validates pipeline outputs.
-- `specs/.../contracts/metrics.schema.yaml`: Validates aggregated results.
-- `src/contracts/`: Generated artifact (Copied from `specs/.../contracts/` during build).
+- `gatemem_episode.schema.yaml` – validates raw episodes.  
+- `evaluation_result.schema.yaml` – validates pipeline outputs.  
+- `metrics.schema.yaml` – validates aggregated metric objects.  
+- `results.schema.yaml` – validates final benchmark results and statistical summaries.
 
-*Note: See `specs/.../contracts/` directory for full YAML schema definitions.*
+*During CI, `tests/contract/test_schemas.py` enforces these contracts.*
+
+**Note**: `unified_metrics.json` includes the `domain` field for each episode, enabling downstream stratified analyses (e.g., failure‑case sampling in T029a).  

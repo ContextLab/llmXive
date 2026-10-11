@@ -1,83 +1,93 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Benchmark Results Schema"
-description: "Schema for the aggregated benchmark results including metrics and statistical tests."
-type: "object"
+description: "Schema for the final benchmark results, including statistical significance."
+type: object
+required:
+  - configuration
+  - domain
+  - total_episodes
+  - access_control_score
+  - conditional_utility_score
+  - overall_success_rate
+  - forgetting_score
+  - mean_latency_ms
+  - mean_peak_ram_mb
+  - cost_per_success
+  - statistical_significance
 properties:
   configuration:
-    type: "string"
-    enum: ["gatekeeper", "baseline_retrieval", "baseline_long_context"]
-    description: "The configuration being evaluated."
+    type: string
+    enum:
+      - gatekeeper
+      - baseline_retrieval
+      - baseline_long_context
+    description: "The configuration evaluated."
   domain:
-    type: "string"
-    description: "The domain for this result set."
+    type: string
+    description: "Domain for this result set."
   total_episodes:
-    type: "integer"
+    type: integer
     minimum: 0
     description: "Total number of episodes evaluated."
   access_control_score:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Rate of unauthorized exposure (Access Control)."
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Rate of unauthorized exposure."
   conditional_utility_score:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Task success rate among allowed queries (Conditional Utility)."
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Utility among allowed queries."
   overall_success_rate:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Overall task success rate (including False Positives)."
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Overall task success rate (including false positives)."
   forgetting_score:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Deletion compliance rate (Forgetting)."
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Deletion compliance rate."
   mean_latency_ms:
-    type: "number"
-    minimum: 0.0
-    description: "Mean wall-clock inference time in milliseconds."
+    type: number
+    minimum: 0
+    description: "Mean inference time in ms."
   mean_peak_ram_mb:
-    type: "number"
-    minimum: 0.0
-    description: "Mean peak RAM usage in megabytes."
+    type: number
+    minimum: 0
+    description: "Mean peak RAM usage in MB."
   cost_per_success:
-    type: "number"
-    minimum: 0.0
-    description: "Total time divided by number of successful tasks."
+    type: number
+    minimum: 0
+    description: "Total wall‑clock time divided by number of successful tasks."
   statistical_significance:
-    type: "object"
+    type: object
+    required:
+      - p_value
+      - confidence_interval
+      - test_method
     properties:
       p_value:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "P-value from the statistical test (LMM or non-parametric)."
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "P‑value from the statistical test."
       confidence_interval:
-        type: "array"
+        type: array
         items:
-          type: "number"
+          type: number
         minItems: 2
         maxItems: 2
-        description: "95% Confidence interval for the difference in means."
+        description: "95 % confidence interval for the difference in means."
       test_method:
-        type: "string"
-        enum: ["LMM", "paired_t_test", "Wilcoxon", "Kruskal-Wallis"]
-        description: "The statistical test method used."
-    required:
-      - "p_value"
-      - "confidence_interval"
-      - "test_method"
-required:
-  - "configuration"
-  - "domain"
-  - "total_episodes"
-  - "access_control_score"
-  - "conditional_utility_score"
-  - "overall_success_rate"
-  - "forgetting_score"
-  - "mean_latency_ms"
-  - "mean_peak_ram_mb"
-  - "cost_per_success"
+        type: string
+        enum:
+          - LMM
+          - GLMM
+          - paired_t_test
+          - wilcoxon
+          - mcnemar
+        description: "Statistical test used."
+    additionalProperties: false
 additionalProperties: false

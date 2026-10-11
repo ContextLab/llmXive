@@ -27,7 +27,7 @@ properties:
     description: "Role of the user (e.g., doctor, patient, admin)."
   intent:
     type: string
-    description: "Classified intent of the user query (derived via Zero-Shot)."
+    description: "Classified intent of the user query (derived via DistilBERT)."
   query:
     type: string
     description: "The user's query text."
@@ -47,5 +47,8 @@ properties:
     description: "History of deletion requests."
   ground_truth_success:
     type: boolean
-    description: "Human-annotated task success label."
+    description: "Human‑annotated task success label."
+  ground_truth_deletion:
+    type: boolean
+    description: "Ground truth indicating successful deletion compliance."
 additionalProperties: false

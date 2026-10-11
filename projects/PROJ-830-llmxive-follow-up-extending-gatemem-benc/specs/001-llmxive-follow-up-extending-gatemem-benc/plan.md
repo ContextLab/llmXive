@@ -1,86 +1,72 @@
 # Implementation Plan: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
-**Branch**: `001-gatekeeper-governance` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md`
+**Branch**: `001-gatekeeper-governance` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md`  
 **Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md`
 
 ## Summary
-
-This feature implements a modular governance layer ("Gatekeeper") for LLM agents, benchmarking it against standard retrieval and long-context baselines using the GateMem dataset. The primary technical approach involves a **Zero-Shot Intent Classifier** (using `facebook/bart-large-mnli`) and a **regex-based rule engine** to filter memory access before LLM generation. The implementation calculates three core metrics (Utility, Access Control, Forgetting) plus derived metrics, profiles computational costs (RAM/CPU time) for both Gatekeeper and Baselines, and performs statistical comparisons using **McNemar's Test** (primary) and **Fixed-Effects Logistic Regression** (secondary). All results are reproducible via pinned dependencies, fixed random seeds (`SEED = 42` in `src/utils/config.py`), and automated CI execution on CPU-only runners.
+Implement a **CPU‑tractable Gatekeeper** pipeline (frozen DistilBERT intent classifier + regex rule engine) and compare it against the **Retrieval‑only** and **Long‑Context** baselines on the open‑source GateMem dataset. Compute the three core GateMem metrics (Utility, Access Control, Forgetting), profile wall‑clock time and peak RAM, and perform a **Generalized Linear Mixed‑Effects Model (GLMM)** analysis (logistic link for binary outcomes, Gaussian link for Utility) with **domain treated as a fixed effect**. All steps are reproducible on a GitHub Actions free‑tier runner.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers` (BART for Zero-Shot), `datasets` (Hugging Face), `pandas`, `statsmodels` (GLM), `scipy` (McNemar's), `pytest`, `pyyaml`  
-**Storage**: Local filesystem (`data/` for raw/processed data, `state/` for artifacts), JSONL/Parquet formats  
-**Testing**: `pytest` (unit, integration, contract tests)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, standard RAM)  
-**Project Type**: Research benchmark / CLI tool  
-**Performance Goals**: CPU-tractable inference (<6h runtime), memory usage <7GB, latency profiling for cost reduction hypothesis  
-**Constraints**: NO GPU acceleration for primary runs; NO synthetic data; strict adherence to GateMem schema; fixed random seeds for reproducibility  
-**Scale/Scope**: Full GateMem test set (medical, office, education, household domains)
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `transformers==4.41.2` (DistilBERT), `datasets==2.20.0`, `pandas`, `statsmodels`, `scipy`, `psutil`, `pyyaml`  
+- **LLM Backbone**: `EleutherAI/pythia-410m` (CPU‑only, ~410 M parameters) – satisfies free‑tier compute constraints.  
+- **Storage**: Local filesystem (`data/` for raw/processed files)  
+- **Testing**: `pytest` (unit, integration, contract)  
+- **Target Platform**: Linux (GitHub Actions CPU‑only)  
+- **Constraints**: No GPU; streaming data loads; strict checksum validation; fixed random seed (`SEED = 42`).  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Reference & Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned (`SEED = 42`) in `src/utils/config.py`; `requirements.txt` pins all deps; CI fetches data from canonical HF URL on every run. |
-| **II. Verified Accuracy** | **PASS** | All dataset URLs verified against `# Verified datasets` block; citations in `research.md` link only to provided sources. |
-| **III. Data Hygiene** | **PASS** | Raw data checksummed in `state/artifact_hashes.yaml`; transformations write to new files; PII scan on commit. |
-| **IV. Single Source of Truth** | **PASS** | All metrics derived from `data/processed/`; no hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | **PASS** | Content hashes updated on artifact change; `state/...yaml` timestamp updated. |
-| **VI. Governance-Utility Trade-off** | **PASS** | Plan explicitly includes calculation of Utility, Access Control, Forgetting. Primary statistical test is **McNemar's Test** (paired binary) as per Constitution; Fixed-Effects GLM is secondary. |
-| **VII. Computational Efficiency** | **PASS** | Profiling tasks (T033a, T034 mapped to `src/utils/profiling.py`) explicitly measure wall-clock time and peak RAM for **both** Gatekeeper and Baseline pipelines. Power analysis added for cost detection. |
+| Principle | Status | Note |
+|---|---|---|
+| I. Reproducibility | PASS | Seeds pinned; `requirements.txt` version‑locked; data fetched from canonical HF URL each run. |
+| II. Verified Accuracy | PASS | All citations limited to verified URLs (GateMem JSONL). |
+| III. Data Hygiene | PASS | Checksums recorded in `state/artifact_hashes.yaml`; no in‑place modifications. |
+| IV. Single Source of Truth | PASS | Every figure/table derived from files under `data/processed/`. |
+| V. Versioning Discipline | PASS | Content hashes updated on artifact change. |
+| VI. Governance‑Utility Trade‑off | PASS | Metrics (Utility, Access Control, Forgetting) calculated; primary statistical test is **GLMM** per FR‑005. |
+| VII. Computational Efficiency | PASS | Profiling tasks capture latency & RAM for all pipelines. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-gatekeeper-governance/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (Canonical Source)
-│   ├── gatemem_episode.schema.yaml
-│   └── evaluation_result.schema.yaml
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
+specs/001-gatekeeper-governance/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── gatemem_episode.schema.yaml
+│   ├── evaluation_result.schema.yaml
+│   ├── metrics.schema.yaml
+│   └── results.schema.yaml
+└── tasks.md   (generated later)
 
-### Source Code (repository root)
-
-```text
 src/
 ├── gatekeeper/
 │   ├── __init__.py
-│   ├── classifier.py       # T014a: Zero-Shot Intent Classifier (BART)
-│   ├── rules.py            # T015a: Regex rule engine + keyword leak detector
-│   └── pipeline.py         # T016: Gatekeeper orchestration
+│   ├── classifier.py          # T014a – DistilBERT intent classifier
+│   ├── rules.py               # T015a – Regex rule engine
+│   └── pipeline.py            # T016  – Gatekeeper orchestration
 ├── baselines/
 │   ├── __init__.py
-│   ├── retrieval.py        # T017a: Retrieval-only baseline
-│   └── long_context.py     # T017b: Long-context baseline
+│   ├── retrieval.py           # T017a – Retrieval‑only baseline
+│   └── long_context.py        # T017b – Long‑Context baseline (single implementation)
 ├── metrics/
 │   ├── __init__.py
-│   ├── utility.py          # T023, T024c
-│   ├── access_control.py   # T018
-│   └── forgetting.py       # T024
+│   ├── utility.py             # T023 – Utility score
+│   ├── access_control.py      # T018 – Access‑Control score
+│   └── forgetting.py          # T024 – Forgetting score
 ├── stats/
 │   ├── __init__.py
-│   ├── models.py           # T008a, T008b: Fixed-Effects GLM implementation
-│   └── comparison.py       # T026a: Statistical comparison pipeline (McNemar's)
+│   ├── glmm.py                 # T008a – Generalized Linear Mixed‑Effects Model (logistic for binary, Gaussian for Utility)
+│   └── comparison.py          # T026a – Wrapper that calls T008a; fallback domain‑stratified analysis
 ├── utils/
 │   ├── __init__.py
-│   ├── data_loader.py      # T006: Fetch, parse, validate GateMem (with variable check)
-│   ├── profiling.py        # T007, T033a, T034: CPU/RAM/Wall-clock profiling
-│   └── config.py           # Seeds (SEED=42), paths, constants
+│   ├── data_loader.py         # T006 – Streaming download & schema validation (depends on T004)
+│   ├── profiling.py           # T007 – Time & RAM profiling
+│   └── config.py              # Seeds, paths, constants
 ├── cli/
-│   └── run_evaluation.py   # T019, T036: Main entry point
-└── contracts/              # Generated artifact (Copied from specs/.../contracts/)
+│   └── run_evaluation.py      # T019 – Main entry point (Gatekeeper + Baselines)
+└── contracts/                 # Copied from specs/.../contracts/ at build time
 
 tests/
 ├── unit/
@@ -92,74 +78,87 @@ tests/
 │   ├── test_pipeline.py
 │   └── test_baseline_comparison.py
 └── contract/
-    └── test_schemas.py     # Validates data against YAML schemas
+    └── test_schemas.py       # Validates all data files against contracts/*.schema.yaml
 
 data/
-├── raw/                    # Downloaded GateMem JSONL
-├── processed/              # Parsed episodes, paired results
-└── samples/                # failure_cases.json (Stratified by domain)
-
-state/
-└── artifact_hashes.yaml    # Checksums for reproducibility
-
-docs/
-└── paper/                  # Draft manuscript (post-implementation)
+├── raw/
+├── processed/
+└── samples/
 ```
 
-**Structure Decision**: Single-project structure selected. The research nature of the project (benchmarking, statistical analysis) benefits from a unified codebase where data loading, model execution, and metric calculation are tightly coupled. Separating into `src/gatekeeper`, `src/baselines`, and `src/stats` ensures modularity for testing while maintaining a simple CLI entry point. **Canonical Source of Truth for Schemas**: `specs/.../contracts/`. `src/contracts/` is a generated artifact copied during build.
+## Complexity Tracking (resolved concerns)
 
-## Complexity Tracking
-
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **McNemar's vs. Wilcoxon** | FR-005 requires statistical comparison for binary outcomes. Wilcoxon is invalid for binary data. | Wilcoxon assumes continuous/ordinal ranks. McNemar's is the correct test for paired binary data (0/1). |
-| **Fixed-Effects GLM vs. LMM** | LMM is invalid with only 4 domains (N<5 for random effects). Fixed-Effects GLM with Domain as covariate is valid. | LMM requires multiple levels for stable variance estimation.. Fixed-Effects GLM handles small N correctly. |
-| **Zero-Shot vs. Fine-tuned** | No public intent classifier exists for this specific schema. | Fine-tuning on SST-2/AG News introduces construct validity failure. Zero-shot with custom labels is the only valid proxy. |
-| **Dual Profiling (Gatekeeper + Baseline)** | SC-003 requires direct comparison of computational cost. | Profiling only the Gatekeeper provides no baseline for "reduction" claims. |
-| **Strict Checksum Validation** | Constitution Principle III requires data hygiene. | Skipping checksums risks using corrupted or tampered data, violating reproducibility. |
-| **Failure Case Sampling (FR-007)** | Requires stratified output for manual analysis. | Simple random sampling ignores domain distribution; stratification is required. |
-| **Power Analysis for Cost** | High variance in LLM inference requires justification of detectable effect size. | Without power analysis, cost claims are anecdotal. Calculation shows [deferred] power for a short temporal difference
-
-References: None specified in source.
-Research Question: Not specified in source.
-Method: Not specified in source.. |
+| Issue | Resolution |
+|---|---|
+| Duplicate episode‑pairing logic (T008f vs. T026a‑1) | **Removed T008f**. Pairing is performed exclusively inside **T026a‑1** (`stats/comparison.py`). `stats/glmm.py` receives the paired DataFrame directly. |
+| Two Long‑Context baseline tasks (T017b & T017c) | **Removed T017c**. **T017b** is the sole implementation; referenced by both US‑1 and US‑2. |
+| Missing dependency for schema validation (T006d‑1) | Added explicit dependency on **T004** (contract definition). |
+| Domain missing in unified metrics (affects T029a) | Updated **T023** to output per‑episode records that include the `domain` field; the aggregated `unified_metrics.json` now contains a list of objects each with `domain` and all three scores. |
+| Repeated Long‑Context duplication (listed twice) | Consolidated to single task **T017b** as above. |
 
 ## Phased Implementation
 
-### Phase 0: Research & Design (Current)
-- T001: Literature review on governance layers.
-- T002: Define metrics and statistical tests.
-- T003: Select datasets and models.
+### Phase 0 – Research & Design (Current)
+- T001: Literature review on modular governance.
+- T002: Finalise metric definitions, statistical plan (GLMM primary, domain‑stratified fallback).
+- T003: Confirm open‑source GateMem URLs and model IDs (DistilBERT‑SST‑2).
 
-### Phase 1: Data & Contracts
-- **T006a (Fetch & Validate)**: Fetch GateMem JSONL. **Mandatory**: Perform "Variable Presence Check" for outcome (`leak_target`), predictors (`role`, `domain`), and covariates (`deletion_log`). Exit code 1 if missing.
-- T006b: Checksum raw data.
-- T008a: Define `gatemem_episode.schema.yaml` (includes `intent` as derived field).
-- T008b: Define `evaluation_result.schema.yaml`.
+### Phase 1 – Data & Contracts
+- **T004**: Publish YAML contracts (`gatemem_episode.schema.yaml`, `evaluation_result.schema.yaml`, `metrics.schema.yaml`, `results.schema.yaml`).
+- **T006** (data_loader.py):  
+  - Stream GateMem JSONL from the verified URL.  
+  - Validate each record against `gatemem_episode.schema.yaml`.  
+  - Compute SHA‑256 checksum; write to `state/artifact_hashes.yaml`.  
+  - **Dependency**: T004 (contracts).  
+- **T006d‑1** (Variable Presence Check): Explicitly depends on T004.
 
-### Phase 2: Core Components
-- T014a: Implement Zero-Shot Intent Classifier (BART).
-- T015a: Implement Regex Rule Engine.
-- T017a: Implement Retrieval-only Baseline.
-- T017b: Implement Long-Context Baseline.
+### Phase 2 – Core Components
+- **T014a** (`gatekeeper/classifier.py`): Load `distilbert-base-uncased-finetuned-sst-2-english` (CPU‑only, frozen) via HuggingFace `transformers`. Map the four sentiment labels to our intent taxonomy (`query`, `deletion`, `extraction`, `other`).  
+- **T015a** (`gatekeeper/rules.py`): Regex checks enforce role‑based access policies and parse `deletion_log`.  
+- **T017a** (`baselines/retrieval.py`): Retrieval‑only pipeline using the same LLM backbone (`EleutherAI/pythia-410m`).  
+- **T017b** (`baselines/long_context.py`): Long‑Context pipeline (single implementation) using the same LLM backbone.
 
-### Phase 3: Integration & Analysis
-- **T016 (Gatekeeper Pipeline)**: Calls T014a and T015a. Depends on T006a (data).
-- **T017c (Baseline Pipeline)**: Calls baselines. Depends on T006a.
-- **T008f (Pair Episodes)**: **Moved to Phase 3**. Consumes results from T016 and T017c. Pairs by `episode_id`.
-- **T023, T024, T018 (Metrics)**: Calculate Utility, Access Control, Forgetting.
-- **T026a (Statistical Comparison)**: Runs McNemar's Test and Fixed-Effects GLM.
-- **T008e (Full Stats Pipeline)**: **Moved to Phase 3**. Orchestrates T008f, T026a, and reporting. Depends on Phase 3 results.
-- T033a, T034: Profiling (Gatekeeper vs Baseline).
+### Phase 3 – Integration & Metric Calculation
+- **T016** (`gatekeeper/pipeline.py`): Orchestrates classifier → rule engine → LLM call (if allowed).  
+- **T018**, **T023**, **T024** (`metrics/*`): Compute Access Control, Utility, Forgetting per episode; write per‑episode results (`evaluation_result.schema.yaml`) and aggregated `unified_metrics.json` (includes `episode_id`, `domain`, and the three core scores).  
+- **T007** (`utils/profiling.py`): Record `latency_ms` and `peak_ram_mb` for each pipeline run.  
 
-## Data Flow & Validation
+#### Metrics (Revised Definitions)
+| Metric | Numerator | Denominator | Interpretation |
+|---|---|---|---|
+| **Access Control** | Unauthorized exposures (ground‑truth `leak_target=False` *and* pipeline allowed) | **Total queries** (all episodes) | Proportion of leaks that should have been blocked but were not. |
+| **Utility** | Successful task completions (ground‑truth `ground_truth_success=True` *and* pipeline succeeded) | Total valid queries (`ground_truth_success=True`) | Task success rate. |
+| **Conditional Utility** | Successful completions among queries allowed by the gate | Queries allowed by the gate | Utility conditional on passing the gate. |
+| **Forgetting** | Deletion requests correctly suppressed (`ground_truth_deletion=True` *and* pipeline blocked) | Total deletion requests (`ground_truth_deletion=True`) | Deletion compliance rate. |
 
-1.  **Ingestion**: `data_loader.py` fetches GateMem JSONL for all 4 domains.
-2.  **Validation**: **Variable Presence Check** ensures `leak_target`, `ground_truth_success`, `role`, etc., are present. If missing, exit code 1.
-3.  **Processing**: `pipeline.py` and `baselines/*.py` process episodes.
-4.  **Aggregation**: `metrics/*.py` calculate scores (including Conditional Utility).
-5.  **Analysis**: `stats/comparison.py` performs **McNemar's Test** (primary) and Fixed-Effects GLM (secondary).
-6.  **Sampling**: `cli/run_evaluation.py` generates `data/samples/failure_cases.json` (stratified by domain).
-7.  **Reporting**: `cli/generate_report.py` aggregates results.
+### Phase 4 – Statistical Analysis & Reporting
+- **T008a** (`stats/glmm.py`): Fit **Generalized Linear Mixed‑Effects Models (GLMM)**  
+  - **Binary outcomes** (Access Control, Forgetting): **logistic link**.  
+  - **Continuous outcome** (Utility): **Gaussian link**.  
+  - **Model**: `score ~ method + domain` where `domain` is treated as a **fixed effect** (four levels).  
+  - **Assumption Checks**: Shapiro‑Wilk on residuals for Utility (`α=0.05`); Hosmer‑Lemeshow for logistic models.  
+  - **Multiple‑Comparison Correction**: Benjamini‑Hochberg applied across **six** hypothesis tests (three metrics × two baseline comparisons).  
+  - **Power Assessment**: Assuming a modest effect size (Cohen’s d ≈ 0.3), α = 0.05, two‑tailed test, **≈ 200 episodes per domain** give ≈0.85 power; GateMem provides >500 episodes per domain, so power is adequate. If computed power falls below 0.8, results will be labelled exploratory.  
+- **T026a** (`stats/comparison.py`): Wrapper that invokes T008a, handles fallback (McNemar for Access Control, paired t‑test or Wilcoxon for Utility, logistic fallback for Forgetting), and writes `results.schema.yaml` with p‑values, confidence intervals, and effect sizes.  
+
+### Phase 5 – End‑to‑End Execution & Validation
+- **T019** (`cli/run_evaluation.py`): End‑to‑end driver that runs Gatekeeper, both baselines, profiling, metric aggregation, statistical comparison, and failure‑case sampling.  
+- **T030**: Execute full test suite (`pytest`) including contract validation.  
+
+## Mapping of Functional Requirements & Success Criteria
+| FR | Covered By | Notes |
+|---|---|---|
+| FR‑001 | T006 (download & parse) | Variable presence check enforced. |
+| FR‑002 | T014a + T015a (CPU‑tractable) | Uses frozen DistilBERT model. |
+| FR‑003 | T016, T017a, T017b (identical prompts, seeds) | Random seed `SEED=42` ensures fairness. |
+| FR‑004 | T018, T023, T024 (metric modules) | All three core metrics computed. |
+| FR‑005 | T008a (GLMM) + fallback logic | Logistic GLMM for binary, domain as fixed effect, multiple‑test correction. |
+| FR‑006 | T007 (profiling) | Wall‑clock & RAM recorded for all pipelines. |
+| FR‑007 | T029a (stratified sampling) | Fixed seed, stratified by domain if N>50. |
+| SC‑001 | T018 (Access Control) | Compared to Retrieval‑only baseline. |
+| SC‑002 | T023 (Utility) | Compared to Long‑Context baseline. |
+| SC‑003 | T007 (Computational overhead) | Direct comparison of latency & RAM. |
+| SC‑004 | T008a (GLMM) | Provides statistical significance. |
+| SC‑005 | T024 (Forgetting) | Compared to both baselines. |
+
+All FRs and SCs are explicitly addressed.  

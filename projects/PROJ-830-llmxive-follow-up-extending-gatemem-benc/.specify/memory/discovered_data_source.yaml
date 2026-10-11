@@ -1,15 +1,14 @@
 status: none
-intent: download GateMem multi-domain dataset from HuggingFace python package dataset
+intent: official GateMem dataset download pip install python package dataset
 required_fields:
-- episode_id
+- document_id
+- text
 - domain
-- annotations
-- role_definitions
-- deletion_request_log
-- leak_target
-- intent
-- role
-- ground_truth_answer
-cache_key: 8b9f27829ab8e282fd1235e8f67bfdbf8dd7262cf05cb28860aa5981ed12aceb
-searched_at: '2026-08-21T20:16:02.789149+00:00'
+- annotation
+- authorization_boundary
+- outcome
+- predictors
+- covariates
+cache_key: f6981691e9724b179d74f278b7c936a75a905e57fb54b3f883fdf5d1fe65da49
+searched_at: '2026-10-11T09:08:39.668192+00:00'
 retry_count: 1

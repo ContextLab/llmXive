@@ -32,7 +32,7 @@ properties:
   latency_ms:
     type: number
     minimum: 0
-    description: "Wall-clock inference time in milliseconds."
+    description: "Wall‑clock inference time in milliseconds."
   peak_ram_mb:
     type: number
     minimum: 0

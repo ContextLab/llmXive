@@ -1,101 +1,107 @@
 # Quickstart: GateMem Benchmark Extension
 
-This guide provides step-by-step instructions to set up the environment, fetch the real GateMem dataset, and run the initial evaluation pipeline for the llmXive follow-up project.
+A step‑by‑step guide to set up the environment, fetch the real GateMem dataset, and run the evaluation pipeline.
 
 ## Prerequisites
-
-- Python 3.9+
-- pip
-- At least 14GB disk space and 8GB RAM (for streaming the full dataset)
+- Python 3.9+  
+- `pip`  
+- At least **14 GB** disk space and **8 GB** RAM (streaming avoids full load).  
 
 ## 1. Environment Setup
-
-Clone the repository and install dependencies:
-
 ```bash
-# Navigate to project root
+# Clone the repository (assumes you are at the project root)
+git clone https://github.com/your-org/PROJ-830-llmxive-follow-up-extending-gatemem-benc.git
 cd PROJ-830-llmxive-follow-up-extending-gatemem-benc
 
-# Create virtual environment (recommended)
+# Virtual environment (recommended)
 python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
 # Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-## 2. Dataset Download Guide
+## 2. Dataset Download
+The GateMem dataset is publicly available on Hugging Face.
 
-The project uses the **GateMem** dataset hosted on Hugging Face. This task requires the real data; no synthetic fallbacks are permitted.
-
-### Automatic Fetch (Recommended)
-
-Run the data loader script to fetch, validate, and checksum the dataset:
-
+### Automatic fetch (preferred)
 ```bash
-python code/utils/data_loader.py
+python src/utils/data_loader.py
 ```
-
 This script will:
-1. Stream the `gatekeeper/gatemem` dataset (split='test') to `data/raw/gatemem_test.jsonl`.
-2. Verify required fields (`outcome`, `predictors`, `covariates`, `leak-target`, `roles`, `domains`).
-3. Compute SHA-256 checksums and store them in `state/artifact_hashes.yaml`.
-4. **Fail loudly** if the fetch fails or checksums do not match.
+1. Stream the four domain splits from the verified URL.  
+2. Validate each episode against `gatemem_episode.schema.yaml`.  
+3. Compute SHA‑256 checksums and store them in `state/artifact_hashes.yaml`.  
+4. Abort with exit 1 if any validation fails (per FR‑001).
 
-### Manual Fetch (Alternative)
-
-If you need to manually verify the source:
-
+### Manual fetch (optional)
 ```python
 from datasets import load_dataset
 
-# Stream to avoid memory issues
-ds = load_dataset("gatekeeper/gatemem", split="test", streaming=True)
-# Save to local file if needed
-# ds.to_json("data/raw/gatemem_test.jsonl")
+# Example for the education split
+ds = load_dataset(
+    "Ray368/GateMem",
+    split="education",
+    streaming=True
+)
+# Optionally write to local file
+with open("data/raw/gatemem_education.jsonl", "w", encoding="utf-8") as f:
+    for ex in ds:
+        f.write(json.dumps(ex) + "\n")
 ```
 
-**Note**: Ensure your internet connection is active. The loader will raise a `ConnectionError` if the real source is unreachable.
+## 3. Run Evaluations
 
-## 3. Basic Run Commands
+### Gatekeeper
+```bash
+python src/cli/run_evaluation.py --mode gatekeeper --domains medical,office,education,household
+```
 
-### Run Gatekeeper Evaluation
+### Retrieval‑only Baseline
+```bash
+python src/cli/run_evaluation.py --mode retrieval_only --domains medical,office,education,household
+```
 
-Execute the Gatekeeper pipeline on specific domains (e.g., medical, office):
+### Long‑Context Baseline
+```bash
+python src/cli/run_evaluation.py --mode long_context --domains medical,office,education,household
+```
+
+All commands write per‑pipeline results to `data/processed/` and log profiling info.
+
+## 4. Full Statistical Analysis & Report
+```bash
+python src/stats/comparison.py --run-full
+```
+This will:
+- Fit the **Generalized Linear Mixed‑Effects Model** (primary).  
+- Apply Benjamini‑Hochberg correction across the six hypothesis tests.  
+- Produce `data/processed/statistical_results.json` and a human‑readable markdown report at `data/results/final_benchmark_report.md`.
+
+## 5. Verify Outputs
+After the run, you should see the following files:
+
+- `data/processed/gatekeeper_results.jsonl`  
+- `data/processed/retrieval_only_results.jsonl`  
+- `data/processed/long_context_results.jsonl`  
+- `data/processed/unified_metrics.json`  
+- `data/processed/statistical_results.json`  
+- `data/samples/failure_cases.json` (stratified by domain)  
+
+Run the test suite to ensure contract compliance:
 
 ```bash
-python code/cli/run_evaluation.py --domains medical,office --mode gatekeeper
+pytest -q
 ```
 
-### Run Baseline Evaluation
+Any failure related to data integrity, checksum mismatches, or schema violations must be addressed before proceeding.
 
-Execute the baseline pipelines (Retrieval-only and Long-Context):
+## 6. Common Failure Modes
+| Symptom | Likely Cause | Fix |
+|---|---|---|
+| `ConnectionError` in `data_loader.py` | Internet blocked or HF URL changed | Verify connectivity; re‑run the loader. |
+| Checksum mismatch | Corrupted download | Delete `data/raw/*` and `state/artifact_hashes.yaml`, then re‑run the loader. |
+| Out‑of‑memory crash | Accidental non‑streaming load | Ensure `datasets.load_dataset(..., streaming=True)` is used; keep batch size ≤ 200. |
+| Model download fails twice | Cache corruption | Delete `~/.cache/huggingface/transformers/distilbert-base-uncased-finetuned-sst-2-english` and re‑run. The script will retry once automatically. |
 
-```bash
-python code/cli/run_evaluation.py --domains medical,office --mode baseline
-```
-
-### Run Full Statistical Analysis
-
-Once results are generated, run the statistical comparison (LMM, Stratified, or GLM):
-
-```bash
-python code/utils/stats.py --run-full-pipeline
-```
-
-## 4. Output Verification
-
-After running the evaluation, verify the following artifacts exist:
-
-- `data/processed/gatekeeper_results.json`
-- `data/processed/baseline_results.json`
-- `data/processed/unified_metrics.json`
-- `data/results/final_benchmark_report.md`
-
-Check the logs in `logs/` for any `ConnectionError` or `ValueError` indicating data integrity issues.
-
-Run the full test suite to ensure all components are working correctly:
-
-- **Data Fetch Failed**: Ensure you have a stable internet connection and the Hugging Face Hub is accessible. Check `logs/data_loader.log` for specific error messages.
-- **Checksum Mismatch**: The data file in `data/raw/` may be corrupted. Delete `data/raw/gatemem_test.jsonl` and `state/artifact_hashes.yaml`, then re-run the data loader.
-- **Memory Errors**: The script uses `streaming=True` by default. Ensure you are not manually loading the full dataset into memory in custom scripts.
+**License Note**: The GateMem dataset is released under a **CC‑BY‑4.0** license, permitting redistribution and commercial‑free use, satisfying Constitution Principle III.  
