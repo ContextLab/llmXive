@@ -1,16 +1,50 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree was provided, and there is no evidence that the required `projects/PROJ-430-the-impact-of-asynchronous-communication`
-    folder hierarchy (code, data, tests, docs, config) was actually created. The implementer
-    must show the `tree` output confirming the structure exists.
+  h: a53973a74caa6ba012d67b9dfc96ead4d9f4d7e81fb5f88391c967919fe36860
+  r: "The project root contains `code/`, `data/`, and `tests/` as required, but the\
+    \ `docs/` and `config/` directories specified in the task are absent. These missing\
+    \ directories prevent the task\u2019s full directory\u2011structure requirement\
+    \ from being satisfied."
+  sig: 7bf961c10d723f7b325a469d24b8db40312cd9fc292c35f59810b28aaab4ccf5
+T001c:
+  c: false
+  h: 5c3d76b030294e224c0c116a434210ef1b1308bbf002ade535365c2a470dc9f5
+  r: The evidence shows the `data/raw/` and `data/derived/` directories but provides
+    no `.gitignore` file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`,
+    nor any content confirming the required exclusion patterns. The required artifact
+    is missing.
+  sig: b9d7d72002e881ae2d97143768ea1385ec5d621d7ab06fce07b2443f18b4044e
+T001d:
+  c: false
+  h: 4975b0d8624910515af922fff52ec446c4f316c0b5923d7754c9dd703773dc99
+  r: "The `requirements.txt` file exists and lists all requested packages, but it\
+    \ does not pin them to specific versions (e.g., `pandas==1.5.0`). The task explicitly\
+    \ required \u201CPin dependencies,\u201D so the artifact fails to meet the specification."
+  sig: e758eb7189c45bb4ff62a59752b50fe0addbab29e735fafbad659d2dda88f152
 T002a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `venv/` directory or any virtual\u2011environment files is\
-    \ provided; the implementer only states the command was run. The required artifact\
-    \ (the created Python\u202F3.11 virtual environment) is missing, so the task is\
-    \ not satisfied."
+  h: f280bf510c93db3ff4678c06fa856586b1917e9b316ace757aa4fbbddba9bad0
+  r: "The evidence provides only the project root path and no `venv/` directory or\
+    \ any output confirming that `venv/bin/python --version` returns Python\u202F\
+    3.11.x. The required virtual\u2011environment artifact and its verification output\
+    \ are missing."
+  sig: 7782433f8c02e9312e03110a865c215b98ae5c0ecb3de43de8cda6cfa0644012
+T002b:
+  c: false
+  h: b95e63ad8b4052da0eb3a8d3d614ec7931eb4a0d1c417b51737ec79c5e1da092
+  r: Checked the presence of `requirements.txt`, which exists and lists packages,
+    but there is no evidence that `pip install -r requirements.txt` was actually executed
+    in a virtual environment nor any captured output showing the installed packages.
+    The required execution log/output is missing.
+  sig: 22338abf8b3f5ae13609f56a17689e840cfc146502308ab3bea05668f781c4fd
+T003:
+  c: false
+  h: 3ec37e915c77d56b37393208b3f215b339781aad9e44db728b8e21ea7a95cc67
+  r: "The `.ruff.toml` and `pyproject.toml` files exist and contain reasonable configurations,\
+    \ but there is no provided evidence (e.g., command output, log file, CI step)\
+    \ that an initial lint/formatting check was actually executed. The task\u2019\
+    s requirement to \u201Crun initial lint check\u201D is therefore unmet."
+  sig: 1257261442470be034febb54132ad44c80cd848fcbf04b8913c6f134b8671edd
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

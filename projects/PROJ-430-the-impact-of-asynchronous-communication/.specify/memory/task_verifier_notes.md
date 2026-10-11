@@ -2,8 +2,15 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T010** — The required output file `data/raw/events.json` does not exist, and the provided `code/data_ingestion.py` is only partially shown (truncated) with no visible logic that writes the JSON file, handles the `--fetch` CLI flag, uses the specified sample repo IDs, or computes the inter‑arrival time variance. Consequently the task’s core deliverables are missing.
-- **T010b** — declared artifact(s) missing/empty/invalid: tests/unit/test_ground_truth.py
-- **T015** — declared artifact(s) missing/empty/invalid: data/derived/project_metrics.csv
-- **T016** — declared artifact(s) missing/empty/invalid: data/logs/rate_limit_events.log
-- **T021b** — The repository lacks the required input data files (`data/derived/pair_sentiment.parquet` and `data/derived/project_metrics.csv`) and the expected output file (`data/derived/project_cohesion_scores.csv`). Moreover, the provided `code/sentiment.py` excerpt does not show any implementation of the project‑level weighted‑average aggregation described in the task. Without these artifacts, the task’s requirements are not met.
+- **T001** — The project root contains `code/`, `data/`, and `tests/` as required, but the `docs/` and `config/` directories specified in the task are absent. These missing directories prevent the task’s full directory‑structure requirement from being satisfied.
+- **T001c** — The evidence shows the `data/raw/` and `data/derived/` directories but provides no `.gitignore` file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`, nor any content confirming the required exclusion patterns. The required artifact is missing.
+- **T001d** — The `requirements.txt` file exists and lists all requested packages, but it does not pin them to specific versions (e.g., `pandas==1.5.0`). The task explicitly required “Pin dependencies,” so the artifact fails to meet the specification.
+- **T002a** — The evidence provides only the project root path and no `venv/` directory or any output confirming that `venv/bin/python --version` returns Python 3.11.x. The required virtual‑environment artifact and its verification output are missing.
+- **T002b** — Checked the presence of `requirements.txt`, which exists and lists packages, but there is no evidence that `pip install -r requirements.txt` was actually executed in a virtual environment nor any captured output showing the installed packages. The required execution log/output is missing.
+- **T003** — The `.ruff.toml` and `pyproject.toml` files exist and contain reasonable configurations, but there is no provided evidence (e.g., command output, log file, CI step) that an initial lint/formatting check was actually executed. The task’s requirement to “run initial lint check” is therefore unmet.
+- **T010a** — declared artifact(s) missing/empty/invalid: code/ingestion.py
+- **T015** — Requested task execution failed; rerun successfully: code/aggregate_project_metrics.py exit=1
+- **T022a** — declared artifact(s) missing/empty/invalid: data/validation/sampling_request.json
+- **T023b** — declared artifact(s) missing/empty/invalid: data/validation/validation_report.json
+- **T024** — declared artifact(s) missing/empty/invalid: data/logs/exclusion_rate.json
+- **T029** — declared artifact(s) missing/empty/invalid: data/derived/corrected_pvalues.json

@@ -1,0 +1,140 @@
+T001:
+  reason: "The project root contains `code/`, `data/`, and `tests/` as required, but\
+    \ the `docs/` and `config/` directories specified in the task are absent. These\
+    \ missing directories prevent the task\u2019s full directory\u2011structure requirement\
+    \ from being satisfied."
+  task: 520435524f3f65dc9add706cb6728e98567f29e8c89e7b21959021632652fe79
+T001c:
+  reason: The evidence shows the `data/raw/` and `data/derived/` directories but provides
+    no `.gitignore` file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`,
+    nor any content confirming the required exclusion patterns. The required artifact
+    is missing.
+  task: b74b169a78014ad45f96edb1974c98a855b3a7dc94c20463d03dc5801dd6fb87
+T001d:
+  reason: "The `requirements.txt` file exists and lists all requested packages, but\
+    \ it does not pin them to specific versions (e.g., `pandas==1.5.0`). The task\
+    \ explicitly required \u201CPin dependencies,\u201D so the artifact fails to meet\
+    \ the specification."
+  task: 0bc25f9cf90b8b08341ca5c68b1aa1575979cd6f723ade403a50dcdb8112a5ee
+T002a:
+  reason: "The evidence provides only the project root path and no `venv/` directory\
+    \ or any output confirming that `venv/bin/python --version` returns Python\u202F\
+    3.11.x. The required virtual\u2011environment artifact and its verification output\
+    \ are missing."
+  task: 2a0c4443b85423fed2330e4dcc86a8afcd030abc944008d7a142f5eb4f614bb1
+T002b:
+  reason: Checked the presence of `requirements.txt`, which exists and lists packages,
+    but there is no evidence that `pip install -r requirements.txt` was actually executed
+    in a virtual environment nor any captured output showing the installed packages.
+    The required execution log/output is missing.
+  task: fcf791c4d112209fc1e55c32479cf0031b0767b1d097e61d0b490e3d5398e650
+T003:
+  reason: "The `.ruff.toml` and `pyproject.toml` files exist and contain reasonable\
+    \ configurations, but there is no provided evidence (e.g., command output, log\
+    \ file, CI step) that an initial lint/formatting check was actually executed.\
+    \ The task\u2019s requirement to \u201Crun initial lint check\u201D is therefore\
+    \ unmet."
+  task: 99b698157c695035ce29d879198255f0fe21017e53a97046c975d1796b94923f
+T004:
+  task: a024d0c3d25a2eca2d7906674d17fbcc237e810aa18a956db9ad8b30b1aac435
+T005:
+  task: a58447c78fe0d9acc9310756571297952e4e7da97c6854f5573b4e464fba0458
+T006:
+  task: 80466c4c73904ade01b0fbadb4927e5a74a9742686871d0a47c2d7bcc35dd614
+T007:
+  task: 10fe9451a317f3da2cb8fd7b9dc6476c18bf313757b1b33b1eaa7a1776b2bfd8
+T008:
+  task: 34b6bb3e77df51b4e237036be2a147f495929d8a2a1312dcc0143fc35c625df3
+T009:
+  task: 585abb75e730afd6da0a02f1ad0d224216661afa24ed17f04be438beeb68c09d
+T010:
+  task: 34b528c0e6ce04f7c536eaaa1b0aa1e9bb7657fde0f6b150fc27288ed4edabdf
+T010a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/ingestion.py'
+  task: 5ba4e72f7fba42e755f43f055467db7f77eef8270d3b51335364f762a3979224
+T010b:
+  task: bc02785da8e932ae4872e9611a3e51c07a80edc1a197c3fedebd2851e3b93a77
+T011:
+  task: 71cc60f642ea6a6ebfc41ae709aa8c7ed07d6cd2301dd6b4aeba197fb19cc85c
+T012:
+  task: 49db1d8e0fb23742cd0da3efda4a66061a82e81969384c676db1a4932abec81a
+T014:
+  task: 54d3069ad83f43c0324cdcbab26c42535d33ceae2a75d3d4cd576698789c97d7
+T015:
+  reason: 'Requested task execution failed; rerun successfully: code/aggregate_project_metrics.py
+    exit=1'
+  task: 89e819b6cd62260fbdf4bcd8d82e8fa121ed1750cd782bb46ea79e75fedc1770
+T016:
+  task: 4161f30dc8b51dc6b74f1859dc551bf525481ecf601d7a8bb817a6d559b33656
+T017:
+  task: 9dd8fe7115336a561c864c466ecba1c95538aee2a1918cbc6d9f5cf14b45d70a
+T018:
+  task: acab7a3ae6cf476a9625c4cb79cb90e1d5384c26b38bbdb60332222dde3feb4b
+T019:
+  task: 55c9773de98e910c2663a45a38843fc3215b4094cfcde065c863bffae7602860
+T020:
+  task: b7dff2b8b1336e66f32a18962752671a74683220cb56d7e9e34b7e09aeaeb490
+T021:
+  task: c240cfcc729fe1d5b30eed2e8742feffc51a98c8a8d22c8e04fabbfe1d0fe4bb
+T021b:
+  task: 921615aca6d2c8912fc992f85673704ed3672d5c81ed39a13e1441de71a32fcc
+T022a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/validation/sampling_request.json'
+  task: f6cb8a72c1a781134dc9c0936517722d9e3f18b7b8cba0665142fa02157fb50c
+T022c:
+  task: 808d44e467321b3a00d127376d823c50eeafc3f38a98c3bc48ab6aacbfbd05d6
+T022d:
+  task: a64e69d03a9ec2bfc92a790e789f41bc9fb5e9613e7a29a2403eadb68e5c43fb
+T023b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/validation/validation_report.json'
+  task: edfc65fc27980c60060285163a722274f4deb06c62a43dd42272615c3b55070f
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: data/logs/exclusion_rate.json'
+  task: b8249475102ab44238ab27813cee36946488570a7afdf8dabb3c8e4bb375abaf
+T025:
+  task: 3d0eae97a2b0f15b621a1a1453d79b4ac20155fcf97639372b7499130e77b030
+T026:
+  task: 82269085629b1819853a6869039e45c65a916eef38c0b9d10f73679960ef8386
+T027:
+  task: 418fa7fb28d5095d4e1da9a4713f6a9823b03824e63912bee55b059e92312e36
+T028:
+  task: 2eabd018992f8cd997149253d683e8ec3ade79eebc95b46123cb39db4996bb88
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/corrected_pvalues.json'
+  task: a29a5dd2ccdf1d3fd8713abfe35332117f4498af888bc6e7dfbbfbb62555d23d
+T031:
+  task: 104da6d6014b8359b73c353f8826e86c23c0a20c15f1487fdcfd88234cab48e1
+T031a:
+  task: b6551730d03cd6feb7fb4387ba60d38c2b411de403587a94f8b91af35a242d2d
+T032:
+  task: 8167ea621512eed9f62088f991dbd17983780b2b4439d95f64ecb1427285620c
+T033:
+  task: be05a6ad3ff83f87ba0de88590a72531a42b40e0bb7f8b7b5bf3bd62e214d7de
+T034:
+  task: 6c1ba271bf36e97ede418cb0d668402b159580bee3ce2aebe2531cfd85b4fec7
+T035:
+  task: 7c61e6bda21cfa70d010b1c634e1c2ae8c6969d7796dd1238dc1fb6044f8d1b0
+T036:
+  task: 5bb4ddac2b1c45976a4df80edcaf7e0f90a7e7f3f1eee765797ed7114420bc4f
+T036a:
+  task: 4235b28fac7c6835b90acfcc80db6f35fdccbbe6a0468dffce3ff96766b318e2
+T036b:
+  task: 722951304f555b49ddbd30da09f37cfbe540fa72799a8220d7beb369e6b15bec
+T036c:
+  task: 79f2afdb0d9efcb83887b92b163946f61ebe20c3882f737ec83c7cfd1a168175
+T036d:
+  task: e2a9dfabf69be7c1fcc5275538663c6f74ae7791d0f70b595760a3475a40e6cb
+T037a:
+  task: 77243a957a6e375fd64d3292beb69e300f316ae5f7ceb1108895234a8dd96ae9
+T037b:
+  task: 0489c4ff2a54fd46b479ab1e7df2954359cc34f8975d58aba70c046b7adfb866
+T037c:
+  task: 5fa08ef6779c9b56bc3372b8b550b86ccf655269ce96bc3609d247b6fc25792f
+T037d:
+  task: 28f3bfb4a4d82427e508a75d3ddf0c7bc2d91248ca4e002f6aa3f14bf97f5948
+T038:
+  task: c723a66a6e7fb3fcbd6e17a7edd4673cf7bdac767e6557297902465e3191ce9e
+T039:
+  task: b8435830ace125bfb12b8a3fc7ef688af88d664295adafd5bba72eb2b4d67ffc
+T040:
+  task: 231d084e844dff968f85824bfe2561aafe1ebed665d6948918b99173cd65a856

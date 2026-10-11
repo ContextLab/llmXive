@@ -9,11 +9,11 @@
     "python code/analysis.py --metrics data/derived/pair_metrics.parquet --sentiment data/derived/pair_sentiment.parquet --output data/derived/statistical_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-430-the-impact-of-asynchronous-communication/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-430-the-impact-of-asynchronous-communication/code/analysis.py': [Errno 2] No such file or directory",
     "python code/validation.py --vader data/derived/pair_sentiment.parquet --manual data/validation/manual_ground_truth.csv --output data/validation/validity_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-430-the-impact-of-asynchronous-communication/code/validation.py\", line 25, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-11T06:55:38Z"
+  "updated_at": "2026-10-11T12:18:16Z"
 }

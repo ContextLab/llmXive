@@ -1,19 +1,16 @@
 status: none
-intent: download GitHub repository metadata issues pull requests comments GHTorrent
-  GHArchive python package dataset
+intent: download GitHub repository metadata events GHTorrent GitHub Archive python
+  package dataset
 required_fields:
 - repository_id
 - repository_name
-- issue_id
-- pull_request_id
-- comment_id
 - event_type
-- created_at
+- event_id
 - author_login
-- author_id
-- issue_number
-- pull_number
-- parent_id
-cache_key: bb4941965b4bc66d0d7e01eae3d11552763001cc51faf3e4b1663cc452709c36
-searched_at: '2026-08-11T06:56:28.021632+00:00'
+- created_at
+- issue_or_pr_number
+- parent_comment_id
+- event_body
+cache_key: c8428c26c8af616363021227543539e31b799ccc3c2547cc2c588767b534f417
+searched_at: '2026-10-11T12:17:57.365951+00:00'
 retry_count: 1
