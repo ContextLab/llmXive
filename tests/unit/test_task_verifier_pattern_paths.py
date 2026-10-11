@@ -100,3 +100,24 @@ def test_source_patterns_use_the_code_shorthand(project: Path) -> None:
     (project / "code" / "tests").mkdir(parents=True)
     (project / "code" / "tests" / "test_a.py").write_text("def test_a(): pass\n", encoding="utf-8")
     assert [p.name for p in resolve_pattern(project, "tests/test_*.py")] == ["test_a.py"]
+
+
+def test_a_small_family_is_quoted_in_full(project: Path) -> None:
+    """Two of twelve got: "the evidence only shows the contents of two CSVs"."""
+    evidence = gather_evidence(project, TASK)
+    for n in (1000, 10000, 100000, 1000000):
+        for p in (5, 7, 11):
+            assert f"contents of `data/counts_N{n}_p{p}.csv`" in evidence
+            assert f"0,{n // p}\n1,{n - n // p}" in evidence
+    assert "NOT quoted" not in evidence
+
+
+def test_a_family_too_large_for_the_budget_says_what_it_left_out(project: Path) -> None:
+    for i in range(40):
+        (project / "data" / f"big_{i:02d}.csv").write_text("x,y\n" + "1,2\n" * 900, encoding="utf-8")
+    evidence = gather_evidence(project, "- [X] T2 writes `data/big_{i}.csv` for 40 seeds")
+    assert "40 matching file(s) exist" in evidence
+    assert "contents of `data/big_00.csv`" in evidence and "contents of `data/big_39.csv`" in evidence
+    assert "contents of `data/big_17.csv`" not in evidence
+    assert "38 file(s) listed above are NOT quoted" in evidence
+    assert "`data/big_17.csv` (" in evidence, "still listed with size and digest"

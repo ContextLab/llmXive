@@ -117,3 +117,63 @@ def test_when_nothing_can_be_recovered_the_yaml_error_is_reported(tmp_path) -> N
 def test_a_valid_reply_with_no_artifacts_keeps_the_plain_message(tmp_path) -> None:
     _project, _tasks, log = _write(tmp_path, "task_id: T010\nverdict: completed\nartifacts: []\n")
     assert "supplied no writable artifacts" in log and "not valid YAML" not in log
+
+
+# --- a stray closing fence or separator after correct YAML ---------------------
+
+FENCED = (Path(__file__).resolve().parents[1] / "fixtures" / "implementer"
+          / "canary_trailing_fence_reply.txt").read_text(encoding="utf-8")
+
+
+def test_a_real_reply_ending_in_a_stray_fence_parses_as_yaml() -> None:
+    """Real reply, canary 2026-10-11 (gpt-oss-120b, T002): correct YAML, then one
+    closing fence with no opening one. It needs no fallback at all."""
+    assert FENCED.rstrip().endswith("```") and not FENCED.lstrip().startswith("```")
+    doc = parse_yaml_lenient(FENCED)
+    (artifact,) = doc["artifacts"]
+    assert artifact["path"] == "code/run_totient_analysis.py"
+    compile(artifact["contents"], "run_totient_analysis.py", "exec")
+    assert "```" not in artifact["contents"]
+
+
+@pytest.mark.parametrize("tail", ["```", "```yaml", "---", "...", "```\n\n", "---\n```\n"])
+def test_trailing_markers_are_not_file_contents(tmp_path, tail) -> None:
+    reply = ("task_id: T010\nverdict: completed\nartifacts:\n"
+             "  - path: code/ok.py\n    execute: true\n    args: []\n    contents: |\n"
+             "      from pathlib import Path\n"
+             "      Path('data').mkdir(exist_ok=True)\n"
+             "      Path('data/ok.txt').write_text('ok')\n" + tail)
+    project, tasks, log = _write(tmp_path, reply)
+    assert log == "", log
+    assert (project / "data" / "ok.txt").read_text(encoding="utf-8") == "ok"
+    assert (project / "code" / "ok.py").read_text(encoding="utf-8").rstrip().endswith("write_text('ok')")
+    assert "- [X] T010" in tasks.read_text(encoding="utf-8")
+
+
+def test_the_fallback_also_drops_trailing_markers() -> None:
+    """A reply that needs the fallback (flush-left string) AND ends in a fence."""
+    reply = ("task_id: T010\nverdict: completed\nartifacts:\n"
+             "  - path: code/make_note.py\n    execute: true\n    contents: |\n"
+             "      TEXT = \"\"\"# Note\n"
+             "body: flush left\n"
+             "\"\"\"\n"
+             "      print(TEXT)\n"
+             "```\n")
+    with pytest.raises(yaml.YAMLError):
+        parse_yaml_lenient(reply)
+    (artifact,) = _regex_parse_implementer(reply)["artifacts"]
+    compile(artifact["contents"], "make_note.py", "exec")
+    assert artifact["contents"].splitlines()[-1] == "print(TEXT)"
+
+
+def test_an_indented_marker_inside_contents_is_kept(tmp_path) -> None:
+    reply = ("task_id: T010\nverdict: completed\nartifacts:\n"
+             "  - path: docs/usage.md\n    contents: |\n"
+             "      Run it:\n"
+             "      ```\n"
+             "      python code/run.py\n"
+             "      ```\n")
+    project, _tasks, log = _write(tmp_path, reply)
+    assert log == "", log
+    written = (project / "docs" / "usage.md").read_text(encoding="utf-8")
+    assert written.rstrip("\n") == "Run it:\n```\npython code/run.py\n```"
