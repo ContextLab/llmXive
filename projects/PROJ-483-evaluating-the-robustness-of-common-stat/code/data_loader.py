@@ -97,13 +97,18 @@ def validate_dataset(df: pd.DataFrame, dataset_info: Dict[str, Any], violations:
     # We accept datasets that have at least one of these
     if not has_numeric:
         print(f"Warning: Dataset {name} has no numeric columns. Chi-squared only.")
-    
+
     if not has_categorical:
         print(f"Warning: Dataset {name} has no categorical columns. T-test/ANOVA only.")
 
     return True
 
-def load_datasets(manifest_path: str, data_raw_dir: str, checksums_path: str, results_dir: str = "results") -> Dict[str, str]:
+def load_datasets(
+    manifest_path: str = str(Path('data') / 'manifests' / 'datasets.yaml'),
+    data_raw_dir: str = str(Path('data') / 'raw'),
+    checksums_path: str = str(Path('data') / 'manifests' / 'checksums.json'),
+    results_dir: str = "results"
+) -> Dict[str, str]:
     """
     Main entry point to fetch, validate, and save datasets.
     
@@ -116,16 +121,16 @@ def load_datasets(manifest_path: str, data_raw_dir: str, checksums_path: str, re
     datasets = load_manifest(manifest_path)
     checksums = {}
     violations = []
-    
+
     data_raw_path = Path(data_raw_dir)
     data_raw_path.mkdir(parents=True, exist_ok=True)
-    
+
     # Ensure results directory exists for validation report
     results_path = Path(results_dir)
     results_path.mkdir(parents=True, exist_ok=True)
-    
+
     successful_count = 0
-    
+
     for dataset_info in datasets:
         name = dataset_info['name']
         url = dataset_info['url']
@@ -172,13 +177,13 @@ def load_datasets(manifest_path: str, data_raw_dir: str, checksums_path: str, re
                 "status": "skipped"
             })
             continue
-    
+
     # Save checksums
     with open(checksums_path, 'w') as f:
         json.dump(checksums, f, indent=2)
-    
+
     print(f"Checksums saved to {checksums_path}")
-    
+
     # Write validation report
     validation_report_path = results_path / "validation_report.json"
     report_data = {
@@ -187,16 +192,16 @@ def load_datasets(manifest_path: str, data_raw_dir: str, checksums_path: str, re
         "violations": violations,
         "report_generated_at": pd.Timestamp.now().isoformat()
     }
-    
+
     with open(validation_report_path, 'w') as f:
         json.dump(report_data, f, indent=2)
     print(f"Validation report saved to {validation_report_path}")
-    
+
     # Critical check: If all fetched datasets failed validation
     if successful_count == 0 and len(datasets) > 0:
         raise CriticalValidationError(
             f"All {len(datasets)} datasets failed validation. "
             f"Violations: {len(violations)}. Pipeline cannot proceed."
         )
-    
+
     return checksums

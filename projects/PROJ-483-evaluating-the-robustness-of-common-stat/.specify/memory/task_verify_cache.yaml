@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: bcb2a12f987719355388a079c6889ef4ce2a1f7e4c3fc1297b042160dc0b38ef
-  r: "Checked that the project root `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`\
-    \ exists and contains the full set of expected top\u2011level entries (README,\
-    \ pyproject.toml, requirements.txt, and subfolders `code/`, `data/`, `docs/`,\
-    \ `results/`, `specs/`, `src/`, `tests/`, etc.) as required by the implementation\
-    \ plan. All required artifacts are present."
-  sig: aec4b43f28131c2c357aff49cbda7ca765301b7db9565a9dba607181af4e1835
+  h: 2c6c55d1273d3ef531f1137d5dbb467dc9f852d459fb3fa4252130aa3ae30a36
+  r: "Checked the project root `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`\
+    \ and confirmed it contains the expected hierarchy (code/, data/, docs/, results/,\
+    \ specs/, src/, tests/, contracts/, .gitignore, README.md, pyproject.toml, requirements.txt,\
+    \ etc.) and non\u2011empty placeholder files, satisfying the \u201Ccreate project\
+    \ structure per implementation plan\u201D requirement."
+  sig: 2f97a382dd9467c31e4443c9251c4e12700fdaa015a88c741e68017ceb520b86
 T002:
   c: true
   h: 2082d52c1a722d0cd43e68f193b8320fd4486597856edea4f7164e4ddbb52519
@@ -40,6 +40,26 @@ T004b-populate:
     \ has a different field name and values). The task\u2019s specification is not\
     \ fully satisfied."
   sig: 8d72c6726bf981fa79d2352bb478ac4334c6be61305a4b00cb9e69390054d26d
+T004b-schema:
+  c: true
+  h: e991f8b095f44492f45db7a1df1ebb518b6f7e1f89d93773aba964768abaa10b
+  r: "The `contracts/config_schema.schema.yaml` file is present (1958\u202Fbytes)\
+    \ and defines all required fields (`seed`, `n_replications`, `dependency_strengths`,\
+    \ `test_types`, `dataset_manifest_path`, `use_real_data`, `use_streaming`) with\
+    \ appropriate JSON\u2011Schema types and constraints. Its content matches exactly\
+    \ what the task specified."
+  sig: d76bb44cb21dec164aee8566325716a11def6d967016bb64fae8c02972f67211
+T005:
+  c: false
+  h: 7d4d9bda053e31947c6696133691b0b1760e9766a1461e153caf555f47d12358
+  r: "The `code/data_loader.py` fetches and saves the datasets and writes `checksums.json`,\
+    \ but its `validate_dataset` function only checks for the presence of numeric\
+    \ or categorical columns and a minimum row count. It does **not** verify that\
+    \ continuous variables have variance\u202F>\u202F0 nor that categorical variables\
+    \ have at least two unique levels, as required by FR\u2011001. Implement the missing\
+    \ variance and unique\u2011level checks (and any related tests) to satisfy the\
+    \ task."
+  sig: b3c67529bed9199231be6876effc325b2e458eff3f66992f00bd08cc61e6518c
 T005a:
   c: false
   h: 6e7bb283f0518c291e8d99e4f828b90136713be9772b196e10c637576400073d
@@ -49,6 +69,15 @@ T005a:
     \ or `data_type` fields, nor does it match the exact schema specification requested.\
     \ The task\u2019s required fields are missing or incorrectly named."
   sig: 11e90506a2aa2969cdad121d4f224d443567b7d8459ceffad87f0c63dc678b50
+T005c:
+  c: false
+  h: fcf0fac1866ef61528cd79017b3c6cd2428883e9e20166ab6a0760fe1cb6530f
+  r: The `data/manifests/datasets.yaml` file is present, but it does not contain an
+    entry for the mandatory **UCI Credit Card Default** dataset; only the Adult dataset
+    and other unrelated datasets are listed. Adding a verified URL entry for the Credit
+    Card Default dataset (with its mixed continuous and categorical variables) is
+    required to satisfy the task.
+  sig: 1e6df84759520204fc9c58c312a8fcadf376ab891896ef9e9bab81741dad468a
 T014:
   c: false
   h: 0449617f5c0e38f170fe9565d67f731238035899044cf0c4e1fb1023c0878798
@@ -77,14 +106,22 @@ T034:
     verified. Without any evidence of the validation run, the task requirement is
     unmet.
 T035:
+  c: true
+  h: 6fb13103d92ad4b5245214eaecc42c8d84adf30aea5c369c4dbcd63f06861014
+  r: "Checked `code/data_loader.py` which implements N\u2011check (<\u202F50) that\
+    \ skips the dataset, records a violation in `results/validation_report.json`,\
+    \ continues processing remaining datasets, and raises a clear error when no datasets\
+    \ pass validation. The validation report file is present and written as specified."
+  sig: af7faf79946d5c7df3af0e586189c7efb5286219e63edd4a14453f550118f746
+T035b:
   c: false
-  h: 22447444bc8259e07890ec0b91b5fcfef2425a77f5c46fea8d9dd37fa7ffccba
-  r: "The provided `code/data_loader.py` contains a validation check for\u202FN\u202F\
-    \u2265\u202F50, but the snippet ends before any code that writes violations to\
-    \ `results/validation_report.json` or raises `CriticalValidationError` when all\
-    \ datasets fail. Moreover, the required `results/validation_report.json` file\
-    \ does not exist. The task\u2019s core requirements (logging violations to the\
-    \ JSON report and raising the critical error) are therefore not satisfied."
+  h: 9d44e904b6bae52576dd043cc156f9a6fccf33b00da9c55e74f66b4ab48cb38a
+  r: "Checked `code/data_loader.py` (7\u202FKB) \u2013 it only fetches, validates,\
+    \ and records checksums; it contains no logic to compute theoretical power, no\
+    \ reference to a replication target, and never writes a `results/power_report.json`.\
+    \ Moreover, the required `results/power_report.json` file is missing. The task\u2019\
+    s core requirement (power verification and warning log) is not satisfied."
+  sig: 1ed9ca54fecb9be8a3734b79ff99a9652c4aa492233cd94925de87b99fd735cd
 T040:
   c: false
   h: cc1bba15a2456401a67d28f25e85ffbc80e955bcbddcbe12105ebd123c1113fb

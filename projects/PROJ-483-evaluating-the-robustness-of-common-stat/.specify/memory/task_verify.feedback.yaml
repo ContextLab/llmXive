@@ -18,9 +18,15 @@ T004b-populate:
     \ fully satisfied."
   task: 4047322e2c96fdfaa4590ef3feb996dc69cb99af92de6f5d5a3c0717d836d28d
 T004b-schema:
-  reason: 'declared artifact(s) missing/empty/invalid: contracts/config_schema.schema.yaml'
   task: 2609c49a00912c5947b73fd3387dcbf7b27ff51541ed4ba315bce6ddeed64235
 T005:
+  reason: "The `code/data_loader.py` fetches and saves the datasets and writes `checksums.json`,\
+    \ but its `validate_dataset` function only checks for the presence of numeric\
+    \ or categorical columns and a minimum row count. It does **not** verify that\
+    \ continuous variables have variance\u202F>\u202F0 nor that categorical variables\
+    \ have at least two unique levels, as required by FR\u2011001. Implement the missing\
+    \ variance and unique\u2011level checks (and any related tests) to satisfy the\
+    \ task."
   task: 1b9f9b9eae53853bee58b3f6c09e77ac14e7d1d35c158f47de3087331201543f
 T005a:
   reason: "The provided `contracts/dataset_schema.schema.yaml` defines fields like\
@@ -30,6 +36,11 @@ T005a:
     \ requested. The task\u2019s required fields are missing or incorrectly named."
   task: 9cf84e30b716a093a20f8e73f8cd66350eac48c4898fb98094a7cebaca8e4134
 T005c:
+  reason: The `data/manifests/datasets.yaml` file is present, but it does not contain
+    an entry for the mandatory **UCI Credit Card Default** dataset; only the Adult
+    dataset and other unrelated datasets are listed. Adding a verified URL entry for
+    the Credit Card Default dataset (with its mixed continuous and categorical variables)
+    is required to satisfy the task.
   task: e112f04cd3486fa591359bbf09c84216f1687204c2288bc5b4735d448cec7c5a
 T006a:
   task: be39ec176059550cd4c8ba207fb8d46e6041861a22730a1428e6504dc0cbdee9
@@ -143,6 +154,11 @@ T034:
 T035:
   task: 4917813c995170660d0fefb1c85e0590366b6813e1fde35e316d9d646bb5ea6d
 T035b:
+  reason: "Checked `code/data_loader.py` (7\u202FKB) \u2013 it only fetches, validates,\
+    \ and records checksums; it contains no logic to compute theoretical power, no\
+    \ reference to a replication target, and never writes a `results/power_report.json`.\
+    \ Moreover, the required `results/power_report.json` file is missing. The task\u2019\
+    s core requirement (power verification and warning log) is not satisfied."
   task: 56fc90b5e6a56598e3797d851d89c78ca9167a6b209a41c19c21482ac34d3d0d
 T037:
   task: e18fd20325e508052ee85e85a6ce225051ac0afe9081dd86a9657dbb256dbe4e
