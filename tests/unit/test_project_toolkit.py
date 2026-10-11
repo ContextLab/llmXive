@@ -45,7 +45,12 @@ def test_asking_for_a_path_creates_its_directory_and_nothing_else(tmp_path, monk
     assert out == tmp_path.resolve() / "data" / "results" / "census.csv"
     assert out.parent.is_dir() and not out.exists(), "a path is not a file"
     assert tk.paths.figures() == tmp_path.resolve() / "figures" and tk.paths.figures().is_dir()
-    assert tk.paths.results("a.json") == tmp_path.resolve() / "data" / "results" / "a.json"
+    assert tk.paths.results("a.json") == tmp_path.resolve() / "results" / "a.json"
+    # Every paths.<folder>(x) is <project>/<folder>/x: a task that says
+    # "write results/paper.md" and code that asks for paths.results("paper.md")
+    # must mean the same file (canary 8, 2026-10-11).
+    for folder in ("data", "figures", "results", "docs", "code", "outputs", "logs"):
+        assert getattr(tk.paths, folder)("x.txt") == tmp_path.resolve() / folder / "x.txt"
     assert tk.paths.root == tmp_path.resolve()
 
 
@@ -149,8 +154,8 @@ def test_a_project_script_uses_the_toolkit_and_undeclared_base_packages(project:
     )
     res = sandbox.run_in_venv(project_dir=project, args=["code/run.py"], timeout_s=300)
     assert res.ok, res.stdout + res.stderr
-    assert (project / "data" / "results" / "totals.csv").read_text(encoding="utf-8").split() == ["n", "0", "1", "2", "3"]
-    assert "wrote data/results/totals.csv" in (project / "logs" / "run.log").read_text(encoding="utf-8")
+    assert (project / "results" / "totals.csv").read_text(encoding="utf-8").split() == ["n", "0", "1", "2", "3"]
+    assert "wrote results/totals.csv" in (project / "logs" / "run.log").read_text(encoding="utf-8")
 
 
 def test_pytest_runs_from_the_base_environment(project: Path) -> None:
@@ -219,3 +224,67 @@ def test_any_top_level_folder_is_a_path_helper(tmp_path, monkeypatch) -> None:
         tk.paths.outputs("..", "..", "x.txt")
     with pytest.raises(AttributeError):
         tk.paths._private  # noqa: B018
+
+
+# --- a project cannot replace the toolkit (canary 8, 2026-10-11) -------------
+#
+# The implementer wrote `llmxive_toolkit/__init__.py`, "a minimal shim", at the
+# project root. From PYTHONPATH it beat the platform's module and resolved
+# every path against the working directory.
+
+SHIM = "class _P:\n    def results(self, *parts):\n        raise RuntimeError('the shim was imported')\n\n\npaths = _P()\n"
+
+
+@pytest.mark.parametrize("rel, copy", [
+    ("llmxive_toolkit/__init__.py", True), ("llmxive_toolkit/paths.py", True),
+    ("code/llmxive_toolkit/__init__.py", True), ("code/llmxive_toolkit.py", True),
+    ("llmxive_toolkit.py", True), ("code/toolkit.py", False),
+    ("code/my_llmxive_toolkit_notes.md", False), ("tests/test_llmxive_toolkit_use.py", False),
+])
+def test_what_counts_as_a_copy_of_the_toolkit(rel: str, copy: bool) -> None:
+    from llmxive.project_toolkit import is_toolkit_copy
+
+    assert is_toolkit_copy(rel) is copy
+
+
+@pytest.mark.parametrize("where", ["llmxive_toolkit/__init__.py", "code/llmxive_toolkit/__init__.py",
+                                   "code/llmxive_toolkit.py"])
+def test_the_platform_toolkit_wins_over_a_copy_already_in_the_project(project: Path, where: str) -> None:
+    shim = project / where
+    shim.parent.mkdir(parents=True, exist_ok=True)
+    shim.write_text(SHIM, encoding="utf-8")
+    (project / "code" / "use.py").write_text(
+        "import llmxive_toolkit\nfrom llmxive_toolkit import paths\n"
+        "print(paths.results('paper.md').relative_to(paths.root))\n", encoding="utf-8")
+    try:
+        res = sandbox.run_in_venv(project_dir=project, args=["code/use.py"], timeout_s=300)
+    finally:
+        shim.unlink()
+    assert res.ok, res.stdout + res.stderr
+    assert res.stdout.strip() == "results/paper.md"
+
+
+def test_the_implementer_refuses_to_write_a_copy_of_the_toolkit(tmp_path: Path, capsys) -> None:
+    from types import SimpleNamespace
+
+    import yaml
+
+    from llmxive.backends.base import ChatResponse
+    from llmxive.speckit.implement_cmd import ImplementerAgent
+
+    proj = tmp_path / "projects/PROJ-908-shim"
+    feature = proj / "specs/001-study"
+    feature.mkdir(parents=True)
+    tasks = feature / "tasks.md"
+    tasks.write_text("- [ ] T001 Write code/lib.py\n", encoding="utf-8")
+    document = {"task_id": "T001", "verdict": "completed", "artifacts": [
+        {"path": "llmxive_toolkit/__init__.py", "contents": SHIM},
+        {"path": "code/lib.py", "contents": "X = 1\n"}]}
+    ImplementerAgent().write_artifacts(
+        SimpleNamespace(project_dir=proj, project_id=proj.name),
+        {"tasks_path": str(tasks), "feature_dir": str(feature),
+         "next_task_id": "T001", "all_complete": False},
+        ChatResponse(text=yaml.safe_dump(document), model="test", backend="dartmouth"))
+    assert not (proj / "llmxive_toolkit").exists()
+    assert (proj / "code/lib.py").is_file()
+    assert "provided by the platform" in capsys.readouterr().out
