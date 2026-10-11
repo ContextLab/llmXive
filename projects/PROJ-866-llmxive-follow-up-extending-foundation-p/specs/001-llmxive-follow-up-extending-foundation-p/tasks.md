@@ -19,7 +19,7 @@ The simulation pipeline (generation, Oracle, full/compressed execution, GLMM ana
 ## Remaining tasks
 
 ### Phase 1: Core result regeneration
-- [ ] T070 [US3] **Regenerate and verify core result artifacts**: Run the analysis pipeline (`python code/main.py --analyze`) to produce `data/results/tradeoff_curve.csv` **and** `data/results/threshold_report.json`. The JSON file must contain keys `threshold_pct`, `ci_lower`, `ci_upper` and respect the spec‑mandated error bound (≤1 % policy‑violation rate). **Dependency**: existing analysis implementation (complete).
+- [ ] T070 [US3] **Regenerate and verify core result artifacts**: Run the analysis pipeline (`python code/main.py --analyze`) to produce `data/results/tradeoff_curve.csv` **and** `data/results/threshold_report.json`. The JSON file must contain keys `threshold_pct`, `ci_lower`, `ci_upper` and respect the spec‑mandated error bound (≤1 % policy‑violation rate). **Dependency**: existing analysis implementation (complete). <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
 
 ### Phase 2: Validation and state update
 - [ ] T067 [US1] **Verify invalid workflow exclusion**: Execute `code/utils/verify_invalid_exclusion.py` which cross‑references workflow IDs marked `is_valid=false` in `data/raw/workflows.json` against the per‑run records underlying `data/results/tradeoff_curve.csv`. The script must ensure no invalid workflow contributes to any row in the CSV and write `data/results/invalid_exclusion_report.json` with keys `invalid_workflow_count`, `excluded_count`, `status`. **Dependency**: T070.

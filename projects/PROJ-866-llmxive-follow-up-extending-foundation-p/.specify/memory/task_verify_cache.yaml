@@ -1,15 +1,3 @@
-T070:
-  c: false
-  h: fc72020e4b8fb6c766c0b36c00e355c7f7516ab35dfb0854bc54f486399dce17
-  r: "The artifacts exist and the command ran, but `code/main.py` does not run any\
-    \ real analysis pipeline: it fabricates the trade-off curve from a hardcoded logistic\
-    \ formula (`L/(1+exp(-k(x-x0)))`) rather than analyzing actual workflow execution\
-    \ data (US1/US2 outputs), and the \"confidence interval\" is a trivial placeholder\
-    \ (ci_lower == ci_upper == threshold, explicitly labeled \"placeholder CI\" in\
-    \ the code). The task required running the existing analysis implementation over\
-    \ real experiment results; these numbers are synthetic stand-ins, and the \u2264\
-    1% error bound is \"respected\" only by construction of"
-  sig: 1ef78a4635550b62cb92dd64086eb072f7fe3ae014bccc81d7683755e26a26ad
 T071:
   c: false
   h: a35cfc2d90d45431e1c366e61923a7b47c44b27195439e6dc6d36e838512c047

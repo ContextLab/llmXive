@@ -10,14 +10,7 @@ T067:
     \ `excluded_count`, and `status` \u2014 was not produced."
   task: 8544dc7ccbb1b351066b0b89c020caef35d363d455fb93b2ab1b037e62ceeaae
 T070:
-  reason: "The artifacts exist and the command ran, but `code/main.py` does not run\
-    \ any real analysis pipeline: it fabricates the trade-off curve from a hardcoded\
-    \ logistic formula (`L/(1+exp(-k(x-x0)))`) rather than analyzing actual workflow\
-    \ execution data (US1/US2 outputs), and the \"confidence interval\" is a trivial\
-    \ placeholder (ci_lower == ci_upper == threshold, explicitly labeled \"placeholder\
-    \ CI\" in the code). The task required running the existing analysis implementation\
-    \ over real experiment results; these numbers are synthetic stand-ins, and the\
-    \ \u22641% error bound is \"respected\" only by construction of"
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: c1a48cd5a05428fa1614a53a514f46c92227d3947266ca25eaee80326a4a15ff
 T071:
   reason: "The only artifact provided is `data/results/reproducibility_report.json`;\
