@@ -1,9 +1,9 @@
 captured:
   path: data/raw/adult_income.csv
   sha256: 5b00264637dbfec36bdeaab5676b0b309ff9eb788d63554ca0a249491c86603d
-created_at: '2026-10-11T22:30:04Z'
+created_at: '2026-10-11T22:37:38Z'
 env_sha: 5b00264637dbfec3
-hmac: c945873847b4271666094ca7a582fadb9c43577f78c52d0969cfa571fc3baade
+hmac: f82e8ab73b78479980b2bae5dad68dfba163694e06184a2514aa7ee7c0201643
 inputs:
   command: quickstart run-book
 kind: table

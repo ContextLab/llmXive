@@ -82,7 +82,7 @@ def validate_dataset(df: pd.DataFrame, dataset_info: Dict[str, Any], violations:
     n_rows = len(df)
     is_valid = True
 
-    # Check N >= 50 (FR-001) – record but continue checking
+    # 1️⃣ Minimum sample size check (FR-001)
     if n_rows < 50:
         _record_violation(
             violations,
@@ -93,12 +93,14 @@ def validate_dataset(df: pd.DataFrame, dataset_info: Dict[str, Any], violations:
         print(f"Dataset {name} has fewer than 50 rows ({n_rows}).")
         is_valid = False
 
+    # Identify column types
     numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
     categorical_cols = df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
 
     has_numeric = len(numeric_cols) > 0
     has_categorical = len(categorical_cols) > 0
 
+    # If there are no usable columns at all, we cannot proceed further.
     if not has_numeric and not has_categorical:
         _record_violation(
             violations,
@@ -107,15 +109,15 @@ def validate_dataset(df: pd.DataFrame, dataset_info: Dict[str, Any], violations:
             {"n_rows": n_rows, "status": "skipped"}
         )
         print(f"Dataset {name} has no numeric or categorical columns. Skipping.")
-        is_valid = False
-        return is_valid  # cannot proceed further
+        return False
 
+    # Warn about missing column types (still allowed – limits which tests can be run)
     if not has_numeric:
         print(f"Warning: Dataset {name} has no numeric columns. Chi-squared only.")
     if not has_categorical:
         print(f"Warning: Dataset {name} has no categorical columns. T-test/ANOVA only.")
 
-    # 1) Continuous variables must have variance > 0
+    # 2️⃣ Zero‑variance numeric columns
     for col in numeric_cols:
         if df[col].var(ddof=0) == 0:
             _record_violation(
@@ -127,7 +129,7 @@ def validate_dataset(df: pd.DataFrame, dataset_info: Dict[str, Any], violations:
             print(f"Dataset {name}: numeric column '{col}' has zero variance. Skipping.")
             is_valid = False
 
-    # 2) Categorical variables must have at least 2 unique levels
+    # 3️⃣ Categorical columns with fewer than 2 unique levels
     for col in categorical_cols:
         if df[col].nunique() < 2:
             _record_violation(

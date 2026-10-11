@@ -1,13 +1,14 @@
 T001:
   c: true
-  h: 82f944f9447b559baa171e50cb6abcc9206c314f4c8417dfdce4c5aaeb7e4b9c
+  h: 48bfe713a624d29a2d950524fd1bd65cf9c99e4b79dc3bcc2f68bafc217a7d44
   r: The project directory `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`
-    exists with the full expected structure (code/, data/, docs/, specs/, src/, tests/,
-    results/, contracts/, idea/, README.md, pyproject.toml, requirements.txt, .gitignore/.gitkeep),
-    and contains non-empty populated artifacts (e.g., data/raw CSVs, manifests, results
-    JSONs). T001 only requires creating the project structure per the implementation
-    plan, which is satisfied; deeper simulation requirements belong to later tasks.
-  sig: 4793e980385958b91b7a0907b2cc58db67b87fe7df636f0d6b96afdcb409be21
+    exists with the full expected layout (code/, src/, tests/, data/, results/, docs/,
+    specs/, contracts/, idea/, README.md, pyproject.toml, requirements.txt, .gitignore/.gitkeep),
+    and contains non-empty populated artifacts (e.g., data/manifests/checksums.json,
+    results/validation_report.json, raw datasets). T001 only requires creating the
+    project structure per the implementation plan, which is satisfied; the simulation/analysis
+    deliverables belong to later tasks.
+  sig: ee4ecdf488dc3228eb8148d498a4f8635dfda66536ce82a95ff68008e166a66b
 T002:
   c: true
   h: 2082d52c1a722d0cd43e68f193b8320fd4486597856edea4f7164e4ddbb52519
@@ -48,6 +49,18 @@ T004b-schema:
     \ appropriate JSON\u2011Schema types and constraints. Its content matches exactly\
     \ what the task specified."
   sig: d76bb44cb21dec164aee8566325716a11def6d967016bb64fae8c02972f67211
+T005:
+  c: false
+  h: 390b9f170b2bcf438de9e31581166490d8d79e261861e7bfc5f2819c948337cf
+  r: "The execution log (`code/.tasks/T005.code_quickstart_validation.py.log`) shows\
+    \ only 1 of the 3 manifest datasets succeeded: `credit_card_default` failed (missing\
+    \ `xlrd` dependency) and `openml_titanic` failed (CSV tokenizing error), so `data/raw/`\
+    \ and `data/manifests/checksums.json` contain only `adult_income` \u2014 the task\
+    \ requires iterating over the *entire* manifest set. Additionally, the unit test\
+    \ `test_data_loader_validation.py` failed (exit 1), and the `python code/main.py\
+    \ --action download` run crashed with a YAML parse error, so the loader's validation\
+    \ logic and end-to-end execution are n"
+  sig: 0ef059c5a3e59150cf4841610cf5ad7d4de6084254a81ae808382601587fc232
 T005a:
   c: true
   h: de1ed49c6b786752050b4d3268a21e6e1c4e2b5480dbf309eadced3c16b680fc
@@ -74,6 +87,28 @@ T006a:
     \ the module does not satisfy FR\u2011003\u2019s restriction on strength values\
     \ nor the required AR\u2011resampling functionality."
   sig: 9eeeea9303f6a79f3b9e30d694ffd0ec47f887ebec903ff6242ce091f7899e6a
+T006b:
+  c: true
+  h: d3bf1b0817a7f287dd699860d24d3c04a9a721eb254ca3fee29c1f8a8baf770f
+  r: The `code/dependency_injector.py` artifact exists (14.5 KB) and contains a real
+    `block_bootstrap` function that resamples contiguous blocks of size `block_size`
+    with replacement (random block start indices, blocks concatenated, output trimmed/padded
+    to n_samples), plus a `validate_block_bootstrap` helper. The block size is accepted
+    as a parameter, which is consistent with this task being the base injection logic
+    that depends on T006b-map for the size calculation.
+  sig: c1289d8cbb4a69d39ada773eac473011b09a22550fdcf18f32b53628cb0693ee
+T006b-Null:
+  c: false
+  h: cdf067c9385d8c6fc40ee19e9727e124eb39236dad4ee840800efb7b918acbfc
+  r: "The file `code/dependency_injector.py` exists and contains a generic `block_bootstrap`\
+    \ resampling function, but it contains no Null Hypothesis Construction path: there\
+    \ is no function that (1) injects dependency into real data using block bootstrap\
+    \ with a block_size from the T006b-map and (2) then permutes labels via random\
+    \ shuffle \u2014 no label-shuffle/permutation logic appears anywhere in the file.\
+    \ The implementer must add a null-hypothesis construction routine (e.g., `construct_null_hypothesis(data,\
+    \ labels, block_size, seed)`) that performs block-bootstrap dependency injection\
+    \ followed by rando"
+  sig: 3ebc23fbcb6d2a0be2f43360a15b55e679113f54f9a28287eaf3a6eb9fcae3da
 T006b-map:
   c: false
   h: c5fabe8c406549b5b3dedf7ffb66a7141f83a6de24aa661cb29c7a41b12e610b
@@ -115,27 +150,26 @@ T034:
     unmet.
 T035:
   c: true
-  h: e1c493eef58b9d7ddc9c476d98ee2c49df40a250582c9c43c57cab11187dd59f
-  r: '`code/data_loader.py` exists (9.8 KB) and implements the required logic: N <
-    50 check with violation records including `{"reason": "N < 50", "status": "skipped"}`,
-    writing to `results/validation_report.json`, skipping invalid datasets while continuing
-    with valid ones, and raising `CriticalValidationError` when no valid datasets
-    remain. The validation report on disk shows the pipeline ran (3 attempted, 1 succeeded,
-    2 skipped with logged violations), consistent with the code''s behavior; the skips
-    are due to fetch/parse errors rather than N<50, but the required validation and
-    reporting logic is g'
-  sig: 1cc7477ef450c5ff7bfe9b0599fe4de8f75afa47a2ecb966ca7f4a2301ae9805
+  h: 018fc08af9b04bc1237a5c2037c1853885e104a8df7ab0d1d24e808bf5c8ad94
+  r: '`code/data_loader.py` exists (9,956 bytes) and implements the required logic:
+    N < 50 check with a violation logged to `results/validation_report.json`, invalid
+    datasets skipped while the pipeline continues, and a `CriticalValidationError`
+    raised when no valid datasets remain. The validation report on disk shows real
+    execution output (3 attempted, 1 successful, 2 skipped with genuine error messages),
+    confirming the skip-and-continue behavior works in practice.'
+  sig: 79d3a9953c0b27579e089a496d95ab248355f2994aa0c8b0138085717cd439c3
 T035b:
-  c: true
-  h: 810c6cbfd5dfffb3c0c8519c232eb9de1d532ca2a92a7198d8c006ae37898b58
-  r: '`code/data_loader.py` implements the theoretical power calculation via `statsmodels`
-    `TTestIndPower` (SC-001), computes it for every successfully validated dataset,
-    and writes `results/power_report.json` with per-dataset power and a `power_warning`
-    flag for power < 0.80. The execution log (exit 0) confirms the report was actually
-    generated; the on-disk report shows adult_income (n=32561, power=1.0, no warning
-    needed), and the two other datasets failed fetch/parse for reasons outside this
-    task''s power-verification scope.'
-  sig: 88e1f2b28262884c2fc8dbef4ce663b6182c8524f97d13bcc87b62d71a3d7459
+  c: false
+  h: c91675a86f0cad0f9d8c48ba9a107c6d03233389afbd01f2bc12fef539102a94
+  r: The code in `code/data_loader.py` does implement a theoretical power calculation
+    (statsmodels TTestIndPower) and writes `results/power_report.json`, and the execution
+    log confirms a run. However, the task requires power verification for the *remaining*
+    datasets, and the power report contains only one dataset (`adult_income`); the
+    other manifest datasets (`credit_card_default`, `openml_titanic`) failed processing
+    due to a missing `xlrd` dependency and a CSV parsing error, so their power was
+    never calculated or logged. Additionally, the power is computed from the dataset's
+    row count with a defau
+  sig: ca93fba2e88114717aa50bbc6d482d6ad1b2e434ff948e16ad37654a8ced1936
 T037:
   c: true
   h: 161ac5d54f8cae46dbfc5d798ee14fcf783bfcbc0923d66206470c98329ebe8d
@@ -166,11 +200,3 @@ T040:
     \ or \u201Cinjected dependency violates normality assumptions\u201D nor any code\
     \ that writes to the specified JSON report. The missing report file and incomplete\
     \ edge\u2011case logic mean the task is not fully satisfied."
-T041:
-  c: false
-  h: 16f06532fc4fd43c6a5eea69b933b0ddbd0ff16741f051955ed5b129ec2afc28
-  r: "The provided `code/dependency_injector.py` does not compute a silhouette score\
-    \ nor enforce the required >\u202F0.25 threshold, and the expected output file\
-    \ `data/manifests/spatial_proxy_validation.json` is missing. Consequently the\
-    \ FR\u2011003 validation logic and report generation are not satisfied."
-  sig: b403550a2271e4d3d020f199b113793c7d9a6d99886db7a168f4f600dc348d13

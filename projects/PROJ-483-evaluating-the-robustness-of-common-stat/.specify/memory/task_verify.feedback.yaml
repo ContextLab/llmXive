@@ -11,8 +11,14 @@ T004b-populate:
 T004b-schema:
   task: 2609c49a00912c5947b73fd3387dcbf7b27ff51541ed4ba315bce6ddeed64235
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
-    code/quickstart_validation.py exit=1'
+  reason: "The execution log (`code/.tasks/T005.code_quickstart_validation.py.log`)\
+    \ shows only 1 of the 3 manifest datasets succeeded: `credit_card_default` failed\
+    \ (missing `xlrd` dependency) and `openml_titanic` failed (CSV tokenizing error),\
+    \ so `data/raw/` and `data/manifests/checksums.json` contain only `adult_income`\
+    \ \u2014 the task requires iterating over the *entire* manifest set. Additionally,\
+    \ the unit test `test_data_loader_validation.py` failed (exit 1), and the `python\
+    \ code/main.py --action download` run crashed with a YAML parse error, so the\
+    \ loader's validation logic and end-to-end execution are n"
   task: 1b9f9b9eae53853bee58b3f6c09e77ac14e7d1d35c158f47de3087331201543f
 T005a:
   task: 9cf84e30b716a093a20f8e73f8cd66350eac48c4898fb98094a7cebaca8e4134
@@ -29,6 +35,14 @@ T006a:
 T006b:
   task: 9a644874d21ccdaf43ef4c2e174269f3dfae905cb7f61ee05daa03e06af11fca
 T006b-Null:
+  reason: "The file `code/dependency_injector.py` exists and contains a generic `block_bootstrap`\
+    \ resampling function, but it contains no Null Hypothesis Construction path: there\
+    \ is no function that (1) injects dependency into real data using block bootstrap\
+    \ with a block_size from the T006b-map and (2) then permutes labels via random\
+    \ shuffle \u2014 no label-shuffle/permutation logic appears anywhere in the file.\
+    \ The implementer must add a null-hypothesis construction routine (e.g., `construct_null_hypothesis(data,\
+    \ labels, block_size, seed)`) that performs block-bootstrap dependency injection\
+    \ followed by rando"
   task: 287f339e3381898077a888ecd4045b7187d42566405196e3d04b82022be7ae7b
 T006b-map:
   reason: "The file `code/dependency_injector.py` exists and contains a `block_bootstrap`\
@@ -144,6 +158,14 @@ T034:
 T035:
   task: 4917813c995170660d0fefb1c85e0590366b6813e1fde35e316d9d646bb5ea6d
 T035b:
+  reason: The code in `code/data_loader.py` does implement a theoretical power calculation
+    (statsmodels TTestIndPower) and writes `results/power_report.json`, and the execution
+    log confirms a run. However, the task requires power verification for the *remaining*
+    datasets, and the power report contains only one dataset (`adult_income`); the
+    other manifest datasets (`credit_card_default`, `openml_titanic`) failed processing
+    due to a missing `xlrd` dependency and a CSV parsing error, so their power was
+    never calculated or logged. Additionally, the power is computed from the dataset's
+    row count with a defau
   task: 56fc90b5e6a56598e3797d851d89c78ca9167a6b209a41c19c21482ac34d3d0d
 T037:
   task: e18fd20325e508052ee85e85a6ce225051ac0afe9081dd86a9657dbb256dbe4e
