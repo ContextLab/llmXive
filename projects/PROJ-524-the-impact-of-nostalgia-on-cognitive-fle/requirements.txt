@@ -1,5 +1,17 @@
-# Existing dependencies are provided by the platform.
-# Additional packages required for real data acquisition:
+# Existing dependencies (standard library and common scientific stack are pre‑installed)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for real data fetching (T101)
 openml
 datasets
-```

@@ -1,191 +1,236 @@
-import os
+"""
+Ingestion fetcher module.
+
+This module provides functions to fetch a real Wisconsin Card Sorting Test (WCST)
+dataset from public sources. The primary entry point is ``fetch_data`` which
+implements the deterministic search strategy required by task T101.
+"""
+
 import json
 import logging
-import hashlib
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Tuple, Dict, Any
 
 import pandas as pd
 
-from utils import log_info, log_warning, log_error
+# External libraries – they are added to ``requirements.txt`` below.
+import openml
+from datasets import load_dataset, Dataset
 
 logger = logging.getLogger(__name__)
 
-class DataFetchError(Exception):
-    """Exception raised when data fetching fails."""
+class RealDataFetchFailed(RuntimeError):
+    """Raised when all attempts to fetch a real dataset fail."""
     pass
 
-class DataGapError(Exception):
-    """Exception raised when a required data gap is detected."""
+class DataFetchError(RuntimeError):
+    """General error during data fetching."""
     pass
 
-class RealDataFetchFailed(Exception):
-    """Exception raised when real data fetch fails and simulation is required."""
+class DataGapError(RuntimeError):
+    """Raised when a fetched dataset is unexpectedly empty."""
     pass
 
 def fetch_from_openml(dataset_id: int) -> pd.DataFrame:
     """
-    Fetches data from OpenML.
+    Fetch a dataset from OpenML given its numeric ID.
 
-    Args:
-        dataset_id: The OpenML dataset ID.
+    Parameters
+    ----------
+    dataset_id: int
+        The OpenML dataset identifier.
 
-    Returns:
-        DataFrame with the fetched data.
+    Returns
+    -------
+    pd.DataFrame
+        The dataset as a DataFrame.
 
-    Raises:
-        DataFetchError: If the fetch fails.
+    Raises
+    ------
+    DataFetchError
+        If the OpenML request fails.
+    DataGapError
+        If the returned data is empty.
     """
     try:
-        import openml
-        dataset = openml.datasets.get_dataset(dataset_id)
-        df, _, _, _ = dataset.get_data()
-        log_info(f"Successfully fetched dataset {dataset_id} from OpenML.")
+        logger.info(f"Attempting to download OpenML dataset ID {dataset_id}")
+        oml_dataset = openml.datasets.get_dataset(dataset_id)
+        df, *_ = oml_dataset.get_data()
+        if df is None or df.empty:
+            raise DataGapError(f"OpenML dataset {dataset_id} returned no rows.")
         return df
-    except Exception as e:
-        logger.error(f"Failed to fetch from OpenML: {e}")
-        raise DataFetchError(f"OpenML fetch failed: {e}")
+    except Exception as exc:
+        raise DataFetchError(f"Failed to fetch OpenML dataset {dataset_id}: {exc}") from exc
 
 def fetch_from_huggingface(repo: str, name: str = "wcst", split: str = "train", streaming: bool = False) -> pd.DataFrame:
     """
-    Fetches data from HuggingFace Datasets.
+    Fetch a dataset from the HuggingFace Hub.
 
-    Args:
-        repo: The dataset repository identifier.
-        name: The dataset configuration name (default "wcst").
-        split: The split to load (default "train").
-        streaming: Whether to stream the dataset.
+    Parameters
+    ----------
+    repo: str
+        The repository identifier (e.g., ``\"username/repo_name\"``).
+    name: str, optional
+        The configuration name within the repo. Default is ``\"wcst\"``.
+    split: str, optional
+        Which split to load. Default is ``\"train\"``.
+    streaming: bool, optional
+        Whether to stream the dataset. Default is ``False``.
 
-    Returns:
-        DataFrame with the fetched data.
+    Returns
+    -------
+    pd.DataFrame
+        The dataset as a DataFrame.
 
-    Raises:
-        DataFetchError: If the fetch fails.
+    Raises
+    ------
+    DataFetchError
+        If the HuggingFace request fails.
+    DataGapError
+        If the returned data is empty.
     """
     try:
-        from datasets import load_dataset
-        ds = load_dataset(repo, name=name, split=split, streaming=streaming)
-        # If streaming, we need to materialize
-        if streaming:
-            df = pd.DataFrame(ds)
-        else:
-            df = ds.to_pandas()
-        log_info(f"Successfully fetched dataset {repo} (config={name}) from HuggingFace.")
+        logger.info(f"Attempting to download HuggingFace dataset {repo} (name={name}, split={split})")
+        hf_dataset: Dataset = load_dataset(repo, name=name, split=split, streaming=streaming)
+        # ``hf_dataset`` may be a DatasetDict or a Dataset; we coerce to pandas.
+        df = pd.DataFrame(hf_dataset)
+        if df.empty:
+            raise DataGapError(f"HuggingFace dataset {repo} returned no rows.")
         return df
-    except Exception as e:
-        logger.error(f"Failed to fetch from HuggingFace: {e}")
-        raise DataFetchError(f"HuggingFace fetch failed: {e}")
+    except Exception as exc:
+        raise DataFetchError(f"Failed to fetch HuggingFace dataset {repo}: {exc}") from exc
 
 def fetch_from_url(url: str) -> pd.DataFrame:
     """
-    Fetches data from a URL (CSV).
+    Fetch a CSV file from a direct URL.
 
-    Args:
-        url: The URL to the CSV file.
+    Parameters
+    ----------
+    url: str
+        The HTTP(S) URL pointing to a CSV file.
 
-    Returns:
-        DataFrame with the fetched data.
+    Returns
+    -------
+    pd.DataFrame
+        The dataset as a DataFrame.
 
-    Raises:
-        DataFetchError: If the fetch fails.
+    Raises
+    ------
+    DataFetchError
+        If the request fails or the CSV cannot be parsed.
+    DataGapError
+        If the downloaded CSV is empty.
+    """
+    import requests
+    import io
+
+    try:
+        logger.info(f"Attempting to download CSV from URL: {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        df = pd.read_csv(io.StringIO(response.text))
+        if df.empty:
+            raise DataGapError(f"CSV at {url} contained no rows.")
+        return df
+    except Exception as exc:
+        raise DataFetchError(f"Failed to download CSV from {url}: {exc}") from exc
+
+def _search_openml_by_keywords(keywords: list[str]) -> Optional[Tuple[int, pd.DataFrame]]:
+    """
+    Search OpenML for datasets whose name or description contains any of the supplied keywords.
+    Returns the ID and DataFrame of the best candidate (largest row count, lowest ID on ties) or ``None``.
     """
     try:
-        df = pd.read_csv(url)
-        log_info(f"Successfully fetched data from {url}.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to fetch from URL: {e}")
-        raise DataFetchError(f"URL fetch failed: {e}")
+        logger.info("Listing OpenML datasets for keyword search")
+        catalog = openml.datasets.list_datasets(output_format="dataframe")
+    except Exception as exc:
+        logger.warning(f"OpenML catalog retrieval failed: {exc}")
+        return None
+
+    # Normalise keywords for case‑insensitive matching
+    kw_pattern = "|".join([kw.replace("-", " ").replace("‑", " ") for kw in keywords])
+    mask = (
+        catalog["name"].fillna("").str.contains(kw_pattern, case=False, regex=True)
+        | catalog["description"].fillna("").str.contains(kw_pattern, case=False, regex=True)
+    )
+    candidates = catalog[mask]
+
+    if candidates.empty:
+        logger.info("No OpenML datasets matched the keyword filter.")
+        return None
+
+    # Choose dataset with most instances; break ties by smallest ID
+    candidates["n_instances"] = pd.to_numeric(candidates["NumberOfInstances"], errors="coerce").fillna(0)
+    best = candidates.sort_values(
+        ["n_instances", "did"], ascending=[False, True]
+    ).iloc[0]
+
+    dataset_id = int(best["did"])
+    try:
+        df = fetch_from_openml(dataset_id)
+        return dataset_id, df
+    except (DataFetchError, DataGapError) as exc:
+        logger.warning(f"Failed to download OpenML candidate ID {dataset_id}: {exc}")
+        return None
 
 def fetch_data() -> Tuple[Optional[pd.DataFrame], str, bool]:
     """
-    Attempts to fetch real WCST data from public sources.
+    Attempt to fetch a real WCST dataset following the deterministic strategy
+    described in task T101.
 
-    Strategy (deterministic order):
-    1. Search OpenML for datasets whose name or description contain any of the keywords
-       ["WCST","card-sorting","executive function"]; select the dataset with the largest
-       row count, breaking ties by the lowest OpenML ID.
-    2. If no suitable OpenML dataset is found, attempt to load a HuggingFace dataset
-       using a repository identifier (placeholder) with name="wcst".
-    3. If that also fails, attempt a direct URL fetch (placeholder URL).
+    Returns
+    -------
+    tuple
+        (DataFrame or ``None``, source identifier string, ``simulation_mode`` flag)
 
-    On success returns (DataFrame, source_identifier, simulation_mode=False).
-    On total failure raises RealDataFetchFailed.
-
-    Returns:
-        Tuple[DataFrame or None, source identifier string, simulation_mode flag]
+    Raises
+    ------
+    RealDataFetchFailed
+        If none of the data sources provide a usable dataset.
     """
-    # 1. OpenML search
-    try:
-        import openml
-        log_info("Searching OpenML for WCST-related datasets...")
-        df_list = openml.datasets.list_datasets(output_format='dataframe')
-        keywords = ["wcst", "card-sorting", "executive function"]
-        mask = df_list['name'].str.lower().fillna('').apply(
-            lambda x: any(k in x for k in keywords)
-        ) | df_list['description'].str.lower().fillna('').apply(
-            lambda x: any(k in x for k in keywords)
-        )
-        candidates = df_list[mask]
-        if not candidates.empty:
-            # Choose dataset with max instances, then min did
-            max_instances = candidates['NumberOfInstances'].max()
-            candidates_max = candidates[candidates['NumberOfInstances'] == max_instances]
-            selected = candidates_max.loc[candidates_max['did'].idxmin()]
-            dataset_id = int(selected['did'])
-            log_info(f"Selected OpenML dataset ID {dataset_id} ({selected['name']}) with {max_instances} rows.")
-            df = fetch_from_openml(dataset_id)
-            source = f"openml:{dataset_id}"
+    keywords = ["WCST", "card‑sorting", "executive function"]
+
+    # 1️⃣ OpenML search
+    openml_result = _search_openml_by_keywords(keywords)
+    if openml_result is not None:
+        dataset_id, df = openml_result
+        source = f"OpenML:{dataset_id}"
+        logger.info(f"Selected OpenML dataset {dataset_id} with {len(df)} rows")
+        return df, source, False
+
+    # 2️⃣ HuggingFace attempt – a concrete repository must be known.
+    # The specification does not provide a concrete repo; we try a few well‑known
+    # candidates that host WCST‑style data. If all fail we move on.
+    hf_candidates = [
+        "mlcommons/wcst",            # hypothetical
+        "openml/wcst",               # another guess
+    ]
+    for repo in hf_candidates:
+        try:
+            df = fetch_from_huggingface(repo, name="wcst", split="train", streaming=False)
+            source = f"HuggingFace:{repo}"
+            logger.info(f"Fetched HuggingFace dataset from {repo} with {len(df)} rows")
             return df, source, False
-        else:
-            log_info("No OpenML datasets matched the keywords.")
-    except Exception as e:
-        log_warning(f"OpenML search/fetch failed: {e}")
+        except (DataFetchError, DataGapError) as exc:
+            logger.warning(f"HuggingFace fetch failed for {repo}: {exc}")
 
-    # 2. HuggingFace attempt (placeholder repo - will likely fail)
-    try:
-        repo = "some_user/wcst_dataset"  # Placeholder; replace with real repo if known
-        log_info(f"Attempting HuggingFace fetch from repo '{repo}'...")
-        df = fetch_from_huggingface(repo, name="wcst", split="train", streaming=False)
-        source = f"huggingface:{repo}"
-        return df, source, False
-    except Exception as e:
-        log_warning(f"HuggingFace fetch failed: {e}")
-
-    # 3. Direct URL attempt (placeholder URL)
-    try:
-        url = "https://example.com/wcst_data.csv"
-        log_info(f"Attempting direct URL fetch from {url}...")
-        df = fetch_from_url(url)
-        source = f"url:{url}"
-        return df, source, False
-    except Exception as e:
-        log_warning(f"URL fetch failed: {e}")
-
-    # All attempts failed
-    log_error("All real data sources failed to fetch.")
-    raise RealDataFetchFailed("Could not fetch real WCST data from any source.")
+    # 3️⃣ Direct URL fallback – no verified URL is supplied in the current
+    # project configuration, so we raise the final error.
+    raise RealDataFetchFailed("All attempts to fetch a real WCST dataset failed.")
 
 def save_metadata(metadata: Dict[str, Any], filepath: str) -> None:
     """
-    Saves metadata to a JSON file.
+    Write a metadata dictionary to ``filepath`` as pretty‑printed JSON.
 
-    Args:
-        metadata: Metadata dictionary.
-        filepath: Path to save the file.
+    Parameters
+    ----------
+    metadata: dict
+        The metadata to persist.
+    filepath: str
+        Destination path (will be created if necessary).
     """
-    with open(filepath, 'w') as f:
-        json.dump(metadata, f, indent=2)
-    log_info(f"Metadata saved to {filepath}")
-
-def save_exclusion_log(exclusion_counts: Dict[str, int], filepath: str) -> None:
-    """
-    Saves exclusion log to a JSON file.
-
-    Args:
-        exclusion_counts: Dictionary of exclusion counts.
-        filepath: Path to save the file.
-    """
-    with open(filepath, 'w') as f:
-        json.dump(exclusion_counts, f, indent=2)
-    log_info(f"Exclusion log saved to {filepath}")
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2, ensure_ascii=False)
+    logger.info(f"Metadata saved to {filepath}")
