@@ -26,8 +26,16 @@ T003:
 T004:
   task: 74b15f69c76120e3150381a6d56a041c784a2df2ae02e636cb697f993dfab225
 T006a:
+  reason: "The generator script `code/synthetic/generator.py` exists and looks functional,\
+    \ but the required output \u2014 50 FITS files matching `data/synthetic/synth_*.fits`\
+    \ \u2014 does not exist on disk (collector: \"NO MATCHING FILE exists\"), so there\
+    \ is no evidence the generator was ever run or that headers contain `TRUE_ELLIP`/`TRUE_ASYM`.\
+    \ The implementer must execute the generator (e.g. `python code/synthetic/generator.py`\
+    \ from the project root) to produce the 50 FITS files (and ideally the `gt_metadata.json`\
+    \ manifest)."
   task: aa81a469e57a84f8084a6f91a260353db7cb3a4a7c744405da41ef359ce487c9
 T006b:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 375a35138678a24df0aee65a9a7010635aec440704ca6864f8d876560bd48775
 T006c:
   task: 8e81e27b638d886980222bfc837ffa89bb694d8604fea6690122334deb55c897

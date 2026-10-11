@@ -1,10 +1,21 @@
-# Exclude data directory
+# Exclude data directories
 data/
 
 # Python cache files
 __pycache__/
 *.pyc
 
-# Log files
+# Log files and logs directory
 logs/
 *.log
+
+# Other generated artifacts
+*.sha256
+*.log
+*.md
+*.json
+*.csv
+*.png
+*.fits
+*.txt
+*.ipynb_checkpoints/

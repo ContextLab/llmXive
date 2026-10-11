@@ -1,19 +1,18 @@
 status: none
-intent: download HST planetary nebula FITS images from MAST using astroquery python
-  package dataset
+intent: download HST planetary nebula FITS images MAST archive python package dataset
 required_fields:
-- image pixel array
-- FITS header metadata
-- OBJECT name
-- RA
-- Dec
-- filter name
-- exposure time
+- image_data (pixel array)
+- header_metadata (FITS header)
+- target_name
+- right_ascension
+- declination
 - instrument
-- detector
-- pixel scale
-- PHOTFLAM
-- PHOTPLAM
-cache_key: d6c249e236b3d1078e76e34e15ca7b30786a4356c9012c0521a8d9b6eff394ea
-searched_at: '2026-10-11T22:25:49.365546+00:00'
+- filter
+- exposure_time
+- pixel_scale
+- world_coordinate_system (WCS)
+- flux_calibration_coefficient (PHOTFLAM)
+- observation_date
+cache_key: 59312ddfc4b8b1a6ec47e06a375dbd3f3607139ef8ecf32e1b70d39a07603e41
+searched_at: '2026-10-11T22:33:37.708206+00:00'
 retry_count: 1

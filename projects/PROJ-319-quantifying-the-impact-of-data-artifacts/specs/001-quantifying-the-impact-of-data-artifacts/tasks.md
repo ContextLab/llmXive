@@ -25,15 +25,15 @@
   - **Verification**: `.gitignore` contains the listed patterns.  
 - [X] T001c [P] Initialise `README.md` with a brief project overview and quick‑start instructions  
   - **Verification**: `README.md` exists and contains a “Quick‑start” section.  
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools via `pyproject.toml`  
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools via `pyproject.toml`  
   - **Verification**: `pyproject.toml` includes `[tool.ruff]` and `[tool.black]` sections.  
-- [~] T002 [P] Initialise Python 3.11 project with `requirements.txt` (numpy, scikit‑image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)  
+- [X] T002 [P] Initialise Python 3.11 project with `requirements.txt` (numpy, scikit‑image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)  
   - **Verification**: `requirements.txt` lists the exact packages and versions.  
-- [~] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and concrete artifact parameters (noise levels `{0.01,0.05,0.10}`, saturation range `0.0–0.5` in `0.05` steps)  
+- [X] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and concrete artifact parameters (noise levels `{0.01,0.05,0.10}`, saturation range `0.0–0.5` in `0.05` steps)  
   - **Verification**: `code/config.py` defines `DEFAULT_NOISE_LEVELS` and `DEFAULT_SATURATION_FRACTIONS`.  
-- [~] T007 [P] Implement `code/io/writer.py` to save generated images and logs with SHA‑256 checksums for reproducibility (FR‑008)  
+- [X] T007 [P] Implement `code/io/writer.py` to save generated images and logs with SHA‑256 checksums for reproducibility (FR‑008)  
   - **Verification**: `writer.save_with_checksum()` creates a `.sha256` file beside each artifact.  
-- [~] T008 [P] Setup `tests/unit/` structure and a minimal `pytest.ini` configuration  
+- [X] T008 [P] Setup `tests/unit/` structure and a minimal `pytest.ini` configuration  
   - **Verification**: `tests/unit/` exists and `pytest -q` discovers at least one test.  
 - [ ] T046a [P] Create CLI stub `code/main.py` with a `--run-all` flag and basic argument parsing (no pipeline logic yet)   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - **Verification**: Running `python -m code.main --help` prints usage information.  
@@ -49,7 +49,7 @@
 - [ ] T006a [S] Implement `code/synthetic/generator.py` to generate **N = 50** synthetic planetary‑nebula FITS images with known ground‑truth ellipticity and asymmetry (CPU‑only)  
   - **Output**: `data/synthetic/synth_{id:03d}.fits` (50 files).  
   - **Verification**: Each FITS header contains `TRUE_ELLIP` and `TRUE_ASYM` keywords.  
-- [ ] T006b [S] Run the generator script to populate `data/synthetic/`  
+- [ ] T006b [S] Run the generator script to populate `data/synthetic/`   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - **Verification**: Count of FITS files equals 50.  
 - [ ] T006c [S] Generate `data/synthetic/gt_metadata.json` containing ground‑truth values for every synthetic image (schema matches `MorphologyMetrics` requirements)  
   - **Verification**: JSON file validates against a generated schema test.  
