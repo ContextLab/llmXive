@@ -817,7 +817,8 @@ def _append_ledger(path: Path, entries: list[dict[str, str]]) -> None:
     not what made up the difference. One JSON line per decision, never read by
     the pipeline: ``kind`` is ``accepted``, ``judged`` (a fresh model verdict),
     ``replayed`` (the stored verdict for unchanged evidence), ``failed_run``,
-    ``missing_artifact`` or ``unverifiable``.
+    ``missing_artifact``, ``unverifiable`` or ``postponed`` (an accepted task
+    whose files changed, held until no task is open).
     """
     if not entries:
         return
@@ -1021,6 +1022,24 @@ def run_verification_pass(
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
         evidence = gather_evidence(project_dir, task_text, execution_log_dir="paper/.tasks" if namespace else "code/.tasks")
         ev_hash = _verification_hash(task_text, spec_context, evidence, model=model)
+        cached = cache.get(key)
+        # An ACCEPTED task whose evidence changed since: another task is still
+        # being implemented and may change these files again. Judging it now
+        # spends a verdict (and, on a flip, a strike toward re-planning the
+        # whole project) on a state that will not be the final one. Hold it
+        # under review and judge it once nothing is open. Missing files and
+        # failed runs were already rejected above, without waiting.
+        if (
+            isinstance(cached, dict)
+            and cached.get("c") is True
+            and cached.get("h") != ev_hash
+            and authentic_verdict(project_dir, tasks_path, key, cached)
+            and any((other := _TASK_LINE_RE.match(row)) and other.group(2) == " " for row in lines)
+        ):
+            lines[i] = f"{m.group(1)}[~]{rest}"
+            deferred.append(key)
+            ledger.append({"task": key, "kind": "postponed"})
+            continue
         cached = cache.get(key)
         if (
             isinstance(cached, dict)
