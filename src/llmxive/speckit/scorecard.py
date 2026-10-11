@@ -22,6 +22,7 @@ Criteria and their values:
 * ``test:<pytest node id>`` -- 1 when the test passed, else 0.
 * ``files`` -- 0 when a required file is missing or invalid.
 * ``judge`` -- 1 when the independent verifier accepted the task, else 0.
+* ``kept`` -- 0 when an attempt was discarded for breaking a passing test.
 
 ``None`` means the check could not be run, which is not a failure.
 """
@@ -47,6 +48,11 @@ def scorecard_path(memory_dir: Path) -> Path:
     return memory_dir / SCORECARD_NAME
 
 
+def pytest_outcomes(stdout: str) -> Values:
+    """``{pytest node id: 1 or 0}`` from a ``pytest -v`` session."""
+    return {node: int(outcome == "PASSED") for node, outcome in _PYTEST_LINE.findall(stdout)}
+
+
 def run_values(script: str, args: object, returncode: int, stdout: str, *, is_test: bool) -> Values:
     """The criteria one executed script or test module settles.
 
@@ -56,8 +62,7 @@ def run_values(script: str, args: object, returncode: int, stdout: str, *, is_te
     command = " ".join([script, *(str(arg) for arg in args)]) if isinstance(args, list) and not is_test else script
     values: Values = {f"run:{command}": int(returncode == 0)}
     if is_test:
-        for node, outcome in _PYTEST_LINE.findall(stdout):
-            values[f"test:{node}"] = int(outcome == "PASSED")
+        values.update({f"test:{node}": value for node, value in pytest_outcomes(stdout).items()})
     return values
 
 
@@ -115,4 +120,14 @@ def delta(before: Values, after: Values) -> tuple[list[str], list[str]]:
     return improved, regressed
 
 
-__all__ = ["SCORECARD_NAME", "Values", "current", "delta", "history", "record", "run_values", "scorecard_path"]
+__all__ = [
+    "SCORECARD_NAME",
+    "Values",
+    "current",
+    "delta",
+    "history",
+    "pytest_outcomes",
+    "record",
+    "run_values",
+    "scorecard_path",
+]

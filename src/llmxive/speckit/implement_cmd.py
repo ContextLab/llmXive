@@ -261,6 +261,45 @@ class ImplementerAgent(SlashCommandAgent):
         mechanical_output: dict[str, Any],
         llm_response: ChatResponse,
     ) -> list[str]:
+        """Apply one implementer reply, and undo it if it broke a passing test."""
+        task_id = mechanical_output.get("next_task_id")
+        if mechanical_output.get("all_complete") or not task_id:
+            return self._write_attempt(ctx, mechanical_output, llm_response)
+        from llmxive.agents.task_verifier import definition_signatures, task_verification_state_path
+        from llmxive.speckit import ratchet
+
+        tasks_path = Path(mechanical_output["tasks_path"])
+        attempt = ratchet.begin(
+            ctx.project_dir, task_id,
+            task_verification_state_path(ctx.project_dir, tasks_path).parent,
+            definition_signatures(tasks_path.read_text(encoding="utf-8")).get(task_id, ""),
+            log_dir=mechanical_output.get("task_log_dir", "code/.tasks"),
+        )
+        written = self._write_attempt(ctx, mechanical_output, llm_response)
+        if attempt is None:
+            return written
+        kept, broken = attempt.settle()
+        if kept:
+            return written
+        # The files are back as they were, the task line included. Mark it the
+        # way a failed command is marked, so the bounded retry accounting that
+        # already exists for failed runs applies to it.
+        repo = ctx.project_dir.parent.parent
+        modules = sorted({item.split("::", 1)[0].split(" (", 1)[0] for item in broken if ".py" in item})
+        summary = "; ".join(f"{module} exit=1" for module in modules) or "project tests exit=1"
+        text = tasks_path.read_text(encoding="utf-8")
+        tasks_path.write_text(
+            mark_task(text, task_id, "~", f" <!-- FAILED-IN-EXECUTION: {summary} -->"), encoding="utf-8")
+        print(f"[implementer] attempt at {task_id} not kept: it broke {len(broken)} passing test(s) "
+              f"({', '.join(broken[:3])}{' ...' if len(broken) > 3 else ''}); files restored")
+        return [str(path.relative_to(repo)) for path in (attempt.record_path(), tasks_path)]
+
+    def _write_attempt(
+        self,
+        ctx: SlashCommandContext,
+        mechanical_output: dict[str, Any],
+        llm_response: ChatResponse,
+    ) -> list[str]:
         repo = ctx.project_dir.parent.parent
         if mechanical_output.get("all_complete") or not mechanical_output.get("next_task_id"):
             return []
