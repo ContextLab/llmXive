@@ -1,194 +1,45 @@
 # Tasks: Predict Plant Disease Resistance from Multi‑omics Data
 
-**Input**: Design documents from `/specs/001-predicting-plant-disease-resistance-from/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, data model and contracts under `specs/001-predict-plant-disease-resistance-from/`, plus prior verifier feedback.
+**Status basis**: All Phase 1–8 tasks (T001–T065) are verified complete except the four items a verifier rejected (T051, T053, T055, T057), which are reopened below. Additionally, the pipeline has only been validated end-to-end on synthetic CI-mode data; the scientific deliverable (real-data results, SC-001–SC-004) is still pending and is grouped into the Phase 9–11 tasks below.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1–8: Completed (preserve)
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+All tasks T001–T065 as previously specified and verified are complete, except the four reopened items listed in Phase 9. Working artifacts under `code/`, `tests/`, `artifacts/reports/`, `data/data_manifest.yaml`, and `docs/` are preserved and must not be regenerated. Completed work includes: project scaffolding, exception classes, synthetic CI-mode generator with seed auditing, download/preprocess/split modules, feature selection with BH correction and sensitivity sweep {0.01, 0.05, 0.1}, Elastic-Net/GBM modeling with null baseline, permutation testing (n=1000, seed=42, p=(count+1)/(n+1)), VIF flagging, block permutation, external validation mode, provenance headers, power calculator, stability analysis, and benchmarking.
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 9: Repair verifier-rejected tasks
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T066 [US1] Redo T051: create `code/utils/measure_resources.py` implementing a context-manager/monitor that samples peak RSS and elapsed wall time, reads `MAX_MEMORY_GB` (default 7) and `MAX_RUNTIME_HOURS` (default 6) from environment variables, and raises `EX_RESOURCE_LIMIT (04)` when a limit is exceeded (runtime warning threshold 5.5 h). Wire it into `code/main.py` so every pipeline stage runs under the monitor and results are appended to `artifacts/reports/performance_benchmark.json`. Update `scripts/run_ci.sh` to export the same variables. Verification: run `python -m code.main --ci-mode` and confirm `code/utils/measure_resources.py` exists, is imported by `code/main.py`, and the benchmark JSON contains per-stage peak-RSS and runtime entries.
+- [ ] T067 [US1] Redo T053: complete `code/generate_final_report.py` so it (a) reads metric JSONs from the directory where `code/main.py` actually writes them (`artifacts/reports/` — fix `load_json_file` to use that path), (b) aggregates `metrics.json`, `holdout_metrics.json`, `selection_frequency.csv`, `biomarker_summary.json`, and `permutation_comparison.json`, and (c) writes a complete `artifacts/reports/final_validation_report.md` with sections for CV performance vs null baseline, permutation p-value, biomarker counts vs SC-002, VIF flags, resource usage, and an explicit REAL_DATA/SIMULATED_DATA provenance statement. Verification: run the generator in `--ci-mode` and confirm the markdown file exists, is non-empty, and contains all listed sections with values matching the source JSONs.
+- [ ] T068 Redo T055: the platform owns `.github/` workflows — do NOT create workflow files. Instead add linting configuration at the project root (`pyproject.toml` sections or `.flake8` configuring `flake8` and `black` for `code/` and `tests/`, max line length 100, excluding `data/`), and add `scripts/lint.sh` that runs `flake8 code tests` and `black --check code tests`. Verification: run `bash scripts/lint.sh` locally, fix any reported violations in `code/` and `tests/`, and record the passing lint output in `artifacts/reports/lint_log.txt`.
+- [ ] T069 [US2] Redo T057: create `tests/test_exceptions.py` with unit tests covering `EX_DATA_INTEGRITY (02)`, `EX_POWER_INSUFFICIENT (03)`, and `EX_RESOURCE_LIMIT (04)`: each raises with the exact message strings mandated by FR-007/FR-008 ("Insufficient data modalities: Remaining samples < 100", "Power deficiency: n < 100 required for multivariate omics analysis with BH correction"), and exit codes 02/03/04 are exposed. Verification: `pytest tests/test_exceptions.py -v` passes with all assertions on message text and codes.
 
-## Path Conventions
+## Phase 10: Real-data scientific run (SC-001–SC-003)
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T070 [US1] Identify and document a REAL public dataset with paired genotype, metabolite, and resistance-phenotype data for one plant–pathogen system. Search NCBI SRA/GEO (e.g., Arabidopsis–Pseudomonas, rice–Magnaporthe, potato–Phytophthora GWAS studies), MetaboLights, and Metabolomics Workbench; record exact accession IDs, retrieval URLs, and query strings in `data/data_manifest.yaml` (schema: `contracts/dataset.schema.yaml`, `source_type: REAL`). If no single study provides all three modalities for ≥100 shared samples, document the exact gap (which modalities, which accessions, sample overlap) in `docs/real_data_search.md` and halt — do NOT substitute synthetic data for the scientific run (FR-001, FR-006 provenance). Verification: `data/data_manifest.yaml` validates against the dataset schema with at least one REAL entry, or `docs/real_data_search.md` states the precise mismatch.
+- [ ] T071 [US1] Fetch the real dataset identified in T070 into `data/raw/` using the recorded accessions (e.g., `pysradb`/SRA toolkit prefetch+fastq-dump for reads, direct MetaboLights/Metabolomics Workbench file URLs for metabolite tables and phenotype annotations). The loader MUST fail loudly on fetch errors (raise, no synthetic fallback) and verify file integrity via SHA-256 checksums recorded in `data/data_manifest.yaml`. For files too large for RAM, stream in chunks (`chunk_size` documented in `docs/streaming_strategy.md`). Verification: raw files exist under `data/raw/`, checksums match the manifest, and a re-run of the fetch is idempotent.
+- [ ] T072 [US1] Run the existing preprocessing path (`code/data/preprocess.py`) on the real raw data: variant calling/matrix construction (or direct VCF→dosage matrix via `bcftools query` if the accession provides called variants rather than raw reads), MetaboAnalyst-compatible metabolite normalization, and exact-match sample-ID alignment across SNP, metabolite, and phenotype tables, logging exclusions to `data/processed/exclusion_log.csv` (FR-001, FR-002). Enforce the FR-007/FR-008 halts on <100 paired samples. Verification: `data/processed/aligned_snps.parquet` and `data/processed/aligned_metabolites.parquet` exist with identical row (sample) sets matching the phenotype table, and the exclusion log accounts for every dropped sample.
+- [ ] T073 [US1] Execute the full scientific pipeline on the real aligned data via `python -m code.main` (no `--ci-mode`): stratified split (FR-009, `--train-ratio` default 0.8), nested feature selection with BH correction and sensitivity sweep {0.01, 0.05, 0.1} (FR-003), Elastic-Net or GBM with 5-fold CV plus null random-label baseline (FR-004), permutation testing n=1000 seed=42 on the hold-out set and block-permutation comparison (FR-005), and VIF flagging >5. All outputs go to `artifacts/reports/` (`metrics.json`, `holdout_metrics.json`, `selection_frequency.csv`, `top_features.csv`, `biomarker_summary.json`, `permutation_comparison.json`, `prediction_confidence.json`) with `data_source: real`. Verification: run completes under the resource monitor (T066), all report files exist and validate against `contracts/model_output.schema.yaml` and `contracts/output.schema.yaml`, and hold-out indices appear in no training artifact (T045 assertion).
+- [ ] T074 [US3] If a second independent real dataset with the same modalities exists (per the T070 search), run external validation via `--validate-external`, writing `artifacts/reports/external_validation.json` with the same metric suite and a statement of whether the ≥75% target is maintained (SC-001 generalizability). If no second dataset exists, record this limitation explicitly in `docs/real_data_search.md` and in the final report rather than fabricating a validation set. Verification: either the external-validation JSON exists with real-data metrics, or the documented gap statement is present in both files.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 11: Results synthesis and paper handoff
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T075 [US2] Generate final result tables and figures from the real-data run only: `artifacts/figures/vif_heatmap.png` (updated with real selected features), a feature-stability plot of selection frequency across the three thresholds, and a summary table of top SNPs and metabolites with BH-adjusted p-values, effect sizes, and selection frequencies — all produced programmatically from `artifacts/reports/*.json|csv` (single source of truth, Constitution IV). Verification: each figure/table file exists and its values match the report artifacts exactly.
+- [ ] T076 Write a concise methods-and-results account in `docs/results_summary.md` linked to the actual output files: dataset provenance (accessions), sample counts after exclusion, CV performance vs null baseline vs SC-001 target, permutation p-values vs SC-003, biomarker counts vs SC-002, VIF/collinearity findings, resource usage vs SC-004, and honest reporting of any unmet success criterion or negative finding (e.g., <10 significant metabolites, CV <75%). Include the paper-stage handoff: the paper must cite `data_manifest.yaml` accessions, use the generated figures, and frame all findings as associational (no causal claims). Verification: every number in the summary traces to a named artifact file, and no expected/invented results appear.
+- [ ] T077 Re-run the documented workflow end-to-end from its declared inputs (real-data path and `--ci-mode` path), confirm `pytest tests/` passes (including `tests/test_exceptions.py` from T069), `bash scripts/lint.sh` passes, `code/generate_final_report.py` produces `artifacts/reports/final_validation_report.md` for both modes, and the reproducibility checklist (`docs/reproducibility_checklist.md`) reflects the real-data seeds, software versions, and accessions. Verification: a single fresh-clone execution reproduces all artifacts; document the exact commands and their outcomes in `docs/results_summary.md`.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+## Dependencies and requirement coverage
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- **FR-001/FR-002** (retrieval, preprocessing, exclusion logging): T070–T072 (completed foundation: T010, T011).
+- **FR-003** (feature selection, BH, sensitivity sweep): T073 (foundation T016, T023, T026–T028b, T047a/b, T055-plot, T060).
+- **FR-004** (modeling, 5-fold CV, null baseline): T073 (foundation T017, T017b).
+- **FR-005** (permutation n=1000, VIF>5): T073 (foundation T018, T029, T057-block, T061).
+- **FR-006** (Docker, ≤6 h, ≤7 GB): T066, T073, T077 (foundation T006, T046, T065).
+- **FR-007/FR-008** (halt codes, n<100): T069 (tests), T072 (enforcement on real data).
+- **FR-009** (stratified split, hold-out reservation): T073 (foundation T015, T031, T031b, T045).
+- **SC-001–SC-004**: evaluated in T073–T076; resource limits enforced by T066.
+- **Execution order**: T066–T069 are independent of each other ([P] where files differ); T070 → T071 → T072 → T073 → T074 → T075 → T076 → T077 is strictly sequential (data flow).
 
-## Phase 1: Setup (Shared Infrastructure)
+## Revision behavior
 
-**Purpose**: Project initialization and basic structure. Tasks are now atomic for parallel execution.
-
-- [X] T001 Create project directory tree: `code/`, `data/`, `data/raw`, `data/processed`, `artifacts/`, `artifacts/models`, `artifacts/reports`, `artifacts/figures`, `tests/`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `pandas==2.0.3 `, `numpy==1.24.3 `, `scikit-learn==1.5.0 `, `statsmodels==0.14.0 `, `pyyaml==6.0.1 `, `requests==2.31.0 `
-- [X] T003 [P] Configure linting (`.flake8` or `pyproject.toml` for black) and formatting tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 Implement `code/utils/exceptions.py` with `EX_DATA_INTEGRITY (02)`, `EX_POWER_INSUFFICIENT (03)`, and `EX_RESOURCE_LIMIT (04)` custom classes
-- [X] T005 Create `code/config.py` for loading environment variables and default paths
-- [X] T006 [P] Setup Dockerfile bundling Python 3.11, `fastp`, `bcftools`, and project dependencies
-- [X] T006b [P] Add inline comments to `Dockerfile` explaining build steps and dependencies
-- [X] T006c [P] Add Docker build/run commands and usage instructions to `README.md` to satisfy FR-006 documentation requirements
-- [X] T007 Implement `code/utils/logging.py` for structured logging of pipeline steps and sample exclusions
-- [X] T008 Create `data/data_manifest.yaml` schema and loader in `code/data/manifest.py`
-- [X] T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples with injected signal structure: **1000 SNPs**, **A substantial set of metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5. **Note: The generator must produce n >= 100 samples to satisfy FR-007/FR-008.**
-- [X] T056 [P] Implement **streaming data loader** in `code/data/download.py` for large real datasets using `datasets.load_dataset(..., streaming=True)` with `chunk_size=1000` to process real multi-omics data in chunks, ensuring memory usage stays within acceptable limits while processing the full dataset; **document the exact streaming strategy (chunk size, split selection)** in `docs/streaming_strategy.md`.
-- [X] T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using query "plant AND disease resistance AND (SNP OR metabolite)" with accession list from `data_manifest.yaml`; **IF `--ci-mode` flag is present**: if **no results found OR HTTP error responses after 3 retries**, **log a critical warning "REAL DATA NOT FOUND, TRIGGERING SIMULATION MODE" and IMMEDIATELY invoke `generate_synthetic.py`**; **IF `--ci-mode` flag is absent**: if **no results found OR HTTP 404/403 after 3 retries**, **raise `EX_DATA_INTEGRITY (02)` immediately**; record `source: SIMULATED` in `data_manifest.yaml` only if `--ci-mode` is active; **the pipeline must halt if samples < 100 regardless of source** (FR-007, FR-008)
-- [X] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
-- [X] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - End‑to‑End Resistance Prediction (Priority: P1) 🎯 MVP
-
-**Goal**: Deliver a reproducible pipeline that downloads/generates data, preprocesses, trains a model, and reports metrics.
-
-**Independent Test**: Execute the pipeline on the synthetic dataset and verify it completes, produces a trained model, and outputs `artifacts/reports/metrics.json` without manual intervention.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation. [P] indicates parallel execution of test suites, NOT parallel implementation with code.**
-
-- [X] T013 [P] [US1] Contract test for data alignment in `tests/test_data.py` (verify matching sample IDs across modalities)
-- [X] T014 [P] [US1] Integration test for full pipeline run in `tests/test_pipeline.py` (verify runtime < 6h, RAM < 7GB)
-
-### Implementation for User Story 1
-
-- [X] T015 [US1] Implement `code/data/split.py` for stratified sampling based on resistance phenotype (FR-009); **split ratio must be configurable via `--train-ratio` argument (default 0.8)**; strictly reserve hold-out set from all training/selection steps; **do not hardcode a specific ratio** (FR-009)
-- [X] T016 [US1] Implement `code/analysis/feature_selection.py` with LASSO/RF and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; **run single iteration per threshold** to calculate selection frequency; **aggregate results internally** (storing intermediate selections per threshold) and output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (FR-003); **ensure the deliverable is atomic**
-- [X] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with **k-fold cross-validation** (FR-004)
-- [X] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in final metrics** (FR-004)
-- [X] T018 [US1] Implement `code/analysis/validation.py` for **permutation testing (n=1000) on the independent hold-out test set** (FR-005) and **null model baseline comparison**; **calculate p-value as (count >= observed + 1) / (n_permutations + 1)**; output to `artifacts/reports/holdout_metrics.json`; **set a fixed random seed (seed=42)** to ensure reproducibility; **DO NOT defer this step to US3** to ensure US1 is independently testable with full statistical validation; **this task is the SOLE producer of the permutation test artifact**
-- [X] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read aligned samples count; **IF missing_modalities > 0, raise EX_DATA_INTEGRITY (02) with message "Insufficient data modalities: Remaining samples < 100"**; **ELSE IF total_samples < 100, raise EX_POWER_INSUFFICIENT (03) with message "Power deficiency: n < 100 required for multivariate omics analysis with BH correction"**; **NO bypass logic for SIMULATED data** (FR-007, FR-008)
-- [X] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Biomarker Exploration (Priority: P2)
-
-**Goal**: Examine which SNPs and metabolites drive predictions and assess statistical significance.
-
-**Independent Test**: After a successful run of Story 1, query the output for the ranked list of selected features and verify p-values and effect sizes are provided.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T024 [P] [US2] Unit test for BH-adjusted p-value calculation in `tests/test_stats.py`
-- [X] T025 [P] [US2] Contract test for `top_features.csv` schema in `tests/test_reports.py`
-
-### Implementation for User Story 2
-
-- [X] T026 [US2] Extend `code/analysis/feature_selection.py` to calculate effect-size coefficients for selected features; **this task must complete before T027**
-- [X] T027 [US2] Implement `code/analysis/biomarker_report.py` to generate `artifacts/reports/top_features.csv` with p-values and effect sizes; **read coefficients from T026 output**
-- [X] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05; **this task must complete after T027**
-- [X] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep**; **log the count to the console and report in `artifacts/reports/biomarker_summary.json`**; **IF count < 10, set `validation_status: FAILED` in the JSON and log an error message** (SC-002)
-- [X] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to calculate **Variance Inflation Factor (VIF)** for all selected features and flag any VIF > 5 (FR-005)
-- [X] T047a [US2] Implement logging in `code/analysis/feature_selection.py` to record the **exact number of features selected at each threshold**
-- [X] T047b [US2] Implement calculation in `code/analysis/feature_selection.py` to compute the **selection frequency variance** across thresholds and log the result to `artifacts/reports/robustness_log.txt` (removed undefined halt condition)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Independent Validation (Priority: P3)
-
-**Goal**: Evaluate the trained model on a separate dataset (or the hold-out set) to test generalizability.
-
-**Independent Test**: Provide a hold-out dataset to the pipeline's validation mode and verify that performance metrics are computed and reported.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T030 [P] [US3] Integration test for hold-out evaluation in `tests/test_validation.py`
-
-### Implementation for User Story 3
-
-- [X] T031 [US3] **Verify** that `code/data/split.py` (implemented in T015) correctly reserves the hold-out set and is used by downstream tasks; **DO NOT re-implement split logic** (FR-009)
-- [X] T031b [US3] Implement a validation check in `code/data/split.py` usage to assert that the hold-out set is never used in feature selection or training steps (strict reservation)
-- [X] T032 [US3] Implement `code/analysis/validation.py` logic to evaluate the trained model on the independent hold-out set; **consume the permutation test artifact from T018**
-- [X] T033 [US3] **Consume** the permutation test artifact from T018 (`artifacts/reports/holdout_metrics.json`) for the internal hold-out set; **IF `--validate-external` flag is provided**, run permutation testing (n=1000, seed=42) on the external dataset and output to `artifacts/reports/external_validation.json`; **otherwise, do not re-implement permutation logic** (FR-005, SC-003)
-- [X] T034 [US3] Generate `artifacts/reports/holdout_metrics.json` with final accuracy/AUC/R² and permutation p-value for validation (consumed from T018 or T033 external)
-- [X] T035 [US3] Implement logic to compare hold-out performance against the ≥ 75% target and log a warning to `artifacts/reports/validation.log` if target is not met (as a hypothesis, not a hard halt)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T022 [P] Generate `artifacts/reports/metrics.json` containing CV accuracy, AUC/R², **null model baseline metrics** (from T017b), and **permutation p-value (from hold-out set, see T018)**; **aggregate all final results**
-- [X] T036 [P] Documentation updates in `docs/` and `README.md` including Docker usage
-- [X] T037 Code cleanup and refactoring of `code/analysis/` modules
-- [X] T038 Performance optimization to **reduce memory usage in `code/analysis/feature_selection.py`** by streaming large matrices and avoiding intermediate copies
-- [X] T038b [P] Implement runtime/memory measurement script in `code/utils/measure_resources.py` to log peak usage
-- [X] T038c [P] Update CI workflow to execute measurement script and log results against FR-006 constraints
-- [X] T039 [P] Additional unit tests for `code/data/preprocess.py` (mocking fastp/bcftools)
-- [X] T040 Run `quickstart.md` validation to ensure pipeline runs end-to-end on GitHub Actions free-tier
-- [X] T041 Verify `artifacts/reports/metrics.json` meets SC-001 (CV ≥ 75% in **Simulation Mode** for injected signal validation) and SC-003 (p ≤ 0.05); explicitly scope this to "Simulation Mode" context
-
----
-
-## Phase 7: Revision & Integrity (Addressing Review Concerns)
-
-**Purpose**: Address specific reviewer concerns regarding data provenance, statistical rigor, and simulation transparency.
-
-- [X] T042 [P] [US1] **Verify** that `code/data/download.py` (implemented in T010) correctly implements the 'Fail Loud' logging policy: if real data is missing and `--ci-mode` is absent, it raises `EX_DATA_INTEGRITY`; if `--ci-mode` is present, it triggers synthetic generation; **ensure the fallback to `generate_synthetic.py` is executed immediately ONLY in CI Mode**; **Do not raise an error upon download failure in CI Mode**; ensure the `data_manifest.yaml` explicitly records `source: SIMULATED` to maintain provenance integrity; **CRITICAL: Even if simulation is triggered, the pipeline MUST still enforce the n < 100 halt condition** (FR-007, FR-008)
-- [X] T044 [US2] Extend `code/analysis/biomarker_report.py` to include a **data provenance header** in `top_features.csv` explicitly stating whether the results are derived from "REAL_DATA" or "SIMULATED_DATA" and citing the specific accession IDs or generation parameters used.
-- [X] T045 [US3] Implement a **strict hold-out verification** in `code/data/split.py` that raises an assertion error if the hold-out set indices appear in any training or feature selection artifacts, ensuring FR-009 is not violated by data leakage.
-- [X] T046 [P] [US1] Add a **resource usage assertion** in `code/utils/measure_resources.py` that halts the pipeline with `EX_RESOURCE_LIMIT` if RAM usage exceeds a high threshold (buffer) or runtime exceeds 5.5 hours, providing early warning before the CI limit is hit; **Ensure measure_resources.py is created and functional**.
-- [X] T049 [P] [US1] Create a **data manifest validator** in `code/data/manifest.py` that checks for the presence of required fields (`source`, `accession_ids`, `sample_count`, `modality_types`) and raises an error if any are missing or malformed, preventing silent data corruption.
-- [X] T050 [US1] Update `README.md` to include a **clear disclaimer** that the default execution uses synthetic data for pipeline validation and that results should not be interpreted as biological findings without real data, satisfying the "Simulation Mode" transparency requirement.
-- [X] T052 [US2] Add a **statistical power calculator** in `code/utils/stats.py` that runs post-hoc power analysis on the final sample size and reports the detectable effect size at α=0.05, ensuring transparency about the limitations of the synthetic or real sample size.
-- [X] T053 [P] [US3] Create a **validation mode CLI flag** (`--validate-external`) in `code/main.py` that explicitly triggers the external dataset validation path (T033) only when an external data path is provided, preventing accidental leakage of the hold-out set during standard runs.
-- [X] T054 [US1] Implement a **synthetic data seed auditor** in `code/data/generate_synthetic.py` that logs the exact random seed and configuration hash used for generation to `data_manifest.yaml`, ensuring full reproducibility of the "Simulation Mode" results.
-- [X] T055 [P] [US2] Add a **feature stability plot** generator in `code/analysis/biomarker_report.py` that visualizes the selection frequency of top features across the three thresholds, providing a visual check for the robustness required by FR-003.
-
----
-
-## Phase 8: Advanced Statistical Rigor & Real Data Integration
-
-**Purpose**: Address gaps in real data handling, advanced statistical validation, and external reproducibility checks identified in recent reviews.
-
-- [X] T057 [US2] Add **Block Permutation Testing** logic in `code/analysis/validation.py` that accounts for linkage disequilibrium (LD) and co-regulation in SNPs/metabolites by shuffling blocks of correlated features rather than independent labels; **compare results with standard permutation test** and log differences in `artifacts/reports/permutation_comparison.json`.
-- [X] T058 [P] [US3] Implement **external dataset validator** in `code/analysis/validation.py` that accepts a path to a real external dataset (via `--validate-external` flag), validates its schema against `data_manifest.yaml`, and runs the trained model on it; **output metrics to `artifacts/reports/external_validation.json`** and log whether the ≥75% target is maintained.
-- [X] T059 [US1] Create **reproducibility checklist** in `docs/reproducibility_checklist.md` that lists all random seeds, software versions, and data provenance details required to reproduce the exact results; **automate generation of this checklist** from `data_manifest.yaml` and `requirements.txt`.
-- [X] T060 [P] [US2] Implement **effect size stability analysis** in `code/analysis/biomarker_report.py` that calculates the coefficient of variation for effect sizes across the three sensitivity thresholds and flags features with high instability (CV > 0.5) in `artifacts/reports/stability_analysis.json`.
-- [X] T061 [US3] Add **collinearity diagnostics report** in `code/analysis/validation.py` that generates a heatmap of VIF values for all selected features and saves it as `artifacts/figures/vif_heatmap.png`; **flag any features with VIF > 5** in the report summary.
-- [X] T062 [P] [US1] Implement **automated data source verification** in `code/data/download.py` that checks the integrity of downloaded real data against known checksums from NCBI/MetaboLights and raises an error if mismatched; **log verification status to `data_manifest.yaml`**.
-- [X] T064 [P] [US3] Implement **model uncertainty quantification** in `code/analysis/modeling.py` using bootstrap aggregation (bagging) to estimate prediction confidence intervals for each sample in the hold-out set; **output confidence intervals to `artifacts/reports/prediction_confidence.json`**.
-- [X] T065 [US1] Create **pipeline performance benchmark** script in `code/utils/benchmark.py` that measures exact runtime and peak memory usage for each major pipeline stage and logs results to `artifacts/reports/performance_benchmark.json`; **compare against FR-006 constraints (≤6h, ≤7GB)**.
+Completed tasks T001–T065 (minus the four rejected) retain their verified status and artifacts. The reopened items address only the specific verifier diagnoses: missing `measure_resources.py` (T066), truncated/missing final report generator (T067), lint configuration corrected to project-owned files instead of platform-owned `.github/` workflows (T068), and missing `tests/test_exceptions.py` (T069). The real-data phase (T070–T077) supplies the scientific deliverable the prior synthetic-only validation could not: real inputs, real measured results, and honest reporting against SC-001–SC-004, with a documented halt if no real paired multi-omics dataset exists rather than any synthetic substitution.
