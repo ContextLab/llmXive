@@ -239,12 +239,12 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     return None, ""
 
 
-#: How many files matching one pattern have their CONTENTS quoted (first and last).
-_PATTERN_QUOTED = 2
 _PATTERN_BYTES_PER_FILE = 3000
+#: Total bytes of pattern-matched file contents quoted for one task.
+_PATTERN_QUOTE_BUDGET = 30_000
 
 
-def _pattern_evidence(project_dir: Path, task_text: str, files_used: int) -> list[str]:
+def _pattern_evidence(project_dir: Path, task_text: str) -> list[str]:
     """Evidence for outputs a task names by PATTERN rather than one by one.
 
     PROJ-9999 canary, 2026-10-11. Task T004 declared its outputs as
@@ -256,13 +256,14 @@ def _pattern_evidence(project_dir: Path, task_text: str, files_used: int) -> lis
     later the task was recorded UNVERIFIABLE and the project was kicked back.
 
     Every match is LISTED with its size and digest (so a count claim can be
-    checked and the verdict cache invalidates when any of them changes); the
-    first and last are QUOTED, within what is left of the file budget.
+    checked and the verdict cache invalidates when any of them changes), and
+    all are QUOTED when the family fits the byte budget.
     """
     from llmxive.project_paths import declared_patterns, resolve_pattern
 
     root = project_dir.resolve()
     chunks: list[str] = []
+    bytes_left = _PATTERN_QUOTE_BUDGET
     for written, glob in declared_patterns(task_text):
         matches = resolve_pattern(project_dir, glob)
         if not matches:
@@ -278,17 +279,30 @@ def _pattern_evidence(project_dir: Path, task_text: str, files_used: int) -> lis
                 listing.append(f"  - `{f.relative_to(root)}` (unreadable: {exc})")
         chunk = (f"- `{written}` (pattern `{glob}`): {len(matches)} matching file(s) exist, "
                  "collector-confirmed:\n" + "\n".join(listing))
-        quoted = [matches[0]] if len(matches) == 1 else [matches[0], matches[-1]]
-        for f in quoted[:_PATTERN_QUOTED]:
-            if files_used >= _MAX_EVIDENCE_FILES:
-                chunk += "\n  (contents not quoted: file evidence limit reached)"
-                break
-            files_used += 1
+        # Quote EVERY file of the family when the family is small. Showing two
+        # of twelve got "the evidence only shows the contents of two CSVs ...
+        # cannot verify that each of them sums to its respective N" (canary,
+        # 2026-10-11): a claim about all of them needs all of them. A family
+        # too large for the budget falls back to its first and last file.
+        sizes = []
+        for f in matches:
+            try:
+                sizes.append(min(f.stat().st_size, _PATTERN_BYTES_PER_FILE))
+            except OSError:
+                sizes.append(_PATTERN_BYTES_PER_FILE)
+        if sum(sizes) <= bytes_left:
+            quoted = matches
+        else:
+            quoted = [matches[0]] if len(matches) == 1 else [matches[0], matches[-1]]
+            chunk += (f"\n  ({len(matches) - len(quoted)} file(s) listed above are NOT quoted: "
+                      "the family exceeds the evidence budget)")
+        for f in quoted:
             try:
                 with f.open("rb") as source:
                     head = source.read(_PATTERN_BYTES_PER_FILE).decode("utf-8", errors="replace")
             except OSError:
                 continue
+            bytes_left -= len(head)
             chunk += (f"\n  contents of `{f.relative_to(root)}`:\n```\n{head}\n```"
                       + ("" if f.stat().st_size <= _PATTERN_BYTES_PER_FILE else "\n…(truncated)"))
         chunks.append(chunk)
@@ -359,7 +373,7 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
             + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
         )
-    chunks.extend(_pattern_evidence(project_dir, task_text, file_count))
+    chunks.extend(_pattern_evidence(project_dir, task_text))
     dependencies = local_import_evidence(project_root, python_sources)
     if dependencies:
         chunks.append(dependencies)

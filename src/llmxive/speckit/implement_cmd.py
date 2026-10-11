@@ -1319,6 +1319,9 @@ def _regex_parse_implementer(text: str) -> dict[str, Any] | None:
         if m:
             body = m.group(1)
 
+    from llmxive.speckit.yaml_extract import strip_trailing_markers
+    body = "\n".join(strip_trailing_markers(body.splitlines()))
+
     task_id_m = re.search(r"^task_id:\s*([^\s\n]+)\s*$", body, re.MULTILINE)
     verdict_m = re.search(r"^verdict:\s*(\w+)\s*$", body, re.MULTILINE)
     if not (task_id_m and verdict_m):

@@ -1,0 +1,324 @@
+task_id: T002
+verdict: completed
+artifacts:
+  - path: code/run_totient_analysis.py
+    execute: false
+    timeout_s: 300
+    contents: |
+      """run_totient_analysis.py
+
+      Core utilities for the totient residue‑imbalance project.
+
+      This module implements:
+      - Linear Euler‑totient sieve (T001)
+      - Unconditional residue counting (T002)
+      - Conditional residue counting (T003)
+      - CSV/JSON export for both unconditional and conditional counts
+        adhering to the ``contracts/census.schema.yaml`` schema (T005)
+      - Total‑variation distance computation (T006)
+      - Summary table generation (T008)
+      - A command‑line entry point that runs the full census for the required
+        (N, p) grid.
+      """
+
+      from __future__ import annotations
+
+      import json
+      from typing import Dict, List, Tuple
+
+      import numpy as np
+      import pandas as pd
+      from llmxive_toolkit import paths, get_logger
+
+      log = get_logger(__name__)
+
+      __all__ = [
+          "compute_phi",
+          "unconditional_counts",
+          "write_unconditional_counts",
+          "conditional_counts",
+          "write_conditional_counts",
+          "export_census",
+          "compute_tv",
+          "write_summary",
+          "run_totient_analysis",
+      ]
+
+      # ----------------------------------------------------------------------
+      # 1. Linear Euler‑totient sieve
+      # ----------------------------------------------------------------------
+      def compute_phi(max_n: int) -> np.ndarray:
+          """Compute Euler's totient function for all integers up to ``max_n``.
+
+          Parameters
+          ----------
+          max_n: int
+              Upper bound of the range (inclusive). Must be ≥ 1.
+
+          Returns
+          -------
+          np.ndarray
+              One‑dimensional array of length ``max_n + 1`` where ``phi[n]``
+              equals the totient of ``n``. ``phi[0]`` is set to ``0`` (unused) and
+              ``phi[1]`` is set to ``1`` as required.
+          """
+          if max_n < 1:
+              raise ValueError("max_n must be at least 1")
+
+          phi = np.empty(max_n + 1, dtype=np.int64)
+          phi[0] = 0
+          phi[1] = 1
+
+          is_composite = np.zeros(max_n + 1, dtype=bool)
+          primes: List[int] = []
+
+          for i in range(2, max_n + 1):
+              if not is_composite[i]:
+                  primes.append(i)
+                  phi[i] = i - 1
+              for p in primes:
+                  ip = i * p
+                  if ip > max_n:
+                      break
+                  is_composite[ip] = True
+                  if i % p == 0:
+                      phi[ip] = phi[i] * p
+                      break
+                  else:
+                      phi[ip] = phi[i] * (p - 1)
+
+          return phi
+
+      # ----------------------------------------------------------------------
+      # 2. Unconditional residue counting
+      # ----------------------------------------------------------------------
+      def unconditional_counts(phi: np.ndarray, N: int, p: int) -> np.ndarray:
+          """Return the unconditional residue counts of ``phi(n) mod p`` for ``1 ≤ n ≤ N``."""
+          if N >= len(phi):
+              raise ValueError("phi array does not cover the requested N")
+          if p <= 0:
+              raise ValueError("modulus p must be positive")
+          residues = phi[1 : N + 1] % p
+          counts = np.bincount(residues, minlength=p)
+          return counts
+
+      def write_unconditional_counts(phi: np.ndarray, N: int, p: int) -> paths.Path:
+          """Write unconditional residue counts to CSV and JSON.
+
+          Returns
+          -------
+          Path
+              Path to the created CSV file. The JSON file is also written for
+              downstream validation but is not returned because the test suite
+              expects only the CSV path.
+          """
+          counts = unconditional_counts(phi, N, p)
+
+          record = {
+              "N": N,
+              "p": p,
+              "type": "unconditional",
+              "residue_counts": counts.tolist(),
+              "zero_residue_count": int(counts[0]),
+              "tv": compute_tv(counts, N, p, conditional=False),
+          }
+
+          csv_path, _ = export_census(record, kind="unconditional")
+          return csv_path
+
+      # ----------------------------------------------------------------------
+      # 3. Conditional residue counting
+      # ----------------------------------------------------------------------
+      def conditional_counts(phi: np.ndarray, N: int, p: int) -> Tuple[np.ndarray, int]:
+          """Return conditional residue counts for ``phi(n) mod p`` when ``p ∤ phi(n)``."""
+          if N >= len(phi):
+              raise ValueError("phi array does not cover the requested N")
+          if p <= 0:
+              raise ValueError("modulus p must be positive")
+
+          residues = phi[1 : N + 1] % p
+          mask = residues != 0
+          filtered = residues[mask]
+          denominator = int(filtered.size)
+
+          # Counts for residues 1 to p‑1
+          counts = np.bincount(filtered, minlength=p)[1:]
+
+          if counts.sum() != denominator:
+              raise AssertionError(
+                  f"Conditional counts sum {counts.sum()} != denominator {denominator}"
+              )
+
+          return counts, denominator
+
+      def write_conditional_counts(phi: np.ndarray, N: int, p: int) -> Tuple[paths.Path, paths.Path]:
+          """Write conditional residue counts to CSV and JSON.
+
+          Returns
+          -------
+          Tuple[Path, Path]
+              (csv_path, json_path) – both files are created.
+          """
+          counts, denominator = conditional_counts(phi, N, p)
+
+          record = {
+              "N": N,
+              "p": p,
+              "type": "conditional",
+              "residue_counts": counts.tolist(),
+              "conditional_denominator": denominator,
+              "tv": compute_tv(counts, denominator, p, conditional=True),
+          }
+
+          csv_path, json_path = export_census(record, kind="conditional")
+          return csv_path, json_path
+
+      # ----------------------------------------------------------------------
+      # 4. Total‑variation distance helper
+      # ----------------------------------------------------------------------
+      def compute_tv(counts: np.ndarray, denominator: int, p: int, conditional: bool) -> float:
+          """Compute the total‑variation distance for a census record."""
+          if denominator == 0:
+              raise ValueError("Denominator for TV computation must be > 0")
+
+          freqs = counts.astype(float) / denominator
+          ref = 1.0 / (p - 1) if conditional else 1.0 / p
+          tv = 0.5 * np.abs(freqs - ref).sum()
+          return min(1.0, max(0.0, float(tv)))
+
+      # ----------------------------------------------------------------------
+      # 5. Export wrapper
+      # ----------------------------------------------------------------------
+      def export_census(record: Dict, kind: str) -> Tuple[paths.Path, paths.Path]:
+          """Export a census ``record`` to CSV and JSON files.
+
+          Parameters
+          ----------
+          record: dict
+              Census record adhering to the JSON‑Schema.
+          kind: str
+              Either ``"unconditional"`` or ``"conditional"``.
+
+          Returns
+          -------
+          Tuple[Path, Path]
+              (csv_path, json_path)
+          """
+          N = record["N"]
+          p = record["p"]
+
+          if kind == "unconditional":
+              counts = np.array(record["residue_counts"], dtype=int)
+              zero_residue_count = record["zero_residue_count"]
+              tv = record["tv"]
+
+              csv_path = paths.data("counts", f"unconditional_N{N}_p{p}.csv")
+              df = pd.DataFrame({"residue": np.arange(p, dtype=int), "count": counts})
+              df.to_csv(csv_path, index=False)
+
+              json_path = paths.data("counts", f"unconditional_N{N}_p{p}.json")
+              json_obj = {
+                  "N": N,
+                  "p": p,
+                  "type": "unconditional",
+                  "residue_counts": counts.tolist(),
+                  "zero_residue_count": zero_residue_count,
+                  "tv": tv,
+              }
+              with open(json_path, "w", encoding="utf-8") as f:
+                  json.dump(json_obj, f, indent=2, sort_keys=False)
+
+              log.info(
+                  "Exported unconditional census to %s (CSV) and %s (JSON)",
+                  csv_path,
+                  json_path,
+              )
+              return csv_path, json_path
+
+          elif kind == "conditional":
+              counts = np.array(record["residue_counts"], dtype=int)
+              cond_denom = record["conditional_denominator"]
+              tv = record["tv"]
+
+              csv_path = paths.data("counts", f"conditional_N{N}_p{p}.csv")
+              df = pd.DataFrame(
+                  {"residue": np.arange(1, p, dtype=int), "count": counts}
+              )
+              df.to_csv(csv_path, index=False)
+
+              json_path = paths.data("counts", f"conditional_N{N}_p{p}.json")
+              json_obj = {
+                  "N": N,
+                  "p": p,
+                  "type": "conditional",
+                  "residue_counts": counts.tolist(),
+                  "conditional_denominator": cond_denom,
+                  "tv": tv,
+              }
+              with open(json_path, "w", encoding="utf-8") as f:
+                  json.dump(json_obj, f, indent=2, sort_keys=False)
+
+              log.info(
+                  "Exported conditional census to %s (CSV) and %s (JSON)",
+                  csv_path,
+                  json_path,
+              )
+              return csv_path, json_path
+          else:
+              raise ValueError(f"Unsupported kind: {kind}")
+
+      # ----------------------------------------------------------------------
+      # 6. Summary table generation
+      # ----------------------------------------------------------------------
+      def write_summary() -> paths.Path:
+          """Write a TSV summary file aggregating TV values for all (N, p) pairs."""
+          Ns = [10**3, 10**4, 10**5, 10**6]
+          ps = [5, 7, 11]
+
+          summary_path = paths.data("summary.tsv")
+          with open(summary_path, "w", encoding="utf-8") as out:
+              out.write("N\tp\ttv_unconditional\ttv_conditional\tcond_denominator\n")
+              for N in Ns:
+                  for p in ps:
+                      uncond_json_path = paths.data(
+                          "counts", f"unconditional_N{N}_p{p}.json"
+                      )
+                      with open(uncond_json_path, "r", encoding="utf-8") as f:
+                          uncond = json.load(f)
+
+                      cond_json_path = paths.data(
+                          "counts", f"conditional_N{N}_p{p}.json"
+                      )
+                      with open(cond_json_path, "r", encoding="utf-8") as f:
+                          cond = json.load(f)
+
+                      tv_uncond = float(uncond["tv"])
+                      tv_cond = float(cond["tv"])
+                      cond_den = int(cond["conditional_denominator"])
+
+                      out.write(f"{N}\t{p}\t{tv_uncond}\t{tv_cond}\t{cond_den}\n")
+
+          log.info("Wrote summary TSV to %s", summary_path)
+          return summary_path
+
+      # ----------------------------------------------------------------------
+      # 7. Orchestrator
+      # ----------------------------------------------------------------------
+      def run_totient_analysis() -> None:
+          """Execute the unconditional and conditional censuses for all required (N, p) pairs."""
+          Ns = [10**3, 10**4, 10**5, 10**6]
+          ps = [5, 7, 11]
+          max_N = max(Ns)
+          phi = compute_phi(max_N)
+
+          for N in Ns:
+              for p in ps:
+                  # Write both CSV and JSON for unconditional and conditional records.
+                  write_unconditional_counts(phi, N, p)
+                  write_conditional_counts(phi, N, p)
+
+          write_summary()
+
+      if __name__ == "__main__":
+          run_totient_analysis()
+```
