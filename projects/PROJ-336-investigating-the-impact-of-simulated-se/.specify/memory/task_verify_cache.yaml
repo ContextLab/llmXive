@@ -6,32 +6,15 @@ T001:
     which asserts their existence. The creation log confirms the directories were
     successfully generated.
   sig: 93ecd69e8b080a14ba773bd9e1d69576b42d8560e4dae89c4d6e68d9d47a3ff9
-T002:
-  c: false
-  h: 6b679da209a3b2fc4173f83d5f05034662b4b26a6d03bcae7a66ef9ef56a1b77
-  r: "The repository contains a correctly\u2011pinned `requirements.txt`, but the\
-    \ provided unit test looks for the file in `code/requirements.txt` (three directories\
-    \ up from the test file) where it does not exist, so the test would fail. No execution\
-    \ evidence is shown that `pip install -r requirements.txt` succeeds. The task\
-    \ therefore lacks a passing verification step."
-  sig: 4ab84eb984f52cabe91cc29841aaf6ba5f19edc18794c2f868fa481ac98c4ff1
-T003:
-  c: false
-  h: 0f4e34ee2fa42c9b2cd605c268535e94261921b6ac08e65f9be7444186aef90f
-  r: "The `quickstart.md` file exists and correctly documents the `python -m src.main\
-    \ --sample 1` command and required environment variables, but there is no evidence\
-    \ of a CI workflow (e.g., a GitHub Actions/YAML file or test log) that actually\
-    \ runs `python -m src.main --dry\u2011run` and verifies it exits with status\u202F\
-    0. Without that execution evidence, the verification step of the task is unproven."
-  sig: 97db00c328dc7821758f45f38278c37cc12543ba3bb22956e500d40b56ba4f1c
 T004:
-  c: false
-  h: 6fe2192953b249b5665f978a3b52626103a01e99b9fb17872e4c08f9d050a242
-  r: '`src/config.py` exists and defines all required constants, but the required
-    unit test `tests/unit/test_config.py` is missing, so the verification step is
-    not satisfied. Adding the test file (and ensuring it passes) is needed to complete
-    the task.'
-  sig: fd2104d98d54704467e11298902354ffffab076fb3f8e641121f7ca1d7040a9c
+  c: true
+  h: 028b260f2f45f1a2fc99c0d90828cb1c2a22782e4538af9cf792918335ffc848
+  r: Checked `src/config.py` for the required constants, their exact values/types,
+    and the use of `llmxive_toolkit.paths.ensure_dir` to create directories, and verified
+    that `tests/unit/test_config.py` imports the module and asserts all specified
+    constants. All required artifacts exist, contain the correct content, and the
+    unit test would pass without import errors.
+  sig: e9baf8e2686ee14bb270929a726c0d5aed5d0002bc0779cff2edf32486b5b288
 T005:
   c: false
   h: 6b205f51473397e59cde54b81cc7465c36c741f1bbc28c986ac1883d08397d3f

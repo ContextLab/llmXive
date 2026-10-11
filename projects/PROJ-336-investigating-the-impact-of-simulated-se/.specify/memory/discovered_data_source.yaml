@@ -1,19 +1,18 @@
 status: none
-intent: OpenNeuro ds001770 HCP resting-state pre post sensory deprivation dataset
-  python package dataset
+intent: OpenNeuro HCP sensory deprivation resting-state fMRI python package dataset
 required_fields:
 - subject_id
-- session
-- run
-- task
-- condition
-- nifti_path
-- json_metadata
-- repetition_time
-- voxel_size
+- session_label (pre/post)
+- run_id
+- task_name (rest)
+- deprivation_condition (deprivation/control)
+- nifti_file_path
+- repetition_time (TR)
+- voxel_dimensions
 - acquisition_date
-- motion_parameters
-- framewise_displacement
-cache_key: b1fe3fdf401e6e27c7cd43586cdcbd5a04f88f6281c7a1c847dd4432748f4ebb
-searched_at: '2026-10-11T05:22:45.472714+00:00'
+- motion_parameters (framewise displacement)
+- age
+- sex
+cache_key: d84c7ed4f5bae8c9d8640c6ca967203f1f307d4471156ebce1d93da6622276a6
+searched_at: '2026-10-11T05:25:37.048079+00:00'
 retry_count: 1

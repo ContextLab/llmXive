@@ -21,7 +21,7 @@
 
 ## Phase 2 – Core configuration & utilities (blocking)
 
-- [ ] **T004** [ ] Create `src/config.py` defining:  
+- [X] **T004** [ ] Create `src/config.py` defining:  
   * `DATA_ROOT = Path("data")`  
   * `RAW_DIR = DATA_ROOT / "raw"`  
   * `PREPROC_DIR = DATA_ROOT / "preprocessed"`  

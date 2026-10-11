@@ -16,10 +16,6 @@ T003:
     \ the task is unproven."
   task: e184ddae40826ab3f8bfa88407b413a2541834fd894f68e55e98c87709a74e99
 T004:
-  reason: '`src/config.py` exists and defines all required constants, but the required
-    unit test `tests/unit/test_config.py` is missing, so the verification step is
-    not satisfied. Adding the test file (and ensuring it passes) is needed to complete
-    the task.'
   task: 324a3bdf550dd53b269d7ef5dc80bb9ecff3fa1af5b309dab9c0ebfa1c350935
 T005:
   reason: "The provided `src/utils/atlas.py` exists but it caches files in `data/cache/`\
