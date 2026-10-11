@@ -51,24 +51,24 @@
 - [X] T004 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/` directory
 - [X] T005 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/` directory
 
-- [X] T012 [Sequential] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml` with project metadata and an **empty** `artifact_hashes` map `{}` per Constitution Principle V. **Note**: Ensure parent directory `state/projects/` exists before writing the file.
+- [ ] T012 [Sequential] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml` with project metadata and an **empty** `artifact_hashes` map `{}` per Constitution Principle V. **Note**: Ensure parent directory `state/projects/` exists before writing the file.
 
-- [X] T007 [P] Configure linting and formatting tools: create `.flake8` and `pyproject.toml` in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/`
+- [ ] T007 [P] Configure linting and formatting tools: create `.flake8` and `pyproject.toml` in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/`
 
-- [X] T007c [Sequential] **Populate** `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` with the **actual canonical URL** for the GRACE-FO Mascon data source (CSR RL06). **This task MUST run BEFORE T015.**
+- [~] T007c [Sequential] **Populate** `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` with the **actual canonical URL** for the GRACE-FO Mascon data source (CSR RL06). **This task MUST run BEFORE T015.**
 > **Note**: T007c uses the following verified URL:
 > - GRACE-FO Mascon (CSR RL06): ` Name or service not known)"))]
 
-- [X] T007d [Sequential] **Populate** `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` with the **actual canonical URL** for the NOAA CPC Atmospheric River Catalog data source. **This task MUST run BEFORE T016.**
+- [~] T007d [Sequential] **Populate** `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` with the **actual canonical URL** for the NOAA CPC Atmospheric River Catalog data source. **This task MUST run BEFORE T016.**
 > **Note**: T007d uses the following verified URL:
 > - NOAA AR Catalog: `
 
-- [X] T007e [Sequential] **Populate** `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` with the **actual canonical URLs** for the GRACE-FO Degree-1 and C20 coefficients. **This task MUST run BEFORE T011a.**
+- [~] T007e [Sequential] **Populate** `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` with the **actual canonical URLs** for the GRACE-FO Degree-1 and C20 coefficients. **This task MUST run BEFORE T011a.**
 > **Note**: T007e uses the following verified URLs:
 > - GRACE-FO Degree-1 Coefficients: ` Name or service not known)"))]
 > - GRACE-FO C20 Coefficients: ` Name or service not known)"))]
 
-- [X] T008 [Sequential] Create citation‑verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py`. **Prerequisite**: `config/urls.yaml` MUST be populated with actual URLs by T007c, T007d, T007e. The script performs an HTTP HEAD request for each URL and checks that the fetched HTML title overlaps ≥ 0.7 with the expected title (stored in the YAML). It exits with a non‑zero code on any failure, ensuring Constitution Principle II is satisfied **before** data ingestion. **This task runs AFTER T007c/d/e and BEFORE T015/T016.**
+- [~] T008 [Sequential] Create citation‑verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py`. **Prerequisite**: `config/urls.yaml` MUST be populated with actual URLs by T007c, T007d, T007e. The script performs an HTTP HEAD request for each URL and checks that the fetched HTML title overlaps ≥ 0.7 with the expected title (stored in the YAML). It exits with a non‑zero code on any failure, ensuring Constitution Principle II is satisfied **before** data ingestion. **This task runs AFTER T007c/d/e and BEFORE T015/T016.**
 > **Note**: T008 is marked [X] because the **verification logic is defined**. The actual execution of the verification (and subsequent data fetch) is pending until T015/T016 are run.
 
 **Checkpoint**: Foundational artifacts initialized – Phase 1 (Design) can now begin.
@@ -91,10 +91,10 @@
 | Phase 4: Visualization | FR‑006, FR‑009, FR‑007 | SC‑003, SC‑004 | Plots and reports |
 | Phase 5: Polish | All | All | Final validation |
 
-- [X] T006 Initialize Python project with dependencies in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt` (pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml, psutil, beautifulsoup4, feedparser)
-- [X] T009 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md` covering installation, data sources, and expected outputs per FR‑007 documentation requirements.
-- [X] T009b [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md` with the initial methodology draft, including a placeholder "Frame of Reference and Coordinate System" section. **Depends on T001‑T005.**
-- [X] T010 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` with entity definitions (AR Event, Gravity Anomaly, Correlation Result) per plan.md Phase 1 output. **Must complete before T013/T014.**
+- [~] T006 Initialize Python project with dependencies in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt` (pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml, psutil, beautifulsoup4, feedparser)
+- [~] T009 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md` covering installation, data sources, and expected outputs per FR‑007 documentation requirements.
+- [~] T009b [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md` with the initial methodology draft, including a placeholder "Frame of Reference and Coordinate System" section. **Depends on T001‑T005.**
+- [~] T010 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` with entity definitions (AR Event, Gravity Anomaly, Correlation Result) per plan.md Phase 1 output. **Must complete before T013/T014.**
 ```markdown
 # Data Model
 
@@ -124,7 +124,7 @@ The `anomaly_value` represents the perturbation in gravitational potential at th
 - **passes_sigma_threshold**: Boolean
 ```
 
-- [X] T013 [X] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/dataset.schema.yaml` for merged CSV schema validation per US‑1. **Depends on T010.**
+- [~] T013 [X] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/dataset.schema.yaml` for merged CSV schema validation per US‑1. **Depends on T010.**
 ```yaml
 type: object
 properties:
@@ -147,7 +147,7 @@ required:
  - region
 ```
 
-- [X] T014 [X] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/output.schema.yaml` for correlation‑result schema validation per US‑2. **Depends on T010.**
+- [~] T014 [X] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/output.schema.yaml` for correlation‑result schema validation per US‑2. **Depends on T010.**
 ```yaml
 type: object
 properties:
@@ -177,8 +177,8 @@ required:
  - passes_3sigma_threshold
 ```
 
-- [X] T032 [US1/US2] Update `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` to explicitly define the "Gravity Anomaly" entity's frame of reference. **Depends on T010.**
-- [X] T033 [US1/US2] Update `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md` to include a "Frame of Reference and Coordinate System" subsection. **Depends on T009b.**
+- [~] T032 [US1/US2] Update `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` to explicitly define the "Gravity Anomaly" entity's frame of reference. **Depends on T010.**
+- [~] T033 [US1/US2] Update `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md` to include a "Frame of Reference and Coordinate System" subsection. **Depends on T009b.**
 
 **Checkpoint**: Foundation ready – user‑story implementation can now begin in priority order.
 
@@ -188,17 +188,17 @@ required:
 
 **Purpose**: Resolve theoretical framing issues (covariant descriptions, coordinate artifacts) and fetch correction coefficients. **MUST** complete before Phase 2 (Data Ingestion) to ensure data processing uses finalized definitions.
 
-- [X] T050 [US1/US2] **Edit Section**: In `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md`, add a subsection titled "Covariant Description and Coordinate Artifacts" under the "Methodology" header. This section must:
+- [~] T050 [US1/US2] **Edit Section**: In `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md`, add a subsection titled "Covariant Description and Coordinate Artifacts" under the "Methodology" header. This section must:
  1. Explicitly state that the "Gravity Anomaly" is a coordinate-dependent quantity measured in the satellite's reference frame, not an invariant geoid height.
  2. Reference the 1915 field equations context: mass shifts (AR water) bend local geometry, but the measurement is frame-specific.
  3. Clarify that the analysis assumes a static, non-rotating frame for monthly aggregation, acknowledging this as a coordinate choice, not a physical reality of the field.
  4. Cite the distinction between the physical curvature (invariant) and the coordinate choice (artifact) as the primary limitation of the "static" anomaly interpretation. **Maps to FR-007 (No causal language) and FR-009 (Temporal bias).**
 
-- [X] T051 [US1/US2] **Edit Section**: In `projects/PROJ-267-exploring-the-relationship-between-atmos/output/sensitivity_report.md` template (to be generated by T028), add a mandatory paragraph titled "Covariant Limitations". This paragraph must explicitly state that the reported correlations are frame-dependent associations and do not imply a change in the invariant physical curvature of the Earth's field, per the clarification in T050. **Maps to FR-007 (No causal language) and FR-009 (Temporal bias).**
+- [ ] T051 [US1/US2] **Edit Section**: In `projects/PROJ-267-exploring-the-relationship-between-atmos/output/sensitivity_report.md` template (to be generated by T028), add a mandatory paragraph titled "Covariant Limitations". This paragraph must explicitly state that the reported correlations are frame-dependent associations and do not imply a change in the invariant physical curvature of the Earth's field, per the clarification in T050. **Maps to FR-007 (No causal language) and FR-009 (Temporal bias).**
 
-- [X] T052 [US1/US2] **Edit Section**: In `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` under the `Gravity Anomaly` entity, add a field description labeled "Covariant Context". This description must reiterate that `anomaly_value` is a perturbation in potential at satellite altitude, subject to coordinate artifacts, and is not a direct measure of geoid height at the surface. **Maps to FR-007 (No causal language) and FR-009 (Temporal bias).**
+- [~] T052 [US1/US2] **Edit Section**: In `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` under the `Gravity Anomaly` entity, add a field description labeled "Covariant Context". This description must reiterate that `anomaly_value` is a perturbation in potential at satellite altitude, subject to coordinate artifacts, and is not a direct measure of geoid height at the surface. **Maps to FR-007 (No causal language) and FR-009 (Temporal bias).**
 
-- [ ] T011a [Sequential] Create script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_fetch_coefficients.py` to fetch degree-1 and C20 coefficients from the CSR/JPL GRACE-FO repository. **Prerequisite**: T008 (citation verification) and T007e (URLs populated). The script reads the **verified** URL from `config/urls.yaml`, fetches the latest degree-1 and C20 values, logs dataset version/release date, and writes them to `coeffs/degree1.yaml` and `coeffs/c20.yaml`. **This task MUST run BEFORE T017a.**
+- [ ] T011a [Sequential] Create script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_fetch_coefficients.py` to fetch degree-1 and C20 coefficients from the CSR/JPL GRACE-FO repository. **Prerequisite**: T008 (citation verification) and T007e (URLs populated). The script reads the **verified** URL from `config/urls.yaml`, fetches the latest degree-1 and C20 values, logs dataset version/release date, and writes them to `coeffs/degree1.yaml` and `coeffs/c20.yaml`. **This task MUST run BEFORE T017a.** <!-- FAILED-IN-EXECUTION: code/01_fetch_coefficients.py exit=1 -->
 
 **Checkpoint**: Theoretical ambiguity resolved; data model updated before any processing.
 
