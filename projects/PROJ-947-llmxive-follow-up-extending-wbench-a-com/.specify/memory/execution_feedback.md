@@ -33,7 +33,7 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-947-llmxive-follow-up-extending-wbench-a-com/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
     from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
   File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.0
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/entropy/generator.py --input data/raw/first_person.parquet --output data/processed/variants.csv --min-similarity 0.85 -> rc=1
 .py", line 75, in fail_loudly
@@ -59,7 +59,7 @@ rk/llmXive/llmXive/projects/PROJ-947-llmxive-follow-up-extending-wbench-a-com/co
     _estimate_model_size(model_id)
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-947-llmxive-follow-up-extending-wbench-a-com/code/inference/models.py", line 127, in _estimate_model_size
     fail_loudly(f"Failed to verify model {model_id} safety: {str(e)}")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-947-llmxive-follow-up-extending-wbench-a-com/code/utils/logging.py", line 188, in fail_loudly
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-947-llmxive-follow-up-extending-wbench-a-com/code/utils/logging.py", line 215, in fail_loudly
     raise RuntimeError(message)
 RuntimeError: Failed to verify model test_model_v1 safety: test_model_v1 is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
 If this is a private repository, make sure to pass a token having permission to this repo with `use_auth_token` or log in with `huggingface-cli login` and pass `use_auth_token=True`.
@@ -83,7 +83,7 @@ E   ImportError: cannot import name 'estimate_model_ram_usage' from 'inference.r
 ERROR tests/integration/entropy/test_generator.py
 ERROR tests/unit/inference/test_runner.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 2 skipped, 2 errors in 1.63s =========================
+========================= 2 skipped, 2 errors in 1.46s =========================
 
 
 

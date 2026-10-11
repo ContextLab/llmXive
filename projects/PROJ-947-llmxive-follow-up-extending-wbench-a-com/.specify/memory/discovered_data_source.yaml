@@ -1,15 +1,14 @@
 status: none
-intent: WBench interaction sequence dataset download python package dataset
+intent: download WBench interaction log dataset python package dataset
 required_fields:
 - case_id
-- raw_interaction_sequence
-- command_tokens
-- timestamp
-- semantic_intent
-- dependency_graph
+- raw_sequence
+- low_entropy_sequence
+- medium_entropy_sequence
+- high_entropy_sequence
 - shannon_entropy
+- normalized_entropy
 - dependency_depth
-- variant_type
-cache_key: 04d346c330f217f6bdb0fe7ca8809b4bfe15fbc60ec63e1aade27458cd1f2802
-searched_at: '2026-10-11T17:21:45.617167+00:00'
+cache_key: ae1d293a2c12c87223ddfb5b07e4df7d272c4a393243c3b5c7694feccef1598a
+searched_at: '2026-10-11T17:25:04.056354+00:00'
 retry_count: 1

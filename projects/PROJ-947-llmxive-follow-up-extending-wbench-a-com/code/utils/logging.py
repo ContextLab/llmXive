@@ -90,7 +90,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(JsonFormatter())
 
-    # Console handler for development
+    # Console handler for development (writes to stdout)
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(JsonFormatter())
@@ -138,9 +138,36 @@ def log_warning(message: str, logger_name: Optional[str] = None, **extra_fields:
     log_event(logging.WARNING, message, logger_name, **extra_fields)
 
 
-def log_error(message: str, logger_name: Optional[str] = None, **extra_fields: Any) -> None:
-    """Log an error-level message."""
-    log_event(logging.ERROR, message, logger_name, **extra_fields)
+def log_error(message_or_logger: Any, logger_name: Optional[str] = None, **extra_fields: Any) -> None:
+    """
+    Log an error-level message.
+
+    This function is flexible: it can be called either as
+    ``log_error("msg")`` or ``log_error(logger_obj, "msg")``.
+    The latter form is used by legacy code that passed a logger
+    instance as the first argument.
+
+    Args:
+        message_or_logger: Either the log message (str) or a
+            ``logging.Logger`` instance.
+        logger_name: If ``message_or_logger`` is a string, this is the
+            optional logger name. Ignored when a logger instance is
+            supplied.
+        **extra_fields: Additional fields to include in the JSON log.
+    """
+    # Detect legacy usage where a logger instance is passed first
+    if isinstance(message_or_logger, logging.Logger):
+        logger = message_or_logger
+        message = logger_name if logger_name is not None else ""
+    else:
+        logger = get_logger(logger_name)
+        message = message_or_logger
+
+    record = logger.makeRecord(
+        logger.name, logging.ERROR, "", 0, message, (), None
+    )
+    record.extra_data = extra_fields
+    logger.handle(record)
 
 
 def log_exception(
@@ -184,5 +211,5 @@ def fail_loudly(message: str, error: Optional[BaseException] = None) -> None:
         log_exception(f"FATAL: {message}", error)
         raise error
     else:
-        log_error(f"FATAL: {message}")
+        log_error(message, extra_fields={"fatal": True})
         raise RuntimeError(message)

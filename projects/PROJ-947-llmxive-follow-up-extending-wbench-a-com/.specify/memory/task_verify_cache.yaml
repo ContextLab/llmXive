@@ -1,27 +1,45 @@
 T001:
   c: true
-  h: c8fb2618dea13493c1f6bd3f1d481943a4481e2fe909aeca74bcbf7600c1d112
-  r: "The collector shows that the project root contains the four required top\u2011\
-    level directories `code/`, `tests/`, `data/`, and `results/`, each with files\
-    \ (e.g., `.gitkeep`) confirming they are non\u2011empty. This matches the task\u2019\
-    s specification of creating and listing those directories."
-  sig: 1a1b2d3f5dc087c896a7f1c0c2861f352edd06979c5fee42362bc887515bd139
+  h: fa8747a09a5f36636b192b5b6f641608de8f7b940fa032a0782dd1dae9543e51
+  r: "The evidence shows that the four required top\u2011level directories (`code/`,\
+    \ `tests/`, `data/`, `results/`) exist (non\u2011empty) under the project root\
+    \ `projects/PROJ-947-llmxive-follow-up-extending-wbench-a-com`."
+  sig: e89b22b1565952d1621f886a987fe34c2fb854005a80774260782ed588dfb3b4
 T002:
   c: true
-  h: cad5fd03d4c70ef9870bd615f6c9639b6fb09b6e4b52146ff30a9a9732f89979
+  h: 3aa553fe58cfad0d317134c09ae0c9e27d737e0100ee758b7521f7ce6092f4cc
   r: "Checked the three required test sub\u2011directories (`tests/unit/`, `tests/integration/`,\
-    \ `tests/contract/`) under the project root; each directory exists and includes\
-    \ a `__init__.py` placeholder file as specified."
-  sig: 018090c2c56500c244d7b19cd560fd08fdce7974fed0466e01161a51275de96b
+    \ `tests/contract/`) and confirmed each exists and contains a placeholder `__init__.py`\
+    \ file as specified."
+  sig: 039c6900c16c16e81d046404e0f3e554f3e34d8fee531bb155ea67ec94d632dc
 T003:
   c: false
-  h: b5b968ee7c07d8b9fe029b2724d669cd67c914b61bc96ac004a3fa7e7da84694
-  r: "The provided `requirements.txt` exists and contains the required pinned packages,\
-    \ but there is no evidence (e.g., command output, logs, or screenshots) showing\
-    \ that `pip install -r requirements.txt` actually succeeded in a clean virtual\
-    \ environment. Without that installation verification, the task\u2019s requirement\
-    \ is not fully satisfied."
-  sig: d34343d38611e1ff912333d7d4207bff00eee0a5d41c1bf21dd0c1664d242fb8
+  h: 0ab3660404dc2b2ec83728bb9040e19be6356811499e968bb9ec650465cbea85
+  r: "The `requirements.txt` file exists, but the recorded unit\u2011test shows that\
+    \ `pip install -r code/requirements.txt` fails in a clean environment because\
+    \ the pinned version `opencv-python-headless==4.8.0` has no compatible wheel for\
+    \ Python\u202F3.11, causing the installation to abort. The task\u2019s verification\
+    \ condition (successful install) is therefore not met."
+  sig: 982a80f1ad4032a8addb72ee4270bc84371dbed2cfabfc8dd2675e302f049333
+T004:
+  c: true
+  h: 0de2d69c0d4b5cae20a7956e44a1a9af66f72a83d59f84315757cdf5004fc3d1
+  r: "The evidence shows that `data/raw/` and `data/processed/` directories exist\
+    \ (each containing a `.gitkeep` placeholder) and that `data/checksums.json` is\
+    \ present with the exact content `{}` as required. All three locations are correctly\
+    \ created and non\u2011empty where appropriate."
+  sig: c91edc467e770e223dacd14c7602bc36352e05c79aa4dcf28de2f3b0cd10070a
+T005:
+  c: false
+  h: b67727505eb553bc3c0e6df11e0ad2f7a7893df56db399982c629cea23d6aa44
+  r: "The provided `code/config.py` defines the required constants, but it imports\
+    \ `utils.logging` and `utils.errors` using a top\u2011level `utils` package that\
+    \ does not exist (the utilities live in `code/utils`). Consequently, `import code.config`\
+    \ would raise a `ModuleNotFoundError`, so the verification step \u201Cimporting\
+    \ `code.config` yields the expected attributes\u201D cannot succeed. The import\
+    \ paths must be corrected (e.g., `from code.utils.logging import \u2026`) for\
+    \ the module to be importable and satisfy the task."
+  sig: 1ba0e554f277f8070361e8e79e1f15688e84f634f5ae56ba3b70d8e76e2157e2
 T019:
   c: false
   h: 29480e40b96ad67001a0f62667c2e96c5e65b0c3890556d2127ea51bd303b8a5

@@ -1,0 +1,2 @@
+# Placeholder file to ensure the data/processed directory exists.
+# Processed artifacts (CSV, JSON, etc.) will be written here by pipeline scripts.

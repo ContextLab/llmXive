@@ -22,13 +22,13 @@ The tasks are ordered to respect data flow and the research phases described in 
 - [ ] T003 [P] **Add `requirements.txt`** with pinned versions for the scientific stack (datasets, pandas, networkx, scipy, scikit‑learn, torch, transformers, opencv‑python‑headless).  
   *Verification*: `pip install -r requirements.txt` succeeds in a clean venv.
 
-- [ ] T004 [P] **Create `data/raw/`, `data/processed/`, and `data/checksums.json`** placeholder files.  
+- [X] T004 [P] **Create `data/raw/`, `data/processed/`, and `data/checksums.json`** placeholder files.  
   *Verification*: Directory tree shows the three locations; `data/checksums.json` is a valid empty JSON object (`{}`).
 
 - [ ] T005 [P] **Implement `code/config.py`** exposing random seeds, RAM limits, and model‑path constants.  
   *Verification*: Importing `code.config` yields the expected attributes; `config.RAM_LIMIT_GB == 6.5`.
 
-- [ ] T006 [P] **Add structured JSON logger** in `code/utils/logging.py` (function `get_logger`).  
+- [ ] T006 [P] **Add structured JSON logger** in `code/utils/logging.py` (function `get_logger`).   <!-- FAILED-IN-EXECUTION: code/utils/dummy_logger_test.py exit=5 -->
   *Verification*: Running a dummy script logs a JSON line to stdout without errors.
 
 - [ ] T007 [P] **Create checksum validator** `code/data/verify_checksums.py` that raises on mismatch.  
