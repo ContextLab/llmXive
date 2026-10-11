@@ -1,17 +1,10 @@
 T001:
-  reason: The scaffold includes `requirements.txt`, `pyproject.toml`, `quickstart.md`
-    and a `.flake8` file, but the required directories `models/`, `metrics/`, `logs/`
-    are absent, and `.gitkeep` files are only present in some folders (e.g., `data/raw/`,
-    `data/processed/`, `reports/`, `contracts/`). The missing directories and `.gitkeep`
-    placeholders mean the scaffold does not meet the full specification.
   task: f6f9ed9bdc36c0cf32b7ee2c66d20ddbd167cfb68de72f77d492cc17db9fc915
 T002:
   task: 268e6518d89a8bb43601414c10f8474a10d5ef2bfb3f737be3cdb3659fa17f35
 T003:
-  reason: The required `code/init_logging.py` file does not exist, so no logging configuration
-    is provided. The `logs/preprocess_counts.yaml` file is present but contains only
-    placeholder text, not a genuine schema as required. Both essential artifacts are
-    missing or incomplete.
+  reason: 'Requested task execution failed; rerun successfully: code/init_logging.py
+    exit=-1'
   task: 998d91bb7d88460ccbfdaba51c346946f170f95ad93a9221237849c5f812b7de
 T004:
   reason: "The provided `code/download.py` defines helper functions but lacks a runnable\

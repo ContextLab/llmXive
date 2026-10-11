@@ -7,3 +7,7 @@ requests==2.32.3
 matplotlib==3.9.0
 seaborn==0.13.2
 pyyaml==6.0.1
+statsmodels==0.14.2
+pytest==8.2.0
+flake8>=6.0.0
+black>=23.0.0

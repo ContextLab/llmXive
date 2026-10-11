@@ -15,11 +15,11 @@
     "python code/evaluate.py --models data/artifacts/  --test-data data/raw/occurrence_2005_2020.csv  --bias-layer data/processed/bias_layer.tif -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/evaluate.py': [Errno 2] No such file or directory",
     "python code/sensitivity.py --metrics metrics/final_results.csv  --output metrics/sensitivity_report.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/sensitivity.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-28T06:02:31Z"
+  "updated_at": "2026-10-11T00:24:00Z"
 }

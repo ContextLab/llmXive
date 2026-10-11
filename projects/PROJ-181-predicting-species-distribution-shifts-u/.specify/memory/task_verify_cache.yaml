@@ -1,25 +1,20 @@
 T001:
-  c: false
-  h: 46c2258c63ea4ca45fcc79476bc6b6bd903a62d4ce108cad947be9d3ef2f7482
-  r: The scaffold includes `requirements.txt`, `pyproject.toml`, `quickstart.md` and
-    a `.flake8` file, but the required directories `models/`, `metrics/`, `logs/`
-    are absent, and `.gitkeep` files are only present in some folders (e.g., `data/raw/`,
-    `data/processed/`, `reports/`, `contracts/`). The missing directories and `.gitkeep`
-    placeholders mean the scaffold does not meet the full specification.
+  c: true
+  h: 5e52771bc4ffa58abc4e9652dff1b212d256d8421ef2d62915a4bc8683aae735
+  r: "Checked that `requirements.txt`, `pyproject.toml`, `quickstart.md`, and a `.flake8`\
+    \ file exist, and that the scaffold log shows `.gitkeep` files created in every\
+    \ required directory (`code/`, `data/raw/`, `data/processed/`, `models/`, `metrics/`,\
+    \ `logs/`, `reports/`, `tests/`, `contracts/`). All required artifacts are present\
+    \ and non\u2011empty."
+  sig: a735aa13eb79be8237662af3f93d1ef37383f4315779895bcbb120aef4128e49
 T002:
   c: true
-  h: a2b162dac921ff608883a01a5ec8aeb8d38b7078e43a04040be1011a59c85417
-  r: "The `code/config.py` file exists, is non\u2011empty, and defines the required\
-    \ global constants: a species list, directory paths, `THINNING_DISTANCE_KM`, a\
-    \ random seed (`RND_SEED`), and a parallelism setting (`N_JOBS = 2`). This satisfies\
-    \ the task specification."
-T003:
-  c: false
-  h: ef3e15a5a0eddb1d90c3b928d45dea2de5600416b8973a77cd17ef3502b84f59
-  r: The required `code/init_logging.py` file does not exist, so no logging configuration
-    is provided. The `logs/preprocess_counts.yaml` file is present but contains only
-    placeholder text, not a genuine schema as required. Both essential artifacts are
-    missing or incomplete.
+  h: 3e187be207ae5d7f8de8abfd65104c30f32f56089ec4fce2763935722e5e222a
+  r: "Checked `code/config.py` (3188\u202Fbytes) which defines directory path constants,\
+    \ a `SPECIES_LIST`, `THINNING_DISTANCE_KM`, a random seed (`RND_SEED = 42`), and\
+    \ sets `N_JOBS = 2` as required. All requested global constants are present and\
+    \ correctly set."
+  sig: a356d187b54eab76423cee941bd3291105ae148f4a0f0b3bb03906ccb0104e86
 T004:
   c: false
   h: 40bfec2dcd0a21768afd9363a51703eae5fcff5d0203c050d01f1cfa32a2c0f4
