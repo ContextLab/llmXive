@@ -3,11 +3,7 @@ T001:
 T002:
   task: 926dd4a5e6914e444228d7774091d282c7b11d8370c8128daecfd72c7c16a404
 T003:
-  reason: "The script never calls the size\u2011estimation function (the calls are\
-    \ commented out), it downloads datasets via the HuggingFace `datasets` library\
-    \ into CSVs rather than streaming the original files, and `data/raw/dataset_manifest.json`\
-    \ is missing entirely. These omissions mean the three required steps of T003 are\
-    \ not fulfilled."
+  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
   task: c8b12480dd77fbe76bc7e6522b679ff60629b3782942663b7fa208d56c952fa8
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'

@@ -1,17 +1,23 @@
 T001:
   c: true
-  h: 01e6a5119552e11d579df36ee5bfaf4ae19309ccf495720b377101b506ad84f8
-  r: "Checked that the required directory tree and placeholder `__init__.py` files\
-    \ exist, that `requirements.txt` contains the specified six packages (and only\
-    \ adds extras, which does not violate the requirement), and that `quickstart.md`\
-    \ documents both the pip install command and the single\u2011command pipeline\
-    \ invocation."
+  h: 7840ac9243f8887218140e307db7ff9d8deeca8a5a6a5132840244b5cf6bbb39
+  r: All required directories (`code/`, `data/raw/`, `data/interim/`, `data/processed/`,
+    `tests/`, `reports/`) exist with `.gitkeep` markers, `code/__init__.py` and `tests/__init__.py`
+    are present, `requirements.txt` contains all six required packages (plus extras),
+    and `quickstart.md` documents both `pip install -r requirements.txt` and `python
+    -m code.pipeline`. The quickstart's note that the pipeline entry point is a placeholder
+    is acceptable for this scaffolding task, which only requires layout, placeholders,
+    requirements, and documentation.
+  sig: f2e44dbedb9c945030dd4ca6e30fad189241dc414e7d43c5cdb99d3604a0d8c0
 T002:
   c: true
-  h: e58b2b5bce2b0fb41283954a9970e98ff47ffdb4bb7142910fa085622ffcd9c4
-  r: "The `code/config.py` file is present (2795\u202Fbytes) and defines `PROJECT_ROOT`,\
-    \ `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `REPORTS_DIR`, `MAX_RAM_GB = 7`,\
-    \ `ALPHA_SET = {0.01, 0.05, 0.1}` and `SEED = 42` as required."
+  h: b86f67745bc1e257525d6115c2f5046f032d8fdc2957cd653943a281d8e83c4a
+  r: 'The file `code/config.py` exists (2795 bytes) and defines all required items:
+    `PROJECT_ROOT`, `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `REPORTS_DIR`, `MAX_RAM_GB
+    = 7`, `ALPHA_SET = {0.01, 0.05, 0.1}`, and `SEED = 42`, with no stubs or placeholders.
+    The extra helpers and directory-creation side effect are harmless additions that
+    don''t conflict with the requirements.'
+  sig: 9695895221f9bd8385a835a525048d854805b83ef96c9183c2f5d6f0a370605c
 T005:
   c: false
   h: 42cda291d0af7d3d6f638660b4845e5480478f65bdf4d56a787c87ccb1418328
