@@ -1,14 +1,3 @@
-- artifact_hash: ad9e7a68fe0458bba7d846ef1edd95928db18fe1279ad0e1ed07efb66578c523
-  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Pi - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-08-25T16:39:10.878394Z'
 - artifact_hash: 0723b78671d72692a27e5a2fc18a3ef18997428f5445db8803d91c5b2c5909ae
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/spec.md
   cite_id: c-001
@@ -86,3 +75,25 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-vae-geometric-analysis
   verified_at: '2026-10-11T18:31:56.481019Z'
+- artifact_hash: 2ca2e2b9aec0125937738a9460cff28bbd59fd001f24c628c3d510a0c777456f
+  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "omnineura/Omni-Doc-1 \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/omnineura/Omni-Doc-1`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/omnineura/Omni-Doc-1
+  verified_at: '2026-10-11T18:41:04.214929Z'
+- artifact_hash: 2ca2e2b9aec0125937738a9460cff28bbd59fd001f24c628c3d510a0c777456f
+  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/Qwen/Qwen-Image-VAE-2.0`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen-Image-VAE-2.0
+  verified_at: '2026-10-11T18:41:04.214929Z'
