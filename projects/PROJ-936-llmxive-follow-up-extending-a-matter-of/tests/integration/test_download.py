@@ -1,9 +1,9 @@
 """Integration test for the τ-bench download script.
 
 The tests verify that ``data/raw/τc_bench/tasks.json`` exists after
-the download script runs, that the file is non-empty and contains a
-non-empty JSON list of task records, and that the README records a
-matching SHA-256 checksum.
+the download script runs, that the file is non‑empty and contains a
+non‑empty JSON list of task records, and that the README records a matching
+SHA‑256 checksum.
 """
 
 import hashlib
@@ -35,7 +35,7 @@ def test_readme_checksum_matches():
     assert readme_path.is_file(), f"{readme_path} does not exist."
     readme = readme_path.read_text(encoding="utf-8")
     match = re.search(
-        r"SHA-256 checksum of `tasks\.json`: `([0-9a-f]{64})`", readme
+        r"SHA-256 checksum of `tasks\\.json`: `([0-9a-f]{64})`", readme
     )
     assert match is not None, "README must record the tasks.json checksum."
     sha256 = hashlib.sha256(tasks_path.read_bytes()).hexdigest()

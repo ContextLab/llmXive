@@ -1,6 +1,2 @@
-# Existing dependencies (numpy, pandas, scikit-learn, etc.) are provided by the runner.
-# Add any additional third‑party packages required for this project below.
-huggingface_hub>=0.23.0
-datasets>=2.14.0
-tqdm>=4.66.0
-# Note: ollama client library is optional for later pipeline steps and is not needed for the download task.
+# Added request for external HTTP fetching
+requests>=2.31.0
