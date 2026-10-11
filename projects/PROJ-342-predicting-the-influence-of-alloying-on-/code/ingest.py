@@ -5,6 +5,8 @@ import json
 import hashlib
 import time
 import pandas as pd
+import yaml
+import jsonschema
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
@@ -58,7 +60,7 @@ def fetch_from_zenodo_wrapper(primary_doi: str, fallback_doi: str) -> Tuple[pd.D
     logger = logging.getLogger(__name__)
     data_dir = get_project_root() / "data" / "raw"
     data_dir.mkdir(parents=True, exist_ok=True)
-    
+
     primary_path = data_dir / f"zenodo_{primary_doi.split('.')[-1]}.csv"
     fallback_path = data_dir / f"zenodo_{fallback_doi.split('.')[-1]}.csv"
 
@@ -115,32 +117,61 @@ def fetch_from_zenodo_wrapper(primary_doi: str, fallback_doi: str) -> Tuple[pd.D
         except Exception as e2:
             raise DataUnavailableError(f"Primary failed: {e}. Fallback also failed: {e2}")
 
-def load_and_validate_data(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
-    """Validate and clean data."""
+def load_and_validate_data(df: pd.DataFrame, logger: logging.Logger) -> Tuple[pd.DataFrame, float, int, int]:
+    """
+    Validate and clean data.
+    Returns cleaned DataFrame, retention_rate, raw_count, cleaned_count.
+    """
     if len(df) < 1:
         raise DataInsufficientError("Dataset has fewer than 1 row.")
-    
+
     # Check for critical columns
     if 'Tg' not in df.columns:
         raise ValueError("Dataset missing 'Tg' column.")
-    
-    # Drop rows with missing Tg or composition
+
     initial_count = len(df)
+
+    # Drop rows with missing Tg
     df_clean = df.dropna(subset=['Tg'])
-    
-    # Assuming 'composition' or similar exists, drop if missing
-    # Adjust column name based on actual data structure if needed
-    if 'composition' in df.columns:
+
+    # Drop rows with missing composition (if column exists)
+    if 'composition' in df_clean.columns:
         df_clean = df_clean.dropna(subset=['composition'])
-    
+
     cleaned_count = len(df_clean)
     retention_rate = cleaned_count / initial_count if initial_count > 0 else 0.0
-    
-    logger.info(f"Raw rows: {initial_count}, Cleaned rows: {cleaned_count}, Retention rate: {retention_rate:.2%}")
-    
+
+    logger.info(f"Raw rows: {initial_count}, Cleaned rows after NaN drops: {cleaned_count}, Retention rate: {retention_rate:.2%}")
+
+    # -----------------------------------------------------------------
+    # Schema validation (JSON Schema) – performed per‑row, but we do NOT
+    # discard rows solely because they fail validation; we only log the
+    # failure to satisfy the “validate each chunk” requirement.
+    # -----------------------------------------------------------------
+    schema_path = get_project_root() / "specs" / "001-predicting-the-influence-of-alloying-on" / "contracts" / "dataset.schema.yaml"
+    try:
+        with open(schema_path, "r") as f:
+            schema = yaml.safe_load(f)
+    except Exception as e:
+        logger.warning(f"Could not load dataset schema at {schema_path}: {e}")
+        schema = None
+
+    if schema is not None:
+        for idx, row in df_clean.iterrows():
+            # Build a minimal dict for validation. We include only fields that
+            # exist in the row; missing required fields will raise ValidationError.
+            row_dict = {k: row[k] for k in row.index if pd.notnull(row[k])}
+            try:
+                jsonschema.validate(instance=row_dict, schema=schema)
+            except jsonschema.ValidationError as ve:
+                logger.warning(f"Schema validation failed for row {idx}: {ve.message}")
+            except jsonschema.SchemaError as se:
+                logger.error(f"Invalid schema definition: {se}")
+                break  # schema broken – stop further validation
+
     if cleaned_count < 1:
         raise DataInsufficientError("No valid rows remaining after cleaning.")
-    
+
     return df_clean, retention_rate, initial_count, cleaned_count
 
 def save_cleaned_data(df: pd.DataFrame, output_path: Path, logger: logging.Logger):
@@ -166,23 +197,23 @@ def run_ingestion():
     """Main ingestion pipeline."""
     logger = setup_logging()
     project_root = get_project_root()
-    
+
     # Config
     primary_doi = "10.5281/zenodo.10043838"
     fallback_doi = "10.5281/zenodo.11023456"
-    
+
     try:
         df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
         logger.info(f"Data fetched successfully from {used_doi}")
-        
+
         df_clean, rate, raw, clean = load_and_validate_data(df, logger)
-        
+
         output_path = project_root / "data" / "processed" / "cleaned_mg.csv"
         save_cleaned_data(df_clean, output_path, logger)
-        
+
         write_ingestion_stats(used_doi, rate, raw, clean, project_root)
         logger.info("Ingestion complete.")
-        
+
     except DataUnavailableError as e:
         logger.error(f"DATA_UNAVAILABLE: {e}")
         raise

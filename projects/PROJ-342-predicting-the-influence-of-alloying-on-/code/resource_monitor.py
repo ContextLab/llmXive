@@ -1,11 +1,10 @@
 """
 Resource monitoring wrapper for enforcing CPU time and RAM limits.
 
-This module provides a context manager and decorator to monitor resource usage
-during execution and raise exceptions when limits are exceeded.
-
-Requirements:
-- FR-005: Enforce 6h CPU time and 7GB RAM limits
+This module provides a context manager and decorators to monitor resource usage
+during execution and raise exceptions when limits are exceeded. It also supplies
+a @limit_resources decorator that records resource usage and writes a JSON report
+to ``data/resource_usage.json`` as required by task T001.
 """
 import os
 import sys
@@ -13,11 +12,13 @@ import time
 import resource
 import logging
 import threading
+import json
+from pathlib import Path
 from contextlib import contextmanager
 from typing import Optional, Callable, Any
 from functools import wraps
 
-# Configure logger
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
 class ResourceLimitExceeded(Exception):
@@ -28,11 +29,10 @@ class ResourceLimitExceeded(Exception):
 def get_current_ram_mb() -> float:
     """
     Get the current RAM usage of the process in MB.
-    
+
     Returns:
         float: Current RAM usage in MB
     """
-    # Get memory info from resource module (works on Unix)
     usage = resource.getrusage(resource.RUSAGE_SELF)
     # ru_maxrss is in KB on Linux, MB on macOS
     if sys.platform == 'darwin':
@@ -44,7 +44,7 @@ def get_current_ram_mb() -> float:
 def get_current_cpu_time() -> float:
     """
     Get the cumulative CPU time used by the process in seconds.
-    
+
     Returns:
         float: CPU time in seconds
     """
@@ -55,12 +55,12 @@ def get_current_cpu_time() -> float:
 def _get_env_limit(var_name: str, default_seconds: float, unit_factor: float = 1.0) -> float:
     """
     Helper to read a limit from environment variables, overriding defaults.
-    
+
     Args:
         var_name: Environment variable name (e.g., 'RUNTIME_LIMIT_H')
         default_seconds: Default limit in seconds
         unit_factor: Multiplier for the input unit (e.g., 3600 for hours to seconds)
-        
+
     Returns:
         float: The limit in seconds
     """
@@ -88,28 +88,28 @@ def resource_monitor(
 ):
     """
     Context manager to monitor CPU time and RAM usage.
-    
+
     Args:
         cpu_limit: Maximum allowed CPU time in seconds. If None, reads from RUNTIME_LIMIT_H env var, else defaults to 6h.
         ram_limit: Maximum allowed RAM in MB. If None, reads from MEMORY_LIMIT_GB env var, else defaults to 7GB.
         check_interval: Interval between resource checks in seconds (default: 60s)
-        
+
     Yields:
         None
-        
+
     Raises:
         ResourceLimitExceeded: If CPU time or RAM limit is exceeded
     """
     # Determine limits: Env Var -> Argument -> Default
     if cpu_limit is None:
         cpu_limit = _get_env_limit('RUNTIME_LIMIT_H', 6 * 3600)
-    
+
     if ram_limit is None:
         ram_limit = _get_env_limit('MEMORY_LIMIT_GB', 7 * 1024)
 
     start_time = time.time()
     last_check_time = start_time
-    
+
     # Start monitoring thread
     stop_event = threading.Event()
     monitor_thread = threading.Thread(
@@ -118,7 +118,7 @@ def resource_monitor(
         daemon=True
     )
     monitor_thread.start()
-    
+
     try:
         yield
     except Exception as e:
@@ -126,11 +126,11 @@ def resource_monitor(
     finally:
         stop_event.set()
         monitor_thread.join(timeout=1.0)
-        
+
         # Final check
         current_cpu = get_current_cpu_time()
         current_ram = get_current_ram_mb()
-        
+
         if current_cpu > cpu_limit:
             raise ResourceLimitExceeded(
                 f"CPU time limit exceeded: {current_cpu:.2f}s > {cpu_limit:.2f}s"
@@ -149,7 +149,7 @@ def _monitor_resources(
 ):
     """
     Background thread function to monitor resources.
-    
+
     Args:
         cpu_limit: Maximum allowed CPU time in seconds
         ram_limit: Maximum allowed RAM in MB
@@ -159,15 +159,15 @@ def _monitor_resources(
     while not stop_event.is_set():
         if stop_event.wait(timeout=check_interval):
             break
-            
+
         current_cpu = get_current_cpu_time()
         current_ram = get_current_ram_mb()
-        
+
         logger.info(
             f"Resource check - CPU: {current_cpu:.2f}s / {cpu_limit:.2f}s, "
             f"RAM: {current_ram:.2f}MB / {ram_limit:.2f}MB"
         )
-        
+
         if current_cpu > cpu_limit:
             logger.error(
                 f"CPU time limit exceeded: {current_cpu:.2f}s > {cpu_limit:.2f}s"
@@ -175,7 +175,7 @@ def _monitor_resources(
             raise ResourceLimitExceeded(
                 f"CPU time limit exceeded: {current_cpu:.2f}s > {cpu_limit:.2f}s"
             )
-            
+
         if current_ram > ram_limit:
             logger.error(
                 f"RAM limit exceeded: {current_ram:.2f}MB > {ram_limit:.2f}MB"
@@ -192,12 +192,12 @@ def enforce_resource_limits(
 ):
     """
     Decorator to enforce resource limits on a function.
-    
+
     Args:
         cpu_limit: Maximum allowed CPU time in seconds. If None, reads from RUNTIME_LIMIT_H env var, else defaults to 6h.
         ram_limit: Maximum allowed RAM in MB. If None, reads from MEMORY_LIMIT_GB env var, else defaults to 7GB.
         check_interval: Interval between resource checks in seconds (default: 60s)
-        
+
     Returns:
         Callable: Wrapped function with resource monitoring
     """
@@ -214,16 +214,126 @@ def enforce_resource_limits(
     return decorator
 
 
+# ----------------------------------------------------------------------
+# New decorator required by T001: @limit_resources
+# ----------------------------------------------------------------------
+def _read_limits_from_config() -> tuple[float, float]:
+    """
+    Reads runtime (seconds) and memory (MB) limits from ``config.yaml``.
+    If the file is missing or malformed, falls back to the defaults
+    (6 h runtime, 7 GB RAM).
+
+    Returns:
+        (cpu_limit_seconds, ram_limit_mb)
+    """
+    import yaml
+
+    default_cpu = 6 * 3600          # 6 hours → seconds
+    default_ram = 7 * 1024          # 7 GB → MB
+
+    config_path = Path(__file__).resolve().parent.parent / "config.yaml"
+    if not config_path.is_file():
+        return default_cpu, default_ram
+
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        limits = cfg.get("resource_limits", {})
+        cpu_h = limits.get("max_time_hours", 6)
+        ram_gb = limits.get("max_memory_gb", 7)
+        return float(cpu_h) * 3600.0, float(ram_gb) * 1024.0
+    except Exception as exc:
+        logger.warning(f"Failed to read config.yaml ({exc}); using defaults.")
+        return default_cpu, default_ram
+
+
+def _write_resource_report(runtime_seconds: float, peak_ram_mb: float):
+    """
+    Writes a JSON report ``data/resource_usage.json`` containing the
+    runtime (seconds) and peak RAM usage (GB).
+
+    The file is created under the project root, and any missing parent
+    directories are created automatically.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    output_path = project_root / "data" / "resource_usage.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report = {
+        "runtime_seconds": round(runtime_seconds, 3),
+        "peak_ram_gb": round(peak_ram_mb / 1024.0, 3)
+    }
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Resource usage report written to {output_path}")
+
+
+def limit_resources(
+    cpu_limit: Optional[float] = None,
+    ram_limit: Optional[float] = None,
+    check_interval: float = 60.0
+):
+    """
+    Decorator that enforces resource limits (using the same logic as
+    :func:`enforce_resource_limits`) **and** records the actual usage
+    after the wrapped function finishes. The usage statistics are saved
+    to ``data/resource_usage.json`` as required by task T001.
+
+    Parameters
+    ----------
+    cpu_limit : float, optional
+        Maximum CPU time in seconds. If ``None`` the value is read from
+        ``config.yaml`` or the corresponding environment variable.
+    ram_limit : float, optional
+        Maximum RAM usage in MB. If ``None`` the value is read from
+        ``config.yaml`` or the corresponding environment variable.
+    check_interval : float, default 60.0
+        How often the background monitor checks resource usage.
+
+    Returns
+    -------
+    Callable
+        The wrapped function.
+    """
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Resolve limits if they were not supplied explicitly
+            resolved_cpu, resolved_ram = _read_limits_from_config()
+            cpu = cpu_limit if cpu_limit is not None else resolved_cpu
+            ram = ram_limit if ram_limit is not None else resolved_ram
+
+            start_cpu = get_current_cpu_time()
+            start_ram = get_current_ram_mb()
+
+            # Run the function inside the monitoring context
+            with resource_monitor(cpu_limit=cpu, ram_limit=ram, check_interval=check_interval):
+                result = func(*args, **kwargs)
+
+            # After successful execution, compute deltas
+            end_cpu = get_current_cpu_time()
+            end_ram = get_current_ram_mb()
+            runtime = end_cpu - start_cpu
+            peak_ram = max(start_ram, end_ram)
+
+            # Write the JSON report
+            _write_resource_report(runtime, peak_ram)
+
+            return result
+        return wrapper
+    return decorator
+
+
 def main():
     """
-    Demo function to test resource monitoring.
+    Demo function to test resource monitoring and the @limit_resources decorator.
     """
-    @enforce_resource_limits(cpu_limit=10, ram_limit=1024)
+    @limit_resources()
     def test_function():
         print("Running test function...")
         time.sleep(2)
         return "Success"
-    
+
     try:
         result = test_function()
         print(f"Result: {result}")

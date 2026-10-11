@@ -1,9 +1,4 @@
-pandas
-numpy
-scikit-learn
-requests
-pyyaml
-mendeleev==0.31.0
-jsonschema
-matplotlib
-seaborn
+# Core dependencies are pre‑installed. Add only packages that are not in the
+# default environment.
+# (No additional packages required for the ingestion task beyond those already
+# available: pandas, requests, pyyaml, jsonschema.)
