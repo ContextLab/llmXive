@@ -1,3 +1,55 @@
+T002:
+  c: true
+  h: bf8ea8523230efd5a8f1b1afdb7e52bdf5e78d9a310a757cba14b539f53b8e5f
+  r: "Checked the `requirements.txt` file (280\u202Fbytes) at the project root \u2013\
+    \ it exists, is non\u2011empty, and contains the exact dependency list (with version\
+    \ specifiers) copied from the Technical Context section of `plan.md`. The surrounding\
+    \ project structure (code/, data/, etc.) confirms a Python project has been initialized."
+  sig: d61f03814f0f5f5189cf880f205168c9cf16a57e07517af4405a778570bbee1a
+T003:
+  c: false
+  h: 020eded38b960323baa84a90aa7cd6dd7653d4b3959443999e613bae872b1b83
+  r: "The evidence only shows the project root path; no linting or formatting configuration\
+    \ files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`,\
+    \ or associated scripts) are present or referenced. Without these artifacts, the\
+    \ task \u201CConfigure linting (ruff) and formatting (black)\u201D is not satisfied.\
+    \ Adding the required configuration files and confirming they are non\u2011empty\
+    \ would be needed."
+  sig: 0b79f067b9e4fc5185bc73f80fd01f3bb6e01b9ea32971f12eb86402a045da92
+T004:
+  c: false
+  h: 73de250597d254293cf53fc47ce1ed9b95bd03cea4e881fccbe19debb3ca4993
+  r: Checked the provided `config.yaml` (which exists) but no `config.py` artifact
+    was found or shown, and thus there is no evidence that a Python module loads the
+    YAML, extracts `benchmark_values.etvos_limit`, logs the required warning when
+    missing, and sets the config attribute accordingly. The core implementation required
+    by T004 is absent.
+  sig: b2fd6376ee26a0c26a3be580a978bce9b02b0fd9aeef984093ff06b71d70b89f
+T005:
+  c: true
+  h: 95d7177764da87d2b8ce75ea56e4d7bcedd41b3b990ede5b0274c4eb854f81d8
+  r: "The `contracts/normal_point.schema.yaml` file exists (1700\u202Fbytes) and contains\
+    \ a full JSON\u2011Schema definition for SLR normal\u2011point observations, including\
+    \ required fields, property types, constraints, and documentation. This matches\
+    \ the task\u2019s requirement to create the observation schema."
+  sig: 999cc17ab09ec9926ab43d65438d3bd816b6701860b7a32fa83bbfbdd20b833a
+T007:
+  c: false
+  h: faa624d54b8254c8a74f0d0090d54f624d36968ae984d9c5159cf865e7703f66
+  r: "The schema file exists, but the `eta_value` field allows negative numbers (`minimum:\
+    \ -1.0`), violating the task\u2019s requirement that it be non\u2011negative.\
+    \ Adjust the schema to enforce `minimum: 0.0` (or otherwise ensure \u03B7\u202F\
+    \u2265\u202F0)."
+  sig: 7772a19a2310a089b29434b6786bbc7b5a12f6629743acbfa1eb871ab874f8c1
+T008:
+  c: false
+  h: 8fdb2022e4c9f046e606a9ca94ff5cad56a2dfc77c8e86fb9b8485be83e358e9
+  r: The provided `code/utils/logging.py` correctly implements console and optional
+    file handlers and defines the required `DataUnavailableError` and `ModelError`
+    exceptions. However, there is no evidence that the module is imported by the tasks
+    T009, T016, and T018; no import statements or usage traces are shown for those
+    modules. This requirement is unmet.
+  sig: 239368f82322e92bbdfa8abf8d2c4b31c38e4ba4e267bd0dad280d79cb1da4cb
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,17 +65,3 @@ T032:
     \ no evidence that the required F\u2011test and BIC model\u2011comparison functionality\
     \ has been implemented. The task\u2019s deliverable is missing, so the requirement\
     \ is not satisfied."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README or API reference files were presented in the `docs/` directory, nor
-    any evidence of their content being updated to reflect the new feature. The required
-    documentation artifacts are missing.
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only the feature specification and user stories; no\
-    \ artifacts (e.g., files, data sets, scripts) were shown, and there is no evidence\
-    \ of content hashes or any version\u2011control metadata applied to those artifacts.\
-    \ To satisfy T047, concrete artifacts with recorded hashes and a documented versioning\
-    \ scheme must be presented."

@@ -1,13 +1,13 @@
 status: none
-intent: download ILRS satellite laser ranging normal point catalog python package
-  dataset
+intent: ILRS Satellite Laser Ranging Normal Points and SLR NoteSense download python
+  package dataset
 required_fields:
 - epoch_datetime
-- satellite_name
+- satellite_id
 - station_id
 - range_cm
 - residual_cm
 - quality_flag
-cache_key: 268669a34d464773b060344825512fd8fb701ab6d9b623eccbb1eef3c393de55
-searched_at: '2026-09-18T06:46:29.365469+00:00'
+cache_key: 07ebecb6641e640123a6f36461e3c2428093617e0c3b056e7ba16ed46b701583
+searched_at: '2026-10-11T17:15:59.551175+00:00'
 retry_count: 1
