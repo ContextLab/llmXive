@@ -503,14 +503,30 @@ class ImplementerAgent(SlashCommandAgent):
             # capture stdout/stderr. Reviewers later check that the
             # task actually produced expected output, not just code.
             from llmxive import sandbox as _sandbox
+            from llmxive.project_files import is_pytest_module
             execute_results: list[tuple[str, _sandbox.ExecutionResult]] = []
+            # Scripts whose run the reply ASKED for. Only these gate the task.
+            requested_runs: set[str] = set()
+            tested: set[str] = set()
             for art in doc.get("artifacts", []) or []:
-                if not art.get("execute"):
-                    continue
-                relpath = art.get("path", "").lstrip("/")
+                relpath = str(art.get("path") or "").lstrip("/")
                 proj_prefix = f"projects/{project_root.name}/"
                 if relpath.startswith(proj_prefix):
                     relpath = relpath[len(proj_prefix):]
+                # A test module is run by pytest, asked for or not. Canary 7,
+                # 2026-10-11: one reply set `execute: true` on a wrapper that
+                # sent pytest's output to a file the verifier never reads, and
+                # another's test passed but only inside a shell script; the
+                # verifier rejected both for "no evidence pytest was run".
+                # `python tests/test_x.py` is worse: exit 0, nothing collected.
+                if relpath in tested:
+                    continue
+                is_test = (is_pytest_module(Path(relpath).name)
+                           and (project_root / relpath).is_file())
+                if not art.get("execute") and not is_test:
+                    continue
+                if art.get("execute"):
+                    requested_runs.add(relpath)
                 # YAML infers unquoted numeric CLI arguments as numbers. Their
                 # literal decimal representation is safe argv, without a shell.
                 # Preserve other invalid types for the sandbox to reject.
@@ -521,7 +537,14 @@ class ImplementerAgent(SlashCommandAgent):
                         type(arg) is float and math.isfinite(arg)) else arg
                         for arg in script_args]
                 try:
-                    if relpath.endswith((".py", ".sh")):
+                    if is_test:
+                        tested.add(relpath)
+                        result = _sandbox.run_pytest_file(
+                            project_dir=project_root, test_relpath=relpath,
+                            script_args=script_args if art.get("execute") else [],
+                            timeout_s=int(art.get("timeout_s", 600)),
+                        )
+                    elif relpath.endswith((".py", ".sh")):
                         runner = (_sandbox.run_shell_script if relpath.endswith(".sh")
                                   else _sandbox.run_python_script)
                         result = runner(
@@ -548,7 +571,9 @@ class ImplementerAgent(SlashCommandAgent):
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"
-                    f"Arguments: {script_args!r}\n\n"
+                    + ("Run by the platform as `python -m pytest -v` from the project root.\n\n"
+                       if is_test else "")
+                    + f"Arguments: {script_args!r}\n\n"
                     f"## stdout\n\n```\n{result.stdout}\n```\n\n"
                     f"## stderr\n\n```\n{result.stderr}\n```\n",
                     encoding="utf-8",
@@ -562,7 +587,11 @@ class ImplementerAgent(SlashCommandAgent):
             # annotation rather than checking it off as completed.
             # Pending review is deterministically rejected; a semantic model
             # cannot override a real failed command.
-            failed_scripts = [(p, r) for p, r in execute_results if not r.ok]
+            # A failing test the reply did not ask to run is evidence for the
+            # verifier, not a failed command: a task may write a test before
+            # the code it tests exists.
+            failed_scripts = [(p, r) for p, r in execute_results
+                              if not r.ok and p in requested_runs]
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
             succeeded = {path for path, result in execute_results if result.ok}

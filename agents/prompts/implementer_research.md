@@ -90,6 +90,10 @@ are provided in the messages that follow.
    command or a code edit alone cannot establish that the failed command now works.
    To rerun an existing script unchanged, include its `path`, `execute: true`, and
    `args`, and OMIT `contents`; the runtime preserves and executes the existing file.
+   A test module (`test_*.py` or `*_test.py`) is run by the runtime with
+   `python -m pytest -v` from the project directory every time you write one, and
+   the session output is recorded as the task's evidence. Do not write a wrapper
+   script or shell script to run pytest, and do not redirect its output to a file.
 
 ## Provided by the platform — use these, do not rewrite them
 

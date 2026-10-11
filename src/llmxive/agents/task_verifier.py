@@ -309,6 +309,25 @@ def _pattern_evidence(project_dir: Path, task_text: str) -> list[str]:
     return chunks
 
 
+_TOOLKIT_IMPORT_RE = re.compile(r"^\s*(?:from|import)\s+llmxive_toolkit\b", re.MULTILINE)
+_TOOLKIT_NOTE = (
+    "# Platform-provided module\n"
+    "`llmxive_toolkit` (`paths`, `project_root`, `get_logger`, `setup_logging`) is "
+    "installed by the platform on every project's import path. It is not a project "
+    "file: its absence from the project tree is not a defect, and a project must "
+    "not add its own copy."
+)
+
+
+def _imports_toolkit(source: Path) -> bool:
+    try:
+        with source.open("rb") as stream:
+            head = stream.read(_VALIDATE_MAX_BYTES).decode("utf-8", errors="replace")
+    except OSError:
+        return False
+    return bool(_TOOLKIT_IMPORT_RE.search(head))
+
+
 def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Collect the artifacts a task references (head of each) as evidence text.
 
@@ -374,6 +393,8 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
         )
     chunks.extend(_pattern_evidence(project_dir, task_text))
+    if any(_imports_toolkit(source) for source in python_sources):
+        chunks.append(_TOOLKIT_NOTE)
     dependencies = local_import_evidence(project_root, python_sources)
     if dependencies:
         chunks.append(dependencies)
