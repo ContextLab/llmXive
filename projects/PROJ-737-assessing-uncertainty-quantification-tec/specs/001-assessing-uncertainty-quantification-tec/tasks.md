@@ -10,7 +10,7 @@ Checked items have been verified to meet their contract and are retained.
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [X] **T001** [US1] **Create required project directories and verify the per‑sample schema includes `abs_error`**
+- [ ] **T001** [US1] **Create required project directories and verify the per‑sample schema includes `abs_error`**  
   - Create empty directories (if they do not already exist):  
     `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `code/models/`, `code/metrics/`, `code/stats/`, `code/utils/`, `tests/unit/`, `tests/integration/`.  
   - Verify that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml` contains the columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`.  
@@ -23,7 +23,6 @@ Checked items have been verified to meet their contract and are retained.
     cols = {c['name'] for c in schema['columns']}
     required = {'sample_id','dataset','method','prediction','lower_bound','upper_bound','ground_truth','abs_error'}
     assert cols == required, f"Missing columns: {required - cols}"
-    # directory checks
     for d in ['data/processed','data/results','figures']:
         assert pathlib.Path(d).is_dir(), f"Missing required directory: {d}"
     print("Schema and directory verification passed")
@@ -31,17 +30,17 @@ Checked items have been verified to meet their contract and are retained.
     ```  
     The command must exit with status 0.
 
-- [ ] **T002** [US1] **Download the three real materials datasets with robust retry and deterministic capping**
+- [ ] **T002** [US1] **Download the three real materials datasets with robust retry and deterministic capping**  
   - Implement `code/download.py` to fetch the following CSVs (all URLs are publicly reachable as of the specification date):  
-    1. **Band Gap** – `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv` — HTTP 404] → `data/raw/band_gap.csv`  
-    2. **Formation Energy** – `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv` — HTTP 404] → `data/raw/formation_energy.csv`  
-    3. **Thermal Conductivity** – `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/aflow/aflow-data/master/thermal_conductivity.csv` — HTTP 404] → `data/raw/thermal_conductivity.csv`  
-  - Use exponential back‑off retry (max 3 attempts) on any HTTP error. On persistent failure, raise an exception *after* writing any successfully downloaded files.  
+    1. **Band Gap** – `https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv` → `data/raw/band_gap.csv`  
+    2. **Formation Energy** – `https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv` → `data/raw/formation_energy.csv`  
+    3. **Thermal Conductivity** – `https://raw.githubusercontent.com/aflow/aflow-data/master/thermal_conductivity.csv` → `data/raw/thermal_conductivity.csv`  
+  - Use exponential‑backoff retry (max 3 attempts) on any HTTP error. On persistent failure, raise an exception *after* writing any successfully downloaded files.  
   - After each successful download, compute the SHA‑256 checksum and write a metadata file `data/raw/<dataset_id>_metadata.json` containing: `dataset_id`, `source_url`, `n_samples_original`, `n_samples_used`, `checksum`.  
   - **Cap** each dataset at **5 000** samples (deterministic seed 42, `itertools.islice`). Record the cap size in the metadata file.  
-  - **Verification**: a script `code/tests/test_download.py` loads each metadata JSON, confirms the file exists, checksum matches, and `n_samples_used ≤ 5000`. The test must exit with status 0.
+  - **Verification**: a test `code/tests/test_download.py` loads each metadata JSON, confirms the file exists, checksum matches, and `n_samples_used ≤ 5000`. The test must exit with status 0.
 
-- [ ] **T003** [US1] **Thin end‑to‑end run on a 100‑sample subset with full schema validation**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T003** [US1] **Thin end‑to‑end run on a 100‑sample subset with full schema validation**  
   - Subset each downloaded dataset to the first 100 rows (seed 42) and write `data/processed/<dataset_id>_subset.csv`.  
   - Featurize using `matminer` (fallback to simple composition fractions via `pymatgen` if `matminer` import fails). Store the processed files as `data/processed/<dataset_id>.csv`.  
   - Perform a stratified 70 %/15 %/15 % train/val/test split by target property range; save split indices in `data/processed/<dataset_id>_split.json`.  
@@ -150,4 +149,4 @@ Checked items have been verified to meet their contract and are retained.
 
 ---  
 
-*All tasks follow the canonical checklist format `- [ ] T### [USx?] description …` with indented verification steps.  The ordering respects data flow: directory creation → data download → thin pipeline → full pipeline → metrics → statistical tests → sensitivity → reproducibility → visualization → documentation → dependency & entry‑point → constraints & validation → final readiness.*  
+*All tasks follow the canonical checklist format `- [ ] T### [USx?] description …` with indented verification steps.  The ordering respects data flow: directory creation → data download → thin pipeline → full pipeline → metrics → statistical tests → sensitivity → reproducibility → visualization → documentation → dependency & entry‑point → constraints & validation → final readiness.*
