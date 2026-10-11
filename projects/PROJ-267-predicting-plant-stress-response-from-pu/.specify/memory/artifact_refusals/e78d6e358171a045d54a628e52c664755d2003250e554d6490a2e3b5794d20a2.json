@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "85d131a22ed5a1c3c71ccc287481a9ad91207531c1f6bd5f8f69b9f07117727a",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'utils/logger.py': imports nonexistent names from sibling files: `from code.utils.logger import log_debug, log_error, log_info` (available: LOG_PATH, Path, _ensure_log_file, _logger, get_logger, log_warning, logging). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}
