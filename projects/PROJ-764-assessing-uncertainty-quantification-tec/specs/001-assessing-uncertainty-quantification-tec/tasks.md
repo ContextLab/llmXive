@@ -2,10 +2,15 @@
 
 **Input**: `spec.md`, `plan.md`, `data‑model.md`, and all contract schemas in `specs/001‑assessing‑uncertainty‑quantification‑tec/contracts/`.  
 
-**Goal**: Deliver a reproducible end‑to‑end pipeline that (1) downloads the OQMD subset, (2) preprocesses it, (3) trains a 2‑layer baseline NN and three lightweight UQ methods, (4) evaluates calibration, (5) runs a downstream screening case study, and (6) produces all required artefacts compliant with the SSoT schemas.  
+**Goal**: Deliver a reproducible end‑to‑end pipeline that  
 
-> **Checked boxes (`[X]`) indicate work that has already passed verification.**  
-> **Unchecked boxes (`[ ]`) are pending – they have been reopened because the verifier found missing or malformed artefacts.**  
+1. downloads the OQMD subset,  
+2. preprocesses it (clean, stratified split, PCA, exclusion reporting),  
+3. trains a 2‑layer baseline NN and three lightweight UQ methods (Deep Ensemble, MC‑Dropout, Sparse GP),  
+4. runs inference for all methods,  
+5. evaluates calibration (ECE, interval scores, sharpness, uncertainty decomposition),  
+6. performs a downstream screening case study, and  
+7. produces all required artefacts that conform to the SSoT schemas.  
 
 ---
 
@@ -20,210 +25,212 @@
 
 ---
 
-## Phase 2 – Foundational infrastructure (blocking)  
-
-### Core configuration  
+## Phase 2 – Core configuration & data acquisition  
 
 - [ ] T004 **P** `code/config.yaml`  
-  *Keys & types*: `seed: int (42)`, `split_ratio: [0.8,0.1,0.1]`, `split_type: "stratified"`, `timeout_hours: 5.0`, `screening_recall_target: 0.8`, `robustness_seeds: [42,43,44]`, `robustness_cv_threshold: 0.1`, `screening_precision_gain_threshold: 0.05`.  
-
-### Data download & validation  
+  *Define* keys and types required by the pipeline:  
+  ```yaml
+  seed: 42
+  split_ratio: [0.8, 0.1, 0.1]
+  split_type: "stratified"
+  timeout_hours: 5.0
+  screening_recall_target: 0.8
+  robustness_seeds: [42, 43, 44]
+  robustness_cv_threshold: 0.1
+  screening_precision_gain_threshold: 0.05
+  streaming: false          # future‑proof flag
+  ```  
+  *Verification*: Load the file in a Python REPL, assert all keys exist and have the correct Python types.
 
 - [ ] T005 **P** `code/data/download.py`  
-  *Downloads* `https://huggingface.co/datasets/OQMD/OQMD-Subset` via `datasets.load_dataset`.  
-  *Retries* up to 3 times with exponential back‑off; on final failure raises `RuntimeError`.  
-  *Outputs*: `data/raw/oqmd_subset.parquet` and `data/checksums.json` (SHA‑256).  
-  *Validation*: Generates `data/validation_report.json` if structural columns are missing (schema `validation_report.schema.yaml`).  
+  *Download* the OQMD subset from the verified Hugging‑Face URL `https://huggingface.co/datasets/OQMD/OQMD-Subset` using `datasets.load_dataset(..., streaming=False)`.  
+  *Retry* up to three times with exponential back‑off; on final failure raise `RuntimeError` with a distinct error code.  
+  *Write* the parquet file to `data/raw/oqmd_subset.parquet` and generate `data/checksums.json` containing the SHA‑256 hash of the downloaded file.  
+  *Verification*: After download, compute the SHA‑256 of `oqmd_subset.parquet` and compare it to the entry in `checksums.json`; the script must exit with a non‑zero status if they differ.
 
-### **Re‑opened tasks – preprocessing & PCA**  
-
-- [ ] **T006a** **P** `code/data/preprocess.py` – *Stratified split generation*  
+- [ ] T006a **P** `code/data/preprocess.py` – **Stratified split generation**  
   *Read* `code/config.yaml` (`split_ratio`, `seed`).  
   *Load* `data/raw/oqmd_subset.parquet`.  
-  *Create* quantile bins on `formation_energy` (10 bins) → column `target_bin`.  
-  *Perform* material‑ID‑aware stratified split (80/10/10) ensuring no `material_id` appears in more than one split.  
-  *Write* three CSVs: `data/processed/raw_train.csv`, `data/processed/raw_val.csv`, `data/processed/raw_test.csv`.  
-  *Verification*: Assert each CSV exists, contains `target_bin`, and that the bin distribution is approximately uniform (max‑min ≤ 1).  
+  *Create* 10 quantile bins on the column `formation_energy` → new column `target_bin`.  
+  *Perform* a **material‑ID‑aware stratified split** (no `material_id` appears in more than one split) using the `target_bin` distribution and the ratios 0.8/0.1/0.1.  
+  *Write* three CSVs:  
+  - `data/processed/raw_train.csv`  
+  - `data/processed/raw_val.csv`  
+  - `data/processed/raw_test.csv`  
+  *Verification*:  
+  1. Each CSV exists and contains the column `target_bin`.  
+  2. The count of rows per `target_bin` is approximately equal across the three splits (max‑min ≤ 1).  
+  3. No `material_id` is duplicated across the three files (assert using a set).
 
-- [ ] **T006c** **P** `code/data/preprocess.py` – *PCA fitting*  
-  *Read* `data/processed/raw_train.csv`.  
-  *Fit* `sklearn.decomposition.PCA` on all numeric feature columns (excluding target columns).  
-  *Retain* exactly **20** components and ensure explained variance > 90 %.  
-  *Save* the transformer to `data/processed/pca_transformer.pkl`.  
-  *Verification*: Load the pickled object, compute `explained_variance_ratio_.sum()` and assert ≥ 0.90.  
+- [ ] T006c **P** `code/data/preprocess.py` – **PCA fitting**  
+  *Load* `data/processed/raw_train.csv`.  
+  *Select* all numeric feature columns **excluding** target columns (`formation_energy`, `bulk_modulus`, `band_gap`).  
+  *Fit* `sklearn.decomposition.PCA` with **20 components**; assert that the cumulative explained variance ratio ≥ 0.90.  
+  *Save* the fitted transformer to `data/processed/pca_transformer.pkl` (pickle protocol = 5).  
+  *Verification*: Load the pickle, compute `explained_variance_ratio_.sum()` and assert ≥ 0.90; write a one‑line log entry to `logs/pca_fit.log` with the exact ratio.
 
-- [ ] **T006d** **P** `code/data/preprocess.py` – *PCA transformation & exclusion*  
+- [ ] T006d **P** `code/data/preprocess.py` – **PCA transformation & exclusion reporting**  
   *Load* `data/processed/pca_transformer.pkl`.  
-  *Transform* train/val/test feature matrices, writing:  
-  `data/processed/features_train_20pca.csv`,  
-  `data/processed/features_val_20pca.csv`,  
-  `data/processed/features_test_20pca.csv`.  
-  *Exclude* rows with any missing critical features (as defined in `FR‑010`).  
-  *Generate* `data/validation_report.json` conforming to `validation_report.schema.yaml` (fields: `excluded_count`, `missing_columns`, `total_raw_rows`, `remaining_rows`).  
-  *Verification*: Validate JSON against the schema and assert `remaining_rows` > 0.  
+  *Transform* the feature matrices of the train/val/test splits and write:  
+  - `data/processed/features_train_20pca.csv`  
+  - `data/processed/features_val_20pca.csv`  
+  - `data/processed/features_test_20pca.csv`  
+  *Identify* rows with any missing critical features (as defined in **FR‑010**) and exclude them from all three CSVs.  
+  *Generate* `data/validation_report.json` conforming to `validation_report.schema.yaml` with fields `excluded_count`, `missing_columns`, `total_raw_rows`, `remaining_rows`.  
+  *Verification*: Validate the JSON against the schema using `jsonschema.validate`; assert `remaining_rows` > 0.
 
-### Contract definitions (already complete)  
-
-- [ ] T009 **P** `specs/001‑assessing‑uncertainty‑quantification‑tec/contracts/` – create `dataset.schema.yaml`, `uq_prediction.schema.yaml`, `calibration_metric.schema.yaml`.  
+- [ ] T009 **P** `specs/001‑assessing‑uncertainty‑quantification‑tec/contracts/`  
+  *Create* the three SSoT schema files (`dataset.schema.yaml`, `uq_prediction.schema.yaml`, `calibration_metric.schema.yaml`) exactly as defined in the specification.  
+  *Verification*: Run `jsonschema` against a minimal valid example for each schema; the command must exit with status 0.
 
 ---
 
-## Phase 3 – User Story 1: Baseline model & three UQ methods (Priority P1)  
+## Phase 3 – Model training & unified inference  
 
-### Baseline neural network (heteroscedastic)  
-
-- [ ] **T012** **US1** `code/models/baseline_nn.py`  
-  *Define* a 2‑hidden‑layer feed‑forward network with ≤ 10 000 trainable parameters.  
+- [ ] T012 **US1** `code/models/baseline_nn.py`  
+  *Define* a feed‑forward neural network with **2 hidden layers** and **≤ 10 000 trainable parameters** (use `torch.nn.Linear` and compute the total via `sum(p.numel() for p in model.parameters())`).  
   *Include* a heteroscedastic head that outputs both mean and log‑variance.  
-  *Provide* helper `total_params()` that returns the parameter count and asserts `≤ 10000`.  
-  *Save* the architecture (state‑dict skeleton) to `results/models/baseline_nn_arch.pt`.  
-  *Verification*: After import, call `total_params()` and log the count to `logs/pipeline.log`.  
+  *Provide* a helper `total_params()` that returns the count and raises an `AssertionError` if > 10 000.  
+  *Save* the **architecture skeleton** (empty state‑dict) to `results/models/baseline_nn_arch.pt`.  
+  *Verification*: Import the module, call `total_params()`, and write the count to `logs/baseline_nn.log`; the log must contain the exact integer ≤ 10 000.
 
-### Deep Ensemble  
+- [ ] T013b **US1** `code/models/deep_ensemble.py` – **Ensemble training**  
+  *For each seed* in `[42, 43, 44, 45, 46]` run the training loop defined in `baseline_nn.py` on the **training split** (`features_train_20pca.csv`).  
+  *Save* the resulting checkpoint to `results/models/ensemble/ensemble_seed_<seed>.pt`.  
+  *Verification*: After the script finishes, assert that **five** files exist, each is non‑empty, and each checkpoint can be loaded with `torch.load` without error. Also log the parameter count for each seed to `logs/ensemble_training.log`.
 
-- [ ] T013 **P** `code/models/deep_ensemble.py` – training loop for a single model (already verified).  
-
-- [ ] **T013b** **US1** `code/models/deep_ensemble.py` – *Execute ensemble training*  
-  *Run* the training loop from T013 for **5** independent seeds `[42, 43, 44, 45, 46]`.  
-  *Save* each checkpoint to `results/models/ensemble/ensemble_seed_<seed>.pt`.  
-  *Verification*: All five files exist, are non‑empty, and each `total_params()` ≤ 10 000 (checked by loading the state dict).  
-
-### Monte‑Carlo Dropout  
-
-- [ ] **T014a** **US1** `code/models/mc_dropout.py` – *Train MC‑Dropout model (seed 42)*  
-  *Train* a baseline NN with dropout `p=0.2` using seed 42.  
+- [ ] T014a **US1** `code/models/mc_dropout.py` – **Train MC‑Dropout model (seed 42)**  
+  *Train* a baseline NN with dropout probability `p=0.2` using seed 42 on the training split.  
   *Save* checkpoint to `results/models/mc_dropout/mc_dropout_seed_42.pt`.  
+  *Verification*: File exists, size > 0, and can be loaded; log the seed and final training loss to `logs/mc_dropout_train.log`.
 
-- [ ] **T014b** **US1** `code/models/mc_dropout.py` – *Train MC‑Dropout model (seed 43)* → `mc_dropout_seed_43.pt`.  
+- [ ] T014b **US1** `code/models/mc_dropout.py` – **Train MC‑Dropout model (seed 43)** (same as above, seed 43).  
 
-- [ ] **T014c** **US1** `code/models/mc_dropout.py` – *Train MC‑Dropout model (seed 44)* → `mc_dropout_seed_44.pt`.  
+- [ ] T014c **US1** `code/models/mc_dropout.py` – **Train MC‑Dropout model (seed 44)** (same as above, seed 44).  
 
-- [ ] **T014d** **US1** `code/models/mc_dropout.py` – *Inference for MC‑Dropout*  
-  *For each seed (42‑44)* load the corresponding checkpoint, enable dropout during inference, and perform **30** stochastic forward passes on the **test set** (`features_test_20pca.csv`).  
-  *Compute* mean prediction, variance, and 50 % / 90 % confidence bounds (Gaussian assumption).  
-  *Write* three CSVs: `results/uq_predictions_mc_dropout_seed_42.csv`, `…_43.csv`, `…_44.csv`.  
-  *Verification*: At least 90 % of rows have `variance > 0`; log a summary to `logs/mc_dropout_inference.log`.  
+- [ ] T014d **US1** `code/models/mc_dropout.py` – **MC‑Dropout inference**  
+  *For each seed* 42‑44, load the corresponding checkpoint, enable dropout during inference, and perform **30** stochastic forward passes on `features_test_20pca.csv`.  
+  *Compute* per‑sample mean, variance, and 50 % / 90 % confidence bounds (Gaussian assumption, z‑scores 0.674 & 1.645).  
+  *Write* three CSVs: `results/uq_predictions_mc_dropout_seed_42.csv`, `…_43.csv`, `…_44.csv` that conform to `prediction_output.schema.yaml`.  
+  *Verification*: Each CSV contains exactly the same number of rows as the test set, all required columns are present, and a sanity check `variance > 0` holds for ≥ 90 % of rows. Log a summary (mean variance, max variance) to `logs/mc_dropout_inference.log`.
 
-### Sparse Gaussian Process  
+- [ ] T015 **US1** `code/models/sparse_gp.py` – **Fit Sparse Gaussian Process**  
+  *Load* `data/processed/features_train_20pca.csv`.  
+  *Fit* a **GPyTorch** Sparse GP with **500 inducing points**, RBF kernel, and train on the target property `formation_energy`.  
+  *Save* the trained model to `results/models/sparse_gp_model.pt`.  
+  *Compute* the **reconstruction variance** for each test sample and write to `results/gp_reconstruction_variance.json` (mapping `material_id → variance`).  
+  *Verification*: Model file exists and is loadable via `torch.load`; the JSON contains a float entry for every `material_id` in the test set; log the final marginal log‑likelihood to `logs/sparse_gp.log`.
 
-- [ ] **T015** **US1** `code/models/sparse_gp.py` – *Fit sparse GP*  
-  *Load* PCA‑reduced training features (`features_train_20pca.csv`).  
-  *Fit* a GPyTorch Sparse GP with **500** inducing points and an RBF kernel (CPU mode).  
-  *Save* model to `results/models/sparse_gp_model.pt`.  
-  *Compute* reconstruction variance for each test sample and store in `results/gp_reconstruction_variance.json`.  
-  *Verification*: Assert the model file exists, size > 0, and that the JSON contains a single float per sample.  
+- [ ] T016a **US1** `code/models/run_single_seed.py` – **Unified inference for a given seed**  
+  *Arguments*: `--seed <int>` (must be one of the robustness seeds).  
+  *Load* `data/processed/features_test_20pca.csv`.  
+  *For the supplied seed* load:  
+  - Baseline NN weights from `results/models/baseline_nn_arch.pt` (or the corresponding ensemble member if seed ≤ 46).  
+  - MC‑Dropout checkpoint `results/models/mc_dropout/mc_dropout_seed_<seed>.pt`.  
+  - Deep‑Ensemble member `results/models/ensemble/ensemble_seed_<seed>.pt`.  
+  *Run* inference for **all three methods** (ensemble averaging, MC‑Dropout stochastic passes, Sparse GP – the latter does not depend on the seed).  
+  *Compute* mean prediction, total variance, aleatoric & epistemic components, and 50 % / 90 % confidence bounds (using the same z‑scores).  
+  *Write* a unified CSV `results/uq_predictions_seed_<seed>.csv` that exactly matches `prediction_output.schema.yaml`.  
+  *Verification*:  
+  1. File exists and row count equals the test set size.  
+  2. All required columns are present and types conform to the schema.  
+  3. A quick sanity check that `lower_bound_50 ≤ prediction ≤ upper_bound_50` holds for every row.  
+  Log the runtime (seconds) to `logs/run_single_seed_<seed>.log`.
 
-### Unified single‑seed runner (orchestrates inference for all methods)  
+- [ ] T016c **P** `code/utils/timeout.py` – **Timeout context manager**  
+  *Implement* `Timeout(seconds)` that raises `TimeoutError` after the configured wall‑clock limit (derived from `config.yaml` → `timeout_hours`).  
+  *Verification*: Unit test that a sleep of `seconds+1` triggers the exception; the test must pass.
 
-- [ ] **T016a** **US1** `code/models/run_single_seed.py`  
-  *Accept* a seed argument (`--seed`).  
-  *Load* pre‑processed test features (`features_test_20pca.csv`).  
-  *For the given seed* load:  
-    • Baseline NN checkpoint (`baseline_nn_arch.pt` – same architecture, weights from ensemble training if seed ≤ 46).  
-    • MC‑Dropout checkpoint `mc_dropout_seed_<seed>.pt`.  
-    • If seed ∈ {42,43,44} also load the corresponding Deep‑Ensemble member `ensemble_seed_<seed>.pt`.  
-  *Run* inference for each method, compute mean, variance, and confidence bounds (z=0.674 for 50 %, z=1.645 for 90 %).  
-  *Write* a unified CSV `results/uq_predictions_seed_<seed>.csv` with columns (ordered): `material_id`, `method`, `prediction`, `lower_bound_50`, `upper_bound_50`, `lower_bound_90`, `upper_bound_90`, `variance`, `aleatoric_variance`, `epistemic_variance`, `uncertainty_type`.  
-  *Verification*: File exists, row count matches test set, and schema conforms to `prediction_output.schema.yaml`.  
-
-### Timeout enforcement (already complete)  
-
-- [ ] T016c **P** `code/utils/timeout.py` – context manager `Timeout(seconds)` reading `timeout_hours` from config.  
-
-### Orchestrator (already complete)  
-
-- [ ] T016b **P** `code/main.py` – chains download, preprocess, training, and inference; uses `Timeout` to enforce the 5‑hour wall‑clock budget.  
-
----
-
-## Phase 4 – User Story 2: Calibration & reliability evaluation (Priority P2)  
-
-### Metric implementation  
-
-- [ ] T021 **P** `code/uq/metrics.py` – implements ECE (quantile binning), Interval Score (Winkler), and Sharpness.  
-
-### Decomposition of uncertainty  
-
-- [ ] T022 **US2** `code/uq/metrics.py` – adds functions to compute aleatoric vs. epistemic variance for Deep Ensembles and MC‑Dropout; returns `uncertainty_type` per row.  
-
-### Aggregation of seed predictions  
-
-- [ ] T025a **P** `code/run_seeds.py` – iterates over `robustness_seeds`, calls `run_single_seed.py`, aggregates CSVs into `results/uq_predictions_aggregated.csv`.  
-
-### Calibration report  
-
-- [ ] **T024** **US2** `code/uq/metrics.py` – *Compute final calibration metrics*  
-  *Read* `results/uq_predictions_aggregated.csv`.  
-  *For each method* (`ensemble`, `mc_dropout`, `sparse_gp`) compute:  
-    • ECE for 50 % and 90 % intervals,  
-    • Interval Score (α = 0.5 for 50 %, α = 0.1 for 90 %).  
-    • Sharpness (mean interval width).  
-    • Coverage percentage (empirical).  
-    • Coefficient of variation of ECE across seeds (CV).  
-  *Write* `results/metrics/calibration_summary.csv` (columns match `calibration_metric.schema.yaml`).  
-  *Verification*: Validate CSV against the schema and assert `ece_cv` ≤ `robustness_cv_threshold` for at least one method; log results.  
-
-### Robustness gate (already complete)  
-
-- [ ] T025c **US2** `results/robustness_report.json` – CV calculation and pass/fail flag (already verified).  
-
-### Reliability diagrams  
-
-- [ ] T023 **US2** `results/reliability_diagrams/` – generate PDF/PNG diagrams per method (already verified).  
-
-### Ranking of methods  
-
-- [ ] T025 **US2** `code/uq/ranking.py` – selects best‑performing method based on lowest ECE (ties broken by interval score).  
+- [ ] T016b **P** `code/main.py` – **Pipeline orchestrator**  
+  *Chain* the stages: download → preprocess → model training (baseline, ensemble, MC‑Dropout, Sparse GP) → run seeds 42‑44 → metrics → screening.  
+  *Wrap* the entire execution in the `Timeout` context to enforce the 5‑hour budget.  
+  *Verification*: Running `python -m code.main` on a fresh checkout completes without uncaught exceptions and produces a non‑empty `results/runtime_report.json` containing `wall_clock_seconds`.
 
 ---
 
-## Phase 5 – User Story 3: Downstream screening case study (Priority P3)  
+## Phase 4 – Calibration & reliability evaluation  
 
-### Screening threshold calculation  
+- [ ] T021 **P** `code/uq/metrics.py` – **Metric implementations**  
+  *Implement* functions for:  
+  1. Expected Calibration Error (ECE) with configurable number of bins (default = 10).  
+  2. Winkler interval score for arbitrary confidence levels (α).  
+  3. Sharpness (mean interval width).  
+  *Verification*: Unit tests on synthetic data where the true calibration is known (e.g., perfectly calibrated Gaussian predictions should yield ECE ≈ 0).  
 
-- [ ] **T028a** **US3** `code/uq/screening.py` – *Compute formation‑energy threshold* that yields the `screening_recall_target` (default 0.8) on the test set.  
-  *Output*: `results/screening_threshold.json` (`{"recall_target": float, "threshold_value": float}`) conforming to `validation_report.schema.yaml`.  
-  *Verification*: Raise `ValueError` if the key is missing; assert threshold is finite and between min/max of test energies.  
+- [ ] T022 **US2** `code/uq/metrics.py` – **Uncertainty decomposition utilities**  
+  *For Deep Ensembles*: compute epistemic variance as the variance of the ensemble means, aleatoric variance as the mean of the individual predictive variances.  
+  *For MC‑Dropout*: analogous decomposition using stochastic passes.  
+  *Return* a DataFrame that includes columns `aleatoric_variance`, `epistemic_variance`, and `uncertainty_type` (`aleatoric`, `epistemic`, `total`).  
+  *Verification*: Apply the functions to the CSVs produced by T014d and T013b; assert that for each row `variance = aleatoric_variance + epistemic_variance` within a tolerance of `1e-6`.
 
-### Baseline (point‑prediction) screening  
+- [ ] T023 **US2** `results/reliability_diagrams/` – **Generate reliability diagrams**  
+  *Create* one PNG per method (ensemble, mc_dropout, sparse_gp) showing predicted confidence vs. empirical coverage for both 50 % and 90 % intervals.  
+  *Verification*: Files exist, are non‑empty, and the script logs the Brier score for each diagram to `logs/reliability.log`.
 
-- [ ] **T028b** **US3** `code/uq/screening.py` – *Point‑prediction baseline*  
-  *Rank* candidates by mean prediction, select top‑N to meet the recall target using the threshold from T028a.  
-  *Write* `results/screening_baseline.csv` (columns: `material_id`, `prediction`, `selected`).  
+- [ ] T024 **US2** `code/uq/metrics.py` – **Calibration summary report**  
+  *Read* the aggregated predictions from `results/uq_predictions_aggregated.csv` (produced by T025a).  
+  *For each method* compute:  
+  - ECE (50 % & 90 %).  
+  - Interval Score (α = 0.5 for 50 %, α = 0.1 for 90 %).  
+  - Sharpness.  
+  - Empirical coverage percentage.  
+  - Coefficient of Variation of ECE across the robustness seeds (using the values from each seed‑specific CSV).  
+  *Write* `results/metrics/calibration_summary.csv` that conforms to `calibration_metric.schema.yaml`.  
+  *Verification*: Validate the CSV against the schema; assert that at least one method has `ece_cv ≤ config.robustness_cv_threshold` (0.1). Log the full table to `logs/calibration_summary.log`.
 
-### Random selection baseline  
+- [ ] T025a **P** `code/run_seeds.py` – **Aggregate seed predictions**  
+  *Iterate* over `config.robustness_seeds` (42, 43, 44), invoke `run_single_seed.py` for each, and concatenate the resulting CSVs into `results/uq_predictions_aggregated.csv`.  
+  *Verification*: The aggregated file contains a `seed` column, total rows = `num_test_samples × 3 (seeds)`, and passes schema validation against `prediction_output.schema.yaml` (the schema allows additional `seed` field via `additionalProperties: false` – therefore we must add `seed` to the schema; for verification we simply check column presence).
 
-- [ ] **T028c** **US3** `code/uq/screening.py` – *Random baseline*  
-  *Shuffle* the test set, select the same number of candidates as the point‑prediction baseline, and write `results/screening_random.csv`.  
+- [ ] T025 **US2** `code/uq/ranking.py` – **Method ranking**  
+  *Read* `results/metrics/calibration_summary.csv`.  
+  *Select* the method with the lowest ECE (preferring lower interval score in case of ties).  
+  *Write* `results/best_uq_method.txt` containing the method name (`ensemble`, `mc_dropout`, or `sparse_gp`).  
+  *Verification*: File exists, contains exactly one of the three allowed strings, and the ranking logic is logged to `logs/ranking.log`.
 
-### UQ‑enhanced candidate filtering  
+---
 
-- [ ] **T028d** **US3** `code/uq/screening.py` – *Narrow‑confidence filtering*  
-  *Compute* confidence‑interval width (`upper_90 - lower_90`) for each test sample from `results/uq_predictions_decomposed.csv`.  
-  *Define* a width percentile cutoff (default 10 th percentile, configurable via `screening_confidence_percentile` in `config.yaml`).  
-  *Select* candidates whose width ≤ cutoff **and** whose predicted property meets the threshold from T028a.  
+## Phase 5 – Downstream screening case study  
+
+- [ ] T028a **US3** `code/uq/screening.py` – **Threshold calculation**  
+  *Compute* the formation‑energy threshold that yields the recall target defined in `config.yaml` (default 0.8) on the **test set**.  
+  *Write* `results/screening_threshold.json` with keys `recall_target` and `threshold_value`.  
+  *Verification*: Load the JSON, assert the threshold is a finite float within the min‑max range of `formation_energy` in the test split, and that applying the threshold to the ground‑truth labels indeed yields a recall ≥ 0.8 (within a tolerance of 0.01).
+
+- [ ] T028b **US3** `code/uq/screening.py` – **Point‑prediction baseline**  
+  *Rank* candidates by the **mean prediction** from the best UQ method (read from `best_uq_method.txt`).  
+  *Select* the top‑N candidates that meet the threshold from T028a.  
+  *Write* `results/screening_baseline.csv` (`material_id`, `prediction`, `selected`).  
+  *Verification*: The number of rows marked `selected=True` equals the number required to achieve the recall target; compute and log the baseline precision to `logs/screening_baseline.log`.
+
+- [ ] T028c **US3** `code/uq/screening.py` – **Random selection baseline**  
+  *Shuffle* the test set, select the same number of candidates as the baseline, and write `results/screening_random.csv`.  
+  *Verification*: Row count matches baseline; compute random precision and log it.
+
+- [ ] T028d **US3** `code/uq/screening.py` – **UQ‑enhanced filtering**  
+  *From* `results/uq_predictions_decomposed.csv` (produced by T022), compute the confidence‑interval width (`upper_bound_90 - lower_bound_90`).  
+  *Determine* the width percentile cutoff (default 10 th percentile, configurable via `config.yaml`).  
+  *Select* candidates whose width ≤ cutoff **and** whose predicted property satisfies the threshold from T028a.  
   *Write* `results/screening_candidates.csv`.  
+  *Verification*: Ensure at least one candidate is selected; log the number selected and the resulting precision.
 
-### Fallback handling for missing GP predictions  
+- [ ] T028e **US3** `code/uq/screening.py` – **GP fallback handling**  
+  *If* `sparse_gp` predictions are missing or fail to load, automatically fall back to using only `ensemble` and `mc_dropout` for the filtering step.  
+  *Log* a warning to `logs/screening_fallback.log` and still produce `results/screening_final_candidates.csv`.  
+  *Verification*: Simulate the missing‑GP condition by renaming the GP CSV and re‑run; the script must succeed and produce the fallback file.
 
-- [ ] **T028e** **US3** `code/uq/screening.py` – *GP fallback*  
-  *If* `sparse_gp` predictions are absent or fail to load, re‑run the ranking and filtering using only `ensemble` and `mc_dropout`.  
-  *Log* a warning and produce `results/screening_final_candidates.csv`.  
+- [ ] T029 **US3** `code/uq/evaluation.py` – **Binary decision matrix**  
+  *Combine* the three selection files (baseline, random, UQ‑enhanced) into `results/selection_decisions.csv` with columns `material_id`, `selected_baseline`, `selected_random`, `selected_uq`.  
+  *Verification*: Each `material_id` appears exactly once; the three boolean columns are mutually consistent with the source files.
 
-### Precision/recall evaluation  
+- [ ] T029b **US3** `code/uq/evaluation.py` – **Bootstrap significance test**  
+  *Bootstrap* the binary decision matrix with 10 000 resamples to estimate the distribution of the precision gain of the UQ method over the random baseline.  
+  *Output* `results/screening_significance.json` containing keys `p_value`, `test_statistic`, and `method`.  
+  *Verification*: The JSON validates against a simple schema (numeric fields); the script must assert that `p_value < 0.05` **or** that the observed precision gain ≥ `config.screening_precision_gain_threshold`. Log the full bootstrap distribution summary to `logs/bootstrap.log`.
 
-- [ ] T029 **US3** `code/uq/evaluation.py` – *Generate binary decision matrix* (`results/selection_decisions.csv`) containing flags `selected_uq`, `selected_baseline`, `selected_random` for every test material.  
-
-### Statistical significance (bootstrap)  
-
-- [ ] **T029b** **US3** `code/uq/evaluation.py` – *Bootstrap CI*  
-  *Bootstrap* the binary decision matrix (10 000 resamples) to estimate the distribution of precision gain of the UQ method over the random baseline.  
-  *Output*: `results/screening_significance.json` (`{"p_value": float, "test_statistic": float, "method": "Bootstrap CI"}`).  
-  *Success criterion*: `p_value < 0.05` **or** precision gain ≥ `screening_precision_gain_threshold`.  
-
-### Final screening report  
-
-- [ ] **T030** **US3** `code/uq/evaluation.py` – *Compile final CSV* `results/screening_results.csv` summarising recall, precision, p‑value, and whether the utility threshold was met.  
+- [ ] T030 **US3** `code/uq/evaluation.py` – **Final screening report**  
+  *Read* the precision, recall, p‑value, and gain information from the previous steps and write a concise summary CSV `results/screening_results.csv` with columns `method`, `recall`, `precision`, `precision_gain`, `p_value`, `threshold_met` (boolean).  
+  *Verification*: The file contains exactly one row (the best UQ method) and `threshold_met` is `true` when the criteria are satisfied; log the final decision to `logs/final_screening.log`.
 
 ---
 
@@ -231,36 +238,25 @@
 
 | ID | Status | Description |
 |----|--------|-------------|
-| - [X] T033a **P** | Update `README.md` with overview & usage. |
-| - [ ] T033b **P** | Add API examples for `screening.py` in `docs/api.md`. |
-| - [X] T034a **P** | Run `ruff` lint checks. |
-| - [X] T034b **P** | Run `black` formatting. |
-| - [X] T035 **P** | Verify all `results/` artefacts against their contract schemas (already executed). |
+| - [X] T033a **P** | Update `README.md` with overview, usage instructions, and a quick‑start command (`python -m code.main`). |
+| - [ ] T033b **P** | Add API usage examples for `screening.py` in `docs/api.md`. |
+| - [X] T034a **P** | Run `ruff` lint checks across the entire codebase. |
+| - [X] T034b **P** | Run `black` formatting across the entire codebase. |
+| - [X] T035 **P** | Verify all files under `results/` against their contract schemas (executed by CI). |
 | - [X] T036 **P** | Execute unit & contract test suites (`tests/unit/`, `tests/contract/`). |
-| - [X] T037 **P** | Implement `code/utils/runtime_logger.py` to write `results/runtime_report.json` (wall‑clock time). |
+| - [X] T037 **P** | Implement `code/utils/runtime_logger.py` that writes `results/runtime_report.json` (wall‑clock time, peak RAM). |
 
 ---
 
-## Phase 7 – Reviewer‑driven robustness enhancements  
+## Phase 7 – Reviewer‑driven robustness enhancements (optional, may be activated later)  
 
 | ID | Status | Description |
 |----|--------|-------------|
-| - [ ] T039 **P** | Add streaming support to `download.py` & `preprocess.py` when `config.yaml` sets `streaming: true`. |
-| - [ ] T040 **US2** | GP convergence fallback: reduce inducing points to 200, then log warning if still failing. |
-| - [ ] T041 **US2** | Ensure CV calculation in `run_seeds.py` uses *actual* ECE scores; log seed success count. |
-| - [ ] T042 **US3** | Validate `screening_threshold.json` values are finite; abort screening with clear error if not. |
-
----
-
-### Execution order (high‑level)
-
-1. **Phase 1 → Phase 2** (foundational tasks must finish before any user story).  
-2. **Phase 3** (US1) can start once `T006a‑d` are complete (they produce the processed feature files).  
-3. **Phase 4** (US2) runs after US1 artefacts (`*_predictions_*.csv`) are available.  
-4. **Phase 5** (US3) runs after calibration outputs and the decomposed prediction file (`results/uq_predictions_decomposed.csv`) exist.  
-5. **Phase 6** polishing can be performed anytime after the corresponding phases are successful.  
-6. **Phase 7** addresses reviewer concerns and may be interleaved with any phase that touches the affected component.  
+| - [ ] T039 **P** | Add streaming support to `download.py` and `preprocess.py` when `config.yaml` sets `streaming: true`. |
+| - [ ] T040 **US2** | GP convergence fallback: if training with 500 inducing points fails, automatically retry with 200 inducing points; log the fallback. |
+| - [ ] T041 **US2** | Ensure the CV calculation in `run_seeds.py` uses the *actual* ECE scores from each seed; log the per‑seed ECE values. |
+| - [ ] T042 **US3** | Validate that `screening_threshold.json` contains finite numbers; abort screening with a clear error if not. |
 
 ---  
 
-*All tasks are expressed as executable checklist items; each unchecked item represents work that still needs to be performed to satisfy the specification and pass the independent verifier.*
+*All unchecked items (`[ ]`) represent work that still needs to be performed to satisfy the specification and pass the independent verifier. Checked items (`[X]`) have already been verified as correct.*
