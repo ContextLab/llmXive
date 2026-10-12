@@ -7,25 +7,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py --dataset <dataset-name> -> rc=1
-e/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/code/data/download.py", line 19, in <module>
-    raise ImportError("The 'datasets' library is required. Install it via pip.") from e
-ImportError: The 'datasets' library is required. Install it via pip.
+Failed to load supplied dataset '<dataset-name>': Repo id must use alphanumeric chars, '-', '_' or '.'. The name cannot start or end with '-' or '.' and the maximum length is 96: '<dataset-name>'.
 
 - python code/data/validate.py -> rc=1
 
-Failed to load dataset: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+Failed to load dataset: expected str, bytes or os.PathLike object, not NoneType
 
 - python code/features/classification.py -> rc=1
 ocessed_features(logger)

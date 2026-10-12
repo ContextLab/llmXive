@@ -1,13 +1,14 @@
-# Project dependencies
-datasets
-huggingface_hub
-# Core scientific stack (already available in the base environment)
 numpy
 pandas
-scikit-learn
-statsmodels
+scipy
 matplotlib
 seaborn
-pyyaml
-tqdm
-# Logging utilities are part of the project (no external package needed)
+scikit-learn
+statsmodels
+PyYAML
+requests
+jsonschema
+psutil
+datasets
+huggingface_hub
+pyarrow==14.0.1

@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: 9d7637b8a43f60cda0c464fbd233630fd52d0d98bcc11aac9586436b3af51755
+  h: 4b4e4e04e3d97e0a3d8444a7d690f1142e234c390ab45c3b5f0a8e60a8188254
   r: "Checked the project root `projects/PROJ-290-the-impact-of-visual-search-strategies-o/`\
-    \ and confirmed the presence and non\u2011empty contents of `code/__init__.py`,\
-    \ `requirements.txt`, `pyproject.toml`, `README.md`, and `code/config.py`. All\
-    \ required core files exist with appropriate content."
-  sig: 2b54b53a8b58be2f15f823f1930681972e11c89de4d98b5082c74b58783e2d0c
+    \ and confirmed the presence and substantive content of `code/__init__.py`, `requirements.txt`,\
+    \ `pyproject.toml`, `README.md`, and `code/config.py`. All required core files\
+    \ exist and are non\u2011empty, meeting the task specification."
+  sig: 2a5e1d8963d21f008b989a28ff8940dfc966adeb92ca638bf0a20cdcb1de5cb6
 T002:
   c: true
   h: 6e3837d642e464f1b52d2e224f6760d49b86cf54d7348c89b74986ed7ad48960
@@ -17,13 +17,13 @@ T002:
   sig: 5234b91323aa8036e25d09cd419ff644b48de183c77358d6c75b452accab930c
 T003:
   c: true
-  h: ba4c75fd3d7fd43aad2506d8066ffe81205befb62693b8994c7d80d546ec51c3
-  r: "Checked `code/utils/hash_artifacts.py` (5115\u202Fbytes) which defines functions\
-    \ to recursively scan `data/` and `code/`, compute SHA\u2011256 hashes for every\
-    \ file, and write a JSON manifest, and verified the task\u2019s execution log\
-    \ (`code/.tasks/T003.code_utils_hash_artifacts.py.log`) showing the script ran\
-    \ successfully with exit\u202F0."
-  sig: b85eb22f29cd19f1dd813bb06dbce3c6005e8bed2ff329aaf17a5e5ca38519e6
+  h: 8547e52f96d9a892b28f0b1fe63869b094b0a08a19c2a6902c1d23fd04d27f43
+  r: "Checked `code/utils/hash_artifacts.py` (5115\u202Fbytes) which recursively scans\
+    \ the `data/` and `code/` directories, computes SHA\u2011256 hashes for every\
+    \ file, and writes a JSON manifest, and verified its successful run (exit\u202F\
+    0) in `code/.tasks/T003.code_utils_hash_artifacts.py.log`. The implementation\
+    \ fulfills the task\u2019s requirement."
+  sig: 34273123fd198056509d7c518059f835dd2c3bf6c78bd4896a7ca90f72a4dd3f
 T012:
   c: false
   h: 3e72600f3f02f0847d4d95f6b9b5bf4338df466f78aab90c58ea1c8f0609e4e1

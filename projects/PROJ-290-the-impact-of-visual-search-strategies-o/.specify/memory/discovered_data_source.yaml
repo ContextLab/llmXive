@@ -1,14 +1,14 @@
 status: none
-intent: eye tracking emotional face stimuli dataset gaze coordinates response times
-  HuggingFace Datasets python package dataset
+intent: download eye tracking emotional face dataset with gaze coordinates response
+  times huggingface python package dataset
 required_fields:
 - participant_id
-- stimulus_id
-- emotion_label
+- stimulus_image_id
 - gaze_x
 - gaze_y
-- gaze_timestamp
-- response_time_ms
-cache_key: a72112e98b995a8f82257c4d4651871cadc4a22206fdf69526f031eb3bd18417
-searched_at: '2026-10-12T02:37:56.873736+00:00'
+- timestamp
+- response_time
+- emotion_label
+cache_key: 5f2dc37f1be6797df73cbb2f1880f21539e4416938ff69feaaa2a627c7c8ab21
+searched_at: '2026-10-12T02:40:00.465915+00:00'
 retry_count: 1
