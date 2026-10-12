@@ -9,38 +9,47 @@ T000:
     ensuring the two CSV files exist and match real checksums\u2014is not met."
 T001a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I could find no artifact showing that a `code/` directory exists (or that it\
-    \ is writable); the implementer provided no file\u2011system evidence or screenshots\
-    \ confirming creation and idempotency. The required directory must be present\
-    \ and demonstrably writable to satisfy the task."
+  h: 2633b6bee5b25bb760ac190ea83de34d79b362d477879216d5038ecb8081febb
+  r: "The `code/` directory and the log showing `create_code_dir.py` ran without error\
+    \ are present, but the actual contents of `create_code_dir.py` were not examined.\
+    \ The task requires the script to create the directory idempotently using `parents=True,\
+    \ exist_ok=True` and to assert `os.access('code', os.W_OK)`. Without seeing the\
+    \ script (or a test confirming those exact calls and the write\u2011access assertion),\
+    \ we cannot verify that the implementation meets the specification. Provide the\
+    \ script\u2019s source code (or a test run that demonstrates the required behavior)\
+    \ to complete the task."
+  sig: 4c0c1ad1f2990ad0f9ce28198f03a24a737c3535055246444552a5c79ec51f28
 T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that a `tests/` directory exists in the project,
-    nor any proof that it is writable or that the creation is idempotent. The implementer
-    must create the directory (or show its presence) and demonstrate write access.
+  c: true
+  h: 49f007170272d04f66dc675321635d5cb4028888de6072c6936dcd635b210152
+  r: "Checked the presence of the `tests/` directory (non\u2011empty) and the unit\u2011\
+    test log `T001b.tests_unit_test_create_tests_dir.py.log`, which shows the idempotent\
+    \ creation script ran without error and the test `test_create_tests_dir_idempotent`\
+    \ passed. The accompanying script execution log confirms `code/create_tests_dir.py`\
+    \ executed successfully."
+  sig: 883d174e00b86f38d43b3edf863ab3d4a445e4d855794b3effae4a0acd5f9d8e
 T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/raw/` directory (or any script creating it) was provided;\
-    \ without a visible, non\u2011empty, writable directory we cannot confirm the\
-    \ required artifact exists or that idempotent creation was implemented. The implementer\
-    \ must supply proof that the directory was created (e.g., a filesystem listing,\
-    \ a script run output, or a test confirming writability)."
+  c: true
+  h: 5febb11819eb610f26623b9aa12310a23ebfd941d2eb1e3cf87ebdc888805533
+  r: "Checked that the `data/raw/` directory exists (contains a `.gitkeep` placeholder)\
+    \ and that the pytest suite includes a passing idempotent\u2011creation test (`tests/test_data_raw_dir.py`),\
+    \ confirming the required script runs without error and creates the directory\
+    \ as specified."
+  sig: 66d0043425a0f96b2d86e3d379a2128513f15559a6a60a2229d63d83fa3f4cdc
 T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the `data/processed/` directory actually exists
-    or is writable; the implementer did not supply any filesystem listing, script
-    output, or other artifact confirming creation of the directory. The claim cannot
-    be verified.
+  c: true
+  h: d004f934e3091e22e89fcdeb13e3c6dce7a9a7e0fa964bf8519359f945e2ffab
+  r: Checked that `data/processed/` directory exists (contains a `.gitkeep` file)
+    and that the pytest log `code/.tasks/T001d.tests_test_create_data_processed_dir.py.log`
+    shows the idempotent creation test passed.
+  sig: e40de8b5a64301c64248a5e992913030d9385eb501e8899c1fd7e84481d63e47
 T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `results/` directory being created, nor any check that it exists
-    and is writable. The implementer only provided feature specifications; the required
-    artifact (the `results/` folder) is missing.
+  c: true
+  h: 7412b373d8ea66dbbc00658b3ac7b04440f154e87e44da9e6009987a476f6c4b
+  r: Checked the `results/` directory (contains .gitkeep, figures/, logs/) and the
+    passing pytest log (`tests/test_create_results_dir.py`), which confirms the script
+    creates the directory idempotently.
+  sig: 3709da3aa3605fd29da7f90e57f01b41e50bade00b1f79c5dbc608252e347798
 T017:
   c: false
   h: 76178f209e7ad92f8e2d25c7bd17c0aa4a9b566a9f89351273f7dd81362d2361
@@ -64,20 +73,6 @@ T019:
     so there is no evidence that error handling was added, logged, or that the pipeline
     now avoids crashing on series failures. The required artifact (updated `runner.py`
     with specific try/except and logging) is missing.
-T025:
-  c: false
-  h: 421c66b19f6c480c9336acc2ebb4b8c51414496daf017c6d80e18bdceac63b27
-  r: The required output file `results/distributional_metrics.csv` does not exist,
-    so the aggregation of PIT and CRPS results was not produced. The task therefore
-    lacks the essential artifact.
-T031:
-  c: false
-  h: 0a57711a334c4aafb51664655b0c0889ff4a95bc56f7a0001864079321e35127
-  r: The provided `significance_orchestrator.py` is truncated and ends abruptly, indicating
-    missing implementation logic. Moreover, the required input files (`results/coverage.csv`,
-    `results/distributional_metrics.csv`) and the expected output files (`results/significance_test.csv`,
-    `results/conformal_results.csv`) are absent from the repository. Without these
-    files and a complete script, the task requirements are not met.
 T031b:
   c: false
   h: 61173760e1a5e8387188171fa8e3154b52ee36d5dfe8da46e539ac8f509fcbfa
@@ -86,32 +81,12 @@ T031b:
     s results are not produced and the required columns and calculated `improvement_delta`\
     \ cannot be verified. The missing CSV must be generated for the task to be considered\
     \ complete."
-T033a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No API documentation files for `code/models/` or `code/metrics/` were presented;
-    the response contains only the task description and specifications, with no generated
-    documentation artifacts. The required deliverables are missing.
 T035a:
   c: false
   h: f128be074d0cbe1f4de2031be29a757d0aa8f045fa776f145210dd9bd3cd6b24
   r: The required artifact `results/benchmark_timing.csv` does not exist, so no runtime
     data was recorded to verify the time limit constraint. The implementer must generate
     the CSV file with the pipeline timing results.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` validation run (e.g., execution logs, reproduced\
-    \ results, or a report confirming end\u2011to\u2011end reproducibility) was provided;\
-    \ the implementer supplied only the feature specification without any artifact\
-    \ demonstrating the required validation."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test results, logs, or documentation were provided that demonstrate\
-    \ the `state/` directory\u2019s hash values and `updated_at` timestamps are being\
-    \ computed and stored correctly; the claim lacks any concrete artifact to verify\
-    \ the requirement."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

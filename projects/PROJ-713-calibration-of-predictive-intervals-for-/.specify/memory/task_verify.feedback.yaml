@@ -1,0 +1,76 @@
+T000:
+  task: 409d817c2b516eb5601c3245cabedcb1eb76e98332bfb95fb952b9525bad5199
+T001a:
+  reason: "The `code/` directory and the log showing `create_code_dir.py` ran without\
+    \ error are present, but the actual contents of `create_code_dir.py` were not\
+    \ examined. The task requires the script to create the directory idempotently\
+    \ using `parents=True, exist_ok=True` and to assert `os.access('code', os.W_OK)`.\
+    \ Without seeing the script (or a test confirming those exact calls and the write\u2011\
+    access assertion), we cannot verify that the implementation meets the specification.\
+    \ Provide the script\u2019s source code (or a test run that demonstrates the required\
+    \ behavior) to complete the task."
+  task: 6a06941298e038145fb7d7ada1234eef52b01955ad1c65fd8aca5b45bf1d1bef
+T001b:
+  task: 2f4dbf8733ad965d0d9644bdc4ccb984af36257071df1427d8225d50a65e5343
+T001c:
+  task: 566a919711535bc4e5cd70fe787de9ac53848d54975862b590c75f591a03815b
+T001d:
+  task: 023523f4214c8c5cfb32c187fc00cbfaf71539172d942d9838d9f2d3460d1902
+T001e:
+  task: a8a849c903fb0cf1017fdd49cac1885e64446bfc5a961cdf7db473b784200d30
+T001f:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_config.py
+    exit=1'
+  task: e5d552898efce5a69727de055a7210ab64d82d0a994ce36f6b8fef026f2fb6a5
+T001g:
+  task: 5fa693a5c4af37cbdef26b04964203445ea41aa78799a29143305b8b374b95de
+T001h:
+  task: a284665dd04baa3c3f23183f7d412b576d9786d0f081acb239fc27e0185c78a4
+T001i:
+  task: 673ee9497b2362b307e849d3aa60a58e305cebfd85ecbe9237f32992edf2ba66
+T001j:
+  task: 733887454d7ed84bb2029ee57c39b47ef4213997e00c4c27f39500daadb578de
+T001k:
+  task: 83696c16ee64d98b0e5dc6ca7c9870a71ca3d2836948ae531c2f3f1c4e678a9d
+T006a:
+  task: da45c69617ba2cdff54b510e2d2cc529e127bfe363b1fbd30c9224be247051da
+T006c:
+  task: 0e320de886b4df788f44d97fbab09e96b65c76b49e9f8f496fcd42330ecdee6d
+T007:
+  task: cd4344aed26468aafc6ce96f26798ba1f53fccd4327c867be7e90207dce465e0
+T008:
+  task: 6ffcaf7a38b11eaddfb7f904f25056a62a45135dbfbd8192415940026cffc9b8
+T009:
+  task: 03f9666ff401a8630ddb63a84f85cf01164870e9dc97c004ee31d849fdb5545e
+T012:
+  task: cccb66dfc93863341bfb220ab868ef811200c6c0763417f54a881a0cea6b78af
+T013:
+  task: c6445fcafd482908681e12621353edf85e02a44ded2b7766dca4d67a66ed6529
+T014:
+  task: 01873d373befd373a4354716d627418cf956f0b29d476a57e832faf9afe1ad43
+T015:
+  task: 1d7924eb4816082afd7cba30f3cf6e36cc5b15664c42a079fb6454c522cee990
+T016:
+  task: bf8db881e905d0d628244479071ece5e18a1a1f516b6ee3ee9f7c7e709903a3b
+T017:
+  task: 8ba1ab9f8fd53c92c2d58c8a1543cd88dfb1dd381ffb7d3908b3c156821df129
+T018:
+  task: 33b2209bdaf1df778bb4fbc871152c3e2494fcf2fdf2ff9971f5c1ff8c8341a3
+T019:
+  task: f4eae36df648388b9325b40666c3b072c93e017155593bfd00249672fe3dd70e
+T021:
+  task: 858051267460bfd6713dad8967a0c1a20b04a359adae1cacc66e78a3e0a698c7
+T022:
+  task: 55d3e0d072164629a7b90730eafae1bf7bfa5e57f3d2f09a06e5d7075be34c76
+T031a:
+  task: 1b4893d6a5f96bdf0a513298a2b1ff52cb62673685d78ee8e23085005173b110
+T031b:
+  task: 0d14594a8b4d04d3784e7a9c6d3f75bf51443ba23fc3c5385b3f29adb88f3a26
+T032:
+  task: fe9318eabe395466f440eda0e1cdf741e6da649f0db98f262b7d49bc00cbcdf5
+T035a:
+  task: 3915096276c3f89b8af48068a8eb8a4cc135454ae807677981a8c6a4e4c09c18
+T036:
+  task: 99154b1d096330a0be712997242007e4497a17b4d020a335b1ee208b42098493
+T040:
+  task: 3547a66671abe1377323b3c266b69ae2a10d65e60e3fe2752847ce8c14a06dd4

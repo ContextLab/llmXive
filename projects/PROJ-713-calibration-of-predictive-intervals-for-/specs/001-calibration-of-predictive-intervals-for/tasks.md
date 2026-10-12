@@ -15,19 +15,19 @@ Unchecked items are pending implementation or revision; checked items have been 
 - [ ] T001a [P] Create `code/` directory (idempotent).  
   *Verification*: Run a Python script that creates the directory with `parents=True, exist_ok=True` and asserts `os.access('code', os.W_OK)`.
 
-- [ ] T001b [P] Create `tests/` directory (idempotent).  
+- [X] T001b [P] Create `tests/` directory (idempotent).  
   *Verification*: Same script as T001a with path `tests/`.
 
-- [ ] T001c [P] Create `data/raw/` directory (idempotent).  
+- [X] T001c [P] Create `data/raw/` directory (idempotent).  
   *Verification*: Same script as T001a with path `data/raw/`.
 
-- [ ] T001d [P] Create `data/processed/` directory (idempotent).  
+- [X] T001d [P] Create `data/processed/` directory (idempotent).  
   *Verification*: Same script as T001a with path `data/processed/`.
 
-- [ ] T001e [P] Create `results/` directory (idempotent).  
+- [X] T001e [P] Create `results/` directory (idempotent).  
   *Verification*: Same script as T001a with path `results/`.
 
-- [ ] T001f [P] Add `code/config.yaml` defining canonical paths (`paths.code`, `paths.tests`, `paths.data_raw`, `paths.data_processed`, `paths.results`).  
+- [ ] T001f [P] Add `code/config.yaml` defining canonical paths (`paths.code`, `paths.tests`, `paths.data_raw`, `paths.data_processed`, `paths.results`).   <!-- FAILED-IN-EXECUTION: code/verify_config.py exit=1 -->
   *Verification*: Load the YAML and assert all five keys exist and point to existing directories.
 
 - [ ] T001g [P] Test idempotent creation of `code/` (run script twice, assert no error).  
