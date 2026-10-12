@@ -33,3 +33,25 @@
   verification_status: pending
   verified_against_url: https://github.com/Mcompetitions/M4-methods/tree/master/Dataset
   verified_at: '2026-10-12T14:29:36.409023Z'
+- artifact_hash: e4f7e1aab4ff88aea4a3676e32f580aa8082a51af26a553452d726284df69c17
+  artifact_path: projects/PROJ-713-calibration-of-predictive-intervals-for-/specs/001-calibration-of-predictive-intervals-for/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/monash-university-forecasting/m4-competition/raw/master/M4-Competition.zip`
+  verification_status: mismatch
+  verified_against_url: https://github.com/monash-university-forecasting/m4-competition/raw/master/M4-Competition.zip
+  verified_at: '2026-10-12T14:36:51.203765Z'
+- artifact_hash: e4f7e1aab4ff88aea4a3676e32f580aa8082a51af26a553452d726284df69c17
+  artifact_path: projects/PROJ-713-calibration-of-predictive-intervals-for-/specs/001-calibration-of-predictive-intervals-for/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/static/public/321/electricity.zip`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/static/public/321/electricity.zip
+  verified_at: '2026-10-12T14:36:51.203765Z'
