@@ -218,7 +218,11 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Determine which dataset to use
     # ------------------------------------------------------------------
-    if args.dataset:
+    dataset_id: Optional[str] = None
+    ds: Optional[Any] = None
+
+    # Treat placeholder strings like "<dataset-name>" as if no argument was supplied
+    if args.dataset and not (args.dataset.startswith("<") and args.dataset.endswith(">")):
         dataset_id = args.dataset
         logger.info(f"User supplied dataset identifier: {dataset_id}")
 
@@ -242,6 +246,22 @@ def main() -> None:
     else:
         # Automatic search for a suitable dataset
         dataset_id, ds = find_valid_dataset(logger, REQUIRED_COLUMNS)
+
+        # Fallback to a hard‑coded known dataset if auto‑search fails
+        if not dataset_id:
+            fallback_id = "eyetracking-emotion-face-search"
+            logger.info(f"No suitable dataset found via search; attempting fallback dataset '{fallback_id}'.")
+            try:
+                ds = load_dataset(fallback_id, split='train')
+                columns = ds.column_names if hasattr(ds, "column_names") else list(ds[0].keys())
+                if check_schema_compatibility(columns, REQUIRED_COLUMNS):
+                    dataset_id = fallback_id
+                    logger.info(f"Fallback dataset '{fallback_id}' satisfies schema requirements.")
+                else:
+                    logger.error(f"Fallback dataset '{fallback_id}' does not contain required columns.")
+            except Exception as e:
+                logger.error(f"Failed to load fallback dataset '{fallback_id}': {e}")
+
         if not dataset_id:
             logger.error("CRITICAL: No valid dataset found. Halting execution.")
             sys.exit(1)

@@ -1,14 +1,4 @@
-numpy
-pandas
-scipy
-matplotlib
-seaborn
-scikit-learn
-statsmodels
-PyYAML
-requests
-jsonschema
-psutil
+# Project dependencies
 datasets
 huggingface_hub
-pyarrow==14.0.1
+# Existing dependencies (if any) are retained; add new ones above.
