@@ -1,293 +1,188 @@
 # Tasks: Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation
 
-**Input**: Design documents from `/specs/001-quantifying-the-effects-of-dark-matter-h/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, P3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a [P] Create `code/` directory and subdirectories (`ingestion`, `processing`, `analysis`, `utils`, `tests`). **Action**: Create `code/`, `code/ingestion`, `code/processing`, `code/analysis`, `code/utils`, `code/tests`. **Deliverable**: Directory tree. **Verification**: Run `scripts/verify_structure.py` (if exists) or check `ls -R code/`.
-- [ ] T001b [P] Create `data/` directory and subdirectories (`raw`, `processed`, `metadata`). **Action**: Create `data/`, `data/raw/tng100`, `data/raw/millennium`, `data/processed`, `data/metadata`. **Deliverable**: Directory tree.
-- [ ] T001c [P] Create `outputs/` and `docs/` directories. **Action**: Create `outputs/figures`, `outputs/reports`, `docs/`. **Deliverable**: Directory tree.
-- [X] T002 [P] Create `docs/` directory structure with `quickstart.md` and `README.md` placeholders. **Action**: Create `docs/quickstart.md`, `docs/README.md`. **Deliverable**: Files.
-- [ ] T003a [P] Create `.ruff.toml` configuration file. **Action**: Create `.ruff.toml` with `target-version = "3.11"`, `select = ["E", "F", "W", "I"]`. **Deliverable**: `.ruff.toml`. **Verification**: Run `ruff check --config.ruff.toml code/` (expect no errors on empty code).
-- [X] T003b [P] Create `pyproject.toml` configuration file. **Action**: Create `pyproject.toml` with `[tool.black]`, `line-length = 88`. **Deliverable**: `pyproject.toml`.
-- [X] T004 [P] Setup configuration management (`code/utils/config.py`) with `random.seed()` and path constants. **Action**: Implement `code/utils/config.py`. **Deliverable**: `code/utils/config.py`.
-- [X] T005 [P] Implement chunked data I/O utilities (`code/utils/io.py`). **Action**: Implement `code/utils/io.py` with streaming support. **Deliverable**: `code/utils/io.py`.
-- [X] T006 [P] Create base logging infrastructure. **Action**: Create `code/utils/logging.py` and configure `logging.basicConfig` in `code/main.py`. **Deliverable**: `code/utils/logging.py`. **Verification**: Run `code/main.py` and check for log output.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Input**: Design documents from `/specs/001-quantifying-the-effects-of-dark-matter-h/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data‑model.md`, `contracts/`
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup and First End‑to‑End Analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Goal**: Establish the project skeleton, utilities, and a runnable “hello‑world” pipeline on a tiny real input so that the next phases can be built on a verified base.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+| ID | Parallel? | Story | Description |
+|----|-----------|-------|-------------|
+- [ ] T001a [P] **Setup** Create the `code/` package hierarchy (`ingestion`, `processing`, `analysis`, `utils`, `tests`).  
+  - **Path**: `code/` and sub‑directories.  
+  - **Verification**: Run `ls -R code/` and confirm the expected tree exists.  
 
-- [X] T026a [P] **Mandatory Utility**: Implement shared metadata flag injection in `code/utils/io.py`. **Mechanism**: Add `write_associational_flag()` function that writes `# associational_only=true` to CSV headers and `{"associational_only": true}` to JSON. **Deliverable**: Updated `code/utils/io.py`.
-- [X] T026b [P] **Mandatory Utility**: Update `code/ingestion/` writers to invoke `write_associational_flag()`. **Action**: Modify `code/ingestion/tng_loader.py` and other writers to call the utility. **Deliverable**: Updated `code/ingestion/`.
-- [X] T026c [P] **Mandatory Utility**: Verify metadata flag injection. **Action**: Run `code/tests/test_io.py::test_associational_flag` to ensure flags are present in output files. **Deliverable**: Passing test. **Verification**: `pytest code/tests/test_io.py::test_associational_flag`.
-- [X] T010 [P] [US1] Integration test for TNG-100 download and chunk processing in `code/tests/test_pipeline.py`. **Action**: Implement `test_pipeline_chunking`. **Deliverable**: `code/tests/test_pipeline.py`.
+- [ ] T001b **Setup** Create the data directory hierarchy for raw and processed assets.  
+  - **Path**: `data/raw/tng100/`, `data/raw/millennium/`, `data/processed/`, `data/metadata.yaml`.  
+  - **Verification**: `ls -R data/` must list the four sub‑folders and an empty `metadata.yaml` file.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T001c **Setup** Create output and documentation directories.  
+  - **Path**: `outputs/figures/`, `outputs/reports/`, `docs/quickstart.md`, `docs/README.md`.  
+  - **Verification**: `ls -R outputs/ docs/` must show the directories and placeholder markdown files.  
 
----
+- [ ] T002 [P] **Docs** Add `docs/quickstart.md` and `docs/README.md` placeholders describing how to run the pipeline.  
+  - **Verification**: Both files exist and contain a `## Quickstart` section with a `python -m code.main` command.  
 
-## Phase 3: User Story 1 - Core Data Ingestion and Halo Shape Computation (Priority: P1) 🎯 MVP
+- [ ] T003a **Lint Config** Add a minimal `.ruff.toml` that enables the core linter rules for Python 3.11.  
+  - **Path**: `.ruff.toml` at repository root.  
+  - **Verification**: `ruff check .` runs without syntax errors on the empty repo.  
 
-**Goal**: Download TNG-100 data, compute reduced inertia tensors, and derive axial ratios/triaxiality for valid haloes. Also ingest central galaxy properties.
+- [ ] T003b **Formatter Config** Add `pyproject.toml` with Black configuration (`line-length = 88`).  
+  - **Verification**: `black --check .` runs without formatting violations on existing code.  
 
-**Independent Test**: Verify the pipeline retrieves the TNG-100 catalog, computes inertia tensors for a random subset of haloes, and outputs CSVs with valid axial ratios (0 < b/a ≤ 1, 0 < c/a ≤ 1) and triaxiality (0 ≤ T ≤ 1), excluding haloes with <10k particles.
+- [ ] T004 **Config Utility** Implement `code/utils/config.py` containing a seeded random generator (`random.seed(42)`) and path constants (`PROJECT_ROOT`, `DATA_ROOT`, etc.).  
+  - **Verification**: Import the module in a REPL and confirm `random.getstate()` is deterministic.  
 
-### Implementation for User Story 1
+- [ ] T005 **I/O Utilities** Implement `code/utils/io.py` with streaming CSV/Parquet read/write helpers that automatically inject the required `associational_only=true` flag into the header or metadata.  
+  - **Verification**: Write a test CSV and inspect the first line for the flag.  
 
-- [X] T011 [P] [US1] Implement TNG-100 data fetcher in `code/ingestion/tng_loader.py`: Fetch static HDF files from `https://www.tng-project.org/api/v2/snapshots/000/halos` using `requests`, handling pagination and checksums. **Note**: Use the API to retrieve the list of files, then download specific HDF5 files.
-- [X] T012 [P] [US1] **Define Interface First**: Create `code/processing/inertia_tensor.py` with stub functions and docstrings for eigenvalue decomposition. **Action**: Define the function signatures and input/output contracts before implementing the full logic. **Deliverable**: `code/processing/inertia_tensor.py` with stub functions.
-- [X] T013 [US1] Implement shape metrics derivation (axial ratios, triaxiality) in `code/processing/shape_metrics.py`. **Action**: Implement `compute_axial_ratios` and `compute_triaxiality`. **Deliverable**: `code/processing/shape_metrics.py`.
-- [X] T014 [US1] **BLOCKING**: Implement halo filtering logic (exclude N < 10,000 particles) in `code/processing/shape_metrics.py`. **Dependency**: T013. **Deliverable**: `code/processing/shape_metrics.py` with filtering logic.
-- [X] T016 [US1] **PRIMARY**: Implement Chunked Streaming pipeline to process EVERY FoF halo in TNG without loading into RAM. **Action**: Use `datasets.load_dataset(..., streaming=True)` and iterate in chunks. **Dependency**: T014. **Deliverable**: `code/processing/pipeline_runner.py` with streaming logic. **Note**: This satisfies FR-001 "every FoF halo" within 7GB RAM limits.
-- [X] T017 [US1] **BLOCKING**: Implement aggregation and validation in `code/processing/pipeline_runner.py`. **Action**: Merge chunks, validate 0 < b/a ≤ 1 and 0 < c/a ≤ 1, log excluded haloes to `data/processed/exclusion_log.json`, and output `data/processed/halo_shapes.csv`. **Schema**: `halo_id` (int), `mass` (float), `b_a_ratio` (float), `c_a_ratio` (float), `triaxiality` (float), `particle_count` (int). **Verification**: Run `code/tests/test_validation.py::test_axial_ratio_bounds` and `code/tests/test_validation.py::test_completeness_check` to ensure output count matches input minus exclusions. **Deliverable**: `data/processed/halo_shapes.csv` and `data/processed/exclusion_log.json`.
-- [X] T018 [US1] **CRITICAL ADDITION**: Implement central galaxy property ingestion in `code/ingestion/tng_loader.py`. **Action**: Extract SFR, effective radius, and stellar mass for the most massive subhalo (central) within each halo. **Dependency**: T011. **Deliverable**: `data/processed/galaxy_properties.csv` with schema: `galaxy_id` (int), `halo_id` (int), `sfr` (float), `effective_radius` (float), `stellar_mass` (float). **Note**: This task must complete before T036/T038 in Phase 6.
-- [X] T009 [US1] Unit test for inertia tensor singularity handling in `code/tests/test_inertia.py`. **Test**: `test_singular_matrix_raises_error` must raise `ValueError` when particles < 10,000 or matrix is singular. **Dependency**: T014 (Filtering logic implementation). **Note**: Moved from Phase 2 to Phase 3 to resolve circular dependency.
+- [ ] T006 **Logging** Add `code/utils/logging.py` and configure a basic logger in `code/main.py`.  
+  - **Verification**: Running `python -m code.main` prints a timestamped INFO line.  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (T018 is now complete)
-
----
-
-## Phase 4: User Story 2 - Statistical Correlation, Binning, and Mass Control (Priority: P2)
-
-**Goal**: Bin haloes, perform mass-matching, execute statistical tests (KW, MWU, KS, Regression), and apply Bonferroni correction.
-
-**Independent Test**: Verify output includes correlation coefficients, p-values, and regression coefficients with evidence of mass-matching/stratification and Bonferroni correction.
-
-**⚠️ DEPENDENCY**: Phase 4 MUST WAIT for Phase 3 completion (specifically T017 and T018 output).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T020a [P] [US2] Unit test for binning logic (prolate/triaxial/spherical) in `code/tests/test_stats.py`. **Dependency**: T020c.
-- [X] T020b [US2] Unit test for Bonferroni correction application in `code/tests/test_stats.py`. **Action**: Implement `test_bonferroni_correction`. **Deliverable**: `code/tests/test_stats.py`.
-
-### Implementation for User Story 2
-
-- [X] T021 [US2] Implement mass-matching algorithm interface in `code/analysis/stats.py`: Define the function signatures and input/output contracts for Nearest-Neighbor Matching with a moderate mass tolerance. **Do not use Propensity Score Stratification**. **Deliverable**: `code/analysis/stats.py` with interface definitions.
-- [X] T021b [US2] **BLOCKING**: Implement Streaming Mass-Matching in `code/analysis/stats.py`. **Action**: Implement a memory-efficient matching algorithm (e.g., block-wise sorting or approximate nearest neighbor) that processes the joined dataset in chunks. **Input**: Streams from `data/processed/halo_shapes.csv` and `data/processed/galaxy_properties.csv`. **Output**: `data/processed/matched_chunks/` directory containing small CSV files (e.g., `match_001.csv`, `match_002.csv`). **Schema**: `halo_id`, `galaxy_id`, `mass`, `b_a_ratio`, `c_a_ratio`, `triaxiality`, `sfr`, `effective_radius`. **Verification**: Run `code/tests/test_stats.py::test_mass_matching_chunks` to ensure chunks are correctly mass-matched. **Dependency**: T017, T018, T021, T026c. **Deliverable**: `code/analysis/stats.py` with streaming-compatible matching logic and `data/processed/matched_chunks/`. **CRITICAL VERIFICATION**: Implement a static analysis script (`code/tests/verify_downstream_consumption.py`) that scans the source code of T023a and T023b to ensure they explicitly import from `data/processed/matched_chunks/` and NOT from the raw data files. This ensures FR-012 is enforced in the execution flow.
-- [X] T022 [US2] Implement non-parametric tests (Kruskal-Wallis, Mann-Whitney U, KS) in `code/analysis/stats.py`. **Action**: Implement `kruskal_wallis`, `mann_whitney_u`, `kolmogorov_smirnov`. **Dependency**: T020c. **Deliverable**: `code/analysis/stats.py`.
-- [ ] T023a [US2] **BLOCKING**: Implement linear regression with mass control in `code/analysis/stats.py`. **Action**: Perform regression of galaxy property ~ continuous shape parameters (**specifically 'triaxiality' and 'b_a_ratio'**) AND **categorical shape bins** controlling for halo mass. **Model**: `SFR ~ triaxiality + b_a_ratio + mass` using `statsmodels`. **Input**: **Iterate over `data/processed/matched_chunks/`** (output of T021b) to ensure mass-matching is applied. **Dependency**: T017, T018, T021, T021b, T026c. **Verification**: Ensure the regression input is explicitly the mass-matched dataset from T021b. **Deliverable**: `data/processed/regression_results.csv` (columns: predictor, coefficient, p_value, r_squared, ci_lower, ci_upper).
-- [ ] T023b [US2] **PRIMARY**: Implement categorical shape binning tests (Kruskal-Wallis, Mann-Whitney U, KS) in `code/analysis/stats.py` based on FR-003/FR-004. **Action**: Implement tests for prolate (c/a < 0.5), triaxial (0.5 ≤ c/a ≤ 0.8), and spherical (c/a > 0.8) bins. **Input**: **Iterate over `data/processed/matched_chunks/`** (output of T021b). **Dependency**: T017, T018, T020b, T021b, T026c. **Deliverable**: `data/processed/binning_tests.csv`.
-- [X] T020c [US2] Implement shape binning logic (c/a < 0.5, 0.5-0.8, > 0.8) in `code/processing/shape_metrics.py`. **Dependency**: T017 output. **Note**: This is secondary to regression but required for visualization and KS tests.
-- [X] T024 [US2] Implement Bonferroni correction for multiple comparisons in `code/analysis/stats.py`. **Dependency**: T020b. **Deliverable**: `code/analysis/stats.py`.
-- [ ] T025 [US2] Create analysis script to generate `data/processed/statistical_results.csv`. **Dependency**: T021, T021b, T022, T023a, T023b, T024, T026c.
-- [ ] T027 [US2] Add logging for null hypothesis rejection flags (p < 0.01). **Dependency**: T024.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T026a **Metadata Flag Injection** Extend `code/utils/io.py` with `write_associational_flag()` that writes the flag to CSV headers and JSON metadata.  
+- [ ] T026b **Ingestion Hook** Update `code/ingestion/tng_loader.py` (and any future ingestion scripts) to call `write_associational_flag()` on every output file.  
+- [ ] T026c **Flag Verification Test** Add `code/tests/test_io.py::test_associational_flag` ensuring the flag appears in all written CSVs.  
+- [ ] T010 **Integration Test – Chunked TNG Download** Implement `code/tests/test_pipeline.py::test_pipeline_chunking` that simulates downloading a single TNG‑100 HDF5 chunk and verifies that a processed halo row appears in `data/processed/halo_shapes.csv`.  
 
 ---
 
-## Phase 5: User Story 3 - Robustness Validation and Sensitivity Analysis (Priority: P3)
+## Phase 2 – Core Data Ingestion & Halo Shape Computation (User Story 1, P1)
 
-**Goal**: Repeat analysis on Millennium-II (if available) and perform sensitivity sweep on binning thresholds.
+- [ ] T011 **TNG‑100 Loader** Implement `code/ingestion/tng_loader.py` to query the official TNG API, paginate through halo files, download HDF5 chunks to `data/raw/tng100/`, and verify checksums.  
+  - **Verification**: After a run, `data/raw/tng100/` contains at least one `*.hdf5` file and a matching entry in `data/metadata.yaml`.  
 
-**Independent Test**: Verify sensitivity analysis report shows p-value stability across threshold sweeps and comparison with Millennium-II results.
+- [ ] T012 **Inertia Tensor Stub** Create `code/processing/inertia_tensor.py` with documented signatures: `compute_reduced_inertia_tensor(particle_positions, masses) -> np.ndarray`.  
+  - **Verification**: Import the module and call the stub; it raises `NotImplementedError`.  
 
-**⚠️ DEPENDENCY**: Phase 5 MUST WAIT for Phase 4 completion (specifically T026c output).
+- [ ] T013 **Shape Metrics** Implement `code/processing/shape_metrics.py` functions `compute_axial_ratios(eigenvalues) -> (b_a, c_a)` and `compute_triaxiality(a, b, c) -> T`.  
+  - **Verification**: Unit test in `code/tests/test_shape.py` validates known eigenvalue sets.  
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T014 **Resolution Filter** Add logic to `shape_metrics.py` that drops any halo with `n_dm_particles < 10_000`.  
+  - **Verification**: `test_filter_low_res` ensures such halos never appear in the output CSV.  
 
-- [X] T028 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`. **Action**: Implement `test_sensitivity_sweep`. **Deliverable**: `code/tests/test_sensitivity.py`.
+- [ ] T016 **Chunked Streaming Pipeline** Implement `code/processing/pipeline_runner.py` that streams the full FoF catalog using `datasets.load_dataset(..., streaming=True)`, processes each halo chunk, applies the filter, computes shape metrics, and writes rows incrementally to `data/processed/halo_shapes.csv`.  
+  - **Verification**: After a short run on a single stream chunk, the CSV contains at least one row with valid `b_a`, `c_a`, `T` values (0 < ≤ 1).  
 
-### Implementation for User Story 3
+- [ ] T017 **Aggregation & Validation** Extend the pipeline runner to: (1) merge streamed chunks, (2) validate that every row respects the axial‑ratio bounds, (3) log excluded halos to `data/processed/exclusion_log.json`, and (4) write the final CSV with the schema defined in `halo_schema.schema.yaml`.  
+  - **Verification**: Run `pytest code/tests/test_validation.py::test_axial_ratio_bounds` and `::test_completeness_check`.  
 
-- [ ] T029 [US3] Implement Millennium-II and WDM variant data fetcher in `code/ingestion/millennium_loader.py`. **Action**: Attempt to fetch Millennium-II and WDM variant snapshots from official public API endpoints. **If URLs are unverified or data is missing**: Trigger T031-LogGap to log the specific gap and trigger a Spec Amendment task to formally amend FR-007 to 'Conditional' before proceeding. **Do not skip by design**; the task is to attempt fetch and trigger the gap protocol. **Dependency**: None.
-- [ ] T030 [US3] **BLOCKING**: Implement Sensitivity Logic Definition in `code/analysis/sensitivity.py`. **Action**: Define the sweep parameters across a representative range and the logic for computing stats for each. **Dependency**: T026c. **Deliverable**: `code/analysis/sensitivity.py` with logic definitions. **Note**: This task defines the sweep, but does NOT execute the full pipeline.
-- [ ] T030-RunSweep [US3] **PRIMARY**: Implement Sensitivity Orchestration. **Action**: Re-run the statistical pipeline (T023a, T023b) for EACH of the four threshold variations {, 0.55, 0.75, 0.85}. **Input**: `data/processed/matched_chunks/` (from T021b). **Mechanism**: Pass `threshold_config` parameter to T023a/T023b (and T020c) to dynamically adjust binning thresholds. **DO NOT re-run T021b** as mass-matching is independent of shape binning thresholds. **Dependency**: T030, T021, T021b, T022, T023a, T023b, T024, T026c. **Deliverable**: `data/processed/sensitivity_results.csv` (columns: threshold_set, p_value, significance_status). **Verification**: Run `code/tests/test_sensitivity.py::test_sweep_results` to ensure rows with correct columns. **Note**: This task ensures FR-006 is implementable by explicitly commanding the re-execution of the analysis for each threshold.
-- [ ] T031-Fetch [US3] Create script to fetch Millennium-II data (if available) and output `data/raw/millennium/halo_catalog.hdf5`. **Dependency**: T029. **Action**: If fetch fails (HTTP 404/500 or file not found), **immediately trigger T031-LogGap** and skip downstream tasks. **CRITICAL**: Upon successful fetch, record the exact version identifier in `data/metadata.yaml`. **Deliverable**: `data/raw/millennium/halo_catalog.hdf5`.
-- [ ] T031-Process [US3] Run ingestion and shape computation pipeline on Millennium-II data (if fetched) and output `data/processed/millennium_shapes.csv`. **Action**: Extract galaxy properties (SFR, radius) from subhalo catalogs and output `data/processed/millennium_galaxy_properties.csv`. **Dependency**: T031-Fetch.
-- [ ] T031-MM-RunFull [US3] **BLOCKING**: Run full statistical analysis pipeline on Millennium-II data (if processed). **Action**: Execute mass-matching (T021b), binning tests (T023b), regression (T023a), and sensitivity sweep (T030-RunSweep) on the Millennium-II dataset. **Dependency**: T031-Process. **Deliverable**: `data/processed/millennium_results.csv`. **Note**: This task ensures FR-007 is implementable if data is available.
-- [ ] T031-WDM-Fetch [US3] Attempt to fetch WDM variant snapshots (if available). **Dependency**: T029. **Action**: If missing or fetch fails, **immediately trigger T031-LogGap** and skip downstream tasks.
-- [ ] T031-WDM-Process [US3] Run ingestion and shape computation pipeline on WDM data (if fetched) and output `data/processed/wdm_shapes.csv`. **Action**: Extract galaxy properties (SFR, radius) from subhalo catalogs and output `data/processed/wdm_galaxy_properties.csv`. **Dependency**: T031-WDM-Fetch.
-- [ ] T031-WDM-Analyze-Full [US3] **BLOCKING**: Run full statistical analysis pipeline on WDM data (if processed). **Action**: Execute mass-matching (T021b), binning tests (T023b), regression (T023a), and sensitivity sweep (T030-RunSweep) on the WDM dataset. **Dependency**: T031-WDM-Process. **Deliverable**: `data/processed/wdm_results.csv`. **Note**: This task ensures FR-007 is implementable if data is available.
-- [ ] T031-LogGap [US3] **Mandatory**: If T029/T031-Fetch/T031-WDM-Fetch fail, log the specific gap to `data/metadata.yaml` and `outputs/reports/gap_log.md`. **Action**: Add `"millennium_url": "unverified"` and `"wdm_url": "unverified"` to `data/metadata.yaml`. Write `outputs/reports/gap_log.md` with the exact template: `# Data Gap Log\n\n## Millennium-II\n- Status: Unavailable\n## WDM Variant\n- Status: Unavailable`. Mark SC-004 as 'Not Measurable' in the final report for both Millennium-II and WDM variant absence. **Input**: Error log from fetch. **Output**: `outputs/reports/gap_log.md` and updated `data/metadata.yaml`. **Dependency**: None (runs only on failure). **Note**: This task ensures FR-007 has a concrete implementation path even if data is missing, without authorizing a spec amendment.
-- [ ] T032 [US3] Generate sensitivity report comparing significance rates and p-value variance across thresholds. **Dependency**: T030, T030-RunSweep.
-- [ ] T032-VerifySC003 [US3] **BLOCKING**: Verify SC-003 Sensitivity Metric. **Action**: Calculate the variance of p-values across the swept thresholds {0.45, 0.55, 0.75, 0.85} AND check if the significance rank order is preserved (i.e., the order of significance rates across thresholds remains consistent). The criterion is met if EITHER variance ≤ 0.001 OR rank order is preserved. **Input**: `data/processed/sensitivity_results.csv`. **Output**: `outputs/reports/sc003_verification.md`. **Verification**: Run `code/tests/test_sensitivity.py::test_sc003_metric`. **Dependency**: T030-RunSweep. **Note**: This task explicitly verifies the acceptance criterion defined in SC-003.
-- [ ] T033 [US3] Implement cross-dataset comparison logic (TNG-100 vs Millennium-II vs WDM). **Deliverable**: `outputs/reports/cross_dataset_comparison.md` containing correlation diff, p-value diff, and conclusion on consistency. **Dependency**: T031-MM-RunFull and T031-WDM-Analyze-Full (or T031-LogGap if skipped).
+- [ ] T018 **Galaxy Property Ingestion** Extend `tng_loader.py` to extract for each FoF halo the central galaxy’s `stellar_mass`, `sfr`, and `effective_radius`, writing them to `data/processed/galaxy_properties.csv`.  
+  - **Verification**: The CSV contains a matching `halo_id` column and passes `test_galaxy_schema` in `code/tests/test_ingestion.py`.  
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T009 **Inertia Tensor Singular‑Matrix Test** Add `code/tests/test_inertia.py::test_singular_matrix_raises_error` that supplies < 10 000 particles and expects a `ValueError`.  
+  - **Verification**: Test passes after T014 is implemented.  
 
 ---
 
-## Phase 6: User Story 4 - Orientation Misalignment Analysis (Priority: P3)
+## Phase 3 – Statistical Correlation, Binning & Mass Control (User Story 2, P2)
 
-**Goal**: Compute orientation misalignment angles (spin-spin, major-major) and correlate with galaxy properties.
+- [ ] T020a **Binning Unit Test** `code/tests/test_stats.py::test_binning_logic` confirms that `c/a < 0.5` → “Prolate”, `0.5 ≤ c/a ≤ 0.8` → “Triaxial”, `c/a > 0.8` → “Spherical”.  
+- [ ] T020b **Bonferroni Unit Test** `code/tests/test_stats.py::test_bonferroni_correction` validates that raw p‑values are multiplied by the number of comparisons and capped at 1.  
 
-**Independent Test**: Verify pipeline outputs CSV with misalignment angles (degrees) and correlation results with SFR/effective radius.
+- [ ] T021 **Mass‑Matching Interface** Define in `code/analysis/stats.py` the functions `match_by_mass(df_halo, df_gal, tolerance=0.05) -> pd.DataFrame` and `streamed_match(...)` with clear docstrings.  
 
-**⚠️ DEPENDENCY**: Phase 6 MUST WAIT for Phase 3 (Data: T017, T018) AND Phase 4 (Stats/Properties) completion.
+- [ ] T021b **Streaming Mass‑Matching** Implement a block‑wise nearest‑neighbor matcher that reads `halo_shapes.csv` and `galaxy_properties.csv` in chunks, pairs halos with galaxies of similar `mass_total` (within 5 % tolerance), and writes each block to `data/processed/matched_chunks/match_###.csv`.  
+  - **Verification**: `code/tests/test_stats.py::test_mass_matching_chunks` checks that each output file contains the columns `halo_id`, `galaxy_id`, `mass_total`, `triaxiality`, `sfr`, `effective_radius`.  
 
-### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T022 **Non‑Parametric Tests** Implement `kruskal_wallis`, `mann_whitney_u`, and `kolmogorov_smirnov` in `stats.py`, each returning a dict conforming to `analysis_result_schema.schema.yaml`.  
 
-- [ ] T035 [P] [US4] Unit test for angle calculation (dot product/arccos) in `code/tests/test_alignment.py`. **Action**: Implement `test_angle_calculation`. **Deliverable**: `code/tests/test_alignment.py`.
+- [ ] T020c **Shape Binning Logic** Add `assign_shape_bin(c_a_ratio)` to `shape_metrics.py` returning the categorical bin string.  
 
-### Implementation for User Story 4
+- [ ] T023a **Linear Regression with Mass Control**  
+  - **Description**: Using `statsmodels` fit separate OLS models for each galaxy property (SFR, Effective Radius) with predictors `triaxiality`, `b_a_ratio`, and `mass_total`.  
+  - **Input**: Iterate over all CSVs in `data/processed/matched_chunks/`.  
+  - **Output**: `data/processed/regression_results.csv` with columns: `test_type`, `property`, `predictor`, `coefficient`, `p_value_raw`, `p_value_adj`, `significant`, `ci_lower`, `ci_upper`, `threshold_set`, `associational_only`.  
+  - **Verification**: `code/tests/test_analysis.py::test_regression_output_schema` validates the CSV against the JSON schema.  
 
-- [ ] T036 [US4] **BLOCKING**: Implement spin vector and major axis calculation in `code/processing/alignment.py`. **Dependency**: T017 (halo data), T018 (galaxy data). **Action**: Compute spin vectors for haloes (from T017) and galaxies (from T018).
-- [ ] T037 [US4] Implement misalignment angle computation (halo-galaxy pairs) in `code/processing/alignment.py`. **Dependency**: T036, T018. **Action**: Join halo and galaxy data on `halo_id`, compute angles (halo spin vs galaxy spin, halo major axis vs galaxy major axis).
-- [ ] T038 [US4] **Dependency: T026c**: Create script to generate `data/processed/alignment_angles.csv`. **Schema**: `halo_id` (int), `galaxy_id` (int), `spin_angle_deg` (float), `axis_angle_deg` (float). **Dependency**: T037, T026c. **Verification**: Ensure file contains valid angles (non-negative to a maximum threshold) and row count > 0. **Note**: Ensure file contains `associational_only=true` flag via T026c.
-- [ ] T039 [US4] **BLOCKING**: Implement correlation analysis AND mass-controlled regression for misalignment angles vs galaxy properties (SFR, **effective radius**). **Dependency**: T038, T017, T018, T023a. **Action**: Perform correlation analysis AND linear regression of galaxy property ~ misalignment angles **controlling for halo mass**. **Model**: `SFR ~ spin_angle + axis_angle + mass`. **Deliverable**: `data/processed/alignment_correlations.csv` (columns: metric, correlation_coeff, p_value, method, regression_coeff, regression_p_value, **mass_coefficient**). **Verification**: Run `code/tests/test_stats.py::test_mass_control_regression` to ensure `mass_coefficient` column is present and significant. **Note**: This task explicitly includes the regression component required by FR-011 for US-4 with explicit mass control, reusing the logic from T023a.
-- [ ] T040 [US4] Integrate misalignment results into final statistical report. **Target**: `outputs/reports/final_report.md`. **Format**: Markdown section with embedded tables of correlation results.
+- [ ] T023b **Binning Statistical Tests**  
+  - **Description**: For each galaxy property, run Kruskal‑Wallis across the three shape bins, then pairwise Mann‑Whitney U and KS tests, applying Bonferroni correction.  
+  - **Input**: Same matched‑chunk CSVs as T023a.  
+  - **Output**: `data/processed/binning_tests.csv` containing one row per test with the full schema fields.  
+  - **Verification**: `code/tests/test_analysis.py::test_binning_results_schema`.  
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T024 **Bonferroni Correction Utility** Implement `apply_bonferroni(p_values: List[float]) -> List[float]` used by both T023a and T023b.  
 
----
+- [ ] T025 **Aggregate Statistical Results** Create a driver script `code/analysis/aggregate_results.py` that merges `regression_results.csv` and `binning_tests.csv` into a single `data/processed/statistical_results.csv`.  
+  - **Verification**: The merged file contains all columns from both source files and passes a schema‑agnostic row‑count sanity check.  
 
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T041 [P] Documentation updates in `docs/` and `README.md`. **Action**: Update `README.md` with installation and usage instructions. **Deliverable**: `README.md`.
-- [ ] T042 Code cleanup and refactoring. **Action**: Run `ruff format` and `ruff check`. **Deliverable**: Clean code.
-- [ ] T043 Performance optimization (ensure <6h runtime on 2 CPU/7GB RAM). **Action**: Profile and optimize hot loops. **Deliverable**: Optimized code.
-- [ ] T044 [P] Additional unit tests for edge cases (singular matrices, outliers). **Action**: Add tests for edge cases. **Deliverable**: `code/tests/`.
-- [ ] T045 Run quickstart.md validation. **Action**: Execute `scripts/validate_quickstart.sh`. **Deliverable**: Validation report.
-- [ ] T046 [US4] Generate final research report: Use template in `paper/report_template.md`. Automate data pull from `data/`. Ensure all citations are present in `data/metadata.yaml`. **Dependency**: T032, T033, T040.
-- [ ] T047-VerifyMetadata [P] **BLOCKING**: Implement Metadata Flag Verification in `code/utils/verification.py`. **Action**: Scan ALL generated artifacts (including `sensitivity_report.csv`, `cross_dataset_comparison.md`, `final_report.md`, and all CSVs in `data/processed/`) to ensure the `associational_only=true` flag is present or referenced. **Dependency**: T046, T032, T033. **Deliverable**: `outputs/reports/metadata_compliance_report.md`. **Note**: This task ensures FR-008 compliance is verified for all outputs.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **Phase 3 (US1)**: No dependencies on other stories.
- - **Phase 4 (US2)**: **MUST WAIT** for Phase 3 (T017, T018) - Depends on `data/processed/halo_shapes.csv` and `data/processed/galaxy_properties.csv`.
- - **Phase 5 (US3)**: **MUST WAIT** for Phase 4 (T026c) - Depends on `data/processed/statistical_results.csv`.
- - **Phase 6 (US4)**: **MUST WAIT** for Phase 3 (Data: T017, T018) AND Phase 4 (Stats/Properties) - Depends on halo shapes, galaxy properties, and alignment logic.
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (halo shapes, galaxy properties)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (statistical results)
-- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 output (halo/galaxy data) AND US2 output (statistical framework/properties)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utils before services
-- Services before endpoints/scripts
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1 can start. US3, US4, and US2 must wait for upstream data/artifacts as defined in Phase Dependencies.
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members ONLY IF their data dependencies are met.
+- [ ] T027 **Null‑Hypothesis Logging**  
+  - **Description**: Extend `code/analysis/stats.py` to emit an INFO log line each time a test’s adjusted p‑value < 0.01, e.g., `"[REJECTED] Kruskal‑Wallis on SFR (p_adj=0.004)"`.  
+  - **Verification**: Run the full analysis on a small sample and assert that `tests/logs/null_hypothesis.log` contains at least one such line.  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – Robustness Validation & Sensitivity Analysis (User Story 3, P3)
 
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement TNG-100 data fetcher in code/ingestion/tng_loader.py"
-Task: "Define Interface for reduced inertia tensor calculation in code/processing/inertia_tensor.py"
-# Note: T009 (Test) must wait for T014 interface definition.
-```
+- [ ] T028 **Sensitivity Sweep Unit Test** `code/tests/test_sensitivity.py::test_sensitivity_sweep` ensures the sweep function returns a DataFrame with columns `threshold_set`, `p_value_adj`, `significant`.  
 
----
+- [ ] T029 **Millennium‑II Loader (Conditional)** Attempt to download the Millennium‑II halo catalog from the verified URL listed in `data/metadata.yaml`.  
+  - **On Success**: Store HDF5 files under `data/raw/millennium/` and record version info in `metadata.yaml`.  
+  - **On Failure**: Immediately trigger T031‑LogGap (see Phase 5).  
 
-## Implementation Strategy
+- [ ] T030 **Sensitivity Logic Definition** Implement `code/analysis/sensitivity.py` exposing `run_sweep(thresholds: List[Tuple[float,float]]) -> pd.DataFrame`.  
 
-### MVP First (User Story 1 Only)
+- [ ] T030‑RunSweep **Sensitivity Orchestration** Create `code/analysis/run_sensitivity.py` that (1) loads the mass‑matched chunks, (2) iterates over the four threshold sets `{0.45,0.55,0.75,0.85}`, (3) re‑runs the binning tests (T023b) for each set, and (4) writes `data/processed/sensitivity_results.csv`.  
+  - **Verification**: `code/tests/test_sensitivity.py::test_sweep_results` confirms four rows, one per threshold set.  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T018 for galaxy properties)
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+- [ ] T031‑LogGap **Data‑Gap Logging** If any Millennium‑II or WDM fetch fails, append `"millennium_url": "unverified"` (or `"wdm_url": "unverified"`) to `data/metadata.yaml` and write `outputs/reports/gap_log.md` describing the missing datasets. Also mark SC‑004 as “Not Measurable” in the final report template.  
 
-### Incremental Delivery
+- [ ] T032 **Sensitivity Report** Generate `outputs/reports/sensitivity_report.md` summarizing p‑value stability, variance, and rank‑order preservation per SC‑003.  
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 & 4 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+- [ ] T032‑VerifySC003 **SC‑003 Verification** Implement `code/tests/test_sensitivity.py::test_sc003_metric` that computes variance of p‑values across thresholds and checks the rank‑order condition; writes a pass/fail note to `outputs/reports/sc003_verification.md`.  
 
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Halo & Galaxy Ingestion)
- - Developer B: User Story 3 (Millennium-II/Sensitivity) - *Wait for US2 data*
- - Developer C: User Story 4 (Alignment) - *Wait for US1/US2 data*
-3. Developer A completes US1, then Developer B/C integrate US2
-4. Stories complete and integrate independently
+- [ ] T033 **Cross‑Dataset Comparison** After successful Millennium‑II (or after logging a gap), produce `outputs/reports/cross_dataset_comparison.md` that contrasts correlation coefficients and p‑values between TNG‑100 and Millennium‑II (or notes absence).  
 
 ---
 
-## Notes
+## Phase 5 – Orientation Misalignment Analysis (User Story 4, P3)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI (a limited number of cores, constrained RAM). No GPU, no 8-bit quantization, no large model loading. Use chunking and sampling.
-- **Data Gap Protocol**: If a required dataset (e.g., Millennium-II, WDM variants) does not have a verified, public URL in `data/metadata.yaml`, the pipeline MUST attempt to fetch, trigger T031-LogGap, log the specific gap to `data/metadata.yaml` and the final report, mark the associated Success Criterion (SC-004) as 'Not Measurable', and **do NOT attempt a spec amendment**. The spec amendment is a pre-requisite process, not a runtime task.
-- **WDM Variants**: WDM variant snapshots are NOT included unless a verified URL is found in `data/metadata.yaml`. If missing, the project proceeds with TNG-100 and Millennium-II (if available) only, with SC-004 marked 'Not Measurable'.
-- **Sampling Constraint**: Due to hardware limits, the pipeline uses **Chunked Streaming** to process the full dataset without loading it into RAM. This satisfies FR-001 "every FoF halo" without requiring a spec amendment. The project acknowledges this implementation strategy in the final report via `docs/sampling_protocol.md`.
-- **Streaming Mass-Matching**: T021b implements a streaming-compatible mass-matching algorithm that outputs **block-wise matched chunks** (`data/processed/matched_chunks/`) to ensure FR-012 is met without violating memory constraints. Downstream tasks (T023a, T023b) must iterate over these chunks. **CRITICAL**: T021b includes a static analysis verification step to ensure T023a/T023b consume only these chunks.
-- **Sensitivity Orchestration**: T030-RunSweep explicitly commands the re-execution of the statistical pipeline for each threshold variation to ensure FR-006 is met. **Correction**: The threshold parameter is passed to T023a/T023b and T020c (binning/tests), NOT to T021b (mass-matching), as mass-matching is independent of shape binning thresholds.
-- **Sensitivity Verification**: T032-VerifySC003 explicitly calculates the p-value variance AND rank-order stability metric to verify SC-003.
-- **Metadata Flag Verification**: T047-VerifyMetadata ensures FR-008 compliance is verified for all output artifacts.
-- **Mass Control**: All regression tasks (T023a, T039) explicitly mandate 'controlling for halo mass' to ensure FR-011 compliance.
+- [ ] T035 **Alignment Unit Test** `code/tests/test_alignment.py::test_angle_calculation` verifies that the angle between two normalized vectors is computed via `arccos(dot)` and lies within `[0,180]`.  
+
+- [ ] T036 **Spin & Major‑Axis Calculation** Implement `code/processing/alignment.py` to (1) compute halo spin vectors from dark‑matter particle angular momenta, (2) compute galaxy spin vectors from stellar particles, and (3) calculate the major‑axis eigenvectors for both.  
+
+- [ ] T037 **Misalignment Angle Computation** Extend `alignment.py` to join halo and galaxy tables on `halo_id` and compute `spin_angle_deg` (halo‑spin vs galaxy‑spin) and `axis_angle_deg` (halo‑major‑axis vs galaxy‑major‑axis).  
+
+- [ ] T038 **Alignment CSV Output** Write the results to `data/processed/alignment_angles.csv` with schema: `halo_id`, `galaxy_id`, `spin_angle_deg`, `axis_angle_deg`, `associational_only=true`.  
+  - **Verification**: `code/tests/test_alignment.py::test_output_schema` checks column types and flag presence.  
+
+- [ ] T039 **Misalignment Correlation & Mass‑Controlled Regression**  
+  - **Description**: Using `statsmodels`, regress each galaxy property (SFR, Effective Radius) on `spin_angle_deg`, `axis_angle_deg`, and `mass_total`.  
+  - **Input**: `alignment_angles.csv` merged with `matched_chunks/` data.  
+  - **Output**: `data/processed/alignment_correlations.csv` containing regression coefficients, p‑values, adjusted p‑values, significance flags, and 95 % CIs, plus the `mass_coefficient`.  
+  - **Verification**: `code/tests/test_analysis.py::test_alignment_regression_schema`.  
+
+- [ ] T040 **Integrate Misalignment Results into Final Report** Append a Markdown section to `outputs/reports/final_report.md` summarizing the correlation coefficients, regression outcomes, and scientific interpretation of the misalignment analysis.  
+
+---
+
+## Phase N – Polishing & Cross‑Cutting Concerns  
+
+- [ ] T041 **Documentation Update** Revise `README.md` and `docs/quickstart.md` to reflect the full pipeline commands (`python -m code.main --run-all`).  
+
+- [ ] T042 **Code Cleanup** Run `ruff format` and `ruff check`; commit any auto‑fixed changes.  
+
+- [ ] T043 **Performance Optimisation** Profile the streaming pipeline and, if needed, replace any `np.linalg.eig` calls with `np.linalg.svd` for better memory usage; ensure total runtime stays < 6 h on the GitHub Actions free tier.  
+
+- [ ] T044 **Additional Edge‑Case Tests** Add tests for (a) singular inertia tensors, (b) outlier SFR values, and (c) halos where the central galaxy is not the most massive subhalo.  
+
+- [ ] T045 **Quickstart Validation** Execute `scripts/validate_quickstart.sh` which runs the minimal pipeline on a single streamed chunk and asserts that `halo_shapes.csv` and `galaxy_properties.csv` each contain ≥ 1 row.  
+
+- [ ] T046 **Final Research Report Generation** Implement `code/report/generate_report.py` that pulls tables/figures from `data/processed/` and `outputs/figures/` into `outputs/reports/final_report.md` using the provided template.  
+
+- [ ] T047 **Metadata Flag Compliance Check** Add `code/utils/verification.py` that scans **all** generated CSV/JSON/MD files for the `associational_only=true` flag and writes `outputs/reports/metadata_compliance_report.md` summarising any violations.  
+
+---
+
+## Dependency & Execution Order Summary  
+
+1. **Phase 1** (setup) must finish before any other phase.  
+2. **Phase 2** (US 1) depends only on Phase 1.  
+3. **Phase 3** (US 2) requires the outputs of Phase 2 (`halo_shapes.csv`, `galaxy_properties.csv`).  
+4. **Phase 4** (US 3) requires the statistical results from Phase 3 and, optionally, successful Millennium‑II fetches.  
+5. **Phase 5** (US 4) needs the raw halo/galaxy data from Phase 2 and the statistical framework from Phase 3.  
+6. **Phase N** runs after all scientific phases are complete and validates reproducibility, documentation, and compliance.  
+
+All tasks are written as independent, checkable units; each includes a concrete artifact path and a deterministic verification step that can be executed on the CPU‑only GitHub Actions runner.
