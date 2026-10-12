@@ -3,13 +3,12 @@ import pandas as pd
 from code.data_fetcher import fetch_educational_dataset, _validate_schema
 from ingestion import DataAvailabilityError, DataSchemaError
 from unittest.mock import patch, MagicMock
-from datasets import load_dataset
 
 class TestDataFetcher(unittest.TestCase):
 
     @patch('code.data_fetcher.load_dataset')
     def test_fetch_successful(self, mock_load_dataset):
-        # Mock the dataset loading
+        # Mock the dataset loading from Hugging Face
         mock_dataset = MagicMock()
         mock_df = pd.DataFrame({
             'recommended_categories': [['A'], ['B']], 
@@ -48,7 +47,10 @@ class TestDataFetcher(unittest.TestCase):
         with self.assertRaises(ValueError):
             fetch_educational_dataset("dummy_dataset")
 
-    def test_fetch_unavailable_dataset(self):
+    @patch('code.data_fetcher.load_dataset')
+    def test_fetch_unavailable_dataset(self, mock_load_dataset):
+        # Simulate HF failure
+        mock_load_dataset.side_effect = Exception("Not found")
         with self.assertRaises(DataAvailabilityError):
             fetch_educational_dataset("non_existent_dataset")
 

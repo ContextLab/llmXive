@@ -37,6 +37,11 @@ RAW_OULAD_DIR = paths.data("raw", "oulad")
 PROCESSED_PARQUET = paths.data("processed", "cleaned_data.parquet")
 REQUIRED_COLUMNS = ["recommended_categories", "enrolled_categories"]
 
+# Standard browser User-Agent to avoid 403 Forbidden errors from S3/Cloudfront
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+}
+
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
@@ -49,7 +54,8 @@ def _download_and_extract_oulad() -> None:
     """
     log.info("Attempting to download OULAD dataset from mirror URL: %s", OULAD_MIRROR_ZIP)
     try:
-        response = requests.get(OULAD_MIRROR_ZIP, stream=True, timeout=120)
+        # Use headers to avoid 403 Forbidden
+        response = requests.get(OULAD_MIRROR_ZIP, headers=HEADERS, stream=True, timeout=120)
         response.raise_for_status()
     except Exception as exc:
         raise DataAvailabilityError(
@@ -120,6 +126,7 @@ def _map_oulad_to_sessions(dfs: dict) -> pd.DataFrame:
     student_vle = dfs["studentVle"]
     vle = dfs["vle"]
 
+    # Use 'category' if available, otherwise 'id_site' as the category proxy
     category_col = "category" if "category" in vle.columns else "id_site"
     vle_subset = vle[["id_site", category_col]].rename(
         columns={category_col: "category"}
