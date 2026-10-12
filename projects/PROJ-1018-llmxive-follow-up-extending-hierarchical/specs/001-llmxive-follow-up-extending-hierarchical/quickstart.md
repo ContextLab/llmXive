@@ -1,73 +1,101 @@
 # Quickstart: llmXive follow-up: extending "Hierarchical Sparse Attention Done Right: Toward Infinite Context Mode"
 
 ## 1. Prerequisites
-
-- **Python**: 3.10 or higher.
-- **System**: Linux environment with 2+ CPU cores and ~7GB RAM.
-- **Dependencies**: `pip install -r requirements.txt`
+- **Python** ≥ 3.11
+- **Linux** environment (GitHub Actions runner or local equivalent) with ≥ 2 CPU cores and ≤ 7 GB RAM.
+- **Git** (to clone the repository).
 
 ## 2. Installation
-
 ```bash
-# Clone the repository (if not already done)
+# Clone the repository
 git clone <repo-url>
 cd projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/code/
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-# Install dependencies
+# Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-## 3. Running the Pipeline
+## 3. Running the Full End‑to‑End Pipeline
+The helper script `run_pipeline.sh` executes all stages with default parameters (K = 100).
 
-The pipeline consists of three stages: Extraction, Clustering, and Evaluation.
-
-### Step 1: Dynamic Baseline Extraction
-Extract relevance profiles from the validation split.
 ```bash
-python src/extraction.py --mode dynamic --dataset "deepmind/pg19" --split "validation" --output data/interim/relevance_profiles.json
+chmod +x run_pipeline.sh
+./run_pipeline.sh
 ```
 
-### Step 2: Static Index Construction
-Cluster profiles to generate the static index (includes PCA and K-Means).
+The script performs:
+1. **Data loading & split creation** (`src/data_loader.py`).  
+2. **Dynamic extraction** (`src/extraction.py`).  
+3. **Aggregation** (`src/aggregation.py`).  
+4. **Static index building** (`src/clustering.py`).  
+5. **Evaluation** (`src/evaluation.py`).  
+6. **Sweep report** (`src/sensitivity.py` + `src/report_sweep.py`).
+
+All outputs are placed under `data/`:
+
+| File | Description |
+|------|-------------|
+| `data/interim/filtered_pg19.json` | Validation & test IDs after length filtering (conforms to `SplitDefinition` schema) |
+| `data/interim/relevance_profiles.json` | Canonical relevance profiles (per `RelevanceProfile` schema) |
+| `data/processed/static_index_k100.json` | Static lookup table for K = 100 |
+| `data/reports/evaluation_report.json` | Main experiment results (per `EvaluationReport` schema) |
+| `data/reports/sweep_report.json` | Trade‑off table for K = 50/100/200 |
+
+## 4. Manual Step‑by‑Step (optional)
+
+### 4.1 Create Validation/Test Splits
+```bash
+python src/data_loader.py \
+  --dataset deepmind/pg19 \
+  --split-ratio 0.05 \
+  --seed 42 \
+  --min-tokens 32000 \
+  --pad-short-docs False   # default: skip short docs
+```
+Produces `data/interim/filtered_pg19.json` (conforms to `SplitDefinition`).
+
+### 4.2 Extract Dynamic Scores (validation split)
+```bash
+python src/extraction.py --mode dynamic --split validation --output-dir data/interim/raw_scores
+```
+
+### 4.3 Aggregate Relevance Profiles
+```bash
+python src/aggregation.py --input-dir data/interim/raw_scores --output data/interim/relevance_profiles.json
+```
+
+### 4.4 Build Static Index (choose K)
 ```bash
 python src/clustering.py --input data/interim/relevance_profiles.json --k 100 --output data/processed/static_index_k100.json --seed 42
 ```
 
-### Step 3: Comparative Evaluation
-Evaluate the static model against the dynamic baseline on the test split.
+### 4.5 Evaluate on Test Split
 ```bash
-python src/evaluation.py --dynamic-model "hils-dynamic" --static-index data/processed/static_index_k100.json --dataset "deepmind/pg19" --split "test" --output data/reports/eval_report.json
+python src/evaluation.py \
+  --dynamic-checkpoint llmxive/hils-base \
+  --static-index data/processed/static_index_k100.json \
+  --split test \
+  --qa-dataset llamaindex/long-qa \
+  --output data/reports/evaluation_report.json
 ```
 
-### Alternative: Run Full Pipeline Script
-For automated execution of all stages:
+### 4.6 Sensitivity Sweep (K = 50, 100, 200)
 ```bash
-./run_pipeline.sh
+python src/sensitivity.py --k-values 50,100,200 --output data/reports/sweep_report.json
 ```
-This script sequentially runs extraction, clustering, and evaluation with default parameters.
 
-## 4. Sensitivity Sweep (Optional)
+## 5. Verification Checklist
+- **[ ]** `data/interim/filtered_pg19.json` exists and validates against `contracts/split_definition.schema.yaml`.  
+- **[ ]** `data/interim/relevance_profiles.json` validates against `contracts/relevance_profile.schema.yaml`.  
+- **[ ]** `data/processed/static_index_k*.json` validates against `contracts/static_index.schema.yaml`.  
+- **[ ]** `data/reports/evaluation_report.json` validates against `contracts/evaluation_report.schema.yaml`.  
+- **[ ]** `evaluation_report.json` includes a `p_value` < 0.05 **or** a clear “not significant” flag, and a `latency_reduction_factor` ≥ 1.0.  
 
-To run the sensitivity analysis across $K \in \{50, 100, 200\}$ (tuned on validation):
-```bash
-python src/evaluation.py --sweep-k "50,100,200" --dataset "deepmind/pg19" --output data/reports/sweep_report.json
-```
-*Note: The sweep selects the best K on the validation set and reports the final metrics on the test set.*
+If any check fails, consult the log files in `logs/` (generated by `llmxive_toolkit.get_logger`) for detailed diagnostics.
 
-## 5. Verification
+---
 
-After running, verify the outputs:
-- Check `data/interim/relevance_profiles.json` for non-empty `relevance_scores`.
-- Check `data/processed/static_index_k100.json` for `chunk_to_cluster_map`, `centroids`, and `pca_components`.
-- Check `data/reports/eval_report.json` for `p_value` (from Wilcoxon test) and `latency_reduction_factor`.
-
-## 6. Troubleshooting
-
-- **CUDA Error**: If the model requires GPU, the execution stage will auto-offload. If running locally, ensure `CUDA_VISIBLE_DEVICES` is set or use the CPU-only flag if available.
-- **Memory Error**: If RAM is exceeded, reduce the batch size in `extraction.py` or stream the dataset more aggressively.
-- **K-Means Failure**: If convergence fails, the script will retry with different seeds. If it fails after 3 retries, check the input data for NaNs.
-- **PCA Failure**: If PCA reduces dimensionality to 0, check that the input relevance profiles have sufficient variance.

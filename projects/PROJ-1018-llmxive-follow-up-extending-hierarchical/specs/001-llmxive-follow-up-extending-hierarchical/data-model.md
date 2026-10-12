@@ -1,93 +1,78 @@
 # Data Model: llmXive follow-up: extending "Hierarchical Sparse Attention Done Right: Toward Infinite Context Mode"
 
-## 1. Entities & Relationships
+## 1. Core Entities
 
-### 1.1 RelevanceProfile
-Represents the aggregated retrieval scores for a specific document chunk.
-- **Source**: Output of `extraction.py` (FR-001).
-- **Usage**: Input to `clustering.py` (FR-002).
+| Entity | Description | Produced By | Consumed By |
+|--------|-------------|-------------|-------------|
+| **RelevanceProfile** | Aggregated retrieval scores for a single document chunk. | `src/aggregation.py` | `src/clustering.py` |
+| **StaticIndex** | K centroids (in PCA space) + mapping `chunk_id → cluster_id`. | `src/clustering.py` | `src/inference.py` |
+| **EvaluationReport** | All quantitative results: log‑perplexity, QA accuracy, latency, memory, statistical test. | `src/evaluation.py` (and `src/report_sweep.py` for sweeps) | Paper generation, CI checks |
+| **SplitDefinition** | JSON list of document IDs for validation and test splits. | `src/data_loader.py` | All downstream scripts |
 
-### 1.2 StaticIndex
-The static lookup table containing cluster centroids and chunk-to-cluster mappings.
-- **Source**: Output of `clustering.py` (FR-002).
-- **Usage**: Input to `inference.py` (FR-003).
+## 2. Schema Definitions (YAML)
 
-### 1.3 EvaluationReport
-Structured output containing all metrics and statistical results.
-- **Source**: Output of `evaluation.py` (FR-004, FR-005, FR-006, FR-007, FR-008).
-- **Usage**: Final artifact for the paper.
-
-## 2. Schema Definitions
-
-### 2.1 RelevanceProfile (JSON)
+### 2.1 RelevanceProfile (JSON, conforms to `contracts/relevance_profile.schema.yaml`)
 ```json
 {
   "document_id": "string",
   "chunk_id": "integer",
   "start_token": "integer",
   "end_token": "integer",
-  "relevance_scores": "list[float]",
-  "aggregated_profile": "list[float]",
-  "pca_components": "list[float] (optional, if PCA applied)",
+  "relevance_scores": ["number"],
+  "aggregated_profile": ["number"],
+  "pca_components": ["number"],   // optional, present after PCA step
   "checksum": "string"
 }
 ```
 
-### 2.2 StaticIndex (JSON/YAML)
+### 2.2 StaticIndex (JSON, conforms to `contracts/static_index.schema.yaml`)
 ```json
 {
   "k": "integer",
-  "centroids": "list[list[float]]",
-  "chunk_to_cluster_map": "dict[string, integer]",
+  "centroids": [["number"]],
+  "chunk_to_cluster_map": {"string": "integer"},
   "validation_checksum": "string",
-  "created_at": "string (ISO8601)",
+  "created_at": "string",   // ISO‑8601 timestamp
   "seed": "integer",
-  "pca_components": "integer (dimensionality used)",
-  "distance_metric": "string (e.g., 'cosine')"
+  "pca_components": "integer",
+  "distance_metric": "string"
 }
 ```
 
-### 2.3 EvaluationReport (JSON)
+### 2.3 EvaluationReport (JSON, conforms to `contracts/evaluation_report.schema.yaml`)
 ```json
 {
   "experiment_id": "string",
   "k_value": "integer",
   "metrics": {
-    "dynamic": {
-      "log_perplexity": "float",
-      "qa_accuracy": "float",
-      "latency_ms": "float"
-    },
-    "static": {
-      "log_perplexity": "float",
-      "qa_accuracy": "float",
-      "latency_ms": "float"
-    }
+    "dynamic": {"log_perplexity": "number", "qa_accuracy": "number", "latency_ms": "number"},
+    "static": {"log_perplexity": "number", "qa_accuracy": "number", "latency_ms": "number"}
   },
-  "statistical_test": {
-    "method": "string (Wilcoxon signed-rank)",
-    "p_value": "float",
-    "significance": "boolean",
-    "confidence_interval": "list[float]"
-  },
-  "latency_reduction_factor": "float",
+  "statistical_test": {"method": "string", "p_value": "number", "significance": "boolean", "confidence_interval": ["number"]},
+  "latency_reduction_factor": "number",
   "memory_footprint_bytes": "integer"
 }
 ```
 
-## 3. Data Flow
+### 2.4 SplitDefinition (JSON, conforms to `contracts/split_definition.schema.yaml` – defined in plan)
+```json
+{
+  "validation_ids": ["string"],
+  "test_ids": ["string"],
+  "checksum": "string"
+}
+```
 
-1. **Ingest**: `PG-19` (Streamed) $\to$ `Tokenized Documents`.
-2. **Split**: `Tokenized Documents` $\to$ `Validation Split` ([deferred]) + `Test Split` ([deferred]).
-3. **Extract**: `Validation Split` + `HiLS Model` $\to$ `RelevanceProfiles`.
-4. **Cluster**: `RelevanceProfiles` $\to$ `PCA` $\to$ `K-Means` $\to$ `StaticIndex`.
-5. **Evaluate**: `StaticIndex` + `Test Split` + `HiLS Model` $\to$ `EvaluationReport`.
+## 3. Data Flow Diagram
+1. **Streaming PG‑19** → `src/data_loader.py` → `SplitDefinition` (validation / test).  
+2. **Validation Docs** → `src/extraction.py` → raw score tensors (temporary).  
+3. Raw scores → `src/aggregation.py` → `RelevanceProfile` collection.  
+4. `RelevanceProfile` → `src/clustering.py` (PCA → K‑Means) → `StaticIndex`.  
+5. **Test Docs** + `StaticIndex` → `src/inference.py` (static mode) → logits.  
+6. Logits + QA data → `src/evaluation.py` → `EvaluationReport`.  
+7. `src/sensitivity.py` repeats steps 4‑6 for each K, then `src/report_sweep.py` aggregates into `sweep_report.json`.
 
-## 4. Constraints & Validations
+All intermediate artifacts are checksum‑verified and stored under `data/` with explicit versioning. The `filtered_pg19.json` file produced in Phase 0 conforms to the `SplitDefinition` schema, ensuring downstream scripts can rely on a well‑defined structure.
 
-- **RelevanceScores**: Must be non-negative, non-null.
-- **ChunkIDs**: Must be unique per document.
-- **Centroids**: Must match the dimension of `pca_components`.
-- **Memory**: `RelevanceProfiles` must be processed in batches to stay under 7GB RAM.
-- **Checksums**: All intermediate files must be checksummed (SHA-256) and recorded in `data/` metadata.
-- **Independence**: Validation split (clustering) must not overlap with Test split (evaluation).
+---
+

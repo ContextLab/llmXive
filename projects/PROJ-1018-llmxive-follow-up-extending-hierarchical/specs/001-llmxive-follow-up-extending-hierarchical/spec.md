@@ -47,7 +47,7 @@ The system MUST execute the modified "Static-HiLS" inference (using the static i
 
 **Acceptance Scenarios**:
 
-1. **Given** the static index and the dynamic model, **When** both are run on the same held-out test documents (average of 5 runs on a 32k token document), **Then** the system outputs a report containing the perplexity for both, the QA accuracy for both, and the latency reduction factor.
+1. **Given** the static index and the dynamic model, **When** both are run on the same held-out test documents (average of multiple runs on a 32k token document), **Then** the system outputs a report containing the perplexity for both, the QA accuracy for both, and the latency reduction factor.
 2. **Given** the paired perplexity scores across documents, **When** the statistical test is run, **Then** the system reports a p-value and a conclusion (e.g., "Significant" or "Not Significant") based on the $p < 0.05$ threshold.
 
 ### Edge Cases
@@ -96,4 +96,4 @@ The system MUST execute the modified "Static-HiLS" inference (using the static i
 - **Threshold Justification**: The number of clusters $K$ will be set to 100 (a community-standard default for landmark-based indexing) unless the idea specifies otherwise. A sensitivity analysis will sweep $K \in \{, \text{low}, \text{high}\}$ to report how the perplexity degradation varies across these values.
 - **Measurement Validity**: The perplexity and QA accuracy metrics are derived from standard, validated evaluation protocols for language models (e.g., L-Eval or HotpotQA subsets) and are mathematically independent of the clustering centroids used to construct the static index.
 - **Predictor Collinearity**: Since the static index is derived directly from the dynamic model's scores, the two predictors (dynamic scores vs. static cluster assignment) are definitionally related. This study does not claim to prove the "necessity" of dynamic retrieval in an absolute sense, but rather measures the **distillation fidelity** and **cost-benefit trade-off**. The research question is revised to: "How much dynamic retrieval signal can be compressed into a static index without significant downstream performance loss?"
-- **Model Availability**: The pre-trained HiLS checkpoint is available via the original repository or HuggingFace and is compatible with the specified CPU-only environment without requiring CUDA or 8-bit quantization libraries.
+- **Model Availability**: The pre-trained HiLS checkpoint is available via the original repository or HuggingFace and is compatible with the specified CPU‑only environment without requiring CUDA or low‑precision quantization libraries.

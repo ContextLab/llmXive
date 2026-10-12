@@ -1,14 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: EvaluationReport
-description: Structured output containing log-perplexity, QA accuracy, p-value (Wilcoxon), and latency metrics.
+description: Structured output containing log-perplexity, QA accuracy, p-value (paired t‑test), latency, and memory metrics for dynamic vs. static HiLS models.
 type: object
 properties:
   experiment_id:
     type: string
-    description: Unique identifier for the experiment run.
+    description: "Unique identifier for the experiment run."
   k_value:
     type: integer
-    description: Number of clusters used in the static index.
+    description: "Number of clusters used in the static index."
   metrics:
     type: object
     properties:
@@ -17,11 +17,13 @@ properties:
         properties:
           log_perplexity:
             type: number
-            description: Log-perplexity (cross-entropy) of the dynamic model.
+            description: "Log‑perplexity of the dynamic model on the test set."
           qa_accuracy:
             type: number
+            description: "Exact‑match QA accuracy on the long‑context QA benchmark."
           latency_ms:
             type: number
+            description: "Average inference latency (ms) for the dynamic model."
         required:
           - log_perplexity
           - qa_accuracy
@@ -31,11 +33,13 @@ properties:
         properties:
           log_perplexity:
             type: number
-            description: Log-perplexity (cross-entropy) of the static model.
+            description: "Log‑perplexity of the static‑HiLS model on the test set."
           qa_accuracy:
             type: number
+            description: "Exact‑match QA accuracy for the static model."
           latency_ms:
             type: number
+            description: "Average inference latency (ms) for the static model."
         required:
           - log_perplexity
           - qa_accuracy
@@ -48,23 +52,29 @@ properties:
     properties:
       method:
         type: string
-        description: Statistical method used (e.g., 'Wilcoxon signed-rank test').
+        description: "Statistical method used (paired t‑test)."
       p_value:
         type: number
+        description: "Two‑tailed p‑value from the paired t‑test."
       significance:
         type: boolean
+        description: "True if p < 0.05."
       confidence_interval:
         type: array
         items:
           type: number
+        description: "95 % confidence interval for the mean difference."
     required:
       - method
       - p_value
       - significance
+      - confidence_interval
   latency_reduction_factor:
     type: number
+    description: "Ratio of dynamic latency to static latency (≥ 1)."
   memory_footprint_bytes:
     type: integer
+    description: "Peak memory used by the retrieval module (tracemalloc)."
 required:
   - experiment_id
   - k_value
