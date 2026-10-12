@@ -394,3 +394,49 @@ def test_verifier_replans_are_bounded_and_never_accept_incomplete_tasks(tmp_path
         assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == expected
     assert tasks.read_text() == "- [ ] T001 Still missing required output\n"
     assert unverifiable.has_unverifiable(pid, repo_root=tmp_path)
+
+
+def test_tasks_that_each_exhaust_their_cap_once_do_not_add_up_to_a_replan(tmp_path):
+    """Canary batches 1-4 (2026-10-12): 15 of 18 runs re-planned 7-12 steps into
+    implementation because every exhausted cap, of any task, spent a project-wide
+    tier; 2 of those 15 finished."""
+    from llmxive.state import unverifiable
+
+    pid = "PROJ-033-per-task"
+    proj, pdir = _project_in_progress(tmp_path, pid)
+    tasks = pdir / "specs/001-research/tasks.md"
+    original = "".join(f"- [ ] T00{n} Produce output {n}\n" for n in range(1, 7))
+    tasks.write_text(original)
+    # Six different tasks, one exhausted cap each, on six successive steps.
+    for n in range(1, 7):
+        unverifiable.record_unverifiable(pid, f"T00{n}", "missing", repo_root=tmp_path)
+        assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
+        assert es.model_tier(pid, repo_root=tmp_path) == 1
+        assert not unverifiable.has_unverifiable(pid, repo_root=tmp_path)
+    # One task exhausting again moves the tier; the others are unaffected.
+    unverifiable.record_unverifiable(pid, "T003", "missing", repo_root=tmp_path)
+    assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
+    assert es.model_tier(pid, repo_root=tmp_path) == 2
+    unverifiable.record_unverifiable(pid, "T005", "missing", repo_root=tmp_path)
+    assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
+    # The same task a third time has had every free tier: re-plan, and start counting afresh.
+    unverifiable.record_unverifiable(pid, "T003", "missing", repo_root=tmp_path)
+    assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.CLARIFIED
+    assert unverifiable.exhaustions(pid, repo_root=tmp_path) == {}
+    assert es.model_tier(pid, repo_root=tmp_path) == 0 and es.replan_rounds(pid, repo_root=tmp_path) == 1
+    assert tasks.read_text() == original  # never force-accepted
+
+
+def test_exhaustion_counts_survive_clear_and_are_kept_per_track(tmp_path):
+    from llmxive.state import unverifiable
+
+    pid = "PROJ-034-counts"
+    for key in ("T001", "T001", "paper:final-review"):
+        unverifiable.record_unverifiable(pid, key, "r", repo_root=tmp_path)
+        unverifiable.clear(pid, repo_root=tmp_path)
+    assert unverifiable.exhaustions(pid, repo_root=tmp_path) == {"T001": 2, "paper:final-review": 1}
+    unverifiable.forget(pid, repo_root=tmp_path, track="research")
+    assert unverifiable.exhaustions(pid, repo_root=tmp_path) == {"paper:final-review": 1}
+    unverifiable.forget(pid, repo_root=tmp_path, track="paper")
+    assert unverifiable.exhaustions(pid, repo_root=tmp_path) == {}
+    assert not (tmp_path / "state/unverifiable_tasks" / f"{pid}.exhaustions.json").exists()

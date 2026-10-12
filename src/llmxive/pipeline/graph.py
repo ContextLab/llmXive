@@ -1762,17 +1762,31 @@ def _decide_next_stage(
         _entries = [e for e in _unverifiable.load(project.id, repo_root=repo_root)
                     if not str(e.get("task_key", "")).startswith("paper:")]
         if _entries:
+            # Escalate on the task, not on the project. Each tier used to be
+            # spent by ANY task that exhausted its cap, so three tasks failing
+            # once each re-planned the whole project while the rest were still
+            # being accepted. Canary batches 1-4 (2026-10-12): 15 of 18 runs
+            # re-planned 7-12 steps into implementation and 2 of those 15
+            # finished; 2 of the 3 that never re-planned did. A task now
+            # re-plans the project only after exhausting its own cap once per
+            # free tier, which is as many tries as one task ever had.
+            _counts = _unverifiable.exhaustions(project.id, repo_root=repo_root)
+            _worst = max(_counts.get(str(e.get("task_key", "")), 1) for e in _entries)
+            new_tier = execution_status.model_tier(project.id, repo_root=repo_root)
             try:
-                new_tier = execution_status.bump_model_tier(
-                    project.id, repo_root=repo_root, free_only=True
-                )
+                if _worst >= len(execution_status.FREE_MODEL_TIERS):
+                    raise ValueError("a task exhausted its cap on every free tier")
+                while new_tier < _worst:
+                    new_tier = execution_status.bump_model_tier(
+                        project.id, repo_root=repo_root, free_only=True
+                    )
             except ValueError:
                 _write_unverifiable_replan_feedback(project_dir, _entries)
                 if (execution_status.replan_rounds(project.id, repo_root=repo_root)
                         >= execution_status.MAX_REPLAN_ROUNDS):
                     return Stage.AGENT_BLOCKED
                 execution_status.reset_fix_loop(project.id, repo_root=repo_root)
-                _unverifiable.clear(project.id, repo_root=repo_root, track="research")
+                _unverifiable.forget(project.id, repo_root=repo_root, track="research")
                 logger.warning(
                     "%s: task verification exhausted free models; re-planning",
                     project.id,
@@ -1782,9 +1796,10 @@ def _decide_next_stage(
                 return Stage.CLARIFIED
             _unverifiable.clear(project.id, repo_root=repo_root, track="research")
             logger.info(
-                "%s: %d repeatedly rejected tasks; retrying implementation with "
-                "free model tier %d (%s), preserving task definitions and feedback",
-                project.id, len(_entries), new_tier,
+                "%s: %d repeatedly rejected tasks (most exhausted: %d time(s)); retrying "
+                "implementation with free model tier %d (%s), preserving task definitions "
+                "and feedback",
+                project.id, len(_entries), _worst, new_tier,
                 execution_status.tier_model(new_tier),
             )
             return Stage.IN_PROGRESS
