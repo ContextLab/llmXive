@@ -10,12 +10,12 @@
 The following requirements are implemented and independently verified; do not redo them:
 
 - [ ] T001–T009 Project structure, pinned `code/requirements.txt`, config (`SEED=42`, `OUTLIER_SIGMA=3.0`, `VIF_THRESHOLD=10.0`, `SENSITIVITY_THRESHOLDS=[2.5,3.0,3.5]`, `CONFIDENCE_INTERVAL_TARGET=0.95`), validators with `--validate` CLI, scaffold splitting, contracts, and data loader (`code/data_loader.py`).
-- [x] T010–T012, T023–T025, T034–T036 Unit tests for descriptors (benzene aromaticity, butadiene conjugation, mixed hybridization), scaffold leakage, log transform, outlier filter, VIF, BH correction, and plot generation (`tests/`).
-- [x] T013–T019c, T026, T061_RDKit–T063_RDKit Data loading, target‑variable validation with strict halt when neither conductivity nor HOMO‑LUMO gap is available (no self‑consistency fallback), quantum proxy report, full RDKit descriptor set (degree/path statistics, aromaticity, conjugation, ring counts, bond order/length, electronegativity polarity terms), NaN filtering, and `data/processed/descriptors.csv` (FR‑001, FR‑008, FR‑011, FR‑012, FR‑014).
-- [x] T027–T032b-3, T032a Scaffold split, log‑transform, RF/GB training, 5‑fold CV, outlier sensitivity sweep over {2.5σ, 3.0σ, 3.5σ} with variance recording in `data/processed/sensitivity_analysis.json` (FR‑002, FR‑003, FR‑004, FR‑007).
-- [x] T039a, T039b, T039c‑3 VIF identification, exclusion (VIF > 10), retraining on reduced feature set, iteration log and intermediate model versioning (FR‑013).
-- [x] T040b, T041, T042, T043, T045, T044, T057, T064, T064b Feature‑importance robustness, Pearson correlations, Benjamini‑Hochberg FDR correction, correlation plots with 95 % CIs (`corr_plot_top5.png`, `corr_plot_resonance.png`), analysis summary, bootstrap CI‑coverage report, resonance‑descriptor integration and augmented sensitivity re‑run (FR‑005, FR‑006, SC‑002, SC‑003).
-- [x] T046, T047, T049‑1–T049‑4, T051 Documentation updates, lint cleanup, integration tests with runtime checks, quickstart execution in fresh virtualenv (FR‑009, FR‑010).
+- [ ] T010–T012, T023–T025, T034–T036 Unit tests for descriptors (benzene aromaticity, butadiene conjugation, mixed hybridization), scaffold leakage, log transform, outlier filter, VIF, BH correction, and plot generation (`tests/`).
+- [ ] T013–T019c, T026, T061_RDKit–T063_RDKit Data loading, target‑variable validation with strict halt when neither conductivity nor HOMO‑LUMO gap is available (no self‑consistency fallback), quantum proxy report, full RDKit descriptor set (degree/path statistics, aromaticity, conjugation, ring counts, bond order/length, electronegativity polarity terms), NaN filtering, and `data/processed/descriptors.csv` (FR‑001, FR‑008, FR‑011, FR‑012, FR‑014).
+- [ ] T027–T032b-3, T032a Scaffold split, log‑transform, RF/GB training, 5‑fold CV, outlier sensitivity sweep over {2.5σ, 3.0σ, 3.5σ} with variance recording in `data/processed/sensitivity_analysis.json` (FR‑002, FR‑003, FR‑004, FR‑007).
+- [ ] T039a, T039b, T039c‑3 VIF identification, exclusion (VIF > 10), retraining on reduced feature set, iteration log and intermediate model versioning (FR‑013).
+- [ ] T040b, T041, T042, T043, T045, T044, T057, T064, T064b Feature‑importance robustness, Pearson correlations, Benjamini‑Hochberg FDR correction, correlation plots with 95 % CIs (`corr_plot_top5.png`, `corr_plot_resonance.png`), analysis summary, bootstrap CI‑coverage report, resonance‑descriptor integration and augmented sensitivity re‑run (FR‑005, FR‑006, SC‑002, SC‑003).
+- [ ] T046, T047, T049‑1–T049‑4, T051 Documentation updates, lint cleanup, integration tests with runtime checks, quickstart execution in fresh virtualenv (FR‑009, FR‑010).
 
 ## Phase 1: Repair rejected artifacts and finalize results
 

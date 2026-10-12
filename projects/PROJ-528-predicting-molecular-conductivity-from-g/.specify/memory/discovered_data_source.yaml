@@ -1,25 +1,18 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets, sys
-
-
-  ds = datasets.load_dataset("sagawa/pubchem-10m-canonicalized", split="train")
-
-  records = len(ds)
-
-  print(f"RECORDS={records}")
-
-  fields = ds.column_names
-
-  print("FIELDS=" + ",".join(fields))'
-record_count: 8999964
-sample_fields:
-- smiles
-field_coverage: 0.5
+status: none
+intent: PubChem 10M canonicalized SMILES download RDKit descriptor computation python
+  package dataset
 required_fields:
-- cid
 - smiles
-intent: PubChem 10M canonicalized SMILES dataset Materials Project reference download
-  python package dataset
-cache_key: 97730282ce1c2bd550eddb44f48bbbb0837301ce87a871f2303aa126d80bc0ef
+- conjugation_length
+- aromatic_ring_count
+- degree_distribution_mean
+- degree_distribution_std
+- average_path_length
+- aromaticity_index
+- ring_count
+- longest_conjugated_path_length
+- graph_density
+- clustering_coefficient
+cache_key: a94f9d1daf9b49c0d8942af3ed4c055d595f81c3492988783fa69292c33de369
+searched_at: '2026-10-12T09:35:07.359869+00:00'
+retry_count: 1

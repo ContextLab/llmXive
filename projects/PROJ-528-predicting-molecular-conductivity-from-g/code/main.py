@@ -36,61 +36,50 @@ def ensure_directories():
         os.makedirs(d, exist_ok=True)
     logger.info("Directories ensured.")
 
-def ensure_sample_data():
-    """Ensure sample data exists. If not, download from verified source."""
-    raw_file = os.path.join(DATA_PATH, "raw", "smiles.csv")
-    if not os.path.exists(raw_file):
-        logger.info("Downloading sample data from verified source...")
-        # This is handled by data_loader_main which uses the verified dataset
-        pass
-    return raw_file
-
 def run_full_pipeline():
     """Run the full pipeline from data loading to analysis."""
     start_time = time.time()
-    
+
     # 1. Ensure directories
     ensure_directories()
-    
-    # 2. Download/Load data
+
+    # 2. Load/download data
     logger.info("Step 1: Loading data...")
     data_loader_main()
-    
+
     # 3. Compute descriptors
     logger.info("Step 2: Computing descriptors...")
     descriptors_main()
-    
-    # 4. Train models
+
+    # 4. Train models (writes model_results.json)
     logger.info("Step 3: Training models...")
     model_training_main()
-    
-    # 5. Run sensitivity analysis (T032b + T032c)
+
+    # 5. Run sensitivity analysis (writes sensitivity_analysis.json)
     logger.info("Step 4: Running sensitivity analysis...")
     run_sensitivity()
-    
-    # 6. Feature importance
+
+    # 6. Feature importance (writes feature_importance.csv)
     logger.info("Step 5: Computing feature importance...")
     feature_importance_main()
-    
-    # 7. Plotting
+
+    # 7. Plotting (creates corr_plot_top5.png)
     logger.info("Step 6: Generating plots...")
     plotting_main()
-    
-    # 8. Analysis summary
+
+    # 8. Analysis summary (writes analysis_summary.json)
     logger.info("Step 7: Generating analysis summary...")
     analysis_summary_main()
-    
+
     end_time = time.time()
     duration = end_time - start_time
     logger.info(f"Pipeline completed in {duration:.2f} seconds.")
-    
     return duration
 
 def validate_outputs():
     """Validate that all expected outputs exist."""
     expected_files = [
         os.path.join(DATA_PATH, "raw", "smiles.csv"),
-        os.path.join(DATA_PATH, "processed", "descriptors_base.csv"),
         os.path.join(DATA_PATH, "processed", "descriptors.csv"),
         os.path.join(DATA_PATH, "processed", "model_results.json"),
         os.path.join(DATA_PATH, "processed", "sensitivity_analysis.json"),
@@ -98,16 +87,12 @@ def validate_outputs():
         os.path.join(DATA_PATH, "processed", "analysis_summary.json"),
         os.path.join(DATA_PATH, "processed", "corr_plot_top5.png"),
     ]
-    
-    missing = []
-    for f in expected_files:
-        if not os.path.exists(f):
-            missing.append(f)
-    
+
+    missing = [f for f in expected_files if not os.path.exists(f)]
     if missing:
         logger.error(f"Missing output files: {missing}")
         return False
-    
+
     logger.info("All expected outputs present.")
     return True
 
@@ -118,18 +103,19 @@ def main():
     parser.add_argument("--pipeline", action="store_true", help="Run full pipeline")
     parser.add_argument("--validate", action="store_true", help="Validate outputs")
     args = parser.parse_args()
-    
+
     if args.pipeline:
         run_full_pipeline()
-    
+
     if args.validate:
         if not validate_outputs():
             sys.exit(1)
-    
+
     if not args.pipeline and not args.validate:
-        # Default: run pipeline
+        # Default: run pipeline then validate
         run_full_pipeline()
-        validate_outputs()
+        if not validate_outputs():
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

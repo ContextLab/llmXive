@@ -1,0 +1,81 @@
+"T001\u2013T009":
+  task: 91f0461fbf38e0fe80f8203edd42512e1d36c17fe0c1fa14ffba740943a0be8e
+? "T010\u2013T012, T023\u2013T025, T034\u2013T036 Unit tests for descriptors (benzene\
+  \ aromaticity, butadiene conjugation, mixed hybridization), scaffold leakage, log\
+  \ transform, outlier filter, VIF, BH correction, and plot generation (`tests/`)."
+: reason: "The evidence only shows that a `tests/` directory with appropriately named\
+    \ files exists, but no contents are provided to confirm that the unit tests actually\
+    \ implement the required checks (benzene aromaticity, butadiene conjugation, mixed\
+    \ hybridization, scaffold leakage, log\u2011transform, outlier filter, VIF, Benjamini\u2011\
+    Hochberg correction, and plot generation). Without the test code (or execution\
+    \ logs) we cannot verify that the required functionality is truly tested. The\
+    \ implementer must supply the test file contents (or proof of successful test\
+    \ runs) to demonstrate compliance."
+  task: 8ba0a03fd53a15bb4886f3f3143a485096a906d41884b483da4fe58b792ea943
+? "T013\u2013T019c, T026, T061_RDKit\u2013T063_RDKit Data loading, target\u2011variable\
+  \ validation with strict halt when neither conductivity nor HOMO\u2011LUMO gap is\
+  \ available (no self\u2011consistency fallback), quantum proxy report, full RDKit\
+  \ descriptor set (degree/path statistics, aromaticity, conjugation, ring counts,\
+  \ bond order/length, electronegativity polarity terms), NaN filtering, and `data/processed/descriptors.csv`\
+  \ (FR\u2011001, FR\u2011008, FR\u2011011, FR\u2011012, FR\u2011014)."
+: reason: The required output file `data/processed/descriptors.csv` is missing, so
+    the core descriptor computation artifact demanded by the task (including the full
+    RDKit descriptor set and related functional requirements) is not present. Without
+    this CSV the data loading, validation, and downstream steps cannot be verified.
+  task: 128c44a9770440053e420d6a3b9e2760ccc8f671c290c5692bc7921f70ce9fa8
+? "T027\u2013T032b-3, T032a Scaffold split, log\u2011transform, RF/GB training, 5\u2011\
+  fold CV, outlier sensitivity sweep over {2.5\u03C3, 3.0\u03C3, 3.5\u03C3} with variance\
+  \ recording in `data/processed/sensitivity_analysis.json` (FR\u2011002, FR\u2011\
+  003, FR\u2011004, FR\u2011007)."
+: reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis.json'
+  task: 7155a7b874bad35486467c367c024f1472f052f77e5e4ddbd4dc510c60ec8a41
+? "T039a, T039b, T039c\u20113 VIF identification, exclusion (VIF > 10), retraining\
+  \ on reduced feature set, iteration log and intermediate model versioning (FR\u2011\
+  013)."
+: reason: "The repository contains only a project root reference and no files implementing\
+    \ VIF calculation, VIF\u2011based feature exclusion, retraining on the reduced\
+    \ feature set, or any iteration log/model versioning required by task T039a\u2011\
+    c\u20113. Consequently the essential artifacts and evidence for VIF identification,\
+    \ exclusion, and model versioning are missing."
+  task: 5c14c14c4537673316d83c2de5f9fbe4babdd66ea25ebf408f665bc9a008fe5a
+? "T040b, T041, T042, T043, T045, T044, T057, T064, T064b Feature\u2011importance\
+  \ robustness, Pearson correlations, Benjamini\u2011Hochberg FDR correction, correlation\
+  \ plots with 95\u202F% CIs (`corr_plot_top5.png`, `corr_plot_resonance.png`), analysis\
+  \ summary, bootstrap CI\u2011coverage report, resonance\u2011descriptor integration\
+  \ and augmented sensitivity re\u2011run (FR\u2011005, FR\u2011006, SC\u2011002,\
+  \ SC\u2011003)."
+: reason: "The evidence contains only a project root reference and no actual files\
+    \ such as `corr_plot_top5.png`, `corr_plot_resonance.png`, bootstrap CI\u2011\
+    coverage reports, or the required analysis summaries and feature\u2011importance\
+    \ outputs. Because the mandatory artifacts are missing, the task\u2019s requirements\
+    \ are not satisfied."
+  task: dba2acb82b6c95ffbe5d31a4a884ac6a954583673fdde4cbde355b6ff76a92c6
+? "T046, T047, T049\u20111\u2013T049\u20114, T051 Documentation updates, lint cleanup,\
+  \ integration tests with runtime checks, quickstart execution in fresh virtualenv\
+  \ (FR\u2011009, FR\u2011010)."
+: reason: "The evidence only shows a project root path; no descriptor\u2011computation\
+    \ script, no output CSV/JSON results, no training or evaluation code, no integration\u2011\
+    test suite, no documentation updates, lint\u2011cleanup files, or quick\u2011\
+    start instructions were found. Consequently the required artifacts for T046, T047,\
+    \ T049\u20111\u20134, and T051 are missing."
+  task: a7fb0d5c39c01bf91741b5797e4380fedf9a63636af567b2bdd999fed7d5bc04
+T100:
+  task: b5e675a70d31c9167bb5dbe10134a878fb2854307c20023b5f78b4dc26f1e4bd
+T101:
+  task: f3ac53103dc26614ea0cd05f6312f027a9c1a6daf19e09c26450d954b0c8a4aa
+T102:
+  task: dc0bb539b04e92c597fa25b8e813e562de46884fee9d4b534715b382e6639038
+T103:
+  task: 4ec988e9a42f374c836b9a78b755a4fea5c81b82cc2986697e09ee85db7f718f
+T104:
+  task: 8b6eed11ef906629ca83e2e304ef568a3c892c4578f81eb5649ccde0f36e9169
+T105:
+  task: cb5a246af3fd86e81318cefe7691973a079cf47efc7a76f08e993ecb866c564c
+T106:
+  task: 015c4a2a03b1558c41da0a56819dc878c0b2c9c03b6d3630602296d47d5e5159
+T107:
+  task: 91920304fd1265807099d35ff59cfaf83f272c5998de13c8b6c39e4b1b17ebc9
+T108:
+  task: d9083e6c7272d63be4e3326fad1484af61bdf31a95d0cc542852c8111f9f2a95
+T109:
+  task: 18c5967097598c4f561abcce88c72695a24dacfe2c2402b818db184cd67dbc4f
