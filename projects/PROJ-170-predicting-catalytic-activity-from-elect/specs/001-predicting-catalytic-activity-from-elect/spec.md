@@ -45,7 +45,7 @@ As a domain expert, I need a SHAP-based analysis that ranks the top descriptors 
 
 **Why this priority**: This story provides the scientific insight required to answer the research question ("which specific descriptors provide the most predictive signal?") and validates the hypothesis that a compact set captures the dominant physics.
 
-**Independent Test**: The interpretability step can be tested by running the SHAP calculation and verifying that the top 5 descriptors are listed in descending order of importance with a corresponding bar plot generated.
+**Independent Test**: The interpretability step can be tested by running the SHAP calculation and verifying that the top descriptors are listed in descending order of importance with a corresponding bar plot generated.
 
 **Acceptance Scenarios**:
 

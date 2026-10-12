@@ -2,28 +2,29 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Sufficient free disk space (for raw and processed data)
-- Substantial RAM (streaming reduces peak usage)
-- Internet access (for downloading datasets)
-- Materials Project API Key (set as `MP_API_KEY` environment variable)
+- Python 3.11 or newer
+- Internet access (for dataset streaming and MP API)
+- Materials Project API key set as environment variable `MP_API_KEY`
+- GitHub Actions‑compatible runner (2 CPU cores, ≤7 GB RAM, ≤14 GB disk)
 
 ## Installation
 
 ```bash
-# Clone repository and navigate to project
-cd projects/PROJ-170-predicting-catalytic-activity-from-elect
+# Clone the repository (assume you are already in the project root)
+git clone https://github.com/your-org/PROJ-170-predicting-catalytic-activity.git
+cd PROJ-170-predicting-catalytic-activity
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-# Install dependencies
+# Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-**requirements.txt** (pinned versions):
-```txt
+**requirements.txt**
+
+```text
 pandas==2.1.4
 numpy==1.26.2
 scikit-learn==1.3.2
@@ -35,135 +36,97 @@ seaborn==0.13.0
 pytest==7.4.3
 pymatgen==2023.10.1
 mp-api==0.35.0
+tqdm==4.66.2
+python-Levenshtein==0.23.0
 ```
 
-## Data Download
+## Step‑by‑Step Execution
 
-Run the download script to fetch and stream datasets:
+1. **Create directory skeleton** (required for integration tests):
 
-```bash
-python code/download_data.py
-```
+   ```bash
+   python - <<'PY'
+import pathlib, os
+for sub in ["data/raw", "data/processed", "outputs", "tests/unit", "tests/integration", "tests/contract"]:
+    pathlib.Path(sub).mkdir(parents=True, exist_ok=True)
+PY
+   ```
 
-This script:
-1. Streams OC20 Experimental dataset from Hugging Face.
-2. Fetches MP descriptors via API (cached locally).
-3. Saves raw samples to `data/raw/`.
-4. Computes and records checksums.
+2. **Download data** (raw OC20, MP descriptors, surrogate TOF):
 
-**Output**: `data/raw/oc20_sample.parquet`, `data/raw/mp_cache.json`
+   ```bash
+   python code/download_data.py
+   ```
 
-## Descriptor Extraction
+   *Outputs*: `data/raw/oc20_parquet/`, `data/raw/mp_cache.json`, `data/raw/tof_surrogate.jsonl`
 
-Run the extraction script to derive electronic descriptors from raw structures:
+   > **Note:** The original CO₂ hydrogenation experimental TOF dataset is not publicly available. The pipeline therefore uses the open surrogate TOF collection (`locuslab/TOFU`). This limitation is documented in the plan and will be reflected in the final report.
 
-```bash
-python code/extract_descriptors.py
-```
+3. **Extract electronic descriptors**:
 
-This script:
-1. Parses OC20 atomic structures.
-2. Computes d-band center, p-band center, Bader charges, and coordination numbers.
-3. Saves derived descriptors to `data/processed/descriptors.parquet`.
+   ```bash
+   python code/extract_descriptors.py
+   ```
 
-**Output**: `data/processed/descriptors.parquet`
+   *Outputs*: `data/processed/descriptors.parquet`
 
-## Preprocessing
+4. **Preprocess & align** (impute, scale, generate `aligned_dataset.csv`):
 
-Run the preprocessing pipeline to align, impute, and scale data:
+   ```bash
+   python code/preprocess.py
+   ```
 
-```bash
-python code/preprocess.py
-```
+   *Outputs*: `data/processed/aligned_dataset.csv`, `outputs/alignment_log.json`, `outputs/imputation_log.json`
 
-This script:
-1. Aligns datasets on `composition`, `surface_facet`, `synthesis_condition` (fuzzy match).
-2. Imputes missing descriptors with k=5 nearest neighbors (geometry-aware).
-3. Scales numeric features to zero mean, unit variance.
-4. Logs excluded entries.
+5. **Train models & evaluate** (nested CV with outer hold‑out):
 
-**Output**: `data/processed/aligned_dataset.csv`, `outputs/alignment_log.json`, `outputs/imputation_log.json`
+   ```bash
+   python code/train.py
+   ```
 
-## Model Training
+   *Outputs*: `code/models/xgboost_best.pkl`, `outputs/metrics.json`
 
-Train XGBoost and Volcano baseline models:
+6. **Reduced‑model verification (SC‑003)**:
 
-```bash
-python code/train.py
-```
+   ```bash
+   python code/evaluate_reduced.py
+   ```
 
-This script:
-1. Performs 5-fold CV grid search for XGBoost (max_depth ∈ {5,7}, learning_rate ∈ {low, high}, n_estimators will be evaluated across a range of values to determine optimal model performance.).
-2. Trains Volcano baseline (quadratic fit) on d-band center and activation barrier.
-3. Performs statistical test (t-test or Wilcoxon) on absolute errors.
-4. Saves best model and metrics.
+   *Outputs*: `outputs/reduced_model_metrics.json`
 
-**Output**: `code/models/xgboost_best.pkl`, `outputs/model_metrics.json`
+7. **Interpretability (SHAP)**:
 
-## Reduced Model Evaluation (SC-003)
+   ```bash
+   python code/interpret.py
+   ```
 
-Train the top-5 reduced model:
+   *Outputs*: `outputs/feature_importance.png`, `outputs/shap_ranking.json`
 
-```bash
-python code/evaluate_reduced.py
-```
+8. **Generate final report**:
 
-This script:
-1. Identifies top descriptors from SHAP analysis.
-2. Trains XGBoost on only these descriptors.
-3. Calculates R² ratio against full model.
+   ```bash
+   python code/report.py
+   ```
 
-**Output**: `outputs/reduced_model_metrics.json`
+   *Output*: `outputs/final_report.md`
 
-## Interpretability Analysis
+9. **Run the test suite** (ensures directory existence, schema compliance, edge‑case handling):
 
-Compute SHAP values and generate feature importance plot:
+   ```bash
+   pytest -v
+   ```
 
-```bash
-python code/interpret.py
-```
+   Expected outcome: all tests pass, confirming reproducibility and constitutional compliance.
 
-This script:
-1. Computes SHAP values for the final XGBoost model.
-2. Ranks descriptors by mean absolute SHAP impact.
-3. Generates bar plot of top descriptors.
+## Expected Runtime & Resource Usage
 
-**Output**: `outputs/feature_importance.png`, `outputs/shap_ranking.json`
+- **Total wall‑clock time**: ≤ 3 hours on the standard GitHub Actions runner.  
+- **Peak RAM**: ≤ 5 GB (due to streaming and chunked descriptor extraction).  
+- **Disk consumption**: ≤ 12 GB (raw parquet shards are streamed; only processed CSV (a few hundred MB) remains).  
 
-## Generate Final Report
+All steps are CPU‑only; no GPU resources are required.
 
-Compile all results into a single report:
+---
 
-```bash
-python code/report.py
-```
 
-This script:
-1. Aggregates model metrics, statistical test results, and SHAP rankings.
-2. Compares top 5 descriptors to Nørskov et al. reference.
-3. Includes data lineage (checksums, HF commit hashes).
-
-**Output**: `outputs/final_report.md`
-
-## Verification
-
-Run tests to ensure pipeline integrity:
-
-```bash
-pytest tests/ -v
-```
-
-Tests cover:
-- Contract validation (schema compliance)
-- End-to-end pipeline execution
-- Unit tests for preprocessing and imputation
-
-## Expected Runtime
-
-- **Download**: ~10-30 min (depends on network)
-- **Descriptor Extraction**: ~30-60 min (depends on sample size)
-- **Preprocessing**: ~5-15 min
-- **Training**: ~30-60 min (XGBoost grid search)
-- **Interpretability**: ~5-10 min
-- **Total**: ≤3 hours on CPU (well within 6h limit)
 

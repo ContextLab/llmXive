@@ -1,6 +1,7 @@
+# This schema aligns exactly with the columns produced by the pipeline (see plan.md and data-model.md).
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Aligned Dataset Schema"
-description: "Schema for the aligned, imputed, and scaled catalyst dataset (aligned_dataset.csv)"
+description: "Schema for the aligned, imputed, and scaled catalyst dataset (aligned_dataset.csv). Experimental TOF may be null when a surrogate source is used."
 type: "object"
 properties:
   catalyst_id:
@@ -14,43 +15,59 @@ properties:
     description: "Surface facet index (e.g., 111, 100)"
   synthesis_condition:
     type: "string"
-    description: "Synthesis condition (fuzzy-matched)"
+    description: "Exact synthesis description (must match across sources)"
+  temperature:
+    type: "number"
+    description: "Reaction temperature in Kelvin (extracted from synthesis_condition)"
+  pressure:
+    type: "number"
+    description: "Reaction pressure in atm"
   d_band_center:
     type: "number"
-    description: "d-band center in eV (zero mean, unit variance scaled)"
+    description: "d‑band center (scaled)"
   p_band_center:
     type: "number"
-    description: "p-band center in eV (scaled)"
+    description: "p‑band center (scaled)"
   bader_charges:
     type: "number"
-    description: "Bader charge in e (scaled)"
+    description: "Bader charge (scaled)"
   activation_barrier:
     type: "number"
-    description: "Activation energy in eV (scaled)"
+    description: "Activation energy (eV, scaled)"
   reaction_energy:
     type: "number"
-    description: "Reaction energy in eV (scaled)"
+    description: "Reaction energy (eV, scaled)"
   coordination_number:
     type: "number"
-    description: "Average coordination number (used for imputation)"
+    description: "Average coordination number (scaled)"
   surface_area:
     type: "number"
-    description: "Surface area (used for imputation)"
+    description: "Surface area (scaled)"
   experimental_tof:
-    type: "number"
-    description: "Experimental turnover frequency in s⁻¹ (scaled)"
+    type:
+      - "number"
+      - "null"
+    description: "Experimental turnover frequency (scaled). May be null if surrogate TOF data are used."
   is_imputed:
     type: "boolean"
-    description: "True if any descriptor was imputed"
+    description: "True if any descriptor was imputed via k‑NN."
   excluded_from_training:
     type: "boolean"
-    description: "True if entry was excluded from model training"
+    description: "True if the entry is excluded from model training (e.g., insufficient neighbors, alignment failure)."
 required:
   - catalyst_id
   - composition
   - surface_facet
   - synthesis_condition
+  - temperature
+  - pressure
   - d_band_center
+  - p_band_center
+  - bader_charges
+  - activation_barrier
+  - reaction_energy
+  - coordination_number
+  - surface_area
   - experimental_tof
   - is_imputed
   - excluded_from_training

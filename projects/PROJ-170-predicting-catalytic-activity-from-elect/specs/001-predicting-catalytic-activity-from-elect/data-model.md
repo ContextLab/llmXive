@@ -3,110 +3,113 @@
 ## Entity Definitions
 
 ### CatalystEntry
-Represents a unique catalyst configuration after alignment and preprocessing.
+Represents a single catalyst after alignment and preprocessing. The target variable is a **generic catalytic turnover frequency** (surrogate TOF), not CO₂ hydrogenation‑specific.
 
 | Attribute | Type | Description | Source |
 |-----------|------|-------------|--------|
-| `catalyst_id` | str | Unique identifier (hash of composition + facet + condition) | Derived |
-| `composition` | str | Chemical formula (e.g., "Pt") | OC20/MP |
-| `surface_facet` | str | Surface facet (e.g., "111") | OC20/MP |
-| `synthesis_condition` | str | Synthesis condition (fuzzy-matched) | Experimental |
-| `d_band_center` | float | d-band center (eV) | Derived (pymatgen) |
-| `p_band_center` | float | p-band center (eV) | Derived (pymatgen) |
-| `bader_charges` | float | Bader charge (e) | Derived (pymatgen) |
-| `activation_barrier` | float | Activation energy (eV) | Derived (pymatgen) |
-| `reaction_energy` | float | Reaction energy (eV) | Derived (pymatgen) |
-| `coordination_number` | float | Average coordination number (for imputation) | Derived |
-| `surface_area` | float | Surface area (for imputation) | Derived |
-| `experimental_tof` | float | Experimental TOF (s⁻¹) | OC20 Experimental |
-| `is_imputed` | bool | True if descriptor was imputed | Derived |
-| `excluded_from_training` | bool | True if entry was excluded (e.g., <5 neighbors) | Derived |
+| `catalyst_id` | str | Hash of (`composition`, `surface_facet`, `synthesis_condition`) | Derived |
+| `composition` | str | Chemical formula (e.g., `"Pt"`) | OC20 / MP |
+| `surface_facet` | str | Surface facet index (e.g., `"111"`) | OC20 / MP |
+| `synthesis_condition` | str | Exact synthesis description (must match across sources) | Experimental TOF (surrogate) |
+| `temperature` | float | Reaction temperature (K) extracted from `synthesis_condition` | Experimental TOF (surrogate) |
+| `pressure` | float | Reaction pressure (atm) extracted from `synthesis_condition` | Experimental TOF (surrogate) |
+| `d_band_center` | float | d‑band center (eV, scaled) | Derived (pymatgen) |
+| `p_band_center` | float | p‑band center (eV, scaled) | Derived (pymatgen) |
+| `bader_charges` | float | Bader charge (e, scaled) | Derived (pymatgen) |
+| `activation_barrier` | float | Activation energy (eV, scaled) | Derived (pymatgen) |
+| `reaction_energy` | float | Reaction energy (eV, scaled) | Derived (pymatgen) |
+| `coordination_number` | float | Avg. coordination number (scaled) | Derived (pymatgen) |
+| `surface_area` | float | Surface area (scaled) | Derived (pymatgen) |
+| `experimental_tof` | float | null | Surrogate TOF dataset (generic catalytic activity) |
+| `is_imputed` | bool | True if any descriptor was imputed via k‑NN. | Derived |
+| `excluded_from_training` | bool | True if entry was dropped for insufficient neighbors, missing covariates, or alignment failure. | Derived |
 
 ### ModelMetrics
-Stores performance statistics for trained models.
+Performance statistics for each trained model.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `model_type` | str | "XGBoost", "Volcano", or "Reduced" |
-| `r_squared` | float | R² score on test set |
+| `model_type` | str | `"XGBoost"` or `"Linear"` or `"Reduced"` |
+| `r_squared` | float | R² on hold‑out test set |
 | `mean_absolute_error` | float | MAE on test set |
 | `pearson_r` | float | Pearson correlation coefficient |
-| `t_test_p_value` | float | p-value from statistical test (if applicable) |
-| `test_size` | int | Number of samples in test set |
+| `test_size` | int | Number of test samples |
+| `hyperparameters` | object | Hyperparameter dictionary (for XGBoost) |
 
 ### FeatureImportance
-Represents descriptor impact from SHAP analysis.
+SHAP‑based ranking entry.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `descriptor_name` | str | Name of the descriptor |
 | `mean_absolute_shap_value` | float | Mean absolute SHAP value |
-| `rank` | int | Rank (1 = most important) |
-| `physical_mechanism` | str | Known physical mechanism (if any) |
+| `rank` | int | 1 = most important |
+| `physical_mechanism` | str | Known mechanism (e.g., “d‑band theory”) or “novel” |
 
-### ReducedModelMetrics
-Stores metrics for the top-5 reduced model (SC-003).
+### ReducedModelMetrics (SC‑003)
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `r_squared_full` | float | R² of the full XGBoost model |
-| `r_squared_reduced` | float | R² of the top-5 reduced model |
+| `r_squared_reduced` | float | R² of the top‑5 descriptor model |
 | `ratio` | float | `r_squared_reduced / r_squared_full` |
-| `passes_sc003` | bool | True if ratio ≥ 0.50 |
+| `passes_sc003` | bool | True if `ratio ≥ 0.50` |
 
 ## Data Flow Diagram
 
 ```mermaid
 graph TD
-    A[OC20 Raw] --> B[Download & Stream]
-    C[MP API] --> D[Fetch Descriptors]
-    B --> E[Descriptor Extraction]
-    D --> E
-    E --> F{Alignment}
-    F -->|Matched| G[Unified Dataset]
-    F -->|Unmatched| H[Excluded Log]
-    G --> I{Imputation k=5 (Geo-aware)}
-    I -->|Success| J[Imputed Dataset]
-    I -->|<5 Neighbors| K[Excluded Log]
-    J --> L[Scaling]
-    L --> M[Aligned Dataset CSV]
-    M --> N[XGBoost Training]
-    M --> O[Volcano Baseline]
-    N --> P[SHAP Analysis]
-    O --> P
-    P --> Q[Feature Importance Report]
-    N --> R[Reduced Model Training (Top-5)]
-    R --> S[Reduced Model Metrics]
-    N --> T[Model Metrics]
-    O --> T
-    Q --> U[Final Report]
-    S --> U
-    T --> U
+    A[OC20 Stream] --> B[Descriptor Extraction]
+    C[MP API] --> B
+    D[Surrogate TOF JSONL] --> E[Alignment & Merge]
+    B --> E
+    E --> F{Imputation k=5}
+    F -->|Success| G[Imputed Dataset]
+    F -->|<5 neighbors| H[Excluded Log]
+    G --> I[Scaling]
+    I --> J[aligned_dataset.csv]
+    J --> K[XGBoost CV Grid]
+    J --> L[Linear Volcano Model]
+    K --> M[Best XGBoost Model]
+    L --> N[Baseline Metrics]
+    M --> O[SHAP Analysis]
+    O --> P[Feature Importance Ranking]
+    P --> Q[Reduced Model (Top‑5)]
+    M --> R[Metrics JSON]
+    Q --> S[Reduced Model Metrics]
+    R --> T[Final Report]
+    S --> T
 ```
 
 ## Data Quality Rules
 
-1. **No NaN in Target**: `experimental_tof` must have no missing values after imputation (entries with missing TOF are excluded).
-2. **Unique Alignment**: `synthesis_condition` must be uniquely mappable (fuzzy match) per catalyst; ambiguous entries excluded.
-3. **Imputation Flag**: All imputed values are flagged (`is_imputed=True`).
-4. **Exclusion Log**: All excluded entries (unmatched, <5 neighbors) are logged with reasons.
-5. **Checksum**: All raw and processed files are checksummed (SHA-256).
+1. **No NaN in `experimental_tof`** – Entries lacking TOF are excluded before model training.  
+2. **Exact Alignment** – `composition`, `surface_facet`, **and** `synthesis_condition` must match exactly; temperature and pressure must be present; otherwise entry is excluded.  
+3. **Imputation Flag** – `is_imputed=True` for any descriptor derived via k‑NN.  
+4. **Exclusion Log** – All rows with `<5` neighbors or alignment failures are recorded in `outputs/imputation_log.json` and `outputs/alignment_log.json`.  
+5. **Checksum** – SHA‑256 checksums for every raw and processed file stored in `state/projects/...yaml`.  
 
 ## Storage Layout
 
-```text
-data/raw/
-├── oc20_sample.parquet          # Streamed sample from OC20
-├── mp_cache.json                # Cached MP descriptors
-
-data/processed/
-└── aligned_dataset.csv          # Final aligned, imputed, scaled dataset
-
-outputs/
-├── alignment_log.json           # Unmatched entries
-├── imputation_log.json          # Entries excluded due to <5 neighbors
-├── feature_importance.png       # Top 5 SHAP bar plot
-├── reduced_model_metrics.json   # SC-003 metrics
-└── final_report.md              # Complete results report
 ```
+data/
+├── raw/
+│   ├── oc20_parquet/                # streamed chunks
+│   ├── mp_cache.json                # cached MP descriptors
+│   └── tof_surrogate.jsonl          # surrogate TOF values (generic catalytic activity)
+├── processed/
+│   └── aligned_dataset.csv          # final cleaned, imputed, scaled table
+└── checksums.txt                    # SHA‑256 hashes
+outputs/
+├── alignment_log.json
+├── imputation_log.json
+├── feature_importance.png
+├── reduced_model_metrics.json
+├── final_report.md
+└── metrics.json
+```
+
+---
+
+
 

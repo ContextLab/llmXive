@@ -1,12 +1,17 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 9 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T102` (rejected 1x): Requested task execution failed; rerun successfully: code/download_data.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan substitutes the required 2025 CO₂ hydrogenation experimental TOF dataset with the unrelated surrogate TOF collection `locuslab/TOFU`. Because the surrogate does not represent the same chemical system, the target variable no longer measures the construct (experimental TOF for CO₂ hydrogenation) the research question intends to predict, threatening construct validity and rendering the primary hypothesis untestable with the current data.
+- The power analysis target of ≥3000 matched entries is stated without an explicit effect‑size justification. Given the surrogate TOF dataset’s unknown size and composition, the study may lack sufficient statistical power to detect a meaningful performance gain between the XGBoost model and the linear baseline, especially when the analysis proceeds with as few as 500 entries (exploratory mode).
+- Alignment relies on exact matching for `composition` and `surface_facet` but uses fuzzy Levenshtein matching for `synthesis_condition`. No attempt is made to control for experimental conditions (e.g., temperature, pressure) that strongly influence TOF, introducing potential confounds that could bias the learned relationships between descriptors and the target.
+- The statistical testing step compares absolute errors of XGBoost vs. the linear baseline using a paired t‑test or Wilcoxon test. This tests for a difference in predictive error but does not directly assess whether the expanded descriptor set provides a practically significant improvement; the plan lacks a predefined minimal‑important‑difference threshold or correction for multiple comparisons, which may lead to over‑interpretation of marginal gains.
+- The plan states that the top‑5 SHAP descriptors will be compared to the Nørskov reference and that matches will be highlighted. This framing risks implying a causal mechanistic explanation, whereas SHAP values only indicate association within the trained model. The methodology should explicitly limit conclusions to associative statements.
+- The plan substitutes the required “2025 CO₂ hydrogenation experimental TOF” dataset with the generic surrogate TOF collection `locuslab/TOFU` (Hugging Face). This surrogate does not contain CO₂ hydrogenation-specific turnover frequencies, violating FR‑001 which mandates experimental TOFs for the target reaction. Using a non‑matching TOF source undermines the core research question and prevents a valid assessment of descriptor performance for CO₂ hydrogenation catalysts.
+- The `aligned_dataset.schema.yaml` contract disallows any properties beyond the listed ones (additionalProperties: false). However, the plan and data‑model both expect many extra columns (e.g., `p_band_center`, `bader_charges`, `reaction_energy`, `coordination_number`, `surface_area`, `experimental_tof`). This creates a contradictory requirement: the pipeline will generate a CSV that cannot validate against the contract, violating both the contract and the data‑model consistency.
+- The research question targets *CO₂ hydrogenation* catalytic activity, yet the validation target (experimental TOF) is sourced from the surrogate `locuslab/TOFU` dataset, which does not represent CO₂ hydrogenation catalysts. Using a mismatched experimental TOF makes the evaluation non‑independent of the predictor set and invalidates any claim that the model explains CO₂ hydrogenation activity.
+- Hyper‑parameter selection is performed via a 5‑fold cross‑validation grid search, and the same data appear to be used later for the final performance evaluation (hold‑out test set is not explicitly separated). This risks data leakage; a proper nested CV or an untouched test split is required to obtain unbiased estimates of model improvement.
