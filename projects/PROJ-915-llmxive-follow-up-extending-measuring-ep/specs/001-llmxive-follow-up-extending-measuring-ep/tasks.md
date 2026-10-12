@@ -19,15 +19,15 @@
   **Artifacts**: `code/.ruff.toml`.  
   **Verification**: Running `ruff check code/` returns exit code 0; a test `tests/unit/test_ruff_config.py` parses the file and confirms the expected settings.
 
-- [ ] T003b [US0] Create `pyproject.toml` configuring Black (line length 100, target Python 3.11).  
+- [X] T003b [US0] Create `pyproject.toml` configuring Black (line length 100, target Python 3.11).  
   **Artifacts**: `pyproject.toml`.  
   **Verification**: `black --check code/` returns exit code 0.
 
-- [ ] T003c [US0] Add a verification step that asserts `code/.ruff.toml` exists after T003a; fail the pipeline with a clear error if missing.  
+- [X] T003c [US0] Add a verification step that asserts `code/.ruff.toml` exists after T003a; fail the pipeline with a clear error if missing.  
   **Artifacts**: Updated `code/validation.py` (or a tiny script) to perform the check.  
   **Verification**: The pipeline aborts with an informative message when the file is absent.
 
-- [ ] T004 [US0] Implement `code/config.py` with global constants (`SEED = 42`, `MAX_RUNTIME_HOURS = 6`, `DATA_ROOT = Path("../data")`, `RESULTS_ROOT = Path("../data/results")`).  
+- [X] T004 [US0] Implement `code/config.py` with global constants (`SEED = 42`, `MAX_RUNTIME_HOURS = 6`, `DATA_ROOT = Path("../data")`, `RESULTS_ROOT = Path("../data/results")`).  
   **Artifacts**: `code/config.py`.  
   **Verification**: Importing `code.config` yields the constants; a unit test `tests/unit/test_config.py` asserts `MAX_RUNTIME_HOURS == 6`.
 

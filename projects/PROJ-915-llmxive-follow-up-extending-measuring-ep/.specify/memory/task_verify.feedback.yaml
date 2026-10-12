@@ -9,12 +9,6 @@ T002:
 T003a:
   task: 27a73e0ac22546bfaa1940437d41e6b6910bafa5fe5c8167594f35cb57472b7c
 T003b:
-  reason: "The `pyproject.toml` exists and correctly configures Black (line-length\
-    \ 100, target py311), but the task's stated verification \u2014 `black --check\
-    \ code/` returning exit code 0 \u2014 fails: the recorded test run shows exit\
-    \ code 1 with 23 files in `code/` needing reformatting. The implementer must run\
-    \ `black code/` (or otherwise bring the code into Black-compliant form) so the\
-    \ check passes."
   task: 1c5ca4931fd07ea113d29dbdce1cbe9b7a42eb831e6b74fa568685ac90464315
 T003c:
   task: a2d2a9799fd00e934678b24e1e1ca5c589acfd2479b750a32333ae2f4e7e77fe

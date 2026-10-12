@@ -3,9 +3,11 @@ import sys
 import subprocess
 from pathlib import Path
 
+
 def ensure_project_root() -> Path:
     """Ensure we are in the project root."""
     return Path.cwd()
+
 
 def write_pyproject_toml(project_root: Path) -> None:
     """Write pyproject.toml with Black configuration."""
@@ -17,6 +19,7 @@ target-version = ['py311']
     with open(path, "w") as f:
         f.write(content)
     print(f"Created {path}")
+
 
 def write_ruff_toml(project_root: Path) -> None:
     """Write .ruff.toml with specific rules."""
@@ -30,10 +33,12 @@ target-version = "py311"
         f.write(content)
     print(f"Created {path}")
 
+
 def install_tools() -> None:
     """Install linting and formatting tools."""
     subprocess.run([sys.executable, "-m", "pip", "install", "black", "ruff"], check=True)
     print("Tools installed.")
+
 
 def main():
     """Entry point for setup_linting script."""
@@ -42,6 +47,7 @@ def main():
     write_ruff_toml(project_root)
     # Uncomment to install tools:
     # install_tools()
+
 
 if __name__ == "__main__":
     main()

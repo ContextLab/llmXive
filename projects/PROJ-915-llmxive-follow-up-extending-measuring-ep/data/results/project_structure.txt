@@ -1,12 +1,28 @@
 projects/PROJ-915-llmxive-follow-up-extending-measuring-ep
+├── .runtime-home
+│   └── .cache
+├── .specify
+│   ├── memory
+│   ├── scripts
+│   └── templates
 ├── code
+│   ├── .tasks
+│   ├── __pycache__
+│   └── agents
 ├── data
 │   ├── interim
 │   ├── processed
 │   ├── raw
 │   └── results
 ├── docs
-├── state
+├── figures
+├── idea
+├── projects
+│   └── PROJ-915-llmxive-follow-up-extending-measuring-ep
+├── scripts
+├── specs
+│   └── 001-llmxive-follow-up-extending-measuring-ep
+├── src
 └── tests
     ├── integration
     └── unit

@@ -18,22 +18,42 @@ T002:
   sig: 320f84299848281af10a48b8cb83d8a8cce0786f8ed96e47435f5135325c9fe0
 T003a:
   c: true
-  h: c8a7a9917542708b7c0cf6caee5810b62c06aa8951da26fa9b15201a8f90e239
-  r: The `code/.ruff.toml` file exists with the required settings (line-length 100,
-    ANN in lint select, `__init__.py` per-file-ignores ALL), and `tests/unit/test_ruff_config.py`
-    parses the file and asserts exactly those settings. The historical execution log
-    shows all 5 tests passing with exit code 0, matching the task's verification criteria.
-  sig: 04f2715d751853538b9ab874fbbba8d24986a25d45c1f1ca8a056ba7f92686a4
+  h: def7fe570afc054ff5dcd995f866bd30ce4488ddd6058651ee2cbaf2b1be56f4
+  r: The `code/.ruff.toml` exists with the required settings (line-length 100, ANN
+    selected, `__init__.py` per-file-ignored), and `tests/unit/test_ruff_config.py`
+    parses the file and asserts those settings; the platform execution log shows all
+    5 tests passing with exit code 0. The pipeline_log.json ingestion failure is unrelated
+    to this lint-configuration task.
+  sig: 44a8fe714e901938652ca1f06f69478738db490d5e1eaafb6559ecd488935d2b
 T003b:
-  c: false
-  h: 2aed68807a174346efae55d78cd911dbbcb3ec9891ee4190296c98f7be1ddbe5
-  r: "The `pyproject.toml` exists and correctly configures Black (line-length 100,\
-    \ target py311), but the task's stated verification \u2014 `black --check code/`\
-    \ returning exit code 0 \u2014 fails: the recorded test run shows exit code 1\
-    \ with 23 files in `code/` needing reformatting. The implementer must run `black\
-    \ code/` (or otherwise bring the code into Black-compliant form) so the check\
-    \ passes."
-  sig: c445d20791255530c8d38371251f92fcad4d725116b36624c24e67e7e74e0b4a
+  c: true
+  h: 3841abf3cb69f3ca7e65a4817c2679eb94a78adc899e9ad53b9f8da126efaa72
+  r: "The artifact `pyproject.toml` exists at the project root and contains a correct\
+    \ `[tool.black]` section with `line-length = 100` and `target-version = ['py311']`,\
+    \ exactly as required. The pytest log showing `black --check code/` failing (rc=1)\
+    \ predates the `format_code.py` execution, whose stderr shows Black actually reformatting\
+    \ those same 23 files with exit code 0 \u2014 so the formatting violations the\
+    \ check flagged were subsequently fixed, and the two unit tests confirming line-length\
+    \ 100 and py311 target passed."
+  sig: 90851750496c9dc4d6b2cb3adab59401a3248249bb535ea06ef22a983593c0b2
+T003c:
+  c: true
+  h: 1a1b5502ea24de397654851353b7b9ace3b1371dbac678e0405763546262aa49
+  r: '`code/validation.py` contains `verify_ruff_config()` which raises a clear `FileNotFoundError`
+    naming the missing file and task T003a, and its `main()` exits with code 1 on
+    failure; `code/.ruff.toml` exists (566 bytes). Unit tests covering both the pass
+    and fail-loudly cases passed (exit 0), and the script itself ran successfully
+    with the check passing.'
+  sig: 31ca13b9323fe50492ee9fc993d98d227364866bfd64a998805f93c6210ebf68
+T004:
+  c: true
+  h: 8db20735ed46042dabdedc23fdc0fa5497c490fd8fa183a7abf19ff716d76ace
+  r: '`code/config.py` exists and defines exactly the required constants (`SEED =
+    42`, `MAX_RUNTIME_HOURS = 6`, `DATA_ROOT = Path("../data")`, `RESULTS_ROOT = Path("../data/results")`),
+    and `tests/unit/test_config.py` asserts `MAX_RUNTIME_HOURS == 6` (plus the other
+    constants). The pytest execution log shows all 5 tests passing with exit code
+    0, confirming the module imports and the constants are correct.'
+  sig: 15cf37912471997f3f0b4741bf152b62099a86b7e870314414e10b06301ccadc
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
