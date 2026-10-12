@@ -1,172 +1,68 @@
-# Tasks: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning  
+# Tasks: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning
 
-**Input**: Design documents from `/specs/001-the-influence-of-algorithmic-recommendations/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data‑model.md`, `contracts/`  
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/` from `specs/001-the-influence-of-algorithmic-recommendations/`  
+**Prerequisites**: All Phase‑0/1 design artifacts complete.
 
-## Phase 1 – Project scaffolding (shared infrastructure)
+## Phase 0: Data Fetching & Validation
 
-- [ ] **T001** Create required project directories:  
-  `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/`, `tests/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `docs/`, `docs/reports/`.  
-  **Verification**: Run `ls -R projects/PROJ-367-the-influence-of-algorithmic-recommendat/` and confirm all listed folders appear.
+- [ ] T001 [US1] Fetch the real OULAD dataset and validate its schema in `code/data_fetcher.py` (FR-007).  
+  Download the Open University Learning Analytics Dataset (OULAD) from its official source (`https://analyse.kmi.open.ac.uk/open_dataset`) – files `studentInfo.csv`, `studentVle.csv`, `vle.csv`, `studentRegistration.csv`; if the primary host is unreachable, fetch the mirrored ZIP `https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip` (Figshare/Data‑in‑Cache artifact). Save raw CSVs under `data/raw/oulad/`. The fetcher must raise on failure — NO synthetic/mock fallback. Then map OULAD fields to the session schema (`user_id`, `session_id`, `recommended_categories` from top‑K VLE resource categories accessed in the observation window, `enrolled_categories` from actual module enrollments), per the plan's proxy design, and validate the derived table contains both category columns; if missing, raise `DataSchemaError("Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design.")`.  
+  **Verification**: `python -m code.data_fetcher` exits 0; `data/raw/oulad/*.csv` exist with real row counts > 0; the derived session table in `data/processed/cleaned_data.parquet` has the four required columns; running against a deliberately malformed CSV raises the exact error message (unit test `tests/unit/test_data_fetcher.py::test_schema_error`).
 
-- [ ] **T002** Add `__init__.py` files to make the `code/` and `tests/` packages importable (`code/__init__.py`, `tests/__init__.py`, `tests/unit/__init__.py`).  
-  **Verification**: `python -c "import code"` should exit without ImportError.
+## Phase 1: Preprocessing & Metric Calculation
 
-- [ ] **T003** Create `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt` with pinned versions for the eight core packages:  
+- [ ] T002 [US1] Implement diversity metrics with category merging, handle missing recommendation logs, and their unit tests in `code/preprocessing.py` (FR-001, FR-009).  
+  Implement `calculate_shannon_entropy(categories) -> float` using log base 2 (single‑category list returns exactly 0.0), and `merge_categories(categories, threshold)` that merges categories whose semantic similarity distance is below the threshold (character/TF‑IDF cosine distance via scikit‑learn). **Rows where `recommended_categories` is missing or empty must be excluded from the analysis dataframe**; the pipeline must log the count of such excluded sessions. Rows with empty `enrolled_categories` must yield `learner_diversity_score = null` and be excluded from the analysis dataframe with a logged warning count (Edge Case 1). Write per‑session scores to `data/processed/diversity_scores.json` matching `contracts/dataset.schema.yaml`.  
+  **Verification**: `pytest tests/unit/test_preprocessing.py` passes, including: entropy of `['A','B','C']` ≈ 1.585 within 0.001; single category returns 0.0 within 1e-6; empty enrollment yields null plus logged warning; missing recommendation rows are excluded and the exclusion count appears in logs; merging at threshold 0.05 collapses near‑duplicate labels.
 
-  ```text
-  pandas==2.2.2
-  numpy==1.26.4
-  scikit-learn==1.5.0
-  statsmodels==0.14.2
-  scipy==1.13.0
-  datasets==2.20.0
-  pyyaml==6.0.2
-  sentence-transformers==3.0.1
-  ```  
+- [ ] T003 [US1] Connect the pipeline entry point and run a small real end‑to‑end case in `code/main.py` (SC-005).  
+  Orchestrate fetch → validate → preprocess, producing `data/processed/cleaned_data.parquet` and `data/processed/diversity_scores.json` from a first real subset (e.g., first 200 OULAD students), with start/end timestamps and duration written to `data/processed/runtime_log.json`. Do NOT write to `state/` — the platform owns canonical state.  
+  **Verification**: `python -m code.main` completes without error on the real subset; both artifacts exist; `tests/unit/test_main_output.py` recomputes entropy for a hard‑coded mini‑dataset embedded in the test and asserts each score matches within 0.001.
 
-  **Verification**: `pip install -r requirements.txt` completes without errors.
+## Phase 2: Modeling
 
-- [ ] **T004** Create `code/config.py` containing path constants, random‑seed settings, and a whitelist of verified dataset identifiers.  
-  **Verification**: `python -c "from code.config import *; print(EDUCATIONAL_DATASET_IDS)"` prints a non‑empty list.
+- [ ] T004 [US2] Implement baseline vectors, propensity‑score weighting, primary model, and correct fallback logic in `code/modeling.py` (FR-002, FR-003, FR-008, SC-001, SC-004).  
+  Implement `compute_baseline_vectors(df)` deriving a normalized pre‑study enrollment‑history distribution per user (uniform imputation for users with no history, flagged in the data dictionary). Implement `fit_psw(df, baseline_vectors)` producing stabilized weights; report effective sample size and flag extreme weights (> 10× median). **Fallback logic**:  
+    1. If the propensity‑score model fails to converge **or** produces unstable weights, fall back to a **standard linear regression with robust (HC3) standard errors**.  
+    2. If the total number of unique users is **< 30**, fall back to a **Generalized Least Squares (GLS) model with robust standard errors**.  
+  Fit the chosen regression (weighted or fallback) of `learner_diversity_score` on `recommendation_diversity_score` with baseline controls (principal components of the baseline vector). Compute VIF for each covariate and flag if any exceeds 5.0. Write results to `data/processed/model_results.json` conforming to `contracts/output.schema.yaml` (single JSON object with nested `weights_distribution`, `sensitivity_analysis`, and `permutation_test` fields).  
+  **Verification**: `pytest tests/unit/test_modeling.py` passes, covering baseline‑vector shape, extreme‑weight flagging, convergence‑failure fallback to robust OLS, and N < 30 GLS fallback; running on the full real dataset produces `model_results.json` with all required fields populated from real data.
 
-- [ ] **T005a** Define `DataSchemaError` exception class in `code/ingestion.py`.  
-- [ ] **T005b** Implement schema‑validation logic in `code/ingestion.py` that raises `DataSchemaError` with the exact message:  
+## Phase 3: Robustness
 
-  ```
-  Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design.
-  ```  
+- [ ] T005 [US3] Implement the residual permutation test in `code/robustness.py` (FR-004, SC-003).  
+  Implement `run_residual_permutation(iterations=1000)` (minimum 1,000 iterations, fixed random seed): fit the primary model (as produced by T004), extract residuals, shuffle them 1,000 times, refit, and collect the coefficient each iteration. Compute the observed effect, null‑distribution mean/std, and permuted p‑value (proportion of permuted coefficients ≥ observed). Write the full summary to `data/processed/permutation_test_results.json` per `contracts/output.schema.yaml`.  
+  **Verification**: `pytest tests/unit/test_robustness.py::test_residual_permutation` runs on a deterministic subset defined as the **first 200 rows** of `cleaned_data.parquet` and returns a p‑value in [0, 1]; the JSON artifact contains `observed_effect`, `null_distribution_mean`, `null_distribution_std`, `p_value_permuted`, and `iterations >= 1000`.
 
-- [ ] **T005c** Create unit test `tests/unit/test_ingestion.py::test_schema_error` that supplies a CSV missing the required columns and asserts the exception and message.  
+- [ ] T006 [US3] Run the full‑model sensitivity sweep over semantic similarity thresholds in `code/robustness.py` (FR-005, SC-002).  
+  Implement `run_sensitivity_analysis(thresholds=[0.01, 0.05, 0.1])`: for each threshold, re‑merge categories, recompute diversity scores, refit the regression (using the logic from T004), and record the coefficient and p‑value. Write `data/processed/sensitivity_analysis.csv` with columns `threshold,coefficient,p_value`. If the p‑value flips significance across the sweep, append an explicit **"Sensitivity Warning"** to the results stating the result is threshold‑dependent — do not suppress or tune toward significance.  
+  **Verification**: The CSV contains exactly three rows from the full dataset; `tests/unit/test_robustness.py::test_sensitivity_stability` checks the 2/3 stability criterion and the warning logic; the observed outcome (stable or threshold‑dependent) is reported honestly either way.  
+  **Execution Order**: Must be run **after** T005 completes to avoid concurrent writes to the same module/test file.
 
-- [ ] **T015** Implement `code/data_fetcher.py` to **download a real, publicly available educational dataset** (e.g., OULAD from Zenodo) that contains the required columns. The script must:  
+- [ ] T007 [US2] Execute the complete pipeline on the full real OULAD dataset and record all diagnostics.  
+  Run `python -m code.main` end‑to‑end on the full dataset (streaming/chunked processing if memory requires), producing all artifacts: `cleaned_data.parquet`, `diversity_scores.json`, `model_results.json`, `sensitivity_analysis.csv`, `permutation_test_results.json`, `runtime_log.json`. Log excluded‑session counts, imputation flags, and any methodological fallbacks actually triggered. All numbers must come from the real run — no placeholder or expected values.  
+  **Verification**: Every artifact exists and is non‑empty; runtime recorded in `runtime_log.json`; excluded‑session and imputation counts appear in the logs; re‑running is idempotent (fixed seeds).
 
-  1. Verify the dataset identifier is in `config.EDUCATIONAL_DATASET_IDS`.  
-  2. Download the file (streaming if > 7 GB) to `data/raw/verified_dataset.csv`.  
-  3. Raise `DataAvailabilityError` with message  
+## Phase 4: Reporting
 
-     ```
-     Verified educational dataset not found or inaccessible. Project blocked per Data Availability Gate.
-     ```  
+- [ ] T008 [US3] Generate the results tables and figures from the validated outputs.  
+  Create `figures/` outputs generated directly from `data/processed/` artifacts: (a) a partial‑regression / scatter plot of recommendation vs. learner diversity with the fitted weighted slope; (b) a histogram of the permutation null distribution with the observed effect marked; (c) the sensitivity‑sweep table rendered in the report. Include uncertainty (confidence intervals) on the primary coefficient.  
+  **Verification**: Each figure file exists and its underlying data traces to a specific `data/processed/` artifact; the report's statistics match the JSON/CSV values exactly.
 
-     if the download fails.  
+- [ ] T009 [US2] Write the methods/results report with strict associational framing in `docs/reports/analysis_report.md` (FR-006).  
+  Summarize the model coefficient, standard error, p‑value, weight distribution, VIF diagnostics, sensitivity table, and permutation results, each linked to its artifact. Include the exact statement "Findings are associational; no causal claims are made due to lack of randomization." plus a "Limitations: Observational Data" section covering the VLE‑proxy for recommendations, the baseline‑vector proxy, and the payoff‑structure caveat raised in prior review (observed behavior may reflect equilibrium strategies absent explicit utility models). Append total runtime from `runtime_log.json`; if runtime > 6 h, append the warning line. Implement `code/validate_framing.py` scanning the report for forbidden causal terms (`causes`, `leads to`, `determines`) and exiting non‑zero if found.  
+  **Verification**: `python code/validate_framing.py` exits 0; the report contains no causal language; every reported number matches a `data/processed/` artifact.
 
-  **Verification**: After running the script, `data/raw/verified_dataset.csv` exists and `head -n 1` shows the required column names.
+- [ ] T010 Document the runnable workflow and paper‑stage handoff in the feature's `quickstart.md`.  
+  Record concrete commands: dataset fetch, `python -m code.main`, and `pytest tests/`. Document the data dictionary (including the baseline‑imputation flag), the exact sampling/streaming rules if any subset was used, and the paper‑stage handoff: the report path, figure paths, and the associational‑framing requirement the paper stage must preserve.  
+  **Verification**: A fresh runner executing the quickstart commands from `data/raw/` inputs reproduces the pipeline and all `pytest` tests pass; the handoff section names every result artifact.
 
-- [ ] **T047** Create `code/validate_real_data.py` that loads `data/raw/verified_dataset.csv`, checks for the presence of `recommended_categories` and `enrolled_categories`, and raises `DataSchemaError` (FR‑007) if they are missing.  
-  **Verification**: Run on a deliberately malformed CSV (`data/raw/mock_missing_columns.csv`) and confirm the exact exception message.
+## Phase 5: Test Suites
 
-- [ ] **T045** Implement `code/metrics.py::calculate_shannon_entropy(categories: List[str]) -> float` using log‑base‑2.  
-  **Verification**: `python -c "from code.metrics import calculate_shannon_entropy; print(calculate_shannon_entropy(['A','B','C']))"` matches manual calculation (≈1.585).
+- [ ] T011 [US?] Run the integration test suite `tests/integration/test_pipeline.py` to validate the full pipeline on a realistic subset (e.g., first 200 sessions).  
+  Execute `pytest tests/integration/test_pipeline.py` after T003; ensure the end‑to‑end flow (fetch → preprocess → model → robustness) completes without error and produces the expected intermediate artifacts.  
+  **Verification**: The test exits with 0 and asserts presence and schema conformity of `cleaned_data.parquet`, `diversity_scores.json`, and `model_results.json`.
 
-- [ ] **T046** Write unit test `tests/unit/test_metrics.py::test_entropy_single_category_returns_zero` asserting that a single‑category list returns 0.0 within 1e‑6 tolerance.
-
-- [ ] **T007** Create `code/modeling.py` skeleton (imports, docstrings) so that `import code.modeling` succeeds.
-
-- [ ] **T008** Create `code/robustness.py` skeleton so that `import code.robustness` succeeds.
-
-- [ ] **T010** Add `code/main.py` helper `log_runtime(start: datetime, end: datetime)` that writes `{ "start": ..., "end": ..., "duration_seconds": ... }` to `data/processed/runtime_log.json`.  
-  **Verification**: A short script calling the helper creates the JSON file with the three keys.
-
-- [ ] **T011** Create `pytest.ini` with `testpaths = tests/` and a custom marker `us1, us2, us3`.  
-  **Verification**: `pytest --collect-only` lists the marker definitions without error.
-
-## Phase 2 – Foundations (validation & basic utilities)
-
-- [ ] **T012** Unit test for entropy calculation (log‑base‑2) in `tests/unit/test_metrics.py`.  
-- [ ] **T013** Unit test for schema validation (FR‑007) in `tests/unit/test_ingestion.py`.  
-
-## Phase 3 – User Story 1: Data ingestion & diversity metrics (Priority P1)
-
-- [ ] **T017** Implement `code/ingestion.py::ingest_and_clean(input_path: str) -> pd.DataFrame` that:  
-
-  1. Loads the CSV/Parquet from `data/raw/verified_dataset.csv`.  
-  2. Validates schema via `DataSchemaError`.  
-  3. Excludes rows where `enrolled_categories` is empty, logs a warning with the count of excluded sessions.  
-  4. Writes the cleaned dataframe (columns `user_id, session_id, recommended_categories, enrolled_categories`) to `data/processed/cleaned_data.parquet`.  
-
-  **Verification**: After running, the Parquet file exists; `pd.read_parquet` shows no rows with empty `enrolled_categories`.
-
-- [ ] **T018** Implement `code/metrics.py` functions `recommendation_diversity_score(row)` and `learner_diversity_score(row)` that compute Shannon entropy (log 2) on the raw category lists **after** optional semantic merging (see T050). Write results to a JSON file `data/processed/diversity_scores.json` with schema `{user_id, session_id, recommendation_diversity_score, learner_diversity_score}`.  
-  **Verification**: Sample rows match manual entropy calculations within 0.001.
-
-- [ ] **T019** Create full orchestration script `code/main.py` that:  
-
-  1. Calls `code/data_fetcher.py` (if raw data missing).  
-  2. Runs `code/validate_real_data.py`.  
-  3. Executes `code/ingestion.py` to produce `cleaned_data.parquet`.  
-  4. Calls the diversity‑score functions (T018) to produce `diversity_scores.json`.  
-  5. Logs start/end timestamps via the helper from T010.  
-
-  **Verification**: Running `python -m code.main` (or `python code/main.py`) finishes without error and produces both `data/processed/cleaned_data.parquet` and `data/processed/diversity_scores.json`.
-
-- [ ] **T020** Add unit test `tests/unit/test_main_output.py` that loads the generated `diversity_scores.json`, recomputes entropy for a hard‑coded mini‑dataset (embedded in the test), and asserts each score matches within 0.001.  
-  **Verification**: `pytest tests/unit/test_main_output.py` passes.
-
-- [ ] **T021** Enhance `code/ingestion.py` so that rows with empty `enrolled_categories` are either (a) written with `"learner_diversity_score": null` **or** (b) excluded, **and** a warning log entry `WARNING: Excluded X sessions due to empty enrolled_categories` is emitted.  
-  **Verification**: Log file `data/processed/runtime_log.json` (or a separate `data/processed/ingestion.log`) contains the warning with the correct count.
-
-- [ ] **T050** Implement category‑merging step (FR‑009) in `code/preprocessing.py::merge_categories(categories: List[str], threshold: float) -> List[str]` using a lightweight semantic similarity model (e.g., `sentence-transformers/all-MiniLM-L6-v2`). The function merges any two categories whose cosine distance is ≤ `threshold`.  
-  **Verification**: Unit test `tests/unit/test_preprocessing.py::test_category_merging` confirms that with a threshold of 0.05, synonyms like “Mathematics” and “Math” are merged into a single token.
-
-- [ ] **T051** Perform the sensitivity‑analysis sweep (FR‑005) in `code/robustness.py::run_sensitivity_analysis(thresholds: List[float]) -> pd.DataFrame`. The function:  
-
-  1. For each threshold in `{0.01, 0.05, 0.1}` calls the merging routine (T050), recomputes diversity scores, fits the weighted regression (T025/T026), and records the coefficient and p‑value.  
-  2. Writes a CSV `data/processed/sensitivity_analysis.csv` with columns `threshold, coefficient, p_value`.  
-
-  **Verification**: The CSV contains three rows; at least two rows have `p_value < 0.05`. A unit test `tests/unit/test_robustness.py::test_sensitivity_stability` checks this condition.
-
-## Phase 4 – User Story 2: Baseline control & Propensity‑Score Weighting (Priority P2)
-
-- [ ] **T022** Unit test for baseline‑vector derivation (`tests/unit/test_modeling.py::test_baseline_vector_shape`).  
-- [ ] **T023** Unit test that PSW weights are flagged when any weight exceeds 10 × median (`tests/unit/test_modeling.py::test_extreme_weights_flag`).  
-- [ ] **T024** Implement baseline‑interest vector construction in `code/modeling.py::compute_baseline_vectors(df)`. Uses pre‑study enrollment history to produce a normalized probability distribution per user.  
-- [ ] **T025** Implement PSW logic in `code/modeling.py::fit_psw(df, baseline_vectors)` that returns stabilized weights and logs weight‑distribution statistics.  
-- [ ] **T026** Fit a weighted linear regression (`statsmodels.WLS`) with predictor `recommendation_diversity_score`, outcome `learner_diversity_score`, covariate `baseline_vector` (or its principal components). Compute VIF for each covariate; if any VIF > 5, log a warning. Output results to `data/processed/model_results.csv` matching `output.schema.yaml`.  
-- [ ] **T042** Add detection of unique‑user count `< 30` and set flag `use_gls = True`.  
-- [ ] **T043** If `use_gls` is true, run a Generalized Least Squares model with robust standard errors instead of the weighted regression.  
-- [ ] **T044** Log methodological switches (extreme weights, GLS fallback) to `data/processed/modeling.log`.  
-
-## Phase 5 – User Story 3: Robustness verification (Priority P3)
-
-- [ ] **T029** Unit test `tests/unit/test_robustness.py::test_residual_permutation` that runs the permutation routine on a tiny synthetic dataset (size 10) and checks that the returned p‑value lies in `[0,1]`.  
-- [ ] **T031** Implement residual permutation test in `code/robustness.py::run_residual_permutation(iterations: int = 1000)`. Steps:  
-
-  1. Fit the primary model (weighted regression or GLS).  
-  2. Extract residuals, shuffle them `iterations` times, refit, collect coefficient each iteration.  
-  3. Compute observed‑effect, null‑distribution mean/std, and p‑value (proportion of permuted coefficients ≥ observed).  
-  4. Write `data/processed/permutation_test_results.json` containing the full summary per `output.schema.yaml`.  
-
-## Phase 6 – Reporting & associational framing (cross‑cutting)
-
-- [ ] **T034a** Generate final report `docs/reports/final_analysis.md` that:  
-
-  - Summarizes model coefficients, weight distribution, VIF diagnostics, sensitivity‑analysis table, and permutation‑test results.  
-  - Explicitly states *“Findings are associational; no causal claims are made due to lack of randomization.”* (FR‑006).  
-  - Includes a “Limitations: Observational Data” section.  
-
-- [ ] **T034b** Create `code/validate_framing.py` that scans `final_analysis.md` for forbidden causal terms (`causes`, `leads to`, `determines`) and exits with non‑zero status if any are found.  
-- [ ] **T035** Read `data/processed/runtime_log.json` and append total runtime (in hours) to the final report. If runtime > 6 h, append a warning line “⚠️ Runtime exceeds the 6‑hour GitHub‑Actions limit.”  
-
-## Phase 7 – Polishing & documentation
-
-- [ ] **T036a** Update `docs/quickstart.md` with concrete commands for data fetch, pipeline execution (`python -m code.main`), and how to run the test suite.  
-- [ ] **T036b** Update `docs/data-model.md` to include newly added fields (`recommendation_diversity_score`, `learner_diversity_score`, `baseline_vector`, `weight`).  
-- [ ] **T037** Add edge‑case unit tests (empty category lists, N < 30 scenario) in `tests/unit/`.  
-- [ ] **T038** Run the quick‑start validation script; checksum the generated `state.yaml` (managed by the platform) to ensure reproducibility.
-
----
-
-### Dependency & execution order summary
-
-| Phase | Must‑complete before |
-|-------|----------------------|
-| 1  (Scaffolding) | none |
-| 2  (Foundations) | Phase 1 |
-| 3  (US 1) | Phase 2 |
-| 4  (US 2) | Phase 2 + US 1 output (`diversity_scores.json`) |
-| 5  (US 3) | Phase 2 + US 2 output (`model_results.csv`) |
-| 6  (Reporting) | US 2 & US 3 |
-| 7  (Polish) | All previous phases |
-
-Parallelism is possible for any tasks marked `[P]` (different files, no data‑flow dependencies). All other tasks follow the data‑flow chain indicated above.
+- [ ] T012 [US?] Run the contract test suite `tests/contract/test_schemas.py` to validate dataset and output schemas against `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`.  
+  Execute `pytest tests/contract/test_schemas.py` after the respective artifacts are generated.  
+  **Verification**: All schema validation tests pass, confirming that `data/processed/diversity_scores.json` conforms to the dataset schema and `data/processed/model_results.json` conforms to the output schema.
