@@ -1,30 +1,55 @@
-T026:
+T101:
   c: false
-  h: 70b1be90737008c6f1fda7438078d8d4122da6080fc8a64d54007644d37233f7
-  r: "The required model file `code/models/best_xgboost.json` is absent, and the provided\
-    \ `code/train.py` does not contain a complete implementation of the nested 5\u2011\
-    fold outer CV with an inner grid search over the specified hyperparameters nor\
-    \ does it save the best XGBoost model to the required path. The script is truncated\
-    \ and lacks the necessary training, evaluation, and model\u2011saving logic."
-T028a:
+  h: ec7300cb8d961c1def55ccc46b5f6c21f9f8329f52a80afc3ccf0552783fcf40
+  r: "The `code/__init__.py` file contains a docstring rather than being empty, violating\
+    \ the \u201Cempty\u202F__init__.py\u201D requirement, and there is no execution\
+    \ log showing that `ruff check --config=.ruff.toml .` ran successfully."
+  sig: b2f3d74f9476add85c1a7975b438bfc5dd6526ff975ac1d0a341129ca6336bf0
+T102:
   c: false
-  h: fcd23009c1de8545f432ba63201ecb14c3ecf11103fed815c6ad682f365b5e49
-  r: "The required output file `outputs/normality_check_paired.json` does not exist,\
-    \ and the provided `code/evaluate.py` is truncated (ends mid\u2011statement) and\
-    \ contains no implementation of the paired\u2011difference normality check or\
-    \ JSON writing logic. The task\u2019s statistical\u2011test functionality is therefore\
-    \ missing."
-T035:
+  h: b7c7499dd168f82508a4256343673a311caeeb11508cf2815253c6be54bd8d27
+  r: "The repository contains `code/download_data.py`, but it only downloads an OC20\
+    \ streaming dataset to an HDF5 file (`oc20_sample.h5`), does not produce the required\
+    \ `data/raw/oc20_sample.parquet`, and lacks any logic for fetching Materials Project\
+    \ descriptors or the 2025 CO\u2082 hydrogenation study CSV. Moreover, the three\
+    \ required data files (`data/raw/oc20_sample.parquet`, `data/raw/mp_descriptors.json`,\
+    \ `data/raw/experimental_tof.csv`) and the integration test `tests/integration/test_download.py`\
+    \ are all missing. The script also does not record the HF dataset revision hash\
+    \ or enforce failure\u2011on\u2011f"
+  sig: 5d444eb30d8e33d7c993a4dafc042ee4c403ba2811219abc7d04e337f830acb3
+T103:
   c: false
-  h: 4b00ec33eb22ac271bb22e4b6096da8f1f75595b1fb56dc321e96f9bc181e264
-  r: "The required output file `outputs/feature_importance.png` does not exist, and\
-    \ the provided `code/evaluate.py` is truncated (ends mid\u2011function) with no\
-    \ implementation that creates the bar plot of the top\u20115 descriptors. Consequently\
-    \ the task\u2019s deliverable is missing."
-T049:
+  h: c5448939674c7d76a35b9c426e26d085f4d5165a5c5d568703bd193144dded17
+  r: "The required `data/processed/unified_dataset.parquet` file is missing, and `outputs/alignment_metrics.json`\
+    \ is a placeholder that lacks a proper `alignment_rate` field and is malformed\
+    \ (JSON decode error). Consequently the script does not generate the unified dataset\
+    \ with \u2265\u202F500 entries nor the correct alignment metrics."
+  sig: b1f5efbf3961dfdd278d653cf0416f7d2d8f1255dee86a387a6c15b074b0a3f3
+T104:
   c: false
-  h: 7e2d122b9007f5be43a142eb7672e56009fccf6c669e3a88aa94fd52e29ad268
-  r: "The repository lacks the required `outputs/final_report.md` file, and `code/report.py`\
-    \ does not contain any logic to add a \u201CData Lineage\u201D section with the\
-    \ HuggingFace commit hash or the `requirements.txt` hash. Consequently, the task\u2019\
-    s output and functionality are not present."
+  h: 7c3adc8b4f1da1cf599c52d3e17b62bc0537b5b34e5221978ee4d7f4fc9d7b9d
+  r: "The run produced no `data/processed/stoich_vocab.json` or `aligned_dataset.csv`,\
+    \ the schema file is missing, and the unit tests fail (k\u2011NN raises an error\
+    \ for insufficient neighbors and the scaling test does not achieve unit variance).\
+    \ These missing/incorrect artifacts mean the required vocabulary, imputation flagging,\
+    \ scaling, and schema\u2011compliant output were not produced."
+  sig: 3f50797be4f921268112d0560ef94968c4987f6a14643f17e62958955d3f48ba
+T105:
+  c: false
+  h: a7ad3ca562e9c1da43f296106ec284492c8a555046913179aceafe861045a6e4
+  r: The required artifacts `code/models/best_xgboost.json` and `outputs/metrics.json`
+    are missing, so the training pipeline has not produced the saved model or the
+    metrics file needed to satisfy the task.
+  sig: a1028e203df0283b94b170cc13bcce09a7d2017060e43cfb4143db125d32c0f8
+T107:
+  c: false
+  h: c8ac281759655b48b7b41bac1893960e50d5f5c6cbdbef765b23c86d1413e189
+  r: "The integration test file exists, and `outputs/feasibility_verification.json`\
+    \ meets the SC\u2011004 schema, but the pytest run logged in `code/.tasks/T107.tests_integration_test_sensitivity.py.log`\
+    \ shows three failures: (1) `code/train.py` aborts because `data/processed/aligned_dataset.csv`\
+    \ is missing, causing the seed\u2011stability test to fail; (2) the edge\u2011\
+    case test for missing\u2011neighbor exclusion also fails for the same missing\
+    \ dataset; (3) the non\u2011normal\u2011error test fails because `outputs/metrics.json`\
+    \ is not created. Since the full test suite does not pass, the task requirements\
+    \ are not satisfied."
+  sig: 07e2539423bc26e5b1648f8ef71ef06a2ee38afd1a32b6b24e4b5ebed4510b8e
