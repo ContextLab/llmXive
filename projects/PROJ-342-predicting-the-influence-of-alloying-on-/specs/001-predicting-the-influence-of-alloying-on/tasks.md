@@ -23,7 +23,7 @@ description: "Task list for feature implementation – Predicting the Influence 
 
 ## Phase 2 – User Story 1: Data Ingestion & Validation (US1)
 
-- [ ] T002 [US1] Implement robust Zenodo ingestion pipeline (`code/ingest.py`)   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
+- [ ] T002 [US1] Implement robust Zenodo ingestion pipeline (`code/ingest.py`)   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
   - Fetch dataset from primary DOI `10.5281/zenodo.10043838`; on failure, automatically retry fallback DOI `10.5281/zenodo.11023456`.  
   - Stream CSV with `chunksize=1000` to stay within the 7 GB RAM budget.  
   - Validate each chunk against `specs/001-predicting-the-influence-of-alloying-on/contracts/dataset.schema.yaml` using `jsonschema`.  

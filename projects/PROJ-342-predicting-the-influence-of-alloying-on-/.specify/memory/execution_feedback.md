@@ -18,67 +18,68 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingest.py --verify-only -> rc=1
-^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 129, in fetch_from_zenodo
-    raise DataUnavailableError("No CSV file found in Zenodo record metadata.")
-zenodo_client.DataUnavailableError: No CSV file found in Zenodo record metadata.
+y_doi, raw_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 52, in download_csv_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record metadata for DOI {doi}.")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record metadata for DOI 10.5281/zenodo.10043838.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 194, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 188, in main
+    download_csv_from_zenodo(fallback_doi, raw_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 52, in download_csv_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record metadata for DOI {doi}.")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record metadata for DOI 10.5281/zenodo.11023456.
+
+- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1
+py", line 52, in download_csv_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record metadata for DOI {doi}.")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record metadata for DOI 10.5281/zenodo.11023456.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 291, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 194, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 282, in main
-    df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 125, in fetch_from_zenodo_wrapper
-    raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from e
-zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
-
-- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1
-llowing exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 291, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 288, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 191, in main
     run_ingestion()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 249, in run_ingestion
-    df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 125, in fetch_from_zenodo_wrapper
-    raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from e
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 110, in run_ingestion
+    raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from fe
 zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
 
 - python -m pytest tests/unit/ -> rc=2
-loying-on-/code/train.py)
-________ ERROR collecting tests/unit/test_verify_resource_compliance.py ________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_verify_resource_compliance.py'.
-Hint: make sure your test modules/packages have valid Python names.
+ure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_verify_resource_compliance.py:13: in <module>
-    from verify_resource_compliance import verify_resource_compliance, load_resource_usage
-E   ModuleNotFoundError: No module named 'verify_resource_compliance'
+tests/unit/test_zenodo_client.py:15: in <module>
+    from zenodo_client import fetch_from_zenodo, DataUnavailableError, DataInsufficientError
+E   ImportError: cannot import name 'fetch_from_zenodo' from 'zenodo_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_analyze.py
 ERROR tests/unit/test_descriptors_io.py
+ERROR tests/unit/test_ingest.py
+ERROR tests/unit/test_ingest_retention.py
+ERROR tests/unit/test_ingest_stats.py
+ERROR tests/unit/test_ingest_t014.py
 ERROR tests/unit/test_train_artifacts.py
 ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.98s ===============================
+ERROR tests/unit/test_zenodo_client.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 10 errors in 1.96s ==============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-urn _bootstrap._gcd_import(name[level:], package, level)
-tests/integration/test_statistical_validation.py:29: in <module>
-    from analyze import (
-E   ImportError: cannot import name 'calculate_correlations' from 'analyze' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py)
+le>
+    from ingest import load_and_validate_data, clean_data
+E   ImportError: cannot import name 'load_and_validate_data' from 'ingest' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py)
 =============================== warnings summary ===============================
 tests/integration/test_train_pipeline.py:84
   /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/integration/test_train_pipeline.py:84: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
@@ -86,9 +87,11 @@ tests/integration/test_train_pipeline.py:84
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
+ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 1 error in 1.55s ==========================
+ERROR tests/integration/test_train_cv.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 3 errors in 1.68s =========================
 
 
 
