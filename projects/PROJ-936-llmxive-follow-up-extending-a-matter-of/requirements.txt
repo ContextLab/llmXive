@@ -1,2 +1,10 @@
 datasets>=2.14
-numpy>=2.0.0
+pandas>=2.2
+scikit-learn>=1.5
+statsmodels>=0.14
+ollama>=0.1
+tqdm
+pyyaml
+numpy
+matplotlib
+huggingface_hub

@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-12T00:14:14Z",
-  "project_id": "PROJ-936-llmxive-follow-up-extending-a-matter-of"
+  "updated_at": "2026-10-12T20:09:51Z",
+  "project_id": "PROJ-936-llmxive-follow-up-extending-a-matter-of",
+  "replan_rounds": 1
 }

@@ -1,6 +1,6 @@
 """Download the τ-bench task data from its official HuggingFace repository.
 
-The script uses the `datasets` library to fetch the official τ-bench dataset
+The script uses the `huggingface_hub` library to fetch the official τ-bench dataset
 from HuggingFace (`sierra-research/tau-bench`). It merges the tasks from
 the supported domains into a single JSON file.
 
@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-import datasets
+from huggingface_hub import hf_hub_download
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -28,23 +28,43 @@ DOMAINS = ["retail", "airline"]
 
 # ----------------------------------------------------------------------
 def _fetch_via_hf() -> list[dict]:
-    """Download tasks from the HuggingFace repository using the datasets library."""
+    """Download tasks from the HuggingFace repository using huggingface_hub.
+    
+    The τ-bench repository is structured as a collection of files rather than 
+    a formal HF Dataset object, so we download the JSON files directly.
+    """
     merged: list[dict] = []
     
     try:
         for domain in DOMAINS:
             log.info(f"Fetching domain '{domain}' from HuggingFace: {HF_REPO}")
-            # Load the dataset for the specific domain config
-            # tau-bench typically organizes tasks by domain configs
-            ds = datasets.load_dataset(HF_REPO, domain, split="test")
             
-            # Convert the dataset to a list of dictionaries
-            domain_tasks = ds.to_list()
+            # The files are typically located at {domain}/test.json in the repo
+            filename = f"{domain}/test.json"
+            
+            # Download the file to a local cache
+            local_path = hf_hub_download(
+                repo_id=HF_REPO, 
+                filename=filename, 
+                repo_type="dataset"
+            )
+            
+            # Load the JSON content
+            with open(local_path, "r", encoding="utf-8") as f:
+                domain_tasks = json.load(f)
             
             if not domain_tasks:
-                log.warning(f"No tasks found for domain '{domain}' in 'test' split.")
+                log.warning(f"No tasks found for domain '{domain}' in {filename}.")
                 continue
             
+            # Ensure we have a list of dicts
+            if not isinstance(domain_tasks, list):
+                # Handle cases where the JSON might be a dict containing a list
+                if isinstance(domain_tasks, dict) and "tasks" in domain_tasks:
+                    domain_tasks = domain_tasks["tasks"]
+                else:
+                    raise ValueError(f"Expected a list of tasks for domain {domain}, got {type(domain_tasks)}")
+
             for task in domain_tasks:
                 if isinstance(task, dict):
                     task = dict(task)
