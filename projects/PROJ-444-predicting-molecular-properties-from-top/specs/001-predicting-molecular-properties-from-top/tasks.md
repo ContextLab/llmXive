@@ -26,7 +26,7 @@ The goal is to deliver a complete, reproducible study that satisfies every funct
   - Add `code/tests/test_dataset_schema.py` that loads `data/raw/esol.csv` and validates it against `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`.  
   - **Verification**: `pytest code/tests/test_dataset_schema.py` passes.
 
-- [ ] **T002** **[US1]** *Baseline TDA feature computation (10 × 10 persistence images)*   <!-- FAILED-IN-EXECUTION: code/02_tda_computation.py exit=1 -->
+- [ ] **T002** **[US1]** *Baseline TDA feature computation (10 × 10 persistence images)*   <!-- FAILED-IN-EXECUTION: code/02_tda_computation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/02_tda_computation.py exit=1 -->
   - Read `data/processed/filtered_esol.csv`.  
   - For each SMILES, build a molecular graph with RDKit, apply the **shortest‑path distance filtration** (FR‑001) via `code/utils/persistence_utils.py`.  
   - Vectorise each persistence diagram to a **10 × 10 persistence image** (σ = 0.1) – the baseline required by FR‑002.  

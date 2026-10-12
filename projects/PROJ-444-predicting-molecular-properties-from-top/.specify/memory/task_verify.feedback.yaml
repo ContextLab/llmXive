@@ -1,11 +1,12 @@
 T001:
-  reason: "The repository contains the ingestion script and the raw CSV with a correct\
-    \ checksum, but the required output artifacts are absent: `data/processed/power_analysis_report.json`,\
-    \ `data/logs/large_molecule_exclusions.log`, `data/processed/scaffold_counts.json`,\
-    \ `data/processed/splits.json`, and `data/processed/filtered_esol.csv` are all\
-    \ missing. Without these files the power analysis, molecular\u2011weight exclusions,\
-    \ scaffold count check, split generation, and filtered dataset are not produced,\
-    \ so the task is not fully satisfied."
+  reason: "The filtered dataset `data/processed/filtered_esol.csv` contains an extra\
+    \ column `molecule_id` (see the failing test `test_filtered_dataset`), so it does\
+    \ **not** have exactly the required columns `smiles` and `logP`. This violates\
+    \ the schema\u2011validation requirement of Task\u202FT001. The other artifacts\
+    \ (checksums, power analysis report, scaffold counts, splits, exclusion log) exist\
+    \ and appear correct, but the core output dataset is malformed. The implementer\
+    \ must remove the `molecule_id` column before writing the filtered CSV (or otherwise\
+    \ ensure the output matches the schema)."
   task: b229e561fa0112f053eb188efae9dc8ab20dafe932c0b8790a489c485a5ccd91
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py

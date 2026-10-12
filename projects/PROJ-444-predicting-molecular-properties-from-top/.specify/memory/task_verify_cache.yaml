@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 9770d492da875f618c43a22a308dc2bc57e05e80b27e363ff37bdcdbed25b3d9
-  r: "The repository contains the ingestion script and the raw CSV with a correct\
-    \ checksum, but the required output artifacts are absent: `data/processed/power_analysis_report.json`,\
-    \ `data/logs/large_molecule_exclusions.log`, `data/processed/scaffold_counts.json`,\
-    \ `data/processed/splits.json`, and `data/processed/filtered_esol.csv` are all\
-    \ missing. Without these files the power analysis, molecular\u2011weight exclusions,\
-    \ scaffold count check, split generation, and filtered dataset are not produced,\
-    \ so the task is not fully satisfied."
-  sig: 22e50945ddf11c3237b2e46448b58db43698a595b36668159c75bd2f9b654989
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,10 +15,10 @@ T004:
     \ confirmed."
 T014:
   c: true
-  h: f6138efaf3971a71adfc94512f83f290541d8388a7e33da559a6b9da8ae73680
-  r: "Checked `code/tests/test_dataset_schema.py`, the `data/raw/esol.csv` file, the\
-    \ schema at `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`,\
-    \ and the pytest execution log showing all six tests passed. The test script loads\
-    \ the CSV, validates column names, non\u2011null values, field types, and row\
-    \ count against the schema, and the run succeeded."
-  sig: 0497da6618c7ca795c3275af2399641f6283aa24c51d2825c858a0f75456b283
+  h: eef5fdab7ea2a2b2e2a52cd53b3370012508cfeb641829fbc25983fed2511039
+  r: "Checked `code/tests/test_dataset_schema.py`, the raw dataset `data/raw/esol.csv`,\
+    \ and the contract schema `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`;\
+    \ the test script validates the CSV\u2019s existence, column names, non\u2011\
+    null values, field types, and minimum row count against the schema, and all required\
+    \ artifacts are present and correctly formatted."
+  sig: c37f0fb1544c07ce3b0232d4680b043330765ada2662909864c8e9506f965519
