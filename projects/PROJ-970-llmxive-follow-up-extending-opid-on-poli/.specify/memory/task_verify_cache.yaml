@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 4f855bd9b8ad5ec52139be61b254b794dd66335be2488b0b7e09344d2b1ef394
-  r: "The evidence only shows a top\u2011level README and a log of a script that claimed\
-    \ to write a directory\u2011structure file, but there is no proof that the required\
-    \ folders (e.g.,\u202Fsrc/environment, src/agent, src/simulation, src/analysis,\
-    \ src/utils, tests, data/raw/synthetic_graphs, data/processed) actually exist,\
-    \ nor that each contains a placeholder\u202FREADME.md as mandated. The task\u2019\
-    s core deliverable \u2013 the full hierarchy with README placeholders \u2013 is\
-    \ missing."
-  sig: 024fec636ff94567b849455e6261e52f17233ec0a38a325763380a915a3fee3b
 T001a:
   c: false
   h: de6ce4cfd752ca482cd25677102a793c4516a19b1379c89089bf3dd67f895479

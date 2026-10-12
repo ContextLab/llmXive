@@ -1,7 +1,7 @@
 {
   "task_id": "T007",
   "fingerprint": "d5a327a6d78acf2b76815211539f0aa5aa2fe077b40455a961908adfd38b5964",
-  "count": 1,
+  "count": 2,
   "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/experiments/runner.py': imports nonexistent names from sibling files: `from code.environment.graph_generator import GraphGenerator, GraphGeneratorConfig` (available: Edge, List, Node, Optional, StateGraph, _ensure_seed, _graph_id, _save_graph...); `from code.utils.metrics import calculate_mean_entropy, calculate_raw_entropy, calculate_variance` (available: Any, Dict, List, Sequence, __all__, annotations, calculate_success_rate, compute_episode_statistics...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+  "reason": "[implementer] refused 'config.py': `code/config.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
 }

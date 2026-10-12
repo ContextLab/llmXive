@@ -22,19 +22,12 @@ def _repo_root() -> Path:
     # Its parent is the ``code`` directory; the repo root is its parent.
     return Path(__file__).resolve().parent.parent
 
-def _code_dir() -> Path:
-    """
-    Return the ``code`` directory where the source hierarchy should be created.
-    """
-    # ``code`` directory is the parent of this script.
-    return Path(__file__).resolve().parent
-
 def _create_dirs(base: Path) -> None:
     """
-    Create all required directories under the ``code`` folder and a placeholder
+    Create all required directories under the repository root and a placeholder
     README.md in each.
     """
-    # Directories required by the specification, relative to the ``code`` folder.
+    # Directories required by the specification, relative to the repository root.
     dirs = [
         Path("src"),
         Path("src/environment"),
@@ -90,10 +83,9 @@ def _write_output(root: Path, content: str) -> None:
 
 def main() -> None:
     repo_root = _repo_root()
-    code_root = _code_dir()
 
-    # Create the required hierarchy inside the ``code`` directory.
-    _create_dirs(code_root)
+    # Create the required hierarchy at the repository root.
+    _create_dirs(repo_root)
 
     # Capture the directory tree of the repository root.
     tree_output = _run_tree(repo_root)
@@ -101,7 +93,9 @@ def main() -> None:
     # Write the captured tree to the expected location.
     _write_output(repo_root, tree_output)
 
-    print(f"Directory structure written to {repo_root / 'data' / 'processed' / 'dir_structure.txt'}")
+    print(
+        f"Directory structure written to {repo_root / 'data' / 'processed' / 'dir_structure.txt'}"
+    )
 
 if __name__ == "__main__":
     main()

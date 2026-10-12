@@ -10,10 +10,10 @@
 - [ ] T001 **Create project folder hierarchy**  
   `mkdir -p src/environment src/agent src/simulation src/analysis src/utils tests data/raw/synthetic_graphs data/processed`  
   *Verification*: Run `tree -L 2` and confirm all directories exist; commit the empty folders with a placeholder `README.md` in each.  
-- [ ] T001a **Verify directory structure**  
+- [~] T001a **Verify directory structure**  
   Execute `tree -L 2` and capture the output to `data/processed/dir_structure.txt`; ensure it lists all expected top‑level directories.  
   *Verification*: Check that the captured file contains the paths created by T001.  
-- [ ] T002 **Add `__init__.py` to every package**  
+- [~] T002 **Add `__init__.py` to every package**  
   Files: `src/__init__.py`, `src/environment/__init__.py`, `src/agent/__init__.py`, `src/simulation/__init__.py`, `src/analysis/__init__.py`, `src/utils/__init__.py`, `tests/__init__.py`  
   *Verification*: Import each package in a Python REPL (`import src.environment`) without error.  
 - [X] T003 **Create `requirements.txt`** (pinned CPU‑only versions)  
@@ -26,12 +26,12 @@
 
 ## Phase 1 – Global configuration & feasibility check (blocking)
 
-- [ ] T005 **Implement `src/config.py`**  
+- [~] T005 **Implement `src/config.py`**  
   - Constants: `SEED = 42`, `TIER_NODE_RANGES = {1: (5,10), 2: (20,50), 3: (100,200)}`, `THRESHOLD_STEPS = np.arange(0.0,1.01,0.1)`, `MAX_EPISODES_PER_SETTING = 1000`.  
   - Function `set_seed()` seeds `numpy`, `random`, and `os.environ["PYTHONHASHSEED"]`.  
   - Function `verify_feasibility()` estimates runtime; **must return 1000 episodes** and raise `RuntimeError` if the estimate exceeds 6 h (no automatic reduction).  
   *Verification*: Import `config`, call `set_seed()`, check deterministic RNG state; call `verify_feasibility()` and ensure it returns `(1000, <hours≤6)` or raises with clear message.  
-- [ ] T006 **Create `src/utils/metrics.py`** with pure‑CPU metric utilities:  
+- [~] T006 **Create `src/utils/metrics.py`** with pure‑CPU metric utilities:  
   - `entropy(probs)`, `log_prob_shift(original, injected)`, and helper to compute per‑episode statistics matching `episode_result.schema.yaml`.  
   *Verification*: Unit test imports the module and validates output types for a synthetic probability vector.  
 - [ ] T007 **Add runtime profiling task** (new)  

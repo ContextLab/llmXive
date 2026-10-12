@@ -2,8 +2,8 @@
 verify_dir_structure.py
 
 This script verifies the project directory structure by enumerating
-directories up to a depth of two levels from the repository root and
-writing their relative paths to ``data/processed/dir_structure.txt``.
+directories up to a specified depth from the repository root and
+writing their relative POSIX paths to ``data/processed/dir_structure.txt``.
 
 It is used to satisfy task **T001a**, which requires capturing a
 directory‑tree listing that contains explicit path strings such as
@@ -17,7 +17,7 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-def _collect_directories(root: Path, max_depth: int = 2) -> list[str]:
+def _collect_directories(root: Path, max_depth: int = 3) -> list[str]:
     """
     Recursively collect directory paths relative to *root* up to *max_depth*.
 
@@ -27,6 +27,8 @@ def _collect_directories(root: Path, max_depth: int = 2) -> list[str]:
         The repository root.
     max_depth: int
         Maximum depth (0 = root itself, 1 = immediate children, etc.).
+        Depth 3 is required to capture paths such as
+        ``data/raw/synthetic_graphs``.
 
     Returns
     -------
@@ -49,13 +51,14 @@ def _collect_directories(root: Path, max_depth: int = 2) -> list[str]:
 
 def main() -> None:
     """
-    Write a plain‑text list of directory paths (up to depth 2) to
+    Write a plain‑text list of directory paths (up to depth 3) to
     ``data/processed/dir_structure.txt``.
     """
     root_path = paths.root
     log.info("Collecting directory structure from project root: %s", root_path)
 
-    dir_list = _collect_directories(root_path, max_depth=2)
+    # Depth 3 ensures we capture nested directories required by the test.
+    dir_list = _collect_directories(root_path, max_depth=3)
 
     output_path = paths.data("processed", "dir_structure.txt")
     # Ensure the parent directory exists (paths.data creates it)

@@ -17,23 +17,73 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.environment.graph_generator --output data/raw/synthetic_graphs -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.environment.graph_generator
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/__init__.py", line 7, in <module>
+    from .runner import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/runner.py", line 12, in <module>
+    _exp_mod = import_module('code.experiments.runner')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/experiments/runner.py", line 11, in <module>
+    from env.graph_generator import GraphGenerator, GraphGeneratorConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/env/graph_generator.py", line 15, in <module>
+    from src.environment.graph_generator import (
+ModuleNotFoundError: No module named 'src.environment.graph_generator'
 
 - python -m src.simulation.runner --config src/config.py --output data/processed/episode_results.csv -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.simulation.runner
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/__init__.py", line 7, in <module>
+    from .runner import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/runner.py", line 12, in <module>
+    _exp_mod = import_module('code.experiments.runner')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/experiments/runner.py", line 11, in <module>
+    from env.graph_generator import GraphGenerator, GraphGeneratorConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/env/graph_generator.py", line 15, in <module>
+    from src.environment.graph_generator import (
+ModuleNotFoundError: No module named 'src.environment.graph_generator'
 
 - python -m src.analysis.aggregation --input data/processed/episode_results.csv --output data/processed/aggregated_metrics.csv -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.analysis.aggregation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/__init__.py", line 7, in <module>
+    from .runner import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/runner.py", line 12, in <module>
+    _exp_mod = import_module('code.experiments.runner')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/experiments/runner.py", line 11, in <module>
+    from env.graph_generator import GraphGenerator, GraphGeneratorConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/env/graph_generator.py", line 15, in <module>
+    from src.environment.graph_generator import (
+ModuleNotFoundError: No module named 'src.environment.graph_generator'
 
 - python -m src.analysis.regression --input data/processed/aggregated_metrics.csv -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.analysis.regression
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/__init__.py", line 7, in <module>
+    from .runner import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/src/simulation/runner.py", line 12, in <module>
+    _exp_mod = import_module('code.experiments.runner')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/experiments/runner.py", line 11, in <module>
+    from env.graph_generator import GraphGenerator, GraphGeneratorConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/env/graph_generator.py", line 15, in <module>
+    from src.environment.graph_generator import (
+ModuleNotFoundError: No module named 'src.environment.graph_generator'
 
 - python -m pytest tests/unit/ -v -> rc=2
-unit/test_profile_sweep.py _______________
+de, Edge
+E   ModuleNotFoundError: No module named 'env.state_graph'
+______________ ERROR collecting tests/unit/test_profile_sweep.py _______________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/tests/unit/test_profile_sweep.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
@@ -41,11 +91,9 @@ Traceback:
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_profile_sweep.py:17: in <module>
     from profiling import profile_sweep
-code/profiling/profile_sweep.py:22: in <module>
-    from code.experiments.runner import ExperimentRunner
-code/experiments/runner.py:10: in <module>
-    from env.graph_generator import GraphGenerator, GraphGeneratorConfig
-E   ModuleNotFoundError: No module named 'env'
+code/profiling/profile_sweep.py:21: in <module>
+    from experiments.runner import ExperimentRunner
+E   ModuleNotFoundError: No module named 'experiments.runner'
 =========================== short test summary info ============================
 ERROR tests/unit/test_graph_generator.py
 ERROR tests/unit/test_metrics.py

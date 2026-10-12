@@ -2,7 +2,7 @@
 Profile the full experiment sweep to ensure runtime feasibility.
 
 This script runs the full threshold sweep across all tiers using the
-existing `ExperimentRunner` implementation. It records the actual wall‑clock
+existing ``ExperimentRunner`` implementation. It records the actual wall‑clock
 time taken and writes a short profiling report to ``data/results/profile.txt``.
 The purpose is to verify that the estimated runtime reported by
 ``src.config.verify_feasibility`` (which must be ≤ 6 h) is realistic after
@@ -16,10 +16,9 @@ The script respects the project‑wide random seed and logging conventions.
 import time
 from llmxive_toolkit import paths, get_logger
 
-# Project imports – use absolute imports relative to the repository root.
-# The source files live under the ``code`` directory.
-from code.config import set_seed, verify_feasibility
-from code.experiments.runner import ExperimentRunner
+# Import the top‑level shim modules that expose the expected API.
+from config import set_seed, verify_feasibility
+from experiments.runner import ExperimentRunner
 
 def main() -> None:
     """
