@@ -48,7 +48,7 @@
   *Verification*: Instantiate with a tiny deterministic graph; `is_valid()` returns `True`.  
 - [ ] T010 **Implement `src/environment/validator.py`** – function `validate_graph(sg: StateGraph) -> None` that raises `RuntimeError` if `sg.is_valid()` is `False`. No silent fallback.  
   *Verification*: Pass an invalid graph; confirm `RuntimeError` is raised.  
-- [ ] T011 **Implement `src/environment/graph_generator.py`** with tier‑specific generators:  
+- [~] T011 **Implement `src/environment/graph_generator.py`** with tier‑specific generators:  
   - `generate_tier_1(seed)`, `generate_tier_2(seed)`, `generate_tier_3(seed)`.  
   - Each generator must enforce **acceptance criteria**:  
     *Tier 1*: node count 5‑10, single deterministic path, zero stochastic edges, reward sparsity = 0.  
@@ -57,7 +57,7 @@
   - After generation, call `validator.validate_graph`; on failure retry up to 100 times, then raise.  
   - Save each graph as JSON to `data/raw/synthetic_graphs/{graph_id}.json`.  
   *Verification*: Run each generator with a fixed seed; confirm JSON file exists, conforms to `environment.schema.yaml`, and the tier‑specific properties are asserted in a unit test.  
-- [ ] T012 **Batch‑generate graph suite**  
+- [ ] T012 **Batch‑generate graph suite**   <!-- FAILED-IN-EXECUTION: code/generate_graph_suite.py exit=1 -->
   - For each tier, generate **20** graphs (total 60) using seeds `SEED + i`.  
   - Record a manifest CSV `data/raw/graph_manifest.csv` with columns `graph_id,tier,seed`.  
   *Verification*: Manifest contains 60 rows; each referenced JSON file exists and passes validation.  

@@ -1,10 +1,60 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or other proof were provided showing that the required
-    folders (`src/`, `src/environment/`, `src/agent/`, `src/simulation/`, `src/analysis/`,
-    `tests/`, `data/raw/synthetic_graphs/`, `data/processed/`) actually exist; without
-    such evidence the task cannot be confirmed as completed.
+  h: c422445b6997355f27985896998acfa0659d7ebf45ee3465cedf075f87a95b90
+  r: "The evidence only shows a README and a log of a script that wrote a `dir_structure.txt`\
+    \ file, but no actual `src/environment`, `src/agent`, `src/simulation`, `src/analysis`,\
+    \ `src/utils`, `tests`, `data/raw/synthetic_graphs`, or `data/processed` directories\
+    \ (or placeholder README.md files) are present in the repository. The project\
+    \ layout described in the README uses a `code/` folder instead of the required\
+    \ `src/` hierarchy, so the task\u2019s folder\u2011creation requirement is not\
+    \ met."
+  sig: bf6cffe092459bba6111f6d58fe521868956bce4853395b2f23e9ca91a1f2543
+T001a:
+  c: false
+  h: f4a5883a50574e3748b08e1fcff6e499ed6ce946bd33cd5350abe99217b644c8
+  r: "Checked `data/processed/dir_structure.txt` and the unit test `test_dir_structure_contains_expected_entries`.\
+    \ The file\u2019s tree output does not contain the exact expected path strings\
+    \ (e.g., \u201Csrc/environment\u201D), causing the verification test to fail.\
+    \ The captured output therefore does not satisfy the requirement to list all expected\
+    \ top\u2011level directories."
+  sig: 781fe6736ffa68cd2a577571d2e653be10352650f200dc8bb289ac484f885273
+T002:
+  c: false
+  h: cb2d1dbc009b158b4974610fb86bf91b407a9a1a176d26d0825a237cd81b6320
+  r: "The evidence shows that all required `src/*/__init__.py` files exist and contain\
+    \ code, but there is no proof that they can be imported without error (e.g., the\
+    \ `src/environment/__init__.py` imports `state_graph`, `graph_generator`, and\
+    \ `validator` which are not shown to exist). Additionally, the `tests/__init__.py`\
+    \ file is listed but its content was not inspected, so its existence/content cannot\
+    \ be confirmed. Import\u2011ability of each package and the presence of `tests/__init__.py`\
+    \ must be demonstrated."
+  sig: d55c1f69349f026b8fe022cb95bb3dc7d44fb0ce4aefb16471e7d9ad213fa22d
+T003:
+  c: false
+  h: 9452ae63304bbd85c51ef56abd06546abf9ce762fc7f1b2cc4519237bacef155
+  r: Checked the `requirements.txt` file (present with the exact listed pinned versions).
+    However, there is no provided evidence (e.g., command output, logs, or test script)
+    showing that `pip install -r requirements.txt` actually succeeds in a fresh virtual
+    environment, which is a required part of the task.
+  sig: c8441d231770da482955f963aabd2da62c8180597237cc9650d295449a69f7e2
+T004:
+  c: false
+  h: 0c31c5fea05b4e09daad6e6335bff5cb8b25c4d1edbe96c8687b923664e2d271
+  r: "The repository contains the required `pyproject.toml` and `ruff.toml` files,\
+    \ but there is no provided evidence (e.g., command output, CI log, or test script)\
+    \ showing that `ruff check .` was executed and completed with zero warnings. Without\
+    \ that verification artifact, the task\u2019s acceptance criterion is not satisfied."
+  sig: c0ede18fdc6649540d69a8b1a9dfd4246e6d6a75586a8f17199fc4140338d4e3
+T008:
+  c: false
+  h: 8bbaa51a50d4b5ebb3748b6c0da1dfd8e52de211189b73cfa857bc66102ea117
+  r: "The provided `src/seed.py` imports `config` as a top\u2011level module, but\
+    \ the only configuration file present is `code/config.py`; there is no `config.py`\
+    \ at the project root, so the import will fail at runtime. Moreover, no execution\
+    \ evidence (e.g., a test import showing identical RNG state across runs) is supplied\
+    \ to confirm that the seed is set deterministically. The task therefore is not\
+    \ fully satisfied."
+  sig: f590165d655df13e8c968e4ffb358eb9729dc3d299dc4f4b39ba02800251aa99
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

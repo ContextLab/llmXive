@@ -1,0 +1,106 @@
+T001:
+  reason: "The evidence only shows a README and a log of a script that wrote a `dir_structure.txt`\
+    \ file, but no actual `src/environment`, `src/agent`, `src/simulation`, `src/analysis`,\
+    \ `src/utils`, `tests`, `data/raw/synthetic_graphs`, or `data/processed` directories\
+    \ (or placeholder README.md files) are present in the repository. The project\
+    \ layout described in the README uses a `code/` folder instead of the required\
+    \ `src/` hierarchy, so the task\u2019s folder\u2011creation requirement is not\
+    \ met."
+  task: 282583b518379099020a0ceead80984f95d67d3d0c924e9b7664dbb0ae0563a3
+T001a:
+  reason: "Checked `data/processed/dir_structure.txt` and the unit test `test_dir_structure_contains_expected_entries`.\
+    \ The file\u2019s tree output does not contain the exact expected path strings\
+    \ (e.g., \u201Csrc/environment\u201D), causing the verification test to fail.\
+    \ The captured output therefore does not satisfy the requirement to list all expected\
+    \ top\u2011level directories."
+  task: 90ef96752bc7ff37e4ae0cb4e867b93481edb3e1813cf63aef8b81764bb428dc
+T002:
+  reason: "The evidence shows that all required `src/*/__init__.py` files exist and\
+    \ contain code, but there is no proof that they can be imported without error\
+    \ (e.g., the `src/environment/__init__.py` imports `state_graph`, `graph_generator`,\
+    \ and `validator` which are not shown to exist). Additionally, the `tests/__init__.py`\
+    \ file is listed but its content was not inspected, so its existence/content cannot\
+    \ be confirmed. Import\u2011ability of each package and the presence of `tests/__init__.py`\
+    \ must be demonstrated."
+  task: c27f3a5bd3b6ff607cf70a2d12f11caf1c028affd89d57dc93704becfe637b13
+T003:
+  reason: Checked the `requirements.txt` file (present with the exact listed pinned
+    versions). However, there is no provided evidence (e.g., command output, logs,
+    or test script) showing that `pip install -r requirements.txt` actually succeeds
+    in a fresh virtual environment, which is a required part of the task.
+  task: 2d25c94b34dc503233f0ce03e59fb13ba5d33dacb3f7b1b173365a24162105f4
+T004:
+  reason: "The repository contains the required `pyproject.toml` and `ruff.toml` files,\
+    \ but there is no provided evidence (e.g., command output, CI log, or test script)\
+    \ showing that `ruff check .` was executed and completed with zero warnings. Without\
+    \ that verification artifact, the task\u2019s acceptance criterion is not satisfied."
+  task: d125dbc524d07e7b5784db72ef11aa804f6483a7a4ad24a1f8ff8e7d84cae207
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: src/config.py'
+  task: cc242dfb5fcdfddced63232b337fe1ba07604ff1015400185844ebf850abcefb
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: src/utils/metrics.py, episode_result.schema.yaml'
+  task: ae8fbdb2f6c05670e481d011bd772423d9f082665434bd52fd4125236f99dc6b
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: src/config.verify_feasibility'
+  task: 61f6cb37792afa2151bdadb0f1c07d56d6259aba1139609286d4ddd9b3e2f365
+T008:
+  reason: "The provided `src/seed.py` imports `config` as a top\u2011level module,\
+    \ but the only configuration file present is `code/config.py`; there is no `config.py`\
+    \ at the project root, so the import will fail at runtime. Moreover, no execution\
+    \ evidence (e.g., a test import showing identical RNG state across runs) is supplied\
+    \ to confirm that the seed is set deterministically. The task therefore is not\
+    \ fully satisfied."
+  task: 7935a3e36f7a42a931fe7b2b7e15f89786a82bdfe1b9a070f2a325c9f2e1e02d
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: src/environment/state_graph.py'
+  task: c8959219a39243159afbee4b9b558cd113fae1a3465f84b313f43774fc1e6d77
+T010:
+  reason: 'declared artifact(s) missing/empty/invalid: src/environment/validator.py'
+  task: 8bb4229c435109a9de63519dcb1d24baced19c47980a1b56345dafa8e206640b
+T011:
+  task: d57683833d1273d85d475dca150a0d750be1b3102c7ba53b1993ddcd346d97b8
+T012:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_graph_suite.py
+    exit=1'
+  task: 0fdb3a232d55bb196262611a54dabdf8cd6949b6c1144f1cf4281e9c10960599
+T013:
+  task: a519514fe1dbc7eacab86c4eda6171cba0e6f76748a723743d552bb82c892fbf
+T014:
+  task: 89a20c523defdc119b6e154ad7214ad6aa6664b387949c8637eef16016c365bb
+T015:
+  task: e7cc9e5d3dc3a66f1cd9251c732d869f7a4b98ad376637ebad8cb6694e9099cb
+T016:
+  task: f647af9aea965579d8decf79981a60a6d080b66cd8e450bab17e742b28303c7c
+T017:
+  task: b245f4e1c0800ba48bed2d1a040145abf9def0c55eb76e4d1c429378b980028f
+T018:
+  task: 73feaa577743947b9264555f8c44eba32a76a7ce83f76b93de2159e51613fed1
+T019:
+  task: b720170ef27729d7c3c5d0bfc135d8ed190bbcccea6da83da9a8278275fa2dde
+T020:
+  task: 2bd03234ffc846f6f607059beb862dc50bb700b14a220d038478dc368750a36c
+T021:
+  task: a1d0f677675c8a5f4887102f3507db9057ff8b10026ecfa3b207c58c42c537a7
+T022:
+  task: f912bf5392d15f0142142c8735874718a091394b65937b295a3808b3cdbd7652
+T023:
+  task: b88055191cb3da811a1376f781e0d56c955a03c8079d19abf0a68fe893437f21
+T024:
+  task: 12869c5233cb6a8416d3a51c598fa9e8df126e3abcd26c7fd93414a7b0a20782
+T025:
+  task: 6aa35982e3c0d24efa9d05cd123d4ba988d265b42a7360db75320c38b2c45c51
+T026:
+  task: d54253dd102a9ce05317ef4b7299796a80f42c215b9c86cb271c9c7dba8f2cf2
+T027:
+  task: 26dbef0282d24a722542871ba29374e7c3b65c57ec81f65f31109a4b10d9cc5d
+T028:
+  task: b031c190af778314fcce9cdb27581b56abaa973bbcf91318b163bcefc63679fc
+T029:
+  task: 8e057c4d5048ff28f2ec7f095fd45c9fcca669b34f3c7e2452f3877d3a7a2b41
+T030:
+  task: 99af2ddd085f061bb5f6b937c8e8aee58935398068a512ed5c284318441b0c27
+T031:
+  task: 548b0c1a1fdc55d827184b6f8d1d20f222a3dcc05a9cd133ebb874a4149293bc
+T032:
+  task: f31a86fd176895e42ba6483dc92e1572b761f28287fa8f8891af8161bf1fb4c1

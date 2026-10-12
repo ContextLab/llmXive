@@ -1,16 +1,18 @@
 status: none
-intent: synthetic state graph suite reinforcement learning environments python package
-  dataset
+intent: synthetic graph reinforcement learning environments python package dataset
 required_fields:
-- node_id
-- state_features
-- edges
-- transition_probabilities
-- reward
+- environment_id
 - tier
+- num_nodes
+- node_list
+- edge_list
+- transition_probabilities
+- reward_values
+- sparse_reward_flags
 - start_node
 - goal_node
-- seed
-cache_key: 0df090f5bd5f9dee31272f24424e9df97fde8437e78c01bd03ec71293e63a20c
-searched_at: '2026-10-07T18:25:59.321753+00:00'
+- deterministic_flag
+- entropy_measure
+cache_key: 0ce0db12e0d1e3e1bfd7ed0ab5b9df1e403ec51460013e33bac3864beecb47b6
+searched_at: '2026-10-12T03:36:13.750111+00:00'
 retry_count: 1
