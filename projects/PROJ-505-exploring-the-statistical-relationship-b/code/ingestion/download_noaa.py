@@ -18,9 +18,10 @@ import logging
 import pandas as pd
 import requests
 
-from utils.logging import DataIngestionError, get_logger, log_duration
-from utils.io import save_parquet
-from config import RAW_DIR, SEED
+# Updated imports to use the correct package path
+from code.utils.logging import DataIngestionError, get_logger, log_duration
+from code.utils.io import save_parquet
+from code.config import RAW_DIR, SEED
 
 logger = get_logger(__name__)
 

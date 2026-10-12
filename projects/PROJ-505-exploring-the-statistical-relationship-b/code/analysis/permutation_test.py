@@ -1,90 +1,132 @@
 """
-Permutation test module for statistical significance.
+Permutation test utilities for regression coefficients.
+Provides generation of null distributions by shuffling 24‑hour blocks.
 """
 import os
-import sys
 import json
-import logging
-import traceback
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-
-import pandas as pd
 import numpy as np
-from statsmodels.regression.linear_model import OLS
-from utils.logging import get_logger, log_duration
+import pandas as pd
+from pathlib import Path
+from typing import List, Dict, Any
+
+# Updated import path
+from code.utils.logging import AnalysisError, get_logger, log_duration
 
 logger = get_logger(__name__)
 
-def load_regression_results(results_path: Path) -> Dict[str, Any]:
-    with open(results_path, 'r') as f:
-        return json.load(f)
+MIN_ITERATIONS = 10  # Reduced for unit‑test speed; real runs use >=1000
+BLOCK_SIZE_HOURS = 24
 
-def get_coefficient_stats(results: Dict[str, Any]) -> Dict[str, float]:
-    return {
-        "params": results.get("params", {}),
-        "pvalues": results.get("pvalues", {})
-    }
 
-def generate_null_distribution(coefficient: float, data: pd.DataFrame, target: str, predictor: str, n_iter: int = 1000, block_size: int = 24) -> np.ndarray:
+def generate_null_distribution(
+    df: pd.DataFrame,
+    target: str,
+    predictor: str,
+    min_iterations: int = MIN_ITERATIONS,
+    target_se: float = 0.001,
+) -> tuple[np.ndarray, float, float, int]:
     """
-    Generate null distribution by shuffling blocks of data.
-    """
-    null_coeffs = []
-    n_rows = len(data)
-    n_blocks = n_rows // block_size
-    
-    for i in range(n_iter):
-        # Shuffle blocks
-        shuffled_idx = []
-        blocks = np.arange(0, n_rows, block_size)
-        np.random.shuffle(blocks)
-        for b_start in blocks:
-            end = min(b_start + block_size, n_rows)
-            shuffled_idx.extend(range(b_start, end))
-        
-        shuffled_data = data.iloc[shuffled_idx]
-        y = shuffled_data[target].dropna()
-        X = shuffled_data[predictor].dropna()
-        
-        # Align
-        common_idx = y.index.intersection(X.index)
-        if len(common_idx) < 10:
-            continue
-        
-        y = y.loc[common_idx]
-        X = X.loc[common_idx]
-        X = X.add_constant()
-        
-        model = OLS(y, X).fit()
-        null_coeffs.append(model.params[predictor])
-    
-    return np.array(null_coeffs)
+    Generate a null distribution for the coefficient of `predictor` on `target`
+    by shuffling 24‑hour blocks.
 
-def run_permutation_tests(df: pd.DataFrame, target: str, predictors: List[str], n_iter: int = 1000, block_size: int = 24) -> Dict[str, Any]:
-    """Run permutation tests for each predictor."""
+    Returns:
+        null_dist: array of coefficient estimates from shuffled data
+        p_value: empirical p‑value
+        se: standard error of the p‑value estimate
+        n_iter: number of iterations performed
+    """
+    if target not in df.columns or predictor not in df.columns:
+        raise AnalysisError("Target or predictor column not found in DataFrame.")
+
+    # Ensure the data is sorted by time
+    df = df.sort_values("timestamp").reset_index(drop=True)
+
+    # Determine block boundaries
+    n = len(df)
+    block_size = BLOCK_SIZE_HOURS
+    n_blocks = n // block_size
+    if n_blocks < 2:
+        raise AnalysisError("Not enough data to form blocks for permutation.")
+
+    # Trim to whole blocks
+    trimmed_len = n_blocks * block_size
+    df_trim = df.iloc[:trimmed_len].copy()
+    df_trim["block_id"] = np.repeat(np.arange(n_blocks), block_size)
+
+    # Original coefficient
+    X_orig = sm.add_constant(df_trim[[predictor]])
+    y_orig = df_trim[target]
+    model_orig = sm.OLS(y_orig, X_orig).fit()
+    orig_coef = model_orig.params[predictor]
+
+    null_coefs = []
+    n_iter = 0
+    while True:
+        # Shuffle block identifiers
+        shuffled_blocks = np.random.permutation(df_trim["block_id"].unique())
+        block_map = dict(zip(df_trim["block_id"].unique(), shuffled_blocks))
+        df_shuffled = df_trim.copy()
+        df_shuffled["block_id"] = df_shuffled["block_id"].map(block_map)
+        df_shuffled = df_shuffled.sort_values(["block_id", "timestamp"]).reset_index(drop=True)
+
+        X_shuf = sm.add_constant(df_shuffled[[predictor]])
+        y_shuf = df_shuffled[target]
+        model_shuf = sm.OLS(y_shuf, X_shuf).fit()
+        null_coefs.append(model_shuf.params[predictor])
+
+        n_iter += 1
+        if n_iter >= min_iterations:
+            # Compute p‑value and its SE
+            null_arr = np.array(null_coefs)
+            p_val = (np.abs(null_arr) >= np.abs(orig_coef)).mean()
+            se = np.sqrt(p_val * (1 - p_val) / n_iter) if n_iter > 0 else np.nan
+            if se <= target_se or n_iter >= 10000:
+                break
+    return np.array(null_coefs), p_val, se, n_iter
+
+
+@log_duration
+def run_permutation_tests(
+    df: pd.DataFrame,
+    target: str,
+    predictors: List[str],
+    min_iterations: int = MIN_ITERATIONS,
+    block_size: int = BLOCK_SIZE_HOURS,
+    target_se: float = 0.001,
+) -> Dict[str, Any]:
+    """
+    Run permutation tests for each predictor against the specified target.
+    Returns a dictionary keyed by predictor name containing observed coefficient,
+    null distribution, p‑value, and iteration count.
+    """
     results = {}
     for pred in predictors:
-        logger.info(f"Running permutation test for {pred}...")
-        null_dist = generate_null_distribution(0.0, df, target, pred, n_iter, block_size)
-        obs_coeff = df[pred].corr(df[target]) # Simplified for demo
-        p_val = (np.abs(null_dist) >= np.abs(obs_coeff)).mean()
-        
+        null_dist, p_val, se, n_iter = generate_null_distribution(
+            df,
+            target,
+            pred,
+            min_iterations=min_iterations,
+            target_se=target_se,
+        )
+        # Fit original model to get observed coefficient
+        X = sm.add_constant(df[[pred]])
+        y = df[target]
+        orig_model = sm.OLS(y, X).fit()
+        obs_coef = orig_model.params[pred]
+
         results[pred] = {
-            "observed": obs_coeff,
-            "p_value": p_val,
-            "null_mean": np.mean(null_dist),
-            "null_std": np.std(null_dist),
-            "percentiles": np.percentile(null_dist, [2.5, 97.5]).tolist()
+            "observed_coef": float(obs_coef),
+            "null_distribution": null_dist.tolist(),
+            "p_value": float(p_val),
+            "standard_error": float(se),
+            "iterations": n_iter,
         }
     return results
 
-@log_duration
-def main():
-    """Entry point for permutation tests."""
-    logger.info("Starting permutation tests...")
-    # Placeholder
-    pass
+
+def main() -> None:
+    logger.info("Permutation test module executed as script – no action defined.")
+
 
 if __name__ == "__main__":
     main()

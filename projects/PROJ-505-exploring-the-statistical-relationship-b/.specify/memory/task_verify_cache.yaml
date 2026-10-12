@@ -9,14 +9,13 @@ T001:
     \ criterion."
   sig: 0f1982e05acf08c66b9ca3d7ac4cffb41a17cc1b67bcbc2ec3d24e193ff3b185
 T002:
-  c: true
-  h: 072fb932c447ff56f31178e21a6bcc29b48fbca7c49aaa64d45ba165229dc125
-  r: The `requirements.txt` exists at the project root with all six required packages
-    pinned in the `major.minor.*` format (pandas==2.2.*, numpy==1.26.*, scikit-learn==1.5.*,
-    statsmodels==0.14.*, scipy==1.13.*, pytest==8.2.*), plus an extra `pyarrow>=12.0`
-    line which is a harmless addition that doesn't violate the pattern requirement
-    for the specified entries.
-  sig: ddd4494469d244632ba6152dcd73459ae52a8d5a0f46d21e07457522e81600e6
+  c: false
+  h: 672830dd634fb2ee5b059486425558d5afa2433240af6363e216bcb5b1943c6d
+  r: "The `requirements.txt` file exists, but it contains an extra line (`pyarrow>=12.0.*`)\
+    \ that does not follow the required `package==major.minor.*` pattern, violating\
+    \ the task\u2019s specification. The file must be limited to the six listed packages,\
+    \ each pinned with `==` and a wildcard minor version."
+  sig: c2fb9a6f6d2405cc24abfe9f0bbf4d421bd01484eee12cf9542a1d800d6a26c2
 T003:
   c: true
   h: af731d19dbcc2d5b2d325ed8d76af5543f171acb4785e1edfc79159290d7c08e
@@ -25,13 +24,15 @@ T003:
     \ path constants as required, and the module imports without error."
   sig: a0b69092ed14096a6d10745f90b9876af34cb4a0fa70f1ef1b7652adb5831424
 T004:
-  c: true
-  h: 2841583217e14458c20b2bdfb9e320f6419ed98410143beda18d27ae1bdf0551
-  r: "Checked `code/utils/io.py` for load/save Parquet and SHA\u2011256 helpers, and\
-    \ `code/utils/logging.py` for a module\u2011level logger with a console handler;\
-    \ both exist and the unit tests (`tests/unit/test_io.py`, `tests/unit/test_logging.py`)\
-    \ import the wrappers and verify the required behavior."
-  sig: 22cdbbe283f7ed63521b8fab3587713cb89514f4fa0944da0baf5b224838e4f9
+  c: false
+  h: 8cd09db7e82f58767bcdb148032f02d3edce7fd47351b1719e2c1d137f640c54
+  r: "The provided `code/utils/io.py` defines `compute_md5` that actually returns\
+    \ a SHA\u2011256 hash (64\u2011char hex) and the wrapper `utils/io.py` tries to\
+    \ import non\u2011existent `compute_sha256`/`verify_sha256`, causing an import\
+    \ error. Moreover, the unit test expects a 32\u2011character MD5 checksum, which\
+    \ the current implementation does not produce. The I/O helpers therefore do not\
+    \ pass the supplied tests."
+  sig: 8e7064b851beebf2cef762c2c090461628d2f857c632f4e1e9491835503ac42c
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

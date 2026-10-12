@@ -26,7 +26,7 @@
 
   **Verification** – Run a shell command (e.g. `find … -type d`) and confirm that every directory listed above exists (exit code 0).
 
-- [X] **T002** Initialize a Python project with a pinned `requirements.txt` containing the core scientific stack.  
+- [ ] **T002** Initialize a Python project with a pinned `requirements.txt` containing the core scientific stack.  
 
   **File**: `requirements.txt` (project root)  
 
@@ -54,7 +54,7 @@
 
   **Verification** – Import succeeds (`python -c "import code.config"`), and the constant `SEED` equals 42.
 
-- [X] **T004** Implement reusable I/O helpers and a minimal logger.  
+- [ ] **T004** Implement reusable I/O helpers and a minimal logger.  
 
   **Files**: `code/utils/io.py`, `code/utils/logging.py`  
 

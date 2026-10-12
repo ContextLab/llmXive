@@ -1,62 +1,70 @@
 """
-Sensitivity analysis module: threshold sweep and FDR correction.
+Sensitivity analysis for significance thresholds with Benjamini‑Hochberg correction.
 """
-import os
-import sys
 import json
-import argparse
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import List, Dict, Any
 
-import pandas as pd
-import numpy as np
-from statsmodels.stats.multitest import multipletests
-from utils.logging import get_logger, log_duration
+# Updated import path
+from code.utils.logging import get_logger, log_duration
 
 logger = get_logger(__name__)
 
-def load_regression_results(results_path: Path) -> Dict[str, Any]:
-    with open(results_path, 'r') as f:
-        return json.load(f)
 
-def get_coefficient_stats(results: Dict[str, Any]) -> Dict[str, float]:
-    return results.get("pvalues", {})
-
-def apply_benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> Tuple[List[bool], List[float]]:
-    """Apply Benjamini-Hochberg FDR correction."""
-    reject, pvals_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
-    return reject, pvals_corrected
-
-def run_sensitivity_analysis(results: Dict[str, Any], thresholds: List[float] = [0.01, 0.05, 0.10]) -> Dict[str, Any]:
+def apply_benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> List[bool]:
     """
-    Sweep significance thresholds and report variation in significant predictors.
+    Apply the Benjamini‑Hochberg procedure.
+    Returns a list of booleans indicating which hypotheses are significant.
     """
-    p_values = list(results.get("pvalues", {}).values())
-    predictors = list(results.get("params", {}).keys())
-    
-    sensitivity_results = {}
-    for alpha in thresholds:
-        reject, p_corr = apply_benjamini_hochberg(p_values, alpha)
-        significant = [pred for pred, is_sig in zip(predictors, reject) if is_sig]
-        sensitivity_results[alpha] = {
-            "significant_predictors": significant,
-            "corrected_p_values": dict(zip(predictors, p_corr))
-        }
-    
-    return sensitivity_results
+    m = len(p_values)
+    sorted_idx = np.argsort(p_values)
+    sorted_p = np.array(p_values)[sorted_idx]
+    thresholds = (np.arange(1, m + 1) / m) * alpha
+    significant = sorted_p <= thresholds
+    # Find the largest i where condition holds
+    if not significant.any():
+        return [False] * m
+    max_i = np.where(significant)[0].max()
+    sig_mask = np.arange(m) <= max_i
+    # Re‑order to original order
+    unsorted = np.empty(m, dtype=bool)
+    unsorted[sorted_idx] = sig_mask
+    return unsorted.tolist()
 
-def save_sensitivity_results(results: Dict[str, Any], output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Sensitivity results saved to {output_path}")
 
 @log_duration
-def main():
-    """Entry point for sensitivity analysis."""
-    logger.info("Starting sensitivity analysis...")
-    # Placeholder
-    pass
+def run_sensitivity_analysis(
+    results: Dict[str, Any],
+    thresholds: List[float] = [0.01, 0.05, 0.10],
+) -> Dict[float, int]:
+    """
+    Sweep significance thresholds and count number of significant predictors.
+    Returns a mapping from threshold to count of significant predictors.
+    """
+    p_vals = [res["p_value"] for res in results.values()]
+    summary = {}
+    for thr in thresholds:
+        sig_flags = apply_benjamini_hochberg(p_vals, alpha=thr)
+        summary[thr] = int(sum(sig_flags))
+    return summary
+
+
+def save_sensitivity_results(
+    summary: Dict[float, int],
+    output_path: Path,
+) -> None:
+    """
+    Write the sensitivity summary to CSV.
+    """
+    rows = [{"threshold": thr, "num_significant_predictors": cnt} for thr, cnt in summary.items()]
+    df = pd.DataFrame(rows)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+
+
+def main() -> None:
+    logger.info("Sensitivity module executed as script – no action defined.")
+
 
 if __name__ == "__main__":
     main()
