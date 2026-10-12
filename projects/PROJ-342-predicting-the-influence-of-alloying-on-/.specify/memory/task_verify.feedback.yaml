@@ -1,10 +1,12 @@
 T001:
-  reason: "Missing the required `artifacts/models/`, `artifacts/metrics/`, and `artifacts/reports/`\
-    \ directories, and the `logs/` folder is not shown to exist. The `tests/test_resource_monitor.py`\
-    \ test fails because the decorator does not create `data/resource_usage.json`\
-    \ at the expected location (the file present has a runtime of\u202F0.0\u202Fseconds,\
-    \ indicating the dummy function was never actually executed). These gaps mean\
-    \ the task\u2019s verification criteria are not met."
+  reason: "The repository contains the required `code/__init__.py`, `code/resource_monitor.py`,\
+    \ `config.yaml`, and a `data/resource_usage.json` with the required keys, and\
+    \ the test shows the JSON is written. However, there is no evidence that the required\
+    \ artifact directories (`artifacts/models/`, `artifacts/metrics/`, `artifacts/reports/`)\
+    \ and the `logs/` folder actually exist in the project tree; they are not listed\
+    \ by the collector. Without these directories the \u201CAll listed directories\
+    \ exist\u201D condition of T001 is not satisfied. Adding the missing directories\
+    \ (or providing evidence they were created) i"
   task: fb719cb7e05897ffd4d5940329ba63a0a575e188e8409938c54dda3a443a7c89
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'

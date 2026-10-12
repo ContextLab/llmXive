@@ -1,11 +1,16 @@
 """
 Resource monitoring wrapper for enforcing CPU time and RAM limits.
 
-This module provides a context manager and decorators to monitor resource usage
-during execution and raise exceptions when limits are exceeded. It also supplies
-a @limit_resources decorator that records resource usage and writes a JSON report
-to ``data/resource_usage.json`` as required by task T001.
+This module provides:
+* A context manager ``_resource_monitor`` that checks resource usage.
+* A decorator ``limit_resources`` that enforces limits and writes a JSON
+  usage report to ``data/resource_usage.json``.
+* A decorator ``resource_monitor`` (the name expected by existing
+  pipeline scripts) that accepts the legacy keyword arguments
+  ``runtime_limit_h`` and ``memory_limit_gb`` and forwards them to
+  ``limit_resources``.
 """
+
 import os
 import sys
 import time
@@ -81,7 +86,7 @@ def _get_env_limit(var_name: str, default_seconds: float, unit_factor: float = 1
 
 
 @contextmanager
-def resource_monitor(
+def _resource_monitor(
     cpu_limit: Optional[float] = None,
     ram_limit: Optional[float] = None,
     check_interval: float = 60.0  # Check every 60 seconds
@@ -90,8 +95,10 @@ def resource_monitor(
     Context manager to monitor CPU time and RAM usage.
 
     Args:
-        cpu_limit: Maximum allowed CPU time in seconds. If None, reads from RUNTIME_LIMIT_H env var, else defaults to 6h.
-        ram_limit: Maximum allowed RAM in MB. If None, reads from MEMORY_LIMIT_GB env var, else defaults to 7GB.
+        cpu_limit: Maximum allowed CPU time in seconds. If None, reads from
+                   RUNTIME_LIMIT_H env var, else defaults to 6h.
+        ram_limit: Maximum allowed RAM in MB. If None, reads from
+                   MEMORY_LIMIT_GB env var, else defaults to 7GB.
         check_interval: Interval between resource checks in seconds (default: 60s)
 
     Yields:
@@ -194,8 +201,10 @@ def enforce_resource_limits(
     Decorator to enforce resource limits on a function.
 
     Args:
-        cpu_limit: Maximum allowed CPU time in seconds. If None, reads from RUNTIME_LIMIT_H env var, else defaults to 6h.
-        ram_limit: Maximum allowed RAM in MB. If None, reads from MEMORY_LIMIT_GB env var, else defaults to 7GB.
+        cpu_limit: Maximum allowed CPU time in seconds. If None, reads from
+                   RUNTIME_LIMIT_H env var, else defaults to 6h.
+        ram_limit: Maximum allowed RAM in MB. If None, reads from
+                   MEMORY_LIMIT_GB env var, else defaults to 7GB.
         check_interval: Interval between resource checks in seconds (default: 60s)
 
     Returns:
@@ -204,7 +213,7 @@ def enforce_resource_limits(
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
-            with resource_monitor(
+            with _resource_monitor(
                 cpu_limit=cpu_limit,
                 ram_limit=ram_limit,
                 check_interval=check_interval
@@ -215,7 +224,7 @@ def enforce_resource_limits(
 
 
 # ----------------------------------------------------------------------
-# New decorator required by T001: @limit_resources
+# Helper functions for the @limit_resources decorator
 # ----------------------------------------------------------------------
 def _read_limits_from_config() -> tuple[float, float]:
     """
@@ -307,7 +316,7 @@ def limit_resources(
             start_ram = get_current_ram_mb()
 
             # Run the function inside the monitoring context
-            with resource_monitor(cpu_limit=cpu, ram_limit=ram, check_interval=check_interval):
+            with _resource_monitor(cpu_limit=cpu, ram_limit=ram, check_interval=check_interval):
                 result = func(*args, **kwargs)
 
             # After successful execution, compute deltas
@@ -322,6 +331,30 @@ def limit_resources(
             return result
         return wrapper
     return decorator
+
+
+# ----------------------------------------------------------------------
+# Compatibility decorator expected by existing pipeline scripts
+# ----------------------------------------------------------------------
+def resource_monitor(*, runtime_limit_h: Optional[float] = None,
+                    memory_limit_gb: Optional[float] = None,
+                    check_interval: float = 60.0):
+    """
+    Legacy decorator used throughout the pipeline. It forwards the
+    ``runtime_limit_h`` (hours) and ``memory_limit_gb`` arguments to the
+    :func:`limit_resources` decorator.
+
+    Example:
+        @resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
+        def my_func():
+            ...
+
+    Returns:
+        Callable: the wrapped function.
+    """
+    cpu_seconds = runtime_limit_h * 3600.0 if runtime_limit_h is not None else None
+    ram_mb = memory_limit_gb * 1024.0 if memory_limit_gb is not None else None
+    return limit_resources(cpu_limit=cpu_seconds, ram_limit=ram_mb, check_interval=check_interval)
 
 
 def main():

@@ -11,80 +11,82 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”
 - code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py`
+  - script usage: `ingest.py [-h] [--verify-only]`
+  - argparse error: `ingest.py: error: unrecognized arguments: && python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 4 command(s) failed: python code/ingest.py --verify-only (rc=1); python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py (rc=1); python -m pytest tests/unit/ (rc=2); 3 declared deliverable(s) absent: data/processed/cleaned_mg.csv; data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 4 command(s) failed: python code/ingest.py --verify-only (rc=1); python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py (rc=2); python -m pytest tests/unit/ (rc=2); 3 declared deliverable(s) absent: data/processed/cleaned_mg.csv; data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
 
 ## Failing / missing run-book commands
 
 - python code/ingest.py --verify-only -> rc=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 63, in fetch_from_zenodo
+    raise DataUnavailableError("No CSV file found in Zenodo record.")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record.
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 195, in <module>
-    @resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 301, in helper
-    return _GeneratorContextManager(func, args, kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 105, in __init__
-    self.gen = func(*args, **kwds)
-               ^^^^^^^^^^^^^^^^^^^
-TypeError: resource_monitor() got an unexpected keyword argument 'runtime_limit_h'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 260, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 251, in main
+    df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 117, in fetch_from_zenodo_wrapper
+    raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from e
+zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
 
-- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1
+- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 195, in <module>
-    @resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 301, in helper
-    return _GeneratorContextManager(func, args, kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 105, in __init__
-    self.gen = func(*args, **kwds)
-               ^^^^^^^^^^^^^^^^^^^
-TypeError: resource_monitor() got an unexpected keyword argument 'runtime_limit_h'
+usage: ingest.py [-h] [--verify-only]
+ingest.py: error: unrecognized arguments: && python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py
 
 - python -m pytest tests/unit/ -> rc=2
-ode/zenodo_client.py)
+jects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_zenodo_client.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_zenodo_client.py:12: in <module>
+    from zenodo_client import (
+E   ImportError: cannot import name 'fetch_dataset' from 'zenodo_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_analyze.py
-ERROR tests/unit/test_descriptors.py - TypeError: resource_monitor() got an u...
-ERROR tests/unit/test_descriptors_io.py - TypeError: resource_monitor() got a...
-ERROR tests/unit/test_ingest.py - TypeError: resource_monitor() got an unexpe...
-ERROR tests/unit/test_ingest_retention.py - TypeError: resource_monitor() got...
-ERROR tests/unit/test_ingest_stats.py - TypeError: resource_monitor() got an ...
-ERROR tests/unit/test_ingest_t014.py - TypeError: resource_monitor() got an u...
-ERROR tests/unit/test_train_artifacts.py - TypeError: resource_monitor() got ...
-ERROR tests/unit/test_train_lofo.py - TypeError: resource_monitor() got an un...
-ERROR tests/unit/test_train_model.py - TypeError: resource_monitor() got an u...
-ERROR tests/unit/test_train_stratification.py - TypeError: resource_monitor()...
+ERROR tests/unit/test_descriptors_io.py
+ERROR tests/unit/test_ingest.py
+ERROR tests/unit/test_ingest_retention.py
+ERROR tests/unit/test_ingest_t014.py
+ERROR tests/unit/test_train_artifacts.py
+ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
 ERROR tests/unit/test_zenodo_client.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 13 errors in 1.33s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 9 errors in 1.60s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-_________
-tests/integration/test_train_pipeline.py:19: in <module>
-    from code.train import main
-code/train.py:17: in <module>
-    from descriptors import get_project_root, setup_logging as setup_desc_logging
-code/descriptors.py:231: in <module>
-    @resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py:301: in helper
-    return _GeneratorContextManager(func, args, kwds)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py:105: in __init__
-    self.gen = func(*args, **kwds)
-E   TypeError: resource_monitor() got an unexpected keyword argument 'runtime_limit_h'
+27: in <module>
+    from ingest import load_and_validate_data, clean_data
+E   ImportError: cannot import name 'clean_data' from 'ingest' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py)
+=============================== warnings summary ===============================
+tests/integration/test_train_pipeline.py:84
+  /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/integration/test_train_pipeline.py:84: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/integration/test_data_ingestion.py - TypeError: resource_monitor(...
+ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
-ERROR tests/integration/test_train_cv.py - TypeError: resource_monitor() got ...
-ERROR tests/integration/test_train_pipeline.py - TypeError: resource_monitor(...
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.96s ===============================
+ERROR tests/integration/test_train_cv.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 3 errors in 1.27s =========================
 
 
 

@@ -13,7 +13,7 @@ try:
 except ImportError:
     raise ImportError("mendeleev package is required. Install with: pip install mendeleev==0.31.0")
 
-from resource_monitor import resource_monitor, ResourceLimitExceeded
+from resource_monitor import resource_monitor, ResourceLimitExceeded, limit_resources
 
 def setup_logging():
     """Configure logging for the descriptors module."""
@@ -45,8 +45,7 @@ def get_element_properties(symbol: str) -> Tuple[Optional[float], Optional[float
         el = element(symbol)
         radius = el.atomic_radius
         electronegativity = el.electronegativity
-        # VEC is often valence electrons; using group number or specific valence config
-        # Mendeleev 'valence_electrons' might vary by oxidation state, using group number as proxy for simple VEC
+        # Use group number as a simple proxy for VEC
         vec = el.group
         return radius, electronegativity, float(vec)
     except Exception:
@@ -60,18 +59,18 @@ def parse_composition(composition_str: str) -> Dict[str, float]:
     import re
     if not composition_str:
         return {}
-    
+
     # Regex to match Element and Number
     pattern = re.compile(r'([A-Z][a-z]?)(\d+(?:\.\d+)?)')
     matches = pattern.findall(composition_str)
-    
+
     comp = {}
     total = 0.0
     for symbol, count in matches:
         val = float(count)
         comp[symbol] = val
         total += val
-    
+
     # Normalize to fractions
     if total > 0:
         comp = {k: v/total for k, v in comp.items()}
@@ -84,10 +83,10 @@ def calculate_weighted_mean_radius(composition_str: str, logger: logging.Logger)
     comp = parse_composition(composition_str)
     if not comp:
         return None
-    
+
     total_radius = 0.0
     total_weight = 0.0
-    
+
     for symbol, weight in comp.items():
         radius, _, _ = get_element_properties(symbol)
         if radius is not None:
@@ -95,7 +94,7 @@ def calculate_weighted_mean_radius(composition_str: str, logger: logging.Logger)
             total_weight += weight
         else:
             logger.warning(f"Unknown element {symbol} in composition {composition_str}")
-    
+
     if total_weight == 0:
         return None
     return total_radius
@@ -108,7 +107,7 @@ def calculate_radius_mismatch(composition_str: str) -> float:
     comp = parse_composition(composition_str)
     if not comp:
         return 0.0
-    
+
     radii = []
     weights = []
     for symbol, weight in comp.items():
@@ -116,18 +115,18 @@ def calculate_radius_mismatch(composition_str: str) -> float:
         if radius is not None:
             radii.append(radius)
             weights.append(weight)
-    
+
     if not radii:
         return 0.0
-    
+
     r_bar = sum(r * w for r, w in zip(radii, weights))
     if r_bar == 0:
         return 0.0
-    
+
     delta = 0.0
     for r, w in zip(radii, weights):
         delta += w * ((1 - r / r_bar) ** 2)
-    
+
     return np.sqrt(delta)
 
 def calculate_electronegativity_difference(composition_str: str) -> float:
@@ -138,7 +137,7 @@ def calculate_electronegativity_difference(composition_str: str) -> float:
     comp = parse_composition(composition_str)
     if not comp:
         return 0.0
-    
+
     chis = []
     weights = []
     for symbol, weight in comp.items():
@@ -146,15 +145,15 @@ def calculate_electronegativity_difference(composition_str: str) -> float:
         if chi is not None:
             chis.append(chi)
             weights.append(weight)
-    
+
     if not chis:
         return 0.0
-    
+
     chi_bar = sum(c * w for c, w in zip(chis, weights))
     delta = 0.0
     for c, w in zip(chis, weights):
         delta += w * ((c - chi_bar) ** 2)
-    
+
     return np.sqrt(delta)
 
 def calculate_vec(composition_str: str) -> float:
@@ -165,7 +164,7 @@ def calculate_vec(composition_str: str) -> float:
     comp = parse_composition(composition_str)
     if not comp:
         return 0.0
-    
+
     vecs = []
     weights = []
     for symbol, weight in comp.items():
@@ -173,10 +172,10 @@ def calculate_vec(composition_str: str) -> float:
         if vec is not None:
             vecs.append(vec)
             weights.append(weight)
-    
+
     if not vecs:
         return 0.0
-    
+
     return sum(v * w for v, w in zip(vecs, weights))
 
 def compute_descriptors(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
@@ -184,22 +183,22 @@ def compute_descriptors(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFram
     Compute descriptors for the dataframe.
     """
     logger.info("Computing descriptors...")
-    
+
     # Apply calculations
     df['radius_mismatch'] = df['composition'].apply(calculate_radius_mismatch)
     df['electronegativity_diff'] = df['composition'].apply(calculate_electronegativity_difference)
     df['VEC'] = df['composition'].apply(calculate_vec)
-    
+
     # Diagnostic: weighted mean radius (for logging only, not model)
     logger.info("Calculating weighted mean radius for diagnostic...")
     weighted_radii = df['composition'].apply(lambda x: calculate_weighted_mean_radius(x, logger))
     avg_weighted_radius = weighted_radii.dropna().mean()
-    
+
     if not np.isnan(avg_weighted_radius):
-        logger.info(f"Average weighted mean radius: {avg_weighted_radius:.4f} Angstrom")
+        logger.info(f"Average weighted mean radius: {avg_weighted_radius:.4f} Å")
     else:
         logger.warning("Could not calculate average weighted mean radius.")
-    
+
     return df, avg_weighted_radius
 
 def save_diagnostic_log(avg_radius: float, project_root: Path):
@@ -209,7 +208,7 @@ def save_diagnostic_log(avg_radius: float, project_root: Path):
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, 'w') as f:
         json.dump(diag, f, indent=2)
-    
+
     # Archive to artifacts
     archive_path = project_root / "artifacts" / "reports" / "diagnostic_log.json"
     archive_path.parent.mkdir(parents=True, exist_ok=True)
@@ -219,10 +218,10 @@ def save_diagnostic_log(avg_radius: float, project_root: Path):
 
 def save_descriptors(df: pd.DataFrame, project_root: Path):
     """Save computed descriptors to CSV, dropping diagnostic-only columns."""
-    # Drop 'weighted_mean_radius' if it exists in the df (it shouldn't, but be safe)
+    # Ensure diagnostic column is not persisted
     if 'weighted_mean_radius' in df.columns:
         df = df.drop(columns=['weighted_mean_radius'])
-    
+
     output_path = project_root / "data" / "processed" / "descriptors.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
@@ -233,17 +232,17 @@ def run_descriptors():
     """Main descriptors pipeline."""
     logger = setup_logging()
     project_root = get_project_root()
-    
+
     input_path = project_root / "data" / "processed" / "cleaned_mg.csv"
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
+
     df = pd.read_csv(input_path)
     df, avg_radius = compute_descriptors(df, logger)
-    
+
     save_descriptors(df, project_root)
     save_diagnostic_log(avg_radius, project_root)
-    
+
     logger.info("Descriptors pipeline complete.")
 
 def main():
