@@ -1,110 +1,106 @@
-# Tasks: Predicting Molecular Properties from Topological Data Analysis
+# Tasks: Predicting Molecular Properties from Topological Data Analysis  
 
-**Inputs**: Active `spec.md`, `plan.md`, and contracts under `specs/001-predicting-molecular-properties-from-top/`. Paths are relative to the project directory (`projects/PROJ-444-predicting-molecular-properties-from-top/` unless under `specs/`).
+**Inputs**: Active `spec.md`, `plan.md`, original research idea, existing artifacts, and any reviewer feedback.  
 
-**Revision context**: Prior verification rejected T007, T008a, T008b, T008c (truncated scripts, absent artifacts). This re‑plan consolidates the ingestion work into small, individually verifiable steps, each producing a real file with checkable schema/content. Research scripts must NOT write to `state/` (platform‑owned); checksums are recorded only in `data/checksums.txt`.
+The goal is to deliver a complete, reproducible study that satisfies every functional requirement (FR‑001…FR‑009) and success‑criterion (SC‑001…SC‑005) from the specification while respecting the platform’s constraints (CPU‑only, real data, no synthetic fall‑backs). Tasks are ordered to respect data flow; later tasks depend on the outputs of earlier ones.
 
-## New foundational tasks
+---
 
-- [ ] T000 [P] **Create pinned requirements and select PH library** — Write `code/requirements.txt` with exact version pins for all dependencies, including `gudhi==3.7.0` (selected as the deterministic PH library). Verify that `pip install -r code/requirements.txt` succeeds on a fresh runner.  
-  **Verification**: `pip check` passes; `requirements.txt` contains no version ranges.
+- [ ] **T001** **[ ]** *Data ingestion, provenance, and split creation*  
+  - Download the ESOL dataset (default URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`) in `code/01_data_ingestion.py` with a `--url` argument.  
+  - Verify that the CSV contains **exactly** the columns `smiles` and `logP` (conforms to `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`).  
+  - Compute and append the SHA‑256 checksum of `data/raw/esol.csv` to `data/checksums.txt`.  
+  - Perform a priori power analysis (paired‑t, α = 0.05, power = 0.8, effect size d = 0.5) and write `data/processed/power_analysis_report.json` with keys `min_n`, `actual_n`, `passes`.  
+  - **Exclude** molecules with molecular weight > 1000 Da, log each excluded SMILES to `data/logs/large_molecule_exclusions.log`, and process the remaining records using a chunked sparse‑matrix fallback (no exclusion of remaining data).  
+  - Count unique Bemis‑Murcko scaffolds; abort with `SystemExit(1)` if < 100, otherwise write `data/processed/scaffold_counts.json`.  
+  - Generate a scaffold‑based 5‑fold split (seed 42) and store indices in `data/processed/splits.json`.  
+  - Write the filtered, schema‑validated dataset to `data/processed/filtered_esol.csv`.  
+  - **Verification**:  
+    1. `cat data/checksums.txt` contains a line matching the file’s hash.  
+    2. `jq . passes data/processed/power_analysis_report.json` returns `true`.  
+    3. `python -c "import pandas as pd; df=pd.read_csv('data/processed/filtered_esol.csv'); assert df.shape[0] >= 128"` succeeds.  
+    4. A quick script confirms scaffold exclusivity across the five folds.  
+    5. `grep -v '' data/logs/large_molecule_exclusions.log` is non‑empty only if exclusions occurred.
 
-- [ ] T000a [P] **Document PH library choice** — Add a short comment in `code/requirements.txt` explaining why GUDHI was chosen over alternatives to ensure reproducibility.
+- [ ] **T014** **[ ]** *Dataset schema contract test*  
+  - Add `code/tests/test_dataset_schema.py` that loads `data/raw/esol.csv` and validates it against `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`.  
+  - **Verification**: `pytest code/tests/test_dataset_schema.py` passes.
 
-## Phase 1: Setup and first end‑to‑end analysis (split into fine‑grained steps)
+- [ ] **T002** **[US1]** *Baseline TDA feature computation (10 × 10 persistence images)*  
+  - Read `data/processed/filtered_esol.csv`.  
+  - For each SMILES, build a molecular graph with RDKit, apply the **shortest‑path distance filtration** (FR‑001) via `code/utils/persistence_utils.py`.  
+  - Vectorise each persistence diagram to a **10 × 10 persistence image** (σ = 0.1) – the baseline required by FR‑002.  
+  - Write `data/processed/persistence_images_10x10.csv` (columns: `molecule_id` + 100 float features).  
+  - Log any invalid SMILES to `data/logs/invalid_smiles.log`.  
+  - Gracefully handle empty diagrams (write a zero‑vector).  
+  - **Verification**:  
+    1. The CSV contains no `NaN` values (`pandas.isnull().any().any()` is `False`).  
+    2. The file has the same number of rows as `filtered_esol.csv`.  
 
-- [ ] T001a [P] **Download ESOL dataset (URL argument)** — Implement `code/01_data_ingestion.py` with a `--url` CLI argument (default `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`). On any fetch failure, raise `SystemExit(1)` with message `"Data Gap: fetch failed. No synthetic fallback."`.  
-  **Verification**: Running with `--url [UNRESOLVED-CLAIM: https://invalid.url` — ConnectionError: HTTPSConnectionPool(host='invalid.url%60', port=443): Max retries exceeded with url: / (Caused by NameResolutionError("HTTPSConnection(host='invalid.url%60', port=443): Failed to resolve 'invalid.url%60' ([Errno -2] Name or service not known)"))] exits 1 and creates no data files.
+- [ ] **T003** **[P]** *Feature‑matrix contract test*  
+  - Add `code/tests/test_feature_matrix.py` that loads `persistence_images_10x10.csv` and validates it against `specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml`.  
+  - **Verification**: `pytest code/tests/test_feature_matrix.py` passes.
 
-- [ ] T001b [P] **Record SHA256 checksum** — After successful download, compute SHA256 of `data/raw/esol.csv` and append `<sha256>  data/raw/esol.csv` to `data/checksums.txt`. **No state‑file hash is recorded** per platform rule.  
-  **Verification**: `data/checksums.txt` contains a line matching the file’s hash.
+- [ ] **T004** **[US1]** *Traditional descriptors & combined feature matrix*  
+  - Compute RDKit‑based traditional descriptors (molecular weight, atom counts, 1024‑bit Morgan fingerprint) and write `data/processed/traditional_descriptors.csv`.  
+  - Merge the traditional matrix with `persistence_images_10x10.csv` on `molecule_id` → `data/processed/combined_features.csv`.  
+  - Ensure no missing values across the merged table.  
+  - **Verification**: Row counts of all three CSVs match; `pandas.isnull().sum().sum()` is `0`.
 
-- [ ] T001c [P] **Power analysis report** — Perform a priori power analysis (paired t‑test, α=0.05, power=0.8, effect size d=0.5, minimum N=128). Write `data/processed/power_analysis_report.json` with keys `min_n`, `actual_n`, `passes`.  
-  **Verification**: JSON file exists; `passes` is `true` for ESOL.
+- [ ] **T005** **[US2]** *Baseline model training and evaluation*  
+  - Load `data/processed/splits.json`.  
+  - Train **Ridge Regression (α = 1.0)** and **Random Forest (100 trees, max_depth = 10, seed = 42)** on three feature sets: `traditional`, `topological`, `combined`. Use 5‑fold **scaffold‑based CV** (FR‑004) and seed 42 (FR‑004).  
+  - Enforce CPU‑only execution (detect CUDA; abort if present – FR‑008).  
+  - Write results to `reports/metrics/model_performance.json` conforming to `model_metrics.schema.yaml` (includes per‑fold R², RMSE, mean values, and feature‑importance arrays).  
+  - Log the training run (seed, split details) to `data/logs/training.log`.  
+  - **Verification**: `pytest code/tests/test_metrics_schema.py` (see T006) passes; the JSON contains three top‑level keys (`traditional`, `topological`, `combined`) each with the required sub‑fields.
 
-- [ ] T001d [P] **Chunked handling of large molecules** — Instead of dropping molecules with molecular weight >1000 Da, process them using the sparse‑matrix fallback from `code/utils/persistence_utils.py` (T015b) in chunked mode to keep RAM usage ≤6 GB. Log any fallback usage in `data/logs/large_molecule_handling.log`.  
-  **Verification**: Log file records any large‑molecule processing; no molecules are excluded solely by weight.
+- [ ] **T006** **[P]** *Model‑metrics contract test*  
+  - Add `code/tests/test_metrics_schema.py` that validates `reports/metrics/model_performance.json` against `specs/001-predicting-molecular-properties-from-top/contracts/model_metrics.schema.yaml`.  
+  - **Verification**: `pytest code/tests/test_metrics_schema.py` passes.
 
-- [ ] T001e [P] **Scaffold count and validation** — Count unique Bemis‑Murcko scaffolds on the full (post‑chunked) dataset. If count < 100, exit `SystemExit(1)` with `"Scaffold Insufficient: <count> < 100"`. Write `data/processed/scaffold_counts.json`.  
-  **Verification**: JSON file exists; script exits with non‑zero status when scaffold count is insufficient.
+- [ ] **T007** **[US3]** *Sensitivity‑sweep of vectorisation resolution*  
+  - Extend `code/02_tda_computation.py` with a `--grid` CLI argument to also generate **20 × 20** and **30 × 30** persistence‑image CSVs (`persistence_images_20x20.csv`, `persistence_images_30x30.csv`).  
+  - Retrain the same models (Ridge & RF, three feature sets) on each resolution using the same splits.  
+  - Collate mean R² for each resolution into `reports/metrics/sensitivity_analysis.json` (fields: `grid_size`, `r2_mean`, `r2_std`).  
+  - **Verification**: JSON contains three entries (10, 20, 30) and the values are numeric.
 
-- [ ] T001f [P] **Scaffold‑based 5‑fold split** — Generate `data/processed/splits.json` containing five lists of row indices such that no scaffold appears in more than one fold, using seed 42.  
-  **Verification**: Splits file exists; a quick script confirms scaffold exclusivity.
+- [ ] **T013** **[P]** *Specification amendment – scope reduction to logP*  
+  - Create `specs/001-predicting-molecular-properties-from-top/spec_amendment_scope_reduction.md` documenting the decision to limit the study to the single property **logP** from ESOL (resource and power‑analysis justification).  
+  - Update the main `spec.md` to reflect the logP‑only scope and modify FR‑005/SC‑003 references to indicate **N = 1** hypothesis test.  
+  - **Verification**:  
+    1. The amendment file exists.  
+    2. A script (`code/tests/test_spec_update.py`) asserts that `spec.md` contains the phrase “logP only” and that FR‑005/SC‑003 mention “N = 1”.  
+    3. The script exits with status 0.
 
-- [ ] T002 [US1] **TDA feature computation (primary 10×10 baseline)** — Reads `data/processed/filtered_esol.csv` (output of T001d), builds graphs via `code/utils/graph_builder.py`, computes persistent homology with shortest‑path distance filtration (FR‑001) via `code/utils/persistence_utils.py`, and vectorises to persistence images with a fixed 10×10 grid, σ=0.1 (FR‑002). Logs invalid SMILES to `data/logs/invalid_smiles.log` and writes `data/processed/persistence_images_10x10.csv` (molecule_id + 100 float columns, no NaNs).  
-  **Verification**: `code/tests/test_feature_matrix.py` (added in T002a) validates schema and NaN‑free rows; disconnected and linear molecules are handled without crash.
+- [ ] **T008** **[US3]** *Statistical comparison & Bonferroni correction*  
+  - Using per‑fold R² from `model_performance.json`, perform paired **t‑tests** (or Wilcoxon if non‑normal) comparing **combined** vs **traditional** models.  
+  - Apply **Bonferroni** correction (recorded in `reports/metrics/diagnostics_bonferroni.json`) to the p‑values as mandated by FR‑005.  
+  - Compute the empirical **family‑wise error rate** (FWER) from the corrected p‑values and write `reports/metrics/fwer_report.json` (`alpha`, `rejections`, `fwer_bound`).  
+  - Insert the Bonferroni‑adjusted p‑value field `bonferroni_adjusted_p` into `model_performance.json`.  
+  - **Verification**: Both diagnostics JSON files exist; a unit test (`code/tests/test_correction.py`) confirms the Bonferroni logic; `model_performance.json` now contains the new field.
 
-- [ ] T002a [P] **Create feature‑matrix contract test** — Add `code/tests/test_feature_matrix.py` that loads `persistence_images_10x10.csv` and checks conformity to `feature_matrix.schema.yaml`.  
-  **Verification**: `pytest code/tests/test_feature_matrix.py` passes.
+- [ ] **T009** **[US3]** *Collinearity and redundancy diagnostics*  
+  - Compute **Variance Inflation Factor (VIF)** for every predictor in `combined_features.csv` (using `statsmodels`). Flag any with VIF > 5 and write `reports/diagnostics/vif_report.json` (list of flagged predictors and their VIF values).  
+  - Compute **mutual information** between the traditional descriptor set and the topological feature set (`sklearn.feature_selection.mutual_info_regression`) and write summary statistics to `reports/diagnostics/mi_report.json`.  
+  - **Verification**: Both JSON files are present; the VIF report includes a non‑empty `flagged` array if any predictor exceeds the threshold.
 
-- [ ] T003 [US1] **Traditional descriptors & combined matrix** — Compute RDKit traditional descriptors (MW, atom counts, Morgan fingerprint bits) to `data/processed/traditional_descriptors.csv`; merge with `persistence_images_10x10.csv` on `molecule_id` to produce `data/processed/combined_features.csv`.  
-  **Verification**: Row counts match filtered dataset; column union present; no NaNs.
+- [ ] **T015** **[US3]** *Redundancy significance threshold*  
+  - Parse `reports/diagnostics/mi_report.json` and assert that the reported mutual information between traditional and topological feature sets exceeds **0.1** (non‑trivial redundancy).  
+  - If the threshold is not met, fail the pipeline with a clear error message.  
+  - **Verification**: The task exits with status 0 only when MI > 0.1; otherwise `pytest code/tests/test_mi_threshold.py` fails.
 
-- [ ] T004 [US2] **First end‑to‑end model run (thin slice)** — Load `splits.json`, train Ridge (α=1.0) and Random Forest (100 trees, max_depth=10, seed 42) on three feature sets (traditional, topological, combined) targeting `logP` with 5‑fold scaffold CV (FR‑003, FR‑004). Write per‑fold and mean R²/RMSE plus feature importances to `reports/metrics/model_performance.json` (conforms to `model_metrics.schema.yaml`). Log seed and splitter to `data/logs/training.log`; enforce CPU‑only via runtime GPU detection (FR‑008).  
-  **Verification**: `code/tests/test_metrics_schema.py` (added in T004a) validates the JSON; three model configurations × two learners present with real scores.
+- [ ] **T010** **[ ]** *Resource‑monitor wrapper*  
+  - Run the **entire pipeline** (tasks T001–T009) under `code/07_resource_monitor.py`. Record peak RAM usage and total CPU time in `reports/metrics/resource_usage.json`.  
+  - Ensure RAM < 6.3 GB and total runtime < 5.4 h (SC‑004).  
+  - **Verification**: JSON fields `peak_ram_gb` and `cpu_hours` satisfy the limits.
 
-- [ ] T004a [P] **Create metrics‑schema contract test** — Add `code/tests/test_metrics_schema.py` that validates `model_performance.json` against `model_metrics.schema.yaml`.  
-  **Verification**: `pytest code/tests/test_metrics_schema.py` passes.
+- [ ] **T011** **[US3]** *Figures, tables, and summary artefacts*  
+  - Generate visualisations: (a) example Betti curves & persistence images, (b) per‑fold R²/RMSE boxplots for each model, (c) sensitivity‑sweep performance curve. Save PNGs under `reports/figures/`.  
+  - Produce a consolidated CSV summary `reports/metrics/summary_table.csv` that joins model performance, corrected p‑values, VIF flags, and mutual‑information values.  
+  - **Verification**: All figure files exist; the CSV can be read without error and contains the expected columns.
 
-## Phase 2: Complete the study and validate its evidence
-
-- [ ] T005r [US1] **Sensitivity‑sweep vectorisations** — Extend `code/02_tda_computation.py` with a `--grid` argument to also generate `persistence_images_20x20.csv` (400 columns) and `persistence_images_30x30.csv` (900 columns) using σ=0.1.  
-  **Verification**: Files exist, molecule IDs align, no NaNs.
-
-- [ ] T006r [US3] **Sensitivity analysis execution** — `code/05_sensitivity_analysis.py` retrains models on the 20×20 and 30×30 topological sets using the same splits, reports R² across resolutions {10,20,30} and coefficient of variation in `reports/metrics/sensitivity_analysis.json`.  
-  **Verification**: JSON contains real metrics; CV computed from distinct runs.
-
-- [ ] T007r [US3] **Statistical comparison (Holm‑Bonferroni)** — Perform paired t‑tests (or Wilcoxon) on per‑fold R² between combined vs. traditional models, apply Holm‑Bonferroni correction, write corrected p‑values and methodology block to `reports/metrics/diagnostics_holm.json`.  
-  **Verification**: `code/tests/test_correction.py` validates Holm implementation.
-
-- [ ] T007c [US3] **Statistical comparison (plain Bonferroni)** — Duplicate the above comparison using the plain Bonferroni correction as mandated by FR‑005, write results to `reports/metrics/diagnostics_bonferroni.json` and document the deviation in the methodology section.  
-  **Verification**: Both correction files exist; unit test ensures Bonferroni logic.
-
-- [ ] T007s [US3] **Family‑wise error rate measurement** — Using the corrected p‑values from T007r/T007c, count the number of hypotheses rejected at α=0.05, compute the empirical FWER bound, and write a summary to `reports/metrics/fwer_report.json` with fields `alpha`, `rejections`, `fwer_bound`.  
-  **Verification**: JSON present; values derived from actual p‑values.
-
-- [ ] T008vif [US3] **VIF diagnostics** — Compute Variance Inflation Factor on `combined_features.csv` via `statsmodels`, flag predictors with VIF > 5, and write `reports/diagnostics/vif_report.json`.  
-  **Verification**: JSON contains VIF for each predictor and a list of flagged ones.
-
-- [ ] T008mi [US3] **Mutual information diagnostics** — Compute mutual information between traditional and topological feature sets via `sklearn.feature_selection.mutual_info_regression`, write summary statistics to `reports/diagnostics/mi_report.json`.  
-  **Verification**: JSON includes MI value and interpretation note.
-
-- [ ] T008bonf [US3] **Bonferroni‑adjusted p‑value field** — Add the field `bonferroni_adjusted_p` to `reports/metrics/model_performance.json` (as required by the data model) using the values from T007c.  
-  **Verification**: JSON schema now includes the new field.
-
-- [ ] T009c [P] **Unit tests for core utilities** — Add `code/tests/test_graph_builder.py` and `code/tests/test_persistence_utils.py` covering valid, disconnected, and invalid SMILES, and empty diagram handling.  
-  **Verification**: `pytest code/tests/` passes.
-
-- [ ] T009r [P] **Resource‑monitor wrapper** — Run the full pipeline under `code/07_resource_monitor.py`, record peak RAM and CPU time in `reports/metrics/resource_usage.json`, ensuring < 6.3 GB RAM and < 5.4 h runtime (SC‑004).  
-  **Verification**: Resource JSON present; values within limits.
-
-- [ ] T010r [US1/US2/US3] **Result tables and figures** — Generate figures (Betti curves, persistence‑image examples, per‑fold R²/RMSE plots, sensitivity sweep plot) under `reports/figures/`; create `reports/metrics/summary_table.csv` joining model performance, corrected p‑values, VIF flags, and MI.  
-  **Verification**: All files exist; scripts read only previously generated artifacts.
-
-- [ ] T011r **Methods/results quickstart documentation** — Update `specs/001-predicting-molecular-properties-from-top/quickstart.md` with the exact command sequence, fixed seed 42, and references to all generated artifacts. Remove the [P] tag (now a regular documentation task) and note that it must run after T010r for content completeness.  
-  **Verification**: Quickstart file exists; all referenced paths are valid.
-
-- [ ] T012r **Full re‑run and paper‑stage handoff** — Re‑run the documented workflow from raw data checksum‑verified state, confirm all tests pass, and write the handoff section in `quickstart.md` naming the exact result files the paper stage must consume.  
-  **Verification**: Fresh run exits 0; `pytest` passes; handoff section present.
-
-- [ ] T013r [P] **Spec amendment for scope reduction** — Create `specs/001-predicting-molecular-properties-from-top/spec_amendment_scope_reduction.md` documenting the decision to limit the study to the single property `logP` from ESOL, citing resource constraints and power‑analysis outcome, and updating FR‑005/SC‑003 references to N = 1.  
-  **Verification**: Amendment file exists; downstream reviewer confirms spec updated.
-
-## Dependencies and requirement coverage (updated)
-
-| Requirement | Task(s) | Demonstrating command |
-|---|---|---|
-| FR-001 (shortest‑path PH) | T002 | `python code/02_tda_computation.py` |
-| FR-002 (10×10 baseline) | T002 | contract test on `persistence_images_10x10.csv` |
-| FR-003/FR-004 (models, scaffold CV, seed 42) | T004 | `python code/04_model_training.py`; `pytest code/tests/test_metrics_schema.py` |
-| FR-005 (Bonferroni) | T007c | `reports/metrics/diagnostics_bonferroni.json` |
-| FR-006 (resolution sweep) | T005r, T006r | `reports/metrics/sensitivity_analysis.json` |
-| FR-007 (VIF) | T008vif | `reports/diagnostics/vif_report.json` |
-| FR-008 (CPU‑only) | T004, T009r | GPU check in training entry; resource run |
-| FR-009 (mutual information) | T008mi | `reports/diagnostics/mi_report.json` |
-| SC‑001–SC‑005 | T004, T006r, T007s, T008vif, T009r | respective JSON artifacts |
-| Checksum verification (data/checksums.txt) | T001b | `cat data/checksums.txt` |
-| Spec amendment for scope reduction | T013r | Presence of `spec_amendment_scope_reduction.md` |
-| (others as in original table) |  |  |
-
-Execution order (updated): T000 → T000a → T001a → T001b → T001c → T001d → T001e → T001f → T002 → T002a → T003 → T004 → T004a → T005r → {T006r, T007r, T007c, T007s, T008vif, T008mi, T008bonf} → T009c → T009r → T010r → T011r → T012r → T013r.
+- [ ] **T012** **[P]** *Quickstart documentation & paper‑stage handoff*  
+  - Update `specs/001-predicting-molecular-properties-from-top/quickstart.md` with the exact command sequence (including the resource‑monitor wrapper), fixed seed 42, and clear references to every generated artefact (CSV, JSON, PNG).  
+  - Add a **“Paper‑stage handoff”** section that lists the artefacts the downstream writing pipeline must consume (`model_performance.json`, `summary_table.csv`, key figures, diagnostics JSONs).  
+  - **Verification**: The quickstart file renders without broken links; a dry‑run (`bash quickstart.sh`) reproduces the full pipeline from raw data to final artefacts with exit code 0.

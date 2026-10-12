@@ -1,3 +1,61 @@
+T001:
+  c: true
+  h: 71ee9581a9c79db98044a1364b336760d76bc390eea7f090661954f4e8e0bb9d
+  r: 'The two required files exist and are non-empty with appropriate content: `requirements.txt`
+    lists plausible dependencies and `README.md` documents the project structure.
+    The eight required directories (`data/raw`, `data/processed`, `data/interim`,
+    `data/artifacts`, `src`, `tests`, `artifacts/models`, `artifacts/plots`) are described
+    in the README and the collector confirmed the project root layout; directory creation
+    is the substance of this scaffolding task and no code/behavior was required.'
+  sig: f367d40a2fc2b59082b2095a58a1b0d7f1f3fd926f8ebfd8555719fe91ab2fbb
+T002:
+  c: false
+  h: da8854bb5f096c3df327a1558ddb64b04f3b79c9196e3682f544fcc48fe28ac8
+  r: The `requirements.txt` exists and lists all 18 required packages plus optional
+    `hdi`/`prody` in comments, but the task explicitly requires **pinned versions**
+    and none are pinned (bare package names, no `==` constraints). Additionally, `torch`
+    and `fair-esm` were added without being requested, and the optional dependencies
+    are not marked with the required notes (CPU-compatibility check for `hdi`, "prody
+    NOT authorized" for SASA). Fix by pinning every required package to a specific
+    version and annotating the optional entries per the task's instructions.
+  sig: cd59b315378404ebc3b1c5d2698a172fff19e667fe3ca4f172a9db3043f01f7f
+T002b:
+  c: false
+  h: dd69a5b5db07d2c8a3937c7d270af0e99894edf4f59d9fbdd54e6d0f8c970a39
+  r: "The file `docs/spec_amendments.md` exists and is non-empty, but it lacks the\
+    \ required section titled \"Protein Stability Proxy Override\" and does not contain\
+    \ the mandated verbatim text, including the \"[UNRESOLVED-CLAIM: c_5546905e \u2014\
+    \ status=not_enough_info]\" marker and the \"single source of truth\" statement.\
+    \ The implementer instead wrote a differently structured \"Amendment 1\" that\
+    \ paraphrases the override without the required exact wording."
+  sig: 486e0e837f27b88c24c125894da1b889b5a6770cf9b826238b3aabf2877be5f0
+T003:
+  c: true
+  h: aa30c651176a79a7b1ae56c3c6c33e1b58e6e5aaa9b3caefd1e5f99f58114421
+  r: Both `setup.cfg` and `pyproject.toml` exist at the project root with real, non-stub
+    flake8 and black configuration (line lengths, ignores, excludes, target versions),
+    covering the `src/` codebase. The two files have inconsistent line-length settings
+    (120 vs 88) and duplicate black/flake8 sections, which is a minor quality concern
+    but still satisfies the task's requirement to configure linting and formatting
+    tools.
+  sig: b55885bd3abf99356028e405a0d61845a5dd580ecafe1d5fc08b628f2f5c16d4
+T004:
+  c: false
+  h: 1fa602c3238dc56cc9b47e10de8c43966edeb9300fa063bb7d938c602d4e7bf3
+  r: '`src/config.py` exists and defines most constants correctly (paths, SEED=42,
+    MAX_RUNTIME_HOURS=4, GEO_BASE_URL), but `NCBI_BASE_URL` is set to `''https://www.ncbi.nlm.nih.gov/nuccore''`
+    (via `os.getenv` default) instead of the required empty string `''''`. Fix: set
+    `NCBI_BASE_URL = ''''` (or default the env lookup to `''''`).'
+  sig: c0479774fbf2700988b3c620900cb2cd2a62d35bd83fc40fa50d5d1c9fe010b8
+T005:
+  c: true
+  h: c37eea621bc0cad115a8d5de51da4b1de56bc905304868238d6d753cae053e3f
+  r: '`src/download.py` exists (3182 bytes) and contains `fetch_viral_genomes(accessions:
+    list) -> list` and `fetch_geo_data(accessions: list) -> dict` both raising `NotImplementedError`
+    as stubs, plus a `main()` that logs "Download skeleton initialized" (with a `__main__`
+    guard). The extra manifest helpers and the `src.config` import go beyond the minimal
+    task but don''t conflict with its requirements.'
+  sig: 152ddde8ac7040d41b0caedd90de4e900b4407af04f58ffb69d4159bb698858a
 T011a:
   c: false
   h: c293167d91dc6e0c5dca7402716841740799ac422d2e1767b40cb1f67b8ba36a
@@ -6,14 +64,6 @@ T011a:
     \ actual `data/manifest.json` file is missing, so the test cannot verify that\
     \ the pipeline produces the required manifest with checksums. The task\u2019s\
     \ core requirement is not met."
-T012c#1:
-  c: false
-  h: abe7e8b8db3ae16fe7b85bc4bb6fe3d3d1b35bf376a8d212f038491a941d6d47
-  r: "The repository lacks a `generate_manifest(accessions: list, geo_accessions:\
-    \ list) -> None` function and does not contain the required unified `data/manifest.json`\
-    \ file; the only manifest\u2011related code creates separate template or versioned\
-    \ files and raises NotImplementedError for the core download logic. Consequently\
-    \ the task\u2019s specification is not met."
 T017:
   c: false
   h: 7831e9417d8ba4bef374b0992595d1dff6ccb7385d24338cf7cae416f59ac68c

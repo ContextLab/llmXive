@@ -1,0 +1,156 @@
+T001:
+  task: 8625a196a2cb1dd44e7571f3e86f8fb30a84d596cd2ecab8d764045348690fe0
+T002:
+  reason: The `requirements.txt` exists and lists all 18 required packages plus optional
+    `hdi`/`prody` in comments, but the task explicitly requires **pinned versions**
+    and none are pinned (bare package names, no `==` constraints). Additionally, `torch`
+    and `fair-esm` were added without being requested, and the optional dependencies
+    are not marked with the required notes (CPU-compatibility check for `hdi`, "prody
+    NOT authorized" for SASA). Fix by pinning every required package to a specific
+    version and annotating the optional entries per the task's instructions.
+  task: 1fd407ecb192c8378f477d81fd3ddbbcd71cae2af940673cdf39b0e87749441b
+T002b:
+  reason: "The file `docs/spec_amendments.md` exists and is non-empty, but it lacks\
+    \ the required section titled \"Protein Stability Proxy Override\" and does not\
+    \ contain the mandated verbatim text, including the \"[UNRESOLVED-CLAIM: c_5546905e\
+    \ \u2014 status=not_enough_info]\" marker and the \"single source of truth\" statement.\
+    \ The implementer instead wrote a differently structured \"Amendment 1\" that\
+    \ paraphrases the override without the required exact wording."
+  task: bc4650e2292b04ba15a36459b8a6e9558e0ccf9d90a549399cb172ac2fe10928
+T002b-ratify:
+  task: 27eaf0e0dcce764f4f02cd77a27c638b09053cee11c3135642b0dfad26f4edd5
+T002b-verify:
+  task: ce1e96d784f5c1f831c797d6c3322d75df3fadf4aa6cf7bfa89619c9c627c942
+T002c:
+  task: 1ddb981051b3c4f744b4614a5cf1a75f4271783f5ed9eae05b200ff0897445ed
+T002d:
+  task: 38c672492bcdd918f8c897dbd9abda8372a62505539b1818a1dd7410cad95388
+T002d-ratify:
+  task: 376e97def13209513ef6f9b30f59093a1eee2a836921aaf6108bd36f179ef88a
+T002e:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/research.md'
+  task: 64e5f1704601f95461787089d919e0936bfba2caa4f7dac5f3d47a2b32a6d628
+T003:
+  task: d133d5b135e4f3c695c08044f19ea6fe42abe840a1a01f5c7ed9f9d6639cb790
+T004:
+  reason: '`src/config.py` exists and defines most constants correctly (paths, SEED=42,
+    MAX_RUNTIME_HOURS=4, GEO_BASE_URL), but `NCBI_BASE_URL` is set to `''https://www.ncbi.nlm.nih.gov/nuccore''`
+    (via `os.getenv` default) instead of the required empty string `''''`. Fix: set
+    `NCBI_BASE_URL = ''''` (or default the env lookup to `''''`).'
+  task: 914b32756e5a5ef306165b72c66db4b986584414dd17915d9b01c44125194afa
+T005:
+  task: fb595cda058199250a368bb836aea083327c0d4b2f093522b169396672a773ca
+T006a:
+  task: 09d610376542c1fcc51d6664a86892a093a5bacc2b2fa0a6cb27f255db5a17b1
+T007:
+  task: bf0fc0d99b9e3e466601723123333fcbd8842733f17d741fec51b0f2001bcfaa
+T008:
+  task: a4f930232694f759b47e4a4d9ad1358ec36c65ec08b7a8ae95650f1103acb195
+T009:
+  task: 6cc2baaa1dcee881a23a8036d385094a8c80642d56ff361fb1acecd78a30d1a4
+T010:
+  task: 5b77fd899a0d88e2b4ba1a148857787347adb92bb2de9a552df75c40c5571e96
+T011a:
+  task: efae0f7b47ebe0d4a11e02296e6af17726b097e133ef0a6e6f507ab4c07bbde1
+T011b:
+  task: e3387c7b0ce8c9f0c41f7a490f54107335ce32d6a24c9c6c8289a1671db3995b
+T012a:
+  task: 09af4c79d979b80de6a2b60e2ce7bce9234caa03c6e33b7e588de38447c8ab8e
+T012b:
+  task: 35f401a6d90a9928b8701af678c4aff2298f2e70931beeb2a4fd6660cfc249b7
+T012c:
+  task: 5e20b5988ab9fd816e7b6276e1b9a03fa751d61fe26e500d71b2b338ba4d13da
+T012c-version-check:
+  task: da718564e153d138ec78ad334048151dbdb5b917dc958680d4651a5b62bdbbb6
+T014:
+  task: 14faf7ec0d72117a7b24874892d86408728352ce13a5d6f8e36f4f274fbe7d10
+T015a:
+  task: 64f5cc20e72f4d80049039bc3680e04a13358c6ecde0042ad0a76476076a5a29
+T015b:
+  task: adbebfb2b04f8f16a1b3b8dbd25d05407e987edbc0ac38d6e3eaa5455befbd71
+T015c:
+  task: 86bb0bda4974ddc401d2b014868196b93cb5beb77cfa1cbbd24effd315cf8275
+T017:
+  task: a84466918d0a16ae084df5094badb90fecef729c03d915556c93a93320a08281
+T018a:
+  task: acc660bc538e34c92eae7852e6ead96ce1b468648d92c7270c0a7800f8f99734
+T018b:
+  task: f464855759c354e376c0850087b4a2b7be16e62d8f424d082afbe76829b97bbc
+T018c:
+  task: 66f92ef515e2fe57af869663819151308695eb7b58a875f69a363f4155ae975c
+T018c-verify:
+  task: d6f571b526eb3110fd3468747993403d9c2b582daac305fce0d3dc9ec2831d10
+T018d:
+  task: efb55dd32376126172e8684818fef5ef934206e90dc612c14c911341265bc4b9
+T020:
+  task: 8cf14bf1cc709fe7e02e76b25f228a9a50a87413a74793ff25f26069e995381c
+T020-correlation-verify:
+  task: e76c7e8ab1e561e5f664ab0181f4a7c00f962e83a4debb5ba1d2eddfe6fa5b52
+T020-esm:
+  task: dccd66a6d3566e4b3e4667e7deea0861a8d57a6024f42809ce9dd304328dd5fe
+T020-feasibility:
+  task: e89bd5a1bc93db2a1dbed33bd793c0b26dd786797377815e195a1fe38b096ebe
+T020-proxy:
+  task: 225ede62346f8d2ed960007bc8e6b6f428cb153c12d381664a6973c6eeb63218
+T021:
+  task: 5fc6b5597c3b88a25a75162fa0197085d3b462d94664ef94d819513d341bc649
+T022:
+  task: fccbb71e92ff2e17998030df661d9a8c2b1b295f89d1e87818a94d6a4c0c8ba7
+T023:
+  task: 9223a2deac0ff7fe0ca16cad806a49906e1ffa6e4c2d656b994eda56c1b3f7a5
+T024:
+  task: 15fb0def7543210f8b6476393998495fffde1e1c8d77837eb6e2c0b7189b5263
+T025:
+  task: c2abc98e5681ca1de8b16c805150499bc2df6e13d01c131e2ed265b918b06c9b
+T025a:
+  task: 94381e74f45d40c4e8130fa267d69532ab7c9c247468b8f1f61fe0254a46e0af
+T026:
+  task: 5c1e4ef114ec77e9ab813e14aa8ab24d0e2f11a8f55cc7e41dbd321edfea7052
+T026b:
+  task: becfa6d2eedfe04cccc38a9cdb44a5121e69d1126de8f205ae9ff743b0e89871
+T027:
+  task: 1f15dfeedc1a4e0d1313b58a9b617bf5e73bc5d02470ebd33edb0002c652be7a
+T027-check:
+  task: 83d017a2e2b6f300fcace26578c9363a502e84a180f684f55c33646da52adf72
+T028:
+  task: e137fdb99e039123481a57a98213ad6017c86772e7a2ed7c8aa6628686619ff7
+T030:
+  task: 9aee5714555b40bde92170f1ba2d2f0555cc4a22a9dfaeaca2030fa9ef29b1cc
+T031:
+  task: 063595ab1b7dd5ca7a3a8614b7fbfbdc2228b8d36d7ae3e45327f249f173d68f
+T032a:
+  task: 2f64db3622b561dc9bcd3abca2b02602a00c5b5fe7bcdbcf40f481a0714820ff
+T032b:
+  task: cd04499a9b58b76fbfbda1750bc01215c2f6b1e79c29f7c9799fc5d3f0693b4e
+T032b-subset-extract:
+  task: d1e412a45530e3918ceb76dcff5b59c4287bf75be02e85aca2e50a62fb81b4a7
+T032c:
+  task: 8e49542782cfba67c6eb7e0effff5666176b71a11dec241189ef880b2150e45c
+T033:
+  task: 4716f6eb4f68ae5036e932c15dc856690522b34af56c72ea24f51314de68a327
+T034:
+  task: db034da78db70ace9211baed268d3bac3ba3a39b381d251655d93a34ade05eb2
+T035:
+  task: fda610e1fe0cefdaaab1429fe8d2b6d835446cfdacf10072e9d4d04d7207e251
+T036:
+  task: e930d7859fdc598ccb12b548756d26f93e139618f43cdd0d1c407539c194ba95
+T037:
+  task: eb90e92b0f2282f9a7a31487584eaf99a73e2282aa4c52b895ab440f175af4d2
+T038:
+  task: 597dfc8f5ebb7835a373719ddb4cc5e254c3430979f9e428de2af1e2a2550533
+T039:
+  task: 5a818672f969b871d80405763ded5967a5af36dac3e40d75abf5994b25f1353a
+T040a:
+  task: a6b440a3313cd894c02df70b074eea20493ae51fed97be716571abd5b08fbec9
+T040b:
+  task: 702859a853a8f6f0e577ea5ba28228a12742cf28875c91540e3d0b743c93e58b
+T041:
+  task: 07d771e569f36e93f985e48b7e124003247e60c5b93a5759344119cf4a62c63f
+T048:
+  task: 9fc154fbe71998cf26943421f4b386d2a33419090adba6f6678377e505997250
+T049:
+  task: c9b8ea896b3bf8d91bd88f38118a82deb852bdff27b691053eec59efd498d91a
+T050:
+  task: 31fb89b7b642583b0a18bab5938f8aa30a49e1f892cf4afc294769b7c3af21c2
+T051:
+  task: 99bb125eaf78d1b9ae0cda9d3dcc25515d850464a8b840bbd039412112463b12
