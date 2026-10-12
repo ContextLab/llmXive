@@ -134,3 +134,24 @@ def test_when_every_reply_fails_the_first_is_what_stands(setup, monkeypatch) -> 
     assert (project / "code/lib.py").read_text(encoding="utf-8") == LIB
     assert "FAILED-IN-EXECUTION: tests/test_lib.py exit=1" in _line(project)
     assert (project / "code/.tasks/T003.attempt-not-kept.log").is_file()
+
+
+def test_a_retry_runs_the_project_tests_once_before_and_once_per_reply(setup, monkeypatch) -> None:
+    """Batch 5 (2026-10-12): a retry ran the whole suite 8 times, 53-70 s each."""
+    from llmxive import sandbox
+
+    ctx, project = setup
+    _attempted_before(project)
+    more = iter([OWN_RUN_FAILS, GOOD])
+    monkeypatch.setattr(router, "chat_with_fallback", lambda *a, **k: next(more))
+    real, sessions = sandbox.run_pytest_modules, []
+
+    def counted(**kwargs):
+        sessions.append(kwargs["test_relpaths"])
+        return real(**kwargs)
+    monkeypatch.setattr(sandbox, "run_pytest_modules", counted)
+    _run(ctx, BREAKS_A_TEST)
+    assert len(sessions) == 4
+    # The applied reply's script ran once: its output and its record are the ones it left.
+    assert (project / "data/note.txt").read_text(encoding="utf-8") == "from the good reply\n"
+    assert "ok=True" in (project / "code/.tasks/T003.code_note.py.log").read_text(encoding="utf-8")

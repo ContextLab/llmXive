@@ -39,8 +39,8 @@ _KEPT_NAMES = {scorecard.SCORECARD_NAME}
 #: A project larger than this is not copied; its attempts are not guarded.
 MAX_SNAPSHOT_BYTES = 500 * 1024 * 1024
 TEST_TIMEOUT_S = 300
-#: The tests run twice per attempt. A suite slower than this is not run for
-#: the guard (every recorded run in the canary took under 7 s).
+#: The tests run before and after an attempt. A suite slower than this is not
+#: run for the guard (batch 1 suites took under 7 s; batch 5 ones 53-70 s).
 MAX_GUARD_SECONDS = 120.0
 
 
@@ -266,10 +266,9 @@ class Attempt:
         path.write_text(body, encoding="utf-8")
 
 
-def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *, log_dir: str) -> Attempt | None:
-    """Measure and copy the project before an attempt, or ``None`` when there
-    is nothing to guard (paper track, no tests, no passing test, tests too
-    slow to run twice, or a project too large to copy)."""
+def measure(project_root: Path, *, log_dir: str) -> scorecard.Values | None:
+    """The outcome of every project test right now, or ``None`` when attempts
+    are not guarded (paper track, no tests, tests too slow to run twice)."""
     from llmxive import sandbox
 
     if log_dir != RESEARCH_LOG_DIR:
@@ -279,16 +278,33 @@ def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *
         return None
     with files_unchanged(project_root):
         result = sandbox.run_pytest_modules(project_dir=project_root, test_relpaths=modules, timeout_s=TEST_TIMEOUT_S)
-    before = scorecard.pytest_outcomes(result.stdout)
     if result.timed_out or result.duration_s > MAX_GUARD_SECONDS:
-        LOGGER.warning("[ratchet] %s: tests took %.0f s; attempt at %s is not guarded",
-                       project_root.name, result.duration_s, task_id)
+        LOGGER.warning("[ratchet] %s: tests took %.0f s; attempts are not guarded",
+                       project_root.name, result.duration_s)
         return None
-    if not any(value == 1 for value in before.values()):
-        return None  # nothing passes, so nothing can be broken
+    return scorecard.pytest_outcomes(result.stdout)
+
+
+def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *, log_dir: str,
+          before: scorecard.Values | str | None = "measure") -> Attempt | None:
+    """Measure and copy the project before an attempt, or ``None`` when there
+    is nothing to guard (paper track, no tests, no passing test, tests too
+    slow to run twice, or a project too large to copy).
+
+    ``before`` is what :func:`measure` returned for the project as it is now,
+    when the caller already has it: several candidate replies tried from one
+    restored state share one measurement. Batch 5 (2026-10-12): a retry ran the
+    whole suite 8 times at 53-70 s each, 86 of one run's 132 implementing
+    minutes.
+    """
+    if before == "measure":
+        before = measure(project_root, log_dir=log_dir)
+    if not isinstance(before, dict) or not any(value == 1 for value in before.values()):
+        return None  # not guarded, or nothing passes, so nothing can be broken
     snapshot = Snapshot.take(project_root)
     if snapshot is None:
         return None
-    return Attempt(project_root, task_id, memory_dir, definition, snapshot, before, modules, log_dir)
+    return Attempt(project_root, task_id, memory_dir, definition, snapshot, before,
+                   _test_modules(snapshot.files), log_dir)
 
-__all__ = ["MAX_SNAPSHOT_BYTES", "Attempt", "begin", "files_unchanged", "own_modules", "regressions"]
+__all__ = ["MAX_SNAPSHOT_BYTES", "Attempt", "begin", "files_unchanged", "measure", "own_modules", "regressions"]

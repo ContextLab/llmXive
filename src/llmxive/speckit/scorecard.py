@@ -45,19 +45,26 @@ _PYTEST_LINE = re.compile(r"^(\S+::\S+) (PASSED|FAILED|ERROR)\b", re.MULTILINE)
 
 Values = dict[str, int | None]
 
-_suspended = False
+_held: list[tuple[Path, str]] | None = None
 
 
 @contextlib.contextmanager
-def suspended() -> Iterator[None]:
+def suspended() -> Iterator[list[tuple[Path, str]]]:
     """Record nothing inside the block: a candidate that is tried and put back
-    is not part of the task's history; the one that is applied is."""
-    global _suspended
-    previous, _suspended = _suspended, True
+    is not part of the task's history; the one that is applied is. Yields the
+    rows the block would have recorded, for :func:`replay` if it is the one."""
+    global _held
+    previous, _held = _held, []
     try:
-        yield
+        yield _held
     finally:
-        _suspended = previous
+        _held = previous
+
+
+def replay(rows: list[tuple[Path, str]]) -> None:
+    """Record rows that were held back by :func:`suspended`."""
+    for memory_dir, line in rows:
+        _append(memory_dir, line)
 
 
 def scorecard_path(memory_dir: Path) -> Path:
@@ -84,12 +91,19 @@ def run_values(script: str, args: object, returncode: int, stdout: str, *, is_te
 
 def record(memory_dir: Path, task: str, source: str, values: Values, *, definition: str = "") -> None:
     """Append one observation. A measurement never fails the step it measures."""
-    if not values or _suspended:
+    if not values:
         return
     line = json.dumps({
         "at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds"),
         "task": task, "definition": definition, "source": source, "values": values,
     }, sort_keys=True)
+    if _held is not None:
+        _held.append((memory_dir, line))
+        return
+    _append(memory_dir, line)
+
+
+def _append(memory_dir: Path, line: str) -> None:
     try:
         memory_dir.mkdir(parents=True, exist_ok=True)
         with scorecard_path(memory_dir).open("a", encoding="utf-8") as stream:

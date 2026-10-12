@@ -286,18 +286,35 @@ class ImplementerAgent(SlashCommandAgent):
             return self._guarded_attempt(ctx, mechanical_output, llm_response)[0]
         candidates = [llm_response, *others]
         scores: list[tuple[bool, bool, int]] = []
+        # Every candidate starts from the same files, so the tests are measured
+        # once; and the best candidate's files and history are kept as they
+        # came out rather than produced a second time.
+        before = ratchet.measure(ctx.project_dir, log_dir=mechanical_output.get("task_log_dir", "code/.tasks"))
+        best, best_state, best_rows, written = 0, None, [], []
         try:
-            with scorecard.suspended():
-                for candidate in candidates:
-                    scores.append(self._guarded_attempt(ctx, mechanical_output, candidate)[1])
-                    snapshot.restore()
+            for index, candidate in enumerate(candidates):
+                with scorecard.suspended() as rows:
+                    paths, score = self._guarded_attempt(ctx, mechanical_output, candidate, before=before)
+                scores.append(score)
+                # Kept, then claimed complete, then most passing tests; the earliest on a tie.
+                if best_state is None or score > scores[best]:
+                    state = ratchet.Snapshot.take(ctx.project_dir)
+                    if state is not None:
+                        if best_state is not None:
+                            best_state.close()
+                        best, best_state, best_rows, written = index, state, list(rows), paths
+                snapshot.restore()
+            if best_state is not None:
+                best_state.restore()
+                scorecard.replay(best_rows)
         finally:
             snapshot.close()
-        # Kept, then claimed complete, then most passing tests; the earliest on a tie.
-        best = max(range(len(candidates)), key=lambda i: (scores[i], -i))
+            if best_state is not None:
+                best_state.close()
         print(f"[implementer] {task_id}: {len(candidates)} candidate attempts, "
-              f"(kept, claimed, passing tests) = {scores}; applying candidate {best + 1}")
-        written, _ = self._guarded_attempt(ctx, mechanical_output, candidates[best])
+              f"(kept, claimed, passing tests) = {scores}; applied candidate {best + 1}")
+        if best_state is None:  # too large to copy a second time: produce it again
+            written, _ = self._guarded_attempt(ctx, mechanical_output, candidates[0])
         from llmxive.agents.task_verifier import definition_signatures, task_verification_state_path
 
         tasks_path = Path(mechanical_output["tasks_path"])
@@ -350,6 +367,8 @@ class ImplementerAgent(SlashCommandAgent):
         ctx: SlashCommandContext,
         mechanical_output: dict[str, Any],
         llm_response: ChatResponse,
+        *,
+        before: dict[str, int] | str | None = "measure",
     ) -> tuple[list[str], tuple[bool, bool, int]]:
         """Apply one reply under the ratchet.
 
@@ -372,6 +391,7 @@ class ImplementerAgent(SlashCommandAgent):
             task_verification_state_path(ctx.project_dir, tasks_path).parent,
             definition_signatures(tasks_path.read_text(encoding="utf-8")).get(task_id, ""),
             log_dir=mechanical_output.get("task_log_dir", "code/.tasks"),
+            before=before,
         )
         written = self._write_attempt(ctx, mechanical_output, llm_response)
         if attempt is None:
