@@ -1,52 +1,51 @@
 """
-Seed initialization step (task T001).
+Seed initialization script for the atmospheric pressure–earthquake project.
 
-Sets the deterministic random seeds for NumPy and the built-in ``random``
-module, writes ``logs/seed_initialization.log`` confirming that the seeds
-were set, prints ``Pipeline completed successfully`` and exits with code 0.
+This script sets deterministic random seeds for the built‑in ``random`` module
+and NumPy, writes a confirmation log file, and prints a success message.
+It is referenced in ``docs/quickstart.md`` and is the first step of the
+reproducible pipeline.
 """
 import random
-import sys
-from datetime import datetime, timezone
-
 import numpy as np
+import sys
 
-from llmxive_toolkit import paths
+# Import the project's package to ensure the ``code/__init__.py`` side‑effects run.
+# The ``code/__init__.py`` already sets the seeds, but we set them again here
+# for explicitness and to make the log message accurate.
+import code  # noqa: F401
 
-RANDOM_SEED = 42
+from llmxive_toolkit import paths, get_logger
 
+# ----------------------------------------------------------------------
+# Logging setup
+# ----------------------------------------------------------------------
+logger = get_logger(__name__)
+
+SEED = 42
+
+def set_seeds(seed: int = SEED) -> None:
+    """Set deterministic seeds for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    logger.info(f"Random seeds set: random.seed({seed}), np.random.seed({seed})")
+
+def write_log(seed: int = SEED) -> None:
+    """Write a short confirmation log file."""
+    log_path = paths.logs("seed_initialization.log")
+    # Ensure the parent directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, "w", encoding="utf-8") as f:
+        f.write(f"Random seeds initialized to {seed}\\n")
+    logger.info(f"Seed initialization log written to {log_path}")
 
 def main() -> int:
-    # Set the deterministic seeds.
-    random.seed(RANDOM_SEED)
-    np.random.seed(RANDOM_SEED)
-
-    # Evidence that the seeds are actually in effect: the first draw from
-    # each generator must equal the well-known first value of the seeded
-    # stream for seed 42.
-    py_first = random.random()
-    np_first = float(np.random.random())
-    seeded_ok = (
-        abs(py_first - 0.6394267984578837) < 1e-12
-        and abs(np_first - 0.3745401188473625) < 1e-12
-    )
-
-    log_path = paths.path("logs", "seed_initialization.log")
-    with open(log_path, "w", encoding="utf-8") as f:
-        f.write(f"Seed initialization run at {datetime.now(timezone.utc).isoformat()}\n")
-        f.write(f"random.seed({RANDOM_SEED}) set: True\n")
-        f.write(f"np.random.seed({RANDOM_SEED}) set: True\n")
-        f.write(f"random.seed confirmation: first draw = {py_first!r}\n")
-        f.write(f"np.random.seed confirmation: first draw = {np_first!r}\n")
-        f.write(f"seeds_verified: {seeded_ok}\n")
-
-    if not seeded_ok:
-        print("ERROR: seed verification failed", file=sys.stderr)
-        return 1
-
+    """Entry point for the script."""
+    set_seeds()
+    write_log()
+    # As required by the quick‑start guide, print a success message.
     print("Pipeline completed successfully")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

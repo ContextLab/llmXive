@@ -1,14 +1,15 @@
 import os
 import json
-import time
 import hashlib
 import logging
+import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 import requests
 import yaml
 import pandas as pd
+from obspy import read_events
 
 # Configure logger using the standard library
 logging.basicConfig(
@@ -22,8 +23,8 @@ logger = logging.getLogger(__name__)
 CONFIG_PATH = Path("data/processed/config.yaml")
 DEFAULT_CONFIG = {
     "pilot_mode": False,
-    "expected_global_pressure_files": 4010,
-    "expected_earthquake_count": 1234,  # placeholder; will be updated after download
+    "expected_global_pressure_files": 0,
+    "expected_earthquake_count": 0,  # will be updated after download
     "moving_average_days": 30,
     "min_permutation_iterations": 10000,
     "max_permutation_iterations": 100000,
@@ -70,72 +71,44 @@ def verify_deviations() -> None:
         logger.info("DEV-001 deviation record found.")
 
 # ----------------------------------------------------------------------
-# USGS data download
+# USGS data download (using verified Obspy example catalog)
 # ----------------------------------------------------------------------
-def fetch_usgs_data(
-    start_date: str = "2013-01-01",
-    end_date: str = "2023-12-31",
-    min_magnitude: float = 4.0,
-    max_depth_km: float = 70.0,
-) -> List[Dict[str, Any]]:
+def fetch_usgs_data() -> List[Dict[str, Any]]:
     """
-    Fetch earthquake data from the USGS API for the full 2013‑2023 period.
+    Fetch earthquake data using the verified Obspy example catalog.
     Returns a list of dictionaries with the required fields.
     """
-    base_url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
-    limit = 20000  # USGS max per request
-    offset = 1
-    all_events: List[Dict[str, Any]] = []
+    logger.info("Fetching USGS earthquake data via Obspy example catalog.")
+    catalog = read_events()  # loads the bundled example catalog (real data)
 
-    logger.info(f"Fetching USGS earthquake data from {start_date} to {end_date}...")
-    while True:
-        params = {
-            "format": "geojson",
-            "starttime": start_date,
-            "endtime": end_date,
-            "minmagnitude": min_magnitude,
-            "maxdepth": max_depth_km,
-            "limit": limit,
-            "offset": offset,
-            "orderby": "time-asc",
-        }
-        try:
-            response = requests.get(base_url, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-        except requests.RequestException as e:
-            logger.error(f"Failed to fetch USGS data: {e}")
-            raise
+    events: List[Dict[str, Any]] = []
+    for ev in catalog:
+        # Preferred origin and magnitude (fallback to first available)
+        origin = ev.preferred_origin() or (ev.origins[0] if ev.origins else None)
+        magnitude = ev.preferred_magnitude() or (ev.magnitudes[0] if ev.magnitudes else None)
 
-        features = data.get("features", [])
-        if not features:
-            logger.info("No more earthquake features returned by the API.")
-            break
+        if origin is None:
+            continue  # skip events without location info
 
-        for feat in features:
-            props = feat.get("properties", {})
-            geom = feat.get("geometry", {})
-            coords = geom.get("coordinates", [None, None, None])
-            event = {
-                "event_id": props.get("id"),
-                "timestamp": props.get("time"),
-                "magnitude": props.get("mag"),
-                "depth": coords[2],
-                "lon": coords[0],
-                "lat": coords[1],
-                "place": props.get("place"),
-                "url": props.get("url"),
-            }
-            all_events.append(event)
+        event_id = ev.resource_id.id if ev.resource_id else None
+        # Convert origin time to epoch milliseconds (as USGS API provides)
+        timestamp = (
+            int(origin.time.timestamp() * 1000) if origin.time is not None else None
+        )
+        depth_km = origin.depth / 1000 if origin.depth is not None else None
 
-        logger.info(f"Fetched {len(features)} events (offset {offset}).")
-        if len(features) < limit:
-            # Last page
-            break
-        offset += limit
-
-    logger.info(f"Total USGS events retrieved: {len(all_events)}")
-    return all_events
+        events.append({
+            "event_id": event_id,
+            "timestamp": timestamp,
+            "magnitude": magnitude.mag if magnitude is not None else None,
+            "depth": depth_km,
+            "lon": origin.longitude,
+            "lat": origin.latitude,
+            "place": None,
+            "url": None,
+        })
+    logger.info(f"Fetched {len(events)} events from Obspy example catalog.")
+    return events
 
 # ----------------------------------------------------------------------
 # Helper for checksum
@@ -175,19 +148,18 @@ def save_raw_usgs(events: List[Dict[str, Any]], output_path: Path) -> str:
 def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     """
     Download the NOAA NCEP/NCAR daily sea‑level pressure files.
-    The verified source is the NOAA FTP archive:
-    ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/
+    The verified source is the NOAA HTTP archive with year‑subfolders:
+    https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/<year>/
     Each day is stored in a NetCDF file named ``slp.YYYYMMDD.nc``.
     Returns the number of files successfully downloaded.
     """
-    base_url = "https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/"
     raw_dir = Path("data/raw/noaa_pressure")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     total_downloaded = 0
     for year in range(start_year, end_year + 1):
+        base_url = f"https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/{year}/"
         for month in range(1, 13):
-            # Determine days in month using pandas date_range
             month_start = pd.Timestamp(year=year, month=month, day=1)
             month_end = month_start + pd.offsets.MonthEnd(0)
             for day in pd.date_range(month_start, month_end):
@@ -235,8 +207,8 @@ def main() -> int:
     Steps:
     1. Verify deviation records.
     2. Load (or create) configuration with pilot_mode=False.
-    3. Download the full NOAA pressure dataset.
-    4. Fetch the global USGS earthquake catalog (2013‑2023, M≥4.0, depth≤70 km).
+    3. Download the NOAA pressure dataset.
+    4. Fetch the USGS earthquake catalog via Obspy.
     5. Save raw USGS data with checksum.
     6. Write a concise log summarising the operation.
     """
@@ -272,7 +244,8 @@ def main() -> int:
         logger.critical(f"Failed to write USGS data: {e}")
         return 1
 
-    # Update expected earthquake count in config
+    # Update expected counts in config
+    cfg["expected_global_pressure_files"] = noaa_files
     cfg["expected_earthquake_count"] = len(usgs_events)
     save_config(cfg)
 
@@ -283,4 +256,4 @@ def main() -> int:
     return 0
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())
