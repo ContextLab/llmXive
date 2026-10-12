@@ -1,11 +1,11 @@
 status: none
-intent: download OC20 experimental subset Materials Project bulk descriptors 2025
-  CO2 hydrogenation study python package dataset
+intent: download OC20 dataset Materials Project bulk descriptors 2025 CO2 hydrogenation
+  experimental TOF python package dataset
 required_fields:
 - catalyst_id
 - d_band_center
 - activation_barrier
 - experimental_tof
-cache_key: 3505f497c0a0239b55392aee4d5fbe3974df59c9d1e8bb503ce866ba0ae29f9a
-searched_at: '2026-10-12T19:39:58.064819+00:00'
+cache_key: 60e369287c596eb5da1a1da3b800da43b138f253f3c6d0d0026f47ce4c2e8e93
+searched_at: '2026-10-12T20:15:45.052803+00:00'
 retry_count: 1

@@ -1,9 +1,6 @@
 T101:
-  reason: The required directories and empty `__init__.py` files exist and the integration
-    test passes, and a valid `.ruff.toml` is present, but there is no recorded execution
-    (e.g., a log or command output) showing `ruff check --config=.ruff.toml .` running
-    successfully without configuration errors. Provide evidence that the Ruff command
-    was executed and passed.
+  reason: 'Requested task execution failed; rerun successfully: code/run_ruff_check.py
+    exit=1'
   task: 3426dfb2ea6e30088cf549c74f8f72b223ec7fdb3fb8dfd1371e74d5e5562c31
 T102:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py

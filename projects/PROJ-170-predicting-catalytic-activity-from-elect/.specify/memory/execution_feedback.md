@@ -62,10 +62,10 @@ FileNotFoundError: Aligned dataset not found at /home/runner/work/llmXive/llmXiv
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/evaluate_reduced.py': [Errno 2] No such file or directory
 
 - python code/interpret.py -> rc=1
-026-10-12 19:39:39,686 INFO __main__: ================================================================================
-2026-10-12 19:39:39,686 INFO __main__: T106: SHAP Analysis and SC-003 Verification
-2026-10-12 19:39:39,686 INFO __main__: ================================================================================
-2026-10-12 19:39:39,686 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
+026-10-12 20:14:25,587 INFO __main__: ================================================================================
+2026-10-12 20:14:25,587 INFO __main__: T106: SHAP Analysis and SC-003 Verification
+2026-10-12 20:14:25,587 INFO __main__: ================================================================================
+2026-10-12 20:14:25,588 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/interpret.py", line 287, in main
     model_full = load_best_xgboost_model()
@@ -75,7 +75,7 @@ Traceback (most recent call last):
 FileNotFoundError: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 
 - python code/report.py -> rc=1
-2 19:39:39,948 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
+2 20:14:25,933 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/report.py", line 247, in main
     output_file = run_report_generation()
@@ -109,7 +109,7 @@ ERROR tests/test_hashing.py
 ERROR tests/test_preprocess.py
 ERROR tests/test_report.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.18s ===============================
+============================== 7 errors in 1.17s ===============================
 
 
 

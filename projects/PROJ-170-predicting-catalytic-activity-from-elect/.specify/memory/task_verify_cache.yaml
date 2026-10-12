@@ -1,12 +1,3 @@
-T101:
-  c: false
-  h: bfe584865b009a245016c74f4de2b515caed53e7a4afdeb4b8520d5b4c21431e
-  r: The required directories and empty `__init__.py` files exist and the integration
-    test passes, and a valid `.ruff.toml` is present, but there is no recorded execution
-    (e.g., a log or command output) showing `ruff check --config=.ruff.toml .` running
-    successfully without configuration errors. Provide evidence that the Ruff command
-    was executed and passed.
-  sig: 21cb386ae6d15e32dc6bfeadcd0700107e632504d9e2f5ef1280e46ae6179166
 T102:
   c: false
   h: b7c7499dd168f82508a4256343673a311caeeb11508cf2815253c6be54bd8d27

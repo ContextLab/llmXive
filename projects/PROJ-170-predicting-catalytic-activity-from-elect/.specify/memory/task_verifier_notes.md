@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T101** — The required directories and empty `__init__.py` files exist and the integration test passes, and a valid `.ruff.toml` is present, but there is no recorded execution (e.g., a log or command output) showing `ruff check --config=.ruff.toml .` running successfully without configuration errors. Provide evidence that the Ruff command was executed and passed.
+- **T101** — Requested task execution failed; rerun successfully: code/run_ruff_check.py exit=1
 - **T102** — Requested task execution failed; rerun successfully: code/download_data.py exit=1
 - **T103** — The required `data/processed/unified_dataset.parquet` file is missing, and `outputs/alignment_metrics.json` is a placeholder that lacks a proper `alignment_rate` field and is malformed (JSON decode error). Consequently the script does not generate the unified dataset with ≥ 500 entries nor the correct alignment metrics.
 - **T104** — The run produced no `data/processed/stoich_vocab.json` or `aligned_dataset.csv`, the schema file is missing, and the unit tests fail (k‑NN raises an error for insufficient neighbors and the scaling test does not achieve unit variance). These missing/incorrect artifacts mean the required vocabulary, imputation flagging, scaling, and schema‑compliant output were not produced.
