@@ -1,0 +1,15 @@
+status: none
+intent: download TMDB 5000 Movie Dataset and IMDb Large Movie Review Dataset python
+  package
+required_fields:
+- title
+- release_date
+- release_year
+- opening_weekend_revenue
+- genres
+- review_id
+- review_timestamp
+- review_text
+cache_key: 25af3d57ebca9473c75af2e8cb6cc303851d47e1232ebce8024e3be48942ae6f
+searched_at: '2026-10-12T12:22:33.902643+00:00'
+retry_count: 1

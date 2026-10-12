@@ -1,10 +1,23 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`code/`, `tests/`, `data/`, `results/`,\
-    \ `specs/`) is provided; the response contains only the task description and no\
-    \ actual project\u2011structure artifacts. The implementer must create and show\
-    \ these folders (and ideally populate them) to satisfy the requirement."
+  c: true
+  h: fce0db2ca1052ec241a78f4055b7bc55f1729de6ec1e793cfa4bcc15123bb156
+  r: "The `projects/PROJ-275-statistical-analysis-of-publicly-availab` root contains\
+    \ the required top\u2011level folders (`code/`, `tests/`, `data/`, `results/`,\
+    \ `specs/`) each populated with a `.gitkeep` marker, and the automated test `tests/test_project_structure.py`\
+    \ (log `code/.tasks/T001.tests_test_project_structure.py.log`) confirms all directories\
+    \ exist and are correctly placed. The setup script `code/setup_project_structure.py`\
+    \ (log `code/.tasks/T001.code_setup_project_structure.py.log`) also reports the\
+    \ structure is complete."
+  sig: a3faecd1ddd786d4cd70ae0caefe62e84cbef5a2269be2621e013685a1dbedad
+T002:
+  c: true
+  h: b6e3fe27244ceae6c5c0a3209872ab80b5232295947a238038fba7a9e90b86e8
+  r: "Checked `code/requirements.txt` (resolved path `code/requirements.txt`), which\
+    \ exists, is non\u2011empty, and contains exact version pins for all required\
+    \ packages (pandas==2.0.3, numpy==1.26.2, scikit-learn==1.3.2, nltk==3.8.1, scipy==1.11.3,\
+    \ statsmodels==0.14.0, fuzzywuzzy==0.18.0, pytest==7.4.0). No missing or placeholder\
+    \ entries."
+  sig: 2e72aa39fdafd99c8bd26d651aed2b18d3bb14cdedfcee88169999f1d19ccaa4
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,6 +33,45 @@ T004:
     halts the pipeline, or writes specific errors to `data/logs/validation_error.log`.
     Consequently the required log file is also missing. The script must be completed
     and the log file generated for the task to be satisfied.
+T006:
+  c: true
+  h: 37f30a6c5b326e671fbf667ffd1f0c5aae78437c0b386a79eecdd4ce11dd7761
+  r: "Checked the two test files `code/tests/test_dataset_schema.py` and `code/tests/test_analysis_results_schema.py`;\
+    \ both exist, contain non\u2011placeholder validation functions (`validate_data_frame`\
+    \ and `validate_analysis_results`) that load the corresponding YAML contracts,\
+    \ perform column\u2011presence, type, nullability, and domain checks, and include\
+    \ pytest fixtures and tests confirming schema compliance."
+  sig: b39d8a44c197abd5c316259e2b4968f3e6f783dd963605d86982f37d06e99461
+T007:
+  c: true
+  h: d655140dfc7d61a0662867374e5d8100851b2eeafd760d8d79e1d582bde0278e
+  r: "Checked `code/config.py` \u2013 provides a full configuration loader with defaults,\
+    \ YAML file support, environment overrides, validation, and utility functions.\
+    \  \nChecked `code/entities.py` \u2013 defines comprehensive data classes (`Movie`,\
+    \ `Review`, `SentimentScore`, `TimeSeriesMovie`, `GenreAnalysis`) with serialization\
+    \ methods and sample creators. Both required artifacts exist, are non\u2011empty,\
+    \ and implement the requested functionality."
+  sig: 4c873b9c60aa334f78ab56fcb697a9e38b8fa6f8e6752a4b565b8c43faa00bcd
+T008:
+  c: true
+  h: 3933d4087ff1508f86a0054ac9f2b6235779d67858282a83e361842122d0af0c
+  r: "Checked the presence and content of `code/tests/test_dataset_schema.py`, which\
+    \ implements pytest\u2011based contract tests that load the dataset schema, validate\
+    \ required columns, types, nullability, row count, and includes integration testing\
+    \ against the real merged output file. This fulfills the task\u2019s requirement\
+    \ for a contract test of the merged dataset schema."
+  sig: cd77e0c56759ade1c8ee621f97454f06db026a4913bc47176f03e2e321ae8508
+T009:
+  c: false
+  h: b53b0343501869683f9505a365c34fec5fe1461297b375b33494d90814b5eb69
+  r: "The `download_datasets()` function is present, but it obtains URLs from `config.get_dataset_urls()`\
+    \ rather than from the `research.md#verified-datasets` section as required, and\
+    \ the `research.md` file does not contain any actual verified URLs (the table\u2019\
+    s URL cells are empty). Consequently, the function will raise a `ValueError` for\
+    \ missing URLs and never performs a real `wget` download. The task\u2019s core\
+    \ requirement\u2014fetching the TMDB 5000 and IMDb Reviews datasets from verified\
+    \ public URLs using `wget`\u2014is therefore not satisfied."
+  sig: 7c18363d61025bd40374f5f049ca33d066d16740bdbe14b67134485040918afb
 T011:
   c: false
   h: f5738371ad74a5914a1a2893851158c04d58ce0556398a0e8af337bbf750b880

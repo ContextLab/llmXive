@@ -1,0 +1,71 @@
+T001:
+  task: 62a15e68478601d75efd525fd16efc5008d90a339259dfd6ef4915422f79e1c4
+T002:
+  task: 42e89f51bb28741295502e9c2b6faed399fea91612c38300f84fbc89743618dd
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
+  task: 9af88fbb3ef47c246afb4e5b46694e6c6d4418f2cfbb2221d8c4b889f2dec808
+T004:
+  task: a9515cd83575b63570d6d4df30caba315c2874dc34218ecbc8b02525b5a5e6b8
+T005:
+  task: 470eaad89d573e71f1946ba313e18e171a4b8f7e59974c11f6b7c3d88ae57f17
+T006:
+  task: c1206f15e72c0d31d451914bfd3a07d50b7377e56643fad79c2268959c34d9ed
+T007:
+  task: 6f29bd4d658bfa8dd28f9584af225d46267f5ae0b860ce54d96f25e8b7ccef4a
+T008:
+  task: ab343f705eea30986ba4df343a3e20463ff25b8278a5f45169245d5aaaae8c65
+T009:
+  reason: "The `download_datasets()` function is present, but it obtains URLs from\
+    \ `config.get_dataset_urls()` rather than from the `research.md#verified-datasets`\
+    \ section as required, and the `research.md` file does not contain any actual\
+    \ verified URLs (the table\u2019s URL cells are empty). Consequently, the function\
+    \ will raise a `ValueError` for missing URLs and never performs a real `wget`\
+    \ download. The task\u2019s core requirement\u2014fetching the TMDB 5000 and IMDb\
+    \ Reviews datasets from verified public URLs using `wget`\u2014is therefore not\
+    \ satisfied."
+  task: d8e6d097566d2a811c5b95d54a681cfe30422b0a5cf7ed884cb15cfe762d2a7f
+T010:
+  task: 75b80602ed52b8f23b95e35e808de1b242e75b232c618f440285ef6c4ed1b129
+T011:
+  task: 15d096dd700fb64211112d7c06f4c671d459447eefa07e3b162f6a074672760f
+T012:
+  task: 4dc20f20b5ad7a909c6c4e4c3fea44da923f5a67327f220e8a132ccbdf2c399b
+T013:
+  task: 0e974db2c4a330516ec0c9461e6944a429bde8647aed0cdc5918f6252218919f
+T014:
+  task: 5bc5b4b62358ac4e2301956048266c5e8089a4b61524f25df4bea5fad21485e6
+T015:
+  task: ff4e97e4bc37a006bdaaf2205aa1c7aa86148a7aaf348bc2fbf9874020834469
+T016a:
+  task: 0e23ab1860cd16e8b36da18197ec36c266c5447db18bc90ccfce702fd8f05cd1
+T016b:
+  task: b72bfac4be6bcff87a94b297ff500d904874fb4c0f967c85137a1f6df4d7059f
+T017:
+  task: c2b88d98b049fe4f0df31b01d526acffd26ba69bdb89d210bf24171008b9dd55
+T018:
+  task: e493f4d64d3fad167d6d79da11c52cc6ea0e6b653078db18553ae306dfb6c56f
+T019:
+  task: 9b1b873c0bd391581ddc0d539dfdbb8556cc2ebeae889cd7deeaf018855d8cdb
+T020:
+  task: 26c16ab3e31d32861c8fb496b1e743c1376b113746520e0e39dcb96475b5208b
+T021:
+  task: 9e39f07538358ee24e1afc0bc8e69c69080d81a88726a61bc5a8c2190eb9e74f
+T022:
+  task: 1f537f37485c0de93e40eacbaf671aa39d13e54c71b0d6ec2ec70b55dbdc4d18
+T023:
+  task: ed18c9fe9ec57b215e9d5132b5bbde6a7ef288b28c4023411e645c84ab3b61fc
+T024:
+  task: 723f7790b43556d2442ccfcf4ae49a0fccf45aa78c7db663e38cfdb99c78e9a6
+T025:
+  task: ec48388497b843c2b1c9961e91ab61fa2eac4768726675ba50b52d7706273705
+T026:
+  task: 7f13cc73fdf47c0f8b8e483570931b5239fe557423c33d32173a243268414cc4
+T027:
+  task: 28221634779fca6119aa8c3e780d1f4c8806846fb7b41e12551c584e95fae667
+T028:
+  task: 8f1719fe29438242c2b4055ac5dd2bd07c5c553aff9f93187a20c116cb16bfb5
+T029:
+  task: 0c493fbf878df9f3058636a025d5008c27454fc615120f010108ccc89a158a00
+T031:
+  task: 72a26f46f34dbc2919ffaf9a46edfbd54388a7d8fa7065f04e838a664f8f5bde

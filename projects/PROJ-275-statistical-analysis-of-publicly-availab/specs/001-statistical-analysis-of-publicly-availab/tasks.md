@@ -41,9 +41,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `results/`, `specs/`)
+- [X] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `results/`, `specs/`)
 - [X] T002 Initialize Python 3.11 project with **exact version pinning** (e.g., `pandas==2.0.3`) in `code/requirements.txt` (pandas, numpy, scikit-learn, nltk, scipy, statsmodels, fuzzywuzzy, pytest) to satisfy Constitution Principle I
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/` <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
 
 ---
 
@@ -74,11 +74,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [P] [US1] Implement `download_datasets()` in `code/data_ingestion.py` to fetch TMDB 5000 and IMDb Reviews from verified public URLs defined in `research.md#verified-datasets` using `wget`
-- [X] T010 [US1] Implement `merge_datasets()` in `code/data_ingestion.py` to join on movie title/year using `pandas` with fuzzy matching fallback
+- [ ] T009 [P] [US1] Implement `download_datasets()` in `code/data_ingestion.py` to fetch TMDB 5000 and IMDb Reviews from verified public URLs defined in `research.md#verified-datasets` using `wget`
+- [~] T010 [US1] Implement `merge_datasets()` in `code/data_ingestion.py` to join on movie title/year using `pandas` with fuzzy matching fallback
 - [ ] T011 [US1] Implement `filter_valid_movies()` in `code/data_ingestion.py` to exclude movies with missing revenue or <3 months of review history; **must** log the count of excluded movies and the final count to `data/logs/ingestion_log.txt`, and **raise an error** if final count < 500
-- [X] T012 [US1] Implement `align_timestamps()` in `code/data_ingestion.py` to create a weekly **sentiment** time-series structure aligned to `release_date`; **explicitly treat `opening_weekend_revenue` as a static anchor** (broadcast to all weeks) and **enforce** the 3-month minimum history check defined in FR-002 during this step
-- [X] T015 [US1] Implement `compute_vader_sentiment()` in `code/sentiment_analysis.py` using `nltk.vader` (CPU-only) to score weekly review text and merge scores into the time-series structure
+- [~] T012 [US1] Implement `align_timestamps()` in `code/data_ingestion.py` to create a weekly **sentiment** time-series structure aligned to `release_date`; **explicitly treat `opening_weekend_revenue` as a static anchor** (broadcast to all weeks) and **enforce** the 3-month minimum history check defined in FR-002 during this step
+- [~] T015 [US1] Implement `compute_vader_sentiment()` in `code/sentiment_analysis.py` using `nltk.vader` (CPU-only) to score weekly review text and merge scores into the time-series structure
 - [ ] T013 [US1] Save intermediate `data/processed/merged_clean.parquet` and log row counts to `data/logs/ingestion_log.txt`; **must verify** output contains columns `title`, `release_date`, `opening_weekend_revenue` (static), `sentiment_score`, `genre` and `row_count >= 500`; **fail** if not
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (includes sentiment scores and static revenue anchors)
@@ -95,13 +95,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T014 [P] [US2] Unit test for aggregate lag calculation with synthetic ground-truth data in `code/tests/test_lag_logic.py`
+- [~] T014 [P] [US2] Unit test for aggregate lag calculation with synthetic ground-truth data in `code/tests/test_lag_logic.py`
 
 ### Implementation for User Story 2
 
-- [X] T016a [US2] Implement `differencing_sentiment()` in `code/lag_decay_analysis.py` to apply first-order differencing to the weekly **sentiment** time-series for stationarity
-- [X] T016b [US2] Implement `compute_sentiment_trend_relative_to_revenue()` in `code/lag_decay_analysis.py` to compute the correlation between the **aggregate** sentiment trend (averaged per genre) and the **static** `opening_weekend_revenue` anchor, treating revenue as a constant for the correlation calculation (as required by the Plan's 'Lagged Correlation Profile' methodology)
-- [X] T017 [US2] Implement `calculate_genre_lag_profile()` in `code/lag_decay_analysis.py` using `scipy.signal.correlate` on **aggregate** sentiment series to find the max absolute correlation lag **by genre** (not per-movie), then store the optimal lag for each genre
+- [~] T016a [US2] Implement `differencing_sentiment()` in `code/lag_decay_analysis.py` to apply first-order differencing to the weekly **sentiment** time-series for stationarity
+- [~] T016b [US2] Implement `compute_sentiment_trend_relative_to_revenue()` in `code/lag_decay_analysis.py` to compute the correlation between the **aggregate** sentiment trend (averaged per genre) and the **static** `opening_weekend_revenue` anchor, treating revenue as a constant for the correlation calculation (as required by the Plan's 'Lagged Correlation Profile' methodology)
+- [~] T017 [US2] Implement `calculate_genre_lag_profile()` in `code/lag_decay_analysis.py` using `scipy.signal.correlate` on **aggregate** sentiment series to find the max absolute correlation lag **by genre** (not per-movie), then store the optimal lag for each genre
 - [ ] T018 [US2] Implement `bootstrap_lag_aggregation()` in `code/lag_decay_analysis.py` to compute median lag and Confidence interval per genre using bootstrap resampling of movies
 - [ ] T019 [US2] Save `results/lag_analysis_by_genre.csv` and generate preliminary `results/plot_lag_distribution.png`
 
