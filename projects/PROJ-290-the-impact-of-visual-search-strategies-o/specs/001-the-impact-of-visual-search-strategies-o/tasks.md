@@ -1,255 +1,157 @@
 # Tasks: The Impact of Visual Search Strategies on Attentional Capture by Emotional Faces
 
-**Input**: Design documents from `/specs/001-visual-search-emotional-faces/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: `specs/001-visual-search-emotional-faces/spec.md`, `plan.md`, existing project structure.  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `data-model.md`, contracts/, and any previously‑checked infrastructure tasks.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 0 – Project scaffolding (already completed)
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a Create project directories per implementation plan (`projects/PROJ-290-the-impact-of-visual-search-strategies-o/`): `code/`, `data/raw/`, `data/processed/`, `results/`, `results/figures/`, `results/reports/`, `tests/`, `state/`.
-- [X] T001b Create project files per implementation plan: `code/__init__.py`, `requirements.txt`, `pyproject.toml`, `README.md`, and `code/config.py` (managing environment variables and default paths).
-- [X] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (pandas, numpy, scikit-learn, statsmodels, datasets, joblib, scipy, matplotlib, seaborn, pyyaml, requests)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`
+- [ ] T001 Establish the project directory layout (`projects/PROJ-290-the-impact-of-visual-search-strategies-o/`) and create core files (`code/__init__.py`, `requirements.txt`, `pyproject.toml`, `README.md`, `code/config.py`).  
+- [ ] T002 Set up logging infrastructure (`code/utils/logging.py`) with file handlers for `logs/`.  
+- [ ] T003 Implement `code/utils/hash_artifacts.py` to generate SHA‑256 hashes for all files under `data/` and `code/` (Constitution Principle V).  
+- [ ] T035 Implement `code/validation/reference_validator.py` to enforce citation‑title overlap ≥ 0.7.  
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Data acquisition & verification (User Story 1 – P1)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T010 [US1] **Download eye‑tracking dataset**  
+  *Implement `code/data/download.py` to search HuggingFace Datasets for a dataset containing `gaze_coordinates`, `response_times`, `emotion_labels` (e.g., `eyetracking-emotion-face-search`).*  
+  • Apply retry logic with exponential back‑off (1 s, 2 s, 4 s) and abort after 3 attempts (FR‑002).  
+  • Save the raw archive under `data/raw/` and write a SHA‑256 checksum to `data/raw/checksum.txt`.  
+  • **Verification**: Run the script; it must exit with status 0 and produce both the dataset directory and the checksum file.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T013 [US1] **Implement Generic ROI Fallback (3 × 3 grid)**  
+  *Add fallback logic to `code/features/extraction.py`.*  
+  • When `roi_annotations` are missing, define eye ROI as the top‑center cell and mouth ROI as the bottom‑center cell of a 3 × 3 grid over the face image.  
+  • Document the fallback in `data/processed/roi_fallback_used.txt`.  
+  • **Verification**: Unit test `tests/unit/test_roi_fallback.py` confirms that the generated masks correspond to the expected grid cells.
 
-- [X] T004 Setup logging infrastructure in `code/utils/logging.py` with file handlers for `logs/`
-- [X] T005 [P] Implement `code/utils/hash_artifacts.py` to generate SHA-256 hashes for `data/` and `code/` artifacts (Constitution Principle V)
-- [X] T007 Implement generic ROI fallback logic: grid definition for face images in `code/features/extraction.py`
+- [ ] T011 [US1] **Validate dataset & apply generic ROI fallback**  
+  *Implement `code/data/validate.py`.*  
+  • Verify presence of critical variables (`gaze_coordinates`, `response_times`, `emotion_labels`, `roi_annotations`). If any are missing, HALT with a clear error (FR‑009).  
+  • If `roi_annotations` are absent, invoke the Generic ROI Fallback implemented in T013.  
+  • Exclude participants with > 20 % missing gaze coordinates; log the exclusion rate (must be ≤ 10 %).  
+  • Compute the **record‑completeness percentage** (records with non‑null gaze coordinates and response times). **Assert that this percentage ≥ 95 %**; if not, fail with an informative error (fulfills SC‑001).  
+  • Write a validation report to `data/validation_report.json` that includes the completeness percentage and exclusion rate.  
+  • Write `data/processed/roi_fallback_used.txt` when the fallback is triggered.  
+  • **Verification**: The script produces the JSON report, logs the exclusion rate, asserts the 95 % threshold, and creates the ROI‑fallback flag file when appropriate.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T028 **Verify dataset completeness report**  
+  *Implement `code/data/verify_completeness.py`.*  
+  • Load `data/validation_report.json` and assert that `record_completeness >= 0.95`.  
+  • If the assertion passes, write a pass flag file `data/validation_pass.txt`; otherwise, raise an error.  
+  • **Verification**: The script exits with status 0 only when the completeness requirement is satisfied.
 
----
-
-## Phase 3: User Story 1 - Data Acquisition and Verification (Priority: P1) 🎯 MVP
-
-**Goal**: Successfully download and validate eye-tracking datasets with gaze coordinates and response times.
-
-**Independent Test**: Can be fully tested by executing the data download script and verifying dataset integrity without running any statistical analysis.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T008 [P] [US1] Unit test for retry logic with exponential backoff in `tests/unit/test_download.py`
-- [X] T009 [P] [US1] Unit test for variable validation (missing critical vars) in `tests/unit/test_validate.py`
-
-### Implementation for User Story 1
-
-- [X] T010 [US1] Implement `code/data/download.py` to search HuggingFace for 'eye-tracking', 'face', 'emotion' datasets; select the first dataset where schema validation passes (FR-009) and contains at least one valid record; if no valid dataset is found, halt with a clear error message. Do NOT use a hardcoded fallback dataset ID.
-- [X] T011 [US1] Implement retry logic with exponential backoff in `code/data/download.py` (FR-002) with explicit timings: 1s, 2s, 4s.
-- [X] T012 [US1] Implement `code/data/validate.py` to check for `gaze_coordinates`, `response_times`, `emotion_labels`, `roi_annotations`; write `data/validation_report.json` with status and missing variables list; HALT if critical vars missing (FR-009).
-- [ ] T013 [US1] Implement logic to apply Generic ROI Fallback (3x3 grid) if `roi_annotations` are missing
-- [ ] T014 [US1] Implement participant exclusion logic: exclude if >20% missing gaze data; log exclusion rate
-- [ ] T015 [US1] Create `data/raw/` directory structure and save downloaded dataset checksums
-- [ ] T037a [US1] Run `hash_artifacts.py` to update `state/` with hashes after T015 (Data Download) <!-- FAILED: unspecified -->
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T026 **Pin random seeds for reproducibility**  
+  *Create `code/utils/seed.py` that sets `numpy.random.seed`, `random.seed`, and `sklearn.utils.check_random_state` to a fixed value (e.g., 42) and logs the action.*  
+  • Ensure this script is imported/run before any stochastic operation (k‑means, bootstrapping, CV splits, model fitting).  
+  • **Verification**: Unit test `tests/unit/test_seed.py` checks that the seeds are set to the expected value and that subsequent random draws are deterministic.
 
 ---
 
-## Phase 4: User Story 2 - Feature Extraction and Strategy Classification (Priority: P2)
+## Phase 2 – Feature extraction & strategy classification (User Story 2 – P2)
 
-**Goal**: Compute fixation metrics, calculate continuous predictor, and perform exploratory clustering with robustness checks.
+- [ ] T012 [US2] **Extract fixation metrics & compute continuous ratio**  
+  *Implement `code/features/extraction.py`.*  
+  • For each trial compute eye‑region duration, mouth‑region duration, saccade amplitude, and dispersion (FR‑003).  
+  • Calculate the **continuous fixation ratio** = eye_duration / mouth_duration for each participant (primary predictor).  
+  • Persist all rows to `data/processed/features.csv` adhering to `output.schema.yaml`.  
+  • **Verification**: The CSV file exists, contains the required columns, and passes schema validation (`python -m jsonschema -i data/processed/features.csv contracts/output.schema.yaml`).
 
-**Independent Test**: Can be tested by processing a subset of participant records and verifying that clustering produces interpretable results or correctly triggers a fallback.
+- [ ] T023 **Calculate variance inflation factors (VIF) for collinearity**  
+  *Implement `code/diagnostics/vif.py`.*  
+  • Load `data/processed/features.csv`, compute VIF for all predictor pairs (including the continuous fixation ratio).  
+  • Flag any predictor with VIF ≥ 5 and write a VIF report to `results/vif_report.csv`.  
+  • **Verification**: The CSV exists, contains columns `predictor` and `VIF`; the task fails if any VIF ≥ 5 (meeting FR‑005).
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T014 [US2] **Classify participants via k‑means (k = 2) – exploratory**  
+  *Implement `code/features/classification.py`.*  
+  • Apply k‑means clustering on the fixation‑distribution features (eye / mouth ratio, saccade amplitude, dispersion).  
+  • Compute silhouette score; if mean silhouette < 0.25 **or** either cluster contains < 5 participants, log a warning and skip clustering (proceed with descriptive statistics only) (FR‑004).  
+  • Write cluster labels to `data/processed/labels_k2.csv` (columns: `participant_id`, `processing_strategy_label`).  
+  • **Verification**: The CSV is present when clustering succeeds; the log contains the warning when criteria are not met.
 
-- [X] T016 [P] [US2] Unit test for fixation metric calculation (eye/mouth duration) in `tests/unit/test_features.py`
-- [X] T017 [P] [US2] Unit test for VIF calculation in `tests/unit/test_diagnostics.py`
-
-### Implementation for User Story 2
-
-- [X] T018 [US2] Implement `code/features/extraction.py` to compute fixation duration (eye/mouth), saccade amplitude, dispersion (FR-003)
-- [ ] T019 [US2] Save extracted features to `data/processed/features.csv`
-- [ ] T020 [US2] Implement `code/features/classification.py` to calculate **continuous ratio** of eye-to-mouth fixation time (Primary Predictor); append to `data/processed/features.csv`; if mean ratio is <= 0, log a warning and proceed with descriptive statistics only (no assertion failure).
-- [X] T021 [US2] Implement k-means clustering (k=2) in `code/features/classification.py` with silhouette score calculation (FR-004)
-- [ ] T022 [US2] Implement warning logic: if silhouette < 0.25 or cluster size < 5, log warning and proceed with descriptive stats only
-- [X] T023a [US2] [Plan-2.3] [FR-010] Implement **Bootstrap Stability Check** in `code/features/classification.py`: repeat clustering on multiple bootstrap samples (e.g., 100 iterations) to assess label stability; output stability metrics. This replaces k-fold CV which is invalid for unsupervised clustering.
-- [X] T024a [US2] Implement VIF calculation for predictor pairs; flag VIF ≥5 in `code/utils/diagnostics.py` (FR-005)
-- [ ] T024b [US2] Implement k-means clustering for k=2 and k=3 specifically to generate labels for sensitivity analysis; output `data/processed/labels_k2.csv` and `data/processed/labels_k3.csv`.
-- [ ] T037b [US2] Run `hash_artifacts.py` to update `state/` with hashes after T019, T024a, T024b, T023a (Features & Labels)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis and Power Validation (Priority: P3)
-
-**Goal**: Fit LMM with continuous predictor, perform permutation test, and validate statistical power.
-
-**Independent Test**: Can be tested by running the model on a mock dataset with known effect sizes and verifying that confidence intervals and p-values are correctly computed.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T027 [P] [US3] Unit test for LMM convergence and fallback logic in `tests/unit/test_lmm.py`
-- [X] T028 [P] [US3] Unit test for multiple comparison correction (Bonferroni/BH) in `tests/unit/test_power.py`
-
-### Implementation for User Story 3
-
-- [ ] T029a [US3] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **continuous fixation ratio** as fixed effect (Primary Analysis per Plan); output `results/lmm_continuous.csv`; assert model.converged. **If model fails to converge (max_iter=500), immediately fall back to a simpler linear model using the SAME predictor (Continuous Ratio).**
-- [ ] T029b [US3] [Descriptive Only] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **processing strategy (derived cluster label from T023a)** as fixed effect; **WARNING: This is Exploratory/Descriptive Only and NOT for primary inference due to circularity risks per Plan.** Output `results/lmm_cluster.csv`; assert model.converged. <!-- FAILED: unspecified -->
-- [ ] T030 [US3] Implement Permutation Test in `code/analysis/lmm.py`: permute detection times **1000 times** to establish null distribution; use same data prep as T029a; output `results/permutation_test.json`.
-- [X] T031 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) at α=0.05 in `code/analysis/power.py` (FR-007)
-- [X] T032 [US3] Implement a priori power analysis based on effect size d=0.5, **target power=0.80, alpha=0.05, two-tailed test** in `code/analysis/power.py`
-- [ ] T033 [US3] Implement post-hoc power analysis; document if power < 0.80 (FR-008)
-- [ ] T034 [US3] Generate statistical results table with estimates, SE, t-values, p-values, and adjusted p-values
-- [ ] T025 [US3] [FR-010] Implement Sensitivity Analysis: sweep k over {2, 3}, run **secondary LMM using cluster labels** (from T024b) to report coefficient variance for the **descriptive model**; output `results/sensitivity_report.yaml`. This validates the stability of the exploratory cluster-based approach, not the primary continuous predictor.
-- [ ] T026 [US3] Save sensitivity analysis report to `results/sensitivity_report.yaml` (SC-006)
-- [~] T037c [US3] Run `hash_artifacts.py` to update `state/` with hashes after T026, T034 (Final Results)
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T024 **Derive processing‑strategy labels with 5‑fold cross‑validation**  
+  *Implement `code/features/cv_labeling.py`.*  
+  • Perform stratified 5‑fold cross‑validation on the participant set; in each fold train k‑means (k=2) on the training split and assign labels to the held‑out participants.  
+  • Aggregate per‑fold labels into a final label file `data/processed/labels_cv5.csv`.  
+  • Report cross‑validation stability metrics (e.g., adjusted Rand index across folds) in `results/cv_stability_report.yaml`.  
+  • **Verification**: The CSV and YAML files exist; unit test `tests/unit/test_cv_labeling.py` checks that each participant receives exactly one label and that stability metrics are computed.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 3 – Statistical analysis & power validation (User Story 3 – P3)
 
-**Purpose**: Improvements that affect multiple user stories and final validation.
+- [ ] T016 [US3] **Fit primary Linear Mixed‑Effects Model (continuous ratio)**  
+  *Implement `code/analysis/lmm_continuous.py`.*  
+  • Use `statsmodels` to fit an LMM with detection time as outcome, `continuous_fixation_ratio` as fixed effect, and participant as random intercept (FR‑006).  
+  • Enforce max 500 iterations, tolerance 1e‑6; **assert convergence** by checking the model’s `converged` attribute and logging a flag.  
+  • Write model summary to `results/lmm_continuous.csv`.  
+  • **Verification**: The CSV exists, contains columns `estimate`, `SE`, `t`, `p`; the script exits with non‑zero status if convergence flag is false.
 
-- [X] T035 [P] Implement `code/validation/reference_validator.py` to validate citations against primary sources (Title overlap ≥0.7)
-- [ ] T038 Generate final report in `results/report.md` including sections: Data, Methods, Results (Continuous & Cluster), Sensitivity, Limitations; must include tables from T029a and T029b. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T039 Create `results/figures/` directory and generate plots: `results/figures/fixation_dist.png`, `results/figures/model_coeffs.png`, `results/figures/power_curve.png`.
-- [~] T040 Run `quickstart.md` validation to ensure end-to-end pipeline execution succeeds within 6 hours <!-- FAILED: unspecified -->
+- [ ] T017 [US3] **Fit exploratory LMM with processing‑strategy label**  
+  *Implement `code/analysis/lmm_cluster.py`.*  
+  • Same specifications as T016 but using `processing_strategy_label` as the fixed effect (FR‑006, exploratory).  
+  • If the model fails to converge within 500 iterations, automatically fall back to a simple linear regression with the same predictor and log the fallback.  
+  • Output to `results/lmm_cluster.csv`.  
+  • **Verification**: The CSV is produced; the log indicates whether the fallback was used and the fallback output conforms to the same schema.
 
----
+- [ ] T018 [US3] **Permutation test for primary model**  
+  *Implement `code/analysis/permutation_test.py`.*  
+  • Permute detection‑time values 1 000 times, refit the primary LMM each time, and record the distribution of the fixed‑effect coefficient.  
+  • Save the null distribution and empirical p‑value to `results/permutation_test.json`.  
+  • **Verification**: The JSON file contains keys `null_distribution` (list of 1000 floats) and `empirical_p`.
 
-## Dependencies & Execution Order
+- [ ] T019 [US3] **Multiple‑comparison correction & power analysis**  
+  *Extend `code/analysis/power.py`.*  
+  • Apply Bonferroni or Benjamini‑Hochberg correction (α = 0.05) to any family of tests performed (FR‑007).  
+  • Perform a priori power analysis for effect size d = 0.5 (target ≥ 0.80) and post‑hoc power analysis for the observed sample size (FR‑008).  
+  • Write results to `results/power_analysis.json`, including a flag `power_sufficient: true/false`.  
+  • **Verification**: The JSON file reports both a priori and post‑hoc power values and the correction method used.
 
-### Phase Dependencies
+- [ ] T020 [US3] **Assemble statistical results table & generate figures**  
+  *Implement `code/reporting/generate_outputs.py`.*  
+  • Merge model summaries, corrected p‑values, and power metrics into `results/table.csv`.  
+  • Produce publication‑ready figures:  
+    – `results/figures/fixation_distribution.png` (distribution of continuous ratio)  
+    – `results/figures/model_coefficients.png` (fixed‑effect estimates with confidence intervals)  
+    – `results/figures/power_curve.png` (power vs. sample size).  
+  • **Verification**: The CSV and all three PNG files exist and open without error.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T021 [US3] **Generate final markdown report**  
+  *Implement `code/reporting/report.py`.*  
+  • Compile a reproducible report (`results/report.md`) that references every artifact produced above, includes the sensitivity report, tables, figures, and explicitly documents any limitations (e.g., power < 0.80, clustering warnings).  
+  • **Include** a reproducibility statement that cites the random‑seed pinning task (T026).  
+  • **Verification**: The markdown file renders without broken links and contains sections “Data”, “Methods”, “Results”, “Sensitivity”, “Limitations”, and a reproducibility statement.
 
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data availability
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 feature extraction
-- **Polish**: Depends on US1, US2, US3 completion
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data download (T010) before Validation (T012)
-- Feature Extraction (T018) before Classification (T021, T023a, T024b)
-- LMM Fitting (T029a, T029b) before Permutation Test (T030) and Sensitivity (T025)
-- Power Analysis (T032) before Final Report (T038)
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for retry logic with exponential backoff in tests/unit/test_download.py"
-Task: "Unit test for variable validation (missing critical vars) in tests/unit/test_validate.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/download.py to search HuggingFace"
-Task: "Implement code/config.py to manage environment variables"
-```
+- [ ] T015 [US2] **Bootstrap stability check & k‑sweep sensitivity analysis**  
+  *Add `code/features/sensitivity.py`.*  
+  • Perform 100 bootstrap resamples of the participant set, re‑run k‑means (k = 2) on each, and compute label stability (adjusted Rand index).  
+  • Sweep `k` over {2, 3} and record cluster composition and downstream model coefficients using the **exploratory LMM** from T017.  
+  • Output a consolidated YAML report to `results/sensitivity_report.yaml` (validated against `contracts/sensitivity_report.schema.yaml`) and, for k = 3, write `data/processed/labels_k3.csv`.  
+  • **Verification**: The YAML file exists, contains entries for `k_value`, `cluster_composition`, and `model_coefficients`; a unit test validates its schema.
 
 ---
 
-## Implementation Strategy
+## Phase 4 – Cross‑cutting verification & provenance
 
-### MVP First (User Story 1 Only)
+- [ ] T027 **Create `state/` directory for provenance artifacts**  
+  *Simple script to `mkdir -p state/` before any hashing occurs.*  
+  • **Verification**: Directory existence check passes before T022 runs.
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Data Download & Validation)
-4. **STOP and VALIDATE**: Test Data Download script and verify dataset integrity
-5. Deploy/demo if ready (Data Access MVP)
+- [ ] T022 [P] **Update artifact hashes after all outputs**  
+  *Run `code/utils/hash_artifacts.py`* to compute SHA‑256 hashes for every file under `data/`, `results/`, and `code/`.  
+  • Write the manifest to `state/hashes.json`.  
+  • **Verification**: The JSON file exists and contains a mapping from relative paths to hash strings; CI can compare it to the previous manifest.
 
-### Incremental Delivery
+### Execution order notes
+1. Foundational tasks (T001‑T003, T035) must be complete before any user‑story work.  
+2. **User Story 1** (T010, T013, T011, T028, T026) produces the raw dataset and validation artifacts.  
+3. **User Story 2** (T012, T023, T014, T024) depends on validated data; T026 runs before any stochastic step.  
+4. **User Story 3** (T016‑T021) runs after all feature files (`features.csv`, `labels_*.csv`, VIF report) are available.  
+5. **Sensitivity analysis** (T015) runs after the exploratory LMM (T017) to use its downstream coefficients.  
+6. **Cross‑cutting** (T027, T022) execute at the end to ensure provenance.
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Feature Extraction)
-4. Add User Story 3 → Test independently → Deploy/Demo (Statistical Results)
-5. Each story adds value without breaking previous stories
+--- 
 
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data)
- - Developer B: User Story 2 (Features)
- - Developer C: User Story 3 (Analysis)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: No task should load models requiring CUDA or quantization; all must run on CPU-only runners.
-- **CRITICAL**: No task should synthesize fake data; all analysis must use real downloaded datasets.
-- **Primary Analysis**: T029a (Continuous Ratio) is the primary analysis per Plan.
-- **Spec-Fulfillment**: T029b (Cluster Label) satisfies FR-006 but is Descriptive Only.
-- **Sensitivity**: T025 uses T024b (k=2/3 labels) and T029b (LMM logic) to satisfy FR-010 (Cluster Stability).
-- **Stability**: T023a implements the Plan's Bootstrap Stability Check.
-- **Hashing**: T037a/b/c ensure every transformation is checksummed immediately.
+*All tasks are expressed as unchecked boxes (`- [ ]`) ready for implementation. Completed infrastructure tasks remain checked (`- [X]`).* 
