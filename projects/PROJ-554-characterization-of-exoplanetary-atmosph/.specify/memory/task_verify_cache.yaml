@@ -1,3 +1,53 @@
+T001a:
+  c: false
+  h: 3d3d9de3b019c3a245feabe5e8cda48229b9c802f0a982bad3be5fc00919412a
+  r: "Checked the repository tree under `projects/PROJ-554-characterization-of-exoplanetary-atmosph/`.\
+    \ The `code/`, `tests/`, and `results/` directories are present, but the required\
+    \ `data/` directory is missing. The task\u2019s specification explicitly calls\
+    \ for a `data/` folder, so the directory structure is not fully created."
+  sig: 9ee66bef929c71e9f74d52d0d3ea0e996d5e007d9e7c156726a075684807314e
+T001b:
+  c: false
+  h: 271a6a37578ed4fed2d0520eb66687c9ef308f82d027efdb2dc254cfc1b75f7e
+  r: "Checked `projects/PROJ-554-characterization-of-exoplanetary-atmosph/requirements.txt`.\
+    \ The file lists the required packages but does **not** include pinned version\
+    \ specifiers (e.g., `petitRADTRANS==1.2.3`), violating the task\u2019s explicit\
+    \ demand for pinned versions. Additionally, extra unrelated packages are present,\
+    \ but the primary failure is the lack of version pins. The implementer must add\
+    \ exact version numbers for each listed dependency."
+  sig: 6bbfc68f98b79e5dcd2d956a9b303986b488096fb7260d497fc3f6c016e467d3
+T001c:
+  c: true
+  h: e3f27248ed7bbd607960002ff65804e140a9ec35fffde43a9ed5b83cb5d9850b
+  r: "The evidence includes a non\u2011empty `.ruff.toml` with full Ruff configuration\
+    \ and a `pyproject.toml` containing a `[tool.black]` section configuring Black,\
+    \ both located at the project root."
+  sig: 46138a3747a6aa87bdeef6feac7a5b090c3ab48e32d0149e6b1f64a874f1aad9
+T004:
+  c: true
+  h: 5b818e440fde18c37f740c803fb0c65d2d1edd0bde21c9b5ef878421ac8a9a5f
+  r: "Checked the `code/config.py` file (1994\u202Fbytes) which defines environment\u2011\
+    variable loading, a `Configuration` class with `data_dir`, `seed`, and `threads`\
+    \ (CPU thread limit) fields, seed\u2011setting logic, and helper functions for\
+    \ retrieving and validating the configuration. This satisfies the task\u2019s\
+    \ requirement to set up configuration loading for paths, seeds, and CPU thread\
+    \ limits."
+  sig: 8bf6abd34571d2878fcf9adc2e7381a4644f3502aeca32fa25f4d2fa5a988b84
+T005a:
+  c: true
+  h: aa1ba6ab7fb5936d6adfeb491a732796d553e7da23e85851187cc595bb520332
+  r: "Checked `code/utils.py` (5815\u202Fbytes) which defines a `setup_logging` function\
+    \ that configures a logger, sets the log level (default INFO, customizable), adds\
+    \ console and optional file handlers, and clears prior handlers \u2013 fulfilling\
+    \ the required logging setup and log\u2011level handling."
+  sig: e08fd23cfb0f66d030b7eebe23ec6899c255c0c64b247c00598fef46f5129fe2
+T005b:
+  c: true
+  h: 7aee9714675079e759ac74195406081efc16fe3a4314fbfec557ef3423f9f71e
+  r: "Checked `code/utils.py` (5815\u202Fbytes) which defines a suite of custom exception\
+    \ classes and provides a `retry_on_failure` decorator implementing retry\u2011\
+    with\u2011backoff logic, fulfilling the required error\u2011handling wrapper."
+  sig: aa5ae5ee2c52409dc94c1443e3b19c11df23d3b012a6118bfd190361dd8667eb
 T013a:
   c: false
   h: ff4f46866d930bad15abb21a93f3a1f18ca14920ed5caa45b605063b77da0552

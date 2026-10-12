@@ -1,0 +1,122 @@
+T001a:
+  reason: "Checked the repository tree under `projects/PROJ-554-characterization-of-exoplanetary-atmosph/`.\
+    \ The `code/`, `tests/`, and `results/` directories are present, but the required\
+    \ `data/` directory is missing. The task\u2019s specification explicitly calls\
+    \ for a `data/` folder, so the directory structure is not fully created."
+  task: fc41ab158d1f2f1d75facec40c47d1ac9312111195dd51ad2f38af83ed0b5715
+T001b:
+  reason: "Checked `projects/PROJ-554-characterization-of-exoplanetary-atmosph/requirements.txt`.\
+    \ The file lists the required packages but does **not** include pinned version\
+    \ specifiers (e.g., `petitRADTRANS==1.2.3`), violating the task\u2019s explicit\
+    \ demand for pinned versions. Additionally, extra unrelated packages are present,\
+    \ but the primary failure is the lack of version pins. The implementer must add\
+    \ exact version numbers for each listed dependency."
+  task: 4e32c3dd6fb75c542e932bd7ca4d154e59f55363423504862f01a15b9ed075c7
+T001c:
+  task: 4249c1ededb63d17886a3a0962daffab9d58912bf302ae786a9c1eb86deba30d
+T004:
+  task: 81ee837974e3e8f47c97544528236bfaab3db8ababb342f63637516de24a126d
+T005a:
+  task: cb6bddb3612e69c54a34a042530866f614fb35e480701e6fe3d1b1be68aa1b35
+T005b:
+  task: fa4df378d5d7ab7cb2ea59e38a38aff4245d0b291ffb0da182bb60489a42c233
+T005c:
+  task: fc27b7106eddfdb9dbd04e1cce1dec399842b7f7403b83f54036519b5fa201e9
+T006a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/, data/processed/'
+  task: 536d340ccd88fffbcbaa05bff3d2561a07f86c0399e24d1481ef6d44f63ef201
+T006b:
+  task: 363b6680387ab0834297b82ced4e74bc28b07429a778387e4ad2843005f91106
+T007:
+  task: 910a371f72323ce06950bb7994a8ee6559b196022a0a48081a8cf17a07466fcf
+T008:
+  task: 1d08be65898666d9ddfce98cc8dc86dea40794fc87e0049f3c12440cf20dd77e
+T009:
+  task: 5d789347b66ea7ffd1641fe2ea562371b49ab1bf54aa78c0691a06e92d4082ff
+T010:
+  task: b08dbcc39bd04a927fa25c8a00f4ca5aafc2d900047779beb839041c94b267a5
+T011a:
+  task: d3195db22a67bd7078304da50f33078824519a472a58aed97cc12ad044733635
+T011b:
+  task: d5c6e8e74fc1659c3bcf0f1d5e9ccb34b2bb944297c487feca43db2a18292a46
+T011c:
+  task: 8c6772b7506bdbbb9a2a8827fbd78042091326829d33f43c6128ee61e173eaa8
+T011d:
+  task: fc6a04e3e2385e31b54114ba08716d7366a350ae3b6665351bdd917deca037b5
+T012:
+  task: 36c22da1d49ccebe6a73c09305d34755527cfa0a3fcfe9ae1a89dae6c79a415e
+T013a:
+  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
+  task: b0598cce3d8bff513c69c5cdc99734afadaa1486e8d77806aee2f4dec11dc0a4
+T013b:
+  task: a1bcca1405f1b507dc98cc909f533ff7a40f05851559f902ba1a9ab96978e84c
+T014:
+  task: 3ca72ab1b28566a59f2df3ca2a499b58f970082105640ae42e9266ad7cf16e57
+T015a:
+  task: c57831affbee27f385e8389c32d47604a5819fe14918d26b06a183dd64107d1d
+T016:
+  task: ad4a5db55469c3a466d456cefa72e51f54eaec3b73f54179c3084102975b9851
+T017:
+  task: 2d6baec914c62a7b0d127bc8f5c873388e4bd4098820d529f187d2fc2bd2fd0c
+T018a:
+  task: 5498c5309310db18fe166799a2a22bb9b3cdf7cc62141b6463bd3cfda811404f
+T018b:
+  task: c892f6c6c9ca494cc9276e6a648e85a838184d727ce7150665153322a81bb7fc
+T018c:
+  task: 636c0d31d6335d002f1fe0df6217c13b887a9c594f442b7b3bd3dad78ba4e27c
+T019:
+  task: 0c2241b8276af41f1f807973f9980d2f3e552432d42b08779751c9205f47f595
+T020:
+  task: 519adc8f1a8e9639277be1c5a9f021680c28b49ce191c3278cc2d40e4e3ca760
+T022:
+  task: 6c02e8f970fc92ae3fe21ad8a4bb572c727c79b6e2aea84f065d0535c574694c
+T024:
+  task: c5f506b3c5b0b4435adc2daec4838bf7957da21381c926681acd53fd15896a04
+T025a:
+  task: 388e6843c88cc925cc2eef24705ca903df610bfd9497d539efec52bd0007e1c7
+T025b:
+  task: da2cddb487f1d9c51651c8779837f2f0481740e1fd0d43169d822a5292e791c7
+T027:
+  task: fe9d70b68bc1e2bbc07c448195cf34f172c4f347d77d183f41a24701598d9d0f
+T028:
+  task: 26b996817aa85fb53538d25f86890e6606085e12dad3008108b57b7ebc76dead
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: results/plots/water_vs_temp.png,
+    results/plots/residuals.png, results/plots/correlation_matrix.png, results/plots/noise_vs_signal.png'
+  task: 98632cc63eccf2585cd61bbcfa94f1ef459fb5a8b0d67d41d9019ea426cbf94b
+T030a:
+  task: 384a1e9050517855bf101958a583aed7286575ab12a8d7ef467bdd5651afaf43
+T030b:
+  task: b6b4a769a4597b00141a475829dba6ca56bf18abbc73898058e0456e7134ae2d
+T031:
+  task: f39ff98864306f5107e3ea1df312a7f2f2bf32ad04df329cb64a8713bf07547b
+T033:
+  task: 1812908364b644ab6923f27d08742dee18b726263fa16eb35f93989744bc3483
+T034:
+  task: eeaf969721e234680dcccba45f96e28686fe268e58cae688ffe4000dc5019fd4
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: results/results_summary.md'
+  task: e500cff00adfff342b1f319c536bc1ba1b525059437a159c7b257ce4b9dddb76
+T039:
+  task: cc94305326f47f4928aa9cf5a6fa379aeb7a58edf983aa86f9073c1dfba76f6d
+T040:
+  task: fb80ad1b089fff13fdb05e4775098452e2c4f257cff5a8e3df096c1d9e74674d
+T041:
+  task: c061717eaa26107801e83d8507560dc8ec1cecc09f4efb4a22ea11066cfc496d
+T042:
+  task: 69249c6f2085f1a253bec832175876152ed73381d4460432fc0e376f281028a9
+T043:
+  task: 8bdfa932c49b8b41d77639a42142eb1b5155140ecb4595c2adf432347cb2e714
+T044:
+  task: dbbad69aee573f03a5c66ed40f29fba69d2062c8f754b90e395041a83564ce8e
+T053:
+  task: 11ef118545ca6cbe01428e7929f4b526a609a14cba6970dc0521e103827c9d17
+T054a:
+  task: 5b73e68affff4483ba634d7f48977a9e1a1e9297bfafa39905c325ec12d5ebf4
+T054b:
+  task: 731842d587e9226251461ebb050c55326c056d408c832ab8ccd4dfe352c55d3c
+T055:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_reproducibility.py'
+  task: 6ac39b4b09f2b359f4e6efff2aa76bdfe6684374437b355dcc0d6248a854770a
+T056:
+  task: 08326c8a2af6849eeacea517c4725a2e5c511b5b07161099cfeb123b37b9a920
