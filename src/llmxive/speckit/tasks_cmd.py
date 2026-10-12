@@ -251,6 +251,8 @@ class TaskerAgent(SlashCommandAgent):
             validate_open_tasks,
         )
         validate_open_tasks(text)
+        from llmxive.execution.platform_paths import refuse_platform_path_tasks
+        refuse_platform_path_tasks(text, ctx.project_dir)
         task_id_lines = list(TASK_LINE_RE.finditer(mask_fenced_code(text)))
         if len(task_id_lines) < 5:
             raise TaskFormatError(
@@ -439,6 +441,7 @@ class TaskerAgent(SlashCommandAgent):
                     filename=f,
                     new_content=patch,
                     original_content=_original_for_guard,
+                    project_dir=ctx.project_dir,
                 )
                 if _refusals:
                     for _msg in _refusals:

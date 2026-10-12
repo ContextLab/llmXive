@@ -186,7 +186,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: zai-org.glm-5.3
+  default_model: openai.gpt-oss-120b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: research_reviewer
@@ -317,7 +317,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: zai-org.glm-5.3
+  default_model: openai.gpt-oss-120b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_writing
@@ -849,7 +849,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: zai-org.glm-5.3
+  default_model: openai.gpt-oss-120b
   tools: []
   wall_clock_budget_seconds: 1800
   paid_opt_in: false

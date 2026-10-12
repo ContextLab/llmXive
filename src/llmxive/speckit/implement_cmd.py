@@ -14,6 +14,7 @@ Stage transitions:
 from __future__ import annotations
 
 import os
+import posixpath
 import re
 from pathlib import Path
 from typing import Any
@@ -67,6 +68,9 @@ class ImplementerAgent(SlashCommandAgent):
         from llmxive.claims.task_requirements import read_task_document
         tasks_text = read_task_document(tasks_path, ctx.project_dir, persist=True)
         validate_open_tasks(tasks_text)
+        from llmxive.execution.platform_paths import refuse_platform_path_tasks
+
+        refuse_platform_path_tasks(tasks_text, ctx.project_dir)
         next_task = self._next_incomplete(tasks_text)
         completed = [m.group("id") for m in _TASK_RE.finditer(mask_fenced_code(tasks_text))
                      if m.group("status") in {"X", "x"}]
@@ -469,6 +473,14 @@ class ImplementerAgent(SlashCommandAgent):
                 proj_prefix = f"projects/{project_root.name}/"
                 if rel.startswith(proj_prefix):
                     rel = rel[len(proj_prefix):]
+                # `tests/../specs/x.yaml` stays inside the project, so the
+                # escape check below lets it through, and the directory
+                # preparation then raised on the `..` and ended the whole run
+                # (batch 3 run 4, 2026-10-11). Write it where it points.
+                rel = posixpath.normpath(rel)
+                if rel == "." or rel == ".." or rel.startswith("../"):
+                    refuse(f"[implementer] refused out-of-project path: {relpath!r}")
+                    continue
                 proposed_rel = rel
                 # Canonicalize specs/<wrong-slug>/... → specs/<canonical>/...
                 # so the LLM's invented branch slug doesn't fragment artifacts
