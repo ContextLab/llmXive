@@ -8,7 +8,7 @@
 
 ## Phase 1 – Data acquisition & latent generation  
 
-- [ ] **T001** [US1] **Download primary and fallback corpora** – implement `src/data/download.py` to fetch the DocBank subset and, if needed, the `pubmed‑layout` fallback from their verified HuggingFace URLs.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=2 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_download.sh exit=2 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] **T001** [US1] **Download primary and fallback corpora** – implement `src/data/download.py` to fetch the DocBank subset and, if needed, the `pubmed‑layout` fallback from their verified HuggingFace URLs.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=2 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_download.sh exit=2 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   - **Verification:**  
     - After download, count pages with layout annotations; abort with clear error if total < 10 000 (satisfies FR‑001 & FR‑007).  
     - Log the SHA‑256 checksum of each downloaded archive.  

@@ -1,13 +1,13 @@
 status: none
-intent: download PubLayNet scientific document layout dataset and MixSub-LLaMA-3.2
-  python package dataset
+intent: "scientific document corpus layout annotations PubLayNet MixSub\u2011LLaMA\u2011\
+  3.2 download python package dataset"
 required_fields:
 - document_id
 - page_number
 - image_path
 - raw_text
-- layout_bounding_boxes
-- bbox_labels
-cache_key: ced9f22d5207a070504d3e1ce2350ef27efd1fbd050d83c0025f8fa5b0558813
-searched_at: '2026-10-11T19:09:40.809397+00:00'
+- layout_bboxes
+- bbox_label
+cache_key: 0e7ba43149ec66d08b3cec2d10cf5a77c2bec833d8ee1dd158a7b4978478e118
+searched_at: '2026-10-12T17:13:26.920747+00:00'
 retry_count: 1

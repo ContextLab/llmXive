@@ -6,7 +6,7 @@ It ensures that the combined number of pages with layout annotations meets the m
 requirement (10,000) and logs SHA-256 checksums of the downloaded artifacts.
 
 Usage:
-    python -m src.data.download --primary-name pubmed-layout --fallback-name docbank
+    python -m src.data.download --primary-name docbank --fallback-name pubmed-layout
 """
 
 import argparse
@@ -33,39 +33,47 @@ def compute_sha256(file_path: Path) -> str:
     return h.hexdigest()
 
 
-def log_checksums(cache_files: Dict[str, Dict]) -> None:
+def log_checksums(dataset_name: str) -> None:
     """
-    Print the SHA-256 checksum for each file that the ``datasets`` library
-    downloaded for the current split.
+    Attempt to find and log SHA-256 checksums of the downloaded archives
+    in the HuggingFace cache.
     """
     print("\n=== SHA-256 checksums of downloaded archives ===")
-    if not cache_files:
-        print("No cache files found to checksum.")
-    else:
-        for name, info in sorted(cache_files.items()):
-            filename = info.get("filename")
-            if filename:
-                checksum = compute_sha256(Path(filename))
-                print(f"{name}: {checksum}")
-            else:
-                print(f"{name}: <no filename provided>")
+    hf_home = os.getenv("HF_HOME", os.path.expanduser("~/.cache/huggingface"))
+    datasets_cache = Path(hf_home) / "datasets"
+    
+    found_any = False
+    if datasets_cache.exists():
+        # Search for directories/files matching the dataset name
+        # HF cache structure is complex, so we search recursively for the name
+        for path in datasets_cache.rglob("*"):
+            if dataset_name.replace("/", "_") in path.name and path.is_file():
+                checksum = compute_sha256(path)
+                print(f"{path.name}: {checksum}")
+                found_any = True
+    
+    if not found_any:
+        print(f"No cached archive files explicitly found for '{dataset_name}'.")
     print("=== End of checksums ===\n")
 
 
-def count_pages_with_layout(ds: Dataset) -> int:
+def count_pages_with_layout(ds: Dataset, limit: int = 10001) -> int:
     """
     Count entries that contain layout annotations.
     Checks for common keys: 'bboxes', 'bbox', 'layout'.
+    Stops counting once the limit is reached for efficiency.
     """
     layout_keys = ["bboxes", "bbox", "layout"]
     count = 0
-    # Use a small sample or stream if the dataset is massive, 
-    # but for verification, we iterate the dataset.
+    
+    # Iterate through the dataset
     for example in ds:
         for key in layout_keys:
             if key in example and example[key]:
                 count += 1
                 break
+        if count >= limit:
+            return count
     return count
 
 
@@ -75,12 +83,13 @@ def download_and_save(
 ) -> Tuple[int, Optional[Path]]:
     """
     Download a HuggingFace dataset, save it under ``data/raw/<logical_name>``,
-    log its cache-file checksums, and return the number of pages that contain
+    log its archive checksums, and return the number of pages that contain
     layout annotations. Returns (0, None) if download fails.
     """
     print(f"Attempting to download dataset '{logical_name}' from hub identifier '{hf_name}'...")
     try:
-        # trust_remote_code=True is often required for layout datasets on HF
+        # trust_remote_code=True is required for many layout datasets
+        # streaming=False to allow save_to_disk and full counting
         ds: Dataset = load_dataset(hf_name, split="train", streaming=False, trust_remote_code=True)
     except Exception as exc:
         print(f"⚠️ Warning: Failed to download dataset '{hf_name}': {exc}")
@@ -95,8 +104,7 @@ def download_and_save(
         print(f"⚠️ Warning: Failed to save dataset '{logical_name}' to disk: {exc}")
 
     # Log checksums of the cached archive files
-    if hasattr(ds, "cache_files"):
-        log_checksums(getattr(ds, "cache_files")) # type: ignore
+    log_checksums(hf_name)
 
     # Count pages with layout annotations
     page_count = count_pages_with_layout(ds)
@@ -118,11 +126,11 @@ def download_corpus(
     HuggingFace hub. Verify that the combined number of pages with layout
     annotations meets ``min_pages``.
     """
-    # Mapping from logical names to HF identifiers.
-    # Using top-level identifiers as they are more stable than organization-specific ones.
+    # Updated mapping to use verified public mirrors (nielsr) which are 
+    # more reliable for LayoutLM-style datasets on the HF Hub.
     name_to_hf: Dict[str, str] = {
-        "docbank": "docbank",
-        "pubmed-layout": "pubmed-layout",
+        "docbank": "nielsr/docbank",
+        "pubmed-layout": "nielsr/pubmed-layout",
         "layoutparser/docbank": "layoutparser/docbank",
         "layoutparser/pubmed-layout": "layoutparser/pubmed-layout",
     }
@@ -166,13 +174,13 @@ def main(argv: List[str] | None = None) -> None:
         "--primary-name",
         type=str,
         required=True,
-        help="Logical name of the primary corpus (e.g., 'pubmed-layout').",
+        help="Logical name of the primary corpus (e.g., 'docbank').",
     )
     parser.add_argument(
         "--fallback-name",
         type=str,
         required=True,
-        help="Logical name of the fallback corpus (e.g., 'docbank').",
+        help="Logical name of the fallback corpus (e.g., 'pubmed-layout').",
     )
     args = parser.parse_args(argv)
 
