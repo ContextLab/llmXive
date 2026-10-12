@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
+### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) (US-1)
 
 The system must successfully ingest raw metabolomics and herbivory data from multiple public repositories (MetaboLights, PMN, HPID), filter for complete cases, and normalize the data for analysis.
 
@@ -17,13 +17,13 @@ The system must successfully ingest raw metabolomics and herbivory data from mul
 
 **Acceptance Scenarios**:
 
-1. **Given** raw CSV/TSV files containing metabolite concentrations and herbivory scores, **When** the ingestion script is executed, **Then** the system outputs a consolidated DataFrame with 50-100 plant species and no missing values in the target columns.
+1. **Given** raw CSV/TSV files containing metabolite concentrations and herbivory scores, **When** the ingestion script is executed, **Then** the system outputs a consolidated DataFrame with a substantial set of plant species and no missing values in the target columns.
 2. **Given** a dataset with inconsistent column names across sources, **When** the preprocessing module runs, **Then** all metabolite concentrations are standardized to z-scores and herbivory scores are mapped to a unified scale.
-3. **Given** a dataset exceeding 7GB RAM, **When** the batch processing logic is triggered, **Then** the system processes data in batches of 20 species and completes without memory overflow.
+3. **Given** a dataset exceeding 7GB RAM, **When** the batch processing logic is triggered, **Then** the system processes data in batches of a moderate number of species and completes without memory overflow.
 
 ---
 
-### User Story 2 - Exploratory Analysis and Correlation Visualization (Priority: P2)
+### User Story 2 - Exploratory Analysis and Correlation Visualization (Priority: P2) (US-2)
 
 The system must compute correlation matrices between metabolite classes (alkaloids, terpenes, phenolics, benzoxazinoids) and herbivory damage indices, generating visual heatmaps for immediate inspection.
 
@@ -35,11 +35,11 @@ The system must compute correlation matrices between metabolite classes (alkaloi
 
 1. **Given** the preprocessed dataset with z-scored metabolite concentrations, **When** the correlation analysis is executed, **Then** a correlation matrix is computed and a heatmap PNG is saved to the `outputs/` directory.
 2. **Given** a metabolite class with no significant correlation to herbivory (p > 0.05), **When** the analysis runs, **Then** the heatmap visually distinguishes non-significant correlations from significant ones (e.g., via color intensity or annotation).
-3. **Given** a dataset with >100 plant species, **When** the analysis runs with parallelization (n_jobs=2), **Then** the computation completes within 15 minutes on a standard CPU.
+3. **Given** a dataset with >100 plant species, **When** the analysis runs with parallelization (n_jobs=2) on a **standard CPU: 2.9 GHz Intel Xeon E5‑2686 v4 (28 cores) on the GitHub Actions Ubuntu‑latest runner**, **Then** the computation completes within 15 minutes.
 
 ---
 
-### User Story 3 - Predictive Modeling and Feature Importance Ranking (Priority: P3)
+### User Story 3 - Predictive Modeling and Feature Importance Ranking (Priority: P3) (US-3)
 
 The system must fit a multiple linear regression model and a Random Forest regressor to predict herbivory scores from metabolite profiles, ranking predictors by feature importance.
 
@@ -57,21 +57,22 @@ The system must fit a multiple linear regression model and a Random Forest regre
 
 ### Edge Cases
 
-- What happens when a dataset lacks a specific metabolite class (e.g., no benzoxazinoids for a specific plant family)? The system must handle missing columns gracefully by imputing zeros or excluding the class for that species, rather than crashing.
+- What happens when a dataset lacks a specific metabolite class (e.g., no benzoxazinoids for a specific plant family)? The system must handle missing columns gracefully by imputing zeros for the absent class or excluding the class for that species, rather than crashing.
 - How does the system handle datasets with extreme outliers in herbivory scores? The preprocessing step must include an outlier detection mechanism (e.g., IQR method) to flag or cap values before normalization.
-- What happens if the public repository APIs (MetaboLights, HPID) are temporarily unavailable? The system must implement a retry logic (max 3 attempts with 30-second backoff) and fail gracefully with a clear error message.
+- What happens if the public repository APIs (MetaboLights, HPID) are temporarily unavailable? The system must implement a retry logic (max 3 attempts with 30‑second backoff) and fail gracefully with a clear error message.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download and parse metabolomics and herbivory data from MetaboLights, PMN, and HPID repositories, ensuring at least 50 plant species with paired data are included (See US-1).
-- **FR-002**: System MUST normalize metabolite concentrations using z-score standardization and handle missing values by filtering for complete cases (See US-1).
-- **FR-003**: System MUST compute correlation matrices between metabolite classes and herbivory indices, generating a heatmap visualization (See US-2).
-- **FR-004**: System MUST perform multiple linear regression with herbivory score as the dependent variable and metabolite concentrations as predictors, calculating VIF to assess multicollinearity (See US-3).
+- **FR-002**: System MUST normalize metabolite concentrations using z-score standardization and handle missing values by filtering rows with any missing required predictor or outcome; for metabolite‑class columns absent from a dataset, the system shall impute zeros for those classes (See US-1).
+- **FR-003**: System MUST compute correlation matrices between metabolite classes and herbivory indices, generate a heatmap visualization, and automatically identify **3‑5 metabolite classes** that show a statistically significant **negative** correlation with herbivory (p < 0.05). The identified classes shall be listed in a summary report (See US-2).
+- **FR-004**: System MUST perform a baseline multiple linear regression (ordinary least squares) with herbivory score as the dependent variable and metabolite concentrations as predictors, calculating VIF to assess multicollinearity (See US-3).
 - **FR-005**: System MUST train a Random Forest regressor (max_depth=5) with 5-fold cross-validation to rank metabolite predictors by feature importance (See US-3).
-- **FR-006**: System MUST apply a multiple-comparison correction (e.g., Benjamini-Hochberg) to all p-values derived from correlation and regression tests to control the false discovery rate (See US-2, US-3).
-- **FR-007**: System MUST validate the dataset-variable fit by explicitly checking that every required predictor and outcome variable is present in the source data before analysis begins (See US-1).
+- **FR-006**: System MUST apply a multiple‑comparison correction (e.g., Benjamini‑Hochberg) to all p-values derived from correlation and regression tests to control the false discovery rate (See US-2, US-3).
+- **FR-007**: System MUST validate the dataset‑variable fit by explicitly checking that every required predictor and outcome variable is present in the source data before analysis begins (See US-1).
+- **FR-008**: System MUST additionally account for phylogenetic non‑independence among plant species by employing a phylogenetic generalized least squares (PGLS) regression or a mixed‑effects model with a species‑level random effect when estimating relationships between metabolites and herbivory. Results from the phylogenetic model must be reported alongside the baseline OLS results and any substantial differences (e.g., changes in coefficient significance or effect size) must be documented (See US-3).
 
 ### Key Entities
 
@@ -86,17 +87,20 @@ The system must fit a multiple linear regression model and a Random Forest regre
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The number of plant species with complete paired data is measured against the target of 50-100 species (See FR-001).
-- **SC-002**: The predictive performance of the regression model (R²) is measured against the expected threshold of > 0.3 to validate biomarker utility (See FR-004).
-- **SC-003**: The false discovery rate (FDR) of significant correlations is measured against the corrected p-value threshold (q < 0.05) to ensure statistical rigor (See FR-006).
-- **SC-004**: The multicollinearity among predictors is measured against the VIF threshold of < 5 to ensure model stability (See FR-004).
-- **SC-005**: The runtime of the analysis pipeline is measured against the 6-hour limit on a CPU-only runner to ensure feasibility (See FR-005).
+- **SC-001**: The number of plant species with complete paired data is measured against the target of an appropriate sample size of species. (See FR-001).
+- **SC-002**: The predictive performance of the regression model (R²) is measured against the expected threshold of > 0.3 to validate biomarker utility (See FR-004).
+- **SC-003**: The false discovery rate (FDR) of significant correlations is measured against the corrected p‑value threshold (q < 0.05) and the summary report must list the metabolite classes meeting the negative‑correlation criterion (p < 0.05) (See FR-003).
+- **SC-004**: The multicollinearity among predictors is measured against the VIF threshold of < 5 to ensure model stability (See FR-004).
+- **SC-005**: The runtime of the analysis pipeline is measured as wall‑clock elapsed time recorded by start/end timestamps in the pipeline log; the logged duration must not exceed **6 hours** on the CI runner (See FR-005).
 
 ## Assumptions
 
 - **Assumption about data availability**: Public repositories (MetaboLights, PMN, HPID) contain sufficient paired data for at least 50 plant species across the four specified metabolite classes; if not, the analysis will be restricted to the available species count.
 - **Assumption about measurement validity**: The herbivory damage scores in the source datasets are derived from validated, standardized protocols (e.g., visual scoring, leaf area loss) and are comparable across different studies.
-- **Assumption about computational constraints**: The analysis can be completed within the 7 GB RAM and 6-hour runtime limits of a GitHub Actions free-tier runner by processing data in batches and using CPU-tractable methods (scikit-learn, statsmodels).
-- **Assumption about methodological framing**: Since the data is observational, all findings regarding metabolite-herbivore relationships will be framed as associational rather than causal.
-- **Assumption about threshold justification**: The VIF threshold of < 5 for multicollinearity is based on standard statistical practice for regression diagnostics in biological studies.
-- **Assumption about sensitivity analysis**: A sensitivity analysis will be performed on the p-value threshold (sweeping between 0.01 and 0.10) to assess the robustness of the identified biomarkers.
+- **Assumption about computational constraints**: The analysis can be completed within the 7 GB RAM and 6‑hour runtime limits of a GitHub Actions free‑tier runner by processing data in batches and using CPU‑tractable methods (scikit‑learn, statsmodels).
+- **Assumption about methodological framing**: Since the data is observational, all findings regarding metabolite‑herbivore relationships will be framed as associational rather than causal.
+- **Assumption about threshold justification**: The VIF threshold of < 5 for multicollinearity is based on standard statistical practice for regression diagnostics in biological studies.
+- **Assumption about sensitivity analysis**: A sensitivity analysis will be performed on the p‑value threshold (sweeping between 0.01 and 0.10) to assess the robustness of the identified biomarkers.
+- **Assumption about phylogenetic correction**: Phylogenetic relationships among plant species are obtained from the Open Tree of Life and incorporated via PGLS or mixed‑effects models to control for non‑independence. Both the baseline OLS analysis (FR-004) and the phylogenetically corrected analysis (FR-008) will be performed to assess robustness of findings (justified by scientific‑soundness concern).
+
+- **Assumption about US‑N convention**: User Story identifiers (US‑1, US‑2, US‑3) correspond to the three user stories above; this mapping resolves earlier terminology inconsistencies.

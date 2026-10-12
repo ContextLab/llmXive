@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T09:41:51.409910Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-081-investigating-the-relationship-between-p
-last_run_id: 2bb563a7-f174-4eb2-a1ce-3e4b878f161b
+last_run_id: c5da5334-c261-41f6-b77f-0bd9edb6c32b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-081-investigating-the-relationship-between-p/specs/001-investigating-the-relationship-between-p
 title: Investigating the Relationship Between Plant Secondary Metabolite Profiles
   and Herbivore Resistance
-updated_at: '2026-09-28T01:43:17.621810Z'
+updated_at: '2026-10-12T18:31:28.383944Z'

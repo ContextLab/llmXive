@@ -45,9 +45,9 @@
 
 - [ ] T005 **(Directory Creation)** Create data sub‑directories `data/raw/`, `data/processed/`, `data/consent/`, `data/results/`, `data/mock/` each containing a `.gitkeep`. **Verification**: Directories exist and contain `.gitkeep`. *Maps to FR‑001*. **Depends on: T001**.
 
-- [X] T002 **(Dependencies)** Initialize `code/requirements.txt` with pinned versions of all required packages. **Verification**: `pip install -r code/requirements.txt` succeeds without conflicts. *Maps to FR‑007*. **Depends on: T001**.
+- [ ] T002 **(Dependencies)** Initialize `code/requirements.txt` with pinned versions of all required packages. **Verification**: `pip install -r code/requirements.txt` succeeds without conflicts. *Maps to FR‑007*. **Depends on: T001**.
 
-- [X] T003 **(Linting & Formatting)** Add `ruff.toml` and `pyproject.toml` for `ruff` and `black`. **Verification**: `ruff check.` and `black --check.` return zero exit codes. *Maps to FR‑007*. **Depends on: T001**.
+- [ ] T003 **(Linting & Formatting)** Add `ruff.toml` and `pyproject.toml` for `ruff` and `black`. **Verification**: `ruff check.` and `black --check.` return zero exit codes. *Maps to FR‑007*. **Depends on: T001**.
 
 - [ ] T004 **(Data Model Validation)** Validate `specs/001-the-impact-of-text-message-tone-on-perce/data-model.md` against `spec.md` entities (Stimulus, Participant, Rating, AnalysisResult).
  **Action**: Run `code/verify_data_model.py` → generates `data/validation/data_model_report.txt`.
@@ -92,9 +92,9 @@
 
 - [ ] T091-Check **(Validate Power‑Analysis Results)** Run `code/00_validate_power.py` against the JSON. **Depends on: T091, T091-ValidateScript**. **Verification**: CI fails if thresholds not met.
 
-- [X] T099 **(Primary Pipeline CLI)** Add `code/run_pipeline.py` providing a unified CLI (`--mode real` or `--mode mock`). **GUARD CLAUSE**: `--mode mock` is disabled for primary analysis; invoking it with `--generate-report` exits error code 1 with message “Mock mode is not allowed for primary analysis; real data is required.” **Verification**: `tests/contract/test_cli_guard.py` confirms behavior.
+- [ ] T099 **(Primary Pipeline CLI)** Add `code/run_pipeline.py` providing a unified CLI (`--mode real` or `--mode mock`). **GUARD CLAUSE**: `--mode mock` is disabled for primary analysis; invoking it with `--generate-report` exits error code 1 with message “Mock mode is not allowed for primary analysis; real data is required.” **Verification**: `tests/contract/test_cli_guard.py` confirms behavior.
 
-- [X] T099c **(Performance Documentation Alignment)** Update `plan.md` and `README.md` to state “≤ 6 hours”. **Verification**: `code/check_performance_phrase.py` scans both files for exact phrase. *Depends on: T001*.
+- [ ] T099c **(Performance Documentation Alignment)** Update `plan.md` and `README.md` to state “≤ 6 hours”. **Verification**: `code/check_performance_phrase.py` scans both files for exact phrase. *Depends on: T001*.
 
 - [ ] T013 **(Stimulus Generation)** Implement a factorial generator script producing `data/raw/stimuli.csv` with columns: `stimulus_id,text,emoji_count,punctuation_type,length_category,scenario_id,cue_intensity`.
  **Verification**: `pytest tests/contract/test_stimuli_schema.py` validates schema, data types, and uniqueness of all feature combinations. *Depends on: T001, T005, T090*.

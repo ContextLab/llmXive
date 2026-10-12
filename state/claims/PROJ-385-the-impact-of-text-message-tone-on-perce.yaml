@@ -1596,7 +1596,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-28T13:36:12Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -1963,7 +1963,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-23T18:28:45Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -2378,7 +2378,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-26T14:02:57Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -2698,7 +2698,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T18:46:43Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -2784,7 +2784,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T18:50:25Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -2802,7 +2802,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T18:50:29Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -3067,7 +3067,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-31T21:55:04Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -3085,7 +3085,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-31T21:55:09Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -3264,7 +3264,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-03T16:46:56Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -3471,7 +3471,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-30T00:52:24Z'
 - artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   attempts: 1
@@ -3693,3 +3693,23 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-08T08:48:18Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/README.md
+  attempts: 1
+  canonical: pipeline runs within 6 hours and 7 GB RAM on GitHub Actions runner
+  claim_id: c_406d60ce
+  context: "The manifest file `data/manifest.json` records hashes for all pipeline\
+    \ outputs and is validated before downstream steps. The pipeline is CPU\u2011\
+    only and runs within the resource limits of a standard GitHub Actions runner (\u2264\
+    \u202F6\u202Fh, \u2264\u202F7\u202FGB RAM)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline is CPU\u2011only and runs within the resource limits of\
+    \ a standard GitHub Actions runner (\u2264\u202F6\u202Fh, \u2264\u202F7\u202F\
+    GB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T18:33:58Z'

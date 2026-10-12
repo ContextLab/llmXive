@@ -1,0 +1,247 @@
+T001:
+  task: 2c378578fe400ca60506df1ee43d7105a9fb5203f5f195dfc5950d356f7ea563
+T002:
+  reason: "The `code/requirements.txt` file is present, but it lists version ranges\
+    \ (e.g., `pandas>=2.0.0`) rather than pinned exact versions, and there is no evidence\
+    \ that `pip install -r code/requirements.txt` was run successfully. The task requires\
+    \ pinned versions and verification of a conflict\u2011free install."
+  task: ab8bd3eac5dfe0453cfbfabe4f57402eeee0ab5517c80d9f20d39fd321bd5eea
+T003:
+  reason: "The `ruff.toml` and `pyproject.toml` files are present, but there is no\
+    \ provided evidence (e.g., command output, logs, or test results) showing that\
+    \ `ruff check.` and `black --check.` actually run and return zero exit codes.\
+    \ Without this verification, the task\u2019s requirement is not satisfied."
+  task: cf4e97c2c9e5452d5d9baba2b1266e2f63766e0382e9490e9bfb88cdb7180268
+T004:
+  task: 7a96d55c1a38ee32e44000d7a3b344fab09a40ef01244342f57ea44726b463da
+T005:
+  task: af330ea868059ba619ed277a3201910df506e5d80e4f69bb53d8eb5a9895e772
+T006:
+  task: b0322967bf30fe2415a51a85765d64eb252bca2387c705980902b87b45564919
+T007:
+  task: 93c1dfb3c4c66574c537007d0425ad7b0e888539b6326e54dfafd086b75305bd
+T008:
+  task: 6f9362f1b2efb745d7adf807e29df46783c804ec3592f62cea7e4cc174b483a7
+T009:
+  task: fcd337b24f4215d7347378007182dc403f3e5a1cce80b6e5aa4a1ac58fc439fa
+T013:
+  task: 9b4c53a32de91bf68e0f2f3e7a9b362ec897d2edf5f155d575813e022291f6bc
+"T013\u2011Schema\u2011Test":
+  task: a282e0465434aaae30b9aa2bd45946db8aff92462dc6541938b517b5489161fb
+T014:
+  task: 3d73d97ce6647490c790e41a72b79f226404eddfde4cb9ffeac085cda08287b5
+T015:
+  task: 9e703c5258b9903d89c7e474c0c3da4f83b86229bb91cfe821eb8f924f371ae6
+T015a-Verify:
+  task: 11bd872f9cb279afee7c5598c2e33244be1e1eda26f4a5336ab3d6fec574b3ef
+T015b-Real:
+  task: d69dbf470e55e7190fdc69628bfe5af82906060b29c2305dac96b1ecb1fb4f6d
+"T015b\u2011ParticipantCount":
+  task: 23ab0f3ad233a7a57bac0534414dd7b051f6c5d519711df0a8e8118ad33bb95a
+T015c-Guard:
+  task: f8e05eacfb6a2b8eaac61497f93fd64b32950f739362d162ccda69d66f77b987
+"T015c\u2011Guard\u2011Test":
+  task: e5fd6ac322acf50fbc7a5f5a1014a169e135b54d8117f38f06533212732b393a
+"T015c\u2011Verify":
+  task: e2bda01888cf7e6c3065a0cce57a4136801a54b2b7aa5b259ae4111b7c3dd93d
+"T015c\u2011VerifyPrimaryScript":
+  task: c9b5e797d252568f898413f3750ea6dc9a441021dbc3745a0bf081cccdcb03cd
+T016a:
+  task: 7390aead471895ee788ee361f69735c7c8a316daf98c5acb6533a49dae44a462
+T016b:
+  task: 9c1bdb4343bea0a2738c94cfed573a9b4e9c481f143a4f596bd23c34d7ac80f6
+T020:
+  task: fbaa3a78bf7b93ce17492b03477cc133d2f3a10cb316a2e219ec331ef67add89
+T021-DocumentMethod:
+  task: 4bf2a7d52bee48bda1d0a3c94c088b159000e6b29db51bac8cb1b7c3cfa5bce8
+T021-DocumentMethod-Test:
+  task: 0b8c318a2f237491beddf0b9114c3a7197ac966f53075064ff9abb24913d674f
+T021a-Python:
+  task: 076d6735a6590117412ce896e369353496d026182bc249a887c009a06d9d65c4
+T021b:
+  task: 66f44c995d912493c28907592cdefcb93e302b224bd24d3bce1f5e78b5335679
+T024:
+  task: f8d27c55df5b832ed14e13871af6edfa3ee7fafbd984ebfa0d93228df51ddece
+T025:
+  task: ccf17dfa6cbcc5e29d15d339ca0a5660c850fd098714391c20a395fc99385c1a
+T027a:
+  task: a4762fe1eebecf58c0936ccedfac07d9e1f810c8faf2f571feb460f276cb0cab
+T027b:
+  task: 7eafb07a54b6ca3dbb9ac7078fcdb66777fcd046b3d9f00adad8e82b35909f61
+T027c:
+  task: d33c2bdcfa406c7d4a0cbf1a0dd95bd052b31660e1776142dadde065427e7213
+T028:
+  task: 64814d7ffc916b0daf67978e094fe150e7eeb5d3737af060849e71565db06a87
+T029:
+  task: f1deffc85d3ab4cff08f768c8d81d4b39f2e6b5c812cde8236141e6c466a7e70
+T033:
+  task: 0926c11fdf6518376b44942f78484e3b3197fe37ff20e910c12eb667bb887044
+T035:
+  task: 7787d06cc94cba3558ad50d6c0827bae807895c8dffe40fc9df342c5b5ffdf73
+T036:
+  task: e8e7d9fbcc2209d6aac071796620df3ec30576a32bd10b94927dcc2440260088
+T038:
+  task: 3337ffd15fc6c9279130adec528c33e74e8a1f789c22ec54fd3d86cabb780a7a
+T040-Generate:
+  task: d0807fc15bf7cf9fd4deebeb9d924b7dc9bdf2c433835f620acd1ea81fa74421
+T040-Verify:
+  task: bf1fd3f1286e3e88e9246e5aaa02e8a839a2e40cc9582727068d702bb93b3934
+T042:
+  task: affca5ebd419b05167a406f4a04a3b0f0caccc340e090579a279a30f24ebd904
+T043:
+  task: 0a1bf03f9a7f5e2c530970739d0c1cfabbadb9719d330d61dad59b079b14f29e
+T043a:
+  task: 3c2d9b0554c7356281f706f8dfe338e648003e3c1a0e5643db23d2836dd020e0
+T044:
+  task: 3e26272a12f6cc10cb7fdb57c19a895e34b8611fdb8e2d454ae6e125cecb5e4d
+T045:
+  task: ea85b4d8b1ba32d1b3c9d90afc5d89a5a4ee426dcea5b85680f92dfa8d74dfca
+T046:
+  task: 389671823c50426150d3ff126ded0079a845d7f714dc883a4ffad57ca427f6ad
+T051:
+  task: b8a43b9d4ba83c4c35cfd0f2358d63b0efd4a4abff4c341d3235a2c7d4d91e52
+T052:
+  task: e62ea69409d31853d25f6517feb172bc89523e8d9616a08130316460623a8f6b
+T054:
+  task: bc83b8c03970b53d0af69080a340eb2b521bfcb3ebe85de0080340d529b8816f
+T056:
+  task: 41ccb9bcfcf2e79126c082c1f66ea2d70784af4583480173701bb83953956160
+T084:
+  task: 72bd2a1ea3943eab2eea1e396fb6ba6fc4a9a919565c554e9d64053c9a263942
+T084a:
+  task: 12dfc1c29d29980c8f5f5cbbc10dfe2e985272101ba3ac2ee4fe1192784b89f7
+T085:
+  task: 836196c47da51c9f695576d2a5246b1a3bdb9491aee81a71267bec1fefd0034c
+T090:
+  task: 056eb7630ab013f71fe20ff35b167a78545a6a068b0376fed8d922b0c561db57
+T090-Validate-Script:
+  task: 0bbc982cb46b2cbd81e9e84332acbc134a2937df304e7d2212f0a91382f78f4a
+T090-Validate-Test:
+  task: bef477521fbec7480681e7995acf8914d7bfa1600d73336ca6dc2643990f92cc
+T090b:
+  task: 873527796d6b74581ca29bc49b817760c4abb52f3a75a8df8c1ec619c622497b
+T090b-Validate-Checksum:
+  task: c4caad47a6a91625bd35eb54cfb2335edee98e92922be677a8382a97c5509005
+T091:
+  task: b9afe80d0a40962e7ee584783329e610d78f5f66d9ceebefcf6bdd0f72133997
+T091-Check:
+  task: 52729eca2ca3991ff8b039917bdb0d20002c00a55f94c443d423936c94f5aa78
+T091-ValidateScript:
+  task: 5287635588c6ad0a3f13793141403e87fbfe593163aeb5a19ee693feebe70222
+T093:
+  task: 582997e9bc8fc1d4cd000c2ef218fba7b51f6af214c4c0217f519fab8289ee00
+T099:
+  reason: "The provided `code/run_pipeline.py` only defines `--mode` choices \u201C\
+    real\u201D and \u201Cbenchmark\u201D and lacks any `--mode mock` handling or a\
+    \ `--generate-report` option, so it cannot produce the required exit\u2011code\u202F\
+    1 with the specified error message. Consequently the contract test `tests/contract/test_cli_guard.py`\
+    \ would fail. The CLI must be extended to accept `--mode mock` together with `--generate-report`\
+    \ and enforce the guard clause."
+  task: 44fa265eb4c0fce50a23f5a6abfddee8b7d1f2358592ebd9633de1fe89278d7c
+T099c:
+  reason: "The `plan.md` and `README.md` files contain \u201C\u2264\u202F6\u202Fh\u201D\
+    \ (using the abbreviation \u201Ch\u201D) but do not include the exact phrase \u201C\
+    \u2264 6 hours\u201D that `code/check_performance_phrase.py` searches for. Consequently\
+    \ the verification script would report a failure, so the required documentation\
+    \ update is not satisfied."
+  task: b4ce847e11a3d899694e3bfdc63697a18ed0e05097b65175afd907423526c3a2
+T100:
+  task: 487fdbec89346feb10877bc9286dfea4409ed5a2ca6d73918d0ef5afe94de1f5
+T104:
+  task: 15907c3f533c86367af52ff660afeaee09a66dfa33525a40d54d7bbeede0eec4
+T105:
+  task: 0bdc0af39c8d6aa9e013238c906ed705f39fa2dbd8f28a2c28e08b477bdec756
+T106:
+  task: fea77305b10e1af6bb721b5a0969d92d0b0c0087ea471629ac235842afe627e3
+T107:
+  task: 7fabae6af92b63b5c74f1036db837d6ecda9b3204bc25f10e4e8ce44f687b533
+T108:
+  task: a7916a99158b9cd30a445762538e262f10837b7ac9c3d0e033e8f3fb35c712f4
+T109:
+  task: e0e030d7c719886da5820b264aa100ee9f34137d90c5b34b51561e7e9ccead01
+T110:
+  task: 4d7c256e220291dfb6c81db65e0560ac76bc807021b8c44d3a1864c66b93642b
+T112:
+  task: 1b26d9a312de88661243d0f2ebd4d158577d7667ccfe8162a62d166086a6f365
+T113:
+  task: 84c625beff6a6bb9e71352957d8e4c3455924fac35ea9e17f8d066f50cc4fc7f
+T124:
+  task: c976057292f2d96f720888fe95d99999b6fc9d9eac02486c129c6b67b17b2640
+T124-Guard-Test:
+  task: d46925112536ca50371c82d4fe186e7f5812d7ef9b5380cdbb5b972f1dc298aa
+T125:
+  task: 2e254b5b1068e6dfbaefe8c656dd3efe2c49c12e340281ed5c0d067a86b11836
+T126:
+  task: c52b9c62ac68b20607b3cd39fbcac4059e895426423193a027310e00b5c18d7b
+T127:
+  task: dae43a9444dfeaeb509bd89fe13d5233df0a86c49f2408ebba58cfdb1cfefced
+T128:
+  task: 7303f777989302075f8f1da37bf43dee836cb3ee5861b8a1143e05215cc9cf02
+T129:
+  task: 9c9aaade988100400d74fbb3f02b7db06559dd5972a49a05ce8352ae234bb502
+T130:
+  task: 5506dc6bc4461165c376c912647ad14bd645f5a2862aff1fa130bfd12a362fcd
+T131:
+  task: b41cf4ded5d32ff1ac659defd46b85bd2800c850886cdcfb333f763343945d7e
+T132:
+  task: 3f056f5afa74245f13f43b9bc804c0784a687794457f5c31da436158eef3ec6c
+T133:
+  task: 77d2556186aa15d2cc120114b6f190e8535c656ad822922713489bccb2464755
+T134:
+  task: 3ea0e3cb4e618eee8eac1f1668722182deb09b74e90a0c4ffa5eb582b64d496b
+T135-Analysis-Benchmark:
+  task: 4bdba10cddaa545f3d5e6bc3cb3766fbd532edfeaecc47779c8c300a60e83372
+T140:
+  task: 74b082a1a18f895939a7c6e6f61477a69c9e70258307fa1e3f536479660ee74d
+T141:
+  task: 74c0fd05179e343492eecf7058697501dc76fec55e6b81a55a60a42e41f2217d
+T142:
+  task: 5a6e6d0116188cafade54eea3877894bc4b1b4da6cd65ab48f97ca3eb0933c5b
+T143:
+  task: 62c2cfb1da414a99003b22287d8f6cb804feae07926e932d81236bc8ca352f5b
+T144:
+  task: 25b11e88b3cae8cf77a8f1625c3de8b00463a779489debae90983bea27070f27
+T144-Mock-Generator:
+  task: 01fbcfab0955c2748c353b298098c93fcd9f7afcee9d0a1082d710e2c2d004fe
+T145:
+  task: 851d6d56945a36021886a90a64e4b035398724502589c11b80b1c096b6c9e8fb
+T150:
+  task: 25ab4f20e4d59df6e58f27bd88dd136c7e7d00eaad240722517479f58647c50c
+T151:
+  task: 9c348f40454a1c5545496bf59b0c154eed574e6f1b9997179315f449b5ddadea
+T152:
+  task: dd9bd45a6a75fe20490e033edaf80ad32b918e78fbb23736b01f4f47747e2c25
+T153:
+  task: bb4739756f564c08ac2115b897ed49f56ac7ce6d070fe90f4f98a13a9102e2fa
+T154:
+  task: 4fd196395691cb8e3908788a2e533d203b65030b115fe1f37a7e6825db0b96a0
+T155:
+  task: 8dbd9155a083ec491990c9a4998fe3a5da8169a83afe95ddde31eb06071a5579
+T160:
+  task: e842501bc9950ef596c885d7df2d99f97bc23f8e0917eb235793eddf08678044
+T161:
+  task: 13614017002e99f00b0ce5676e84e9e984927991dc49fb59b99419c9b3a49ac7
+T162:
+  task: 74e9113856e2cb04521d704fa7a10a72a6552d49393fecd8fdfde5e487de33de
+T163:
+  task: fa0b19d70ded4341843e5c135c86c0600c28ed65958511a17e1d74a28f496658
+T164:
+  task: 0a353d6225d349c03219c0a641a2917c4c6b7ffd614c8c74f70498694995eae9
+T170:
+  task: 38ff16d7327c33c311c0342ad957d44967b5e6efb6ef396f44631e3d594797a8
+T171:
+  task: e46da43b52a3ced0be16c0bc336be28f3a561f1527cad0139a2fb455e684cd29
+T172:
+  task: e7bc268238f7a8619a780e0a5ba42f1d4c686fd3234a5a32893b0edc5eb18148
+T173:
+  task: bf26ee519c47e3b75a7c722a3aba30461baeb75453652ab8cbf1f0e7819adf68
+T174:
+  task: de92b89bac298a771fdb9c5a6e8ec192a7c9a77be74fe074b05f4539d62d220e
+T180:
+  task: 4a35833946e6d3e1ae0875258191edc8aa4e4c6e6e696b4d2044ef9f33646cdd
+T181:
+  task: 7048384491069d6b24ba0ea580eaf89ea691d73f08772c93181646c7e4fe32e8
+T182:
+  task: 9b067c971c02d55c0aaee484f4bbeb496e0cfd6394163f7cb0b5969b562368b5
+T183:
+  task: db9bda54d63f95efd81b9097be22bf8b68b1ea578134b7d2061ac608fb9ac4a0

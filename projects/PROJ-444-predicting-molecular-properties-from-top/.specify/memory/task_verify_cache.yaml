@@ -1,17 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or proof that the `projects/PROJ-444-predicting-molecular-properties-from-top/\u2026\
-    ` folders were actually created is provided; without concrete evidence the requirement\
-    \ cannot be confirmed. The implementer must supply a verification output (e.g.,\
-    \ `ls -R` showing all required subdirectories) or a script that confirms their\
-    \ existence."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a file `projects/PROJ-444-predicting-molecular-properties-from-top/README.md`
-    actually exists, nor that it contains the required text. The implementer must
-    supply the README file with the specified content.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,51 +13,3 @@ T004:
     \ a `state/` tracking component or script that checks their existence on exit,\
     \ was presented. Without these artifacts the task\u2019s requirement cannot be\
     \ confirmed."
-T008a:
-  c: false
-  h: fb80624c129f6dbe08b470e253ca0ee0b530c0b5b5c1ec193b8936859d8ed54f
-  r: "The provided `code/01_data_ingestion.py` does not contain logic to download\
-    \ the ESOL CSV, validate the `smiles`/`logP` columns against the required schema,\
-    \ or perform the a\u2011priori power analysis and write `data/processed/power_analysis_report.json`.\
-    \ Moreover, the referenced schema file and the JSON report are absent from the\
-    \ repository."
-T008c:
-  c: false
-  h: 4d90586e9c605e0e5b81d673aa15559c81771dab546317ae53de50f6266394b3
-  r: "The required output files `data/processed/filtered_esol.csv` and `data/logs/large_molecule_exclusions.log`\
-    \ are absent, and the provided `code/01_data_ingestion.py` (as shown) does not\
-    \ contain any logic that filters molecules by molecular weight >\u202F1000\u202F\
-    Da or writes those files. The implementation therefore does not meet the task\u2019\
-    s deliverables."
-T016:
-  c: false
-  h: b697096e09952a68e762cd2502d0ac21404490d85b80a691c54f8d835e3f56fe
-  r: "The required output file `data/processed/tda_vectors_10x10.csv` does not exist,\
-    \ and the input `data/processed/splits.json` (needed to map molecule IDs) is also\
-    \ missing. Without these files the script cannot be run nor can the contract test\
-    \ be executed, so the task\u2019s core requirement is not satisfied."
-T017:
-  c: false
-  h: b9a9e4d9f59e890e1685b1c61166ae760c3ee876867c31977d4df5e495409613
-  r: The repository contains a partially shown `code/03_feature_engineering.py`, but
-    the required input CSVs (`data/processed/traditional_descriptors.csv`, `data/processed/tda_features.csv`)
-    are absent, and the expected output file (`data/processed/combined_features.csv`)
-    was never generated. Consequently the merging functionality cannot be verified
-    or executed.
-T018:
-  c: false
-  h: d556d3d4b85574f36c389eeb4fd3329817d8c05ba9b957e33bffac17049c1208
-  r: The required `data/processed/splits.json` file is absent, so the script cannot
-    actually load split indices as the task demands. Additionally, the provided `code/04_model_training.py`
-    is truncated and does not show the loading/application logic, leaving the core
-    requirement unverified. The missing splits file must be added (and the script
-    confirmed to use it) for the task to be complete.
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test file was provided that implements the requested runtime\
-    \ GPU check (inspection of `CUDA_VISIBLE_DEVICES` and library\u2011specific GPU\
-    \ flags, raising `SystemExit(1)` without using `torch`). Without such an artifact,\
-    \ we cannot confirm the feature was added. The implementer must supply the modified\
-    \ source file (or a minimal reproducible example) that performs the generic CUDA\
-    \ detection and exits when a GPU is detected."
