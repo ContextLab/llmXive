@@ -16,7 +16,7 @@
   - **Files**: `.gitignore` (standard Python ignores) and `README.md` containing the exact project title **“Statistical Analysis of Publicly Available COVID‑19 Vaccine Adverse Event Reports”** plus a one‑sentence description.  
   - **Verification**: `grep -q "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports" README.md` and `test -s .gitignore`.
 
-- [ ] **T003** Configure linting and formatting tools (CPU‑only). <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
+- [ ] **T003** Configure linting and formatting tools (CPU‑only). <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
   - **File**: `pyproject.toml` that enables **ruff**, **black**, and **isort** (no GPU‑specific packages).  
   - **Verification**: Run `ruff check .` and `black --check .`; both must exit with status 0. Capture the combined stdout/stderr in `logs/lint.txt`.
 

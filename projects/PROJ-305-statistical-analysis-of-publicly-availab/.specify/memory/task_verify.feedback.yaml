@@ -1,12 +1,12 @@
 T001:
-  reason: "The directory tree itself was created (src/, data/, output/, contracts/\
-    \ subdirectories all confirmed present), and the setup script's execution log\
-    \ claims a snapshot was written. However, the collector's on-disk evidence does\
-    \ not confirm that `logs/` or `logs/structure.txt` exist \u2014 the required snapshot\
-    \ artifact is missing from the actual artifacts, so the verification condition\
-    \ (non-empty `logs/structure.txt` containing a line for each listed directory)\
-    \ cannot be confirmed. The implementer should ensure `logs/structure.txt` is actually\
-    \ present and populated (e.g., re-run the snapshot step and"
+  reason: "The directory tree itself checks out (all 14 required directories exist,\
+    \ including empty ones like `src/validation/` and `data/raw/`), and the historical\
+    \ log shows `code/setup_structure.py` exited 0 claiming a snapshot was written.\
+    \ However, the task's required deliverable \u2014 `logs/structure.txt` \u2014\
+    \ is absent from the collector-confirmed artifacts: there is no listing for `logs/`\
+    \ or `logs/structure.txt`, so there is no current evidence the snapshot file exists\
+    \ and is non-empty with a line per required directory. The implementer must ensure\
+    \ `logs/structure.txt` actually exists on disk (re-run the"
   task: 7a05fc7ae8e3c23695993ba53df0ca8373aac55059a7516e63527572beda3200
 T002:
   task: 3f5baf962ba451ddaba32ad9a1a6d929761bbc720e6b1be1d5dd58246ccb6ccc

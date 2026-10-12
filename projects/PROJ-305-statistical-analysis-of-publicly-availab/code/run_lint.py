@@ -13,6 +13,7 @@ def main():
     """
     # 1. Apply formatting and auto-fixes
     # These steps ensure that 'ruff check .' and 'black --check .' will exit 0.
+    # We use the project root as the target.
     subprocess.run(["isort", "."], check=False)
     subprocess.run(["black", "."], check=False)
     subprocess.run(["ruff", "check", "--fix", "."], check=False)

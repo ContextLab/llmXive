@@ -18,6 +18,6 @@ STDOUT:
 
 STDERR:
 All done! ✨ 🍰 ✨
-58 files would be left unchanged.
+17 files would be left unchanged.
 
 Exit Code: 0
