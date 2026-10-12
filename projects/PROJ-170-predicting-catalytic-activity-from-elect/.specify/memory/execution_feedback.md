@@ -18,7 +18,7 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
     from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
   File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.2
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/extract_descriptors.py -> rc=1
 ^^^^
@@ -69,10 +69,10 @@ FileNotFoundError: Aligned dataset not found at /home/runner/work/llmXive/llmXiv
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/evaluate_reduced.py': [Errno 2] No such file or directory
 
 - python code/interpret.py -> rc=1
-026-10-12 22:12:25,305 INFO __main__: ================================================================================
-2026-10-12 22:12:25,306 INFO __main__: T106: SHAP Analysis and SC-003 Verification
-2026-10-12 22:12:25,306 INFO __main__: ================================================================================
-2026-10-12 22:12:25,306 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
+026-10-12 22:16:39,867 INFO __main__: ================================================================================
+2026-10-12 22:16:39,867 INFO __main__: T106: SHAP Analysis and SC-003 Verification
+2026-10-12 22:16:39,867 INFO __main__: ================================================================================
+2026-10-12 22:16:39,867 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/interpret.py", line 287, in main
     model_full = load_best_xgboost_model()
@@ -82,7 +82,7 @@ Traceback (most recent call last):
 FileNotFoundError: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 
 - python code/report.py -> rc=1
-2 22:12:25,599 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
+2 22:16:40,186 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/report.py", line 247, in main
     output_file = run_report_generation()
@@ -116,7 +116,7 @@ ERROR tests/test_hashing.py
 ERROR tests/test_preprocess.py
 ERROR tests/test_report.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.37s ===============================
+============================== 7 errors in 1.04s ===============================
 
 
 

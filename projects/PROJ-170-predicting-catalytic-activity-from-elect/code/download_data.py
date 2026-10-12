@@ -135,7 +135,6 @@ def download_oc20_stratified_sample() -> Path:
         dataset = load_dataset(REPO_ID, streaming=True, split='train')
         
         # Record revision if possible
-        # dataset.dataset_info might be available for some streaming datasets
         revision = "unknown"
         if hasattr(dataset, 'dataset_info') and dataset.dataset_info:
             revision = getattr(dataset.dataset_info, 'revision', 'unknown')
@@ -161,12 +160,10 @@ def download_oc20_stratified_sample() -> Path:
         for family, group in df.groupby("_family"):
             frac = len(group) / total
             n_take = max(1, int(round(frac * SAMPLE_SIZE)))
-            # Ensure we don't take more than available in the group
             n_take = min(n_take, len(group))
             sampled_frames.append(group.sample(n=n_take, random_state=42))
         
         sampled_df = pd.concat(sampled_frames).reset_index(drop=True)
-        # If we are under SAMPLE_SIZE due to rounding, fill with random sample
         if len(sampled_df) < SAMPLE_SIZE and len(df) > len(sampled_df):
             remaining = SAMPLE_SIZE - len(sampled_df)
             extra = df.drop(sampled_df.index).sample(n=min(remaining, len(df)-len(sampled_df)), random_state=42)
@@ -206,25 +203,21 @@ def download_mp_descriptors(compositions: List[str]) -> Path:
     with MPRester(api_key) as mpr:
         for comp in set(compositions):
             try:
-                # Using the summary search for basic descriptors
                 results = mpr.summary.search(
                     formula=comp, 
                     fields=["material_id", "formula_pretty"]
                 )
                 if results:
                     entry = results[0]
-                    # In a real scenario, we'd fetch specific DOS descriptors.
-                    # For the loader, we store what the API provides.
                     descriptors[comp] = {
                     "material_id": entry.material_id,
                     "formula_pretty": entry.formula_pretty,
-                    "d_band_center": None, # Placeholder: would be fetched via DOS
+                    "d_band_center": None, 
                     "p_band_center": None,
                     "bader_charges": None,
                     }
             except Exception as e:
                 logger.error(f"Failed to retrieve MP data for {comp}: {e}")
-                # We raise because the task says "The loader MUST raise on fetch failure"
                 raise RuntimeError(f"MP descriptor fetch failed for composition {comp}") from e
 
     MP_DESCRIPTORS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -266,7 +259,6 @@ def main() -> int:
         parquet_path = download_oc20_stratified_sample()
 
         # 2. Experimental TOF (Fallback logic)
-        # Note: 2025 study URL not provided, so we proceed with fallback to OC20 as per plan.
         extract_experimental_tof(parquet_path)
 
         # 3. MP Descriptors

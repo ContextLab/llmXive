@@ -1,11 +1,11 @@
 status: none
-intent: Open Catalyst 2020 experimental dataset Materials Project bulk descriptors
-  Catalysis Hub CO2 hydrogenation python package dataset
+intent: OC20 dataset Materials Project bulk descriptors 2025 CO2 hydrogenation TOF
+  python package dataset
 required_fields:
 - catalyst_id
 - d_band_center
 - activation_barrier
 - experimental_tof
-cache_key: a847d5997065e3a89876c909e3bc4d89f4bcf7f56fa0d7325ae530236e9f3113
-searched_at: '2026-10-12T22:12:52.753114+00:00'
+cache_key: 91d1a162be8da9468ebd09b69127483115c1d231930e3458850021d821bc830f
+searched_at: '2026-10-12T22:17:26.168645+00:00'
 retry_count: 1
