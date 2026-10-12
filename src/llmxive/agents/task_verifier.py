@@ -506,6 +506,11 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
     return "\n".join(chunks)
 
 
+_EXECUTION_RECORD_READ_BYTES = 200_000
+_EXECUTION_RECORD_BUDGET = 17_000
+_EXECUTION_RECORD_LIMIT = 10
+
+
 def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Expose bounded, task-specific execution records rather than hiding success.
 
@@ -517,7 +522,7 @@ def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log
         return ""
     task_id = match.group(1)
     root = project_dir.resolve()
-    records = []
+    found = []
     candidates = sorted((project_dir / execution_log_dir).glob(f"{task_id}.*.log"),
                         key=lambda p: p.stat().st_mtime_ns, reverse=True)
     for path in candidates:
@@ -527,7 +532,7 @@ def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log
             with path.open("rb") as stream:
                 digest = hashlib.file_digest(stream, "sha256").hexdigest()
                 stream.seek(0)
-                body = stream.read(6001).decode("utf-8", errors="replace")
+                body = stream.read(_EXECUTION_RECORD_READ_BYTES).decode("utf-8", errors="replace")
         except OSError:
             continue
         header = re.match(r"# (.+?) \(exit -?\d+,", body)
@@ -535,12 +540,25 @@ def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log
         # record to match this exact task's filename before using its evidence.
         if not header or path.name != f"{task_id}.{header.group(1).replace('/', '_')}.log":
             continue
-        records.append(f"### {path.relative_to(project_dir)} (sha256 {digest})\n"
-                       + body[:6000] + ("\n[Log truncated]" if len(body) > 6000 else ""))
-        if len(records) == 3:
-            break
-    if not records:
+        found.append((path, digest, body))
+    if not found:
         return ""
+    # Every command the task ran gets a record. Showing the newest three had
+    # the verifier report "no log for `test_integration.py`" for a task with
+    # eight (batch 3 run 2, 2026-10-11). The shared budget shrinks each record
+    # instead; past _EXECUTION_RECORD_LIMIT only the header line is shown.
+    share = min(6000, _EXECUTION_RECORD_BUDGET // min(len(found), _EXECUTION_RECORD_LIMIT))
+    records = []
+    for index, (path, digest, body) in enumerate(found):
+        title = f"### {path.relative_to(project_dir)} (sha256 {digest})\n"
+        if index >= _EXECUTION_RECORD_LIMIT:
+            records.append(title + body.split("\n", 1)[0] + "\n[Log truncated]")
+        elif len(body) > share:
+            # The exit line is at the head and a pytest summary at the tail.
+            records.append(title + body[: share // 2] + "\n[...]\n" + body[-(share - share // 2):]
+                           + "\n[Log truncated]")
+        else:
+            records.append(title + body)
     return ("# Historical execution records for this task\n"
             "These record actual commands, exit codes and timings. They do not prove "
             "later edits were executed; current artifacts, final execution freshness "

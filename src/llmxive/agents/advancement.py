@@ -595,7 +595,8 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
     that another agent advances. The Evaluator only fires for stages it
     governs: review-result transitions and citation-gated accepts.
     """
-    cits = citations_store.load(project.id, repo_root=repo_root)
+    cits = _citations_still_cited(
+        citations_store.load(project.id, repo_root=repo_root), repo_root=repo_root)
 
     # Auto-promote research_complete → research_review when at least one
     # research-stage review record has been written (T067).
@@ -957,6 +958,46 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         return project
 
     return project
+
+
+def _citations_still_cited(
+    cits: list[Citation], *, repo_root: Path | None
+) -> list[Citation]:
+    """Drop failed citation rows whose reference is no longer in its artifact.
+
+    A row records what a document cited when it was scanned. When the document
+    is later edited and the reference removed, the row stays, and an
+    ``unreachable`` / ``mismatch`` row blocks acceptance whatever the reviewers
+    say. Batch 3 run 3 (2026-10-11): a planning-time quickstart cited the
+    placeholder ``https://github.com/your-org/<project>.git``; the URL was gone
+    from the file an hour later, the row was not, and a unanimous research
+    review was sent back to implementation over it. A failed row is dropped
+    only when both hold: the file is no longer the one that was scanned (its
+    hash differs from the row's, or it is gone), and the row's value does not
+    appear in it. Rows that did not fail are returned unchanged.
+    """
+    import hashlib
+
+    from llmxive.config import repo_root as _default_root
+
+    root = Path(repo_root) if repo_root is not None else _default_root()
+    kept: list[Citation] = []
+    for c in cits:
+        if c.verification_status in (VerificationStatus.UNREACHABLE, VerificationStatus.MISMATCH):
+            try:
+                data = (root / c.artifact_path).read_bytes()
+            except OSError:
+                data = None
+            unchanged = data is not None and hashlib.sha256(data).hexdigest() == c.artifact_hash
+            text = (data or b"").decode("utf-8", errors="replace")
+            if not unchanged and c.value not in text:
+                logger.info(
+                    "advancement: ignoring %s citation %r — no longer cited in %s",
+                    c.verification_status.value, c.value, c.artifact_path,
+                )
+                continue
+        kept.append(c)
+    return kept
 
 
 def _has_blocking_citations(cits: list[Citation]) -> bool:

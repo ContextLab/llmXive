@@ -62,6 +62,29 @@ def _test_modules(files: dict[str, tuple[int, int]]) -> list[str]:
     return sorted(rel for rel in files if is_pytest_module(Path(rel).name))
 
 
+def _module_of(item: str) -> str:
+    return item.split("::", 1)[0].split(" (", 1)[0]
+
+
+def own_modules(project_root: Path, task_id: str, modules: list[str], log_dir: str) -> set[str]:
+    """The test modules this task has run and no other task has.
+
+    Read from the per-task run records the implementer keeps: a module with a
+    record under this task's id and under no other. A module two tasks ran is
+    shared work and belongs to neither.
+    """
+    logs = project_root / log_dir
+    own = set()
+    for rel in modules:
+        name = rel.replace("/", "_") + ".log"
+        if not (logs / f"{task_id}.{name}").is_file():
+            continue
+        if any(path.name != f"{task_id}.{name}" for path in logs.glob(f"*.{name}")):
+            continue
+        own.add(rel)
+    return own
+
+
 def regressions(before: scorecard.Values, after: scorecard.Values, rewritten: set[str]) -> list[str]:
     """What an attempt broke, as test node ids or one line per weakened module.
 
@@ -133,13 +156,22 @@ class Attempt:
     snapshot: Snapshot
     before: scorecard.Values
     modules: list[str] = field(default_factory=list)
+    log_dir: str = RESEARCH_LOG_DIR
     #: How many tests passed after the attempt (set by :meth:`settle`).
     passing_after: int = 0
+    #: Test modules with every reported test passing after a kept attempt.
+    passing_modules: set[str] = field(default_factory=set)
+    #: The task's own tests that passed before a kept attempt and fail after it.
+    own_broken: list[str] = field(default_factory=list)
 
     def settle(self) -> tuple[bool, list[str]]:
         """Run the tests again; keep the attempt or undo it.
 
-        Returns ``(kept, broken)``. The snapshot is removed either way.
+        Returns ``(kept, broken)``. The snapshot is removed either way. An
+        attempt is undone for breaking a test that is not the task's own (see
+        :func:`own_modules`). Breaking only its own tests leaves the work in
+        place and lists them in ``own_broken`` for the caller to mark: the
+        verifier may have asked for exactly the change that fails them.
         """
         from llmxive import sandbox
 
@@ -155,13 +187,23 @@ class Attempt:
                 broken = regressions(self.before, after, rewritten)
                 if result.timed_out and not broken:
                     broken = [f"the project's tests no longer finish within {TEST_TIMEOUT_S} s"]
+                else:
+                    own = own_modules(self.project_root, self.task_id, modules, self.log_dir)
+                    self.own_broken = [item for item in broken if _module_of(item) in own]
+                    broken = [item for item in broken if _module_of(item) not in own]
+                failing = {_module_of(node) for node, value in after.items() if value != 1}
+                self.passing_modules = {_module_of(node) for node in after} - failing
                 output = result.stdout
             else:
                 broken = sorted(node for node, value in self.before.items() if value == 1)
                 output = "(every test module was removed)"
             if not broken:
-                scorecard.record(self.memory_dir, self.task_id, "attempt", {"kept": 1}, definition=self.definition)
+                values = {"kept": 1}
+                if self.own_broken:
+                    values["own_tests_broken"] = len(self.own_broken)
+                scorecard.record(self.memory_dir, self.task_id, "attempt", values, definition=self.definition)
                 return True, []
+            self.own_broken, self.passing_modules = [], set()
             undone = self.snapshot.restore()
             self.passing_after = sum(1 for value in self.before.values() if value == 1)
             scorecard.record(self.memory_dir, self.task_id, "attempt", {"kept": 0}, definition=self.definition)
@@ -214,6 +256,6 @@ def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *
     snapshot = Snapshot.take(project_root)
     if snapshot is None:
         return None
-    return Attempt(project_root, task_id, memory_dir, definition, snapshot, before, modules)
+    return Attempt(project_root, task_id, memory_dir, definition, snapshot, before, modules, log_dir)
 
-__all__ = ["MAX_SNAPSHOT_BYTES", "Attempt", "begin", "regressions"]
+__all__ = ["MAX_SNAPSHOT_BYTES", "Attempt", "begin", "own_modules", "regressions"]

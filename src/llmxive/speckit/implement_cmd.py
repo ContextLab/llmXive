@@ -378,6 +378,24 @@ class ImplementerAgent(SlashCommandAgent):
             return written, (True, claimed(), 0)
         kept, broken = attempt.settle()
         if kept:
+            # A mark left by an earlier undone attempt names test modules, not a
+            # command this task can rerun. They pass now, so the mark is spent;
+            # left in place it had the verifier reject the task unjudged on
+            # every later round (batch 3: 15 such rejections).
+            text = tasks_path.read_text(encoding="utf-8")
+            marked = clear_retried_execution_failures(
+                text, task_id, attempt.passing_modules | {"project tests"})
+            if attempt.own_broken:
+                modules = sorted({item.split("::", 1)[0].split(" (", 1)[0] for item in attempt.own_broken})
+                summary = "; ".join(f"{module} exit=1" for module in modules)
+                if f"FAILED-IN-EXECUTION: {summary} -->" not in marked:
+                    marked = mark_task(marked, task_id, "~", f" <!-- FAILED-IN-EXECUTION: {summary} -->")
+                else:
+                    marked = mark_task(marked, task_id, "~")
+                print(f"[implementer] attempt at {task_id} kept, but {len(attempt.own_broken)} of the "
+                      f"task's own test(s) no longer pass ({', '.join(attempt.own_broken[:3])})")
+            if marked != text:
+                tasks_path.write_text(marked, encoding="utf-8")
             return written, (True, claimed(), attempt.passing_after)
         # The files are back as they were, the task line included. Mark it the
         # way a failed command is marked, so the bounded retry accounting that

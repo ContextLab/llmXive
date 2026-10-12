@@ -121,3 +121,51 @@ def test_a_project_without_tests_or_a_paper_task_is_not_guarded(tmp_path: Path) 
     assert scorecard.history(project / ".specify/memory") == []
     _send(tmp_path, "T002", [{"path": "tests/test_lib.py", "contents": TESTS}])
     assert ratchet.begin(project, "T009", project / "paper/.specify/memory", "", log_dir="paper/.tasks") is None
+
+
+def test_the_mark_of_an_undone_attempt_goes_when_a_later_attempt_is_kept(tmp_path: Path) -> None:
+    """Batch 3 runs 2 and 5 (2026-10-11): the mark named a test module the task
+    did not own and that passed again once the files were restored. No reply
+    could "rerun it successfully", so the verifier rejected the task unjudged
+    on every later round (15 such rejections) until it was called unverifiable."""
+    project = _start(tmp_path)
+    _send(tmp_path, "T003", [
+        {"path": "code/lib.py", "contents": BROKEN_LIB},
+        {"path": "data/note.txt", "contents": "written by the attempt\n"},
+    ])
+    assert "FAILED-IN-EXECUTION: tests/test_lib.py exit=1" in _line(project, "T003")
+    _send(tmp_path, "T003", [{"path": "data/note.txt", "contents": "written by the attempt\n"}])
+    line = _line(project, "T003")
+    assert "FAILED-IN-EXECUTION" not in line
+    assert line.startswith("- [X] T003")
+
+
+def test_a_task_that_fails_its_own_test_keeps_its_work_and_is_marked(tmp_path: Path) -> None:
+    """Batch 3 run 2 T005: the task's own test passed only because of a branch
+    the verifier called fabricated. Six replies removed the branch, the test
+    then failed, and each was undone, so the work the verifier asked for never
+    reached it. A task's own failing test is a result to report, not a
+    regression in someone else's work."""
+    project = _start(tmp_path)
+    _send(tmp_path, "T002", [{"path": "code/lib.py", "contents": BROKEN_LIB}])
+    assert (project / "code/lib.py").read_text(encoding="utf-8") == BROKEN_LIB
+    assert not (project / "code/.tasks/T002.attempt-not-kept.log").exists()
+    line = _line(project, "T002")
+    assert line.startswith("- [~] T002")
+    assert "FAILED-IN-EXECUTION: tests/test_lib.py exit=1" in line
+
+    _send(tmp_path, "T002", [{"path": "code/lib.py", "contents": LIB}])
+    line = _line(project, "T002")
+    assert "FAILED-IN-EXECUTION" not in line
+    assert line.startswith("- [X] T002")
+
+
+def test_a_test_module_two_tasks_ran_belongs_to_neither(tmp_path: Path) -> None:
+    logs = tmp_path / "code/.tasks"
+    logs.mkdir(parents=True)
+    (logs / "T002.tests_test_lib.py.log").write_text("# tests/test_lib.py (exit 0, 0.1s, ok=True)\n")
+    (logs / "T002.tests_unit_test_io.py.log").write_text("# tests/unit/test_io.py (exit 0, 0.1s, ok=True)\n")
+    (logs / "T004.tests_unit_test_io.py.log").write_text("# tests/unit/test_io.py (exit 0, 0.1s, ok=True)\n")
+    modules = ["tests/test_lib.py", "tests/unit/test_io.py", "tests/test_other.py"]
+    assert ratchet.own_modules(tmp_path, "T002", modules, "code/.tasks") == {"tests/test_lib.py"}
+    assert ratchet.own_modules(tmp_path, "T004", modules, "code/.tasks") == set()
