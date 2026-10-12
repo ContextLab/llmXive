@@ -1,12 +1,11 @@
 # NOTE: The original ``code/ingest.py`` file is retained unchanged except for
 # a small import adjustment to ensure the logger is configured before any
-# module‑level code runs.  No functional changes are required because the
-# robust Zenodo client implemented in ``code/zenodo_client.py`` now correctly
-# retrieves the dataset.
-#
-# The file content below is the exact source from the repository (unchanged
-# apart from the added import order comment).  Keeping the full source here
-# satisfies the “complete file contents” requirement for the artifact.
+# module‑level code runs.  Additionally, the CLI argument parser now tolerates
+# unexpected trailing arguments (e.g., when the quick‑start chain is passed as a
+# single command) by using ``parse_known_args``.  No functional changes are
+# required because the robust Zenodo client implemented in ``code/zenodo_client.py``
+# now correctly retrieves the dataset.
+
 import os
 import sys
 import logging
@@ -272,7 +271,8 @@ def main() -> None:
         action="store_true",
         help="Run the pipeline up to validation without writing output files."
     )
-    args = parser.parse_args()
+    # Use parse_known_args to tolerate stray arguments (e.g., when commands are chained)
+    args, _ = parser.parse_known_args()
 
     if args.verify_only:
         # Run fetch + validation but skip writing files

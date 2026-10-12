@@ -11,25 +11,17 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”
 - code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py`
-  - script usage: `ingest.py [-h] [--verify-only]`
-  - argparse error: `ingest.py: error: unrecognized arguments: && python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 4 command(s) failed: python code/ingest.py --verify-only (rc=1); python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py (rc=2); python -m pytest tests/unit/ (rc=2); 3 declared deliverable(s) absent: data/processed/cleaned_mg.csv; data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 4 command(s) failed: python code/ingest.py --verify-only (rc=1); python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py (rc=1); python -m pytest tests/unit/ (rc=2); 3 declared deliverable(s) absent: data/processed/cleaned_mg.csv; data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
 
 ## Failing / missing run-book commands
 
 - python code/ingest.py --verify-only -> rc=1
-^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 73, in fetch_from_zenodo
-    raise DataUnavailableError(f"No CSV file found in Zenodo record {record_id}")
-zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 11023456
+^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 71, in _select_csv_file
+    raise DataUnavailableError("No CSV file found in Zenodo record metadata.")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record metadata.
 
 The above exception was the direct cause of the following exception:
 
@@ -39,14 +31,27 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 282, in main
     df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 126, in fetch_from_zenodo_wrapper
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 125, in fetch_from_zenodo_wrapper
     raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from e
 zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
 
-- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=2
+- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1
+llowing exception:
 
-usage: ingest.py [-h] [--verify-only]
-ingest.py: error: unrecognized arguments: && python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 291, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 288, in main
+    run_ingestion()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 249, in run_ingestion
+    df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 125, in fetch_from_zenodo_wrapper
+    raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from e
+zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
 
 - python -m pytest tests/unit/ -> rc=2
 loying-on-/code/train.py)
@@ -66,7 +71,7 @@ ERROR tests/unit/test_train_artifacts.py
 ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.28s ===============================
+============================== 5 errors in 1.98s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -83,7 +88,7 @@ tests/integration/test_train_pipeline.py:84
 =========================== short test summary info ============================
 ERROR tests/integration/test_statistical_validation.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 1 error in 1.16s ==========================
+========================= 1 warning, 1 error in 1.60s ==========================
 
 
 

@@ -97,7 +97,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10043838
   verified_at: '2026-09-21T21:26:53.820171Z'
-- artifact_hash: 5876ca2769bbdad34427bf89efd0c7971c426de13224ae4b7da7c86db94badb0
+- artifact_hash: 7860b58a27f51ee2d6980e0ddf657b3f88da9184058a4816d443610f10db68e5
   artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -107,8 +107,8 @@
   value: 10.5281/zenodo.10043838
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10043838
-  verified_at: '2026-10-12T04:19:29.268297Z'
-- artifact_hash: 5876ca2769bbdad34427bf89efd0c7971c426de13224ae4b7da7c86db94badb0
+  verified_at: '2026-10-12T05:17:04.114883Z'
+- artifact_hash: 7860b58a27f51ee2d6980e0ddf657b3f88da9184058a4816d443610f10db68e5
   artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -118,4 +118,4 @@
   value: 10.5281/zenodo.11023456
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.11023456
-  verified_at: '2026-10-12T04:19:29.268297Z'
+  verified_at: '2026-10-12T05:17:04.114883Z'
