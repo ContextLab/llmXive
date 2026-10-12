@@ -18,8 +18,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingest.py --verify-only -> rc=1
-^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 71, in _select_csv_file
+^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 129, in fetch_from_zenodo
     raise DataUnavailableError("No CSV file found in Zenodo record metadata.")
 zenodo_client.DataUnavailableError: No CSV file found in Zenodo record metadata.
 
@@ -88,7 +88,7 @@ tests/integration/test_train_pipeline.py:84
 =========================== short test summary info ============================
 ERROR tests/integration/test_statistical_validation.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 1 error in 1.60s ==========================
+========================= 1 warning, 1 error in 1.55s ==========================
 
 
 
