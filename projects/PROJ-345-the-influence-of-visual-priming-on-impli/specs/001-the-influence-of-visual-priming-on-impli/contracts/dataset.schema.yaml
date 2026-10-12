@@ -13,13 +13,17 @@ properties:
     description: "Response time in milliseconds"
     exclusiveMinimum: 0
   prime_valence:
-    type: ["number", "null"]
-    description: "Derived or human-rated prime valence score; retained as null in valence-only scope"
+    type:
+      - "number"
+      - "null"
+    description: "Derived or human‑rated prime valence; null retained in valence‑only scope"
     minimum: -1.0
     maximum: 1.0
   stimulus_ambiguity:
-    type: ["number", "null"]
-    description: "Stimulus ambiguity score; retained as null when unavailable"
+    type:
+      - "number"
+      - "null"
+    description: "Stimulus ambiguity score; null when unavailable"
     minimum: 0.0
     maximum: 1.0
   stimulus_id:

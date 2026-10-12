@@ -1,13 +1,14 @@
 status: none
-intent: IAT response time dataset with facial stimulus metadata OSF Chicago Face Database
-  python package dataset
+intent: download Open Science Framework IAT response time dataset with facial stimulus
+  metadata python package dataset
 required_fields:
 - trial_id
-- response_time
-- prime_valence
-- stimulus_id
+- participant_id
+- block_number
+- response_time_ms
 - stimulus_image_path
-- ambiguity_score
-cache_key: d7147163bc5adf1392af0d72fade209d1d10b01c093f9c154b717f8a339d5db1
-searched_at: '2026-10-12T12:23:48.014649+00:00'
+- prime_valence_label
+- stimulus_ambiguity_score
+cache_key: 86301d6a90caf4c91721d7674877550463e6f970a285a20be5d2acad1dc48a23
+searched_at: '2026-10-12T13:32:26.081833+00:00'
 retry_count: 1
