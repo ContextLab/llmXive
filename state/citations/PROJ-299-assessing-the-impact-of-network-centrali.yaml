@@ -1,4 +1,4 @@
-- artifact_hash: 74f41b849ecc9da4b64e99b33d844d693862dd8ff84600a1e84783dfac75bac1
+- artifact_hash: d53903210a3e5ab3b1a91292f98adab01561bb6f3118fec6b43b6efc4a199d55
   artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-15T15:13:44.761042Z'
+  verified_at: '2026-10-12T12:12:55.415103Z'

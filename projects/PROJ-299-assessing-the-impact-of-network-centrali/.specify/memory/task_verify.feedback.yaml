@@ -1,0 +1,87 @@
+T001:
+  reason: "The `code/` tree (download, preprocess, centrality, analysis, viz), `tests/unit`,\
+    \ `tests/integration`, and `docs/` exist, but the `data/` directory contains only\
+    \ `.gitignore`, `__init__.py`, and `external/` \u2014 the required `data/raw`,\
+    \ `data/processed`, and `data/analysis` subdirectories are missing, and there\
+    \ is no evidence at all of the required `outputs/viz` and `outputs/reports` directories.\
+    \ The implementer must create these five missing subdirectories (e.g., via the\
+    \ existing `setup_directories.py` or manually) to satisfy the task."
+  task: b2e4cea187f4ca360b2f54383b5343783061424515c861870a0df1ccf060500b
+T002:
+  task: 86e74797da13a1c8deff871a98f604b8f35c1e2d61a09554afb22aae61441710
+T003:
+  task: b5a60c80395d3470dfe791abfb009c9d85b0fff331aa309da3ec45439448b05a
+T004:
+  task: cf5d55965747cf884faaa87022ab82348cc2ecacfc6f17fde324ec46c122817b
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/logger.py'
+  task: 35ad9e3c9fbb9f5385ad8d4f292e32835108c9534c9782ca9c1402d8157f5603
+T006:
+  task: afd3a0d1cda0bfe85e355fe59b5c333860b11d0544969711c6a16c6949e6b6c7
+T006b:
+  reason: "The file `code/config/network_rois.json` exists but its contents are clearly\
+    \ not AAL atlas-defined network assignments: DMN is simply ROIs 1\u201310 and\
+    \ FPN is ROIs 11\u201320, a mechanical split of the first 20 indices. The AAL\
+    \ atlas's DMN (e.g., precuneus, posterior cingulate, angular, medial prefrontal\
+    \ regions) and FPN (e.g., dorsolateral prefrontal, inferior parietal regions)\
+    \ map to specific, non-contiguous indices, so these lists are a placeholder rather\
+    \ than the explicit, correct ROI index lists the task requires. The implementer\
+    \ should populate the JSON with the actual AAL indices for each networ"
+  task: 1043056d66d1581ec7be1517e8a1527fc236eb3f9aea57a6191a9cfb0363cfa3
+T007:
+  task: f4f1282cadca1e9a668146bd0c23140bb8825219b011f5ea418697a7dc4d404c
+T008:
+  task: b5c35d307deb01db3107b6d0956731b9636c72a13dcbac80b865a7c6ea1a07e7
+T008b:
+  task: 56fc12dc77495d5ac5ab50198370aba3204ded5eb6f3d5dde375b683a323ccd1
+T009:
+  task: 84ca53aee65ec9af9820277787fa5f58eb3b714af8ab7151f29a62affdd15972
+T010a:
+  task: 73cd954a196b8fcc2a5e326f0e87bf2ca82496ce43fcb77b6bb6dca5512e22d5
+T010b:
+  task: 47cf432ac00afa96a8afeb01ff91bb8315eb3389d89d76f60bf37e84b470ed07
+T010c:
+  task: aa9dc3e65389fcba2a55cbbbd88823efa48466fb0af278844393eff49ae8707a
+T011:
+  task: d0f698620d9fdcb9ed39ecf1c9a2e80bf96dc7a3d7369d48651652e449bad8af
+T012:
+  task: 4961e9005301228b3543eb3a8239019b861f12316726a61415d9337e6f9b2f97
+T013:
+  task: 895e06c3605d3daf03becb11319e798850a6520e1a82a311e9533c67b5ffe259
+T014:
+  task: 761f7a02b24d24d7d09e92219fec1c9d28a0f83a49ba8c2076c15210c835961e
+T015:
+  task: 1412d147b5e6a50ede4ccbe2973d2f04b3e902f523b74221652a002fcae94d48
+T016:
+  task: 7865458c3297b9860f66321e9610507e2515ba2aee909b5ce32cb28598434be3
+T017:
+  task: b2d73e2417e82c54b3799abbb49f22bcb049b578e5f6b7ca0eec753802f08cb6
+T018:
+  task: d3bc7ad0ef8507796a9e1dfb0b35ba984784bd5252d0dbb9839cf1ee30bc077d
+T019:
+  task: 15985fac1990e691def4f424544b8d31734e206ae25a9d63894ce3d3b46f0833
+T020:
+  task: 85c85f68292ff47e7b3ec2acab8914a14e2bf7b51bb5d39ad8816f93ab597960
+T021:
+  task: d1c7867def1d2553cccf0563ba507bb5a3680582089eeeebe2eee7fd9d207520
+T022:
+  task: eb885846bfa63d957cc89331b23eb97767f97efa316e23108e42ded6442ec325
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_regression.py'
+  task: e01e4b28ace5edd515a0ce405d3e1ff59634861016c4907a91179fe06e7b0aa9
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_pipeline.py'
+  task: ea1947c54f9d5a7acdf7c884460903d97ecae72251fc524432a3dacf606fc7c2
+T025a:
+  task: 302c4ad5c36086f9e10c86c36c5d4ff94f6c377c51581f55795505293c77328c
+T025b:
+  task: 2c08dc7be3cc2bd7fed03f8a0451a2dcb63b3ebc100a38fc58478ad5669e7a44
+T026a:
+  task: 4a503ff731ce11285f82be55713ea08fdf5029f3e6cf4361b510d8fb79775af6
+T026b:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/perf_metrics.json'
+  task: c7effaf56803698cd19b5e6881df71883b4d6ce62fc415d3780078fcbff497dd
+T027:
+  task: 1cfc4b6fb468f4f26bddf083b696e25273bad57c1647078e30e022977609a17e
+T028:
+  task: 90e074c3bdacb682894bd6cf4e686ff6cd9c4d8f6d2600d28fde149f8babaa8c
