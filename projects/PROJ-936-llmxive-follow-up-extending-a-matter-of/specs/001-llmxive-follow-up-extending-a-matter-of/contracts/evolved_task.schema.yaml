@@ -25,7 +25,7 @@ properties:
     description: "Penalty score predicted by the regression model for this evolved task."
   task:
     type: object
-    description: "Full task definition (matches the Task schema)."
+    description: "Full task definition (nested Task object conforming to Task schema)."
     required:
       - task_id
       - goal
@@ -36,18 +36,31 @@ properties:
     properties:
       task_id:
         type: string
+        description: "Unique task identifier for the evolved variant."
       goal:
         type: string
+        description: "Natural‑language description of the task objective (may be modified from base task)."
       environment:
         type: object
         additionalProperties: true
+        description: "JSON‑serializable representation of the task state (may be modified from base task)."
       optimal_path_length:
-        type: ["integer", "null"]
+        type:
+          - integer
+          - "null"
+        description: "Provided optimal call count for the evolved variant; null if missing."
       tool_diversity_k:
         type: integer
+        description: "Minimum number of distinct tool types required for the evolved variant (heuristic)."
       features:
         type: object
         additionalProperties: true
+        description: "Pre‑computed numeric features for the evolved task (e.g., num_tools, desc_len)."
+      difficulty_score:
+        type:
+          - number
+          - "null"
+        description: "Model‑predicted difficulty score for the evolved task; null if not yet computed."
   generation_timestamp:
     type: string
     format: date-time

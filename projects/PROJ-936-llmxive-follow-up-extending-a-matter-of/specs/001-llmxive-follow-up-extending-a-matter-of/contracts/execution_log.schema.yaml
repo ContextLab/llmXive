@@ -34,7 +34,10 @@ properties:
     description: "Wall‑clock runtime in seconds."
   status:
     type: string
-    enum: ["completed", "failed", "timeout"]
+    enum:
+      - "completed"
+      - "failed"
+      - "timeout"
     description: "Overall execution outcome."
   warning_codes:
     type: array
