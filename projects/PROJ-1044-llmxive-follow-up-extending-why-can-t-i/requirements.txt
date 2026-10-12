@@ -1,0 +1,17 @@
+# Core dependencies required for the project (already provided by the runner)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional third‑party packages needed for this task
+datasets
+opencv-python

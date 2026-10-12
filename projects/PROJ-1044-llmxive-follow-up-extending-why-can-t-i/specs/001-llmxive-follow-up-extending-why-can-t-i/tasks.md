@@ -7,7 +7,7 @@ The tasks below respect data‑flow dependencies, stay within the free‑tier CP
 
 ---  
 
-- [ ] **T001** [US1] **Create a reproducible entry‑point and quick‑start guide**  
+- [X] **T001** [US1] **Create a reproducible entry‑point and quick‑start guide**  
   - Add `quickstart.md` in the feature root describing a single command `python -m src.pipeline.run_all --config configs/run.yaml`.  
   - Document required environment (Python 3.11, dependencies from `requirements.txt`).  
   - Verify that the command prints a summary of generated artifacts and exits with status 0.  
@@ -19,7 +19,7 @@ The tasks below respect data‑flow dependencies, stay within the free‑tier CP
   - Add a unit test `tests/test_something_loader.py` that loads 5 videos and asserts non‑empty frames.  
   - **File(s)**: `src/data/something_loader.py`, `tests/test_something_loader.py`.
 
-- [ ] **T004** [US1] **Load pre‑computed optical‑flow features (CPU‑only)**  
+- [ ] **T004** [US1] **Load pre‑computed optical‑flow features (CPU‑only)**   <!-- FAILED-IN-EXECUTION: src/data/optical_flow_loader.py exit=1 -->
   - Implement `src/data/optical_flow_loader.py` that copies or symlinks existing FlowNet‑C `.npy` feature files from the repository bundle into `data/flow_features/`.  
   - Verify that each copied file matches its stored SHA‑256 checksum (manifest generated later).  
   - No on‑the‑fly flow computation is performed, preserving the CPU budget.  

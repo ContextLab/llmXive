@@ -1,0 +1,19 @@
+T001:
+  c: true
+  h: ffd945644ac635bca9e319a9e6af34a66742f30870c8edde562920ae2276ac09
+  r: "The `quickstart.md` (2571\u202Fbytes) describes the required single command\
+    \ and environment, the `configs/run.yaml` file is present, and the execution log\
+    \ `code/.tasks/T001.src_pipeline_run_all.py.log` shows the command ran with exit\
+    \ code\u202F0 and printed a summary of expected output artifacts."
+  sig: 7eb374f5a9793d499e95068837050f405fb5ae4571649b07340c50b1088bcb97
+T002:
+  c: false
+  h: c5837d244c5168a870b92071139e041df9827eb5ba0aac6e318f16c3b609cacc
+  r: "The `src/data/something_loader.py` file correctly uses `load_dataset(..., streaming=True)`\
+    \ and provides a deterministic seed, but the unit test `tests/test_something_loader.py`\
+    \ fails (see execution log) because the HuggingFace dataset `\"something-something-v2\"\
+    ` cannot be found, causing a `DatasetNotFoundError`. Consequently the test does\
+    \ not load five videos nor verify non\u2011empty frames, so the task\u2019s requirements\
+    \ are not met. Fix the dataset identifier or provide a mock/fixture so the test\
+    \ can pass."
+  sig: 881d00e61067115c9d042812b4e9e545dac4e9b5241cadb3aa9a83ecc2b23c5f

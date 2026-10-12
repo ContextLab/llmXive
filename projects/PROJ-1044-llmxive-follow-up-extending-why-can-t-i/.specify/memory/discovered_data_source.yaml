@@ -1,15 +1,17 @@
 status: none
-intent: pip install Something-Something V2 official dataset download package python
-  package dataset
+intent: download Something-Something V2 video dataset python package dataset
 required_fields:
 - video_id
-- video_path
-- label
-- label_name
-- template
+- original_video_path
+- counterfactual_video_path
+- original_object_class
+- swapped_object_class
+- object_swap_label
+- optical_flow_divergence
+- optical_flow_divergence_threshold
+- motion_preserved_flag
+- occlusion_handling_flag
 - split
-- duration
-- fps
-cache_key: 01457fe5c3eb698fd1a2c6c0741683b78166d7aec6e03a9818bf7d26f1ce8bc7
-searched_at: '2026-10-12T05:17:50.285795+00:00'
+cache_key: 9eae0689be4754736a91e0ec14b826e0c6db8ad012eb6003a13269ddeca022fb
+searched_at: '2026-10-12T05:37:57.223959+00:00'
 retry_count: 1
