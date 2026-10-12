@@ -1,50 +1,12 @@
-T027a:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, or result file was provided that actually computes the Wilcoxon\
-    \ signed\u2011rank test (W\u2011statistic and p\u2011value) on the matched maintainability\
-    \ metric pairs using `scipy.stats.wilcoxon`. The claim lacks any artifact demonstrating\
-    \ the required calculation."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, function, notebook, or test output implementing the Benjamini\u2011\
-    Hochberg correction for the Wilcoxon p\u2011values is provided. The required artifact\
-    \ (the BH correction implementation and its application to churn and latency test\
-    \ results) is missing, so the task is not satisfied."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, notebook, script, or data artifact that reads `manual_labels.csv`, computes
-    misclassification rates, and adjusts the effect sizes for the sensitivity analysis
-    is present. The required implementation is missing entirely.
-T029b:
-  c: false
-  h: 294c1078d4517cc7ab353b02db206cd3e56bfb6da88e35eedbd86147f4f36ea4
-  r: "The required `data/ground_truth/classifier_metrics.json` file does not exist,\
-    \ and the `docs/paper/limitations.md` file is also missing. Moreover, `code/utils/config.py`\
-    \ defines `CLASSIFIER_THRESHOLD = 0.8` instead of the required SC\u2011006 threshold\
-    \ of 0.85, so the comparison cannot be performed as specified."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No box\u2011plot or density\u2011plot PNG files (or the code that creates them)\
-    \ are present; the claim provides only a textual description without any actual\
-    \ visualization artifacts, so the requirement to generate and save the plots is\
-    \ not satisfied."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing a post\u2011hoc power analysis (e.g., script, notebook,\
-    \ or output table) is present; the claim provides only the task description without\
-    \ any code using `scipy.stats.power_analysis` or a reported power value \u2265\
-    \u202F0.80 for the final matched\u2011pair count. The required evidence is missing."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing the requested final report summary (p\u2011values, Cohen\u2019\
-    s\u202Fd effect sizes, bias\u2011corrected confidence intervals, and FDR\u2011\
-    adjusted results) was provided. The evidence consists only of the task description\
-    \ and specification excerpt, with no generated tables, figures, or data files\
-    \ to verify that the statistical analysis was performed. The required output is\
-    \ missing."
+  h: c4689c1a3b025b77b0fc76060b0072c60ea292763ddf3ddebfaf0e3ecd973595
+  r: "The confirmed artifacts (`code/requirements.txt` with all pinned dependencies,\
+    \ `code/utils/models.py` with real dataclasses, and the quickstart documenting\
+    \ runnable commands) satisfy those portions. However, the task also requires a\
+    \ logging configuration and an `.env.example` containing `GITHUB_TOKEN`, `DATA_PATH`,\
+    \ and `LOG_PATH`, and neither artifact appears in the evidence \u2014 the quickstart\
+    \ merely references `.env.example` without it existing on disk. The implementer\
+    \ must add the logging config (e.g., `code/utils/logging_config.py` or equivalent)\
+    \ and a `.env.example` with those three variable"
+  sig: 9cea702f32f9e538390e805ea9daa72daf83c6d2037728b173a5c6ae9e8352c1

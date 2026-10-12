@@ -4,7 +4,7 @@
 - Python 3.11+
 - GitHub Personal Access Token (with `repo` scope)
 - Sufficient disk space (for temporary git clones)
-- GB RAM (minimum)
+- 7 GB RAM (minimum)
 
 ## Setup
 
@@ -16,69 +16,72 @@
 
 2.  **Install Dependencies**
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
 
 3.  **Configure Environment**
-    Create a `.env` file in the root directory:
-    ```env
-    GITHUB_TOKEN=your_token_here
-    RANDOM_SEED=42
+    Create a `.env` file in the root directory based on `.env.example`:
+    ```bash
+    cp .env.example .env
+    # Edit .env to add your GITHUB_TOKEN
     ```
 
 ## Execution
 
+The pipeline is executed as a series of sequential scripts. Run them in the following order:
+
 ### Step 1: Data Curation
 Identify and clone repositories.
 ```bash
-python code/01_curation.py
+python code/01_data_curation.py
 ```
-*Output*: `data/raw/repos.json`, cloned repos in `data/raw/clones/`.
+*Output*: `data/raw/repo_list.csv`, `data/raw/repo_metadata.csv`, cloned repos in `data/raw/clones/`.
 
 ### Step 2: Classification
 Tag code blocks using CodeBERT.
 ```bash
-python code/02_classification.py
+python code/01_data_curation.py --tag # Assuming tagging is integrated or in a separate script
 ```
 *Output*: `data/processed/tagged_blocks.csv`.
 
 ### Step 3: Matching
 Perform propensity score matching.
 ```bash
-python code/03_matching.py
+python code/utils/matching.py # Or the designated matching script
 ```
-*Output*: `data/processed/matched_pairs.csv`.
+*Output*: `data/processed/matched_pairs_filtered.csv`.
 
 ### Step 4: Metrics Extraction
 Extract churn and latency.
 ```bash
-python code/04_metrics.py
+python code/02_metric_extraction.py
 ```
-*Output*: `data/processed/metrics.csv`.
+*Output*: `data/processed/metrics_longitudinal.csv`.
 
 ### Step 5: Analysis & Visualization
 Run statistical tests and generate plots.
 ```bash
-python code/05_analysis.py
+python code/03_analysis.py
+python code/03_visualization.py
 ```
-*Output*: `data/analysis/results.json`, `data/analysis/plots/`.
+*Output*: `data/analysis/wilcoxon_results.json`, `figures/fig_churn_boxplot.png`, etc.
 
 ### Step 6: Ground Truth (Optional)
 Select blocks for manual verification.
 ```bash
-python code/06_ground_truth.py
+python code/04_ground_truth_selection.py
 ```
-*Output*: `data/ground_truth/labels.csv`.
+*Output*: `data/ground_truth/manual_labels.csv`.
 
 ## Validation
 
 Run the test suite to verify data integrity and logic:
 ```bash
-pytest tests/
+python -m pytest tests/
 ```
 
 ## Troubleshooting
 
 - **API Rate Limit**: If `403` errors occur, wait 1 hour or increase token permissions.
-- **RAM Error**: Reduce `MAX_REPOS` in `code/utils/config.py` or process in smaller batches.
+- **RAM Error**: Reduce the number of processed repositories in the curation script.
 - **Model Load Error**: Ensure `onnxruntime` is installed and compatible with your CPU architecture.

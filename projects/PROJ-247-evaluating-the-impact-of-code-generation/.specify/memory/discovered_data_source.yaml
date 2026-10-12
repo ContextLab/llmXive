@@ -1,0 +1,17 @@
+status: none
+intent: GitHub repositories metadata dataset with language stars commits CodeBERT
+  classifier radon python package dataset
+required_fields:
+- repository_name
+- primary_language
+- stars_count
+- last_commit_date
+- commit_count
+- code_block_content
+- classification_label
+- classification_confidence
+- cyclomatic_complexity
+- nesting_depth
+cache_key: 780d3efe32d33471a38d1c7cc7a2b83a1c4d7cfaa82bbef582ce5041f51e7d4c
+searched_at: '2026-10-12T16:38:37.930992+00:00'
+retry_count: 1
