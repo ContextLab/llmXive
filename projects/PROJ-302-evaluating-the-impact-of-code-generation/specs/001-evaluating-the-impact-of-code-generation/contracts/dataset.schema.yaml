@@ -1,54 +1,71 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PullRequest Dataset Schema"
-type: "object"
+type: object
 properties:
   pr_id:
-    type: "string"
+    type: string
     description: "Unique PR identifier (e.g., repo#123)"
   repo_id:
-    type: "string"
-    description: "Repository identifier (e.g., owner/repo)"
+    type: string
+    description: "Repository identifier (owner/repo)"
   author_type:
-    type: "string"
+    type: string
     enum:
       - "human"
       - "llm"
-    description: "Type of code author"
+    description: "Source of the code"
   generation_source:
-    type: "string"
+    type: string
     enum:
-      - "context-based"
-      - "prompt-based"
+      - "generation-from-scratch"
+      - "refactoring"
       - "null"
-    description: "Source of generation if author_type is llm"
+    description: "Cohort label for LLM snippets"
   created_at:
-    type: "string"
-    format: "date-time"
+    type: string
+    format: date-time
     description: "PR creation timestamp"
+  first_comment_at:
+    type: string
+    format: date-time
+    description: "First reviewer comment timestamp"
   merge_at:
-    type: "string"
-    format: "date-time"
-    description: "PR merge timestamp"
-  review_duration:
-    type: "number"
-    description: "Duration in seconds"
+    type: string
+    format: date-time
+    description: "PR merge timestamp (used for outcome)"
+  review_latency:
+    type: number
+    description: "Seconds between `created_at` and `merge_timestamp` (full review time)"
   file_size_loc:
-    type: "integer"
-    description: "Lines of Code"
+    type: integer
+    description: "Lines of code"
   complexity_score:
-    type: "number"
-    description: "Cyclomatic Complexity"
+    type: number
+    description: "Cyclomatic complexity"
+  repo_activity_level:
+    type: integer
+    description: "Number of PRs in the repository"
+  workflow_type:
+    type: string
+    enum:
+      - "ci-visible"
+      - "no-ci"
+    description: "Repository CI status"
   semantic_similarity:
-    type: "number"
-    description: "Cosine similarity to human original (Optional, Exploratory)"
-  source_commit:
-    type: "string"
-    description: "Original commit hash"
+    type: number
+    minimum: -1
+    maximum: 1
+    description: "Cosine similarity to original human snippet"
 required:
   - pr_id
   - repo_id
   - author_type
   - created_at
-  - review_duration
+  - first_comment_at
+  - merge_at
+  - review_latency
   - file_size_loc
   - complexity_score
+  - repo_activity_level
+  - workflow_type
+additionalProperties: false

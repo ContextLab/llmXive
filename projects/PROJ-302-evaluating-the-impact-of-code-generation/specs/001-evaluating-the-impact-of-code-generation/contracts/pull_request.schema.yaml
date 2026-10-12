@@ -8,7 +8,7 @@ properties:
     description: "Unique PR identifier (e.g., repo#123)"
   repo_id:
     type: string
-    description: "Repository identifier (e.g., owner/repo)"
+    description: "Repository identifier (owner/repo)"
   author_type:
     type: string
     enum:
@@ -21,7 +21,7 @@ properties:
       - "generation-from-scratch"
       - "refactoring"
       - "null"
-    description: "Source of generation if author_type is llm"
+    description: "Cohort label for LLM snippets"
   created_at:
     type: string
     format: date-time
@@ -30,27 +30,37 @@ properties:
     type: string
     format: date-time
     description: "First reviewer comment timestamp"
+  merge_at:
+    type: string
+    format: date-time
+    description: "PR merge timestamp (used for full review latency)"
   review_latency:
     type: number
-    description: "Duration (seconds) from created_at to first_comment_at"
-  file_size:
+    description: "Seconds between `created_at` and `merge_at` (full review time)"
+  file_size_loc:
     type: integer
-    description: "Lines of code (LOC)"
+    description: "Lines of code"
   complexity_score:
     type: number
     description: "Cyclomatic complexity"
+  repo_activity_level:
+    type: integer
+    description: "Number of PRs in the repository"
   workflow_type:
     type: string
     enum:
       - "ci-enabled"
       - "no-ci"
-    description: "Repository workflow type"
+    description: "Repository CI status"
   semantic_similarity:
     type: number
     minimum: -1
     maximum: 1
-    description: "Cosine similarity to human original (Optional, Exploratory)"
+    description: "Cosine similarity to original human snippet (optional, exploratory)"
     x-optional: true
+  source_code:
+    type: string
+    description: "Full code diff (human) or generated snippet (LLM)"
 required:
   - pr_id
   - repo_id
@@ -58,7 +68,8 @@ required:
   - created_at
   - first_comment_at
   - review_latency
-  - file_size
+  - file_size_loc
   - complexity_score
+  - repo_activity_level
   - workflow_type
 additionalProperties: false

@@ -1,92 +1,73 @@
 # Quickstart: Evaluating the Impact of Code Generation on Code Review Time
 
 ## Prerequisites
+- Python 3.11+  
+- Git (for cloning)  
+- HuggingFace `datasets` library (will handle streaming downloads)  
+- Optional: GitHub Personal Access Token (increases API rate limits)  
+- Google Cloud SDK is **not** required (we use HuggingFace public datasets)  
 
-- Python 3.11+
-- Git
-- GitHub Personal Access Token (optional, for higher rate limits)
-- Google Cloud SDK (for BigQuery access)
-- Sufficient RAM, 14GB+ Disk
-
-## Installation
-
-1.  **Clone and Setup**
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-302-evaluating-the-impact-of-code-generation
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
-
-2.  **Verify Dependencies**
-    Ensure `radon`, `transformers`, `torch`, `scikit-learn`, and `google-cloud-bigquery` are installed correctly.
-    ```bash
-    python -c "import radon, torch, sklearn, google.cloud.bigquery; print('Dependencies OK')"
-    ```
-
-## Running the Pipeline
-
-### 1. Data Acquisition
-Download and prepare the raw GitHub PR data (BigQuery + API).
-**Note**: This step MUST retrieve the `diff` field from BigQuery.
+## 1. Clone the Repository
 ```bash
-python code/data_acquisition.py --stream --max-rows 500 --include-diffs
+git clone <REPO_URL>
+cd projects/PROJ-302-evaluating-the-impact-of-code-generation
 ```
-*Output*: `data/raw/github_prs.parquet`
 
-### 2. Prompt Engineering
-Extract intent from commit messages.
+## 2. Set Up a Virtual Environment
 ```bash
-python code/prompt_engineering.py --input data/raw/github_prs.parquet
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
-*Output*: `data/processed/intent_prompts.json`
 
-### 3. Synthetic Code Generation
-Generate LLM code snippets (Generation-from-Scratch and Refactoring).
-*Note: This step will attempt CPU first. If it exceeds 60s, it will trigger the GPU escape hatch if configured.*
+## 3. Verify Dependencies
 ```bash
-python code/synthetic_generation.py --cohort generation,refactoring --max-snippets 50
+python -c "import pandas, datasets, torch, transformers, radon; print('All good')"
 ```
-*Output*: `data/synthetic/llm_snippets.jsonl`
 
-### 4. Feature Extraction
-Calculate LOC, complexity, and semantic similarity (optional).
-```bash
-python code/feature_extraction.py --input data/raw/github_prs.parquet --synthetic data/synthetic/llm_snippets.jsonl
-```
-*Output*: `data/processed/features.parquet`
-
-### 5. Propensity Score Matching & Analysis
-Perform matching and statistical testing.
-**Note**: This step excludes `semantic_similarity` from matching covariates.
-```bash
-python code/analysis.py --input data/processed/features.parquet --alpha 0.05
-```
-*Output*: `data/processed/matched_pairs.parquet`, `data/reports/statistical_results.json`, `data/reports/covariate_balance.json`, `data/reports/matching_failure_report.json` (if applicable)
-
-### 6. Visualization
-Generate box plots and CDF curves.
-```bash
-python code/visualization.py --input data/processed/matched_pairs.parquet --output data/reports/
-```
-*Output*: `data/reports/boxplot.png`, `data/reports/cdf.png`
-
-### 7. Full Pipeline (End-to-End)
-Run the entire workflow from scratch.
+## 4. Run the Full Pipeline (End‑to‑End)
 ```bash
 python code/main.py --full-run
 ```
+The script will:
+1. Stream the three verified PR parquet files into `data/raw/`.  
+2. Extract intent prompts.  
+3. Generate LLM snippets (CPU first, GPU fallback if > 30 s).  
+4. Compute LOC, cyclomatic complexity, and optional embeddings.  
+5. Perform **pre‑study power analysis** to ensure sufficient sample size.  
+6. Perform propensity‑score matching using **pre‑treatment covariates** only.  
+7. Run the statistical test(s) and sensitivity analysis.  
+8. Create visualisations and a PDF report (`reports/analysis_report.pdf`).  
+9. Write a runtime summary (`data/reports/runtime_report.json`).
 
-## Verification
+## 5. Individual Stage Commands (for debugging)
 
-- **Check Covariate Balance**: Ensure `data/reports/covariate_balance.json` shows all SMD < 0.1.
-- **Check Validity**: Ensure `data/reports/statistical_results.json` reports ≥95% syntactic validity for synthetic code.
-- **Check Runtime**: Ensure `data/reports/runtime_report.json` shows total time ≤ 6 hours.
-- **Check Reproducibility**: Re-run `main.py --full-run` and verify checksums match.
+| Stage | Command | Output |
+|---|---|---|
+| **Data Acquisition** | `python code/data_acquisition.py --stream` | `data/raw/prs_v2_sample.parquet`, `authors_merged_model_prs.parquet`, `authors_merged_dataset_prs.parquet` |
+| **Prompt Engineering** | `python code/prompt_engineering.py --input data/raw/` | `data/processed/intent_prompts.json` |
+| **Synthetic Generation** | `python code/synthetic_generation.py --cohort prompt,context --max-snippets 200` | `data/synthetic/llm_snippets.jsonl` |
+| **Feature Extraction** | `python code/feature_extraction.py --input data/raw/ --synthetic data/synthetic/` | `data/processed/features.parquet`, `data/processed/merged_features.parquet` |
+| **Pre‑Study Power Analysis** | `python code/power_analysis.py --target-d=0.3 --alpha=0.05 --power=0.8` | `data/reports/power_requirements.json` |
+| **Matching & Analysis** | `python code/analysis.py --input data/processed/features.parquet` | `data/processed/matched_pairs.parquet`, `data/reports/covariate_balance.json`, `data/reports/statistical_results.json` |
+| **Visualization** | `python code/visualization.py --input data/processed/matched_pairs.parquet` | `data/reports/boxplot.png`, `data/reports/cdf.png` |
+| **Report Generation** | `python code/report_generator.py` | `reports/analysis_report.pdf` |
+| **Runtime Measurement** | `python code/runtime.py` | `data/reports/runtime_report.json` |
+| **Documentation** | `python code/docs_generator.py` | Updates `docs/quickstart.md` and creates `README.md` |
 
-## Troubleshooting
+## 6. Verification Checklist
+- **Covariate Balance**: `data/reports/covariate_balance.json` shows all SMD < 0.1.  
+- **Synthetic Validity**: `data/reports/syntax_validity.json` (generated by `synthetic_generation.py`) reports ≥ 95 % valid snippets.  
+- **Statistical Significance**: `data/reports/statistical_results.json` contains `p_value < 0.05` (or reports “under‑powered”).  
+- **Runtime**: `data/reports/runtime_report.json` total ≤ 6 h.  
+- **Reproducibility**: Re‑run `python code/main.py --full-run` and confirm that SHA‑256 checksums of all data files match the entries in `state/projects/PROJ-302-evaluating-the-impact-of-code-generation.yaml`.
 
-- **Rate Limit Error**: Wait 60 seconds or provide a GitHub Token via `GITHUB_TOKEN` env var.
-- **Memory Error**: Reduce `--max-rows` or `--max-snippets` in the respective commands.
-- **Matching Failure**: If SMD > 0.1, the script will abort and generate `data/processed/matching_failure_report.json`. Adjust propensity parameters in `code/analysis.py` and retry.
+## 7. Troubleshooting
+- **Rate‑limit errors**: Export a GitHub token: `export GITHUB_TOKEN=your_token`.  
+- **Memory errors**: Reduce the streaming batch size (`--batch-size 200`) or limit the number of PRs (`--max-prs 5000`).  
+- **Matching failure**: Inspect `data/reports/matching_failure_report.json` for which covariate violated the SMD threshold; adjust caliper or drop the most imbalanced covariate and re‑run.  
+- **GPU fallback not triggered**: Ensure `torch.cuda.is_available()` returns `True` inside the Kaggle environment; the script automatically switches when a CPU generation exceeds 30 s.
+
+---
+
+
