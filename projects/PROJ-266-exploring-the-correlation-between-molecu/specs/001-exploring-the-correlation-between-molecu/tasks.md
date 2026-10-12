@@ -1,165 +1,189 @@
-# Tasks: Exploring the Correlation Between Molecular Flexibility and Drug Transport Across Cell Membranes
+# Tasks: Exploring the Correlation Between Molecular Flexibility and Drug Transport Across Cell Membranes  
 
-**Input**: Design documents from `/specs/001-molecular-flexibility-permeability/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing contracts in `specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/`  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be independently
- implemented, tested, and delivered as an MVP increment.
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T002 Create project directory structure. **Requirement**: Execute `mkdir -p code tests data data/raw data/processed state/projects state/pending specs/001-molecular-flexibility-permeability/contracts` at the repository root. **Dependency**: None.
-- [X] T003 Initialize a Python project with `requirements.txt` (rdkit, pandas, scikit-learn, matplotlib, seaborn, requests, numpy, scipy, statsmodels, nolds, pyvib). **Requirement**: Create `code/requirements.txt` and explicitly include `rdkit`, `pandas`, `scikit-learn`, `matplotlib`, `seaborn`, `requests`, `numpy`, `scipy`, `statsmodels`, `nolds`, and `pyvib`. **Dependency**: T002.
-- [ ] T004 [P] Configure linting (flake8/black) and formatting tools. **Dependency**: T002.
+**Goal**: End‑to‑end, reproducible research pipeline that satisfies every functional requirement (FR‑001 … FR‑010) and success criteria (SC‑001 … SC‑006).  
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project Infrastructure & Validation  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
+- [ ] **T001** [US0] Create the canonical project directory layout.  
+  *Create `code/`, `tests/`, `data/raw/`, `data/processed/`, `specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/`, and `state/pending/` directories.*  
+  *Verification:* Run the provided `scripts/setup_dirs.py` and assert that each directory exists (e.g., `assert os.path.isdir("data/raw")`).  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** [US0] Add linting and formatting configuration files.  
+  *Create a `.flake8` file with reasonable defaults and a `pyproject.toml` that enables Black (line‑length 88) and is referenced by the CI runner.*  
+  *Verification:* `flake8 --config .flake8 .` and `black --check .` must both exit with status 0.  
 
-- [ ] T008a [US0] Create and verify directory structure for `data/raw/`, `data/processed/`, `state/projects/`, and `state/pending/`. **Requirement**: Create the `data/raw/`, `data/processed/`, `state/projects/`, and `state/pending/` directories. Immediately verify creation by checking that each directory exists. **Dependency**: T002.
-- [X] T008d [US0] Initialize `state/projects/` directory and create `PROJ-266-exploring-the-correlation-between-molecu.yaml`. **Requirement**: Create `state/projects/` directory. Create `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with an empty `artifact_hashes: {}` map. **Dependency**: T002.
-- [ ] T008b [US0] Implement `code/utils/checksum.py`. **Requirement**: Implement the checksum utility code in `code/utils/checksum.py`. The utility MUST compute SHA-256 checksums for files in `data/` and write the results to `state/pending/checksums.yaml` (NOT directly to the state file). **Governance Constraint**: Per Constitution Principle V, only the Advancement-Evaluator Agent may write to the state file. This script outputs to a pending file. **Dependency**: T008a.
-- [ ] T007 [US0] Create `specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml`. **Requirement**: Define the JSON schema for the Caco-2 dataset including fields: `smiles` (string), `logPapp` (number), `mw` (number), `psa` (number), `assay_id` (string), AND `protocol_metadata` (object with `standard_type` (string)). **Dependency**: T002.
+- [ ] **T003** [US0] Implement a checksum utility (`code/utils/checksum.py`).  
+  *The script walks `data/` recursively, computes SHA‑256 for every file, and writes a YAML mapping to `state/pending/checksums.yaml`.*  
+  *Verification:* After any data‑producing task runs, re‑execute the utility and confirm that the YAML file contains a key for the newly created file and that the stored hash matches a freshly computed hash.  
 
----
-
-## Phase 3: User Story 1 - Retrieve and Preprocess Caco-2 Permeability Dataset (Priority: P1) 🎯 MVP
-
-**Goal**: Download raw Caco-2 data from ChEMBL, filter for valid records, and ensure data completeness.
-
-**Independent Test**: Execute retrieval script and verify output contains ≥500 valid records with non-NULL SMILES and logPapp from a raw batch of ≥600.
-
-### Implementation for User Story 1
-
-- [ ] T009 [US1] [Depends on T008a, T008d, T008b, T007] Implement `code/data/retrieval.py` to fetch ≥600 raw Caco-2 records from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with exponential backoff. **Requirement**: Save output to `data/raw/chembl_raw.csv`. The CSV schema MUST strictly match `specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml`. The `protocol_metadata` object MUST be serialized as a JSON string within a single column to ensure CSV compatibility. The script MUST implement exponential backoff with a maximum of 3 retries at 5-second intervals for rate limit errors. After saving, invoke `code/utils/checksum.py` to generate a checksum and write to `state/pending/checksums.yaml`. **Dependency**: T008a, T008d, T008b, T007.
-- [ ] T010 [US1] [Depends on T008a, T008d, T008b, T007, T009] Implement `code/data/preprocessing.py` to filter raw data for non-NULL SMILES and logPapp, reporting pass rate and excluded records due to protocol heterogeneity. **Requirement**: Read `data/raw/chembl_raw.csv` and parse the `protocol_metadata` JSON string back into an object. Filter for non-NULL SMILES and logPapp. Filter for records where `protocol_metadata.standard_type` is 'MEASUREMENT'. Count and report the number of records excluded due to protocol heterogeneity. Save output to `data/processed/filtered_data.csv`. **Traceability**: Explicitly reference FR-010 in code comments. After saving, invoke `code/utils/checksum.py` to generate a checksum and write to `state/pending/checksums.yaml`. **Dependency**: T008a, T008d, T008b, T007, T009.
-- [X] T011 [US1] Write unit tests for data filtering logic in `tests/test_preprocessing.py`. **Requirement**: Implement specific test functions: `tests/test_preprocessing.py::test_filter_logic` (verifies filtering logic in `code/data/preprocessing.py`) and `tests/test_preprocessing.py::test_pass_rate_calculation` (verifies pass rate). **Dependency**: T010.
-- [ ] T012 [US1] Write contract tests against `dataset.schema.yaml` in `tests/contract/test_dataset.py`. **Requirement**: Implement specific test function: `tests/contract/test_dataset.py::test_schema_compliance` (validates data against the schema defined in T007). **Verification**: Ensure `specs/.../contracts/dataset.schema.yaml` exists before running tests. **Dependency**: T007. <!-- FAILED: unspecified -->
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel. T008a, T008d, T008b, and T007 provide the directory structure, state init, checksum utility, and schema required by T009/T010 for data integrity.
+- [ ] **T004** [US0] Create the JSON‑schema contracts required by the specification.  
+  *Write the following files (exact paths required):*  
+  *`specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/dataset.schema.yaml`* (matches **FR‑001**, **FR‑010**)  
+  *`specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/descriptor.schema.yaml`* (matches **FR‑004**)  
+  *`specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/analysis_output.schema.yaml`* (matches **FR‑006**, **FR‑007**, **FR‑008**)  
+  *`specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/correlation.schema.yaml`* (additional contract)  
+  *`specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/flexibility.schema.yaml`* (additional contract)  
+  *`specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/output.schema.yaml`* (additional contract)  
+  *Verification:* Run `pytest tests/contract/test_schema_validity.py` – the test loads **all** schema files and validates a minimal compliant instance for each.  
 
 ---
 
-## Phase 4: User Story 2 - Compute Molecular Flexibility Descriptors and Correlate with Permeability (Priority: P2)
+## Phase 2 – Data Acquisition & Pre‑processing  
 
-**Goal**: Generate 3D conformer ensembles, calculate torsional variance via NMA, and compute statistical correlations.
+- [ ] **T005** [US1] Implement the data‑retrieval script (`code/data/retrieval.py`).  
+  *Fetch ≥ 600 Caco‑2 records from the ChEMBL REST API using the query parameters `assay_type=caco‑2` and `standard_type=MEASUREMENT`.*  
+  *Save the raw CSV to `data/raw/chembl_caco2_raw.csv` (schema must conform to `dataset.schema.yaml`).*  
+  *Implement exponential back‑off (max 3 retries, 5 s delay) for HTTP 429 responses.*  
+  *After saving, invoke the checksum utility (T003).*  
+  *Verification:* After execution, `data/raw/chembl_caco2_raw.csv` exists, contains ≥ 600 rows, and `state/pending/checksums.yaml` includes a hash entry for it.  
 
-**Independent Test**: Process a sample of molecules and verify ≥450 valid flexibility descriptors are computed and at least one correlation coefficient is produced with p-values.
+- [ ] **T006** [US1] Implement the preprocessing script (`code/data/preprocessing.py`).  
+  *Read `data/raw/chembl_caco2_raw.csv`, filter out rows with NULL SMILES or NULL logPapp, and retain only records where `protocol_metadata.standard_type == "MEASUREMENT"`.*  
+  *Report the pass‑rate (valid / raw) and the count of records excluded due to protocol heterogeneity.*  
+  *Write the cleaned dataset to `data/processed/filtered_data.csv` (must still conform to `dataset.schema.yaml`).*  
+  *Invoke the checksum utility (T003) after writing.*  
+  *Verification:* `data/processed/filtered_data.csv` contains ≥ 500 rows; the script prints a pass‑rate ≥ 0.83 and the checksum file contains an entry for the filtered CSV.  
 
-### Implementation for User Story 2
+- [ ] **T007** [US1] Add a contract‑test for the filtered dataset.  
+  *Create `tests/contract/test_dataset.py` with a single test function `test_schema_compliance` that loads `data/processed/filtered_data.csv` and validates each record against `dataset.schema.yaml` using `jsonschema.validate`.*  
+  *Verification:* `pytest tests/contract/test_dataset.py` exits with status 0.  
 
-- [ ] T010b [US3] [Depends on T010] Compute physicochemical confounders (logP, MW, PSA) for the filtered dataset to support controlled correlation analysis (T015b) and multivariate regression (T019a) per FR-007. **Requirement**: Read `data/processed/filtered_data.csv`. Calculate logP (using RDKit MolLogP), MW (using RDKit MolWt), and PSA (using RDKit CalcTPSA) for each SMILES. Append these columns to the dataset. Save output to `data/processed/enriched_data.csv`. **Dependency**: T010. <!-- FAILED: unspecified -->
-- [ ] T025 [US2] [Depends on T010b] Calculate Molecular Weight (MW) as the complexity metric for Scaling Law analysis. **Requirement**: Read `data/processed/enriched_data.csv`. Use the existing `mw` column as the complexity metric. Append a copy to `data/processed/enriched_data.csv` as `complexity_metric`. **Rationale**: Required to test the hypothesis that transport scales with molecular complexity. **Dependency**: T010b.
-- [ ] T013 [US2] [Depends on T010] Implement conformer generation in `code/data/conformer_gen.py`. **Requirement**: Implement `generate_conformers(smiles_list)` using RDKit to generate 3D conformer ensembles (size = 50, energy window ≤ 10 kcal/mol). **Output**: Save the generated conformer ensembles to `data/processed/conformers.pkl`. **Traceability**: Explicitly reference FR-003 in code comments. **Dependency**: T010.
-- [X] T017 [US2] [P] Write unit tests for conformer generation and NMA in `tests/test_descriptors.py`. **Requirement**: Implement specific test functions for conformer generation logic. Can run in parallel with subsequent analysis tasks once code is written. **Dependency**: T013.
-- [ ] T014 [US2] [Depends on T013] Implement descriptor calculation and NMA in `code/data/descriptors.py`. **Requirement**: Read `data/processed/conformers.pkl`. For each molecule: 1) Load the lowest energy conformer. 2) Convert to XYZ format. 3) Call `pyvib.analyze_molecule(xyz_file)`. 4) Extract eigenvalues (frequencies). 5) Compute torsional variance (dihedral) in rad². **Primary Metric**: dihedral_variance. **Diagnostic Metrics**: bond_variance, angle_variance. **Constraint**: If dihedral_variance fails for a molecule, skip that molecule entirely (do not output diagnostic metrics for it). **Output**: Save all three to `data/processed/descriptors_raw.csv` with columns: `smiles`, `bond_variance` (diagnostic), `angle_variance` (diagnostic), `dihedral_variance` (primary). **Traceability**: Explicitly reference FR-004 and Plan Constitution Check VI. **Threshold Check**: If <450 valid descriptors are generated, halt the pipeline and log an error. **Dependency**: T013, T010. <!-- FAILED: unspecified -->
-- [X] T014b [US2] [Depends on T003] Verify PyVib installation and version pinning. **Requirement**: Create `code/utils/verify_pyvib.py`. Run `import pyvib; print(pyvib.__version__)`. Ensure version matches `requirements.txt`. **Dependency**: T003.
-- [ ] T015 [US2] [Depends on T014, T010] Implement DIAGNOSTIC bivariate correlation analysis in `code/data/analysis.py`. **Requirement**: Compute Pearson and Spearman correlations between EACH flexibility descriptor (bond, angle, dihedral) and logPapp with p-values. **Constraint**: Do NOT control for confounders in this step. This is a diagnostic baseline only. **Output**: Save correlation results to `data/processed/correlation_diagnostic.csv`. **Dependency**: T014, T010.
-- [ ] T015b [US2] [Depends on T014, T010b] Implement CONTROLLED partial correlation analysis in `code/data/analysis.py`. **Requirement**: Compute partial correlations between `dihedral_variance` and logPapp, controlling for logP, MW, and PSA. **Output**: Save results to `data/processed/correlation_controlled.csv`. **Dependency**: T014, T010b.
-- [X] T018 [US2] [P] Write unit tests for correlation and FDR logic in `tests/test_analysis.py`. **Requirement**: Implement specific test functions for correlation and FDR logic. Can run in parallel with subsequent analysis tasks once code is written. **Dependency**: T015, T015b.
-- [ ] T016 [US2] [Depends on T015] Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py` for multiple hypothesis testing (q < 0.05). **Requirement**: Apply FDR correction to the diagnostic correlation results for all descriptors. **Output**: Update `data/processed/correlation_diagnostic.csv` with FDR-corrected q-values. **Dependency**: T015.
-
-**Checkpoint**: Flexibility descriptors computed and correlations calculated; results stored in `data/processed/`.
-
----
-
-## Phase 5: User Story 3 - Validate Model Performance and Generate Publication-Quality Visualizations (Priority: P3)
-
-**Goal**: Build multivariate linear regression model with standard cross-validation, and generate visualizations.
-
-**Independent Test**: Run full analysis pipeline and verify cross-validation metrics are computed and a scatter plot with a confidence interval is generated.
-
-### Implementation for User Story 3
-
-- [ ] T019a [US3] [Depends on T014, T010b] Implement multivariate linear regression model in `code/data/analysis.py` using `dihedral_variance` as the primary predictor and confounders (logP, MW, PSA). **Requirement**: The model MUST utilize `dihedral_variance` as the primary flexibility descriptor. Include logP, MW, and PSA as fixed covariates. **Constraint**: Do NOT use conditional logic for covariate inclusion; the model structure is fixed per FR-007. **Input**: Use `data/processed/enriched_data.csv` from T010b. **Output**: Save model coefficients, metrics, and validation results to `data/processed/model_results.json`. **Dependency**: T014, T010b.
-- [X] T020 [US3] [Depends on T019a] Implement k-fold cross-validation in `code/data/analysis.py` to assess generalizability. **Requirement**: Execute k-fold cross-validation as mandated by FR-007. Output mean R², RMSE, MAE, AND standard deviation of R² across folds. **Dependency**: T019a.
-- [X] T022a [US3] Implement scatter plot logic in `code/data/visualize.py` to generate plots with regression line and confidence interval. **Requirement**: Use `seaborn.regplot` to generate a scatter plot showing the flexibility-permeability relationship. **Dependency**: T020.
-- [X] T023a [US3] Update `code/data/visualize.py` and `code/data/analysis.py` plot titles to explicitly state "Associational Relationship" (not causal) as required by FR-009. **Verification**: Grep for "associational" in generated PNG metadata and code comments. **Dependency**: T022a.
-- [X] T024 [US3] Write integration tests for the full analysis pipeline in `tests/test_analysis.py`. **Requirement**: Tests must run the full pipeline end-to-end to verify metrics. **Dependency**: T020.
-
-**Checkpoint**: Model validated, visualizations generated, and research report ready.
+- [ ] **T021** [US1] Measure total pipeline runtime (SC‑005).  
+  *Wrap the full pipeline execution (tasks T005 → T020) in a timing script that writes total elapsed seconds to `data/processed/runtime_seconds.txt`.*  
+  *Verification:* The script asserts that the recorded runtime ≤ 21600 seconds (6 h) and fails otherwise.  
 
 ---
 
-## Phase 6: Scaling Law Analysis (Conditional: If Linear R² < 0.3)
+## Phase 3 – Feature Engineering (Physicochemical & Flexibility Descriptors)  
 
-**Goal**: Investigate the scaling exponent of transport rates relative to molecular complexity, testing for power-law relationships as suggested by the plan.
+- [ ] **T008** [US2] Compute physicochemical confounders and a complexity metric.  
+  *Read `data/processed/filtered_data.csv`; for each SMILES compute:*  
+  – LogP (`MolLogP`)  
+  – Molecular weight (`MolWt`)  
+  – Polar surface area (`CalcTPSA`)  
+  – Number of rotatable bonds (`NumRotatableBonds`)  
+  *Add these columns (`logP`, `mw`, `psa`, `rotatable_bonds`) and a derived `size_normalized_flexibility = dihedral_variance / rotatable_bonds` placeholder column (to be filled later).*  
+  *Write the enriched table to `data/processed/enriched_data.csv` and invoke the checksum utility.*  
+  *Verification:* The CSV contains the new columns with non‑null numeric values for every row; checksum entry exists.  
 
-**Independent Test**: Execute scaling analysis script and verify that a power-law model is fitted and compared against the linear model, with a reported scaling exponent.
+- [ ] **T009** [US2] Generate 3‑D conformer ensembles (`code/data/conformer_gen.py`).  
+  *For each SMILES in `data/processed/enriched_data.csv`, generate up to 50 conformers with RDKit’s `EmbedMultipleConfs` (seed = 42 for determinism).*  
+  *Retain only conformers whose MMFF94 energy is ≤ 10 kcal/mol above the minimum energy conformer for that molecule.*  
+  *Store the full ensemble as a dictionary `{smiles: list_of_rdkit_mol_objects}` serialized with `pickle` to `data/processed/conformers.pkl`.*  
+  *Invoke the checksum utility after writing.*  
+  *Verification:* `data/processed/conformers.pkl` exists, can be un‑pickled, and contains ≥ 450 molecules each with **≥ 50** conformers after energy filtering.  
 
-### Implementation for Scaling Analysis
+- [ ] **T022** [US2] Compute and record conformer‑generation success‑rate (SC‑002).  
+  *After T009 completes, calculate the proportion of molecules that met the ≥ 50‑conformer criterion and write the percentage to `data/processed/conformer_success_rate.txt`.*  
+  *Verification:* The file exists and the recorded rate is ≥ 90 % (the threshold implied by the specification).  
 
-- [~] T026 [US3] [Depends on T025, T019a] Implement power-law model fitting in `code/data/analysis.py`. **Requirement**: Fit a power-law model: `logPapp = a * (complexity_metric)^b + c` using `scipy.optimize.curve_fit`. Initial parameters: [1.0, -0.5, 0.0]. **Output**: Save fitted parameters (a, b, c) and R² to `data/processed/scaling_analysis_results.json`. **Traceability**: Explicitly reference the plan's deviation section regarding "Scaling Law". **Dependency**: T025, T019a.
-- [~] T027 [US3] [Depends on T026] Implement model comparison and hypothesis testing in `code/data/analysis.py`. **Requirement**: Compare the power-law model (T026) against the linear model (T019a) using AIC/BIC and F-tests. **Output**: Update `data/processed/scaling_analysis_results.json` with comparison metrics and a conclusion on whether a power-law relationship is statistically superior. **Dependency**: T026.
-- [~] T028 [US3] [Depends on T027] Implement visualization for scaling analysis in `code/data/visualize.py`. **Requirement**: Generate a log-log plot of `logPapp` vs `complexity_metric` with the fitted power-law curve and confidence intervals. **Output**: Save as `data/processed/scaling_plot.png` with dpi ≥ 300. **Dependency**: T027. <!-- FAILED: unspecified -->
-- [X] T029 [US3] Write unit tests for scaling law analysis in `tests/test_scaling.py`. **Requirement**: Implement tests for power-law fitting and model comparison logic. **Dependency**: T027.
-
-**Checkpoint**: Scaling law analysis complete; power-law vs linear model comparison available.
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T006 [P] Implement `code/utils/generate_transparency_report.py`. **Requirement**: Create a script that reads execution logs and deviation records to generate the "Computational Method Transparency" section dynamically. **Dependency**: None.
-- [X] T036 [P] Execute the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically. **Requirement**: This task MUST also generate `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and the "Computational Method Transparency" section as required by Constitution Principle VI and Plan constraints. **Content Template**:
-```markdown
-## Computational Method Transparency
-- **Conformer Generation**: RDKit `EmbedMultipleConfs` with [count] conformers per molecule.
-- **Flexibility Metric**: Torsional variance (dihedral) computed via PyVib Normal Mode Analysis.
-- **Statistical Rigor**: Pearson/Spearman correlations with Benjamini-Hochberg FDR correction.
-- **Model Validation**: -fold cross-validation with [R²] mean.
-- **Scaling Law Analysis**: Power-law model fitting with exponent [b] and comparison to linear model.
-- **Constraint**: All steps are CPU-tractable; no GPU offload.
-```
-**Dependency**: T015, T016, T019a, T020, T022a, T028. **Note**: This task MUST check for the existence of `data/processed/scaling_analysis_results.json`. If it exists and contains results, include the respective sections. **Dependency**: T015, T016, T020, T022a, T028.
-
-- [~] T038 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints. **Dependency**: None. <!-- FAILED: unspecified -->
-- [X] T039 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10. **Dependency**: T020. <!-- FAILED: unspecified -->
-- [~] T040a [P] [US3] Execute benchmark on a representative sample of molecules to verify total runtime estimate. **Requirement**: Execute the full pipeline on a **fixed representative subset of 100 molecules**. Measure `sample_time`. Calculate `estimated_runtime` = `sample_time` * (total_molecules / 100). **Dependency**: T020.
-- [ ] T041 Execute `quickstart.md` instructions end-to-end. **Requirement**: Verify `data/processed/descriptors_raw.csv` exists with ≥450 rows. Verify `state/pending/checksums.yaml` contains valid checksums for `data/processed/` files. **Pass Criteria**: Script runs without errors and produces the expected output file. **Dependency**: T040a. <!-- FAILED: unspecified -->
-- [~] T047 [P] [US3] Update `research.md` to include the final results from the analysis. **Requirement**: Explicitly discuss the findings regarding the flexibility-permeability relationship AND the scaling law analysis. This task updates `research.md` with the final results of the linear regression, correlation analysis (US1-US3), and the power-law scaling analysis (Phase 6). **Dependency**: T023a, T024, T028, T029. <!-- FAILED: unspecified -->
+- [ ] **T010** [US2] Calculate flexibility descriptors (`code/data/descriptors.py`).  
+  *Load `data/processed/conformers.pkl`.*  
+  *For each molecule:*  
+  1. Select the lowest‑energy conformer.  
+  2. Export to XYZ and run `pyvib.analyze_molecule` (PyVib must be importable).  
+  3. Extract dihedral‑angle eigenvalue variance → **dihedral_variance** (rad²).  
+  4. Compute bond‑length variance (**bond_variance**) and angle‑variance (**angle_variance**) as diagnostics.  
+  5. Record `conformer_count` and a boolean `converged` flag (variance change < 1 % between successive 10‑conformer subsets).  
+  *Skip any molecule where PyVib fails; log the SMILES to `logs/descriptor_failures.log`.*  
+  *Write a CSV `data/processed/descriptors_raw.csv` with columns:* `smiles, dihedral_variance, bond_variance, angle_variance, conformer_count, converged`.  
+  *Enforce the **FR‑003** success threshold: if fewer than 450 valid descriptor rows are produced, abort with a clear error message.*  
+  *Invoke the checksum utility.*  
+  *Verification:* The CSV contains ≥ 450 rows, all numeric fields are non‑negative, and the checksum file records the new artifact.  
 
 ---
 
-## Dependencies & Execution Order
+## Phase 4 – Statistical Analysis & Modeling  
 
-(Details omitted for brevity - see original tasks.md)
+- [ ] **T011** [US2] Perform diagnostic bivariate correlations (`code/data/analysis.py`).  
+  *Read `data/processed/descriptors_raw.csv` and `data/processed/enriched_data.csv` (joined on SMILES).*  
+  *Compute Pearson and Spearman correlation coefficients (and raw p‑values) between each flexibility descriptor (`dihedral_variance`, `bond_variance`, `angle_variance`) and the permeability outcome `logPapp`.*  
+  *Save results to `data/processed/correlation_diagnostic.csv` with columns:* `descriptor, pearson_r, pearson_p, spearman_r, spearman_p`.  
+  *Verification:* The CSV exists and contains exactly three rows (one per descriptor).  
+
+- [ ] **T012** [US2] Apply Benjamini‑Hochberg FDR correction to the diagnostic correlations.  
+  *Read `data/processed/correlation_diagnostic.csv`, compute q‑values for the six p‑values (three descriptors × two methods) using `statsmodels.stats.multitest.multipletests` (α = 0.05, method = "fdr_bh").*  
+  *Append a `fdr_q` column to the CSV and overwrite the file.*  
+  *Verification:* The updated CSV now contains a `fdr_q` column; all q‑values are ≤ 1.0.  
+
+- [ ] **T013** [US2] Compute the controlled partial correlation (`code/data/analysis.py`).  
+  *Using the enriched dataset, calculate the partial correlation between `dihedral_variance` and `logPapp` while controlling for `logP`, `mw`, and `psa` (e.g., via `pingouin.partial_corr`).*  
+  *Write a single‑row CSV `data/processed/correlation_controlled.csv` with columns:* `method, r, p_value, q_value, associational_only` (the last column must be `true`).  
+  *Verification:* File exists, contains the required columns, and `associational_only` is set to `true`.  
+
+- [ ] **T014** [US3] Build and evaluate a multivariate linear regression model (`code/data/analysis.py`).  
+  *Features:* `dihedral_variance`, `logP`, `mw`, `psa`.  
+  *Target:* `logPapp`.  
+  *Perform 5‑fold cross‑validation (scikit‑learn’s `KFold` with `shuffle=True, random_state=42`).*  
+  *Record per‑fold R², RMSE, MAE and compute their means and standard deviation of R².*  
+  *Save a JSON file `data/processed/model_results.json` matching the `analysis_output.schema.yaml` contract (includes `model_performance` object).*  
+  *Verification:* The JSON validates against the schema; `mean_r2` and `std_r2` are present.  
+
+- [ ] **T015** [US3] Generate the primary visualization (`code/data/visualize.py`).  
+  *Create a scatter plot of `dihedral_variance` vs `logPapp` with a regression line and a 95 % confidence interval (use `seaborn.regplot` with `ci=95`).*  
+  *Add a subtitle “Associational Relationship – not causal” as required by **FR‑009**.*  
+  *Save the figure as `data/processed/flexibility_vs_permeability.png` with DPI ≥ 300.*  
+  *Verification:* The PNG file exists, its metadata reports `dpi=300`, and grepping the source file finds the phrase “Associational Relationship”.  
+
+- [ ] **T016** [US3] Write an integration test that runs the full pipeline end‑to‑end (`tests/integration/test_full_pipeline.py`).  
+  *The test executes the scripts in order (T005 → T006 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015) using subprocess calls.*  
+  *After execution it asserts the existence of the key output artifacts:* `filtered_data.csv`, `descriptors_raw.csv`, `correlation_diagnostic.csv`, `model_results.json`, `flexibility_vs_permeability.png`.  
+  *Verification:* `pytest -q tests/integration/test_full_pipeline.py` passes with exit code 0.  
+
+---
+
+## Phase 5 – Reporting & Handoff  
+
+- [ ] **T017** [US3] Generate the computational‑method transparency report and update `research.md`.  
+  *Run `code/utils/generate_transparency_report.py` which reads the execution logs, extracts key parameters (conformer count, energy window, descriptor definitions, statistical methods, CV metrics, confidence intervals), and writes a markdown section into `research.md`.*  
+  *The report must include the exact values of the regression coefficients, mean R², and, if present, the scaling‑law exponent (the pipeline does **not** perform scaling‑law analysis; that section is omitted).*  
+  *Verification:* Run `pytest tests/verification/test_transparency_report.py` which checks that `research.md` contains a top‑level heading “## Computational Method Transparency” and that required items are present.  
+
+- [ ] **T023** [US0] Validate all JSON‑schema contracts.  
+  *Create `tests/contract/test_schema_validity.py` that loads each schema file (`dataset.schema.yaml`, `descriptor.schema.yaml`, `analysis_output.schema.yaml`, `correlation.schema.yaml`, `flexibility.schema.yaml`, `output.schema.yaml`) and validates a minimal compliant instance against it using `jsonschema`.*
+  *Verification:* `pytest tests/contract/test_schema_validity.py` exits with status 0.  
+
+- [ ] **T024** [US0] Verify checksums file integrity.  
+  *Create `tests/contract/test_checksums.py` that loads `state/pending/checksums.yaml`, ensures the file exists, and asserts that every file under `data/` listed in the pipeline has a corresponding SHA‑256 entry.*  
+  *Verification:* `pytest tests/contract/test_checksums.py` exits with status 0.  
+
+- [ ] **T025** [US0] Automated verification of the transparency report.  
+  *Create `tests/verification/test_transparency_report.py` that parses `research.md` for the “## Computational Method Transparency” heading and checks for presence of required fields (conformer count, energy window, regression coefficients, mean R², confidence‑interval note).*
+  *Verification:* `pytest tests/verification/test_transparency_report.py` exits with status 0.  
+
+---
+
+### Dependency Summary  
+
+| Task | Depends on |
+|------|------------|
+| T001 | – |
+| T002 | T001 |
+| T003 | T001 |
+| T004 | – |
+| T005 | T001, T003, T004 |
+| T006 | T005, T003, T004 |
+| T007 | T006, T004 |
+| T008 | T006, T004 |
+| T009 | T008, T003, T004 |
+| T010 | T009, T003, T004 |
+| T011 | T010, T008, T004 |
+| T012 | T011, T004 |
+| T013 | T010, T008, T004 |
+| T014 | T010, T008, T004 |
+| T015 | T014, T004 |
+| T016 | T005, T006, T008, T009, T010, T011, T012, T013, T014, T015, T004 |
+| T017 | T014, T015, T016, T004 |
+| T021 | T016, T004 |
+| T022 | T009, T004 |
+| T023 | T004 |
+| T024 | T003, T004 |
+| T025 | T017, T004 |
+
+---  
+
+*All tasks are expressed as real, verifiable actions that produce concrete files under the project‑owned `code/`, `data/`, `tests/`, or `specs/` trees. No synthetic data or GPU‑only shortcuts are used; every step is CPU‑tractable and respects the ≤ 6‑hour runtime budget.*  
