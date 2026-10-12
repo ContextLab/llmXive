@@ -40,8 +40,22 @@ T002d:
     to write only project-owned outputs.'
   task: 7c65e9e73f3f62d59754b88924dc7b5d4cd81311b4498cc309710d36e71ae567
 T003:
+  reason: "`code/pyproject.toml` exists with `[tool.black] line-length = 88`, and\
+    \ a `.flake8` file appears in the `code/` directory listing, but its contents\
+    \ were not provided, so the required `max-line-length = 88` (and other flake8\
+    \ rules) cannot be confirmed. Additionally, there is no execution evidence that\
+    \ `black --check code/` was run with exit code 0 \u2014 the task's verification\
+    \ step is unproven. The implementer should show the `.flake8` contents and a recorded\
+    \ `black --check` run with exit status 0."
   task: 751ae970b573340c295cd856a805b49e23b4099644ff05ac38ac2adcbb5a3b36
 T004:
+  reason: "`code/config.yaml` is missing the required `gabor` key entirely, and `aggregation`\
+    \ is set to `false` when the task specifies default `true`. Additionally, `tests/test_config.py`\
+    \ would fail as written: it calls `load_config(config_path)` but `code/config.py`\
+    \ defines `load_config()` with no parameters (TypeError), and it asserts threshold\
+    \ keys (`blink_threshold`, `lowpass_cutoff`, `vif_threshold`) and path keys (`raw_data`,\
+    \ `processed_data`) that are absent from the actual config.yaml \u2014 so the\
+    \ verification test does not pass against the delivered artifacts."
   task: d878e9986c7815c521b08cfb8b2bdc66b393b108a25cbf0017d1ce7e24efa772
 T005a:
   reason: 'The module `code/utils/logging_config.py` exists and correctly defines
@@ -74,12 +88,37 @@ T005c:
     mod'
   task: f1de0484ace65e1e39363cb36c61804249e6c862f6583e255bd04b461bd1747d
 T006:
+  reason: "`code/data_model.py` exists and correctly defines `Dataset` and `ModelResult`\
+    \ with all required fields, but the serialization constraint is not satisfied:\
+    \ neither class inherits from `pandas.DataFrame` nor provides a `.to_csv()` method\
+    \ \u2014 only `to_dict()`/`to_summary_dict()` helpers exist, so the required direct-to-CSV\
+    \ serializability (to `data/processed/features.csv` and `results/model_summary.csv`)\
+    \ is missing. Add a `.to_csv()` method (or DataFrame inheritance) to both classes."
   task: b834b252513f6f241e31e65a8a72eaa4728cbe4f0eef6f7f0d952a0dac22dbe2
 T007:
+  reason: "The `code/utils/provenance.py` module exists and correctly implements `hash_file`\
+    \ and `write_meta`, but the verification requirement \u2014 generating `data/raw/*_meta.json`\
+    \ files with keys `[hash, timestamp, source]` \u2014 is unmet: the `data/raw/`\
+    \ directory does not exist and no `*_meta.json` files were found anywhere. The\
+    \ implementer must actually run the functions against real data files in `data/raw/`\
+    \ to produce the metadata JSONs."
   task: 3c76772175c48699f933257057ab7d0248e11df7ca47649c6a56c52834c00313
 T008:
+  reason: "The required `code/.env.example` file is MISSING (collector-confirmed),\
+    \ and `code/main.py` only calls `load_dotenv()` without reading or validating\
+    \ the `DATA_PATH`, `OPENNEURO_API_KEY`, or `LOG_LEVEL` keys \u2014 there is no\
+    \ graceful-failure error message for missing keys anywhere in the file. The implementer\
+    \ must create `code/.env.example` with those three keys and add explicit env-var\
+    \ loading/validation (with a clear error message on missing keys) to `main.py`."
   task: 61381f0e069e35a65400393718d38118d9c8acae7c3ef5d1ccdea5c6d9e87342
 T010:
+  reason: The required tests `test_load_edf_raises_on_missing_file`, `test_load_csv_invalid_columns`,
+    and `test_load_edf_valid_file` do not exist in `tests/test_data_loader.py`; instead
+    it contains differently-named tests (`test_load_raw_data_*`, `test_validate_data_columns_*`)
+    with no EDF coverage at all. Moreover, the tests import `load_raw_data` and `validate_data_columns`
+    from `preprocessing.load_data`, but the actual `code/preprocessing/load_data.py`
+    defines neither function (it has `load_raw_data_from_dataset`, `_read_csv_file`,
+    etc.), so the tests would fail on import; the `__init__.py` also refe
   task: 88cd73d8722c914834379549366c2e336dac11ea467b50ece0acdc64fbf54161
 T011:
   task: 4ea5b2ded7c2f1e4dee42a27a84be2603242d1eea5ea2485ed905e3dcf435549

@@ -30,8 +30,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/verify_data_availability.py -> rc=1
-2026-10-12 10:18:30,888 - INFO - Starting data availability verification with plan: /home/runner/work/llmXive/llmXive/projects/PROJ-174-investigating-the-relationship-between-p/plan.md
-2026-10-12 10:18:30,888 - ERROR - Verification failed with unexpected error: plan.md not found at /home/runner/work/llmXive/llmXive/projects/PROJ-174-investigating-the-relationship-between-p/plan.md
+2026-10-12 10:23:44,333 - INFO - Starting data availability verification with plan: /home/runner/work/llmXive/llmXive/projects/PROJ-174-investigating-the-relationship-between-p/plan.md
+2026-10-12 10:23:44,333 - ERROR - Verification failed with unexpected error: plan.md not found at /home/runner/work/llmXive/llmXive/projects/PROJ-174-investigating-the-relationship-between-p/plan.md
 
 
 - python code/main.py --config code/config.yaml -> rc=1

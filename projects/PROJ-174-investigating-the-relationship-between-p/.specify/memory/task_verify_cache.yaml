@@ -27,6 +27,28 @@ T002c:
     \ a `.verified` marker and fabricated `meta.json` with a hardcoded 2024 timestamp\
     \ instead of actual data), `data/raw/` is missing, the req"
   sig: fc73c4d4d987b6d5a0efc4a889321a30d37bbb669431da18b93c7daf24f2bd98
+T003:
+  c: false
+  h: 193715435308d9feb5194c862989bf4213699c8276b543c6b7863839f694b6ef
+  r: "`code/pyproject.toml` exists with `[tool.black] line-length = 88`, and a `.flake8`\
+    \ file appears in the `code/` directory listing, but its contents were not provided,\
+    \ so the required `max-line-length = 88` (and other flake8 rules) cannot be confirmed.\
+    \ Additionally, there is no execution evidence that `black --check code/` was\
+    \ run with exit code 0 \u2014 the task's verification step is unproven. The implementer\
+    \ should show the `.flake8` contents and a recorded `black --check` run with exit\
+    \ status 0."
+  sig: 7b939a9b2b77b513071b7481393f194a71fd062c369165f8c45826680f11d2e8
+T004:
+  c: false
+  h: 4617517b87e17acff4d2ee9fe763771269412fdcff324916e97ab18845d1d636
+  r: "`code/config.yaml` is missing the required `gabor` key entirely, and `aggregation`\
+    \ is set to `false` when the task specifies default `true`. Additionally, `tests/test_config.py`\
+    \ would fail as written: it calls `load_config(config_path)` but `code/config.py`\
+    \ defines `load_config()` with no parameters (TypeError), and it asserts threshold\
+    \ keys (`blink_threshold`, `lowpass_cutoff`, `vif_threshold`) and path keys (`raw_data`,\
+    \ `processed_data`) that are absent from the actual config.yaml \u2014 so the\
+    \ verification test does not pass against the delivered artifacts."
+  sig: d6e128ffe7f5d1384f42fac112e081a06febd75187dd3cf7808a70a9bad27f1b
 T005a:
   c: false
   h: ae26ee4d1a8b9836b91a5d23a619cdd365fe838a664be5cb78744df6bd903cb1
@@ -63,12 +85,47 @@ T005c:
     pass. The test must be rewritten to match the real `logging_config` API (or the
     mod'
   sig: 654bce546b9d0e5f913694c691377fd4bbd1285fba7597c47e813ba67d7ed1df
+T006:
+  c: false
+  h: 774e020e235933a4e5943bfeb2e9d9177c70cd65eb927481480c1a462d837a70
+  r: "`code/data_model.py` exists and correctly defines `Dataset` and `ModelResult`\
+    \ with all required fields, but the serialization constraint is not satisfied:\
+    \ neither class inherits from `pandas.DataFrame` nor provides a `.to_csv()` method\
+    \ \u2014 only `to_dict()`/`to_summary_dict()` helpers exist, so the required direct-to-CSV\
+    \ serializability (to `data/processed/features.csv` and `results/model_summary.csv`)\
+    \ is missing. Add a `.to_csv()` method (or DataFrame inheritance) to both classes."
+  sig: 929ec6157bbe6f9273ec9cdd3a00001cb89e7cec9eeeee54028af92bf34301e4
+T007:
+  c: false
+  h: 1c864bfd5e6d79fe4e5a127b7ca2248778f48113bcfa2eee6923ec5b9afcc3dc
+  r: "The `code/utils/provenance.py` module exists and correctly implements `hash_file`\
+    \ and `write_meta`, but the verification requirement \u2014 generating `data/raw/*_meta.json`\
+    \ files with keys `[hash, timestamp, source]` \u2014 is unmet: the `data/raw/`\
+    \ directory does not exist and no `*_meta.json` files were found anywhere. The\
+    \ implementer must actually run the functions against real data files in `data/raw/`\
+    \ to produce the metadata JSONs."
+  sig: 78dd239925990054533c5f71e084a322e7a3cb2d5ac16bf7129475678d62f856
+T008:
+  c: false
+  h: 1f8553e1bf67d9747ea840008d94c96a55a67b69594fab49af194238d0c8e4f2
+  r: "The required `code/.env.example` file is MISSING (collector-confirmed), and\
+    \ `code/main.py` only calls `load_dotenv()` without reading or validating the\
+    \ `DATA_PATH`, `OPENNEURO_API_KEY`, or `LOG_LEVEL` keys \u2014 there is no graceful-failure\
+    \ error message for missing keys anywhere in the file. The implementer must create\
+    \ `code/.env.example` with those three keys and add explicit env-var loading/validation\
+    \ (with a clear error message on missing keys) to `main.py`."
+  sig: afd1912f81fe514f4c8ef9517e6c7e9534a8c4fb5384cee31ee86349caeaddfd
 T010:
   c: false
-  h: 000542c516a1e82fd3e02d8ec3f967521c4e8e3a24940d337bd8e7a5c0c928c6
-  r: "The required artifact `tests/test_data_loader.py` does not exist on disk, so\
-    \ no unit test for data loader validation is present. The task cannot be considered\
-    \ completed until a non\u2011empty test file is added at the specified location."
+  h: 35dc88c5e4488e38132c4cebed273c0734400ced7d26e8bb60a56af9152fab54
+  r: The required tests `test_load_edf_raises_on_missing_file`, `test_load_csv_invalid_columns`,
+    and `test_load_edf_valid_file` do not exist in `tests/test_data_loader.py`; instead
+    it contains differently-named tests (`test_load_raw_data_*`, `test_validate_data_columns_*`)
+    with no EDF coverage at all. Moreover, the tests import `load_raw_data` and `validate_data_columns`
+    from `preprocessing.load_data`, but the actual `code/preprocessing/load_data.py`
+    defines neither function (it has `load_raw_data_from_dataset`, `_read_csv_file`,
+    etc.), so the tests would fail on import; the `__init__.py` also refe
+  sig: b83773b3632f4a010a0cf2d0b1a5c4f7b091c5665bbafa39090edc2a072b8fdd
 T015a:
   c: false
   h: 0fd8d0cf0fbdbe129da27210e79d98fb6f25536beb6e480ed713794b5be413ee
