@@ -30,15 +30,15 @@ ERROR:__main__:Failed to download https://vaers.hhs.gov/data/datasets/vaersdata2
 ERROR:__main__:Failed to download data for years: [2020, 2021, 2022, 2023]
 
 - python src/data/validate.py -> rc=2
-2026-10-12 01:40:20,072 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
-2026-10-12 01:40:20,075 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
-2026-10-12 01:40:20,075 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
+2026-10-12 02:27:16,048 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
+2026-10-12 02:27:16,051 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
+2026-10-12 02:27:16,051 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
 
 
 - python src/main.py -> rc=1
-2026-10-12 01:40:20,981 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-12 01:40:20,993 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-12 01:40:21,223 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-12 02:27:16,762 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-12 02:27:16,894 - matplotlib.font_manager - INFO - generated new fontManager
+2026-10-12 02:27:17,172 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 

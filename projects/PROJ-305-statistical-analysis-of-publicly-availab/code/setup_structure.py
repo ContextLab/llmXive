@@ -8,32 +8,33 @@ from typing import List
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def create_directories() -> None:
-    """
-    Create the required project directory tree as specified in T001.
-    """
-    required_dirs = [
-        "src/data",
-        "src/analysis",
-        "src/utils",
-        "src/validation",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "output/figures",
-        "output/temporal_profiles",
-        "contracts",
-        "logs",
-    ]
-    
-    # Also ensure the base src directory exists explicitly
-    # although parents=True handles it.
-    for d in required_dirs:
-        p = Path(d)
-        p.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory exists: {p}")
+# Required directory tree as specified in T001
+REQUIRED_DIRS = [
+    "src",
+    "src/data",
+    "src/analysis",
+    "src/utils",
+    "src/validation",
+    "tests",
+    "data",
+    "data/raw",
+    "data/processed",
+    "output",
+    "output/figures",
+    "output/temporal_profiles",
+    "contracts",
+    "logs",
+]
 
-def _python_tree_fallback(root: Path, max_depth: int = 3) -> str:
+def create_directories() -> None:
+    """Create the required project directory tree."""
+    logger.info("Creating project directory structure...")
+    for dir_path in REQUIRED_DIRS:
+        p = Path(dir_path)
+        p.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created: {dir_path}")
+
+def _python_tree_fallback(root: Path, max_depth: int = 3) -> List[str]:
     """
     Pure Python implementation of 'tree -a -L 3' for environments 
     where the system 'tree' command is not installed.
@@ -45,78 +46,67 @@ def _python_tree_fallback(root: Path, max_depth: int = 3) -> str:
             return
         
         try:
-            # Get all entries including hidden ones (mimic -a)
+            # Get all entries including hidden ones
             entries = sorted(list(current_path.iterdir()), key=lambda x: x.name)
         except PermissionError:
             return
 
         for i, entry in enumerate(entries):
-            is_last = (i == len(entries) - 1)
-            prefix = "└── " if is_last else "├── "
-            indent = "    " * depth
-            
-            # Append the entry name
-            suffix = "/" if entry.is_dir() else ""
-            lines.append(f"{indent}{prefix}{entry.name}{suffix}")
-            
+            # Simple visual representation
+            prefix = "  " * depth + "|-- "
+            name = entry.name
+            if entry.is_dir():
+                name += "/"
+            lines.append(f"{prefix}{name}")
             if entry.is_dir():
                 walk(entry, depth + 1)
 
-    lines.append(f".")
-    walk(root, 0)
-    return "\n".join(lines)
+    walk(root, 1)
+    return lines
 
 def write_tree_snapshot(root_path: Path, output_file: Path) -> None:
     """
     Capture a filesystem snapshot using the system 'tree' command,
     falling back to a Python implementation if 'tree' is unavailable.
     """
-    logger.info(f"Capturing filesystem snapshot to {output_file}")
+    logger.info(f"Capturing filesystem snapshot to {output_file}...")
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
     try:
-        # Attempt to use the system 'tree' command as requested in T001
-        # -a: all files, -L 3: max depth 3
-        result = subprocess.run(
-            ["tree", "-a", "-L", "3"], 
-            capture_output=True, 
-            text=True, 
-            check=True
-        )
-        snapshot = result.stdout
-        logger.info("Used system 'tree' command for snapshot.")
+        # Attempt to use the system 'tree' command as requested
+        with open(output_file, "w", encoding="utf-8") as f:
+            subprocess.run(
+                ["tree", "-a", "-L", "3"], 
+                cwd=root_path, 
+                stdout=f, 
+                stderr=subprocess.PIPE, 
+                check=True, 
+                text=True
+            )
+        logger.info("Snapshot captured using system 'tree'.")
     except (subprocess.CalledProcessError, FileNotFoundError):
         logger.warning("System 'tree' command not found or failed. Using Python fallback.")
         snapshot = _python_tree_fallback(root_path)
-
-    output_file.write_text(snapshot, encoding="utf-8")
-    logger.info(f"Snapshot successfully written to {output_file}")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(f"Project Root: {root_path}\n")
+            f.write("\n".join(snapshot))
+            f.write("\n")
+        logger.info("Snapshot captured using Python fallback.")
 
 def main() -> None:
-    """
-    Main entry point for project scaffolding.
-    1. Create the required directory tree.
-    2. Write the snapshot to logs/structure.txt.
-    """
+    """Main entry point for project scaffolding."""
     root = Path(".")
+    output_file = root / "logs" / "structure.txt"
     
-    # 1. Create directories
     create_directories()
+    write_tree_snapshot(root, output_file)
     
-    # 2. Capture snapshot
-    snapshot_path = root / "logs" / "structure.txt"
-    write_tree_snapshot(root, snapshot_path)
-    
-    # Final verification check (mimics the verification step)
-    if snapshot_path.exists() and snapshot_path.stat().st_size > 0:
-        content = snapshot_path.read_text()
-        required_keywords = ["src", "data", "output", "contracts", "logs"]
-        all_present = all(kw in content for kw in required_keywords)
-        if all_present:
-            logger.info("Verification: All required directories found in snapshot.")
-        else:
-            logger.warning("Verification: Some required directories missing from snapshot.")
+    # Final verification check within the script
+    if output_file.exists() and output_file.stat().st_size > 0:
+        logger.info("Verification: logs/structure.txt is non-empty.")
     else:
-        logger.error("Verification: Snapshot file is missing or empty.")
+        logger.error("Verification: logs/structure.txt is missing or empty.")
+        exit(1)
 
 if __name__ == "__main__":
     main()
