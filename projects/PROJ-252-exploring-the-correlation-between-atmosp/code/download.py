@@ -5,14 +5,20 @@ import hashlib
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 import requests
 import yaml
+import pandas as pd
 
-from utils.logging import setup_logger, get_logger
+# Configure logger using the standard library
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__)
 
-# Configure logger
-logger = setup_logger(__name__)
-
+# Paths
 CONFIG_PATH = Path("data/processed/config.yaml")
 DEFAULT_CONFIG = {
     "pilot_mode": False,
@@ -24,6 +30,9 @@ DEFAULT_CONFIG = {
     "convergence_variance_threshold": 1e-5
 }
 
+# ----------------------------------------------------------------------
+# Configuration handling
+# ----------------------------------------------------------------------
 def load_config() -> Dict[str, Any]:
     """Load configuration from data/processed/config.yaml.
     If the file does not exist, create it with default values."""
@@ -42,6 +51,9 @@ def save_config(cfg: Dict[str, Any]) -> None:
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         yaml.safe_dump(cfg, f)
 
+# ----------------------------------------------------------------------
+# Deviation check (optional)
+# ----------------------------------------------------------------------
 def verify_deviations() -> None:
     """Verify that deviation records exist in docs/deviations.md."""
     deviations_path = Path("docs/deviations.md")
@@ -57,6 +69,9 @@ def verify_deviations() -> None:
     else:
         logger.info("DEV-001 deviation record found.")
 
+# ----------------------------------------------------------------------
+# USGS data download
+# ----------------------------------------------------------------------
 def fetch_usgs_data(
     start_date: str = "2013-01-01",
     end_date: str = "2023-12-31",
@@ -122,6 +137,9 @@ def fetch_usgs_data(
     logger.info(f"Total USGS events retrieved: {len(all_events)}")
     return all_events
 
+# ----------------------------------------------------------------------
+# Helper for checksum
+# ----------------------------------------------------------------------
 def calculate_checksum(file_path: Path) -> str:
     """Calculate SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
@@ -130,6 +148,9 @@ def calculate_checksum(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+# ----------------------------------------------------------------------
+# Save USGS raw data
+# ----------------------------------------------------------------------
 def save_raw_usgs(events: List[Dict[str, Any]], output_path: Path) -> str:
     """
     Save the USGS earthquake list as a JSON file compatible with the existing tests.
@@ -148,6 +169,9 @@ def save_raw_usgs(events: List[Dict[str, Any]], output_path: Path) -> str:
     logger.info(f"USGS data saved to {json_path} (checksum {checksum[:16]}...)")
     return checksum
 
+# ----------------------------------------------------------------------
+# NOAA pressure download
+# ----------------------------------------------------------------------
 def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     """
     Download the NOAA NCEP/NCAR daily sea‑level pressure files.
@@ -163,7 +187,7 @@ def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     total_downloaded = 0
     for year in range(start_year, end_year + 1):
         for month in range(1, 13):
-            # Determine days in month (simple approach using pandas date_range)
+            # Determine days in month using pandas date_range
             month_start = pd.Timestamp(year=year, month=month, day=1)
             month_end = month_start + pd.offsets.MonthEnd(0)
             for day in pd.date_range(month_start, month_end):
@@ -190,6 +214,9 @@ def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     logger.info(f"Successfully downloaded {total_downloaded} NOAA pressure files.")
     return total_downloaded
 
+# ----------------------------------------------------------------------
+# Logging of download summary
+# ----------------------------------------------------------------------
 def write_download_log(noaa_file_count: int, usgs_row_count: int) -> None:
     """Write the download_success.log file."""
     log_path = Path("logs/download_success.log")
@@ -199,6 +226,9 @@ def write_download_log(noaa_file_count: int, usgs_row_count: int) -> None:
         log_f.write(f"USGS earthquake catalog rows: {usgs_row_count}\n")
     logger.info(f"Download success log written to {log_path}")
 
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> int:
     """
     Main entry point for the download pipeline.

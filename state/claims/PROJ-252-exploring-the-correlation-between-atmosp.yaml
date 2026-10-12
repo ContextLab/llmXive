@@ -4220,3 +4220,36 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T04:29:42Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: 2018 Alaska subset with N=12 is used
+  claim_id: c_24ce3f11
+  context: 'Notes on Scope: the pilot study uses only the 2018 Alaska subset; global
+    data is blocked.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: only the 2018 Alaska subset (N=12) is used
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T05:18:29Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: full global 2013-2023 NOAA pressure download is blocked
+  claim_id: c_8007ff5a
+  context: Required-Input Provenance section describing the atmospheric pressure data
+    source and its availability.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The full global 2013-2023 download is currently blocked (see docs/deviations.md,
+    DEV-001)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T05:18:29Z'

@@ -1,18 +1,42 @@
-status: none
-intent: download NOAA NCEP/NCAR reanalysis sea level pressure and USGS earthquake
-  catalog 2013-2023 python package dataset
+status: verified
+kind: pypi_package
+ref: obspy
+access_python: "from obspy import read_events\n\n# Load the bundled example catalog\
+  \ (no path needed)\ncatalog = read_events()\n\n# Count all loaded events\nrecords\
+  \ = len(catalog)\nprint(f\"RECORDS={records}\")\n\n# Print field names from the\
+  \ first event\nif records:\n    first_event = catalog[0]\n    fields = [name for\
+  \ name in first_event.__dict__ if not name.startswith(\"_\")]\n    print(\"FIELDS=\"\
+  \ + \",\".join(fields))\nelse:\n    raise RuntimeError(\"No events loaded from the\
+  \ example catalog\")"
+record_count: 3
+sample_fields:
+- resource_id
+- event_type
+- event_type_certainty
+- creation_info
+- preferred_origin_id
+- preferred_magnitude_id
+- preferred_focal_mechanism_id
+- event_descriptions
+- comments
+- picks
+- amplitudes
+- focal_mechanisms
+- origins
+- magnitudes
+- station_magnitudes
+field_coverage: 0.5
 required_fields:
 - event_id
-- origin_time
+- event_time_utc
+- event_latitude
+- event_longitude
 - magnitude
 - depth_km
-- latitude
-- longitude
-- pressure_anomaly
+- pressure_date
 - pressure_grid_latitude
 - pressure_grid_longitude
-- pressure_timestamp
-- control_window_label
-cache_key: ce433fb9d4b67b5e3fcd2f776354cfb71ba3b03d580fddf7f31253e111a514b1
-searched_at: '2026-10-12T04:28:36.354624+00:00'
-retry_count: 1
+- sea_level_pressure_hPa
+intent: download NOAA NCEP/NCAR global sea level pressure and USGS 2013-2023 earthquake
+  catalog python package dataset
+cache_key: 4fe1000f071dd7f4780990889b0246cad1ebe7b9cb9341d2aa9dba480731ec9c

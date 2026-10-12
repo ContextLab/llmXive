@@ -1,5 +1,16 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/download.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/report.py; 4 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1)
@@ -7,15 +18,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py -> rc=1
-2026-10-12 04:31:03 - __main__ - INFO - Starting download pipeline (T002).
-2026-10-12 04:31:03 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
-2026-10-12 04:31:03 - __main__ - CRITICAL - NOAA download failed: name 'pd' is not defined
 
+2026-10-12 05:25:17,460 - __main__ - INFO - Starting download pipeline (T002).
+2026-10-12 05:25:17,460 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
+2026-10-12 05:25:17,464 - __main__ - INFO - Downloading https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/slp.20130101.nc
+2026-10-12 05:25:17,690 - __main__ - ERROR - Failed to download https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/slp.20130101.nc: 404 Client Error: Not Found for url: https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/slp.20130101.nc
+2026-10-12 05:25:17,690 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/slp.20130101.nc
 
 - python code/preprocess.py -> rc=1
 taset written to data/processed/master_dataset.parquet
-2026-10-12 04:31:03,674 - __main__ - INFO - Checksum written to data/processed/master_dataset.parquet.sha256
-2026-10-12 04:31:03,674 - __main__ - ERROR - Preprocessing failed: Schema file not found at contracts/earthquake.yaml
+2026-10-12 05:25:18,104 - __main__ - INFO - Checksum written to data/processed/master_dataset.parquet.sha256
+2026-10-12 05:25:18,104 - __main__ - ERROR - Preprocessing failed: Schema file not found at contracts/earthquake.yaml
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 363, in <module>
     main()
@@ -30,7 +43,7 @@ FileNotFoundError: Schema file not found at contracts/earthquake.yaml
 
 
 - python code/analysis.py -> rc=1
-2026-10-12 04:31:04 - __main__ - INFO - Starting analysis pipeline.
+2026-10-12 05:25:18 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 320, in <module>
@@ -69,6 +82,35 @@ ERROR tests/unit/test_preprocess_anomalies.py
 ERROR tests/unit/test_statistics.py
 ERROR tests/unit/test_t017_master_dataset.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 0.67s ===============================
+============================== 9 errors in 0.74s ===============================
 
 
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `obspy` to the project's `requirements.txt` and `pip install obspy`.
+- **Verified**: this loads **3** real records with fields: resource_id, event_type, event_type_certainty, creation_info, preferred_origin_id, preferred_magnitude_id, preferred_focal_mechanism_id, event_descriptions, comments, picks, amplitudes, focal_mechanisms, origins, magnitudes, station_magnitudes.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+from obspy import read_events
+
+# Load the bundled example catalog (no path needed)
+catalog = read_events()
+
+# Count all loaded events
+records = len(catalog)
+print(f"RECORDS={records}")
+
+# Print field names from the first event
+if records:
+    first_event = catalog[0]
+    fields = [name for name in first_event.__dict__ if not name.startswith("_")]
+    print("FIELDS=" + ",".join(fields))
+else:
+    raise RuntimeError("No events loaded from the example catalog")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

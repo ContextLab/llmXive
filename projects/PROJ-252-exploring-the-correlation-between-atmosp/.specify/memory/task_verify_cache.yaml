@@ -1,25 +1,3 @@
-T001:
-  c: false
-  h: 951adf1102dfc5b898ed6ba6e47eb834cb8aeb609be144bd9eebdcd78232245c
-  r: "Checked `docs/quickstart.md`, `requirements.txt`, `code/__init__.py`, and the\
-    \ seed\u2011initialization run log (`code/.tasks/T001.code_seed_init.py.log`).\
-    \ While the docs, frozen requirements, and seed\u2011setting code exist and the\
-    \ seed script ran successfully, there is no evidence that `pip install -r requirements.txt`\
-    \ completed without warnings, and the required `logs/seed_initialization.log`\
-    \ file confirming the seeds were set is missing."
-  sig: 456287bf90a5202a0ddbcb95eeea248a4b84d0f3eceecded42ff5f0db3680b92
-T002:
-  c: false
-  h: 0e92e5ad266a3c0026a472ecbc908ca20fd164506dcf08f5a218f17a354cff8c
-  r: "The repository contains only a pilot\u2011mode config (pilot_mode\u202F=\u202F\
-    true, expected_earthquake_count\u202F=\u202F12, min/max permutation iterations\u202F\
-    =\u202F1000/10000) and a download script that deliberately blocks the global NOAA\
-    \ download, fetches only a 2018 Alaska USGS subset, and writes \u201C0 files\u201D\
-    \ for pressure data. No 4010 daily NOAA pressure files are present in `data/raw/`,\
-    \ the config does not match the required values, and the script would exit\u202F\
-    0 even when the global dataset is missing, violating the task\u2019s abort\u2011\
-    on\u2011failure rule."
-  sig: fdd1c81ce5db2f419138aa8cc1c1f89387c79dd606b71ff55ed4353150ac55e3
 T009:
   c: false
   h: 642b718945cf87db8d3ea068862e70d708a939f7de6e3441f85d2b62435c08d7

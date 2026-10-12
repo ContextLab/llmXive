@@ -10,11 +10,11 @@
     "python code/analysis.py -> rc=1\n    2026-08-26 19:53:05 - __main__ - INFO - Starting analysis pipeline.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py\", line 320, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py\", line 313, in main\n    results = run_analysis()\n              ^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analy",
     "python code/report.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/report.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 2,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-26T19:53:07Z"
+  "updated_at": "2026-10-12T05:27:48Z"
 }
