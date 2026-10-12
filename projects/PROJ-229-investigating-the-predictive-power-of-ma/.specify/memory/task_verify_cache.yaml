@@ -1,15 +1,13 @@
-T006a:
-  c: true
-  h: 3bc35ed9424c6f9a1ad18bbd7b8f8e96c18898a8f6545e191e6ea4795c768f24
-  r: "The file `data/results/target_decision.json` is present on disk (2\u202Fbytes,\
-    \ containing `{}`), satisfying the task\u2019s requirement to provide the deliverable\
-    \ file."
-T006b:
+T001:
   c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required file `contracts/target_decision.schema.yaml` is missing (no `schema.yaml`\
-    \ present), so no JSON schema has been provided. The task\u2019s deliverable is\
-    \ absent, making the implementation incomplete."
+  h: fb6e0c7b85e3b656c6be865f6433fd3423dd8378be867baa7a0f7c1052bfcc4e
+  r: All five schema files exist with substantive, well-formed content (including
+    `contracts/target_decision.schema.yaml`), but the required verification artifact
+    `tests/contract/test_all_schemas.py` is missing, so there is no evidence that
+    the schemas load, validate representative examples, or match the specification
+    as the task's verification clause requires. The implementer must add the test
+    suite (and ideally show it passing) to complete this task.
+  sig: 0aac6ae1cd245ce63968827dbda95aa8da960a61be45d5e4d2c5e7419593469d
 T013:
   c: false
   h: 4d80e982e819821bc405d4b303b9f42c488c9013285ad841d8f59d1a41a56ccb

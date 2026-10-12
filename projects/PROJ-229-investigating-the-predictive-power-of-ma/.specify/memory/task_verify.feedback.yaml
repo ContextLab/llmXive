@@ -1,0 +1,38 @@
+T001:
+  reason: All five schema files exist with substantive, well-formed content (including
+    `contracts/target_decision.schema.yaml`), but the required verification artifact
+    `tests/contract/test_all_schemas.py` is missing, so there is no evidence that
+    the schemas load, validate representative examples, or match the specification
+    as the task's verification clause requires. The implementer must add the test
+    suite (and ideally show it passing) to complete this task.
+  task: ce4c4acadc8581c99627469d38923b1c4441a1298b553c5a0d8fedfafc20f7a7
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/fetch_materials.py
+    exit=1'
+  task: ab8c6a10708e3891e7e561e6916d6401b35210851ac0fbe4b51dcbca4930ea8b
+T003:
+  task: c921d4fba8f1a832920b28503ab579e388c270357406061623ae1836a369ae92
+T004:
+  task: 87846c5cd99bc05f45440bdab4cae883c961866c754de368123ed7ce896517d1
+T005:
+  task: e71bc6e086f99e7fa7fd8f6390052a267d2853bc45c78052f0b4d32da6137d77
+T006:
+  task: 7fb6d6e00359b7b24ed18e395d83e6eca946fa014c8a6ce894e9e28258c7edbf
+T007:
+  task: f6344678576b4a3fd070bf114895eb864442f348746e57c6e091d2271cf4e13a
+T008:
+  task: dd8fa3662f1077697cea868d9e1302e5d3c73ea8fabbe1f8a9281026f65f8afc
+T009:
+  task: 03a8981f9666ba15b71d2d44e49c6338f0b3a508bc81bea091b3a1dc8d4148a4
+T010:
+  task: 5da61947400e58fa0c2187035c1385f16a24c327fa4f0776bded8863f524a810
+T011:
+  task: d5c644e4dad55e9505b7188ef3c3effdfe89a1cb9766d5f46af52e36c4287ca7
+T012:
+  task: 96adbf7e7dadc9079febeb83db6bc0469ca727830c00fbe5c567d530acd3d944
+T013:
+  task: e5218fd6261eb581887304af8a482e2ae78d6fa76e4f8f64fac3fc3ee29da733
+T014:
+  task: dbe657005d9b752d57938a3d77fb8c858bacfe5583c1a99f9bc0972337cfb807
+T015:
+  task: c5e9825480554b42471228d26740c1d03ccaac573fdc452b311113ea6d733aa9
