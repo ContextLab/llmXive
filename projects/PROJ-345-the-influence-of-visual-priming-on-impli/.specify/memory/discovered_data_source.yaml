@@ -1,13 +1,13 @@
 status: none
-intent: download OSF Implicit Association Test response time dataset with stimulus
-  metadata python package dataset
+intent: IAT response time dataset with facial stimulus metadata OSF Chicago Face Database
+  python package dataset
 required_fields:
 - trial_id
-- response_time_ms
+- response_time
+- prime_valence
 - stimulus_id
 - stimulus_image_path
-- prime_valence
 - ambiguity_score
-cache_key: 3fdb332305cf6a5d70043e283bbd2723f9bc60c67022b07a8c7092fdf03e0bb2
-searched_at: '2026-10-09T21:24:46.657270+00:00'
+cache_key: d7147163bc5adf1392af0d72fade209d1d10b01c093f9c154b717f8a339d5db1
+searched_at: '2026-10-12T12:23:48.014649+00:00'
 retry_count: 1

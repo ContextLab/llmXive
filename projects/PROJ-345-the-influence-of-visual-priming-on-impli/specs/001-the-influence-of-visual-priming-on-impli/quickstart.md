@@ -1,77 +1,62 @@
 # Quickstart: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
 
 ## Prerequisites
-- Python 3.11 or newer
-- Git
-- Internet access (to download the IAT dataset)
-- ≤ 7 GB RAM, 2 CPU cores (GitHub Actions free tier) or a local machine with similar specs
+- Python 3.11+, Git, internet access
+- ≤7 GB RAM, 2 CPU cores (GitHub Actions free tier or equivalent)
 
 ## Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-org/your-repo.git
-   cd your-repo
-   ```
-
-2. **Create a virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r code/requirements.txt
-   # Ensure the extra index URL for CPU‑only PyTorch wheels:
-   # (pip will read code/pip.conf automatically)
-   ```
+```bash
+git clone https://github.com/your-org/your-repo.git
+cd your-repo
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+PIP_CONFIG_FILE=code/pip.conf pip install -r code/requirements.txt
+```
+`code/pip.conf` contains `--extra-index-url https://download.pytorch.org/whl/cpu` so the CPU-only `torch` wheel installs deterministically.
 
 ## Running the Full Pipeline
 
-All steps are invoked via the CLI entry point `code/main.py`. The `--step` flag selects a stage; the pipeline can be run step‑by‑step or in one shot.
-
 ```bash
-# 1️⃣ Ingest raw data
+# 1) Ingest raw data (hardcoded verified URL in code/config.py)
 python code/main.py --step ingest
 
-# 2️⃣ Preprocess & derive missing scores
+# 2) Preprocess, linkage gate, derive missing scores
 python code/main.py --step preprocess
 
-# 3️⃣ Fit the linear mixed‑effects model
+# 3) VIF pre-check + LME fit with optimizer fallback
 python code/main.py --step model
 
-# 4️⃣ Generate the PDF report
+# 4) PDF report (always produced, even on data-gap halt)
 python code/main.py --step report
-```
 
-**One‑shot execution** (runs all steps in order):
-```bash
+# One-shot
 python code/main.py --run-all
 ```
 
-### Expected Outputs
-| Step | File(s) Produced |
-|------|------------------|
-| `ingest` | `data/raw/iat.parquet`, `data/processed/ingest_metrics.json` |
-| `preprocess` | `data/processed/linked_trials.csv`, `state/vif_flag.json`, `config/analysis_params.json` |
-| `model` | `state/model_results.pkl`, `state/model_convergence_metrics.json`, `state/model_diagnostics.json` |
-| `report` | `reports/final_report.pdf`, `reports/sensitivity_analysis.csv`, `reports/pii_scan.json` |
-| Logging | `code/logs/pipeline.log` (created automatically by Task T009) |
+**Expected current behavior**: given the dataset-variable audit (research.md §2), the `ingest` step halts at core-column validation with `Data Gap: Schema Mismatch`, and `report` produces `reports/final_report.pdf` containing the data-gap report. When a valid IAT dataset URL is supplied in `code/config.py` (`PRIMARY_DATASET_URL`) and added to `data/verified_sources.json`, the full analysis runs end-to-end.
+
+## Expected Outputs
+
+| Step | File(s) |
+|------|---------|
+| `ingest` | `data/raw/iat.parquet`, `state/artifact_hashes.json`, `code/logs/pipeline.log` (created by this first CLI run) |
+| `preprocess` | `data/processed/ingest_metrics.json`, `metadata_mapping.csv`, `linked_trials.csv`, `state/linkage_status.json`, `state/analysis_scope.json` |
+| `model` | `state/vif_flag.json`, `state/model_results.json`, `state/model_convergence_metrics.json` |
+| `report` | `reports/final_report.pdf`, `reports/interaction_plot.png`, `reports/sensitivity_analysis.csv`, `reports/pii_scan.json` |
 
 ## Verification Checklist
-- **Log file**: `code/logs/pipeline.log` should contain timestamps for each task.  
-- **Schema validation**: Run `pytest -m contract` to ensure all JSON/YAML contracts pass.  
-- **PDF completeness**: Open `reports/final_report.pdf` and confirm it contains the interaction plot, coefficient table, and sensitivity‑analysis summary (SC‑003).  
-- **Power flag**: If the dataset after filtering is < 300 trials, the PDF will contain a “Power Limitation” note.
+- `code/logs/pipeline.log` contains timestamped entries from each executed step (verify by running `python code/main.py --step ingest` and checking the file exists and is non-empty).
+- `pytest -m contract` passes all JSON/YAML contract validations.
+- `reports/final_report.pdf` exists and contains either (a) interaction plot, coefficient table, sensitivity summary, caution/limitation notes (SC-003, full run), or (b) the data-gap report (halt path).
+- Power-limitation note present if the post-filter dataset is below the a-priori target.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Remedy |
 |---|---|---|
-| `Data Gap: Image files missing for >10% of trials` | Source dataset missing many stimulus files | Verify the OSF image repository URL; if the gap persists, the pipeline halts as required (US‑1). |
-| `Model convergence failure` | Complex random‑effects structure or collinearity | Check `state/vif_flag.json`; if VIF > 5, simplify the model or drop the interaction (Task T014 fallback). |
-| `CUDA error` | Valence derivation attempted GPU but no GPU available | The pipeline will automatically retry on CPU; if still too slow, the step aborts with a clear message. |
-| Missing `pipeline.log` | Logging configuration not executed | Ensure Task T009 ran (it occurs early in the pipeline). |
-
----
+| `Data Gap: Schema Mismatch` at ingest | Verified dataset lacks `response_time`/`participant_id`/`stimulus_id` (current state) | Supply a verified open IAT dataset URL in `code/config.py` + `data/verified_sources.json`; scope revision flagged in plan.md |
+| `Data Gap: Image files missing for >10% of trials` | Source missing many stimulus files | Pipeline halts as required (US-1); verify the stimulus repository |
+| Model convergence failure | Complex random effects or collinearity | Check `state/vif_flag.json`; pipeline already retries 3 optimizers and suggests simplifying random effects |
+| Missing `pipeline.log` | CLI not yet executed | Run any `--step`; logging configures on first run |
+| `torch` installs CUDA build | `pip.conf` not picked up | Set `PIP_CONFIG_FILE=code/pip.conf` explicitly |

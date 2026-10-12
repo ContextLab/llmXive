@@ -16,10 +16,10 @@ properties:
     maximum: 100.0
   threshold:
     type: "number"
-    description: "Threshold used for evaluation (e.g., 95.0)"
+    description: "Threshold used for evaluation (default 95.0, from code/config.py)"
   message:
     type: "string"
-    description: "Human‑readable explanation of the status"
+    description: "Human-readable explanation of the status"
 required:
   - status
   - percentage
