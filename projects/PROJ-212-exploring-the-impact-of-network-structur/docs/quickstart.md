@@ -1,71 +1,51 @@
-# Quickstart Guide
-
-This guide provides the minimal steps required to run the full analysis pipeline for the **Exploring the Impact of Network Structure on Synchronization in Complex Physical Systems** project.
+# Quickstart: Exploring the Impact of Network Structure on Synchronization in Complex Physical Systems
 
 ## Prerequisites
 
-- Python 3.11 or newer
-- Internet connection (required for downloading the raw network datasets)
-- All dependencies installed (see `requirements.txt`)
-
-```bash
-# Create and activate a virtual environment (optional but recommended)
-python -m venv venv
-source venv/bin/activate # Windows: venv\Scripts\activate
-
-# Install the required packages
-pip install -r requirements.txt
-```
+- Python 3.11+
+- Internet access (to download SNAP/Network Repository datasets)
+- The project dependencies installed (see `requirements.txt`)
 
 ## Running the Pipeline
 
-The pipeline is orchestrated through a single command that invokes the `src.main` module:
+The entire workflow can be started with a single command:
 
 ```bash
 python -m src.main --config config.yaml
 ```
 
-- `--config config.yaml` points to the configuration file located at the project root.
-- The command will automatically:
- 1. Download the raw network files (if they are not already present) into `data/raw/`.
- 2. Compute topological metrics for each network.
- 3. Run the Kuramoto oscillator simulations to obtain the synchronization robustness threshold.
- 4. Perform regression analysis (if enough data are available) and generate statistical summaries.
- 5. Produce visualisations (heatmaps, bar charts, model comparison plots).
- 6. Write a pipeline status report indicating success or timeout.
+This command will:
 
-## Expected Output Files
+1. Load the configuration from `config.yaml`.
+2. Download the required network datasets (if not already present).
+3. Compute topological metrics for each network.
+4. Run the Kuramoto synchronization simulations.
+5. Perform regression analysis linking topology to synchronization robustness.
+6. Generate visualisations and summary reports.
 
-After successful execution, the following files will be generated inside the `results/` directory (additional sub‑folders may be created for figures):
+### Expected Output Files
 
-- `results/sim_results.json` – A JSON array containing one entry per processed network with the computed synchronization threshold and status.
-- `results/regression_summary.json` – Summary of the linear/polynomial regression, including R², p‑values, coefficients, and a `significant` flag.
-- `results/descriptive_stats.json` – Generated when fewer than 10 networks are available; contains mean, median, and standard deviation of the available metric(s) along with a warning message.
-- `results/pipeline_status.json` – Indicates overall pipeline outcome (`SUCCESS` or `TIMEOUT`) and, in the case of a timeout, the network ID that caused the delay.
-- `results/verification_report.json` – Manual verification package required by SC‑003 (contains a small subset of network IDs and their thresholds).
-- `results/manual_verification_log.csv` – CSV log for human reviewers to confirm the thresholds listed in the verification report.
-- `results/figures/heatmap_thresholds.png` – Heatmap visualising the synchronization threshold across two topological predictors.
-- `results/figures/comparison_plot.png` – Bar chart of regression coefficients with error bars.
-- `results/figures/model_comparison_plot.png` – Side‑by‑side comparison of primary and secondary model R² values.
+After successful execution, the following files will be created (all under the project root):
+
+- `results/sim_results.json` – JSON array containing the synchronization threshold for each processed network.
+- `results/regression_summary.json` – Summary of the linear/polynomial regression analysis (R², coefficients, p‑values, etc.).
+- `results/pipeline_status.json` – Execution status (`SUCCESS` or `TIMEOUT`) with timing information.
+- `results/figures/heatmap_thresholds.png` – Heatmap visualising the relationship between topological predictors and thresholds.
+- `results/figures/comparison_plot.png` – Bar chart of regression coefficients with confidence intervals.
+- `results/figures/model_comparison_plot.png` – Side‑by‑side plot of R² values for primary and secondary models.
 
 ## Verification
 
-To confirm that the pipeline executed correctly:
-
-1. Run the command shown above.
-2. Verify that all files listed in the *Expected Output Files* section exist.
-3. Optionally, run the test suite:
-
 ```bash
-pytest -v
+# Run the full pipeline
+python -m src.main --config config.yaml
+
+# Run the test suite to ensure the command works
+pytest -v tests/test_quickstart.py
 ```
 
-The test suite checks schema validation, metric computation, simulation correctness, and regression logic. [UNRESOLVED-CLAIM: c_ac55a0b9 — status=not_enough_info]
-
-## Troubleshooting
-
-- **Timeouts**: If the pipeline exceeds the allotted runtime, inspect `results/pipeline_status.json` for the offending network ID.
-- **Insufficient Data**: When fewer than 10 raw networks are present, regression is skipped and `results/descriptive_stats.json` is produced instead.
-- **Disconnected Graphs**: Networks that are not fully connected will be flagged in `sim_results.json` with `status: "disconnected"` and a `threshold` of `null`.
-
-For further details, see the documentation files in the `docs/` directory.
+The test suite checks that the command executes without errors and that the expected
+result files are created (or, in the early development stage, that the script exits
+cleanly). Once the later phases of the project are complete, the presence and
+validity of the output files will be verified as part of the overall pipeline
+verification.

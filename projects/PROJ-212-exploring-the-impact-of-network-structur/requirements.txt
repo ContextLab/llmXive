@@ -8,7 +8,3 @@ pytest==8.2.2
 datasets==2.14.0
 pyyaml==6.0.1
 seaborn==0.13.2
-# Additional dependencies required by the project
-# (kept from the original requirements for compatibility)
-# They are not strictly part of the pinned environment task but are
-# retained to ensure other tasks can run without modification.

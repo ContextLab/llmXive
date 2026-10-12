@@ -275,3 +275,83 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T22:20:46Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: install_requirements.py script logs SUCCESS marker
+  claim_id: c_9028722f
+  context: This step is verified by the install_requirements.py script which logs
+    a SUCCESS marker in results/requirements_install_log.txt.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The install_requirements.py script logs a SUCCESS marker in results/requirements_install_log.txt.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:27:43Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: test_requirements_install.py confirms environment installation succeeded
+  claim_id: c_8ee5fc4e
+  context: The test suite includes test_requirements_install.py which confirms that
+    the environment installation succeeded.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite includes test_requirements_install.py which confirms that
+    the environment installation succeeded.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:27:43Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates results/sim_results.json, results/regression_summary.json,
+    results/pipeline_status.json, results/figures/heatmap_thresholds.png, results/figures/comparison_plot.png,
+    results/figures/model_comparison_plot.png after successful execution
+  claim_id: c_dc0e1c9a
+  context: The quickstart guide lists the expected output files that will be generated
+    after the pipeline finishes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "After successful execution, the following files will be created (all\
+    \ under the project root): - `results/sim_results.json` \u2013 JSON array containing\
+    \ the synchronization threshold for each processed network. - `results/regression_summary.json`\
+    \ \u2013 Summary of the linear/polynomial regression analysis (R\xB2, coefficients,\
+    \ p\u2011values, etc.). - `results/pipeline_status.json` \u2013 Execution status\
+    \ (`SUCCESS` or `TIMEOUT`) with timing information. - `results/figures/heatmap_thresholds.png`\
+    \ \u2013 Heatmap visualising the relationship between topological predictors and\
+    \ thresholds. - `results/figures/comparison_plot.png` \u2013 Bar chart of regression\
+    \ coefficients with confidence intervals. - `results/figures/model_comparison_plot.png`\
+    \ \u2013 Side\u2011by\u2011side plot of R\xB2 values for primary and secondary\
+    \ models."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:28:10Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: test suite verifies command executes without errors and expected result
+    files are created
+  claim_id: c_634480b9
+  context: Verification section describes running the test suite to ensure the pipeline
+    command works as intended.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite checks that the command executes without errors and that
+    the expected result files are created (or, in the early development stage, that
+    the script exits cleanly).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:28:10Z'

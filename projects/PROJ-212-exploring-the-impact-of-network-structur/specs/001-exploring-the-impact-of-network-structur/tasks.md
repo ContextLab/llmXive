@@ -13,9 +13,9 @@ Checked boxes (`[X]`) denote work that has already passed verification; unchecke
 |----|-------------|
 - [X] T001 Create the standard project directory layout (`src/`, `tests/`, `data/raw/`, `data/processed/`, `results/`, `docs/`).  
    • Verify with `tree -L 2` that all folders exist.  
-- [ ] T002 Initialize a pinned Python environment (`requirements.txt` containing `networkx`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pytest`).  
+- [X] T002 Initialize a pinned Python environment (`requirements.txt` containing `networkx`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pytest`).  
    • Verification: `pip install -r requirements.txt` completes without errors.  
-- [ ] T003 Draft a runnable quick‑start guide in `docs/quickstart.md` that shows the single command `python -m src.main --config config.yaml` and lists expected output files (`results/sim_results.json`, `results/regression_summary.json`, etc.).  
+- [ ] T003 Draft a runnable quick‑start guide in `docs/quickstart.md` that shows the single command `python -m src.main --config config.yaml` and lists expected output files (`results/sim_results.json`, `results/regression_summary.json`, etc.).   <!-- FAILED-IN-EXECUTION: src/main.py exit=1 -->
    • Verification: the markdown file exists and the command runs end‑to‑end after Phase 3 is complete.  
 
 ---
@@ -32,16 +32,16 @@ Checked boxes (`[X]`) denote work that has already passed verification; unchecke
 - [X] T005b Compute SHA‑256 checksums for every downloaded file and write them to `data/checksums.txt` (format: `<hash>  <filename>`).  
    • Verification: `sha256sum -c data/checksums.txt` returns all OK.  
 
-- [~] T005c Add a lightweight validator in `src/loader.py` that raises an exception (no silent fallback) if any download fails, ensuring the runner retries on a real GPU if needed.  
+- [ ] T005c Add a lightweight validator in `src/loader.py` that raises an exception (no silent fallback) if any download fails, ensuring the runner retries on a real GPU if needed.  
    • Verification: simulate a 404 by altering a URL and confirm the script aborts with a clear error.  
 
 - [ ] T005d After downloads, write a YAML state file `state/data_availability.yaml` with a boolean flag `regression_blocked` that is **true** when the number of raw networks is < 10.  
    • Verification: `cat state/data_availability.yaml` shows the flag correctly set.  
 
-- [~] T006 Create `src/data_models.py` defining the dataclasses `NetworkGraph`, `TopologicalMetrics`, `SimulationResult`, and `RegressionModel` that directly mirror the JSON schemas in `contracts/`.  
+- [ ] T006 Create `src/data_models.py` defining the dataclasses `NetworkGraph`, `TopologicalMetrics`, `SimulationResult`, and `RegressionModel` that directly mirror the JSON schemas in `contracts/`.  
    • Verification: a simple import `from src.data_models import NetworkGraph` succeeds and `NetworkGraph.__annotations__` matches the schema.  
 
-- [~] T007 Provide `src/utils.py` with a `get_logger()` wrapper (already available platform‑wide) and a helper `save_json(obj, path)` that writes with `indent=2` and validates against the appropriate schema.  
+- [ ] T007 Provide `src/utils.py` with a `get_logger()` wrapper (already available platform‑wide) and a helper `save_json(obj, path)` that writes with `indent=2` and validates against the appropriate schema.  
    • Verification: `utils.save_json({}, "tmp.json")` creates a readable file.  
 
 - [~] T008a Set up `pytest` configuration in `tests/conftest.py` (fixtures for temporary directories, deterministic RNG seed).  

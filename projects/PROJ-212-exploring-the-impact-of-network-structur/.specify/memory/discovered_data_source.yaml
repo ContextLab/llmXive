@@ -1,9 +1,10 @@
 status: none
-intent: download SNAP network graphs edge list python package dataset
+intent: SNAP network collection downloadable graphs python package dataset
 required_fields:
+- graph_id
 - source
 - target
-- weight (optional)
-cache_key: 8e974ebd352c9c8f18359d05a02d063cc1662700b7a5abafe762346264e9b78c
-searched_at: '2026-10-12T22:26:50.960222+00:00'
+- weight
+cache_key: 214498623c55c8afa48eef08248f9fcd834263ad4ae375515a020a9a50f4642f
+searched_at: '2026-10-12T22:28:41.637459+00:00'
 retry_count: 1

@@ -1,18 +1,20 @@
 T001:
   c: true
-  h: 5b40bdba0c1c648223a7d13448ced39f915b38f9ef8917ab9aaacd2a9ff45e89
-  r: Checked the confirmed directory listings for `src/`, `tests/`, `data/raw/`, `data/processed/`,
-    `results/`, and `docs/`, all of which exist as required (and a log shows they
-    were created).
-  sig: 4b65b936a832d2091952e51b10d192a0d1a6704e05e3d1678f674e1371568800
+  h: 441d8ea4ed350ac63d1e7935d2f87e1f98cc4593ea6eefe5168ea21534c54e7c
+  r: All six required directories (`src/`, `tests/`, `data/raw/`, `data/processed/`,
+    `results/`, `docs/`) exist and are non-empty (except intentionally empty `data/processed/`),
+    confirmed by the collector's directory listings, and the setup script's execution
+    log (exit 0) shows all six were created.
+  sig: 8892cb2aef90bb19800a82b2a7d9cf89c82cc098b02484c48f91ba37d759d84b
 T002:
-  c: false
-  h: db33a0ed9b74b22d9681974de5f7389675ab43c5324beaefa54e8feda5fc597e
-  r: The `requirements.txt` file exists and includes the required packages, but there
-    is no provided evidence (e.g., command output, logs, or test results) showing
-    that `pip install -r requirements.txt` actually ran and completed without errors.
-    The verification step is missing.
-  sig: a05b7f718136e59786203bab1883f99ca374116b6700411abb9fae93fe42558a
+  c: true
+  h: 4ee19c4713924a58e2f41c8f5e6e37015f356a14013e062a7a6864d3c33613ad
+  r: The `requirements.txt` exists at the project root, is non-empty, and contains
+    pinned versions of all seven required packages (networkx, numpy, scipy, pandas,
+    scikit-learn, matplotlib, pytest) plus extras. Execution logs show `pip install
+    -r requirements.txt` ran successfully (exit 0, "Requirements installed successfully")
+    and a passing test confirming the install log exists.
+  sig: 5618e770b708611f2fc0d62a792c051f42a3c99deb05f58175dce1cb83df552c
 T003:
   c: false
   h: bd9b4f7beaf6d5e155583cebf458bfe6021d05ef54ffa2bfb879b9e93d9d1d48
@@ -24,11 +26,12 @@ T003:
   sig: e62bb95b28a1137716efcf63711a416900d422cd1ee6cd448d38204705dbbe20
 T004:
   c: true
-  h: 8ec12b19f13487efcd132b0479275618cb9a6667b7e133f957fc86b61d17a2db
-  r: 'Checked `projects/PROJ-212-exploring-the-impact-of-network-structur/config.yaml`,
-    which loads without error and contains the required `seeds.random_seed`, `thresholds.r_target:
-    0.8`, `thresholds.t_min: 100`, and default path entries for `data/raw` and `results`.'
-  sig: 5293a9a4958713ec30e4f176275329685876701950f0375a1ff5d47eb0c2a19c
+  h: 22933275da1b18fff7ead77bf5d39592a79a30089ee44f99c6289b8b4c74f256
+  r: '`config.yaml` exists (700 bytes), is valid YAML with `seeds.random_seed: 42`,
+    `thresholds.r_target: 0.8`, `thresholds.t_min: 100`, and default paths including
+    `data/raw` and `results`, matching the task''s required keys and values. The `data/raw/`
+    and `results/` directories also exist as specified.'
+  sig: d55abda5ee295a391aaa8cf4e50f152440a2ce95aec76eb05a5f7431c751e911
 T005a:
   c: false
   h: 3b3ebc71c599e23f826e88068e576fae48b1f203fab6b8d4763b16c6d6fe7a39
@@ -47,6 +50,42 @@ T005b:
     \ has an entry. The compute script log also reports writing 18 entries. All evidence\
     \ shows the required SHA\u2011256 checksum file was generated and passes verification."
   sig: 50329a4ef137b0c40359b59f364a3ae0c8b5d0c641d151d43952ca6e30c51364
+T005c:
+  c: false
+  h: 7962e7dca05fa4798f2158259fcc6e05db7c1be93726b8b664f0f2f9d1a3ed05
+  r: "The `src/loader.py` code does implement the validator correctly (`fetch_snap_dataset`\
+    \ raises `RuntimeError` on HTTPError/URLError/unexpected errors, and `load_real_data`\
+    \ has no silent fallback). However, the task's verification requirement \u2014\
+    \ simulating a 404 by altering a URL and confirming the script aborts with a clear\
+    \ error \u2014 has no supporting evidence: no test script, log, or execution output\
+    \ demonstrating the abort behavior was provided. The implementer should run a\
+    \ 404-simulation test (e.g., a bad URL in the dataset list) and attach the resulting\
+    \ error log/output as proof."
+  sig: ade54afc82154cf34ea7400ca8679762e9caddb3371cfe99b4a2b41d1aaaaa94
+T006:
+  c: false
+  h: 3ed7d28474e12355714df6a9058caa6e52005bf606ac3dca5dac428db8960720
+  r: "The module `src/data_models.py` exists and defines `TopologicalMetrics` and\
+    \ `NetworkGraph`, but it does not itself define `SimulationResult` and `RegressionModel`\
+    \ \u2014 it re-exports them via `from data_models import ...`, which depends on\
+    \ the top-level `code/data_models.py` being importable; there is no evidence (no\
+    \ `__init__.py`/path setup shown, no execution evidence) that `from src.data_models\
+    \ import NetworkGraph` actually succeeds from the project root, and this cross-module\
+    \ import is likely to fail. Additionally, the two `NetworkGraph` definitions (in\
+    \ `src/` and `code/`) diverge (graph objec"
+  sig: cec8ab2c2aa73506404576d3e171b09494ca8ba9ce3d386efe402b4f071aa09d
+T007:
+  c: false
+  h: 853d67409b31c21c69281f3d1aceadc4a0baef2bbd72b4fc53427c4c5a8fb926
+  r: 'The current `src/utils.py` does contain a `save_json` that writes with `indent=2`
+    and a `get_logger` wrapper, but the only execution evidence on record is the T007
+    test run, which FAILED (exit 2, `ImportError: cannot import name ''save_json''
+    from ''src.utils''`), and there is no subsequent successful run demonstrating
+    the required verification (`utils.save_json({}, "tmp.json")` creating a readable
+    file). Additionally, the task says save_json "validates against the appropriate
+    schema," but the implementation makes schema validation purely optional via a
+    `schema_path` argument that defaults to None'
+  sig: 84675aa76b31febd0a5c2f2138fa01ce15f781fb83023b7c3aa0e0161c7ef28c
 T022:
   c: false
   h: 77f62d7b411d927a4d5c7f9c43b99526e7fa2786b44c44abf1f5e09127e04832

@@ -56,7 +56,7 @@ E   ImportError: cannot import name 'save_json' from 'src.utils' (/home/runner/w
 ERROR tests/test_data_availability.py
 ERROR tests/test_utils.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.47s ===============================
+============================== 2 errors in 1.18s ===============================
 
 
 ## Platform-owned paths written inside the project
