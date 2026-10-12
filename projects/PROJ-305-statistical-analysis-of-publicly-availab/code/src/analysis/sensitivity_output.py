@@ -1,15 +1,22 @@
-import os
-import sys
 import logging
 import math
+import os
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
 import pandas as pd
 
+from src.analysis.sensitivity import (
+    calculate_metrics_for_soc,
+    filter_data_for_baseline,
+    load_cleaned_data,
+    load_signals,
+)
 from src.utils.config import ensure_dirs
-from src.analysis.sensitivity import load_signals, load_cleaned_data, filter_data_for_baseline, calculate_metrics_for_soc
 
 logger = logging.getLogger(__name__)
+
 
 def load_sensitivity_results(sensitivity_file: Path) -> pd.DataFrame:
     """
@@ -19,32 +26,36 @@ def load_sensitivity_results(sensitivity_file: Path) -> pd.DataFrame:
     """
     if not sensitivity_file.exists():
         logger.error(f"Sensitivity results file not found: {sensitivity_file}")
-        raise FileNotFoundError(f"Sensitivity results file not found: {sensitivity_file}")
-    
+        raise FileNotFoundError(
+            f"Sensitivity results file not found: {sensitivity_file}"
+        )
+
     df = pd.read_csv(sensitivity_file)
     logger.info(f"Loaded {len(df)} rows from sensitivity results.")
     return df
 
+
 def calculate_deltas_for_top_signals(
-    sensitivity_df: pd.DataFrame,
-    top_n: int = 5
+    sensitivity_df: pd.DataFrame, top_n: int = 5
 ) -> pd.DataFrame:
     """
     Calculate delta metrics (ror_delta, prr_delta, ic_delta) for the top N signals.
-    
+
     The 'Primary Baseline (Non-COVID, Non-Flu)' is the reference.
     The 'Flu-only' baseline is the comparison.
     Delta = Flu-only Metric - Primary Baseline Metric.
-    
+
     Returns a DataFrame with columns:
     soc, ror_delta, prr_delta, ic_delta, baseline_type (fixed as 'Flu_vs_Primary')
     """
     if sensitivity_df.empty:
         logger.warning("Sensitivity dataframe is empty. Returning empty result.")
-        return pd.DataFrame(columns=['soc', 'ror_delta', 'prr_delta', 'ic_delta', 'baseline_type'])
+        return pd.DataFrame(
+            columns=["soc", "ror_delta", "prr_delta", "ic_delta", "baseline_type"]
+        )
 
     # Ensure we have the necessary columns
-    required_cols = ['soc', 'baseline_type', 'ror', 'prr', 'ic']
+    required_cols = ["soc", "baseline_type", "ror", "prr", "ic"]
     missing = [c for c in required_cols if c not in sensitivity_df.columns]
     if missing:
         raise ValueError(f"Missing required columns in sensitivity data: {missing}")
@@ -56,62 +67,72 @@ def calculate_deltas_for_top_signals(
 
     # Filter for the two relevant baselines
     valid_types = [primary_type, flu_type]
-    df_filtered = sensitivity_df[sensitivity_df['baseline_type'].isin(valid_types)].copy()
-    
+    df_filtered = sensitivity_df[
+        sensitivity_df["baseline_type"].isin(valid_types)
+    ].copy()
+
     if df_filtered.empty:
-        logger.warning("No rows found for primary or flu baselines in sensitivity data.")
-        return pd.DataFrame(columns=['soc', 'ror_delta', 'prr_delta', 'ic_delta', 'baseline_type'])
+        logger.warning(
+            "No rows found for primary or flu baselines in sensitivity data."
+        )
+        return pd.DataFrame(
+            columns=["soc", "ror_delta", "prr_delta", "ic_delta", "baseline_type"]
+        )
 
     # Pivot to wide format
     pivot_df = df_filtered.pivot_table(
-        index='soc',
-        columns='baseline_type',
-        values=['ror', 'prr', 'ic']
+        index="soc", columns="baseline_type", values=["ror", "prr", "ic"]
     )
-    
+
     # Flatten column names
     pivot_df.columns = [f"{col[1]}_{col[0]}" for col in pivot_df.columns]
-    
+
     # Check if both baselines exist for each SOC
     primary_cols = [f"{primary_type}_ror", f"{primary_type}_prr", f"{primary_type}_ic"]
     flu_cols = [f"{flu_type}_ror", f"{flu_type}_prr", f"{flu_type}_ic"]
-    
+
     # Filter rows where both baselines exist
-    mask = pivot_df[primary_cols].notna().all(axis=1) & pivot_df[flu_cols].notna().all(axis=1)
+    mask = pivot_df[primary_cols].notna().all(axis=1) & pivot_df[flu_cols].notna().all(
+        axis=1
+    )
     pivot_df = pivot_df[mask]
-    
+
     if pivot_df.empty:
         logger.warning("No SOCs have both primary and flu baseline metrics.")
-        return pd.DataFrame(columns=['soc', 'ror_delta', 'prr_delta', 'ic_delta', 'baseline_type'])
+        return pd.DataFrame(
+            columns=["soc", "ror_delta", "prr_delta", "ic_delta", "baseline_type"]
+        )
 
     # Calculate deltas: Flu - Primary
-    pivot_df['ror_delta'] = pivot_df[f"{flu_type}_ror"] - pivot_df[f"{primary_type}_ror"]
-    pivot_df['prr_delta'] = pivot_df[f"{flu_type}_prr"] - pivot_df[f"{primary_type}_prr"]
-    pivot_df['ic_delta'] = pivot_df[f"{flu_type}_ic"] - pivot_df[f"{primary_type}_ic"]
-    
+    pivot_df["ror_delta"] = (
+        pivot_df[f"{flu_type}_ror"] - pivot_df[f"{primary_type}_ror"]
+    )
+    pivot_df["prr_delta"] = (
+        pivot_df[f"{flu_type}_prr"] - pivot_df[f"{primary_type}_prr"]
+    )
+    pivot_df["ic_delta"] = pivot_df[f"{flu_type}_ic"] - pivot_df[f"{primary_type}_ic"]
+
     # Select top N signals based on absolute ROR delta (or just top N if fewer)
     # If the sensitivity analysis was run on top 5 from signals.csv, the input is already filtered.
     # We will just take the top N rows by absolute ROR delta to be safe, or all if fewer.
-    pivot_df['abs_ror_delta'] = pivot_df['ror_delta'].abs()
-    pivot_df = pivot_df.sort_values(by='abs_ror_delta', ascending=False)
-    
+    pivot_df["abs_ror_delta"] = pivot_df["ror_delta"].abs()
+    pivot_df = pivot_df.sort_values(by="abs_ror_delta", ascending=False)
+
     top_signals = pivot_df.head(top_n)
-    
+
     # Prepare output dataframe
     result_df = pd.DataFrame()
-    result_df['soc'] = top_signals.index
-    result_df['ror_delta'] = top_signals['ror_delta'].values
-    result_df['prr_delta'] = top_signals['prr_delta'].values
-    result_df['ic_delta'] = top_signals['ic_delta'].values
-    result_df['baseline_type'] = f"{flu_type}_vs_{primary_type}"
-    
+    result_df["soc"] = top_signals.index
+    result_df["ror_delta"] = top_signals["ror_delta"].values
+    result_df["prr_delta"] = top_signals["prr_delta"].values
+    result_df["ic_delta"] = top_signals["ic_delta"].values
+    result_df["baseline_type"] = f"{flu_type}_vs_{primary_type}"
+
     logger.info(f"Calculated deltas for {len(result_df)} top signals.")
     return result_df
 
-def generate_sensitivity_delta_csv(
-    delta_df: pd.DataFrame,
-    output_path: Path
-) -> None:
+
+def generate_sensitivity_delta_csv(delta_df: pd.DataFrame, output_path: Path) -> None:
     """
     Write the delta metrics to the specified CSV file.
     """
@@ -119,42 +140,44 @@ def generate_sensitivity_delta_csv(
     delta_df.to_csv(output_path, index=False)
     logger.info(f"Wrote sensitivity delta analysis to {output_path}")
 
+
 def main():
     """
     Main entry point for T028: Generate sensitivity_analysis.csv with delta metrics.
     """
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    
+
     # Define paths
     base_dir = Path(__file__).resolve().parent.parent.parent
     sensitivity_input_path = base_dir / "output" / "sensitivity_analysis_raw.csv"
     output_path = base_dir / "output" / "sensitivity_analysis.csv"
-    
+
     try:
         # 1. Load raw sensitivity results (generated by T027)
         logger.info(f"Loading sensitivity results from {sensitivity_input_path}")
         sensitivity_df = load_sensitivity_results(sensitivity_input_path)
-        
+
         # 2. Calculate deltas for top 5 signals
         logger.info("Calculating deltas for top 5 signals")
         delta_df = calculate_deltas_for_top_signals(sensitivity_df, top_n=5)
-        
+
         # 3. Generate output CSV
         logger.info(f"Writing delta metrics to {output_path}")
         generate_sensitivity_delta_csv(delta_df, output_path)
-        
+
         logger.info("T028 completed successfully.")
         return 0
-    
+
     except FileNotFoundError as e:
         logger.error(f"Input file missing: {e}")
         return 1
     except Exception as e:
         logger.error(f"Error during sensitivity delta calculation: {e}", exc_info=True)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

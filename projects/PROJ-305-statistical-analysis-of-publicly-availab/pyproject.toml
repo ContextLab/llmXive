@@ -3,28 +3,15 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
-line-length = 120
+line-length = 88
 target-version = ['py311']
-exclude = '^.*$'  # Exclude all files from Black checking to ensure exit code 0
-# (Other Black defaults remain as defined)
 
 [tool.isort]
 profile = "black"
-line_length = 120
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
+line_length = 88
 
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    "venv",
-]
-select = []  # Disable all Ruff checks to guarantee exit status 0
-ignore = ["E501"]
+select = ["E", "F", "W"]
+ignore = []

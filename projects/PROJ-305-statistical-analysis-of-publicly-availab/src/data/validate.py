@@ -10,21 +10,23 @@ The script also writes a tiny log file indicating pass/fail:
   - ``logs/validate_pass.txt``  – written when validation succeeds
   - ``logs/validate_fail.txt``  – written when validation fails
 """
-import sys
-import logging
-from pathlib import Path
-from typing import Set, List
 
+import logging
+import sys
+from pathlib import Path
+from typing import List, Set
+
+import jsonschema
 import pandas as pd
 import yaml
-import jsonschema
 
 # ---------------------------------------------------------------------------
 # Exit codes (aligned with the task description)
 # ---------------------------------------------------------------------------
 E_SCHEMA_MISSING = 1  # Required column missing
 E_FILE_NOT_FOUND = 2  # Input file does not exist
-E_SCHEMA_ERROR   = 3  # Schema file missing / malformed
+E_SCHEMA_ERROR = 3  # Schema file missing / malformed
+
 
 # ---------------------------------------------------------------------------
 # Logging configuration
@@ -39,7 +41,9 @@ def _setup_logger() -> logging.Logger:
     logger.addHandler(handler)
     return logger
 
+
 logger = _setup_logger()
+
 
 # ---------------------------------------------------------------------------
 # Helper functions
@@ -63,6 +67,7 @@ def _load_schema(schema_path: Path) -> dict:
 
     return schema
 
+
 def _load_data(file_path: Path) -> pd.DataFrame:
     """Load CSV or Parquet into a DataFrame."""
     if not file_path.exists():
@@ -84,6 +89,7 @@ def _load_data(file_path: Path) -> pd.DataFrame:
 
     return df
 
+
 def _required_columns_from_schema(schema: dict) -> Set[str]:
     """Extract the ``required`` property from the schema."""
     required = schema.get("required", [])
@@ -91,6 +97,7 @@ def _required_columns_from_schema(schema: dict) -> Set[str]:
         logger.error("Schema 'required' field is not a list.")
         sys.exit(E_SCHEMA_ERROR)
     return set(required)
+
 
 def _write_log_file(passed: bool) -> None:
     """Write a tiny log indicating success or failure."""
@@ -100,6 +107,7 @@ def _write_log_file(passed: bool) -> None:
         (logs_dir / "validate_pass.txt").write_text("validation passed\n")
     else:
         (logs_dir / "validate_fail.txt").write_text("validation failed\n")
+
 
 # ---------------------------------------------------------------------------
 # Core validation routine
@@ -145,6 +153,7 @@ def validate_file(
     logger.info("Data validation successful.")
     _write_log_file(passed=True)
 
+
 # ---------------------------------------------------------------------------
 # CLI entry point
 # ---------------------------------------------------------------------------
@@ -181,6 +190,7 @@ def main() -> None:
     schema_path = Path(args.schema)
 
     validate_file(data_path, schema_path)
+
 
 if __name__ == "__main__":
     main()

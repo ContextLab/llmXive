@@ -9,21 +9,23 @@ This test verifies that the end-to-end pipeline:
 5. Ensures the output contains valid VAX_TYPE values and non-empty SOC fields
 6. Ensures the row count is > 0
 """
+
 import os
+import shutil
 import sys
 import tempfile
-import shutil
 from pathlib import Path
-import pytest
+
 import pandas as pd
 import pyarrow.parquet as pq
+import pytest
 import yaml
 
 # Add project root to path to allow imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.data import download, validate, clean
+from src.data import clean, download, validate
 from src.utils import config
 
 
@@ -38,19 +40,19 @@ class TestPipelineIntegration:
         self.data_dir = self.temp_dir / "data"
         self.raw_dir = self.data_dir / "raw"
         self.processed_dir = self.data_dir / "processed"
-        
+
         self.raw_dir.mkdir(parents=True)
         self.processed_dir.mkdir(parents=True)
-        
+
         # Patch config paths for this test
         self.original_raw_path = config.RAW_DATA_DIR
         self.original_processed_path = config.PROCESSED_DATA_DIR
-        
+
         config.RAW_DATA_DIR = str(self.raw_dir)
         config.PROCESSED_DATA_DIR = str(self.processed_dir)
-        
+
         yield
-        
+
         # Restore original paths
         config.RAW_DATA_DIR = self.original_raw_path
         config.PROCESSED_DATA_DIR = self.original_processed_path
@@ -60,13 +62,43 @@ class TestPipelineIntegration:
         if data_rows is None:
             # Default mock data with required columns
             data_rows = [
-                {"VAX_TYPE": "COVID-19", "SOC_CODE": "10000001", "REPT_DATE": "2021-01-15", "AGE": 35, "LLT": "Adverse event"},
-                {"VAX_TYPE": "Influenza", "SOC_CODE": "10000002", "REPT_DATE": "2021-02-20", "AGE": 45, "LLT": "Flu reaction"},
-                {"VAX_TYPE": "MMR", "SOC_CODE": "10000003", "REPT_DATE": "2021-03-10", "AGE": 28, "LLT": "Allergic reaction"},
-                {"VAX_TYPE": "COVID-19", "SOC_CODE": "", "REPT_DATE": "2021-04-05", "AGE": 50, "LLT": "Side effect"},  # Invalid SOC
-                {"VAX_TYPE": "COVID-19", "SOC_CODE": "10000004", "REPT_DATE": "", "AGE": 22, "LLT": "Headache"},  # Invalid Date
+                {
+                    "VAX_TYPE": "COVID-19",
+                    "SOC_CODE": "10000001",
+                    "REPT_DATE": "2021-01-15",
+                    "AGE": 35,
+                    "LLT": "Adverse event",
+                },
+                {
+                    "VAX_TYPE": "Influenza",
+                    "SOC_CODE": "10000002",
+                    "REPT_DATE": "2021-02-20",
+                    "AGE": 45,
+                    "LLT": "Flu reaction",
+                },
+                {
+                    "VAX_TYPE": "MMR",
+                    "SOC_CODE": "10000003",
+                    "REPT_DATE": "2021-03-10",
+                    "AGE": 28,
+                    "LLT": "Allergic reaction",
+                },
+                {
+                    "VAX_TYPE": "COVID-19",
+                    "SOC_CODE": "",
+                    "REPT_DATE": "2021-04-05",
+                    "AGE": 50,
+                    "LLT": "Side effect",
+                },  # Invalid SOC
+                {
+                    "VAX_TYPE": "COVID-19",
+                    "SOC_CODE": "10000004",
+                    "REPT_DATE": "",
+                    "AGE": 22,
+                    "LLT": "Headache",
+                },  # Invalid Date
             ]
-        
+
         df = pd.DataFrame(data_rows)
         file_path = self.raw_dir / filename
         df.to_csv(file_path, index=False)
@@ -75,7 +107,7 @@ class TestPipelineIntegration:
     def test_pipeline_end_to_end(self):
         """
         Integration test: Run the full pipeline and verify outputs.
-        
+
         Steps:
         1. Attempt to download (or create mock if download fails/is skipped)
         2. Validate raw data
@@ -103,32 +135,34 @@ class TestPipelineIntegration:
                 "required_columns": ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE"]
             }
             schema_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(schema_path, 'w') as f:
+            with open(schema_path, "w") as f:
                 yaml.dump(schema_content, f)
 
         # Validate the mock data
-        is_valid, error_msg = validate.validate_data(str(mock_csv_path), str(schema_path))
+        is_valid, error_msg = validate.validate_data(
+            str(mock_csv_path), str(schema_path)
+        )
         assert is_valid, f"Mock data failed validation: {error_msg}"
 
         # 3. Cleaning
         # Run the clean module logic
         # We call the internal functions directly to simulate the script execution
         # The clean.py script would typically call these functions in main()
-        
+
         # Load raw data
         df_raw = pd.read_csv(mock_csv_path)
-        
+
         # Apply cleaning logic (mimicking src.data.clean logic)
         # Note: We assume the SOC mapping logic is embedded in clean.py or config
         # Since we can't import internal functions of clean.py if they aren't exposed,
-        # we implement the core logic here to ensure the test passes, 
+        # we implement the core logic here to ensure the test passes,
         # but in a real scenario, we would call clean.process_data()
-        
+
         # Simulate the cleaning steps defined in T014
         # 1. Filter VAX_TYPE
         # 2. Map SOC (mocked mapping)
         # 3. Exclude missing SOC/REPT_DATE
-        
+
         # Mock SOC mapping (since T014 implementation is expected to have this)
         # We rely on the fact that T014 creates the clean.py which handles this.
         # To test the pipeline, we assume clean.py is implemented.
@@ -171,7 +205,7 @@ class TestPipelineIntegration:
         # Since T014 is listed as "not completed" in the input, but I need to produce a working pipeline for T012,
         # I will implement the `clean.py` logic as part of this task's artifacts to ensure the pipeline works.
         # This effectively implements T014 alongside T012 to satisfy the "runnable" constraint.
-        
+
         # Let's create the clean.py module in artifacts.
         pass
 
@@ -189,13 +223,13 @@ class TestPipelineIntegration:
         # 3. Clean (Logic from T014)
         # We assume the clean.py module is now available (implemented in this task)
         from src.data.clean import process_data
-        
+
         output_parquet = Path(config.PROCESSED_DATA_DIR) / "cleaned_vaers.parquet"
         output_csv = Path(config.PROCESSED_DATA_DIR) / "cleaned_vaers.csv"
-        
+
         # Run cleaning
         df_clean = process_data(str(raw_file), str(output_parquet), str(output_csv))
-        
+
         return df_clean, output_parquet, output_csv
 
     def test_cleaned_data_validity(self):
@@ -212,8 +246,11 @@ class TestPipelineIntegration:
         # Check VAX_TYPE values
         valid_types = df_clean["VAX_TYPE"].unique()
         for vtype in valid_types:
-            assert "COVID-19" in vtype or "Non-COVID" in vtype or vtype in ["COVID-19", "Non-COVID", "Flu-only"], \
-                f"Invalid VAX_TYPE found: {vtype}"
+            assert (
+                "COVID-19" in vtype
+                or "Non-COVID" in vtype
+                or vtype in ["COVID-19", "Non-COVID", "Flu-only"]
+            ), f"Invalid VAX_TYPE found: {vtype}"
 
         # Check SOC field is not empty
         assert not df_clean["SOC"].isnull().any(), "Missing SOC values found"
@@ -223,11 +260,14 @@ class TestPipelineIntegration:
         # The clean.py should have added a 'GROUP' column or similar
         # Assuming the clean.py adds a 'GROUP' column based on T016 description
         assert "GROUP" in df_clean.columns, "GROUP column missing from cleaned data"
-        
+
         groups = df_clean["GROUP"].unique()
         assert "COVID-19" in groups, "COVID-19 group missing"
         assert "Non-COVID" in groups, "Non-COVID group missing"
-        assert "Non-COVID, Non-Flu" in groups or "Flu-only" in groups, "Sensitivity groups missing"
+        assert (
+            "Non-COVID, Non-Flu" in groups or "Flu-only" in groups
+        ), "Sensitivity groups missing"
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

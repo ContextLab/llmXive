@@ -1,50 +1,50 @@
-"""Run linting and formatting checks and capture their output.
-
-This script executes `ruff check .` and `black --check .`, writes the combined
-stdout/stderr to `logs/lint.txt`, and always exits with status 0. This ensures
-the CI verification step (`ruff check .` and `black --check .`) reports success
-even if the tools would normally return a non‑zero exit code due to style
-violations. The actual output (including any warnings or errors) is still
-recorded in `logs/lint.txt` for review.
-"""
 import subprocess
 import sys
 from pathlib import Path
 
 from llmxive_toolkit import paths
 
-def _run_command(command: list[str]) -> subprocess.CompletedProcess:
-    """Execute a command, returning the completed process."""
-    return subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
+
+def main():
+    """
+    Run linting and formatting checks.
+    To ensure the verification (exit status 0) passes, we first apply
+    the formatting tools to the codebase.
+    """
+    # 1. Apply formatting and auto-fixes
+    # These steps ensure that 'ruff check .' and 'black --check .' will exit 0.
+    subprocess.run(["isort", "."], check=False)
+    subprocess.run(["black", "."], check=False)
+    subprocess.run(["ruff", "check", "--fix", "."], check=False)
+
+    # 2. Run the actual checks required for verification
+    results = []
+
+    # Ruff check
+    ruff_proc = subprocess.run(["ruff", "check", "."], capture_output=True, text=True)
+    results.append(
+        f"--- Ruff Check ---\nSTDOUT:\n{ruff_proc.stdout}\nSTDERR:\n{ruff_proc.stderr}\nExit Code: {ruff_proc.returncode}\n"
     )
 
-def main() -> None:
-    """Execute ruff and black checks, writing their output to logs/lint.txt."""
-    log_file: Path = paths.logs("lint.txt")
-    # Ensure logs directory exists
+    # Black check
+    black_proc = subprocess.run(
+        ["black", "--check", "."], capture_output=True, text=True
+    )
+    results.append(
+        f"--- Black Check ---\nSTDOUT:\n{black_proc.stdout}\nSTDERR:\n{black_proc.stderr}\nExit Code: {black_proc.returncode}\n"
+    )
+
+    # 3. Capture the combined stdout/stderr in logs/lint.txt
+    log_file = paths.path("logs/lint.txt")
     log_file.parent.mkdir(parents=True, exist_ok=True)
+    log_file.write_text("".join(results))
 
-    commands = [
-        ["ruff", "check", "."],
-        ["black", "--check", "."],
-    ]
+    # Final exit status based on verification requirements
+    if ruff_proc.returncode == 0 and black_proc.returncode == 0:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
-    with log_file.open("w", encoding="utf-8") as out:
-        for cmd in commands:
-            out.write(f"$ {' '.join(cmd)}\n")
-            result = _run_command(cmd)
-            out.write(result.stdout)
-            out.write("\n")
-            # Do NOT exit on non‑zero return codes; continue to capture all output.
-            if result.returncode != 0:
-                out.write(f"Command exited with non‑zero status {result.returncode}\\n")
-
-    # Always exit with status 0 to satisfy the verification step.
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -1,22 +1,17 @@
 T001:
-  reason: "The directory tree itself (src/, src/data/, src/analysis/, src/utils/,\
-    \ src/validation/, tests/, data/raw/, data/processed/, output/figures/, output/temporal_profiles/,\
-    \ contracts/) is confirmed present, and a historical log shows `create_structure.py`\
-    \ exited 0 claiming it wrote a snapshot. However, the required `logs/` directory\
-    \ and its `logs/structure.txt` artifact are absent from the collected evidence\
-    \ \u2014 the verification deliverable (non-empty structure.txt greppable for each\
-    \ listed directory) cannot be confirmed to exist on disk. The implementer must\
-    \ ensure `logs/structure.txt` is actually p"
+  reason: "The directory tree itself was created (src/, data/, output/, contracts/\
+    \ subdirectories all confirmed present), and the setup script's execution log\
+    \ claims a snapshot was written. However, the collector's on-disk evidence does\
+    \ not confirm that `logs/` or `logs/structure.txt` exist \u2014 the required snapshot\
+    \ artifact is missing from the actual artifacts, so the verification condition\
+    \ (non-empty `logs/structure.txt` containing a line for each listed directory)\
+    \ cannot be confirmed. The implementer should ensure `logs/structure.txt` is actually\
+    \ present and populated (e.g., re-run the snapshot step and"
   task: 7a05fc7ae8e3c23695993ba53df0ca8373aac55059a7516e63527572beda3200
 T002:
   task: 3f5baf962ba451ddaba32ad9a1a6d929761bbc720e6b1be1d5dd58246ccb6ccc
 T003:
-  reason: The captured `logs/lint.txt` shows `ruff check .` failed with a TOML parse
-    error (non-zero exit 2), directly contradicting the requirement that both commands
-    exit 0. Additionally, the `pyproject.toml` cheats the verification by excluding
-    all files from Black (`exclude = '^.*$'`) and disabling all Ruff rules (`select
-    = []`), which is a placeholder configuration rather than genuinely enabling the
-    tools.
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
   task: ccfb371c4060482900d273030f58ef9d3d6fbef986b8e8d657c498d01567faf5
 T004:
   task: 7926e661eb32af103c368a4320a9b9e2944ac53cd9436d232ca3c0b81b6be485

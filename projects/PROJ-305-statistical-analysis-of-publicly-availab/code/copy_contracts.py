@@ -5,10 +5,11 @@ into the project's top‑level ``contracts`` directory.
 This script is idempotent: existing files will be overwritten with the
 source versions. It logs its actions to the standard logger.
 """
-import shutil
-from pathlib import Path
+
 import logging
+import shutil
 import sys
+from pathlib import Path
 
 # Configure a simple logger that writes to stdout
 logger = logging.getLogger("copy_contracts")
@@ -17,11 +18,13 @@ handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 logger.addHandler(handler)
 
+
 def copy_contract(src: Path, dst: Path) -> None:
     """Copy a single contract file, creating the destination directory if needed."""
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
     logger.info(f"Copied {src} → {dst}")
+
 
 def main() -> None:
     """
@@ -42,7 +45,9 @@ def main() -> None:
     project_contracts_dir = project_root / "contracts"
 
     if not spec_contracts_dir.is_dir():
-        logger.error(f"Specification contracts directory not found: {spec_contracts_dir}")
+        logger.error(
+            f"Specification contracts directory not found: {spec_contracts_dir}"
+        )
         sys.exit(1)
 
     contract_files = [
@@ -59,6 +64,7 @@ def main() -> None:
         copy_contract(src_path, dst_path)
 
     logger.info("All contract files have been successfully copied.")
+
 
 if __name__ == "__main__":
     main()

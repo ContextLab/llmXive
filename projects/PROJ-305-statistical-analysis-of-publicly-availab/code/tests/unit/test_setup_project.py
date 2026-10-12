@@ -2,11 +2,13 @@
 Unit tests for the project setup script (T001a).
 Verifies that the required directory structure is created correctly.
 """
+
 import os
-import tempfile
-import pytest
-from pathlib import Path
 import sys
+import tempfile
+from pathlib import Path
+
+import pytest
 
 # Add the code directory to the path to import setup_project
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))

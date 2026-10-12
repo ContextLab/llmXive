@@ -32,6 +32,7 @@ matplotlib.use("Agg")
 # ... [the original content of the file is omitted for brevity;
 # it remains exactly as it was before this patch] ...
 
+
 # ----------------------------------------------------------------------
 # New utility functions required by T005
 # ----------------------------------------------------------------------
@@ -75,8 +76,9 @@ def save_line_plot(df: pd.DataFrame, x: str, y: str, title: str, path: Any) -> P
     return output_path.resolve()
 
 
-def save_forest_plot(df: pd.DataFrame, metric: str, ci_low: str, ci_high: str,
-                     title: str, path: Any) -> Path:
+def save_forest_plot(
+    df: pd.DataFrame, metric: str, ci_low: str, ci_high: str, title: str, path: Any
+) -> Path:
     """
     Generate a forest‑plot style figure for a single metric.
 

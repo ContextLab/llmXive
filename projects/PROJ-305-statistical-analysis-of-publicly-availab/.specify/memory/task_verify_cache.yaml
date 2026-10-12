@@ -1,3 +1,15 @@
+T001:
+  c: false
+  h: 34fb802501068712e12e832a484da335c4d5ad230eada060d3210a969e23079f
+  r: "The directory tree itself was created (src/, data/, output/, contracts/ subdirectories\
+    \ all confirmed present), and the setup script's execution log claims a snapshot\
+    \ was written. However, the collector's on-disk evidence does not confirm that\
+    \ `logs/` or `logs/structure.txt` exist \u2014 the required snapshot artifact\
+    \ is missing from the actual artifacts, so the verification condition (non-empty\
+    \ `logs/structure.txt` containing a line for each listed directory) cannot be\
+    \ confirmed. The implementer should ensure `logs/structure.txt` is actually present\
+    \ and populated (e.g., re-run the snapshot step and"
+  sig: 68b2aef92d2c2b7f139286b3af2bf5688bb3236b8a2b569c401115458d142ff1
 T002:
   c: true
   h: 0acb25cee8512674e740cd53cfa932eb129b079d944de6daa5c3f4f8dd877c3e
@@ -9,13 +21,13 @@ T002:
   sig: 0c3df69659c1a9c0140b591f5ecb221a4a119aa14c373a436c4d5b2b5e81081b
 T004:
   c: true
-  h: 1897eb01e07599d8852114af45959c83bd5b1401503ddac22905f7834e3948a9
-  r: All three contract files exist at `contracts/` with byte-identical sha256 hashes
-    to their spec sources (dataset, signal, soc_cluster schemas), and the copy script
-    ran successfully (exit 0). The verification step's `data/processed/dummy.csv`
-    is missing, but that file belongs to a different task's deliverables; the required
-    copy artifacts themselves are present and exact copies.
-  sig: 2e4b62de3fc2688878bd1b0e7e427d9f5ccda687e137281e1e4da7c4a19272ca
+  h: 4f2e7181cd6b3d50e3c3e5521f98fd64a87303a471742ce1350678e1c1de4625
+  r: All three destination files (`contracts/dataset.schema.yaml`, `contracts/signal.schema.yaml`,
+    `contracts/soc_cluster.schema.yaml`) exist, are non-empty, and are byte-identical
+    to their spec sources (matching sha256 hashes). The verification command's `data/processed/dummy.csv`
+    is missing, but that file belongs to a later preprocessing task, not this copy
+    task; the schemas themselves are well-formed YAML matching the spec contracts.
+  sig: f3650f69aad5edf7963d6f475f0038816473b8e8568dd904c67288e4764a577a
 T005:
   c: false
   h: a7027dddc7cc65bc23505d7222cc6f499ce49b9bc304aa38048f343a31160686

@@ -4,12 +4,14 @@ Module for downloading VAERS datasets.
 This module handles fetching CSV files from the VAERS website or verified mirrors,
 saving them to the local data/raw directory, and verifying file integrity using checksums.
 """
-import os
+
 import hashlib
-import requests
-from pathlib import Path
-from typing import Optional, Dict, Any
 import logging
+import os
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+import requests
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +24,7 @@ VAERS_BASE_URL = "https://vaers.hhs.gov/data/datasets"
 
 # Define years to download
 DOWNLOAD_YEARS = [2020, 2021, 2022, 2023]
+
 
 def calculate_checksum(data: bytes, algorithm: str = "md5") -> str:
     """
@@ -47,6 +50,7 @@ def calculate_checksum(data: bytes, algorithm: str = "md5") -> str:
     hasher.update(data)
     return hasher.hexdigest()
 
+
 def verify_checksum(data: bytes, expected_hash: str, algorithm: str = "md5") -> bool:
     """
     Verify if the checksum of the data matches the expected hash.
@@ -63,7 +67,10 @@ def verify_checksum(data: bytes, expected_hash: str, algorithm: str = "md5") -> 
     # Compare case-insensitively
     return calculated_hash.lower() == expected_hash.lower()
 
-def download_file(url: str, output_path: str, expected_checksum: Optional[str] = None) -> bool:
+
+def download_file(
+    url: str, output_path: str, expected_checksum: Optional[str] = None
+) -> bool:
     """
     Download a file from a URL and optionally verify its checksum.
 
@@ -91,7 +98,7 @@ def download_file(url: str, output_path: str, expected_checksum: Optional[str] =
                 content += chunk
 
         # Write to disk
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(content)
 
         logger.info(f"Downloaded {len(content)} bytes to {output_path}")
@@ -115,6 +122,7 @@ def download_file(url: str, output_path: str, expected_checksum: Optional[str] =
         logger.error(f"Failed to write file {output_path}: {e}")
         return False
 
+
 def get_checksum_url(base_url: str, filename: str) -> str:
     """
     Construct the URL for the checksum file (e.g., .md5).
@@ -123,10 +131,11 @@ def get_checksum_url(base_url: str, filename: str) -> str:
     # VAERS often provides .md5 files alongside the data
     return f"{base_url}/{filename}.md5"
 
+
 def download_vaers_data(
     years: list = DOWNLOAD_YEARS,
     base_url: str = VAERS_BASE_URL,
-    output_dir: str = "data/raw"
+    output_dir: str = "data/raw",
 ) -> Dict[str, Any]:
     """
     Download VAERS data for specified years.
@@ -162,9 +171,13 @@ def download_vaers_data(
                 expected_checksum = checksum_content.split()[0]
                 logger.info(f"Found checksum for {filename}: {expected_checksum}")
             else:
-                logger.warning(f"Checksum file not found for {filename}, skipping verification")
+                logger.warning(
+                    f"Checksum file not found for {filename}, skipping verification"
+                )
         except requests.exceptions.RequestException:
-            logger.warning(f"Could not fetch checksum for {filename}, skipping verification")
+            logger.warning(
+                f"Could not fetch checksum for {filename}, skipping verification"
+            )
 
         success = download_file(url, local_path, expected_checksum)
 
@@ -176,11 +189,13 @@ def download_vaers_data(
 
     return results
 
+
 def fetch_vaers_data(*args, **kwargs):
     """
     Compatibility wrapper that forwards to ``download_vaers_data``.
     """
     return download_vaers_data(*args, **kwargs)
+
 
 def main():
     """Main entry point for the download script."""
@@ -195,6 +210,7 @@ def main():
         for year, path in results["files"].items():
             logger.info(f"  {year}: {path}")
         exit(0)
+
 
 if __name__ == "__main__":
     main()

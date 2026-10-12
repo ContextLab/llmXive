@@ -28,6 +28,7 @@ LOGS_DIR: Final[Path] = PROJECT_ROOT / "logs"
 CODE_DIR: Final[Path] = PROJECT_ROOT / "code"
 CONTRACTS_DIR: Final[Path] = PROJECT_ROOT / "contracts"
 
+
 # ----------------------------------------------------------------------
 # Directory creation helper
 # ----------------------------------------------------------------------
@@ -44,6 +45,7 @@ def ensure_dirs() -> None:
     ]
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
+
 
 # ----------------------------------------------------------------------
 # Random seed for reproducibility

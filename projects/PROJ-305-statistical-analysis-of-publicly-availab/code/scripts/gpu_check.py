@@ -3,14 +3,16 @@ Script to verify the absence of GPU-dependent libraries in the project environme
 Checks for torch, tensorflow, and cupy.
 Writes result to logs/gpu_check.log.
 """
-import os
-import sys
-import subprocess
+
 import logging
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 # Define GPU libraries to check
 GPU_LIBS = ["torch", "tensorflow", "cupy"]
+
 
 def check_gpu_libs():
     """
@@ -23,7 +25,7 @@ def check_gpu_libs():
             [sys.executable, "-m", "pip", "list"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         output = result.stdout.lower()
 
@@ -41,6 +43,7 @@ def check_gpu_libs():
         logging.error(f"Unexpected error during GPU check: {e}")
         return False, ["unexpected_error"]
 
+
 def main():
     # Ensure logs directory exists
     logs_dir = Path("code/logs")
@@ -51,7 +54,7 @@ def main():
     logging.basicConfig(
         filename=log_file,
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(levelname)s - %(message)s",
     )
 
     # Also print to stdout for immediate feedback
@@ -72,6 +75,7 @@ def main():
 
     # Exit with appropriate code
     sys.exit(0 if passed else 1)
+
 
 if __name__ == "__main__":
     main()

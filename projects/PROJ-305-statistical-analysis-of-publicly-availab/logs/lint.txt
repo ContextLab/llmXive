@@ -1,4 +1,7 @@
-$ ruff check .
+--- Ruff Check ---
+STDOUT:
+
+STDERR:
 ruff failed
   Cause: Failed to load configuration `/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/.ruff.toml`
   Cause: Failed to parse /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/.ruff.toml
@@ -9,6 +12,12 @@ ruff failed
 unknown field `ruff`
 
 
-Command exited with non‑zero status 2\n$ black --check .
-No Python files are present to be formatted. Nothing to do 😴
+Exit Code: 2
+--- Black Check ---
+STDOUT:
 
+STDERR:
+All done! ✨ 🍰 ✨
+58 files would be left unchanged.
+
+Exit Code: 0

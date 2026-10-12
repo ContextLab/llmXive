@@ -2,6 +2,7 @@
 Script to create the required project directory tree and capture a
 filesystem snapshot (up to depth 3) in logs/structure.txt.
 """
+
 import sys
 from pathlib import Path
 
@@ -23,6 +24,7 @@ REQUIRED_DIRS = [
     "logs",
 ]
 
+
 def _create_directories(root: Path) -> None:
     """
     Create all directories listed in REQUIRED_DIRS under the given root.
@@ -30,6 +32,7 @@ def _create_directories(root: Path) -> None:
     for rel_dir in REQUIRED_DIRS:
         dir_path = root / rel_dir
         dir_path.mkdir(parents=True, exist_ok=True)
+
 
 def _write_snapshot(root: Path, output_file: Path, max_depth: int = 3) -> None:
     """
@@ -55,6 +58,7 @@ def _write_snapshot(root: Path, output_file: Path, max_depth: int = 3) -> None:
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text("\n".join(lines), encoding="utf-8")
 
+
 def main() -> None:
     """
     Main entry point:
@@ -67,6 +71,7 @@ def main() -> None:
     _write_snapshot(root, snapshot_path, max_depth=3)
     print(f"Directory snapshot written to {snapshot_path}")
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
