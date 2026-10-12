@@ -1,264 +1,56 @@
 # Tasks: Evaluating the Impact of Code Generation on Long-Term Code Maintainability
 
-**Input**: Design documents from `/specs/001-code-maintainability-impact/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-code-maintainability-impact/spec.md`, `plan.md`, data-model.md, contracts/, original idea, verifier feedback.
+**Prerequisites**: plan.md (required), spec.md (required for user stories).
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Revision note**: Previously verified tasks are preserved as checked. Tasks rejected by the independent verifier (T012, T012b, T013, T015, T016, T017b, T021–T024) and related pending work are regrouped below into substantive tasks that produce the real artifacts; their acceptance criteria are carried forward without duplication. All data must be REAL (live GitHub API, real clones, real CodeBERT inference on CPU via onnxruntime); any failed fetch must raise, never fall back to synthetic data.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1: Setup and first end-to-end analysis
 
-## Format: `[ID] [P?] [Story] Description`
+**Goal**: Complete the dataset pipeline on a small real subset and produce a first real tagged/matched output.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T001 Establish the existing code layout and dependencies: project structure under the feature directory, `code/requirements.txt` with pinned versions (transformers, onnxruntime, radon, scikit-learn, pandas, requests, matplotlib, statsmodels, datasets, PyGithub, tree-sitter, tree-sitter-javascript), data models in `code/utils/models.py`, logging config, and environment configuration with `.env.example` (`GITHUB_TOKEN`, `DATA_PATH`, `LOG_PATH`). Document the runnable command in `specs/001-code-maintainability-impact/quickstart.md`.
+- [ ] T002 [US1] Implement and execute repository curation in `code/01_data_curation.py`: GitHub Search API (`topic:llm-generated` OR `topic:copilot`, then keyword expansion "LLM generated code" / "Copilot generated" if < 50 repos), activity filters (≥1 commit/90 days, ≥5 stars), shallow clones (depth=100), and metadata extraction (`stargazers_count`, `created_at`, `updated_at`, total LOC) saved to `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`, with rate-limit handling and 404 handling for deleted repos.
+- [ ] T003 [US1] Implement code block extraction with rename tracking, producing the REAL artifact `data/raw/code_blocks.csv` (columns: `block_id, file_path, start_line, end_line, language, content_hash, introduction_commit, introduction_timestamp`): parse Python files with `ast` (functions/classes) and JavaScript files with `tree-sitter`/`tree-sitter-javascript` (`Language(...)`, `Parser()`, `parser.parse(code_bytes)`). Run `git log --follow` per block file to detect renames; exclude a block ONLY if the file path hash changes or directory level changes (change in number of path segments or immediate parent directory name). Log exclusions to `data/logs/refactor_exclusions.log` (format: `block_id, old_path, new_path, reason`) and emit `data/logs/refactor_validation_report.json`. Include focused unit tests in `code/tests/unit/test_git_mv_detection.py` covering rename, move-across-directories, and no-change cases, and run them. *(Redo of rejected T012/T012b; depends on T002.)*
+- [ ] T004 [US1] Integrate the CodeBERT classifier and produce real tagged blocks: run `microsoft/codebert-base` via `onnxruntime` on CPU over the blocks from T003, tag each block "LLM" or "Human" with confidence ≥ 0.8, exclude low-confidence blocks (logged to `data/logs/classifier_exclusions.log` with block_id and reason), and append static complexity metrics from `radon` (cyclomatic complexity, nesting depth, LOC). Output `data/processed/tagged_blocks.csv` conforming to the `TaggedCodeBlock` contract (specs/001-.../contracts/dataset.schema.yaml). The classifier must load the real ONNX model; on model load failure it must raise, never emit placeholder labels. Include a smoke test on ≥3 real blocks. *(Redo of rejected T013; depends on T003.)*
+- [ ] T005 [US1] Implement and execute 1:1 propensity score matching in `code/utils/matching.py`: fit logistic regression on cyclomatic complexity, block LOC, and repo-level covariates (stars, repo age days, repo total LOC) to predict LLM probability; perform 1:1 nearest-neighbor matching within the same repository (`NearestNeighbors(n_neighbors=1)`, caliper 0.05). Write the REAL `data/processed/matched_pairs.csv`. Then enforce repository inclusion criteria (≥5 LLM and ≥5 Human tagged blocks per repo) and write `data/processed/matched_pairs_filtered.csv`, logging excluded repos to `data/logs/repo_exclusions.csv`. Validate no duplicate block_ids appear in more than one pair. *(Redo of rejected T015/T016; depends on T004, T002.)*
+- [ ] T006 [US1] Complete ground-truth validation: randomly select ≥10 tagged blocks (seed pinned), save the selection to `data/ground_truth/manual_labels.csv`, and compute classifier precision and recall against the manual labels, writing the REAL result to `data/ground_truth/classifier_metrics.json` (schema `{"precision": float, "recall": float}`) per the ground-truth contract. Run `code/tests/unit/test_classifier_metrics.py` against a small fixed fixture to verify the computation, then record the real metrics. Report whether SC-006 (precision/recall ≥ 0.85) is met; if not, record `threshold_met: false` and the reason in `docs/paper/limitations.json`. *(Redo of rejected T017b; depends on T004.)*
 
-## Path Conventions
+**Checkpoint**: `python code/01_data_curation.py` runs end-to-end on real repos and `data/processed/matched_pairs_filtered.csv` contains real tagged, matched pairs with no duplicates.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+## Phase 2: Complete the study and validate its evidence
 
----
+- [ ] T007 [US2] Implement and execute longitudinal metric extraction in `code/02_metric_extraction.py`, producing the REAL `data/processed/metrics_longitudinal.csv`: (a) churn — aggregate lines added/deleted per matched block over the observation window following introduction, excluding the initial generation commit, tracked via `git log --follow`; (b) bug fix latency — parse commit messages for "Fixes #N"/"Closes #N", confirm issue resolution via `GET /repos/{owner}/{repo}/issues/{N}`, compute days from fix commit to issue close; invalid or cross-repo issue numbers are excluded and logged. Handle edge cases: pairs with null latency are excluded from latency analysis but retained for churn (log to `data/logs/latency_exclusions.log`, format `pair_id, reason`); repos deleted/made private during the window are excluded via 404 handling (log to `data/logs/repo_deletion.log`) and their rows removed from `metrics_longitudinal.csv`. All fetches must raise on failure — no synthetic fallbacks. *(Redo of rejected T021–T024; depends on T005.)*
+- [ ] T007b [US1/2] Join split artifacts into the master dataset record: merge `tagged_blocks.csv`, `matched_pairs_filtered.csv`, and `metrics_longitudinal.csv` into a single REAL artifact `data/processed/master_dataset.json` conforming to the `dataset_schema.schema.yaml` contract. Ensure all mandatory fields (repo_stars, repo_age_days, repo_total_loc) are populated from the raw metadata and that no records are lost during the join. (Depends on T004, T005, T007.)
+- [ ] T008 [US3] Implement and execute the statistical analysis in `code/03_analysis.py`: load `data/processed/matched_pairs_filtered.csv` and `data/processed/metrics_longitudinal.csv`; run Wilcoxon Signed-Rank tests (`scipy.stats.wilcoxon`, `zero_method='pratt'`, `alternative='two-sided'`) on matched pairs for churn and bug fix latency (excluding pairs with null latency in either block); compute Cohen's d effect sizes; apply Benjamini-Hochberg correction across the family of tests. Save REAL results to `data/analysis/wilcoxon_results.json` and `data/analysis/bh_corrected_pvalues.json` conforming to the metrics_schema contract, explicitly labeling findings as associational. Verify against a small fixture with known distributions in `code/tests/` before running on real data. *(Consolidates T026–T028; depends on T007, T007b.)*
+- [ ] T009 [US3] Perform post-hoc power analysis on the final matched-pair count (`statsmodels.stats.power`, effect size 0.5, alpha 0.05, target power ≥ 0.80 per SC-001) and sensitivity analysis adjusting effect sizes for classifier misclassification rate from `data/ground_truth/classifier_metrics.json`, including a 95% CI for the corrected effect size. Save REAL outputs to `data/analysis/power_analysis.json` and `data/analysis/sensitivity_analysis.csv`. *(Consolidates T029/T029b/T031; depends on T006, T008.)*
+- [ ] T010 [US3] Generate visualizations directly from the validated outputs using `matplotlib` in CPU-only mode: box plots comparing churn distributions and density plots for bug fix latency between LLM and Human groups, saved as PNG files < 10 MB at `figures/fig_churn_boxplot.png` and `figures/fig_latency_density.png`. Record figure metadata (name, path, metric, file size) in the results JSON per the metrics_schema contract. *(Depends on T008.)*
 
-## Phase 1: Setup (Shared Infrastructure)
+**Checkpoint**: All required runs complete on real data; result artifacts match the actual computations and conform to the contracts.
 
-**Purpose**: Project initialization and basic structure
+## Phase 3: Reproducible results and paper handoff
 
-- [X] T001 Create project directory structure per implementation plan (`projects/PROJ-247-evaluating-the-impact-of-code-generation/`) by executing: `mkdir -p data/raw data/processed data/ground_truth data/logs code/utils tests/unit tests/contract docs/paper scripts`.
-- [X] T001b Validate directory structure against plan.md by checking existence of all required directories and logging any missing paths to `data/logs/structure_validation.log`. (Depends on T001)
+- [ ] T011 Write a concise methods/results account in `docs/paper/results_summary.md` (or the feature's specs dir) linked to the actual output cells and figure files: Wilcoxon W-statistics, raw and BH-adjusted p-values, Cohen's d with benchmark interpretation (SC-004), power analysis outcome, classifier precision/recall, and sensitivity-corrected effect sizes. Describe negative findings, exclusions, and limitations honestly — including the observational/associational framing, the probabilistic nature of the LLM label, selection bias of `topic:llm-generated` repos, and the latency metric's tracked-issues-only scope. Include the documented justification for Wilcoxon Signed-Rank over Mann-Whitney U for the paired design. *(Consolidates T027d/T028a/T032; depends on T008, T009, T010.)*
+- [ ] T012 Re-run the documented workflow from its declared inputs (`quickstart.md` command), confirm the required tests pass and all artifacts exist and validate against the contract schemas (`code/tests/contract/`), and document the paper-stage handoff: required figures, result tables, and the limitations statement the paper stage must preserve. Research scripts must not write to `state/` or modify platform-state schema. *(Consolidates T033–T039; depends on T011.)*
 
----
+## Dependencies and requirement coverage
 
-## Phase 2: Foundational (Blocking Prerequisites)
+| Requirement | Task(s) | Command / artifact |
+|---|---|---|
+| FR-001 (repo curation) | T002 (done) | `data/raw/repo_list.csv`, `data/raw/repo_metadata.csv` |
+| FR-002 (CodeBERT tagging) | T004 | `data/processed/tagged_blocks.csv`, `data/logs/classifier_exclusions.log` |
+| FR-003 (radon metrics) | T004 | columns in `tagged_blocks.csv` |
+| FR-004 (churn & latency) | T007 | `data/processed/metrics_longitudinal.csv` |
+| FR-005 (Wilcoxon + BH) | T008 | `data/analysis/wilcoxon_results.json`, `bh_corrected_pvalues.json` |
+| FR-006 (plots, CPU) | T010 | `figures/fig_churn_boxplot.png`, `figures/fig_latency_density.png` |
+| FR-007 (ground truth) | T006 | `data/ground_truth/classifier_metrics.json` |
+| FR-008 (PSM + repo filter) | T005 | `data/processed/matched_pairs.csv`, `matched_pairs_filtered.csv` |
+| SC-001 (power) | T009 | `data/analysis/power_analysis.json` |
+| SC-002–SC-005 | T008, T009, T011 | results JSON + `results_summary.md` |
+| SC-006 (precision/recall ≥ 0.85) | T006, T011 | `classifier_metrics.json`, `limitations.json` |
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+Execution order: T003 → T004 → T005 → T007 → T007b → T008 → T010; T006 after T004 (parallel with T005/T007); T009 after T006+T008; T011–T012 last.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Revision behavior
 
-**Note**: T007 (Models) MUST complete before T005 and T006. T005 and T006 are parallel to each other but sequential to T007.
-
-- [X] T007 Create base data models/entities in `code/utils/models.py` (Repository, CodeBlock, MaintenanceEvent, MatchedPair) using dataclasses with type hints.
-- [X] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned versions for: transformers, onnxruntime, radon, scikit-learn, pandas, requests, matplotlib, statsmodels, datasets, PyGithub, tree-sitter, tree-sitter-javascript.
-- [X] T003 [P] Configure linting and formatting by creating `.flake8` (max-line-length=88, exclude=venv), `pyproject.toml` (black target-version=py311), and `.editorconfig` (indent_size=4, end_of_line=lf) with the specified rules.
-- [X] T005 [P] Implement `code/utils/github_client.py` with rate-limit handling, shallow clone logic (depth=100), and 404 error handling for deleted repos. **[P] applies only to T005 vs T006, not T007.**
-- [X] T006 [P] Implement `code/utils/classifier.py` wrapping `transformers` CodeBERT model via `onnxruntime` for CPU-only inference. **[P] applies only to T005 vs T006, not T007.**
-- [X] T008 Configure error handling and logging infrastructure by creating `code/utils/logging_config.py` with JSON format, TimedRotatingFileHandler (maxBytes=1MB, backupCount=5), and log output to `data/logs/`.
-- [X] T009 Setup environment configuration management by creating `.env.example` with keys `GITHUB_TOKEN`, `DATA_PATH`, `LOG_PATH` and a validation script `scripts/validate_env.py`.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Dataset Curation, Tagging, and Matching (Priority: P1) 🎯 MVP
-
-**Goal**: Identify a representative set of active repos, tag code blocks via CodeBERT, and perform propensity score matching with a one-to-one ratio.
-
-**Independent Test**: Run on a sample of repositories.; verify `data/processed/matched_pairs_filtered.csv` contains valid tags, matched pairs, and no duplicates; verify `data/ground_truth/manual_labels.csv` is created.
-
-### Implementation for User Story 1
-
-- [X] T010a [P] [US1] Implement `code/01_data_curation.py` script: GitHub Search API integration (topics:llm-generated, topic:copilot). Search for repos matching criteria.
-- [X] T010b-impl [US1] Execute primary search: Query GitHub API for repos with `topic:llm-generated` OR `topic:copilot` AND `stars>=5` AND `updated_at > 90 days ago`. Output results to `data/raw/repo_list.csv`. Stop when a sufficient number of repositories are found or the API call limit is reached. (Depends on T010a)
-- [X] T010c-impl [US1] Execute secondary search: If `data/raw/repo_list.csv` contains < 50 repos, query GitHub API for `q="LLM generated code" OR "Copilot generated"` (in code) with same activity filters. Append to `data/raw/repo_list.csv` until 50 repos found or 5000 API calls made. (Depends on T010b-impl)
-- [X] T011 [US1] Implement repository cloning logic in `code/01_data_curation.py`: shallow clone (depth=100), filter by activity (≥1 commit/90 days, ≥5 stars).
-- [X] T011a [US1] Implement repository metadata extraction in `code/01_data_curation.py`: retrieve `stargazers_count`, `created_at`, and `updated_at` for each repo and store in `data/raw/repo_metadata.csv` for use in matching.
-- [ ] T012 [US1] Implement code block extraction logic: Parse Python files using `ast` (extract functions/classes) and JS files using `tree-sitter` (library `tree-sitter-javascript`). **API Usage**: Instantiate `Language('path/to/tree-sitter-javascript.so')` and `Parser()`, then call `parser.parse(code_bytes)`. **Output**: `data/raw/code_blocks.csv` with schema: `block_id, file_path, start_line, end_line, language, content_hash`. (Depends on T011)
-- [ ] T012b [US1] Implement verification logic for `git mv` detection: Run `git log --follow` on each block's file path. Exclude block ONLY if file path hash changes OR directory level changes (defined as: change in number of path segments OR change in immediate parent directory name). **Log**: `data/logs/refactor_exclusions.log` with format: `block_id, old_path, new_path, reason`. **Verify** by running `tests/unit/test_git_mv_detection.py` and ensuring [deferred] pass rate; generate `data/logs/refactor_validation_report.json`. (Depends on T012)
-- [ ] T013 [US1] Integrate CodeBERT classifier (ONNX) in `code/01_data_curation.py`: tag blocks as LLM/Human with confidence ≥ 0.8; exclude low-confidence blocks. Log exclusions to `data/logs/classifier_exclusions.log`. (Depends on T012)
-- [X] T014 [US1] Implement static complexity metric extraction using `radon` (cyclomatic complexity, nesting depth, LOC) in `code/01_data_curation.py`. **Output**: Append metrics to `data/raw/code_blocks.csv`. (Depends on T012)
-- [ ] T015 [US1] Implement Nearest-neighbor propensity score matching in `code/utils/matching.py`. **Algorithm**: 1. Fit a logistic regression model using `cyclomatic_complexity` and `LOC` (from T014) as covariates to predict probability of being LLM-generated. 2. Calculate propensity scores for all blocks. 3. Perform 1:1 nearest-neighbor matching on propensity scores between LLM and Human blocks within the same repository. **Parameters**: Use `caliper width = 0.05` and `sklearn.neighbors.NearestNeighbors` with `n_neighbors=1`. **Output**: `data/processed/matched_pairs.csv`. (Depends on T011a, T014, T013)
-- [ ] T016 [US1] Enforce repository inclusion criteria: Exclude repos with <5 LLM and <5 Human blocks after tagging. **Output**: Filter `data/processed/matched_pairs.csv` to `data/processed/matched_pairs_filtered.csv`. **Log**: `data/logs/repo_exclusions.csv`. (Depends on T015)
-- [X] T017a [US1] Implement ground truth selection: randomly select ≥10 blocks for manual verification, save to `data/ground_truth/manual_labels.csv`. (Depends on T013)
-- [ ] T017b [US1] Calculate classifier precision and recall on the ground truth subset from T017a by comparing predicted labels (from T013) against ground truth. **Output**: Save results to `data/ground_truth/classifier_metrics.json` with schema: `{"precision": float, "recall": float}`. **Verify** by running `tests/unit/test_classifier_metrics.py` against a mock dataset. (Depends on T017a, T013)
-- [X] T018 [US1] Add checksum generation for `data/ground_truth/manual_labels.csv` and record in `state/checksums.json`. (Depends on T017a)
-- [X] T019 [US1] Add checkpoint mechanism in `code/01_data_curation.py`: save progress per repo to resume if interrupted (time limit).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Longitudinal Metric Extraction (Priority: P2)
-
-**Goal**: Extract code churn and bug fix latency metrics for matched blocks over a multi-month window.
-
-**Independent Test**: Run on repo with known history; verify "days to fix" and "lines changed" match manual `git log` verification.
-
-### Implementation for User Story 2
-
-- [X] T020a [US2] Implement `code/02_metric_extraction.py`: Load `matched_pairs_filtered.csv` (from T016).
-- [X] T020b [US2] Query commit history for a multi-month window post-introduction for each block.
-- [X] T020c [US2] Parse commit logs for changes to specific blocks.
-- [ ] T021 [US2] Implement bug fix latency calculation: Parse commit messages for "Fixes #N" or "Closes #N" using regex. Extract issue number N. Query GitHub API for issue N (endpoint: `GET /repos/{owner}/{repo}/issues/{issue_number}`) to confirm resolution status. **Edge Case Handling**: If issue number is invalid or issue is in a different repository, exclude from latency analysis and log the reason. Calculate time difference between the commit timestamp and the issue closed timestamp. **Output**: `data/processed/metrics_longitudinal.csv` with columns: `block_id, latency_days, issue_id`. (Depends on T020c)
-- [ ] T022 [US2] Implement code churn calculation: Aggregate lines added/deleted for each block in a multi-month window (excluding initial commit). **Output**: Append to `data/processed/metrics_longitudinal.csv` with columns: `block_id, lines_added, lines_deleted, window_start, window_end`. (Depends on T020c)
-- [ ] T023 [US2] Handle edge cases: Exclude pairs with null latency from latency analysis (but retain for churn). **Log**: `data/logs/latency_exclusions.log` with format: `pair_id, reason`. (Depends on T021, T022)
-- [ ] T024 [US2] Handle repo deletion/private status during window: Gracefully exclude from analysis count with 404 handling. **Log**: `data/logs/repo_deletion.log`. **Output**: Update `data/processed/metrics_longitudinal.csv` by removing rows for deleted repos. (Depends on T020c)
-- [ ] T025 [US2] Save processed metrics to `data/processed/metrics_longitudinal.csv` with schema validation. (Depends on T021, T022, T023, T024)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis and Visualization (Priority: P3)
-
-**Goal**: Perform Wilcoxon Signed-Rank tests on matched pairs, apply Benjamini-Hochberg correction, and generate visualizations.
-
-**Independent Test**: Run on mock dataset; verify Wilcoxon test returns expected p-values and effect sizes; verify PNG plots render <10MB on CPU.
-
-### Implementation for User Story 3
-
-- [X] T026 [US3] Implement `code/03_analysis.py`: Load `metrics_longitudinal.csv` (requires T025) and `matched_pairs_filtered.csv` (requires T015). (Depends on T025, T015)
-- [ ] T027a [US3] Calculate W-statistic and p-value using `scipy.stats.wilcoxon` on matched pairs to compare maintainability metrics between LLM and Human groups, as required by FR-005. **Pre-filtering**: Exclude pairs with null latency values before executing the test. **Parameters**: Use `zero_method='pratt'` and `alternative='two-sided'`.
-- [ ] T027b [US3] Calculate Cohen's d effect size for the observed differences.
-- [ ] T027c [US3] Save Wilcoxon results to `data/processed/wilcoxon_results.json`. (Depends on T027a, T027b)
-- [X] T027d [US3] Document the justification for using Wilcoxon Signed-Rank instead of Mann-Whitney U for paired data in `docs/paper/methodology.md`. (Depends on T027c)
-- [ ] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across churn and latency tests applied to Wilcoxon p-values. **Output**: `data/processed/bh_corrected_pvalues.json`. (Depends on T027c)
-- [X] T028a [US3] Document Benjamini-Hochberg assumptions and verify logic based on code output in `docs/paper/methodology.md`, ensuring traceability to code/data. (Depends on T028)
-- [ ] T029 [US3] Implement Sensitivity Analysis: Adjust effect sizes using misclassification rates from `manual_labels.csv` (ground truth). **Output**: `data/processed/sensitivity_analysis.csv`. (Depends on T017b)
-- [ ] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare `precision` against SC-006 threshold (0.85) defined in `code/utils/config.py`. **If threshold not met**: Block execution of T030 and T032, and append a JSON object to `docs/paper/limitations.json` with keys `threshold_met` (bool) and `reason` (string). (Depends on T017b)
-- [ ] T030 [US3] Generate visualizations: Box plots and density plots for churn/latency using `matplotlib` (CPU-only); save as PNG <10MB. **Files**: `docs/paper/fig_churn_boxplot.png`, `docs/paper/fig_latency_density.png`. (Depends on T026)
-- [ ] T031 [US3] Perform post-hoc power analysis on final matched pair count using `statsmodels.stats.power.zt_ind_solve_power` with effect size=0.5, alpha=0.05, targeting ≥0.80 power. **Output**: `data/processed/power_analysis.json` with format: `{"power": 0.XX, "threshold_met": true/false}`. (Depends on T015, T025)
-- [ ] T032 [US3] Generate final report summary: p-values, effect sizes (Cohen's d), bias-corrected confidence intervals, and FDR. **Output**: `docs/paper/results_summary.md` with structured sections. (Depends on T027c, T028, T029, T030, T031)
-- [ ] T033 [US3] Save all statistical artifacts to `data/processed/` and `docs/paper/`. **Files**: `data/processed/wilcoxon_results.json`, `data/processed/bh_corrected_pvalues.json`, `data/processed/power_analysis.json`, `data/processed/sensitivity_analysis.csv`. (Depends on T032)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T034a-1 [P] [Polish] Generate data model documentation in `docs/paper/data-model.md`. **Format**: Markdown table with columns: Field, Type, Description. **Dependencies**: T012 (code_blocks schema), T021 (latency schema), T022 (churn schema), T025 (final metrics schema). (Depends on T012, T021, T022, T025)
-- [ ] T034a-2 [P] [Polish] Generate schema YAML definitions in `contracts/`. **Files**: `contracts/dataset.schema.yaml`, `contracts/metrics.schema.yaml`, `contracts/ground_truth_schema.schema.yaml`. **Dependencies**: T012, T021, T022, T025. (Depends on T012, T021, T022, T025)
-- [ ] T034b [P] [Polish] Create `quickstart.md` (Prerequisites, Installation, Execution, Expected Outputs) and update `docs/paper/methodology.md` with final execution paths. **Dependencies**: T034a-1, T034a-2, T027-T031. (Depends on T034a-1, T034a-2, T027, T028, T029, T030, T031)
-- [ ] T034c [P] [Polish] Update `docs/paper/results_summary.md` with final visualizations and interpretation. **Dependencies**: T032, T030. (Depends on T032, T030)
-- [ ] T035 [P] [Polish] Code cleanup and refactoring: Refactor `code/01_data_curation.py` and `code/02_metric_extraction.py` to reduce cyclomatic complexity < 10. **Verify**: Run `radon cc code/01_data_curation.py` and ensure max complexity is < 10; if not, refactor until it is. Log results to `data/logs/cyclomatic_complexity_report.txt`. **Dependencies**: T012, T021, T022, T025. (Depends on T012, T021, T022, T025)
-- [ ] T035a [P] [Polish] Performance optimization: Use `cProfile` to identify CPU bottlenecks and `iostat` to measure I/O wait in `code/01_data_curation.py` and `code/02_metric_extraction.py`; assert I/O wait < 10% and ensure pipeline completes within 6h. **Dependencies**: T035. (Depends on T035)
-- [ ] T036 [P] [Polish] Run contract tests for data schemas in `tests/contract/`. **Dependencies**: T015, T025, T034a-1, T034a-2. (Depends on T015, T025, T034a-1, T034a-2)
-- [ ] T037 [P] [Polish] Security hardening: Add `.env` to `.gitignore` and implement log scrubber in `code/utils/logging_config.py` to strip `GITHUB_TOKEN` from logs. (Depends on T008)
-- [ ] T038 [P] [Polish] Create `scripts/validate_repro.sh` to verify end-to-end reproducibility: clone repo, install deps, run main pipeline, verify exit code 0 and existence of `data/processed/statistical_results.json`. (Depends on T034a-1, T034a-2, T034b)
-- [ ] T039 [P] [Polish] Run `bash scripts/validate_repro.sh` to verify end-to-end reproducibility; verify exit code 0 and existence of `data/processed/statistical_results.json`. (Depends on T038, T033)
-
-**Checkpoint**: All documentation and polish tasks can run in parallel with the final stages of US3 (T031, T032) once core data generation (T025) is complete.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **Note**: T007 (Models) must complete before T005/T006 (which depend on models). T005 and T006 are NOT parallel to T007.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **User Story 1 (P1)**: Can start after Foundational.
- - **User Story 2 (P2)**: Can start after Foundational, but **depends on US1 output** (`matched_pairs_filtered.csv`).
- - **User Story 3 (P3)**: Can start after Foundational, but **depends on US1 and US2 outputs** (`matched_pairs_filtered.csv`, `metrics_longitudinal.csv`, `manual_labels.csv`).
-- **Polish (Final Phase)**: Depends on all desired user stories being complete, BUT with parallel execution enabled for documentation and cleanup tasks.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories.
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 output** (`matched_pairs_filtered.csv`).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on US1 and US2 outputs**.
-- **CRITICAL**: US3 CANNOT start until US2 is complete. The claim that all stories can run in parallel is FALSE for US3.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel.
-- All Foundational tasks marked [P] (T005, T006) can run in parallel **after** T007 completes.
-- Once Foundational phase completes, **User Story 1** can start.
-- **User Story 2** can start **only after** US1 produces `matched_pairs_filtered.csv`.
-- **User Story 3** can start **only after** US1 produces `matched_pairs_filtered.csv` AND US2 produces `metrics_longitudinal.csv`.
-- **Polish Tasks**:
- - **T034a-1 (Schemas)** can run in parallel with T026-T031 once T012, T021, T022, T025 are complete.
- - **T035 (Cleanup)** can run in parallel with T026-T031 once T012, T021, T022, T025 are complete.
- - **T034b (Quickstart)** can run in parallel with T032 once T034a-1 and T027-T031 are complete.
- - **T038 (Repro Script)** can run in parallel with T032-T033.
- - **T039 (Validate Repro)** runs last, after T038 and T033.
-- All tests for a user story marked [P] can run in parallel.
-- Models within a story marked [P] can run in parallel.
-- Different user stories **cannot** be worked on in parallel if they have data dependencies (e.g., US3 cannot start before US2).
-- **T013 and T014** can run in parallel **after** T012 completes.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories.
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together (T007 first, then T005/T006).
-2. Once Foundational is done:
- - Developer A: User Story 1
-3. Once US1 completes:
- - Developer B: User Story 2
-4. Once US2 completes:
- - Developer C: User Story 3
-5. Stories complete and integrate independently.
-6. **Parallel Polish**: Once T025 (US2 end) is complete, Developer D can start T034a-1/T034a-2 (Docs) and T035 (Cleanup) immediately, while Developer C finishes T031-T033.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All model inference (CodeBERT) MUST use `onnxruntime` (CPU) only. No GPU, no 8-bit quantization requiring CUDA.
-- **CRITICAL**: All data must be real. No synthetic/fake datasets for input. Use live GitHub API.
-- **CRITICAL**: Statistical analysis uses Wilcoxon Signed-Rank tests for matched pairs as per FR-005, not LMM.
-- **CRITICAL**: Propensity matching MUST include block-level complexity (T014) and repo-level covariates (T011a) as per FR-008.
-- **CRITICAL**: Ground truth precision/recall calculation (FR-007) must occur in US1 phase (T017b), not deferred to US3.
-- **CRITICAL**: T017b and T018 depend on T017a. T020 depends on T016. T026 depends on T025 and T016.
-- **CRITICAL**: T012, T012b, T016, T021, T022, T023, T024, T025, T027, T028, T029, T030, T031, T032, T033 are now explicitly defined with output artifacts and schemas to ensure executability and constraint preservation.
-- **CRITICAL**: T034a-1 and T034a-2 are designed to run in parallel with the final stages of US3 (T031-T033) once core data generation (T025) is complete, resolving previous blocking concerns.
-- **CRITICAL**: T021 MUST strictly enforce the "Fixes #N" / "Closes #N" pattern and map to issues via commit diff file paths; any ambiguity must result in exclusion to prevent false positives in latency calculation.
-- **CRITICAL**: T012b MUST implement `git log --follow` to detect renames; if a block's path changes significantly (directory level), it must be excluded to ensure valid longitudinal tracking.
-- **CRITICAL**: T029b must block T030 and T032 if precision/recall threshold is not met.
-- **CRITICAL**: The Constitution is a ratified document; tasks must document justifications for deviations, not "amend" the Constitution.
+Checked tasks (T001, T002 and prior foundational work) are preserved. Rejected tasks were reopened and consolidated: T012/T012b → T003; T013 → T004; T015/T016 → T005; T017b → T006; T021–T024 → T007; T026–T028 → T008; T029/T029b/T031 → T009; T030 → T010; T027d/T028a/T032 → T011; T033–T039 → T012. Every acceptance criterion, artifact path, and verification step from the prior list is retained. All results must come from real GitHub data and real CodeBERT inference; loaders fail loudly on fetch failure.
