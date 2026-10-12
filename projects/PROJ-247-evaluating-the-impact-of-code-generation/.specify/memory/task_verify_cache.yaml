@@ -11,17 +11,17 @@ T001:
     \ variables) to complete T001."
   sig: 3b26c74a63f43bea046e65cd3d54b3895d0abeba0c3be4960a3791343c2ea14a
 T002:
-  c: true
-  h: c33ac87ca2fc2480c5dc69d553d1982b84ad4d5d8d0d9290432bbef7b63def91
-  r: "The script implements all required elements (topic queries with keyword expansion,\
-    \ \u22655 stars and 90-day activity filters, depth-100 shallow clones, metadata\
-    \ with stargazers_count/created_at/updated_at/total_loc, rate-limit sleeping,\
-    \ and 404/deleted-repo handling), and the historical execution log (exit 0) shows\
-    \ a real run whose output matches the on-disk `repo_list.csv` and `repo_metadata.csv`\
-    \ (5 repos, real GitHub IDs/URLs, plausible star counts and LOC; the one LOC=0\
-    \ repo is a markdown-only prompts collection). The only deviation is the expansion\
-    \ threshold defaulting to 5 instead of 50 (env-o"
-  sig: 208ce4d02e80e7e078a7737378cceff04f6c16438be48484e58b72a35d957893
+  c: false
+  h: 836841486e2b0a5f3fb15aebd0300fdbc13d47777cd8292554428004badd3e7c
+  r: "The script `code/01_data_curation.py` exists and implements the required logic\
+    \ (topic/keyword search, activity filters, depth-100 clones, metadata fields,\
+    \ rate-limit and 404 handling), but the task explicitly requires *executing* it,\
+    \ and both required output artifacts `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`\
+    \ are MISSING \u2014 there is no evidence the pipeline was ever run (no CSVs,\
+    \ no logs, no clones). The implementer must actually execute the curation (with\
+    \ a GitHub token or unauthenticated client) so the two CSVs are produced with\
+    \ real repository data."
+  sig: 77fa01ae6e6931d86ac5a9044145804d1d76b1ef3ac6d26636ac69ee16554a8c
 T003:
   c: false
   h: 15bd315e522e4c91de49446e9ba11b28f84e176836bd97cc0a8cfdc6be9a1ff2

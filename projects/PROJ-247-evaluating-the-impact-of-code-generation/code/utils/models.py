@@ -17,6 +17,10 @@ import onnxruntime as ort
 from transformers import AutoTokenizer
 from huggingface_hub import hf_hub_download
 
+class ClassifierError(Exception):
+    """Custom exception for errors occurring during classification."""
+    pass
+
 class CodeBERTClassifier:
     """
     Minimal binary classifier built on top of the CodeBERT base model
@@ -51,13 +55,16 @@ class CodeBERTClassifier:
         self.cache_dir = pathlib.Path(cache_dir) if cache_dir else None
 
         # Download the ONNX model – this will raise if the file cannot be fetched.
-        model_path = hf_hub_download(
-            repo_id=self._MODEL_REPO,
-            filename=self._MODEL_FILENAME,
-            cache_dir=self.cache_dir,
-            force_download=False,
-            resume_download=True,
-        )
+        try:
+            model_path = hf_hub_download(
+                repo_id=self._MODEL_REPO,
+                filename=self._MODEL_FILENAME,
+                cache_dir=self.cache_dir,
+                force_download=False,
+                resume_download=True,
+            )
+        except Exception as e:
+            raise ClassifierError(f"Failed to download ONNX model: {e}")
 
         if not pathlib.Path(model_path).exists():
             raise FileNotFoundError(

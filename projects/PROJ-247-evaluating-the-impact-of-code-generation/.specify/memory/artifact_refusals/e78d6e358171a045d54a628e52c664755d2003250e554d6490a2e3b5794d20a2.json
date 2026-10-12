@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "0ba3b33f32d49d3c4dad486a906a90c0e5119e0b11f55260ec5474d2c591d477",
+  "count": 1,
+  "model": "google.gemma-4-31B-it",
+  "reason": "[implementer] refusing to write 'code/utils/classifier.py': imports nonexistent names from sibling files: `from utils.models import ClassifierError` (available: AutoTokenizer, CodeBERTClassifier, annotations, hf_hub_download, np, ort, os, pathlib). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

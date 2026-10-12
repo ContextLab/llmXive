@@ -9,6 +9,14 @@ T001:
     \ variables) to complete T001."
   task: a876a79b1e7def0146374d046018b36b78aefd3d503f8aaffa3db11a4738d644
 T002:
+  reason: "The script `code/01_data_curation.py` exists and implements the required\
+    \ logic (topic/keyword search, activity filters, depth-100 clones, metadata fields,\
+    \ rate-limit and 404 handling), but the task explicitly requires *executing* it,\
+    \ and both required output artifacts `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`\
+    \ are MISSING \u2014 there is no evidence the pipeline was ever run (no CSVs,\
+    \ no logs, no clones). The implementer must actually execute the curation (with\
+    \ a GitHub token or unauthenticated client) so the two CSVs are produced with\
+    \ real repository data."
   task: cbc5911c83b824f1ab2876c5f2141ab580221569d3cf0ed4cca7259d012c5f1d
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/03_code_block_extraction.py

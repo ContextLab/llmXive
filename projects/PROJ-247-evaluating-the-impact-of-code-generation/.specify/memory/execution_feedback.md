@@ -8,18 +8,14 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/3d-page-scroll.md: self-declared fabricated metric — “…l content geometry; don't use arbitrary values that may overshoot the conte…”
-- data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/dynamic-content-sequencing.md: self-declared fabricated metric — “…gets more screen time without hardcoded numbers. metadata:   tags: timeline,…”
-- data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/svg-path-draw.md: self-declared fabricated metric — “…otalLength()` value**, not an arbitrary number — guessing means stroke will…”
-- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/ar/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
-- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/az/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
-- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/bg/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
-- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/bn/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
-- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/cs/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
+- code/02_classification.py: synthetic/fake INPUT data not authorized by the spec — “…oes **not** fall back to synthetic data.  If any required resour…”
+- scripts/run_classifier_evaluation.py: synthetic/fake INPUT data not authorized by the spec — “…_metrics.json) using the mock data defined in the task spec…”
+- scripts/run_classifier_evaluation.py: synthetic/fake INPUT data not authorized by the spec — “…ll pipeline by using the mock data that the unit tests rely…”
+- scripts/run_classifier_evaluation.py: synthetic/fake INPUT data not authorized by the spec — “…metrics, save_metrics  # Mock data matching the test file M…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 208 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/3d-page-scroll.md: self-declared fabricated metric — “…l content geometry; don't use arbitrary values that may overshoot the conte…”; data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/dynamic-content-sequencing.md: self-declared fabricated metric — “…gets more screen time without hardcoded numbers. metadata:   tags: timeline,…”; data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/svg-path-draw.md: self-declared fabricated metric — “…otalLength()` value**, not an arbitrary number — guessing means stroke will…”; 8 command(s) failed: python code/01_data_curation.py (rc=1); python code/02_classification.py (rc=1); python code/utils/matching.py (rc=1); 6 declared deliverable(s) absent: data/ground_truth/classifier_metrics.json; data/logs/repo_exclusions.csv; data/processed/matched_pairs.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/02_classification.py: synthetic/fake INPUT data not authorized by the spec — “…oes **not** fall back to synthetic data.  If any required resour…”; scripts/run_classifier_evaluation.py: synthetic/fake INPUT data not authorized by the spec — “…_metrics.json) using the mock data defined in the task spec…”; scripts/run_classifier_evaluation.py: synthetic/fake INPUT data not authorized by the spec — “…ll pipeline by using the mock data that the unit tests rely…”; 8 command(s) failed: python code/01_data_curation.py (rc=1); python code/02_classification.py (rc=1); python code/utils/matching.py (rc=1); 9 declared deliverable(s) absent: data/ground_truth/classifier_metrics.json; data/logs/repo_exclusions.csv; data/processed/matched_pairs.csv
 
 ## Failing / missing run-book commands
 
@@ -39,8 +35,8 @@ ModuleNotFoundError: No module named 'utils.models'
 
 - python code/utils/matching.py -> rc=1
 
-2026-10-12 22:34:20,772 - __main__ - INFO - Starting matching pipeline
-2026-10-12 22:34:20,792 - __main__ - ERROR - Matching pipeline failed: Missing required columns: ['repo_name', 'label', 'cyclomatic_complexity', 'loc']
+2026-10-12 23:11:46,381 - __main__ - INFO - Starting matching pipeline
+2026-10-12 23:11:46,381 - __main__ - ERROR - Matching pipeline failed: Metrics file not found: data/raw/code_blocks.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 334, in <module>
     main()
@@ -49,9 +45,9 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 248, in run_matching_pipeline
     df = load_block_metrics(input_csv)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 60, in load_block_metrics
-    raise MatchingError(f"Missing required columns: {missing_cols}")
-MatchingError: Missing required columns: ['repo_name', 'label', 'cyclomatic_complexity', 'loc']
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 50, in load_block_metrics
+    raise MatchingError(f"Metrics file not found: {csv_path}")
+MatchingError: Metrics file not found: data/raw/code_blocks.csv
 
 - python code/02_metric_extraction.py -> rc=1
 
@@ -113,7 +109,7 @@ ERROR tests/unit/test_repo_deletion_handling.py
 ERROR tests/unit/test_repo_filter.py
 ERROR tests/unit/test_repo_filtering.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 11 errors in 0.68s ==============================
+============================== 11 errors in 1.01s ==============================
 
 
 
@@ -125,6 +121,9 @@ ERROR tests/unit/test_repo_filtering.py
 - data/processed/matched_pairs_filtered.csv
 - data/processed/metrics_longitudinal.csv
 - data/processed/tagged_blocks.csv
+- data/raw/code_blocks.csv
+- data/raw/repo_list.csv
+- data/raw/repo_metadata.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -174,3 +173,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/02_classification.py` — IS a run-book command
     - `code/05_classifier_evaluation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/tagged_blocks.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/code_blocks.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_curation.py` — IS a run-book command
+    - `code/02_classification.py` — IS a run-book command
+    - `code/03_code_block_extraction.py` — NOT invoked by the run-book
+    - `code/utils/matching.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/code_blocks.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/repo_list.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_curation.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/repo_list.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/repo_metadata.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_curation.py` — IS a run-book command
+    - `code/utils/matching.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/repo_metadata.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
