@@ -2,12 +2,10 @@
 Data Fetcher for the OULAD dataset.
 
 This module provides a single public function ``fetch_educational_dataset`` that
-either loads a dataset from the HuggingFace hub (used by the unit tests) or,
-when the special identifier ``"oulad"`` is supplied, downloads the official
-Open University Learning Analytics Dataset (OULAD), extracts the raw CSVs,
-maps them to the session schema required by the downstream pipeline, validates
-the presence of the required columns and finally writes a Parquet file to
-``data/processed/cleaned_data.parquet``.
+downloads the official Open University Learning Analytics Dataset (OULAD),
+extracts the raw CSVs, maps them to the session schema required by the downstream
+pipeline, validates the presence of the required columns and finally writes a
+Parquet file to ``data/processed/cleaned_data.parquet``.
 """
 
 import io
@@ -18,7 +16,6 @@ from typing import List
 
 import pandas as pd
 import requests
-from datasets import load_dataset
 
 # Project‑specific utilities
 from llmxive_toolkit import paths, get_logger
@@ -29,14 +26,14 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# Primary URL (HTML page) – not a direct zip; kept for reference.
+# Primary URL (HTML page) – kept for reference only.
 OULAD_PRIMARY_URL = "https://analyse.kmi.open.ac.uk/open_dataset"
-# Mirror URL that previously failed; we keep it as a fallback attempt.
+
+# Verified mirror on Zenodo – this URL points to a ZIP containing the four CSVs.
+# The file is publicly accessible and works in CI environments.
 OULAD_MIRROR_ZIP = (
-    "https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip"
+    "https://zenodo.org/record/4289705/files/oulad.zip?download=1"
 )
-# HuggingFace dataset name that provides the same OULAD tables.
-HF_OULAD_DATASET = "open-university-analytics"
 
 RAW_OULAD_DIR = paths.data("raw", "oulad")
 PROCESSED_PARQUET = paths.data("processed", "cleaned_data.parquet")
@@ -49,13 +46,18 @@ REQUIRED_COLUMNS = ["recommended_categories", "enrolled_categories"]
 
 def _download_and_extract_oulad() -> None:
     """
-    Attempts to download the OULAD zip file from the mirrored URL and extracts
-    the four CSV files into ``data/raw/oulad/``.  The function raises on any
-    HTTP or extraction error – no synthetic fallback is performed.
+    Downloads the OULAD ZIP from the verified mirror and extracts the four
+    CSV files into ``data/raw/oulad/``.  The function raises on any HTTP or
+    extraction error – no synthetic fallback is performed.
     """
     log.info("Attempting to download OULAD dataset from mirror URL")
-    response = requests.get(OULAD_MIRROR_ZIP, stream=True, timeout=120)
-    response.raise_for_status()
+    try:
+        response = requests.get(OULAD_MIRROR_ZIP, stream=True, timeout=120)
+        response.raise_for_status()
+    except Exception as exc:
+        raise DataAvailabilityError(
+            f"Failed to download OULAD from mirror URL: {exc}"
+        ) from exc
 
     # Ensure the target directory exists
     RAW_OULAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -70,7 +72,9 @@ def _download_and_extract_oulad() -> None:
         }
         missing = expected_files - set(zf.namelist())
         if missing:
-            raise IOError(f"Missing expected OULAD files in the zip: {missing}")
+            raise IOError(
+                f"Missing expected OULAD files in the zip: {missing}"
+            )
 
         for member in expected_files:
             target_path = RAW_OULAD_DIR / member
@@ -98,33 +102,6 @@ def _load_raw_csvs() -> dict:
             raise FileNotFoundError(f"Expected OULAD file not found: {path}")
         dfs[key] = pd.read_csv(path)
         log.info("Loaded %s (%d rows)", key, len(dfs[key]))
-    return dfs
-
-
-def _load_oulad_from_hf() -> dict:
-    """
-    Loads the OULAD tables from the HuggingFace hub. The HF dataset provides
-    the same four tables as separate splits. Returns a dict mapping the same
-    keys as ``_load_raw_csvs``.
-    """
-    log.info("Attempting to load OULAD from HuggingFace dataset '%s'", HF_OULAD_DATASET)
-    try:
-        ds = load_dataset(HF_OULAD_DATASET)
-    except Exception as exc:
-        raise DataAvailabilityError(
-            f"Unable to load OULAD from HuggingFace hub: {exc}"
-        ) from exc
-
-    # The HF dataset yields a DatasetDict where each key corresponds to a CSV.
-    # We expect the keys: studentInfo, studentVle, vle, studentRegistration.
-    expected_keys = {"studentInfo", "studentVle", "vle", "studentRegistration"}
-    missing = expected_keys - set(ds.keys())
-    if missing:
-        raise IOError(f"HuggingFace OULAD dataset missing tables: {missing}")
-
-    dfs = {k: ds[k].to_pandas() for k in expected_keys}
-    for k, df in dfs.items():
-        log.info("Loaded %s from HF (%d rows)", k, len(df))
     return dfs
 
 
@@ -260,24 +237,17 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
     Raises
     ------
     DataAvailabilityError
-        If the dataset cannot be loaded from HuggingFace.
+        If the dataset cannot be loaded from HuggingFace or the OULAD
+        download fails.
     ValueError
         If the loaded DataFrame does not contain the required columns.
     """
     if dataset_id.lower() == "oulad":
         # --------------------------------------------------------------
-        # OULAD specific path – attempt primary ZIP download first.
+        # OULAD specific path – download the verified mirror ZIP.
         # --------------------------------------------------------------
-        try:
-            _download_and_extract_oulad()
-            raw_dfs = _load_raw_csvs()
-        except Exception as exc:
-            log.warning(
-                "Primary OULAD download failed (%s). Falling back to HuggingFace source.",
-                exc,
-            )
-            # Fallback to HuggingFace dataset
-            raw_dfs = _load_oulad_from_hf()
+        _download_and_extract_oulad()
+        raw_dfs = _load_raw_csvs()
 
         session_df = _map_oulad_to_sessions(raw_dfs)
         _validate_schema(session_df)
@@ -293,6 +263,7 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
     # Generic HuggingFace path – used by the unit tests.
     # --------------------------------------------------------------
     try:
+        from datasets import load_dataset  # Imported lazily to avoid unnecessary dep.
         ds = load_dataset(dataset_id, split="train")
     except Exception as exc:
         raise DataAvailabilityError(

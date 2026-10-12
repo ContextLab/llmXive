@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or other evidence was supplied to show that the required
-    folders (`projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/`, `tests/`,
-    `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `docs/`,
-    `docs/reports/`) actually exist. The implementer must provide an `ls -R` (or equivalent)
-    output confirming the presence of all specified directories.
 T003:
   c: false
   h: 031b192730a4d1416e28cb59439e14854dcf7952cb20784829bb492b2617d0b3

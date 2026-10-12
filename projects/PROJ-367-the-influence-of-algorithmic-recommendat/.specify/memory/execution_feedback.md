@@ -34,22 +34,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_fetcher.py -> rc=1
-t on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'open-university-analytics' doesn't exist on the Hub or cannot be accessed.
+ne 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/4289705/files/oulad.zip
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 332, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 303, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 323, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 294, in main
     fetch_educational_dataset("oulad")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 280, in fetch_educational_dataset
-    raw_dfs = _load_oulad_from_hf()
-              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 114, in _load_oulad_from_hf
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 249, in fetch_educational_dataset
+    _download_and_extract_oulad()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 58, in _download_and_extract_oulad
     raise DataAvailabilityError(
-ingestion.DataAvailabilityError: Unable to load OULAD from HuggingFace hub: Dataset 'open-university-analytics' doesn't exist on the Hub or cannot be accessed.
+ingestion.DataAvailabilityError: Failed to download OULAD from mirror URL: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/4289705/files/oulad.zip
 
 - python code/preprocessing.py -> rc=2
 
@@ -90,7 +90,7 @@ ERROR tests/unit/test_data_generation.py
 ERROR tests/unit/test_merger.py
 ERROR tests/unit/test_sensitivity.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 1.79s ===============================
+============================== 4 errors in 1.87s ===============================
 
 
 - python -m pytest tests/integration/ -v -> rc=2
