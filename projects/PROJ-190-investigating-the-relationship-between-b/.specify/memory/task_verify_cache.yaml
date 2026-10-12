@@ -1,3 +1,48 @@
+T001b:
+  c: false
+  h: c42ea64e44cdf0ea2af7a982f7afab4fdf279fe767a95031d93ec408c886cf27
+  r: "Checked `projects/PROJ-190-investigating-the-relationship-between-b/requirements.txt`:\
+    \ the file exists but lists version constraints with `>=` (e.g., `numpy>=1.24.0`)\
+    \ instead of pinned exact versions (`==`), and therefore does not satisfy the\
+    \ task\u2019s requirement for pinned versions of the specified packages."
+  sig: 4b360265ae8eb8ce84b1b1e0ba2446dbf1524398e03e62db1fc252927ca4a0e5
+T001c:
+  c: true
+  h: e8b71d3cd44bc24e40c11d62dbe59fb0642f2ba881a02a721e5c6a381e9c3d54
+  r: "Checked the `README.md` file (2053\u202Fbytes) at `projects/PROJ-190-investigating-the-relationship-between-b/README.md`;\
+    \ it contains a project overview and a Quickstart section with installation and\
+    \ usage instructions, fulfilling the task\u2019s requirement."
+  sig: 4d7b71ace2ecc1689a994095ecf74892150d6cda09b8595eab5208c249702522
+T002b:
+  c: false
+  h: 1f4de8accb8fd1217545c7f6a299840da16197c1b406374ed71c3c0427550ae2
+  r: "Checked the repository for any evidence of a Python\u202F3.11 virtual environment\
+    \ (e.g., a `venv/` directory, `pyproject.toml`, `requirements.txt`, or activation\
+    \ scripts) and found none; the collector only listed the project root without\
+    \ any concrete artifact confirming that a virtual environment was created. The\
+    \ required artifact for task T002b is missing."
+  sig: 3ac96b038240c70f3e64d3b9b0126a9854fc9f9495e16c96d84fe6d8d3621afb
+T002c:
+  c: true
+  h: 442d964c8d3fd5bf6a59885b33ce751cd53a4dcfa4210e5cebfe8a669a327781
+  r: "Checked the `requirements.txt` file (resolved at `projects/PROJ-190-investigating-the-relationship-between-b/requirements.txt`),\
+    \ which exists, is non\u2011empty (286\u202Fbytes), and lists concrete package\
+    \ specifications suitable for installing the project\u2019s dependencies."
+  sig: 50bccd29927c0e4a4b59e5a572852c13d699166515a124e25b7b2fd61a9adfcd
+T003:
+  c: false
+  h: d3c28b4975a446c5c073a5098ebf8ed90079dd580013a44321abb4eb0cb0b91e
+  r: "The evidence contains no linting or formatting configuration files (e.g.,\u202F\
+    ruff, flake8, black settings, pre\u2011commit hooks) or any documentation that\
+    \ they have been set up; thus the required artifacts for task\u202FT003 are missing."
+  sig: bdd813e7dac1a6e4a65bc4d1357b613b1fe9f581fb150299aa4a333f1db834c2
+T004:
+  c: true
+  h: 794b81592f2c9bae228f5f9f7defd4446479eddbff6beb06119cf517fa673297
+  r: "Checked the `code/config.py` file (3113\u202Fbytes) which defines project root,\
+    \ data paths, a random seed, and multiple analysis thresholds, plus helper functions,\
+    \ fulfilling the single\u2011source\u2011of\u2011truth requirement."
+  sig: 294847bec1aab2b155eecd3f9886fb712f74652c9f01b6e35768e51c66a69540
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,0 +1,102 @@
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 1a6e8e3f64d413e536390b14876e9394cd99879977e20966370e4e904fc3d968
+T001b:
+  reason: "Checked `projects/PROJ-190-investigating-the-relationship-between-b/requirements.txt`:\
+    \ the file exists but lists version constraints with `>=` (e.g., `numpy>=1.24.0`)\
+    \ instead of pinned exact versions (`==`), and therefore does not satisfy the\
+    \ task\u2019s requirement for pinned versions of the specified packages."
+  task: 9fe04f3ca6b5f99d06e08d78af181813670ba35cd86219265c269e45081f98d4
+T001c:
+  task: 729d8884f7b96899adac1f4aeffecc5c106d22c2962f7cdfaf6319cab85532c6
+T002b:
+  reason: "Checked the repository for any evidence of a Python\u202F3.11 virtual environment\
+    \ (e.g., a `venv/` directory, `pyproject.toml`, `requirements.txt`, or activation\
+    \ scripts) and found none; the collector only listed the project root without\
+    \ any concrete artifact confirming that a virtual environment was created. The\
+    \ required artifact for task T002b is missing."
+  task: 86deb12dcf52d93fd176537d7469105f6d561ef4949ff689b64fe5c729df6d06
+T002c:
+  task: 437475a08f81d2d722daf49dd1d4be83f20d40d3a10130d6813fee457b7cb06a
+T003:
+  reason: "The evidence contains no linting or formatting configuration files (e.g.,\u202F\
+    ruff, flake8, black settings, pre\u2011commit hooks) or any documentation that\
+    \ they have been set up; thus the required artifacts for task\u202FT003 are missing."
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  task: 63acd698f6c5aaa2e453cbe580c061de1fa9691e9454fecaaa157c24c8e450d7
+T005:
+  task: b7bf3ee96e499eb136b23d9389d734fa28e8bad84f8517f827dbddb1ee4dcea1
+T006:
+  task: 3b06341c938aefdb6210c8ce50987b50e1ec86e9a88e9b15891a3b59b4691d9f
+T007:
+  task: 6de0ddb31d95884874f3d1f9179887f5834e5e447c9e28c29220cf8956f65f36
+T008:
+  task: 52deb72d5dcc2fe99c0467d94d63f63faf5fab8236a1d94043f7ca3cfa587505
+T009:
+  task: fdd6a11f1bbbf0e2a40db4e73ed587d9ada7318e5616598b0b632c978e591d64
+T010:
+  task: 03775bbafdf3b2009d748650b92495b98877dcbaf86e0320a1ef775501e34317
+T011:
+  task: 1089239785d46c5689f25ac3208cdb90a6eb1f385e0b38189505db6cc51457ea
+T012:
+  task: a4bc2d8c835e3a709745c7e5c13514443e124330c6581f36c7d980befc08135a
+T013:
+  task: 653f12cc4b4d7a3359f7755d3e3d4d6039cd4747119e381ee5d8f3c33bdbfda9
+T014a:
+  task: f639769dc6fb48258d0b7752f1c2fd874fd5cc79ec3d3b427ca07b80761df3fd
+T014b:
+  reason: 'Requested task execution failed; rerun successfully: code/data/verify_quality_run.py
+    exit=1'
+  task: 15ef8eadf27ef46d2662dbbf0c2dc49064b2d98e81bc0e3a2fa78925e09fa144
+T015:
+  task: bf4608cc51f5346d8a6823f03f45b9c1cd3b46f57456c171a19fed216f36912f
+T016:
+  task: 8de32dadf55d4b1d69ba20b470b658f52de0718248553a3b624598507f54368b
+T017:
+  task: ce3ff9000c2695c2fb104a5e4c0080f369c94d7dbac8a824e6cc8d680804e44a
+T018:
+  task: 93983ec84ea02c42013e356944580a78ef7f3507b62468e91bf8b9b637e09aa2
+T019:
+  task: 7db4522c685621b8795b09281d1ce3f30620b2425a6fecfd146410adb6b19e0d
+T020:
+  task: dbd1b99e5515b12e91f2ec792792f9ee4aa04af7b3154c3f8414e734bce2ecf1
+T021:
+  task: 840d739e869f5f027a4d4efc2582345d139f1e299ac8272b905187fee8d0b2db
+T022:
+  task: 8df7d032cec42331c14838662decd8a8232ce472000c3cfcc13653d176d48658
+T023:
+  task: ebe0caae135126a72239249a7e8da0bcfffc19d57090b665d8d3f8de45d5b190
+T024:
+  task: f92dc84058eb071fdc7a5a766e631cbfc6dc85af843aaad8101311dcae0c5bd5
+T025:
+  task: a23cac2c3db67f520d3dfbd29ecc6a4521044d48d0963fc9d2c0d0f0725e7a3a
+T026:
+  task: b5f55376766c0c396fecc536125c272c5f83e1d8a2c4f53f1dba845cda330fe4
+T027:
+  task: 1a522221e2e3e6d66454de99a01c0ad217c49b7f13015408631d2a29b49208ce
+T028:
+  task: 197324eeeea4b1fe2edcb0413f78b9f8cb5e276f72c7a66fb38be1cf8d895267
+T029:
+  task: a0daaa8f6eca9a85c49629471278694f49f4551bb2fbce564432736433f82959
+T030:
+  task: 1fb4fb8dacabcbf922f0bbb0d788d52ab8780715c67d894afd414ad9bebe0819
+T031:
+  task: 0b7d4a850a1a6c32b8d878a7156d13aaca4e4d88812889853fb0b589fc2ecc35
+T032:
+  task: 0e8dcdec8af07f1a9a583e4377d4fd6e73c2989a53f8e84f3644895a607c3117
+T033:
+  task: 59db3fd9ccae9129517884d32124d09ecf82139a0ccc3c62a22615889dde298c
+T034:
+  task: 9ddd847220785135dba39c2f7bb911e2cedaa3735b5e6a23f3538346f013c4b2
+T035:
+  task: 78ecb8e4a44189e4245ebca7264f6bed526ae42642e8093aeb44500062d1c5a7
+T036:
+  task: 88633dd857a49a8b93c8c6a6e53d0347cbc803e1818fa2c6e6ebebdf86250a30
+T037:
+  task: 2011cdf85fe1dc3f095cc9b6f41e7b14cf963e530067fe3cdd0955c601d5d161
+T038:
+  task: 28591871d9bc4240a519c2fb01f59571339ad036b0411ef4518ce902194be9a0
