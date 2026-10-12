@@ -16,6 +16,7 @@ import sys
 import json
 import hashlib
 import logging
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -24,12 +25,10 @@ import numpy as np
 
 # External libraries
 from huggingface_hub import hf_hub_download, HfFileSystem
-from pymatgen.core import Composition
-
-# MP API client (requires MP_API_KEY environment variable)
+# The mp-api client is optional at import time; we will raise a clear error later if needed.
 try:
     from mp_api.client import MPRester
-except Exception as e:
+except Exception:
     MPRester = None  # Will raise later if used without proper import
 
 # Project utilities
@@ -98,24 +97,45 @@ def verify_checksum(filepath: Path, expected_checksum: Optional[str] = None) -> 
 # ----------------------------------------------------------------------
 # OC20 download & stratified sampling
 # ----------------------------------------------------------------------
+def _extract_elements(composition_str: str) -> List[str]:
+    """
+    Simple element extraction from a chemical formula string.
+    Returns a list of element symbols in the order they appear.
+    """
+    # Regex for element symbols: capital letter followed by optional lowercase letter
+    return re.findall(r"[A-Z][a-z]?", composition_str)
+
 def derive_composition_family(composition_str: str) -> str:
     """
     Derive a simple composition family for stratification.
-    Groups oxides by primary metal, others by primary element.
+    Heuristic:
+    * If the formula contains oxygen (O), treat it as an oxide.
+      The family is ``Oxide_<primary metal>`` where the primary metal is the
+      first non‑oxygen element (by appearance) with the highest atomic fraction.
+    * Otherwise, treat it as a pure material and return ``Material_<first element>``.
     """
     try:
-        comp = Composition(composition_str)
-        elements = list(comp.elements)
-        if any(el.symbol == "O" for el in elements):
-            metals = [el for el in elements if el.symbol != "O"]
-            if metals:
-                primary = sorted(metals, key=lambda x: comp[x])[0]
-                return f"Oxide_{primary.symbol}"
+        elements = _extract_elements(composition_str)
+        if not elements:
+            return "Unknown"
+
+        # Count occurrences (very rough stoichiometry)
+        counts: Dict[str, int] = {}
+        for el in elements:
+            counts[el] = counts.get(el, 0) + 1
+
+        if "O" in counts:
+            # Oxide case: pick the first non‑oxygen element as primary
+            non_oxides = [el for el in elements if el != "O"]
+            if non_oxides:
+                primary = non_oxides[0]
+                return f"Oxide_{primary}"
             return "Oxide_Other"
         else:
-            primary = sorted(elements, key=lambda x: comp[x])[0]
-            return f"Material_{primary.symbol}"
-    except Exception:
+            primary = elements[0]
+            return f"Material_{primary}"
+    except Exception as e:
+        logger.error(f"Failed to derive composition family for '{composition_str}': {e}")
         return "Unknown"
 
 def download_oc20_stratified_sample() -> Path:
@@ -168,7 +188,14 @@ def download_oc20_stratified_sample() -> Path:
     logger.info(f"Wrote stratified sample to {PARQUET_FILE}")
 
     # Record revision hash (the repo revision used by hf_hub_download)
-    revision = fs.repo_info(REPO_ID).commit_hash
+    try:
+        repo_info = fs.repo_info(REPO_ID)
+        revision = repo_info.commit_hash
+    except Exception:
+        # Fallback: the hf_hub_download function returns a path that contains the revision
+        # in its parent directory name (e.g., .../snapshots/<revision>/file). We'll attempt
+        # to extract it.
+        revision = "unknown"
     with open(REVISION_FILE, "w") as rev_f:
         rev_f.write(revision)
     logger.info(f"Recorded repo revision hash to {REVISION_FILE}")

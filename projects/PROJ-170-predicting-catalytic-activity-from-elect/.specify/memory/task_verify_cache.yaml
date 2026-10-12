@@ -1,15 +1,14 @@
-T102:
+T101:
   c: false
-  h: b7c7499dd168f82508a4256343673a311caeeb11508cf2815253c6be54bd8d27
-  r: "The repository contains `code/download_data.py`, but it only downloads an OC20\
-    \ streaming dataset to an HDF5 file (`oc20_sample.h5`), does not produce the required\
-    \ `data/raw/oc20_sample.parquet`, and lacks any logic for fetching Materials Project\
-    \ descriptors or the 2025 CO\u2082 hydrogenation study CSV. Moreover, the three\
-    \ required data files (`data/raw/oc20_sample.parquet`, `data/raw/mp_descriptors.json`,\
-    \ `data/raw/experimental_tof.csv`) and the integration test `tests/integration/test_download.py`\
-    \ are all missing. The script also does not record the HF dataset revision hash\
-    \ or enforce failure\u2011on\u2011f"
-  sig: 5d444eb30d8e33d7c993a4dafc042ee4c403ba2811219abc7d04e337f830acb3
+  h: aaea88706444a5ce444165279b8ae5749ed675078fbb9ab6aea736c6d7e66665
+  r: "The task requires creating `data/raw/` and `data/processed/`, but the collector\
+    \ reports both as MISSING at the project root (only `outputs/`, `code/`, `tests/`\
+    \ exist), so `tests/integration/test_skeleton.py::test_dirs_exist` would fail\
+    \ on those two directories. The `__init__.py` files, `.ruff.toml` with E/F/W/I\
+    \ rules, and the ruff run log are fine, but the directory skeleton is incomplete\
+    \ \u2014 create `data/raw/` and `data/processed/` (e.g., via `llmxive_toolkit.paths`)\
+    \ and re-run the skeleton test."
+  sig: ad71b22bb444fdebab0f833c63620fea1dfb8f1fb56d70bb2cfab7162847b9cb
 T103:
   c: false
   h: c5448939674c7d76a35b9c426e26d085f4d5165a5c5d568703bd193144dded17
