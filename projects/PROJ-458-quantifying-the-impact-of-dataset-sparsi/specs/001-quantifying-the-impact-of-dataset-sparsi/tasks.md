@@ -12,7 +12,7 @@ All tasks follow the canonical checklist format `- [ ] T### [P?] [USx?] descript
 - [X] T001 **[FR-001]** Establish project layout (`code/`, `data/raw`, `data/processed`, `data/results`, `data/metadata`, `tests/unit`, `tests/integration`, `docs`).  
   **Verification**: `project_structure.txt` lists all created directories.
 
-- [ ] T002 **[FR-001]** Pin reproducible dependencies in `code/requirements.txt` (e.g., `pymatgen==2024.2.21`, `matminer==0.9.2`, `scikit‑learn==1.3.0`, `gpytorch==2.0.1`, …).  
+- [X] T002 **[FR-001]** Pin reproducible dependencies in `code/requirements.txt` (e.g., `pymatgen==2024.2.21`, `matminer==0.9.2`, `scikit‑learn==1.3.0`, `gpytorch==2.0.1`, …).  
   **Verification**: `pip install -r code/requirements.txt` succeeds without version conflicts.
 
 - [ ] T003 **[FR-001]** Add pre‑commit configuration (`code/.pre‑commit-config.yaml`) with `ruff` and `black`.  
