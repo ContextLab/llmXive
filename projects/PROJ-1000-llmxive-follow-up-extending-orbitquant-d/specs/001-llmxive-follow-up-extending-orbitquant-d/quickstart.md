@@ -1,56 +1,71 @@
 # Quickstart: llmXive follow-up: extending "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T"
 
 ## Prerequisites
+- Python 3.11 or newer  
+- Git  
+- (Optional) Kaggle API token for GPU off‑load (`kaggle.json` placed in `~/.kaggle/`)
 
-- Python 3.11+
-- `git`
-- (Optional) Kaggle API credentials for GPU offloading (configured in environment).
+## Setup
 
-## Installation
+```bash
+# 1. Clone the repo and checkout the feature branch
+git clone <repo-url>
+cd projects/PROJ-1000-llmxive-followup-extending-orbitquant-d
+git checkout 001-llmxive-followup
 
-1.  **Clone and Setup**:
-    ```bash
-    git checkout 001-llmxive-followup
-    cd projects/PROJ-1000-llmxive-followup-extending-orbitquant-d
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+# 2. Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-2.  **Initialize Project**:
-    Run the initialization script to create the directory skeleton:
-    ```bash
-    python code/main.py --phase init
-    ```
+# 3. Install dependencies
+pip install -r requirements.txt
+```
 
-3.  **Download Data**:
-    Run the download script to fetch MS-COCO (including captions):
-    ```bash
-    python code/data/download_coco.py
-    ```
-    *Note: This will verify checksums and store data in `data/raw/`.*
+## Initialize Data (writes only under `data/`)
 
-4.  **Run Analysis Pipeline**:
-    Execute the full pipeline (Correlation -> Clustering -> Evaluation):
-    ```bash
-    python code/main.py --phase validate
-    ```
-    *Note: The `validate` phase checks the clustering report. Individual analysis scripts should be run according to the tasks.md sequence.*
+```bash
+# Download MS‑COCO parquet files and verify checksums
+python code/data/download_coco.py
+# Extract captions to a CSV of prompts
+python code/data/preprocess.py
+```
 
-5.  **View Results**:
-    - Correlation plots: `data/processed/correlation_plots/`
-    - Clustering Report: `data/processed/clustering_report.json` (Required for Phase 2)
-    - Rotation matrices: `data/processed/rotation_matrices/`
-    - Final metrics: `data/processed/results.csv`
+## Run the Full Research Pipeline
+
+```bash
+# Phase 0: Correlation study (CPU)
+python code/main.py --phase correlation
+
+# Phase 1: Generate rotation matrices (CPU)
+python code/main.py --phase clustering
+
+# Phase 2: Build router (CPU)
+python code/main.py --phase router
+
+# Phase 3: Evaluation (CPU for metrics, GPU escape for generation)
+python code/main.py --phase evaluation
+```
+
+Each phase creates deterministic output files under `data/processed/` and plots under `figures/`. Logs are written to `data/processed/logs/`. The pipeline will automatically off‑load the generation steps to a Kaggle GPU if the selected DiT model cannot fit on the CI runner.
+
+## Inspect Results
+
+- Correlation plot: `figures/correlation_scatter.png`  
+- Clustering report: `data/processed/clustering_report.json`  
+- Rotation matrices: `data/processed/rotation_matrices/matrix_{i}.npy` and `metadata_{i}.json`  
+- Evaluation table: `data/processed/results.csv`  
 
 ## Testing
 
-Run unit tests:
 ```bash
+# Unit tests (router logic, entropy calculation)
 pytest tests/unit/
-```
 
-Run integration tests (requires data download):
-```bash
+# Integration test (end‑to‑end on a tiny subset of prompts)
 pytest tests/integration/
 ```
+
+All test artifacts are written to `data/processed/` or `figures/`; no `state/` directory is touched.
+
+---
+

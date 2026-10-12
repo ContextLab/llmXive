@@ -1,9 +1,10 @@
 status: none
-intent: download MS COCO 2017 validation set with captions via python package dataset
+intent: coco 2017 validation set download python package dataset
 required_fields:
+- prompt_text
 - image_id
-- file_name
-- caption
-cache_key: c53cbb653129d6fcd893d624064c5110b4b0b634f28f541151ef9febe5c3236f
-searched_at: '2026-10-12T11:21:17.085408+00:00'
+- semantic_entropy
+- activation_variance_by_layer
+cache_key: 6b7e4a0de014a386546556b9b1b94eee0250f1337171ef8df4885dd03978efbe
+searched_at: '2026-10-12T11:28:28.279010+00:00'
 retry_count: 1

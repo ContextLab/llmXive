@@ -16,7 +16,7 @@
 **Independent Test**: Can be fully tested by running the correlation analysis pipeline on the MS-COCO validation set with a curated set of prompts, outputting a correlation coefficient and p-value., without implementing any rotation selection logic. Execution requires either a GPU-enabled environment for float32 forward passes on large models (FLUX.1-dev, Wan 2.1) or a fallback to a CPU-feasible DiT variant (e.g., Stable Diffusion 2.1) if GPU is unavailable.
 
 **Acceptance Scenarios**:
-1. **Given** a dataset of 200 diverse text prompts and the MS-COCO 2017 validation set (500 images) with a pre-trained DiT model (FLUX.1-dev, Wan 2.1, or Stable Diffusion 2.1), **When** the system computes semantic entropy for each prompt and records the variance of intermediate activation layers during a float32 forward pass, **Then** the system outputs a Pearson correlation coefficient and a p-value indicating the statistical significance of the relationship.
+1. **Given** a dataset of numerous diverse text prompts and the MS‑COCO validation set with a pre-trained DiT model (FLUX.1-dev, Wan 2.1, or Stable Diffusion 2.1), **When** the system computes semantic entropy for each prompt and records the variance of intermediate activation layers during a float32 forward pass, **Then** the system outputs a Pearson correlation coefficient and a p-value indicating the statistical significance of the relationship.
 2. **Given** the computed correlation data, **When** the researcher visualizes the relationship (e.g., scatter plot of entropy vs. variance), **Then** the plot clearly shows the distribution of points and allows for visual inspection of the trend.
 
 ### User Story 2 - Implement Dynamic Rotation Router based on Entropy (Priority: P2)
