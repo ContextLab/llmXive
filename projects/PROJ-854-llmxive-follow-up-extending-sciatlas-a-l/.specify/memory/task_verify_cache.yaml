@@ -1,10 +1,13 @@
 T001:
   c: false
-  h: ef533a786b2e1830c8b9b71ce8bcaebdd62cb6b497a590b2d61f47fbf6b25d5d
-  r: The `src/models` and `tests/unit` directories exist, but the required `data/processed`
-    (and its parent `data/`) directory is missing, so the project skeleton is not
-    fully created as specified.
-  sig: 3b66288546c050f7ae8d80d02cc2211ecac0ebe96f4ba5102fed508d0c70185c
+  h: acab69b63676372c84fc8d5615337e4cc380b376b2c1103f6e31598f6d71b282
+  r: The task's verification requires `data/processed` to exist, but the collector
+    reports `data/` as MISSING at the confirmed project root (while `src/` and `tests/`
+    do exist there). The historical log shows directories created only under a `code/`
+    subdirectory, so the data (and likely artifacts) directories are not present at
+    the expected project-root location; the implementer should create `data/{raw,processed}`
+    and `artifacts/{results,plots}` at the project root (or reconcile the path layout).
+  sig: d64c29838388d0cd3d712d72d3e85b363922578f0ee325c8eeda7182d975dc4b
 T002:
   c: true
   h: a098b291b8a9b237a9bd5394cbcbcc114d5b5fcf633d9708696caba7cd472ab8
