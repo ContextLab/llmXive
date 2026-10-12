@@ -1,3 +1,48 @@
+T000a:
+  c: false
+  h: 1fe43ce610122ded3de6e180b0e6d1d5a952e6bde9f253bf80f2c1c262e55e86
+  r: "The required log file `data/research/data_availability_log.txt` is missing,\
+    \ so there is no evidence that the dataset was verified or that the required subject\
+    \ count and session criteria were checked. The task\u2019s core deliverable is\
+    \ absent."
+  sig: 9d926c143ca03061d9b1da9dd9fda317f14d6847c03636f5d5b64fb269b84e14
+T000b:
+  c: false
+  h: d589e7041adb187686f3574cbdeb5df5488f0f4091033a1a5a89f3fe713ed4b3
+  r: "The required log file `data/research/coordinate_alignment_log.txt` does not\
+    \ exist in the project, so the verification and any planned resampling strategy\
+    \ have not been recorded as specified. The task\u2019s core deliverable is missing."
+  sig: 5ff613eb79d7bbe951e8b8569532c295dcdff8b7e93c98680344d916d27131fb
+T001b:
+  c: false
+  h: ef7078dafa492a42d6c6780a37d1d856ecb1208e40b4602310b52faef6a46967
+  r: Checked the project root for a `.gitignore` file; the artifact list shows only
+    data directories and contract JSON files, with no `.gitignore` present. The required
+    ignore patterns are therefore missing.
+  sig: 603cd3a37d56f51d2f385102825811d5f653e6309ed3e19f2a8d6804b4beb089
+T001c:
+  c: false
+  h: 4c690172f1a334d1e79c83be9045552acb64690eebb35d3a5263122fda91173b
+  r: The `README.md` file exists and has the correct title, but the Installation and
+    Usage sections contain actual content (bullet points and placeholder steps) rather
+    than being empty as the task requires. The sections need to be stripped to just
+    headings (or placeholder comments) with no added items.
+  sig: dde882b92795cded4b8edb0cbffa03fa8ffd61533732683e1a372a39a9c95ff0
+T002:
+  c: true
+  h: bb986fc78296199126e950cf5c7bfab04e2d9be4407f8034081c2d78f9163741
+  r: "Checked the `requirements.txt` file (197\u202Fbytes) at the project root; it\
+    \ contains all nine required packages (numpy, pandas, scikit-learn, nibabel, scipy,\
+    \ matplotlib, requests, tqdm, bids) and thus fulfills the task\u2019s specification."
+  sig: ff5fafd83f3feb592e33c5976f643190fed875a0e851d113770afad095d97042
+T003:
+  c: true
+  h: 67a3406d73ccad430ee7dfed17d2624d38aa01eb2d3746b3f11684da13d2f603
+  r: "Checked the `setup.cfg` (contains a full `[flake8]` configuration) and the `pyproject.toml`\
+    \ (contains a `[tool.black]` section with line length, target version, include/exclude\
+    \ patterns). Both files exist, are non\u2011empty, and provide the required linting\
+    \ and formatting settings."
+  sig: dd53476c5bccdeb75b8497f1286c6b9435118e24c2db50d7da2ce9223959eb8b
 T016d:
   c: false
   h: 3f23bb4fde000063a3b08b97a0d76fcbf6668a97cfc1b3d4807dbaf9f927dfeb
