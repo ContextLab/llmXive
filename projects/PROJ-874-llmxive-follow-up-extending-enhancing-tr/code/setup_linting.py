@@ -1,63 +1,94 @@
-import os
-import subprocess
+"""
+setup_linting.py
+-----------------
+Script to configure project-wide linting (ruff, flake8) and formatting (black)
+tools. When executed, it creates the necessary configuration files at the
+repository root:
+  - pyproject.toml   (black configuration)
+  - .ruff.toml       (ruff configuration)
+  - .flake8          (flake8 configuration)
+The script is idempotent: existing files will be overwritten with the
+canonical configuration required by the project.
+"""
+
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> None:
-    """Execute a command and raise an error if it fails."""
-    print(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, check=True)
-    if result.returncode != 0:
-        raise RuntimeError(f"Command failed with code {result.returncode}")
+from llmxive_toolkit import paths, get_logger
 
-def main() -> None:
-    """Configure linting and formatting tools for the project."""
-    root = Path(__file__).parent.parent
-    pyproject = root / "pyproject.toml"
-    requirements = root / "requirements.txt"
+log = get_logger(__name__)
 
-    # 1. Install dependencies
-    run_command([sys.executable, "-m", "pip", "install", "-r", str(requirements)])
 
-    # 2. Create pyproject.toml configuration for ruff and black if it doesn't exist
-    if not pyproject.exists():
-        config_content = """[tool.black]
+def write_file(file_path: Path, content: str) -> None:
+    """Write *content* to *file_path*, creating parent directories if needed."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(content, encoding="utf-8")
+    log.info("Wrote configuration file: %s", file_path)
+
+
+def create_black_config(root: Path) -> None:
+    """Create a pyproject.toml with Black formatting settings."""
+    black_toml = """[tool.black]
 line-length = 88
 target-version = ['py310']
-
-[tool.ruff]
-line-length = 88
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in __init__.py
-
-[tool.ruff.isort]
-known-first-party = ["code", "utils"]
+exclude = '''
+/(
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 """
-        pyproject.write_text(config_content)
-        print(f"Created {pyproject}")
-    else:
-        print(f"{pyproject} already exists. Skipping creation.")
+    write_file(root / "pyproject.toml", black_toml)
 
-    # 3. Format code with black
-    run_command([sys.executable, "-m", "black", "code/", "tests/"])
 
-    # 4. Lint code with ruff
-    run_command([sys.executable, "-m", "ruff", "check", "code/", "tests/"])
+def create_ruff_config(root: Path) -> None:
+    """Create a .ruff.toml with sensible defaults."""
+    ruff_toml = """[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "C90"]
+ignore = []
+exclude = ["__pycache__", ".git", "build", "dist"]
+"""
+    write_file(root / ".ruff.toml", ruff_toml)
 
-    print("Linting and formatting configuration complete.")
+
+def create_flake8_config(root: Path) -> None:
+    """Create a .flake8 configuration file."""
+    flake8_cfg = """[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,build,dist
+"""
+    write_file(root / ".flake8", flake8_cfg)
+
+
+def main() -> None:
+    """
+    Entry point for the linting/formatting configuration script.
+
+    It writes the three configuration files to the project root
+    (the directory returned by ``paths.root``).  The function exits
+    with a non‑zero status code if any unexpected error occurs.
+    """
+    try:
+        project_root = Path(paths.root)
+        log.info("Configuring linting/formatting tools in %s", project_root)
+
+        create_black_config(project_root)
+        create_ruff_config(project_root)
+        create_flake8_config(project_root)
+
+        log.info("Linting and formatting configuration completed successfully.")
+    except Exception as exc:  # pragma: no cover – unexpected failures are fatal
+        log.error("Failed to configure linting/formatting tools: %s", exc)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

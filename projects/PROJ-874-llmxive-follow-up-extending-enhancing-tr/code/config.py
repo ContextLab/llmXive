@@ -252,15 +252,92 @@ def setup_logging(level: int = logging.INFO):
     )
     logger.setLevel(level)
 
+# ----------------------------------------------------------------------
+# New checksum verification utilities (required by T005)
+# ----------------------------------------------------------------------
+
+def verify_manifest_checksums(manifest_path: Path) -> bool:
+    """
+    Verify file checksums defined in a dataset manifest.
+
+    The manifest follows the schema defined in ``contracts/dataset.schema.yaml``.
+    For each listed file the function computes both MD5 and SHA256 hashes and
+    compares them against the recorded values.
+
+    Args:
+        manifest_path: Path to the JSON manifest file.
+
+    Returns:
+        True if all files pass checksum verification.
+
+    Raises:
+        FileNotFoundError: If the manifest file does not exist.
+        ValidationError: If any checksum does not match.
+    """
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+
+    files = manifest.get('files', [])
+    checksums = manifest.get('checksums', {})
+
+    all_ok = True
+    missing = []
+
+    for file_info in files:
+        rel_path = file_info.get('relative_path')
+        absolute_path = manifest_path.parent / rel_path
+
+        if not absolute_path.is_file():
+            missing.append(str(rel_path))
+            logger.error(f"Missing file for checksum verification: {absolute_path}")
+            all_ok = False
+            continue
+
+        expected = checksums.get(rel_path, {})
+        # MD5 verification
+        if 'md5' in expected:
+            observed_md5 = calculate_hash(absolute_path, algorithm='md5')
+            if observed_md5 != expected['md5']:
+                logger.error(
+                    f"MD5 mismatch for {rel_path}: expected {expected['md5']}, got {observed_md5}"
+                )
+                all_ok = False
+        # SHA256 verification
+        if 'sha256' in expected:
+            observed_sha = calculate_hash(absolute_path, algorithm='sha256')
+            if observed_sha != expected['sha256']:
+                logger.error(
+                    f"SHA256 mismatch for {rel_path}: expected {expected['sha256']}, got {observed_sha}"
+                )
+                all_ok = False
+
+    if missing:
+        raise DatasetNotFoundError(f"Missing files in manifest: {missing}")
+
+    if not all_ok:
+        raise ValidationError("One or more checksum verifications failed.")
+
+    logger.info(f"All checksum verifications passed for manifest {manifest_path}")
+    return True
+
+# ----------------------------------------------------------------------
+# End of new utilities
+# ----------------------------------------------------------------------
+
 # --- Main (for testing) ---
 if __name__ == "__main__":
-    # Simple test
     config = get_config()
     print(f"Project Root: {config.project_root}")
     print(f"Raw Dir: {config.raw_dir}")
     print(f"Seed: {get_seed()}")
     
-    # Test hash calculation
-    test_file = config.project_root / "config.py"
-    if test_file.exists():
-        print(f"SHA256 of config.py: {calculate_hash(test_file)}")
+    # Example usage of checksum verification (will raise if manifest missing)
+    test_manifest = config.raw_dir / "NarrLV" / "manifest.json"
+    if test_manifest.exists():
+        try:
+            verify_manifest_checksums(test_manifest)
+        except Exception as e:
+            print(f"Verification error: {e}")

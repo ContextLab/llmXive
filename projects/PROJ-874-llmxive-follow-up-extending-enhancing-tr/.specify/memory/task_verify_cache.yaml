@@ -1,26 +1,53 @@
 T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or `ls -R` output was provided to demonstrate that `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/`
-    contains the required subfolders (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
-    `tests/`, `docs/`, `contracts/`). The implementer must supply the actual `ls`
-    output showing the full hierarchy.
+  c: true
+  h: af6098b94cb3b6b5e0510f23ae836d8438e0e6a0dd7522353cd5a9115f86ba70
+  r: The `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory contains
+    the required subfolders (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
+    `tests/`, `docs/`, `contracts/`) as shown in the `ls -R` output captured in `code/.tasks/T001a.code_setup_project_structure.py.log`.
+    The log confirms the full recursive listing and verifies that each mandated directory
+    is present.
+  sig: 8856407b428cd87c02e04a46a25acaa14d8712d4c4cb9a2c8407e57ddd13360e
+T001b:
+  c: true
+  h: 9ae121778110a668e0e1fac573c218604fa76cfc09a0965d8f9af7d865fbb32e
+  r: The evidence shows the three required directories (`data/raw/`, `data/processed/`,
+    `data/results/`) exist under the project root and contain placeholder `.gitkeep`
+    files, satisfying the creation task.
+  sig: 82a4fa79fbf195772ae80df5a75b759c4c6af3258f4c7ff51ce95fe0199b3652
+T001c:
+  c: true
+  h: 86be9892e09128c5efc577308f8168b45aa17bdbc1b861d29398f07f7bc68eea
+  r: The evidence shows that `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/tests/contract/`,
+    `tests/integration/`, and `tests/unit/` directories all exist in the repository
+    with multiple entries, confirming the required directories were created.
+  sig: 739f7188fb28d40b15d312430242c75c36d4bfbd1c0057b1d3e03f4b1ff9c65f
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no linting or formatting configuration files (e.g.,
-    `pyproject.toml` with Black settings, `.ruff.toml` or `.flake8`), nor any documentation
-    showing that ruff/flake8 and Black have been installed and integrated into the
-    project workflow. Without these artifacts, the requirement to configure linting
-    and formatting tools is not satisfied.
+  h: 1ccb30b2ffc994afac82fe8a20b5f57a7cb842dda872eae03d9206703981c48a
+  r: The only evidence is a log claiming that `pyproject.toml`, `.ruff.toml`, and
+    `.flake8` were written, but the actual configuration files are not present in
+    the artifact list, nor is their content shown. Without the concrete config files,
+    we cannot confirm that linting (ruff/flake8) and formatting (black) are truly
+    configured. The missing configuration files need to be added and verified.
+  sig: 19f709d41fa23e52bd44d1962cd955720eedf4f09a74f2349f0fabfffc7dcd05
+T004a:
+  c: true
+  h: 8f31f32fa79e42134252e1623e13f764dc26b74dfe331f02cea8b14fa9301d98
+  r: "Checked `code/config.py` (10854\u202Fbytes) \u2013 it defines `set_seed`/`get_seed`\
+    \ for seed management, provides `get_raw_dir`, `get_processed_dir`, `get_results_dir`\
+    \ and `get_dataset_paths` for dataset locations, and implements `get_state` and\
+    \ `update_state` to read/write a `state.json` file. All required functionalities\
+    \ are present and the file is non\u2011empty."
+  sig: d09b7536f0566c82baa3b417a9d3c20455d661a23fa92df36ef04c5991515cb5
 T005:
-  c: false
-  h: 4a6ce8ae4d25d6919dd9c3a87879ed056bd0c5e9553ae0aa4df9b7d2ef6f1c48
-  r: "The repository contains the checksum functions in `code/download.py`, but the\
-    \ required schema files `contracts/dataset.schema.yaml` and `contracts/metrics.schema.yaml`\
-    \ are absent (the only mentioned `schema.yaml` is missing). Consequently the task\u2019\
-    s primary deliverable \u2013 the two contract schema files \u2013 has not been\
-    \ provided."
+  c: true
+  h: 54f323c6efe8ba49a7267b5b2b83b245d38b4c6bfa89dc8acf86b4d1dc46b73c
+  r: Checked `contracts/dataset.schema.yaml` and `contracts/metrics.schema.yaml` (both
+    present and define md5/sha256 fields) and verified that `code/download.py` implements
+    md5/sha256 hashing and verification, while `code/config.py` adds `verify_manifest_checksums`
+    that validates both hashes against a manifest. All required artifacts exist and
+    contain the requested functionality.
+  sig: dc31dfa5dfcfc0aedf96774f5af668ef6f097f804fd606883284c89e056b29de
 T013:
   c: false
   h: 75181fbea82a80f824ebe760407c1faf4386a6f34c1bad7b8d4af47ee972231b

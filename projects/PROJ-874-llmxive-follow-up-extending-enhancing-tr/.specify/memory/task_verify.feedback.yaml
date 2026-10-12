@@ -1,0 +1,90 @@
+T001a:
+  task: 905de7fefd95f2332001f1c5465c05401dbfe2aff23be2e3c4005f3f2ab62526
+T001b:
+  task: a10bfc9a3d4572c4dfadb3f0359a731b0413511d9251fdef1ddd817433f19ff0
+T001c:
+  task: 42cde8789218c1a57c89d1897420216539c28ae835aeb02cd2a0c55a0c8efd11
+T003:
+  reason: The only evidence is a log claiming that `pyproject.toml`, `.ruff.toml`,
+    and `.flake8` were written, but the actual configuration files are not present
+    in the artifact list, nor is their content shown. Without the concrete config
+    files, we cannot confirm that linting (ruff/flake8) and formatting (black) are
+    truly configured. The missing configuration files need to be added and verified.
+  task: 02df0433ff4ca5bb9505d7b43fa333a4bed81c6198734f4d9ec9d15199f7af4f
+T004a:
+  task: 5d26216198663c7510f24e7c56233ec929604112268222c5f300c6677b7e3cc2
+T004b:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 88722ace0e09f19d27e5472ceb5d9ec2fefa19a1250ab1e1a7f428bcee2c1b36
+T005:
+  task: b8d58e4c1eb66a5de3f0b2d02b7cbed95d1508656983095233d839564d75c221
+T006:
+  task: a3e12a6f2c23fd469df6c276db9e6eaf4b8876180a8febcb8b6f9b0a1e27b35e
+T008:
+  task: 30d5c0bbecea2e66fa66550157518731ecb410b9a79a2f189776c88eb0b666c6
+T010:
+  task: 96c9f8f7d728b336dd22b2a827e17d440130a10c65dd946817a0e82872fe17aa
+T011:
+  task: 6194f54197903edbbf261d3e94b86a6209d2aba399f4eff6a914f5f3f2d19b25
+T012:
+  task: f4aa28ef6910930aabb66ede48f7cf7b4b2f1e594c2ccf149344cb1ab72b35b7
+T012a:
+  task: 567e1be055192c977da03e1132ca659cd65e4f02a1a6414d4516cfe8568a3503
+T013:
+  reason: 'Requested task execution failed; rerun successfully: code/generate.py exit=1'
+  task: 3d9debca8c9a02163813756b9a495894427aeeabf28ae666df9c459e0972b33d
+T014a:
+  task: 8390d2679157b3a6c9121de138a4e0eb00c91885305332093706cc73eb24e3bd
+T014b:
+  task: 35d28b2e012df05ab1db09d4061edaf97ffee463bebe1a34578ae781054379ff
+T017:
+  task: f63c0e964d07c1841322cf1c4882d769a49e3fe639c9af653cdd5ea9e8fc06cb
+T018:
+  task: bfc348a6e9bfdda04a0fab72e629ad844c4302cb4038a1521a10dfbdf7d3b542
+T019:
+  task: 3912b0e27ddb0c79cc3d47f28716a2da6f73e3420a876af14f8596fffd7b3ddb
+T020:
+  task: d97eb4da621e412eb61e66f7e990dac875c46d7b8739857c060023fb77d6d187
+T020a:
+  task: 62a5b1a9adb14373b2082e9fc8d752a9e2f461d0f92ae818fd591506c1591cac
+T021:
+  task: 590f404c97c47e5fc74e53a84ec08cf40655dd01d2748150323d3b3063fc9451
+T022:
+  task: 8f93aaf9d97748f82c3d4878b34cdbe1f2f358b84a088b957e3702a008018a65
+T023:
+  task: 08cc26bf13d0b37922725ab8d931c89ff21a1d767c0379187dfa45120dd2ea3f
+T024:
+  task: 6d174c577f6111074c11fc54b365d38c14609b932b93c2ee271bbcaeff1ff335
+T025:
+  task: 740832194cfd8c8f55aff7cfc92f90085c4c4683b77033257fe2f7566c0fc029
+T027:
+  task: 45f6afc33e69a440573ebe032313b665c71393bee8deabe750fa943c3341e144
+T028a:
+  task: 2432135eacb08701cf8ed722ac5dec7528b86fbcc17cc237f2d0de00be886eae
+T028b:
+  task: 2e5045ab49f5c1f7f71a92672d44c5f4b40404f45d2619fd4be0fa75235f3518
+T029:
+  task: 6548e3d460529f54cd3bb75bbe1310ece81a04de52ec8017819c4b87b1e3e336
+T030a:
+  task: 9a73aede7e8734d68af549a7bc24e1c301d9987b17f76982c29670c8f16257e6
+T031:
+  task: 0b603396e4bb511da4a32d3f4bdf6d304a4332c60733f94fa409fb119d27b84a
+T032a:
+  task: aadba9524d00019a4714fa4c2066b195f7573b87a06612d2d7247352dfece032
+T032b:
+  task: 8d111ff0a1f4887826cc8d824d9b70a6b6f1b630a95e6f35e165385a39b2aade
+T033:
+  task: 31955105e2f7300c61d94505be2f981311dd200af996fcfb6dcba6fad1f3383f
+T033b:
+  task: b29515fee11253a77e55aecec232ebce862827134333b30b64c53a3defa2719e
+T034a:
+  task: dfd664cbca79f0019fdc0f41aeac297a26d7d0488d24e916cff933814c260d54
+T035:
+  task: dfb1a448e1c968090b6264328cff940db069c8bfddd96e0894fb6ec1756454db
+T036:
+  task: c46138fa07f8356ed3e28ef003c79ec05e4bf095b0b6406f8bd874e4d4096370
+T037:
+  task: 354972edb09db974ef8a6985935c364a74b2044676c2f752723faa6013a518ee
