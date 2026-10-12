@@ -1,10 +1,12 @@
 status: none
-intent: download UltraFeedback and Dolly datasets via Hugging Face datasets python
-  package dataset
+intent: download BigBench Hard Ethics UltraFeedback openbmb datasets via HuggingFace
+  python package dataset
 required_fields:
 - prompt
-- rationale_list
-- response
-cache_key: 83b9a6069d09c7729a52933876bb7eb4515374a8fdd85efb0ee51a702ea11168
-searched_at: '2026-10-12T00:14:23.813645+00:00'
+- rationales
+- rationale_text
+- rationale_quality
+- rationale_id
+cache_key: 7c479bafa533bbf9cd1ca41a1bf1d7a69238283d7b751984e87230ce0b96eb9a
+searched_at: '2026-10-12T00:53:23.241491+00:00'
 retry_count: 1
