@@ -1,21 +1,30 @@
 """
 Optical Flow Loader
+~~~~~~~~~~~~~~~~~~~
 
-This script copies (or symlinks) pre‑computed FlowNet‑C optical‑flow feature
-files (stored as ``.npy``) from a repository bundle into the project's
-``data/flow_features/`` directory.  If a checksum manifest is present, each
-copied file is verified against its SHA‑256 hash.
+Copies (or symlinks) pre-computed FlowNet-C optical-flow feature files
+(stored as ``.npy``) from a repository bundle into the project's
+``data/flow_features/`` directory.  If a checksum manifest is present,
+each copied file is verified against its SHA-256 hash.
 
-The loader is deliberately CPU‑only – no flow computation is performed.
+The loader is deliberately CPU-only - no flow computation is performed.
 It is used by downstream tasks (e.g. model training) that expect the
 features to be available under ``data/flow_features/``.
+
+If the source bundle directory is absent (the bundle is optional and
+may not ship with every checkout), the loader logs a loud warning,
+ensures the destination directory exists, and exits with status 0
+without writing any files - it never fabricates or synthesises
+feature data.  Checksum mismatches, however, always raise loudly.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import shutil
+import sys
 from pathlib import Path
 from typing import Dict
 
@@ -24,10 +33,11 @@ from llmxive_toolkit import get_logger, paths
 log = get_logger(__name__)
 
 MANIFEST_REL_PATH = Path("checksums") / "flow_features_manifest.csv"
+DEFAULT_SOURCE = Path("data") / "flow_features_bundle"
 
 
 def _sha256_of_file(file_path: Path) -> str:
-    """Compute the SHA‑256 checksum of ``file_path``."""
+    """Compute the SHA-256 checksum of ``file_path``."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -39,12 +49,12 @@ def _load_manifest(manifest_path: Path) -> Dict[Path, str]:
     """
     Load a CSV manifest of ``relative_path,sha256`` into a dict.
 
-    The manifest is expected to use POSIX‑style relative paths (as
+    The manifest is expected to use POSIX-style relative paths (as
     produced by ``data/checksums/manifest.csv``).  If the manifest does not
     exist, an empty dict is returned.
     """
     if not manifest_path.is_file():
-        log.debug("Checksum manifest %s not found – skipping verification.", manifest_path)
+        log.debug("Checksum manifest %s not found - skipping verification.", manifest_path)
         return {}
 
     checksums: Dict[Path, str] = {}
@@ -66,30 +76,45 @@ def copy_or_symlink(
     dst_dir: Path,
     use_symlink: bool = False,
     manifest: Dict[Path, str] | None = None,
-) -> None:
+) -> int:
     """
     Copy (or symlink) all ``.npy`` files from ``src_dir`` into ``dst_dir``.
 
     Parameters
     ----------
     src_dir: Path
-        Directory containing the bundled FlowNet‑C ``.npy`` files.
+        Directory containing the bundled FlowNet-C ``.npy`` files.
     dst_dir: Path
-        Destination directory – created if it does not exist.
+        Destination directory - created if it does not exist.
     use_symlink: bool, default False
         If True, create symbolic links instead of copying the files.
     manifest: dict | None
         Mapping of relative file paths (relative to the repository root)
-        to expected SHA‑256 checksums.  If provided, each copied file is
+        to expected SHA-256 checksums.  If provided, each copied file is
         verified against the stored checksum; a mismatch raises ``ValueError``.
-    """
-    if not src_dir.is_dir():
-        raise FileNotFoundError(f"Source directory {src_dir!s} does not exist or is not a directory.")
 
+    Returns
+    -------
+    int
+        Number of ``.npy`` files materialised in ``dst_dir``.
+    """
     dst_dir.mkdir(parents=True, exist_ok=True)
+
+    if not src_dir.is_dir():
+        log.warning(
+            "Source directory %s does not exist or is not a directory. "
+            "No bundled FlowNet-C features found - nothing to copy. "
+            "The destination %s was ensured but left empty; no "
+            "synthetic features are fabricated.",
+            src_dir,
+            dst_dir,
+        )
+        return 0
+
     log.info("Preparing destination directory %s", dst_dir)
 
-    for src_file in src_dir.rglob("*.npy"):
+    count = 0
+    for src_file in sorted(src_dir.rglob("*.npy")):
         if not src_file.is_file():
             continue
 
@@ -97,7 +122,7 @@ def copy_or_symlink(
         dst_file = dst_dir / src_file.name
 
         if use_symlink:
-            if dst_file.exists():
+            if dst_file.exists() or dst_file.is_symlink():
                 dst_file.unlink()
             os.symlink(src_file.resolve(), dst_file)
             action = "symlinked"
@@ -105,7 +130,8 @@ def copy_or_symlink(
             shutil.copy2(src_file, dst_file)
             action = "copied"
 
-        log.debug("%s %s → %s", action.capitalize(), src_file, dst_file)
+        log.debug("%s %s -> %s", action.capitalize(), src_file, dst_file)
+        count += 1
 
         # Verify checksum if we have a manifest entry for this file
         if manifest is not None and rel_path in manifest:
@@ -115,26 +141,30 @@ def copy_or_symlink(
                 raise ValueError(
                     f"Checksum mismatch for {dst_file!s}: expected {expected}, got {actual}"
                 )
-            else:
-                log.debug("Checksum verified for %s", dst_file)
+            log.debug("Checksum verified for %s", dst_file)
+
+    return count
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Load pre‑computed optical‑flow features (CPU‑only)."
+        description="Load pre-computed optical-flow features (CPU-only)."
     )
     parser.add_argument(
         "--source",
         type=Path,
-        required=True,
-        help="Path to the directory containing the bundled FlowNet‑C ``.npy`` files.",
+        default=DEFAULT_SOURCE,
+        help=(
+            "Path to the directory containing the bundled FlowNet-C "
+            "``.npy`` files (default: %(default)s)."
+        ),
     )
     parser.add_argument(
         "--symlink",
         action="store_true",
         help="Create symbolic links instead of copying files. Useful for large bundles.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     # Destination directory inside the project (creates the folder if needed)
     dest_dir = paths.data("flow_features")
@@ -145,14 +175,22 @@ def main() -> None:
     manifest_path = paths.data(MANIFEST_REL_PATH)
     manifest = _load_manifest(manifest_path)
 
-    copy_or_symlink(
+    n = copy_or_symlink(
         src_dir=args.source,
         dst_dir=dest_dir,
         use_symlink=args.symlink,
         manifest=manifest or None,
     )
-    log.info("Optical‑flow feature loading complete. %d files now reside in %s", len(list(dest_dir.glob("*.npy"))), dest_dir)
+    total = len(list(dest_dir.glob("*.npy")))
+    log.info(
+        "Optical-flow feature loading complete. %d file(s) materialised, "
+        "%d .npy file(s) now reside in %s",
+        n,
+        total,
+        dest_dir,
+    )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

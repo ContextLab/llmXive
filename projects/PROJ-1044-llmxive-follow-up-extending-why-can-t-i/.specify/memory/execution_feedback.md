@@ -10,7 +10,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python -m src.pipeline.run_all  --dataset_name something-something-v2  --subset_size 200  --train_split 0.8  --val_split 0.1  --test_split 0.1  --lambda_values 0.1 0.5 1.0  --seeds 1 2 3 4 5 6 7 8 9 10  --optical_flow_divergence_threshold 0.15  --feature_similarity_threshold 0.9  --output_dir ./output (rc=2); 4 declared deliverable(s) absent: data/checksums/manifest.csv; data/counterfactuals/metadata.csv; figures/bootstrap_hist.png
+**Summary**: 1 command(s) failed: python -m src.pipeline.run_all  --dataset_name something-something-v2  --subset_size 200  --train_split 0.8  --val_split 0.1  --test_split 0.1  --lambda_values 0.1 0.5 1.0  --seeds 1 2 3 4 5 6 7 8 9 10  --optical_flow_divergence_threshold 0.15  --feature_similarity_threshold 0.9  --output_dir ./output (rc=2); 3 declared deliverable(s) absent: data/checksums/manifest.csv; figures/bootstrap_hist.png; figures/delta_acc_vs_lambda.png
 
 ## Failing / missing run-book commands
 
@@ -23,7 +23,6 @@ run_all.py: error: the following arguments are required: --config
 ## Declared deliverables still missing
 
 - data/checksums/manifest.csv
-- data/counterfactuals/metadata.csv
 - figures/bootstrap_hist.png
 - figures/delta_acc_vs_lambda.png
 
@@ -34,8 +33,5 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/checksums/manifest.csv` is declared but was NOT written. Scripts referencing it:
     - `src/data/optical_flow_loader.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/checksums/manifest.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/counterfactuals/metadata.csv` is declared but was NOT written. Scripts referencing it:
-    - `src/pipeline/run_all.py` — IS a run-book command
-  Make ONE of these WRITE `data/counterfactuals/metadata.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `figures/bootstrap_hist.png` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `figures/delta_acc_vs_lambda.png` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.

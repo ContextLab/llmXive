@@ -1,17 +1,13 @@
-# Core dependencies required for the project (already provided by the runner)
-numpy
+torch==2.3.0
+torchvision
+opencv-python
+tqdm
 pandas
+numpy
+pyyaml
+datasets
 scipy
 matplotlib
 scikit-learn
-statsmodels
 seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional third‑party packages needed for this task
-datasets
-opencv-python
+# The base environment already provides: psutil, requests, jsonschema, etc.

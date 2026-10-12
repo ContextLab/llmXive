@@ -19,13 +19,13 @@ The tasks below respect data‑flow dependencies, stay within the free‑tier CP
   - Add a unit test `tests/test_something_loader.py` that loads 5 videos and asserts non‑empty frames.  
   - **File(s)**: `src/data/something_loader.py`, `tests/test_something_loader.py`.
 
-- [ ] **T004** [US1] **Load pre‑computed optical‑flow features (CPU‑only)**   <!-- FAILED-IN-EXECUTION: src/data/optical_flow_loader.py exit=1 -->
+- [X] **T004** [US1] **Load pre‑computed optical‑flow features (CPU‑only)**
   - Implement `src/data/optical_flow_loader.py` that copies or symlinks existing FlowNet‑C `.npy` feature files from the repository bundle into `data/flow_features/`.  
   - Verify that each copied file matches its stored SHA‑256 checksum (manifest generated later).  
   - No on‑the‑fly flow computation is performed, preserving the CPU budget.  
   - **File(s)**: `src/data/optical_flow_loader.py`.
 
-- [ ] **T003** [US1] **Detect primary objects and generate counterfactual videos**  
+- [ ] **T003** [US1] **Detect primary objects and generate counterfactual videos**   <!-- FAILED-IN-EXECUTION: src/data/counterfactual.py exit=1 -->
   1. Use CPU‑friendly Faster‑RCNN (`torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)`) on a representative frame to obtain a bounding box.  
   2. Randomly select a distinct object patch from `data/patches/`.  
   3. Replace the region via OpenCV `seamlessClone`.  

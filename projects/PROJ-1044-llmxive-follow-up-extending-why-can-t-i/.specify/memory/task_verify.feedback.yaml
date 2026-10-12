@@ -1,19 +1,16 @@
 T001:
   task: 032d383888aec79d5bbd4bae3d760a7c79089cbfceb99c725da081b1168fda06
 T002:
-  reason: "The `src/data/something_loader.py` file correctly uses `load_dataset(...,\
-    \ streaming=True)` and provides a deterministic seed, but the unit test `tests/test_something_loader.py`\
-    \ fails (see execution log) because the HuggingFace dataset `\"something-something-v2\"\
-    ` cannot be found, causing a `DatasetNotFoundError`. Consequently the test does\
-    \ not load five videos nor verify non\u2011empty frames, so the task\u2019s requirements\
-    \ are not met. Fix the dataset identifier or provide a mock/fixture so the test\
-    \ can pass."
+  reason: "Checked `src/data/something_loader.py` and `tests/test_something_loader.py`\
+    \ and the recorded pytest run, which fails because `load_dataset(\"something-something-v2\"\
+    , \u2026)` raises `DatasetNotFoundError`. Consequently the unit test cannot load\
+    \ five videos and does not pass, so the required functionality is not satisfied."
   task: d5f6e56dbc464be34e26c171a27aecfac468412d176ea72b1ba5a2b1f98acc2a
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/data/counterfactual.py
+    exit=1'
   task: b3f786d84aa252b8f46aec25191bb46b5518e3d12fdf6f0ffba51e6442a5b78b
 T004:
-  reason: 'Requested task execution failed; rerun successfully: src/data/optical_flow_loader.py
-    exit=1'
   task: a55754e23e7bcb5f4a91db770a675d75498b1c8bd1cf78fd92a0d3a1f80536d4
 T005:
   task: b9ca6fbcce0b15448a92347f3318ffbf688b127d116868ff48a839d34600c8b9

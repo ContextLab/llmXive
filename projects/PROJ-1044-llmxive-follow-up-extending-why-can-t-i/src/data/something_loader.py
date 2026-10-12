@@ -21,7 +21,6 @@ from datasets import load_dataset
 
 __all__ = ["something_stream"]
 
-
 def something_stream(
     *,
     seed: int = 42,
@@ -46,18 +45,26 @@ def something_stream(
         ``label`` – the action template string associated with the video.
     """
     # The HuggingFace dataset identifier for Something‑Something V2.
-    ds = load_dataset(
-        "something-something-v2",
-        split="train",
-        streaming=True,
-    )
+    # The dataset provides a "full" configuration that contains the raw video URLs.
+    # Using the config ensures the ``video`` field is present.
+    try:
+        ds = load_dataset(
+            "something-something-v2",
+            "full",
+            split="train",
+            streaming=True,
+        )
+    except Exception as exc:
+        # Re‑raise with a clearer message – the loader must fail loudly if the
+        # real dataset cannot be accessed.
+        raise RuntimeError(
+            "Failed to load the Something‑Something V2 dataset. "
+            "Ensure internet connectivity and that the identifier "
+            "'something-something-v2' with config 'full' exists on the HuggingFace Hub."
+        ) from exc
 
     rng = random.Random(seed)
 
-    # The streaming dataset yields dictionaries.  The relevant keys are
-    # ``video`` (a URL) and ``template`` (human‑readable action description).
-    # Some versions also expose a ``label`` integer; we prefer the textual
-    # template because it is deterministic and self‑contained.
     count = 0
     for example in ds:
         video_url: Optional[str] = example.get("video")
@@ -68,15 +75,12 @@ def something_stream(
             # Skip malformed entries – they should be extremely rare.
             continue
 
-        # Deterministic sampling: we shuffle the order using the RNG and then
-        # yield items in that shuffled order.  Because the dataset is streamed,
-        # we cannot reshuffle globally, but applying ``rng.random()`` as a
-        # lightweight proxy yields a reproducible subset when ``max_examples`` is
-        # set.
+        # Deterministic sampling: we apply a simple probability filter based on the RNG.
+        # This works with streaming datasets where a full shuffle is impossible.
         if max_examples is not None:
-            # Accept the example with probability that ensures we roughly
-            # collect ``max_examples`` items without needing a second pass.
-            # The threshold is chosen conservatively.
+            # Accept the example with a probability that roughly yields the requested
+            # number of items without a second pass. The factor 10 provides a small safety
+            # margin to avoid undersampling.
             if rng.random() > (max_examples / (max_examples + 10)):
                 continue
 

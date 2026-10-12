@@ -1,19 +1,26 @@
 T001:
   c: true
-  h: ffd945644ac635bca9e319a9e6af34a66742f30870c8edde562920ae2276ac09
-  r: "The `quickstart.md` (2571\u202Fbytes) describes the required single command\
-    \ and environment, the `configs/run.yaml` file is present, and the execution log\
-    \ `code/.tasks/T001.src_pipeline_run_all.py.log` shows the command ran with exit\
-    \ code\u202F0 and printed a summary of expected output artifacts."
-  sig: 7eb374f5a9793d499e95068837050f405fb5ae4571649b07340c50b1088bcb97
+  h: cd2ece2cd45a665723d5b60b0a4cb9d3dddbb19ed9f2b4d003d6dd4e735209f2
+  r: "Checked `quickstart.md` (contains the required single\u2011command description\
+    \ and environment notes) and `configs/run.yaml` (present). The log `code/.tasks/T001.src_pipeline_run_all.py.log`\
+    \ shows the command `python -m src.pipeline.run_all --config configs/run.yaml`\
+    \ ran, printed a summary, and exited with status\u202F0. All required artifacts\
+    \ exist and meet the specifications."
+  sig: 210bc496e240b4459138caa01c7d2c3a173d431558990a4250ca4f532cda982e
 T002:
   c: false
-  h: c5837d244c5168a870b92071139e041df9827eb5ba0aac6e318f16c3b609cacc
-  r: "The `src/data/something_loader.py` file correctly uses `load_dataset(..., streaming=True)`\
-    \ and provides a deterministic seed, but the unit test `tests/test_something_loader.py`\
-    \ fails (see execution log) because the HuggingFace dataset `\"something-something-v2\"\
-    ` cannot be found, causing a `DatasetNotFoundError`. Consequently the test does\
-    \ not load five videos nor verify non\u2011empty frames, so the task\u2019s requirements\
-    \ are not met. Fix the dataset identifier or provide a mock/fixture so the test\
-    \ can pass."
-  sig: 881d00e61067115c9d042812b4e9e545dac4e9b5241cadb3aa9a83ecc2b23c5f
+  h: 45cb4502dab15e8b4d5e964eeb0f6c829eb51f2bb1f4a7c8269cadef6870ed08
+  r: "Checked `src/data/something_loader.py` and `tests/test_something_loader.py`\
+    \ and the recorded pytest run, which fails because `load_dataset(\"something-something-v2\"\
+    , \u2026)` raises `DatasetNotFoundError`. Consequently the unit test cannot load\
+    \ five videos and does not pass, so the required functionality is not satisfied."
+  sig: a274e3c31d4d59c7c59db3bb35c5bc1fd72e1486ceab4aa8e5b72d18321eccd0
+T004:
+  c: true
+  h: df674cdfe7769a2a0b29483f6bc2dfc9cd04fa44754d716f28ea7d8899e6413f
+  r: "Checked `src/data/optical_flow_loader.py` \u2013 it implements copying/symlinking\
+    \ of `.npy` files, loads an optional checksum manifest and verifies each file\u2019\
+    s SHA\u2011256, and logs a warning without fabricating data when the source bundle\
+    \ is absent. All eight pytest cases (including checksum verification, missing\
+    \ source handling, and symlink mode) pass."
+  sig: ceb5a8bf2cb731cc05033d9017f40534e0b5814e82c25eddb43902a06546df5e
