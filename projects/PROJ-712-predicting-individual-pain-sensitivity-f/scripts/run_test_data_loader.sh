@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -e
-# Ensure the virtual environment (if any) is active; otherwise rely on system packages.
-pytest -q tests/integration/test_data_loader.py
+# Run integration tests for the data loader
+python -m pytest -v tests/integration/test_data_loader.py

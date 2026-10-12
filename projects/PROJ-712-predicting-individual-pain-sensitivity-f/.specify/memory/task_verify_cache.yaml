@@ -23,6 +23,16 @@ T005:
     \ calls `python -m code.utils --validate-citations`, and exits with status\u202F\
     1 when that command fails, satisfying the task\u2019s specification."
   sig: 822287662e3a23d0bcbe9ceb12f562f95454bda43531e9eea55fdd8ab08a8e34
+T006:
+  c: true
+  h: f81b901ed27dec1a02a328a79bbdfaf236007bd56319891e207a7d988cf80351
+  r: "The `code/data_loader.py` file implements `DataChunk` with `numpy.memmap` and\
+    \ an `EEGDataLoader` that streams files in chunks, providing metadata and yielding\
+    \ chunk objects. The integration test `tests/integration/test_data_loader.py`\
+    \ creates a large synthetic binary EEG file, iterates over chunks, and confirms\
+    \ peak RAM usage stays below 6\u202FGB, and the test logs show it passed. All\
+    \ required artifacts exist and function as specified."
+  sig: 9eec8b98b2c82fe8d4784afc8e40b090f44038615bb44226a8b983cd64671d88
 T007:
   c: true
   h: 773f2ea6402fd2e8aecf230688d4d6dc787d7a86b6fce5cbb6007ea2fa395162
@@ -31,6 +41,16 @@ T007:
     \ and order specified in `contracts/features.schema.yaml`. The list length and\
     \ contents satisfy the unit\u2011test requirements."
   sig: c770ccb41f1af5b6732f6300d2ab11c9f2e459049d654e8bc70c476c22243a15
+T008:
+  c: false
+  h: 708737f94610286f1dee24526b7ea9bfc92af0e9931969ac6c940bb32cfc5326
+  r: "The repository contains `code/preprocessing.py` with a plausible implementation,\
+    \ but the supplied unit test (`tests/unit/test_preprocessing.py`) does not actually\
+    \ run the preprocessing on synthetic EEG data nor verify a 30\u2011column DataFrame\
+    \ with no NaNs; it only checks dummy column names. Moreover, the required integration\
+    \ test `tests/integration/test_full_preprocess.py` and the resulting `data/processed/feature_matrix.csv`\
+    \ are missing. The task\u2019s verification criteria are therefore not met."
+  sig: 3c7886ec7150d392c593eef96af9e2f3b293b8e9b64abc8e10c6bd490fa3f1f5
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

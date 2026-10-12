@@ -1,17 +1,18 @@
 """
 Integration test for the EEGDataLoader and DataChunk implementation.
-Ensures that streaming large binary EEG files via memory‑mapped chunks
-does not cause the process to exceed the 6 GB RAM limit.
+Ensures that streaming large binary EEG files via memory-mapped chunks
+does not cause the process to exceed the 6 GB RAM limit.
 """
-
 import os
-import pathlib  # Added import for pathlib
+import pathlib
 import numpy as np
 import psutil
 import pytest
+import sys
 
+# Ensure code directory is in path
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent / "code"))
 from data_loader import EEGDataLoader
-
 
 @pytest.mark.skipif(
     not hasattr(psutil, "Process"),
@@ -20,27 +21,28 @@ from data_loader import EEGDataLoader
 def test_iterate_chunks_memory_usage(tmp_path: pathlib.Path):
     """
     Create a synthetic binary EEG file and stream it in chunks.
-    Verify that the maximum resident set size (RSS) stays below 6 GB.
+    Verify that the maximum resident set size (RSS) stays below 6 GB.
     """
     # Parameters for the synthetic file
     n_channels = 64
-    n_samples = 200_000          # ~51 MiB for float32 data
-    chunk_size = 50_000          # Samples per yielded chunk
+    n_samples = 1_000_000  # Large enough to test streaming
+    chunk_size = 100_000
 
     # Generate deterministic random data
     rng = np.random.default_rng(seed=42)
     data = rng.random((n_channels, n_samples), dtype=np.float32)
 
-    # Write raw binary file (channel‑wise layout)
-    bin_file = tmp_path / "synthetic_eeg.bin"
+    # Write raw binary file
+    bin_file = tmp_path / "test_eeg.bin"
     data.tofile(str(bin_file))
 
-    # Initialise loader pointing at the temporary directory
+    # Initialise loader
     loader = EEGDataLoader(tmp_path)
 
     # Process chunks and monitor memory usage
     proc = psutil.Process()
     max_rss = 0
+    
     for chunk in loader.iterate_chunks(
         filename=bin_file.name,
         chunk_size_samples=chunk_size,
@@ -49,17 +51,15 @@ def test_iterate_chunks_memory_usage(tmp_path: pathlib.Path):
     ):
         # Force materialisation of the memmap slice
         arr = chunk.get_data()
-        _ = arr.sum()  # simple operation to ensure the data is accessed
+        _ = np.sum(arr)
 
         # Record current RSS
         current_rss = proc.memory_info().rss
         max_rss = max(max_rss, current_rss)
 
-        # Clean up the chunk to release the memmap reference
+        # Explicitly close to release memmap
         chunk.close()
 
-    # 6 GB expressed in bytes
+    # 6 GB in bytes
     six_gb = 6 * 1024 ** 3
-    assert max_rss < six_gb, (
-        f"Memory usage exceeded 6 GB limit: {max_rss / (1024 ** 3):.2f} GB"
-    )
+    assert max_rss < six_gb, f"Memory usage exceeded 6 GB limit: {max_rss / (1024**3):.2f} GB"

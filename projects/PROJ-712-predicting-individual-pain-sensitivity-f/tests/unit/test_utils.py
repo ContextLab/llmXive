@@ -3,20 +3,18 @@ Unit tests for the utils module (Task T004).
 
 Verifies:
 * Identical files produce identical SHA‑256 hashes via ``compute_checksum``.
-* The lightweight logger writes to ``logs/log.txt``.
+* The lightweight logger writes to ``data/logs/pipeline.log``.
 """
 
 import os
 from pathlib import Path
-
 import pytest
 
 # Ensure the project root is on the path for imports
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from code.utils import compute_checksum, setup_logging, LOG_FILE, STATE_DIR
-
+from code.utils import compute_checksum, setup_logging, LOG_FILE
 
 def test_compute_checksum_identical_files(tmp_path: Path):
     """
@@ -33,13 +31,12 @@ def test_compute_checksum_identical_files(tmp_path: Path):
 
     assert hash_a == hash_b, "Hashes for identical files should match"
 
-
-def test_logger_writes_to_state_log(tmp_path: Path):
+def test_logger_writes_to_project_log(tmp_path: Path):
     """
     The logger configured by ``setup_logging`` must write messages to
-    ``logs/log.txt``.
+    ``data/logs/pipeline.log``.
     """
-    # Ensure a clean logs directory for the test
+    # Ensure a clean log file for the test
     if LOG_FILE.is_file():
         LOG_FILE.unlink()
 
@@ -47,7 +44,7 @@ def test_logger_writes_to_state_log(tmp_path: Path):
     test_message = "utils unit test log entry"
     logger.info(test_message)
 
-    assert LOG_FILE.is_file(), "Log file was not created"
+    assert LOG_FILE.is_file(), "Log file was not created in data/logs/"
 
     log_contents = LOG_FILE.read_text(encoding="utf-8")
     assert test_message in log_contents, "Log entry not found in log file"

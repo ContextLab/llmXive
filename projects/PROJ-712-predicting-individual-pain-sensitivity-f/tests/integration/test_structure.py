@@ -23,6 +23,7 @@ def test_create_dirs():
     subprocess.check_call(["bash", str(script_path)])
 
     # List of directories that must exist
+    # Note: 'state/' is excluded as it is platform-owned and managed by the runtime
     required_dirs = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",

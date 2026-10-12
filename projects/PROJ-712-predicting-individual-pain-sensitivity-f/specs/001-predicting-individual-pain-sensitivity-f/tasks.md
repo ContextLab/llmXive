@@ -29,7 +29,7 @@
   **Path**: `scripts/pre-run-validation.sh`.  
   **Verification**: CI step runs the script; a failing citation causes the pipeline to abort.
 
-- [ ] **T006**  Implement `code/data_loader.py` with `DataChunk` handling via `numpy.memmap` to respect the ≈ 7 GB RAM limit. The loader streams the OpenNeuro ds003XXX files, creates chunk metadata, and yields chunk objects to downstream code.   <!-- FAILED-IN-EXECUTION: scripts/run_test_data_loader.sh exit=2 -->
+- [X] **T006**  Implement `code/data_loader.py` with `DataChunk` handling via `numpy.memmap` to respect the ≈ 7 GB RAM limit. The loader streams the OpenNeuro ds003XXX files, creates chunk metadata, and yields chunk objects to downstream code.
   **Verification**: integration test `tests/integration/test_data_loader.py` asserts that total RAM usage stays below 6 GB while processing the full dataset.
 
 - [X] **T007**  Create `code/config.py` exposing constants such as `EXPECTED_FEATURE_COLUMNS` (the ordered list of the 30 feature names) and default paths (`RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`).  
