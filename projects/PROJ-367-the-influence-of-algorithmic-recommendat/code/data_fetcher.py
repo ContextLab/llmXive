@@ -16,9 +16,9 @@ from typing import List
 
 import pandas as pd
 import requests
-from datasets import load_dataset  # Imported at module level so tests can patch it.
+from datasets import load_dataset
 
-# Project‑specific utilities
+# Project-specific utilities
 from llmxive_toolkit import paths, get_logger
 from ingestion import DataAvailabilityError, DataSchemaError
 
@@ -27,14 +27,11 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# Primary URL (HTML page) – kept for reference only.
+# Primary URL (HTML page)
 OULAD_PRIMARY_URL = "https://analyse.kmi.open.ac.uk/open_dataset"
 
-# Verified mirror on Zenodo – this URL points to a ZIP containing the four CSVs.
-# The file is publicly accessible and works in CI environments.
-OULAD_MIRROR_ZIP = (
-    "https://zenodo.org/record/3222405/files/oulad.zip?download=1"
-)
+# Verified mirror ZIP as specified in tasks.md
+OULAD_MIRROR_ZIP = "https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip"
 
 RAW_OULAD_DIR = paths.data("raw", "oulad")
 PROCESSED_PARQUET = paths.data("processed", "cleaned_data.parquet")
@@ -44,14 +41,13 @@ REQUIRED_COLUMNS = ["recommended_categories", "enrolled_categories"]
 # Helper functions
 # ----------------------------------------------------------------------
 
-
 def _download_and_extract_oulad() -> None:
     """
     Downloads the OULAD ZIP from the verified mirror and extracts the four
-    CSV files into ``data/raw/oulad/``.  The function raises on any HTTP or
+    CSV files into ``data/raw/oulad/``. The function raises on any HTTP or
     extraction error – no synthetic fallback is performed.
     """
-    log.info("Attempting to download OULAD dataset from mirror URL")
+    log.info("Attempting to download OULAD dataset from mirror URL: %s", OULAD_MIRROR_ZIP)
     try:
         response = requests.get(OULAD_MIRROR_ZIP, stream=True, timeout=120)
         response.raise_for_status()
@@ -71,20 +67,30 @@ def _download_and_extract_oulad() -> None:
             "vle.csv",
             "studentRegistration.csv",
         }
-        missing = expected_files - set(zf.namelist())
+        # The mirror might have different internal paths or naming; 
+        # we check if the expected files are present anywhere in the zip.
+        actual_files = zf.namelist()
+        
+        # Map expected names to actual paths in the zip (handling possible subfolders)
+        file_map = {}
+        for exp in expected_files:
+            match = [f for f in actual_files if f.endswith(exp)]
+            if match:
+                file_map[exp] = match[0]
+
+        missing = expected_files - set(file_map.keys())
         if missing:
             raise IOError(
-                f"Missing expected OULAD files in the zip: {missing}"
+                f"Missing expected OULAD files in the zip: {missing}. Found: {actual_files}"
             )
 
-        for member in expected_files:
-            target_path = RAW_OULAD_DIR / member
-            with zf.open(member) as src, open(target_path, "wb") as dst:
+        for exp_name, zip_path in file_map.items():
+            target_path = RAW_OULAD_DIR / exp_name
+            with zf.open(zip_path) as src, open(target_path, "wb") as dst:
                 dst.write(src.read())
             log.info("Extracted %s", target_path)
 
     log.info("OULAD download and extraction completed")
-
 
 def _load_raw_csvs() -> dict:
     """
@@ -105,33 +111,15 @@ def _load_raw_csvs() -> dict:
         log.info("Loaded %s (%d rows)", key, len(dfs[key]))
     return dfs
 
-
 def _map_oulad_to_sessions(dfs: dict) -> pd.DataFrame:
     """
     Maps the raw OULAD tables to the session schema required by the
-    pipeline.  The mapping is deliberately simple but produces the four
-    mandatory columns:
-
-    * ``user_id`` – the student identifier.
-    * ``session_id`` – a synthetic session identifier (here we reuse
-      ``user_id`` because OULAD does not contain explicit sessions).
-    * ``recommended_categories`` – a list of distinct VLE resource
-      categories accessed by the student (proxy for algorithmic
-      recommendations).
-    * ``enrolled_categories`` – a list of distinct module identifiers in
-      which the student is registered (proxy for actual enrollments).
-
-    The function returns a DataFrame with one row per student.
+    pipeline.
     """
-    # ------------------------------------------------------------------
     # Recommended categories (proxy via VLE accesses)
-    # ------------------------------------------------------------------
     student_vle = dfs["studentVle"]
     vle = dfs["vle"]
 
-    # Join to obtain the category for each VLE interaction.
-    # OULAD's VLE table contains a column named ``category``; if it is
-    # missing we fall back to using ``id_site`` as a categorical label.
     category_col = "category" if "category" in vle.columns else "id_site"
     vle_subset = vle[["id_site", category_col]].rename(
         columns={category_col: "category"}
@@ -140,11 +128,9 @@ def _map_oulad_to_sessions(dfs: dict) -> pd.DataFrame:
         student_vle,
         vle_subset,
         how="left",
-        left_on="id_site",
-        right_on="id_site",
+        on="id_site",
     )
 
-    # Aggregate distinct categories per student.
     rec_cats = (
         merged.groupby("id_student")["category"]
         .apply(lambda x: list(pd.unique(x.dropna())))
@@ -152,11 +138,8 @@ def _map_oulad_to_sessions(dfs: dict) -> pd.DataFrame:
         .rename(columns={"category": "recommended_categories"})
     )
 
-    # ------------------------------------------------------------------
     # Enrolled categories (proxy via registration)
-    # ------------------------------------------------------------------
     student_reg = dfs["studentRegistration"]
-    # ``id_module`` is the course/module identifier.
     enrol_cats = (
         student_reg.groupby("id_student")["id_module"]
         .apply(lambda x: list(pd.unique(x.dropna())))
@@ -164,18 +147,14 @@ def _map_oulad_to_sessions(dfs: dict) -> pd.DataFrame:
         .rename(columns={"id_module": "enrolled_categories"})
     )
 
-    # ------------------------------------------------------------------
     # Assemble final session table
-    # ------------------------------------------------------------------
     sessions = pd.merge(
         rec_cats,
         enrol_cats,
         how="outer",
-        left_on="id_student",
-        right_on="id_student",
+        on="id_student",
     )
 
-    # Fill missing values with empty lists to keep the schema consistent.
     sessions["recommended_categories"] = sessions["recommended_categories"].apply(
         lambda x: x if isinstance(x, list) else []
     )
@@ -184,9 +163,8 @@ def _map_oulad_to_sessions(dfs: dict) -> pd.DataFrame:
     )
 
     sessions = sessions.rename(columns={"id_student": "user_id"})
-    sessions["session_id"] = sessions["user_id"]  # synthetic session identifier
+    sessions["session_id"] = sessions["user_id"]
 
-    # Re‑order columns
     sessions = sessions[
         ["user_id", "session_id", "recommended_categories", "enrolled_categories"]
     ]
@@ -194,75 +172,35 @@ def _map_oulad_to_sessions(dfs: dict) -> pd.DataFrame:
     log.info("Mapped OULAD to session schema (%d rows)", len(sessions))
     return sessions
 
-
 def _validate_schema(df: pd.DataFrame) -> None:
     """
     Ensures that the DataFrame contains the required columns.
-    Raises ``DataSchemaError`` with the exact message required by the
-    specification if the columns are missing.
+    Raises DataSchemaError with the exact message required by the spec.
     """
     missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing:
         raise DataSchemaError(
             "Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design."
         )
-    log.info("Schema validation passed – required columns present")
-
-
-# ----------------------------------------------------------------------
-# Public API
-# ----------------------------------------------------------------------
-
+    log.info("Schema validation passed")
 
 def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
     """
     Fetches an educational dataset.
-
-    * If ``dataset_id`` corresponds to a HuggingFace dataset name, the
-      function loads it via :func:`datasets.load_dataset` and returns the
-      underlying pandas DataFrame.
-    * If ``dataset_id`` is the literal string ``"oulad"``, the function
-      downloads the official OULAD dataset, extracts the CSVs, maps them to
-      the session schema and writes the processed Parquet file.
-
-    Parameters
-    ----------
-    dataset_id: str
-        Identifier of the dataset to fetch.
-
-    Returns
-    -------
-    pd.DataFrame
-        The loaded (and, for OULAD, transformed) dataset.
-
-    Raises
-    ------
-    DataAvailabilityError
-        If the dataset cannot be loaded from HuggingFace or the OULAD
-        download fails.
-    ValueError
-        If the loaded DataFrame does not contain the required columns.
     """
     if dataset_id.lower() == "oulad":
-        # --------------------------------------------------------------
-        # OULAD specific path – download the verified mirror ZIP.
-        # --------------------------------------------------------------
         _download_and_extract_oulad()
         raw_dfs = _load_raw_csvs()
 
         session_df = _map_oulad_to_sessions(raw_dfs)
         _validate_schema(session_df)
 
-        # Write the processed artefact
         PROCESSED_PARQUET.parent.mkdir(parents=True, exist_ok=True)
         session_df.to_parquet(PROCESSED_PARQUET, engine="pyarrow")
         log.info("Written processed session table to %s", PROCESSED_PARQUET)
 
         return session_df
 
-    # --------------------------------------------------------------
-    # Generic HuggingFace path – used by the unit tests.
-    # --------------------------------------------------------------
     try:
         ds = load_dataset(dataset_id, split="train")
     except Exception as exc:
@@ -276,21 +214,12 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
             f"Dataset '{dataset_id}' missing required columns {REQUIRED_COLUMNS}"
         )
 
-    log.info(
-        "Fetched dataset '%s' via HuggingFace – %d rows", dataset_id, len(df)
-    )
+    log.info("Fetched dataset '%s' via HuggingFace – %d rows", dataset_id, len(df))
     return df
-
-
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
-
 
 def main() -> None:
     """
-    CLI entry point used by ``python -m code.data_fetcher``.
-    By default it attempts to fetch the OULAD dataset.
+    CLI entry point used by python -m code.data_fetcher.
     """
     try:
         fetch_educational_dataset("oulad")
@@ -299,7 +228,6 @@ def main() -> None:
         raise
 
     log.info("Data fetching and validation completed successfully")
-
 
 if __name__ == "__main__":
     main()
