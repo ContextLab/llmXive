@@ -1,30 +1,9 @@
-status: verified
-kind: pypi_package
-ref: pycocotools
-access_python: "import urllib.request, zipfile, json, os, tempfile\nurl = \"http://images.cocodataset.org/annotations/annotations_trainval2017.zip\"\
-  \nwith urllib.request.urlopen(url) as resp:\n    data = resp.read()\nwith tempfile.TemporaryDirectory()\
-  \ as td:\n    zip_path = os.path.join(td, \"coco.zip\")\n    with open(zip_path,\
-  \ \"wb\") as f:\n        f.write(data)\n    with zipfile.ZipFile(zip_path, \"r\"\
-  ) as z:\n        with z.open('annotations/captions_val2017.json') as jf:\n     \
-  \       coco_data = json.load(jf)\nimg_map = {img['id']: img for img in coco_data['images']}\n\
-  records = []\nfor ann in coco_data['annotations']:\n    img = img_map[ann['image_id']]\n\
-  \    records.append({\n        'image_id': ann['image_id'],\n        'file_name':\
-  \ img['file_name'],\n        'height': img['height'],\n        'width': img['width'],\n\
-  \        'caption': ann['caption']\n    })\nprint(f\"RECORDS={len(records)}\")\n\
-  print(\"FIELDS=image_id,file_name,height,width,caption\")"
-record_count: 25014
-sample_fields:
-- image_id
-- file_name
-- height
-- width
-- caption
-field_coverage: 1.0
+status: none
+intent: download MS COCO 2017 validation set with captions via python package dataset
 required_fields:
 - image_id
 - file_name
-- height
-- width
 - caption
-intent: download MS COCO 2017 validation captions python package dataset
-cache_key: 55bf60add722d342514839da44065c3d6b2a87f1f192a2fa372d8cc28394d284
+cache_key: c53cbb653129d6fcd893d624064c5110b4b0b634f28f541151ef9febe5c3236f
+searched_at: '2026-10-12T11:21:17.085408+00:00'
+retry_count: 1

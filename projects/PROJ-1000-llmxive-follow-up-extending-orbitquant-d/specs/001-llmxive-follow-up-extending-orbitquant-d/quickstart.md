@@ -33,10 +33,9 @@
 4.  **Run Analysis Pipeline**:
     Execute the full pipeline (Correlation -> Clustering -> Evaluation):
     ```bash
-    python code/main.py --mode full
+    python code/main.py --phase validate
     ```
-    - **CPU Mode**: Runs entropy, clustering, and metrics. DiT generation uses SD2.1.
-    - **GPU Mode**: If SD2.1 is insufficient, the script detects memory limits and attempts to offload DiT generation to a configured GPU (or logs a warning to use Kaggle).
+    *Note: The `validate` phase checks the clustering report. Individual analysis scripts should be run according to the tasks.md sequence.*
 
 5.  **View Results**:
     - Correlation plots: `data/processed/correlation_plots/`

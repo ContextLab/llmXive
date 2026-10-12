@@ -13,83 +13,66 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”
 - code/run_quantization_validation.py: synthetic/fake INPUT data not authorized by the spec — “…# We'll create a dummy input to the model's main bloc…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
 
-- run-book command: `python code/main.py --mode full`
-  - script usage: `main.py [-h] --phase {init,validate}`
-  - argparse error: `main.py: error: the following arguments are required: --phase`
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/raw/coco_captions/captions.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; 4 command(s) failed: python code/data/download_coco.py (rc=1); python code/main.py --mode full (rc=2); python -m pytest tests/unit/ (rc=2); 6 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/diverse_prompts.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; every produced artifact is gitignored (data/raw/coco_captions/captions.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/main.py --phase validate (rc=1); python -m pytest tests/unit/ (rc=2); python -m pytest tests/integration/ (rc=2); 4 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/final_evaluation_report.json
 
 ## Failing / missing run-book commands
 
-- python code/data/download_coco.py -> rc=1
-0-llmxive-follow-up-extending-orbitquant-d/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+- python code/main.py --phase validate -> rc=1
 
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/data/download_coco.py", line 14, in <module>
-    raise RuntimeError("The 'datasets' library is required. Please run 'pip install datasets'.")
-RuntimeError: The 'datasets' library is required. Please run 'pip install datasets'.
-
-- python code/main.py --mode full -> rc=2
-
-usage: main.py [-h] --phase {init,validate}
-main.py: error: the following arguments are required: --phase
+2026-10-12 11:20:10,236 - INFO - Starting Validation Gate for: data/processed/clustering_report.json
+2026-10-12 11:20:10,236 - ERROR - CRITICAL: Clustering report not found at data/processed/clustering_report.json.
 
 - python -m pytest tests/unit/ -> rc=2
-1.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+tquant-d/tests/unit/test_validate_clustering.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_validate_clustering.py:15: in <module>
     from validation.validate_clustering import (
 E   ImportError: cannot import name 'REQUIRED_TOP_LEVEL_KEYS' from 'validation.validate_clustering' (/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/validation/validate_clustering.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_clustering.py - FileNotFoundError: [Errno 2] No such fi...
-ERROR tests/unit/test_download_diverse_prompts.py - RuntimeError: The 'datase...
-ERROR tests/unit/test_entropy.py
-ERROR tests/unit/test_entropy_edge_cases.py
+ERROR tests/unit/test_download_diverse_prompts.py
 ERROR tests/unit/test_load_matrices.py
-ERROR tests/unit/test_proxy_failure.py
+ERROR tests/unit/test_preprocess.py
 ERROR tests/unit/test_router_inference.py
-ERROR tests/unit/test_timing.py - FileNotFoundError: [Errno 2] No such file o...
+ERROR tests/unit/test_timing.py
 ERROR tests/unit/test_validate_clustering.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 3.71s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 4.83s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-e>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-pyarrow/lib.pyx:42: in init pyarrow.lib
-    ???
-E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-
-During handling of the above exception, another exception occurred:
-tests/integration/test_preprocess.py:9: in <module>
-    from code.data.download_coco import main as download_coco_main
-code/data/download_coco.py:14: in <module>
-    raise RuntimeError("The 'datasets' library is required. Please run 'pip install datasets'.")
-E   RuntimeError: The 'datasets' library is required. Please run 'pip install datasets'.
+ive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/tests/integration/test_full_pipeline.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/integration/test_full_pipeline.py:35: in <module>
+    from evaluation.timing import measure_inference_time
+code/evaluation/timing.py:36: in <module>
+    from quantization.static_baseline import StaticRotationBaseline
+E   ImportError: cannot import name 'StaticRotationBaseline' from 'quantization.static_baseline' (/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/quantization/static_baseline.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_activation_variance.py
 ERROR tests/integration/test_download_diverse_prompts.py
-ERROR tests/integration/test_full_pipeline.py - FileNotFoundError: [Errno 2] ...
-ERROR tests/integration/test_generate_correlation_results.py
-ERROR tests/integration/test_preprocess.py - RuntimeError: The 'datasets' lib...
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 3.14s ===============================
+ERROR tests/integration/test_full_pipeline.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 5.12s ===============================
 
 
 
@@ -97,47 +80,8 @@ ERROR tests/integration/test_preprocess.py - RuntimeError: The 'datasets' lib...
 
 - data/processed/clustering_report.json
 - data/processed/correlation_results.json
-- data/processed/diverse_prompts.csv
 - data/processed/final_evaluation_report.json
-- data/processed/prompts.csv
 - data/processed/quantized_activations.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `pycocotools` to the project's `requirements.txt` and `pip install pycocotools`.
-- **Verified**: this loads **25014** real records with fields: image_id, file_name, height, width, caption.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import urllib.request, zipfile, json, os, tempfile
-url = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
-with urllib.request.urlopen(url) as resp:
-    data = resp.read()
-with tempfile.TemporaryDirectory() as td:
-    zip_path = os.path.join(td, "coco.zip")
-    with open(zip_path, "wb") as f:
-        f.write(data)
-    with zipfile.ZipFile(zip_path, "r") as z:
-        with z.open('annotations/captions_val2017.json') as jf:
-            coco_data = json.load(jf)
-img_map = {img['id']: img for img in coco_data['images']}
-records = []
-for ann in coco_data['annotations']:
-    img = img_map[ann['image_id']]
-    records.append({
-        'image_id': ann['image_id'],
-        'file_name': img['file_name'],
-        'height': img['height'],
-        'width': img['width'],
-        'caption': ann['caption']
-    })
-print(f"RECORDS={len(records)}")
-print("FIELDS=image_id,file_name,height,width,caption")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -162,36 +106,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/run_correlation.py` — NOT invoked by the run-book
     - `code/validation/validate_correlation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/correlation_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/diverse_prompts.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/entropy_proxy.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
-    - `code/data/download_diverse_prompts.py` — NOT invoked by the run-book
-    - `code/data/preprocess.py` — NOT invoked by the run-book
-    - `code/evaluation/timing.py` — NOT invoked by the run-book
-    - `code/run_correlation.py` — NOT invoked by the run-book
-    - `code/run_evaluation.py` — NOT invoked by the run-book
-    - `code/run_router_inference.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/diverse_prompts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/final_evaluation_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/statistical_test.py` — NOT invoked by the run-book
     - `code/run_evaluation.py` — NOT invoked by the run-book
     - `code/run_evaluation_modular.py` — NOT invoked by the run-book
     - `code/utils/data_streaming.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/final_evaluation_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/prompts.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlation.py` — NOT invoked by the run-book
-    - `code/analysis/entropy_proxy.py` — NOT invoked by the run-book
-    - `code/analysis/sensitivity.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
-    - `code/data/download_diverse_prompts.py` — NOT invoked by the run-book
-    - `code/data/preprocess.py` — NOT invoked by the run-book
-    - `code/evaluation/metrics.py` — NOT invoked by the run-book
-    - `code/evaluation/timing.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/prompts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/quantized_activations.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/mse_validator.py` — NOT invoked by the run-book
-    - `code/quantization/static_baseline.py` — NOT invoked by the run-book
-    - `code/quantization/w2a4_engine.py` — NOT invoked by the run-book
     - `code/run_quantization_validation.py` — NOT invoked by the run-book
     - `code/utils/data_streaming.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/quantized_activations.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

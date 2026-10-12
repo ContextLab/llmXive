@@ -25,8 +25,6 @@ class Config:
         Base directory for raw downloaded artifacts.
     processed_data_dir: Path
         Directory for processed CSV/JSON outputs.
-    state_dir: Path
-        Directory for state and hash files.
     seed: int
         Random seed for any stochastic operations.
     """
@@ -35,7 +33,6 @@ class Config:
     tests_dir: Path = Path("tests")
     raw_data_dir: Path = Path("data/raw")
     processed_data_dir: Path = Path("data/processed")
-    state_dir: Path = Path("state")
     seed: int = 42
 
     # Convenience properties used by other modules

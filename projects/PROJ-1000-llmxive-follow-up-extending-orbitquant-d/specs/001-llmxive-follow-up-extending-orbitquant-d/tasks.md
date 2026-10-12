@@ -15,7 +15,7 @@ All tasks are expressed as check‑boxes with the canonical `- [ ] T### [P?] [US
 
 ## Phase 2 – Data acquisition & prompt preparation  
 
-- [ ] T002 [P] Download MS‑COCO validation set, extract captions, and fetch a diverse external prompt set   <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/download_diverse_prompts.py exit=1; code/data/preprocess.py exit=1 -->
+- [X] T002 [P] Download MS‑COCO validation set, extract captions, and fetch a diverse external prompt set
   - **Steps**  
     1. `code/data/download_coco.py` → `data/raw/coco_captions/` (HuggingFace `nlpconnect/coco_captions`, split = validation).  
     2. `code/data/preprocess.py` → `data/processed/prompts.csv` with columns `image_id, caption`. Must contain ≥ 400 rows.  
@@ -39,7 +39,7 @@ All tasks are expressed as check‑boxes with the canonical `- [ ] T### [P?] [US
 
 ## Phase 4 – End‑to‑end correlation analysis (User Story 1)  
 
-- [ ] T004 [US1] Run the correlation pipeline and produce `data/processed/correlation_results.json`  
+- [ ] T004 [US1] Run the correlation pipeline and produce `data/processed/correlation_results.json`   <!-- FAILED-IN-EXECUTION: code/run_correlation.py exit=1 -->
   - **Orchestration**: `code/run_correlation.py` performs: load `diverse_prompts.csv`, compute entropy (T003), load DiT (T003), generate a forward pass, capture activation variance (T003), and compute Pearson `r` and `p` via `scipy.stats.pearsonr`.  
   - **Output schema** (`correlation_results.json`): `{correlation: float, p_value: float, n_prompts: int, layers_analyzed: [str], entropy_range: [float, float], variance_range: [float, float]}`.  
   - **Verification**: `python -c "import json; r=json.load(open('data/processed/correlation_results.json')); assert 0<=r['p_value']<=1"` succeeds and `r['n_prompts']` ≥ 100.

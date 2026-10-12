@@ -3,7 +3,7 @@ Main orchestration script for the project.
 
 This script supports multiple phases:
 - init:   Sets up the environment, creates required directories, and prints a confirmation message.
-- validate: Runs the clustering validation gate (used by later tasks).
+- validate: Runs the clustering validation gate.
 """
 
 import sys

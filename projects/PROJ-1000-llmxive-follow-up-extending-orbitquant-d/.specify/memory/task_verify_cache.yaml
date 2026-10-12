@@ -1,12 +1,12 @@
-T001:
-  c: false
-  h: 1cc91cd3e5e7107ae9028fbabffc7bdb173fb4a28e51a92be9ee2680ef88d635
-  r: 'The directory skeleton, `requirements.txt` (contains torch), `code/config.py`,
-    and `quickstart.md` all exist, but the required quick-start command `python code/main.py
-    --phase init` cannot succeed: `main.py`''s `run_init_phase` accesses `cfg.code_dir`,
-    `cfg.tests_dir`, and `cfg.project_root`, none of which are defined in the shown
-    `code/config.py` (it only defines `raw_data_dir`, `processed_data_dir`, `seed`,
-    and two path properties), so it would raise `AttributeError` before printing "Initialization
-    complete". Additionally, the quickstart.md instructs `python code/main.py --mode
-    full`, which t'
-  sig: 5f3e288a0fe4864179687fd4a086bf52c763636dbe7cb2cf6902d4f8408e6a2f
+T002:
+  c: true
+  h: 2901af2c1c7e38b8d602b41d3bc26beed06e8aca94070a1a769f8d99b53acfc4
+  r: 'All three scripts exist and executed successfully (exit 0 logs), producing real
+    COCO data: `data/raw/coco_captions/captions.csv` (25,014 validation captions),
+    `data/processed/prompts.csv` (25,789 unique rows with `image_id,caption`, well
+    over 400), and `data/processed/diverse_prompts.csv` (1,000 rows with `prompt_id,caption,source`,
+    over 150). All scripts raise `RuntimeError` on fetch failure with no synthetic
+    fallback, and the data is genuine COCO captions (verified against file contents),
+    not fabricated. Minor deviation: the scripts fetch from the official COCO annotations
+    URL rather than Hu'
+  sig: f6d3bb5881ef8866414920368ea8fcd18ee2286ee90dc12835858df3c9f4549a
