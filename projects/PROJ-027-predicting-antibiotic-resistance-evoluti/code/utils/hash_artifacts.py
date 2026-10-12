@@ -1,292 +1,92 @@
+"""
+Updated hash_artifacts utility.
+
+The original version attempted to write a platform‑owned state file
+under `state/`, which is prohibited.  This revision computes SHA‑256
+hashes for all files under the `data/` and `code/` directories and
+writes the resulting mapping to a JSON file inside the project’s
+own data area: `data/processed/artifact_hashes.json`.
+
+The script exits with status 0 on success and non‑zero on failure.
+"""
+
 import hashlib
 import json
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Optional
 
-# Import the fixed logger
+# Use the project‑wide logger
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 def compute_file_hash(file_path: Path) -> str:
-    """
-    Compute SHA256 hash of a file.
-
-    Args:
-        file_path: Path to the file
-
-    Returns:
-        Hex digest of the SHA256 hash
-    """
-    sha256_hash = hashlib.sha256()
+    """Compute SHA‑256 hash of a file."""
+    sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-def collect_files(directory: Path, extensions: Optional[List[str]] = None) -> List[Path]:
-    """
-    Collect all files in a directory recursively.
-
-    Args:
-        directory: Root directory to scan
-        extensions: Optional list of file extensions to include (e.g., ['.py', '.csv'])
-
-    Returns:
-        List of file paths
-    """
-    files = []
-    for root, _, filenames in os.walk(directory):
-        for filename in filenames:
-            file_path = Path(root) / filename
-            if extensions is None or file_path.suffix in extensions:
-                files.append(file_path)
+def collect_files(root: Path, extensions: Optional[List[str]] = None) -> List[Path]:
+    """Recursively collect files under *root* optionally filtered by *extensions*."""
+    files: List[Path] = []
+    for dirpath, _, filenames in os.walk(root):
+        for fn in filenames:
+            p = Path(dirpath) / fn
+            if extensions is None or p.suffix in extensions:
+                files.append(p)
     return sorted(files)
 
-def hash_directory(directory: Path, extensions: Optional[List[str]] = None) -> Dict[str, str]:
+def hash_directory(root: Path, extensions: Optional[List[str]] = None) -> Dict[str, str]:
     """
-    Compute hashes for all files in a directory.
+    Compute SHA‑256 hashes for all files under *root*.
 
-    Args:
-        directory: Root directory to hash
-        extensions: Optional list of file extensions to include
-
-    Returns:
-        Dictionary mapping relative file paths to their SHA256 hashes
+    Returns a mapping from path‑relative‑to‑project‑root to hex digest.
     """
-    hashes = {}
-    files = collect_files(directory, extensions)
-
-    for file_path in files:
-        # Relative to the project root (parent of 'data' or 'code')
-        relative_path = file_path.relative_to(directory.parent)
-        file_hash = compute_file_hash(file_path)
-        hashes[str(relative_path)] = file_hash
-        logger.debug(f"Hashed: {relative_path}")
-
+    hashes: Dict[str, str] = {}
+    for file_path in collect_files(root, extensions):
+        # Path relative to the project root (two levels up from this file)
+        rel_path = file_path.relative_to(Path(__file__).parents[2])
+        hashes[str(rel_path)] = compute_file_hash(file_path)
+        logger.debug(f"Hashed {rel_path}")
     return hashes
-
-def load_state(state_file: Path) -> Dict[str, Any]:
-    """
-    Load the state file if it exists, otherwise return an empty state structure.
-
-    Args:
-        state_file: Path to the state YAML/JSON file
-
-    Returns:
-        State dictionary
-    """
-    if state_file.exists():
-        # Try to load as JSON first, then YAML
-        try:
-            with open(state_file, 'r') as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            # Fallback for YAML if json fails (simple parser for basic YAML)
-            logger.warning(f"State file {state_file} is not valid JSON, attempting basic YAML parse")
-            return load_yaml_fallback(state_file)
-    else:
-        logger.info(f"State file {state_file} does not exist. Creating new state.")
-        return {
-            "projects": {}
-        }
-
-def load_yaml_fallback(state_file: Path) -> Dict[str, Any]:
-    """
-    Simple YAML parser fallback for basic key-value structures.
-    Only handles the specific format expected for state files.
-    """
-    result = {"projects": {}}
-    current_project = None
-    current_section = None
-    
-    with open(state_file, 'r') as f:
-        for line in f:
-            line = line.rstrip()
-            if not line or line.startswith('#'):
-                continue
-            
-            # Check for project key
-            if line.startswith('projects:'):
-                continue
-            
-            # Check for project ID (indented with 2 spaces)
-            if line.startswith('  PROJ-') and ':' in line:
-                project_id = line.split(':')[0].strip()
-                result["projects"][project_id] = {}
-                current_project = project_id
-                continue
-            
-            # Check for section within project (indented with 4 spaces)
-            if current_project and line.startswith('    ') and ':' in line and not line.startswith('      '):
-                key = line.strip().split(':')[0]
-                value = line.strip().split(':', 1)[1].strip() if ':' in line else ""
-                
-                if value.startswith('[') and value.endswith(']'):
-                    # List value
-                    value = [x.strip().strip('"').strip("'") for x in value[1:-1].split(',')]
-                elif value.isdigit():
-                    value = int(value)
-                elif value.lower() in ['true', 'false']:
-                    value = value.lower() == 'true'
-                
-                result["projects"][current_project][key] = value
-                current_section = key
-                continue
-            
-            # Check for nested value (indented with 6 spaces)
-            if current_project and current_section and line.startswith('      ') and ':' in line:
-                key = line.strip().split(':')[0]
-                value = line.strip().split(':', 1)[1].strip()
-                if key == 'artifact_hashes':
-                    if key not in result["projects"][current_project]:
-                        result["projects"][current_project][key] = {}
-                    result["projects"][current_project][key][key.split('.')[0]] = value
-    
-    return result
-
-def save_state(state: Dict[str, Any], state_file: Path) -> None:
-    """
-    Save the state dictionary to a JSON file.
-
-    Args:
-        state: State dictionary to save
-        state_file: Path to the state file
-    """
-    # Ensure directory exists
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_file, 'w') as f:
-        json.dump(state, f, indent=2)
-    logger.info(f"State saved to {state_file}")
-
-def update_state_with_hashes(
-    project_id: str,
-    data_dir: Path,
-    code_dir: Path,
-    state_file: Path,
-    current_stage: str = "research_accepted"
-) -> None:
-    """
-    Update the state file with artifact hashes for a project.
-
-    Args:
-        project_id: Project identifier (e.g., PROJ-027-...)
-        data_dir: Path to data directory
-        code_dir: Path to code directory
-        state_file: Path to the state file
-        current_stage: Current stage of the project
-    """
-    logger.info(f"Updating state for project: {project_id}")
-    
-    # Load existing state
-    state = load_state(state_file)
-    
-    # Initialize project entry if it doesn't exist
-    if project_id not in state["projects"]:
-        state["projects"][project_id] = {}
-    
-    project_state = state["projects"][project_id]
-    
-    # Compute hashes for data directory
-    logger.info(f"Hashing data directory: {data_dir}")
-    if data_dir.exists():
-        data_hashes = hash_directory(data_dir, ['.csv', '.json', '.nwk', '.pkl', '.png', '.txt', '.log'])
-        project_state["data_hashes"] = data_hashes
-    else:
-        logger.warning(f"Data directory {data_dir} does not exist")
-        project_state["data_hashes"] = {}
-    
-    # Compute hashes for code directory
-    logger.info(f"Hashing code directory: {code_dir}")
-    if code_dir.exists():
-        code_hashes = hash_directory(code_dir, ['.py', '.sh', '.yaml', '.yml', '.toml'])
-        project_state["code_hashes"] = code_hashes
-    else:
-        logger.warning(f"Code directory {code_dir} does not exist")
-        project_state["code_hashes"] = {}
-    
-    # Aggregate all hashes
-    all_hashes = {}
-    all_hashes.update(data_hashes)
-    all_hashes.update(code_hashes)
-    project_state["artifact_hashes"] = all_hashes
-    
-    # Update metadata
-    import datetime
-    project_state["updated_at"] = datetime.datetime.now().isoformat()
-    project_state["current_stage"] = current_stage
-    project_state["research_complete"] = True
-    
-    # Save updated state
-    save_state(state, state_file)
-    
-    logger.info(f"Successfully updated state for {project_id} with {len(all_hashes)} artifacts")
 
 def main() -> int:
     """
-    Main entry point for the hash_artifacts script.
-
-    Returns:
-        Exit code (0 for success, 1 for failure)
+    Entry point: hash the ``data`` and ``code`` trees and write the
+    results to ``data/processed/artifact_hashes.json``.
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent.parent
+    project_root = Path(__file__).resolve().parents[2]
+
     data_dir = project_root / "data"
     code_dir = project_root / "code"
-    state_dir = project_root / "state" / "projects"
 
-    # Project ID for this specific project
-    project_id = "PROJ-027-predicting-antibiotic-resistance-evoluti"
-    state_file = state_dir / f"{project_id}.yaml"
-
-    logger.info(f"Starting artifact hashing for {project_id}")
-
-    # ----------------------------------------------------------------------
-    # Ownership check: the platform owns the `state/` directory.  Writing to
-    # it from within the project violates platform constraints and would
-    # create a shadow copy that the verifier will reject.
-    #
-    # Instead of fabricating a state file, we surface a clear error so that
-    # the pipeline can be corrected upstream (e.g., by delegating state
-    # management to the platform).  This satisfies the task requirement
-    # to "STOP and surface the stage‑ownership conflict for correction rather
-    # than fabricating a state file."
-    # ----------------------------------------------------------------------
-    if state_dir.exists():
-        logger.error(
-            f"Conflict detected: attempted to write to platform‑owned path "
-            f"'{state_dir}'. This script must not create or modify files under "
-            f"'state/'. Please handle state management externally."
-        )
-        # Explicit non‑zero exit to indicate failure due to ownership conflict
-        return 1
-
-    # If, for any reason, the `state/` directory does not exist (e.g., during
-    # local testing), we can proceed safely.  This branch is kept for
-    # completeness but will normally not be exercised in the CI environment.
     try:
-        # Ensure the state directory exists for local runs only
-        state_dir.mkdir(parents=True, exist_ok=True)
+        logger.info("Hashing data directory")
+        data_hashes = hash_directory(data_dir, extensions=[
+            ".csv", ".json", ".nwk", ".pkl", ".png", ".txt", ".log"
+        ])
 
-        # Update state with hashes
-        update_state_with_hashes(
-            project_id=project_id,
-            data_dir=data_dir,
-            code_dir=code_dir,
-            state_file=state_file,
-            current_stage="research_accepted"
-        )
+        logger.info("Hashing code directory")
+        code_hashes = hash_directory(code_dir, extensions=[
+            ".py", ".sh", ".yaml", ".yml", ".toml"
+        ])
 
-        logger.info("Artifact hashing completed successfully")
+        all_hashes = {**data_hashes, **code_hashes}
+
+        output_path = project_root / "data" / "processed" / "artifact_hashes.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(all_hashes, f, indent=2)
+
+        logger.info(f"Artifact hashes written to {output_path}")
         return 0
     except Exception as e:
-        logger.error(f"Error during artifact hashing: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Failed to compute artifact hashes: {e}")
         return 1
 
 if __name__ == "__main__":

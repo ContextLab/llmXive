@@ -13,9 +13,9 @@ It records runtime statistics (start/end timestamps, duration,
 peak RSS memory usage) and writes them to
 `data/processed/pipeline_runtime.json`.  If any stage fails, the
 script exits with a non‑zero code; contract validation aborts the
-pipeline with exit code 1 (E001).  The script now also enforces the
-runtime and memory limits required by task T102 and raises an explicit
-error if they are exceeded.
+pipeline with exit code 1 (E001).  The script also enforces the
+runtime and memory limits required by task T102 and raises an
+explicit error if they are exceeded.
 """
 
 import argparse
@@ -30,7 +30,7 @@ import psutil
 # llmxive toolkit helpers for path creation
 from llmxive_toolkit import paths
 
-# Initialize pipeline-wide logging
+# Initialize pipeline‑wide logging
 from utils.logging import init_pipeline_logging, get_logger
 
 logger = init_pipeline_logging()
@@ -65,22 +65,25 @@ def run_subprocess(command: list, description: str) -> int:
         logger.info(f"Stage '{description}' completed successfully")
     return result.returncode
 
-
 # Global variables for runtime measurement
 _START_TIME = datetime.datetime.now(datetime.timezone.utc)
 _PEAK_MEMORY = psutil.Process().memory_info().rss  # bytes
-
 
 def _update_peak_memory() -> None:
     """Update the global peak memory measurement if current usage is higher."""
     global _PEAK_MEMORY
     try:
+        # Include memory used by any child processes that are still alive.
         current = psutil.Process().memory_info().rss
+        for child in psutil.Process().children(recursive=True):
+            try:
+                current += child.memory_info().rss
+            except psutil.NoSuchProcess:
+                pass
         if current > _PEAK_MEMORY:
             _PEAK_MEMORY = current
     except Exception as e:
         logger.warning(f"Unable to update peak memory: {e}")
-
 
 def stage_ingest(args: argparse.Namespace) -> int:
     """
@@ -120,7 +123,6 @@ def stage_ingest(args: argparse.Namespace) -> int:
     _update_peak_memory()
     return rc
 
-
 def stage_contract_validation() -> int:
     """
     Run pytest on the contract tests. Abort on failure with E001.
@@ -132,7 +134,6 @@ def stage_contract_validation() -> int:
         sys.exit(EXIT_CONTRACT_FAILED)
     _update_peak_memory()
     return rc
-
 
 def stage_train(args: argparse.Namespace) -> int:
     """
@@ -147,7 +148,6 @@ def stage_train(args: argparse.Namespace) -> int:
     rc = run_subprocess(cmd, "train_models")
     _update_peak_memory()
     return rc
-
 
 def stage_validate(args: argparse.Namespace) -> int:
     """
@@ -187,10 +187,11 @@ def stage_validate(args: argparse.Namespace) -> int:
     _update_peak_memory()
     return rc
 
-
 def stage_hash_artifacts() -> int:
     """
     Final stage – compute SHA256 hashes for all data and code artifacts.
+    The updated script writes the hashes to `data/processed/artifact_hashes.json`
+    instead of the platform‑owned `state/` directory.
     """
     cmd = [
         sys.executable,
@@ -199,7 +200,6 @@ def stage_hash_artifacts() -> int:
     rc = run_subprocess(cmd, "hash_artifacts")
     _update_peak_memory()
     return rc
-
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -244,7 +244,6 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-
 def _write_runtime_report() -> None:
     """
     Write the runtime JSON report to `data/processed/pipeline_runtime.json`.
@@ -282,9 +281,7 @@ def _write_runtime_report() -> None:
         logger.info(f"Pipeline runtime written to {runtime_path}")
     except Exception as e:
         logger.error(f"Failed to write pipeline runtime report: {e}")
-        # Propagate the error – the pipeline cannot guarantee correct reporting
         raise
-
 
 def main() -> int:
     args = parse_args()
@@ -313,23 +310,28 @@ def main() -> int:
     # Full pipeline execution – ordered as required by T101
     rc = stage_ingest(args)
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     rc = stage_contract_validation()
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     rc = stage_train(args)
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     rc = stage_validate(args)
     if rc != 0:
+        _write_runtime_report()
         return rc
 
     rc = stage_hash_artifacts()
+    # Write runtime report once at the very end of the full run
+    _write_runtime_report()
     return rc
-
 
 if __name__ == "__main__":
     sys.exit(main())

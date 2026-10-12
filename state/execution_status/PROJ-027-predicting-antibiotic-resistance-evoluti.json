@@ -11,10 +11,10 @@
     "python code/main.py --stage viz --antibiotic ciprofloxacin -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/main.py': [Errno 2] No such file or directory"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-11T19:14:30Z"
+  "updated_at": "2026-10-12T10:15:26Z"
 }

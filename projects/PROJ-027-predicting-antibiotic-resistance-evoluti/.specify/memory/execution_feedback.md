@@ -9,7 +9,7 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/pipeline_runtime.json, data/processed/verification_summary.json, data/raw/download_manifest.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/artifact_hashes.json, data/processed/pipeline_runtime.json, data/processed/verification_summary.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -21,16 +21,16 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/pipeline_runtime.json, data/processed/verification_summary.json, data/raw/download_manifest.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 7 command(s) failed: python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 (rc=1); python -m pytest tests/contract/ (rc=1); python code/main.py --stage train --antibiotic ciprofloxacin (rc=2)
+**Summary**: every produced artifact is gitignored (data/processed/artifact_hashes.json, data/processed/pipeline_runtime.json, data/processed/verification_summary.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 (rc=1); python -m pytest tests/contract/ (rc=1); python code/main.py --stage train --antibiotic ciprofloxacin (rc=2)
 
 ## Failing / missing run-book commands
 
 - python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 -> rc=1
-2026-10-12 02:25:52 - root - INFO - Running stage: download_ncbi
-2026-10-12 02:25:53 - root - INFO - Stage 'download_ncbi' completed successfully
-2026-10-12 02:25:53 - root - INFO - Running stage: ingest_metadata
-2026-10-12 02:25:53 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
-2026-10-12 02:25:53 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-12 10:14:44 - root - INFO - Running stage: download_ncbi
+2026-10-12 10:14:45 - root - INFO - Stage 'download_ncbi' completed successfully
+2026-10-12 10:14:45 - root - INFO - Running stage: ingest_metadata
+2026-10-12 10:14:45 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
+2026-10-12 10:14:45 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -48,25 +48,20 @@ FAILED tests/contract/test_phyl_permutation_schema.py::test_p_value_valid_range
 FAILED tests/contract/test_phyl_permutation_schema.py::test_significance_flag_consistent
 FAILED tests/contract/test_phyl_permutation_schema.py::test_permutation_count_positive
 FAILED tests/contract/test_phyl_permutation_schema.py::test_observed_statistic_numeric
-========================= 6 failed, 10 passed in 0.53s =========================
+========================= 6 failed, 10 passed in 0.56s =========================
 
 
 - python code/main.py --stage train --antibiotic ciprofloxacin -> rc=2
-2026-10-12 02:25:54 - root - INFO - Running stage: train_models
-2026-10-12 02:25:55 - root - ERROR - Stage 'train_models' failed with exit code 2
-2026-10-12 02:25:55 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-12 10:14:46 - root - INFO - Running stage: train_models
+2026-10-12 10:14:47 - root - ERROR - Stage 'train_models' failed with exit code 2
+2026-10-12 10:14:47 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations] -> rc=2
-2026-10-12 02:25:55 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to default 1000.
-2026-10-12 02:25:55 - root - INFO - Running stage: phylo_permutation
-2026-10-12 02:25:55 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
-2026-10-12 02:25:55 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
-
-
-- python code/utils/hash_artifacts.py -> rc=1
-2026-10-12 02:25:55 - __main__ - INFO - Starting artifact hashing for PROJ-027-predicting-antibiotic-resistance-evoluti
-2026-10-12 02:25:55 - __main__ - ERROR - Conflict detected: attempted to write to platform‑owned path '/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/state/projects'. This script must not create or modify files under 'state/'. Please handle state management externally.
+2026-10-12 10:14:47 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to default 1000.
+2026-10-12 10:14:47 - root - INFO - Running stage: phylo_permutation
+2026-10-12 10:14:47 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
+2026-10-12 10:14:47 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage viz --antibiotic ciprofloxacin -> rc=2
@@ -77,7 +72,7 @@ usage: main.py [-h] [--stage {ingest,contract,train,validate,hash,full}]
 main.py: error: argument --stage: invalid choice: 'viz' (choose from 'ingest', 'contract', 'train', 'validate', 'hash', 'full')
 
 - python -m pytest tests/ -> rc=2
-de.main_reproducible import verify_plasmid_exclusion, verify_checksums
+id_exclusion, verify_checksums
 E   ModuleNotFoundError: No module named 'code.main_reproducible'
 ________________ ERROR collecting tests/unit/test_split_data.py ________________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/tests/unit/test_split_data.py'.
@@ -90,10 +85,11 @@ tests/unit/test_split_data.py:14: in <module>
 E   ModuleNotFoundError: No module named 'code_03_model_split_data'
 =========================== short test summary info ============================
 ERROR tests/test_setup_directories.py
+ERROR tests/unit/test_hash_artifacts.py
 ERROR tests/unit/test_main_reproducible.py
 ERROR tests/unit/test_split_data.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.43s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 0.50s ===============================
 
 
 ## Platform-owned paths written inside the project

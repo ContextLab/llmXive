@@ -1,14 +1,13 @@
 status: none
-intent: download E coli genomic sequences PRJNA528852 PRJNA492488 with susceptibility
-  metadata CARD reference python package dataset
+intent: download NCBI Pathogen Detection E coli PRJNA528852 PRJNA492488 susceptibility
+  metadata CARD reference genome python package dataset
 required_fields:
 - isolate_id
-- fasta_sequence
-- antibiotic
-- susceptibility_category
-- susceptibility_mic
-- resistance_gene_presence
-- snp_count_per_gene
-cache_key: 9ea85cfc3f24e7c518e617d221bbcd357719f7aea8e38ef84d520474d22e0948
-searched_at: '2026-10-12T02:26:26.767887+00:00'
+- genome_fasta_path
+- antibiotic_name
+- susceptibility_category_or_MIC
+- snp_counts_per_gene
+- resistance_gene_presence_binary
+cache_key: b288ce3d544d9137793356babebd40abe4eb2dce38beb7e513a28038df808b1c
+searched_at: '2026-10-12T10:15:26.836451+00:00'
 retry_count: 1
