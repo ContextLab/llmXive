@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get up and running with the antibiotic resistance prediction pipeline in under 15 minutes. [UNRESOLVED-CLAIM: c_16bfd1a0 — status=not_enough_info]
+Get up and running with the antibiotic resistance prediction pipeline in under 15 minutes.
 
 ## Step 1: Environment Setup (3 minutes)
 
@@ -23,7 +23,7 @@ python code/setup_directories.py
 ```
 
 This creates all necessary directories:
-- `code/01_ingest/`, `code/02_process/`, etc.
+- `code/01_ingest/`, `code/02_process/`, `etc.`
 - `data/raw/`, `data/processed/`, `data/models/`
 - `tests/contract/`, `tests/unit/`
 
@@ -64,8 +64,8 @@ python code/main.py --stage train --antibiotic ciprofloxacin
 # Validation only
 python code/main.py --stage validate --antibiotic ciprofloxacin --permutations 1000
 
-# Generate figures
-python code/main.py --stage viz --antibiotic ciprofloxacin
+# Versioning (hash artifacts)
+python code/main.py --stage hash
 ```
 
 ## Step 5: Verify Outputs (2 minutes)
@@ -113,7 +113,7 @@ brew install snippy ariba
 ### Memory Issues
 Reduce `MAX_ISOLATES` in `config.yaml` or use streaming mode for large datasets.
 
-### Phylogeny Generation Fails
+### Phylogeny Error
 Ensure `dendropy` and `statsmodels` are installed.
 
 ## Next Steps

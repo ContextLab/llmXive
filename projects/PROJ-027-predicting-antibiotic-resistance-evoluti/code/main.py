@@ -1,19 +1,21 @@
 """
 Main entry point for the antibiotic resistance prediction pipeline.
 
-This script orchestrates the pipeline stages:
+This script orchestrates the pipeline stages in the order required by
+task T101:
   1. Ingestion
-  2. Modeling (training)
-  3. Validation (permutation test + sensitivity analysis)
-  4. Visualization
-  5. Contract validation (pytest) – executed **after** all data‑producing stages
-  6. Versioning / state finalization (hash artifacts)
+  2. Contract validation (pytest)
+  3. Modeling (training)
+  4. Validation (permutation test & sensitivity analysis)
+  5. Versioning / state finalization (hash artifacts)
 
 It records runtime statistics (start/end timestamps, duration,
-and peak RSS memory usage) and writes them to
+peak RSS memory usage) and writes them to
 `data/processed/pipeline_runtime.json`.  If any stage fails, the
 script exits with a non‑zero code; contract validation aborts the
-pipeline with a dedicated exit code (E001 → 1).
+pipeline with exit code 1 (E001).  The script now also enforces the
+runtime and memory limits required by task T102 and raises an explicit
+error if they are exceeded.
 """
 
 import argparse
@@ -34,9 +36,13 @@ from utils.logging import init_pipeline_logging, get_logger
 logger = init_pipeline_logging()
 
 # Constants for exit codes
-EXIT_CONTRACT_FAILED = 1  # E001 as per spec (mapped to 1)
+EXIT_CONTRACT_FAILED = 1   # E001 as per spec (mapped to 1)
 EXIT_INSUFFICIENT_DATA = 4  # E004 (not used directly here)
+EXIT_LIMIT_EXCEEDED = 5     # Exceeded runtime or memory limits
 
+# Limits required by task T102
+MAX_DURATION_SECONDS = 21600                # 6 hours
+MAX_MEMORY_BYTES = 7 * 1024 ** 3            # 7 GB
 
 def run_subprocess(command: list, description: str) -> int:
     """
@@ -115,6 +121,19 @@ def stage_ingest(args: argparse.Namespace) -> int:
     return rc
 
 
+def stage_contract_validation() -> int:
+    """
+    Run pytest on the contract tests. Abort on failure with E001.
+    """
+    cmd = ["pytest", "tests/contract/"]
+    rc = run_subprocess(cmd, "contract_validation")
+    if rc != 0:
+        logger.error("Contract validation failed – aborting pipeline.")
+        sys.exit(EXIT_CONTRACT_FAILED)
+    _update_peak_memory()
+    return rc
+
+
 def stage_train(args: argparse.Namespace) -> int:
     """
     Model training stage.
@@ -136,8 +155,7 @@ def stage_validate(args: argparse.Namespace) -> int:
       - phylo_permutation.py
       - sensitivity_analysis.py
     """
-    # Ensure permutations is an integer; the quickstart guide sometimes
-    # uses the placeholder "[sufficient_permutations]".
+    # Ensure permutations is an integer; quickstart may use a placeholder.
     try:
         perms = int(args.permutations)
     except (ValueError, TypeError):
@@ -170,33 +188,6 @@ def stage_validate(args: argparse.Namespace) -> int:
     return rc
 
 
-def stage_viz(args: argparse.Namespace) -> int:
-    """
-    Visualization stage – generate plots for the specified antibiotic.
-    """
-    cmd = [
-        sys.executable,
-        "code/05_viz/generate_plots.py",
-        f"--antibiotic={args.antibiotic}",
-    ]
-    rc = run_subprocess(cmd, "generate_plots")
-    _update_peak_memory()
-    return rc
-
-
-def stage_contract_validation() -> int:
-    """
-    Run pytest on the contract tests. Abort on failure.
-    """
-    cmd = ["pytest", "tests/contract/"]
-    rc = run_subprocess(cmd, "contract_validation")
-    if rc != 0:
-        logger.error("Contract validation failed – aborting pipeline.")
-        sys.exit(EXIT_CONTRACT_FAILED)
-    _update_peak_memory()
-    return rc
-
-
 def stage_hash_artifacts() -> int:
     """
     Final stage – compute SHA256 hashes for all data and code artifacts.
@@ -218,10 +209,9 @@ def parse_args() -> argparse.Namespace:
         "--stage",
         choices=[
             "ingest",
+            "contract",
             "train",
             "validate",
-            "viz",
-            "contract",
             "hash",
             "full",
         ],
@@ -244,9 +234,8 @@ def parse_args() -> argparse.Namespace:
         "--antibiotic",
         type=str,
         default="ciprofloxacin",
-        help="Antibiotic class for training/validation/viz",
+        help="Antibiotic class for training/validation",
     )
-    # Accept any string; we coerce to int later.
     parser.add_argument(
         "--permutations",
         type=str,
@@ -259,9 +248,23 @@ def parse_args() -> argparse.Namespace:
 def _write_runtime_report() -> None:
     """
     Write the runtime JSON report to `data/processed/pipeline_runtime.json`.
+    Enforces the duration and memory limits required by task T102.
     """
     end_time = datetime.datetime.now(datetime.timezone.utc)
     duration = (end_time - _START_TIME).total_seconds()
+
+    # Enforce limits – explicit error if exceeded
+    if duration > MAX_DURATION_SECONDS:
+        logger.error(
+            f"Pipeline duration {duration:.2f}s exceeds the limit of {MAX_DURATION_SECONDS}s"
+        )
+        sys.exit(EXIT_LIMIT_EXCEEDED)
+
+    if _PEAK_MEMORY > MAX_MEMORY_BYTES:
+        logger.error(
+            f"Peak memory usage {_PEAK_MEMORY} bytes exceeds the limit of {MAX_MEMORY_BYTES} bytes"
+        )
+        sys.exit(EXIT_LIMIT_EXCEEDED)
 
     runtime_path = paths.data("processed", "pipeline_runtime.json")
     runtime_path.parent.mkdir(parents=True, exist_ok=True)
@@ -279,6 +282,8 @@ def _write_runtime_report() -> None:
         logger.info(f"Pipeline runtime written to {runtime_path}")
     except Exception as e:
         logger.error(f"Failed to write pipeline runtime report: {e}")
+        # Propagate the error – the pipeline cannot guarantee correct reporting
+        raise
 
 
 def main() -> int:
@@ -293,23 +298,24 @@ def main() -> int:
     if args.stage == "ingest":
         return run_and_report(stage_ingest, args)
 
+    if args.stage == "contract":
+        return run_and_report(stage_contract_validation)
+
     if args.stage == "train":
         return run_and_report(stage_train, args)
 
     if args.stage == "validate":
         return run_and_report(stage_validate, args)
 
-    if args.stage == "viz":
-        return run_and_report(stage_viz, args)
-
-    if args.stage == "contract":
-        return run_and_report(stage_contract_validation)
-
     if args.stage == "hash":
         return run_and_report(stage_hash_artifacts)
 
-    # Full pipeline execution – note the reordered contract validation
+    # Full pipeline execution – ordered as required by T101
     rc = stage_ingest(args)
+    if rc != 0:
+        return rc
+
+    rc = stage_contract_validation()
     if rc != 0:
         return rc
 
@@ -318,15 +324,6 @@ def main() -> int:
         return rc
 
     rc = stage_validate(args)
-    if rc != 0:
-        return rc
-
-    rc = stage_viz(args)
-    if rc != 0:
-        return rc
-
-    # Contract validation **after** all data‑producing stages
-    rc = stage_contract_validation()
     if rc != 0:
         return rc
 

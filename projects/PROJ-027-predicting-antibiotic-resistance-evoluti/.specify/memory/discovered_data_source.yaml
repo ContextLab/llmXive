@@ -1,12 +1,14 @@
 status: none
-intent: download E coli isolates FASTA and susceptibility metadata NCBI Pathogen Detection
-  PRJNA528852 PRJNA492488 python package dataset
+intent: download E coli genomic sequences PRJNA528852 PRJNA492488 with susceptibility
+  metadata CARD reference python package dataset
 required_fields:
 - isolate_id
-- fasta_sequence_or_path
-- susceptibility_phenotype
+- fasta_sequence
+- antibiotic
+- susceptibility_category
+- susceptibility_mic
+- resistance_gene_presence
 - snp_count_per_gene
-- resistance_gene_presence_binary
-cache_key: 9f732d41734db40ae4bc36fcc2235fa6e5642f699b8d61a4c6cadbacd4dbdfc1
-searched_at: '2026-10-11T23:07:46.592907+00:00'
+cache_key: 9ea85cfc3f24e7c518e617d221bbcd357719f7aea8e38ef84d520474d22e0948
+searched_at: '2026-10-12T02:26:26.767887+00:00'
 retry_count: 1
