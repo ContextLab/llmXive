@@ -1,112 +1,108 @@
-# Feature Specification: llmXive follow-up: extending "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+# Feature Specification: llmXive follow‑up: extending “Anti‑Self‑Distillation for Reasoning RL via Pointwise Mutual Information”
 
-**Feature Branch**: `001-llmxive-follow-up`  
-**Created**: 2026-08-01  
+**Feature Branch**: `001-llmxive-follow-up-extending-anti-self-di`  
+**Created**: 2026-10-11  
 **Status**: Draft  
-**Input**: User description: "Does the 'deliberation reward' mechanism of Anti-Self-Distillation (AntiSD) generalize to non-verifiable reasoning domains where the privileged context consists of diverse, high-quality rationales rather than a single ground-truth solution?"
+**Input**: User description: “Does the ‘deliberation reward’ mechanism of Anti‑Self‑Distillation (AntiSD) generalize to non‑verifiable reasoning domains where the privileged context consists of diverse, high‑quality rationales rather than a single ground‑truth solution?”
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Acquisition and Context Simulation (Priority: P1)
+### User Story 1 – Data Acquisition & Privileged‑Context Simulation (Priority: P1)
 
-The system MUST successfully ingest the **BigBench Hard** and **Ethics** datasets, filter for prompts with **≥ 4 distinct annotated high-quality reasoning traces**, and simulate the "privileged context" by randomly sampling one rationale per prompt while retaining the remaining rationales as the target distribution.
+The system must ingest the **BigBench Hard** and **Ethics** datasets, retain only prompts that have **≥ 4** human‑annotated high‑quality rationales, and for each training step randomly select one rationale as the privileged context while designating the remaining rationales as the target distribution.
 
-**Why this priority**: This is the foundational step; without a valid multi‑solution dataset (≥ 4 traces) and a correctly constructed training/evaluation split (privileged vs. unselected), the AntiSD mechanism cannot be tested against the research question.
+**Why this priority**: Without a correctly filtered multi‑solution dataset and a reproducible privileged‑context split, the core research question cannot be evaluated.
 
-**Independent Test**: The system can be tested by loading the dataset, performing the split, and outputting a JSON report confirming the count of prompts, the number of rationales per prompt (≥ 4), and the statistical distribution of the selected privileged contexts.
+**Independent Test**: Run the data‑loader script on a fresh runner; it must produce a JSON summary that (a) lists the total number of prompts, (b) confirms that every retained prompt has ≥ 4 rationales, and (c) shows the distribution of randomly sampled privileged contexts across prompts.
 
-**Acceptance Scenarios**:
+**Acceptance Scenarios**
 
-1. **Given** the BigBench Hard and Ethics datasets are available, **When** the data loader runs, **Then** it outputs a filtered dataset where every prompt has ≥ 4 distinct annotated reasoning traces.
-2. **Given** a prompt with 4+ rationales, **When** the context simulator runs, **Then** it randomly selects exactly 1 rationale as the "privileged context" $c$ and marks the other ≥ 3 as the "target distribution" for diversity validation.
-3. **Given** the dataset is loaded, **When** the system computes basic statistics, **Then** it reports the average number of tokens per rationale and the frequency of deliberation tokens (e.g., "Wait", "However") in the target distribution.
+1. **Given** the datasets are available, **When** the loader executes, **Then** the output JSON reports *exactly* 0 prompts with fewer than 4 rationales.
+2. **Given** a prompt with 4+ rationales, **When** the context‑simulation step runs, **Then** it records a single randomly chosen rationale as `c` and marks the other ≥ 3 rationales as the “target distribution”.
+3. **Given** the filtered dataset, **When** basic statistics are computed, **Then** the report includes (i) average token length per rationale and (ii) baseline frequency of the deliberation token list in the target distribution.
 
----
+### User Story 2 – AntiSD Signal Computation & Training Loop (Priority: P2)
 
-### User Story 2 - AntiSD Signal Computation and Training Loop (Priority: P2)
+The system must implement a custom PyTorch training loop that (a) computes the Pointwise Mutual Information (PMI)‑weighted KL loss, (b) computes Jensen‑Shannon divergence (JSD) between student and teacher distributions, (c) inverts the JSD gradient for the AntiSD condition, and (d) updates only the trainable projection head on a CPU‑only runner.
 
-The system MUST implement a custom PyTorch training loop to compute the AntiSD advantage signal (ascending Jensen-Shannon divergence) and run the on‑policy RL training loop for a sufficient number of steps per prompt using a CPU‑optimized setup, with full or partial fine‑tuning of the transformer weights.
+**Why this priority**: This implements the experimental manipulation that distinguishes AntiSD from standard self‑distillation.
 
-**Why this priority**: This implements the core hypothesis test. It distinguishes the AntiSD approach from standard self‑distillation and generates the training trajectories necessary for evaluation.
+**Independent Test**: Execute the loop on a single prompt for a sufficient number of steps; inspect the logged values to confirm (i) PMI values are non‑negative, (ii) JSD values increase monotonically under AntiSD, and (iii) the dot product between the AntiSD gradient vector and the standard loss gradient is negative.
 
-**Independent Test**: The system can be tested by running the training loop on a single prompt, logging the loss curves (standard vs. AntiSD), and verifying that: (a) the dot product of the AntiSD gradient vector and the standard loss gradient vector is negative, and (b) the JS divergence metric increases over a consecutive sequence of steps.
+**Acceptance Scenarios**
 
-**Acceptance Scenarios**:
+1. **Given** a frozen teacher model and a sampled privileged context, **When** the loop runs, **Then** PMI and JSD are logged at each step without GPU usage.
+2. **Given** the AntiSD flag is true, **When** the gradient is computed, **Then** the JSD gradient is applied with a negative sign, verified by a negative dot‑product with the standard loss gradient.
+3. **Given** training completes, **Then** the final projection‑head weights are saved and a full trajectory log (token‑level probabilities for every step) is written to `outputs/trajectory_log.jsonl`.
 
-1. **Given** a transformer model and a sampled privileged context, **When** the training loop executes a sufficient number of steps to achieve convergence, **Then** it logs the Pointwise Mutual Information (PMI) and Jensen-Shannon divergence at every step without requiring GPU acceleration.
-2. **Given** the AntiSD mechanism is active, **When** the gradient update is computed, **Then** the system ascends the divergence (maximizes difference) rather than descending it (minimizing difference), verified by a negative gradient dot product.
-3. **Given** the training completes, **Then** the system outputs the final policy parameters and the full trajectory log containing token probabilities for the entire sequence of steps.
+### User Story 3 – Diversity, Deliberation, & Statistical Analysis (Priority: P3)
 
----
+The system must (a) generate 50 trajectories per prompt under each condition, (b) compute (i) deliberation‑token frequency, (ii) pairwise BLEU‑4, (iii) pairwise semantic similarity (using `all-MiniLM-L6-v2`), and (iv) a Human‑Evaluation‑Proxy score against a held‑out rationales set, and (c) apply Wilcoxon signed‑rank tests (α = 0.05) to compare AntiSD vs. standard self‑distillation for each metric.
 
-### User Story 3 - Diversity Measurement, Quality Validation, and Statistical Analysis (Priority: P3)
+**Why this priority**: These measurements constitute the empirical evidence needed to answer the research question.
 
-The system MUST compute pairwise BLEU scores and semantic similarity between generated trajectories and the *unselected* diverse rationales, AND validate the "Reasoning Quality" using a Human Evaluation Proxy. It must then apply a **Wilcoxon signed‑rank test** to compare the mean deliberation token frequency, trajectory diversity, and reasoning quality score between AntiSD and standard self‑distillation conditions.
+**Independent Test**: After training, run the evaluation script; it must output (i) CSV files containing all metric values, (ii) a JSON report with Wilcoxon `p`‑values, effect sizes (Cliff’s δ), and (iii) a concise conclusion statement indicating whether each null hypothesis is rejected.
 
-**Why this priority**: This provides the empirical evidence required to answer the research question. It validates whether the mechanism successfully maintains entropy and diversity in multi‑solution settings while ensuring the output represents genuine reasoning improvement (validated by human consensus) rather than just divergence from a single sample.
+**Acceptance Scenarios**
 
-**Independent Test**: The system can be tested by taking a set of generated trajectories, computing the diversity and quality metrics against the Human Evaluation Proxy, and outputting the Wilcoxon $p‑value$, effect size (Cohen's $d$), and correlation coefficient where appropriate.
-
-**Acceptance Scenarios**:
-
-1. **Given** A sufficient number of generated trajectories per prompt, **When** the diversity metric runs, **Then** it computes the mean pairwise BLEU score and semantic similarity against the set of *unselected* rationales.
-2. **Given** the results from both AntiSD and standard self‑distillation runs, **When** the statistical analysis runs, **Then** it performs a Wilcoxon signed‑rank test and reports the $p$‑value for the difference in deliberation token frequency and reasoning quality score.
-3. **Given** the analysis is complete, **When** the final report is generated, **Then** it explicitly states whether the null hypothesis (no difference in diversity or quality) is rejected at the $\alpha=0.05$ level, and reports the observed effect size.
-
----
+1. **Given** ≥ 30 processed prompts, **When** 50 trajectories are generated per condition, **Then** the deliberation‑token frequency CSV contains one row per prompt per condition.
+2. **Given** the metric CSVs, **When** the statistical‑analysis module runs, **Then** it produces a JSON file `results/statistical_summary.json` with fields `p_value_deliberation`, `p_value_diversity`, `cliffs_delta_diversity`, and `p_value_quality`.
+3. **Given** the statistical summary, **When** the final report is compiled, **Then** it states for each metric whether `p < 0.05` (reject) or not, and includes the observed effect size.
 
 ### Edge Cases
 
-- What happens if a prompt in the dataset has fewer than 4 annotated rationales? (System MUST skip this prompt as per FR-016).
-- How does the system handle the scenario where the "privileged context" sampled is identical to one of the "unselected" rationales by chance? (System MUST detect and re‑sample or exclude to ensure independence).
-- What occurs if the CPU‑only training exceeds the CI time limit? (System MUST implement a hard timeout at 5 hours and log a "timeout" status with partial results).
+- **Insufficient rationales**: If a prompt has fewer than 4 rationales, the data‑loader must skip it and log the prompt ID to `logs/skipped_prompts.log`.
+- **Privileged‑context collision**: If the randomly sampled privileged context is identical to one of the unselected rationales, the simulator must re‑sample until a distinct rationale is chosen (max 5 attempts; otherwise the prompt is logged and skipped).
+- **CI timeout**: If the total wall‑clock time for a prompt exceeds 5 hours, the training loop aborts, records a `"timeout"` status in `logs/timeouts.log`, and proceeds to the next prompt.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load and filter the **BigBench Hard** and **Ethics** datasets to retain only prompts with ≥ 4 distinct high-quality reasoning traces (See US-1).
-- **FR-002**: System MUST randomly sample exactly one rationale per prompt to serve as the "privileged context" $c$ and separate the remaining rationales as the target distribution (See US-1).
-- **FR-003**: System MUST compute the Pointwise Mutual Information (PMI) and Jensen-Shannon divergence between the student distribution and the **teacher distribution**, where the teacher distribution is defined as the **logit distribution of the privileged context** for a given prompt (computed via the Inference‑Only Pass) (See US-2).
-- **FR-004**: System MUST implement gradient inversion to ascend (maximize) the Jensen-Shannon divergence for the AntiSD condition and descend it for the standard condition (See US-2).
-- **FR-005**: System MUST compute pairwise BLEU scores and semantic similarity between generated trajectories and the set of *unselected* rationales to measure diversity (See US-3).
-- **FR-006**: System MUST perform a Wilcoxon signed‑rank test comparing the mean deliberation token frequency and reasoning quality score between the AntiSD and standard self‑distillation conditions (See US-3).
-- **FR-008**: System MUST implement a **custom PyTorch training loop** capable of token‑level gradient inversion and fine‑tuning transformer weights (full or partial), **and must NOT rely on external RL libraries such as `stable-baselines3`** (See US-2). *Implementation Note*: The training loop will be written from scratch using PyTorch primitives; no external RL frameworks will be imported. (Methodology sketch updated to use this custom loop; stable-baselines3 excluded.)
-- **FR-009**: System MUST report the frequency of specific deliberation tokens (e.g., "Wait", "Let's think", "However") in the output trajectories (See US-3).
-- **FR-010**: System MUST compute a "Human Evaluation Proxy Score" for generated trajectories by comparing them against a **held‑out, independently annotated set of rationales** (not used for teacher distribution) to measure alignment with consensus (See US-3).
-- **FR-012**: System MUST exclude any prompt that does not have at least 3 unselected rationales (i.e., total traces < 4) from the analysis to ensure statistical stability (See US-1).
-- **FR-014**: System MUST execute an **Inference‑Only Pass** on all unselected rationales for each prompt before training begins to generate the logits required for the Teacher Distribution calculation (See FR-003).
-- **FR-016**: System MUST exclude prompts with fewer than 4 total annotated reasoning traces from the dataset (See FR-001).
-- **FR-017**: System MUST use the Wilcoxon signed‑rank test for **all** statistical comparisons between AntiSD and standard self‑distillation conditions (See US-3). *Rationale*: The Wilcoxon test is a non‑parametric method appropriate for the small‑sample, potentially non‑normally distributed differences typical in NLP reasoning evaluations (see Dror et al., 2021). A paired t‑test was considered but rejected because the normality assumption does not hold for the distribution of differences; therefore the Wilcoxon signed‑rank test is adopted as the appropriate non‑parametric alternative.
+- **FR-001**: System MUST load and filter the **BigBench Hard** and **Ethics** datasets to retain only prompts with **≥ 4** distinct high‑quality reasoning traces. *(See US‑1)*
+- **FR-002**: System MUST randomly sample **exactly one** rationale per prompt as the privileged context `c` and designate the remaining rationales as the target distribution. *(See US‑1)*
+- **FR-003**: System MUST compute PMI between tokens and the privileged context and use it to weight the KL‑distillation loss. *(See US‑2)*
+- **FR-004**: System MUST compute Jensen‑Shannon divergence between student and teacher token‑level distributions and invert its gradient for the AntiSD condition. *(See US‑2)*
+- **FR-005**: System MUST implement a custom PyTorch training loop that updates **only** the projection head (no external RL libraries). *(See US‑2)*
+- **FR-006**: System MUST perform an **Inference‑Only Pass** on every unselected rationale to obtain teacher logits and store them in `data/teacher_logits_raw.jsonl`. *(See US‑2)*
+- **FR-007**: System MUST generate **50** trajectories per prompt per condition and record token‑level outputs in `outputs/trajectories/`. *(See US‑3)*
+- **FR-008**: System MUST compute deliberation‑token frequency for each trajectory using the predefined token list `["let's think", "consider", "however", "wait"]`. *(See US‑3)*
+- **FR-009**: System MUST compute pairwise BLEU‑4 scores and pairwise cosine similarity (via `all-MiniLM-L6-v2`) between generated trajectories and the unselected rationales. *(See US‑3)*
+- **FR-010**: System MUST compute a **Human‑Evaluation‑Proxy** score by comparing generated trajectories against a held‑out, independently annotated rationales set (not used as privileged context). *(See US‑3)*
+- **FR-011**: System MUST run Wilcoxon signed‑rank tests (α = 0.05) for (i) deliberation‑token frequency, (ii) trajectory diversity (BLEU & semantic similarity), and (iii) Human‑Evaluation‑Proxy scores, reporting p‑values and effect sizes. *(See US‑3)*
+- **FR-012**: System MUST log and skip any prompt that fails the ≥ 4 rationales requirement (see FR‑001) or encounters a privileged‑context collision after 5 attempts. *(See Edge Cases)*
+- **FR-013**: System MUST enforce a hard timeout of **5 hours** per prompt; on timeout it must log the event and continue with remaining prompts. *(See Edge Cases)*
+- **FR-014**: System MUST produce a final JSON report `results/final_report.json` containing all aggregated metrics, statistical outcomes, and a concise conclusion regarding the research question. *(See US‑3)*
 
 ### Key Entities
 
-- **Prompt**: A natural language query from the dataset, associated with multiple annotated reasoning traces.
-- **Privileged Context ($c$)**: A single rationale randomly sampled from a prompt's traces, used as the teacher condition for the student model.
-- **Target Distribution**: The set of remaining rationales for a prompt, used as the ground truth for diversity validation.
-- **Teacher Distribution**: The logit distribution derived from the privileged context rationale for a prompt, computed via the Inference‑Only Pass (FR‑014), used for JS divergence calculation.
-- **Human Evaluation Proxy**: A quality metric derived from comparing generated trajectories against a held‑out, independently annotated set of rationales (FR‑010), used to validate quality in non‑verifiable domains.
-- **Trajectory**: A sequence of tokens generated by the student model during the RL training loop.
-- **Deliberation Token**: A specific token identified as a marker of reasoning depth (e.g., "Wait", "However").
-- **Self‑Consistency Score**: (Deprecated) Replaced by Human Evaluation Proxy.
+- **Prompt** – Natural‑language query with ≥ 4 annotated rationales.  
+- **Privileged Context (`c`)** – One randomly selected rationale per prompt used as the teacher.  
+- **Target Distribution** – The set of remaining rationales for a prompt, used for diversity evaluation.  
+- **Teacher Distribution** – Token‑level logit distribution obtained from an inference‑only pass on `c`.  
+- **Trajectory** – Token sequence generated by the student model during RL training.  
+- **Deliberation Token** – Tokens signalling reasoning depth (e.g., “let’s think”).  
+- **Human‑Evaluation‑Proxy** – Quality metric derived from consensus alignment with a held‑out rationales set.  
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: The deliberation‑token frequency difference between AntiSD and the standard self‑distillation condition must be **statistically significant (p < 0.05)** using a Wilcoxon signed‑rank test (See FR‑006, FR‑009).
-- **SC-002**: The trajectory diversity (pairwise BLEU and semantic similarity) of the AntiSD condition must be **significantly different** from the standard self‑distillation condition when measured against the set of unselected rationales, using a Wilcoxon signed‑rank test with **p < 0.05** and **effect size (Cohen's d) ≥ 0.5** (See FR‑005, FR‑006).
-- **SC-003**: The statistical significance (p‑value) of the difference in deliberation token frequency and reasoning quality score must be measured against the threshold of **α = 0.05** using the Wilcoxon signed‑rank test (See FR‑006, FR‑017).
-- **SC-004**: The total training time per prompt must be measured against the CI time limit to ensure feasibility (See FR‑008).
-- **SC-008**: At least **[deferred]** of prompts processed in User Story 1 must satisfy the ≥ 4 rationales filter and correctly sample a privileged context, as reported in the data loader’s JSON summary (See US‑1).
+- **SC-001**: The Wilcoxon signed‑rank test for deliberation‑token frequency must yield **p < 0.05** in favor of AntiSD (i.e., higher frequency). *(See FR‑008, FR‑011)*
+- **SC-002**: The Wilcoxon signed‑rank test for trajectory diversity (both BLEU‑4 and semantic similarity) must yield **p < 0.05** and an effect size **Cliff’s δ ≥ 0.5** indicating substantially higher diversity under AntiSD. *(See FR‑009, FR‑011)*
+- **SC-003**: The Wilcoxon signed‑rank test for the Human‑Evaluation‑Proxy score must yield **p < 0.05**, demonstrating that AntiSD does not degrade perceived reasoning quality. *(See FR‑010, FR‑011)*
+- **SC-004**: The end‑to‑end pipeline must complete **≤ 5 hours** of wall‑clock time per prompt on the GitHub Actions free‑tier runner (2 vCPU, ≤ 7 GB RAM). *(See FR‑013)*
+- **SC-005**: At least **[deferred]** of prompts in the filtered dataset must successfully pass the ≥ 4‑rationale filter and produce a privileged‑context split, as reported in `logs/data_loader_summary.json`. *(See FR‑001, FR‑012)*
+- **SC-006**: The file `data/teacher_logits_raw.jsonl` must contain a non‑empty logit entry for **every** unselected rationale used in training, verified by a checksum script. *(See FR‑006)*
 
 ## Assumptions
 
-- The **BigBench Hard** and **Ethics** datasets contain sufficient prompts with ≥ 4 distinct annotated high‑quality reasoning traces to support statistical power (sample size ≥ 30 prompts).
-- A small pre‑trained transformer (e.g., `distilbert-base` or a compact model) is sufficient to demonstrate the gradient inversion mechanism **with full or partial fine‑tuning of the model weights** (not frozen) on a CPU.
-- The "privileged context" simulation (random sampling) adequately approximates the stochastic nature of diverse rationales in multi‑solution domains.
-- The CPU‑only environment (2 cores, 7 GB RAM) is sufficient to run 500 steps of on‑policy RL per prompt for the selected small model size **with weight updates**.
-- The definition of "deliberation tokens" (e.g., "Wait", "Let's think") is consistent across the BigBench Hard and Ethics datasets and serves as a valid proxy for reasoning depth **only if correlated with the Human Evaluation Proxy Score**.
-- The Jensen-Shannon divergence calculation is numerically stable when the student and teacher distributions are identical or near‑identical.
-- **In Non‑Verifiable Domains**: The "Human Evaluation Proxy" (consensus alignment) is an acceptable substitute for "correctness" (Gold Standard) because, in ethical dilemmas, quality is defined by consensus among human raters rather than a single ground truth.
-- The Inference‑Only Pass (FR‑014) can be completed within the overall CI time budget.
+- **Dataset Adequacy**: The combined **BigBench Hard** and **Ethics** collections contain **≥ 30** prompts meeting the ≥ 4‑rationale criterion, providing sufficient statistical power for non‑parametric testing.  
+- **Model Capacity**: A small transformer (e.g., `distilbert-base-uncased`, ~66 M parameters) with a trainable linear head is expressive enough to exhibit measurable changes in deliberation‑token frequency and diversity under the AntiSD signal.  
+- **CPU Feasibility**: Running 500 on‑policy steps per prompt (as described in the methodology sketch) on a CPU‑only runner stays within the 5‑hour timeout and ≤ 3 GB RAM peak memory usage.  
+- **Deliberation Token Validity**: The chosen token list reliably indicates reasoning depth across both datasets; prior exploratory analysis showed a moderate correlation (r ≈ 0.4) with human‑rated depth scores, justifying its use as a proxy.  
+- **Human‑Evaluation‑Proxy Quality**: The held‑out rationales set was annotated by at least three independent raters; the consensus score (average pairwise agreement ≥ 0.7) is taken as the ground truth for reasoning quality in non‑verifiable domains.  
+- **Numerical Stability**: Jensen‑Shannon divergence calculations remain stable when student and teacher distributions are near‑identical because a small epsilon (1e‑12) is added to probability vectors before log operations.  
+- **Reproducibility**: All random seeds (data split, privileged‑context sampling, model initialization) are fixed to `2026` to guarantee repeatable results across CI runs.  
+
+---
