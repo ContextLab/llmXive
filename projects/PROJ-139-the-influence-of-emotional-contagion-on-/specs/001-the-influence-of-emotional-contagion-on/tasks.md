@@ -33,7 +33,7 @@ All paths are relative to the project root.
 |------|-------|
 | Define schemas, fetch real data, and verify provenance before any downstream analysis. |  
 
-- [ ] T004 [P] Copy contract schemas into the runtime location `code/contracts/` (thread.schema.yaml, sentiment.schema.yaml, result.schema.yaml).   <!-- FAILED-IN-EXECUTION: code/contracts/copy_schemas.py exit=1 -->
+- [ ] T004 [P] Copy contract schemas into the runtime location `code/contracts/` (thread.schema.yaml, sentiment.schema.yaml, result.schema.yaml).   <!-- FAILED-IN-EXECUTION: code/contracts/copy_schemas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/contracts/copy_schemas.py exit=1 -->
 - [ ] T005 [P] Implement a lightweight logger (`code/utils/logger.py`) that writes to `state/logs/` and is used by all pipeline modules.  
 - [ ] T006 [P] Extend seeding to pin randomness in `numpy`, `random`, `scikit-learn`, and `statsmodels`.  
 - [ ] T006v [P] Test that `np.random.rand()` returns the same sequence across runs after seeding.  

@@ -8,12 +8,11 @@ T002:
   sig: 8a7814248e42f83aa03017b4e7d12cd90eedebb2a799535bca8afd8cd38e0104
 T003:
   c: false
-  h: 79ed8b31034d44d4038e7eca5d6aa9b919cdbf4178eb3e19b2fe950cb3d5b6aa
-  r: "The `docs/quickstart.md` correctly contains the one\u2011line command `python\
-    \ -m code.analysis.run_pipeline --sample 5`, but the required output file `data/results/sample_run.csv`\
-    \ is missing, indicating the command has not been run (or did not produce the\
-    \ CSV). The task is incomplete until that CSV is generated and present."
-  sig: 76165653e2b7e2c598fd0a85d57e4ee2bbbbfaf6ca5ee4cac25a65814f4079fb
+  h: 9c378b2e4d59cec0d937ca1b9514167e8b82c367b514e4aae25d9541d5d9a10b
+  r: "`docs/quickstart.md` contains the required one\u2011line command, but the expected\
+    \ output file `data/results/sample_run.csv` is missing, so the documented command\u2019\
+    s result is not demonstrated."
+  sig: 3047a00f5b8a4f17a848911a019d418576f3ac74afd20ba7c3f5b8d7f7ac6dca
 T019:
   c: false
   h: 92c06802de23737232483c0480b05438cf609539f13fb465ed5af74f95d52a7b

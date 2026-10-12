@@ -1,14 +1,13 @@
 status: none
-intent: download AskScience Reddit comments dataset from Pushshift and StackExchange
-  dump via HuggingFace python package dataset
+intent: HuggingFace datasets library Reddit comments Stack Exchange data dump python
+  package dataset
 required_fields:
-- comment_id
-- parent_id
-- subreddit
 - text
 - timestamp
 - author
+- parent_id
+- subreddit
 - is_solved
-cache_key: 15638f7d3b8bf424ba59de0daa97d076c24f79d6d0bd5e888676742c856cf191
-searched_at: '2026-10-12T00:30:38.519259+00:00'
+cache_key: 0f5183c596a40a98eaededd28f2e5952595e0a651f2f80a62c22bde8386787f3
+searched_at: '2026-10-12T00:42:29.988903+00:00'
 retry_count: 1

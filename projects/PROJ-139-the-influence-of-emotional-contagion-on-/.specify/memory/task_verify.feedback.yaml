@@ -11,10 +11,9 @@ T002:
     requested packages with explicit version specifiers (e.g., `pandas==1.5.3`).
   task: 4ccf4af7189f823149fe5bcff424e2ebd35a1966c37f3cd5be3ad9c8217fe551
 T003:
-  reason: "The `docs/quickstart.md` correctly contains the one\u2011line command `python\
-    \ -m code.analysis.run_pipeline --sample 5`, but the required output file `data/results/sample_run.csv`\
-    \ is missing, indicating the command has not been run (or did not produce the\
-    \ CSV). The task is incomplete until that CSV is generated and present."
+  reason: "`docs/quickstart.md` contains the required one\u2011line command, but the\
+    \ expected output file `data/results/sample_run.csv` is missing, so the documented\
+    \ command\u2019s result is not demonstrated."
   task: 6b976d0641c3fb109c26c7fc5c6c40529a97df8337d34b9c095fd425b1650c06
 T003v:
   reason: 'declared artifact(s) missing/empty/invalid: data/results/sample_run.csv'

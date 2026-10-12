@@ -17,8 +17,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py --source askScience --source fdr -> rc=1
-0-12 00:27:17,820 - WARNING - Internet Archive fallback is not fully implemented for Reddit data.
-2026-10-12 00:27:17,821 - ERROR - CRITICAL FAILURE: Could not retrieve any data for subreddit 'askScience' from Pushshift, Reddit API, or Internet Archive. The pipeline cannot proceed without real data. Please check network connectivity, API credentials, or source availability.
+0-12 00:41:24,750 - WARNING - Internet Archive fallback is not fully implemented for Reddit data.
+2026-10-12 00:41:24,750 - ERROR - CRITICAL FAILURE: Could not retrieve any data for subreddit 'askScience' from Pushshift, Reddit API, or Internet Archive. The pipeline cannot proceed without real data. Please check network connectivity, API credentials, or source availability.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/data/download.py", line 271, in <module>
     main()
@@ -30,11 +30,11 @@ RuntimeError: CRITICAL FAILURE: Could not retrieve any data for subreddit 'askSc
 
 - python code/analysis/run_pipeline.py -> rc=2
 
-2026-10-12 00:27:18,856 - INFO - Directories ensured.
-2026-10-12 00:27:18,856 - INFO - --- Starting Stage: Data Download ---
+2026-10-12 00:41:24,808 - INFO - Directories ensured.
+2026-10-12 00:41:25,812 - INFO - --- Starting Stage: Data Download ---
 usage: download.py [-h] --source SOURCE
 download.py: error: the following arguments are required: --source
-2026-10-12 00:27:18,857 - INFO - --- Starting Stage: Data Extraction ---
+2026-10-12 00:41:25,813 - INFO - --- Starting Stage: Data Extraction ---
 usage: run_pipeline.py [-h] --input INPUT --output OUTPUT --exclusions
                        EXCLUSIONS
 run_pipeline.py: error: the following arguments are required: --input, --output, --exclusions

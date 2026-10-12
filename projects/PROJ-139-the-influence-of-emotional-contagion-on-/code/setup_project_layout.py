@@ -4,26 +4,27 @@ It ensures that all required top‑level directories exist:
   - code/
   - data/raw/
   - data/processed/
-  - state/
   - docs/
+The platform owns the `state/` directory for checksum and runtime logs, so this
+script deliberately does **not** create a `state/` folder to avoid shadowing
+platform‑managed state.
 The script is idempotent and can be run safely multiple times.
 """
 import logging
 from llmxive_toolkit import paths, get_logger
 
-# Set up a logger that writes to the standard output (no file needed here)
+# Logger that writes to standard output (no file needed here)
 log = get_logger(__name__)  # optional: get_logger(__name__, log_file="logs/run.log")
 
 def ensure_project_layout() -> None:
     """
     Create the essential directories for the project if they do not already exist.
     """
-    # Define the directories we need
+    # Define the directories we need (excluding the platform‑owned `state/` folder)
     required_dirs = [
         paths.code(),                     # <project>/code/
         paths.data("raw"),                # <project>/data/raw/
         paths.data("processed"),          # <project>/data/processed/
-        paths.state(),                    # <project>/state/
         paths.docs()                      # <project>/docs/
     ]
 

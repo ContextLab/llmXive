@@ -10,21 +10,11 @@ import logging
 import argparse
 from pathlib import Path
 
-# Add project root to path
+# Add project root to path for module imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from llmxive_toolkit import paths
-from config.settings import get_config
-from data.download import main as download_main
-from data.extract import main as extract_main
-from data.validation import main as validation_main
-from data.sentiment import main as sentiment_main
-from data.metrics import main as metrics_main
-from data.modeling import main as modeling_main
-from analysis.final_validation import main as final_validation_main
-from analysis.generate_final_reports import main as reports_main
-from analysis.update_analysis_summary import main as summary_main
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -59,7 +49,10 @@ def run_sample_pipeline(sample_n: int):
     try:
         from datasets import load_dataset
     except ImportError as e:
-        logger.error("The 'datasets' library is required for the sample pipeline. Install it via 'pip install datasets'.")
+        logger.error(
+            "The 'datasets' library is required for the sample pipeline. "
+            "Install it via 'pip install datasets'."
+        )
         raise
 
     logger.info(f"Running sample pipeline for {sample_n} records.")
@@ -97,11 +90,23 @@ def run_sample_pipeline(sample_n: int):
 def run_full_pipeline(args):
     """Execute the full research pipeline."""
     ensure_directories()
-    
-    # If sample mode is requested, run the lightweight pipeline and exit.
+
+    # Sample mode takes precedence and avoids heavy imports
     if args.sample is not None and args.sample > 0:
         run_sample_pipeline(args.sample)
         return
+
+    # Lazy imports – only needed for the full pipeline
+    from config.settings import get_config  # noqa: F401
+    from data.download import main as download_main
+    from data.extract import main as extract_main
+    from data.validation import main as validation_main
+    from data.sentiment import main as sentiment_main
+    from data.metrics import main as metrics_main
+    from data.modeling import main as modeling_main
+    from analysis.final_validation import main as final_validation_main
+    from analysis.generate_final_reports import main as reports_main
+    from analysis.update_analysis_summary import main as summary_main
 
     # 1. Download
     original_argv = sys.argv.copy()
@@ -126,7 +131,7 @@ def run_full_pipeline(args):
     # 5. Metrics
     run_stage("Metrics Calculation", metrics_main)
 
-    # 6. Modeling (Includes T061 sensitivity analysis)
+    # 6. Modeling (Includes sensitivity analysis)
     run_stage("Statistical Modeling", modeling_main)
 
     # 7. Final Validation
@@ -142,12 +147,17 @@ def run_full_pipeline(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Run the full research pipeline.")
-    parser.add_argument("--sample", type=int, default=None,
-                        help="Run a lightweight sample pipeline that writes a tiny CSV with the given number of records.")
+    parser.add_argument(
+        "--sample",
+        type=int,
+        default=None,
+        help="Run a lightweight sample pipeline that writes a tiny CSV with the given number of records."
+    )
     parser.add_argument("--threads", action="store_true", help="Limit to N threads for testing.")
     parser.add_argument("--limit", type=int, default=None, help="Max threads to process.")
-    args = parser.parse_args()
-    
+    # Use parse_known_args to ignore any unexpected arguments (e.g., pytest addopts)
+    args, _ = parser.parse_known_args()
+
     run_full_pipeline(args)
 
 if __name__ == "__main__":

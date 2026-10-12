@@ -1,118 +1,103 @@
 # Quickstart Guide: The Influence of Emotional Contagion on Collective Decision-Making
 
+## Project Layout
+
+The repository follows a minimal, reproducible layout:
+
+```
+<project root>/
+├── code/ # All source code (modules, scripts, tests)
+├── data/
+│ ├── raw/ # Unprocessed source files (e.g., Reddit JSONL)
+│ └── processed/ # Derived artefacts (CSV, JSON, logs)
+├── docs/ # Documentation, including this Quickstart and the paper draft
+└── figures/ # Generated plots and visualisations
+```
+
+> **Note:** The `state/` directory is managed by the platform for checksum
+> tracking and runtime logs; the project code does **not** create or modify
+> this folder directly.
+
 ## Prerequisites
 
-- Python 3.11 or higher
-- `pip` package manager
-- Access to the internet (for data fetching)
-- (Optional) Reddit API credentials (for primary data source fallback)
+- Python 3.11 or higher
+- Internet access (to fetch real data)
+- (Optional) Reddit API credentials for the fallback data source
 
-## 1. Environment Setup
+## Setup
 
-### Create a Virtual Environment
 ```bash
+# 1. Clone the repository and navigate to the project root
+git clone <repo‑url>
+cd projects/PROJ-139-the-influence-of-emotional-contagion-on-
+
+# 2. Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+source venv/bin/activate # Windows: venv\Scripts\activate
 
-### Install Dependencies
-```bash
+# 3. Install pinned dependencies
 pip install -r code/requirements.txt
+
+# 4. Download NLTK resources needed for VADER
+python -c "import nltk; nltk.download('vader_lexicon')"
 ```
 
-## 2. Configuration
+## Running a Minimal Sample
 
-The project uses a JSON configuration file or environment variables to manage API keys and paths.
+The pipeline can be exercised on a tiny real‑world sample without downloading the full dataset:
 
-### Option A: Environment Variables (Recommended)
-Set the following environment variables before running the pipeline:
-```bash
-export REDDIT_CLIENT_ID="your_client_id"
-export REDDIT_CLIENT_SECRET="your_client_secret"
-export REDDIT_USER_AGENT="your_user_agent"
-```
-
-### Option B: Configuration File
-Create a file named `config.json` in the project root (or specify a custom path via `--config`):
-```json
-{
- "api_keys": {
- "reddit_client_id": "your_client_id",
- "reddit_client_secret": "your_client_secret",
- "reddit_user_agent": "your_user_agent"
- },
- "dataset_paths": {
- "raw_data_dir": "data/raw",
- "processed_data_dir": "data/processed",
- "state_dir": "state",
- "figures_dir": "figures"
- }
-}
-```
-
-## 3. Running the Pipeline
-
-The full pipeline consists of sequential stages: Data Download, Validation, Extraction, Sentiment Analysis, Metrics Computation, and Statistical Modeling.
-
-### Run the Full Pipeline
-Execute the main pipeline script:
-```bash
-python code/analysis/run_pipeline.py
-```
-
-**Note:** This script automatically handles:
-1. **Data Download (T008)**: Fetches from Pushshift, Reddit API, or HuggingFace archives.
-2. **Ground Truth Validation (T019)**: Classifies threads and computes external validation scores.
-3. **Extraction (T010, T009)**: Extracts seed posts and validates metadata.
-4. **Sentiment Analysis (T013)**: Applies VADER sentiment scoring.
-5. **Metrics & Modeling (T015, T018, T020)**: Computes contagion indices and fits GLMMs.
-6. **Sensitivity Analysis (T023)**: Sweeps thresholds to test robustness.
-7. **Report Generation (T026)**: Produces `docs/paper.md`.
-
-### Sample Run (for quick verification)
-To verify that the pipeline is correctly installed and can produce a minimal output, run:
 ```bash
 python -m code.analysis.run_pipeline --sample 5
 ```
-This command creates a tiny CSV file at `data/results/sample_run.csv` containing five example records. It runs quickly and does not require the full dataset.
 
-## 4. Output Artifacts
+This command:
+1. Streams a few records from the public HuggingFace `reddit_comments` dataset.
+2. Writes a CSV with the columns `id, subreddit, created_utc, body` to:
+ `data/results/sample_run.csv`.
+3. Completes in seconds and requires no Reddit API credentials.
 
-Upon successful completion, the following artifacts will be generated:
+Verify the output:
 
-- **Data**:
- - `data/raw/reddit_threads.jsonl`: Raw downloaded data.
- - `data/processed/valid_threads.csv`: Threads with valid ground truth.
- - `data/processed/threads_with_seeds.csv`: Extracted seed posts.
- - `data/processed/thread_metrics.csv`: Contagion indices and reply counts.
- - `data/processed/sensitivity_analysis.csv`: Results of threshold sweeps.
- - `data/processed/external_validation_correlation.csv`: Correlation with external validation.
- - `data/processed/vader_validation_report.json`: VADER sentiment validation results.
- - `data/results/sample_run.csv`: **Sample CSV produced by the `--sample` command.**
-- **Reports**:
- - `docs/paper.md`: Final research paper draft.
- - `docs/analysis_summary.md`: Analysis summary with limitations.
- - `state/performance_log.json`: Execution timing and status.
- - `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml`: Artifact checksums.
+```bash
+ls data/results/
+# Expected file: sample_run.csv
+head data/results/sample_run.csv
+```
 
-## 5. Verification
+## Full Pipeline
 
-1. **Check Outputs**:
- ```bash
- ls data/results/
- # Expected: sample_run.csv (and other result files after full run)
- ```
+When you are ready to run the complete analysis (data download, extraction,
+sentiment scoring, modelling, etc.), execute:
 
-2. **Run Tests**:
- ```bash
- pytest code/tests/ -v
- ```
+```bash
+python -m code.analysis.run_pipeline
+```
 
-3. **Reproducibility Check**:
- Re-run the pipeline. Verify that `data/processed/` files have identical checksums (recorded in `state/`).
+The script will:
+1. Create the required directories (`code/`, `data/raw/`, `data/processed/`, `docs/`, `figures/`).
+2. Download Reddit threads for the configured subreddits.
+3. Perform all downstream processing steps, producing the artefacts listed in the
+ project documentation.
 
-## 6. Troubleshooting
+## Verification
 
-- **Data Fetch Failures**: If the primary Pushshift API fails, the script automatically attempts fallback sources (Reddit API, HuggingFace). Check logs in `state/logs/` for details.
-- **Ground Truth Threshold**: If valid threads are < 30%, the pipeline logs a warning but continues (T019b).
-- **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed.
+After any run, you can check that the expected artefacts exist:
+
+```bash
+# Sample run verification
+[ -f data/results/sample_run.csv ] && echo "Sample CSV created"
+
+# Full run verification (partial list)
+ls data/processed/
+```
+
+## Troubleshooting
+
+- **Missing `sample_run.csv`** – Ensure the `datasets` library is installed
+ (`pip install datasets`) and that you have internet connectivity.
+- **Data download failures** – Check that your Reddit API credentials are set
+ (environment variables `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`,
+ `REDDIT_USER_AGENT`). The script will fall back to the Pushshift API; if all
+ sources fail, it raises a clear `RuntimeError`.
+- **Platform‑owned `state/` directory** – Do not modify files inside `state/`;
+ it is automatically managed by the verification harness.
