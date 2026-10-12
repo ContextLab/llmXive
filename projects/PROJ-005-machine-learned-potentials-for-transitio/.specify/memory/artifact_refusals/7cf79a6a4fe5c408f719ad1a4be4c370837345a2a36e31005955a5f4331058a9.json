@@ -1,0 +1,7 @@
+{
+  "task_id": "T016b",
+  "fingerprint": "2fbbe25f7589f833469f632d7f354ff44a2f93ff17296a3feaeb2bbd88935be1",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/src/data/ingest.py': imports nonexistent names from sibling files: `from code.src.utils.config import get_config_value` (available: Any, CONFIG_FILE, Dict, List, PROJECT_ROOT, Path, config, load_config...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

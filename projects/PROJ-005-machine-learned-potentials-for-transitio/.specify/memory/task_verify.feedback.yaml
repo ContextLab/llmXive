@@ -1,0 +1,119 @@
+T001:
+  reason: "The required `code/specs/` subdirectory is missing; all other listed directories\
+    \ exist, but the absence of `code/specs/` means the task\u2019s directory structure\
+    \ is not fully created."
+  task: 36a5e3555ddf6d258a4e68a4fe452d5d213fbea48776b6c93d800f842730fe68
+T002:
+  reason: The `code/` directory does not contain a `.gitignore` file at all, let alone
+    one that lists the required exclusions (`data/raw/*`, `__pycache__`, `*.pyc`,
+    `.env`, `*.pt`). The implementer must add this file with the specified patterns.
+  task: b9dd525020494b238e2e2c119431873d1802333959af62a5660bc76b5ce1dadf
+T003:
+  reason: "The `code/` directory contains placeholder files such as `.flake8` and\
+    \ `.pre-commit-config.yaml`, but no provided contents show that flake8 and black\
+    \ are actually configured (e.g., rule sets, black line length, pre\u2011commit\
+    \ hooks). Without the configuration details, we cannot confirm the linting/formatting\
+    \ tools are set up as required. Add the actual configuration file contents (or\
+    \ evidence of a successful lint/format run) to satisfy the task."
+  task: 9af88fbb3ef47c246afb4e5b46694e6c6d4418f2cfbb2221d8c4b889f2dec808
+T004:
+  reason: The `code/requirements.txt` file is present, but it lists the required packages
+    without any version pins (e.g., `torch` instead of `torch==x.y.z`) and also contains
+    extra packages (`datasets`, `pyarrow`, `rdkit`) that were not part of the task.
+    The task explicitly required a requirements file with *pinned* versions for the
+    ten specified libraries.
+  task: bc39760cf7184df3c9f1821665e269da162461a9b9c98aaf195e6fb530a96ca5
+T005a:
+  reason: "Checked for `code/scripts/setup.sh` (required script) and `code/venv/`\
+    \ (virtual environment directory); both are reported as missing, so the task\u2019\
+    s required artifact does not exist."
+  task: 118b9788e38d29d5ae8a74b493f821d1763ac5f95e44bb2f81013daa16f563e3
+T005b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/setup.sh'
+  task: 845b4aa14366bbda7a6f69c271b3afba8b608923d1f0dc61035bd44c193b3903
+T006:
+  task: 714fb8efe5de1b0de8e2ca3da84299bd21b5bdddc6392617cb97beb23020ed6f
+T007:
+  task: 89c769f517f2391f435ecfa2e9edeff7b8b06ca3a7aa2a69f693f7ea3634d12c
+T008:
+  task: d97dd7f6d4dfd9ebdece92293397450f74e46afafc690d8d41cb74c2a73a67ac
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: code/contracts/prediction_schema.yaml'
+  task: 13007d23825bef6c522b6e98b70aef128ee975a6c0d166d6c832b0cc04c8305b
+T010:
+  task: e5ef3b5da322a3d22b8a5427ba63730400bbc2a536cc272955bec3cc3312b229
+T011:
+  task: 9232933ed913a61037b61e11cc43954c481ace1a7e6abb490f0ef73576fe7645
+T015:
+  task: b603c409f64376c7688fb9ad3ab9cc88e494bda47c8477f7704d63de4fee8e82
+T016:
+  task: 6026ca3539824306ff0525a05188cc0f970cd07aeb478a3c0dd7e6c70cda084d
+T016b:
+  task: 6ed511fd6539ed3b4c82aab8d3f9ad651c5b94c15e6809e7c91a9efba3977f8f
+T016d:
+  task: 03703916cc8b03c7d574fd6667a7039fb5a579d0ed26432ce05a87e015dd0c35
+T017a:
+  task: 96a1fa845a5ee5131c64aa2f63917f135bf730cbf6519a237ccc933a88f90517
+T017b:
+  task: 1f911c91631ef0152dbb0f4aeff97bcf698e2212d6a07d05c53cf8dbdcda8e6a
+T017c:
+  task: 7bdda39ede84951684350bda42e0e8dc9316b00698d98a4d41db8ac9d3b4c464
+T018:
+  task: a4d3c5c984231651dc32258768ed23c1a1b2cf8c14e8b5ccfd0c37ee7a9692bc
+T019:
+  task: 0d9a1d01e3419095676182d32b4d170dde2f2745216348474335be5cb830e233
+T020:
+  task: 3e85deccf6571191bf6a9a14befefef2e9b5c21a1c11ff347e8b45a574e70ea2
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: code/tests/unit/test_models.py'
+  task: 579e59f098d346d014eab60d546fdc06233098d9753041df73a0e4cf1288ef8d
+T022:
+  task: 166f042baec01b35c54f550dcaa5f2afb4a430e39ef951245b93e8802900c802
+T023a:
+  task: cef12d4b554e02883404bf14902ea2a3b6a7b4581a4ebb35c27ba933973b99c5
+T023b:
+  task: 2b6b6dd5ec905796167a369add0998e34b650b6e0575b23fc05480f5c0778648
+T023c:
+  task: d5102aa1509d113e1bd66d9a783d50b8ff7736e1f57f1582fd2394063174ad73
+T024:
+  task: 7d62f9f8b450d093c2049001b4fce5fdabc8454786ba7dba28e99c4f4d0623fe
+T025:
+  task: 8eabe6ec3aa9fd768e379b0e4266b224ff64ecd88b5ba4b26ff9d8c9e9069728
+T025b:
+  task: f52767bfd6fad2f6bf4709838df0ccf86f914ffe1ebcf965d6c8a5117169194b
+T026:
+  task: 7a16eb5309676566f56620703051575d72a7fe5e0522286fea8dd0aadafda399
+T027a:
+  task: d6dc3e878e3a1e755a3a03c8df520d797d9b2e859f8fec7ed44317afdcfb7040
+T027b:
+  task: 814cfa313c86ff4f7395bf9de7f2dbf7ebbeb5b8d550dd76712adbaa5deafe89
+T029:
+  task: 33a4274aa2b12c19645d6e2d3ae885486367b69362267d29998195f471e0357f
+T029a:
+  task: ef83fa2a920de3fa4e51aa84cd6b5a6ea8b90ae3c2995cd454026bddf5863a34
+T029b:
+  task: 751781ed2a57c2b5748b154f057d812ad06c17dd321cf136b4d6c452c7ed270e
+T029d:
+  task: edbff46f2740c277ab5a0b852a67e342577fdb128059f40899cd1a558c050428
+T030:
+  task: 2548cf42af6047b56b48cca8c13173a6e65b7ab937233c93c8988c6beff85af1
+T031:
+  task: cc3a09808c60851476e056b7c82162afddf2ebb47cdd0b86d1eed649bd876e6b
+T032:
+  task: 7b87cdae05bddd9b213b2d224a02c027d84368594d239e3d9f999e7225907f6d
+T033:
+  task: 97b15e2d94b6dbbdb4c60e4808c81ffa7ab0aab0ff5d708d59df92abd4bd0d33
+T034b:
+  task: e982894c25b1fe922ff4337555bbe35909e355fa6709a6c1a5c620e6712acd3d
+T036a:
+  task: e7b7977e3d87081d51a4bd666df6a901990aacf2b3831a39f6d149d77b78d33a
+T036b:
+  task: a2d2954a6b223fcbc72b2bf93bc7ff28a96604bd8c79b36e51350ef92e9f6c59
+T036c:
+  task: d2bbc4a5975d7a143f36793dc00c5cf069763e2eb6854a977c255a1003f17b11
+T037:
+  task: 7cdc516198659e3250107ce0e63a5d377903c7fd7c5d6e43c0b233b5a13bd0e5
+T038a:
+  task: 905e8202efb3c0504fcf03a277df7c85e86c09e0560d252281753c637039f945
+T038b:
+  task: 25390deb67122529f05959bfd12f63b2dab147e0a83525f6788c5951206b1478
