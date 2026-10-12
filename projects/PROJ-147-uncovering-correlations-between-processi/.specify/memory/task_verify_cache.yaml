@@ -4,12 +4,86 @@ T001:
   r: "No evidence of the required directories (`code/`, `data/`, `tests/`, `docs/`)\
     \ is presented; the response contains only the task description and no actual\
     \ file\u2011system artifacts, so the project structure has not been demonstrated."
-T006:
+T002:
+  c: true
+  h: b75ab53895e906c2de4e56c4d1641fa787fc5c08f3fe38fec4fdff36a17c2551
+  r: 'The `requirements.txt` file exists at the correct location (`projects/PROJ-147-uncovering-correlations-between-processi/requirements.txt`)
+    and contains all six required dependencies specified in the task: `scikit-learn`,
+    `pandas`, `numpy`, `pymtex`, `pyyaml`, and `pytest`. The file is non-empty (66
+    bytes) and includes two additional dependencies (`matplotlib` and `requests`)
+    that support the broader project needs without violating the task requirement.
+    The artifact directly satisfies the stated requirement to initialize a Python
+    3.11 project with the specified dependencies in `requirements.txt'
+  sig: 10c1e88096e30b9bdfe6fc368dcd6bf0e828876f0155024ebb5a8e2c9695d0b9
+T003:
+  c: true
+  h: 918009ed603341ef349589cff4ef9f3cb40a761668e707329a986e4af90e9384
+  r: 'The `.pre-commit-config.yaml` file exists, is non-empty (900 bytes), and contains
+    the required configuration for linting and formatting tools as specified in task
+    T003. The file includes:
+
+
+    1. **Black formatter** (rev: 24.3.0) configured with `--line-length=100` for Python
+    3.11
+
+    2. **Ruff linter** (rev: v0.3.5) configured with `--fix` and `--exit-non-zero-on-fix`
+    flags for flake8-compatible linting
+
+    3. **Pre-commit hooks** (v4.5.0) for general hygiene (trailing whitespace, YAML
+    validation, large file checks)
+
+
+    The configuration is properly structured, includes installation and usage instructions
+    i'
+  sig: 2ad80f983cdb43bf45396c3a515cd82f0e9ca048693274312a57044a12e76fc3
+T004:
+  c: true
+  h: 50a3e7a6218f8059fdaab7b55554d409e481e8664c2a15779a344f05a3c12d36
+  r: 'The artifact `code/config.py` exists, is non-empty (1192 bytes), and contains
+    the required configuration elements specified in task T004:
+
+
+    1. **Hyperparameters**: Defined constants including `RANDOM_SEED = 42`, `TEST_SIZE
+    = 0.2`, `CV_FOLDS = 5`, `MIN_SAMPLES_PER_FAMILY = 50`, `MAX_MISSING_RATIO = 0.20`,
+    `OUTLIER_SIGMA = 3.0`.
+
+
+    2. **Paths**: Comprehensive path definitions for data directories (`DATA_RAW_DIR`,
+    `DATA_PROCESSED_DIR`, `DATA_OUTPUT_DIR`), output directories (`FIGURES_DIR`, `LOGS_DIR`,
+    `MODELS_DIR`), and a `PROJECT_ROOT` anchor using `Path(__file__).resolve().parent.parent`
+    for prope'
+  sig: 81a949c9bd784af315620ee187298a33cc5f0eecf5f54c6e15303174a1ea1bb3
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/data/` directory (with `raw/` and `processed/` subfolders)
-    is provided; the response contains only the task description and no filesystem
-    artifacts. The required directory structure is missing.
+  h: 4456e4bb937856b888a43d050bed5621a9c2f2e7ff37d721e502f108bece7681
+  r: 'The `code/utils/logging.py` file exists and contains logging infrastructure,
+    but it has a critical defect that prevents it from functioning: the `log_warning_structured()`
+    function references `Dict` and `Any` types without importing them from the `typing`
+    module. Line 37 declares `context: Dict[str, Any] = None` but the imports at the
+    top only include `Optional` from `typing`, not `Dict` or `Any`. This will cause
+    a `NameError` at runtime when the function is called, violating the requirement
+    that the code must actually work for FR-007 (structured warnings) and FR-012 (pipeline
+    logging). The fi'
+  sig: 00d5c751cb8c6787d2981f40763b3943f1c18b5fc6b84f1e7ca857c4160b18ec
+T006:
+  c: true
+  h: b049ad2c40388aae59c3147d27ccec58f36f63fe419e4db37789f83ba906a9c3
+  r: '**Evidence checked:**
+
+
+    1. **Directory structure exists**: The collector confirms `code/data/` directory
+    exists with 8 entries, including both required subdirectories `raw/` and `processed/`.
+
+
+    2. **Subdirectories verified**: Historical execution log shows `create_dirs.py`
+    successfully created both `/code/data/raw` (with `.gitkeep`) and `/code/data/processed`
+    (with `.gitkeep`), exiting with code 0.
+
+
+    3. **Task requirement satisfied**: T006 requires only the creation of the `code/data/`
+    directory structure with `raw/` and `processed/` subdirectories. The artifact
+    evidence confirms both subdirector'
+  sig: 8b4d7a95eed9d3efe45ec230fb486b4d1159de0492934492c9ade9850bcf26e4
 T007:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e

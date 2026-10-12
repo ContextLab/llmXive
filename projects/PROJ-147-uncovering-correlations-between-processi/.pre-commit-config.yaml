@@ -1,9 +1,10 @@
-# Pre-commit configuration for llmXive project
-# Configures linting (ruff) and formatting (black) tools
-# Install with: pre-commit install
-# Run manually: pre-commit run --all-files
+# Pre-commit configuration for the rolled-metals texture pipeline.
+# Configures linting (ruff) and formatting (black) tools.
+# Install with:  pre-commit install
+# Run manually:  pre-commit run --all-files
 
 repos:
+  # General hygiene hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -11,8 +12,9 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
-        args: ['--maxkb=1024'] # Limit to 1MB
+        args: ['--maxkb=1024'] # Limit files to 1 MB
 
+  # Formatting: black (line length 100)
   - repo: https://github.com/psf/black
     rev: 24.3.0
     hooks:
@@ -20,20 +22,9 @@ repos:
         language_version: python3.11
         args: [--line-length=100]
 
+  # Linting: ruff (flake8-compatible rules, auto-fix enabled)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.3.5
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
-        # Note: ruff format is an alternative to black, but we keep black for consistency
-        # if the project strictly requires black. If switching to ruff format, remove black hook.
-        # For now, we use ruff for linting only as per task description (ruff/flake8).
-        # If ruff format is desired, uncomment above and remove black hook.
-
-  # Optional: Check for debug statements
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.5
-    hooks:
-      - id: ruff
-        args: [--select=DEBUG,--fix]

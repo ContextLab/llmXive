@@ -1,0 +1,18 @@
+version: 1.0
+description: "Schema for the sensitivity analysis report (sensitivity_report.json)."
+fields:
+  r2_threshold_sweep:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold: {type: float}
+        r2_stability: {type: float}
+        mae_stability: {type: float}
+  importance_threshold_sweep:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold: {type: float}
+        stability_metric: {type: float}

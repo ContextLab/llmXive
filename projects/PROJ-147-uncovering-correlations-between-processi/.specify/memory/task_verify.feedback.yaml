@@ -1,0 +1,84 @@
+T001:
+  task: bcbeae8326a09105fb4261b5b050ce15773d6ccde6916a0ec145413e2914f055
+T002:
+  task: d7ebf57cf42c2f21f3df969362fe4de420e9b28d27bd65503ca38d212b108846
+T003:
+  task: 6dba72a9b2fcfe4d5e11415665bf2b2dcfe6a0d39ee968d6158f132c51d1edc5
+T004:
+  task: fab74d6c5b9e4f13a9618bbadff84ae041507bd428048451518ec1698e4366d7
+T005:
+  reason: 'The `code/utils/logging.py` file exists and contains logging infrastructure,
+    but it has a critical defect that prevents it from functioning: the `log_warning_structured()`
+    function references `Dict` and `Any` types without importing them from the `typing`
+    module. Line 37 declares `context: Dict[str, Any] = None` but the imports at the
+    top only include `Optional` from `typing`, not `Dict` or `Any`. This will cause
+    a `NameError` at runtime when the function is called, violating the requirement
+    that the code must actually work for FR-007 (structured warnings) and FR-012 (pipeline
+    logging). The fi'
+  task: 82aa63d59e46d784127d4c8367817bcafd4b343b059ad24be98f74718338520b
+T006:
+  task: 04dfc669eca0ee9fb55cbc2b072a0d2f1ebe89c278c8641821eeaf86be47dc28
+T007:
+  task: e858da39149e5597678020dfe433c548b8b21d7d61c80e19a26a371ead19b87a
+T008:
+  task: 889226ee31b74e2f22677e6cc21285e1cdc496169f57ba43757a81d74b814181
+T009:
+  task: 902e96d557a8b01013415d3ee17f2f994783a8f0d8ecdeccca82a3ae7280f098
+T009a:
+  task: a4f920f8dd6dba8935cb42bcc5c073893e882eb672c0af77442258c303568015
+T010:
+  task: 9a4286a113ef06691a5b6721405fb8544fc157f9614d6ed69a7384d4acaf8ff2
+T011a:
+  task: 5f0ae34e94c9b9c69790c4d26a650f3a518c0900692fd132e6401d779c59bbc6
+T011b:
+  task: c01b9441ae61d3fb563223651bf83a89456e2955a9fe827daa8303bac0549681
+T012:
+  task: 51a945ace6792949ff1e17fc325d0242eb0d39d9334d40d2e9c3721d1fbf22c7
+T013:
+  task: 9a42e40558ebd2701417f4a65bb51d3db45cdfc70f0cf4e48a7de52f883c617a
+T014:
+  task: 87360c6e32ac5499f6f0a97091f7d0322a7374fb9b6e5379ce3ed468fbfe265d
+T015:
+  task: 1e4cc4985c3abff4f1630380f57ead0e7a5c58b13673155f94e4e8591b5bad9f
+T016:
+  task: efd151605b0ca5451b9d3e585706c9e84598abeab5be2dff439447e60a2d33e9
+T017:
+  task: 52ea69a19ace573f86f18b0cb06453fa98e20fa984dddd3e8345e4d28978a1ae
+T018:
+  task: 34785ca7ae9602ff7a9949b24935efc895f3bed0e05d59315822b950fd943c28
+T019:
+  task: 51dc62dfffaadf1bc31d371c24a25a6f5382f6de55505df5ce95056b658a63f1
+T020:
+  task: 85cd3abfca3a23c0875bffb07d436476e0f00c9c053685056d3c349174c912d7
+T021:
+  task: 5b32b37eb7223e1169654e14b702dd2044dfbaeca66c0a3f3ed184127b2b847d
+T021a:
+  task: e1c9109fca2a4e1d39ebe8141bb0997aa51be31b74c607dc7a72ed190e40f47a
+T022:
+  task: d63980a2b29c31f5917d27e55f3e59197c520a5381a5d0d0c4165a1b02b492c3
+T023:
+  task: b8a8c28e07ef4c4ed50c87e784b62967a10bd5a6d74b75a53896938fb8265d5d
+T024:
+  task: 1f39392dbe6f1f6d4621abc443ee601acae2d29deb75fba25ae3561b1fdd8d0d
+T025:
+  task: 862ebf46c823930c54808f52791a55e3449d0771b4bd047479ffe436123558da
+T026:
+  task: 15452ac63146f40a10ca06cf7dec747344e4ee1352bfc3bb017dbba29b81a5c1
+T027:
+  task: e976104c83c0cfaf51118d7ecf0e8069a81e033ff41e64e101b81bddea94d742
+T028:
+  task: 6a29d07b9dc987db5bfb41a8b83768d6646ecab42ad6811e7d8f49dbe3104339
+T029:
+  task: 51b1104680001c728d0b22a4de087e6b72dc9c24703d3178c3c526613048aa9a
+T030:
+  task: f745f2ad6d475cab68a4f16b235519c9625b166a5cf933c21a26fa3c52c4d80e
+T031:
+  task: ca5b902d7f3cc42e24113812bf93f3c7a794c6b83b978bf993b60b1a9e1d03d0
+T032:
+  task: 165672d7a8a6c563e13993c21757431c14649bc3bc18fba58e2a5dbf9a23defd
+T033:
+  task: c2d369fc7e2d230839bc8d028299ea61c6143e481bfd22a824312735275df452
+T034:
+  task: 0e4cde85f002504485ecf31c4ee417907033ad78972925eec6d840ab79a2f933
+T035:
+  task: bf181bfcd537d044f2d56f89a52f1041033ff8a4d2f458f772de1d1a3d0ded8b

@@ -1,0 +1,14 @@
+version: 1.0
+description: "Schema for the evaluation report (evaluation_report.json)."
+fields:
+  data_source_type: 
+    type: string
+    enum: ["Real", "Synthetic"]
+  per_family_metrics:
+    type: object
+    description: "Metrics grouped by alloy family"
+    pattern: "{family_name}: {texture_col: {metric: value}}"
+  missing_confounds:
+    type: array
+    items: {type: string}
+    description: "List of confounding variables not available in the dataset"

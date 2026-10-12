@@ -1,119 +1,33 @@
-# Dataset Schema for Rolled Metals Texture Prediction
-# Defines the structure of the processed dataset used for model training and evaluation.
-# Used by: code/data/processor.py, code/models/trainer.py, code/models/evaluator.py
-$schema: http://json-schema.org/draft-07/schema#
-title: RolledMetalsDataset
-description: |
-  Schema for the processed dataset containing processing conditions,
-  alloy properties, and texture coefficients (ODF intensities).
-type: object
-required:
-  - metadata
-  - samples
-properties:
-  metadata:
-    type: object
-    required:
-      - version
-      - created_at
-      - source_type
-      - sample_count
-      - alloy_families
-    properties:
-      version:
-        type: string
-        description: Schema version (e.g., "1.0.0")
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of dataset creation
-      source_type:
-        type: string
-        enum: [Real, Synthetic, Combined]
-        description: Origin of the data
-      sample_count:
-        type: integer
-        minimum: 0
-        description: Total number of samples in the dataset
-      alloy_families:
-        type: array
-        items:
-          type: string
-        description: List of distinct alloy families present
-      processing_pipeline:
-        type: string
-        description: Identifier for the processing pipeline version used
-  samples:
-    type: array
-    items:
-      $ref: "#/definitions/sample"
-    minItems: 1
-definitions:
-  sample:
-    type: object
-    required:
-      - sample_id
-      - alloy_family
-      - processing_conditions
-      - texture_coefficients
-    properties:
-      sample_id:
-        type: string
-        description: Unique identifier for the sample
-      alloy_family:
-        type: string
-        description: Alloy family classification (e.g., "Al-Mg", "Ti-6Al-4V")
-      processing_conditions:
-        type: object
-        required:
-          - rolling_temperature
-          - reduction_ratio
-          - strain_rate
-          - annealing_temp
-          - annealing_time
-        properties:
-          rolling_temperature:
-            type: number
-            description: Rolling temperature in Kelvin
-          reduction_ratio:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: Thickness reduction ratio (0-1)
-          strain_rate:
-            type: number
-            description: Strain rate in s^-1
-          annealing_temp:
-            type: number
-            description: Annealing temperature in Kelvin
-          annealing_time:
-            type: number
-            description: Annealing time in seconds
-          zener_hollomon_param:
-            type: number
-            description: Derived Zener-Hollomon parameter
-      texture_coefficients:
-        type: object
-        required:
-          - ODF_100
-          - ODF_110
-          - ODF_111
-        properties:
-          ODF_100:
-            type: number
-            description: ODF intensity for {100} plane in MRD
-          ODF_110:
-            type: number
-            description: ODF intensity for {110} plane in MRD
-          ODF_111:
-            type: number
-            description: ODF intensity for {111} plane in MRD
-      derived_features:
-        type: object
-        properties:
-          recrystallization_fraction:
-            type: number
-            description: Estimated recrystallized fraction
-          stored_energy:
-            type: number
-            description: Stored deformation energy
+version: 1.0
+description: "Schema for the combined processed dataset containing processing parameters and texture coefficients."
+columns:
+  sample_id: 
+    type: string
+    description: "Unique identifier for the sample"
+  alloy_family: 
+    type: string
+    description: "Alloy classification (e.g., Al, Cu, Steel)"
+  rolling_speed: 
+    type: float
+    unit: "m/s"
+    description: "Rolling speed"
+  temperature: 
+    type: float
+    unit: "deg C"
+    description: "Rolling temperature"
+  reduction_ratio: 
+    type: float
+    unit: "percent"
+    description: "Reduction ratio"
+  odf_100: 
+    type: float
+    unit: "MRD"
+    description: "Peak ODF intensity for {100} plane"
+  odf_110: 
+    type: float
+    unit: "MRD"
+    description: "Peak ODF intensity for {110} plane"
+  odf_111: 
+    type: float
+    unit: "MRD"
+    description: "Peak ODF intensity for {111} plane"
