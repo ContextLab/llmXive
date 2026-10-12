@@ -1,0 +1,26 @@
+{
+  "task": "T009",
+  "directories": [
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/data/raw",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/data/processed",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/results/models",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/results/reports",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/results/plots",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration"
+  ],
+  "created_now": [],
+  "already_existing": [
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/data/raw",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/data/processed",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/results/models",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/results/reports",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/results/plots",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit",
+    "/home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration"
+  ]
+}

@@ -1,0 +1,10 @@
+status: none
+intent: ZINC ChEMBL PubChem molecular complexity entropy SMILES RDKit Mordred python
+  package dataset
+required_fields:
+- SMILES
+- complexity_score
+- entropy_score
+cache_key: 3599727ccfc2ac2634b3e2e42053881c017a751bb7a5d41b765b6cb6c2cc9a6f
+searched_at: '2026-10-12T11:25:31.374469+00:00'
+retry_count: 1

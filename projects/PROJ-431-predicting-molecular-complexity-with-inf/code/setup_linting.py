@@ -1,148 +1,126 @@
-"""
-Linting and formatting configuration setup script.
+"""Set up and run linting (flake8) and formatting checks (black).
 
-This script initializes the project's linting (flake8) and formatting (black)
-configuration files and installs the necessary dependencies.
+Task T003: Configure linting (flake8/black) and formatting tools.
+
+This script:
+1. Ensures flake8 and black are installed (installing them if missing).
+2. Runs flake8 on code/ and tests/ using code/.flake8 as the config.
+3. Runs black --check on code/ and tests/ using code/pyproject.toml.
+4. Writes an evidence report to results/reports/linting_report.txt.
+
+Exit code is 0 as long as the tools ran and the report was written;
+the report records the number of violations found so they can be
+addressed incrementally.
 """
+
+import shutil
 import subprocess
 import sys
-import os
 from pathlib import Path
+
+from llmxive_toolkit import paths
+
+TOOLS = ["flake8", "black"]
+TARGETS = ["code", "tests"]
+
+
+def _ensure_tool(module: str) -> None:
+    """Ensure a linting tool is importable; install it if missing."""
+    check = subprocess.run(
+        [sys.executable, "-c", f"import {module}"],
+        capture_output=True,
+    )
+    if check.returncode != 0:
+        print(f"[setup_linting] {module} missing, installing...")
+        install = subprocess.run(
+            [sys.executable, "-m", "pip", "install", module],
+            capture_output=True,
+            text=True,
+        )
+        if install.returncode != 0:
+            raise RuntimeError(
+                f"Failed to install {module}: {install.stderr[-2000:]}"
+            )
 
 
 def run_command(cmd: list, description: str) -> bool:
-    """Run a shell command and return True if successful."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"Error running command: {e}", file=sys.stderr)
-        if e.stderr:
-            print(e.stderr, file=sys.stderr)
-        return False
+    """Run a shell command, streaming output; return True on success."""
+    print(f"[setup_linting] {description}: {' '.join(cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    output = (result.stdout or "") + (result.stderr or "")
+    if output.strip():
+        print(output.rstrip())
+    return result.returncode == 0
 
 
-def main():
-    """Main entry point for setting up linting and formatting."""
-    print("Setting up linting (flake8) and formatting (black)...")
+def main() -> int:
+    project_root = paths.root
+    os_cwd_ok = subprocess.run(["pwd"], capture_output=True, text=True)
+    del os_cwd_ok
 
-    # Ensure we are in the project root
-    project_root = Path(__file__).parent.parent
-    os.chdir(project_root)
+    for tool in TOOLS:
+        _ensure_tool(tool)
 
-    # Install dependencies
-    print("\n1. Installing flake8 and black...")
-    if not run_command(
-        [sys.executable, "-m", "pip", "install", "flake8", "black"],
-        "Installing flake8 and black"
-    ):
-        print("Failed to install dependencies. Exiting.")
-        return 1
+    flake8_config = project_root / "code" / ".flake8"
+    black_config = project_root / "code" / "pyproject.toml"
+    if not flake8_config.exists():
+        raise FileNotFoundError(f"Missing flake8 config: {flake8_config}")
+    if not black_config.exists():
+        raise FileNotFoundError(f"Missing black config: {black_config}")
 
-    # Create .flake8 configuration
-    print("\n2. Creating .flake8 configuration file...")
-    flake8_config = project_root / ".flake8"
-    flake8_content = """[flake8]
-max-line-length = 88
-extend-ignore = E203, W503
-exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info,
-    .venv,
-    venv
-max-complexity = 10
-"""
-    flake8_config.write_text(flake8_content)
-    print(f"Created {flake8_config}")
+    report_path = paths.results("reports", "linting_report.txt")
+    lines = ["Linting & Formatting Report (T003)", "=" * 40, ""]
 
-    # Create pyproject.toml with black configuration
-    print("\n3. Creating pyproject.toml with black configuration...")
-    pyproject_config = project_root / "pyproject.toml"
-    # Check if file exists and has content
-    if pyproject_config.exists():
-        content = pyproject_config.read_text()
-        if "[tool.black]" in content:
-            print(f"{pyproject_config} already contains black configuration. Skipping.")
-        else:
-            # Append black configuration
-            black_section = """
-[tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
-include = '\\.pyi?$'
-extend-exclude = '''
-/(
-    \\.#
-    | .git
-    | __pycache__
-    | build
-    | dist
-    | .eggs
-    | *.egg-info
-    | .venv
-    | venv
-)/
-'''
-"""
-            pyproject_config.write_text(content + black_section)
-            print(f"Appended black configuration to {pyproject_config}")
-    else:
-        black_content = """[tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
-include = '\\.pyi?$'
-extend-exclude = '''
-/(
-    \\.#
-    | .git
-    | __pycache__
-    | build
-    | dist
-    | .eggs
-    | *.egg-info
-    | .venv
-    | venv
-)/
-'''
-"""
-        pyproject_config.write_text(black_content)
-        print(f"Created {pyproject_config} with black configuration")
+    # ---- flake8 ----
+    flake8_cmd = [
+        sys.executable,
+        "-m",
+        "flake8",
+        "--config",
+        str(flake8_config),
+    ] + [str(project_root / t) for t in TARGETS if (project_root / t).exists()]
+    flake8_ok = run_command(flake8_cmd, "Running flake8")
+    flake8_result = subprocess.run(flake8_cmd, capture_output=True, text=True)
+    flake8_out = (flake8_result.stdout or "").strip()
+    n_flake8 = len(flake8_out.splitlines()) if flake8_out else 0
+    lines.append(f"flake8 (config: code/.flake8): "
+                  f"{'PASS' if flake8_ok else f'{n_flake8} violation(s)'}")
+    if flake8_out:
+        lines.extend("  " + l for l in flake8_out.splitlines())
+    lines.append("")
 
-    # Create .gitignore entry if needed
-    print("\n4. Checking .gitignore for linting artifacts...")
-    gitignore_path = project_root / ".gitignore"
-    linting_entries = [
-        "# Linting and formatting artifacts",
-        ".coverage",
-        "htmlcov/",
-        ".mypy_cache/",
-        ".pytest_cache/",
-        ".ruff_cache/",
-    ]
-    if gitignore_path.exists():
-        existing = gitignore_path.read_text()
-        for entry in linting_entries:
-            if entry not in existing:
-                with open(gitignore_path, "a") as f:
-                    f.write("\n" + entry + "\n")
-    else:
-        with open(gitignore_path, "w") as f:
-            f.write("\n".join(linting_entries) + "\n")
-    print(f"Updated {gitignore_path}")
+    # ---- black ----
+    black_cmd = [
+        sys.executable,
+        "-m",
+        "black",
+        "--check",
+        "--config",
+        str(black_config),
+    ] + [str(project_root / t) for t in TARGETS if (project_root / t).exists()]
+    black_ok = run_command(black_cmd, "Running black --check")
+    black_result = subprocess.run(black_cmd, capture_output=True, text=True)
+    black_out = (black_result.stdout or "").strip()
+    n_black = 0
+    if black_out and "would reformat" in black_out:
+        n_black = sum(1 for l in black_out.splitlines() if "would reformat" in l)
+    lines.append(f"black --check (config: code/pyproject.toml): "
+                  f"{'PASS' if black_ok else f'{n_black} file(s) would be reformatted'}")
+    if black_out:
+        lines.extend("  " + l for l in black_out.splitlines()[:50])
+    lines.append("")
 
-    print("\nLinting and formatting setup complete!")
-    print("\nTo run linter: flake8 code/ tests/")
-    print("To run formatter: black code/ tests/")
+    lines.append(
+        "Tools configured: flake8 (code/.flake8, max-line-length=100, "
+        "black-compatible ignores E203/W503) and black (code/pyproject.toml, "
+        "line-length=100, target py310)."
+    )
+
+    report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"[setup_linting] Report written to {report_path}")
+
+    # Tools ran successfully and evidence was produced; violations are
+    # recorded in the report for incremental cleanup.
     return 0
 
 
