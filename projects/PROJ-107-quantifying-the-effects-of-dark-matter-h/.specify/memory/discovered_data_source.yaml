@@ -1,0 +1,14 @@
+status: none
+intent: IllustrisTNG-100 public data release halo catalog FoF halo dataset python
+  package dataset
+required_fields:
+- halo_id
+- fof_halo_id
+- mass
+- virial_radius
+- num_dm_particles
+- dm_particle_positions
+- snapshot_number
+cache_key: b1041acea0b16ef1c816213f47ea4dacbe6da094682ff48d417601b46788a0e9
+searched_at: '2026-10-12T16:17:32.469810+00:00'
+retry_count: 1
