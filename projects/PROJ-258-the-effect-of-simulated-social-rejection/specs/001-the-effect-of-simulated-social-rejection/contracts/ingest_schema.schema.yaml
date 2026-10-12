@@ -47,7 +47,7 @@ properties:
             description: "Maximum mood rating."
   single_cohort_validation:
     type: "object"
-    description: "Checks that the same participants appear in both conditions."
+    description: "Checks that the same participants are present in both conditions."
     properties:
       is_single_cohort:
         type: "boolean"
