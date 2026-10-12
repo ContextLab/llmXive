@@ -19,31 +19,35 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download.py -> rc=1
 
-2026-10-12 06:16:45,586 - __main__ - INFO - Starting download pipeline (T002).
-2026-10-12 06:16:45,586 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
-2026-10-12 06:16:45,588 - __main__ - INFO - Downloading NOAA pressure file: https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/2020/slp.20200101.nc
-2026-10-12 06:16:45,745 - __main__ - ERROR - Failed to download https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/2020/slp.20200101.nc: 404 Client Error: Not Found for url: https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/2020/slp.20200101.nc
-2026-10-12 06:16:45,745 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/2020/slp.20200101.nc
+2026-10-12 07:33:19,606 - __main__ - INFO - Starting download pipeline (T002).
+2026-10-12 07:33:19,606 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
+2026-10-12 07:33:19,608 - __main__ - INFO - Downloading NOAA pressure file: https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 07:33:49,757 - __main__ - ERROR - Failed to download https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc: HTTPSConnectionPool(host='downloads.psl.noaa.gov', port=443): Read timed out. (read timeout=30)
+2026-10-12 07:33:49,758 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
 
 - python code/preprocess.py -> rc=1
-taset written to data/processed/master_dataset.parquet
-2026-10-12 06:16:46,066 - __main__ - INFO - Checksum written to data/processed/master_dataset.parquet.sha256
-2026-10-12 06:16:46,066 - __main__ - ERROR - Preprocessing failed: Schema file not found at contracts/earthquake.yaml
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 363, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 357, in main
-    create_master_dataset(deduped, config)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 268, in create_master_dataset
-    earthquake_schema = load_schema("earthquake")
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 62, in load_schema
-    raise FileNotFoundError(f"Schema file not found at {schema_path}")
-FileNotFoundError: Schema file not found at contracts/earthquake.yaml
+e 125, in interpolate_pressure_grid
+    raw_pressure_df.to_parquet(out_path, index=False)
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 
 - python code/analysis.py -> rc=1
-2026-10-12 06:16:46 - __main__ - INFO - Starting analysis pipeline.
+2026-10-12 07:33:50 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 320, in <module>
@@ -82,6 +86,61 @@ ERROR tests/unit/test_preprocess_anomalies.py
 ERROR tests/unit/test_statistics.py
 ERROR tests/unit/test_t017_master_dataset.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 0.47s ===============================
+============================== 9 errors in 0.86s ===============================
 
 
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `obspy` to the project's `requirements.txt` and `pip install obspy`.
+- **Verified**: this loads **10129** real records with fields: event_id, origin_time, latitude, longitude, depth_km, magnitude.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import obspy
+from obspy import UTCDateTime
+from obspy.clients.fdsn import Client
+
+# Initialize USGS client
+client = Client("USGS")
+
+# Define a recent time window (last 30 days)
+endtime = UTCDateTime()
+starttime = endtime - 30*24*3600
+
+# Retrieve the earthquake catalog
+cat = client.get_events(starttime=starttime, endtime=endtime)
+
+# Count records
+records = len(cat)
+print(f"RECORDS={records}")
+
+# Inspect first event to infer available fields
+fields = []
+if records > 0:
+    ev = cat[0]
+    # event_id
+    if getattr(ev, "resource_id", None) is not None:
+        fields.append("event_id")
+    # origin_time
+    if ev.origins and getattr(ev.origins[0], "time", None) is not None:
+        fields.append("origin_time")
+    # latitude
+    if ev.origins and getattr(ev.origins[0], "latitude", None) is not None:
+        fields.append("latitude")
+    # longitude
+    if ev.origins and getattr(ev.origins[0], "longitude", None) is not None:
+        fields.append("longitude")
+    # depth_km (ObsPy stores depth in meters)
+    if ev.origins and getattr(ev.origins[0], "depth", None) is not None:
+        fields.append("depth_km")
+    # magnitude
+    if ev.magnitudes and getattr(ev.magnitudes[0], "mag", None) is not None:
+        fields.append("magnitude")
+
+print("FIELDS=" + ",".join(fields))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

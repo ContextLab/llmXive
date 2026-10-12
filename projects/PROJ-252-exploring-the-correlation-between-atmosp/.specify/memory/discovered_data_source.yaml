@@ -1,18 +1,44 @@
-status: none
-intent: download NOAA NCEP/NCAR global surface pressure reanalysis and USGS earthquake
-  catalog python package
+status: verified
+kind: pypi_package
+ref: obspy
+access_python: "import obspy\nfrom obspy import UTCDateTime\nfrom obspy.clients.fdsn\
+  \ import Client\n\n# Initialize USGS client\nclient = Client(\"USGS\")\n\n# Define\
+  \ a recent time window (last 30 days)\nendtime = UTCDateTime()\nstarttime = endtime\
+  \ - 30*24*3600\n\n# Retrieve the earthquake catalog\ncat = client.get_events(starttime=starttime,\
+  \ endtime=endtime)\n\n# Count records\nrecords = len(cat)\nprint(f\"RECORDS={records}\"\
+  )\n\n# Inspect first event to infer available fields\nfields = []\nif records >\
+  \ 0:\n    ev = cat[0]\n    # event_id\n    if getattr(ev, \"resource_id\", None)\
+  \ is not None:\n        fields.append(\"event_id\")\n    # origin_time\n    if ev.origins\
+  \ and getattr(ev.origins[0], \"time\", None) is not None:\n        fields.append(\"\
+  origin_time\")\n    # latitude\n    if ev.origins and getattr(ev.origins[0], \"\
+  latitude\", None) is not None:\n        fields.append(\"latitude\")\n    # longitude\n\
+  \    if ev.origins and getattr(ev.origins[0], \"longitude\", None) is not None:\n\
+  \        fields.append(\"longitude\")\n    # depth_km (ObsPy stores depth in meters)\n\
+  \    if ev.origins and getattr(ev.origins[0], \"depth\", None) is not None:\n  \
+  \      fields.append(\"depth_km\")\n    # magnitude\n    if ev.magnitudes and getattr(ev.magnitudes[0],\
+  \ \"mag\", None) is not None:\n        fields.append(\"magnitude\")\n\nprint(\"\
+  FIELDS=\" + \",\".join(fields))"
+record_count: 10129
+sample_fields:
+- event_id
+- origin_time
+- latitude
+- longitude
+- depth_km
+- magnitude
+field_coverage: 0.727
 required_fields:
 - event_id
 - origin_time
 - latitude
 - longitude
 - magnitude
-- depth
-- grid_latitude
-- grid_longitude
-- pressure_value
-- pressure_anomaly
+- depth_km
+- nearest_grid_latitude
+- nearest_grid_longitude
+- pressure_anomaly_0_48h
+- daily_pressure_anomaly
 - control_window_label
-cache_key: 2bfa36f3a03730e5550c08be0450df42f6a05867aa2b0e3e2bfaee1b68d3f252
-searched_at: '2026-10-12T06:17:41.525375+00:00'
-retry_count: 1
+intent: NOAA NCEP/NCAR surface pressure and USGS earthquake catalog python package
+  dataset
+cache_key: 26ccbc039e4b2a4a295090dfe3e34ebe3fd0adc6a8c2994c4cc2d6c2d109342a

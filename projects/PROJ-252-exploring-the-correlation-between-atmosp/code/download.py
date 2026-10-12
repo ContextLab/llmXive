@@ -158,11 +158,11 @@ def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     raw_dir = Path("data/raw/noaa_pressure")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Choose a single date that is known to exist in the NOAA archive.
-    # The file name follows the pattern: slp.YYYYMMDD.nc
+    # Use a reliable source from the NOAA Physical Sciences Laboratory mirror.
+    # The file naming convention on this mirror is: pressure.YYYYMMDD.nc
     test_date = pd.Timestamp(year=2020, month=1, day=1)
-    filename = f"slp.{test_date.strftime('%Y%m%d')}.nc"
-    url = f"https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/{test_date.year}/{filename}"
+    filename = f"pressure.{test_date.strftime('%Y%m%d')}.nc"
+    url = f"https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/{test_date.year}/{filename}"
     dest_path = raw_dir / filename
 
     if dest_path.exists():
@@ -192,8 +192,8 @@ def write_download_log(noaa_file_count: int, usgs_row_count: int) -> None:
     log_path = Path("logs/download_success.log")
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, "w", encoding="utf-8") as log_f:
-        log_f.write(f"Global NOAA pressure data downloaded: {noaa_file_count} files\n")
-        log_f.write(f"USGS earthquake catalog rows: {usgs_row_count}\n")
+        log_f.write(f"Global NOAA pressure data downloaded: {noaa_file_count} files\\n")
+        log_f.write(f"USGS earthquake catalog rows: {usgs_row_count}\\n")
     logger.info(f"Download success log written to {log_path}")
 
 # ----------------------------------------------------------------------
