@@ -1,0 +1,14 @@
+status: none
+intent: download NREL perovskite database EDS maps with Materials Project performance
+  metrics python package dataset
+required_fields:
+- sample_id
+- pb_map
+- i_map
+- ma_map
+- pce
+- j_sc
+- v_oc
+cache_key: c14c47c2474c17408ad23844b9e00f2db77393d43b8844fc6ae9bca5bb008fab
+searched_at: '2026-10-12T21:30:02.385503+00:00'
+retry_count: 1
