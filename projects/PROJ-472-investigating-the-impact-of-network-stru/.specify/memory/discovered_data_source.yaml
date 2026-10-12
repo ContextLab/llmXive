@@ -1,15 +1,15 @@
 status: none
-intent: OpenNeuro HCP-Aging diffusion MRI connectome and EEG dataset python package
+intent: OpenNeuro HCP-Aging diffusion MRI structural connectome and EEG download python
+  package dataset
 required_fields:
 - participant_id
+- diffusion_mri_file_path
+- eeg_file_path
 - structural_connectivity_matrix
-- parcellation_scheme
-- dwi_preprocessed_path
+- parcelation_scheme
 - eeg_time_series
 - eeg_sampling_rate
-- eeg_bandpass_range
-- age
-- sex
-cache_key: 51a92c337b5e50492a77505238f2174ec0a7bae0c8dfe2488854ec15d3060b87
-searched_at: '2026-09-27T05:34:16.556505+00:00'
+- eeg_frequency_range
+cache_key: 00f8b7940071242c5b266d2d32582c398e5e92207d9d7e28b26241605a8e5905
+searched_at: '2026-10-12T21:11:59.943860+00:00'
 retry_count: 1
