@@ -11,11 +11,11 @@
   **Artifacts**: `data/results/project_structure.txt`.  
   **Verification**: The file must list all expected directories; a unit test `tests/unit/test_structure.py` asserts the presence of each sub‑folder.
 
-- [ ] T002 [US0] Initialize a Python 3.11 virtual environment, pin exact dependency versions, and generate `requirements.txt` (including `datasets`, `scikit-learn`, `statsmodels`, `sentence‑transformers`, `llama‑cpp‑python`, `pandas`, `numpy`, `tqdm`, `biopython`, `firth‑logistic`, `requests`, `ruff`, `black`).  
+- [X] T002 [US0] Initialize a Python 3.11 virtual environment, pin exact dependency versions, and generate `requirements.txt` (including `datasets`, `scikit-learn`, `statsmodels`, `sentence‑transformers`, `llama‑cpp‑python`, `pandas`, `numpy`, `tqdm`, `biopython`, `firth‑logistic`, `requests`, `ruff`, `black`).  
   **Artifacts**: `requirements.txt`.  
   **Verification**: `pip install -r requirements.txt` runs without conflicts; a test `tests/unit/test_requirements.py` checks that the file contains at least the listed packages.
 
-- [ ] T003a [US0] Create the lint‑configuration file `code/.ruff.toml` that enables the project‑standard rules (max line length 100, ignore `__init__.py`, enforce `flake8‑annotations`).  
+- [X] T003a [US0] Create the lint‑configuration file `code/.ruff.toml` that enables the project‑standard rules (max line length 100, ignore `__init__.py`, enforce `flake8‑annotations`).  
   **Artifacts**: `code/.ruff.toml`.  
   **Verification**: Running `ruff check code/` returns exit code 0; a test `tests/unit/test_ruff_config.py` parses the file and confirms the expected settings.
 

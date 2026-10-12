@@ -1,0 +1,25 @@
+# Ruff lint configuration for the llmXive epistemic-resilience project.
+# Project standard: max line length 100, flake8-annotations enforced,
+# __init__.py files exempt from lint checks.
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "ANN",  # flake8-annotations
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+]
+ignore = []
+
+[lint.per-file-ignores]
+"__init__.py" = ["ALL"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

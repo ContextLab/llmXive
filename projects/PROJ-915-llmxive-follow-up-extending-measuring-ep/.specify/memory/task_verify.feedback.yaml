@@ -1,0 +1,102 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 3d4b29a05832d8d41aa67164c73fb2647731582cc3ec39aa240c6f3b147ebca1
+T002:
+  task: bba3268500a5a03582c534ab4fa980ba23fa998b872b68e840a824abc7404055
+T003a:
+  task: 27a73e0ac22546bfaa1940437d41e6b6910bafa5fe5c8167594f35cb57472b7c
+T003b:
+  reason: "The `pyproject.toml` exists and correctly configures Black (line-length\
+    \ 100, target py311), but the task's stated verification \u2014 `black --check\
+    \ code/` returning exit code 0 \u2014 fails: the recorded test run shows exit\
+    \ code 1 with 23 files in `code/` needing reformatting. The implementer must run\
+    \ `black code/` (or otherwise bring the code into Black-compliant form) so the\
+    \ check passes."
+  task: 1c5ca4931fd07ea113d29dbdce1cbe9b7a42eb831e6b74fa568685ac90464315
+T003c:
+  task: a2d2a9799fd00e934678b24e1e1ca5c589acfd2479b750a32333ae2f4e7e77fe
+T004:
+  task: 8c02275986dbccfc59e2b790fac860c4024b34cafa172e2c71653e726deb902c
+T005:
+  task: 59a21b6949d895bf99dc1018901ba2eb9c7128dfab275a7f796598ae6397fe26
+T006:
+  task: 889de90bc63162b2f28e7cd9e3c0e92c8b8f849d20386d3b44110c1e54f4e2a7
+T007:
+  task: 6086f880d2921de955ada8f5fb136be067eaed5c989275143f623eac00aef346
+T008:
+  task: a5b8cdb64170447b581485da2da31a79325627c5a1a69f37685d9d9f8ed3d63d
+T009:
+  task: 72c36b651222506cb9e10f5a0ae468f4204bf0f409aab03fc5ed30fb0b7b2b10
+T010:
+  task: cd6c73c6e3dccca40d84cd955185d2d926717186cecc0d10250bb00c2cf24c40
+T010b:
+  task: 76702e0ded068a17ba76d53b020e7649b56ba812865fa9d27907ce6ba0f47c5f
+T010c:
+  task: 067fb351a4464cad12aea9dea003b62c691c408b50d9202ce1e510886abcfe57
+T011:
+  task: 07ce2d701b361bc3355087a2f51ec68fe5df3d652402b1ae9a07900806d78615
+T012:
+  task: e7c91cbec4650619ddbaea2af9dc242e770520c317deac5395e9ac551b1dc50b
+T013:
+  task: 94cfb05b07388a04ea0edc96cfc14be95319f135c31e084ce9fed782a58480ca
+T014:
+  task: 0664c43d006de178be581dcf249a065fbe48b2b62c9b87fd59bcadfd606783c4
+T015:
+  task: 2eb9812d79f6fa6542a2a5f9e416cc6a238b8ff30a4e16fbed28c87046b72e50
+T016:
+  task: c96e67efdc1174450a14b2a81b82acd7924c712d635390f9a3dc86c8dfe936db
+T017:
+  task: 7f71924dde4c48f6b42b4ad5e97ffae1695e0dab68b9f08ab240fa6580e7511b
+T018:
+  task: 36e46ce5186e2effa482df60953de292a01dfdee19f72ab5ded48a1888e4b688
+T019:
+  task: 1e62bc4e64974019b1df13faeee10779ab69115cc4814bb933ac0a9f74543cb9
+T020:
+  task: 4183805f899e2ad870590bc17cae30423c8df2075cb9c0edddc16a63d2097c73
+T021:
+  task: 04b29dd25bfb94ca3280bbbaa8130125660c9e740ba1f180cdbfbf676573c34a
+T022:
+  task: 4619a5df5f9a35714743aa4be54edb8f0d3341da2451230decee7c0c79c39e07
+T023:
+  task: b6698a76f1f41ac5899955028e0530a887a444fef3b4b4d9f9ddc22a1ebc903c
+T024:
+  task: 9f8fa379ce2ac5c104d63df1d001ad74863a3d6cff7caa5f94da359416396b64
+T025:
+  task: 3f517d2ab988fb0242f52926c321e12d0cc28df43d294a98dabaea151fc7d4ee
+T026:
+  task: e3ee665afd3217e49526e4d9b83c14989018a974764c91aec0d339c163fdefa3
+T027:
+  task: 9f4e1fa5e99990204ba1274755f5cba5f5098663f82a083256a47c8efebd8432
+T028:
+  task: c0af36f999b56105e0e555ea8265d487bfe41c4e998150e9c4079ccee002c6c2
+T029:
+  task: d573fce106b455a24568d405d04e0b2160a4aa1511cadd1ba3a801def38d7f88
+T030:
+  task: 489990abc4ff9958ae728a60b0a538c6a78ddef0201b9d350f9ec7cf75663297
+T031:
+  task: a6013e3d58064a78675ad612c925376887c2c072334f32287c0febda4fa0c4a1
+T032:
+  task: 8316dc1fb99662491e505433d1f771a77bfab8c65e911671fd77c4003c31990a
+T033:
+  task: 7f34bbc9b6767b90ba19c939e5b8c034a7a3e90704d84bf4d3c57277b3f1959d
+T034:
+  task: 682b775f579ba3b8a443d4c6e6e19bc1dbe16484203fba4e984b66b2c3583fb1
+T035:
+  task: 9df82c0a848b7b327e89c0913c70bc52cd7757b352f2e8176030094bffe8320b
+T036:
+  task: f4a1af88ef2cdff8dd7014d1a2169436990bb9c53c8a6e30c71493615ab1d2ff
+T037:
+  task: d13d8f7a02d56fca4df26a22e1df006c19d37e83a66a52ecb699c05d533a55f0
+T038:
+  task: eafe2540b319e6345d00831d87969de9a77763849d640f602b3e939a568205e9
+T039:
+  task: 92c6d91c34aaf48120d55c664d4e19c806b1892bda651a94f20a2253a95580fd
+T040:
+  task: be4d63775d4fa7f7e2687e6a8f2db853ef0cc54d6930a272322406f85d8a8e47
+T041:
+  task: f2b9b4f3c7f0b1c8405ce7930c4659e49e266fa229bed45863757cbb1b1b7d2c
+T042:
+  task: 4fe5af665125ff01f9247e87b9cff7bdd9fd44ae10a979807cebcf1269332458
