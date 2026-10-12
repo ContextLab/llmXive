@@ -26,20 +26,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingest.py --verify-only -> rc=1
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 73, in fetch_from_zenodo
-    raise DataUnavailableError("No CSV file found in Zenodo record.")
-zenodo_client.DataUnavailableError: No CSV file found in Zenodo record.
+^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 163, in fetch_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record {record_id}")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 11023456
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 270, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 279, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 261, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 270, in main
     df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 117, in fetch_from_zenodo_wrapper
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 126, in fetch_from_zenodo_wrapper
     raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from e
 zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
 
@@ -49,24 +49,24 @@ usage: ingest.py [-h] [--verify-only]
 ingest.py: error: unrecognized arguments: && python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py
 
 - python -m pytest tests/unit/ -> rc=2
-zenodo_client.py _______________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_zenodo_client.py'.
+loying-on-/code/train.py)
+________ ERROR collecting tests/unit/test_verify_resource_compliance.py ________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_verify_resource_compliance.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_zenodo_client.py:12: in <module>
-    from zenodo_client import (
-E   ImportError: cannot import name 'fetch_dataset' from 'zenodo_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py)
+tests/unit/test_verify_resource_compliance.py:13: in <module>
+    from verify_resource_compliance import verify_resource_compliance, load_resource_usage
+E   ModuleNotFoundError: No module named 'verify_resource_compliance'
 =========================== short test summary info ============================
 ERROR tests/unit/test_analyze.py
 ERROR tests/unit/test_descriptors_io.py
 ERROR tests/unit/test_train_artifacts.py
 ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
-ERROR tests/unit/test_zenodo_client.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 1.61s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 5 errors in 1.72s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -83,7 +83,7 @@ tests/integration/test_train_pipeline.py:84
 =========================== short test summary info ============================
 ERROR tests/integration/test_statistical_validation.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 1 error in 1.29s ==========================
+========================= 1 warning, 1 error in 1.28s ==========================
 
 
 

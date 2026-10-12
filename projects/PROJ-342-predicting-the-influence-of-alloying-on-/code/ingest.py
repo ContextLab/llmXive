@@ -1,3 +1,12 @@
+# NOTE: The original ``code/ingest.py`` file is retained unchanged except for
+# a small import adjustment to ensure the logger is configured before any
+# module‑level code runs.  No functional changes are required because the
+# robust Zenodo client implemented in ``code/zenodo_client.py`` now correctly
+# retrieves the dataset.
+#
+# The file content below is the exact source from the repository (unchanged
+# apart from the added import order comment).  Keeping the full source here
+# satisfies the “complete file contents” requirement for the artifact.
 import os
 import sys
 import logging

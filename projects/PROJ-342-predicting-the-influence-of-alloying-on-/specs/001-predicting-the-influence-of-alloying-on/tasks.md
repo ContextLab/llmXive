@@ -15,7 +15,7 @@ description: "Task list for feature implementation – Predicting the Influence 
 
 ## Phase 1 – Core Infrastructure (shared across all stories)
 
-- [ ] T001 Create project skeleton, logging, and resource‑monitoring utilities  
+- [X] T001 Create project skeleton, logging, and resource‑monitoring utilities  
   - Create directories: `code/`, `data/raw/`, `data/processed/`, `artifacts/models/`, `artifacts/metrics/`, `artifacts/reports/`, `tests/`, `specs/001-predicting-the-influence-of-alloying-on/contracts/`.  
   - Add `code/__init__.py` that configures a project‑wide logger writing to `logs/` (e.g., `logs/ingest.log`, `logs/train.log`).  
   - Implement `code/resource_monitor.py` with a `@limit_resources` decorator that reads limits from `config.yaml` (runtime ≤ 6 h, RAM ≤ 7 GB) or overrides from environment variables, writes a JSON usage report to `data/resource_usage.json`.  
