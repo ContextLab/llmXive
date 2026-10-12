@@ -1,12 +1,9 @@
 T001:
-  reason: "The repository contains the required `code/__init__.py`, `code/resource_monitor.py`,\
-    \ `config.yaml`, and a `data/resource_usage.json` with the required keys, and\
-    \ the test shows the JSON is written. However, there is no evidence that the required\
-    \ artifact directories (`artifacts/models/`, `artifacts/metrics/`, `artifacts/reports/`)\
-    \ and the `logs/` folder actually exist in the project tree; they are not listed\
-    \ by the collector. Without these directories the \u201CAll listed directories\
-    \ exist\u201D condition of T001 is not satisfied. Adding the missing directories\
-    \ (or providing evidence they were created) i"
+  reason: Checked `code/__init__.py` (no logger configuration, only creates directories)
+    and the repository listing (artifacts/models, artifacts/metrics, artifacts/reports,
+    and logs/ directories are absent). The required logger writing to `logs/` is not
+    set up and the expected directories are not present, so the task is not fully
+    satisfied.
   task: fb719cb7e05897ffd4d5940329ba63a0a575e188e8409938c54dda3a443a7c89
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'

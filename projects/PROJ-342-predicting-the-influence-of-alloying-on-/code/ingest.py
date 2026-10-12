@@ -204,6 +204,16 @@ def write_ingestion_stats(
     logging.getLogger(__name__).info(f"Ingestion stats written to {stats_path}")
 
 # ----------------------------------------------------------------------
+# Compatibility helpers for the test suite
+# ----------------------------------------------------------------------
+def clean_data(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
+    """
+    Thin wrapper used by older tests – returns only the cleaned DataFrame.
+    """
+    cleaned_df, _, _, _ = load_and_validate_data(df, logger)
+    return cleaned_df
+
+# ----------------------------------------------------------------------
 # Main pipeline
 # ----------------------------------------------------------------------
 @limit_resources(cpu_limit=2 * 3600, ram_limit=7 * 1024)

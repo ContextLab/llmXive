@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: c0cf9c6550511e3350c6f67c2dc3472482d2b9dacb11b057630f5430cc6f59b9
-  r: "The repository contains the required `code/__init__.py`, `code/resource_monitor.py`,\
-    \ `config.yaml`, and a `data/resource_usage.json` with the required keys, and\
-    \ the test shows the JSON is written. However, there is no evidence that the required\
-    \ artifact directories (`artifacts/models/`, `artifacts/metrics/`, `artifacts/reports/`)\
-    \ and the `logs/` folder actually exist in the project tree; they are not listed\
-    \ by the collector. Without these directories the \u201CAll listed directories\
-    \ exist\u201D condition of T001 is not satisfied. Adding the missing directories\
-    \ (or providing evidence they were created) i"
-  sig: 4e896f39571bf5739f9eeb5adb0a356044454d0e6e6aeb6a93d49a4ded7e9124
 T014:
   c: false
   h: 0ccaa938303a00de8bd7e10ae6f9105b87eb94a254a4828905e960883c675709

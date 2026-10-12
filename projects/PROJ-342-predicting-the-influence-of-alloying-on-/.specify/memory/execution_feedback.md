@@ -27,16 +27,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/ingest.py --verify-only -> rc=1
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 63, in fetch_from_zenodo
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 73, in fetch_from_zenodo
     raise DataUnavailableError("No CSV file found in Zenodo record.")
 zenodo_client.DataUnavailableError: No CSV file found in Zenodo record.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 260, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 270, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 251, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 261, in main
     df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 117, in fetch_from_zenodo_wrapper
@@ -49,7 +49,8 @@ usage: ingest.py [-h] [--verify-only]
 ingest.py: error: unrecognized arguments: && python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py
 
 - python -m pytest tests/unit/ -> rc=2
-jects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_zenodo_client.py'.
+zenodo_client.py _______________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_zenodo_client.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -60,21 +61,19 @@ E   ImportError: cannot import name 'fetch_dataset' from 'zenodo_client' (/home/
 =========================== short test summary info ============================
 ERROR tests/unit/test_analyze.py
 ERROR tests/unit/test_descriptors_io.py
-ERROR tests/unit/test_ingest.py
-ERROR tests/unit/test_ingest_retention.py
-ERROR tests/unit/test_ingest_t014.py
 ERROR tests/unit/test_train_artifacts.py
 ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
 ERROR tests/unit/test_zenodo_client.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 1.60s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 1.61s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-27: in <module>
-    from ingest import load_and_validate_data, clean_data
-E   ImportError: cannot import name 'clean_data' from 'ingest' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py)
+urn _bootstrap._gcd_import(name[level:], package, level)
+tests/integration/test_statistical_validation.py:29: in <module>
+    from analyze import (
+E   ImportError: cannot import name 'calculate_correlations' from 'analyze' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py)
 =============================== warnings summary ===============================
 tests/integration/test_train_pipeline.py:84
   /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/integration/test_train_pipeline.py:84: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
@@ -82,11 +81,9 @@ tests/integration/test_train_pipeline.py:84
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
-ERROR tests/integration/test_train_cv.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 3 errors in 1.27s =========================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 1 error in 1.29s ==========================
 
 
 

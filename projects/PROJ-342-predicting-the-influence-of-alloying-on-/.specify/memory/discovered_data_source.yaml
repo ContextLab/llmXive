@@ -1,9 +1,9 @@
 status: none
-intent: download metallic glass Tg datasets Zenodo 10.5281/zenodo.10043838 10.5281/zenodo.11023456
-  python package dataset
+intent: download metallic glass composition Tg dataset from Zenodo Metallic Glass
+  Database and MatNVP python package dataset
 required_fields:
 - composition
 - Tg
-cache_key: 740aadbfa2c3562ad37711888ae0564e76dfd9c619c327b2ad3c440f28b7aa84
-searched_at: '2026-10-12T01:46:31.497094+00:00'
+cache_key: 8ce34aac8ca26b463344c7a2c849d963bb40cebc8c325b682b41d531fff51e69
+searched_at: '2026-10-12T03:25:08.478129+00:00'
 retry_count: 1
