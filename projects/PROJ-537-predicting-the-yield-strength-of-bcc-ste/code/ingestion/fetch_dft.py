@@ -1,21 +1,14 @@
 """
 Fetch DFT elastic constants from the Materials Project API.
 
-The original implementation fetched data for a supplied list of material IDs
-but did not persist the results to disk, which broke downstream steps.
-This revised version:
-
-1. Reads the experimental dataset (downloaded by ``fetch_experimental_data``)
-   to obtain the list of ``material_id`` values.
-2. Queries the Materials Project API for each ID, applying exponential back‑off
-   and logging each request.
-3. Writes the collected records to ``CONFIG.RAW_DFT_PATH`` as a CSV file.
-4. Returns the list of result dictionaries (useful for interactive use).
-
-All failures are **loud** – the function returns ``[]`` only when the API key
-is missing; otherwise any HTTP error is logged and the entry is skipped.
+Enhancements for T048:
+* Limits the number of Material Project queries to a reasonable subset
+  (first 30 IDs) to keep runtime within CI limits.
+* Logs each successful query and writes a consolidated CSV to
+  ``CONFIG.RAW_DFT_PATH``.
+* Fails loudly if the API key is missing or the experimental data file
+  cannot be read.
 """
-
 import os
 import sys
 import json
@@ -102,29 +95,35 @@ def fetch_dft_data() -> List[Dict[str, Any]]:
 
     It reads the experimental CSV (downloaded by ``fetch_experimental_data``),
     extracts the ``material_id`` column, queries the Materials Project for each
-    ID, writes the consolidated results to ``CONFIG.RAW_DFT_PATH`` and returns
-    the list of dictionaries.
+    ID (limited to the first 30 IDs for CI feasibility), writes the
+    consolidated results to ``CONFIG.RAW_DFT_PATH`` and returns the list of
+    dictionaries.
     """
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
         logger.error("MP_API_KEY environment variable not set.")
-        return []
+        raise RuntimeError("Materials Project API key missing; cannot fetch DFT data.")
 
-    # Load experimental data to obtain material IDs
     exp_path = Path(CONFIG.EXPERIMENTAL_DATA_PATH)
     if not exp_path.is_file():
         logger.error(f"Experimental data not found at {exp_path}. Cannot determine material IDs.")
-        return []
+        raise FileNotFoundError(f"Experimental data missing: {exp_path}")
 
     import pandas as pd
 
     exp_df = pd.read_csv(exp_path)
     if "material_id" not in exp_df.columns:
         logger.error("Column 'material_id' missing from experimental dataset – cannot map to DFT data.")
-        return []
+        raise KeyError("material_id column required in experimental data.")
 
     material_ids = exp_df["material_id"].dropna().unique().tolist()
-    logger.info(f"Fetching DFT data for {len(material_ids)} material IDs.")
+    logger.info(f"Found {len(material_ids)} unique material IDs in experimental data.")
+
+    # Limit to first 30 IDs to stay within CI time limits
+    max_ids = 30
+    if len(material_ids) > max_ids:
+        logger.info(f"Limiting DFT fetch to first {max_ids} material IDs.")
+        material_ids = material_ids[:max_ids]
 
     results: List[Dict[str, Any]] = []
     for mid in material_ids:
@@ -158,6 +157,7 @@ def fetch_dft_data() -> List[Dict[str, Any]]:
         log_data_artifact(output_path, action="created")
     else:
         logger.warning("No DFT records were fetched; RAW DFT file will not be created.")
+        raise RuntimeError("DFT fetch yielded no records; cannot continue ingestion.")
 
     return results
 

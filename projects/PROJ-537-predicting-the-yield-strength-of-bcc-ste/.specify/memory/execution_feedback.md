@@ -1,5 +1,16 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/main.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 command(s) failed: python code/main.py (rc=1); 4 declared deliverable(s) absent: data/intermediate/merged.csv; data/results/output.json; data/results/shap_summary.png
@@ -7,17 +18,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-a file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/data/raw/experimental_data.csv
-Ingestion pipeline failed: Experimental data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/data/raw/experimental_data.csv
+
+Failed to download data from https://matnavi.nims.go.jp/api/v1/datasets/bcc_steel_yield_strength: HTTPSConnectionPool(host='matnavi.nims.go.jp', port=443): Max retries exceeded with url: /api/v1/datasets/bcc_steel_yield_strength (Caused by NameResolutionError("HTTPSConnection(host='matnavi.nims.go.jp', port=443): Failed to resolve 'matnavi.nims.go.jp' ([Errno -2] Name or service not known)"))
+MP_API_KEY environment variable not set.
+Ingestion pipeline failed: Materials Project API key missing; cannot fetch DFT data.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/main.py", line 72, in run_ingestion_pipeline
-    merge_and_filter_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/ingestion/merge_and_filter.py", line 149, in main
-    exp_df = load_experimental_data()
-             ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/ingestion/merge_and_filter.py", line 66, in load_experimental_data
-    raise FileNotFoundError(f"Experimental data file not found: {filepath}")
-FileNotFoundError: Experimental data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/data/raw/experimental_data.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/main.py", line 69, in run_ingestion_pipeline
+    fetch_dft_data()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/ingestion/fetch_dft.py", line 105, in fetch_dft_data
+    raise RuntimeError("Materials Project API key missing; cannot fetch DFT data.")
+RuntimeError: Materials Project API key missing; cannot fetch DFT data.
 
 
 ## Declared deliverables still missing
