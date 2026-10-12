@@ -22,9 +22,15 @@ def load_feature_importance():
         raise FileNotFoundError(f"Feature importance file not found: {path}")
     return pd.read_csv(path)
 
+def get_top_features(df, n=5):
+    """Return the top n features from a feature importance DataFrame."""
+    if df.empty:
+        return []
+    return df.head(n)["feature"].tolist()
+
 def generate_analysis_summary():
     fi = load_feature_importance()
-    top_features = fi.head(5)["feature"].tolist()
+    top_features = get_top_features(fi, 5)
     summary = {
         "top_features": top_features,
         "feature_count": len(fi),

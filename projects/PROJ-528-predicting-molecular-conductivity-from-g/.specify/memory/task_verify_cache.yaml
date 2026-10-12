@@ -1,27 +1,20 @@
 T001:
-  c: false
-  h: 2dd6c027cedae0dbb5845328a1dea70e07dea9804b33b42d351a8d9cd45a2e48
-  r: "The scaffold-split verification explicitly failed: `tests/unit/test_scaffold_split.py`\
-    \ exited 1 because `scaffold_split` put both rows sharing a scaffold into the\
-    \ test set (`assert 2 == 1`), and `code/split.py` additionally contains a real\
-    \ bug in `_save_split` (`test_path.to_csv(test_path, ...)` \u2014 calling to_csv\
-    \ on a Path object), which would crash any CLI run. There is also no evidence\
-    \ that `validators.py --validate contracts/*` returns exit 0 \u2014 the CLI requires\
-    \ a (data, schema) pair while the contracts directory contains only schema files,\
-    \ and no such run is recorded. Fix the splitter so who"
-  sig: 5551f050069c095aca4de796f15e62d8243609047d9c6841f4bf0833194aedb8
+  c: true
+  h: 2b1ddbc805ecd2e99c4dedbe0bafed1460698306f27e8676e9171f3ef36eded8
+  r: 'The required artifacts exist and meet the specifications: `code/requirements.txt`
+    contains exact version pins, `code/validators.py` implements the requested schema
+    validation, and `code/split.py` implements scaffold-based partitioning. Execution
+    logs confirm that the validators successfully verified the contracts in `specs/001-predicting-molecular-conductivity-from-g/contracts/`
+    and that unit tests for the scaffold splitting logic passed.'
+  sig: eb7b12798ed01b7d9a6246ff456affd6ece38acf1e8c0e1bb18d4365c2577c1a
 T010:
   c: false
-  h: 30915765baa1e46933a02a351146782f70b85e98a68e1fcd304dac932ecdcab5
-  r: "The required verification \u2014 `pytest -q tests/unit/` passing with exit 0\
-    \ and coverage \u2265 90% \u2014 is not met: the execution logs show `tests/unit/test_plot.py`\
-    \ fails collection (ImportError on `get_top_features`, exit 2) and `tests/unit/test_statistics.py`\
-    \ fails (`test_apply_bh_to_df`, exit 1), and there is no evidence of any successful\
-    \ full-suite run or any coverage measurement. Additionally, `test_scaffold.py`\
-    \ only checks that `scaffold_split` is importable/callable \u2014 it does not\
-    \ actually test scaffold leakage prevention (e.g., that identical scaffolds don't\
-    \ span train/test), and no plot-generati"
-  sig: fc718eb3c77f168298b6167f2300a53409728fd3c4a59725ce5daea62d500899
+  h: bb662c28f28f9ee3e5e448948eb5a211594f5ca1f0b17ce93eae59b26a9156e6
+  r: The unit test suite is not fully passing, and there is no evidence of the required
+    coverage ($\ge 90\%$). Specifically, `tests/unit/test_statistics.py` failed with
+    an exit code of 1 (despite a confusing `assert True is True` error message in
+    the log).
+  sig: fd2fb6abd194930b3ff7719f2a34a37edaf21cb0daf7b60fc5393309f7a63940
 T011:
   c: true
   h: 490d63901a9e6c003cf80673d508b918173ef6997cf75ab26c3755768c8742c4
@@ -59,11 +52,9 @@ T013:
   sig: 9d427ed82da54fe14eef06388b355f7fff55e773af1314c9bc8959cc2e25df72
 T014:
   c: true
-  h: d1d2673b9bc973ddad7c1ff7951f8f8f3dd71eca24b8a17a5d55761795691b84
-  r: 'Both required artifacts exist and are non-empty: `code/target_proxy.py` implements
-    real HOMO-LUMO detection logic (column candidates, finite-value check, fallback
-    determination), and `data/processed/quantum_proxy_report.json` contains the required
-    `"homo_lumo_present": false` and `"fallback_used": false` fields. Execution logs
-    show the script ran successfully (exit 0) and wrote the report, and 10 unit tests
-    covering the detection and report logic passed.'
-  sig: 4508908e3d1f43a422159c43cb0ff1e77d157ba5ad1e17bde736dbc51ce11c37
+  h: 1bda64be4fdcd0ee9187dff050c3c05686a819e2adc372efc24ee5c759338be0
+  r: The implementer provided `code/target_proxy.py` which contains the detection
+    logic and report generation, and the resulting `data/processed/quantum_proxy_report.json`
+    contains the required `"homo_lumo_present"` and `"fallback_used"` fields. Unit
+    tests for the detection and reporting logic passed successfully.
+  sig: 1b6ec6a356bfda3851b745bbe390b9824676b684596baa0a12a3f2de0d07fd3d

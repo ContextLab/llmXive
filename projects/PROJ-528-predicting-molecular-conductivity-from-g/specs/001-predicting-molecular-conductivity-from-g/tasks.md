@@ -9,7 +9,7 @@ boxes (`[ ]`) denote pending work that must be completed and validated.
 
 ## Phase 0 – Foundational infrastructure (now fully aligned with the plan)
 
-- [ ] T001 [P] [US1] Establish project skeleton, pinned dependencies, configuration, validators, scaffold‑splitting utilities, and contracts.  
+- [X] T001 [P] [US1] Establish project skeleton, pinned dependencies, configuration, validators, scaffold‑splitting utilities, and contracts.  
   **Paths**: `code/`, `code/requirements.txt`, `code/validators.py`, `code/split.py`, `specs/001-predicting-molecular-conductivity-from-g/contracts/`.  
   **Verification**:  
   ​  - `requirements.txt` contains exact version pins and installs without errors.  

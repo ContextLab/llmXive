@@ -1,0 +1,20 @@
+# Contract for data/processed/analysis_summary.json.
+type: object
+required:
+  - top_features
+  - feature_count
+properties:
+  top_features:
+    type: array
+    items:
+      type: string
+  feature_count:
+    type: integer
+  fdr_adjusted_pvalues:
+    type: object
+  family_wise_error_rate:
+    type: number
+  ci_coverage:
+    type: number
+  sensitivity_r2_variance:
+    type: number

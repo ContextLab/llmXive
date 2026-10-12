@@ -1,17 +1,23 @@
-status: none
-intent: PubChem 10M canonicalized SMILES graph-based descriptor dataset Materials
-  Project python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+  # Load the PubChem-10M-Canonicalized dataset from Hugging Face
+
+  # This dataset is memory-mapped, so len() is fast even for 10M records
+
+  ds = load_dataset(''sagawa/pubchem-10m-canonicalized'', split=''train'')
+
+  print(f''RECORDS={len(ds)}'')
+
+  print(f''FIELDS=smiles'')'
+record_count: 8999964
+sample_fields:
+- smiles
+field_coverage: 1.0
 required_fields:
 - smiles
-- conjugation_length
-- aromatic_ring_count
-- degree_distribution_mean
-- degree_distribution_std
-- average_path_length
-- ring_count
-- longest_conjugated_path_length
-- aromaticity_index
-- graph_density
-cache_key: 00fd17bc85884b91c1fbcb0dc83536158eb88571c4056aec77488914ceed5d2f
-searched_at: '2026-10-12T09:52:59.124029+00:00'
-retry_count: 1
+intent: PubChem-10M-Canonicalized organic molecules SMILES dataset from PubChem database
+  python package dataset
+cache_key: e647a06fa3958a104774a3e72bb52ce061ff18a51ba6927c183c19f042ef6bb3

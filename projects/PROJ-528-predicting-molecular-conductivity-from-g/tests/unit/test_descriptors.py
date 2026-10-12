@@ -32,7 +32,7 @@ def test_benzene_descriptors(benzene_df):
 
 def test_butadiene_conjugation_length(butadiene_df):
     result = compute_all_descriptors(butadiene_df)
-    # The conjugated system spans the 4 carbon atoms → path length >= 3
+    # The conjugated system spans the 4 carbon atoms -> path length >= 3
     assert result.iloc[0]["conjugation_path_length"] >= 3
 
 def test_ethanol_descriptors(ethanol_df):

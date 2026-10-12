@@ -1,12 +1,18 @@
-# Pinned dependencies for the project
-# Exact version numbers are chosen from the latest stable releases as of 2024-06
-rdkit==2023.9.5
-scikit-learn==1.4.0
-pandas==2.2.1
+# Pinned dependencies for PROJ-528 (predicting molecular conductivity)
+# Pins are chosen to be mutually compatible on Python 3.11 / CPU-only runners.
+# NOTE: pyarrow is pinned <16 because pyarrow >= 16 requires NumPy >= 2.0,
+# while this project (and the CI environment) uses NumPy 1.26.x.
 numpy==1.26.4
+pandas==2.2.1
+scipy==1.11.4
+scikit-learn==1.4.0
 matplotlib==3.8.2
 seaborn==0.13.2
-pyyaml==6.0.0
+statsmodels==0.14.1
+pyyaml==6.0.1
+jsonschema==4.21.1
 pytest==8.0.0
-datasets==2.16.1
+rdkit==2023.9.5
 joblib==1.4.0
+datasets==2.16.1
+pyarrow==14.0.2

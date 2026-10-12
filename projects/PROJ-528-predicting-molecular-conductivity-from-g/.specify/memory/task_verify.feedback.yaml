@@ -1,22 +1,10 @@
 T001:
-  reason: "The scaffold-split verification explicitly failed: `tests/unit/test_scaffold_split.py`\
-    \ exited 1 because `scaffold_split` put both rows sharing a scaffold into the\
-    \ test set (`assert 2 == 1`), and `code/split.py` additionally contains a real\
-    \ bug in `_save_split` (`test_path.to_csv(test_path, ...)` \u2014 calling to_csv\
-    \ on a Path object), which would crash any CLI run. There is also no evidence\
-    \ that `validators.py --validate contracts/*` returns exit 0 \u2014 the CLI requires\
-    \ a (data, schema) pair while the contracts directory contains only schema files,\
-    \ and no such run is recorded. Fix the splitter so who"
   task: a341be3a3741d559c9acaab2ea15c8bb7168674d35e8a3802d9c7c0d7dd74897
 T010:
-  reason: "The required verification \u2014 `pytest -q tests/unit/` passing with exit\
-    \ 0 and coverage \u2265 90% \u2014 is not met: the execution logs show `tests/unit/test_plot.py`\
-    \ fails collection (ImportError on `get_top_features`, exit 2) and `tests/unit/test_statistics.py`\
-    \ fails (`test_apply_bh_to_df`, exit 1), and there is no evidence of any successful\
-    \ full-suite run or any coverage measurement. Additionally, `test_scaffold.py`\
-    \ only checks that `scaffold_split` is importable/callable \u2014 it does not\
-    \ actually test scaffold leakage prevention (e.g., that identical scaffolds don't\
-    \ span train/test), and no plot-generati"
+  reason: The unit test suite is not fully passing, and there is no evidence of the
+    required coverage ($\ge 90\%$). Specifically, `tests/unit/test_statistics.py`
+    failed with an exit code of 1 (despite a confusing `assert True is True` error
+    message in the log).
   task: 51ea85ad7221cdc36fdebb8975d242adde1bcec6596518a28ff3c384cc3a4392
 T011:
   task: ede6431d4f72681ff6da720c0f4a654f5baf77abd2420998beee11ce35845d53

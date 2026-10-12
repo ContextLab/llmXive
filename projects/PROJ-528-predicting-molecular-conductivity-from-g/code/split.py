@@ -1,9 +1,9 @@
 """
-Scaffold‑based train/test splitter.
+Scaffold-based train/test splitter.
 
 The implementation uses RDKit's Murcko scaffold to assign each molecule to a
 scaffold group.  Whole scaffold groups are placed either in the training set
-or the test set – this prevents molecules that share a core scaffold from
+or the test set - this prevents molecules that share a core scaffold from
 leaking between splits.
 """
 
@@ -21,6 +21,7 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
+
 def _murcko_scaffold(smiles: str) -> str | None:
     """Return the Murcko scaffold SMILES for a given molecule."""
     mol = Chem.MolFromSmiles(smiles)
@@ -31,6 +32,7 @@ def _murcko_scaffold(smiles: str) -> str | None:
         return None
     return Chem.MolToSmiles(scaffold, isomericSmiles=True)
 
+
 def assign_scaffolds(df: pd.DataFrame, smiles_col: str = "smiles") -> pd.DataFrame:
     """Add a ``scaffold_id`` column to the DataFrame."""
     if smiles_col not in df.columns:
@@ -38,6 +40,7 @@ def assign_scaffolds(df: pd.DataFrame, smiles_col: str = "smiles") -> pd.DataFra
     df = df.copy()
     df["scaffold_id"] = df[smiles_col].apply(_murcko_scaffold)
     return df
+
 
 def scaffold_split(
     df: pd.DataFrame,
@@ -48,8 +51,13 @@ def scaffold_split(
     """
     Split a DataFrame into train / test sets based on scaffold groups.
 
+    Whole scaffold groups are assigned atomically to one side, so no scaffold
+    ever spans both splits.  Groups are considered smallest-first (after a
+    seeded shuffle for tie-breaking) so that the test set approximates the
+    requested fraction without overshooting when possible.
+
     Parameters
-    ----------
+  ----------
     df : pd.DataFrame
         Input data containing at least a ``smiles`` column.
     test_fraction : float, default 0.2
@@ -62,33 +70,41 @@ def scaffold_split(
     Returns
     -------
     train_df, test_df : Tuple[pd.DataFrame, pd.DataFrame]
-        DataFrames for training and testing.
+        DataFrames for training and testing (scaffold column removed).
     """
+    if df.empty:
+        raise ValueError("Cannot split an empty DataFrame.")
+    if not 0.0 < test_fraction < 1.0:
+        raise ValueError(f"test_fraction must be in (0, 1), got {test_fraction}.")
+
     random.seed(seed)
     df = assign_scaffolds(df, smiles_col=smiles_col)
 
-    # Group rows by scaffold
-    scaffold_groups = df.groupby("scaffold_id")
-    scaffold_ids = list(scaffold_groups.groups.keys())
+    sizes = df.groupby("scaffold_id").size().to_dict()
+    scaffold_ids = list(sizes.keys())
     random.shuffle(scaffold_ids)
+    # Smallest scaffolds first: keeps the test set close to the target size.
+    scaffold_ids.sort(key=lambda s: sizes[s])
 
     n_total = len(df)
-    n_test_target = int(n_total * test_fraction)
+    n_test_target = max(1, int(round(n_total * test_fraction)))
+    if n_total > 1:
+        n_test_target = min(n_test_target, n_total - 1)
 
     test_ids: List[str] = []
     n_test = 0
     for scaf in scaffold_ids:
-        group_size = len(scaffold_groups.get_group(scaf))
-        if n_test + group_size <= n_test_target or not test_ids:
-            test_ids.append(scaf)
-            n_test += group_size
         if n_test >= n_test_target:
             break
+        if n_test + sizes[scaf] <= n_test_target or not test_ids:
+            test_ids.append(scaf)
+            n_test += sizes[scaf]
 
     test_mask = df["scaffold_id"].isin(test_ids)
     test_df = df[test_mask].drop(columns=["scaffold_id"])
     train_df = df[~test_mask].drop(columns=["scaffold_id"])
     return train_df, test_df
+
 
 def _save_split(train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     """Write the split CSV files to the standard processed data folder."""
@@ -97,13 +113,14 @@ def _save_split(train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     train_path = out_dir / "train.csv"
     test_path = out_dir / "test.csv"
     train_df.to_csv(train_path, index=False)
-    test_path.to_csv(test_path, index=False)
-    log.info(f"Train split written to {train_path}")
-    log.info(f"Test split written to {test_path}")
+    test_df.to_csv(test_path, index=False)
+    log.info(f"Train split ({len(train_df)} rows) written to {train_path}")
+    log.info(f"Test split ({len(test_df)} rows) written to {test_path}")
+
 
 def _parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Scaffold‑based train/test split for molecular data."
+        description="Scaffold-based train/test split for molecular data."
     )
     parser.add_argument(
         "--input",
@@ -124,6 +141,7 @@ def _parse_cli() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+
 def main() -> int:
     args = _parse_cli()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -133,6 +151,10 @@ def main() -> int:
         log.error(f"Failed to read input CSV '{args.input}': {exc}")
         return 1
 
+    if "smiles" not in df.columns:
+        log.error("Input CSV must contain a 'smiles' column.")
+        return 1
+
     train_df, test_df = scaffold_split(
         df,
         test_fraction=args.test_fraction,
@@ -140,6 +162,7 @@ def main() -> int:
     )
     _save_split(train_df, test_df)
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

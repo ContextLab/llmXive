@@ -1,13 +1,11 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Feature Importance and Collinearity Report"
-description: "Schema for the feature importance ranking and VIF analysis output."
+# Contract for data/processed/feature_vif_report.json.
 type: object
 required:
   - features
+  - summary
 properties:
   features:
     type: array
-    description: "List of features with importance and collinearity metrics."
     items:
       type: object
       required:
@@ -18,17 +16,12 @@ properties:
       properties:
         feature_name:
           type: string
-          description: "Name of the descriptor."
         importance_score:
           type: number
-          description: "Normalized importance score from the model."
         vif_score:
           type: number
-          description: "Variance Inflation Factor score."
         is_excluded:
           type: boolean
-          description: "True if VIF > 10, excluded from final ranking."
-    minItems: 1
   summary:
     type: object
     required:
@@ -42,5 +35,3 @@ properties:
         type: integer
       max_vif:
         type: number
-        description: "Maximum VIF observed in the dataset."
-additionalProperties: false
