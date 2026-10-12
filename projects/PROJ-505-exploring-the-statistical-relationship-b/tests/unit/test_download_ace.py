@@ -1,93 +1,108 @@
 """
-Unit tests for code/ingestion/download_ace.py
-
-Tests verify:
-1. The fallback mechanism triggers when real fetch fails.
-2. The output is correctly labeled 'synthetic' when fallback is used.
-3. The output is correctly labeled 'real' when fetch succeeds (mocked).
+Unit tests for ACE data download.
+The test patches the network request to return a minimal CSV payload
+containing the required columns. It then verifies that:
+- The raw file is written unchanged.
+- The parsed DataFrame contains the expected columns.
+- The checksum of the raw file matches the checksum of the written bytes.
 """
-import pytest
-import pandas as pd
-from unittest.mock import patch, MagicMock
+
+import io
+import hashlib
 from datetime import datetime
-import sys
 from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+import pandas as pd
+import pytest
+from unittest import mock
 
-from code.ingestion.download_ace import fetch_ace_data, load_synthetic_ace, run_ingestion
-from utils.logging import DataIngestionError
+# Import the module under test
+from code.ingestion.download_ace import (
+    _download_raw,
+    _parse_ace_csv,
+    fetch_ace_data,
+    run_ingestion,
+)
 
-class TestACEIngestion:
-    
-    @pytest.fixture
-    def mock_config(self):
-        return {
-            'data_dir': str(Path(__file__).parent / 'test_output'),
-            'start_date': datetime(2020, 1, 1),
-            'end_date': datetime(2020, 1, 2),
-            'random_seed': 42
-        }
+# Helper to compute SHA‑256 checksum
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
-    def test_fetch_ace_data_fails_and_returns_none(self, mock_config):
-        """Test that fetch_ace_data returns None when connection fails."""
-        with patch('code.ingestion.download_ace.fetch_ace_data') as mock_fetch:
-            # Simulate the function raising an error internally or returning None
-            # We test the logic inside run_ingestion which handles the None
-            pass 
-        
-        # Direct test of the logic flow in run_ingestion
-        # We mock fetch_ace_data to return (None, "real_failed")
-        with patch('code.ingestion.download_ace.fetch_ace_data', return_value=(None, "real_failed")):
-            with patch('code.ingestion.download_ace.load_synthetic_ace') as mock_syn:
-                mock_syn.return_value = (pd.DataFrame({'col': [1]}), "synthetic")
-                with patch('code.ingestion.download_ace.save_parquet'):
-                    df, status = run_ingestion(mock_config)
-                    # Verify fallback was called
-                    mock_syn.assert_called_once()
-                    # Verify status is synthetic
-                    assert status == "synthetic"
+@pytest.fixture
+def sample_csv_bytes():
+    """A minimal CSV payload with required columns."""
+    csv = """timestamp,O/Fe,He/H,C/O,V,Bt,By,Bz
+2020-01-01T00:00:00Z,0.1,0.05,0.2,400,5,0,0
+2020-01-01T01:00:00Z,0.12,0.04,0.22,410,4.5,0.1,-0.1
+"""
+    return csv.encode("utf-8")
 
-    def test_load_synthetic_ace_returns_dataframe(self, mock_config):
-        """Test that synthetic loader returns a valid DataFrame."""
-        with patch('code.ingestion.download_ace.generate_ace_synthetic_data') as mock_gen:
-            mock_df = pd.DataFrame({'timestamp': [datetime(2020, 1, 1)], 'value': [10.0]})
-            mock_gen.return_value = mock_df
-            
-            df, label = load_synthetic_ace(mock_config)
-            
-            assert isinstance(df, pd.DataFrame)
-            assert label == "synthetic"
-            assert 'value' in df.columns
+def test_download_raw_writes_file(tmp_path, sample_csv_bytes):
+    """_download_raw should write the exact bytes to the given path."""
+    url = "http://example.com/ace.csv"
+    raw_path = tmp_path / "ace_raw.csv"
 
-    def test_run_ingestion_labels_real_data(self, mock_config):
-        """Test that real data is labeled 'real'."""
-        real_df = pd.DataFrame({'timestamp': [datetime(2020, 1, 1)], 'value': [15.0]})
-        
-        with patch('code.ingestion.download_ace.fetch_ace_data', return_value=(real_df, "real")):
-            with patch('code.ingestion.download_ace.save_parquet') as mock_save:
-                df, status = run_ingestion(mock_config)
-                
-                assert status == "real"
-                mock_save.assert_called_once()
-                
-                # Check the saved dataframe has the correct label
-                call_args = mock_save.call_args
-                saved_df = call_args[0][0] # First positional arg
-                assert saved_df['data_source'].iloc[0] == "real"
+    with mock.patch("requests.get") as mock_get:
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.content = sample_csv_bytes
+        mock_get.return_value = mock_resp
 
-    def test_run_ingestion_labels_synthetic_data(self, mock_config):
-        """Test that synthetic data is labeled 'synthetic'."""
-        with patch('code.ingestion.download_ace.fetch_ace_data', return_value=(None, "failed")):
-            with patch('code.ingestion.download_ace.load_synthetic_ace') as mock_syn:
-                mock_syn.return_value = (pd.DataFrame({'timestamp': [datetime(2020, 1, 1)]}), "synthetic")
-                with patch('code.ingestion.download_ace.save_parquet') as mock_save:
-                    df, status = run_ingestion(mock_config)
-                    
-                    assert status == "synthetic"
-                    call_args = mock_save.call_args
-                    saved_df = call_args[0][0]
-                    assert saved_df['data_source'].iloc[0] == "synthetic"
+        returned = _download_raw(url, raw_path)
+
+    # Verify returned content matches input
+    assert returned == sample_csv_bytes
+    # Verify file exists and content matches
+    with open(raw_path, "rb") as f:
+        file_bytes = f.read()
+    assert file_bytes == sample_csv_bytes
+    # Verify checksum
+    assert sha256(file_bytes) == sha256(sample_csv_bytes)
+
+def test_parse_ace_csv_success(sample_csv_bytes):
+    """_parse_ace_csv should return a DataFrame with correct columns."""
+    df = _parse_ace_csv(sample_csv_bytes)
+    expected_cols = {"timestamp", "O/Fe", "He/H", "C/O", "V", "Bt", "By", "Bz"}
+    assert set(df.columns) == expected_cols
+    # Timestamp column should be datetime dtype
+    assert pd.api.types.is_datetime64_any_dtype(df["timestamp"])
+
+def test_fetch_ace_data_success(tmp_path, sample_csv_bytes):
+    """fetch_ace_data should download, write raw file, and parse."""
+    start = datetime(2020, 1, 1)
+    end = datetime(2020, 1, 2)
+    with mock.patch("code.ingestion.download_ace._download_raw") as mock_dl:
+        mock_dl.return_value = sample_csv_bytes
+        df = fetch_ace_data(start, end)
+    # Verify DataFrame shape
+    assert len(df) == 2
+    # Verify required columns present
+    for col in ["O/Fe", "He/H", "C/O", "timestamp"]:
+        assert col in df.columns
+
+def test_run_ingestion_creates_parquet(tmp_path):
+    """run_ingestion should write a parquet file and add data_source column."""
+    start = datetime(2020, 1, 1)
+    end = datetime(2020, 1, 2)
+    config = {
+        "start_date": start,
+        "end_date": end,
+        "output_path": tmp_path / "ace.parquet",
+    }
+    # Patch network call to return sample CSV bytes
+    sample = """timestamp,O/Fe,He/H,C/O,V,Bt,By,Bz
+2020-01-01T00:00:00Z,0.1,0.05,0.2,400,5,0,0
+2020-01-01T01:00:00Z,0.12,0.04,0.22,410,4.5,0.1,-0.1
+"""
+    with mock.patch("code.ingestion.download_ace._download_raw") as mock_dl:
+        mock_dl.return_value = sample.encode("utf-8")
+        df, source = run_ingestion(config)
+
+    # Parquet file should exist
+    parquet_path = config["output_path"]
+    assert parquet_path.exists()
+    # Data source label should be "real"
+    assert source == "real"
+    # DataFrame should contain data_source column
+    assert "data_source" in df.columns
+    assert df["data_source"].iloc[0] == "real"

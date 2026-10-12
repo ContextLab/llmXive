@@ -11,6 +11,8 @@ T005:
     exit=1; code/ingestion/download_noaa.py exit=1'
   task: cb08c137fb63dd8759f1caf51a2d3af3b616303532aea8da9bc931144e92541e
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/generate_synthetic_data.py
+    exit=1'
   task: 9d9f2089b3d7618b83f242f073b1852a5960dc4a6cbd589f32533dabb02ce65c
 T007:
   task: d098f3f77cd6249da72cd9cb8b6bdfcd75941363d30073770f959d45a5e6413a
