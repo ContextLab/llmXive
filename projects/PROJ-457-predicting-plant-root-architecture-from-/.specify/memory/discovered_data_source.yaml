@@ -1,5 +1,6 @@
 status: none
-intent: RootReader PlantPheno ISRIC SoilGrids combined dataset python package dataset
+intent: RootReader PlantPheno root phenotype and ISRIC World Soil nutrient merged
+  python package dataset
 required_fields:
 - species
 - root_length
@@ -7,6 +8,6 @@ required_fields:
 - surface_area
 - phosphorus
 - nitrogen
-cache_key: 798badc319b060b67d94d61a8e900de57dd90ed5c28b3dc828d5f62acc0b1a8a
-searched_at: '2026-10-12T01:39:59.396350+00:00'
+cache_key: 9197d0479b92a744a453009f8eaa30d57daaeafc8c2b2c3c2ba14a41af44a695
+searched_at: '2026-10-12T02:28:36.256781+00:00'
 retry_count: 1

@@ -27,7 +27,7 @@ properties:
     properties:
       sc_001_met:
         type: "boolean"
-        description: "True if proportion of merged datasets meets SC‑001; false or null if not measurable."
+        description: "True if proportion of merged datasets meets SC‑001; null if not measurable."
       sc_002_met:
         type: "boolean"
         description: "True if LMM R² within 5 % of RF R² (SC‑002)."

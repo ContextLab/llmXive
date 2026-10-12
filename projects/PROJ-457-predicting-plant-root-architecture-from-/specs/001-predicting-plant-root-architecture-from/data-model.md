@@ -9,7 +9,7 @@
 | `root_length` | float | Total root length (cm). |
 | `branching_density` | float | Branches per unit length. |
 | `surface_area` | float | Root surface area (cm²). |
-| `geographic_location` | string | Latitude/Longitude or site code. |
+| `geographic_location` | string | Latitude/Longitude or site identifier. |
 | `experimental_id` | string | Unique experiment identifier. |
 | `data_source_type` | string | `"observational"` or `"experimental"` (used for FR‑012). |
 
@@ -20,7 +20,7 @@
 | `nitrogen_concentration` | float | Soil N (mg kg⁻¹ or ppm). |
 | `measurement_date` | date | Date of soil sampling. |
 | `depth` | float | Sampling depth (cm). |
-| `geographic_location` | string | Must match `RootPhenotypeRecord` location for merging. |
+| `geographic_location` | string | Must match `RootPhenotypeRecord.geographic_location` for merging. |
 
 ### MergedDataset (post‑processing)
 | Field | Type | Description |
@@ -29,23 +29,28 @@
 | `root_length` | float | **Log‑transformed** total length. |
 | `branching_density` | float | **Log‑transformed** branching density. |
 | `surface_area` | float | **Log‑transformed** surface area. |
-| `phosphorus` | float | **Z‑scored** P; may be null if soil data unavailable. |
-| `nitrogen` | float | **Z‑scored** N; may be null if soil data unavailable. |
+| `phosphorus` | float | **Z‑scored** phosphorus concentration; may be null if soil data unavailable. |
+| `nitrogen` | float | **Z‑scored** nitrogen concentration; may be null if soil data unavailable. |
+| `soil_moisture` | float | Optional covariate (may be null). |
+| `temperature` | float | Optional covariate (may be null). |
+| `elevation` | float | Optional covariate (may be null). |
 | `data_source_type` | string | `"observational"` (after FR‑012 filtering). |
-| `sample_size_per_species` | integer | Count of rows for the species (computed for SC‑005). |
+| `sample_size_per_species` | integer | Number of rows for the species after filtering (used for SC‑005). |
 
 ## Data Flow Overview
-1. **Ingestion** (`T006`): Load PlantPheno (and optionally merged datasets) via HuggingFace.  
-2. **Merging** (`T007`‑`T008`): Attempt geographic join with ISRIC; if unavailable, use verified merged dataset or fall back to root‑only.  
-3. **Filtering** (`T010`): Remove experimental rows and species with < 20 observations.  
-4. **Transformation** (`T011`‑`T012`): Log‑transform roots, z‑score nutrients.  
-5. **Missing‑Data Logic** (`T013`‑`T014`): Exclude rows lacking both nutrients; KNN impute remaining missing values.  
-6. **Storage** (`T015`): Write Parquet to `data/processed/merged_dataset.parquet`.  
+1. **Ingestion** (`T007`, `T007b`) – Load PlantPheno and RootReader via HuggingFace.  
+2. **Merge Attempt** – ISRIC merge is omitted per AM‑001; if a verified merged dataset is supplied, it is loaded instead.  
+3. **Filtering** (`T011`‑`T012`) – Remove experimental rows, enforce n ≥ 20 per species.  
+4. **Transformation** (`T013`‑`T014`) – Log‑transform roots, z‑score nutrients.  
+5. **Missing‑Data Logic** (`T015`) – Exclude rows with any missing nutrient values; no imputation performed.  
+6. **Persistence** (`T016`) – Write Parquet file for downstream steps.
 
 ## Schema Constraints (mirrored in `contracts/dataset.schema.yaml`)
 - `species`: required, non‑null string.  
-- Root metrics: required numbers (post‑log).  
-- Nutrient columns: numbers **or null** (allowed when soil data missing).  
+- Root metrics: required numbers (already log‑transformed).  
+- `phosphorus`, `nitrogen`: numbers **or null** (nullable true); they are **optional** (not listed in `required`).  
+- Optional covariates may be null.  
 - No additional properties permitted.
 
 ---
+

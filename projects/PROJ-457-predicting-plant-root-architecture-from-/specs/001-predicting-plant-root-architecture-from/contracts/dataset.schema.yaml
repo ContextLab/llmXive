@@ -18,9 +18,23 @@ properties:
   phosphorus:
     type: "number"
     description: "Z-scored phosphorus concentration. May be null if soil data unavailable."
+    nullable: true
   nitrogen:
     type: "number"
     description: "Z-scored nitrogen concentration. May be null if soil data unavailable."
+    nullable: true
+  soil_moisture:
+    type: "number"
+    description: "Optional soil moisture covariate."
+    nullable: true
+  temperature:
+    type: "number"
+    description: "Optional temperature covariate."
+    nullable: true
+  elevation:
+    type: "number"
+    description: "Optional elevation covariate."
+    nullable: true
   data_source_type:
     type: "string"
     description: "Type of data source (observational/experimental)."

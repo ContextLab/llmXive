@@ -14,7 +14,7 @@ properties:
         description: "Root Mean Squared Error."
       coefficients:
         type: "object"
-        description: "Mapping predictor → {coefficient, p_value}."
+        description: "Mapping predictor → {coefficient, p_value, corrected_p_value}."
         additionalProperties:
           type: "object"
           properties:
@@ -22,9 +22,12 @@ properties:
               type: "number"
             p_value:
               type: "number"
+            corrected_p_value:
+              type: "number"
           required:
             - coefficient
             - p_value
+            - corrected_p_value
       p_values:
         type: "object"
         description: "Mapping predictor → p-value (redundant for convenience)."
@@ -63,14 +66,18 @@ properties:
         description: "True if LMM R² is within 5 % of RF R² (SC‑002)."
       sc_003_met:
         type: "boolean"
-        description: "True if nutrient coefficient p‑values < 0.05 (SC‑003)."
+        description: "True if nutrient coefficient p-values < 0.05 after correction (SC‑003)."
       sc_006_met:
         type: "boolean"
         description: "True if sensitivity analysis confirms biological plausibility (SC‑006)."
+      power_achieved:
+        type: "number"
+        description: "Achieved statistical power for detecting a medium effect size."
     required:
       - sc_002_met
       - sc_003_met
       - sc_006_met
+      - power_achieved
 required:
   - lmm_results
   - rf_results
