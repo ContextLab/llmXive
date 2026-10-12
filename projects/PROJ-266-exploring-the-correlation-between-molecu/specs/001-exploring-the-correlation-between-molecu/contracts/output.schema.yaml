@@ -1,51 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Output Schema"
-description: "Schema for correlation results and model performance metrics."
+title: General Output Artifact Contract
+description: >
+  Generic contract used for validating miscellaneous output artifacts such as
+  PNG figures, TXT summaries, etc.  It ensures the artifact exists and records
+  basic metadata.
 type: object
 required:
-  - correlation_results
-  - model_performance
+  - path
+  - type
+  - checksum
 properties:
-  correlation_results:
-    type: "array"
-    items:
-      type: "object"
-      required:
-        - descriptor_name
-        - pearson_r
-        - pearson_p
-        - spearman_r
-        - spearman_p
-        - fdr_q
-      properties:
-        descriptor_name:
-          type: "string"
-        pearson_r:
-          type: "number"
-        pearson_p:
-          type: "number"
-        spearman_r:
-          type: "number"
-        spearman_p:
-          type: "number"
-        fdr_q:
-          type: "number"
-  model_performance:
-    type: "object"
-    required:
-      - mean_r2
-      - mean_rmse
-      - mean_mae
-      - fold_scores
-    properties:
-      mean_r2:
-        type: "number"
-      mean_rmse:
-        type: "number"
-      mean_mae:
-        type: "number"
-      fold_scores:
-        type: "array"
-        items:
-          type: "number"
-additionalProperties: false
+  path:
+    type: string
+    description: Relative path to the artifact within the project.
+  type:
+    type: string
+    description: MIME‑type or a short descriptor (e.g., "png", "txt", "json").
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: SHA‑256 checksum of the file.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO‑8601 timestamp when the artifact was created.

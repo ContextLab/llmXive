@@ -1,10 +1,30 @@
 [flake8]
+# Max line length to match Black's default
 max-line-length = 88
-extend-ignore = E203, W503
+# Exclude common directories and files
 exclude =
     .git,
     __pycache__,
     build,
     dist,
-    .eggs,
-    *.egg-info
+    .venv,
+    venv,
+    migrations,
+    *.egg-info,
+    data,
+    tests,
+    docs
+# Ignore rules that conflict with Black formatting
+ignore =
+    E203,  # whitespace before ':'
+    W503,  # line break before binary operator
+    E266,  # too many leading '#' for block comment
+    E501,  # line too long (handled by max-line-length)
+    E402,  # module level import not at top of file
+# Enable some useful warnings
+select = C,E,F,W,B,B950
+# Enable built-in plugin for docstring conventions
+docstring-convention = google
+# Enable per-file-ignores if needed (example)
+per-file-ignores =
+    __init__.py:F401

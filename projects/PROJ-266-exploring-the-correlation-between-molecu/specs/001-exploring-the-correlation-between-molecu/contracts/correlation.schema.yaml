@@ -1,40 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Correlation Results Schema"
+title: Correlation Diagnostic Record
+description: >
+  Schema for each row in the correlation diagnostic CSV.
+  Provides Pearson and Spearman statistics for a descriptor.
 type: object
-properties:
-  descriptor_type:
-    type: string
-    enum: ["dihedral"]
-    description: "Type of flexibility descriptor (only dihedral is predictive)"
-  method:
-    type: string
-    enum: ["Pearson", "Spearman"]
-    description: "Correlation method used"
-  r:
-    type: number
-    description: "Correlation coefficient"
-  p_value:
-    type: number
-    description: "Uncorrected p-value"
-  q_value:
-    type: number
-    description: "Benjamini-Hochberg FDR-corrected q-value"
-  ci_lower:
-    type: number
-    description: "95% confidence interval lower bound"
-  ci_upper:
-    type: number
-    description: "95% confidence interval upper bound"
-  associational_only:
-    type: boolean
-    description: "Flag indicating results are associational (not causal)"
 required:
-  - descriptor_type
-  - method
-  - r
-  - p_value
-  - q_value
-  - ci_lower
-  - ci_upper
-  - associational_only
-additionalProperties: false
+  - descriptor
+  - pearson_r
+  - pearson_p
+  - spearman_r
+  - spearman_p
+properties:
+  descriptor:
+    type: string
+    description: Name of the flexibility descriptor (e.g., dihedral_variance).
+  pearson_r:
+    type: number
+    description: Pearson correlation coefficient.
+  pearson_p:
+    type: number
+    description: Two‑tailed p‑value for Pearson correlation.
+  spearman_r:
+    type: number
+    description: Spearman rank correlation coefficient.
+  spearman_p:
+    type: number
+    description: Two‑tailed p‑value for Spearman correlation.
+  fdr_q:
+    type: number
+    description: Benjamini‑Hochberg corrected q‑value (optional, added post‑hoc).

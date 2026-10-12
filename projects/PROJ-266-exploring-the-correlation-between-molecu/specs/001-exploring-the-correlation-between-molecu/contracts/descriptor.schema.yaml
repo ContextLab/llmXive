@@ -1,39 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Flexibility Descriptor Schema"
-description: "Schema for molecular flexibility descriptors computed from 3D conformers and normal‑mode analysis. Note: bond/angle variances are diagnostic only."
+title: Flexibility Descriptor Record
+description: >
+  Schema for a descriptor record produced by the descriptor calculation step.
+  Matches FR‑004.
 type: object
-properties:
-  smi:
-    type: "string"
-    description: "Canonical SMILES string of the molecule."
-  dihedral_variance:
-    type: "number"
-    description: "Dihedral angle variance (rad²) - PRIMARY PREDICTOR."
-  bond_variance:
-    type: "number"
-    description: "Bond length variance (rad²) - DIAGNOSTIC ONLY (excluded from modeling)."
-  angle_variance:
-    type: "number"
-    description: "Bond angle variance (rad²) - DIAGNOSTIC ONLY (excluded from modeling)."
-  size_normalized_flexibility:
-    type: "number"
-    description: "dihedral_variance / num_rotatable_bonds."
-  conformer_count:
-    type: "integer"
-    description: "Number of conformers generated."
-  nma_success:
-    type: "boolean"
-    description: "True if normal‑mode analysis succeeded."
-  converged:
-    type: "boolean"
-    description: "True if variance stability criterion (<1% change) was met."
 required:
-  - "smi"
-  - "dihedral_variance"
-  - "bond_variance"
-  - "angle_variance"
-  - "size_normalized_flexibility"
-  - "conformer_count"
-  - "nma_success"
-  - "converged"
-additionalProperties: false
+  - smiles
+  - dihedral_variance
+  - bond_variance
+  - angle_variance
+  - conformer_count
+  - converged
+properties:
+  smiles:
+    type: string
+    description: SMILES string of the molecule.
+  dihedral_variance:
+    type: number
+    description: Variance of dihedral angles (rad²).
+  bond_variance:
+    type: number
+    description: Variance of bond lengths (Å²).
+  angle_variance:
+    type: number
+    description: Variance of bond angles (rad²).
+  conformer_count:
+    type: integer
+    minimum: 0
+    description: Number of conformers generated for this molecule.
+  converged:
+    type: boolean
+    description: Whether the descriptor calculation converged.
+  additional_metrics:
+    type: object
+    description: Optional extra metrics.
+    additionalProperties: true

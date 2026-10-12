@@ -41,7 +41,7 @@
   *After saving, invoke the checksum utility (T003).*  
   *Verification:* After execution, `data/raw/chembl_caco2_raw.csv` exists, contains ≥ 600 rows, and `state/pending/checksums.yaml` includes a hash entry for it.  
 
-- [ ] **T006** [US1] Implement the preprocessing script (`code/data/preprocessing.py`).  
+- [ ] **T006** [US1] Implement the preprocessing script (`code/data/preprocessing.py`).   <!-- FAILED-IN-EXECUTION: code/data/preprocessing.py exit=1 -->
   *Read `data/raw/chembl_caco2_raw.csv`, filter out rows with NULL SMILES or NULL logPapp, and retain only records where `protocol_metadata.standard_type == "MEASUREMENT"`.*  
   *Report the pass‑rate (valid / raw) and the count of records excluded due to protocol heterogeneity.*  
   *Write the cleaned dataset to `data/processed/filtered_data.csv` (must still conform to `dataset.schema.yaml`).*  

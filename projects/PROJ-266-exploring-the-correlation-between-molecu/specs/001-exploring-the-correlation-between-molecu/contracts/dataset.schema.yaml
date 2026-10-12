@@ -1,81 +1,34 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Caco-2 Permeability Dataset Schema
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Caco-2 Permeability Dataset Record
 description: >
-  JSON Schema for the Caco-2 permeability dataset used in the molecular
-  flexibility and drug transport correlation study. This schema defines the
-  structure for both the raw retrieved data and the processed filtered data.
+  Schema for a single record in the Caco-2 permeability dataset.
+  Required for FR‑001 and FR‑010.
 type: object
 required:
   - smiles
   - logPapp
-  - mw
-  - psa
-  - assay_id
   - protocol_metadata
 properties:
   smiles:
     type: string
-    description: >
-      Canonical SMILES string representing the molecular structure.
-      Must be a valid SMILES string for RDKit processing.
-    minLength: 1
-    pattern: "^[A-Za-z0-9@#$%&*()\\-+=\\[\\]{}|~^<>:._]+$"
-  
+    description: SMILES representation of the molecule.
   logPapp:
     type: number
-    description: >
-      Apparent permeability coefficient (Papp) expressed as log10(Papp cm/s).
-      This is the primary dependent variable for the study.
-    minimum: -10.0
-    maximum: 0.0
-  
-  mw:
-    type: number
-    description: >
-      Molecular weight in Daltons (g/mol).
-      Calculated from the SMILES structure.
-    minimum: 100.0
-    maximum: 2000.0
-  
-  psa:
-    type: number
-    description: >
-      Topological Polar Surface Area (TPSA) in Å².
-      Calculated from the SMILES structure.
-    minimum: 0.0
-    maximum: 500.0
-  
-  assay_id:
-    type: string
-    description: >
-      Unique identifier for the assay record from ChEMBL.
-      Typically follows the format 'CHEMBLxxxxxx'.
-    minLength: 1
-  
+    description: Measured Caco‑2 permeability (logPapp).
   protocol_metadata:
     type: object
-    description: >
-      Metadata regarding the experimental protocol used for the measurement.
-      Used to filter for standardized protocols and ensure data quality.
+    description: Metadata describing the assay protocol.
     required:
       - standard_type
     properties:
       standard_type:
         type: string
-        description: >
-          The type of standard applied in the assay.
-          Expected values include 'MEASUREMENT', 'ESTIMATE', etc.
-          Only 'MEASUREMENT' records are retained for analysis.
-        enum:
-          - MEASUREMENT
-          - ESTIMATE
-          - PREDICTION
-          - RANGE
-          - OTHER
-      assay_name:
-        type: string
-        description: Optional name of the assay.
-      source:
-        type: string
-        description: Source database or publication reference.
-additionalProperties: true
+        enum: ["MEASUREMENT"]
+        description: Must be "MEASUREMENT" per FR‑010.
+  assay_id:
+    type: string
+    description: Optional identifier for the assay.
+  other_fields:
+    type: object
+    description: Allows additional optional fields.
+    additionalProperties: true

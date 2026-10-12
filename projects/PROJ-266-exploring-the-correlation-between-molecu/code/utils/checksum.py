@@ -1,152 +1,135 @@
 """
 Checksum Utility Module.
 
-This module computes SHA-256 checksums for data files and writes the results
-to a pending checksums file. It is used to ensure data integrity and track
-generated artifacts.
+This module walks the project's ``data/`` directory recursively,
+computes a SHA‑256 checksum for every file, and writes a YAML mapping
+to ``state/pending/checksums.yaml``. The output file contains a
+``generated_at`` timestamp and a ``checksums`` dictionary mapping each
+file's path (relative to the project root) to its checksum.
+
+The utility is intended to be invoked after any data‑producing step
+to provide reproducible integrity verification.
 """
 
 import hashlib
 import logging
-import os
-import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict
 
 import yaml
 
 from utils.logging import get_logger
 from utils.config import get_project_root
 
+# Configure a module‑level logger
 logger = get_logger(__name__)
 
 def compute_file_checksum(file_path: Path) -> str:
     """
-    Compute SHA-256 checksum of a file.
+    Compute the SHA‑256 checksum of a file.
 
-    Args:
-        file_path: Path to the file.
+    Parameters
+    ----------
+    file_path: Path
+        Path to the file whose checksum is to be computed.
 
-    Returns:
-        Hexadecimal checksum string.
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 checksum.
     """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+    sha256 = hashlib.sha256()
+    # Read the file in binary chunks to avoid loading large files into memory
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-def scan_data_files(data_dir: Path) -> List[Path]:
+def gather_checksums(data_dir: Path, project_root: Path) -> Dict[str, str]:
     """
-    Scan a directory for data files (CSV, JSON, etc.).
+    Walk ``data_dir`` recursively and build a mapping of relative file
+    paths to their SHA‑256 checksums.
 
-    Args:
-        data_dir: Path to the data directory.
+    Parameters
+    ----------
+    data_dir: Path
+        Root directory containing data files (usually ``<project>/data``).
+    project_root: Path
+        Root of the repository; used to compute relative paths.
 
-    Returns:
-        List of file paths.
+    Returns
+    -------
+    Dict[str, str]
+        Mapping ``relative_path -> checksum``.
     """
-    extensions = {'.csv', '.json', '.yaml', '.yml', '.parquet', '.txt', '.tsv', '.pkl'}
-    files = []
-    for ext in extensions:
-        files.extend(data_dir.rglob(f'*{ext}'))
-    return files
+    if not data_dir.is_dir():
+        logger.warning(f"Data directory {data_dir} does not exist or is not a directory.")
+        return {}
 
-def generate_checksum_record(file_path: Path, checksum: str) -> Dict[str, Any]:
+    checksums: Dict[str, str] = {}
+    for file_path in data_dir.rglob("*"):
+        if file_path.is_file():
+            try:
+                checksum = compute_file_checksum(file_path)
+                # Store path relative to the project root for portability
+                rel_path = str(file_path.relative_to(project_root))
+                checksums[rel_path] = checksum
+                logger.debug(f"Checksum computed for {rel_path}: {checksum}")
+            except Exception as exc:
+                logger.error(f"Failed to compute checksum for {file_path}: {exc}")
+    return checksums
+
+def write_checksums_yaml(checksums: Dict[str, str], pending_path: Path) -> None:
     """
-    Generate a checksum record for a file.
+    Write the checksum mapping to ``state/pending/checksums.yaml``.
+    The file will contain a ``generated_at`` timestamp and a ``checksums``
+    dictionary.
 
-    Args:
-        file_path: Path to the file.
-        checksum: SHA-256 checksum.
-
-    Returns:
-        Dictionary with file metadata and checksum.
-    """
-    stat = file_path.stat()
-    return {
-        'file_path': str(file_path),
-        'checksum': checksum,
-        'size_bytes': stat.st_size,
-        'modified_at': datetime.fromtimestamp(stat.st_mtime).isoformat(),
-        'created_at': datetime.fromtimestamp(stat.st_ctime).isoformat()
-    }
-
-def write_checksums_to_pending(checksums: List[Dict[str, Any]], pending_path: Path) -> None:
-    """
-    Write checksums to a pending YAML file.
-
-    Args:
-        checksums: List of checksum records.
-        pending_path: Path to the pending checksums file.
+    Parameters
+    ----------
+    checksums: Dict[str, str]
+        Mapping of relative file paths to SHA‑256 checksums.
+    pending_path: Path
+        Destination path for the YAML file.
     """
     pending_path.parent.mkdir(parents=True, exist_ok=True)
 
-    record = {
-        'generated_at': datetime.now().isoformat(),
-        'checksums': checksums
+    payload = {
+        "generated_at": datetime.now().isoformat(),
+        "checksums": checksums,
     }
 
-    with open(pending_path, 'w', encoding='utf-8') as f:
-        yaml.dump(record, f, default_flow_style=False, sort_keys=False)
+    with pending_path.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(payload, f, default_flow_style=False, sort_keys=False)
 
-    logger.info(f"Wrote checksums to {pending_path}")
+    logger.info(f"Checksum file written to {pending_path}")
 
-def scan_and_register_data_files() -> None:
+def run_checksum_utility() -> None:
     """
-    Scan data directories and register checksums to the pending file.
+    Main driver that discovers the project root, gathers checksums for all
+    files under ``data/``, and writes the result to the pending checksums
+    file.
     """
     project_root = get_project_root()
-    data_dir = project_root / 'data'
-    pending_dir = project_root / 'state' / 'pending'
-    pending_path = pending_dir / 'checksums.yaml'
+    data_dir = project_root / "data"
+    pending_path = project_root / "state" / "pending" / "checksums.yaml"
 
-    if not data_dir.exists():
-        logger.warning(f"Data directory {data_dir} does not exist. Skipping checksum generation.")
-        return
+    logger.info(f"Scanning data files in {data_dir}")
+    checksums = gather_checksums(data_dir, project_root)
 
-    files = scan_data_files(data_dir)
-    if not files:
-        logger.warning("No data files found to checksum.")
-        return
+    if not checksums:
+        logger.warning("No data files found – checksums file will be empty.")
+    write_checksums_yaml(checksums, pending_path)
 
-    checksums = []
-    for file_path in files:
-        try:
-            checksum = compute_file_checksum(file_path)
-            record = generate_checksum_record(file_path, checksum)
-            checksums.append(record)
-            logger.debug(f"Checksum for {file_path}: {checksum}")
-        except Exception as e:
-            logger.error(f"Failed to compute checksum for {file_path}: {e}")
-
-    if checksums:
-        write_checksums_to_pending(checksums, pending_path)
-    else:
-        logger.warning("No valid checksums generated.")
-
-def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
+def main() -> None:
     """
-    Verify the checksum of a file against an expected value.
-
-    Args:
-        file_path: Path to the file.
-        expected_checksum: Expected SHA-256 checksum.
-
-    Returns:
-        True if checksum matches, False otherwise.
+    Entry point for ``python -m code.utils.checksum`` or direct script
+    execution. It simply runs the checksum utility.
     """
-    actual_checksum = compute_file_checksum(file_path)
-    return actual_checksum == expected_checksum
-
-def main():
-    """
-    Main entry point for checksum utility.
-    """
-    logger.info("Running checksum utility.")
-    scan_and_register_data_files()
+    logger.info("Starting checksum utility.")
+    run_checksum_utility()
     logger.info("Checksum utility completed.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

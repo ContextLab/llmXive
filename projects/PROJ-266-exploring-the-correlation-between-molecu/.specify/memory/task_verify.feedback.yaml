@@ -1,0 +1,68 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/pending/`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 609cac883fe01ec68967adb50b9bbac5654457c674d7f35ac4c6eedeb3881199
+T002:
+  reason: The repository contains a `pyproject.toml` with the required Black configuration,
+    but there is no `.flake8` file present and no evidence (e.g., command output or
+    CI logs) that `flake8 --config .flake8 .` and `black --check .` both succeed.
+    Add a `.flake8` file with appropriate defaults and provide proof that both linting
+    and formatting checks pass.
+  task: 01604348fac96ae77d8d6d6661059fda9eca75ea298a2553397f265d634754c9
+T003:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/pending/checksums.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: ca36680b939e55ca8de7c28c692978e4c557765fe6ac128f076bc001e708d51e
+T004:
+  reason: "All required schema files (`dataset.schema.yaml`, `descriptor.schema.yaml`,\
+    \ `analysis_output.schema.yaml`, `correlation.schema.yaml`, `flexibility.schema.yaml`,\
+    \ `output.schema.yaml`) are missing from `specs/001\u2011exploring\u2011the\u2011\
+    correlation\u2011between\u2011molecu/contracts/`, causing the `pytest` validation\
+    \ test to fail. The task\u2019s core deliverables are absent."
+  task: 87355de7c66fd824705608c4467b2072a87aa2c8d9a9c0cea5c865e6a4ca35de
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/pending/checksums.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 568d83717f2e7f88bedd7d5eb56bcefc6accd25cf0b50b9445ad709675caca06
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocessing.py
+    exit=1'
+  task: 7551d7ca47b7bc18f38c57c5ec0e8a8fd52f681c67434684e2c8ff52d2d114d8
+T007:
+  task: 219bf7b7e667f64c0add01ca998a673091c80c8ab6e9957c5382096ef2c9b5b9
+T008:
+  task: 5799dac8d845129ac4ab22ed60ab970f57bfe3e2cac330d00fe1919df18238c7
+T009:
+  task: 69f62957bb2b415bb3f7947a60f7fe1eeb9833b9e4b721281b58826fd17879d2
+T010:
+  task: 9528625e471dead2b0dc4de9dbd8a01a12523a13c28fe48af76d0c3febb5ad5e
+T011:
+  task: f60a66a91509c738c3640058f6e8c4c8aa088ee620771a1a118777fd0f246e78
+T012:
+  task: cc14e17bc5bf0fac8781d312047b2cc31dc95a4b6d9082fdf1c3e8c768436f5c
+T013:
+  task: 351f33076b87873a080531ae49bc92f574068266c93f1a56b6651e1381f2f4f3
+T014:
+  task: e167ca3afe6238d47c10d74193152bf77ce3c8ee26a061bfdfdd538e53c2e51e
+T015:
+  task: 2497c71159a651758915524190e90f81c19f1e0fe6ce0b8e098299a019d03e0d
+T016:
+  task: 776f92d213a6034f593a1a6e9c3c40a273705d590985d70192c187a877a018f9
+T017:
+  task: 6838fbd0aa0c14b45243976f0cccb057a75f5792953010f922cf2ec150abb858
+T021:
+  task: 9efdfd567b3cc6a1786d213fe8d23938007ed6b08b26876415fce9fd69b7d445
+T022:
+  task: 064effbc6c101546b2d4507dd0095a0a8d8e97457a833c7538569a61a66cd549
+T023:
+  task: 64a1a940be4d779f69c7600ea0503ccef101f4e72c10b67180e8d162ff8e50b6
+T024:
+  task: 922aaca96b4655533e73c59af1ee9aa9f9f733928747237c3b356b6c582c9aeb
+T025:
+  task: bb0afab8136cd94e99c1e923599d62d0e10a9b422e1d37f25f2215f963abeb8a
