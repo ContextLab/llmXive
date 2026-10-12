@@ -3,8 +3,9 @@ import sys
 import logging
 import json
 import argparse
+import re
 from pathlib import Path
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 
 import pandas as pd
 import yaml
@@ -34,6 +35,35 @@ def get_project_root() -> Path:
     """Return the absolute path to the project root."""
     return Path(__file__).resolve().parent.parent
 
+def parse_composition_string(comp_str: Any) -> Optional[Dict[str, float]]:
+    """
+    Parses composition strings (e.g., 'Zr50Cu40Al10') or JSON strings 
+    into a dictionary of atomic fractions.
+    """
+    if not comp_str or pd.isna(comp_str):
+        return None
+    
+    if isinstance(comp_str, dict):
+        return comp_str
+
+    # Try JSON first
+    if isinstance(comp_str, str) and (comp_str.startswith('{') and comp_str.endswith('}')):
+        try:
+            return json.loads(comp_str.replace("'", '"'))
+        except json.JSONDecodeError:
+            pass
+
+    # Try regex for 'Zr50Cu40Al10' format
+    if isinstance(comp_str, str):
+        pattern = re.compile(r'([A-Z][a-z]?)(\d+(?:\.\d+)?)')
+        matches = pattern.findall(comp_str)
+        if matches:
+            total = sum(float(count) for _, count in matches)
+            if total > 0:
+                return {symbol: float(count)/total for symbol, count in matches}
+    
+    return None
+
 def validate_and_clean_chunk(chunk: pd.DataFrame, schema: Dict, source_doi: str, logger: logging.Logger) -> pd.DataFrame:
     """
     Validates a chunk of data against the schema and cleans it.
@@ -43,31 +73,31 @@ def validate_and_clean_chunk(chunk: pd.DataFrame, schema: Dict, source_doi: str,
     for idx, row in chunk.iterrows():
         row_dict = row.to_dict()
         
-        # Ensure required basic columns exist
-        if 'tg_value' not in row_dict or pd.isna(row_dict['tg_value']):
+        # 1. Tg value check (FR-001)
+        tg = row_dict.get('tg_value')
+        if pd.isna(tg) or tg is None:
             continue
         
-        # Parse elements string to dict if necessary
-        if 'elements' in row_dict:
-            try:
-                if isinstance(row_dict['elements'], str):
-                    # Handle potential single quotes or different JSON formats
-                    cleaned_elements = row_dict['elements'].replace("'", '"')
-                    row_dict['elements'] = json.loads(cleaned_elements)
-            except (json.JSONDecodeError, TypeError):
-                continue
-        else:
+        # 2. Composition check (FR-001)
+        elements_raw = row_dict.get('elements')
+        elements_parsed = parse_composition_string(elements_raw)
+        if not elements_parsed:
             continue
+        
+        row_dict['elements'] = elements_parsed
 
-        # Fill in metadata required by schema
+        # 3. Metadata enrichment
         row_dict['source'] = source_doi
         row_dict['status'] = 'valid'
         if 'record_id' not in row_dict or pd.isna(row_dict['record_id']):
             row_dict['record_id'] = str(idx)
+        
+        # Infer family from primary element if missing
         if 'family' not in row_dict or pd.isna(row_dict['family']):
-            row_dict['family'] = 'Unknown'
+            primary_el = max(elements_parsed, key=elements_parsed.get)
+            row_dict['family'] = f"{primary_el}-based"
 
-        # Validate against jsonschema
+        # 4. Schema validation
         try:
             jsonschema.validate(instance=row_dict, schema=schema)
             processed_rows.append(row_dict)
@@ -125,6 +155,7 @@ def run_ingestion() -> None:
     first_chunk = True
     
     try:
+        # Use chunksize=1000 to stay within RAM budget
         reader = pd.read_csv(raw_path, chunksize=1000)
         for chunk in reader:
             raw_count += len(chunk)

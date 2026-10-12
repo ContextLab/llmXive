@@ -18,38 +18,38 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingest.py --verify-only -> rc=1
-2026-10-12 11:16:49,718 - zenodo_client - ERROR - Failed to fetch Zenodo metadata for DOI 10.5281/zenodo.10043838: 404 Client Error: NOT FOUND for url: https://zenodo.org/api/records/10.5281/zenodo.10043838
-2026-10-12 11:16:52,347 - zenodo_client - ERROR - Failed to fetch Zenodo metadata for DOI 10.5281/zenodo.11023456: 404 Client Error: NOT FOUND for url: https://zenodo.org/api/records/10.5281/zenodo.11023456
-2026-10-12 11:16:52,347 - __main__ - ERROR - Verification failed: Zenodo API error for DOI 10.5281/zenodo.11023456: 404 Client Error: NOT FOUND for url: https://zenodo.org/api/records/10.5281/zenodo.11023456
+2026-10-12 14:17:24,794 - zenodo_client - ERROR - No CSV file found in Zenodo record 10.5281/zenodo.10043838
+2026-10-12 14:17:26,204 - zenodo_client - ERROR - No CSV file found in Zenodo record 10.5281/zenodo.11023456
+2026-10-12 14:17:26,204 - __main__ - ERROR - Verification failed: No CSV file found in Zenodo record 10.5281/zenodo.11023456
 
 
 - python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1
-se DataUnavailableError(f"Zenodo API error for DOI {doi}: {e}") from e
-zenodo_client.DataUnavailableError: Zenodo API error for DOI 10.5281/zenodo.11023456: 404 Client Error: NOT FOUND for url: https://zenodo.org/api/records/10.5281/zenodo.11023456
+-of-alloying-on-/code/zenodo_client.py", line 49, in download_csv_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record {doi}")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 10.5281/zenodo.11023456
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 192, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 223, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 189, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 220, in main
     run_ingestion()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 108, in run_ingestion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 138, in run_ingestion
     raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from fe
 zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
 
 - python -m pytest tests/unit/ -> rc=2
-home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_verify_resource_compliance.py'.
-Hint: make sure your test modules/packages have valid Python names.
+ure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_verify_resource_compliance.py:13: in <module>
-    from verify_resource_compliance import verify_resource_compliance, load_resource_usage
-E   ModuleNotFoundError: No module named 'verify_resource_compliance'
+tests/unit/test_zenodo_client.py:15: in <module>
+    from zenodo_client import fetch_from_zenodo, DataUnavailableError, DataInsufficientError
+E   ImportError: cannot import name 'fetch_from_zenodo' from 'zenodo_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_analyze.py
 ERROR tests/unit/test_descriptors_io.py
@@ -60,8 +60,9 @@ ERROR tests/unit/test_ingest_t014.py
 ERROR tests/unit/test_train_artifacts.py
 ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 2.08s ===============================
+ERROR tests/unit/test_zenodo_client.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 10 errors in 2.06s ==============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -79,7 +80,7 @@ ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
 ERROR tests/integration/test_train_cv.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 3 errors in 1.66s =========================
+========================= 1 warning, 3 errors in 1.65s =========================
 
 
 
