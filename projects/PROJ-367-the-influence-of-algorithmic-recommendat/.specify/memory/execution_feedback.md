@@ -41,9 +41,9 @@ requests.exceptions.HTTPError: 404 Client Error: NOT FOUND for url: https://zeno
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 304, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 305, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 295, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 296, in main
     fetch_educational_dataset("oulad")
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 250, in fetch_educational_dataset
     _download_and_extract_oulad()
@@ -90,7 +90,7 @@ ERROR tests/unit/test_data_generation.py
 ERROR tests/unit/test_merger.py
 ERROR tests/unit/test_sensitivity.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 1.78s ===============================
+============================== 4 errors in 1.98s ===============================
 
 
 - python -m pytest tests/integration/ -v -> rc=2
@@ -116,7 +116,7 @@ E   ModuleNotFoundError: No module named 'sentence_transformers'
 =========================== short test summary info ============================
 ERROR tests/integration/test_main_verification.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.43s ===============================
+=============================== 1 error in 1.58s ===============================
 
 
 - python -m pytest tests/contract/ -v -> rc=4

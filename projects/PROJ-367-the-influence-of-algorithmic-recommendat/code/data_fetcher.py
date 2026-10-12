@@ -16,6 +16,7 @@ from typing import List
 
 import pandas as pd
 import requests
+from datasets import load_dataset  # Imported at module level so tests can patch it.
 
 # Project‑specific utilities
 from llmxive_toolkit import paths, get_logger
@@ -31,7 +32,6 @@ OULAD_PRIMARY_URL = "https://analyse.kmi.open.ac.uk/open_dataset"
 
 # Verified mirror on Zenodo – this URL points to a ZIP containing the four CSVs.
 # The file is publicly accessible and works in CI environments.
-# Updated to a working Zenodo mirror as the previous S3 mirror returned 403.
 OULAD_MIRROR_ZIP = (
     "https://zenodo.org/record/3222405/files/oulad.zip?download=1"
 )
@@ -264,7 +264,6 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
     # Generic HuggingFace path – used by the unit tests.
     # --------------------------------------------------------------
     try:
-        from datasets import load_dataset  # Imported lazily to avoid unnecessary dep.
         ds = load_dataset(dataset_id, split="train")
     except Exception as exc:
         raise DataAvailabilityError(
@@ -277,7 +276,9 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
             f"Dataset '{dataset_id}' missing required columns {REQUIRED_COLUMNS}"
         )
 
-    log.info("Fetched dataset '%s' via HuggingFace – %d rows", dataset_id, len(df))
+    log.info(
+        "Fetched dataset '%s' via HuggingFace – %d rows", dataset_id, len(df)
+    )
     return df
 
 
