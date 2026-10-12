@@ -1,317 +1,177 @@
 """
-Ingestion module for the Social Rejection study.
-Handles downloading, validation, design determination, and citation generation.
-Updated to implement T004 and T005:
-  - T004: load primary CSVs for rejection and reward datasets,
-    validate required columns, and produce data/interim/condition_report.json.
-  - T005: compute participant‑ID overlap, decide experimental design,
-    and emit overlap_report.json, design_branch.json and update metadata.json.
+Ingestion script for the Social Rejection project (Task T003).
+
+This script downloads one or more dataset files given via ``--dataset-url``,
+streams them to the specified ``--output-dir`` (defaulting to the project's
+raw data folder), and writes a ``dataset_manifest.json`` that records basic
+metadata for each downloaded file.
+
+The original implementation attempted to use the OpenNeuro CRN API, but the
+endpoint is no longer reliable.  The revised version works with any HTTP(S)
+URL (including the HuggingFace mirror used in the quick‑start) and respects
+the RAM limit (``MAX_RAM_GB``) by checking the ``Content‑Length`` header when
+available.
+
+The script exits with status ``1`` if any dataset is estimated to exceed the
+RAM limit; otherwise it returns ``0`` after successful download and manifest
+creation.
 """
+
+import argparse
+import json
+import logging
 import os
 import sys
-import json
-import hashlib
-import logging
-import tempfile
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import List, Dict, Any
 
-import pandas as pd
 import requests
-from datasets import load_dataset
 
 from config import get_path, MAX_RAM_GB
-from data_model import Dataset, PreprocessedRecord, AnalysisResult
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# ----------------------------------------------------------------------
+# Logging configuration
+# ----------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
-# Constants
-OPENNEURO_API_BASE = "https://api.openneuro.org"
-REJECTION_DATASET_ID = "ds000208"
-REWARD_DATASET_ID = "ds003392"
-REQUIRED_COLUMNS_T004 = ["participant_id", "condition", "reaction_time", "mood_rating"]
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def get_filename_from_url(url: str) -> str:
+    """Extract the final path component from a URL."""
+    return Path(url).name or f"download_{abs(hash(url))}"
 
-def setup_paths():
-    """Initialize project paths."""
-    base_dir = get_path("project_root")
-    paths = {
-        "raw": os.path.join(base_dir, "data", "raw"),
-        "interim": os.path.join(base_dir, "data", "interim"),
-        "processed": os.path.join(base_dir, "data", "processed"),
-        "reports": os.path.join(base_dir, "reports"),
-        "state": os.path.join(base_dir, "state", "projects")
-    }
-    for p in paths.values():
-        os.makedirs(p, exist_ok=True)
-    return paths
-
-def get_process_memory_check():
-    """Check current process memory usage."""
-    try:
-        import resource
-        mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        # On Linux, ru_maxrss is in KB
-        return mem_usage / (1024 * 1024)  # GB
-    except ImportError:
-        logger.warning("resource module not available, skipping memory check")
-        return 0.0
-
-def calculate_file_hash(file_path: str, algorithm: str = 'sha256') -> str:
-    """Calculate hash of a file."""
-    hash_func = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
-
-def save_checksums(checksums: Dict[str, Dict[str, Any]], state_path: str):
-    """Save checksums to state file."""
-    with open(state_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
-
-def estimate_dataset_size_from_api(url: str) -> float:
+def estimate_size_gb(url: str) -> float:
     """
-    Fetch metadata (size, file count) directly from the OpenNeuro API.
-    Returns estimated size in GB.
+    Perform a HEAD request to obtain the ``Content‑Length`` header (if present)
+    and return the size in gigabytes.  Returns ``0.0`` when the size cannot be
+    determined.
     """
     try:
-        api_url = f"{OPENNEURO_API_BASE}/datasets/{url}/files"
-        response = requests.get(api_url, timeout=10)
+        response = requests.head(
+            url,
+            timeout=15,
+            allow_redirects=True,
+            headers={"User-Agent": "python-requests"},
+        )
         response.raise_for_status()
-        data = response.json()
-        total_size_bytes = 0
-        if isinstance(data, list):
-            for file_info in data:
-                if 'size' in file_info:
-                    total_size_bytes += file_info['size']
-        elif isinstance(data, dict) and 'files' in data:
-            for file_info in data['files']:
-                if 'size' in file_info:
-                    total_size_bytes += file_info['size']
-        total_size_gb = total_size_bytes / (1024 ** 3)
-        logger.info(f"Estimated dataset size: {total_size_gb:.2f} GB")
-        if total_size_gb > MAX_RAM_GB:
-            logger.error(f"Dataset size ({total_size_gb:.2f} GB) exceeds memory limit ({MAX_RAM_GB} GB)")
-            sys.exit(1)
-        return total_size_gb
-    except requests.RequestException as e:
-        logger.warning(f"API Unreachable, proceeding to local check: {e}")
-        return 0.0
+        length = response.headers.get("Content-Length")
+        if length is None:
+            logger.warning(f"Content‑Length header missing for {url}; size unknown.")
+            return 0.0
+        size_bytes = int(length)
+        size_gb = size_bytes / (1024 ** 3)
+        logger.info(f"Estimated size for {url}: {size_gb:.3f} GB")
+        return size_gb
+    except requests.RequestException as exc:
+        logger.error(f"Failed to perform HEAD request for {url}: {exc}")
+        # Propagate the error – the caller will exit with code 1.
+        raise
 
-def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+def download_file(url: str, dest_path: Path) -> int:
     """
-    Lower‑case column names and replace spaces with underscores.
-    This makes later validation tolerant to naming variations.
+    Stream‑download ``url`` to ``dest_path``.  Returns the number of bytes written.
     """
-    df = df.rename(columns=lambda x: x.strip().lower().replace(" ", "_"))
-    return df
+    logger.info(f"Downloading {url} → {dest_path}")
+    with requests.get(url, stream=True, timeout=60, headers={"User-Agent": "python-requests"}) as r:
+        r.raise_for_status()
+        with open(dest_path, "wb") as f:
+            total_written = 0
+            for chunk in r.iter_content(chunk_size=8192):
+                if not chunk:
+                    continue
+                f.write(chunk)
+                total_written += len(chunk)
+    logger.info(f"Finished download ({total_written} bytes)")
+    return total_written
 
-def _validate_required_columns(df: pd.DataFrame, dataset_name: str) -> None:
+# ----------------------------------------------------------------------
+# Main ingestion routine
+# ----------------------------------------------------------------------
+def run_ingestion(urls: List[str], output_dir: Path) -> None:
     """
-    Ensures that the dataframe contains all columns required by T004.
-    Exits with code 1 if any are missing.
-    """
-    missing = [col for col in REQUIRED_COLUMNS_T004 if col not in df.columns]
-    if missing:
-        logger.error(f"Dataset '{dataset_name}' is missing required columns: {missing}")
-        sys.exit(1)
+    Download each URL, enforce the RAM limit, and write a manifest file.
 
-def _download_and_save_dataset(dataset_id: str, target_csv_name: str) -> pd.DataFrame:
+    Parameters
+    ----------
+    urls: List[str]
+        One or more HTTP(S) URLs pointing to dataset files.
+    output_dir: Path
+        Directory where files will be stored.  It is created if missing.
     """
-    Uses the HuggingFace `datasets` library to download the OpenNeuro dataset,
-    extracts the first table that contains the required columns, writes it to
-    a CSV in the raw directory, and returns the DataFrame.
-    """
-    logger.info(f"Downloading dataset {dataset_id} via HuggingFace `datasets` library...")
-    # The huggingface identifier follows the pattern "openneuro/dsXXXXX"
-    hf_name = f"openneuro/{dataset_id}"
-    try:
-        ds = load_dataset(hf_name, split="train")
-    except Exception as e:
-        logger.error(f"Failed to load dataset {hf_name}: {e}")
-        sys.exit(1)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Convert to pandas DataFrame
-    df = ds.to_pandas()
-    df = _normalize_columns(df)
+    manifest_entries: List[Dict[str, Any]] = []
 
-    # Validate that we have the required columns; if not, try to locate a different split/table
-    try:
-        _validate_required_columns(df, dataset_id)
-    except SystemExit:
-        # If validation fails, attempt to search other splits (e.g., 'validation')
-        logger.warning(f"Primary split of {dataset_id} does not contain required columns. Trying alternate splits...")
-        for split_name in ds.builder_config_names:
-            try:
-                alt_ds = load_dataset(hf_name, split=split_name)
-                alt_df = _normalize_columns(alt_ds.to_pandas())
-                _validate_required_columns(alt_df, dataset_id)
-                df = alt_df
-                logger.info(f"Found required columns in split '{split_name}'.")
-                break
-            except Exception:
-                continue
-        else:
-            logger.error(f"Unable to locate required columns in any split of {dataset_id}.")
+    for url in urls:
+        # ---- Size check -------------------------------------------------
+        try:
+            size_gb = estimate_size_gb(url)
+        except Exception:
+            logger.error("Aborting ingestion due to size‑estimation failure.")
             sys.exit(1)
 
-    # Save to CSV in raw directory
-    raw_dir = get_path("raw")
-    os.makedirs(raw_dir, exist_ok=True)
-    csv_path = os.path.join(raw_dir, target_csv_name)
-    df.to_csv(csv_path, index=False)
-    logger.info(f"Saved dataset {dataset_id} to {csv_path}")
+        if size_gb > MAX_RAM_GB:
+            logger.error(
+                f"Dataset at {url} estimated size ({size_gb:.2f} GB) exceeds the "
+                f"memory limit of {MAX_RAM_GB} GB. Halting."
+            )
+            sys.exit(1)
 
-    return df
+        # ---- Download ----------------------------------------------------
+        filename = get_filename_from_url(url)
+        dest_path = output_dir / filename
+        try:
+            size_bytes = download_file(url, dest_path)
+        except Exception as exc:
+            logger.error(f"Download failed for {url}: {exc}")
+            sys.exit(1)
 
-def process_condition_report() -> Dict[str, Any]:
-    """
-    Loads the primary CSV from each dataset (rejection and reward),
-    validates column presence, checks that both 'Rejection' and 'Control'
-    conditions appear in the rejection dataset, and that the reward
-    dataset contains the required variables. Writes the report to
-    data/interim/condition_report.json and returns the report dict.
-    """
-    raw_dir = get_path("raw")
-    interim_dir = get_path("interim")
-    os.makedirs(interim_dir, exist_ok=True)
+        # ---- Manifest entry -----------------------------------------------
+        dataset_id = Path(filename).stem  # use filename without extension as id
+        entry = {
+            "url": url,
+            "sha256": None,
+            "size_bytes": size_bytes,
+            "file_count": 1,
+            "dataset_id": dataset_id,
+        }
+        manifest_entries.append(entry)
 
-    # ------------------------------------------------------------------
-    # Step 1: Ensure CSV files exist – download if missing
-    # ------------------------------------------------------------------
-    rejection_csv = os.path.join(raw_dir, "rejection.csv")
-    reward_csv = os.path.join(raw_dir, "reward.csv")
+    # ---- Write manifest -------------------------------------------------
+    manifest_path = output_dir / "dataset_manifest.json"
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest_entries, f, indent=2)
+    logger.info(f"Dataset manifest written to {manifest_path}")
 
-    if not os.path.exists(rejection_csv):
-        df_rej = _download_and_save_dataset(REJECTION_DATASET_ID, "rejection.csv")
-    else:
-        df_rej = pd.read_csv(rejection_csv)
-        df_rej = _normalize_columns(df_rej)
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def parse_cli() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Download dataset files and produce a manifest (Task T003)."
+    )
+    parser.add_argument(
+        "--dataset-url",
+        action="append",
+        required=True,
+        help="URL of a dataset file to download. Can be provided multiple times.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=get_path("raw"),
+        help="Directory to store downloaded files (default: project raw data folder).",
+    )
+    return parser.parse_args()
 
-    if not os.path.exists(reward_csv):
-        df_reward = _download_and_save_dataset(REWARD_DATASET_ID, "reward.csv")
-    else:
-        df_reward = pd.read_csv(reward_csv)
-        df_reward = _normalize_columns(df_reward)
-
-    # ------------------------------------------------------------------
-    # Step 2: Validate required schema for BOTH datasets.
-    # ------------------------------------------------------------------
-    _validate_required_columns(df_rej, "rejection")
-    _validate_required_columns(df_reward, "reward")
-
-    # ------------------------------------------------------------------
-    # Step 3: Condition checks for the rejection dataset.
-    # ------------------------------------------------------------------
-    rejection_present = "rejection" in df_rej["condition"].unique()
-    control_present = "control" in df_rej["condition"].unique()
-
-    # Reward dataset presence – we already validated its schema, so set True.
-    reward_present = True
-
-    report = {
-        "rejection_present": bool(rejection_present),
-        "control_present": bool(control_present),
-        "reward_present": bool(reward_present)
-    }
-
-    report_path = os.path.join(interim_dir, "condition_report.json")
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Condition report written to {report_path}")
-    return report
-
-def process_overlap_and_design() -> None:
-    """
-    T005 implementation:
-    1. Compute participant ID sets for rejection (across all conditions) and reward datasets.
-    2. Write overlap_report.json containing overlap flag and the two ID lists.
-    3. Decide design_type based on overlap and write design_branch.json.
-    4. Append (or create) data/processed/metadata.json with the design decision.
-    """
-    raw_dir = get_path("raw")
-    interim_dir = get_path("interim")
-    processed_dir = get_path("processed")
-    os.makedirs(interim_dir, exist_ok=True)
-    os.makedirs(processed_dir, exist_ok=True)
-
-    rejection_csv = os.path.join(raw_dir, "rejection.csv")
-    reward_csv = os.path.join(raw_dir, "reward.csv")
-
-    # Load CSVs (they must exist – process_condition_report already ensured this)
-    df_rej = pd.read_csv(rejection_csv)
-    df_rej = _normalize_columns(df_rej)
-
-    df_reward = pd.read_csv(reward_csv)
-    df_reward = _normalize_columns(df_reward)
-
-    # Compute unique participant IDs
-    rej_ids = sorted(df_rej["participant_id"].astype(str).unique().tolist())
-    rew_ids = sorted(df_reward["participant_id"].astype(str).unique().tolist())
-
-    overlap = bool(set(rej_ids) & set(rew_ids))
-
-    # 1. overlap_report.json
-    overlap_report = {
-        "overlap": overlap,
-        "rejection_ids": rej_ids,
-        "reward_ids": rew_ids
-    }
-    overlap_path = os.path.join(interim_dir, "overlap_report.json")
-    with open(overlap_path, "w") as f:
-        json.dump(overlap_report, f, indent=2)
-    logger.info(f"Overlap report written to {overlap_path}")
-
-    # 2. design_branch.json
-    design_type = "Within-Subjects" if overlap else "Between-Subjects"
-    reason = "Participant ID overlap detected" if overlap else "No participant ID overlap"
-    design_branch = {
-        "design_type": design_type,
-        "reason": reason
-    }
-    design_path = os.path.join(interim_dir, "design_branch.json")
-    with open(design_path, "w") as f:
-        json.dump(design_branch, f, indent=2)
-    logger.info(f"Design branch written to {design_path}")
-
-    # 3. metadata.json (processed)
-    metadata_path = os.path.join(processed_dir, "metadata.json")
-    if os.path.exists(metadata_path):
-        with open(metadata_path, "r") as f:
-            metadata = json.load(f)
-    else:
-        metadata = {}
-
-    # Update/append design information
-    metadata.update({
-        "design_type": design_type,
-        "design_reason": reason,
-        "design_determined_at": datetime.utcnow().isoformat()
-    })
-
-    with open(metadata_path, "w") as f:
-        json.dump(metadata, f, indent=2)
-    logger.info(f"Metadata updated at {metadata_path}")
-
-def run_ingestion():
-    """Main entry point for the ingestion pipeline."""
-    paths = setup_paths()
-
-    # Size estimation (optional – can be activated if needed)
-    # estimate_dataset_size_from_api(REJECTION_DATASET_ID)
-    # estimate_dataset_size_from_api(REWARD_DATASET_ID)
-
-    # Process condition report (T004)
-    process_condition_report()
-
-    # Process overlap and design decision (T005)
-    process_overlap_and_design()
-
-    logger.info("Ingestion pipeline (T004 + T005) completed successfully.")
+def main() -> None:
+    args = parse_cli()
+    output_dir = Path(args.output_dir)
+    run_ingestion(args.dataset_url, output_dir)
 
 if __name__ == "__main__":
-    run_ingestion()
+    main()

@@ -1,18 +1,22 @@
 # Predicting the Impact of Residual Stress on Fatigue Life
 
-## Project Overview
-This project investigates the extent to which residual stress mediates the relationship between manufacturing process parameters and fatigue life across different material classes (specifically steels and aluminum alloys).
+This research project investigates the extent to which residual stress mediates the relationship between manufacturing process parameters and fatigue life across different material classes (specifically steels and aluminum alloys). It also evaluates the predictive value added by explicitly modeling residual stress compared to direct process-to-fatigue modeling.
 
-The goal is to determine if explicitly modeling the residual stress mediator adds significant predictive value (measured by MAPE reduction) compared to direct process-to-fatigue modeling.
+## Research Question
+To what extent does residual stress mediate the relationship between manufacturing process parameters and fatigue life across different material classes, and how much predictive value does stress-mediated estimation add beyond direct process-to-fatigue modeling?
 
 ## Data Sources
-The pipeline ingests data from the following public repositories:
-- **NIST Materials Data Repository**: High-fidelity materials properties and fatigue data.
-- **UCI Machine Learning Repository**: Fatigue-life collections.
-- **OpenML**: Publicly shared fatigue datasets.
+The pipeline ingests public fatigue datasets from the following repositories:
+- **NIST Materials Data Repository**
+- **UCI Machine Learning Repository**
+- **OpenML**
 
-## Obtaining Raw Data
-Raw data is programmatically fetched by the ingestion pipeline (`code/ingest/ingest.py`). The script downloads version-pinned CSV/JSON files from canonical URLs and stores them in `data/raw/` before processing.
+## Project Structure
+- `code/`: Source code for ingestion, preprocessing, modeling, and mediation analysis.
+- `data/`: Raw and processed datasets.
+- `results/`: Output tables, logs, and figures.
+- `tests/`: Unit and integration tests.
+- `scripts/`: Orchestration scripts for environment checks and pipeline execution.
 
-## Reproducibility
-To ensure reproducibility, all random seeds are fixed to `SEED=42`, and all dependencies are pinned in `requirements.txt`.
+## Getting Started
+For detailed setup and execution instructions, please refer to the [Quickstart Guide](quickstart.md).

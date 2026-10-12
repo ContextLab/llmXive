@@ -19,8 +19,16 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Optional, List
 from dataclasses import dataclass, field
-from utils.logging import get_logger, log_info, log_error
-from utils.errors import fail_loudly
+
+# Import logging and error utilities using the correct package path.
+from code.utils.logging import get_logger, log_info, log_error, log_warning
+from code.utils.errors import fail_loudly, SyntheticFallbackForbiddenError
+
+# Public module‑level constants required by the verification step.
+# These are deliberately kept simple and immutable.
+SEED: int = 42                     # Default random seed for reproducibility
+RAM_LIMIT_GB: float = 6.5          # RAM limit used throughout the pipeline
+MODEL_PATHS: Dict[str, str] = {}   # Mapping from logical model name to local path or HF identifier
 
 # Project root relative to this file
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -32,13 +40,13 @@ DEFAULT_RESULTS = "results"
 DEFAULT_CHECKSUMS = "data/checksums.json"
 
 # Default model limits
-DEFAULT_MAX_RAM_GB = 7.0
+DEFAULT_MAX_RAM_GB = RAM_LIMIT_GB   # Keep in sync with RAM_LIMIT_GB constant
 DEFAULT_MAX_ITERATIONS = 20
 DEFAULT_MIN_VARIANCE = 0.05
 DEFAULT_BATCH_SIZE = 1
 
 # Default seeds
-DEFAULT_SEED = 42
+DEFAULT_SEED = SEED
 
 @dataclass
 class Config:
@@ -90,28 +98,26 @@ class Config:
         self.results_dir = Path(self.results_dir).resolve()
         self.checksums_file = Path(self.checksums_file).resolve()
         
-        # Ensure directories exist (optional, can be handled by T004/T007)
-        # We do not create them here to avoid side-effects in config loading,
-        # but we ensure the paths are absolute.
-
+        # Paths are resolved but not created here to avoid side‑effects.
+    
     def get_model_path(self, model_name: str) -> str:
         """Retrieve a registered model path or raise error if not found."""
         if model_name in self.model_paths:
             return self.model_paths[model_name]
         # Default to HuggingFace ID if no explicit path is set
         return model_name
-
+    
     def validate(self) -> None:
         """Perform strict validation of configuration."""
         if self.seed < 0:
-            fail_loudly("Seed must be non-negative")
+            fail_loudly("Seed must be non‑negative")
         
         if self.max_ram_gb <= 0:
             fail_loudly("max_ram_gb must be positive")
         
         if self.min_variance_threshold < 0:
-            fail_loudly("min_variance_threshold must be non-negative")
-
+            fail_loudly("min_variance_threshold must be non‑negative")
+    
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to a dictionary for logging/export."""
         return {
@@ -133,7 +139,7 @@ def get_config(overrides: Optional[Dict[str, Any]] = None) -> Config:
     Get the singleton configuration instance.
     
     Args:
-        overrides: Optional dictionary of key-value pairs to override defaults.
+        overrides: Optional dictionary of key‑value pairs to override defaults.
                    Keys must match Config dataclass fields.
     
     Returns:
@@ -142,7 +148,7 @@ def get_config(overrides: Optional[Dict[str, Any]] = None) -> Config:
     global _config_instance
     if _config_instance is None:
         # Initialize from environment variables if available
-        env_overrides = {}
+        env_overrides: Dict[str, Any] = {}
         
         # Check for explicit env vars
         if "LLMXIVE_SEED" in os.environ:
@@ -159,11 +165,11 @@ def get_config(overrides: Optional[Dict[str, Any]] = None) -> Config:
         
         if "LLMXIVE_STRICT_MODE" in os.environ:
             env_overrides["strict_mode"] = os.environ["LLMXIVE_STRICT_MODE"].lower() in ("true", "1", "yes")
-
+        
         # Merge with passed overrides
         if overrides:
             env_overrides.update(overrides)
-
+        
         _config_instance = Config(**env_overrides)
         _config_instance.validate()
         log_info(f"Configuration initialized with seed={_config_instance.seed}, strict_mode={_config_instance.strict_mode}")
@@ -194,7 +200,7 @@ def load_config_from_file(path: str) -> Config:
             data = json.load(f)
         
         # Map JSON keys to dataclass fields
-        overrides = {}
+        overrides: Dict[str, Any] = {}
         for key, value in data.items():
             if hasattr(Config, key):
                 overrides[key] = value

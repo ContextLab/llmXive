@@ -8,6 +8,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+env/
+venv/
 build/
 develop-eggs/
 dist/
@@ -19,12 +21,13 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
 # PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -34,34 +37,18 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.coverage
-coverage.xml
-*.cover
 .tox/
 .nox/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDEs and Editors
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.project
-.pydevproject
-.settings/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -77,20 +64,14 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# pytype static type analyzer
+.pytype/
 
-# Project specific
-logs/
-output/
-data/raw/
-data/processed/
-data/meddra_soc_mapping.csv
-contracts/
-*.log
+# Cython debug symbols
+cython_debug/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store

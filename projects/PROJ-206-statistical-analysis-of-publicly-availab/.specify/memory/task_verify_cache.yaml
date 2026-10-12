@@ -1,3 +1,20 @@
+T002:
+  c: true
+  h: 895d0d55a60a67850d629caf65c03434409dbb7029d4d9c6458b1a7df9825641
+  r: "Checked the `requirements.txt` (161\u202Fbytes) which pins exact versions for\
+    \ all listed packages, and the `src/utils/config.py` (4.7\u202FKB) which defines\
+    \ a `set_seed()` function that seeds `random`, `numpy`, and PyMC (with import\u2011\
+    time call) and passes its unit\u2011test suite. The provided test log shows all\
+    \ six config tests succeed, confirming correct implementation."
+  sig: 1f2dcf7253c2ec1c652aed2626e002a41356d87ce9575ff0ad3a2b85289c5dfa
+T005:
+  c: true
+  h: aa591b6ed38b7b7467d485b9e26c908be4e3d6a1596d9b22364dc020a5ba88e1
+  r: "Checked the two schema files under `specs/001-statistical-poll-aggregation/contracts/`\
+    \ \u2013 both exist, are non\u2011empty YAML containing `$schema` declarations,\
+    \ and the provided test log shows the dummy CSV validates against each schema\
+    \ with jsonschema (yamllint errors absent)."
+  sig: 8d087f77b124a62c5ba88a4cb942ff6e925035114d5bfb240d213435bd0c25d6
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -10,38 +27,3 @@ T022:
   r: "No code, script, or configuration file is provided that sets up a PyMC NUTS\
     \ sampler to run on CPU\u2011only, specifies the number of tuning steps, or fixes\
     \ random seeds. The required artifact is missing, so the task is not satisfied."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied no code, documentation, or example report demonstrating\
-    \ the added logic to frame findings as \u201Cpredictive accuracy\u201D and \u201C\
-    associational uncertainty.\u201D Without any artifact (e.g., modified report generation\
-    \ script, sample output, or test showing the new phrasing), the task requirement\
-    \ is not met. The missing deliverable is the implementation and evidence of the\
-    \ new framing in the output reports."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file was presented or described, and no mathematical formulations
-    or documentation of the architectural exceptions (T021, T026, T009b) were provided.
-    The required artifact is missing, so the task is not satisfied.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `quickstart.md` file was found in the provided artifacts, and thus there are
-    no Polish-language instructions for running the full pipeline on CPU. The required
-    documentation is missing.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides only the feature specification and user stories; there are
-    no checksum files, verification logs, or any evidence that artifacts in `state/projects/`
-    have been checked for valid checksums, nor any audit showing that data was not
-    manually fabricated. The required artifacts to prove checksum validation and data
-    integrity are missing.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md file or excerpt showing a summary of the comparative results and\
-    \ limitations was provided. Without the documented updates, the task\u2019s requirement\
-    \ is not met."

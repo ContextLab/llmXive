@@ -45,6 +45,91 @@ def get_current_ram_usage_gb() -> float:
         logger.warning("psutil not available, estimating RAM usage as 0")
         return 0.0
 
+# ----------------------------------------------------------------------
+# RAM estimation utilities (used by unit tests)
+# ----------------------------------------------------------------------
+def estimate_model_ram_usage(model_config: Dict[str, Any]) -> float:
+    """
+    Estimate the RAM usage (in GB) of a model given its configuration.
+
+    The estimation follows the simple rule used in the test suite:
+    RAM ≈ (num_parameters * bytes_per_parameter * 2) / (1024**3)
+
+    * ``num_parameters`` – total number of parameters (int)
+    * ``precision`` – either ``float32`` (4 bytes) or ``float16`` (2 bytes)
+
+    Parameters
+    ----------
+    model_config: dict
+        Must contain ``num_parameters`` and ``precision`` keys.
+
+    Returns
+    -------
+    float
+        Estimated RAM usage in gigabytes.
+
+    Raises
+    ------
+    ValueError
+        If required keys are missing or precision is unsupported.
+    """
+    if "num_parameters" not in model_config:
+        raise ValueError("model_config missing required key: num_parameters")
+    if "precision" not in model_config:
+        raise ValueError("model_config missing required key: precision")
+
+    num_params = model_config["num_parameters"]
+    precision = model_config["precision"]
+
+    if precision == "float32":
+        bytes_per_param = 4
+    elif precision == "float16":
+        bytes_per_param = 2
+    else:
+        raise ValueError(f"Unsupported precision: {precision}")
+
+    # Two copies (weights + activation buffer) as per test comments
+    ram_bytes = num_params * bytes_per_param * 2
+    ram_gb = ram_bytes / (1024 ** 3)
+    return ram_gb
+
+def check_ram_budget(model_config: Dict[str, Any], budget_gb: float) -> bool:
+    """
+    Verify that the estimated RAM usage of a model fits within a budget.
+
+    Parameters
+    ----------
+    model_config: dict
+        Model configuration passed to :func:`estimate_model_ram_usage`.
+    budget_gb: float
+        RAM budget in gigabytes.
+
+    Returns
+    -------
+    bool
+        ``True`` if the model fits within the budget.
+
+    Raises
+    ------
+    ResourceLimitError
+        If the estimated RAM exceeds the budget or if the budget is non‑positive.
+    """
+    if budget_gb <= 0:
+        raise ResourceLimitError("RAM budget must be greater than zero.")
+
+    estimated = estimate_model_ram_usage(model_config)
+    if estimated > budget_gb:
+        raise ResourceLimitError(
+            f"Model RAM requirement {estimated:.2f}GB exceeds budget of {budget_gb:.2f}GB"
+        )
+    logger.info(
+        f"Model RAM requirement {estimated:.2f}GB is within budget of {budget_gb:.2f}GB"
+    )
+    return True
+
+# ----------------------------------------------------------------------
+# Existing inference pipeline (unchanged apart from imports above)
+# ----------------------------------------------------------------------
 def estimate_model_ram_requirement(model_id: str) -> float:
     """
     Estimate RAM requirement for a model based on registered specifications.
@@ -116,7 +201,6 @@ def run_inference_single_case(
     
     try:
         # Simulate inference execution
-        # In real implementation, this would call the actual model inference
         logger.info(f"Running inference for case {case_id} with model {model_id}")
         
         # Simulate processing time (0.1-2 seconds)

@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get up and running with the antibiotic resistance prediction pipeline in under 15 minutes. [UNRESOLVED-CLAIM: c_574a7b30 — status=not_enough_info]
+Get up and running with the antibiotic resistance prediction pipeline in under 15 minutes. [UNRESOLVED-CLAIM: c_16bfd1a0 — status=not_enough_info]
 
 ## Step 1: Environment Setup (3 minutes)
 
@@ -92,8 +92,8 @@ After a successful run you can manually update the project state:
 python code/utils/hash_artifacts.py
 ```
 
-This computes SHA256 hashes for all artifacts and writes them to
-`state/projects/PROJ-027-predicting-antibiotic-resistance-evoluti.yaml`.
+This computes SHA256 hashes for all artifacts and updates
+`state/projects/PROJ-027-predict-antibiotic-resistance-evoluti.yaml`.
 
 ## Troubleshooting
 
@@ -114,14 +114,14 @@ brew install snippy ariba
 Reduce `MAX_ISOLATES` in `config.yaml` or use streaming mode for large datasets.
 
 ### Phylogeny Generation Fails
-Ensure sufficient SNP diversity in your dataset. If all sequences are identical, the tree cannot be inferred. [UNRESOLVED-CLAIM: c_a05af2af — status=not_enough_info]
+Ensure `dendropy` and `statsmodels` are installed.
 
 ## Next Steps
 
 - Review `docs/README.md` for detailed pipeline documentation
 - Check `tests/contract/` for schema validation requirements
 - Examine `code/utils/config.py` for configuration options
-- Read `specs/001-predict-antibiotic-resistance-evoluti/` for project specifications
+- Read `specs/001-predicting-antibiotic-resistance-evoluti/` for project specifications
 
 ## Support
 

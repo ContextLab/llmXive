@@ -2164,3 +2164,23 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T01:45:00Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/README.md
+  attempts: 1
+  canonical: analysis performed on public datasets from UCI Machine Learning Repository
+    and OpenML
+  claim_id: c_d09f2e47
+  context: The analysis is performed on real public datasets (UCI Machine Learning
+    Repository / OpenML) with controlled dependency injection (temporal AR(1), hierarchical
+    block bootstrap, spatial kernel smoothing).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis is performed on real public datasets (UCI Machine Learning
+    Repository / OpenML) with controlled dependency injection (temporal AR(1), hierarchical
+    block bootstrap, spatial kernel smoothing).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-11T22:14:11Z'

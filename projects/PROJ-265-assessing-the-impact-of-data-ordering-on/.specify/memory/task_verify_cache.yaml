@@ -1,9 +1,58 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,
-    `results/`) being present or populated is provided; the artifact list is empty,
-    so the initialization task is not demonstrated as completed.
+  h: 54539dfd290c5bf0f04ff75a9a7ff733128a4b57e209f2e8a503e9423bbf71d8
+  r: The task explicitly requires creating `data/raw/` and `data/processed/`, but
+    the collector reports both as MISSING; only `code/`, `tests/`, and `results/`
+    exist. The implementer must create the two missing data directories (e.g., via
+    the existing `setup_directories.py` or directly) to satisfy T001.
+  sig: f5494ba28c12b97cccb7d1e88c136c674fefec97e2bffb677bb787eb35f5340a
+T002:
+  c: true
+  h: 881f6c09fc5962e512b0c20e14abd7653d123535b28d91dcc17887afa985eea2
+  r: The `requirements.txt` exists at the project root and contains exactly the seven
+    required packages with the specified major.minor version constraints (numpy>=1.24,
+    pandas>=2.0, scikit-learn>=1.2, statsmodels>=0.14, scipy>=1.10, pyyaml>=6.0, pytest>=7.4),
+    matching the task's requirements.
+  sig: 3aa10de68a3b536a3667abe27fe04f3dce55866eb2bd6e1eccebd940bab6535d
+T003:
+  c: false
+  h: 73af85df5698a8120ea683fc4e035c17a6660eeb9a8f0eab6f136e8bf2d44f7e
+  r: "The `pyproject.toml` exists with the required `[tool.black] line-length = 88`\
+    \ config, but the evidence shows no `.flake8` file at the project root (or anywhere)\
+    \ \u2014 the task explicitly requires creating `.flake8` with `max-line-length=88`\
+    \ and `ignore=E203,W503`, and that artifact is missing entirely."
+  sig: 93f3d962e63147d97404b9bb1af93a06e89b4355fe55196b81889827a9a76a4f
+T004:
+  c: true
+  h: 6e6e97e71f421642ad8a7d34440f8803249e45fc800156a7beed4d78fdf58c9e
+  r: 'The artifact `code/config.py` exists (771 bytes) and contains real, functional
+    implementations: project root resolution via `Path(__file__)`, data/results directory
+    getters, three named seed getters (data, bootstrap, shuffle), and an `ensure_directories()`
+    that creates raw/processed data, results, and logs directories. No stubs, TODOs,
+    or placeholders; content matches the task''s requirement for configuration, random
+    seeds, and path management.'
+  sig: 5ef17b7b377e289ca5083bf0e999a87c749f41ab57a13020218c997dec30aec3
+T005:
+  c: false
+  h: 2ebafa7e2faccfcbb3a4fcdce07bd6bcfe40202b66753b9bd41dfec2ad4625d8
+  r: "`code/utils.py` exists and implements logging helpers (`setup_logging`, `log_simulation_result`)\
+    \ and checksum verification (`calculate_checksum`, `verify_checksum`), but it\
+    \ contains no plotting scaffolding whatsoever \u2014 no matplotlib import, no\
+    \ plot helper functions, or any related stub \u2014 which is a required third\
+    \ component of T005. The implementer must add plotting scaffolding (e.g., a function\
+    \ to save coverage-vs-phi or ordered-vs-shuffled comparison figures to the results\
+    \ directory)."
+  sig: f3ef0896aaf258a42d7b6d1bbf36a85306e1bd28732ea4ab53d1ac4abaf826e3
+T005b:
+  c: false
+  h: 45eb95383261c8781b279df3eebaba0c496b770347aff0577870a208170c1c6d
+  r: "The required function `hash_synthetic_params(seed: int, phi: float, n: int)\
+    \ -> str` is absent from `code/utils.py` \u2014 the file contains only pre-existing\
+    \ utilities (setup_logging, calculate_checksum, verify_checksum, log_simulation_result,\
+    \ load_simulation_logs), none of which provides the deterministic hash of synthetic\
+    \ data parameters for integrity tracking. The implementer must add this function,\
+    \ e.g. hashing a canonical serialization of (seed, phi, n) via SHA256."
+  sig: 8c98b4fc2becfb20b17950d4f658ff9a85c9eeb59f4e8cc844e58ba387a9055a
 T016:
   c: false
   h: 9312d0e4e630887ae50c74f7133e7012e4fcbf609ce02b6f2362a5c27fd33835

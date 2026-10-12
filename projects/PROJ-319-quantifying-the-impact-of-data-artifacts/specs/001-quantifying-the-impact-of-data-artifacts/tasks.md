@@ -1,297 +1,270 @@
 # Tasks: Quantifying the Impact of Data Artifacts on Planetary Nebula Morphology
 
-**Input**: Design documents from `/specs/001-quantify-artifact-bias/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[S]**: Sequential (must wait for specific predecessors)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a1 [P] Create `code/` directory and subdirectories: `synthetic`, `metrics`, `analysis`, `io`
-- [X] T001a2 [P] Create `data/` directory and subdirectories: `raw`, `synthetic`, `processed`, `validation`
-- [X] T001a3 [P] Create `tests/` directory and subdirectories: `unit`, `contract`, `integration`
-- [X] T001a4 [P] Create `logs/` directory
-- [X] T001b [P] Initialize `.gitignore` excluding `data/`, `__pycache__`, `*.pyc`, `logs/`, `*.log`
-- [X] T001c [P] Initialize `README.md` with project overview and quickstart instructions
-- [X] T003 [P] Configure linting (ruff/flake) and formatting tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-**Dependency Note**: T006 (Generation) is a strict prerequisite for T014, T021, and T041. T009 (Real HST) must complete before T028/T031 (Validation tasks in Phase 5). T046a (CLI Stub) MUST complete before US1/US2 implementation.
-
-- [X] T037a [P] **Create Decision Document**: Create `docs/decisions/001-saturation-range.md` formally resolving the saturation range to `0.0 to 0.5 in 0.05 increments`. (FR-003, SC-003)
-- [X] T009 [S] **CRITICAL**: Acquire, vet, checksum, and process a small set (minimum 2, up to 5) of real HST images (MAST) for **qualitative validation only** as required by Constitution Principle VII. **Targets**: Prefer NGC 7009 (Saturn Nebula), NGC 6543 (Cat's Eye). **Fallback**: If validation fails, use NGC 6572. **Criteria**: Bipolar/elliptical morphology, calibrated flux, valid WCS. **Implementation**: Use `astroquery.mast` to query `target='NGC 7009' OR target='NGC 6543' filter='F658N' instrument='ACS'`. Download files, verify checksums, and store in `data/validation/`. Create `data/validation/validation_manifest.json` with schema `{ "target_id": str, "file_path": str, "morphology_type": str, "checksum": str, "acquisition_script": str }`. **Mandatory Deliverable**: Generate `data/validation/validation_report.md` containing the qualitative validation results and **explicit links to the underlying data and code artifacts** (e.g., `data/validation/*.fits`, `code/io/loader.py`) to satisfy Constitution Principle VII. **Fallback Logic**: If the minimum set (2 images) cannot be acquired, abort with a clear error. **Output**: Store in `data/validation/`, create `data/validation/validation_manifest.json` and `data/validation/validation_report.md`. Note: This task is for qualitative validation only; bias quantification remains synthetic. (Plan: Constitution Check Principle VII)
-- [X] T006a [S] **CRITICAL**: Create `code/synthetic/generator.py` to generate a configurable set of N synthetic planetary nebulae (default N=50, defined in `code/config.py`) with known ground-truth ellipticity and asymmetry (no GPU, CPU-only). **Algorithm**: Use a Gaussian profile with FWHM=2px, add a central star (point source), and randomize ellipticity (within a defined range starting from a lower bound) and asymmetry (within a defined range) within defined ranges. **Naming**: Save images as `data/synthetic/synth_{id:03d}.fits` where `id` ranges from `000` to `N-1`. **Seed**: Use multiple synthetic sources with ellipticity in a moderate range and asymmetry within a low-to-moderate interval. (FR-001, Constitution Principle IV)
-- [X] T006b [S] Run the generation script to produce the initial set of synthetic nebulae in `data/synthetic/`.
-- [X] T006c [S] Generate `data/synthetic/gt_metadata.json` with exact ground-truth values for each generated image. **Schema**: `{ "image_id": str, "filename": str, "ellipticity": float, "asymmetry": float, "checksum": str }`. (FR-001, Constitution Principle IV)
-- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scikit-image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)
-- [X] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and **concrete** artifact parameters: noise levels `{0.01, 0.05, 0.10}`, saturation range `0.0` to `0.5` in `0.05` increments (FR-002, FR-003, SC-003). Note: These values are derived from T037a decision.
-- [X] T007 [P] Implement `code/io/writer.py` to save generated images and logs with checksums for reproducibility (FR-008)
-- [X] T008 [P] Setup `tests/unit/` structure and `pytest` configuration
-- [X] T046a [P] **Create CLI Stub**: Create `code/main.py` as the single CLI entry point with `--run-all` flag. Implement `main()` stub and basic argument parsing. Do NOT implement `validate_pipeline_state()` yet. (FR-001, FR-008)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Evaluate Noise‑Induced Bias on Ellipticity (Priority: P1) 🎯 MVP
-
-**Goal**: Quantify how varying Gaussian noise levels bias ellipticity measurements against a known ground truth.
-
-**Independent Test**: Run pipeline on clean synthetic image, inject specific noise level, compute ellipticity, and verify deviation from ground truth.
-
-**Dependency Note**: Tasks T010-T012 depend on T006 completion (via T006c's output `gt_metadata.json`). T015 depends on T006, T014, and T016. T014 depends on T006. **Strict Sequence**: T014 -> T016 -> T015.
-
-### Tests for User Story 1 (MANDATORY) ⚠️
-
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
-
-- [X] T010 [P] [US1] Contract test for `code/io/loader.py` in `tests/unit/test_loader.py`: **Function `test_loader_raises_on_missing_wcs`** asserting that `loader.load()` raises `ValueError` when WCS metadata is missing (FR-009)
-- [X] T011 [P] [US1] Unit test for noise injection logic in `tests/unit/test_artifacts.py`: **Function `test_noise_injection_sigma`** asserting that injected noise matches target sigma within tolerance (FR-002)
-- [X] T012 [P] [US1] Unit test for ellipticity calculation in `tests/unit/test_ellipticity.py`: **Function `test_ellipticity_calculation`** asserting that second-order moments yield correct ellipticity for a known synthetic shape (FR-004)
-
-### Implementation for User Story 1
-
-- [X] T013 [P] [US1] Implement `code/metrics/ellipticity.py` using second-order moments (FR-004)
-- [X] T014 [S] [US1] Implement `code/synthetic/artifacts.py` noise injection function: **Iterate over explicit sigma levels: low, moderate, and high significance thresholds.**. **Output**: Generate `data/processed/noise_sweep_data.csv` with schema `{ "image_id": str, "sigma": float, "measured_ellipticity": float, "ground_truth_ellipticity": float, "bias": float }`. **Do NOT perform regression here**. This task produces raw sweep data for T016 to analyze. (FR-002, SC-003)
-- [X] T016 [S] [US1] Implement statistical test logic in `code/analysis/statistics.py`: **Function `run_noise_regression`** performing **Linear Regression** on the data from `data/processed/noise_sweep_data.csv` linking artifact magnitude to parameter deviation with Bonferroni correction; output coefficients and p-values to `data/processed/noise_stats.csv` with schema `{ "sigma": float, "mean_bias": float, "p_value": float, "significant": bool, "slope": float, "intercept": float }` (FR-005, SC-003)
-- [X] T015a [S] [US1] Implement `run_us1_orchestration` function in `code/main.py`: load clean image -> inject noise (T014) -> measure ellipticity (T013) -> load ground truth from `data/synthetic/gt_metadata.json`.
-- [X] T015b [S] [US1] Implement `compute_bias` function: compute bias -> call `run_noise_regression` (T016) -> log results (FR-001, FR-008).
-- [X] T017 [P] [US1] Add logging for noise parameters, seeds, and bias results to `logs/research.log`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Quantify Saturation‑Induced Bias on Asymmetry (Priority: P2)
-
-**Goal**: Determine if pixel-level saturation systematically inflates the asymmetry index.
-
-**Independent Test**: Inject controlled saturation, compute asymmetry, and test against clean baseline.
-
-**Dependency Note**: T021 depends on T037a (Decision) and T006. T022 depends on T021 and T020. **Strict Sequence**: T021 -> T023 -> T022.
-
-### Tests for User Story 2 (MANDATORY) ⚠️
-
-- [X] T018 [P] [US2] Unit test for saturation clipping logic in `tests/unit/test_artifacts.py`: **Function `test_saturation_clipping`** asserting that the correct fraction of brightest pixels are clipped (FR-003)
-- [X] T019 [P] [US2] Unit test for asymmetry calculation in `tests/unit/test_asymmetry.py`: **Function `test_asymmetry_conselice`** asserting that the A-statistic matches the Conselice (2003) definition (FR-004)
-
-### Implementation for User Story 2
-
-- [X] T020 [P] [US2] Implement `code/metrics/asymmetry.py` using Conselice (2003) definition with robust centering (FR-004)
-- [X] T021 [S] [US2] Implement `code/synthetic/artifacts.py` saturation clipping function: **Generate files for the explicit saturation range: starting from the lower bound to 0.50 in 0.05 increments**. **Output**: Save each artifact as `data/processed/sat_{fraction:.2f}.fits`. **Flag**: If clipping results in zero signal, log warning and mark as `valid=False` in metadata. (FR-003)
-- [X] T024 [S] [US2] Implement sensitivity analysis sweep: **range from zero to 0.50 in 0.05 increments (as defined in T037a)**; aggregate results from T021 into `data/processed/saturation_sweep.csv` with columns `[saturation_fraction, measured_asymmetry, ground_truth_asymmetry, bias_mean, bias_std, valid]`; **do NOT perform regression here**. This task produces raw sweep data for T023 to analyze. (SC-003)
-- [X] T023 [S] [US2] Implement statistical test logic in `code/analysis/statistics.py`: **Function `run_saturation_regression`** performing **Linear Regression** on the data from `data/processed/saturation_sweep.csv` linking artifact magnitude to parameter deviation with Bonferroni correction; output coefficients and p-values to `data/processed/saturation_stats.csv` with schema `{ "saturation_fraction": float, "mean_bias": float, "p_value": float, "significant": bool, "slope": float, "intercept": float }` (FR-005, SC-003)
-- [X] T022a [S] [US2] Implement `run_us2_orchestration` function in `code/main.py`: load clean image -> inject saturation (T021) -> measure asymmetry (T020) -> load ground truth from `data/synthetic/gt_metadata.json`.
-- [X] T022b [S] [US2] Implement `compute_bias` function: call `run_saturation_regression` (T023) -> compute bias -> log results (FR-001, FR-008).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Derive Calibration Functions to Correct Bias (Priority: P3)
-
-**Goal**: Fit regression models linking artifact intensity to bias and derive correction functions.
-
-**Independent Test**: Apply derived correction to synthetic data and verify residual bias is non-significant.
-
-**Dependency Note**: US3 depends on data aggregation from US1 and US2, and specifically on the completion of T027 (regression) and T028 (validation). **T028 and T031 require T009 (Real HST validation) to be complete.** **T041 requires T015 and T022 to be complete.** **Blocking Condition**: T027 (and thus Phase 5) cannot start until T009 is verified complete.
-
-### Tests for User Story 3 (MANDATORY) ⚠️
-
-- [X] T025 [P] [US3] Contract test for regression model output schema in `tests/contract/test_regression.py`
-- [X] T026 [P] [US3] Unit test for correction application logic in `tests/unit/test_validation.py`
-
-### Implementation for User Story 3
-
-- [X] T027 [P] [US3] Implement `code/analysis/regression.py` to fit linear/polynomial models (artifact intensity -> bias) using AIC for model selection (FR-005). **Blocking Condition**: This task requires T009 (Real HST validation) to be complete.
-- [X] T041 [S] [US3] **Aggregate Bias Data**: Implement a data-aggregation task in `code/analysis/validation.py` that merges the CSV outputs from T015 (`noise_trend_report.csv`) and T022 (`saturation_sweep.csv`) into a single `data/processed/aggregated_bias.csv` before regression, ensuring US3 has a unified input source. **Dependency**: Must run after T015 and T022 complete. **Verification**: Must explicitly check for the existence of `data/processed/noise_sweep_data.csv` and `data/processed/saturation_sweep.csv` before aggregation. (FR-007)
-- [X] T028 [S] [US3] Implement `code/analysis/validation.py` to apply inverse correction and compute residual bias; **generate statistical report** (p-values, confidence intervals) for residual bias as mandated by FR-007. **Requires T009 (Real HST validation) for qualitative morphology check, but quantitative validation is synthetic.** (FR-007)
-- [X] T029a [S] [US3] Implement `run_us3_orchestration` function in `code/main.py`: aggregate results from US1/US2 (T041) -> fit models (T027) -> apply corrections -> validate (T028).
-- [X] T029b [S] [US3] Implement `apply_correction` logic: Return dict with residual bias stats. (FR-006, FR-007)
-- [X] T030 [S] [US3] **Power Analysis and Cross-Validation**: Implement `code/analysis/power_analysis.py` to perform a **Post-hoc Limitation Check** verifying n=50 achieves ≥80% power for effect size. **Parameters**: alpha=0.05, test_type='two-sample t-test', effect_size='Cohen's d'. **Method**: Use `statsmodels.stats.power.TTestIndPower` with observed Cohen's d. **Cross-Validation**: Implement a train-test split loop to test derived calibration functions on a held-out subset of the synthetic data, ensuring the correction generalizes beyond the training set. **Blocking Condition**: If power < 80%, **document the limitation explicitly** in `data/validation/power_analysis_report.md` and **continue** the pipeline (do NOT abort with exit code 1). **Output**: `data/validation/power_analysis_report.md` with explicit limitation documentation if power < 80% (SC-004). **Schema**: Include 'Observed Effect Size', 'Calculated Power', 'Minimum Detectable Effect Size (MDES)', 'Conclusion', 'Limitations', 'Cross-Validation Results'. (SC-004)
-- [X] T031 [S] [US3] Generate final calibration function outputs: save to `data/processed/calibration_functions.json` with schema `{ "ellipticity_model": {...}, "asymmetry_model": {...} }` and validation report linking to underlying files. **Note**: This task proceeds based on synthetic validation (SC-002) and does NOT block on T009 (Real HST) for the core deliverable. **Error Handling**: If T030 fails (power < 80%), document limitation but still generate this file if synthetic validation passes. (SC-002)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T032a [P] Update `quickstart.md`: Add sections on data generation, artifact injection, and metric calculation with code snippets
-- [X] T032b [P] Update `research.md`: Add sections on results, bias trends, and calibration function performance
-- [X] T033 [P] Code cleanup and refactoring of `code/main.py` into modular CLI entry points
-- [X] T034 [P] Performance optimization: Ensure full sensitivity sweep runs < 4 hours on 2 CPU cores
-- [X] T035 [P] Integration test for full pipeline (Synth -> Inject -> Measure -> Correct -> Validate) in `tests/integration/test_pipeline.py`
-- [X] T036 [P] Run `quickstart.md` validation to ensure all artifacts are reproducible
-- [X] T038 [US2] **Add Saturation Validation Guard**: Add a validation guard in `code/synthetic/artifacts.py` saturation logic that raises a `ValueError` if the clipping fraction exceeds a high threshold or results in zero total signal for a standard nebula profile, preventing silent generation of unusable artifacts.
-- [X] T039 [US3] **Enforce Zero-Intercept Constraint**: Modify `code/analysis/regression.py` to enforce a zero-intercept constraint (or explicit offset modeling) when the artifact intensity is zero, ensuring the baseline bias is mathematically consistent with the ground-truth definition.
-- [X] T042 [US1] **Validate Noise Injection**: Refactor `code/synthetic/artifacts.py` to implement a robust noise injection routine that validates the injected noise standard deviation against the target sigma within a tight tolerance, raising a `ValueError` on deviation to ensure FR-002 compliance.
-- [X] T043 [US2] **Handle Disconnected Cores**: Update `code/synthetic/artifacts.py` saturation logic to detect and handle "extreme artifact levels" (e.g., saturation > 0.5) as defined in Edge Cases, logging a specific warning and skipping the metric calculation for that specific image rather than crashing or producing NaNs.
-- [X] T044 [US3] **Automate Model Selection**: Enhance `code/analysis/regression.py` to automatically select between linear and quadratic models based on the Akaike Information Criterion (AIC) rather than hard-coding a single model type, ensuring the best fit for the observed bias trends.
-- [X] T045 [US3] **Implement Cross-Validation**: Implement a cross-validation loop in `code/analysis/validation.py` to test the derived calibration functions on a held-out subset of the synthetic data, ensuring the correction generalizes beyond the training set.
-- [X] T046b [P] **Implement Validation Logic**: Implement `validate_pipeline_state()` in `code/main.py` to check for `data/synthetic/gt_metadata.json` before US1/US2 and `data/processed/aggregated_bias.csv` before US3. Abort execution with clear error messages if dependencies are missing. (FR-001, FR-008)
-- [X] T046c [P] **Wire Orchestration**: Update `main()` in `code/main.py` to wire the full pipeline execution flow: US1 -> US2 -> US3 based on `--run-all` flag. (FR-001, FR-008)
-
----
-
-## Phase N+1: Review Resolution & Robustness Enhancements
-
-**Purpose**: Address specific reviewer concerns regarding data flow, edge cases, and statistical rigor.
-
-- [X] T047 [US1] **Enforce Data Flow Dependency**: **CANCELLED** (See T051). The original task was rejected for ambiguity. Re-implemented as T051.
-- [X] T048 [US2] **Implement Robust Edge-Case Handling**: **CANCELLED** (See T054, T055). The original task was too coarse. Split into T054 (Noise) and T055 (Saturation).
-- [X] T049 [US3] **Formalize Power Analysis Limitations**: **CANCELLED** (See T052). The original task was rejected for ambiguity. Re-implemented as T052.
-- [X] T050 [US1/US2] **Add Reproducibility Audit Trail**: **CANCELLED** (See T053). The original task was rejected for ambiguity. Re-implemented as T053.
-
-- [X] T051 [US1] **Implement Input Validation**: Implement `validate_inputs()` function in `code/main.py` that checks for `data/synthetic/gt_metadata.json` before US1/US2 execution. **Deliverable**: Function must raise `FileNotFoundError` with the message "Missing ground truth metadata. Ensure T006 (Synthetic Generation) has completed successfully." if the file is missing. (Replaces T047)
-- [X] T052 [US3] **Formalize Power Analysis Output**: Update `code/analysis/power_analysis.py` to explicitly calculate and report the "Minimum Detectable Effect Size" (MDES) given the n=50 constraint using `statsmodels.stats.power.TTestIndPower` with alpha=0.05, power=0.80, and the observed effect size. **Deliverable**: Ensure `data/validation/power_analysis_report.md` includes a key `minimum_detectable_effect_size` with the calculated value. (Replaces T049)
-- [X] T053 [US1/US2] **Implement Run Manifest Generation**: Extend `code/io/writer.py` to generate `data/processed/run_manifest.json` that captures the exact git commit hash (via `git rev-parse HEAD`), environment variables (e.g., `PYTHON_VERSION`, `PATH`), and the full artifact parameter set (from `code/config.py`) used for *every* run. **Trigger**: Must be generated at the start of `main()` before any pipeline steps. **Schema**: `{ "git_commit": str, "env_vars": dict, "artifact_params": dict, "timestamp": str }`. (Replaces T050)
-- [X] T054 [US1] **Handle Noise Edge Cases**: Update `code/synthetic/artifacts.py` noise injection logic to detect and handle "extreme artifact levels" (e.g., noise σ > 0.10) as defined in Edge Cases, logging a specific warning and skipping the metric calculation for that specific image rather than crashing or producing NaNs. (Replaces T048 part 1)
-- [X] T055 [US2] **Handle Saturation Edge Cases**: Update `code/synthetic/artifacts.py` saturation logic to detect and handle "extreme artifact levels" (e.g., saturation > 0.5) as defined in Edge Cases, logging a specific warning and skipping the metric calculation for that specific image rather than crashing or producing NaNs. (Replaces T048 part 2)
-
----
-
-## Phase N+2: Final Integration & Reporting
-
-**Purpose**: Ensure all components work together and produce the final scientific report.
-
-- [X] T056 [S] [US3] **Generate Final Report**: Create `docs/reports/001-final-bias-analysis.md` synthesizing results from US1, US2, and US3. **Content**: Include plots of bias vs. artifact intensity, tables of regression coefficients, p-values, and the final calibration functions. **Requirement**: Must explicitly state the limitations found in the power analysis (T030) and the qualitative validation results from T009. (SC-001, SC-002, SC-003, SC-004)
-- [ ] T057 [P] [Polish] **Final Code Audit**: Run `ruff check.` and `black --check.` across the entire `code/` directory. Fix any remaining linting or formatting issues to ensure code quality standards are met. (Constitution Principle I)
-- [ ] T058 [P] [Polish] **Documentation Completeness**: Verify that `README.md`, `quickstart.md`, and `research.md` are fully up-to-date with the latest implementation details and that all code references are accurate. (Constitution Principle IV)
-- [X] T059 [P] [Polish] **Reproducibility Verification**: Execute the full pipeline (`python code/main.py --run-all`) on a clean virtual environment to ensure all steps complete successfully without manual intervention. (Constitution Principle I)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **Note**: T006 (Generation) is a strict prerequisite for T014, T021, and T041.
- - **Note**: T009 (Real HST) must complete before T028/T031 (Validation tasks in Phase 5).
- - **Note**: T046a (CLI Stub) must complete before US1/US2 implementation.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Review Resolution (Phase N+1)**: Depends on completion of all User Story phases to address findings.
-- **Final Integration (Phase N+2)**: Depends on completion of Review Resolution and all User Story phases.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data aggregation from US1 and US2 **and completion of T027 (regression) and T028 (validation)** and **T041 (Aggregation)** and **T009 (Real HST)**
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Metrics before services/pipeline steps
-- Core implementation before integration
-- Story complete before moving to next priority
-- **Statistical Logic (T016, T023) must be implemented before Pipeline Steps (T015, T022) that consume their output.**
-- **Injection (T014, T021) must be implemented before Statistical Logic (T016, T023).**
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1 and US2 can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Contract test for loader in tests/unit/test_loader.py (test_loader_raises_on_missing_wcs)"
-Task: "Unit test for noise injection in tests/unit/test_artifacts.py (test_noise_injection_sigma)"
-Task: "Unit test for ellipticity in tests/unit/test_ellipticity.py (test_ellipticity_calculation)"
-
-# Launch models/metrics for User Story 1 together:
-Task: "Implement code/metrics/ellipticity.py"
-Task: "Implement code/synthetic/artifacts.py (noise)"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (Clean vs. Noise)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo (Calibration)
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Noise/Ellipticity)
- - Developer B: User Story 2 (Saturation/Asymmetry)
-3. Developer C: User Story 3 (Calibration/Regression) - starts after US1/US2 data available
-4. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [S] tasks = sequential, must wait for predecessors
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. No GPU, no 8-bit quantization, no deep learning.
-- **Data**: Synthetic data generation must be deterministic and checksummed. No fake data for final metrics; use synthetic ground truth for validation.
-- **Ground Truth**: All ground-truth values MUST be saved to machine-readable artifacts (JSON/CSV) as per Constitution Principle IV.
-- **Saturation Range**: Concrete values (0.0-0.5, step 0.05) are defined in T037a and used in T021/T024.
-- **Real HST Validation**: T009 must be completed before T028/T031 to satisfy Constitution Principle VII (qualitative only).
-- **Power Analysis**: T030 must be executed after US1/US2 data collection to use observed effect size. **Non-Blocking**: Pipeline documents limitation if power < 80% and continues.
-- **CLI**: T046a/46b/46c define the single entry point; T015/T022/T029 implement functions within it.
-- **Review Resolution**: Tasks T051-T055 address specific reviewer concerns regarding data flow, edge cases, and statistical rigor with explicit deliverables.
-- **Final Reporting**: T056-T059 ensure the project produces a complete, reproducible, and well-documented final report.
+**Input**: Design documents from `/specs/001-quantify-artifact-bias/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+
+**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
+
+**Organization**: Tasks are grouped by research phase and by user story to enable independent implementation and testing.
+
+---  
+
+## Phase 1: Setup and First End‑to‑End Analysis  
+
+**Goal**: Establish project scaffolding, verify that the pipeline can run on a tiny synthetic example, and produce a reproducible end‑to‑end result.
+
+- [X] T001a1 [P] Create `code/` directory and sub‑directories: `synthetic`, `metrics`, `analysis`, `io`  
+  - **Verification**: Directory tree exists and is tracked in Git.  
+- [X] T001a2 [P] Create `data/` directory and sub‑directories: `raw`, `synthetic`, `processed`, `validation`  
+  - **Verification**: Directory tree exists.  
+- [X] T001a3 [P] Create `tests/` directory and sub‑directories: `unit`, `contract`, `integration`  
+  - **Verification**: Directory tree exists.  
+- [ ] T001a4 [P] Create `logs/` directory  
+  - **Verification**: Directory exists.  
+- [ ] T001b [P] Initialise `.gitignore` (exclude `data/`, `__pycache__/`, `*.pyc`, `logs/`, `*.log`)  
+  - **Verification**: `.gitignore` contains the listed patterns.  
+- [X] T001c [P] Initialise `README.md` with a brief project overview and quick‑start instructions  
+  - **Verification**: `README.md` exists and contains a “Quick‑start” section.  
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools via `pyproject.toml`  
+  - **Verification**: `pyproject.toml` includes `[tool.ruff]` and `[tool.black]` sections.  
+- [X] T002 [P] Initialise Python 3.11 project with `requirements.txt` (numpy, scikit‑image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)  
+  - **Verification**: `requirements.txt` lists the exact packages and versions.  
+- [X] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and concrete artifact parameters (noise levels `{0.01,0.05,0.10}`, saturation range `0.0–0.5` in `0.05` steps)  
+  - **Verification**: `code/config.py` defines `DEFAULT_NOISE_LEVELS` and `DEFAULT_SATURATION_FRACTIONS`.  
+- [X] T007 [P] Implement `code/io/writer.py` to save generated images and logs with SHA‑256 checksums for reproducibility (FR‑008)  
+  - **Verification**: `writer.save_with_checksum()` creates a `.sha256` file beside each artifact.  
+- [X] T008 [P] Setup `tests/unit/` structure and a minimal `pytest.ini` configuration  
+  - **Verification**: `tests/unit/` exists and `pytest -q` discovers at least one test.  
+- [ ] T046a [P] Create CLI stub `code/main.py` with a `--run-all` flag and basic argument parsing (no pipeline logic yet)   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+  - **Verification**: Running `python -m code.main --help` prints usage information.  
+
+**Checkpoint**: The repository now contains a valid Python package layout, configuration, and a runnable CLI stub.
+
+---  
+
+## Phase 2: Core Infrastructure and Synthetic Data Generation  
+
+**Goal**: Provide real (synthetic) input data, verify metadata handling, and make the pipeline ready for scientific tasks.
+
+- [ ] T006a [S] Implement `code/synthetic/generator.py` to generate **N = 50** synthetic planetary‑nebula FITS images with known ground‑truth ellipticity and asymmetry (CPU‑only)  
+  - **Output**: `data/synthetic/synth_{id:03d}.fits` (50 files).  
+  - **Verification**: Each FITS header contains `TRUE_ELLIP` and `TRUE_ASYM` keywords.  
+- [ ] T006b [S] Run the generator script to populate `data/synthetic/`   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+  - **Verification**: Count of FITS files equals 50.  
+- [ ] T006c [S] Generate `data/synthetic/gt_metadata.json` containing ground‑truth values for every synthetic image (schema matches `MorphologyMetrics` requirements)  
+  - **Verification**: JSON file validates against a generated schema test.  
+- [ ] T009 [S] Acquire 2–5 real, flux‑calibrated HST FITS images (e.g., NGC 7009, NGC 6543) via `astroquery.mast`, verify checksums, and store in `data/validation/` together with `validation_manifest.json` and a short `validation_report.md` (qualitative only, Constitution VII)  
+  - **Verification**: Manifest lists at least two images; report references file paths and includes WCS checks.  
+- [ ] T010a [S] Implement `code/io/loader.py` to ingest flux‑calibrated HST FITS images, extract pixel data and required metadata (exposure time, filter, pixel scale, WCS).  
+  - **Verification**: Loader returns an `ImageSet` object; raises `ValueError` if any required header keyword is missing.  
+- [ ] T010b [S] Add validation step in the loader to abort with a clear error if any of the required metadata fields (exposure time, filter, pixel scale) are missing or malformed.  
+  - **Verification**: Missing field triggers an exception with message “Required metadata <field> missing from <filename>”.  
+- [ ] T046b [P] Implement `validate_pipeline_state()` in `code/main.py` to abort with clear errors if `gt_metadata.json` or `validation_manifest.json` are missing  
+  - **Verification**: Running the CLI without those files exits with status 1 and prints the expected message.  
+
+**Checkpoint**: Synthetic data, real‑data manifest, loader, and validation logic are in place; the pipeline can now be exercised on known inputs.
+
+---  
+
+## Phase 3: User Story 1 – Noise‑Induced Bias on Ellipticity (Priority P1)
+
+**Goal**: Quantify how Gaussian noise (σ = 0.01, 0.05, 0.10 × median) biases ellipticity measurements.
+
+- [ ] T010 [P] Contract test `tests/unit/test_loader.py::test_loader_raises_on_missing_wcs` (FR‑009)  
+  - **Verification**: Test fails before implementation.  
+- [ ] T011 [P] Unit test `tests/unit/test_artifacts.py::test_noise_injection_sigma` (FR‑002)  
+  - **Verification**: Test fails before implementation.  
+- [ ] T012 [P] Unit test `tests/unit/test_ellipticity.py::test_ellipticity_calculation` (FR‑004)  
+  - **Verification**: Test fails before implementation.  
+- [ ] T013 [P] Implement `code/metrics/ellipticity.py` using second‑order moments (FR‑004)  
+  - **Verification**: Function `measure_ellipticity(image)` returns a float in [0, 1].  
+- [ ] T014 [S] Implement `code/synthetic/artifacts.py::inject_noise(image, sigma)` to create three noisy versions per image and write a sweep CSV `data/processed/noise_sweep_data.csv` (columns: image_id, sigma, measured_ellipticity, ground_truth_ellipticity, bias) (FR‑002, SC‑003)  
+  - **Verification**: CSV contains 150 rows (50 images × 3 sigma levels).  
+- [ ] T016 [S] Implement `code/analysis/statistics.py::run_noise_regression()` performing linear regression of bias vs. σ with Bonferroni correction; output `data/processed/noise_stats.csv` (FR‑005, SC‑003)  
+  - **Verification**: CSV includes columns `sigma`, `mean_bias`, `p_value`, `significant`, `slope`, `intercept`.  
+- [ ] T015a [S] Add `run_us1_orchestration()` in `code/main.py` to orchestrate loading, noise injection, ellipticity measurement, and bias recording (FR‑001, FR‑008)  
+  - **Verification**: CLI flag `--run-us1` executes the full US1 workflow without error.  
+- [ ] T015b [S] Add `compute_noise_bias()` in `code/main.py` that calls `run_noise_regression()` and logs results to `logs/noise_bias.log`  
+  - **Verification**: Log file contains a line “Noise bias regression completed”.  
+- [ ] T017 [P] Add detailed logging of noise parameters, random seeds, and regression outcomes to `logs/research.log` (FR‑008)  
+  - **Verification**: Log entries include timestamp, `sigma`, and regression coefficients.  
+- [ ] T062 [S] Generate a significance summary report (`reports/sc001_significance.md`) that explicitly states whether any artifact type achieved p < 0.05 after Bonferroni correction, satisfying SC‑001.  
+  - **Verification**: Report contains a table with artifact type, p‑value, and a pass/fail statement.  
+
+**Checkpoint**: US1 can be executed independently; all unit tests now pass; significance is formally reported.
+
+---  
+
+## Phase 4: User Story 2 – Saturation‑Induced Bias on Asymmetry (Priority P2)
+
+**Goal**: Determine whether clipping the brightest pixels (saturation fractions 0.0–0.5 in 0.05 steps) inflates the asymmetry index.
+
+- [ ] T018 [P] Unit test `tests/unit/test_artifacts.py::test_saturation_clipping` (FR‑003)  
+  - **Verification**: Test fails before implementation.  
+- [ ] T019 [P] Unit test `tests/unit/test_asymmetry.py::test_asymmetry_conselice` (FR‑004)  
+  - **Verification**: Test fails before implementation.  
+- [ ] T020 [P] Implement `code/metrics/asymmetry.py` using the Conselice (2003) definition with robust centering (FR‑004)  
+  - **Verification**: Function `measure_asymmetry(image)` returns a float in [0, 1].  
+- [ ] T021 [S] Extend `code/synthetic/artifacts.py::apply_saturation(image, fraction)` to produce FITS files `data/processed/sat_{fraction:.2f}_{id:03d}.fits` for each fraction (0.0–0.5 step 0.05) and flag unusable images (zero signal) in metadata  
+  - **Verification**: Directory contains 11 × 50 = 550 FITS files; each header includes `SAT_FRACTION`.  
+- [ ] T024 [S] Implement sweep aggregation `code/analysis/saturation_sweep.py` that reads all saturated images, measures asymmetry, and writes `data/processed/saturation_sweep.csv` (columns: saturation_fraction, measured_asymmetry, ground_truth_asymmetry, bias_mean, bias_std, valid) (SC‑003)  
+  - **Verification**: CSV has 550 rows with a `valid` flag.  
+- [ ] T023 [S] Implement `code/analysis/statistics.py::run_saturation_regression()` performing linear regression of bias vs. saturation fraction with Bonferroni correction; output `data/processed/saturation_stats.csv` (FR‑005, SC‑003)  
+  - **Verification**: CSV includes `saturation_fraction`, `mean_bias`, `p_value`, `significant`, `slope`, `intercept`.  
+- [ ] T022a [S] Add `run_us2_orchestration()` in `code/main.py` to drive loading, saturation, asymmetry measurement, and bias recording (FR‑001, FR‑008)  
+  - **Verification**: CLI flag `--run-us2` completes without error.  
+- [ ] T022b [S] Add `compute_saturation_bias()` in `code/main.py` that calls `run_saturation_regression()` and logs to `logs/saturation_bias.log`  
+  - **Verification**: Log file contains “Saturation bias regression completed”.  
+
+**Checkpoint**: US2 runs independently; all associated unit tests now pass.
+
+---  
+
+## Phase 5: User Story 3 – Calibration Functions (Priority P3)
+
+**Goal**: Fit regression models linking artifact intensity to bias, derive inverse correction functions, and validate them on held‑out synthetic data.
+
+- [ ] T025 [P] Contract test `tests/contract/test_regression.py` verifying the schema of `data/processed/calibration_functions.json` (FR‑006)  
+  - **Verification**: Test fails before implementation.  
+- [ ] T026 [P] Unit test `tests/unit/test_validation.py::test_correction_application` ensuring that applying the inverse correction yields residual bias within the required tolerance (FR‑007)  
+  - **Verification**: Test fails before implementation.  
+- [ ] T041 [S] Implement `code/analysis/validation.py::aggregate_bias_data()` to merge `noise_sweep_data.csv` and `saturation_sweep.csv` into `data/processed/aggregated_bias.csv` (FR‑007)  
+  - **Verification**: Aggregated CSV contains 700 rows (150 noise + 550 saturation).  
+- [ ] T027 [P] Implement `code/analysis/regression.py` to fit linear or polynomial models (auto‑select via AIC) for each metric‑artifact pair and store the chosen model parameters in `data/processed/calibration_functions.json` (FR‑005, FR‑006)  
+  - **Verification**: JSON file contains keys `ellipticity_model` and `asymmetry_model` with `coefficients`, `model_type`, `r_squared`, `p_value`.  
+- [ ] T028 [S] Extend `code/analysis/validation.py::apply_corrections()` to use the calibration functions on a held‑out subset (20 % of synthetic images), compute residual bias statistics, and write `data/processed/validation_results.csv` (FR‑007)  
+  - **Verification**: CSV includes `metric`, `residual_bias_mean`, `p_value`.  
+- [ ] T029a [S] Add `run_us3_orchestration()` in `code/main.py` that calls aggregation, regression, and validation steps in sequence (FR‑001, FR‑008)  
+  - **Verification**: CLI flag `--run-us3` completes and prints a summary.  
+- [ ] T029b [S] Implement `apply_correction()` helper returning a dict with residual statistics (FR‑006, FR‑007)  
+  - **Verification**: Function returns keys `residual_mean`, `residual_std`.  
+- [ ] T030 [S] Implement `code/analysis/power_analysis.py` to compute post‑hoc power (≥ 80 % for n = 50) using observed effect size; write `data/validation/power_analysis_report.md` documenting observed effect size, calculated power, MDES, and any limitation (SC‑004)  
+  - **Verification**: Report contains the required fields; if power < 80 % a “Limitation” paragraph is present.  
+- [ ] T031 [S] Save final calibration functions to `data/processed/calibration_functions.json` and generate a short validation summary `data/processed/calibration_summary.md` linking to the regression and validation CSVs (SC‑002)  
+  - **Verification**: JSON and markdown files exist and reference the correct CSVs.  
+- [ ] T060 [S] Apply the derived calibration functions to the manually vetted HST validation set (from T009) and record bias reduction metrics in `data/validation/real_calibration_results.csv` (Constitution VII).  
+  - **Verification**: CSV contains before/after bias for ellipticity and asymmetry on real images.  
+
+**Checkpoint**: All calibration steps are automated; regression models are persisted and validated on both synthetic held‑out data and real HST validation data.
+
+---  
+
+## Phase N: Polish & Cross‑Cutting Concerns  
+
+**Goal**: Improve documentation, code quality, and overall robustness.
+
+- [ ] T032a [P] Update `quickstart.md` with sections on data generation, artifact injection, metric calculation, and how to run each user story via the CLI  
+  - **Verification**: `quickstart.md` contains headings “Synthetic Data Generation”, “Inject Noise”, “Run US1”, etc.  
+- [ ] T032b [P] Update `research.md` to include results tables, bias trend plots, and calibration performance discussion  
+  - **Verification**: `research.md` contains a “Results” section with references to `figures/` files.  
+- [ ] T033 [P] Refactor `code/main.py` into modular sub‑commands (`run-us1`, `run-us2`, `run-us3`) while preserving the `--run-all` convenience flag  
+  - **Verification**: `python -m code.main run-us1` works and prints progress.  
+- [ ] T034 [P] Optimise the full sensitivity sweep to finish < 4 h on 2 CPU cores (e.g., batch processing, memory‑mapped I/O)  
+  - **Verification**: CI timing log shows total sweep < 4 h.  
+- [ ] T035 [P] Add integration test `tests/integration/test_pipeline.py` that executes the complete pipeline (`--run-all`) on a fresh virtual environment and checks that the final calibration JSON exists and contains non‑empty coefficients  
+  - **Verification**: `pytest -q tests/integration/test_pipeline.py` passes.  
+- [ ] T038 [US2] Add a validation guard in `code/synthetic/artifacts.py` saturation logic that raises `ValueError` if clipping fraction exceeds 0.5 or results in zero total signal, preventing silent generation of unusable artifacts  
+  - **Verification**: Unit test confirms the exception is raised for `fraction=0.6`.  
+- [ ] T039 [US3] Enforce a zero‑intercept constraint in `code/analysis/regression.py` when artifact intensity = 0, ensuring baseline bias equals zero  
+  - **Verification**: Model coefficients include `intercept = 0.0` (within tolerance).  
+- [ ] T042 [US1] Refactor noise injection in `code/synthetic/artifacts.py` to validate that the measured σ matches the target within 1 % tolerance; raise `ValueError` otherwise (FR‑002)  
+  - **Verification**: Test `test_noise_injection_sigma` now passes.  
+- [ ] T043 [US2] Update saturation logic to log a warning and skip metric calculation for extreme levels (> 0.5) as defined in the Edge Cases (no crash, no NaNs) (FR‑003)  
+  - **Verification**: Log contains “Saturation fraction 0.55 exceeds allowed maximum; skipping”.  
+- [ ] T044 [US3] Enhance `code/analysis/regression.py` to automatically select between linear and quadratic models based on AIC (FR‑005)  
+  - **Verification**: Regression JSON includes `"model_type": "quadratic"` when AIC favours it.  
+- [ ] T045 [US3] Implement cross‑validation loop in `code/analysis/validation.py` to test calibration functions on a held‑out subset, reporting mean residual bias and confidence intervals (FR‑007)  
+  - **Verification**: `validation_results.csv` contains columns `cv_fold`, `residual_mean`, `residual_ci_lower`, `residual_ci_upper`.  
+- [ ] T046c [P] Wire full orchestration in `code/main.py`: `--run-all` executes US1 → US2 → US3 in order, aborting on any failure (FR‑001, FR‑008)  
+  - **Verification**: CLI `--run-all` completes and prints “Pipeline completed successfully”.  
+- [ ] T057c [P] Run code‑quality audit (`ruff check .` and `black --check .`), capture full textual reports in `logs/ruff_report.txt` and `logs/black_report.txt`, and fix any reported issues.  
+  - **Verification**: Both log files exist and contain the line “No issues found”.  
+- [ ] T058c [P] Refresh project documentation: update `README.md`, `quickstart.md`, and `research.md` with current implementation details, file locations, and CLI usage; add a “Generated on <date>” footer and cross‑references to code modules.  
+  - **Verification**: Each markdown file includes the updated sections, the footer line, and links to the appropriate source files.  
+
+---  
+
+## Phase N+1: Review‑Resolution & Robustness Enhancements  
+
+**Goal**: Address specific reviewer concerns about data flow, edge cases, and statistical rigor.
+
+- [ ] T051 [S] Implement `validate_inputs()` in `code/main.py` that checks for `gt_metadata.json` before any US1/US2 execution; raise `FileNotFoundError` with a clear message if missing (replaces cancelled T047)  
+  - **Verification**: Missing file triggers the expected exception.  
+- [ ] T052 [S] Extend `code/analysis/power_analysis.py` to compute and report the Minimum Detectable Effect Size (MDES) in `power_analysis_report.md` (replaces cancelled T049)  
+  - **Verification**: Report includes a line “Minimum Detectable Effect Size: …”.  
+- [ ] T053 [S] Update `code/io/writer.py` to generate `data/processed/run_manifest.json` capturing git commit, environment variables, artifact parameters, and timestamp (replaces cancelled T050)  
+  - **Verification**: Manifest file exists and contains the required keys.  
+- [ ] T054 [S] Update noise injection to detect “extreme” σ > 0.10, log a warning, and skip metric calculation for that image (replaces cancelled T048 part 1)  
+  - **Verification**: Log entry “Noise σ = 0.12 exceeds maximum; skipping image …”.  
+- [ ] T055 [S] Update saturation logic to detect “extreme” fraction > 0.5, log a warning, and skip metric calculation (replaces cancelled T048 part 2)  
+  - **Verification**: Log entry as described in T043.  
+
+---  
+
+## Phase N+2: Final Integration & Reporting  
+
+**Goal**: Produce the final reproducible research artefacts and verify the entire pipeline end‑to‑end.
+
+- [ ] T056 [S] Generate `docs/reports/001-final-bias-analysis.md` synthesising plots of bias vs. artifact intensity, regression tables, calibration functions, power‑analysis limitations, and qualitative HST validation results (SC‑001 – SC‑004)  
+  - **Verification**: Report contains at least one figure (`figures/bias_vs_noise.png`) and references `calibration_functions.json`.  
+- [ ] T057 [P] Run code quality audit: execute `ruff check .` and `black --check .`; capture the full textual reports in `logs/ruff_report.txt` and `logs/black_report.txt`; fix any reported issues; commit the cleaned code (FR‑008)  
+  - **Verification**: Both log files exist and contain the line “No issues found”.  
+- [ ] T058 [P] Refresh project documentation: update `README.md`, `quickstart.md`, and `research.md` to reflect the latest implementation details, file locations, and CLI usage; ensure each file contains a “Generated on <date>” footer and cross‑references to the relevant code modules (FR‑008)  
+  - **Verification**: Each markdown file includes the updated sections, the footer line, and links to the appropriate source files.  
+- [ ] T059 [P] Execute the full pipeline (`python -m code.main --run-all`) in a clean virtual environment and verify that it completes without manual intervention, producing all expected artefacts (calibration JSON, validation CSVs, reports, logs) (Constitution I)  
+  - **Verification**: CI run logs show “Pipeline completed successfully” and all expected files are present.  
+
+---  
+
+## Phase N+3: Expanded Contract & Entity Coverage (New)
+
+**Goal**: Close remaining specification coverage gaps identified by the panel.
+
+- [ ] T075 [P] Add contract test `tests/contract/test_artifact_config_schema.py` that validates `contracts/artifact_config.schema.yaml` against example JSON instances.  
+  - **Verification**: Test passes confirming schema compliance.  
+- [ ] T076 [P] Add contract test `tests/contract/test_imageset_schema.py` that validates the newly created `contracts/imageset.schema.yaml` against example ImageSet JSON.  
+  - **Verification**: Test passes confirming schema compliance.  
+- [ ] T077 [P] Add contract test `tests/contract/test_morphology_metrics_schema.py` that validates `contracts/morphology_metrics.schema.yaml` against example metric JSON.  
+  - **Verification**: Test passes confirming schema compliance.  
+- [ ] T078 [S] Create `contracts/imageset.schema.yaml` defining the ImageSet entity per the data‑model (required fields: id, source, filename, metadata, ground_truth).  
+  - **Verification**: Schema file exists and a sample JSON validates against it.  
+- [ ] T079 [S] Unit test `tests/unit/test_imageset.py::test_imageset_object` verifies that `ImageSet` objects produced by the loader conform to the ImageSet schema.  
+  - **Verification**: Test passes for both synthetic and real images.  
+- [ ] T080 [S] Unit test `tests/unit/test_artifact_config.py::test_artifact_config_object` verifies that `ArtifactConfig` instances generated by `code/config.py` match the schema.  
+  - **Verification**: Test passes for default and custom configurations.  
+- [ ] T081 [S] Unit test `tests/unit/test_morphology_metrics.py::test_metrics_schema` verifies that metric dictionaries written by `code/metrics/*` conform to `MorphologyMetrics` schema.  
+  - **Verification**: Test passes for all processed images.  
+- [ ] T082 [S] Unit test `tests/unit/test_verification_log.py::test_log_creation` verifies that `code/io/writer.py` creates a `VerificationLog` JSON file containing timestamp, seeds, library versions, and checksums.  
+  - **Verification**: Test passes and the log file validates against a defined schema.  
+
+---  
+
+## Phase N+4: Edge‑Case Robustness (New)
+
+**Goal**: Ensure graceful handling of corrupted or non‑FITS inputs as required by the specification’s edge cases.
+
+- [ ] T083 [S] Extend `code/io/loader.py` to detect non‑FITS files and raise `ValueError` with message “File <path> is not a valid FITS file”.  
+  - **Verification**: Test `tests/unit/test_loader.py::test_non_fits_rejection` passes.  
+- [ ] T084 [S] Add unit test `tests/unit/test_loader.py::test_corrupted_fits_rejection` that ensures a corrupted FITS file triggers a clear error.  
+  - **Verification**: Test passes confirming error handling.  
+
+---  
+
+## Phase N+5: Full Metadata Validation (New)
+
+**Goal**: Fully satisfy FR‑009 by explicitly checking all required metadata fields.
+
+- [ ] T085 [S] Add unit tests `tests/unit/test_loader.py::test_missing_exposure_time`, `::test_missing_filter`, and `::test_missing_pixel_scale` that verify the loader aborts with a clear error when any of these fields are absent.  
+  - **Verification**: Each test passes, confirming precise error messages.  
+
+---  
+
+## Dependencies & Execution Order  
+
+- **Setup (Phase 1)** → **Core Infrastructure (Phase 2)** → **User Stories (Phases 3‑5)** → **Polish (Phase N)** → **Review‑Resolution (Phase N+1)** → **Final Integration (Phase N+2)** → **Contract & Entity Coverage (Phase N+3)** → **Edge‑Case Robustness (Phase N+4)** → **Full Metadata Validation (Phase N+5)**.  
+- Within each phase, tasks marked `[P]` may run in parallel; tasks marked `[S]` must respect the indicated predecessor order.  
+- All scientific requirements (FR‑001 – FR‑009, SC‑001 – SC‑004) are satisfied by the tasks above.  
+
+---  
+
+*End of tasks.md*===

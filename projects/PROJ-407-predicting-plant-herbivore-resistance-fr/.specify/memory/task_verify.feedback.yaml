@@ -1,0 +1,116 @@
+T001:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-407-predicting-herbivore-resistance-fr/'
+  task: 31318f478f1fb3436b4a0c14ebbcebcf7940dcb6337cb66ed5b88942f97e3f7d
+T002:
+  task: 7cc1b6c5fdbc110fd4e506dd3cc2641def5413a3672b01fd5f144628c3fcaf75
+T003:
+  reason: "The provided `.pre-commit-config.yaml` defines hooks for black, flake8,\
+    \ isort, and some generic pre\u2011commit hooks, but it does **not** include a\
+    \ jsonschema validation hook (e.g., using `check-jsonschema`). The task explicitly\
+    \ required a jsonschema validation hook, so the artifact is missing that required\
+    \ component. Adding a `check-jsonschema` (or equivalent) entry to the file is\
+    \ needed to satisfy the requirement."
+  task: 942ef053ac4c2c3f78b395c624253bc1cb2abffe1fb3b77766a9673418edb04f
+T004:
+  reason: The `code/config.py` file is present and defines `RANDOM_SEED`, `DATA_ROOT`,
+    `N_PERMUTATIONS`, `MAX_RUNTIME_HOURS`, and `MAX_MEMORY_GB` correctly, but it does
+    **not** define the required constant `DATASET_ID = 'plant-metabolomics/herbivore-resistance-v1'`.
+    Adding this missing key will satisfy the task.
+  task: 43285c4bb70ab55c534cc010e8471306ce8f0d73c9ea06b814b58b8186d30b40
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-407-predicting-plant-herbivore-resistance-fr.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: dde3d3968c8f7d10ec3c13c760bfd6f65a6616fcdf54b80ae13dd3a18b9f77f8
+T007:
+  reason: "Checked the `pytest.ini` file (432\u202Fbytes) which includes the required\
+    \ `--cov=code --cov-report=term-missing --strict-markers` addopts and the listed\
+    \ markers, but it does **not** contain any configuration or hook for `jsonschema`\
+    \ validation as the task explicitly requires. The missing jsonschema setup means\
+    \ the base configuration is incomplete."
+  task: 0c69711e0285dade8cede095c89bbcba74ec6d548e8b6b7c947e356835b2f92f
+T008:
+  task: e59bbacfb5b17925af1e427421ef39330318611e0cb8683eb561802d738a478a
+T009:
+  reason: The `contracts/dataset.schema.yaml` file is present, but its `required`
+    array lists only `sample_id`, `genotype_id`, and `resistance`; it does not include
+    `metabolite_*` as a required column, contrary to the task specification. The schema
+    only mentions metabolite columns via `patternProperties`, which does not enforce
+    their presence. The missing required entry must be added to satisfy the task.
+  task: 265deabbd8494d67855569ceb13c0e878eab72ab61e20978d78f5bc2c9f8ca46
+T010:
+  task: be7237fb6c12912019d7cf68dec53b0cfb3c04c7693fe9aca98ba2cfb3fcc8d0
+T011:
+  task: 0a374021fa1715331325b85b9ff60cfb723698071fa51d0e1655af7eceef9d08
+T012:
+  task: 4f7fcc8544ce0fb3f004ba86d850c5f4dacb690a641e94796bfa53cea35273a5
+T013:
+  task: 8301678a3726280fb75ff46bf6f50fe8a24cfbc99cffa7b0fb61ebe5c53f228e
+T014:
+  task: 0fcf95a870892f2a25347de759dda4ddb7e29495a5e7cf9cd2e4c6a37bb4bed0
+T015:
+  task: 087c9aa3dad9433c93fdd8535e80acc1d92bd4bce45362837275232beab6991f
+T016:
+  task: 948c24b60d61f35c6ffa90c5d6abef5d9a8970172212f36385838ae02711daf0
+T017:
+  task: 39a4c67ea648c72c506a7a3842853776e8cd26af9e2a218a8bee0f7ffb9f7513
+T018:
+  task: 8c74076499669cd15a2a7d6bb42e339ae209fe796dceca3c666ca5c215bbd459
+T020:
+  task: a0639f439073aca3e055a5e0698247e2ad51046aa4f41cbb83b78f92e516814f
+T021:
+  task: 273232d2f2d9f4295e53fd5e62fa3b52679ca36656e9a4f68d3d3792fd25b514
+T022:
+  task: 1616dfca5e44f5815503103721a24c9d5717ee545571398789006b4034f3d440
+T023:
+  task: 977209777d7f349e15de1fe1d007a58ea5d89bd4effa3aa08a7c6b3e314cd49c
+T024:
+  task: 0ed484a4f2b1e4d0cbff8aaa5a6b376074066861cd8b56bea24a32e705b1e3ad
+T027a:
+  task: b9befb1e5bd729498eff7a8c35f5111b03bd8fa4c978dded523bf5e78eb8356d
+T027b:
+  task: da2138af5a94c939853fc3acf575bf7e4291e9997b240851eff40b222f075bdc
+T028:
+  task: ad745e22055807ea3d7daeeeb114edcf3ee254630addc239fa6ff5937826b584
+T029a:
+  task: 45be5e025620ec70523cc43b79ac808fc7c6c01a321bc81de0df9746e73d386f
+T029b:
+  task: ead55d1911205ea5742ac01b805383fbcb9e9ce96024774eaf7bae97856d92d1
+T029c:
+  task: 05f63a6d7fd6645e75d3fb2d14fcf3df51de947c8dc8b64bc99dbceb69fcb6d2
+T031:
+  task: a85dc73828a78847dd927b7be40098c479eac50ba206ef7ce0fad321c9cdd106
+T032:
+  task: fb9c76c531b26b405831e0b1264dc04b7ea69ad3e60f99880509da9a2dac1844
+T033:
+  task: 95f7f40c53113e375e323857a6619340d3613c8816086eecb8410eb9124288de
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/significant_biomarkers.csv'
+  task: 5e4291cb4b802db65bbc81ccb9122c10179bc98362473a88c3b9513422d4b0e7
+T036:
+  task: 802cea9d1f45ed048bc40dd7207933fa312932616303b1df14aefe0ad918ee30
+T037:
+  task: 3414d07c6748131a464cb13e5bb5c9a7c7639f4288cbd71ab396a155915716b0
+T041:
+  task: fde75735042ca5ec8c399a108b794ec97374980ad8376ea81b5e886f18d7e569
+T042:
+  task: 281d5fbf30f191dada27f4a972ae9a7864fb361b0eb6f2290a4bc9a639905c45
+T043:
+  task: 707faf51a0d929d791081a0a463f86802c73f77fe626fe2361d7fc8cb5f9f14b
+T044:
+  task: 8f6d4b851813f8c115e9b764e8728c1dbcdd740e2ff0daf274cce51254aab1b1
+T045:
+  task: e4d6f60ac0e5ad94209b660858dcc56d5f6c69d15123fc99881cb668e454462d
+T046:
+  task: af3c1f5eaf0d27837e4e974f3ed3f86227c7ee051bc946b9b9500731cc3dba84
+T047:
+  task: f4fe0ec07b42ba452e68aef7bba0b0a731367e221c16fb733fe6be78198620d8
+T048:
+  task: 0b527b0093296f993b67e743642a50fc0eea3496403ec7a17ffc1e3f681a89b0
+T049:
+  task: 77899b04f832a1ac2784cb6128402da6d52fe1684c91beddccae84c5446b9b46
+T050:
+  task: ec1927b618a53b4ab654a5451da183162daf5e90a9cc139da49f66c76876b857
+T051:
+  task: a14a43f6762ea2895661ff11ee6d9779d4c2666d34a29d64e2da691858fc7444

@@ -1,54 +1,58 @@
-# Quickstart: llmXive follow-up: extending "Qwen-Image-VAE-2.0 Technical Report"
+# Quickstart: llmXive follow‑up: extending "Qwen-Image-VAE-2.0 Technical Report"
 
 ## Prerequisites
-- Python 3.11+
-- 2 vCPU, 7 GB RAM (or access to a Kaggle GPU for the escape hatch).
-- Internet connection (for dataset streaming).
+- Python 3.11+  
+- 2 vCPU, ~7 GB RAM (or Kaggle GPU access for the optional escape hatch)  
+- Internet connection (for streaming the verified benchmark dataset)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory.
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/requirements.txt
-   ```
+```bash
+# 1️⃣ Clone the repository
+git clone 
+cd llmxive-vae-geometric-analysis
+
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# 3️⃣ Install pinned dependencies (the file lives under the code directory as required by the Constitution)
+pip install -r projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/requirements.txt
+```
 
 ## Running the Pipeline
 
-### 1. Data Download & Preprocessing
-The pipeline streams the dataset automatically. No manual download is required.
-```bash
-python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --phase data_load
-```
+All phases are orchestrated via `code/src/main.py`. Use the `--phase` flag to run a specific stage or `--full` for end‑to‑end execution.
 
-### 2. Latent Extraction & Disentanglement Analysis
-Runs the encoding, SVM training, and permutation test.
-```bash
-python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --phase disentanglement
-```
+| Phase | Command | Description |
+|-------|---------|-------------|
+| **0** | `python code/src/main.py --phase url_verify` | Verify external URLs for dataset and model (Phase 0). |
+| **1** | `python code/src/main.py --phase data_load` | Streams the **verified CPU‑only benchmark parquet** dataset. |
+| **2** | `python code/src/main.py --phase model_load` | Loads the **tiny‑vae** model on CPU; if this fails, the GPU escape hatch will be triggered automatically. |
+| **3** | `python code/src/main.py --phase preprocess` | Applies the purity filter, computes confounder metadata, and writes `RawImageCrop` records. |
+| **4** | `python code/src/main.py --phase encode` | Encodes crops into `LatentVector` objects using tiny‑vae. |
+| **5** | `python code/src/main.py --phase disentangle` | Clustering, DCI computation, triviality check, and permutation test with Bonferroni correction. |
+| **6** | `python code/src/main.py --phase linearity` | Pilot linearity verification on 10 samples (R² ≥ 0.9). |
+| **7** | `python code/src/main.py --phase centroids` | Computes modality centroids. |
+| **8** | `python code/src/main.py --phase edit` | Performs vector arithmetic, decodes, runs OCR, and computes layout‑preservation metrics against the original image. |
+| **9** | `python code/src/main.py --phase sensitivity` | Sweeps classification threshold and reports FP/FN variation. |
+| **10** | `python code/src/main.py --phase power` | Runs power analysis and runtime feasibility check. |
+| **11** | `python code/src/main.py --phase aggregate` | Writes the final `experiment_output.json` conforming to the output schema. |
+| **12** | `python code/src/main.py --phase gpu_fallback` | (Optional) Runs Phases 4‑11 on a Kaggle free GPU with 8‑bit quantization if CPU loading fails. |
 
-### 3. Zero-Shot Editing
-Performs vector arithmetic and generates edited images.
-```bash
-python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --phase editing
-```
-
-### 4. Full Run (End-to-End)
-Executes all phases in order.
-```bash
-python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --full
-```
+> **Important**: The pipeline now uses **verified** open resources (benchmark parquet dataset and tiny‑vae model). No unverified Omni‑Doc‑1 or Qwen‑Image‑VAE‑2.0 resources are required. If either resource cannot be fetched, the script logs an error and aborts; the optional GPU fallback is only for the *model* loading step.
 
 ## Output Verification
-- Check `data/results/metrics.json` for accuracy, F1, SSIM, and Keypoint scores.
-- Check `data/results/plots/` for PCA visualizations and edited image examples.
-- Verify that `p_value` < 0.05 (Bonferroni corrected) for primary findings.
+- `data/results/experiment_output.json` – conforms to `contracts/output.schema.yaml`.  
+- `data/results/metrics.json` – per‑metric values (populated only when resources are available).  
+- `data/results/plots/` – PCA scatter plot, example edited images (if generated).  
 
 ## Troubleshooting
-- **OOM Error**: If the process runs out of memory, the script will automatically reduce the batch size or trigger the GPU escape hatch (if configured).
-- **Dataset Error**: Ensure internet connectivity. If the Hugging Face dataset is inaccessible, the script will exit with a clear error message.
+- **Missing verified dataset** – The script logs `DataUnavailableError` and aborts; no fallback to a non‑verified dataset is attempted.  
+- **Model cannot load on CPU** – The script logs `ModelUnavailableError` and automatically triggers the optional GPU escape hatch; `cpu_feasibility` will be set to `"rejected"` in the final JSON.  
+- **Out‑of‑memory on CPU** – Reduce the sample size via `--sample-size N`; the power analysis will be updated accordingly.  
+- **PaddleOCR import error** – Ensure `paddlepaddle‑cpu` and `paddleocr` are installed from the pinned `requirements.txt`.  
+
+---
+
+

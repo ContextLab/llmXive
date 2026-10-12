@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evolved Task Record"
+type: object
+required:
+  - evolved_task_id
+  - base_task_id
+  - modifications
+  - predicted_penalty
+  - task
+  - generation_timestamp
+properties:
+  evolved_task_id:
+    type: string
+    description: "Identifier for the evolved task variant."
+  base_task_id:
+    type: string
+    description: "Original task identifier from which this variant was derived."
+  modifications:
+    type: array
+    items:
+      type: string
+    description: "Human‑readable description of each change applied during evolution."
+  predicted_penalty:
+    type: number
+    description: "Penalty score predicted by the regression model for this evolved task."
+  task:
+    type: object
+    description: "Full task definition (matches the Task schema)."
+    required:
+      - task_id
+      - goal
+      - environment
+      - optimal_path_length
+      - tool_diversity_k
+      - features
+    properties:
+      task_id:
+        type: string
+      goal:
+        type: string
+      environment:
+        type: object
+        additionalProperties: true
+      optimal_path_length:
+        type: ["integer", "null"]
+      tool_diversity_k:
+        type: integer
+      features:
+        type: object
+        additionalProperties: true
+  generation_timestamp:
+    type: string
+    format: date-time
+    description: "When the evolution script generated this task."

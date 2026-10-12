@@ -64,7 +64,12 @@ def test_independent_router_calls_share_outage_and_recover(monkeypatch):
     assert call().model == peer
     assert calls[primary] == 2
     recovered[0] = True
+    # Two real requests were lost with no answer in between, so the circuit
+    # waits two cooldowns (120 s) after the second loss, not one.
     clock[0] = 122
+    assert call().model == peer
+    assert calls[primary] == 2
+    clock[0] = 182
     assert call().model == primary
     assert call().model == primary
     assert calls[primary] == 4

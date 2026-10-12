@@ -1,85 +1,70 @@
-%YAML 1.1
----
-# Contract: Signal Detection Output Schema
-# Defines the structure of output signals from disproportionality analysis.
-# Used by T025b to generate output/signals.csv.
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Signal Schema"
+description: "Schema for the final safety signal output."
 type: object
-required:
-  - soc
-  - ror
-  - ror_ci_lower
-  - ror_ci_upper
-  - prr
-  - prr_ci_lower
-  - prr_ci_upper
-  - ic
-  - ic_ci_lower
-  - ic_ci_upper
-  - p_adj
-  - signal_flag
-  - background_rate_status
-
 properties:
-  soc:
+  SOC_CODE:
     type: string
-    description: System Organ Class code or name identifier.
-    minLength: 1
-    
-  ror:
+    description: "MedDRA System Organ Class code."
+  SOC_NAME:
+    type: string
+    description: "Human-readable name of the System Organ Class."
+  ROR:
     type: number
-    description: Reporting Odds Ratio point estimate.
-    minimum: 0
-    
-  ror_ci_lower:
+    description: "Reporting Odds Ratio."
+  ROR_CI_lower:
     type: number
-    description: Lower bound of 95% Confidence Interval for ROR.
-    
-  ror_ci_upper:
+    description: "Lower bound of 95% confidence interval for ROR."
+  ROR_CI_upper:
     type: number
-    description: Upper bound of 95% Confidence Interval for ROR.
-    
-  prr:
+    description: "Upper bound of 95% confidence interval for ROR."
+  PRR:
     type: number
-    description: Proportional Reporting Ratio point estimate.
-    minimum: 0
-    
-  prr_ci_lower:
+    description: "Proportional Reporting Ratio."
+  PRR_CI_lower:
     type: number
-    description: Lower bound of 95% Confidence Interval for PRR.
-    
-  prr_ci_upper:
+    description: "Lower bound of 95% confidence interval for PRR."
+  PRR_CI_upper:
     type: number
-    description: Upper bound of 95% Confidence Interval for PRR.
-    
-  ic:
+    description: "Upper bound of 95% confidence interval for PRR."
+  IC:
     type: number
-    description: Information Component point estimate.
-    
-  ic_ci_lower:
+    description: "Information Component."
+  IC_CI_lower:
     type: number
-    description: Lower bound of 95% Confidence Interval for IC.
-    
-  ic_ci_upper:
+    description: "Lower bound of 95% confidence interval for IC."
+  IC_CI_upper:
     type: number
-    description: Upper bound of 95% Confidence Interval for IC.
-    
-  p_adj:
+    description: "Upper bound of 95% confidence interval for IC."
+  p_value_raw:
     type: number
-    description: Benjamini-Hochberg adjusted p-value.
-    minimum: 0
-    maximum: 1
-    
-  signal_flag:
+    description: "Raw p-value before multiple testing correction."
+  p_value_adj:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+  is_signal:
     type: boolean
-    description: True if the SOC meets the 2-out-of-3 signal detection rule.
-    
-  background_rate_status:
-    type: string
-    description: Status of external background rate availability.
-    enum:
-      - UNKNOWN
-      - KNOWN
-    default: UNKNOWN
-    
-additionalProperties: false
+    description: "True if the SOC meets the signal criteria (2/3 metrics)."
+  signal_metrics:
+    type: array
+    items:
+      type: string
+      enum: ["ROR", "PRR", "IC"]
+    description: "List of metrics that met the threshold criteria."
+required:
+  - SOC_CODE
+  - SOC_NAME
+  - ROR
+  - ROR_CI_lower
+  - ROR_CI_upper
+  - PRR
+  - PRR_CI_lower
+  - PRR_CI_upper
+  - IC
+  - IC_CI_lower
+  - IC_CI_upper
+  - p_value_raw
+  - p_value_adj
+  - is_signal
+  - signal_metrics
+additionalProperties: true

@@ -1,105 +1,78 @@
 # Quick Start Guide
 
-This guide explains how to set up and run the llmXive pipeline for PROJ-524: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults.
+This guide walks you through setting up the environment and running the full analysis pipeline for **PROJ‑524**.
 
 ## Prerequisites
-
-- Python 3.9+
-- pip
-- git
+- Python 3.11 or later
+- `git`
+- Internet access (to download optional open datasets or stimulus placeholders)
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
- ```bash
- git clone <repository-url>
- cd <project-directory>
- ```
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd <project-directory>
 
-2. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+# 2. Create a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate   # on Windows: venv\Scripts\activate
 
-3. **Ensure data directories exist** (Run T001):
- ```bash
- python code/setup_dirs.py
- ```
+# 3. Install dependencies
+pip install -r requirements.txt
+```
 
-## Running the Pipeline
+## Directory Setup
+The first run will create necessary folders under `data/`:
 
-The pipeline is executed in stages. You can run the full orchestration or individual tasks.
+```bash
+python -c "import pathlib, os; [pathlib.Path(p).mkdir(parents=True, exist_ok=True) for p in ['data/raw','data/processed','data/stimuli','data/results']]"
+```
 
-### Option A: Full Orchestration (Recommended)
-
-Run the main orchestration script which handles data ingestion, cleaning, analysis, and reporting:
+## Running the Full Pipeline (recommended)
 
 ```bash
 python code/main.py
 ```
 
-This command will:
-1. Fetch or simulate data.
-2. Clean and filter the data.
-3. Run statistical analysis (Welch's t-test).
-4. Perform robustness checks (T027b).
-5. Generate final reports.
+`main.py` orchestrates the following steps:
 
-### Option B: Step-by-Step Execution
+1. **Data ingestion** – attempts to download an open WCST dataset; if unavailable, generates synthetic data.  
+2. **Checksum verification** – ensures stimulus files are intact.  
+3. **Cleaning** – applies age filter (FR‑001) and optional MMSE exclusion (FR‑006).  
+4. **Statistical analysis** – Welch’s t‑test, Bonferroni correction, Cohen’s d, MDES (FR‑002‑FR‑004).  
+5. **Sensitivity analysis** – threshold sweep and MMSE‑exclusion sensitivity (FR‑005).  
+6. **Runtime monitoring** – logs a warning if total runtime > 6 h (FR‑007).  
+7. **Reporting** – writes JSON reports and logs under `data/results/`.  
 
-If you need to debug specific stages, run the tasks individually in order:
+### Output Files
+- `data/results/statistical_report.json` – primary test results.  
+- `data/results/sensitivity_report.json` – threshold and MMSE‑exclusion checks.  
+- `data/results/exclusion_log.json` – counts of rows removed for each rule.  
 
-1. **Ingestion & Simulation**:
- ```bash
- python code/task_t010d_generate_simulation.py
- ```
+## Step‑by‑Step Execution (for debugging)
 
-2. **Data Cleaning**:
- ```bash
- python code/task_t012a_age_exclusion.py
- python code/task_t012b_score_exclusion.py
- python code/task_t012d_mmse_flag.py
- python code/task_t012e_mmse_exclusion.py
- python code/task_t014a_create_cleaned_dataset.py
- python code/task_t014b_validity_metrics.py
- ```
+| Step | Command | Description |
+|------|---------|-------------|
+| Ingestion / Simulation | `python code/ingestion.py` | Downloads or creates `data/raw/raw_dataset.csv`. |
+| Checksum Verification | `python code/utils.py verify_stimuli` | Confirms stimulus file integrity. |
+| Cleaning | `python code/cleaning.py` | Produces `data/processed/cleaned_dataset.csv`. |
+| Analysis | `python code/analysis.py` | Generates `statistical_report.json`. |
+| Sensitivity | `python code/sensitivity.py` | Generates `sensitivity_report.json`. |
+| Full Report | `python code/main.py` | Runs all above in order. |
 
-3. **Analysis**:
- ```bash
- python code/analysis.py
- ```
-
-4. **Robustness Analysis (T027b)**:
- ```bash
- python code/task_t027b_mmse_robustness_analysis.py
- ```
-
-5. **Generate Reports**:
- ```bash
- python code/generate_robustness_summary.py
- ```
-
-## Output Artifacts
-
-Upon successful completion, the following files will be generated:
-
-- `data/raw/raw_dataset.csv`: Raw input data.
-- `data/processed/cleaned_dataset.csv`: Primary cleaned dataset (with MMSE filter).
-- `data/processed/cleaned_dataset_no_mmse.csv`: Robustness dataset (without MMSE filter).
-- `data/results/statistical_report.json`: Primary statistical results.
-- `data/results/robustness_report.json`: Results from the robustness analysis (T027b).
-- `paper/001_results.md`: Final scientific report.
-
-## Troubleshooting
-
-- **KeyError: 'paths'**: Ensure `code/config.py` is correctly configured and `data/` directories exist.
-- **DataNotFoundError**: Ensure the ingestion step (T010d) has successfully generated `data/raw/raw_dataset.csv`.
-- **Simulation Mode**: If real data is unavailable, the pipeline automatically falls back to simulation. Check `data/raw/metadata.json` for `simulation_mode: true`.
-
-## Verification
-
-To verify the pipeline integrity, run the integration test:
+## Testing
+Run the test suite to ensure contracts and functional behavior are satisfied:
 
 ```bash
-python -m pytest tests/integration/test_full_pipeline.py -v
+pytest -v
 ```
+
+All tests should pass on the CI runner; failures indicate a violation of a functional requirement or contract.
+
+## Troubleshooting
+- **Missing dataset**: The pipeline will automatically fall back to synthetic data; check `data/raw/metadata.json` for `"simulation_mode": true`.  
+- **Runtime warning**: If you see `WARNING: Runtime exceeded 6 hours`, the pipeline continued but you may need to profile steps for efficiency.  
+- **Checksum mismatch**: Re‑run `python code/utils.py verify_stimuli` after ensuring stimulus files are unchanged.
+
+---

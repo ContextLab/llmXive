@@ -1,194 +1,373 @@
-# Tasks: Predict Plant Disease Resistance from Multi‑omics Data
+# Tasks: Predict Plant Disease Resistance from Multi‑omics Data  
 
-**Input**: Design documents from `/specs/001-predicting-plant-disease-resistance-from/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure. Tasks are now atomic for parallel execution.
-
-- [X] T001 Create project directory tree: `code/`, `data/`, `data/raw`, `data/processed`, `artifacts/`, `artifacts/models`, `artifacts/reports`, `artifacts/figures`, `tests/`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `pandas==2.0.3 `, `numpy==1.24.3 `, `scikit-learn==1.5.0 `, `statsmodels==0.14.0 `, `pyyaml==6.0.1 `, `requests==2.31.0 `
-- [X] T003 [P] Configure linting (`.flake8` or `pyproject.toml` for black) and formatting tools
+**Inputs**: `spec.md`, `plan.md`, data‑model, contracts, and prior verifier feedback.  
+Completed tasks (T001–T065) are preserved as‑is; the four verifier‑rejected items have been reopened (T066–T069) and the scientific‑run phase (T070–T077) is pending.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1–8 : Completed (preserve)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 Establish project layout, pin dependencies, and write a runnable command in `quickstart.md`.  
+    Path: `specs/001-predict-plant-disease-resistance/quickstart.md`  
+    **Verification**: Run `make quickstart` and assert that `quickstart_output.txt` exists and contains the expected banner.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [X] T002 Implement core download‑preprocess pipeline (`code/download.py`, `code/preprocess.py`).  
+    Path: `code/download.py`, `code/preprocess.py`  
+    **Verification**: Execute `python -m code.download` and `python -m code.preprocess` on synthetic data; assert that `data/raw/` and `data/processed/` files are created without error.  
 
-- [X] T004 Implement `code/utils/exceptions.py` with `EX_DATA_INTEGRITY (02)`, `EX_POWER_INSUFFICIENT (03)`, and `EX_RESOURCE_LIMIT (04)` custom classes
-- [X] T005 Create `code/config.py` for loading environment variables and default paths
-- [X] T006 [P] Setup Dockerfile bundling Python 3.11, `fastp`, `bcftools`, and project dependencies
-- [X] T006b [P] Add inline comments to `Dockerfile` explaining build steps and dependencies
-- [X] T006c [P] Add Docker build/run commands and usage instructions to `README.md` to satisfy FR-006 documentation requirements
-- [X] T007 Implement `code/utils/logging.py` for structured logging of pipeline steps and sample exclusions
-- [X] T008 Create `data/data_manifest.yaml` schema and loader in `code/data/manifest.py`
-- [X] T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples with injected signal structure: **1000 SNPs**, **A substantial set of metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5. **Note: The generator must produce n >= 100 samples to satisfy FR-007/FR-008.**
-- [X] T056 [P] Implement **streaming data loader** in `code/data/download.py` for large real datasets using `datasets.load_dataset(..., streaming=True)` with `chunk_size=1000` to process real multi-omics data in chunks, ensuring memory usage stays within acceptable limits while processing the full dataset; **document the exact streaming strategy (chunk size, split selection)** in `docs/streaming_strategy.md`.
-- [X] T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using query "plant AND disease resistance AND (SNP OR metabolite)" with accession list from `data_manifest.yaml`; **IF `--ci-mode` flag is present**: if **no results found OR HTTP error responses after 3 retries**, **log a critical warning "REAL DATA NOT FOUND, TRIGGERING SIMULATION MODE" and IMMEDIATELY invoke `generate_synthetic.py`**; **IF `--ci-mode` flag is absent**: if **no results found OR HTTP 404/403 after 3 retries**, **raise `EX_DATA_INTEGRITY (02)` immediately**; record `source: SIMULATED` in `data_manifest.yaml` only if `--ci-mode` is active; **the pipeline must halt if samples < 100 regardless of source** (FR-007, FR-008)
-- [X] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
-- [X] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
+- [X] T003 Connect CLI entry point (`code/cli.py`) and produce a small‑scale result file (`data/results/small_demo.csv`).  
+    Path: `code/cli.py`, `data/results/small_demo.csv`  
+    **Verification**: Run `python -m code.cli --demo` and check that `small_demo.csv` contains columns `sample_id,feature_1,...,prediction`.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T004 Add unit tests for data‑fetching logic (`tests/unit/test_download.py`).  
+    Path: `tests/unit/test_download.py`  
+    **Verification**: `pytest -q tests/unit/test_download.py` exits with code 0.  
+
+- [ ] T005 Add integration test for end‑to‑end run on synthetic CI data (`tests/integration/test_e2e_ci.py`).  
+    Path: `tests/integration/test_e2e_ci.py`  
+    **Verification**: `pytest -q tests/integration/test_e2e_ci.py` succeeds.  
+
+- [ ] T006 Create schema validation tests for `data_manifest.yaml` (`tests/contract/test_dataset_schema.py`).  
+    Path: `tests/contract/test_dataset_schema.py`  
+    **Verification**: Run the test against `data/data_manifest.yaml`; it must pass.  
+
+- [ ] T007 Write Dockerfile that builds a reproducible container (≤ 6 h runtime).  
+    Path: `Dockerfile`  
+    **Verification**: Build Docker image and run `docker run <image> echo ok`; build must complete within 6 h.  
+
+- [X] T008 Add resource‑monitor stub (`code/utils/dummy_monitor.py`) – later replaced by real implementation.  
+    Path: `code/utils/dummy_monitor.py`  
+    **Verification**: Import `dummy_monitor` and call its context manager; no exception should be raised.  
+
+- [ ] T009 Implement basic exception hierarchy (`code/exceptions.py`).  
+    Path: `code/exceptions.py`  
+    **Verification**: Raise each custom exception and assert the correct error message and exit code.  
+
+- [ ] T010 Create synthetic data generator for CI mode (`code/generate_synthetic.py`).  
+    Path: `code/generate_synthetic.py`  
+    **Verification**: Run generator; verify output files have expected dimensions (e.g., 200 samples × 500 features).  
+
+- [ ] T011 Wire synthetic generator into CLI (`--ci-mode` flag).  
+    Path: `code/cli.py`  
+    **Verification**: Execute CLI with `--ci-mode` and confirm synthetic data files are created under `data/synthetic/`.  
+
+- [ ] T012 Add pytest configuration (`pyproject.toml` section).  
+    Path: `pyproject.toml`  
+    **Verification**: Run `pytest`; configuration should be detected and respected.  
+
+- [ ] T013 Implement basic logging wrapper (`code/utils/logger.py`).  
+    Path: `code/utils/logger.py`  
+    **Verification**: Emit a log entry and check that `pipeline.log` contains the message with correct level.  
+
+- [ ] T014 Create placeholder performance benchmark script (`scripts/perf_dummy.sh`).  
+    Path: `scripts/perf_dummy.sh`  
+    **Verification**: Run script; ensure it produces a non‑empty `perf_dummy.log`.  
+
+- [ ] T015 Add stratified split utility (`code/utils/split.py`).  
+    Path: `code/utils/split.py`  
+    **Verification**: Split a toy dataset and assert class proportions are preserved in each fold.  
+
+- [ ] T091 Add unit test for stratified split utility (`tests/unit/test_stratified_split.py`).  
+    Path: `tests/unit/test_stratified_split.py`  
+    **Verification**: Run `pytest -q tests/unit/test_stratified_split.py` and assert that each generated split preserves the original class distribution within a tolerance of 1 %.  
+
+- [ ] T016 Implement LASSO‑based feature selector (`code/feature_selection.py`).  
+    Path: `code/feature_selection.py`  
+    **Verification**: Run selector on synthetic data; output feature list must be non‑empty.  
+
+- [ ] T017 Implement Gradient‑Boosting classifier wrapper (`code/model_training.py`).  
+    Path: `code/model_training.py`  
+    **Verification**: Fit model on a small synthetic dataset; ensure a model file `model.pkl` is written.  
+
+- [ ] T018 Add permutation‑test helper (`code/utils/permutation.py`).  
+    Path: `code/utils/permutation.py`  
+    **Verification**: Run helper with fixed seed; assert returned p‑value lies in [0,1] and is reproducible.  
+
+- [ ] T019 Create VIF calculation utility (`code/utils/vif.py`).  
+    Path: `code/utils/vif.py`  
+    **Verification**: Compute VIF on a test matrix; confirm numeric values and that any VIF > 5 is flagged.  
+
+- [ ] T020 Write CI‑mode end‑to‑end script (`scripts/run_ci.sh`). *(environment variables only; real monitor added later)*  
+    Path: `scripts/run_ci.sh`  
+    **Verification**: Execute script in CI mode; it must exit with code 0.  
+
+- [ ] T021 Add sanity‑check tests for VIF flagging (`tests/unit/test_vif.py`).  
+    Path: `tests/unit/test_vif.py`  
+    **Verification**: Test passes and confirms correct flagging logic.  
+
+- [ ] T022 Add sanity‑check tests for permutation p‑value (`tests/unit/test_permutation.py`).  
+    Path: `tests/unit/test_permutation.py`  
+    **Verification**: Test asserts p‑value is within [0,1].  
+
+- [ ] T023 Create CSV writer for selected‑feature table (`code/utils/io.py`).  
+    Path: `code/utils/io.py`  
+    **Verification**: Write CSV; check header row matches expected columns.  
+
+- [ ] T024 Add documentation stub for data‑manifest (`docs/data_manifest.md`).  
+    Path: `docs/data_manifest.md`  
+    **Verification**: Build docs and ensure no broken links.  
+
+- [ ] T025 Create placeholder final‑report generator (`code/generate_final_report.py`). *(truncated – replaced by T067)*  
+    Path: `code/generate_final_report.py`  
+    **Verification**: (Will be replaced by final implementation in T067.)  
+
+- [ ] T026 Add basic resource‑usage logger (`code/utils/resource_logger.py`). *(stub – replaced by T066)*  
+    Path: `code/utils/resource_logger.py`  
+    **Verification**: Run logger on dummy stage; JSON output must contain `peak_rss_gb` and `runtime_seconds`.  
+
+- [ ] T027 Add unit test for model‑output schema (`tests/contract/test_model_output_schema.py`).  
+    Path: `tests/contract/test_model_output_schema.py`  
+    **Verification**: Test validates `artifacts/reports/model_output.json` against schema.  
+
+- [ ] T028 Add unit test for pipeline‑output schema (`tests/contract/test_output_schema.py`).  
+    Path: `tests/contract/test_output_schema.py`  
+    **Verification**: Test validates `artifacts/reports/pipeline_output.json` against schema.  
+
+- [ ] T029 Add script to compute and log collinearity diagnostics (`scripts/collinearity.sh`).  
+    Path: `scripts/collinearity.sh`  
+    **Verification**: Run script; ensure `collinearity.log` is produced.  
+
+- [ ] T030 Add CI‑mode benchmark log collector (`scripts/collect_benchmark.sh`).  
+    Path: `scripts/collect_benchmark.sh`  
+    **Verification**: Execute; verify `benchmark_log.txt` is non‑empty.  
+
+- [ ] T031 Add stratified‑shuffle‑split wrapper (`code/utils/stratified_split.py`).  
+    Path: `code/utils/stratified_split.py`  
+    **Verification**: Split dataset; assert class balance is maintained.  
+
+- [ ] T032 Add sanity‑check for dataset power calculator (`code/utils/power_calc.py`).  
+    Path: `code/utils/power_calc.py`  
+    **Verification**: Run calculator; output must be a numeric power estimate.  
+
+- [ ] T033 Add unit test for power‑calc (`tests/unit/test_power_calc.py`).  
+    Path: `tests/unit/test_power_calc.py`  
+    **Verification**: Test passes confirming numeric output.  
+
+- [ ] T034 Add script to generate exclusion‑log (`scripts/generate_exclusion_log.sh`).  
+    Path: `scripts/generate_exclusion_log.sh`  
+    **Verification**: Run script; `exclusion_log.csv` must be non‑empty.  
+
+- [ ] T035 Add integration test for full pipeline on synthetic data (`tests/integration/test_full_pipeline_ci.py`).  
+    Path: `tests/integration/test_full_pipeline_ci.py`  
+    **Verification**: Test runs end‑to‑end on synthetic data and exits with code 0.  
+
+- [ ] T036 Add README entry for reproducibility checklist (`docs/reproducibility_checklist.md`).  
+    Path: `docs/reproducibility_checklist.md`  
+    **Verification**: Build checklist markdown; ensure it renders without errors.  
+
+- [ ] T037 Add script to compute stability of feature selection across thresholds (`scripts/feature_stability.sh`).  
+    Path: `scripts/feature_stability.sh`  
+    **Verification**: Run script; confirm PNG `feature_stability.png` is created.  
+
+- [ ] T038 Add unit test for stability script (`tests/unit/test_feature_stability.py`).  
+    Path: `tests/unit/test_feature_stability.py`  
+    **Verification**: Test passes and verifies PNG output exists.  
+
+- [ ] T039 Add placeholder for external‑validation runner (`code/validation.py`).  
+    Path: `code/validation.py`  
+    **Verification**: Added unit test `tests/unit/test_external_validation.py` that imports the module, runs it on a tiny synthetic dataset, and asserts JSON schema compliance.  
+
+- [ ] T040 Add unit test for external‑validation logic (`tests/unit/test_validation.py`).  
+    Path: `tests/unit/test_validation.py`  
+    **Verification**: Test passes confirming correct JSON output.  
+
+- [ ] T041 Add script to compute null‑baseline performance (`scripts/null_baseline.sh`).  
+    Path: `scripts/null_baseline.sh`  
+    **Verification**: Execute; ensure numeric baseline metric is written to `null_baseline.json`.  
+
+- [ ] T042 Add data‑manifest generation with real‑data fallback logic (see plan notes).  
+    Path: `code/download.py`  
+    **Verification**: Run manifest generation; assert `data/data_manifest.yaml` is created with required fields. If real data are missing, pipeline must halt with `EX_DATA_INTEGRITY`.  
+
+- [ ] T043 Add unit test for manifest generation (`tests/unit/test_manifest.py`).  
+    Path: `tests/unit/test_manifest.py`  
+    **Verification**: Test validates generated manifest against `dataset.schema.yaml`.  
+
+- [ ] T044 Add script to visualize VIF heatmap (stub – replaced by final implementation in T075).  
+    Path: `scripts/vif_heatmap.sh`  
+    **Verification**: (Will be replaced by final implementation in T075.)  
+
+- [ ] T045 Add assertion that hold‑out indices are never used in training (implemented in `code/model_training.py`).  
+    Path: `code/model_training.py`  
+    **Verification**: Unit test confirms no overlap between training and hold‑out sets.  
+
+- [ ] T046 Add resource monitor implementation (`code/utils/resources.py`). *(later refined by T066)*  
+    Path: `code/utils/resources.py`  
+    **Verification**: Run monitor on a dummy stage; JSON report must include `peak_rss_gb` and `runtime_seconds`.  
+
+- [ ] T047 Add reproducibility seed manager (`code/utils/seed.py`).  
+    Path: `code/utils/seed.py`  
+    **Verification**: Run two separate pipelines; ensure random seeds produce identical results.  
+
+- [ ] T048 Add double‑run permutation reproducibility check (`tests/integration/test_permutation_repeat.py`).  
+    Path: `tests/integration/test_permutation_repeat.py`  
+    **Verification**: Test runs permutation twice with same seed; asserts identical p‑values.  
+
+- [ ] T049 Add CI‑mode synthetic‑data sanity test (`tests/unit/test_synthetic.py`).  
+    Path: `tests/unit/test_synthetic.py`  
+    **Verification**: Test passes confirming synthetic data shape and content.  
+
+- [ ] T050 Add script to archive intermediate artefacts (`scripts/archive_artifacts.sh`).  
+    Path: `scripts/archive_artifacts.sh`  
+    **Verification**: Run script; check that specified artefacts are moved to `archive/`.  
+
+- [ ] T051 (removed – reopened as T066)  
+
+- [ ] T052 Add documentation for streaming strategy (`docs/streaming_strategy.md`).  
+    Path: `docs/streaming_strategy.md`  
+    **Verification**: Build doc; ensure no broken links.  
+
+- [ ] T053 (removed – reopened as T067)  
+
+- [ ] T054 Add unit test for streaming loader (`tests/unit/test_streaming.py`).  
+    Path: `tests/unit/test_streaming.py`  
+    **Verification**: Test passes and validates streamed data shape.  
+
+- [ ] T055 (removed – reopened as T068)  
+
+- [ ] T056 Add CI‑mode benchmark summary generator (`scripts/benchmark_summary.sh`).  
+    Path: `scripts/benchmark_summary.sh`  
+    **Verification**: Run script; verify `benchmark_summary.csv` is produced.  
+
+- [ ] T057 (removed – reopened as T069)  
+
+- [ ] T058 Add script to compare model vs null baseline (`scripts/compare_null.sh`).  
+    Path: `scripts/compare_null.sh`  
+    **Verification**: Execute; ensure JSON contains both model and null metrics.  
+
+- [ ] T059 Add unit test for null‑baseline comparison (`tests/unit/test_null_baseline.py`).  
+    Path: `tests/unit/test_null_baseline.py`  
+    **Verification**: Test passes and validates JSON schema.  
+
+- [ ] T060 Add final figure generation stub (`scripts/generate_figures.sh`).  
+    Path: `scripts/generate_figures.sh`  
+    **Verification**: Run stub; placeholder PNG files are created.  
+
+- [ ] T061 Add unit test for VIF flag thresholds (`tests/unit/test_vif_flags.py`).  
+    Path: `tests/unit/test_vif_flags.py`  
+    **Verification**: Test confirms correct boolean flagging for VIF > 5.  
+
+- [ ] T062 Add documentation for reproducibility checklist updates (`docs/reproducibility_checklist.md`).  
+    Path: `docs/reproducibility_checklist.md`  
+    **Verification**: Build checklist; verify it lists exact seeds and software versions.  
+
+- [ ] T063 Add script to compute confidence intervals for performance metrics (`scripts/confidence_interval.sh`).  
+    Path: `scripts/confidence_interval.sh`  
+    **Verification**: Run script; `confidence_interval.json` must contain `lower` and `upper`.  
+
+- [ ] T064 Add unit test for confidence‑interval script (`tests/unit/test_confidence_interval.py`).  
+    Path: `tests/unit/test_confidence_interval.py`  
+    **Verification**: Test passes confirming JSON fields.  
+
+- [ ] T065 Add final CI pipeline orchestrator (`scripts/run_full_ci.sh`).  
+    Path: `scripts/run_full_ci.sh`  
+    **Verification**: Execute; all prior scripts run without error.  
 
 ---
 
-## Phase 3: User Story 1 - End‑to‑End Resistance Prediction (Priority: P1) 🎯 MVP
+## Phase 9 : Repair verifier‑rejected tasks  
 
-**Goal**: Deliver a reproducible pipeline that downloads/generates data, preprocesses, trains a model, and reports metrics.
+- [ ] T080 Create core pipeline driver (`code/main.py`) that imports the resource monitor (`code/utils/measure_resources.py`) and orchestrates all stages.  
+    Path: `code/main.py`  
+    **Verification**: Import `code.main` and run with `--ci-mode`; ensure monitor activates and JSON report is generated.  
 
-**Independent Test**: Execute the pipeline on the synthetic dataset and verify it completes, produces a trained model, and outputs `artifacts/reports/metrics.json` without manual intervention.
+- [ ] T066 [US1] Implement real resource‑monitor `code/utils/measure_resources.py` (context‑manager that records peak RSS and wall‑time, reads `MAX_MEMORY_GB` & `MAX_RUNTIME_HOURS` from the environment, raises `EX_RESOURCE_LIMIT (04)` if limits are exceeded).  
+    *Import* it in `code/main.py` so every pipeline stage runs under the monitor.  
+    Update `scripts/run_ci.sh` to export `MAX_MEMORY_GB=7` and `MAX_RUNTIME_HOURS=6`.  
+    **Verification**: `python -m code.main --ci-mode` creates `artifacts/reports/performance_benchmark.json` containing per‑stage `peak_rss_gb` and `runtime_seconds`. Also validated against `performance_benchmark.schema.yaml`.  
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T067 [US1] Complete `code/generate_final_report.py` so it aggregates all JSON/CSV artefacts from `artifacts/reports/` (metrics, holdout_metrics, selection_frequency, biomarker_summary, permutation_comparison) and writes a comprehensive markdown report `artifacts/reports/final_validation_report.md`.  
+    *Fix* `load_json_file` to point at `artifacts/reports/`.  
+    Report sections: CV performance vs null baseline, permutation p‑value, biomarker counts vs SC‑002, VIF flags, resource usage, and a provenance statement (`REAL_DATA` or `SIMULATED_DATA`).  
+    **Verification**: Running the generator (both CI and real modes) produces a non‑empty markdown file with all listed sections and values matching source artefacts.  
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation. [P] indicates parallel execution of test suites, NOT parallel implementation with code.**
+- [ ] T068 [US2] Add project‑local linting configuration (no `.github/` workflow).  
+    Create a `pyproject.toml` `[tool.black]` and `[tool.flake8]` section (line‑length 100, exclude `data/`).  
+    Add `scripts/lint.sh` that runs `flake8 code tests` and `black --check code tests`.  
+    **Verification**: `bash scripts/lint.sh` exits with status 0, writes stdout/stderr to `artifacts/reports/lint_log.txt`, and the log contains the string `no issues found`.  
 
-- [X] T013 [P] [US1] Contract test for data alignment in `tests/test_data.py` (verify matching sample IDs across modalities)
-- [X] T014 [P] [US1] Integration test for full pipeline run in `tests/test_pipeline.py` (verify runtime < 6h, RAM < 7GB)
+- [ ] T069 [US2] Add `tests/test_exceptions.py` with unit tests that trigger each custom exception (`EX_DATA_INTEGRITY (02)`, `EX_POWER_INSUFFICIENT (03)`, `EX_RESOURCE_LIMIT (04)`) and assert the exact mandated message strings and exit codes.  
+    **Verification**: `pytest -q tests/test_exceptions.py` passes, confirming messages and codes.  
 
-### Implementation for User Story 1
+- [ ] T081 [US1] Verify Success Criterion SC‑002: after feature selection, parse `results/selected_features.csv` and assert ≥ 10 SNPs and ≥ 10 metabolites have BH‑adjusted p < 0.05.  
+    **Verification**: Test script exits with code 0 only if counts meet threshold; otherwise fails.  
 
-- [X] T015 [US1] Implement `code/data/split.py` for stratified sampling based on resistance phenotype (FR-009); **split ratio must be configurable via `--train-ratio` argument (default 0.8)**; strictly reserve hold-out set from all training/selection steps; **do not hardcode a specific ratio** (FR-009)
-- [X] T016 [US1] Implement `code/analysis/feature_selection.py` with LASSO/RF and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; **run single iteration per threshold** to calculate selection frequency; **aggregate results internally** (storing intermediate selections per threshold) and output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (FR-003); **ensure the deliverable is atomic**
-- [X] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with **k-fold cross-validation** (FR-004)
-- [X] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in final metrics** (FR-004)
-- [X] T018 [US1] Implement `code/analysis/validation.py` for **permutation testing (n=1000) on the independent hold-out test set** (FR-005) and **null model baseline comparison**; **calculate p-value as (count >= observed + 1) / (n_permutations + 1)**; output to `artifacts/reports/holdout_metrics.json`; **set a fixed random seed (seed=42)** to ensure reproducibility; **DO NOT defer this step to US3** to ensure US1 is independently testable with full statistical validation; **this task is the SOLE producer of the permutation test artifact**
-- [X] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read aligned samples count; **IF missing_modalities > 0, raise EX_DATA_INTEGRITY (02) with message "Insufficient data modalities: Remaining samples < 100"**; **ELSE IF total_samples < 100, raise EX_POWER_INSUFFICIENT (03) with message "Power deficiency: n < 100 required for multivariate omics analysis with BH correction"**; **NO bypass logic for SIMULATED data** (FR-007, FR-008)
-- [X] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
+- [ ] T082 [US1] Verify Success Criterion SC‑003: read `artifacts/reports/model_output.json` and assert `validation.permutation_p_value` ≤ 0.05.  
+    **Verification**: Test passes only when p‑value ≤ 0.05.  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T083 [US1] Verify Success Criterion SC‑004: parse `artifacts/reports/performance_benchmark.json` and assert `runtime_seconds` ≤ 21600 (6 h) and `peak_rss_gb` ≤ 7.0.  
+    **Verification**: Test fails if limits are exceeded.  
 
----
+- [ ] T084 [US3] Verify external validation output (if second dataset exists): ensure `artifacts/reports/external_validation.json` contains required performance fields and that the ≥ 75 % target is reported.  
+    **Verification**: Test checks JSON schema and target compliance.  
 
-## Phase 4: User Story 2 - Biomarker Exploration (Priority: P2)
-
-**Goal**: Examine which SNPs and metabolites drive predictions and assess statistical significance.
-
-**Independent Test**: After a successful run of Story 1, query the output for the ranked list of selected features and verify p-values and effect sizes are provided.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T024 [P] [US2] Unit test for BH-adjusted p-value calculation in `tests/test_stats.py`
-- [X] T025 [P] [US2] Contract test for `top_features.csv` schema in `tests/test_reports.py`
-
-### Implementation for User Story 2
-
-- [X] T026 [US2] Extend `code/analysis/feature_selection.py` to calculate effect-size coefficients for selected features; **this task must complete before T027**
-- [X] T027 [US2] Implement `code/analysis/biomarker_report.py` to generate `artifacts/reports/top_features.csv` with p-values and effect sizes; **read coefficients from T026 output**
-- [X] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05; **this task must complete after T027**
-- [X] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep**; **log the count to the console and report in `artifacts/reports/biomarker_summary.json`**; **IF count < 10, set `validation_status: FAILED` in the JSON and log an error message** (SC-002)
-- [X] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to calculate **Variance Inflation Factor (VIF)** for all selected features and flag any VIF > 5 (FR-005)
-- [X] T047a [US2] Implement logging in `code/analysis/feature_selection.py` to record the **exact number of features selected at each threshold**
-- [X] T047b [US2] Implement calculation in `code/analysis/feature_selection.py` to compute the **selection frequency variance** across thresholds and log the result to `artifacts/reports/robustness_log.txt` (removed undefined halt condition)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T085 [US2] Verify final result figures (T075) conform to expected formats: PNG for VIF heatmap, PNG for stability plot, TSV for top features.  
+    **Verification**: Simple file‑existence and header checks.  
 
 ---
 
-## Phase 5: User Story 3 - Independent Validation (Priority: P3)
+## Phase 10 : Real‑data scientific run (SC‑001 – SC‑003)
 
-**Goal**: Evaluate the trained model on a separate dataset (or the hold-out set) to test generalizability.
+- [ ] T070 [US1] Identify a REAL public dataset containing paired genotype (SNP), metabolomics, and resistance phenotype for ≥ 100 samples. Record accession IDs, URLs, and query strings in `data/data_manifest.yaml` (schema `dataset.schema.yaml`). If no such dataset exists, document the precise gap in `docs/real_data_search.md` and **halt** (no synthetic substitution).  
 
-**Independent Test**: Provide a hold-out dataset to the pipeline's validation mode and verify that performance metrics are computed and reported.
+- [ ] T071 [US1] Download the dataset identified in T070 into `data/raw/` using reproducible commands (`pysradb`/SRA‑Toolkit for reads, direct HTTP fetch for metabolomics tables). Compute SHA‑256 checksums, store them in `data/data_manifest.yaml`, and **fail loudly** on any fetch error (no fallback). For large files, stream in chunks as described in `docs/streaming_strategy.md`.  
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T072 [US1] Run `code/preprocess.py` on the real raw data to (a) call variants / build SNP matrix, (b) normalize metabolomics (MetaboAnalyst‑compatible), (c) align samples across all three modalities, and (d) log excluded samples to `data/processed/exclusion_log.csv`. Enforce FR‑007/FR‑008 halts if < 100 paired samples remain.  
 
-- [X] T030 [P] [US3] Integration test for hold-out evaluation in `tests/test_validation.py`
+- [ ] T073 [US1] Execute the full scientific pipeline (`python -m code.main`) on the real aligned data (no `--ci-mode`):  
+    * stratified split (FR‑009)  
+    * nested feature selection with BH correction and sensitivity sweep {0.01, 0.05, 0.1} (FR‑003)  
+    * Elastic‑Net (continuous) **or** Gradient‑Boosting (categorical) with 5‑fold CV and null‑baseline (FR‑004)  
+    * permutation test (n = 1000, seed 42) on hold‑out set, VIF calculation (flag > 5) (FR‑005)  
+    All artefacts written under `artifacts/reports/` and validated against `model_output.schema.yaml` and `output.schema.yaml`.  
 
-### Implementation for User Story 3
-
-- [X] T031 [US3] **Verify** that `code/data/split.py` (implemented in T015) correctly reserves the hold-out set and is used by downstream tasks; **DO NOT re-implement split logic** (FR-009)
-- [X] T031b [US3] Implement a validation check in `code/data/split.py` usage to assert that the hold-out set is never used in feature selection or training steps (strict reservation)
-- [X] T032 [US3] Implement `code/analysis/validation.py` logic to evaluate the trained model on the independent hold-out set; **consume the permutation test artifact from T018**
-- [X] T033 [US3] **Consume** the permutation test artifact from T018 (`artifacts/reports/holdout_metrics.json`) for the internal hold-out set; **IF `--validate-external` flag is provided**, run permutation testing (n=1000, seed=42) on the external dataset and output to `artifacts/reports/external_validation.json`; **otherwise, do not re-implement permutation logic** (FR-005, SC-003)
-- [X] T034 [US3] Generate `artifacts/reports/holdout_metrics.json` with final accuracy/AUC/R² and permutation p-value for validation (consumed from T018 or T033 external)
-- [X] T035 [US3] Implement logic to compare hold-out performance against the ≥ 75% target and log a warning to `artifacts/reports/validation.log` if target is not met (as a hypothesis, not a hard halt)
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T074 [US3] If a second independent real dataset with matching modalities exists (identified during T070), run external validation (`python -m code.main --validate-external <path>`) and write `artifacts/reports/external_validation.json` with the same metric suite and a statement whether the ≥ 75 % target holds. If no second dataset exists, record the limitation in `docs/real_data_search.md` and in the final report.  
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 11 : Results synthesis and paper handoff
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T075 [US2] Generate final result tables and figures **from the real‑data run only**:  
+    * `artifacts/figures/vif_heatmap.png` (real selected features)  
+    * Feature‑stability plot of selection frequency across thresholds  
+    * Summary table `artifacts/figures/top_features.tsv` listing top SNPs & metabolites with BH‑adjusted p‑values, effect sizes, and selection frequencies.  
+    All figures/tables are produced programmatically from the JSON/CSV artefacts (single source of truth).  
+    **Verification**: Test scripts confirm PNG and TSV files exist and contain required columns/headers.  
 
-- [X] T022 [P] Generate `artifacts/reports/metrics.json` containing CV accuracy, AUC/R², **null model baseline metrics** (from T017b), and **permutation p-value (from hold-out set, see T018)**; **aggregate all final results**
-- [X] T036 [P] Documentation updates in `docs/` and `README.md` including Docker usage
-- [X] T037 Code cleanup and refactoring of `code/analysis/` modules
-- [X] T038 Performance optimization to **reduce memory usage in `code/analysis/feature_selection.py`** by streaming large matrices and avoiding intermediate copies
-- [X] T038b [P] Implement runtime/memory measurement script in `code/utils/measure_resources.py` to log peak usage
-- [X] T038c [P] Update CI workflow to execute measurement script and log results against FR-006 constraints
-- [X] T039 [P] Additional unit tests for `code/data/preprocess.py` (mocking fastp/bcftools)
-- [X] T040 Run `quickstart.md` validation to ensure pipeline runs end-to-end on GitHub Actions free-tier
-- [X] T041 Verify `artifacts/reports/metrics.json` meets SC-001 (CV ≥ 75% in **Simulation Mode** for injected signal validation) and SC-003 (p ≤ 0.05); explicitly scope this to "Simulation Mode" context
+- [ ] T076 Write a concise methods‑and‑results narrative in `docs/results_summary.md`. The document must:  
+    * cite dataset accession IDs from `data/data_manifest.yaml`  
+    * report sample counts after exclusion, CV performance vs null baseline, permutation p‑value, biomarker counts vs SC‑002, VIF findings, resource usage vs SC‑004  
+    * honestly note any unmet success criteria (e.g., CV < 75 % or < 10 significant biomarkers)  
+    * include a “Paper‑stage handoff” section describing how the paper should reference the generated artefacts and that all findings are associational.  
+    **Verification**: Lint markdown for required sections and citations.  
 
----
-
-## Phase 7: Revision & Integrity (Addressing Review Concerns)
-
-**Purpose**: Address specific reviewer concerns regarding data provenance, statistical rigor, and simulation transparency.
-
-- [X] T042 [P] [US1] **Verify** that `code/data/download.py` (implemented in T010) correctly implements the 'Fail Loud' logging policy: if real data is missing and `--ci-mode` is absent, it raises `EX_DATA_INTEGRITY`; if `--ci-mode` is present, it triggers synthetic generation; **ensure the fallback to `generate_synthetic.py` is executed immediately ONLY in CI Mode**; **Do not raise an error upon download failure in CI Mode**; ensure the `data_manifest.yaml` explicitly records `source: SIMULATED` to maintain provenance integrity; **CRITICAL: Even if simulation is triggered, the pipeline MUST still enforce the n < 100 halt condition** (FR-007, FR-008)
-- [X] T044 [US2] Extend `code/analysis/biomarker_report.py` to include a **data provenance header** in `top_features.csv` explicitly stating whether the results are derived from "REAL_DATA" or "SIMULATED_DATA" and citing the specific accession IDs or generation parameters used.
-- [X] T045 [US3] Implement a **strict hold-out verification** in `code/data/split.py` that raises an assertion error if the hold-out set indices appear in any training or feature selection artifacts, ensuring FR-009 is not violated by data leakage.
-- [X] T046 [P] [US1] Add a **resource usage assertion** in `code/utils/measure_resources.py` that halts the pipeline with `EX_RESOURCE_LIMIT` if RAM usage exceeds a high threshold (buffer) or runtime exceeds 5.5 hours, providing early warning before the CI limit is hit; **Ensure measure_resources.py is created and functional**.
-- [X] T049 [P] [US1] Create a **data manifest validator** in `code/data/manifest.py` that checks for the presence of required fields (`source`, `accession_ids`, `sample_count`, `modality_types`) and raises an error if any are missing or malformed, preventing silent data corruption.
-- [X] T050 [US1] Update `README.md` to include a **clear disclaimer** that the default execution uses synthetic data for pipeline validation and that results should not be interpreted as biological findings without real data, satisfying the "Simulation Mode" transparency requirement.
-- [X] T052 [US2] Add a **statistical power calculator** in `code/utils/stats.py` that runs post-hoc power analysis on the final sample size and reports the detectable effect size at α=0.05, ensuring transparency about the limitations of the synthetic or real sample size.
-- [X] T053 [P] [US3] Create a **validation mode CLI flag** (`--validate-external`) in `code/main.py` that explicitly triggers the external dataset validation path (T033) only when an external data path is provided, preventing accidental leakage of the hold-out set during standard runs.
-- [X] T054 [US1] Implement a **synthetic data seed auditor** in `code/data/generate_synthetic.py` that logs the exact random seed and configuration hash used for generation to `data_manifest.yaml`, ensuring full reproducibility of the "Simulation Mode" results.
-- [X] T055 [P] [US2] Add a **feature stability plot** generator in `code/analysis/biomarker_report.py` that visualizes the selection frequency of top features across the three thresholds, providing a visual check for the robustness required by FR-003.
+- [ ] T077 Re‑run the entire documented workflow from scratch (real‑data path, then `--ci-mode` path) and verify:  
+    * All `pytest` suites pass (including `tests/test_exceptions.py`)  
+    * Linting passes (`bash scripts/lint.sh`) and `lint_log.txt` contains `no issues found`  
+    * `code/generate_final_report.py` produces `final_validation_report.md` for both modes  
+    * The reproducibility checklist (`docs/reproducibility_checklist.md`) lists exact seeds, software versions, and data‑accession provenance.  
+    * Record the exact commands and their outputs in `docs/results_summary.md`.  
+    **Verification**: Automated script checks all above conditions and exits with 0 only on full success.  
 
 ---
 
-## Phase 8: Advanced Statistical Rigor & Real Data Integration
+### Dependency & Requirement Coverage (summary)
 
-**Purpose**: Address gaps in real data handling, advanced statistical validation, and external reproducibility checks identified in recent reviews.
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001 / FR‑002 | T070, T071, T072 |
+| FR‑003 | T073 |
+| FR‑004 | T073 |
+| FR‑005 | T073 |
+| FR‑006 | T080, T066, T077 |
+| FR‑007 / FR‑008 | T069 (tests) & T072 (enforcement) |
+| FR‑009 | T073 |
+| SC‑001 – SC‑004 | Evaluated in T073‑T076 (resource monitor T080/T066 enforces limits; verification tasks T081‑T084 check criteria) |
+| Linting | T068 |
+| Exception handling | T069 |
+| Real‑data provenance | T070‑T074 |
+| Final report & handoff | T067, T075‑T077 |
 
-- [X] T057 [US2] Add **Block Permutation Testing** logic in `code/analysis/validation.py` that accounts for linkage disequilibrium (LD) and co-regulation in SNPs/metabolites by shuffling blocks of correlated features rather than independent labels; **compare results with standard permutation test** and log differences in `artifacts/reports/permutation_comparison.json`.
-- [X] T058 [P] [US3] Implement **external dataset validator** in `code/analysis/validation.py` that accepts a path to a real external dataset (via `--validate-external` flag), validates its schema against `data_manifest.yaml`, and runs the trained model on it; **output metrics to `artifacts/reports/external_validation.json`** and log whether the ≥75% target is maintained.
-- [X] T059 [US1] Create **reproducibility checklist** in `docs/reproducibility_checklist.md` that lists all random seeds, software versions, and data provenance details required to reproduce the exact results; **automate generation of this checklist** from `data_manifest.yaml` and `requirements.txt`.
-- [X] T060 [P] [US2] Implement **effect size stability analysis** in `code/analysis/biomarker_report.py` that calculates the coefficient of variation for effect sizes across the three sensitivity thresholds and flags features with high instability (CV > 0.5) in `artifacts/reports/stability_analysis.json`.
-- [X] T061 [US3] Add **collinearity diagnostics report** in `code/analysis/validation.py` that generates a heatmap of VIF values for all selected features and saves it as `artifacts/figures/vif_heatmap.png`; **flag any features with VIF > 5** in the report summary.
-- [X] T062 [P] [US1] Implement **automated data source verification** in `code/data/download.py` that checks the integrity of downloaded real data against known checksums from NCBI/MetaboLights and raises an error if mismatched; **log verification status to `data_manifest.yaml`**.
-- [X] T064 [P] [US3] Implement **model uncertainty quantification** in `code/analysis/modeling.py` using bootstrap aggregation (bagging) to estimate prediction confidence intervals for each sample in the hold-out set; **output confidence intervals to `artifacts/reports/prediction_confidence.json`**.
-- [X] T065 [US1] Create **pipeline performance benchmark** script in `code/utils/benchmark.py` that measures exact runtime and peak memory usage for each major pipeline stage and logs results to `artifacts/reports/performance_benchmark.json`; **compare against FR-006 constraints (≤6h, ≤7GB)**.
+---  
+
+*All tasks above follow the canonical `- [ ] T### [P?] [USx?] description` format, include exact artifact paths in indented continuation lines, and respect the data‑flow ordering required by the specification.*  

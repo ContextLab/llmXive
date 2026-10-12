@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.05850",
+  "judged_at": "2026-10-12T00:46:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "rationale": "The paper focuses on building a Yiddish language model and benchmark, which is unrelated to anti-self-distillation, reasoning reinforcement learning, or pointwise mutual information; it does not share the mechanism, variables, or domain of the user's question.",
+  "relevant": false
+}

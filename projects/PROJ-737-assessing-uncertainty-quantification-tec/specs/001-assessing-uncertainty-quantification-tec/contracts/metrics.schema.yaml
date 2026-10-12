@@ -28,7 +28,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "Target coverage level (e.g., 0.95)."
+    description: "Target coverage level (e.g., a high proportion)."
   timestamp:
     type: string
     format: date-time

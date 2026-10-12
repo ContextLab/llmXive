@@ -1,19 +1,26 @@
 """
 Unit tests for src/data/validate.py
 """
+
 import os
 import sys
 import tempfile
-import pytest
-import pandas as pd
-import yaml
 from pathlib import Path
+
+import pandas as pd
+import pytest
+import yaml
 
 # Add project root to path for imports if running standalone
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.data.validate import load_schema, validate_columns, validate_data, E_SCHEMA_MISSING
+from src.data.validate import (
+    E_SCHEMA_MISSING,
+    load_schema,
+    validate_columns,
+    validate_data,
+)
 
 
 @pytest.fixture
@@ -21,9 +28,9 @@ def temp_schema_file():
     """Creates a temporary schema file for testing."""
     schema = {
         "version": "1.0",
-        "required_columns": ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE", "LLT"]
+        "required_columns": ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE", "LLT"],
     }
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         yaml.dump(schema, f)
         temp_path = f.name
     yield temp_path
@@ -38,10 +45,10 @@ def valid_csv_file():
         "SOC_CODE": ["SOC001", "SOC002"],
         "LLT": ["LLT001", "LLT002"],
         "REPT_DATE": ["2021-01-01", "2021-01-02"],
-        "AGE": ["30", "45"]
+        "AGE": ["30", "45"],
     }
     df = pd.DataFrame(data)
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
         df.to_csv(f, index=False)
         temp_path = f.name
     yield temp_path
@@ -54,11 +61,11 @@ def invalid_csv_file():
     data = {
         "VAX_TYPE": ["COVID-19"],
         "LLT": ["LLT001"],
-        "AGE": ["30"]
+        "AGE": ["30"],
         # Missing SOC_CODE and REPT_DATE
     }
     df = pd.DataFrame(data)
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
         df.to_csv(f, index=False)
         temp_path = f.name
     yield temp_path
@@ -92,7 +99,9 @@ class TestValidateData:
         result = validate_data(valid_csv_file, temp_schema_file)
         assert result is True
 
-    def test_validate_data_missing_columns_raises(self, invalid_csv_file, temp_schema_file):
+    def test_validate_data_missing_columns_raises(
+        self, invalid_csv_file, temp_schema_file
+    ):
         with pytest.raises(SystemExit) as exc_info:
             validate_data(invalid_csv_file, temp_schema_file)
         assert exc_info.value.code == E_SCHEMA_MISSING
@@ -108,8 +117,9 @@ class TestMainCommandLine:
         # Simulate command line arguments
         original_argv = sys.argv
         try:
-            sys.argv = ['validate.py', valid_csv_file, temp_schema_file]
+            sys.argv = ["validate.py", valid_csv_file, temp_schema_file]
             from src.data.validate import main
+
             # We expect main to exit with 0 on success
             # However, pytest captures sys.exit. We need to handle this carefully.
             # Ideally, we test the logic, but for CLI tools, checking exit code is standard.
@@ -122,8 +132,9 @@ class TestMainCommandLine:
     def test_main_failure(self, invalid_csv_file, temp_schema_file, capsys):
         original_argv = sys.argv
         try:
-            sys.argv = ['validate.py', invalid_csv_file, temp_schema_file]
+            sys.argv = ["validate.py", invalid_csv_file, temp_schema_file]
             from src.data.validate import main
+
             with pytest.raises(SystemExit) as exc_info:
                 main()
             assert exc_info.value.code == E_SCHEMA_MISSING

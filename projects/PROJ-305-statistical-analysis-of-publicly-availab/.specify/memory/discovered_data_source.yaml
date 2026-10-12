@@ -1,0 +1,9 @@
+status: none
+intent: VAERS 2020-2023 dataset with MedDRA codes and SOC mapping python package dataset
+required_fields:
+- vax_type
+- meddra_code
+- soc
+cache_key: 884cda43d352ede82148f0cab00293b17d9f01ff0ff2a96edb3ab9f6d5d8ccee
+searched_at: '2026-10-12T00:17:54.671612+00:00'
+retry_count: 1

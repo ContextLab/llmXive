@@ -26,13 +26,14 @@ def get_column_mapping(df: pd.DataFrame) -> Tuple[Dict[str, str], bool]:
     mapping = {}
     cols = df.columns.tolist()
     
+    # Keywords to identify columns based on the WCST and aging study context
     heuristics = {
-        "participant_id": ["id", "subj", "participant", "pid"],
+        "participant_id": ["id", "subj", "participant", "pid", "subject"],
         "age": ["age"],
-        "stimulus_type": ["condition", "group", "stimulus", "type", "nostalgia"],
-        "perseverative_errors": ["persev", "error", "err"],
-        "categories_completed": ["cat", "complete", "success"],
-        "mmse_score": ["mmse"]
+        "stimulus_type": ["condition", "group", "stimulus", "type", "nostalgia", "treatment"],
+        "perseverative_errors": ["persev", "error", "err", "perseverative"],
+        "categories_completed": ["cat", "complete", "success", "categories"],
+        "mmse_score": ["mmse", "mini-mental"]
     }
     
     for target, keywords in heuristics.items():
@@ -77,9 +78,8 @@ def fetch_data() -> Tuple[pd.DataFrame, str, str]:
     # (b) HuggingFace Probe
     try:
         log.info("Probing HuggingFace for WCST datasets...")
-        # Attempt a search or a known candidate if available.
+        # Attempt a representative repository search or a known candidate.
         # Per spec: datasets.load_dataset("<huggingface-repo>", name="wcst", split="train", streaming=False)
-        # Since no verified repo was provided in context, we try a representative attempt.
         hf_repo = "cognitive_flexibility/wcst" 
         dataset = load_dataset(hf_repo, name="wcst", split="train", streaming=False)
         df = pd.DataFrame(dataset)
@@ -89,8 +89,8 @@ def fetch_data() -> Tuple[pd.DataFrame, str, str]:
     except Exception as e:
         log.warning(f"HuggingFace fetch failed: {e}")
 
-    # Final Failure
-    log.error("All real data sources failed.")
+    # Final Failure - No synthetic fallback allowed
+    log.error("All real data sources failed to provide a usable WCST dataset.")
     raise RealDataFetchFailed("Could not acquire real WCST data from OpenML or HuggingFace.")
 
 def main():

@@ -1,3 +1,45 @@
+T001:
+  c: false
+  h: 34fb802501068712e12e832a484da335c4d5ad230eada060d3210a969e23079f
+  r: "The directory tree itself was created (src/, data/, output/, contracts/ subdirectories\
+    \ all confirmed present), and the setup script's execution log claims a snapshot\
+    \ was written. However, the collector's on-disk evidence does not confirm that\
+    \ `logs/` or `logs/structure.txt` exist \u2014 the required snapshot artifact\
+    \ is missing from the actual artifacts, so the verification condition (non-empty\
+    \ `logs/structure.txt` containing a line for each listed directory) cannot be\
+    \ confirmed. The implementer should ensure `logs/structure.txt` is actually present\
+    \ and populated (e.g., re-run the snapshot step and"
+  sig: 68b2aef92d2c2b7f139286b3af2bf5688bb3236b8a2b569c401115458d142ff1
+T002:
+  c: true
+  h: 0acb25cee8512674e740cd53cfa932eb129b079d944de6daa5c3f4f8dd877c3e
+  r: The README.md exists (279 bytes) and contains the exact required title "Statistical
+    Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports" plus a
+    one-sentence description of the pipeline. The .gitignore is not shown in the evidence,
+    but the README content satisfies the primary verification; the title grep requirement
+    is met by the confirmed file contents.
+  sig: 0c3df69659c1a9c0140b591f5ecb221a4a119aa14c373a436c4d5b2b5e81081b
+T004:
+  c: true
+  h: 4f2e7181cd6b3d50e3c3e5521f98fd64a87303a471742ce1350678e1c1de4625
+  r: All three destination files (`contracts/dataset.schema.yaml`, `contracts/signal.schema.yaml`,
+    `contracts/soc_cluster.schema.yaml`) exist, are non-empty, and are byte-identical
+    to their spec sources (matching sha256 hashes). The verification command's `data/processed/dummy.csv`
+    is missing, but that file belongs to a later preprocessing task, not this copy
+    task; the schemas themselves are well-formed YAML matching the spec contracts.
+  sig: f3650f69aad5edf7963d6f475f0038816473b8e8568dd904c67288e4764a577a
+T005:
+  c: false
+  h: a7027dddc7cc65bc23505d7222cc6f499ce49b9bc304aa38048f343a31160686
+  r: "The `src/utils/plots.py` file contains a literal placeholder \u2014 a comment\
+    \ saying \"the original content of the file is omitted for brevity\" \u2014 instead\
+    \ of the actual `plot_weekly_counts`, `plot_signal_table`, etc. functions that\
+    \ the provided `tests/unit/test_plots.py` imports from `src.utils.plots`, so those\
+    \ tests would fail with ImportError. Additionally, the required verification evidence\
+    \ is absent: `logs/config_import.txt` does not exist, `output/figures/` is empty\
+    \ (no PNGs), and there is no test-run evidence; the two required functions exist\
+    \ only in a file whose other content is fabricated/omi"
+  sig: 257c8769dfea138d4bc421f7a2d37339c93756400d98ba83c9d01b70907a61b5
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
@@ -6,55 +48,3 @@ T011:
     (truncated) does not contain a test that asserts an `E_SCHEMA_MISSING` exception
     is raised for missing columns; it only checks for a generic `SystemExit`. Both
     the required source file and the specific test for `E_SCHEMA_MISSING` are missing.
-T019:
-  c: false
-  h: d0b2661ff4d5139c18e22e8de91ac06044090ffd003a388f40d65d1043b60c5d
-  r: "The required unit\u2011test file `tests/unit/test_disproportionality.py` is\
-    \ missing; no test code is present to verify ROR/PRR/IC calculations or continuity\
-    \ correction. The task therefore is not satisfied."
-T022:
-  c: false
-  h: 70376ca5305becd099edd7ae01e925931ac563bd06fe5c4f8594712758f9ef32
-  r: "The repository contains a `src/analysis/disproportionality.py` file, but it\
-    \ only defines helper functions and does not include code that reads the required\
-    \ `data/processed/cleaned_vaers_full_non_covid.parquet` file, iterates over all\
-    \ SOCs, or writes out the 2\xD72 tables. Moreover, the specified input parquet\
-    \ file is absent from the project. Both the missing data file and the incomplete\
-    \ script prevent the task from being fulfilled."
-T025b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/signals.csv` file or its contents were presented, so we cannot confirm\
-    \ the required columns, values, or the `background_rate_status` setting. The implementer\
-    \ must supply the actual CSV file with the specified schema and ensure all rows\
-    \ have `background_rate_status` set to \u201CUNKNOWN\u201D."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/sensitivity_analysis.csv` file or its contents were presented; therefore\
-    \ the required delta\u2011metrics CSV with the specified columns does not exist\
-    \ in the provided evidence. The task remains unfinished."
-T030:
-  c: false
-  h: bdcc28600994aee9e860628962de8e12d9af16f7ebeaa77a9cb4d4069f16d077
-  r: Both required artifacts (`src/analysis/temporal.py` and `tests/unit/test_temporal.py`)
-    are missing from the repository, so no unit test or implementation exists to verify
-    the weekly aggregation logic. The task is therefore not satisfied.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required files (`output/signals.csv` with identified top\u2011\
-    5 SOCs, or the fallback `output/temporal_profiles/empty_signal_warning.txt`) was\
-    \ provided, nor any indication that T026 was satisfied. The implementer\u2019\
-    s claim cannot be verified without these artifacts."
-T039:
-  c: false
-  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
-  r: "The required `src/main.py` file is missing, so no memory\u2011check logic, logging\
-    \ to `logs/memory.log`, or exit code `E_MEMORY_LIMIT` can be verified. The deliverable\
-    \ artifact does not exist."
-T040:
-  c: false
-  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
-  r: "The required file `src/main.py` does not exist, so no memory\u2011check logic,\
-    \ logging, or exit code can be present. The deliverable artifact is missing entirely."

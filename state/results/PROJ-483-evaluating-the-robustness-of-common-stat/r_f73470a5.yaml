@@ -1,0 +1,15 @@
+captured:
+  path: results/power_report.json
+  sha256: ba2403571cf39afeb6de9c44654647847696cec27dfc3e1aead06689410dc52f
+created_at: '2026-10-11T22:37:38Z'
+env_sha: ba2403571cf39afe
+hmac: ddc72faaa00cdd047c7d2b50b69edcca3f1b13c23e68202ba7454d7e9a2780dd
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: f73470a5d0e149850c946adc6752a1f0ca1cea9dc4d37ed1d6d642b8d0b5ec12
+producer:
+  artifact: results/power_report.json
+  stage: implementation_preview
+result_id: r_f73470a5
+value: results/power_report.json

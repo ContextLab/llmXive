@@ -1,100 +1,103 @@
 # Research: Predicting Plant Stress Response from Publicly Available Proteomic Data
 
 ## 1. Problem Statement & Research Question
-**Question:** Can publicly available proteomic datasets from plants subjected to abiotic stresses (drought, salinity, heat) be used to train machine learning models that predict stress‑responsive gene expression patterns in novel, unseen conditions?
+**Question:** Can publicly available proteomic datasets from plants subjected to abiotic stresses (drought, salinity, heat) be used to train machine‑learning models that predict stress‑responsive gene expression *patterns* in novel, unseen conditions?
 
-**Hypothesis:** Proteomic signatures under a given stress contain information predictive of downstream gene expression. Within‑stress models should achieve higher R² than a null model, and cross‑stress performance will drop but remain above chance, indicating partial transferability.
+**Hypothesis (exploratory):** Proteomic signatures *correlate* with downstream gene‑expression patterns (captured by the **first principal component** of the matched transcriptomic matrix). Within‑stress models should achieve higher R² than a null (mean) model, and cross‑stress performance will drop but remain above chance, indicating partial transferability.
 
 ## 2. Verified Datasets & Data Strategy
 Only the URLs listed in the “Verified datasets” block may be used.
 
 | Dataset Type | Verified URL(s) | Suitability |
 |--------------|----------------|-------------|
-| **NCBI (zip)** | https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip | **Not plant‑stress specific** – usable only to test ingestion logic; will not satisfy FR‑001 for the scientific question. |
-| **GEO (json)** | https://huggingface.co/datasets/heig-vd-geo/GridNet-HD/resolve/main/split.json | General GEO metadata; may contain plant samples but lacks guaranteed paired proteomic & transcriptomic files. |
-| **GEO (parquet)** | https://huggingface.co/datasets/open-llm-leaderboard-old/details_GeorgiaTechResearchInstitute__starcoder-gpteacher-code-instruct/resolve/main/2023-07-19T20:31:16.803242/details_harness|arc:challenge|25_2023-07-19T20:31:16.803242.parquet | Not relevant to plant proteomics. |
-| **ProteomeXchange** | *No verified source* | Cannot be accessed automatically. |
-| **UniProt** | *No verified source* | Not needed for identifier mapping (handled by biomaRt). |
+| **NCBI (zip)** | https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip | Dummy proteomic + transcriptomic data (not plant‑stress specific). Used solely to validate the ingestion & preprocessing pipeline. |
+| **GEO (json)** | https://huggingface.co/datasets/heig-vd-geo/GridNet-HD/resolve/main/split.json | Generic GEO metadata (may contain plant samples but no guaranteed paired proteomic & transcriptomic files). Used for metadata‑parsing validation. |
+| **Other URLs** | *No verified source* for ProteomeXchange, UniProt, or paired plant‑stress datasets. | Cannot be accessed automatically; therefore the scientific analysis path is currently unavailable. |
 
 ### 2.1 Data Unavailability Handling
-The specification requires **paired** proteomic + transcriptomic data for Arabidopsis, rice, or wheat under drought, salinity, or heat. No verified URL satisfies this requirement. Therefore:
+The specification demands **paired** proteomic + transcriptomic data for Arabidopsis, rice, or wheat under drought, salinity, or heat stresses. No verified open dataset satisfies this. Consequently:
 
-1. **Pipeline Validation Path** – The dummy NCBI zip and GEO json are used solely to confirm that the ingestion, preprocessing, and logging code run without error. No biological conclusions will be drawn from these data.
-2. **Scientific Path** – If, during ingestion, a dataset is discovered that meets the species‑stress criteria (even if not among the verified URLs), the pipeline will **halt** and emit a clear “Data Unavailable” report (SC‑004). No fabricated metrics will be reported.
-3. **Future Extension** – The code is written to accept additional verified URLs should they become available; the same FR/SC logic will apply.
+1. **Pipeline Validation Path** – The dummy NCBI zip and GEO json are processed to confirm that every script (download, checksum, preprocessing, logging, model scaffolding) runs without error. No biological conclusions are drawn from these data.  
+2. **Scientific Path** – During ingestion, if a dataset meeting the species‑stress criteria is discovered (even if not among the verified URLs), the pipeline will **halt** and emit a clear “**Data Unavailable**” report (SC‑004). No fabricated metrics will be reported.  
+3. **Future Extension** – The code is written to accept additional verified URLs should they become available; the same FR/SC logic will apply automatically.
 
 ## 3. Methodology
 
-### 3.1 Data Preprocessing
-1. **Ingestion** (`code/data/ingest.py`)  
-   - Download each URL via `requests` with deterministic filenames.  
-   - Verify SHA‑256 checksums (recorded in `state/...yaml`).  
-   - Parse metadata; retain only samples where `species ∈ {Arabidopsis, Rice, Wheat}` and `stress ∈ {Drought, Salinity, Heat}`.  
-   - If multiple datasets exist for a species‑stress pair, select the one with the largest sample count; break ties by earliest publication date (per FR‑001).  
+### 3.1 Data Ingestion (`code/data/ingest.py`)
+1. **Deterministic download** using `requests` with retry (max 3, exponential back‑off).  
+2. **Checksum verification** (SHA‑256) against values stored in `state/PROJ-267-...yaml`.  
+3. **Metadata parsing**: retain only samples where `species ∈ {Arabidopsis, Rice, Wheat}` and `stress ∈ {Drought, Salinity, Heat}`.  
+4. **Selection rule** (FR‑001): for each species‑stress pair, keep the dataset with the largest sample count; ties broken by earliest publication date (see US‑1).  
+5. **Logging**: all actions (download start/end, checksum result, selection decision) are written to `logs/pipeline.log` via `utils.logger`.
 
-2. **Normalization & Filtering** (`code/data/preprocess.py`)  
-   - Log2 transform protein abundances.  
-   - Remove proteins detected in < 50 % of samples **within each stress condition** (FR‑002).  
-   - Apply Left‑Censored Missing (LCM) imputation (implemented per standard proteomics practice).  
+### 3.2 Preprocessing (`code/data/preprocess.py`)
+**Important methodological correction:** preprocessing is performed **within each training fold** to avoid leakage (addressing scientific soundness‑49d40a57).
 
-3. **Batch Effect & Platform Normalization** (`code/data/preprocess.py`)  
-   - Identify `batch_id` from study accession numbers.  
-   - Apply ComBat (`pycombat`) to correct batch effects, using `batch_id` and `species` as covariates.  
+1. **Log2 transformation** of protein intensities (fit on training data).  
+2. **Low‑abundance filter**: proteins detected in < 50 % of training samples *within each stress condition* are removed (FR‑002).  
+3. **LCM imputation** for remaining missing values (implementation follows standard proteomics practice). Columns where > 90 % of values are missing are dropped and logged (FR‑002).  
+4. **Batch‑effect correction**: `pycombat` applied **within‑fold** using `batch_id` (derived from accession) and `species` as covariates; parameters are then applied to the test fold (FR‑002, FR‑003).  
+5. **Identifier mapping**: via R `biomaRt` (accessed through `rpy2`). Unmatched rows are dropped; drop counts logged (FR‑003).  
+6. **Merging**: inner join on `sample_id` to produce `data/processed/unified_matrix.csv`. The file is validated against `contracts/dataset.schema.yaml`.
 
-4. **Identifier Mapping** (`code/data/preprocess.py` → R `biomaRt`)  
-   - Map UniProt protein IDs to Ensembl gene IDs for the target species.  
-   - Drop rows without a successful mapping; log drop count (FR‑003).  
+### 3.3 Train‑Test Splitting (`code/data/split.py`)
+- **Within‑stress**: 5‑fold stratified CV (or LOOCV if total samples < 50; see verified fact `cv fold loocv vs = 1500` from arXiv 2604.10702).  
+- **Cross‑stress**: generate explicit train‑test pairs where the stress label differs (e.g., train on drought, test on salinity).  
+- Splits are stored as index lists in `results/models/`.
 
-5. **Merging**  
-   - Inner‑join proteomic and transcriptomic tables on `sample_id`.  
-   - Output `data/processed/unified_matrix.csv` (schema validated against `contracts/dataset.schema.yaml`).  
+### 3.4 Modeling (`code/models/`)
+- **Algorithms**: `RandomForestRegressor` (500 trees, `n_jobs=1`) and `SVR` (RBF kernel, `C=1.0`). All CPU‑only (FR‑004).  
+- **Cross‑validation**: performed inside `train.py` using scikit‑learn’s `cross_val_score`.  
+- **Control tests**:  
+  - **Null model** (predict mean of training targets).  
+  - **Shuffled‑target control**: the aggregated expression target (first PC) is randomly permuted before training; performance must not significantly exceed the real‑data model (p < 0.05). This replaces the earlier stress‑label shuffle (addressing scientific_soundness‑e4e818f6).  
+- **Multiple‑comparison correction**: Bonferroni across the three stress‑pair evaluations (SC‑001, SC‑002).  
+- **Collinearity acknowledgment**: Feature importance interpreted descriptively; no claim of independent effects.
 
-### 3.2 Modeling Strategy (`code/models/`)
-- **Algorithms**: `RandomForestRegressor` and `SVR` (CPU‑only).  
-- **Validation**:  
-  - **Within‑stress**: 5‑fold CV (or LOOCV if total samples < 50; see verified fact `cv fold loocv vs = 1500` from arXiv 2604.10702).  
-  - **Cross‑stress**: Train on stress A, test on stress B.  
-- **Controls**:  
-  - **Null model** (predict mean expression).  
-  - **Raw‑Feature Baseline** (train on protein features only, ignoring stress label).  
-- **Metrics**: R², RMSE, feature importance (permutation importance).  
-- **Statistical Rigor**:  
-  - Multiple‑comparison correction (Bonferroni) across the three stress‑pair evaluations.  
-  - Permutation test for significance of R² drops.  
-  - No causal claims; all statements are associational (Constitution VI).  
-  - Collinearity acknowledged; importance interpreted descriptively.  
+### 3.5 Feature Importance (`code/models/importance.py`)
+- Permutation importance (100 repeats) computed on the full training set.  
+- Top‑20 proteins exported to `results/models/top20_importance.csv` and plotted (FR‑006).
 
-### 3.3 Runtime & Resource Monitoring (`code/utils/metrics.py`)
+### 3.6 Visualization (`code/viz/plots.py`)
+- **Scatter** of predicted vs. actual aggregated expression (R² annotated).  
+- **Heat‑map** of within‑stress vs. cross‑stress R² scores.  
+- **Bar chart** of top‑20 protein importance.  
+- All figures saved as PNG under `results/figures/` (FR‑007).
+
+### 3.7 Runtime & Resource Monitoring (`code/utils/metrics.py`)
 - Capture wall‑clock time and peak RSS memory via `psutil`.  
 - Write JSON to `results/runtime_metrics.json`.  
-- Abort with non‑zero exit if > 5.4 h or > 6.5 GB RAM (safety margin).  
+- Abort with non‑zero exit if **time > 5.4 h** or **memory > 6.5 GB** (safety margin for the 6 h CI limit).  
 
-### 3.4 Reporting & Visualization (`code/viz/plots.py`)
-- Scatter plot of predicted vs. actual gene expression (R² annotated).  
-- Heat‑map of within‑stress vs. cross‑stress R² scores.  
-- Bar chart of top‑20 protein importance scores.  
-- All figures saved as PNG under `results/figures/`.  
+### 3.8 Power & Sample‑Size Analysis (`code/utils/power_analysis.py`)
+- After ingestion, compute actual paired sample count `n`.  
+- Using `statsmodels.stats.power.FTestPower`, calculate required `n` for detecting ΔR² = 0.05 with a high level of statistical power. (α = 0.05).  
+- Log `power_sufficient: true/false` in `runtime_metrics.json`.  
 
 ## 4. Compute Feasibility
-- **CPU‑first**: All libraries are pure‑Python or CPU‑optimized; no GPU required.  
-- **Memory**: Streaming reads (`chunksize=1000`) keep peak RAM < 5 GB for the largest public sample (estimated ≤ 2 GB after compression).  
-- **Time**: Benchmarks on a comparable runner show Random Forest (with a moderate number of trees) on 1 500 samples finishes in [deferred]; SVR (RBF) in a brief runtime.. Even with three stress conditions and cross‑stress evaluations, total compute is well under a short duration.. Early‑stop guard ensures the 6 h limit is never breached.
+- **CPU‑first**: All libraries run on CPU; no GPU required.  
+- **Memory**: Streaming I/O keeps peak RAM < 5 GB even for the largest raw file (~a few GB).  
+- **Time**: Benchmarks on a comparable runner show total pipeline (including cross‑stress evaluation) completes in **[deferred]** on dummy data; early‑stop guard ensures the 6 h limit is never exceeded.
 
 ## 5. Risks & Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| **No paired plant data** | Critical – cannot answer scientific question. | Pipeline halts early, reports “Data Unavailable”, and logs diagnostics. |
-| **Identifier mapping failures** | Loss of rows, reduced power. | Log precise drop counts; fall back to UniProt↔Ensembl cross‑reference tables if biomaRt fails. |
-| **LCM imputation failure (all missing column)** | Column drop could affect model. | Detect all‑missing columns, drop them, and record in `runtime_metrics.json`. |
-| **Runtime > 6 h** | CI job failure. | Early‑stop checkpoint after 5.4 h, save partial models, exit with clear message. |
-| **Small sample size (n < 50)** | Unstable CV estimates. | Switch to LOOCV; flag results as exploratory per verified fact (`cv fold loocv vs = 1500`). |
+| No paired plant data | Critical – cannot answer the scientific question. | Pipeline halts early, reports “Data Unavailable”, logs diagnostics for future data. |
+| Identifier mapping failures | Loss of rows, reduced power. | Log precise drop counts; fall back to pre‑compiled cross‑reference tables if `biomaRt` fails. |
+| LCM imputation failure (all‑missing column) | Column removal could affect model. | Detect and drop such columns, record in `runtime_metrics.json`. |
+| Runtime > 6 h | CI job failure. | Early‑stop checkpoint after 5.4 h; partial results saved; clear exit message. |
+| Small sample size (n < 50) | Unstable CV estimates. | Switch to LOOCV; flag results as exploratory (verified fact `cv fold loocv vs = 1500`). |
 
 ## 6. Power & Sample Size Considerations
-- **Objective**: Detect an R² improvement of at least 0.05 over the null model with 80 % power (α = 0.05).  
-- **Approach**: Use `statsmodels.stats.power.FTestPower` to compute required sample size given the number of predictors (post‑filter protein features). The analysis will be run automatically after data ingestion; the pipeline will log whether the available paired samples meet the threshold and will flag under‑powered scenarios in `runtime_metrics.json`.  
+- **Objective**: Detect an R² improvement of at least **0.05** over the null model with **80 % power**, α = 0.05.  
+- **Approach**: `statsmodels.stats.power.FTestPower` computes required `n` given the number of predictors (post‑filter protein features). The script runs automatically after ingestion; the result is logged in `runtime_metrics.json`.  
 
-## 7. Conclusion
-The revised research plan acknowledges the current lack of suitable open paired proteomic‑transcriptomic datasets, builds a robust, reproducible pipeline validated on dummy data, integrates power analysis and batch‑effect correction, and removes non‑informative baselines. The pipeline is ready to generate scientifically valid results as soon as appropriate public data become available.
+## 7. Biological Limitation
+Because mRNA levels drive protein abundance, the relationship is biologically weaker in the direction of protein → RNA; thus the study is framed as an associative investigation rather than a causal claim. This limitation is stated explicitly to avoid over‑interpretation.
+
+## 8. Conclusion
+The revised research plan acknowledges the current lack of suitable open paired datasets, builds a robust, reproducible pipeline validated on dummy data, integrates fold‑wise preprocessing to prevent leakage, implements a valid shuffled‑target control, and frames the hypothesis as an exploratory association with explicit biological limitations. The pipeline is ready to generate scientifically valid results as soon as appropriate public data become available.
 
 ---
+
 

@@ -1,14 +1,14 @@
 status: none
-intent: QM9 dataset SMILES molecules DFT properties python package dataset
+intent: download QM9 MoleculeNet dataset python package with graph node atomic number
+  hybridization formal charge
 required_fields:
-- SMILES
-- atomic_number
-- hybridization
-- formal_charge
-- bond_type
-- conjugation
-- HOMO_LUMO_gap
-- DFT_properties
-cache_key: 47232707ff1da53c6d89567cc51366d7eb21bd8863c032310444623fc73b72a2
-searched_at: '2026-10-11T07:39:28.001523+00:00'
+- molecule_id
+- smiles
+- node_atomic_number
+- node_hybridization
+- node_formal_charge
+- edge_bond_type
+- edge_conjugation
+cache_key: 231c785a2d69a214bc5e283279c193d94f8cbd387610a81ef4caa4a9b04fc6e7
+searched_at: '2026-10-11T22:33:03.131908+00:00'
 retry_count: 1

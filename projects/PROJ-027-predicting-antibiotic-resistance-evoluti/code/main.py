@@ -1,21 +1,32 @@
 """
 Main entry point for the antibiotic resistance prediction pipeline.
 
-This script orchestrates the five pipeline stages:
+This script orchestrates the pipeline stages:
   1. Ingestion
-  2. Contract validation (pytest)
-  3. Modeling (training)
-  4. Validation (permutation + sensitivity)
-  5. Versioning / state finalization (hash artifacts)
+  2. Modeling (training)
+  3. Validation (permutation test + sensitivity analysis)
+  4. Visualization
+  5. Contract validation (pytest) – executed **after** all data‑producing stages
+  6. Versioning / state finalization (hash artifacts)
 
-It can be invoked for a single stage (using --stage) or for the full
-pipeline (default: run all stages in order).
+It records runtime statistics (start/end timestamps, duration,
+and peak RSS memory usage) and writes them to
+`data/processed/pipeline_runtime.json`.  If any stage fails, the
+script exits with a non‑zero code; contract validation aborts the
+pipeline with a dedicated exit code (E001 → 1).
 """
 
 import argparse
 import subprocess
 import sys
+import json
+import datetime
 from pathlib import Path
+
+import psutil
+
+# llmxive toolkit helpers for path creation
+from llmxive_toolkit import paths
 
 # Initialize pipeline-wide logging
 from utils.logging import init_pipeline_logging, get_logger
@@ -33,13 +44,36 @@ def run_subprocess(command: list, description: str) -> int:
     """
     logger.info(f"Running stage: {description}")
     logger.debug(f"Command: {' '.join(command)}")
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
     logger.debug(result.stdout)
     if result.returncode != 0:
-        logger.error(f"Stage '{description}' failed with exit code {result.returncode}")
+        logger.error(
+            f"Stage '{description}' failed with exit code {result.returncode}"
+        )
     else:
         logger.info(f"Stage '{description}' completed successfully")
     return result.returncode
+
+
+# Global variables for runtime measurement
+_START_TIME = datetime.datetime.now(datetime.timezone.utc)
+_PEAK_MEMORY = psutil.Process().memory_info().rss  # bytes
+
+
+def _update_peak_memory() -> None:
+    """Update the global peak memory measurement if current usage is higher."""
+    global _PEAK_MEMORY
+    try:
+        current = psutil.Process().memory_info().rss
+        if current > _PEAK_MEMORY:
+            _PEAK_MEMORY = current
+    except Exception as e:
+        logger.warning(f"Unable to update peak memory: {e}")
 
 
 def stage_ingest(args: argparse.Namespace) -> int:
@@ -54,39 +88,30 @@ def stage_ingest(args: argparse.Namespace) -> int:
         sys.executable,
         "code/01_ingest/download_ncbi.py",
         f"--bio_project={args.bio_project}",
-        f"--max-isolates={args.n_isolates}"
+        f"--max-isolates={args.n_isolates}",
     ]
     rc = run_subprocess(cmd_download, "download_ncbi")
+    _update_peak_memory()
     if rc != 0:
         return rc
 
     # 2. Process metadata
     cmd_metadata = [
         sys.executable,
-        "code/01_ingest/ingest_metadata.py"
+        "code/01_ingest/ingest_metadata.py",
     ]
     rc = run_subprocess(cmd_metadata, "ingest_metadata")
+    _update_peak_memory()
     if rc != 0:
         return rc
 
     # 3. Build feature matrix
     cmd_feature = [
         sys.executable,
-        "code/02_process/build_feature_matrix.py"
+        "code/02_process/build_feature_matrix.py",
     ]
     rc = run_subprocess(cmd_feature, "build_feature_matrix")
-    return rc
-
-
-def stage_contract_validation() -> int:
-    """
-    Run pytest on the contract tests. Abort on failure.
-    """
-    cmd = [sys.executable, "-m", "pytest", "tests/contract/"]
-    rc = run_subprocess(cmd, "contract_validation")
-    if rc != 0:
-        logger.error("Contract validation failed – aborting pipeline.")
-        sys.exit(EXIT_CONTRACT_FAILED)
+    _update_peak_memory()
     return rc
 
 
@@ -98,9 +123,11 @@ def stage_train(args: argparse.Namespace) -> int:
     cmd = [
         sys.executable,
         "code/03_model/train_models.py",
-        f"--antibiotic={args.antibiotic}"
+        f"--antibiotic={args.antibiotic}",
     ]
-    return run_subprocess(cmd, "train_models")
+    rc = run_subprocess(cmd, "train_models")
+    _update_peak_memory()
+    return rc
 
 
 def stage_validate(args: argparse.Namespace) -> int:
@@ -109,14 +136,26 @@ def stage_validate(args: argparse.Namespace) -> int:
       - phylo_permutation.py
       - sensitivity_analysis.py
     """
+    # Ensure permutations is an integer; the quickstart guide sometimes
+    # uses the placeholder "[sufficient_permutations]".
+    try:
+        perms = int(args.permutations)
+    except (ValueError, TypeError):
+        logger.warning(
+            f"Invalid permutations argument '{args.permutations}'. "
+            "Falling back to default 1000."
+        )
+        perms = 1000
+
     # Permutation test
     cmd_perm = [
         sys.executable,
         "code/04_validate/phylo_permutation.py",
         f"--antibiotic={args.antibiotic}",
-        f"--permutations={args.permutations}"
+        f"--permutations={perms}",
     ]
     rc = run_subprocess(cmd_perm, "phylo_permutation")
+    _update_peak_memory()
     if rc != 0:
         return rc
 
@@ -124,9 +163,11 @@ def stage_validate(args: argparse.Namespace) -> int:
     cmd_sens = [
         sys.executable,
         "code/04_validate/sensitivity_analysis.py",
-        f"--antibiotic={args.antibiotic}"
+        f"--antibiotic={args.antibiotic}",
     ]
-    return run_subprocess(cmd_sens, "sensitivity_analysis")
+    rc = run_subprocess(cmd_sens, "sensitivity_analysis")
+    _update_peak_memory()
+    return rc
 
 
 def stage_viz(args: argparse.Namespace) -> int:
@@ -136,9 +177,24 @@ def stage_viz(args: argparse.Namespace) -> int:
     cmd = [
         sys.executable,
         "code/05_viz/generate_plots.py",
-        f"--antibiotic={args.antibiotic}"
+        f"--antibiotic={args.antibiotic}",
     ]
-    return run_subprocess(cmd, "generate_plots")
+    rc = run_subprocess(cmd, "generate_plots")
+    _update_peak_memory()
+    return rc
+
+
+def stage_contract_validation() -> int:
+    """
+    Run pytest on the contract tests. Abort on failure.
+    """
+    cmd = ["pytest", "tests/contract/"]
+    rc = run_subprocess(cmd, "contract_validation")
+    if rc != 0:
+        logger.error("Contract validation failed – aborting pipeline.")
+        sys.exit(EXIT_CONTRACT_FAILED)
+    _update_peak_memory()
+    return rc
 
 
 def stage_hash_artifacts() -> int:
@@ -147,9 +203,11 @@ def stage_hash_artifacts() -> int:
     """
     cmd = [
         sys.executable,
-        "code/utils/hash_artifacts.py"
+        "code/utils/hash_artifacts.py",
     ]
-    return run_subprocess(cmd, "hash_artifacts")
+    rc = run_subprocess(cmd, "hash_artifacts")
+    _update_peak_memory()
+    return rc
 
 
 def parse_args() -> argparse.Namespace:
@@ -158,65 +216,102 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--stage",
-        choices=["ingest", "contract", "train", "validate", "viz", "hash", "full"],
+        choices=[
+            "ingest",
+            "train",
+            "validate",
+            "viz",
+            "contract",
+            "hash",
+            "full",
+        ],
         default="full",
-        help="Pipeline stage to execute (default: full run)"
+        help="Pipeline stage to execute (default: full run)",
     )
     parser.add_argument(
         "--n-isolates",
         type=int,
         default=1000,
-        help="Number of isolates to download during ingestion"
+        help="Number of isolates to download during ingestion",
     )
     parser.add_argument(
         "--bio_project",
         type=str,
         default="PRJNA528852",
-        help="NCBI BioProject identifier"
+        help="NCBI BioProject identifier",
     )
     parser.add_argument(
         "--antibiotic",
         type=str,
         default="ciprofloxacin",
-        help="Antibiotic class for training/validation/viz"
+        help="Antibiotic class for training/validation/viz",
     )
+    # Accept any string; we coerce to int later.
     parser.add_argument(
         "--permutations",
-        type=int,
-        default=1000,
-        help="Number of permutations for the permutation test"
+        type=str,
+        default="1000",
+        help="Number of permutations for the permutation test (integer)",
     )
     return parser.parse_args()
+
+
+def _write_runtime_report() -> None:
+    """
+    Write the runtime JSON report to `data/processed/pipeline_runtime.json`.
+    """
+    end_time = datetime.datetime.now(datetime.timezone.utc)
+    duration = (end_time - _START_TIME).total_seconds()
+
+    runtime_path = paths.data("processed", "pipeline_runtime.json")
+    runtime_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report = {
+        "start_time": _START_TIME.isoformat(),
+        "end_time": end_time.isoformat(),
+        "duration_seconds": duration,
+        "peak_memory_bytes": _PEAK_MEMORY,
+    }
+
+    try:
+        with open(runtime_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Pipeline runtime written to {runtime_path}")
+    except Exception as e:
+        logger.error(f"Failed to write pipeline runtime report: {e}")
 
 
 def main() -> int:
     args = parse_args()
 
-    if args.stage == "ingest":
-        return stage_ingest(args)
+    # Helper to run a stage and write the runtime report afterwards
+    def run_and_report(stage_func, *stage_args):
+        rc = stage_func(*stage_args)
+        _write_runtime_report()
+        return rc
 
-    if args.stage == "contract":
-        return stage_contract_validation()
+    if args.stage == "ingest":
+        return run_and_report(stage_ingest, args)
 
     if args.stage == "train":
-        return stage_train(args)
+        return run_and_report(stage_train, args)
 
     if args.stage == "validate":
-        return stage_validate(args)
+        return run_and_report(stage_validate, args)
 
     if args.stage == "viz":
-        return stage_viz(args)
+        return run_and_report(stage_viz, args)
+
+    if args.stage == "contract":
+        return run_and_report(stage_contract_validation)
 
     if args.stage == "hash":
-        return stage_hash_artifacts()
+        return run_and_report(stage_hash_artifacts)
 
-    # Full pipeline execution
+    # Full pipeline execution – note the reordered contract validation
     rc = stage_ingest(args)
     if rc != 0:
         return rc
-
-    # Contract validation is mandatory and aborts on failure
-    stage_contract_validation()
 
     rc = stage_train(args)
     if rc != 0:
@@ -227,6 +322,11 @@ def main() -> int:
         return rc
 
     rc = stage_viz(args)
+    if rc != 0:
+        return rc
+
+    # Contract validation **after** all data‑producing stages
+    rc = stage_contract_validation()
     if rc != 0:
         return rc
 

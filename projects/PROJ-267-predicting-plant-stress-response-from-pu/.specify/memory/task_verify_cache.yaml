@@ -1,14 +1,10 @@
 T001:
-  c: true
-  h: d7e782ecb9a6c070aa552599f45eac4709019e32eeae5507db609bf8cf0933a1
-  r: "All required artifacts exist and match the task: `data/raw/`, `data/processed/`,\
-    \ `logs/`, `docs/`, `results/` directories are present (with .gitkeep markers),\
-    \ `requirements.txt` is non-empty with real dependencies, `code/main.py` implements\
-    \ `--stage noop` returning exit code 0, and `docs/structure.txt` contains a full\
-    \ directory tree listing. The historical execution log confirms `python -m code.main\
-    \ --stage noop` ran with exit code 0, and the main.py import chain (`utils.logging_config`\
-    \ \u2192 `code.utils`) is backed by existing shim modules so the run is reproducible."
-  sig: b75c81eaf35236953c90994e074969ded348118bd5ef450fd1fe739d64eaeb4b
+  c: false
+  h: 91f7dccd55886616a4aa8f51f0b36ea025b5323a73ef0342ce3173311c62bc01
+  r: "The logs/ directory is not present in the listed project tree, and there is\
+    \ no execution evidence showing that the commands documented in\u202Fquickstart.md\
+    \ run successfully on a clean runner. Both are required to satisfy the task."
+  sig: 0fd4c08a4ba78270c7e6fdb123a25dbfcdc5d2030ff2924093959221b13a050d
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,6 +20,16 @@ T005:
     \ for the `data/raw/` and `data/processed/` directories are present in the provided\
     \ evidence. The required artifact (validation implementation) is missing, so the\
     \ task is not satisfied."
+T006:
+  c: false
+  h: b8350d05d06e88a363b9a6bde209da19787aaf4473d99a3e17b5375690dade43
+  r: Checked `code/utils/logger.py` (exists and writes to `logs/pipeline.log`) and
+    the verification log `code/.tasks/T006.code_utils_verify_logging.py.log` (shows
+    the log file was created and a warning was written). However, there is no evidence
+    that the rest of the pipeline modules import and use this logger, nor that `logs/pipeline.log`
+    contains the required entries for dropped rows, missing columns, or raised errors
+    after a real pipeline run. These artifacts must be added to satisfy the task.
+  sig: 558002e913d547f7f2c853fe66a4f8fb43d40153d817eefe7cd922e60616f20a
 T012:
   c: false
   h: 4196c01992af3b9c57e273d5a0d9687585e94c1533e876bf1e995b8d147e7541

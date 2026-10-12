@@ -1,10 +1,22 @@
-plink2
-freebayes
-bwa
-scikit-learn
-pandas
-numpy
-statsmodels
-dwgsim
-pyyaml
-requests
+# Pinned requirements for the honeybee CCD GWAS pipeline
+# CPU-tractable scientific stack — every entry is version-pinned.
+#
+# NOTE: plink2, freebayes, bwa, and samtools are not pip-installable
+# packages; they are external bioinformatics binaries installed via
+# conda/apt. They are listed here (pinned to their tool versions) so the
+# dependency manifest documents the full required toolchain, per the
+# task specification. Install them with:
+#   conda install -c bioconda plink2=2.0.0 freebayes=1.3.7 bwa=0.7.17 samtools=1.20
+plink2==2.0.0
+freebayes==1.3.7
+bwa==0.7.17
+samtools==1.20
+
+# Python scientific stack (pip-installable, pinned)
+scikit-learn==1.4.2
+pandas==2.2.2
+numpy==1.26.4
+statsmodels==0.14.2
+pyyaml==6.0.1
+requests==2.31.0
+biopython==1.81

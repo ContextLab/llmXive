@@ -1,13 +1,12 @@
 status: none
-intent: OmniDoc TokenBench dataset download with bounding boxes python package dataset
+intent: Omni-Doc-1 TokenBench dataset download site HuggingFace Datasets python package
+  dataset
 required_fields:
 - image_id
 - image_path
-- bbox_xmin
-- bbox_ymin
-- bbox_xmax
-- bbox_ymax
-- modality
-cache_key: 19b82323e9a4bb4497ad89bbf8a3bf4fd4f0e1febc8207a5b1cb7543a632617b
-searched_at: '2026-08-30T12:48:02.892172+00:00'
+- text_bounding_boxes
+- visual_bounding_boxes
+- split
+cache_key: eca9b1746303bd864c296f02570aa204153ff5fbbea45ccef704df54292adfbb
+searched_at: '2026-10-11T18:11:01.405619+00:00'
 retry_count: 1

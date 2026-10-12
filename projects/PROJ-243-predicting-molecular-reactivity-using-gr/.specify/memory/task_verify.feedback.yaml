@@ -1,25 +1,28 @@
 T001:
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
-  reason: The `requirements.txt`, `pyproject.toml`, and `ruff.toml` files are present
-    and correctly contain the required configurations, but the required `.flake8`
-    file is missing from the project repository. Adding this linting configuration
-    file is needed to satisfy the task.
+  reason: "The project contains `requirements.txt`, `pyproject.toml`, and `ruff.toml`,\
+    \ and the requirements file pins all listed packages, but there is no `.flake8`\
+    \ file in the repository and the provided log only shows package installation\u2014\
+    not the required `ruff check .` or `black --check .` executions. Adding a `.flake8`\
+    \ configuration file and evidence that both linting and Black formatting pass\
+    \ is needed."
   task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
 T003:
-  reason: "The schema file exists and is valid YAML, but it does not describe the\
-    \ required structure: the task specifies fields `file_path` and `sha256`, whereas\
-    \ the schema defines `hash`, `file`, and `path` instead \u2014 the required field\
-    \ names are absent. Additionally, there is no evidence that `yamllint` was run\
-    \ and passed on the schema, which is the task's stated verification criterion.\
-    \ Fix: rewrite the schema to require `file_path` and `sha256` properties and provide\
-    \ yamllint execution output."
+  reason: "The `data/raw/checksums_schema.yaml` file exists and appears valid, but\
+    \ the required `data/raw/checksums.json` is not empty\u2014it contains entries\
+    \ with keys `file`, `hash`, and `path` that do not match the schema\u2019s `file_path`\
+    \ and `sha256` fields. The task explicitly demanded an empty `checksums.json`,\
+    \ so this requirement is unmet."
   task: 4b43f349955989a58c04892e67d9de7f6e535f3d9a5dcdf4ed23892970b9ffe7
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
-    exit=1'
   task: f05715c1b6c34eaaa9a72a319ee5e838fdca3c7ed2428f9c6e96725257c684fa
 T005:
+  reason: "The `data/raw/reference_substructures_raw.csv` file exists and has the\
+    \ required columns, but `data/raw/checksums.json` lacks a checksum entry for this\
+    \ CSV (it only contains an entry for `qm9_subset`). The task requires the SHA\u2011\
+    256 of the reference substructures CSV to be recorded in `checksums.json`, which\
+    \ is currently missing. Add the correct checksum entry for `reference_substructures_raw.csv`."
   task: 6544ad0033b0cab68d101c6736188511d86eb07afd3eeff001c0b708eab7e767
 T006:
   task: 7ea02df71fd2e3baebff7bccf630d86a7f68ad4e66466f4491df3c184077f35c

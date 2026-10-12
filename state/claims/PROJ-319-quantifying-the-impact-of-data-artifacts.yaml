@@ -3909,3 +3909,40 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T13:26:33Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/README.md
+  attempts: 1
+  canonical: 50 synthetic planetary nebula images generated with known ground truth
+  claim_id: c_4a5be96f
+  context: "In the workflow, step 1 Synthetic Data Generation \u2013 Produce 50 synthetic,\
+    \ flux-calibrated planetary nebula images with known ground-truth ellipticity\
+    \ and asymmetry."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Produce 50 synthetic, flux-calibrated planetary nebula images with known
+    ground-truth ellipticity and asymmetry.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T22:22:30Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/README.md
+  attempts: 1
+  canonical: calibration models validated on held-out synthetic subset and evaluated
+    on small real HST set
+  claim_id: c_069bd665
+  context: "Step 5 Calibration & Validation \u2013 Derive correction functions, validate\
+    \ on a held-out synthetic subset, and evaluate on a small real HST validation\
+    \ set."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Validate the calibration models on a held-out synthetic subset and evaluate
+    them on a small real HST validation set.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T22:22:30Z'

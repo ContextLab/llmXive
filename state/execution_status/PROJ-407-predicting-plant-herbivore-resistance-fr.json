@@ -10,11 +10,11 @@
     "python code/validation.py --input data/processed/GSE12345_processed.csv --model data/processed/GSE12345_model.pkl --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/validation.py\", line 4, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
     "python code/report.py --input data/processed/ --output results/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/report.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-30T10:09:48Z"
+  "updated_at": "2026-10-11T15:15:08Z"
 }

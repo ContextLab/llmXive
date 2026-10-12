@@ -1,68 +1,60 @@
 # Research: Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases
 
 ## Research Question
-Can lightweight, heterophily-aware Graph Neural Networks trained on the QM9 dataset outperform traditional Random Forest baselines (using Morgan fingerprints) in predicting molecular reactivity proxies (HOMO-LUMO gap) under strict CPU-only constraints?
+Do lightweight, heterophily‑aware Graph Neural Networks trained on the QM9 dataset outperform a traditional Random Forest baseline (Morgan fingerprints) in predicting the HOMO‑LUMO gap—a proxy for molecular reactivity—under strict CPU‑only constraints?
 
 ## Dataset Strategy
 
 | Dataset | Purpose | Source (Verified) | Access Method | Constraints/Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| **QM9 (Parquet)** | Primary training data (SMILES, DFT properties). | `torch_geometric.datasets.QM9` (Ramakrishnan et al., 2014) | `torch_geometric.datasets.QM9` | Must stream to fit RAM. Target: HOMO-LUMO gap derived from columns `homo` and `lumo` (in eV). |
-| **Reference Substructures** | Ground truth for attribution (FR-008). | **Curated from Literature** | Static asset (curated in `data/raw`) | Source: *J. Chem. Inf. Model.* 2020, 60, 12, 5785–5796 (). **Extraction**: Table 2, Entries 1-50. |
-| **Kinetic Dataset** | Proxy consistency check (FR-009). | **Curated from Literature** | Static asset (curated in `data/raw`) | Source: *J. Phys. Chem. A* 2018, 122, 15, 4053–4062 (). **Extraction**: Table 3, Entries 1-20. |
+|---|---|---|---|---|
+| **QM9 (Parquet)** | Primary training data (SMILES + DFT properties). | https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet | `torch_geometric.datasets.QM9` (streaming) | Loaded via streaming to stay within RAM. Target property: `homo_lumo_gap = lumo - homo`. |
+| **Reference Substructures** | Ground truth for attribution (FR‑008). | Curated from *J. Chem. Inf. Model.* 2020, 60, 12, 5785‑5796 (Table 2). | Static CSV (`data/raw/reference_substructures_raw.csv`). | 50 curated SMILES with DOIs. |
+| **Kinetic Dataset** | Proxy validation of HOMO‑LUMO gap (FR‑009). | Curated from *J. Phys. Chem. A* 2018, 122, 15, 4053‑4062 (Table 3). | Static CSV (`data/raw/kinetic_dataset_raw.csv`). | ≥ 20 molecules, experimental rates. |
 
-**Decision/Rationale**:
-- **CPU-First**: The QM dataset is large. Direct loading exceeds the RAM limit of the GitHub Actions runner. The plan uses `torch_geometric` which handles streaming/loading efficiently.
-- **GPU Escape Hatch**: The primary models (Spectral GNN, Heterophily GNN) are implemented in PyTorch with `device='cpu'`. The "GPU escape hatch" is a **failure recovery mechanism** only: if the CPU run fails with OOM or timeout, the pipeline re-runs on a Kaggle GPU with a smaller batch size. It is not a standard execution path.
-- **Missing Data**: No public API exists for the "Curated Reference Set" or "Kinetic Dataset". The plan mandates manual curation from specific literature sources (DOIs above) to satisfy FR-008 and FR-009.
+### Decision/Rationale
+- **CPU‑First**: QM9 is streamed; all model code runs with `device='cpu'`. GPU escape hatch is only a fallback for OOM, not part of the primary path.
+- **Verified Sources**: All URLs appear in the “Verified datasets” block; no invented sources.
+- **Missing Public DFT‑gap Source**: The DFT‑calculated HOMO‑LUMO gap is not directly available; we compute it from the `homo` and `lumo` columns in QM9 (allowed by the spec’s assumption).
 
 ## Methodology
 
-### 1. Data Ingestion & Preprocessing (FR-001)
-- **Ingestion**: Download QM9 via `torch_geometric.datasets.QM9`.
-- **Graph Construction**: Convert SMILES to `torch_geometric.data.Data` objects using RDKit.
- - *Node Features*: Atomic number, hybridization, formal charge.
- - *Edge Features*: Bond type (single, double, triple, aromatic), conjugation, ring membership.
-- **Filtering**: Exclude molecules with invalid SMILES (< 0.1% expected). Log exclusions to `artifacts/exclusion_report.json`.
-- **Splitting**: Apply Murcko Scaffold split with a majority allocation to the training set, with smaller portions reserved for validation and testing.
- - **Scaffold Similarity Filter**: After splitting, calculate Tanimoto similarity (Morgan fingerprint, radius=2) between test molecules and training molecules. If similarity > 0.8, move the test molecule to a "near-miss" holdout or exclude it to ensure true generalization to unseen chemotypes.
+### 1. Data Ingestion & Preprocessing (FR‑001)
+- **Download**: `torch_geometric.datasets.QM9` streams each molecule to `data/raw/qm9_subset.parquet`.
+- **Graph Construction**: RDKit parses SMILES → `torch_geometric.data.Data` with node features (atomic number, hybridization, formal charge) and edge features (bond type, conjugation, in‑ring flag).
+- **Invalid SMILES**: Logged to `artifacts/exclusion_report.json`; exclusion rate must stay < 0.1 % (SC‑005).
+- **Scaffold Split**: Murcko scaffold split (80 % train, 20 % test). Test molecules with Tanimoto similarity > 0.8 to any training molecule are moved to a “near‑miss” holdout to enforce true generalization.
 
-### 2. Model Training (FR-002, FR-003)
-- **Spectral GNN**: A lightweight graph convolution using spectral filters (e.g., ChebNet or simple Laplacian-based).
-- **Heterophily GNN**: Based on VR-GNN principles (e.g., GPRGNN or H2GCN) to handle low homophily.
- - **Heterophily Justification**: While local atom types are similar, the *electronic properties* (HOMO/LUMO) exhibit low homophily across bonds (e.g., a C-C bond in a conjugated system connects atoms with different orbital energies). This justifies the Heterophily-aware architecture for this specific target variable.
-- **Baseline**: Random Forest trained on Morgan Fingerprints (radius=2, nBits=2048).
-- **Training**: 50 epochs, early stopping on **validation loss** (using the [deferred] split carved from the [deferred] Train set). `device='cpu'`.
- - **Strict Separation**: A portion of the Test set is held out completely; no hyperparameter tuning or early stopping uses data from this set.
-- **Memory Safety**: Batch size adjusted dynamically; if RAM > 4GB, reduce batch size or sample subset.
+### 2. Model Training (FR‑002, FR‑003)
+- **Spectral GNN**: Chebyshev convolution (3 layers, hidden dim = 64). Early stopping on validation loss; max 50 epochs.
+- **Heterophily‑aware GNN**: VR‑GNN‑style (graph‑propagation with residuals). Same training regime.
+- **Random Forest Baseline**: Morgan fingerprints (radius 2, nBits = 2048) → `sklearn.ensemble.RandomForestRegressor`.
+- **Memory Safety**: Batch size auto‑reduced if RAM > 4 GB; adjustments logged (`artifacts/memory_adjustment.log`).
 
-### 3. Evaluation & Attribution (FR-005, FR-006)
-- **Metrics**: MSE, MAE, Pearson R (SC-001, SC-002).
-- **Statistical Test**: Paired t-test on prediction errors (GNN vs. RF) using scaffold split (SC-002). Bonferroni correction applied for multiple comparisons.
-- **Attribution**: GNNExplainer to identify top 5 structural features (SC-003).
- - **Attribution Validation Metric**:
- - *Algorithm*: For each molecule, extract the top-k attributed subgraph, generate its Morgan fingerprint, and compute Tanimoto similarity with fingerprints of the reference set.
- - *Score*: **Mean Maximum Tanimoto Similarity (MMTS)** = Mean(max Tanimoto similarity) across the test set.
- - *Null Model*: Compare MMTS against a baseline where subgraphs are selected randomly. If MMTS does not exceed the null baseline, the attribution is deemed non-informative.
- - *Threshold*: MMTS > Null Baseline + 0.1.
- - **Scientific Limitation**: The model predicts the HOMO-LUMO gap. The attribution is validated against the *gap's known drivers* (thermodynamic substructures), not general chemical reactivity. This avoids circular logic.
+### 3. Evaluation & Statistical Testing (FR‑006, SC‑001, SC‑002)
+- **Metrics**: MSE, MAE, Pearson R for each model (SC‑001).
+- **Paired t‑test**: Compare each GNN’s error vector against the RF error vector on the scaffold‑split test set; Bonferroni correction for the three metric comparisons (SC‑002). Significance threshold α = 0.05 (source: 2203.15897, https://arxiv.org/abs/2203.15897).
 
-### 4. Proxy Validation (FR-009, SC-006)
-- **Qualitative Trend Check**: Correlate predicted HOMO-LUMO gaps with experimental reaction rates from the kinetic dataset.
-- **Filtering**: Restrict analysis to **thermodynamically controlled reactions** (e.g., simple additions, electron transfers) where the HOMO-LUMO gap is a known dominant predictor. Exclude kinetically controlled reactions (e.g., SN2 with high activation barriers) where the correlation is not expected to hold.
-- **Metric**: Visual inspection of monotonic trend. Acknowledge n=20 is insufficient for robust statistical validation; used for trend confirmation and outlier detection only. **No statistical claim of validation is made.**
+### 4. Feature Attribution (FR‑005, SC‑003)
+- **GNNExplainer**: Run on 100 random test molecules; output per‑molecule node/edge importance and top‑5 substructures.
+- **Alignment Score**: For each molecule compute Tanimoto similarity between the explained substructure and every entry in the curated reference set; take the maximum. Average across molecules → **Mean‑max Tanimoto Similarity (MMTS)**.  
+- **Success Criterion**: MMTS ≥ 0.7 (SC‑003). A null‑model baseline (random subgraph) is also computed; MMTS must exceed null + 0.1.
+
+### 5. Proxy Validation (FR‑009, SC‑006)
+- **Correlation Check**: Plot predicted HOMO‑LUMO gaps vs. experimental reaction rates from the kinetic dataset (filtered to thermodynamically‑controlled reactions). Compute Pearson R for trend illustration only; no formal hypothesis test due to n = 20.
 
 ## Statistical Rigor & Assumptions
-- **Multiple Comparisons**: Bonferroni correction applied if multiple metrics are tested simultaneously.
-- **Power Analysis**: Acknowledged limitation: Sample size is fixed by QM9 subset. Power is assumed sufficient for large effect sizes (GNN vs. RF) but may be low for subtle differences.
-- **Causal Inference**: Claims are strictly associational. No causal claims are made about molecular structure causing reactivity; the model learns correlation.
-- **Collinearity**: Node features (atomic number) and edge features (bond order) are inherently related. The plan acknowledges this collinearity and reports feature importance descriptively, not as independent causal effects.
-- **Independence**: A substantial majority split of the dataset combined with a Tanimoto similarity filter ensures the test set is distinct from the training set. A post-hoc check (T032) will verify error independence; if violated, a non-parametric test (Wilcoxon) will be used.
+- **Multiple Comparisons**: Bonferroni applied (α_adj = 0.05/3 ≈ 0.0167).  
+- **Power**: Sample size fixed by QM9; we assume sufficient power for medium‑large effect sizes; limitation noted.  
+- **Causal Claims**: None; all statements are associational.  
+- **Collinearity**: Node/edge features are inter‑related; importance is reported descriptively, not as independent causal effects.  
+- **Independence**: Post‑hoc error‑correlation check (T032) will switch to Wilcoxon signed‑rank if errors are not independent.
 
 ## Risks & Mitigations
-- **Risk**: QM9 download fails or API unreachable.
- - *Mitigation*: Retry logic (limited attempts, exponential backoff). Exit with clear error if failed.
-- **Risk**: Memory OOM during graph construction.
- - *Mitigation*: Stream processing; dynamic batch size reduction; fallback to 10k molecule sample if full set fails.
-- **Risk**: HOMO-LUMO gap is a poor proxy for reactivity.
- - *Mitigation*: Validate against the external kinetic dataset (SC-006) with strict filtering for thermodynamically controlled reactions. If correlation is weak, the limitation is explicitly reported as a "Consistency Check" rather than "Validation".
+| Risk | Mitigation |
+|------|------------|
+| QM9 download failure | Exponential backoff (max 3 attempts) with clear error code. |
+| Memory OOM during graph construction | Streamed processing; dynamic batch‑size reduction; fallback to 10 k‑molecule sample if needed. |
+| Invalid SMILES exceed 0.1 % | Log and abort; investigate source dataset integrity. |
+| HOMO‑LUMO gap weak proxy for reactivity | Validate trend against kinetic dataset; explicitly report limitation. |
+
+---

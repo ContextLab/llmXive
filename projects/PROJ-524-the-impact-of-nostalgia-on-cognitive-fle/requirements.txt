@@ -1,2 +1,13 @@
 openml
 datasets
+pandas
+numpy
+scipy
+statsmodels
+matplotlib
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil

@@ -31,14 +31,3 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q37573478
   verified_at: '2026-07-31T03:12:28.326882Z'
-- artifact_hash: 717b5c30f605acc574247aa176e86ee7d2e6830e1b0f7c373411458ab528d276
-  artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Vader - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q37573478
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q37573478
-  verified_at: '2026-10-07T15:58:01.503261Z'

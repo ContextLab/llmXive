@@ -1,3 +1,55 @@
+T001a:
+  c: true
+  h: 15e091653ab08393720d4da78687f4f52077505f262fb465ebf9117e902e9e75
+  r: Checked that `projects/PROJ-346-investigating-the-correlation-between-gu/code/`
+    and `projects/PROJ-346-investigating-the-correlation-between-gu/tests/` both exist
+    and contain multiple files, satisfying the requested project code structure.
+  sig: 64aebb871802e5873ae4037df279ed8cd4eacb07542688719b68578839cdae93
+T001b:
+  c: false
+  h: 54bda0b0a094401efa5cee1cc7bc6a9f019be883c41689ad7cf53de920dc87d8
+  r: The required `projects/PROJ-346-investigating-the-correlation-between-gu/data/raw/`
+    directory is missing, so the prescribed project data structure is not fully created.
+    The other directories exist, but the missing raw data folder prevents completion.
+  sig: 9400f64842f9f3d019cd7aa200a041a56f1115887856591c2dba5a7d973377d0
+T002:
+  c: false
+  h: d1b3f9318be59050c6b20f65ef564f54980059336de42e353b234b671b8c99f3
+  r: "The provided `requirements.txt` exists and contains all the required runtime\
+    \ packages, but there is no evidence of linting configuration (e.g., a `.flake8`\
+    \ file, `pyproject.toml`/`setup.cfg` for Black, or inclusion of `flake8`/`black`\
+    \ in a dev\u2011requirements file). Without these artifacts the task\u2019s \u201C\
+    configure linting (flake8/black)\u201D requirement is unmet."
+  sig: bb21bbc55a2ca8b81240c07350edba2322c8ed0044f08ee0bdadd4cbc0ec6e6d
+T003:
+  c: false
+  h: ef175b2b80ce07d42b4cb45cd87c66dd0461050b2b475fe70609df21d638a75d
+  r: "The evidence only shows the project root path and contains no files or code\
+    \ that define or manage environment variables for the AGP, NHANES, or UK Biobank\
+    \ dataset URLs (e.g., no `.env` template, settings module, or documentation of\
+    \ required variables). Consequently, the required artifact for \u201Cenvironment\
+    \ variable management for dataset URLs\u201D is missing."
+  sig: ad37de46455cc7419eb16707af06fb9f9a891c5026b2f7a66d1443bcde487fa3
+T004:
+  c: true
+  h: 4c6ccfe47d601760a1e870a95b955bdd0902a5494f1743b7dd12e7ee254bc482
+  r: Checked `code/utils.py` (resolved path `code/utils.py`). It defines the required
+    constants (`READ_THRESHOLD`, `ABUNDANCE_FILTER`, `AGE_STRATA`) and the added `MAX_BENCHMARK_SAMPLES
+    = 1000`, and includes logging helper functions such as `setup_logger` and `get_logger`.
+    The file is present and fully implemented.
+  sig: 03561341031cdcf0b0dd13226f000dc9de4f1707ac013ebd4f6a8cf2c94e9d6b
+T005:
+  c: false
+  h: 4bb57a08696d6c349079b75365f0cb46713b05d00e709dedf1f3158970afa897
+  r: "The `contracts/dataset.schema.yaml` file does not contain the required Pydantic\u2011\
+    v2 model dump with the exact fields `taxon_name`, `relative_abundance`, `sample_id`\
+    \ (MicrobialTaxa) and `task_type`, `z_score`, `participant_id` (CognitiveScore);\
+    \ instead it defines a different JSON\u2011Schema with unrelated properties. Consequently\
+    \ the schema does not meet the task specification, and the provided unit tests\
+    \ (which expect a dict with a `properties` key) would fail\u2014no evidence of\
+    \ a successful `pytest` run is present. The task needs a correctly\u2011formatted\
+    \ schema file and passing tests."
+  sig: 2928860adbadfbbfed6abb76b409f498343489968b4af8e31dda25b0ad43b59a
 T009a:
   c: false
   h: 1f19d66d8812d47f75ee6c321fe2e2c9128644654307ccca651f962a554a952b

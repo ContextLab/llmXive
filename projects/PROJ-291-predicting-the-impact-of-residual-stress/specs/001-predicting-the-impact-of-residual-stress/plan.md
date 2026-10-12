@@ -1,73 +1,50 @@
 # Implementation Plan: Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets
 
-**Branch**: `001-predict-residual-stress-fatigue` | **Date**: 2026-10-10 | **Spec**: [spec.md](../specs/001-predict-residual-stress-fatigue/spec.md)  
+**Branch**: `001-predict-residual-stress-fatigue` | **Date**: 2026-10-11 | **Spec**: [spec.md](../specs/001-predict-residual-stress-fatigue/spec.md)  
 **Input**: Feature specification from `/specs/001-predict-residual-stress-fatigue/spec.md`
 
 ## Summary
-The project will (1) ingest publicly available fatigue datasets, (2) construct three feature sets (process‑only, process + measured stress, process + material properties), (3) train baseline and stress‑mediated regression models, (4) evaluate predictive gains, and (5) perform bootstrap mediation analysis **only when measured residual stress is present in an open dataset**. Synthetic data is generated **solely** for pipeline validation; it is never used for scientific inference.
+The project will (1) ingest publicly available fatigue‑related datasets (or fall back to a synthetic validation set when no open source contains the required fields), (2) harmonize them into a unified schema, (3) construct three feature sets (process‑only, process + measured stress, process + material properties), (4) train and evaluate Random Forest, Gradient Boosting, and a shallow neural network using 5‑fold CV and a held‑out test set, (5) compare predictive gains with paired t‑tests (including Bonferroni correction), (6) assess cross‑material transfer performance, and (7) run bootstrap mediation analysis **only when a sufficient number of rows contain measured residual stress**. All steps are CPU‑friendly and designed to run within GitHub Actions free‑tier limits.
 
 ## Technical Context
-- **Language/Version**: Python 3.11
-- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `torch==2.3.*` (CPU‑only), `statsmodels==0.14.*`, `datasets==2.20.*`, `pyyaml==6.0.*`, `pytest==8.2.*`
-- **Storage**: File‑based CSV/Parquet under `data/` (raw) and `data/processed/` (derived)
-- **Testing**: `pytest` with contract validation (see `contracts/`)
-- **Target Platform**: Linux (Ubuntu‑latest) GitHub Actions runner
-- **Compute Feasibility**: All steps are CPU‑friendly and expected to run within the free‑tier limits (≈ 2.5 h, < 7 GB RAM, < 14 GB disk). No GPU resources are required.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `torch==2.3.*` (CPU‑only), `statsmodels==0.14.*`, `datasets==2.20.*`, `pyyaml==6.0.*`, `pytest==8.2.*`  
+- **Storage**: File‑based CSV/Parquet under `data/` (raw) and `data/processed/` (derived)  
+- **Testing**: `pytest` with contract validation (`contracts/dataset_schema.yaml`)  
+- **Target Platform**: Linux (Ubuntu‑latest) GitHub Actions runner  
+- **Compute Feasibility**: All steps run on CPU; total wall‑clock ≤ 2.5 h, peak RAM ≤ 6 GB, disk ≤ 12 GB. No GPU required.
 
 ## Constitution Check
-| Principle | Mapping to FR/SC |
-|-----------|------------------|
-| I. Reproducibility | Fixed seeds (FR‑010); deterministic scripts; data fetched from canonical URLs |
-| II. Verified Accuracy | No new external citations beyond verified dataset URLs |
-| III. Data Hygiene | Raw files immutable; checksum recorded during ingestion (FR‑001, FR‑010) |
-| IV. Single Source of Truth | All figures/tables generated from files under `results/` |
+| Principle | Mapping to FR / SC |
+|-----------|--------------------|
+| I. Reproducibility | Fixed seeds (FR‑010); deterministic scripts; data fetched from canonical URLs (FR‑001) |
+| II. Verified Accuracy | Only the verified URLs listed in the “Verified datasets” block are cited (Research.md) |
+| III. Data Hygiene | Raw files immutable; checksum recorded; derived files carry provenance checksum (FR‑001, FR‑010) |
+| IV. Single Source of Truth | All figures/tables trace back to rows in `data/processed/unified_fatigue.csv` and scripts in `src/` |
 | V. Versioning Discipline | Content hashes drive state updates (FR‑010) |
-| VI. Residual‑Stress Proxy Integrity | Proxy calculation & flagging (FR‑003, FR‑012) |
-| VII. Cross‑Material Mediation Validation | Stratified analysis (FR‑009); improvement thresholds (SC‑002, SC‑004) |
+| VI. Residual‑Stress Proxy Integrity | Proxy calculation, flagging (`is_proxy`), and separate handling for mediation (FR‑003, FR‑012) |
+| VII. Cross‑Material Mediation Validation | Stratified mediation, paired t‑tests, and cross‑material transfer evaluation (FR‑009, FR‑011) |
 
-## Detailed Phases
+## Detailed Phases & FR/SC Coverage
 
-### 1. Data Ingestion & Preprocessing (FR‑001, FR‑002, FR‑003, FR‑012, FR‑010)
-- **Ingestion** (`src/ingest/ingest.py`): programmatically download each open dataset, compute a SHA‑256 checksum for every raw file, store under `data/raw/`, and **write the checksum into a new `checksum` column** of the unified CSV (see `data-model.md`). Checksums are also recorded in the project state file.
-- **Checksum Propagation**: the per‑row checksum is carried forward unchanged through all downstream transformations.
-- **Unit Standardization**: Convert any stress values to MPa (`1 psi = 0.00689476 MPa`).
-- **Missing‑Value Imputation**: Median imputation per numeric column (FR‑002).
-- **Proxy Calculation** (FR‑003): When `residual_stress_measured` is missing, compute `σ_res = k·heat_input·cooling_rate` (`k=0.8` for steel, `k=0.6` for aluminum), set `is_proxy = True`, store in `residual_stress_proxy`, and **clamp negative results to 0.01 MPa**. Rows with `is_proxy=True` are flagged for downstream handling.
-- **Contract Validation**: After preprocessing, validate the processed CSV against `contracts/dataset_schema.yaml` using `jsonschema`. Failure aborts the pipeline (addresses plan_consistency‑8a8a09a4).
+| Phase | Description | FR(s) addressed | SC(s) addressed |
+|-------|-------------|-----------------|-----------------|
+| **0. Environment Verification** | Run `scripts/env_check.sh` to ensure required Python version and dependencies; abort if fails. | — | — |
+| **1. Data Ingestion & Preprocessing** | • Download each verified open dataset (UCI, NIST, DatasetRecord) via `datasets.load_dataset`.<br>• Compute SHA‑256 checksum for every raw file and store in `data/raw/`.<br>• Append a `checksum` column to the unified CSV.<br>• Convert all stress units to MPa.<br>• Median‑impute missing numerics.<br>• Compute proxy residual stress when measured is missing (using material‑specific `k`). Clamp negatives to 0.01 MPa; set `is_proxy=True` and store `residual_stress_proxy`.<br>• Write processed file `data/processed/unified_fatigue.csv` and validate against `contracts/dataset_schema.yaml`. | FR‑001, FR‑002, FR‑003, FR‑010, FR‑012 | SC‑005 (runtime limits) |
+| **2. Feature‑Set Construction** | Create three CSVs (or views) for Feature Sets A, B, C as described in the spec. Feature Set B includes only rows where `is_proxy=False`. | FR‑001 (schema continuity) | — |
+| **3. Model Training & Hyper‑parameter Search** | For each algorithm (RF, GB, shallow NN):<br>• Define a 10‑combination grid.<br>• Perform 5‑fold CV stratified by `material_class`.<br>• Record MAPE and R² per fold.<br>• Select hyper‑parameters with lowest mean CV‑MAPE.<br>• Retrain on the full training split (train + validation) and save the best model per feature set. | FR‑004, FR‑005, FR‑010 | SC‑002 (predictive gain), SC‑005 |
+| **4. Held‑out Test Evaluation** | Split data (stratified by material) using seed 42; compute MAPE & R² for each saved model on the test set. | FR‑005, FR‑010 | SC‑002, SC‑005 |
+| **5. Paired t‑tests & Multiple‑Comparison** | • Compute absolute errors for Model A vs. Model B on the full test set (including proxy rows).<br>• Run paired t‑test; apply Bonferroni correction for the three algorithm families (α = 0.05/3).<br>• Repeat the test on the measured‑stress subset (if ≥ 50 rows) and report both p‑values. | FR‑008, FR‑010 | SC‑002, SC‑003 (significance), SC‑005 |
+| **6. Cross‑Material Transfer Evaluation** | Train each model on steel‑only data, test on aluminum‑only data, and vice‑versa; report ΔMAPE relative to within‑material baseline. | FR‑011, FR‑010 | SC‑004 (generalization), SC‑005 |
+| **7. Mediation Analysis (Conditional)** | • If `is_proxy=False` rows ≥ 50, run bootstrap mediation (10 000 resamples) using `statsmodels`.<br>• Include all process parameters and material properties as covariates.<br>• Compute VIF; flag any > 5.<br>• Apply Holm‑Bonferroni correction across material classes.<br>• Save `mediation_summary.csv` and generate effect‑size plots.<br>• If < 50 rows, log warning and skip mediation (edge‑case handling). | FR‑006, FR‑007, FR‑010, FR‑012 | SC‑001 (proportion mediated), SC‑003 (CI), SC‑005 |
+| **8. Reporting & Artifact Generation** | • Consolidate all metrics into `results/reports/model_performance.csv`.<br>• Export paired‑t‑test results, cross‑material ΔMAPE, and mediation summary (if run).<br>• Generate PNG figures for performance, t‑test distributions, and mediation effects.<br>• Create `runtime_summary.csv` with wall‑clock & memory usage per phase. | FR‑001–FR‑012 (traceability) | SC‑001–SC‑005 |
+| **9. Edge‑Case Logic** | • If no measured stress in any dataset, set `proxy_dependent=True` in final report and omit mediation.<br>• If any proxy calculation yields negative values, clamp to 0.01 MPa and log adjustment.<br>• If total sample size < 50, raise a warning and skip mediation. | FR‑003, FR‑006, FR‑012 | — |
 
-### 2. Feature Set Construction
-| Feature Set | Columns |
-|-------------|---------|
-| **A (Process‑only)** | `heat_input`, `cooling_rate`, `other_process_params…` |
-| **B (Process + Measured Stress)** | All of A **plus** `residual_stress_measured` (rows where `is_proxy=False`) |
-| **C (Process + Material Props)** | All of A **plus** `material_class`, `elastic_modulus`, `yield_strength` (no stress column) |
+## Deliverables
+- `plan.md` (this document)  
+- `research.md` (detailed methodology, dataset strategy, statistical rigor)  
+- `data-model.md` (unified schema)  
+- `quickstart.md` (one‑command end‑to‑end run)  
+- `contracts/dataset_schema.yaml` (JSON‑Schema for the processed CSV)
 
-### 3. Model Training & Evaluation (FR‑004, FR‑005, FR‑008, FR‑009, FR‑011, SC‑002, SC‑004, SC‑005)
-- **Algorithms**: `RandomForestRegressor`, `GradientBoostingRegressor` (scikit‑learn), shallow feed‑forward NN (`torch.nn.Sequential` with one hidden layer ≤ 128 units, early stopping ≤ 500 epochs).
-- **Hyper‑parameter Grid**: 10 combos per algorithm; grid search performed inside a **5‑fold CV** loop (FR‑005). CV folds are stratified by `material_class`.
-- **Metrics**: MAPE and R² on each fold; final model selected by lowest mean CV‑MAPE.
-- **Held‑out Test Set**: Stratified by `material_class`; random seed fixed (`SEED=42`) (FR‑010).  
-- **Paired t‑test** (FR‑008): Compare absolute errors of Model A vs. Model B on the **full** test set (including imputed stress). Additionally, run a **sensitivity t‑test** on the measured‑stress subset and report both results. Apply **Bonferroni correction** for the three algorithm families (α = 0.05/3).  
-- **Cross‑Material Transfer** (FR‑011): Train on steel, test on aluminum and vice‑versa; report ΔMAPE (SC‑004).  
-- **Runtime Summary** (SC‑005): Log wall‑clock time and peak memory for each stage; at pipeline end generate `runtime_summary.csv` and assert limits (≤ 6 h, ≤ 7 GB RAM).
-
-### 4. Mediation Analysis (FR‑006, FR‑007, SC‑001, SC‑003)
-- **Eligibility**: Performed **only** on rows where `is_proxy=False`. If fewer than 50 such rows exist, emit a warning and **skip mediation** (edge‑case handling).  
-- **Covariate Adjustment**: Include all other process parameters, material properties, and any available confounders (e.g., temperature, surface_finish, loading_condition) as covariates in the mediation model.  
-- **Collinearity Diagnostic**: Compute VIF for each predictor; if any VIF > 5, report the issue and interpret mediation results with caution (supplementing the earlier VIF check).  
-- **Bootstrap**: 10 000 resamples using `statsmodels.stats.mediation.Mediation` with the specified covariates.  
-- **Multiple‑Comparison**: Apply **Holm‑Bonferroni** correction across material classes (steel, aluminum).  
-- **Reporting** (FR‑007, SC‑001, SC‑003): Save `mediation_summary.csv` containing indirect effect, direct effect, proportion mediated, and 95 % CI; generate accompanying figures.
-
-### 5. Reporting
-- CSV tables (`results/reports/*.csv`) and Matplotlib figures (`results/reports/*.png`) for:
-  - Model performance per feature set & algorithm.
-  - Paired‑t‑test statistics (full set & measured‑only sensitivity).
-  - Mediation effect estimates with confidence intervals (if run).
-  - Cross‑material ΔMAPE.
-  - Runtime summary.
-
-### 6. Edge‑Case Handling (per spec)
-- **No measured stress** → use proxy only (Feature C) and set `proxy_dependent = True` in the final report; mediation is omitted.
-- **Sample size < 50** → warning and skip mediation (`skip_mediation = True`).
-- **Negative proxy values** → clamp to `0.01 MPa` and log adjustment.
+---

@@ -89,7 +89,7 @@ E       ValueError: Out of range float values are not JSON compliant
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/encoder.py:258: ValueError
 =========================== short test summary info ============================
 FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - ValueError...
-1 failed in 0.61s
+1 failed in 0.81s
 
 
 

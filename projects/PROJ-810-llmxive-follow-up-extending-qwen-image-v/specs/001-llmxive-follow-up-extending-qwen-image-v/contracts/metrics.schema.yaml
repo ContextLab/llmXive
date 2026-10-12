@@ -18,7 +18,7 @@ properties:
   p_value:
     type: "number"
     nullable: true
-    description: "The p-value associated with the metric (if applicable). Only defined for separability metrics."
+    description: "The p‑value associated with the metric (if applicable). Only defined for separability metrics."
   is_significant:
     type: "boolean"
     description: "Whether the result is significant after Bonferroni correction (only for separability metrics)."

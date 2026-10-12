@@ -28,74 +28,101 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 Checking citations...
 
-2026-10-09 20:34:23 - ERROR - Missing required citations:
-2026-10-09 20:34:23 - ERROR -   - doi:10.1234/example1
-2026-10-09 20:34:23 - ERROR -   - doi:10.5678/example2
+2026-10-11 23:06:41 - ERROR - Missing required citations:
+2026-10-11 23:06:41 - ERROR -   - doi:10.1234/example1
+2026-10-11 23:06:41 - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
-
+ - INFO - Step 1: Preprocessing and Feature Extraction...
+2026-10-11 23:06:42 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
-    from diagnostics import run_diagnostics_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
-    import seaborn as sns
-ModuleNotFoundError: No module named 'seaborn'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 204, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 169, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 268, in preprocess_all_participants
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 152, in dirname
+TypeError: expected str, bytes or os.PathLike object, not EEGDataLoader
 
 - python code/main.py --step preprocess -> rc=1
-
+ - INFO - Step 1: Preprocessing and Feature Extraction...
+2026-10-11 23:06:43 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
-    from diagnostics import run_diagnostics_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
-    import seaborn as sns
-ModuleNotFoundError: No module named 'seaborn'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 204, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 169, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 268, in preprocess_all_participants
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 152, in dirname
+TypeError: expected str, bytes or os.PathLike object, not EEGDataLoader
 
 - python code/main.py --step model -> rc=1
-
+ - INFO - Step 1: Preprocessing and Feature Extraction...
+2026-10-11 23:06:45 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
-    from diagnostics import run_diagnostics_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
-    import seaborn as sns
-ModuleNotFoundError: No module named 'seaborn'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 204, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 169, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 268, in preprocess_all_participants
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 152, in dirname
+TypeError: expected str, bytes or os.PathLike object, not EEGDataLoader
 
 - python code/main.py --step diagnostics -> rc=1
-
+ - INFO - Step 1: Preprocessing and Feature Extraction...
+2026-10-11 23:06:46 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
-    from diagnostics import run_diagnostics_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
-    import seaborn as sns
-ModuleNotFoundError: No module named 'seaborn'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 204, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 169, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 268, in preprocess_all_participants
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 152, in dirname
+TypeError: expected str, bytes or os.PathLike object, not EEGDataLoader
 
 - python -m pytest tests/ -v -> rc=2
-lib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1204: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1176: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:690: in _load_unlocked
-    ???
-code/.venv/lib/python3.11/site-packages/_pytest/assertion/rewrite.py:178: in exec_module
-    exec(co, module.__dict__)
-tests/unit/test_diagnostics.py:14: in <module>
-    from code.diagnostics import (
-code/diagnostics.py:14: in <module>
-    import seaborn as sns
-E   ModuleNotFoundError: No module named 'seaborn'
+v/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_data_loader.py
-ERROR tests/integration/test_feature_aggregation.py
 ERROR tests/integration/test_permutation.py
-ERROR tests/integration/test_pipeline.py
 ERROR tests/test_config.py
 ERROR tests/unit/test_checksum_manager.py
-ERROR tests/unit/test_diagnostics.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.85s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 14 warnings, 4 errors in 1.32s ========================
 
 
 
@@ -112,3 +139,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/modeling.py` — NOT invoked by the run-book
     - `code/preprocessing.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/feature_matrix.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

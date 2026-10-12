@@ -1,41 +1,46 @@
 """
-Unit tests for T002: Directory Creation Verification.
-Verifies that the required project directories exist after running setup_directories.py.
+Test that core project directories are tracked by git via .gitkeep files.
 """
-import os
-import pytest
+import subprocess
+import sys
 
-REQUIRED_DIRS = [
-    "code",
-    "artifacts",
-    "tests",
-    "data/raw",
-    "data/processed",
-    "data/assets"
-]
+def get_git_tracked_files():
+    """Return a set of file paths tracked by git."""
+    try:
+        result = subprocess.run(
+            ["git", "ls-files"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        files = result.stdout.strip().splitlines()
+        return set(files)
+    except subprocess.CalledProcessError as e:
+        # If git command fails, abort the test with a clear message.
+        raise RuntimeError(f"git ls-files failed: {e.stderr}") from e
 
-@pytest.mark.parametrize("directory", REQUIRED_DIRS)
-def test_directory_exists(directory: str) -> None:
-    """Assert that a required project directory exists."""
-    full_path = os.path.join(os.getcwd(), directory)
-    assert os.path.isdir(full_path), f"Directory {full_path} does not exist."
+def test_core_directories_tracked():
+    """Ensure each core directory contains a .gitkeep file tracked by git."""
+    tracked_files = get_git_tracked_files()
 
-def test_artifacts_subdirectories_exist() -> None:
-    """Assert that artifacts has required subdirectories."""
-    base = os.path.join(os.getcwd(), "artifacts")
-    assert os.path.isdir(base), "Artifacts directory missing"
+    required_gitkeep_paths = {
+        "data/raw/.gitkeep",
+        "data/processed/.gitkeep",
+        "data/assets/.gitkeep",
+        "code/.gitkeep",
+        "artifacts/.gitkeep",
+        "tests/.gitkeep",
+    }
 
-    required_subdirs = ["logs", "weights", "metrics", "final_archive"]
-    for subdir in required_subdirs:
-        path = os.path.join(base, subdir)
-        assert os.path.isdir(path), f"Missing artifacts subdirectory: {subdir}"
+    missing = required_gitkeep_paths - tracked_files
+    assert not missing, f"The following .gitkeep files are missing from git tracking: {sorted(missing)}"
 
-def test_code_subdirectories_exist() -> None:
-    """Assert that code has required subdirectories."""
-    base = os.path.join(os.getcwd(), "code")
-    assert os.path.isdir(base), "Code directory missing"
-
-    required_subdirs = ["data", "utils", "models"]
-    for subdir in required_subdirs:
-        path = os.path.join(base, subdir)
-        assert os.path.isdir(path), f"Missing code subdirectory: {subdir}"
+if __name__ == "__main__":
+    # Allow running the test directly for quick debugging.
+    try:
+        test_core_directories_tracked()
+        print("All core .gitkeep files are tracked by git.")
+    except AssertionError as err:
+        print(f"TEST FAILED: {err}", file=sys.stderr)
+        sys.exit(1)

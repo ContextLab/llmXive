@@ -1,3 +1,1 @@
-"""
-llmXive Statistical Analysis Project Source Package.
-"""
+"""PROJ-206 source package: election poll aggregation analysis."""

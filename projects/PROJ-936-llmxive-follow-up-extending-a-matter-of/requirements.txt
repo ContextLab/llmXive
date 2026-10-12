@@ -1,0 +1,2 @@
+# Added request for external HTTP fetching
+requests>=2.31.0

@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan by executing: `mkdir -p projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/{src,tests,data/imagenet_trace,data/imagenet_benchmark,data/routing_cache,data/results,docs}`. **Note**: This creates all necessary directories including `src/` as defined in the plan.
+- [ ] T001 Create project structure per implementation plan by executing: `mkdir -p projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/{src,tests,data/imagenet_trace,data/imagenet_benchmark,data/routing_cache,data/results,docs}`. **Note**: This creates all necessary directories including `src/` as defined in the plan.
 
 ---
 
@@ -34,16 +34,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T002 Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt` containing pinned versions: `torch==2.3.0+cpu ` (install via `--index-url https://download.pytorch.org/whl/cpu`), `torchvision==0.18.0 `, `transformers`, `diffusers`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`. **Note**: `bitsandbytes` removed as 8-bit quantization is not used; `torchmetrics` removed as FID is implemented manually via `torchvision`.
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T005 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/model_loader.py`: Load canonical pre-trained SiT-XL model with DAR enabled. [UNRESOLVED-CLAIM: c_55a9979e — status=not_enough_info] **CRITICAL**: MUST use a low-precision format to ensure the model fits within the memory limit of the GitHub Actions runner., as per Spec Assumptions and SC-005. **Note**: `load_in_8bit` is explicitly NOT used per Spec Assumptions. **Verification**: Task is complete only when `src/model_loader.py` exists, can be imported without error, and successfully loads the model in float16 mode without OOM on a standard CPU runner.
-- [X] T006 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/metrics.py`: Implement FID calculation using a frozen, pre-trained Inception network **from `torchvision.models.inception_v3`** using **`Inception_V3_Weights.${FID_WEIGHTS_VERSION}`** (ensuring compatibility with pinned `torchvision==${TORCHVISION_VERSION}` and matching the canonical baseline). **Specific Function**: `calculate_fid(image_list_1, image_list_2)`. **Constraint**: MUST load the network in `inference-only` mode (`model.eval()`) and explicitly wrap all inference calls in `torch.no_grad()` to freeze weights and prevent gradient computation. **Preprocessing**: Inputs MUST be resized to 299x299 and center-cropped to match the canonical baseline. **Verification**: Verify `src/metrics.py` contains `calculate_fid` function that accepts two image lists, uses `model.eval()` and `torch.no_grad()`, applies correct resizing/cropping, loads `IMAGENET1K_V1` weights (or configured version), and returns a float.
+- [ ] T002 Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt` containing pinned versions: `torch==2.3.0+cpu ` (install via `--index-url https://download.pytorch.org/whl/cpu`), `torchvision==0.18.0 `, `transformers`, `diffusers`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`. **Note**: `bitsandbytes` removed as 8-bit quantization is not used; `torchmetrics` removed as FID is implemented manually via `torchvision`.
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T005 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/model_loader.py`: Load canonical pre-trained SiT-XL model with DAR enabled. [UNRESOLVED-CLAIM: c_55a9979e — status=not_enough_info] **CRITICAL**: MUST use a low-precision format to ensure the model fits within the memory limit of the GitHub Actions runner., as per Spec Assumptions and SC-005. **Note**: `load_in_8bit` is explicitly NOT used per Spec Assumptions. **Verification**: Task is complete only when `src/model_loader.py` exists, can be imported without error, and successfully loads the model in float16 mode without OOM on a standard CPU runner.
+- [ ] T006 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/metrics.py`: Implement FID calculation using a frozen, pre-trained Inception network **from `torchvision.models.inception_v3`** using **`Inception_V3_Weights.${FID_WEIGHTS_VERSION}`** (ensuring compatibility with pinned `torchvision==${TORCHVISION_VERSION}` and matching the canonical baseline). **Specific Function**: `calculate_fid(image_list_1, image_list_2)`. **Constraint**: MUST load the network in `inference-only` mode (`model.eval()`) and explicitly wrap all inference calls in `torch.no_grad()` to freeze weights and prevent gradient computation. **Preprocessing**: Inputs MUST be resized to 299x299 and center-cropped to match the canonical baseline. **Verification**: Verify `src/metrics.py` contains `calculate_fid` function that accepts two image lists, uses `model.eval()` and `torch.no_grad()`, applies correct resizing/cropping, loads `IMAGENET1K_V1` weights (or configured version), and returns a float.
 - [X] T007 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/utils.py`: Helper functions for batch processing, memory management, and error handling. **Specific Functions**:
  1. `batch_iterator(iterable, batch_size)`: Yields chunks of size `batch_size` from `iterable`.
  2. `memory_guard(threshold_gb)`: Returns `True` if current RAM usage < `threshold_gb`, else raises a `MemoryError` exception.
  **Verification**: Verify functions exist, have correct signatures, and `memory_guard` raises an exception when the threshold is exceeded.
-- [X] T008 Configure environment variables by creating `.env` file at project root with exact keys and **default values**: `TRACE_SET_SIZE=100 ` (default), `BENCHMARK_SET_SIZE=100 ` (default, see T019 for specific count), `BENCHMARK_SET_START=100 ` (fixed integer), `RANDOM_SEED=42` (default), `NUM_TIMESTEPS=1000` (default), `FID_WEIGHTS_VERSION=IMAGENET1K_V1` (default), `TORCHVISION_VERSION=0.18.0` (default), `BENCHMARK_SEEDS=[, 456, 789, 1011, 2024]` (default), `SENSITIVITY_THRESHOLDS=[low, 0.05, 0.1]` (default), `SENSITIVITY_SET_SIZE=100` (default). **Note**: `BENCHMARK_SET_START=100` ensures disjointness from T011 (indices -99) as per T019 requirement. **Verification**: Verify `.env` exists, contains these keys with the specified default values, and the code validates that these values can be overridden via environment variables.
-- [X] T035 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/data_loader.py` to fetch ImageNet subsets using `datasets.load_dataset("imagenet1k", split="validation", streaming=True)`. **CRITICAL**: Remove any `try/except` blocks that fall back to synthetic/mock data; the loader MUST raise an exception if the real source is unreachable. **Verification**: Verify that a failed fetch raises an exception and no synthetic data is generated.
+- [~] T008 Configure environment variables by creating `.env` file at project root with exact keys and **default values**: `TRACE_SET_SIZE=100 ` (default), `BENCHMARK_SET_SIZE=100 ` (default, see T019 for specific count), `BENCHMARK_SET_START=100 ` (fixed integer), `RANDOM_SEED=42` (default), `NUM_TIMESTEPS=1000` (default), `FID_WEIGHTS_VERSION=IMAGENET1K_V1` (default), `TORCHVISION_VERSION=0.18.0` (default), `BENCHMARK_SEEDS=[, 456, 789, 1011, 2024]` (default), `SENSITIVITY_THRESHOLDS=[low, 0.05, 0.1]` (default), `SENSITIVITY_SET_SIZE=100` (default). **Note**: `BENCHMARK_SET_START=100` ensures disjointness from T011 (indices -99) as per T019 requirement. **Verification**: Verify `.env` exists, contains these keys with the specified default values, and the code validates that these values can be overridden via environment variables.
+- [~] T035 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/data_loader.py` to fetch ImageNet subsets using `datasets.load_dataset("imagenet1k", split="validation", streaming=True)`. **CRITICAL**: Remove any `try/except` blocks that fall back to synthetic/mock data; the loader MUST raise an exception if the real source is unreachable. **Verification**: Verify that a failed fetch raises an exception and no synthetic data is generated.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,11 +59,11 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T009 [P] [US1] Write unit test file `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_clustering.py` with assertions for the expected fallback behavior (global average generation when k < 2 or silhouette < 0.25). **Verification**: Test must assert that the *expected system output* flags the null result condition.
+- [~] T009 [P] [US1] Write unit test file `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_clustering.py` with assertions for the expected fallback behavior (global average generation when k < 2 or silhouette < 0.25). **Verification**: Test must assert that the *expected system output* flags the null result condition.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`: Load SiT-XL/2 with `torch.float16` (per Spec Assumptions and SC-005), iterate through `$TRACE_SET_SIZE` ImageNet validation images (streamed/batched to stay < 7GB RAM) with a **fixed timestep schedule (linear spacing from 0 to $NUM_TIMESTEPS, seed from `$RANDOM_SEED`)**, record routing weight matrices (softmax distributions) for every block and timestep. **File Naming**: Save a **single aggregated** `.npy` file containing ALL A set of images' routing tensors as `data/routing_cache/routing_aggregated.npy`. **Schema**: The `.npy` file MUST contain a 5D numpy array of shape `[num_images=$TRACE_SET_SIZE, num_timesteps=$NUM_TIMESTEPS, num_blocks, history_dim]` representing the routing weights for all images, timesteps, and blocks. **Sampling Strategy**: Use the first `$TRACE_SET_SIZE` images in the validation split to ensure reproducibility. `image_id` is defined as the 0-indexed position in the validation split (0 to `$TRACE_SET_SIZE-1`). **Memory Constraint**: Process strictly in **batches of small size** to guarantee < 7GB RAM usage. **Memory Guard Logic**: Invoke `memory_guard(7.0)` **per batch** before processing each batch. If RAM usage is < 7GB but > 6.5GB, log a warning to `data/results/memory_profile_raw.jsonl` and continue. If RAM usage >= 7GB, raise `MemoryError` and halt immediately. **Logging**: Log progress as JSON lines to `data/results/tracing_log.jsonl` with keys: `image_index`, `peak_memory_mb`, `routing_shape`. Log memory profiles to `data/results/memory_profile_raw.jsonl`.
+- [ ] T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`: Load SiT-XL/2 with `torch.float16` (per Spec Assumptions and SC-005), iterate through `$TRACE_SET_SIZE` ImageNet validation images (streamed/batched to stay < 7GB RAM) with a **fixed timestep schedule (linear spacing from 0 to $NUM_TIMESTEPS, seed from `$RANDOM_SEED`)**, record routing weight matrices (softmax distributions) for every block and timestep. **File Naming**: Save a **single aggregated** `.npy` file containing ALL A set of images' routing tensors as `data/routing_cache/routing_aggregated.npy`. **Schema**: The `.npy` file MUST contain a 5D numpy array of shape `[num_images=$TRACE_SET_SIZE, num_timesteps=$NUM_TIMESTEPS, num_blocks, history_dim]` representing the routing weights for all images, timesteps, and blocks. **Sampling Strategy**: Use the first `$TRACE_SET_SIZE` images in the validation split to ensure reproducibility. `image_id` is defined as the 0-indexed position in the validation split (0 to `$TRACE_SET_SIZE-1`). **Memory Constraint**: Process strictly in **batches of small size** to guarantee < 7GB RAM usage. **Memory Guard Logic**: Invoke `memory_guard(7.0)` **per batch** before processing each batch. If RAM usage is < 7GB but > 6.5GB, log a warning to `data/results/memory_profile_raw.jsonl` and continue. If RAM usage >= 7GB, raise `MemoryError` and halt immediately. **Logging**: Log progress as JSON lines to `data/results/tracing_log.jsonl` with keys: `image_index`, `peak_memory_mb`, `routing_shape`. Log memory profiles to `data/results/memory_profile_raw.jsonl`. <!-- FAILED-IN-EXECUTION: code/src/tracing.py exit=1 -->
  **Data Hygiene**:
  1. Query the HuggingFace `datasets` library for the exact `dataset_version` and `revision` of the loaded `imagenet1k` split.
  2. Save this metadata to `data/results/dataset_metadata.json` with keys: `dataset_name`, `split`, `revision`, `timestamp`, and `checksum` (cryptographic hash of the first shard).
@@ -103,8 +103,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T016 [P] [US2] Unit test for latency measurement logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_benchmark.py` (verify timing accuracy)
-- [X] T017 [P] [US2] Integration test for FID comparison in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/integration/test_fid_comparison.py` (verify FID calculation on dummy samples)
+- [~] T016 [P] [US2] Unit test for latency measurement logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_benchmark.py` (verify timing accuracy)
+- [~] T017 [P] [US2] Integration test for FID comparison in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/integration/test_fid_comparison.py` (verify FID calculation on dummy samples)
 
 ### Implementation for User Story 2
 
@@ -128,8 +128,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T023 [P] [US3] Unit test for bootstrap significance test in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_stats.py` (verify non-parametric bootstrap implementation)
-- [X] T024 [P] [US3] Unit test for sensitivity sweep logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_sensitivity.py`
+- [~] T023 [P] [US3] Unit test for bootstrap significance test in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_stats.py` (verify non-parametric bootstrap implementation)
+- [~] T024 [P] [US3] Unit test for sensitivity sweep logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
@@ -166,8 +166,8 @@
 
 ### Parallel Tasks
 
-- [X] T030a [P] Create `docs/README.md` with project overview and installation instructions
-- [X] T030b [P] Create `docs/usage.md` with usage instructions for all scripts
+- [~] T030a [P] Create `docs/README.md` with project overview and installation instructions
+- [~] T030b [P] Create `docs/usage.md` with usage instructions for all scripts
 
 ### Sequential Tasks (Must follow strict ordering)
 
@@ -176,9 +176,9 @@
 - [ ] T031a [P] Code cleanup: Linting configuration. **Deliverables**: Create `pyproject.toml` with ruff/black configuration, enable specific rules (e.g., E, F, W, I, N). **Verification**: Verify `pyproject.toml` exists and contains correct configuration.
 - [ ] T031b [P] Code cleanup: Linting execution. **Deliverables**: Run `ruff check src/` and `black --check src/` with 0 errors. **Verification**: Verify `ruff check` and `black --check` return 0.
 - [ ] T031c [P] Code cleanup: Print removal. **Deliverables**: Remove all `print()` calls (verify with `grep -r 'print(' src/`); replace with logging. **Verification**: Verify `grep` finds no `print(` calls.
-- [X] T032a (Merged into T011) Performance optimization: Add memory profiling to `src/tracing.py` using `memory_profiler` to output `data/results/memory_profile_raw.jsonl`.
+- [~] T032a (Merged into T011) Performance optimization: Add memory profiling to `src/tracing.py` using `memory_profiler` to output `data/results/memory_profile_raw.jsonl`.
 - [ ] T033 [P] Run quickstart.md validation: Execute commands in `docs/quickstart.md` and verify exit code 0 for all steps.
-- [X] T034 (Merged into T035) Verify all data fetches use real, reachable URLs or package-based fetches (no synthetic fallbacks).
+- [~] T034 (Merged into T035) Verify all data fetches use real, reachable URLs or package-based fetches (no synthetic fallbacks).
 
 ---
 

@@ -1,166 +1,103 @@
 # Quickstart Guide: The Influence of Emotional Contagion on Collective Decision-Making
 
+## Project Layout
+
+The repository follows a minimal, reproducible layout:
+
+```
+<project root>/
+├── code/ # All source code (modules, scripts, tests)
+├── data/
+│ ├── raw/ # Unprocessed source files (e.g., Reddit JSONL)
+│ └── processed/ # Derived artefacts (CSV, JSON, logs)
+├── docs/ # Documentation, including this Quickstart and the paper draft
+└── figures/ # Generated plots and visualisations
+```
+
+> **Note:** The `state/` directory is managed by the platform for checksum
+> tracking and runtime logs; the project code does **not** create or modify
+> this folder directly.
+
 ## Prerequisites
 
-- Python 3.11+
-- pip (Python package manager)
-- Access to Reddit API credentials (for data download)
+- Python 3.11 or higher
+- Internet access (to fetch real data)
+- (Optional) Reddit API credentials for the fallback data source
 
-## Installation
-
-1. Clone the repository and navigate to the project directory:
- ```bash
- cd PROJ-139-the-influence-of-emotional-contagion-on-
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-3. Set up environment variables (optional, for API keys):
- ```bash
- export REDDIT_CLIENT_ID="your_client_id"
- export REDDIT_CLIENT_SECRET="your_client_secret"
- export REDDIT_USER_AGENT="your_user_agent"
- ```
-
-## Running the Pipeline
-
-### Data Download
-
-**IMPORTANT**: The data download script uses the following arguments:
-- `--subreddits`: List of subreddits to fetch (e.g., `askScience fdr`)
-- `--limit`: Maximum number of threads to fetch (optional)
-- `--output`: Output file path (optional, defaults to `data/raw/reddit_threads.jsonl`)
-
-**Correct Command**:
-```bash
-python code/data/download.py --subreddits askScience fdr --limit 100
-```
-
-**Note**: The previous command `--source askScience --source fdr` was incorrect and has been fixed. The script now uses `--subreddits` to specify multiple subreddits.
-
-### Full Pipeline Execution
-
-Run the complete analysis pipeline:
-```bash
-python code/analysis/run_pipeline.py
-```
-
-This will:
-1. Download data (if not already present)
-2. Extract seed posts and validate ground truth
-3. Apply sentiment analysis
-4. Compute emotional contagion index
-5. Fit statistical models
-6. Generate final reports
-
-### Individual Stage Execution
-
-You can also run individual stages:
+## Setup
 
 ```bash
-# Data download
-python code/data/download.py --subreddits askScience fdr
+# 1. Clone the repository and navigate to the project root
+git clone <repo‑url>
+cd projects/PROJ-139-the-influence-of-emotional-contagion-on-
 
-# Data extraction and validation
-python code/data/extract.py
-python code/data/validation.py
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate # Windows: venv\Scripts\activate
 
-# Sentiment analysis
-python code/data/sentiment.py
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
 
-# Metrics calculation (T059: Uses filtered dataset from T009)
-python code/data/metrics.py
-
-# Modeling and analysis
-python code/data/modeling.py
-
-# Final reports
-python code/analysis/generate_final_reports.py
+# 4. Download NLTK resources needed for VADER
+python -c "import nltk; nltk.download('vader_lexicon')"
 ```
 
-## Expected Outputs
+## Running a Minimal Sample
 
-After successful execution, the following artifacts will be generated:
+The pipeline can be exercised on a tiny real‑world sample without downloading the full dataset:
 
-### Data Files (`data/processed/`)
-- `threads_with_seeds.csv`: Filtered threads with ≥3 seed posts
-- `valid_threads.csv`: Threads with valid ground truth
-- `thread_metrics.csv`: Emotional contagion index and decision quality metrics
-- `sensitivity_analysis.csv`: Sensitivity analysis results
-- `ground_truth_stats.json`: Ground truth coverage statistics
-- `vader_validation_report.json`: VADER sentiment validation results
-- `external_validation_correlation.csv`: Correlation with external validation
-- `collinearity_diagnostics.json`: VIF scores for predictors
-
-### State Files (`state/`)
-- `sc_006_compliance_report.json`: Ground truth threshold compliance
-- `final_validation.json`: All success criteria validation results
-- `reproducibility_report.json`: Reproducibility verification results
-- `artifact_hashes.yaml`: Checksums of all artifacts
-
-### Documentation (`docs/`)
-- `paper.md`: Final research paper
-- `analysis_summary.md`: Analysis summary with limitations
-- `quickstart.md`: This guide
-
-## Memory and Streaming
-
-### Memory Constraints
-The pipeline is designed to run on standard CPU-only runners with limited memory (~7 GB RAM, ~14 GB disk). To handle large datasets:
-
-1. **Streaming**: The download and processing stages use streaming to avoid loading entire datasets into memory.
-2. **Sampling**: If the dataset exceeds memory limits, the pipeline automatically samples a representative subset (logged in `data/processed/sampling_strategy_log.json`).
-3. **Chunk Processing**: Metrics and modeling stages process data in chunks where possible.
-
-### Monitoring
-Monitor memory usage during execution:
 ```bash
-python code/analysis/validate_streaming_rules.py
+python -m code.analysis.run_pipeline --sample 5
 ```
 
-This will generate `state/streaming_validation.json` with memory profile information.
+This command:
+1. Streams a few records from the public HuggingFace `reddit_comments` dataset.
+2. Writes a CSV with the columns `id, subreddit, created_utc, body` to:
+ `data/results/sample_run.csv`.
+3. Completes in seconds and requires no Reddit API credentials.
+
+Verify the output:
+
+```bash
+ls data/results/
+# Expected file: sample_run.csv
+head data/results/sample_run.csv
+```
+
+## Full Pipeline
+
+When you are ready to run the complete analysis (data download, extraction,
+sentiment scoring, modelling, etc.), execute:
+
+```bash
+python -m code.analysis.run_pipeline
+```
+
+The script will:
+1. Create the required directories (`code/`, `data/raw/`, `data/processed/`, `docs/`, `figures/`).
+2. Download Reddit threads for the configured subreddits.
+3. Perform all downstream processing steps, producing the artefacts listed in the
+ project documentation.
+
+## Verification
+
+After any run, you can check that the expected artefacts exist:
+
+```bash
+# Sample run verification
+[ -f data/results/sample_run.csv ] && echo "Sample CSV created"
+
+# Full run verification (partial list)
+ls data/processed/
+```
 
 ## Troubleshooting
 
-### Data Download Fails
-If data download fails:
-1. Check API credentials
-2. Verify network connectivity
-3. Review `data/processed/download_attempts.log` for error details
-
-### Pipeline Stage Fails
-If a specific stage fails:
-1. Check the corresponding log file (e.g., `data/processed/metrics_pipeline.log`)
-2. Verify input files exist and are valid
-3. Ensure dependencies from previous stages are complete
-
-### Missing Artifacts
-If expected artifacts are missing:
-1. Run `python code/analysis/final_validation.py` to check for missing files
-2. Review `state/final_validation.json` for detailed error messages
-
-## Validation and Verification
-
-### Run Full Validation
-```bash
-python code/analysis/final_validation.py
-```
-
-### Verify Reproducibility
-```bash
-python code/analysis/verify_reproducibility.py
-```
-
-### Verify Data Sources
-```bash
-python code/analysis/verify_data_sources.py
-```
-
-## T059 Specific: Corrected Data Flow
-
-**Important Fix**: Task T059 corrected the data flow in `code/data/metrics.py` to ensure it reads from the **filtered dataset** (`threads_with_seeds.csv`) rather than the raw dataset. This prevents the inclusion of threads that should have been excluded by T010 (threads with <3 top-level posts).
-
-The `load_processed_data()` function now explicitly loads from `data/processed/threads_with_seeds.csv` and raises a `FileNotFoundError` if this file does not exist, ensuring the pipeline fails loudly rather than processing incorrect data.
+- **Missing `sample_run.csv`** – Ensure the `datasets` library is installed
+ (`pip install datasets`) and that you have internet connectivity.
+- **Data download failures** – Check that your Reddit API credentials are set
+ (environment variables `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`,
+ `REDDIT_USER_AGENT`). The script will fall back to the Pushshift API; if all
+ sources fail, it raises a clear `RuntimeError`.
+- **Platform‑owned `state/` directory** – Do not modify files inside `state/`;
+ it is automatically managed by the verification harness.

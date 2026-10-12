@@ -37,13 +37,13 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "The significance level used for the test (e.g., 0.05 or Bonferroni-corrected value)."
+    description: "The significance level used for the test (e.g., 0.05)."
   correction:
     type: string
     enum:
       - "bonferroni"
       - "none"
-    description: "The multiple-comparison correction method applied."
+    description: "Multiple comparison correction applied."
 required:
   - dataset_id
   - method_a

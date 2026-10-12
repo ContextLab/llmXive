@@ -35,7 +35,7 @@ As a researcher, I want to train Random Forest and Support Vector Regression mod
 
 1. **Given** a normalized dataset split into training ([deferred]) and held-out test ([deferred]) sets, **When** the training script runs with `RandomForestRegressor` and `SVR`, **Then** it performs 5-fold cross-validation on the training set and reports the mean R² score for each model.
 2. **Given** a model trained exclusively on drought-stress data, **When** it is evaluated on a held-out salinity-stress test set, **Then** the system records the prediction performance metrics (R², RMSE) to quantify the "cross-stress" generalization gap. The ground truth is the actual measured gene expression levels in the salinity condition, not the stress label itself.
-3. **Given** a trained model, **When** the feature importance extraction runs, **Then** it outputs a ranked list of top 20 proteins driving the predictions, sorted by absolute importance score, without requiring GPU acceleration.
+3. **Given** a trained model, **When** the feature importance extraction runs, **Then** it outputs a ranked list of the top proteins driving the predictions, sorted by absolute importance score, without requiring GPU acceleration.
 4. **Given** a trained model, **When** a control test is run where the stress label is shuffled, **Then** the model's performance on the shuffled data must not significantly exceed the performance on the real data (p < 0.05), ensuring the model is not merely predicting the stress label.
 
 ---
@@ -69,7 +69,7 @@ As a researcher, I want the system to automatically generate publication-ready f
 - **FR-002**: System MUST normalize protein expression matrices, filter low-abundance proteins (defined as detected in < 50% of samples within a stress condition), and handle missing values using Left-Censored Missing (LCM) imputation (See US-1).
 - **FR-003**: System MUST merge proteomic and transcriptomic datasets using the biomaRt R package (version 2023-10) for identifier mapping, excluding unmatched rows (See US-1).
 - **FR-004**: System MUST train Random Forest and Support Vector Regression models using scikit-learn on CPU-only hardware (See US-2).
-- **FR-005**: System MUST perform 5-fold cross-validation for within-stress generalization and evaluate performance on held-out cross-stress test sets. The ground truth for cross-stress evaluation must be the actual measured gene expression levels, not the stress label. The system MUST include a control test to verify the model is not merely predicting the stress label (See US-2).
+- **FR-005**: System MUST perform k‑fold cross‑validation for within-stress generalization and evaluate performance on held-out cross-stress test sets. The ground truth for cross-stress evaluation must be the actual measured gene expression levels, not the stress label. The system MUST include a control test to verify the model is not merely predicting the stress label (See US-2).
 - **FR-006**: System MUST generate feature importance plots identifying the top proteins driving stress predictions (See US-2).
 - **FR-007**: System MUST produce summary figures including prediction scatter plots and cross-stress performance matrices (See US-3).
 - **FR-008**: System MUST record and report total runtime metrics (CPU time, memory usage) to verify completion within the 6-hour limit (See US-3).

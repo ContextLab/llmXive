@@ -1,36 +1,95 @@
-T004b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No environment configuration files (e.g., `.env`, `config.yaml`, or a secrets
-    manager setup) or scripts for handling API keys and random seeds are present,
-    and the implementer provided no evidence of such artifacts. Consequently the requirement
-    to set up environment configuration management is not satisfied.
+T001:
+  c: true
+  h: d6abc857f38f205f95f63f96c0f616a0759015fc368f9988ea9387ab4c6cbf04
+  r: Checked that `data/raw/cif/` directory exists (contains 5 CIF files) and that
+    the pytest test `test_create_raw_cif_dir` passed, with the creation script logging
+    successful directory creation.
+  sig: 82bfaef8c76f7f71f2d5bdf0dc5c129697abc5e52d1a1ef7b9b5d0971bf8ee5a
+T002:
+  c: true
+  h: d04d53e5ec0aa99459f1f428b06cbb0db17864ba808564fd1a6c380f8de65287
+  r: "The evidence shows the `data/processed/networks/` directory exists (log confirms\
+    \ it was created) and is present in the repository, satisfying the task\u2019\
+    s requirement to create that directory."
+  sig: 081b8edb3fa2b67ec01b1d43bcb4db90f8b3087075e322bec5d57cc449db10d4
+T003:
+  c: true
+  h: c2b7fb733dd54634d9e4e135206eb815559360032ec921656d815cdb33274cf7
+  r: "The evidence shows that the four required directories (`data/processed/`, `models/`,\
+    \ `results/`, `code/`) exist under the project root, with logs from `create_project_layout.py`\
+    \ confirming they were created and a pytest run (`tests/test_create_project_layout.py`)\
+    \ passing. This satisfies the task\u2019s sole requirement of establishing the\
+    \ specified project\u2011level folder layout."
+  sig: f2d236b7141eb325e46b21a14a48ebce114da82e4472c1bd0ddfda22027cdc1e
+T004:
+  c: true
+  h: 9a6992f4674c277521afad67690cf0cfc8762319a49661bd192c9250952c501e
+  r: "The `code/requirements.txt` file (355\u202Fbytes) exists at the expected location\
+    \ and contains pinned versions of all required packages (`pymatgen`, `networkx`,\
+    \ `scikit-learn`, `pandas`, `requests`, `numpy`, `statsmodels`). The file also\
+    \ includes additional pinned dependencies, which does not violate the task specification."
+  sig: e28ad2f0b2e5f7a402dbcdae141897290f3fbcc37a572283e4fb90abc7474e10
+T005:
+  c: true
+  h: c70207bccf47314c6a07ee0a7fee59c84079846a90fe6eaf86bbde55c6bbd519
+  r: "Checked the `specs/001-network-structure-thermal-conductivity/quickstart.md`\
+    \ artifact (resolved to `specs/001-quantifying-the-impact-of-network-struct/quickstart.md`,\
+    \ 400\u202Fbytes) which contains a placeholder stub as required."
+  sig: f8ca8b6c02839b100468fdd59a69ae27f6e1c2f10de9cc6f44bd025b8309b206
+T006:
+  c: true
+  h: 4e92641bcde5b123097d7b651bb7b1e2b12beedf56ba80eb1ac9021df6f5ffb9
+  r: "Checked `code/utils.py` (6778\u202Fbytes) which defines `pin_seed`, `retry_with_exponential_backoff`,\
+    \ and `setup_logging` (a simple logger wrapper) plus related utilities, and verified\
+    \ the accompanying pytest log (`tests/test_utils.py`) shows all seven tests for\
+    \ these functions pass. All required artifacts exist and implement the specified\
+    \ behavior."
+  sig: 55d30d0e066935bfb27ad98d0cedb549a4ae46638c28488e8e42481089b03075
+T007:
+  c: true
+  h: 9ebef1a9787b4eecf6ce9baae952da866ea4e345ae7b1dc7fe1e0bba229f8502
+  r: "Checked `code/config.py` (6593\u202Fbytes) \u2013 it defines a singleton `Config`\
+    \ class, reads the API key from the `MATERIALS_PROJECT_API_KEY` environment variable\
+    \ (with backward\u2011compatible fallback), and provides `get_random_seed_dict()`\
+    \ returning a fixed dictionary of seeds."
+  sig: 212c225d7a839570ad8c2e3d11cdb50a33248de01d23a757b8aa63577a425b01
 T008:
+  c: true
+  h: c701bada69507a9ce381fa8189f9d43050ba7f78cf9d387b75e4446ab2c77f6b
+  r: "Checked the `data/metadata.yaml` file (1340\u202Fbytes) which contains entries\
+    \ for each download with `material_id`, `timestamp`, and `cif_hash` (SHA\u2011\
+    256 of the raw CIF), as well as a `derived_artifacts` list recording artifact\
+    \ paths, their SHA\u2011256 checksums, and timestamps\u2014fulfilling the required\
+    \ schema."
+  sig: d09c4121e569fc238349adfaf4dc05ab81432c85c63b889f3595d5dd2717a839
+T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/raw/cif/` directory containing downloaded CIF files is\
-    \ provided, nor any file or log showing computed SHA\u2011256 checksums. The required\
-    \ artifacts are missing, so the task is not satisfied."
+  h: 713dac2e81d173ebff4156b05779fdce849e094b89bd073686556556487778bd
+  r: "The `data/raw/cif/` directory contains only 5 CIF files (log shows `--limit\
+    \ 5`), far fewer than the required \u226550 and the script does not query the\
+    \ Materials Project API but downloads a public zip archive instead. Moreover,\
+    \ the metadata entries do not follow the fields the task specifies (the script\
+    \ writes `cif_sha256`/`download_timestamp` but `metadata.yaml` contains `cif_hash`/`timestamp`).\
+    \ These missing/incorrect artifacts mean the task\u2019s requirements are not\
+    \ satisfied."
+  sig: 8a62adb37811c631cf6eee00a4101a45bcdeefa49aa3c0f79507e5ce387d6f7a
+T010:
+  c: false
+  h: 70f47dc48f580b6923c389caaf0fa974c483e0f98d9b14951b0d48b1c1d8a564
+  r: "The provided `code/construct_network.py` contains the required logic (pymatgen\
+    \ parsing, covalent\u2011radius\u202F+\u202Ftolerance bonding, progressive fallback\
+    \ cut\u2011offs including 4.0\u202F\xC5 and 4.5\u202F\xC5, and building a `networkx.Graph`).\
+    \ However, there is no evidence that \u226550 CIF files exist, were processed,\
+    \ and that corresponding graph pickle files (or a manifest) were created, nor\
+    \ do the test logs show a successful run of the script. A passing test and actual\
+    \ output artifacts are needed to satisfy the task."
+  sig: 7540727d269272e67d86908461263dbb8ae40555c60a43d8321075ea04bb65c7
 T013:
   c: false
   h: 3a83027cea1e5920be7acfff7372203f851bcb3775d84f9953d2ab5c46dc66ef
   r: "The repository contains a partially shown `code/compute_metrics.py`, but the\
     \ required output file `data/processed/metrics.csv` and the state file `state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml`\
     \ are absent. Without these artifacts, the task\u2019s deliverables are not satisfied."
-T016a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No correlation output files (e.g., `results/correlations.json` or similar) are\
-    \ present, nor any code or logs showing Pearson and Spearman calculations and\
-    \ temporary\u2011file handling. Without concrete artifacts, the requirement is\
-    \ not satisfied."
-T016c:
-  c: false
-  h: 698d7ce940adf91297d9b490d25fccce6d1a8985a7e1706cd6126b42b19d1dae
-  r: '`data/processed/checksums.json` does not contain any entry for the checksum
-    of `results/correlations.json`; it only has unrelated keys. Consequently the required
-    update was not performed. The missing checksum entry must be added (e.g., a hash
-    value keyed by `"results/correlations.json"`).'
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,40 +98,3 @@ T017:
     \ tests) was provided, nor any output (such as updated p\u2011values or a report)\
     \ demonstrating that the correction was applied. The required artifact is missing,\
     \ so the task is not satisfied."
-T018a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, log file, or documentation was presented showing that the system records
-    the sample size and emits a warning when the number of samples is below 50, as
-    required by task T018a. The necessary artifact is missing.
-T018b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, log file, or output showing the verification of \u226550 remaining\
-    \ materials after filtering is provided; the claim lacks any concrete artifact\
-    \ (e.g., a printed count, a log entry, or a data file) to demonstrate that the\
-    \ requirement was met. The implementer must supply evidence\u2014such as a log\
-    \ message or a report file\u2014confirming the final material count."
-T020a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing the calculated Variance Inflation Factor (VIF) values\
-    \ for the candidate features is present. The task required VIF for all network\
-    \ metrics **and** physical descriptors, but no CSV/JSON/figure or code output\
-    \ showing these calculations was provided. The implementer must supply a non\u2011\
-    empty file (e.g., `data/processed/vif.csv`) listing each feature with its VIF\
-    \ score."
-T020b:
-  c: false
-  h: 6923e46852618fcbf911450abe8318028fe0b901e668c0b3c7d9f246c4122ccf
-  r: The repository lacks the required `results/power_analysis.log` file, and the
-    provided excerpt of `code/analyze.py` does not show a `log_vif_results(vif_dict)`
-    implementation (or any evidence that it writes VIF values in the specified format).
-    Without the function and its output file, the task is not fulfilled.
-T031:
-  c: false
-  h: 67559461968a914aa74d26c69564fd1889b764aac0cc2b0ccc89c2801030d36d
-  r: "The repository lacks `data/processed/metrics_transformed.csv`, and the shown\
-    \ portion of `code/analyze.py` contains no Shapiro\u2011Wilk test or log\u2011\
-    transformation logic for the thermal conductivity or metric columns. Consequently\
-    \ the required task and output are not present."

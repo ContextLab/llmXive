@@ -2,6 +2,7 @@
 Project setup script for llmXive COVID-19 Vaccine Adverse Event Analysis.
 Creates the required directory structure as specified in T001a.
 """
+
 import os
 from pathlib import Path
 

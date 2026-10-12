@@ -1,24 +1,24 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Results Schema
-description: Schema for the final statistical analysis results.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical analysis results."
 type: object
 properties:
   sample_size:
     type: integer
     minimum: 1
-    description: Total number of prompts processed.
+    description: "Total number of prompts processed."
   power_analysis:
     type: object
     properties:
       power:
         type: number
-        description: Calculated statistical power.
+        description: "Calculated statistical power."
       effect_size:
         type: number
-        description: Observed effect size (Cohen's d).
+        description: "Observed effect size (Cohen's d)."
       n:
         type: integer
-        description: Sample size used.
+        description: "Sample size used in power calculation."
     required:
       - power
       - effect_size
@@ -84,16 +84,22 @@ properties:
   correlation_results:
     type: object
     properties:
-      pearson_r:
+      spearman_rho:
         type: number
+        description: "Spearman rank correlation coefficient."
       p_value:
         type: number
+        description: "Two‑tailed p‑value for the Spearman test."
     required:
-      - pearson_r
+      - spearman_rho
       - p_value
+  human_score_diff_pass:
+    type: boolean
+    description: "True if AntiSD quality score exceeds StandardSD by ≥ 0.2 points (SC‑006)."
 required:
   - sample_size
   - power_analysis
   - metrics
   - wilcoxon_results
   - correlation_results
+  - human_score_diff_pass

@@ -5,7 +5,7 @@ import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable
 
 
 @dataclass
@@ -19,58 +19,71 @@ class LogEntry:
 
 
 class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
-
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
-    """
+    """Accepts ANY call shape and never raises."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
+        self.entries: list[LogEntry] = []
 
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        op = args[0] if args else kwargs.pop("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
+    # No‑op for standard logging methods
+    def __getattr__(self, name: str) -> Callable[..., None]:
+        def _noop(*_args: Any, **_kwargs: Any) -> None:
             return None
+
         return _noop
 
 
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+_GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
     return _GLOBAL_LOGGER
 
 
-def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
-
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
+def log_operation(*args: Any, **kwargs: Any):
     """
-    if len(args) == 1 and callable(args[0]) and not kwargs:
+    Dual‑purpose helper that can be used either as a decorator
+    ``@log_operation("name")`` or as a direct logging call
+    ``log_operation("name", task_id=..., ...)``.
+    """
+    # Direct call with additional keyword arguments → return a LogEntry
+    if kwargs:
+        op = args[0] if args else kwargs.pop("operation", "operation")
+        return get_logger().log(op, **kwargs)
+
+    # Called as @log_operation without parameters → simple decorator
+    if len(args) == 1 and callable(args[0]):
         func = args[0]
 
         @functools.wraps(func)
-        def _wrapper(*a: Any, **k: Any) -> Any:
+        def _wrapper(*a: Any, **k: Any):
             return func(*a, **k)
 
         return _wrapper
 
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
+    # Called as @log_operation("operation_name") → return a decorator that logs
+    op_name = args[0] if args else kwargs.pop("operation", "operation")
+
+    def decorator(func: Callable[..., Any]):
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any):
+            # Log the operation each time the function is invoked
+            get_logger().log(op_name, parameters={"args": a, "kwargs": k})
+            return func(*a, **k)
+
+        return _wrapper
+
+    return decorator
+
 
 def log_pipeline_summary(task_id: str, status: str, result: Any) -> None:
     """
@@ -78,6 +91,4 @@ def log_pipeline_summary(task_id: str, status: str, result: Any) -> None:
     Called by main.py.
     """
     logger = get_logger("pipeline_summary")
-    entry = logger.log("pipeline_summary", task_id=task_id, status=status, result=result)
-    # Optionally print or store the JSON
-    # print(entry.to_json())
+    logger.log("pipeline_summary", task_id=task_id, status=status, result=result)

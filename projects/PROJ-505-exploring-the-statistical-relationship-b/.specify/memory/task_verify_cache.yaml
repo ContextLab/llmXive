@@ -1,13 +1,13 @@
 T001:
   c: true
-  h: bec87d7affbc8d5a38925e36d5a05219c29bee02776ec54e4eababefcd66366a
+  h: 7d45f84dd8f716229bb97b7f088e0b4acff5f7ca69f9209bcc86cc5d2954e532
   r: "The collector shows that `projects/PROJ-505-exploring-the-statistical-relationship-b/`\
-    \ contains the required sub\u2011directories `code/ingestion/`, `code/analysis/`,\
-    \ `code/utils/`, `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/unit/`,\
-    \ and `tests/integration/`. The creation script `code/create_project_structure.py`\
-    \ ran successfully (exit\u202F0) as recorded in `code/.tasks/T001.code_create_project_structure.py.log`,\
-    \ confirming the directory tree was built."
-  sig: ed6ae6a69033a41ed2cdc37291c5a3979f28e9eca422503e1ac25ba67d94d578
+    \ contains the `code/` folder with `ingestion/`, `analysis/`, and `utils/`; the\
+    \ `data/` folder with `raw/`, `processed/`, and `artifacts/`; and the `tests/`\
+    \ folder with `unit/` and `integration/`. These directory listings confirm that\
+    \ every required subdirectory exists, satisfying the task\u2019s verification\
+    \ criterion."
+  sig: 0f1982e05acf08c66b9ca3d7ac4cffb41a17cc1b67bcbc2ec3d24e193ff3b185
 T002:
   c: true
   h: ba9a1315e1de8ca8aedad014feb8a30092b4898651f95de0b43a2b7a64514a7f
@@ -24,16 +24,13 @@ T003:
     \ path constants as required, and the module imports without error."
   sig: a0b69092ed14096a6d10745f90b9876af34cb4a0fa70f1ef1b7652adb5831424
 T004:
-  c: false
-  h: 6808e906cd8116c2e51d5278d29e40598e9363a93b4563e8218c8aeb8587ec30
-  r: "The provided `io.py` and `logging.py` contain the required functions and a module\u2011\
-    level logger, but the unit tests import them as `utils.io` and `utils.logging`.\
-    \ The repository only has a `code/utils` package, not a top\u2011level `utils`\
-    \ package, so the imports will fail (ModuleNotFoundError) and the tests cannot\
-    \ verify the functionality. The import path must be corrected (e.g., expose a\
-    \ top\u2011level `utils` package or adjust the tests) for the task to be considered\
-    \ complete."
-  sig: 3e9917ea593a1f6472837b2e26bf29f9237d1ceda6f01900fd53af4407850f20
+  c: true
+  h: 2841583217e14458c20b2bdfb9e320f6419ed98410143beda18d27ae1bdf0551
+  r: "Checked `code/utils/io.py` for load/save Parquet and SHA\u2011256 helpers, and\
+    \ `code/utils/logging.py` for a module\u2011level logger with a console handler;\
+    \ both exist and the unit tests (`tests/unit/test_io.py`, `tests/unit/test_logging.py`)\
+    \ import the wrappers and verify the required behavior."
+  sig: 22cdbbe283f7ed63521b8fab3587713cb89514f4fa0944da0baf5b224838e4f9
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

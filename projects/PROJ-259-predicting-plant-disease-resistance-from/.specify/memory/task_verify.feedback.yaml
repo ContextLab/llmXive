@@ -1,0 +1,194 @@
+T001:
+  reason: "The repository contains the required `quickstart.md` file, but there is\
+    \ no evidence of a `Makefile` with a `quickstart` target, no `quickstart_output.txt`\
+    \ generated, and no pinned dependency list (e.g., `requirements.txt`). Without\
+    \ these artifacts and execution evidence, the task\u2019s requirement is not satisfied."
+  task: ebb5ba4e0007c404e355f93804348ab1374982cd87184a43ee76c25bac42cf9e
+T002:
+  task: 38b159167df55911a242118532c7695e63c4c1038342277dfb07f62ad7f8d266
+T003:
+  task: 3d825dfc64e53bb555cfb16d48eec6e9e814ba6cb661830610978fce93631b08
+T004:
+  reason: "The `tests/unit/test_download.py` file exists, but running `pytest -q tests/unit/test_download.py`\
+    \ fails (exit code\u202F1) because the `test_download_module_has_fetch_function`\
+    \ test reports that `code.download` does not expose any of the expected data\u2011\
+    fetching functions, causing the suite to not pass. The required verification of\
+    \ a zero\u2011exit\u2011code test run is therefore not satisfied."
+  task: 5f5f12cde906b2a294cb9fc745fb252eb3af5b0cf9034748b44ad8514f416bc7
+T005:
+  reason: "The integration test file `tests/integration/test_e2e_ci.py` exists, but\
+    \ the recorded pytest run fails (return code\u202F2, \u201Cunrecognized arguments:\
+    \ --ci-mode\u201D). The required verification that `pytest -q tests/integration/test_e2e_ci.py`\
+    \ succeeds is not met; the CLI does not support the `--ci-mode` flag needed for\
+    \ the test to pass. The test or the CLI must be corrected for the test to succeed."
+  task: 5c9b07b72631f9e7c44624d06747e188c9133e28662a4e02e430fc5e6c0b5d39
+T006:
+  reason: The test file `tests/contract/test_dataset_schema.py` exists, and `data/data_manifest.yaml`
+    is present, but the required schema file `contracts/dataset.schema.yaml` is missing,
+    causing the test to raise a `FileNotFoundError` and fail (see the execution log).
+    Without the schema, the validation test cannot pass.
+  task: 1791483236114685dec2f0cff04c84440aebc5087f9e905ab44815945717c1ad
+T007:
+  reason: "The Dockerfile itself exists (3,929 bytes) and is a plausible, non-stub\
+    \ container spec (Python 3.11-slim, fastp/bcftools, pip install from requirements.txt,\
+    \ sensible CMD). However, the task's verification criterion \u2014 that the image\
+    \ actually builds and `docker run <image> echo ok` succeeds \u2014 has no supporting\
+    \ evidence: no build log, image ID, or run output was supplied. Additionally,\
+    \ the build depends on a top-level `requirements.txt` being COPY-able and on `fastp`\
+    \ being installable via apt in the base image; neither is confirmed by the collected\
+    \ artifacts, so build success cannot be establishe"
+  task: 84d9c7f0766608731429c7b59dcf602722dd5d4342c54ba28a552919b1aa6762
+T008:
+  task: 9869c4f5d7a929cbbf10cd43d9bc7c4449c011faaa13f365b212d728eeb28d6f
+T009:
+  task: a5e204f90a5d345063b665187994043fcfbd2be48a64db700538f9756a1eb1fb
+T010:
+  task: 9bba6594595930de27dacc687a489168a0aba9b094f22d46e024e86183f20842
+T011:
+  task: cc892e9f337ce94f22f10e0cb12f9326bf970566cc3ca585a23245bbb4ec6f67
+T012:
+  task: cdfc13e0906d6d2dbc4e1b5de73c236be55df7a688ad94d8bac12b6333e22da3
+T013:
+  task: 17a660db515a889830f095ac705bb3c24d7916bdd84e0b6bb59ca73387248988
+T014:
+  task: c9fc77b04963a3c8dad488d9c14e9692dc7a815a28b119fc590879a6ade59f8b
+T015:
+  task: f691595d694b132777a0d9d47b4409c504bd22f04d2bf6d303296ae4f7f3e7b1
+T016:
+  task: b887d5f21c5670a761e4f746119839ae96d6e421d9f55deb89b4f60c60ea780d
+T017:
+  task: bf3fe6b6fa8864e7a291a900d1777a11209eec007f1fe4de9ac1c3887b53e5f3
+T018:
+  task: d44aa442f1d9c6129681f66a577ebee574b6dc097eb464da1d41e9436d622565
+T019:
+  task: f8825d779e7b731374d738a7a1d45d7458e5d794ed6eaddbc0ade13787550e00
+T020:
+  task: 79977ac3dea2cd1cb128b447376ac3d96db022a445eca75a42c39d0c1e5d1955
+T021:
+  task: c8fc7b63d07405937f89ef5b077a960e5240a9e41cb61d0e9e9a6f6d941116cf
+T022:
+  task: ec2b31f8d21b0b87e0a87972027da9583ca4d41a2b7acaf5370e4fd859c9daef
+T023:
+  task: 5f9fe3017005bd4c7711886af2b2c45227b9ef74581e9ceac6a8f45d563c76e5
+T024:
+  task: 15cfb05895f74187dfb4c9f9bb1a899091c99dad03c1af34de92c458a30e43e0
+T025:
+  task: f7312a6c374ec84ee0a1cb34e4befbfdbfcce727408dcd558f889c0a8a639648
+T026:
+  task: ef5c8a3be6afb5ecc210fe0d9a65f4b05b9127ac785409f5a4326a835c612ec2
+T027:
+  task: f014c9d1297e1f7ea3af8af3f4ea64f95d06b0904fa4490094bcc20a36b812f4
+T028:
+  task: 4b699a8d3376853bff15a5a5c1457f2514f8568b5f4e93f1d52a17141fafcf56
+T029:
+  task: 924ff747ac91c793169e7370f4c4609e5e53c4b7e1b72dd85f6b230ac5b544b5
+T030:
+  task: b3662b1ffc8e8648fee545e5a8c91ac4bf980fd295e21aa6a2d6a9731681b593
+T031:
+  task: ce4470306877928ae651eba0ad2bf66283d7be5db452563a6a2a3ff7ee861595
+T032:
+  task: f18a60d1f66fa8510a1ce441be575b4a91094ee3c6ddae93e4062b1c96d16b42
+T033:
+  task: 41f633d61916c3ce5845f6bb0402ad6436a69c06842032a0a32ea63d6010e6c4
+T034:
+  task: ab342be25c4badc44368155346f91ee9d8f3146cac60210131fc360661215b60
+T035:
+  task: 1c057e4c0bb171f04ed2bccb9b2aad878584b3eee2866ff98ca178a192b1343b
+T036:
+  task: 51b0111deb5053a74dd1220c1eaa2231a10027b4cf2ce8b88fe3b3ebf2fc892a
+T037:
+  task: b79bb76b20c76b12a7e66c2273fef79e347a20580c0765ba1ba89228df4c41b0
+T038:
+  task: 082412903bdc809e2aa7d62fde07f8cc751d6593997ae5ea6ba3fe3c4d82bb34
+T039:
+  task: 7ff4857d9b47cc78306b28ef5daf9df6da1c1218a685b4c0ef627d41e84d5e98
+T040:
+  task: a7912ce9726bd81e41adad368eef1ff95b1f3cbd38f66cc254af6901a696de06
+T041:
+  task: bf97d3ea552a89ecf7584a52fdcc1bf34f527c2bfba2f158966087eb32ca2f7d
+T042:
+  task: e74d5bf926ff34c313c02bd00659f20fb1b144e6be2bbc49d55184b4adf11840
+T043:
+  task: 12a5a1cf97add18947d4b0981c09698a635a3386b2a44c757d20e65397d4255a
+T044:
+  task: 68092b5f07a99a1cff5751983677a1d6a3c5a13cdbf7c9d35eed284fade43e23
+T045:
+  task: 5ecb096cb32062c040b43e0e1a4cd1bdb4f8b696850adb072f227144959e7847
+T046:
+  task: 15a7098310ebe55e60b1d79dfa4f04cf4ec989cc9a744c6c670af673cacec51c
+T047:
+  task: e16a41efb9f4f5c3bf2a5f60facd471d892d12f06069f511cb050ef750dee587
+T048:
+  task: b252cbd7bb73d3e047301b5c41f8c1713b0c89ed80e687b4db0b25d9611ed7f5
+T049:
+  task: 8005ce153f120c37513b7ff4b472834f0841d807ed70618f5ce7fb5909921a6e
+T050:
+  task: 24f42edf7d65123cc4dba7e34bbce93012007337e9ea39abac4a28fb0dfd24cf
+T051:
+  task: 67b2101480335b78de8808ab9f2b648fdc7634f295927ef21d9dc7caebd86317
+T052:
+  task: ff680f0776ea252a013fa33598fc97db28c0e890297487af33a51748bf6e2fa4
+T053:
+  task: cc21403f35c3ef26051369b42d4b23461181fa1af8a97ac7cd90cd0043284448
+T054:
+  task: c02a6a43d1eaa18dde5fa162ff1e09f07dd6b0fc3e641eda4266a7fa6499f2c4
+T055:
+  task: b15dc703b4cbc9202ac6386469a4184c3cf8813d12c5c876c653d36adbb803e2
+T056:
+  task: d148c0cc97534020efb51c3d62762e62199cdfe764a3ae585a67351f5b20f4f3
+T057:
+  task: 35a9b90c84fab4772ab2dba2c0b33ef0c8e85d402f1f79b24f076429c767c0c2
+T058:
+  task: 68c5a73798460c731afc090d88f9c4487990921583e119a0f973291d6b969490
+T059:
+  task: bc1895a0f51f51967a542b09d48b92e0e4a914a792d1d1357762b4b28656f2a7
+T060:
+  task: 4333f33a55ab6470e8a9d10db2c79b72229833a1f68675bc150340fb3a3393da
+T061:
+  task: 325d6753484be29b06a28fc3396ce944aa545d351d695767e0a445a2c1c2b555
+T062:
+  task: 87e08d10b03bd2582b760418faf246ca75c68bee413329be534606077e967988
+T063:
+  task: aaff8f4faa4d0c209028cb4c20428419b3a487282b13d17f619565c3752cbc42
+T064:
+  task: e3ea57550c0790d0658a99131b6256018b4b6da8cd25e7d43274434be8504593
+T065:
+  task: a2a7525f23ab633f245cef87eb310eebf5c83fbd61ddc4dba2dbb72e6e09c3d7
+T066:
+  task: b47ab632d54802749739c0ddc2b00574b6e0bac04528b50cac82223e64ae7f5f
+T067:
+  task: 7df9feb44bd42d3e263a07424b736cc4f4c36eed1c44ec55e733c4cd1c1d4f19
+T068:
+  task: 4b71cafb268adbd15189bbf5324b82a71155e7f5f610b92992ae1e1c39a3d167
+T069:
+  task: aec6e73c61a303050753af05c7bae15a43669ef05ea9f82e39f12c6db372afab
+T070:
+  task: 73e533d351bc18c430c915b8f742d1491cbe57aa8a55d71fce96f3cd8ff54f43
+T071:
+  task: d7f6b7e85b8aa1b5d2ce5c3b34623d3373e11eccf14879bdff15c7a3358c3cd1
+T072:
+  task: 90ece26d6bbc642a6dabc7a1d1731c218e3f9447277c8236d9b045b5749beb56
+T073:
+  task: 23ada74a3d5c5645bc31e154cb7290dc027b7e4ef3235e552682d4968168a276
+T074:
+  task: e5f560e40a9babfb678e848694cd49563de410c7de47785ca7651db0faf41fd0
+T075:
+  task: 0e66d77cbf66f484854e72176eb13cfa38c1d6cbba786621545b9c31f37faa24
+T076:
+  task: 3893654f0959b86fda97c7998fd13c6197755d41125d519d2cb1f043e004383b
+T077:
+  task: 53ef4eac7f77561ea9834aaf290ccc2e780e5b30bab995d23413ac7116ee9472
+T080:
+  task: 9bcf7aefd90125657312e82c1cf4b0f9f2cda2afaadbbb1040f2f5430503d43e
+T081:
+  task: 7f6cf9554b0f20aa51825070fc0aaabf535bd875ea39b91710bbc1073dd79249
+T082:
+  task: 2efd4f9e169464552013a4ee9338ac9a13f0d74000b0417bf51d89f5c86f7447
+T083:
+  task: 2607a9651b7da575b54e1844f041a7fe86472ac0a05bb2012894627b458bae56
+T084:
+  task: 9566d872abb593e029bf6798609ff01a8b10439e89f2bb6c128f924fb92cff3f
+T085:
+  task: 7d695d242b365b44001d939849a41c6a9c9b2e4d10773a2643bdd3052fb2b1e9
+T091:
+  task: 41c62801b2831bf09259ee27704418d87a8e6464166c0803d6b074b3888aad83

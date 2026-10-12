@@ -421,3 +421,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T19:05:07Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/data/processed/README.md
+  attempts: 1
+  canonical: bayesian_forecasts.csv contains posterior mean forecasts with 95% credible
+    intervals
+  claim_id: c_93eef512
+  context: "The directory lists bayesian_forecasts.csv as containing posterior mean\
+    \ forecasts with 95\u202F% credible intervals."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "bayesian_forecasts.csv \u2013 Posterior mean forecasts with 95\u202F\
+    % credible intervals."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T16:25:16Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/data/processed/README.md
+  attempts: 1
+  canonical: historical_weights.csv contains pollster-specific RMSE-based weights
+  claim_id: c_d470351b
+  context: "The directory lists historical_weights.csv as containing pollster\u2011\
+    specific RMSE\u2011based weights."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "historical_weights.csv \u2013 Pollster\u2011specific RMSE\u2011based\
+    \ weights."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T16:25:17Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/data/processed/README.md
+  attempts: 1
+  canonical: bayesian forecasts include 95% credible intervals
+  claim_id: c_deb3012b
+  context: Bullet list describing the contents of the processed data directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`bayesian_forecasts.csv` \u2013 Posterior mean forecasts with 95\u202F\
+    % credible intervals."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T16:45:08Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/data/processed/README.md
+  attempts: 1
+  canonical: historical weights are pollster-specific RMSE-based
+  claim_id: c_42e56726
+  context: Bullet list describing the contents of the processed data directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`historical_weights.csv` \u2013 Pollster\u2011specific RMSE\u2011based\
+    \ weights."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T16:45:08Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/data/processed/README.md
+  attempts: 1
+  canonical: poll data cleaned contains harmonized records with weekly bins and placeholder
+    columns
+  claim_id: c_a03f8798
+  context: Bullet list describing the contents of the processed data directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`poll_data_cleaned.csv` \u2013 Harmonized poll records with weekly bins\
+    \ and placeholder columns."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T16:45:08Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/data/processed/README.md
+  attempts: 1
+  canonical: folder files are version-controlled via SHA-256 hashes recorded in project
+    yaml
+  claim_id: c_3c7c951d
+  context: Statement following the list of files in the processed data directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Files in this folder are version\u2011controlled via SHA\u2011256 hashes\
+    \ recorded in `state/projects/PROJ-206-statistical-analysis-of-publicly-availab.yaml`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T16:45:08Z'

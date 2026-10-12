@@ -1,0 +1,22 @@
+T102:
+  c: false
+  h: 9391cafe38fe0228df8845468da91775cc35ccd16fe3d7548e833beae7ea4afe
+  r: "Checked `code/main.py` \u2013 it records timestamps and peak RSS and writes\
+    \ `data/processed/pipeline_runtime.json` (which exists and contains the required\
+    \ four keys with values under the 6\u2011hour and 7\u202FGB limits). However,\
+    \ the script never checks those limits or raises an explicit error when they are\
+    \ exceeded, violating the task\u2019s requirement that failures be reported as\
+    \ explicit errors rather than just logged. Adding limit\u2011checking logic and\
+    \ error reporting is needed."
+  sig: 97622ff660155fe3390283acc8c7a2f495a61abff9be261622277f9195686cb6
+T104:
+  c: false
+  h: 840735d72e412cf08d4dd81d3c4c351bda8ca7ae0f89bca6fd03a3070e1d1160
+  r: "The script `code/03_model/verify_results.py` exists and runs (exit\u202F0) and\
+    \ writes `data/processed/verification_summary.json`, but the required input artifacts\
+    \ `data/models/metrics.json`, `data/processed/feature_ranking.csv`, and `data/processed/class_to_genes.json`\
+    \ are all missing. Consequently the verification cannot perform the AUC\u2011\
+    ROC, mechanism\u2011blind, and top\u201110 ranking checks, and the summary records\
+    \ errors and an overall failure. These files must be provided with valid content\
+    \ for the task to be satisfied."
+  sig: 52ccf12e5e2925d5eb4245c0a9f21f746a6a60c21237694af55aca9a6c2b61be

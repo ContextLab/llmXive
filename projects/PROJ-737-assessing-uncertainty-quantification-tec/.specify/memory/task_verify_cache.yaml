@@ -1,0 +1,9 @@
+T001:
+  c: true
+  h: 9086d75e15a5f169c01259dcdf044a7e07a1f3074a56774ea9ae71e4ebd60d78
+  r: "Checked that all required directories exist (including `data/processed`, `data/results`,\
+    \ `figures`, etc.) and that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
+    \ lists the eight required columns, including `abs_error`. The verification script\
+    \ ran successfully (exit\u202F0) and printed \u201CSchema and directory verification\
+    \ passed\u201D."
+  sig: 16a02b6f5f20adc1bcb5bb7dad490e8c8673e4a449ae86e74d65a4d926901260

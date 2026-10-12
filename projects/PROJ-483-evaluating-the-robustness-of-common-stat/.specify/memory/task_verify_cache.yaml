@@ -1,3 +1,126 @@
+T001:
+  c: true
+  h: 48bfe713a624d29a2d950524fd1bd65cf9c99e4b79dc3bcc2f68bafc217a7d44
+  r: The project directory `projects/PROJ-483-evaluating-the-robustness-of-common-stat/`
+    exists with the full expected layout (code/, src/, tests/, data/, results/, docs/,
+    specs/, contracts/, idea/, README.md, pyproject.toml, requirements.txt, .gitignore/.gitkeep),
+    and contains non-empty populated artifacts (e.g., data/manifests/checksums.json,
+    results/validation_report.json, raw datasets). T001 only requires creating the
+    project structure per the implementation plan, which is satisfied; the simulation/analysis
+    deliverables belong to later tasks.
+  sig: ee4ecdf488dc3228eb8148d498a4f8635dfda66536ce82a95ff68008e166a66b
+T002:
+  c: true
+  h: 2082d52c1a722d0cd43e68f193b8320fd4486597856edea4f7164e4ddbb52519
+  r: "Checked the `requirements.txt` file (172\u202Fbytes) and confirmed it lists\
+    \ all required packages (`numpy`, `scipy`, `pandas`, `statsmodels`, `matplotlib`,\
+    \ `seaborn`, `pyyaml`, `pytest`) with version constraints, satisfying the initialization\
+    \ task."
+  sig: 21216e5eaf2ca327a4e8287fa50a23033b0403214ebccbfff57f0a91bd711727
+T003:
+  c: true
+  h: 5d0b8275366ebf896bfac1c8630bf2ae17d8793f8836f4855f0bc47a64593dd0
+  r: "The `pyproject.toml` file (1380\u202Fbytes) includes `[tool.black]` and `[tool.flake8]`\
+    \ sections with appropriate settings, and the dev optional dependencies list contains\
+    \ `black` and `flake8`. This fulfills the task of configuring linting and formatting\
+    \ tools in `pyproject.toml`."
+  sig: 98bff38d656c23b88f9f39c4dcd7a97a13ab96d3b308297dbcb0fba23d297db0
+T004:
+  c: true
+  h: 7997f5a50c7c1c55f9f22bc66dd1e4f84db5d3664013f51ef6a0e0f466eec90a
+  r: Checked `code/config.py` which implements loading of `code/config.yaml` and validates
+    it against `contracts/config_schema.schema.yaml` using a recursive validator,
+    and verified that `code/config.yaml` conforms to the required schema fields and
+    types.
+  sig: 43ac35a7ea24723a2393cbc422102827577aa427707925e0ff2f082dcbb72cba
+T004b-populate:
+  c: true
+  h: d60c05242b3879d22ff2a8a6ffad1b57ae827434e27b8ed92f8509da992f5ac5
+  r: "Checked `code/config.yaml` (392\u202Fbytes) which contains `seed: 42`, `n_replications:\
+    \ 10000`, the exact `dependency_strengths` list, `use_real_data: true`, and `use_streaming:\
+    \ false` as required. The file exists and matches the specified defaults."
+  sig: 9ca5fb0cf27d2f944caba00888f2e6c1cd0175a6799a3afb7d8b501b9973a965
+T004b-schema:
+  c: true
+  h: e991f8b095f44492f45db7a1df1ebb518b6f7e1f89d93773aba964768abaa10b
+  r: "The `contracts/config_schema.schema.yaml` file is present (1958\u202Fbytes)\
+    \ and defines all required fields (`seed`, `n_replications`, `dependency_strengths`,\
+    \ `test_types`, `dataset_manifest_path`, `use_real_data`, `use_streaming`) with\
+    \ appropriate JSON\u2011Schema types and constraints. Its content matches exactly\
+    \ what the task specified."
+  sig: d76bb44cb21dec164aee8566325716a11def6d967016bb64fae8c02972f67211
+T005:
+  c: false
+  h: 390b9f170b2bcf438de9e31581166490d8d79e261861e7bfc5f2819c948337cf
+  r: "The execution log (`code/.tasks/T005.code_quickstart_validation.py.log`) shows\
+    \ only 1 of the 3 manifest datasets succeeded: `credit_card_default` failed (missing\
+    \ `xlrd` dependency) and `openml_titanic` failed (CSV tokenizing error), so `data/raw/`\
+    \ and `data/manifests/checksums.json` contain only `adult_income` \u2014 the task\
+    \ requires iterating over the *entire* manifest set. Additionally, the unit test\
+    \ `test_data_loader_validation.py` failed (exit 1), and the `python code/main.py\
+    \ --action download` run crashed with a YAML parse error, so the loader's validation\
+    \ logic and end-to-end execution are n"
+  sig: 0ef059c5a3e59150cf4841610cf5ad7d4de6084254a81ae808382601587fc232
+T005a:
+  c: true
+  h: de1ed49c6b786752050b4d3268a21e6e1c4e2b5480dbf309eadced3c16b680fc
+  r: "The `contracts/dataset_schema.schema.yaml` file exists (1219\u202Fbytes) and\
+    \ defines the required fields `dataset_id`, `source_url`, `variable_names` (with\
+    \ `continuous` and `categorical` arrays), `target_column`, and `data_type` exactly\
+    \ as specified."
+  sig: 6b8477e5516651e6b10bdc5f426bb0994df01a23987f762c06ffb92d74b77630
+T005c:
+  c: true
+  h: 8bf7ffffa0934f3453569facf649bc1415c3c00213a5c009ccc936aac1b06c6d
+  r: "Checked `data/manifests/datasets.yaml`, which contains the required UCI Adult\
+    \ and UCI Credit Card Default entries with correct, reachable URLs and appropriate\
+    \ mixed-type descriptions. The file is non\u2011empty and meets the task\u2019\
+    s specifications."
+  sig: 55d32b6e62022a1e5dbd570bda1c0fc303b63933d779062c85cb5781b60bc0fb
+T006a:
+  c: false
+  h: 00cb2ab989b41171ed2bd10e6597445d610e6b918c99de70d1149e39f2dd7451
+  r: "The provided `code/dependency_injector.py` defines `ar1_inject` and related\
+    \ utilities, but it accepts any `rho` value, does not enforce the required discrete\
+    \ set\u202F{0,\u202F0.1,\u202F0.2,\u202F0.3,\u202F0.5}, and does not implement\
+    \ a dedicated vectorized AR\u2011resampling routine as specified. Consequently\
+    \ the module does not satisfy FR\u2011003\u2019s restriction on strength values\
+    \ nor the required AR\u2011resampling functionality."
+  sig: 9eeeea9303f6a79f3b9e30d694ffd0ec47f887ebec903ff6242ce091f7899e6a
+T006b:
+  c: true
+  h: d3bf1b0817a7f287dd699860d24d3c04a9a721eb254ca3fee29c1f8a8baf770f
+  r: The `code/dependency_injector.py` artifact exists (14.5 KB) and contains a real
+    `block_bootstrap` function that resamples contiguous blocks of size `block_size`
+    with replacement (random block start indices, blocks concatenated, output trimmed/padded
+    to n_samples), plus a `validate_block_bootstrap` helper. The block size is accepted
+    as a parameter, which is consistent with this task being the base injection logic
+    that depends on T006b-map for the size calculation.
+  sig: c1289d8cbb4a69d39ada773eac473011b09a22550fdcf18f32b53628cb0693ee
+T006b-Null:
+  c: false
+  h: cdf067c9385d8c6fc40ee19e9727e124eb39236dad4ee840800efb7b918acbfc
+  r: "The file `code/dependency_injector.py` exists and contains a generic `block_bootstrap`\
+    \ resampling function, but it contains no Null Hypothesis Construction path: there\
+    \ is no function that (1) injects dependency into real data using block bootstrap\
+    \ with a block_size from the T006b-map and (2) then permutes labels via random\
+    \ shuffle \u2014 no label-shuffle/permutation logic appears anywhere in the file.\
+    \ The implementer must add a null-hypothesis construction routine (e.g., `construct_null_hypothesis(data,\
+    \ labels, block_size, seed)`) that performs block-bootstrap dependency injection\
+    \ followed by rando"
+  sig: 3ebc23fbcb6d2a0be2f43360a15b55e679113f54f9a28287eaf3a6eb9fcae3da
+T006b-map:
+  c: false
+  h: c5fabe8c406549b5b3dedf7ffb66a7141f83a6de24aa661cb29c7a41b12e610b
+  r: "The file `code/dependency_injector.py` exists and contains a `block_bootstrap`\
+    \ function, but the task's core requirement \u2014 the r-mapping/block-size heuristic\
+    \ `block_size = max(MIN_BLOCK_SIZE, int(np.sqrt(N)))` with a `MIN_BLOCK_SIZE`\
+    \ constant \u2014 is entirely absent: there is no `MIN_BLOCK_SIZE` constant, no\
+    \ `sqrt(N)`-based block size computation, and no function translating the sweep\
+    \ parameter r / sample size N into a block size (the existing `block_bootstrap`\
+    \ requires the caller to pass `block_size` directly). The implementer must add\
+    \ the mapping logic (e.g., a `map_r_to_block_size(N)` function"
+  sig: f05c3f8c8685ee0192ae3ff57119f03d6eb9be8389fbe6c916dc845b2a77b7dc
 T014:
   c: false
   h: 0449617f5c0e38f170fe9565d67f731238035899044cf0c4e1fb1023c0878798
@@ -26,14 +149,47 @@ T034:
     verified. Without any evidence of the validation run, the task requirement is
     unmet.
 T035:
+  c: true
+  h: 018fc08af9b04bc1237a5c2037c1853885e104a8df7ab0d1d24e808bf5c8ad94
+  r: '`code/data_loader.py` exists (9,956 bytes) and implements the required logic:
+    N < 50 check with a violation logged to `results/validation_report.json`, invalid
+    datasets skipped while the pipeline continues, and a `CriticalValidationError`
+    raised when no valid datasets remain. The validation report on disk shows real
+    execution output (3 attempted, 1 successful, 2 skipped with genuine error messages),
+    confirming the skip-and-continue behavior works in practice.'
+  sig: 79d3a9953c0b27579e089a496d95ab248355f2994aa0c8b0138085717cd439c3
+T035b:
   c: false
-  h: 22447444bc8259e07890ec0b91b5fcfef2425a77f5c46fea8d9dd37fa7ffccba
-  r: "The provided `code/data_loader.py` contains a validation check for\u202FN\u202F\
-    \u2265\u202F50, but the snippet ends before any code that writes violations to\
-    \ `results/validation_report.json` or raises `CriticalValidationError` when all\
-    \ datasets fail. Moreover, the required `results/validation_report.json` file\
-    \ does not exist. The task\u2019s core requirements (logging violations to the\
-    \ JSON report and raising the critical error) are therefore not satisfied."
+  h: c91675a86f0cad0f9d8c48ba9a107c6d03233389afbd01f2bc12fef539102a94
+  r: The code in `code/data_loader.py` does implement a theoretical power calculation
+    (statsmodels TTestIndPower) and writes `results/power_report.json`, and the execution
+    log confirms a run. However, the task requires power verification for the *remaining*
+    datasets, and the power report contains only one dataset (`adult_income`); the
+    other manifest datasets (`credit_card_default`, `openml_titanic`) failed processing
+    due to a missing `xlrd` dependency and a CSV parsing error, so their power was
+    never calculated or logged. Additionally, the power is computed from the dataset's
+    row count with a defau
+  sig: ca93fba2e88114717aa50bbc6d482d6ad1b2e434ff948e16ad37654a8ced1936
+T037:
+  c: true
+  h: 161ac5d54f8cae46dbfc5d798ee14fcf783bfcbc0923d66206470c98329ebe8d
+  r: '`code/dependency_injector.py` implements `generate_spatial_proxy` with K-Means
+    k=3 (plus validation and report-saving helpers), and `data/manifests/spatial_proxy_report.json`
+    is a 293KB non-empty report containing real cluster labels/centroids for the adult_income
+    dataset, produced by an actual execution of `code/generate_spatial_proxy.py` (exit
+    0). The two datasets whose raw files were missing were skipped rather than falling
+    back, matching the task''s "skip, do NOT fallback" instruction, and the unit tests
+    for the proxy passed.'
+  sig: a4d8ced2c24c41c76f016a4af25778dd3848751b2633791889df98e97bd2f3a0
+T037b:
+  c: true
+  h: 9d7907799da6b218ceeac2a1f42bf2c54bc96bccaeb7d14ec00b0307ca367462
+  r: 'The file `code/dependency_injector.py` exists (14.5 KB) and implements the required
+    mapping logic: `map_silhouette_to_r` uses exactly the specified formula `r = (silhouette_score
+    - min_score) / (max_score - min_score)`, plus a `proxy_to_r` helper that computes
+    the silhouette score from proxy labels and applies the mapping. The test log shows
+    `test_proxy_to_r_mapping` passed (exit 0), confirming the logic executes correctly.'
+  sig: 3842214b84f8b027a306b3375e81cc9af065038af6a972204c3777c2709ebe6c
 T040:
   c: false
   h: cc1bba15a2456401a67d28f25e85ffbc80e955bcbddcbe12105ebd123c1113fb

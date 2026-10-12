@@ -1,16 +1,19 @@
 status: none
-intent: download plant stress proteomics transcriptomics GEO PRIDE python package
-  dataset
+intent: Plant abiotic stress proteomics transcriptomics dataset GEO ProteomeXchange
+  PRIDE Ensembl Plants biomaRt python package dataset
 required_fields:
 - sample_id
 - species
 - stress_condition
-- protein_id
-- protein_abundance
-- gene_id
-- gene_expression
-- accession_id
-- publication_date
-cache_key: 5a271f1d1164d234688ef6754f2b537408504159921bd8b49342c5d5160b8d14
-searched_at: '2026-10-11T14:12:47.897184+00:00'
+- tissue_type
+- protein_id_uniprot
+- gene_id_ensembl
+- protein_abundance_normalized
+- gene_expression_normalized
+- replicate_id
+- publication_id
+- geo_accession
+- pride_accession
+cache_key: 6f0567f81d8278ade89e0905b4429a69d42728c9d1bdbdf36e215391d66901b9
+searched_at: '2026-10-11T16:29:43.576585+00:00'
 retry_count: 1

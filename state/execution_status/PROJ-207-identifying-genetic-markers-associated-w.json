@@ -15,11 +15,11 @@
     "python code/12_annotate_genes.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/12_annotate_genes.py': [Errno 2] No such file or directory",
     "python code/13_format_results.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/13_format_results.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 7,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 7,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-30T23:10:10Z"
+  "updated_at": "2026-10-11T14:37:49Z"
 }

@@ -601,7 +601,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-24T14:07:18Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -1354,7 +1354,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-25T18:58:40Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -3758,7 +3758,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-28T08:26:34Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -6533,7 +6533,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-19T02:43:50Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -7790,3 +7790,124 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T15:58:00Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: sample run creates CSV with five records
+  claim_id: c_0dc4ebd3
+  context: To verify that the pipeline is correctly installed and can produce a minimal
+    output, run the sample command; this command creates a tiny CSV file at data/results/sample_run.csv
+    containing five example records.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: This command creates a tiny CSV file at data/results/sample_run.csv containing
+    five example records.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:26:00Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline can run on sample without full dataset download
+  claim_id: c_071c24a8
+  context: Running a Minimal Sample section describes executing the pipeline with
+    a sample of 5 records and notes it does not require the full dataset.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline can be exercised on a tiny real\u2011world sample without\
+    \ downloading the full dataset."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:32:13Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: script creates required directories
+  claim_id: c_e22417e5
+  context: Full Pipeline section lists the actions the script performs, starting with
+    creating the required directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will create the required directories (code/, data/raw/, data/processed/,
+    docs/, figures/).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:32:14Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: script downloads Reddit threads for configured subreddits
+  claim_id: c_af76b236
+  context: Full Pipeline section includes downloading Reddit threads as part of the
+    pipeline execution.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will download Reddit threads for the configured subreddits.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:32:16Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: script performs downstream processing producing artefacts
+  claim_id: c_aa622e42
+  context: Full Pipeline description states the script performs downstream processing
+    steps and produces artefacts.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will perform all downstream processing steps, producing the
+    artefacts listed in the project documentation.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:32:17Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: sample run streams records and creates sample_run.csv
+  claim_id: c_72271e7d
+  context: 'This command: 1. Streams a few records from the public HuggingFace `reddit_comments`
+    dataset. 2. Writes a CSV with the columns `id, subreddit, created_utc, body` to
+    `data/results/sample_run.csv`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Running `python -m code.analysis.run_pipeline --sample 5` streams a few
+    records from the public HuggingFace `reddit_comments` dataset and writes a CSV
+    with the columns `id, subreddit, created_utc, body` to `data/results/sample_run.csv`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:33:43Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: script creates required directories
+  claim_id: c_f543fab7
+  context: 'The script will: 1. Create the required directories (`code/`, `data/raw/`,
+    `data/processed/`, `docs/`, `figures/`).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will create the required directories (`code/`, `data/raw/`,
+    `data/processed/`, `docs/`, `figures/`).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:33:44Z'

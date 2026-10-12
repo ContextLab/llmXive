@@ -81,15 +81,10 @@ def detect_bonds_fallback(structure: Structure, cutoffs: List[float] = FALLBACK_
     """
     Detect bonds using progressive distance cutoffs.
     Returns (bonds, cutoff_used).
-    If no bonds found even with max cutoff, returns (None, None).
+    If no bonds found even with max cutoff, returns (empty list, None).
     """
     sites = list(structure)
     n_sites = len(sites)
-    
-    # Calculate max possible distance in the unit cell (diagonal)
-    # This is a rough upper bound; if we need to go this far, the graph is likely just a cluster of atoms
-    max_dist = structure.lattice.get_cartesian_coords([1, 1, 1])
-    max_dist = np.linalg.norm(max_dist)
 
     for cutoff in cutoffs:
         bonds = []
@@ -98,11 +93,11 @@ def detect_bonds_fallback(structure: Structure, cutoffs: List[float] = FALLBACK_
                 dist = structure.get_distance(i, j)
                 if dist <= cutoff:
                     bonds.append((i, j))
-        
+
         if bonds:
             return bonds, cutoff
 
-    # If we reach here, no bonds found even with the largest cutoffs
+    # No bonds found with any cutoff
     return [], None
 
 def construct_network_from_structure(structure: Structure, logger: Optional[logging.Logger] = None) -> Tuple[Optional[nx.Graph], str, str]:
@@ -123,7 +118,7 @@ def construct_network_from_structure(structure: Structure, logger: Optional[logg
     else:
         logger.debug("Covalent method found no bonds. Attempting fallbacks...")
         bonds, cutoff_used = detect_bonds_fallback(structure)
-        
+
         if bonds:
             status = "fallback"
             details = f"Fallback method succeeded with cutoff {cutoff_used:.2f}Å, found {len(bonds)} bonds."
@@ -139,7 +134,7 @@ def construct_network_from_structure(structure: Structure, logger: Optional[logg
     G = nx.Graph()
     for idx, site in enumerate(structure):
         G.add_node(idx, species=site.species_string, coords=site.coords.tolist())
-    
+
     G.add_edges_from(bonds)
 
     return G, status, details
@@ -175,7 +170,7 @@ def process_cif_file(cif_path: Path, output_dir: Path, logger: Optional[logging.
 
         # Construct Network
         G, status, details = construct_network_from_structure(structure, logger)
-        
+
         result["status"] = status
         result["details"] = details
 
@@ -215,7 +210,7 @@ def save_graph_to_pickle(graph: nx.Graph, path: Path) -> str:
     """Save a graph to a pickle file and return its SHA-256 checksum."""
     with open(path, 'wb') as f:
         pickle.dump(graph, f)
-    
+
     with open(path, 'rb') as f:
         return hashlib.sha256(f.read()).hexdigest()
 
@@ -230,7 +225,7 @@ def build_network_manifest(results: List[Dict[str, Any]], output_path: Path):
         "errors": sum(1 for r in results if r["status"] == "error"),
         "entries": results
     }
-    
+
     with open(output_path, 'w') as f:
         json.dump(manifest, f, indent=2)
 
@@ -253,6 +248,10 @@ def main():
     cif_files = list(input_dir.glob("*.cif"))
     if not cif_files:
         logger.error(f"No CIF files found in {input_dir}")
+        # Even if no files, create an empty manifest so downstream steps have a predictable file.
+        empty_manifest_path = output_dir / "network_manifest.json"
+        build_network_manifest([], empty_manifest_path)
+        logger.info(f"Empty manifest written to {empty_manifest_path}")
         return
 
     logger.info(f"Found {len(cif_files)} CIF files.")
@@ -270,7 +269,7 @@ def main():
     # Summary
     successful = [r for r in results if r["status"] in ["covalent", "fallback"]]
     skipped = [r for r in results if r["status"] in ["failed", "skipped_validation"]]
-    
+
     logger.info(f"Processing complete. Successful: {len(successful)}, Skipped/Failed: {len(skipped)}")
     if skipped:
         logger.warning("The following materials were skipped due to lack of edges or validation failure:")

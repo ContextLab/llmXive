@@ -8,15 +8,15 @@ T001:
     \ the script are present."
   sig: 7c1747ae91883184c557ec721c382f1982ca027e549b36d3ea1ee249e5a90b0b
 T002:
-  c: false
-  h: 5d6c9ef3b6d2c2b4a7ae452e25422ce9ab49291636747a70f29cf53c7a45619e
-  r: The `requirements.txt` exists and contains all eight required packages, but none
-    of them are pinned or carry version specifiers (only the unrequested `psutil>=5.9`
-    has one), directly contradicting the task's requirement for a "pinned requirements.txt"
-    and its verification criterion that a unit test check "version specifiers" for
-    the listed packages. Fix by adding version pins (e.g., `mne==1.x`, `scikit-learn==1.x`,
-    etc.) for all eight packages.
-  sig: ef29612a501c1a533dcb562698f351e13493731f0bcedb3a5070067025c73182
+  c: true
+  h: 7ae002f1a8d73044f8de031f410c1d5cee046b0a069cd07b77a01e67e2c926e3
+  r: "The `requirements.txt` exists at the resolved project path and contains all\
+    \ eight required packages (mne, scikit-learn, numpy, pandas, scipy, statsmodels,\
+    \ joblib, pyyaml) with pinned version specifiers, plus an extra psutil entry which\
+    \ does not conflict with the requirement. The task's core deliverable \u2014 a\
+    \ pinned requirements file with the listed packages \u2014 is fully satisfied\
+    \ by the artifact content."
+  sig: 2d4dd83f1a592f8e76d3c62e328338a47d7f937d58488c9fc7f522bbdbc6f5ea
 T003:
   c: true
   h: 673a2bc0b8a1182f5352c41ef5696a4b1a811de1c010bd0b2db41d5ea1af4bab

@@ -1,17 +1,33 @@
 T001:
   c: true
-  h: 01e6a5119552e11d579df36ee5bfaf4ae19309ccf495720b377101b506ad84f8
-  r: "Checked that the required directory tree and placeholder `__init__.py` files\
-    \ exist, that `requirements.txt` contains the specified six packages (and only\
-    \ adds extras, which does not violate the requirement), and that `quickstart.md`\
-    \ documents both the pip install command and the single\u2011command pipeline\
-    \ invocation."
+  h: cd4abdccb438960a6fbe12091b3fe0561501d361a59504121ec3da75cf242884
+  r: Checked the directory layout (code/, data/raw/, data/interim/, data/processed/,
+    tests/, reports/), the presence of `__init__.py` files in `code/` and `tests/`,
+    the `requirements.txt` containing the required six packages, and the `quickstart.md`
+    documenting both the pip install command and the `python -m code.pipeline` invocation.
+    All required artifacts exist and contain the appropriate content.
+  sig: 3862f72a71a2acb3c73122e66e06a8b7fc1e9f9f357e9beffca7c3b5aae689bd
 T002:
   c: true
-  h: e58b2b5bce2b0fb41283954a9970e98ff47ffdb4bb7142910fa085622ffcd9c4
-  r: "The `code/config.py` file is present (2795\u202Fbytes) and defines `PROJECT_ROOT`,\
-    \ `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `REPORTS_DIR`, `MAX_RAM_GB = 7`,\
-    \ `ALPHA_SET = {0.01, 0.05, 0.1}` and `SEED = 42` as required."
+  h: b86f67745bc1e257525d6115c2f5046f032d8fdc2957cd653943a281d8e83c4a
+  r: 'The file `code/config.py` exists (2795 bytes) and defines all required items:
+    `PROJECT_ROOT`, `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `REPORTS_DIR`, `MAX_RAM_GB
+    = 7`, `ALPHA_SET = {0.01, 0.05, 0.1}`, and `SEED = 42`, with no stubs or placeholders.
+    The extra helpers and directory-creation side effect are harmless additions that
+    don''t conflict with the requirements.'
+  sig: 9695895221f9bd8385a835a525048d854805b83ef96c9183c2f5d6f0a370605c
+T003:
+  c: false
+  h: f326df69a3bf323807bc2ada38868cd41c7f2865ff0c637e2e44b7b6f3c6a6cc
+  r: "The provided `code/ingest.py` only accepts arbitrary `--dataset-url` arguments,\
+    \ performs a HEAD request on each URL, and writes a manifest for the single HuggingFace\u2011\
+    mirrored file that was actually downloaded. It never queries the OpenNeuro API\
+    \ for the specific datasets ds000208 and ds003392, does not sum file sizes across\
+    \ all files in each dataset, and the execution log shows only one URL being processed.\
+    \ Consequently the script does not download both required datasets nor produce\
+    \ a manifest containing two entries as stipulated. The task\u2019s core requirements\
+    \ are therefore unmet."
+  sig: 01cd2fd4f43c6c857e2131f4c641a1da022b9e3809725cdcd7758cafce987895
 T005:
   c: false
   h: 42cda291d0af7d3d6f638660b4845e5480478f65bdf4d56a787c87ccb1418328

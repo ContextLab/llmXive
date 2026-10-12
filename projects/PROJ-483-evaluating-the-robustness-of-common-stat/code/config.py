@@ -1,6 +1,6 @@
 """
 Configuration loader and validator.
-Loads config.yaml and validates against the schema in contracts/simulation_config.schema.yaml
+Loads config.yaml and validates against the schema in contracts/config_schema.schema.yaml
 using a manual recursive validator to avoid external jsonschema dependency.
 """
 import os
@@ -33,12 +33,12 @@ def load_config(config_path: str = None) -> dict:
         
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
-    
+
     # Validate against schema if schema exists
-    schema_path = Path(__file__).parent.parent / "contracts" / "simulation_config.schema.yaml"
+    schema_path = Path(__file__).parent.parent / "contracts" / "config_schema.schema.yaml"
     if schema_path.exists():
         _validate_config(config, schema_path)
-    
+
     return config
 
 def _validate_config(config: dict, schema_path: Path) -> None:
@@ -137,3 +137,4 @@ def _validate_node(node: Any, schema: dict, path: str) -> None:
         # Check enum
         if 'enum' in schema and node not in schema['enum']:
             raise ValueError(f"Validation error at '{path}': value '{node}' not in allowed values {schema['enum']}")
+    # Additional types (boolean, null) can be added as needed

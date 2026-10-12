@@ -9,11 +9,13 @@ OUTPUT_DIR: Final = PROJECT_ROOT / "output"
 LOGS_DIR: Final = PROJECT_ROOT / "logs"
 CODE_DIR: Final = PROJECT_ROOT / "code"
 
+
 # Ensure directories exist
 def ensure_dirs():
     """Create necessary directories if they don't exist."""
     for dir_path in [DATA_DIR, OUTPUT_DIR, LOGS_DIR]:
         os.makedirs(dir_path, exist_ok=True)
+
 
 # Analysis thresholds (from T004)
 # These are internal dataset-based thresholds for ROR, PRR, IC
@@ -24,7 +26,7 @@ THRESHOLDS: Final[Dict[str, float]] = {
     "prr_min": 1.5,
     "prr_ci_min": 1.0,
     "ic_min": 0.0,
-    "ic_ci_min": 0.0
+    "ic_ci_min": 0.0,
 }
 
 # Memory limits (from T039, T040)

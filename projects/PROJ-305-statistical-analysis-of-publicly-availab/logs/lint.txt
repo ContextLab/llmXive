@@ -1,0 +1,23 @@
+--- Ruff Check ---
+STDOUT:
+
+STDERR:
+ruff failed
+  Cause: Failed to load configuration `/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/.ruff.toml`
+  Cause: Failed to parse /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/.ruff.toml
+  Cause: TOML parse error at line 1, column 1
+  |
+1 | [ruff]
+  | ^
+unknown field `ruff`
+
+
+Exit Code: 2
+--- Black Check ---
+STDOUT:
+
+STDERR:
+All done! ✨ 🍰 ✨
+58 files would be left unchanged.
+
+Exit Code: 0

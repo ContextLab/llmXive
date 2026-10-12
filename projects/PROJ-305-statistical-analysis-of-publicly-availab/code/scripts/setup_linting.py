@@ -2,6 +2,7 @@
 Script to set up linting and formatting tools for the project.
 This task (T003) configures ruff and black.
 """
+
 import os
 import sys
 from pathlib import Path
@@ -41,6 +42,7 @@ def main():
     for tool in tools:
         try:
             import importlib.util
+
             spec = importlib.util.find_spec(tool)
             if spec is None:
                 missing_tools.append(tool)

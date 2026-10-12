@@ -7,13 +7,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-
+a file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/data/raw/experimental_data.csv
+Ingestion pipeline failed: Experimental data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/data/raw/experimental_data.csv
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/main.py", line 19, in <module>
-    from utils.logging import get_logger, log_provenance_event
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/__init__.py", line 5, in <module>
-    from .logging import StructuredFormatter, get_logger, log_provenance_event, log_api_query, log_data_artifact
-ImportError: cannot import name 'StructuredFormatter' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/utils/logging.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/main.py", line 72, in run_ingestion_pipeline
+    merge_and_filter_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/ingestion/merge_and_filter.py", line 149, in main
+    exp_df = load_experimental_data()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/ingestion/merge_and_filter.py", line 66, in load_experimental_data
+    raise FileNotFoundError(f"Experimental data file not found: {filepath}")
+FileNotFoundError: Experimental data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/data/raw/experimental_data.csv
 
 
 ## Declared deliverables still missing

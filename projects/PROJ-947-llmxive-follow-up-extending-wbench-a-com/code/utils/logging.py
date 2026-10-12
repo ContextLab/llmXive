@@ -1,188 +1,131 @@
 """
-Base logging infrastructure with structured JSON output for llmXive.
+Structured JSON logger utilities for the llmXive project.
 
-This module provides a centralized logging configuration that outputs
-structured JSON logs suitable for automated parsing and analysis.
+Provides a `get_logger` function that returns a logger emitting JSON‑encoded
+log records to either stdout or a file. Also supplies convenience wrappers
+(`log_info`, `log_error`, `log_warning`, `log_exception`) used throughout
+the code base.
 """
-
 import json
 import logging
-import os
 import sys
-import traceback
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, Optional
 
-# Project-specific constants
-LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-LOG_FILE = os.path.join(LOG_DIR, "llmxive.log")
-MAX_BYTES = 10 * 1024 * 1024  # 10 MB
-BACKUP_COUNT = 5
+__all__ = [
+    "get_logger",
+    "log_info",
+    "log_warning",
+    "log_error",
+    "log_exception",
+]
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
-
-
-class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs structured JSON logs."""
+class JsonLogFormatter(logging.Formatter):
+    """Format LogRecord as a single‑line JSON object."""
 
     def format(self, record: logging.LogRecord) -> str:
-        """Format log record as JSON."""
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+        # Base fields
+        log_entry: Dict[str, Any] = {
+            "timestamp": datetime.utcfromtimestamp(record.created).isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
         }
 
-        # Add exception info if present
-        if record.exc_info:
-            log_data["exception"] = {
-                "type": record.exc_info[0].__name__ if record.exc_info[0] else None,
-                "message": str(record.exc_info[1]) if record.exc_info[1] else None,
-                "traceback": traceback.format_exception(*record.exc_info),
-            }
+        # Include any extra context passed via the `extra` argument
+        extra = getattr(record, "extra_context", {})
+        if isinstance(extra, dict):
+            log_entry.update(extra)
 
-        # Add extra fields if present
-        if hasattr(record, "extra_data"):
-            log_data.update(record.extra_data)
+        # Ensure JSON is compact and on a single line
+        return json.dumps(log_entry, separators=(",", ":"))
 
-        return json.dumps(log_data)
+def _ensure_handler(logger: logging.Logger, handler: logging.Handler) -> None:
+    """Add *handler* to *logger* only if an equivalent handler is not already present."""
+    for h in logger.handlers:
+        if isinstance(h, type(handler)):
+            return
+    logger.addHandler(handler)
 
-
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Get or create the project logger with JSON formatting.
+    Retrieve a logger that emits JSON‑formatted logs.
 
-    Args:
-        name: Optional name for the logger. If None, uses 'llmxive'.
+    Parameters
+    ----------
+    name: str
+        Name of the logger (typically ``__name__``).
+    log_file: Optional[str]
+        If provided, logs are also written to this file (appended).
 
-    Returns:
+    Returns
+    -------
+    logging.Logger
         Configured logger instance.
     """
-    global _logger
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
 
-    logger_name = name if name else "llmxive"
+    # Avoid adding duplicate handlers on repeated calls
+    json_formatter = JsonLogFormatter()
 
-    # Return cached logger if already configured
-    if _logger and _logger.name == logger_name:
-        return _logger
+    # StreamHandler to stdout
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setFormatter(json_formatter)
+    _ensure_handler(logger, stream_handler)
 
-    # Create logger
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
+    # Optional file handler
+    if log_file:
+        file_handler = logging.FileHandler(log_file, mode="a")
+        file_handler.setFormatter(json_formatter)
+        _ensure_handler(logger, file_handler)
 
-    # Prevent duplicate handlers
-    if logger.handlers:
-        logger.handlers.clear()
-
-    # Ensure log directory exists
-    os.makedirs(LOG_DIR, exist_ok=True)
-
-    # File handler with rotation
-    file_handler = RotatingFileHandler(
-        LOG_FILE, maxBytes=MAX_BYTES, backupCount=BACKUP_COUNT
-    )
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(JsonFormatter())
-
-    # Console handler for development
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(JsonFormatter())
-
-    # Add handlers
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-    # Cache the logger
-    _logger = logger
-
+    # Prevent log propagation to the root logger (which could duplicate output)
+    logger.propagate = False
     return logger
 
+# Convenience wrappers -----------------------------------------------------
 
-def log_event(
+def _log(
+    logger: logging.Logger,
     level: int,
-    message: str,
-    logger_name: Optional[str] = None,
-    **extra_fields: Any
+    msg: str,
+    extra_context: Optional[Dict[str, Any]] = None,
+    exc_info: bool = False,
 ) -> None:
     """
-    Log an event with optional extra fields.
-
-    Args:
-        level: Logging level (e.g., logging.INFO, logging.ERROR).
-        message: Log message.
-        logger_name: Optional logger name.
-        **extra_fields: Additional fields to include in the JSON log.
+    Internal helper to emit a log record with optional extra context.
     """
-    logger = get_logger(logger_name)
-    record = logger.makeRecord(
-        logger.name, level, "", 0, message, (), None
-    )
-    record.extra_data = extra_fields
-    logger.handle(record)
+    if extra_context is None:
+        extra_context = {}
+    logger.log(level, msg, extra={"extra_context": extra_context}, exc_info=exc_info)
 
+def log_info(logger: logging.Logger, msg: str, extra_context: Optional[Dict[str, Any]] = None) -> None:
+    """Log an INFO‑level message."""
+    _log(logger, logging.INFO, msg, extra_context)
 
-def log_info(message: str, logger_name: Optional[str] = None, **extra_fields: Any) -> None:
-    """Log an info-level message."""
-    log_event(logging.INFO, message, logger_name, **extra_fields)
+def log_warning(logger: logging.Logger, msg: str, extra_context: Optional[Dict[str, Any]] = None) -> None:
+    """Log a WARNING‑level message."""
+    _log(logger, logging.WARNING, msg, extra_context)
 
+def log_error(logger: logging.Logger, msg: str, extra_context: Optional[Dict[str, Any]] = None) -> None:
+    """Log an ERROR‑level message."""
+    _log(logger, logging.ERROR, msg, extra_context)
 
-def log_warning(message: str, logger_name: Optional[str] = None, **extra_fields: Any) -> None:
-    """Log a warning-level message."""
-    log_event(logging.WARNING, message, logger_name, **extra_fields)
-
-
-def log_error(message: str, logger_name: Optional[str] = None, **extra_fields: Any) -> None:
-    """Log an error-level message."""
-    log_event(logging.ERROR, message, logger_name, **extra_fields)
-
-
-def log_exception(
-    message: str,
-    exc: Optional[BaseException] = None,
-    logger_name: Optional[str] = None,
-    **extra_fields: Any
-) -> None:
+def log_exception(logger: logging.Logger, exc: BaseException, extra_context: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log an exception with full traceback.
+    Log an exception with traceback information.
 
-    Args:
-        message: Error message.
-        exc: Optional exception instance. If None, uses current exception.
-        logger_name: Optional logger name.
-        **extra_fields: Additional fields to include in the JSON log.
+    Parameters
+    ----------
+    logger: logging.Logger
+    exc: BaseException
+        The exception instance to log.
+    extra_context: Optional[Dict[str, Any]]
+        Additional context to include.
     """
-    logger = get_logger(logger_name)
-    if exc:
-        logger.exception(message, exc_info=(type(exc), exc, exc.__traceback__), **extra_fields)
-    else:
-        logger.exception(message, **extra_fields)
-
-
-def fail_loudly(message: str, error: Optional[BaseException] = None) -> None:
-    """
-    Log a fatal error and raise an exception.
-
-    This function ensures that critical failures are logged with full
-    context before raising an exception, preventing silent failures.
-
-    Args:
-        message: Error description.
-        error: Optional exception to raise. If None, raises RuntimeError.
-
-    Raises:
-        RuntimeError: If no specific exception is provided.
-        The provided exception: If one is given.
-    """
-    if error:
-        log_exception(f"FATAL: {message}", error)
-        raise error
-    else:
-        log_error(f"FATAL: {message}")
-        raise RuntimeError(message)
+    if extra_context is None:
+        extra_context = {}
+    # Include the exception string in the context
+    extra_context["exception"] = str(exc)
+    _log(logger, logging.ERROR, f"Exception: {exc}", extra_context, exc_info=True)

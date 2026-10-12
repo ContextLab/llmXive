@@ -1,65 +1,70 @@
 # Quickstart: llmXive follow-up: extending "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
 
 ## Prerequisites
-- Python 3.11+
+- Python 3.11 or newer
 - Git
-- Access to Hugging Face Hub (for dataset download)
+- Internet access (to download the verified HuggingFace datasets)
 
 ## Installation
 
-1. **Clone the repository and navigate to the project directory:**
+1. **Clone the repository and navigate to the project directory**
    ```bash
    git clone <repo-url>
    cd projects/PROJ-933-llmxive-followup-extending-anti-self-di/code/
    ```
 
-2. **Create a virtual environment and install dependencies:**
+2. **Create a virtual environment and install dependencies**
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate   # Windows: venv\Scripts\activate
    pip install -r requirements.txt
    ```
 
-3. **Verify Dataset Access:**
-   Ensure you can access the verified URLs. The script `data/download.py` will handle this.
+3. **Verify dataset access**
+   The script `data/download.py` will automatically download the three verified UltraFeedback shards, populate `data/raw/`, and generate checksums:
+   ```bash
+   python data/download.py
+   ```
 
-## Running the Pipeline
+## Running the Full Pipeline
 
-The pipeline is orchestrated by `main.py`. It performs the following steps automatically:
-1. **Data Download & Filter**: Downloads UltraFeedback, filters for ≥4 traces.
-2. **Context Simulation**: Samples privileged contexts.
-3. **Inference-Only Pass**: Computes teacher distributions.
-4. **Training Loop**: Runs AntiSD and Standard SD training for a fixed number of steps.
-5. **Analysis**: Computes metrics and statistical tests.
+The orchestrator `main.py` executes all phases in order:
 
-### Full Run (CPU)
 ```bash
-python main.py --mode full --timeout [configured duration]
+python main.py --mode full --timeout 19800   # 5.5 h = 19 800 s
 ```
-*Note: This will respect the timeout. If it exceeds, it logs partial results.*
 
-### Run Specific Phase
-- **Data Prep Only**: `python main.py --mode data_prep`
-- **Training Only**: `python main.py --mode train --run_id <id>`
-- **Analysis Only**: `python main.py --mode analyze --run_id <id>`
+- **`--mode data_prep`** – only download & preprocessing.  
+- **`--mode train`** – runs both AntiSD and StandardSD training loops (500 steps per prompt).  
+- **`--mode analyze`** – computes diversity, deliberation, Human‑Eval Proxy, statistical tests, and writes `analysis_results.json`.
+
+All outputs are written under `data/` as described in `data-model.md`.
 
 ## Configuration
 
 Edit `config/settings.yaml` to adjust:
-- `seed`: Random seed for reproducibility.
-- `max_steps`: Number of training steps (default 250).
-- `model_name`: HuggingFace model ID (default `distilbert-base-uncased`).
-- `deliberation_tokens`: List of tokens to track (default `["Wait", "However", "Let's think"]`).
+
+| Parameter | Description | Default |
+|---|---|---|
+| `seed_list` | List of random seeds for repeated runs | `[42, 123, 999]` |
+| `max_steps` | Training steps per prompt | `500` |
+| `model_name` | HuggingFace model identifier (tinybert) | `google/bert_uncased_L-2_H-128_A-2` |
+| `deliberation_tokens` | List of tokens to count | `["Wait", "However", "Let's think"]` |
+| `timeout_seconds` | Hard timeout for the whole run (FR‑007) | `19800` |
 
 ## Output Locations
 
-- **Raw Data**: `data/raw/`
-- **Processed Data**: `data/processed/`
-- **Training Logs**: `data/results/training_run_*.jsonl`
-- **Final Report**: `data/results/analysis_results.json`
+- **Raw data**: `data/raw/` (cached shards)  
+- **Processed data**: `data/processed/` (filtered prompts, context split, teacher logits)  
+- **Training logs**: `data/results/training_run_*.jsonl` (includes `training_time_seconds` & `peak_memory_mb`)  
+- **Human evaluation scores**: `data/results/human_eval_scores.csv`  
+- **Final analysis (SSoT)**: `data/results/analysis_results.json`  
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `max_steps` or switch to a smaller model (e.g., `TinyBERT`).
-- **Dataset Empty**: If no prompts with ≥4 traces are found, the script will exit with a warning. Check `data/raw/audit_report.json`.
-- **Timeout**: If the job is killed, check `data/results/partial_results.json`.
+- **Out‑of‑memory**: Tinybert is already minimal; if still OOM, reduce `max_steps` (will affect power) or run on a larger runner.  
+- **Insufficient prompts with ≥ 4 rationales**: The audit will emit `data/raw/audit_report.json`; verify that at least 30 prompts remain; otherwise, the pipeline will still run on the available prompts and report reduced power.  
+- **Timeout**: If the job is killed, partial results are saved to `data/results/partial_*.jsonl`. Rerun with a higher `timeout_seconds` if the CI environment permits (max 6 h).  
+
+---
+

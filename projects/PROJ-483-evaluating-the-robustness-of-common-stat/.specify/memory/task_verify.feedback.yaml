@@ -1,0 +1,235 @@
+T001:
+  task: 8e1791db15e5bda28677079ebc06cc0225daf08539fa26f466fb85b69ec99827
+T002:
+  task: 1676ddba2aa609f7945c83d59503244314bdd64231c29107bcfe04044c924b4e
+T003:
+  task: c33860119f27bff9c550456457efc62cc1401cbcd06a585d0855db328edadcd5
+T004:
+  task: 537fec462612b1bbcfcafe8796a924ee8f6c27d0d16b0b16e3d01f6b29df14cf
+T004b-populate:
+  task: 4047322e2c96fdfaa4590ef3feb996dc69cb99af92de6f5d5a3c0717d836d28d
+T004b-schema:
+  task: 2609c49a00912c5947b73fd3387dcbf7b27ff51541ed4ba315bce6ddeed64235
+T005:
+  reason: "The execution log (`code/.tasks/T005.code_quickstart_validation.py.log`)\
+    \ shows only 1 of the 3 manifest datasets succeeded: `credit_card_default` failed\
+    \ (missing `xlrd` dependency) and `openml_titanic` failed (CSV tokenizing error),\
+    \ so `data/raw/` and `data/manifests/checksums.json` contain only `adult_income`\
+    \ \u2014 the task requires iterating over the *entire* manifest set. Additionally,\
+    \ the unit test `test_data_loader_validation.py` failed (exit 1), and the `python\
+    \ code/main.py --action download` run crashed with a YAML parse error, so the\
+    \ loader's validation logic and end-to-end execution are n"
+  task: 1b9f9b9eae53853bee58b3f6c09e77ac14e7d1d35c158f47de3087331201543f
+T005a:
+  task: 9cf84e30b716a093a20f8e73f8cd66350eac48c4898fb98094a7cebaca8e4134
+T005c:
+  task: e112f04cd3486fa591359bbf09c84216f1687204c2288bc5b4735d448cec7c5a
+T006a:
+  reason: "The provided `code/dependency_injector.py` defines `ar1_inject` and related\
+    \ utilities, but it accepts any `rho` value, does not enforce the required discrete\
+    \ set\u202F{0,\u202F0.1,\u202F0.2,\u202F0.3,\u202F0.5}, and does not implement\
+    \ a dedicated vectorized AR\u2011resampling routine as specified. Consequently\
+    \ the module does not satisfy FR\u2011003\u2019s restriction on strength values\
+    \ nor the required AR\u2011resampling functionality."
+  task: be39ec176059550cd4c8ba207fb8d46e6041861a22730a1428e6504dc0cbdee9
+T006b:
+  task: 9a644874d21ccdaf43ef4c2e174269f3dfae905cb7f61ee05daa03e06af11fca
+T006b-Null:
+  reason: "The file `code/dependency_injector.py` exists and contains a generic `block_bootstrap`\
+    \ resampling function, but it contains no Null Hypothesis Construction path: there\
+    \ is no function that (1) injects dependency into real data using block bootstrap\
+    \ with a block_size from the T006b-map and (2) then permutes labels via random\
+    \ shuffle \u2014 no label-shuffle/permutation logic appears anywhere in the file.\
+    \ The implementer must add a null-hypothesis construction routine (e.g., `construct_null_hypothesis(data,\
+    \ labels, block_size, seed)`) that performs block-bootstrap dependency injection\
+    \ followed by rando"
+  task: 287f339e3381898077a888ecd4045b7187d42566405196e3d04b82022be7ae7b
+T006b-map:
+  reason: "The file `code/dependency_injector.py` exists and contains a `block_bootstrap`\
+    \ function, but the task's core requirement \u2014 the r-mapping/block-size heuristic\
+    \ `block_size = max(MIN_BLOCK_SIZE, int(np.sqrt(N)))` with a `MIN_BLOCK_SIZE`\
+    \ constant \u2014 is entirely absent: there is no `MIN_BLOCK_SIZE` constant, no\
+    \ `sqrt(N)`-based block size computation, and no function translating the sweep\
+    \ parameter r / sample size N into a block size (the existing `block_bootstrap`\
+    \ requires the caller to pass `block_size` directly). The implementer must add\
+    \ the mapping logic (e.g., a `map_r_to_block_size(N)` function"
+  task: 45f8d66a14ec228e852e3ab24af6e47aebd969df9c5e477aa151cf4fddadb852
+T006c-map:
+  task: 5bfcce44aada0f4f4749595b6207a4e051d66298b2035dca2c6e710cde66cbc8
+T006c-native:
+  task: adb182abae5f11d982056e4b93395ddcd31e89c7976c92a7bb9baa4cdfbe0f70
+T006c-proxy:
+  task: 5c279325dac044c6b480ba4a1c732b30a0a42c539ade199dd434e9cb301431b8
+T006e:
+  reason: 'declared artifact(s) missing/empty/invalid: code/sweep_config.yaml'
+  task: a7a1e0f53fedaf4545186c048c8e24cf4f8e4e9fc2011c1de8163b1c8622bab7
+T007:
+  task: 2650f2c761de3f3a4b50e43bf415540b780bbd09f46cbe11a4f0343101267441
+T008:
+  task: 8142f69ab8ee148ecfd5781204b1c48e0c181e6761b35df5faad664abc33fe3a
+T010:
+  task: 38c0bf08bcf4488baa7b8fdffb2eabbc30d3764c867ab823d8fd06d1bdba9bd5
+T011:
+  task: 050bd4fb55699f1ef01f78c6431812c3c306c2cb090271934a01bf10be6ef422
+T012a-syn:
+  task: 8142e9069e7156eb30d2e6d80a31e4e26673f45d072df61b9ed21f04eba6149c
+T012b-syn:
+  task: a9a4772e6715c4709d1ece348834afd588548a7a605dfc861512f8c38bce7fe5
+T012c-syn:
+  task: 8f88bba9909d3f08fa1974861651ba3e5d1699be348300d070bb0695ac948d4f
+T012d:
+  task: 1bd6e433889b05fb2d26e633269e4883d58bf4c34d34824a790a8d9a3530d35f
+T013:
+  task: 51d8074008e43389ceb80814e7da1f9f63ed26b69115cbf396f781041a4a3a6e
+T013b:
+  task: 992eadd7938f4511c925719bcd5e6312addc0b4a5e2e7bbcfea86de923008f82
+T014:
+  task: 32c31cd2d5a6b5e136bae1f85996b1380925aa2ff42842cf2726580d6574e783
+T014b:
+  task: 3f1925298299e5a52ed3deaf980161da2606c3ebbaa758fb8dd3c65803bd73fb
+T014c:
+  task: 5eedd8a78c1a4625e2d2d5f9e1e85f29121f44ae05ce06b19ec7be171606ef6c
+T016-def:
+  task: 8c8d1347e1479cee0a8fb231a49e3d359314a67bcf59c5cd24f7f61b966ac0e8
+T016-exec-us1:
+  reason: 'declared artifact(s) missing/empty/invalid: results/logistic_models_us1.pkl'
+  task: f77a0cefc93f224e7f433330eb882791b371c9d0d16dbd4f1164c4473e3001bc
+T016-exec-us2:
+  reason: 'declared artifact(s) missing/empty/invalid: results/logistic_models_us2.pkl'
+  task: 3521bc5dbe9faeb270c188ff5f8192f03e91357b5a50fc7ebcb627fc26c86ae5
+T017:
+  task: c3346a9fe1d52623b99f3c0f183073f747296701bf82d5a23ca0856a7a4bb79e
+T018:
+  task: 008addad06d764c7fe159ce89e274497345f5056f2bbdf76c6689457d798b7ac
+T020a:
+  task: 47315dfbcc78049a09a562018333be86662ef516c6e5106c123ef8aa642c0b23
+T020b:
+  task: 2daf94a40ad0a8b88fe041d117ba8d1e269f9e8350c3ccf11151c8048a275037
+T020c:
+  task: f3fa15153b858c195e30684b0fb0595f7a8290c779ab6a550729352cfb38c6ab
+T020d:
+  task: 36aabd78202609600b19dd39f0308f10331f3255cc02ffd5483e3c2a79b6e661
+T020e:
+  task: 0d672fe7d12e8257237822d1f9414ef9541ea93ce60e57c185bc93ec2974dec9
+T021:
+  task: 3dfd548a3648be144dc01d38783f4431244da509133a6576a87545e3263aab5b
+T021b:
+  task: b6c46eb91c132291ab67256be68184dc44846fa7289ad2331750b469c11832d5
+T022:
+  task: bfaac4b43953c0e8cc4d98204238ad2689ee894f3631a77072d029e824d28748
+T023:
+  task: ba6f3b25ba35db701500473de580e181b50ddbc6ab2d32b17e8d4183ee66ef3f
+T024:
+  task: 01bffb6486dafd4cae70bedb648ccdb7ba70c66bab950dcfd4fec70a7f884cbd
+T025:
+  task: 7ae366a2840736bcf15fa373b648f3fceda1a64f6600de42119850e0059a59a9
+T026:
+  task: 3e6539b765c0fc9d0fa0ca4074ec163318531e6fc59ee42b6fe180f3901a61ac
+T026b:
+  task: 154af2887259fc6eb6ad72e67c6560d5018f7442b4488d121996fcf4372e75d2
+T026c:
+  task: 715ea454a6371f9e6d4e8e44d23c9979917ce28c6ab86bd4facfa43c364594f3
+T027a:
+  task: a273619dbd59fa584aadbac5f93ea6811f1b0a0700d8b9f0e9f3f7b43de63450
+T027b:
+  task: 67e784e7d0688e2b5818d3352c2c3b9ca7f166c9df191ca2e4c8e0c4525e26a0
+T028:
+  task: 6f9646e3f50dcfdd548a1ff2a5cfc246ee7dbe1c05c5f0fd810aabcf2d3d106e
+T029:
+  task: c919eb5be77d8f9387514eb883ced98d057438aad180603f8c49a102fb8d8e65
+T030:
+  task: 37e3902f5abf4bf0572c07a2f84e90f62fa43fbb8bb8ecc94abe1d40f862ccab
+T031a:
+  task: ef7eb23d5915973884e0f8c0b89a32c8a685ac737a593aa4b2e1dea577388450
+T031b:
+  task: a45ee12cc6c5fc1888b74d39ac83617b552b88fc16f7250e47b25c3322e76e05
+T032a-Optimize:
+  task: c08e236ff7942bc97cecff05e7fa6c1d5a7d6edcb15c4b141933baad4b3fe4e6
+T032a-Profile:
+  task: 4673ec070643d693fc2ba9789df56dd62211127cf0485a54b72c48ab33adda68
+T032a-Target:
+  task: 7329de06df6c136d53c03eb393e07154722b306fe57446944022fff14e1b544f
+T033:
+  task: b6d8da0de2d103ffd08e06c56752f9dd032e7930533abca30cb11331f1566604
+T034:
+  reason: 'Requested task execution failed; rerun successfully: code/quickstart_validation.py
+    exit=1'
+  task: 88d3396d1a3516c752bcd5cf3ff1f8f2c69a9207e3955b05bee9f010cbbd7b22
+T035:
+  task: 4917813c995170660d0fefb1c85e0590366b6813e1fde35e316d9d646bb5ea6d
+T035b:
+  reason: The code in `code/data_loader.py` does implement a theoretical power calculation
+    (statsmodels TTestIndPower) and writes `results/power_report.json`, and the execution
+    log confirms a run. However, the task requires power verification for the *remaining*
+    datasets, and the power report contains only one dataset (`adult_income`); the
+    other manifest datasets (`credit_card_default`, `openml_titanic`) failed processing
+    due to a missing `xlrd` dependency and a CSV parsing error, so their power was
+    never calculated or logged. Additionally, the power is computed from the dataset's
+    row count with a defau
+  task: 56fc90b5e6a56598e3797d851d89c78ca9167a6b209a41c19c21482ac34d3d0d
+T037:
+  task: e18fd20325e508052ee85e85a6ce225051ac0afe9081dd86a9657dbb256dbe4e
+T037b:
+  task: 83312962013594669fedb76cbae3e0b957bc61aed39cf67e48b9d0e271f1b199
+T040:
+  task: c19fff40611f86726bf69ed90c4124741135f72756fa790762961564b1c6d064
+T041:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_spatial_proxy.py
+    exit=1'
+  task: 69f56bfaecb7ee3d8c952f112c135f07983fbb0a36599c2198b8ee7f536e895e
+T043:
+  task: fc782f4cec3682e521ebb1f176dbae20e44a535eceeb64c794ba2b27f70427f2
+T044:
+  task: 8054679f7f1849a36703fdabbdd72a02cbf20a2272de4e21f7ec11bb70b4ae74
+T045:
+  task: 99370acb6a6e3489d921c14a51a00d6bbdf473836caaf3ecf74f4f3556059b14
+T050:
+  task: ad9d12e2b91af9cbc1dfaed1dc32bd29323d81188bbff3b2210f1b9e3c02833a
+T051:
+  task: 92c31668ddc640de15169c03f812a0b070303463a7ff9abaa64ae04e313ed1b7
+T052:
+  task: ea759f4773aab2460ed073d777b6963314840a6a636e52daa8c0f474c434cceb
+T053:
+  task: 6928636ef98fd68ba615709180fc0f82bb7e5aea9ba280d2577a087c8c52e63e
+T054:
+  task: 4126dc1fba4040e4fb2ff7c239acca4ac528f626f9a9155ce5345fb3146c5a84
+T056b:
+  task: 22d73a868513f12dbeadfdcd8eaae6bf2468b3a2407802dfc69426fe1d08fce2
+T057:
+  task: ea2d12ed021da17b13d0aad06095e49fd6405e0016a65c1e61ceeba6dd769830
+T058:
+  task: a6bee9ebddc690506f5b09febbf20ac9f44ed95a3c1911d152a22e6e1617f692
+T059:
+  task: aa4906f44e9a25673ac764d27e6025decb66d9a34361a9ac33a9f34b350c3117
+T060:
+  task: d8a5dac20acf2ca50ee76537253f3f9a26879f4f17e171f8f2990489e4bde8ff
+T060b:
+  task: 6fa1422fcc1e577c0b33c92e86edfd9f8b2ac3d3901129bc2c3f4d28457cf586
+T061:
+  task: 75b3b15b1f54de73c57941eee3d0d16308ef8ddfc2332781fbec6e8e0b7af3f0
+T062:
+  task: 41deeefce4b18016b7bdf79d221487a6022656d8489192b4d028e8cfb8eb2dac
+T063:
+  task: d74ba882eb4c46778deed40f6b3bf82f284de1c586c51b6eb3afb82572205d7d
+T064:
+  reason: 'declared artifact(s) missing/empty/invalid: results/config_audit.json'
+  task: 29e7feba850fa4dd3a73176c87b789bf16c44475372b918baf649c947aea3496
+T064b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/dependency_manifest.yaml'
+  task: c894e561e40ccc6fb5e5da54819bf037603565d2b967f2103fe2f9251863e4f5
+T065:
+  task: e343f7ec9579b2631fc6bee9e8f6cc0fd38986ae4e27d7be8a6136ac8668aef9
+T066:
+  task: c42ce470c6543ddb43c4542788918dec3b73890598b9972de7b716655ed0f0bd
+T067:
+  task: 276ae57d3b4a82281f4124bde65294eb34c84252a6df5c2e0063c69101712fb3
+T068:
+  task: daa440376987b13fe04d2afa4a21cf1bca3a41d2d9524f3b8a385e1f7054bb43
+T069:
+  task: 4687befb344b7dfd6d46d270afb57354f7ed6881b148cdc26affbe6e24c99321
+T070:
+  task: f2887e0ae9e6a9133d828b6c2e7a46c809cdb9393d84b3b2630fbb54c14e0bbd
+T071:
+  task: 8b5c2bb2513aff3d29b8f7d64c1228392f0a2edd3ec97dfdd311f2c435a75623
+T072:
+  task: e75118753cc73dec9d275df5e9df828aa8d69061d99e5411b7aa9558eaa01c37

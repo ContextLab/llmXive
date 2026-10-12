@@ -1,89 +1,110 @@
-# PROJ-483: Evaluating the Robustness of Common Statistical Tests to Non-Independence
+# Evaluating the Robustness of Common Statistical Tests to Non‑Independence
 
-## Executive Summary
+**Repository:** `projects/PROJ-483-evaluating-the-robustness-of-common-stat`
 
-This project investigates how violations of the independence assumption affect the Type I error rates and statistical power of t-tests, ANOVA, and Chi-squared tests. By simulating dependency structures (AR(1), Block Bootstrap, Spatial) on real public datasets (UCI Wine, Car Evaluation, Zoo), we quantify the extent to which these common tests become unreliable as non-independence increases.
+## Purpose
 
-## Key Findings (Expected)
+This project provides a reproducible research pipeline that quantifies how the violation of the independence assumption influences:
 
-- **Type I Error Inflation**: As dependency strength ($r$) increases, the observed Type I error rate for parametric tests (t-test, ANOVA) is expected to exceed the nominal $\alpha=0.05$.
-- **Power Reduction**: The presence of dependency is expected to reduce the statistical power to detect true effects compared to the independent case.
-- **Test Sensitivity**: Different tests (t-test vs. Chi-squared) and dependency structures (temporal vs. spatial) will exhibit varying degrees of robustness.
+* **Type I error rates** of Student's t‑test, one‑way ANOVA, and chi‑squared tests.
+* **Statistical power** when true effects are present.
 
-## Installation
+The analysis is performed on real public datasets (UCI Machine Learning Repository / OpenML) with **controlled dependency injection** (temporal AR(1), hierarchical block bootstrap, spatial kernel smoothing). Results inform researchers about the robustness of standard parametric tests under realistic non‑independent data conditions.
 
-```bash
-git clone <repo-url>
-cd PROJ-483-evaluating-the-robustness-of-common-stat
-pip install -r requirements.txt
-```
+## Key Features
 
-## Usage
+* **Verified data sources** – datasets are fetched from canonical URLs defined in `data/manifests/datasets.yaml`.
+* **Dependency injection** – AR(1) autocorrelation, block bootstrap, and spatial kernel smoothing (including a feature‑space clustering proxy).
+* **Monte‑Carlo simulation** – 10 000 replications per configuration (FR‑004) using fully vectorised NumPy operations.
+* **Exact confidence intervals** – Clopper‑Pearson intervals for error‑rate estimates (SC‑003).
+* **Trend verification** – Spearman and Mann‑Kendall tests to confirm monotonic error‑rate inflation (US‑1 AC‑2).
+* **Logistic‑regression modeling** – Relates error probability to dependency strength (Constitution VII).
+* **Comprehensive documentation** – `docs/overview.md`, `quickstart.md`, and in‑code docstrings.
 
-### 1. Data Preparation
+## Quick Start
 
-The pipeline automatically fetches real datasets from verified UCI URLs.
+1. **Clone the repository**
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-483-evaluating-the-robustness-of-common-stat
+ ```
 
-```bash
-python code/run_data_loader.py
-```
+2. **Create a virtual environment and install dependencies**
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # Windows: venv\Scripts\activate
+ pip install -r code/requirements.txt
+ ```
 
-*Note: If a dataset fetch fails, the pipeline halts with a `DataFetchError`. No synthetic fallback is used.*
+3. **Run the pipeline**
+ ```bash
+ # Download and validate datasets
+ python code/main.py --action download
 
-### 2. Running the Simulation
+ # Execute the full Monte‑Carlo simulation (type‑I error & power)
+ python code/main.py --action simulate
 
-Execute the full Monte Carlo sweep:
+ # Generate visualisations
+ python code/main.py --action plot
+ ```
 
-```bash
-python code/main.py
-```
+4. **Inspect results**
+ * Aggregated metrics: `results/aggregated_us1.csv`, `results/aggregated_us2.csv`, `results/aggregated_us3.csv`
+ * Markdown summary table: `results/type1_error_table.md`
+ * Figures: `results/figures/` (error‑rate curves, power curves)
+ * Performance log: `results/perf_log.json`
 
-**Configuration**:
-- Edit `code/config.yaml` to modify `n_replications`, `seed`, or `dependency_strengths`.
-- Default: 10,000 replications, $r \in \{0.0, 0.1, 0.2, 0.3, 0.5\}$.
-
-### 3. Results
-
-Output artifacts are saved in `results/`:
-- `aggregated_unified.csv`: Raw simulation data.
-- `type1_error_table.md`: Summary table of error rates with Clopper-Pearson CIs.
-- `power_analysis.csv`: Power reduction metrics.
-- `figures/`: Visualizations of error rate curves and power loss.
-
-### 4. Validation
-
-Ensure reproducibility and integrity:
-
-```bash
-python code/validate_quickstart.py
-```
+For detailed configuration options (e.g., choosing a subset of datasets, adjusting replication counts, enabling streaming) see `code/config.yaml` and the **Methodology** section in `docs/overview.md`.
 
 ## Project Structure
 
-- `code/`: Core implementation (simulation, injection, metrics).
-- `data/`: Raw datasets and manifests.
-- `results/`: Simulation outputs and logs.
-- `docs/`: Detailed documentation (Binning Strategy, Methodology).
-- `tests/`: Unit and integration tests.
+```
+.
+├── code/ # Core implementation
+│ ├── __init__.py
+│ ├── config.py
+│ ├── data_loader.py
+│ ├── dependency_injector.py
+│ ├── simulation_runner.py
+│ ├── main.py
+│ └── metrics.py
+├── data/
+│ ├── raw/ # Downloaded datasets (CSV)
+│ ├── processed/ # Dependency‑injected versions
+│ └── manifests/
+│ ├── datasets.yaml
+│ └── checksums.json
+├── docs/
+│ └── overview.md
+├── results/
+│ ├── aggregated_us1.csv
+│ ├── aggregated_us2.csv
+│ ├── aggregated_us3.csv
+│ ├── type1_error_table.md
+│ ├── figures/
+│ └── perf_log.json
+├── tests/
+│ ├── unit/
+│ └── integration/
+├── quickstart.md
+├── README.md # ← This file
+└── requirements.txt
+```
 
-## Methodology
+## Reproducibility
 
-- **Null Hypothesis**: Constructed via "Generate-then-Inject" (synthetic) or "Inject-then-Permute" (real data).
-- **Dependency Injection**: AR(1) for temporal, Block Bootstrap for hierarchical, Spatial Kernel for spatial.
-- **Metrics**: Type I Error Rate, Power, Clopper-Pearson Confidence Intervals.
-
-## Performance
-
-Target: 10,000 replications in < 6 hours on 2-core/7GB RAM.
-- Pre-flight memory checks prevent out-of-memory errors.
-- Vectorized NumPy operations used for efficiency.
+* **Random seed** – Defined in `code/config.yaml` (`seed: 42`). All stochastic functions respect this seed.
+* **Versioned data** – Checksums stored in `data/manifests/checksums.json`. The pipeline aborts if any checksum mismatch is detected.
+* **Artifact tracking** – `results/state.yaml` records content hashes for all generated files.
 
 ## Contributing
 
-1. Ensure all tests pass (`pytest tests/ -v`).
-2. Update `docs/` if methodology changes.
-3. Verify real data fetches before committing.
+Contributions are welcome. Please follow the existing code style (black, flake8) and add unit tests for new functionality. See `tests/` for examples.
 
 ## License
 
-MIT License.
+This project is released under the MIT License. Third‑party libraries used are listed in `code/requirements.txt` and are compatible with this license.
+
+---
+
+*For a full description of the scientific methodology, see `docs/overview.md`.*

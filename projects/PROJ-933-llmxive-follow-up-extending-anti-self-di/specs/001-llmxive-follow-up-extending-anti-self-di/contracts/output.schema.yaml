@@ -1,38 +1,38 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Evaluation Metrics Schema
-description: Schema for the aggregated evaluation metrics per prompt and condition.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for the aggregated evaluation metrics per prompt and condition."
 type: object
 properties:
   prompt_id:
     type: string
-    description: "Link to the prompt"
+    description: "Link to the prompt."
   condition:
     type: string
     enum:
       - AntiSD
-      - Standard
-    description: "The training condition used"
+      - StandardSD
+    description: "Training condition used."
   deliberation_frequency:
     type: number
-    description: "Frequency of deliberation tokens (e.g., 'Wait', 'However') in the trajectory"
+    description: "Frequency of deliberation tokens (e.g., 'Wait', 'However') in the trajectory."
   bleu_score_vs_unselected:
     type: number
-    description: "Average pairwise BLEU score against the unselected rationales (internal proxy for diversity)"
+    description: "Average pairwise BLEU score against the unselected rationales (proxy for diversity)."
   diversity_score:
     type: number
-    description: "Diversity metric defined as 1 - BLEU score (higher is more diverse)"
+    description: "1 - BLEU score (higher indicates more diverse output)."
   semantic_similarity_vs_unselected:
     type: number
-    description: "Average cosine similarity against the unselected rationales (internal proxy for diversity)"
+    description: "Average cosine similarity against the unselected rationales."
   quality_coherence_score:
     type: number
-    description: "Reasoning Quality Score defined as Perplexity against the Privileged Context (lower is better). Replaces external Gold Standard."
+    description: "Median Human Evaluation Proxy score (1‑5 Likert)."
   js_divergence_final:
     type: number
-    description: "Final JS divergence value after training"
+    description: "Final JS divergence after training."
   steps_completed:
     type: integer
-    description: "Number of training steps completed (max 50)"
+    description: "Number of training steps completed (max 500)."
 required:
   - prompt_id
   - condition

@@ -15,7 +15,7 @@ cd projects/PROJ-267-predicting-plant-stress-response-from-pu
 
 # Set up a Python virtual environment
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
 # Install Python dependencies
 pip install -r code/requirements.txt
@@ -25,13 +25,13 @@ pip install -r code/requirements.txt
 
 ### 1. Data Ingestion & Preprocessing
 ```bash
-# Ingest (will attempt to download the verified dummy datasets)
+# Ingest (downloads the verified dummy datasets)
 python code/data/ingest.py --species Arabidopsis --stress Drought
 
-# Preprocess (normalization, filtering, LCM imputation, biomaRt mapping)
-python code/data/preprocess.py
+# Preprocess (fold‑wise preprocessing; see code/comments for details)
+python code/data/preprocess.py --mode fit_transform
 ```
-*If no paired plant data are found, the script logs a clear “Data Unavailable” message and exits gracefully.*
+*If no paired plant data are found, the script logs a clear “**Data Unavailable**” message and exits gracefully.*
 
 ### 2. Model Training
 ```bash
@@ -55,19 +55,28 @@ python code/viz/plots.py
 ```bash
 cat results/runtime_metrics.json
 ```
-The JSON file contains `total_time_seconds` and `peak_memory_mb`. The pipeline aborts automatically if limits are exceeded.
+The JSON file contains `total_time_seconds`, `peak_memory_mb`, and a `power_sufficient` flag. The pipeline aborts automatically if limits are exceeded.
+
+## Contract Validation
+```bash
+# Validate that the processed dataset and model output conform to the JSON schemas
+python code/tasks/schema_validate.py --dataset contracts/dataset.schema.yaml --model_output contracts/model_output.schema.yaml
+```
 
 ## Data Availability Limitation
-Given the current lack of verified open paired proteomic‑transcriptomic datasets for the target species‑stress combinations, the pipeline will run on the dummy datasets only for validation of the code. When appropriate data become available, replace the dummy URLs in `code/data/ingest.py` with the new sources; the rest of the pipeline requires no changes.
+Given the current **no verified open paired proteomic‑transcriptomic plant‑stress datasets** for Arabidopsis, rice, or wheat under drought, salinity, or heat, the pipeline will run on the **dummy NCBI zip and GEO JSON** only for code‑validation **and** will emit **“Data Unavailable”** when appropriate data are missing.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
-| `biomaRt` import error | R or the package not installed | Install R ≥ 4.2 and run `install.packages("biomaRt")` in R. |
-| No files under `data/raw/` | Ingestion could not locate a verified paired dataset | Check `logs/pipeline.log` for “Data Unavailable” and verify the URLs in `research.md`. |
-| MemoryError | Dataset larger than RAM | Re‑run `preprocess.py` with `--sample_size 1000` to limit to a random subset. |
-| Runtime exceeds 6 h | Model complexity too high | Reduce `n_estimators` in Random Forest (via `--n_estimators 100`). |
+| `ImportError: cannot import name 'biomaRt'` | R or the package not installed | Install R ≥ 4.2 and run `install.packages("biomaRt")` in an R session. |
+| No files under `data/raw/` | Ingestion could not locate a verified paired dataset | Check `logs/pipeline.log` for the “Data Unavailable” notice and verify the URLs in `research.md`. |
+| `MemoryError` | Dataset larger than RAM | Re‑run `preprocess.py` with `--sample_size 1000` to limit to a random subset (adds `--sample_size` flag). |
+| Runtime exceeds 6 h | Model complexity too high | Reduce `n_estimators` in Random Forest (`--n_estimators 100`). |
+| Missing entries in `pipeline.log` | Logger not imported | Ensure each script starts with `from utils.logger import get_logger; logger = get_logger(__name__)`. |
+| Validation fails | Schema mismatch | Run the validation command above; fix any schema violations reported. |
 
 ---
+
 

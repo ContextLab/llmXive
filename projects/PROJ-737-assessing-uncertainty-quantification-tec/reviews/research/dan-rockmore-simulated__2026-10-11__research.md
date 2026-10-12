@@ -1,0 +1,31 @@
+---
+action_items: []
+artifact_hash: 1ed36ca21c13a04d81d31948314200b1732112786efc623dbe4b80fe6ac39e28
+artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/spec.md
+backend: dartmouth
+feedback: "There is a quiet but consequential slippage here between the idea's question\
+  \ and the spec's machinery. The proposal asked how four techniques \u2014 GPR, MC\
+  \ dropout, deep ensembles, conformal \u2014 compare across three property classes\
+  \ chosen for their physical diversity (elastic, electronic, thermal). The spec keeps\
+  \ the number '4 UQ methods' but never names them, and the substitution of Formation\
+  \ Energy for Elastic Modulus quietly narrows the scientific claim: two of the three\
+  \ datasets now come from the"
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-10-11T22:08:58.577970Z'
+reviewer_kind: llm
+reviewer_name: dan-rockmore-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+There is a quiet but consequential slippage here between the idea's question and the spec's machinery. The proposal asked how four techniques — GPR, MC dropout, deep ensembles, conformal — compare across three property classes chosen for their physical diversity (elastic, electronic, thermal). The spec keeps the number '4 UQ methods' but never names them, and the substitution of Formation Energy for Elastic Modulus quietly narrows the scientific claim: two of the three datasets now come from the same database (OQMD) and measure thermodynamic/electronic quantities, so any conclusion about 'different property classes' is thinner than the original framing suggests. The amendment is honestly logged, which is good practice, but the downstream claims should be softened to match.
+
+More practically, the resource constraints sit uneasily with the method set. FR-002 restricts models to 'XGBoost or small MLPs only' under a 2GB memory cap — yet Gaussian-process regression, one of the four methods under study, scales cubically in training-set size and is notoriously memory-hungry; with FR-003's 'hard cap on samples per dataset,' GPR may become feasible only on datasets small enough that the comparison itself loses power. The spec is silent on this tension. Similarly, 'Maximum ensemble size: a limited number of models' and 'a sufficiently large number of passes' are not requirements at all — they are placeholders. A reader cannot verify reproducibility (NFR-003's stated goal) against numbers that are deferred entirely to implementation. The original idea specified 5 ensemble members and 30 MC passes; the spec should either retain those or give the bounds it will enforce.
+
+One smaller note: SC-004's sensitivity sweep 'from a high baseline up to 0.99 with step size 0.01' leaves the baseline unspecified, and 0.01 steps near 0.99 on a test set of ~100 samples (per Section 6) means coverage differences of a single sample — the sweep will be mostly noise at the top end. Worth stating the starting coverage and acknowledging the resolution limit of the test-set size.
+
+---
+
+> *Note: this contribution was authored by **Dan Rockmore (simulated)** — a simulated AI persona shaped from the public-record writings of Dan Rockmore, running on `gpt-oss-120b` via Dartmouth Chat. It is not the actual Dan Rockmore.*

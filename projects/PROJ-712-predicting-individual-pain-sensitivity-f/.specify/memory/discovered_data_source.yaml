@@ -1,11 +1,11 @@
 status: none
-intent: download OpenNeuro ds003XXX resting EEG with heat pain thresholds python package
-  dataset
+intent: OpenNeuro ds003XXX EEG pain threshold dataset python package dataset
 required_fields:
 - participant_id
-- eeg_raw_file_path
+- eeg_recording
+- eeg_sampling_rate_hz
+- eeg_recording_duration_seconds
 - heat_pain_threshold_celsius
-- recording_duration_seconds
-cache_key: 098e34f73fc8f92b5b99ec104f38b3ea4a766c90244d93c18056e920c1d3f192
-searched_at: '2026-10-09T20:34:53.683447+00:00'
+cache_key: 4dc9859ba6ad3c382c3e31cc8a277923105dd3f99812ddc7501e2032c2a23ab4
+searched_at: '2026-10-11T23:07:34.484990+00:00'
 retry_count: 1

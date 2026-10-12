@@ -164,3 +164,14 @@
   verification_status: verified
   verified_against_url: https://semver.org/
   verified_at: '2026-10-03T21:41:24.201992Z'
+- artifact_hash: bbaa52c22af18aebff691eddcd3addc8f125bc0393d364e90d115cf9a08aaa8a
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ZFS - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/ZFS
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/ZFS
+  verified_at: '2026-10-11T17:14:55.736559Z'

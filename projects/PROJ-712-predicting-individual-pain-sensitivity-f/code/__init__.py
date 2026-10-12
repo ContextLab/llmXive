@@ -1,1 +1,1 @@
-# Make the `code` directory a package; no additional initialisation required.
+# This file makes the `code` directory a Python package.

@@ -1,13 +1,13 @@
 status: none
-intent: download MixSub-LLaMA-3.2 scientific document layout dataset with bounding
-  box annotations python package dataset
+intent: download PubLayNet scientific document layout dataset and MixSub-LLaMA-3.2
+  python package dataset
 required_fields:
 - document_id
 - page_number
-- text
-- bounding_boxes
 - image_path
-- metadata
-cache_key: b93206d2105986497fe4cc622b4fc30d63734141c643cd180878f0956bc3dc3f
-searched_at: '2026-10-11T08:10:19.182869+00:00'
+- raw_text
+- layout_bounding_boxes
+- bbox_labels
+cache_key: ced9f22d5207a070504d3e1ce2350ef27efd1fbd050d83c0025f8fa5b0558813
+searched_at: '2026-10-11T19:09:40.809397+00:00'
 retry_count: 1

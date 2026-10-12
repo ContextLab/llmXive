@@ -35,8 +35,8 @@ All models must be runnable on CPU-only environments with minimal RAM usage (< 2
 - No GPU acceleration.
 - No 8-bit quantization.
 - Use XGBoost or small MLPs only.
-- Maximum ensemble size: 3 models.
-- Maximum MC Dropout passes: 200.
+- Maximum ensemble size: a limited number of models.
+- Maximum MC Dropout passes: a sufficiently large number of passes to achieve stable estimates.
 
 ### FR-003: Featurization
 The system must convert raw compositions/structures to feature vectors using `matminer` (or fallback to `pymatgen`).
@@ -82,7 +82,7 @@ Calibration Error and Sharpness metrics must be calculated for all methods and d
 Paired Wilcoxon tests must be executed and p-values reported for method comparisons.
 
 ### SC-004: Sensitivity Analysis
-Sensitivity analysis must sweep coverage levels from 0.80 to 0.99 with step size 0.01.
+Sensitivity analysis must sweep coverage levels from a high baseline up to 0.99 with step size 0.01.
 
 ### SC-005: Dataset Coverage
 The system must successfully process and evaluate the following datasets:

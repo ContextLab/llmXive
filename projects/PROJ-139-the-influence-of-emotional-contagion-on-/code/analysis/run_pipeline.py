@@ -10,20 +10,11 @@ import logging
 import argparse
 from pathlib import Path
 
-# Add project root to path
+# Add project root to path for module imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from config.settings import get_config
-from data.download import main as download_main
-from data.extract import main as extract_main
-from data.validation import main as validation_main
-from data.sentiment import main as sentiment_main
-from data.metrics import main as metrics_main
-from data.modeling import main as modeling_main
-from analysis.final_validation import main as final_validation_main
-from analysis.generate_final_reports import main as reports_main
-from analysis.update_analysis_summary import main as summary_main
+from llmxive_toolkit import paths
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -31,7 +22,8 @@ logger = logging.getLogger(__name__)
 def ensure_directories():
     """Create necessary output directories."""
     dirs = [
-        "data/raw", "data/processed", "state", "docs", "figures"
+        "data/raw", "data/processed", "data/results",
+        "state", "docs", "figures"
     ]
     for d in dirs:
         (PROJECT_ROOT / d).mkdir(parents=True, exist_ok=True)
@@ -49,41 +41,80 @@ def run_stage(stage_name: str, func):
         logger.error(f"--- Stage {stage_name} FAILED: {e} ---")
         raise
 
+def run_sample_pipeline(sample_n: int):
+    """
+    Produce a tiny CSV with ``sample_n`` example records using a real public dataset.
+    The CSV is written to ``data/results/sample_run.csv``.
+    """
+    try:
+        from datasets import load_dataset
+    except ImportError as e:
+        logger.error(
+            "The 'datasets' library is required for the sample pipeline. "
+            "Install it via 'pip install datasets'."
+        )
+        raise
+
+    logger.info(f"Running sample pipeline for {sample_n} records.")
+    # Use a small, publicly available dataset – Reddit comments (real data)
+    # Streaming to avoid large downloads.
+    ds = load_dataset("reddit_comments", split="train", streaming=True)
+
+    output_path = paths.results("sample_run.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write CSV header
+    import csv
+    fieldnames = ["id", "subreddit", "created_utc", "body"]
+    with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        count = 0
+        for record in ds:
+            # Ensure required fields exist; skip if missing
+            if not all(k in record for k in fieldnames):
+                continue
+            writer.writerow({
+                "id": record["id"],
+                "subreddit": record["subreddit"],
+                "created_utc": record["created_utc"],
+                "body": record["body"].replace("\\n", " ").strip()
+            })
+            count += 1
+            if count >= sample_n:
+                break
+
+    logger.info(f"Sample CSV written to {output_path} with {count} rows.")
+
 def run_full_pipeline(args):
     """Execute the full research pipeline."""
     ensure_directories()
-    
+
+    # Sample mode takes precedence and avoids heavy imports
+    if args.sample is not None and args.sample > 0:
+        run_sample_pipeline(args.sample)
+        return
+
+    # Lazy imports – only needed for the full pipeline
+    from config.settings import get_config  # noqa: F401
+    from data.download import main as download_main
+    from data.extract import main as extract_main
+    from data.validation import main as validation_main
+    from data.sentiment import main as sentiment_main
+    from data.metrics import main as metrics_main
+    from data.modeling import main as modeling_main
+    from analysis.final_validation import main as final_validation_main
+    from analysis.generate_final_reports import main as reports_main
+    from analysis.update_analysis_summary import main as summary_main
+
     # 1. Download
-    # Note: download.py expects specific args. We pass them if available or use defaults.
-    # The quickstart command was failing due to arg mismatch. We will call the function directly
-    # with safe defaults if the CLI args are not provided in the expected format.
-    # However, to be robust, we call the main function which handles its own argparse.
-    # We need to simulate sys.argv if args are passed, or just run with defaults.
-    # For this pipeline runner, we assume it's called without --source args here, 
-    # and the download script should handle default sources or the user must run download separately.
-    # To fix the quickstart mismatch, we will NOT pass --source here unless explicitly set in a config.
-    # Instead, we rely on the download script's default behavior or environment variables.
-    
-    # We call download_main() directly. It has its own argparse.
-    # To avoid the argparse error seen in execution, we ensure we don't pass invalid args.
-    # The execution error showed: `python code/data/download.py --source askScience --source fdr`
-    # The script usage was: `download.py [-h] [--output OUTPUT] ...`
-    # So the run_pipeline should NOT pass --source. It should just run the pipeline.
-    # We will run download_main() which will likely fail if no data exists, but that's expected.
-    # For the purpose of this task, we assume data might be pre-existing or download_main handles it.
-    
-    # We need to patch sys.argv for download_main if we want to pass args, 
-    # but since the quickstart was wrong, we just call it without extra args.
-    # However, download_main() expects to parse sys.argv.
-    # We will save original argv and restore it.
     original_argv = sys.argv.copy()
     try:
-        sys.argv = [str(PROJECT_ROOT / "code" / "data" / "download.py")] # Fake argv for download
+        sys.argv = [str(PROJECT_ROOT / "code" / "data" / "download.py")]
         run_stage("Data Download", download_main)
     except SystemExit:
-        # download_main calls sys.exit on error or success. We catch it to continue pipeline?
-        # No, if download fails, pipeline should stop.
-        # But if it exits 0, we continue.
+        # download_main may call sys.exit; treat a zero exit as success.
         pass
     finally:
         sys.argv = original_argv
@@ -100,7 +131,7 @@ def run_full_pipeline(args):
     # 5. Metrics
     run_stage("Metrics Calculation", metrics_main)
 
-    # 6. Modeling (Includes T061 sensitivity analysis)
+    # 6. Modeling (Includes sensitivity analysis)
     run_stage("Statistical Modeling", modeling_main)
 
     # 7. Final Validation
@@ -116,10 +147,17 @@ def run_full_pipeline(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Run the full research pipeline.")
+    parser.add_argument(
+        "--sample",
+        type=int,
+        default=None,
+        help="Run a lightweight sample pipeline that writes a tiny CSV with the given number of records."
+    )
     parser.add_argument("--threads", action="store_true", help="Limit to N threads for testing.")
     parser.add_argument("--limit", type=int, default=None, help="Max threads to process.")
-    args = parser.parse_args()
-    
+    # Use parse_known_args to ignore any unexpected arguments (e.g., pytest addopts)
+    args, _ = parser.parse_known_args()
+
     run_full_pipeline(args)
 
 if __name__ == "__main__":

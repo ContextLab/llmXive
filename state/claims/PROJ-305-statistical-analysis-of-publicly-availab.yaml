@@ -1,0 +1,55 @@
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: project implements reproducible CPU-only pipeline analyzing VAERS 2020-2023
+  claim_id: c_cc38b30d
+  context: "This project implements a reproducible, CPU\u2011only pipeline to analyze\
+    \ VAERS data from 2020\u20112023, detecting safety signals for COVID\u201119 vaccines\
+    \ through disproportionality metrics, sensitivity checks, and temporal profiling."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This project implements a reproducible, CPU\u2011only pipeline to analyze\
+    \ VAERS data from 2020\u20112023."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T20:26:48Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: pipeline detects safety signals for COVID-19 vaccines via disproportionality
+    metrics sensitivity checks temporal profiling
+  claim_id: c_7588080e
+  context: "This project implements a reproducible, CPU\u2011only pipeline to analyze\
+    \ VAERS data from 2020\u20112023, detecting safety signals for COVID\u201119 vaccines\
+    \ through disproportionality metrics, sensitivity checks, and temporal profiling."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline detects safety signals for COVID\u201119 vaccines through\
+    \ disproportionality metrics, sensitivity checks, and temporal profiling."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T20:26:48Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: repository provides reproducible CPU-only pipeline for statistical analysis
+    of VAERS COVID-19 vaccine adverse event reports
+  claim_id: c_60136c7a
+  context: "This repository provides a reproducible, CPU\u2011only pipeline for statistical\
+    \ analysis of VAERS COVID\u201119 vaccine adverse event reports."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This repository provides a reproducible, CPU\u2011only pipeline for statistical\
+    \ analysis of VAERS COVID\u201119 vaccine adverse event reports."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T23:07:44Z'

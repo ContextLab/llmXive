@@ -1,37 +1,36 @@
 T001:
   c: true
-  h: 08602ddd0131111e4a67be2929399e0f1a4615eae2286739bfcc11ac01a3e879
-  r: Checked the execution log `code/.tasks/T001.code_setup_directories.py.log`, which
-    confirms that all six required directories (`data/raw`, `data/processed`, `data/assets`,
-    `code`, `artifacts`, `tests`) exist and each contains a `.gitkeep` file. The script
-    exited successfully, indicating the directories were correctly created/verified.
-  sig: 6c520625ffe233b84beddd6c79f0062dd1c5573d3ea05da4a59898a6eaf30f41
-T002:
-  c: false
-  h: fe4e2f3810a13c197bc19c1fd7799f115772afcee7f26d14b4aeb613565594e5
-  r: The `requirements.txt`, `pyproject.toml`, and `ruff.toml` files are present and
-    correctly contain the required configurations, but the required `.flake8` file
-    is missing from the project repository. Adding this linting configuration file
-    is needed to satisfy the task.
-  sig: 97f8e02b740f856be9b73c77c9dba7c8b2bb9b6216d5458aa7810d2c1ee15b10
+  h: f68d3fd61029752cfb6aa80ee5307ae89e47b793b0fc025488d73a1ba9fafff1
+  r: The execution log shows `code/setup_dirs.py` ran successfully (exit 0) and verified
+    all six required directories (`data/raw`, `data/processed`, `data/assets`, `code`,
+    `artifacts`, `tests`) each contain a `.gitkeep` file, matching the task's requirement
+    exactly.
+  sig: 27b224d62f91bf93f1383c629b466400caa0ed5ffc68113bcb303bb525b8a6d9
 T003:
   c: false
-  h: 7d2b59488ca96dcc9241c7a177f961e7a34d300b4c32541faab662dc3c7d73ee
-  r: "The schema file exists and is valid YAML, but it does not describe the required\
-    \ structure: the task specifies fields `file_path` and `sha256`, whereas the schema\
-    \ defines `hash`, `file`, and `path` instead \u2014 the required field names are\
-    \ absent. Additionally, there is no evidence that `yamllint` was run and passed\
-    \ on the schema, which is the task's stated verification criterion. Fix: rewrite\
-    \ the schema to require `file_path` and `sha256` properties and provide yamllint\
-    \ execution output."
-  sig: 9c394ed9b4aa7b62bd1e42cb597c11afd63fe8a8d9d33ff3e09710b314c5e525
+  h: f350ff54cdb140d814140fa1b68c01f71a8568fcdbefd851dbfbe476d93037fe
+  r: "The `data/raw/checksums_schema.yaml` file exists and appears valid, but the\
+    \ required `data/raw/checksums.json` is not empty\u2014it contains entries with\
+    \ keys `file`, `hash`, and `path` that do not match the schema\u2019s `file_path`\
+    \ and `sha256` fields. The task explicitly demanded an empty `checksums.json`,\
+    \ so this requirement is unmet."
+  sig: 4d2e12af05e271ca094b5bad97d768887d732400209a3f01ea45ce7f9233323b
 T004:
+  c: true
+  h: 14d8d412166be5520cb30eaeb12e47fbd72611089be9df3e7e47b31d482a217d
+  r: "Checked `data/raw/qm9_subset.parquet` (2\u202FMB, non\u2011empty) and its SHA\u2011\
+    256 hash, and verified that `data/raw/checksums.json` contains a matching entry\
+    \ with the correct hash and path."
+  sig: 91c972d8f169413a4c9d37a2c0b51ad5be2e2355fd2d01b5a2e43c7e18766838
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
-    \ with ruff/black settings, or pre\u2011commit hooks) are present in the provided\
-    \ evidence, so the requirement to configure flake8/ruff and black is not satisfied.\
-    \ The task needs actual configuration artifacts and/or integration steps."
+  h: 006be8595f32d25830d145a08e866c4a595050003fbf9ab27e47cf2b1841e420
+  r: "The `data/raw/reference_substructures_raw.csv` file exists and has the required\
+    \ columns, but `data/raw/checksums.json` lacks a checksum entry for this CSV (it\
+    \ only contains an entry for `qm9_subset`). The task requires the SHA\u2011256\
+    \ of the reference substructures CSV to be recorded in `checksums.json`, which\
+    \ is currently missing. Add the correct checksum entry for `reference_substructures_raw.csv`."
+  sig: 62d19051fa3d607e4dc8f5f1ca6b1c91dd7c584e91d7a01c9972615240aa8978
 T013:
   c: false
   h: 7664e2977be0b4f415a9c52d469ba83b8ef680696b91d9952b660685e690d937

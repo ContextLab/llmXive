@@ -18,10 +18,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.download  --primary-name docbank  --fallback-name pubmed-layout -> rc=1
-Downloading dataset for 'docbank' from hub identifier 'layoutparser/docbank'
+Attempting to download dataset 'docbank' from hub identifier 'docbank'...
+⚠️ Warning: Failed to download dataset 'docbank': Dataset 'docbank' doesn't exist on the Hub or cannot be accessed.
+Primary dataset 'docbank' provided 0 pages, which is less than the minimum 10000. Attempting fallback...
+Attempting to download dataset 'pubmed-layout' from hub identifier 'pubmed-layout'...
+⚠️ Warning: Failed to download dataset 'pubmed-layout': Dataset 'pubmed-layout' doesn't exist on the Hub or cannot be accessed.
+
+=== Summary of layout-annotation pages ===
+  Primary (docbank): 0
+  Fallback (pubmed-layout): 0
+  TOTAL: 0
 
 
-❌ ERROR: Failed to download dataset 'layoutparser/docbank': Dataset 'layoutparser/docbank' doesn't exist on the Hub or cannot be accessed.
+❌ ERROR: Insufficient total pages with layout annotations: 0 (minimum required is 10000). Pipeline aborting as per FR-007.
 
 - python -m src.data.preprocess  --input-dir data/raw  --output-path data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 

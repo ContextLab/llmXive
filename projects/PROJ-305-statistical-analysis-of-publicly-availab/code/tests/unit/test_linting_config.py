@@ -3,7 +3,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
 import pytest
+
 
 class TestLintingConfig:
     """Tests to verify linting and formatting configuration files exist and are valid."""
@@ -32,7 +34,9 @@ class TestLintingConfig:
 
         assert "project" in data, "pyproject.toml must contain [project] section"
         assert "tool" in data, "pyproject.toml must contain [tool] section"
-        assert "black" in data["tool"], "pyproject.toml must contain [tool.black] section"
+        assert (
+            "black" in data["tool"]
+        ), "pyproject.toml must contain [tool.black] section"
         assert "ruff" in data["tool"], "pyproject.toml must contain [tool.ruff] section"
 
     def test_flake8_config_exists(self, project_root):
@@ -52,8 +56,8 @@ class TestLintingConfig:
         ruff_toml = project_root / ".ruff.toml"
         pyproject = project_root / "pyproject.toml"
 
-        assert (
-            ruff_toml.exists() or self._has_ruff_section(pyproject)
+        assert ruff_toml.exists() or self._has_ruff_section(
+            pyproject
         ), "Ruff configuration must exist (.ruff.toml or [tool.ruff] in pyproject.toml)"
 
     def _has_ruff_section(self, pyproject_path):
@@ -81,7 +85,9 @@ class TestLintingConfig:
         with open(pyproject_path, "rb") as f:
             data = tomllib.load(f)
 
-        assert "black" in data.get("tool", {}), "Black configuration must exist in pyproject.toml"
+        assert "black" in data.get(
+            "tool", {}
+        ), "Black configuration must exist in pyproject.toml"
 
     def test_ruff_check_runs(self, project_root):
         """Verify ruff can run against the project without crashing."""

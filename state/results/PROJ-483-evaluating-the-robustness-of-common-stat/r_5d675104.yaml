@@ -1,0 +1,15 @@
+captured:
+  path: results/validation_report.json
+  sha256: fc219ebaafc74113c72b481ad8972e5e521bc9991be037e0dd557c4da0327704
+created_at: '2026-10-11T22:37:38Z'
+env_sha: fc219ebaafc74113
+hmac: 54f899d67ee14ba0ab86d8bb37e4ecd8d0dd55aa3ab442001770534ecdbd3f2a
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: 5d675104ad277c4d2ded65595b085c5a475a46af16db8ba70b68924ce1c77245
+producer:
+  artifact: results/validation_report.json
+  stage: implementation_preview
+result_id: r_5d675104
+value: results/validation_report.json
