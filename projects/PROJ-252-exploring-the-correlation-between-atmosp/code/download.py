@@ -91,9 +91,9 @@ def fetch_usgs_data() -> List[Dict[str, Any]]:
             continue  # skip events without location info
 
         event_id = ev.resource_id.id if ev.resource_id else None
-        # Convert origin time to epoch milliseconds (as USGS API provides)
+        # Convert origin time to ISO8601 string (more convenient for later steps)
         timestamp = (
-            int(origin.time.timestamp() * 1000) if origin.time is not None else None
+            origin.time.isoformat() if origin.time is not None else None
         )
         depth_km = origin.depth / 1000 if origin.depth is not None else None
 
@@ -158,11 +158,12 @@ def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     raw_dir = Path("data/raw/noaa_pressure")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Use a reliable source from the NOAA Physical Sciences Laboratory mirror.
-    # The file naming convention on this mirror is: pressure.YYYYMMDD.nc
+    # Use a reliable THREDDS file server mirror.
     test_date = pd.Timestamp(year=2020, month=1, day=1)
     filename = f"pressure.{test_date.strftime('%Y%m%d')}.nc"
-    url = f"https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/{test_date.year}/{filename}"
+    # This URL points to the same dataset via the NOAA THREDDS file server,
+    # which reliably serves the NetCDF file.
+    url = f"https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/{test_date.year}/{filename}"
     dest_path = raw_dir / filename
 
     if dest_path.exists():
@@ -171,7 +172,6 @@ def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
 
     try:
         logger.info(f"Downloading NOAA pressure file: {url}")
-        # Increase timeout to accommodate slower connections
         with requests.get(url, stream=True, timeout=120) as r:
             r.raise_for_status()
             with open(dest_path, "wb") as f:
@@ -236,7 +236,8 @@ def main() -> int:
         return 1
 
     # Step 5 – Save USGS raw data
-    raw_usgs_path = Path("data/raw/usgs_test_subset")
+    # Save directly to the location expected by the preprocessing step.
+    raw_usgs_path = Path("data/usgs_test_subset")
     try:
         usgs_checksum = save_raw_usgs(usgs_events, raw_usgs_path)
     except Exception as e:

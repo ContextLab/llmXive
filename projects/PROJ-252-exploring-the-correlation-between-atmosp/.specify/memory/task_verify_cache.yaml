@@ -1,13 +1,12 @@
 T001:
-  c: true
-  h: b7796daacf2379c450609efd5bd09a6ddf73f898f86fa5d7a892fe1916d862ae
-  r: I checked `docs/quickstart.md` (runnable `python code/seed_init.py` command,
-    required-input provenance for USGS/NOAA sources), the pinned `requirements.txt`,
-    and `code/__init__.py` which sets both `random.seed(42)` and `np.random.seed(42)`.
-    The historical execution record shows `code/seed_init.py` exited 0, printed "Pipeline
-    completed successfully", and wrote `logs/seed_initialization.log` confirming seed
-    initialization, matching the task's verification criteria.
-  sig: 27715d69c2cd7b2eb1c20a633806d336de12d503d15f6285e5e683c0d2e7bad3
+  c: false
+  h: 6ec3acf758efbf815ce9ce8ab2c1e34527115b103cd4c486b503d25fda43e542
+  r: "Checked `docs/quickstart.md`, `requirements.txt`, and `code/__init__.py`. The\
+    \ seed\u2011initialization script (`code/seed_init.py`) and the resulting `logs/seed_initialization.log`\
+    \ are missing, and there is no evidence that `pip install -r requirements.txt`\
+    \ runs without warnings. These artifacts are required for the task to be considered\
+    \ complete."
+  sig: 19f5a9aa8fdfb0e36a3fdbde215013abec71ffaa60eb95fb902bdd230304b0c5
 T009:
   c: false
   h: 642b718945cf87db8d3ea068862e70d708a939f7de6e3441f85d2b62435c08d7

@@ -1,19 +1,19 @@
 status: none
-intent: NOAA NCEP/NCAR global surface pressure reanalysis and USGS 2013-2023 earthquake
-  catalog python package dataset
+intent: download NOAA NCEP/NCAR global surface pressure reanalysis and USGS 2013-2023
+  earthquake catalog python package dataset
 required_fields:
-- event_id
-- event_time
+- earthquake_id
+- origin_time
 - magnitude
 - depth_km
-- event_latitude
-- event_longitude
-- pressure_date
-- pressure_grid_latitude
-- pressure_grid_longitude
-- surface_pressure_hPa
-- pressure_anomaly_hPa
-- lead_time_hours
-cache_key: fcd4b9068c4921eeec2727703982981f19ac8c88bbb4ed8f31663849ec01af38
-searched_at: '2026-10-12T07:49:19.592343+00:00'
+- latitude
+- longitude
+- pressure_grid_lat
+- pressure_grid_lon
+- pressure_anomaly_0_48h
+- pressure_anomaly_value
+- seasonally_adjusted_pressure_anomaly
+- control_window_label
+cache_key: 3566e19def3c7b207b3add024cd126ffa704dcee19783134531211b957e0a4f4
+searched_at: '2026-10-12T08:35:21.978673+00:00'
 retry_count: 1

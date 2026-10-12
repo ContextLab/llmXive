@@ -8,7 +8,7 @@ The list below groups related work into **10 substantive research tasks** that t
 
 ## Phase 1 – Project setup & reproducibility  
 
-- [X] **T001** [P] [US1] **Create reproducible project documentation, pin dependencies, and set random seeds**  
+- [ ] **T001** [P] [US1] **Create reproducible project documentation, pin dependencies, and set random seeds**  
   *Creates* `docs/quickstart.md` (runnable command, required‑input provenance) and ensures `requirements.txt` is frozen.  
   *Adds* a `code/__init__.py` that sets `np.random.seed(42)` and `random.seed(42)`.  
   *Verification*:  
@@ -19,7 +19,7 @@ The list below groups related work into **10 substantive research tasks** that t
 
 ## Phase 2 – Data acquisition & preprocessing  
 
-- [ ] **T002** [P] [US1] **Download full global NOAA NCEP/NCAR pressure dataset and USGS earthquake catalog**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1; code/analysis.py exit=1 -->
+- [ ] **T002** [P] [US1] **Download full global NOAA NCEP/NCAR pressure dataset and USGS earthquake catalog**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1; code/analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1; code/preprocess.py exit=1 -->
   *Features*  
     • Fetch the **global** NOAA NCEP/NCAR daily sea‑level pressure files for 2013‑2023 from the verified URL listed in `plan.md`.  
     • Download the **USGS 2013‑2023** earthquake catalog (M ≥ 4.0, depth ≤ 70 km) via the official USGS API.  

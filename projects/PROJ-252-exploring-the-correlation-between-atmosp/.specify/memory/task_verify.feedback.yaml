@@ -1,4 +1,9 @@
 T001:
+  reason: "Checked `docs/quickstart.md`, `requirements.txt`, and `code/__init__.py`.\
+    \ The seed\u2011initialization script (`code/seed_init.py`) and the resulting\
+    \ `logs/seed_initialization.log` are missing, and there is no evidence that `pip\
+    \ install -r requirements.txt` runs without warnings. These artifacts are required\
+    \ for the task to be considered complete."
   task: e871f02947a6c8771a471cdaa0624e331241281152ce92515cea5b71227860c8
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'

@@ -19,35 +19,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download.py -> rc=1
 
-2026-10-12 07:46:11,369 - __main__ - INFO - Starting download pipeline (T002).
-2026-10-12 07:46:11,369 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
-2026-10-12 07:46:11,371 - __main__ - INFO - Downloading NOAA pressure file: https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
-2026-10-12 07:46:11,522 - __main__ - ERROR - Failed to download https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc: 404 Client Error: Not Found for url: https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
-2026-10-12 07:46:11,522 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 08:32:55,005 - __main__ - INFO - Starting download pipeline (T002).
+2026-10-12 08:32:55,006 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
+2026-10-12 08:32:55,007 - __main__ - INFO - Downloading NOAA pressure file: https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 08:32:55,274 - __main__ - ERROR - Failed to download https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc: 429 Client Error: Too Many Requests for url: https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 08:32:55,274 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
 
 - python code/preprocess.py -> rc=1
-e 125, in interpolate_pressure_grid
-    raw_pressure_df.to_parquet(out_path, index=False)
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
-    return to_parquet(
-           ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
-    impl = get_engine(engine)
-           ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
-    raise ImportError(
-ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 12, in <module>
+    import geopandas as gpd
+ModuleNotFoundError: No module named 'geopandas'
 
 - python code/analysis.py -> rc=1
- 07:46:12 - __main__ - INFO - Starting analysis pipeline.
+ 08:32:56 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>
@@ -67,17 +53,20 @@ FileNotFoundError: Master dataset not found at /home/runner/work/llmXive/llmXive
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-252-exploring-the-correlation-between-atmosp/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/report.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -> rc=2
-'.
+/tests/unit/test_t017_master_dataset.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_t017_master_dataset.py:11: in <module>
     from preprocess import load_config, validate_master_dataset, load_schema, get_expected_count
-E   ImportError: cannot import name 'validate_master_dataset' from 'preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py)
+code/preprocess.py:12: in <module>
+    import geopandas as gpd
+E   ModuleNotFoundError: No module named 'geopandas'
 =========================== short test summary info ============================
 ERROR tests/integration/test_permutation.py
 ERROR tests/unit/test_config.py
+ERROR tests/unit/test_deduplication.py
 ERROR tests/unit/test_generate_master_dataset.py
 ERROR tests/unit/test_null_hypothesis.py
 ERROR tests/unit/test_ocean_mask.py
@@ -85,7 +74,7 @@ ERROR tests/unit/test_preprocess.py
 ERROR tests/unit/test_preprocess_anomalies.py
 ERROR tests/unit/test_statistics.py
 ERROR tests/unit/test_t017_master_dataset.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 0.72s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 10 errors in 0.88s ==============================
 
 
