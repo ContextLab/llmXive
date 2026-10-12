@@ -1,9 +1,2 @@
-datasets>=2.14.0
-pandas>=2.2.0
-scikit-learn>=1.5.0
-statsmodels>=0.14.0
-ollama>=0.1.0
-tqdm
-pyyaml
-numpy
-matplotlib
+datasets>=2.14
+numpy>=2.0.0
