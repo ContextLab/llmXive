@@ -27,10 +27,10 @@ from llmxive_toolkit import paths
 # ----------------------------------------------------------------------
 # Global constants
 # ----------------------------------------------------------------------
-# All project‑owned files are under the `data/` directory.
-# We avoid the platform-owned `state/` directory to prevent shadowing.
-LOG_FILE = paths.data("logs", "pipeline.log")
-HASH_FILE = paths.data("results", "artifact_hashes.yaml")
+# All project‑owned files are under the `artifacts/` or `data/` directories.
+# We avoid the platform‑owned `state/` directory to prevent shadowing.
+LOG_FILE = paths.artifacts("log.txt")
+HASH_FILE = paths.artifacts("artifact_hashes.yaml")
 DEFAULT_LOG_LEVEL = logging.INFO
 MAX_EXECUTION_SECONDS = 6 * 60 * 60  # 6 hours
 
@@ -70,7 +70,7 @@ def _configure_logger(logger: logging.Logger, level: int) -> None:
     console.setFormatter(formatter)
     logger.addHandler(console)
 
-    # Ensure the log directory exists (handled by paths.data, but for safety)
+    # Ensure the log directory exists (handled by paths.artifacts, but for safety)
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     # File handler (project‑owned)
@@ -90,7 +90,7 @@ def setup_logging(name_or_level: Union[int, str] = DEFAULT_LOG_LEVEL) -> logging
     * If a *str* is supplied, it is interpreted as the logger name and the
       default level ``DEFAULT_LOG_LEVEL`` is used.
 
-    All log output is written to ``data/logs/pipeline.log`` and to the
+    All log output is written to ``artifacts/log.txt`` and to the
     console.
     """
     if isinstance(name_or_level, int):
@@ -142,7 +142,7 @@ def record_artifact_hash(
         Human‑readable name for the artifact; defaults to the filename.
     state_file
         Path to the state YAML file; defaults to
-        ``data/results/artifact_hashes.yaml``.
+        ``artifacts/artifact_hashes.yaml``.
     """
     path = Path(file_path)
     if not path.is_file():

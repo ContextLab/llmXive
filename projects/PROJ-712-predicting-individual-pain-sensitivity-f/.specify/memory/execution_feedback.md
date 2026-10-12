@@ -18,13 +18,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
+- python -c "import datasets; datasets.load_dataset('openneuro/ds003542', data_dir='data/raw')" -> rc=1
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'datasets'
+
 - bash scripts/pre-run-validation.sh -> rc=1
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-12 21:21:32,072 - __main__ - ERROR - Missing required citations:
-2026-10-12 21:21:32,072 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-12 21:21:32,072 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-12 21:38:01,406 - __main__ - ERROR - Missing required citations:
+2026-10-12 21:38:01,406 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-12 21:38:01,406 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 t found to be installed on your system.
@@ -106,7 +112,7 @@ Traceback (most recent call last):
     raise ValueError("No participant data provided for aggregation.")
 ValueError: No participant data provided for aggregation.
 
-- python -m pytest tests/ -v -> rc=2
+- python -m pytest -q -> rc=2
 pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
@@ -124,7 +130,7 @@ ERROR tests/test_config.py
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 3 errors in 1.19s ========================
+======================== 14 warnings, 3 errors in 0.81s ========================
 
 
 ## Platform-owned paths written inside the project

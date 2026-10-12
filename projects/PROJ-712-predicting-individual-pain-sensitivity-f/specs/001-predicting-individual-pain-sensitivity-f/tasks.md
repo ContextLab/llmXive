@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding (must be complete before any scientific work)
 
-- [ ] **T001** [P0] Create the required project‑owned directory hierarchy and a helper script `scripts/create_dirs.sh` that runs  
+- [X] **T001** [P0] Create the required project‑owned directory hierarchy and a helper script `scripts/create_dirs.sh` that runs  
 
   ```bash
   mkdir -p data/raw data/processed artifacts code tests scripts
@@ -16,11 +16,11 @@
   **Path(s)**: `data/raw/`, `data/processed/`, `artifacts/`, `code/`, `tests/`, `scripts/create_dirs.sh`.  
   **Verification**: `tests/integration/test_structure.py` asserts that each of the six directories exists after the script exits with code 0.
 
-- [ ] **T002** Initialise a Python 3.11 project and add a pinned `requirements.txt` containing at least `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`.  
+- [X] **T002** Initialise a Python 3.11 project and add a pinned `requirements.txt` containing at least `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`.  
   **Path**: `requirements.txt`.  
   **Verification**: CI step runs `pip install -r requirements.txt`; a unit test checks that each required package appears with a version specifier.
 
-- [ ] **T003** Configure linting (`ruff`) and formatting (`black`) via `pyproject.toml`.  
+- [X] **T003** Configure linting (`ruff`) and formatting (`black`) via `pyproject.toml`.  
   **Path**: `pyproject.toml`.  
   **Verification**: CI runs `ruff check .` and `black --check .`; both must return exit‑code 0.
 

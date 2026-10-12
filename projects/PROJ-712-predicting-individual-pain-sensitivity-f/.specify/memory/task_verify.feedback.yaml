@@ -1,88 +1,51 @@
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
-    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
-    state/ and derives artifact hashes at verification time. Re-scope the step to
-    write only project-owned outputs.'
-  task: 6d0018531938dcffc62f3c46a58b452389f45aa211fc9de8a8c7dd948fb0da0f
+  task: 273d42044ca31b8595b46dd028eba2362aa3c3401e6abaf9e9dd256a56bf92a4
 T002:
-  task: 4274834363396d919fc3580bf4926c3d9572a790908ca0d554e34fa4f37e73fb
+  task: 361bd0847a716514924fa0baa1024ae3bf4109aa77c64d22007fe23f0e8f288e
 T003:
-  task: 423c6720804d9476f5a65040f465054037919d708a766fb9844a9bb445a83898
+  task: 5b283e33a31125fd29132972ba3339c65dea6379be91e133a4589b2200494e8f
 T004:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/log.txt`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
-  task: 6364cf756e61c090c026e55f7a7223363b46c493b357902af96e364b6c92c89e
+  reason: "`code/utils.py` exists and the tests pass, and seed pinning plus the `artifacts/log.txt`\
+    \ logger are genuinely implemented. However, the task explicitly requires `record_artifact_hash(filepath)`\
+    \ to \"compute a SHA\u2011256 hash and **return it**,\" but the implemented function\
+    \ returns `None` (it only writes the hash to a YAML state file); the hash value\
+    \ is never returned to the caller. Fix `record_artifact_hash` to return the computed\
+    \ SHA\u2011256 hex digest (e.g., `return hash_val`) while optionally keeping the\
+    \ YAML recording."
+  task: c93643631e064438d0d9cb0f590950506ea5aa0aae21a8d458f82048ebd53381
 T005:
-  task: 3062f94623b24d54d3a2f2d6562b4b41e4747de9c8ea16af5148b5f7ba330c04
+  task: a50ec9cda9ef833b88ac8f33054d9b03ed3a83b8e28eb0d7bcaa75e39e7d2082
 T006:
-  task: 42f061cf9adf5322174576f8f93633f4de6881d6acdcda079f65987ca7b4cdc9
+  task: 2ee75bf50af4432c71210c77b57ba1187b94c123492ba221dc8020550e4896d3
 T007:
-  task: 4bc8fd968b51892cef2f4bc6c7d5138d00169d623753611c80b6ed0bd0590d72
+  task: 4920bb068637f0677080503775255f0cbbe75a85492856ce6325b89e0c093b96
 T008:
-  reason: "The repository contains `code/preprocessing.py` with a plausible implementation,\
-    \ but the required verification artifacts are absent or inadequate: the unit test\
-    \ `tests/unit/test_preprocessing.py` never actually runs `extract_microstate_features`\
-    \ on data nor checks for a 30\u2011column DataFrame, and the integration test\
-    \ `tests/integration/test_full_preprocess.py` is missing, as is the expected output\
-    \ file `data/processed/feature_matrix.csv`. Consequently the task\u2019s verification\
-    \ criteria are not satisfied."
-  task: 7c55a8e03277117eb720ca2ca8a9059e9460f3dc83a4de77cc572488e79b6ec5
+  task: 4d9e307a5628ed47f1bdc08a1b27e98cd8c09ab328d77f34d09089d92d89b8b7
 T009:
-  reason: "The required file `data/processed/feature_matrix.csv` is missing, so the\
-    \ aggregation, header sanity\u2011check, and NaN\u2011free guarantee cannot be\
-    \ verified. The task\u2019s core deliverable does not exist."
-  task: 8dc3d3e1a5b6cb15605a7e4e40f73b241ff7d3d61a6a3e909c680392770cacfc
+  task: d15acfb92518449388d9be5127799de8585d5d70f0439206ec2e318047b8323a
 T010:
-  reason: "Checked `code/modeling.py::train_nested_cv` \u2013 it returns the required\
-    \ keys but tunes \u03B1 over a grid instead of fixing \u03B1\u202F=\u202F0.5,\
-    \ and the required unit test file `tests/unit/test_modeling_cv.py` is missing,\
-    \ so the verification cannot be performed. The implementation must use a fixed\
-    \ Elastic Net \u03B1\u202F=\u202F0.5 (no inner\u2011CV tuning) and the unit test\
-    \ must be provided."
-  task: 0011fc90598f118ae0096d3c9fbbcc24a7cf3a4ca96cf25d51dd911647d9e9ca
+  task: aa80bdba5fbd5e3ac2239c782d7476dd9535ab189e3b54107bc5fc3ea4943e92
 T011:
-  reason: "Checked `code/modeling.py` for a `global_permutation_test` implementation\
-    \ and the integration test `tests/integration/test_permutation.py`. The module\
-    \ provides `run_global_permutation_test`, which shuffles labels once per permutation\
-    \ (not once per outer CV iteration) and the test only runs 20 permutations and\
-    \ never exercises the `max_permutations` guard, so it does not verify the required\
-    \ 1\u202F000\u2011permutation behavior nor the runtime flag. The required function\
-    \ name and exact shuffling semantics are missing."
-  task: be9290646b170b8cbce9cd8b3c6be66089774e02d3b9f0c36ae625d33edb52ac
+  task: bf19ecd804153b8d501d2b7d7e44cb576ce4f0805614b034155f4fe37d8d87d3
 T012:
-  reason: "The `bootstrap_ci` function is present and includes a runtime\u2011limit\
-    \ guard, but the required unit test `tests/unit/test_bootstrap.py` is missing,\
-    \ and the generated artifact `artifacts/bootstrap_ci.json` contains `null` values\
-    \ instead of actual confidence\u2011interval numbers. The task\u2019s requirement\
-    \ for a valid JSON CI output and a passing test is therefore not satisfied."
-  task: e0176c6c6abe1f96c4fab868ed4f43b9a112b3b67f6b422d753f8c1a1eca89fb
+  task: 28ac8dd32532418c08120318d7b5e3fc9ada16e79900595b708dc7264c1ac109
 T013:
-  reason: "The `compute_empirical_pvalue` function writes only `observed_r` and `p_value`\
-    \ to the JSON artifact, omitting the required `MAE` and confidence\u2011interval\
-    \ fields, and the unit test `tests/unit/test_pvalue.py` is missing entirely, so\
-    \ the claimed verification cannot be performed. The implementation must be extended\
-    \ to include `MAE` and `CI` in `artifacts/model_result.json` and the missing test\
-    \ file must be provided and pass."
-  task: 14648603d1a91553b8239a62b0b199b83d95a23fa1e062ae70a239c71656f0ca
+  task: cdcaf3515292027b4d84af2eae77b3d4acf6937fd576e0663feeb594e7995915
 T014:
-  task: c4cb08c0cceac8a9ef8a19565046b2775bbc7418c83f69ab6a5d4c8b1f2a11eb
+  task: 7119e9a939e84fbecba5c14b2401614e618a63b828889405404daf6f443fd16e
 T015:
-  task: 1d3628167c6ae74b88390bce9adb00d972fa1c143ce8855f38679aa4b9e33398
+  task: f577104283919b2de059404369041b16651e4286d1fe36eb621f18f3f71cac30
 T016:
-  task: 65e249fa583dcb5de56d0559c06d4a7c2a41aa2902522120006b00aeeedcaba3
+  task: 34d5cdd9a15b379b90797c97418798cc86e71439e07411202e42b5d0ce9e9244
 T017:
-  task: b6d0cf592c0122b754210814ed027f58739e0f3bd00665020cfb80c8d1fc96d2
+  task: 8f7a75c5b2dd0109317b3f3da71e7cdeca78ab8b1ce3607a7f57c03558e7d2fd
 T018:
-  task: 47962b92f9aef0d1cee1a09121e220baeef1a541a6a5f5c2df2b6efa1d418ca1
-T019:
-  task: 25c659523a7fd9d50fdd0cccfbb1a3cbf07fd8b30420793ea649440087aa0f16
+  task: d312c38b8ab1dbb293978ff89dd52dd0e5f57de470ff8f66ab4b72c1a3877138
 T020:
-  task: a73970154b64167712340a9a1495986bea2afed00ebffe0a8ce7d8cb9ab9722e
+  task: 0e3ca3bc49a295ac137049d7c55afca3290a3f0bf489d78bb883e13bae74e85b
 T021:
-  task: cb0dc923f8a354e8cb32fa4b74dc5068125cadfa77796e1253e65b6467bf96df
+  task: 7c8ec4061cff8d6c655ffe2e606cf031d1b6635f9438415f4d953992f249ddca
 T022:
-  task: e4d81e67e13ac467167fcb340e0b7b52c03fd87d01b2859becbc6b463224dfea
+  task: 9da8436b85d25facba0d4aeb2e4ef50968c59a180b55f2e5e93290b374e5d693
 T023:
-  task: 0413fe59c9bd8a4bf7dc242ffb7b18ab14efd1cdf5b5166682fcd420e6576a95
+  task: 2c3c0fd6de559dfdc1c20120210b43b1b5dd356ecd15db27394276178d54fab2
