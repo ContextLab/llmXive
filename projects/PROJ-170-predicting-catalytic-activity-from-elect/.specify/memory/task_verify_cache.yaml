@@ -1,14 +1,12 @@
 T101:
-  c: false
-  h: aaea88706444a5ce444165279b8ae5749ed675078fbb9ab6aea736c6d7e66665
-  r: "The task requires creating `data/raw/` and `data/processed/`, but the collector\
-    \ reports both as MISSING at the project root (only `outputs/`, `code/`, `tests/`\
-    \ exist), so `tests/integration/test_skeleton.py::test_dirs_exist` would fail\
-    \ on those two directories. The `__init__.py` files, `.ruff.toml` with E/F/W/I\
-    \ rules, and the ruff run log are fine, but the directory skeleton is incomplete\
-    \ \u2014 create `data/raw/` and `data/processed/` (e.g., via `llmxive_toolkit.paths`)\
-    \ and re-run the skeleton test."
-  sig: ad71b22bb444fdebab0f833c63620fea1dfb8f1fb56d70bb2cfab7162847b9cb
+  c: true
+  h: cb62f9678d3c423000ec3c6c7f0298e2bffe55dedb3c61d368c870300e045068
+  r: All required directories exist (data/raw, data/processed, outputs, code, code/utils,
+    code/models, tests with contract/integration/unit subdirs), the three empty `__init__.py`
+    files are present, and `.ruff.toml` selects rules E, F, W, I. The integration
+    test `test_skeleton.py` asserts `os.path.isdir` for each directory and passed
+    (exit 0, 2 passed) per the execution log, and the skeleton setup script ran successfully.
+  sig: dd82a067f3dac4778b72ad4a6e05c93c12c5df534e44456b9df728ef3f92c87d
 T103:
   c: false
   h: c5448939674c7d76a35b9c426e26d085f4d5165a5c5d568703bd193144dded17

@@ -1,11 +1,4 @@
 T101:
-  reason: "The task requires creating `data/raw/` and `data/processed/`, but the collector\
-    \ reports both as MISSING at the project root (only `outputs/`, `code/`, `tests/`\
-    \ exist), so `tests/integration/test_skeleton.py::test_dirs_exist` would fail\
-    \ on those two directories. The `__init__.py` files, `.ruff.toml` with E/F/W/I\
-    \ rules, and the ruff run log are fine, but the directory skeleton is incomplete\
-    \ \u2014 create `data/raw/` and `data/processed/` (e.g., via `llmxive_toolkit.paths`)\
-    \ and re-run the skeleton test."
   task: 3426dfb2ea6e30088cf549c74f8f72b223ec7fdb3fb8dfd1371e74d5e5562c31
 T102:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py
