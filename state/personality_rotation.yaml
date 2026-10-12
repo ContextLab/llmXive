@@ -1,14 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-10-12T12:08:24.703362+00:00'
+last_used: marie-curie
+last_used_at: '2026-10-12T14:15:32.642193+00:00'
 last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-24T17:14:22.785915+00:00'
-  ended_at: '2026-06-24T19:06:08.951020+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/_held/dan-rockmore-simulated__2026-06-24__research.md
 - slug: dan-rockmore
   started_at: '2026-06-24T19:06:08.951020+00:00'
   ended_at: '2026-06-24T20:09:58.258809+00:00'
@@ -1238,3 +1231,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-252-exploring-the-correlation-between-atmosp/reviews/research/linus-pauling-simulated__2026-10-12__research.md
+- slug: marie-curie
+  started_at: '2026-10-12T12:08:24.703362+00:00'
+  ended_at: '2026-10-12T14:15:32.642193+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-266-exploring-the-correlation-between-molecu/reviews/research/marie-curie-simulated__2026-10-12__research.md
