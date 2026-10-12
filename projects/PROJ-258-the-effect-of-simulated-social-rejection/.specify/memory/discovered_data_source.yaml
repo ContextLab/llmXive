@@ -1,11 +1,11 @@
 status: none
-intent: OpenNeuro ds000208 ds003392 behavioral dataset download via HuggingFace python
-  package dataset
+intent: OpenNeuro ds000208 and ds003392 download parquet via HuggingFace python package
+  dataset
 required_fields:
-- participant_id
-- condition
-- reaction_time
-- mood
-cache_key: 49cfc5444dc50a53eca4a1d9944d498b3a1b7d50ac3570bb55f3e45c7ef08854
-searched_at: '2026-10-12T10:16:41.313653+00:00'
+- ParticipantID
+- Condition
+- ReactionTime
+- Mood
+cache_key: 5ec3837cf2549105035a931f252f4fcd15c8061d69260c1b18d4947041e5eca8
+searched_at: '2026-10-12T10:26:22.940836+00:00'
 retry_count: 1

@@ -17,7 +17,7 @@ properties:
       - "Between-Subjects"
   f_value:
     type: "number"
-    description: "F-statistic value."
+    description: "F-statistic (or t-value) value."
   p_raw:
     type: "number"
     description: "Raw p-value."
@@ -30,7 +30,7 @@ properties:
     maximum: 1
   effect_size:
     type: "number"
-    description: "Effect size (e.g., Eta-squared)."
+    description: "Effect size (e.g., eta-squared or Cohen's d)."
   alpha_sensitivity:
     type: "object"
     description: "Sensitivity analysis results for different alpha levels."

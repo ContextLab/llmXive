@@ -1,12 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T003` (rejected 1x): Requested task execution failed; rerun successfully: code/ingest.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan downloads and validates only the OpenNeuro ds000208 (Cyberball) dataset, which contains the social‑rejection and control conditions but **does not include any positive‑feedback/reward task data** required to test the stated research question (“effect of simulated social rejection on neural responses to positive feedback”). Using only ds000208 therefore provides an inappropriate dataset for the hypothesis; a composite dataset that includes a reward‑feedback task (e.g., OpenNeuro ds003392) is required, or the research question must be reframed. This mismatch makes the analysis incapable of addressing the core claim.

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Schema"
-description: "Schema for the raw and preprocessed dataset records."
+description: "Schema for raw and preprocessed dataset records."
 type: "object"
 properties:
   participant_id:
@@ -8,30 +8,44 @@ properties:
     description: "Unique anonymized participant identifier."
   task:
     type: "string"
-    description: "Task name (e.g., 'cyberball')."
+    description: "Task name (e.g., 'cyberball' or 'reward')."
     enum:
       - "cyberball"
+      - "reward"
   condition:
     type: "string"
     description: "Experimental condition."
     enum:
       - "rejection"
       - "control"
+      - "reward"
   reaction_time:
     type: "number"
     description: "Reaction time in milliseconds."
     minimum: 0
   mood_rating:
     type: "number"
-    description: "Self-reported mood rating."
+    description: "Self‑reported mood rating."
     minimum: 1
     maximum: 7
   is_outlier:
     type: "boolean"
-    description: "Flag indicating if the record was flagged as an outlier."
+    description: "Flag indicating whether the record is flagged as outlier."
+    default: false
+  age:
+    type: "number"
+    description: "Age in years (optional)."
+    minimum: 0
+  gender:
+    type: "string"
+    description: "Gender (optional)."
+    enum:
+      - "male"
+      - "female"
+      - "other"
 required:
-  - "participant_id"
-  - "condition"
-  - "reaction_time"
-  - "mood_rating"
+  - participant_id
+  - condition
+  - reaction_time
+  - mood_rating
 additionalProperties: false

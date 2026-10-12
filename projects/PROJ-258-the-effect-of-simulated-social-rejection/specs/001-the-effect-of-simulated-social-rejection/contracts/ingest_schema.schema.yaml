@@ -1,62 +1,62 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Ingested Dataset Schema"
-description: "Schema for raw data ingestion validation. Ensures required columns exist for Cyberball analysis and validates single-cohort structure."
+description: "Schema for raw data ingestion validation. Ensures required columns exist for Cyberball analysis and validates single‑cohort structure."
 type: "object"
 properties:
   required_columns:
     type: "array"
+    description: "List of mandatory column names. Must include participant_id, condition, reaction_time, mood_rating."
     items:
       type: "string"
-    description: "List of mandatory column names. Must include Participant_ID, Condition, Reaction_Time, Mood_Rating."
     minItems: 4
     contains:
-      const: "Participant_ID"
+      const: "participant_id"
   data_types:
     type: "object"
     description: "Expected data types for each column."
     properties:
-      Participant_ID:
+      participant_id:
         type: "string"
-      Condition:
+      condition:
         type: "string"
-      Reaction_Time:
+      reaction_time:
         type: "number"
-      Mood_Rating:
+      mood_rating:
         type: "number"
   constraints:
     type: "object"
-    description: "Constraints on data values."
+    description: "Value constraints for numeric columns."
     properties:
-      Reaction_Time:
+      reaction_time:
         type: "object"
         properties:
           min:
             type: "number"
-            description: "Minimum valid reaction time in ms (e.g., > 0)."
+            description: "Minimum valid reaction time (ms)."
           max:
             type: "number"
-            description: "Maximum valid reaction time in ms (e.g., < 5000)."
-      Mood_Rating:
+            description: "Maximum valid reaction time (ms)."
+      mood_rating:
         type: "object"
         properties:
           min:
             type: "number"
-            description: "Minimum mood rating (e.g., 1)."
+            description: "Minimum mood rating."
           max:
             type: "number"
-            description: "Maximum mood rating (e.g., 7)."
+            description: "Maximum mood rating."
   single_cohort_validation:
     type: "object"
-    description: "Validation for single-cohort structure (required for Within-Subjects design)."
+    description: "Checks that the same participants appear in both conditions."
     properties:
       is_single_cohort:
         type: "boolean"
-        description: "True if the dataset contains both conditions for the same participants."
+        description: "True if every participant has both rejection and control rows."
       conditions_present:
         type: "array"
+        description: "List of conditions found in the dataset."
         items:
           type: "string"
-        description: "List of conditions present in the dataset (e.g., ['Rejection', 'Control'])."
     required:
       - is_single_cohort
       - conditions_present
@@ -65,3 +65,4 @@ required:
   - data_types
   - constraints
   - single_cohort_validation
+additionalProperties: false
