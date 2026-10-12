@@ -13,7 +13,7 @@ The system must successfully ingest the OpenNeuro ds003XXX dataset, apply standa
 
 **Why this priority**: Without a robust, reproducible preprocessing pipeline that handles the raw EEG and extracts the microstate descriptors (duration, occurrence, transitions, spectral power), no predictive modeling can occur. This is the foundational data product of the project.
 
-**Independent Test**: The pipeline can be executed end-to-end on a sample of 5 participants from the dataset; the output must be a CSV file containing 30 features per participant and the corresponding heat-pain threshold labels, with no NaN values in the feature columns.
+**Independent Test**: The pipeline can be executed end-to-end on a representative subset of participants from the dataset; the output must be a CSV file containing 30 features per participant and the corresponding heat-pain threshold labels, with no NaN values in the feature columns.
 
 **Acceptance Scenarios**:
 1. **Given** the raw EEG files and heat-pain threshold CSV exist in the input directory, **When** the preprocessing script is executed, **Then** the output feature matrix contains exactly 30 features per participant with no missing values.

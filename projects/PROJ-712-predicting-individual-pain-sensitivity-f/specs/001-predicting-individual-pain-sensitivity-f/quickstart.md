@@ -1,101 +1,89 @@
 # Quickstart: Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates
 
 ## Prerequisites
-
--   **Python**: 3.11 or higher.
--   **Memory**: At least 8 GB RAM recommended (minimum 7 GB for CI).
--   **Disk**: Sufficient free space for data and artifacts.
--   **Dependencies**: `mne`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `statsmodels`, `joblib`, `pytest`, `pyyaml`.
+- **Python** ≥ 3.11  
+- **RAM** ≥ 8 GB (minimum 7 GB for CI)  
+- **Disk** ≥ 15 GB free (raw EEG can be large)  
+- **Dependencies** listed in `requirements.txt`
 
 ## Installation
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-712-predicting-individual-pain-sensitivity-f
-    ```
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Install pinned dependencies
+pip install -r requirements.txt
+```
 
 ## Data Setup
+1. **Obtain the dataset**  
+   The pipeline expects a folder `data/raw/` containing the **OpenNeuro ds003542** accession, which provides:
+   - Resting‑state EEG recordings (e.g., `.fif` or `.edf` files)  
+   - `heat_pain_thresholds.csv` with columns `participant_id,heat_pain_threshold[,age,gender]`  
+   The dataset can be downloaded programmatically:
+   ```bash
+   python -c "import datasets; datasets.load_dataset('openneuro/ds003542', data_dir='data/raw')"
+   ```
+   **Important:** If the downloaded CSV does not contain a `heat_pain_threshold` column, the script will exit with the message:  
+   ```
+   Dataset lacks verified pain threshold labels in provided verified sources.
+   ```
+2. **Verify integrity**  
+   ```bash
+   python code/utils.py --verify-checksums
+   ```
 
-The pipeline expects raw data in `data/raw/`.
-
-1.  **Download Dataset**:
-    -   **CRITICAL**: The project is currently **BLOCKED** because no verified source for the `heat_pain_threshold` variable exists in the "Verified datasets" block.
-    -   If a verified source becomes available, fetch the dataset and ensure the `events.csv` and EEG signal files are present in `data/raw/`.
-    -   *Note*: Do not use placeholder IDs like "ds003XXX". Use the exact URL from the verified list.
-
-2.  **Verify Integrity**:
-    ```bash
-    python code/utils.py --verify-checksums
-    ```
-
-## Running the Pipeline
-
-**Pre-Run Validation**:
-Before running the analysis, the system must validate citations and data availability.
+## Pre‑Run Validation
+Run the citation‑validation guard (required by Constitution II):
 ```bash
 bash scripts/pre-run-validation.sh
 ```
-If this script fails (non-zero exit), the pipeline will not proceed.
+If the script returns a non‑zero exit code, fix the cited references before proceeding.
 
-Execute the full analysis pipeline:
-
+## Running the Full Pipeline
 ```bash
 python code/main.py
 ```
+The orchestrator will:
+1. Preprocess EEG (streamed via `DataChunk`) and write `data/processed/feature_matrix.csv`.  
+2. Perform a **pilot construct‑validity analysis** on a 20‑participant subset; abort if no feature shows |r| ≥ 0.20.  
+3. Train Elastic Net with nested CV, perform the global permutation test, and write `artifacts/model_results.json`.  
+4. Compute diagnostics, permutation‑importance FDR, VIF (including the flagged VIF = 33 predictor), and sensitivity sweeps (logistic regression for binary outcomes); results saved in `artifacts/diagnostics.csv` and `artifacts/sensitivity_report.md`.  
+5. Record SHA‑256 hashes of all artifacts in the project state file.
 
-This script will:
-1.  **Preprocess**: Load, filter, ICA, and extract microstate features.
-2.  **Model**: Run Elastic Net with nested CV and **global** permutation testing.
-3.  **Diagnose**: Calculate VIF, Permutation Importance, and perform dual sensitivity analysis.
-4.  **Output**: Save results to `artifacts/` and record artifact hashes in `state/projects/...yaml`.
-
-### Running Specific Steps
-
--   **Preprocessing Only**:
-    ```bash
-    python code/main.py --step preprocess
-    ```
--   **Modeling Only** (requires preprocessed data):
-    ```bash
-    python code/main.py --step model
-    ```
--   **Diagnostics Only**:
-    ```bash
-    python code/main.py --step diagnostics
-    ```
-
-## Testing
-
-Run the test suite to verify the pipeline:
-
+## Running Individual Steps (optional)
 ```bash
-pytest tests/ -v
+# Only preprocessing
+python code/main.py --step preprocess
+
+# Only modeling (requires preprocessed features)
+python code/main.py --step model
+
+# Only diagnostics (requires model results)
+python code/main.py --step diagnostics
 ```
 
--   **Unit Tests**: Verify feature extraction logic and ICA component removal.
--   **Integration Tests**: Run the pipeline on a sample of 5 participants (as per US-1).
+## Testing
+```bash
+pytest -q
+```
+- **Unit tests** verify each module’s core functions (e.g., `extract_microstate_features` returns a multi‑column DataFrame containing the extracted microstate features.).  
+- **Integration tests** run the full preprocessing on a small participant subset and check that `data/processed/feature_matrix.csv` exists, has multiple feature columns plus covariates, and contains no NaNs.  
 
 ## Output Interpretation
-
--   **`artifacts/model_results.json`**: Contains the primary correlation (r), p-value (global permutation), and MAE.
--   **`artifacts/diagnostics.csv`**: Lists feature coefficients, FDR-adjusted p-values (from Permutation Importance), and VIF scores.
--   **`artifacts/sensitivity_report.md`**: Summarizes both the median-split sweep (spec compliance) and the regularization path sweep (scientific validity).
+| File | Description |
+|------|-------------|
+| `artifacts/model_results.json` | Pearson r, empirical p‑value, MAE, 95 % CI, runtime. |
+| `artifacts/diagnostics.csv` | Coefficients, permutation‑importance scores, raw & FDR‑adjusted p‑values, VIF, flags (including VIF = 33). |
+| `artifacts/sensitivity_report.md` | Tables & plots for binary classification AUC/accuracy across median‑split thresholds and regularization sweep. |
+| `figures/` | PDF/PNG versions of key plots (correlation scatter, importance bar, VIF histogram, ROC curves). |
 
 ## Troubleshooting
-
--   **Memory Error**: If you encounter `MemoryError`, ensure the dataset is not loaded entirely into RAM. The pipeline uses chunking (`DataChunk` entity); if issues persist, reduce the number of bootstrap resamples in `code/config.py`.
--   **Convergence Warning**: If Elastic Net fails to converge, the script automatically increases `max_iter` (see Edge Case 2).
--   **Missing Data**: Participants with < 4 minutes of valid EEG are automatically excluded and logged.
--   **Blocked Status**: If the script exits with "Dataset lacks verified pain threshold labels", check the "Verified datasets" block in the project context. The project cannot proceed without a valid source.
+- **MemoryError** – Ensure `data/raw/` files are not being fully loaded; the pipeline streams data in `DataChunk` batches automatically.  
+- **ConvergenceWarning** – The script will automatically increase `max_iter` (Edge Case 2). If convergence still fails, the run aborts with an explicit error.  
+- **Blocked status** – Verify that the OpenNeuro ds003542 dataset containing `heat_pain_threshold` has been placed in `data/raw/`. No placeholder data should be used.  
