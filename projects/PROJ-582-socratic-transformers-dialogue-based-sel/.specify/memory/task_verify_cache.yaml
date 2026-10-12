@@ -7,12 +7,10 @@ T001:
     \ `create_project_tree.py` log)."
   sig: baf3da50372875d2e5ea08285995cd397ee277910bd6953eba5deb5c3589e986
 T002:
-  c: false
-  h: a82020dd0c8761947975f8416ce865570e18a062384ff700e508dd480cccd989
-  r: Checked `code/requirements.txt` (lists all required packages plus extras) and
-    `code/pyproject.toml` (contains the required metadata and `[tool.black]`/`[tool.ruff]`
-    sections). The `code/ruff.toml` file exists but does **not** contain any configuration
-    that explicitly targets the `src/` and `tests/` directories, as the task requires.
-    Add the appropriate directory targeting (e.g., `src = ["src"]` and `tests = ["tests"]`
-    or equivalent) to satisfy the requirement.
-  sig: 87fabb5f5113203d62780edba71f751c9236a81fa9b1183d0daa6fcb70c8f06f
+  c: true
+  h: c908fe5655731f2c0f34480e6d02d3f163a5fc1eaf3e64bb6c4d17487d27abbc
+  r: Checked `code/requirements.txt` (contains all required packages), `code/pyproject.toml`
+    (has project metadata plus `[tool.black]` and `[tool.ruff]` sections), and `code/ruff.toml`
+    (configures ruff to target `src/` and `tests/`). All files exist and meet the
+    specifications.
+  sig: 0bf5041c9be249366e2758c1f26e499c3d360984592e524e447672aec85de16a

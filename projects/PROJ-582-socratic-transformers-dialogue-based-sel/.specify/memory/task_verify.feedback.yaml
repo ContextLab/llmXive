@@ -1,12 +1,6 @@
 T001:
   task: d952ca40e8f9b5b565a3233d8273a163669b6326e36381891f083d29de813688
 T002:
-  reason: Checked `code/requirements.txt` (lists all required packages plus extras)
-    and `code/pyproject.toml` (contains the required metadata and `[tool.black]`/`[tool.ruff]`
-    sections). The `code/ruff.toml` file exists but does **not** contain any configuration
-    that explicitly targets the `src/` and `tests/` directories, as the task requires.
-    Add the appropriate directory targeting (e.g., `src = ["src"]` and `tests = ["tests"]`
-    or equivalent) to satisfy the requirement.
   task: 506540b3836d07866983eee3ed4d77328bb97f9c7468e734c87a3d2d9610f635
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download.py

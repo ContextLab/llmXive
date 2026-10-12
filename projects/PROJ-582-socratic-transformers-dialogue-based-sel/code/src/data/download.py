@@ -18,7 +18,8 @@ from typing import Dict, Any, List, Optional
 project_root = Path(__file__).resolve().parents[3]  # code/
 sys.path.insert(0, str(project_root))
 
-from datasets import load_dataset
+import pandas as pd
+from huggingface_hub import hf_hub_download
 import yaml
 
 # ----------------------------------------------------------------------
@@ -84,12 +85,12 @@ def save_manifest(manifest: Dict[str, Any]) -> None:
         yaml.safe_dump(manifest, f, sort_keys=False)
 
 # ----------------------------------------------------------------------
-# Core download logic
+# Core download logic (uses huggingface_hub to avoid pyarrow dependency)
 # ----------------------------------------------------------------------
 def download_dataset(dataset_cfg: Dict[str, Any]) -> Optional[Path]:
     """
-    Download a dataset from HuggingFace, write it as a Parquet file, and return the
-    path to that file.
+    Download a dataset file from HuggingFace, convert it to a Pandas DataFrame,
+    write it as a Parquet file, and return the path to that file.
 
     Parameters
     ----------
@@ -108,33 +109,42 @@ def download_dataset(dataset_cfg: Dict[str, Any]) -> Optional[Path]:
 
     print(f"Downloading {hf_id} (config={config_name}, split={split}) ...")
 
+    # Build the filename inside the repo.
+    # For the default ``main`` config the file is ``train.jsonl``.
+    # For other configs the file lives under ``{config}/train.jsonl``.
+    if config_name == "main":
+        filename = f"{split}.jsonl"
+    else:
+        filename = f"{config_name}/{split}.jsonl"
+
     try:
-        # Force the cache to live inside our raw data directory so that all
-        # artifacts are colocated and easy to hash.
-        dataset = load_dataset(
-            hf_id,
-            config_name,
-            split=split,
-            cache_dir=str(RAW_DATA_DIR / "hf_cache"),
-            streaming=False,
-            trust_remote_code=True,
+        # Download the raw file to a temporary location.
+        local_path = hf_hub_download(
+            repo_id=hf_id,
+            filename=filename,
+            repo_type="dataset",
+            # Use the default revision (usually 'main')
         )
-
-        output_path = RAW_DATA_DIR / output_name
-
-        # Write to Parquet.  ``to_pandas`` is acceptable for the modest
-        # subsets we are pulling (GSM8K ~13k rows, Math prealgebra ~2k rows,
-        # MMLU‑STEM ~30k rows).  For truly massive splits one would stream
-        # and write in chunks, but that is unnecessary here.
-        df = dataset.to_pandas()
-        df.to_parquet(output_path, index=False)
-
-        print(f"Saved {output_path}")
-        return output_path
-
     except Exception as exc:
-        print(f"ERROR: Failed to download {hf_id}: {exc}", file=sys.stderr)
+        print(f"ERROR: Failed to download {hf_id}/{filename}: {exc}", file=sys.stderr)
         raise
+
+    # Load into a DataFrame.  Most of the target datasets provide JSONL.
+    try:
+        if local_path.endswith(".jsonl"):
+            df = pd.read_json(local_path, lines=True)
+        elif local_path.endswith(".csv"):
+            df = pd.read_csv(local_path)
+        else:
+            raise ValueError(f"Unsupported file extension for {local_path}")
+    except Exception as exc:
+        print(f"ERROR: Failed to parse downloaded file {local_path}: {exc}", file=sys.stderr)
+        raise
+
+    output_path = RAW_DATA_DIR / output_name
+    df.to_parquet(output_path, index=False)
+    print(f"Saved {output_path}")
+    return output_path
 
 def download_all_datasets() -> List[Path]:
     """Iterate over ``DATASET_CONFIGS`` and download each one."""

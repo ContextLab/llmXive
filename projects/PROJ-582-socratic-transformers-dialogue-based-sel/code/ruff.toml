@@ -1,27 +1,16 @@
-# Ruff configuration for Socratic Transformers project
-# This file complements pyproject.toml for IDE compatibility
+[tool.ruff]
+# Explicitly target source and test directories
+include = ["src/**/*.py", "tests/**/*.py"]
 line-length = 88
-target-version = "py39"
+target-version = "py311"
 
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in pytest fixtures)
-]
+[tool.ruff.format]
+quote-style = "double"
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in init files for namespace packages
-"tests/*" = ["S101"]     # Allow asserts in tests
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I"]
+ignore = []
 
-[lint.isort]
-known-first-party = ["src", "tests"]
-force-sort-within-sections = true
+[tool.ruff.lint.per-file-ignores]
+"src/*" = []
+"tests/*" = []
