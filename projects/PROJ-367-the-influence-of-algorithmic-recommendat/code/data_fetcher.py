@@ -10,7 +10,6 @@ the presence of the required columns and finally writes a Parquet file to
 ``data/processed/cleaned_data.parquet``.
 """
 
-import os
 import io
 import zipfile
 import logging
@@ -30,10 +29,15 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
+# Primary URL (HTML page) – not a direct zip; kept for reference.
 OULAD_PRIMARY_URL = "https://analyse.kmi.open.ac.uk/open_dataset"
+# Mirror URL that previously failed; we keep it as a fallback attempt.
 OULAD_MIRROR_ZIP = (
     "https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip"
 )
+# HuggingFace dataset name that provides the same OULAD tables.
+HF_OULAD_DATASET = "open-university-analytics"
+
 RAW_OULAD_DIR = paths.data("raw", "oulad")
 PROCESSED_PARQUET = paths.data("processed", "cleaned_data.parquet")
 REQUIRED_COLUMNS = ["recommended_categories", "enrolled_categories"]
@@ -45,11 +49,11 @@ REQUIRED_COLUMNS = ["recommended_categories", "enrolled_categories"]
 
 def _download_and_extract_oulad() -> None:
     """
-    Downloads the OULAD zip file (mirrored URL) and extracts the four CSV
-    files into ``data/raw/oulad/``.  The function raises on any HTTP or
-    extraction error – no synthetic fallback is performed.
+    Attempts to download the OULAD zip file from the mirrored URL and extracts
+    the four CSV files into ``data/raw/oulad/``.  The function raises on any
+    HTTP or extraction error – no synthetic fallback is performed.
     """
-    log.info("Downloading OULAD dataset from mirror URL")
+    log.info("Attempting to download OULAD dataset from mirror URL")
     response = requests.get(OULAD_MIRROR_ZIP, stream=True, timeout=120)
     response.raise_for_status()
 
@@ -94,6 +98,33 @@ def _load_raw_csvs() -> dict:
             raise FileNotFoundError(f"Expected OULAD file not found: {path}")
         dfs[key] = pd.read_csv(path)
         log.info("Loaded %s (%d rows)", key, len(dfs[key]))
+    return dfs
+
+
+def _load_oulad_from_hf() -> dict:
+    """
+    Loads the OULAD tables from the HuggingFace hub. The HF dataset provides
+    the same four tables as separate splits. Returns a dict mapping the same
+    keys as ``_load_raw_csvs``.
+    """
+    log.info("Attempting to load OULAD from HuggingFace dataset '%s'", HF_OULAD_DATASET)
+    try:
+        ds = load_dataset(HF_OULAD_DATASET)
+    except Exception as exc:
+        raise DataAvailabilityError(
+            f"Unable to load OULAD from HuggingFace hub: {exc}"
+        ) from exc
+
+    # The HF dataset yields a DatasetDict where each key corresponds to a CSV.
+    # We expect the keys: studentInfo, studentVle, vle, studentRegistration.
+    expected_keys = {"studentInfo", "studentVle", "vle", "studentRegistration"}
+    missing = expected_keys - set(ds.keys())
+    if missing:
+        raise IOError(f"HuggingFace OULAD dataset missing tables: {missing}")
+
+    dfs = {k: ds[k].to_pandas() for k in expected_keys}
+    for k, df in dfs.items():
+        log.info("Loaded %s from HF (%d rows)", k, len(df))
     return dfs
 
 
@@ -235,10 +266,19 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
     """
     if dataset_id.lower() == "oulad":
         # --------------------------------------------------------------
-        # OULAD specific path – download, extract, map, validate.
+        # OULAD specific path – attempt primary ZIP download first.
         # --------------------------------------------------------------
-        _download_and_extract_oulad()
-        raw_dfs = _load_raw_csvs()
+        try:
+            _download_and_extract_oulad()
+            raw_dfs = _load_raw_csvs()
+        except Exception as exc:
+            log.warning(
+                "Primary OULAD download failed (%s). Falling back to HuggingFace source.",
+                exc,
+            )
+            # Fallback to HuggingFace dataset
+            raw_dfs = _load_oulad_from_hf()
+
         session_df = _map_oulad_to_sessions(raw_dfs)
         _validate_schema(session_df)
 
