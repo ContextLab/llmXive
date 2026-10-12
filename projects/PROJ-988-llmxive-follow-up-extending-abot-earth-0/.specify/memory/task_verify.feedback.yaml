@@ -1,0 +1,127 @@
+T001a:
+  task: a01fa43fbb5b16607f2e8391c76423c49a30768c0ea4a3d5661ace5020e0dd92
+T001b:
+  reason: No evidence of a `.gitignore` file was found in the project root (`projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0`),
+    nor any content showing it ignores large files and Python artifacts. The required
+    artifact is missing.
+  task: b70c4afb9f5bac5e3dbb983925c813d91b2be830b1bf26dda2e3c2b03def7b9e
+T002a:
+  reason: The `code/requirements.txt` file is present, but it lists the required packages
+    without any version pinning (e.g., `torch-cpu` instead of `torch-cpu==X.Y.Z`).
+    The task explicitly demanded pinned versions, so the artifact does not satisfy
+    the requirement.
+  task: b5a2ea54e324d61d22a6ac4ced34280168ed7f03c46c2d9ea1fcb2a3f1c46160
+T002b:
+  reason: "No concrete artifact (e.g., a created virtual environment directory, a\
+    \ `requirements.txt`/`pyproject.toml` file, or a script/command log showing `python\
+    \ -m venv` and `pip install` execution) was found in the provided project tree.\
+    \ Without such evidence the claim that a Python\u202F3.11 virtualenv was initialized\
+    \ and dependencies installed cannot be verified."
+  task: 9737dd6d1a7894191e50812a7e6e17c3c55eeb70fe05cefeb08f1a73f93c3375
+T003:
+  reason: "The evidence provides only the project root path but contains no linting\
+    \ or formatting configuration files (e.g., `pyproject.toml` with Black settings,\
+    \ `.ruff.toml` or `ruff.toml`, `.flake8`, or CI scripts invoking ruff/flake8/black).\
+    \ Without these artifacts, the requirement to configure linting and formatting\
+    \ tools is not satisfied. Adding the appropriate configuration files and confirming\
+    \ they are present and non\u2011empty will be needed."
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  reason: "Checked the `data/` directory (exists with `__init__.py`, `city_list.txt`,\
+    \ `processed/`, `raw/`) and the top\u2011level `results/` directory. The required\
+    \ subdirectory `interim/` is missing, and `results/` is not placed under `data/`\
+    \ as the task specifies."
+  task: e17725a19b5fd99098f5e0689c3b6d88ae4b54616897f02327d19d7e4ecd4de5
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/alignment.py'
+  task: 933419c032aab2a84042196165a3a9c450f3f63b4b7c1a70ea8d4170df843ee9
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/degradation.py'
+  task: 89125e7ca3ad676f7a14f782a61d05bd0523b73610dffb6a8192557255ea1540
+T007a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/models.py'
+  task: bb5adef94c8efa168029882bd7fdcc240130169fc9b32ced3902c92b5bd14e3b
+T007b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/models.py'
+  task: 8e3d55c798dbace1b9067055a939643252399248a3b8f522d7c9b71eb1717153
+T007c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/models.py'
+  task: e1d9b3d49c04398e16333dc5e3e71081ffbe6f5dc2602db39f88d5c302114e20
+T007d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/models.py'
+  task: cc67e38c0b663f658a9ee471fac7c04a00b58b3d49fb0db416539f04837f6060
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/execution.log'
+  task: f7caa09054444f7b3b85ff363ec99129538e1c42633c4afeb7d8aa3cb3113f50
+T009:
+  task: e949b86a494462a7c951e7ea2d98994912b2363a7670f0d2db8a50ffa1bb7dcd
+T011a:
+  task: b24e17951e0e70e1f2876c636538c8362f7b5b020c80470e4004cbb574cea9e2
+T011b:
+  task: dbe5d61d721118be068bc6c0545245a1ea74f8cbcf1c62df3a58d8e36dffda9f
+T011c:
+  task: 06012fb5373cd3cda26efba8da3fc1f88490d38056c31ee516756bbd751dae6f
+T012:
+  task: eca05c59942ccceb0bab798a84c721d730ff1abf484f21c325c2ed11342f14fc
+T013:
+  task: 2203b0668d651ef0f47e40dc404748cfb1c44c0227614ddb2124360631b62b3c
+T014a:
+  task: 9322adcb71dad97d56d94b3ec159ace666aa585aac62f38b60e10e0cc8902d62
+T014b:
+  task: 16a95151610a2de441c99fe3dbb70e033c701a2d2b79b8b73b46f8c805c132d2
+T015:
+  task: 4c31da50df1bf19a1701c69ec5528f69c573e6e1d9f45b3e70ee84ce24cbf1c6
+T016:
+  task: 17274f57df923a5f40fc9b5e5d9b762455668d4200f39acce9f602c0e38949c1
+T017:
+  task: 4229ccf6efa5c50593ba63c79b3a2056506138cbc5b354f3462836ab2257bdf4
+T018:
+  task: 4db435ee7dca013a3f3c225ab1edb3a39a6caffc785f68a633d58b81bc6fb155
+T019:
+  task: fd6998c978296af620af3b7a86e6fc7222422aaba6c70ddcd867e165f4873e6f
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/cpu_3dgs_wrapper.py'
+  task: 71efd5061ad21d28bcefe8b3958de20920ae249b8c3fb11a9c373b496f0ccec5
+T021:
+  task: 4566ab3b9fdfcecd4f92ccc7ddf6f23694193817b09f917644f3902b98f637ca
+T022:
+  task: 25a4ba928800078a5d6fcbb9e542484fd950998a97df4a5831241b913f8fe61b
+T023:
+  task: 2ae305c5128058967829beb2051e01640c192caa406daff8951abc7dbdc68f01
+T024:
+  task: c006b743b847abbbcebfdf88a67244ab630720d78d6386168a0303bdf69afb1b
+T026:
+  task: c1fe78d28185a90ffad91d03b1da00b268ecde34441b29cbcc8029b534d52755
+T026a:
+  task: e554e58d6d874ee6784ad81fe589cecdc3b9b270c17c28e5648abf24644429d4
+T026b:
+  task: 1cb4b51d25a72b719f3d38330b5abb308efef6e517e3a5f6f58da217e3fc6e59
+T027:
+  task: 17e37c3c9644a3b6cbb1a69cc4b34dac37d1e35849da4cea17bfd8fd38b9666a
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/metrics.py'
+  task: 0206394b1d17167b16ac8710dfaaa2166034d5171b2159094abc8f0fb7fb1c67
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/metrics.py'
+  task: 6a1fc3ea55982af9952298668a2e9cec2c17f1c752dad537bede52db216a4ce5
+T029b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/lib/metrics.py'
+  task: 51de68da9d87d3d7027f09ec4dfba8bbbbb18c0d5922984f3568431b2650fd43
+T030:
+  task: e910b1babbb2c0804000ff1ff3edc90945b5bbb5025558fc01432eb9fde6e3fd
+T031:
+  task: 17ce78e61e51dc164d90147d60efee108e875992a73ecac7616aae92b07acbfd
+T032:
+  task: 93178cfd2f93536c99b616b4f769a74148a0cb8c527052bfa68ffa49e005c0a3
+T033:
+  task: bc971fb8bf0a5a6aff0dc651536879cbc78d82796eabce69c5634467112f502d
+T034:
+  task: afc673e849fdfa88b89fd40c4b95091491760cc777660f325408fe08b2d8485c
+T035:
+  task: aa7f96c1e167ad4a7eae91778182407b7aeab3b786a6b2f899408d95348883e7
+T036:
+  task: f8291f8aaebe849868a341a493f24df273aeca1ebc83325a330e2aa158a30cc3
+T037:
+  task: 2011cdf85fe1dc3f095cc9b6f41e7b14cf963e530067fe3cdd0955c601d5d161
+T038:
+  task: 65c60c2c694df4b7be52e4e68f214fe38c6acb3712cb20f68c204059af4ce2d4

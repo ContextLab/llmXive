@@ -1,3 +1,4 @@
+# Existing dependencies (already present in the repository)
 torch-cpu
 onnxruntime
 scikit-learn
@@ -11,6 +12,9 @@ seaborn
 bayesian_changepoint_detection
 statsmodels
 open3d
-scipy
-Pillow
-memory-profiler
+
+# New dependencies required for real data curation (added for T012)
+planetary-computer
+pystac-client
+rasterio
+laspy

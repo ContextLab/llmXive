@@ -1,0 +1,19 @@
+status: none
+intent: download Sentinel-2 Level-2A urban tiles with OpenTopography LiDAR alignment
+  python package dataset
+required_fields:
+- sentinel_tile_id
+- sentinel_acquisition_date
+- sentinel_image_bands
+- sentinel_resolution_m
+- sentinel_crs
+- sentinel_transform
+- degradation_type
+- degradation_parameters
+- cloud_coverage_percent
+- degraded_image_path
+- degraded_resolution_m
+- lidar_pointcloud_path
+cache_key: 241e040f4a6d75aa062bb1b5e817db07d44fe5e46397c8f71dc7a97b2d334f8c
+searched_at: '2026-10-12T12:21:45.459774+00:00'
+retry_count: 1
