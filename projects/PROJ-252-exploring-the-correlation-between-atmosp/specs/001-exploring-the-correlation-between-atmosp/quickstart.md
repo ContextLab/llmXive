@@ -55,7 +55,7 @@ PY
 # Step 2: Preprocess – interpolation, anomaly calculation, filtering
 python code/preprocess.py   # deterministic implementation follows the plan specification
 
-# Step 3: Statistical analysis (KS test, permutation, sensitivity, FDR correction)
+# Step 3: Statistical analysis (KS test, permutation, bootstrap, sensitivity, FDR correction)
 python code/analysis.py
 
 # Step 4: Generate the final report
@@ -65,8 +65,8 @@ python code/report.py
 ### Expected Outputs
 
 - `data/processed/analysis_ready.parquet` – analysis‑ready table.  
-- `data/processed/analysis_results.json` – p‑values, effect sizes, robustness metrics.  
-- `paper/results.md` – human‑readable summary with pilot disclaimer, power‑analysis note, and climate‑index stratification details.  
+- `data/processed/analysis_results.json` – p‑values, effect sizes, robustness metrics, bootstrap success rates.  
+- `paper/results.md` – human‑readable summary with pilot disclaimer, power‑analysis note, climate‑index stratification details, and explicit associational framing.  
 
 ## Validation
 
@@ -77,6 +77,3 @@ pytest tests/contract/
 ```
 
 All tests must pass (exit code 0) before proceeding to manuscript preparation.
-
----
-

@@ -15,7 +15,7 @@ Defines the schema for raw, intermediate, and analysis‑ready artifacts. All fi
 | `longitude` | float | Epicenter longitude (‑180 → 180) | USGS |
 | `depth_km` | float | Depth in km | USGS |
 | `magnitude` | float | Magnitude (Mw or Ml) | USGS |
-| `location_type` | string | `"land"` or `"ocean"` (derived) | Derived |
+| `location_type` | string | `"land"` or `"ocean"` (derived via global land‑mask) | Derived |
 
 ### Pressure Grid Point
 | Field | Type | Description | Source |
@@ -39,11 +39,11 @@ Defines the schema for raw, intermediate, and analysis‑ready artifacts. All fi
 | `event_id` | string | FK to Earthquake Event | Earthquake |
 | `window_type` | string | `"event"` or `"control"` | Derived |
 | `timestamp` | datetime | Start of the analysis window | Derived |
-| `pressure_anomaly` | float | Deviation from baseline period | Derived |
+| `pressure_anomaly` | float | Deviation from baseline period (30‑day left‑censored moving average) | Derived |
 | `magnitude` | float | Earthquake magnitude (if event) | Earthquake |
 | `region` | string | `"Ring of Fire"` or `"Other"` | Derived |
 | `is_land` | boolean | True if the event is on land | Derived |
-| `climate_index` | string | ENSO/PDO phase label (e.g., `"El Niño"`) | ENSO/PDO Index |
+| `climate_index` | string | ENSO or PDO phase label (e.g., `"El Niño"`) | ENSO/PDO Index |
 | `pdo_phase` | string | PDO phase label (e.g., `"Positive"`) | ENSO/PDO Index |
 
 ## Data Pipeline Flow

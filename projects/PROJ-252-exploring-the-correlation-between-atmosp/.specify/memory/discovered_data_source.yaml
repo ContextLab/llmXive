@@ -1,18 +1,19 @@
 status: none
-intent: download NCEP/NCAR reanalysis sea level pressure and USGS ComCat 2013-2023
-  earthquake python package dataset
+intent: download NOAA NCEP/NCAR reanalysis surface pressure and USGS 2013-2023 earthquake
+  catalog python package dataset
 required_fields:
 - event_id
 - origin_time
-- magnitude
-- depth_km
 - latitude
 - longitude
+- magnitude
+- depth
+- pressure_grid_lat
+- pressure_grid_lon
+- pressure_timestamp
 - pressure_anomaly_0_48h
 - daily_pressure_anomaly
 - control_window_label
-- grid_latitude
-- grid_longitude
-cache_key: 619f6db03a3e1c1f711c220b774b6ccf9c978f71bb3e6dfe0e30a14fc223999c
-searched_at: '2026-10-12T11:18:18.624797+00:00'
+cache_key: a423339a298ad8ab3fb327b2c646c9ccb64a2adb38bf905ace91f06f2645aeaa
+searched_at: '2026-10-12T11:52:52.732536+00:00'
 retry_count: 1

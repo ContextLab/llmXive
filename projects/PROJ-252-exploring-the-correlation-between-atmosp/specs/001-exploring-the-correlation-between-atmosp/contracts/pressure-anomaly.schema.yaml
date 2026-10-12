@@ -18,7 +18,7 @@ properties:
     description: "Start time of the analysis window."
   pressure_anomaly:
     type: "number"
-    description: "Calculated pressure anomaly (deviation from a multi‑day mean)."
+    description: "Calculated pressure anomaly (deviation from a 30‑day left‑censored moving average)."
   magnitude:
     type: "number"
     description: "Magnitude of the associated earthquake (if event)."
@@ -33,7 +33,14 @@ properties:
     description: "True if the event is on land."
   climate_index:
     type: "string"
-    description: "ENSO or PDO label (optional; not populated in pilot)."
+    description: "ENSO or PDO phase label (optional; not populated in pilot)."
+  pdo_phase:
+    type: "string"
+    enum:
+      - "Positive"
+      - "Negative"
+      - "Neutral"
+    description: "PDO phase label associated with the record."
 required:
   - event_id
   - window_type
