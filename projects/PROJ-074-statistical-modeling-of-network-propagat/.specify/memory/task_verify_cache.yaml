@@ -1,3 +1,52 @@
+T001:
+  c: false
+  h: 5788a4cac6d54fa7fe9f4c7aa63421ff4a6dcf11fd623d1fc42ab02570212fbf
+  r: "The project root contains all required directories and a non\u2011empty `README.md`,\
+    \ but the `.gitignore` file is not present in the listed artifacts. Adding a placeholder\
+    \ `.gitignore` at the project root is needed to satisfy the task."
+  sig: de966e59056a51c9212b6c0f26f53fb5db579f561f13c2d4cbde34561bbbddbf
+T002:
+  c: false
+  h: acd5435093abfdf04ea20f6e9290752f62dea9b542661559325b1817dc12af7d
+  r: Checked `pyproject.toml` and `requirements.txt`, both present and populated,
+    but there is no artifact showing a virtual environment was created or that the
+    listed dependencies were actually installed (e.g., a `venv/` directory, activation
+    script, or installation log). This missing evidence means the task is not fully
+    satisfied.
+  sig: 18a3c1bc3e1f3b9dd10441561de1b06a20661e9a34ad14c8937f88c625f6a89f
+T003:
+  c: false
+  h: 10054c39702b03c549d6bd6d083a681b14fae7ab6fa9887f365550b6c3094fea
+  r: "The evidence provides only the project root location and no concrete files configuring\
+    \ ruff or black (e.g., a `pyproject.toml` with `[tool.black]` / `[tool.ruff]`\
+    \ sections, `.ruff.toml`, or pre\u2011commit hook definitions). Without these\
+    \ configuration artifacts, the task \u201CConfigure linting (ruff) and formatting\
+    \ (black) tools\u201D is not satisfied. Adding the appropriate config files (and\
+    \ optionally a `requirements-dev.txt` or `pre-commit` setup) is required."
+  sig: 47b172f570c8352d45f0d6108a3eb5024333567010c09a017fddef1365ba17e3
+T004:
+  c: false
+  h: 95e5d2040896acdcdc475651520d68e2a406aac190a969ad5b4a7a0f0cd1656b
+  r: The provided `requirements.txt` is present but omits the required line `scikit-learn==1.4.0`
+    (and its comment), so the pinned versions list is incomplete.
+  sig: e2641596a01c586a2ed8f5267d0264cf2608fba8c6213f85bffcf4d8d33430e9
+T005:
+  c: false
+  h: 4cf30fd9075a67ceac0a1d26570b80599c21a957142ade9e175e0da465992aff
+  r: "Checked `run_pipeline.sh` (7\u202F437\u202Fbytes). It sets `OMP_NUM_THREADS=2`,\
+    \ provides placeholder stage sections and logs to `pipeline.log`, but the memory\u2011\
+    monitoring hook aborts when **available** memory is below 7\u202FGB rather than\
+    \ when RAM usage exceeds 7\u202FGB as required. The logic is inverted, so the\
+    \ task\u2019s memory\u2011limit requirement is not met."
+  sig: 3e7f8ff349ec4d47de7770ba34b9d9d89f0138ac7a70aeb808a18f8ef2855f96
+T006:
+  c: true
+  h: 4b091a48a5117021d4d4279c81482d302132811616585004a27e2e28dedb5672
+  r: "The `code/pipeline/utils.py` file exists (11257\u202Fbytes) and contains concrete\
+    \ implementations of `setup_logger()`, `set_global_seed(seed)`, and `compute_checksum(path)`\
+    \ as required, along with additional supporting utilities. The functions are fully\
+    \ implemented\u2014not stubs or placeholders\u2014fulfilling the task specification."
+  sig: 9c77efe8240a534c134e64854562aa73ec7109ad85fab06fb9ae02ef25bafe66
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

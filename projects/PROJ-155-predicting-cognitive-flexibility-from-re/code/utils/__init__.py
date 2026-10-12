@@ -1,3 +1,1 @@
-"""
-Utility functions (motion, logging, validation, etc.).
-"""
+"""Utilities subpackage."""

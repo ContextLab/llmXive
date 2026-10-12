@@ -1,4 +1,4 @@
-- artifact_hash: 0c8c4de04bf1c1de8758930e1c18a3fcfad7dc1dfef2239761cf363711c2ed85
+- artifact_hash: 2c66f165656db7b453c2c1b82640df7fbc61630a6fc8a0e5e0d7ffbecc9ba6c8
   artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: '2301.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-10-02T12:38:20.043359Z'
+  verified_at: '2026-10-12T21:36:37.834870Z'

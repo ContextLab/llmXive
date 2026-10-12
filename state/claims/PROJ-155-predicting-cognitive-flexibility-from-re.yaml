@@ -2586,3 +2586,129 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T12:39:30Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: sample size greater than 1000 subjects
+  claim_id: c_a2c9c162
+  context: III. Statistical Power | COMPLIANT | Sample size > 1000 subjects.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Sample size > 1000 subjects.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T21:35:02Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: phase-shuffling surrogates generated with 1000 realizations
+  claim_id: c_f9a2fb89
+  context: "Phase\u2011Shuffling Surrogates | IMPLEMENTED | FFT\u2011based phase randomization\
+    \ (n=1000)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "FFT\u2011based phase randomization (n=1000)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T21:35:02Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: permutation test performed with 10000 iterations
+  claim_id: c_c6ac9892
+  context: Permutation Test | IMPLEMENTED | 10,000 iterations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Permutation Test | IMPLEMENTED | 10,000 iterations.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T21:35:02Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: data source is Human Connectome Project 1200 Subjects Release
+  claim_id: c_d39b5e45
+  context: Data Source HCP 1200 Subjects Release (real data only).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data Source HCP 1200 Subjects Release (real data only).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-12T21:36:06Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: all code is open source and version controlled
+  claim_id: c_19e0cd3c
+  context: I. Reproducibility | COMPLIANT | All code is open source and version controlled.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All code is open source and version controlled.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T21:36:06Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: SHA checksums verified against HCP manifest
+  claim_id: c_5d20b91d
+  context: II. Data Integrity | COMPLIANT | SHA checksums verified against HCP manifest.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: SHA checksums verified against HCP manifest.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T21:36:06Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: pre-registration documented in technical-design.md
+  claim_id: c_68bc2d21
+  context: IV. Pre-registration | COMPLIAN | Analysis plan documented in `docs/technical-design.md`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Pre-registration documented in `docs/technical-design.md`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T21:36:06Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: short-duration window is statistically invalid for the Schaefer 200 atlas
+    due to rank deficiency and insufficient time points for stable correlation estimation
+  claim_id: c_bef83572
+  context: VII. Window Length | DEVIATION (Justified in technical-design.md) | The
+    default short-duration window is statistically invalid for the Schaefer 200 atlas
+    due to rank deficiency and insufficient time points for stable correlation estimation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default short-duration window is statistically invalid for the Schaefer
+    200 atlas due to rank deficiency and insufficient time points for stable correlation
+    estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-12T21:36:37Z'

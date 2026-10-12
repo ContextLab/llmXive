@@ -1,3 +1,1 @@
-"""
-llmXive Project: Predicting Cognitive Flexibility from Resting-State FC Variability
-"""
+"""Top‑level package for the project."""

@@ -1,0 +1,143 @@
+T001:
+  reason: "The project root contains all required directories and a non\u2011empty\
+    \ `README.md`, but the `.gitignore` file is not present in the listed artifacts.\
+    \ Adding a placeholder `.gitignore` at the project root is needed to satisfy the\
+    \ task."
+  task: 730cddce39e04e6c1f654704bccacaf26a04863c5624abb9c93d41dc2dd6988c
+T002:
+  reason: Checked `pyproject.toml` and `requirements.txt`, both present and populated,
+    but there is no artifact showing a virtual environment was created or that the
+    listed dependencies were actually installed (e.g., a `venv/` directory, activation
+    script, or installation log). This missing evidence means the task is not fully
+    satisfied.
+  task: cd0fb177cbdfcc25cb7f7cca41870a3f07ecb33de31118d1eed5565fdf90defa
+T003:
+  reason: "The evidence provides only the project root location and no concrete files\
+    \ configuring ruff or black (e.g., a `pyproject.toml` with `[tool.black]` / `[tool.ruff]`\
+    \ sections, `.ruff.toml`, or pre\u2011commit hook definitions). Without these\
+    \ configuration artifacts, the task \u201CConfigure linting (ruff) and formatting\
+    \ (black) tools\u201D is not satisfied. Adding the appropriate config files (and\
+    \ optionally a `requirements-dev.txt` or `pre-commit` setup) is required."
+  task: a6df864b6d088cc457de911cfaf846b7563eaed9043061235c0b88ccbb58b597
+T004:
+  reason: The provided `requirements.txt` is present but omits the required line `scikit-learn==1.4.0`
+    (and its comment), so the pinned versions list is incomplete.
+  task: 4bd84d07444bc57fe75d9b0640c88e53c4040edd28c94605976ccb071dd97336
+T005:
+  reason: "Checked `run_pipeline.sh` (7\u202F437\u202Fbytes). It sets `OMP_NUM_THREADS=2`,\
+    \ provides placeholder stage sections and logs to `pipeline.log`, but the memory\u2011\
+    monitoring hook aborts when **available** memory is below 7\u202FGB rather than\
+    \ when RAM usage exceeds 7\u202FGB as required. The logic is inverted, so the\
+    \ task\u2019s memory\u2011limit requirement is not met."
+  task: f4ff48813ce7a6b5dd7e6735385f11a056f8935a7161ac347037a60a98db4cca
+T006:
+  task: 70055086d31d6da1b36496b007b402f9ddb042b2fad2a0e90a5dba357f2bbea2
+T007:
+  task: 095589e3f0e1adaff2dfc891bc55b38ad6e4f0c0a43be2ed58e8aeb81a8113a1
+T008:
+  task: 2d3c1efea587aa3534c7c007142120943798e6b07319bdec9266833d77b99291
+T009:
+  task: 12d57fb2af5e4a8af6acca589bb8ef126cbb125c640ca5a4e0414c77a54233ba
+T010:
+  task: a9fed1cd2cd8c75f84082fc8bd560e4f0292039f43b59488b81a61ffd9238387
+T011:
+  task: eb254b253a52fdb38299bf136870880d9078763f96ddb78a4e0822deecba7f02
+T012:
+  task: 6f40f585f345813cb0722865ced0d2fa17239c9e7b4cb596ba71e86c0d7eab27
+T013:
+  task: 270873183bcce4370ddf8c348776a9d762644f145b200c00471326d36445d578
+T014:
+  task: d5e5381e350ab3fc1055b31bec334542d8ba523037c2e51be0175441eba23e64
+T015:
+  task: bea4b2aa89f46540c54e4444dcb7989f97fb2c326c3b76071bb0a98576455bc6
+T016:
+  task: d78a5cadfb2167c9514cdffd873b8c9212d800787cfaa9c27a9e69a8ddd2bc2c
+T017:
+  task: a2721770202ada15cf9f148e2dc24076198a57263b5b1de3d8027b94854b2845
+T018:
+  task: 2ba4108fa7df45a94d9b0686821a739629e82698f28531bbaa12affe3c270257
+T019:
+  reason: 'declared artifact(s) missing/empty/invalid: model_spec.yaml'
+  task: 7309046aa26ab9e46bb852a577a7ed961048a2175c64b95d0eff6e0ee72f7bcb
+T020:
+  task: 51d143afef0e3f047c9c53ca7a40292560f4ed8cbdf7935f6f2df91704efa0c3
+T021a:
+  task: e86931c7671e62c5f803c63a446d39d4c832d6b5f44532de2fbb19efe04183c8
+T021b:
+  task: 211b7ef5d9f4100fed7209957cc9b01fa5c6e14e595ae84d8c3ec2c8b52cfda1
+T021c:
+  task: f75beb37800adf7277f0e32d3e000e39b5b505e0097b87e6e60b6957cb9256c2
+T021d:
+  task: 63588ab1a79dbaa969fc65e6c2d5de5efbb282806a58a99e76c507e027fc248d
+T022:
+  task: fe0f8a6734db430e316431107d5975677bc15ff554283b459d85a930ec51f99e
+T023:
+  task: 74d4868b9b08682cef3126184a0077020f582f05ecc2b1c0aeadcffda1e489aa
+T024:
+  task: 6e2cff50dac87334c71c6b9d494e3996a4e4a563d9c3cc6ef4c607430c9ffd92
+T026:
+  task: 85f98b5ad96454cff931910897abc7101d77d676c34a095491e6c21505c9ec99
+T028:
+  task: 358118f449ac85d7fd90a72c39a09f032c666f5c0d592882c718dbf95143ccd6
+T029:
+  task: fd9c293ef45157dc407c1dd94f99a7f4606c3ecb433e4db8e1ae5ca28b7f9ab3
+T030:
+  task: 9547b76baadf4e469783fd0887c5a347a57897d7df1fd50f431e97c08570a442
+T031:
+  task: 63056366478c7662cbc907b81605210a26f8f2d06fd30549c365fde2c85c81be
+T032:
+  task: c0602c04f8f4a3db424ace130f95bf1609a664402c44775eae07b6dd04e352d9
+T039:
+  task: 4e29b6ac18311e803bd0b2f2b37159a0d62ed48e37d5103b742113da7ac5d8ff
+T040:
+  task: b3701065664170d7cf48aaae8ee8e577df5749613083eecc37975f5411818938
+T041:
+  task: 2f394d64fc6f43cfba8bb82dd50968736f608f4dfc1f1def22436595a36b55ff
+T042:
+  task: 8a8e11f18609f280b47e5880ca02e085217d1a5c8deae573b6a17a540535eef3
+T043:
+  task: 56bb131dc610a1e09d7a24612714dfcd4fa4766bd5828844ae9c258e4eca01f9
+T054:
+  task: dc98577a408f1611267b2d23ffc40803065dd5e99dcb1f4b869df3cf67f994fd
+T055:
+  task: 284d2b669ce1d6ab0919cbdef32a732f1b90df4ed0e64abbc56d884141c2ee9f
+T056:
+  task: 3c7771a6003165e4a1bc2a4c9068c34f95b652fb96197f5cfec81e85ee9392f7
+T057:
+  task: 67349cabc33e655cac7bc54d17d1e4cf1cc1d7f1a51c981348a56944cfbf26f5
+T058:
+  task: 69064b93992df3f36e420c456202f4b8802628833672ef9f80d164959e38cce6
+T060:
+  task: 0f7e403fedc3d64bf9a631802d80c8a06fb1ce05827734e4df9cc2b31d03af0d
+T061:
+  task: 70e49f90d4cef358ce3d627aa0bfff31a6e0d059dd7b12b34935f8ac93db082e
+T062:
+  task: a8bf7ba4cd353d90f0026c5bfaeafc1f2549bac531fabb80e82c7422f0deeb88
+T063:
+  task: 32d4f31822c65031ec16690fda060770edc720538a2770279f051f628d7ac2f3
+T064:
+  task: fffcb86bdd5016c6681eb51c682f212822e84e70076ab251b0685dc4edf7ac77
+T065:
+  task: 64364d523e456fdd1988c16bf787bd965287667b687b91f2b8a569a3165a2e1f
+T066:
+  task: 9f51c92705a1de4346d6304676beb5f586dd8af912e1dc52ff6ee2ee7692896d
+T067:
+  task: 812cd42da454347d55573e05098d23660d07e560d4188f90455d0506cdb907f9
+T070:
+  task: a141845f70caecb78a8e5e242c5828e7e1a3f05a5fb22413ce4786d5b80ab42d
+T071:
+  task: a81e962e7d36261ac6d5cd8dc744f0a4f406f605d92d6db2b9e820dd070dba30
+T072:
+  task: d287199edf3d1fff5deea140cce8009aa651996b912a8b3c724444154acca6cf
+T074:
+  task: 57a8122cd1c14e7042df19ba9973b3fd9859f2e8949d4af3ab89bba8c1fc854f
+T080:
+  task: dd4344b542a6fc2662a666571f47d092381e1b8e127060c749af4d9e7e6ef921
+T081:
+  task: f38d9e6522d59da16d7a01a7b272948dfbe075ec6b266a013001c7408b095bd4
+T082:
+  task: 22666c2e04b186989f46eef0245c311d42713f70b22dd1dda73b1f69b834f945
+T083:
+  task: b7c1c15b7e08e693f882907ed9f0eb249fa6bc1e6c0f7ef38cca33ed55ae1690
+T084:
+  task: e3ff834fcc71ea620156ad244a0cf655bcd836f45458551ad8673d4627f8cd67

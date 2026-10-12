@@ -1,86 +1,103 @@
 """
-Network Feature Engineering Module.
+network_features.py
+-------------------
 
-This module computes network-based features for misinformation cascades.
-All features are derived from pre-cascade historical network context to avoid circularity.
+This module implements feature extraction for misinformation cascades
+based on the *pre‑cascade historical network context*.  For each cascade
+we compute:
 
-Input Sources:
-  - Historical network files (JSON) specified in --input
-  - Cascade data (JSON) specified in --cascade
+* Degree distribution moments (mean, variance, skewness)
+* Average clustering coefficient
+* Mean betweenness centrality
 
-Transformation Steps:
-  1. Load historical network structures
-  2. Extract cascade nodes
-  3. Compute degree distribution moments (mean, variance, skewness)
-  4. Compute clustering coefficient
-  5. Compute mean betweenness centrality
-  6. Aggregate features per cascade
-
-Output Files:
-  - Intermediate network features CSV (specified in --output)
-  - Logs written to pipeline.log
+The results are written to a CSV file (default:
+``data/intermediate_network_features.csv``).  All steps are logged to
+``pipeline.log`` via the shared logger from ``pipeline.utils``.
 """
 
 import argparse
 import json
 import logging
-import sys
 from collections import defaultdict
 from pathlib import Path
+from typing import Dict, List
 
-import numpy as np
 import networkx as nx
+import numpy as np
+import pandas as pd
 
-from pipeline.utils import set_global_seed, setup_logger
+from llmxive_toolkit import paths, get_logger
+from pipeline.utils import setup_logger
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 
 
-def load_historical_networks(network_paths: list) -> dict:
+def load_historical_networks(network_paths: List[Path]) -> Dict[str, nx.Graph]:
     """
     Load historical network graphs from JSON files.
 
-    Args:
-        network_paths: List of paths to JSON network files.
+    Each JSON file is expected to contain an ``edges`` field that is a list
+    of ``[source, target]`` pairs.  The filename (without extension) is
+    interpreted as the ``user_id`` whose ego‑network is stored in the
+    file.
 
-    Returns:
-        Dictionary mapping user_id to networkx Graph object.
+    Parameters
+    ----------
+    network_paths: List[Path]
+        Paths to JSON files describing historical networks.
+
+    Returns
+    -------
+    Dict[str, nx.Graph]
+        Mapping from ``user_id`` → ``networkx.Graph``.
     """
-    networks = {}
-    for path in network_paths:
-        with open(path, 'r') as f:
-            data = json.load(f)
-            # Assume JSON format: {"nodes": [...], "edges": [...]}
+    logger = get_logger(__name__)
+    networks: Dict[str, nx.Graph] = {}
+    for p in network_paths:
+        try:
+            with p.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            edges = data.get("edges", [])
             G = nx.Graph()
-            G.add_nodes_from(data.get('nodes', []))
-            G.add_edges_from(data.get('edges', []))
-            # Store under a representative ID or path hash if needed
-            networks[path] = G
+            G.add_edges_from(edges)
+            user_id = p.stem  # filename without suffix
+            networks[user_id] = G
+            logger.debug("Loaded historical network for user_id=%s (%d edges)",
+                         user_id, len(edges))
+        except Exception as e:
+            logger.error("Failed to load network from %s: %s", p, e)
+            raise
     return networks
 
 
-def compute_degree_moments(G: nx.Graph) -> dict:
+def compute_degree_moments(G: nx.Graph) -> Dict[str, float]:
     """
-    Compute moments of the degree distribution.
+    Compute the first three moments of the degree distribution.
 
-    Args:
-        G: Networkx graph.
-
-    Returns:
-        Dictionary with mean, variance, and skewness of degrees.
+    Returns a dictionary with keys ``degree_mean``, ``degree_variance``,
+    and ``degree_skewness``.  For an empty graph ``np.nan`` values are
+    returned.
     """
-    degrees = [d for n, d in G.degree()]
-    if not degrees:
-        return {'mean_degree': 0.0, 'var_degree': 0.0, 'skew_degree': 0.0}
-
-    mean_deg = np.mean(degrees)
-    var_deg = np.var(degrees)
-    skew_deg = 0.0
-    if var_deg > 0:
-        skew_deg = np.mean(((np.array(degrees) - mean_deg) / np.sqrt(var_deg)) ** 3)
-
+    if G.number_of_nodes() == 0:
+        return {
+            "degree_mean": np.nan,
+            "degree_variance": np.nan,
+            "degree_skewness": np.nan,
+        }
+    degrees = np.array([d for _, d in G.degree()], dtype=float)
+    mean = degrees.mean()
+    var = degrees.var(ddof=0)
+    # Skewness: (E[(X-μ)^3]) / σ^3
+    if var == 0:
+        skew = 0.0
+    else:
+        skew = ((degrees - mean) ** 3).mean() / (np.sqrt(var) ** 3)
     return {
-        'mean_degree': float(mean_deg),
-        'var_degree': float(var_deg),
-        'skew_degree': float(skew_deg)
+        "degree_mean": mean,
+        "degree_variance": var,
+        "degree_skewness": skew,
     }
 
 
@@ -88,149 +105,195 @@ def compute_clustering_coefficient(G: nx.Graph) -> float:
     """
     Compute the average clustering coefficient of the graph.
 
-    Args:
-        G: Networkx graph.
-
-    Returns:
-        Average clustering coefficient.
+    Returns ``np.nan`` for an empty graph.
     """
     if G.number_of_nodes() == 0:
-        return 0.0
+        return np.nan
     return nx.average_clustering(G)
 
 
 def compute_mean_betweenness(G: nx.Graph) -> float:
     """
-    Compute the mean betweenness centrality of nodes in the graph.
+    Compute the mean betweenness centrality over all nodes.
 
-    Args:
-        G: Networkx graph.
-
-    Returns:
-        Mean betweenness centrality.
+    Returns ``np.nan`` for an empty graph.
     """
     if G.number_of_nodes() == 0:
-        return 0.0
-    betweenness = nx.betweenness_centrality(G)
-    if not betweenness:
-        return 0.0
+        return np.nan
+    betweenness = nx.betweenness_centrality(G, normalized=True, endpoints=False)
     return float(np.mean(list(betweenness.values())))
 
 
-def extract_cascade_nodes(cascade_path: str) -> list:
+def extract_cascade_nodes(cascade_path: Path) -> Dict[str, List[str]]:
     """
-    Extract node IDs from a cascade JSON file.
+    Extract node identifiers and associated user identifiers from a cascade
+    JSON file.
 
-    Args:
-        cascade_path: Path to cascade JSON file.
+    The expected schema (validated elsewhere) contains a top‑level
+    ``nodes`` list where each element has at least ``node_id`` and
+    ``user_id`` fields.
 
-    Returns:
-        List of node IDs in the cascade.
+    Returns
+    -------
+    Dict[str, List[str]]
+        ``{'node_ids': [...], 'user_ids': [...]}``
     """
-    with open(cascade_path, 'r') as f:
+    with cascade_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
-        nodes = data.get('nodes', [])
-        # Assume nodes are either dicts with 'node_id' or just strings/integers
-        if nodes and isinstance(nodes[0], dict):
-            return [n['node_id'] for n in nodes]
-        return nodes
+
+    nodes = data.get("nodes", [])
+    node_ids = [n.get("node_id") for n in nodes if "node_id" in n]
+    user_ids = [n.get("user_id") for n in nodes if "user_id" in n]
+
+    return {"node_ids": node_ids, "user_ids": user_ids}
 
 
-def process_cascades(cascade_paths: list, network_paths: list, output_path: str, logger: logging.Logger):
+def _union_graphs(graphs: List[nx.Graph]) -> nx.Graph:
     """
-    Process multiple cascades and compute network features.
-
-    Args:
-        cascade_paths: List of paths to cascade JSON files.
-        network_paths: List of paths to historical network JSON files.
-        output_path: Path to write the output CSV.
-        logger: Logger instance for recording progress.
+    Return a new graph that is the union of the supplied graphs.
     """
-    # Log input parameters
-    logger.info(f"Processing {len(cascade_paths)} cascades from: {cascade_paths}")
-    logger.info(f"Using {len(network_paths)} historical network files: {network_paths}")
-    logger.info(f"Output will be written to: {output_path}")
-
-    networks = load_historical_networks(network_paths)
-    logger.info("Loaded historical networks successfully.")
-
-    # For simplicity, we assume one network per cascade or a single global network.
-    # In a real scenario, we'd map cascades to specific networks.
-    # Here we use the first network if available, or a combined network.
-    combined_G = nx.Graph()
-    for G in networks.values():
-        combined_G = nx.compose(combined_G, G)
-
-    logger.info(f"Combined historical network has {combined_G.number_of_nodes()} nodes and {combined_G.number_of_edges()} edges.")
-
-    results = []
-    for c_path in cascade_paths:
-        cascade_id = Path(c_path).stem
-        logger.info(f"Processing cascade: {cascade_id}")
-
-        nodes = extract_cascade_nodes(c_path)
-        if not nodes:
-            logger.warning(f"No nodes found in cascade {cascade_id}, skipping.")
-            continue
-
-        # Extract subgraph of historical network for these nodes
-        sub_G = combined_G.subgraph(nodes)
-
-        # Compute features
-        deg_moments = compute_degree_moments(sub_G)
-        clustering = compute_clustering_coefficient(sub_G)
-        betweenness = compute_mean_betweenness(sub_G)
-
-        results.append({
-            'cascade_id': cascade_id,
-            'mean_degree': deg_moments['mean_degree'],
-            'var_degree': deg_moments['var_degree'],
-            'skew_degree': deg_moments['skew_degree'],
-            'clustering_coeff': clustering,
-            'mean_betweenness': betweenness
-        })
-
-    # Write to CSV
-    import csv
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=results[0].keys())
-        writer.writeheader()
-        writer.writerows(results)
-
-    logger.info(f"Feature extraction complete. Wrote {len(results)} rows to {output_path}")
+    union = nx.Graph()
+    for g in graphs:
+        union.add_nodes_from(g.nodes(data=True))
+        union.add_edges_from(g.edges(data=True))
+    return union
 
 
-def main():
-    """Main entry point for network feature extraction."""
-    parser = argparse.ArgumentParser(description='Compute network features for cascades.')
-    parser.add_argument('--input', type=str, required=True, nargs='+',
-                        help='Paths to cascade JSON files.')
-    parser.add_argument('--network', type=str, required=True, nargs='+',
-                        help='Paths to historical network JSON files.')
-    parser.add_argument('--output', type=str, required=True,
-                        help='Path for output CSV file.')
-    parser.add_argument('--seed', type=int, default=12345,
-                        help='Random seed for reproducibility.')
-    parser.add_argument('--log', type=str, default='pipeline.log',
-                        help='Path to log file.')
+def process_cascades(
+    cascade_paths: List[Path],
+    network_paths: List[Path],
+    output_path: Path,
+    logger: logging.Logger,
+) -> None:
+    """
+    Process a collection of cascades and compute network‑level features
+    based on the pre‑cascade historical network context.
 
+    Parameters
+    ----------
+    cascade_paths: List[Path]
+        Paths to cascade JSON files.
+    network_paths: List[Path]
+        Paths to historical network JSON files.
+    output_path: Path
+        Destination CSV file for the feature table.
+    logger: logging.Logger
+        Logger instance for progress reporting.
+    """
+    logger.info("Loading historical networks (%d files)", len(network_paths))
+    historical_networks = load_historical_networks(network_paths)
+
+    records = []
+
+    for cascade_path in cascade_paths:
+        cascade_id = cascade_path.stem
+        logger.info("Processing cascade %s", cascade_id)
+
+        cascade_info = extract_cascade_nodes(cascade_path)
+        user_ids = cascade_info["user_ids"]
+
+        # Gather graphs for all users appearing in the cascade.
+        graphs = [
+            historical_networks[uid]
+            for uid in user_ids
+            if uid in historical_networks
+        ]
+
+        if not graphs:
+            logger.warning(
+                "No historical network found for any user in cascade %s; "
+                "features will be NaN.",
+                cascade_id,
+            )
+            combined = nx.Graph()
+        else:
+            combined = _union_graphs(graphs)
+
+        degree_stats = compute_degree_moments(combined)
+        clustering = compute_clustering_coefficient(combined)
+        betweenness = compute_mean_betweenness(combined)
+
+        record = {
+            "cascade_id": cascade_id,
+            "degree_mean": degree_stats["degree_mean"],
+            "degree_variance": degree_stats["degree_variance"],
+            "degree_skewness": degree_stats["degree_skewness"],
+            "clustering_coeff": clustering,
+            "betweenness_mean": betweenness,
+        }
+        records.append(record)
+
+    df = pd.DataFrame.from_records(records)
+    logger.info("Writing %d feature rows to %s", len(df), output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info("Feature extraction completed successfully.")
+
+
+def main() -> int:
+    """
+    CLI entry point.
+
+    Example
+    -------
+    .. code-block:: bash
+
+        python -m pipeline.network_features \\
+            --cascades-dir data/node_limit_fixtures \\
+            --networks-dir data/historical_networks \\
+            --output data/intermediate_network_features.csv
+    """
+    parser = argparse.ArgumentParser(
+        description="Extract pre‑cascade network features for each cascade."
+    )
+    parser.add_argument(
+        "--cascades-dir",
+        type=str,
+        required=True,
+        help="Directory containing cascade JSON files.",
+    )
+    parser.add_argument(
+        "--networks-dir",
+        type=str,
+        required=True,
+        help="Directory containing historical network JSON files.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(paths.data("intermediate_network_features.csv")),
+        help="Path to write the output CSV (default: data/intermediate_network_features.csv).",
+    )
     args = parser.parse_args()
 
-    # Setup logging and seed
-    logger = setup_logger(args.log)
-    set_global_seed(args.seed)
-    logger.info("Starting network feature extraction.")
-    logger.info(f"Input cascades: {args.input}")
-    logger.info(f"Input networks: {args.network}")
-    logger.info(f"Output file: {args.output}")
+    # Initialise logger
+    logger = setup_logger(__name__, log_file=str(paths.logs("pipeline.log")))
+    logger.info("Starting network feature extraction")
+    logger.debug("Arguments: %s", args)
+
+    cascade_dir = Path(args.cascades_dir)
+    network_dir = Path(args.networks_dir)
+    output_path = Path(args.output)
+
+    cascade_paths = sorted(cascade_dir.glob("*.json"))
+    network_paths = sorted(network_dir.glob("*.json"))
+
+    if not cascade_paths:
+        logger.error("No cascade JSON files found in %s", cascade_dir)
+        return 1
+    if not network_paths:
+        logger.error("No historical network JSON files found in %s", network_dir)
+        return 1
 
     try:
-        process_cascades(args.input, args.network, args.output, logger)
-        logger.info("Network feature extraction completed successfully.")
-    except Exception as e:
-        logger.error(f"Error during feature extraction: {e}", exc_info=True)
-        sys.exit(1)
+        process_cascades(cascade_paths, network_paths, output_path, logger)
+    except Exception as exc:
+        logger.exception("Feature extraction failed: %s", exc)
+        return 1
+
+    logger.info("Network feature extraction finished")
+    return 0
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,12 @@
+status: none
+intent: Human Connectome Project S1200 resting-state fMRI NIH Toolbox behavioral download
+  Schaefer atlas python package dataset
+required_fields:
+- subject_id (string)
+- functional_connectivity_mean (float)
+- age_years (integer)
+- sex (string)
+- nih_toolbox_dimensional_change_card_sort_score (float)
+cache_key: f8afabab32eb8b7bc64e6956cada822508b0bd6c4830c4019732e7888c4afceb
+searched_at: '2026-10-12T21:38:02.254762+00:00'
+retry_count: 1

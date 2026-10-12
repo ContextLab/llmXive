@@ -1,0 +1,12 @@
+status: none
+intent: download SNAP Twitter cascade dataset PolitiFact claims dataset python package
+  dataset
+required_fields:
+- cascade_id
+- source_node_id
+- target_node_id
+- timestamp
+- cascade_label
+cache_key: cf9ea70c9987e32f3b71973557d1ae0128afe4a9fa96ef6fac10d44fb470ef16
+searched_at: '2026-10-12T21:48:55.734761+00:00'
+retry_count: 1
