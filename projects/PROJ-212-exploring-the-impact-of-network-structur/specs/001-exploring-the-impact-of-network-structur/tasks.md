@@ -11,7 +11,7 @@ Checked boxes (`[X]`) denote work that has already passed verification; unchecke
 
 | ID | Description |
 |----|-------------|
-- [ ] T001 Create the standard project directory layout (`src/`, `tests/`, `data/raw/`, `data/processed/`, `results/`, `docs/`).  
+- [X] T001 Create the standard project directory layout (`src/`, `tests/`, `data/raw/`, `data/processed/`, `results/`, `docs/`).  
    • Verify with `tree -L 2` that all folders exist.  
 - [ ] T002 Initialize a pinned Python environment (`requirements.txt` containing `networkx`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pytest`).  
    • Verification: `pip install -r requirements.txt` completes without errors.  
@@ -22,38 +22,38 @@ Checked boxes (`[X]`) denote work that has already passed verification; unchecke
 
 ## Phase 2 – Core infrastructure (foundational, blocks all user‑story work)
 
-- [ ] T004 Create `config.yaml` with deterministic seeds, synchronization threshold parameters (`r_target: 0.8`, `t_min: 100`), and default paths (`data/raw/`, `results/`).  
+- [X] T004 Create `config.yaml` with deterministic seeds, synchronization threshold parameters (`r_target: 0.8`, `t_min: 100`), and default paths (`data/raw/`, `results/`).  
    • Verification: `yaml.safe_load` succeeds and contains the required keys.  
 
 - [ ] T005a Implement `src/loader.py` to **download** real network files from the verified SNAP and Network Repository URLs listed in `plan.md`.  
    • Files are saved under `data/raw/`.  
    • Verification: after running `python -m src.loader`, `ls data/raw/*.mtx data/raw/*.csv` shows ≥ 10 files.  
 
-- [ ] T005b Compute SHA‑256 checksums for every downloaded file and write them to `data/checksums.txt` (format: `<hash>  <filename>`).  
+- [X] T005b Compute SHA‑256 checksums for every downloaded file and write them to `data/checksums.txt` (format: `<hash>  <filename>`).  
    • Verification: `sha256sum -c data/checksums.txt` returns all OK.  
 
-- [ ] T005c Add a lightweight validator in `src/loader.py` that raises an exception (no silent fallback) if any download fails, ensuring the runner retries on a real GPU if needed.  
+- [~] T005c Add a lightweight validator in `src/loader.py` that raises an exception (no silent fallback) if any download fails, ensuring the runner retries on a real GPU if needed.  
    • Verification: simulate a 404 by altering a URL and confirm the script aborts with a clear error.  
 
 - [ ] T005d After downloads, write a YAML state file `state/data_availability.yaml` with a boolean flag `regression_blocked` that is **true** when the number of raw networks is < 10.  
    • Verification: `cat state/data_availability.yaml` shows the flag correctly set.  
 
-- [ ] T006 Create `src/data_models.py` defining the dataclasses `NetworkGraph`, `TopologicalMetrics`, `SimulationResult`, and `RegressionModel` that directly mirror the JSON schemas in `contracts/`.  
+- [~] T006 Create `src/data_models.py` defining the dataclasses `NetworkGraph`, `TopologicalMetrics`, `SimulationResult`, and `RegressionModel` that directly mirror the JSON schemas in `contracts/`.  
    • Verification: a simple import `from src.data_models import NetworkGraph` succeeds and `NetworkGraph.__annotations__` matches the schema.  
 
-- [ ] T007 Provide `src/utils.py` with a `get_logger()` wrapper (already available platform‑wide) and a helper `save_json(obj, path)` that writes with `indent=2` and validates against the appropriate schema.  
+- [~] T007 Provide `src/utils.py` with a `get_logger()` wrapper (already available platform‑wide) and a helper `save_json(obj, path)` that writes with `indent=2` and validates against the appropriate schema.  
    • Verification: `utils.save_json({}, "tmp.json")` creates a readable file.  
 
-- [ ] T008a Set up `pytest` configuration in `tests/conftest.py` (fixtures for temporary directories, deterministic RNG seed).  
+- [~] T008a Set up `pytest` configuration in `tests/conftest.py` (fixtures for temporary directories, deterministic RNG seed).  
    • Verification: `pytest -q tests/conftest.py` runs without errors.  
 
-- [ ] T008b Add generic property‑based tests in `tests/test_properties.py` (e.g., “graph connectivity invariance”, “metric bounds”).  
+- [~] T008b Add generic property‑based tests in `tests/test_properties.py` (e.g., “graph connectivity invariance”, “metric bounds”).  
    • Verification: `pytest -q tests/test_properties.py` passes.  
 
-- [ ] T009 Create `src/validators.py` with functions that load a JSON file and validate it against the corresponding schema in `contracts/`.  
+- [~] T009 Create `src/validators.py` with functions that load a JSON file and validate it against the corresponding schema in `contracts/`.  
    • Verification: `python -m src.validators --self-test` exits with code 0, confirming validators work on sample files.  
 
-- [ ] T044 [P] Add a schema‑exercise test suite `tests/test_schema_validation.py` that loads each contract schema (`network_metrics.schema.yaml`, `regression_model.schema.yaml`, `regression_summary.schema.yaml`, `simulation_result.schema.yaml`) and validates a representative JSON instance against it using `src.validators`.  
+- [~] T044 [P] Add a schema‑exercise test suite `tests/test_schema_validation.py` that loads each contract schema (`network_metrics.schema.yaml`, `regression_model.schema.yaml`, `regression_summary.schema.yaml`, `simulation_result.schema.yaml`) and validates a representative JSON instance against it using `src.validators`.  
    • Verification: `pytest -q tests/test_schema_validation.py` passes, guaranteeing every schema is exercised.  
 
 ---
@@ -62,37 +62,37 @@ Checked boxes (`[X]`) denote work that has already passed verification; unchecke
 
 ### Tests (must fail before implementation – TDD)
 
-- [ ] T010 Write unit tests for `src/topology.py` in `tests/test_topology.py` covering:  
+- [~] T010 Write unit tests for `src/topology.py` in `tests/test_topology.py` covering:  
    • `test_degree_sum_equals_twice_edges`  
    • `test_clustering_bounds` (0 ≤ C ≤ 1)  
    • `test_avg_path_length_disconnected_returns_null`.  
    • Verification: `pytest -q tests/test_topology.py` must fail until implementation is complete.  
 
-- [ ] T011 Write unit tests for `src/simulation.py` in `tests/test_simulation.py` covering:  
+- [~] T011 Write unit tests for `src/simulation.py` in `tests/test_simulation.py` covering:  
    • `test_ring_graph_analytical_match_pct` (≤ 5 % error)  
    • `test_k_sweep_converges`.  
    • Verification: `pytest -q tests/test_simulation.py` must fail until implementation is complete.  
 
-- [ ] T012 Write contract test for disconnected‑graph handling (expects `coupling_strength_threshold` = `null` and status = `disconnected`).  
+- [~] T012 Write contract test for disconnected‑graph handling (expects `coupling_strength_threshold` = `null` and status = `disconnected`).  
    • Verification: `pytest -q tests/test_disconnected_handling.py` must fail until implementation is complete.  
 
-- [ ] T020 [US1] Implement a unit‑test `test_ring_graph_analytical_match_pct` that constructs a ring graph (N=200) and verifies the Kuramoto simulation threshold is within 5 % of the known analytical value.  
+- [~] T020 [US1] Implement a unit‑test `test_ring_graph_analytical_match_pct` that constructs a ring graph (N=200) and verifies the Kuramoto simulation threshold is within 5 % of the known analytical value.  
    • Verification: `pytest -q tests/test_simulation.py::test_ring_graph_analytical_match_pct` passes, satisfying SC‑006.  
 
 ### Implementation
 
-- [ ] T013 [US1] Implement `src/topology.py` to compute **exactly** the three required metrics (mean degree, degree variance, global clustering coefficient, average path length) using NetworkX on the **original** input graph (no BFS reduction).  
+- [~] T013 [US1] Implement `src/topology.py` to compute **exactly** the three required metrics (mean degree, degree variance, global clustering coefficient, average path length) using NetworkX on the **original** input graph (no BFS reduction).  
    • Output: one `NetworkMetrics` JSON per input graph saved under `data/processed/metrics_{network_id}.json`.  
    • Verification: `pytest -q tests/test_topology.py` passes and the JSON validates against `network_metrics.schema.yaml`.  
 
-- [ ] T014 [US1] Implement `src/simulation.py` with the Kuramoto model (N = 200 oscillators, RK45 integrator, `rtol=1e-6`, `atol=1e-9`). Perform a **K‑sweep** over `K ∈ [0, 5]` in increments of `0.1` to locate the synchronization robustness threshold (minimum K where `r(t) > 0.8` for `t > 100`).  
+- [~] T014 [US1] Implement `src/simulation.py` with the Kuramoto model (N = 200 oscillators, RK45 integrator, `rtol=1e-6`, `atol=1e-9`). Perform a **K‑sweep** over `K ∈ [0, 5]` in increments of `0.1` to locate the synchronization robustness threshold (minimum K where `r(t) > 0.8` for `t > 100`).  
    • Output: a `SimulationResult` JSON saved under `results/sim_{network_id}.json`.  
    • Verification: `pytest -q tests/test_simulation.py` passes; JSON validates against `simulation_result.schema.yaml`.  
 
-- [ ] T015 [US1] Add a guard in `src/simulation.py` that **immediately returns** `coupling_strength_threshold = null`, `status = "disconnected"` when the input graph’s `is_connected` flag is false (no K‑sweep performed).  
+- [~] T015 [US1] Add a guard in `src/simulation.py` that **immediately returns** `coupling_strength_threshold = null`, `status = "disconnected"` when the input graph’s `is_connected` flag is false (no K‑sweep performed).  
    • Verification: unit test `test_disconnected_graph` (from T012) passes.  
 
-- [ ] T016 [US1] Create orchestration script `src/main.py` that iterates over every file in `data/raw/`, calls `topology.compute_metrics()`, then `simulation.run()`, and aggregates all per‑network JSONs into a single array `results/sim_results.json`.  
+- [ ] T016 [US1] Create orchestration script `src/main.py` that iterates over every file in `data/raw/`, calls `topology.compute_metrics()`, then `simulation.run()`, and aggregates all per‑network JSONs into a single array `results/sim_results.json`.   <!-- FAILED-IN-EXECUTION: src/main.py exit=1 -->
    • Verification: after `python -m src.main --config config.yaml`, the file `results/sim_results.json` exists, is valid JSON, and contains one entry per raw network.  
 
 - [ ] T017b [US1] Generate a **verification package** for SC‑003:  

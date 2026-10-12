@@ -1,6 +1,7 @@
 import networkx as nx
+import numpy as np
 import logging
-from typing import Dict, Any, List, Tuple, Optional, Union
+from typing import Dict, List, Tuple
 from data_models import NetworkGraph
 
 logger = logging.getLogger(__name__)
@@ -9,6 +10,23 @@ def compute_metrics(edges: List[Tuple[int, int]], n_nodes: int) -> Dict[str, flo
     """
     Compute topological metrics: degree distribution, clustering coefficient, average path length.
     Handles disconnected graphs by returning infinity for path length.
+
+    Parameters
+    ----------
+    edges : List[Tuple[int, int]]
+        List of edge tuples defining the graph.
+    n_nodes : int
+        Number of nodes in the graph.
+
+    Returns
+    -------
+    Dict[str, float]
+        Dictionary containing:
+        - degree_mean
+        - degree_std
+        - clustering_coefficient
+        - average_path_length
+        - connectivity (bool)
     """
     if n_nodes == 0:
         return {
@@ -24,8 +42,8 @@ def compute_metrics(edges: List[Tuple[int, int]], n_nodes: int) -> Dict[str, flo
     G.add_edges_from(edges)
 
     is_connected = nx.is_connected(G)
-    
-    # Degree distribution stats
+
+    # Degree distribution statistics
     degrees = [d for _, d in G.degree()]
     degree_mean = np.mean(degrees) if degrees else 0.0
     degree_std = np.std(degrees) if degrees else 0.0

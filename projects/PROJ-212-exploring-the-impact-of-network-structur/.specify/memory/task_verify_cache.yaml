@@ -1,3 +1,52 @@
+T001:
+  c: true
+  h: 5b40bdba0c1c648223a7d13448ced39f915b38f9ef8917ab9aaacd2a9ff45e89
+  r: Checked the confirmed directory listings for `src/`, `tests/`, `data/raw/`, `data/processed/`,
+    `results/`, and `docs/`, all of which exist as required (and a log shows they
+    were created).
+  sig: 4b65b936a832d2091952e51b10d192a0d1a6704e05e3d1678f674e1371568800
+T002:
+  c: false
+  h: db33a0ed9b74b22d9681974de5f7389675ab43c5324beaefa54e8feda5fc597e
+  r: The `requirements.txt` file exists and includes the required packages, but there
+    is no provided evidence (e.g., command output, logs, or test results) showing
+    that `pip install -r requirements.txt` actually ran and completed without errors.
+    The verification step is missing.
+  sig: a05b7f718136e59786203bab1883f99ca374116b6700411abb9fae93fe42558a
+T003:
+  c: false
+  h: bd9b4f7beaf6d5e155583cebf458bfe6021d05ef54ffa2bfb879b9e93d9d1d48
+  r: "The `docs/quickstart.md` file exists and correctly shows the command and expected\
+    \ output list, but there is no evidence that the command actually runs end\u2011\
+    to\u2011end: the required output files `results/sim_results.json` and `results/regression_summary.json`\
+    \ are missing, and no execution logs or test results are provided. The task\u2019\
+    s runnable verification requirement is therefore unmet."
+  sig: e62bb95b28a1137716efcf63711a416900d422cd1ee6cd448d38204705dbbe20
+T004:
+  c: true
+  h: 8ec12b19f13487efcd132b0479275618cb9a6667b7e133f957fc86b61d17a2db
+  r: 'Checked `projects/PROJ-212-exploring-the-impact-of-network-structur/config.yaml`,
+    which loads without error and contains the required `seeds.random_seed`, `thresholds.r_target:
+    0.8`, `thresholds.t_min: 100`, and default path entries for `data/raw` and `results`.'
+  sig: 5293a9a4958713ec30e4f176275329685876701950f0375a1ff5d47eb0c2a19c
+T005a:
+  c: false
+  h: 3b3ebc71c599e23f826e88068e576fae48b1f203fab6b8d4763b16c6d6fe7a39
+  r: "Checked `src/loader.py` execution log and `data/raw/` contents: only 9\u202F\
+    *.mtx* files were successfully downloaded and converted (com\u2011DBLP failed\
+    \ with 404) and no *.csv* files exist, so the required \u201C\u2265\u202F10 files\u201D\
+    \ condition is not met. The loader also never processes any Network Repository\
+    \ URLs. The task therefore remains incomplete."
+  sig: 0be7c84b7fabea75db51614bb8aaa9822cb1c34a7c3cbd15605abc9e7e3ab263
+T005b:
+  c: true
+  h: e0b114d6f8c616efa2282e542616f715e0725f5581e5743f2b8cb1884f025512
+  r: "Checked `data/checksums.txt` (1673\u202Fbytes, 18 correctly\u2011formatted `<hash>\
+    \  <filename>` lines) and the pytest run (`tests/test_compute_checksums.py`) which\
+    \ confirms the file exists, the format is correct, and every file in `data/raw/`\
+    \ has an entry. The compute script log also reports writing 18 entries. All evidence\
+    \ shows the required SHA\u2011256 checksum file was generated and passes verification."
+  sig: 50329a4ef137b0c40359b59f364a3ae0c8b5d0c641d151d43952ca6e30c51364
 T022:
   c: false
   h: 77f62d7b411d927a4d5c7f9c43b99526e7fa2786b44c44abf1f5e09127e04832

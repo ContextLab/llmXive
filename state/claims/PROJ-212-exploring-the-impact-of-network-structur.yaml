@@ -184,3 +184,94 @@
   source_type: external
   status: verified
   updated_at: '2026-10-08T05:26:06Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline automatically downloads data, computes metrics, runs Kuramoto
+    simulations, performs regression, produces visualisations, and writes status report
+  claim_id: c_a2be1c0f
+  context: Describes the steps the pipeline performs when invoked with src.main.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The command will automatically: 1. Download the raw network files (if
+    they are not already present) into data/raw/. 2. Compute topological metrics for
+    each network. 3. Run the Kuramoto oscillator simulations to obtain the synchronization
+    robustness threshold. 4. Perform regression analysis (if enough data are available)
+    and generate statistical summaries. 5. Produce visualisations (heatmaps, bar charts,
+    model comparison plots). 6. Write a pipeline status report indicating success
+    or timeout.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:46Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline generates specified result files after successful execution
+  claim_id: c_31be6c7c
+  context: Lists expected output files after running the pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'After successful execution, the following files will be generated inside
+    the results/ directory: results/sim_results.json, results/regression_summary.json,
+    results/descriptive_stats.json, results/pipeline_status.json, results/verification_report.json,
+    results/manual_verification_log.csv, results/figures/heatmap_thresholds.png, results/figures/comparison_plot.png,
+    results/figures/model_comparison_plot.png.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:46Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: regression skipped and descriptive_stats.json produced when fewer than
+    10 networks
+  claim_id: c_64c03253
+  context: Condition handling for insufficient data.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: When fewer than 10 raw networks are present, regression is skipped and
+    results/descriptive_stats.json is produced instead.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:46Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: disconnected networks flagged with status disconnected and null threshold
+  claim_id: c_c3790b7a
+  context: Describes handling of disconnected graphs in simulation results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Networks that are not fully connected will be flagged in sim_results.json
+    with status: disconnected and a threshold of null.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:46Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: test suite validates schema, metric computation, simulation correctness,
+    and regression logic
+  claim_id: c_ac55a0b9
+  context: Description of what the pytest test suite verifies.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite checks schema validation, metric computation, simulation
+    correctness, and regression logic.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:46Z'

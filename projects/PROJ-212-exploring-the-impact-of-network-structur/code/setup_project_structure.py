@@ -1,63 +1,76 @@
-import os
+"""
+setup_project_structure.py
+
+Creates the standard project directory layout required for the pipeline:
+- src/
+- tests/
+- data/raw/
+- data/processed/
+- results/
+- docs/
+The script is idempotent and can be run repeatedly without error.
+"""
+
 import sys
 from pathlib import Path
+from llmxive_toolkit import get_logger, paths
 
-def main():
+# Obtain a logger; if the platform configures a log file it will be used.
+log = get_logger(__name__)
+
+def _create_dir(dir_path: Path) -> None:
     """
-    Creates the project directory structure as specified in T001.
-    Directories created relative to the project root:
+    Ensure a directory exists.
+
+    Parameters
+    ----------
+    dir_path : Path
+        The directory to create (parents are created as needed).
+    """
+    try:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        log.info(f"Created directory: {dir_path}")
+    except Exception as exc:
+        log.error(f"Failed to create directory {dir_path}: {exc}")
+        raise
+
+def main() -> None:
+    """
+    Entry point for the project‑structure creation script.
+
+    It creates the following directories relative to the project root:
+
     - src/
     - tests/
-    - data/
-        - raw/
-        - processed/
+    - data/raw/
+    - data/processed/
     - results/
-    - state/
+    - docs/
     """
-    # Define the base directory (current working directory or project root)
-    # In the context of the pipeline, this script is run from the project root.
-    base_path = Path.cwd()
+    # Resolve the root of the repository using the toolkit helper.
+    root = paths.root
 
-    # Define relative paths as per task description
-    # Note: The task description mentions 'src/', but the existing API surface
-    # shows files in 'code/' (e.g., code/src/...).
-    # However, T001 explicitly says: "Create project structure... by executing: mkdir -p src tests data results data/raw data/processed state".
-    # And the note says: "Plan defines `src/` at repository root, not `projects/.../code/`."
-    # We will follow the explicit mkdir command in the task description.
-    # If the existing code is in 'code/', we create 'src/' as requested by T001.
-    # The existing files in 'code/' might be a legacy or alternative structure,
-    # but T001 is the source of truth for this specific task.
-    
+    # Define the directory tree.
     directories = [
-        "src",
-        "tests",
-        "data",
-        "data/raw",
-        "data/processed",
-        "results",
-        "state"
+        root / "src",
+        root / "tests",
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "results",
+        root / "docs",
     ]
 
-    created_count = 0
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            # Verify it's actually a directory
-            if dir_path.is_dir():
-                print(f"Directory already exists: {dir_path}")
-            else:
-                print(f"Warning: Path exists but is not a directory: {dir_path}")
+    for d in directories:
+        _create_dir(d)
 
-    if created_count == 0:
-        print("No new directories were created. Structure already exists.")
-    else:
-        print(f"Successfully created {created_count} directory/directories.")
-
-    return 0
+    log.info("Project directory layout created successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # When executed as a script we run the main function.
+    # Any exception will cause a non‑zero exit code,
+    # which satisfies the verification requirement that the script must not fail silently.
+    try:
+        main()
+    except Exception as e:
+        log.exception("Unhandled exception during project structure creation")
+        sys.exit(1)

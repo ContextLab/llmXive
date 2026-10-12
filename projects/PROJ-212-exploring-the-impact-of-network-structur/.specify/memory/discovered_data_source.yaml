@@ -1,12 +1,9 @@
 status: none
-intent: download network graphs dataset from Network Repository KONECT SNAP python
-  package dataset
+intent: download SNAP network graphs edge list python package dataset
 required_fields:
-- source_node
-- target_node
-- weight
-- graph_id
-- directed
-cache_key: 5e244e952097fac9e937666e503be8d5ea08e8b64272ae8d4852682e5ebf8cf9
-searched_at: '2026-09-26T18:23:53.294274+00:00'
+- source
+- target
+- weight (optional)
+cache_key: 8e974ebd352c9c8f18359d05a02d063cc1662700b7a5abafe762346264e9b78c
+searched_at: '2026-10-12T22:26:50.960222+00:00'
 retry_count: 1

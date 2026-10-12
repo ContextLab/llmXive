@@ -1,0 +1,128 @@
+T001:
+  task: 062c63f1a35b2bb9bb2aefb352ea9cea0483e53d951f7f3a33893eaf194ccbf8
+T002:
+  reason: The `requirements.txt` file exists and includes the required packages, but
+    there is no provided evidence (e.g., command output, logs, or test results) showing
+    that `pip install -r requirements.txt` actually ran and completed without errors.
+    The verification step is missing.
+  task: 05ac88b0b060774fc6388100ac60c2134412c90438f8adf71f65ba7289d95937
+T003:
+  reason: "The `docs/quickstart.md` file exists and correctly shows the command and\
+    \ expected output list, but there is no evidence that the command actually runs\
+    \ end\u2011to\u2011end: the required output files `results/sim_results.json` and\
+    \ `results/regression_summary.json` are missing, and no execution logs or test\
+    \ results are provided. The task\u2019s runnable verification requirement is therefore\
+    \ unmet."
+  task: 132b63959c051d1ef6773da5a949e58c6dc13d85905a1f7457fa6f489bcfa6aa
+T004:
+  task: 33325af19632a7f132cabf6d318598c77ae4627400f8431ad0b979ad79bdb292
+T005a:
+  reason: "Checked `src/loader.py` execution log and `data/raw/` contents: only 9\u202F\
+    *.mtx* files were successfully downloaded and converted (com\u2011DBLP failed\
+    \ with 404) and no *.csv* files exist, so the required \u201C\u2265\u202F10 files\u201D\
+    \ condition is not met. The loader also never processes any Network Repository\
+    \ URLs. The task therefore remains incomplete."
+  task: dabc2d4cb1228a64ea2849d2764b33d838a8cf2bdf3432c43757fb595a959740
+T005b:
+  task: f4da268037259abc3556bbc28e67419e617fba52301f3b5ec42d7372f3a52f58
+T005c:
+  task: 74eb6b76dfc015228786d063fa7296c572adcbd9ee95d378159bb8201ac825cd
+T005d:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/data_availability.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 60bbeed724024c523bdc9fbd97102a08f15782b95033e7d3ade72b2a2536518b
+T006:
+  task: f4a02ef1af778d8b2ef1a17733218f6df3b0112c7261b516c9345e50f177c2b5
+T007:
+  task: dc208a2f5286798fbf8af17b6c34164c25ead5c4a60b26a13fe61c4c54523e20
+T008a:
+  task: 9fef4bcda92dde0c62b3f53c57f95db7e1b0929edd18fe1e555ecf281e5b6c6c
+T008b:
+  task: 6fc7bed5931a5796a734a9fc1a510379b7966d05b7d0a6be3ca6c69d67ba9f6f
+T009:
+  task: 026d1b19bd2ba17ae0563f843b504720293a9941b099dc803a62b44c802b00d3
+T010:
+  task: 96142fc7d3ba12a75246a92f39f7dd86db53f51653355f611dce4055f52742fe
+T011:
+  task: 1c09cb8d29247b0da5431f78f2744363e6954dcad43318310136db30feb97ff8
+T012:
+  task: 62d47c5ef112b036f1b907848006a3fba2a0b302d9dbe14bb4d78ac584051f86
+T013:
+  task: 7dde6d762474dc93b473f80d2dc60b01269ddc174e2f46fdaf2ab14243cf2985
+T014:
+  task: 83f4e35d4e439cc9197a8facae29be9e1c1e5f97c520b9b7da4a018edec3c32d
+T015:
+  task: 38eb545c9c4d9cbb7a7528eb71cbaa4c7a1cb5e54c324f2fa5829e2477d128f2
+T016:
+  reason: 'Requested task execution failed; rerun successfully: src/main.py exit=1'
+  task: b8f58fe0e8e35e99a1e386c2aa250acfd512d3d56a496a726e1e5d7545d47eed
+T017b:
+  task: 9691dd380587c94305f0751244507da9e1bf4c08ec800f98ca26c1a8b6c938a2
+T017c:
+  task: 10e03d2a81eb2a9100f4a1a34f6f3c0769cbfa80ba544c1a47c642d6dfc8d9a5
+T018:
+  task: 3c4134734ffa67b1c0220a4024e821524319afdf8ca913dd2319c11cb81b765d
+T019:
+  task: bbee447feb24fd36c9f9f307d99651125dfcd760fe6fe75e2b520e4b88de0cfc
+T020:
+  task: dc10a61adae3e616e72f5b93c82d26a3557383b9427640a644d1d740f6f13219
+T021:
+  task: 196537f32b59dd40e7bca1c4f890b88b660b5abe9d63d0d25e314eeeb806f37c
+T022:
+  task: 29bd97d26092b32fc3f4e5945d3cdbfa7ced73f327b345fb9509fb25c325c591
+T023a:
+  task: 4e66fdf8b3f7677d8c355f7248b1ea6a5b1f194f773cea9cddea025135f8763f
+T023b:
+  task: da3e8809781189b1d72287bbeb22f2fdf12caf1e605f96307d3a5a1216a1072e
+T024:
+  task: 9a1755d3548531ccbc63247b39cc6999ee8ff56091b7dc9a2968d54ecbd56e38
+T025:
+  task: 7a4c75f7fd9d7da2fac518169eaaff5a2656d506b808fd0eedfc6191b37cd4de
+T026:
+  task: a3badf2ae7374e5a834ca914cfd967be92a7a3d549b64ae5de0c58c3dcfe7d9c
+T027:
+  task: 87c752f60409c5893f03a89993702f4f70ff7aa40bdd0ff5afadb738cdfddcfb
+T028:
+  task: a49dcbb6ea4863d7be0d2b370580323f64c751cab5bbec8061eee3e61de2b970
+T029:
+  task: 49da5bcf051ecea7b3704fd0b164700203b97b8f6f17950b019e4c231f2f0abf
+T030:
+  task: 39b3cf0cfdc78f5edc48bbe7f0b6b5d6bf50760c82ffff7ae443607dd46d3c6e
+T032:
+  task: d0faa917931732b2c17cc61c792172fe4b4dc4ee3ab6c28283027dc07a89efb7
+T033:
+  task: f7ed9b04ef269281a3ac8d100646346e0ba74584c8ea46cd2d26ce55b13dc99d
+T034:
+  task: 9c74d4a8f92e8bf503a898d5f8aac38b47f0cd8aab343881522a89eb0f055fb9
+T034b:
+  task: 50b050dbae6d371293cd796debf9907d9b4c0a58b6aaf4bdc18ad59f56ae3f76
+T034c:
+  task: 5976c0800e9d5c28f6e0b9b87fa5489067feba37b7ea92f61025a24a9fb77883
+T035:
+  task: 329ece75fb8a77a4b320bea335527fd4f0b1f31e10c45b1985ca8c323a8cd316
+T038:
+  task: 194ea9c4984110f9a459c17d70401ef2d5c293148309d06f1c48233c35fa6c6f
+T039:
+  task: 834c17916266bed6db5c3c15a704c70ef3790c10f103705b57618bd64f793bda
+T040:
+  task: 8e8e8311fd2be888ca0adff5ae99da9cf73693aef28d8495ade1e1220e43dffd
+T041:
+  task: 8c2dc35b4cea34ea90a97d99fec0e8495f28e29b6603be5886c26c14bdfffba8
+T042:
+  task: d3141eee76fa932c5b87960bfdff04dfad0744c55fd4d236809e69354a87310b
+T043:
+  task: 23f3a178fc23db7dcc23011f862ddf4fb6eae57f15263d6caf0ee0ef98c8f411
+T043b:
+  task: 35d0307e7c39df3449d4a8af3facb9ad913d6ae543d846e4bf026268dfc94b06
+T044:
+  task: a26a296f1affc631a23b2d2067e5d1266c85f97d3b21283116cebea97ef102bb
+T045:
+  task: 164ec2a9779ca81ea8b405a93b288d276f5601e86c8add0ddcfefabeaef8f7d1
+T046:
+  task: ca39aed6524f1a4257d7f6d71b519ed398189af341b5104212d951cb9c393baf
+T050:
+  task: e11506218e327d57c1cbab4c86ab6f90f0a10f7b4c11923f57a6c46891af2d7e
+T051:
+  task: 73350d6f6f8b9f55dbcf4b48207eba6e9a643c65588c046b4371eabfdbe3f926

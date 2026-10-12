@@ -1,7 +1,11 @@
-# Configuration for PROJ-212
+# Configuration for PROJ-212-exploring-the-impact-of-network-structur
 seeds:
   random_seed: 42
 thresholds:
+  # Primary required keys
+  r_target: 0.8          # synchronization order parameter threshold
+  t_min: 100             # minimum time after which r must stay above r_target
+  # Aliases for backward compatibility with existing code
   r_threshold: 0.8
   time_threshold: 100
   vif_threshold: 5.0
@@ -11,3 +15,9 @@ paths:
   results_dir: "results"
   figures_dir: "figures"
   config_file: "config.yaml"
+  # Default sub‑paths (used by the pipeline)
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results_path: "results"
+  figures_path: "figures"
+# End of configuration
