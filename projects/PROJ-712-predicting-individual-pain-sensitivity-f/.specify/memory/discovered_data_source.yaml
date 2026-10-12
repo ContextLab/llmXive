@@ -1,11 +1,14 @@
 status: none
-intent: OpenNeuro ds003542 EEG dataset download via python package dataset
+intent: OpenNeuro ds003542 EEG dataset download python package dataset
 required_fields:
 - participant_id
-- eeg_file_path
-- pain_threshold_celsius
+- microstate_duration
+- microstate_occurrence
+- microstate_transition
+- microstate_spectral_power
+- heat_pain_threshold
 - age
 - sex
-cache_key: 5d84aa139aa4475ffaca64b98c4234e6990b1f652fe17bfd3d556a12280cfbbe
-searched_at: '2026-10-12T21:50:04.843544+00:00'
+cache_key: ef44286d9b3db84cb3ae51b876bc2b0ff9dd5a97456bd910479685b7aff32c62
+searched_at: '2026-10-12T23:18:18.232450+00:00'
 retry_count: 1

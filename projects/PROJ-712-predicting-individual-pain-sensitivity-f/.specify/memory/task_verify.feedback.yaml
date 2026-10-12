@@ -1,4 +1,9 @@
 T001:
+  reason: The provided `scripts/create_dirs.sh` creates only five of the six required
+    directories (it omits `scripts/` from the `mkdir -p` command), so it does not
+    fully meet the task specification. The integration test also checks only those
+    five directories, leaving the missing `scripts/` creation unverified. The script
+    must be updated to include `scripts` in the `mkdir -p` list.
   task: 273d42044ca31b8595b46dd028eba2362aa3c3401e6abaf9e9dd256a56bf92a4
 T002:
   task: 361bd0847a716514924fa0baa1024ae3bf4109aa77c64d22007fe23f0e8f288e
@@ -13,21 +18,27 @@ T006:
 T007:
   task: 4920bb068637f0677080503775255f0cbbe75a85492856ce6325b89e0c093b96
 T008:
-  reason: "The repository contains `code/preprocessing.py`, but it does not stream\
-    \ data via the `DataChunk` loader, does not implement the required ICA\u2011based\
-    \ artifact rejection (no high\u2011kurtosis check), and does not correctly compute\
-    \ \u201Cvalid EEG minutes\u201D after ICA removal. Moreover, the required output\
-    \ file `data/processed/feature_matrix.csv` is absent and the integration test\
-    \ `tests/integration/test_full_preprocess.py` is missing, so the end\u2011to\u2011\
-    end verification cannot be performed. The next implementer must (1) use `DataChunk`\
-    \ for streaming, (2) implement the specified ICA component\u2011discard logic,\
-    \ (3) co"
+  reason: "The repository contains `code/preprocessing.py`, but the required output\
+    \ file `data/processed/feature_matrix.csv` is missing, and the integration test\
+    \ fails because the raw data directory it expects does not exist, causing the\
+    \ script to exit with an error. Moreover, the provided unit test does not actually\
+    \ invoke `extract_microstate_features` to verify the 30\u2011feature DataFrame,\
+    \ so the pipeline\u2019s core functionality is not demonstrated. The pipeline\
+    \ therefore does not meet the task\u2019s specifications."
   task: 4d9e307a5628ed47f1bdc08a1b27e98cd8c09ab328d77f34d09089d92d89b8b7
 T009:
+  reason: Checked for `data/processed/feature_matrix.csv` (missing) and the required
+    test `tests/unit/test_feature_matrix_schema.py` (missing); without the CSV and
+    the validation test, the schema validation task cannot be performed.
   task: d15acfb92518449388d9be5127799de8585d5d70f0439206ec2e318047b8323a
 T010:
   task: aa80bdba5fbd5e3ac2239c782d7476dd9535ab189e3b54107bc5fc3ea4943e92
 T011:
+  reason: "Checked `code/modeling.py` \u2013 it defines `run_global_permutation_test`\
+    \ (with correct logic and guard) but the task required a function named `global_permutation_test`.\
+    \ The required symbol is missing, so the implementation does not exactly satisfy\
+    \ the specification. Adding an alias or renaming the function to `global_permutation_test`\
+    \ is needed."
   task: bf19ecd804153b8d501d2b7d7e44cb576ce4f0805614b034155f4fe37d8d87d3
 T012:
   task: 28ac8dd32532418c08120318d7b5e3fc9ada16e79900595b708dc7264c1ac109

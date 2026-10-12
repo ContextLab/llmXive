@@ -1,12 +1,12 @@
 T001:
-  c: true
-  h: 5590efc18dcdf3ffd962dde0aa43fa88b614d573b02fd65cd5177ec0d0987534
-  r: The script `scripts/create_dirs.sh` exists, contains the required `mkdir -p data/raw
-    data/processed artifacts code tests` with `set -euo pipefail`, and all six directories
-    (including `scripts/` itself) exist on disk. The integration test `tests/integration/test_structure.py`
-    runs the script and asserts each directory, and the execution log shows it passed
-    (exit 0, 1 passed).
-  sig: 8ebea64fdc5ac2fa358975589c37d86020db4295aaefd6c2d0510c5c72405ad5
+  c: false
+  h: 11e70d7daeb7e5f86f466fa09f17d7a0408d2c3bcbe2489f0bb0cf01ee3435f5
+  r: The provided `scripts/create_dirs.sh` creates only five of the six required directories
+    (it omits `scripts/` from the `mkdir -p` command), so it does not fully meet the
+    task specification. The integration test also checks only those five directories,
+    leaving the missing `scripts/` creation unverified. The script must be updated
+    to include `scripts` in the `mkdir -p` list.
+  sig: cc178f9ac35a12834660df70a0a9f9af66a78afc8739feb9a61a078f7b383f90
 T002:
   c: true
   h: c49f089da8db2a82e50343ffa7276cdc48bbe3c512a59ef0991d8fc13290c469
@@ -28,11 +28,12 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: f41aba1cb5611cfd552f8fd20dd6af34c5647eed391c58059a23854c67f3e04f
-  r: Checked `code/utils.py` (defines `set_global_seed`, `setup_logging`, and `record_artifact_hash`
-    as required) and the passing `tests/unit/test_utils.py` run (all four assertions
-    succeed, and `artifacts/log.txt` contains the logged entry).
-  sig: f56b6067adc0f77a88b47956f11291c32bafd18edec791f820e62fb6d11b5fd5
+  h: c90636543cadea553fff3276f5d6421feb4df07c08e4f53a37f9ad56546c9bde
+  r: "Checked `code/utils.py` (contains `set_global_seed`, logger writing to `artifacts/log.txt`,\
+    \ and `record_artifact_hash` returning a SHA\u2011256 hash) and the corresponding\
+    \ `tests/unit/test_utils.py` which validates identical file hashes, logger output,\
+    \ and seed determinism. All required artifacts exist and behave as specified."
+  sig: 4ac29077d2203c914a52b3d96f6348a044fbdc72f0e98b4b9dad1054d0c0a510
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56
@@ -60,13 +61,37 @@ T007:
   sig: eefd338e0db225f6e7573d613d68448f8b3ea29821edb1092c7d9c5d69dcdcaf
 T008:
   c: false
-  h: 3fed57a9fc11d5e05f562482f31238de96c0d04220b4ea75501b48b0c7b366c1
-  r: "The repository contains `code/preprocessing.py`, but it does not stream data\
-    \ via the `DataChunk` loader, does not implement the required ICA\u2011based artifact\
-    \ rejection (no high\u2011kurtosis check), and does not correctly compute \u201C\
-    valid EEG minutes\u201D after ICA removal. Moreover, the required output file\
-    \ `data/processed/feature_matrix.csv` is absent and the integration test `tests/integration/test_full_preprocess.py`\
-    \ is missing, so the end\u2011to\u2011end verification cannot be performed. The\
-    \ next implementer must (1) use `DataChunk` for streaming, (2) implement the specified\
-    \ ICA component\u2011discard logic, (3) co"
-  sig: 76a665a7630e0e7efd31f9f9e09007f502ca20b4cd7f19ff3d7e909f3446fd60
+  h: 057e795430fa4ece24eaa20411fcb3607b6f0c839ec6c0240b7f4f71f32c8664
+  r: "The repository contains `code/preprocessing.py`, but the required output file\
+    \ `data/processed/feature_matrix.csv` is missing, and the integration test fails\
+    \ because the raw data directory it expects does not exist, causing the script\
+    \ to exit with an error. Moreover, the provided unit test does not actually invoke\
+    \ `extract_microstate_features` to verify the 30\u2011feature DataFrame, so the\
+    \ pipeline\u2019s core functionality is not demonstrated. The pipeline therefore\
+    \ does not meet the task\u2019s specifications."
+  sig: 1cda043f40cd1824a97e3e5389f44695e518a7d5c71eeda74c2674e29a72325e
+T009:
+  c: false
+  h: 36611be7d76f1484cef9d460976821a2a2f0890fc33c5d0f02e131a1532fb233
+  r: Checked for `data/processed/feature_matrix.csv` (missing) and the required test
+    `tests/unit/test_feature_matrix_schema.py` (missing); without the CSV and the
+    validation test, the schema validation task cannot be performed.
+  sig: 52644a21160aa8dfdf4cdac35ff288b3f48af2d6110269f6585524c79082b83a
+T010:
+  c: true
+  h: 2f52fa33eafc1fea2f86f1dda7404a2a3f10f8e8d65874dc296ffa461314c783
+  r: "Checked `code/modeling.py` \u2013 the `train_nested_cv` function performs nested\
+    \ 5\u2011fold CV, fixes `alpha=0.5`, tunes only `l1_ratio` in the inner loop,\
+    \ and returns a dictionary containing `pearson_r_mean`, `mae_mean`, and `r_per_fold`\
+    \ (as `r_per_fold`). The implementation matches the task specification. (The unit\
+    \ test file is absent, but the required function artifact is present and correct.)"
+  sig: ef7a2a29f4806c3343ac1233bad2fe717c8bf47d589b673dd379ffdae54aeaf0
+T011:
+  c: false
+  h: 27a962bedf4975886de801a9146e9899e4555fdff781d52cf4d23531b956b7e8
+  r: "Checked `code/modeling.py` \u2013 it defines `run_global_permutation_test` (with\
+    \ correct logic and guard) but the task required a function named `global_permutation_test`.\
+    \ The required symbol is missing, so the implementation does not exactly satisfy\
+    \ the specification. Adding an alias or renaming the function to `global_permutation_test`\
+    \ is needed."
+  sig: 991dea18c3a71a0162b468c343ed686db0aa8bb66624bc0aa434d5447920ce7b

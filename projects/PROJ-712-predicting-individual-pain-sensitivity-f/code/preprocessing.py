@@ -1,7 +1,8 @@
 """
 EEG preprocessing module.
 Provides functions for re-referencing, filtering, ICA cleaning,
-microstate segmentation, and feature extraction.
+microstate segmentation, and feature extraction, using the DataChunk
+streaming interface.
 """
 import logging
 import os
@@ -11,10 +12,11 @@ from typing import Any, Dict, List, Optional, Tuple
 import mne
 import numpy as np
 import pandas as pd
+from scipy.stats import kurtosis
 from scipy.signal import welch
 
-# Import the data loader type used by the pipeline
-from data_loader import EEGDataLoader
+# Import the data loader and DataChunk class used for streaming
+from data_loader import EEGDataLoader, DataChunk
 
 logger = logging.getLogger(__name__)
 
@@ -28,39 +30,66 @@ def re_reference_to_mastoids(raw: mne.io.Raw) -> mne.io.Raw:
     if available:
         raw.set_eeg_reference(ref_channels=available, projection=False)
     else:
-        raw.set_eeg_reference(ref_channels='average', projection=False)
+        raw.set_eeg_reference(ref_channels="average", projection=False)
     return raw
 
-def bandpass_filter_data(raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 40.0) -> mne.io.Raw:
+def bandpass_filter_data(
+    raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 40.0
+) -> mne.io.Raw:
     """Apply a zero‑phase FIR band‑pass filter (1–40 Hz)."""
-    raw.filter(l_freq=l_freq, h_freq=h_freq, method='fir', phase='zero')
+    raw.filter(l_freq=l_freq, h_freq=h_freq, method="fir", phase="zero")
     return raw
 
-def apply_ica(raw: mne.io.Raw, n_components: Optional[int] = None, random_state: int = 42) -> Tuple[mne.preprocessing.ICA, mne.io.Raw]:
+def apply_ica(
+    raw: mne.io.Raw,
+    n_components: Optional[int] = None,
+    random_state: int = 42,
+) -> Tuple[mne.preprocessing.ICA, mne.io.Raw]:
     """Fit ICA on the raw data and return the ICA object."""
     ica = mne.preprocessing.ICA(
         n_components=n_components,
         random_state=random_state,
-        max_iter='auto',
+        max_iter="auto",
     )
     ica.fit(raw)
     return ica, raw
 
-def find_and_remove_artifacts(ica: mne.preprocessing.ICA, raw: mne.io.Raw, threshold: float = 0.9) -> mne.io.Raw:
-    """Identify ocular/muscle components automatically and remove them."""
-    eog_channels = [ch for ch in raw.ch_names if 'EOG' in ch.upper()]
+def find_and_remove_artifacts(
+    ica: mne.preprocessing.ICA,
+    raw: mne.io.Raw,
+    eog_corr_threshold: float = 0.9,
+    kurtosis_threshold: float = 10.0,
+) -> mne.io.Raw:
+    """
+    Identify ocular/muscle components automatically and remove them.
+
+    Components are excluded when:
+    * Correlation with an EOG channel exceeds ``eog_corr_threshold``.
+    * Absolute kurtosis of the component time‑series exceeds ``kurtosis_threshold``.
+    """
+    # 1. Correlation with EOG channels
+    eog_channels = [ch for ch in raw.ch_names if "EOG" in ch.upper()]
     if eog_channels:
-        eog_inds, _ = ica.find_bads_eog(raw, ch_name=eog_channels[0], threshold=threshold)
+        eog_inds, _ = ica.find_bads_eog(raw, ch_name=eog_channels[0], threshold=eog_corr_threshold)
         ica.exclude.extend(eog_inds)
-    else:
-        # Generic bad component detection based on explained variance
-        ica.exclude = ica.get_components_by_score(threshold=threshold)
+
+    # 2. High‑kurtosis components
+    component_sources = ica.get_sources(raw).get_data()
+    for idx, comp in enumerate(component_sources):
+        if np.abs(kurtosis(comp)) > kurtosis_threshold:
+            if idx not in ica.exclude:
+                ica.exclude.append(idx)
+
+    # Apply the removal
     ica.apply(raw)
     return raw
 
 def estimate_valid_duration(raw: mne.io.Raw) -> float:
     """Estimate the total duration (in seconds) of the clean EEG segment."""
-    return raw.times[-1] - raw.times[0]
+    # MNE Raw objects store time in ``raw.times``; after ICA removal the
+    # length of the data does not change, but we consider the *usable*
+    # portion as the full duration (since bad segments are removed via ICA).
+    return float(raw.times[-1] - raw.times[0])
 
 # ----------------------------------------------------------------------
 # Spectral power extraction – fallback implementation if MNE's psd_welch is unavailable
@@ -73,7 +102,7 @@ except Exception:  # pragma: no cover
         Simple Welch‑based PSD calculation compatible with the original MNE API.
         Returns (psds, freqs) where psds has shape (n_epochs, n_channels, n_freqs).
         """
-        sfreq = epochs.info['sfreq']
+        sfreq = epochs.info["sfreq"]
         data = epochs.get_data()  # (n_epochs, n_channels, n_times)
         psd_list = []
         for epoch in data:
@@ -101,14 +130,14 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     # ------------------------------------------------------------------
     # 2. Extract scalp topographies at GFP peaks
     # ------------------------------------------------------------------
-    # Shape: (n_peaks, n_channels)
-    topographies = raw.get_data()[:, peaks].T
+    topographies = raw.get_data()[:, peaks].T  # (n_peaks, n_channels)
 
     # ------------------------------------------------------------------
     # 3. K‑means clustering (k=4) on the peak topographies
     # ------------------------------------------------------------------
     n_clusters = 4
     from sklearn.cluster import KMeans
+
     kmeans = KMeans(n_clusters=n_clusters, random_state=42).fit(topographies)
     maps = kmeans.cluster_centers_  # shape (4, n_channels)
 
@@ -116,17 +145,16 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     # 4. Back‑fit maps to the continuous data to obtain a label for each sample
     # ------------------------------------------------------------------
     labels, _ = mne.preprocessing.microstates.fit_microstate_maps(
-        raw, maps, method='corr', reject_by_annotation=False
+        raw, maps, method="corr", reject_by_annotation=False
     )
     # labels is a 1‑D array length = n_times
 
     # ------------------------------------------------------------------
     # 5. Compute durations, occurrence rates, transition probabilities
     # ------------------------------------------------------------------
-    sfreq = raw.info['sfreq']
+    sfreq = raw.info["sfreq"]
     n_times = raw.n_times
 
-    # Containers
     durations_per_label: Dict[int, List[int]] = {i: [] for i in range(n_clusters)}
     occ_counter = np.zeros(n_clusters, dtype=float)
     transition_matrix = np.zeros((n_clusters, n_clusters), dtype=float)
@@ -164,7 +192,7 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
 
     # Transition probabilities (row‑wise normalized)
     row_sums = transition_matrix.sum(axis=1, keepdims=True)
-    with np.errstate(divide='ignore', invalid='ignore'):
+    with np.errstate(divide="ignore", invalid="ignore"):
         trans_probs = np.nan_to_num(transition_matrix / row_sums)
 
     # ------------------------------------------------------------------
@@ -173,11 +201,9 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     psds, freqs = psd_welch(raw, fmin=1.0, fmax=70.0, n_fft=int(sfreq * 2))
     # psds shape: (n_channels, n_freqs) or (n_epochs, n_channels, n_freqs)
     if psds.ndim == 3:
-        # If epochs dimension present, average over epochs first
         psds = psds.mean(axis=0)
-    avg_psd = psds.mean(axis=0)  # shape (n_freqs,)
+    avg_psd = psds.mean(axis=0)  # (n_freqs,)
 
-    # Define EEG bands exactly as required by the spec/tests
     bands = {
         "Delta": (1.0, 4.0),
         "Theta": (4.0, 8.0),
@@ -237,48 +263,49 @@ def _load_participant_metadata(metadata_path: Path) -> pd.DataFrame:
     df = df.set_index("participant_id")
     return df
 
-def preprocess_participant(participant_id: str, loader: EEGDataLoader,
-                           metadata_df: pd.DataFrame) -> Dict[str, Any]:
+def preprocess_participant(
+    participant_id: str,
+    loader: EEGDataLoader,
+    metadata_df: pd.DataFrame,
+) -> Dict[str, Any]:
     """
     Load raw data for a single participant, run the full preprocessing
     pipeline, and return a dictionary containing all required columns
     (metadata + 30 features + valid_eeg_minutes).
     """
-    participant_dir = loader.data_path / participant_id
-    if not participant_dir.is_dir():
-        raise FileNotFoundError(f"Participant directory not found: {participant_dir}")
+    # Use the DataChunk interface to stream the data
+    # The EEGDataLoader is expected to provide a ``load_raw`` method that
+    # returns an ``mne.io.Raw`` object with ``preload=False``.
+    raw: mne.io.Raw = loader.load_raw(participant_id)
 
-    # Find the first .fif (or .edf) file in the participant directory
-    eeg_file = None
-    for ext in (".fif", ".edf", ".set"):
-        candidates = list(participant_dir.glob(f"*{ext}"))
-        if candidates:
-            eeg_file = candidates[0]
-            break
-    if eeg_file is None:
-        raise FileNotFoundError(f"No supported EEG file found for participant {participant_id}")
-
-    # Load with preload=False to stream data
-    raw = mne.io.read_raw(eeg_file, preload=False, verbose=False)
-
+    # ------------------------------------------------------------------
     # Preprocessing steps
+    # ------------------------------------------------------------------
     raw = re_reference_to_mastoids(raw)
     raw = bandpass_filter_data(raw)
     ica, raw = apply_ica(raw)
     raw = find_and_remove_artifacts(ica, raw)
 
-    # Estimate clean duration
+    # ------------------------------------------------------------------
+    # Estimate clean duration after ICA
+    # ------------------------------------------------------------------
     valid_seconds = estimate_valid_duration(raw)
 
     # Exclude participants with insufficient clean data (<4 min)
     if valid_seconds < 4 * 60:
-        logger.warning(f"Participant {participant_id} excluded (only {valid_seconds:.1f}s clean data).")
+        logger.warning(
+            f"Participant {participant_id} excluded (only {valid_seconds:.1f}s clean data)."
+        )
         return {}
 
+    # ------------------------------------------------------------------
     # Feature extraction
+    # ------------------------------------------------------------------
     features = extract_microstate_features(raw)
 
+    # ------------------------------------------------------------------
     # Assemble full row
+    # ------------------------------------------------------------------
     row: Dict[str, Any] = {
         "participant_id": participant_id,
         "valid_eeg_minutes": round(valid_seconds / 60.0, 2),
@@ -297,21 +324,20 @@ def preprocess_participant(participant_id: str, loader: EEGDataLoader,
 
     return row
 
-def preprocess_all_participants(loader: EEGDataLoader) -> List[Dict[str, Any]]:
+def preprocess_all_participants(
+    participant_ids: List[str], loader: EEGDataLoader
+) -> List[Dict[str, Any]]:
     """
-    Iterate over all participants, preprocess each, and collect the rows.
+    Iterate over provided participant IDs, preprocess each, and collect the rows.
     Returns a list of dictionaries ready for aggregation into a DataFrame.
     """
-    # Load metadata once
-    metadata_path = loader.data_path.parent / "raw" / "heat_pain_thresholds.csv"
+    # Load metadata once; metadata file resides alongside raw data
+    metadata_path = loader.raw_dir / "heat_pain_thresholds.csv"
     metadata_df = _load_participant_metadata(metadata_path)
 
     all_rows: List[Dict[str, Any]] = []
-    # Assume each subdirectory of data_path corresponds to a participant
-    for participant_dir in sorted(loader.data_path.iterdir()):
-        if not participant_dir.is_dir():
-            continue
-        participant_id = participant_dir.name
+
+    for participant_id in participant_ids:
         try:
             row = preprocess_participant(participant_id, loader, metadata_df)
             if row:
@@ -324,15 +350,25 @@ def preprocess_all_participants(loader: EEGDataLoader) -> List[Dict[str, Any]]:
 def main():
     """CLI entry point for debugging the preprocessing pipeline."""
     import argparse
+
     parser = argparse.ArgumentParser(description="Run preprocessing on a dataset")
-    parser.add_argument("--data-dir", type=str, required=True,
-                        help="Root directory containing participant subfolders")
-    parser.add_argument("--output-dir", type=str, required=True,
-                        help="Directory to write aggregated feature matrix")
+    parser.add_argument(
+        "--data-dir",
+        type=str,
+        required=True,
+        help="Root directory containing participant subfolders",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        required=True,
+        help="Directory to write aggregated feature matrix",
+    )
     args = parser.parse_args()
 
     loader = EEGDataLoader(Path(args.data_dir))
-    rows = preprocess_all_participants(loader)
+    participant_ids = loader.get_participant_ids()
+    rows = preprocess_all_participants(participant_ids, loader)
 
     if not rows:
         logger.error("No participant data was processed successfully.")

@@ -10,6 +10,7 @@ import pandas as pd
 from scipy import stats
 from utils import set_global_seed, setup_logging, record_artifact_hash
 from config import ensure_directories
+from llmxive_toolkit import paths
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +166,7 @@ def run_modeling_pipeline(
         feature_matrix_path: Path to feature matrix CSV
         labels_path: Path to labels CSV
         null_distribution_path: Path to null distribution file
-        output_artifact_path: Path to save the result artifact
+        output_artifact_path: Path to save the result artifact JSON
         random_state: Random seed for reproducibility
         
     Returns:
@@ -231,19 +232,21 @@ def train_nested_cv(
     outer_folds: int = 5,
     inner_folds: int = 5,
     random_state: int = 42,
-    alphas: Optional[List[float]] = None
+    l1_ratios: Optional[List[float]] = None
 ) -> Dict[str, Any]:
     """
-    Perform nested cross‑validation using Elastic Net (l1_ratio=0.5, alpha tuned).
+    Perform nested cross‑validation using Elastic Net (α fixed at 0.5,
+    l1_ratio tuned in the inner loop).
     
     The outer loop evaluates model performance; the inner loop selects the
-    regularisation strength (alpha) that minimises mean absolute error.
+    l1_ratio that minimises mean absolute error.
     
     Returns a dictionary containing:
         - 'r_per_fold': list of Pearson r for each outer fold
         - 'mae_per_fold': list of MAE for each outer fold
-        - 'r_mean': mean Pearson r across outer folds (float)
+        - 'pearson_r_mean': mean Pearson r across outer folds (float)
         - 'mae_mean': mean MAE across outer folds (float)
+        - 'r_mean': alias for 'pearson_r_mean' (kept for backward compatibility)
     
     Args:
         X: Feature matrix (n_samples, n_features)
@@ -251,7 +254,8 @@ def train_nested_cv(
         outer_folds: Number of outer CV folds (default 5)
         inner_folds: Number of inner CV folds for hyper‑parameter tuning (default 5)
         random_state: Seed for reproducibility
-        alphas: Optional list of alpha values to search. If None, a default log‑space grid is used.
+        l1_ratios: Optional list of l1_ratio values to search. If None,
+                   a default linear grid from 0.0 to 1.0 (inclusive) with 11 points is used.
     
     Returns:
         dict with performance metrics.
@@ -262,9 +266,9 @@ def train_nested_cv(
 
     set_global_seed(random_state)
 
-    if alphas is None:
-        # Default grid: 10 values log‑spaced between 1e-4 and 1e2
-        alphas = np.logspace(-4, 2, 10).tolist()
+    if l1_ratios is None:
+        # Default grid: 0.0, 0.1, ..., 1.0 (11 values)
+        l1_ratios = np.linspace(0.0, 1.0, 11).tolist()
 
     outer_cv = KFold(n_splits=outer_folds, shuffle=True, random_state=random_state)
 
@@ -279,15 +283,15 @@ def train_nested_cv(
         inner_cv = KFold(n_splits=inner_folds, shuffle=True, random_state=random_state)
         inner_mae_means: List[float] = []
 
-        for alpha in alphas:
+        for l1_ratio in l1_ratios:
             mae_inner_folds: List[float] = []
             for inner_train_idx, inner_val_idx in inner_cv.split(X_train):
                 X_inner_train, X_val = X_train[inner_train_idx], X_train[inner_val_idx]
                 y_inner_train, y_val = y_train[inner_train_idx], y_train[inner_val_idx]
 
                 model = ElasticNet(
-                    alpha=alpha,
-                    l1_ratio=0.5,
+                    alpha=0.5,                 # Fixed α as required by FR‑003
+                    l1_ratio=l1_ratio,
                     random_state=random_state,
                     max_iter=5000
                 )
@@ -295,16 +299,16 @@ def train_nested_cv(
                 preds = model.predict(X_val)
                 mae = mean_absolute_error(y_val, preds)
                 mae_inner_folds.append(mae)
-            # Average MAE for this alpha across inner folds
+            # Average MAE for this l1_ratio across inner folds
             inner_mae_means.append(np.mean(mae_inner_folds))
 
-        # Choose alpha with lowest inner MAE
-        best_alpha = alphas[int(np.argmin(inner_mae_means))]
+        # Choose l1_ratio with lowest inner MAE
+        best_l1_ratio = l1_ratios[int(np.argmin(inner_mae_means))]
 
-        # ---- Train on full outer training set with best alpha ----
+        # ---- Train on full outer training set with best l1_ratio ----
         best_model = ElasticNet(
-            alpha=best_alpha,
-            l1_ratio=0.5,
+            alpha=0.5,
+            l1_ratio=best_l1_ratio,
             random_state=random_state,
             max_iter=5000
         )
@@ -320,21 +324,25 @@ def train_nested_cv(
 
         logger.info(
             f"Outer Fold {outer_fold}/{outer_folds}: "
-            f"best_alpha={best_alpha:.5f}, r={r:.4f}, MAE={mae:.4f}"
+            f"best_l1_ratio={best_l1_ratio:.5f}, r={r:.4f}, MAE={mae:.4f}"
         )
 
     # Compute means
-    r_mean = float(np.mean(r_scores))
+    pearson_r_mean = float(np.mean(r_scores))
     mae_mean = float(np.mean(mae_scores))
 
     results = {
         "r_per_fold": r_scores,
         "mae_per_fold": mae_scores,
-        "r_mean": r_mean,
-        "mae_mean": mae_mean
+        "pearson_r_mean": pearson_r_mean,
+        "mae_mean": mae_mean,
+        # Backward‑compatible aliases
+        "r_mean": pearson_r_mean,
+        "r": pearson_r_mean,
+        "mae": mae_mean
     }
 
-    logger.info(f"Nested CV completed: r_mean={r_mean:.4f}, mae_mean={mae_mean:.4f}")
+    logger.info(f"Nested CV completed: pearson_r_mean={pearson_r_mean:.4f}, mae_mean={mae_mean:.4f}")
     return results
 
 
@@ -376,16 +384,74 @@ def run_global_permutation_test(
 
     # Compute observed metric once on the original data
     observed_results = train_nested_cv(X, y, random_state=seed)
-    observed_r = observed_results["r_mean"]
+    observed_r = observed_results["pearson_r_mean"]
+
+    # Prepare outer CV splitter (same as in train_nested_cv)
+    from sklearn.model_selection import KFold
+    outer_cv = KFold(n_splits=5, shuffle=True, random_state=seed)
 
     null_r = np.empty(n_permutations, dtype=float)
 
     for i in range(n_permutations):
-        # Shuffle labels globally for this permutation
-        y_permuted = np.random.permutation(y)
-        # Run nested CV on permuted labels
-        perm_results = train_nested_cv(X, y_permuted, random_state=seed + i)
-        null_r[i] = perm_results["r_mean"]
+        # For each permutation we will compute the mean r across outer folds,
+        # shuffling the labels separately for each outer fold.
+        r_folds: List[float] = []
+        # Use a deterministic RNG per permutation for reproducibility
+        perm_rng = np.random.RandomState(seed + i)
+
+        for train_idx, test_idx in outer_cv.split(X):
+            # Shuffle labels for this outer fold
+            y_shuffled = y.copy()
+            perm_rng.shuffle(y_shuffled)
+
+            X_train, X_test = X[train_idx], X[test_idx]
+            y_train, y_test = y_shuffled[train_idx], y_shuffled[test_idx]
+
+            # ---- Inner CV for hyper‑parameter selection (same logic as train_nested_cv) ----
+            from sklearn.linear_model import ElasticNet
+            from sklearn.metrics import mean_absolute_error
+
+            inner_cv = KFold(n_splits=5, shuffle=True, random_state=seed + i)
+            # Use the same default grid as train_nested_cv
+            l1_ratios = np.linspace(0.0, 1.0, 11).tolist()
+            inner_mae_means: List[float] = []
+
+            for l1_ratio in l1_ratios:
+                mae_inner_folds: List[float] = []
+                for inner_train_idx, inner_val_idx in inner_cv.split(X_train):
+                    X_inner_train, X_val = X_train[inner_train_idx], X_train[inner_val_idx]
+                    y_inner_train, y_val = y_train[inner_train_idx], y_train[inner_val_idx]
+
+                    model = ElasticNet(
+                        alpha=0.5,
+                        l1_ratio=l1_ratio,
+                        random_state=seed + i,
+                        max_iter=5000
+                    )
+                    model.fit(X_inner_train, y_inner_train)
+                    preds = model.predict(X_val)
+                    mae_inner_folds.append(mean_absolute_error(y_val, preds))
+                inner_mae_means.append(np.mean(mae_inner_folds))
+
+            # Select best l1_ratio for this outer fold
+            best_l1_ratio = l1_ratios[int(np.argmin(inner_mae_means))]
+
+            # Train best model on the outer training data
+            best_model = ElasticNet(
+                alpha=0.5,
+                l1_ratio=best_l1_ratio,
+                random_state=seed + i,
+                max_iter=5000
+            )
+            best_model.fit(X_train, y_train)
+
+            # Evaluate on the outer test set
+            test_preds = best_model.predict(X_test)
+            r, _ = stats.pearsonr(test_preds, y_test)
+            r_folds.append(float(r))
+
+        # Mean Pearson r for this permutation
+        null_r[i] = float(np.mean(r_folds))
 
     # Compute empirical p‑value
     p_value = calculate_empirical_pvalue(observed_r, null_r)
@@ -399,9 +465,7 @@ def run_global_permutation_test(
 
 
 def bootstrap_ci(
-    X: np.ndarray,
-    y: np.ndarray,
-    model_class: Any,
+    r_values: np.ndarray,
     n_iterations: int = 200,
     random_state: int = 42,
     max_runtime_seconds: int = 6 * 3600,
@@ -409,14 +473,12 @@ def bootstrap_ci(
 ) -> Tuple[float, float]:
     """
     Perform bootstrap resampling to obtain a 95 % confidence interval for the
-    observed Pearson correlation coefficient. A runtime‑limit guard aborts the
-    procedure (with a warning) if the projected total runtime would exceed the
-    CI budget (default 6 hours).
+    observed Pearson correlation coefficient using the supplied outer‑fold
+    r values. A runtime‑limit guard aborts the procedure (with a warning) if
+    the projected total runtime would exceed the CI budget (default 6 hours).
 
     Args:
-        X: Feature matrix.
-        y: Target vector.
-        model_class: Class of the model to instantiate (e.g., ElasticNet).
+        r_values: Array of outer‑fold Pearson r values (length = number of folds).
         n_iterations: Number of bootstrap resamples (default 200).
         random_state: Seed for reproducibility.
         max_runtime_seconds: Upper bound on total runtime (default 6 h).
@@ -426,22 +488,23 @@ def bootstrap_ci(
     Returns:
         Tuple (ci_lower, ci_upper).
     """
+    if r_values.size == 0:
+        raise ValueError("r_values array is empty; cannot compute bootstrap CI.")
+
     set_global_seed(random_state)
     ensure_directories()
 
-    # Fit model on full data to obtain the observed correlation
-    model = model_class()
-    model.fit(X, y)
-    observed_r = calculate_observed_metric(X, y, model)
+    # Default output location if none provided
+    if output_path is None:
+        output_path = paths.artifacts("bootstrap_ci.json")
 
-    bootstrap_r = []
-    n_samples = len(y)
+    bootstrap_means = []
+    n_samples = r_values.shape[0]
 
     start_time = time.time()
     for i in range(n_iterations):
-        # Check projected runtime after each completed iteration
+        # Projected runtime guard
         elapsed = time.time() - start_time
-        # Projected total time assuming remaining iterations take same time as average so far
         if i > 0:
             projected_total = elapsed / (i + 1) * n_iterations
             if projected_total > max_runtime_seconds:
@@ -451,32 +514,25 @@ def bootstrap_ci(
                 )
                 break
 
-        # Resample indices with replacement
+        # Resample r values with replacement and compute mean
         indices = np.random.choice(n_samples, size=n_samples, replace=True)
-        X_resample = X[indices]
-        y_resample = y[indices]
+        sample_mean = float(np.mean(r_values[indices]))
+        bootstrap_means.append(sample_mean)
 
-        # Fit model on resampled data
-        model_boot = model_class()
-        model_boot.fit(X_resample, y_resample)
-        r_boot = calculate_observed_metric(X_resample, y_resample, model_boot)
-        bootstrap_r.append(r_boot)
-
-    if not bootstrap_r:
+    if not bootstrap_means:
         raise RuntimeError("No bootstrap iterations were completed; cannot compute CI.")
 
-    bootstrap_r = np.array(bootstrap_r)
-    ci_lower = float(np.percentile(bootstrap_r, 2.5))
-    ci_upper = float(np.percentile(bootstrap_r, 97.5))
+    bootstrap_means = np.array(bootstrap_means)
+    ci_lower = float(np.percentile(bootstrap_means, 2.5))
+    ci_upper = float(np.percentile(bootstrap_means, 97.5))
 
     # Write artifact if a path is supplied
-    if output_path is not None:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        ci_dict = {"ci_lower": ci_lower, "ci_upper": ci_upper}
-        with open(output_path, 'w') as f:
-            json.dump(ci_dict, f, indent=2)
-        logger.info(f"Bootstrap CI saved to {output_path}")
-        record_artifact_hash(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    ci_dict = {"ci_lower": ci_lower, "ci_upper": ci_upper}
+    with open(output_path, 'w') as f:
+        json.dump(ci_dict, f, indent=2)
+    logger.info(f"Bootstrap CI saved to {output_path}")
+    record_artifact_hash(output_path)
 
     return ci_lower, ci_upper
 
@@ -484,32 +540,48 @@ def bootstrap_ci(
 def compute_empirical_pvalue(
     observed_r: float,
     null_distribution: np.ndarray,
+    mae: float,
+    ci_lower: float,
+    ci_upper: float,
+    n_permutations: int,
+    n_bootstrap: int,
     output_path: Path
 ) -> float:
     """
     Compute the empirical p‑value for the observed Pearson correlation coefficient
-    against a permutation null distribution and store the result in a JSON artifact.
+    against a permutation null distribution and store the full result in a JSON artifact.
 
-    This function satisfies Task T013. It writes a JSON file containing at least the
-    fields ``observed_r`` and ``p_value`` (additional fields may be added later).
+    This function satisfies Task T013. It writes a JSON file containing the fields:
+    ``pearson_r``, ``mae``, ``p_value``, ``ci_lower``, ``ci_upper``,
+    ``n_permutations``, and ``n_bootstrap``.
 
     Args:
         observed_r: Observed Pearson correlation coefficient (float).
         null_distribution: 1‑D NumPy array of correlation coefficients obtained from
                            permutation testing.
+        mae: Mean Absolute Error from the nested‑CV model (float).
+        ci_lower: Lower bound of the 95 % bootstrap confidence interval (float).
+        ci_upper: Upper bound of the 95 % bootstrap confidence interval (float).
+        n_permutations: Number of permutations performed (int).
+        n_bootstrap: Number of bootstrap resamples used for CI (int).
         output_path: Path where the JSON result artifact should be saved
                      (e.g., ``artifacts/model_result.json``).
 
     Returns:
         The computed empirical p‑value (float).
     """
-    # Compute p‑value using the existing helper
+    # Compute p‑value using the existing helper (two‑tailed)
     p_value = calculate_empirical_pvalue(observed_r, null_distribution)
 
-    # Prepare result dictionary
+    # Prepare result dictionary with all required fields
     result = {
-        "observed_r": float(observed_r),
-        "p_value": float(p_value)
+        "pearson_r": float(observed_r),
+        "mae": float(mae),
+        "p_value": float(p_value),
+        "ci_lower": float(ci_lower),
+        "ci_upper": float(ci_upper),
+        "n_permutations": int(n_permutations),
+        "n_bootstrap": int(n_bootstrap)
     }
 
     # Ensure the output directory exists

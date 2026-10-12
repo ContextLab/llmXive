@@ -2,3 +2,6 @@
 2026-10-12 21:49:16,473 - __main__ - ERROR - Missing required citations:
 2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.1234/example1
 2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-12 23:17:20,826 - __main__ - ERROR - Missing required citations:
+2026-10-12 23:17:20,826 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-12 23:17:20,826 - __main__ - ERROR -   - doi:10.5678/example2
