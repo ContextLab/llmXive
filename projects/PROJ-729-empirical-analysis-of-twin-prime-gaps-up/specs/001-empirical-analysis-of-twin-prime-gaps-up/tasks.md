@@ -47,9 +47,9 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
-- [ ] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
+- [X] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
+- [X] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -79,8 +79,8 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float derived from p=3 (calculate as `(5-3)/log(3)`). **Verification**: Use tolerance `assert abs(val - expected) < 1e-4` to handle floating point precision.
-- [~] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
+- [X] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float derived from p=3 (calculate as `(5-3)/log(3)`). **Verification**: Use tolerance `assert abs(val - expected) < 1e-4` to handle floating point precision.
+- [X] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
 
 ### Implementation for User Story 1
 
@@ -88,14 +88,14 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Step 1**: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py` using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014 $.
  - **Output**: A reusable function in `code/generate_primes.py`.
 
-- [ ] T013b-b [US1] [FR-002] [SC-001] **Compute and Save Expected Count**. <!-- FAILED-IN-EXECUTION: code/compute_expected_count.py exit=1 -->
+- [~] T013b-b [US1] [FR-002] [SC-001] **Compute and Save Expected Count**.
  - **Step 1**: Call `calculate_hardy_littlewood_expected_count(10**9)`.
  - **Step 2**: Log the calculated expected count to the console.
  - **Step 3**: Save the expected count to `data/results/expected_count.json` with key `expected_count`.
  - **Output**: `data/results/expected_count.json` containing `{"expected_count": <float>}`.
  - **Dependency**: **Must run after T013b-a** (implementation of the function).
 
-- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**.
+- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**. <!-- FAILED-IN-EXECUTION: code/generate_primes.py exit=1 -->
  - **Implementation**: Use `primesieve` to find twin primes up to 1,000,000,000.
  - **Verification**:
  1. Read `expected_count` from `data/results/expected_count.json` (produced by T013b-b).

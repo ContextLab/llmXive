@@ -1,0 +1,20 @@
+# Tool configuration for ruff (linting) and black (formatting), Task T003.
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".venv", "venv", "data", "figures"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = [
+    "E501",  # line length is handled by black
+    "B008",  # function call in default argument (used in FastAPI-style code)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "utils", "generate_primes", "hash_artifacts", "validate_schema"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = "(.venv|venv|data|figures)"

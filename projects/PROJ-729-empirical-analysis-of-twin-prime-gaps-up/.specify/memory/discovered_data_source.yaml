@@ -1,9 +1,11 @@
 status: none
-intent: The Pile text generation dataset huggingface datasets python package dataset
+intent: download The Pile dataset from EleutherAI via HuggingFace pip install pile
+  python package dataset
 required_fields:
 - text
 - source
-- metadata
-cache_key: 473cb827ca7209c3b02b9a4f072c52a66dc1ee7cff6cc5a7faec9c9e4e35dc35
-searched_at: '2026-10-10T03:31:01.028732+00:00'
+- timestamp
+- author
+cache_key: e74e067dc893fcad679296cf2a2c2b3aa23e17c99f1865e9ba25b1d93109d550
+searched_at: '2026-10-12T01:09:05.778462+00:00'
 retry_count: 1

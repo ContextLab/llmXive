@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `nilearn`, `scikit-learn`, `python-louvain`, `statsmodels`, `nibabel`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `nilearn`, `scikit-learn`, `python-louvain`, `statsmodels`, `nibabel`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,14 +55,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils.py` with global random seed setting (numpy, random, python) and memory profiling helpers <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [X] T004 [P] Implement `code/utils.py` with global random seed setting (numpy, random, python) and memory profiling helpers <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [ ] T005 [P] Create `code/config.py` to manage paths (`data/raw`, `data/processed`, `data/results`) and hyperparameters (thresholds, sensitivity analysis increments)
-- [ ] T006 [P] Implement `code/download_data.py` with full HCP S3/HuggingFace verification logic: fetch metadata, verify NIfTI existence for a random subset of subjects, and HALT execution if data is unavailable (Phase 0 critical path)
+- [X] T005 [P] Create `code/config.py` to manage paths (`data/raw`, `data/processed`, `data/results`) and hyperparameters (thresholds, sensitivity analysis increments)
+- [ ] T006 [P] Implement `code/download_data.py` with full HCP S3/HuggingFace verification logic: fetch metadata, verify NIfTI existence for a random subset of subjects, and HALT execution if data is unavailable (Phase 0 critical path) <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
 - [ ] T007 Setup `tests/test_utils.py` to verify seed reproducibility and memory constraints
-- [X] T008 Setup CI workflow (`.github/workflows/research.yml`) targeting CPU-only runner with 7GB RAM limit
+- [ ] T008 Setup CI workflow (`.github/workflows/research.yml`) targeting CPU-only runner with 7GB RAM limit
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -100,8 +100,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Unit test for adjacency matrix thresholding logic in `tests/test_build_graphs.py`
-- [~] T017 [P] [US2] Unit test for Louvain algorithm convergence and seed stability in `tests/test_build_graphs.py`
+- [ ] T016 [P] [US2] Unit test for adjacency matrix thresholding logic in `tests/test_build_graphs.py`
+- [ ] T017 [P] [US2] Unit test for Louvain algorithm convergence and seed stability in `tests/test_build_graphs.py`
 
 ### Implementation for User Story 2
 

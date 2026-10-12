@@ -22,10 +22,17 @@
 
 ## Running the Pipeline
 
-The pipeline consists of five steps: Generation, Validation, Analysis, Hashing, and Reporting.
+The pipeline consists of six steps: Expected Count, Generation, Validation, Analysis, Hashing, and Reporting.
+
+### Step 0: Compute Expected Count
+Compute and save the Hardy-Littlewood theoretical expectation (used to verify the generated count):
+```bash
+python code/compute_expected_count.py
+```
+*Output*: `data/results/expected_count.json` containing `{"expected_count": <float>}`
 
 ### Step 1: Generate Data
-Generate the twin prime dataset up to a large upper bound.:
+Generate the twin prime dataset up to a large upper bound:
 ```bash
 python code/generate_primes.py
 ```

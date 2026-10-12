@@ -56,6 +56,10 @@ def main():
             limit,
             expected_count,
         )
+        print(
+            f"Hardy-Littlewood expected twin prime count up to {limit}: "
+            f"{expected_count:.6f}"
+        )
 
         output_path = Path(config["paths"]["results"]) / "expected_count.json"
         with open(output_path, "w") as f:

@@ -1,22 +1,18 @@
 T001:
   c: true
-  h: 1998fce335f1120b82902ecb807ad7d8c3306e514cc670aac9403a28b93675b6
-  r: "Checked that the repository contains the three required top\u2011level directories\
-    \ \u2013 `code/` (with multiple files), `data/` (present as an empty directory)\
-    \ and `tests/` (containing a test file) \u2013 matching the implementation plan\u2019\
-    s project\u2011structure requirement."
-  sig: 7b1bc3f8d3f2f48e60aacf8ad8c9013e648cfcef7e4065357e39ae62c5b23e0f
+  h: 3b16059ce9d66f0a0337e3392310e3d713df01f1360c113327fff696ac4d6bc9
+  r: "Checked that the project root contains the required `code/`, `data/`, and `tests/`\
+    \ directories, each present (code/ and tests/ non\u2011empty, data/ created as\
+    \ an empty folder)."
+  sig: f3317ece6067bbc8fcd0954caacf46ef39e908a39d4fab296bc65889a416c797
 T002:
-  c: false
-  h: 876c878f1de68abfcd3e250f23049fc7b1c1ebb9b5822fc6f38813305d966743
-  r: "The repository contains a `requirements.txt` file with the required packages,\
-    \ but the versions are specified with `>=` rather than exact pins (e.g., `nilearn==0.10.0`).\
-    \ The task explicitly required \u201Cpinning\u201D those dependencies, which is\
-    \ not satisfied. Additionally, no evidence of a Python\u202F3.11 project configuration\
-    \ (e.g., `pyproject.toml` or a version\u2011specific environment file) is provided.\
-    \ The implementer must replace the version specifiers with exact versions and\
-    \ optionally include a Python\u2011version declaration."
-  sig: 897b8751d0799ca8b5432d9d9d7ffeaf78ec2af305b053d24d315802b4833f79
+  c: true
+  h: d4c6d5ade7b14599d1abcb77c1598e561bbe6c91ed140338ea988c5de8bbd9e6
+  r: "Checked the `requirements.txt` file (projects/PROJ-770\u2011resting\u2011state\u2011\
+    network\u2011modularity\u2011predict/requirements.txt) which exists, is non\u2011\
+    empty, and contains exact version pins for `nilearn`, `scikit-learn`, `python-louvain`,\
+    \ `statsmodels`, and `nibabel` as required."
+  sig: 680c470491ab59f1ccfd5140a2105900afce751125277224ffb7954ef74c0d82
 T003:
   c: false
   h: ac7092d47808cc70e727c5c9d390de1e8b73f61118cf06bcfcb1d56d0749f5d5
@@ -26,6 +22,22 @@ T003:
     logs showing the tools are configured. Without these artifacts, the requirement
     to configure linting and formatting is not satisfied.
   sig: dffe1c857f27f1e7faacad882f746d40fa390d132ef96015aca17feaf1fb2bfa
+T004:
+  c: true
+  h: 25b7449ac3786b04476cfb48f62d8c1529dbfeb478ee64cd2c0121871d4d8ec5
+  r: "Checked `code/utils.py` (5552\u202Fbytes) which defines `set_global_seed` that\
+    \ sets NumPy, `random`, and `PYTHONHASHSEED`, and provides memory\u2011profiling\
+    \ helpers (`get_current_memory_mb`, `get_peak_memory_mb`, `memory_profile`). The\
+    \ file is present, non\u2011empty, and implements the required functionality."
+  sig: 6d11541c8bd7d6c2fb593051293a97ceb9333c7fe91ed2f0f143de3c5967f43b
+T005:
+  c: true
+  h: d5939b99fae5a1df6cd996b12e7b0aca826ec7d3f3480ee856e96ab08c91cc8d
+  r: "The `code/config.py` file exists (3512\u202Fbytes) and defines `DATA_RAW_DIR`,\
+    \ `DATA_PROCESSED_DIR`, `DATA_RESULTS_DIR` as pathlib paths, plus hyper\u2011\
+    parameters `THRESHOLD_PERCENT` and a list `SENSITIVITY_INCREMENTS` (derived from\
+    \ start/stop/step), fulfilling the requested configuration functionality."
+  sig: d36db642d77835ac420a7c8a78ebd773b13e59069d66434c506e5eda5d68cfe5
 T008:
   c: true
   h: 4f026709f1b71232c1dd6c426a85433e07376bfb7ad9c57d3121869b7af8f9ed
@@ -51,3 +63,18 @@ T010:
     \ response is present. The missing file must be added with appropriate test code\
     \ to satisfy the task."
   sig: 179cc348dc502ef9cc31fdd3e836414d4304353cab9b36ec468baf151186b529
+T016:
+  c: false
+  h: a85b94e7cd14585a9108f36a707b816db1d9aed5c42d72fe06d66c81884fc80f
+  r: "The required unit\u2011test file `tests/test_build_graphs.py` is missing from\
+    \ the project, so the adjacency\u2011matrix thresholding logic is not exercised\
+    \ by any test. The task\u2019s core deliverable does not exist."
+  sig: 146271e768f2aad8f7ad447dc2c7da23237279dcd84b8e8ec0aba18eed0b4a7f
+T017:
+  c: false
+  h: 77f3c8b2655832cd0cd86a160ebac0556ecfa578ab4bc9b6897cabc0bf6d2612
+  r: "The required unit\u2011test file `tests/test_build_graphs.py` is missing from\
+    \ the project, so the task\u2019s core deliverable does not exist. Without this\
+    \ test the Louvain convergence and seed\u2011stability verification cannot be\
+    \ satisfied."
+  sig: 29db152c7ecf87b251f2fe989fd9a5a9afa440c52dc79c14785d536a0895addd

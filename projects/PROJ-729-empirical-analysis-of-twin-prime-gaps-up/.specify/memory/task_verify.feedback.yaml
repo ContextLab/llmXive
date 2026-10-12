@@ -1,16 +1,8 @@
 T001:
-  reason: 'The project directory exists with a scaffold (code/, data/, specs/, plan.md,
-    tasks.md, etc.), but the task was to create the project structure per the implementation
-    plan, and no evidence shows the required artifacts exist or are populated: `data/raw/twin_primes.csv`,
-    `data/results/stats.json`, `data/figures/qq_plot.png`, and `data/results/local_stats.json`
-    are all absent, and the collector reports no data artifacts at all. The implementer''s
-    claim of completion is not supported by any non-empty, content-matching deliverables.'
   task: 56c3cafd48301be7e14725647e98ac0ad186c8ac63c31ce1c55d6c76c03a8e2a
 T002:
-  reason: 'declared artifact(s) missing/empty/invalid: requirements.txt'
   task: 1a1540e6f9d2efb762fd7cfb81f6cdafdb6a4b07f83521e762a2108d3c691761
 T003:
-  reason: 'declared artifact(s) missing/empty/invalid: .pre-commit-config.yaml'
   task: 6dba72a9b2fcfe4d5e11415665bf2b2dcfe6a0d39ee968d6158f132c51d1edc5
 T004:
   task: 7804e3a6434c92c0906487ac419c99bf1d7f32108c178e061f62bfdddb889e97
@@ -27,6 +19,8 @@ T010:
 T011:
   task: 0f0626c1aabcc90ff6326f95eb2c08f771ea53e431daa172b96f152a24c3932e
 T012:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_primes.py
+    exit=1'
   task: 08ea146cf51b6b1b3e91e061996123ba599882c07ed4692a34661b414efd9da0
 T013b-a:
   task: fc92dd8655bd36dc6d536857a088ca07da5d917c1f4eb0ae7f75089314e5df9c

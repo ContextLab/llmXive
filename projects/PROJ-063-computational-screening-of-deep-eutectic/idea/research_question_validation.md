@@ -2,33 +2,25 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: concern
-
-The question is primarily framed as whether QSPR models can predict mixture properties, which is a method-validation question. The underlying scientific phenomenon—whether component-level structural features carry predictive signal for mixture-level CO2 solubility and viscosity in DESs—is buried. This should be reframed to ask about the structure-property relationship itself rather than the model's performance.
+**Verdict**: pass
+The question asks which structural features of DES components drive mixture-level CO2 solubility and viscosity, and how far component-level descriptors can go toward capturing mixture behavior. This is a substantive chemistry question about structure–property relationships; the QSPR models are the instrument, not the subject.
 
 ### Circularity check
 
 **Verdict**: pass
-
-The predictor (molecular descriptors from DES component data) and predicted variable (CO2 solubility and viscosity from mixture-level experimental measurements) are independent data sources. There is no circular construction; the question genuinely asks whether component-level information can predict mixture behavior, which is not mechanically guaranteed.
+Predictors are purely computational molecular descriptors (RDKit fingerprints, topological/electronic indices); the predicted variables are experimentally measured CO2 solubility and viscosity. The two come from independent sources, and the methodology explicitly guards against circularity.
 
 ### Triviality check
 
-**Verdict**: pass
-
-Either outcome is scientifically informative: a positive result would establish that component descriptors contain sufficient signal for mixture property prediction in DESs, enabling computational screening; a null result would suggest emergent mixture properties that cannot be captured from component data alone. Both answers would advance understanding of DES structure-property relationships.
+**Verdict**: concern
+A positive result (identified descriptor subset with strong predictive power) is clearly informative. However, the likely null/partial outcome — "component descriptors explain some variance but non-ideal mixing dominates" — is close to what domain knowledge already predicts for eutectic systems, where mixture properties are known to be strongly governed by specific inter-component interactions. A null result risks confirming an expectation rather than testing one. This is a concern rather than a fail because quantifying *how much* variance component descriptors capture, and *which* descriptors matter, is still a real contribution even if the qualitative direction is anticipated.
 
 ### Question-narrowing check
 
-**Verdict**: concern
-
-The question names a method (QSPR models) and asks about its performance ("Can QSPR models... predict...?") rather than naming the domain relationship (what structural features of DES components determine CO2 solubility and viscosity in mixtures?). The methodology should be the means to answer the question, not the question itself.
+**Verdict**: pass
+The question names a domain relationship (component structure → mixture properties) with no method, architecture, or resource constraint embedded in it. The CPU/RDKit constraints live in the methodology, where they belong.
 
 ### Overall verdict
 
-**Verdict**: validator_revise
-
-[REVISED]
-What structural features of deep eutectic solvent components (hydrogen-bond donors/acceptors, molecular size, functional groups) carry predictive signal for CO2 solubility and viscosity in DES mixtures, and to what extent can component-level descriptors capture mixture-level properties?
-[/REVISED]
-This reframing shifts focus from QSPR model performance to the underlying structure-property relationship, while keeping the QSPR methodology as the tool to answer the question. The revised question remains within the project's scope (computational screening of DES mixtures) but makes the scientific inquiry primary.
+**Verdict**: validated
+All structural checks pass; the only issue is a moderate triviality concern about the anticipated partial-predictability outcome. This does not undermine the core question: identifying the specific descriptors carrying signal, and quantifying the component-vs-mixture variance split, is a defensible and publishable contribution in either direction. The concern is worth noting for the project's framing (the null-leaning outcome should be positioned as quantification of mixing non-ideality, not as a failure), but it does not require reframing.

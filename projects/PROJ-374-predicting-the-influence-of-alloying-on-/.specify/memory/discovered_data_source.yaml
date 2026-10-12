@@ -1,0 +1,19 @@
+status: none
+intent: download electronic transport database DOI 10.1038/sdata.2017.85 python package
+  dataset
+required_fields:
+- material_id
+- formula
+- temperature_K
+- seebeck_coefficient_uV_per_K
+- electrical_conductivity_S_per_m
+- thermal_conductivity_W_per_mK
+- carrier_concentration_cm3
+- composition_elements
+- composition_fractions
+- mean_atomic_radius
+- electronegativity_variance
+- valence_electron_concentration
+cache_key: 43f3d42483e61cc7d6772c2697612c6cde9739a712ddecd6b0946650dacb59c8
+searched_at: '2026-10-12T01:14:13.663168+00:00'
+retry_count: 1

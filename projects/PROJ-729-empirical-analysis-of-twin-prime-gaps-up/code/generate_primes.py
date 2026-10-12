@@ -13,24 +13,39 @@ from typing import List, Tuple, Dict, Any
 from config import get_config, ensure_directories
 from utils import setup_logging, get_memory_usage_mb, exit_with_error
 
-try:
-    import primesieve
-except ImportError:
-    exit_with_error("primesieve library is required. Install with: pip install primesieve")
-
 # Constants
 HARDY_LITTLEWOOD_CONSTANT = 0.660161815846869573927812110014
 MAX_PRIME_LIMIT = 10**9
 MEMORY_LIMIT_GB = 2.0
 TIME_LIMIT_MIN = 45.0
 
+# primesieve is imported lazily: importing this module (e.g. for the
+# Hardy-Littlewood calculation in T013b-b) must not fail when the
+# primesieve binary is unavailable in the environment.
+_primesieve = None
+
+def _get_primesieve():
+    """Import and return the primesieve module, failing loudly if absent."""
+    global _primesieve
+    if _primesieve is None:
+        try:
+            import primesieve as _pm
+        except ImportError:
+            exit_with_error(
+                "primesieve library is required. Install with: pip install primesieve"
+            )
+        _primesieve = _pm
+    return _primesieve
+
 def check_execution_guard() -> None:
     """
     Checks for critical dependencies and environment constraints.
     Exits with code 1 if prerequisites are not met.
     """
-    # Check for primesieve binary availability (it's a Python wrapper but relies on C++ lib)
-    if not hasattr(primesieve, 'iterate_primes'):
+    primesieve = _get_primesieve()
+
+    # Check for primesieve core functionality (relies on C++ lib)
+    if not hasattr(primesieve, 'generate_primes'):
         exit_with_error("Failed to import primesieve core functionality. Binary may be missing.")
 
     # Check memory limit (soft check, log warning if close)
@@ -92,21 +107,33 @@ def generate_twin_primes(limit: int = MAX_PRIME_LIMIT) -> Tuple[List[int], List[
     Generates twin primes up to the specified limit using primesieve.
     Returns two lists: p_list (first prime of pair) and p_next_list (second prime).
     """
-    logging.info(f"Generating twin primes up to {limit}...")
+    primesieve = _get_primesieve()
+
+    logging.info(f"Generating all primes up to {limit} (this may take a moment)...")
     start_time = time.time()
 
     try:
-        # primesieve.generate_twins returns a list of (p, p+2) tuples.
-        twins = primesieve.generate_twins(limit)
+        # Retrieve the full list of primes up to limit.
+        primes = primesieve.generate_primes(limit)
     except Exception as e:
-        exit_with_error(f"Failed to generate twin primes: {e}")
+        exit_with_error(f"Failed to generate primes with primesieve: {e}")
 
     elapsed = time.time() - start_time
-    logging.info(f"Generated {len(twins)} twin prime pairs in {elapsed:.2f} seconds.")
+    logging.info(f"Generated {len(primes)} primes in {elapsed:.2f} seconds.")
 
-    p_list = [p for p, _ in twins]
-    p_next_list = [p_next for _, p_next in twins]
+    # Scan for twin prime pairs (p, p+2)
+    p_list: List[int] = []
+    p_next_list: List[int] = []
 
+    logging.info("Scanning for twin prime pairs...")
+    for i in range(len(primes) - 1):
+        p = primes[i]
+        p_next = primes[i + 1]
+        if p_next - p == 2:
+            p_list.append(p)
+            p_next_list.append(p_next)
+
+    logging.info(f"Found {len(p_list)} twin prime pairs.")
     return p_list, p_next_list
 
 def write_csv_output(p_list: List[int], p_next_list: List[int], output_path: Path) -> None:

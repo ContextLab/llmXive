@@ -1,22 +1,35 @@
 T001:
-  c: false
-  h: 99f48d30d40970ff141b257a4ca08ed65eb69fdac809eedd7ad2a2e86b0c4b74
-  r: 'The project directory exists with a scaffold (code/, data/, specs/, plan.md,
-    tasks.md, etc.), but the task was to create the project structure per the implementation
-    plan, and no evidence shows the required artifacts exist or are populated: `data/raw/twin_primes.csv`,
-    `data/results/stats.json`, `data/figures/qq_plot.png`, and `data/results/local_stats.json`
-    are all absent, and the collector reports no data artifacts at all. The implementer''s
-    claim of completion is not supported by any non-empty, content-matching deliverables.'
-  sig: 4bedb3b78963fbef6b2519f254f7e00664c32a5107397f93b9f211f9ab7a1b98
+  c: true
+  h: 3507f0f435791dc3e13d27900e2df1368aecb770e2e1987094a47e0a3bd7c995
+  r: Checked the `code/.tasks/T001.code_setup_project.py.log` which reports successful
+    creation of all required directories (`code`, `data/raw`, `data/results`, `data/figures`,
+    `tests/unit`, `tests/integration`, `contracts`, `paper`) and package markers (`code/__init__.py`,
+    `tests/__init__.py` etc.), and verified the project root listing shows those directories
+    and key files (`README.md`, `.gitignore`, `pyproject.toml`, `requirements.txt`).
+    All required structure elements are present.
+  sig: eda6e3bc6bd6edff75d1050967adb076f37de73ea3d052d6ec44d16ba04553e7
+T002:
+  c: true
+  h: 20f26ce97d6fb3f9f48c82219fb39cd16337586739c8e311e1ea56d7c8a94e14
+  r: "Checked the `requirements.txt` file (213\u202Fbytes) located at the project\
+    \ root; it contains `primesieve>=10.0`, `numpy`, `pandas`, `scipy`, and `matplotlib`\
+    \ as required, satisfying the initialization task."
+  sig: 03282f16aeb3bdc156271f280569dfa108297a86de0e85e910c9f68e4f388bbd
+T003:
+  c: true
+  h: f412a90ac8e48c51f765656d98c4338a91bed6c0005a86466bf920437ea8d83d
+  r: "Checked the `.pre-commit-config.yaml` file (707\u202Fbytes) which defines ruff\
+    \ for linting and black for formatting, along with standard pre\u2011commit hooks.\
+    \ The file exists, is non\u2011empty, and correctly configures the required tools."
+  sig: d8b6c24f1b38c58bb41bd0004ce429d33b2ead23d102db4bdd6c8c9f4e4bfab6
 T004:
   c: true
-  h: 401dedff669e046747b0c6b733efafbccbd53e511c4647d24da5136fc569f8cd
-  r: The three required directories (`data/raw/`, `data/results/`, `data/figures/`)
-    all exist under the project root, each containing a `.gitkeep` marker to preserve
-    them in version control. This matches the task's requirement of setting up the
-    data directory structure; the actual data files (CSV, stats, figures) belong to
-    later tasks.
-  sig: 0fa3e883cc669e37a7ada01d5f33ec66cf887af50e45b820807e794206f5bdfb
+  h: bb9fbcb68172f0fd57641e7c4aba0869bdfbd9f10884b5d933986af576fefd35
+  r: "The evidence shows the three required directories (`data/raw/`, `data/results/`,\
+    \ `data/figures/`) exist in the project root, each containing a placeholder file\
+    \ (`.gitkeep`). This satisfies the task\u2019s requirement to set up the data\
+    \ directory structure."
+  sig: c2e3c4918455f3797ce3464f18cdedc861948fd9145b062a1d6064f6b988cf5e
 T005:
   c: true
   h: 03385d5724748009bf7ff32f698214a17d05c13f71fe3603afca3f3eec05ad9c
@@ -55,6 +68,22 @@ T008:
     configurable code and `sys.exit`), matching the task''s stated scope. No stubs,
     TODOs, or placeholders are present.'
   sig: 90d4be97cf440e02f680db201a39dd33327055591cf6a5ec640c00b28144cb40
+T010:
+  c: true
+  h: db955621f4d5b2e472d86ba39bad9ff51eb208fa2012e104b0f49646ceee22d3
+  r: "The file `tests/unit/test_gap_calc.py` exists and contains the required `test_normalized_gap_formula`\
+    \ which computes `delta / log(p)` for p=3, compares it to the expected value,\
+    \ and asserts the difference is below\u202F1e\u20114. The test matches the specification\u2019\
+    s tolerance and formula requirements."
+  sig: 5e2e544a8459ab1dbb19e5fe8373a62a18129c1cddb9efb289c723cf1945f7af
+T011:
+  c: true
+  h: eea4d5ee4e44cf6b5f7d34c30e2af9bf7237e0f4e66f4598915e48a3ae04cf29
+  r: "Checked the presence and content of `tests/integration/test_generation.py`;\
+    \ the file exists, is non\u2011empty, and implements an integration test that\
+    \ verifies the creation of `data/raw/twin_primes.csv` and asserts the row count\
+    \ is within the required \xB15% tolerance, along with column and value checks."
+  sig: 9d3e512681273e44e7c3f38068d193c62fc9dfb9f2ca3eed9f0b502d48a76915
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
