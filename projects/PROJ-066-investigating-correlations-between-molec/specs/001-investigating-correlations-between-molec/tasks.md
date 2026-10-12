@@ -32,10 +32,10 @@
 - [X] T004a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/molecule.schema.yaml` defining the schema for processed molecular data (SMILES, descriptors, target).
 - [X] T004b [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/model_output.schema.yaml` defining the schema for model metrics and feature importance.
 - [X] T008a [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`.
-- [~] T008b [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`.
-- [~] T008c [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`.
-- [~] T008d [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/models/`.
-- [ ] T008e [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/tests/`.
+- [X] T008b [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`.
+- [X] T008c [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`.
+- [X] T008d [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/models/`.
+- [X] T008e [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/tests/`.
 
 ---
 
@@ -45,7 +45,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T005 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` defining constants: `RANDOM_SEED=42`, `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`, `MAX_MOLECULES=15000`. **Explicitly document that `RANDOM_SEED` must be passed to the stratified splitter in T017 to ensure reproducibility.**
+- [ ] T005 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` defining constants: `RANDOM_SEED=42`, `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`, `MAX_MOLECULES=15000`. **Explicitly document that `RANDOM_SEED` must be passed to the stratified splitter in T017 to ensure reproducibility.**
 - [~] T006 [P] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` for structured logging of data pipeline steps.
 - [ ] T007 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py` to update `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` with artifact hashes.
 - [~] T030a [P] Implement memory/time monitoring hooks in `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` and `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` to track resource usage during pipeline execution (SC-004, SC-005).
@@ -64,7 +64,7 @@
 ### Implementation for User Story 1
 
 - [ ] T009 [P] [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/download.py`: Fetch the latest available release of ChEMBL via FTP. **URL**: `ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/`. **Format**: Download the compressed archive (`.tar.gz`) containing the SQLite database. **Checksum**: Download `chembl_33.sha256` from the same directory to `projects/PROJ-066-investigating-correlations-between-molec/data/raw/chembl_33.sha256` and validate SHA-256 of the archive. **Fallback**: If the `.sha256` file is missing, compute the checksum of the downloaded archive, log it to `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` for manual verification, and proceed with a warning. **FAIL LOUDLY**: Raise exception if FTP fails, archive extraction fails, or checksum mismatch (if file exists). **Extraction**: Extract the archive to reveal the internal SQLite database file. **Save to** `projects/PROJ-066-investigating-correlations-between-molec/data/raw/chembl_33.db` (copy extracted `chembl_33.sqlite` to this name). **BLOCKED BY**: None.
-- [ ] T010 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `sanitize_molecules()`: Use RDKit to remove salts, fix valences, and log/remove invalid structures. **Must handle 'exotic elements' by logging and excluding molecules where RDKit sanitizer fails**. **BLOCKED BY T009**.
+- [ ] T010 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `sanitize_molecules()`: Use RDKit to remove salts, fix valences, and log/remove invalid structures. **Must handle 'exotic elements' by logging and excluding molecules where RDKit sanitizer fails**. **BLOCKED BY T009**. <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 -->
 - [ ] T011 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `filter_targets()`: Filter for oral bioavailability, apparent permeability (Papp), or clearance; remove rows with missing targets (FR-001, FR-002). **Must run AFTER sanitization (T010) and BEFORE deduplication (T012)** to ensure deduplication logic applies only to relevant targets. **BLOCKED BY T009, T010**.
 - [ ] T012 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `deduplicate_smiles()`: Handle duplicate SMILES by retaining most recent assay date **OR averaging the conflicting experimental values if dates match** (FR-009). **Must run AFTER target filtering (T011)** so that 'most recent assay date' logic applies only to the specific targets of interest. **BLOCKED BY T009, T011**.
 - [ ] T013 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `sample_dataset`: Perform stratified random sampling on the filtered dataset. **Logic**: `target_size = min(MAX_MOLECULES, available_rows)` where `MAX_MOLECULES` is read from `config.py`. **Safety Check**: If `len(sampled_df) < 100`, **raise `DataInsufficiencyError("Data Insufficiency: Sample size < 100")` and halt execution immediately**. **Logging**: **MUST log the final sample size to `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`** via `update_state.py` to ensure reproducibility (Constitution Principle I). **BLOCKED BY T009, T010, T011, T012**.

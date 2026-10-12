@@ -45,6 +45,14 @@ T004b:
     importance_score) with appropriate types, bounds, and required fields, matching
     the task's requirement.
   sig: ee32bb6f6e84137f489bf4f0f518adc436bb5ecf4a017dce4e4ece957221c676
+T005:
+  c: false
+  h: 5712d40a88a96a1af0bf4f2f25745eedfd3581ab3b226b0a8ebd9bed04de0747
+  r: The file `code/utils/config.py` exists and correctly defines `RANDOM_SEED=42`,
+    `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`, and documents the T017 stratified-splitter
+    requirement. However, the required constant `MAX_MOLECULES=15000` is entirely
+    absent from the file, so the task's stated set of constants is not fully defined.
+  sig: 65b821a0dafae2659713c82cffa9d28588eb25a776eaaccda67e57c9fdbf48bb
 T007:
   c: false
   h: 49719ddab7374198cc1122d8f6776647ed505c92c0429443b5cd2e1198c5f340
@@ -55,38 +63,46 @@ T007:
     hashes.
 T008a:
   c: true
-  h: 748356b0b575edbb5a65843127b3aad43f5187fa33bbc30229a41d3337b79ef8
-  r: The required directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`
-    exists (collector-confirmed, 2 entries including `.gitkeep` and `chembl_33.sqlite.gz`),
-    and the execution log shows the directory-creation script ran successfully with
-    exit code 0. The task only asked to create the directory, which is satisfied.
-  sig: 814c2d46dd178f1051a573f14c476e7916217b7cdcd94eff4872a1054fad9fae
+  h: 25bca9f13b73bab14e7936d1c129ef7c65f2ee26144498d553402764ccf50b51
+  r: The task only required creating the directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`,
+    and the collector confirms it exists (non-empty, containing `.gitkeep` plus ChEMBL
+    data files). The execution log shows the directory-creation script ran successfully
+    with exit code 0.
+  sig: e3c4ac6a4d17a4a0024069dd9e193706c27887bb965b7f5c1c2b0461b6ec1a2a
 T008b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`
-    actually exists or contains any files; the response only repeats the task description
-    without showing the required artifact. The missing directory must be created (and
-    populated if required) for the task to be considered complete.
+  c: true
+  h: c1fb93b1572580b2465049cc94a3aa3d3ecbb6b170c3741df141138a8b312046
+  r: The directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`
+    exists (confirmed by the collector with a sha256 hash, containing `.gitkeep` and
+    `artifact_hashes.yaml`), and the execution log from `code/utils/ensure_data_processed.py`
+    exited 0 confirming the directory exists. The task only required creating this
+    directory, which is satisfied.
+  sig: 751997ed5691c44f5bf8b114e9514ef6236efc197e8987498b99133bfc87ce59
 T008c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`
-    actually exists (e.g., a directory listing, screenshot, or file manifest). Without
-    such proof, we cannot confirm the required artifact was created.
+  c: true
+  h: 578e32d1a6a26da6476c16f99014dd679c43b6a82cb2d3a4e3b49628f2bb60a7
+  r: The task only required creating the directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`,
+    and the collector confirms it exists with 5 entries (.gitkeep, __init__.py, __pycache__,
+    download.py, preprocess.py), corroborated by an execution log (exit 0) listing
+    the directory contents.
+  sig: 0ef4037b446617498d3f196ce4f6b2da0e6809e0e92a8cdbd454ba839610ddef
 T008d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I could find no evidence that a `projects/PROJ-066-investigating-correlations-between-molec/code/models/`
-    directory actually exists or contains any files; the provided artifacts only include
-    the task description and no filesystem listing. Without a concrete directory present,
-    the requirement is not satisfied.
+  c: true
+  h: f5f47f9b12218caadf0db144528ddf850358c8cb7e54b7455a90b1374cca1dc5
+  r: The task only requires creating the directory `projects/PROJ-066-investigating-correlations-between-molec/code/models/`,
+    and the collector confirms it exists with 5 entries (including `__init__.py`,
+    `train.py`, `evaluate.py`, `README.md`, `.gitkeep`). The execution log also shows
+    the directory-existence check ran successfully (exit 0).
+  sig: 8268ef748458ab6c36e273410213d80f74f708d53226c8ed130c3279012ffd94
 T008e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-066-investigating-correlations-between-molec/tests/`\
-    \ directory is provided; the response contains only task description and specifications,\
-    \ with no actual filesystem artifact confirming the directory\u2019s existence."
+  c: true
+  h: f51b49fea7943cec613f1bb0a0a2c6f8322edd999dca49eb7e8eef10192d7fc6
+  r: The requested directory `projects/PROJ-066-investigating-correlations-between-molec/tests/`
+    exists and is non-empty, containing 17 entries including multiple substantive
+    test files (test_download.py, test_preprocess.py, test_models.py, test_evaluate.py,
+    etc.) plus conftest.py and __init__.py, which matches the task's requirement to
+    create the tests directory.
+  sig: f74ee4019fb8ae14d28eee4fad45a6779418784cd31c0cb9f373e393145700dc
 T009:
   c: false
   h: f9c836a6db529ae58c4d532b41a18ab50769765ab05536fe7357ceceaee02e2c

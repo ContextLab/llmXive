@@ -15,6 +15,10 @@ T004a:
 T004b:
   task: 584d6f5580e2944ad6a5cfbcdc86cc0720f299f04bcfec720f30f4fe358d5988
 T005:
+  reason: The file `code/utils/config.py` exists and correctly defines `RANDOM_SEED=42`,
+    `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`, and documents the T017 stratified-splitter
+    requirement. However, the required constant `MAX_MOLECULES=15000` is entirely
+    absent from the file, so the task's stated set of constants is not fully defined.
   task: e9035249e3be38845a95145698482818bba8e3acc1a4dd2dea705229820695d4
 T006:
   task: e322c65b26231bd4cb6332f5e1eb409888d9fc6d51d87796ca23d1577068df45
@@ -35,8 +39,14 @@ T008d:
 T008e:
   task: 1eb9e633c4c87bf4319f49d8959e31378a1589b54e5088f8e2ab13316a6726a3
 T009:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 79d7c0196fa4396e2bc5e0c963d117ef4cbde94a3397314d5c33158258c5b8f1
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocess.py
+    exit=1'
   task: b37ee901b72c00ac92fed29201307c6f9d491618b4d487d56ab05dd7e52977ea
 T011:
   task: 4172bf804ca0bd46aa663fdbed9ad19fac5ba996ce74d952f33cd468434b7500
