@@ -9,25 +9,22 @@ T000:
     ensuring the two CSV files exist and match real checksums\u2014is not met."
 T001a:
   c: false
-  h: 2633b6bee5b25bb760ac190ea83de34d79b362d477879216d5038ecb8081febb
-  r: "The `code/` directory and the log showing `create_code_dir.py` ran without error\
-    \ are present, but the actual contents of `create_code_dir.py` were not examined.\
-    \ The task requires the script to create the directory idempotently using `parents=True,\
-    \ exist_ok=True` and to assert `os.access('code', os.W_OK)`. Without seeing the\
-    \ script (or a test confirming those exact calls and the write\u2011access assertion),\
-    \ we cannot verify that the implementation meets the specification. Provide the\
-    \ script\u2019s source code (or a test run that demonstrates the required behavior)\
-    \ to complete the task."
-  sig: 4c0c1ad1f2990ad0f9ce28198f03a24a737c3535055246444552a5c79ec51f28
+  h: 1d0f53122060c5249ac51643b95d364f741f3410b43327e5cdd6ea33c5b9c292
+  r: "The provided `create_code_dir.py` script runs without error, but the automated\
+    \ tests for task\u202FT001a both fail: the idempotent\u2011creation test does\
+    \ not create a `code` directory in the temporary test location, and the config\u2011\
+    verification test raises a `NameError` because `sys` is not imported. Consequently\
+    \ the required verification (creating the directory with `parents=True, exist_ok=True`\
+    \ and asserting write access) is not demonstrated. The task needs a corrected\
+    \ script and passing tests."
+  sig: da96f138260ed298923504be0e29c623b6c58be95dd74c2b9f6c558e6056e9cb
 T001b:
   c: true
-  h: 49f007170272d04f66dc675321635d5cb4028888de6072c6936dcd635b210152
-  r: "Checked the presence of the `tests/` directory (non\u2011empty) and the unit\u2011\
-    test log `T001b.tests_unit_test_create_tests_dir.py.log`, which shows the idempotent\
-    \ creation script ran without error and the test `test_create_tests_dir_idempotent`\
-    \ passed. The accompanying script execution log confirms `code/create_tests_dir.py`\
-    \ executed successfully."
-  sig: 883d174e00b86f38d43b3edf863ab3d4a445e4d855794b3effae4a0acd5f9d8e
+  h: b13e4d4613bd9c2d7b18bbfb82b5299d020eba099820429b1b6e057681106c9c
+  r: "Checked the presence of the `tests/` directory (13 entries) and the unit\u2011\
+    test log `tests/unit/test_create_tests_dir.py` which ran the creation script and\
+    \ passed, confirming the directory is created idempotently."
+  sig: 2ea8cf796cfa738032b19001c5b52f001e5406020fa777e4d6fd96389da5142d
 T001c:
   c: true
   h: 5febb11819eb610f26623b9aa12310a23ebfd941d2eb1e3cf87ebdc888805533
@@ -50,6 +47,15 @@ T001e:
     passing pytest log (`tests/test_create_results_dir.py`), which confirms the script
     creates the directory idempotently.
   sig: 3709da3aa3605fd29da7f90e57f01b41e50bade00b1f79c5dbc608252e347798
+T001f:
+  c: false
+  h: e713f2bbb3bbb63b6eb3e5c22908fe563c814ecd3928bca30526aff2557b43ca
+  r: The `code/config.yaml` file exists and defines the required five keys, but the
+    verification script (`code/verify_config.py`) raises errors (missing `os` import
+    and failing path existence checks), and the pytest test `test_verify_config_runs_without_error`
+    fails because the expected directories (e.g., `code`) do not exist. The task requires
+    that the paths point to existing directories, which is not satisfied.
+  sig: ba588c2a67c4957eb88932d52e734cec7a9d4a9672ffd6478d8f9b6c4d220a0e
 T017:
   c: false
   h: 76178f209e7ad92f8e2d25c7bd17c0aa4a9b566a9f89351273f7dd81362d2361

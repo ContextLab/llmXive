@@ -27,7 +27,7 @@ Unchecked items are pending implementation or revision; checked items have been 
 - [X] T001e [P] Create `results/` directory (idempotent).  
   *Verification*: Same script as T001a with path `results/`.
 
-- [ ] T001f [P] Add `code/config.yaml` defining canonical paths (`paths.code`, `paths.tests`, `paths.data_raw`, `paths.data_processed`, `paths.results`).   <!-- FAILED-IN-EXECUTION: code/verify_config.py exit=1 -->
+- [ ] T001f [P] Add `code/config.yaml` defining canonical paths (`paths.code`, `paths.tests`, `paths.data_raw`, `paths.data_processed`, `paths.results`).
   *Verification*: Load the YAML and assert all five keys exist and point to existing directories.
 
 - [ ] T001g [P] Test idempotent creation of `code/` (run script twice, assert no error).  

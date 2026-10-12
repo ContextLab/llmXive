@@ -1,75 +1,69 @@
 """
-verify_config.py
------------------
-Script to verify that the project configuration file `code/config.yaml` defines the
-canonical directory paths and that those directories exist and are writable.
-
-This script is part of task **T001f**.  It is executed directly (e.g. ``python
--m code.verify_config``) and will raise an exception if any verification step
-fails.  On success it prints a short confirmation message.
+Verify that `code/config.yaml` defines the required canonical paths and that
+each path points to an existing, writable directory.
 """
 
+import os
 import sys
 import yaml
 from pathlib import Path
 from llmxive_toolkit import paths, get_logger
+from utils.exceptions import ConfigurationError
 
 log = get_logger(__name__)
 
-def _load_config() -> dict:
-    """Load ``code/config.yaml`` as a Python dictionary."""
+def _load_yaml_config() -> dict:
+    """Load the YAML configuration file located beside this script."""
     config_path = Path(__file__).with_name("config.yaml")
     if not config_path.is_file():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-    with config_path.open("r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
-    if not isinstance(cfg, dict) or "paths" not in cfg:
-        raise ValueError("Configuration file must contain a top‑level 'paths' mapping.")
-    return cfg["paths"]
+        raise ConfigurationError(f"Configuration file not found: {config_path}")
 
-def _ensure_directory(dir_path: Path) -> None:
-    """Create the directory if it does not exist and verify write access."""
-    dir_path.mkdir(parents=True, exist_ok=True)
-    if not os.access(dir_path, os.W_OK):
-        raise PermissionError(f"Directory is not writable: {dir_path}")
-
-    # Try writing a temporary file and delete it to guarantee writability.
-    test_file = dir_path / ".write_test"
     try:
-        test_file.write_text("test", encoding="utf-8")
-    finally:
-        if test_file.exists():
-            test_file.unlink()
+        with open(config_path, "r") as f:
+            cfg = yaml.safe_load(f)
+    except Exception as e:
+        raise ConfigurationError(f"Failed to read configuration: {e}") from e
 
-def verify_config() -> None:
-    """
-    Verify that the configuration defines the required keys and that each
-    corresponding directory exists and is writable.
-    """
-    required_keys = {"code", "tests", "data_raw", "data_processed", "results"}
-    cfg_paths = _load_config()
+    return cfg
 
-    missing = required_keys - cfg_paths.keys()
-    if missing:
-        raise KeyError(f"Missing required path keys in config.yaml: {missing}")
+def _validate_paths(cfg: dict) -> None:
+    """Validate that required path keys exist and point to writable directories."""
+    if "paths" not in cfg or not isinstance(cfg["paths"], dict):
+        raise ConfigurationError("Missing or invalid 'paths' section in config.yaml")
 
-    # Resolve each relative path against the project root using llmxive_toolkit.
+    required_keys = ["code", "tests", "data_raw", "data_processed", "results"]
     for key in required_keys:
-        rel_path = cfg_paths[key]
-        # Use the appropriate helper from ``paths`` to obtain a Path object.
-        # ``paths`` provides a generic ``path`` method; we use it for all keys.
-        dir_path = paths.path(rel_path)
-        _ensure_directory(dir_path)
-        log.info("Verified writable directory for %s: %s", key, dir_path)
+        if key not in cfg["paths"]:
+            raise ConfigurationError(f"Missing required path key '{key}' in config.yaml")
 
-    log.info("All configuration paths verified successfully.")
+        # Resolve using llmxive_toolkit.paths.path so tests can monkey‑patch it
+        dir_path = paths.path(cfg["paths"][key])
 
-if __name__ == "__main__":
+        if not dir_path.is_dir():
+            raise ConfigurationError(f"Path for '{key}' does not exist or is not a directory: {dir_path}")
+
+        if not os.access(dir_path, os.W_OK):
+            raise ConfigurationError(f"Directory for '{key}' is not writable: {dir_path}")
+
+def verify_config() -> bool:
+    """
+    Public helper used by the unit test. Returns True if verification succeeds,
+    otherwise raises ConfigurationError.
+    """
+    cfg = _load_yaml_config()
+    _validate_paths(cfg)
+    log.info("All configured paths exist and are writable.")
+    return True
+
+def main() -> None:
+    """CLI entry point – exits with status 0 on success, 1 on failure."""
     try:
         verify_config()
-    except Exception as e:
-        log.error("Configuration verification failed: %s", e)
+    except ConfigurationError as e:
+        log.error(str(e))
         sys.exit(1)
     else:
-        print("Configuration verification passed.")
         sys.exit(0)
+
+if __name__ == "__main__":
+    main()

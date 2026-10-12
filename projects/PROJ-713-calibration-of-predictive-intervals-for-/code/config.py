@@ -20,37 +20,37 @@ SEED = 42
 # Configuration constants
 class Config:
     """Central configuration for all hyperparameters and settings."""
-    
+
     # Data settings
     DATA_DIR = DATA_DIR
     DATA_RAW_DIR = DATA_RAW_DIR
     DATA_PROCESSED_DIR = DATA_PROCESSED_DIR
-    
+
     # Results settings
     RESULTS_DIR = RESULTS_DIR
     FIGURES_DIR = FIGURES_DIR
     LOG_DIR = LOG_DIR
-    
+
     # Model settings
     DEFAULT_MODEL_TYPE = "arima"
     VALID_MODEL_TYPES = ["arima", "prophet", "lstm"]
-    
+
     # Evaluation settings
     CONFIDENCE_LEVELS = [0.80, 0.95]
     MAX_EPOCHS = 50
     EARLY_STOPPING_PATIENCE = 5
     LSTM_HIDDEN_UNITS = 32
-    
+
     # Bootstrap settings
     BOOTSTRAP_RESAMPLES = 1000
     SIGNIFICANCE_LEVEL = 0.05
-    
+
     # Conformal prediction settings
     CONFORMAL_CALIBRATION_SIZE = 0.2
-    
+
     # Logging settings
     LOG_LEVEL = "INFO"
-    
+
     # File paths (using constants, no hardcoded paths)
     COVERAGE_RESULTS_FILE = RESULTS_DIR / "coverage.csv"
     DISTRIBUTIONAL_METRICS_FILE = RESULTS_DIR / "distributional_metrics.csv"
@@ -60,6 +60,9 @@ class Config:
     SKIPPED_SERIES_LOG = RESULTS_DIR / "skipped_series.log"
     BENCHMARK_TIMING_FILE = RESULTS_DIR / "benchmark_timing.csv"
 
+# Expose top‑level logging level for utils.logger
+LOG_LEVEL = Config.LOG_LEVEL
+
 def set_seed(seed: int = SEED):
     """
     Sets the random seed for reproducibility across all libraries.
@@ -67,13 +70,13 @@ def set_seed(seed: int = SEED):
     """
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    
+
     try:
         import numpy as np
         np.random.seed(seed)
     except ImportError:
         pass
-    
+
     try:
         import torch
         torch.manual_seed(seed)
@@ -96,12 +99,12 @@ def ensure_dirs():
         LOG_DIR,
         TESTS_DIR
     ]
-    
+
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
         if not directory.exists():
             raise FileNotFoundError(f"Failed to create directory: {directory}")
-    
+
     return True
 
 # Initialize directories on import

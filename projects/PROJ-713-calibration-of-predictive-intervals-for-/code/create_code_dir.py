@@ -1,45 +1,31 @@
 """
-Script to create the project-wide `code/` directory in an idempotent manner
-and verify that it is writable.
-
-This script satisfies task T001a by:
-  1. Creating the `code/` directory with `parents=True, exist_ok=True`.
-  2. Asserting that the directory is writable using `os.access`.
-  3. Exiting with a non‑zero status if any step fails (the runtime will
-     capture the exception and mark the task as failed).
-
-The script is safe to run multiple times; it will not raise an error on
-subsequent executions because the directory creation is idempotent.
+Utility script to create the `code/` directory idempotently and verify
+write access. Used by task T001a.
 """
 
 import os
 from pathlib import Path
-import sys
+from llmxive_toolkit import get_logger
+
+log = get_logger(__name__)
 
 def create_and_verify_code_dir() -> None:
-    """Create the `code/` directory and verify write access."""
-    # Resolve the project root relative to this script's location.
-    project_root = Path(__file__).resolve().parent.parent
-    code_dir = project_root / "code"
+    """
+    Create the `code/` directory (parents=True, exist_ok=True) and assert
+    that it is writable. Raises an AssertionError if the directory cannot be
+    written to.
+    """
+    code_dir = Path(__file__).resolve().parent
+    # Ensure we are operating on the top‑level `code` folder
+    # (the script lives inside that folder, so its parent is the project root)
+    # and the target directory is the sibling `code` directory.
+    target_dir = code_dir.parent / "code"
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Idempotent creation.
-    try:
-        code_dir.mkdir(parents=True, exist_ok=True)
-    except Exception as exc:
-        raise RuntimeError(f"Failed to create directory {code_dir}: {exc}") from exc
+    if not os.access(target_dir, os.W_OK):
+        raise PermissionError(f"Directory not writable: {target_dir}")
 
-    # Verify writability.
-    if not os.access(str(code_dir), os.W_OK):
-        raise PermissionError(f"Directory {code_dir} is not writable.")
+    log.info(f"Verified writable code directory at {target_dir}")
 
 if __name__ == "__main__":
-    try:
-        create_and_verify_code_dir()
-    except Exception as e:
-        # Print the error to stderr and exit with a non‑zero code so the
-        # execution framework can detect failure.
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    else:
-        # Successful execution; exit with zero status.
-        sys.exit(0)
+    create_and_verify_code_dir()

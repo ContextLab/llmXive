@@ -33,7 +33,7 @@
   verification_status: pending
   verified_against_url: https://github.com/Mcompetitions/M4-methods/tree/master/Dataset
   verified_at: '2026-10-12T14:29:36.409023Z'
-- artifact_hash: af2e3e09827d18a17c0b5fd064dafe862ac0d76ffae0dd5c6469776f99893beb
+- artifact_hash: 2af5e5b9322d9e1d5ee93512dbe340f8bcebc9c043b812cbcacde8605d824c69
   artifact_path: projects/PROJ-713-calibration-of-predictive-intervals-for-/specs/001-calibration-of-predictive-intervals-for/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -43,8 +43,8 @@
   value: https://github.com/M4Competition/m4-methodology/raw/master/Dataset/M4-data.zip`
   verification_status: mismatch
   verified_against_url: https://github.com/M4Competition/m4-methodology/raw/master/Dataset/M4-data.zip
-  verified_at: '2026-10-12T14:47:59.340698Z'
-- artifact_hash: af2e3e09827d18a17c0b5fd064dafe862ac0d76ffae0dd5c6469776f99893beb
+  verified_at: '2026-10-12T14:49:21.363048Z'
+- artifact_hash: 2af5e5b9322d9e1d5ee93512dbe340f8bcebc9c043b812cbcacde8605d824c69
   artifact_path: projects/PROJ-713-calibration-of-predictive-intervals-for-/specs/001-calibration-of-predictive-intervals-for/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -54,4 +54,4 @@
   value: https://archive.ics.uci.edu/static/public/321/electricity.zip`
   verification_status: mismatch
   verified_against_url: https://archive.ics.uci.edu/static/public/321/electricity.zip
-  verified_at: '2026-10-12T14:47:59.340698Z'
+  verified_at: '2026-10-12T14:49:21.363048Z'
