@@ -1,0 +1,75 @@
+T001:
+  task: 3055df4aa25876c8529f0df83b83cb80b5928a6aa1dbd2051acbd7bcd6f2f305
+T002:
+  task: 0cee059943f51701a2e9a653dd11be40f4664adc9faa043c46083b5906324f5d
+T003:
+  reason: The evidence contains no `code/.gitignore` file at all, let alone one with
+    the required exact content. The implementer must add the missing `code/.gitignore`
+    file with the specified lines.
+  task: beed6b3c258c56951e015587c2e7d40f8f499aacfdb9f02a449937bd6b8289cb
+T004:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/schema/action_schema.json'
+  task: 9a649ebbe262fc6cc939ea8a8861fa41f21db6c06c00711b709a652023a20e35
+T005:
+  task: f1187bbec875e1f5eee27bb1a01e542b4a8538fa401d72c0af52ed48fa32e3ad
+T006:
+  task: 9928d285e3694e227f05d6d076598d382e413f680859409c77519666f55bfd71
+T007:
+  reason: "The provided `code/tests/test_transform.py` exists, but its core test `test_composite_rule_violated`\
+    \ calls `apply_composite_rule(actions, text, schema)` and expects a string label,\
+    \ while the actual `apply_composite_rule` in `code/scripts/transform.py` takes\
+    \ numeric and boolean arguments and returns a bool. This mismatch means the test\
+    \ cannot verify that \u201CL2 norm\u202F>\u202F0.5 AND text keyword match \u2192\
+    \u202F'constraint_violated'\u201D as required. The unit test must be corrected\
+    \ to use the proper function signature and check for the expected label."
+  task: 5363a76800585bbc750ab418e437e11fb897385a847d42c02b7b54c0ceeec52c
+T008:
+  task: 992a369c2cf0b758938311ddfa5db8780eeb0184beefa669e1493fabdd9de216
+T009:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/download.py
+    exit=1'
+  task: bb06e644f873911cc10e1a6f2766e88586990f51956553e435eab8be6f53b0a4
+T010:
+  task: 6b5eb4f729cdce892c3b4edd234ea545cab0db2ceeab8ec620113644d88666e2
+T011a:
+  task: 454eda12070020f6e40e2f3ac0ce88d7341a050b3c140b484ec028d9d411b521
+T011b:
+  task: 57a43aaf49de2aa2d0991ca0565f721a3e80ace794e57c582ec13592fbe74f68
+T012:
+  task: ecae765b137bb2376eb22446201a43e77f5f1a46bd7891ec25e23cc49c67b6bc
+T013:
+  task: 56e94663792f8e6d89f2bed05119564ad545e3cb88b72396c468adee8efc8c7a
+T014:
+  task: 8aa32aa5db244b819b79083541ea21f1688917d4c47b173d250b611d52b312a5
+T015:
+  task: cc7667fbf5b3764e8c81078f1a12406a1c7abe8686d48c3e9ad74e9dc7229d9a
+T016b:
+  task: 2f282eaac9667708a7e99e55ab4b6a75ad01c9a52651aa001e1a058e4d96f1f9
+T016c:
+  task: ca720e4a2f18b6b83d72a2bca1fdd5d82130e8c243f42587ec4528f49a1eb67a
+T016d:
+  task: a0e85494f6227adaf7302737f81362844d5ecb13625fdb69a844cb263609066b
+T016e:
+  task: b0ef01f1d305ffcb3e2910adad6231157dd33c3903e36a953a635ac07a72ac08
+T017:
+  task: 6fa10629a8f770bd4db1ab5a5d6b166f02ff5e1f116cc0401c4168986db25b9d
+T018:
+  task: 62e6f5f2fdc395aeae01a235b47d349e0de2afbdbd166455d91c399df5c0396b
+T020:
+  task: bf6d602ed3e8078e554d4d2311ee765469aa1c22f6f3586e794d496d2fcfa9e6
+T021:
+  task: b23ecbff409388266f25a356f9319209e7def4e7c9d8c9ef1664956ab31f8c97
+T022a:
+  task: bae6be4d93fcc9f70525d043f764d7f6b29f4559e2ea58d126061cd5bc45a5c2
+T022b:
+  task: 9bd2bda928a90d4999e3a5e8174e62cc26afa551fdb321d2f4712811a5f39b42
+T023:
+  task: d74e746c910b0f4ed903ad886f20aaab7a69c1668410c048ad8c4d7594ea6b39
+T024:
+  task: d38498c384480c0034049f40a943a8ae7553fc33ddefdcc49f466dbfa238d2db
+T025:
+  task: b5eaf98b09adf6a363d5ac171e0de4a756f3a33a5a5225a876d766c838c30cf1
+T026:
+  task: 5c45c858eaeb0a3ba514c8c3e380132746ac9ccbf1c4bc180a15e581b8c1efd1
+T027:
+  task: ddcbf89ca49584eb335cb3b4d0515752adadfd5f62223d8d1f86e2e19d9116f6

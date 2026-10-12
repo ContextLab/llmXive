@@ -1,17 +1,25 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory structure or `.gitkeep` files were presented as evidence; without\
-    \ a listing or screenshots of the required folders (`code/scripts`, `code/data/raw`,\
-    \ `code/data/processed`, `code/data/splits`, `code/models`, `code/tests`, `code/reports`,\
-    \ `code/utils`) containing non\u2011empty `.gitkeep` files, we cannot confirm\
-    \ the task was completed. The implementer must provide the actual folder hierarchy\
-    \ and the placeholder files."
+  c: true
+  h: 8656cad3824f42da870e157611fc2774d1d8837dde9a2b3b1c64cbbec8b699bc
+  r: Checked `code/scripts/setup_directories.py` execution log, which confirms that
+    all required directories (`code/scripts`, `code/data/raw`, `code/data/processed`,
+    `code/data/splits`, `code/models`, `code/tests`, `code/reports`, `code/utils`)
+    exist and each contains a `.gitkeep` file.
+  sig: bf7b290bbf8debf2929246c138ef37c4b68396b10a42fde73cab66cc8a7796d0
+T002:
+  c: true
+  h: e0841373e930f8756d1d49fe119f229f12549e05fc95021cfc8dcd1b18340cb7
+  r: "Checked `code/requirements.txt` (247\u202Fbytes) which contains pinned `==`\
+    \ versions for all required packages (`datasets`, `transformers`, `scikit-learn`,\
+    \ `pandas`, `numpy`, `pytest`, `pyyaml`). The file exists and meets the specification."
+  sig: 07e71ef2d745d5ab6ab425187613ab845de829ab18c8ec4d471098223aa499a6
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/.gitignore` file was presented, and no content was shown in the evidence.
-    The required artifact is missing, so the task is not satisfied.
+  h: f45983ab8a9d39e5264e9ff4b7099d76bcef1ad790e0db4ead85330fda2e81e6
+  r: The evidence contains no `code/.gitignore` file at all, let alone one with the
+    required exact content. The implementer must add the missing `code/.gitignore`
+    file with the specified lines.
+  sig: 6879058e8d376b48cb1b8666a3e11146711519e66292246aea4638128fc4d27e
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,6 +27,35 @@ T004:
     and lists `data/`, `models/`, `__pycache__/`, and `*.pyc`, the requirement cannot
     be confirmed. The implementer must add the `.gitignore` file containing those
     exclusion patterns.
+T005:
+  c: true
+  h: 2e4ea6ebd9094f465962b011a4e7e8accf4d288bbeb74086c284b726062ad94c
+  r: "Checked `code/utils/logger.py` (3281\u202Fbytes) which defines a logger, functions\
+    \ to report current memory usage via\u202Fpsutil, and a `track_execution_time`\
+    \ context manager that records start/end times, peak memory via\u202Ftracemalloc,\
+    \ and logs these metrics to both console and a file. This fulfills the requirement\
+    \ to set up logging infrastructure that tracks memory usage and execution time."
+  sig: cf4a5a0c8d82d29bd6ed33e85b254b5432741ae42f8951366aeceb70e2c4409c
+T006:
+  c: true
+  h: 8962c0db42db5b6413e2c01b46753498e72b9f4ef69f1c031ba640d662d9bba3
+  r: "The `code/config.py` file (5787\u202Fbytes) is present and implements a full\
+    \ configuration system, including a default seed, a `set_seed` function that sets\
+    \ reproducible seeds for `random`, `numpy`, and `torch`, and a `get_path` utility\
+    \ that resolves configured directory paths to absolute `Path` objects. These features\
+    \ directly satisfy the task\u2019s requirement to manage seeds and paths."
+  sig: e527e842860a50d94af44eec213e41100ffd693bff8cc763547ae7c4e424fc5b
+T007:
+  c: false
+  h: ad8316f0b007544dd08f1f183f2a50395e418e3f45c60cac637239f69abd7645
+  r: "The provided `code/tests/test_transform.py` exists, but its core test `test_composite_rule_violated`\
+    \ calls `apply_composite_rule(actions, text, schema)` and expects a string label,\
+    \ while the actual `apply_composite_rule` in `code/scripts/transform.py` takes\
+    \ numeric and boolean arguments and returns a bool. This mismatch means the test\
+    \ cannot verify that \u201CL2 norm\u202F>\u202F0.5 AND text keyword match \u2192\
+    \u202F'constraint_violated'\u201D as required. The unit test must be corrected\
+    \ to use the proper function signature and check for the expected label."
+  sig: 0551272ab28246f93d83d424aaf61e19a12093badf189e032b3883428fc9845d
 T009:
   c: false
   h: 73bf15f8a504d56257a019d8d2677b18a0db0725d40171f288813fea36b6f168

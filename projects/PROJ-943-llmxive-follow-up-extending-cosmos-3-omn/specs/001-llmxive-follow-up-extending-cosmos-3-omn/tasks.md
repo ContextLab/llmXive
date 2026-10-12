@@ -41,7 +41,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create standard project directories (code/scripts, code/data/raw, code/data/processed, code/data/splits, code/models, code/tests, code/reports, code/utils) and ensure all contain `.gitkeep` files for version control persistence.
+- [X] T001 [P] Create standard project directories (code/scripts, code/data/raw, code/data/processed, code/data/splits, code/models, code/tests, code/reports, code/utils) and ensure all contain `.gitkeep` files for version control persistence.
 
 ---
 
@@ -61,7 +61,7 @@ __pycache__/
 .env
 .DS_Store
 ```
-- [X] T004 [P] Create `code/data/schema/action_schema.json` with the following exact content: `{"norm_threshold": 0.5, "text_keywords": ["Safety Constraint"], "composite_operator": "AND", "vector_dimensions": 3}`. This file defines the composite rule to be applied in T010.
+- [ ] T004 [P] Create `code/data/schema/action_schema.json` with the following exact content: `{"norm_threshold": 0.5, "text_keywords": ["Safety Constraint"], "composite_operator": "AND", "vector_dimensions": 3}`. This file defines the composite rule to be applied in T010.
 - [X] T005 [P] Setup logging infrastructure in `code/utils/logger.py` to track memory usage and execution time
 - [X] T006 [P] Configure environment configuration management (seeds, paths) in `code/config.py`
 
@@ -79,17 +79,17 @@ __pycache__/
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T007 [P] [US1] Unit test for transformation logic in `code/tests/test_transform.py` (verify L2 norm of first 3 dims > 0.5 AND text context check -> "constraint_violated")
-- [X] T008 [P] [US1] Integration test for download and transform pipeline in `code/tests/test_pipeline.py`
+- [ ] T007 [P] [US1] Unit test for transformation logic in `code/tests/test_transform.py` (verify L2 norm of first 3 dims > 0.5 AND text context check -> "constraint_violated")
+- [~] T008 [P] [US1] Integration test for download and transform pipeline in `code/tests/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/scripts/download.py` to fetch `bridge-to-worlds/bridge-data` via `datasets.load_dataset` using `streaming=True`, filter for instances containing 'actions' field, and save to `code/data/raw/bridge_samples.jsonl`. **MUST**: 1) Verify streaming capability by attempting to read the first record using `streaming=True`, 2) Fail loudly if fetch fails or streaming is unsupported (no synthetic fallback). <!-- FAILED: unspecified -->
+- [ ] T009 [US1] Implement `code/scripts/download.py` to fetch `bridge-to-worlds/bridge-data` via `datasets.load_dataset` using `streaming=True`, filter for instances containing 'actions' field, and save to `code/data/raw/bridge_samples.jsonl`. **MUST**: 1) Verify streaming capability by attempting to read the first record using `streaming=True`, 2) Fail loudly if fetch fails or streaming is unsupported (no synthetic fallback). <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/scripts/download.py exit=1 -->
 - [ ] T010 [US1] Implement `code/scripts/transform.py` to: 1) Load the logical rule definition from `code/data/schema/action_schema.json` (created by T004), 2) Compute L2 norm of the **first 3 dimensions** of the 'actions' vector, 3) Apply the COMPOSITE rule: `norm > threshold` AND `text_description` contains the specific keyword "Safety Constraint" (from T004), 4) Label as "constraint_violated" if composite is true, else "constraint_satisfied", 5) Save unified dataset to `code/data/processed/unified_dataset.jsonl`. **Verification**: File exists and contains >0 rows. **DEPENDENCY: T009, T004**.
 - [ ] T011a [US1] Implement `code/scripts/train.py` to initialize and train a single DistilBERT model (Hard Proxy) for symbolic target, ensuring memory usage ≤ 7 GB RAM and training time ≤ 6 hours. Include a memory monitor that logs to `code/logs/memory_profile.log` and fails if >7GB.
 - [ ] T011b [US1] Verify model artifact `code/models/proxy_hard/model.pt` exists and `code/logs/memory_profile.log` exists after T011a execution. <!-- ATOMIZE: requested -->
-- [X] T012 [US1] Add validation and error handling in `code/scripts/train.py` to fail loudly if real data fetch fails (no synthetic fallback)
-- [X] T013 [US1] Add logging for training progress, loss convergence, and resource usage in `code/scripts/train.py`
+- [~] T012 [US1] Add validation and error handling in `code/scripts/train.py` to fail loudly if real data fetch fails (no synthetic fallback)
+- [~] T013 [US1] Add logging for training progress, loss convergence, and resource usage in `code/scripts/train.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,11 +103,11 @@ __pycache__/
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T014 [P] [US2] Unit test for statistical significance calculation in `code/tests/test_stats.py`
+- [~] T014 [P] [US2] Unit test for statistical significance calculation in `code/tests/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [X] T015 [US2] Create `code/scripts/evaluate.py` to load the trained Hard Proxy model (T011) and split predictions into symbolic and continuous domains
+- [~] T015 [US2] Create `code/scripts/evaluate.py` to load the trained Hard Proxy model (T011) and split predictions into symbolic and continuous domains
 - [ ] T016b [US2] Implement metric calculation in `code/scripts/evaluate.py`: 1) Load the unified dataset, 2) Split into symbolic test set (label based on norm > 0.5 + text) and physical test set (label based on `physics_reward > 0.5` -> success/failure), 3) Run inference on both, 4) Calculate Brier Scores, Accuracy, F-score, and AUC-ROC for each domain, 5) **Output `code/data/results/raw_predictions.jsonl` containing `predicted_label`, `true_label`, `norm_value`, `keyword_match`, `model confidence` (float), AND `physical_label` (derived from physics_reward) for every sample**. **DEPENDENCY: T011b**.
 - [ ] T016c [US2] Calculate Generalization Gap in `code/scripts/evaluate.py`: 1) Load `code/data/results/raw_predictions.jsonl` (output of T016b), 2) Compute `generalization_gap = AUC_Symbolic - AUC_Physics`, 3) Save `generalization_gap` value to `code/data/results/gap_metrics.json`. **DEPENDENCY: T016b**.
 - [ ] T016d [US2] Implement Statistical Test Sequence in `code/scripts/evaluate.py`: 1) **Perform Shapiro-Wilk normality test** on the difference of metrics (Symbolic - Physical) from T016b, 2) **If normal, execute Paired t-test; else, execute Wilcoxon signed-rank test**, 3) **Output `p_value` and `is_significant` boolean**, 4) Perform **Bootstrap Confidence Interval** (with sufficient iterations for convergence) on the Generalization Gap (from T016c), 5) Output `code/data/results/comparative_analysis.json` containing side-by-side metrics, `p_value` (float), `is_significant` (boolean), `bootstrap_ci` (tuple), `normality_test_result` (Shapiro-Wilk statistic and p-value), and `physics_baseline_source`. If `physics_reward` is missing, abort with clear error. **DEPENDENCY: T016c**.
@@ -125,7 +125,7 @@ __pycache__/
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US3] Unit test for error categorization logic in `code/tests/test_analyze.py`
+- [~] T017 [P] [US3] Unit test for error categorization logic in `code/tests/test_analyze.py`
 
 ### Implementation for User Story 3
 
@@ -137,7 +137,7 @@ __pycache__/
 - [ ] T020 [US3] Generate the error analysis report in `code/data/results/error_analysis_report.md` with qualitative descriptions, quantitative summaries, and correlation analysis of error types with logical constraints or visual conditions. **DEPENDENCY: T018**.
 - [ ] T021 [US3] Generate scatter plot in `code/data/results/error_visualizations.png`: X-axis = input feature magnitude (norm_value), Y-axis = error rate (1 - accuracy), grouped by failure mode. **DEPENDENCY: T018**.
 - [ ] T022a [US3] **Calculate and report quantitative metrics for error categories**. Specifically: 1) Calculate `error_rate` and `confidence_distribution` (mean, std, min, max) for the **Visual Ambiguity** category, 2) Calculate `error_rate` for Logical Complexity and Context Mismatch, 3) Save these metrics to `code/data/results/error_metrics.json` with explicit keys: `visual_ambiguity_error_rate`, `visual_ambiguity_confidence_distribution`, `logical_complexity_error_rate`, `context_mismatch_error_rate`. **DEPENDENCY: T018**.
-- [X] T022b [US3] Add unit tests for error categorization logic in `code/tests/test_analyze.py::test_categorize_visual_ambiguity` and `test_categorize_logical_complexity`.
+- [~] T022b [US3] Add unit tests for error categorization logic in `code/tests/test_analyze.py::test_categorize_visual_ambiguity` and `test_categorize_logical_complexity`.
 
 **Checkpoint**: All user stories should now be independently functional
 
