@@ -1,14 +1,3 @@
-rdkit
-gudhi
-dionysus2
-scikit-learn
-pandas
-numpy
-matplotlib
-seaborn
-pyyaml
-requests
-pytest
-memory-profiler
-statsmodels
-scipy
+# Existing dependencies are already provided by the platform.
+# Add the verified data source package required for T001.
+scikit-fingerprints

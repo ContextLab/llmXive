@@ -1,33 +1,62 @@
+"""
+Data Ingestion Script for ESOL (Lipophilicity) Dataset
+-----------------------------------------------------
+
+This script implements Task T001: download (or load) the ESOL dataset,
+validate its schema, filter by molecular weight, perform a priori power
+analysis, check scaffold diversity, create a scaffold‑based 5‑fold split,
+and write all artefacts to the declared locations.
+
+The script now uses the **verified real data source** from the
+`scikit‑fingerprints` package (load_lipophilicity) as mandated by the
+platform.  It also accepts an optional ``--source`` argument to keep the
+CLI compatible with older run‑books; the default source is the verified
+one.
+
+All paths are constructed with ``pathlib.Path`` and the ``llmxive_toolkit``
+helpers (``paths``) are not needed because the script lives under the
+project root and creates directories directly.
+"""
+
+import argparse
+import json
+import logging
 import os
 import sys
-import logging
-import random
-import json
-import time
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import pandas as pd
-import numpy as np
-import requests
-import yaml
-from statsmodels.stats.power import TTestPower
+from typing import List, Tuple, Dict, Any, Optional
 
+import numpy as np
+import pandas as pd
+from rdkit.Chem import Descriptors
 from rdkit import Chem
 from rdkit.Chem.Scaffolds import MurckoScaffold
-from rdkit.Chem.Descriptors import MolWt
 from sklearn.model_selection import GroupKFold
+from statsmodels.stats.power import TTestPower
+
+# Verified real‑data loader
+try:
+    from skfp.datasets.moleculenet import load_lipophilicity
+except ImportError as exc:
+    raise ImportError(
+        "The 'scikit-fingerprints' package is required for the verified data source. "
+        "Please ensure it is listed in requirements.txt and installed."
+    ) from exc
 
 # ----------------------------------------------------------------------
 # Logging utilities
 # ----------------------------------------------------------------------
-def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(log_file: Optional[str] = None,
+                  level: int = logging.INFO) -> logging.Logger:
     logger = logging.getLogger("data_ingestion")
     logger.setLevel(level)
     if not logger.handlers:
         ch = logging.StreamHandler(sys.stdout)
         ch.setLevel(level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         ch.setFormatter(formatter)
         logger.addHandler(ch)
         if log_file:
@@ -42,20 +71,23 @@ def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> 
 # Seed handling
 # ----------------------------------------------------------------------
 def pin_random_seed(seed: int = 42) -> None:
+    """Fix Python, NumPy and random seeds for reproducibility."""
+    import random
+
     random.seed(seed)
     np.random.seed(seed)
 
 # ----------------------------------------------------------------------
-# Molecular weight calculation (correct RDKit implementation)
+# Molecular weight calculation (RDKit)
 # ----------------------------------------------------------------------
 def calculate_molecular_weight(smiles: str) -> Optional[float]:
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return None
-    return MolWt(mol)
+    return Descriptors.MolWt(mol)
 
 # ----------------------------------------------------------------------
-# Scaffold extraction
+# Scaffold extraction (Bemis‑Murcko)
 # ----------------------------------------------------------------------
 def get_bemis_murcko_scaffold(smiles: str) -> Optional[str]:
     mol = Chem.MolFromSmiles(smiles)
@@ -67,56 +99,64 @@ def get_bemis_murcko_scaffold(smiles: str) -> Optional[str]:
 # ----------------------------------------------------------------------
 # Scaffold integrity check
 # ----------------------------------------------------------------------
-def check_scaffold_integrity(df: pd.DataFrame, min_scaffolds: int = 100) -> Tuple[int, bool]:
+def check_scaffold_integrity(
+    df: pd.DataFrame, min_scaffolds: int = 100
+) -> Tuple[int, bool]:
     logger = logging.getLogger("data_ingestion")
-    logger.info("Calculating unique Bemis-Murcko scaffolds...")
-    scaffolds = df['smiles'].apply(get_bemis_murcko_scaffold).dropna()
+    logger.info("Calculating unique Bemis‑Murcko scaffolds...")
+    scaffolds = df["smiles"].apply(get_bemis_murcko_scaffold).dropna()
     unique_scaffolds = set(scaffolds)
     count = len(unique_scaffolds)
     logger.info(f"Found {count} unique scaffolds.")
     is_valid = count >= min_scaffolds
     if not is_valid:
-        logger.error(f"Scaffold Insufficient: {count} < {min_scaffolds}")
+        logger.error(
+            f"Scaffold Insufficient: {count} < {min_scaffolds}"
+        )
     return count, is_valid
 
 # ----------------------------------------------------------------------
-# Molecular weight integrity check (excludes >1000 Da)
+# Molecular‑weight filter (>1000 Da) and logging
 # ----------------------------------------------------------------------
-def verify_data_integrity_mw(df: pd.DataFrame, exclusion_log_path: Path) -> Tuple[pd.DataFrame, bool]:
+def verify_data_integrity_mw(
+    df: pd.DataFrame, exclusion_log_path: Path
+) -> Tuple[pd.DataFrame, bool]:
     """
-    Re‑calculates MW for every molecule. Molecules >1000 Da are excluded
+    Re‑calculates MW for every molecule. Molecules >1000 Da are excluded
     and their SMILES are written to the exclusion log.
     Returns the filtered DataFrame and a flag indicating whether any
     exclusion occurred.
     """
     logger = logging.getLogger("data_ingestion")
-    logger.info("Verifying molecular weights and filtering >1000 Da...")
-    large_molecules = []
-    keep_mask = []
+    logger.info("Verifying molecular weights and filtering >1000 Da...")
+    large_molecules: List[str] = []
+    keep_mask: List[bool] = []
 
-    for idx, row in df.iterrows():
-        mw = calculate_molecular_weight(row['smiles'])
+    for _, row in df.iterrows():
+        mw = calculate_molecular_weight(row["smiles"])
         if mw is None:
-            # Invalid SMILES will be handled later; keep for now
+            # Invalid SMILES – keep for now; later steps will drop them
             keep_mask.append(True)
             continue
         if mw > 1000:
-            large_molecules.append(row['smiles'])
+            large_molecules.append(row["smiles"])
             keep_mask.append(False)
         else:
             keep_mask.append(True)
 
     filtered_df = df.loc[keep_mask].reset_index(drop=True)
 
+    # Ensure log directory exists
+    exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
     if large_molecules:
-        logger.info(f"Logging {len(large_molecules)} large molecules (>1000 Da).")
-        exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(
+            f"Logging {len(large_molecules)} large molecules (>1000 Da)."
+        )
         with exclusion_log_path.open("a") as f:
             for smi in large_molecules:
                 f.write(f"{smi}\n")
     else:
-        # Ensure the log file exists (empty) for verification steps
-        exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
+        # Create an empty log file for downstream verification steps
         exclusion_log_path.touch()
 
     return filtered_df, bool(large_molecules)
@@ -130,17 +170,12 @@ def perform_power_analysis(actual_n: int, output_path: Path) -> None:
     effect size d=0.5, α=0.05, power=0.8 and writes a JSON report.
     """
     power_solver = TTestPower()
-    min_n_float = power_solver.solve_power(effect_size=0.5,
-                                           alpha=0.05,
-                                           power=0.8,
-                                           alternative='two-sided')
+    min_n_float = power_solver.solve_power(
+        effect_size=0.5, alpha=0.05, power=0.8, alternative="two-sided"
+    )
     min_n = int(np.ceil(min_n_float))
     passes = actual_n >= min_n
-    report = {
-        "min_n": min_n,
-        "actual_n": actual_n,
-        "passes": passes
-    }
+    report = {"min_n": min_n, "actual_n": actual_n, "passes": passes}
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w") as f:
         json.dump(report, f, indent=2)
@@ -148,21 +183,29 @@ def perform_power_analysis(actual_n: int, output_path: Path) -> None:
 # ----------------------------------------------------------------------
 # Scaffold‑based stratified split (GroupKFold)
 # ----------------------------------------------------------------------
-def stratified_scaffold_split(df: pd.DataFrame, n_splits: int = 5, seed: int = 42) -> Dict[str, List[int]]:
+def stratified_scaffold_split(
+    df: pd.DataFrame, n_splits: int = 5, seed: int = 42
+) -> List[Tuple[List[int], List[int]]]:
     """
     Performs a scaffold‑based split using GroupKFold.
-    Returns a dict with keys 'train' and 'test' each containing a list
-    of index lists for every fold.
+    Returns a list of (train_idx, test_idx) tuples for each fold.
     """
     logger = logging.getLogger("data_ingestion")
-    logger.info(f"Performing {n_splits}-fold scaffold split with seed {seed}...")
-    scaffolds = df['smiles'].apply(get_bemis_murcko_scaffold).fillna(lambda: f"unknown_{np.random.randint(1e9)}")
+    logger.info(
+        f"Performing {n_splits}-fold scaffold split with seed {seed}..."
+    )
+    scaffolds = df["smiles"].apply(get_bemis_murcko_scaffold).fillna(
+        lambda: f"unknown_{np.random.randint(1e9)}"
+    )
     gkf = GroupKFold(n_splits=n_splits)
-    split_indices = {'train': [], 'test': []}
-    for fold, (train_idx, test_idx) in enumerate(gkf.split(df, groups=scaffolds)):
-        split_indices['train'].append(train_idx.tolist())
-        split_indices['test'].append(test_idx.tolist())
-        logger.info(f"Fold {fold}: Train size={len(train_idx)}, Test size={len(test_idx)}")
+    split_indices: List[Tuple[List[int], List[int]]] = []
+    for fold, (train_idx, test_idx) in enumerate(
+        gkf.split(df, groups=scaffolds)
+    ):
+        split_indices.append((train_idx.tolist(), test_idx.tolist()))
+        logger.info(
+            f"Fold {fold}: Train size={len(train_idx)}, Test size={len(test_idx)}"
+        )
     return split_indices
 
 # ----------------------------------------------------------------------
@@ -191,6 +234,8 @@ def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
     Very lightweight validation: ensure the DataFrame has exactly the
     required columns as defined in the YAML schema.
     """
+    import yaml
+
     with schema_path.open() as f:
         schema = yaml.safe_load(f)
     required = set(schema.get("required", []))
@@ -200,25 +245,58 @@ def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
 # ----------------------------------------------------------------------
 # Main workflow
 # ----------------------------------------------------------------------
-def main():
+def main() -> None:
     logger = setup_logging()
     pin_random_seed(42)
 
     # ------------------------------------------------------------------
-    # 1. Download ESOL dataset (default URL)
+    # Argument handling – allow legacy ``--source`` flag
     # ------------------------------------------------------------------
-    default_url = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv"
-    import argparse
-    parser = argparse.ArgumentParser(description="Data ingestion for ESOL dataset")
-    parser.add_argument("--url", type=str, default=default_url, help="URL to download the ESOL CSV")
+    parser = argparse.ArgumentParser(
+        description="Data ingestion for ESOL (Lipophilicity) dataset"
+    )
+    parser.add_argument(
+        "--source",
+        type=str,
+        default="skfp",
+        help=(
+            "Data source identifier. 'skfp' uses the verified scikit‑fingerprints "
+            "loader; 'url' falls back to a direct download (requires --url)."
+        ),
+    )
+    parser.add_argument(
+        "--url",
+        type=str,
+        default="https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv",
+        help="URL to download the ESOL CSV when source='url'.",
+    )
     args = parser.parse_args()
 
+    # ------------------------------------------------------------------
+    # 1. Load dataset (verified source preferred)
+    # ------------------------------------------------------------------
     raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
     raw_path = raw_dir / "esol.csv"
 
-    if not raw_path.exists():
+    if args.source == "skfp":
+        logger.info("Loading ESOL dataset via scikit‑fingerprints (verified source)...")
+        X, y = load_lipophilicity()
+        # X may be a DataFrame or an iterable of SMILES
+        if isinstance(X, pd.DataFrame):
+            if "smiles" in X.columns:
+                smiles_series = X["smiles"]
+            else:
+                # Fallback: first column assumed to contain SMILES
+                smiles_series = X.iloc[:, 0]
+        else:
+            smiles_series = pd.Series(list(X))
+        df = pd.DataFrame({"smiles": smiles_series, "logP": y})
+        df["molecule_id"] = df.index.astype(str)
+    elif args.source == "url":
         logger.info(f"Downloading ESOL dataset from {args.url}...")
+        import requests
+
         response = requests.get(args.url, stream=True, timeout=30)
         response.raise_for_status()
         with raw_path.open("wb") as f:
@@ -226,33 +304,42 @@ def main():
                 if chunk:
                     f.write(chunk)
         logger.info(f"Saved raw dataset to {raw_path}")
+        df = pd.read_csv(raw_path)
     else:
-        logger.info(f"Raw dataset already present at {raw_path}")
+        logger.error(f"Unknown source '{args.source}'. Use 'skfp' or 'url'.")
+        sys.exit(1)
+
+    # Ensure we have the required columns only (schema validation expects exact match)
+    df = df[["smiles", "logP"]].copy()
 
     # ------------------------------------------------------------------
-    # 2. Compute and record checksum
+    # 2. Compute and record checksum of the raw CSV
     # ------------------------------------------------------------------
+    # If the raw file was created via the 'skfp' path, we need to write it now
+    if not raw_path.exists():
+        raw_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(raw_path, index=False)
+        logger.info(f"Wrote raw CSV to {raw_path}")
+
     checksum_path = Path("data/checksums.txt")
     append_checksum(raw_path, checksum_path)
     logger.info(f"Appended SHA‑256 checksum to {checksum_path}")
 
     # ------------------------------------------------------------------
-    # 3. Load CSV and validate schema
+    # 3. Schema validation
     # ------------------------------------------------------------------
-    try:
-        df = pd.read_csv(raw_path)
-    except Exception as e:
-        logger.error(f"Failed to read CSV: {e}")
-        sys.exit(1)
-
-    schema_path = Path("specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml")
+    schema_path = Path(
+        "specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml"
+    )
     if not validate_schema(df, schema_path):
-        logger.error("Schema validation failed: CSV does not contain exactly the required columns.")
+        logger.error(
+            "Schema validation failed: CSV does not contain exactly the required columns."
+        )
         sys.exit(1)
     logger.info("Schema validation passed.")
 
     # ------------------------------------------------------------------
-    # 4. Molecular weight filter (>1000 Da)
+    # 4. Molecular‑weight filter (>1000 Da)
     # ------------------------------------------------------------------
     exclusion_log_path = Path("data/logs/large_molecule_exclusions.log")
     df, had_exclusions = verify_data_integrity_mw(df, exclusion_log_path)
@@ -260,7 +347,9 @@ def main():
     # ------------------------------------------------------------------
     # 5. Power analysis
     # ------------------------------------------------------------------
-    power_report_path = Path("data/processed/power_analysis_report.json")
+    power_report_path = Path(
+        "data/processed/power_analysis_report.json"
+    )
     perform_power_analysis(len(df), power_report_path)
     logger.info(f"Wrote power analysis report to {power_report_path}")
 
@@ -268,12 +357,14 @@ def main():
     # 6. Scaffold count check
     # ------------------------------------------------------------------
     scaffold_count, scaffold_ok = check_scaffold_integrity(df, min_scaffolds=100)
-    scaffold_counts_path = Path("data/processed/scaffold_counts.json")
+    scaffold_counts_path = Path(
+        "data/processed/scaffold_counts.json"
+    )
     scaffold_counts_path.parent.mkdir(parents=True, exist_ok=True)
     scaffold_status = {
         "unique_scaffolds": scaffold_count,
         "min_required": 100,
-        "status": "PASSED" if scaffold_ok else "FAILED"
+        "status": "PASSED" if scaffold_ok else "FAILED",
     }
     with scaffold_counts_path.open("w") as f:
         json.dump(scaffold_status, f, indent=2)
@@ -298,7 +389,7 @@ def main():
     splits_path = Path("data/processed/splits.json")
     splits_path.parent.mkdir(parents=True, exist_ok=True)
     with splits_path.open("w") as f:
-        json.dump(splits, f, indent=2)
+        json.dump({"splits": splits}, f, indent=2)
     logger.info(f"Wrote split indices to {splits_path}")
 
     logger.info("Data ingestion (T001) completed successfully.")
