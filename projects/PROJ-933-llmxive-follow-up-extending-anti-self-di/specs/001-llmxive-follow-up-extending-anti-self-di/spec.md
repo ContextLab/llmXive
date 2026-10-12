@@ -33,9 +33,9 @@ The system MUST implement a custom PyTorch training loop to compute the AntiSD a
 
 **Acceptance Scenarios**:
 
-1. **Given** a transformer model and a sampled privileged context, **When** the training loop executes 500 steps, **Then** it logs the Pointwise Mutual Information (PMI) and Jensen-Shannon divergence at every step without requiring GPU acceleration.
+1. **Given** a transformer model and a sampled privileged context, **When** the training loop executes a sufficient number of steps to achieve convergence., **Then** it logs the Pointwise Mutual Information (PMI) and Jensen-Shannon divergence at every step without requiring GPU acceleration.
 2. **Given** the AntiSD mechanism is active, **When** the gradient update is computed, **Then** the system ascends the divergence (maximizes difference) rather than descending it (minimizing difference), verified by a negative gradient dot product.
-3. **Given** the training completes, **Then** the system outputs the final policy parameters and the full trajectory log containing token probabilities for the 500 steps.
+3. **Given** the training completes, **Then** the system outputs the final policy parameters and the full trajectory log containing token probabilities for the entire sequence of steps..
 
 ---
 
@@ -49,7 +49,7 @@ The system MUST compute pairwise BLEU scores and semantic similarity between gen
 
 **Acceptance Scenarios**:
 
-1. **Given** 50 generated trajectories per prompt, **When** the diversity metric runs, **Then** it computes the mean pairwise BLEU score and semantic similarity against the set of *unselected* rationales.
+1. **Given** A sufficient number of generated trajectories per prompt, **When** the diversity metric runs, **Then** it computes the mean pairwise BLEU score and semantic similarity against the set of *unselected* rationales.
 2. **Given** the results from both AntiSD and standard self-distillation runs, **When** the statistical analysis runs, **Then** it performs a Wilcoxon signed-rank test and reports the p-value for the difference in deliberation token frequency and reasoning quality score.
 3. **Given** the analysis is complete, **When** the final report is generated, **Then** it explicitly states whether the null hypothesis (no difference in diversity or quality) is rejected at the $\alpha=0.05$ level, and whether a positive correlation exists between deliberation token frequency and the Human Evaluation Proxy Score.
 
@@ -59,7 +59,7 @@ The system MUST compute pairwise BLEU scores and semantic similarity between gen
 
 - What happens if a prompt in the dataset has fewer than 4 annotated rationales? (System MUST skip this prompt as per FR-016).
 - How does the system handle the scenario where the "privileged context" sampled is identical to one of the "unselected" rationales by chance? (System MUST detect and re-sample or exclude to ensure independence).
-- What occurs if the CPU-only training exceeds the 6-hour CI limit? (System MUST implement a hard timeout at 5.5 hours and log a "timeout" status with partial results).
+- What occurs if the CPU-only training exceeds the 6-hour CI limit? (System MUST implement a hard timeout at a multi‑hour duration and log a "timeout" status with partial results).
 
 ## Requirements
 

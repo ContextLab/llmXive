@@ -10,7 +10,7 @@ properties:
     type: string
     enum:
       - AntiSD
-      - Standard
+      - StandardSD
     description: "Training condition used."
   deliberation_frequency:
     type: number
@@ -32,7 +32,7 @@ properties:
     description: "Final JS divergence after training."
   steps_completed:
     type: integer
-    description: "Number of training steps completed (max 250)."
+    description: "Number of training steps completed (max 500)."
 required:
   - prompt_id
   - condition

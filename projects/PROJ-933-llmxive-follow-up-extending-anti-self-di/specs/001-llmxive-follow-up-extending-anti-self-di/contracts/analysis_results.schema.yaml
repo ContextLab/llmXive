@@ -84,16 +84,22 @@ properties:
   correlation_results:
     type: object
     properties:
-      pearson_r:
+      spearman_rho:
         type: number
+        description: "Spearman rank correlation coefficient."
       p_value:
         type: number
+        description: "Two‑tailed p‑value for the Spearman test."
     required:
-      - pearson_r
+      - spearman_rho
       - p_value
+  human_score_diff_pass:
+    type: boolean
+    description: "True if AntiSD quality score exceeds StandardSD by ≥ 0.2 points (SC‑006)."
 required:
   - sample_size
   - power_analysis
   - metrics
   - wilcoxon_results
   - correlation_results
+  - human_score_diff_pass

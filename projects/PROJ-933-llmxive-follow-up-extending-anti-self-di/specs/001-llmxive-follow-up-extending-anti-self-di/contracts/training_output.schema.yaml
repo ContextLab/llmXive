@@ -21,7 +21,7 @@ properties:
     description: "Current loss value."
   js_divergence:
     type: number
-    description: "Jensen-Shannon divergence."
+    description: "Jensen‑Shannon divergence."
   gradient_dot_product:
     type: number
     description: "Dot product of AntiSD gradient and standard gradient."
@@ -37,6 +37,12 @@ properties:
     items:
       type: string
     description: "List of specific deliberation tokens found."
+  training_time_seconds:
+    type: number
+    description: "Wall‑clock time elapsed for this step (seconds)."
+  peak_memory_mb:
+    type: number
+    description: "Peak RAM usage observed during this step (megabytes)."
 required:
   - step
   - prompt_id
@@ -46,4 +52,6 @@ required:
   - gradient_dot_product
   - generated_trajectory
   - deliberation_count
+  - training_time_seconds
+  - peak_memory_mb
 additionalProperties: false
