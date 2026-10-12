@@ -1,0 +1,19 @@
+status: none
+intent: download OSF pre-registered study datasets using osfclient python package
+  dataset
+required_fields:
+- project_id
+- study_title
+- discipline
+- registration_url
+- raw_data_file_path
+- sample_size
+- test_name
+- test_statistic
+- p_value
+- outcome_variable
+- predictor_variables
+- covariate_variables
+cache_key: 38f6bcd186228c5867c1c51fe7f3d488f3b1694f51bb3e9cc02bf6cfaedea3b0
+searched_at: '2026-10-12T13:17:55.112425+00:00'
+retry_count: 1

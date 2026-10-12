@@ -11,17 +11,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/correlation_analysis.py: synthetic/fake INPUT data not authorized by the spec — “…task requirements      # Simulated data for demonstration     #…”
 - code/train.py: synthetic/fake INPUT data not authorized by the spec — “…device          # Create dummy input     dummy_input = torch.…”
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/data_loader.py --download-only`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/correlation_analysis.py: synthetic/fake INPUT data not authorized by the spec — “…task requirements      # Simulated data for demonstration     #…”; code/train.py: synthetic/fake INPUT data not authorized by the spec — “…device          # Create dummy input     dummy_input = torch.…”; 5 command(s) failed: python code/data_loader.py --download-only (rc=1); python code/train.py --config code/config.py (rc=1); python code/eval.py --checkpoint code/codebook.pt (rc=1); 8 declared deliverable(s) absent: data/raw/checksums.json; data/results/correlation_plot.png; data/results/embeddings_high_res.h5
@@ -29,34 +18,40 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py --download-only -> rc=1
-tFoundError(message) from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'imagenet-1k' is a gated dataset on the Hub. You must be authenticated to access it.
-
-The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/data_loader.py", line 230, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/data_loader.py", line 138, in main
-    it = get_imagenet_iterator(split="validation", streaming=True)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/data_loader.py", line 100, in get_imagenet_iterator
-    raise RuntimeError(f"Failed to load ImageNet-1K dataset. Ensure internet connectivity and correct dataset ID. Error: {str(e)}") from e
-RuntimeError: Failed to load ImageNet-1K dataset. Ensure internet connectivity and correct dataset ID. Error: Dataset 'imagenet-1k' is a gated dataset on the Hub. You must be authenticated to access it.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/data_loader.py", line 19, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.0
 
 - python code/train.py --config code/config.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/train.py", line 12, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
+recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/train.py", line 22, in <module>
+    from data_loader import get_coco_iterator
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/data_loader.py", line 19, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.0
 
 - python code/eval.py --checkpoint code/codebook.pt -> rc=1
-put=False)
+e_output=False)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 571, in run
     raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/.venv/bin/python', 'code/train.py', '--config', 'code/config.py']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/bin/python', 'code/train.py', '--config', 'code/config.py']' returned non-zero exit status 1.
 
 The above exception was the direct cause of the following exception:
 
@@ -70,15 +65,30 @@ Traceback (most recent call last):
 RuntimeError: Pipeline step failed: Training (Codebook Initialization)
 
 - python code/analysis.py -> rc=1
+2026-10-12 13:03:06,397 - INFO - Starting Correlation Analysis (T022)
+2026-10-12 13:03:06,397 - INFO - Computing texture complexity and PSNR for images in data/processed/ground_truth_images
+2026-10-12 13:03:06,397 - ERROR - Failed to load data: No PNG images found in ground truth directory.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/analysis.py", line 26, in <module>
-    import matplotlib.pyplot as plt
-ModuleNotFoundError: No module named 'matplotlib'
 
-- python -m pytest tests/ -v -> rc=1
+- python -m pytest tests/ -v -> rc=2
+.24.0
+_______________ ERROR collecting tests/test_spec_verification.py _______________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/tests/test_spec_verification.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_spec_verification.py:13: in <module>
+    from verify_spec_amendments import verify_spec_amendments
+E   ImportError: cannot import name 'verify_spec_amendments' from 'verify_spec_amendments' (/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/verify_spec_amendments.py)
+=========================== short test summary info ============================
+ERROR tests/integration/test_eval.py
+ERROR tests/test_data.py
+ERROR tests/test_data_loader.py
+ERROR tests/test_spec_verification.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 1.77s ===============================
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/.venv/bin/python: No module named pytest
 
 
 ## Declared deliverables still missing

@@ -1,15 +1,12 @@
 T001a:
-  reason: The evidence shows that the `data/` directory exists, but the required `data/raw/`
-    subdirectory is missing. The task explicitly demands creation of both directories,
-    so the implementation is not complete.
   task: 214734118313de36634d116c53ffdbddc261ea3cb790f64fec9974ef1ec42cdc
 T001b:
   task: d61395421047392b0268817e3afa38079a66069f5d2d128f1700c2d6498fc636
 T001c:
-  reason: The evidence shows that `tests/`, `tests/unit/`, and `tests/contract/` directories
-    exist, but the required `data/processed/`, `output/`, `output/figures/`, and `logs/`
-    directories are missing. These absent directories must be created to satisfy the
-    task.
+  reason: The evidence shows `output/`, `output/figures/`, `tests/`, `tests/unit/`,
+    `tests/contract/`, and `data/processed/` directories exist, but the required `logs/`
+    directory is not present in the listed artifacts. The task therefore is not fully
+    satisfied.
   task: 446bdd0b628c116c62e32c2b7fd6502709f1ff8b27441fec14fd11d98825c131
 T002:
   reason: "The evidence only shows the project root path; there is no pyproject.toml,\
@@ -28,6 +25,10 @@ T003:
 T004:
   task: 7a3827710195010ebe5eb9eff6e787f9b366a12becf0277ab919de0ab3b752d3
 T005:
+  reason: "The evidence includes a non\u2011empty `code/__init__.py`, but no second\
+    \ `__init__.py` file for the requested module/package (e.g., a top\u2011level\
+    \ or sub\u2011package `__init__.py`). The task explicitly required both files,\
+    \ so the missing module `__init__.py` must be added."
   task: b66f24b8753059dcd3a5b5db053c61294a586da4487387779d924b8dc8cc63e5
 T006:
   task: 5dc53af70089b56886474a312c0b270d01e86d8486300954307580a80d2313c2
@@ -46,6 +47,8 @@ T011:
     exit=1'
   task: e1079aa7e3ec582cf8d3d28f9a39d50e47cb8e3d79116eb4252706c3d11b2b86
 T012:
+  reason: 'Requested task execution failed; rerun successfully: code/discovery/query_geno.py
+    exit=1'
   task: 3be1cb88a52c84bcdf91f6592edc42c217942498247a1021973bfb4ba13a53e3
 T013:
   task: 12c8468c1bee3467319001044e762f48ce30b1aa506ec43c887b9805d9a34308

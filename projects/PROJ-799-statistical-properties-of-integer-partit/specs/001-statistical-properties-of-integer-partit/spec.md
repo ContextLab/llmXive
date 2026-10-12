@@ -39,7 +39,7 @@ As a researcher, I need to calculate the log-residuals $R(n) = \log(p_{\mathcal{
 
 ### User Story 3 - Validate Model Robustness and Visualize Convergence (Priority: P3)
 
-As a researcher, I need to perform cross-validation (10-fold) on the regression model and generate visualizations comparing the raw residuals against the fitted correction term, so that I can assess the model's generalizability and visually inspect the convergence behavior for anomalies.
+As a researcher, I need to perform cross-validation (k‑fold) on the regression model and generate visualizations comparing the raw residuals against the fitted correction term, so that I can assess the model's generalizability and visually inspect the convergence behavior for anomalies.
 
 **Why this priority**: This ensures the findings are not overfitted to the specific sample and provides the necessary visual evidence for the final report. It confirms the reliability of the "systematic bias" claim.
 

@@ -1,25 +1,25 @@
 T001a:
-  c: false
-  h: a6b1987b3df64eb562972d2160c3c1d6d8616221bef30f06999fa66021b1023f
-  r: The evidence shows that the `data/` directory exists, but the required `data/raw/`
-    subdirectory is missing. The task explicitly demands creation of both directories,
-    so the implementation is not complete.
-  sig: 1b2f872c68197452d676b5a7a4133bfbe6672028d1ebaa0e48c8af61823ba374
+  c: true
+  h: 99c9dc5bdc5d846fefced511bf5ef552e98d7f123f8c2a73c134409750f210cf
+  r: The `data/` directory and its `raw/` subdirectory are present in the project
+    (as shown by the directory listings and the `code/.tasks/T001a.code_setup_dirs.py.log`
+    confirming successful creation). No further contents are required by the task.
+  sig: e936e4fc2b882b37a7a05a2957899881836d78084eceb5537e8860560928c0b2
 T001b:
   c: true
-  h: 1283de504e1b3195e7eeb40a17d9d4f14bf0724e109ba77b49c46f8605b1cc1e
-  r: The evidence shows that `code/`, `code/discovery/`, `code/preprocess/`, `code/analysis/`,
-    and `code/viz/` directories all exist under the project root and contain files,
-    satisfying the creation requirement.
-  sig: 6731bf4f1e9522793aec00b27501f8ec7e704cb3d75ecfdd2d0dfb0882cc0ec2
+  h: 7f2712fea205fb3ec8a01ca5071912ee016f621918f492ddeaadc6584b27bb90
+  r: "The evidence shows that the `code/` directory and its subdirectories `code/discovery/`,\
+    \ `code/preprocess/`, `code/analysis/`, and `code/viz/` all exist in the project\
+    \ root, each containing multiple files as listed. This satisfies the task\u2019\
+    s sole requirement of creating those directories."
+  sig: 5d9875f98ec7fd0402322ac5750478f84a53e14e5499e81f8f1cea0358f4ad31
 T001c:
   c: false
-  h: ffef82c6f75f8e370373061a11221b7740f3dea4725944104f62f7be9ece7fb9
-  r: The evidence shows that `tests/`, `tests/unit/`, and `tests/contract/` directories
-    exist, but the required `data/processed/`, `output/`, `output/figures/`, and `logs/`
-    directories are missing. These absent directories must be created to satisfy the
-    task.
-  sig: ff5d7907cbe974165ae7147a22e5d9692b3d0c667c7ae1e31c7c679d28f191a7
+  h: cd443e1d60ef642de00b0163cf4d40b49394cb51e8e38b792ab6069dda4dbda3
+  r: The evidence shows `output/`, `output/figures/`, `tests/`, `tests/unit/`, `tests/contract/`,
+    and `data/processed/` directories exist, but the required `logs/` directory is
+    not present in the listed artifacts. The task therefore is not fully satisfied.
+  sig: 8400dad04a2762f7b0c8c85d8bb71b08e1bc519f01846b1b720a51f2aaf46458
 T002:
   c: false
   h: 476588f53154bea7b58706c48a35a36995d3f3605ed76fd3d120f5e2996353c2
@@ -48,6 +48,28 @@ T004:
     \ and a helper to create required directories. This fully implements path management,\
     \ seed handling, and environment\u2011variable access as required."
   sig: 7b284c765ce80ef0d5604f871c9e48b23e2ca998c53d7bb663228815d25dd4c7
+T005:
+  c: false
+  h: 2a8f2434b381f4ba56f20ba4ae68129423ab46bee3f12706cbc262137dfe74a1
+  r: "The evidence includes a non\u2011empty `code/__init__.py`, but no second `__init__.py`\
+    \ file for the requested module/package (e.g., a top\u2011level or sub\u2011package\
+    \ `__init__.py`). The task explicitly required both files, so the missing module\
+    \ `__init__.py` must be added."
+  sig: 8a86ebd3b1e9dc5f7d06b8bdb378ac04f85c1f53729ee19feac9c37d1de001cf
+T006:
+  c: true
+  h: cd301f82bd453089062240ff2336d6101fb45f8e03f15ad2ab4ba33f0a8deaa5
+  r: "Checked `code/discovery/__init__.py` (669\u202Fbytes) and `code/preprocess/__init__.py`\
+    \ (1024\u202Fbytes); both files exist, contain substantive import logic and `__all__`\
+    \ definitions, and are not empty placeholders."
+  sig: e7c2e9117bb627a1e0c65a6fdf712ae31e86510ba962b66adeed357967f4c1fb
+T007:
+  c: true
+  h: e7f2c9c3d04e8aae254a39bde30d4b33f3736c3ead817857451383142b20c0ae
+  r: "Checked the actual contents of `code/analysis/__init__.py` and `code/viz/__init__.py`,\
+    \ both of which exist, are non\u2011empty, and correctly import and expose the\
+    \ intended symbols."
+  sig: 521bfea1c28252b77183672dbd40e587125860c019adb5bee3113c8ef4e6b53c
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `data/` and `data/raw/` directories
+- [X] T001a Create `data/` and `data/raw/` directories
 - [X] T001b Create `code/`, `code/discovery/`, `code/preprocess/`, `code/analysis/`, `code/viz/` directories
 - [ ] T001c Create `output/`, `output/figures/`, `tests/`, `tests/unit/`, `tests/contract/`, `logs/`, and `data/processed/` directories
 - [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `pyyaml`, `tqdm`, `pytest` [UNRESOLVED-CLAIM: c_2097fc9e — status=not_enough_info]
@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/config.py` for path management, random seeds, and environment variables
-- [~] T005 [P] Create `code/__init__.py` and module `__init__.py` files for package structure
-- [~] T006 Implement `code/discovery/__init__.py` and `code/preprocess/__init__.py`
-- [~] T007 Implement `code/analysis/__init__.py` and `code/viz/__init__.py`
+- [ ] T005 [P] Create `code/__init__.py` and module `__init__.py` files for package structure
+- [X] T006 Implement `code/discovery/__init__.py` and `code/preprocess/__init__.py`
+- [X] T007 Implement `code/analysis/__init__.py` and `code/viz/__init__.py`
 - [~] T008 Create `tests/unit/__init__.py` and `tests/contract/__init__.py`
 - [~] T008b Create `data/verified_datasets.yaml` as the local registry for verified accession titles (required by T010)
 
@@ -79,7 +79,7 @@
 - [~] T009 [US0] Implement `code/discovery/query_geno.py` with search logic for "multi-generational", "methylation", "RNA-seq", and "fluctuating" keywords. **Output**: `output/discovery_results.json`.
 - [~] T010 [US0] Implement `validate_reference(accession, title)` in `code/discovery/query_geno.py` performing title-token overlap check (threshold ≥ 0.7) against `data/verified_datasets.yaml`. [UNRESOLVED-CLAIM: c_c7e66a7e — status=not_enough_info]
 - [ ] T011 [US0] Implement logic to filter datasets by organism (mouse, C. elegans, Drosophila) (Wikidata Q130888, https://www.wikidata.org/wiki/Q130888) and metadata completeness (fluctuation timescale/amplitude). <!-- FAILED-IN-EXECUTION: code/discovery/query_geno.py exit=1 -->
-- [ ] T012 [US0] Implement logic to flag "Partial Match" datasets and write a `halt_signal` to `output/discovery_status.json` if <3 valid datasets are found. **Checkpoint**: Pipeline halts if this file contains `halt_signal`.
+- [ ] T012 [US0] Implement logic to flag "Partial Match" datasets and write a `halt_signal` to `output/discovery_status.json` if <3 valid datasets are found. **Checkpoint**: Pipeline halts if this file contains `halt_signal`. <!-- FAILED-IN-EXECUTION: code/discovery/query_geno.py exit=1 -->
 - [~] T013 [US0] Create `tests/unit/test_discovery.py` with mock responses for GEO/ENCODE queries.
 
 **Checkpoint**: Data availability confirmed or pipeline halted appropriately via `output/discovery_status.json`.

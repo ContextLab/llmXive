@@ -1,14 +1,14 @@
 status: none
-intent: SPARC galaxy rotation curves download python package dataset
+intent: download SPARC galaxy rotation curve dataset python package dataset
 required_fields:
-- galaxy_name
 - radial_distance_kpc
-- rotational_velocity_kms
-- velocity_uncertainty_kms
+- rotational_velocity_km_s
+- velocity_uncertainty_km_s
 - inclination_deg
 - inclination_uncertainty_deg
 - stellar_surface_density
 - gas_surface_density
-cache_key: 6f3637e1eb67926c6af432285ec22d81c52560ce2f3c62f7e378f4ae6881e59f
-searched_at: '2026-10-10T23:17:58.370232+00:00'
+- total_baryonic_surface_density
+cache_key: 692a881c27cfbdf13c4423c9b274bbf11d621ba613616ceb92e348415429970c
+searched_at: '2026-10-12T13:06:41.514562+00:00'
 retry_count: 1

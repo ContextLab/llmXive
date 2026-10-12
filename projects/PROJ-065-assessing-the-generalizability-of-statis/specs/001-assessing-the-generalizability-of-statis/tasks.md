@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `projects/PROJ-065-assessing-the-generalizability-of-statis/code/` directory
-- [ ] T001b Create `projects/PROJ-065-assessing-the-generalizability-of-statis/data/raw/` and `data/processed/` directories
-- [ ] T001c Create `projects/PROJ-065-assessing-the-generalizability-of-statis/outputs/` and `outputs/figures/`, `outputs/reports/` directories
+- [X] T001a Create `projects/PROJ-065-assessing-the-generalizability-of-statis/code/` directory
+- [X] T001b Create `projects/PROJ-065-assessing-the-generalizability-of-statis/data/raw/` and `data/processed/` directories
+- [X] T001c Create `projects/PROJ-065-assessing-the-generalizability-of-statis/outputs/` and `outputs/figures/`, `outputs/reports/` directories
 - [ ] T001d Create `projects/PROJ-065-assessing-the-generalizability-of-statis/tests/` directory
-- [X] T001e Initialize `requirements.txt`, `README.md`, and `.gitkeep` files in respective directories
+- [ ] T001e Initialize `requirements.txt`, `README.md`, and `.gitkeep` files in respective directories
 
 ---
 
@@ -60,9 +60,9 @@
 - [ ] T009 [P] Setup `data/raw/`, `data/processed/`, and `outputs/` directory structure with checksumming logic
 - [X] T004 Implement `code/config.py` with paths, random seeds (42), and threshold constants (including `MAX_ITERATIONS=1000`, `ALTERNATIVE_ITERATIONS=1000`, `TIMEOUT_HOURS=6`)
 - [X] T005 [P] Implement `code/ingestion.py` skeleton with OSF API client and error handling (429 backoff)
-- [X] T006 [P] Implement `code/bootstrap_engine.py` skeleton with stratified resampling logic
-- [X] T007 Create `code/meta_analysis.py` skeleton for aggregation and plotting
-- [X] T008 Implement `code/main.py` orchestration script
+- [~] T006 [P] Implement `code/bootstrap_engine.py` skeleton with stratified resampling logic
+- [~] T007 Create `code/meta_analysis.py` skeleton for aggregation and plotting
+- [~] T008 Implement `code/main.py` orchestration script
 - [ ] T010 Implement `record_artifact_hash()` function in `code/main.py` to update `state/projects/PROJ-065-assessing-the-generalizability-of-statis.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,17 +79,17 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T011 [P] [US1] Unit test for OSF API backoff logic in `tests/unit/test_ingestion.py`
-- [X] T012 [P] [US1] Unit test for parsing logic with missing p-value in `tests/unit/test_ingestion.py`
-- [X] T013 [P] [US1] Integration test for downloading 3 valid studies in `tests/integration/test_ingestion.py`
+- [~] T011 [P] [US1] Unit test for OSF API backoff logic in `tests/unit/test_ingestion.py`
+- [~] T012 [P] [US1] Unit test for parsing logic with missing p-value in `tests/unit/test_ingestion.py`
+- [~] T013 [P] [US1] Integration test for downloading 3 valid studies in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement OSF API download logic with exponential backoff in `code/ingestion.py`
-- [X] T015 [US1] Implement logic to ingest up to 50 studies from OSF, parse metadata to extract `osf_id`, `discipline`, `original_p_value`, `sample_size`; MUST include logic to detect "ambiguous_model" conditions and implement a selection algorithm to ensure a balanced subset of 3 disciplines (psychology, economics, biology) is included in the final analysis set (min 1 per discipline) in `code/ingestion.py`
-- [X] T016 [US1] Implement logic to flag "missing_p_value" and "ambiguous_model" entries in `code/ingestion.py`
+- [~] T014 [US1] Implement OSF API download logic with exponential backoff in `code/ingestion.py`
+- [~] T015 [US1] Implement logic to ingest up to 50 studies from OSF, parse metadata to extract `osf_id`, `discipline`, `original_p_value`, `sample_size`; MUST include logic to detect "ambiguous_model" conditions and implement a selection algorithm to ensure a balanced subset of 3 disciplines (psychology, economics, biology) is included in the final analysis set (min 1 per discipline) in `code/ingestion.py`
+- [~] T016 [US1] Implement logic to flag "missing_p_value" and "ambiguous_model" entries in `code/ingestion.py`
 - [~] T017 [US1] Implement CSV export to `data/processed/baseline_metrics.csv` with SHA-256 checksum in `code/ingestion.py`
-- [X] T018 [US1] Add error handling for 429 errors and corrupted files (skip and log) in `code/ingestion.py`
+- [~] T018 [US1] Add error handling for 429 errors and corrupted files (skip and log) in `code/ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Unit test for stratified bootstrap logic with N=50 in `tests/unit/test_bootstrap.py`
+- [~] T019 [P] [US2] Unit test for stratified bootstrap logic with N=50 in `tests/unit/test_bootstrap.py`
 - [ ] T020 [P] [US2] Unit test for zero-variance predictor handling in `tests/unit/test_bootstrap.py`
 - [ ] T021 [P] [US2] Integration test for timeout logic (simulate slow study) in `tests/integration/test_bootstrap.py`
 

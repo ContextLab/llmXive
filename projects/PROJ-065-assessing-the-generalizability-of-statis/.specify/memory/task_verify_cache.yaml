@@ -1,26 +1,28 @@
 T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-065-assessing-the-generalizability-of-statis/code/`
-    directory (or any files within it) is provided; the claim is unsubstantiated.
-    The implementer must supply a listing or contents of that directory to confirm
-    it was created.
+  c: true
+  h: 46a375a7a86dd54f215507290ff6d4494bd33f96d920d3ad2141ef1eeb1a4196
+  r: "The evidence shows that the `projects/PROJ-065-assessing-the-generalizability-of-statis/code/`\
+    \ directory exists (13 entries, including placeholder `.gitkeep` and various Python\
+    \ modules). This fulfills the task\u2019s sole requirement of creating the directory."
+  sig: ac3de2c7930bbfd13c10e4684362e3ecc5c3786b4b9bb05cc08ada537e0e86a6
 T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-065-assessing-the-generalizability-of-statis/data/raw/`
-    or `data/processed/` directories is present; the submission provides only a textual
-    claim without any filesystem artifacts showing those folders exist. The implementer
-    must create the directories (and optionally add placeholder files) and provide
-    a view or listing confirming their presence.
+  c: true
+  h: 4d618b5a6cd8ef75ca98c155794f514bcdc25f9795263157435bba89d197e056
+  r: "The `projects/PROJ-065-assessing-the-generalizability-of-statis/data/raw/` and\
+    \ `projects/PROJ-065-assessing-the-generalizability-of-statis/data/processed/`\
+    \ directories both exist (each containing a `.gitkeep` placeholder), and the pytest\
+    \ test `test_raw_and_processed_directories_exist` passed, confirming their presence.\
+    \ The creation script\u2019s log also records successful directory creation."
+  sig: b190f5af034a9212469d98f1f0d2945695194ca6120dffa0cf5ebef395cf917e
 T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`projects/PROJ-065-assessing-the-generalizability-of-statis/outputs/`,\
-    \ `outputs/figures/`, `outputs/reports/`) being present on disk is provided; the\
-    \ artifact list is empty. The implementer must create these directories (and ensure\
-    \ they contain at least placeholder files or are non\u2011empty) to satisfy the\
-    \ task."
+  c: true
+  h: 430f277cfdd7de5e147b860f9f33ed48f325fb9471275c9d56cd6684b201bd29
+  r: "Checked the repository and found the `projects/PROJ-065-assessing-the-generalizability-of-statis/outputs/`\
+    \ directory containing the `figures/` and `reports/` sub\u2011directories (each\
+    \ with a `.gitkeep` file), and the `code/create_outputs_dirs.py` script logged\
+    \ \u201CAll required output directories are ready.\u201D. The directories are\
+    \ present as required."
+  sig: e06425d82476341c45a522b270737f485892f9e2ed5b3a65c7b911dd526141ac
 T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,6 +30,30 @@ T001d:
     \ actually exists; the response contains only a claim without any file system\
     \ listing or screenshots confirming the folder\u2019s creation. The required artifact\
     \ is therefore missing."
+T001e:
+  c: false
+  h: 2ac78e5ab55389f4103f22bdde07b1623a34cfa1922dedc8a98652dea15172d0
+  r: The evidence includes a populated `requirements.txt` and `README.md`, but no
+    `.gitkeep` files are present in any directory. The task explicitly required initializing
+    `.gitkeep` files, so the implementation is missing those artifacts.
+  sig: b15d9c4be8044e3b13e9de03c7cac7711d5a4bb80975e6f244457e122963c1d8
+T004:
+  c: true
+  h: 73bb29b6a52e3c040d0cb58fdc3130b184c65f9d43f2afb9dfc7a4f19b4a5f7e
+  r: "The `code/config.py` file (resolved at `projects/PROJ-065-assessing-the-generalizability-of-statis/code/config.py`)\
+    \ is present, non\u2011empty, and defines the required constants: `RANDOM_SEED\
+    \ = 42`, `MAX_ITERATIONS = 1000`, `ALTERNATIVE_ITERATIONS = 1000`, and `TIMEOUT_HOURS\
+    \ = 6`, along with the expected path variables. The implementation matches the\
+    \ task specification."
+  sig: 6cb9d90af954757fc160fea550239356b730132134d4f7304cbf9635c83132b6
+T005:
+  c: true
+  h: 7755daa4f07b4c65a9132f2d0c4d95810c5208062c40d50320a0f3a7d4570416
+  r: "Checked `code/ingestion.py` (11951\u202Fbytes) \u2013 it defines an OSF API\
+    \ client (`list_registrations`, `get_registration_files`, etc.) and implements\
+    \ `fetch_with_backoff` that detects HTTP\u202F429 responses and retries with exponential\
+    \ back\u2011off, fulfilling the required skeleton and error\u2011handling behavior."
+  sig: aa8970223caed44efc99f3597d265642b5a99298eaa2288cecef9eae740e874a
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

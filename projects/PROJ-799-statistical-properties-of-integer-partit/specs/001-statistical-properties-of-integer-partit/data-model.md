@@ -3,88 +3,64 @@
 ## 1. Entity Definitions
 
 ### 1.1. PartitionRecord
-Represents a single data point in the analysis.
--   **n**: Integer, the number being partitioned.
--   **p_P_n**: Integer, the exact count of partitions into distinct primes.
--   **Q_as_n**: Float, the asymptotic baseline prediction.
--   **R_n**: Float, the log-residual ($\log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$).
+| Field | Type | Description |
+|-------|------|-------------|
+| `n` | integer (≥ 1) | Integer being partitioned |
+| `p_P_n` | integer (≥ 0) | Exact count of partitions of `n` into distinct primes |
+| `Q_as_n` | number (> 0) | Asymptotic baseline prediction from calibrated Meinardus' theorem (or fallback) |
+| `R_n` | number (nullable) | Log‑residual $\log(p_P_n)-\log(Q_as_n)$; `null` if $p_P_n$ or $Q_as_n$ is non‑positive |
 
 ### 1.2. DensityFeatureSet
-Represents the independent variables for a given $n$.
--   **n**: Integer, the number being partitioned.
--   **pi_n**: Integer, the prime-counting function $\pi(n)$.
--   **inv_log_n**: Float, the inverse logarithm $1/\ln(n)$.
--   **cum_density**: Float, the cumulative sum of $1/p$ for all $p \le n$.
+| Field | Type | Description |
+|-------|------|-------------|
+| `n` | integer (≥ 1) | Same as above |
+| `pi_n` | integer (≥ 0) | Prime‑counting function $\pi(n)$ |
+| `inv_log_n` | number (> 0) | Inverse natural log $1/\ln(n)$ |
+| `cum_density` | number (> 0) | $\displaystyle\sum_{p\le n}\frac{1}{p}$ (justified via Mertens’ theorem) |
 
 ### 1.3. RegressionModel
-Represents the fitted model state.
--   **coefficients**: Dictionary of predictor name $\to$ coefficient value.
--   **intercept**: Float.
--   **r_squared**: Float, $R^2$ score.
--   **p_values**: Dictionary of predictor name $\to$ p-value.
--   **mse_cv**: Float, Mean Squared Error from cross-validation.
--   **null_model_R2**: Float, $R^2$ of the null (intercept-only) model.
--   **null_model_MSE**: Float, MSE of the null model.
+| Field | Type | Description |
+|-------|------|-------------|
+| `coefficients` | object (name → number) | Regression coefficients for each predictor |
+| `intercept` | number | Intercept term |
+| `r_squared` | number ∈[0,1] | $R^{2}$ on the full data |
+| `p_values` | object (name → number) | Raw $p$‑values (HAC‑adjusted) |
+| `fdr_corrected_p_values` | object (name → number) | Benjamini‑Hochberg corrected $p$‑values |
+| `mse_cv` | number ≥ 0 | Mean Squared Error averaged over 10‑fold time‑series CV |
+| `null_model_R2` | number ∈[0,1] | $R^{2}$ of intercept‑only model |
+| `null_model_MSE` | number ≥ 0 | MSE of the null model |
 
 ### 1.4. ReferenceData
-Represents the pre-computed reference values for validation.
--   **n**: Integer.
--   **p_P_n**: Integer (reference value).
+| Field | Type | Description |
+|-------|------|-------------|
+| `n` | integer (≤ 100) | Small $n$ for verification |
+| `p_P_n` | integer | Known exact count from literature |
 
 ## 2. Data Flow
 
-1.  **Input**: `primes_up_to_50000.csv` (Raw).
-2.  **Process 1**: `generate_partitions.py` $\to$ `partition_counts.csv` (n, p_P_n) (Batched).
-3.  **Process 2**: `compute_baseline.py` $\to$ `baseline_values.csv` (n, Q_as_n).
-4.  **Process 3**: `feature_engineering.py` $\to$ `features.csv` (Merged data with R_n and density features).
-5.  **Process 4**: `fit_model.py` $\to$ `model_results.json` (Regression stats).
-6.  **Output**: `visualization.png` (Plot of residuals).
+1. **Raw primes** (`primes_up_to_50000.csv`) → `generate_partitions.py` → `partition_counts.csv`.  
+2. `compute_baseline.py` → `baseline_values.csv`.  
+3. `feature_engineering.py` merges the two, computes `R_n` and density features → `features.csv`.  
+4. `fit_model.py` reads `features.csv` → `model_results.json` (conforms to `RegressionModel`).  
+5. `visualize.py` consumes `features.csv` and model predictions → `residuals_plot.png`.
 
-## 3. File Formats
+## 3. File Formats & Constraints
 
-### 3.1. partition_counts.csv
--   **Delimiter**: `,`
--   **Header**: `n,p_P_n`
--   **Encoding**: UTF-8
-
-### 3.2. features.csv
--   **Delimiter**: `,`
--   **Header**: `n,p_P_n,Q_as_n,R_n,pi_n,inv_log_n,cum_density`
--   **Encoding**: UTF-8
--   **Constraints**:
-    -   `n` must be integer $> 0$.
-    -   `p_P_n` must be integer $\ge 0$.
-    -   `Q_as_n` must be float $> 0$ (clamped).
-    -   `R_n` must be float (NaN if `p_P_n` or `Q_as_n` invalid; rows with NaN are excluded from regression).
-    -   `pi_n` must be integer $\ge 0$.
-    -   `inv_log_n` must be float $> 0$.
-    -   `cum_density` must be float $> 0$.
-
-### 3.3. model_results.json
--   **Format**: JSON
--   **Structure**:
-    ```json
-    {
-      "coefficients": { "pi_n": 0.0, "inv_log_n": 0.0, ... },
-      "intercept": 0.0,
-      "r_squared": 0.0,
-      "p_values": { "pi_n": 0.0, ... },
-      "mse_cv": 0.0,
-      "fdr_corrected_p_values": { ... },
-      "null_model_R2": 0.0,
-      "null_model_MSE": 0.0
-    }
-    ```
-
-### 3.4. reference_data.csv
--   **Delimiter**: `,`
--   **Header**: `n,p_P_n`
--   **Content**: Reference values for $n \le 100$.
+- **CSV files**: UTF‑8, comma delimiter, header row.  
+- `partition_counts.csv`: columns `n,p_P_n`.  
+- `baseline_values.csv`: columns `n,Q_as_n`.  
+- `features.csv`: columns `n,p_P_n,Q_as_n,R_n,pi_n,inv_log_n,cum_density`.  
+  - `R_n` is omitted for rows where `p_P_n=0` or `Q_as_n≤0`.  
+- `model_results.json`: JSON object matching `RegressionModel` schema.  
+- **Checksums**: All files under `data/` have a SHA‑2 hash recorded in the project state file.
 
 ## 4. Validation Rules
 
--   **Monotonicity**: $p_{\mathcal{P}}(n)$ should generally be non-decreasing (though local fluctuations exist, the cumulative count grows).
--   **Log-Domain**: $R(n)$ is only computed where $p_{\mathcal{P}}(n) > 0$ and $Q_{as}(n) > 0$.
--   **Density Check**: $\pi(n)$ must match the count of primes $\le n$ in the precomputed list.
--   **No NaN**: Final `features.csv` used for regression must exclude rows where `R_n` is NaN.
--   **Reference Match**: Computed values for $n \le 100$ must match `reference_data.csv` exactly.
+- `p_P_n` must be integer ≥ 0; for $n\le100$ it must match `reference_data.csv` exactly (SC‑003).  
+- `Q_as_n` must be > 0; values < $10^{-10}$ are clamped before log.  
+- `R_n` is computed only when both inputs are positive.  
+- Density features must be consistent with the prime list (`pi_n` equals the count of primes ≤ `n`).  
+- No missing values are allowed in `features.csv` for rows used in regression (enforced by `test_features_non_null.py`).  
+
+---
+

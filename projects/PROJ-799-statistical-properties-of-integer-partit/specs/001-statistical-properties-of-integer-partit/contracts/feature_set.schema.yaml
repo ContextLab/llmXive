@@ -9,7 +9,7 @@ properties:
   pi_n:
     type: "integer"
     description: "Prime-counting function pi(n)."
-  inv_ln_n:
+  inv_log_n:
     type: "number"
     description: "Inverse natural log of n (1/ln(n))."
   cum_density:
@@ -21,7 +21,7 @@ properties:
 required:
   - n
   - pi_n
-  - inv_ln_n
+  - inv_log_n
   - cum_density
   - R_n
 additionalProperties: false

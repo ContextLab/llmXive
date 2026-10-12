@@ -1,98 +1,73 @@
 # Quickstart: Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
 ## Prerequisites
-
--   Python 3.11 or higher.
--   Git.
--   Sufficient RAM (recommended for safety, though a specific memory limit is the target).
+- Python 3.11 or newer
+- Git
+- Internet access (to download the repository)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-799-statistical-properties-of-integer-partit
-    ```
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-799-statistical-properties-of-integer-partit
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Dependencies include: `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `pytest`, `statsmodels`.*
+# Install pinned dependencies
+pip install -r requirements.txt
+```
 
-## Running the Pipeline
-
-The full pipeline can be executed via the main entry point:
+## Running the Full Pipeline
 
 ```bash
 python code/main.py
 ```
 
-This script will:
-1.  Generate primes up to 50,000 (if not present).
-2.  Compute exact partition counts $p_{\mathcal{P}}(n)$ (in batches).
-3.  Compute asymptotic baseline $Q_{as}(n)$.
-4.  Calculate features and residuals.
-5.  Fit the regression model (with Null Model comparison).
-6.  Generate the visualization plot.
-7.  Save all artifacts to `data/processed/`.
+The script executes the steps in order:
 
-### Individual Steps
+1. Generate primes up to 50 000 (if not already present).  
+2. Compute exact partition counts `p_P_n`.  
+3. Compute the calibrated Meinardus asymptotic `Q_as_n`.  
+4. Engineer density features and log‑residuals, producing `data/processed/features.csv`.  
+5. Fit the regression model (with null model) and perform 10‑fold time‑series CV.  
+6. Save `model_results.json` and the diagnostic plot `residuals_plot.png`.
 
-If you wish to run steps individually:
+All intermediate artifacts are written under `data/processed/`.
 
-1.  **Generate Partitions**:
-    ```bash
-    python code/generate_partitions.py
-    ```
-    *Output: `data/processed/partition_counts.csv`*
+## Running Individual Steps
 
-2.  **Compute Baseline**:
-    ```bash
-    python code/compute_baseline.py
-    ```
-    *Output: `data/processed/baseline_values.csv`*
-
-3.  **Feature Engineering**:
-    ```bash
-    python code/feature_engineering.py
-    ```
-    *Output: `data/processed/features.csv`*
-
-4.  **Fit Model**:
-    ```bash
-    python code/fit_model.py
-    ```
-    *Output: `data/processed/model_results.json`*
-
-5.  **Visualize**:
-    ```bash
-    python code/visualize.py
-    ```
-    *Output: `data/processed/residuals_plot.png`*
+| Step | Command | Output |
+|------|---------|--------|
+| Prime sieve | `python code/generate_primes.py` | `data/raw/primes_up_to_50000.csv` |
+| Partition counts | `python code/generate_partitions.py` | `data/processed/partition_counts.csv` |
+| Asymptotic baseline | `python code/compute_baseline.py` | `data/processed/baseline_values.csv` |
+| Feature engineering | `python code/feature_engineering.py` | `data/processed/features.csv` |
+| Model fitting | `python code/fit_model.py` | `data/processed/model_results.json` |
+| Visualization | `python code/visualize.py` | `data/processed/residuals_plot.png` |
 
 ## Verification
-
-Run the test suite to ensure correctness:
 
 ```bash
 pytest tests/ -v
 ```
 
-Key tests include:
--   `test_dp_logic`: Verifies partition counts for small $n$.
--   `test_features_non_null`: Ensures `features.csv` has no missing values.
--   `test_baseline_formula`: Validates the asymptotic formula against known approximations.
+Key tests:
+
+- `test_dp_logic.py` – checks DP counts for $n=5,6,10$ against known values.  
+- `test_features_non_null.py` – asserts that `features.csv` contains no missing entries in the columns used for regression.  
+- `test_baseline.py` – validates that the asymptotic formula produces positive values and respects the clamping rule.  
+- `test_schemas.py` – runs JSON‑schema validation against all `contracts/*.schema.yaml`.
 
 ## Expected Outputs
 
-After running the pipeline, check `data/processed/` for:
--   `features.csv`: The primary dataset for analysis.
--   `model_results.json`: Statistical metrics ($R^2$, p-values).
--   `residuals_plot.png`: Visual confirmation of the systematic bias.
+- `data/processed/features.csv` – full dataset (≈ a large number of rows).  
+- `data/processed/model_results.json` – regression coefficients, $R^{2}$, corrected $p$‑values, CV MSE, and null‑model statistics.  
+- `data/processed/residuals_plot.png` – visual comparison of raw residuals and fitted correction term.  
+
+All files are checksum‑tracked for reproducibility.
+
+---
+

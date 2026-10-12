@@ -15,13 +15,33 @@ T003b:
     \ a Black formatting configuration."
   sig: cb6dd278b0ae60b7a38ac098fa105c018b81a2fca60b6b8fcce8ec45bed7442f
 T005:
-  c: false
-  h: 08e539d3462e6fe64253e96a2e4304e016d79667a35e4a83d2f24c317cfd57fa
-  r: "The `data/metadata.yaml` file exists, but `code/__init__.py` contains only a\
-    \ docstring and a `pass` statement and does not implement any configuration\u2011\
-    loading functionality (e.g., a function that reads the YAML file and returns its\
-    \ contents). The required base configuration loader is missing."
-  sig: 4643c6fd2a98ae61592efad1e5e961f30918bb42a0d2e57ded75a84de53f69f5
+  c: true
+  h: 45a206f046b95e0cc4e909b473c29ac7cace63a1f10c1823b1f23a68e02c9886
+  r: 'Both artifacts exist and are non-empty: `data/metadata.yaml` contains the full
+    project configuration (data source, model parameters, analysis thresholds, paths),
+    and `code/__init__.py` implements a real `load_metadata()` function that parses
+    the YAML via `yaml.safe_load` with a documented default path matching the task''s
+    requirement. The loader is a genuine implementation, not a stub or placeholder.'
+  sig: cf15783296bb149276f4e6c60cc7f6152d61cc43438afd832c2ff32e7e90cfe0
+T006:
+  c: true
+  h: 322215a375cc7bd834d02ae7cf5ba1f91a61cd98db1f9a336e81e612fb3caa4a
+  r: '`code/utils.py` exists (2895 bytes) and contains a `set_global_seed(seed)` function
+    that pins `random.seed`, `np.random.seed`, and `PYTHONHASHSEED`, tracking the
+    global seed in `_global_seed`, which satisfies the deterministic seed-pinning
+    requirement. The late `from typing import Optional` import is stylistically odd
+    but executes at module load before any function call, so the module is functional.'
+  sig: 16f42af1a00072c68392b1b6458778bc6cd3890e2c358dbf783af03cacf01f7c
+T007:
+  c: true
+  h: 97b5a132a40e8e45e24ea3d6826cbdb898244b601b10d9fbe3372621f9f424cb
+  r: '`code/download.py` exists (13,495 bytes) and contains a genuine, non-stub retry
+    wrapper: `fetch_with_retry` with configurable `max_retries`, `retry_delay`, and
+    `timeout`, handling HTTP errors, timeouts, connection errors, and generic request
+    exceptions with logging, plus `download_file` and `download_sparc_data` built
+    on it. The `utils` import is resolvable via the local `code/utils.py`/`code/utils/__init__.py`
+    candidates, and the retry logic matches the task''s requirement.'
+  sig: ca1deb9ec08cfcd2430a58f7568b0fd2eb4382e30e1a599d0a0fc73a75f3b369
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,27 +53,30 @@ T022:
     \ the essential artifacts and cannot be considered complete."
 T048:
   c: true
-  h: 2139b46f6806230956d25aa8b10a953445a3f7e68db1395fc686e6865864dfc9
-  r: "The `contracts/dataset.schema.yaml` file exists (2942\u202Fbytes) and contains\
-    \ a detailed JSON\u2011Schema definition for the parsed galaxy rotation\u2011\
-    curve data, including required fields, array constraints, and quality\u2011filter\
-    \ rules referenced by FR\u2011002 and FR\u2011003."
-  sig: fd463383e6b5a93a1669cceddcd1c4cff5cc7bd02805a4a65291ca33f517209f
+  h: 5a8aebe2c6eb24fabbaea3bb7b15d49e516064e607267fda35aed501e7c06210
+  r: "The artifact `contracts/dataset.schema.yaml` exists (492 bytes) and defines\
+    \ a valid JSON Schema (draft-07) for parsed galaxy rotation-curve data covering\
+    \ galaxy name, radius, velocity, velocity error, inclination, and inclination\
+    \ error with required fields \u2014 matching FR-002/FR-003 needs for parsed SPARC\
+    \ data. Content is substantive, not a stub or placeholder."
+  sig: 5f14097df2f195a67969f8500975054a394fe7b33de40ef626f5137d14775e37
 T049:
   c: true
-  h: 175e42fef073786baa24eb895c8e5a42642258bc9c1f058f5930b85a11ff0fcc
-  r: "Checked the `contracts/fit_results.schema.yaml` file (3589\u202Fbytes) and verified\
-    \ it contains a full JSON\u2011Schema draft\u201107 definition with required fields\
-    \ for galaxy ID, model type, parameters, goodness\u2011of\u2011fit metrics (reduced_chi2,\
-    \ chi2, dof, aic, bic, log_likelihood) and residual statistics (mean, median,\
-    \ std, max_abs, rmse, n_points), satisfying FR\u2011007 and FR\u2011009."
-  sig: a71b5e25451d42ba96675a50e2b1113abf9fbc8ae77c72c1e0f0a92db694795a
+  h: 3295ef8833462a00109bc15b3e9d4ed51131d6680b1b92f2dbbd65b3654ce25e
+  r: "The file `contracts/fit_results.schema.yaml` exists (707 bytes) and defines\
+    \ a draft-07 JSON Schema covering the fit outputs required by FR-007/FR-009: galaxy\
+    \ ID, model type (mond/nfw enum), fit success/message, model parameters (M/L,\
+    \ r_s with errors), and goodness-of-fit metrics (reduced chi-squared, AIC, BIC),\
+    \ with required fields and nullable numerics \u2014 a substantive, non-stub schema\
+    \ matching the task."
+  sig: 5d30a54caa74d4b4096a5e981f2e4c82b44173b722be4621863ecfea8b0c4167
 T050:
-  c: false
-  h: b83ee162061b7008755eaaf81195195b12819672e8f2b7452e50f51d349aca46
-  r: The `tests/contract/test_schemas.py` file exists and contains concrete validator
-    code, but the required contract schema files (`contracts/dataset.schema.yaml`
-    and `contracts/fit_results.schema.yaml`) are not present in the provided evidence,
-    so the validators cannot actually be run or verified against the generated contracts.
-    Add the two schema files (generated by T048 and T049) to the `contracts/` directory.
-  sig: 459883a4d401da6391ef99a5ceaf7aa3fe20abc1fa1a7f56b9aa2eabb5631c52
+  c: true
+  h: dc0367da21621933957b119c86446d69f6a98ca6ecc04923bc96c19bad13611e
+  r: The test file `tests/contract/test_schemas.py` exists (6827 bytes) with 8 substantive
+    validators covering schema existence, structure (required fields like galaxy_id,
+    radial_distance, reduced_chi2, aic, bic), Draft-7 validity, and sample-data validation
+    against both T048/T049 contracts. The historical execution log shows all 8 tests
+    passing via pytest from the project root (exit 0), and the imported `utils` module
+    provides the required `get_logger`/`ensure_directory` functions.
+  sig: 349860c92b5db3106f1e9fd126b8b2458a19e72d896487a85c7fd314c376022d

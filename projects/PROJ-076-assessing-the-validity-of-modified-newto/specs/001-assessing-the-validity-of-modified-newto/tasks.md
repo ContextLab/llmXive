@@ -37,10 +37,10 @@
 
 - [X] T048 [P] Generate `contracts/dataset.schema.yaml` defining the schema for parsed galaxy data (FR-002, FR-003)
 - [X] T049 [P] Generate `contracts/fit_results.schema.yaml` defining the schema for model fit outputs (FR-007, FR-009)
-- [ ] T050 [US1/2/3] Implement data schema validators in `tests/contract/test_schemas.py` matching the generated contracts. **Dependency**: T048 AND T049 must complete first. (Depends on T048 AND T049 completion - removed [P] tag)
-- [ ] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
-- [~] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
-- [~] T007 [P] Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
+- [X] T050 [US1/2/3] Implement data schema validators in `tests/contract/test_schemas.py` matching the generated contracts. **Dependency**: T048 AND T049 must complete first. (Depends on T048 AND T049 completion - removed [P] tag)
+- [X] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
+- [X] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
+- [X] T007 [P] Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
 - [~] T008 [P] Create logging infrastructure in `code/utils.py` to track pipeline stages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -61,7 +61,7 @@
 - [~] T016 [US1] Implement checksum verification and metadata logging for downloaded SPARC data in `data/metadata.yaml` per Constitution Principle III (Data Hygiene). **Dependency**: T012 must complete first. (FR-001, Constitution Principle III)
 - [~] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty. **Dependency**: T016 must complete first (requires verified data). (FR-002)
 - [~] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points. **Dependency**: T013 must complete first. (FR-003)
-- [ ] T015 [US1] Create `data/processed/filtered_galaxies.csv` and update `data/metadata.yaml` with download timestamp/version. **Dependency**: T014 must complete first. **Error Handling**: If upstream artifacts (T014 output) are missing or invalid, log a fatal error and exit with non-zero code. (FR-003)
+- [ ] T015 [US1] Create `data/processed/filtered_galaxies.csv` and update `data/metadata.yaml` with download timestamp/version. **Dependency**: T014 must complete first. **Error Handling**: If upstream artifacts (T014 output) are missing or invalid, log a fatal error and exit with non-zero code. (FR-003) <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

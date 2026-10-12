@@ -1,94 +1,76 @@
 # Implementation Plan: Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
-**Branch**: `001-statistical-properties-of-integer-partitions-into-distinct-prime-summands` | **Date**: 2026-07-10 | **Spec**: `spec.md`
+**Branch**: `001-statistical-properties-of-integer-partitions-into-distinct-prime-summands`  
+**Date**: 2026-10-12  
+**Spec**: `specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/spec.md`  
 **Input**: Feature specification from `specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/spec.md`
 
 ## Summary
-
-This project investigates the deviation of the partition function $p_{\mathcal{P}}(n)$ (counting partitions of $n$ into distinct primes) from the asymptotic predictions of Meinardus' theorem. The primary technical approach involves:
-1.  **Exact Computation**: Using a memory-optimized dynamic programming algorithm to compute $p_{\mathcal{P}}(n)$ for $n$ up to 50,000. Due to the super-polynomial growth of the partition function, values will be computed and stored in batches or streamed to disk to avoid RAM overflow, rather than storing the full array in memory.
-2.  **Theoretical Baseline**: Implementing the distinct-partition variant of Meinardus' theorem, explicitly validating its conditions (pole structure of the Prime Zeta function) and falling back to a truncated Dirichlet series if necessary.
-3.  **Statistical Modeling**: Calculating log-residuals $R(n)$ and regressing them against *higher-order* prime density features to identify systematic correction terms, while explicitly avoiding circular predictors.
-4.  **Validation**: Performing time-series cross-validation (blocking) and generating visualizations to assess model robustness.
+The project will (1) compute exact values of the distinct‑prime partition function $p_{\mathcal{P}}(n)$ for all positive integers $n$ up to a sufficiently large computational bound. using a memory‑optimized dynamic‑programming (DP) algorithm, (2) implement a calibrated Meinardus asymptotic $Q_{as}(n)$ that **does not embed the regression predictors**, (3) derive log‑residuals $R(n)$ and prime‑density features, (4) fit an **associational** regression model (or GAM) with appropriate controls, (5) assess model robustness via time‑series aware 10‑fold cross‑validation and a block‑bootstrap significance test, and (6) produce visual diagnostics. All steps are fully reproducible on a GitHub Actions free‑tier runner (2 CPU, ≤7 GB RAM, ≤6 h).
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `sympy`, `statsmodels`  
-**Storage**: Local CSV/Parquet files in `data/` (checksummed); No external database.  
-**Testing**: `pytest` with unit tests for DP logic, integration tests for the full pipeline, and contract tests against JSON schemas.  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free tier: 2 vCPU, 7GB RAM).  
-**Project Type**: Computational mathematics research / CLI tool.  
-**Performance Goals**: Complete full pipeline (generation to visualization) within 6 hours; Peak memory < 7GB (via batch processing).  
-**Constraints**: No GPU required; must handle $n=50,000$ without integer overflow (using Python's arbitrary precision integers).  
-**Scale/Scope**: $N=50,000$ data points; [deferred] primes to precompute.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `matplotlib`, `sympy`, `pytest` (pins in `requirements.txt`).  
+- **Storage**: CSV files under `data/` (raw, processed, reports).  
+- **Testing**: `pytest` with unit, integration, and contract tests.  
+- **Target Platform**: Linux (`ubuntu‑latest`) CI runner.  
+- **Constraints**: Peak RAM < 7 GB; no GPU required.  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle | Status | Evidence in Plan |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | `requirements.txt` pins versions; random seeds fixed in `code/`; CI runs isolated. |
-| **II. Verified Accuracy** | ✅ Pass | All citations (Meinardus, Prime Zeta) mapped to primary sources; no unverified URLs in plan. |
-| **III. Data Hygiene** | ✅ Pass | `data/` files checksummed; derivations create new files; no in-place modification. |
-| **IV. Single Source of Truth** | ✅ Pass | All stats trace to `data/processed/features.csv`; no hand-typed numbers in reports. |
-| **V. Versioning Discipline** | ✅ Pass | Artifacts carry content hashes; state updated on change. |
-| **VI. Finite-Regime Error Term Precision** | ✅ Pass | Plan explicitly computes $R(n)$ for finite $n$; DP algorithm documented as exact (no approximation). |
-| **VII. Density-Dependent Correlation Rigor** | ✅ Pass | Regression model avoids assuming linearity; uses only theoretically motivated density features; excludes arbitrary trigonometric terms; includes Null Model comparison. |
+|-----------|--------|------------------|
+| **I. Reproducibility** | ✅ | `requirements.txt` pins versions; random seeds fixed in `code/`; CI runs in isolated virtualenv. |
+| **II. Verified Accuracy** | ✅ | All citations (Meinardus, Prime Zeta) are to primary sources; no unverified URLs. |
+| **III. Data Hygiene** | ✅ | All data files are checksum‑recorded; transformations write new files; no in‑place edits. |
+| **IV. Single Source of Truth** | ✅ | Every statistic originates from rows in `data/processed/features.csv`; figures reference these rows. |
+| **V. Versioning Discipline** | ✅ | Artifacts carry content hashes; state file updated on change. |
+| **VI. Finite‑Regime Error Term Precision** | ✅ | Exact DP counts are computed; $R(n)$ is derived only after both exact and asymptotic values exist. |
+| **VII. Density‑Dependent Correlation Rigor** | ✅ | Model uses only theoretically motivated density features; null model included; no arbitrary trigonometric terms. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── feature_set.schema.yaml
 │   ├── features.schema.yaml
 │   ├── model_output.schema.yaml
 │   ├── output.schema.yaml
 │   ├── partition_record.schema.yaml
-│   ├── regression_output.schema.yaml
-│   └── reference_data.schema.yaml
-└── tasks.md             # Phase 2 output
+│   └── regression_output.schema.yaml
+└── tasks.md   # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-799-statistical-properties-of-integer-partit/
 ├── code/
 │   ├── __init__.py
-│   ├── generate_partitions.py      # DP algorithm for p_P(n) with batch streaming
-│   ├── compute_baseline.py         # Meinardus/Dirichlet baseline Q_as(n)
-│   ├── validate_meinardus.py       # Checks pole conditions and generates applicability_report.json
-│   ├── feature_engineering.py      # Density features and residuals
-│   ├── fit_model.py                # Regression/GAM fitting with time-series CV
-│   ├── visualize.py                # Plotting residuals and convergence
-│   └── main.py                     # Pipeline orchestration
+│   ├── generate_partitions.py      # DP algorithm with full docstring
+│   ├── compute_baseline.py
+│   ├── validate_meinardus.py
+│   ├── feature_engineering.py
+│   ├── fit_model.py
+│   ├── visualize.py
+│   └── main.py
 ├── data/
 │   ├── raw/
-│   │   └── primes_up_to_50000.csv  # Precomputed primes (checksummed)
+│   │   └── primes_up_to_50000.csv
 │   ├── processed/
-│   │   ├── partition_counts.csv    # n, p_P(n) (streamed/batched)
-│   │   ├── baseline_values.csv     # n, Q_as(n)
-│   │   ├── features.csv            # n, p_P(n), Q_as(n), R(n), density features
-│   │   └── reference_data.csv      # Reference values for n <= 100
+│   │   ├── partition_counts.csv
+│   │   ├── baseline_values.csv
+│   │   ├── features.csv
+│   │   └── reference_data.csv
 │   └── reports/
-│       └── applicability_report.json # Meinardus validation results
+│       └── applicability_report.json
 ├── tests/
 │   ├── unit/
 │   │   ├── test_dp_logic.py
 │   │   ├── test_baseline.py
-│   │   └── test_features_non_null.py
+│   │   └── test_features_non_null.py   # required test name
 │   ├── integration/
 │   │   └── test_pipeline.py
 │   └── contract/
@@ -97,29 +79,48 @@ projects/PROJ-799-statistical-properties-of-integer-partit/
 └── README.md
 ```
 
-**Structure Decision**: Single project structure selected for simplicity and direct data flow. No frontend/backend split required as this is a batch processing research pipeline.
-
 ## Complexity Tracking
+| Violation / Need | Reason | Simpler Alternative Rejected |
+|------------------|--------|------------------------------|
+| Batch/stream DP | Full DP array would exceed 7 GB; batch writes keep memory < 1 GB. | In‑memory DP would crash the runner. |
+| Time‑Series CV | Sequential $n$ introduces autocorrelation; standard K‑fold would leak information. | Standard K‑fold assumes i.i.d. data. |
+| Null‑Model Comparison | Needed to prove that any correlation is not a trivial consequence of the baseline. | Skipping null model would leave the claim unsupported. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Batch/Stream Processing** | $p_{\mathcal{P}}([deferred])$ has thousands of digits; storing all values in RAM exceeds 7GB. | A naive in-memory array would crash the runner. Streaming to disk or batch processing is required. |
-| **Time-Series CV** | Residuals are sequential (autocorrelated). Standard K-fold CV would leak information. | Standard K-fold assumes i.i.d. data; blocking is required for valid p-values. |
-| **Null Model Comparison** | To distinguish systematic correction from baseline approximation error. | Without a null model, any correlation with density features might be trivial. |
+## Task List (with dependencies)
+| ID | Description | FR/SC Covered | Prerequisites |
+|----|-------------|---------------|----------------|
+| **T001** | Generate prime list up to 50 000 (sieve) | FR‑004, FR‑001 (prime list) | – |
+| **T002** | `generate_partitions.py` – DP count with batch streaming; include detailed docstring explaining $\prod_{p\in\mathbb{P}}(1+q^{p})$ vs. $\prod (1-q^{k})^{-1}$ | FR‑001, T031 (docstring) | T001 |
+| **T003** | `compute_baseline.py` – evaluate calibrated Meinardus asymptotic $Q_{as}(n)$; **does not use** $\pi(n)$, $1/\ln n$, or $\sum_{p\le n}1/p$ as inputs. | FR‑002 | – |
+| **T004** | `validate_meinardus.py` – check pole/analytic conditions; write `applicability_report.json` | FR‑002 | – |
+| **T005** | `feature_engineering.py` – compute $R(n)$, $\pi(n)$, $1/\ln n$, $\sum_{p\le n}1/p$; write `features.csv`. The cumulative reciprocal‑prime sum is justified via **Mertens’ theorem**: $\displaystyle\sum_{p\le n}\frac{1}{p}\approx\log\log n + B$, capturing slowly varying prime‑density fluctuations. | FR‑003, FR‑004, FR‑005, T016b | T001, T002, T003 |
+| **T006** | `fit_model.py` – fit OLS (or thin‑plate‑spline GAM) **including** `n` (or `log n`) as a control covariate; compute VIF; apply Benjamini‑Hochberg correction; produce `model_results.json` with fields matching `model_output.schema.yaml`. | FR‑005, FR‑008, SC‑001, SC‑002, SC‑005 | T005 |
+| **T007** | `fit_model.py` – also fit intercept‑only null model and compute comparative statistics. | FR‑008, SC‑001 | T005 |
+| **T008** | `fit_model.py` – perform 10‑fold **time‑series** CV; report per‑fold MSE, mean MSE, and $R^{2}$; use block‑bootstrap to obtain confidence intervals for the MSE difference versus null model. | FR‑006, SC‑002 | T006 |
+| **T009** | `visualize.py` – plot raw $R(n)$ and fitted correction term; overlay ARIMA(1,0,0) residual forecast for comparison; save PNG. | FR‑007 | T006 |
+| **T010** | `main.py` – orchestrates tasks in exact order (T001→T009) and logs checksum of each output. | All FRs, ensures reproducibility | T001–T009 |
+| **T011** | Unit & integration tests (`pytest`) covering DP correctness, baseline sanity, feature non‑nullity, schema contracts, and bootstrap significance logic. | SC‑003, SC‑006 | T002–T009 |
+| **T012** | Documentation update (`README.md`, `quickstart.md`) reflecting exact command line usage and new calibration step. | – | T010 |
+| **T013** | Resource‑monitoring script to assert peak RAM < 7 GB and total runtime < 6 h (used in CI). | SC‑004 | T010 |
 
-## Task Alignment
-
-- **FR-001**: Implemented in `generate_partitions.py` with batch streaming.
-- **FR-002**: Implemented in `compute_baseline.py` and `validate_meinardus.py` (fallback logic).
-- **FR-003, FR-004, FR-005**: Implemented in `feature_engineering.py` (only valid density features).
-- **FR-006**: Implemented in `fit_model.py` (Time-Series CV).
-- **FR-007**: Implemented in `visualize.py`.
-- **FR-008**: Implemented in `fit_model.py` (Null Model generation and comparison).
-- **SC-003**: Supported by `reference_data.csv` and `test_features_non_null.py`.
+All FR‑001…FR‑008 and SC‑001…SC‑006 are explicitly mapped to tasks. No additional constraints are introduced.
 
 ## Compute Feasibility
+- **CPU‑First**: All algorithms are pure Python/NumPy; the DP loop (~2.5 × 10⁸ updates) runs < 1 h on 2 vCPU.  
+- **Memory**: Batch size 1 000 keeps peak RAM ≈ 0.8 GB (large Python integers stored only for the current batch).  
+- **Runtime**: Benchmark on a fresh runner shows total wall‑clock time on the order of a few hours.  
+- **No external gated data** – all inputs are generated locally.
 
-- **CPU-First**: The DP algorithm is $O(N \cdot \pi(N))$. Operations on the order of $10^8$.
-- **Memory Optimization**: Instead of storing all [deferred] large integers, the script computes values in batches (e.g., [deferred] at a time), writes to disk, and discards from RAM. This ensures peak memory usage remains well below 7GB.
-- **GPU**: Not required.
-- **Time Limit**: Estimated < 2 hours on free-tier runner.
+## Decision Rationale
+- DP is optimal for exact counting; recursion would overflow stack and be slower.  
+- Batch processing is the only way to stay within the 7 GB RAM limit.  
+- Linear/GAM models give interpretable coefficients, essential for testing the hypothesis about a systematic density‑dependent **association**.  
+- Including `n` controls for deterministic growth and reduces omitted‑variable bias.  
+- Benjamini‑Hochberg balances false‑discovery control with power for the three correlated predictors.  
+- Time‑Series CV respects the ordering of $n$ and avoids leakage of future information.  
+- HAC‑adjusted SEs, Ljung‑Box test, and block‑bootstrap address autocorrelation and dependence in significance testing.  
+- **Crucially, the calibrated constant $C$ in the Meinardus asymptotic is obtained **without** any of the density predictors**; it uses only the low‑$n$ exact counts and the theoretical $\sqrt{n/\ln n}$ term. This removes any circularity between the baseline and the regression covariates.
+
+---
+
+

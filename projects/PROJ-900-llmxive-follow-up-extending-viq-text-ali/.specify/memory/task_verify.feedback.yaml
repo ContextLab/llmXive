@@ -1,11 +1,6 @@
 T001:
   task: aff1bc62d24e5827743c1f91b5f65bce35861cec7b43570722d8ded0a82435cc
 T002:
-  reason: The requirements.txt exists and pins 12 of the 13 requested packages at
-    the exact specified versions, but it pins `psutil==5.9.0` instead of the required
-    `psutil==2.3.0`, and the task explicitly required exact pins for all listed versions.
-    Fix the psutil line (or get the requirement corrected) to satisfy the task as
-    stated.
   task: 8e652554ccc8e87331d058ca6e41730b529278b010caab67db6ca4f935d2c16f
 T003:
   reason: "The evidence collector lists no artifacts for this task \u2014 there is\
@@ -40,8 +35,24 @@ T006:
     \ return wrongly-shaped outputs."
   task: e74df43b092fa3f0ac6241e126a0b4034d83a4ef0d89dc9c3b4e419a26b630dd
 T006a:
+  reason: "The script exists, but it cannot succeed: `load_viq_encoder` calls `get_model(model_type=\"\
+    viq_encoder\", model_id=...)`, while `code/model.py` defines `get_model(model_id:\
+    \ str = \"viq-base-v\")` \u2014 the unexpected `model_type` keyword raises a `TypeError`,\
+    \ which the script catches and converts to a `RuntimeError`/exit 1, so the claimed\
+    \ \"exits with code 0\" is unachievable and no execution evidence (logs, output)\
+    \ was provided. Moreover, the \"frozen ViQ encoder\" is explicitly a simulated\
+    \ placeholder (a small ResNet with adaptive pooling that the model.py docstring\
+    \ says is used because \"we don't have t"
   task: d695e96789e0600ea9a95c9cdb76631b23e83f79e7685afb7f8af79d0f2f1d01
 T006b:
+  reason: "The required deliverables `data/results/pivot_plan.md` and `data/results/failure_analysis.md`\
+    \ are MISSING \u2014 the script `code/handle_hypothesis_failure.py` exists but\
+    \ was never run (or its outputs were not produced), and there is no execution\
+    \ evidence of T006a failing or the handler running. Additionally, `plan.md` and\
+    \ `spec.md` show no pivot-related updates (no \"Hypothesis Failure Protocol\"\
+    \ / DR-003 section), and the script itself never updates `spec.md` as required.\
+    \ The implementer must run the handler (after a T006a failure) to generate both\
+    \ result files and actually update `plan.md` and `sp"
   task: 9b506a56c30fd0012804340edf92d55699dce206ac871b1a7151f38839694a9e
 T007:
   task: 55f45152f2e9d667e9e7b9ffafd5809673ffca7c4499e91e2aa4bdc52234054a

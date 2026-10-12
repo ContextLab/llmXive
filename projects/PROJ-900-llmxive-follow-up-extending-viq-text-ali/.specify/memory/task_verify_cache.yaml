@@ -1,18 +1,21 @@
 T001:
   c: true
-  h: a83e22de06c9c55afbf1706c934f0695f18c3b9a3991507112f594abbf7e2c06
+  h: e8d52c36a3cc04ec092c5cef97e1d3d9c889022812137a320219aa6bbbdf9177
   r: All five requested directories (`data/raw/`, `data/processed/`, `data/results/`,
-    `code/`, `tests/`) exist with `.gitkeep` files confirmed in each directory listing,
-    exactly matching the task's requirement.
-  sig: 29d750231a65084a464baf8a0d1fcea2b75cac82de74fc5ffed1b5be282725ee
+    `code/`, `tests/`) exist and each contains a `.gitkeep` file, exactly as T001
+    requires. The extra contents (scripts, tests, `ground_truth_images/`) are consistent
+    with later tasks and do not conflict with this directory-scaffolding task.
+  sig: 8b0cf71999ab8ae9f9611c37e2f99dc60d8b3f2f94f0d7f14e5325aac5fc5f5d
 T002:
-  c: false
-  h: d66138eecfa377090bf19ae51c09bdf281d01c45e29f9d3adb9ca9bcfcad23ba
-  r: The requirements.txt exists and pins 12 of the 13 requested packages at the exact
-    specified versions, but it pins `psutil==5.9.0` instead of the required `psutil==2.3.0`,
-    and the task explicitly required exact pins for all listed versions. Fix the psutil
-    line (or get the requirement corrected) to satisfy the task as stated.
-  sig: deb70960c01cc8bb679ae37e838f3230e545123bf21b60deb7a28b8aa8552ca9
+  c: true
+  h: 2b90b33e41d4efe0816fce0ec5d889195a6526203bdf36a99badff84ec7cb181
+  r: The `requirements.txt` exists at the resolved project path (226 bytes) and pins
+    all ten required packages at the exact specified versions (torch==2.1.0+cpu, transformers==4.36.0,
+    datasets==2.14.0, scikit-learn==1.3.0, opencv-python-headless==4.8.0, numpy==1.24.0,
+    pandas==2.0.0, matplotlib==3.7.0, scipy==1.10.0, psutil==2.3.0), plus additional
+    reasonable dependencies (pillow, h5py, sentencepiece) that don't conflict with
+    the requirement.
+  sig: 308afb8c126f201e652ef51baa748a5af65015a4322e603349d75d8f5446a55b
 T003:
   c: false
   h: ede356de67a1853e35f9f704cb89213ad1e275ceba2d3a1ded5e886fb339634a
@@ -57,14 +60,48 @@ T006:
     \ code (the 4D check occurs after `x` is already reshaped to 3D), so 4D inputs\
     \ return wrongly-shaped outputs."
   sig: 83014fc7334c78e1b887cc041bd99d818e996285c5eddbaf9ac7b0140a20f4a8
+T006a:
+  c: false
+  h: c10f61cc23b27247d07c131bf8dc4f73d7697d72286a31e28fe7741734455fd4
+  r: "The script exists, but it cannot succeed: `load_viq_encoder` calls `get_model(model_type=\"\
+    viq_encoder\", model_id=...)`, while `code/model.py` defines `get_model(model_id:\
+    \ str = \"viq-base-v\")` \u2014 the unexpected `model_type` keyword raises a `TypeError`,\
+    \ which the script catches and converts to a `RuntimeError`/exit 1, so the claimed\
+    \ \"exits with code 0\" is unachievable and no execution evidence (logs, output)\
+    \ was provided. Moreover, the \"frozen ViQ encoder\" is explicitly a simulated\
+    \ placeholder (a small ResNet with adaptive pooling that the model.py docstring\
+    \ says is used because \"we don't have t"
+  sig: f2261eaa09b127a849bc8016f46a53bae20b01eb534c912f0ba8165ac351664b
 T006b:
   c: false
-  h: e98c7e2d6ebb109ab0a02d64429f947352b91d11fca093a72e0c52f8ac6b33b1
-  r: "The repository contains the required `code/handle_hypothesis_failure.py`, but\
-    \ the two mandated output files `data/results/pivot_plan.md` and `data/results/failure_analysis.md`\
-    \ are absent; the script does not create them automatically. The task\u2019s core\
-    \ deliverable of generating these documents before pipeline termination is therefore\
-    \ not satisfied."
+  h: 3fb388d5ea4f2e44d43cb039468a50e7871408c0d1436713dfe2b204b7384d90
+  r: "The required deliverables `data/results/pivot_plan.md` and `data/results/failure_analysis.md`\
+    \ are MISSING \u2014 the script `code/handle_hypothesis_failure.py` exists but\
+    \ was never run (or its outputs were not produced), and there is no execution\
+    \ evidence of T006a failing or the handler running. Additionally, `plan.md` and\
+    \ `spec.md` show no pivot-related updates (no \"Hypothesis Failure Protocol\"\
+    \ / DR-003 section), and the script itself never updates `spec.md` as required.\
+    \ The implementer must run the handler (after a T006a failure) to generate both\
+    \ result files and actually update `plan.md` and `sp"
+  sig: 6a2573a780a522a422653ca25ff02b5dd16ddffbe7fec5d3ee99dc85a01eaaeb
+T007:
+  c: true
+  h: 8140a5f1874099521ee109627d3601385127e190f8575fd1b1cd0e785a5f17bb
+  r: '`code/utils.py` exists (6278 bytes) and implements all four required metrics:
+    PSNR (MSE-based with data_range handling), SSIM (via skimage with channel handling
+    and fallback), Cosine Similarity (with zero-norm guard), and Texture Complexity
+    via Variance of the Laplacian (cv2.Laplacian + np.var). No stubs, TODOs, or placeholders;
+    implementations are real and functional.'
+  sig: 3274285fe015e5ce52cdc7861035451165e071e5c02320bdd4894183f993d70f
+T008a:
+  c: true
+  h: fd70baffe2d8491c92a5f3d7424953d988411f85bc5b3313e9a0ee4e9ce86211
+  r: '`tests/test_data.py` exists (791 bytes) and contains `test_data_loader_streaming_returns_64x64_shape`,
+    which constructs `COCOStreamingDataset(split="train", resolution=64, limit=10)`
+    and asserts batch shape (3, 64, 64). The existing `code/data_loader.py` `COCOStreamingDataset.__init__`
+    accepts only `split` and `streaming` (no `resolution`/`limit`), so the test fails
+    with a TypeError as required by the "fails initially" TDD condition.'
+  sig: 4975b283ab19bdd3042757910ceba5a7c7d5efa32c27473158240f661444f3e4
 T012:
   c: false
   h: dda77f1b4fcab3c1c3da1d20072b6ad6ee13f02542822fd61ab51fc9d295b3b7
