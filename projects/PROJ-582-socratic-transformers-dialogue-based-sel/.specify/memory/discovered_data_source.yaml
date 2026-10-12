@@ -1,11 +1,12 @@
 status: none
-intent: download Self-Refine SQuAD CoQA critique revised answer dataset python package
-  dataset
+intent: SocraticQA Self-Refine critique revision dataset python package dataset
 required_fields:
 - question
 - answer
 - critique
 - revised_answer
-cache_key: a2cd04a7302886d204e9fafa4baaf3c24b27185de2f184f42d4949131238129d
-searched_at: '2026-10-12T18:24:29.432110+00:00'
+- source
+- split
+cache_key: 3ad9fbf7a74413e0bc25bcd89e67c9d4ffe84f8e25c684689d3fb955ce9be310
+searched_at: '2026-10-12T18:26:17.966863+00:00'
 retry_count: 1

@@ -1,10 +1,11 @@
 """
 Dataset Downloader for Socratic Transformers Project.
 
-Downloads GSM8K, MATH (prealgebra subset), and MMLU‑STEM datasets from HuggingFace,
-writes each as a Parquet file into ``data/raw/`` (preserving the expected
-filenames), and records SHA‑256 checksums in ``state/artifact_hashes.yaml``.
-The script fails loudly if any download or file operation cannot be completed.
+Downloads GSM8K, MATH (prealgebra subset), and MMLU‑STEM datasets from HuggingFace
+using the `datasets` library, writes each as a Parquet file into ``data/raw/``
+(preserving the expected filenames), and records SHA‑256 checksums in
+``state/artifact_hashes.yaml``. The script fails loudly if any download or file
+operation cannot be completed.
 """
 import hashlib
 import json
@@ -15,12 +16,12 @@ from typing import Dict, Any, List, Optional
 
 # Ensure the project root (the ``code`` directory) is on ``sys.path`` so that
 # relative imports work regardless of the current working directory.
-project_root = Path(__file__).resolve().parents[3]  # code/
+project_root = Path(__file__).resolve().parents[3]  # points to the ``code`` directory
 sys.path.insert(0, str(project_root))
 
 import pandas as pd
-from huggingface_hub import hf_hub_download
 import yaml
+from datasets import load_dataset
 
 # ----------------------------------------------------------------------
 # Configuration for each dataset we need to download.
@@ -29,14 +30,14 @@ DATASET_CONFIGS = [
     {
         "name": "gsm8k",
         "hf_id": "openai/gsm8k",
-        "config": "main",
+        "config": "main",          # ``load_dataset`` expects the config name here
         "split": "train",
         "output_file": "gsm8k.parquet",
     },
     {
         "name": "math",
         "hf_id": "hendrycks/math",
-        "config": "prealgebra",  # a manageable subset for quick runs
+        "config": "prealgebra",    # manageable subset for quick runs
         "split": "train",
         "output_file": "math.parquet",
     },
@@ -85,12 +86,12 @@ def save_manifest(manifest: Dict[str, Any]) -> None:
         yaml.safe_dump(manifest, f, sort_keys=False)
 
 # ----------------------------------------------------------------------
-# Core download logic (uses huggingface_hub to avoid pyarrow dependency)
+# Core download logic (uses the `datasets` library)
 # ----------------------------------------------------------------------
 def download_dataset(dataset_cfg: Dict[str, Any]) -> Optional[Path]:
     """
-    Download a dataset file from HuggingFace, convert it to a Pandas DataFrame,
-    write it as a Parquet file, and return the path to that file.
+    Download a dataset via ``datasets.load_dataset``, convert it to a Pandas
+    DataFrame, write it as a Parquet file, and return the path to that file.
 
     Parameters
     ----------
@@ -109,40 +110,29 @@ def download_dataset(dataset_cfg: Dict[str, Any]) -> Optional[Path]:
 
     print(f"Downloading {hf_id} (config={config_name}, split={split}) ...")
 
-    # Build the filename inside the repo.
-    # For the default ``main`` config the file is ``train.jsonl``.
-    # For other configs the file lives under ``{config}/train.jsonl``.
-    if config_name == "main":
-        filename = f"{split}.jsonl"
-    else:
-        filename = f"{config_name}/{split}.jsonl"
-
     try:
-        # Download the raw file to a temporary location.
-        local_path = hf_hub_download(
-            repo_id=hf_id,
-            filename=filename,
-            repo_type="dataset",
-            # Use the default revision (usually 'main')
-        )
+        # ``load_dataset`` handles all hugging‑face plumbing, including authentication
+        # and caching. The ``name`` argument corresponds to the config name.
+        ds = load_dataset(hf_id, name=config_name, split=split, streaming=False)
     except Exception as exc:
-        print(f"ERROR: Failed to download {hf_id}/{filename}: {exc}", file=sys.stderr)
+        print(f"ERROR: Failed to download {hf_id} (config={config_name}, split={split}): {exc}",
+              file=sys.stderr)
         raise
 
-    # Load into a DataFrame.  Most of the target datasets provide JSONL.
+    # Convert to pandas DataFrame; ``datasets`` guarantees a deterministic order.
     try:
-        if local_path.endswith(".jsonl"):
-            df = pd.read_json(local_path, lines=True)
-        elif local_path.endswith(".csv"):
-            df = pd.read_csv(local_path)
-        else:
-            raise ValueError(f"Unsupported file extension for {local_path}")
+        df = ds.to_pandas()
     except Exception as exc:
-        print(f"ERROR: Failed to parse downloaded file {local_path}: {exc}", file=sys.stderr)
+        print(f"ERROR: Failed to convert dataset {hf_id} to pandas: {exc}", file=sys.stderr)
         raise
 
     output_path = RAW_DATA_DIR / output_name
-    df.to_parquet(output_path, index=False)
+    try:
+        df.to_parquet(output_path, index=False)
+    except Exception as exc:
+        print(f"ERROR: Failed to write parquet file {output_path}: {exc}", file=sys.stderr)
+        raise
+
     print(f"Saved {output_path}")
     return output_path
 
