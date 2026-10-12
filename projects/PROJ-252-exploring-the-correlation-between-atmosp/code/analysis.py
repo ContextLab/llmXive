@@ -5,6 +5,7 @@ import pandas as pd
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
+
 from config import get_processed_path, get_event_window_days, get_control_window_days, get_random_seed
 from utils.logging import get_logger
 
@@ -14,10 +15,19 @@ logger = get_logger(__name__)
 
 def load_master_dataset() -> pd.DataFrame:
     """Load the master dataset from the processed directory."""
-    path = get_processed_path() / "master_dataset.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"Master dataset not found at {path}")
-    return pd.read_csv(path)
+    # Prefer Parquet (more efficient) but fall back to CSV for compatibility
+    parquet_path = get_processed_path() / "master_dataset.parquet"
+    csv_path = get_processed_path() / "master_dataset.csv"
+
+    if parquet_path.exists():
+        try:
+            return pd.read_parquet(parquet_path)
+        except Exception as e:
+            logger.warning(f"Failed to read Parquet master dataset: {e}. Trying CSV.")
+    if csv_path.exists():
+        return pd.read_csv(csv_path)
+
+    raise FileNotFoundError(f"Master dataset not found at {parquet_path} or {csv_path}")
 
 # --- Statistical Tests ---
 
@@ -42,21 +52,18 @@ def perform_permutation_test(
     """
     if random_seed is not None:
         np.random.seed(random_seed)
-    
+
     combined = np.concatenate([event_anomalies, control_anomalies])
     n_event = len(event_anomalies)
-    n_control = len(control_anomalies)
-    
-    observed_stat = np.abs(np.mean(event_anomalies) - np.mean(control_anomalies))
-    
+
     null_stats = np.zeros(n_iterations)
-    
+
     for i in range(n_iterations):
         np.random.shuffle(combined)
         perm_event = combined[:n_event]
         perm_control = combined[n_event:]
         null_stats[i] = np.abs(np.mean(perm_event) - np.mean(perm_control))
-    
+
     return null_stats
 
 def calculate_p_value_permutation(observed_stat: float, null_stats: np.ndarray) -> float:
@@ -75,15 +82,15 @@ def calculate_cohen_d(event_anomalies: np.ndarray, control_anomalies: np.ndarray
     mean2 = np.mean(control_anomalies)
     std1 = np.std(event_anomalies, ddof=1)
     std2 = np.std(control_anomalies, ddof=1)
-    
+
     # Pooled standard deviation
     n1 = len(event_anomalies)
     n2 = len(control_anomalies)
     pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-    
+
     if pooled_std == 0:
         return 0.0
-    
+
     return float((mean1 - mean2) / pooled_std)
 
 # --- Stratification Helpers ---
@@ -93,25 +100,18 @@ def is_pacific_ring_of_fire(lat: float, lon: float) -> bool:
     Simple heuristic to check if a location is in the Pacific Ring of Fire.
     This is a simplified bounding box approach for demonstration.
     """
-    # Rough approximation of the Ring of Fire
-    # This is a simplified check; a real implementation would use a shapefile or more complex logic
     if lat < 0:
-        return False  # Simplified: mostly Northern Hemisphere for this heuristic
-    
-    # Check if it's around the Pacific rim
-    # West Coast Americas
+        return False
+
     if 10 < lat < 60 and -130 < lon < -60:
         return True
-    # Asia/East Asia
     if 20 < lat < 60 and 120 < lon < 150:
         return True
-    # Japan/Kurils
     if 30 < lat < 55 and 130 < lon < 145:
         return True
-    # New Zealand
     if -50 < lat < -35 and 165 < lon < 180:
         return True
-    
+
     return False
 
 def stratify_by_magnitude(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
@@ -123,6 +123,7 @@ def stratify_by_magnitude(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
 
 def stratify_by_region(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """Stratify dataset by geographic region."""
+    df = df.copy()
     df['is_ring'] = df.apply(lambda row: is_pacific_ring_of_fire(row['lat'], row['lon']), axis=1)
     return {
         "ring_of_fire": df[df['is_ring']],
@@ -131,8 +132,6 @@ def stratify_by_region(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
 
 def stratify_control_windows(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """Stratify control windows by matching month/day across non-event years."""
-    # Implementation for stratifying control windows
-    # For now, return the full dataframe as a single group
     return {"all_controls": df}
 
 # --- Robustness and Sensitivity ---
@@ -140,7 +139,7 @@ def stratify_control_windows(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
 def run_robustness_analysis(df: pd.DataFrame) -> Dict[str, Any]:
     """Run robustness checks across magnitude and region strata."""
     results = {}
-    
+
     # Magnitude stratification
     mag_strata = stratify_by_magnitude(df)
     for name, subset in mag_strata.items():
@@ -150,11 +149,11 @@ def run_robustness_analysis(df: pd.DataFrame) -> Dict[str, Any]:
         control_anom = subset[subset['is_event'] == 0]['pressure_anomaly'].values
         if len(event_anom) == 0 or len(control_anom) == 0:
             continue
-        
+
         stat, p_val = perform_ks_test(event_anom, control_anom)
         d = calculate_cohen_d(event_anom, control_anom)
         results[f"ks_magnitude_{name}"] = {"stat": stat, "p_value": p_val, "effect_size": d}
-    
+
     # Region stratification
     reg_strata = stratify_by_region(df)
     for name, subset in reg_strata.items():
@@ -164,33 +163,32 @@ def run_robustness_analysis(df: pd.DataFrame) -> Dict[str, Any]:
         control_anom = subset[subset['is_event'] == 0]['pressure_anomaly'].values
         if len(event_anom) == 0 or len(control_anom) == 0:
             continue
-        
+
         stat, p_val = perform_ks_test(event_anom, control_anom)
         d = calculate_cohen_d(event_anom, control_anom)
         results[f"ks_region_{name}"] = {"stat": stat, "p_value": p_val, "effect_size": d}
-    
+
     return results
 
 def run_sensitivity_analysis(df: pd.DataFrame, cutoffs: List[float]) -> Dict[str, Any]:
     """Run sensitivity analysis over different anomaly cutoffs."""
     results = {}
     for cutoff in cutoffs:
-        # Filter based on cutoff (example logic)
         subset = df[df['pressure_anomaly'].abs() > cutoff]
         if len(subset) < 2:
             results[f"sensitivity_cutoff_{cutoff}"] = {"error": "insufficient_data"}
             continue
-        
+
         event_anom = subset[subset['is_event'] == 1]['pressure_anomaly'].values
         control_anom = subset[subset['is_event'] == 0]['pressure_anomaly'].values
         if len(event_anom) == 0 or len(control_anom) == 0:
             results[f"sensitivity_cutoff_{cutoff}"] = {"error": "no_events_or_controls"}
             continue
-        
+
         stat, p_val = perform_ks_test(event_anom, control_anom)
         d = calculate_cohen_d(event_anom, control_anom)
         results[f"sensitivity_cutoff_{cutoff}"] = {"stat": stat, "p_value": p_val, "effect_size": d}
-    
+
     return results
 
 def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> List[bool]:
@@ -201,17 +199,16 @@ def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> List[b
     n = len(p_values)
     sorted_indices = np.argsort(p_values)
     sorted_p = np.array(p_values)[sorted_indices]
-    
+
     ranks = np.arange(1, n + 1)
     threshold = (ranks / n) * alpha
-    
+
     rejected = np.zeros(n, dtype=bool)
     for i in range(n - 1, -1, -1):
         if sorted_p[i] <= threshold[i]:
             rejected[i:] = True
             break
-    
-    # Reorder to original indices
+
     final_rejected = np.zeros(n, dtype=bool)
     final_rejected[sorted_indices] = rejected
     return final_rejected.tolist()
@@ -224,15 +221,15 @@ def apply_fdr_correction(results_dict: Dict[str, Any], alpha: float = 0.05) -> D
         if 'p_value' in v:
             p_vals.append(v['p_value'])
             keys.append(k)
-    
+
     if not p_vals:
         return results_dict
-    
+
     significant = benjamini_hochberg_fdr(p_vals, alpha)
-    
+
     for i, k in enumerate(keys):
         results_dict[k]['is_significant_after_fdr'] = significant[i]
-    
+
     return results_dict
 
 # --- Interpretation and Reporting ---
@@ -265,53 +262,53 @@ def save_results(results: Dict[str, Any], output_path: Path):
 def run_analysis() -> Dict[str, Any]:
     """Main function to run the full analysis pipeline."""
     df = load_master_dataset()
-    
+
     # Filter for events and controls
     event_data = df[df['is_event'] == 1]['pressure_anomaly'].values
     control_data = df[df['is_event'] == 0]['pressure_anomaly'].values
-    
+
     if len(event_data) == 0 or len(control_data) == 0:
         logger.error("No event or control data found.")
         return {}
-    
+
     # KS Test
     ks_stat, ks_p = perform_ks_test(event_data, control_data)
-    
+
     # Permutation Test
     seed = get_random_seed()
     null_dist = perform_permutation_test(event_data, control_data, n_iterations=1000, random_seed=seed)
     observed_stat = np.abs(np.mean(event_data) - np.mean(control_data))
     perm_p = calculate_p_value_permutation(observed_stat, null_dist)
-    
+
     # Effect Size
     cohens_d = calculate_cohen_d(event_data, control_data)
-    
+
     results = {
         "ks_test": {"statistic": ks_stat, "p_value": ks_p},
         "permutation_test": {"observed_statistic": observed_stat, "p_value": perm_p},
         "effect_size": {"cohens_d": cohens_d, "interpretation": interpret_effect_size(cohens_d)},
         "conclusion": generate_conclusion(perm_p, cohens_d)
     }
-    
+
     # Robustness
     robust_results = run_robustness_analysis(df)
     results["robustness"] = robust_results
-    
+
     # Sensitivity
     sensitivity_results = run_sensitivity_analysis(df, cutoffs=[0.5, 1.0, 1.5])
     results["sensitivity"] = sensitivity_results
-    
+
     # FDR Correction
     apply_fdr_correction(results["robustness"])
     apply_fdr_correction(results["sensitivity"])
-    
+
     return results
 
 def main():
     """Entry point for the analysis script."""
     logger.info("Starting analysis pipeline.")
     results = run_analysis()
-    
+
     output_path = get_processed_path() / "statistical_results.json"
     save_results(results, output_path)
     logger.info(f"Results saved to {output_path}")

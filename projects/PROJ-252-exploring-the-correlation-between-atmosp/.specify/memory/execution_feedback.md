@@ -19,11 +19,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download.py -> rc=1
 
-2026-10-12 07:33:19,606 - __main__ - INFO - Starting download pipeline (T002).
-2026-10-12 07:33:19,606 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
-2026-10-12 07:33:19,608 - __main__ - INFO - Downloading NOAA pressure file: https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
-2026-10-12 07:33:49,757 - __main__ - ERROR - Failed to download https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc: HTTPSConnectionPool(host='downloads.psl.noaa.gov', port=443): Read timed out. (read timeout=30)
-2026-10-12 07:33:49,758 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 07:46:11,369 - __main__ - INFO - Starting download pipeline (T002).
+2026-10-12 07:46:11,369 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
+2026-10-12 07:46:11,371 - __main__ - INFO - Downloading NOAA pressure file: https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 07:46:11,522 - __main__ - ERROR - Failed to download https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc: 404 Client Error: Not Found for url: https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 07:46:11,522 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
 
 - python code/preprocess.py -> rc=1
 e 125, in interpolate_pressure_grid
@@ -47,20 +47,20 @@ Trying to import the above resulted in these errors:
 
 
 - python code/analysis.py -> rc=1
-2026-10-12 07:33:50 - __main__ - INFO - Starting analysis pipeline.
+ 07:46:12 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 320, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 313, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 310, in main
     results = run_analysis()
               ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 267, in run_analysis
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 264, in run_analysis
     df = load_master_dataset()
          ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 19, in load_master_dataset
-    raise FileNotFoundError(f"Master dataset not found at {path}")
-FileNotFoundError: Master dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/data/processed/master_dataset.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 30, in load_master_dataset
+    raise FileNotFoundError(f"Master dataset not found at {parquet_path} or {csv_path}")
+FileNotFoundError: Master dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/data/processed/master_dataset.parquet or /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/data/processed/master_dataset.csv
 
 - python code/report.py -> rc=2
 
@@ -86,61 +86,6 @@ ERROR tests/unit/test_preprocess_anomalies.py
 ERROR tests/unit/test_statistics.py
 ERROR tests/unit/test_t017_master_dataset.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 0.86s ===============================
+============================== 9 errors in 0.72s ===============================
 
 
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `obspy` to the project's `requirements.txt` and `pip install obspy`.
-- **Verified**: this loads **10129** real records with fields: event_id, origin_time, latitude, longitude, depth_km, magnitude.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import obspy
-from obspy import UTCDateTime
-from obspy.clients.fdsn import Client
-
-# Initialize USGS client
-client = Client("USGS")
-
-# Define a recent time window (last 30 days)
-endtime = UTCDateTime()
-starttime = endtime - 30*24*3600
-
-# Retrieve the earthquake catalog
-cat = client.get_events(starttime=starttime, endtime=endtime)
-
-# Count records
-records = len(cat)
-print(f"RECORDS={records}")
-
-# Inspect first event to infer available fields
-fields = []
-if records > 0:
-    ev = cat[0]
-    # event_id
-    if getattr(ev, "resource_id", None) is not None:
-        fields.append("event_id")
-    # origin_time
-    if ev.origins and getattr(ev.origins[0], "time", None) is not None:
-        fields.append("origin_time")
-    # latitude
-    if ev.origins and getattr(ev.origins[0], "latitude", None) is not None:
-        fields.append("latitude")
-    # longitude
-    if ev.origins and getattr(ev.origins[0], "longitude", None) is not None:
-        fields.append("longitude")
-    # depth_km (ObsPy stores depth in meters)
-    if ev.origins and getattr(ev.origins[0], "depth", None) is not None:
-        fields.append("depth_km")
-    # magnitude
-    if ev.magnitudes and getattr(ev.magnitudes[0], "mag", None) is not None:
-        fields.append("magnitude")
-
-print("FIELDS=" + ",".join(fields))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

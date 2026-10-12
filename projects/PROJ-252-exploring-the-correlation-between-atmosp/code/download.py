@@ -171,7 +171,8 @@ def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
 
     try:
         logger.info(f"Downloading NOAA pressure file: {url}")
-        with requests.get(url, stream=True, timeout=30) as r:
+        # Increase timeout to accommodate slower connections
+        with requests.get(url, stream=True, timeout=120) as r:
             r.raise_for_status()
             with open(dest_path, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
