@@ -764,14 +764,17 @@ class ImplementerAgent(SlashCommandAgent):
                         for arg in script_args]
                 from llmxive.speckit import output_writers
                 files_before = output_writers.snapshot(project_root)
+                put_back: list[str] = []
                 try:
                     if is_test:
                         tested.add(relpath)
-                        result = _sandbox.run_pytest_file(
-                            project_dir=project_root, test_relpath=relpath,
-                            script_args=script_args if art.get("execute") else [],
-                            timeout_s=int(art.get("timeout_s", 600)),
-                        )
+                        from llmxive.speckit import ratchet
+                        with ratchet.files_unchanged(project_root) as put_back:
+                            result = _sandbox.run_pytest_file(
+                                project_dir=project_root, test_relpath=relpath,
+                                script_args=script_args if art.get("execute") else [],
+                                timeout_s=int(art.get("timeout_s", 600)),
+                            )
                     elif relpath.endswith((".py", ".sh")):
                         runner = (_sandbox.run_shell_script if relpath.endswith(".sh")
                                   else _sandbox.run_python_script)
@@ -810,7 +813,8 @@ class ImplementerAgent(SlashCommandAgent):
                     + f"Arguments: {script_args!r}\n\n"
                     f"## stdout\n\n```\n{result.stdout}\n```\n\n"
                     f"## stderr\n\n```\n{result.stderr}\n```\n\n"
-                    + output_writers.log_section(relpath, files_written, taken_over),
+                    + output_writers.log_section(relpath, files_written, taken_over)
+                    + output_writers.put_back_section(put_back),
                     encoding="utf-8",
                 )
                 written.append(str(log_path.relative_to(repo)))

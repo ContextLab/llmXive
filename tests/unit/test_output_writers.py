@@ -126,8 +126,12 @@ def test_a_test_that_runs_the_script_does_not_take_the_file_over(tmp_path: Path)
     _send(tmp_path, "T008", "code/write_methods_doc.py", METHODS)
     project = _send(tmp_path, "T009", "tests/test_methods_doc.py", TEST_THAT_RUNS_THE_SCRIPT)
     log = _log(project, "T009", "tests/test_methods_doc.py")
-    assert "passed" in log and "- `data/results.md`\n" in log
-    assert "replaces" not in log
+    assert "passed" in log and "replaces" not in log
+    # What the test session rewrote was put back, and the log says so (batches 4
+    # and 5, 2026-10-12: tests left one-row results in place of the full ones).
+    written, _, put_back = log.partition("## files this test session changed")
+    assert "## files written by this run\n\n(none)" in written
+    assert "- `data/results.md`\n" in put_back
     # The script is still the recorded writer, for the verifier and for later runs.
     assert output_writers.last_writer(project, "data/results.md") == ("code/write_methods_doc.py", "T008")
     project = _send(tmp_path, "T008", "code/write_methods_doc.py", None)

@@ -169,3 +169,58 @@ def test_a_test_module_two_tasks_ran_belongs_to_neither(tmp_path: Path) -> None:
     modules = ["tests/test_lib.py", "tests/unit/test_io.py", "tests/test_other.py"]
     assert ratchet.own_modules(tmp_path, "T002", modules, "code/.tasks") == {"tests/test_lib.py"}
     assert ratchet.own_modules(tmp_path, "T004", modules, "code/.tasks") == set()
+
+
+CLOBBERING_TEST = (
+    "import shutil\nfrom pathlib import Path\n\n"
+    "def test_small_run():\n"
+    "    Path('data/summary.csv').write_text('n,tv\\n10,0.5\\n')\n"
+    "    Path('data/stray_n10.csv').write_text('x\\n')\n"
+    "    shutil.rmtree('figures')\n"
+    "    assert True\n"
+)
+FULL = "n,tv\n1000,0.1\n10000,0.05\n"
+
+
+def _results(project: Path) -> dict[str, str]:
+    return {path.relative_to(project).as_posix(): path.read_text(encoding="utf-8")
+            for folder in ("data", "figures") for path in sorted((project / folder).rglob("*")) if path.is_file()}
+
+
+def test_a_test_session_cannot_replace_or_remove_another_tasks_results(tmp_path: Path) -> None:
+    """Batches 4 and 5: tests rewrote ``tv_summary.csv`` with one row and removed ``results/``."""
+    project = _start(tmp_path)
+    _send(tmp_path, "T003", [
+        {"path": "data/summary.csv", "contents": FULL},
+        {"path": "figures/plot.txt", "contents": "the figure\n"},
+        {"path": "data/note.txt", "contents": "note\n"},
+    ])
+    expected = _results(project)
+    assert expected["data/summary.csv"] == FULL
+
+    # The implementer writes the test: the runtime runs it at once.
+    _send(tmp_path, "T002", [{"path": "tests/test_small.py", "contents": CLOBBERING_TEST}])
+    log = (project / "code/.tasks/T002.tests_test_small.py.log").read_text(encoding="utf-8")
+    assert "test_small_run PASSED" in log
+    assert _results(project) == expected
+
+    # Every later attempt runs all tests before and after it.
+    _send(tmp_path, "T003", [{"path": "data/note.txt", "contents": "a later attempt\n"}])
+    expected["data/note.txt"] = "a later attempt\n"
+    assert _results(project) == expected
+
+
+def test_files_unchanged_puts_back_changed_removed_and_new_files(tmp_path: Path) -> None:
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data/a.csv").write_text("full\n", encoding="utf-8")
+    (tmp_path / "data/b.csv").write_text("kept\n", encoding="utf-8")
+    try:
+        with ratchet.files_unchanged(tmp_path):
+            (tmp_path / "data/a.csv").write_text("x\n", encoding="utf-8")
+            (tmp_path / "data/b.csv").unlink()
+            (tmp_path / "data/new.csv").write_text("stray\n", encoding="utf-8")
+            raise RuntimeError("the session failed")
+    except RuntimeError:
+        pass
+    assert sorted(p.name for p in (tmp_path / "data").iterdir()) == ["a.csv", "b.csv"]
+    assert (tmp_path / "data/a.csv").read_text(encoding="utf-8") == "full\n"

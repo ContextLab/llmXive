@@ -21,6 +21,8 @@ import logging
 import os
 import shutil
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -145,6 +147,36 @@ class Snapshot:
         shutil.rmtree(self.store, ignore_errors=True)
 
 
+@contextmanager
+def files_unchanged(project_root: Path) -> Iterator[list[str]]:
+    """Whatever runs inside leaves the project's files as it found them.
+
+    For the harness's own pytest sessions. A project's tests call its scripts
+    with small arguments and clear output folders, and the harness runs every
+    test before and after each attempt: in batches 4 and 5 (2026-10-12) that
+    replaced or removed the results another task had produced in 20 of 131
+    rejections (a one-row ``tv_summary.csv`` in place of the twelve-row one, a
+    ``rmtree("results")``). A test session is evidence through its output,
+    never through what it leaves on disk. Yields a list that holds, once the
+    block has ended, the files that were put back. A project too large to copy
+    is not protected.
+    """
+    snapshot = Snapshot.take(project_root)
+    put_back: list[str] = []
+    try:
+        yield put_back
+    finally:
+        if snapshot is not None:
+            try:
+                changed = snapshot.restore()
+                put_back.extend(changed)
+                if changed:
+                    LOGGER.info("[ratchet] %s: put back %d file(s) a test session changed: %s",
+                                project_root.name, len(changed), ", ".join(changed[:8]))
+            finally:
+                snapshot.close()
+
+
 @dataclass
 class Attempt:
     """The state of a project just before one implementer attempt."""
@@ -180,8 +212,9 @@ class Attempt:
             modules = _test_modules(now)
             rewritten = {rel for rel in self.modules if rel in now and now[rel] != self.snapshot.files[rel]}
             if modules:
-                result = sandbox.run_pytest_modules(
-                    project_dir=self.project_root, test_relpaths=modules, timeout_s=TEST_TIMEOUT_S)
+                with files_unchanged(self.project_root):
+                    result = sandbox.run_pytest_modules(
+                        project_dir=self.project_root, test_relpaths=modules, timeout_s=TEST_TIMEOUT_S)
                 after = scorecard.pytest_outcomes(result.stdout)
                 self.passing_after = sum(1 for value in after.values() if value == 1)
                 broken = regressions(self.before, after, rewritten)
@@ -244,7 +277,8 @@ def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *
     modules = _test_modules(_walk(project_root))
     if not modules:
         return None
-    result = sandbox.run_pytest_modules(project_dir=project_root, test_relpaths=modules, timeout_s=TEST_TIMEOUT_S)
+    with files_unchanged(project_root):
+        result = sandbox.run_pytest_modules(project_dir=project_root, test_relpaths=modules, timeout_s=TEST_TIMEOUT_S)
     before = scorecard.pytest_outcomes(result.stdout)
     if result.timed_out or result.duration_s > MAX_GUARD_SECONDS:
         LOGGER.warning("[ratchet] %s: tests took %.0f s; attempt at %s is not guarded",
@@ -252,10 +286,9 @@ def begin(project_root: Path, task_id: str, memory_dir: Path, definition: str, *
         return None
     if not any(value == 1 for value in before.values()):
         return None  # nothing passes, so nothing can be broken
-    # The tests may write files; copy what they left, which is what the attempt starts from.
     snapshot = Snapshot.take(project_root)
     if snapshot is None:
         return None
     return Attempt(project_root, task_id, memory_dir, definition, snapshot, before, modules, log_dir)
 
-__all__ = ["MAX_SNAPSHOT_BYTES", "Attempt", "begin", "own_modules", "regressions"]
+__all__ = ["MAX_SNAPSHOT_BYTES", "Attempt", "begin", "files_unchanged", "own_modules", "regressions"]

@@ -122,4 +122,13 @@ def log_section(script: str, files: list[str], taken: dict[str, tuple[str, str]]
     return "## files written by this run\n\n" + ("\n".join(lines) if lines else "(none)") + "\n"
 
 
-__all__ = ["REGISTRY_NAME", "changed", "last_writer", "log_section", "record", "snapshot"]
+def put_back_section(files: list[str]) -> str:
+    """The files a test session changed, which the platform put back when it ended."""
+    if not files:
+        return ""
+    return ("\n## files this test session changed (put back as they were when it ended)\n\n"
+            + "\n".join(f"- `{rel}`" for rel in sorted(files)) + "\n\n"
+            "A test's output is its pytest session. Write test files under pytest's `tmp_path`.\n")
+
+
+__all__ = ["REGISTRY_NAME", "changed", "last_writer", "log_section", "put_back_section", "record", "snapshot"]

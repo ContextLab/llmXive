@@ -100,6 +100,9 @@ are provided in the messages that follow.
    `python -m pytest -v` from the project directory every time you write one, and
    the session output is recorded as the task's evidence. Do not write a wrapper
    script or shell script to run pytest, and do not redirect its output to a file.
+   Whatever a test session writes, changes or deletes in the project is put back when
+   it ends, so a test cannot produce a task's output: a script does that. Have tests
+   write to pytest's `tmp_path`, never to `data/`, `results/` or `figures/`.
 
 ## Provided by the platform — use these, do not rewrite them
 
