@@ -8,7 +8,7 @@ properties:
     description: "MedDRA System Organ Class code."
   SOC_NAME:
     type: string
-    description: "Human-readable name of the System Organ Class."
+    description: "Human‑readable name of the System Organ Class."
   ROR:
     type: number
     description: "Reporting Odds Ratio."
@@ -41,7 +41,7 @@ properties:
     description: "Raw p-value before multiple testing correction."
   p_value_adj:
     type: number
-    description: "Benjamini-Hochberg adjusted p-value."
+    description: "Benjamini‑Hochberg adjusted p-value."
   is_signal:
     type: boolean
     description: "True if the SOC meets the signal criteria (2/3 metrics)."

@@ -1,86 +1,91 @@
 # Quickstart: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
 
 ## Prerequisites
-
-- Python 3.11+
-- `pip`
-- Access to a GitHub Actions runner (or local environment with 7 GB+ RAM)
+- Python 3.11+  
+- Git (to clone the repository)  
+- Access to a GitHub Actions runner **or** a local Linux/macOS environment with ≥ 7 GB RAM and ≥ 10 GB free disk space.
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd <repo-name>
- ```
-
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r src/requirements.txt
- ```
-
-## Data Setup
-
-The pipeline requires the VAERS dataset. The verified source is:
-
-- **Dataset Name**: `chrisvoncsefalvay/vaers-outcomes`
-- **Accession ID**: `chrisvoncsefalvay/vaers-outcomes`
-- **URL**: `
-
-> **Note**: This is a derived dataset. The pipeline includes a **Schema Validation Gate** to verify it contains `VAX_TYPE` and MedDRA/SOC columns. If not, the pipeline will halt.
-
-1. **Download the dataset**:
- ```bash
- python src/data/download.py
- ```
- This script will:
- - Fetch the dataset from the verified URL.
- - Verify the checksum.
- - Save to `data/raw/vaers.parquet`.
-
-2. **Verify data integrity**:
- ```bash
- python src/data/validate.py
- ```
- This checks for required columns (`VAX_TYPE`, `SOC`, `REPT_DATE`) against `contracts/dataset.schema.yaml`. If validation fails, the pipeline halts.
-
-## Running the Pipeline
-
-Execute the full pipeline:
-
 ```bash
-python src/main.py
+# 1. Clone the repository
+git clone <REPO_URL>
+cd <REPO_NAME>
+
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r src/requirements.txt
 ```
 
-This will:
-1. Clean and filter the data.
-2. Calculate ROR, PRR, IC for all SOCs.
-3. Apply Benjamini-Hochberg correction.
-4. Generate temporal profiles for top 5 signals.
-5. Perform sensitivity analysis (Flu-only baseline).
-6. Save results to `output/`.
+## Step‑by‑Step Execution
 
-## Output
+1. **Create directory tree & verification log**  
+   ```bash
+   python -c "import subprocess, pathlib; pathlib.Path('logs').mkdir(exist_ok=True); subprocess.run(['tree','-a','-L','3'], stdout=open('logs/structure.txt','w'))"
+   ```
+   *`logs/structure.txt` is required for verification task T001.*
 
-- `output/signals.csv`: Final list of signals with metrics and adjusted p-values.
-- `output/temporal_profiles/`: Plots and data for top 5 signals.
-- `output/sensitivity_analysis.csv`: Delta metrics for Flu-only comparison.
-- `output/report.md`: Summary of findings, including memory profile and limitations.
+2. **Download the VAERS dataset**  
+   ```bash
+   python src/data/download.py
+   ```
+   - Downloads the **full** 2020‑2023 VAERS parquet file from  
+     `  
+   - Writes SHA‑256 checksum to `data/checksums.txt`.
+
+3. **Validate the raw schema**  
+   ```bash
+   python src/data/validate.py
+   ```
+   - Exits with `E_SCHEMA_MISSING` if any of `VAX_TYPE`, `SOC_CODE`, `REPT_DATE` are absent (fulfills FR‑001 & SC‑004).
+
+4. **Clean, map, and split the data**  
+   ```bash
+   python src/data/clean.py
+   ```
+   - Produces `data/processed/cleaned.parquet` with three groups (`COVID-related`, `Non-COVID-Non-Flu`, `Flu-only`).
+
+5. **Run the full analysis pipeline**  
+   ```bash
+   python src/main.py
+   ```
+   This orchestrates:
+   - Disproportionality calculations (`output/signals.csv`)  
+   - Benjamini‑Hochberg correction  
+   - Signal flagging (2‑out‑of‑3 rule)  
+   - Temporal profiling (plots in `output/temporal_profiles/`)  
+   - Flu‑only sensitivity analysis (`output/sensitivity_analysis.csv`)  
+   - Memory profiling and final `output/report.md`.
+
+6. **Verify contracts**  
+   ```bash
+   pytest -q tests/contract/
+   ```
+   All JSON‑schema contracts must pass.
+
+7. **Inspect results**  
+   - `output/signals.csv` – table of ROR/PRR/IC with adjusted p‑values.  
+   - `output/temporal_profiles/` – PNG plots for the top signals.  
+   - `output/sensitivity_analysis.csv` – Δ‑metrics vs. Flu baseline.  
+   - `output/report.md` – human‑readable summary, memory usage, and limitations.
 
 ## Troubleshooting
 
-- **Missing Columns**: If `VAX_TYPE` or `SOC` is missing, the pipeline will fail with a specific error code `E_SCHEMA_MISSING`. Check the dataset schema in `data/raw/`.
-- **Memory Error**: If the dataset is too large, reduce the sample size or use chunked processing (modify `src/data/clean.py`).
-- **Zero Counts**: The pipeline automatically applies a 0.5 continuity correction.
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `E_SCHEMA_MISSING` from `validate.py` | Required columns absent in the downloaded parquet | Confirm the dataset URL; if missing, request a different verified VAERS source or abort (project will be blocked). |
+| MemoryError | Dataset larger than 7 GB RAM | Set `USE_CHUNKED=True` in `src/utils/config.py` and re‑run; the pipeline will process the parquet in 500 k‑row chunks. |
+| `logs/structure.txt` missing | Step 1 not executed or `tree` not installed | Install `tree` (`sudo apt-get install tree`) and re‑run step 1. |
+| Plot functions raise `ImportError` | `src/utils/plots.py` placeholder not replaced | Ensure the full implementation of `plot_weekly_counts` and `plot_signal_table` exists (provided in the repository). |
+| Lint failures (`code/run_lint.py` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues, then re‑run the lint script. |
 
 ## Next Steps
+- Review `output/report.md` and incorporate the findings into the manuscript (`paper/`).  
+- Run the full test suite (`pytest -q`) to ensure ongoing compliance.  
+- If you wish to experiment with the full VAERS archive (beyond the bundled parquet), replace the download URL with the full dataset identifier and re‑run; the same pipeline will handle it provided memory constraints are respected.
 
-- Review `output/report.md` for findings.
-- Run `pytest tests/` to ensure all tests pass.
-- Update `paper/` with the results.
+---
+
