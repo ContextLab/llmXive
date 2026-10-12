@@ -7,11 +7,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipelines.run_all  --max_tasks 200  --penalty_threshold 2.0  --seed 42 -> rc=1
-7, in _fetch_via_zip
-    raise RuntimeError(
-RuntimeError: tasks.json not found in ZIP at expected path tau-bench-main/data/retail/tasks.json
-
-The above exception was the direct cause of the following exception:
+ was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
@@ -20,12 +16,15 @@ Traceback (most recent call last):
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 52, in main
     download_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 154, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 99, in main
     temp_file = download_tasks_json()
                 ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 131, in download_tasks_json
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 79, in download_tasks_json
+    merged_tasks = _fetch_via_raw()
+                   ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 65, in _fetch_via_raw
     raise RuntimeError(
-RuntimeError: Unable to download tasks.json from the official τ‑bench repository via both raw and ZIP methods.
+RuntimeError: All raw fetch attempts failed.
 
 
 ## Declared deliverables still missing

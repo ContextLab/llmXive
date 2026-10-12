@@ -1,23 +1,20 @@
 """Download the τ-bench task data from its official repository.
 
 The script attempts to fetch the raw ``tasks.json`` files from the official
-GitHub repository ``sierra-research/tau-bench``. If the direct fetch fails
-(e.g., due to network issues or repository changes), it falls back to
-downloading the repository archive as a ZIP file, extracting the required
-``tasks.json`` files, and merging them.
+GitHub repository ``sierra-research/tau-bench``. If the fetch fails
+(e.g., due to network issues or repository changes), the script aborts
+with a clear error.
 
 The merged JSON array is written to ``data/raw/τc_bench/tasks.json`` and a
 ``README.md`` containing the SHA‑256 checksum of the file is also created.
 
-The script aborts with a clear error if both download strategies fail.
+The script aborts with a clear error if the download cannot be performed.
 """
 
 import hashlib
 import json
 import sys
-import zipfile
 from pathlib import Path
-from io import BytesIO
 
 import requests
 
@@ -34,17 +31,14 @@ log = get_logger(__name__)
 GITHUB_RAW_BASE = (
     "https://raw.githubusercontent.com/sierra-research/tau-bench/main/data"
 )
-GITHUB_ZIP_URL = (
-    "https://github.com/sierra-research/tau-bench/archive/refs/heads/main.zip"
-)
 DOMAINS = ["retail", "airline"]
 TIMEOUT_S = 60
 
 # ----------------------------------------------------------------------
 def _fetch_via_raw() -> list[dict]:
-    """Attempt to download each domain's ``tasks.json`` via the raw URL."""
-    merged = []
-    last_err = None
+    """Download each domain's ``tasks.json`` via the raw GitHub URL."""
+    merged: list[dict] = []
+    any_error = None
     for domain in DOMAINS:
         url = f"{GITHUB_RAW_BASE}/{domain}/tasks.json"
         try:
@@ -54,7 +48,7 @@ def _fetch_via_raw() -> list[dict]:
             domain_tasks = json.loads(response.text)
         except Exception as exc:  # noqa: BLE001
             log.error(f"Failed to fetch {url}: {exc}")
-            last_err = exc
+            any_error = exc
             continue
 
         if not isinstance(domain_tasks, list) or not domain_tasks:
@@ -70,46 +64,8 @@ def _fetch_via_raw() -> list[dict]:
     if not merged:
         raise RuntimeError(
             "All raw fetch attempts failed."
-        ) from (last_err or RuntimeError("No error captured"))
+        ) from (any_error or RuntimeError("No error captured"))
     return merged
-
-# ----------------------------------------------------------------------
-def _fetch_via_zip() -> list[dict]:
-    """Download the repository archive as a ZIP and extract tasks.json files."""
-    log.info(f"Downloading repository ZIP from {GITHUB_ZIP_URL}")
-    try:
-        resp = requests.get(GITHUB_ZIP_URL, timeout=TIMEOUT_S, stream=True)
-        resp.raise_for_status()
-    except Exception as exc:
-        raise RuntimeError(
-            f"Failed to download repository ZIP from {GITHUB_ZIP_URL}"
-        ) from exc
-
-    with zipfile.ZipFile(BytesIO(resp.content)) as zip_ref:
-        # The ZIP contains a top‑level folder named ``tau-bench-main/``.
-        merged = []
-        for domain in DOMAINS:
-            task_path = f"tau-bench-main/data/{domain}/tasks.json"
-            try:
-                with zip_ref.open(task_path) as f:
-                    data = json.load(f)
-            except KeyError:
-                raise RuntimeError(
-                    f"tasks.json not found in ZIP at expected path {task_path}"
-                )
-            if not isinstance(data, list) or not data:
-                raise RuntimeError(
-                    f"Extracted {task_path} is empty or not a task list."
-                )
-            for task in data:
-                if isinstance(task, dict):
-                    task = dict(task)
-                    task.setdefault("domain", domain)
-                merged.append(task)
-            log.info(f"Extracted {len(data)} tasks for domain '{domain}'.")
-        if not merged:
-            raise RuntimeError("ZIP extraction yielded no tasks.")
-        return merged
 
 # ----------------------------------------------------------------------
 def download_tasks_json() -> Path:
@@ -120,18 +76,7 @@ def download_tasks_json() -> Path:
     Path
         Path to a temporary file containing the merged JSON array.
     """
-    try:
-        merged_tasks = _fetch_via_raw()
-    except Exception as raw_err:
-        log.warning(f"Raw fetch failed ({raw_err}); attempting ZIP fallback.")
-        try:
-            merged_tasks = _fetch_via_zip()
-        except Exception as zip_err:
-            log.error(f"ZIP fallback also failed: {zip_err}")
-            raise RuntimeError(
-                "Unable to download tasks.json from the official τ‑bench "
-                "repository via both raw and ZIP methods."
-            ) from zip_err
+    merged_tasks = _fetch_via_raw()
 
     tmp_file = Path(paths.data("raw", "τc_bench")) / "_tasks_merged.tmp.json"
     tmp_file.parent.mkdir(parents=True, exist_ok=True)
@@ -150,7 +95,7 @@ def compute_sha256(file_path: Path) -> str:
 # ----------------------------------------------------------------------
 def main() -> None:
     """Entry point for the download script."""
-    # Download the raw JSON file(s) (with fallback).
+    # Download the raw JSON file(s).
     temp_file = download_tasks_json()
 
     # Destination directory: data/raw/τc_bench/
