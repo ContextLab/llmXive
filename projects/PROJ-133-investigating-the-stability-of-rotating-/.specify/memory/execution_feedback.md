@@ -56,7 +56,7 @@ ERROR tests/unit/test_initial_conditions.py
 ERROR tests/unit/test_statistics.py
 ERROR tests/unit/test_zero_vortex_stats.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 8 errors in 1.07s ===============================
+============================== 8 errors in 0.97s ===============================
 
 
 

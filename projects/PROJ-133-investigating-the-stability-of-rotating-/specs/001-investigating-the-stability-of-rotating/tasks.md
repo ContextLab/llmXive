@@ -8,7 +8,7 @@
 
 ## Phase 1 – Project scaffolding (must exist before any scientific code runs)
 
-- [ ] **T001** [P] Create the core source tree under `code/` with the sub‑packages required by the specification.  
+- [ ] **T001** [P] Create the core source tree under `code/` with the sub‑packages required by the specification.   <!-- FAILED: unspecified -->
   - **Paths**: `code/`, `code/simulation/`, `code/analysis/`, `code/statistics/`, `code/viz/`, `code/utils/`  
   - **Verification**: `tree -L 2 code/` must list exactly the six directories; a contract test `tests/contract/test_code_tree.py` asserts their existence.
 

@@ -1,9 +1,11 @@
 T001:
-  reason: "The `code/` tree contains additional sub\u2011directories (e.g., `.tasks`,\
-    \ `__pycache__`, `config`, `models`, `scripts`) so the contract test `tests/contract/test_code_tree.py`\
-    \ would fail \u2013 it expects **exactly** the five sub\u2011packages `simulation`,\
-    \ `analysis`, `statistics`, `viz`, and `utils`. The required core source tree\
-    \ is therefore not correctly created."
+  reason: "The `code/` directory contains many extra sub\u2011directories (e.g., `config/`,\
+    \ `scripts/`, `models/`, `.tasks/`, `__pycache__/`) beyond the five required packages,\
+    \ so the contract test `tests/contract/test_code_tree.py` would fail and the \u201C\
+    exactly six directories\u201D condition is not satisfied. The task needs a code\
+    \ tree that includes only the five sub\u2011packages (`simulation`, `analysis`,\
+    \ `statistics`, `viz`, `utils`) under `code/` (plus the root `code/` itself) and\
+    \ a passing execution of the contract test."
   task: 5c42581cc5c254491159834fd30bb04d303b04c849984895720b8b6110914bd5
 T002:
   reason: The `data/raw/` and `data/processed/` directories only contain a `.gitkeep`
