@@ -1,8 +1,14 @@
 status: none
-intent: download GSM8K and MATH datasets via HuggingFace python package dataset
+intent: SocraticQA SQuAD Natural Questions HotpotQA dataset download python package
+  dataset
 required_fields:
+- id
 - question
 - answer
-cache_key: 07227c9501975484c763ac8fe044c7b493d4458fe33abbf61ab506877f86f480
-searched_at: '2026-10-05T21:37:45.372712+00:00'
+- critique
+- revised_answer
+- context
+- dialogue_history
+cache_key: 2aa38bdd5ba8d17d271fa0482e4120ba2310f5afb8648de16081dc5d1130969d
+searched_at: '2026-10-12T18:22:15.998141+00:00'
 retry_count: 1

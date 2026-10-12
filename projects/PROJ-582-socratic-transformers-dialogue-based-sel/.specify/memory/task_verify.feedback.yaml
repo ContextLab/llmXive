@@ -1,0 +1,50 @@
+T001:
+  task: d952ca40e8f9b5b565a3233d8273a163669b6326e36381891f083d29de813688
+T002:
+  reason: Checked `code/requirements.txt` (lists all required packages plus extras)
+    and `code/pyproject.toml` (contains the required metadata and `[tool.black]`/`[tool.ruff]`
+    sections). The `code/ruff.toml` file exists but does **not** contain any configuration
+    that explicitly targets the `src/` and `tests/` directories, as the task requires.
+    Add the appropriate directory targeting (e.g., `src = ["src"]` and `tests = ["tests"]`
+    or equivalent) to satisfy the requirement.
+  task: 506540b3836d07866983eee3ed4d77328bb97f9c7468e734c87a3d2d9610f635
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/download.py
+    exit=1'
+  task: f786c5b246765f3f09594a5d65fb15022a14acbc74580e5e8fbe0a7e7eaec8c4
+T004:
+  task: 91fef746ddec19b65ee484f66f9c7bf54bb17a52856269904dcc297c85b61f11
+T005:
+  task: 39b454262758265974c4d86b26a467b69852697331de6eaa77400601605b2e4c
+T006:
+  task: 881e5421a92e6f773bf0147c97110e0a030a4c20fa7622f875bd377f95ea0531
+T007:
+  task: 2cee546587a4281062de07b498afe044659538c77e1079f89ac0055e4cfd9055
+T008:
+  task: 4c58e14cd167be7df9585d81db05518f9051317422b1f26aa5e6843016fff7b4
+T009:
+  task: 36aaa1c61d8738b67d85e9131540db6c0bb3080b8825bdcacf8bcf6092396d77
+T010:
+  task: 68b516b1e89bc27c87c5e0eb2195c0849d2002253cbbc56b2556c241d3073407
+T011:
+  task: b17b33df5e0370be3134a3c9d279a3d07d10972e37a4270caf07b214cfba74d6
+T012:
+  task: b4a5d8f4f6197e65ccb530532633ef793592e4fb2d883b77ab76716ca1ab3a6f
+T013:
+  task: 388a89168a3e3ccb54944c8f0b51d85df16f8ba07d87bf85471c7d2e396231d0
+T014:
+  task: 22376a4dba9fd17b178fc739096d2cc082207917da2ebc5529eaba374134220e
+T015:
+  task: 10f69f9ab6d210ebd463e1607e7ea6b1501920e72852c5067ae0753979e060bc
+T016:
+  task: 13be950185af6bc8059a32cc937439e57d54a6ea2b9ba8a969c21c676a78b3b9
+T017:
+  task: 4fa5d0d4143acdc192dbf5867c8e757423dd87b3f19e37e9de29bcb329f814bb
+T018:
+  task: e2974d47150c785e1a8dfa9559589c6ed29a2e381c9360f31c2102615f34e76e
+T019:
+  task: 248c040d34bf4a956cdda66f68e624b2f4bc98694fdfc6e82a4ce581292ee0b3
+T020:
+  task: 041e3d4c4ac6620543da231ecd5a1f22c8a4984abc13ea161004e7893652bf30
+T021:
+  task: bba8ce365a3d9e5677f788d4c5d8f93b8bdb3fdc9b50ffde57a459cb7d28440f
