@@ -1,13 +1,15 @@
 T001:
-  c: true
-  h: 3507e0288e9f29643abe87bc84af728f62a241f7b55a4b6a921fba6a0adf3bb2
-  r: I verified `docs/quickstart.md` (runnable `python code/seed_init.py` command,
-    required-input provenance for USGS/NOAA sources), a fully pinned `requirements.txt`,
-    and `code/__init__.py` that sets both `random.seed(42)` and `np.random.seed(42)`.
-    The execution record for `code/seed_init.py` shows exit code 0, stdout "Pipeline
-    completed successfully", and confirmation that `logs/seed_initialization.log`
-    was written with the seed values, matching the task's verification criteria.
-  sig: 5a0c110ac37078566a6c24e70e86ed26314684eedad07e88ee38cce1d8bb3c2a
+  c: false
+  h: 75f7328d86d36406bec2fc3fc6037dcde4cdc61dcb7fecf61a0806d805dd5fe7
+  r: "`requirements.txt` is not frozen: it lists bare package names (pandas, numpy,\
+    \ scipy, etc.) with no pinned versions, directly contradicting the task's requirement\
+    \ to pin dependencies \u2014 and `docs/quickstart.md` falsely claims \"all versions\
+    \ are pinned/frozen.\" The quickstart command (`python code/seed_init.py`) does\
+    \ have execution evidence (exit 0, \"Pipeline completed successfully\", seed log\
+    \ written), and `code/__init__.py` correctly sets both seeds to 42, but there\
+    \ is no evidence that `pip install -r requirements.txt` succeeded without warnings.\
+    \ Fix by pinning exact versions in `requirements.txt"
+  sig: 3b54750c5722ecd6a0706405631dc00a914b62cf44268a19ab782cc5d75bb380
 T009:
   c: false
   h: 642b718945cf87db8d3ea068862e70d708a939f7de6e3441f85d2b62435c08d7

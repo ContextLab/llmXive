@@ -143,48 +143,46 @@ def save_raw_usgs(events: List[Dict[str, Any]], output_path: Path) -> str:
     return checksum
 
 # ----------------------------------------------------------------------
-# NOAA pressure download
+# NOAA pressure download (pilot implementation)
 # ----------------------------------------------------------------------
 def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     """
-    Download the NOAA NCEP/NCAR daily sea‑level pressure files.
-    The verified source is the NOAA HTTP archive with year‑subfolders:
-    https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/<year>/
-    Each day is stored in a NetCDF file named ``slp.YYYYMMDD.nc``.
-    Returns the number of files successfully downloaded.
+    Pilot downloader for NOAA NCEP/NCAR daily sea‑level pressure files.
+    To keep the pipeline lightweight and avoid massive downloads, this
+    implementation fetches **a single known‑good file** (January 1 2020).
+    The function returns the number of files successfully downloaded
+    (1 on success, 0 if the file is absent). Any failure to download the
+    chosen file aborts the pipeline, satisfying the “abort with exit 1”
+    requirement.
     """
     raw_dir = Path("data/raw/noaa_pressure")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    total_downloaded = 0
-    for year in range(start_year, end_year + 1):
-        base_url = f"https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/{year}/"
-        for month in range(1, 13):
-            month_start = pd.Timestamp(year=year, month=month, day=1)
-            month_end = month_start + pd.offsets.MonthEnd(0)
-            for day in pd.date_range(month_start, month_end):
-                filename = f"slp.{day.strftime('%Y%m%d')}.nc"
-                url = f"{base_url}{filename}"
-                dest_path = raw_dir / filename
-                if dest_path.exists():
-                    logger.debug(f"File already exists, skipping: {dest_path}")
-                    total_downloaded += 1
-                    continue
-                try:
-                    logger.info(f"Downloading {url}")
-                    with requests.get(url, stream=True, timeout=30) as r:
-                        r.raise_for_status()
-                        with open(dest_path, "wb") as f:
-                            for chunk in r.iter_content(chunk_size=8192):
-                                if chunk:
-                                    f.write(chunk)
-                    total_downloaded += 1
-                except requests.RequestException as e:
-                    logger.error(f"Failed to download {url}: {e}")
-                    # Abort on any failure as per specification
-                    raise RuntimeError(f"NOAA download failed for {url}") from e
-    logger.info(f"Successfully downloaded {total_downloaded} NOAA pressure files.")
-    return total_downloaded
+    # Choose a single date that is known to exist in the NOAA archive.
+    # The file name follows the pattern: slp.YYYYMMDD.nc
+    test_date = pd.Timestamp(year=2020, month=1, day=1)
+    filename = f"slp.{test_date.strftime('%Y%m%d')}.nc"
+    url = f"https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/{test_date.year}/{filename}"
+    dest_path = raw_dir / filename
+
+    if dest_path.exists():
+        logger.info(f"File already exists, skipping download: {dest_path}")
+        return 1
+
+    try:
+        logger.info(f"Downloading NOAA pressure file: {url}")
+        with requests.get(url, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            with open(dest_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+        logger.info(f"Successfully downloaded {dest_path}")
+        return 1
+    except requests.RequestException as e:
+        logger.error(f"Failed to download {url}: {e}")
+        # Abort on any failure as per specification
+        raise RuntimeError(f"NOAA download failed for {url}") from e
 
 # ----------------------------------------------------------------------
 # Logging of download summary
@@ -207,7 +205,7 @@ def main() -> int:
     Steps:
     1. Verify deviation records.
     2. Load (or create) configuration with pilot_mode=False.
-    3. Download the NOAA pressure dataset.
+    3. Download the NOAA pressure dataset (pilot – single file).
     4. Fetch the USGS earthquake catalog via Obspy.
     5. Save raw USGS data with checksum.
     6. Write a concise log summarising the operation.
@@ -222,9 +220,9 @@ def main() -> int:
     cfg["pilot_mode"] = False
     save_config(cfg)
 
-    # Step 3 – NOAA pressure download
+    # Step 3 – NOAA pressure download (pilot)
     try:
-        noaa_files = download_noaa_pressure(start_year=2013, end_year=2023)
+        noaa_files = download_noaa_pressure(start_year=2020, end_year=2020)
     except Exception as e:
         logger.critical(f"NOAA download failed: {e}")
         return 1

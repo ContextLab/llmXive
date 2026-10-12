@@ -1,4 +1,12 @@
 T001:
+  reason: "`requirements.txt` is not frozen: it lists bare package names (pandas,\
+    \ numpy, scipy, etc.) with no pinned versions, directly contradicting the task's\
+    \ requirement to pin dependencies \u2014 and `docs/quickstart.md` falsely claims\
+    \ \"all versions are pinned/frozen.\" The quickstart command (`python code/seed_init.py`)\
+    \ does have execution evidence (exit 0, \"Pipeline completed successfully\", seed\
+    \ log written), and `code/__init__.py` correctly sets both seeds to 42, but there\
+    \ is no evidence that `pip install -r requirements.txt` succeeded without warnings.\
+    \ Fix by pinning exact versions in `requirements.txt"
   task: e871f02947a6c8771a471cdaa0624e331241281152ce92515cea5b71227860c8
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
