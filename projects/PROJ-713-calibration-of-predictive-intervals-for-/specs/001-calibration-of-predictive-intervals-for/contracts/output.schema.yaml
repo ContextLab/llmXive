@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CalibrationResults"
-description: "Schema for output calibration metrics"
+description: "Schema for aggregated calibration results (coverage + distributional metrics)."
 type: object
 properties:
   series_id:
@@ -26,25 +26,35 @@ properties:
     maximum: 1.0
   coverage_deviation:
     type: number
-    description: "Difference between empirical and nominal coverage"
-  pit_pvalue:
+    description: "Difference between empirical and coverage"
+    minimum: -1.0
+    maximum: 1.0
+  pit_pvalue_ks:
     type: number
-    description: "P-value from Ljung-Box test against Uniform(0,1) distribution for PIT uniformity"
+    description: "KS test p‑value for PIT uniformity"
+    minimum: 0.0
+    maximum: 1.0
+  pit_pvalue_lb:
+    type: number
+    description: "Ljung‑Box test p‑value for PIT uniformity"
     minimum: 0.0
     maximum: 1.0
   crps_score:
     type: number
     description: "Continuous Ranked Probability Score"
     minimum: 0.0
+    maximum: 1.0
   is_significant:
     type: boolean
-    description: "Whether the deviation is statistically significant (p < 0.05)"
+    description: "Whether the coverage deviation is statistically significant (p < 0.05)"
 required:
   - series_id
   - model_name
   - nominal_level
   - empirical_coverage
   - coverage_deviation
-  - pit_pvalue
+  - pit_pvalue_ks
+  - pit_pvalue_lb
   - crps_score
+  - is_significant
 additionalProperties: false

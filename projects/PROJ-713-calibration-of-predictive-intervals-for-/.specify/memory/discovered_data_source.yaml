@@ -1,10 +1,10 @@
 status: none
-intent: download M4 competition dataset and UCI electricity load dataset python package
-  dataset
+intent: tsdl python package M4 dataset UCI electricity load python package dataset
 required_fields:
-- series_id
 - timestamp
 - value
-cache_key: 0fe2675caeec242f25516f18228cae3385933ba8fd9be776cb8caa70b7b28268
-searched_at: '2026-08-30T10:03:25.286301+00:00'
+- series_id
+- frequency
+cache_key: 625c0c0882a744c6de1f802187b40dc85e5870a7f2365df0d51b052438c3f96c
+searched_at: '2026-10-12T14:16:45.581439+00:00'
 retry_count: 1

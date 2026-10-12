@@ -26,6 +26,8 @@ properties:
   coverage_deviation:
     type: "number"
     description: "Difference between empirical and nominal coverage."
+    minimum: -1.0
+    maximum: 1.0
 required:
   - "series_id"
   - "model"

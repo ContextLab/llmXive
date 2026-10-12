@@ -13,9 +13,14 @@ properties:
       - "ARIMA"
       - "Prophet"
       - "LSTM"
-  pit_p_value:
+  pit_p_value_ks:
     type: "number"
-    description: "P-value from Ljung-Box test for PIT uniformity."
+    description: "Kolmogorov–Smirnov test p‑value for PIT uniformity."
+    minimum: 0.0
+    maximum: 1.0
+  pit_p_value_lb:
+    type: "number"
+    description: "Ljung‑Box test p‑value for PIT uniformity (primary metric)."
     minimum: 0.0
     maximum: 1.0
   crps_score:
@@ -25,6 +30,7 @@ properties:
 required:
   - "series_id"
   - "model"
-  - "pit_p_value"
+  - "pit_p_value_ks"
+  - "pit_p_value_lb"
   - "crps_score"
 additionalProperties: false
