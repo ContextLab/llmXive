@@ -1,31 +1,19 @@
 T001:
   c: true
-  h: 4fff1009967b72fca79ea605dfc2239cf64482a25823795b9b7306e0e8f96816
+  h: 32e1ad44de16bf0a6a44b137b94a78dab5c4e810562ec140d300e81670697724
   r: "Checked `quickstart.md` (contains the required command and environment notes)\
-    \ and `configs/run.yaml`; the execution log shows `python -m src.pipeline.run_all\
-    \ --config configs/run.yaml` exiting with status\u202F0 and printing a summary\
-    \ of artifacts."
-  sig: dbc527268a0bb0cc01a45499599897f1751fecd8edce063ac3bb3e103a11a6d7
-T002:
-  c: false
-  h: b812994929e2514d7096036a6d71ef76cb4662eb6ea53851060e7703baa6940b
-  r: The provided `src/data/something_loader.py` cannot load the required dataset
-    (both identifier attempts raise `DatasetNotFoundError`), causing the unit test
-    `tests/test_something_loader.py` to fail during execution. Consequently the loader
-    does not successfully yield any video bytes/labels, and the test does not pass.
-    The task needs a working dataset load (or a mock/fake dataset for testing) and
-    a passing unit test.
-  sig: 796952be01e25bd30e56c50844d37710904830ccc1c2071a0d10865b64e6cbd1
+    \ and `configs/run.yaml` (present and valid). The execution log `code/.tasks/T001.src_pipeline_run_all.py.log`\
+    \ shows the command ran, printed a summary of artifacts, and exited with status\u202F\
+    0."
+  sig: 7d4d35fb35dad527c955fb420dbb8c8c10d060ad5a26cf75d55df41f7ac397aa
 T004:
   c: true
-  h: 7e39d046126f36b8e940bf720a3555ff80bf8987e6462e59542110dd6dc77977
-  r: "The `src/data/optical_flow_loader.py` file (6416\u202Fbytes, sha256\u202F=\u202F\
-    26b7013f\u2026) implements a full copy/symlink routine, loads an optional checksum\
-    \ manifest, and verifies each `.npy` file\u2019s SHA\u2011256 hash. It targets\
-    \ the repository bundle (`data/flow_features_bundle`) and writes to `data/flow_features/`,\
-    \ matching the task\u2019s specifications. No on\u2011the\u2011fly flow computation\
-    \ is performed."
-  sig: eab5586d0c2e1a610c84522dcee7e59a8122af20c987bc848bcf5fe94843f8e7
+  h: 573ce7b834446e37d7f7e08bbffbde4908fbdfb7a6365f2f7cbd169ecdf98dc7
+  r: "Checked `src/data/optical_flow_loader.py` \u2013 it implements copying or symlinking\
+    \ of pre\u2011computed `.npy` files, creates `data/flow_features/` if needed,\
+    \ and verifies SHA\u2011256 checksums when a manifest is present, with no on\u2011\
+    the\u2011fly flow computation."
+  sig: e92667d46f61445ea84b6fc2d341e72a96fdfcb77289d2d68fef7cb525e81adb
 T005:
   c: true
   h: eeba2a0f250763e8f2d97fccc7c4eff0ac414a95c09d2ea9dab7517f0d183c3b

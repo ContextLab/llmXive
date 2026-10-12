@@ -1,17 +1,15 @@
 status: none
-intent: Something-Something V2 video dataset with optical flow validation datasets
-  Python package
+intent: download Something-Something V2 video dataset with segmentation masks python
+  package dataset
 required_fields:
 - video_id
-- original_video_file
-- counterfactual_video_file
-- primary_object_class
-- swapped_object_class
-- optical_flow_divergence
-- optical_flow_divergence_normalized
-- validation_flag
+- video_url_or_local_path
 - frame_rate
-- resolution
-cache_key: dbdd821a1fa048c188af787de919f6f0664f387990cf4241e0e61a2b68660e69
-searched_at: '2026-10-12T07:49:25.164658+00:00'
+- duration_seconds
+- primary_object_class_label
+- per_frame_object_segmentation_masks
+- per_frame_optical_flow_vectors
+- train_val_test_split
+cache_key: 482b9056a2d6af8f7022d164a46d232934b255a402ef503a7f8eab4c37648769
+searched_at: '2026-10-12T07:55:11.588454+00:00'
 retry_count: 1

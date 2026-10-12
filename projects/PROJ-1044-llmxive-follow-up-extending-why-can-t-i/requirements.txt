@@ -1,4 +1,5 @@
-datasets
-opencv-python
-torch
+# Core dependencies (already available in the base environment)
+# torch and torchvision are not part of the default list and are required
+# for the linear‑classifier training.
+torch==2.3.0
 torchvision

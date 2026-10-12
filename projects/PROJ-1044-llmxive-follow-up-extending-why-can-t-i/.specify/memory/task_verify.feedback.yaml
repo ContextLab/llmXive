@@ -1,12 +1,12 @@
 T001:
   task: 032d383888aec79d5bbd4bae3d760a7c79089cbfceb99c725da081b1168fda06
 T002:
-  reason: The provided `src/data/something_loader.py` cannot load the required dataset
-    (both identifier attempts raise `DatasetNotFoundError`), causing the unit test
-    `tests/test_something_loader.py` to fail during execution. Consequently the loader
-    does not successfully yield any video bytes/labels, and the test does not pass.
-    The task needs a working dataset load (or a mock/fake dataset for testing) and
-    a passing unit test.
+  reason: The provided `something_loader.py` raises a `RuntimeError` when the HuggingFace
+    dataset cannot be accessed, and this exception propagates out of `something_stream`,
+    causing the unit test `tests/test_something_loader.py` to fail (no items are yielded).
+    The test therefore does not load five videos with decodable frames as required.
+    The loader must handle the missing dataset gracefully (e.g., by using the fallback
+    video) so that the test passes.
   task: d5f6e56dbc464be34e26c171a27aecfac468412d176ea72b1ba5a2b1f98acc2a
 T003:
   reason: 'Requested task execution failed; rerun successfully: src/data/counterfactual.py
