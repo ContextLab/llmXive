@@ -6,7 +6,6 @@
 Represents a single translation task.
 - `id`: Unique identifier (string)
 - `python_source`: Original Python code (string)
-- `expected_js_reference`: Expected JavaScript code (string, optional)
 - `source_dataset_id`: Identifier of the source dataset (string)
 - `dataset_url`: URL of the dataset source (string)
 
@@ -29,15 +28,17 @@ Represents the output of a single run.
 - `raw_response`: Raw API response (string)
 - `seed`: Random seed used (integer)
 - `timestamp`: Execution timestamp (datetime)
+- `model_source`: "HF_API" or "Ollama_local" (string, optional; used if fallback to Ollama 7B was triggered)
 
 ### StatisticalSummary
 Represents the aggregate analysis result.
-- `metric`: "correctness" or "complexity" or "lines_of_code" (string)
+- `metric`: "correctness", "complexity", "lines_of_code", or "power_limitation" (string)
 - `comparison`: e.g., "zero_shot_style vs zero_shot_basic" (string)
 - `p_value`: P-value from statistical test (float)
 - `confidence_interval_lower`: Lower bound of 95% CI (float)
 - `confidence_interval_upper`: Upper bound of 95% CI (float)
-- `effect_size`: Cohen's h or eta-squared (float)
+- `effect_size`: Cohen's h, eta-squared, or Cohen's f (float)
+- `observed_power`: Post-hoc observed power for the comparison (float, optional)
 - `correction_method`: "bonferroni" or "none" (string)
 
 ## Relationships
@@ -50,12 +51,13 @@ Represents the aggregate analysis result.
 
 1. **Ingestion**: `CodeSnippet` entities created from HF datasets.
 2. **Prompting**: `PromptCondition` templates loaded; `TranslationResult` generated via API.
-3. **Validation**: `TranslationResult` enriched with test pass/fail and quality metrics.
-4. **Analysis**: `StatisticalSummary` computed from aggregated `TranslationResult`.
+3. **I/O Extraction**: I/O pairs extracted from original Python code (fixed synthetic inputs).
+4. **Validation**: `TranslationResult` enriched with test pass/fail (JS execution against I/O pairs) and quality metrics.
+5. **Analysis**: `StatisticalSummary` computed from aggregated `TranslationResult` with confounder checks and power analysis.
 
 ## Storage Format
 
 - **Raw Data**: Parquet files from HF datasets stored in `data/raw/`.
-- **Processed Data**: CSV files in `data/processed/` (CodeSnippet, TranslationResult).
-- **Evaluation Data**: CSV in `data/evaluation/` (StatisticalSummary).
+- **Processed Data**: CSV files in `data/processed/` (CodeSnippet).
+- **Evaluation Data**: CSV files in `data/evaluation/` (io_pairs, validation_results, quality_metrics, statistical_summary).
 - **Prompts**: Text files in `data/prompts/`.

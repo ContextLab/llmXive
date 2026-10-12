@@ -45,6 +45,12 @@ properties:
     type: string
     format: date-time
     description: "Timestamp of the execution."
+  model_source:
+    type: string
+    enum:
+      - HF_API
+      - Ollama_local
+    description: "Source of the model (HuggingFace API or local Ollama). Used if fallback to Ollama 7B was triggered."
 required:
   - snippet_id
   - condition_name

@@ -10,3 +10,14 @@
   verification_status: pending
   verified_against_url: https://github.com/TranscryptOrg/Transcrypt
   verified_at: '2026-07-23T19:08:05.196027Z'
+- artifact_hash: 0957908f1671232251320a24b6ff52e649b83f0fd9b1b884942073e630c06201
+  artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "CM/codexglue_codetrans \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/CM/codexglue_codetrans
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/CM/codexglue_codetrans
+  verified_at: '2026-10-12T08:26:56.486260Z'

@@ -1,0 +1,12 @@
+status: none
+intent: huggingface codetrans python javascript translation pairs download python
+  package dataset
+required_fields:
+- pair_id
+- python_code
+- javascript_code
+- source
+- split
+cache_key: 639507ef9d8d5d6ff73be967420de262b40aacb46fa33493dc8c78dc4346aded
+searched_at: '2026-10-12T07:39:41.468333+00:00'
+retry_count: 1
