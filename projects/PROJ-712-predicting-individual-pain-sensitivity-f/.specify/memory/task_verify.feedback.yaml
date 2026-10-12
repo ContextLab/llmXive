@@ -15,24 +15,19 @@ T004:
     to write only project-owned outputs.'
   task: 6364cf756e61c090c026e55f7a7223363b46c493b357902af96e364b6c92c89e
 T005:
-  reason: "Checked `scripts/pre-run-validation.sh` (640\u202Fbytes). The script never\
-    \ invokes `python -m code.utils --validate-citations` and explicitly skips citation\
-    \ validation, always exiting with success, contrary to the task requirement that\
-    \ it must run the validation command and exit non\u2011zero when citations are\
-    \ missing."
   task: 3062f94623b24d54d3a2f2d6562b4b41e4747de9c8ea16af5148b5f7ba330c04
 T006:
   task: 42f061cf9adf5322174576f8f93633f4de6881d6acdcda079f65987ca7b4cdc9
 T007:
   task: 4bc8fd968b51892cef2f4bc6c7d5138d00169d623753611c80b6ed0bd0590d72
 T008:
-  reason: I examined `code/preprocessing.py` and found it does produce 30 feature
-    entries, but the column names differ from the specification (e.g., transition
-    columns are `"Trans_AA"` instead of `"Trans_A_A"` and spectral columns are `"Spectral_Low_gamma_Power"`
-    instead of `"Spectral_LowGamma_Power"`). Moreover, the required integration test
-    `tests/integration/test_full_preprocess.py` is missing, and the expected output
-    file `data/processed/feature_matrix.csv` does not exist. These missing/incorrect
-    artifacts mean the task is not fully satisfied.
+  reason: "The repository contains `code/preprocessing.py` with a plausible implementation,\
+    \ but the required verification artifacts are absent or inadequate: the unit test\
+    \ `tests/unit/test_preprocessing.py` never actually runs `extract_microstate_features`\
+    \ on data nor checks for a 30\u2011column DataFrame, and the integration test\
+    \ `tests/integration/test_full_preprocess.py` is missing, as is the expected output\
+    \ file `data/processed/feature_matrix.csv`. Consequently the task\u2019s verification\
+    \ criteria are not satisfied."
   task: 7c55a8e03277117eb720ca2ca8a9059e9460f3dc83a4de77cc572488e79b6ec5
 T009:
   reason: "The required file `data/processed/feature_matrix.csv` is missing, so the\
@@ -40,6 +35,12 @@ T009:
     \ verified. The task\u2019s core deliverable does not exist."
   task: 8dc3d3e1a5b6cb15605a7e4e40f73b241ff7d3d61a6a3e909c680392770cacfc
 T010:
+  reason: "Checked `code/modeling.py::train_nested_cv` \u2013 it returns the required\
+    \ keys but tunes \u03B1 over a grid instead of fixing \u03B1\u202F=\u202F0.5,\
+    \ and the required unit test file `tests/unit/test_modeling_cv.py` is missing,\
+    \ so the verification cannot be performed. The implementation must use a fixed\
+    \ Elastic Net \u03B1\u202F=\u202F0.5 (no inner\u2011CV tuning) and the unit test\
+    \ must be provided."
   task: 0011fc90598f118ae0096d3c9fbbcc24a7cf3a4ca96cf25d51dd911647d9e9ca
 T011:
   reason: "Checked `code/modeling.py` for a `global_permutation_test` implementation\
@@ -51,8 +52,19 @@ T011:
     \ name and exact shuffling semantics are missing."
   task: be9290646b170b8cbce9cd8b3c6be66089774e02d3b9f0c36ae625d33edb52ac
 T012:
+  reason: "The `bootstrap_ci` function is present and includes a runtime\u2011limit\
+    \ guard, but the required unit test `tests/unit/test_bootstrap.py` is missing,\
+    \ and the generated artifact `artifacts/bootstrap_ci.json` contains `null` values\
+    \ instead of actual confidence\u2011interval numbers. The task\u2019s requirement\
+    \ for a valid JSON CI output and a passing test is therefore not satisfied."
   task: e0176c6c6abe1f96c4fab868ed4f43b9a112b3b67f6b422d753f8c1a1eca89fb
 T013:
+  reason: "The `compute_empirical_pvalue` function writes only `observed_r` and `p_value`\
+    \ to the JSON artifact, omitting the required `MAE` and confidence\u2011interval\
+    \ fields, and the unit test `tests/unit/test_pvalue.py` is missing entirely, so\
+    \ the claimed verification cannot be performed. The implementation must be extended\
+    \ to include `MAE` and `CI` in `artifacts/model_result.json` and the missing test\
+    \ file must be provided and pass."
   task: 14648603d1a91553b8239a62b0b199b83d95a23fa1e062ae70a239c71656f0ca
 T014:
   task: c4cb08c0cceac8a9ef8a19565046b2775bbc7418c83f69ab6a5d4c8b1f2a11eb

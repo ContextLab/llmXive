@@ -12,6 +12,9 @@ import mne
 import numpy as np
 from scipy.signal import welch
 
+# Import the data loader type used by the pipeline
+from data_loader import EEGDataLoader
+
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
@@ -46,10 +49,10 @@ def find_and_remove_artifacts(ica: mne.preprocessing.ICA, raw: mne.io.Raw, thres
     """Identify ocular/muscle components automatically and remove them."""
     eog_channels = [ch for ch in raw.ch_names if 'EOG' in ch.upper()]
     if eog_channels:
-        eog_inds, scores = ica.find_bads_eog(raw, ch_name=eog_channels[0], threshold=threshold)
+        eog_inds, _ = ica.find_bads_eog(raw, ch_name=eog_channels[0], threshold=threshold)
         ica.exclude.extend(eog_inds)
     else:
-        # Fall back to generic bad component detection
+        # Generic bad component detection based on explained variance
         ica.exclude = ica.get_components_by_score(threshold=threshold)
     ica.apply(raw)
     return raw
@@ -88,99 +91,134 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     Perform microstate segmentation and extract the 30 required features.
     This implementation follows the canonical A‑D microstate pipeline.
     """
-    # 1. Compute Global Field Power (GFP) and extract peaks
+    # ------------------------------------------------------------------
+    # 1. Global Field Power (GFP) peaks
+    # ------------------------------------------------------------------
     gfp = mne.preprocessing.compute_gfp(raw)
     peaks = mne.preprocessing.peak_finder(gfp)[0]
 
+    # ------------------------------------------------------------------
     # 2. Extract scalp topographies at GFP peaks
-    epochs = mne.EpochsArray(
-        raw.get_data()[:, peaks].T[:, np.newaxis, :],
-        info=raw.info,
-        tmin=0.0,
-    )
+    # ------------------------------------------------------------------
+    # Shape: (n_peaks, n_channels)
+    topographies = raw.get_data()[:, peaks].T
 
+    # ------------------------------------------------------------------
     # 3. K‑means clustering (k=4) on the peak topographies
+    # ------------------------------------------------------------------
     n_clusters = 4
-    data = epochs.get_data().squeeze().T  # shape (n_peaks, n_channels)
     from sklearn.cluster import KMeans
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42).fit(data)
-    maps = kmeans.cluster_centers_  # (4, n_channels)
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42).fit(topographies)
+    maps = kmeans.cluster_centers_  # shape (4, n_channels)
 
+    # ------------------------------------------------------------------
     # 4. Back‑fit maps to the continuous data to obtain a label for each sample
-    labels = mne.preprocessing.microstates.fit_microstate_maps(
+    # ------------------------------------------------------------------
+    labels, _ = mne.preprocessing.microstates.fit_microstate_maps(
         raw, maps, method='corr', reject_by_annotation=False
-    )[0]
+    )
+    # labels is a 1‑D array length = n_times
 
-    # 5. Compute durations, occurrences, transition probabilities
-    durations = []
-    occurrences = []
-    transition_matrix = np.zeros((n_clusters, n_clusters))
-    prev_label = labels[0]
+    # ------------------------------------------------------------------
+    # 5. Compute durations, occurrence rates, transition probabilities
+    # ------------------------------------------------------------------
+    sfreq = raw.info['sfreq']
+    n_times = raw.n_times
+
+    # Containers
+    durations_per_label: Dict[int, List[int]] = {i: [] for i in range(n_clusters)}
+    occ_counter = np.zeros(n_clusters, dtype=float)
+    transition_matrix = np.zeros((n_clusters, n_clusters), dtype=float)
+
+    prev_label = int(labels[0])
     current_len = 1
-    occ_counter = np.zeros(n_clusters)
 
     for lbl in labels[1:]:
+        lbl = int(lbl)
         if lbl == prev_label:
             current_len += 1
         else:
-            durations.append(current_len)
+            # Record the finished segment
+            durations_per_label[prev_label].append(current_len)
             occ_counter[prev_label] += 1
+            # Transition
             transition_matrix[prev_label, lbl] += 1
+            # Reset for new segment
             prev_label = lbl
             current_len = 1
-    # Append last segment
-    durations.append(current_len)
+
+    # Append the final segment
+    durations_per_label[prev_label].append(current_len)
     occ_counter[prev_label] += 1
 
-    # Convert to seconds using sampling frequency
-    sfreq = raw.info['sfreq']
-    mean_durations = [np.mean([d / sfreq for d in durations if d > 0]) for _ in range(n_clusters)]
-    occurrence_rates = occ_counter / (raw.n_times / sfreq)
+    # Mean durations (seconds) per microstate
+    mean_durations = []
+    for i in range(n_clusters):
+        if durations_per_label[i]:
+            mean_sec = np.mean(durations_per_label[i]) / sfreq
+        else:
+            mean_sec = 0.0
+        mean_durations.append(mean_sec)
 
-    # Normalize transition probabilities
+    # Occurrence rates (segments per second)
+    total_seconds = n_times / sfreq
+    occurrence_rates = occ_counter / total_seconds
+
+    # Transition probabilities (row‑wise normalized)
     row_sums = transition_matrix.sum(axis=1, keepdims=True)
     with np.errstate(divide='ignore', invalid='ignore'):
         trans_probs = np.nan_to_num(transition_matrix / row_sums)
 
-    # 6. Spectral power per microstate (average over segments)
-    # For simplicity we compute PSD on the whole recording and assign
-    # the same power to each microstate; this satisfies the feature count.
-    epochs_full = mne.make_fixed_length_epochs(raw, duration=2.0, preload=True)
-    psds, freqs = psd_welch(epochs_full, fmin=1.0, fmax=40.0)
-    # Average power across epochs and channels
-    avg_psd = psds.mean(axis=(0, 1))  # shape (n_freqs,)
+    # ------------------------------------------------------------------
+    # 6. Spectral power per band (average across channels and time)
+    # ------------------------------------------------------------------
+    # Use Welch via MNE's helper (or fallback defined above)
+    psds, freqs = psd_welch(raw, fmin=1.0, fmax=70.0, n_fft=int(sfreq * 2))
+    # psds shape: (n_channels, n_freqs)
+    avg_psd = psds.mean(axis=0)  # shape (n_freqs,)
 
-    # Define standard EEG bands
+    # Define EEG bands exactly as required by the spec/tests
     bands = {
-        "delta": (1, 4),
-        "theta": (4, 8),
-        "alpha": (8, 13),
-        "beta": (13, 30),
-        "low_gamma": (30, 45),
-        "high_gamma": (45, 80),
+        "Delta": (1.0, 4.0),
+        "Theta": (4.0, 8.0),
+        "Alpha": (8.0, 13.0),
+        "Beta": (13.0, 30.0),
+        "LowGamma": (30.0, 50.0),
+        "HighGamma": (50.0, 70.0),
     }
+
     band_powers = {}
     for band_name, (fmin, fmax) in bands.items():
         mask = (freqs >= fmin) & (freqs <= fmax)
-        band_powers[band_name] = avg_psd[mask].mean() if mask.any() else 0.0
+        if mask.any():
+            band_powers[band_name] = float(avg_psd[mask].mean())
+        else:
+            band_powers[band_name] = 0.0
 
     # ------------------------------------------------------------------
     # Assemble feature dictionary (30 features)
     # ------------------------------------------------------------------
-    feature_dict = {}
+    feature_dict: Dict[str, float] = {}
+
     # Mean durations
     for i, dur in enumerate(mean_durations):
-        feature_dict[f"MS_{chr(65+i)}_Duration"] = float(dur)
+        feature_dict[f"MS_{chr(65 + i)}_Duration"] = float(dur)
+
     # Occurrence rates
     for i, occ in enumerate(occurrence_rates):
-        feature_dict[f"MS_{chr(65+i)}_Occurrence"] = float(occ)
-    # Transition probabilities (flattened row‑major)
+        feature_dict[f"MS_{chr(65 + i)}_Occurrence"] = float(occ)
+
+    # Transition probabilities (flattened row‑major with underscore)
     for i in range(n_clusters):
         for j in range(n_clusters):
-            feature_dict[f"Trans_{chr(65+i)}{chr(65+j)}"] = float(trans_probs[i, j])
+            feature_dict[f"Trans_{chr(65 + i)}_{chr(65 + j)}"] = float(trans_probs[i, j])
+
     # Spectral power features
     for band_name, power in band_powers.items():
-        feature_dict[f"Spectral_{band_name.capitalize()}_Power"] = float(power)
+        feature_dict[f"Spectral_{band_name}_Power"] = float(power)
+
+    # Sanity check: ensure we have exactly 30 entries
+    assert len(feature_dict) == 30, f"Expected 30 features, got {len(feature_dict)}"
 
     return feature_dict
 
@@ -189,9 +227,6 @@ def preprocess_participant(participant_id: str, loader: EEGDataLoader) -> Dict[s
     Load raw data for a single participant, run the full preprocessing
     pipeline, and return the extracted feature dictionary.
     """
-    # The loader is expected to provide a method that returns a MNE Raw object.
-    # For this repository the loader works with .npy files; we construct a
-    # RawArray manually.
     participant_dir = loader.data_path / participant_id
     eeg_path = participant_dir / "eeg_data.npy"
     ch_path = participant_dir / "channel_info.npy"
@@ -224,7 +259,7 @@ def preprocess_all_participants(participant_ids: List[str], loader: EEGDataLoade
     Iterate over all participants, preprocess each, and collect their feature dictionaries.
     Returns a mapping from participant ID to its feature dict.
     """
-    all_features = {}
+    all_features: Dict[str, Dict[str, float]] = {}
     for pid in participant_ids:
         try:
             feats = preprocess_participant(pid, loader)
@@ -237,7 +272,7 @@ def preprocess_all_participants(participant_ids: List[str], loader: EEGDataLoade
 def main():
     """CLI entry point for debugging the preprocessing pipeline."""
     import argparse
-    parser = argparse.ArgumentParser(description="Run preprocessing on a dummy dataset")
+    parser = argparse.ArgumentParser(description="Run preprocessing on a dataset")
     parser.add_argument("--data-dir", type=str, required=True, help="Root directory containing participant folders")
     parser.add_argument("--output-dir", type=str, required=True, help="Directory to write aggregated feature matrix")
     args = parser.parse_args()
@@ -247,7 +282,8 @@ def main():
     features = preprocess_all_participants(participant_ids, loader)
 
     output_path = Path(args.output_dir) / "feature_matrix.csv"
-    from main import aggregate_features  # reuse aggregation logic
+    # Re‑use aggregation logic from the main pipeline
+    from main import aggregate_features
     aggregate_features(features, output_path)
     print(f"Feature matrix written to {output_path}")
 

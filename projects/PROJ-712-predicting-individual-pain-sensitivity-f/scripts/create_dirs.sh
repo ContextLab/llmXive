@@ -12,6 +12,8 @@
 #   code
 #   tests
 #
+# Note: 'state/' is platform-owned and must NOT be created by the project.
+#
 # The script exits with status 0 on success and aborts on any error.
 # ------------------------------------------------------------
 set -euo pipefail

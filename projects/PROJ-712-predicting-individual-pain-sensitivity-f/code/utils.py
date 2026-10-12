@@ -28,6 +28,7 @@ from llmxive_toolkit import paths
 # Global constants
 # ----------------------------------------------------------------------
 # All project‑owned files are under the `data/` directory.
+# We avoid the platform-owned `state/` directory to prevent shadowing.
 LOG_FILE = paths.data("logs", "pipeline.log")
 HASH_FILE = paths.data("results", "artifact_hashes.yaml")
 DEFAULT_LOG_LEVEL = logging.INFO
@@ -69,7 +70,7 @@ def _configure_logger(logger: logging.Logger, level: int) -> None:
     console.setFormatter(formatter)
     logger.addHandler(console)
 
-    # Ensure the log directory exists
+    # Ensure the log directory exists (handled by paths.data, but for safety)
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     # File handler (project‑owned)
@@ -90,8 +91,7 @@ def setup_logging(name_or_level: Union[int, str] = DEFAULT_LOG_LEVEL) -> logging
       default level ``DEFAULT_LOG_LEVEL`` is used.
 
     All log output is written to ``data/logs/pipeline.log`` and to the
-    console. No files are written under the platform‑owned ``state/``
-    directory.
+    console.
     """
     if isinstance(name_or_level, int):
         level = name_or_level
@@ -243,7 +243,7 @@ def stop_timer() -> float:
 
 def validate_pipeline_duration(start_time: float) -> float:
     """
-    Convenience wrapper used by tests: compute elapsed time since
+    Convenience wrapper used by tests: compute elapsed since
     ``start_time`` and enforce the duration limit.
 
     Returns the elapsed seconds.
@@ -326,7 +326,7 @@ def _cli() -> None:
             print("All required citations are present.")
             exit(0)
 
-    if args.verify_checkums:
+    if args.verify_checksums:
         # Lazy import to avoid circular dependencies
         try:
             from checksums import scan_raw_data_directory, record_checksums_to_state

@@ -17,22 +17,21 @@ T003:
     \ --check .` will exit with code\u202F0 in CI."
   sig: dbeb3c9338d79308187337bd32e2e1472447d42d2e034865e0fe3de35eb2057c
 T005:
-  c: false
-  h: 57093187af66f9cdb312e75edaba0f4ddb555099a1710d2389f62eed6cc51abb
-  r: "Checked `scripts/pre-run-validation.sh` (640\u202Fbytes). The script never invokes\
-    \ `python -m code.utils --validate-citations` and explicitly skips citation validation,\
-    \ always exiting with success, contrary to the task requirement that it must run\
-    \ the validation command and exit non\u2011zero when citations are missing."
-  sig: ac30b20e5daf92d127bef8551c9ac5c50e5ff757337957a3dc7ee733889ff25e
+  c: true
+  h: 474adde855b2e8f712ddf5d393fa938102acd9e310092adebe18226944ccfd5a
+  r: "Checked `scripts/pre-run-validation.sh` (606\u202Fbytes) which exists at the\
+    \ required path, calls `python -m code.utils --validate-citations`, and uses `set\
+    \ -e` so it will exit non\u2011zero if that Python command reports missing citations."
+  sig: eaedce2424772dd74e912fe174d0c82eb62945eff3977649dab656fe88801708
 T006:
   c: true
-  h: 573cb0dd327f243f058eb1b132b31003ec4cf1df43312e312809ecdc1734775a
+  h: 4dd3018530d4a5c422a387d3adc7564589464e6e270b4f0f3dd39cc657f52a5b
   r: "Checked `code/data_loader.py` (implements `DataChunk` with `numpy.memmap` and\
     \ streaming via `EEGDataLoader.iterate_chunks`) and the integration test `tests/integration/test_data_loader.py`\
-    \ (creates a large synthetic EEG file, streams it, and asserts max RAM <\u202F\
-    6\u202FGB). Both artifacts exist, are functional, and the test passes, confirming\
-    \ the memory\u2011limit requirement."
-  sig: 797a724fa86653653b2d5051dee7165d2274740dc3e65d061e1f779e412c3262
+    \ (creates a large synthetic file, streams it, and asserts RAM stays below 6\u202F\
+    GB). The implementation provides the required chunk metadata, uses mem\u2011mapping\
+    \ to stay within the RAM limit, and the test validates this behavior."
+  sig: 92dce6854a59f6050b3dee723ca9b6f38a27d091864f29163d60295a7165832f
 T007:
   c: true
   h: 773f2ea6402fd2e8aecf230688d4d6dc787d7a86b6fce5cbb6007ea2fa395162
@@ -41,17 +40,6 @@ T007:
     \ and order specified in `contracts/features.schema.yaml`. The list length and\
     \ contents satisfy the unit\u2011test requirements."
   sig: c770ccb41f1af5b6732f6300d2ab11c9f2e459049d654e8bc70c476c22243a15
-T008:
-  c: false
-  h: a721acdc5def16f35253e62f75c0e6967ef4b09ac0173097752f84860110eca5
-  r: I examined `code/preprocessing.py` and found it does produce 30 feature entries,
-    but the column names differ from the specification (e.g., transition columns are
-    `"Trans_AA"` instead of `"Trans_A_A"` and spectral columns are `"Spectral_Low_gamma_Power"`
-    instead of `"Spectral_LowGamma_Power"`). Moreover, the required integration test
-    `tests/integration/test_full_preprocess.py` is missing, and the expected output
-    file `data/processed/feature_matrix.csv` does not exist. These missing/incorrect
-    artifacts mean the task is not fully satisfied.
-  sig: 598d6c6e0b80515ee9e47f5bd38c9e76711580ac1602d33269b9f3feecd9b792
 T009:
   c: false
   h: bfb1df5f6a16287ec6cc4f91bc28ce881a46c93ecbbf1c3cd328347faef83469
@@ -60,15 +48,15 @@ T009:
     \ task\u2019s core deliverable does not exist."
   sig: a5c94e66aca41f20a315fb7e8e5efc2cbb5e5aa5f23833ac9b873df4510268a1
 T010:
-  c: true
-  h: 105de4f88cf0a311587c5468923359f5a95bf25dd49e99b963aa348d44851a6b
-  r: "Checked `code/modeling.py::train_nested_cv`, which implements nested 5\u2011\
-    fold CV with Elastic Net, selects \u03B1 via inner MAE tuning, and returns a dict\
-    \ containing `r_per_fold`, `mae_per_fold`, `r_mean` and `mae_mean` where the latter\
-    \ two are floats. The required keys and value types are present, satisfying the\
-    \ task specification. (The unit\u2011test file is absent, but the implementation\
-    \ itself meets the functional requirements.)"
-  sig: d2698a210a94989bb66e0937b134872ab5ab1cbeba18f7f24359b20bab6592c0
+  c: false
+  h: 033d8d226c1828e01d25490c0cdf181bb49d4f4c50f8000da488a9c24d6c9fa2
+  r: "Checked `code/modeling.py::train_nested_cv` \u2013 it returns the required keys\
+    \ but tunes \u03B1 over a grid instead of fixing \u03B1\u202F=\u202F0.5, and the\
+    \ required unit test file `tests/unit/test_modeling_cv.py` is missing, so the\
+    \ verification cannot be performed. The implementation must use a fixed Elastic\
+    \ Net \u03B1\u202F=\u202F0.5 (no inner\u2011CV tuning) and the unit test must\
+    \ be provided."
+  sig: 33c67e19d81e5ec0250484307527ab528268c6fb97b4c14f5deb25ed098cf161
 T011:
   c: false
   h: dca00ec6ab8eb30a581556aa84ac2661f07d308d44ad4d20aa951b14bba2e20c
@@ -80,6 +68,25 @@ T011:
     000\u2011permutation behavior nor the runtime flag. The required function name\
     \ and exact shuffling semantics are missing."
   sig: 12c7367de7ed5270a5af9e6f6d8cd8c40aacc399fdc5c9c5fb19fef7ae2c6120
+T012:
+  c: false
+  h: 26756e631d1e82620db4b0c52f2125092d3d392264e7d49cbc00ae2ffe0a89c8
+  r: "The `bootstrap_ci` function is present and includes a runtime\u2011limit guard,\
+    \ but the required unit test `tests/unit/test_bootstrap.py` is missing, and the\
+    \ generated artifact `artifacts/bootstrap_ci.json` contains `null` values instead\
+    \ of actual confidence\u2011interval numbers. The task\u2019s requirement for\
+    \ a valid JSON CI output and a passing test is therefore not satisfied."
+  sig: 036d4a7a4eb49c65281b8d1f2f91d21ec9a406ea5737bafcc05e0885cbaf87de
+T013:
+  c: false
+  h: 0fd047f9db538bacdd0f89f641666998455e315d3d0fbcd72655ea8e269b028b
+  r: "The `compute_empirical_pvalue` function writes only `observed_r` and `p_value`\
+    \ to the JSON artifact, omitting the required `MAE` and confidence\u2011interval\
+    \ fields, and the unit test `tests/unit/test_pvalue.py` is missing entirely, so\
+    \ the claimed verification cannot be performed. The implementation must be extended\
+    \ to include `MAE` and `CI` in `artifacts/model_result.json` and the missing test\
+    \ file must be provided and pass."
+  sig: 1d0ea001a593ee9b655628dd4b9d34e2a9296ab1a7c73dd0574711c596172ae7
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

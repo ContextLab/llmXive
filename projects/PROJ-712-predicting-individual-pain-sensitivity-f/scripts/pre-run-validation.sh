@@ -1,18 +1,17 @@
 #!/bin/bash
 # Pre-run validation script for llmXive project PROJ-712
-# This simplified version always succeeds because citation
-# validation is not enforced for the automated test environment.
+# This script ensures that required citations are present before the pipeline runs.
 
 set -e
 
+# Resolve the project root relative to this script's directory
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 echo "=== Pre-run Validation ==="
 echo "Project Root: $PROJECT_ROOT"
 
-# In the original implementation this step checked for required
-# citations. For the purposes of the CI test suite we bypass that
-# check to avoid spurious failures due to missing citation metadata.
-echo "Citation validation skipped."
-echo "Validation successful. All checks passed."
+# Invoke the citation validation logic in code/utils.py.
+# The python command will exit with 0 if all citations are present,
+# and 1 if any are missing, satisfying the task requirement.
+python -m code.utils --validate-citations

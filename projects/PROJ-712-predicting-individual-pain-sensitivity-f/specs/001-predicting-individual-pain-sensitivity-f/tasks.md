@@ -25,7 +25,7 @@
   * `record_artifact_hash(filepath)` and `compute_checksum(filepath)` for Constitution Principles V & III.  
   **Verification**: unit test `tests/unit/test_utils.py` checks that two identical files produce identical SHA‑256 hashes and that the logger writes to `state/log.txt`.
 
-- [ ] **T005**  Add `scripts/pre-run-validation.sh` that calls `python -m code.utils --validate-citations`. The script exits non‑zero if any required citation is missing.  
+- [X] **T005**  Add `scripts/pre-run-validation.sh` that calls `python -m code.utils --validate-citations`. The script exits non‑zero if any required citation is missing.  
   **Path**: `scripts/pre-run-validation.sh`.  
   **Verification**: CI step runs the script; a failing citation causes the pipeline to abort.
 
@@ -55,18 +55,18 @@
 
 ## Phase 2 – Model training & validation (User Story 2, P2)
 
-- [X] **T010**  Implement `code/modeling.py::train_nested_cv` which performs **nested 5‑fold cross‑validation** with Elastic Net (α = 0.5) on the feature matrix, returns per‑fold Pearson r, MAE, and the mean across outer folds.  
+- [ ] **T010**  Implement `code/modeling.py::train_nested_cv` which performs **nested 5‑fold cross‑validation** with Elastic Net (α = 0.5) on the feature matrix, returns per‑fold Pearson r, MAE, and the mean across outer folds.  
   **Verification**: unit test `tests/unit/test_modeling_cv.py` checks that the function returns a dict containing keys `r_mean`, `mae_mean`, and that each value is a float.
 
 - [ ] **T011**  Implement **global permutation testing** (FR‑004) in `code/modeling.py::global_permutation_test`. For each of **1 000 permutations**: shuffle the target labels **once per outer CV iteration**, run the full nested CV, and store the resulting mean r.  
   **Verification**: integration test `tests/integration/test_permutation.py` asserts that the returned null distribution length is 1 000 and that the runtime flag `max_permutations=1000` is respected.
 
-- [~] **T012**  Implement **bootstrap resampling** (200 iterations) for the observed Pearson r to obtain a 95 % confidence interval, with a runtime‑limit guard that aborts and logs a warning if the estimated total time would exceed the 6‑hour CI budget.  
+- [ ] **T012**  Implement **bootstrap resampling** (200 iterations) for the observed Pearson r to obtain a 95 % confidence interval, with a runtime‑limit guard that aborts and logs a warning if the estimated total time would exceed the 6‑hour CI budget.  
   **Path**: `code/modeling.py::bootstrap_ci`.  
   **Artifact**: `artifacts/bootstrap_ci.json` containing `{ "ci_lower": ..., "ci_upper": ... }`.  
   **Verification**: unit test `tests/unit/test_bootstrap.py` confirms that the function returns the two‑element tuple and that a mocked timer triggers the guard when the projected runtime > 6 h.
 
-- [~] **T013**  Compute the **empirical p‑value** by comparing the observed mean r to the permutation null distribution (FR‑004). Store the p‑value together with r, MAE, and the CI in `artifacts/model_result.json`.  
+- [ ] **T013**  Compute the **empirical p‑value** by comparing the observed mean r to the permutation null distribution (FR‑004). Store the p‑value together with r, MAE, and the CI in `artifacts/model_result.json`.  
   **Path**: `code/modeling.py::compute_empirical_pvalue`.  
   **Verification**: unit test `tests/unit/test_pvalue.py` creates a synthetic null distribution, calls the function, and asserts `0 ≤ p ≤ 1` and that `p` equals the proportion of null r’s ≥ observed r; also checks that the JSON file contains the `p_value` field.
 

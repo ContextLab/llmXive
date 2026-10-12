@@ -14,6 +14,7 @@ def test_create_dirs():
     directories are present afterwards.
     """
     # Resolve the project root (two levels up from this test file)
+    # tests/integration/test_structure.py -> parents[0]=integration, [1]=tests, [2]=root
     project_root = Path(__file__).resolve().parents[2]
 
     # Path to the helper script
