@@ -1,11 +1,11 @@
 status: none
-intent: Open University Learning Analytics Dataset OULAD download CSV python package
+intent: download Open University Learning Analytics Dataset (OULAD) as python package
   dataset
 required_fields:
 - user_id
 - session_id
 - recommended_items
 - enrolled_items
-cache_key: 7dc8e1964099fbc86a6e860cdd1021bbe2e9fc1669d3c2386d7f7c9a23eb444c
-searched_at: '2026-10-12T07:33:39.570871+00:00'
+cache_key: dad896929edb9a8b551d5154b252a1625f5e11453941c372ab5413e6c9450044
+searched_at: '2026-10-12T08:24:18.742223+00:00'
 retry_count: 1
