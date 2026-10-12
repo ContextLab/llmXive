@@ -8,13 +8,12 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data_loader.py: synthetic/fake INPUT data not authorized by the spec — “…e, never falling back to synthetic data. """ import os import nu…”
 - data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…# Dummy Data Directory  This director…”
 - data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…pt will generate its own dummy data dynamically in a tempora…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data_loader.py: synthetic/fake INPUT data not authorized by the spec — “…e, never falling back to synthetic data. """ import os import nu…”; data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…# Dummy Data Directory  This director…”; data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…pt will generate its own dummy data dynamically in a tempora…”; 6 command(s) failed: bash scripts/pre-run-validation.sh (rc=1); python code/main.py (rc=1); python code/main.py --step preprocess (rc=1)
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…# Dummy Data Directory  This director…”; data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…pt will generate its own dummy data dynamically in a tempora…”; 6 command(s) failed: bash scripts/pre-run-validation.sh (rc=1); python code/main.py (rc=1); python code/main.py --step preprocess (rc=1)
 
 ## Failing / missing run-book commands
 
@@ -28,92 +27,92 @@ ModuleNotFoundError: No module named 'datasets'
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-12 21:38:01,406 - __main__ - ERROR - Missing required citations:
-2026-10-12 21:38:01,406 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-12 21:38:01,406 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-12 21:49:16,473 - __main__ - ERROR - Missing required citations:
+2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
-t found to be installed on your system.
+rning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
 If this would cause problems for you,
 please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
         
   import pandas as pd
-Error processing .gitkeep: EEG or channel info missing for .gitkeep
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 197, in wrapper
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 142, in main
-    df = aggregate_features(participant_features, feature_matrix_path)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 46, in aggregate_features
-    raise ValueError("No participant data provided for aggregation.")
-ValueError: No participant data provided for aggregation.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: preprocess_all_participants() takes 1 positional argument but 2 were given
 
 - python code/main.py --step preprocess -> rc=1
-t found to be installed on your system.
+rning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
 If this would cause problems for you,
 please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
         
   import pandas as pd
-Error processing .gitkeep: EEG or channel info missing for .gitkeep
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 197, in wrapper
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 142, in main
-    df = aggregate_features(participant_features, feature_matrix_path)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 46, in aggregate_features
-    raise ValueError("No participant data provided for aggregation.")
-ValueError: No participant data provided for aggregation.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: preprocess_all_participants() takes 1 positional argument but 2 were given
 
 - python code/main.py --step model -> rc=1
-t found to be installed on your system.
+rning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
 If this would cause problems for you,
 please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
         
   import pandas as pd
-Error processing .gitkeep: EEG or channel info missing for .gitkeep
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 197, in wrapper
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 142, in main
-    df = aggregate_features(participant_features, feature_matrix_path)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 46, in aggregate_features
-    raise ValueError("No participant data provided for aggregation.")
-ValueError: No participant data provided for aggregation.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: preprocess_all_participants() takes 1 positional argument but 2 were given
 
 - python code/main.py --step diagnostics -> rc=1
-t found to be installed on your system.
+rning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
 If this would cause problems for you,
 please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
         
   import pandas as pd
-Error processing .gitkeep: EEG or channel info missing for .gitkeep
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 197, in wrapper
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 142, in main
-    df = aggregate_features(participant_features, feature_matrix_path)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 46, in aggregate_features
-    raise ValueError("No participant data provided for aggregation.")
-ValueError: No participant data provided for aggregation.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
+    participant_features = preprocess_all_participants(participant_ids, loader)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: preprocess_all_participants() takes 1 positional argument but 2 were given
 
 - python -m pytest -q -> rc=2
-pattern.py:92
+868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
@@ -126,11 +125,10 @@ pattern.py:92
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/test_config.py
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 3 errors in 0.81s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 14 warnings, 2 errors in 1.01s ========================
 
 
 ## Platform-owned paths written inside the project

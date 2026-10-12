@@ -111,7 +111,7 @@ def compute_checksum(file_path: Union[str, Path]) -> str:
     """
     Compute the SHA‑256 checksum of a file.
 
-    Reads the file in 4 KB chunks to handle large files efficiently.
+    Reads the file in 4 KB chunks to handle large files efficiently.
     """
     path = Path(file_path)
     sha256 = hashlib.sha256()
@@ -130,9 +130,10 @@ def record_artifact_hash(
     file_path: Union[str, Path],
     artifact_name: Optional[str] = None,
     state_file: Optional[Union[str, Path]] = None,
-) -> None:
+) -> str:
     """
-    Record the SHA‑256 hash of an artifact in the project result YAML file.
+    Compute the SHA‑256 hash of an artifact, record it in the project‑owned
+    YAML file, and **return** the hex digest.
 
     Parameters
     ----------
@@ -143,6 +144,11 @@ def record_artifact_hash(
     state_file
         Path to the state YAML file; defaults to
         ``artifacts/artifact_hashes.yaml``.
+
+    Returns
+    -------
+    str
+        The SHA‑256 hex digest of the artifact's contents.
     """
     path = Path(file_path)
     if not path.is_file():
@@ -171,8 +177,11 @@ def record_artifact_hash(
     }
 
     # Write back (parent directories are created by llmxive_toolkit.paths)
+    state_path.parent.mkdir(parents=True, exist_ok=True)
     with state_path.open("w") as sf:
         yaml.safe_dump(state_data, sf)
+
+    return hash_val
 
 # ----------------------------------------------------------------------
 # Timing helpers
@@ -210,7 +219,7 @@ def assert_duration_limit(duration_seconds: float, limit_seconds: Optional[float
     """
     Verify that *duration_seconds* does not exceed *limit_seconds*.
 
-    The default limit is ``MAX_EXECUTION_SECONDS`` (6 h). Raises
+    The default limit is ``MAX_EXECUTION_SECONDS`` (6 h). Raises
     ``AssertionError`` on violation with a message that includes the
     Constitution principle identifier.
     """
@@ -300,7 +309,7 @@ def _cli() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Utility commands for the PROJ‑712 pipeline."
+        description="Utility commands for the PROJ-712 pipeline."
     )
     parser.add_argument(
         "--validate-citations",
@@ -326,7 +335,7 @@ def _cli() -> None:
             print("All required citations are present.")
             exit(0)
 
-    if args.verify_checksums:
+    if args.verify_checksumsums if False else args.verify_checksums:
         # Lazy import to avoid circular dependencies
         try:
             from checksums import scan_raw_data_directory, record_checksums_to_state

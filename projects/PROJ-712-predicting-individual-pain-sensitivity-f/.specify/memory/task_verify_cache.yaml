@@ -27,13 +27,46 @@ T003:
     was required by the task's stated path.
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
+  c: true
+  h: f41aba1cb5611cfd552f8fd20dd6af34c5647eed391c58059a23854c67f3e04f
+  r: Checked `code/utils.py` (defines `set_global_seed`, `setup_logging`, and `record_artifact_hash`
+    as required) and the passing `tests/unit/test_utils.py` run (all four assertions
+    succeed, and `artifacts/log.txt` contains the logged entry).
+  sig: f56b6067adc0f77a88b47956f11291c32bafd18edec791f820e62fb6d11b5fd5
+T005:
+  c: true
+  h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56
+  r: "Checked `scripts/pre-run-validation.sh` (692\u202Fbytes) which contains the\
+    \ required shebang, resolves the project root, runs `python -m code.utils --validate-citations`,\
+    \ and uses `set -e` so the script exits non\u2011zero when the Python command\
+    \ reports a missing citation. The file exists, is non\u2011empty, and implements\
+    \ the specified behavior."
+  sig: 375df67f10864517dfd578800be0599152070bb4ad1be622e8ea5007fbd11d71
+T006:
+  c: true
+  h: 62f104a869a73adbb1ab8159f661d93d82cb1ebf20ca158b9afb4230e04e1e38
+  r: "Checked `code/data_loader.py` (contains a `DataChunk` using `numpy.memmap` and\
+    \ an `EEGDataLoader.iterate_chunks` generator) and the integration test `tests/integration/test_data_loader.py`,\
+    \ which confirms that streaming chunks of a large synthetic EEG file stays below\
+    \ the 6\u202FGB RAM limit."
+  sig: 5326b4aa52c316825a49fe71d3355dbf3075459af8127d3dc8e28f28b41a39ec
+T007:
+  c: true
+  h: 979297d91ef9fcbb32dd663f0d25b92fb35a2e46c2f2b233a695f41ec1c131e7
+  r: "Checked `code/config.py` \u2013 it defines `RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`\
+    \ and an `EXPECTED_FEATURE_COLUMNS` list of exactly 30 names in the required order\
+    \ (4 durations, 4 occurrences, 16 transitions, 6 spectral powers) that align with\
+    \ the column definitions in `contracts/features.schema.yaml`."
+  sig: eefd338e0db225f6e7573d613d68448f8b3ea29821edb1092c7d9c5d69dcdcaf
+T008:
   c: false
-  h: 0731a4b537ce068f550d88cc15e91f1072cf12a15beb5f818ea890afcd254fe5
-  r: "`code/utils.py` exists and the tests pass, and seed pinning plus the `artifacts/log.txt`\
-    \ logger are genuinely implemented. However, the task explicitly requires `record_artifact_hash(filepath)`\
-    \ to \"compute a SHA\u2011256 hash and **return it**,\" but the implemented function\
-    \ returns `None` (it only writes the hash to a YAML state file); the hash value\
-    \ is never returned to the caller. Fix `record_artifact_hash` to return the computed\
-    \ SHA\u2011256 hex digest (e.g., `return hash_val`) while optionally keeping the\
-    \ YAML recording."
-  sig: c5f47b2a5bdfa6b2cb317f17fb461bbae38d16e9a855622bb850da05e1f27021
+  h: 3fed57a9fc11d5e05f562482f31238de96c0d04220b4ea75501b48b0c7b366c1
+  r: "The repository contains `code/preprocessing.py`, but it does not stream data\
+    \ via the `DataChunk` loader, does not implement the required ICA\u2011based artifact\
+    \ rejection (no high\u2011kurtosis check), and does not correctly compute \u201C\
+    valid EEG minutes\u201D after ICA removal. Moreover, the required output file\
+    \ `data/processed/feature_matrix.csv` is absent and the integration test `tests/integration/test_full_preprocess.py`\
+    \ is missing, so the end\u2011to\u2011end verification cannot be performed. The\
+    \ next implementer must (1) use `DataChunk` for streaming, (2) implement the specified\
+    \ ICA component\u2011discard logic, (3) co"
+  sig: 76a665a7630e0e7efd31f9f9e09007f502ca20b4cd7f19ff3d7e909f3446fd60

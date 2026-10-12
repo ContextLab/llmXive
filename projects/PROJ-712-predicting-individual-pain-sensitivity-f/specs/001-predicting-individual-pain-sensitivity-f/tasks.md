@@ -24,21 +24,21 @@
   **Path**: `pyproject.toml`.  
   **Verification**: CI runs `ruff check .` and `black --check .`; both must return exit‑code 0.
 
-- [ ] **T004** [P0] Implement `code/utils.py` with:  
+- [X] **T004** [P0] Implement `code/utils.py` with:  
   * deterministic seed pinning (`np.random.seed(42)`, `random.seed(42)`),  
   * a lightweight logger that writes to `artifacts/log.txt`,  
   * helper `record_artifact_hash(filepath)` that computes a SHA‑256 hash and returns it.  
   **Path**: `code/utils.py`.  
   **Verification**: `tests/unit/test_utils.py` checks that two identical files yield identical hashes and that the logger creates `artifacts/log.txt` containing a timestamped entry.
 
-- [ ] **T005** Add `scripts/pre-run-validation.sh` that executes `python -m code.utils --validate-citations`. The script exits non‑zero if any required citation is missing.  
+- [X] **T005** Add `scripts/pre-run-validation.sh` that executes `python -m code.utils --validate-citations`. The script exits non‑zero if any required citation is missing.  
   **Path**: `scripts/pre-run-validation.sh`.  
   **Verification**: CI runs the script; a missing citation aborts the pipeline.
 
-- [ ] **T006** Implement `code/data_loader.py` with a `DataChunk` class that streams OpenNeuro **ds003542** EEG files via `numpy.memmap` (or MNE’s `preload=False`). The loader yields chunk objects so that peak RAM stays ≤ 6 GB.  
+- [X] **T006** Implement `code/data_loader.py` with a `DataChunk` class that streams OpenNeuro **ds003542** EEG files via `numpy.memmap` (or MNE’s `preload=False`). The loader yields chunk objects so that peak RAM stays ≤ 6 GB.  
   **Verification**: `tests/integration/test_data_loader.py` asserts that processing the full dataset never exceeds 6 GB of resident memory (checked via `psutil`).
 
-- [ ] **T007** Create `code/config.py` exposing constants such as `RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`, and `EXPECTED_FEATURE_COLUMNS` (the ordered list of the 30 microstate feature names).  
+- [X] **T007** Create `code/config.py` exposing constants such as `RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`, and `EXPECTED_FEATURE_COLUMNS` (the ordered list of the 30 microstate feature names).  
   **Verification**: `tests/unit/test_config.py` checks that `len(EXPECTED_FEATURE_COLUMNS) == 30` and that every name matches the schema in `contracts/features.schema.yaml`.
 
 ---

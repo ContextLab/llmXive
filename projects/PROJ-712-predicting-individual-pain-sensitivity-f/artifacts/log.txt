@@ -1,3 +1,4 @@
-2026-10-12 21:38:01,406 - __main__ - ERROR - Missing required citations:
-2026-10-12 21:38:01,406 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-12 21:38:01,406 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-12 21:41:51,295 - test_logger - INFO - utils unit test log entry
+2026-10-12 21:49:16,473 - __main__ - ERROR - Missing required citations:
+2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.5678/example2

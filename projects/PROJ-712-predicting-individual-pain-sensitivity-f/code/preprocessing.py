@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import mne
 import numpy as np
+import pandas as pd
 from scipy.signal import welch
 
 # Import the data loader type used by the pipeline
@@ -138,12 +139,9 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
         if lbl == prev_label:
             current_len += 1
         else:
-            # Record the finished segment
             durations_per_label[prev_label].append(current_len)
             occ_counter[prev_label] += 1
-            # Transition
             transition_matrix[prev_label, lbl] += 1
-            # Reset for new segment
             prev_label = lbl
             current_len = 1
 
@@ -172,9 +170,11 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     # ------------------------------------------------------------------
     # 6. Spectral power per band (average across channels and time)
     # ------------------------------------------------------------------
-    # Use Welch via MNE's helper (or fallback defined above)
     psds, freqs = psd_welch(raw, fmin=1.0, fmax=70.0, n_fft=int(sfreq * 2))
-    # psds shape: (n_channels, n_freqs)
+    # psds shape: (n_channels, n_freqs) or (n_epochs, n_channels, n_freqs)
+    if psds.ndim == 3:
+        # If epochs dimension present, average over epochs first
+        psds = psds.mean(axis=0)
     avg_psd = psds.mean(axis=0)  # shape (n_freqs,)
 
     # Define EEG bands exactly as required by the spec/tests
@@ -208,7 +208,7 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     for i, occ in enumerate(occurrence_rates):
         feature_dict[f"MS_{chr(65 + i)}_Occurrence"] = float(occ)
 
-    # Transition probabilities (flattened row‑major with underscore)
+    # Transition probabilities (flattened row‑major)
     for i in range(n_clusters):
         for j in range(n_clusters):
             feature_dict[f"Trans_{chr(65 + i)}_{chr(65 + j)}"] = float(trans_probs[i, j])
@@ -222,21 +222,44 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
 
     return feature_dict
 
-def preprocess_participant(participant_id: str, loader: EEGDataLoader) -> Dict[str, float]:
+def _load_participant_metadata(metadata_path: Path) -> pd.DataFrame:
+    """
+    Load the heat‑pain‑threshold CSV and return a DataFrame indexed by participant_id.
+    Expected columns: participant_id, heat_pain_threshold, age, gender
+    """
+    if not metadata_path.is_file():
+        raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
+    df = pd.read_csv(metadata_path, dtype=str)
+    required = {"participant_id", "heat_pain_threshold", "age", "gender"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Metadata CSV missing required columns: {missing}")
+    df = df.set_index("participant_id")
+    return df
+
+def preprocess_participant(participant_id: str, loader: EEGDataLoader,
+                           metadata_df: pd.DataFrame) -> Dict[str, Any]:
     """
     Load raw data for a single participant, run the full preprocessing
-    pipeline, and return the extracted feature dictionary.
+    pipeline, and return a dictionary containing all required columns
+    (metadata + 30 features + valid_eeg_minutes).
     """
     participant_dir = loader.data_path / participant_id
-    eeg_path = participant_dir / "eeg_data.npy"
-    ch_path = participant_dir / "channel_info.npy"
-    if not eeg_path.is_file() or not ch_path.is_file():
-        raise FileNotFoundError(f"EEG or channel info missing for {participant_id}")
+    if not participant_dir.is_dir():
+        raise FileNotFoundError(f"Participant directory not found: {participant_dir}")
 
-    data = np.load(eeg_path)  # shape (n_channels, n_times)
-    ch_names = np.load(ch_path).tolist()
-    info = mne.create_info(ch_names=ch_names, sfreq=500.0, ch_types="eeg")
-    raw = mne.io.RawArray(data, info)
+    # Find the first .fif (or .edf) file in the participant directory
+    eeg_file = None
+    for ext in (".fif", ".edf", ".set"):
+        candidates = list(participant_dir.glob(f"*{ext}"))
+        if candidates:
+            eeg_file = candidates[0]
+            break
+    if eeg_file is None:
+        raise FileNotFoundError(f"No supported EEG file found for participant {participant_id}")
+
+    # Load with preload=False to stream data
+    raw = mne.io.read_raw(eeg_file, preload=False, verbose=False)
 
     # Preprocessing steps
     raw = re_reference_to_mastoids(raw)
@@ -244,47 +267,82 @@ def preprocess_participant(participant_id: str, loader: EEGDataLoader) -> Dict[s
     ica, raw = apply_ica(raw)
     raw = find_and_remove_artifacts(ica, raw)
 
-    # Exclude participants with insufficient clean data (<4 min)
+    # Estimate clean duration
     valid_seconds = estimate_valid_duration(raw)
+
+    # Exclude participants with insufficient clean data (<4 min)
     if valid_seconds < 4 * 60:
         logger.warning(f"Participant {participant_id} excluded (only {valid_seconds:.1f}s clean data).")
         return {}
 
     # Feature extraction
     features = extract_microstate_features(raw)
-    return features
 
-def preprocess_all_participants(participant_ids: List[str], loader: EEGDataLoader) -> Dict[str, Dict[str, float]]:
+    # Assemble full row
+    row: Dict[str, Any] = {
+        "participant_id": participant_id,
+        "valid_eeg_minutes": round(valid_seconds / 60.0, 2),
+    }
+
+    # Add metadata (heat_pain_threshold, age, gender)
+    if participant_id not in metadata_df.index:
+        raise KeyError(f"Metadata for participant {participant_id} not found.")
+    meta = metadata_df.loc[participant_id]
+    row["heat_pain_threshold"] = meta["heat_pain_threshold"]
+    row["age"] = meta["age"]
+    row["gender"] = meta["gender"]
+
+    # Add the 30 microstate features
+    row.update(features)
+
+    return row
+
+def preprocess_all_participants(loader: EEGDataLoader) -> List[Dict[str, Any]]:
     """
-    Iterate over all participants, preprocess each, and collect their feature dictionaries.
-    Returns a mapping from participant ID to its feature dict.
+    Iterate over all participants, preprocess each, and collect the rows.
+    Returns a list of dictionaries ready for aggregation into a DataFrame.
     """
-    all_features: Dict[str, Dict[str, float]] = {}
-    for pid in participant_ids:
+    # Load metadata once
+    metadata_path = loader.data_path.parent / "raw" / "heat_pain_thresholds.csv"
+    metadata_df = _load_participant_metadata(metadata_path)
+
+    all_rows: List[Dict[str, Any]] = []
+    # Assume each subdirectory of data_path corresponds to a participant
+    for participant_dir in sorted(loader.data_path.iterdir()):
+        if not participant_dir.is_dir():
+            continue
+        participant_id = participant_dir.name
         try:
-            feats = preprocess_participant(pid, loader)
-            if feats:  # empty dict indicates exclusion
-                all_features[pid] = feats
+            row = preprocess_participant(participant_id, loader, metadata_df)
+            if row:
+                all_rows.append(row)
         except Exception as e:
-            logger.error(f"Error processing {pid}: {e}")
-    return all_features
+            logger.error(f"Error processing participant {participant_id}: {e}")
+
+    return all_rows
 
 def main():
     """CLI entry point for debugging the preprocessing pipeline."""
     import argparse
     parser = argparse.ArgumentParser(description="Run preprocessing on a dataset")
-    parser.add_argument("--data-dir", type=str, required=True, help="Root directory containing participant folders")
-    parser.add_argument("--output-dir", type=str, required=True, help="Directory to write aggregated feature matrix")
+    parser.add_argument("--data-dir", type=str, required=True,
+                        help="Root directory containing participant subfolders")
+    parser.add_argument("--output-dir", type=str, required=True,
+                        help="Directory to write aggregated feature matrix")
     args = parser.parse_args()
 
     loader = EEGDataLoader(Path(args.data_dir))
-    participant_ids = loader.get_participant_ids()
-    features = preprocess_all_participants(participant_ids, loader)
+    rows = preprocess_all_participants(loader)
 
+    if not rows:
+        logger.error("No participant data was processed successfully.")
+        return
+
+    # Convert to DataFrame and write CSV
+    df = pd.DataFrame(rows)
     output_path = Path(args.output_dir) / "feature_matrix.csv"
-    # Re‑use aggregation logic from the main pipeline
-    from main import aggregate_features
-    aggregate_features(features, output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
     print(f"Feature matrix written to {output_path}")
 
 if __name__ == "__main__":

@@ -5,13 +5,6 @@ T002:
 T003:
   task: 5b283e33a31125fd29132972ba3339c65dea6379be91e133a4589b2200494e8f
 T004:
-  reason: "`code/utils.py` exists and the tests pass, and seed pinning plus the `artifacts/log.txt`\
-    \ logger are genuinely implemented. However, the task explicitly requires `record_artifact_hash(filepath)`\
-    \ to \"compute a SHA\u2011256 hash and **return it**,\" but the implemented function\
-    \ returns `None` (it only writes the hash to a YAML state file); the hash value\
-    \ is never returned to the caller. Fix `record_artifact_hash` to return the computed\
-    \ SHA\u2011256 hex digest (e.g., `return hash_val`) while optionally keeping the\
-    \ YAML recording."
   task: c93643631e064438d0d9cb0f590950506ea5aa0aae21a8d458f82048ebd53381
 T005:
   task: a50ec9cda9ef833b88ac8f33054d9b03ed3a83b8e28eb0d7bcaa75e39e7d2082
@@ -20,6 +13,15 @@ T006:
 T007:
   task: 4920bb068637f0677080503775255f0cbbe75a85492856ce6325b89e0c093b96
 T008:
+  reason: "The repository contains `code/preprocessing.py`, but it does not stream\
+    \ data via the `DataChunk` loader, does not implement the required ICA\u2011based\
+    \ artifact rejection (no high\u2011kurtosis check), and does not correctly compute\
+    \ \u201Cvalid EEG minutes\u201D after ICA removal. Moreover, the required output\
+    \ file `data/processed/feature_matrix.csv` is absent and the integration test\
+    \ `tests/integration/test_full_preprocess.py` is missing, so the end\u2011to\u2011\
+    end verification cannot be performed. The next implementer must (1) use `DataChunk`\
+    \ for streaming, (2) implement the specified ICA component\u2011discard logic,\
+    \ (3) co"
   task: 4d9e307a5628ed47f1bdc08a1b27e98cd8c09ab328d77f34d09089d92d89b8b7
 T009:
   task: d15acfb92518449388d9be5127799de8585d5d70f0439206ec2e318047b8323a
