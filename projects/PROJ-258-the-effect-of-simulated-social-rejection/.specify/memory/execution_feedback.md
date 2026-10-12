@@ -41,7 +41,7 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 
 - python code/report.py --input results/analysis_output.json --output paper/report.md -> rc=1
 
-2026-10-12 01:40:15,837 - ERROR - Reporting pipeline failed: Analysis results file not found: results/analysis_output.json
+2026-10-12 10:15:32,063 - ERROR - Reporting pipeline failed: Analysis results file not found: results/analysis_output.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py", line 343, in <module>
     main()
@@ -69,7 +69,7 @@ E   ImportError: cannot import name 'MAX_RUNTIME_SECONDS' from 'performance_moni
 =========================== short test summary info ============================
 ERROR tests/test_performance.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.00s ===============================
+=============================== 1 error in 0.57s ===============================
 
 
 

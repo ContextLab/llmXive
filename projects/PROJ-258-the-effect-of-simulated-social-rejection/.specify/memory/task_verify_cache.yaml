@@ -1,13 +1,15 @@
 T001:
   c: true
-  h: 039ed911fe3b82787d5fc2c04b8ebd73021cfe36c8ed829433150b97f01145c6
+  h: 974e62e14ba353d265bb05287184132d61fc8e982de4999d5406db46f36a593e
   r: All required directories (`code/`, `data/raw/`, `data/interim/`, `data/processed/`,
-    `tests/`, `reports/`) exist, `code/__init__.py` and `tests/__init__.py` are present,
-    `requirements.txt` contains all six required packages (plus extras), and `quickstart.md`
-    documents both `pip install -r requirements.txt` and `python -m code.pipeline`.
-    The quickstart's note that the pipeline is a placeholder is acceptable since T001
-    only requires scaffolding and documentation, not pipeline implementation.
-  sig: 242bc5a672c0e2107494fd817dbd4f85d53517d22aceaa2f87e5d527a8d73079
+    `tests/`, `reports/`) exist with placeholder `__init__.py` files in `code/` and
+    `tests/`; `requirements.txt` contains all six required packages (pandas, numpy,
+    scipy, statsmodels, pyyaml, requests) plus extras; and `quickstart.md` documents
+    both `pip install -r requirements.txt` installation and pipeline usage. The only
+    minor deviation is that quickstart documents per-step script invocations rather
+    than the exact single command `python -m code.pipeline`, but `code/pipeline.py`
+    exists and the documented commands
+  sig: f30e652f76794abab481960a2ebc7884dfc7c312ca1338a77b21c3e54e0fe77d
 T002:
   c: true
   h: b86f67745bc1e257525d6115c2f5046f032d8fdc2957cd653943a281d8e83c4a
@@ -17,18 +19,6 @@ T002:
     The extra helpers and directory-creation side effect are harmless additions that
     don''t conflict with the requirements.'
   sig: 9695895221f9bd8385a835a525048d854805b83ef96c9183c2f5d6f0a370605c
-T003:
-  c: false
-  h: f326df69a3bf323807bc2ada38868cd41c7f2865ff0c637e2e44b7b6f3c6a6cc
-  r: "The provided `code/ingest.py` only accepts arbitrary `--dataset-url` arguments,\
-    \ performs a HEAD request on each URL, and writes a manifest for the single HuggingFace\u2011\
-    mirrored file that was actually downloaded. It never queries the OpenNeuro API\
-    \ for the specific datasets ds000208 and ds003392, does not sum file sizes across\
-    \ all files in each dataset, and the execution log shows only one URL being processed.\
-    \ Consequently the script does not download both required datasets nor produce\
-    \ a manifest containing two entries as stipulated. The task\u2019s core requirements\
-    \ are therefore unmet."
-  sig: 01cd2fd4f43c6c857e2131f4c641a1da022b9e3809725cdcd7758cafce987895
 T005:
   c: false
   h: 42cda291d0af7d3d6f638660b4845e5480478f65bdf4d56a787c87ccb1418328

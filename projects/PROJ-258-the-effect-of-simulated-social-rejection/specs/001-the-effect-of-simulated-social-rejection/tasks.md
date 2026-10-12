@@ -25,7 +25,7 @@
 
 ## Phase 3 – User Story 1: Data ingestion & design determination (US1)
 
-- [ ] **T003** [ ] [US1] In `code/ingest.py`: <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
+- [ ] **T003** [ ] [US1] In `code/ingest.py`: <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
   1. Query the OpenNeuro API for ds000208 (rejection) and ds003392 (reward), sum file sizes for each, and **halt with exit‑code 1** if either estimate > 7 GB.
   2. Stream‑download both datasets into `data/raw/` preserving their original filenames.
   3. Write `data/raw/dataset_manifest.json` containing an array of `{url, sha256: null, size_bytes, file_count, dataset_id}` entries.
