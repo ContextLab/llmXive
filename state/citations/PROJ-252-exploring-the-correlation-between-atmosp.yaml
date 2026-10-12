@@ -20,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://earthquake.usgs.gov/fdsnws/event/1/query
   verified_at: '2026-10-12T09:24:12.198290Z'
+- artifact_hash: 2f2464eb0f347d25ea04df0e06a659707f9482f425cd0ac61b733b81c0838cc9
+  artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://psl.noaa.gov/data/gridded/reanalysis/ncep.reanalysis.daily/pressure/
+  verification_status: mismatch
+  verified_against_url: https://psl.noaa.gov/data/gridded/reanalysis/ncep.reanalysis.daily/pressure/
+  verified_at: '2026-10-12T11:45:47.323440Z'
