@@ -1,22 +1,12 @@
 T001:
-  reason: "`quickstart.md` and `configs/run.yaml` exist with sensible content (command,\
-    \ Python 3.11, requirements.txt), but the task's third requirement \u2014 verifying\
-    \ that `python -m src.pipeline.run_all --config configs/run.yaml` prints an artifact\
-    \ summary and exits with status 0 \u2014 has no supporting evidence: no run log,\
-    \ captured output, or exit-code record is present, and the quickstart itself never\
-    \ documents the exit-status/summary behavior. Additionally, the quickstart contains\
-    \ broken commands (`python -m venv.venv`, `source.venv/bin/activate` \u2014 missing\
-    \ spaces) that would fail if followed literally. Th"
   task: 032d383888aec79d5bbd4bae3d760a7c79089cbfceb99c725da081b1168fda06
 T002:
-  reason: "The required files exist and are substantive, but the recorded execution\
-    \ of `tests/test_something_loader.py` FAILED (exit 1): `load_dataset(\"something-something-v2\"\
-    )` and the fallback both raised `DatasetNotFoundError`, so the test never loaded\
-    \ 5 videos or asserted non-empty frames \u2014 the core requirement is unmet.\
-    \ The loader also needs a working dataset source (e.g., a publicly accessible\
-    \ mirror or local copy) and its \"deterministic sampling\" is a probabilistic\
-    \ RNG filter rather than reproducible sampling; the test must actually pass with\
-    \ evidence."
+  reason: The provided `src/data/something_loader.py` cannot load the required dataset
+    (both identifier attempts raise `DatasetNotFoundError`), causing the unit test
+    `tests/test_something_loader.py` to fail during execution. Consequently the loader
+    does not successfully yield any video bytes/labels, and the test does not pass.
+    The task needs a working dataset load (or a mock/fake dataset for testing) and
+    a passing unit test.
   task: d5f6e56dbc464be34e26c171a27aecfac468412d176ea72b1ba5a2b1f98acc2a
 T003:
   reason: 'Requested task execution failed; rerun successfully: src/data/counterfactual.py

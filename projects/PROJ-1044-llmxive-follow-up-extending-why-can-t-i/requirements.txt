@@ -1,5 +1,4 @@
-torch==2.3.0
-torchvision==0.18.0
-# The rest of the environment (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) is
-# pre‑installed in the execution environment.
+datasets
+opencv-python
+torch
+torchvision

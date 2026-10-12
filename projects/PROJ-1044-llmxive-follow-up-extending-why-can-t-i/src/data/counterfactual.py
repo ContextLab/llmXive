@@ -73,29 +73,17 @@ def _write_bytes_to_file(data: bytes, dest: Path) -> None:
     dest.write_bytes(data)
 
 
-def _load_flow_feature(flow_dir: Path, video_stem: str) -> np.ndarray:
+def _compute_flow(video_path: Path) -> np.ndarray:
     """
-    Load a pre‑computed FlowNet‑C ``.npy`` feature if it exists;
-    otherwise compute a simple optical‑flow descriptor on‑the‑fly.
+    Compute a cheap dense optical‑flow descriptor for *video_path*.
+    Returns a 1‑D ``np.ndarray`` of average Farneback flow magnitudes,
+    matching the interface of pre‑computed ``.npy`` features.
     """
-    candidate = flow_dir / f"{video_stem}.npy"
-    if candidate.is_file():
-        return np.load(candidate)
-
-    # Fallback: compute a cheap dense optical‑flow descriptor.
-    # This ensures the pipeline never silently fabricates data.
-    # The descriptor is a flattened average of Farneback flow magnitudes.
-    video_path = flow_dir.parent.parent / "tmp_videos" / f"{video_stem}.mp4"
-    if not video_path.is_file():
-        raise FileNotFoundError(
-            f"Neither pre‑computed flow nor video found for {video_stem}"
-        )
-
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
-        raise RuntimeError(f"Cannot open video for on‑the‑fly flow: {video_path}")
+        raise RuntimeError(f"Cannot open video for flow computation: {video_path}")
 
-    flows: List[np.ndarray] = []
+    flows: List[float] = []
     ret, prev = cap.read()
     if not ret:
         cap.release()
@@ -126,8 +114,21 @@ def _load_flow_feature(flow_dir: Path, video_stem: str) -> np.ndarray:
     if not flows:
         raise RuntimeError(f"No flow frames computed for {video_path}")
 
-    # Return as a 1‑D array to keep the same interface as pre‑computed features.
     return np.array(flows, dtype=np.float32)
+
+
+def _load_flow_feature(flow_dir: Path, video_stem: str, fallback_video: Path) -> np.ndarray:
+    """
+    Load a pre‑computed FlowNet‑C ``.npy`` feature if it exists;
+    otherwise compute a simple optical‑flow descriptor on‑the‑fly using
+    *fallback_video*.
+    """
+    candidate = flow_dir / f"{video_stem}.npy"
+    if candidate.is_file():
+        return np.load(candidate)
+
+    # Fallback to on‑the‑fly computation.
+    return _compute_flow(fallback_video)
 
 
 def _normalized_l2_divergence(orig: np.ndarray, cf: np.ndarray) -> float:
@@ -184,6 +185,7 @@ class CounterfactualGenerator:
         """
         Run Faster‑RCNN on *frame* and return the bounding box
         (x1, y1, x2, y2) of the highest‑scoring detection.
+        If no detections are returned, fall back to the whole frame.
         """
         img_tensor = (
             torch.from_numpy(frame[..., ::-1].copy())
@@ -196,13 +198,17 @@ class CounterfactualGenerator:
         with torch.no_grad():
             outputs = self.detector(img_tensor)[0]
 
-        if not outputs["boxes"]:
-            raise RuntimeError("No detections returned by Faster‑RCNN.")
+        boxes = outputs["boxes"]
+        scores = outputs["scores"]
 
-        scores = outputs["scores"].cpu().numpy()
-        boxes = outputs["boxes"].cpu().numpy()
-        best_idx = int(np.argmax(scores))
-        x1, y1, x2, y2 = boxes[best_idx].astype(int)
+        if boxes is None or len(boxes) == 0:
+            h, w = frame.shape[:2]
+            return 0, 0, w, h
+
+        scores_np = scores.cpu().numpy()
+        boxes_np = boxes.cpu().numpy()
+        best_idx = int(np.argmax(scores_np))
+        x1, y1, x2, y2 = boxes_np[best_idx].astype(int)
         return x1, y1, x2, y2
 
     def _select_random_patch(self) -> np.ndarray:
@@ -266,7 +272,7 @@ class CounterfactualGenerator:
             cap.release()
             raise RuntimeError(f"Failed to read first frame of {video_path}")
 
-        # 1️⃣ Detect primary object
+        # 1️⃣ Detect primary object (with fallback)
         try:
             bbox = self._detect_primary_bbox(first_frame)
         except Exception as exc:
@@ -314,9 +320,10 @@ class CounterfactualGenerator:
 
         # 5️⃣ Load (or compute) optical‑flow tensors and compute divergence
         stem = video_path.stem
+        cf_stem = f"{stem}_cf"
         try:
-            flow_orig = _load_flow_feature(self.flow_dir, stem)
-            flow_cf = _load_flow_feature(self.flow_dir, f"{stem}_cf")
+            flow_orig = _load_flow_feature(self.flow_dir, stem, video_path)
+            flow_cf = _load_flow_feature(self.flow_dir, cf_stem, out_path)
         except Exception as exc:
             log.warning(f"[{video_id}] flow loading/computation failed: {exc}")
             out_path.unlink(missing_ok=True)

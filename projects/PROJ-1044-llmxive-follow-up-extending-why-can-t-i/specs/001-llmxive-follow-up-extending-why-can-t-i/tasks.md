@@ -7,7 +7,7 @@ The tasks below respect data‑flow dependencies, stay within the free‑tier CP
 
 ---  
 
-- [ ] **T001** [US1] **Create a reproducible entry‑point and quick‑start guide**  
+- [X] **T001** [US1] **Create a reproducible entry‑point and quick‑start guide**  
   - Add `quickstart.md` in the feature root describing a single command `python -m src.pipeline.run_all --config configs/run.yaml`.  
   - Document required environment (Python 3.11, dependencies from `requirements.txt`).  
   - Verify that the command prints a summary of generated artifacts and exits with status 0.  
