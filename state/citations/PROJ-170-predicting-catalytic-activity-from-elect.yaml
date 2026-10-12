@@ -1,14 +1,3 @@
-- artifact_hash: 94b89749b83e4037f2572e3339369c184e2a17494e777da5b809d8b9bdaba553
-  artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1038/s41586-025-00000-x
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1038/s41586-025-00000-x
-  verified_at: '2026-07-10T15:15:05.887298Z'
 - artifact_hash: 025e37bd45ff17de2bb03d344cafedc3212d537f1b764348b546f6493360167b
   artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/plan.md
   cite_id: c-001
@@ -31,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/Open-Catalyst/oc20-experimental
   verified_at: '2026-08-04T00:26:33.509077Z'
+- artifact_hash: a0a9303c54e3cb0f08cc34c78400471a84d9cb5510444ee9f5a44045069fbd4b
+  artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/co2_hydrogenation_2025
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/co2_hydrogenation_2025
+  verified_at: '2026-10-12T23:37:25.750804Z'
