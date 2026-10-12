@@ -1,10 +1,12 @@
 T101:
   c: false
-  h: ec7300cb8d961c1def55ccc46b5f6c21f9f8329f52a80afc3ccf0552783fcf40
-  r: "The `code/__init__.py` file contains a docstring rather than being empty, violating\
-    \ the \u201Cempty\u202F__init__.py\u201D requirement, and there is no execution\
-    \ log showing that `ruff check --config=.ruff.toml .` ran successfully."
-  sig: b2f3d74f9476add85c1a7975b438bfc5dd6526ff975ac1d0a341129ca6336bf0
+  h: bfe584865b009a245016c74f4de2b515caed53e7a4afdeb4b8520d5b4c21431e
+  r: The required directories and empty `__init__.py` files exist and the integration
+    test passes, and a valid `.ruff.toml` is present, but there is no recorded execution
+    (e.g., a log or command output) showing `ruff check --config=.ruff.toml .` running
+    successfully without configuration errors. Provide evidence that the Ruff command
+    was executed and passed.
+  sig: 21cb386ae6d15e32dc6bfeadcd0700107e632504d9e2f5ef1280e46ae6179166
 T102:
   c: false
   h: b7c7499dd168f82508a4256343673a311caeeb11508cf2815253c6be54bd8d27
@@ -41,6 +43,17 @@ T105:
     are missing, so the training pipeline has not produced the saved model or the
     metrics file needed to satisfy the task.
   sig: a1028e203df0283b94b170cc13bcce09a7d2017060e43cfb4143db125d32c0f8
+T106:
+  c: false
+  h: 7730fff93adbb5c99722365e0661c28d995d9ffe8d056d84d725b9cbcc96b603
+  r: "The required model file `code/models/best_xgboost.json` is missing, and consequently\
+    \ the script cannot run to produce `outputs/feature_importance.png` and `outputs/sc003_verification.json`.\
+    \ Both output artifacts are also absent, and a unit test (`test_sc003_ratio_fail`)\
+    \ fails due to a strict equality check on the ratio. The missing model and outputs\
+    \ must be added and the verification JSON must contain the `ratio` and `SC-003_status`\
+    \ fields (with a passing ratio \u2265\u202F0.50) for the task to be considered\
+    \ complete."
+  sig: 905a84ff02995a4a00639a5db861b9eb98ad8df6ea9fab3e954b3a1283169f53
 T107:
   c: false
   h: c8ac281759655b48b7b41bac1893960e50d5f5c6cbdbef765b23c86d1413e189
