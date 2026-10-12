@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Acquisition and Preprocessing (Priority: P1)
+### User Story 1 - Data Acquisition and Preprocessing (Priority: P1) (US-1)
 
 The system must successfully acquire a stratified sample of high-quality GitHub repositories, extract pull request metadata (timestamps, file changes), and generate synthetic LLM-equivalent code snippets for a subset of commits using natural language prompts derived from commit messages to create a comparable dataset.
 
@@ -19,13 +19,13 @@ The system must successfully acquire a stratified sample of high-quality GitHub 
 
 1. **Given** a list of target repositories with ≥1,000 stars, **When** the data acquisition script runs, **Then** the system downloads commit history and PR metadata via the GitHub REST API and stores them in a local CSV/Parquet format without exceeding API rate limits.
 2. **Given** a stratified random subset of human-written commits, **When** the LLM injection script runs using a CPU-tractable model (e.g., CodeLlama) with prompts derived from commit messages, **Then** equivalent synthetic code snippets are generated and stored separately, tagged with their source commit ID.
-3. **Given** the raw repository data, **When** the feature extraction script runs, **Then** review timestamps (first comment, approval, merge), file size (LOC), cyclomatic complexity (via `radon`), and semantic similarity scores (via code embeddings) are calculated and appended to the dataset.
+3. **Given** the raw repository data, **When** the feature extraction script runs, **Then** review timestamps (first comment, approval, merge), file size (LOC), cyclomatic complexity (via `radon`), semantic similarity scores (via code embeddings), and CI build duration are calculated and appended to the dataset.
 
 ---
 
-### User Story 2 - Propensity Score Matching and Analysis (Priority: P2)
+### User Story 2 - Propensity Score Matching and Analysis (Priority: P2) (US-2)
 
-The system must pair LLM-generated code commits with human-written commits using propensity score matching on file size, cyclomatic complexity, repository activity level, and semantic similarity, then perform statistical testing (paired t-test or Mann-Whitney U) to determine if review times differ significantly.
+The system must pair LLM-generated code commits with human-written commits using propensity score matching on file size, cyclomatic complexity, repository activity level, semantic similarity, and CI build time, then perform statistical testing (paired t-test or Mann-Whitney U) to determine if review times differ significantly.
 
 **Why this priority**: This implements the core research hypothesis. It transforms the raw data into a statistical result, controlling for confounding variables as specified in the methodology.
 
@@ -33,31 +33,31 @@ The system must pair LLM-generated code commits with human-written commits using
 
 **Acceptance Scenarios**:
 
-1. **Given** the dataset containing both human and LLM code commits with extracted features, **When** the matching algorithm runs, **Then** pairs are formed such that the mean difference in file size, complexity, repository activity, and semantic similarity between groups is < 5% (standardized mean difference < 0.1).
-2. **Given** the matched pairs, **When** the statistical analysis runs, **Then** the system automatically selects the appropriate test (paired t-test if Shapiro-Wilk p > 0.05, otherwise Mann-Whitney U) and outputs a p-value and Cohen's d effect size.
+1. **Given** the dataset containing both human and LLM code commits with extracted features, **When** the matching algorithm runs, **Then** pairs are formed such that the standardized mean difference (SMD) for all covariates is < 0.1 (equivalent to < 10 % mean difference).  
+2. **Given** the matched pairs, **When** the statistical analysis runs, **Then** the system automatically selects the appropriate test (paired t-test if Shapiro‑Wilk p > 0.05, otherwise Mann‑Whitney U) and outputs a p-value and Cohen's d effect size.  
 3. **Given** the test results, **When** the significance check runs, **Then** the system flags the result as "statistically significant" only if p < 0.05.
 
 ---
 
-### User Story 3 - Sensitivity Analysis and Visualization (Priority: P3)
+### User Story 3 - Sensitivity Analysis and Visualization (Priority: P3) (US-3)
 
-The system must perform a sensitivity analysis by repeating the statistical test across at least 5 distinct subsets stratified by repository star-count quartiles, and generate box plots and CDF curves comparing review-time distributions.
+The system must perform a sensitivity analysis by repeating the statistical test across 4 distinct subsets stratified by repository star‑count quartiles, and generate box plots and CDF curves comparing review‑time distributions.
 
 **Why this priority**: This ensures the robustness of the findings and provides the necessary visual evidence for the research paper, fulfilling the "generalizability" requirement of the methodology.
 
-**Independent Test**: The visualization script can be run on the analysis output to generate the required plots (box plots, CDFs) and verify that the sensitivity sweep produces distinct, non-overlapping result sets.
+**Independent Test**: The visualization script can be run on the analysis output to generate the required plots (box plots, CDFs) and verify that the sensitivity sweep produces distinct, non‑overlapping result sets.
 
 **Acceptance Scenarios**:
 
-1. **Given** the primary analysis results, **When** the sensitivity analysis runs, **Then** the system repeats the statistical test across at least 5 distinct subsets (stratified by star-count quartiles) and reports if the p-value remains < 0.05 in at least 80% of subsets.
-2. **Given** the full dataset, **When** the visualization module runs, **Then** it generates a box plot and a Cumulative Distribution Function (CDF) curve comparing the review time distributions of human vs. LLM code.
-3. **Given** the analysis output, **When** the report generation runs, **Then** a summary PDF/HTML is produced containing the p-value, effect size, and the generated visualizations.
+1. **Given** the primary analysis results, **When** the sensitivity analysis runs, **Then** the system repeats the statistical test across the 4 quartile‑based subsets and reports if the p‑value remains < 0.05 in at least 80 % of subsets.  
+2. **Given** the full dataset, **When** the visualization module runs, **Then** it generates a box plot and a Cumulative Distribution Function (CDF) curve comparing the review time distributions of human vs. LLM code.  
+3. **Given** the analysis output, **When** the report generation runs, **Then** a summary PDF/HTML is produced containing the p‑value, effect size, and the generated visualizations.
 
 ---
 
-### User Story 4 - Prompt-Based Generation Cohort Validation (Priority: P2)
+### User Story 4 - Prompt-Based Generation Cohort Validation (Priority: P2) (US-4)
 
-The system must generate a second cohort of LLM code using natural language prompts (derived from commit messages) rather than context-based rewriting, to isolate the effect of "LLM generation from scratch" vs. "human code".
+The system must generate a second cohort of LLM code using natural language prompts (derived from commit messages) rather than context‑based rewriting, to isolate the effect of "LLM generation from scratch" vs. "human code".
 
 **Why this priority**: This addresses the scientific soundness concern that the original design conflated "synthetic rewrite" with "LLM generation". This cohort validates the causal claim.
 
@@ -65,18 +65,18 @@ The system must generate a second cohort of LLM code using natural language prom
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of commit messages, **When** the prompt-based generation script runs, **Then** the system generates code snippets without access to the original file content (only the prompt) and stores them with a "prompt-based" tag.
-2. **Given** the prompt-based cohort, **When** the matching algorithm runs, **Then** these snippets are matched against human code using the same covariates (size, complexity, activity, semantic similarity) to form a valid comparison group.
+1. **Given** a set of commit messages, **When** the prompt‑based generation script runs, **Then** the system generates code snippets without access to the original file content (only the prompt) and stores them with a "prompt‑based" tag.  
+2. **Given** the prompt‑based cohort, **When** the matching algorithm runs, **Then** these snippets are matched against human code using the same covariates (size, complexity, activity, semantic similarity, CI build time) to form a valid comparison group.
 
 ---
 
 ### Edge Cases
 
-- **What happens when** the GitHub API rate limit is exceeded during data acquisition?
+- **What happens when** the GitHub API rate limit is exceeded during data acquisition?  
   - The system must implement an exponential backoff strategy with a maximum retry count that is configurable before halting and logging a "Rate Limit Exceeded" error, ensuring no partial data is used.
-- **How does system handle** repositories where the `radon` complexity metric fails (e.g., syntax errors in the code)?
+- **How does system handle** repositories where the `radon` complexity metric fails (e.g., syntax errors in the code)?  
   - The system must skip the specific file, log a warning, and exclude that file from the matching process to prevent crashes, ensuring the dataset remains valid.
-- **What happens when** the LLM generation fails for a specific code snippet (e.g., timeout or empty output)?
+- **What happens when** the LLM generation fails for a specific code snippet (e.g., timeout or empty output)?  
   - The system must retry generation up to 3 times; if it still fails, the specific commit is excluded from the LLM group, and the matching process proceeds with the remaining valid samples. Each generation attempt must have a timeout of 60 seconds.
 
 ## Requirements
@@ -84,43 +84,43 @@ The system must generate a second cohort of LLM code using natural language prom
 ### Functional Requirements
 
 - **FR-001**: System MUST download GitHub repository metadata and commit history for repositories with ≥1,000 stars and ≥100 pull requests via the GitHub REST API. (See US-1)
-- **FR-002**: System MUST generate synthetic code snippets for a stratified random subset of commits using a CPU-tractable LLM (e.g., CodeLlama) without requiring GPU acceleration, with a generation time ≤ 30 seconds per snippet on a standard 2 vCPU runner. (See US-1)
-- **FR-003**: System MUST extract review timestamps (first comment, approval, merge), file size (LOC), cyclomatic complexity, and semantic similarity scores for each pull request. (See US-1)
-- **FR-004**: System MUST perform propensity score matching to pair LLM-generated code with human-written code based on file size, cyclomatic complexity, repository activity level, and semantic similarity. The system MUST fail the matching step and report an error if the mean difference in any covariate exceeds 5% (standardized mean difference < 0.1) after 3 retry attempts with adjusted propensity scores. (See US-2)
-- **FR-005**: System MUST execute the appropriate statistical test (paired t-test or Mann-Whitney U) based on normality checks (Shapiro-Wilk) and output p-values and effect sizes. (See US-2)
-- **FR-006**: System MUST perform a sensitivity analysis by repeating the statistical test across at least 5 distinct subsets stratified by repository star-count quartiles and report consistency of significance. (See US-3)
-- **FR-007**: System MUST generate visualizations (box plots and CDF curves) comparing review-time distributions for human vs. LLM code. (See US-3)
-- **FR-008**: System MUST generate a "Prompt-Based" cohort of LLM code using natural language prompts derived from commit messages, without access to the original file content, to validate the causal claim. (See US-4)
+- **FR-002**: System MUST generate synthetic code snippets for a stratified random subset of commits using a CPU‑tractable LLM (e.g., CodeLlama) without requiring GPU acceleration, with a generation time ≤ 30 seconds per snippet on a standard 2 vCPU runner. (See US-1)
+- **FR-003**: System MUST extract review timestamps (first comment, approval, merge), compute `review_effort_duration` (time from first reviewer comment to merge), compute `total_review_duration` (time from PR creation to merge), compute `ci_build_time` (CI duration), file size (LOC), cyclomatic complexity, and semantic similarity scores for each pull request. (See US-1)
+- **FR-004**: System MUST perform propensity score matching to pair LLM‑generated code with human‑written code based on file size, cyclomatic complexity, repository activity level, semantic similarity, and CI build time. The system MUST fail the matching step and report an error if the standardized mean difference for any covariate exceeds **0.1** (i.e., > 10 %) after 3 retry attempts with adjusted propensity scores. This bound is the single, consistent threshold for covariate balance. (See US-2)
+- **FR-005**: System MUST execute the appropriate statistical test (paired t-test or Mann‑Whitney U) based on normality checks (Shapiro‑Wilk) and output p‑values and effect sizes. (See US-2)
+- **FR-006**: System MUST perform a sensitivity analysis by repeating the statistical test across several distinct subsets stratified by repository star-count quartiles and report consistency of significance. (See US-3)
+- **FR-007**: System MUST generate visualizations (box plots and CDF curves) comparing review‑time distributions for human vs. LLM code. (See US-3)
+- **FR-008**: System MUST generate a "Prompt‑Based" cohort of LLM code using natural language prompts derived from commit messages, without access to the original file content, to validate the causal claim. (See US-4)
 - **FR-009**: System MUST compute a semantic similarity score (using code embeddings) for every code snippet to be used as a covariate in matching. (See US-1)
-- **FR-010**: System MUST generate a "Covariate Balance Report" that lists the standardized mean differences for all covariates (file size, complexity, repository activity, semantic similarity) and flags the match as valid only if all differences are < 0.1. (See US-2)
+- **FR-010**: System MUST generate a "Covariate Balance Report" that lists the standardized mean differences for all covariates (file size, complexity, repository activity, semantic similarity, CI build time) and flags the match as valid only if all differences are < 0.1. (See US-2)
+- **FR-011**: System MUST ensure that ≥ 95 % of prompt‑based generated code snippets are syntactically valid; failures beyond this threshold must be reported and cause the cohort generation step to halt. (See US-4)
+- **FR-012**: System MUST use `review_effort_duration` as the primary outcome metric for testing the hypothesis that LLM‑generated code incurs longer review latency, and it MUST also record `total_review_duration` for secondary analysis. (See US-2)
 
 ### Key Entities
 
-- **PullRequest**: Represents a GitHub PR, containing attributes: `pr_id`, `repo_id`, `author_type` (human/llm), `review_duration` (time from open to merge), `file_size` (LOC), `complexity_score`, `semantic_similarity_score`.
-- **CodeSnippet**: Represents the code artifact, containing attributes: `snippet_id`, `source_commit`, `generation_source` (human/llm/prompt-based), `complexity_metrics`, `semantic_similarity_score`.
-- **MatchedPair**: Represents a statistical unit, containing attributes: `pair_id`, `human_pr_ref`, `llm_pr_ref`, `complexity_diff`, `size_diff`, `activity_diff`, `semantic_diff`, `balance_verified` (boolean).
+- **PullRequest**: Represents a GitHub PR, containing attributes: `pr_id`, `repo_id`, `author_type` (human/llm), `review_duration` (time from PR creation to merge), `review_effort_duration` (time from first reviewer comment to merge), `ci_build_time`, `file_size` (LOC), `complexity_score`, `semantic_similarity_score`.
+- **CodeSnippet**: Represents the code artifact, containing attributes: `snippet_id`, `source_commit`, `generation_source` (human/llm/prompt‑based), `complexity_metrics`, `semantic_similarity_score`.
+- **MatchedPair**: Represents a statistical unit, containing attributes: `pair_id`, `human_pr_ref`, `llm_pr_ref`, `complexity_diff`, `size_diff`, `activity_diff`, `semantic_diff`, `ci_build_diff`, `balance_verified` (boolean).
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Review time differential (mean difference in duration) is measured against the baseline of human-written code review times. (See US-2)
-- **SC-002**: Statistical significance (p-value) is measured against the threshold of p < 0.05 to determine if the observed difference is non-random. (See US-2)
+- **SC-001**: `review_effort_duration` (time from first reviewer comment to merge) is measured against the baseline of human‑written code review effort. (See US-2)
+- **SC-002**: Statistical significance (p‑value) is measured against the threshold of p < 0.05 to determine if the observed difference is non‑random. (See US-2)
 - **SC-003**: Effect size (Cohen's d) is measured against standard benchmarks for small, medium, and large effects to quantify practical magnitude. (See US-2)
-- **SC-004**: Matching quality (covariate balance) is measured against a threshold where the standardized mean difference in all covariates (file size, complexity, activity, semantic similarity) is < 0.1. (See US-2)
-- **SC-005**: Sensitivity consistency is measured against the requirement that statistical significance (p < 0.05) is maintained in ≥ 80% of repository subsets. (See US-3)
-- **SC-006**: Computational feasibility is measured against the constraint that the entire pipeline executes within 6 hours on a GitHub Actions ubuntu-latest runner (2 vCPU, 7GB RAM). (See US-1)
-- **SC-007**: Prompt-based cohort validity is measured against the requirement that the generated code is syntactically valid in ≥ 95% of attempts. (See US-4)
+- **SC-004**: Matching quality (covariate balance) is measured against a threshold where the standardized mean difference in all covariates (file size, complexity, activity, semantic similarity, CI build time) is < 0.1. (See US-2)
+- **SC-005**: Sensitivity consistency is measured against the requirement that statistical significance (p < 0.05) is maintained in ≥ 80 % of repository subsets. (See US-3)
+- **SC-006**: Computational feasibility is measured against the constraint that the entire pipeline executes within 6 hours on a GitHub Actions ubuntu‑latest runner (2 vCPU, 7 GB RAM). (See US-1)
+- **SC-007**: Prompt‑based cohort validity is measured against the requirement that the generated code is syntactically valid in ≥ 95 % of attempts. (See US-4)
 
 ## Assumptions
 
 - **Assumption about data availability**: The GitHub repositories selected (≥1,000 stars) contain sufficient review history (≥100 PRs) and clear commit metadata to allow for accurate extraction of review timestamps and file changes.
-- **Assumption about model capability**: A CPU-tractable open-source model (e.g., CodeLlama or similar) can generate syntactically valid code snippets from natural language prompts that are semantically comparable to the human-written originals within a feasible compute window.
-- **Assumption about API constraints**: The GitHub REST API rate limits (sufficient for unauthenticated and authenticated access) are sufficient to download the metadata for the target number of repositories and PRs without requiring a paid token or exceeding the 6-hour job limit, provided the system implements exponential backoff.
+- **Assumption about model capability**: A CPU‑tractable open‑source model (e.g., CodeLlama or similar) can generate syntactically valid code snippets from natural language prompts that are semantically comparable to the human‑written originals within a feasible compute window.
+- **Assumption about API constraints**: The GitHub REST API rate limits (sufficient for unauthenticated and authenticated access) are sufficient to download the metadata for the target number of repositories and PRs without requiring a paid token or exceeding the 6‑hour job limit, provided the system implements exponential backoff.
 - **Assumption about complexity metric**: The `radon` Python package provides a valid and consistent measure of cyclomatic complexity for the diverse codebases in the dataset, and its calculation time is negligible compared to the overall pipeline.
 - **Assumption about semantic similarity**: Code embeddings (e.g., from CodeBERT) provide a valid and consistent measure of semantic similarity for the diverse codebases in the dataset, and its calculation time is negligible compared to the overall pipeline.
-- **Assumption about review time definition**: "Review time" is defined as the duration from the PR creation timestamp to the merge timestamp, and this metric is a valid proxy for the effort required to review the code.
+- **Assumption about review effort definition**: `review_effort_duration` (first reviewer comment → merge) is a valid proxy for the actual reviewer effort, isolating it from CI build time and merge‑queue latency, and aligns with the research question concerning review latency.
