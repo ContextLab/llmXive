@@ -1,19 +1,19 @@
 status: none
-intent: GitHub repositories GHTorrent GitHub Archive BigQuery GitHub CodeXGLUE HumanEval
-  CodeBERT python package dataset
+intent: GitHub repositories CodeSearchNet CodeBERT The Stack LLM generated code python
+  package dataset
 required_fields:
-- repository_full_name
-- repository_url
-- primary_language
-- stars
-- last_commit_date
-- recent_commit_count
-- code_block_id
+- repository_id
+- repository_name
+- repo_url
 - file_path
+- code_block
 - start_line
 - end_line
-- code_snippet
-- llm_human_label
-cache_key: c0512af330e420261077db7f6e8bc804e5f9eed1f6020cac279d966a1728024c
-searched_at: '2026-10-12T18:25:56.112608+00:00'
+- language
+- label
+- confidence_score
+- cyclomatic_complexity
+- nesting_depth
+cache_key: 4fe31eed8c0ac65fc950e79cc0685e6518363f7f47bb89bfd758bb71abd0c834
+searched_at: '2026-10-12T19:18:54.783334+00:00'
 retry_count: 1

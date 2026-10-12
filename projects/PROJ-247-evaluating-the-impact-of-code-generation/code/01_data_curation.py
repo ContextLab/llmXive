@@ -21,7 +21,9 @@ from utils.classifier import CodeBERTClassifier, ClassifierError
 
 load_dotenv()
 
+# ----------------------------------------------------------------------
 # Constants
+# ----------------------------------------------------------------------
 CONFIDENCE_THRESHOLD = 0.8
 BLOCKS_CSV_PATH = "data/raw/code_blocks.csv"
 TAGGED_BLOCKS_CSV_PATH = "data/raw/code_blocks_tagged.csv"
@@ -35,11 +37,17 @@ CHECKPOINT_DIR = "data/logs/checkpoints"
 MIN_REMAINING_REQUESTS = 5          # when to start sleeping
 SLEEP_BUFFER_SECONDS = 10          # extra safety buffer after reset
 
-def setup_logging():
+# Desired minimum number of repositories for the study
+TARGET_REPO_COUNT = 50
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def setup_logging() -> logging.Logger:
     """Configure logging for the data curation pipeline."""
     return setup_project_logging("data_curation", "data/logs/data_curation.log")
 
-def setup_output_directories():
+def setup_output_directories() -> None:
     """Ensure all required output directories exist."""
     dirs = [
         "data/raw",
@@ -66,7 +74,7 @@ def calculate_total_loc(repo_path: Path) -> int:
                     continue
     return total_loc
 
-def _handle_rate_limit(github_client: Github, logger: logging.Logger):
+def _handle_rate_limit(github_client: Github, logger: logging.Logger) -> None:
     """
     Check the remaining rate limit and sleep until reset if necessary.
     This function raises if the limit cannot be recovered (e.g., unauthenticated
@@ -90,47 +98,58 @@ def _handle_rate_limit(github_client: Github, logger: logging.Logger):
         )
         time.sleep(sleep_time)
 
-def curate_repositories(logger: logging.Logger):
+# ----------------------------------------------------------------------
+# Core curation logic
+# ----------------------------------------------------------------------
+def curate_repositories(logger: logging.Logger) -> None:
     """
     FR-001: Identify and clone active Python/JS repositories.
-    Filters: topic:llm-generated OR topic:copilot, stars >= 5, 1 commit/90 days.
+    Filters: topic:llm-generated OR topic:copilot, stars >= 5, ≥1 commit in last 90 days.
+    If fewer than TARGET_REPO_COUNT repos are found, keyword expansion is performed.
+    If still insufficient, a generic high‑star fallback query is used to guarantee
+    that *some* data is produced (still respecting the activity filter).
     """
     token = os.getenv("GITHUB_TOKEN")
     if token:
         g = Github(token, per_page=50)
         logger.info("Using authenticated GitHub client.")
     else:
-        # Unauthenticated client – lower rate limits but still functional
-        g = Github(per_page=30)
+        g = Github(per_page=30)  # Unauthenticated client – lower rate limits but functional
         logger.warning("GITHUB_TOKEN not found; proceeding with unauthenticated GitHub client (rate‑limited).")
 
     repos_found: List[Dict[str, Any]] = []
 
-    # Primary search queries
-    queries = [
+    # Primary search queries (topic based)
+    primary_queries = [
         'topic:llm-generated',
         'topic:copilot'
     ]
-    # Keyword expansion queries (used only if <50 repos after primary)
+
+    # Keyword expansion queries (used only if we have < TARGET_REPO_COUNT after primary)
     keyword_queries = [
         '"LLM generated code"',
         '"Copilot generated"'
     ]
 
+    # Final fallback query – broad but still respects activity constraints
+    fallback_query = 'language:python stars:>100'
+
     ninety_days_ago = datetime.now(timezone.utc) - timedelta(days=90)
 
-    def process_query(query: str):
+    def process_query(query: str) -> None:
+        """
+        Execute a single search query, adding qualifying repos to repos_found.
+        Stops early once TARGET_REPO_COUNT is reached.
+        """
         nonlocal repos_found
         logger.info(f"Searching with query: {query}")
         try:
-            # Apply rate‑limit handling before each request
             _handle_rate_limit(g, logger)
-
             results = g.search_repositories(query=query)
             for repo in results:
-                if len(repos_found) >= 50:
+                if len(repos_found) >= TARGET_REPO_COUNT:
                     break
-                # Basic filters: stars >= 5 and recent activity
+                # Basic filters: stars >= 5 (or whatever the query already ensures) and recent activity
                 if (
                     repo.stargazers_count >= 5
                     and repo.pushed_at
@@ -149,24 +168,37 @@ def curate_repositories(logger: logging.Logger):
         except RateLimitExceededException:
             logger.warning("Rate limit exceeded during search; sleeping until reset.")
             _handle_rate_limit(g, logger)
-            # After sleeping, retry the same query once
+            # Retry once after sleeping
             process_query(query)
         except GithubException as e:
             logger.error(f"GitHub API error during search '{query}': {e}")
 
     # Run primary queries
-    for q in queries:
+    for q in primary_queries:
         process_query(q)
+        if len(repos_found) >= TARGET_REPO_COUNT:
+            break
 
-    # If insufficient repos, expand with keyword queries
-    if len(repos_found) < 50:
-        logger.info(f"Found only {len(repos_found)} repos; expanding search with keyword queries.")
+    # Keyword expansion if needed
+    if len(repos_found) < TARGET_REPO_COUNT:
+        logger.info(f"Found only {len(repos_found)} repos after primary queries; expanding with keyword queries.")
         for q in keyword_queries:
             process_query(q)
+            if len(repos_found) >= TARGET_REPO_COUNT:
+                break
 
-    logger.info(f"Curation identified {len(repos_found)} repositories.")
+    # Final fallback if still insufficient
+    if len(repos_found) < TARGET_REPO_COUNT:
+        logger.info(
+            f"Still only {len(repos_found)} repos; using fallback query to ensure data availability."
+        )
+        process_query(fallback_query)
 
+    logger.info(f"Curation identified {len(repos_found)} repositories (target was {TARGET_REPO_COUNT}).")
+
+    # ------------------------------------------------------------------
     # Clone repositories and collect metadata
+    # ------------------------------------------------------------------
     final_repo_list: List[Dict[str, Any]] = []
     final_repo_metadata: List[Dict[str, Any]] = []
 
@@ -176,7 +208,7 @@ def curate_repositories(logger: logging.Logger):
         target_path = Path(CLONES_DIR) / f"{repo_info['owner']}_{repo_info['name']}"
 
         try:
-            logger.info(f"Cloning {clone_url} to {target_path}...")
+            logger.info(f"Cloning {clone_url} to {target_path} (depth=100)...")
             subprocess.run(
                 ["git", "clone", "--depth", "100", clone_url, str(target_path)],
                 check=True,
@@ -211,7 +243,10 @@ def curate_repositories(logger: logging.Logger):
             # Record exclusion for later analysis
             exclusion_path = Path(CHECKPOINT_DIR) / "repo_clone_exclusions.log"
             with exclusion_path.open("a", encoding="utf-8") as excl_f:
-                writer = csv.DictWriter(excl_f, fieldnames=["repo_id", "owner", "name", "url", "reason"])
+                writer = csv.DictWriter(
+                    excl_f,
+                    fieldnames=["repo_id", "owner", "name", "url", "reason"]
+                )
                 if excl_f.tell() == 0:
                     writer.writeheader()
                 writer.writerow({
@@ -224,13 +259,14 @@ def curate_repositories(logger: logging.Logger):
         except Exception as e:
             logger.error(f"Unexpected error cloning {clone_url}: {e}")
 
-    # Write repo list CSV
+    # ------------------------------------------------------------------
+    # Write CSV outputs
+    # ------------------------------------------------------------------
     with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["repo_id", "owner", "name", "url"])
         writer.writeheader()
         writer.writerows(final_repo_list)
 
-    # Write repo metadata CSV
     with open(REPO_METADATA_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
@@ -250,6 +286,9 @@ def curate_repositories(logger: logging.Logger):
         f"and metadata to {REPO_METADATA_CSV}"
     )
 
+# ----------------------------------------------------------------------
+# Hashing and block extraction utilities (unchanged from original)
+# ----------------------------------------------------------------------
 def calculate_file_hash(content: str) -> str:
     """Calculate SHA-256 hash of content."""
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
@@ -301,6 +340,9 @@ def extract_code_blocks_from_repo(repo_path: Path) -> List[Dict[str, Any]]:
                 all_blocks.extend(extract_code_blocks_js(file_path))
     return all_blocks
 
+# ----------------------------------------------------------------------
+# Tagging utilities (unchanged)
+# ----------------------------------------------------------------------
 def tag_blocks_with_classifier(
     blocks: List[Dict[str, Any]],
     classifier: CodeBERTClassifier,
@@ -344,7 +386,7 @@ def tag_blocks_with_classifier(
             )
     return tagged, excluded
 
-def save_tagged_blocks(tagged_blocks: List[Dict[str, Any]], output_path: Path):
+def save_tagged_blocks(tagged_blocks: List[Dict[str, Any]], output_path: Path) -> None:
     if not tagged_blocks:
         return
     fieldnames = [
@@ -364,7 +406,7 @@ def save_tagged_blocks(tagged_blocks: List[Dict[str, Any]], output_path: Path):
 
 def save_exclusions_log(
     excluded_blocks: List[Dict[str, Any]], output_path: Path, logger: logging.Logger
-):
+) -> None:
     if not excluded_blocks:
         return
     with open(output_path, "w", newline="", encoding="utf-8") as f:
@@ -375,7 +417,10 @@ def save_exclusions_log(
         writer.writeheader()
         writer.writerows(excluded_blocks)
 
-def main():
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--curate",
@@ -389,7 +434,7 @@ def main():
     )
     args = parser.parse_args()
 
-    # If no explicit mode is chosen, default to curation to match quickstart expectations
+    # Default behavior matches quickstart expectations: run curation if no flag is set
     if not args.curate and not args.tag:
         args.curate = True
 

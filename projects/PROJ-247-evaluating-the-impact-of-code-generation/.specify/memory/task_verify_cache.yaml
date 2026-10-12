@@ -1,0 +1,24 @@
+T001:
+  c: false
+  h: 4ee07ada3e6270e24a1a7779f014414112c61fce9108f77f6fa20b2c9966de8c
+  r: '`code/requirements.txt` is not pinned (no version specifiers at all) and is
+    missing required packages transformers, onnxruntime, radon, datasets, and PyGithub
+    (it only lists tree_sitter/tree_sitter_javascript plus platform defaults). Additionally,
+    no evidence was provided that `.env.example` (with GITHUB_TOKEN, DATA_PATH, LOG_PATH)
+    or a logging configuration exists, and the quickstart.md path resolved to a differently-named
+    spec directory (`001-evaluating-the-impact-of-code-generation`) rather than the
+    requested `specs/001-code-maintainability-impact/`. `code/utils/models.py` and
+    the quickstar'
+  sig: 13e91fb39477e4afca5b2199a7636db5f8b84fef8003640ffbd8ef918a579bb5
+T002:
+  c: false
+  h: cdff69a216d56335f01b3eb6e876d0d726cbd6fab968cebb1f887b0e9c3240bf
+  r: The required output CSVs `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`
+    exist but contain only headers (24 and 58 bytes) with zero data rows, despite
+    the historical log claiming 50 repositories were identified and cloned. The execution
+    log is truncated mid-clone and there is no evidence of a completed run that wrote
+    the final CSVs; the current on-disk artifacts contradict the claimed success.
+    The implementer must re-run (or finish) the curation so the CSVs actually contain
+    the ~50 curated repositories with `stargazers_count`, `created_at`, `updated_at`,
+    and `total_loc` values.
+  sig: de278098c1abb610dcfbcd24c5e3b5fbdb8291ec60ea060009bc2dc491a38e27
