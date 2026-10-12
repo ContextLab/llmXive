@@ -1,12 +1,12 @@
 T001:
-  reason: "The filtered dataset `data/processed/filtered_esol.csv` contains an extra\
-    \ column `molecule_id` (see the failing test `test_filtered_dataset`), so it does\
-    \ **not** have exactly the required columns `smiles` and `logP`. This violates\
-    \ the schema\u2011validation requirement of Task\u202FT001. The other artifacts\
-    \ (checksums, power analysis report, scaffold counts, splits, exclusion log) exist\
-    \ and appear correct, but the core output dataset is malformed. The implementer\
-    \ must remove the `molecule_id` column before writing the filtered CSV (or otherwise\
-    \ ensure the output matches the schema)."
+  reason: 'The core artifacts exist and are consistent with the run log (checksum
+    matches `data/raw/esol.csv`, power report shows `passes: true` with actual_n=4197,
+    3 large molecules logged, 2441 scaffolds, 5-fold split written), and the data
+    is real. However, two explicit requirements are not met: (1) the script''s default
+    source is the `skfp` loader rather than downloading from the specified default
+    URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`
+    (the `--url` path exists but is not the default behavior), and (2) the required
+    "chunked sparse-matrix fallback" for processing'
   task: b229e561fa0112f053eb188efae9dc8ab20dafe932c0b8790a489c485a5ccd91
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py

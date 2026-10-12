@@ -1,32 +1,27 @@
 status: verified
 kind: pypi_package
 ref: scikit-fingerprints
-access_python: "import pandas as pd\nfrom skfp.datasets.moleculenet import load_lipophilicity\n\
-  \n# Load the dataset (returns a tuple: (features, targets))\nfeatures, targets =\
-  \ load_lipophilicity()\n\n# Ensure features are in a pandas Series/DataFrame with\
-  \ a SMILES column\nif isinstance(features, pd.DataFrame):\n    if 'smiles' in features.columns:\n\
-  \        smiles_series = features['smiles']\n    else:\n        # If the DataFrame\
-  \ itself is just a single column of SMILES\n        smiles_series = features.iloc[:,\
-  \ 0]\nelif isinstance(features, pd.Series):\n    smiles_series = features\nelse:\n\
-  \    # Fallback: try to convert to a Series\n    smiles_series = pd.Series(features)\n\
-  \n# Construct a unified DataFrame\ndf = pd.DataFrame({\n    'smiles': smiles_series,\n\
-  \    'exp': pd.Series(targets)\n})\n\n# Verify required columns exist\nif 'smiles'\
-  \ not in df.columns:\n    raise KeyError('Column \"smiles\" not found in dataset')\n\
-  if 'exp' not in df.columns:\n    raise KeyError('Column \"exp\" (logP) not found\
-  \ in dataset')\n\n# Rename to match required field names\ndf = df.rename(columns={'smiles':\
-  \ 'SMILES', 'exp': 'logP'})\n\n# Add MoleculeID if missing\nif 'MoleculeID' not\
-  \ in df.columns:\n    df['MoleculeID'] = df.index.astype(str)\n\nprint(f'RECORDS={len(df)}')\n\
-  print('FIELDS=' + ','.join(df.columns.tolist()))"
+access_python: 'import pandas as pd
+
+  from skfp.datasets import moleculenet
+
+
+  X, y = moleculenet.load_lipophilicity()
+
+  df = pd.DataFrame({"smiles": X})
+
+  print(f"RECORDS={len(df)}")
+
+  field_names = [col.upper() if col.lower() == "smiles" else col for col in df.columns]
+
+  print(f"FIELDS={'',''.join(field_names)}")'
 record_count: 4200
 sample_fields:
 - SMILES
-- logP
-- MoleculeID
-field_coverage: 1.0
+field_coverage: 0.5
 required_fields:
 - SMILES
 - logP
-- MoleculeID
-intent: MoleculeNet Lipophilicity SMILES logP MoleculeNet ESOL HUBioDataLab SELFormer
-  python package dataset
-cache_key: f9027b34751a596c2c3159e34677a7fe4f27e1fbb6ab514bb70d389c578095f7
+intent: download MoleculeNet Lipophilicity dataset with experimental logP values python
+  package dataset
+cache_key: aa0f6cd8881e020316b06465affffc07ae95615c3cbb43ab5f4292cd405dfca5

@@ -19,27 +19,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py --source pubchem -> rc=1
-2026-10-12 21:14:10,872 - data_ingestion - ERROR - Unknown source 'pubchem'. Use 'skfp' or 'url'.
+2026-10-12 22:09:04,733 - data_ingestion - ERROR - Unknown source 'pubchem'. Use 'skfp' or 'url'.
 
 
 - python code/02_tda_computation.py --resolution 10 -> rc=1
-^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/utils/persistence_utils.py", line 121, in build_shortest_path_filtration
-    nodes = list(graph.nodes())
-                 ^^^^^^^^^^^
-AttributeError: 'numpy.ndarray' object has no attribute 'nodes'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/02_tda_computation.py", line 138, in compute_persistence_features
+    img = vectorize_diagram_to_image(diagram, resolution=resolution)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/02_tda_computation.py", line 120, in vectorize_diagram_to_image
+    return vectorize(list(map(tuple, arr.tolist())), resolution)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/utils/persistence_utils.py", line 229, in vectorize
+    max_birth = max(b for b, d in diagram if d != float('inf')) if diagram else 0
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: max() arg is an empty sequence
 
-2026-10-12 21:14:18,251 - tda_computation - ERROR - Unhandled exception for 4196: Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/02_tda_computation.py", line 181, in process_molecule
-    filtration = build_shortest_path_filtration(sp_matrix)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/utils/persistence_utils.py", line 121, in build_shortest_path_filtration
-    nodes = list(graph.nodes())
-                 ^^^^^^^^^^^
-AttributeError: 'numpy.ndarray' object has no attribute 'nodes'
-
-2026-10-12 21:14:18,254 - tda_computation - WARNING - No valid molecules processed; created empty CSV with header.
-TDA feature generation completed in 6.67s – processed: 0, failed: 4197
+2026-10-12 22:09:14,314 - tda_computation - WARNING - No valid molecules processed; created empty CSV with header.
+TDA feature generation completed in 8.85s – processed: 0, failed: 4197
 
 
 - python code/04_model_training.py -> rc=1
@@ -58,7 +55,7 @@ ImportError: cannot import name 'rmse' from 'sklearn.metrics' (/home/runner/work
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/05_sensitivity_analysis.py': [Errno 2] No such file or directory
 
 - python code/07_resource_monitor.py -> rc=1
-2026-10-12 21:14:19,332 - ERROR - No command provided to monitor.
+2026-10-12 22:09:15,390 - ERROR - No command provided to monitor.
 
 
 
@@ -72,50 +69,18 @@ ImportError: cannot import name 'rmse' from 'sklearn.metrics' (/home/runner/work
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `scikit-fingerprints` to the project's `requirements.txt` and `pip install scikit-fingerprints`.
-- **Verified**: this loads **4200** real records with fields: SMILES, logP, MoleculeID.
+- **Verified**: this loads **4200** real records with fields: SMILES.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
 import pandas as pd
-from skfp.datasets.moleculenet import load_lipophilicity
+from skfp.datasets import moleculenet
 
-# Load the dataset (returns a tuple: (features, targets))
-features, targets = load_lipophilicity()
-
-# Ensure features are in a pandas Series/DataFrame with a SMILES column
-if isinstance(features, pd.DataFrame):
-    if 'smiles' in features.columns:
-        smiles_series = features['smiles']
-    else:
-        # If the DataFrame itself is just a single column of SMILES
-        smiles_series = features.iloc[:, 0]
-elif isinstance(features, pd.Series):
-    smiles_series = features
-else:
-    # Fallback: try to convert to a Series
-    smiles_series = pd.Series(features)
-
-# Construct a unified DataFrame
-df = pd.DataFrame({
-    'smiles': smiles_series,
-    'exp': pd.Series(targets)
-})
-
-# Verify required columns exist
-if 'smiles' not in df.columns:
-    raise KeyError('Column "smiles" not found in dataset')
-if 'exp' not in df.columns:
-    raise KeyError('Column "exp" (logP) not found in dataset')
-
-# Rename to match required field names
-df = df.rename(columns={'smiles': 'SMILES', 'exp': 'logP'})
-
-# Add MoleculeID if missing
-if 'MoleculeID' not in df.columns:
-    df['MoleculeID'] = df.index.astype(str)
-
-print(f'RECORDS={len(df)}')
-print('FIELDS=' + ','.join(df.columns.tolist()))
+X, y = moleculenet.load_lipophilicity()
+df = pd.DataFrame({"smiles": X})
+print(f"RECORDS={len(df)}")
+field_names = [col.upper() if col.lower() == "smiles" else col for col in df.columns]
+print(f"FIELDS={','.join(field_names)}")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

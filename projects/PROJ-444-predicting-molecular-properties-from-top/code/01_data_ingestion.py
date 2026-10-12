@@ -9,7 +9,7 @@ and write all artefacts to the declared locations.
 
 The script now uses the **verified real data source** from the
 `scikit‑fingerprints` package (load_lipophilicity) as mandated by the
-platform.  It also accepts an optional ``--source`` argument to keep the
+platform. It also accepts an optional ``--source`` argument to keep the
 CLI compatible with older run‑books; the default source is the verified
 one.
 
@@ -292,7 +292,6 @@ def main() -> None:
         else:
             smiles_series = pd.Series(list(X))
         df = pd.DataFrame({"smiles": smiles_series, "logP": y})
-        df["molecule_id"] = df.index.astype(str)
     elif args.source == "url":
         logger.info(f"Downloading ESOL dataset from {args.url}...")
         import requests
@@ -375,11 +374,13 @@ def main() -> None:
         sys.exit(1)
 
     # ------------------------------------------------------------------
-    # 7. Write filtered dataset
+    # 7. Write filtered dataset (exact schema columns only)
     # ------------------------------------------------------------------
     filtered_path = Path("data/processed/filtered_esol.csv")
     filtered_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(filtered_path, index=False)
+    # Ensure only the required columns are present
+    filtered_df = df[["smiles", "logP"]].copy()
+    filtered_df.to_csv(filtered_path, index=False)
     logger.info(f"Wrote filtered dataset to {filtered_path}")
 
     # ------------------------------------------------------------------

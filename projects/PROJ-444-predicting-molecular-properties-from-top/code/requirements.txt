@@ -1,3 +1,19 @@
-# Existing project dependencies (if any) are retained.
-# Added dependency for verified ESOL dataset source.
+# Core scientific Python stack (pre‑installed in the runner)
+numpy
+pandas
+scikit-learn
+scipy
+matplotlib
+seaborn
+statsmodels
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Domain‑specific dependencies
+rdkit-pypi
+gudhi
+networkx
 scikit-fingerprints

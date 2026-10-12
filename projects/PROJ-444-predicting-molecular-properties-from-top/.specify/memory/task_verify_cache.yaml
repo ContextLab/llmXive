@@ -1,3 +1,14 @@
+T001:
+  c: false
+  h: 6bff120d750c1473a6d317addc160ee8e7e64a655d9fd41b4dd74128ee1dcd9c
+  r: 'The core artifacts exist and are consistent with the run log (checksum matches
+    `data/raw/esol.csv`, power report shows `passes: true` with actual_n=4197, 3 large
+    molecules logged, 2441 scaffolds, 5-fold split written), and the data is real.
+    However, two explicit requirements are not met: (1) the script''s default source
+    is the `skfp` loader rather than downloading from the specified default URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`
+    (the `--url` path exists but is not the default behavior), and (2) the required
+    "chunked sparse-matrix fallback" for processing'
+  sig: d21a0442f874cb71a66685f1ffc754c14130d455956f036f3aa96ca83a953b6b
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

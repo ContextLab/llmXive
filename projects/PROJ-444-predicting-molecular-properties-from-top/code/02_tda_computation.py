@@ -5,7 +5,7 @@ Implements FR-001: Convert SMILES to molecular graphs and compute persistence di
 using shortest-path filtration, and FR-002: Vectorise each diagram to a 10×10
 persistence image (σ = 0.1) as the baseline required by the specification.
 
-This script is now CLI‑compatible with the quickstart run‑book. It accepts an
+This script is CLI‑compatible with the quickstart run‑book. It accepts an
 optional ``--resolution`` argument (default 10) and writes the resulting feature
 matrix to ``data/processed/persistence_images_<resolution>x<resolution>.csv``.
 Invalid SMILES are logged to ``data/logs/invalid_smiles.log``.
@@ -37,7 +37,6 @@ if str(_code_dir) not in sys.path:
 
 from utils.graph_builder import build_graph, validate_graph, Graph
 from utils.persistence_utils import (
-    compute_shortest_path_matrix,
     build_shortest_path_filtration,
     compute_persistence_diagram,
     vectorize,
@@ -150,8 +149,8 @@ def process_molecule(
     """
     Process a single molecule:
     1. Build a NetworkX graph from the SMILES.
-    2. Compute the shortest‑path distance matrix.
-    3. Build the filtration.
+    2. Validate the graph.
+    3. Build the shortest‑path filtration directly from the graph.
     4. Compute the persistence diagram.
     5. Vectorise to a persistence image of the requested resolution.
 
@@ -174,16 +173,13 @@ def process_molecule(
             logger.warning(f"Graph validation failed for {molecule_id}")
             return None
 
-        # 3. Compute shortest‑path matrix (dense is fine for typical molecules)
-        sp_matrix = compute_shortest_path_matrix(graph, use_sparse=False)
+        # 3. Build filtration from the graph (uses all‑pairs shortest paths internally)
+        filtration = build_shortest_path_filtration(graph)
 
-        # 4. Build filtration from the distance matrix
-        filtration = build_shortest_path_filtration(sp_matrix)
-
-        # 5. Compute persistence diagram
+        # 4. Compute persistence diagram
         diagram = compute_persistence_diagram(filtration)
 
-        # 6. Vectorise
+        # 5. Vectorise
         features = compute_persistence_features(diagram, resolution=resolution)
 
         return {"molecule_id": molecule_id, "features": features}
@@ -233,7 +229,7 @@ def generate_tda_features_csv(
             failed += 1
             continue
 
-        # Build row dict: molecule_id + 100 pixel columns
+        # Build row dict: molecule_id + pixel columns
         row_dict = {"molecule_id": result["molecule_id"]}
         for i, val in enumerate(result["features"]):
             row_dict[f"pixel_{i}"] = float(val)
