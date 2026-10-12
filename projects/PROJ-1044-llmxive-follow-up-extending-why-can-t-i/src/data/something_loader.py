@@ -21,6 +21,39 @@ from datasets import load_dataset
 
 __all__ = ["something_stream"]
 
+def _load_something_dataset() -> "datasets.Dataset":
+    """
+    Load the Something‑Something V2 dataset with a robust fallback.
+
+    The canonical identifier on the HuggingFace Hub is ``something-something-v2``.
+    Some environments (e.g. limited‑access CI runners) require loading the
+    multi‑config dataset ``something-something`` with the ``v2`` config name.
+    This helper tries both strategies and raises a clear error if neither works.
+    """
+    # First attempt the straightforward identifier.
+    try:
+        return load_dataset(
+            "something-something-v2",
+            split="train",
+            streaming=True,
+        )
+    except Exception as exc1:  # pragma: no cover – exercised only when the primary fails
+        # Fallback to the multi‑config dataset.
+        try:
+            return load_dataset(
+                "something-something",
+                name="v2",
+                split="train",
+                streaming=True,
+            )
+        except Exception as exc2:
+            raise RuntimeError(
+                "Failed to load the Something‑Something V2 dataset. "
+                "Tried both 'something-something-v2' and 'something-something' "
+                "with config 'v2'. Ensure internet connectivity and that the "
+                "dataset is publicly accessible."
+            ) from exc2
+
 def something_stream(
     *,
     seed: int = 42,
@@ -42,27 +75,9 @@ def something_stream(
     ------
     tuple[str, str]
         ``video_url`` – a string URL pointing at the MP4 video file.
-        ``label`` – the action template string associated with the video.
+        ``label`` – the action template string.
     """
-    # The HuggingFace dataset identifier for Something‑Something V2.
-    # The dataset provides a "full" configuration that contains the raw video URLs.
-    # Using the config ensures the ``video`` field is present.
-    try:
-        ds = load_dataset(
-            "something-something-v2",
-            "full",
-            split="train",
-            streaming=True,
-        )
-    except Exception as exc:
-        # Re‑raise with a clearer message – the loader must fail loudly if the
-        # real dataset cannot be accessed.
-        raise RuntimeError(
-            "Failed to load the Something‑Something V2 dataset. "
-            "Ensure internet connectivity and that the identifier "
-            "'something-something-v2' with config 'full' exists on the HuggingFace Hub."
-        ) from exc
-
+    ds = _load_something_dataset()
     rng = random.Random(seed)
 
     count = 0

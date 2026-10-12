@@ -15,8 +15,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT))
 
-from src.data.counterfactual import CounterfactualGenerator, main as cf_main
-from src.data.something_loader import something_stream
+from src.data.counterfactual import main as cf_main
 
 @pytest.mark.timeout(300)
 def test_counterfactual_generation(tmp_path):

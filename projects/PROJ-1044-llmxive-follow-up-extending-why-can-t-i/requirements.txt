@@ -1,13 +1,15 @@
 torch==2.3.0
 torchvision
 opencv-python
-tqdm
-pandas
-numpy
-pyyaml
 datasets
+tqdm
+pyyaml
+pandas
 scipy
 matplotlib
 scikit-learn
 seaborn
-# The base environment already provides: psutil, requests, jsonschema, etc.
+psutil
+# The base environment already provides numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil. Only non‑standard packages are listed above.

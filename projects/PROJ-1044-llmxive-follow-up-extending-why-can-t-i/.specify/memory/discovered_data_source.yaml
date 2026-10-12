@@ -1,12 +1,16 @@
 status: none
-intent: download Something-Something V2 video dataset with optical flow python package
+intent: Something Something V2 video dataset download optical flow python package
   dataset
 required_fields:
 - video_id
-- video_file_path
-- action_label
-- object_segmentation_masks
-- frame_rate
-cache_key: da132b83207b5a0d0f3f24d199582bdf000ad3885cef2f074e98ae55e1551a87
-searched_at: '2026-10-12T05:51:40.026717+00:00'
+- original_video_path
+- counterfactual_video_path
+- primary_object_label
+- swapped_object_label
+- optical_flow_divergence
+- motion_trajectory_preserved
+- background_consistency_flag
+- swap_success_flag
+cache_key: 13849c3e3fce1f510cdeaf9038fee119b41e31569dabf7d66f7daeab01786171
+searched_at: '2026-10-12T05:54:04.468989+00:00'
 retry_count: 1

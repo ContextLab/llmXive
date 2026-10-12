@@ -25,7 +25,7 @@ The tasks below respect data‑flow dependencies, stay within the free‑tier CP
   - No on‑the‑fly flow computation is performed, preserving the CPU budget.  
   - **File(s)**: `src/data/optical_flow_loader.py`.
 
-- [ ] **T003** [US1] **Detect primary objects and generate counterfactual videos**   <!-- FAILED-IN-EXECUTION: src/data/counterfactual.py exit=1 -->
+- [ ] **T003** [US1] **Detect primary objects and generate counterfactual videos**   <!-- FAILED-IN-EXECUTION: src/data/counterfactual.py exit=1 --> <!-- FAILED-IN-EXECUTION: tests/test_counterfactual_generation.py exit=1; tests/test_something_loader.py exit=1 -->
   1. Use CPU‑friendly Faster‑RCNN (`torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)`) on a representative frame to obtain a bounding box.  
   2. Randomly select a distinct object patch from `data/patches/`.  
   3. Replace the region via OpenCV `seamlessClone`.  
