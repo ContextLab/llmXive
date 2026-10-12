@@ -13,7 +13,7 @@ properties:
     description: "List of paths to generated PNG plots."
   total_plot_size_mb:
     type: "number"
-    description: "Total size of plot files in MB (must be <= 100)."
+    description: "Total size of plot files in MB (must be ≤ 100)."
   associational_statement:
     type: "string"
     description: "Explicit statement confirming findings are associational, not causal."
@@ -21,11 +21,40 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "List of logged deviations (e.g., ISRIC unavailable)."
+    description: "Logged deviation messages (e.g., ISRIC unavailable, AM‑001)."
+  success_criteria:
+    type: "object"
+    properties:
+      sc_001_met:
+        type: "boolean"
+        description: "True if proportion of merged datasets meets SC‑001; false or null if not measurable."
+      sc_002_met:
+        type: "boolean"
+        description: "True if LMM R² within 5 % of RF R² (SC‑002)."
+      sc_003_met:
+        type: "boolean"
+        description: "True if nutrient coefficients significant (SC‑003)."
+      sc_004_met:
+        type: "boolean"
+        description: "True if total plot size ≤ 100 MB (SC‑004)."
+      sc_005_met:
+        type: "boolean"
+        description: "True if species exclusion count recorded (SC‑005)."
+      sc_006_met:
+        type: "boolean"
+        description: "True if sensitivity analysis passes (SC‑006) or is marked N/A."
+    required:
+      - sc_001_met
+      - sc_002_met
+      - sc_003_met
+      - sc_004_met
+      - sc_005_met
+      - sc_006_met
 required:
   - report_file
   - plots
   - total_plot_size_mb
   - associational_statement
   - deviations
+  - success_criteria
 additionalProperties: false

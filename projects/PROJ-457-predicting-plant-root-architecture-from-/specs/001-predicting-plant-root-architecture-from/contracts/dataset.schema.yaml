@@ -17,13 +17,16 @@ properties:
     description: "Log-transformed root surface area."
   phosphorus:
     type: "number"
-    description: "Z-scored phosphorus concentration. May be null if data unavailable."
+    description: "Z-scored phosphorus concentration. May be null if soil data unavailable."
   nitrogen:
     type: "number"
-    description: "Z-scored nitrogen concentration. May be null if data unavailable."
+    description: "Z-scored nitrogen concentration. May be null if soil data unavailable."
   data_source_type:
     type: "string"
     description: "Type of data source (observational/experimental)."
+  sample_size_per_species:
+    type: "integer"
+    description: "Number of observations for the species after filtering."
 required:
   - species
   - root_length

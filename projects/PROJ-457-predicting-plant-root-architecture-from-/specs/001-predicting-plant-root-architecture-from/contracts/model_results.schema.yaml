@@ -14,10 +14,27 @@ properties:
         description: "Root Mean Squared Error."
       coefficients:
         type: "object"
-        description: "Map of predictor names to their coefficients and p-values."
+        description: "Mapping predictor → {coefficient, p_value}."
+        additionalProperties:
+          type: "object"
+          properties:
+            coefficient:
+              type: "number"
+            p_value:
+              type: "number"
+          required:
+            - coefficient
+            - p_value
       p_values:
         type: "object"
-        description: "Map of predictor names to their p-values."
+        description: "Mapping predictor → p-value (redundant for convenience)."
+        additionalProperties:
+          type: "number"
+    required:
+      - adjusted_r_squared
+      - rmse
+      - coefficients
+      - p_values
   rf_results:
     type: "object"
     properties:
@@ -27,21 +44,33 @@ properties:
       rmse:
         type: "number"
         description: "Root Mean Squared Error."
+    required:
+      - r_squared
+      - rmse
   cv_metrics:
     type: "object"
     properties:
       mean_out_of_sample_r2:
         type: "number"
-        description: "Mean R-squared from species-stratified CV."
+        description: "Mean R-squared from species‑stratified cross‑validation."
+    required:
+      - mean_out_of_sample_r2
   success_criteria:
     type: "object"
     properties:
       sc_002_met:
         type: "boolean"
-        description: "True if LMM R2 is within 5% of RF R2."
+        description: "True if LMM R² is within 5 % of RF R² (SC‑002)."
       sc_003_met:
         type: "boolean"
-        description: "True if p-values < 0.05."
+        description: "True if nutrient coefficient p‑values < 0.05 (SC‑003)."
+      sc_006_met:
+        type: "boolean"
+        description: "True if sensitivity analysis confirms biological plausibility (SC‑006)."
+    required:
+      - sc_002_met
+      - sc_003_met
+      - sc_006_met
 required:
   - lmm_results
   - rf_results
