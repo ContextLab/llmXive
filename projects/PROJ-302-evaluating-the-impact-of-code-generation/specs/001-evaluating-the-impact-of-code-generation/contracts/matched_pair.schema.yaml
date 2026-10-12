@@ -20,6 +20,12 @@ properties:
   activity_diff:
     type: number
     description: "Difference in repository activity level"
+  ci_build_diff:
+    type: number
+    description: "Difference in CI build time (human – LLM)"
+  semantic_similarity_diff:
+    type: number
+    description: "Difference in semantic similarity scores"
   balance_verified:
     type: boolean
     description: "Indicates whether the pair meets the covariate balance criteria"
@@ -30,5 +36,7 @@ required:
   - complexity_diff
   - size_diff
   - activity_diff
+  - ci_build_diff
+  - semantic_similarity_diff
   - balance_verified
 additionalProperties: false

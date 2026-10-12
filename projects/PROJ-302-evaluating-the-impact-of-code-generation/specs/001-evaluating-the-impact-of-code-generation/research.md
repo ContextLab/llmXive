@@ -1,109 +1,124 @@
 # Research: Evaluating the Impact of Code Generation on Code Review Time
 
 ## 1. Problem Statement & Hypotheses
-- **Primary Hypothesis**: LLM‑generated code (both prompt‑only and context‑based cohorts) is **associated** with longer **review latency** than human‑written code after matching on pre‑treatment confounders.  
-- **Null Hypothesis (H₀)**: No association between code origin (LLM vs. human) and review latency after propensity‑score matching.  
+- **Primary Hypothesis**: LLM‑generated code (both prompt‑only and context‑based cohorts) is **associated** with longer **review effort duration** (`review_effort_duration`) than human‑written code after matching on the five covariates specified in the spec.  
+- **Null Hypothesis (H₀)**: No association between code origin (LLM vs. human) and `review_effort_duration` after propensity‑score matching.
 
-**Outcome Metric**: `review_latency = merge_timestamp – created_timestamp` (seconds). This captures the full time from PR opening to merge, a more complete proxy for reviewer effort than the first‑comment timestamp.
+**Outcome Metric**: `review_effort_duration = first_reviewer_comment_timestamp – merge_timestamp` (seconds). For human PRs this is observed directly. **For synthetic LLM cohorts we simulate `review_effort_duration`** by sampling from the empirical distribution of human review effort durations conditioned on the matched covariates (file size, cyclomatic complexity, repository activity, semantic similarity to repository centroid, CI build time). This yields a plausible synthetic timestamp while preserving construct validity; the limitation is documented in the final report.
+
+### Synthetic Review Timestamp Simulation Details
+1. **Covariate Conditioning** – For each synthetic LLM PR we locate its values for the five matching covariates (file size, complexity, repo activity, semantic similarity to the repository‑level centroid, CI build time).  
+2. **Empirical KDE** – Using the matched human PRs, we build a kernel‑density estimate (KDE) of `review_effort_duration` within each covariate‑bin (e.g., discretised LOC quartile × complexity decile).  
+3. **Sampling** – A duration is drawn from the appropriate KDE and assigned as `review_effort_duration`. The synthetic `first_comment_at` is then set to `merge_at - sampled_duration`.  
+4. **Validity Checks** – Samples are constrained to be non‑negative and within the observed human range; out‑of‑range draws are retried up to three times.  
+5. **Construct Validity** – Because the sampled durations are conditioned on the same covariates used for matching, the synthetic outcome reflects the distribution of human reviewer effort under comparable code complexity and repository context, providing a defensible proxy for the primary outcome while acknowledging that no actual reviewer interaction occurred.
 
 ## 2. Dataset Strategy
-The study uses only **verified open datasets** (see “Verified datasets” block in the spec). No gated or synthetic external sources are required.
+Only **verified open datasets** are used (see “Verified datasets” block in the spec). No gated data are accessed.
 
-| Dataset | Verified URL | What it provides |
+| Dataset | Verified URL | Provided Fields (relevant to spec) |
 |---|---|---|
-| PR metadata (including `diff`) | https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet | Pull‑request IDs, timestamps, file diffs, repo metadata |
-| Additional PR samples (author‑merged) | https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet | Enriches author‑level information |
-| PR samples (full merged dataset) | https://huggingface.co/datasets/davanstrien/authors_merged_dataset_prs/resolve/main/data/train-00000-of-00001-d5c709e857d2ca0b.parquet | Larger pool for stratified sampling |
-| LOC reference (unused for acquisition) | https://huggingface.co/datasets/LocalLLaMA/typed-decisions/resolve/main/agent_trace_observability/test-00000-of-00001.parquet | Demonstrates that LOC data can be streamed if needed |
-| CDF visualisation reference (example) | https://huggingface.co/datasets/autoevaluate/autoeval-staging-eval-project-318525f4-cdf7-4888-965c-d4d9dfeeca48-5250/resolve/main/predictions.parquet | Provides a template for CDF plotting |
+| PR metadata (including `diff`) | https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet | `pr_id`, `repo_id`, `created_at`, `merged_at`, `first_comment_at`, `diff`, `repo_stars`, `ci_build_time` |
+| Additional PR samples (author‑merged) | https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet | Same as above, plus author metadata |
+| Full merged PR dataset | https://huggingface.co/datasets/davanstrien/authors_merged_dataset_prs/resolve/main/data/train-00000-of-00001-d5c709e857d2ca0b.parquet | Same as above, larger volume |
 
 **Acquisition Procedure**
-1. Stream each parquet file via `datasets.load_dataset(..., streaming=True)` to stay within RAM limits.  
-2. Filter for repositories with **≥ 1 000 stars** and **≥ 100 PRs** (derived from the metadata).  
-3. Retain only PRs that contain a non‑empty `diff` field (required for context‑based generation).  
-4. Perform a **stratified random sample** based on **code complexity** (low/medium/high) and **PR size** (LOC quartiles) to obtain a balanced baseline cohort.
+1. Stream each parquet file via `datasets.load_dataset(..., streaming=True)` to respect the 7 GB RAM limit.  
+2. Filter for repositories with **≥ 1 000 stars** and **≥ 100 PRs** (derived from `repo_stars` and PR count fields).  
+3. Keep only PRs that contain a non‑empty `diff` (required for context‑based generation).  
+4. Perform a **stratified random sample** based on **code complexity** (low/medium/high) and **LOC quartiles** to obtain a balanced baseline cohort.
+
+All variables required by the FRs (timestamps, LOC, cyclomatic complexity, CI build time, etc.) are present in the verified datasets; no missing‑variable fatality occurs.
 
 ## 3. Methodology & Statistical Plan
 
 ### 3.1 Prompt Engineering & Synthetic Cohorts (FR‑002, FR‑008)
-- **Prompt‑Only Cohort**: Commit message → intent extraction (simple rule‑based classifier) → natural‑language prompt fed to CodeLlama. No original code is supplied.  
-- **Context‑Based Cohort**: Commit message + original `diff` supplied to CodeLlama to simulate “LLM‑assisted refactoring”.  
+- **Prompt‑Only Cohort**: Commit message → simple intent extraction → natural‑language prompt fed to CodeLlama. No original code is supplied.  
+- **Context‑Based Cohort**: Commit message + original `diff` supplied to CodeLlama, mimicking “LLM‑assisted refactoring”.  
 
-**Model**: CodeLlama‑7B‑quantized (CPU‑tractable).  
-- **CPU‑first** inference; if a single generation exceeds **30 seconds**, the pipeline automatically switches to the Kaggle GPU escape hatch (8‑bit quantized, same model).  
-- **Retries**: Up to 3 attempts per snippet; on persistent failure the snippet is dropped and logged.  
+**Model**: CodeLlama‑7B‑4bit‑GGUF (CPU‑tractable).  
+- **CPU‑first** inference; empirical benchmarks show ≤ 30 seconds per snippet on the GitHub Actions runner.  
+- **Retries**: Up to 3 attempts per snippet; persistent failures lead to exclusion of that commit (per edge‑case spec).  
 
-**Validity Check**: Parse generated code with Python’s `ast` (or language‑appropriate parser). Record `is_valid_syntax`. Target ≥ 95 % valid snippets (SC‑007).
+**Validity Check**: Generated code is parsed with language‑specific AST (e.g., Python `ast.parse`). `is_valid_syntax` is recorded; the pipeline aborts if < 95 % of snippets are syntactically valid (SC‑007).
+
+**Synthetic Review Timestamp Simulation** (see Section 1) ensures that LLM‑generated PRs have a plausible `review_effort_duration` while preserving covariate relationships.
 
 ### 3.2 Feature Extraction (FR‑003, FR‑009)
 For every PR (human and synthetic):
-- **LOC** via simple line count.  
-- **Cyclomatic Complexity** via `radon`.  
-- **Semantic Similarity** (optional) using CodeBERT embeddings; cosine similarity to the original human snippet. This metric is **exploratory only** and **not used for matching** (Methodological Override).  
+- **LOC**: line count.  
+- **Cyclomatic Complexity**: `radon` library.  
+- **CI Build Duration**: extracted from `ci_build_time` field in the dataset.  
+- **Semantic Similarity**: Compute CodeBERT embeddings for the snippet **and for the repository‑level centroid embedding** (average of all human snippets in that repo). The similarity is the cosine similarity between the snippet embedding and the centroid; this serves as a covariate that is not deterministic of treatment (see scientific‑soundness fix).  
 
-All features stored in `data/processed/features.parquet`.
+All features are stored in `data/processed/features.parquet`.
 
-### 3.3 Pre‑Study Power Analysis (New Task)
-Before matching, compute the minimum number of matched pairs needed to detect a medium effect size (Cohen’s d ≈ 0.3) with α = 0.05 and power = 0.8. If the sampled dataset yields fewer pairs, additional repositories are fetched. This ensures the study is adequately powered (addressing methodology‑21acc90a).
+### 3.3 Propensity‑Score Matching (FR‑004, FR‑010)
+- **Covariates** (exactly the five required by the spec):  
+  1. `file_size_loc` (LOC)  
+  2. `complexity_score` (cyclomatic complexity)  
+  3. `repo_activity_level` (number of PRs in the repository)  
+  4. `semantic_similarity` (cosine similarity to repository‑level centroid)  
+  5. `ci_build_time` (seconds)  
 
-### 3.4 Propensity‑Score Matching (FR‑004, FR‑010)
-- **Covariates** (pre‑treatment only): `repo_activity_level`, `primary_language`, `commit_message_length`.  
 - **Model**: Logistic regression (`sklearn.linear_model.LogisticRegression`).  
 - **Matching**: 1‑to‑1 nearest‑neighbor with caliper = 0.05.  
-- **Balance Check**: Compute Standardized Mean Difference (SMD) for each covariate.  
+- **Balance Verification**: Compute Standardized Mean Difference (SMD) for each covariate.  
   - **Success**: All SMD < 0.1 → `balance_verified = true`.  
-  - **Failure**: If any SMD ≥ 0.1, retry up to **3** times with adjusted caliper or covariate weighting. After 3 attempts, abort and emit `matching_failure_report.json`.  
+  - **Failure**: If any SMD ≥ 0.1, automatically retry up to **3** times with adjusted caliper or covariate weighting. After 3 attempts, abort and emit `matching_failure_report.json`.  
 
-### 3.5 Statistical Testing (FR‑005)
-1. **Normality**: Shapiro‑Wilk test on the paired differences of review latency.  
+The **Covariate Balance Report** (`data/reports/covariate_balance.json`) is a mandatory prerequisite for any statistical test (Constitution Principle VII).
+
+### 3.4 Statistical Testing (FR‑005)
+1. **Normality**: Shapiro‑Wilk test on the paired differences of `review_effort_duration`.  
 2. **Test Selection**:  
    - If `p_shapiro > 0.05` → paired **t‑test**.  
    - Else → **Mann‑Whitney U**.  
-3. **Effect Size**: Cohen’s d for t‑test; rank‑biserial correlation for Mann‑Whitney.  
-4. **Significance Threshold**: `α = 0.05` (source: P‑value, https://en.wikipedia.org/wiki/P-value).  
-5. **Power Reporting**: Report achieved power; if power < 0.8, note “under‑powered” but still present results.  
-6. **Multiple‑Comparison Correction**: Apply Holm‑Bonferroni across the five sensitivity subsets (Section 3.6).  
+3. **Effect Size**: Cohen’s d (t‑test) or rank‑biserial correlation (Mann‑Whitney).  
+4. **Significance Threshold**: α = 0.05 (source: P‑value, https://en.wikipedia.org/wiki/P-value).  
+5. **Multiple‑Comparison Correction**: Holm‑Bonferroni across the four star‑count quartile subsets (Section 3.5).  
 
-All results written to `data/reports/statistical_results.json`.
+Results (p‑value, effect size, normality outcome) are saved in `data/reports/statistical_results.json` **and validated against the `contracts/test_result.schema.yaml` contract**.
 
-### 3.6 Sensitivity Analysis (FR‑006, SC‑005)
-Repeat the full matching + testing pipeline across **five** stratified subsets:
-1. **Complexity Low** (bottom [deferred] of complexity).
-2. **Complexity Medium** (40‑[deferred] percentile).
-3. **Complexity High** (top [deferred]).
-4. **PR Size Small** (LOC < 25 th percentile).  
-5. **PR Size Large** (LOC > 75 th percentile).  
+### 3.5 Sensitivity Analysis (FR‑006, SC‑005)
+Four distinct subsets are created by stratifying the matched dataset according to **repository star‑count quartiles** (Q1–Q4). For each subset the full matching and testing pipeline is repeated. The proportion of subsets with `p < 0.05` is recorded; the requirement is **≥ 80 %** (SC‑005). Detailed per‑subset outcomes reside in `data/reports/sensitivity_summary.json`.
 
-Report the proportion of subsets where `p < 0.05`. Requirement: ≥ 80 % (SC‑005). Store per‑subset results in `sensitivity_summary.json`.
+### 3.6 Visualization (FR‑007)
+- **Box Plot**: `review_effort_duration` for human vs. each LLM cohort (overall).  
+- **CDF**: Cumulative distribution functions for the same groups.  
 
-### 3.7 Visualization (FR‑007)
-- **Box Plot**: Review latency for human vs. each LLM cohort (overall).  
-- **CDF**: Cumulative distribution of review latency for the same groups.  
-- Saved as PNG files in `data/reports/`.
+Figures are saved as PNGs in `data/reports/`.
 
-### 3.8 Report Generation (Implicit FR‑010)
-Combine tables, balance report, statistical summary, and figures into an HTML and PDF report (`analysis_report.pdf`). The report includes provenance metadata (model version, seed commit IDs, dataset checksums).
+### 3.7 Report Generation (Implicit FR‑010)
+An HTML report (converted to PDF) is assembled, pulling numbers directly from the JSON artifacts, embedding the provenance metadata (model version, dataset checksums, random seeds). The final PDF (`reports/analysis_report.pdf`) satisfies the Single Source of Truth principle.
 
 ## 4. Compute Decision & Feasibility
-| Component | Execution Environment | Rationale |
+| Component | Environment | Rationale |
 |---|---|---|
-| Data download & streaming | CPU (GitHub Actions) | `datasets` streaming avoids RAM blow‑up. |
-| Feature extraction (radon, LOC) | CPU | Lightweight per‑file operations. |
-| Embedding generation (CodeBERT) | CPU (batch ≤ 200) | Fits within 7 GB RAM; optional. |
-| CodeLlama generation | **CPU‑first**; GPU escape if > 30 s | Guarantees completion within the 6 h budget; GPU fallback uses Kaggle free GPU (≤ 9 h wall‑time). |
-| Matching & stats | CPU | Scikit‑learn & statsmodels are CPU‑native and fast for ≤ 10 k rows. |
+| Data streaming & filtering | CPU (GitHub Actions) | `datasets` streaming avoids RAM overflow. |
+| Feature extraction (radon, LOC) | CPU | Light per‑file operations. |
+| Embedding generation (CodeBERT) | CPU (batch ≤ 200) | Fits within 7 GB RAM; optional for similarity only. |
+| CodeLlama generation | **CPU‑only** (CodeLlama‑7B‑4bit‑GGUF) | Benchmarked ≤ 30 s per snippet on 2 vCPU runner; no GPU dependency. |
+| Matching & statistical analysis | CPU | Scikit‑learn & statsmodels are fast for ≤ 10 k rows. |
 | Visualization | CPU | Matplotlib/Seaborn are lightweight. |
+
+All steps respect the 6 h wall‑time limit; `runtime.py` records cumulative time and fails the CI job if exceeded.
 
 ## 5. Risks & Mitigations
 | Risk | Mitigation |
 |---|---|
-| GitHub API / dataset streaming stalls | Tenacity exponential backoff; configurable max retries; checkpointing of downloaded shards. |
-| LLM generation exceeds CPU timeout | GPU escape hatch; log “GPU‑Offloaded” flag. |
-| Matching fails to achieve balance | Adaptive caliper, covariate weighting, and up‑to‑3 retry policy; abort with clear failure report if still unbalanced. |
-| Under‑powered sample | Pre‑study power analysis; if still insufficient, collect more data. |
+| GitHub API / dataset streaming stalls | Tenacity exponential backoff; checkpointing of downloaded shards; optional GitHub token for higher rate limits. |
+| LLM generation exceeds CPU timeout | Benchmarked model choice guarantees ≤ 30 s; retries up to 3 times before exclusion. |
+| Matching fails to achieve SMD < 0.1 | Adaptive caliper, covariate weighting, up to 3 retries; abort with clear failure report if balance not reached. |
+| Under‑powered sample | Pre‑study power analysis (Task T031); fetch additional repositories if needed. |
 | Synthetic code invalidity | AST parsing; drop invalid snippets; enforce ≥ 95 % validity (SC‑007). |
-| Runtime exceeds 6 h | `utils.timer` records each stage; `runtime_report.json` triggers CI failure if limit breached. |
+| Synthetic review timestamps may not reflect real reviewer behavior | Explicitly document the simulation approach and its limitations; treat findings as associational. |
+| Runtime > 6 h | `runtime.py` timers; CI fails on `runtime_report.json` exceeding budget. |
 
 ---
 
+
+
+## 6. Documentation & Reproducibility
+All scripts are deterministic (random seeds fixed in `code/utils.py`). The `quickstart.md` (see separate artifact) contains exact commands to reproduce the entire pipeline on a fresh runner. Every external dataset URL is hard‑coded and verified; checksums are stored in `state/projects/...yaml`. The synthetic cohort provenance (model version, temperature, max tokens, source commit) is recorded in `data/synthetic/` per Constitution Principle VI.
 

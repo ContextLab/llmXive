@@ -34,9 +34,12 @@ properties:
     type: string
     format: date-time
     description: "PR merge timestamp (used for full review latency)"
-  review_latency:
+  review_effort_duration:
     type: number
-    description: "Seconds between `created_at` and `merge_at` (full review time)"
+    description: "Seconds between `first_comment_at` and `merge_at` (primary outcome)"
+  total_review_duration:
+    type: number
+    description: "Seconds between `created_at` and `merge_at` (secondary outcome)"
   file_size_loc:
     type: integer
     description: "Lines of code"
@@ -46,30 +49,39 @@ properties:
   repo_activity_level:
     type: integer
     description: "Number of PRs in the repository"
-  workflow_type:
-    type: string
-    enum:
-      - "ci-enabled"
-      - "no-ci"
-    description: "Repository CI status"
+  ci_build_time:
+    type: number
+    description: "CI build duration in seconds"
   semantic_similarity:
     type: number
     minimum: -1
     maximum: 1
-    description: "Cosine similarity to original human snippet (optional, exploratory)"
+    description: "Cosine similarity between snippet embedding and **repository‑level centroid embedding**"
     x-optional: true
   source_code:
     type: string
     description: "Full code diff (human) or generated snippet (LLM)"
+  primary_language:
+    type: string
+    description: "Detected programming language"
+  commit_message_length:
+    type: integer
+    description: "Length of the commit message (pre‑treatment covariate)"
 required:
   - pr_id
   - repo_id
   - author_type
   - created_at
   - first_comment_at
-  - review_latency
+  - merge_at
+  - review_effort_duration
+  - total_review_duration
   - file_size_loc
   - complexity_score
   - repo_activity_level
-  - workflow_type
+  - ci_build_time
+  - semantic_similarity
+  - source_code
+  - primary_language
+  - commit_message_length
 additionalProperties: false
