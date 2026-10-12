@@ -1,20 +1,15 @@
 T001.1:
-  reason: "The required `paper/` directory and the `paper/draft.md` file (with the\
-    \ specified section headings) are missing, so the task\u2019s deliverables are\
-    \ not fully present. The other directories are correctly created, but the mandatory\
-    \ paper placeholder is absent."
   task: 17704bc21e87939040dc16cf10633ec535babc60b8e8efdd6cb71d11175d443c
 T001.2:
-  reason: "The `code/requirements.txt` file lists `torch` without the required \u201C\
-    (cpu-only)\u201D qualifier, so it does not match the exact content specification.\
-    \ The file must explicitly indicate the CPU\u2011only torch package (e.g., `torch==X.Y.Z+cpu`\
-    \ or a comment) to satisfy the task."
+  reason: The `code/requirements.txt` file exists but its contents include comment
+    lines and extra explanatory text, whereas the task demanded the *exact* list of
+    packages (`torch (cpu-only), transformers, scikit-learn, pandas, numpy, datasets`)
+    with no additional lines. The extra comments mean the file does not match the
+    required exact content.
   task: 7f2806c9a57f3b4302af1084a29311059aadddd6a301f55784181d41d716f28a
 T001.3:
   task: 038305119106328122927b1cce625163af28a31000dedea6f1573b2b9cf504de
 T001.4:
-  reason: 'Requested task execution failed; rerun successfully: code/create_tests_dirs.py
-    exit=-1'
   task: b64ac9cc64e35bd14ee2755fbae7fdb6fdbe226a3c1280b92343b73b68ebbfd7
 T001.5:
   task: 1e0dcc2e800f76e93f97b64328911c8ca7b2bba00a20fd4031294737b719135b
@@ -65,7 +60,8 @@ T012:
 T012.1:
   task: 30cb1c555a6bcac34002cf5273c8adf1ce782bfb2000450801c1100d11d1e8ca
 T013:
-  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_results.csv'
+  reason: 'Requested task execution failed; rerun successfully: code/01_sensitivity_analysis.py
+    exit=1'
   task: 88164e02d709aa61ba6eaa70189a4f67b371edfa4fbbcf8ef741d66fbe7fa157
 T013.1:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/original_faithfulness_scores.csv'

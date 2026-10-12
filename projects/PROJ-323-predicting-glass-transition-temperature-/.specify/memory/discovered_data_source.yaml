@@ -1,0 +1,14 @@
+status: none
+intent: Polymer Genome dataset download and NIST Chemistry WebBook polymer Tg python
+  package dataset
+required_fields:
+- polymer_id
+- smiles
+- glass_transition_temperature_Tg
+- polymer_type
+- amorphous_flag
+- blend_composition
+- source_database
+cache_key: c738f5ec776c233705209f4be14a789c91062493cb756e52a2ab73bffbf154f0
+searched_at: '2026-10-12T03:55:08.169947+00:00'
+retry_count: 1

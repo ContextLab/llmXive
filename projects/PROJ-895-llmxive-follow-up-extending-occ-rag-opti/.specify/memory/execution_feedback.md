@@ -8,30 +8,42 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/utils/verify_checksums.py -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/utils/verify_checksums.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/utils/verify_checksums.py': [Errno 2] No such file or directory
 
 - python code/01_sensitivity_analysis.py --sample-size '[variable]' --masking-unit head -> rc=1
+set
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-INFO:__main__:Starting sensitivity analysis with delta faithfulness calculation
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/01_sensitivity_analysis.py", line 332, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/01_sensitivity_analysis.py", line 289, in main
-    validate_config(config)
-TypeError: validate_config() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/01_sensitivity_analysis.py", line 22, in <module>
+    from utils.dataset_loader import load_and_cache_dataset, verify_checksum
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/utils/dataset_loader.py", line 23, in <module>
+    raise ImportError(
+ImportError: The 'datasets' library is required. Install it via: pip install datasets
 
 - python code/_prune_model.py --retention-pct 50 -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/_prune_model.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/_prune_model.py': [Errno 2] No such file or directory
 
 - python code/04_statistical_validation.py -> rc=1
+2026-10-12 03:47:51,439 - INFO - Loading original faithfulness scores...
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/04_statistical_validation.py", line 300, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/04_statistical_validation.py", line 262, in main
-    validate_config(config)
-TypeError: validate_config() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/04_statistical_validation.py", line 270, in main
+    original_scores = load_faithfulness_scores(original_scores_path)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/04_statistical_validation.py", line 39, in load_faithfulness_scores
+    raise FileNotFoundError(f"Faithfulness scores file not found: {file_path}")
+FileNotFoundError: Faithfulness scores file not found: data/processed/original_faithfulness_scores.csv
 
 
 ## Declared deliverables still missing
@@ -40,27 +52,6 @@ TypeError: validate_config() takes 0 positional arguments but 1 was given
 - data/processed/pruned_faithfulness_scores.csv
 - data/processed/sensitivity_results.csv
 - data/processed/statistical_validation_report.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **105257** real records with fields: id, question, answer, type, level, supporting_facts, context.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-from datasets import load_dataset
-
-dataset_dict = load_dataset("hotpotqa/hotpot_qa", "fullwiki")
-total_records = sum(len(split) for split in dataset_dict.values())
-print(f"RECORDS={total_records}")
-
-first_split = next(iter(dataset_dict.values()))
-print("FIELDS=" + ",".join(first_split.column_names))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

@@ -1,40 +1,56 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py run`
-  - script usage: `main.py [-h] [--skip-fetch]`
-  - argparse error: `main.py: error: unrecognized arguments: run`
-- run-book command: `python code/main.py fetch`
-  - script usage: `main.py [-h] [--skip-fetch]`
-  - argparse error: `main.py: error: unrecognized arguments: fetch`
-- run-book command: `python code/main.py optimize`
-  - script usage: `main.py [-h] [--skip-fetch]`
-  - argparse error: `main.py: error: unrecognized arguments: optimize`
-- run-book command: `python code/main.py train`
-  - script usage: `main.py [-h] [--skip-fetch]`
-  - argparse error: `main.py: error: unrecognized arguments: train`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/main.py run (rc=2); python code/main.py fetch (rc=2); python code/main.py optimize (rc=2); 4 declared deliverable(s) absent: data/confounds.csv; data/descriptors_dft.csv; data/descriptors_semi.csv
+**Summary**: 4 command(s) failed: python code/main.py run (rc=1); python code/main.py fetch (rc=1); python code/main.py optimize (rc=1); 4 declared deliverable(s) absent: data/confounds.csv; data/descriptors_dft.csv; data/descriptors_semi.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py run -> rc=2
-    usage: main.py [-h] [--skip-fetch]
-main.py: error: unrecognized arguments: run
-- python code/main.py fetch -> rc=2
-    usage: main.py [-h] [--skip-fetch]
-main.py: error: unrecognized arguments: fetch
-- python code/main.py optimize -> rc=2
-    usage: main.py [-h] [--skip-fetch]
-main.py: error: unrecognized arguments: optimize
-- python code/main.py train -> rc=2
-    usage: main.py [-h] [--skip-fetch]
-main.py: error: unrecognized arguments: train
+- python code/main.py run -> rc=1
+.hdf5: expected 206223b65c7601f7db8cc12f6a30bfef, got e6fedd6ca94779fa31dade5de9ad9be04c98ff9df9863d766b9b024f64e8b951
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 170, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 167, in main
+    args.func(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 96, in run_full_pipeline
+    run_fetch(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 37, in run_fetch
+    fetch_data_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 172, in main
+    fetch_and_prepare()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 113, in fetch_and_prepare
+    raise RuntimeError("Checksum verification failed.")
+RuntimeError: Checksum verification failed.
+
+- python code/main.py fetch -> rc=1
+-qua/data/raw/N2 on food R_2014_12_10__12_52_31___3___2.hdf5
+2026-10-12 04:26:08,045 ERROR fetch_data: Checksum mismatch for N2 on food R_2014_12_10__12_52_31___3___2.hdf5: expected 206223b65c7601f7db8cc12f6a30bfef, got e6fedd6ca94779fa31dade5de9ad9be04c98ff9df9863d766b9b024f64e8b951
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 170, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 167, in main
+    args.func(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 37, in run_fetch
+    fetch_data_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 172, in main
+    fetch_and_prepare()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 113, in fetch_and_prepare
+    raise RuntimeError("Checksum verification failed.")
+RuntimeError: Checksum verification failed.
+
+- python code/main.py optimize -> rc=1
+2026-10-12 04:26:09,018 - INFO - Executing Optimization Phase (T013)...
+Error: Input file data/raw/barrier_dataset.csv not found.
+
+
+- python code/main.py train -> rc=1
+2026-10-12 04:26:09,996 - INFO - Executing Training Phase (T021)...
+2026-10-12 04:26:09,997 - INFO - Starting model training (T021)
+2026-10-12 04:26:09,997 - INFO - Loading Semi-Empirical data from data/descriptors_semi.csv
+2026-10-12 04:26:09,997 - ERROR - Training failed: Semi-empirical descriptors file not found: data/descriptors_semi.csv
+
+
 
 ## Declared deliverables still missing
 
@@ -49,51 +65,37 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/confounds.csv` is declared but was NOT written. Scripts referencing it:
     - `code/confound_analysis.py` — NOT invoked by the run-book
-    - `code/generate_checksums.py` — IS a run-book command
     - `code/confounds.py` — NOT invoked by the run-book
     - `code/dft_calculator.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/confounds.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/generate_checksums.py` — IS a run-book command
+    - `code/main.py` — IS a run-book command
+  Make ONE of these WRITE `data/confounds.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/descriptors_dft.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/generate_checksums.py` — IS a run-book command
     - `code/evaluate_models.py` — NOT invoked by the run-book
-    - `code/track_compute_resources.py` — NOT invoked by the run-book
-    - `code/validate_subset_alignment.py` — NOT invoked by the run-book
-    - `code/missing_dof_analysis.py` — NOT invoked by the run-book
-    - `code/train_models.py` — NOT invoked by the run-book
     - `code/evaluators/missing_dof_analyzer.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/descriptors_dft.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/descriptors_semi.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/physical_validator.py` — NOT invoked by the run-book
-    - `code/descriptor_pipeline.py` — NOT invoked by the run-book
     - `code/generate_checksums.py` — IS a run-book command
-    - `code/evaluate_models.py` — NOT invoked by the run-book
-    - `code/noise_injection.py` — NOT invoked by the run-book
-    - `code/track_compute_resources.py` — NOT invoked by the run-book
-    - `code/sensitivity_analysis.py` — NOT invoked by the run-book
-    - `code/validate_subset_alignment.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/descriptors_semi.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/barrier_dataset.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/descriptor_pipeline.py` — NOT invoked by the run-book
-    - `code/confounds.py` — NOT invoked by the run-book
-    - `code/generate_summary_report.py` — NOT invoked by the run-book
-    - `code/dft_calculator.py` — NOT invoked by the run-book
     - `code/missing_dof_analysis.py` — NOT invoked by the run-book
+    - `code/track_compute_resources.py` — NOT invoked by the run-book
     - `code/train_models.py` — NOT invoked by the run-book
+    - `code/validate_subset_alignment.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/descriptors_dft.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/descriptors_semi.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/descriptor_pipeline.py` — NOT invoked by the run-book
+    - `code/evaluate_models.py` — NOT invoked by the run-book
+    - `code/evaluators/missing_dof_analyzer.py` — NOT invoked by the run-book
+    - `code/generate_checksums.py` — IS a run-book command
+    - `code/missing_dof_analysis.py` — NOT invoked by the run-book
+    - `code/noise_injection.py` — NOT invoked by the run-book
+    - `code/outputs/us1_artifacts.py` — NOT invoked by the run-book
+    - `code/physical_validator.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/descriptors_semi.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/barrier_dataset.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/confounds.py` — NOT invoked by the run-book
+    - `code/descriptor_pipeline.py` — NOT invoked by the run-book
+    - `code/dft_calculator.py` — NOT invoked by the run-book
+    - `code/extract_archive.py` — NOT invoked by the run-book
     - `code/fetch_data.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/barrier_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `data/raw/barrier_dataset.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/descriptor_pipeline.py`, `code/confounds.py`, `code/generate_summary_report.py`, `code/dft_calculator.py`, `code/missing_dof_analysis.py`, `code/train_models.py`, `code/fetch_data.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/barrier_dataset.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/descriptor_pipeline.py`, `code/confounds.py`, `code/generate_summary_report.py`, `code/dft_calculator.py`, `code/missing_dof_analysis.py`, `code/train_models.py`, `code/fetch_data.py`.
-
-### `home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/models/rf_semi.pkl`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/sensitivity_analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/models/rf_semi.pkl`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/sensitivity_analysis.py`.
+    - `code/missing_dof_analysis.py` — NOT invoked by the run-book
+    - `code/normalize_data.py` — NOT invoked by the run-book
+    - `code/train_models.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/barrier_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

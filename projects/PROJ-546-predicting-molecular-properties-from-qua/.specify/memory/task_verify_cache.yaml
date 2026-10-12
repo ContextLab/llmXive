@@ -1,18 +1,61 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I looked for the required directory tree (`projects/PROJ-546-predicting-molecular-properties-from-qua/`
-    with the specified subfolders) but no such structure or any listing of its contents
-    was provided. Without concrete evidence that the directories exist, the task cannot
-    be considered completed.
+  h: 90ada8c8d94500c7b8388a8cab77e1009a82d994f2e03cdb2a6805395b50590a
+  r: "The required `data/optimized_geometries/` directory does not exist, and the\
+    \ evidence does not confirm the presence of the `tests/unit/`, `tests/integration/`,\
+    \ and `tests/contract/` sub\u2011directories. These missing directories mean the\
+    \ project structure is not fully initialized as specified."
+  sig: d45e2ed8359a98ecb984b175af27c8067d508438ff0e747fef749b4238af9849
+T002a:
+  c: false
+  h: e70ad8d3d7c51761b2823c0f403a667e6747cc4c35a6fe3e0b5aae484d7480c4
+  r: "Checked `requirements.txt` (contains the six required packages) and `code/requirements.txt`\
+    \ (has pinned versions for the required packages but includes unpinned entries\
+    \ for `numpy` and `scipy`). The presence of unpinned dependencies violates the\
+    \ \u201Cpinned versions for reproducibility\u201D requirement. Pin those packages\
+    \ (or remove them) to complete the task."
+  sig: 70c1ef34cfc4a0ef7f0b9746db7a19810ed296b5fb6bc0d2b5bdaa1121ffbd3a
+T002b:
+  c: false
+  h: e1f5db00af3cccfc9a65fe62d5cc63df94f907a001840ac7bc6b891369906024
+  r: "The `pyproject.toml` and `.ruff.toml` files are present and contain Black and\
+    \ Ruff configurations, but there is no provided evidence (e.g., command output\
+    \ or logs) that `ruff check` and `black --check` were run on an empty codebase\
+    \ and succeeded. Without this verification, the task\u2019s requirement is not\
+    \ fully satisfied."
+  sig: eca918abd6022efbdf3e8c293c49fadd9b28085b25d74ecc5903e48207cfd9ab
 T004a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `idea/predicting-molecular-properties-from-qua.md`\
-    \ file being read and the Zenodo Accession ID extracted is present; the task demands\
-    \ a non\u2011empty string ID, but no artifact (e.g., a text file, JSON, or log\
-    \ entry) containing that ID was provided. The implementer must supply the extracted\
-    \ Zenodo ID (and optionally the URL) as a concrete output."
+  h: 5fd14a41b8d912512aa0edafb582f57d088b5a590ecfd51474e5edf8652a3572
+  r: "The `idea/predicting-molecular-properties-from-qua.md` file does not contain\
+    \ the required Zenodo accession `1048765`, and `code/config.py` does not hard\u2011\
+    code `ZENODO_ID = \"1048765\"` (it uses an environment fallback and a placeholder\
+    \ ID `1031531`). Consequently the task\u2019s primary requirement and the mandated\
+    \ error\u2011handling fallback are not met. The implementer must add the correct\
+    \ ID to the idea file (or ensure it is present) and set `ZENODO_ID = \"1048765\"\
+    ` directly in `code/config.py`, raising `FileNotFoundError` if the ID cannot be\
+    \ resolved."
+  sig: abb3880886304c084717322e073d7ae1a749755ec41f3a5f7788b00cc9b09b0f
+T004b:
+  c: false
+  h: 62555811c6b2d5df085cf4b5c6e016f287edfbb40f636ee04f69edbea8934394
+  r: "The provided `code/fetch_data.py` imports `ZENODO_ID` from `code/config.py`,\
+    \ which currently defaults to the placeholder ID\u202F`1031531` instead of the\
+    \ required Zenodo ID\u202F`1048765`; therefore it would download the wrong record.\
+    \ Moreover, the verification entry written to `logs/verification.log` records\
+    \ the file size and SHA\u2011256 hash but omits a timestamp, contrary to the task\u2019\
+    s specification of logging \u201Cchecksum match, file size, timestamp\u201D. These\
+    \ issues must be fixed for the task to be considered complete."
+  sig: 7b4264a1f98355b084dea1616f9dcc9bf8fb0afa9ea6b7bdf9209637ebb8f0b8
+T004c-extract:
+  c: false
+  h: 1393ee19087f5f3902a6377dfb5159c18d9987c833e24d9a4c4f5e7509e8fba9
+  r: "The provided `code/fetch_data.py` does perform archive detection, extraction,\
+    \ and CSV selection, but its `fetch_and_prepare()` function (and the script\u2019\
+    s CLI entry point) does **not** return the absolute path to the extracted CSV\
+    \ file as required by Task\u202FT004c\u2011extract. Consequently the core output\
+    \ contract of the task is unmet."
+  sig: f317a9a2449db314163b0fea3a0629ca4ed0a6481da8579df3d469205e046f4d
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -29,13 +72,6 @@ T020a:
     \ leaving doubt that the full subset\u2011selection implementation is present.\
     \ The missing dataset (and likely incomplete code) must be added for the task\
     \ to be considered complete."
-T020b:
-  c: false
-  h: 95627fa62209499efc466e46bb1d9f555d8cc4b5e6057dea5b98e79ad3f22150
-  r: "The required output file `data/descriptors_dft.csv` is absent, and the provided\
-    \ `code/dft_calculator.py` does not contain any Psi4 invocation or DFT calculation\
-    \ logic needed to generate HOMO/LUMO and Mayer bond order descriptors. Consequently\
-    \ the task\u2019s core requirements are not met."
 T021:
   c: false
   h: f3d2f238f221092f75d0a8d28a5715d5233abe11244e9d59d24ded884b4d5b6e

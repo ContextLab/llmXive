@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Matrix Schema"
+type: object
+properties:
+  polymer_id:
+    type: string
+    description: "Unique identifier for the polymer (e.g., Polymer Genome ID)."
+  smiles:
+    type: string
+    description: "Canonical SMILES representation of the polymer."
+  elemental_mass_fraction_C:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Mass fraction of carbon."
+  elemental_mass_fraction_H:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Mass fraction of hydrogen."
+  elemental_mass_fraction_O:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Mass fraction of oxygen."
+  elemental_mass_fraction_N:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Mass fraction of nitrogen."
+  functional_group_counts_ester:
+    type: integer
+    minimum: 0
+    description: "Count of ester groups in the polymer."
+  functional_group_counts_amide:
+    type: integer
+    minimum: 0
+    description: "Count of amide groups in the polymer."
+  estimated_mw:
+    type: number
+    minimum: 0
+    description: "Estimated molecular weight (Da)."
+required:
+  - polymer_id
+  - smiles
+  - elemental_mass_fraction_C
+  - elemental_mass_fraction_H
+  - elemental_mass_fraction_O
+  - elemental_mass_fraction_N
+  - functional_group_counts_ester
+  - functional_group_counts_amide
+  - estimated_mw
+additionalProperties: false

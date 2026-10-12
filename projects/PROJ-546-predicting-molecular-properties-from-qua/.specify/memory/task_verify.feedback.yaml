@@ -1,0 +1,131 @@
+T001:
+  reason: "The required `data/optimized_geometries/` directory does not exist, and\
+    \ the evidence does not confirm the presence of the `tests/unit/`, `tests/integration/`,\
+    \ and `tests/contract/` sub\u2011directories. These missing directories mean the\
+    \ project structure is not fully initialized as specified."
+  task: f181b5d3c684b1dc78e45ac21aa4bea31bfb11c95967ff345bac4932cbe94ce9
+T002a:
+  reason: "Checked `requirements.txt` (contains the six required packages) and `code/requirements.txt`\
+    \ (has pinned versions for the required packages but includes unpinned entries\
+    \ for `numpy` and `scipy`). The presence of unpinned dependencies violates the\
+    \ \u201Cpinned versions for reproducibility\u201D requirement. Pin those packages\
+    \ (or remove them) to complete the task."
+  task: 6f45d07ccd6332cdc187cce49de2940b09483de4dcd772983f5658771d9a0db4
+T002b:
+  reason: "The `pyproject.toml` and `.ruff.toml` files are present and contain Black\
+    \ and Ruff configurations, but there is no provided evidence (e.g., command output\
+    \ or logs) that `ruff check` and `black --check` were run on an empty codebase\
+    \ and succeeded. Without this verification, the task\u2019s requirement is not\
+    \ fully satisfied."
+  task: 31ec8222b3bc9bb2bb1c4ac7e2d455b09975cd12fa03c8432fbcf75008b99cfb
+T004a:
+  reason: "The `idea/predicting-molecular-properties-from-qua.md` file does not contain\
+    \ the required Zenodo accession `1048765`, and `code/config.py` does not hard\u2011\
+    code `ZENODO_ID = \"1048765\"` (it uses an environment fallback and a placeholder\
+    \ ID `1031531`). Consequently the task\u2019s primary requirement and the mandated\
+    \ error\u2011handling fallback are not met. The implementer must add the correct\
+    \ ID to the idea file (or ensure it is present) and set `ZENODO_ID = \"1048765\"\
+    ` directly in `code/config.py`, raising `FileNotFoundError` if the ID cannot be\
+    \ resolved."
+  task: ad8cd9bb1dfd5710306080eb0c0186a149aef64bb858f26fed9e9b9304c41232
+T004b:
+  reason: "The provided `code/fetch_data.py` imports `ZENODO_ID` from `code/config.py`,\
+    \ which currently defaults to the placeholder ID\u202F`1031531` instead of the\
+    \ required Zenodo ID\u202F`1048765`; therefore it would download the wrong record.\
+    \ Moreover, the verification entry written to `logs/verification.log` records\
+    \ the file size and SHA\u2011256 hash but omits a timestamp, contrary to the task\u2019\
+    s specification of logging \u201Cchecksum match, file size, timestamp\u201D. These\
+    \ issues must be fixed for the task to be considered complete."
+  task: 61ce3d32c421e954cb45d7957fca1e750139cfd93bd922f78a5d16348e838711
+T004c-extract:
+  reason: "The provided `code/fetch_data.py` does perform archive detection, extraction,\
+    \ and CSV selection, but its `fetch_and_prepare()` function (and the script\u2019\
+    s CLI entry point) does **not** return the absolute path to the extracted CSV\
+    \ file as required by Task\u202FT004c\u2011extract. Consequently the core output\
+    \ contract of the task is unmet."
+  task: 182d6a99de49ffcef14d229d1e3f73db7e3186d9678803287a848789257a8778
+T004c-normalize:
+  task: 74c8f3e59594f36b872ee43b6c8a5cb4acce2333633de10cf48d3d9f05f6540c
+T010:
+  task: 4db5be67b1927df8dcbd488e7ca01505b932043d8cd0d894cfd6b6bf87b83eb2
+T011:
+  task: c37eb22835346cf671215c7c2c1590158e86ad7a61b78ec4254e52eb11bae1e1
+T012:
+  task: 3b83c286b0a13422ac706b16e75227b955916dc999c42d650464de0b12450fda
+T013a:
+  task: 73f9d64e987421b6e3ba4ab4dfff01124d8839fb4f0f618f2100905e6c06dafd
+T013b:
+  task: 9cf504b8a5f81df8ee045ee39d1894125c36d40351f4fe1d2437e26efff48722
+T013c-orchestrate:
+  task: 8276ce388f9696c3e0889b6a19f99a585d5af840b6f537dbb94634cc0c0f9687
+T013c-retry:
+  task: 7c58fb5b9099a316576216a4e034d91d0a88d5c0dd3ae0486a17994a0020d5f6
+T013c-validate:
+  task: 51d730e542e1826a5343a2d2d99b6f3277015ef385135d23444e7a04721b6e04
+T013d:
+  task: 21f0d72ffe0c19fcd9587c2225b0883a951645c390bff4588d7ea5520811ef15
+T013e:
+  task: de2b35e908325eafc1692c01079c373e45cb61ac14980e509f0492b6e69fc19d
+T013f:
+  task: ee93508aee0b287a433e12cffe207ee2d300432a7b804971dcd39b5c96b90955
+T017a:
+  task: 305dd5fe79b47199f66260834d91c2f8b17ae597372e6333fe2863e47cbfd63f
+T018:
+  task: f56b7361c4d604146ca0f0b81fb55e812160a04f24215c568bc171ea684674a3
+T020a:
+  task: 6d73f6680aebffdca8ea5d8bf61ab2796b92e69eaa316d4fdab9fe715f83c426
+T020b-calc:
+  task: 5cc1265b501207c0b221734832c4399a19280813f0dc543b6b57da8240ea8e80
+T020b-subset:
+  task: 74cd56d48047ef76323e6a05cf9462dc0bda8b529007a02153ad6d63c51518c9
+T020c:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/splits.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: a02852ceb1b3be76024244ebd5de7b5c7a6f63bac208cac1352b51b633b341c8
+T021:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/splits.json`
+    (shadows `state/`), `state/selected_subset.json` (shadows `state/`), `state/model_semi.pkl`
+    (shadows `state/`), `state/model_dft.pkl` (shadows `state/`). A project owns data/,
+    figures/, code/ and paper/; the platform owns state/ and derives artifact hashes
+    at verification time. Re-scope the step to write only project-owned outputs.'
+  task: 973651a124a3a8688e6baded70c3a9752bcaec7172aaf162a9781ab6164ced8a
+T022:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/splits.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 8a59c98c54a8b33c17b830747df6c98e10413bbc55a6063c9167adf676b6fec6
+T027:
+  task: ebd931adf46fe0496a32fd241d09287467af6c2de315424bb72eac8099c326f2
+T028:
+  task: cbce23e375b80147af6bf70d983d99cba8c7f2058086fa392dc1a69e02fdff84
+T029:
+  task: 5fee847b8306222b564c605a4ce5b8b197fc012cd21796b4a481f5166ba733fd
+T030:
+  task: 5e85a5a37d814bdcc8ea38a076ef93f39f78f7ec8fff263840c468cf5325af97
+T030b-noise:
+  task: e4d6d80fcdf40352d11b8ca3213f6c64f5bc0c5c11dbb675b5d7e1ed626f9951
+T030b-sweep:
+  task: c3d4982d2616eeb61bc0904f22380c1f316a763e92d7f51b67443e577da23615
+T031:
+  task: 9c5b8953015f9e3e4a7f2583b847e5c8fe77d4e9366b326ee048c1bd567124af
+T033a:
+  task: 0c5338271344dd94add7dbfc9659ae1309f5fd7ad81cf17d30e8a7d62cfea312
+T033b:
+  task: f46d63b70c5db8ac30a7478ba9468493581003f0a30251b03fb557b963f58906
+T034:
+  task: 7fa5b3188f690d3df3e05ce4c50858727125fb7f2e956336fa704f9c8eb29b81
+T035:
+  task: 57c7de4009ebd83d407764501a40b61df421820310e040f78f4971e204272871
+T046:
+  task: bb7faccbde769b4d32a7f4fbdaed127314551122e0dd851c8e3b573a7dab9b28
+T081:
+  task: d800cabbca69628bc5cd3d403956c5d6f024a42c595a84cfc63c0050dcb9e915
+T082:
+  task: faa701f420aa41b446bc6bc414ecc3e1e0461d095ce25660064f89499f18c8fc
+T083:
+  reason: 'declared artifact(s) missing/empty/invalid: code/generate_descriptor_definitions.py,
+    reports/descriptor_definitions.md'
+  task: 2da44b2474e8c66e3c201d82d612feeee63c33ceeaed24fe22dd74aa12d75a8e

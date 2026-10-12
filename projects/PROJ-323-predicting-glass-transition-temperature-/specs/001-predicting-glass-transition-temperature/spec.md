@@ -24,7 +24,7 @@ The researcher MUST be able to download raw polymer data from the Polymer Genome
 
 **Why this priority**: Without a clean, engineered dataset, no modeling can occur. This is the foundational step that transforms unstructured chemical data into the inputs required for the EBM. It is independently testable by verifying the existence of the feature matrix and the correctness of the descriptor calculations against a known subset of polymers.
 
-**Independent Test**: Run the data ingestion script on a small, hardcoded subset of 10 known polymers and verify that the output CSV contains the correct calculated descriptors (e.g., verify elemental mass fraction sums to ~1.0), that rows with missing $T_g$ values are correctly filtered out, and that features are normalized using StandardScaler.
+**Independent Test**: Run the data ingestion script on a small, hardcoded subset of known polymers. and verify that the output CSV contains the correct calculated descriptors (e.g., verify elemental mass fraction sums to a normalized total (i.e., the fractions collectively account for the whole)), that rows with missing $T_g$ values are correctly filtered out, and that features are normalized using StandardScaler.
 
 **Acceptance Scenarios**:
 
@@ -40,7 +40,7 @@ The researcher MUST be able to train an Explainable Boosting Machine (EBM) on th
 
 **Why this priority**: This is the core analytical engine. While the data (US-1) is necessary, the value proposition lies in the *interpretability* of the EBM compared to black-box models. This can be tested independently by training the model on the P1 output and verifying that the resulting model object contains interpretable main effect and interaction terms.
 
-**Independent Test**: Train the EBM on the P1 dataset using 5-fold cross-validation; verify that the model converges within the 6-hour time limit, that the R² score on the validation set is > 0.0 (indicating non-random performance), and that the model object exposes a method to retrieve the top 5 feature interactions.
+**Independent Test**: Train the EBM on the P1 dataset using 5-fold cross-validation; verify that the model converges within the 6-hour time limit, that the R² score on the validation set is > 0.0 (indicating non-random performance), and that the model object exposes a method to retrieve the top feature interactions..
 
 **Acceptance Scenarios**:
 
