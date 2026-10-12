@@ -79,34 +79,18 @@ def load_pcs_data(filepath: str) -> Dict[str, List[float]]:
     if not os.path.exists(filepath):
         raise AssociationError(f"PCs data file not found: {filepath}")
     
-    with open(filepath, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        # Assume first column is sample_id, rest are PCs
-        fieldnames = reader.fieldnames
-        if not fieldnames:
-            raise AssociationError("PCs CSV is empty or malformed")
-        
-        lines = fieldnames[1:] # Skip sample_id column
-        
-        for row in reader:
-            # We expect rows to be samples, columns to be PCs
-            # But standard format for this pipeline is usually:
-            # sample_id, PC1, PC2, ...
-            # Let's transpose to match other loaders: {pc_name: [vals]}
-            pass 
-    
     # Re-implementation for standard row-per-sample format
-    samples = []
-    pcs = {}
     pc_names = []
+    pcs = {}
     
     with open(filepath, 'r', newline='') as f:
         reader = csv.DictReader(f)
+        if not reader.fieldnames or 'sample_id' not in reader.fieldnames:
+            raise AssociationError("PCs CSV must contain 'sample_id' column")
+        
         pc_names = [col for col in reader.fieldnames if col != 'sample_id']
         
         for row in reader:
-            sample_id = row['sample_id']
-            samples.append(sample_id)
             for pc in pc_names:
                 val_str = row.get(pc, '0')
                 try:
@@ -222,7 +206,6 @@ def run_association_test(gene_expr: List[float], te_presence: List[int], pcs: Li
     y = [math.log2(x + 1e-6) for x in gene_expr]
     
     # Construct design matrix X: [1, TE, PC1, PC2, PC3]
-    # pcs is List[List[float]] where each inner list is a PC vector
     X = []
     for i in range(n):
         row = [1.0, float(te_presence[i])]
@@ -241,11 +224,9 @@ def run_association_test(gene_expr: List[float], te_presence: List[int], pcs: Li
         }
     
     # Calculate t-statistic for TE coefficient (beta[1])
-    # Residuals
     y_pred = [sum(b * x for b, x in zip(beta, row)) for row in X]
     residuals = [yi - yp for yi, yp in zip(y, y_pred)]
     
-    # Residual variance (sigma^2)
     df = n - len(beta)
     if df <= 0:
         return {'effect_size': beta[1], 'p_value': 1.0, 'r_squared': r_sq, 'success': False}
@@ -253,9 +234,7 @@ def run_association_test(gene_expr: List[float], te_presence: List[int], pcs: Li
     rss = sum(r ** 2 for r in residuals)
     sigma_sq = rss / df
     
-    # Standard error of beta[1]
-    # (X^T X)^-1 element [1][1]
-    # Re-compute (X^T X)
+    # Compute (X^T X)^-1 element [1][1] via Gauss-Jordan
     k = len(beta)
     XtX = [[0.0] * k for _ in range(k)]
     for i in range(k):
@@ -265,11 +244,10 @@ def run_association_test(gene_expr: List[float], te_presence: List[int], pcs: Li
                 sum_val += X[m][i] * X[m][j]
             XtX[i][j] = sum_val
     
-    # Invert (X^T X) - simple Gaussian inversion for small k
-    # Augment with Identity
+    # Augment with identity
     aug = [XtX[i] + [1.0 if i == j else 0.0 for j in range(k)] for i in range(k)]
     
-    # Gauss-Jordan
+    # Gauss-Jordan elimination
     for i in range(k):
         max_row = i
         for r in range(i + 1, k):
@@ -278,7 +256,6 @@ def run_association_test(gene_expr: List[float], te_presence: List[int], pcs: Li
         aug[i], aug[max_row] = aug[max_row], aug[i]
         
         if abs(aug[i][i]) < 1e-12:
-            # Singular, fallback to large p-value
             return {'effect_size': beta[1], 'p_value': 1.0, 'r_squared': r_sq, 'success': False}
         
         factor = aug[i][i]
@@ -291,7 +268,6 @@ def run_association_test(gene_expr: List[float], te_presence: List[int], pcs: Li
                 for c in range(2 * k):
                     aug[r][c] -= factor * aug[i][c]
     
-    # Extract inverse
     XtX_inv = [aug[i][k:] for i in range(k)]
     
     var_beta1 = XtX_inv[1][1] * sigma_sq
@@ -299,7 +275,6 @@ def run_association_test(gene_expr: List[float], te_presence: List[int], pcs: Li
     
     t_stat = beta[1] / se_beta1 if se_beta1 > 1e-12 else 0.0
     
-    # Two-tailed p-value using normal approx (large n)
     p_val = 2.0 * (1.0 - normal_cdf(abs(t_stat)))
     
     return {
@@ -323,97 +298,55 @@ def apply_bh_correction(results: List[Dict[str, Any]], threshold: float = 0.05) 
     if not results:
         return []
     
-    # Sort by p-value
     indexed_results = [(i, r) for i, r in enumerate(results)]
     sorted_results = sorted(indexed_results, key=lambda x: x[1]['p_value'])
     
     n = len(sorted_results)
-    significant_indices = set()
-    
-    # BH Procedure
-    # Find largest k such that p_(k) <= (k/m) * alpha
-    # We iterate from largest to smallest p-value to find the cutoff
-    
-    cutoff_p = 0.0
     cutoff_idx = -1
     
     for rank, (orig_idx, res) in enumerate(sorted_results, 1):
         p_val = res['p_value']
         if p_val <= (rank / n) * threshold:
-            cutoff_p = p_val
             cutoff_idx = rank
     
-    # If a cutoff was found, all p-values <= cutoff_p are significant
-    if cutoff_idx > 0:
-        for rank, (orig_idx, res) in enumerate(sorted_results, 1):
-            if res['p_value'] <= cutoff_p:
-                # Calculate BH adjusted p-value for this specific test
-                # adj_p = p * m / rank
-                adj_p = res['p_value'] * n / rank
-                # Ensure monotonicity: adj_p should not be smaller than previous
-                # (Standard implementation often sorts and enforces monotonicity)
-                significant_indices.add(orig_idx)
+    if cutoff_idx <= 0:
+        return []
     
-    # Prepare output with adjusted p-values and monotonicity enforcement
-    # Re-sort by p-value to enforce monotonicity easily
-    sorted_for_output = sorted_results
-    last_adj_p = 1.0
-    
-    final_results = []
-    
-    # We need to assign adj_p and filter
-    # To ensure monotonicity: adj_p[i] = min(adj_p[i], adj_p[i+1]) going backwards
-    
-    # First pass: calculate raw adj p
+    # Compute raw adjusted p-values
     adj_p_values = {}
-    for rank, (orig_idx, res) in enumerate(sorted_for_output, 1):
-        p_val = res['p_value']
-        adj_p = p_val * n / rank
+    for rank, (orig_idx, res) in enumerate(sorted_results, 1):
+        adj_p = res['p_value'] * n / rank
         adj_p_values[orig_idx] = adj_p
     
-    # Second pass: enforce monotonicity (backwards)
-    # Sort indices by rank (which is sorted_results order)
-    # We need to map back to original list order or just sort the final output
-    
-    # Let's build the final list of significant results
-    # We'll calculate monotonic adj_p on the sorted list then map back
-    
-    monotonic_adj_p = [0.0] * n
+    # Enforce monotonicity (backwards)
+    monotonic_adj = [0.0] * n
     current_min = 1.0
     for i in range(n - 1, -1, -1):
-        rank = i + 1
-        orig_idx = sorted_for_output[i][0]
+        orig_idx = sorted_results[i][0]
         raw_adj = adj_p_values[orig_idx]
         current_min = min(current_min, raw_adj)
-        monotonic_adj_p[i] = current_min
+        monotonic_adj[i] = current_min
     
-    # Collect significant results
-    output_list = []
+    output = []
     for i in range(n):
-        orig_idx = sorted_for_output[i][0]
-        res = sorted_for_output[i][1]
-        adj_p = monotonic_adj_p[i]
-        
+        orig_idx, res = sorted_results[i]
+        adj_p = monotonic_adj[i]
         if adj_p < threshold:
             res_copy = res.copy()
             res_copy['adj_p_value'] = adj_p
-            output_list.append(res_copy)
+            output.append(res_copy)
     
-    # Sort output by adj_p_value for readability
-    output_list.sort(key=lambda x: x['adj_p_value'])
-    
-    return output_list
+    output.sort(key=lambda x: x['adj_p_value'])
+    return output
 
 def calculate_vif_for_pair(te_vec: List[int], pcs: List[List[float]]) -> float:
     """
     Calculate VIF for a specific TE against the set of PCs.
     VIF_j = 1 / (1 - R_j^2) where R_j^2 is from regressing TE on PCs.
     """
-    # Regress TE on PCs
     n = len(te_vec)
     k = len(pcs)
     
-    # X = [1, PC1, PC2, ...]
     X = []
     for i in range(n):
         row = [1.0]
@@ -443,7 +376,7 @@ def run_full_association_analysis(expr_data: Dict[str, List[float]],
     logger = setup_logger(__name__)
     results = []
     
-    # Extract PC vectors
+    # Extract PC vectors in order
     pc_names = sorted([k for k in pcs.keys() if k.startswith('PC')])
     pc_vectors = [pcs[p] for p in pc_names]
     
@@ -454,11 +387,10 @@ def run_full_association_analysis(expr_data: Dict[str, List[float]],
         te_vec = te_data[te_id]
         expr_vec = expr_data[gene_id]
         
-        # Check for missing data (0s or NaNs treated as missing)
-        # Simple check: if any value is 0 in expr or nan
+        # Simple missing data check
         valid = True
-        for i in range(len(expr_vec)):
-            if expr_vec[i] <= 0 or math.isnan(expr_vec[i]):
+        for val in expr_vec:
+            if val <= 0 or math.isnan(val):
                 valid = False
                 break
         
@@ -476,7 +408,6 @@ def run_full_association_analysis(expr_data: Dict[str, List[float]],
     
     # Apply BH correction
     significant_results = apply_bh_correction(results, threshold=0.05)
-    
     return significant_results
 
 def generate_empty_output_table() -> List[Dict[str, Any]]:
@@ -485,10 +416,63 @@ def generate_empty_output_table() -> List[Dict[str, Any]]:
     """
     return []
 
+# --- New Functionality for T012: Population Structure Control Metrics ---
+
+def compute_population_structure_control_metrics(
+    expr_data: Dict[str, List[float]],
+    pcs: Dict[str, List[float]]
+) -> List[Dict[str, Any]]:
+    """
+    For each gene, compute R² with PCs (intercept + PC1-3) and without PCs
+    (intercept only). Return a list of dictionaries with:
+    gene_id, r2_with_pcs, r2_without_pcs, reduction_percent.
+    
+    reduction_percent is defined as:
+        ((r2_with_pcs - r2_without_pcs) / r2_without_pcs) * 100
+    with the edge‑case handling that if r2_without_pcs == 0,
+    reduction_percent is set to 0.0 to avoid division‑by‑zero.
+    """
+    metrics = []
+    # Prepare PC vectors in deterministic order
+    pc_names = sorted([k for k in pcs.keys() if k.startswith('PC')])
+    pc_vectors = [pcs[p] for p in pc_names]
+    
+    for gene_id, expr_vec in expr_data.items():
+        n = len(expr_vec)
+        
+        # Design matrix with PCs
+        X_with = []
+        for i in range(n):
+            row = [1.0]
+            for pc_vec in pc_vectors:
+                row.append(pc_vec[i])
+            X_with.append(row)
+        
+        _, r2_with = fit_linear_model_simple(X_with, expr_vec)
+        
+        # Design matrix without PCs (intercept only)
+        X_without = [[1.0] for _ in range(n)]
+        _, r2_without = fit_linear_model_simple(X_without, expr_vec)
+        
+        if r2_without == 0.0:
+            reduction = 0.0
+        else:
+            reduction = ((r2_with - r2_without) / r2_without) * 100.0
+        
+        metrics.append({
+            'gene_id': gene_id,
+            'r2_with_pcs': r2_with,
+            'r2_without_pcs': r2_without,
+            'reduction_percent': reduction
+        })
+    
+    return metrics
+
 def main():
     """
     Entry point for association analysis pipeline.
-    Loads mock data, runs analysis, applies BH correction, writes results.
+    Loads mock data, runs analysis, applies BH correction, writes results,
+    and computes population‑structure control metrics.
     """
     logger = setup_logger(__name__)
     logger.info("Starting Association Analysis Pipeline (T011: BH Correction)")
@@ -496,11 +480,13 @@ def main():
     # Paths
     expr_path = "data/mock_expression.csv"
     te_path = "data/mock_te_presence.csv"
-    pc_path = "data/mock_pcs.csv"
-    pair_path = "data/preprocessed_te_gene_pairs.csv" # Assumed output of T019
+    pc_path = "data/mock/population_pcs.csv"
+    pair_path = "data/preprocessed_te_gene_pairs.csv"  # Assumed output of T019
     out_path = "data/results/association_results_bh.csv"
+    metrics_path = "data/results/population_structure_control_metrics.csv"
     
     ensure_directory(out_path)
+    ensure_directory(metrics_path)
     
     try:
         # Load Data
@@ -519,13 +505,10 @@ def main():
                 for row in reader:
                     pairs.append((row['te_id'], row['gene_id']))
         else:
-            logger.warning("Pair file not found. Generating dummy pairs for demo.")
-            # Fallback if preprocessing hasn't run yet (for T011 standalone test)
-            # In real pipeline, this should not happen
+            logger.warning("Pair file not found. Generating dummy pair for demo.")
             if expr_data and te_data:
-                # Pick first gene and first TE
-                g = list(expr_data.keys())[0] if expr_data else "GENE_0"
-                t = list(te_data.keys())[0] if te_data else "TE_0"
+                g = list(expr_data.keys())[0]
+                t = list(te_data.keys())[0]
                 pairs = [(t, g)]
         
         logger.info(f"Running {len(pairs)} association tests...")
@@ -533,21 +516,37 @@ def main():
         
         logger.info(f"Found {len(results)} significant pairs (FDR < 0.05)")
         
-        # Write Results
+        # Write Association Results
         if results:
-            fieldnames = ['te_id', 'gene_id', 'effect_size', 'p_value', 'adj_p_value', 'r_squared', 't_statistic']
+            fieldnames = ['te_id', 'gene_id', 'effect_size', 'p_value',
+                         'adj_p_value', 'r_squared', 't_statistic']
             with open(out_path, 'w', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 for r in results:
                     writer.writerow({k: r.get(k, '') for k in fieldnames})
-            logger.info(f"Results written to {out_path}")
+            logger.info(f"Association results written to {out_path}")
         else:
             logger.info("No significant pairs found. Writing empty table.")
+            fieldnames = ['te_id', 'gene_id', 'effect_size', 'p_value',
+                         'adj_p_value', 'r_squared', 't_statistic']
             with open(out_path, 'w', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                
+        
+        # Compute and Write Population Structure Control Metrics
+        logger.info("Computing population structure control metrics per gene...")
+        metrics = compute_population_structure_control_metrics(expr_data, pcs)
+        
+        metric_fieldnames = ['gene_id', 'r2_with_pcs', 'r2_without_pcs', 'reduction_percent']
+        with open(metrics_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=metric_fieldnames)
+            writer.writeheader()
+            for m in metrics:
+                writer.writerow(m)
+        
+        logger.info(f"Population structure metrics written to {metrics_path}")
+        
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise

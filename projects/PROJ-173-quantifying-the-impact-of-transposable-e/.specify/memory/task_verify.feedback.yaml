@@ -1,0 +1,118 @@
+T001:
+  task: f40a66d81256057b08796406943245f487da3830688bf927831c4fb0014dd127
+T002:
+  task: 1e4d0d721a545a47118926c615df1443eccb5b031316220eb2e9b21d88e09a05
+T003:
+  reason: The evidence contains no configuration files, scripts, or documentation
+    showing that ruff linting and black formatting have been set up (e.g., no `pyproject.toml`,
+    `.ruff.toml`, `.pre-commit-config.yaml`, or related command/run logs). Without
+    these artifacts, the requirement to configure linting and formatting tools is
+    not satisfied. Adding the appropriate configuration files and proof of successful
+    execution is needed.
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  reason: "The `generate_te_genotypes` function in `code/data_generator.py` returns\
+    \ a list but never writes a CSV of the raw TE genotypes, so the required raw CSV\
+    \ file is missing. Moreover, the presence\u2011frequency generation uses `random.uniform(0.01,\
+    \ 0.99)` and a 10\u202F% monomorphic chance, which does not guarantee that the\
+    \ majority of TE frequencies lie within the required 0.05\u20130.95 range. The\
+    \ task therefore is not fully satisfied."
+  task: 5ddb4a456d32421966c3b5a70441c440730d5fdf49d186fa99857d94559c8edc
+T004A:
+  task: ad35140cfab1aba068588758501e245fdc9b430760cc9bff7cd58b11acd2d4bc
+T004B:
+  task: f34c4ffe3b15917e5867a0e08c58c8af44d90ad5d80acce89785a70da3b6d599
+T005:
+  task: 1047e02be57653f0b66e3cfb09fcb316224177f796601d9d77d8a08e169f70bb
+T006:
+  task: f545c75bc5278431527d38b5b0356ee3a1fb80a8c4f10da95613b088ab86e58a
+T006A:
+  task: 32df5026896c15dbb159e178e98fbc904868b647ed32c7f5fda148dbcfe48ffd
+T006B:
+  task: b4f27b568a64b6299c8854aaf1853515ac30b760890a19c5e66eb7086a9886e4
+T007:
+  task: 5692ca07dd251cb66675a6a30e89c43273d890b781cdc5a7551067c325374b2a
+T008:
+  task: cad6e1eea95906da20f2ccacaa91e9679e15a01ca5efa65fe657eef3fc5db317
+T009:
+  task: 883d903f5a54f62492322ae50530ca5accab7928f289b7c0ae0a1d61c09745b0
+T010:
+  task: 3dbbec97524dc375afde5792b462a1ede1cb804d726748cbe034108f2312862e
+T011:
+  task: ff0fb53f29437d157356e8a4b52f3ac02758e3c8961d6a47a9e84848d37b8538
+T012:
+  reason: 'Requested task execution failed; rerun successfully: code/association.py
+    exit=1'
+  task: 5fbfce7442d9da1ac7c68adb47d19015f4ab5dfa7cbd79a56f935e011acab55f
+T013:
+  task: a45acc8e5c7325341d857608d50d1ff8935d7226bac23c5e5814328510ec55d7
+T014:
+  task: 96742df110418c8253ffd24eaaa169391f9f302a8789fca274a3c0dcf2ca7269
+T015:
+  task: bdfb2578dfe72ad577a429f8a496e230ce051f92452e006d9f5ef252ad373506
+T015A:
+  task: 4252bc48f7d541bb2e6d0a5d80fc13a3fa00f91155e5c45ad6dfa6087f4e4e63
+T015B:
+  task: d62be1878bf9b3ff8a1d22cb6752cc290299173e1e87636392aa5d9191840a5a
+T016:
+  task: 7e59bf00b0b6e80ca898a1284178317cb7b50cba96bdf7c91fad8345d92584fc
+T019:
+  task: 4796f4d70e0d83c758b8db2cdc00f689c3c6f4dde05221c4e70fe1e74b8e4da2
+T020:
+  task: 2089b0df211ddaa46fd4bc37bd5bc7a687a5046d94eef65cf3a1bb1d3f32984c
+T020A:
+  task: 4cb4f1547f59638319bf6b5160afb202cd2bb11bd87f6d6bde5bed8a062a2ccb
+T021:
+  task: 3a4edd4328934bf8cb60b21062f51f86e4b1ae28dcb2e25a23f8ef30699fec0b
+T022:
+  task: 706a218ff2f8c088e1d235c1dedc0e13a0c6c3b7c9c4085dff15be1c5ebefe34
+T023:
+  task: f190a8872d96a10fbf04898232b6d9bf6afb7e70093c8d3a77a45449f87c44b8
+T024:
+  task: b18f56a70d386fe42a1edf51c5ecec38df533b865452ca64cc2676e5aa55d9a4
+T025:
+  task: 76ba3fc2dcf6b2f967c0c98f4cdfc223e93909557356b7e3a5bd7e0d268705d3
+T029:
+  task: 203401173b848e9e4c88c853145b486d5989e60e5c431219d1ceb1d45e022a1e
+T030:
+  task: e3e3739b979b8b196cbc8b117a77522c3da6ca03d2e96afbb3da3b5e0899bf49
+T031:
+  task: 10b44e80f04b707fa6aa976b58a72ac8568e46db05b37dbf81878ddcf988d709
+T032:
+  task: caf3dfafbe9efacb35d1be647feee4010d86e472d0a1a317c67695cd740648c3
+T033:
+  task: 60265490e8d73e67608992e102e15981f5d56deb1cad9885c0ee979ad97393ce
+T034:
+  task: 82ffa585b54c6f2eadd5f7a0ad19bd97d674543b8aacd8e5f945717a7aeba06e
+T035:
+  task: bcddc05ad99c696e2e25f92b784d6b3ee72fccd7f989e70cf3dfa1bcd61025dd
+T036:
+  task: 05e441f6a2f6e5a92c96c1286466a064e9cc51239a618c9ffd3da57069699aa3
+T037:
+  task: 930a9343636c15c7d2b1ff4c074dbfe9c8feb1552393e07fc023411a90e5c48b
+T038:
+  task: bd00b2288d4b666f132fc680bbd2b0e48b2c5f2c472160eb7447a31d7196b2f4
+T039:
+  task: aef625efb79fd7908c290e97c9bcba48aea1bce635c9c42f1a05b71d7e8bb22d
+T040:
+  task: 6d436591519109083d4566ea21af502774c0a18974c5437cebe79f60198e140e
+T041:
+  task: 2ec01d28768cb5a79da7c4a63fe6409f7f277f6902e6f6cda5cbc896cf5c5609
+T042:
+  task: 1ada6f450b915cc7480383b20aa4233bdce22db3029393e116411bc223ea3006
+T043:
+  task: b43ca4e2ec7fa98765de216bdb2523a06d1622905c2a8b27a23316b8ad1eb34e
+T044:
+  task: bcba4fd95d3c385da8ed1551e52f36198df62a9d0078228302b7dc0c8b470590
+T045:
+  task: aecb9a88d0b30855fc9b1982f5619def262e8bf3c29200631238325d7b3cac90
+T046:
+  task: f7202d187c093775ab7d50329c56698997c3acef2bb6e64baf7fd957087f154f
+T047:
+  task: d8e2fe5aaf58e007a21cba4d72d0e7fe459068586a9d8ad89715ff35b9ee1c64
+T048:
+  task: d490828a38abc6d1846b406ac4d42746f69d420091756b09d6efa4cc7cfcd9bf
+T049:
+  task: 7433c234743ece0d55977ba899f93356da7e3730adc4eab0bb4ba4ddcaea9a71
+T050:
+  task: fb4a723bb11cc6b8ab53ecae20129c2a86f1a0d157d9bfa165057a4c95b695d7
