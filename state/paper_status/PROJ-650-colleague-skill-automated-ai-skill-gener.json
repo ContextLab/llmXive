@@ -25,12 +25,12 @@
         "page": 16
       }
     ],
-    "audited_at": "2026-10-12T16:51:52.171647+00:00"
+    "audited_at": "2026-10-12T17:15:13.387945+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
-  "updated_at": "2026-10-12T16:51:52.171659+00:00"
+  "updated_at": "2026-10-12T17:15:13.387957+00:00"
 }
