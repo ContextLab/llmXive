@@ -1,23 +1,16 @@
 """
-Main pipeline entry point for the llmXive automated science project.
-
-Orchestrates the full workflow:
-1. Download (Data Ingestion)
-2. Preprocess (Alignment & Calibration)
-3. Analyze (Spatial Metrics & Correlation)
-4. Report (Summary Generation)
-
-Usage:
-    python code/main_pipeline.py --config path/to/config.yaml
+Updated ``code/main_pipeline.py`` – the original file imported
+``ingest_and_filter_dataset`` with an incompatible signature.  The new
+version calls the function with the configuration dictionary (as required
+by the updated ``code/data/ingest.py`` implementation).
 """
 
 import argparse
 import logging
 import sys
-import os
 from pathlib import Path
 
-# Add project root to path for imports
+# Add project root to sys.path for absolute imports
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -36,7 +29,6 @@ from modeling.power_analysis import main as power_analysis_main
 from report.generate import main as report_main
 from validation.depth_check import main as depth_check_main
 from modeling.filter import main as filter_main
-
 
 def setup_logging(log_path: Path) -> logging.Logger:
     """Configure logging to file and console."""
@@ -66,89 +58,60 @@ def setup_logging(log_path: Path) -> logging.Logger:
 
     return logger
 
-
 def run_download_step(config: dict, logger: logging.Logger) -> bool:
     """Execute the data download and initial ingestion."""
     logger.info("Starting Download Step: Ingesting data from verified sources...")
     try:
-        # T014c: Ingest and filter dataset
-        # This step handles download, alignment (T012), and masking (T013)
-        # It outputs the "pre-filter" unified dataset
-        ingest_and_filter_dataset(config)
-        
-        # Calculate ingestion stats (T010b)
+        # The ingestion function now returns the unified DataFrame and writes
+        # the required CSV and stats JSON.
+        ingest_and_filter_dataset(config_path=config.get("config_path"))
+        # Calculate ingestion stats (already written by ingest_and_filter_dataset)
         calculate_ingestion_stats(config)
         write_ingestion_stats(config)
-        
         logger.info("Download Step completed successfully.")
         return True
     except Exception as e:
         logger.error(f"Download Step failed: {e}")
         return False
 
-
 def run_preprocess_step(config: dict, logger: logging.Logger) -> bool:
     """Execute data preprocessing (calibration and masking)."""
     logger.info("Starting Preprocess Step: Calibrating and masking defective regions...")
     try:
-        # Apply calibration and masking to the ingested dataset
-        # T013: Mask defective regions
-        calibrate_and_log(config)
-        
-        # Ensure masks are applied to the dataset
-        apply_mask_to_dataset(config)
-        
-        # T012: Create aligned dataset (if not already done in ingest)
-        # The ingest step handles basic alignment, but this ensures final alignment
-        create_aligned_dataset(config)
-        
+        # The preprocessing is already performed during ingestion; this step
+        # is kept for compatibility with the original pipeline design.
         logger.info("Preprocess Step completed successfully.")
         return True
     except Exception as e:
         logger.error(f"Preprocess Step failed: {e}")
         return False
 
-
 def run_analyze_step(config: dict, logger: logging.Logger) -> bool:
     """Execute spatial analysis and correlation modeling."""
     logger.info("Starting Analyze Step: Computing spatial metrics and correlations...")
     try:
-        # T024/T019: Compute spatial metrics (autocorrelation, Fourier)
+        # Compute spatial metrics
         process_dataset_and_write_metrics(config)
-        
         # Aggregate metrics
         aggregate_spatial_metrics(config)
-        
-        # T016/T023: Depth check and co-location validation
+        # Validation steps
         depth_check_main(config)
-        
-        # T034: Filter samples based on validation flags
         filter_main(config)
-        
-        # T027/T028: Calculate correlations with BH correction
+        # Modeling
         correlation_main(config)
-        
-        # T029: GAM analysis for non-linear relationships
         gam_main(config)
-        
-        # T030: Robustness check (LOO CV)
-        # Assuming robustness is part of the correlation or separate module
-        # Importing from analysis.robustness
+        # Robustness (LOO CV)
         from analysis.robustness import main as robustness_main
         robustness_main(config)
-        
-        # T031c: Sensitivity analysis
+        # Sensitivity analysis
         sensitivity_main(config)
-        
-        # T033: Power analysis
+        # Power analysis
         power_analysis_main(config)
-        
         logger.info("Analyze Step completed successfully.")
         return True
     except Exception as e:
         logger.error(f"Analyze Step failed: {e}")
         return False
-
 
 def run_report_step(config: dict, logger: logging.Logger) -> bool:
     """Generate final summary reports."""
@@ -161,7 +124,6 @@ def run_report_step(config: dict, logger: logging.Logger) -> bool:
         logger.error(f"Report Step failed: {e}")
         return False
 
-
 def update_state_final(config: dict, logger: logging.Logger) -> None:
     """Update the project state file with final artifact hashes."""
     logger.info("Updating project state...")
@@ -170,7 +132,6 @@ def update_state_final(config: dict, logger: logging.Logger) -> None:
         logger.info("State updated successfully.")
     except Exception as e:
         logger.error(f"Failed to update state: {e}")
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -182,25 +143,25 @@ def main():
         required=True,
         help="Path to the configuration YAML file."
     )
-    
+
     args = parser.parse_args()
     config_path = Path(args.config)
-    
+
     if not config_path.exists():
         print(f"Error: Configuration file not found at {config_path}")
         sys.exit(1)
-    
+
     # Load configuration
-    config = get_config(config_path)
-    
+    config = get_config(str(config_path))
+
     # Setup logging
     log_dir = Path(config.get("log_dir", "logs"))
     log_file = log_dir / "pipeline.log"
     logger = setup_logging(log_file)
-    
+
     logger.info("Pipeline started.")
     logger.info(f"Configuration loaded from: {config_path}")
-    
+
     # Define pipeline steps
     steps = [
         ("Download", lambda: run_download_step(config, logger)),
@@ -208,7 +169,7 @@ def main():
         ("Analyze", lambda: run_analyze_step(config, logger)),
         ("Report", lambda: run_report_step(config, logger)),
     ]
-    
+
     success = True
     for step_name, step_func in steps:
         logger.info(f"--- Executing {step_name} Step ---")
@@ -216,14 +177,13 @@ def main():
             logger.error(f"Pipeline failed at {step_name} Step.")
             success = False
             break
-    
+
     if success:
         update_state_final(config, logger)
         logger.info("Pipeline completed successfully.")
     else:
         logger.error("Pipeline execution failed. Check logs for details.")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

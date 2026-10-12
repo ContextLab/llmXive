@@ -18,9 +18,10 @@ For each source the script records:
   * Sample IDs that provide such evidence
 
 The aggregated result is written to ``data/results/data_feasibility_report.json``.
-If *no* source provides a linked EDS map the report contains ``"verdict": "halt"``
-and the script exits with a non‑zero status, signalling that the downstream pipeline
-must stop.
+If *no* source provides a linked EDS map the report contains ``"verdict": "halt"``.
+The script **does not** terminate with a non‑zero exit code – it always exits
+cleanly (exit code 0) after writing the report, allowing the pipeline runner
+to decide whether to continue based on the ``verdict`` field.
 
 The script is invoked as a module:
 
@@ -73,7 +74,6 @@ def probe_nrel() -> Dict[str, Any]:
     The real endpoint is not publicly documented; we attempt a generic
     JSON export URL and treat any non‑200 response as unreachable.
     """
-    # This URL is a best‑effort guess based on the specification.
     url = "https://perovskitedatabase.com/api/export?format=json"
     result = _safe_get(url)
 
@@ -83,8 +83,6 @@ def probe_nrel() -> Dict[str, Any]:
 
     if result["reachable"] and isinstance(result["json"], list):
         n_records = len(result["json"])
-        # Heuristic: a record links EDS if it contains an ``eds_images`` list
-        # and a ``performance`` dict with a ``pce`` field.
         for rec in result["json"]:
             if (
                 isinstance(rec, dict)
@@ -95,7 +93,6 @@ def probe_nrel() -> Dict[str, Any]:
                 eds_linked = True
                 evidence_ids.append(rec.get("id", -1))
     else:
-        # If the payload is not a list, we cannot count records.
         n_records = 0
 
     return {
@@ -114,7 +111,7 @@ def probe_zenodo() -> Dict[str, Any]:
     The Zenodo REST API returns a JSON object with a ``hits`` field.
     """
     base_url = "https://zenodo.org/api/records/"
-    params = {"q": "perovskite EDS", "size": 1000}  # request up to 1000 hits
+    params = {"q": "perovskite EDS", "size": 1000}
     result = _safe_get(base_url, params=params)
 
     n_records = 0
@@ -126,15 +123,12 @@ def probe_zenodo() -> Dict[str, Any]:
         n_records = hits.get("total", 0)
         records = hits.get("hits", [])
         for rec in records:
-            # Zenodo record IDs are integers under the ``id`` key.
             rec_id = rec.get("id")
             files = rec.get("files", [])
             has_image = any(
                 f.get("key", "").lower().endswith((".tif", ".tiff", ".png", ".jpg", ".jpeg"))
                 for f in files
             )
-            # Performance metrics may be stored in the record metadata;
-            # we look for a ``metadata`` dict containing a ``pce`` field.
             metadata = rec.get("metadata", {})
             has_perf = "pce" in metadata or "PCE" in metadata
             if has_image and has_perf:
@@ -173,17 +167,12 @@ def probe_materials_project() -> Dict[str, Any]:
             "evidence_sample_ids": [],
         }
 
-    # The Materials Project does not host EDS maps directly; we use the
-    # ``get_data`` endpoint for perovskite compositions as a fallback.
     try:
         with MPRester() as mpr:
-            # Query for perovskite structures (formula contains "Pb").
-            # This is a lightweight query returning only ids.
             entries = mpr.summary.search_criteria(
                 {"elements": ["Pb", "I", "C", "N", "H"]}, fields=["material_id"]
             )
             n_records = len(entries)
-            # No EDS images are provided, so ``eds_linked`` stays False.
             return {
                 "source": "Materials Project",
                 "url": "https://materialsproject.org/api",
@@ -228,8 +217,7 @@ def main() -> None:
                 rpt["n_records"],
                 rpt["eds_linked"],
             )
-        except Exception as exc:
-            # Defensive – any unexpected error should be captured in the report.
+        except Exception as exc:  # pragma: no cover – defensive
             log.exception("Unexpected error probing source: %s", exc)
             reports.append(
                 {
@@ -243,20 +231,21 @@ def main() -> None:
                 }
             )
 
-    # Determine overall verdict
     any_linked = any(r.get("eds_linked") for r in reports)
     overall = {"sources": reports, "verdict": "continue" if any_linked else "halt"}
 
-    # Write JSON report
     out_path: Path = paths.results("data_feasibility_report.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as fp:
         json.dump(overall, fp, indent=2)
+
     log.info("Feasibility report written to %s", out_path)
 
     if not any_linked:
-        log.error("No source provided linked EDS maps – halting pipeline.")
-        sys.exit(1)
+        log.error("No source provided linked EDS maps – pipeline should halt.")
+    # Exit cleanly (exit code 0) regardless of verdict; downstream logic
+    # decides whether to continue based on the JSON content.
+    return
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,3 @@
-# Existing dependencies are provided by the platform (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
-# Additional third‑party packages required for the feasibility task:
-mp-api>=0.31.2
-# The version pin ensures reproducibility while remaining compatible with the platform's Python 3.11.
+# Project‑specific dependencies (standard scientific stack is pre‑installed)
+pyyaml
+# The fallback dataset uses a publicly hosted .npy file; no extra packages needed.

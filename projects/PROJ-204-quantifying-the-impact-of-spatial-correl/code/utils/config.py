@@ -1,47 +1,51 @@
-import os
+"""
+code/utils/config.py
+--------------------
+
+Minimal configuration helper used by the ingestion pipeline and other
+stages.  The function looks for a YAML file; if the path is ``None`` it
+falls back to the default configuration file ``code/config.yaml`` (which
+is created by task T106a).  When the file does not exist a sensible
+default configuration dictionary is returned.
+"""
+
 import yaml
-from typing import Optional, Dict, Any
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-__all__ = ["Config", "get_config"]
+DEFAULT_CONFIG = {
+    "base_dir": ".",
+    "log_dir": "logs",
+}
 
-class Config:
+def get_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Simple configuration container.
-
-    Attributes are loaded from a YAML file whose path is provided via the
-    ``PROJ_CONFIG`` environment variable or defaults to ``config.yaml`` in
-    the project root.
-    """
-
-    def __init__(self, data: Dict[str, Any]):
-        self._data = data
-
-    def __getattr__(self, item):
-        return self._data.get(item)
-
-    def __repr__(self):
-        return f"Config({self._data})"
-
-def get_config(config_path: Optional[str] = None) -> Config:
-    """
-    Load configuration from a YAML file.
+    Load a YAML configuration file.
 
     Parameters
     ----------
-    config_path: str, optional
-        Explicit path to the configuration file.  If omitted, the function
-        checks the ``PROJ_CONFIG`` environment variable and falls back to
-        ``config.yaml`` in the current working directory.
+    config_path: str | None
+        Path to a YAML file.  If ``None`` the function searches for
+        ``code/config.yaml`` relative to the project root.
 
     Returns
     -------
-    Config
-        Configuration object.
+    dict
+        Configuration dictionary.  Missing keys are filled with defaults.
     """
     if config_path is None:
-        config_path = os.getenv("PROJ_CONFIG", "config.yaml")
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        # Look for the default config file next to this module
+        default_path = Path(__file__).parent / "config.yaml"
+        if default_path.is_file():
+            config_path = str(default_path)
+    if config_path is None:
+        # No configuration file – return the defaults
+        return DEFAULT_CONFIG.copy()
+
     with open(config_path, "r") as f:
-        data = yaml.safe_load(f) or {}
-    return Config(data)
+        cfg = yaml.safe_load(f) or {}
+
+    # Merge with defaults
+    merged = DEFAULT_CONFIG.copy()
+    merged.update(cfg)
+    return merged

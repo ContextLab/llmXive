@@ -1,0 +1,3 @@
+sensitivity_threshold: 0.2
+min_sample_count: 30
+alpha: 0.05

@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/3a7b7d6e7a2d425aa67611a30f752cac95ea684d/BSEBENCH_SOURCE.json?%2Fdatasets%2Fbsebench-org%2Fnrel-pulse-diagnostics-2025-raw%2Fresolve%2Fmain%2FBSEBENCH_SOURCE.json=&etag=%224992767d453b219cc7d2967fa61735644b2265bd%22
   verified_at: '2026-07-02T05:47:30.520024Z'
-- artifact_hash: 3f0de7b728e6b5f7ac46966ebadf04121983633b2ecb9b56ee3f0d8c5cf24beb
+- artifact_hash: 8693bb540a267b65a14940356caa73b75ca887518538387aac7fb34e29405aa6
   artifact_path: projects/PROJ-204-quantifying-the-impact-of-spatial-correl/specs/001-quantifying-the-impact-of-spatial-correl/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://zenodo.org/api/records/?q=perovskite+EDS`
   verification_status: pending
   verified_against_url: https://zenodo.org/api/records?q=perovskite+EDS
-  verified_at: '2026-10-12T21:29:25.732573Z'
+  verified_at: '2026-10-12T21:31:56.201876Z'
