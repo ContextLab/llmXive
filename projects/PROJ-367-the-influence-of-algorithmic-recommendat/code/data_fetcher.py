@@ -31,8 +31,9 @@ OULAD_PRIMARY_URL = "https://analyse.kmi.open.ac.uk/open_dataset"
 
 # Verified mirror on Zenodo – this URL points to a ZIP containing the four CSVs.
 # The file is publicly accessible and works in CI environments.
+# Updated to a working mirror as the previous Zenodo link returned 404.
 OULAD_MIRROR_ZIP = (
-    "https://zenodo.org/record/4289705/files/oulad.zip?download=1"
+    "https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip"
 )
 
 RAW_OULAD_DIR = paths.data("raw", "oulad")

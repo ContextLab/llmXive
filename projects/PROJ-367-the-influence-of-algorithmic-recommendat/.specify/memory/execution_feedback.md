@@ -34,22 +34,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_fetcher.py -> rc=1
-ne 1024, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/4289705/files/oulad.zip
+ response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 303, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 304, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 294, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 295, in main
     fetch_educational_dataset("oulad")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 249, in fetch_educational_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 250, in fetch_educational_dataset
     _download_and_extract_oulad()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 58, in _download_and_extract_oulad
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 59, in _download_and_extract_oulad
     raise DataAvailabilityError(
-ingestion.DataAvailabilityError: Failed to download OULAD from mirror URL: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/4289705/files/oulad.zip
+ingestion.DataAvailabilityError: Failed to download OULAD from mirror URL: 403 Client Error: Forbidden for url: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip
 
 - python code/preprocessing.py -> rc=2
 
@@ -90,7 +89,7 @@ ERROR tests/unit/test_data_generation.py
 ERROR tests/unit/test_merger.py
 ERROR tests/unit/test_sensitivity.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 1.87s ===============================
+============================== 4 errors in 1.98s ===============================
 
 
 - python -m pytest tests/integration/ -v -> rc=2
@@ -116,7 +115,7 @@ E   ModuleNotFoundError: No module named 'sentence_transformers'
 =========================== short test summary info ============================
 ERROR tests/integration/test_main_verification.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.52s ===============================
+=============================== 1 error in 1.55s ===============================
 
 
 - python -m pytest tests/contract/ -v -> rc=4
