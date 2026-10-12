@@ -21,7 +21,7 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "Logged deviation messages (e.g., ISRIC unavailable, AM‑001)."
+    description: "Logged deviation messages (e.g., merged dataset unavailable, imputation decisions)."
   success_criteria:
     type: "object"
     properties:

@@ -1,13 +1,14 @@
 status: none
-intent: RootReader PlantPheno root phenotype and ISRIC World Soil nutrient merged
+intent: RootReader PlantPheno merged root soil dataset with phosphorus nitrogen HuggingFace
   python package dataset
 required_fields:
 - species
+- observation_id
 - root_length
-- branching_density
-- surface_area
-- phosphorus
-- nitrogen
-cache_key: 9197d0479b92a744a453009f8eaa30d57daaeafc8c2b2c3c2ba14a41af44a695
-searched_at: '2026-10-12T02:28:36.256781+00:00'
+- root_surface_area
+- root_volume
+- phosphorus_concentration
+- nitrogen_concentration
+cache_key: b7d7fb12d0d1c9073ef28627abd9f64302da3a2e3208322db137654dd5d6631f
+searched_at: '2026-10-12T02:57:39.240169+00:00'
 retry_count: 1

@@ -9,25 +9,168 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-username/PROJ-457
   verified_at: '2026-07-15T18:19:08.760420Z'
-- artifact_hash: 6ed8b91fa6970a92db3c42c83aaf23782993fdf0a9f81d9c90ddf4bc1a82de89
-  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/658198fcf759b8bbb3d69e97/5864cb8527b621401ae16bfd28d4ebcf5520d0733a99df02ae5439e10cc47373?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&xip=Nvr9jaKQ-3M&Expires=1791778323&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4MTk4ZmNmNzU5YjhiYmIzZDY5ZTk3LzU4NjRjYjg1MjdiNjIxNDAxYWUxNmJmZDI4ZDRlYmNmNTUyMGQwNzMzYTk5ZGYwMmFlNTQzOWUxMGNjNDczNzNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPU52cjlqYUtRLTNNIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE3NzgzMjN9fX1dfQ__&Signature=MEUCIQC12GjqxO9HyMvaGCbGwT3F6Liy6v3VZUQNH6zlzaGzjAIgU-y77KpZ%7Ek0MsAuOLYac2ZMN3TOmmRchH4zBQtJ0DGw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65b52b90791c522128833905/e0ebd4282f0859f188363da1c0538e48ab6694e7282e51723dcf1ea9e484634f?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&xip=Nvr9jaKQ-3M&Expires=1791778328&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjViNTJiOTA3OTFjNTIyMTI4ODMzOTA1L2UwZWJkNDI4MmYwODU5ZjE4ODM2M2RhMWMwNTM4ZTQ4YWI2Njk0ZTcyODJlNTE3MjNkY2YxZWE5ZTQ4NDYzNGZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmeGlwPU52cjlqYUtRLTNNIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE3NzgzMjh9fX1dfQ__&Signature=MEQCIEYURSsrjlSH%7ECETKaJtX9Bhv0yUlOKlMdfG66xkz090AiA0qL3JWzXn%7E7VO6RZnmfZGStRSqHXmo8PoNGW8b2DyMQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/660fa15e13a8696acaa43d95/cbc88aadc3829eafb8842b8a90a1ca60034eaf69345cf4ecf459f01349f1a28c?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&xip=Nvr9jaKQ-3M&Expires=1791778329&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwZmExNWUxM2E4Njk2YWNhYTQzZDk1L2NiYzg4YWFkYzM4MjllYWZiODg0MmI4YTkwYTFjYTYwMDM0ZWFmNjkzNDVjZjRlY2Y0NTlmMDEzNDlmMWEyOGNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImeGlwPU52cjlqYUtRLTNNIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE3NzgzMjl9fX1dfQ__&Signature=MEQCIBLjq-T-zuQICqubn%7EBIjDy5OjKN5ZzPFvpbgSPA4qq8AiBFXqXLTSm-7n6laIL9-7esveycvpLutaUvcF0E6BcWUA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: PPR_train_corpus.txt
   kind: url
-  value: https://huggingface.co/datasets/davidkartchner/plant-phenotype/resolve/main/PPR_train_corpus.txt`
+  value: https://huggingface.co/datasets/davidkartchner/plant-phenotype/resolve/main/PPR_train_corpus.txt
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/davidkartchner/plant-phenotype/b2c1dda2f7f8ad7af56d2b9aa46e50fdd80479f3/PPR_train_corpus.txt?%2Fdatasets%2Fdavidkartchner%2Fplant-phenotype%2Fresolve%2Fmain%2FPPR_train_corpus.txt=&etag=%22e10cf942c45ac1ef7135044908882b05aba66d94%22
-  verified_at: '2026-07-16T16:39:37.802984Z'
-- artifact_hash: 6ed8b91fa6970a92db3c42c83aaf23782993fdf0a9f81d9c90ddf4bc1a82de89
-  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
-  cite_id: c-002
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
+  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: PPR_test_corpus.txt
   kind: url
-  value: https://huggingface.co/datasets/envedabio/plant-phenotype/resolve/main/PPR_test_corpus.txt`
+  value: https://huggingface.co/datasets/envedabio/plant-phenotype/resolve/main/PPR_test_corpus.txt
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/envedabio/plant-phenotype/e4af5aa73a611ae99a544bede1ccce3b998d362e/PPR_test_corpus.txt?%2Fdatasets%2Fenvedabio%2Fplant-phenotype%2Fresolve%2Fmain%2FPPR_test_corpus.txt=&etag=%224f54d762f5228fca6e4f6e9e336c1573063fa3ff%22
-  verified_at: '2026-07-16T16:39:37.802984Z'
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/plantphysio/nutrient_ranges/resolve/main/data.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/plantphysio/nutrient_ranges/resolve/main/data.parquet
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/plant-root-architecture.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/plant-root-architecture
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: deae7652d2a37454bb39b1a24663b64bcb4ee0bd37e3cd664e64900cf8b33226
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/plan.md
+  cite_id: c-008
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-12T03:12:02.995731Z'
+- artifact_hash: 0e508d5300b9519bb54549e8290d419dc0aa473df36f6c83b91f0705e4b0c429
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/658198fcf759b8bbb3d69e97/5864cb8527b621401ae16bfd28d4ebcf5520d0733a99df02ae5439e10cc47373?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&xip=Nvr9jaKQ-3M&Expires=1791778347&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4MTk4ZmNmNzU5YjhiYmIzZDY5ZTk3LzU4NjRjYjg1MjdiNjIxNDAxYWUxNmJmZDI4ZDRlYmNmNTUyMGQwNzMzYTk5ZGYwMmFlNTQzOWUxMGNjNDczNzNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmeGlwPU52cjlqYUtRLTNNIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE3NzgzNDd9fX1dfQ__&Signature=MEUCIQCt9fKkpuoSUwpZ5DKxozZ49q-lzGQM8aKWPpK7KRniqgIgAYNRRcdH2s0Kj7W3OJe-CmhgM2S0SFroIUHJRVdTkNU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-12T03:12:27.025239Z'
+- artifact_hash: 0e508d5300b9519bb54549e8290d419dc0aa473df36f6c83b91f0705e4b0c429
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65b52b90791c522128833905/e0ebd4282f0859f188363da1c0538e48ab6694e7282e51723dcf1ea9e484634f?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&xip=Nvr9jaKQ-3M&Expires=1791778351&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjViNTJiOTA3OTFjNTIyMTI4ODMzOTA1L2UwZWJkNDI4MmYwODU5ZjE4ODM2M2RhMWMwNTM4ZTQ4YWI2Njk0ZTcyODJlNTE3MjNkY2YxZWE5ZTQ4NDYzNGZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImeGlwPU52cjlqYUtRLTNNIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE3NzgzNTF9fX1dfQ__&Signature=MEUCIEguG4%7ECCz3hiWmztfMrm8koS-GHSmP6%7EwCU7sp4j86zAiEA7DyNNgEFCxDF%7EZgE6tDl0p2RhT8%7EBkUEj6UbPm%7EatIk_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-12T03:12:27.025239Z'
+- artifact_hash: 0e508d5300b9519bb54549e8290d419dc0aa473df36f6c83b91f0705e4b0c429
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/660fa15e13a8696acaa43d95/cbc88aadc3829eafb8842b8a90a1ca60034eaf69345cf4ecf459f01349f1a28c?xip=Nvr9jaKQ-3M&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1791778352&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwZmExNWUxM2E4Njk2YWNhYTQzZDk1L2NiYzg4YWFkYzM4MjllYWZiODg0MmI4YTkwYTFjYTYwMDM0ZWFmNjkzNDVjZjRlY2Y0NTlmMDEzNDlmMWEyOGNcXD94aXA9TnZyOWphS1EtM00mdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE3NzgzNTJ9fX1dfQ__&Signature=MEUCIAPBu-Vn9W1yIgAfU5kDJb8k1%7EuUV5tL5w12sAzvFpr3AiEAmYQ6yFakvjZPZVIF3fHe3ThmCGQiuiGRgRbCHq2HeBU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-12T03:12:27.025239Z'
+- artifact_hash: 0e508d5300b9519bb54549e8290d419dc0aa473df36f6c83b91f0705e4b0c429
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: PPR_train_corpus.txt
+  kind: url
+  value: https://huggingface.co/datasets/davidkartchner/plant-phenotype/resolve/main/PPR_train_corpus.txt
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/davidkartchner/plant-phenotype/b2c1dda2f7f8ad7af56d2b9aa46e50fdd80479f3/PPR_train_corpus.txt?%2Fdatasets%2Fdavidkartchner%2Fplant-phenotype%2Fresolve%2Fmain%2FPPR_train_corpus.txt=&etag=%22e10cf942c45ac1ef7135044908882b05aba66d94%22
+  verified_at: '2026-10-12T03:12:27.025239Z'
+- artifact_hash: 0e508d5300b9519bb54549e8290d419dc0aa473df36f6c83b91f0705e4b0c429
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: PPR_test_corpus.txt
+  kind: url
+  value: https://huggingface.co/datasets/envedabio/plant-phenotype/resolve/main/PPR_test_corpus.txt
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/envedabio/plant-phenotype/e4af5aa73a611ae99a544bede1ccce3b998d362e/PPR_test_corpus.txt?%2Fdatasets%2Fenvedabio%2Fplant-phenotype%2Fresolve%2Fmain%2FPPR_test_corpus.txt=&etag=%224f54d762f5228fca6e4f6e9e336c1573063fa3ff%22
+  verified_at: '2026-10-12T03:12:27.025239Z'
+- artifact_hash: 0e508d5300b9519bb54549e8290d419dc0aa473df36f6c83b91f0705e4b0c429
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/plantphysio/nutrient_ranges/resolve/main/data.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/plantphysio/nutrient_ranges/resolve/main/data.parquet
+  verified_at: '2026-10-12T03:12:27.025239Z'
+- artifact_hash: a0a0c17663e29ce8d0f5c5c16423fd4217313c5e6eeeeadf30fdc5d125f2718a
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/plant-root-architecture.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/plant-root-architecture
+  verified_at: '2026-10-12T03:12:45.594650Z'
