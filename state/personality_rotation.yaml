@@ -1,12 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-10-12T04:16:16.503273+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-10-12T06:09:05.190015+00:00'
 last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-24T13:18:06.227797+00:00'
-  ended_at: '2026-06-24T14:19:09.292167+00:00'
-  outcome: abstained
-  action: abstain
 - slug: ada-lovelace
   started_at: '2026-06-24T14:19:09.292167+00:00'
   ended_at: '2026-06-24T15:25:32.957012+00:00'
@@ -1230,3 +1225,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/reviews/research/eric-kandel-simulated__2026-10-12__research.md
+- slug: freeman-dyson
+  started_at: '2026-10-12T04:16:16.503273+00:00'
+  ended_at: '2026-10-12T06:09:05.190015+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-367-the-influence-of-algorithmic-recommendat/reviews/research/freeman-dyson-simulated__2026-10-12__research.md
