@@ -38,6 +38,13 @@ from llmxive.speckit.task_lines import (
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
+def _loads_script(contents: str, script: str) -> bool:
+    """Whether ``contents`` imports or runs the file at ``script`` rather than being it."""
+    module = re.escape(Path(script).stem)
+    return script in contents or re.search(
+        rf"^\s*(?:from|import)\s+(?:\w+\.)*{module}\b", contents, re.MULTILINE) is not None
+
+
 class ImplementerAgent(SlashCommandAgent):
     def slash_command_name(self) -> str:
         return "speckit.implement"
@@ -584,15 +591,24 @@ class ImplementerAgent(SlashCommandAgent):
                 # A script is one file. A second copy at the project root that
                 # re-exports the first (canary 10: `from code.run_analysis
                 # import main`) gives the task's bare filename two meanings.
-                if "/" not in rel and rel.endswith(".py"):
+                # A root script that is already there is edited like any other
+                # file, and a whole script sent under the bare name its task
+                # uses is the existing one, rewritten (batch 7, 2026-10-12:
+                # 53 such edits were dropped and the bugs they fixed stayed).
+                if "/" not in rel and rel.endswith(".py") and not target.is_file():
                     twin = next((f"{d}/{rel}" for d in SOURCE_DIRS if (project_root / d / rel).is_file()), None)
-                    if twin is not None:
+                    if twin is not None and _loads_script(contents, twin):
                         refuse(
                             f"[implementer] refused {relpath!r}: `{twin}` already exists. "
                             "Edit that file; do not add a second copy or a re-exporting "
                             "wrapper at the project root."
                         )
                         continue
+                    if twin is not None:
+                        print(f"[implementer] writing {relpath!r} -> {twin!r}: the script already exists there")
+                        # The run requested below looks the path up again.
+                        art["path"] = rel = twin
+                        target = project_root / twin
                 # "Run it as it is", said with a comment where the contents go,
                 # must not erase the script. Canary 10 lost a 16 KB driver to
                 # `# The file exists already; this entry requests execution
