@@ -26,15 +26,15 @@
 
 **Note**: While T001a and T003a can be created in parallel, their content must be finalized before T009 (Download) begins to ensure correct paths are used.
 
-- [ ] T001a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/README.md` with project overview and quickstart instructions. **Logical prerequisite for project understanding.**
-- [ ] T003a [P] Create a project directory for investigating correlations between molecular properties and `code/pyproject.toml` with Black configuration (line-length <maximum-allowed-length>, target-version py310).
-- [X] T003b [P] Create a code configuration file for the project investigating correlations between molecules with linting rules (max-line-length: use a standard reasonable limit, ignore E501).
+- [X] T001a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/README.md` with project overview and quickstart instructions. **Logical prerequisite for project understanding.**
+- [X] T003a [P] Create a project directory for investigating correlations between molecular properties and `code/pyproject.toml` with Black configuration (line-length <maximum-allowed-length>, target-version py310).
+- [ ] T003b [P] Create a code configuration file for the project investigating correlations between molecules with linting rules (max-line-length: use a standard reasonable limit, ignore E501).
 - [X] T004a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/molecule.schema.yaml` defining the schema for processed molecular data (SMILES, descriptors, target).
 - [X] T004b [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/model_output.schema.yaml` defining the schema for model metrics and feature importance.
-- [ ] T008a [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`.
-- [ ] T008b [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`.
-- [ ] T008c [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`.
-- [ ] T008d [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/models/`.
+- [X] T008a [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`.
+- [~] T008b [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`.
+- [~] T008c [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`.
+- [~] T008d [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/code/models/`.
 - [ ] T008e [P] Create directory `projects/PROJ-066-investigating-correlations-between-molec/tests/`.
 
 ---
@@ -45,11 +45,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` defining constants: `RANDOM_SEED=42`, `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`, `MAX_MOLECULES=15000`. **Explicitly document that `RANDOM_SEED` must be passed to the stratified splitter in T017 to ensure reproducibility.**
-- [X] T006 [P] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` for structured logging of data pipeline steps.
-- [X] T007 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py` to update `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` with artifact hashes.
-- [X] T030a [P] Implement memory/time monitoring hooks in `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` and `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` to track resource usage during pipeline execution (SC-004, SC-005).
-- [X] T033 [P] Implement the integration interface for state updates: Create the `update_state()` wrapper function in `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py` that accepts artifact paths and hashes, and ensure it is ready to be called by downstream tasks (T015, T026). This task builds the mechanism, while T015/T026 will implement the *calls* to it.
+- [~] T005 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` defining constants: `RANDOM_SEED=42`, `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`, `MAX_MOLECULES=15000`. **Explicitly document that `RANDOM_SEED` must be passed to the stratified splitter in T017 to ensure reproducibility.**
+- [~] T006 [P] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` for structured logging of data pipeline steps.
+- [ ] T007 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py` to update `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` with artifact hashes.
+- [~] T030a [P] Implement memory/time monitoring hooks in `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` and `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` to track resource usage during pipeline execution (SC-004, SC-005).
+- [~] T033 [P] Implement the integration interface for state updates: Create the `update_state()` wrapper function in `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py` that accepts artifact paths and hashes, and ensure it is ready to be called by downstream tasks (T015, T026). This task builds the mechanism, while T015/T026 will implement the *calls* to it.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (once T004a/b, T008a-e, T003a/b, T001a complete).
 
@@ -121,7 +121,7 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [ ] T035 [P] Documentation updates: Ensure `quickstart.md` explains how to run the full pipeline from download to visualization.
-- [X] T036 [P] Code cleanup: Refactor `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` and `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py` for modularity and readability.
+- [~] T036 [P] Code cleanup: Refactor `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` and `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py` for modularity and readability.
 - [ ] T037 [P] Run `pytest` suite to ensure all tests pass.
 - [ ] T038 [P] Run quickstart.md validation to confirm end-to-end reproducibility.
 

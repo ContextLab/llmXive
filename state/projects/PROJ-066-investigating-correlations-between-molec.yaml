@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T23:25:42.774844Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-066-investigating-correlations-between-molec
-last_run_id: b166b341-0f05-42cf-8b13-f41c854851b8
+last_run_id: c19ce437-aba0-4d6f-aa9f-7c402a0a616b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-066-investigating-correlations-between-molec/specs/001-investigating-correlations-between-molec
 title: Investigating Correlations Between Molecular Descriptors and Drug-Likeness
   Scores
-updated_at: '2026-10-08T14:01:50.081833Z'
+updated_at: '2026-10-12T06:26:42.040918Z'

@@ -1,23 +1,50 @@
-T003b:
+T001a:
   c: true
-  h: 7f09c6b73f321ad3a436b7e634dd4f222b2638083bf9387671af6a03c8aa9107
-  r: "The `projects/PROJ-066-investigating-correlations-between-molec/code/.ruff.toml`\
-    \ file exists, is non\u2011empty, and its contents set `line-length = 88` and\
-    \ ignore `E501` as specified. No required artifact is missing."
+  h: de4c9c90f21a5af0c67fc54d4dab0b01742d64b274cf98b79ba737940c7d3810
+  r: The README.md exists at the resolved project path (5,092 bytes) and contains
+    a substantive project overview (research goal, pipeline stages mapped to user
+    stories, resource constraints, success criteria) plus detailed quickstart instructions
+    (environment setup, per-stage commands with expected outputs, directory structure,
+    troubleshooting). It matches the task's requirement for a project overview and
+    quickstart, with no placeholders or stubs.
+  sig: 5bed2ca39021363c03375c1c28a8daa71ca406f132d031dc15b82da8b57d0d5f
+T003a:
+  c: true
+  h: df48245f49f55c268ba8e867cdb64af7094c0b87bbfd4ed365e96294051de97f
+  r: The project directory `projects/PROJ-066-investigating-correlations-between-molec`
+    exists with a non-empty `code/pyproject.toml` (324 bytes) containing a valid `[tool.black]`
+    section with `line-length = 88` and `target-version = ['py310']`, matching the
+    task's stated requirements.
+  sig: 5663656c8b0f906a75bf9e3211b1bd7f86a48c2c2954b8b9469aada95a974f13
+T003b:
+  c: false
+  h: 2577534cf0619c098a12840295299f3ae1efe46f2a418253cbf47a0d4f5acbb6
+  r: "The task requires a code linting configuration file (e.g., `.flake8` or equivalent)\
+    \ with a standard max-line-length and E501 ignored, but the evidence collector\
+    \ found no artifact at any path \u2014 no configuration file exists in the project.\
+    \ The implementer must create the linting config (e.g., a `setup.cfg`/`.flake8`\
+    \ with `max-line-length = 100` (or similar standard limit) and `extend-ignore\
+    \ = E501`) in the project root."
+  sig: 7281911a00339e9a19c8b412f81deb63d6037b425b4f29128131dd17d7631ba5
 T004a:
   c: true
-  h: 9b65513f6ed85d8f32664d942ceed21126be17007b0a72b60bfa4914f4edc348
-  r: "The file `code/contracts/molecule.schema.yaml` exists, is non\u2011empty, and\
-    \ contains a JSON\u2011Schema defining SMILES, the required descriptor fields,\
-    \ and the target/experimental value as specified. This matches the task\u2019\
-    s requirement to create the schema file."
+  h: 55a9518377708b9c1ce0650456afdba3978f19b78ab8ea41328b19df9a263e67
+  r: The schema file exists at the requested path (1718 bytes) and defines a valid
+    JSON Schema (draft-07) for processed molecular data covering SMILES, the required
+    2D descriptors (TPSA, logP, MW, rotatable bonds, H-bond donors/acceptors, ring
+    count), and the target/experimental value fields, with types, constraints, and
+    an example. Minor cosmetic issues (a duplicate `description` key on `experimental_value`)
+    don't undermine the requirement.
+  sig: b9f506af753f49951e16791a0216ddda9efb78e9d0d07144cca05b232bf7eb71
 T004b:
   c: true
-  h: e3e22a4fa54c3c015d1878d0584a6dd46fd16273eab7cebac185de6723746003
-  r: "The `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/model_output.schema.yaml`\
-    \ file exists, is non\u2011empty, and defines a JSON schema covering model metrics\
-    \ (RMSE, Pearson r, runtime, memory) and a `feature_importance` array, fulfilling\
-    \ the task\u2019s requirement."
+  h: 60a4924b01cf5f24bd1b7c62946563d71d5337daed8f4932589011129bd66745
+  r: The file `code/contracts/model_output.schema.yaml` exists (2205 bytes) and is
+    a valid JSON Schema draft-07 document defining model metrics (RMSE, Pearson r
+    for both LR and RF models, baseline, timing/memory) and feature importance (feature_name,
+    importance_score) with appropriate types, bounds, and required fields, matching
+    the task's requirement.
+  sig: ee32bb6f6e84137f489bf4f0f518adc436bb5ecf4a017dce4e4ece957221c676
 T007:
   c: false
   h: 49719ddab7374198cc1122d8f6776647ed505c92c0429443b5cd2e1198c5f340
@@ -26,6 +53,14 @@ T007:
     and the target state file `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`
     is absent, so the script cannot actually update the required YAML with artifact
     hashes.
+T008a:
+  c: true
+  h: 748356b0b575edbb5a65843127b3aad43f5187fa33bbc30229a41d3337b79ef8
+  r: The required directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`
+    exists (collector-confirmed, 2 entries including `.gitkeep` and `chembl_33.sqlite.gz`),
+    and the execution log shows the directory-creation script ran successfully with
+    exit code 0. The task only asked to create the directory, which is satisfied.
+  sig: 814c2d46dd178f1051a573f14c476e7916217b7cdcd94eff4872a1054fad9fae
 T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

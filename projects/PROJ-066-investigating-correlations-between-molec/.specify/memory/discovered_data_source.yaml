@@ -1,19 +1,11 @@
 status: none
-intent: download ChEMBL release 33 experimental bioavailability permeability clearance
+intent: download ChEMBL FTP bioavailability permeability clearance dataset pip install
   python package dataset
 required_fields:
-- molecule_chembl_id
-- canonical_smiles
-- standard_inchi
-- standard_inchikey
-- bioavailability
-- apparent_permeability
-- clearance
-- assay_id
+- SMILES
 - assay_type
-- descriptor_molecular_weight
-- descriptor_logP
-- descriptor_hbond_donors
-cache_key: ed069922fd374076bafe61803f53a9fffaab582b25119bb9bb331a43b3dc7f8b
-searched_at: '2026-09-19T09:20:20.860158+00:00'
+- experimental_value
+- calculated_descriptors
+cache_key: a9f5dedfb9e5b0eed262b3e6f75314d527569e364af30bfa295e2eddec47a67a
+searched_at: '2026-10-12T06:25:20.478345+00:00'
 retry_count: 1

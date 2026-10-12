@@ -1,0 +1,96 @@
+T001a:
+  task: e4902b17d694ee5ef1244e151409017434b0fbad496093361ca8d71944309688
+T003a:
+  task: 1d14a09659340e8c3070320163ea39771086e58d1deb2db627af0f9dc44ea64a
+T003b:
+  reason: "The task requires a code linting configuration file (e.g., `.flake8` or\
+    \ equivalent) with a standard max-line-length and E501 ignored, but the evidence\
+    \ collector found no artifact at any path \u2014 no configuration file exists\
+    \ in the project. The implementer must create the linting config (e.g., a `setup.cfg`/`.flake8`\
+    \ with `max-line-length = 100` (or similar standard limit) and `extend-ignore\
+    \ = E501`) in the project root."
+  task: dcd359aab4ee23b3dd4a6d42389326b228e704ae7d5585e78cc12ae95beeaeae
+T004a:
+  task: 8df673e7a01bbfe6920e4b22c4b31571435745c0630f1e47c7efff2f73daf9d6
+T004b:
+  task: 584d6f5580e2944ad6a5cfbcdc86cc0720f299f04bcfec720f30f4fe358d5988
+T005:
+  task: e9035249e3be38845a95145698482818bba8e3acc1a4dd2dea705229820695d4
+T006:
+  task: e322c65b26231bd4cb6332f5e1eb409888d9fc6d51d87796ca23d1577068df45
+T007:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 14c207f446a2157f72619188db78cb24514e0e96f7e38cb193be9eddfc22c2d8
+T008a:
+  task: b9dcd9e7cd41762a31f6d0f58eeb7dd0264a50446ed77c450079f73f93162d9a
+T008b:
+  task: c9005010a53bb41fa18ea9077c4d87805cd46139606084a28b4af578ca9681db
+T008c:
+  task: 86dd5c28748767b945e5136e0b43dff47ab0bba8e423370eb37e0c3cef46fcd5
+T008d:
+  task: 226bf4944f7265c7b8f5db97a3cef8a66e4db7439bf99164eaef3088ff666e01
+T008e:
+  task: 1eb9e633c4c87bf4319f49d8959e31378a1589b54e5088f8e2ab13316a6726a3
+T009:
+  task: 79d7c0196fa4396e2bc5e0c963d117ef4cbde94a3397314d5c33158258c5b8f1
+T010:
+  task: b37ee901b72c00ac92fed29201307c6f9d491618b4d487d56ab05dd7e52977ea
+T011:
+  task: 4172bf804ca0bd46aa663fdbed9ad19fac5ba996ce74d952f33cd468434b7500
+T012:
+  task: 1c990f71cf2c955d56af60984b84c37995217d30c29e8b0d80b752178374641d
+T013:
+  task: 0a04eaf3eb82d20900b9ac65c9daf6904446849a64f54c25498b3c6c8cc2f667
+T014:
+  task: e8dddb6b9b84e913b07b4b744290fefc1e469d8280ffd65a927a59a190a52a62
+T015:
+  task: 29f5b2540b6e05dc2483f83e87f85bb4fe8e45bc58b9bbab8e837dedc0f0db6e
+T016a1:
+  task: 985a880f450ac9216f3329de5537c3e1913ab15f1231f2f01983bcc9161a4331
+T016a2:
+  task: c1e1494da6f68186c6747cb5a3979e7823566e60ba3b8d90f8147d5ccd9ac883
+T016a3:
+  task: 5f96ed470f952c12175ff8991769d6dda2fb1afdeb9b09daee531913879b77fa
+T016b:
+  task: 42e31af6b69ea15ff349da12b384511b5a151dece04c1c9c53956b8c56dac952
+T017:
+  task: 58f6b472c7aaf43dc19bc0165bac49dee23279a2ae76eebaf6c721a9cc40b14d
+T018:
+  task: 991b0abca81be9e08f5ebe6f4c5cd4a3b699bbfa0c19a9108f9faa76134b09a1
+T019:
+  task: 748ce75269f496e7b0aa11228bf0bd87c198a594abe9ac6dde54c4379d9b5400
+T020:
+  task: 3b32811b6c01d2dba7506d0b96378658a38e1e7322ce80b06cfee0a631a800a1
+T021a:
+  task: 763a8fc10ccba2f21bd43d5b7bfee5e40a5c65c4b2203c642994c6a929f08848
+T021b:
+  task: f8871b1aaa256878d43332b9a1a44c964238e10d234b351bc82f01c4e198347b
+T021c:
+  task: 30595d42138200d2480f3b3bd9294a15d8387130add9402b507458d38c8e2922
+T022:
+  task: e8ac21445a6fe9330d4477053ebf7921aa59a3d249bdf6205a4c121a630d8fc8
+T023:
+  task: 531a9722f8ff78db6ee449037c38329b97146bcfbaf60c2d6f7d25212abbbe9d
+T024:
+  task: 8655d10d213b5b87c5cdcc807a7830f6ca88cbae31201ba881f08e71fcde9685
+T025:
+  task: a5d692214357fdc732893fbf36ec09b6ead42266875fcb75377007942263364c
+T026:
+  task: 6f082f996ae3f58862d3d2dbe0becc89e204a8b9193f5f1ae30ab9f21089827e
+T027:
+  task: 285fb3522029b5e41fe75d9d9f82efb45a3e69127c78bdc3b4840b500ac479db
+T030a:
+  task: 9dc6854dab18faded00267501f8d0097463770b6b801b6eddabd9ce010da597d
+T033:
+  task: 04cbcd059161cf0be2089e2f15ce57b2fabe4165289c69d769c2b9c3e8f4282d
+T035:
+  task: 23b0edcb8447959bc5c79b0b9d4f60b213db15204412556863a385ccc0ae500f
+T036:
+  task: e80b0295fa9b9235ebc1a7518234c3740fb106ecc88976e93ecf027258364a46
+T037:
+  task: ea1f170ffd38ed248ecbbaed968d2e839261349bba64058b91445e90c5ae6b0b
+T038:
+  task: ee1931cf2bc14b854f1b0a91c673c374d6505c3215396308e22af79d41ca4a24
