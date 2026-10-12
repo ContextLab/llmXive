@@ -1,0 +1,171 @@
+{
+  "status": "success",
+  "files": {
+    "data/validation_report.json": {
+      "hash": "dd0f945186dc3ab42e106b3ad6206b7cc56fea2f5dfbe572b63d295d55b8e6d1",
+      "size_bytes": 268
+    },
+    "code/run_t037a_hash_after_download.py": {
+      "hash": "71e6fd67b5f00050040f42231b871ec3d457716b29ad558fb29fdb25379d6d19",
+      "size_bytes": 2479
+    },
+    "code/run_t037b_hash_after_features.py": {
+      "hash": "079c21cb277e3c045425372117d8afd5ebf0fb721579eb42b607d3e2df244400",
+      "size_bytes": 2948
+    },
+    "code/run_t020_calculate_ratio.py": {
+      "hash": "98f785fd6bac715c3a8a2700a1c45bb69276638d556749154bee672efb4bf012",
+      "size_bytes": 1152
+    },
+    "code/config.py": {
+      "hash": "6bbd1ae5218ddb7e2f6b7fe3b83ab425b52f9fcb7b4fe97f24b0470161fc3157",
+      "size_bytes": 3240
+    },
+    "code/run_t025_sensitivity_analysis.py": {
+      "hash": "ce0ad9f3d848ec96f9f3d6269a3edc758cea356e73e2942ba6b3c410400adde1",
+      "size_bytes": 460
+    },
+    "code/run_t015_create_raw_and_checksums.py": {
+      "hash": "9142a5a7275bdf0205c09a99f3ca85d0571d126e56799e99f70ac96b47c787b2",
+      "size_bytes": 2136
+    },
+    "code/generate_final_report.py": {
+      "hash": "3d19d27bee2a8a9a404999a0517d4ecc5f931357770749a2f84d8fc95f74ba68",
+      "size_bytes": 10459
+    },
+    "code/visualize_results.py": {
+      "hash": "06b26d0a985119689d7a0e7a722b86cbc9c683daae87716165db28ebef69661f",
+      "size_bytes": 9014
+    },
+    "code/__init__.py": {
+      "hash": "06a7d3fcbeefa07278280646e84643a9ce1524dd70c4c875ac1616b002b23899",
+      "size_bytes": 106
+    },
+    "code/run_t037c_hash_final_results.py": {
+      "hash": "8b07e704bceb4aa855a8d5a87130cd55b942a0086359bc35669318fb4e4a44d3",
+      "size_bytes": 1463
+    },
+    "code/setup_project.py": {
+      "hash": "1fabbc7194b524a281563a3f60719973868454de4917bf832bba55fb3202a6c9",
+      "size_bytes": 2074
+    },
+    "code/run_t026_save_sensitivity_report.py": {
+      "hash": "f51b7339fa82552d0b7886d8a736af64b7932398ed0dd84feeb40d4c8eea359f",
+      "size_bytes": 3108
+    },
+    "code/__pycache__/config.cpython-311.pyc": {
+      "hash": "eed34eb01db30eecd2a78682e2271f28f8bd713308fe22f2b7819a79f3993c57",
+      "size_bytes": 5679
+    },
+    "code/utils/logging.py": {
+      "hash": "cf6f0c4636abd4422aac62ef483282767642450188e99837f060759b68560292",
+      "size_bytes": 2994
+    },
+    "code/utils/hash_artifacts.py": {
+      "hash": "1e30f30ba5b7d08463acb52ed00d06295f626de552dc14dcfcb649a07bf527fb",
+      "size_bytes": 5115
+    },
+    "code/utils/diagnostics.py": {
+      "hash": "62daedc51a0ad07bdd95c98afde8abb049b68fcb7bcc3d4144d17110f5931696",
+      "size_bytes": 8029
+    },
+    "code/utils/__init__.py": {
+      "hash": "0b33c60b96ecbd170db910bdc13bea1e8ccc8a64fd64243da2c8b70de7c7e6f6",
+      "size_bytes": 21
+    },
+    "code/utils/__pycache__/__init__.cpython-311.pyc": {
+      "hash": "a4ec49639ae0d0d2a831e72256cbbd01449834fa77122f8a0864a0baa29204f9",
+      "size_bytes": 224
+    },
+    "code/utils/__pycache__/logging.cpython-311.pyc": {
+      "hash": "07d97539fd87f41c7c04ce696a0895364579b4c08851f4e768eb8297bcaf3e60",
+      "size_bytes": 3803
+    },
+    "code/features/save_features.py": {
+      "hash": "7ceddf75fbb2d8ca9557c400b4d77f9434c32730b868d007138f8d329c4d9278",
+      "size_bytes": 6450
+    },
+    "code/features/classification.py": {
+      "hash": "200172fe06cc56d31abbb58067e19ef12869705204a840d96c1bc6d1b1afe3f8",
+      "size_bytes": 8799
+    },
+    "code/features/extraction.py": {
+      "hash": "9be933a7cd0fb385f0f05d07bd7d32d6c4c6e0edb07045cf7ed0f3f9573abac7",
+      "size_bytes": 6139
+    },
+    "code/features/sensitivity_clustering.py": {
+      "hash": "986503a0462dfaf559497c5be61ab647ebea64428539e4b951baa0d8e2cfed5a",
+      "size_bytes": 6164
+    },
+    "code/features/__init__.py": {
+      "hash": "0f90fdf405dafcda40a24bc7a5e46a398fd2ecf55a00ea5d5ce43062f761e187",
+      "size_bytes": 1107
+    },
+    "code/validation/reference_validator.py": {
+      "hash": "2c31596745ead6ae3088897b29ad0750592c6ba2908a907b787bd90b12dacf74",
+      "size_bytes": 11333
+    },
+    "code/data/roi_fallback.py": {
+      "hash": "c883e4111c2e7ea0b66cbaaad867764b9bfe0ed622d583047299c3b22140d6d7",
+      "size_bytes": 9231
+    },
+    "code/data/validate.py": {
+      "hash": "1ccb38170e036ef80202e566cc47d9d2fd7ce961441b7fb9f84c73c277bba741",
+      "size_bytes": 9666
+    },
+    "code/data/checksums.py": {
+      "hash": "76ba410e2225fd597bb920e5301be4afadfe2bed511bfd3337d631c70e271325",
+      "size_bytes": 3871
+    },
+    "code/data/download.py": {
+      "hash": "f5a531e6a2f444781d4808f07dad0104f5af5ec5022e5dec72c6fb98e0522ca0",
+      "size_bytes": 10155
+    },
+    "code/data/exclusion.py": {
+      "hash": "625cca976fd545f4da1e4cea05fec0d51d1689574972fb75afaefd4573f4a635",
+      "size_bytes": 8191
+    },
+    "code/analysis/posthoc_power.py": {
+      "hash": "baad766123b3216d939c3ee53c88bd8cb2989cca504459c2efae69006200aa61",
+      "size_bytes": 7062
+    },
+    "code/analysis/sensitivity_analysis.py": {
+      "hash": "f2ed0005fa4da05b9530276e865f135e4b52da20bc9db125a33d287a281bb2b5",
+      "size_bytes": 10297
+    },
+    "code/analysis/power.py": {
+      "hash": "629f103b63a06382d416d4a502bded154913443788756a9979eb1a68f193024b",
+      "size_bytes": 6491
+    },
+    "code/analysis/results_table.py": {
+      "hash": "21760567293f0b65abafdd1d586302bd0386ca2a80d021bc6a1b36b91328f7bb",
+      "size_bytes": 13156
+    },
+    "code/analysis/lmm.py": {
+      "hash": "de7d218b5def70fb48fab68854bfbdbba38cfb6e3f45394bbbc7ee419ddbeaaf",
+      "size_bytes": 14286
+    },
+    "code/.tasks/T038.atomize.yaml": {
+      "hash": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "size_bytes": 3
+    }
+  },
+  "summary": {
+    "total_files": 37,
+    "total_size_bytes": 197173,
+    "directories_processed": [
+      {
+        "path": "/home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data",
+        "status": "processed",
+        "files_count": 1,
+        "total_size_bytes": 268
+      },
+      {
+        "path": "/home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/code",
+        "status": "processed",
+        "files_count": 36,
+        "total_size_bytes": 196905
+      }
+    ]
+  }
+}

@@ -1,50 +1,69 @@
 # The Impact of Visual Search Strategies on Attentional Capture by Emotional Faces
 
-**Project ID**: PROJ-290
+**Project ID:** PROJ-290-the-impact-of-visual-search-strategies-o
 
 ## Overview
-This project investigates how visual search strategies influence attentional capture by emotional faces.
-It implements a reproducible pipeline for downloading eye-tracking datasets, extracting features,
-classifying search strategies, and performing statistical analysis.
 
-## Requirements
-- Python 3.11+
-- Install dependencies: `pip install -r requirements.txt`
+This repository implements a reproducible research pipeline that investigates whether individuals employ **global (holistic)** or **local (feature‑based)** visual search strategies when detecting emotional faces. Using publicly available eye‑tracking datasets, the pipeline:
 
-## Project Structure
-- `code/`: Source code modules
-- `data/`: Raw and processed data
-- `results/`: Analysis outputs and figures
-- `tests/`: Unit and integration tests
-- `state/`: Artifact hashes and state tracking
+1. **Downloads** and validates raw eye‑tracking data from HuggingFace Datasets.
+2. **Extracts** fixation metrics (eye vs. mouth region duration, saccade amplitude, dispersion).
+3. **Computes** a continuous fixation ratio (eye / mouth duration) as the primary predictor.
+4. **Performs** exploratory participant classification via k‑means clustering (with robustness checks).
+5. **Fits** linear mixed‑effects models (LMM) linking fixation patterns to detection time.
+6. **Runs** permutation tests, multiple‑comparison corrections, and power analyses.
+7. **Generates** publication‑ready tables, figures, and a final markdown report.
 
-## Quick Start
-1. Set up the environment:
+The pipeline follows the specifications in `specs/001-the-impact-of-visual-search-strategies-o/spec.md` and the implementation plan in `plan.md`. All steps are automated, version‑controlled, and produce verifiable artifacts stored under `data/`, `results/`, and `state/`.
+
+## Repository Structure
+
+```
+projects/PROJ-290-the-impact-of-visual-search-strategies-o/
+├── code/
+│ ├── __init__.py
+│ ├── config.py
+│ ├── data/
+│ │ ├── download.py
+│ │ └── validate.py
+│ ├── features/
+│ │ ├── extraction.py
+│ │ └── classification.py
+│ ├── analysis/
+│ │ ├── lmm.py
+│ │ ├── power.py
+│ │ ├── posthoc_power.py
+│ │ ├── results_table.py
+│ │ └── sensitivity_analysis.py
+│ └── utils/
+│ ├── logging.py
+│ ├── seed.py
+│ └── hash_artifacts.py
+├── data/
+│ ├── raw/
+│ └── processed/
+├── results/
+│ ├── figures/
+│ ├── reports/
+│ └── sensitivity_report.yaml
+├── state/
+├── tests/
+├── requirements.txt
+├── pyproject.toml
+└── README.md ← this file
+```
+
+## Getting Started
+
+1. **Clone the repository** and navigate to the project root.
+2. **Create a virtual environment** and install dependencies:
  ```bash
  python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ source venv/bin/activate
  pip install -r requirements.txt
  ```
-2. Run the data download and validation pipeline:
- ```bash
- python code/data/download.py
- python code/data/validate.py
- ```
-3. Run feature extraction and classification:
- ```bash
- python code/features/extraction.py
- python code/features/classification.py
- ```
-4. Run statistical analysis:
- ```bash
- python code/analysis/lmm.py
- ```
-
-## Configuration
-Environment variables can be set to override defaults in `code/config.py`.
-Key variables:
-- `LLMXIVE_DATA_ROOT`: Root directory for data (default: `data/`)
-- `LLMXIVE_LOG_LEVEL`: Logging level (default: `INFO`)
+3. **Run the pipeline** following the steps in `quickstart.md`.
 
 ## License
-Internal research use only.
+
+This project is released under the MIT License. See the `LICENSE` file for details.

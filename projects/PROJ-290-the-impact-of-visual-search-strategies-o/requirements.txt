@@ -1,12 +1,13 @@
-pandas
+# Project dependencies
+datasets
+huggingface_hub
+# Core scientific stack (already available in the base environment)
 numpy
+pandas
 scikit-learn
 statsmodels
-datasets
-joblib
-scipy
 matplotlib
 seaborn
 pyyaml
-requests
-pytest
+tqdm
+# Logging utilities are part of the project (no external package needed)

@@ -1,3 +1,29 @@
+T001:
+  c: true
+  h: 9d7637b8a43f60cda0c464fbd233630fd52d0d98bcc11aac9586436b3af51755
+  r: "Checked the project root `projects/PROJ-290-the-impact-of-visual-search-strategies-o/`\
+    \ and confirmed the presence and non\u2011empty contents of `code/__init__.py`,\
+    \ `requirements.txt`, `pyproject.toml`, `README.md`, and `code/config.py`. All\
+    \ required core files exist with appropriate content."
+  sig: 2b54b53a8b58be2f15f823f1930681972e11c89de4d98b5082c74b58783e2d0c
+T002:
+  c: true
+  h: 6e3837d642e464f1b52d2e224f6760d49b86cf54d7348c89b74986ed7ad48960
+  r: "Checked `code/utils/logging.py` (2994\u202Fbytes) which defines `setup_logging`\
+    \ that creates a log directory (defaulting to the `logs/` path from `config.get(\"\
+    logs_root\", \"logs\")`) and adds a `logging.FileHandler` writing to a file in\
+    \ that directory. The file handler and directory creation satisfy the required\
+    \ logging infrastructure."
+  sig: 5234b91323aa8036e25d09cd419ff644b48de183c77358d6c75b452accab930c
+T003:
+  c: true
+  h: ba4c75fd3d7fd43aad2506d8066ffe81205befb62693b8994c7d80d546ec51c3
+  r: "Checked `code/utils/hash_artifacts.py` (5115\u202Fbytes) which defines functions\
+    \ to recursively scan `data/` and `code/`, compute SHA\u2011256 hashes for every\
+    \ file, and write a JSON manifest, and verified the task\u2019s execution log\
+    \ (`code/.tasks/T003.code_utils_hash_artifacts.py.log`) showing the script ran\
+    \ successfully with exit\u202F0."
+  sig: b85eb22f29cd19f1dd813bb06dbce3c6005e8bed2ff329aaf17a5e5ca38519e6
 T012:
   c: false
   h: 3e72600f3f02f0847d4d95f6b9b5bf4338df466f78aab90c58ea1c8f0609e4e1
@@ -13,49 +39,11 @@ T022:
     \ triggers a warning and switches to descriptive statistics only). Without an\
     \ artifact to inspect, we cannot confirm the feature exists or works as specified.\
     \ The missing implementation must be added and the relevant file(s) supplied."
-T029a:
-  c: false
-  h: f05add672a9ab08769b5f12243fb268935af41afa4a5ace472b692614bbb17ea
-  r: The repository contains a partially shown `code/analysis/lmm.py`, but the file
-    is truncated and does not demonstrate a concrete execution that fits a model with
-    `detection_time` as outcome and `continuous_fixation_ratio` as predictor, writes
-    `results/lmm_continuous.csv`, or asserts convergence. Moreover, the required output
-    CSV is missing from the `results` directory. The task therefore remains unfinished.
-T029b:
-  c: false
-  h: 019355e93a71d0049a4f9291132379dfcd838ae10364790d9356046bfe908cfd
-  r: "The `code/analysis/lmm.py` file is present but the shown excerpt ends abruptly\
-    \ (truncated) and does not contain logic that loads the cluster label, fits a\
-    \ model with detection time as the outcome and the processing\u2011strategy predictor,\
-    \ asserts convergence, or writes `results/lmm_cluster.csv`. Moreover, the required\
-    \ output file `results/lmm_cluster.csv` is missing from the repository. The task\
-    \ therefore remains unfinished."
-T030:
-  c: false
-  h: 1b4553a7032a0caedc80bc3b5900431be9ece22153d701850a00ff6620756d02
-  r: The provided `code/analysis/lmm.py` does not contain any implementation of a
-    permutation test (no code that permutes detection times 1000 times or writes a
-    null distribution). Additionally, the required output file `results/permutation_test.json`
-    is missing from the repository. Both the core functionality and the expected result
-    artifact are absent.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or documentation implementing a post\u2011hoc power\
-    \ analysis (or noting when power\u202F<\u202F0.80) was provided. The claim cannot\
-    \ be verified because the required artifact is missing."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No statistical results table (containing estimates, standard errors, t\u2011\
-    values, p\u2011values, and adjusted p\u2011values) is present in the provided\
-    \ evidence. The implementer supplied only the task description and specification\
-    \ excerpt, without any generated output, code, or data files that fulfill the\
-    \ requirement. Consequently, the required artifact is missing."
-T037b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides only a textual description of the project and user stories;
-    there is no evidence that `hash_artifacts.py` was executed, nor any `state/` directory
-    containing updated hash files as required by task T037b. The necessary artifact
-    (the hash manifest) is missing.
+T035:
+  c: true
+  h: 3f11e0e8c0cb939efe8777d8d675719f5cf9dc6b9fbf51d93510b1cddae1aab0
+  r: "Checked `code/validation/reference_validator.py` \u2013 it defines `calculate_title_overlap`,\
+    \ uses a default threshold of\u202F0.7 in `find_best_match` and `validate_citations`,\
+    \ and the unit\u2011test log shows both passing and failing cases confirming the\
+    \ enforcement."
+  sig: 9d9276794e43fb4acf8690d2219bf706899dfd2fa6c1a5597be3e0d36b87acc8

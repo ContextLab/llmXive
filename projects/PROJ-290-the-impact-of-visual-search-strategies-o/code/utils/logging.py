@@ -5,7 +5,6 @@ Provides a configurable logging setup that writes to both console and file,
 with automatic log rotation and structured formatting.
 """
 import logging
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -24,8 +23,8 @@ def setup_logging(
     Args:
         level: Logging level (e.g., logging.INFO, logging.DEBUG).
                Defaults to Config.LOG_LEVEL if not provided.
-        log_dir: Directory for log files. Defaults to Config.LOG_DIR.
-        log_file: Log filename. Defaults to Config.LOG_FILE.
+        log_dir: Directory for log files. Defaults to Config.LOGS_ROOT.
+        log_file: Log filename. Defaults to "run.log" if not provided.
         console: Whether to add a console handler. Defaults to True.
 
     Returns:
@@ -33,21 +32,26 @@ def setup_logging(
     """
     config = get_config()
 
-    # Determine effective settings
-    effective_level = level or getattr(logging, config.log_level, logging.INFO)
-    effective_log_dir = log_dir or Path(config.log_dir)
-    effective_log_file = log_file or config.log_file
+    # Resolve logging level
+    # Config stores the level as a string like "INFO"; map it to the logging constant.
+    config_level_name = config.get("log_level", "INFO")
+    effective_level = level or getattr(logging, config_level_name.upper(), logging.INFO)
 
-    # Ensure log directory exists
-    effective_log_dir.mkdir(parents=True, exist_ok=True)
+    # Resolve log directory
+    # Prefer explicit argument, then config's logs_root, finally fallback to "logs".
+    log_dir_path = Path(log_dir) if log_dir else Path(config.get("logs_root", "logs"))
+    log_dir_path.mkdir(parents=True, exist_ok=True)
 
-    log_path = effective_log_dir / effective_log_file
+    # Resolve log file name
+    # Config may provide a custom name; otherwise default to "run.log".
+    log_file_name = log_file or config.get("log_file", "run.log")
+    log_path = log_dir_path / log_file_name
 
     # Configure root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(effective_level)
 
-    # Clear existing handlers to avoid duplicates on repeated calls
+    # Clear existing handlers to avoid duplicate logs on repeated calls
     root_logger.handlers.clear()
 
     # Formatter
@@ -56,13 +60,13 @@ def setup_logging(
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # File handler with rotation
+    # File handler (no rotation needed for the simple use‑case; can be extended later)
     file_handler = logging.FileHandler(log_path)
     file_handler.setLevel(effective_level)
     file_handler.setFormatter(formatter)
     root_logger.addHandler(file_handler)
 
-    # Console handler
+    # Optional console handler
     if console:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(effective_level)

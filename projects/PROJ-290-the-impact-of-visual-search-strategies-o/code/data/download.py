@@ -2,16 +2,33 @@ import os
 import sys
 import time
 import logging
+import argparse
+import shutil
+import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Import from project utils
+# Project utilities
 from utils.logging import get_logger
 from config import get_config
+
+# External libraries
+try:
+    from datasets import load_dataset
+except ImportError as e:
+    raise ImportError("The 'datasets' library is required. Install it via pip.") from e
+
+try:
+    from huggingface_hub import snapshot_download, HfApi
+except ImportError as e:
+    raise ImportError("The 'huggingface_hub' library is required. Install it via pip.") from e
 
 # Constants for retry logic (FR-002)
 RETRY_DELAYS = [1, 2, 4]  # Exponential backoff timings in seconds
 MAX_RETRIES = len(RETRY_DELAYS)
+
+# Required columns according to the project specification
+REQUIRED_COLUMNS = ['gaze_coordinates', 'response_times', 'emotion_labels']
 
 def get_logger_wrapper(name: str = __name__) -> logging.Logger:
     """Get a logger instance configured for this module."""
@@ -19,34 +36,18 @@ def get_logger_wrapper(name: str = __name__) -> logging.Logger:
 
 def check_schema_compatibility(dataset_columns: List[str], required_columns: List[str]) -> bool:
     """
-    Check if the dataset contains all required columns.
-    
-    Args:
-        dataset_columns: List of column names in the dataset.
-        required_columns: List of required column names.
-        
-    Returns:
-        True if all required columns are present, False otherwise.
+    Verify that all required columns are present in the dataset schema.
     """
     return all(col in dataset_columns for col in required_columns)
 
 def validate_dataset_content(dataset: Any) -> bool:
     """
-    Validate that the dataset contains at least one valid record.
-    
-    Args:
-        dataset: The dataset object to validate.
-        
-    Returns:
-        True if the dataset has at least one valid record, False otherwise.
+    Ensure the dataset contains at least one non‑empty record.
     """
     try:
-        # Handle HuggingFace datasets format
         if hasattr(dataset, '__len__') and len(dataset) > 0:
-            # Check if the first record is not empty
             first_record = dataset[0]
-            if first_record and len(first_record) > 0:
-                return True
+            return bool(first_record)
         return False
     except Exception as e:
         logging.getLogger(__name__).warning(f"Error validating dataset content: {e}")
@@ -54,212 +55,221 @@ def validate_dataset_content(dataset: Any) -> bool:
 
 def search_huggingface_datasets(logger: logging.Logger) -> List[Dict[str, Any]]:
     """
-    Search HuggingFace for relevant eye-tracking datasets.
-    
-    Searches for datasets containing 'eye-tracking', 'face', or 'emotion' keywords.
-    
-    Returns:
-        List of dataset metadata dictionaries.
+    Search HuggingFace Hub for datasets related to eye‑tracking, faces, or emotion.
+    Returns a list of candidate dataset metadata dictionaries.
     """
     try:
-        from datasets import list_datasets
+        from huggingface_hub import HfApi
     except ImportError:
-        logger.error("The 'datasets' library is not installed. Please install it via pip.")
+        logger.error("huggingface_hub not installed; cannot perform search.")
         return []
 
-    # Keywords to search for
     keywords = ['eye-tracking', 'face', 'emotion']
-    candidate_datasets = []
-    
-    # Note: The datasets library doesn't have a direct 'search' method that returns
-    # metadata in a simple way without fetching. We'll iterate through available
-    # datasets and filter by name/description if possible.
-    # For a more robust solution, we would use the HuggingFace Hub API directly.
-    
-    try:
-        from huggingface_hub import HfApi
-        api = HfApi()
-        
-        # Search for datasets with relevant keywords
-        for keyword in keywords:
-            try:
-                # List datasets matching the keyword
-                datasets_info = api.list_datasets(search=keyword, limit=50)
-                for ds in datasets_info:
-                    dataset_info = {
-                        'id': ds.id,
-                        'description': ds.description or "",
-                        'author': ds.author or "",
-                        'likes': ds.likes or 0
-                    }
-                    # Avoid duplicates
-                    if not any(d['id'] == dataset_info['id'] for d in candidate_datasets):
-                        candidate_datasets.append(dataset_info)
-            except Exception as e:
-                logger.warning(f"Error searching for datasets with keyword '{keyword}': {e}")
-                continue
-                
-    except ImportError:
-        logger.warning("huggingface_hub not found. Falling back to limited search.")
-        # Fallback: try to list datasets directly (less effective)
-        try:
-            all_datasets = list_datasets()
-            for ds in all_datasets:
-                ds_name = ds.id.lower()
-                if any(kw.lower() in ds_name for kw in keywords):
-                    candidate_datasets.append({
-                        'id': ds.id,
-                        'description': "",
-                        'author': "",
-                        'likes': 0
-                    })
-        except Exception as e:
-            logger.warning(f"Fallback search failed: {e}")
+    candidate_datasets: List[Dict[str, Any]] = []
+    api = HfApi()
 
-    # Sort by popularity (likes) to prioritize well-maintained datasets
+    for keyword in keywords:
+        try:
+            datasets_info = api.list_datasets(search=keyword, limit=50)
+            for ds in datasets_info:
+                dataset_info = {
+                    'id': ds.id,
+                    'description': ds.description or "",
+                    'author': ds.author or "",
+                    'likes': ds.likes or 0
+                }
+                if not any(d['id'] == dataset_info['id'] for d in candidate_datasets):
+                    candidate_datasets.append(dataset_info)
+        except Exception as e:
+            logger.warning(f"Error searching for datasets with keyword '{keyword}': {e}")
+            continue
+
     candidate_datasets.sort(key=lambda x: x['likes'], reverse=True)
-    
     logger.info(f"Found {len(candidate_datasets)} candidate datasets.")
     return candidate_datasets
 
-def download_with_retry(dataset_id: str, target_path: Path, logger: logging.Logger) -> Optional[Path]:
+def download_with_retry(dataset_id: str, logger: logging.Logger) -> Any:
     """
-    Download a dataset from HuggingFace with retry logic and exponential backoff.
-    
-    Implements FR-002: Retry logic with exponential backoff (1s, 2s, 4s).
-    
-    Args:
-        dataset_id: The HuggingFace dataset identifier.
-        target_path: The directory where the dataset should be saved.
-        logger: Logger instance for recording progress.
-        
-    Returns:
-        Path to the downloaded dataset directory, or None if all retries fail.
+    Load a HuggingFace dataset with retry logic.
+    Returns the loaded dataset object if successful.
     """
-    from datasets import load_dataset
-    
     last_error = None
-    
     for attempt, delay in enumerate(RETRY_DELAYS):
         try:
-            logger.info(f"Attempt {attempt + 1}/{MAX_RETRIES} to download dataset '{dataset_id}'...")
-            
-            # Attempt to load the dataset
-            # We use trust_remote_code=False for security
-            dataset = load_dataset(dataset_id, trust_remote_code=False)
-            
-            # If successful, ensure the target path exists
-            target_path.mkdir(parents=True, exist_ok=True)
-            
-            # Save the dataset to the target path
-            # Note: The exact saving method depends on the dataset format
-            # For now, we just confirm the download succeeded by checking if data exists
-            if dataset and len(dataset) > 0:
-                logger.info(f"Successfully downloaded dataset '{dataset_id}' to '{target_path}'")
-                return target_path
-            else:
-                logger.warning(f"Dataset '{dataset_id}' downloaded but appears empty.")
-                
+            logger.info(f"Attempt {attempt + 1}/{MAX_RETRIES} to load dataset '{dataset_id}'...")
+            ds = load_dataset(dataset_id, split='train', trust_remote_code=False)
+            logger.info(f"Successfully loaded dataset '{dataset_id}'.")
+            return ds
         except Exception as e:
             last_error = e
             logger.warning(f"Attempt {attempt + 1} failed: {e}")
-            
-            if attempt < len(RETRY_DELAYS) - 1:
+            if attempt < MAX_RETRIES - 1:
                 logger.info(f"Retrying in {delay} seconds...")
                 time.sleep(delay)
-            else:
-                logger.error(f"All {MAX_RETRIES} attempts failed for dataset '{dataset_id}'.")
-                
-    logger.error(f"Failed to download dataset '{dataset_id}' after {MAX_RETRIES} attempts.")
-    raise last_error if last_error else Exception("Unknown error during download")
+    logger.error(f"All {MAX_RETRIES} attempts failed for dataset '{dataset_id}'.")
+    raise last_error if last_error else Exception("Unknown error during dataset load.")
 
 def find_valid_dataset(logger: logging.Logger, required_columns: List[str]) -> Tuple[Optional[str], Optional[Any]]:
     """
-    Find and download the first valid dataset from HuggingFace.
-    
-    Args:
-        logger: Logger instance for recording progress.
-        required_columns: List of columns that must be present in the dataset.
-        
-    Returns:
-        Tuple of (dataset_id, dataset_object) if found, (None, None) otherwise.
+    Locate the first dataset on HuggingFace that satisfies schema requirements.
+    Returns a tuple of (dataset_id, loaded_dataset) or (None, None) if none found.
     """
     candidates = search_huggingface_datasets(logger)
-    
+
     if not candidates:
         logger.error("No candidate datasets found on HuggingFace.")
         return None, None
-        
+
     for candidate in candidates:
         dataset_id = candidate['id']
-        logger.info(f"Evaluating dataset: {dataset_id}")
-        
+        logger.info(f"Evaluating candidate dataset: {dataset_id}")
+
         try:
-            # Attempt to load dataset info to check columns
-            from datasets import load_dataset
-            # Load only the first split to check structure
-            ds_info = load_dataset(dataset_id, split='train', streaming=True)
-            
-            # Get column names
-            if hasattr(ds_info, 'column_names'):
-                columns = ds_info.column_names
+            # Load a streaming version to inspect column names without materialising the whole set
+            ds_stream = load_dataset(dataset_id, split='train', streaming=True)
+            if hasattr(ds_stream, 'column_names'):
+                columns = ds_stream.column_names
             else:
-                # Fallback for some dataset formats
-                columns = list(next(iter(ds_info)).keys())
-                
-            # Check schema compatibility
+                # Fallback: fetch first record and infer keys
+                first_record = next(iter(ds_stream))
+                columns = list(first_record.keys())
+
             if not check_schema_compatibility(columns, required_columns):
                 logger.info(f"Dataset '{dataset_id}' missing required columns. Skipping.")
                 continue
-                
-            # Check content validity
-            # Load a small sample to verify content
+
+            # Load a small non‑streaming sample to validate content
             sample_ds = load_dataset(dataset_id, split='train')
             if not validate_dataset_content(sample_ds):
-                logger.info(f"Dataset '{dataset_id}' has no valid records. Skipping.")
+                logger.info(f"Dataset '{dataset_id}' contains no valid records. Skipping.")
                 continue
-                
-            logger.info(f"Found valid dataset: {dataset_id}")
+
+            logger.info(f"Dataset '{dataset_id}' satisfies all checks.")
             return dataset_id, sample_ds
-            
         except Exception as e:
-            logger.warning(f"Error evaluating dataset '{dataset_id}': {e}")
+            logger.warning(f"Error processing dataset '{dataset_id}': {e}")
             continue
-            
-    logger.error("No valid dataset found matching criteria.")
+
+    logger.error("No suitable dataset found after evaluating all candidates.")
     return None, None
 
-def main():
-    """Main entry point for the download module."""
-    logger = get_logger(__name__)
+def download_raw_archive(dataset_id: str, target_dir: Path, logger: logging.Logger) -> Path:
+    """
+    Download the raw dataset repository from the HuggingFace Hub, archive it as a ZIP,
+    and place it under ``target_dir``. Returns the path to the created ZIP file.
+    """
+    logger.info(f"Downloading raw repository for dataset '{dataset_id}' via snapshot_download...")
+    repo_path = snapshot_download(repo_id=dataset_id, repo_type="dataset", allow_patterns=None)
+
+    zip_name = f"{dataset_id.replace('/', '_')}.zip"
+    zip_path = target_dir / zip_name
+
+    # Create ZIP archive
+    logger.info(f"Creating ZIP archive at '{zip_path}'...")
+    # shutil.make_archive requires a base name without extension
+    base_name = str(zip_path.with_suffix(''))
+    shutil.make_archive(base_name=base_name, format='zip', root_dir=repo_path)
+
+    logger.info(f"Archive created: {zip_path}")
+    return zip_path
+
+def calculate_sha256(file_path: Path) -> str:
+    """
+    Compute the SHA‑256 checksum of a file.
+    """
+    hash_sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
+
+def write_checksum_file(checksum: str, checksum_path: Path, logger: logging.Logger) -> None:
+    """
+    Write the hexadecimal checksum string to ``checksum_path``.
+    """
+    logger.info(f"Writing checksum to '{checksum_path}'...")
+    checksum_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(checksum_path, "w") as f:
+        f.write(checksum + "\n")
+    logger.info("Checksum file written.")
+
+def main() -> None:
+    """
+    Entry point for the download module.
+    Searches for a suitable dataset (or uses a user‑provided identifier),
+    downloads the raw archive into ``data/raw/``, and records a SHA‑256 checksum.
+    """
+    logger = get_logger_wrapper(__name__)
     config = get_config()
-    
-    # Define required columns based on project specifications
-    required_columns = ['gaze_coordinates', 'response_times', 'emotion_labels']
-    
-    # Find a valid dataset
-    dataset_id, dataset = find_valid_dataset(logger, required_columns)
-    
-    if not dataset_id:
-        logger.error("CRITICAL: No valid dataset found. Halting execution.")
-        sys.exit(1)
-        
-    logger.info(f"Selected dataset: {dataset_id}")
-    
-    # Prepare download path
-    download_path = config.data_raw_dir / dataset_id.replace('/', '_')
-    
-    # Download with retry logic
-    try:
-        final_path = download_with_retry(dataset_id, download_path, logger)
-        if final_path:
-            logger.info(f"Dataset successfully saved to: {final_path}")
-        else:
-            logger.error("Download failed despite retry logic.")
+
+    # Resolve the raw data directory using the Config API
+    raw_dir: Path = config.get_path('data_raw')
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    # Parse optional command‑line argument to allow forced dataset selection
+    parser = argparse.ArgumentParser(description="Download eye‑tracking dataset")
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        help="Explicit HuggingFace dataset identifier to download (skip auto‑search).",
+    )
+    args = parser.parse_args()
+
+    # ------------------------------------------------------------------
+    # Determine which dataset to use
+    # ------------------------------------------------------------------
+    if args.dataset:
+        dataset_id = args.dataset
+        logger.info(f"User supplied dataset identifier: {dataset_id}")
+
+        # Verify that the supplied dataset meets the required schema
+        try:
+            ds = load_dataset(dataset_id, split='train')
+            if not validate_dataset_content(ds):
+                logger.error(f"The supplied dataset '{dataset_id}' appears empty.")
+                sys.exit(1)
+
+            # Extract column names for schema validation
+            columns = ds.column_names if hasattr(ds, "column_names") else list(ds[0].keys())
+            if not check_schema_compatibility(columns, REQUIRED_COLUMNS):
+                logger.error(
+                    f"The supplied dataset '{dataset_id}' lacks required columns: {REQUIRED_COLUMNS}"
+                )
+                sys.exit(1)
+        except Exception as e:
+            logger.error(f"Failed to load supplied dataset '{dataset_id}': {e}")
             sys.exit(1)
+    else:
+        # Automatic search for a suitable dataset
+        dataset_id, ds = find_valid_dataset(logger, REQUIRED_COLUMNS)
+        if not dataset_id:
+            logger.error("CRITICAL: No valid dataset found. Halting execution.")
+            sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # Download raw archive and compute checksum
+    # ------------------------------------------------------------------
+    try:
+        zip_path = download_raw_archive(dataset_id, raw_dir, logger)
     except Exception as e:
-        logger.error(f"Fatal error during download: {e}")
+        logger.error(f"Failed to download and archive dataset '{dataset_id}': {e}")
         sys.exit(1)
+
+    try:
+        checksum = calculate_sha256(zip_path)
+    except Exception as e:
+        logger.error(f"Failed to compute checksum for '{zip_path}': {e}")
+        sys.exit(1)
+
+    checksum_path = raw_dir / "checksum.txt"
+    try:
+        write_checksum_file(checksum, checksum_path, logger)
+    except Exception as e:
+        logger.error(f"Failed to write checksum file: {e}")
+        sys.exit(1)
+
+    logger.info("Dataset download and checksum generation completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
