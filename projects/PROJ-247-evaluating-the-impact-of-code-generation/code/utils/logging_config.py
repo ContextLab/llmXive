@@ -1,45 +1,54 @@
 """
 Logging configuration utilities for the project.
 
-This module provides a small, consistent API used throughout the codebase:
-- ``get_logger``: obtain a logger instance with optional file output.
-- ``setup_logging``: convenience wrapper that creates a logger whose
-  file handler lives under ``data/logs/<name>.log``.
-- ``setup_project_logging``: legacy helper used by the original
-  ``01_data_curation.py`` script (kept for backward compatibility).
+Provides functions to set up loggers that write to files under the
+``data/logs`` directory and also output to the console. The utilities
+are used throughout the pipeline scripts (e.g., ``01_data_curation.py``,
+``03_analysis.py``, ``03_visualization.py``).
 
-All loggers emit to ``stdout`` (or ``sys.stderr``) and to a file when a
-path is supplied. Directories are created on‑demand. The implementation
-deliberately avoids any external configuration files so that imports work
-in the isolated execution environment.
+Functions
+---------
+- ``setup_project_logging(name: str, log_file: str) -> logging.Logger``
+  Creates (or retrieves) a logger with the given ``name`` that writes to
+  the specified ``log_file`` path. The logger is configured with a
+  standard formatter and a console handler.
+
+- ``setup_logging(name: str = "default") -> logging.Logger``
+  Convenience wrapper that creates a logger whose log file is placed
+  under ``data/logs/<name>.log``. The directory is created if it does not
+  exist.
+
+- ``get_logger(name: str) -> logging.Logger``
+  Simple accessor that returns a logger instance (creating it if needed
+  without adding extra handlers).
 """
 import logging
-import sys
 from pathlib import Path
-from typing import Optional
 
 __all__ = [
-    "get_logger",
-    "setup_logging",
     "setup_project_logging",
+    "setup_logging",
+    "get_logger",
 ]
 
-def _ensure_parent_dir(path: Path) -> None:
-    """Make sure the directory for *path* exists."""
-    if not path.parent.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
 
-def get_logger(name: str, log_file: Optional[Path] = None) -> logging.Logger:
+def _ensure_handler(logger: logging.Logger, handler: logging.Handler) -> None:
+    """Add ``handler`` to ``logger`` only if a similar handler is not already present."""
+    if not any(isinstance(h, type(handler)) and getattr(h, "baseFilename", None) == getattr(handler, "baseFilename", None)
+               for h in logger.handlers):
+        logger.addHandler(handler)
+
+
+def setup_project_logging(name: str, log_file: str) -> logging.Logger:
     """
-    Create (or retrieve) a logger with the given *name*.
+    Configure a logger for a specific project component.
 
     Parameters
     ----------
     name: str
-        Name of the logger (usually ``__name__``).
-    log_file: Path | None
-        If provided, a ``FileHandler`` writing to *log_file* is added.
-        The parent directory is created automatically.
+        Name of the logger (usually the component name).
+    log_file: str
+        Full path to the log file that should be written.
 
     Returns
     -------
@@ -47,42 +56,37 @@ def get_logger(name: str, log_file: Optional[Path] = None) -> logging.Logger:
         Configured logger instance.
     """
     logger = logging.getLogger(name)
-
-    # Avoid adding duplicate handlers if this function is called multiple times
-    if getattr(logger, "_configured", False):
-        return logger
-
     logger.setLevel(logging.INFO)
 
-    # Stream handler (stdout) – always present
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setFormatter(
+    # File handler
+    file_path = Path(log_file)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(file_path, encoding="utf-8")
+    file_handler.setFormatter(
         logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     )
-    logger.addHandler(stream_handler)
+    _ensure_handler(logger, file_handler)
 
-    # Optional file handler
-    if log_file is not None:
-        _ensure_parent_dir(log_file)
-        file_handler = logging.FileHandler(log_file, encoding="utf-8")
-        file_handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        )
-        logger.addHandler(file_handler)
+    # Console handler (stdout)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    )
+    _ensure_handler(logger, console_handler)
 
-    # Mark as configured to prevent duplicate handlers
-    logger._configured = True  # type: ignore[attr-defined]
     return logger
 
-def setup_logging(name: str) -> logging.Logger:
+
+def setup_logging(name: str = "default") -> logging.Logger:
     """
-    Convenience wrapper that creates a logger whose output file lives under
-    ``data/logs/<name>.log``.
+    Convenience wrapper that creates a logger whose log file lives in
+    ``data/logs/<name>.log``. The directory hierarchy is created on demand.
 
     Parameters
     ----------
-    name: str
-        Logical name for the logger (e.g., ``"visualization"``).
+    name: str, optional
+        Identifier for the logger; also used to name the log file.
+        Defaults to ``\"default\"``.
 
     Returns
     -------
@@ -90,26 +94,27 @@ def setup_logging(name: str) -> logging.Logger:
         Configured logger instance.
     """
     log_path = Path("data") / "logs" / f"{name}.log"
-    return get_logger(name, log_path)
+    return setup_project_logging(name, str(log_path))
 
-def setup_project_logging(project_name: str, log_path: str) -> logging.Logger:
+
+def get_logger(name: str) -> logging.Logger:
     """
-    Legacy helper retained for backward compatibility with existing scripts.
-    It mirrors the original ``setup_project_logging`` signature used in
-    ``code/01_data_curation.py``.
+    Retrieve a logger instance by name. If the logger has not been
+    configured yet, it will be created with the default ``setup_logging``
+    configuration.
 
     Parameters
     ----------
-    project_name: str
-        Identifier for the logging context (unused beyond naming).
-    log_path: str
-        Destination file for the log output.
+    name: str
+        Logger name.
 
     Returns
     -------
     logging.Logger
-        Configured logger instance.
+        Logger instance.
     """
-    # ``log_path`` may be a string; convert to ``Path`` for consistency.
-    log_file = Path(log_path)
-    return get_logger(project_name, log_file)
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        # Lazy initialisation with default settings
+        setup_logging(name)
+    return logger

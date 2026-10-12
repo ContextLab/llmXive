@@ -8,23 +8,23 @@
 
 ## Setup
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/your-org/your-repo.git
-    cd your-repo
-    ```
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/your-org/your-repo.git
+   cd your-repo
+   ```
 
-2.  **Install Dependencies**
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+2. **Install Dependencies**
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-3.  **Configure Environment**
-    Create a `.env` file in the root directory based on `.env.example`:
-    ```bash
-    cp .env.example .env
-    # Edit .env to add your GITHUB_TOKEN
-    ```
+3. **Configure Environment**
+   Create a `.env` file in the root directory based on `.env.example`:
+   ```bash
+   cp .env.example .env
+   # Edit .env to add your GITHUB_TOKEN
+   ```
 
 ## Execution
 
@@ -40,14 +40,14 @@ python code/01_data_curation.py
 ### Step 2: Classification
 Tag code blocks using CodeBERT.
 ```bash
-python code/01_data_curation.py --tag # Assuming tagging is integrated or in a separate script
+python code/01_data_curation.py --tag
 ```
 *Output*: `data/processed/tagged_blocks.csv`.
 
 ### Step 3: Matching
 Perform propensity score matching.
 ```bash
-python code/utils/matching.py # Or the designated matching script
+python code/utils/matching.py
 ```
 *Output*: `data/processed/matched_pairs_filtered.csv`.
 

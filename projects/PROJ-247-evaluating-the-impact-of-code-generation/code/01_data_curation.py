@@ -7,11 +7,12 @@ import ast
 import logging
 import subprocess
 import argparse
+import time
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Any, Optional, Tuple
 
-from github import Github, GithubException
+from github import Github, GithubException, RateLimitExceededException
 from dotenv import load_dotenv
 
 # Import from local utils
@@ -29,6 +30,10 @@ REPO_LIST_CSV = "data/raw/repo_list.csv"
 REPO_METADATA_CSV = "data/raw/repo_metadata.csv"
 CLONES_DIR = "data/raw/clones"
 CHECKPOINT_DIR = "data/logs/checkpoints"
+
+# Rate‑limit back‑off parameters
+MIN_REMAINING_REQUESTS = 5          # when to start sleeping
+SLEEP_BUFFER_SECONDS = 10          # extra safety buffer after reset
 
 def setup_logging():
     """Configure logging for the data curation pipeline."""
@@ -61,6 +66,30 @@ def calculate_total_loc(repo_path: Path) -> int:
                     continue
     return total_loc
 
+def _handle_rate_limit(github_client: Github, logger: logging.Logger):
+    """
+    Check the remaining rate limit and sleep until reset if necessary.
+    This function raises if the limit cannot be recovered (e.g., unauthenticated
+    and exhausted).
+    """
+    try:
+        core_limits = github_client.get_rate_limit().core
+    except Exception as e:
+        logger.warning(f"Unable to fetch rate limit info: {e}")
+        return  # Proceed; any failure will be caught later
+
+    remaining = core_limits.remaining
+    reset_timestamp = core_limits.reset.timestamp()
+    now_timestamp = datetime.now(timezone.utc).timestamp()
+    seconds_to_reset = max(0, reset_timestamp - now_timestamp)
+
+    if remaining <= MIN_REMAINING_REQUESTS:
+        sleep_time = seconds_to_reset + SLEEP_BUFFER_SECONDS
+        logger.info(
+            f"Rate limit low (remaining={remaining}). Sleeping for {int(sleep_time)} seconds until reset."
+        )
+        time.sleep(sleep_time)
+
 def curate_repositories(logger: logging.Logger):
     """
     FR-001: Identify and clone active Python/JS repositories.
@@ -68,11 +97,11 @@ def curate_repositories(logger: logging.Logger):
     """
     token = os.getenv("GITHUB_TOKEN")
     if token:
-        g = Github(token)
+        g = Github(token, per_page=50)
         logger.info("Using authenticated GitHub client.")
     else:
         # Unauthenticated client – lower rate limits but still functional
-        g = Github()
+        g = Github(per_page=30)
         logger.warning("GITHUB_TOKEN not found; proceeding with unauthenticated GitHub client (rate‑limited).")
 
     repos_found: List[Dict[str, Any]] = []
@@ -94,6 +123,9 @@ def curate_repositories(logger: logging.Logger):
         nonlocal repos_found
         logger.info(f"Searching with query: {query}")
         try:
+            # Apply rate‑limit handling before each request
+            _handle_rate_limit(g, logger)
+
             results = g.search_repositories(query=query)
             for repo in results:
                 if len(repos_found) >= 50:
@@ -114,6 +146,11 @@ def curate_repositories(logger: logging.Logger):
                             "created_at": repo.created_at.isoformat(),
                             "updated_at": repo.updated_at.isoformat(),
                         })
+        except RateLimitExceededException:
+            logger.warning("Rate limit exceeded during search; sleeping until reset.")
+            _handle_rate_limit(g, logger)
+            # After sleeping, retry the same query once
+            process_query(query)
         except GithubException as e:
             logger.error(f"GitHub API error during search '{query}': {e}")
 
@@ -166,7 +203,24 @@ def curate_repositories(logger: logging.Logger):
                 }
             )
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to clone {clone_url}: {e.stderr.strip()}")
+            # Handle 404 / repository not found (e.g., deleted or made private)
+            if "Repository not found" in e.stderr or "not found" in e.stderr.lower():
+                logger.error(f"Repository not found (likely deleted or private): {clone_url}")
+            else:
+                logger.error(f"Failed to clone {clone_url}: {e.stderr.strip()}")
+            # Record exclusion for later analysis
+            exclusion_path = Path(CHECKPOINT_DIR) / "repo_clone_exclusions.log"
+            with exclusion_path.open("a", encoding="utf-8") as excl_f:
+                writer = csv.DictWriter(excl_f, fieldnames=["repo_id", "owner", "name", "url", "reason"])
+                if excl_f.tell() == 0:
+                    writer.writeheader()
+                writer.writerow({
+                    "repo_id": repo_id,
+                    "owner": repo_info["owner"],
+                    "name": repo_info["name"],
+                    "url": clone_url,
+                    "reason": "clone_failed_or_deleted",
+                })
         except Exception as e:
             logger.error(f"Unexpected error cloning {clone_url}: {e}")
 

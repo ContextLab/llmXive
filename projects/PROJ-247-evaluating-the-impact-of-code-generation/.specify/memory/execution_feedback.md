@@ -28,67 +28,65 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 - every produced artifact is gitignored (data/raw/repo_list.csv, data/raw/repo_metadata.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/01_data_curation.py --tag # Assuming tagging is integrated or in a separate script`
-  - script usage: `01_data_curation.py [-h] [--curate] [--tag]`
-  - argparse error: `01_data_curation.py: error: unrecognized arguments: # Assuming tagging is integrated or in a separate script`
-- run-book command: `python code/utils/matching.py # Or the designated matching script`
-  - script usage: `matching.py [-h] [--input INPUT] [--output OUTPUT]`
-  - argparse error: `matching.py: error: unrecognized arguments: # Or the designated matching script`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 363 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/clones/CopilotKit_CopilotKit/showcase/GOTCHAS.md: self-declared fabricated metric — “…-tool-based` answered "I used placeholder values since no sales figures were…”; data/raw/clones/CopilotKit_CopilotKit/showcase/integrations/mastra/qa/background-agents.md: self-declared fabricated metric — “…arted` lifecycle plus a       placeholder result. Do NOT expect the card to an…”; data/raw/clones/bradygaster_squad/.copilot/skills/secret-handling/SKILL.md: self-declared fabricated metric — “…env.example` (safe — contains placeholder values, no real secrets) - `.env.sa…”; every produced artifact is gitignored (data/raw/repo_list.csv, data/raw/repo_metadata.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 7 command(s) failed: python code/01_data_curation.py --tag # Assuming tagging is integrated or in a separate script (rc=2); python code/utils/matching.py # Or the designated matching script (rc=2); python code/02_metric_extraction.py (rc=1); 8 declared deliverable(s) absent: data/ground_truth/classifier_metrics.json; data/logs/refactor_validation_report.json; data/logs/repo_exclusions.csv
+**Summary**: 363 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/clones/CopilotKit_CopilotKit/showcase/GOTCHAS.md: self-declared fabricated metric — “…-tool-based` answered "I used placeholder values since no sales figures were…”; data/raw/clones/CopilotKit_CopilotKit/showcase/integrations/mastra/qa/background-agents.md: self-declared fabricated metric — “…arted` lifecycle plus a       placeholder result. Do NOT expect the card to an…”; data/raw/clones/bradygaster_squad/.copilot/skills/secret-handling/SKILL.md: self-declared fabricated metric — “…env.example` (safe — contains placeholder values, no real secrets) - `.env.sa…”; every produced artifact is gitignored (data/raw/repo_list.csv, data/raw/repo_metadata.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 7 command(s) failed: python code/01_data_curation.py --tag (rc=1); python code/utils/matching.py (rc=1); python code/02_metric_extraction.py (rc=1); 8 declared deliverable(s) absent: data/ground_truth/classifier_metrics.json; data/logs/refactor_validation_report.json; data/logs/repo_exclusions.csv
 
 ## Failing / missing run-book commands
 
-- python code/01_data_curation.py --tag # Assuming tagging is integrated or in a separate script -> rc=2
+- python code/01_data_curation.py --tag -> rc=1
 
 None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
-usage: 01_data_curation.py [-h] [--curate] [--tag]
-01_data_curation.py: error: unrecognized arguments: # Assuming tagging is integrated or in a separate script
+2026-10-12 18:21:04,983 - data_curation - INFO - Starting Block Tagging (T013)
+2026-10-12 18:21:04,984 - data_curation - CRITICAL - Classifier init failed: Model file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/models/codebert-base-onnx
 
-- python code/utils/matching.py # Or the designated matching script -> rc=2
+- python code/utils/matching.py -> rc=1
 
-usage: matching.py [-h] [--input INPUT] [--output OUTPUT]
-                   [--repo-metadata REPO_METADATA]
-                   [--log-level {DEBUG,INFO,WARNING,ERROR}]
-matching.py: error: unrecognized arguments: # Or the designated matching script
+2026-10-12 18:21:06,158 - __main__ - INFO - Starting matching pipeline
+2026-10-12 18:21:06,158 - __main__ - ERROR - Matching pipeline failed: Metrics file not found: data/raw/code_blocks.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 334, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 320, in main
+    run_matching_pipeline(
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 248, in run_matching_pipeline
+    df = load_block_metrics(input_csv)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 50, in load_block_metrics
+    raise MatchingError(f"Metrics file not found: {csv_path}")
+MatchingError: Metrics file not found: data/raw/code_blocks.csv
 
 - python code/02_metric_extraction.py -> rc=1
+Metric extraction failed: Extraction pipeline failed: Input file not found: data/processed/matched_pairs_filtered.csv
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/02_metric_extraction.py", line 437, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/02_metric_extraction.py", line 426, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
+2026-10-12 18:21:06,416 - __main__ - ERROR - Pipeline failed: Input file not found: data/processed/matched_pairs_filtered.csv
 
 - python code/03_analysis.py -> rc=1
-
+/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 317, in main
+    pairs_df = load_matched_pairs()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 48, in load_matched_pairs
+    raise FileNotFoundError(f"Required file not found: {path}")
+FileNotFoundError: Required file not found: data/processed/matched_pairs_filtered.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 365, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 308, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 317, in main
+    pairs_df = load_matched_pairs()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 48, in load_matched_pairs
+    raise FileNotFoundError(f"Required file not found: {path}")
+FileNotFoundError: Required file not found: data/processed/matched_pairs_filtered.csv
 
 - python code/03_visualization.py -> rc=1
-2026-10-12 16:51:48,703 - visualization - INFO - Starting visualization pipeline (T030)
-2026-10-12 16:51:48,704 - visualization - ERROR - Data loading failed: Metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/data/processed/metrics_longitudinal.csv
 
+2026-10-12 18:21:09,025 - visualization - INFO - Starting visualization pipeline (T030)
+2026-10-12 18:21:09,025 - visualization - ERROR - Data loading failed: Metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/data/processed/metrics_longitudinal.csv
 
 - python code/04_ground_truth_selection.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/04_ground_truth_selection.py", line 148, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/04_ground_truth_selection.py", line 123, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
+2026-10-12 18:21:09,182 - __main__ - INFO - Ensured directory exists: data/ground_truth
+2026-10-12 18:21:09,182 - __main__ - ERROR - File not found: Matched pairs file not found: data/processed/matched_pairs.csv
 
 - python -m pytest tests/ -> rc=2
 runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/tests/unit/test_repo_filter.py'.
@@ -108,7 +106,7 @@ ERROR tests/unit/test_code_block_extraction.py
 ERROR tests/unit/test_repo_deletion_handling.py
 ERROR tests/unit/test_repo_filter.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.24s ===============================
+============================== 7 errors in 1.59s ===============================
 
 
 

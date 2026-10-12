@@ -1,18 +1,19 @@
 status: none
-intent: download GitHub Archive dataset GHTorrent python package dataset
+intent: GitHub repositories GHTorrent GitHub Archive BigQuery GitHub CodeXGLUE HumanEval
+  CodeBERT python package dataset
 required_fields:
-- repository_id
-- repository_name
+- repository_full_name
+- repository_url
 - primary_language
-- star_count
-- last_commit_timestamp
-- commit_count_last_90_days
+- stars
+- last_commit_date
+- recent_commit_count
+- code_block_id
 - file_path
-- code_block_text
-- code_block_start_line
-- code_block_end_line
-- llm_generated_label
-- human_written_label
-cache_key: 85a36b59f399cdf0f3e901ebdf0bd1095dbea035b9e34483702973047d7d007d
-searched_at: '2026-10-12T16:56:33.372127+00:00'
+- start_line
+- end_line
+- code_snippet
+- llm_human_label
+cache_key: c0512af330e420261077db7f6e8bc804e5f9eed1f6020cac279d966a1728024c
+searched_at: '2026-10-12T18:25:56.112608+00:00'
 retry_count: 1

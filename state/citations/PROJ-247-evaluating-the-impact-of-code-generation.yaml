@@ -1,4 +1,4 @@
-- artifact_hash: 5c56da44fbaa7044283a097ffb720ec49bd8134cdd8792049f99a41380667de0
+- artifact_hash: 1b2380fb0f204dbaa018b096c70e45870ed91d0f2410bd1eb81e927f487b9779
   artifact_path: projects/PROJ-247-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://github.com/your-org/your-repo.git
   verification_status: pending
   verified_against_url: https://github.com/your-org/your-repo
-  verified_at: '2026-10-12T16:28:39.020823Z'
+  verified_at: '2026-10-12T18:14:24.525813Z'
