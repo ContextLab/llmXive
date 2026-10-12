@@ -1,0 +1,7 @@
+{
+  "task_id": "T015",
+  "fingerprint": "b68429573caf4d61d1f0377d866bce688f03c05162df72b004c19951e22c1834",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'tests/unit/test_target_proxy.py': SyntaxError at line 5: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 2800"
+}

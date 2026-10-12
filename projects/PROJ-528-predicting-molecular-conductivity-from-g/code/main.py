@@ -14,6 +14,7 @@ from code.logging_config import setup_logging
 from code.config import DATA_PATH
 from code.data_loader import main as data_loader_main
 from code.descriptors import main as descriptors_main
+from code.preprocessing import main as preprocessing_main
 from code.model_training import main as model_training_main
 from code.run_sensitivity_analysis import main as run_sensitivity
 from code.feature_importance import main as feature_importance_main
@@ -47,28 +48,35 @@ def run_full_pipeline():
     logger.info("Step 1: Loading data...")
     data_loader_main()
 
-    # 3. Compute descriptors
-    logger.info("Step 2: Computing descriptors...")
+    # 3. Validate target dynamic range (T011)
+    logger.info("Step 2: Validating target dynamic range...")
+    ret = preprocessing_main()
+    if ret != 0:
+        logger.error("Target dynamic range validation failed; aborting pipeline.")
+        sys.exit(1)
+
+    # 4. Compute descriptors
+    logger.info("Step 3: Computing descriptors...")
     descriptors_main()
 
-    # 4. Train models (writes model_results.json)
-    logger.info("Step 3: Training models...")
+    # 5. Train models (writes model_results.json)
+    logger.info("Step 4: Training models...")
     model_training_main()
 
-    # 5. Run sensitivity analysis (writes sensitivity_analysis.json)
-    logger.info("Step 4: Running sensitivity analysis...")
+    # 6. Run sensitivity analysis (writes sensitivity_analysis.json)
+    logger.info("Step 5: Running sensitivity analysis...")
     run_sensitivity()
 
-    # 6. Feature importance (writes feature_importance.csv)
-    logger.info("Step 5: Computing feature importance...")
+    # 7. Feature importance (writes feature_importance.csv)
+    logger.info("Step 6: Computing feature importance...")
     feature_importance_main()
 
-    # 7. Plotting (creates corr_plot_top5.png)
-    logger.info("Step 6: Generating plots...")
+    # 8. Plotting (creates corr_plot_top5.png)
+    logger.info("Step 7: Generating plots...")
     plotting_main()
 
-    # 8. Analysis summary (writes analysis_summary.json)
-    logger.info("Step 7: Generating analysis summary...")
+    # 9. Analysis summary (writes analysis_summary.json)
+    logger.info("Step 8: Generating analysis summary...")
     analysis_summary_main()
 
     end_time = time.time()

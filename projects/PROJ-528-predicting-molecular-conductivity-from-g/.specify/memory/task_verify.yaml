@@ -1,31 +1,4 @@
-? "T010\u2013T012, T023\u2013T025, T034\u2013T036 Unit tests for descriptors (benzene\
-  \ aromaticity, butadiene conjugation, mixed hybridization), scaffold leakage, log\
-  \ transform, outlier filter, VIF, BH correction, and plot generation (`tests/`)."
-: 1
-? "T013\u2013T019c, T026, T061_RDKit\u2013T063_RDKit Data loading, target\u2011variable\
-  \ validation with strict halt when neither conductivity nor HOMO\u2011LUMO gap is\
-  \ available (no self\u2011consistency fallback), quantum proxy report, full RDKit\
-  \ descriptor set (degree/path statistics, aromaticity, conjugation, ring counts,\
-  \ bond order/length, electronegativity polarity terms), NaN filtering, and `data/processed/descriptors.csv`\
-  \ (FR\u2011001, FR\u2011008, FR\u2011011, FR\u2011012, FR\u2011014)."
-: 1
-? "T027\u2013T032b-3, T032a Scaffold split, log\u2011transform, RF/GB training, 5\u2011\
-  fold CV, outlier sensitivity sweep over {2.5\u03C3, 3.0\u03C3, 3.5\u03C3} with variance\
-  \ recording in `data/processed/sensitivity_analysis.json` (FR\u2011002, FR\u2011\
-  003, FR\u2011004, FR\u2011007)."
-: 1
-? "T039a, T039b, T039c\u20113 VIF identification, exclusion (VIF > 10), retraining\
-  \ on reduced feature set, iteration log and intermediate model versioning (FR\u2011\
-  013)."
-: 1
-? "T040b, T041, T042, T043, T045, T044, T057, T064, T064b Feature\u2011importance\
-  \ robustness, Pearson correlations, Benjamini\u2011Hochberg FDR correction, correlation\
-  \ plots with 95\u202F% CIs (`corr_plot_top5.png`, `corr_plot_resonance.png`), analysis\
-  \ summary, bootstrap CI\u2011coverage report, resonance\u2011descriptor integration\
-  \ and augmented sensitivity re\u2011run (FR\u2011005, FR\u2011006, SC\u2011002,\
-  \ SC\u2011003)."
-: 1
-? "T046, T047, T049\u20111\u2013T049\u20114, T051 Documentation updates, lint cleanup,\
-  \ integration tests with runtime checks, quickstart execution in fresh virtualenv\
-  \ (FR\u2011009, FR\u2011010)."
-: 1
+T001: 1
+T010: 1
+T012: 1
+T013: 1

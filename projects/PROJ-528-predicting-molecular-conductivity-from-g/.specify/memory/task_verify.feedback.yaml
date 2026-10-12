@@ -1,81 +1,132 @@
-"T001\u2013T009":
-  task: 91f0461fbf38e0fe80f8203edd42512e1d36c17fe0c1fa14ffba740943a0be8e
-? "T010\u2013T012, T023\u2013T025, T034\u2013T036 Unit tests for descriptors (benzene\
-  \ aromaticity, butadiene conjugation, mixed hybridization), scaffold leakage, log\
-  \ transform, outlier filter, VIF, BH correction, and plot generation (`tests/`)."
-: reason: "The evidence only shows that a `tests/` directory with appropriately named\
-    \ files exists, but no contents are provided to confirm that the unit tests actually\
-    \ implement the required checks (benzene aromaticity, butadiene conjugation, mixed\
-    \ hybridization, scaffold leakage, log\u2011transform, outlier filter, VIF, Benjamini\u2011\
-    Hochberg correction, and plot generation). Without the test code (or execution\
-    \ logs) we cannot verify that the required functionality is truly tested. The\
-    \ implementer must supply the test file contents (or proof of successful test\
-    \ runs) to demonstrate compliance."
-  task: 8ba0a03fd53a15bb4886f3f3143a485096a906d41884b483da4fe58b792ea943
-? "T013\u2013T019c, T026, T061_RDKit\u2013T063_RDKit Data loading, target\u2011variable\
-  \ validation with strict halt when neither conductivity nor HOMO\u2011LUMO gap is\
-  \ available (no self\u2011consistency fallback), quantum proxy report, full RDKit\
-  \ descriptor set (degree/path statistics, aromaticity, conjugation, ring counts,\
-  \ bond order/length, electronegativity polarity terms), NaN filtering, and `data/processed/descriptors.csv`\
-  \ (FR\u2011001, FR\u2011008, FR\u2011011, FR\u2011012, FR\u2011014)."
-: reason: The required output file `data/processed/descriptors.csv` is missing, so
-    the core descriptor computation artifact demanded by the task (including the full
-    RDKit descriptor set and related functional requirements) is not present. Without
-    this CSV the data loading, validation, and downstream steps cannot be verified.
-  task: 128c44a9770440053e420d6a3b9e2760ccc8f671c290c5692bc7921f70ce9fa8
-? "T027\u2013T032b-3, T032a Scaffold split, log\u2011transform, RF/GB training, 5\u2011\
-  fold CV, outlier sensitivity sweep over {2.5\u03C3, 3.0\u03C3, 3.5\u03C3} with variance\
-  \ recording in `data/processed/sensitivity_analysis.json` (FR\u2011002, FR\u2011\
-  003, FR\u2011004, FR\u2011007)."
-: reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis.json'
-  task: 7155a7b874bad35486467c367c024f1472f052f77e5e4ddbd4dc510c60ec8a41
-? "T039a, T039b, T039c\u20113 VIF identification, exclusion (VIF > 10), retraining\
-  \ on reduced feature set, iteration log and intermediate model versioning (FR\u2011\
-  013)."
-: reason: "The repository contains only a project root reference and no files implementing\
-    \ VIF calculation, VIF\u2011based feature exclusion, retraining on the reduced\
-    \ feature set, or any iteration log/model versioning required by task T039a\u2011\
-    c\u20113. Consequently the essential artifacts and evidence for VIF identification,\
-    \ exclusion, and model versioning are missing."
-  task: 5c14c14c4537673316d83c2de5f9fbe4babdd66ea25ebf408f665bc9a008fe5a
-? "T040b, T041, T042, T043, T045, T044, T057, T064, T064b Feature\u2011importance\
-  \ robustness, Pearson correlations, Benjamini\u2011Hochberg FDR correction, correlation\
-  \ plots with 95\u202F% CIs (`corr_plot_top5.png`, `corr_plot_resonance.png`), analysis\
-  \ summary, bootstrap CI\u2011coverage report, resonance\u2011descriptor integration\
-  \ and augmented sensitivity re\u2011run (FR\u2011005, FR\u2011006, SC\u2011002,\
-  \ SC\u2011003)."
-: reason: "The evidence contains only a project root reference and no actual files\
-    \ such as `corr_plot_top5.png`, `corr_plot_resonance.png`, bootstrap CI\u2011\
-    coverage reports, or the required analysis summaries and feature\u2011importance\
-    \ outputs. Because the mandatory artifacts are missing, the task\u2019s requirements\
-    \ are not satisfied."
-  task: dba2acb82b6c95ffbe5d31a4a884ac6a954583673fdde4cbde355b6ff76a92c6
-? "T046, T047, T049\u20111\u2013T049\u20114, T051 Documentation updates, lint cleanup,\
-  \ integration tests with runtime checks, quickstart execution in fresh virtualenv\
-  \ (FR\u2011009, FR\u2011010)."
-: reason: "The evidence only shows a project root path; no descriptor\u2011computation\
-    \ script, no output CSV/JSON results, no training or evaluation code, no integration\u2011\
-    test suite, no documentation updates, lint\u2011cleanup files, or quick\u2011\
-    start instructions were found. Consequently the required artifacts for T046, T047,\
-    \ T049\u20111\u20134, and T051 are missing."
-  task: a7fb0d5c39c01bf91741b5797e4380fedf9a63636af567b2bdd999fed7d5bc04
+T001:
+  reason: "The scaffold-split verification explicitly failed: `tests/unit/test_scaffold_split.py`\
+    \ exited 1 because `scaffold_split` put both rows sharing a scaffold into the\
+    \ test set (`assert 2 == 1`), and `code/split.py` additionally contains a real\
+    \ bug in `_save_split` (`test_path.to_csv(test_path, ...)` \u2014 calling to_csv\
+    \ on a Path object), which would crash any CLI run. There is also no evidence\
+    \ that `validators.py --validate contracts/*` returns exit 0 \u2014 the CLI requires\
+    \ a (data, schema) pair while the contracts directory contains only schema files,\
+    \ and no such run is recorded. Fix the splitter so who"
+  task: a341be3a3741d559c9acaab2ea15c8bb7168674d35e8a3802d9c7c0d7dd74897
+T010:
+  reason: "The required verification \u2014 `pytest -q tests/unit/` passing with exit\
+    \ 0 and coverage \u2265 90% \u2014 is not met: the execution logs show `tests/unit/test_plot.py`\
+    \ fails collection (ImportError on `get_top_features`, exit 2) and `tests/unit/test_statistics.py`\
+    \ fails (`test_apply_bh_to_df`, exit 1), and there is no evidence of any successful\
+    \ full-suite run or any coverage measurement. Additionally, `test_scaffold.py`\
+    \ only checks that `scaffold_split` is importable/callable \u2014 it does not\
+    \ actually test scaffold leakage prevention (e.g., that identical scaffolds don't\
+    \ span train/test), and no plot-generati"
+  task: 51ea85ad7221cdc36fdebb8975d242adde1bcec6596518a28ff3c384cc3a4392
+T011:
+  task: ede6431d4f72681ff6da720c0f4a654f5baf77abd2420998beee11ce35845d53
+T012:
+  reason: "The unit tests for this task's exclusion logic fail (2 failed, 4 passed):\
+    \ `test_invalid_descriptors_counted` expects 2 invalid-descriptor exclusions but\
+    \ got 1, and `test_clean_rows_are_valid` shows `filtered_train` retains a row\
+    \ with invalid descriptors (2 rows instead of 1), so the core requirement \u2014\
+    \ excluding molecules with invalid descriptors \u2014 is demonstrably broken.\
+    \ Additionally, the actual `exclusion_log.json` reflects a 2-row input with `descriptor_columns_checked:\
+    \ []`, meaning no real descriptor dataset was processed and the \"resulting training\
+    \ CSV contains only valid rows\" claim is un"
+  task: 515266bf64b04b9ca2b2af14d7cd966f2e212dfd9e47ee29ca7626b012d7b029
+T012b:
+  task: 1a5980b5a24a2be740a06314e0a34d3682fac1984cf22d09e3b428723e01186a
+T013:
+  reason: "The unit test run for T013 failed (3 failures: conjugation path length\
+    \ wrong for benzene and butadiene, and only 7 numeric descriptor columns vs the\
+    \ required \u226510), and `data/processed/descriptors.csv` contains just 2 trivial\
+    \ molecules (\"C\" and \"CC\") from a 2-row `data/raw/input.csv` \u2014 not a\
+    \ real PubChem/HMaterials dataset, and it lacks the \"full RDKit descriptor set\"\
+    \ the task requires. The quantum proxy report is consistent with that tiny input,\
+    \ but the core deliverables (real data loading, \u226510 numeric descriptors per\
+    \ molecule, passing validation) are not met."
+  task: ec8d67041318fab27f0e1b5fb69605c2786fa6c4e91780c8af62133e9e157938
+T014:
+  task: 85612c1b492b8206e822475f25f375a5146b203aa921388885d6e68721373339
+T015:
+  task: eb21e8c38f6657b4719bac3425f1bb11c4d6cfdc70edab83fe9c711bfbc55583
+T016:
+  task: e866e5462c35cee0094175f612b06de4d1ffc448616e85fd9b7f4d7ac98f1845
+T017:
+  task: ec59a556ec24270fa2cd87bef208f683f6730a81cc87c3fc000a5456d8ca2fbe
+T018:
+  task: 43c20bf4ac1964db1dbcc25d37e473f77bbb4e43f7de74cb3c445753cf132df5
+T019:
+  task: 39a8df93821074b129dbb1d216543294e993dec61abb1471856278053922e904
+T020:
+  task: 62bc03a892f2acbd5c3fc18991dfc7bcccc737a0f4985aff5ec8ae767fafa6b1
+T021:
+  task: 23db75e91adfd7838b825bdf44d3d8f5aae0bb656d74496b3d62db7b910fb219
+T022:
+  task: aa3a9bb33fe1f26b1d6a56a2d1633ffbe8f4835818f3296e46894d0bf0daffe3
+T023:
+  task: c277212de95e55c68590d5f3447077d10c8b0500f2f1b4d0e661a0bf9c619700
+T024:
+  task: 82467a250b5e44d618b14254e4061265c454d9517a7b0b7645be9ad122e8e4be
+T025:
+  task: b5d042bdb73f2a9576cf77a5fbb508a5644b526884e86834d8f22a0823828330
+T026:
+  task: 4864c71f0344d2861bba6d6481df979e608f37cb65a3186ac616e79250b82ed4
+T027:
+  task: 16b950af1b82e926822182d05facdab5dad6ae7d6f172e95c6322aad0200e887
+T028:
+  task: ba0f523894ba4804fd572b2abb3e38e994b97455239cb4a5c03680074f768eb6
+T029:
+  task: 768294b1a012e06f19061023d7aa011ff03d10a27482203ee84555dd58747a68
+T030:
+  task: 6513f2a93bc06861f3f3bf58fd65ffa3e300f00d9b2eddd920204a2ad821b109
+T039:
+  task: 4ff418a23c4364aaa271fb190e7dc4b0a1ed2bd30fb2b8bf2e109507a10dd43d
+T040:
+  task: 683982866b8a832671bfc4a295d9ac2e13cbbcb1830fb072d352841f09b55cfd
+T046:
+  task: 2fd2ab6e4899075efd5297283dccfaeb0d5854731b567371964c17b845bc9370
+T050:
+  task: b194761a6dffa5e5fe222e224816f93c6ad07beae7a5dd3d25b29346ee32990c
+T051:
+  task: 1f72651b13de936f9b631ae8f2c09417e1fdb3ddc8f8f3dcf72275efcdf4b261
+T052:
+  task: 2f8c244276d802e21507258437a0d9b000dab81ef7da4c2ef2f4686593b07694
+T053:
+  task: da0c49b5bba18c97f4022a3825fdd432c825e38f47975d96e9a8f9554c4fd0ac
+T054:
+  task: d7d7375efb1786747db8a5c918d129be63e1090e83c6d697a35e8365a9bf8324
+T055:
+  task: c90753658c39f3ed41feec380deaa97bba665599e57e1a272ff103466994bd9a
+T056:
+  task: 613169144d98f4b70bc3da1647dc4d780cb2d535ce41c723481cb5e76f1e0b3a
+T057:
+  task: 94253b170ac5bdfb9e0e6436d574c23abf6293d49d54a762b3486ae601f05073
+T058:
+  task: 9ebc382a3de399ba331963fd4fe4e463ff0830304d4aa86c366a3f2b888910b8
+T059:
+  task: 5fd829999209c9207b1bf0eee91f143849434f9186b24f2ed822fd2573bcc822
+T061:
+  task: f1f36f51a4191bf695a096b666cd0dede0ccd173d02825ccdfad8bc40b8b24cb
 T100:
-  task: b5e675a70d31c9167bb5dbe10134a878fb2854307c20023b5f78b4dc26f1e4bd
+  task: dfdf932d68fa73cb6cc2df7a8f4419f0b3889d6b77194fac144559fbd2004ccb
 T101:
-  task: f3ac53103dc26614ea0cd05f6312f027a9c1a6daf19e09c26450d954b0c8a4aa
+  task: 3edae9cf784f1d18a23697ae14fc7597634114ef1e78d1c82104d6d75909dab1
 T102:
-  task: dc0bb539b04e92c597fa25b8e813e562de46884fee9d4b534715b382e6639038
+  task: b827491e2be4ee394e40bb640386241bf6ef407559e1dd5d0101f0d6ee38f9e2
 T103:
-  task: 4ec988e9a42f374c836b9a78b755a4fea5c81b82cc2986697e09ee85db7f718f
+  task: fbd357f600fd6388fbbaa8b82239a84615970fe8d1c7e9e85203eb889ea005db
 T104:
-  task: 8b6eed11ef906629ca83e2e304ef568a3c892c4578f81eb5649ccde0f36e9169
+  task: 3f41a078acce304b813b24edc493c4d2d27022608aa64b0e0ac4d52a5b22238a
 T105:
-  task: cb5a246af3fd86e81318cefe7691973a079cf47efc7a76f08e993ecb866c564c
+  task: 63168de54712b93e5e06d2c86d255ce4cd505f0e705dab796918abbf5508abab
 T106:
-  task: 015c4a2a03b1558c41da0a56819dc878c0b2c9c03b6d3630602296d47d5e5159
+  task: ca4a590e5c3c91e06056b798f9cf1a39b8ce421e8970f0a69f44376d1a1b295c
 T107:
-  task: 91920304fd1265807099d35ff59cfaf83f272c5998de13c8b6c39e4b1b17ebc9
+  task: 413326999101a7d8356e2d746b1435a37219bb35c7af39c365cc07f0beadcc59
 T108:
-  task: d9083e6c7272d63be4e3326fad1484af61bdf31a95d0cc542852c8111f9f2a95
+  task: 4fedce8dceae98fdad2485a68b99700e62f372450a5daafe1e4a9ee857154512
 T109:
-  task: 18c5967097598c4f561abcce88c72695a24dacfe2c2402b818db184cd67dbc4f
+  task: 75182b9f886cb6cf56be2c959196d7ef48902d158c664ccacc6720da79a18820
+T119:
+  task: a70aa6f36e3f14fcfc8222fe39d5198a89dc94e1f7f97dc8f578a91144f24804
+T120:
+  task: c379fc10a8d102df1202a240f7af9f2a6dff13de471815fca12fcde70f5759f5
+T121:
+  task: 8bbac1d228fbba933d7fecbb43ce7dc26498b9485244b7ebc69f9273823460ce

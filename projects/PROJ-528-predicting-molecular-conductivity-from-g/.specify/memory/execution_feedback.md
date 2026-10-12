@@ -2,37 +2,46 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python code/main.py (rc=1); python -m pytest tests/unit/ (rc=4); python -m pytest tests/integration/ (rc=4); 4 declared deliverable(s) absent: data/processed/analysis_summary.json; data/processed/descriptors.csv; data/processed/feature_importance.csv
+**Summary**: 3 command(s) failed: python code/main.py (rc=1); python -m pytest tests/unit/ (rc=2); python -m pytest tests/integration/ (rc=4); 4 declared deliverable(s) absent: data/processed/analysis_summary.json; data/processed/feature_importance.csv; data/processed/model_results.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
+a_loader_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-528-predicting-molecular-conductivity-from-g/code/data_loader.py", line 111, in main
+    from code.download_dataset import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-528-predicting-molecular-conductivity-from-g/code/download_dataset.py", line 9, in <module>
+    import datasets
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-528-predicting-molecular-conductivity-from-g/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-528-predicting-molecular-conductivity-from-g/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-528-predicting-molecular-conductivity-from-g/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-528-predicting-molecular-conductivity-from-g/code/main.py", line 16, in <module>
-    from code.descriptors import main as descriptors_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-528-predicting-molecular-conductivity-from-g/code/descriptors.py", line 18, in <module>
-    from code.descriptors import (
-ImportError: cannot import name 'compute_all_descriptors' from partially initialized module 'code.descriptors' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-528-predicting-molecular-conductivity-from-g/code/descriptors.py)
+- python -m pytest tests/unit/ -> rc=2
+/site-packages/matplotlib/_fontconfig_pattern.py:92
+../../.llmxive-venvs/PROJ-528-predicting-molecular-conductivity-from-g/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:92
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-528-predicting-molecular-conductivity-from-g/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
 
-- python -m pytest tests/unit/ -> rc=4
-============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0
-rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-528-predicting-molecular-conductivity-from-g
-configfile: pyproject.toml
-plugins: anyio-4.15.1
-collected 0 items
+../../.llmxive-venvs/PROJ-528-predicting-molecular-conductivity-from-g/lib/python3.11/site-packages/matplotlib/_mathtext.py:45
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-528-predicting-molecular-conductivity-from-g/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
 
-============================ no tests ran in 0.00s =============================
-
-ERROR: file or directory not found: tests/unit/
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/test_plot.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 13 warnings, 1 error in 1.39s =========================
 
 
 - python -m pytest tests/integration/ -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0
+platform linux -- Python 3.11.17, pytest-8.0.0, pluggy-1.6.0
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-528-predicting-molecular-conductivity-from-g
-configfile: pyproject.toml
 plugins: anyio-4.15.1
 collected 0 items
 
@@ -45,8 +54,8 @@ ERROR: file or directory not found: tests/integration/
 ## Declared deliverables still missing
 
 - data/processed/analysis_summary.json
-- data/processed/descriptors.csv
 - data/processed/feature_importance.csv
+- data/processed/model_results.json
 - data/processed/sensitivity_analysis.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -61,16 +70,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/run_validation_task.py` — NOT invoked by the run-book
     - `code/save_analysis_outputs.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/analysis_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/descriptors.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis.py` — NOT invoked by the run-book
-    - `code/correlation_analysis.py` — NOT invoked by the run-book
-    - `code/descriptors.py` — NOT invoked by the run-book
-    - `code/feature_analysis.py` — NOT invoked by the run-book
-    - `code/feature_importance.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-    - `code/model_training.py` — NOT invoked by the run-book
-    - `code/models.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/descriptors.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/feature_importance.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis_summary.py` — NOT invoked by the run-book
     - `code/feature_importance.py` — NOT invoked by the run-book
@@ -78,6 +77,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/plot_top_features.py` — NOT invoked by the run-book
     - `code/save_analysis_outputs.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/feature_importance.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/model_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
+    - `code/model_training.py` — NOT invoked by the run-book
+    - `code/run_analysis.py` — NOT invoked by the run-book
+    - `code/run_finalize_results.py` — NOT invoked by the run-book
+    - `code/run_huckel_vif_loop.py` — NOT invoked by the run-book
+    - `code/run_training.py` — NOT invoked by the run-book
+    - `code/run_validation_task.py` — NOT invoked by the run-book
+    - `code/save_model_results.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/model_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command

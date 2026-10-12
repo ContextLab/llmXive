@@ -1,12 +1,12 @@
-matplotlib  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-pydantic  # auto-added: imported by run-book but missing from venv
-rdkit  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-seaborn  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
-datasets  # auto-added: imported by run-book but missing from venv
-joblib  # auto-added: imported by run-book but missing from venv
+# Pinned dependencies for the project
+# Exact version numbers are chosen from the latest stable releases as of 2024-06
+rdkit==2023.9.5
+scikit-learn==1.4.0
+pandas==2.2.1
+numpy==1.26.4
+matplotlib==3.8.2
+seaborn==0.13.2
+pyyaml==6.0.0
+pytest==8.0.0
+datasets==2.16.1
+joblib==1.4.0

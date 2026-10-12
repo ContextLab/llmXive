@@ -1,63 +1,69 @@
-? "T010\u2013T012, T023\u2013T025, T034\u2013T036 Unit tests for descriptors (benzene\
-  \ aromaticity, butadiene conjugation, mixed hybridization), scaffold leakage, log\
-  \ transform, outlier filter, VIF, BH correction, and plot generation (`tests/`)."
-: c: false
-  h: 90c4d1c8ca25e7506dc0cdd77bd68e4a2ff4ba87c2f398d381ffe04d99135348
-  r: "The evidence only shows that a `tests/` directory with appropriately named files\
-    \ exists, but no contents are provided to confirm that the unit tests actually\
-    \ implement the required checks (benzene aromaticity, butadiene conjugation, mixed\
-    \ hybridization, scaffold leakage, log\u2011transform, outlier filter, VIF, Benjamini\u2011\
-    Hochberg correction, and plot generation). Without the test code (or execution\
-    \ logs) we cannot verify that the required functionality is truly tested. The\
-    \ implementer must supply the test file contents (or proof of successful test\
-    \ runs) to demonstrate compliance."
-  sig: 1fbe618b1e852ee0e4e4eae8daa5a64ae6d95a6e2f67256ba8ac90f793b7be94
-? "T013\u2013T019c, T026, T061_RDKit\u2013T063_RDKit Data loading, target\u2011variable\
-  \ validation with strict halt when neither conductivity nor HOMO\u2011LUMO gap is\
-  \ available (no self\u2011consistency fallback), quantum proxy report, full RDKit\
-  \ descriptor set (degree/path statistics, aromaticity, conjugation, ring counts,\
-  \ bond order/length, electronegativity polarity terms), NaN filtering, and `data/processed/descriptors.csv`\
-  \ (FR\u2011001, FR\u2011008, FR\u2011011, FR\u2011012, FR\u2011014)."
-: c: false
-  h: 63e18a52671bf66fc4358fb9ca2fbcf69a7eae64c95c159e176014f2c532f565
-  r: The required output file `data/processed/descriptors.csv` is missing, so the
-    core descriptor computation artifact demanded by the task (including the full
-    RDKit descriptor set and related functional requirements) is not present. Without
-    this CSV the data loading, validation, and downstream steps cannot be verified.
-  sig: e9ec836a04e10541f1cadd8f3b604694929dfca0d938742a2a932fd2c4e99905
-? "T039a, T039b, T039c\u20113 VIF identification, exclusion (VIF > 10), retraining\
-  \ on reduced feature set, iteration log and intermediate model versioning (FR\u2011\
-  013)."
-: c: false
-  h: 3b3437f116ab2a46b9d95bd0ccecc013851001d3c85c3d005e40f9b3f6749baf
-  r: "The repository contains only a project root reference and no files implementing\
-    \ VIF calculation, VIF\u2011based feature exclusion, retraining on the reduced\
-    \ feature set, or any iteration log/model versioning required by task T039a\u2011\
-    c\u20113. Consequently the essential artifacts and evidence for VIF identification,\
-    \ exclusion, and model versioning are missing."
-  sig: 5849dcce903630c97ae4abf709e0387c306352639a781b9b43a9d8b17f91658b
-? "T040b, T041, T042, T043, T045, T044, T057, T064, T064b Feature\u2011importance\
-  \ robustness, Pearson correlations, Benjamini\u2011Hochberg FDR correction, correlation\
-  \ plots with 95\u202F% CIs (`corr_plot_top5.png`, `corr_plot_resonance.png`), analysis\
-  \ summary, bootstrap CI\u2011coverage report, resonance\u2011descriptor integration\
-  \ and augmented sensitivity re\u2011run (FR\u2011005, FR\u2011006, SC\u2011002,\
-  \ SC\u2011003)."
-: c: false
-  h: c88efee77d1e12469b295533148932f40ff770fd7c153ba9850fba4ea7b62bf1
-  r: "The evidence contains only a project root reference and no actual files such\
-    \ as `corr_plot_top5.png`, `corr_plot_resonance.png`, bootstrap CI\u2011coverage\
-    \ reports, or the required analysis summaries and feature\u2011importance outputs.\
-    \ Because the mandatory artifacts are missing, the task\u2019s requirements are\
-    \ not satisfied."
-  sig: b241f0507b62a5a62e0e671badb1e4c807f9fa90f89c7fcaea9d47065c9e1e5d
-? "T046, T047, T049\u20111\u2013T049\u20114, T051 Documentation updates, lint cleanup,\
-  \ integration tests with runtime checks, quickstart execution in fresh virtualenv\
-  \ (FR\u2011009, FR\u2011010)."
-: c: false
-  h: 4260cb8dacce94e8bfffd276d8cb195709788ae36b62019b65a80632c0dff22a
-  r: "The evidence only shows a project root path; no descriptor\u2011computation\
-    \ script, no output CSV/JSON results, no training or evaluation code, no integration\u2011\
-    test suite, no documentation updates, lint\u2011cleanup files, or quick\u2011\
-    start instructions were found. Consequently the required artifacts for T046, T047,\
-    \ T049\u20111\u20134, and T051 are missing."
-  sig: 5851ab04c4ea83b9ad04e33e86e2e3e57dbe45043e069b61074456795328f5ce
+T001:
+  c: false
+  h: 2dd6c027cedae0dbb5845328a1dea70e07dea9804b33b42d351a8d9cd45a2e48
+  r: "The scaffold-split verification explicitly failed: `tests/unit/test_scaffold_split.py`\
+    \ exited 1 because `scaffold_split` put both rows sharing a scaffold into the\
+    \ test set (`assert 2 == 1`), and `code/split.py` additionally contains a real\
+    \ bug in `_save_split` (`test_path.to_csv(test_path, ...)` \u2014 calling to_csv\
+    \ on a Path object), which would crash any CLI run. There is also no evidence\
+    \ that `validators.py --validate contracts/*` returns exit 0 \u2014 the CLI requires\
+    \ a (data, schema) pair while the contracts directory contains only schema files,\
+    \ and no such run is recorded. Fix the splitter so who"
+  sig: 5551f050069c095aca4de796f15e62d8243609047d9c6841f4bf0833194aedb8
+T010:
+  c: false
+  h: 30915765baa1e46933a02a351146782f70b85e98a68e1fcd304dac932ecdcab5
+  r: "The required verification \u2014 `pytest -q tests/unit/` passing with exit 0\
+    \ and coverage \u2265 90% \u2014 is not met: the execution logs show `tests/unit/test_plot.py`\
+    \ fails collection (ImportError on `get_top_features`, exit 2) and `tests/unit/test_statistics.py`\
+    \ fails (`test_apply_bh_to_df`, exit 1), and there is no evidence of any successful\
+    \ full-suite run or any coverage measurement. Additionally, `test_scaffold.py`\
+    \ only checks that `scaffold_split` is importable/callable \u2014 it does not\
+    \ actually test scaffold leakage prevention (e.g., that identical scaffolds don't\
+    \ span train/test), and no plot-generati"
+  sig: fc718eb3c77f168298b6167f2300a53409728fd3c4a59725ce5daea62d500899
+T011:
+  c: true
+  h: 490d63901a9e6c003cf80673d508b918173ef6997cf75ab26c3755768c8742c4
+  r: The script `code/preprocessing.py` implements the required dynamic-range check
+    (aborts with exit 1 and a clear error if `range_log10 < 3.0`, otherwise writes
+    JSON with `min`, `max`, `range_log10`), and `data/processed/target_dynamic_range.json`
+    exists with consistent values (1e-05 to 0.1, range_log10 = 4.0, which is arithmetically
+    correct). The one failing unit test fails due to a bug in the test itself (mismatched
+    array lengths in the test's DataFrame construction), not in the preprocessing
+    implementation, whose abort logic is correctly coded.
+  sig: 5195fea5ad9e1a87255d5658fb37d908c2f5afc809b9cb7bebff579bbb06f5b0
+T012:
+  c: false
+  h: b863f031fd4f30e6d6b077614ee154c7192ae07cb32ba8c89fcce89ca9f612d0
+  r: "The unit tests for this task's exclusion logic fail (2 failed, 4 passed): `test_invalid_descriptors_counted`\
+    \ expects 2 invalid-descriptor exclusions but got 1, and `test_clean_rows_are_valid`\
+    \ shows `filtered_train` retains a row with invalid descriptors (2 rows instead\
+    \ of 1), so the core requirement \u2014 excluding molecules with invalid descriptors\
+    \ \u2014 is demonstrably broken. Additionally, the actual `exclusion_log.json`\
+    \ reflects a 2-row input with `descriptor_columns_checked: []`, meaning no real\
+    \ descriptor dataset was processed and the \"resulting training CSV contains only\
+    \ valid rows\" claim is un"
+  sig: 39d0833f98059fa47ac3e4c361b7d6ef1e00bdb1e0bbc04a8fea57e9ee213f6c
+T013:
+  c: false
+  h: ebc034931f12f31de743a5db05946bc34e0b50d9ea1293abf3a3a84dce6a159f
+  r: "The unit test run for T013 failed (3 failures: conjugation path length wrong\
+    \ for benzene and butadiene, and only 7 numeric descriptor columns vs the required\
+    \ \u226510), and `data/processed/descriptors.csv` contains just 2 trivial molecules\
+    \ (\"C\" and \"CC\") from a 2-row `data/raw/input.csv` \u2014 not a real PubChem/HMaterials\
+    \ dataset, and it lacks the \"full RDKit descriptor set\" the task requires. The\
+    \ quantum proxy report is consistent with that tiny input, but the core deliverables\
+    \ (real data loading, \u226510 numeric descriptors per molecule, passing validation)\
+    \ are not met."
+  sig: 9d427ed82da54fe14eef06388b355f7fff55e773af1314c9bc8959cc2e25df72
+T014:
+  c: true
+  h: d1d2673b9bc973ddad7c1ff7951f8f8f3dd71eca24b8a17a5d55761795691b84
+  r: 'Both required artifacts exist and are non-empty: `code/target_proxy.py` implements
+    real HOMO-LUMO detection logic (column candidates, finite-value check, fallback
+    determination), and `data/processed/quantum_proxy_report.json` contains the required
+    `"homo_lumo_present": false` and `"fallback_used": false` fields. Execution logs
+    show the script ran successfully (exit 0) and wrote the report, and 10 unit tests
+    covering the detection and report logic passed.'
+  sig: 4508908e3d1f43a422159c43cb0ff1e77d157ba5ad1e17bde736dbc51ce11c37

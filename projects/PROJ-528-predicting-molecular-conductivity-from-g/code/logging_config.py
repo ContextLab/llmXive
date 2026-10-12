@@ -1,21 +1,18 @@
 """
-Minimal logging configuration helper.
-
-``setup_logging`` returns a logger object.  It accepts an optional ``name``
-argument; if omitted the root logger is configured.
+Simple logging configuration used by the pipeline.
 """
 
 import logging
-import sys
+from llmxive_toolkit import get_logger
 
-def setup_logging(name: str = None):
-    logger = logging.getLogger(name) if name else logging.getLogger()
+def setup_logging(name: str = __name__) -> None:
+    """
+    Configure a module‑level logger.
+    """
+    logger = get_logger(name)
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s – %(message)s")
+    handler.setFormatter(formatter)
     if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        handler.setFormatter(formatter)
         logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger

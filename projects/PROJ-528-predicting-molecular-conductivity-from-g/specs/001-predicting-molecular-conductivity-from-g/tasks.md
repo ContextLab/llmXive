@@ -20,7 +20,7 @@ boxes (`[ ]`) denote pending work that must be completed and validated.
   **Paths**: `tests/unit/test_descriptors.py`, `tests/unit/test_scaffold.py`, `tests/unit/test_preprocessing.py`, `tests/unit/test_statistics.py`.  
   **Verification**: `pytest -q tests/unit/` runs with all tests passing (exit 0) and coverage ≥ 90 %.  
 
-- [ ] T011 [US1] Validate that the target variable (conductivity) spans ≥ 3 orders of magnitude before any modeling.  
+- [X] T011 [US1] Validate that the target variable (conductivity) spans ≥ 3 orders of magnitude before any modeling.  
   **Paths**: `code/preprocessing.py`, `data/processed/target_dynamic_range.json`.  
   **Verification**: Script aborts with clear error if dynamic range < 3 log10 units; otherwise writes JSON with `min`, `max`, `range_log10`.  
 
@@ -35,7 +35,7 @@ boxes (`[ ]`) denote pending work that must be completed and validated.
   ​  - `descriptors.csv` contains ≥ 10 numeric descriptor columns for every valid molecule and conforms to `contracts/descriptor_schema.schema.yaml`.  
   ​  - `quantum_proxy_report.json` correctly records presence/absence of HOMO‑LUMO data.  
 
-- [ ] T014 [US1] Detect presence/absence of quantum‑derived descriptors (e.g., HOMO‑LUMO gap) and log the result.  
+- [X] T014 [US1] Detect presence/absence of quantum‑derived descriptors (e.g., HOMO‑LUMO gap) and log the result.  
   **Paths**: `code/target_proxy.py`, `data/processed/quantum_proxy_report.json`.  
   **Verification**: JSON includes fields `"homo_lumo_present": true/false` and `"fallback_used": true/false`.  
 

@@ -1,6 +1,6 @@
 status: none
-intent: PubChem 10M canonicalized SMILES download RDKit descriptor computation python
-  package dataset
+intent: PubChem 10M canonicalized SMILES graph-based descriptor dataset Materials
+  Project python package dataset
 required_fields:
 - smiles
 - conjugation_length
@@ -8,11 +8,10 @@ required_fields:
 - degree_distribution_mean
 - degree_distribution_std
 - average_path_length
-- aromaticity_index
 - ring_count
 - longest_conjugated_path_length
+- aromaticity_index
 - graph_density
-- clustering_coefficient
-cache_key: a94f9d1daf9b49c0d8942af3ed4c055d595f81c3492988783fa69292c33de369
-searched_at: '2026-10-12T09:35:07.359869+00:00'
+cache_key: 00fd17bc85884b91c1fbcb0dc83536158eb88571c4056aec77488914ceed5d2f
+searched_at: '2026-10-12T09:52:59.124029+00:00'
 retry_count: 1

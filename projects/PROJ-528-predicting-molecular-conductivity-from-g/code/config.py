@@ -1,12 +1,17 @@
 """
-Central configuration constants for the pipeline.
+Central configuration constants used throughout the pipeline.
 """
 
+from pathlib import Path
+
+# Base data directory (managed by llmxive_toolkit)
+from llmxive_toolkit import paths
+
+# Resolve the absolute data root – this is used by many modules.
+DATA_PATH = str(paths.data())
+
+# Random seed for reproducibility
 SEED = 42
-OUTLIER_SIGMA = 3.0
-VIF_THRESHOLD = 10.0
+
+# Sensitivity analysis outlier thresholds (σ multiples)
 SENSITIVITY_THRESHOLDS = [2.5, 3.0, 3.5]
-CONFIDENCE_INTERVAL_TARGET = 0.95
-DATA_PATH = "data"
-RAW_DATA_PATH = "data/raw"
-TARGET_VAR = "conductivity"
