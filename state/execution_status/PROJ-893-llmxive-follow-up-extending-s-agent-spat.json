@@ -9,11 +9,11 @@
     "python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl -> rc=2\n    usage: run_solver.py [-h] --input INPUT --output OUTPUT --latency-log\n                     LATENCY_LOG --exclusion-log EXCLUSION_LOG\nrun_solver.py: error: the following arguments are required: --latency-log, --exclusion-log",
     "python code/benchmark/analyze_failures.py --results data/derived/benchmark_results.csv --output data/derived/failure_report.json -> rc=1\n    ERROR:config:Benchmark results not found: data/derived/benchmark_results.csv"
   ],
-  "fix_rounds": 4,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-23T17:23:00Z"
+  "updated_at": "2026-10-12T15:50:05Z"
 }

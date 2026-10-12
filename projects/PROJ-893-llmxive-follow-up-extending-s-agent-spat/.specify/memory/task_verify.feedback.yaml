@@ -1,0 +1,113 @@
+T000:
+  task: 240a2cc72ffe2a6900bb31189c50d721a444d3fe2ba6415d8a519691fa88e784
+T001a:
+  task: c111c730446c22c3096f40eec1bb740d7b7ab93e3da2a98133fa3930e7143071
+T001b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/'
+  task: 97cb7eef19be120acc5b7a0226164c6af0f69b196b7f33677387dbdc68de2524
+T001c:
+  task: 4bd0797a6bcfc4ba01f26789a3edce12ca2271aa3024a67eea3f7184602d2d94
+T001d:
+  task: 9f570f980f11399ee13c84a2ffbc67ad9b99684dfec2b089966762c83352dffd
+T001e:
+  task: 5514e91ad4fd1dddffef66eba3576f553b5b5811791d06dddeeca9ad8eb42ce9
+T001f:
+  task: bdd1168c329790e2bc6e02a240aad8247e4df4521c859c3743bd2977bd1ffc15
+T002:
+  task: 39e5d21343bac0b3e9a93961f74ada3bd4edb2becfd4280c5a73bd8dc47df89c
+T003:
+  task: fc73717401ac9f8f91dff6d9cd9d3850ba0e593b5bc69db8d09d0ff587dbb221
+T004:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 0afffeab6853412e48d09806775a6e9879b87b87f1e7593c47fca05f82285b47
+T005a:
+  reason: 'declared artifact(s) missing/empty/invalid: dataset.schema.yaml'
+  task: 0c6786c8a14cd38a58ad2c01d878b753d7eff94d35d167613c4774742a13daf5
+T005b:
+  task: 12e7b04bc5393b47990c2859dbf0a9ff67639839b1d7268befe6ec76f21e9fad
+T005c:
+  reason: 'declared artifact(s) missing/empty/invalid: solver_output.schema.yaml'
+  task: cdf71249d25a34e5776826f75b0d54e4d966d8dbb8473504d36216d82b63b4c5
+T005d:
+  reason: 'declared artifact(s) missing/empty/invalid: benchmark_result.schema.yaml'
+  task: 72ad90ea202898fa0e8f3d339d241b59bd28594094017acc96529367cc552fd1
+T005e:
+  task: b896579740f960712b0e2f87ca032e3227da2b0fa78e1190a14ae155de3c25a8
+T005f:
+  task: 2d09effad91a6ce6d6bfe977457d8f8bb6289bf146035cae1d3b5c9e793c87df
+T005g:
+  task: f8fbf77bc14b9826f52d530d191fa8abda530bde4a787085ec98ff7140988af1
+T005h:
+  task: 88e4a348e5d46061cd3a6c1dedfd551f52c6b1277b4829d62fd51ab6f7f34fc8
+T006:
+  task: aab1160464b7dc0b8059252162c8ebf8a13217638d9211eafe0e7930b5d62f94
+T006a:
+  task: 0d4bffe4e69b88517b242c6f04797763c7b1958cd9ddeb48c4ba4fa4424f2896
+T006b:
+  task: 2d2743f165d1082e39b037e83a902cd8c60adde5037d86d0b8e811164dc1441d
+T006c:
+  task: f413952bbcd39dd794ea9295fb5f6ae12100535296d279216054acb6ca526a90
+T006d:
+  task: f4679ae3b6719576099e6c4a13abf57eff8c7419f1322c68d3cc1a5d884b1313
+T007:
+  task: 680f05021d3c76c7018df43adaf5681f0b2fb818eebf701915e761bd951892c8
+T007b:
+  task: 2286e97133f893de259e3a1583e0028f9ed5a6dede657f09d01d08b3652e0b3f
+T008:
+  task: 7cf252ae647cfe9eb9ee946f7b58761216a1c72d00f014054ab8c8c436f09082
+T009:
+  task: 8cc8cedff11a013b1de7c28d20e9f4461170117b535b7efa6ca2b6c6cd0b3294
+T011:
+  task: 1202edcc5a3c4ba155d2c749fa5d6eb8a5490e22494484a7cd1d067fa7e894ea
+T012-config:
+  task: f335b8572feca578929817b1c7a4085f7705239ffaca61ce14b13e29c350cd8a
+T012-impl:
+  task: 04c9e0838ce4de60ef13d9f602c26e6212cffe0869766d80b0db288bfd235af2
+T012-run:
+  task: 5603c2b6a53bd82fb0c0441fd86e1f03a611e25da0ebcaa9b13036f02e0526f7
+T013:
+  task: e7adb37abc67c4c8ba710d33aafac64172e94b81a6c121018defd9fc1d2930a4
+T014:
+  task: ec1e7f99b8a7ae4d34fbadebd8f559f90aca4b20c0ca9d017852c713d9c479c0
+T015:
+  task: fef60a73f60e9e98d7d04613ebf54e6a58aef8eece0e472097e1121ddc4b253c
+T016:
+  task: a834c9b59e2f2fed3fcb330c106a68b87c6920dea791dd861ce12de1e3acb83c
+T017:
+  task: 660e67eadd7c97519812718b3de9bde6064a2ff16a7b762cf5252460653cbff8
+T018:
+  task: 5e04ff758c43e25b130db337ac3078fbf231bb123d7c7941ddca91d62f3dc20b
+T019b-final:
+  task: 8fc87b1175ea98e08bd6682bb3f82ee8417e902a0f126e0d02b6b75a519099ca
+T019b-init:
+  task: 38b0c45d1b8b086ae28c003abe15f8cd8a6ad18b19d1b8fde33af047a6f8df84
+T020:
+  task: c077bddc076acd13e7b15fc41c9f4c849094ce15a0ed9fd90b75fb487112ec0b
+T021:
+  task: f39f49a6eb9cdc19e42725e95513e5be23124266137cf7ef9a76d4f50441f220
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/failure_analysis_report.md'
+  task: 3692e49b7ac629033c6c022cd97122e43b679e5185100e4720bdc442aa95258e
+T023:
+  task: 7161c770c17738c53b9f771b2fc6f763bf78da0a05f02d368ffb9cef9b62b036
+T024:
+  task: 20134bdda453d6907298dfeeeb8122fd0140f503dae143d6408c6c8258467aae
+T025:
+  task: 9fefad2320ac7abefa03c176108444e23dbf6629a6f186606d3ec58b1b795a72
+T026:
+  task: bca5d74aa78b25939854ed0393663c6c41e39689a33dcd316408cf2f98748a02
+T027:
+  task: f497be3e5d9011847588c38ee39f59e8206a210da055d87f7a5627ff10fbe156
+T029:
+  task: 5eeba16a402d4f23966e51d1506368e7444efd22a4e9f498a3b0778ea4c1b555
+T030:
+  task: cb6cd038f7f4d23e67ef300d6ba284565458c5e10e801f1c095f34f46d8b975e
+T031:
+  task: 3bce3412112739aaa702a325f120856bc11b40bafef8e5c97e0ed33bdde7cc08
+T032:
+  task: 322e45afa995293d081b6704c5e8fd9ca1d90c40606e02659f37e51e9f3dd11d
+T033:
+  task: 9ed6e50c28dd23d71da7c61be0e671612546cde4b87928c50ae2e3a112c6d9f1

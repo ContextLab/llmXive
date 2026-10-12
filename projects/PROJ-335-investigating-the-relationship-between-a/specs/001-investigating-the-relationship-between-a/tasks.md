@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan by executing `mkdir -p code data/raw data/processed data/metrics data/results tests/unit tests/integration tests/contract docs` <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python project with pinned dependencies by installing `mne`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `statsmodels`, `pyyaml` and running `pip freeze > code/requirements.txt`
+- [X] T001 Create project structure per implementation plan by executing `mkdir -p code data/raw data/processed data/metrics data/results tests/unit tests/integration tests/contract docs` <!-- ATOMIZE: requested -->
+- [X] T002 Initialize Python project with pinned dependencies by installing `mne`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `statsmodels`, `pyyaml` and running `pip freeze > code/requirements.txt`
 - [X] T003 [P] Configure linting and formatting tools (ruff/black) and pre-commit hooks in `code/.pre-commit-config.yaml`
 
 ---
@@ -56,11 +56,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.yaml` defining MNE parameters (filter bandpass range, alpha band range), random seeds, and dataset IDs (ds000248) [UNRESOLVED-CLAIM: c_f6c9be49 — status=not_enough_info]
-- [ ] T005 [P] Implement base data validation utility in `code/utils/validation.py` to check for required columns (EEG channels, k-scores/d') and halt with specific error codes (FR-006)
+- [X] T005 [P] Implement base data validation utility in `code/utils/validation.py` to check for required columns (EEG channels, k-scores/d') and halt with specific error codes (FR-006)
 - [ ] T006 [P] Setup BIDS-compliant directory structure in `data/raw` and metadata handling for OpenNeuro downloads
-- [~] T007a [P] Create base data model for `EEG Dataset`, `Alpha Power Metric`, and `PLV Metric` in `code/models/eeg_dataset.py`, `code/models/alpha_power.py`, `code/models/plv_metric.py`
-- [~] T007b [P] Create base data model for `Working Memory Capacity` in `code/models/wm_capacity.py` (Key Entity from Spec)
-- [~] T008 Configure logging infrastructure to output structured logs to `data/results/` and console
+- [X] T007a [P] Create base data model for `EEG Dataset`, `Alpha Power Metric`, and `PLV Metric` in `code/models/eeg_dataset.py`, `code/models/alpha_power.py`, `code/models/plv_metric.py`
+- [X] T007b [P] Create base data model for `Working Memory Capacity` in `code/models/wm_capacity.py` (Key Entity from Spec)
+- [ ] T008 Configure logging infrastructure to output structured logs to `data/results/` and console
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

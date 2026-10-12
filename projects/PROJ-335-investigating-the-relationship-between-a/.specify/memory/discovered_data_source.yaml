@@ -1,18 +1,18 @@
 status: none
-intent: OpenNeuro ds003474 ds000248 ds000246 HuggingFace MNE-Python download EEG working
-  memory python package dataset
+intent: OpenNeuro ds000248 ds003474 working memory EEG MNE-Python openneuro python
+  package dataset
 required_fields:
 - subject_id
-- session
-- run
-- eeg_data
-- eeg_channels
-- sampling_rate
-- event_onsets
-- event_types
-- behavioral_d_prime
-- behavioral_k_score
-- epoch_labels
-cache_key: b930cb1485c66473dc3972885a6776fd82f5c2c3c815e738eacb827335213fbd
-searched_at: '2026-10-10T02:32:58.207419+00:00'
+- session_id
+- run_id
+- eeg_raw_data
+- eeg_sampling_rate
+- eeg_channel_names
+- task_event_onsets
+- stimulus_type
+- response_time
+- behavioral_metric_d_prime_or_k_score
+- bids_metadata
+cache_key: 31c5e0d5689cd53845c4dfc567bb4e056dd563d40487aeabfb41dceb3def375c
+searched_at: '2026-10-12T15:32:19.797786+00:00'
 retry_count: 1

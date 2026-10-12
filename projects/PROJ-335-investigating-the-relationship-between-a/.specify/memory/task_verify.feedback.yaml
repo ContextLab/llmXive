@@ -1,27 +1,12 @@
 T001:
-  reason: "The evidence provides only the project root location but contains no confirmation\
-    \ that the required directories (`code`, `data/raw`, `data/processed`, `data/metrics`,\
-    \ `data/results`, `tests/unit`, `tests/integration`, `tests/contract`, `docs`)\
-    \ actually exist. Without directory listings or creation logs, the task\u2019\
-    s requirement is not demonstrated."
   task: 9b5c2533cb123cb8dd97707487d4bd7598df30cb1b31369416047fe4b656b331
 T002:
-  reason: "The provided `code/requirements.txt` exists, but it lists version specifiers\
-    \ with `>=` instead of exact pins (`==`), violating the \u201Cpinned dependencies\u201D\
-    \ requirement, and it includes unrelated packages (ruff, pytest, datalad) that\
-    \ were not part of the task. The file therefore does not meet the specification."
   task: 6befad63a9218acbacb6501fce93ec12da645da65f318e54d97a744cc81c438b
 T003:
   task: 1bc92622970a07412ade806ee8b4ef955ca89e9396b7e2b5c7fc0a101faa39dd
 T004:
   task: fddfc9e53fdeffdd87650f5fa6adec765d147225833b9ba552b2201d69d93ab7
 T005:
-  reason: "Checked `code/utils/validation.py` (4691\u202Fbytes). It provides functions\
-    \ that validate EEG channel lists, behavioral metric dicts, and CSV column sets,\
-    \ exiting via `sys.exit(1)` on failures. However, the task requires halting with\
-    \ the specific error code **FR\u2011006**, which the implementation never references\
-    \ or returns; it always uses generic exit code\u202F1. The utility therefore does\
-    \ not meet the stipulated error\u2011code requirement."
   task: adb4529740cf6ab70fa1a4c6cee695843ce11dbd2fd12efd56e2faec1ad9a398
 T006:
   reason: "The evidence provides only the project root path and no concrete files\
@@ -34,6 +19,14 @@ T007a:
 T007b:
   task: ec6ddcae231e88d2b264abba9664dee93471cb1826e371e893d5c4711ea2bdab
 T008:
+  reason: "The only evidence is that `data/results/` contains two log files and two\
+    \ JSON files, but no logging infrastructure artifact (e.g., a logging configuration\
+    \ module/script, formatter, or handler setup) is present anywhere in the evidence\
+    \ \u2014 no code path was resolved for T008. The existing logs appear to be outputs\
+    \ from other tasks (T001 manifest, correlation analysis), not evidence of a configured\
+    \ structured-logging facility that writes to both `data/results/` and console;\
+    \ the log file contents themselves were also not shown, so structured formatting\
+    \ cannot be verified. The implementer needs to ad"
   task: 40efafad2f00f5c9f1a7ce94dcd119934d224c625162c896d7459acd51e1d678
 T010:
   task: 0937d2ef7c267a15f6d07e6e589a962bd13e9bbee446b6502a52cac1c4b58a00

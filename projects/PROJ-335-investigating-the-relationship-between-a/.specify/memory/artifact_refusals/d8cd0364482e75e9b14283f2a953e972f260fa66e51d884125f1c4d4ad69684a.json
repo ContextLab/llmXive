@@ -1,0 +1,7 @@
+{
+  "task_id": "T006",
+  "fingerprint": "0955171f33d0497331240374d770e06d73b04eccf182314a3604f831b2de23a2",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/00_setup_bids.py': SyntaxError at line 167: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 8698"
+}
