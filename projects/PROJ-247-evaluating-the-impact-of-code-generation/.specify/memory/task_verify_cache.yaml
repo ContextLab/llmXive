@@ -1,15 +1,27 @@
+T001:
+  c: false
+  h: fe3be77787b838f88ce8dffe6e0299025adf138b1f047f4dd88cc2bbf96878c4
+  r: "The collector-confirmed artifacts cover `code/requirements.txt` (all required\
+    \ pinned packages present), `code/utils/models.py`, and the quickstart (resolved\
+    \ at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`), but\
+    \ there is no evidence of the required logging configuration or a `.env.example`\
+    \ file containing `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH` \u2014 the quickstart\
+    \ even instructs `cp .env.example .env`, yet no such file appears among the artifacts.\
+    \ The implementer must add the logging config and `.env.example` (with those three\
+    \ variables) to complete T001."
+  sig: 3b26c74a63f43bea046e65cd3d54b3895d0abeba0c3be4960a3791343c2ea14a
 T002:
   c: true
-  h: 9853e55b48b35db3a7da25bb53265be2d4073b2524349c76ac6f7305a663a4a9
-  r: "The script implements all required elements (topic searches with keyword expansion,\
-    \ \u22655 stars and 90-day activity filters, depth=100 shallow clones, rate-limit\
-    \ sleep handling, 404/deleted-repo handling with an exclusion log) and the historical\
-    \ execution log shows a real successful run (exit 0) that produced non-empty `data/raw/repo_list.csv`\
-    \ and `data/raw/repo_metadata.csv` with genuine GitHub metadata (repo IDs, star\
-    \ counts, timestamps, non-zero LOC for cloned repos) consistent with the log.\
-    \ The default target of 5 repos (env-overridable to 50) and the extra generic\
-    \ fallback query are minor de"
-  sig: 990a605fe6294e5e7e0ef23080f3374d954ad044a03e319e842b2e174c40223c
+  h: c33ac87ca2fc2480c5dc69d553d1982b84ad4d5d8d0d9290432bbef7b63def91
+  r: "The script implements all required elements (topic queries with keyword expansion,\
+    \ \u22655 stars and 90-day activity filters, depth-100 shallow clones, metadata\
+    \ with stargazers_count/created_at/updated_at/total_loc, rate-limit sleeping,\
+    \ and 404/deleted-repo handling), and the historical execution log (exit 0) shows\
+    \ a real run whose output matches the on-disk `repo_list.csv` and `repo_metadata.csv`\
+    \ (5 repos, real GitHub IDs/URLs, plausible star counts and LOC; the one LOC=0\
+    \ repo is a markdown-only prompts collection). The only deviation is the expansion\
+    \ threshold defaulting to 5 instead of 50 (env-o"
+  sig: 208ce4d02e80e7e078a7737378cceff04f6c16438be48484e58b72a35d957893
 T003:
   c: false
   h: 15bd315e522e4c91de49446e9ba11b28f84e176836bd97cc0a8cfdc6be9a1ff2

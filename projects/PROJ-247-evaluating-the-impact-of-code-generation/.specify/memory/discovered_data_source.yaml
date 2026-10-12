@@ -1,19 +1,19 @@
 status: none
-intent: LLM code labeling dataset using The Stack CodeSearchNet Software Heritage
+intent: GitHub active Python JavaScript repos dataset with CodeBERT labels from HuggingFace
   python package dataset
 required_fields:
-- repository_url
-- repository_name
+- repo_full_name
+- repo_url
 - primary_language
-- stars
+- star_count
 - last_commit_date
-- commits_last_90_days
-- code_block_id
 - file_path
-- start_line
-- end_line
-- code_snippet
-- label
-cache_key: 0b044f99998848f2960e8dbccf18e96441d5a4ed1d23624e09c94dedb356d4ab
-searched_at: '2026-10-12T22:18:33.503542+00:00'
+- block_start_line
+- block_end_line
+- code_block_hash
+- label_llm_or_human
+- classification_confidence
+- cyclomatic_complexity
+cache_key: ec5bb52faac4a98227333752a527e8e670ac73ca687475fd7c2b9a180ffbbefa
+searched_at: '2026-10-12T22:36:53.876383+00:00'
 retry_count: 1

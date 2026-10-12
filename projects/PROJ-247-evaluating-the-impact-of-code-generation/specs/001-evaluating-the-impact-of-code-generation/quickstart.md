@@ -4,22 +4,16 @@
 - Python 3.11+
 - GitHub Personal Access Token (with `repo` scope)
 - Sufficient disk space (for temporary git clones)
-- Adequate RAM (minimum)
+- Adequate RAM (minimum 8GB)
 
 ## Setup
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/your-org/your-repo.git
-   cd your-repo
-   ```
-
-2. **Install Dependencies**
+1. **Install Dependencies**
    ```bash
    pip install -r code/requirements.txt
    ```
 
-3. **Configure Environment**
+2. **Configure Environment**
    ```bash
    cp .env.example .env
    # Edit .env to add your GITHUB_TOKEN

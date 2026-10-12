@@ -1,24 +1,18 @@
 T001:
-  reason: '`code/requirements.txt` exists but does not satisfy the task: versions
-    are not pinned (uses `>=` ranges or bare names) and it omits required packages
-    `datasets`, `PyGithub`, `tree-sitter`, and `tree-sitter-javascript`. Additionally,
-    there is no evidence of `.env.example` (with `GITHUB_TOKEN`, `DATA_PATH`, `LOG_PATH`)
-    or a logging configuration file anywhere in the collected artifacts, while `code/utils/models.py`
-    and the quickstart doc are present. The next implementer should pin exact versions
-    for all 12 listed packages, add the four missing ones, and create `.env.example`
-    plus a logging conf'
+  reason: "The collector-confirmed artifacts cover `code/requirements.txt` (all required\
+    \ pinned packages present), `code/utils/models.py`, and the quickstart (resolved\
+    \ at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`), but\
+    \ there is no evidence of the required logging configuration or a `.env.example`\
+    \ file containing `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH` \u2014 the quickstart\
+    \ even instructs `cp .env.example .env`, yet no such file appears among the artifacts.\
+    \ The implementer must add the logging config and `.env.example` (with those three\
+    \ variables) to complete T001."
   task: a876a79b1e7def0146374d046018b36b78aefd3d503f8aaffa3db11a4738d644
 T002:
   task: cbc5911c83b824f1ab2876c5f2141ab580221569d3cf0ed4cca7259d012c5f1d
 T003:
-  reason: "The CSV exists with the correct columns and 8063 real rows, but the rename-exclusion\
-    \ logic evidently was not applied: `data/logs/refactor_exclusions.log` contains\
-    \ only the header (0 exclusions) while the CSV itself contains the same `content_hash`\
-    \ at paths of different directory depth (e.g. `ink-theater/ink-theater.js` and\
-    \ `ink-theater/examples/mocap-figure/ink-theater.js`, likewise `ink-puppet.js`\
-    \ and `clips.js`), which per the spec must be excluded and logged \u2014 the report's\
-    \ \"blocks_excluded: 0\" contradicts the artifact's own data. Additionally, there\
-    \ is no execution record showing the requir"
+  reason: 'Requested task execution failed; rerun successfully: code/03_code_block_extraction.py
+    exit=1'
   task: aeed27dc5589f4dd45b7462661e7aa45e382d6f5bc3b0b28322a9eec16225c9c
 T004:
   task: a595201031094a2d7cc6adde345e9cac49ba556728daf74bfce61caf66539647

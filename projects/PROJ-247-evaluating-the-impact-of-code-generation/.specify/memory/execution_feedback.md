@@ -39,8 +39,8 @@ ModuleNotFoundError: No module named 'utils.models'
 
 - python code/utils/matching.py -> rc=1
 
-2026-10-12 22:16:10,349 - __main__ - INFO - Starting matching pipeline
-2026-10-12 22:16:10,370 - __main__ - ERROR - Matching pipeline failed: Missing required columns: ['repo_name', 'label', 'cyclomatic_complexity', 'loc']
+2026-10-12 22:34:20,772 - __main__ - INFO - Starting matching pipeline
+2026-10-12 22:34:20,792 - __main__ - ERROR - Matching pipeline failed: Missing required columns: ['repo_name', 'label', 'cyclomatic_complexity', 'loc']
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 334, in <module>
     main()
@@ -92,7 +92,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'utils.logging_config'
 
 - python -m pytest tests/ -> rc=2
-mpact-of-code-generation/tests/unit/test_repo_filtering.py'.
+llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/tests/unit/test_repo_filtering.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -108,13 +108,12 @@ ERROR tests/unit/test_checksum_generation.py
 ERROR tests/unit/test_classifier.py
 ERROR tests/unit/test_classifier_metrics.py
 ERROR tests/unit/test_code_block_extraction.py
-ERROR tests/unit/test_git_mv_detection.py
 ERROR tests/unit/test_matching.py
 ERROR tests/unit/test_repo_deletion_handling.py
 ERROR tests/unit/test_repo_filter.py
 ERROR tests/unit/test_repo_filtering.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 12 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 12 errors in 0.82s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 11 errors in 0.68s ==============================
 
 
 
