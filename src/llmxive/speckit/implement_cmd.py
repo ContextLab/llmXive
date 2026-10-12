@@ -542,6 +542,30 @@ class ImplementerAgent(SlashCommandAgent):
                             + ("/" + parts[2] if len(parts) > 2 else "")
                         )
                 target = project_root / rel
+                from llmxive.project_files import SOURCE_DIRS
+
+                # A script is one file. A second copy at the project root that
+                # re-exports the first (canary 10: `from code.run_analysis
+                # import main`) gives the task's bare filename two meanings.
+                # A root script that is already there is edited like any other
+                # file, and a whole script sent under the bare name its task
+                # uses is the existing one, rewritten (batch 7, 2026-10-12:
+                # 53 such edits were dropped and the bugs they fixed stayed).
+                # Decided here so every check below sees the file really written.
+                if "/" not in rel and rel.endswith(".py") and not target.is_file():
+                    twin = next((f"{d}/{rel}" for d in SOURCE_DIRS if (project_root / d / rel).is_file()), None)
+                    if twin is not None and _loads_script(contents, twin):
+                        refuse(
+                            f"[implementer] refused {relpath!r}: `{twin}` already exists. "
+                            "Edit that file; do not add a second copy or a re-exporting "
+                            "wrapper at the project root."
+                        )
+                        continue
+                    if twin is not None:
+                        print(f"[implementer] writing {relpath!r} -> {twin!r}: the script already exists there")
+                        # The run requested below looks the path up again.
+                        art["path"] = rel = twin
+                        target = project_root / twin
                 # Reject paths that escape the project directory.
                 try:
                     target.resolve().relative_to(project_root.resolve())
@@ -586,29 +610,8 @@ class ImplementerAgent(SlashCommandAgent):
                     if not art.get("execute"):
                         refuse(f"[implementer] refused empty contents without execution: {relpath!r}")
                     continue
-                from llmxive.project_files import SOURCE_DIRS, has_code
+                from llmxive.project_files import has_code
 
-                # A script is one file. A second copy at the project root that
-                # re-exports the first (canary 10: `from code.run_analysis
-                # import main`) gives the task's bare filename two meanings.
-                # A root script that is already there is edited like any other
-                # file, and a whole script sent under the bare name its task
-                # uses is the existing one, rewritten (batch 7, 2026-10-12:
-                # 53 such edits were dropped and the bugs they fixed stayed).
-                if "/" not in rel and rel.endswith(".py") and not target.is_file():
-                    twin = next((f"{d}/{rel}" for d in SOURCE_DIRS if (project_root / d / rel).is_file()), None)
-                    if twin is not None and _loads_script(contents, twin):
-                        refuse(
-                            f"[implementer] refused {relpath!r}: `{twin}` already exists. "
-                            "Edit that file; do not add a second copy or a re-exporting "
-                            "wrapper at the project root."
-                        )
-                        continue
-                    if twin is not None:
-                        print(f"[implementer] writing {relpath!r} -> {twin!r}: the script already exists there")
-                        # The run requested below looks the path up again.
-                        art["path"] = rel = twin
-                        target = project_root / twin
                 # "Run it as it is", said with a comment where the contents go,
                 # must not erase the script. Canary 10 lost a 16 KB driver to
                 # `# The file exists already; this entry requests execution

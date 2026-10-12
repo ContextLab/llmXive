@@ -128,6 +128,16 @@ def test_a_script_sent_under_its_bare_name_is_written_to_the_one_that_exists(tmp
     assert "'run_analysis.py' -> 'code/run_analysis.py'" in capsys.readouterr().out
 
 
+def test_a_bare_name_does_not_follow_a_link_out_of_the_project(tmp_path: Path) -> None:
+    outside = tmp_path / "outside.py"
+    outside.write_text(DRIVER, encoding="utf-8")
+    link = tmp_path / "projects/PROJ-909-noop/code/run_analysis.py"
+    link.parent.mkdir(parents=True)
+    link.symlink_to(outside)
+    _send(tmp_path, [{"path": "run_analysis.py", "contents": DRIVER.replace("ran", "overwritten")}])
+    assert outside.read_text(encoding="utf-8") == DRIVER
+
+
 @pytest.mark.parametrize("shim", [
     "import code.run_analysis as real\n\nmain = real.main\n",
     "from run_analysis import main\n\nraise SystemExit(main())\n",
