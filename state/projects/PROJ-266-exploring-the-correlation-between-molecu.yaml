@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:53:10.682198Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-266-exploring-the-correlation-between-molecu
-last_run_id: 151c9762-d267-4f29-b68f-978d641527c9
+last_run_id: b2796edc-c734-462b-9e85-f8ba1e97e178
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu
 title: Exploring the Correlation Between Molecular Flexibility and Drug Transport
   Across Cell Membranes
-updated_at: '2026-10-12T13:38:16.537353Z'
+updated_at: '2026-10-12T13:38:31.671973Z'
