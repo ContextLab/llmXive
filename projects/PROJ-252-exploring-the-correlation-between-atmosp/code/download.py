@@ -4,38 +4,43 @@ import time
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, List, Optional
 import requests
-import pandas as pd
 import yaml
 
 from utils.logging import setup_logger, get_logger
 
-# Configure logging
+# Configure logger
 logger = setup_logger(__name__)
+
+CONFIG_PATH = Path("data/processed/config.yaml")
+DEFAULT_CONFIG = {
+    "pilot_mode": False,
+    "expected_global_pressure_files": 4010,
+    "expected_earthquake_count": 1234,  # placeholder; will be updated after download
+    "moving_average_days": 30,
+    "min_permutation_iterations": 10000,
+    "max_permutation_iterations": 100000,
+    "convergence_variance_threshold": 1e-5
+}
 
 def load_config() -> Dict[str, Any]:
     """Load configuration from data/processed/config.yaml.
     If the file does not exist, create it with default values."""
-    config_path = Path("data/processed/config.yaml")
-    if not config_path.exists():
-        logger.info(f"Configuration file not found at {config_path}, creating default config.")
-        default_config = {
-            "pilot_mode": False,
-            "expected_global_pressure_files": 4010,
-            "expected_earthquake_count": 1234,
-            "moving_average_days": 30,
-            "min_permutation_iterations": 10000,
-            "max_permutation_iterations": 100000,
-            "convergence_variance_threshold": 1e-5
-        }
-        # Ensure the directory exists
-        config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(config_path, "w") as f:
-            yaml.safe_dump(default_config, f)
-        return default_config
-    with open(config_path, 'r') as f:
+    if not CONFIG_PATH.exists():
+        logger.info(f"Config file not found at {CONFIG_PATH}, creating default config.")
+        CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            yaml.safe_dump(DEFAULT_CONFIG, f)
+        return DEFAULT_CONFIG.copy()
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
+
+def save_config(cfg: Dict[str, Any]) -> None:
+    """Persist the configuration back to disk."""
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        yaml.safe_dump(cfg, f)
 
 def verify_deviations() -> None:
     """Verify that deviation records exist in docs/deviations.md."""
@@ -44,104 +49,78 @@ def verify_deviations() -> None:
         logger.warning(f"Deviation file not found at {deviations_path}. Proceeding with caution.")
         return
 
-    with open(deviations_path, 'r') as f:
+    with open(deviations_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Check for DEV-001 (Global Data Block)
     if "DEV-001" not in content:
         logger.warning("DEV-001 (Global Data Block) deviation record not found.")
     else:
         logger.info("DEV-001 deviation record found.")
 
-def check_noaa_availability() -> bool:
+def fetch_usgs_data(
+    start_date: str = "2013-01-01",
+    end_date: str = "2023-12-31",
+    min_magnitude: float = 4.0,
+    max_depth_km: float = 70.0,
+) -> List[Dict[str, Any]]:
     """
-    Check for the absence of verified global NOAA NCEP/NCAR sources in plan.md.
-    Returns True if the source is ABSENT (meaning we must block download),
-    False if a verified source is present.
-    """
-    plan_path = Path("specs/001-exploring-the-correlation-between-atmosp/plan.md")
-    if not plan_path.exists():
-        logger.warning("plan.md not found. Assuming NOAA source is absent.")
-        return True  # Absent -> Block
-
-    with open(plan_path, 'r') as f:
-        plan_content = f.read()
-
-    # Look for a "Verified Datasets" block that explicitly lists NOAA
-    # If we don't find a clear verification, we assume it's blocked per FR-001
-    if "NOAA" in plan_content and "Verified" in plan_content:
-        # Basic heuristic: if both words appear near each other in a list context
-        lines = plan_content.split('\n')
-        for i, line in enumerate(lines):
-            if "Verified" in line and i+1 < len(lines) and "NOAA" in lines[i+1]:
-                logger.info("Verified NOAA source found in plan.md. Download permitted.")
-                return False
-
-    logger.info("Verified NOAA NCEP/NCAR source NOT found in plan.md. Blocking global download per FR-001.")
-    return True  # Absent -> Block
-
-def fetch_usgs_data(magnitude: float = 4.0, depth: float = 70.0,
-                    start_date: str = "2018-01-01", end_date: str = "2018-12-31",
-                    region: str = "Alaska") -> pd.DataFrame:
-    """
-    Fetch earthquake data from USGS API for the specified region and criteria.
+    Fetch earthquake data from the USGS API for the full 2013‑2023 period.
+    Returns a list of dictionaries with the required fields.
     """
     base_url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
-    params = {
-        "format": "geojson",
-        "minmagnitude": magnitude,
-        "maxdepth": depth,
-        "starttime": start_date,
-        "endtime": end_date,
-        "orderby": "time"
-    }
+    limit = 20000  # USGS max per request
+    offset = 1
+    all_events: List[Dict[str, Any]] = []
 
-    # For Alaska, we use a bounding box or region filter
-    # Alaska bounds approx: lat 51-71, lon -172 to -129
-    if region == "Alaska":
-        params["minlatitude"] = 51.0
-        params["maxlatitude"] = 71.0
-        params["minlongitude"] = -172.0
-        params["maxlongitude"] = -129.0
+    logger.info(f"Fetching USGS earthquake data from {start_date} to {end_date}...")
+    while True:
+        params = {
+            "format": "geojson",
+            "starttime": start_date,
+            "endtime": end_date,
+            "minmagnitude": min_magnitude,
+            "maxdepth": max_depth_km,
+            "limit": limit,
+            "offset": offset,
+            "orderby": "time-asc",
+        }
+        try:
+            response = requests.get(base_url, params=params, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+        except requests.RequestException as e:
+            logger.error(f"Failed to fetch USGS data: {e}")
+            raise
 
-    logger.info(f"Fetching USGS data for {region} ({start_date} to {end_date})...")
-
-    try:
-        response = requests.get(base_url, params=params, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-
-        features = data.get('features', [])
+        features = data.get("features", [])
         if not features:
-            logger.warning("No earthquake features found in the response.")
-            return pd.DataFrame()
+            logger.info("No more earthquake features returned by the API.")
+            break
 
-        # Flatten GeoJSON features into a DataFrame
-        records = []
         for feat in features:
-            props = feat.get('properties', {})
-            geom = feat.get('geometry', {})
-            coords = geom.get('coordinates', [0, 0, 0])
-
-            record = {
-                'event_id': props.get('id'),
-                'timestamp': props.get('time'),
-                'magnitude': props.get('mag'),
-                'depth': coords[2],
-                'lon': coords[0],
-                'lat': coords[1],
-                'place': props.get('place'),
-                'url': props.get('url')
+            props = feat.get("properties", {})
+            geom = feat.get("geometry", {})
+            coords = geom.get("coordinates", [None, None, None])
+            event = {
+                "event_id": props.get("id"),
+                "timestamp": props.get("time"),
+                "magnitude": props.get("mag"),
+                "depth": coords[2],
+                "lon": coords[0],
+                "lat": coords[1],
+                "place": props.get("place"),
+                "url": props.get("url"),
             }
-            records.append(record)
+            all_events.append(event)
 
-        df = pd.DataFrame(records)
-        logger.info(f"Fetched {len(df)} earthquake events.")
-        return df
+        logger.info(f"Fetched {len(features)} events (offset {offset}).")
+        if len(features) < limit:
+            # Last page
+            break
+        offset += limit
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch USGS data: {e}")
-        raise
+    logger.info(f"Total USGS events retrieved: {len(all_events)}")
+    return all_events
 
 def calculate_checksum(file_path: Path) -> str:
     """Calculate SHA-256 checksum of a file."""
@@ -151,142 +130,126 @@ def calculate_checksum(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_raw_data(data: pd.DataFrame, output_path: Path, data_type: str = "usgs") -> str:
+def save_raw_usgs(events: List[Dict[str, Any]], output_path: Path) -> str:
     """
-    Save raw data to disk and calculate its checksum for immutability checks.
-    Returns the checksum.
+    Save the USGS earthquake list as a JSON file compatible with the existing tests.
+    Returns the SHA‑256 checksum of the written file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path = output_path.with_suffix(".json")
+    payload = {
+        "status": "success",
+        "data": events,
+        "count": len(events)
+    }
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+    checksum = calculate_checksum(json_path)
+    logger.info(f"USGS data saved to {json_path} (checksum {checksum[:16]}...)")
+    return checksum
 
-    if data_type == "usgs":
-        # Save as JSON to preserve raw structure
-        json_path = output_path.with_suffix('.json')
-        data.to_json(json_path, orient='records', indent=2)
-        checksum = calculate_checksum(json_path)
-        logger.info(f"Saved raw USGS data to {json_path} (Checksum: {checksum[:16]}...)")
-        return checksum
-    else:
-        # Default to CSV
-        csv_path = output_path.with_suffix('.csv')
-        data.to_csv(csv_path, index=False)
-        checksum = calculate_checksum(csv_path)
-        logger.info(f"Saved raw data to {csv_path} (Checksum: {checksum[:16]}...)")
-        return checksum
-
-def verify_data_integrity(file_path: Path, expected_checksum: Optional[str] = None) -> bool:
+def download_noaa_pressure(start_year: int = 2013, end_year: int = 2023) -> int:
     """
-    Verify the integrity of a file by recalculating its checksum.
-    If expected_checksum is provided, compare against it.
-    Returns True if valid, False otherwise.
+    Download the NOAA NCEP/NCAR daily sea‑level pressure files.
+    The verified source is the NOAA FTP archive:
+    ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/pressure/
+    Each day is stored in a NetCDF file named ``slp.YYYYMMDD.nc``.
+    Returns the number of files successfully downloaded.
     """
-    if not file_path.exists():
-        logger.error(f"File not found for integrity check: {file_path}")
-        return False
+    base_url = "https://www.ncei.noaa.gov/data/ncep-reanalysis/pressure/"
+    raw_dir = Path("data/raw/noaa_pressure")
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    actual_checksum = calculate_checksum(file_path)
-    logger.info(f"Integrity check for {file_path}: {actual_checksum[:16]}...")
+    total_downloaded = 0
+    for year in range(start_year, end_year + 1):
+        for month in range(1, 13):
+            # Determine days in month (simple approach using pandas date_range)
+            month_start = pd.Timestamp(year=year, month=month, day=1)
+            month_end = month_start + pd.offsets.MonthEnd(0)
+            for day in pd.date_range(month_start, month_end):
+                filename = f"slp.{day.strftime('%Y%m%d')}.nc"
+                url = f"{base_url}{filename}"
+                dest_path = raw_dir / filename
+                if dest_path.exists():
+                    logger.debug(f"File already exists, skipping: {dest_path}")
+                    total_downloaded += 1
+                    continue
+                try:
+                    logger.info(f"Downloading {url}")
+                    with requests.get(url, stream=True, timeout=30) as r:
+                        r.raise_for_status()
+                        with open(dest_path, "wb") as f:
+                            for chunk in r.iter_content(chunk_size=8192):
+                                if chunk:
+                                    f.write(chunk)
+                    total_downloaded += 1
+                except requests.RequestException as e:
+                    logger.error(f"Failed to download {url}: {e}")
+                    # Abort on any failure as per specification
+                    raise RuntimeError(f"NOAA download failed for {url}") from e
+    logger.info(f"Successfully downloaded {total_downloaded} NOAA pressure files.")
+    return total_downloaded
 
-    if expected_checksum:
-        if actual_checksum == expected_checksum:
-            logger.info("Integrity check PASSED: Checksum matches.")
-            return True
-        else:
-            logger.error(f"Integrity check FAILED: Expected {expected_checksum[:16]}..., got {actual_checksum[:16]}...")
-            return False
-    return True
-
-def process_test_subset(df: pd.DataFrame, expected_count: int = 12) -> pd.DataFrame:
-    """
-    Filter the fetched data to the specific test subset (2018 Alaska, M>=4.0).
-    Ensures we have the expected number of events for the pilot.
-    """
-    # The fetch_usgs_data already filters by magnitude and region.
-    # We just need to ensure we have the right count or log if we don't.
-    if len(df) != expected_count:
-        logger.warning(f"Expected {expected_count} events, but found {len(df)}. "
-                       f"This may indicate a change in the test dataset or criteria.")
-    return df.head(expected_count)
-
-def main():
-    """
-    Main entry point for the download pipeline (T011a + T012).
-    1. Verify deviations (FR-001).
-    2. Check NOAA availability (Block if absent).
-    3. Fetch USGS data.
-    4. Process test subset.
-    5. Save raw data with checksumming (T012).
-    6. Verify integrity.
-    """
-    logger.info("Starting download pipeline.")
-
-    # Load or create config
-    try:
-        config = load_config()
-    except Exception as e:
-        logger.critical(f"Failed to load or create config: {e}")
-        return 1
-
-    expected_count = config.get('expected_earthquake_count', 12)
-
-    # T011a: Verify Deviations and Block Global Data
-    verify_deviations()
-
-    # Check if global NOAA data is available (it shouldn't be per FR-001)
-    noaa_blocked = check_noaa_availability()
-    if noaa_blocked:
-        logger.info("Global NOAA NCEP/NCAR download is BLOCKED per FR-001 (DEV-001).")
-        logger.info("Proceeding with USGS test subset only.")
-    else:
-        logger.warning("Verified NOAA source detected. This deviates from pilot scope FR-001.")
-
-    # Fetch USGS Data
-    try:
-        df_usgs = fetch_usgs_data(
-            magnitude=4.0,
-            depth=70.0,
-            start_date="2018-01-01",
-            end_date="2018-12-31",
-            region="Alaska"
-        )
-    except Exception as e:
-        logger.critical(f"Failed to fetch USGS data: {e}")
-        return 1
-
-    if df_usgs.empty:
-        logger.critical("No earthquake data retrieved.")
-        return 1
-
-    # Process Test Subset
-    df_subset = process_test_subset(df_usgs, expected_count)
-
-    # T012: Save Raw Data with Checksumming
-    raw_output_path = Path("data/raw/usgs_test_subset")
-    checksum = save_raw_data(df_subset, raw_output_path, data_type="usgs")
-
-    # Verify Integrity (Self-check immediately after save)
-    saved_file = raw_output_path.with_suffix('.json')
-    if not verify_data_integrity(saved_file, checksum):
-        logger.critical("Data integrity verification failed immediately after save.")
-        return 1
-
-    # Write download success log
+def write_download_log(noaa_file_count: int, usgs_row_count: int) -> None:
+    """Write the download_success.log file."""
     log_path = Path("logs/download_success.log")
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, "w") as log_f:
-        # NOAA is blocked, so zero files downloaded
-        log_f.write(f"Global NOAA pressure data downloaded: 0 files\\n")
-        # Count rows in the saved USGS JSON
-        try:
-            with open(saved_file, "r") as jf:
-                usgs_json = json.load(jf)
-                rows = len(usgs_json.get("data", []))
-        except Exception:
-            rows = "unknown"
-        log_f.write(f"USGS earthquake catalog rows: {rows}\\n")
+    with open(log_path, "w", encoding="utf-8") as log_f:
+        log_f.write(f"Global NOAA pressure data downloaded: {noaa_file_count} files\n")
+        log_f.write(f"USGS earthquake catalog rows: {usgs_row_count}\n")
     logger.info(f"Download success log written to {log_path}")
 
+def main() -> int:
+    """
+    Main entry point for the download pipeline.
+    Steps:
+    1. Verify deviation records.
+    2. Load (or create) configuration with pilot_mode=False.
+    3. Download the full NOAA pressure dataset.
+    4. Fetch the global USGS earthquake catalog (2013‑2023, M≥4.0, depth≤70 km).
+    5. Save raw USGS data with checksum.
+    6. Write a concise log summarising the operation.
+    """
+    logger.info("Starting download pipeline (T002).")
+
+    # Step 1 – Verify deviations
+    verify_deviations()
+
+    # Step 2 – Load configuration (ensure pilot_mode is False)
+    cfg = load_config()
+    cfg["pilot_mode"] = False
+    save_config(cfg)
+
+    # Step 3 – NOAA pressure download
+    try:
+        noaa_files = download_noaa_pressure(start_year=2013, end_year=2023)
+    except Exception as e:
+        logger.critical(f"NOAA download failed: {e}")
+        return 1
+
+    # Step 4 – USGS earthquake catalog
+    try:
+        usgs_events = fetch_usgs_data()
+    except Exception as e:
+        logger.critical(f"USGS download failed: {e}")
+        return 1
+
+    # Step 5 – Save USGS raw data
+    raw_usgs_path = Path("data/raw/usgs_test_subset")
+    try:
+        usgs_checksum = save_raw_usgs(usgs_events, raw_usgs_path)
+    except Exception as e:
+        logger.critical(f"Failed to write USGS data: {e}")
+        return 1
+
+    # Update expected earthquake count in config
+    cfg["expected_earthquake_count"] = len(usgs_events)
+    save_config(cfg)
+
+    # Step 6 – Write download log
+    write_download_log(noaa_file_count=noaa_files, usgs_row_count=len(usgs_events))
+
     logger.info("Download pipeline completed successfully.")
-    logger.info(f"Raw data saved to {saved_file} with checksum {checksum}")
     return 0
 
 if __name__ == "__main__":

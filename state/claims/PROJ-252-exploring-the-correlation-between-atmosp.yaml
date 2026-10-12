@@ -4080,3 +4080,143 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T04:25:08Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints "Pipeline completed successfully" to console
+  claim_id: c_41788b40
+  context: During seed initialization the script prints a success message to the console.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Prints `Pipeline completed successfully` to the console.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:38Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: creates logs/seed_initialization.log with seed confirmation
+  claim_id: c_b33adfbf
+  context: The seed initialization step also writes a log file confirming the random
+    seeds were set.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Creates `logs/seed_initialization.log` containing a confirmation that
+    the seeds were set.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:38Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: download creates earthquake and pressure CSV files in data/raw
+  claim_id: c_4ea8e718
+  context: Running the download script produces raw earthquake and pressure CSV files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/raw/earthquake_*.csv`, `data/raw/pressure_*.csv`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:39Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: preprocess creates processed_earthquakes.csv, pressure_anomalies.csv,
+    validation_report.json
+  claim_id: c_b54342bf
+  context: The preprocessing step generates interim CSV files and a validation report.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/interim/processed_earthquakes.csv`, `data/interim/pressure_anomalies.csv`,
+    `data/interim/validation_report.json`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:39Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: generate master dataset creates master_dataset.parquet
+  claim_id: c_65ecd444
+  context: The master dataset generation script outputs a Parquet file.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/processed/master_dataset.parquet`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:40Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: statistical analysis creates statistical_results.json
+  claim_id: c_c1877f7c
+  context: Running the analysis script produces a JSON file with statistical results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/processed/statistical_results.json`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:40Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: robustness analysis creates robustness_report.json
+  claim_id: c_bdb81435
+  context: The robustness and sensitivity analysis script generates a robustness report.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/processed/robustness_report.json`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:41Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: generate final report creates pilot_report.md
+  claim_id: c_e27997a7
+  context: The final report generation script creates a Markdown pilot report.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `docs/pilot_report.md`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:42Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: 2018 Alaska subset with N=12 used
+  claim_id: c_6e90039f
+  context: The pilot study uses only the 2018 Alaska subset, with a sample size of
+    twelve.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: only the 2018 Alaska subset (N=12) is used.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:29:42Z'

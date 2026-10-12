@@ -1,21 +1,13 @@
 T001:
-  reason: "Checked `docs/quickstart.md`, `code/__init__.py`, the seed\u2011initialization\
-    \ log (`code/.tasks/T001.code_seed_init.py.log`), and `code/requirements.txt`.\
-    \ The requirements file uses loose \u201C>=\u201D specifiers instead of exact\
-    \ pinned versions, no evidence of a successful `pip install -r requirements.txt`\
-    \ run, and the required `logs/seed_initialization.log` file is missing. These\
-    \ gaps mean the reproducibility documentation and dependency pinning are not fully\
-    \ satisfied."
+  reason: "Checked `docs/quickstart.md`, `requirements.txt`, `code/__init__.py`, and\
+    \ the seed\u2011initialization run log (`code/.tasks/T001.code_seed_init.py.log`).\
+    \ While the docs, frozen requirements, and seed\u2011setting code exist and the\
+    \ seed script ran successfully, there is no evidence that `pip install -r requirements.txt`\
+    \ completed without warnings, and the required `logs/seed_initialization.log`\
+    \ file confirming the seeds were set is missing."
   task: e871f02947a6c8771a471cdaa0624e331241281152ce92515cea5b71227860c8
 T002:
-  reason: "The repository contains only a pilot\u2011mode config (pilot_mode\u202F\
-    =\u202Ftrue, expected_earthquake_count\u202F=\u202F12, min/max permutation iterations\u202F\
-    =\u202F1000/10000) and a download script that deliberately blocks the global NOAA\
-    \ download, fetches only a 2018 Alaska USGS subset, and writes \u201C0 files\u201D\
-    \ for pressure data. No 4010 daily NOAA pressure files are present in `data/raw/`,\
-    \ the config does not match the required values, and the script would exit\u202F\
-    0 even when the global dataset is missing, violating the task\u2019s abort\u2011\
-    on\u2011failure rule."
+  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
   task: d582039af4de4db8f67e6dd7ea9996c7c16ff795905866c60e6fc3c969b0bda1
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/preprocess.py

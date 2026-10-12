@@ -1,14 +1,13 @@
 T001:
   c: false
-  h: c55c534cc7c3f862236396c5711fe4956cca03008d5c951707b6e10dde49d203
-  r: "Checked `docs/quickstart.md`, `code/__init__.py`, the seed\u2011initialization\
-    \ log (`code/.tasks/T001.code_seed_init.py.log`), and `code/requirements.txt`.\
-    \ The requirements file uses loose \u201C>=\u201D specifiers instead of exact\
-    \ pinned versions, no evidence of a successful `pip install -r requirements.txt`\
-    \ run, and the required `logs/seed_initialization.log` file is missing. These\
-    \ gaps mean the reproducibility documentation and dependency pinning are not fully\
-    \ satisfied."
-  sig: 51203cf7ea4793bed3e78a4e41d442361030b72a813df71254678e1fedb27958
+  h: 951adf1102dfc5b898ed6ba6e47eb834cb8aeb609be144bd9eebdcd78232245c
+  r: "Checked `docs/quickstart.md`, `requirements.txt`, `code/__init__.py`, and the\
+    \ seed\u2011initialization run log (`code/.tasks/T001.code_seed_init.py.log`).\
+    \ While the docs, frozen requirements, and seed\u2011setting code exist and the\
+    \ seed script ran successfully, there is no evidence that `pip install -r requirements.txt`\
+    \ completed without warnings, and the required `logs/seed_initialization.log`\
+    \ file confirming the seeds were set is missing."
+  sig: 456287bf90a5202a0ddbcb95eeea248a4b84d0f3eceecded42ff5f0db3680b92
 T002:
   c: false
   h: 0e92e5ad266a3c0026a472ecbc908ca20fd164506dcf08f5a218f17a354cff8c

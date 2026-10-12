@@ -34,6 +34,11 @@ def setup_logger(name: str, log_file: str = None, level=logging.INFO):
 
     return logger
 
+# Backwards‑compatible alias expected by the rest of the codebase
+def setup_logging(name: str, log_file: str = None, level=logging.INFO):
+    """Compatibility wrapper that forwards to ``setup_logger``."""
+    return setup_logger(name, log_file=log_file, level=level)
+
 def get_logger(name: str) -> logging.Logger:
     """Get or create a logger with the specified name."""
     logger = logging.getLogger(name)

@@ -34,15 +34,18 @@ The pipeline is executed via a series of scripts. Run them in order:
 
 ### 1. Seed Initialization (reproducibility)
 
-This step sets the random seeds for NumPy and the Python `random` module and writes a log confirming the operation.
+This step sets the random seeds for NumPy and the built‑in random module,
+writes a log file confirming the operation, and prints a success message.
+It is intended to be the first step of the quick‑start pipeline to guarantee
+reproducibility.
 
 ```bash
 python code/seed_init.py
 ```
 
 **Expected output**
-- Prints `Pipeline completed successfully` to the console. [UNRESOLVED-CLAIM: c_bda19910 — status=not_enough_info]
-- Creates `logs/seed_initialization.log` containing a confirmation that the seeds were set. [UNRESOLVED-CLAIM: c_e352e933 — status=not_enough_info]
+- Prints `Pipeline completed successfully` to the console. [UNRESOLVED-CLAIM: c_41788b40 — status=not_enough_info]
+- Creates `logs/seed_initialization.log` containing a confirmation that the seeds were set. [UNRESOLVED-CLAIM: c_b33adfbf — status=not_enough_info]
 
 ### 2. Download and Validate Data
 
@@ -66,7 +69,7 @@ python code/preprocess.py
 python code/generate_master_dataset.py
 ```
 
-**Output**: `data/processed/master_dataset.csv`
+**Output**: `data/processed/master_dataset.parquet`
 
 ### 5. Run Statistical Analysis
 
@@ -105,6 +108,6 @@ This will run unit tests for data loading and contract tests for schema validati
 ## Notes on Scope
 
 - This is a **pilot study** validating the methodology.
-- Global data (FR-001) is blocked; only the 2018 Alaska subset (N=12) is used. [UNRESOLVED-CLAIM: c_0b8d932c — status=not_enough_info]
+- Global data (FR-001) is blocked; only the 2018 Alaska subset (N=12) is used. [UNRESOLVED-CLAIM: c_6e90039f — status=not_enough_info]
 - Climate indices (ENSO/PDO) are not stratified (FR-011).
 - Refer to `docs/deviations.md` for full details on limitations.
