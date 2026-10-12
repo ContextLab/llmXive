@@ -1,24 +1,24 @@
-T001:
-  c: false
-  h: 7e203b2a706f71026076cf33725bcf523de70df6b19834f60ecfd187c9f6dd30
-  r: "The confirmed artifacts (`code/requirements.txt` with all required pinned packages,\
-    \ `code/utils/models.py` with real dataclasses, and the quickstart documenting\
-    \ runnable commands) satisfy those portions, but two required artifacts are absent\
-    \ from the evidence: a logging configuration (e.g., `code/utils/logging_config.py`\
-    \ or similar) and `.env.example` containing `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH`\
-    \ \u2014 the quickstart even instructs `cp .env.example .env`, yet no such file\
-    \ was resolved/confirmed on disk. The implementer must add the logging config\
-    \ and `.env.example` to complete T001."
-  sig: 1a4a037040cb89281d9d70248d43631b7bc0bf70d8de37b9c0b2ed185fa884c2
 T002:
+  c: true
+  h: 9853e55b48b35db3a7da25bb53265be2d4073b2524349c76ac6f7305a663a4a9
+  r: "The script implements all required elements (topic searches with keyword expansion,\
+    \ \u22655 stars and 90-day activity filters, depth=100 shallow clones, rate-limit\
+    \ sleep handling, 404/deleted-repo handling with an exclusion log) and the historical\
+    \ execution log shows a real successful run (exit 0) that produced non-empty `data/raw/repo_list.csv`\
+    \ and `data/raw/repo_metadata.csv` with genuine GitHub metadata (repo IDs, star\
+    \ counts, timestamps, non-zero LOC for cloned repos) consistent with the log.\
+    \ The default target of 5 repos (env-overridable to 50) and the extra generic\
+    \ fallback query are minor de"
+  sig: 990a605fe6294e5e7e0ef23080f3374d954ad044a03e319e842b2e174c40223c
+T003:
   c: false
-  h: cdff69a216d56335f01b3eb6e876d0d726cbd6fab968cebb1f887b0e9c3240bf
-  r: The required output CSVs `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`
-    exist but contain only headers (24 and 58 bytes) with zero data rows, despite
-    the historical log claiming 50 repositories were identified and cloned. The execution
-    log is truncated mid-clone and there is no evidence of a completed run that wrote
-    the final CSVs; the current on-disk artifacts contradict the claimed success.
-    The implementer must re-run (or finish) the curation so the CSVs actually contain
-    the ~50 curated repositories with `stargazers_count`, `created_at`, `updated_at`,
-    and `total_loc` values.
-  sig: de278098c1abb610dcfbcd24c5e3b5fbdb8291ec60ea060009bc2dc491a38e27
+  h: 15bd315e522e4c91de49446e9ba11b28f84e176836bd97cc0a8cfdc6be9a1ff2
+  r: "The CSV exists with the correct columns and 8063 real rows, but the rename-exclusion\
+    \ logic evidently was not applied: `data/logs/refactor_exclusions.log` contains\
+    \ only the header (0 exclusions) while the CSV itself contains the same `content_hash`\
+    \ at paths of different directory depth (e.g. `ink-theater/ink-theater.js` and\
+    \ `ink-theater/examples/mocap-figure/ink-theater.js`, likewise `ink-puppet.js`\
+    \ and `clips.js`), which per the spec must be excluded and logged \u2014 the report's\
+    \ \"blocks_excluded: 0\" contradicts the artifact's own data. Additionally, there\
+    \ is no execution record showing the requir"
+  sig: f981ce7913b38532b9294325ab2b49e80b7395aa80de8857117d239e0e5d0b8a

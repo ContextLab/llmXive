@@ -4,7 +4,7 @@
 - Python 3.11+
 - GitHub Personal Access Token (with `repo` scope)
 - Sufficient disk space (for temporary git clones)
-- 7 GB RAM (minimum)
+- Adequate RAM (minimum)
 
 ## Setup
 
@@ -20,7 +20,6 @@
    ```
 
 3. **Configure Environment**
-   Create a `.env` file in the root directory based on `.env.example`:
    ```bash
    cp .env.example .env
    # Edit .env to add your GITHUB_TOKEN
@@ -40,7 +39,7 @@ python code/01_data_curation.py
 ### Step 2: Classification
 Tag code blocks using CodeBERT.
 ```bash
-python code/01_data_curation.py --tag
+python code/02_classification.py
 ```
 *Output*: `data/processed/tagged_blocks.csv`.
 
@@ -83,5 +82,5 @@ python -m pytest tests/
 ## Troubleshooting
 
 - **API Rate Limit**: If `403` errors occur, wait 1 hour or increase token permissions.
+- **Model Load Error**: Ensure internet connectivity; the script will download the ONNX model on first run.
 - **RAM Error**: Reduce the number of processed repositories in the curation script.
-- **Model Load Error**: Ensure `onnxruntime` is installed and compatible with your CPU architecture.

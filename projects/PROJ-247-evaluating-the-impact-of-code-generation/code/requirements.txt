@@ -1,22 +1,19 @@
-# Core dependencies (already available in the platform)
-numpy==1.26.4
-pandas==2.2.2
-scipy==1.14.0
-matplotlib==3.9.0
-scikit-learn==1.5.0
-statsmodels==0.14.2
-seaborn==0.13.2
-pytest==8.2.2
-PyYAML==6.0.2
-requests==2.32.3
-jsonschema==4.23.0
-psutil==6.0.0
+# Core scientific stack (already available in the execution environment)
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
 
-# Additional dependencies required for the project
-transformers==4.41.2
-onnxruntime==1.18.1
-radon==6.0.1
-datasets==2.20.0
-PyGithub==2.3.0
-tree_sitter==0.20.1
-tree_sitter_javascript==0.20.1
+# Additional packages required for T004
+transformers>=4.40.0
+onnxruntime>=1.18.0
+huggingface_hub>=0.23.0
+radon>=6.0.1

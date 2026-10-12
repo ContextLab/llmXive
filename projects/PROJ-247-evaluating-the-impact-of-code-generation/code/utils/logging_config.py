@@ -1,78 +1,67 @@
 """
-Logging configuration utilities for the project.
-
-Provides:
-- ``setup_project_logging(name: str, log_file: str)`` – returns a configured
-  ``logging.Logger`` that writes to both a file (under the project's logs
-  directory) and stdout.
-- ``get_logger(name: str)`` – thin wrapper around ``logging.getLogger`` that
-  ensures the logger has at least one handler attached.
+Simple project‑wide logging configuration.
+Provides two helpers:
+* ``setup_project_logging(name, logfile)`` – returns a ``logging.Logger`` instance
+  configured with a rotating file handler (10 MiB per file, up to 5 backups) and a
+  console stream handler.
+* ``get_logger(name)`` – convenience wrapper that returns ``logging.getLogger(name)``.
 """
-
 import logging
 import sys
 from pathlib import Path
+from logging.handlers import RotatingFileHandler
 
-from llmxive_toolkit import paths
+def _ensure_parent_dir(path: Path) -> None:
+    """Make sure the directory for *path* exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-def _ensure_log_dir(log_path: Path) -> None:
-    """Create the parent directory for the log file if it does not exist."""
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-def setup_project_logging(name: str, log_file: str) -> logging.Logger:
+def setup_project_logging(name: str, logfile: str) -> logging.Logger:
     """
-    Create and configure a logger for a given component.
-
-    Parameters
-    ----------
-    name: str
-        Name of the logger (usually the module name).
-    log_file: str
-        Relative path (within the project) where the log file should be written.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
+    Configure a logger for the given *name* that writes to *logfile* (relative to the
+    project root) and also echoes to ``stderr``.
+    The file handler rotates when it reaches 10 MiB, keeping up to 5 backups.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
-    # Avoid adding duplicate handlers if this function is called multiple times.
+    # Avoid adding duplicate handlers if this function is called multiple times
     if logger.handlers:
         return logger
 
-    # File handler
-    log_path = paths.path(log_file)
-    _ensure_log_dir(log_path)
-    file_handler = logging.FileHandler(log_path, encoding="utf-8")
-    file_formatter = logging.Formatter(
+    # Console handler (stderr)
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+
+    # File handler with rotation
+    log_path = Path(logfile)
+    _ensure_parent_dir(log_path)
+    file_handler = RotatingFileHandler(
+        log_path, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
     )
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
 
-    # Stream (stdout) handler
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_formatter = logging.Formatter("%(levelname)s - %(message)s")
-    stream_handler.setFormatter(stream_formatter)
-    logger.addHandler(stream_handler)
-
+    logger.debug(f"Logging initialized for {name}; output to {log_path}")
     return logger
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Retrieve a logger, ensuring that at least a default StreamHandler is present.
-    This mirrors the behaviour of ``llmxive_toolkit.get_logger`` but guarantees
-    that a handler exists even if the toolkit has not been initialised yet.
+    Retrieve (or create) a logger with the given *name*. If the logger has not been
+    configured yet, this function will call ``setup_project_logging`` with a default
+    logfile under ``logs/<name>.log``.
     """
     logger = logging.getLogger(name)
     if not logger.handlers:
-        # Attach a simple stdout handler as a fallback.
-        stream_handler = logging.StreamHandler(sys.stdout)
-        stream_handler.setFormatter(
-            logging.Formatter("%(levelname)s - %(message)s")
-        )
-        logger.addHandler(stream_handler)
-        logger.setLevel(logging.INFO)
+        # Default logfile location
+        default_logfile = Path("logs") / f"{name}.log"
+        setup_project_logging(name, str(default_logfile))
     return logger

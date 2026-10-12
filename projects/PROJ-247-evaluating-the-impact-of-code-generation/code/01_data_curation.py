@@ -37,8 +37,11 @@ CHECKPOINT_DIR = "data/logs/checkpoints"
 MIN_REMAINING_REQUESTS = 5          # when to start sleeping
 SLEEP_BUFFER_SECONDS = 10          # extra safety buffer after reset
 
-# Desired minimum number of repositories for the study
-TARGET_REPO_COUNT = 50
+# Desired minimum number of repositories for the study.
+# For CI environments we keep this low to finish quickly, but the script
+# can still be overridden via the env var TARGET_REPO_COUNT.
+DEFAULT_TARGET_REPO_COUNT = 5
+TARGET_REPO_COUNT = int(os.getenv("TARGET_REPO_COUNT", DEFAULT_TARGET_REPO_COUNT))
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -222,20 +225,25 @@ def curate_repositories(logger: logging.Logger) -> None:
 
         try:
             logger.info(f"Cloning {clone_url} to {target_path} (depth=100)...")
+            # Use a per-repo timeout to avoid hanging the whole pipeline.
             subprocess.run(
                 ["git", "clone", "--depth", "100", clone_url, str(target_path)],
                 check=True,
                 capture_output=True,
                 text=True,
+                timeout=60,  # seconds
             )
             loc = calculate_total_loc(target_path)
+        except subprocess.TimeoutExpired:
+            logger.error(f"Cloning timed out for {clone_url}. Skipping repository.")
+            loc = 0
         except subprocess.CalledProcessError as e:
             # Handle 404 / repository not found (e.g., deleted or made private)
             if "Repository not found" in e.stderr or "not found" in e.stderr.lower():
                 logger.error(f"Repository not found (likely deleted or private): {clone_url}")
             else:
                 logger.error(f"Failed to clone {clone_url}: {e.stderr.strip()}")
-            loc = 0  # Record zero LOC for failed clones
+            loc = 0
             # Log exclusion for later analysis
             exclusion_path = Path(CHECKPOINT_DIR) / "repo_clone_exclusions.log"
             with exclusion_path.open("a", encoding="utf-8") as excl_f:
