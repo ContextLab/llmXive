@@ -11,18 +11,20 @@
 | Dataset | Purpose | Verified URL | Load Method | Notes |
 |---|---|---|---|---|
 | **ia_test_embeddings** (primary) | Candidate IAT‑style data | `https://huggingface.co/datasets/davanstrien/ia_test_embeddings/resolve/main/data/train-00000-of-00001-82feb90c086b8e08.parquet` | `datasets.load_dataset(..., streaming=False)` | **Dataset‑variable audit:** does **NOT** contain `response_time`, `participant_id`, or `stimulus_id`. The ingestion gate (Task T003) will halt with `Data Gap: Schema Mismatch`. |
-| Other verified URLs (iati, OSF, GET, OAuth) | Explored as alternatives | See “Verified datasets” block | Appropriate loader per format | **None** contain the required trial‑level IAT columns. |
+| **iati** (alternative) | Explored as fallback | `https://huggingface.co/datasets/siemvaessen/iati/resolve/main/IATIcloud-2023-03-06T16_09_02.csv` | `datasets.load_dataset(..., streaming=False)` | Lacks required trial‑level IAT columns. |
+| **OSF** (exploratory) | Additional open source | `https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet` | `datasets.load_dataset(..., streaming=False)` | Missing required columns. |
 
 ### Data Availability Assessment (Fatal‑Flaw Audit)
-- The spec requires trial‑level response times, stimulus IDs, and prime/target image linkage.  
+- The spec requires **trial‑level response times, stimulus IDs, and prime/target image linkage**.  
 - **No** verified dataset in the provided block supplies these variables.  
-- Consequently the pipeline **cannot** produce substantive statistical results until a suitable open IAT dataset is added to `data/verified_sources.json` and referenced in `code/config.py`.  
-- The plan therefore includes an **honest data‑gap halt** (Task T003) and produces a PDF reporting this limitation. No synthetic data or fabricated mirrors are used, satisfying the fabrication gate.
+- Consequently the pipeline **will halt** at the ingestion stage (Task T003) with a clear *Data Gap* message.  
+- The pipeline still produces a PDF (`reports/final_report.pdf`) that documents this limitation, satisfying SC‑003.  
+- **No synthetic or gated data is used**; the halt is honest and reproducible.
 
 ## 3. Statistical Methodology
 ### 3.1 Model Specification (conditional on available covariates)
 
-**Full model (when demographics present):**  
+**Full model (when demographics are present):**  
 `RT_ij = β0 + β1·Valence_i + β2·Ambiguity_i + β3·(Valence×Ambiguity)_i + β_age·Age + β_gender·Gender + β_edu·Education + u_j + ε_ij`
 
 - `u_j` = random intercept for participant *j* (repeated measures).  
@@ -33,11 +35,10 @@ Only the main effect of `Valence` is retained; `analysis_scope.json` records `"v
 
 ### 3.2 Rigor & Corrections
 - **Multiple comparisons** – Benjamini‑Hochberg FDR on all fixed‑effect p‑values (FR‑004).  
-- **Collinearity** – VIF computed on the design matrix *before* fitting (FR‑005). VIF > 5.0 sets `claim_suppressed: true` and the report avoids independent‑effect language.  
-- **Correlation check** – Pearson |r| > 0.7 between `Valence` and `Ambiguity` leads to dropping the interaction term with a logged warning.  
+- **Collinearity** – VIF computed **before** fitting (Task T027a). VIF > 5.0 sets `claim_suppressed: true` and the report avoids independent‑effect language.  
 - **Power** – Approximate a priori power analysis (small‑to‑medium effect f = 0.15, α = 0.05, power = 0.80 → N ≈ 350 trials). If the post‑filter dataset is smaller, a “Power Limitation” note is added to the PDF (SC‑002).  
 - **Causal framing** – All statements are explicitly associational (FR‑003).  
-- **Measurement validity** – Valence and ambiguity scores are model‑derived proxies; the report cites the dictionaries and the CPU emotion classifier but notes the lack of external validation (FR‑003).
+- **Measurement validity** – Valence and ambiguity scores are derived proxies; the report cites the lexical dictionary and the CPU emotion classifier but notes the lack of external validation (FR‑003).  
 
 ### 3.3 Derivation Strategy (mutually independent)
 - **Valence** – lexical valence dictionary for word stimuli; CPU‑only emotion classifier (`torch` on CPU) for image stimuli (FR‑002).  

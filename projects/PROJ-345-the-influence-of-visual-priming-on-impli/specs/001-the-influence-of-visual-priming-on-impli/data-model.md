@@ -53,7 +53,24 @@
 | `optimizer_settings` | array of strings | attempted optimizers (e.g., `lbfgs`, `bfgs`, `powell`) |
 
 ### 2.6 Model Results (`state/model_results.json`)
-Keys include all fixed‑effect coefficients, robust SEs, raw p‑values, `fdr_corrected_p`, `caution_note`, `limitation_note`, and bootstrap effect‑size estimates (`cohens_d`, `partial_eta_squared` with CI).
+```json
+{
+  "fixed_effects": {
+    "prime_valence": {"coef": "number", "se": "number", "p_raw": "number", "p_fdr": "number"},
+    "stimulus_ambiguity": {"coef": "number", "se": "number", "p_raw": "number", "p_fdr": "number"},
+    "interaction": {"coef": "number", "se": "number", "p_raw": "number", "p_fdr": "number"}
+  },
+  "random_effects": {"participant_intercept_variance": "number"},
+  "robust_se": "boolean",
+  "caution_note": "string",
+  "limitation_note": "string",
+  "effect_sizes": {
+    "cohens_d": {"estimate": "number", "ci_lower": "number", "ci_upper": "number"},
+    "partial_eta_squared": {"estimate": "number", "ci_lower": "number", "ci_upper": "number"}
+  }
+}
+```
+*Keys `caution_note` and `limitation_note` are required by FR‑003 and are defined in `contracts/model_results.schema.yaml`.*
 
 ### 2.7 VIF Flag (`state/vif_flag.json`)
 | Field | Type |
@@ -73,7 +90,18 @@ Keys include all fixed‑effect coefficients, robust SEs, raw p‑values, `fdr_c
 ```
 *If `research.md` and this file disagree, **this file is authoritative** (Task T015).*
 
-### 2.9 Sensitivity Analysis (`reports/sensitivity_analysis.csv`)
+### 2.9 Ingest Metrics (`data/processed/ingest_metrics.json`)
+```json
+{
+  "total_trials": "integer",
+  "linked_trials": "integer",
+  "missing_image_trials": "integer",
+  "missing_metadata_trials": "integer",
+  "linkage_percentage": "number"
+}
+```
+
+### 2.10 Sensitivity Analysis (`reports/sensitivity_analysis.csv`)
 | Column | Type |
 |--------|------|
 | `alpha_level` | number |
@@ -98,7 +126,7 @@ Keys include all fixed‑effect coefficients, robust SEs, raw p‑values, `fdr_c
 14. **Contract Validation** → `pytest -m contract`.
 
 ## 4. Constraints & Validation Rules
-- **Linkage**: `% linked ≥ config.LINKAGE_THRESHOLD` (default 95 %). Otherwise HALT.  
+- **Linkage**: `% linked ≥ config.LINKAGE_THRESHOLD` (default 95 %). Otherwise `HALT`.  
 - **Valence** ∈ [-1, 1]; **Ambiguity** ∈ [0, 1]; nulls allowed only in *valence‑only* scope.  
 - **PII**: `participant_id` must not match email/phone/SSN regexes.  
 - **VIF** > 5.0 → `claim_suppressed: true`.  

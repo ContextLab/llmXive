@@ -10,13 +10,14 @@ git clone https://github.com/your-org/your-repo.git
 cd your-repo
 python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
+# Ensure the pip config is used for the CPU‑only Torch wheel
 PIP_CONFIG_FILE=code/pip.conf pip install -r code/requirements.txt
 ```
 `code/pip.conf` contains:
 ```
 --extra-index-url https://download.pytorch.org/whl/cpu
 ```
-ensuring the CPU‑only Torch wheel installs deterministically.
+This guarantees deterministic installation of `torch==2.3.0+cpu`.
 
 ## Running the Full Pipeline
 ```bash
@@ -37,7 +38,7 @@ python code/main.py --run-all
 ```
 
 **Current expected behavior** (given the verified‑datasets audit):  
-- `ingest` will halt with `Data Gap: Schema Mismatch` because the default dataset lacks `response_time`, `participant_id`, and `stimulus_id`.  
+- `ingest` will **halt** with `Data Gap: Schema Mismatch` because the default dataset lacks `response_time`, `participant_id`, and `stimulus_id`.  
 - `report` will still produce `reports/final_report.pdf` containing a clear data‑gap narrative.  
 
 When a valid IAT dataset URL is added to `code/config.py` **and** to `data/verified_sources.json`, the pipeline will run end‑to‑end and produce the full scientific report.
@@ -53,17 +54,17 @@ When a valid IAT dataset URL is added to `code/config.py` **and** to `data/verif
 ## Verification Checklist
 - `code/logs/pipeline.log` exists and contains timestamped entries for each executed step.  
 - `pytest -m contract` passes all contract tests.  
-- `reports/final_report.pdf` exists and contains either (a) the full analysis artifacts **or** (b) the data‑gap report.  
+- `reports/final_report.pdf` exists and contains either (a) the full analysis artifacts **or** (b) the data‑gap report (SC‑003).  
 - If the post‑filter dataset size is below the a‑priori power target, the PDF includes a “Power Limitation” note (SC‑002).  
 
 ## Troubleshooting
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
 | `Data Gap: Schema Mismatch` at ingest | Default dataset lacks required columns (as audited) | Add a verified open IAT dataset URL to `code/config.py` **and** to `data/verified_sources.json`. |
-| `Data Gap: Image files missing >10%` | Too many stimuli images missing from the source repository | Verify the stimulus repository; the pipeline will halt as required. |
+| `Data Gap: Image files missing >10%` | Too many stimulus images missing from the source repository | Verify the stimulus repository; the pipeline will halt as required. |
 | Model fails to converge | Severe collinearity or overly complex random‑effects structure | Check `state/vif_flag.json`; simplify the random effects or drop the interaction term as suggested in the log. |
 | No `pipeline.log` file | CLI not yet executed or `PIP_CONFIG_FILE` not set during install | Run any `--step`; the first run creates the log file. |
-| `torch` installs CUDA wheel | `pip.conf` not being read | Ensure `PIP_CONFIG_FILE=code/pip.conf` is set as shown in the Quickstart install command. |
-| Streaming verification fails | Synthetic test file < 7 GB | The verification task (T014) automatically creates a >7 GB temporary Parquet file; ensure the runner has enough disk space. |
+| `torch` installs CUDA wheel | `pip.conf` not being read | Ensure `PIP_CONFIG_FILE=code/pip.conf` is set as shown in the install command. |
+| Streaming verification fails | Synthetic test file < 7 GB | The verification task (T014) automatically creates a >7 GB temporary Parquet file; ensure the runner has sufficient disk space. |
 
 ---

@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+type: "object"
+properties:
+  fixed_effects:
+    type: "object"
+    description: "Dictionary of fixed‑effect terms"
+    additionalProperties:
+      type: "object"
+      properties:
+        coef:
+          type: "number"
+          description: "Coefficient estimate"
+        se:
+          type: "number"
+          description: "Standard error"
+        p_raw:
+          type: "number"
+          description: "Raw p‑value"
+          minimum: 0.0
+          maximum: 1.0
+        p_fdr:
+          type: "number"
+          description: "FDR‑corrected p‑value"
+          minimum: 0.0
+          maximum: 1.0
+      required:
+        - coef
+        - se
+        - p_raw
+        - p_fdr
+      additionalProperties: false
+  random_effects:
+    type: "object"
+    description: "Random‑effects variance components"
+    properties:
+      participant_intercept_variance:
+        type: "number"
+        description: "Variance of random intercept for participants"
+    required:
+      - participant_intercept_variance
+    additionalProperties: false
+  robust_se:
+    type: "boolean"
+    description: "Whether robust (Huber‑White) SEs were used"
+  caution_note:
+    type: "string"
+    description: "Associational framing caution (FR‑003)"
+  limitation_note:
+    type: "string"
+    description: "Limitation note regarding derived predictors and observational nature"
+  effect_sizes:
+    type: "object"
+    description: "Bootstrap effect‑size estimates"
+    properties:
+      cohens_d:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+        required:
+          - estimate
+          - ci_lower
+          - ci_upper
+        additionalProperties: false
+      partial_eta_squared:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+        required:
+          - estimate
+          - ci_lower
+          - ci_upper
+        additionalProperties: false
+    required:
+      - cohens_d
+      - partial_eta_squared
+    additionalProperties: false
+required:
+  - fixed_effects
+  - random_effects
+  - robust_se
+  - caution_note
+  - limitation_note
+  - effect_sizes
+additionalProperties: false
