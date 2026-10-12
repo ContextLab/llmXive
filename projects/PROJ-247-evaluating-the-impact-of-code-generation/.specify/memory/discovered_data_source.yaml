@@ -1,19 +1,19 @@
 status: none
-intent: GitHub repositories CodeSearchNet CodeBERT The Stack LLM generated code python
-  package dataset
+intent: download CodeSearchNet Python JavaScript dataset pip install datasets BigCode
+  The Stack repository activity
 required_fields:
-- repository_id
 - repository_name
-- repo_url
-- file_path
-- code_block
-- start_line
-- end_line
-- language
-- label
-- confidence_score
+- repository_url
+- primary_language
+- stars
+- commits_last_90_days
+- code_block_id
+- code_block_text
+- origin_label
+- origin_confidence
 - cyclomatic_complexity
 - nesting_depth
-cache_key: 4fe31eed8c0ac65fc950e79cc0685e6518363f7f47bb89bfd758bb71abd0c834
-searched_at: '2026-10-12T19:18:54.783334+00:00'
+- matched_pair_id
+cache_key: b073b254e934dc05809ed70853d85aba38febaa89840c891bbd7573ae973c4b4
+searched_at: '2026-10-12T20:17:31.380224+00:00'
 retry_count: 1

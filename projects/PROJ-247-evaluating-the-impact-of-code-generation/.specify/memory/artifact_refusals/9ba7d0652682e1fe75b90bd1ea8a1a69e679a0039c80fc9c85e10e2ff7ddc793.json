@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "9914c4ea07494d8a67e508616e1fefb81c7e972d4a7c98ce3e273240e9ee7279",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_repo_filter.py': imports nonexistent names from sibling files: `from utils.repo_filter import MIN_HUMAN_BLOCKS, MIN_LLM_BLOCKS, REPO_FILTERS, filter_repository` (available: Dict, List, MatchedPair, Optional, Path, Set, Tuple, count_blocks_by_repo_and_label...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

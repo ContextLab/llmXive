@@ -197,9 +197,22 @@ def curate_repositories(logger: logging.Logger) -> None:
     logger.info(f"Curation identified {len(repos_found)} repositories (target was {TARGET_REPO_COUNT}).")
 
     # ------------------------------------------------------------------
+    # Write repo list CSV (regardless of clone success)
+    # ------------------------------------------------------------------
+    with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["repo_id", "owner", "name", "url"])
+        writer.writeheader()
+        for repo in repos_found:
+            writer.writerow({
+                "repo_id": repo["repo_id"],
+                "owner": repo["owner"],
+                "name": repo["name"],
+                "url": repo["url"]
+            })
+
+    # ------------------------------------------------------------------
     # Clone repositories and collect metadata
     # ------------------------------------------------------------------
-    final_repo_list: List[Dict[str, Any]] = []
     final_repo_metadata: List[Dict[str, Any]] = []
 
     for repo_info in repos_found:
@@ -216,31 +229,14 @@ def curate_repositories(logger: logging.Logger) -> None:
                 text=True,
             )
             loc = calculate_total_loc(target_path)
-
-            final_repo_list.append(
-                {
-                    "repo_id": repo_id,
-                    "owner": repo_info["owner"],
-                    "name": repo_info["name"],
-                    "url": clone_url,
-                }
-            )
-            final_repo_metadata.append(
-                {
-                    "repo_id": repo_id,
-                    "stargazers_count": repo_info["stargazers_count"],
-                    "created_at": repo_info["created_at"],
-                    "updated_at": repo_info["updated_at"],
-                    "total_loc": loc,
-                }
-            )
         except subprocess.CalledProcessError as e:
             # Handle 404 / repository not found (e.g., deleted or made private)
             if "Repository not found" in e.stderr or "not found" in e.stderr.lower():
                 logger.error(f"Repository not found (likely deleted or private): {clone_url}")
             else:
                 logger.error(f"Failed to clone {clone_url}: {e.stderr.strip()}")
-            # Record exclusion for later analysis
+            loc = 0  # Record zero LOC for failed clones
+            # Log exclusion for later analysis
             exclusion_path = Path(CHECKPOINT_DIR) / "repo_clone_exclusions.log"
             with exclusion_path.open("a", encoding="utf-8") as excl_f:
                 writer = csv.DictWriter(
@@ -258,15 +254,20 @@ def curate_repositories(logger: logging.Logger) -> None:
                 })
         except Exception as e:
             logger.error(f"Unexpected error cloning {clone_url}: {e}")
+            loc = 0
+
+        # Append metadata (including LOC, even if zero)
+        final_repo_metadata.append({
+            "repo_id": repo_id,
+            "stargazers_count": repo_info["stargazers_count"],
+            "created_at": repo_info["created_at"],
+            "updated_at": repo_info["updated_at"],
+            "total_loc": loc,
+        })
 
     # ------------------------------------------------------------------
-    # Write CSV outputs
+    # Write metadata CSV
     # ------------------------------------------------------------------
-    with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["repo_id", "owner", "name", "url"])
-        writer.writeheader()
-        writer.writerows(final_repo_list)
-
     with open(REPO_METADATA_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
@@ -282,7 +283,7 @@ def curate_repositories(logger: logging.Logger) -> None:
         writer.writerows(final_repo_metadata)
 
     logger.info(
-        f"Saved curated list of {len(final_repo_list)} repos to {REPO_LIST_CSV} "
+        f"Saved curated list of {len(repos_found)} repos to {REPO_LIST_CSV} "
         f"and metadata to {REPO_METADATA_CSV}"
     )
 

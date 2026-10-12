@@ -10,40 +10,42 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - data/raw/clones/CopilotKit_CopilotKit/showcase/GOTCHAS.md: self-declared fabricated metric — “…-tool-based` answered "I used placeholder values since no sales figures were…”
 - data/raw/clones/CopilotKit_CopilotKit/showcase/integrations/mastra/qa/background-agents.md: self-declared fabricated metric — “…arted` lifecycle plus a       placeholder result. Do NOT expect the card to an…”
-- data/raw/clones/bradygaster_squad/.copilot/skills/secret-handling/SKILL.md: self-declared fabricated metric — “…env.example` (safe — contains placeholder values, no real secrets) - `.env.sa…”
-- data/raw/clones/bradygaster_squad/.copilot/skills/secret-handling/SKILL.md: self-declared fabricated metric — “…**What to write instead:** - Placeholder values: `DATABASE_URL=<set in .env>…”
-- data/raw/clones/bradygaster_squad/.squad/rai/policy.md: self-declared fabricated metric — “…ion, smoke test | Ableist | | dummy value | placeholder, sample | Poten…”
-- data/raw/clones/bradygaster_squad/.squad-templates/rai-policy.md: self-declared fabricated metric — “…ion, smoke test | Ableist | | dummy value | placeholder, sample | Poten…”
-- data/raw/clones/bradygaster_squad/.squad-templates/skills/secret-handling/SKILL.md: self-declared fabricated metric — “…env.example` (safe — contains placeholder values, no real secrets) - `.env.sa…”
-- data/raw/clones/bradygaster_squad/.squad-templates/skills/secret-handling/SKILL.md: self-declared fabricated metric — “…**What to write instead:** - Placeholder values: `DATABASE_URL=<set in .env>…”
-
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/repo_list.csv, data/raw/repo_metadata.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/3d-page-scroll.md: self-declared fabricated metric — “…l content geometry; don't use arbitrary values that may overshoot the conte…”
+- data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/dynamic-content-sequencing.md: self-declared fabricated metric — “…gets more screen time without hardcoded numbers. metadata:   tags: timeline,…”
+- data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/svg-path-draw.md: self-declared fabricated metric — “…otalLength()` value**, not an arbitrary number — guessing means stroke will…”
+- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/ar/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
+- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/az/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
+- data/raw/clones/diegosouzapw_OmniRoute/docs/i18n/bg/docs/guides/I18N.md: self-declared fabricated metric — “…`health.millisecondsShort` - Placeholder values: `providers.openaiBaseUrlPla…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 363 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/clones/CopilotKit_CopilotKit/showcase/GOTCHAS.md: self-declared fabricated metric — “…-tool-based` answered "I used placeholder values since no sales figures were…”; data/raw/clones/CopilotKit_CopilotKit/showcase/integrations/mastra/qa/background-agents.md: self-declared fabricated metric — “…arted` lifecycle plus a       placeholder result. Do NOT expect the card to an…”; data/raw/clones/bradygaster_squad/.copilot/skills/secret-handling/SKILL.md: self-declared fabricated metric — “…env.example` (safe — contains placeholder values, no real secrets) - `.env.sa…”; every produced artifact is gitignored (data/raw/repo_list.csv, data/raw/repo_metadata.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 7 command(s) failed: python code/01_data_curation.py --tag (rc=1); python code/utils/matching.py (rc=1); python code/02_metric_extraction.py (rc=1); 7 declared deliverable(s) absent: data/ground_truth/classifier_metrics.json; data/logs/repo_exclusions.csv; data/processed/matched_pairs.csv
+**Summary**: 266 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/clones/CopilotKit_CopilotKit/showcase/GOTCHAS.md: self-declared fabricated metric — “…-tool-based` answered "I used placeholder values since no sales figures were…”; data/raw/clones/CopilotKit_CopilotKit/showcase/integrations/mastra/qa/background-agents.md: self-declared fabricated metric — “…arted` lifecycle plus a       placeholder result. Do NOT expect the card to an…”; data/raw/clones/calesthio_OpenMontage/.agents/skills/hyperframes-animation/rules/3d-page-scroll.md: self-declared fabricated metric — “…l content geometry; don't use arbitrary values that may overshoot the conte…”; 8 command(s) failed: python code/01_data_curation.py (rc=-1); python code/01_data_curation.py --tag (rc=1); python code/utils/matching.py (rc=1); 8 declared deliverable(s) absent: data/ground_truth/classifier_metrics.json; data/logs/repo_exclusions.csv; data/processed/matched_pairs.csv
 
 ## Failing / missing run-book commands
 
-- python code/01_data_curation.py --tag -> rc=1
+- python code/01_data_curation.py -> rc=-1
+t-for-Paired-Programming.git to data/raw/clones/microsoft_Mastering-GitHub-Copilot-for-Paired-Programming (depth=100)...
+INFO - Cloning https://github.com/logancyang/obsidian-copilot.git to data/raw/clones/logancyang_obsidian-copilot (depth=100)...
+INFO - Cloning https://github.com/Gentleman-Programming/gentle-ai.git to data/raw/clones/Gentleman-Programming_gentle-ai (depth=100)...
+INFO - Cloning https://github.com/tech-leads-club/agent-skills.git to data/raw/clones/tech-leads-club_agent-skills (depth=100)...
+INFO - Cloning https://github.com/olimorris/codecompanion.nvim.git to data/raw/clones/olimorris_codecompanion.nvim (depth=100)...
+INFO - Cloning https://github.com/rullerzhou-afk/clawd-on-desk.git to data/raw/clones/rullerzhou-afk_clawd-on-desk (depth=100)...
+INFO - Cloning https://github.com/netease-youdao/LobsterAI.git to data/raw/clones/netease-youdao_LobsterAI (depth=100)...
+INFO - Cloning https://github.com/ATH-MaaS/ComfyUI-Copilot.git to data/raw/clones/ATH-MaaS_ComfyUI-Copilot (depth=100)...
 
 None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
-2026-10-12 19:14:13,800 - data_curation - INFO - Starting Block Tagging (T013)
-2026-10-12 19:14:13,800 - data_curation - CRITICAL - Classifier init failed: Model file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/models/codebert-base-onnx
+
+[TIMEOUT after 120s]
+- python code/01_data_curation.py --tag -> rc=1
+INFO - Starting Block Tagging (T013)
+CRITICAL - Classifier init failed: Model file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/models/codebert-base-onnx
+
+None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
 
 - python code/utils/matching.py -> rc=1
 
-2026-10-12 19:14:14,835 - __main__ - INFO - Starting matching pipeline
-2026-10-12 19:14:14,835 - __main__ - ERROR - Matching pipeline failed: Metrics file not found: data/raw/code_blocks.csv
+2026-10-12 20:13:19,072 - __main__ - INFO - Starting matching pipeline
+2026-10-12 20:13:19,072 - __main__ - ERROR - Matching pipeline failed: Metrics file not found: data/raw/code_blocks.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/matching.py", line 334, in <module>
     main()
@@ -59,34 +61,40 @@ MatchingError: Metrics file not found: data/raw/code_blocks.csv
 - python code/02_metric_extraction.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/02_metric_extraction.py", line 437, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/02_metric_extraction.py", line 426, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/02_metric_extraction.py", line 18, in <module>
+    from utils.logging_config import get_logger, setup_logging
+ImportError: cannot import name 'setup_logging' from 'utils.logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/logging_config.py)
 
 - python code/03_analysis.py -> rc=1
-
+/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 317, in main
+    pairs_df = load_matched_pairs()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 48, in load_matched_pairs
+    raise FileNotFoundError(f"Required file not found: {path}")
+FileNotFoundError: Required file not found: data/processed/matched_pairs_filtered.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 365, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 308, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 317, in main
+    pairs_df = load_matched_pairs()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_analysis.py", line 48, in load_matched_pairs
+    raise FileNotFoundError(f"Required file not found: {path}")
+FileNotFoundError: Required file not found: data/processed/matched_pairs_filtered.csv
 
 - python code/03_visualization.py -> rc=1
 
-2026-10-12 19:14:16,555 - visualization - INFO - Starting visualization pipeline (T030)
-2026-10-12 19:14:16,556 - visualization - ERROR - Data loading failed: Metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/data/processed/metrics_longitudinal.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/03_visualization.py", line 17, in <module>
+    from utils.logging_config import get_logger, setup_logging
+ImportError: cannot import name 'setup_logging' from 'utils.logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/logging_config.py)
 
 - python code/04_ground_truth_selection.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/04_ground_truth_selection.py", line 148, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/04_ground_truth_selection.py", line 123, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/04_ground_truth_selection.py", line 14, in <module>
+    from utils.logging_config import get_logger, setup_logging
+ImportError: cannot import name 'setup_logging' from 'utils.logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-247-evaluating-the-impact-of-code-generation/code/utils/logging_config.py)
 
 - python -m pytest tests/ -> rc=2
 247-evaluating-the-impact-of-code-generation/tests/unit/test_repo_filter.py'.
@@ -107,7 +115,7 @@ ERROR tests/unit/test_git_mv_detection.py
 ERROR tests/unit/test_repo_deletion_handling.py
 ERROR tests/unit/test_repo_filter.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 8 errors in 1.44s ===============================
+============================== 8 errors in 1.57s ===============================
 
 
 
@@ -120,6 +128,7 @@ ERROR tests/unit/test_repo_filter.py
 - data/processed/metrics_longitudinal.csv
 - data/processed/tagged_blocks.csv
 - data/raw/code_blocks.csv
+- data/raw/repo_metadata.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -173,3 +182,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/03_code_block_extraction.py` — NOT invoked by the run-book
     - `code/utils/matching.py` — IS a run-book command
   Make ONE of these WRITE `data/raw/code_blocks.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/repo_metadata.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_curation.py` — IS a run-book command
+    - `code/utils/matching.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/repo_metadata.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

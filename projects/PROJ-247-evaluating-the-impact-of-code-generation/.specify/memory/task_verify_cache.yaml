@@ -1,15 +1,15 @@
 T001:
   c: false
-  h: 4ee07ada3e6270e24a1a7779f014414112c61fce9108f77f6fa20b2c9966de8c
-  r: '`code/requirements.txt` is not pinned (no version specifiers at all) and is
-    missing required packages transformers, onnxruntime, radon, datasets, and PyGithub
-    (it only lists tree_sitter/tree_sitter_javascript plus platform defaults). Additionally,
-    no evidence was provided that `.env.example` (with GITHUB_TOKEN, DATA_PATH, LOG_PATH)
-    or a logging configuration exists, and the quickstart.md path resolved to a differently-named
-    spec directory (`001-evaluating-the-impact-of-code-generation`) rather than the
-    requested `specs/001-code-maintainability-impact/`. `code/utils/models.py` and
-    the quickstar'
-  sig: 13e91fb39477e4afca5b2199a7636db5f8b84fef8003640ffbd8ef918a579bb5
+  h: 7e203b2a706f71026076cf33725bcf523de70df6b19834f60ecfd187c9f6dd30
+  r: "The confirmed artifacts (`code/requirements.txt` with all required pinned packages,\
+    \ `code/utils/models.py` with real dataclasses, and the quickstart documenting\
+    \ runnable commands) satisfy those portions, but two required artifacts are absent\
+    \ from the evidence: a logging configuration (e.g., `code/utils/logging_config.py`\
+    \ or similar) and `.env.example` containing `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH`\
+    \ \u2014 the quickstart even instructs `cp .env.example .env`, yet no such file\
+    \ was resolved/confirmed on disk. The implementer must add the logging config\
+    \ and `.env.example` to complete T001."
+  sig: 1a4a037040cb89281d9d70248d43631b7bc0bf70d8de37b9c0b2ed185fa884c2
 T002:
   c: false
   h: cdff69a216d56335f01b3eb6e876d0d726cbd6fab968cebb1f887b0e9c3240bf
