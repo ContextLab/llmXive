@@ -7,7 +7,7 @@ The tasks below respect data‑flow dependencies, stay within the free‑tier CP
 
 ---  
 
-- [X] **T001** [US1] **Create a reproducible entry‑point and quick‑start guide**  
+- [ ] **T001** [US1] **Create a reproducible entry‑point and quick‑start guide**  
   - Add `quickstart.md` in the feature root describing a single command `python -m src.pipeline.run_all --config configs/run.yaml`.  
   - Document required environment (Python 3.11, dependencies from `requirements.txt`).  
   - Verify that the command prints a summary of generated artifacts and exits with status 0.  
@@ -38,7 +38,7 @@ The tasks below respect data‑flow dependencies, stay within the free‑tier CP
   - Add a focused test `tests/test_counterfactual_generation.py` that runs on a 2‑video mini‑subset and checks that at least one accepted pair has `optical_flow_divergence <= 0.15`.  
   - **File(s)**: `src/data/counterfactual.py`, `data/counterfactuals/metadata.csv`, `tests/test_counterfactual_generation.py`.
 
-- [ ] **T005** [US2] **Implement the Counterfactual Consistency loss**  
+- [X] **T005** [US2] **Implement the Counterfactual Consistency loss**  
   - Add `src/model/loss.py` containing:  
     - `cross_entropy_loss` (standard `torch.nn.CrossEntropyLoss`).  
     - `counterfactual_consistency_loss(pred_orig, pred_cf)` that returns KL‑divergence (torch.nn.functional.kl_div, log‑softmax vs softmax).  

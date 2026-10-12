@@ -67,35 +67,10 @@ def _sha256_of_file(file_path: Path) -> str:
     return h.hexdigest()
 
 
-def _download_video(url: str, dest: Path) -> Path:
-    """Download the video at *url* to *dest* (creates parent dirs)."""
+def _write_bytes_to_file(data: bytes, dest: Path) -> None:
+    """Write raw *bytes* to *dest*, creating parent directories."""
     dest.parent.mkdir(parents=True, exist_ok=True)
-    # Use OpenCV to read from URL directly – it supports http URLs.
-    # If that fails we fall back to requests.
-    cap = cv2.VideoCapture(url)
-    if not cap.isOpened():
-        import requests
-
-        r = requests.get(url, stream=True, timeout=30)
-        r.raise_for_status()
-        with dest.open("wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        return dest
-    # If OpenCV can open the URL, we simply copy the stream to a file.
-    # This is faster than re‑encoding.
-    with dest.open("wb") as out_f:
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            # Encode the frame as JPEG then write – we lose original
-            # compression but keep a valid MP4 container.
-            ret, buf = cv2.imencode(".jpg", frame)
-            out_f.write(buf.tobytes())
-    cap.release()
-    return dest
+    dest.write_bytes(data)
 
 
 def _load_flow_feature(flow_dir: Path, video_stem: str) -> np.ndarray:
@@ -112,7 +87,9 @@ def _load_flow_feature(flow_dir: Path, video_stem: str) -> np.ndarray:
     # The descriptor is a flattened average of Farneback flow magnitudes.
     video_path = flow_dir.parent.parent / "tmp_videos" / f"{video_stem}.mp4"
     if not video_path.is_file():
-        raise FileNotFoundError(f"Neither pre‑computed flow nor video found for {video_stem}")
+        raise FileNotFoundError(
+            f"Neither pre‑computed flow nor video found for {video_stem}"
+        )
 
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
@@ -353,16 +330,8 @@ class CounterfactualGenerator:
             out_path.unlink(missing_ok=True)
             return False, {"reason": "divergence"}
 
-        # 6️⃣ Load (or compute) feature vectors – reuse the flow descriptor as a proxy.
-        try:
-            feat_orig = flow_orig
-            feat_cf = flow_cf
-        except Exception as exc:
-            log.warning(f"[{video_id}] feature loading failed: {exc}")
-            out_path.unlink(missing_ok=True)
-            return False, {"reason": "feature_missing"}
-
-        similarity = _cosine_similarity(feat_orig, feat_cf)
+        # 6️⃣ Feature similarity (using the same flow descriptor as proxy)
+        similarity = _cosine_similarity(flow_orig, flow_cf)
         if similarity < self.sim_thresh:
             log.info(
                 f"[{video_id}] similarity {similarity:.4f} below threshold {self.sim_thresh}"
@@ -461,13 +430,15 @@ def main(argv: List[str] | None = None) -> int:
     processed = 0
     accepted = 0
 
-    for video_url, label in tqdm(iterator, total=args.subset_size, desc="Videos"):
+    for video_bytes, label in tqdm(iterator, total=args.subset_size, desc="Videos"):
         video_id = f"vid_{processed:04d}"
         video_path = out_root / "tmp_videos" / f"{video_id}.mp4"
+
+        # Write the raw bytes to a temporary file
         try:
-            _download_video(video_url, video_path)
+            _write_bytes_to_file(video_bytes, video_path)
         except Exception as exc:
-            log.warning(f"[{video_id}] download failed: {exc}")
+            log.warning(f"[{video_id}] failed to write video bytes: {exc}")
             processed += 1
             continue
 

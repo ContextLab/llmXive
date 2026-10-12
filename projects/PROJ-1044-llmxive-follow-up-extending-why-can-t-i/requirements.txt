@@ -1,15 +1,5 @@
 torch==2.3.0
-torchvision
-opencv-python
-datasets
-tqdm
-pyyaml
-pandas
-scipy
-matplotlib
-scikit-learn
-seaborn
-psutil
-# The base environment already provides numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil. Only non‑standard packages are listed above.
+torchvision==0.18.0
+# The rest of the environment (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) is
+# pre‑installed in the execution environment.
