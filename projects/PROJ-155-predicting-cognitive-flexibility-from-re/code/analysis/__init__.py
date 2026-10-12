@@ -1,1 +1,1 @@
-"""Analysis subpackage."""
+"""Statistical analysis modules."""

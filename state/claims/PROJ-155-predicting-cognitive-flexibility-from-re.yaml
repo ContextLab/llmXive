@@ -2712,3 +2712,95 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-12T21:36:37Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: sample size greater than 1000 subjects
+  claim_id: c_9246b072
+  context: 'Statistical Power compliance check: Sample size > 1000 subjects.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Sample size > 1000 subjects.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:38Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: random seeds are pinned in code/config.py
+  claim_id: c_2547889c
+  context: 'Reproducibility compliance: All code is open source and version controlled.
+    Random seeds pinned in code/config.py.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Random seeds pinned in code/config.py.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:38Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: SHA checksums verified against HCP manifest
+  claim_id: c_4c47bba0
+  context: 'Data Integrity compliance: SHA checksums verified against HCP manifest.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: SHA checksums verified against HCP manifest.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:39Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: sliding window correlation implemented with 60 second window and 1 second
+    step
+  claim_id: c_a2a800bb
+  context: 'Sliding Window Correlation component status: Window=60s, Step=1s.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Window=60s, Step=1s.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:39Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: AR surrogate null model with 1000 iterations
+  claim_id: c_45ccc68e
+  context: 'AR Surrogate Null Model component: AR-based phase randomization (n=1000).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: AR-based phase randomization (n=1000).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:40Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: permutation test implemented with 10000 iterations
+  claim_id: c_2b774f97
+  context: 'Permutation Test component status: 10,000 iterations.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Permutation Test | IMPLEMENTED | 10,000 iterations.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:20:40Z'

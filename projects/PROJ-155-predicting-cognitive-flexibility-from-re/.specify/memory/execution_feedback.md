@@ -67,7 +67,7 @@ E   assert 0 > 0
 E    +  where 0 = len([])
 =========================== short test summary info ============================
 FAILED tests/test_contracts.py::test_data_ingestion_schema - AssertionError: ...
-========================= 1 failed, 2 skipped in 0.23s =========================
+========================= 1 failed, 2 skipped in 0.35s =========================
 
 
 
@@ -89,15 +89,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/exclusion_stats.py` — NOT invoked by the run-book
     - `code/utils/exclusion_validator.py` — NOT invoked by the run-book
     - `code/utils/logging.py` — NOT invoked by the run-book
-    - `code/utils/motion.py` — NOT invoked by the run-book
     - `code/utils/success_rate.py` — NOT invoked by the run-book
+    - `code/utils/validate_exclusions.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/exclusion_log.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/final_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/final_results_generator.py` — NOT invoked by the run-book
     - `code/analysis/permutation.py` — NOT invoked by the run-book
     - `code/analysis/success_rate_calculator.py` — NOT invoked by the run-book
     - `code/data/validation.py` — NOT invoked by the run-book
-    - `code/utils/plotting.py` — NOT invoked by the run-book
     - `code/utils/validation_runner.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/final_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/metrics.csv` is declared but was NOT written. Scripts referencing it:
@@ -116,5 +115,4 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/regression_summary_generator.py` — NOT invoked by the run-book
     - `code/analysis/success_rate_calculator.py` — NOT invoked by the run-book
     - `code/utils/exclusion_stats.py` — NOT invoked by the run-book
-    - `code/utils/plotting.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/regression_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

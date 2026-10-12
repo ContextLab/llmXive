@@ -1,3 +1,1 @@
-"""
-Feature extraction and connectivity computation module.
-"""
+"""Feature extraction and connectivity metric modules."""
