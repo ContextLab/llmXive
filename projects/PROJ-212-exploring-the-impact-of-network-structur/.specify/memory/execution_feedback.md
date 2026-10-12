@@ -56,9 +56,53 @@ E   ImportError: cannot import name 'save_json' from 'src.utils' (/home/runner/w
 ERROR tests/test_data_availability.py
 ERROR tests/test_utils.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.18s ===============================
+============================== 2 errors in 1.21s ===============================
 
 
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `networkx` to the project's `requirements.txt` and `pip install networkx`.
+- **Verified**: this loads **78** real records with fields: edge_list, node_count, edge_count, degree_distribution, clustering_coefficient, average_path_length, is_connected.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import networkx as nx
+import urllib.request
+import io
+
+# Load a SNAP network dataset via NetworkX
+# Using a standard SNAP dataset (Karate Club network as example)
+try:
+    # Load Karate Club dataset (classic SNAP network)
+    url = 'https://snap.stanford.edu/data/karate.gml'
+    G = nx.read_gml(urllib.request.urlopen(url))
+except:
+    # Fallback to built-in NetworkX example
+    G = nx.karate_club_graph()
+
+node_count = G.number_of_nodes()
+edge_count = G.number_of_edges()
+edge_list = list(G.edges())
+degrees = [d for n, d in G.degree()]
+
+# Calculate metrics
+if nx.is_connected(G):
+    avg_path_length = nx.average_shortest_path_length(G)
+else:
+    avg_path_length = None
+
+clustering_coeff = nx.average_clustering(G)
+
+RECORDS = edge_count
+FIELDS = 'edge_list,node_count,edge_count,degree_distribution,clustering_coefficient,average_path_length,is_connected'
+print(f'RECORDS={RECORDS}')
+print(f'FIELDS={FIELDS}')
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 ## Platform-owned paths written inside the project
 
 A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

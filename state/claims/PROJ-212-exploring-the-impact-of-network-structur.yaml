@@ -355,3 +355,148 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T22:28:10Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: Ring graph with N=200 oscillators has Kuramoto synchronization threshold
+    within 5% of analytical value
+  claim_id: c_2e5e0d22
+  context: Ring Graph Validation (SC-006) section describes a test that constructs
+    a ring graph and verifies the threshold matches analytical expectations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite includes `test_ring_graph_analytical_match_pct` which constructs
+    a ring graph (N=200) and verifies the Kuramoto synchronization threshold is within
+    5% of the known analytical value.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: Synchronization threshold defined as r(t) > 0.8 sustained for t > 100
+    time units
+  claim_id: c_f9f53ba0
+  context: Key Parameters section lists the synchronization threshold criterion.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The synchronization threshold is r(t) > 0.8 sustained for t > 100 time
+    units.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: Oscillator count is 200 per network
+  claim_id: c_f1100486
+  context: Key Parameters section specifies the oscillator count used in simulations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Oscillator Count: N = 200 per network.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: "Cross-validation stability threshold is std(R\xB2) < 0.1"
+  claim_id: c_452c1e40
+  context: Key Parameters section defines the stability criterion for cross-validation
+    robustness.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Cross-Validation Stability: std(R\xB2) < 0.1 (robustness flag)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: RK45 integration uses rtol=1e-6 and atol=1e-9
+  claim_id: c_f06821d3
+  context: Key Parameters section specifies the numerical integration tolerances.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Kuramoto Integration: RK45 method with rtol=1e-6, atol=1e-9.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: VIF threshold for multicollinearity detection is 5.0
+  claim_id: c_62d51723
+  context: Key Parameters section defines the VIF threshold used in regression analysis.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'VIF Threshold: 5.0 (multicollinearity flag).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: ANOVA p-value threshold for statistical significance is less than 0.05
+  claim_id: c_ef6a7894
+  context: Key Parameters section defines the significance threshold for ANOVA tests.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'ANOVA p-value Threshold: < 0.05 (statistical significance).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: Cross-validation uses LOOCV for dataset size less than 50 and 10-fold
+    CV for size 50 or greater
+  claim_id: c_e23de84a
+  context: Key Parameters section specifies the cross-validation strategy based on
+    dataset size.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Cross-Validation: LOOCV if dataset size < 50; 10-fold CV if \u2265 50."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/docs/quickstart.md
+  attempts: 1
+  canonical: Coupling strength search range is 0 to 5
+  claim_id: c_e84388e2
+  context: Key Parameters section defines the range for coupling strength exploration.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Coupling Strength Range: K \u2208 [0, 5] (bisection search or discrete\
+    \ sweep)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T22:54:38Z'

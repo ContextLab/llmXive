@@ -44,16 +44,16 @@ Checked boxes (`[X]`) denote work that has already passed verification; unchecke
 - [ ] T007 Provide `src/utils.py` with a `get_logger()` wrapper (already available platform‑wide) and a helper `save_json(obj, path)` that writes with `indent=2` and validates against the appropriate schema.  
    • Verification: `utils.save_json({}, "tmp.json")` creates a readable file.  
 
-- [~] T008a Set up `pytest` configuration in `tests/conftest.py` (fixtures for temporary directories, deterministic RNG seed).  
+- [X] T008a Set up `pytest` configuration in `tests/conftest.py` (fixtures for temporary directories, deterministic RNG seed).  
    • Verification: `pytest -q tests/conftest.py` runs without errors.  
 
-- [~] T008b Add generic property‑based tests in `tests/test_properties.py` (e.g., “graph connectivity invariance”, “metric bounds”).  
+- [ ] T008b Add generic property‑based tests in `tests/test_properties.py` (e.g., “graph connectivity invariance”, “metric bounds”).  
    • Verification: `pytest -q tests/test_properties.py` passes.  
 
-- [~] T009 Create `src/validators.py` with functions that load a JSON file and validate it against the corresponding schema in `contracts/`.  
+- [ ] T009 Create `src/validators.py` with functions that load a JSON file and validate it against the corresponding schema in `contracts/`.  
    • Verification: `python -m src.validators --self-test` exits with code 0, confirming validators work on sample files.  
 
-- [~] T044 [P] Add a schema‑exercise test suite `tests/test_schema_validation.py` that loads each contract schema (`network_metrics.schema.yaml`, `regression_model.schema.yaml`, `regression_summary.schema.yaml`, `simulation_result.schema.yaml`) and validates a representative JSON instance against it using `src.validators`.  
+- [ ] T044 [P] Add a schema‑exercise test suite `tests/test_schema_validation.py` that loads each contract schema (`network_metrics.schema.yaml`, `regression_model.schema.yaml`, `regression_summary.schema.yaml`, `simulation_result.schema.yaml`) and validates a representative JSON instance against it using `src.validators`.  
    • Verification: `pytest -q tests/test_schema_validation.py` passes, guaranteeing every schema is exercised.  
 
 ---
@@ -62,13 +62,13 @@ Checked boxes (`[X]`) denote work that has already passed verification; unchecke
 
 ### Tests (must fail before implementation – TDD)
 
-- [~] T010 Write unit tests for `src/topology.py` in `tests/test_topology.py` covering:  
+- [ ] T010 Write unit tests for `src/topology.py` in `tests/test_topology.py` covering:  
    • `test_degree_sum_equals_twice_edges`  
    • `test_clustering_bounds` (0 ≤ C ≤ 1)  
    • `test_avg_path_length_disconnected_returns_null`.  
    • Verification: `pytest -q tests/test_topology.py` must fail until implementation is complete.  
 
-- [~] T011 Write unit tests for `src/simulation.py` in `tests/test_simulation.py` covering:  
+- [ ] T011 Write unit tests for `src/simulation.py` in `tests/test_simulation.py` covering:  
    • `test_ring_graph_analytical_match_pct` (≤ 5 % error)  
    • `test_k_sweep_converges`.  
    • Verification: `pytest -q tests/test_simulation.py` must fail until implementation is complete.  

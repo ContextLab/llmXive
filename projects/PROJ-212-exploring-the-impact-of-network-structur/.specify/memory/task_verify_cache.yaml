@@ -15,15 +15,6 @@ T002:
     -r requirements.txt` ran successfully (exit 0, "Requirements installed successfully")
     and a passing test confirming the install log exists.
   sig: 5618e770b708611f2fc0d62a792c051f42a3c99deb05f58175dce1cb83df552c
-T003:
-  c: false
-  h: bd9b4f7beaf6d5e155583cebf458bfe6021d05ef54ffa2bfb879b9e93d9d1d48
-  r: "The `docs/quickstart.md` file exists and correctly shows the command and expected\
-    \ output list, but there is no evidence that the command actually runs end\u2011\
-    to\u2011end: the required output files `results/sim_results.json` and `results/regression_summary.json`\
-    \ are missing, and no execution logs or test results are provided. The task\u2019\
-    s runnable verification requirement is therefore unmet."
-  sig: e62bb95b28a1137716efcf63711a416900d422cd1ee6cd448d38204705dbbe20
 T004:
   c: true
   h: 22933275da1b18fff7ead77bf5d39592a79a30089ee44f99c6289b8b4c74f256
@@ -86,6 +77,78 @@ T007:
     schema," but the implementation makes schema validation purely optional via a
     `schema_path` argument that defaults to None'
   sig: 84675aa76b31febd0a5c2f2138fa01ce15f781fb83023b7c3aa0e0161c7ef28c
+T008a:
+  c: true
+  h: 4083d1b944acdb5766ee32ab4cc11e3e95fab9f90149b92e6e0d6ce1e8d1d29d
+  r: 'The `tests/conftest.py` file exists (997 bytes) and contains the required pytest
+    configuration elements: (1) a `temp_data_dir` fixture using `tmp_path_factory`
+    for temporary directories with session scope, (2) a `deterministic_rng` fixture
+    that sets a deterministic seed (42) for both `random` and `np.random` with `autouse=True`
+    to apply to all tests, and (3) proper pytest fixture syntax. The file also includes
+    a helper `sample_graph` fixture and correctly adds the code directory to `sys.path`
+    for module imports. The implementation directly satisfies both stated requirements:
+    temporary director'
+  sig: 4393b2e4c777a30f04a0ba97101af5198375ab7dd5d5cd7b41b0b4ec360e6819
+T008b:
+  c: false
+  h: 2633114f83a60cc6fb69fec5e58c6f81995585e2769eca7fba881e1321d68560
+  r: 'The test file `tests/test_properties.py` exists and contains three property-based
+    tests, but **the tests cannot pass** due to critical import and implementation
+    issues:
+
+
+    1. **Import Path Mismatch**: The test imports `from topology import compute_metrics`
+    and `from simulation import check_disconnected, run_kuramoto_simulation`, expecting
+    these modules in the Python path. However, the actual implementations are in `code/topology.py`
+    and `code/simulation.py`. The test file''s path setup (`sys.path.insert(0, str(code_dir))`)
+    should resolve this, but the test would need to be run from the project ro'
+  sig: 64abb01ac94580aa80f5566245f55e07cdf1b5f1992d9e4f7b153fc905649320
+T009:
+  c: false
+  h: b46dac77cec9bb8991b35ff5a14cf7c30268937c5961a849326a3a347ba884da
+  r: "The task requires `python -m src.validators --self-test` to exit with code 0,\
+    \ confirming validators work on sample files. While the historical execution log\
+    \ shows the command exited with code 0, the log contains **empty stdout and stderr**,\
+    \ which is suspicious. More critically, the `_self_test()` function in `src/validators.py`\
+    \ (lines 280\u2013298) only attempts to **load schema files from the `contracts/`\
+    \ directory** \u2014 it does not validate any actual JSON data files against those\
+    \ schemas. The function logs successful schema loading but performs no validation\
+    \ of sample JSON files against the loaded"
+  sig: aa8113064b200260e5b5b5ff4e52c6791ee5ffb3d87bf98c1174a8b8263b24c0
+T010:
+  c: false
+  h: 5b415bbae3fa4718231df62414d514f5d96e2c4d4cde8f22d16e3123f5042949
+  r: 'The test file `tests/test_topology.py` exists and contains all three required
+    test functions (`test_degree_sum_equals_twice_edges`, `test_clustering_bounds`,
+    `test_avg_path_length_disconnected_returns_null`), but the execution evidence
+    shows that **two of the three tests are currently failing**, which directly contradicts
+    the task requirement.
+
+
+    **Specific failures:**
+
+
+    1. **`test_degree_sum_equals_twice_edges` FAILED**: The test expects the sum of
+    degree_distribution values to equal `2 * num_edges` (6), but gets 4. The current
+    implementation returns a dict mapping `node -> degree`, so summing t'
+  sig: 1edb006ba94b58c95482a4a0122df8b60de1be4dadbe4b8fc7b517a84b1c6160
+T011:
+  c: false
+  h: 0804ff6be747fd3f848638afc6e33f8c8d577f5fbc50d496f3c33f97f4c7c774
+  r: 'The test file `tests/test_simulation.py` exists and contains the two required
+    test functions (`test_ring_graph_analytical_match_pct` and `test_k_sweep_converges`),
+    but the tests **currently fail** due to critical mismatches between the test expectations
+    and the underlying implementation.
+
+
+    **Specific failures:**
+
+
+    1. **`SynchronizationStatus.FAILED` does not exist**: The `code/src/simulation.py`
+    implementation attempts to use `SynchronizationStatus.FAILED`, but the enum defined
+    in `code/data_models.py` only defines `SYNCHRONIZED`, `NOT_SYNCHRONIZED`, `DISCONNECTED`,
+    and `ERROR`. The test executi'
+  sig: 07585d8e8355b5a7a2a00c0bf4316e899709e8b708d3d0897be1a1a96f110cba
 T022:
   c: false
   h: 77f62d7b411d927a4d5c7f9c43b99526e7fa2786b44c44abf1f5e09127e04832
@@ -100,3 +163,15 @@ T024:
     output is also missing, so the VIF check logic and its verification cannot be
     evaluated. The implementer must add the module and generate the JSON file with
     the required fields.
+T044:
+  c: false
+  h: 0d3e8c0246b1118dbedfd7e2878527ed693dce4a642782bd7e7a42b320a070b2
+  r: "The test file `tests/test_schema_validation.py` exists and is well-structured,\
+    \ but the task cannot be completed because **all four required schema files are\
+    \ MISSING**:\n\n1. `network_metrics.schema.yaml` \u2014 MISSING\n2. `regression_model.schema.yaml`\
+    \ \u2014 MISSING\n3. `regression_summary.schema.yaml` \u2014 MISSING\n4. `simulation_result.schema.yaml`\
+    \ \u2014 MISSING\n\nThe test execution log shows the parametrized test collected\
+    \ only 1 item and **SKIPPED** it (not passed), which occurs because the glob pattern\
+    \ `contracts/*.schema.yaml` found no schema files. The task explicitly requires\
+    \ that \"every schema is exercise"
+  sig: 3239a6733573337be760263af9aaf1f2781b595145fab1d6e875d4126abc2351

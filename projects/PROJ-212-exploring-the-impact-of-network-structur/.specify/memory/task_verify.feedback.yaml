@@ -55,12 +55,56 @@ T007:
 T008a:
   task: 9fef4bcda92dde0c62b3f53c57f95db7e1b0929edd18fe1e555ecf281e5b6c6c
 T008b:
+  reason: 'The test file `tests/test_properties.py` exists and contains three property-based
+    tests, but **the tests cannot pass** due to critical import and implementation
+    issues:
+
+
+    1. **Import Path Mismatch**: The test imports `from topology import compute_metrics`
+    and `from simulation import check_disconnected, run_kuramoto_simulation`, expecting
+    these modules in the Python path. However, the actual implementations are in `code/topology.py`
+    and `code/simulation.py`. The test file''s path setup (`sys.path.insert(0, str(code_dir))`)
+    should resolve this, but the test would need to be run from the project ro'
   task: 6fc7bed5931a5796a734a9fc1a510379b7966d05b7d0a6be3ca6c69d67ba9f6f
 T009:
+  reason: "The task requires `python -m src.validators --self-test` to exit with code\
+    \ 0, confirming validators work on sample files. While the historical execution\
+    \ log shows the command exited with code 0, the log contains **empty stdout and\
+    \ stderr**, which is suspicious. More critically, the `_self_test()` function\
+    \ in `src/validators.py` (lines 280\u2013298) only attempts to **load schema files\
+    \ from the `contracts/` directory** \u2014 it does not validate any actual JSON\
+    \ data files against those schemas. The function logs successful schema loading\
+    \ but performs no validation of sample JSON files against the loaded"
   task: 026d1b19bd2ba17ae0563f843b504720293a9941b099dc803a62b44c802b00d3
 T010:
+  reason: 'The test file `tests/test_topology.py` exists and contains all three required
+    test functions (`test_degree_sum_equals_twice_edges`, `test_clustering_bounds`,
+    `test_avg_path_length_disconnected_returns_null`), but the execution evidence
+    shows that **two of the three tests are currently failing**, which directly contradicts
+    the task requirement.
+
+
+    **Specific failures:**
+
+
+    1. **`test_degree_sum_equals_twice_edges` FAILED**: The test expects the sum of
+    degree_distribution values to equal `2 * num_edges` (6), but gets 4. The current
+    implementation returns a dict mapping `node -> degree`, so summing t'
   task: 96142fc7d3ba12a75246a92f39f7dd86db53f51653355f611dce4055f52742fe
 T011:
+  reason: 'The test file `tests/test_simulation.py` exists and contains the two required
+    test functions (`test_ring_graph_analytical_match_pct` and `test_k_sweep_converges`),
+    but the tests **currently fail** due to critical mismatches between the test expectations
+    and the underlying implementation.
+
+
+    **Specific failures:**
+
+
+    1. **`SynchronizationStatus.FAILED` does not exist**: The `code/src/simulation.py`
+    implementation attempts to use `SynchronizationStatus.FAILED`, but the enum defined
+    in `code/data_models.py` only defines `SYNCHRONIZED`, `NOT_SYNCHRONIZED`, `DISCONNECTED`,
+    and `ERROR`. The test executi'
   task: 1c09cb8d29247b0da5431f78f2744363e6954dcad43318310136db30feb97ff8
 T012:
   task: 62d47c5ef112b036f1b907848006a3fba2a0b302d9dbe14bb4d78ac584051f86
@@ -132,6 +176,14 @@ T043:
 T043b:
   task: 35d0307e7c39df3449d4a8af3facb9ad913d6ae543d846e4bf026268dfc94b06
 T044:
+  reason: "The test file `tests/test_schema_validation.py` exists and is well-structured,\
+    \ but the task cannot be completed because **all four required schema files are\
+    \ MISSING**:\n\n1. `network_metrics.schema.yaml` \u2014 MISSING\n2. `regression_model.schema.yaml`\
+    \ \u2014 MISSING\n3. `regression_summary.schema.yaml` \u2014 MISSING\n4. `simulation_result.schema.yaml`\
+    \ \u2014 MISSING\n\nThe test execution log shows the parametrized test collected\
+    \ only 1 item and **SKIPPED** it (not passed), which occurs because the glob pattern\
+    \ `contracts/*.schema.yaml` found no schema files. The task explicitly requires\
+    \ that \"every schema is exercise"
   task: a26a296f1affc631a23b2d2067e5d1266c85f97d3b21283116cebea97ef102bb
 T045:
   task: 164ec2a9779ca81ea8b405a93b288d276f5601e86c8add0ddcfefabeaef8f7d1

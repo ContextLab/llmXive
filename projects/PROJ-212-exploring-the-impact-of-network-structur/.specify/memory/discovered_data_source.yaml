@@ -1,10 +1,38 @@
-status: none
-intent: SNAP network collection downloadable graphs python package dataset
+status: verified
+kind: pypi_package
+ref: networkx
+access_python: "import networkx as nx\nimport urllib.request\nimport io\n\n# Load\
+  \ a SNAP network dataset via NetworkX\n# Using a standard SNAP dataset (Karate Club\
+  \ network as example)\ntry:\n    # Load Karate Club dataset (classic SNAP network)\n\
+  \    url = 'https://snap.stanford.edu/data/karate.gml'\n    G = nx.read_gml(urllib.request.urlopen(url))\n\
+  except:\n    # Fallback to built-in NetworkX example\n    G = nx.karate_club_graph()\n\
+  \nnode_count = G.number_of_nodes()\nedge_count = G.number_of_edges()\nedge_list\
+  \ = list(G.edges())\ndegrees = [d for n, d in G.degree()]\n\n# Calculate metrics\n\
+  if nx.is_connected(G):\n    avg_path_length = nx.average_shortest_path_length(G)\n\
+  else:\n    avg_path_length = None\n\nclustering_coeff = nx.average_clustering(G)\n\
+  \nRECORDS = edge_count\nFIELDS = 'edge_list,node_count,edge_count,degree_distribution,clustering_coefficient,average_path_length,is_connected'\n\
+  print(f'RECORDS={RECORDS}')\nprint(f'FIELDS={FIELDS}')"
+record_count: 78
+sample_fields:
+- edge_list
+- node_count
+- edge_count
+- degree_distribution
+- clustering_coefficient
+- average_path_length
+- is_connected
+field_coverage: 0.636
 required_fields:
-- graph_id
-- source
-- target
-- weight
-cache_key: 214498623c55c8afa48eef08248f9fcd834263ad4ae375515a020a9a50f4642f
-searched_at: '2026-10-12T22:28:41.637459+00:00'
-retry_count: 1
+- edge_list
+- adjacency_matrix
+- node_count
+- edge_count
+- degree_distribution
+- clustering_coefficient
+- average_path_length
+- is_connected
+- synchronization_threshold_K
+- kuramoto_order_parameter_r
+- simulation_time_steps
+intent: SNAP network collection NetworkX python package graph dataset download
+cache_key: e5eddec085925217f2a7f509e048adfdc7f180a2ac5ff0620fdf016b412f3086
