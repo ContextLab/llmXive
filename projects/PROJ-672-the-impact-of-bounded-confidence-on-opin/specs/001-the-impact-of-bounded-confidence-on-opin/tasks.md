@@ -1,266 +1,261 @@
 # Tasks: The Impact of Bounded Confidence on Opinion Polarization Speed
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan: create directories `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/contract/`, and initialize `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml`
-- [X] T002 Initialize Python 3.11 project with dependencies (networkx, numpy, pandas, scipy, matplotlib, pytest, statsmodels) in `projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/code/requirements.txt`
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools
+**Input**: `specs/001-gene-regulation/spec.md`, `plan.md`, `data-model.md`, contract schemas.  
+**Goal**: End‑to‑end computational study answering the research question, with reproducible artefacts, verification tests, and documentation ready for hand‑off.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+| Goal | Run a minimal, reproducible workflow that produces a single result file. |
+|------|--------------------------------------------------------------------------|
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T001 Establish project layout and basic documentation  
+  - **Path**: `README.md`, `quickstart.md` (root)  
+  - **Verification**: `cat quickstart.md` shows a runnable command `python -m code.generate_networks --topology er --seed 0`; `git status` reports files present.
 
-- [X] T004 [P] Implement `utils/checksums.py` utility to generate SHA-256 hashes for data files and update `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml` (Principle III & V)
-- [X] T005 [P] Implement `utils/metrics.py` to calculate structural metrics (assortativity, average path length, clustering coefficient) for NetworkX graphs
-- [X] T006 [P] Implement `utils/plotting.py` for generating log-log convergence plots and regression scatter plots
-- [X] T007 [P] Create base data schemas (JSON schemas) for `SimulationRun`, `ScalingResult`, and `RegressionResult` in `code/contracts/` (files: `code/contracts/simulation_run.json`, `code/contracts/scaling_result.json`, `code/contracts/regression_result.json`)
-- [X] T008 [US1, US2, US3] **Setup pytest configuration and contract testing framework**:
- 1. Create `tests/conftest.py` with a global `seed` fixture that enforces a random seed for all tests.
- 2. Update `pytest.ini` to include `[pytest]` section with `addopts = --strict-markers` and `markers = seed`.
- 3. Create `tests/contract/__init__.py` and `tests/contract/test_schema_validation.py` to validate JSON data against schemas in `code/contracts/`.
- 4. Implement an assertion in `conftest.py` that fails the test suite if a random seed is not explicitly set or if non-deterministic operations are detected.
- **Deliverable**: A runnable `pytest tests/contract/` that validates JSON data against the schemas in `code/contracts/`. (NOT [P] due to T007 dependency).
+- [ ] T002 Initialise Python 3.11 environment and dependencies  
+  - **Path**: `code/requirements.txt`  
+  - **Verification**: `pip install -r code/requirements.txt` succeeds without errors; `pip list` contains `networkx`, `numpy`, `pandas`, `scipy`, `matplotlib`, `statsmodels`, `pytest`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T003 Add quick‑start instructions for the minimal pipeline  
+  - **Path**: `quickstart.md` (root)  
+  - **Verification**: Running the command listed in `quickstart.md` generates `data/raw/networks/er_0000.edgelist` and `data/raw/simulations/run_er_0.05_0000.h5` without failures.
 
 ---
 
-## Phase 3: User Story 1 - Generate Synthetic Network Ensembles (Priority: P1) 🎯 MVP
+## Phase 2 – Core infrastructure (blocking prerequisites)  
 
-**Goal**: Generate reproducible ensembles of Erdős-Rényi, Barabási-Albert, and Watts-Strogatz networks ($N=500$) with distinct topological features.
+| Goal | Provide utilities, schemas, and test harness that all later work depends on. |
+|------|--------------------------------------------------------------------------------|
 
-**Independent Test**: Generate one instance of each topology, compute metrics, and verify they match theoretical expectations within 5% tolerance.
+- [ ] T004 [P] Implement SHA‑256 checksum utility for data files  
+  - **Path**: `code/utils/checksums.py`  
+  - **Verification**: `python -c "import code.utils.checksums as c; print(c.sha256('data/raw/networks/er_0000.edgelist'))"` returns a 64‑character hex string.
 
-### Tests for User Story 1
+- [ ] T005 [P] Implement structural‑metric calculators (assortativity, path length, clustering)  
+  - **Path**: `code/utils/metrics.py`  
+  - **Verification**: Unit test `tests/unit/test_metrics.py` passes, confirming metric values within expected ranges for a known graph.
 
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
+- [ ] T006 [P] Implement generic Matplotlib plotting helpers (log‑log, scatter with regression line)  
+  - **Path**: `code/utils/plotting.py`  
+  - **Verification**: Running `python -c "from code.utils import plotting; plotting.test_plot()"` creates `outputs/figures/test.png`.
 
-- [X] T009 [P] [US1] Unit test for Barabási-Albert power-law degree distribution in `tests/unit/test_network_gen.py`
-- [X] T010 [P] [US1] Unit test for Watts-Strogatz clustering coefficient vs. rewiring probability in `tests/unit/test_network_gen.py`
-- [X] T011 [P] [US1] Memory constraint test: Verify 50 networks of $N=500$ fit within 7GB RAM in `tests/unit/test_memory_limits.py`
+- [ ] T007 [P] Add JSON schema files for all data contracts  
+  - **Path**: `code/contracts/network_instance.schema.json`, `code/contracts/simulation_run.schema.json`, `code/contracts/scaling_result.schema.json`, `code/contracts/regression_result.schema.json`  
+  - **Verification**: `jsonschema validate --schema code/contracts/network_instance.schema.json data/raw/networks/metadata_001.json` returns no errors.
 
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `code/generate_networks.py` to generate multiple independent instances per topology type with fixed random seeds using `numpy.random` explicitly wired to the global seed fixture defined in `tests/conftest.py` (FR-001)
-- [X] T013 [US1] **Calculate and store structural metrics**: Implement function `calculate_metrics(graph)` in `code/generate_networks.py` to compute assortativity, average path length, and clustering coefficient for each generated network. Save results to `data/raw/networks/metrics_{topology}_{seed}.json` with the following schema: `{"topology": str, "seed": int, "assortativity": float, "avg_path_length": float, "clustering_coeff": float, "node_count": int, "edge_count": int}`. (FR-001, US-1)
-- [X] T014 [US1] **Serialization and Checksums**: Implement function `save_network(graph, path)` in `code/generate_networks.py` to save network instances (as edge lists or pickled graphs) and the metrics JSON files to `data/raw/networks/`. Generate SHA-256 checksums for all files and update `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml`. (FR-001)
-- [X] T015 [US1] **Connectivity Validation**: Implement function `validate_connectivity(graph)` in `code/generate_networks.py` to verify if generated networks are connected. If disconnected, either re-generate with a different seed or explicitly flag the instance in the JSON metadata with `is_connected: false` and `largest_component_size: int`. (FR-001)
-- [X] T016a [P] [US3] **Data Schema Prep**: Implement the data structure preparation for regression analysis in `code/contracts/regression_schema.py`. This task defines the schema for `data/processed/regression_data.json` (mapping structural metrics to simulation IDs) but does NOT populate it with gamma values yet (FR-006, US-3 dependency).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Execute Bounded Confidence Simulations (Priority: P2)
-
-**Goal**: Execute discrete-time Hegselmann-Krause simulations on generated networks, sweeping $\epsilon$ across a range of confidence thresholds and measuring convergence time.
-
-**Independent Test**: Run a single simulation on $N=50$ with fixed $\epsilon$ and verify convergence to stable state ($<10^{-4}$ change) within reasonable iterations.
-
-### Tests for User Story 2
-
-- [X] T017 [P] [US2] Unit test for HK update rule convergence on a small static network in `tests/unit/test_hk_logic.py`
-- [X] T018 [P] [US2] Unit test for non-convergence handling (max iteration limit) in `tests/unit/test_hk_logic.py`
-
-### Implementation for User Story 2
-
-- [X] T019 [US2] Implement `code/simulate_hk.py` with vectorized NumPy updates for the discrete-time Hegselmann-Krause rule (FR-002, FR-003). **Dependency**: This task consumes network instances saved by T014.
-- [X] T020 [US2] Implement convergence detection logic: stop when max opinion change $< 10^{-4}$ or max iterations reached (FR-004, FR-007)
-- [X] T021 [US2] **Batch Execution Engine**: Implement logic to sweep $\epsilon$ across a representative range with a fixed step size and execute a sufficient number of independent seeds per configuration. Output results to `data/raw/simulations/` with a CSV or HDF5 format. (FR-003, SC-003)
-- [X] T022 [US2] Add logic to handle non-convergent runs: flag as "non-convergent" in the `status` column of the CSV output in `data/raw/simulations/`
-- [X] T023 [US2] **Write Raw Simulation Results**: Save raw simulation results to `data/raw/simulations/run_{topology}_{epsilon}_{seed}.h5`. **Format**: Use HDF5 format with a dataset `opinions` of shape `(n_iterations, n_agents)` storing the full temporal trace of opinion vectors, and a dataset `metadata` containing `epsilon`, `seed`, `topology`, `convergence_time`, and `status`. (FR-004, FR-008, FR-003)
-- [X] T024 [US2] Integration test for batch execution of multiple configurations (multiple topologies × variable epsilons) verifying output format in `tests/integration/test_simulation_batch.py`
-- [X] T025 [US2] Implement performance optimization and runtime monitoring in `code/simulate_hk.py` (e.g., parallel processing with `multiprocessing`, progress tracking) to Ensure the full simulation suite completes within 5 hours (SC-003). **Reproducibility Constraint**: Parallel workers MUST use a deterministic seed distribution strategy (e.g., `worker_seed = base_seed + worker_id`) to prevent race conditions and ensure floating-point reproducibility.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T008 [US1, US2, US3] Set up deterministic pytest configuration and contract‑validation tests  
+  - **Path**: `tests/conftest.py`, `pytest.ini`, `tests/contract/test_schema_validation.py`  
+  - **Verification**: `pytest -q tests/contract` reports all tests passed; the `seed` fixture forces a fixed RNG seed for every test.
 
 ---
 
-## Phase 5: User Story 3 - Analyze Scaling Laws and Structural Correlations (Priority: P3)
+## Phase 3 – User Story 1: Generate Synthetic Network Ensembles (Priority P1)  
 
-**Goal**: Fit power-law models to convergence time data, extract $\gamma$, and regress against structural metrics.
+| Goal | Produce reproducible ensembles for ER, BA, and WS topologies, store metrics, and validate memory usage. |
+|------|-----------------------------------------------------------------------------------------------|
 
-**Independent Test**: Provide synthetic data, verify regression identifies known correlation and power-law fit $R^2 > 0.8$.
+- [ ] T009 [P] Unit test for Barabási‑Albert power‑law degree distribution (theoretical exponent)  
+  - **Path**: `tests/unit/test_network_gen.py` (BA test)  
+  - **Verification**: Test fails before implementation, passes after `code/generate_networks.py` is added.
 
-### Tests for User Story 3
+- [ ] T010 [P] Unit test for Watts‑Strogatz clustering coefficient vs. rewiring probability  
+  - **Path**: `tests/unit/test_network_gen.py` (WS test)  
+  - **Verification**: Same as above.
 
-- [X] T026 [P] [US3] Unit test for power-law fitting with bootstrapping error estimation in `tests/unit/test_scaling_fit.py`
-- [X] T027 [P] [US3] Unit test for multiple linear regression with categorical topology variable in `tests/unit/test_regression.py`
+- [ ] T011 [P] Memory‑constraint test: 50 × 500‑node graphs stay < 7 GB RAM  
+  - **Path**: `tests/unit/test_memory_limits.py`  
+  - **Verification**: Test records peak memory using `psutil`; passes if < 7 GB.
 
-### Implementation for User Story 3
+- [ ] T012 [US1] Implement network‑generation script with reproducible seeds  
+  - **Path**: `code/generate_networks.py`  
+  - **Verification**: Running `python -m code.generate_networks --topology ba --instances 50 --seed 123` produces 50 edge‑list files under `data/raw/networks/ba_*.edgelist` and a matching CSV of metrics.
 
-- [X] T028 [US3] **Detect $\epsilon_c$**: Implement `code/analyze_scaling.py` with a grid-search algorithm to detect $\epsilon_c$ for each network instance. Test candidates in a low-to-moderate range with fine-grained steps. Select the $\epsilon_c$ that minimizes the Residual Sum of Squares (RSS) for the power-law fit. Output results to `data/processed/epsilon_c_values.json`. (FR-005, Plan Clarification #1)
-- [X] T029 [US3] **Power-Law Fitting**: Implement power-law fitting $T = A(\epsilon - \epsilon_c)^{-\gamma}$ restricted to the critical regime $\epsilon \in [\epsilon_c + 0.05, 0.50]$. Use `delta = 0.05` as the offset. Extract $\gamma$ and $R^2$. Enforce $R^ \ge \text{a high threshold}$ as a pass/fail condition. (FR-005)
-- [X] T030 [US3] Implement Model A: Multiple linear regression to correlate $\gamma$ with Topology type (categorical variable only), excluding structural metrics to avoid multicollinearity (FR-006, Plan Clarification #3)
-- [X] T030b [US3] Implement Model B: Multiple linear regression to correlate $\gamma$ with Assortativity and PathLength *within* each topology group, excluding Topology as a variable (FR-006, Plan Clarification #3)
-- [X] T031 [US3] Implement visualization module to generate: (1) $\gamma$ vs. assortativity scatter with regression line, (2) Convergence time vs. $\epsilon$ on log-log scale
-- [X] T032 [US3] Save processed results (ScalingResult, RegressionResult) to `data/processed/` with checksums
-- [X] T032b [US3] **Data Population for Regression**: Populate `data/processed/regression_data.json` by joining the extracted $\gamma$ values (from T029), $\epsilon_c$ values (from T028), and structural metrics (from T013). **Schema**: `{"topology": str, "seed": int, "gamma": float, "epsilon_c": float, "assortativity": float, "path_length": float, "clustering_coeff": float}`. (FR-006, US-3)
+- [ ] T013 [US1] Compute and store structural metrics for each generated graph  
+  - **Path**: `code/generate_networks.py` (function `calculate_metrics`) writes `data/raw/networks/metrics_{topology}_{seed}.json`  
+  - **Verification**: Each JSON validates against `network_instance.schema.json`; contains fields `assortativity`, `average_path_length`, `clustering_coefficient`.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T014 [US1] Serialize networks and generate checksums  
+  - **Path**: `code/generate_networks.py` (function `save_network`) writes edge lists and updates `checksums.json` via `code/utils/checksums.py`  
+  - **Verification**: `cat data/checksums.json` includes a SHA‑256 entry for every new file.
 
----
+- [ ] T015 [US1] Validate connectivity; flag or regenerate disconnected components  
+  - **Path**: `code/generate_networks.py` (function `validate_connectivity`)  
+  - **Verification**: Metadata JSON includes `"is_connected": true` for all stored networks; any false case is logged and regenerated.
 
-## Phase 6: Sensitivity Analysis (FR-008)
-
-**Goal**: Verify robustness of results to convergence threshold as mandated by FR-008.
-
-**Independent Test**: Sweep convergence threshold $10^{-3}$ to $10^{-5}$ and verify $\gamma$ variation < 5%.
-
-### Implementation for Sensitivity Analysis
-
-- [X] T033 [US3] **Re-run Simulations for Sensitivity**: Implement `code/sensitivity_analysis.py` to re-run `simulate_hk.py` (from T019) with convergence thresholds $\delta \in [10^{-3}, 10^{-5}]$ for a subset of configurations (e.g., 5 seeds per topology). **Must re-execute the simulation loop** to measure the variation in convergence time (iteration count) for each threshold. Output a CSV report `data/processed/sensitivity_report.csv` with columns `threshold, gamma_mean, gamma_std`. (FR-008)
-- [X] T034 [US3] Generate report comparing $\gamma$ variation across the sensitivity sweep; flag if variation > 5%
-
-**Checkpoint**: Sensitivity and robustness checks complete.
-
----
-
-## Phase 7: Research Review Resolution (Addressing Prior Reviews)
-
-**Goal**: Explicitly address concerns raised by Alan Turing (adaptive thresholds), David Krakauer (biological signal detection context), Stephen Wolfram (rule-space exploration), and Geoffrey West (scaling of $\epsilon$ with density) without violating the static HK constraint of the current spec.
-
-**Independent Test**: Documentation and code comments clearly distinguish between the static baseline and the proposed adaptive variants; a "Rule Space Explorer" script runs variations of the HK update rule; a scaling analysis script tests $\epsilon$ vs. network density.
-
-### Implementation for Research Review Resolution
-
-- [X] T035 [P] [Review] **Rule Space Explorer (Documentation)**: Update `docs/methodology.md` to include a section "Rule Space Exploration" discussing the theoretical implications of alternative update rules (e.g., weighted averaging, median-based updates) and contrasting them with the static HK model. **Note**: This is a documentation task only; no code implementation is required. (Response to Stephen Wolfram)
-- [X] T036 [P] [Review] **Adaptive Threshold Prototype (Documentation)**: Update `docs/methodology.md` to include a section "Adaptive Thresholds: Future Work" discussing the theoretical basis for adaptive $\epsilon$ and contrasting it with the static constraint of the current spec. **Note**: This is a documentation task only; no code implementation is required. (Response to Alan Turing)
-- [X] T037 [P] [Review] Update `docs/methodology.md` to include a section "Biological Imperative and Signal Detection" discussing the evolutionary context of bounded confidence as a noise-filtering mechanism vs. error-calcifying mechanism (Response to David Krakauer)
-- [X] T038 [P] [Review] Update `docs/methodology.md` to include a section "Historical Lineage and Micro-Rules" explicitly contrasting Deffuant (convergence) vs. Hegselmann & Krause (fragmentation) outcomes based on the specific micro-rule implemented (Response to David Krakauer)
-- [X] T039 [P] [Review] Add a validation task in `tests/unit/test_review_alignment.py` to ensure the codebase explicitly distinguishes between "static cognitive limitation" (current model) and "adaptive learning" (future work) in all docstrings and comments (Response to Alan Turing)
-- [X] T040 [P] [Review] **Rule Space Plot (Documentation)**: Update `docs/methodology.md` to include a conceptual figure description or reference to literature showing how different update rules affect the phase transition point. **Note**: This is a documentation task only. (Response to Stephen Wolfram)
-- [X] T041 [P] [Review] Update `docs/methodology.md` to include a section "Scaling of $\epsilon$ with Density" discussing the hypothesis that $\epsilon$ scales with network density and the potential for phase transitions at critical network sizes (Response to Geoffrey West)
-- [X] T042 [P] [Review] Update `docs/methodology.md` to include a section "Topological Constraints and Scaling" discussing the implications of degree heterogeneity (power-law vs. homogeneous) on the critical threshold and the potential for phase transitions at critical network sizes (Response to Geoffrey West)
-- [X] T043 [Review] Run the Reference-Validator Agent on all new citations introduced in `docs/methodology.md` and `code/explorers/` (T035-T042) to satisfy Constitution Principle II before transitioning to `research_accepted`. **Dependency**: Must follow T035-T042 completion. **NOT [P]**. <!-- ATOMIZE: requested -->
-
-**Checkpoint**: All prior research-stage reviews are addressed with code prototypes or explicit documentation clarifications.
+- [ ] T016a [US3] Prepare empty regression‑data placeholder (schema only)  
+  - **Path**: `code/contracts/regression_schema.py` (defines `regression_data.schema.json`)  
+  - **Verification**: Validation script confirms an empty but schema‑conforming file `data/processed/regression_data.json` exists.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 4 – User Story 2: Execute Bounded‑Confidence Simulations (Priority P2)  
 
-**Purpose**: Improvements that affect multiple user stories
+| Goal | Run the Hegselmann‑Krause model across all networks, sweep ε, record convergence times, and handle non‑convergence. |
+|------|------------------------------------------------------------------------------------------------------------|
 
-- [ ] T044 [P] Documentation updates in `docs/` including explanation of the methodology and results
-- [ ] T045 Code cleanup and refactoring of `simulate_hk.py` for performance (vectorization check)
-- [ ] T046 [P] Run quickstart.md validation
-- [ ] T047 [P] Update `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml` with final artifact hashes
+- [ ] T017 [P] Unit test for HK update rule convergence on a tiny graph (N = 50)  
+  - **Path**: `tests/unit/test_hk_logic.py`  
+  - **Verification**: Test asserts max opinion change < 1e‑4 after ≤ 200 iterations.
 
----
+- [ ] T018 [P] Unit test for max‑iteration timeout handling (non‑convergent case)  
+  - **Path**: `tests/unit/test_hk_logic.py`  
+  - **Verification**: Test forces a pathological graph; expects `status == "non_converged"`.
 
-## Dependencies & Execution Order
+- [ ] T019 [US2] Implement vectorised HK simulation engine  
+  - **Path**: `code/simulate_hk.py` (function `run_simulation`)  
+  - **Verification**: Running the script on a single network produces `data/raw/simulations/run_er_0.20_0000.h5` with datasets `opinions` and `metadata`.
 
-### Phase Dependencies
+- [ ] T020 [US2] Add convergence detection (Δ < 1e‑4) and max‑iteration cap (default = 10 000)  
+  - **Path**: `code/simulate_hk.py` (module `convergence.py`)  
+  - **Verification**: Output metadata field `status` is either `"converged"` or `"non_converged"`; `convergence_time` is `null` for the latter.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - US1 (Network Gen) must complete before US2 (Simulation) can run
- - US2 (Simulation) must complete before US3 (Analysis) can run
- - Sensitivity (Phase 6) depends on the *code* of US2 (to re-run simulations) and US3 (for analysis logic), but is a parallel branch that re-executes US2 logic.
- - Research Review (Phase 7) can run in parallel with US3/Phase 6 as it focuses on exploration and documentation.
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T021 [US2] Implement batch runner that sweeps ε ∈ [0.05, 0.50] step 0.05, 50 seeds per configuration  
+  - **Path**: `code/run_batch.py` (CLI entry point)  
+  - **Verification**: After execution, `data/raw/simulations/` contains exactly `3 (topologies) × 10 (ε) × 50 (seeds) = 1500` HDF5 files.
 
-### User Story Dependencies
+- [ ] T022 [US2] Flag non‑convergent runs in the CSV summary file  
+  - **Path**: `data/raw/simulations/summary.csv` (generated by `run_batch.py`)  
+  - **Verification**: CSV column `status` contains only `"converged"` or `"non_converged"`; no missing values.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2)
-- **User Story 2 (P2)**: Depends on US1 (needs networks to simulate)
-- **User Story 3 (P3)**: Depends on US2 (needs simulation results)
-- **Sensitivity (Phase 6)**: Depends on US2 code (to re-run) and US3 code (for analysis); re-executes US2 logic with new parameters.
-- **Research Review (Phase 7)**: Can start after Foundational; depends on US2/US3 logic for comparison but is largely independent.
-- **Polish (Phase N)**: Depends on all prior phases
+- [ ] T023 [US2] Store full opinion trajectories in HDF5 (datasets `opinions` and `metadata`)  
+  - **Path**: `data/raw/simulations/run_{topology}_{epsilon}_{seed}.h5`  
+  - **Verification**: `h5py.File(...).keys()` returns `['opinions', 'metadata']`; shape of `opinions` matches `(iterations, 500)`.
 
-### Within Each User Story
+- [ ] T024 [US2] Integration test for the full batch pipeline  
+  - **Path**: `tests/integration/test_simulation_batch.py`  
+  - **Verification**: Test runs `python -m code.run_batch --dry-run` and checks that the expected number of files are created and that each validates against `simulation_run.schema.json`.
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (except T008 which depends on T007)
-- Once Foundational phase completes, US1 can start immediately
-- US2 can start as soon as US1 produces the first batch of networks (if pipelined)
-- All tests for a user story marked [P] can run in parallel
-- Phase 6 tasks (T033-T034) can run in parallel with US3 analysis if US2 code is ready.
-- Phase 7 tasks (T035-T042) can run in parallel with US3 and Phase 6. T043 must follow T035-T042.
+- [ ] T025 [US2] Deterministic parallelisation and runtime monitoring to stay ≤ 5 h  
+  - **Path**: `code/simulate_hk.py` (uses `multiprocessing.Pool` with seed offset) and `code/utils/monitor.py`  
+  - **Verification**: `python -m code.run_batch` prints a progress bar and final wall‑clock time; CI log shows total ≤ 5 h on the free‑tier runner.
 
 ---
 
-## Implementation Strategy
+## Phase 5 – User Story 3: Analyse Scaling Laws & Structural Correlations (Priority P3)  
 
-### MVP First (User Stories 1 & 2 Only)
+| Goal | Detect ε_c, fit power‑law T = A(ε‑ε_c)^‑γ, run two regression models, and generate figures. |
+|------|-------------------------------------------------------------------------------------------|
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational
-3. Complete Phase 3: US1 (Network Generation)
-4. Complete Phase 4: US2 (Simulation)
-5. **STOP and VALIDATE**: Ensure raw data is generated and checksums are valid.
-6. Proceed to Analysis (US3) and Sensitivity (Phase 6).
+- [ ] T026 [P] Unit test for power‑law fitting with bootstrapped error estimates  
+  - **Path**: `tests/unit/test_scaling_fit.py`  
+  - **Verification**: Test feeds synthetic (ε, T) data with known γ; asserts recovered γ within 5 % and `R² ≥ 0.9`.
 
-### Incremental Delivery
+- [ ] T027 [P] Unit test for multiple linear regression including categorical topology variable  
+  - **Path**: `tests/unit/test_regression.py`  
+  - **Verification**: Test builds a tiny DataFrame, runs `statsmodels.formula.api.ols`, and checks that p‑values are computed.
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add US1 → Test independently → Validate network metrics
-3. Add US2 → Test independently → Validate convergence times
-4. Add US3 → Test independently → Validate scaling exponents
-5. Add Sensitivity → Test independently → Validate robustness
-6. Add Research Review → Test independently → Validate alignment with prior reviews
-7. Each story adds value without breaking previous stories
+- [ ] T028 [US3] Implement ε_c detection via grid‑search and RSS minimisation  
+  - **Path**: `code/analyze_scaling.py` (function `detect_epsilon_c`) writes `data/processed/epsilon_c_values.json`  
+  - **Verification**: JSON contains one entry per network with fields `network_id` and `epsilon_c`; values pass a sanity check (`0.05 ≤ ε_c ≤ 0.30`).
 
-### Parallel Team Strategy
+- [ ] T029 [US3] Fit power‑law on the critical regime (ε > ε_c + 0.05) and output ScalingResult records  
+  - **Path**: `code/analyze_scaling.py` (function `fit_power_law`) writes `data/processed/scaling_fits.csv` conforming to `scaling_result.schema.json`  
+  - **Verification**: Each row includes `gamma`, `r_squared ≥ 0.8` (or flagged as failed), and `standard_error < 0.1`.
 
-With multiple developers:
+- [ ] T030 [US3] Model A – regression of γ on topology (categorical) only  
+  - **Path**: `code/analyze_scaling.py` (function `regression_topology`) writes `data/processed/regression_topology.csv` (schema `regression_result.schema.json`)  
+  - **Verification**: CSV contains coefficients for each topology and associated p‑values.
 
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: US1 (Network Gen)
- - Developer B: US2 (Simulation Engine) - *Note: Developer B can start with a mock network generator if US1 is delayed*
- - Developer C: US3 (Analysis) - *Can start with synthetic data*
- - Developer D: Phase 7 (Research Review Exploration) - *Can start immediately on rule-space logic and scaling analysis*
-3. Once baseline is established:
- - Developer E: Phase 6 (Sensitivity Analysis)
+- [ ] T030b [US3] Model B – regression of γ on assortativity & average path length *within* each topology  
+  - **Path**: `code/analyze_scaling.py` (function `regression_structural`) writes `data/processed/regression_structural.csv`  
+  - **Verification**: Each topology’s sub‑CSV includes coefficients, standard errors, and p‑values; at least one metric achieves `p < 0.05`.
+
+- [ ] T031 [US3] Generate publication‑ready figures:  
+  1. γ vs assortativity scatter with regression line (saved as `outputs/figures/gamma_vs_assort.png`).  
+  2. Convergence‑time vs. ε log‑log plot for the critical regime (`outputs/figures/time_vs_epsilon.png`).  
+  - **Verification**: Files exist, are non‑empty PNGs, and `file` command reports image type.
+
+- [ ] T032 [US3] Store all processed results with checksums  
+  - **Path**: `data/processed/` files plus updated `data/checksums.json`  
+  - **Verification**: `code/utils/checksums.py` reports matching hashes for each processed file.
+
+- [ ] T032b [US3] Populate regression‑data join table (γ, ε_c, structural metrics)  
+  - **Path**: `data/processed/regression_data.json` (schema‑validated)  
+  - **Verification**: JSON array length equals number of network instances (150); each object contains keys `topology`, `seed`, `gamma`, `epsilon_c`, `assortativity`, `average_path_length`, `clustering_coefficient`.
 
 ---
 
-## Notes
+## Phase 6 – Sensitivity Analysis (FR‑008)  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- **Critical Constraint**: All tasks must run on CPU-only (limited cores, constrained RAM). No GPU, no 8-bit quantization, no large model loading.
-- **Scope Note**: This project strictly implements the fixed Hegselmann-Krause model as defined in FR-001 to FR-008. The experimental Phase 7 tasks (adaptive thresholds, alternative rules, scaling analysis) are **exploratory prototypes** or **documentation** and do not alter the core static model execution.
-- **Performance**: Task T025 explicitly addresses the 5-hour runtime constraint (SC-003) with deterministic parallelization.
-- **Sensitivity**: Task T033 explicitly re-runs simulations with varied thresholds to satisfy FR-008, ensuring valid sensitivity analysis within runtime limits.
-- **Validation**: Task T016a/T032b explicitly validates Constitution Principle VI regarding topological divergence by preparing and populating data for regression.
-- **Review Alignment**: Phase 7 tasks (T035-T043) directly address the specific concerns raised by Alan Turing (static vs. adaptive), David Krakauer (biological context), Stephen Wolfram (rule space exploration), and Geoffrey West (scaling of $\epsilon$ with density), including the mandatory Reference-Validator run (T043).
+| Goal | Verify robustness of γ to the convergence‑threshold Δ (10⁻³ → 10⁻⁵). |
+|------|-------------------------------------------------------------------|
+
+- [ ] T033 [US3] Re‑run a representative subset of simulations with Δ ∈ {1e‑3, 1e‑4, 1e‑5} and record resulting γ values  
+  - **Path**: `code/run_sensitivity.py` (CLI) produces `data/processed/sensitivity_report.csv`  
+  - **Verification**: CSV columns `threshold`, `gamma_mean`, `gamma_std`; `gamma_std / gamma_mean < 0.05` for all thresholds.
+
+- [ ] T034 [US3] Automated check that γ variation stays below 5 % and raise an error otherwise  
+  - **Path**: `code/run_sensitivity.py` (function `check_variation`)  
+  - **Verification**: Running the script exits with status 0; CI logs contain “Sensitivity check passed”.
+
+---
+
+## Phase 7 – Research‑review Resolution (Documentation & Minor Extensions)  
+
+| Goal | Address reviewer‑raised “rule‑space”, “adaptive ε”, and “biological context” comments without altering the core static HK model. |
+|------|------------------------------------------------------------------------------------------------------------------------------------------|
+
+- [ ] T035 [P] Add “Rule‑Space Exploration” section to methodology documentation  
+  - **Path**: `docs/methodology.md` (new subsection)  
+  - **Verification**: `grep -i "Rule‑Space" docs/methodology.md` finds the heading; the section contains at least 150 words discussing alternative update rules.
+
+- [ ] T036 [P] Add “Adaptive Thresholds: Future Work” subsection (clarifies that adaptive ε is out of scope for this study)  
+  - **Path**: `docs/methodology.md`  
+  - **Verification**: Section present and clearly labeled “Future Work”.
+
+- [ ] T037 [P] Add “Biological Imperative & Signal Detection” subsection (places the model in evolutionary context)  
+  - **Path**: `docs/methodology.md`  
+  - **Verification**: Section present and cites at least two primary sources (e.g., Deffuant 2000, Hegselmann 2002).
+
+- [ ] T038 [P] Add “Historical Lineage of Bounded‑Confidence Models” subsection (distinguishes Deffuant vs. HK)  
+  - **Path**: `docs/methodology.md`  
+  - **Verification**: Section present with proper citations.
+
+- [ ] T039 [P] Add unit test ensuring code comments and docstrings mention “static HK model” and not “adaptive”  
+  - **Path**: `tests/unit/test_review_alignment.py`  
+  - **Verification**: Test scans `code/` files; passes if the required phrase appears and “adaptive” appears only in docstrings marked “Future Work”.
+
+- [ ] T040 [P] Add placeholder figure description for rule‑space impact (no image required, just a caption)  
+  - **Path**: `docs/methodology.md` (figure placeholder)  
+  - **Verification**: Markdown includes `![Rule‑Space Impact](figures/rule_space_placeholder.png)` with a caption; the PNG file is a 1 × 1 pixel stub generated by the CI.
+
+- [ ] T041 [P] Add “Scaling of ε with Network Density” subsection (addresses Geoffrey West’s comment)  
+  - **Path**: `docs/methodology.md`  
+  - **Verification**: Section present and includes a brief theoretical discussion.
+
+- [ ] T042 [P] Add “Topological Constraints & Scaling” subsection (further discussion of degree heterogeneity)  
+  - **Path**: `docs/methodology.md`  
+  - **Verification**: Section present.
+
+- [ ] T043 [P] Run the Reference‑Validator agent on all new citations introduced above and record its log  
+  - **Path**: `logs/reference_validator.log`  
+  - **Verification**: Log contains “All citations validated”.
+
+---
+
+## Phase N – Polish & Cross‑Cutting Concerns  
+
+| Goal | Produce the final artefacts required for the paper‑hand‑off. |
+|------|--------------------------------------------------------------|
+
+- [ ] T044 [P] Write a concise **Methods & Results** markdown document summarising the entire pipeline, referencing the exact output files.  
+  - **Path**: `docs/methods_results.md`  
+  - **Verification**: File exists, contains sections “Network Generation”, “Simulation”, “Scaling Analysis”, “Sensitivity”, and each section cites the corresponding CSV/HDF5 artefacts with file paths.
+
+- [ ] T045 [P] Refactor `code/simulate_hk.py` to improve vectorisation (replace any explicit Python loops with NumPy broadcasting) and benchmark speed.  
+  - **Path**: `code/simulate_hk.py` (updated) and `code/utils/performance.py` (benchmark script)  
+  - **Verification**: Benchmark reports a ≥ 20 % speed‑up over the original implementation; CI asserts the new runtime < 5 h.
+
+- [ ] T046 [P] Validate the quick‑start guide against the freshly generated artefacts (run the guide end‑to‑end in a fresh CI job).  
+  - **Path**: `quickstart.md` (no changes) – CI step `make quickstart-test`  
+  - **Verification**: CI job succeeds, producing the final figure `outputs/figures/gamma_vs_assort.png`.
+
+- [ ] T047 [P] Update the project‑state YAML with final artifact hashes for all `data/` and `outputs/` files.  
+  - **Path**: `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml`  
+  - **Verification**: `cat` shows a `artifact_hashes` map containing SHA‑256 entries for every file under `data/` and `outputs/`.
+
+--- 
+
+*All tasks marked `[P]` can be executed in parallel where their file targets do not overlap. The ordering respects data flow: network generation → simulation → analysis → sensitivity → documentation → final hand‑off.*
