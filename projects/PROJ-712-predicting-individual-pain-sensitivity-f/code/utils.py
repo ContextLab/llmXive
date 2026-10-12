@@ -3,7 +3,7 @@ Utility module for the PROJ-712 pain sensitivity pipeline.
 
 Provides functions for:
 - Global random seed pinning
-- Lightweight logging with file handler
+- Lightweight logging with file handler (project‑owned only)
 - SHA‑256 checksum computation
 - Artifact hash recording
 - Timing helpers
@@ -22,13 +22,12 @@ from pathlib import Path
 from typing import Any, Callable, List, Optional, Union
 
 import yaml
-from llmxive_toolkit import paths, get_logger
+from llmxive_toolkit import paths
 
 # ----------------------------------------------------------------------
 # Global constants
 # ----------------------------------------------------------------------
-# We avoid the 'state/' directory as it is platform-owned.
-# All project-owned logs and results are stored under 'data/'.
+# All project‑owned files are under the `data/` directory.
 LOG_FILE = paths.data("logs", "pipeline.log")
 HASH_FILE = paths.data("results", "artifact_hashes.yaml")
 DEFAULT_LOG_LEVEL = logging.INFO
@@ -55,21 +54,55 @@ def set_global_seed(seed: int = 42) -> None:
 # ----------------------------------------------------------------------
 # Logging utilities
 # ----------------------------------------------------------------------
+def _configure_logger(logger: logging.Logger, level: int) -> None:
+    """Attach console and file handlers to *logger* if they are missing."""
+    if logger.handlers:
+        # Assume logger is already configured (avoid duplicate handlers)
+        return
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    # Console handler
+    console = logging.StreamHandler()
+    console.setLevel(level)
+    console.setFormatter(formatter)
+    logger.addHandler(console)
+
+    # Ensure the log directory exists
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+    # File handler (project‑owned)
+    file_handler = logging.FileHandler(LOG_FILE, mode="a")
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    logger.setLevel(level)
+
 def setup_logging(name_or_level: Union[int, str] = DEFAULT_LOG_LEVEL) -> logging.Logger:
     """
-    Configure logging.
-    Uses the llmxive_toolkit.get_logger to ensure consistent logging
-    to the project-owned data/logs directory.
+    Configure and return a logger.
 
-    Returns a logger instance configured with a console handler and a
-    file handler that writes to data/logs/pipeline.log.
+    * If an *int* is supplied, it is interpreted as the logging level and a
+      default logger named ``"pipeline"`` is created.
+    * If a *str* is supplied, it is interpreted as the logger name and the
+      default level ``DEFAULT_LOG_LEVEL`` is used.
+
+    All log output is written to ``data/logs/pipeline.log`` and to the
+    console. No files are written under the platform‑owned ``state/``
+    directory.
     """
     if isinstance(name_or_level, int):
-        # If an int is passed, we use it as the level for a default logger name
-        return get_logger("pipeline", log_file=str(LOG_FILE))
+        level = name_or_level
+        logger_name = "pipeline"
     else:
-        # If a string is passed, we use it as the logger name
-        return get_logger(name_or_level, log_file=str(LOG_FILE))
+        level = DEFAULT_LOG_LEVEL
+        logger_name = name_or_level
+
+    logger = logging.getLogger(logger_name)
+    _configure_logger(logger, level)
+    return logger
 
 # ----------------------------------------------------------------------
 # Checksum helpers
@@ -108,7 +141,8 @@ def record_artifact_hash(
     artifact_name
         Human‑readable name for the artifact; defaults to the filename.
     state_file
-        Path to the state YAML file; defaults to data/results/artifact_hashes.yaml.
+        Path to the state YAML file; defaults to
+        ``data/results/artifact_hashes.yaml``.
     """
     path = Path(file_path)
     if not path.is_file():
@@ -117,7 +151,7 @@ def record_artifact_hash(
     hash_val = compute_checksum(path)
     name = artifact_name or path.name
 
-    # Determine output file location (avoiding platform-owned state/ directory)
+    # Determine output file location (project‑owned)
     state_path = Path(state_file) if state_file is not None else HASH_FILE
 
     # Load existing state or start a new dict
@@ -151,9 +185,9 @@ def measure_duration(arg: Union[Callable, float]) -> Union[Callable, float]:
     """
     Dual‑purpose helper:
 
-    * If ``arg`` is a callable, returns a wrapped function that logs its
+    * If *arg* is a callable, returns a wrapped function that logs its
       execution time (acts as a decorator).
-    * If ``arg`` is a start‑time float, returns the elapsed seconds.
+    * If *arg* is a start‑time float, returns the elapsed seconds.
     """
     if callable(arg):
         func = arg
@@ -168,13 +202,13 @@ def measure_duration(arg: Union[Callable, float]) -> Union[Callable, float]:
 
         return wrapper
     else:
-        # Assume ``arg`` is a start timestamp
+        # Assume *arg* is a start timestamp
         start_time = float(arg)
         return time.time() - start_time
 
 def assert_duration_limit(duration_seconds: float, limit_seconds: Optional[float] = None) -> None:
     """
-    Verify that ``duration_seconds`` does not exceed ``limit_seconds``.
+    Verify that *duration_seconds* does not exceed *limit_seconds*.
 
     The default limit is ``MAX_EXECUTION_SECONDS`` (6 h). Raises
     ``AssertionError`` on violation with a message that includes the
@@ -292,7 +326,7 @@ def _cli() -> None:
             print("All required citations are present.")
             exit(0)
 
-    if args.verify_checksums:
+    if args.verify_checkums:
         # Lazy import to avoid circular dependencies
         try:
             from checksums import scan_raw_data_directory, record_checksums_to_state

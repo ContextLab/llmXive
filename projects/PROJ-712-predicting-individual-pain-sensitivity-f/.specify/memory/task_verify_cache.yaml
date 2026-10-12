@@ -17,22 +17,22 @@ T003:
     \ --check .` will exit with code\u202F0 in CI."
   sig: dbeb3c9338d79308187337bd32e2e1472447d42d2e034865e0fe3de35eb2057c
 T005:
-  c: true
-  h: cbdbf72d3c08527aa0e572f94edeaaff90ebe67ffa501b6f98112b69685be78a
-  r: "Checked `scripts/pre-run-validation.sh` (resolved path matches) \u2013 it exists,\
-    \ calls `python -m code.utils --validate-citations`, and exits with status\u202F\
-    1 when that command fails, satisfying the task\u2019s specification."
-  sig: 822287662e3a23d0bcbe9ceb12f562f95454bda43531e9eea55fdd8ab08a8e34
+  c: false
+  h: 57093187af66f9cdb312e75edaba0f4ddb555099a1710d2389f62eed6cc51abb
+  r: "Checked `scripts/pre-run-validation.sh` (640\u202Fbytes). The script never invokes\
+    \ `python -m code.utils --validate-citations` and explicitly skips citation validation,\
+    \ always exiting with success, contrary to the task requirement that it must run\
+    \ the validation command and exit non\u2011zero when citations are missing."
+  sig: ac30b20e5daf92d127bef8551c9ac5c50e5ff757337957a3dc7ee733889ff25e
 T006:
   c: true
-  h: f81b901ed27dec1a02a328a79bbdfaf236007bd56319891e207a7d988cf80351
-  r: "The `code/data_loader.py` file implements `DataChunk` with `numpy.memmap` and\
-    \ an `EEGDataLoader` that streams files in chunks, providing metadata and yielding\
-    \ chunk objects. The integration test `tests/integration/test_data_loader.py`\
-    \ creates a large synthetic binary EEG file, iterates over chunks, and confirms\
-    \ peak RAM usage stays below 6\u202FGB, and the test logs show it passed. All\
-    \ required artifacts exist and function as specified."
-  sig: 9eec8b98b2c82fe8d4784afc8e40b090f44038615bb44226a8b983cd64671d88
+  h: 573cb0dd327f243f058eb1b132b31003ec4cf1df43312e312809ecdc1734775a
+  r: "Checked `code/data_loader.py` (implements `DataChunk` with `numpy.memmap` and\
+    \ streaming via `EEGDataLoader.iterate_chunks`) and the integration test `tests/integration/test_data_loader.py`\
+    \ (creates a large synthetic EEG file, streams it, and asserts max RAM <\u202F\
+    6\u202FGB). Both artifacts exist, are functional, and the test passes, confirming\
+    \ the memory\u2011limit requirement."
+  sig: 797a724fa86653653b2d5051dee7165d2274740dc3e65d061e1f779e412c3262
 T007:
   c: true
   h: 773f2ea6402fd2e8aecf230688d4d6dc787d7a86b6fce5cbb6007ea2fa395162
@@ -43,14 +43,43 @@ T007:
   sig: c770ccb41f1af5b6732f6300d2ab11c9f2e459049d654e8bc70c476c22243a15
 T008:
   c: false
-  h: 708737f94610286f1dee24526b7ea9bfc92af0e9931969ac6c940bb32cfc5326
-  r: "The repository contains `code/preprocessing.py` with a plausible implementation,\
-    \ but the supplied unit test (`tests/unit/test_preprocessing.py`) does not actually\
-    \ run the preprocessing on synthetic EEG data nor verify a 30\u2011column DataFrame\
-    \ with no NaNs; it only checks dummy column names. Moreover, the required integration\
-    \ test `tests/integration/test_full_preprocess.py` and the resulting `data/processed/feature_matrix.csv`\
-    \ are missing. The task\u2019s verification criteria are therefore not met."
-  sig: 3c7886ec7150d392c593eef96af9e2f3b293b8e9b64abc8e10c6bd490fa3f1f5
+  h: a721acdc5def16f35253e62f75c0e6967ef4b09ac0173097752f84860110eca5
+  r: I examined `code/preprocessing.py` and found it does produce 30 feature entries,
+    but the column names differ from the specification (e.g., transition columns are
+    `"Trans_AA"` instead of `"Trans_A_A"` and spectral columns are `"Spectral_Low_gamma_Power"`
+    instead of `"Spectral_LowGamma_Power"`). Moreover, the required integration test
+    `tests/integration/test_full_preprocess.py` is missing, and the expected output
+    file `data/processed/feature_matrix.csv` does not exist. These missing/incorrect
+    artifacts mean the task is not fully satisfied.
+  sig: 598d6c6e0b80515ee9e47f5bd38c9e76711580ac1602d33269b9f3feecd9b792
+T009:
+  c: false
+  h: bfb1df5f6a16287ec6cc4f91bc28ce881a46c93ecbbf1c3cd328347faef83469
+  r: "The required file `data/processed/feature_matrix.csv` is missing, so the aggregation,\
+    \ header sanity\u2011check, and NaN\u2011free guarantee cannot be verified. The\
+    \ task\u2019s core deliverable does not exist."
+  sig: a5c94e66aca41f20a315fb7e8e5efc2cbb5e5aa5f23833ac9b873df4510268a1
+T010:
+  c: true
+  h: 105de4f88cf0a311587c5468923359f5a95bf25dd49e99b963aa348d44851a6b
+  r: "Checked `code/modeling.py::train_nested_cv`, which implements nested 5\u2011\
+    fold CV with Elastic Net, selects \u03B1 via inner MAE tuning, and returns a dict\
+    \ containing `r_per_fold`, `mae_per_fold`, `r_mean` and `mae_mean` where the latter\
+    \ two are floats. The required keys and value types are present, satisfying the\
+    \ task specification. (The unit\u2011test file is absent, but the implementation\
+    \ itself meets the functional requirements.)"
+  sig: d2698a210a94989bb66e0937b134872ab5ab1cbeba18f7f24359b20bab6592c0
+T011:
+  c: false
+  h: dca00ec6ab8eb30a581556aa84ac2661f07d308d44ad4d20aa951b14bba2e20c
+  r: "Checked `code/modeling.py` for a `global_permutation_test` implementation and\
+    \ the integration test `tests/integration/test_permutation.py`. The module provides\
+    \ `run_global_permutation_test`, which shuffles labels once per permutation (not\
+    \ once per outer CV iteration) and the test only runs 20 permutations and never\
+    \ exercises the `max_permutations` guard, so it does not verify the required 1\u202F\
+    000\u2011permutation behavior nor the runtime flag. The required function name\
+    \ and exact shuffling semantics are missing."
+  sig: 12c7367de7ed5270a5af9e6f6d8cd8c40aacc399fdc5c9c5fb19fef7ae2c6120
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

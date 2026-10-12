@@ -1,0 +1,7 @@
+{
+  "task_id": "T014",
+  "fingerprint": "6fbe5686cef859d06cbcd7f128d8006267409713183543d6521ff096558f05ce",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'tests/integration/test_pipeline.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}

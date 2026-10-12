@@ -2,6 +2,8 @@ import os
 import sys
 import logging
 import numpy as np
+import json
+import time
 from pathlib import Path
 from typing import Tuple, List, Optional, Dict, Any
 import pandas as pd
@@ -10,6 +12,7 @@ from utils import set_global_seed, setup_logging, record_artifact_hash
 from config import ensure_directories
 
 logger = logging.getLogger(__name__)
+
 
 def calculate_observed_metric(X: np.ndarray, y: np.ndarray, model: Any) -> float:
     """
@@ -28,17 +31,26 @@ def calculate_observed_metric(X: np.ndarray, y: np.ndarray, model: Any) -> float
     r, _ = stats.pearsonr(predictions, y)
     return float(r)
 
-def run_bootstrap_ci(X: np.ndarray, y: np.ndarray, model_class: Any, 
-                    n_iterations: int = 200, random_state: int = 42) -> Tuple[float, float, float]:
+
+def run_bootstrap_ci(
+    X: np.ndarray,
+    y: np.ndarray,
+    model_class: Any,
+    n_iterations: int = 200,
+    random_state: int = 42
+) -> Tuple[float, float, float]:
     """
     Perform bootstrap resampling to calculate 95% CI for Pearson r.
+    
+    This helper function implements the core bootstrap logic without any
+    runtime‑limit guard. It is retained for backward compatibility.
     
     Args:
         X: Feature matrix
         y: Target labels
         model_class: Class of the model to instantiate
         n_iterations: Number of bootstrap iterations
-        random_state: Random seed
+        random_state: Seed for reproducibility
         
     Returns:
         Tuple of (observed_r, lower_ci, upper_ci)
@@ -72,6 +84,7 @@ def run_bootstrap_ci(X: np.ndarray, y: np.ndarray, model_class: Any,
     
     return observed_r, lower_ci, upper_ci
 
+
 def calculate_empirical_pvalue(observed_r: float, null_distribution: np.ndarray) -> float:
     """
     Calculate empirical p-value by comparing observed r against the null distribution.
@@ -89,15 +102,11 @@ def calculate_empirical_pvalue(observed_r: float, null_distribution: np.ndarray)
     if len(null_distribution) == 0:
         raise ValueError("Null distribution is empty. Cannot calculate p-value.")
     
-    # Two-tailed test: count how many null values are as extreme or more extreme
-    # than the observed value (in absolute terms)
+    # Two-tailed test: compare absolute values
     abs_observed = np.abs(observed_r)
     abs_null = np.abs(null_distribution)
     
-    # Count values in null distribution >= |observed_r|
     extreme_count = np.sum(abs_null >= abs_observed)
-    
-    # Calculate p-value
     p_value = extreme_count / len(null_distribution)
     
     logger.info(f"Observed r: {observed_r:.4f}")
@@ -106,6 +115,7 @@ def calculate_empirical_pvalue(observed_r: float, null_distribution: np.ndarray)
     logger.info(f"Empirical p-value: {p_value:.4f}")
     
     return float(p_value)
+
 
 def load_null_distribution(path: Path) -> np.ndarray:
     """
@@ -126,6 +136,7 @@ def load_null_distribution(path: Path) -> np.ndarray:
     else:
         raise ValueError(f"Unsupported file format: {path.suffix}")
 
+
 def save_null_distribution(null_dist: np.ndarray, path: Path) -> None:
     """
     Save the null distribution to a file.
@@ -137,6 +148,7 @@ def save_null_distribution(null_dist: np.ndarray, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     np.save(path, null_dist)
     logger.info(f"Null distribution saved to {path}")
+
 
 def run_modeling_pipeline(
     feature_matrix_path: Path,
@@ -180,13 +192,7 @@ def run_modeling_pipeline(
         )
     null_dist = load_null_distribution(null_distribution_path)
     
-    # We need to calculate the observed r again to ensure consistency
-    # This assumes the model is already trained or we retrain it
-    # For this implementation, we'll assume we have the observed_r from T022
-    # or we need to recompute it. Let's recompute it for consistency.
-    
-    # Simple linear regression for observed metric (as placeholder for actual model)
-    # In a real scenario, this would use the Elastic Net model from T021
+    # Simple Elastic Net model for observed metric
     from sklearn.linear_model import ElasticNet
     model = ElasticNet(alpha=0.5, l1_ratio=0.5, random_state=random_state, max_iter=5000)
     model.fit(X, y)
@@ -210,7 +216,6 @@ def run_modeling_pipeline(
     
     # Save results
     output_artifact_path.parent.mkdir(parents=True, exist_ok=True)
-    import json
     with open(output_artifact_path, 'w') as f:
         json.dump(results, f, indent=2)
     
@@ -218,6 +223,308 @@ def run_modeling_pipeline(
     record_artifact_hash(output_artifact_path)
     
     return results
+
+
+def train_nested_cv(
+    X: np.ndarray,
+    y: np.ndarray,
+    outer_folds: int = 5,
+    inner_folds: int = 5,
+    random_state: int = 42,
+    alphas: Optional[List[float]] = None
+) -> Dict[str, Any]:
+    """
+    Perform nested cross‑validation using Elastic Net (l1_ratio=0.5, alpha tuned).
+    
+    The outer loop evaluates model performance; the inner loop selects the
+    regularisation strength (alpha) that minimises mean absolute error.
+    
+    Returns a dictionary containing:
+        - 'r_per_fold': list of Pearson r for each outer fold
+        - 'mae_per_fold': list of MAE for each outer fold
+        - 'r_mean': mean Pearson r across outer folds (float)
+        - 'mae_mean': mean MAE across outer folds (float)
+    
+    Args:
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
+        outer_folds: Number of outer CV folds (default 5)
+        inner_folds: Number of inner CV folds for hyper‑parameter tuning (default 5)
+        random_state: Seed for reproducibility
+        alphas: Optional list of alpha values to search. If None, a default log‑space grid is used.
+    
+    Returns:
+        dict with performance metrics.
+    """
+    from sklearn.linear_model import ElasticNet
+    from sklearn.model_selection import KFold
+    from sklearn.metrics import mean_absolute_error
+
+    set_global_seed(random_state)
+
+    if alphas is None:
+        # Default grid: 10 values log‑spaced between 1e-4 and 1e2
+        alphas = np.logspace(-4, 2, 10).tolist()
+
+    outer_cv = KFold(n_splits=outer_folds, shuffle=True, random_state=random_state)
+
+    r_scores: List[float] = []
+    mae_scores: List[float] = []
+
+    for outer_fold, (train_idx, test_idx) in enumerate(outer_cv.split(X), start=1):
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+
+        # ---- Inner CV for hyper‑parameter selection ----
+        inner_cv = KFold(n_splits=inner_folds, shuffle=True, random_state=random_state)
+        inner_mae_means: List[float] = []
+
+        for alpha in alphas:
+            mae_inner_folds: List[float] = []
+            for inner_train_idx, inner_val_idx in inner_cv.split(X_train):
+                X_inner_train, X_val = X_train[inner_train_idx], X_train[inner_val_idx]
+                y_inner_train, y_val = y_train[inner_train_idx], y_train[inner_val_idx]
+
+                model = ElasticNet(
+                    alpha=alpha,
+                    l1_ratio=0.5,
+                    random_state=random_state,
+                    max_iter=5000
+                )
+                model.fit(X_inner_train, y_inner_train)
+                preds = model.predict(X_val)
+                mae = mean_absolute_error(y_val, preds)
+                mae_inner_folds.append(mae)
+            # Average MAE for this alpha across inner folds
+            inner_mae_means.append(np.mean(mae_inner_folds))
+
+        # Choose alpha with lowest inner MAE
+        best_alpha = alphas[int(np.argmin(inner_mae_means))]
+
+        # ---- Train on full outer training set with best alpha ----
+        best_model = ElasticNet(
+            alpha=best_alpha,
+            l1_ratio=0.5,
+            random_state=random_state,
+            max_iter=5000
+        )
+        best_model.fit(X_train, y_train)
+
+        # ---- Evaluate on outer test set ----
+        test_preds = best_model.predict(X_test)
+        r, _ = stats.pearsonr(test_preds, y_test)
+        mae = mean_absolute_error(y_test, test_preds)
+
+        r_scores.append(float(r))
+        mae_scores.append(float(mae))
+
+        logger.info(
+            f"Outer Fold {outer_fold}/{outer_folds}: "
+            f"best_alpha={best_alpha:.5f}, r={r:.4f}, MAE={mae:.4f}"
+        )
+
+    # Compute means
+    r_mean = float(np.mean(r_scores))
+    mae_mean = float(np.mean(mae_scores))
+
+    results = {
+        "r_per_fold": r_scores,
+        "mae_per_fold": mae_scores,
+        "r_mean": r_mean,
+        "mae_mean": mae_mean
+    }
+
+    logger.info(f"Nested CV completed: r_mean={r_mean:.4f}, mae_mean={mae_mean:.4f}")
+    return results
+
+
+def run_global_permutation_test(
+    X: np.ndarray,
+    y: np.ndarray,
+    n_permutations: int = 1000,
+    seed: int = 42,
+    max_permutations: int = 1000
+) -> Tuple[np.ndarray, float]:
+    """
+    Perform global permutation testing (FR‑004).
+
+    For each permutation, the target labels are shuffled **once per outer CV
+    iteration**, the full nested CV is executed, and the resulting mean Pearson
+    correlation (r) is stored. The function returns the null distribution of
+    mean r values and the empirical p-value compared to the observed metric.
+
+    Args:
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
+        n_permutations: Number of permutations to perform.
+        seed: Random seed for reproducibility.
+        max_permutations: Upper bound on allowed permutations (runtime guard).
+
+    Returns:
+        A tuple (null_distribution, p_value) where:
+            - null_distribution is a NumPy array of shape (n_permutations,)
+              containing the mean r from each permutation.
+            - p_value is the empirical two‑tailed p‑value.
+    """
+    if n_permutations > max_permutations:
+        raise ValueError(
+            f"Requested {n_permutations} permutations exceeds the allowed maximum "
+            f"of {max_permutations}. Reduce n_permutations or increase max_permutations."
+        )
+
+    set_global_seed(seed)
+
+    # Compute observed metric once on the original data
+    observed_results = train_nested_cv(X, y, random_state=seed)
+    observed_r = observed_results["r_mean"]
+
+    null_r = np.empty(n_permutations, dtype=float)
+
+    for i in range(n_permutations):
+        # Shuffle labels globally for this permutation
+        y_permuted = np.random.permutation(y)
+        # Run nested CV on permuted labels
+        perm_results = train_nested_cv(X, y_permuted, random_state=seed + i)
+        null_r[i] = perm_results["r_mean"]
+
+    # Compute empirical p‑value
+    p_value = calculate_empirical_pvalue(observed_r, null_r)
+
+    logger.info(
+        f"Global permutation test completed: {n_permutations} permutations, "
+        f"observed r={observed_r:.4f}, p-value={p_value:.4f}"
+    )
+
+    return null_r, p_value
+
+
+def bootstrap_ci(
+    X: np.ndarray,
+    y: np.ndarray,
+    model_class: Any,
+    n_iterations: int = 200,
+    random_state: int = 42,
+    max_runtime_seconds: int = 6 * 3600,
+    output_path: Optional[Path] = None
+) -> Tuple[float, float]:
+    """
+    Perform bootstrap resampling to obtain a 95 % confidence interval for the
+    observed Pearson correlation coefficient. A runtime‑limit guard aborts the
+    procedure (with a warning) if the projected total runtime would exceed the
+    CI budget (default 6 hours).
+
+    Args:
+        X: Feature matrix.
+        y: Target vector.
+        model_class: Class of the model to instantiate (e.g., ElasticNet).
+        n_iterations: Number of bootstrap resamples (default 200).
+        random_state: Seed for reproducibility.
+        max_runtime_seconds: Upper bound on total runtime (default 6 h).
+        output_path: Optional path to write the CI JSON artifact. If provided,
+                     the file will contain {"ci_lower": ..., "ci_upper": ...}.
+
+    Returns:
+        Tuple (ci_lower, ci_upper).
+    """
+    set_global_seed(random_state)
+    ensure_directories()
+
+    # Fit model on full data to obtain the observed correlation
+    model = model_class()
+    model.fit(X, y)
+    observed_r = calculate_observed_metric(X, y, model)
+
+    bootstrap_r = []
+    n_samples = len(y)
+
+    start_time = time.time()
+    for i in range(n_iterations):
+        # Check projected runtime after each completed iteration
+        elapsed = time.time() - start_time
+        # Projected total time assuming remaining iterations take same time as average so far
+        if i > 0:
+            projected_total = elapsed / (i + 1) * n_iterations
+            if projected_total > max_runtime_seconds:
+                logger.warning(
+                    f"Bootstrap CI aborted after {i+1} iterations: projected runtime "
+                    f"{projected_total/3600:.2f} h exceeds limit of {max_runtime_seconds/3600:.2f} h."
+                )
+                break
+
+        # Resample indices with replacement
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        X_resample = X[indices]
+        y_resample = y[indices]
+
+        # Fit model on resampled data
+        model_boot = model_class()
+        model_boot.fit(X_resample, y_resample)
+        r_boot = calculate_observed_metric(X_resample, y_resample, model_boot)
+        bootstrap_r.append(r_boot)
+
+    if not bootstrap_r:
+        raise RuntimeError("No bootstrap iterations were completed; cannot compute CI.")
+
+    bootstrap_r = np.array(bootstrap_r)
+    ci_lower = float(np.percentile(bootstrap_r, 2.5))
+    ci_upper = float(np.percentile(bootstrap_r, 97.5))
+
+    # Write artifact if a path is supplied
+    if output_path is not None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        ci_dict = {"ci_lower": ci_lower, "ci_upper": ci_upper}
+        with open(output_path, 'w') as f:
+            json.dump(ci_dict, f, indent=2)
+        logger.info(f"Bootstrap CI saved to {output_path}")
+        record_artifact_hash(output_path)
+
+    return ci_lower, ci_upper
+
+
+def compute_empirical_pvalue(
+    observed_r: float,
+    null_distribution: np.ndarray,
+    output_path: Path
+) -> float:
+    """
+    Compute the empirical p‑value for the observed Pearson correlation coefficient
+    against a permutation null distribution and store the result in a JSON artifact.
+
+    This function satisfies Task T013. It writes a JSON file containing at least the
+    fields ``observed_r`` and ``p_value`` (additional fields may be added later).
+
+    Args:
+        observed_r: Observed Pearson correlation coefficient (float).
+        null_distribution: 1‑D NumPy array of correlation coefficients obtained from
+                           permutation testing.
+        output_path: Path where the JSON result artifact should be saved
+                     (e.g., ``artifacts/model_result.json``).
+
+    Returns:
+        The computed empirical p‑value (float).
+    """
+    # Compute p‑value using the existing helper
+    p_value = calculate_empirical_pvalue(observed_r, null_distribution)
+
+    # Prepare result dictionary
+    result = {
+        "observed_r": float(observed_r),
+        "p_value": float(p_value)
+    }
+
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write JSON artifact
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    logger.info(f"Empirical p‑value ({p_value:.4f}) written to {output_path}")
+    # Record artifact hash for reproducibility tracking
+    record_artifact_hash(output_path)
+
+    return p_value
+
 
 def main():
     """Entry point for the modeling pipeline."""
