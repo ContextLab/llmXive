@@ -3,7 +3,7 @@ Unit tests for the utils module (Task T004).
 
 Verifies:
 * Identical files produce identical SHA‑256 hashes via ``compute_checksum``.
-* The lightweight logger writes to ``state/log.txt``.
+* The lightweight logger writes to ``logs/log.txt``.
 """
 
 import os
@@ -37,10 +37,9 @@ def test_compute_checksum_identical_files(tmp_path: Path):
 def test_logger_writes_to_state_log(tmp_path: Path):
     """
     The logger configured by ``setup_logging`` must write messages to
-    ``state/log.txt``.
+    ``logs/log.txt``.
     """
-    # Ensure a clean state directory for the test
-    # (the utils module creates STATE_DIR on import)
+    # Ensure a clean logs directory for the test
     if LOG_FILE.is_file():
         LOG_FILE.unlink()
 

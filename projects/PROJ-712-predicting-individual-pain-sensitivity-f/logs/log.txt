@@ -1,37 +1,38 @@
-2026-10-12 16:09:02,759 - WARNING - checksums - Could not read existing state file state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
+2026-10-12 17:07:59,948 - INFO - test_logger - utils unit test log entry
+2026-10-12 17:08:12,132 - WARNING - checksums - Could not read existing state file state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
   in "state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml", line 3, column 21
-2026-10-12 16:09:02,760 - INFO - checksums - Checksums recorded to state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
-2026-10-12 16:09:02,824 - ERROR - __main__ - Missing required citations:
-2026-10-12 16:09:02,824 - ERROR - __main__ - Missing required citations:
-2026-10-12 16:09:02,824 - ERROR - __main__ -   - doi:10.1234/example1
-2026-10-12 16:09:02,824 - ERROR - __main__ -   - doi:10.1234/example1
-2026-10-12 16:09:02,824 - ERROR - __main__ -   - doi:10.5678/example2
-2026-10-12 16:09:02,824 - ERROR - __main__ -   - doi:10.5678/example2
-2026-10-12 16:09:04,106 - INFO - matplotlib.font_manager - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-12 16:09:04,280 - INFO - matplotlib.font_manager - generated new fontManager
-2026-10-12 16:09:04,502 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
-2026-10-12 16:09:04,502 - INFO - __main__ - Scanning raw data directory for checksums...
-2026-10-12 16:09:04,504 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
-2026-10-12 16:09:04,504 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:04,504 - INFO - __main__ - Found 1 participants to process.
-2026-10-12 16:09:05,803 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
-2026-10-12 16:09:05,803 - INFO - __main__ - Scanning raw data directory for checksums...
-2026-10-12 16:09:05,805 - WARNING - checksums - Could not read existing state file /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
+2026-10-12 17:08:12,133 - INFO - checksums - Checksums recorded to state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
+2026-10-12 17:08:12,197 - ERROR - __main__ - Missing required citations:
+2026-10-12 17:08:12,197 - ERROR - __main__ - Missing required citations:
+2026-10-12 17:08:12,198 - ERROR - __main__ -   - doi:10.1234/example1
+2026-10-12 17:08:12,198 - ERROR - __main__ -   - doi:10.1234/example1
+2026-10-12 17:08:12,198 - ERROR - __main__ -   - doi:10.5678/example2
+2026-10-12 17:08:12,198 - ERROR - __main__ -   - doi:10.5678/example2
+2026-10-12 17:08:13,568 - INFO - matplotlib.font_manager - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-12 17:08:13,650 - INFO - matplotlib.font_manager - generated new fontManager
+2026-10-12 17:08:13,863 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
+2026-10-12 17:08:13,863 - INFO - __main__ - Scanning raw data directory for checksums...
+2026-10-12 17:08:13,865 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
+2026-10-12 17:08:13,865 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
+2026-10-12 17:08:13,865 - INFO - __main__ - Found 1 participants to process.
+2026-10-12 17:08:15,203 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
+2026-10-12 17:08:15,203 - INFO - __main__ - Scanning raw data directory for checksums...
+2026-10-12 17:08:15,204 - WARNING - checksums - Could not read existing state file /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
   in "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml", line 3, column 21
-2026-10-12 16:09:05,806 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
-2026-10-12 16:09:05,806 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:05,806 - INFO - __main__ - Found 1 participants to process.
-2026-10-12 16:09:07,088 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
-2026-10-12 16:09:07,088 - INFO - __main__ - Scanning raw data directory for checksums...
-2026-10-12 16:09:07,089 - WARNING - checksums - Could not read existing state file /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
+2026-10-12 17:08:15,205 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
+2026-10-12 17:08:15,205 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
+2026-10-12 17:08:15,206 - INFO - __main__ - Found 1 participants to process.
+2026-10-12 17:08:16,533 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
+2026-10-12 17:08:16,533 - INFO - __main__ - Scanning raw data directory for checksums...
+2026-10-12 17:08:16,535 - WARNING - checksums - Could not read existing state file /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
   in "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml", line 3, column 21
-2026-10-12 16:09:07,090 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
-2026-10-12 16:09:07,090 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:07,091 - INFO - __main__ - Found 1 participants to process.
-2026-10-12 16:09:08,401 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
-2026-10-12 16:09:08,401 - INFO - __main__ - Scanning raw data directory for checksums...
-2026-10-12 16:09:08,403 - WARNING - checksums - Could not read existing state file /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
+2026-10-12 17:08:16,536 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
+2026-10-12 17:08:16,536 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
+2026-10-12 17:08:16,536 - INFO - __main__ - Found 1 participants to process.
+2026-10-12 17:08:17,895 - INFO - __main__ - Starting Pain Sensitivity Prediction Pipeline (T035: Full Orchestration)
+2026-10-12 17:08:17,895 - INFO - __main__ - Scanning raw data directory for checksums...
+2026-10-12 17:08:17,896 - WARNING - checksums - Could not read existing state file /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:pathlib.PosixPath'
   in "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml", line 3, column 21
-2026-10-12 16:09:08,404 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
-2026-10-12 16:09:08,404 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:08,404 - INFO - __main__ - Found 1 participants to process.
+2026-10-12 17:08:17,897 - INFO - checksums - Checksums recorded to /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
+2026-10-12 17:08:17,897 - INFO - __main__ - Step 1: Preprocessing and Feature Extraction...
+2026-10-12 17:08:17,898 - INFO - __main__ - Found 1 participants to process.

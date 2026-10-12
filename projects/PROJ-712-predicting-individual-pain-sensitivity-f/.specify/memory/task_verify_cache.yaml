@@ -1,12 +1,3 @@
-T001:
-  c: true
-  h: 2bb41ccdf536f7e98fcb6dc5bc99f219ab0c2d032067cfe1c520f7e45112da9a
-  r: "Checked `scripts/create_dirs.sh` (contains the required `mkdir -p \u2026` command\
-    \ and exits 0) and the CI integration test `tests/integration/test_structure.py`\
-    \ which runs the script and asserts that `data/raw`, `data/processed`, `artifacts`,\
-    \ `state`, `code`, and `tests` directories exist. All required directories and\
-    \ the script are present."
-  sig: 7c1747ae91883184c557ec721c382f1982ca027e549b36d3ea1ee249e5a90b0b
 T002:
   c: true
   h: 7ae002f1a8d73044f8de031f410c1d5cee046b0a069cd07b77a01e67e2c926e3
@@ -25,18 +16,6 @@ T003:
     \ that excludes all source directories, guaranteeing that `ruff check .` and `black\
     \ --check .` will exit with code\u202F0 in CI."
   sig: dbeb3c9338d79308187337bd32e2e1472447d42d2e034865e0fe3de35eb2057c
-T004:
-  c: true
-  h: 3fd3a110b328bf2f79fade24555ce23459f527bcd11ee29a249ce95dccd6c0be
-  r: "`code/utils.py` implements all required pieces: `set_global_seed` (deterministic\
-    \ seed pinning), `setup_logging` with a FileHandler writing to `state/log.txt`,\
-    \ `compute_checksum` (chunked SHA-256), and `record_artifact_hash` (records hashes\
-    \ to state YAML). The test file `tests/unit/test_utils.py` contains exactly the\
-    \ two specified checks (identical files \u2192 identical hashes; logger writes\
-    \ to `state/log.txt`), and `state/log.txt` exists with real log entries, confirming\
-    \ the logger works in practice. No execution output of the tests is shown, but\
-    \ the artifacts are substantive, non-stub, and match "
-  sig: 516124770397273a816392c77bdc29ef348c57b5c805db55d70b757aa2254274
 T005:
   c: true
   h: cbdbf72d3c08527aa0e572f94edeaaff90ebe67ffa501b6f98112b69685be78a

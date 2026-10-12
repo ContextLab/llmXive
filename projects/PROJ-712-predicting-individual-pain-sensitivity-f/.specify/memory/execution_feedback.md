@@ -28,13 +28,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 Checking citations...
 
-2026-10-12 16:09:02 - ERROR - Missing required citations:
-2026-10-12 16:09:02 - ERROR -   - doi:10.1234/example1
-2026-10-12 16:09:02 - ERROR -   - doi:10.5678/example2
+2026-10-12 17:08:12 - ERROR - Missing required citations:
+2026-10-12 17:08:12 - ERROR -   - doi:10.1234/example1
+2026-10-12 17:08:12 - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
  - INFO - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:04 - INFO - Found 1 participants to process.
+2026-10-12 17:08:13 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
     main()
@@ -52,7 +52,7 @@ TypeError: expected str, bytes or os.PathLike object, not EEGDataLoader
 
 - python code/main.py --step preprocess -> rc=1
  - INFO - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:05 - INFO - Found 1 participants to process.
+2026-10-12 17:08:15 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
     main()
@@ -70,7 +70,7 @@ TypeError: expected str, bytes or os.PathLike object, not EEGDataLoader
 
 - python code/main.py --step model -> rc=1
  - INFO - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:07 - INFO - Found 1 participants to process.
+2026-10-12 17:08:16 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
     main()
@@ -88,7 +88,7 @@ TypeError: expected str, bytes or os.PathLike object, not EEGDataLoader
 
 - python code/main.py --step diagnostics -> rc=1
  - INFO - Step 1: Preprocessing and Feature Extraction...
-2026-10-12 16:09:08 - INFO - Found 1 participants to process.
+2026-10-12 17:08:17 - INFO - Found 1 participants to process.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 215, in <module>
     main()
@@ -122,7 +122,7 @@ ERROR tests/integration/test_permutation.py
 ERROR tests/test_config.py
 ERROR tests/unit/test_checksum_manager.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 4 errors in 1.71s ========================
+======================== 14 warnings, 4 errors in 1.83s ========================
 
 
 
