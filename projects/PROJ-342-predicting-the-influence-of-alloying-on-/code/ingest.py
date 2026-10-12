@@ -136,8 +136,20 @@ def load_and_validate_data(df: pd.DataFrame, logger: logging.Logger) -> Tuple[pd
     if df.empty:
         raise DataInsufficientError("Dataset is empty.")
 
-    if 'Tg' not in df.columns:
-        raise ValueError("Dataset missing required column 'Tg'.")
+    if 'Tg' not in df.columns and 'tg_value' in df.columns:
+        df = df.rename(columns={'tg_value': 'Tg'})
+
+    # Ensure a composition column exists; build from ``elements`` if needed.
+    if 'composition' not in df.columns and 'elements' in df.columns:
+        def elements_to_comp(elem):
+            if isinstance(elem, dict):
+                parts = []
+                for sym, frac in sorted(elem.items()):
+                    # Convert fraction (0‑1) to percentage with one decimal.
+                    parts.append(f"{sym}{frac * 100:.1f}")
+                return "".join(parts)
+            return ""
+        df['composition'] = df['elements'].apply(elements_to_comp)
 
     raw_count = len(df)
 

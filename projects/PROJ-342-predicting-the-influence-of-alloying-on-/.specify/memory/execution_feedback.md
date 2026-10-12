@@ -26,17 +26,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingest.py --verify-only -> rc=1
-^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 163, in fetch_from_zenodo
+^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 73, in fetch_from_zenodo
     raise DataUnavailableError(f"No CSV file found in Zenodo record {record_id}")
 zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 11023456
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 279, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 291, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 270, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 282, in main
     df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 126, in fetch_from_zenodo_wrapper
@@ -66,7 +66,7 @@ ERROR tests/unit/test_train_artifacts.py
 ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.72s ===============================
+============================== 5 errors in 1.28s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -83,7 +83,7 @@ tests/integration/test_train_pipeline.py:84
 =========================== short test summary info ============================
 ERROR tests/integration/test_statistical_validation.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 1 error in 1.28s ==========================
+========================= 1 warning, 1 error in 1.16s ==========================
 
 
 
