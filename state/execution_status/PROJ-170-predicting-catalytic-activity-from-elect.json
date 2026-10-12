@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-12T21:09:19Z",
-  "project_id": "PROJ-170-predicting-catalytic-activity-from-elect"
+  "updated_at": "2026-10-12T23:13:03Z",
+  "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+  "replan_rounds": 1
 }

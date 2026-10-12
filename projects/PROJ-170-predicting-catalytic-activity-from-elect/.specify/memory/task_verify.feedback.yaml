@@ -1,4 +1,12 @@
 T101:
+  reason: "The task requires creating `data/raw/` and `data/processed/`, but the collector\
+    \ reports both as MISSING at the project root (only `outputs/`, `code/`, `tests/`\
+    \ exist), so `tests/integration/test_skeleton.py::test_dirs_exist` would fail\
+    \ on `paths.data(\"raw\")` and `paths.data(\"processed\")`. The `__init__.py`\
+    \ files and `.ruff.toml` (with E, F, W, I rules) are present and correct, but\
+    \ the directory skeleton is incomplete \u2014 create the two missing data directories\
+    \ (and confirm the tests/contract, tests/integration, tests/unit subdirs exist)\
+    \ so the skeleton test passes."
   task: 3426dfb2ea6e30088cf549c74f8f72b223ec7fdb3fb8dfd1371e74d5e5562c31
 T102:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py

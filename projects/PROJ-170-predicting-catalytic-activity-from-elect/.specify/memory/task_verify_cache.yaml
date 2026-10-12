@@ -1,12 +1,15 @@
 T101:
-  c: true
-  h: cb62f9678d3c423000ec3c6c7f0298e2bffe55dedb3c61d368c870300e045068
-  r: All required directories exist (data/raw, data/processed, outputs, code, code/utils,
-    code/models, tests with contract/integration/unit subdirs), the three empty `__init__.py`
-    files are present, and `.ruff.toml` selects rules E, F, W, I. The integration
-    test `test_skeleton.py` asserts `os.path.isdir` for each directory and passed
-    (exit 0, 2 passed) per the execution log, and the skeleton setup script ran successfully.
-  sig: dd82a067f3dac4778b72ad4a6e05c93c12c5df534e44456b9df728ef3f92c87d
+  c: false
+  h: f7bf67b2f9ea27e882f61b9629fa56055652c4a6f2e6962cf1ba64e9aeab9b24
+  r: "The task requires creating `data/raw/` and `data/processed/`, but the collector\
+    \ reports both as MISSING at the project root (only `outputs/`, `code/`, `tests/`\
+    \ exist), so `tests/integration/test_skeleton.py::test_dirs_exist` would fail\
+    \ on `paths.data(\"raw\")` and `paths.data(\"processed\")`. The `__init__.py`\
+    \ files and `.ruff.toml` (with E, F, W, I rules) are present and correct, but\
+    \ the directory skeleton is incomplete \u2014 create the two missing data directories\
+    \ (and confirm the tests/contract, tests/integration, tests/unit subdirs exist)\
+    \ so the skeleton test passes."
+  sig: 717bb376752f6f3842ce092e1c5c3e0deb5445a81dae4837992e3ec3198b22f0
 T103:
   c: false
   h: c5448939674c7d76a35b9c426e26d085f4d5165a5c5d568703bd193144dded17
