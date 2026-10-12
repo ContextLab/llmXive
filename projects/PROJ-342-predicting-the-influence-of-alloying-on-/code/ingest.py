@@ -38,9 +38,6 @@ def validate_and_clean_chunk(chunk: pd.DataFrame, schema: Dict, source_doi: str,
     """
     Validates a chunk of data against the schema and cleans it.
     """
-    # 1. Pre-processing for Schema: 
-    # The schema expects 'elements' as an object, but CSVs load it as a string.
-    # We must parse it to a dict for jsonschema validation.
     processed_rows = []
     
     for idx, row in chunk.iterrows():
@@ -54,14 +51,15 @@ def validate_and_clean_chunk(chunk: pd.DataFrame, schema: Dict, source_doi: str,
         if 'elements' in row_dict:
             try:
                 if isinstance(row_dict['elements'], str):
-                    row_dict['elements'] = json.loads(row_dict['elements'])
+                    # Handle potential single quotes or different JSON formats
+                    cleaned_elements = row_dict['elements'].replace("'", '"')
+                    row_dict['elements'] = json.loads(cleaned_elements)
             except (json.JSONDecodeError, TypeError):
-                # Incomplete/Invalid elements mapping
                 continue
         else:
-            continue # Missing elements mapping
+            continue
 
-        # Fill in metadata required by schema but potentially missing from raw CSV
+        # Fill in metadata required by schema
         row_dict['source'] = source_doi
         row_dict['status'] = 'valid'
         if 'record_id' not in row_dict or pd.isna(row_dict['record_id']):
@@ -126,10 +124,7 @@ def run_ingestion() -> None:
     cleaned_count = 0
     first_chunk = True
     
-    # Stream CSV with chunksize=1000 to stay within RAM budget
     try:
-        # We use pd.read_csv in chunks. 
-        # Note: We handle column mapping here if raw CSV uses 'Tg' instead of 'tg_value'
         reader = pd.read_csv(raw_path, chunksize=1000)
         for chunk in reader:
             raw_count += len(chunk)
@@ -141,7 +136,6 @@ def run_ingestion() -> None:
             cleaned_chunk = validate_and_clean_chunk(chunk, schema, used_doi, logger)
             cleaned_count += len(cleaned_chunk)
             
-            # Write to disk
             mode = 'w' if first_chunk else 'a'
             header = True if first_chunk else False
             cleaned_chunk.to_csv(cleaned_path, index=False, mode=mode, header=header)
@@ -185,8 +179,12 @@ def main() -> None:
             logger.info("Primary DOI verification successful.")
         except DataUnavailableError:
             raw_path = data_dir / f"zenodo_{fallback_doi.split('.')[-1]}.csv"
-            download_csv_from_zenodo(fallback_doi, raw_path)
-            logger.info("Fallback DOI verification successful.")
+            try:
+                download_csv_from_zenodo(fallback_doi, raw_path)
+                logger.info("Fallback DOI verification successful.")
+            except DataUnavailableError as e:
+                logger.error(f"Verification failed: {e}")
+                sys.exit(1)
     else:
         run_ingestion()
 

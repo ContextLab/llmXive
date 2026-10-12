@@ -1,13 +1,10 @@
 status: none
-intent: download Metallic Glass Database Zenodo 10.5281/zenodo.10043838 MatNVP Metallic
-  Glass python package dataset
+intent: download Metallic Glass Database composition Tg Zenodo 10.5281/zenodo.10043838
+  MatNVP python package dataset
 required_fields:
 - material_id
 - composition
-- elements
-- fractions
 - tg
-- tg_units
-cache_key: 7b029465020162f632ee7dfdde4924b25441d84e243739e397af388d20742a0f
-searched_at: '2026-10-12T09:25:31.424051+00:00'
+cache_key: 653f02ecb8ab5d8f2f436bb205902f2a1bfeaec61efb9614d7322411d10f9b10
+searched_at: '2026-10-12T11:18:24.582770+00:00'
 retry_count: 1
