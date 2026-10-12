@@ -1,0 +1,77 @@
+T001:
+  reason: "The `code/` tree contains additional sub\u2011directories (e.g., `.tasks`,\
+    \ `__pycache__`, `config`, `models`, `scripts`) so the contract test `tests/contract/test_code_tree.py`\
+    \ would fail \u2013 it expects **exactly** the five sub\u2011packages `simulation`,\
+    \ `analysis`, `statistics`, `viz`, and `utils`. The required core source tree\
+    \ is therefore not correctly created."
+  task: 5c42581cc5c254491159834fd30bb04d303b04c849984895720b8b6110914bd5
+T002:
+  reason: The `data/raw/` and `data/processed/` directories only contain a `.gitkeep`
+    placeholder and no real snapshot or metric files, so the hierarchy does not actually
+    store raw snapshots or processed metrics as required. Real data files must be
+    placed in those folders (and the tree command should show them) to satisfy the
+    task.
+  task: 7e63d5f4b4002a99081931edc0d7c1b4ec27e7d5e81e188eb58355cab18bde24
+T003:
+  task: f35f2f0430c0aee06d7f00277c918292d866f0e6116b5fa5afef8ecd469c7939
+T004:
+  reason: "The required config files (.ruff.toml, pyproject.toml, .pre-commit-config.yaml)\
+    \ exist and the contract test passed, but there is no evidence that `ruff check\
+    \ .`, `black --check .`, and `pre-commit run --all-files` were executed and returned\
+    \ exit\u2011code\u202F0. Execution logs for these commands are needed to confirm\
+    \ the task is fully satisfied."
+  task: 2d6368441fe6829ee7b51a9b82111374aa9786a707fee4587db896f46ba041af
+T005:
+  reason: "The README.md file exists and contains the scientific description, dependencies,\
+    \ a quick\u2011start command (`python -m simulation.runner`), and references to\
+    \ figures, satisfying the textual parts of the task. However, there is no provided\
+    \ evidence that `markdownlint` was run and passed without errors, which is a required\
+    \ verification step. A markdownlint report (or equivalent proof) is needed to\
+    \ consider the task complete."
+  task: 293d9dd189e7a92f97ae87526c4b22ec9f99fb36f2bfc03af4e99b47531d9ed7
+T006:
+  task: 8ecd8569af2ec086a4db60d074fe650d568fda89fc393ab5a69ee231649ea1dd
+T007:
+  task: 14a57e24e2de90604898fee83dd4c8f69d711e27d941a8da21894cf6ce01014b
+T008:
+  task: 3770ed67996097901c1e91682fec08247cd1b06b93ccbb4078d3eed4795c1deb
+T009:
+  task: 93af3c2c7c1d6cb08035b6ec405ef9abeb3b8632250afe90dedfc3d59dab7743
+T010:
+  task: 65fa1d6abd1569dc20e2caba9290aa9c79b8a6aed7caef112cdd173fc01ed488
+T010a:
+  task: 91aa6998c2ef2378772c82e747fbd2242e5499a23ea68b7dd091843e8866e62f
+T011:
+  task: a02da27fa6074ceaffaaa0d56152923aad3d69864db4ba360d3a6e156f31f53c
+T011a:
+  task: 6642b2f6e5fac01fb8255324a6b04b22af2f51d491d4b9f1ad6ed48c13552aab
+T011b:
+  task: 0729bb17bca85c90eed09034bee4570a65a0694542800200858b5d3657fb02d4
+T012:
+  task: 2edcaeeb9dbe7d9df1bf6d66ba85705a56988bd394e288db0d725a76aeab89b9
+T013:
+  task: 1ff507462522c2a398effc5fd8299b1592dffda1fdced21dd7379524c87cc3bc
+T014:
+  task: b99110ffa4a00b1aa4ffc8c4b422a54456aee0c4fe14673872f1704e52efd23b
+T015:
+  task: 096d09025dc14ec24ed421f748e10f54a9a2fc58298a71f955c95622459944b6
+T015a:
+  task: ec9a889eae37f03def0eeb22910bf964dbd657f17c9f052108e2373faa393bae
+T015b:
+  task: a3628f1f8da731374282ffec586f05c3438807ff2f6df5326ce958025b0f25d0
+T016:
+  task: 3d29f4d826e47b6d8229de26f66b5cfdab4d5e06e28316a62f7a734142fd9c89
+T017:
+  task: fa150ab9ea54e67aec3a12c099fbb0243f26d30642fd8884c153fb4248596810
+T017a:
+  task: 71d5708f37d472bdf704a4d57714fda64f34e350d04e00576f9afbcbd1e6d287
+T018:
+  task: 0c2d48c8ad89f99fb1869716584acd68ce9546824e4435510344a86877ace3f9
+T019:
+  task: 65a38964a3b52a1ee4b51a5381c6f8d78a791ec391b2991d6a0a5290164abc24
+T020:
+  task: 3dd9641c0fd37d68c9a24b584ae23e5fbffbc145bb76c5dcdcfbe211eb75d8b6
+T021:
+  task: 7027905a673bed7bfb6e284e5ef9f958bf8c2c9f33bb3a2226ccd8b0804eed3e
+T022:
+  task: 9e272d746a8469da738277486e846276f63f5dfe95001d1e310b5c3bab2b0ff7

@@ -16,7 +16,7 @@
   - **Paths**: `data/raw/`, `data/processed/`, `data/aggregated/`  
   - **Verification**: `tree -L 2 data/` must show the three sub‑folders; `tests/contract/test_data_tree.py` checks that each folder contains at least one file after the first run.
 
-- [ ] **T003** [P] Create the test hierarchy required for unit, contract, and integration verification.  
+- [X] **T003** [P] Create the test hierarchy required for unit, contract, and integration verification.  
   - **Paths**: `tests/unit/`, `tests/contract/`, `tests/integration/`  
   - **Verification**: `tree -L 2 tests/` must list the three directories; `pytest -q` must discover at least one test in each sub‑folder.
 

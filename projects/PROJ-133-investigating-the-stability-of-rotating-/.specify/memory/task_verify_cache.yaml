@@ -1,3 +1,47 @@
+T001:
+  c: false
+  h: 831ca805ec68e6f93158baf7c9e12e00d17136dbfefc199da0d84fd7b788e999
+  r: "The `code/` tree contains additional sub\u2011directories (e.g., `.tasks`, `__pycache__`,\
+    \ `config`, `models`, `scripts`) so the contract test `tests/contract/test_code_tree.py`\
+    \ would fail \u2013 it expects **exactly** the five sub\u2011packages `simulation`,\
+    \ `analysis`, `statistics`, `viz`, and `utils`. The required core source tree\
+    \ is therefore not correctly created."
+  sig: 06bf20967cfd03e6944e1f36317df26ce1707fe739cf474012da921f00e894a3
+T002:
+  c: false
+  h: b728ce4596d5abcc8d9a77d1f6fc1d28a010a4b42ae1cce50e51a479bfd871c4
+  r: The `data/raw/` and `data/processed/` directories only contain a `.gitkeep` placeholder
+    and no real snapshot or metric files, so the hierarchy does not actually store
+    raw snapshots or processed metrics as required. Real data files must be placed
+    in those folders (and the tree command should show them) to satisfy the task.
+  sig: b052a08661598bc2d70c76335f6e5fde93121afc93d772681b51a557c68ed927
+T003:
+  c: true
+  h: 60a6227871dd7246b6fb5b4520e6e1d5a0b5810a3696658079b24b9e272786ad
+  r: "The evidence shows the three required directories (`tests/unit/`, `tests/contract/`,\
+    \ `tests/integration/`) exist with multiple files, and pytest logs confirm that\
+    \ a test (`test_placeholder.py`) was discovered and passed in each sub\u2011folder.\
+    \ This satisfies both the directory\u2011structure and test\u2011discovery requirements."
+  sig: 3f092bad764a67aa85095e0c80a4dc54334c287d774f76efaa1ced403c93f452
+T004:
+  c: false
+  h: 216ba65d691354b54ef14d8a658abd0f2e492a843b3c9bbb93a35074b1fbe71e
+  r: "The required config files (.ruff.toml, pyproject.toml, .pre-commit-config.yaml)\
+    \ exist and the contract test passed, but there is no evidence that `ruff check\
+    \ .`, `black --check .`, and `pre-commit run --all-files` were executed and returned\
+    \ exit\u2011code\u202F0. Execution logs for these commands are needed to confirm\
+    \ the task is fully satisfied."
+  sig: c7f1774b117b7b821870f82086ed7505fade3bcac3ca210377be9d5cb4fa94eb
+T005:
+  c: false
+  h: a09f7641d42c23cf38eb4d8c5661027aee989b1c4925f05d097ed771d1b0dc0e
+  r: "The README.md file exists and contains the scientific description, dependencies,\
+    \ a quick\u2011start command (`python -m simulation.runner`), and references to\
+    \ figures, satisfying the textual parts of the task. However, there is no provided\
+    \ evidence that `markdownlint` was run and passed without errors, which is a required\
+    \ verification step. A markdownlint report (or equivalent proof) is needed to\
+    \ consider the task complete."
+  sig: 9aff3bd703a6717b38b30c5fc8159ec749969a3327dadb164a04cc0115643a6e
 T017a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -6,10 +50,3 @@ T017a:
     64 full\u2011scan and 256\xD7256 verification runs and records the performance\
     \ validation results (runtime, memory, and conclusion). This fulfills the task\u2019\
     s requirement to update spec.md accordingly."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or report was supplied that implements the metastability classification\
-    \ logic or calculates the false\u2011positive/negative rate variation required\
-    \ by FR\u2011006 and SC\u2011002. The artifact section contains no files, so the\
-    \ task\u2019s deliverables are missing."

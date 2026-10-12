@@ -1,7 +1,5 @@
 """
-llmXive Project: Investigating the Stability of Rotating Bose-Einstein Condensates
-with Dipolar Interactions
-
-This package contains the simulation, analysis, statistics, visualization,
-and utility modules for the research pipeline.
+Top-level package for the rotating BEC stability investigation project.
+This package aggregates sub-modules for simulation, analysis, statistics,
+visualization, and utility functions.
 """

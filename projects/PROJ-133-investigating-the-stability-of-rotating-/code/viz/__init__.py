@@ -1,4 +1,6 @@
 """
-Visualization module for generating plots, contour maps, and reporting
-results.
+Visualization subpackage.
+
+Generates phase‑maps, contour plots, and other figures summarizing the
+stability phase diagram.
 """

@@ -1,0 +1,7 @@
+{
+  "task_id": "T006",
+  "fingerprint": "3a52ba2ba09189e9c48a13c815f5c76a77ec59285729c5487f8b21d9bbf43b80",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/simulation/runner.py': imports nonexistent names from sibling files: `from utils.seed_manager import set_seed` (available: Any, DEFAULT_SEED, Dict, GLOBAL_SEED_ENV_VAR, Optional, derive_seed, ensure_reproducibility, get_global_seed...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list.\n[implementer] refused 'tests/contract/test_lint_config.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}

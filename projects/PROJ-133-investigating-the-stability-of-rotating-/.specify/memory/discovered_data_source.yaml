@@ -1,0 +1,16 @@
+status: none
+intent: Functional ANOVA Results benchmark dataset for statistical validation python
+  package dataset
+required_fields:
+- factor
+- level
+- sum_of_squares
+- mean_square
+- F_value
+- p_value
+- df
+- total_sum_of_squares
+- error_sum_of_squares
+cache_key: 7fe7636ef437e49ba543dcb2958ba228d4a33d995bdfde8c618dbecbad96f428
+searched_at: '2026-10-12T18:22:49.169092+00:00'
+retry_count: 1
