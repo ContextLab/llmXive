@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 17659,
+    "total_contributions": 17664,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1880,
+      "contribution_count": 1883,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -1053,7 +1053,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 112,
+      "contribution_count": 114,
       "kind": "llm",
       "name": "zai-org.glm-5.3"
     },
@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-12T12:19:31.070827+00:00",
+  "generated_at": "2026-10-12T12:23:36.227814+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -62782,11 +62782,12 @@
           ]
         },
         {
-          "contributions": 1,
+          "contributions": 6,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
-            "flesh_out"
+            "flesh_out",
+            "implementer"
           ]
         }
       ],
@@ -62809,6 +62810,46 @@
       "id": "PROJ-173-quantifying-the-impact-of-transposable-e",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 81.483889,
+          "ended_at": "2026-10-12T12:21:16.815232Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:19:55.331343Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 57.219776,
+          "ended_at": "2026-10-12T12:19:55.327348Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:18:58.107572Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 61.202853,
+          "ended_at": "2026-10-12T12:18:58.103493Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:17:56.900640Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 27.004701,
+          "ended_at": "2026-10-12T12:17:56.896394Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:17:29.891693Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 413.41243,
+          "ended_at": "2026-10-12T12:17:29.886642Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:10:36.474212Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 82.652539,
@@ -62848,46 +62889,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-17T06:50:51.993718Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 72.581162,
-          "ended_at": "2026-08-17T06:50:51.990242Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-17T06:49:39.409080Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 81.544529,
-          "ended_at": "2026-08-17T06:49:39.405644Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-17T06:48:17.861115Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 77.216995,
-          "ended_at": "2026-08-17T06:48:17.857602Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-17T06:47:00.640607Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 30.774986,
-          "ended_at": "2026-08-17T06:47:00.637109Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-17T06:46:29.862123Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 44.129053,
-          "ended_at": "2026-08-17T06:46:29.858552Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-17T06:45:45.729499Z"
         }
       ],
       "paper_status": null,
@@ -80597,6 +80598,22 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
@@ -80618,6 +80635,22 @@
       "id": "PROJ-275-statistical-analysis-of-publicly-availab",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 387.470614,
+          "ended_at": "2026-10-12T12:21:14.745440Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:14:47.274826Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 236.910508,
+          "ended_at": "2026-10-12T12:14:47.271431Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:10:50.360923Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 321.659857,
@@ -80681,22 +80714,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-04T15:30:23.227132Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 19.930742,
-          "ended_at": "2026-09-04T15:30:23.223996Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-04T15:30:03.293254Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 19.099367,
-          "ended_at": "2026-09-04T15:30:03.290089Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-04T15:29:44.190722Z"
         }
       ],
       "paper_status": null,
@@ -84447,6 +84464,14 @@
             "project_initializer",
             "specifier"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
@@ -84468,6 +84493,14 @@
       "id": "PROJ-299-assessing-the-impact-of-network-centrali",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 136.758842,
+          "ended_at": "2026-10-12T12:12:55.463293Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:10:38.704451Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 103.602156,
@@ -84539,14 +84572,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-12T09:01:11.230083Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 121.25506,
-          "ended_at": "2026-08-12T09:01:11.226314Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-12T08:59:09.971254Z"
         }
       ],
       "paper_status": null,
@@ -168339,6 +168364,14 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 3,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
@@ -168360,6 +168393,30 @@
       "id": "PROJ-988-llmxive-follow-up-extending-abot-earth-0",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 74.050038,
+          "ended_at": "2026-10-12T12:19:37.325822Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:18:23.275784Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 29.410145,
+          "ended_at": "2026-10-12T12:18:23.272837Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:17:53.862692Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 440.675507,
+          "ended_at": "2026-10-12T12:17:53.859596Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-12T12:10:33.184089Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 50.579909,
@@ -168415,30 +168472,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-05T07:21:26.192371Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 41.358703,
-          "ended_at": "2026-09-05T07:21:26.188972Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-05T07:20:44.830269Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 50.716057,
-          "ended_at": "2026-09-05T07:20:44.826884Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-05T07:19:54.110827Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 43.24675,
-          "ended_at": "2026-09-05T07:19:54.107388Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-05T07:19:10.860638Z"
         }
       ],
       "paper_status": null,
@@ -169162,6 +169195,126 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 81.483889,
+      "ended_at": "2026-10-12T12:21:16.815232Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-173-quantifying-the-impact-of-transposable-e",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:19:55.331343Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 387.470614,
+      "ended_at": "2026-10-12T12:21:14.745440Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-275-statistical-analysis-of-publicly-availab",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:14:47.274826Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 57.219776,
+      "ended_at": "2026-10-12T12:19:55.327348Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-173-quantifying-the-impact-of-transposable-e",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:18:58.107572Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 74.050038,
+      "ended_at": "2026-10-12T12:19:37.325822Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-988-llmxive-follow-up-extending-abot-earth-0",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:18:23.275784Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 61.202853,
+      "ended_at": "2026-10-12T12:18:58.103493Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-173-quantifying-the-impact-of-transposable-e",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:17:56.900640Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 29.410145,
+      "ended_at": "2026-10-12T12:18:23.272837Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-988-llmxive-follow-up-extending-abot-earth-0",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:17:53.862692Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 27.004701,
+      "ended_at": "2026-10-12T12:17:56.896394Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-173-quantifying-the-impact-of-transposable-e",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:17:29.891693Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 440.675507,
+      "ended_at": "2026-10-12T12:17:53.859596Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-988-llmxive-follow-up-extending-abot-earth-0",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:10:33.184089Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 413.41243,
+      "ended_at": "2026-10-12T12:17:29.886642Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-173-quantifying-the-impact-of-transposable-e",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:10:36.474212Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 236.910508,
+      "ended_at": "2026-10-12T12:14:47.271431Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-275-statistical-analysis-of-publicly-availab",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:10:50.360923Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1693.67415,
       "ended_at": "2026-10-12T12:13:56.219338Z",
@@ -169172,6 +169325,18 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-12T11:45:42.545188Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 136.758842,
+      "ended_at": "2026-10-12T12:12:55.463293Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-299-assessing-the-impact-of-network-centrali",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-12T12:10:38.704451Z"
     },
     {
       "action": "comment",
@@ -175088,144 +175253,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-11T16:12:37.580243Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 394.493111,
-      "ended_at": "2026-10-11T16:12:37.577879Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-346-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-11T16:06:03.084768Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 119.065915,
-      "ended_at": "2026-10-11T16:12:22.811031Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-11T16:10:23.745116Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 306.892781,
-      "ended_at": "2026-10-11T16:11:47.806347Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-11T16:06:40.913566Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 233.239459,
-      "ended_at": "2026-10-11T16:10:23.742040Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-11T16:06:30.502581Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 95.854225,
-      "ended_at": "2026-10-11T16:08:44.682678Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-737-assessing-uncertainty-quantification-tec",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-11T16:07:08.828453Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Ada Lovelace (simulated)",
-      "duration_s": 104.248603,
-      "ended_at": "2026-10-11T16:06:56.795985+00:00",
-      "excerpt": "It may be desirable to draw attention to a difficulty in the engine's ordered operations, for the spec commands the machinery to perform a test whose gears cannot engage. FR-006 mandates a Wilcoxon signed-rank test across but five random s\u2026",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "ada-lovelace",
-      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
-      "project_stage": "tasked",
-      "review_path": "projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/reviews/research/ada-lovelace-simulated__2026-10-11__research.md",
-      "severity": "ok",
-      "started_at": "2026-10-11T16:05:12.547382+00:00"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 707.962688,
-      "ended_at": "2026-10-11T15:27:27.807626Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
-      "project_stage": "tasked",
-      "severity": "hard",
-      "started_at": "2026-10-11T15:15:39.844938Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 624.910801,
-      "ended_at": "2026-10-11T15:26:11.143720Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-907-llmxive-follow-up-extending-rethinking-c",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-11T15:15:46.232919Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 919.703521,
-      "ended_at": "2026-10-11T15:21:33.122545Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-810-llmxive-follow-up-extending-qwen-image-v",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-11T15:06:13.419024Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 560.936191,
-      "ended_at": "2026-10-11T15:20:06.866122Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-11T15:10:45.929931Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 517.034386,
-      "ended_at": "2026-10-11T15:15:14.514028Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-10-11T15:06:37.479642Z"
     }
   ],
   "reviewed_preprints": [
