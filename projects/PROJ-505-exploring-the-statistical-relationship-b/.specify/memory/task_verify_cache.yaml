@@ -10,12 +10,13 @@ T001:
   sig: 0f1982e05acf08c66b9ca3d7ac4cffb41a17cc1b67bcbc2ec3d24e193ff3b185
 T002:
   c: true
-  h: ba9a1315e1de8ca8aedad014feb8a30092b4898651f95de0b43a2b7a64514a7f
-  r: "The `requirements.txt` file was found at the project root (`projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt`)\
-    \ and contains all six required pinned packages, each following the `package==major.minor.*`\
-    \ pattern (plus an additional valid entry). The file is non\u2011empty and matches\
-    \ the specification."
-  sig: 42fe6f35b050fecbcbfb61945361e8221920da79709f3f0613b183cf9861c7a8
+  h: 072fb932c447ff56f31178e21a6bcc29b48fbca7c49aaa64d45ba165229dc125
+  r: The `requirements.txt` exists at the project root with all six required packages
+    pinned in the `major.minor.*` format (pandas==2.2.*, numpy==1.26.*, scikit-learn==1.5.*,
+    statsmodels==0.14.*, scipy==1.13.*, pytest==8.2.*), plus an extra `pyarrow>=12.0`
+    line which is a harmless addition that doesn't violate the pattern requirement
+    for the specified entries.
+  sig: ddd4494469d244632ba6152dcd73459ae52a8d5a0f46d21e07457522e81600e6
 T003:
   c: true
   h: af731d19dbcc2d5b2d325ed8d76af5543f171acb4785e1edfc79159290d7c08e

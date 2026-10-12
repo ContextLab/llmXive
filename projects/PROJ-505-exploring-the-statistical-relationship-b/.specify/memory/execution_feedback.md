@@ -60,7 +60,7 @@ ERROR tests/integration/test_regression.py
 ERROR tests/unit/test_permutation.py
 ERROR tests/unit/test_regression.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.35s ===============================
+============================== 3 errors in 1.24s ===============================
 
 
 

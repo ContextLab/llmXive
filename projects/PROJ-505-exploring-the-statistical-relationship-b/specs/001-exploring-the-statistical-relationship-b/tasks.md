@@ -75,7 +75,7 @@
 
   **Verification** – `pytest tests/unit/test_download.py::test_raw_file_preserved` checks that the raw file exists unchanged (checksum matches) and that parsing extracts O/Fe, He/H, C/O columns.
 
-- [ ] **T006** Build a deterministic synthetic data generator that creates a 20‑year hourly dataset respecting the `SolarWindGeomagneticDataset` schema.   <!-- FAILED-IN-EXECUTION: code/ingestion/generate_synthetic_data.py exit=1 -->
+- [ ] **T006** Build a deterministic synthetic data generator that creates a 20‑year hourly dataset respecting the `SolarWindGeomagneticDataset` schema.   <!-- FAILED-IN-EXECUTION: code/ingestion/generate_synthetic_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion/generate_synthetic_data.py exit=1 -->
 
   **File**: `code/ingestion/generate_synthetic_data.py`  
 
