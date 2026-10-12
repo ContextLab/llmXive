@@ -26,11 +26,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 -> rc=1
-2026-10-12 10:14:44 - root - INFO - Running stage: download_ncbi
-2026-10-12 10:14:45 - root - INFO - Stage 'download_ncbi' completed successfully
-2026-10-12 10:14:45 - root - INFO - Running stage: ingest_metadata
-2026-10-12 10:14:45 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
-2026-10-12 10:14:45 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-12 21:11:10 - root - INFO - Running stage: download_ncbi
+2026-10-12 21:11:13 - root - INFO - Stage 'download_ncbi' completed successfully
+2026-10-12 21:11:13 - root - INFO - Running stage: ingest_metadata
+2026-10-12 21:11:13 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
+2026-10-12 21:11:13 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -48,20 +48,20 @@ FAILED tests/contract/test_phyl_permutation_schema.py::test_p_value_valid_range
 FAILED tests/contract/test_phyl_permutation_schema.py::test_significance_flag_consistent
 FAILED tests/contract/test_phyl_permutation_schema.py::test_permutation_count_positive
 FAILED tests/contract/test_phyl_permutation_schema.py::test_observed_statistic_numeric
-========================= 6 failed, 10 passed in 0.56s =========================
+========================= 6 failed, 10 passed in 0.55s =========================
 
 
 - python code/main.py --stage train --antibiotic ciprofloxacin -> rc=2
-2026-10-12 10:14:46 - root - INFO - Running stage: train_models
-2026-10-12 10:14:47 - root - ERROR - Stage 'train_models' failed with exit code 2
-2026-10-12 10:14:47 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-12 21:11:14 - root - INFO - Running stage: train_models
+2026-10-12 21:11:15 - root - ERROR - Stage 'train_models' failed with exit code 2
+2026-10-12 21:11:15 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations] -> rc=2
-2026-10-12 10:14:47 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to default 1000.
-2026-10-12 10:14:47 - root - INFO - Running stage: phylo_permutation
-2026-10-12 10:14:47 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
-2026-10-12 10:14:47 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-12 21:11:15 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to default 1000.
+2026-10-12 21:11:15 - root - INFO - Running stage: phylo_permutation
+2026-10-12 21:11:15 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
+2026-10-12 21:11:15 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage viz --antibiotic ciprofloxacin -> rc=2
@@ -89,7 +89,7 @@ ERROR tests/unit/test_hash_artifacts.py
 ERROR tests/unit/test_main_reproducible.py
 ERROR tests/unit/test_split_data.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.50s ===============================
+============================== 4 errors in 0.53s ===============================
 
 
 ## Platform-owned paths written inside the project
