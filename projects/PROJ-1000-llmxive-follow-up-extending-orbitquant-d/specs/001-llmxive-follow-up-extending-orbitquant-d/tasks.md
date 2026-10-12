@@ -1,154 +1,257 @@
 # Tasks: llmXive follow‑up – extending “OrbitQuant: Data‑Agnostic Quantization for Image and Video Diffusion T”
 
-**Inputs**: `spec.md`, `plan.md`, existing `data‑model.md`, and contracts under `specs/001-llmxive-followup/`.  
-All tasks are expressed as check‑boxes with the canonical `- [ ] T### [P?] [USx?] description …` format.  Indented continuation lines detail the required artifact, verification command, and any scientific requirement they satisfy.
+**Inputs**: `spec.md`, `plan.md`, `data‑model.md`, and the JSON schemas in `specs/001-llmxive-followup/`.  
+All tasks are expressed as unchecked check‑boxes using the canonical `- [ ] T### [P?] [USx?] …` format.  
+Indented continuation lines describe the required artifact(s), verification command(s), and the scientific requirement(s) satisfied.
 
 ---
 
-## Phase 1 – Project initialization  
+## Phase 1 – Project scaffolding & quick‑start
 
-- [ ] T001 [P] Create project skeleton, dependency list, configuration, and quick‑start guide  
-  - **Artifacts**: directories `code/`, `code/data/`, `code/models/`, `code/analysis/`, `code/quantization/`, `code/evaluation/`, `tests/`, `data/raw/`, `data/processed/`, `state/`; files `requirements.txt`, `code/config.py`, `specs/001-llmxive-followup/quickstart.md`.  
-  - **Verification**: `find code/ -type d | wc -l` ≥ 8, `python -c "import code.config"` succeeds, `grep -c "torch" requirements.txt` ≥ 1, and the quick‑start command `pip install -r requirements.txt && python code/main.py --phase init` runs without error and prints “Initialization complete”.
+- [ ] T001 [P] Create project skeleton, list dependencies, and write a quick‑start guide (project‑owned paths only)  
+  - **Artifacts**:  
+    - `code/` with sub‑directories `analysis/`, `models/`, `quantization/`, `evaluation/`, `utils/`  
+    - `tests/` (empty placeholder)  
+    - `requirements.txt` (torch, diffusers, transformers, datasets, scikit‑learn, numpy, pandas, matplotlib, scipy, tqdm)  
+    - `code/config.py` (global seeds, path helpers via `llmxive_toolkit.paths`)  
+    - `specs/001-llmxive-followup/quickstart.md` describing the command `python -m code.main --phase init`  
+  - **Verification**:  
+    ```bash
+    find code/ -type d | wc -l   # ≥ 8 directories
+    python -c "import code.config"   # exits 0
+    grep -c "torch" requirements.txt   # ≥ 1
+    python -m code.main --phase init | grep "Initialization complete"
+    ```
 
 ---
 
-## Phase 2 – Data acquisition & prompt preparation  
+## Phase 2 – Data acquisition & prompt preparation
 
-- [X] T002 [P] Download MS‑COCO validation set, extract captions, and fetch a diverse external prompt set
+- [ ] T002 [P] Download MS‑COCO 2017 validation captions and a diverse external prompt set; store under `data/` only  
   - **Steps**  
-    1. `code/data/download_coco.py` → `data/raw/coco_captions/` (HuggingFace `nlpconnect/coco_captions`, split = validation).  
-    2. `code/data/preprocess.py` → `data/processed/prompts.csv` with columns `image_id, caption`. Must contain ≥ 400 rows.  
-    3. `code/data/download_diverse_prompts.py` → `data/processed/diverse_prompts.csv` with columns `prompt_id, caption, source`; must contain ≥ 150 rows.  
-  - **Verification**: `wc -l data/processed/prompts.csv` ≥ 400, `head -1 data/processed/diverse_prompts.csv` shows the three headers, and `wc -l data/processed/diverse_prompts.csv` ≥ 150. All scripts must raise a `RuntimeError` on fetch failure (no synthetic fallback).
+    1. `code/data/download_coco.py` → `data/raw/coco_captions.parquet` (via `datasets.load_dataset("nlpconnect/coco_captions", split="validation", streaming=False)`).  
+    2. `code/data/preprocess_coco.py` → `data/processed/prompts.csv` (`image_id, caption`). Must contain ≥ 400 rows.  
+    3. `code/data/download_diverse_prompts.py` → `data/processed/diverse_prompts.csv` (`prompt_id, caption, source`). Must contain ≥ 150 rows.  
+  - **Verification**:  
+    ```bash
+    wc -l data/processed/prompts.csv            # ≥ 400
+    head -1 data/processed/diverse_prompts.csv # shows three headers
+    wc -l data/processed/diverse_prompts.csv   # ≥ 150
+    # scripts must raise RuntimeError on fetch failure (no synthetic fallback)
+    ```
 
 ---
 
-## Phase 3 – Core model & analysis modules  
+## Phase 3 – Core model & analysis modules (no platform‑owned paths)
 
-- [ ] T003 [P] Implement model loader (GPU escape hatch), activation‑variance capture, semantic‑entropy proxy, W2A4 quantizer, and static OrbitQuant baseline  
+- [ ] T003 [P] Implement model loader (GPU‑escape hatch), activation‑variance capture, semantic‑entropy proxy, W2A4 quantizer, and static OrbitQuant baseline; all logs under `data/processed/logs/`  
   - **Modules & artifacts**  
-    * `code/models/flux_wan_loader.py` → function `load_dit_model(name, device="cpu")`; logs to `state/model_load_log.json`.  
-    * `code/models/dit_wrapper.py` → class `DiTActivationCapture` with method `measure_activation_variance(prompt) → dict[layer_name → variance]`.  
-    * `code/analysis/entropy_proxy.py` → `compute_semantic_entropy(prompt, num_samples=5) → float`. Returns `None` on proxy failure (logged to `state/proxy_failures.json`).  
-    * `code/quantization/w2a4_engine.py` → class `W2A4Quantizer` with `quantize_activation(tensor, rotation_matrix=None)`.  
-    * `code/quantization/static_baseline.py` → `get_static_rotation_matrix(dim, seed=42) → torch.Tensor`.  
-  - **Verification**: Import each module (`python -c "import code.models.flux_wan_loader"` etc.) without error, instantiate classes, and run a single‑prompt sanity check (e.g., `prompt="a cat on a sofa"`). The sanity check must produce a non‑empty variance dict, a float entropy, and a quantized tensor shape matching the input.
+    * `code/models/loader.py` – `load_dit_model(name: str, device: str = "cpu")` (uses `torch.cuda.is_available()` to switch to `"cuda"` automatically).  
+    * `code/models/activation_capture.py` – `DiTActivationCapture` with `measure_variance(prompt: str) → dict[layer_name, variance]`.  
+    * `code/analysis/entropy_proxy.py` – `compute_semantic_entropy(prompt: str, samples: int = 5) → float | None`. Returns `None` on proxy failure and logs to `data/processed/logs/proxy_failures.json`.  
+    * `code/quantization/w2a4_engine.py` – `W2A4Quantizer` with `quantize(tensor, rotation_matrix=None)`.  
+    * `code/quantization/static_baseline.py` – `get_static_rotation_matrix(dim: int, seed: int = 42) → torch.Tensor`.  
+  - **Verification**:  
+    ```bash
+    python - <<'PY'
+    import code.models.loader as ld, code.models.activation_capture as ac, code.analysis.entropy_proxy as ep, code.quantization.w2a4_engine as q
+    model = ld.load_dit_model("stabilityai/stable-diffusion-2-1", device="cpu")
+    cap = ac.DiTActivationCapture(model)
+    var = cap.measure_variance("a cat on a sofa")
+    assert isinstance(var, dict) and var
+    ent = ep.compute_semantic_entropy("a cat on a sofa")
+    assert isinstance(ent, float)
+    quant = q.W2A4Quantizer()
+    # dummy tensor
+    import torch
+    t = torch.randn(1, 3, 64, 64)
+    q_out = quant.quantize(t)
+    assert q_out.shape == t.shape
+    print("All modules sanity‑check passed")
+    PY
+    ```
 
 ---
 
-## Phase 4 – End‑to‑end correlation analysis (User Story 1)  
+## Phase 4 – End‑to‑end correlation analysis (User Story 1)
 
-- [ ] T004 [US1] Run the correlation pipeline and produce `data/processed/correlation_results.json`   <!-- FAILED-IN-EXECUTION: code/run_correlation.py exit=1 -->
-  - **Orchestration**: `code/run_correlation.py` performs: load `diverse_prompts.csv`, compute entropy (T003), load DiT (T003), generate a forward pass, capture activation variance (T003), and compute Pearson `r` and `p` via `scipy.stats.pearsonr`.  
-  - **Output schema** (`correlation_results.json`): `{correlation: float, p_value: float, n_prompts: int, layers_analyzed: [str], entropy_range: [float, float], variance_range: [float, float]}`.  
-  - **Verification**: `python -c "import json; r=json.load(open('data/processed/correlation_results.json')); assert 0<=r['p_value']<=1"` succeeds and `r['n_prompts']` ≥ 100.
+- [ ] T004 [US1] Run the correlation pipeline and produce `data/processed/correlation_results.json` and `data/processed/correlation_plot.png`  
+  - **Orchestration**: `code/run_correlation.py` performs:  
+    1. Load `data/processed/diverse_prompts.csv`.  
+    2. For each prompt, compute semantic entropy (T003).  
+    3. Load DiT model via `loader.py` (CPU fallback).  
+    4. Capture per‑layer activation variance (activation_capture).  
+    5. Store per‑prompt variance vectors under `data/processed/activation_stats/`.  
+    6. Compute Pearson r and two‑tailed p‑value for each layer, then aggregate (average r, average p).  
+    7. Save summary JSON (`correlation_results.json`) with fields `{correlation: float, p_value: float, n_prompts: int, layers_analyzed: [str], entropy_range: [float,float], variance_range: [float,float]}`.  
+    8. Plot entropy vs. variance (averaged over layers) → `correlation_plot.png`.  
+  - **Verification**:  
+    ```bash
+    python -c "import json, pathlib; p=pathlib.Path('data/processed/correlation_results.json'); assert p.is_file(); r=json.load(open(p)); assert 0<=r['p_value']<=1 and r['n_prompts']>=100"
+    file data/processed/correlation_plot.png | grep PNG   # confirms PNG file exists
+    ```
 
 ---
 
-## Phase 5 – Correlation hypothesis validation (gate)  
+## Phase 5 – Correlation significance gate (User Story 1)
 
-- [ ] T005 [US1] Validate that the correlation is statistically significant (p < 0.05)  
-  - **Script**: `code/validation/validate_correlation.py` reads `correlation_results.json`; if `p_value < 0.05` writes `state/correlation_validated.json` with `{status:"pass", timestamp:…}` else writes `{status:"fail", reason:"p ≥ 0.05"}` and exits with non‑zero code.  
-  - **Verification**: `cat state/correlation_validated.json | grep status` shows “pass”. The rest of the pipeline (Phases 6‑12) is gated on this file existing with status = pass.
+- [ ] T005 [US1] Validate that the correlation is statistically significant (p < 0.05) and write a gating file under `data/processed/`  
+  - **Script**: `code/validation/validate_correlation.py` reads `correlation_results.json`; if `p_value < 0.05` it writes `data/processed/correlation_validated.json` with `{status:"pass", timestamp:"ISO‑8601"}` else writes `{status:"fail", reason:"p ≥ 0.05"}` and exits with non‑zero code.  
+  - **Verification**:  
+    ```bash
+    cat data/processed/correlation_validated.json | grep '"status": "pass"'
+    ```
 
 ---
 
-## Phase 6 – Derive rotation matrices via entropy‑based clustering (User Story 2)  
+## Phase 6 – Derive rotation matrices via entropy‑based clustering (User Story 2)
 
-- [ ] T006 [US2] Perform K‑Means clustering on entropy, generate 16 rotation matrices, and emit `data/processed/clustering_report.json`  
-  - **Steps** (implemented in `code/analysis/clustering.py`)  
-    1. Load entropy values from `correlation_results.json`.  
+- [ ] T006 [US2] Perform K‑Means clustering on entropy, generate 16 rotation matrices, and emit `data/processed/clustering_report.json` plus the matrix files  
+  - **Steps (implemented in `code/analysis/clustering.py`)**  
+    1. Load entropy values from `data/processed/entropy_scores.csv` (produced by T004).  
     2. Split prompts 80 %/20 % (fixed seed = 42).  
-    3. K‑Means (K = 16) on entropy → bin boundaries.  
-    4. For each bin, aggregate activation‑variance histograms (from the variance capture) and compute a rotation matrix via SVD of the covariance.  
-    5. Save matrices as `data/processed/rotation_matrices/matrix_0.npy` … `matrix_15.npy`.  
-    6. Write `clustering_report.json` matching the `rotation_matrix_schema` (cluster_id, entropy_range_min/max, matrix_shape, matrix_data_ref, derived_from_split).  
-  - **Verification**: `ls data/processed/rotation_matrices/ | wc -l` = 16, and `python - <<'PY'\nimport json, pathlib, numpy as np\nr=json.load(open('data/processed/clustering_report.json'))\nassert len(r['matrices'])==16\nfor m in r['matrices']:\n    path=pathlib.Path(m['matrix_data_ref'])\n    assert path.is_file()\n    arr=np.load(path)\n    assert arr.shape[0]==arr.shape[1]\nprint('OK')\nPY` exits without AssertionError.
+    3. Run `sklearn.cluster.KMeans(n_clusters=16, random_state=42)` on the entropy vector → bin boundaries.  
+    4. For each bin, aggregate activation‑variance histograms (from `data/processed/activation_stats/`) and compute an orthogonal rotation matrix via SVD of the covariance matrix.  
+    5. Save each matrix as `data/processed/rotation_matrices/matrix_{i}.npy` and its metadata as `data/processed/rotation_matrices/metadata_{i}.json`.  
+    6. Assemble `clustering_report.json` containing a list `matrices` where each entry follows `rotation_matrix_schema`.  
+  - **Verification**:  
+    ```bash
+    ls data/processed/rotation_matrices/ | wc -l    # 32 (16 .npy + 16 .json)
+    python - <<'PY'
+    import json, pathlib, numpy as np
+    report = json.load(open('data/processed/clustering_report.json'))
+    assert len(report['matrices']) == 16
+    for m in report['matrices']:
+        p = pathlib.Path(m['matrix_data_ref'])
+        assert p.is_file()
+        arr = np.load(p)
+        assert arr.shape[0] == arr.shape[1]   # square
+    print("Clustering artifacts OK")
+    PY
+    ```
 
 ---
 
-## Phase 7 – Clustering report validation  
+## Phase 7 – Clustering report validation (User Story 2)
 
-- [ ] T007 [US2] Verify existence and schema of `clustering_report.json` (formerly T023a)  
-  - **Script**: `code/validation/validate_clustering.py` checks that the file exists, conforms to the JSON schema in `specs/…/rotation_matrix_schema.schema.yaml`, and that each matrix is orthogonal (QR check). Writes `state/clustering_validated.json` with `{status:"pass", timestamp:…}` or a failure description.  
-  - **Verification**: `cat state/clustering_validated.json | grep status` shows “pass”.
-
----
-
-## Phase 8 – Quantization validation using derived matrices  
-
-- [ ] T008 [US2] Apply each derived rotation matrix to activations, quantize with W2A4, and save `data/processed/quantized_activations.json`  
-  - **Orchestration**: `code/run_quantization_validation.py` loads the test‑split prompts, loads rotation matrices via the loader (T010), captures activations (T003), applies the matrix, runs `W2A4Quantizer.quantize_activation`, and records for each prompt/layer `{prompt_id, layer_name, quantized_values, rotation_index}`.  
-  - **Output schema**: list of objects matching the `activation_schema` with an extra `rotation_index`.  
-  - **Verification**: `python -c "import json; q=json.load(open('data/processed/quantized_activations.json')); assert len(q)>=100"` succeeds.
+- [ ] T007 [US2] Validate `clustering_report.json` against the JSON schema and orthogonality of each matrix; write result under `data/processed/`  
+  - **Script**: `code/validation/validate_clustering.py` loads the report, checks conformity to `specs/001-llmxive-followup/contracts/rotation_matrix_schema.schema.yaml` (using `jsonschema`), and verifies orthogonality (`Q, R = np.linalg.qr(matrix); np.allclose(Q.T @ Q, np.eye(d), atol=1e-5)`). Writes `data/processed/clustering_validated.json` with `{status:"pass", timestamp:…}` or detailed failure.  
+  - **Verification**:  
+    ```bash
+    cat data/processed/clustering_validated.json | grep '"status": "pass"'
+    ```
 
 ---
 
-## Phase 9 – Dynamic router implementation and integration  
+## Phase 8 – Entropy‑to‑rotation router implementation (User Story 2)
 
-- [ ] T009 [US2] Implement entropy‑to‑rotation lookup and integrate it into the quantizer  
+- [ ] T008 [US2] Implement `EntropyRouter` (lookup table + edge‑case handling) and integrate it into the quantizer  
   - **Components**  
-    * `code/analysis/router.py` → class `EntropyRouter` with `select_rotation_index(entropy) → int` (clamps out‑of‑range values, logs to `state/router_edge_cases.json`).  
-    * Extend `W2A4Quantizer` (T003) to accept an optional `router` and an `entropy_score` argument; it selects the matrix via the router before quantization.  
-  - **Verification**: `python - <<'PY'\nfrom code.analysis.router import EntropyRouter\nr=EntropyRouter()\nassert 0<=r.select_rotation_index(-1.0)<=15\nassert 0<=r.select_rotation_index(1e6)<=15\nprint('OK')\nPY` runs, and a unit test (see Phase 13) passes.
+    * `code/analysis/router.py` – class `EntropyRouter` with method `select_rotation_index(entropy: float) -> int` (clamps to 0‑15, logs out‑of‑range cases to `data/processed/logs/router_edge_cases.json`).  
+    * Extend `code/quantization/w2a4_engine.py` – optional `router: EntropyRouter` argument; if provided, the engine calls `router.select_rotation_index(entropy)` and loads the corresponding matrix via `load_matrices.py` before rotation.  
+  - **Verification**:  
+    ```bash
+    python - <<'PY'
+    from code.analysis.router import EntropyRouter
+    r = EntropyRouter()
+    assert 0 <= r.select_rotation_index(-1.0) <= 15
+    assert 0 <= r.select_rotation_index(1e6) <= 15
+    print("Router bounds OK")
+    PY
+    ```
 
 ---
 
-## Phase 10 – Rotation‑matrix loading and orthogonality check  
+## Phase 9 – Rotation‑matrix loading & orthogonality check (support for T008)
 
-- [ ] T010 [US2] Load all 16 matrices and validate orthogonality (formerly T028)  
-  - **Function**: `code/analysis/load_matrices.py` → `load_rotation_matrices(report_path) → List[torch.Tensor]`. Raises `ValueError` on missing files, shape mismatch, or non‑orthogonal matrices.  
-  - **Verification**: `python -c "from code.analysis.load_matrices import load_rotation_matrices; mats=load_rotation_matrices('data/processed/clustering_report.json'); assert len(mats)==16; print('OK')"` succeeds.
+- [ ] T009 [US2] Load all 16 matrices and verify orthogonality; write validation artifact  
+  - **Function**: `code/analysis/load_matrices.py` → `load_rotation_matrices(report_path: str) -> List[np.ndarray]`. Raises `ValueError` on missing files, shape mismatches, or non‑orthogonal matrices.  
+  - **Verification**:  
+    ```bash
+    python - <<'PY'
+    from code.analysis.load_matrices import load_rotation_matrices
+    mats = load_rotation_matrices('data/processed/clustering_report.json')
+    assert len(mats) == 16
+    print("All matrices loaded and orthogonal")
+    PY
+    ```
 
 ---
 
-## Phase 11 – Router‑driven inference orchestration  
+## Phase 10 – Router‑driven inference orchestration (User Story 2)
 
-- [ ] T011 [US2] Run inference with the dynamic router and record selections (formerly T029)  
-  - **Script**: `code/run_router_inference.py` loads test prompts, computes entropy, loads matrices (T010), selects rotation via `EntropyRouter`, runs generation with the rotated activations, and writes `data/processed/router_selections.json` (`[{prompt_id, entropy, selected_matrix_index}]`).  
-  - **Verification**: `python -c "import json; s=json.load(open('data/processed/router_selections.json')); assert len(s)>=100 and all(0<=r['selected_matrix_index']<=15 for r in s)"` succeeds.
+- [ ] T010 [US2] Run inference with the dynamic router for the test split and record selections  
+  - **Script**: `code/run_router_inference.py`  
+    1. Load `data/processed/diverse_prompts.csv` (test split).  
+    2. Compute entropy per prompt (entropy_proxy).  
+    3. Load rotation matrices (T009) and instantiate `EntropyRouter`.  
+    4. For each prompt, select matrix index, run a forward pass with `W2A4Quantizer` using the selected matrix, and generate a low‑resolution image (stored as PNG).  
+    5. Write `data/processed/router_selections.json` – list of `{prompt_id, entropy, selected_matrix_index}`.  
+    6. Save a few example images under `data/processed/generated_images/` (e.g., first 5 prompts).  
+  - **Verification**:  
+    ```bash
+    python -c "import json, pathlib; s=json.load(open('data/processed/router_selections.json')); assert len(s)>=100 and all(0<=r['selected_matrix_index']<=15 for r in s)"
+    ls data/processed/generated_images/ | wc -l   # ≥ 5 PNG files
+    ```
 
 ---
 
-## Phase 12 – Full evaluation pipeline and final report (User Story 3)  
+## Phase 11 – Full evaluation pipeline (User Story 3)
 
-- [ ] T012 [US3] Execute baseline and dynamic pipelines, compute metrics, perform statistical tests, and produce `data/processed/final_evaluation_report.json` (formerly T036)  
+- [ ] T011 [US3] Execute baseline and dynamic pipelines, compute FID/CLIP/MSE/inference‑time, run paired t‑tests, and produce the final evaluation report and figures  
   - **Orchestration**: `code/run_evaluation.py`  
-    1. Baseline: use `static_baseline` rotation, generate images for all test prompts, compute FID, CLIP, MSE, and per‑prompt inference time → `baseline_evaluation.json`.  
-    2. Dynamic: use router (T009) → `dynamic_evaluation.json`.  
-    3. Run paired t‑tests (with Bonferroni correction) for each metric via `code/analysis/statistical_test.py`.  
-    4. Compute runtime overhead percent.  
-    5. Assemble `final_evaluation_report.json` matching the `results_schema` (including `rotation_index` for dynamic rows) and containing fields: `baseline_mean_fid`, `dynamic_mean_fid`, `fid_improvement_percent`, `baseline_mean_time_ms`, `dynamic_mean_time_ms`, `overhead_percent`, `p_values`, `conclusion`.  
-  - **Verification**: `cat data/processed/final_evaluation_report.json | grep overhead_percent` returns a numeric value ≤ 2.0, and `grep "pass" data/processed/final_evaluation_report.json` shows a non‑empty `conclusion` string.
+    1. **Baseline** – use static rotation (`static_baseline.py`) to generate images for all test prompts; compute metrics → `baseline_evaluation.json`.  
+    2. **Dynamic** – use router (T008) → `dynamic_evaluation.json`.  
+    3. **Statistical tests** – `code/analysis/statistical_test.py` performs paired t‑tests for each metric, applies Bonferroni correction, and records p‑values.  
+    4. **Overhead** – compute average inference time difference, ensure ≤ 2 %.  
+    5. Assemble `data/processed/final_evaluation_report.json` matching `results_schema` (includes `rotation_index` for dynamic rows) and containing fields: `baseline_mean_fid`, `dynamic_mean_fid`, `fid_improvement_percent`, `baseline_mean_time_ms`, `dynamic_mean_time_ms`, `overhead_percent`, `p_values`, `conclusion`.  
+    6. Generate plots (`figures/fid_comparison.png`, `figures/runtime_overhead.png`, `figures/entropy_vs_fid.png`).  
+  - **Verification**:  
+    ```bash
+    grep '"overhead_percent"' data/processed/final_evaluation_report.json | grep -E '"[0-9]+(\.[0-9]+)?"'   # value ≤ 2.0
+    grep '"conclusion"' data/processed/final_evaluation_report.json
+    file figures/fid_comparison.png | grep PNG
+    ```
 
 ---
 
-## Phase 13 – Edge‑case unit tests  
+## Phase 12 – Edge‑case unit tests
 
-- [ ] T013 [US2] Add unit tests covering out‑of‑range entropy, proxy failure logging, and activation outliers (formerly T039)  
-  - **Files**: `tests/unit/test_edge_cases.py` with three test functions using `pytest`.  
-  - **Verification**: `pytest tests/unit/test_edge_cases.py -q` reports 3 passed tests.
+- [ ] T012 [US2] Add pytest unit tests covering out‑of‑range entropy, proxy‑failure logging, and activation outliers  
+  - **Files**: `tests/unit/test_edge_cases.py` with three test functions (`test_entropy_clamping`, `test_proxy_failure_logging`, `test_activation_outlier_handling`).  
+  - **Verification**:  
+    ```bash
+    pytest tests/unit/test_edge_cases.py -q
+    # should report 3 passed
+    ```
 
 ---
 
-## Phase 14 – Security, path sanitization, and checksum validation  
+## Phase 13 – Security, path sanitization, and checksum validation
 
-- [ ] T014 [US?] Harden data loading and model loading against path traversal and tampering (formerly T040)  
+- [ ] T013 [US?] Harden all file‑path handling against traversal and verify integrity of downloaded assets; store checksums under `data/`  
   - **Changes**  
-    * All file‑path constructions use `pathlib.Path` with `resolve()` and reject any path containing `..` or that is outside the project root.  
-    * After each dataset or model download, compute SHA‑256 and store in `state/artifact_hashes.json`.  
-    * At load time, verify the current file’s checksum matches the recorded value; raise `RuntimeError` on mismatch.  
-  - **Verification**: Corrupt a downloaded file (e.g., append a byte) and run a loader script; it must abort with an error mentioning “checksum mismatch”. The test `tests/unit/test_security.py` (added automatically) passes.
+    * All path constructions use `pathlib.Path(...).resolve()` and raise `ValueError` if the resolved path is outside the project root.  
+    * After each dataset or model download, compute SHA‑256 and append an entry to `data/checksums.json` (`{relative_path: checksum}`).  
+    * Loader utilities (`code/models/loader.py`, `code/data/download_coco.py`) verify the checksum before loading; mismatches raise `RuntimeError`.  
+    * Add `code/security/checksums.py` with `verify_checksum(path: str, expected: str) -> bool`.  
+  - **Verification**:  
+    ```bash
+    # Simulate corruption
+    echo "corrupt" >> data/raw/coco_captions.parquet
+    python -c "from code.security.checksums import verify_checksum; import json, pathlib; chk=json.load(open('data/checksums.json'))['data/raw/coco_captions.parquet']; assert not verify_checksum('data/raw/coco_captions.parquet', chk)"
+    # Run the security unit test
+    pytest tests/unit/test_security.py -q
+    ```
 
 ---
 
 ### Dependency & execution order (critical path)
 
-1. **T001** → **T002** → **T003** → **T004** → **T005** (gate) → **T006** → **T007** → **T008** → **T009** → **T010** → **T011** → **T012** → **T013** → **T014**.  
+1. **T001** → **T002** → **T003** → **T004** → **T005** (gate) → **T006** → **T007** → **T008** → **T009** → **T010** → **T011** → **T012** → **T013**  
 
-All later phases are blocked until the preceding validation tasks (`T005`, `T007`) write a “pass” status file.
+All later phases are blocked until the preceding validation tasks (`T005`, `T007`) produce a `"status":"pass"` file in `data/processed/`.
 
 --- 
 
-*All tasks above are unchecked; the CI will mark a task as completed only after the described artifact exists and the verification command succeeds.*
+*All tasks remain unchecked; the CI will automatically mark a task as completed only after the described artifact exists and the verification command succeeds.*
