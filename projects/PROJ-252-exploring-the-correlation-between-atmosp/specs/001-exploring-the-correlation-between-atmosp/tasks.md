@@ -8,7 +8,7 @@ The list below groups related work into **10 substantive research tasks** that t
 
 ## Phase 1 – Project setup & reproducibility  
 
-- [ ] **T001** [P] [US1] **Create reproducible project documentation, pin dependencies, and set random seeds**  
+- [X] **T001** [P] [US1] **Create reproducible project documentation, pin dependencies, and set random seeds**  
   *Creates* `docs/quickstart.md` (runnable command, required‑input provenance) and ensures `requirements.txt` is frozen.  
   *Adds* a `code/__init__.py` that sets `np.random.seed(42)` and `random.seed(42)`.  
   *Verification*:  

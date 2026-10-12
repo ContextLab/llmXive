@@ -12,21 +12,21 @@ This guide walks you through executing the full pipeline on the test dataset.
 ## Installation
 
 1. **Clone and Setup**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-252-exploring-the-correlation-between-atmosp
- ```
+```bash
+git clone <repo-url>
+cd projects/PROJ-252-exploring-the-correlation-between-atmosp
+```
 
 2. **Create Virtual Environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
 
 3. **Install Dependencies** (all versions are pinned/frozen):
- ```bash
- python -m pip install -r requirements.txt
- ```
+```bash
+python -m pip install -r requirements.txt
+```
 
 ## Running the Pipeline
 
@@ -102,15 +102,15 @@ python code/generate_pilot_report.py
 ## Required-Input Provenance
 
 - **Earthquake catalog**: USGS FDSN event API
- (`https://earthquake.usgs.gov/fdsnws/event/1/query`), 2013-2023,
- M >= 4.0, depth <= 70 km. No authentication required.
+(`https://earthquake.usgs.gov/fdsnws/event/1/query`), 2013-2023,
+M >= 4.0, depth <= 70 km. No authentication required.
 - **Atmospheric pressure**: NOAA NCEP/NCAR reanalysis daily sea-level
- pressure archive (`).
- The full global 2013-2023 download is currently blocked (see
- `docs/deviations.md`, DEV-001); the pilot uses the verified Alaska test
- subset shipped under `data/`.
+pressure archive.
+The full global 2013-2023 download is currently blocked (see
+`docs/deviations.md`, DEV-001); the pilot uses the verified Alaska test
+subset shipped under `data/`.
 - **Random seeds**: fixed at 42 via `code/__init__.py` and
- `code/seed_init.py` for full reproducibility.
+`code/seed_init.py` for full reproducibility.
 
 ## Validation
 
@@ -126,6 +126,6 @@ validation.
 ## Notes on Scope
 
 - This is a **pilot study** validating the methodology.
-- Global data (FR-001) is blocked; only the 2018 Alaska subset (N=12) is used [UNRESOLVED-CLAIM: c_24ce3f11 — status=not_enough_info].
+- Global data (FR-001) is blocked; only the 2018 Alaska subset (N=12) is used. [UNRESOLVED-CLAIM: c_44c472eb — status=not_enough_info]
 - Climate indices (ENSO/PDO) are not stratified (FR-011).
 - Refer to `docs/deviations.md` for full details on limitations.

@@ -4253,3 +4253,54 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T05:18:29Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: Earthquake catalog sourced from USGS FDSN event API
+  claim_id: c_503bff34
+  context: 'Required-Input Provenance - Earthquake catalog: USGS FDSN event API (https://earthquake.usgs.gov/fdsnws/event/1/query),
+    2013-2023, M >= 4.0, depth <= 70 km.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Earthquake catalog: USGS FDSN event API (https://earthquake.usgs.gov/fdsnws/event/1/query)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-12T09:22:17Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: Atmospheric pressure sourced from NOAA NCEP/NCAR reanalysis daily sea-level
+    pressure archive
+  claim_id: c_6361e6d9
+  context: 'Required-Input Provenance - Atmospheric pressure: NOAA NCEP/NCAR reanalysis
+    daily sea-level pressure archive.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Atmospheric pressure: NOAA NCEP/NCAR reanalysis daily sea-level pressure
+    archive.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-12T09:24:10Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: 2018 Alaska subset contains 12 samples
+  claim_id: c_44c472eb
+  context: Notes on Scope - Global data (FR-001) is blocked; only the 2018 Alaska
+    subset (N=12) is used.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: only the 2018 Alaska subset (N=12) is used.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T09:24:11Z'
