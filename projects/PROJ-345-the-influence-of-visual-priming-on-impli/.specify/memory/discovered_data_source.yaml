@@ -1,6 +1,6 @@
 status: none
-intent: Project Implicit IAT response time dataset OSF facial stimulus metadata RaFD
-  python package dataset
+intent: download IAT response time dataset OSF facial stimulus metadata KDEF python
+  package dataset
 required_fields:
 - trial_id
 - participant_id
@@ -8,7 +8,7 @@ required_fields:
 - prime_valence_label
 - stimulus_id
 - stimulus_image_path
-- ambiguity_score
-cache_key: 646e5e186a1e772d9c2294eb74a8478bc6576b96fcc3dfad900f9945b334c193
-searched_at: '2026-10-12T19:10:29.906055+00:00'
+- stimulus_ambiguity_score
+cache_key: 3787e80e327605c3f59e66729621092910080d4a59017c9e5e7bd75161ec2ed5
+searched_at: '2026-10-12T23:10:57.123790+00:00'
 retry_count: 1

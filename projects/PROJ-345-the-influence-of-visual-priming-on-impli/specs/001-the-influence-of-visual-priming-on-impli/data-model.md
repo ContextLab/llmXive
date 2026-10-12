@@ -32,15 +32,18 @@
 ```json
 {
   "status": "PASS|WARN|HALT",
-  "percentage": 0.0,
-  "threshold": 95.0,
+  "percentage": "number (0‑100)",
+  "threshold": "number (default 95.0)",
   "message": "string"
 }
 ```
 
 ### 2.4 Analysis Scope (`state/analysis_scope.json`)
 ```json
-{ "scope": "full|valence_only", "reason": "string" }
+{
+  "scope": "full|valence_only",
+  "reason": "string"
+}
 ```
 
 ### 2.5 Model Convergence Metrics (`state/model_convergence_metrics.json`)
@@ -61,7 +64,7 @@
     "interaction": {"coef": "number", "se": "number", "p_raw": "number", "p_fdr": "number"}
   },
   "random_effects": {"participant_intercept_variance": "number"},
-  "robust_se": "boolean",
+  "robust_se": true,
   "caution_note": "string",
   "limitation_note": "string",
   "effect_sizes": {
@@ -70,7 +73,7 @@
   }
 }
 ```
-*Keys `caution_note` and `limitation_note` are required by FR‑003 and are defined in `contracts/model_results.schema.yaml`.*
+*Keys `caution_note` and `limitation_note` satisfy FR‑003 and are defined in `contracts/model_results.schema.yaml`.*
 
 ### 2.7 VIF Flag (`state/vif_flag.json`)
 | Field | Type |
@@ -84,11 +87,11 @@
 ```json
 {
   "sources": [
-    { "name": "string", "url": "string", "format": "string" }
+    {"name": "string", "url": "string", "format": "string"}
   ]
 }
 ```
-*If `research.md` and this file disagree, **this file is authoritative** (Task T015).*
+*If `research.md` and this file disagree, this file is authoritative (Task T015).*
 
 ### 2.9 Ingest Metrics (`data/processed/ingest_metrics.json`)
 ```json
@@ -97,7 +100,7 @@
   "linked_trials": "integer",
   "missing_image_trials": "integer",
   "missing_metadata_trials": "integer",
-  "linkage_percentage": "number"
+  "linkage_percentage": "number (0‑100)"
 }
 ```
 

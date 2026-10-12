@@ -37,7 +37,7 @@ python code/main.py --step report
 python code/main.py --run-all
 ```
 
-**Current expected behavior** (given the verified‑datasets audit):  
+**Current expected behavior** (given the verified‑datasets audit):
 - `ingest` will **halt** with `Data Gap: Schema Mismatch` because the default dataset lacks `response_time`, `participant_id`, and `stimulus_id`.  
 - `report` will still produce `reports/final_report.pdf` containing a clear data‑gap narrative.  
 
