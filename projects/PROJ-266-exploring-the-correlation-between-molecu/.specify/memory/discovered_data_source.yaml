@@ -1,12 +1,11 @@
 status: none
-intent: download Caco-2 permeability dataset from ChEMBL API Python package dataset
+intent: download Caco-2 permeability dataset from ChEMBL as python package dataset
 required_fields:
-- compound_id
+- chembl_id
 - smiles
 - logPapp
 - assay_id
-- measurement_units
-- record_id
-cache_key: 081a9e277141b9ff311333ca690429cc555e03d7a64fc83593752bc01b8e3b30
-searched_at: '2026-10-12T13:44:29.986481+00:00'
+- molecule_name
+cache_key: 99987d9e482b0e980bff7acce996900cf8673d1a11c5ddf4dd1c4f7f506ccc3b
+searched_at: '2026-10-12T13:47:08.192447+00:00'
 retry_count: 1

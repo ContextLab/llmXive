@@ -25,7 +25,9 @@ from utils.checksum import run_checksum_utility
 # Configuration
 # ----------------------------------------------------------------------
 CHEMBL_API_BASE = "https://www.ebi.ac.uk/chembl/api/data"
-ASSAY_TYPE = "Caco-2"
+# The assay description filter is used because the ``assay_type`` field in
+# ChEMBL does not capture the “Caco‑2” ADME assay we need.
+ASSAY_DESCRIPTION_FILTER = "caco-2"
 STANDARD_TYPE = "MEASUREMENT"
 MAX_RETRIES = 3
 INITIAL_DELAY = 5  # seconds
@@ -110,10 +112,13 @@ def _extract_records(page_data: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     activities = page_data.get("activities", [])
     for act in activities:
-        # Basic filter on assay type and standard type (already applied at request level,
-        # but we keep a defensive check)
-        if act.get("assay_type") != ASSAY_TYPE:
+        # Defensive check: ensure the record originates from a Caco‑2 assay.
+        # The API filter already restricts by assay description, but we keep
+        # this guard in case of unexpected data.
+        assay_desc = act.get("assay_description", "").lower()
+        if ASSAY_DESCRIPTION_FILTER not in assay_desc:
             continue
+
         if act.get("standard_type") != STANDARD_TYPE:
             continue
 
@@ -162,7 +167,7 @@ def fetch_all_caco2_data() -> List[Dict[str, Any]]:
 
     while True:
         params = {
-            "assay_type": ASSAY_TYPE,
+            "assay_description__icontains": ASSAY_DESCRIPTION_FILTER,
             "standard_type": STANDARD_TYPE,
             "limit": PAGE_LIMIT,
             "offset": offset,

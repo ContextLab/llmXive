@@ -34,7 +34,7 @@
 
 ## Phase 2 – Data Acquisition & Pre‑processing  
 
-- [ ] **T005** [US1] Implement the data‑retrieval script (`code/data/retrieval.py`).  
+- [ ] **T005** [US1] Implement the data‑retrieval script (`code/data/retrieval.py`).   <!-- FAILED-IN-EXECUTION: code/data/retrieval.py exit=1 -->
   *Fetch ≥ 600 Caco‑2 records from the ChEMBL REST API using the query parameters `assay_type=caco‑2` and `standard_type=MEASUREMENT`.*  
   *Save the raw CSV to `data/raw/chembl_caco2_raw.csv` (schema must conform to `dataset.schema.yaml`).*  
   *Implement exponential back‑off (max 3 retries, 5 s delay) for HTTP 429 responses.*  

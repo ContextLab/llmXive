@@ -1,9 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Correlation Diagnostic Record
-description: >
-  Schema for each row in the correlation diagnostic CSV.
-  Provides Pearson and Spearman statistics for a descriptor.
+title: "Correlation Result Record"
 type: object
+additionalProperties: false
 required:
   - descriptor
   - pearson_r
@@ -13,19 +11,16 @@ required:
 properties:
   descriptor:
     type: string
-    description: Name of the flexibility descriptor (e.g., dihedral_variance).
+    description: "Name of the flexibility descriptor."
   pearson_r:
     type: number
-    description: Pearson correlation coefficient.
+    description: "Pearson correlation coefficient."
   pearson_p:
     type: number
-    description: Two‑tailed p‑value for Pearson correlation.
+    description: "Two‑tailed p‑value for Pearson correlation."
   spearman_r:
     type: number
-    description: Spearman rank correlation coefficient.
+    description: "Spearman rank correlation coefficient."
   spearman_p:
     type: number
-    description: Two‑tailed p‑value for Spearman correlation.
-  fdr_q:
-    type: number
-    description: Benjamini‑Hochberg corrected q‑value (optional, added post‑hoc).
+    description: "Two‑tailed p‑value for Spearman correlation."

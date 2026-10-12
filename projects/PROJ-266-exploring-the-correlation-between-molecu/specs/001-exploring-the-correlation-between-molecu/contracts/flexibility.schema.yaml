@@ -1,9 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Flexibility Summary Record
-description: >
-  Additional contract summarising flexibility metrics that may be used for
-  downstream reporting or aggregation.
+title: "Flexibility Summary Record"
 type: object
+additionalProperties: false
 required:
   - smiles
   - dihedral_variance
@@ -11,11 +9,10 @@ required:
 properties:
   smiles:
     type: string
+    description: "Canonical SMILES."
   dihedral_variance:
     type: number
+    description: "Dihedral variance (rad²)."
   size_normalized_flexibility:
     type: number
-    description: dihedral_variance divided by rotatable bond count.
-  notes:
-    type: string
-    description: Optional free‑form notes.
+    description: "Flexibility normalized by molecular size."

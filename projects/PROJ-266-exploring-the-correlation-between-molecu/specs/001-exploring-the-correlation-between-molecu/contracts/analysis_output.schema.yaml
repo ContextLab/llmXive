@@ -1,14 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Analysis Output (Model Results)
-description: >
-  Schema for the JSON output produced by the multivariate regression analysis.
-  Covers FR‑006, FR‑007, FR‑008.
+title: "Analysis Output – Multivariate Model Performance"
 type: object
+additionalProperties: false
 required:
   - model_performance
 properties:
   model_performance:
     type: object
+    additionalProperties: false
     required:
       - mean_r2
       - std_r2
@@ -18,22 +17,18 @@ properties:
     properties:
       mean_r2:
         type: number
-        description: Mean R² across cross‑validation folds.
+        description: "Mean R² across cross‑validation folds."
       std_r2:
         type: number
-        description: Standard deviation of R² across folds.
+        description: "Standard deviation of R² across folds."
       rmse:
         type: number
-        description: Root‑mean‑square error (average across folds).
+        description: "Root‑Mean‑Square Error."
       mae:
         type: number
-        description: Mean absolute error (average across folds).
+        description: "Mean Absolute Error."
       coefficients:
         type: object
-        description: Mapping from predictor name to coefficient value.
+        description: "Regression coefficients keyed by predictor name."
         additionalProperties:
           type: number
-  diagnostics:
-    type: object
-    description: Optional diagnostic information.
-    additionalProperties: true

@@ -8,29 +8,28 @@ pipeline. It creates the following directories (relative to the project root):
   - data/raw/
   - data/processed/
   - specs/001‑exploring‑the‑correlation‑between‑molecu/contracts/
-  - state/pending/
 
 After creation it asserts that each directory exists. The script exits with
 status 0 on success; any assertion failure will raise an AssertionError.
 """
 
-import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 def main() -> None:
     # Determine the project root (parent of the 'scripts' directory)
     script_path = Path(__file__).resolve()
     project_root = script_path.parent.parent
 
-    # Define the required directories
+    # Define the required directories (excluding platform‑owned `state/`)
     required_dirs = [
         project_root / "code",
         project_root / "tests",
         project_root / "data" / "raw",
         project_root / "data" / "processed",
-        project_root / "specs" / "001‑exploring‑the‑correlation‑between‑molecu" / "contracts",
-        project_root / "state" / "pending",
+        project_root / "specs"
+        / "001‑exploring‑the‑correlation‑between‑molecu"
+        / "contracts",
     ]
 
     # Create each directory (including any missing parents)

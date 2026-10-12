@@ -1,9 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Caco-2 Permeability Dataset Record
-description: >
-  Schema for a single record in the Caco-2 permeability dataset.
-  Required for FR‑001 and FR‑010.
+title: "Caco‑2 Permeability Dataset Record"
 type: object
+additionalProperties: false
 required:
   - smiles
   - logPapp
@@ -11,24 +9,18 @@ required:
 properties:
   smiles:
     type: string
-    description: SMILES representation of the molecule.
+    description: "Canonical SMILES representation of the molecule."
   logPapp:
     type: number
-    description: Measured Caco‑2 permeability (logPapp).
+    description: "Caco‑2 apparent permeability (logPapp)."
   protocol_metadata:
     type: object
-    description: Metadata describing the assay protocol.
+    description: "Metadata describing the assay protocol."
+    additionalProperties: false
     required:
       - standard_type
     properties:
       standard_type:
         type: string
-        enum: ["MEASUREMENT"]
-        description: Must be "MEASUREMENT" per FR‑010.
-  assay_id:
-    type: string
-    description: Optional identifier for the assay.
-  other_fields:
-    type: object
-    description: Allows additional optional fields.
-    additionalProperties: true
+        enum:
+          - MEASUREMENT

@@ -25,10 +25,8 @@ T004:
     \ test to fail. The task\u2019s core deliverables are absent."
   task: 87355de7c66fd824705608c4467b2072a87aa2c8d9a9c0cea5c865e6a4ca35de
 T005:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/pending/checksums.yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/data/retrieval.py
+    exit=1'
   task: 568d83717f2e7f88bedd7d5eb56bcefc6accd25cf0b50b9445ad709675caca06
 T006:
   reason: 'Requested task execution failed; rerun successfully: code/data/preprocessing.py

@@ -1,30 +1,45 @@
 [flake8]
-# Max line length to match Black's default
+# Maximum line length to match Black's default
 max-line-length = 88
+# Ignore rules that conflict with Black formatting
+extend-ignore = E203, W503
 # Exclude common directories and files
 exclude =
     .git,
     __pycache__,
     build,
     dist,
-    .venv,
     venv,
-    migrations,
-    *.egg-info,
+    env,
+    .venv,
+    .mypy_cache,
+    .tox,
+    .pytest_cache,
+    .coverage,
+    .hypothesis,
+    .ruff_cache,
+    .ruff,
+    .nox,
+    .egg-info,
+    .eggs,
+    .cache,
+    .ipynb_checkpoints,
     data,
     tests,
-    docs
-# Ignore rules that conflict with Black formatting
-ignore =
-    E203,  # whitespace before ':'
-    W503,  # line break before binary operator
-    E266,  # too many leading '#' for block comment
-    E501,  # line too long (handled by max-line-length)
-    E402,  # module level import not at top of file
-# Enable some useful warnings
+    docs,
+    examples,
+    scripts,
+    .github,
+    .gitlab,
+    .vscode,
+    .idea
+# Enable built‑in flake8 plugins
 select = C,E,F,W,B,B950
-# Enable built-in plugin for docstring conventions
-docstring-convention = google
-# Enable per-file-ignores if needed (example)
-per-file-ignores =
-    __init__.py:F401
+# Treat warnings as errors (optional, can be adjusted)
+# enable-extensions = G
+# Per‑file-ignores can be added if needed
+# per-file-ignores =
+#    __init__.py:F401
+#    */migrations/*:E501,F401
+# Enable pyproject.toml support (if flake8 version supports it)
+# config = pyproject.toml

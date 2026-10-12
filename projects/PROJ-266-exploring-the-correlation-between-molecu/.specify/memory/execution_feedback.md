@@ -19,7 +19,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-266-exploring-the-correlation-between-molecu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-266-exploring-the-correlation-between-molecu/code/utils/check_success_rate.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -> rc=2
-868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+xive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
@@ -31,7 +31,6 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ERROR tests/contract/test_dataset_schema.py - FileNotFoundError: Schema not f...
 ERROR tests/test_analysis_multivariate.py
 ERROR tests/test_analysis_t019a.py
-ERROR tests/test_checksum.py
 ERROR tests/test_conformer_gen.py
 ERROR tests/test_descriptors.py
 ERROR tests/test_logging.py
@@ -40,8 +39,8 @@ ERROR tests/test_retrieval.py
 ERROR tests/test_scaling_metric_setup.py
 ERROR tests/test_scaling_power_analysis.py
 ERROR tests/test_setup.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 12 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 17 warnings, 12 errors in 3.03s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
+======================= 16 warnings, 11 errors in 1.64s ========================
 
 
 

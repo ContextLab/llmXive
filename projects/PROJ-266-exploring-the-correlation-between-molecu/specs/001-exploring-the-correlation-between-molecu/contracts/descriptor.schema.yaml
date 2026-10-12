@@ -1,9 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Flexibility Descriptor Record
-description: >
-  Schema for a descriptor record produced by the descriptor calculation step.
-  Matches FR‑004.
+title: "Flexibility Descriptor Record"
 type: object
+additionalProperties: false
 required:
   - smiles
   - dihedral_variance
@@ -14,24 +12,20 @@ required:
 properties:
   smiles:
     type: string
-    description: SMILES string of the molecule.
+    description: "Canonical SMILES of the molecule."
   dihedral_variance:
     type: number
-    description: Variance of dihedral angles (rad²).
+    description: "Variance of dihedral angles (rad²)."
   bond_variance:
     type: number
-    description: Variance of bond lengths (Å²).
+    description: "Variance of bond lengths (rad²)."
   angle_variance:
     type: number
-    description: Variance of bond angles (rad²).
+    description: "Variance of bond angles (rad²)."
   conformer_count:
     type: integer
     minimum: 0
-    description: Number of conformers generated for this molecule.
+    description: "Number of conformers generated for the molecule."
   converged:
     type: boolean
-    description: Whether the descriptor calculation converged.
-  additional_metrics:
-    type: object
-    description: Optional extra metrics.
-    additionalProperties: true
+    description: "True if descriptor calculation converged."
