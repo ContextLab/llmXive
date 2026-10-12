@@ -1,12 +1,14 @@
 T001:
   c: false
-  h: 6ec3acf758efbf815ce9ce8ab2c1e34527115b103cd4c486b503d25fda43e542
-  r: "Checked `docs/quickstart.md`, `requirements.txt`, and `code/__init__.py`. The\
-    \ seed\u2011initialization script (`code/seed_init.py`) and the resulting `logs/seed_initialization.log`\
-    \ are missing, and there is no evidence that `pip install -r requirements.txt`\
-    \ runs without warnings. These artifacts are required for the task to be considered\
-    \ complete."
-  sig: 19f5a9aa8fdfb0e36a3fdbde215013abec71ffaa60eb95fb902bdd230304b0c5
+  h: c16a1cd60ee09b1abc1bc862a062900e9161b1e2c4ac944bf20fd22aef2fbad6
+  r: "`requirements.txt` is not frozen \u2014 it lists bare package names (numpy,\
+    \ pandas, scipy, \u2026) with no pinned versions, directly violating the \"pin\
+    \ dependencies / frozen\" requirement. Additionally, `docs/quickstart.md` instructs\
+    \ running `python code/seed_init.py` to print \"Pipeline completed successfully\"\
+    \ and produce `logs/seed_initialization.log`, but there is no evidence that `code/seed_init.py`\
+    \ exists or that the command was executed (no log file, no run output), and no\
+    \ evidence that `pip install -r requirements.txt` succeeded."
+  sig: 7aa710e13f78590b2d153ba995f2c28bcaea63788723055d8c59d98649851d6c
 T009:
   c: false
   h: 642b718945cf87db8d3ea068862e70d708a939f7de6e3441f85d2b62435c08d7

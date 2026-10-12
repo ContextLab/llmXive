@@ -1,9 +1,11 @@
 T001:
-  reason: "Checked `docs/quickstart.md`, `requirements.txt`, and `code/__init__.py`.\
-    \ The seed\u2011initialization script (`code/seed_init.py`) and the resulting\
-    \ `logs/seed_initialization.log` are missing, and there is no evidence that `pip\
-    \ install -r requirements.txt` runs without warnings. These artifacts are required\
-    \ for the task to be considered complete."
+  reason: "`requirements.txt` is not frozen \u2014 it lists bare package names (numpy,\
+    \ pandas, scipy, \u2026) with no pinned versions, directly violating the \"pin\
+    \ dependencies / frozen\" requirement. Additionally, `docs/quickstart.md` instructs\
+    \ running `python code/seed_init.py` to print \"Pipeline completed successfully\"\
+    \ and produce `logs/seed_initialization.log`, but there is no evidence that `code/seed_init.py`\
+    \ exists or that the command was executed (no log file, no run output), and no\
+    \ evidence that `pip install -r requirements.txt` succeeded."
   task: e871f02947a6c8771a471cdaa0624e331241281152ce92515cea5b71227860c8
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'

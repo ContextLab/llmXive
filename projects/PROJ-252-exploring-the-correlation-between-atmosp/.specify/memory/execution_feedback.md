@@ -1,16 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/download.py`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/report.py; 4 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1)
@@ -18,12 +7,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py -> rc=1
+2026-10-12 11:11:50,487 - __main__ - INFO - Starting T002: Data Acquisition Pipeline.
+2026-10-12 11:11:50,487 - __main__ - INFO - Downloading NOAA pressure file: https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 11:11:50,614 - __main__ - ERROR - NOAA download failed: 404 Client Error:  for url: https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
+2026-10-12 11:11:50,614 - __main__ - CRITICAL - T002 failed: Critical failure downloading NOAA data: 404 Client Error:  for url: https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
 
-2026-10-12 08:32:55,005 - __main__ - INFO - Starting download pipeline (T002).
-2026-10-12 08:32:55,006 - __main__ - WARNING - DEV-001 (Global Data Block) deviation record not found.
-2026-10-12 08:32:55,007 - __main__ - INFO - Downloading NOAA pressure file: https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
-2026-10-12 08:32:55,274 - __main__ - ERROR - Failed to download https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc: 429 Client Error: Too Many Requests for url: https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
-2026-10-12 08:32:55,274 - __main__ - CRITICAL - NOAA download failed: NOAA download failed for https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis.dailyavgs/pressure/2020/pressure.20200101.nc
 
 - python code/preprocess.py -> rc=1
 
@@ -33,7 +21,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'geopandas'
 
 - python code/analysis.py -> rc=1
- 08:32:56 - __main__ - INFO - Starting analysis pipeline.
+ 11:11:51 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>
@@ -75,6 +63,6 @@ ERROR tests/unit/test_preprocess_anomalies.py
 ERROR tests/unit/test_statistics.py
 ERROR tests/unit/test_t017_master_dataset.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 0.88s ==============================
+============================== 10 errors in 0.81s ==============================
 
 
