@@ -1,0 +1,35 @@
+projects/PROJ-367-the-influence-of-algorithmic-recommendat/
+├── code/
+│   ├── __init__.py
+│   ├── requirements.txt
+│   ├── config.py
+│   ├── data_fetcher.py
+│   ├── data_generation.py
+│   ├── ingestion.py
+│   ├── main.py
+│   ├── merger.py
+│   ├── metrics.py
+│   ├── modeling.py
+│   └── robustness.py
+├── data/
+│   ├── raw/
+│   │   └── oulad/               # will contain studentInfo.csv, studentVle.csv, vle.csv, studentRegistration.csv after fetch
+│   └── processed/
+│       ├── cleaned_data.parquet
+│       ├── diversity_scores.json
+│       ├── model_results.json
+│       ├── permutation_test_results.json
+│       └── sensitivity_analysis.csv
+├── tests/
+│   ├── unit/
+│   │   ├── test_data_fetcher.py
+│   │   ├── test_preprocessing.py
+│   │   ├── test_modeling.py
+│   │   └── test_main_output.py
+│   ├── integration/
+│   │   └── test_pipeline.py
+│   └── contract/
+│       └── test_schemas.py
+└── docs/
+    └── reports/
+        └── analysis_report.md

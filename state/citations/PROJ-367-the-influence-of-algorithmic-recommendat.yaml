@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
   verified_at: '2026-10-07T18:45:09.519904Z'
-- artifact_hash: 834f9ea7aef111c90994167755166c2684495084b7418658362a3c40631f3b93
+- artifact_hash: 36d50f4b05f8a012f176d2679169011088b32813bc298ad0f1df31556d60e5b3
   artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://analyse.kmi.open.ac.uk/open_dataset`
   verification_status: pending
   verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
-  verified_at: '2026-10-12T05:39:01.201672Z'
-- artifact_hash: 834f9ea7aef111c90994167755166c2684495084b7418658362a3c40631f3b93
+  verified_at: '2026-10-12T05:40:46.292838Z'
+- artifact_hash: 36d50f4b05f8a012f176d2679169011088b32813bc298ad0f1df31556d60e5b3
   artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip`
   verification_status: pending
   verified_against_url: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip
-  verified_at: '2026-10-12T05:39:01.201672Z'
+  verified_at: '2026-10-12T05:40:46.292838Z'

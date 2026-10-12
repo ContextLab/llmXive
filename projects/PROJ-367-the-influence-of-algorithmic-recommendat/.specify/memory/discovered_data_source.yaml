@@ -1,14 +1,10 @@
 status: none
-intent: Educational Course Recommendation and Enrollment Dataset with category columns
-  download python package dataset
+intent: download Open University Learning Analytics Dataset OULAD python package dataset
 required_fields:
-- user_id
 - session_id
+- user_id
 - recommended_items
 - enrolled_items
-- recommended_item_categories
-- enrolled_item_categories
-- timestamp
-cache_key: bb94413d7b3c379b4b6e14c09a58ea60c4f326c305ef5bce0d4fc971d5e4d6b7
-searched_at: '2026-10-07T18:40:54.707632+00:00'
+cache_key: 636d23dec01e345f39c571f31bd8748fa572326cd3f1ca0c927692f37a8ce749
+searched_at: '2026-10-12T05:41:14.460228+00:00'
 retry_count: 1
