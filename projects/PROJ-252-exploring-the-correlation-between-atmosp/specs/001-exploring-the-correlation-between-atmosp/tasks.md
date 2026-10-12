@@ -1,251 +1,192 @@
 # Tasks: Exploring the Correlation Between Atmospheric Pressure and Earthquake Precursors
 
-**Input**: Design documents from `/specs/001-exploring-the-correlation-between-atmosp/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-exploring-the-correlation-between-atmosp/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: The examples below include test tasks. Tests are MANDATORY to ensure reproducibility and validation.
+**Tests**: The examples below include test tasks. Tests are **MANDATORY** to ensure reproducibility and validation.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-## Format: `[ID] [P?] [Story] Description`
+---
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+## Phase 1 – Setup and First End‑to‑End Analysis
 
-## Path Conventions
+- [ ] T001 Establish the existing code layout and dependencies, document a runnable command in `docs/quickstart.md`, and validate input provenance.  
+  *Path*: `docs/quickstart.md`, `code/requirements.txt`
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T002 Implement the primary computation entry point and focused correctness tests in the source/test files named by the plan. Include invalid‑input handling required by the specification.  
+  *Path*: `code/main.py`, `tests/unit/test_entrypoint.py`
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T003 Connect the entry point to the computation and run a small valid case, producing real result rows under `data/results/` with required fields and units.  
+  *Path*: `data/results/sample_output.csv`
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T004 Create `docs/deviations.md` with a header, table of contents, and a formal record of scope reductions (e.g., FR‑001 global‑data block, FR‑011 climate‑index deferment).  
+  *Path*: `docs/deviations.md`
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization, basic structure, and documentation scaffolding.
-
-- [X] T001 Create project structure per `specs/001-exploring-the-correlation-between-atmosp/plan.md`: Execute `mkdir -p data/{raw,interim,processed} code tests docs` to create the following directories: `data/raw`, `data/interim`, `data/processed`, `code`, `tests`, `docs`. Verify all directories exist after execution.
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scipy, scikit-learn, requests, tqdm, pyyaml)
-- [X] T003 [P] Configure linting (flake8) and formatting (black) tools
-- [X] T004b [P] Create `docs/deviations.md` with a header, table of contents, and formal structure to document scope reductions (e.g., FR-001 global data block, FR-011 climate index deferment) as required by Constitution Principle II.
-- [X] T004c [P] Create `docs/quickstart.md` as a Phase 1 output (per plan.md) to ensure it exists before T035 validation.
+- [ ] T005 Create `docs/quickstart.md` describing how to invoke the full pipeline on the pilot test data.  
+  *Path*: `docs/quickstart.md`
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2 – Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
+- [ ] T008 Create base data‑validation schemas in `contracts/` (`earthquake.schema.yaml`, `pressure-anomaly.schema.yaml`).  
+  *Path*: `contracts/earthquake.schema.yaml`, `contracts/pressure-anomaly.schema.yaml`
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
-**Dependencies**: T008 must be completed before T009. T008b must be completed after T008. T025b must be completed before T025. T004b must be completed before T011b and T025b. T011d must be completed before T011b and T025b. Note: T004b, T008, T011d are parallel-safe, but T011b, T025b, T009, T008b depend on them.
+- [ ] T008b [P] Create sample data fixture `tests/fixtures/sample_earthquake.yaml` containing at least one valid earthquake record and one valid pressure‑anomaly record matching the schemas in T008.  
+  *Path*: `tests/fixtures/sample_earthquake.yaml`
 
-- [X] T008 Create base data validation schemas in `contracts/` (earthquake.schema.yaml, pressure-anomaly.schema.yaml) with required fields: magnitude, depth, lat, lon, timestamp, pressure, anomaly, window_label.
- - **earthquake.schema.yaml**: Define properties for magnitude (float), depth (float), lat (float), lon (float), timestamp (ISO standard), event_id (string).
- - **pressure-anomaly.schema.yaml**: Define properties for event_id (string), pressure_value (float), anomaly_value (float), window_type (string: 'event'|'control'), timestamp (ISO standard).
-- [X] T008b [P] [Dependency: T008] Create sample data fixture `tests/fixtures/sample_earthquake.yaml` containing at least one valid earthquake record and one valid pressure anomaly record matching the schemas in T008. This file is required for T009 contract testing. **Note: T008b is [P] relative to other Phase 2 tasks but strictly depends on T008 completion.**
-- [X] T011d [Dependency: T004b] Create `data/processed/config.yaml` defining the pilot scope parameters. **Required keys and EXACT VALUES**:
- - `pilot_mode`: true
- - `expected_earthquake_count`: 12 (HARDCODED FOR PILOT)
- - `moving_average_days`: 30
- - `min_permutation_iterations`: 10000
- - `max_permutation_iterations`: 100000
- - `convergence_variance_threshold`: 1e-5
- **Constraint**: All keys must be populated with explicit values. The `expected_earthquake_count` MUST be set to 12 to satisfy US-1 test criteria. This file is required for T017, T014, and T022 verification. **(Dependency: T004b)**
-- [X] T011b Create a formal deviation record in `docs/deviations.md` for FR-001 (Global Data Download Blocked), explicitly stating the absence of verified global NOAA NCEP/NCAR sources, the fallback to verified test data only, and the verification logic required to confirm this state. Assign Deviation ID: **DEV-001**. **(Dependency: T004b, T011d)**
-- [X] T025b Create a formal deviation record in `docs/deviations.md` for FR-011 (Climate Index Stratification Deferred), explicitly stating the absence of verified ENSO/PDO data sources, the use of date-matching as a proxy, and the verification step planned in T025. Assign Deviation ID: **DEV-002**. **Note**: This record must reference T038 as the trigger for future re-implementation when verified sources are available. **(Dependency: T004b, T011d)**
+- [ ] T011d Create `data/processed/config.yaml` defining pilot‑scope parameters.  
+  ```yaml
+  pilot_mode: true
+  expected_earthquake_count: 12
+  moving_average_days: 30
+  min_permutation_iterations: 10000
+  max_permutation_iterations: 100000
+  convergence_variance_threshold: 1e-5
+  ```  
+  *Path*: `data/processed/config.yaml`
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T011b Create a formal deviation record in `docs/deviations.md` for FR‑001 (Global Data Download Blocked). Assign Deviation ID **DEV‑001**.  
+  *Path*: `docs/deviations.md`
 
----
-
-## Phase 3: User Story 1 - Data Acquisition and Pre-processing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Download verified test pressure data and USGS earthquake catalog, align them spatially/temporally, and produce a clean analysis-ready dataset.
-
-**Independent Test**: The script MUST exit with code 0. The output CSV row count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. The output MUST contain a validation report confirming all required fields are present. **New**: The script MUST also verify that the global NOAA NCEP/NCAR download is explicitly blocked and log this state, referencing the deviation record in `docs/deviations.md`.
-
-### Tests for User Story 1 (MANDATORY) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation. T009 depends on T008. T010 depends on T008 and T011 (structure).**
-
-- [X] T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Validate `earthquake.schema.yaml` and `pressure-anomaly.schema.yaml` against sample data at `tests/fixtures/sample_earthquake.yaml`; assert failure if required fields (magnitude, depth, lat, lon, timestamp) are missing. Assert failure with message "Sample data file not found: tests/fixtures/sample_earthquake.yaml" if the file does not exist. (Dependency: T008, T008b)
-- [ ] T010 [US1] Integration test for download pipeline in `tests/integration/test_download_pipeline.py`:
- 1. Fetch USGS test data from `https://earthquake.usgs.gov/fdsnws/event/1/query` (2018 Alaska subset, M>=4.0, depth<=70km).
- 2. Assert row count matches `data/processed/config.yaml` `expected_earthquake_count` (12) within 1% tolerance (i.e., 11 <= count <= 13).
- 3. Assert that the script explicitly checks for the absence of global NOAA NCEP/NCAR source (FR-001) by verifying the 'Verified Datasets' block in `plan.md` and logging the state referencing `DEV-001`.
- 4. Assert the script exits with code 0 if all checks pass.
- (Dependency: T008, T011d)
-
-### Implementation for User Story 1
-
-- [X] T011a [US1] Implement `code/download.py` to fetch **verified test pressure data** and **USGS 2018 Alaska subset** (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`. **Explicitly check for absence of global NOAA NCEP/NCAR source (FR-001)** by reading `plan.md` to verify absence in 'Verified Datasets' block. If absent, **block the download** and log this state, referencing the deviation record ID **DEV-001** in `docs/deviations.md` (T011b). **Do NOT attempt to fetch global data**. Process only the 2018 Alaska subset (N=12) as test data. This implements the **Pilot Scope** of FR-001 by enforcing the block. **(Dependency: T011d, T008)**
-- [X] T012 [US1] Implement checksumming and raw data immutability checks in `code/download.py`
-- [X] T013 [US1] **Aggregation Marker**: Represents the completion of the land mask generation and application chain (T013a -> T013b -> T013c).
-- [X] T013a [US1] Implement `code/preprocess.py` function `generate_land_mask()` to load a global land mask using `geopandas` (source: `naturalearth` low resolution) and save it to `data/interim/land_mask.geojson`. **Output**: A GeoJSON file containing land polygons. **(Dependency: T013)**
-- [ ] T013b [US1] Implement `code/preprocess.py` function `apply_ocean_mask()` to load the land mask from `data/interim/land_mask.geojson` (T013a), calculate interpolation reliability for each event using `geopandas` distance to nearest land grid point, and **exclude events over oceans** where reliability < 95% (FR-009). **Output**: Write filtered data to `data/interim/masked_events.csv`. **(Dependency: T013a)**
-- [ ] T013c [US1] Implement `code/preprocess.py` function `exclude_missing_pressure()` to detect missing pressure data in the pre-event window (t-48h to t) by checking for `NaN` or `null` in the `pressure_value` column and **exclude records** with any missing values in that window (FR-010). **Output**: Write filtered data to `data/interim/clean_events.csv` and log the count of excluded records. **(Dependency: T013b)**
-- [ ] T014 [US1] Implement `code/preprocess.py` function `calculate_left_censored_anomaly()` to calculate daily pressure anomalies using a left-censored moving average. **Configuration**: Read `moving_average_days` (value 30) from `data/processed/config.yaml` (T011d). **Algorithm**:
- 1. For each event at time `t`, define the **event window** as `[t-48h, t]`.
- 2. Define the **baseline window** as `[t-N-48h, t-48h]` (left-censored, excluding the event window and immediate pre-baseline).
- 3. Calculate the moving average of pressure values strictly within the **baseline window**.
- 4. Calculate the anomaly as `pressure(t) - baseline_average`.
- 5. **Exclude** any data points within the event window from the baseline calculation to prevent bias (FR-003).
- **Output**: Write anomalies to `data/interim/anomalies_raw.csv` with columns: `event_id` (string), `timestamp` (ISO), `pressure_value` (float), `baseline_average` (float), `anomaly_value` (float). **Verification**: Assert `config.MOVING_AVERAGE_DAYS` is 30. Assert that the function correctly excludes the event window by testing with a synthetic window and verifying that values in `[t-48h, t]` are NOT included in the average. **(Dependency: T013c, T011d)**
-- [ ] T016 [US1] Implement deduplication logic in `code/preprocess.py` based on unique USGS event ID. **Strategy**: For duplicate `event_id`s, retain the record with the **latest `timestamp`** (most recent revision). **Input**: Read from `data/interim/clean_events.csv` (T013c) and `data/interim/anomalies_raw.csv` (T014). **Output**: Write deduplicated data with anomalies to `data/interim/deduplicated_with_anomalies.csv`. **(Dependency: T014, T013c)**
-- [ ] T017 [US1] Run `code/preprocess.py --output data/processed/master_dataset.csv` to generate the master dataset pairing every earthquake with its pressure anomaly and control window label. **Input**: Read from `data/interim/deduplicated_with_anomalies.csv` (produced by T016). **Output Schema**: `master_dataset.csv` must contain columns in this exact order: `event_id` (string), `lat` (float), `lon` (float), `timestamp` (ISO), `pressure_value` (float), `anomaly_value` (float), `window_label` (string: 'event'|'control'). **Validation**:
- 1. Assert row count matches `data/processed/config.yaml` `expected_earthquake_count` (12) within 1% tolerance.
- 2. Validate schema against `contracts/earthquake.schema.yaml` and `contracts/pressure-anomaly.schema.yaml` (T008).
- 3. Generate checksum `data/processed/master_dataset.csv.sha256` using `sha256sum`.
- 4. If validation fails, output a JSON report listing missing variables (FR-008) and exit with code 1.
- **(Dependency: T016, T011d, T008)**
-- [ ] T017b [US1] Verification test for T017: Assert that `data/processed/master_dataset.csv` row count matches `data/processed/config.yaml` `expected_earthquake_count` (read from file) within 1% tolerance. **(Dependency: T017)**
-- [ ] T018 [US1] Implement validation report generator in `code/preprocess.py` to output JSON report of missing variables if validation fails (FR-008)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T025b Create a formal deviation record in `docs/deviations.md` for FR‑011 (Climate‑Index Stratification Deferred). Assign Deviation ID **DEV‑002**.  
+  *Path*: `docs/deviations.md`
 
 ---
 
-## Phase 4: User Story 2 - Statistical Association Analysis (Priority: P2)
+## Phase 3 – User Story 1: Data Acquisition & Pre‑processing (Priority P1)
 
-**Goal**: Perform Kolmogorov–Smirnov and permutation tests to determine if pressure anomalies in pre-earthquake windows differ significantly from control windows, framing results as associational evidence.
+- [ ] T009 [P] Contract test for data‑schema validation in `tests/contract/test_data_schema.py`. Validates `earthquake.schema.yaml` and `pressure-anomaly.schema.yaml` against `tests/fixtures/sample_earthquake.yaml`.  
+  *Path*: `tests/contract/test_data_schema.py`
 
-**Independent Test**: The output JSON MUST contain a p-value < 0.05 if and only if the observed test statistic is strictly greater than the 95th percentile of the permuted statistics.
+- [ ] T010 Integration test for download pipeline in `tests/integration/test_download_pipeline.py`.  
+  *Requirements*:  
+  1. Fetch USGS 2018 Alaska subset (M≥4.0, depth≤70 km) from the official USGS API.  
+  2. Assert row count matches `data/processed/config.yaml` → `expected_earthquake_count` (12) within 1 % tolerance.  
+  3. Verify the script logs the absence of a global NOAA NCEP/NCAR source and references **DEV‑001**.  
+  4. Exit with code 0 on success.  
+  *Path*: `tests/integration/test_download_pipeline.py`
 
-### Tests for User Story 2 (MANDATORY) ⚠️
+- [ ] T011a Implement `code/download.py` to fetch **verified test pressure data** and the **USGS 2018 Alaska subset**. The script checks `plan.md` for the global NOAA source; if missing, it logs **DEV‑001** and aborts the global download.  
+  *Path*: `code/download.py`
 
-- [X] T019 [P] [US2] Unit test for KS test calculation in `tests/unit/test_statistics.py`
-- [X] T020 [P] [US2] Integration test for permutation test convergence in `tests/integration/test_permutation.py`
-- [X] T022b [P] [US2] Unit test for null hypothesis generation in `tests/unit/test_null_hypothesis.py`: Verify that the permutation test correctly shuffles labels and generates a null distribution matching SC-001 criteria.
+- [ ] T012 Add checksumming and raw‑data immutability checks to `code/download.py`.  
+  *Path*: `code/download.py`
 
-### Implementation for User Story 2
+- [ ] T013a Implement `code/preprocess.py::generate_land_mask()` to create `data/interim/land_mask.geojson` using `geopandas` (Natural Earth low‑resolution).  
+  *Path*: `code/preprocess.py`, `data/interim/land_mask.geojson`
 
-- [ ] T021 [US2] Implement `code/analysis.py` function `run_ks_test()` to perform two-sample Kolmogorov–Smirnov test on `anomaly_value` column for 'event' vs. 'control' window labels. **Input**: `data/processed/master_dataset.csv`. **Output**: Return `statistic` and `p_value` using `scipy.stats.ks_2samp`. **(Dependency: T017)**
-- [ ] T022 [US2] Implement permutation test in `code/analysis.py`. **Configuration**: Read `min_permutation_iterations` (10000), `max_permutation_iterations` (100000), and `convergence_variance_threshold` (1e-5) from `data/processed/config.yaml` (T011d). **Logic**: Run iterations up to `max_permutation_iterations`. If iterations >= `min_permutation_iterations`, check if p-value variance over the last 1000 iterations is < `convergence_variance_threshold`; if so, stop early. **Output**: Write results to `data/processed/permutation_results.json` with keys: `observed_statistic`, `p_value`, `null_distribution_count`, `iterations_run`. **Verification**: Ensure convergence by checking that the p-value stabilizes within 1% over the last 1000 iterations (if applicable). **Test**: Assert `tests/unit/test_permutation.py::test_convergence_stops_early` passes. **(Dependency: T021, T011d)**
-- [X] T023 [US2] Implement p-value calculation logic comparing observed statistic to the 95th percentile of the permuted null array. **Output**: Write results to `data/processed/p_value_calc.json` with keys: `observed_statistic`, `p_value`, `null_distribution_count`. **Test**: Assert `p_value` is a float between 0 and 1. **Verification**: Assert `p_value == (count(null_stats > observed) + 1) / (len(null_stats) + 1)`. (Dependency: T022)
-- [ ] T024 [US2] Calculate effect size (Cohen's d) for significant results (p < 0.05) in `code/analysis.py`. **Formula**: `d = (mean_event - mean_control) / pooled_std`. **Output**: Append `effect_size` to `data/processed/statistical_results.json`. **(Dependency: T023)**
-- [ ] T025 [US2] Implement stratification of control windows by matching month/day across non-event years (basic date matching only). **Explicitly state** that this is a staged simplification of FR-011 (Climate Index Stratification) due to missing ENSO/PDO data sources. **Output**: Write comparison results to `data/processed/climate_proxy_comparison.json` containing the Mann-Whitney U statistic for the first 5 events. **Mandatory Field**: Include a key `framing_status` with value `PROXY_NOT_FULFILLING_FR011` to explicitly mark this output as not satisfying FR-011. **Verification**: Include a step to compare date-matched distributions on **the first 5 events in the 2018 Alaska subset** to confirm internal consistency of the proxy logic. Verify that the 'Verified Datasets' block is checked for missing ENSO/PDO sources and label the fallback as 'unverified' in output artifacts, referencing deviation ID **DEV-002** in `docs/deviations.md` (T025b). **Note**: This task is a proxy; the full FR-011 implementation is scheduled in T038. **(Dependency: T017, T011d, T025b)**
-- [X] T026 [US2] Generate `data/processed/statistical_results.json` containing p-values, effect sizes, and explicit "associational" framing (FR-005). **Schema**: Must contain keys: `p_value`, `effect_size`, `framing`, `test_method`. **Validation**: Assert all keys are present and `framing` equals "associational". (Dependency: T023, T024)
+- [ ] T013b Implement `code/preprocess.py::apply_ocean_mask()` to load the land mask, compute interpolation reliability for each event, and exclude events over oceans where reliability < 95 %. Write filtered events to `data/interim/masked_events.csv`.  
+  *Path*: `code/preprocess.py`, `data/interim/masked_events.csv`
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T013c Implement `code/preprocess.py::exclude_missing_pressure()` to drop any records with missing pressure values in the 0‑48 h pre‑event window. Write the cleaned set to `data/interim/clean_events.csv`.  
+  *Path*: `code/preprocess.py`, `data/interim/clean_events.csv`
 
----
+- [ ] T014 Implement `code/preprocess.py::calculate_left_censored_anomaly()` to compute daily pressure anomalies using a left‑censored 30‑day moving average (configurable via `data/processed/config.yaml`). Output to `data/interim/anomalies_raw.csv`.  
+  *Path*: `code/preprocess.py`, `data/interim/anomalies_raw.csv`
 
-## Phase 5: User Story 3 - Robustness and Sensitivity Analysis (Priority: P3)
+- [ ] T016 Implement deduplication logic in `code/preprocess.py` (retain the most recent revision per `event_id`). Output to `data/interim/deduplicated_with_anomalies.csv`.  
+  *Path*: `code/preprocess.py`, `data/interim/deduplicated_with_anomalies.csv`
 
-**Goal**: Validate primary findings across magnitude thresholds, geographic regions, and anomaly definition cutoffs to ensure robustness.
+- [ ] T017 Run `code/preprocess.py --output data/processed/master_dataset.csv` to produce the analysis‑ready dataset. Validate against schemas, row‑count tolerance, and generate a SHA‑256 checksum `data/processed/master_dataset.csv.sha256`. On validation failure, emit a JSON report and exit with code 1.  
+  *Path*: `code/preprocess.py`, `data/processed/master_dataset.csv`, `data/processed/master_dataset.csv.sha256`, `data/processed/validation_report.json`
 
-**Independent Test**: The robustness module can be tested by executing the stratified analysis loop. The system MUST output separate p-values and effect sizes for each subset. The system MUST vary the cutoff by multiples of the background standard deviation (σ).
+- [ ] T017b Verification test asserting the row‑count tolerance for `master_dataset.csv`.  
+  *Path*: `tests/integration/test_master_dataset_rowcount.py`
 
-### Tests for User Story 3 (MANDATORY) ⚠️
-
-- [ ] T027 [P] [US3] Unit test for sensitivity analysis sweep in `tests/unit/test_sensitivity.py`
-
-### Implementation for User Story 3
-
-- [ ] T028 [US3] Implement robustness checks in `code/analysis.py` to stratify by magnitude (bins: 4.0–5.0, >5.0) and region (Pacific Ring of Fire: lat/lon logic vs. others). **Output**: Separate p-values and effect sizes for each subset. **(Dependency: T026)**
-- [ ] T029 [US3] Implement sensitivity analysis in `code/analysis.py` sweeping the anomaly cutoff over a range of **0.5σ to 3.0σ in steps of 0.5σ**, where **σ is the standard deviation of pressure anomalies in control windows**. **Output**: Report variation in significance rates. **(Dependency: T028)**
-- [ ] T030 [US3] Implement Benjamini-Hochberg False Discovery Rate (FDR) correction in `code/analysis.py` for the family-wise error rate across multiple tests (FR-006). **Input**: List of p-values from all subsets (T028) and sensitivity sweeps (T029). **Output**: Corrected p-values and significance flags. **(Dependency: T029)**
-- [ ] T037a [US3] Implement `code/report.py` to aggregate results from `statistical_results.json` and `robustness_report.json` into a final summary. **Output**: Generate `data/processed/final_summary.json`. **(Dependency: T026, T031)**
-- [X] T031 [US3] Generate `data/processed/robustness_report.json` containing p-values, effect sizes, and significance rates for all subsets and sensitivity sweeps. **Verification**: Assert presence of keys: `magnitude_subsets`, `region_subsets`, `sensitivity_sweep`. **Validation**: Check that `magnitude_subsets` contains entries for both 4.0–5.0 and >5.0, and `sensitivity_sweep` contains entries for 0.5σ, 1.0σ, 1.5σ. (Dependency: T028, T029, T030)
-- [X] T032 [US3] Compile final report in `docs/pilot_report.md` explicitly labeling findings as "Pilot/Methodology Validation", documenting limitations (Global data blocked, no climate stratification), including full statistical power documentation (permutation p-values, effect sizes, robustness checks) for any result (positive or null) as required by Constitution Principle VII, and referencing `docs/deviations.md` (T025b). **(Dependency: T026, T031, T037a)**
-- [X] T038 [US3] **Future Enhancement Task**: Implement full FR-011 (Climate Index Stratification) using verified ENSO/PDO data sources. **Trigger**: This task is activated ONLY when a verified source for ENSO/PDO data is identified and added to the `Verified Datasets` block in `plan.md`. **Action**: Replace the proxy logic in T025 with the full implementation using the verified source. **Output**: Update `data/processed/climate_proxy_comparison.json` to remove the `PROXY_NOT_FULFILLING_FR011` flag and include the full stratification results. **(Dependency: Verified ENSO/PDO source availability)**
-
-**Checkpoint**: At this point, User Stories 1, 2, AND 3 should be fully functional
+- [ ] T018 Implement a JSON validation‑report generator in `code/preprocess.py` that lists missing required variables (FR‑008).  
+  *Path*: `code/preprocess.py`, `data/processed/validation_report.json`
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 4 – User Story 2: Statistical Association Analysis (Priority P2)
 
-**Purpose**: Improvements that affect multiple user stories. **Dependencies**: T033, T034, T035 depend on T032 completion.
+- [ ] T019 Unit test for KS‑test calculation (`tests/unit/test_statistics.py`).  
+  *Path*: `tests/unit/test_statistics.py`
 
-- [X] T033 [P] Documentation updates in `README.md`, `docs/quickstart.md`, and `docs/` regarding pilot limitations and deviation records
-- [X] T034 [P] Code cleanup and refactoring for memory efficiency on CPU-only runners. **Metric**: Peak RAM usage must be < 6GB. **Environment Setup**: `pip install memory-profiler`. **Command**: `python -m memory_profiler code/main.py`. **Verification**: Parse output log using regex `Peak memory: (\d+\.\d+) (MiB|MB)` and assert value < 6000. **(Dependency: T032, T037b)**
-- [X] T035 [P] Run quickstart.md validation to ensure full pipeline execution on the test dataset within a reasonable timeframe. (as defined in plan.md), and document that global dataset feasibility remains unverified per plan.md. **Command**: `timeout 21600 python code/main.py` (6 hours). **Artifact**: Log file `logs/quickstart_validation.log` must contain "Pipeline completed successfully within 6 hours". **(Dependency: T032, T037b)**
-- [X] T036 [P] Additional unit tests for ocean masking and missing data exclusion logic in `tests/unit/`
-- [ ] T037b [P] Implement `code/main.py` as the deterministic entry point for the full pipeline, orchestrating download, preprocess, analysis, and report generation. **CLI Args**: `--config data/processed/config.yaml`, `--output-dir data/processed`. **Logic**: Sequentially call `download.py`, `preprocess.py`, `analysis.py`, `report.py`. **Error Handling**: Exit with code 1 on any failure, logging the specific error. **(Dependency: T011a, T014, T016, T021, T023, T024, T025, T028, T029, T030, T037a)**
+- [ ] T020 Unit test for permutation‑test convergence (`tests/unit/test_permutation.py`).  
+  *Path*: `tests/unit/test_permutation.py`
 
----
+- [ ] T022b Unit test for null‑hypothesis generation (`tests/unit/test_null_hypothesis.py`).  
+  *Path*: `tests/unit/test_null_hypothesis.py`
 
-## Dependencies & Execution Order
+- [ ] T021 Implement `code/analysis.py::run_ks_test()` to perform a two‑sample Kolmogorov–Smirnov test on `anomaly_value` for “event” vs. “control” windows. Output `statistic` and `p_value`.  
+  *Path*: `code/analysis.py`, `data/processed/ks_test_results.json`
 
-### Phase Dependencies
+- [ ] T022 Implement the permutation test in `code/analysis.py::run_permutation_test()`. Reads iteration limits and convergence threshold from `data/processed/config.yaml`. Writes results to `data/processed/permutation_results.json`.  
+  *Path*: `code/analysis.py`, `data/processed/permutation_results.json`
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **T008** must be complete before **T009** and **T008b**
- - **T004b** must be completed before **T011b**, **T025b**, and **T011d** (T004b is parallel-safe, but T011b/T025b/T011d depend on it)
- - **T011d** must be completed before **T011b** and **T025b** (config must exist before deviation records reference it)
- - **T025b** must be completed before **T025** (Deviation record must exist before implementation begins)
- - **T011d** depends on T004b to ensure the deviation documentation structure exists before config parameters are finalized.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories must proceed in priority order (P1 → P2 → P3) due to data dependencies
- - **T017** must be complete before **T021** and **T022**
- - User Story 2 cannot start until User Story 1 produces `data/processed/master_dataset.csv`
- - **T022** must be complete before **T023**
- - User Story 3 cannot start until User Story 2 produces `data/processed/statistical_results.json`
- - **T031** must be complete before **T032**
-- **Polish (Phase 6)**: Depends on T032 (Report) completion. **T032 must be complete before T033, T034, T035.** Once T032 is complete, T033, T034, and T035 can run in parallel. **T034 and T035 depend on T037b (main.py)**. Note: T034/T035 depend on T032 for *report content* and T037b for *execution*. T037b implies T032 completion, but T032 is listed for explicit data-flow traceability.
-- **Phase 7**: Removed. T037 (Reconciliation) has been moved to Phase 3 (T037a) and Phase 6 (T037b) to ensure prerequisites are met.
+- [ ] T023 Implement p‑value calculation comparing the observed KS statistic to the 95th percentile of the permuted null distribution. Write to `data/processed/p_value_calc.json`.  
+  *Path*: `code/analysis.py`, `data/processed/p_value_calc.json`
 
-### User Story Dependencies
+- [ ] T024 Compute Cohen’s d effect size for significant results (p < 0.05) and append to `data/processed/statistical_results.json`.  
+  *Path*: `code/analysis.py`, `data/processed/statistical_results.json`
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on User Story 1 completion (requires `data/processed/master_dataset.csv`)
-- **User Story 3 (P3)**: Depends on User Story 2 completion (requires `data/processed/statistical_results.json`)
+- [ ] T025 Implement a proxy control‑window stratification by matching month/day across non‑event years (basic date matching). Include a `framing_status` key set to `PROXY_NOT_FULFILLING_FR011` and reference **DEV‑002**. Output to `data/processed/climate_proxy_comparison.json`.  
+  *Path*: `code/analysis.py`, `data/processed/climate_proxy_comparison.json`
 
-### Within Each User Story
-
-- Tests (MANDATORY) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T004b, T008, T011d) can run in parallel (within Phase 2)
-- Once Foundational phase completes, User Story 1 can start
-- User Story 2 and 3 MUST wait for their respective upstream artifacts (no parallel start with predecessor stories)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories CANNOT be worked on in parallel by different team members due to strict data-flow dependencies
-- **Phase 6**: T033, T034, T035 can run in parallel once T032 is complete. **T034/T035 require T037b**.
+- [ ] T026 Generate `data/processed/statistical_results.json` containing `p_value`, `effect_size`, `framing` (“associational”), and `test_method`. Validate schema.  
+  *Path*: `code/analysis.py`, `data/processed/statistical_results.json`
 
 ---
 
-## Notes
+## Phase 5 – User Story 3: Robustness & Sensitivity (Priority P3)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Deviation Management**: All scope reductions (FR-001, FR-011) are documented in `docs/deviations.md` (T004b, T011b, T025b) and referenced in implementation tasks (T011a, T025) and final report (T032) via Deviation IDs (DEV-001, DEV-002).
-- **Quickstart**: `docs/quickstart.md` is created in Phase 1 (T004c) to align with plan.md outputs.
-- **Execution Feedback**: T037a and T037b address the run-book mismatch identified in `.specify/memory/execution_feedback.md` by explicitly creating the missing `code/report.py` and `code/main.py` scripts.
-- **Entry Point**: `code/main.py` (T037b) is the mandatory entry point for the full pipeline.
-- **Report Script**: `code/report.py` (T037a) is created in Phase 3 to align with Plan.md structure.
-- **Configuration**: All empirical specifics (N=12, 30-day window, iteration counts) are defined in `data/processed/config.yaml` (T011d) to satisfy Spec requirements while maintaining a single source of truth. **`expected_earthquake_count` is hardcoded to 12.**
-- **Status**: Tasks T014 and T017 are now marked as complete [X] with full implementation logic defined. T038 is added to address the future implementation of FR-011.
+- [ ] T027 Unit test for sensitivity‑analysis sweep (`tests/unit/test_sensitivity.py`).  
+  *Path*: `tests/unit/test_sensitivity.py`
+
+- [ ] T028 Implement robustness checks in `code/analysis.py` to stratify results by magnitude bins (4.0–5.0, > 5.0) and geographic region (Ring of Fire vs. Other). Output separate p‑values and effect sizes.  
+  *Path*: `code/analysis.py`, `data/processed/robustness_subsets.json`
+
+- [ ] T029 Implement sensitivity analysis sweeping the anomaly‑cutoff over {0.5σ, 1.0σ, 1.5σ, 2.0σ, 2.5σ, 3.0σ}. Report variation in significance rates.  
+  *Path*: `code/analysis.py`, `data/processed/sensitivity_sweep.json`
+
+- [ ] T030 Apply Benjamini‑Hochberg FDR correction across all subset tests and sensitivity sweeps. Write corrected p‑values and flags to `data/processed/fdr_corrected_results.json`.  
+  *Path*: `code/analysis.py`, `data/processed/fdr_corrected_results.json`
+
+- [ ] T031 Generate `data/processed/robustness_report.json` summarising magnitude‑subsets, region‑subsets, and sensitivity‑sweep results. Verify presence of required keys.  
+  *Path*: `data/processed/robustness_report.json`
+
+- [ ] T037a Implement `code/report.py` to aggregate `statistical_results.json` and `robustness_report.json` into `data/processed/final_summary.json`.  
+  *Path*: `code/report.py`, `data/processed/final_summary.json`
+
+- [ ] T032 Compile the final pilot report in `docs/pilot_report.md`, explicitly labeling findings as “Pilot/Methodology Validation”, documenting all limitations, and referencing `docs/deviations.md`.  
+  *Path*: `docs/pilot_report.md`
+
+- [ ] T038 Future Enhancement: When a verified ENSO/PDO source appears in `plan.md`, replace the proxy logic in T025 with full climate‑index stratification and remove the `PROXY_NOT_FULFILLING_FR011` flag.  
+  *Path*: `code/analysis.py`, `data/processed/climate_proxy_comparison.json`
+
+---
+
+## Phase 6 – Polish & Cross‑Cutting Concerns
+
+- [ ] T033 Update documentation (`README.md`, `docs/quickstart.md`, `docs/`) to reflect pilot limitations and deviation records.  
+  *Path*: `README.md`, `docs/quickstart.md`, `docs/`
+
+- [ ] T034 Refactor code for memory efficiency; ensure peak RAM < 6 GB on the CPU‑only runner. Verify with `memory_profiler`.  
+  *Path*: `code/`, verification script `scripts/check_memory.sh`
+
+- [ ] T035 Validate full pipeline execution on the test dataset within the 6‑hour limit using `timeout 21600 python code/main.py`. Log must contain “Pipeline completed successfully within 6 hours”.  
+  *Path*: `logs/quickstart_validation.log`
+
+- [ ] T036 Add additional unit tests for ocean‑masking and missing‑data exclusion logic (`tests/unit/test_ocean_mask.py`, `tests/unit/test_missing_pressure.py`).  
+  *Path*: `tests/unit/test_ocean_mask.py`, `tests/unit/test_missing_pressure.py`
+
+- [ ] T037b Implement deterministic entry point `code/main.py` that orchestrates download, preprocessing, analysis, and reporting. CLI arguments: `--config data/processed/config.yaml --output-dir data/processed`. Exit with code 1 on any failure and log the error.  
+  *Path*: `code/main.py`
+
+--- 
+
+## Dependencies & Execution Order (summary)
+
+| Phase | Prerequisite Tasks | Dependent Tasks |
+|------|--------------------|-----------------|
+| **Setup** | – | T001‑T005 |
+| **Foundational** | T001‑T005 | T008, T008b, T011d, T011b, T025b |
+| **US 1** | Foundational | T009, T010, T011a‑T018 |
+| **US 2** | US 1 (master dataset) | T019‑T026 |
+| **US 3** | US 2 (statistical results) | T027‑T032, T038 |
+| **Polish** | All previous phases | T033‑T037b |
+
+*Tasks marked `[P]` may run in parallel when their file targets do not overlap.*
