@@ -6,7 +6,6 @@ over large datasets in chunks to prevent Out-of-Memory (OOM) errors.
 import gc
 import os
 import resource
-import sys
 from typing import Any, Callable, Iterator, List, Optional, TypeVar
 
 import psutil
@@ -25,7 +24,10 @@ def get_current_memory_mb() -> float:
     mem_info = process.memory_info()
     return mem_info.rss / (1024 * 1024)
 
-def enforce_memory_limit(limit_mb: float, check_interval: int = 1000) -> bool:
+# ----------------------------------------------------------------------
+# Internal implementation that works with megabyte limits.
+# ----------------------------------------------------------------------
+def _enforce_memory_limit_mb(limit_mb: float, check_interval: int = 1000) -> bool:
     """
     Enforce a memory limit by checking current usage, triggering garbage collection,
     and optionally setting a hard resource limit on Unix-like systems.
@@ -70,9 +72,7 @@ def enforce_memory_limit(limit_mb: float, check_interval: int = 1000) -> bool:
             # Only set if the requested limit is stricter than the current hard limit
             # or if the current hard limit is unlimited (-1)
             if hard == -1 or limit_bytes < hard:
-                # Set soft limit to the limit, hard limit slightly higher to allow some overhead
-                # or exactly the limit if strict enforcement is needed.
-                # We use the limit for both to be strict.
+                # Set both soft and hard limits to the requested value for strict enforcement.
                 resource.setrlimit(resource.RLIMIT_AS, (limit_bytes, limit_bytes))
                 logger.debug(f"Set RLIMIT_AS to {limit_mb}MB")
         except ValueError as e:
@@ -83,47 +83,85 @@ def enforce_memory_limit(limit_mb: float, check_interval: int = 1000) -> bool:
 
     return True
 
+def enforce_memory_limit(max_gb: float, check_interval: int = 1000) -> bool:
+    """
+    Public API required by task T016.
+
+    Enforces a memory limit expressed in gigabytes. Internally delegates to the
+    megabyte‑based implementation.
+
+    Args:
+        max_gb: Maximum allowed memory in gigabytes.
+        check_interval: Reserved for future use; currently unused.
+
+    Returns:
+        True if memory usage stays within the limit, False otherwise.
+    """
+    limit_mb = max_gb * 1024.0
+    return _enforce_memory_limit_mb(limit_mb, check_interval)
+
 T = TypeVar("T")
 
-def chunked_iterator(
+def _chunked_iterator(
     iterable: List[T],
     chunk_size: int = 1000,
     memory_limit_mb: float = 4096.0,
 ) -> Iterator[List[T]]:
     """
-    Yield successive chunks from a list, checking memory constraints before each yield.
-
-    This generator is designed to process large lists without loading the entire
-    dataset into memory at once, while also monitoring current RSS to prevent OOM.
+    Core generator that yields chunks while respecting a memory ceiling.
 
     Args:
         iterable: List of items to iterate over.
         chunk_size: Number of items per chunk.
-        memory_limit_mb: Memory limit in MB. If exceeded, the iteration stops.
+        memory_limit_mb: Maximum memory (in MB) allowed for the process.
+                         If exceeded, iteration stops early.
 
     Yields:
         Lists of items (chunks) from the original iterable.
     """
     total_items = len(iterable)
-    logger.info(f"Starting chunked iteration over {total_items} items with limit {memory_limit_mb}MB")
+    logger.info(
+        f"Starting chunked iteration over {total_items} items with limit {memory_limit_mb}MB"
+    )
 
     for i in range(0, total_items, chunk_size):
-        # Check memory before yielding a new chunk
-        if not enforce_memory_limit(memory_limit_mb):
+        # Verify we are still under the memory budget before producing the next chunk
+        if not _enforce_memory_limit_mb(memory_limit_mb):
             logger.error(
                 f"Memory limit reached at chunk {i // chunk_size}. Stopping iteration."
             )
             break
 
-        # Extract the chunk
         chunk = iterable[i : i + chunk_size]
-
-        # Yield the chunk
         yield chunk
 
-        # Explicitly delete the chunk reference to hint GC, though the caller usually holds it
-        # We check memory again to decide if we should force GC before the next iteration
+        # Hint the GC after each chunk; this is especially useful when the chunks
+        # contain large objects (e.g., NumPy arrays) that the caller may have kept.
         current_mem = get_current_memory_mb()
         if current_mem > (memory_limit_mb * 0.9):
             logger.debug(f"Memory high ({current_mem:.2f}MB) after chunk. Triggering GC.")
             gc.collect()
+
+def chunked_iterator(
+    iterable: List[T],
+    chunk_size: int = 1000,
+    memory_limit_gb: float = 4.0,
+) -> Iterator[List[T]]:
+    """
+    Public API required by task T016.
+
+    Yields successive chunks from a list, checking memory constraints before each
+    yield. The memory limit is expressed in gigabytes for consistency with
+    :func:`enforce_memory_limit`.
+
+    Args:
+        iterable: List of items to iterate over.
+        chunk_size: Number of items per chunk.
+        memory_limit_gb: Memory limit in gigabytes. If the process exceeds this
+                         limit, iteration stops.
+
+    Yields:
+        Lists of items (chunks) from the original iterable.
+    """
+    memory_limit_mb = memory_limit_gb * 1024.0
+    return _chunked_iterator(iterable, chunk_size, memory_limit_mb)

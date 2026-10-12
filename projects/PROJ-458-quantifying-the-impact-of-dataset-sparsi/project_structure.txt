@@ -1,28 +1,24 @@
-Project Structure for: /project_root
-==================================================
-
-code/:
-  utils/
-
-data/:
-  raw/
-  processed/
-  results/
-  metadata/
-
-tests/:
-  unit/
-  integration/
-
+.runtime-home/
+.specify/
+.specify/memory/
+.specify/memory/convergence_trail/
+.specify/scripts/
+.specify/scripts/bash/
+.specify/templates/
+code/
+code/.tasks/
+code/utils/
+data/
+data/metadata/
+data/processed/
+data/raw/
+data/results/
 docs/
-
-==================================================
-Directories created successfully:
-- code/utils
-- data/raw
-- data/processed
-- data/results
-- data/metadata
-- tests/unit
-- tests/integration
-- docs
+idea/
+specs/
+specs/001-quantifying-the-impact-of-dataset-sparsi/
+specs/001-quantifying-the-impact-of-dataset-sparsi/contracts/
+tests/
+tests/contract/
+tests/integration/
+tests/unit/

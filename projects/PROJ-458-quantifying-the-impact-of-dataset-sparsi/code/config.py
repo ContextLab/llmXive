@@ -1,27 +1,50 @@
 """
-Configuration module for the project.
+Configuration utilities for the Quantifying Dataset Sparsity Impact project.
+
+This module provides a single public function ``load_env`` which loads
+environment variables from a ``.env`` file (if present) and ensures that
+the required ``MP_API_KEY`` variable is defined. If the variable is missing,
+a ``RuntimeError`` is raised to abort any pipeline execution that depends on
+the Materials Project API key.
 """
+
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
-def load_env():
-    """
-    Load environment variables from .env file.
-    Raises an error if MP_API_KEY is missing.
-    """
-    env_path = Path(__file__).parent / '.env'
-    load_dotenv(dotenv_path=env_path)
-    
-    mp_api_key = os.getenv('MP_API_KEY')
-    if not mp_api_key:
-        raise EnvironmentError(
-            "MP_API_KEY is missing from environment. "
-            "Please set it in the .env file or export it in your shell."
-        )
-    return mp_api_key
+__all__ = ["load_env"]
 
-# Additional configuration constants can be added here
-DATA_ROOT = Path(__file__).parent.parent / 'data'
-CODE_ROOT = Path(__file__).parent
-SPECS_ROOT = Path(__file__).parent.parent / 'specs'
+def load_env() -> str:
+    """
+    Load environment variables from a ``.env`` file located at the project root
+    and verify that ``MP_API_KEY`` is defined.
+
+    Returns
+    -------
+    str
+        The Materials Project API key.
+
+    Raises
+    ------
+    RuntimeError
+        If ``MP_API_KEY`` is not set after attempting to load the ``.env`` file.
+    """
+    # Resolve the path to the project root (the directory containing this file's parent)
+    project_root = Path(__file__).resolve().parents[1]
+
+    # Load a .env file if it exists at the project root
+    env_path = project_root / ".env"
+    if env_path.is_file():
+        # ``load_dotenv`` returns True if the file was found and parsed
+        load_dotenv(dotenv_path=env_path, override=True)
+
+    # Retrieve the API key from the environment
+    api_key = os.getenv("MP_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "MP_API_KEY environment variable is required but not set. "
+            "Create a .env file (see .env.example) or export the variable "
+            "in your shell before running any pipeline script."
+        )
+    return api_key

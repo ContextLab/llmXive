@@ -1,0 +1,70 @@
+T001:
+  task: 45f9db75b972b36edd80ebbc8cf3f81c6a389af4658b8cd04b637a073bd5c706
+T002:
+  reason: The `code/requirements.txt` file exists and contains pinned versions, but
+    there is no evidence (e.g., command output, logs, or a lock file) showing that
+    `pip install -r code/requirements.txt` actually runs successfully without version
+    conflicts. The verification step is missing.
+  task: 39f97c4a47124c8222f2f4abf9e277e528f0168df748d5cbdada7d45513eea1c
+T003:
+  reason: 'declared artifact(s) missing/empty/invalid: commit-config.yaml'
+  task: 5d8a545742409fd41e51867a36ca62e289e9a9af0d7c2e98ad606ee6b20e735c
+T004:
+  reason: "The provided `code/config.py` implements the `load_env()` function and\
+    \ correctly raises a `RuntimeError` when `MP_API_KEY` is absent (as shown by the\
+    \ passing unit test), but it does **not** define any pipeline constants such as\
+    \ `SEED_LIST` or `SPARSITY_LEVELS` that the task explicitly requires. Adding these\
+    \ constant definitions is needed to meet FR\u2011001."
+  task: a2567ea896abdb5607ebe0c1504aa61b30db7da5a5268ece5c1fc621c1af3727
+T005:
+  task: d29d772e5c7653c1fba5b454ca2daeb19c2fcc4a6a1188a0e185a4f2c678d2b7
+T015:
+  task: e505580a6af32ce33591adaaebfd78e06fc37befa20ccbc0e1729528317fbe5a
+T016:
+  task: 9b2028ce5d6012b950358dfab3c89d4a672f189e3fc7f70343779daf631ee154
+T017:
+  task: cc6b7ad66120bf384d527afea4f339bcc049eb28b0fec84cc9dd69bf4424b4d2
+T018:
+  task: ac8b206410ea1f49674eb8fb4bf923d4fc51562e8a250153bdbfc891eb0568c4
+T019:
+  task: 804647e9d631617d43d371c4c5d49707108760c682e47dee265e9ffdc7d4b404
+T020:
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+    exit=1'
+  task: 67045a3b36a09ef0bc853156883c658263bdc2513b6f7d6be00bf3ecf6ddf0dc
+T021:
+  task: 33d0f5e4ddb7c092f240b03305c0abbf385b1009be43a203eadf335be64a5ca9
+T022:
+  task: 0a773473397cc77c8424d7733b54552cb6e392bb05fa140ab772d38bfffad981
+T023:
+  task: 73a77b70598073e4ab645a071aaaf6dd0377751628ab58cd90f84ca65e2c1977
+T024:
+  task: b937bbe4998e856e48a0d16f722589b742eabfebe622610e98d6a84b50a6c507
+T025:
+  task: 81b73137446a7fcf05129891dc92ba744a2605614f574bbd23402226e9d31d3e
+T026:
+  task: feafae7597efc727f32d5c3a3007c788188c0c445eab1bbadaee2ed3f001352b
+T027:
+  task: 85ec58d9b018d57f6d5354acb55198a8f843125e24c07abf6a4999b14f44ac57
+T028:
+  task: 9dfe810ed8983835a87b2977e62b04cbd0aa4a4c0d7722fca56055117401aff8
+T028b:
+  task: 4ff340025c78bdb1d3b15ecd071f1fd57bd4ed3667dcb1ed6471436193a7e075
+T030:
+  task: 3686d22641cc50fb83af7b8e3669280d33820b9231393fec13b82f76c16e2ec6
+T031:
+  task: ddbefc6feba64f53456872637712bf64619a24be8a4f84f4819ae1cbea697fbe
+T032:
+  task: 882a5de5ff68bda49e5e383977a5f45c41e2174ff8f92dadd4bc063a9e11012e
+T033:
+  task: 9071bb996f26594841449f03ccacc1f4533de7dd21367cbbeaaba55a1fe4c71b
+T034:
+  task: b2493be48af552cdcc3a553c92168bf382165ed392dfc15c6b1b8bfdd657b225
+T035:
+  task: 2cf5b80d80fc136dc1361590fcca8765d1eb748e97aedd13d109a93974c072ec
+T035a:
+  task: e900b25bab35be148f6651de8af105e6cdfb18d677b7d39b38208cc8301db609
+T036:
+  task: b13c0a3906e37ea1b32ce35917cc1cf9d560d152ffb16d2030df7a6aa85f73e7
+T037:
+  task: 92baff5c439f581cd6055d88af775833bbee6825b0af15175c3562c8ab2086fc

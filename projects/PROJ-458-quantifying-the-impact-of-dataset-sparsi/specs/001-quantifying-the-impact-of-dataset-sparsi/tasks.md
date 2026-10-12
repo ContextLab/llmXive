@@ -9,7 +9,7 @@ All tasks follow the canonical checklist format `- [ ] T### [P?] [USx?] descript
 
 ## Phase 0 – Project scaffolding (completed)
 
-- [ ] T001 **[FR-001]** Establish project layout (`code/`, `data/raw`, `data/processed`, `data/results`, `data/metadata`, `tests/unit`, `tests/integration`, `docs`).  
+- [X] T001 **[FR-001]** Establish project layout (`code/`, `data/raw`, `data/processed`, `data/results`, `data/metadata`, `tests/unit`, `tests/integration`, `docs`).  
   **Verification**: `project_structure.txt` lists all created directories.
 
 - [ ] T002 **[FR-001]** Pin reproducible dependencies in `code/requirements.txt` (e.g., `pymatgen==2024.2.21`, `matminer==0.9.2`, `scikit‑learn==1.3.0`, `gpytorch==2.0.1`, …).  
@@ -21,29 +21,29 @@ All tasks follow the canonical checklist format `- [ ] T### [P?] [USx?] descript
 - [ ] T004 **[FR-001]** Create `code/config.py` exposing pipeline constants (e.g., `SEED_LIST`, `SPARSITY_LEVELS`) and a helper `load_env()` that raises `RuntimeError` if `MP_API_KEY` is missing.  
   **Verification**: Importing `config` without `MP_API_KEY` raises the expected error.
 
-- [ ] T005 **[FR-001]** Define RSS size dynamically: `code/define_rss_size.py` writes an integer `rss_size` to `data/metadata/rss_config.json` after a lightweight memory‑budget check.  
+- [X] T005 **[FR-001]** Define RSS size dynamically: `code/define_rss_size.py` writes an integer `rss_size` to `data/metadata/rss_config.json` after a lightweight memory‑budget check.  
   **Verification**: `rss_config.json` exists and contains a positive integer ≤ 150 000.
 
-- [ ] T015 **[FR-001]** Implement JSON‑logging utility `code/utils/logging.py` (`get_logger()` writes to `data/results/`).  
+- [X] T015 **[FR-001]** Implement JSON‑logging utility `code/utils/logging.py` (`get_logger()` writes to `data/results/`).  
   **Verification**: Sample log file is created under `data/results/`.
 
-- [ ] T016 **[FR-001]** Provide memory‑constraint helper `code/utils/cpu_constraints.py` (`enforce_memory_limit(max_gb)`) and a safe `chunked_iterator(iterable, chunk_size)`.  
+- [X] T016 **[FR-001]** Provide memory‑constraint helper `code/utils/cpu_constraints.py` (`enforce_memory_limit(max_gb)`) and a safe `chunked_iterator(iterable, chunk_size)`.  
   **Verification**: Functions import without error; a test script runs without exceeding 7 GB.
 
-- [ ] T017 **[FR-001]** Add schema validator `code/utils/contract_validator.py` (`validate_schema(data, schema_path)`).  
+- [~] T017 **[FR-001]** Add schema validator `code/utils/contract_validator.py` (`validate_schema(data, schema_path)`).  
   **Verification**: Validation against `contracts/dataset.schema.yaml` and `contracts/metrics.schema.yaml` succeeds for known‑good files.
 
-- [ ] T018 **[FR-001]** Define dataclasses `MaterialEntry` and `SparsitySubset` in `code/utils/data_models.py`.  
+- [~] T018 **[FR-001]** Define dataclasses `MaterialEntry` and `SparsitySubset` in `code/utils/data_models.py`.  
   **Verification**: Instances can be created and serialized to JSON.
 
-- [ ] T019 **[FR-001]** Provide `.env.example` with placeholder `MP_API_KEY` and `config.load_env()` that aborts if the variable is absent.  
+- [~] T019 **[FR-001]** Provide `.env.example` with placeholder `MP_API_KEY` and `config.load_env()` that aborts if the variable is absent.  
   **Verification**: Running any pipeline script without `MP_API_KEY` raises `RuntimeError`.
 
 ---
 
 ## Phase 1 – Data acquisition & preprocessing (pending)
 
-- [ ] T020 **[US1]** Download the full Materials Project corpus (≥ 150 000 entries) via the REST API using the environment variable `MP_API_KEY`.  
+- [ ] T020 **[US1]** Download the full Materials Project corpus (≥ 150 000 entries) via the REST API using the environment variable `MP_API_KEY`.   <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
   *Implementation*: `code/data_ingestion.py` streams JSON responses, writes `data/raw/raw_pool.csv` with columns `material_id`, `composition`, `formation_energy_per_atom`, `dft_computed`.  
   *Verification*: File exists, row count ≥ 150 000, and a checksum is recorded in `data/metadata/raw_pool_checksum.json`.  
 
