@@ -1,17 +1,14 @@
 # Project Configuration
 # Defines reproducible seeds, resource limits, and model hyperparameters.
-# This file is committed to version control to ensure reproducibility.
 
-# Random Seed for all stochastic processes (numpy, sklearn, etc.)
 random_seed: 42
 
 # Resource Limits (FR-005)
-# Maximum runtime and memory usage allowed for the pipeline
 resource_limits:
   max_time_hours: 6
   max_memory_gb: 7
 
-# Model Hyperparameters (Defaults, can be overridden by training scripts)
+# Model Hyperparameters
 model_params:
   gradient_boosting:
     n_estimators: 100
