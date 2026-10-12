@@ -367,6 +367,34 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
     ])
 
 
+_PREVIEW_INPUTS_FILENAME = "implementation_preview.inputs"
+_PREVIEW_OUTPUT_DIRS = ("data", "results", "figures", "paper/figures")
+
+
+def _preview_inputs(project_dir: Path) -> str:
+    """A digest of everything a rerun of the run-book could depend on: the
+    contents of the project's code, tests, run-books and requirements, and
+    which output files exist (their names, not their contents)."""
+    import hashlib
+
+    from llmxive.project_files import SOURCE_DIRS
+
+    digest = hashlib.sha256()
+    skipped = {".venv", "__pycache__", ".tasks", ".git", ".pytest_cache"}
+    read = [path for directory in (*SOURCE_DIRS, "tests", "specs") for path in (project_dir / directory).rglob("*")
+            if directory != "specs" or path.name == "quickstart.md"]
+    read.append(project_dir / "requirements.txt")
+    for path in sorted(read):
+        if path.is_file() and not skipped.intersection(path.parts):
+            digest.update(path.relative_to(project_dir).as_posix().encode() + b"\0")
+            digest.update(hashlib.sha256(path.read_bytes()).digest())
+    for directory in _PREVIEW_OUTPUT_DIRS:
+        for path in sorted((project_dir / directory).rglob("*")):
+            if path.is_file():
+                digest.update(b"out:" + path.relative_to(project_dir).as_posix().encode() + b"\0")
+    return digest.hexdigest()
+
+
 def run_implementation_preview(project_dir: Path) -> None:
     """Produce execution evidence before verifying output-producing tasks.
 
@@ -375,13 +403,27 @@ def run_implementation_preview(project_dir: Path) -> None:
     once per implementation batch, with a short budget. This is feedback only;
     it never marks execution accepted, consumes final-gate fix rounds, or opens
     tasks that the implementer has not reached yet.
+
+    A run-book that last ran cleanly is not run again until something it could
+    depend on has changed. A rerun rewrites outputs that record a run time or
+    a date, the changed bytes withdraw every accepted task that cites them,
+    and the verifier's capped verdicts go to accepting those again: batch 6
+    run 3 (2026-10-12) had nothing left to implement for its last twelve steps
+    and re-accepted the same six tasks on eleven of them while five others
+    waited, until its time ran out.
     """
     from llmxive.project_files import source_files
 
     if not any(source_files(project_dir)):
         return
-    res = run_analysis(project_dir, per_cmd_timeout_s=120, overall_deadline_s=300)
     mem = project_dir / ".specify" / "memory"
+    inputs = _preview_inputs(project_dir)
+    try:
+        if (mem / _PREVIEW_INPUTS_FILENAME).read_text(encoding="utf-8") == inputs:
+            return
+    except OSError:
+        pass
+    res = run_analysis(project_dir, per_cmd_timeout_s=120, overall_deadline_s=300)
     failures = [
         f"{r.command} -> rc={r.returncode}\n{r.tail}"
         for r in res.commands if not r.ok
@@ -395,6 +437,8 @@ def run_implementation_preview(project_dir: Path) -> None:
         _mint_artifact_receipts(project_dir, res, project_dir.resolve().parent.parent,
                                 stage="implementation_preview")
         (mem / _FEEDBACK_FILENAME).unlink(missing_ok=True)
+        mem.mkdir(parents=True, exist_ok=True)
+        (mem / _PREVIEW_INPUTS_FILENAME).write_text(_preview_inputs(project_dir), encoding="utf-8")
 
 
 def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> bool:
