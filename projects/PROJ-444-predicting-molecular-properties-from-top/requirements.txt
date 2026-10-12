@@ -1,10 +1,11 @@
-# Existing project requirements (if any) – add only missing packages
-# The base environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
-# psutil.
-# Additional explicit requirement for rdkit and gudhi (or dionysus) is
-# required for downstream tasks but not needed for this ingestion step.
-# If not already present elsewhere, ensure rdkit is installed.
+# Base environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil.
+# Additional project-specific requirements:
 rdkit-pypi
-# gudhi provides the TDA backend; install CPU‑only wheel.
+# gudhi provides the TDA backend; install CPU-only wheel.
 gudhi
+# VERIFIED REAL DATA SOURCE for the ESOL/Lipophilicity dataset.
+scikit-fingerprints
+# NetworkX is required by persistence utilities for shortest‑path calculations.
+networkx

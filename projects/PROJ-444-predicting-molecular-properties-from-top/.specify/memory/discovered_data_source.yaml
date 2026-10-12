@@ -1,13 +1,26 @@
 status: verified
 kind: pypi_package
 ref: scikit-fingerprints
-access_python: "import pandas as pd\nfrom skfp.datasets.moleculenet import load_lipophilicity\n\
-  \nX, y = load_lipophilicity()\n\n# Extract SMILES strings\nif isinstance(X, pd.DataFrame):\n\
-  \    if \"smiles\" in X.columns:\n        smiles = X[\"smiles\"]\n    else:\n  \
-  \      # fallback: first column assumed to contain SMILES\n        smiles = X.iloc[:,\
-  \ 0]\nelse:\n    smiles = X  # assume iterable of SMILES strings\n\ndf = pd.DataFrame({\"\
-  smiles\": smiles, \"logP\": y})\ndf[\"molecule_id\"] = df.index.astype(str)\n\n\
-  print(f\"RECORDS={len(df)}\")\nprint(f\"FIELDS={','.join(df.columns)}\")"
+access_python: 'import pandas as pd
+
+  from skfp.datasets import moleculenet as mn
+
+
+  # Load the dataset (returns a tuple of features and targets)
+
+  X, y = mn.load_lipophilicity()
+
+
+  # Construct a DataFrame with the expected columns
+
+  df = pd.DataFrame({"smiles": X, "logP": y})
+
+  df["molecule_id"] = df.index.astype(str)
+
+
+  print(f"RECORDS={len(df)}")
+
+  print("FIELDS=" + ",".join(df.columns))'
 record_count: 4200
 sample_fields:
 - smiles
@@ -18,6 +31,5 @@ required_fields:
 - smiles
 - logP
 - molecule_id
-intent: MoleculeNet ESOL HUBioDataLab SELFormer Lipophilicity SMILES logP python package
-  dataset
-cache_key: 1855aa6b85f5b13a1732010cb106202bd9d055d09b395fc3abc482df1f5d01d2
+intent: download MoleculeNet Lipophilicity dataset SMILES logP python package dataset
+cache_key: 464784304490cc57a6bd81cdd668919d842e5326f2736d003d35ee13890883d2

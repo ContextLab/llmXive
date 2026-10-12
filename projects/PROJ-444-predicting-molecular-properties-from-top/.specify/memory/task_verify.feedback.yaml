@@ -1,8 +1,15 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
-    exit=1'
+  reason: "The repository contains the ingestion script and the raw CSV with a correct\
+    \ checksum, but the required output artifacts are absent: `data/processed/power_analysis_report.json`,\
+    \ `data/logs/large_molecule_exclusions.log`, `data/processed/scaffold_counts.json`,\
+    \ `data/processed/splits.json`, and `data/processed/filtered_esol.csv` are all\
+    \ missing. Without these files the power analysis, molecular\u2011weight exclusions,\
+    \ scaffold count check, split generation, and filtered dataset are not produced,\
+    \ so the task is not fully satisfied."
   task: b229e561fa0112f053eb188efae9dc8ab20dafe932c0b8790a489c485a5ccd91
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py
+    exit=1'
   task: 04058a84286fbe24491ef2930867809e75c10afc111e5df506a32ea0689a362b
 T003:
   task: 501ebfbcc6631c9eff6a8e14f853419773959a81585383e2b7a143d62d860d70
