@@ -1,0 +1,37 @@
+T001:
+  reason: "Checked `docs/quickstart.md`, `code/__init__.py`, the seed\u2011initialization\
+    \ log (`code/.tasks/T001.code_seed_init.py.log`), and `code/requirements.txt`.\
+    \ The requirements file uses loose \u201C>=\u201D specifiers instead of exact\
+    \ pinned versions, no evidence of a successful `pip install -r requirements.txt`\
+    \ run, and the required `logs/seed_initialization.log` file is missing. These\
+    \ gaps mean the reproducibility documentation and dependency pinning are not fully\
+    \ satisfied."
+  task: e871f02947a6c8771a471cdaa0624e331241281152ce92515cea5b71227860c8
+T002:
+  reason: "The repository contains only a pilot\u2011mode config (pilot_mode\u202F\
+    =\u202Ftrue, expected_earthquake_count\u202F=\u202F12, min/max permutation iterations\u202F\
+    =\u202F1000/10000) and a download script that deliberately blocks the global NOAA\
+    \ download, fetches only a 2018 Alaska USGS subset, and writes \u201C0 files\u201D\
+    \ for pressure data. No 4010 daily NOAA pressure files are present in `data/raw/`,\
+    \ the config does not match the required values, and the script would exit\u202F\
+    0 even when the global dataset is missing, violating the task\u2019s abort\u2011\
+    on\u2011failure rule."
+  task: d582039af4de4db8f67e6dd7ea9996c7c16ff795905866c60e6fc3c969b0bda1
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
+  task: 60ee697bba02a2d46d62ff64e245c65194914b736272f61aafab691af35e2473
+T004:
+  task: 6d120973dbcc715ea0b3dab94321f496329d2774bb2c971f3e52126a280c80e6
+T005:
+  task: 2418ba4a7d4c248dcdca663d7a24f68b58699c28a6cfbcf3e6ba89dc51a78092
+T006:
+  task: 6e814de6e6d8f8c65f67938ca6422b13cb182e94bd1d68863a904e4a0eefa09b
+T007:
+  task: 96b66464ce4b72938aabeff3234a815eecf793d509d86e2670a3b93ba1bd6ec1
+T008:
+  task: 7bcc59aa450b21ecec3cb9e4be1adc2041e43ea322bb98a9849a8ae6fc5030e9
+T009:
+  task: c89acb048eb4db1b5d63dde23f98753b04a4007220f3aa7919b6df3f170fac8e
+T010:
+  task: 75edbddf7730def35c42047a626eb2937214abf3b3bc483fb275eb6ace2179b8

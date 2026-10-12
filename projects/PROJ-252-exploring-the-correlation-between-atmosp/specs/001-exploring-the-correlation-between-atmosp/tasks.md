@@ -41,7 +41,7 @@ The list below groups related work into **10 substantive research tasks** that t
     • After download, a built‑in check script validates that the number of pressure files matches `expected_global_pressure_files` and that the earthquake CSV row count matches `expected_earthquake_count` ± 1 %.  
     • The script writes `logs/download_success.log` containing “Global NOAA pressure data downloaded: N files” and “USGS earthquake catalog rows: M”.
 
-- [ ] **T003** [P] [US1] **Full preprocessing pipeline in `code/preprocess.py`**  
+- [ ] **T003** [P] [US1] **Full preprocessing pipeline in `code/preprocess.py`**   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   *Sub‑steps (executed sequentially)*  
     1. `interpolate_pressure_grid()` → reads raw NOAA files, interpolates to a 0.5° grid, writes `data/interim/pressure_grid_fine.parquet`.  
     2. `generate_land_mask()` → `data/interim/land_mask.geojson` (Natural Earth low‑resolution).  

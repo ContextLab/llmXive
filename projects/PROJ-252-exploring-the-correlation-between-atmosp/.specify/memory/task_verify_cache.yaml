@@ -1,3 +1,26 @@
+T001:
+  c: false
+  h: c55c534cc7c3f862236396c5711fe4956cca03008d5c951707b6e10dde49d203
+  r: "Checked `docs/quickstart.md`, `code/__init__.py`, the seed\u2011initialization\
+    \ log (`code/.tasks/T001.code_seed_init.py.log`), and `code/requirements.txt`.\
+    \ The requirements file uses loose \u201C>=\u201D specifiers instead of exact\
+    \ pinned versions, no evidence of a successful `pip install -r requirements.txt`\
+    \ run, and the required `logs/seed_initialization.log` file is missing. These\
+    \ gaps mean the reproducibility documentation and dependency pinning are not fully\
+    \ satisfied."
+  sig: 51203cf7ea4793bed3e78a4e41d442361030b72a813df71254678e1fedb27958
+T002:
+  c: false
+  h: 0e92e5ad266a3c0026a472ecbc908ca20fd164506dcf08f5a218f17a354cff8c
+  r: "The repository contains only a pilot\u2011mode config (pilot_mode\u202F=\u202F\
+    true, expected_earthquake_count\u202F=\u202F12, min/max permutation iterations\u202F\
+    =\u202F1000/10000) and a download script that deliberately blocks the global NOAA\
+    \ download, fetches only a 2018 Alaska USGS subset, and writes \u201C0 files\u201D\
+    \ for pressure data. No 4010 daily NOAA pressure files are present in `data/raw/`,\
+    \ the config does not match the required values, and the script would exit\u202F\
+    0 even when the global dataset is missing, violating the task\u2019s abort\u2011\
+    on\u2011failure rule."
+  sig: fdd1c81ce5db2f419138aa8cc1c1f89387c79dd606b71ff55ed4353150ac55e3
 T009:
   c: false
   h: 642b718945cf87db8d3ea068862e70d708a939f7de6e3441f85d2b62435c08d7
@@ -6,60 +29,3 @@ T009:
     (`earthquake.schema.yaml` and `pressure-anomaly.schema.yaml`) are absent from
     the repository. Both the test logic and the dependent schema artifacts are missing,
     so the task is not genuinely fulfilled.
-T013a:
-  c: false
-  h: f9b7a4f8e8a9da3c86954e649cd1047b8ea41ce2275ade219509f80b2d0418f4
-  r: The repository lacks the required `data/interim/land_mask.geojson` file, and
-    the provided excerpt of `code/preprocess.py` does not contain a `load_land_mask()`
-    implementation (the file is truncated before any such function could appear).
-    Without the function and/or the mask file, the task requirement is not satisfied.
-T013b:
-  c: false
-  h: cad0893f6a66e7e7a179ae555cf6dc459bb2e415719dce200f9f77e97af13a3d
-  r: "The repository lacks the required output file `data/interim/masked_events.csv`,\
-    \ and the shown portion of `code/preprocess.py` does not contain an `apply_ocean_mask()`\
-    \ implementation (the file is truncated before any such function). Consequently\
-    \ the task\u2019s core functionality\u2014loading the land mask, computing reliability,\
-    \ filtering events, and writing the filtered CSV\u2014is not present. The missing\
-    \ CSV and absent/unfinished function must be added to satisfy the requirement."
-T013c:
-  c: false
-  h: 5cb06a5dfa24dfa1cf9759bb407f781ba6075060a50cfa4392ea6c35a4bffe3d
-  r: "The repository\u2019s `code/preprocess.py` does not contain an `exclude_missing_pressure()`\
-    \ implementation (the file is truncated before any such function appears), and\
-    \ the required output file `data/interim/clean_events.csv` is absent. Both the\
-    \ core function and its expected output are missing, so the task is not fulfilled."
-T016:
-  c: false
-  h: 16108849caf57c05b2226f25fdf2ccec29937f1b4baf267d4de854e605f459a1
-  r: "The required output file `data/interim/deduplicated_with_anomalies.csv` is absent,\
-    \ and the provided `code/preprocess.py` excerpt is truncated before any deduplication\
-    \ logic or write\u2011out code can be verified. Consequently the task\u2019s core\
-    \ deliverable is missing."
-T017b:
-  c: false
-  h: 10cae2444d6ca03a7762c80ae92c3285918a231f3e797812ce188ecac594d597
-  r: The required files `data/processed/master_dataset.csv` and `data/processed/config.yaml`
-    are both missing, so there is no row count to compare against the expected count
-    of 12. Without these artifacts the verification test cannot be performed.
-T027:
-  c: false
-  h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
-  r: The required artifact `tests/unit/test_sensitivity.py` does not exist on disk,
-    so no unit test for the sensitivity analysis sweep is provided. The task cannot
-    be considered completed until this file is created with appropriate test code.
-T032:
-  c: false
-  h: d679ab95b31d8efb50c1eda1f35d7c066cbe167bbdef5b28cfa984c1282eb7bb
-  r: The required `docs/pilot_report.md` file does not exist, so the final report
-    with the specified labeling, limitations, statistical power documentation, and
-    reference to `docs/deviations.md` is missing. The only present artifact is `docs/deviations.md`,
-    which does not satisfy the task.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or documentation related to \u201Ccode cleanup and refactoring\
-    \ for memory efficiency on CPU\u2011only runners\u201D were provided; the only\
-    \ material shown concerns a data\u2011analysis feature spec, not the required\
-    \ refactoring work. The required artifact (refactored, memory\u2011efficient code)\
-    \ is missing."

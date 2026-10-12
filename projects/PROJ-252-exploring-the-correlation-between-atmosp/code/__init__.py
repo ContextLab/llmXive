@@ -5,6 +5,14 @@ This package contains the implementation modules for the atmospheric pressure
 and earthquake precursor correlation study.
 """
 
+import random
+import numpy as np
+
+# Set deterministic seeds for reproducibility across the entire project.
+# These seeds are applied as soon as the package is imported.
+np.random.seed(42)
+random.seed(42)
+
 from .config import Config
 from .utils.logging import setup_logging, get_logger
 

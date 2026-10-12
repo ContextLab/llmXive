@@ -1,19 +1,18 @@
 status: none
-intent: download NOAA NCEP/NCAR sea level pressure python package and USGS 2013-2023
-  earthquake catalog python package dataset
+intent: download NOAA NCEP/NCAR reanalysis sea level pressure and USGS earthquake
+  catalog 2013-2023 python package dataset
 required_fields:
 - event_id
 - origin_time
-- latitude
-- longitude
 - magnitude
 - depth_km
-- pressure_grid_lat
-- pressure_grid_lon
-- pressure_time_window_start
-- pressure_time_window_end
-- pressure_value
+- latitude
+- longitude
 - pressure_anomaly
-cache_key: 9ff369353aea72fd392ac8943d0a0b8dbe3d37163357464aa9b9643f0ddf29c3
-searched_at: '2026-08-26T19:55:27.228357+00:00'
+- pressure_grid_latitude
+- pressure_grid_longitude
+- pressure_timestamp
+- control_window_label
+cache_key: ce433fb9d4b67b5e3fcd2f776354cfb71ba3b03d580fddf7f31253e111a514b1
+searched_at: '2026-10-12T04:28:36.354624+00:00'
 retry_count: 1

@@ -3732,7 +3732,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-07T13:04:56Z'
 - artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   attempts: 1
@@ -3936,3 +3936,147 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T13:08:38Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline completed successfully' to console
+  claim_id: c_bda19910
+  context: The seed initialization step sets random seeds and writes a log confirming
+    the operation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Prints `Pipeline completed successfully` to the console.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:03Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: creates seed_initialization.log confirming seeds were set
+  claim_id: c_e352e933
+  context: The seed initialization step sets random seeds and writes a log confirming
+    the operation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Creates `logs/seed_initialization.log` containing a confirmation that
+    the seeds were set.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:04Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: output raw earthquake and pressure CSV files
+  claim_id: c_6372ccc0
+  context: The download and validate data step produces raw CSV files for earthquakes
+    and pressure data.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/raw/earthquake_*.csv`, `data/raw/pressure_*.csv`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:04Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: output processed earthquakes CSV, pressure anomalies CSV, and validation
+    report JSON
+  claim_id: c_3a0d2daf
+  context: The preprocess data step generates processed intermediate files and a validation
+    report.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/interim/processed_earthquakes.csv`, `data/interim/pressure_anomalies.csv`,
+    `data/interim/validation_report.json`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:05Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: output master dataset CSV
+  claim_id: c_743ce93c
+  context: The generate master dataset step creates the final merged dataset.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/processed/master_dataset.csv`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:05Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: output statistical results JSON
+  claim_id: c_c059cd1e
+  context: The run statistical analysis step produces a JSON file with statistical
+    results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/processed/statistical_results.json`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:06Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: output robustness report JSON
+  claim_id: c_bea00d55
+  context: The robustness and sensitivity analysis step generates a robustness report.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `data/processed/robustness_report.json`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:07Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: output pilot report markdown
+  claim_id: c_f4c7d243
+  context: The generate final report step creates the pilot report document.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Output: `docs/pilot_report.md`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:07Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: 2018 Alaska subset with N=12 is used
+  claim_id: c_0b8d932c
+  context: Global data is blocked; only the 2018 Alaska subset (N=12) is used for
+    this pilot study.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: only the 2018 Alaska subset (N=12) is used.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T04:25:08Z'
