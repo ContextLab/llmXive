@@ -4,11 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No artifact showing that a `code/` directory was created or that its existence was verified with `test -d code` is provided; the claim cannot be confirmed from the available evidence. The implementer must supply proof (e.g., command output, screenshot, or a script that creates the directory and checks it).
-- `T001b` (rejected 1x): No evidence was provided that a `data/` directory was actually created or that its existence was verified with `test -d data`; the implementer supplied no script, command output, or filesystem snapshot showing the required directory.
-- `T003a` (rejected 1x): No `.flake8` file was presented in the evidence, and there is no proof that a file with the required `max-line-length=100` and the specified ignored codes exists in the repository. The implementer must provide the actual `.flake8` file containing the correct configuration.
-- `T009` (rejected 1x): The provided `code/utils/logging_config.py` defines a `JSONFormatter` and an `AtomicFileHandler` that ensures the log directory exists and attempts file locking, but it never creates or configures a logger that writes specifically to `results/pipeline.log`, nor does the shown code implement the required atomic‑write‑via‑temp‑file‑then‑rename logic (the handler still inherits from `RotatingFileHandler` and no custom `emit`/`write` method is visible). Consequently the core requirements of the task are not satisfied.
-- `T015` (rejected 1x): The provided `filter_datasets.py` is truncated and does not show any logic that checks a dataset’s overall missing‑value rate, excludes datasets with >10 % missing, or writes entries to `data/imputation_log.csv` or `data/exclusions.csv`. Both CSV files contain only header rows (no actual log or exclusion records). Consequently the required imputation, exclusion, and logging functionality is not present.
+- `task-format` (rejected 1x): Tasker produced only 0 task IDs (need >= 5; total chars: 15437). Regenerate the complete tasks.md as canonical '- [ ] T### description' checkbox items, not task tables or fenced examples. Preserve every scientific requirement, path and verification step; do not add empty tasks or discard requirements to satisfy the format.
 
 ## Required change
 
