@@ -1,0 +1,10 @@
+T001:
+  c: false
+  h: 4b87ec2af1a9b7853192694ca359ea0da1d8bad77f82345f8b7264fefced65c7
+  r: The required directories, `requirements.txt`, `.ruff.toml`, `code/config.py`,
+    and the updated `plan.md` are present and correct, but the verification test `test_ruff_linting_passes`
+    failed because the `ruff` module is not available (`No module named ruff`). The
+    task explicitly demands that `ruff check .` pass, so the linting step is not satisfied.
+    Install `ruff` (or add it to the environment) and ensure the codebase passes linting
+    to complete the task.
+  sig: 5c443678626f832d7cac6627540dcc6bb27f7d14ef1c2879d3dc4bb1500288bb

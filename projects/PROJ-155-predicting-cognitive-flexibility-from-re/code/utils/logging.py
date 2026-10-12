@@ -1,71 +1,72 @@
-"""Logging utilities for the pipeline."""
-import os
+"""
+Minimal logging utilities used across the project.
+
+The functions provide a thin wrapper around the standard ``logging``
+module so that other modules can call ``init_logging`` and helper
+functions without needing to configure logging themselves.
+"""
+
 import logging
-import csv
-from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
-from code.data.paths import get_processed_path, ensure_dir
+_logger = logging.getLogger(__name__)
 
-# Global logger instance
-_logger = None
 
-def init_logging(level: int = logging.INFO) -> logging.Logger:
-    """Initialize logging configuration."""
-    global _logger
-    
-    if _logger is not None:
-        return _logger
-    
-    _logger = logging.getLogger('llmXive')
-    _logger.setLevel(level)
-    
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+def init_logging(level: int = logging.INFO) -> None:
+    """
+    Initialise the root logger with a simple format.
+
+    Parameters
+    ----------
+    level : int, optional
+        Logging level (e.g. ``logging.DEBUG``).  Defaults to INFO.
+    """
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    console_handler.setFormatter(formatter)
-    _logger.addHandler(console_handler)
-    
-    return _logger
+    _logger.debug("Logging initialized with level %s", logging.getLevelName(level))
 
-def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance."""
-    if _logger is None:
-        init_logging()
-    return logging.getLogger(name)
-
-def get_exclusion_log_path() -> Path:
-    """Get the path to the exclusion log CSV."""
-    return get_processed_path() / "exclusion_log.csv"
 
 def log_exclusion(subject_id: str, reason: str, metadata: Optional[Dict[str, Any]] = None) -> None:
-    """Log a subject exclusion to the exclusion log CSV."""
-    log_path = get_exclusion_log_path()
-    ensure_dir(log_path)
-    
-    # Extract Mean_FD from metadata if available
-    mean_fd = None
-    if metadata and isinstance(metadata, dict):
-        mean_fd = metadata.get('Mean_FD')
-    
-    # Check if file exists to determine if we need to write headers
-    file_exists = os.path.exists(log_path)
-    
-    with open(log_path, 'a', newline='') as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(['Subject_ID', 'Exclusion_Reason', 'Mean_FD'])
-        writer.writerow([subject_id, reason, mean_fd if mean_fd is not None else ''])
+    """
+    Record an exclusion event.
 
-def log_error(context: str, message: str) -> None:
-    """Log an error message."""
-    logger = get_logger(__name__)
-    logger.error(f"{context}: {message}")
+    Parameters
+    ----------
+    subject_id : str
+        Identifier of the excluded subject.
+    reason : str
+        Reason for exclusion.
+    metadata : dict, optional
+        Additional key‑value pairs to log (e.g. ``Mean_FD``).
+    """
+    msg = f"Exclusion – Subject: {subject_id}, Reason: {reason}"
+    if metadata:
+        meta_str = ", ".join(f"{k}={v}" for k, v in metadata.items())
+        msg += f", {meta_str}"
+    _logger.info(msg)
+
+
+def log_error(message: str) -> None:
+    """
+    Log an error message.
+
+    Parameters
+    ----------
+    message : str
+        The error description.
+    """
+    _logger.error(message)
+
 
 def log_warning(message: str) -> None:
-    """Log a warning message."""
-    logger = get_logger(__name__)
-    logger.warning(message)
+    """
+    Log a warning message.
+
+    Parameters
+    ----------
+    message : str
+        The warning description.
+    """
+    _logger.warning(message)

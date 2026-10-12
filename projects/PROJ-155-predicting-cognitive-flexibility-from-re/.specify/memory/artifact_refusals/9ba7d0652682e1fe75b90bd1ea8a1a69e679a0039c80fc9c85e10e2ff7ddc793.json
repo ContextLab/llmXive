@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "bd4f7cacac062a9e19e6a67d19821bf06dc85a2f18e321edd85d6b41e5a0faad",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/main.py': imports nonexistent names from sibling files: `from code.data.download import download_sample_data` (available: Any, DataGapError, Dict, List, Optional, Tuple, calculate_sha256, construct_hcp_url...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

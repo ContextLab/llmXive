@@ -1,66 +1,66 @@
-import os
-import sys
-import logging
+"""
+Main entry point for the Cognitive Flexibility pipeline.
+
+This script now supports the `--stage` argument used by the quickstart
+documentation. The stages are placeholders that log the requested
+operation; actual implementations are provided in later tasks.
+"""
+
 import argparse
-from typing import Optional, Dict, Any
+import logging
 
 from code.config import set_seed, get_config
-from code.data.paths import get_processed_path, ensure_dir
+from code.utils.logging import init_logging
 
-# Import pipeline stages (stubs for now, to be implemented)
-# from code.data.download import run_download_pipeline
-# from code.data.preprocess import run_preprocessing_pipeline
-# from code.features.connectivity import run_connectivity_pipeline
-# from code.analysis.regression import run_regression_pipeline
+logger = logging.getLogger(__name__)
 
-logger = logging.getLogger('llmXive')
-
-def run_pipeline(args: argparse.Namespace) -> None:
+def run_stage(stage: str) -> None:
     """
-    Orchestrates the full research pipeline.
+    Dispatch to the requested pipeline stage.
+
+    Parameters
+    ----------
+    stage : str
+        One of ``download_preprocess``, ``features`` or ``analysis``.
     """
-    set_seed(get_config()['seed'])
-    logger.info("Starting Research Pipeline...")
-
-    # 1. Setup Structure (if not already done)
-    # from code.setup_structure import create_project_structure
-    # create_project_structure()
-
-    # 2. Data Download
-    # logger.info("Step 1: Downloading Data...")
-    # run_download_pipeline()
-
-    # 3. Preprocessing
-    # logger.info("Step 2: Preprocessing Data...")
-    # run_preprocessing_pipeline()
-
-    # 4. Feature Extraction
-    # logger.info("Step 3: Computing Connectivity Metrics...")
-    # run_connectivity_pipeline()
-
-    # 5. Analysis
-    # logger.info("Step 4: Running Statistical Analysis...")
-    # run_regression_pipeline()
-
-    logger.info("Pipeline Execution Complete.")
+    logger.info(f"Running stage: {stage}")
+    # Placeholder implementations – real work will be added in later tasks.
+    if stage == "download_preprocess":
+        logger.info("Stage 'download_preprocess' selected – no action performed in T001.")
+    elif stage == "features":
+        logger.info("Stage 'features' selected – no action performed in T001.")
+    elif stage == "analysis":
+        logger.info("Stage 'analysis' selected – no action performed in T001.")
+    else:
+        raise ValueError(f"Unknown stage: {stage}")
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="llmXive Cognitive Flexibility Pipeline")
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--verbose', action='store_true', help='Enable debug logging')
+    parser = argparse.ArgumentParser(
+        description="llmXive Cognitive Flexibility Pipeline"
+    )
+    parser.add_argument(
+        "--stage",
+        choices=["download_preprocess", "features", "analysis"],
+        required=True,
+        help="Pipeline stage to execute",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Random seed for reproducibility"
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Enable debug logging"
+    )
     args = parser.parse_args()
 
-    if args.verbose:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
+    # Configure logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    init_logging(log_level)
 
-    logger.setLevel(level)
-    # Initialize logging
-    from code.utils.logging import init_logging
-    init_logging(level)
+    # Set random seed
+    set_seed(args.seed)
 
-    run_pipeline(args)
+    # Run the requested stage
+    run_stage(args.stage)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,17 +1,12 @@
 status: none
-intent: HCP 1200 resting-state fMRI behavioral NIH Toolbox Dimensional Change Card
-  Sort Schaefer atlas python package dataset
+intent: download HCP 1200 subject resting state fMRI NIH Toolbox Dimensional Change
+  Card Sort scores Schaefer atlas python package dataset
 required_fields:
-- subject_id
-- rsfMRI_timeseries
-- resting_state_functional_connectivity
-- NIH_Toolbox_DCCS_score
-- Schaefer_atlas_parcellation
-- age
-- gender
-- group
-- scan_date
-- preprocessing_status
-cache_key: 3edc92f5eec4806b566db5084db05bb0b55f811bd66d84a6bb804aa3a291894d
-searched_at: '2026-10-12T22:22:28.805379+00:00'
+- subject_id (string)
+- mean_fc_value (float)
+- session_index (integer)
+- schaefer_region_name (string)
+- nih_toolbox_dcc_score (float)
+cache_key: 7efc86e402bf706d6addf9bf71236a5f4acb2edfe3e331757871040f2fd0471e
+searched_at: '2026-10-12T23:16:04.706052+00:00'
 retry_count: 1
