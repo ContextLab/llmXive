@@ -54,7 +54,7 @@
 
   **Verification** – Import succeeds (`python -c "import code.config"`), and the constant `SEED` equals 42.
 
-- [ ] **T004** Implement reusable I/O helpers and a minimal logger.  
+- [X] **T004** Implement reusable I/O helpers and a minimal logger.  
 
   **Files**: `code/utils/io.py`, `code/utils/logging.py`  
 
