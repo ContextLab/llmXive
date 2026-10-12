@@ -1,0 +1,23 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T001b** — The `data/raw/`, `data/processed/`, and `data/logs/` directories each contain a `.gitkeep` file as required, but `data/config/` lacks a `.gitkeep` (it only contains YAML files). Add a `.gitkeep` file to `data/config/` to satisfy the task.
+- **T002** — Checked `requirements.txt` (found pymc>=5.0.0, missing exact `pymc==5.12.0` and missing `torch`) and no `CHANGELOG.md` was present in the evidence. The file does not meet the exact version and package list required, and the required changelog documenting the PyMC5 deviation is absent.
+- **T003** — I inspected the project root (`projects/PROJ-134-the-cognitive-mechanisms-underlying-intu`) for linting/formatting configuration artifacts (e.g., `pyproject.toml` with `[tool.black]` or `[tool.ruff]`, a `.flake8` file, or dedicated `ruff.toml`/`black.toml`). No such files or sections were present, so the required ruff/flake8 and black setup is missing. Adding the appropriate configuration files and ensuring they are committed will satisfy the task.
+- **T006a** — The file `code/utils/hashing.py` exists and defines `calculate_checksum`, but there is no provided evidence that the required verification command was actually run and produced a valid SHA‑256 hash. Execution output or test logs confirming the function works as specified are missing.
+- **T006b** — the task writes platform-owned path(s) inside the project: `state/artifact_hashes.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T045b** — the task writes platform-owned path(s) inside the project: `state/mdes_report.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T046** — declared artifact(s) missing/empty/invalid: code/analysis/validate_schema.py
+- **T092-Fetch-VR** — Requested task execution failed; rerun successfully: code/data/fetch_real_vr.py exit=1
+- **T013** — the task writes platform-owned path(s) inside the project: `state/mdes_report.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T076a** — declared artifact(s) missing/empty/invalid: code/unity_verification.py, data/config/unity_simulation_fidelity.yaml
+- **T076b** — declared artifact(s) missing/empty/invalid: code/unity_verification.py, data/logs/simulation_params.log
+- **T076c** — declared artifact(s) missing/empty/invalid: code/unity_verification.py, data/config/simulation_run_params.yaml
+- **T017-Report** — declared artifact(s) missing/empty/invalid: code/reports/generate_norm_report.py, data/logs/norm_validation.json
+- **T018-Simulation-Checksums** — the task writes platform-owned path(s) inside the project: `state/artifact_hashes.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T027b-Delta-AIC-Report** — declared artifact(s) missing/empty/invalid: code/analysis/simulation_delta_aic.py, data/results/model_comparison.json, data/results/simulation_delta_aic.json
+- **T027c-Verify** — declared artifact(s) missing/empty/invalid: code/analysis/verify_parameter_recovery.py, data/results/parameter_recovery_sim.json, data/results/parameter_recovery_real.json
+- **T030-Regression-Verify** — declared artifact(s) missing/empty/invalid: code/analysis/verify_regression.py, data/results/mixed_effects_bonferroni_results.json
+- **T045-Sensitivity-Link** — declared artifact(s) missing/empty/invalid: code/analysis/sensitivity_link.py, data/results/sensitivity_analysis.json, data/results/sensitivity_link_report.json

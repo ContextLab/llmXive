@@ -1,14 +1,5 @@
 status: none
-intent: download Moral Foundations Questionnaire MFQ dataset OSF supplemental logs
-  python package dataset
-required_fields:
-- foundation_scores
-- vignette_text
-- response_time
-- gaze_metrics
-- salience_level
-- simulated_flag
-- loglikelihood
-cache_key: abaa299772d376443451edacd3366b7838470f4f33dab0251c23f8ad081f7c6a
-searched_at: '2026-09-28T15:37:23.641639+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-12T15:19:33.840087+00:00'
+retry_count: 3
