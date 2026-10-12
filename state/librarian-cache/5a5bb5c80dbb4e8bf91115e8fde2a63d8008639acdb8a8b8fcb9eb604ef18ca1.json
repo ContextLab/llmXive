@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-01T10:37:51Z",
+  "fetched_at": "2026-10-12T00:46:12Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,84 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\"",
       "target_n": 5
     },
-    "duration_seconds": 48.975,
-    "ended_at": "2026-08-01T10:37:51Z",
+    "duration_seconds": 55.197,
+    "ended_at": "2026-10-12T00:46:12Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "anti-self-distillation for reinforcement learning"
+          "anti‑self‑distillation in language models"
         ],
         [
           2,
-          "pointwise mutual information in LLM reasoning"
+          "pointwise mutual information for LLM reasoning"
         ],
         [
           3,
-          "preventing self-distillation in large language models"
+          "reinforcement learning for reasoning with LLMs"
         ],
         [
           4,
-          "reinforcement learning with PMI-based rewards"
+          "self‑distillation avoidance strategies in NLP"
         ],
         [
           5,
-          "anti-distillation techniques for LLM alignment"
+          "mutual information regularization in language model training"
         ],
         [
           6,
-          "reasoning enhancement via mutual information"
+          "reasoning‑oriented RL for large language models"
         ],
         [
           7,
-          "self-distillation suppression in RLHF"
+          "information‑theoretic objectives for LLM reasoning"
         ],
         [
           8,
-          "PMI-guided policy optimization for LLMs"
+          "contrastive learning for LLM reasoning tasks"
         ],
         [
           9,
-          "counteracting knowledge collapse in language models"
+          "policy distillation versus anti‑distillation in LLMs"
         ],
         [
           10,
-          "information-theoretic approaches to LLM reasoning"
+          "chain‑of‑thought reinforcement learning with mutual information"
         ],
         [
           11,
-          "reinforcement learning with anti-self-supervision"
+          "knowledge distillation pitfalls for reasoning LLMs"
         ],
         [
           12,
-          "improving chain-of-thought via PMI"
+          "information bottleneck methods for language model reasoning"
         ],
         [
           13,
-          "mitigating self-distillation in generative models"
+          "self‑supervised RL for improving LLM reasoning accuracy"
         ],
         [
           14,
-          "pointwise mutual information for reward shaping"
+          "mutual information‑driven reward shaping in LLM RL"
         ],
         [
           15,
-          "anti-self-distillation in neural network training"
-        ],
-        [
-          16,
-          "LLM reasoning stability through information maximization"
-        ],
-        [
-          17,
-          "preventing representation collapse in RL for LLMs"
-        ],
-        [
-          18,
-          "mutual information maximization in language model fine-tuning"
-        ],
-        [
-          19,
-          "self-distillation avoidance in multi-step reasoning"
-        ],
-        [
-          20,
-          "information bottleneck methods for LLM reasoning"
+          "anti‑distillation techniques for improving LLM generalization"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "anti-self-distillation for reinforcement learning": 5,
+        "anti‑self‑distillation in language models": 5,
         "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "pointwise mutual information anti-self-distillation",
-      "self-distillation negative transfer reasoning RL",
-      "knowledge distillation negative sampling reward modeling",
-      "reasoning trajectory entropy reduction policy gradient",
-      "mutual information leakage teacher-student alignment"
+      "anti-self-distillation knowledge distillation",
+      "HotpotQA reinforcement learning benchmark",
+      "reward modeling policy gradient language model",
+      "chain-of-thought reasoning accuracy",
+      "mutual information regularization RL"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +100,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2602.12375"
+        "2409.02228"
       ]
     },
     "per_query_hit_count": {
-      "knowledge distillation negative sampling reward modeling": 3,
+      "HotpotQA reinforcement learning benchmark": 3,
+      "anti-self-distillation knowledge distillation": 3,
+      "chain-of-thought reasoning accuracy": 3,
       "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\" computer science": 3,
-      "mutual information leakage teacher-student alignment": 2,
-      "pointwise mutual information anti-self-distillation": 3,
-      "reasoning trajectory entropy reduction policy gradient": 2,
-      "self-distillation negative transfer reasoning RL": 3
+      "mutual information regularization RL": 3,
+      "reward modeling policy gradient language model": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -137,29 +117,29 @@
       "rejected_count": 4,
       "rejections": [
         {
-          "primary_pointer": "2607.18488",
-          "rationale": "The paper focuses on physical robotics hardware and sim-to-real transfer for standard control algorithms (SARSA, SAC), which is an off-domain application of reinforcement learning compared to the user's specific question about \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for LLM reasoning. It does not measure the same mechanism, variables, or empirical population (LLMs vs. physical robots) and shares only the broad keyword \"Reinforcement Learning\" without addressing the specific a",
-          "title": "The Open Ant: A Robot Platform for Reinforcement Learning Research"
+          "primary_pointer": "2610.00223",
+          "rationale": "The paper studies the environmental carbon footprint of a large Arabic language model, which bears no relation to anti-self-distillation, reasoning reinforcement learning, or pointwise mutual information; thus it does not address any mechanism, variable, or domain relevant to the user's question.",
+          "title": "A Holistic Assessment of the Carbon Footprint of Noor, a Very Large Arabic Language Model"
         },
         {
-          "primary_pointer": "2507.02910",
-          "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models (SCMs), which is a distinct mechanism from the user's specific query about \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for reasoning RL. While both fall under the broad domain of reinforcement learning, the candidate paper does not measure the same biological/algorithmic pathway, variables, or empirical setting as the user's specific follow-up topic, nor does it serve as a fo",
-          "title": "Causal-Paced Deep Reinforcement Learning"
+          "primary_pointer": "2503.21676",
+          "rationale": "The paper studies learning dynamics, data curricula, and hallucinations in language models, but it does not investigate anti‑self‑distillation, pointwise mutual information, or reasoning‑oriented reinforcement learning—the core mechanisms and variables of the user’s question. Hence it falls outside the relevant construct, domain, and methodology.",
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations"
         },
         {
-          "primary_pointer": "1807.05037",
-          "rationale": "The paper focuses on Inverse Reinforcement Learning (IRL) and hierarchical planning in human behavior, which is a distinct methodological domain from the user's question about \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for Reasoning RL in LLMs. While both involve Reinforcement Learning, the specific mechanisms (distillation vs. inverse planning), objectives (reasoning enhancement vs. goal inference), and theoretical frameworks do not overlap sufficiently to satisfy the inclusion",
-          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning"
+          "primary_pointer": "2608.05850",
+          "rationale": "The paper focuses on building a Yiddish language model and benchmark, which is unrelated to anti-self-distillation, reasoning reinforcement learning, or pointwise mutual information; it does not share the mechanism, variables, or domain of the user's question.",
+          "title": "MameLoshnLM: Yiddish Language Model and Evaluation Benchmark"
         },
         {
-          "primary_pointer": "1809.09501",
-          "rationale": "The paper focuses on accelerating convergence in Reinforcement Learning using Anderson Acceleration, which is a distinct algorithmic mechanism from the user's specific interest in \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for reasoning. It does not measure the same biological/algorithmic mechanism, share the same variables, or serve as a foundational reference for the specific distillation-based approach mentioned in the user's query.",
-          "title": "Anderson Acceleration for Reinforcement Learning"
+          "primary_pointer": "2603.01691",
+          "rationale": "The paper focuses on adapting and evaluating a Slovene instruction language model, without addressing anti-self-distillation, pointwise mutual information, or reasoning‑oriented reinforcement learning, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Building a Strong Instruction Language Model for a Less-Resourced Language"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-01T10:37:02Z",
+    "started_at": "2026-10-12T00:45:17Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
       "raw": "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\" computer science"
@@ -178,7 +158,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -197,7 +177,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -215,103 +195,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-01T10:37:31Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Shannon-Hartley theorem can accurately calculate the channel capacity when the signal observation time is infinite. However, the calculation of finite-time mutual information, which remains unknown, is essential for guiding the design of practical communication systems. In this paper, we investigate the mutual information between two correlated Gaussian processes within a finite-time observation window. We first derive the finite-time mutual information by providing a limit expression. Then we numerically compute the mutual information within a single finite-time window. We reveal that the number of bits transmitted per second within the finite-time window can exceed the mutual information averaged over the entire time axis, which is called the exceed-average phenomenon. Furthermore, we derive a finite-time mutual information formula under a typical signal autocorrelation case by utilizing the Mercer expansion of trace class operators, and reveal the connection between the finite-time mutual information problem and the operator theory. Finally, we analytically prove the existence of the exceed-average phenomenon in this typical case, and demonstrate its compatibility with the Shannon capacity.",
-          "claimed_authors": [
-            "Jieao Zhu",
-            "Zijian Zhang",
-            "Zhongzhichao Wan",
-            "Linglong Dai"
-          ],
-          "claimed_title": "On Finite-Time Mutual Information",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2204.11254"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='On Finite-Time Mutual Information')",
-        "failed_at": "2026-08-01T10:37:31Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Traditional channel capacity based on the discrete spatial dimensions mismatches the continuous electromagnetic fields. For the wireless communication system in a limited region, the spatial discretization may results in information loss because the continuous field can not be perfectly recovered from the sampling points. Therefore, electromagnetic information theory based on spatially continuous electromagnetic fields becomes necessary to reveal the fundamental theoretical capacity bound of communication systems. In this paper, we propose analyzing schemes for the performance limit between continuous transceivers. Specifically, we model the communication process between two continuous regions by random fields. Then, for the white noise model, we use Mercer expansion to derive the mutual information between the source and the destination. For the close-form expression, an analytic method is introduced based on autocorrelation functions with rational spectrum. Moreover, the Fredholm determinant is used for the general autocorrelation functions to provide the numerical calculation scheme. Further works extend the white noise model to colored noise and discuss the mutual information under it. Finally, we build an ideal model with infinite-length source and destination which shows a strong correpsondence with the time-domain model in classical information theory. The mutual information and the capacity are derived through the spatial spectral density.",
-          "claimed_authors": [
-            "Zhongzhichao Wan",
-            "Jieao Zhu",
-            "Zijian Zhang",
-            "Linglong Dai",
-            "Chan-Byoung Chae"
-          ],
-          "claimed_title": "Mutual Information for Electromagnetic Information Theory Based on Random Fields",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2111.00496"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Mutual Information for Electromagnetic Information Theory Based on Random Fields')",
-        "failed_at": "2026-08-01T10:37:31Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Self-distillation has emerged as an effective post-training paradigm for LLMs, often improving performance while shortening reasoning traces. However, in mathematical reasoning, we find that it can reduce response length while degrading performance. We trace this degradation to the suppression of epistemic verbalization - the model's expression of uncertainty during reasoning. Through controlled experiments varying conditioning context richness and task coverage, we show that conditioning the teacher on rich information suppresses uncertainty expression, enabling rapid in-domain optimization with limited task coverage but harming OOD performance, where unseen problems benefit from expressing uncertainty and adjusting accordingly. Across Qwen3-1.7B/8B, DeepSeek-Distill-Qwen-7B, and Olmo3-7B-Instruct, we observe performance drops of up to 40%. Our findings highlight that exposing appropriate levels of uncertainty is crucial for robust reasoning and underscore the importance of optimizing reasoning behavior beyond merely reinforcing correct answer traces.",
-          "claimed_authors": [
-            "Jeonghye Kim",
-            "Xufang Luo",
-            "Minbeom Kim",
-            "Sangmook Lee",
-            "Dohyung Kim",
-            "Jiwon Jeon",
-            "Dongsheng Li",
-            "Yuqing Yang"
-          ],
-          "claimed_title": "Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.24472"
-        },
-        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?')",
-        "failed_at": "2026-08-01T10:37:31Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
-          "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
-          ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-08-01T10:37:31Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We propose reinforcement learning (RL) strategies tailored for reasoning in large language models (LLMs) under strict memory and compute limits, with a particular focus on compatibility with LoRA fine-tuning. Building on early policy gradient methods with baseline subtraction, we design critic-free methods that operate on a small, informative subset of output tokens to reduce memory usage and stabilize training. We introduce S-GRPO, a stochastic variant of Group Relative Policy Optimization, and T-SPMO, a token-level prefix matching approach for fine-grained credit assignment. Applied to Qwen2-1.5B, our methods raise accuracy on the SVAMP benchmark from 46% to over 70% and show strong performance on multi-digit multiplication. Surprisingly, full-token GRPO under LoRA fails to improve over the base model, suggesting that selective token-level optimization may act as an implicit regularizer in low-parameter training regimes.",
-          "claimed_authors": [
-            "Alan Lee",
-            "Harry Tong"
-          ],
-          "claimed_title": "Token-Efficient RL for LLM Reasoning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.20834"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Token-Efficient RL for LLM Reasoning')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -330,7 +214,7 @@
           "primary_pointer": "2004.08116"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Triplet Loss for Knowledge Distillation')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -350,104 +234,277 @@
           "primary_pointer": "2602.13567"
         },
         "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Reward models learned from human preferences are central to aligning large language models (LLMs) via reinforcement learning from human feedback, yet they are often vulnerable to reward hacking due to noisy annotations and systematic biases such as response length or style. We propose Bayesian Non-Negative Reward Model (BNRM), a principled reward modeling framework that integrates non-negative factor analysis into Bradley-Terry (BT) preference model. BNRM represents rewards through a sparse, non-negative latent factor generative process that operates at two complementary levels: instance-specific latent variables induce disentangled reward representations, while sparsity over global latent factors acts as an implicit debiasing mechanism that suppresses spurious correlations. Together, this disentanglement-then-debiasing structure enables robust uncertainty-aware reward learning. To scale BNRM to modern LLMs, we develop an amortized variational inference network conditioned on deep model representations, allowing efficient end-to-end training. Extensive empirical results demonstrate that BNRM substantially mitigates reward over-optimization, improves robustness under distribution shifts, and yields more interpretable reward decompositions than strong baselines.",
+          "claimed_abstract": "Continual learning, involving sequential training on diverse tasks, often faces catastrophic forgetting. While knowledge distillation-based approaches exhibit notable success in preventing forgetting, we pinpoint a limitation in their ability to distill the cumulative knowledge of all the previous tasks. To remedy this, we propose Dense Knowledge Distillation (DKD). DKD uses a task pool to track the model's capabilities. It partitions the output logits of the model into dense groups, each corresponding to a task in the task pool. It then distills all tasks' knowledge using all groups. However, using all the groups can be computationally expensive, we also suggest random group selection in each optimization step. Moreover, we propose an adaptive weighting scheme, which balances the learning of new classes and the retention of old classes, based on the count and similarity of the classes. Our DKD outperforms recent state-of-the-art baselines across diverse benchmarks and scenarios. Empirical analysis underscores DKD's ability to enhance model stability, promote flatter minima for improved generalization, and remains robust across various memory budgets and task orders. Moreover, it seamlessly integrates with other CL methods to boost performance and proves versatile in offline scenarios like model compression.",
           "claimed_authors": [
-            "Zhibin Duan",
-            "Guowei Rong",
-            "Zhuo Li",
-            "Bo Chen",
-            "Mingyuan Zhou",
-            "Dandan Guo"
+            "Zenglin Shi",
+            "Pei Liu",
+            "Tong Su",
+            "Yunpeng Wu",
+            "Kuien Liu",
+            "Yu Song",
+            "Meng Wang"
           ],
-          "claimed_title": "Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling",
+          "claimed_title": "Densely Distilling Cumulative Knowledge for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.09820"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Densely Distilling Cumulative Knowledge for Continual Learning')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
+          "claimed_authors": [
+            "Elena Sorina Lupu",
+            "Patrick Spieler",
+            "Khurram Javed",
+            "Kris De Asis",
+            "John D. Martin",
+            "Martha Steenstrup",
+            "Joseph Modayil"
+          ],
+          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2602.10623"
+          "primary_pointer": "2607.18488"
         },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Policy gradient algorithms have been successfully applied to enhance the reasoning capabilities of large language models (LLMs). KL regularization is ubiquitous, yet the design surface, choice of KL direction (forward vs. reverse), normalization (normalized vs. unnormalized), and estimator ($k_1/k_2/k_3$), is scattered across the literature and often intertwined with off-policy estimation. We ask a focused question: under the off-policy setting, what weighting is required for each KL variant so that the surrogate we optimize yields the exact gradient of the intended KL-regularized objective? We answer this with a compact, unified derivation we call the Regularized Policy Gradient (RPG) view. RPG (i) unifies normalized and unnormalized KL variants and shows that the widely-used $k_3$ penalty is exactly the unnormalized KL; (ii) specifies conditions under which REINFORCE-style losses with stop-gradient are gradient-equivalent to fully differentiable surrogates; (iii) identifies and corrects an off-policy importance-weighting mismatch in GRPO's KL term; and (iv) introduces RPG-Style Clip, a clipped-importance-sampling step within RPG-REINFORCE that enables stable, off-policy policy-gradient training at scale. On mathematical reasoning benchmarks (AIME24, AIME25), RPG-REINFORCE with RPG-Style Clip improves accuracy by up to $+6$ absolute percentage points over DAPO. We extend our experiments to 8K context length, and RPG-REINFORCE with RPG-Style Clip achieves 52% accuracy on AIME25, surpassing the official Qwen3-4B-Instruct model (47%). Notably, RPG is a stable and scalable RL algorithm for LLM reasoning, realized via (a) a KL-correct objective, (b) clipped importance sampling, and (c) an iterative reference-policy update scheme. Project Page: https://github.com/complex-reasoning/RPG.",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
           "claimed_authors": [
-            "Yifan Zhang",
-            "Yifeng Liu",
-            "Huizhuo Yuan",
-            "Yang Yuan",
-            "Quanquan Gu",
-            "Andrew Chi-Chih Yao"
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
           ],
-          "claimed_title": "On the Design of KL-Regularized Policy Gradient Algorithms for LLM Reasoning",
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep Reinforcement Learning (RL) has emerged as a powerful paradigm to solve a range of complex yet specific control tasks. Yet training generalist agents that can quickly adapt to new tasks remains an outstanding challenge. Recent advances in unsupervised RL have shown that pre-training RL agents with self-supervised intrinsic rewards can result in efficient adaptation. However, these algorithms have been hard to compare and develop due to the lack of a unified benchmark. To this end, we introduce the Unsupervised Reinforcement Learning Benchmark (URLB). URLB consists of two phases: reward-free pre-training and downstream task adaptation with extrinsic rewards. Building on the DeepMind Control Suite, we provide twelve continuous control tasks from three domains for evaluation and open-source code for eight leading unsupervised RL methods. We find that the implemented baselines make progress but are not able to solve URLB and propose directions for future research.",
+          "claimed_authors": [
+            "Michael Laskin",
+            "Denis Yarats",
+            "Hao Liu",
+            "Kimin Lee",
+            "Albert Zhan",
+            "Kevin Lu",
+            "Catherine Cang",
+            "Lerrel Pinto",
+            "Pieter Abbeel"
+          ],
+          "claimed_title": "URLB: Unsupervised Reinforcement Learning Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.15191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='URLB: Unsupervised Reinforcement Learning Benchmark')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2505.17508"
+          "primary_pointer": "2503.21676"
         },
-        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='On the Design of KL-Regularized Policy Gradient Algorithms for LLM Reasoning')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_abstract": "We present MameLoshnLM, the first open-source 8B-parameter language model built specifically for Yiddish. Despite Yiddish's rich textual tradition, its limited digital presence and the scarcity of reliable evaluation resources have constrained progress in Yiddish language modeling. Existing multilingual corpora and benchmarks are often poor proxies for the language, containing substantial amounts of noisy, machine-translated, and misclassified text. We address these gaps by introducing Oytser, a high-quality Yiddish pretraining corpus that combines contemporary web-native sources with literary materials, and Kashes, a multi-task benchmark spanning translation, linguistic analysis, information extraction, and language understanding. Using these resources, we continue pretraining Llama 3.1 8B to obtain MameLoshnLM. Across the tasks in the benchmark, MameLoshnLM outperforms open baselines of similar scale. Our analyses show that these gains are not only quantitative: relative to general-purpose multilingual models, MameLoshnLM better captures language-defining lexical and morphological patterns, pointing to a broader failure mode of noisy web-scale multilingual data for low-resource languages. Our results provide both a foundation for Yiddish NLP and a practical template for language model development in historically rich but digitally underrepresented languages.",
           "claimed_authors": [
-            "Kasun Amarasinghe",
-            "Kit Rodolfa",
-            "Hemank Lamba",
-            "Rayid Ghani"
+            "Uri Katz",
+            "Omer Goldman",
+            "Tomasz Limisiewicz",
+            "Reut Tsarfaty",
+            "Noah A. Smith"
           ],
-          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_title": "MameLoshnLM: Yiddish Language Model and Evaluation Benchmark",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2010.14374"
+          "claimed_year": 2026,
+          "primary_pointer": "2608.05850"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='MameLoshnLM: Yiddish Language Model and Evaluation Benchmark')",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A tunable measure for information leakage called \\textit{maximal $α$-leakage} is introduced. This measure quantifies the maximal gain of an adversary in refining a tilted version of its prior belief of any (potentially random) function of a dataset conditioning on a disclosed dataset. The choice of $α$ determines the specific adversarial action ranging from refining a belief for $α=1$ to guessing the best posterior for $α= \\infty$, and for these extremal values this measure simplifies to mutual information (MI) and maximal leakage (MaxL), respectively. For all other $α$ this measure is shown to be the Arimoto channel capacity. Several properties of this measure are proven including: (i) quasi-convexity in the mapping between the original and disclosed datasets; (ii) data processing inequalities; and (iii) a composition property.",
+          "claimed_abstract": "When language models (LMs) are trained to forget (or \"unlearn'') a skill, how precisely does their behavior change? We study the behavior of transformer LMs in which tasks have been forgotten via fine-tuning on randomized labels. Such LMs learn to generate near-random predictions for individual examples in the \"training'' set used for forgetting. Across tasks, however, LMs exhibit extreme variability in whether LM predictions change on examples outside the training set. In some tasks (like entailment classification), forgetting generalizes robustly, and causes models to produce uninformative predictions on new task instances; in other tasks (like physical commonsense reasoning and scientific question answering) forgetting affects only the training examples, and models continue to perform the \"forgotten'' task accurately even for examples very similar to those that appeared in the training set. Dataset difficulty is not predictive of whether a behavior can be forgotten; instead, generalization in forgetting is (weakly) predicted by the confidence of LMs' initial task predictions and the variability of LM representations of training data, with low confidence and low variability both associated with greater generalization. Perhaps most surprisingly, random-label forgetting appears to be somewhat insensitive to the contents of the training set: for example, models trained on science questions with random labels continue to answer other science questions accurately, but begin to produce random labels on entailment classification tasks. Finally, we show that even generalizable forgetting is shallow: linear probes trained on LMs' representations can still perform tasks reliably after forgetting. Our results highlight the difficulty and unpredictability of performing targeted skill removal from models via fine-tuning.",
           "claimed_authors": [
-            "Jiachun Liao",
-            "Oliver Kosut",
-            "Lalitha Sankar",
-            "Flavio P. Calmon"
+            "Eric Zhang",
+            "Leshem Choshen",
+            "Jacob Andreas"
           ],
-          "claimed_title": "A Tunable Measure for Information Leakage",
+          "claimed_title": "Unforgettable Generalization in Language Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1806.03332"
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02228"
         },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='A Tunable Measure for Information Leakage')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Unforgettable Generalization in Language Models')",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper, we first introduce the notion of channel leakage as the minimum mutual information between the channel input and channel output. As its name indicates, channel leakage quantifies the minimum information leakage to the malicious receiver. In a broad sense, it can be viewed as a dual concept of channel capacity, which characterizes the maximum information transmission to the targeted receiver. We obtain explicit formulas of channel leakage for the white Gaussian case, the colored Gaussian case, and the fading case. We then utilize this notion to investigate the fundamental limitations of obfuscation in terms of privacy-distortion tradeoffs (as well as privacy-power tradeoffs) for streaming data; particularly, we derive analytical tradeoff equations for the stationary case, the non-stationary case, and the finite-time case. Our results also indicate explicitly how to design the privacy masks in an optimal way.",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
           "claimed_authors": [
-            "Song Fang",
-            "Quanyan Zhu"
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
           ],
-          "claimed_title": "Channel Leakage, Information-Theoretic Limitations of Obfuscation, and Optimal Privacy Mask Design for Streaming Data",
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2008.04893"
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
         },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Channel Leakage, Information-Theoretic Limitations of Obfuscation, and Optimal Privacy Mask Design for Streaming Data')",
-        "failed_at": "2026-08-01T10:37:31Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+          "claimed_authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "claimed_title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03559"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in reasoning with large language models (RLLMs), such as OpenAI-O1 and DeepSeek-R1, have demonstrated their impressive capabilities in complex domains like mathematics and coding. A central factor in their success lies in the application of long chain-of-thought (Long CoT) characteristics, which enhance reasoning abilities and enable the solution of intricate problems. However, despite these developments, a comprehensive survey on Long CoT is still lacking, limiting our understanding of its distinctions from traditional short chain-of-thought (Short CoT) and complicating ongoing debates on issues like \"overthinking\" and \"inference-time scaling.\" This survey seeks to fill this gap by offering a unified perspective on Long CoT. (1) We first distinguish Long CoT from Short CoT and introduce a novel taxonomy to categorize current reasoning paradigms. (2) Next, we explore the key characteristics of Long CoT: deep reasoning, extensive exploration, and feasible reflection, which enable models to handle more complex tasks and produce more efficient, coherent outcomes compared to the shallower Short CoT. (3) We then investigate key phenomena such as the emergence of Long CoT with these characteristics, including overthinking, and inference-time scaling, offering insights into how these processes manifest in practice. (4) Finally, we identify significant research gaps and highlight promising future directions, including the integration of multi-modal reasoning, efficiency improvements, and enhanced knowledge frameworks. By providing a structured overview, this survey aims to inspire future research and further the development of logical reasoning in artificial intelligence.",
+          "claimed_authors": [
+            "Qiguang Chen",
+            "Libo Qin",
+            "Jinhao Liu",
+            "Dengyun Peng",
+            "Jiannan Guan",
+            "Peng Wang",
+            "Mengkang Hu",
+            "Yuhang Zhou",
+            "Te Gao",
+            "Wanxiang Che"
+          ],
+          "claimed_title": "Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.09567"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Shannon-Hartley theorem can accurately calculate the channel capacity when the signal observation time is infinite. However, the calculation of finite-time mutual information, which remains unknown, is essential for guiding the design of practical communication systems. In this paper, we investigate the mutual information between two correlated Gaussian processes within a finite-time observation window. We first derive the finite-time mutual information by providing a limit expression. Then we numerically compute the mutual information within a single finite-time window. We reveal that the number of bits transmitted per second within the finite-time window can exceed the mutual information averaged over the entire time axis, which is called the exceed-average phenomenon. Furthermore, we derive a finite-time mutual information formula under a typical signal autocorrelation case by utilizing the Mercer expansion of trace class operators, and reveal the connection between the finite-time mutual information problem and the operator theory. Finally, we analytically prove the existence of the exceed-average phenomenon in this typical case, and demonstrate its compatibility with the Shannon capacity.",
+          "claimed_authors": [
+            "Jieao Zhu",
+            "Zijian Zhang",
+            "Zhongzhichao Wan",
+            "Linglong Dai"
+          ],
+          "claimed_title": "On Finite-Time Mutual Information",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.11254"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='On Finite-Time Mutual Information')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional channel capacity based on the discrete spatial dimensions mismatches the continuous electromagnetic fields. For the wireless communication system in a limited region, the spatial discretization may results in information loss because the continuous field can not be perfectly recovered from the sampling points. Therefore, electromagnetic information theory based on spatially continuous electromagnetic fields becomes necessary to reveal the fundamental theoretical capacity bound of communication systems. In this paper, we propose analyzing schemes for the performance limit between continuous transceivers. Specifically, we model the communication process between two continuous regions by random fields. Then, for the white noise model, we use Mercer expansion to derive the mutual information between the source and the destination. For the close-form expression, an analytic method is introduced based on autocorrelation functions with rational spectrum. Moreover, the Fredholm determinant is used for the general autocorrelation functions to provide the numerical calculation scheme. Further works extend the white noise model to colored noise and discuss the mutual information under it. Finally, we build an ideal model with infinite-length source and destination which shows a strong correpsondence with the time-domain model in classical information theory. The mutual information and the capacity are derived through the spatial spectral density.",
+          "claimed_authors": [
+            "Zhongzhichao Wan",
+            "Jieao Zhu",
+            "Zijian Zhang",
+            "Linglong Dai",
+            "Chan-Byoung Chae"
+          ],
+          "claimed_title": "Mutual Information for Electromagnetic Information Theory Based on Random Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.00496"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Mutual Information for Electromagnetic Information Theory Based on Random Fields')",
+        "failed_at": "2026-10-12T00:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mutual information is a measure of the dependence between random variables that has been used successfully in myriad applications in many fields. Generalized mutual information measures that go beyond classical Shannon mutual information have also received much interest in these applications. We derive the mean squared error convergence rates of kernel density-based plug-in estimators of general mutual information measures between two multidimensional random variables $\\mathbf{X}$ and $\\mathbf{Y}$ for two cases: 1) $\\mathbf{X}$ and $\\mathbf{Y}$ are continuous; 2) $\\mathbf{X}$ and $\\mathbf{Y}$ may have any mixture of discrete and continuous components. Using the derived rates, we propose an ensemble estimator of these information measures called GENIE by taking a weighted sum of the plug-in estimators with varied bandwidths. The resulting ensemble estimators achieve the $1/N$ parametric mean squared error convergence rate when the conditional densities of the continuous variables are sufficiently smooth. To the best of our knowledge, this is the first nonparametric mutual information estimator known to achieve the parametric convergence rate for the mixture case, which frequently arises in applications (e.g. variable selection in classification). The estimator is simple to implement and it uses the solution to an offline convex optimization problem and simple plug-in estimators. A central limit theorem is also derived for the ensemble estimators and minimax rates are derived for the continuous case. We demonstrate the ensemble estimator for the mixed case on simulated data and apply the proposed estimator to analyze gene relationships in single cell data.",
+          "claimed_authors": [
+            "Kevin R. Moon",
+            "Kumar Sricharan",
+            "Alfred O. Hero"
+          ],
+          "claimed_title": "Ensemble Estimation of Generalized Mutual Information with Applications to Genomics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.08083"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Ensemble Estimation of Generalized Mutual Information with Applications to Genomics')",
+        "failed_at": "2026-10-12T00:45:46Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -455,59 +512,28 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Guobin Shen",
-            "Xiang Cheng",
-            "Chenxiao Zhao",
-            "Lei Huang",
-            "Jindong Li",
-            "Dongcheng Zhao",
-            "Xing Yu"
+            "Eric Zhang",
+            "Leshem Choshen",
+            "Jacob Andreas"
           ],
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information",
+          "title": "Unforgettable Generalization in Language Models",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2024
         },
-        "primary_pointer": "2605.11609",
-        "summary": "On-policy self-distillation, where a student is pulled toward a copy of itself conditioned on privileged context (e.g., a verified solution or feedback), offers a promising direction for advancing reasoning capability without a stronger external teacher. Yet in math reasoning the gains are inconsistent, even when the same approach succeeds elsewhere. A pointwise mutual information analysis traces the failure to the privileged context itself: it inflates the teacher's confidence on tokens already implied by the solution (structural connectives, verifiable claims) and deflates it on deliberation tokens (\"Wait\", \"Let\", \"Maybe\") that drive multi-step search. We propose Anti-Self-Distillation (AntiSD), which ascends a divergence between student and teacher rather than descending it: this reverses the per-token sign and yields a naturally bounded advantage in one step. An entropy-triggered gate disables the term once the teacher entropy collapses, completing a drop-in replacement for default self-distillation. Across five models from 4B to 30B parameters on math reasoning benchmarks, AntiSD reaches the GRPO baseline's accuracy in 2 to 10x fewer training steps and improves final accuracy by up to 11.5 points. AntiSD opens a path to scalable self-improvement, where a language model bootstraps its own reasoning through its training signal.",
+        "primary_pointer": "2409.02228",
+        "summary": "When language models (LMs) are trained to forget (or \"unlearn'') a skill, how precisely does their behavior change? We study the behavior of transformer LMs in which tasks have been forgotten via fine-tuning on randomized labels. Such LMs learn to generate near-random predictions for individual examples in the \"training'' set used for forgetting. Across tasks, however, LMs exhibit extreme variability in whether LM predictions change on examples outside the training set. In some tasks (like entailment classification), forgetting generalizes robustly, and causes models to produce uninformative predictions on new task instances; in other tasks (like physical commonsense reasoning and scientific question answering) forgetting affects only the training examples, and models continue to perform the \"forgotten'' task accurately even for examples very similar to those that appeared in the training set. Dataset difficulty is not predictive of whether a behavior can be forgotten; instead, generalization in forgetting is (weakly) predicted by the confidence of LMs' initial task predictions and the variability of LM representations of training data, with low confidence and low variability both associated with greater generalization. Perhaps most surprisingly, random-label forgetting appears to be somewhat insensitive to the contents of the training set: for example, models trained on science questions with random labels continue to answer other science questions accurately, but begin to produce random labels on entailment classification tasks. Finally, we show that even generalizable forgetting is shallow: linear probes trained on LMs' representations can still perform tasks reliably after forgetting. Our results highlight the difficulty and unpredictability of performing targeted skill removal from models via fine-tuning.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.11609",
+          "final_url": "https://arxiv.org/abs/2409.02228",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5385,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-01T10:37:31Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Abdul Wahab",
-            "Raksha Kumaraswamy",
-            "Martha White"
-          ],
-          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2602.12375",
-        "summary": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2602.12375",
-          "http_status": 200,
-          "pdf_sample_score": 0.2725,
+          "pdf_sample_score": 0.3103,
           "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-01T10:37:36Z"
+          "verified_at": "2026-10-12T00:45:53Z"
         }
       }
     ]
