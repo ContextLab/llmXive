@@ -10,7 +10,9 @@ from pathlib import Path
 
 # Random seed for reproducibility
 # IMPORTANT: This seed must be used in T017 for the stratified splitter
-# to ensure that the train/test split is reproducible across runs.
+# (e.g. train_test_split(..., random_state=RANDOM_SEED) in
+# code/models/train.py) to ensure that the train/test split is
+# reproducible across runs.
 RANDOM_SEED = 42
 
 # Resource constraints
@@ -18,6 +20,8 @@ RANDOM_SEED = 42
 MAX_MEMORY_GB = 7
 # Maximum allowed duration for pipeline execution in hours
 MAX_DURATION_HOURS = 6
+# Maximum number of molecules retained after stratified sampling (T013)
+MAX_MOLECULES = 15000
 
 # Project paths
 # Determine project root relative to this file (utils/config.py)
@@ -27,11 +31,11 @@ DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 CODE_DIR = PROJECT_ROOT / "code"
 TESTS_DIR = PROJECT_ROOT / "tests"
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
 
-# Ensure directories exist
+# Ensure project-owned data directories exist.
 # This is a safety measure; directories should ideally be created by T008
 # but ensuring existence here prevents runtime errors in downstream tasks.
+# NOTE: the platform owns the top-level state/ directory, so no state
+# paths are created or written here.
 DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-STATE_DIR.mkdir(parents=True, exist_ok=True)

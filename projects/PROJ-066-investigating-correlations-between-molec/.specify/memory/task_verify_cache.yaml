@@ -16,16 +16,6 @@ T003a:
     section with `line-length = 88` and `target-version = ['py310']`, matching the
     task's stated requirements.
   sig: 5663656c8b0f906a75bf9e3211b1bd7f86a48c2c2954b8b9469aada95a974f13
-T003b:
-  c: false
-  h: 2577534cf0619c098a12840295299f3ae1efe46f2a418253cbf47a0d4f5acbb6
-  r: "The task requires a code linting configuration file (e.g., `.flake8` or equivalent)\
-    \ with a standard max-line-length and E501 ignored, but the evidence collector\
-    \ found no artifact at any path \u2014 no configuration file exists in the project.\
-    \ The implementer must create the linting config (e.g., a `setup.cfg`/`.flake8`\
-    \ with `max-line-length = 100` (or similar standard limit) and `extend-ignore\
-    \ = E501`) in the project root."
-  sig: 7281911a00339e9a19c8b412f81deb63d6037b425b4f29128131dd17d7631ba5
 T004a:
   c: true
   h: 55a9518377708b9c1ce0650456afdba3978f19b78ab8ea41328b19df9a263e67
@@ -46,21 +36,22 @@ T004b:
     the task's requirement.
   sig: ee32bb6f6e84137f489bf4f0f518adc436bb5ecf4a017dce4e4ece957221c676
 T005:
-  c: false
-  h: 5712d40a88a96a1af0bf4f2f25745eedfd3581ab3b226b0a8ebd9bed04de0747
-  r: The file `code/utils/config.py` exists and correctly defines `RANDOM_SEED=42`,
-    `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`, and documents the T017 stratified-splitter
-    requirement. However, the required constant `MAX_MOLECULES=15000` is entirely
-    absent from the file, so the task's stated set of constants is not fully defined.
-  sig: 65b821a0dafae2659713c82cffa9d28588eb25a776eaaccda67e57c9fdbf48bb
-T007:
-  c: false
-  h: 49719ddab7374198cc1122d8f6776647ed505c92c0429443b5cd2e1198c5f340
-  r: The `update_state.py` script exists but is located at `code/utils/update_state.py`
-    instead of the required `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py`,
-    and the target state file `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`
-    is absent, so the script cannot actually update the required YAML with artifact
-    hashes.
+  c: true
+  h: 85e9933e11176350d481852fc2e6afb141d0a192d67abaf7134c4e27a303d302
+  r: The `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py`
+    file exists and defines `RANDOM_SEED = 42`, `MAX_MEMORY_GB = 7`, `MAX_DURATION_HOURS
+    = 6`, and `MAX_MOLECULES = 15000`. Its module docstring and comments explicitly
+    state that `RANDOM_SEED` must be passed to the stratified splitter in T017 for
+    reproducibility.
+  sig: 91fd651d9de3666126b51be5e09231cfea0a6833aa91ed4a223c491933e72c1e
+T006:
+  c: true
+  h: bd277a5e8e5790b4e00a73167e5c661ee96dcab78c013f405d90df94b2d116e0
+  r: "Checked `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py`,\
+    \ which exists (4.6\u202FKB) and provides a JSON\u2011structured formatter, a\
+    \ `log_pipeline_step` helper, and resource\u2011monitoring utilities, fulfilling\
+    \ the requirement for structured logging of pipeline steps."
+  sig: d29f02d7363405f75941a2d6c050003961a5f6adddcae3cf07a8cb44b49bfb71
 T008a:
   c: true
   h: 25bca9f13b73bab14e7936d1c129ef7c65f2ee26144498d553402764ccf50b51
@@ -140,3 +131,30 @@ T020:
     \ a `generate_feature_importance()` function, nor does it produce or save a `feature_importance.json`\
     \ file (the file is missing). Consequently the required feature\u2011importance\
     \ extraction, ranking, and JSON report are not implemented."
+T030a:
+  c: true
+  h: 06beab035c50781e389d98355fdcd6f8f0e97bc7431342937ee1fc2630d6c878
+  r: Checked `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py`
+    (defines resource limits) and `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py`
+    (provides `ResourceMonitor`, start/stop hooks, metric retrieval, and logging of
+    memory/CPU usage). Both files contain concrete, functional implementations, not
+    stubs.
+  sig: ca37c81773413759062ba9458afd863359c32a4136928b1ad5f9c494dacccfc8
+T033:
+  c: true
+  h: 615e7f10ae75f9268bdbb2c7a4740ac97d1db95e8d76a6bbd4984f4bf9677601
+  r: "Checked `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py`\
+    \ (7053\u202Fbytes) which defines a fully\u2011implemented `update_state(project_id,\
+    \ artifacts)` function that accepts artifact paths and optional hashes, computes\
+    \ missing hashes, updates the project\u2011owned registry, and includes a CLI\
+    \ entry point, satisfying the integration interface requirement."
+  sig: 66c142c3a03ecc8a16b8ddac16d498cf1ee502763eeff5d21458e6fe1fab8fff
+T036:
+  c: true
+  h: 7825fda22378299404da588a761281dfc32933636c3406842b1850c867747156
+  r: "Checked `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py`\
+    \ and `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py`;\
+    \ both files exist, are non\u2011empty, and contain well\u2011structured, documented\
+    \ functions, type hints, and logging that improve modularity and readability,\
+    \ satisfying the refactor requirement."
+  sig: 94fa7343c0e61b02d0fbe19f6accaf2cd677efe85d90dfc2dff6ea82457b121f

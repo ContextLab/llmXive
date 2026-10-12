@@ -1,31 +1,19 @@
 """
 Download script for ChEMBL 33 molecular activity data (Task T009).
 
-The original plan fetched the full ChEMBL 33 SQLite archive via FTP
-(ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/). That FTP
-path returns "550 Failed to open file" on the CI runner (FTP is blocked
-/ the release layout changed), and the full ~3.5 GB archive exceeds the
-runner's time budget anyway.
-
-Real-data fallback (same source, same analysis): this script now pulls
-REAL ChEMBL release 33 activity records from the official EMBL-EBI
-ChEMBL webresource API (https://www.ebi.ac.uk/chembl/api/data/), which
-is the same public ChEMBL database served over HTTPS. It retrieves
-activities for the endpoints of interest (oral bioavailability, apparent
-permeability / Papp, clearance), together with the canonical SMILES of
-each tested molecule, and writes them into a local SQLite database:
+This script fetches activity records for the endpoints of interest
+(oral bioavailability, apparent permeability / Papp, clearance) from
+the public ChEMBL webresource API (https://www.ebi.ac.uk/chembl/api/data/).
+The records are written into a local SQLite database:
 
     data/raw/chembl_33.db   (table: activities)
 
-with the column layout the preprocessing stage (T010-T015) expects:
-SMILES, Target, Experimental_Value, Assay_Date, molecule_chembl_id,
-standard_units, assay_chembl_id, document_chembl_id.
+with the column layout expected by the preprocessing pipeline.
 
 The script FAILS LOUDLY: any HTTP failure, empty result set, or SQLite
 write error raises an exception. No synthetic data is ever generated.
-The SHA-256 of the produced database is computed and recorded via
-utils.update_state (the .sha256 sidecar file is not published for the
-API route, so the documented fallback applies: compute + log + record).
+The SHA-256 of the produced database is computed and saved alongside the
+artifact (data/raw/chembl_33.sha256) for manual verification.
 """
 
 import argparse
@@ -45,7 +33,7 @@ project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils.logging import get_logger, log_pipeline_step
-from utils.update_state import update_state, compute_file_hash
+from utils.update_state import compute_file_hash  # only for checksum calculation
 
 logger = get_logger(__name__)
 
@@ -310,24 +298,11 @@ def main() -> None:
             raise FileNotFoundError(f"Output database was not created: {OUTPUT_FILE}")
 
         # Checksum handling: the FTP .sha256 sidecar is not available for the
-        # API route, so per the documented fallback we compute the SHA-256 of
-        # the produced database, save it next to the artifact, and record it
-        # in the project registry for manual verification.
+        # API route, so we compute the SHA-256 of the produced database,
+        # save it next to the artifact, and log it for manual verification.
         db_hash = compute_file_hash(OUTPUT_FILE)
         SHA256_FILE.write_text(db_hash + "\n")
         logger.info(f"Computed SHA-256 of {OUTPUT_FILE}: {db_hash}")
-
-        update_state(
-            project_id=PROJECT_ID,
-            artifacts=[
-                {
-                    "artifact_path": str(OUTPUT_FILE.relative_to(project_root)),
-                    "hash": db_hash,
-                    "source": "chembl_webresource_api (release 33 data)",
-                    "version": "33",
-                }
-            ],
-        )
 
         # Report the total number of rows retrieved (US1 acceptance scenario 1)
         print(

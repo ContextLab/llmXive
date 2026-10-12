@@ -1,0 +1,22 @@
+# Flake8 linting configuration for PROJ-066
+# (Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores)
+#
+# Line length is enforced by Black (configured in code/pyproject.toml,
+# line-length 100, target py310), so E501 (line too long) is ignored
+# here to avoid conflicting duplicate rules.
+[flake8]
+max-line-length = 100
+extend-ignore = E501
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    build,
+    dist,
+    *.egg-info
+per-file-ignores =
+    # allow import-after-sys.path setup in runnable scripts
+    code/data/*.py:E402
+    code/models/*.py:E402
+    code/utils/*.py:E402

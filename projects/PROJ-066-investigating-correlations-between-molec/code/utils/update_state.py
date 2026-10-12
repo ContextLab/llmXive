@@ -6,6 +6,7 @@ Records artifact hashes for the project in a PROJECT-OWNED location
 ``state/`` directory and derives artifact hashes itself at verification
 time, so this module must NOT create or write any ``state/`` paths.
 """
+import argparse
 import hashlib
 from datetime import datetime
 from typing import List, Dict, Any
@@ -173,17 +174,41 @@ def update_state(project_id: str, artifacts: List[Dict[str, Any]]) -> None:
 
 def main() -> None:
     """CLI entry point: record hashes for artifact paths given as arguments."""
-    import sys
+    parser = argparse.ArgumentParser(
+        description="Record artifact hashes for the project registry."
+    )
+    parser.add_argument(
+        "--stage",
+        help="Optional stage name (used as source identifier).",
+    )
+    parser.add_argument(
+        "artifact_paths",
+        nargs="*",
+        help="Paths to artifact files whose hashes should be recorded.",
+    )
+    args = parser.parse_args()
 
+    # Build artifact dictionaries. If a stage is provided, use it as the source;
+    # otherwise default to 'cli'.
+    source = args.stage if args.stage else "cli"
     artifacts = [
-        {"artifact_path": p, "source": "cli"}
-        for p in sys.argv[1:]
+        {"artifact_path": p, "source": source}
+        for p in args.artifact_paths
     ]
-    if not artifacts:
-        print("Usage: python utils/update_state.py <artifact_path> [...]")
-        sys.exit(1)
+
+    # Even if no artifact paths are supplied we still update the timestamp
+    # to reflect that the stage was reached.
     update_state(DEFAULT_PROJECT_ID, artifacts)
-    print(f"Recorded {len(artifacts)} artifact hash(es) in {ARTIFACT_REGISTRY_PATH}")
+
+    if args.stage:
+        print(
+            f"Recorded {len(artifacts)} artifact hash(es) for stage '{args.stage}' "
+            f"in {ARTIFACT_REGISTRY_PATH}"
+        )
+    else:
+        print(
+            f"Recorded {len(artifacts)} artifact hash(es) in {ARTIFACT_REGISTRY_PATH}"
+        )
 
 
 if __name__ == "__main__":
