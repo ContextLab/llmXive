@@ -1,0 +1,18 @@
+status: none
+intent: download ENCODE CTCF ATAC H3K27ac windows UCSC reference python package dataset
+required_fields:
+- chromosome
+- window_start
+- window_end
+- strand
+- dna_sequence_1000bp
+- cell_type
+- assay_type
+- ctcf_peak_flag
+- atac_signal_normalized
+- h3k27ac_signal_normalized
+- missing_atac_flag
+- missing_h3k27ac_flag
+cache_key: d185c204f8d7466952847ffc59308ecfb0ab3d8e484539a0d1bce980f742abfb
+searched_at: '2026-10-12T18:20:21.843678+00:00'
+retry_count: 1

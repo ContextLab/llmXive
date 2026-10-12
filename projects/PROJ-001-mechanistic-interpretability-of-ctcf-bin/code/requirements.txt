@@ -1,10 +1,15 @@
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-torch>=2.0.0
-biopython>=1.81
-pyyaml>=6.0
-huggingface_hub>=0.16.0
-datasets>=2.14.0
-requests>=2.31.0
-pytest>=7.4.0
+# Core scientific stack (pinned to ensure reproducibility)
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.0
+torch==2.3.0+cpu
+biopython==1.84
+pyyaml==6.0.2
+huggingface_hub==0.23.0
+datasets==2.20.0
+
+# Additional dependency required for Parquet output
+pyarrow==16.1.0
+
+# Existing utilities already available in the runtime do not need to be listed:
+#   - requests, tqdm, etc. (provided by the platform)

@@ -1,3 +1,58 @@
+T001b:
+  c: true
+  h: 8f166cdabb2ce6f2e6fccc03bcd38e94ffeb71067ac88bcfa3dcf819443c58ab
+  r: "The `code/requirements.txt` file (resolved at `code/requirements.txt`) exists,\
+    \ is non\u2011empty, and lists all required packages\u2014`pandas`, `numpy`, `scikit-learn`,\
+    \ `torch` (CPU\u2011only), `biopython`, `pyyaml`, `huggingface_hub`, and `datasets`\u2014\
+    with exact version pins, satisfying the initialization task."
+  sig: 32ac4cf8226299b7f7af2cbc95fd60d435660eaa0d648b70bf217480ec373578
+T002:
+  c: false
+  h: 6c837549f5fe1c42763ebbaf8fbea328b8b3547132511c161f48c9d8905a9610
+  r: "The evidence contains only the project root path and no linting configuration\
+    \ files (e.g.,\u202F`.flake8`, `pyproject.toml` with Black settings, or a pre\u2011\
+    commit hook). Without these artifacts the requirement to \u201Cconfigure linting\
+    \ (flake8/black) and formatting tools\u201D is not satisfied. Adding the appropriate\
+    \ config files and confirming they are non\u2011empty will be needed."
+  sig: 122dd5c78b864b6234645bc1cab2e23f96ef3714085a83bc253bc7ea93b71fa9
+T003:
+  c: false
+  h: dfc9c152b17f005746e276a8788cf0648af023e3c8556fef50b450a46a6f64e5
+  r: "The repository contains the required `code/data/search_sources.py`, which implements\
+    \ ENCODE queries and writes a JSON with the correct fields, but the expected output\
+    \ file `data/candidate_sources.json` is missing, indicating the script was never\
+    \ run (or failed to produce the file). Additionally, the GEO/SRA search functions\
+    \ are stubs that return empty results, so the script does not actually query those\
+    \ repositories as required. The missing JSON file and incomplete external\u2011\
+    repository querying mean the task is not fully satisfied."
+  sig: cfa44e2790d27f1c5931595984148267634b08c9a47724f9eba00a6f49c6dd29
+T004:
+  c: true
+  h: db49c97c2637674e30e603e2974cd9d7ab1ad8bdce076d9492b9450f2d934e26
+  r: "Checked `code/data/validate_sources.py` (implements URL checks, format validation,\
+    \ and cell\u2011type cross\u2011referencing) and the generated `data/manifest.json`\
+    \ (contains 5 matched cell\u2011type sets, satisfying the \u22655 condition; no\
+    \ gap report is present, as required)."
+  sig: 1aa593919edef33a99b345dbb884d840b3caf2a6b626fbcd8179f33930395bbb
+T005:
+  c: false
+  h: 1c861df79cc004b98c2274066f5169fac2e24d6e3bdb5e978e4d7d4fc85afd15
+  r: "The provided `retrieve_checksum.py` exists and contains download/checksum logic,\
+    \ but it expects each manifest entry to have top\u2011level `url` and `file_type`\
+    \ fields. The actual `data/manifest.json` stores those fields inside nested `chip_seq`,\
+    \ `atac_seq`, and `h3k27ac` objects, so the script will fail to find URLs, skip\
+    \ all entries, and exit with an error, never updating the manifest as required.\
+    \ The implementation must be adapted to the manifest\u2019s nested structure (or\
+    \ the manifest reshaped) for the task to be fulfilled."
+  sig: e7778d6c5b72ec5cf394f59db00b116055e6ba42e91351c227a3826bdaa2dc71
+T006:
+  c: true
+  h: 5ebd7591100bc5f2162319a57f273c38e607a17853f38e96ad75184ad4b00e3a
+  r: "Checked the presence and content of `code/data/generate_halt_report.py`, which\
+    \ correctly implements the conditional generation of `docs/project_halt_report.md`\
+    \ and exits with a non\u2011zero status to halt the pipeline. The required script\
+    \ exists at the specified path and meets the task\u2019s specifications."
+  sig: e106e8adba89667498fcf128b9b6334f3a419b9ad8b04c7fdbe92dd7bd5905f7
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
