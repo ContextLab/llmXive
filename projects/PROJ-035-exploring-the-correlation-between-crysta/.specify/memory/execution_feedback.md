@@ -10,12 +10,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/src/descriptors/compute_descriptors.py: self-declared fabricated metric — “…ceholder implementation using dummy values if ionic radii not available…”
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python code/src/main.py --seed 42`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/descriptors/compute_descriptors.py: self-declared fabricated metric — “…ceholder implementation using dummy values if ionic radii not available…”; 1 command(s) failed: python code/src/main.py --seed 42 (rc=1); 7 declared deliverable(s) absent: data/cleaned/merged_perovskite.csv; data/cleaned/normalized_thermal.csv; data/cleaned/provenance_report.json
@@ -23,14 +17,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/src/main.py --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/code/src/main.py", line 15, in <module>
-    from src.ingest.fetch_thermal import main as fetch_thermal_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/src/ingest/fetch_thermal.py", line 29, in <module>
-    from src.config.env import load_api_key, setup_logger
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/code/src/main.py", line 14, in <module>
+    from src.ingest.fetch_structures import main as fetch_structures_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/src/ingest/fetch_structures.py", line 24, in <module>
+    from config.env import load_api_key
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/src/config/__init__.py", line 3, in <module>
     from .env import (
-ModuleNotFoundError: No module named 'src.config.env'
+ModuleNotFoundError: No module named 'config.env'
+
 
 ## Declared deliverables still missing
 
@@ -49,44 +45,63 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/cleaned/merged_perovskite.csv` is declared but was NOT written. Scripts referencing it:
     - `code/cleaning/clean_merge.py` — NOT invoked by the run-book
     - `code/cleaning/provenance_validator.py` — NOT invoked by the run-book
+    - `code/src/cleaning/clean_merge.py` — NOT invoked by the run-book
+    - `code/src/cleaning/provenance_validator.py` — NOT invoked by the run-book
+    - `code/src/descriptors/compute_descriptors.py` — NOT invoked by the run-book
     - `code/tests/contract/test_schema.py` — NOT invoked by the run-book
     - `code/tests/integration/test_full_pipeline.py` — NOT invoked by the run-book
-    - `code/src/cleaning/clean_merge.py` — NOT invoked by the run-book
-    - `code/src/cleaning/provenance_validator.py` — NOT invoked by the run-book
-    - `code/src/descriptors/compute_descriptors.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/cleaned/merged_perovskite.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `src/analysis/run_sensitivity_exec.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/cleaned/merged_perovskite.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/cleaned/normalized_thermal.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/tests/unit/test_temperature_normalize.py` — NOT invoked by the run-book
     - `code/src/cleaning/clean_merge.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/cleaned/normalized_thermal.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/tests/unit/test_temperature_normalize.py` — NOT invoked by the run-book
+    - `src/cleaning/temperature_normalize.py` — NOT invoked by the run-book
+    - `src/cleaning/temperature_normalize_cli.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/cleaned/normalized_thermal.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/cleaned/provenance_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/cleaning/provenance_validator.py` — NOT invoked by the run-book
-    - `code/tests/unit/test_provenance_validator.py` — NOT invoked by the run-book
     - `code/src/cleaning/provenance_validator.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/cleaned/provenance_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/tests/unit/test_provenance_validator.py` — NOT invoked by the run-book
+    - `src/cleaning/provenance_validator.py` — NOT invoked by the run-book
+    - `src/cleaning/temperature_normalize_cli.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/cleaned/provenance_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/descriptors.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/src/analysis/run_vif_check.py` — NOT invoked by the run-book
+    - `code/src/analysis/stratify.py` — NOT invoked by the run-book
+    - `code/src/descriptors/compute_descriptors.py` — NOT invoked by the run-book
+    - `code/src/main.py` — IS a run-book command
     - `code/tests/unit/test_correlation.py` — NOT invoked by the run-book
     - `code/tests/unit/test_descriptors.py` — NOT invoked by the run-book
-    - `code/src/main.py` — IS a run-book command
-    - `code/src/analysis/stratify.py` — NOT invoked by the run-book
-    - `code/src/analysis/run_vif_check.py` — NOT invoked by the run-book
-    - `code/src/descriptors/compute_descriptors.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/descriptors.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `src/analysis/__init__.py` — NOT invoked by the run-book
+    - `src/analysis/regression.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/descriptors.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/thermal_raw.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/tests/unit/test_provenance_validator.py` — NOT invoked by the run-book
-    - `code/tests/unit/test_temperature_normalize.py` — NOT invoked by the run-book
     - `code/src/cleaning/clean_merge.py` — NOT invoked by the run-book
     - `code/src/cleaning/provenance_validator.py` — NOT invoked by the run-book
     - `code/src/ingest/fetch_thermal.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/thermal_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/tests/unit/test_provenance_validator.py` — NOT invoked by the run-book
+    - `code/tests/unit/test_temperature_normalize.py` — NOT invoked by the run-book
+    - `src/cleaning/provenance_validator.py` — NOT invoked by the run-book
+    - `src/cleaning/temperature_normalize.py` — NOT invoked by the run-book
+    - `src/cleaning/temperature_normalize_cli.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/thermal_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/correlation_matrix.json` is declared but was NOT written. Scripts referencing it:
+    - `code/src/analysis/correlation.py` — NOT invoked by the run-book
     - `code/tests/unit/test_correlation.py` — NOT invoked by the run-book
-    - `code/src/analysis/correlation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/correlation_matrix.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `src/analysis/correlation.py` — NOT invoked by the run-book
+    - `src/analysis/visualize.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/correlation_matrix.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/sensitivity_analysis.json` is declared but was NOT written. Scripts referencing it:
-    - `code/tests/unit/test_sensitivity.py` — NOT invoked by the run-book
-    - `code/src/utils/sensitivity.py` — NOT invoked by the run-book
-    - `code/src/analysis/sensitivity.py` — NOT invoked by the run-book
-    - `code/src/analysis/run_sensitivity_exec.py` — NOT invoked by the run-book
     - `code/src/analysis/correlation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/sensitivity_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/src/analysis/run_sensitivity_exec.py` — NOT invoked by the run-book
+    - `code/src/analysis/sensitivity.py` — NOT invoked by the run-book
+    - `code/src/utils/sensitivity.py` — NOT invoked by the run-book
+    - `code/tests/unit/test_sensitivity.py` — NOT invoked by the run-book
+    - `src/analysis/correlation.py` — NOT invoked by the run-book
+    - `src/analysis/run_sensitivity_exec.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/sensitivity_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.
