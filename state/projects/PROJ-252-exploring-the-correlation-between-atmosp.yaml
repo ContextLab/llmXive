@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T11:40:44.117382Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-252-exploring-the-correlation-between-atmosp
-last_run_id: 9d66f054-6b7f-4dde-ba85-82a3474134c5
+last_run_id: d1af811f-386e-4fd5-a3c6-65c457001326
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp
 title: Exploring the Correlation Between Atmospheric Pressure and Earthquake Precursors
-updated_at: '2026-10-07T19:06:07.526763Z'
+updated_at: '2026-10-12T04:23:47.324071Z'
