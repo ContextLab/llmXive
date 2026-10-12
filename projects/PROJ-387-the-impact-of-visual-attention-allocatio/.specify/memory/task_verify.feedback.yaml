@@ -1,0 +1,94 @@
+T001:
+  reason: "The `scripts/run_pipeline.sh` file exists and correctly checks `data/processed/validation_status.txt`\
+    \ for the string \u201CHALT\u201D. However, the `code/` directory does not match\
+    \ the structure outlined in `plan.md`: it contains extra folders (`.tasks`, `__pycache__`,\
+    \ `data`, `models`, `scripts`) and lacks the expected files such as `ingestion/validate_data.py`,\
+    \ `analysis/lmm_model.py`, `reporting/visualize.py`, `utils/config.py`, etc. The\
+    \ required project structure is therefore not satisfied."
+  task: bf7f982015c93508b218a2bd9b35c729536a85577e6aa54619ada0422725ef0b
+T002:
+  reason: "The repository contains a correctly populated `requirements.txt` with the\
+    \ required packages, but there is no provided evidence (e.g., command output,\
+    \ log, or exit\u2011code capture) showing that `pip install -r requirements.txt`\
+    \ was executed and returned a zero exit status. The implementer must supply proof\
+    \ that the installation succeeds."
+  task: d8a4b97566b2b6ee730a547789dfa451a333fd552c5fbea8f6ef3695ef3b4a0a
+T003:
+  reason: "The `pyproject.toml` correctly contains `[tool.black]` and `[tool.flake8]`\
+    \ sections, but there is no provided evidence (e.g., command output, CI log, test\
+    \ file) showing that `black --check code/` was executed and returned exit code\u202F\
+    0. Without that verification artifact, the task\u2019s requirement is not fully\
+    \ satisfied."
+  task: aab0ddc62cfd11e1fb41de9cddcaac592798b35865f320a383322a2308640ed4
+T004:
+  task: ac37ab9e403d8fed45f831f675a735b415188866079448e73cf320e1e5f803bb
+T005:
+  task: be4282139c63adb06046b9e5ae654f72f1f8a462afdc425eee4d34b88e010af8
+T006:
+  task: c76a0815c770520701655f2d899a3d0e007318b62ae35f65125ba6452e5087d5
+T007:
+  task: 482ab4700e468ab700ae7ee73b604d72330a6fe603f8032d7704a2f493a0dc0f
+T008:
+  task: e490929fd30358036cdb429c058b87031b01a21369e2f3c49a8fa3bab46adb23
+T012:
+  task: 2b1baf12fed4f7d9d034ec513ee60f4d02755695e838c8973cfe652007d4fe57
+T013:
+  task: 3455ebba6679ceacdba1999fd2c86ae5575c6f2ea44020412ad2b227972f563c
+T014:
+  task: e1ea2bb6d55c1ce304609cc6957652cc7c49525f7449c0eab848d1e8face9f8d
+T015:
+  task: adab7f6f0ffa1eebecce5e87fd13dbbed623b07f4af610624b7aa6a8878294f0
+T016:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/validate_data.py
+    exit=1'
+  task: 351de7f177aa272f85233fefa3f05567dc7b1e273e49bb2bc1e34b5b5e786bfb
+T017:
+  task: 66a7f9867b1c75ff8ea36b21c520e5a51ee626e59c113d8407626da322950fda
+T018:
+  task: c87f7b837e3d91537f56fc48a647e168d4274365569d51407bde0147ce4c84df
+T019:
+  task: d36929dc2bb651a72f3e66439368a9d0e341a1ec7e63e893da6f76a426665307
+T020:
+  task: 614004ab8012ce4bc70ea9beaa190b7826bd398aef6a7c83949e7efc33b1a99e
+T021:
+  task: dd9ed8ad26c344ebd9d1c128df9adf898bf938fde88f80caca4648364a307bf8
+T022:
+  task: 051774c7628feaef37885d028c05b39b22205ac8d29d6a309fb6883745a34494
+T023:
+  task: 2dc1c11b66d2a3f9fb9120ddf9884cbbb2d18e06eed7b2ddd7abef4810e6626e
+T024:
+  task: d0d6ebaf7fad9ea3d59eb9d861e9021ef43e8c919b9cc0874778f38ed679e739
+T025:
+  task: 56185a463562f494f4eb0562c4f749c8b883a38c4306386a11304f92920e1e30
+T026:
+  task: 9831cdfec5a93e67ff4c846ab55dbdec47bb27ea004039b0e50f18e084faa24e
+T032:
+  task: 82e89916194e718364326a4706ad2c62c5f98f8dbce086d02795da04710021b7
+T033:
+  task: 010bfb5afcfc7b5201b875d622ee62e083bd6b9ba889fb2d3bf5cf3ed5ff17cf
+T034:
+  task: bad2f6366e720b63caae2223d5869ada040adaa5739f01bc649091c57167e948
+T035:
+  task: b43d12cc1fc4ff1ced185fe460fa38b59c91e98393ee2e1529e7b5a0ba6f22d2
+T039:
+  task: 5f800fdb7cd711094e656e359c0dab403cfe694bcf8ea44b1c80dfc249fad4f7
+T040:
+  task: cecc8d7d810e1d94ba2bea85053547ec4f8544fbac89e4aa513241cfd5b91595
+T041:
+  task: 75de2254d2df5124254306da37146c1f91a922e1e8090f50d9e89aecf4cd19e0
+T042:
+  task: 7c00be48eaa37d13d5ddecc348953611b05306fbeabb6524baf5e1440c5a8099
+T043:
+  task: a2ce75b496ea25f583215c864b32d78b430d35d8fe768aabb812e9a4077c63c5
+T044:
+  task: cfd75e573e25029d50c70f8900833704b997665428710d9fc5ce0e8b01f3d39c
+T045:
+  task: 134b60779c7e717e4f07fd9bead93bc1af8eda1a228cc08b3d7ffa67e4468d46
+T046:
+  task: 7268e38a6828b74db5cca4045f840c11e0307d2e82aa174bfde123031b39830c
+T047:
+  task: ec989b08255909abae4729f79e2a057eb3658251ee4195577a809419025a9921
+T048:
+  task: 0f755fb6e6e839e651eab8d06c8f65140bf2fa5cf321001ce07988250fe663ac
+T049:
+  task: daccea0ee25373f926bc03289060cbcf88b0635e2696f5f1c53b101aee73db47
