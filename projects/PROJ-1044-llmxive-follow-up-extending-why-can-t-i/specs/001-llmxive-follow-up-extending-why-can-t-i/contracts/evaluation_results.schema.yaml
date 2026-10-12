@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results"
+type: object
+required:
+  - model_id
+  - lambda
+  - seed
+  - accuracy_original
+  - accuracy_counterfactual
+  - delta_accuracy
+  - accuracy_motion_only
+  - lambda_sweep
+  - timestamp
+properties:
+  model_id:
+    type: string
+    description: "Human‑readable identifier for the trained model."
+  lambda:
+    type: number
+    description: "Weight of the counterfactual consistency loss."
+  seed:
+    type: integer
+    description: "Random seed used for training."
+  accuracy_original:
+    type: number
+    description: "Accuracy on original validation set (0‑1)."
+  accuracy_counterfactual:
+    type: number
+    description: "Accuracy on swapped (counterfactual) validation set (0‑1)."
+  delta_accuracy:
+    type: number
+    description: "Difference Acc_original - Acc_counterfactual."
+  accuracy_motion_only:
+    type: number
+    description: "Accuracy on the motion‑only test set (objects blurred)."
+  paired_t_statistic:
+    type: number
+    description: "t‑statistic from paired t‑test (only in aggregated summary row)."
+  p_value:
+    type: number
+    description: "Two‑tailed p‑value from paired t‑test (only in aggregated summary row)."
+  lambda_sweep:
+    type: boolean
+    description: "True if this row belongs to the λ‑sweep experiment."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 UTC timestamp of evaluation."

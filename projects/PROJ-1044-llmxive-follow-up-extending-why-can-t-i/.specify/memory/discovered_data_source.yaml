@@ -1,0 +1,15 @@
+status: none
+intent: pip install Something-Something V2 official dataset download package python
+  package dataset
+required_fields:
+- video_id
+- video_path
+- label
+- label_name
+- template
+- split
+- duration
+- fps
+cache_key: 01457fe5c3eb698fd1a2c6c0741683b78166d7aec6e03a9818bf7d26f1ce8bc7
+searched_at: '2026-10-12T05:17:50.285795+00:00'
+retry_count: 1

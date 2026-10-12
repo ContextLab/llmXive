@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Counterfactual Pair Metadata"
+type: object
+required:
+  - original_video_path
+  - counterfactual_video_path
+  - original_object_class
+  - swapped_object_class
+  - bbox
+  - patch_source_id
+  - optical_flow_divergence
+  - generation_timestamp
+  - status
+properties:
+  original_video_path:
+    type: string
+    description: "Relative path to the original synthetic video."
+  counterfactual_video_path:
+    type: string
+    description: "Relative path to the generated counterfactual video."
+  original_object_class:
+    type: string
+    description: "Semantic label of the primary object in the original video."
+  swapped_object_class:
+    type: string
+    description: "Semantic label of the object used for the swap; must differ from original."
+  bbox:
+    type: array
+    items:
+      type: number
+    minItems: 4
+    maxItems: 4
+    description: "Normalized [x_min, y_min, x_max, y_max] of the detected primary object."
+  patch_source_id:
+    type: string
+    description: "Identifier of the image patch used for swapping."
+  optical_flow_divergence:
+    type: number
+    description: "Normalized L2 distance between original and counterfactual optical-flow fields."
+  generation_timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 UTC timestamp of generation."
+  status:
+    type: string
+    enum: ["accepted", "rejected"]
+    description: "Whether the pair passed the divergence threshold (≤ 0.15)."
