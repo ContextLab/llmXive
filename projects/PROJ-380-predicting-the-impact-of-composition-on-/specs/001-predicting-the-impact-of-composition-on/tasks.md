@@ -20,11 +20,11 @@ pipeline can run on a tiny real input. |
   *Path*: `./` (directory layout)  
   *Verification*: `tree` output contains all listed top‑level folders; `git status` shows them untracked.
 
-- [ ] T002 **Initialize Python 3.11 project** – write `requirements.txt` with pinned versions of `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `mendeleev`, `requests`, `pyyaml`.  
+- [X] T002 **Initialize Python 3.11 project** – write `requirements.txt` with pinned versions of `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `mendeleev`, `requests`, `pyyaml`.  
   *Path*: `requirements.txt`  
   *Verification*: `pip install -r requirements.txt` completes without conflict; `pip freeze` matches pinned versions.
 
-- [ ] T003 **Configure linting and formatting** – add configuration files `.ruff.toml`, `.flake8`, and `pyproject.toml` (with `[tool.black]` section) and a helper script `scripts/lint.sh` that runs the three tools.  
+- [ ] T003 **Configure linting and formatting** – add configuration files `.ruff.toml`, `.flake8`, and `pyproject.toml` (with `[tool.black]` section) and a helper script `scripts/lint.sh` that runs the three tools.   <!-- FAILED-IN-EXECUTION: scripts/lint.sh exit=1 -->
   *Paths*: `.ruff.toml`, `.flake8`, `pyproject.toml`, `scripts/lint.sh`  
   *Verification*: Running `bash scripts/lint.sh` exits with code 0 and produces no linting errors on the current code base; existence of each config file is asserted.
 

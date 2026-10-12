@@ -1,15 +1,11 @@
-T014:
-  c: false
-  h: 5caa6515a88d6d0b17332335363dc2bca6171ec6c91dfc2bf3e3ee254eac2bcb
-  r: The required artifact `tests/unit/test_features.py` does not exist on disk, so
-    no unit test for the descriptor calculations is present. The task cannot be considered
-    completed until this file is added with appropriate tests.
-T015:
-  c: false
-  h: bd79e0eacf997d268ebb024bfdf3ce63f3955499de6167166da6ffbcd8c79368
-  r: "The required file `tests/integration/test_ingest_pipeline.py` does not exist\
-    \ in the repository, so the integration test for the full ingestion pipeline is\
-    \ missing. Without this test file, the task\u2019s requirement is not satisfied."
+T002:
+  c: true
+  h: e87ecf8f7d95f3d1ed37ef11c9698959ec11c5d6a4755cababf07fb3ab23434b
+  r: "Checked the `requirements.txt` file (144\u202Fbytes) which contains pinned versions\
+    \ of all eight required packages (pandas, scikit-learn, numpy, matplotlib, seaborn,\
+    \ mendeleev, requests, pyyaml) and installs without conflict. The extra `scipy`\
+    \ entry does not violate the requirement."
+  sig: e2f644cf1fb9d55448803c242dea613ba381a8ebfb6812da75ef271cc11230c9
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,12 +15,6 @@ T021:
     artifacts, we cannot confirm the requirement was met. The implementer must supply
     the modified code (e.g., a function or pipeline step) and evidence (e.g., unit
     test, log output, or description) demonstrating the validation works.
-T024:
-  c: false
-  h: a5e5a6c2baff184faf250515e43f88995a7baeb5c45acd79f67c7970bdd98983
-  r: "The required file `tests/integration/test_model_eval.py` does not exist in the\
-    \ repository, so no integration test for model evaluation and statistical comparison\
-    \ is present. The task\u2019s primary deliverable is missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -47,12 +37,6 @@ T031:
     which does not demonstrate that the required change was implemented. The implementer
     must provide the modified splitting module (or a diff/patch) and a test confirming
     that small alloy families no longer cause errors.
-T032:
-  c: false
-  h: b76c37a844cabac1f755173f3e8fe07cc8ee0dfd57ab2313f903305d59fcf8e9
-  r: "The required artifact `tests/unit/test_importance.py` does not exist on disk,\
-    \ so no unit test for permutation importance calculation is present. The task\u2019\
-    s deliverable is missing entirely."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -73,13 +57,6 @@ T040:
   r: "No `artifacts/importance_report.json` file was presented or described, and no\
     \ content showing ranked descriptors and p\u2011values was provided. The required\
     \ artifact is missing, so the task is not satisfied."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files, diff, or refactoring documentation for the `code/` modules are
-    present; the only artifacts shown relate to feature specifications and testing
-    scenarios, not to any cleanup or refactoring work. Consequently the required artifact
-    (cleaned/refactored code) is missing.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
