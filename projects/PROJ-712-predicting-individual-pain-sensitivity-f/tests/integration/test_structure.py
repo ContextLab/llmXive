@@ -27,7 +27,6 @@ def test_create_dirs():
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "artifacts",
-        project_root / "state",
         project_root / "code",
         project_root / "tests",
     ]

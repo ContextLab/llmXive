@@ -1,7 +1,7 @@
 {
   "task_id": "T006",
   "fingerprint": "d3e42162ccdbd99889e571ccaf45690a93aa5f63613c43f001cc6d174f62e3b5",
-  "count": 1,
+  "count": 2,
   "model": "openai.gpt-oss-120b",
   "reason": "[implementer] refused 'data_loader.py': `code/data_loader.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
 }

@@ -26,14 +26,21 @@ import yaml
 # ----------------------------------------------------------------------
 # Global constants
 # ----------------------------------------------------------------------
-STATE_DIR = Path("state")
-LOG_FILE = STATE_DIR / "log.txt"
+# NOTE: The platform owns the ``state/`` directory.  All project‑owned
+# artifacts must live outside of that location.  Logging is therefore
+# directed to a project‑owned ``logs/`` folder.
+LOG_DIR = Path("logs")
+LOG_FILE = LOG_DIR / "log.txt"
 DEFAULT_LOG_LEVEL = logging.INFO
 MAX_EXECUTION_SECONDS = 6 * 60 * 60  # 6 hours
 
-# Ensure the state directory exists for logging
-STATE_DIR.mkdir(parents=True, exist_ok=True)
+# Ensure the logs directory exists for file‑based logging.
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+# ``STATE_DIR`` is retained for backward compatibility with helper
+# functions that store checksum/state information.  It is **not**
+# used for logging to avoid writing into the platform‑owned directory.
+STATE_DIR = Path("state")
 
 # ----------------------------------------------------------------------
 # Seed handling
@@ -59,7 +66,7 @@ def set_global_seed(seed: int = 42) -> None:
 # ----------------------------------------------------------------------
 def _ensure_log_file_handler(logger: logging.Logger) -> None:
     """
-    Attach a ``FileHandler`` that writes to ``state/log.txt``.
+    Attach a ``FileHandler`` that writes to ``logs/log.txt``.
 
     The handler is added only once per logger instance.
     """
@@ -81,7 +88,7 @@ def setup_logging(name_or_level: Union[int, str] = DEFAULT_LOG_LEVEL) -> logging
       defaults to ``INFO``.
 
     Returns a logger instance configured with a console handler and a
-    file handler that writes to ``state/log.txt``.
+    file handler that writes to ``logs/log.txt``.
     """
     if isinstance(name_or_level, int):
         level = name_or_level
@@ -174,7 +181,7 @@ def record_artifact_hash(
         "timestamp": get_current_timestamp(),
     }
 
-    # Write back
+    # Write back (parent directories are created if needed)
     state_path.parent.mkdir(parents=True, exist_ok=True)
     with state_path.open("w") as sf:
         yaml.safe_dump(state_data, sf)

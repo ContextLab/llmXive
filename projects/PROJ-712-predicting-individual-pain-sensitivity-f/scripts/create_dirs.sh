@@ -9,7 +9,6 @@
 #   data/raw
 #   data/processed
 #   artifacts
-#   state
 #   code
 #   tests
 #
@@ -17,6 +16,6 @@
 # ------------------------------------------------------------
 set -euo pipefail
 
-mkdir -p data/raw data/processed artifacts state code tests
+mkdir -p data/raw data/processed artifacts code tests
 
 echo "Directory structure created successfully."
