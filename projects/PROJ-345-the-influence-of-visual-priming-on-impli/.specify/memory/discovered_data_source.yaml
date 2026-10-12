@@ -3,12 +3,11 @@ intent: download Open Science Framework IAT response time dataset with facial st
   metadata python package dataset
 required_fields:
 - trial_id
-- participant_id
-- block_number
-- response_time_ms
+- response_time
 - stimulus_image_path
+- stimulus_id
 - prime_valence_label
 - stimulus_ambiguity_score
-cache_key: 86301d6a90caf4c91721d7674877550463e6f970a285a20be5d2acad1dc48a23
-searched_at: '2026-10-12T13:32:26.081833+00:00'
+cache_key: 37342a0f5f5b80d5deafaee903973604a8829f68160f2903e86d0233ca73daac
+searched_at: '2026-10-12T17:12:33.855381+00:00'
 retry_count: 1

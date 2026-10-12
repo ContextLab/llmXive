@@ -127,13 +127,12 @@ reports/
 
 ### Dependency Corrections (addressing panel concerns)
 * **Threshold definition** moved entirely to `config.py`; no circular write/read between tasks.  
-* **Confounding Check** (previously T023) removed because it was unrelated to the core research question; the pipeline no longer serializes aggregation on a diagnostic.  
-* **Aggregation (previous T024)** is now omitted – the model works directly on `linked_trials.csv`; no separate aggregation step is needed.  
-* **VIF (previous T027a)** is now **pre‑fit** (Task T007).  
-* **Optimizer fallback (T047)** is embedded in T008, not a separate task.  
+* **Confounding Check** removed because it was unrelated to the core research question.  
+* **Aggregation** step removed – the model works directly on `linked_trials.csv`.  
+* **VIF** now pre‑fit (Task T007).  
+* **Optimizer fallback** embedded in T008; no separate task needed.  
 * **URL source of truth** – `verified_sources.json` is authoritative (Task T015).  
-* **Logging** – `code/main.py` creates `code/logs/pipeline.log` on first run (Task T001 ensures the directory exists).  
-* **Pip.conf** – creation is part of the repository; `PIP_CONFIG_FILE=code/pip.conf pip install -r code/requirements.txt` is documented in Quickstart.  
+* **`pip.conf`** creation is part of the repository; `PIP_CONFIG_FILE=code/pip.conf pip install -r code/requirements.txt` is documented in Quickstart.  
 * **Streaming verification** uses a >7 GB synthetic file (Task T014) to satisfy the >7 GB condition.  
 
 All functional requirements (FR‑001 – FR‑006) and success criteria (SC‑001 – SC‑003) are explicitly mapped to tasks above.
