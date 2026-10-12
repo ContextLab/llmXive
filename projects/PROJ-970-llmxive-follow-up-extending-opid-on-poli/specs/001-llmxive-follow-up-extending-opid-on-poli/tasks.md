@@ -16,10 +16,10 @@
 - [ ] T002 **Add `__init__.py` to every package**  
   Files: `src/__init__.py`, `src/environment/__init__.py`, `src/agent/__init__.py`, `src/simulation/__init__.py`, `src/analysis/__init__.py`, `src/utils/__init__.py`, `tests/__init__.py`  
   *Verification*: Import each package in a Python REPL (`import src.environment`) without error.  
-- [ ] T003 **Create `requirements.txt`** (pinned CPU‑only versions)  
+- [X] T003 **Create `requirements.txt`** (pinned CPU‑only versions)  
   Contents: `networkx==3.2.1`, `numpy==1.26.4`, `pandas==2.2.1`, `scipy==1.13.0`, `statsmodels==0.14.2`, `pytest==8.1.1`  
   *Verification*: `pip install -r requirements.txt` succeeds in a fresh venv.  
-- [ ] T004 **Add `pyproject.toml` and `ruff.toml` for formatting/linting** (optional, parallel)  
+- [X] T004 **Add `pyproject.toml` and `ruff.toml` for formatting/linting** (optional, parallel)  
   *Verification*: `ruff check .` runs with zero warnings.  
 
 ---

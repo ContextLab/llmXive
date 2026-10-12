@@ -13,18 +13,28 @@ import subprocess
 import sys
 from pathlib import Path
 
-def _project_root() -> Path:
+def _repo_root() -> Path:
     """
     Return the repository root directory assuming this script lives in
     ``code/`` (one level below the root).
     """
+    # The script is at <repo_root>/code/create_hierarchy.py
+    # Its parent is the ``code`` directory; the repo root is its parent.
     return Path(__file__).resolve().parent.parent
 
-def _create_dirs(root: Path) -> None:
+def _code_dir() -> Path:
     """
-    Create all required directories and a placeholder README.md in each.
+    Return the ``code`` directory where the source hierarchy should be created.
     """
-    # Base directories required by the specification
+    # ``code`` directory is the parent of this script.
+    return Path(__file__).resolve().parent
+
+def _create_dirs(base: Path) -> None:
+    """
+    Create all required directories under the ``code`` folder and a placeholder
+    README.md in each.
+    """
+    # Directories required by the specification, relative to the ``code`` folder.
     dirs = [
         Path("src"),
         Path("src/environment"),
@@ -38,7 +48,7 @@ def _create_dirs(root: Path) -> None:
     ]
 
     for rel_path in dirs:
-        dir_path = root / rel_path
+        dir_path = base / rel_path
         dir_path.mkdir(parents=True, exist_ok=True)
 
         readme_path = dir_path / "README.md"
@@ -74,15 +84,24 @@ def _write_output(root: Path, content: str) -> None:
     """
     Write the tree output to ``data/processed/dir_structure.txt``.
     """
-    out_path = root / "data/processed/dir_structure.txt"
+    out_path = root / "data" / "processed" / "dir_structure.txt"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(content)
 
 def main() -> None:
-    root = _project_root()
-    _create_dirs(root)
-    tree_output = _run_tree(root)
-    _write_output(root, tree_output)
-    print(f"Directory structure written to {root / 'data/processed/dir_structure.txt'}")
+    repo_root = _repo_root()
+    code_root = _code_dir()
+
+    # Create the required hierarchy inside the ``code`` directory.
+    _create_dirs(code_root)
+
+    # Capture the directory tree of the repository root.
+    tree_output = _run_tree(repo_root)
+
+    # Write the captured tree to the expected location.
+    _write_output(repo_root, tree_output)
+
+    print(f"Directory structure written to {repo_root / 'data' / 'processed' / 'dir_structure.txt'}")
 
 if __name__ == "__main__":
     main()

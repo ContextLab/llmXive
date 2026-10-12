@@ -8,12 +8,6 @@ The purpose is to verify that the estimated runtime reported by
 ``src.config.verify_feasibility`` (which must be ≤ 6 h) is realistic after
 any refactoring or optimisation work.
 
-The script is deliberately lightweight: it does not alter any configuration
-values; it simply measures the time taken by the current implementation.
-If the runtime exceeds expectations, developers can use the generated log
-to identify bottlenecks and apply vectorised NumPy operations or streaming I/O
-as indicated in the task description.
-
 Usage (from the repository root):
     python -m profiling.profile_sweep
 
@@ -22,9 +16,10 @@ The script respects the project‑wide random seed and logging conventions.
 import time
 from llmxive_toolkit import paths, get_logger
 
-# Project imports
-from config import set_seed, verify_feasibility
-from experiments.runner import ExperimentRunner
+# Project imports – use absolute imports relative to the repository root.
+# The source files live under the ``code`` directory.
+from code.config import set_seed, verify_feasibility
+from code.experiments.runner import ExperimentRunner
 
 def main() -> None:
     """

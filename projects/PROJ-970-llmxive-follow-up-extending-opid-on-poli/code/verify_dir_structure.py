@@ -1,38 +1,68 @@
 """
 verify_dir_structure.py
 
-This script verifies the project directory structure by invoking the
-external ``tree`` command (depth limited to 2) from the project root and
-writing its output to ``data/processed/dir_structure.txt``.
+This script verifies the project directory structure by enumerating
+directories up to a depth of two levels from the repository root and
+writing their relative paths to ``data/processed/dir_structure.txt``.
 
-It is used to satisfy task **T001a** which requires capturing the
-directory tree listing.
+It is used to satisfy task **T001a**, which requires capturing a
+directory‑tree listing that contains explicit path strings such as
+``src/environment`` so that unit tests can perform simple substring
+checks.
 """
-import subprocess
+import os
+from pathlib import Path
+
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
+def _collect_directories(root: Path, max_depth: int = 2) -> list[str]:
+    """
+    Recursively collect directory paths relative to *root* up to *max_depth*.
+
+    Parameters
+    ----------
+    root: Path
+        The repository root.
+    max_depth: int
+        Maximum depth (0 = root itself, 1 = immediate children, etc.).
+
+    Returns
+    -------
+    List[str]
+        Relative POSIX‑style directory paths (e.g. ``src/environment``).
+    """
+    dirs: list[str] = []
+
+    def _helper(current: Path, depth: int) -> None:
+        if depth > max_depth:
+            return
+        for child in sorted(current.iterdir()):
+            if child.is_dir():
+                rel_path = child.relative_to(root).as_posix()
+                dirs.append(rel_path)
+                _helper(child, depth + 1)
+
+    _helper(root, 0)
+    return dirs
+
 def main() -> None:
     """
-    Execute ``tree -L 2`` in the repository root and write the output
-    to ``data/processed/dir_structure.txt``.
+    Write a plain‑text list of directory paths (up to depth 2) to
+    ``data/processed/dir_structure.txt``.
     """
     root_path = paths.root
-    log.info("Running `tree -L 2` on project root: %s", root_path)
+    log.info("Collecting directory structure from project root: %s", root_path)
 
-    # Run the external ``tree`` command. ``check=True`` raises an error
-    # if the command fails (e.g., ``tree`` not installed), which is
-    # desirable because we must not silently fallback to synthetic data.
-    result = subprocess.run(
-        ["tree", "-L", "2", str(root_path)],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
+    dir_list = _collect_directories(root_path, max_depth=2)
 
     output_path = paths.data("processed", "dir_structure.txt")
-    output_path.write_text(result.stdout)
+    # Ensure the parent directory exists (paths.data creates it)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write each directory on its own line.
+    output_path.write_text("\n".join(dir_list) + "\n")
     log.info("Directory structure written to %s", output_path)
 
 if __name__ == "__main__":

@@ -18,74 +18,41 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.environment.graph_generator --output data/raw/synthetic_graphs -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/__init__.py", line 9, in <module>
-    from . import environment  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/environment/__init__.py", line 8, in <module>
-    from .state_graph import Node, Edge, StateGraph  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'src.environment.state_graph'
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.environment.graph_generator
 
 - python -m src.simulation.runner --config src/config.py --output data/processed/episode_results.csv -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/__init__.py", line 9, in <module>
-    from . import environment  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/environment/__init__.py", line 8, in <module>
-    from .state_graph import Node, Edge, StateGraph  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'src.environment.state_graph'
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.simulation.runner
 
 - python -m src.analysis.aggregation --input data/processed/episode_results.csv --output data/processed/aggregated_metrics.csv -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/__init__.py", line 9, in <module>
-    from . import environment  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/environment/__init__.py", line 8, in <module>
-    from .state_graph import Node, Edge, StateGraph  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'src.environment.state_graph'
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.analysis.aggregation
 
 - python -m src.analysis.regression --input data/processed/aggregated_metrics.csv -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/__init__.py", line 9, in <module>
-    from . import environment  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/src/environment/__init__.py", line 8, in <module>
-    from .state_graph import Node, Edge, StateGraph  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'src.environment.state_graph'
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-970-llmxive-follow-up-extending-opid-on-poli/bin/python: No module named src.analysis.regression
 
 - python -m pytest tests/unit/ -v -> rc=2
-ts/unit/test_setup_data_dirs.py ______________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/tests/unit/test_setup_data_dirs.py'.
+unit/test_profile_sweep.py _______________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/tests/unit/test_profile_sweep.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_setup_data_dirs.py:9: in <module>
-    from setup_data_dirs import create_directories, REQUIRED_DIRS
-E   ImportError: cannot import name 'REQUIRED_DIRS' from 'setup_data_dirs' (/home/runner/work/llmXive/llmXive/projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code/setup_data_dirs.py)
+tests/unit/test_profile_sweep.py:17: in <module>
+    from profiling import profile_sweep
+code/profiling/profile_sweep.py:22: in <module>
+    from code.experiments.runner import ExperimentRunner
+code/experiments/runner.py:10: in <module>
+    from env.graph_generator import GraphGenerator, GraphGeneratorConfig
+E   ModuleNotFoundError: No module named 'env'
 =========================== short test summary info ============================
 ERROR tests/unit/test_graph_generator.py
 ERROR tests/unit/test_metrics.py
 ERROR tests/unit/test_policy.py
 ERROR tests/unit/test_profile_sweep.py
-ERROR tests/unit/test_setup_data_dirs.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 0.35s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 0.31s ===============================
 
 
 - python -m pytest tests/integration/test_full_loop.py -v -> rc=4
@@ -114,7 +81,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/episode_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/stats.py` — NOT invoked by the run-book
     - `code/analysis/success_rate.py` — NOT invoked by the run-book
-    - `code/experiments/episode_runner.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
     - `code/experiments/runner.py` — NOT invoked by the run-book
     - `code/experiments/sweep_logic.py` — NOT invoked by the run-book
     - `code/simulation/runner.py` — NOT invoked by the run-book
