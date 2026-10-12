@@ -23,7 +23,7 @@ properties:
     description: "Semantic label of the primary object in the original video."
   swapped_object_class:
     type: string
-    description: "Semantic label of the object used for the swap; must differ from original."
+    description: "Semantic label of the object used for swapping; must differ from original."
   bbox:
     type: array
     items:
@@ -40,7 +40,7 @@ properties:
   generation_timestamp:
     type: string
     format: date-time
-    description: "ISO‑8601 UTC timestamp of generation."
+    description: "ISO-8601 UTC timestamp of generation."
   status:
     type: string
     enum: ["accepted", "rejected"]

@@ -1,15 +1,13 @@
 status: none
-intent: download Something-Something V2 video dataset with segmentation masks python
-  package dataset
+intent: Something-Something V2 video dataset download python package dataset
 required_fields:
 - video_id
-- video_url_or_local_path
+- video_file_path
+- action_label
+- primary_object_class
+- primary_object_bbox_per_frame
 - frame_rate
-- duration_seconds
-- primary_object_class_label
-- per_frame_object_segmentation_masks
-- per_frame_optical_flow_vectors
-- train_val_test_split
-cache_key: 482b9056a2d6af8f7022d164a46d232934b255a402ef503a7f8eab4c37648769
-searched_at: '2026-10-12T07:55:11.588454+00:00'
+- duration
+cache_key: 82103e75c676a227425e40659fb7bc62b8af27329b7e1e3067cb09494aa587d6
+searched_at: '2026-10-12T07:57:54.498172+00:00'
 retry_count: 1
