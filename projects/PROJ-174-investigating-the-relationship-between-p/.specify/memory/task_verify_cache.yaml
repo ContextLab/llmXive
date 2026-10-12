@@ -1,10 +1,68 @@
+T002a:
+  c: false
+  h: 5eb6c9b453c249ebfdec0c075034fae3b7d509e9db2f3e08b5b07e755450ec1f
+  r: "The `code/requirements.txt` exists but contains unpinned package names only\
+    \ \u2014 none of the required pinned versions (e.g., `pandas==2.0.3`, `numpy==1.24.3`,\
+    \ etc.) are present. Additionally, there is no evidence of the required verification\
+    \ step (`pip install -r code/requirements.txt` exiting 0)."
+  sig: 9b9e9e55599ab309a9ce9b5697d849274895243ad1f4b60783527910da962c08
 T002b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/.venv` directory or any script/output showing that a Python\u202F3.11\
-    \ virtual environment was created and dependencies installed; consequently the\
-    \ required verification command (`code/.venv/bin/python --version`) and its 3.11.x\
-    \ output are absent. The task\u2019s core artifact is missing."
+  h: b313beb63c8af5339b04e4a6328c2955cfd2ff00aecd713d11ddec2f22dce84d
+  r: The `code/` directory listing (24 entries) contains no `.venv` directory, and
+    there is no execution evidence that `code/.venv/bin/python --version` was run
+    or that it output '3.11'. While `requirements.txt` exists (satisfying the T002a
+    dependency), the required virtual environment itself is absent, so the verification
+    step cannot have passed.
+  sig: 14d8bb9c173d8b66e48bd7d4520d3efb2a0de71af7b612c3a89e9e8223fd3091
+T002c:
+  c: false
+  h: eadc823ba37714da207f78b7df73e10d319bf3b17b830fc61f8affd4e4760cb1
+  r: "The script hard-codes `INVALID_FMRI_DATASETS = {\"ds001734\", \"ds002642\"}`\
+    \ and a static allowlist, directly violating the task's explicit \"Do NOT hard-code\
+    \ ID rejection\" and \"MUST validate against the dataset type metadata\" requirements\
+    \ \u2014 it never uses the `datasets` library or OpenNeuro metadata API to check\
+    \ dataset type, and its fallback accepts any 8-character `dsXXXXXX` ID not in\
+    \ the invalid list. Additionally, the \"download\" is a simulated stand-in (writes\
+    \ a `.verified` marker and fabricated `meta.json` with a hardcoded 2024 timestamp\
+    \ instead of actual data), `data/raw/` is missing, the req"
+  sig: fc73c4d4d987b6d5a0efc4a889321a30d37bbb669431da18b93c7daf24f2bd98
+T005a:
+  c: false
+  h: ae26ee4d1a8b9836b91a5d23a619cdd365fe838a664be5cb78744df6bd903cb1
+  r: 'The module `code/utils/logging_config.py` exists and correctly defines `LoggingContext`
+    with `add_exclusion` and `write_report` (initializing the CSV with `exclusion_type,
+    count` headers), but there is no evidence the required verification was performed:
+    `results/quality_report.csv` is MISSING, even though the module''s own `main()`
+    would create it if executed, and no test/execution output is supplied showing
+    the class was instantiated and methods asserted. The implementer should run the
+    verification (e.g., `python code/utils/logging_config.py` from the project root)
+    so `results/quality_report.'
+  sig: e13628ee31fd290a3fe1a32174517769d6581bfa844c0aa5e75d668bc9b2d867
+T005b:
+  c: false
+  h: ed3aad209c92223c30944120a678022ecceb19023f3742aa57a28f105ff05990
+  r: "The `logging_config.py` implementation itself is substantive and correct (LoggingContext.write_report\
+    \ initializes `results/quality_report.csv` with headers `[exclusion_type, count]`\
+    \ via initialize_quality_report), but the task's explicit verification requirement\
+    \ \u2014 calling `write_report` and asserting the file exists with correct headers\
+    \ \u2014 has no execution evidence: `results/quality_report.csv` is MISSING, showing\
+    \ the built-in verification (`main()`) was never actually run. The implementer\
+    \ should execute the module (or an equivalent test) from the project directory\
+    \ so the report file is created"
+  sig: 00223d364c7af635b4ee03fc828b3c71a096830543d7be96fc41e8f83bd9659f
+T005c:
+  c: false
+  h: d5bdc5c7bd30e025418a12f6c7efedac4a6d9306709ea30f16ef896a5a07db58
+  r: 'The test file exists, but it is incompatible with the actual `code/logging_config.py`:
+    it imports `QUALITY_REPORT_PATH` (not defined anywhere in that module), calls
+    `initialize_quality_report()` with no arguments (the implementation requires `report_path`),
+    and constructs `LoggingContext()` with no arguments (the implementation requires
+    `report_path`). The test would fail at import time. Additionally, `results/quality_report.csv`
+    is missing and there is no execution evidence (e.g., pytest output) that the tests
+    pass. The test must be rewritten to match the real `logging_config` API (or the
+    mod'
+  sig: 654bce546b9d0e5f913694c691377fd4bbd1285fba7597c47e813ba67d7ed1df
 T010:
   c: false
   h: 000542c516a1e82fd3e02d8ec3f967521c4e8e3a24940d337bd8e7a5c0c928c6

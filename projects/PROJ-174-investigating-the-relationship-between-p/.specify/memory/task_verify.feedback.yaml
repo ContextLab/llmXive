@@ -1,0 +1,160 @@
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: a7099f0fbc331bf258e976faef3586a4975404819f29a13838aa077ff65135b1
+T001b:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 16daa65ee375d9d74b1d6075bb2a4dab6d52dfa8f9043907dcc8b930add348d6
+T002a:
+  reason: "The `code/requirements.txt` exists but contains unpinned package names\
+    \ only \u2014 none of the required pinned versions (e.g., `pandas==2.0.3`, `numpy==1.24.3`,\
+    \ etc.) are present. Additionally, there is no evidence of the required verification\
+    \ step (`pip install -r code/requirements.txt` exiting 0)."
+  task: 12b1f989ef629e0be916cada8f92ddeced8eded0e5cc2a55f3a9bfc4edd14b06
+T002b:
+  reason: The `code/` directory listing (24 entries) contains no `.venv` directory,
+    and there is no execution evidence that `code/.venv/bin/python --version` was
+    run or that it output '3.11'. While `requirements.txt` exists (satisfying the
+    T002a dependency), the required virtual environment itself is absent, so the verification
+    step cannot have passed.
+  task: 980b09d1399ba469456202a4f0ae1052f6e3d1873fa18489c7f1fc2d2ce041e1
+T002c:
+  reason: "The script hard-codes `INVALID_FMRI_DATASETS = {\"ds001734\", \"ds002642\"\
+    }` and a static allowlist, directly violating the task's explicit \"Do NOT hard-code\
+    \ ID rejection\" and \"MUST validate against the dataset type metadata\" requirements\
+    \ \u2014 it never uses the `datasets` library or OpenNeuro metadata API to check\
+    \ dataset type, and its fallback accepts any 8-character `dsXXXXXX` ID not in\
+    \ the invalid list. Additionally, the \"download\" is a simulated stand-in (writes\
+    \ a `.verified` marker and fabricated `meta.json` with a hardcoded 2024 timestamp\
+    \ instead of actual data), `data/raw/` is missing, the req"
+  task: 576d68893e218f8f2c21d95540b6867256380d0cca7d2f0c9036ec11fc3efbb3
+T002d:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/test_artifacts.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 7c65e9e73f3f62d59754b88924dc7b5d4cd81311b4498cc309710d36e71ae567
+T003:
+  task: 751ae970b573340c295cd856a805b49e23b4099644ff05ac38ac2adcbb5a3b36
+T004:
+  task: d878e9986c7815c521b08cfb8b2bdc66b393b108a25cbf0017d1ce7e24efa772
+T005a:
+  reason: 'The module `code/utils/logging_config.py` exists and correctly defines
+    `LoggingContext` with `add_exclusion` and `write_report` (initializing the CSV
+    with `exclusion_type, count` headers), but there is no evidence the required verification
+    was performed: `results/quality_report.csv` is MISSING, even though the module''s
+    own `main()` would create it if executed, and no test/execution output is supplied
+    showing the class was instantiated and methods asserted. The implementer should
+    run the verification (e.g., `python code/utils/logging_config.py` from the project
+    root) so `results/quality_report.'
+  task: d8772ddaf0cd5a61bb5d4f8d0b5f97222bc1c1e59f7463e17e8ece476365b05a
+T005b:
+  reason: "The `logging_config.py` implementation itself is substantive and correct\
+    \ (LoggingContext.write_report initializes `results/quality_report.csv` with headers\
+    \ `[exclusion_type, count]` via initialize_quality_report), but the task's explicit\
+    \ verification requirement \u2014 calling `write_report` and asserting the file\
+    \ exists with correct headers \u2014 has no execution evidence: `results/quality_report.csv`\
+    \ is MISSING, showing the built-in verification (`main()`) was never actually\
+    \ run. The implementer should execute the module (or an equivalent test) from\
+    \ the project directory so the report file is created"
+  task: 3e818d27e843c3add1a22e5c55cf26e1b96f626ef77c279855f5e2fc197f8ca4
+T005c:
+  reason: 'The test file exists, but it is incompatible with the actual `code/logging_config.py`:
+    it imports `QUALITY_REPORT_PATH` (not defined anywhere in that module), calls
+    `initialize_quality_report()` with no arguments (the implementation requires `report_path`),
+    and constructs `LoggingContext()` with no arguments (the implementation requires
+    `report_path`). The test would fail at import time. Additionally, `results/quality_report.csv`
+    is missing and there is no execution evidence (e.g., pytest output) that the tests
+    pass. The test must be rewritten to match the real `logging_config` API (or the
+    mod'
+  task: f1de0484ace65e1e39363cb36c61804249e6c862f6583e255bd04b461bd1747d
+T006:
+  task: b834b252513f6f241e31e65a8a72eaa4728cbe4f0eef6f7f0d952a0dac22dbe2
+T007:
+  task: 3c76772175c48699f933257057ab7d0248e11df7ca47649c6a56c52834c00313
+T008:
+  task: 61381f0e069e35a65400393718d38118d9c8acae7c3ef5d1ccdea5c6d9e87342
+T010:
+  task: 88cd73d8722c914834379549366c2e336dac11ea467b50ece0acdc64fbf54161
+T011:
+  task: 4ea5b2ded7c2f1e4dee42a27a84be2603242d1eea5ea2485ed905e3dcf435549
+T012:
+  task: a0b3758883838a1d9a27d21d6ac7c029f3bedb986f79bf0c791121f55e3040aa
+T013:
+  task: 4bdb64b64b991f20ec15247ec5908daf4fe9ee0bf848e8d9093b1497c81501f2
+T014:
+  task: 7cf694940dbc448a02bc8d2f7c81c2da85b08484dc6c4f0cea3e4957ac8d8716
+T015a:
+  task: bbe766d043f34b5ce971b64e1689d8afcdf9b9e6b59ec4efa5764cdeb10b9b9f
+T015b:
+  task: d57c1d58a0e6cb032787530a9fca1099756fe2c0f08461433218032844eb633a
+T015c:
+  task: bc2ef6bb0a0af60fee32b333035993e26b44e3bcbaa2455f367a7b63940ef7d7
+T016a:
+  task: 09242876720423cfc39e16a286a22ea33907763dd940aad9ddcd5eabcf30fa54
+T016b:
+  task: aa33aba6d474ecce1eb9e2587683ccc3ec806d24d309c1e1dad12898381977a0
+T016c:
+  task: 45e00b48232b39a4c3b3999b625901f21c665506fdc9f8e8af3b7de75e72d17f
+T017:
+  task: f7c43d88cfd752fb542f2583dab674b39ca4a8b8e0be340cdbc56502529cae54
+T018:
+  task: 1bc45ede0d51c05839cbebce32631b16e627d4ce1aaf6d9fa6ded22b8a7dfc03
+T019:
+  task: 5a7d90261c5d5cba3e79fde4b651c6fe9e0a18a9879e68438dc3373326755c67
+T020:
+  task: 3881f1c29f4b9ef0d5401f6f2236647917bbac0b5e9c3461b01c51431478707d
+T021a:
+  task: e568faa000deb9ca7814f941b208ba4291f22df6605f682178189cfbde69c586
+T021b:
+  task: 63fd6c613de610d9613632f7c85e7a1a342c954a7263033e375a11105d2cebdb
+T021c:
+  task: e2720480107389327445fc6d44e8114b74b6e4e4cb8bd6ee548476b86b726981
+T024:
+  task: 64bc3677a405222f9f313292f31ec335d3f21ea1c88945cf0b7875c45bd56b0e
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: results/model_summary.csv'
+  task: 4d482381c3cc5da0e00c82356e1180f141c98426edb37c9941e7635e57c84c52
+T026:
+  task: 9f281cd2bc669b419fa0d33734b78a3e1607c096b9c66481890d1e7955631aac
+T027:
+  task: d81620c6041c075ad0ebbcc608df449424c69fb6596f9bde4830a02166bff9f7
+T028:
+  task: f2861665c3af2921e3877d6e90dd8523867d993274c2ab885b760c45a5d4a917
+T028a:
+  reason: 'declared artifact(s) missing/empty/invalid: results/classification_metrics.csv'
+  task: 50a83d043e16019f577f0020b3e14c68ea2fdac82319d2273e66fe7d092c75ad
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: results/limitations.md, results/classification_metrics.csv'
+  task: ff7cf73d35c7f326ec6ac8a0b388bcbcf5efcbde458c37f5f7f93e5c47b23208
+T030:
+  task: cae49115c323127e42f256a7286b6342b3f797c5a10f82d09f4439efee0223ec
+T031:
+  task: 7b441b6761516e6c701921c6cf60842b78deb42eadcc788090b75f437299c4c9
+T033:
+  task: 12d306164e9ad544a8008a3e46396599584a0787dacc7425e01a2d7de4511e71
+T034:
+  task: 806cce716a2ecba2344245778be7eb2e11248f6a892f98387734cbfc29c78d80
+T035:
+  task: 5bf041f9d30ec2aef6071d7fecbb59db153028375ea070a6f2275241295292b6
+T036:
+  task: 321e296a24cdc95d6869e9dbadb0f9a84252b8b8c0f5b2f381c247ccd4f6910f
+T037:
+  task: ae5c7ecbf1cb1d992ed375195c7c7d6b405bb617785d6096f8c841b42305ac9d
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: code/preprocessing/stream_loader.py,
+    data/processed/streamed_features.csv'
+  task: 165ed74e51d978cf85b1092056ab9d10ba3fd8538546984c701818a2cb6ea433
+T039:
+  task: 69099a2f87f0af3d0445a43ba30c2bcbc76c74a9b88f1c727479829d5d6d0fe6
+T040:
+  task: 047527f72876a60f602bd6e745e6756a3371cbc47e4cd877d299024fae6095e8
+T041:
+  task: 372b3b0f36c11417b3c4f3a94a4bd26778dce1238e2a989ace0df3643e986c73
+T042:
+  task: d3d01dc6a60e5ba89101073a058d6349f515fc71b7dc6ee247596fd51d08d795
