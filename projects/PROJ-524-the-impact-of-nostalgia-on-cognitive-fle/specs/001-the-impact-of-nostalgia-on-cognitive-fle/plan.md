@@ -1,102 +1,96 @@
 # Implementation Plan: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
 
-**Branch**: `001-nostalgia-cognitive-flexibility` | **Date**: 2026-06-26 | **Spec**: `spec.md`
+**Branch**: `001-nostalgia-cognitive-flexibility` | **Date**: 2026-10-11 | **Spec**: `spec.md`  
 **Input**: Feature specification from `/specs/001-nostalgia-cognitive-flexibility/spec.md`
 
 ## Summary
-
-This project implements a computational pipeline to analyze the **associational** relationship between exposure to nostalgic stimuli and cognitive flexibility performance (measured via WCST metrics) in older adults. The system ingests raw behavioral data, validates participant age and metric completeness, performs **independent samples** statistical comparisons (nostalgia vs. control) with multiple-comparison corrections, calculates effect sizes and Minimum Detectable Effect Size (MDES), and conducts sensitivity analyses across significance thresholds.
-
-**Critical Design Note**: The study design is **between-subjects** (observational exposure), not within-subjects. Therefore, the plan uses **Welch's independent samples t-test** (or mixed-effects models if repeated measures are unexpectedly found) rather than paired t-tests. This corrects a contradiction in the source spec (FR-002) which mandates "paired t-tests" for a design that is inherently observational and between-subjects.
-
-The implementation strictly adheres to CPU-only constraints (a limited number of cores, limited RAM) and ensures reproducibility via checksummed data and pinned dependencies. If no real-world dataset matching the specific schema (WCST + Age 65+ + Nostalgia labels) is found, the system falls back to a **Methodological Simulation** using synthetic data to validate the pipeline, clearly labeling results as simulation-only.
+The pipeline will ingest a WCST dataset (real if an open source containing age ≥ 65, stimulus labels, and optional MMSE becomes available; otherwise synthetic data matching the required schema will be generated). It will enforce **FR‑001** (age ≥ 65 validation), **FR‑006** (MMSE ≥ 24 exclusion), perform the **Welch’s independent‑samples t‑test** required by **FR‑002**, apply **Bonferroni correction** (**FR‑003**), compute **Cohen’s d with 95 % CI** (**FR‑004**), flag borderline p‑values (**FR‑005**), and log a runtime warning if execution exceeds 6 h (**FR‑007**). All steps are ordered to respect data dependencies and reproducibility constraints.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scipy`, `statsmodels`, `numpy`, `pyyaml`  
-**Data Ingestion Dependencies**: `openml`, `datasets` (HuggingFace), `requests` (ingestion only)  
-**Storage**: Local file system (`data/` for raw/processed data, `contracts/` for schemas)  
-**Testing**: `pytest` (unit tests for data ingestion, statistical calculations, and schema validation)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data analysis pipeline / CLI  
-**Performance Goals**: Full pipeline execution ≤ 6 hours on 2 CPU cores, ≤ 7GB RAM  
-**Constraints**: No GPU usage; no deep learning; no external API calls during analysis; strict age ≥ 65 filtering; Bonferroni correction for multiple outcomes  
-**Scale/Scope**: Single dataset processing; expected < 100k rows; < 1GB total data size  
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `pyyaml`, `requests` (for optional data download)  
+- **Storage**: Local file system under `data/` (raw, processed, stimuli, results)  
+- **Testing**: `pytest` (unit, integration, contract validation)  
+- **Target Platform**: Linux GitHub Actions free‑tier runner (2 CPU, ≈7 GB RAM, ≈14 GB disk) – **CPU‑first**; no GPU required.  
+- **Project Type**: Data‑analysis pipeline (CLI)  
+- **Performance Goals**: End‑to‑end run ≤ 1 h for ≤ 100 k rows; memory ≤ 2 GB.  
+- **Constraints**: All statistical steps run on CPU; no deep‑learning models; strict reproducibility (seeded randomness, checksummed data).  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle | Status | Implementation Detail |
 |-----------|--------|-----------------------|
-| I. Reproducibility | ✅ | `requirements.txt` pins versions; random seeds fixed in `code/analysis.py`; data fetched from canonical sources; CI runner isolation enforced. |
-| II. Verified Accuracy | ✅ | **Verified Accuracy Gate**: A `reference_validator` script runs before analysis, checking citations against primary sources and enforcing title overlap ≥ 0.7. |
-| III. Data Hygiene | ✅ | All files in `data/` checksummed (SHA-256); raw data immutable; derivations written to new files with logs; PII scan passed. |
-| IV. Single Source of Truth | ✅ | All statistics in `paper/` trace to `data/` rows and `code/` blocks; no hand-typed numbers. |
-| V. Versioning Discipline | ✅ | **Versioning Mechanism**: `code/utils.py` computes SHA-256 hashes for artifacts in `data/` and updates the `state/` YAML file with `updated_at` timestamps upon artifact changes. |
-| VI. Stimulus Fidelity | ✅ | Nostalgia/control stimuli stored in `data/stimuli/` with checksums; referenced by hash in analysis code. |
-| VII. Behavioral Trace Integrity | ✅ | Raw WCST logs preserved in `data/raw/`; aggregated metrics derived separately. |
+| I. Reproducibility | ✅ | `requirements.txt` pins exact versions; random seeds fixed in `code/main.py`; data fetched from canonical URLs; CI isolation enforced. |
+| II. Verified Accuracy | ✅ | `code/reference_validator.py` checks citation title overlap ≥ 0.7 before any result is written. |
+| III. Data Hygiene | ✅ | Every file under `data/` is SHA‑256 checksummed; raw files never overwritten; derived files written to new paths with provenance logs. |
+| IV. Single Source of Truth | ✅ | All numbers in `statistical_report.json` and `sensitivity_report.json` are produced programmatically; the paper will reference these files directly. |
+| V. Versioning Discipline | ✅ | `code/utils.py` updates artifact hashes in `state/projects/PROJ-524-...yaml` after each write. |
+| VI. Stimulus Fidelity | ✅ | Stimuli stored in `data/stimuli/` with recorded SHA‑256; referenced by hash in analysis code. |
+| VII. Behavioral Trace Integrity | ✅ | Raw WCST logs (if provided) are kept untouched in `data/raw/`; aggregated metrics are derived separately. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-nostalgia-cognitive-flexibility/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (generated before Phase 2)
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (created by /speckit-tasks)
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── dataset.schema.yaml
+    └── output.schema.yaml
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/
 ├── data/
-│   ├── raw/               # Unmodified raw datasets
-│   ├── processed/         # Cleaned, validated datasets
-│   └── stimuli/           # Audio/visual stimuli with checksums
+│   ├── raw/               # Original downloads or synthetic generator output
+│   ├── processed/         # Cleaned dataset after FR‑001, FR‑006
+│   ├── stimuli/           # Nostalgia / control media files + checksums
+│   └── results/
+│       ├── statistical_report.json
+│       ├── sensitivity_report.json
+│       └── exclusion_log.json
 ├── code/
 │   ├── __init__.py
-│   ├── ingestion.py       # Data loading, validation, and source verification
-│   ├── analysis.py        # Statistical tests (Welch's t-test), effect sizes, sensitivity
-│   ├── utils.py           # Helper functions (checksums, logging, versioning)
-│   ├── reference_validator.py # Validates citations (Constitution Principle II)
-│   └── main.py            # Pipeline orchestrator
+│   ├── ingestion.py          # Handles real‑data download or synthetic generation
+│   ├── cleaning.py           # Implements FR‑001, FR‑006, missing‑value handling
+│   ├── analysis.py           # Welch t‑test, Bonferroni, Cohen’s d, CI, MDES
+│   ├── sensitivity.py        # Threshold sweep, borderline flag (FR‑005)
+│   ├── runtime_monitor.py    # Emits warning if runtime > 6 h (FR‑007)
+│   ├── reference_validator.py
+│   ├── utils.py
+│   └── main.py               # Orchestrates the pipeline
 ├── tests/
-│   ├── contract/          # Schema validation tests (depends on contracts/ from Phase 1)
-│   ├── integration/       # End-to-end pipeline tests
-│   └── unit/              # Function-level tests
+│   ├── contract/
+│   ├── integration/
+│   └── unit/
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity and alignment with CPU-only, data-pipeline nature. No frontend/backend split needed. All analysis code resides in `code/`, data in `data/`, and contracts in `contracts/`. **Phase Ordering**: Contracts (Phase 1) -> Code (Phase 2) -> Tests (Phase 2).
+## Mapping of Functional Requirements to Pipeline Phases
+| FR | Description | Pipeline Phase / Script | Notes |
+|----|-------------|--------------------------|-------|
+| FR‑001 | Age ≥ 65 validation | `cleaning.py → filter_age()` | Excludes records with missing age or age < 65. |
+| FR‑002 | Welch’s independent‑samples t‑test on two outcomes | `analysis.py → run_welch_test()` | Applied to `perseverative_errors` and `categories_completed`. |
+| FR‑003 | Bonferroni correction | `analysis.py → bonferroni_correction()` | Two comparisons ⇒ α/2. |
+| FR‑004 | Cohen’s d with 95 % CI | `analysis.py → compute_cohens_d()` | Uses pooled SD appropriate for Welch. |
+| FR‑005 | Borderline flag (p ∈ 0.04–0.06) | `sensitivity.py → flag_borderline()` | Adds `"sensitive"` status in output. |
+| FR‑006 | MMSE ≥ 24 exclusion (optional) | `cleaning.py → filter_mmse()` | Executed only if `MMSE` column present. |
+| FR‑007 | Runtime warning > 6 h | `runtime_monitor.py` wrapped around `main.py` | Logs warning; pipeline continues. |
 
-## Complexity Tracking
+## Phase Ordering (Data‑Driven Execution Flow)
+1. **Data Acquisition** (`ingestion.py`):  
+   - Attempt to download an open WCST dataset (none found → generate synthetic data).  
+   - Download MMSE reference files (if needed).  
+2. **Checksum & Validation** (`utils.py`): Verify SHA‑256 of raw files; abort on mismatch.  
+3. **Cleaning** (`cleaning.py`): Apply FR‑001, FR‑006, remove rows with missing WCST metrics. Log exclusions (`exclusion_log.json`).  
+4. **Statistical Analysis** (`analysis.py`): Execute FR‑002, FR‑003, FR‑004; compute MDES (post‑hoc).  
+5. **Sensitivity Checks** (`sensitivity.py`): Perform FR‑005 across α = 0.01, 0.05, 0.1; generate `sensitivity_report.json`.  
+6. **Runtime Monitoring** (`runtime_monitor.py`): Wrap entire pipeline; emit warning if wall‑clock > 6 h.  
+7. **Reporting** (`main.py`): Write `statistical_report.json`, `sensitivity_report.json`, and `exclusion_log.json`.  
+8. **Contract Validation** (`tests/contract/validate_output.py`): Ensure JSON files conform to `contracts/*.schema.yaml`.  
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| None | All requirements are met with a linear, single-project pipeline. | No additional complexity is justified; the scope is narrow and well-defined. |
+## Risk & Mitigation
+- **Dataset Unavailability**: If no open WCST + nostalgia dataset exists, synthetic data (size = 200 participants, balanced conditions) will be generated to validate the pipeline. The final report will explicitly label results as “Simulation Only”.  
+- **Runtime Exceedance**: All steps are linear‑time O(N); with N ≤ 200 k rows runtime < 30 min on the CI runner. The warning mechanism satisfies FR‑007.  
+- **Multiple‑Comparison Mis‑application**: Bonferroni correction is hard‑coded for the two outcomes; any future addition of outcomes will automatically update the correction factor.  
 
-## Spec Contradiction Notes
-
-- **FR-002 / US-2 Contradiction**: The spec mandates "paired t-tests" and "pre/post measures". However, the study design is **observational between-subjects** (no random assignment, no repeated measures per subject for different stimuli). The plan implements **Welch's independent samples t-test** to ensure statistical validity. This deviation is flagged for spec revision (kickback).
-- **User Story 2 Scenario 1**: The scenario "Given a pre-processed dataset with paired pre/post measures" is not applicable to the between-subjects design. The plan treats this as an invalid scenario for the current data reality.
-- **Data Model "condition"**: The spec's "condition" (pre/post) field in `PerformanceMetric` is replaced with `stimulus_condition` (nostalgia/control) in the data model to align with the between-subjects design.
-
-## Phase Ordering
-
-1.  **Data Acquisition & Verification**: Fetch data from OpenML/HuggingFace (if available) or load local files. Verify schema and variable presence.
-2.  **Data Cleaning & Validation**: Filter age ≥ 65, handle missing values, log exclusions.
-3.  **Statistical Analysis**: Run Welch's t-tests, calculate effect sizes, MDES, and sensitivity analysis.
-4.  **Reporting**: Generate final report with clear distinction between empirical results (if real data) and simulation results.
-5.  **Versioning & Validation**: Update state hashes and run citation validation.
+---

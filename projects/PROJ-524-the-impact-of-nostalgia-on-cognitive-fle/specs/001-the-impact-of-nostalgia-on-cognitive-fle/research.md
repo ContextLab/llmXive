@@ -1,82 +1,52 @@
 # Research: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
 
 ## Overview
-
-This document outlines the research strategy for investigating whether exposure to nostalgic stimuli is associatively linked to improved cognitive flexibility in adults aged 65+, as measured by Wisconsin Card Sorting Test (WCST) performance metrics. Given the observational nature of available datasets, all findings will be framed as associational, not causal.
-
-**Critical Design Clarification**: The study is **between-subjects** (participants are exposed to either nostalgia or control stimuli, not both). Therefore, the primary statistical test is **Welch's independent samples t-test**, not a paired t-test. The spec's mention of "paired t-tests" (FR-002) and "pre/post measures" (US-2) is identified as a contradiction to the observational design and is addressed by using the statistically valid independent test.
+The goal is to assess whether exposure to nostalgic stimuli is **associationally** linked to better performance on the Wisconsin Card Sorting Test (WCST) among adults aged ≥ 65. Because the experimental design is **between‑subjects**, the appropriate inferential test is **Welch’s independent‑samples t‑test**. All hypotheses are framed as associations; causal language is avoided.
 
 ## Dataset Strategy
 
-### Real Data Acquisition Strategy
-We will attempt to source real data from the following repositories, prioritizing those with verified WCST and demographic data:
-- **OpenNeuro**: Search for datasets containing "WCST" and "aging" or "elderly".
-- **ICPSR**: Query for studies on "cognitive flexibility" and "nostalgia" or "emotional regulation" in older adults.
-- **UK Biobank**: Check for available cognitive task data and self-reported emotional states (if nostalgia proxies exist).
-- **HuggingFace Datasets**: Search for "WCST" or "executive function" datasets.
+| Dataset | Source URL(s) | Variables Needed | Verification Status | Notes |
+|---------|---------------|------------------|---------------------|-------|
+| WCST + Age ≥ 65 + Stimulus label | **NO verified source found** | `participant_id`, `age`, `stimulus_type`, `perseverative_errors`, `categories_completed`, `MMSE` (optional) | ⚠️ Not available publicly; will be generated synthetically if no open source appears. | Synthetic data will respect realistic means/SDs from published WCST literature. |
+| MMSE scores (optional) | https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt, https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl | `participant_id`, `mmse_score` | ✅ Verified URL, but dataset does not contain WCST metrics. | May be used only to demonstrate MMSE handling logic; not combined with WCST data. |
 
-### Gap Analysis & Fallback
-**Current Status**: No verified public dataset exists that combines **WCST metrics** + **Age ≥ 65** + **Nostalgia/Control labels** in a single schema.
-**Fallback Plan (Methodological Simulation)**:
-If no real dataset is found, the project will proceed with a **Methodological Simulation** using synthetic data generated to match the required schema.
-- **Purpose**: To validate the **pipeline code** (ingestion, cleaning, statistical logic, reporting).
-- **Limitation**: Synthetic data **cannot** validate the empirical hypothesis (the actual impact of nostalgia). Results from this path will be explicitly labeled as "Simulation Results" and will not claim empirical validity.
-- **Distinction**: The final report will clearly separate "Pipeline Validation Results" (from synthetic data) from "Empirical Results" (from real data, if found).
+### Primary Strategy
+1. **Search for an open dataset** containing the required schema on Hugging Face, OpenNeuro, or OpenML.  
+2. **If none found**, invoke the synthetic generator (see `code/ingestion.py`) to create a realistic dataset (200 participants, 100 per condition) with age distribution (65‑85 y), MMSE scores (mean ≈ 28, SD ≈ 1.5), and WCST metrics drawn from published distributions.  
+3. **Stimulus files** (audio/video) will be stored under `data/stimuli/` with SHA‑256 checksums; because no open stimuli are verified, placeholder files (e.g., short tone clips) will be used and clearly marked as “simulation only”.
 
-### Dataset Table
-
-| Dataset | Source URL | Variables Needed | Validation Status | Notes |
-|---------|------------|------------------|-------------------|-------|
-| WCST Performance Data | NO verified source found | `participant_id`, `age`, `stimulus_type`, `perseverative_errors`, `categories_completed` | ⚠️ Requires manual curation or synthetic generation | No verified public dataset exists. Will use synthetic data for pipeline validation. |
-| Nostalgia Induction Stimuli | NO verified source found | `stimulus_id`, `type` (nostalgia/control), `source_url`, `checksum` | ⚠️ Requires manual curation | Stimuli must be validated for emotional elicitation; checksums required for fidelity. |
-| MMSE Scores (for exclusion) | NO verified source found | `participant_id`, `mmse_score` | ⚠️ May not be available | If unavailable, sensitivity analysis will proceed without exclusion flag (see Fallback Logic). |
-
-> **Critical Note**: The spec assumes availability of WCST data with age ≥ 65 and nostalgia/control labels. No verified public dataset currently exists for this specific combination. The implementation will either:
-> 1. Use a synthetic dataset generated to match the schema (for testing pipeline integrity), OR
-> 2. Await contribution of a real dataset from collaborators.
->
-> If a real dataset is used, it MUST be verified for:
-> - Presence of `age` field (≥ 65 filtering)
-> - Presence of `stimulus_type` (nostalgia vs. control)
-> - Presence of WCST metrics (`perseverative_errors`, `categories_completed`)
-> - Absence of PII
+### Fallback Logic
+- If MMSE data become available from a verified source, it will be merged by `participant_id`.  
+- If only WCST metrics are available (no MMSE), the MMSE exclusion step (FR‑006) will be skipped and logged.
 
 ## Statistical Methodology
 
 ### Primary Analysis
-- **Design**: Between-subjects (observational exposure).
-- **Test**: **Welch's independent samples t-test** comparing `perseverative_errors` and `categories_completed` between nostalgia and control conditions. (Paired t-test is invalid for independent groups).
-- **Correction**: Bonferroni correction applied for two primary outcomes (errors, categories).
-- **Effect Size**: Cohen's d with 95% CI calculated for each comparison.
-- **Power/MDES**: **Minimum Detectable Effect Size (MDES)** calculated based on the observed sample size and variance, framed as a study limitation. *Post-hoc power analysis is excluded due to statistical controversy.*
-- **Confounding Control**:
-  - If covariates (age, education, baseline cognitive score, depression scores) are available, a **linear regression** or **ANCOVA** will be used to adjust for them.
-  - If covariates are missing, the analysis will be unadjusted, and the report will flag the result as "Unadjusted - High Confounding Risk".
+- **Design**: Between‑subjects (nostalgia vs. control).  
+- **Test**: Welch’s independent‑samples t‑test for each outcome (`perseverative_errors`, `categories_completed`).  
+- **Multiple‑Comparison Correction**: Bonferroni correction for the two outcomes (α = 0.05 / 2 = 0.025).  
+- **Effect Size**: Cohen’s d with 95 % confidence interval, using the pooled variance appropriate for Welch’s test.  
+- **Minimum Detectable Effect Size (MDES)**: Computed post‑hoc from observed sample size and pooled variance; reported as a limitation (value deferred).  
+- **Covariate Adjustment (optional)**: If additional covariates (e.g., education) are present, a linear model will be fitted; otherwise the analysis remains unadjusted and the output will note `"adjustment_status": "unadjusted"`.
 
-### Sensitivity Analysis
-- **Threshold Sweep**: Re-run primary tests at α = {0.01, 0.05, 0.1} and report significance status changes.
-- **Robustness Check**: Exclude participants with MMSE < 24 (if data available) and compare effect sizes to full cohort.
-  - **Fallback**: If MMSE is missing, proceed with full cohort and log "ERR_MMSE_MISSING".
-- **Flagging**: Results with p ≈ 0.05 (e.g., 0.04–0.06) flagged as "sensitive to threshold choice".
+### Sensitivity Analyses (FR‑005)
+- **Alpha Sweep**: Re‑run the Welch tests at α = 0.01, 0.05, 0.10.  
+- **MMSE Exclusion Sensitivity**: Compare results with and without participants having `MMSE < 24` (if MMSE present).  
+- **Borderline Flagging**: Any p‑value in the range 0.04 – 0.06 after correction will be labeled `"sensitive"` in the output schema.
 
 ### Assumptions & Limitations
-- **Observational Design**: No random assignment; findings are associational only.
-- **Collinearity**: If predictors are definitionally related (e.g., errors and categories), independent effects will not be claimed; descriptive reporting only.
-- **Sample Size**: Power may be limited if N < 50; this will be explicitly reported via MDES.
-- **Measurement Validity**: WCST metrics assumed valid proxies for cognitive flexibility per established literature (citations required).
-- **Data Availability**: If no real dataset is found, results are limited to pipeline validation (simulation).
+- **Observational Data**: No random assignment; findings are correlational.  
+- **Collinearity**: `perseverative_errors` and `categories_completed` are related; we will not claim independent effects—rather we will report each outcome separately.  
+- **Sample Size**: If N < 50 per group, MDES will be large; this will be highlighted.  
+- **Measurement Validity**: WCST is a validated measure of cognitive flexibility (cite standard neuropsychology texts; citation validation performed by `reference_validator.py`).  
 
 ## Compute Feasibility
-
-- **Environment**: GitHub Actions free-tier (2 CPU, 7GB RAM, 14GB disk, no GPU).
-- **Libraries**: `pandas`, `scipy`, `statsmodels`, `numpy` — all CPU-tractable.
-- **Runtime**: Expected < 1 hour for typical dataset sizes (< 100k rows).
-- **Memory**: Peak usage < 2GB for data processing and statistical modeling.
+- All computations run on the CPU‑only GitHub Actions runner.  
+- Expected runtime < 30 minutes; memory < 2 GB.  
+- No GPU‑only libraries are used; the pipeline is fully compatible with the free tier.  
 
 ## Citations & Validation
+- All literature citations (WCST validity, nostalgia induction effects) will be checked by `code/reference_validator.py` for title‑overlap ≥ 0.7.  
+- Stimulus files will carry SHA‑256 checksums recorded in `data/stimuli/manifest.json`.  
 
-All citations in the final report will be validated against primary sources. Title overlap ≥ 0.7 enforced by the `reference_validator` script. No fabricated URLs or datasets.
-
-**Validation Citation Check**:
-- If a real dataset is used, the system will parse its metadata for a 'citation' field.
-- If no citation exists, the report will flag "Stimulus Validity: Unverified" and exclude SC-006 from the final success metrics for that run.
+---

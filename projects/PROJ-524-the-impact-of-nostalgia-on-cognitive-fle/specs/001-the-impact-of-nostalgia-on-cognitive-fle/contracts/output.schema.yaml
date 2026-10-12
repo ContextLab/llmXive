@@ -19,43 +19,43 @@ properties:
     description: "Name of the comparison (e.g., 'nostalgia vs control - errors')"
   p_value:
     type: number
-    description: "Raw p-value from statistical test (Welch's t-test)"
+    description: "Raw p‑value from Welch's t‑test"
   p_value_corrected:
     type: number
-    description: "Bonferroni-corrected p-value"
+    description: "Bonferroni‑corrected p‑value"
   effect_size:
     type: number
     description: "Cohen's d effect size"
   effect_size_ci_lower:
     type: number
-    description: "Lower bound of 95% CI for effect size"
+    description: "Lower bound of the 95 % confidence interval for effect size"
   effect_size_ci_upper:
     type: number
-    description: "Upper bound of 95% CI for effect size"
+    description: "Upper bound of the 95 % confidence interval for effect size"
   significance_status:
     type: string
     enum:
       - "significant"
       - "non-significant"
       - "sensitive"
-    description: "Significance status at α=0.05"
+    description: "Significance status at α = 0.05 (or flagged as borderline)"
   mdes:
     type: number
- description: "Minimum Detectable Effect Size ([deferred] power) - framed as a limitation"
+    description: "Minimum Detectable Effect Size (post‑hoc power limitation) [deferred]"
   adjustment_status:
     type: string
     enum:
       - "adjusted"
       - "unadjusted"
       - "covariates_missing"
-    description: "Status of confound adjustment (adjusted, unadjusted, or covariates missing)"
+    description: "Whether covariate adjustment was applied"
   validity_status:
     type: string
     enum:
       - "verified"
       - "unverified"
       - "simulation"
-    description: "Status of stimulus validity (verified citation, unverified, or simulation)"
+    description: "Stimulus and dataset validity flag"
   sensitivity_analysis:
     type: array
     items:
@@ -66,11 +66,11 @@ properties:
       properties:
         threshold:
           type: number
-          description: "Significance threshold (e.g., 0.01, 0.05, 0.1)"
+          description: "Significance threshold examined (e.g., 0.01, 0.05, 0.1)"
         significance_status:
           type: string
           enum:
             - "significant"
             - "non-significant"
-          description: "Significance status at this threshold"
+          description: "Status at the given threshold"
 additionalProperties: false
