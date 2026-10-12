@@ -67,27 +67,30 @@ def curate_repositories(logger: logging.Logger):
     Filters: topic:llm-generated OR topic:copilot, stars >= 5, 1 commit/90 days.
     """
     token = os.getenv("GITHUB_TOKEN")
-    if not token:
-        logger.error("GITHUB_TOKEN not found in environment.")
-        sys.exit(1)
+    if token:
+        g = Github(token)
+        logger.info("Using authenticated GitHub client.")
+    else:
+        # Unauthenticated client – lower rate limits but still functional
+        g = Github()
+        logger.warning("GITHUB_TOKEN not found; proceeding with unauthenticated GitHub client (rate‑limited).")
 
-    g = Github(token)
-    repos_found = []
-    
-    # Search queries
+    repos_found: List[Dict[str, Any]] = []
+
+    # Primary search queries
     queries = [
         'topic:llm-generated',
         'topic:copilot'
     ]
-    # Keyword expansion if needed
+    # Keyword expansion queries (used only if <50 repos after primary)
     keyword_queries = [
         '"LLM generated code"',
         '"Copilot generated"'
     ]
 
     ninety_days_ago = datetime.now(timezone.utc) - timedelta(days=90)
-    
-    def process_query(query):
+
+    def process_query(query: str):
         nonlocal repos_found
         logger.info(f"Searching with query: {query}")
         try:
@@ -95,11 +98,13 @@ def curate_repositories(logger: logging.Logger):
             for repo in results:
                 if len(repos_found) >= 50:
                     break
-                
-                # Basic filters: stars >= 5 and activity (pushed_at is a reliable proxy for commit activity)
-                if repo.stargazers_count >= 5 and repo.pushed_at and repo.pushed_at.replace(tzinfo=timezone.utc) >= ninety_days_ago:
-                    # Avoid duplicates
-                    if not any(r['repo_id'] == repo.id for r in repos_found):
+                # Basic filters: stars >= 5 and recent activity
+                if (
+                    repo.stargazers_count >= 5
+                    and repo.pushed_at
+                    and repo.pushed_at.replace(tzinfo=timezone.utc) >= ninety_days_ago
+                ):
+                    if not any(r["repo_id"] == repo.id for r in repos_found):
                         repos_found.append({
                             "repo_id": repo.id,
                             "owner": repo.owner.login,
@@ -110,163 +115,229 @@ def curate_repositories(logger: logging.Logger):
                             "updated_at": repo.updated_at.isoformat(),
                         })
         except GithubException as e:
-            logger.error(f"GitHub API error during search {query}: {e}")
+            logger.error(f"GitHub API error during search '{query}': {e}")
 
+    # Run primary queries
     for q in queries:
         process_query(q)
-    
+
+    # If insufficient repos, expand with keyword queries
     if len(repos_found) < 50:
-        logger.info(f"Found only {len(repos_found)} repos, expanding search to keywords...")
+        logger.info(f"Found only {len(repos_found)} repos; expanding search with keyword queries.")
         for q in keyword_queries:
             process_query(q)
 
     logger.info(f"Curation identified {len(repos_found)} repositories.")
 
-    # Cloning and Metadata Extraction
-    final_repo_list = []
-    final_repo_metadata = []
+    # Clone repositories and collect metadata
+    final_repo_list: List[Dict[str, Any]] = []
+    final_repo_metadata: List[Dict[str, Any]] = []
 
     for repo_info in repos_found:
-        repo_id = repo_info['repo_id']
-        clone_url = repo_info['url']
+        repo_id = repo_info["repo_id"]
+        clone_url = repo_info["url"]
         target_path = Path(CLONES_DIR) / f"{repo_info['owner']}_{repo_info['name']}"
-        
+
         try:
             logger.info(f"Cloning {clone_url} to {target_path}...")
             subprocess.run(
                 ["git", "clone", "--depth", "100", clone_url, str(target_path)],
-                check=True, capture_output=True, text=True
+                check=True,
+                capture_output=True,
+                text=True,
             )
-            
             loc = calculate_total_loc(target_path)
-            
-            final_repo_list.append({
-                "repo_id": repo_id,
-                "owner": repo_info['owner'],
-                "name": repo_info['name'],
-                "url": clone_url
-            })
-            
-            final_repo_metadata.append({
-                "repo_id": repo_id,
-                "stargazers_count": repo_info['stargazers_count'],
-                "created_at": repo_info['created_at'],
-                "updated_at": repo_info['updated_at'],
-                "total_loc": loc
-            })
+
+            final_repo_list.append(
+                {
+                    "repo_id": repo_id,
+                    "owner": repo_info["owner"],
+                    "name": repo_info["name"],
+                    "url": clone_url,
+                }
+            )
+            final_repo_metadata.append(
+                {
+                    "repo_id": repo_id,
+                    "stargazers_count": repo_info["stargazers_count"],
+                    "created_at": repo_info["created_at"],
+                    "updated_at": repo_info["updated_at"],
+                    "total_loc": loc,
+                }
+            )
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to clone {clone_url}: {e.stderr}")
+            logger.error(f"Failed to clone {clone_url}: {e.stderr.strip()}")
         except Exception as e:
             logger.error(f"Unexpected error cloning {clone_url}: {e}")
 
-    # Save results
-    with open(REPO_LIST_CSV, 'w', newline='', encoding='utf-8') as f:
+    # Write repo list CSV
+    with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["repo_id", "owner", "name", "url"])
         writer.writeheader()
         writer.writerows(final_repo_list)
 
-    with open(REPO_METADATA_CSV, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["repo_id", "stargazers_count", "created_at", "updated_at", "total_loc"])
+    # Write repo metadata CSV
+    with open(REPO_METADATA_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "repo_id",
+                "stargazers_count",
+                "created_at",
+                "updated_at",
+                "total_loc",
+            ],
+        )
         writer.writeheader()
         writer.writerows(final_repo_metadata)
 
-    logger.info(f"Saved curated list of {len(final_repo_list)} repos to {REPO_LIST_CSV} and {REPO_METADATA_CSV}")
+    logger.info(
+        f"Saved curated list of {len(final_repo_list)} repos to {REPO_LIST_CSV} "
+        f"and metadata to {REPO_METADATA_CSV}"
+    )
 
 def calculate_file_hash(content: str) -> str:
     """Calculate SHA-256 hash of content."""
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 def extract_code_blocks_py(file_path: Path) -> List[Dict[str, Any]]:
     """Extract code blocks (functions/classes) from a Python file using AST."""
-    blocks = []
+    blocks: List[Dict[str, Any]] = []
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             content = f.read()
         tree = ast.parse(content)
         lines = content.splitlines()
-
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
                 start_line = node.lineno
-                end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line
-                block_content = '\n'.join(lines[start_line-1:end_line])
-                blocks.append({
-                    "file_path": str(file_path),
-                    "start_line": start_line,
-                    "end_line": end_line,
-                    "language": "python",
-                    "content": block_content,
-                    "content_hash": calculate_file_hash(block_content),
-                    "block_type": "class" if isinstance(node, ast.ClassDef) else "function"
-                })
+                end_line = getattr(node, "end_lineno", start_line)
+                block_content = "\n".join(lines[start_line - 1 : end_line])
+                blocks.append(
+                    {
+                        "file_path": str(file_path),
+                        "start_line": start_line,
+                        "end_line": end_line,
+                        "language": "python",
+                        "content": block_content,
+                        "content_hash": calculate_file_hash(block_content),
+                        "block_type": "class"
+                        if isinstance(node, ast.ClassDef)
+                        else "function",
+                    }
+                )
     except Exception as e:
         logging.getLogger(__name__).warning(f"Failed to parse {file_path}: {e}")
     return blocks
 
 def extract_code_blocks_js(file_path: Path) -> List[Dict[str, Any]]:
-    """Extract code blocks from a JS file. Placeholder for tree-sitter integration."""
-    logging.getLogger(__name__).info(f"JS extraction not fully implemented for {file_path}")
+    """Extract code blocks from a JavaScript file. Placeholder for tree‑sitter integration."""
+    logging.getLogger(__name__).info(f"JS extraction not implemented for {file_path}")
     return []
 
 def extract_code_blocks_from_repo(repo_path: Path) -> List[Dict[str, Any]]:
-    """Extract code blocks from all Python and JS files in a repository."""
-    all_blocks = []
+    """Extract code blocks from all Python and JavaScript files in a repository."""
+    all_blocks: List[Dict[str, Any]] = []
     for root, _, files in os.walk(repo_path):
         for file in files:
             file_path = Path(root) / file
-            if file.endswith('.py'):
+            if file.endswith(".py"):
                 all_blocks.extend(extract_code_blocks_py(file_path))
-            elif file.endswith('.js'):
+            elif file.endswith(".js"):
                 all_blocks.extend(extract_code_blocks_js(file_path))
     return all_blocks
 
-def tag_blocks_with_classifier(blocks: List[Dict[str, Any]], classifier: CodeBERTClassifier, logger: logging.Logger) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def tag_blocks_with_classifier(
+    blocks: List[Dict[str, Any]],
+    classifier: CodeBERTClassifier,
+    logger: logging.Logger,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """Tag blocks using the CodeBERT classifier."""
-    tagged = []
-    excluded = []
+    tagged: List[Dict[str, Any]] = []
+    excluded: List[Dict[str, Any]] = []
     for block in blocks:
         try:
             content = block.get("content", "")
-            if not content.strip(): continue
+            if not content.strip():
+                continue
             res = classifier.predict(content)
-            label = res['label']
-            confidence = res['confidence']
+            label = res["label"]
+            confidence = res["confidence"]
             if confidence >= CONFIDENCE_THRESHOLD:
-                block["predicted_label"] = label.value if hasattr(label, 'value') else str(label)
+                block["predicted_label"] = (
+                    label.value if hasattr(label, "value") else str(label)
+                )
                 block["confidence"] = confidence
                 tagged.append(block)
             else:
-                excluded.append({
-                    "block_id": block.get("block_id", "unknown"),
-                    "file_path": block.get("file_path", ""),
-                    "confidence": confidence,
-                    "reason": f"confidence_below_threshold_{CONFIDENCE_THRESHOLD}"
-                })
+                excluded.append(
+                    {
+                        "block_id": block.get("block_id", "unknown"),
+                        "file_path": block.get("file_path", ""),
+                        "confidence": confidence,
+                        "reason": f"confidence_below_threshold_{CONFIDENCE_THRESHOLD}",
+                    }
+                )
         except Exception as e:
             logger.error(f"Classifier error: {e}")
-            excluded.append({"block_id": block.get("block_id", "unknown"), "file_path": block.get("file_path", ""), "confidence": 0.0, "reason": str(e)})
+            excluded.append(
+                {
+                    "block_id": block.get("block_id", "unknown"),
+                    "file_path": block.get("file_path", ""),
+                    "confidence": 0.0,
+                    "reason": str(e),
+                }
+            )
     return tagged, excluded
 
 def save_tagged_blocks(tagged_blocks: List[Dict[str, Any]], output_path: Path):
-    if not tagged_blocks: return
-    fieldnames = ["file_path", "start_line", "end_line", "language", "content_hash", "block_type", "predicted_label", "confidence"]
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+    if not tagged_blocks:
+        return
+    fieldnames = [
+        "file_path",
+        "start_line",
+        "end_line",
+        "language",
+        "content_hash",
+        "block_type",
+        "predicted_label",
+        "confidence",
+    ]
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(tagged_blocks)
 
-def save_exclusions_log(excluded_blocks: List[Dict[str, Any]], output_path: Path, logger: logging.Logger):
-    if not excluded_blocks: return
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["block_id", "file_path", "confidence", "reason"])
+def save_exclusions_log(
+    excluded_blocks: List[Dict[str, Any]], output_path: Path, logger: logging.Logger
+):
+    if not excluded_blocks:
+        return
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["block_id", "file_path", "confidence", "reason"],
+        )
         writer.writeheader()
         writer.writerows(excluded_blocks)
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--curate", action="store_true", help="Run repository curation (T002)")
-    parser.add_argument("--tag", action="store_true", help="Run block tagging (T013)")
+    parser.add_argument(
+        "--curate",
+        action="store_true",
+        help="Run repository curation (T002)",
+    )
+    parser.add_argument(
+        "--tag",
+        action="store_true",
+        help="Run block tagging (T013)",
+    )
     args = parser.parse_args()
+
+    # If no explicit mode is chosen, default to curation to match quickstart expectations
+    if not args.curate and not args.tag:
+        args.curate = True
 
     logger = setup_logging()
     setup_output_directories()
@@ -289,20 +360,22 @@ def main():
             logger.error(f"Blocks file not found at {blocks_path}. Run T003 first.")
             sys.exit(1)
 
-        all_blocks = []
-        with open(blocks_path, 'r', encoding='utf-8') as f:
+        all_blocks: List[Dict[str, Any]] = []
+        with open(blocks_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for i, row in enumerate(reader):
-                all_blocks.append({
-                    "block_id": f"block_{i}",
-                    "file_path": row.get("file_path", ""),
-                    "start_line": int(row.get("start_line", 0)),
-                    "end_line": int(row.get("end_line", 0)),
-                    "language": row.get("language", ""),
-                    "content_hash": row.get("content_hash", ""),
-                    "content": row.get("content", "")
-                })
-        
+                all_blocks.append(
+                    {
+                        "block_id": f"block_{i}",
+                        "file_path": row.get("file_path", ""),
+                        "start_line": int(row.get("start_line", 0)),
+                        "end_line": int(row.get("end_line", 0)),
+                        "language": row.get("language", ""),
+                        "content_hash": row.get("content_hash", ""),
+                        "content": row.get("content", ""),
+                    }
+                )
+
         tagged, excluded = tag_blocks_with_classifier(all_blocks, classifier, logger)
         save_tagged_blocks(tagged, Path(TAGGED_BLOCKS_CSV_PATH))
         save_exclusions_log(excluded, Path(EXCLUSIONS_LOG_PATH), logger)

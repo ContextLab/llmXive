@@ -1,16 +1,18 @@
 T001:
-  reason: "The confirmed artifacts (`code/requirements.txt` with all pinned dependencies,\
-    \ `code/utils/models.py` with real dataclasses, and the quickstart documenting\
-    \ runnable commands) satisfy those portions. However, the task also requires a\
-    \ logging configuration and an `.env.example` containing `GITHUB_TOKEN`, `DATA_PATH`,\
-    \ and `LOG_PATH`, and neither artifact appears in the evidence \u2014 the quickstart\
-    \ merely references `.env.example` without it existing on disk. The implementer\
-    \ must add the logging config (e.g., `code/utils/logging_config.py` or equivalent)\
-    \ and a `.env.example` with those three variable"
+  reason: The repository contains a correct `code/requirements.txt` and a populated
+    `code/utils/models.py`, but it lacks a logging configuration file and an `.env.example`
+    defining `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH`. Moreover, the quickstart
+    documentation is placed at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`
+    instead of the required `specs/001-code-maintainability-impact/quickstart.md`.
+    These missing/incorrect artifacts prevent the task from being fully satisfied.
   task: a876a79b1e7def0146374d046018b36b78aefd3d503f8aaffa3db11a4738d644
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/01_data_curation.py
-    exit=1'
+  reason: "Checked `code/01_data_curation.py` (implements the search, filters, shallow\
+    \ clone, and metadata extraction) and the resulting `data/raw/repo_list.csv` and\
+    \ `data/raw/repo_metadata.csv` (both contain only headers, no repository rows).\
+    \ The script also lacks explicit rate\u2011limit back\u2011off and does not record\
+    \ or handle 404 errors for deleted repos, so the required curated data files are\
+    \ not populated and the robustness requirements are unmet."
   task: cbc5911c83b824f1ab2876c5f2141ab580221569d3cf0ed4cca7259d012c5f1d
 T003:
   task: aeed27dc5589f4dd45b7462661e7aa45e382d6f5bc3b0b28322a9eec16225c9c

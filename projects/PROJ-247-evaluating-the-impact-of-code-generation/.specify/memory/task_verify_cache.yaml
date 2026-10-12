@@ -1,12 +1,20 @@
 T001:
   c: false
-  h: c4689c1a3b025b77b0fc76060b0072c60ea292763ddf3ddebfaf0e3ecd973595
-  r: "The confirmed artifacts (`code/requirements.txt` with all pinned dependencies,\
-    \ `code/utils/models.py` with real dataclasses, and the quickstart documenting\
-    \ runnable commands) satisfy those portions. However, the task also requires a\
-    \ logging configuration and an `.env.example` containing `GITHUB_TOKEN`, `DATA_PATH`,\
-    \ and `LOG_PATH`, and neither artifact appears in the evidence \u2014 the quickstart\
-    \ merely references `.env.example` without it existing on disk. The implementer\
-    \ must add the logging config (e.g., `code/utils/logging_config.py` or equivalent)\
-    \ and a `.env.example` with those three variable"
-  sig: 9cea702f32f9e538390e805ea9daa72daf83c6d2037728b173a5c6ae9e8352c1
+  h: f6e759d4ba3fbb0a6b371a20af14325b090ced3eb26a08585c8f170e7f340c4c
+  r: The repository contains a correct `code/requirements.txt` and a populated `code/utils/models.py`,
+    but it lacks a logging configuration file and an `.env.example` defining `GITHUB_TOKEN`,
+    `DATA_PATH`, and `LOG_PATH`. Moreover, the quickstart documentation is placed
+    at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md` instead
+    of the required `specs/001-code-maintainability-impact/quickstart.md`. These missing/incorrect
+    artifacts prevent the task from being fully satisfied.
+  sig: eabd9d4bf66c5179a803198505f5a833fd036182f77061340f5c79bd3506b986
+T002:
+  c: false
+  h: 6e8b00021d752dc9eebc265e691114ecfd473db10565347c33dc700666ed7445
+  r: "Checked `code/01_data_curation.py` (implements the search, filters, shallow\
+    \ clone, and metadata extraction) and the resulting `data/raw/repo_list.csv` and\
+    \ `data/raw/repo_metadata.csv` (both contain only headers, no repository rows).\
+    \ The script also lacks explicit rate\u2011limit back\u2011off and does not record\
+    \ or handle 404 errors for deleted repos, so the required curated data files are\
+    \ not populated and the robustness requirements are unmet."
+  sig: ab34d6dadc146e2b98a29afb4cd3a0507ba1a74a80f8433b3cedfc67e849f5cd

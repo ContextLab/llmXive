@@ -1,17 +1,18 @@
 status: none
-intent: GitHub repositories metadata dataset with language stars commits CodeBERT
-  classifier radon python package dataset
+intent: download GitHub Archive dataset GHTorrent python package dataset
 required_fields:
+- repository_id
 - repository_name
 - primary_language
-- stars_count
-- last_commit_date
-- commit_count
-- code_block_content
-- classification_label
-- classification_confidence
-- cyclomatic_complexity
-- nesting_depth
-cache_key: 780d3efe32d33471a38d1c7cc7a2b83a1c4d7cfaa82bbef582ce5041f51e7d4c
-searched_at: '2026-10-12T16:38:37.930992+00:00'
+- star_count
+- last_commit_timestamp
+- commit_count_last_90_days
+- file_path
+- code_block_text
+- code_block_start_line
+- code_block_end_line
+- llm_generated_label
+- human_written_label
+cache_key: 85a36b59f399cdf0f3e901ebdf0bd1095dbea035b9e34483702973047d7d007d
+searched_at: '2026-10-12T16:56:33.372127+00:00'
 retry_count: 1
