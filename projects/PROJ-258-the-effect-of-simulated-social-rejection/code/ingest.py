@@ -1,20 +1,10 @@
 """
 Ingestion script for the Social Rejection project (Task T003).
 
-This script downloads one or more dataset files given via ``--dataset-url``,
-streams them to the specified ``--output-dir`` (defaulting to the project's
-raw data folder), and writes a ``dataset_manifest.json`` that records basic
-metadata for each downloaded file.
-
-The original implementation attempted to use the OpenNeuro CRN API, but the
-endpoint is no longer reliable.  The revised version works with any HTTP(S)
-URL (including the HuggingFace mirror used in the quick‑start) and respects
-the RAM limit (``MAX_RAM_GB``) by checking the ``Content‑Length`` header when
-available.
-
-The script exits with status ``1`` if any dataset is estimated to exceed the
-RAM limit; otherwise it returns ``0`` after successful download and manifest
-creation.
+This script queries the OpenNeuro API for specific dataset IDs, verifies that
+the total size of each dataset does not exceed the memory limit (MAX_RAM_GB),
+stream-downloads the files while preserving the directory structure, and
+writes a manifest file recording the metadata.
 """
 
 import argparse
@@ -24,6 +14,7 @@ import os
 import sys
 from pathlib import Path
 from typing import List, Dict, Any
+from urllib.parse import quote
 
 import requests
 
@@ -39,110 +30,102 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper utilities
+# OpenNeuro API Helpers
 # ----------------------------------------------------------------------
-def get_filename_from_url(url: str) -> str:
-    """Extract the final path component from a URL."""
-    return Path(url).name or f"download_{abs(hash(url))}"
-
-def estimate_size_gb(url: str) -> float:
+def get_dataset_files(dataset_id: str) -> List[Dict[str, Any]]:
     """
-    Perform a HEAD request to obtain the ``Content‑Length`` header (if present)
-    and return the size in gigabytes.  Returns ``0.0`` when the size cannot be
-    determined.
+    Query the OpenNeuro API to get the list of files for a dataset.
     """
+    url = f"https://openneuro.org/api/datasets/{dataset_id}/files"
+    logger.info(f"Querying OpenNeuro API for {dataset_id} files: {url}")
     try:
-        response = requests.head(
-            url,
-            timeout=15,
-            allow_redirects=True,
-            headers={"User-Agent": "python-requests"},
-        )
+        response = requests.get(url, timeout=30, headers={"User-Agent": "llmXive-research-agent"})
         response.raise_for_status()
-        length = response.headers.get("Content-Length")
-        if length is None:
-            logger.warning(f"Content‑Length header missing for {url}; size unknown.")
-            return 0.0
-        size_bytes = int(length)
-        size_gb = size_bytes / (1024 ** 3)
-        logger.info(f"Estimated size for {url}: {size_gb:.3f} GB")
-        return size_gb
-    except requests.RequestException as exc:
-        logger.error(f"Failed to perform HEAD request for {url}: {exc}")
-        # Propagate the error – the caller will exit with code 1.
-        raise
+        return response.json()
+    except Exception as exc:
+        logger.error(f"Failed to query OpenNeuro API for {dataset_id}: {exc}")
+        sys.exit(1)
 
-def download_file(url: str, dest_path: Path) -> int:
+def download_openneuro_file(dataset_id: str, file_path: str, dest_path: Path) -> int:
     """
-    Stream‑download ``url`` to ``dest_path``.  Returns the number of bytes written.
+    Stream-download a specific file from an OpenNeuro dataset.
     """
-    logger.info(f"Downloading {url} → {dest_path}")
-    with requests.get(url, stream=True, timeout=60, headers={"User-Agent": "python-requests"}) as r:
-        r.raise_for_status()
-        with open(dest_path, "wb") as f:
-            total_written = 0
-            for chunk in r.iter_content(chunk_size=8192):
-                if not chunk:
-                    continue
-                f.write(chunk)
-                total_written += len(chunk)
-    logger.info(f"Finished download ({total_written} bytes)")
-    return total_written
+    # The file path in the API request must be URL-encoded
+    encoded_path = quote(file_path, safe='')
+    url = f"https://openneuro.org/api/datasets/{dataset_id}/files/{encoded_path}"
+    
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Downloading {file_path} → {dest_path}")
+    try:
+        with requests.get(url, stream=True, timeout=60, headers={"User-Agent": "llmXive-research-agent"}) as r:
+            r.raise_for_status()
+            with open(dest_path, "wb") as f:
+                total_written = 0
+                for chunk in r.iter_content(chunk_size=8192):
+                    if not chunk:
+                        continue
+                    f.write(chunk)
+                    total_written += len(chunk)
+        return total_written
+    except Exception as exc:
+        logger.error(f"Download failed for {file_path} at {url}: {exc}")
+        raise
 
 # ----------------------------------------------------------------------
 # Main ingestion routine
 # ----------------------------------------------------------------------
-def run_ingestion(urls: List[str], output_dir: Path) -> None:
+def run_ingestion(dataset_ids: List[str], output_dir: Path) -> None:
     """
-    Download each URL, enforce the RAM limit, and write a manifest file.
-
-    Parameters
-    ----------
-    urls: List[str]
-        One or more HTTP(S) URLs pointing to dataset files.
-    output_dir: Path
-        Directory where files will be stored.  It is created if missing.
+    Implement T003:
+    1. Query API, sum sizes, halt if > 7GB.
+    2. Stream-download preserving filenames.
+    3. Write manifest.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-
     manifest_entries: List[Dict[str, Any]] = []
 
-    for url in urls:
-        # ---- Size check -------------------------------------------------
-        try:
-            size_gb = estimate_size_gb(url)
-        except Exception:
-            logger.error("Aborting ingestion due to size‑estimation failure.")
-            sys.exit(1)
-
-        if size_gb > MAX_RAM_GB:
+    for ds_id in dataset_ids:
+        # ---- 1. Query and Size Check ----------------------------------
+        files_list = get_dataset_files(ds_id)
+        total_size_bytes = sum(f.get('size', 0) for f in files_list)
+        total_size_gb = total_size_bytes / (1024 ** 3)
+        
+        logger.info(f"Dataset {ds_id} total estimated size: {total_size_gb:.3f} GB")
+        
+        if total_size_gb > MAX_RAM_GB:
             logger.error(
-                f"Dataset at {url} estimated size ({size_gb:.2f} GB) exceeds the "
-                f"memory limit of {MAX_RAM_GB} GB. Halting."
+                f"Dataset {ds_id} size ({total_size_gb:.2f} GB) exceeds "
+                f"the memory limit of {MAX_RAM_GB} GB. Halting."
             )
             sys.exit(1)
 
-        # ---- Download ----------------------------------------------------
-        filename = get_filename_from_url(url)
-        dest_path = output_dir / filename
-        try:
-            size_bytes = download_file(url, dest_path)
-        except Exception as exc:
-            logger.error(f"Download failed for {url}: {exc}")
-            sys.exit(1)
+        # ---- 2. Stream-Download ----------------------------------------
+        file_count = 0
+        for file_info in files_list:
+            rel_path = file_info['name']
+            # We store under data/raw/{ds_id}/{rel_path} to avoid collisions
+            # and preserve the original dataset structure.
+            dest_path = output_dir / ds_id / rel_path
+            try:
+                download_openneuro_file(ds_id, rel_path, dest_path)
+                file_count += 1
+            except Exception:
+                logger.error(f"Critical failure downloading {rel_path}. Aborting.")
+                sys.exit(1)
 
-        # ---- Manifest entry -----------------------------------------------
-        dataset_id = Path(filename).stem  # use filename without extension as id
+        # ---- 3. Manifest entry ------------------------------------------
+        # URL is the dataset landing page
         entry = {
-            "url": url,
+            "url": f"https://openneuro.org/datasets/{ds_id}",
             "sha256": None,
-            "size_bytes": size_bytes,
-            "file_count": 1,
-            "dataset_id": dataset_id,
+            "size_bytes": total_size_bytes,
+            "file_count": file_count,
+            "dataset_id": ds_id,
         }
         manifest_entries.append(entry)
 
-    # ---- Write manifest -------------------------------------------------
+    # ---- Write manifest -----------------------------------------------
     manifest_path = output_dir / "dataset_manifest.json"
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest_entries, f, indent=2)
@@ -153,13 +136,13 @@ def run_ingestion(urls: List[str], output_dir: Path) -> None:
 # ----------------------------------------------------------------------
 def parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download dataset files and produce a manifest (Task T003)."
+        description="Download OpenNeuro datasets and produce a manifest (Task T003)."
     )
     parser.add_argument(
-        "--dataset-url",
-        action="append",
+        "--dataset-ids",
+        nargs="+",
         required=True,
-        help="URL of a dataset file to download. Can be provided multiple times.",
+        help="List of OpenNeuro dataset IDs to download (e.g., ds000208 ds003392).",
     )
     parser.add_argument(
         "--output-dir",
@@ -171,7 +154,7 @@ def parse_cli() -> argparse.Namespace:
 def main() -> None:
     args = parse_cli()
     output_dir = Path(args.output_dir)
-    run_ingestion(args.dataset_url, output_dir)
+    run_ingestion(args.dataset_ids, output_dir)
 
 if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T003** — The provided `code/ingest.py` only accepts arbitrary `--dataset-url` arguments, performs a HEAD request on each URL, and writes a manifest for the single HuggingFace‑mirrored file that was actually downloaded. It never queries the OpenNeuro API for the specific datasets ds000208 and ds003392, does not sum file sizes across all files in each dataset, and the execution log shows only one URL being processed. Consequently the script does not download both required datasets nor produce a manifest containing two entries as stipulated. The task’s core requirements are therefore unmet.
+- **T003** — Requested task execution failed; rerun successfully: code/ingest.py exit=1
 - **T004** — Requested task execution failed; rerun successfully: code/ingest.py exit=1
 - **T005** — The repository contains the implementation of `process_overlap_and_design()` in `code/ingest.py`, but the required output files (`data/interim/overlap_report.json`, `data/interim/design_branch.json`, and `data/processed/metadata.json`) are absent, so the task’s deliverables have not been produced.
 - **T006** — The `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml` only contains a hash entry for `ds000208` (with an outdated timestamp) and lacks the required entry for `ds003392`; additionally, the required `data/raw/CITATION.md` file is absent.
