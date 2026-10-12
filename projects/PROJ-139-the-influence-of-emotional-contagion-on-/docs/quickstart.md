@@ -2,165 +2,117 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- pip (Python package manager)
-- Access to Reddit API credentials (for data download)
+- Python 3.11 or higher
+- `pip` package manager
+- Access to the internet (for data fetching)
+- (Optional) Reddit API credentials (for primary data source fallback)
 
-## Installation
+## 1. Environment Setup
 
-1. Clone the repository and navigate to the project directory:
- ```bash
- cd PROJ-139-the-influence-of-emotional-contagion-on-
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-3. Set up environment variables (optional, for API keys):
- ```bash
- export REDDIT_CLIENT_ID="your_client_id"
- export REDDIT_CLIENT_SECRET="your_client_secret"
- export REDDIT_USER_AGENT="your_user_agent"
- ```
-
-## Running the Pipeline
-
-### Data Download
-
-**IMPORTANT**: The data download script uses the following arguments:
-- `--subreddits`: List of subreddits to fetch (e.g., `askScience fdr`)
-- `--limit`: Maximum number of threads to fetch (optional)
-- `--output`: Output file path (optional, defaults to `data/raw/reddit_threads.jsonl`)
-
-**Correct Command**:
+### Create a Virtual Environment
 ```bash
-python code/data/download.py --subreddits askScience fdr --limit 100
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
-**Note**: The previous command `--source askScience --source fdr` was incorrect and has been fixed. The script now uses `--subreddits` to specify multiple subreddits.
+### Install Dependencies
+```bash
+pip install -r code/requirements.txt
+```
 
-### Full Pipeline Execution
+## 2. Configuration
 
-Run the complete analysis pipeline:
+The project uses a JSON configuration file or environment variables to manage API keys and paths.
+
+### Option A: Environment Variables (Recommended)
+Set the following environment variables before running the pipeline:
+```bash
+export REDDIT_CLIENT_ID="your_client_id"
+export REDDIT_CLIENT_SECRET="your_client_secret"
+export REDDIT_USER_AGENT="your_user_agent"
+```
+
+### Option B: Configuration File
+Create a file named `config.json` in the project root (or specify a custom path via `--config`):
+```json
+{
+ "api_keys": {
+ "reddit_client_id": "your_client_id",
+ "reddit_client_secret": "your_client_secret",
+ "reddit_user_agent": "your_user_agent"
+ },
+ "dataset_paths": {
+ "raw_data_dir": "data/raw",
+ "processed_data_dir": "data/processed",
+ "state_dir": "state",
+ "figures_dir": "figures"
+ }
+}
+```
+
+## 3. Running the Pipeline
+
+The full pipeline consists of sequential stages: Data Download, Validation, Extraction, Sentiment Analysis, Metrics Computation, and Statistical Modeling.
+
+### Run the Full Pipeline
+Execute the main pipeline script:
 ```bash
 python code/analysis/run_pipeline.py
 ```
 
-This will:
-1. Download data (if not already present)
-2. Extract seed posts and validate ground truth
-3. Apply sentiment analysis
-4. Compute emotional contagion index
-5. Fit statistical models
-6. Generate final reports
+**Note:** This script automatically handles:
+1. **Data Download (T008)**: Fetches from Pushshift, Reddit API, or HuggingFace archives.
+2. **Ground Truth Validation (T019)**: Classifies threads and computes external validation scores.
+3. **Extraction (T010, T009)**: Extracts seed posts and validates metadata.
+4. **Sentiment Analysis (T013)**: Applies VADER sentiment scoring.
+5. **Metrics & Modeling (T015, T018, T020)**: Computes contagion indices and fits GLMMs.
+6. **Sensitivity Analysis (T023)**: Sweeps thresholds to test robustness.
+7. **Report Generation (T026)**: Produces `docs/paper.md`.
 
-### Individual Stage Execution
-
-You can also run individual stages:
-
+### Sample Run (for quick verification)
+To verify that the pipeline is correctly installed and can produce a minimal output, run:
 ```bash
-# Data download
-python code/data/download.py --subreddits askScience fdr
-
-# Data extraction and validation
-python code/data/extract.py
-python code/data/validation.py
-
-# Sentiment analysis
-python code/data/sentiment.py
-
-# Metrics calculation (T059: Uses filtered dataset from T009)
-python code/data/metrics.py
-
-# Modeling and analysis
-python code/data/modeling.py
-
-# Final reports
-python code/analysis/generate_final_reports.py
+python -m code.analysis.run_pipeline --sample 5
 ```
+This command creates a tiny CSV file at `data/results/sample_run.csv` containing five example records. It runs quickly and does not require the full dataset.
 
-## Expected Outputs
+## 4. Output Artifacts
 
-After successful execution, the following artifacts will be generated:
+Upon successful completion, the following artifacts will be generated:
 
-### Data Files (`data/processed/`)
-- `threads_with_seeds.csv`: Filtered threads with ≥3 seed posts
-- `valid_threads.csv`: Threads with valid ground truth
-- `thread_metrics.csv`: Emotional contagion index and decision quality metrics
-- `sensitivity_analysis.csv`: Sensitivity analysis results
-- `ground_truth_stats.json`: Ground truth coverage statistics
-- `vader_validation_report.json`: VADER sentiment validation results
-- `external_validation_correlation.csv`: Correlation with external validation
-- `collinearity_diagnostics.json`: VIF scores for predictors
+- **Data**:
+ - `data/raw/reddit_threads.jsonl`: Raw downloaded data.
+ - `data/processed/valid_threads.csv`: Threads with valid ground truth.
+ - `data/processed/threads_with_seeds.csv`: Extracted seed posts.
+ - `data/processed/thread_metrics.csv`: Contagion indices and reply counts.
+ - `data/processed/sensitivity_analysis.csv`: Results of threshold sweeps.
+ - `data/processed/external_validation_correlation.csv`: Correlation with external validation.
+ - `data/processed/vader_validation_report.json`: VADER sentiment validation results.
+ - `data/results/sample_run.csv`: **Sample CSV produced by the `--sample` command.**
+- **Reports**:
+ - `docs/paper.md`: Final research paper draft.
+ - `docs/analysis_summary.md`: Analysis summary with limitations.
+ - `state/performance_log.json`: Execution timing and status.
+ - `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml`: Artifact checksums.
 
-### State Files (`state/`)
-- `sc_006_compliance_report.json`: Ground truth threshold compliance
-- `final_validation.json`: All success criteria validation results
-- `reproducibility_report.json`: Reproducibility verification results
-- `artifact_hashes.yaml`: Checksums of all artifacts
+## 5. Verification
 
-### Documentation (`docs/`)
-- `paper.md`: Final research paper
-- `analysis_summary.md`: Analysis summary with limitations
-- `quickstart.md`: This guide
+1. **Check Outputs**:
+ ```bash
+ ls data/results/
+ # Expected: sample_run.csv (and other result files after full run)
+ ```
 
-## Memory and Streaming
+2. **Run Tests**:
+ ```bash
+ pytest code/tests/ -v
+ ```
 
-### Memory Constraints
-The pipeline is designed to run on standard CPU-only runners with limited memory (~7 GB RAM, ~14 GB disk). To handle large datasets:
+3. **Reproducibility Check**:
+ Re-run the pipeline. Verify that `data/processed/` files have identical checksums (recorded in `state/`).
 
-1. **Streaming**: The download and processing stages use streaming to avoid loading entire datasets into memory.
-2. **Sampling**: If the dataset exceeds memory limits, the pipeline automatically samples a representative subset (logged in `data/processed/sampling_strategy_log.json`).
-3. **Chunk Processing**: Metrics and modeling stages process data in chunks where possible.
+## 6. Troubleshooting
 
-### Monitoring
-Monitor memory usage during execution:
-```bash
-python code/analysis/validate_streaming_rules.py
-```
-
-This will generate `state/streaming_validation.json` with memory profile information.
-
-## Troubleshooting
-
-### Data Download Fails
-If data download fails:
-1. Check API credentials
-2. Verify network connectivity
-3. Review `data/processed/download_attempts.log` for error details
-
-### Pipeline Stage Fails
-If a specific stage fails:
-1. Check the corresponding log file (e.g., `data/processed/metrics_pipeline.log`)
-2. Verify input files exist and are valid
-3. Ensure dependencies from previous stages are complete
-
-### Missing Artifacts
-If expected artifacts are missing:
-1. Run `python code/analysis/final_validation.py` to check for missing files
-2. Review `state/final_validation.json` for detailed error messages
-
-## Validation and Verification
-
-### Run Full Validation
-```bash
-python code/analysis/final_validation.py
-```
-
-### Verify Reproducibility
-```bash
-python code/analysis/verify_reproducibility.py
-```
-
-### Verify Data Sources
-```bash
-python code/analysis/verify_data_sources.py
-```
-
-## T059 Specific: Corrected Data Flow
-
-**Important Fix**: Task T059 corrected the data flow in `code/data/metrics.py` to ensure it reads from the **filtered dataset** (`threads_with_seeds.csv`) rather than the raw dataset. This prevents the inclusion of threads that should have been excluded by T010 (threads with <3 top-level posts).
-
-The `load_processed_data()` function now explicitly loads from `data/processed/threads_with_seeds.csv` and raises a `FileNotFoundError` if this file does not exist, ensuring the pipeline fails loudly rather than processing incorrect data.
+- **Data Fetch Failures**: If the primary Pushshift API fails, the script automatically attempts fallback sources (Reddit API, HuggingFace). Check logs in `state/logs/` for details.
+- **Ground Truth Threshold**: If valid threads are < 30%, the pipeline logs a warning but continues (T019b).
+- **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed.

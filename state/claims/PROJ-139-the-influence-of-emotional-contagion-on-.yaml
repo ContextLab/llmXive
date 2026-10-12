@@ -601,7 +601,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-24T14:07:18Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -1354,7 +1354,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-25T18:58:40Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -3758,7 +3758,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-28T08:26:34Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -6533,7 +6533,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-19T02:43:50Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
@@ -7790,3 +7790,21 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T15:58:00Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: sample run creates CSV with five records
+  claim_id: c_0dc4ebd3
+  context: To verify that the pipeline is correctly installed and can produce a minimal
+    output, run the sample command; this command creates a tiny CSV file at data/results/sample_run.csv
+    containing five example records.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: This command creates a tiny CSV file at data/results/sample_run.csv containing
+    five example records.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T00:26:00Z'

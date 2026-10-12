@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T10:25:42.709825Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-139-the-influence-of-emotional-contagion-on-
-last_run_id: 51075058-3e1b-4d9f-a33a-814594b585c2
+last_run_id: 67f26712-303f-4c16-93e0-d4cfc037c8b4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on
 title: The Influence of Emotional Contagion on Collective Decision-Making in Online
   Forums
-updated_at: '2026-10-12T00:21:34.729925Z'
+updated_at: '2026-10-12T00:30:46.351284Z'
