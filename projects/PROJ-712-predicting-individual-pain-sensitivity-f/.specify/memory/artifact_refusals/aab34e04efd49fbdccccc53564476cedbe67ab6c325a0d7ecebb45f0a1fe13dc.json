@@ -1,7 +1,7 @@
 {
   "task_id": "T008",
-  "fingerprint": "50a2529fdee764348e9855c2b0f4ff5c780737712ab25711610799bb2c4fd974",
-  "count": 3,
+  "fingerprint": "008e71b5132b0118a2bd7d3b485298c9f693443288f247291a6de998aab8928d",
+  "count": 1,
   "model": "openai.gpt-oss-120b",
   "reason": "[implementer] refused 'preprocessing.py': `code/preprocessing.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
 }

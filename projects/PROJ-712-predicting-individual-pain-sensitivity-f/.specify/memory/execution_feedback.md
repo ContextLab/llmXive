@@ -27,9 +27,9 @@ ModuleNotFoundError: No module named 'datasets'
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-13 02:22:58,158 - __main__ - ERROR - Missing required citations:
-2026-10-13 02:22:58,158 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-13 02:22:58,158 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 03:23:59,985 - __main__ - ERROR - Missing required citations:
+2026-10-13 03:23:59,985 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 03:23:59,985 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 
@@ -39,10 +39,10 @@ Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-ind
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 395, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 386, in preprocess_all_participants
     metadata_df = _load_participant_metadata(metadata_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 266, in _load_participant_metadata
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
     raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
 FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
@@ -54,10 +54,10 @@ FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/p
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 395, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 386, in preprocess_all_participants
     metadata_df = _load_participant_metadata(metadata_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 266, in _load_participant_metadata
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
     raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
 FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
@@ -69,10 +69,10 @@ FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/p
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 395, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 386, in preprocess_all_participants
     metadata_df = _load_participant_metadata(metadata_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 266, in _load_participant_metadata
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
     raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
 FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
@@ -84,10 +84,10 @@ FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/p
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 395, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 386, in preprocess_all_participants
     metadata_df = _load_participant_metadata(metadata_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 266, in _load_participant_metadata
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
     raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
 FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
@@ -108,7 +108,7 @@ FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/p
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 2 errors in 1.53s ========================
+======================== 14 warnings, 2 errors in 1.59s ========================
 
 
 

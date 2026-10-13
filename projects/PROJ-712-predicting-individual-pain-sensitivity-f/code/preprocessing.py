@@ -1,6 +1,6 @@
 """
 EEG preprocessing module.
-Provides functions for re-referencing, filtering, ICA cleaning,
+Provides functions for re‑referencing, filtering, ICA cleaning,
 microstate segmentation, and feature extraction, using the DataChunk
 streaming interface.
 """
@@ -230,11 +230,6 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     # ------------------------------------------------------------------
     # 7. Assemble feature dictionary respecting the canonical column order
     # ------------------------------------------------------------------
-    # Gather values in the exact order expected by the schema:
-    #   4 mean durations (A‑D)
-    #   4 occurrence rates (A‑D)
-    #   16 transition probabilities (row‑major A‑D × A‑D)
-    #   6 spectral power bands (Delta, Theta, Alpha, Beta, LowGamma, HighGamma)
     values_in_order: List[float] = []
     values_in_order.extend(mean_durations)                     # 4
     values_in_order.extend(occurrence_rates.tolist())          # 4
@@ -288,7 +283,6 @@ def _load_raw_for_participant(loader: EEGDataLoader, participant_id: str) -> mne
         candidates = list(participant_dir.glob(ext))
         if candidates:
             raw_path = candidates[0]
-            # Use MNE's generic reader; it will choose the appropriate loader.
             raw = mne.io.read_raw(raw_path, preload=False, verbose=False)
             return raw
 
@@ -310,10 +304,8 @@ def _determine_raw_dir(loader: EEGDataLoader) -> Path:
             if isinstance(candidate, Path):
                 return candidate
             else:
-                # Coerce string to Path
                 return Path(candidate)
 
-    # Fallback: inspect any Path attribute on the loader that points to an existing directory
     for name, value in vars(loader).items():
         if isinstance(value, Path) and value.is_dir():
             return value
@@ -389,7 +381,6 @@ def preprocess_all_participants(
     Iterate over provided participant IDs, preprocess each, and collect the rows.
     Returns a list of dictionaries ready for aggregation into a DataFrame.
     """
-    # Resolve the raw directory (metadata lives alongside the raw files)
     raw_dir = _determine_raw_dir(loader)
     metadata_path = raw_dir / "heat_pain_thresholds.csv"
     metadata_df = _load_participant_metadata(metadata_path)

@@ -28,16 +28,12 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: 0ea6e0b8d9233ecc6af6109623602205c244c410cd9be4883a80db0e93fec334
-  r: '`code/utils.py` exists and implements all three required behaviors: `set_global_seed`
-    pins `random.seed(42)`/`np.random.seed(42)`, `setup_logging` writes timestamped
-    entries to `artifacts/log.txt` (confirmed by the actual log file containing a
-    timestamped `test_logger - INFO` entry from the test run), and `record_artifact_hash`
-    computes a SHA-256 digest and returns it. The test file `tests/unit/test_utils.py`
-    covers identical-file hash equality and logger file creation, and the log evidence
-    shows the tests actually executed. Minor oddities (the weird `args.verify_checksumsums
-    if False else` ex'
-  sig: 325e3a8f174442264089ccd535797b7cc61652a293b982a9ca11d077e2edbe82
+  h: aa6c40569c823a9d414a66178b809dfaf1c68f1b7aca67409bd50db0643c750a
+  r: "Checked `code/utils.py` (provides seed setting, logger writing to `artifacts/log.txt`,\
+    \ and `record_artifact_hash` returning a SHA\u2011256 hash) and `tests/unit/test_utils.py`\
+    \ (verifies identical file hashes, logger output, and hash return). All required\
+    \ artifacts exist, contain the correct implementations, and satisfy the test expectations."
+  sig: b5e3bcb6c4fe1b54cc153d3ad6bdbd03344e8db2cb9db8d7191fdb558ac8d374
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56
