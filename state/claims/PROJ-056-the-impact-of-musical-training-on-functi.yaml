@@ -14,3 +14,128 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-13T11:41:40Z'
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/README.md
+  attempts: 1
+  canonical: Schaefer 400-parcel atlas
+  claim_id: c_5d3fe699
+  context: "The 'atlas' directory contains the Schaefer 400\u2011parcel atlas CSV\
+    \ and checksum."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Schaefer 400\u2011parcel atlas CSV and checksum"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T14:11:03Z'
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/quickstart.md
+  attempts: 1
+  canonical: pipeline tested with Python 3.11
+  claim_id: c_e35a3d80
+  context: "Python\u202F3.11+ (the pipeline has been tested with Python\u202F3.11)"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "the pipeline has been tested with Python\u202F3.11"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T14:11:17Z'
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/quickstart.md
+  attempts: 1
+  canonical: verification mode validates code paths, memory limits, and output generation
+    on synthetic data
+  claim_id: c_d4b54004
+  context: Verification Mode (synthetic data) This mode runs the full pipeline on
+    generated synthetic data. It validates code paths, memory limits, and output generation
+    without requiring any real neuroimaging files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Verification Mode runs the full pipeline on generated synthetic data and
+    validates code paths, memory limits, and output generation without requiring any
+    real neuroimaging files
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T14:11:17Z'
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/quickstart.md
+  attempts: 1
+  canonical: pipeline generates subjects_cleaned.csv, connectivity_matrices.npy, connectivity_results.csv,
+    nbs_results.csv, correlation_results.csv, sensitivity_analysis.csv
+  claim_id: c_119c7e9b
+  context: 'Expected outputs (written under `data/processed/`): - `subjects_cleaned.csv`
+    - `connectivity_matrices.npy` - `connectivity_results.csv` - `nbs_results.csv`
+    - `correlation_results.csv` - `sensitivity_analysis.csv`'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The pipeline generates the following files under data/processed/: subjects_cleaned.csv,
+    connectivity_matrices.npy, connectivity_results.csv, nbs_results.csv, correlation_results.csv,
+    sensitivity_analysis.csv'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T14:11:17Z'
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/quickstart.md
+  attempts: 1
+  canonical: pipeline aborts with DataAccessError if fewer than 50 subjects per group
+  claim_id: c_8758792b
+  context: 'Important: If the real dataset does not contain at least 50 subjects per
+    group, the pipeline will abort with a clear DataAccessError(''Insufficient Data
+    for Power'').'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the real dataset does not contain at least 50 subjects per group, the
+    pipeline will abort with a clear DataAccessError('Insufficient Data for Power')
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T14:11:17Z'
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/quickstart.md
+  attempts: 1
+  canonical: atlas fetched from Nilearn dataset repository
+  claim_id: c_ed4b5661
+  context: 'Atlas download failures: Ensure you have internet access; the atlas is
+    fetched from the Nilearn dataset repository.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The atlas is fetched from the Nilearn dataset repository
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T14:12:06Z'
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/quickstart.md
+  attempts: 1
+  canonical: unit test checks quick-start guide contains verification command and
+    README lists required folders
+  claim_id: c_b31f78d7
+  context: "The unit test `tests/unit/test_quickstart.py` checks that this quick\u2011\
+    start guide contains the required verification command and that the top\u2011\
+    level README lists the required folders."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The unit test tests/unit/test_quickstart.py checks that this quick\u2011\
+    start guide contains the required verification command and that the top\u2011\
+    level README lists the required folders"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T14:12:06Z'

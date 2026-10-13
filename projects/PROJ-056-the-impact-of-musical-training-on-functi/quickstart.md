@@ -1,12 +1,12 @@
 # Quick‑Start Guide
 
-## Prerequisites
+## 1. Prerequisites
 
-- **Python 3.11+** (the pipeline has been tested with Python 3.11 [UNRESOLVED-CLAIM: c_aac6e33b — status=not_enough_info])
+- **Python 3.11+** (the pipeline has been tested with Python 3.11 [UNRESOLVED-CLAIM: c_e35a3d80 — status=not_enough_info])
 - Git (to clone the repository)
-- A working internet connection (required for downloading the Schaefer atlas)
+- An active internet connection (required for downloading the Schaefer atlas)
 
-## Installation
+## 2. Installation
 
 ```bash
 # Clone the repository
@@ -21,7 +21,7 @@ source venv/bin/activate # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Running the Pipeline
+## 3. Running the Pipeline
 
 ### Verification Mode (synthetic data)
 
@@ -56,7 +56,7 @@ The script will:
 
 **Important:** If the real dataset does not contain at least 50 subjects per group, the pipeline will abort with a clear `DataAccessError('Insufficient Data for Power')`.
 
-## Testing
+## 4. Testing
 
 After installation, run the full test suite to ensure everything is working:
 
@@ -64,9 +64,9 @@ After installation, run the full test suite to ensure everything is working:
 pytest tests/
 ```
 
-The unit test `tests/unit/test_quickstart.py` checks that this quick‑start guide contains the required command (`python -m code.main --mode verification`) and that the top‑level folders are listed in `README.md`.
+The unit test `tests/unit/test_quickstart.py` checks that this quick‑start guide contains the required verification command and that the top‑level README lists the required folders.
 
-## Troubleshooting
+## 5. Troubleshooting
 
 - **Missing `networkx`**: Install it via `pip install networkx` (added to `requirements.txt` automatically by the pipeline).
 - **Memory limit exceeded**: Reduce the number of subjects or use verification mode with fewer synthetic subjects (`--n-subjects` argument can be added to the script if needed).
