@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 17830,
+    "total_contributions": 17832,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1053,7 +1053,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 154,
+      "contribution_count": 155,
       "kind": "llm",
       "name": "zai-org.glm-5.3"
     },
@@ -1079,7 +1079,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 49,
+      "contribution_count": 50,
       "kind": "llm",
       "name": "google.gemma-4-31B-it"
     },
@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-13T22:38:00.015420+00:00",
+  "generated_at": "2026-10-13T23:09:15.592605+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29163,6 +29163,11 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
+          "project_id": "PROJ-008-psychology-research",
+          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on",
           "project_id": "PROJ-541-evaluating-the-impact-of-data-scaling-on",
           "title": "Evaluating the Impact of Data Scaling on Robustness of Statistical Tests"
@@ -29181,11 +29186,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-010-quantitative-analysis-of-gene-expression",
           "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
           "title": "Quantitative Analysis of Gene Expression Dynamics during Human Brain Development"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-155-predicting-cognitive-flexibility-from-re",
-          "project_id": "PROJ-155-predicting-cognitive-flexibility-from-re",
-          "title": "Predicting Cognitive Flexibility from Resting-State Functional Connectivity Variability"
         }
       ],
       "inputs": [
@@ -29209,6 +29209,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
+          "project_id": "PROJ-008-psychology-research",
+          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on",
           "project_id": "PROJ-541-evaluating-the-impact-of-data-scaling-on",
           "title": "Evaluating the Impact of Data Scaling on Robustness of Statistical Tests"
@@ -29227,11 +29232,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-010-quantitative-analysis-of-gene-expression",
           "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
           "title": "Quantitative Analysis of Gene Expression Dynamics during Human Brain Development"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-155-predicting-cognitive-flexibility-from-re",
-          "project_id": "PROJ-155-predicting-cognitive-flexibility-from-re",
-          "title": "Predicting Cognitive Flexibility from Resting-State Functional Connectivity Variability"
         }
       ],
       "inputs": [
@@ -30908,9 +30908,18 @@
           ]
         },
         {
-          "contributions": 1,
+          "contributions": 2,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "google.gemma-4-31B-it",
+          "roles": [
+            "planner",
+            "tasker"
+          ]
+        },
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
           "roles": [
             "implementer"
           ]
@@ -30918,15 +30927,15 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-4-31B-it",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "planner"
+            "implementer"
           ]
         }
       ],
       "citation_summary": {
         "mismatch": 0,
-        "pending": 5,
+        "pending": 2,
         "unreachable": 1,
         "verified": 0
       },
@@ -30937,12 +30946,44 @@
         "repo_path": "projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "planned",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question asks about the causal relationship between specific psychological intervention components (breath awareness, body scan) and clinical outcomes (social skill domains) in a defined population. It is independent of any specific machine learning algorithm or computational architecture, focusing\u2026",
       "field": "psychology",
       "id": "PROJ-008-psychology-research",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 158.49446,
+          "ended_at": "2026-10-13T22:53:03.327656Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-13T22:50:24.833196Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 149.850473,
+          "ended_at": "2026-10-13T22:50:24.829741Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-13T22:47:54.979268Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 0.03505,
+          "ended_at": "2026-10-13T22:47:46.492470Z",
+          "model": "deterministic-no-llm",
+          "outcome": "skipped",
+          "started_at": "2026-10-13T22:47:46.457420Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 1080.253288,
+          "ended_at": "2026-10-13T22:47:32.485552Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-13T22:29:32.232264Z"
+        },
         {
           "agent": "planner",
           "duration_s": 1257.885945,
@@ -30990,38 +31031,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-29T04:25:55.259446Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 22.738057,
-          "ended_at": "2026-09-29T04:25:55.255538Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-29T04:25:32.517481Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 26.690699,
-          "ended_at": "2026-09-29T04:25:32.513497Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-29T04:25:05.822798Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 55.79559,
-          "ended_at": "2026-09-29T04:25:05.818724Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-29T04:24:10.023134Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 92.318848,
-          "ended_at": "2026-09-29T04:23:59.085618Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-29T04:22:26.766770Z"
         }
       ],
       "paper_status": null,
@@ -31126,7 +31135,7 @@
       "speckit_research_dir": "projects/PROJ-008-psychology-research/specs/002-psychology-research",
       "submitter": null,
       "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism",
-      "updated_at": "2026-10-13T22:29:17.099674+00:00",
+      "updated_at": "2026-10-13T22:54:05.784317+00:00",
       "upstream_feedback": null
     },
     {
@@ -170326,6 +170335,54 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 158.49446,
+      "ended_at": "2026-10-13T22:53:03.327656Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-008-psychology-research",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-13T22:50:24.833196Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 149.850473,
+      "ended_at": "2026-10-13T22:50:24.829741Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-008-psychology-research",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-13T22:47:54.979268Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.03505,
+      "ended_at": "2026-10-13T22:47:46.492470Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-008-psychology-research",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-13T22:47:46.457420Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1080.253288,
+      "ended_at": "2026-10-13T22:47:32.485552Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-008-psychology-research",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-13T22:29:32.232264Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1257.885945,
       "ended_at": "2026-10-13T22:29:17.096852Z",
@@ -170333,7 +170390,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-008-psychology-research",
-      "project_stage": "planned",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-13T22:08:19.210907Z"
     },
@@ -176338,54 +176395,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-13T00:17:42.653622Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.270739,
-      "ended_at": "2026-10-13T00:24:48.049958Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-13T00:24:18.779219Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.221302,
-      "ended_at": "2026-10-13T00:23:36.383148Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-672-the-impact-of-bounded-confidence-on-opin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-13T00:23:12.161846Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 12.354224,
-      "ended_at": "2026-10-13T00:23:12.158703Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-672-the-impact-of-bounded-confidence-on-opin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-13T00:22:59.804479Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 393.600798,
-      "ended_at": "2026-10-13T00:23:00.507725Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-712-predicting-individual-pain-sensitivity-f",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-13T00:16:26.906927Z"
     }
   ],
   "reviewed_preprints": [
