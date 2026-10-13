@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: MetricRecord
+type: object
+required:
+  - model_name
+  - condition
+  - prejudice_rate
+  - holistic_grounding_rate
+  - integration_failure_rate
+  - n_valid
+  - n_invalid
+  - n_ambiguous
+properties:
+  model_name:
+    type: string
+    description: "Identifier of the MLLM (matches Table 2 of arXiv:2605.22109)."
+  condition:
+    type: string
+    enum: [baseline, context, noise]
+    description: "Experimental condition under which metrics were computed."
+  prejudice_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of correct ratings lacking valid grounding (PR)."
+  holistic_grounding_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of correct ratings with valid grounding (HR)."
+  integration_failure_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of outputs that did not cite any injected context phrase (IR)."
+  n_valid:
+    type: integer
+    minimum: 0
+    description: "Number of samples included after excluding invalid JSON or timeouts (FR‑010)."
+  n_invalid:
+    type: integer
+    minimum: 0
+    description: "Number of excluded samples (invalid output)."
+  n_ambiguous:
+    type: integer
+    minimum: 0
+    description: "Number of samples flagged with grounding‑uncertainty (FR‑011)."
