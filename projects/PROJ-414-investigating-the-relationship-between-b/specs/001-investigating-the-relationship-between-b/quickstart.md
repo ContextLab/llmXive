@@ -14,11 +14,15 @@ pip install -r requirements.txt  # includes nilearn, nipype, fslpy, scikit-learn
 
 > **Note:** The pipeline relies on **FSL (v6.0.5)** and **AFNI (v22.2.07)** binaries, which are pre‑installed on the GitHub Actions runner image. If running locally, ensure these tools are available in your `$PATH`.
 
-## 2. Verify Data Availability
+## 2. Download and Verify Data
 ```bash
-python -c "from datasets import load_dataset; ds = load_dataset('openneuro', 'ds000246'); print(ds)"
+python code/download_openneuro.py
 ```
-The command should list the dataset split and show column names (`subject_id`, `run_label`, `age`, `years_training`, `fd`, `roi_start` … `roi_100`). If any required column is missing, the pipeline will abort with a clear error (see Constitution Principle III).
+The script downloads the OpenNeuro dataset `ds000246`, creates
+`data/raw/openneuro/ds000246/manifest.json` and records SHA‑256 checksums in
+`data/raw/checksums.json`. It aborts with a clear error if the dataset does
+not contain at least 20 subjects or if any subject is missing the required
+``Improv`` and ``Scripted`` runs.
 
 ## 3. Execute the Full Pipeline
 ```bash
@@ -69,6 +73,3 @@ rm -rf data/output
 The raw parquet file remains cached under `~/.cache/huggingface/datasets/` for future runs.
 
 **Note**: All steps run on the CPU‑only GitHub Actions runner; no GPU resources are required. Runtime on the free tier is typically < 5 h for 25 subjects.
-
----
-
