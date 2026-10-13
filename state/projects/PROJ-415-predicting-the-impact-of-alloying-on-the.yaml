@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-415-predicting-the-impact-of-alloying-on-the
-last_run_id: 57f88145-e473-4f8c-a2f9-f59b7990e1fd
+last_run_id: ffa0bba8-c44b-44cc-ac80-f70b9954c905
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the
 title: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC
   Metals
-updated_at: '2026-10-08T14:57:24.371637Z'
+updated_at: '2026-10-13T19:14:08.500143Z'
