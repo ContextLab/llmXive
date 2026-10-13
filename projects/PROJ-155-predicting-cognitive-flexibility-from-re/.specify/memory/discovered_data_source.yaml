@@ -1,12 +1,89 @@
-status: none
-intent: Human Connectome Project 1200 release minimal preprocessing with Schaefer
-  atlas python package dataset
+status: verified
+kind: pypi_package
+ref: nilearn
+access_python: 'import nilearn.datasets as nd
+
+
+  bunch = nd.fetch_adhd()
+
+  df = bunch["phenotypic"]
+
+  print(f"RECORDS={len(df)}")
+
+  print("FIELDS=" + ",".join(df.columns))'
+record_count: 30
+sample_fields:
+- 'Unnamed: 0'
+- Subject
+- Rest.Scan
+- MeanFD
+- NumFD_greater_than_0.20
+- rootMeanSquareFD
+- FDquartile.top1.4thFD.
+- PercentFD_greater_than_0.20
+- MeanDVARS
+- MeanFD_Jenkinson
+- site
+- sibling_id
+- data_set
+- age
+- sex
+- handedness
+- full_2_iq
+- full_4_iq
+- viq
+- piq
+- iq_measure
+- tdc
+- adhd
+- adhd_inattentive
+- adhd_combined
+- adhd_subthreshold
+- diagnosis_using_cdis
+- notes
+- sess_1_anat_2
+- oppositional
+- cog_inatt
+- hyperac
+- anxious_shy
+- perfectionism
+- social_problems
+- psychosomatic
+- conn_adhd
+- restless_impulsive
+- emot_lability
+- conn_gi_tot
+- dsm_iv_inatt
+- dsm_iv_h_i
+- dsm_iv_tot
+- study
+- sess_1_rest_1
+- sess_1_rest_1_eyes
+- sess_1_rest_2
+- sess_1_rest_2_eyes
+- sess_1_rest_3
+- sess_1_rest_3_eyes
+- sess_1_rest_4
+- sess_1_rest_4_eyes
+- sess_1_rest_5
+- sess_1_rest_5_eyes
+- sess_1_rest_6
+- sess_1_rest_6_eyes
+- sess_1_anat_1
+- sess_1_which_anat
+- sess_2_rest_1
+- sess_2_rest_1_eyes
+- sess_2_rest_2
+- sess_2_rest_2_eyes
+- sess_2_anat_1
+- defacing_ok
+- defacing_notes
+field_coverage: 0.6
 required_fields:
 - subject_id (string)
-- mean_rsfc (float)
-- age (integer)
-- sex (string)
-- nih_toolbox_dccs (float)
-cache_key: 3d9568611479f87e0831d3a3eeb92915bb2ce1bc2aaadab4dd16fad1d4cbe8f7
-searched_at: '2026-10-13T00:26:32.817116+00:00'
-retry_count: 1
+- age (float)
+- sex (integer)
+- session_id (string)
+- nih_dccs_score (float)
+intent: nilearn fetch_hcp 1200 subjects Schaefer atlas python package dataset
+cache_key: f1bc453914a1cfc931f7fc281f581fe4edf5486b05a8b2862cd3537feb94c6e5

@@ -6,13 +6,13 @@
 
 **Goal**: Establish the project skeleton and run a thin, end-to-end pipeline on a small subset of real HCP data to verify the data flow from NIfTI to regression results.
 
-- [ ] T001 [P] Establish project structure and environment. 
+- [X] T001 [P] Establish project structure and environment. 
     Create directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, and `tests/`. 
     Initialize `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest).
     Create `.ruff.toml` for linting and `code/config.py` with pinned seeds (42) and parameters (window=60s, step=1s, FD_threshold=0.2).
     Update `plan.md` Constitution Check to mark "DEVIATION (Justified in technical-design.md)" for window length and "REJECTED" for phase-shuffling.
     **Verification**: Run `tree code/` and `ruff check .` and assert directory structure and linting pass.
-- [ ] T002 [US1] Implement the data ingestion and preprocessing pipeline.
+- [ ] T002 [US1] Implement the data ingestion and preprocessing pipeline. <!-- FAILED-IN-EXECUTION: tests/test_contracts.py exit=1 -->
     Implement `code/data/download.py` to fetch real HCP resting-state fMRI and behavioral data (NIH Toolbox Dimensional Change Card Sort) using the HCP API; fail loudly if data is unavailable.
     Implement logic to compute SHA-256 checksums for all downloaded raw fMRI and behavioral files, recording them in `data/checksums.txt` to satisfy Constitution Principle III.
     Implement `code/data/preprocess.py` to download the Schaefer 200-region atlas and parcellate fMRI time-series into `data/processed/parcellated/{subject_id}_timeseries.csv`.

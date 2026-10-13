@@ -1,12 +1,8 @@
 T001:
-  reason: The required directories, `requirements.txt`, `.ruff.toml`, `code/config.py`,
-    and the updated `plan.md` are present and correct, but the verification test `test_ruff_linting_passes`
-    failed because the `ruff` module is not available (`No module named ruff`). The
-    task explicitly demands that `ruff check .` pass, so the linting step is not satisfied.
-    Install `ruff` (or add it to the environment) and ensure the codebase passes linting
-    to complete the task.
   task: 436cf559f918fc6c0f94366fbddaf6304a5bec8fd0006a5614c6baf503a7643d
 T002:
+  reason: 'Requested task execution failed; rerun successfully: tests/test_contracts.py
+    exit=1'
   task: 97f943e09d09ff131ea6a2f034d04cf4ca0092e411b9ba057c478c5e738d48eb
 T003:
   task: eeb7be70937c0eab25d44ad195e7ef89ed8fd7ae44cdb9a1f2d8560ba3305911

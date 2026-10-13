@@ -1,10 +1,11 @@
 T001:
-  c: false
-  h: 4b87ec2af1a9b7853192694ca359ea0da1d8bad77f82345f8b7264fefced65c7
-  r: The required directories, `requirements.txt`, `.ruff.toml`, `code/config.py`,
-    and the updated `plan.md` are present and correct, but the verification test `test_ruff_linting_passes`
-    failed because the `ruff` module is not available (`No module named ruff`). The
-    task explicitly demands that `ruff check .` pass, so the linting step is not satisfied.
-    Install `ruff` (or add it to the environment) and ensure the codebase passes linting
-    to complete the task.
-  sig: 5c443678626f832d7cac6627540dcc6bb27f7d14ef1c2879d3dc4bb1500288bb
+  c: true
+  h: 81d34cf92e74d60aa4c95121b0a2df6d8d7696407c72025ef0e2c91aa76c6909
+  r: "The directory tree shows all required folders (`code/`, `data/raw/`, `data/processed/`,\
+    \ `data/results/`, `docs/`, `tests/`) present, `requirements.txt` lists the mandated\
+    \ packages, `.ruff.toml` and `code/config.py` contain the correct linting settings\
+    \ and seeded parameters (seed\u202F42, window\u202F60\u202Fs, step\u202F1\u202F\
+    s, FD\u202F0.2), and `plan.md` records the required DEVIATION and REJECTED entries.\
+    \ The ruff linting test (`tests/test_ruff_linting.py`) passed, confirming linting\
+    \ succeeds."
+  sig: 4d762b0454869a3a95b901a182bc93fa7e3a8f484e36b0db613a5b27c9256ffc
