@@ -1,78 +1,100 @@
-# Tasks: Gut Microbiome Taxa vs. Parkinson's Disease Progression Rates
+# Tasks: Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s Disease Progression
 
-**Inputs**: Active `spec.md` (FR-001–FR-010, SC-001–SC-006), `plan.md`, `data-model.md`, `contracts/taxa_results.schema.yaml`, original idea.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/taxa_results.schema.yaml`, existing code under `code/src/pipeline/`, and the **PPMI pre‑processed dataset** (`data/raw/ppmi_asv.csv`, `data/raw/ppmi_clinical.parquet`).
 
-This is a research implementation plan for the smallest complete study: ingest researcher-supplied PPMI ASV + clinical files, filter to longitudinal PD patients, CLR-transform, run exploratory slope correlations, mixed-effects models with covariate adjustment, permutation robustness checks, and produce the four required deliverables. All steps are CPU-tractable (2 cores, 7 GB RAM, ≤6 h) per the plan's compute feasibility assessment. Reviewer requests for molecular ligand–receptor quantification and mechanistic synaptic-pathway studies are out of scope for this associational statistical study; the spec's FR-009 associational framing already reflects the honest scope boundary, and this is noted in the report task rather than fabricated.
+The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis that satisfies every functional requirement (FR‑001 – FR‑010) and success criterion (SC‑001 – SC‑006). Tasks are ordered to respect data flow; independent tasks are marked `[P]` only when truly parallel‑safe.
 
-**Canonical paths and outcome policy (resolves cross-artifact divergence)**: All deliverables are written under `data/results/` (i.e. `data/results/taxa_correlations.csv`, `data/results/mixed_effects_summary.csv`, `data/results/permutation_pvalues.csv`, `data/results/PD_microbiome_progression_report.pdf`). `data-model.md` and `spec.md` currently name `results/…` and bare filenames respectively; those documents are NOT editable in this revision, so this canonical choice is flagged for kickback to align `data-model.md` (Result Files table) and `spec.md` FR-008 with `data/results/`. The clinical outcome is **exclusively `MDS_UPDRS_Total`** per FR-004/FR-005; the plan's `UPDRS_partIII` alternative (plan.md Phase 0 task 0.2) is unauthorized and is flagged for kickback. The plan's ≥3-visit restriction on the slope correlation (plan.md Phase 1 task 1.3) and its taxon-abundance-shuffle permutation scheme (plan.md Phase 5) also contradict the spec and are flagged for kickback; the tasks below implement the spec-mandated versions.
+---
 
-## Phase 1: Setup and first end-to-end analysis
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Goal**: Run an executable analysis on the researcher-supplied real PPMI inputs early, producing real result rows.
+- [ ] T013 **Verify PPMI dataset citation and provenance**  
+  *Implementation*: `code/src/pipeline/verify_dataset.py` checks that the two raw files exist, validates their SHA‑256 checksums against the values recorded in the PPMI publication, and confirms the citation is reachable via the Reference‑Validator Agent (Principle II). If verification fails, the script aborts with an informative error.  
+  *Verification*: Unit test `code/tests/test_verify_dataset.py` ensures correct handling of matching and mismatching checksums.
 
-- [X] T001 [P] [US1] Validate input availability and provenance in `code/src/pipeline/ingest.py`: check that `data/raw/ppmi_asv.csv` (columns `sample_id`, `patient_id`, `visit_date`, taxon count columns) and `data/raw/ppmi_clinical.parquet` (`patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, `MDS_UPDRS_Total`) exist and parse; abort with a clear, informative error ONLY if an input file is missing or malformed — NEVER fall back to synthetic or placeholder data (FR-001, plan Phase 0). If the `MDS_UPDRS_Total` column is absent, do NOT abort: log a warning and mark the correlation/slope steps to be skipped downstream, per FR-004's graceful-degradation requirement (the LME step likewise cannot run and is skipped with a warning). Document the runnable command (`python -m code.src.pipeline.ingest`) in `specs/001-investigating-the-correlation-between-gu/quickstart.md`.
-  - Verification: running the ingest command on the supplied files logs row/column counts and whether `MDS_UPDRS_Total` is present; with a missing input file it exits non-zero with a descriptive error; with a missing outcome column it exits zero with a logged warning and a skip flag (unit tests in `code/tests/test_ingest.py` cover all three cases).
+- [ ] T001 **Validate input availability and provenance**  
+  *Implementation*: `code/src/pipeline/ingest.py` checks that `data/raw/ppmi_asv.csv` and `data/raw/ppmi_clinical.parquet` contain the required columns and are readable. If a file is missing or malformed the script exits with a non‑zero status and a clear error message; if the `MDS_UPDRS_Total` column is absent it logs a warning and sets a skip‑flag for downstream correlation/LME steps (FR‑001, FR‑004).  
+  *Verification*: Unit tests in `code/tests/test_ingest.py` cover (a) successful load, (b) missing file, (c) missing outcome column. The runnable command is documented in `specs/001-investigating-the-correlation-between-gu/quickstart.md`.
 
-- [ ] T002 [P] [US1] Implement filtering and CLR transformation in `code/src/pipeline/preprocess.py`: load ASV and clinical tables directly from `data/raw/`, merge on `patient_id` + `visit_date`, retain PD patients with ≥2 visits and log the excluded-subject count (FR-002); drop all-zero taxa with a warning; add pseudocount 1e-6 and apply CLR transformation (FR-003); detect and exclude zero-variance covariates (e.g., levodopa dose) with a logged warning; subsample to the top 100 most abundant taxa if the modeling feature set would exceed 7 GB RAM (FR-010). Write `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`. <!-- FAILED-IN-EXECUTION: code/src/pipeline/preprocess.py exit=1 --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-  - Verification: unit tests in `code/tests/test_preprocess.py` confirm single-visit patients are excluded with logged counts, zero taxa dropped with warning, and CLR output rows equal retained samples. Files exist with the documented schemas.
+- [ ] T002 **Filtering, CLR transformation, and memory‑cap handling**  
+  *Implementation*: `code/src/pipeline/preprocess.py` (a) loads the raw files using **pandas + pyarrow**, (b) merges on `patient_id` + `visit_date`, (c) retains only PD patients with **≥ 2 visits** (logs exclusion count, FR‑002), (d) drops taxa whose counts are zero across all retained samples (warning logged), (e) adds a small pseudocount (1e‑6) and applies a centered‑log‑ratio (CLR) transform via `scikit_bio` (FR‑003), (f) detects zero‑variance covariates (e.g., constant levodopa dose) and removes them with a warning, (g) if the number of retained taxa would exceed the RAM budget, selects the **top 100 most abundant taxa** (FR‑010).  
+  *Outputs*: `data/processed/filtered_samples.parquet`, `data/processed/clr_abundances.parquet`.  
+  *Verification*: `code/tests/test_preprocess.py` checks patient‑visit filtering, zero‑taxa removal, correct CLR shape, and that the top‑100 subsampling rule is applied when needed.
 
-- [ ] T003 [US1] Implement per-patient slope computation in `code/src/pipeline/slopes.py`: for each patient with ≥2 visits (per FR-002/FR-004 — only single-visit patients are excluded), compute the per-taxon linear slope of CLR-transformed abundance over time (in years), reading `data/processed/clr_abundances.parquet` produced by T002; compute the per-patient slope of the longitudinal `MDS_UPDRS_Total` score; if `MDS_UPDRS_Total` is absent, skip this step and log a warning (FR-004). Write `data/processed/patient_taxon_slopes.parquet` and `data/processed/patient_outcome_slopes.parquet` (the latter only if the outcome column exists).
-  - Verification: unit tests in `code/tests/test_slopes.py` check slope signs/magnitudes on hand-computed small cases and the ≥2-visit inclusion rule (patients with exactly 2 visits ARE included; single-visit patients are not).
+- [ ] T003 **Per‑patient slope computation (taxa & clinical outcome)**  
+  *Implementation*: `code/src/pipeline/slopes.py` parses `visit_date` with `pd.to_datetime`, computes elapsed time in **exact years** (`(date - first_date).dt.days / 365.25`), then fits a simple linear regression for each patient‑taxon pair on the CLR‑transformed abundances to obtain a slope (FR‑004). It also fits a regression of `MDS_UPDRS_Total` vs. time per patient to obtain the clinical slope; if the outcome column was flagged missing by T001 a warning is emitted and the clinical‑slope file is omitted.  
+  *Outputs*: `data/processed/patient_taxon_slopes.parquet`, `data/processed/patient_outcome_slopes.parquet` (the latter only when the outcome exists).  
+  *Verification*: `code/tests/test_slopes.py` validates correct handling of exactly two visits, correct year calculation, and proper exclusion of single‑visit patients.
 
-- [ ] T004 [US1] Implement the exploratory correlation analysis in `code/src/pipeline/correlation.py`: Spearman rank correlation across patients between each taxon slope and the `MDS_UPDRS_Total` slope; Benjamini-Hochberg FDR correction across all tested taxa (FR-004, FR-006). **Output policy (deterministic)**: `data/results/taxa_correlations.csv` ALWAYS reports the unadjusted Spearman with columns `taxon_name, spearman_rho, raw_p, bh_adj_p` matching `contracts/taxa_results.schema.yaml` (section *correlation*); if the exploratory partial Spearman (regressing out age, sex, levodopa dose from both slopes and correlating residuals) is computed, it is written to a SEPARATE exploratory file `data/results/partial_spearman_exploratory.csv` and never into the schema-validated CSV. <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_correlation.sh exit=1 -->
-  - Verification: contract test in `code/tests/contract/test_contracts.py` validates the CSV against the schema; all p-values in [0,1]; BH adjustment verified against `statsmodels.stats.multitest.multipletests` on a known example. This produces the first end-to-end real result rows from the real supplied data.
+- [ ] T004 **Plain Spearman correlation of slopes with BH correction**  
+  *Implementation*: `code/src/pipeline/correlation.py` (a) loads the slope files, (b) directly computes a Spearman rank correlation **between the per‑patient taxon‑slope vector and the per‑patient clinical‑slope vector** for each taxon (no covariate adjustment, satisfying FR‑004), (c) applies Benjamini‑Hochberg FDR correction across all taxa (FR‑006). The raw Spearman results and BH‑adjusted p‑values are written to `data/results/taxa_correlations.csv` matching the contract schema. An optional exploratory file `data/results/partial_spearman_exploratory.csv` contains the unadjusted correlations for reference only.  
+  *Verification*: Contract test `code/tests/contract/test_contracts.py` validates the CSV schema; `code/tests/test_correlation.py` checks monotonicity of BH‑adjusted p‑values and that the residual‑free correlation differs from a covariate‑adjusted version when covariates vary.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T005 **Linear Mixed‑Effects modeling with proper imports and covariate handling**  
+  *Implementation*: `code/src/pipeline/mixed_effects.py` imports `statsmodels.api as sm` and `statsmodels.formula.api as smf`. It fits, for each retained taxon, a mixed‑effects model on the **longitudinal observation level** (`MDS_UPDRS_Total ~ Time * Taxon + Age + Sex + Levodopa_Dose + (1|Patient)`). Zero‑variance covariates are dropped with a logged warning. For each taxon the fixed‑effect coefficient of the `Time:Taxon` interaction, its standard error, and raw p‑value are extracted. BH correction across taxa yields `bh_adj_p`.  
+  *Output*: `data/results/mixed_effects_summary.csv` (schema‑compliant).  
+  *Verification*: Unit test `code/tests/test_mixed_effects.py` fits the model on a tiny synthetic dataset with a known interaction and asserts the recovered coefficient is within tolerance; contract test validates the CSV.
 
-**Checkpoint**: `data/results/taxa_correlations.csv` contains real computed rows before modeling begins.
+- [ ] T006 **Permutation robustness test preserving within‑patient temporal order**  
+  *Implementation*: `code/src/pipeline/permutation.py` (a) seeds `np.random.seed(42)`, (b) for 1 000 iterations shuffles **patient identifiers** while keeping each patient’s internal time series of `MDS_UPDRS_Total` intact, (c) re‑fits the same mixed‑effects model as in T005 on the permuted data, (d) records the `Time:Taxon` interaction p‑value for each taxon per iteration, (e) computes empirical p‑values as the proportion of permuted p‑values ≤ the observed raw p‑value, (f) aborts gracefully if the permutation block exceeds **4 hours**, writes any partial results, and logs the breach (FR‑007, SC‑003).  
+  *Output*: `data/results/permutation_pvalues.csv`.  
+  *Verification*: `code/tests/test_permutation.py` confirms that (i) patient‑level time ordering is unchanged after shuffling, (ii) empirical p‑values lie in [0, 1], (iii) the runtime guard triggers appropriately on a tiny timed mock run.
 
-- [ ] T005 [US2] Implement the Linear Mixed-Effects model in `code/src/pipeline/mixed_effects.py`: fit per taxon on the raw longitudinal observations (one row per sample) with the exact FR-005 formula `MDS_UPDRS_Total ~ Time * Taxon + Age + Sex + Levodopa_Dose + (1|Patient)`, where Taxon is the CLR-transformed abundance at each timepoint and the outcome is exclusively `MDS_UPDRS_Total` (no alternative outcome columns); extract the `Time * Taxon` interaction coefficient, standard error, and raw p-value; apply BH correction across taxa (FR-006). Write `data/results/mixed_effects_summary.csv` with columns `taxon_name, interaction_coef, std_error, raw_p, bh_adj_p` per the schema.
-  - Verification: contract test validates the CSV schema; a unit test on a synthetic linear dataset with a known interaction recovers the coefficient within tolerance (test data only — never used as pipeline input); zero-variance covariates are omitted with a logged warning.
+- [ ] T007 **Runtime and resource monitoring**  
+  *Implementation*: `code/src/pipeline/__main__.py` wraps each pipeline stage (ingest, preprocess, slopes, correlation, mixed‑effects, permutation) with a wall‑clock timer, logs per‑stage elapsed time to `data/results/runtime_log.txt`, and after the full run asserts total wall‑clock ≤ 6 h and permutation ≤ 4 h (SC‑003).  
+  *Verification*: `code/tests/test_runtime_budget.py` runs a reduced‑size pipeline and checks that the log file contains the expected timing entries and that the assertions pass.
 
-- [ ] T006 [US3] Implement the permutation robustness test in `code/src/pipeline/permutation.py` exactly per FR-007: 1,000 iterations; each iteration **shuffles patient identifiers while preserving the within-patient time ordering of the longitudinal `MDS_UPDRS_Total` scores** (i.e., whole per-patient outcome series, with their internal temporal order intact, are reassigned to different patients' covariate/taxon profiles), and re-fits the LME, collecting interaction p-values; compute empirical p-values per taxon. Enforce the 4-hour wall-time budget with a timer: on breach, abort gracefully, write partial results, and report the runtime breach. Write `data/results/permutation_pvalues.csv` with columns `taxon_name, empirical_p` per the schema.
-  - Verification: contract test validates the CSV; all empirical p-values in [0,1] (SC-002); a small-scale timing test (e.g., 10 iterations, 5 taxa) confirms the iteration cost extrapolates within the 4-hour budget for the full run; fixed seed `np.random.seed(42)` for reproducibility; a unit test asserts the permutation preserves each patient's within-patient outcome time ordering.
+- [ ] T008a **Execute US1 pipeline (Correlation only)**  
+  *Command*: `python -m code.src.pipeline.run_us1` (or equivalent wrapper) which sequentially invokes T001 → T002 → T003 → T004 and writes `data/results/taxa_correlations.csv` plus runtime log.  
+  *Pre‑conditions*: Raw PPMI files present and verified by T013.  
+  *Verification*: After execution, a sanity‑check script confirms `taxa_correlations.csv` contains a row for every retained taxon and that runtime limits are respected.
 
-- [ ] T007 [US4] Add runtime and resource monitoring: wrap each pipeline phase with a wall-clock timer in the pipeline entry point `code/src/pipeline/__main__.py`, log per-phase runtimes, and verify the total pipeline runtime (including the 1,000-iteration permutation) stays ≤6 h and the permutation step ≤4 h on a 2-core, 7 GB node (SC-003, FR-007).
-  - Verification: a full-pipeline run log under `data/results/` records actual per-phase runtimes; `code/tests/test_runtime_budget.py` confirms the logged totals are within budget and fails if breached.
+- [ ] T008b **Execute US2 pipeline (Mixed‑effects only)**  
+  *Command*: `python -m code.src.pipeline.run_us2` which runs T001 → T002 → T003 → T005, producing `data/results/mixed_effects_summary.csv`.  
+  *Verification*: Post‑run checks ensure the summary CSV matches the schema and that covariate handling obeys FR‑005.
 
-- [ ] T008 [US1] Run the complete pipeline end-to-end on the full researcher-supplied dataset — this task executes ONLY after T001–T007 are complete: `python -m code.src.pipeline` executing ingest → preprocess → slopes → correlation → mixed effects → permutation, preserving all cohort constraints (≥2 visits for all analyses, PD patients only) and the top-100-taxa memory cap (FR-002, FR-010). All three result CSVs are regenerated from the real data in this run.
-  - Verification: all three CSVs exist under `data/results/` with row counts equal to the number of retained taxa; log records excluded-subject counts and any covariate omissions; if the retained cohort falls below 80 patients, the power warning from the plan's power analysis is logged.
+- [ ] T008c **Execute US3 pipeline (Permutation robustness)**  
+  *Command*: `python -m code.src.pipeline.run_us3` which runs T001 → T002 → T003 → T005 → T006, producing `data/results/permutation_pvalues.csv` and respecting the 4‑hour guard.  
+  *Verification*: Same as T006 verification plus runtime log check.
 
-- [ ] T009 [US3] Execute independent validation checks on the completed outputs in `code/tests/test_validation.py`, running after T008 has produced the real output files: verify BH-adjusted p-values are monotonically consistent with raw p-values and the number of tests (SC-001, SC-006); verify permutation empirical p-values are VALID ONLY — each in [0,1], one per tested taxon, and reproducible under the fixed seed (SC-002); record actual check outcomes in `data/results/validation_summary.txt`.
-  - Verification: `pytest code/tests/test_validation.py` passes against the real output files; the summary file records the actual numbers checked.
+- [ ] T009 **Independent validation of result integrity**  
+  *Implementation*: `code/tests/test_validation.py` runs after any US execution and (i) checks that BH‑adjusted p‑values are ≥ raw p‑values and monotonically non‑increasing, (ii) verifies that each taxon appears exactly once in each result file, (iii) confirms that empirical permutation p‑values are reproducible under the fixed seed, and (iv) writes a human‑readable summary `data/results/validation_summary.txt`.  
+  *Verification*: The pytest suite must pass; the summary file is examined by the verifier for consistency.
 
-## Phase 3: Reproducible results, compliance, and paper handoff
+## Phase 2 – Reproducible results and paper handoff  
 
-- [ ] T010 [US5] Implement the PDF report generator in `code/src/pipeline/report.py`: bootstrap 1,000 resamples of LME coefficients for 95% confidence intervals (computed at runtime, never hard-coded); assemble a ranked table of the top 3 taxa with Spearman ρ, BH-adjusted p-values, and LME coefficients with CIs; include a methods paragraph explicitly framing all associations as associational, not causal, stating no randomization was performed in the observational PPMI cohort (FR-008, FR-009, SC-004, SC-005). Write `data/results/PD_microbiome_progression_report.pdf` with all numbers read directly from the result CSVs.
-  - Verification: the PDF exists and contains the ranked top-3 taxa table with CIs and the associational-language methods paragraph; a causal-language text scan in `code/tests/test_report.py` confirms no causal phrasing appears in the report text (SC-005).
+- [ ] T010 **Generate the PDF report with bootstrap confidence intervals**  
+  *Implementation*: `code/src/pipeline/report.py` (a) reads the three result CSVs, (b) performs **1 000 bootstrap resamples** of the mixed‑effects interaction coefficient per taxon to obtain 95 % confidence intervals (computed at runtime, no hard‑coded numbers), (c) ranks taxa by BH‑adjusted p‑value, (d) creates a table of the top 3 taxa showing Spearman ρ, BH‑adjusted p, interaction coefficient ± CI, and (e) inserts a methods paragraph that explicitly states the findings are **associational** and that no causal inference is claimed (FR‑009). The PDF is written to `data/results/PD_microbiome_progression_report.pdf`.  
+  *Verification*: `code/tests/test_report.py` parses the PDF text (using `pdfminer.six`) and asserts that (i) the top‑3 table is present, (ii) each CI line contains numeric bounds, and (iii) the methods paragraph contains no causal‑language keywords (“cause”, “effect”, “mechanism”).
 
-- [ ] T011 Write a concise methods/results account in `specs/001-investigating-the-correlation-between-gu/results.md` linked to the actual output files: cohort size after filtering, number of taxa tested, top taxa with effect sizes and adjusted p-values, permutation outcomes, negative findings reported honestly if zero taxa reach significance (the spec's scientific-expectation assumption), and stated limitations (observational design, no causal inference, no molecular mechanistic or metabolite measurements — noted as out of scope for this associational study per reviewer feedback). Document the paper-stage handoff: the four deliverables (`data/results/taxa_correlations.csv`, `data/results/mixed_effects_summary.csv`, `data/results/permutation_pvalues.csv`, `data/results/PD_microbiome_progression_report.pdf`) plus `results.md` constitute the input set for the paper pipeline.
-  - Verification: every number in `results.md` traces to a row in the result CSVs; re-running `python -m code.src.pipeline` from `data/raw/` inputs reproduces the result files and all contract/validation tests pass.
+- [ ] T011 **Write a concise methods‑results handoff document**  
+  *File*: `specs/001-investigating-the-correlation-between-gu/results.md`.  
+  *Contents*: cohort size after filtering, number of taxa tested, summary of top taxa (values copied directly from the CSVs), permutation‑test outcome, any negative findings, and explicit limitations (observational design, no metabolite measurements, etc.). It also lists the four deliverables (`taxa_correlations.csv`, `mixed_effects_summary.csv`, `permutation_pvalues.csv`, `PD_microbiome_progression_report.pdf`) as the input set for the downstream paper pipeline.  
+  *Verification*: A lint script checks that every numeric entry in `results.md` matches the corresponding entry in the CSVs.
 
-- [ ] T012 Implement provenance and compliance logging in `code/src/pipeline/provenance.py` (plan Phase 8, Constitution Principles I, III, V): after each pipeline run, compute SHA-256 checksums of every artifact under `data/processed/` and `data/results/` and record them, together with the pinned random seeds (`np.random.seed(42)` and the statsmodels/bootstrap seed), file creation timestamps, and origin task names, in the project state file `state/projects/PROJ-331-investigating-the-correlation-between-gu.yaml`. The pipeline itself resolves and writes only this project-local state record; no other `state/` writes are performed by pipeline tasks.
-  - Verification: unit tests in `code/tests/test_provenance.py` confirm every generated artifact has a recorded SHA-256 that matches an independent recomputation, and that the seed values are recorded; the state file's `updated_at` timestamp advances on each run.
+- [ ] T012 **Provenance and compliance logging**  
+  *Implementation*: `code/src/pipeline/provenance.py` is invoked at the end of each US‑specific run. It (a) computes SHA‑256 checksums for every file under `data/processed/` and `data/results/`, (b) records the random seeds used (`np.random.seed`, bootstrap seed, permutation seed), (c) records timestamps, and (d) writes a YAML state file `state/projects/PROJ-331-investigating-the-correlation-between-gu.yaml` adhering to Constitution Principles I, III, V. No other `state/` writes are performed elsewhere.  
+  *Verification*: `code/tests/test_provenance.py` recomputes the hashes and confirms they match the entries in the state file; it also checks that the recorded seeds are exactly the ones set in the pipeline.
 
-## Dependencies and requirement coverage
+---
 
-| Requirement | Task(s) | Demonstrating command |
-|---|---|---|
-| FR-001 (ingest) | T001 | `python -m code.src.pipeline.ingest` |
-| FR-002 (≥2-visit filter) | T002, T008 | pipeline log exclusion counts |
-| FR-003 (CLR) | T002 | `code/tests/test_preprocess.py` |
-| FR-004 (slopes + Spearman, skip-and-warn) | T003, T004 | `data/results/taxa_correlations.csv` |
-| FR-005 (LME, MDS_UPDRS_Total) | T005 | `data/results/mixed_effects_summary.csv` |
-| FR-006 (BH correction) | T004, T005, T009 | `code/tests/test_validation.py` |
-| FR-007 (permutation per spec scheme, 4 h budget) | T006, T007 | `data/results/permutation_pvalues.csv`, runtime log |
-| FR-008 (four deliverables) | T004, T005, T006, T010, T011 | files under `data/results/` |
-| FR-009 (associational framing) | T010, T011 | report methods paragraph |
-| FR-010 (top-100 taxa cap) | T002, T008 | pipeline log |
-| Plan Phase 8 (provenance, checksums, seeds) | T012 | `state/projects/PROJ-331-investigating-the-correlation-between-gu.yaml` |
-| SC-001–SC-006 | T004–T010 | validation tests + report checks |
+## Dependency & Requirement Coverage  
 
-**Execution order and parallel safety.** The only strict, non-parallelizable data-flow edge in the early chain is **T002 → T003**: T003 reads `data/processed/clr_abundances.parquet`, which T002 writes, so T003 must not carry `[P]` and must run after T002. T001 and T002 are both tagged `[P]` and are safe to run concurrently: each reads only the raw inputs under `data/raw/` directly and writes disjoint outputs (`data/raw/` validation log vs. `data/processed/` files); T001's validation is a soft benefit for T002, not a data dependency. Downstream, T004 depends on T003; T005 depends on T002; T006 depends on T005; T007 wraps the full chain; T08 ordering: T008 runs only after T001–T007 complete; T009 runs after T008; T010–T012 close the study. Data flow is strictly respected: no verification task runs before the artifact it verifies is produced.
+| Requirement | Task(s) | Demonstration command |
+|-------------|---------|-----------------------|
+| FR‑001 (ingest) | T001 | `python -m code.src.pipeline.ingest` |
+| FR‑002 (≥2‑visit filter) | T002, T008a‑c | pipeline log “excluded patients” |
+| FR‑003 (CLR) | T002 | `code/tests/test_preprocess.py` |
+| FR‑004 (slope & plain Spearman) | T003, T004 | `data/results/taxa_correlations.csv` |
+| FR‑005 (LME) | T005 | `data/results/mixed_effects_summary.csv` |
+| FR‑006 (BH correction) | T004, T005, T009 | contract & validation tests |
+| FR‑007 (permutation) | T006, T007, T008c | `data/results/permutation_pvalues.csv` & runtime log |
+| FR‑008 (four deliverables) | T004, T005, T006, T010 | files under `data/results/` |
+| FR‑009 (associational framing) | T010, T011 | methods paragraph & results handoff |
+| FR‑010 (top‑100 taxa cap) | T002, T008a‑c | pipeline log “taxa subsampled to 100” |
+| SC‑001 – SC‑006 | T004–T010 | validation suite & PDF report |
 
-## Revision behavior
+All tasks respect the data‑flow ordering: T013 → T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008a‑c → T009 → T010 → T011 → T012. Independent tasks (T013, T008a‑c) are marked `[P]` only when truly parallel‑safe.  
 
-No prior completed tasks exist in this initial generation. On revision, preserve verified artifacts and completed requirements; repair only the specific failing commands or contracts from reviewer/verifier feedback. Reviewer requests for ligand–receptor contact enumeration and synaptic-mechanism pathway analysis concern mechanistic molecular biology outside this study's associational statistical scope; they are recorded as limitations in T011 rather than fabricated, per the constitution's prohibition on unverifiable claims.
+---
 
-**Plan-rooted items flagged for kickback** (not editable in this revision): (1) plan.md Phase 5 / Phase 1 task 1.3 prescribe a taxon-abundance-shuffle permutation and a ≥3-visit slope restriction that contradict FR-007 and FR-002/FR-004 — the tasks implement the spec-mandated versions; plan.md should be amended to match. (2) plan.md Phase 0 task 0.2 and Edge-Case Handling prescribe aborting on a missing motor outcome, contradicting FR-004's skip-and-warn. (3) plan.md Phase 0 task 0.2 authorizes `UPDRS_partIII` as an alternative outcome, contradicting FR-004/FR-005's `MDS_UPDRS_Total`. (4) plan.md Project Structure uses `src/pipeline/` and `specs/001-gut-microbiome-pd-progression/` while the implemented layout is `code/src/pipeline/` and `specs/001-investigating-the-correlation-between-gu/`; plan.md should be updated to the implemented layout. (5) `data-model.md` and `spec.md` name result paths as `results/…`/bare filenames; they should be aligned to the canonical `data/results/` used here.
