@@ -1,13 +1,12 @@
 status: none
-intent: download Devign vulnerable code dataset and CodeXGLUE python package dataset
+intent: download Devign CodeXGLUE OWASP Top 10 LLM Dataset Mahabharat SQL Injection
+  python package dataset
 required_fields:
-- id
+- sample_id
 - code
 - vulnerability_type
-- cve_id
+- cwe_id
 - language
-- function_name
-- metadata
-cache_key: 0e11ceb96755e64cc41885f26f8e516ea592909529da93eef6d02365c141d2b0
-searched_at: '2026-10-13T03:15:05.521091+00:00'
+cache_key: 5f9b67442d93e838410c42ee52b9283ab1469fbfafb750bd260c2805fc9d138c
+searched_at: '2026-10-13T07:23:34.275862+00:00'
 retry_count: 1

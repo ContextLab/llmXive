@@ -26,7 +26,7 @@ properties:
     description: "Result of syntax parsing."
   functional_equivalence_verified:
     type: boolean
-    description: "True if unit‑test pass or semantic similarity ≥ 0.85."
+    description: "True if unit‑test pass and semantic similarity ≥ 0.90."
   raw_content:
     type: string
     description: "The actual source code."
