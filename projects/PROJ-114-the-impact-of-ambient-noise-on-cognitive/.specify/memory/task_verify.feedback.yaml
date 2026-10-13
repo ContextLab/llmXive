@@ -1,0 +1,114 @@
+T001:
+  reason: "The evidence collector found no artifacts for this task \u2014 no project\
+    \ structure, directories, or files under `projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive`\
+    \ were confirmed to exist. T001 requires an actual project skeleton (directories,\
+    \ config, package markers, etc.) per the implementation plan, and there is no\
+    \ on-disk evidence any of it was created. The implementer must actually create\
+    \ the directory tree and required files and provide verifiable artifacts."
+  task: b004887b126a6294536a016da666f4e991c552ab8aa1d0cf5fe8d33884e40b29
+T002:
+  reason: "The task requires initializing a Python 3.11 project with dependencies\
+    \ (pandas, numpy, scipy, statsmodels, scikit-learn, pyyaml, jsonschema, pytest),\
+    \ but the evidence collector reports no artifacts on disk \u2014 no project scaffolding,\
+    \ dependency manifest (requirements.txt/pyproject.toml), or environment configuration\
+    \ exists for this task. Nothing was provided to verify the project initialization\
+    \ actually occurred."
+  task: cd05c6404151442fb134a00564e635e600fe3630312c67f6c4e92668ed2a0419
+T003:
+  reason: "The evidence section contains no artifacts whatsoever \u2014 no `.flake8`,\
+    \ `setup.cfg`, `pyproject.toml`, `tox.ini`, Makefile, or CI configuration showing\
+    \ flake8/black settings, and no execution logs demonstrating the linters/formatters\
+    \ run. The task references no artifact path and the collector confirmed nothing\
+    \ on disk, so there is no evidence that linting/formatting was actually configured;\
+    \ the implementer must add the configuration files (e.g., `pyproject.toml` or\
+    \ `.flake8` with flake8/black settings) and evidence that they run successfully."
+  task: 8b1c6529ddcdf661b2eb411c0fd735b2f646d5a6be12a762963e97fa54eb5632
+T004:
+  task: ceb255e93b41e0c83a3c37dce99352326b2a97c556effdf5f87335d1c62d900b
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-114-.../current_stage.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 58597b0f7fef54447d6e9bec86392a64400b9cfe82403b23853a02b96fc16148
+T006:
+  task: a26ca950cf1a2aa073fa63a700ee416f1fd6567d8a6845437cfe0063a6b551f8
+T007:
+  task: 36986a0bbf3dd6c8a7d198085bc8ed8daed8cae4e387052ebf4aee6688d74163
+T010:
+  task: 2b899fc35d3bdded59fc4febf756134b93439ab8b0e521c681589c2aaded7e02
+T011:
+  task: f17a9ad2c10d21611530f8627c8d1ad1c4f34f54cfb0541f27a944f254e11af2
+T012:
+  task: bbd338f727ee40045d7d268eb72b342d8d949135d8b1f85d58e46fdc75e1fddf
+T013:
+  task: 92c9d13d47e728ef86d9614bef8b3a782eecad21ee9c4b201d6b80bbb314e561
+T014:
+  task: 790c6caa98cf87f888aff0d51ebeb1ca3a44b4da0f3d60065026a9e27fcca385
+T015:
+  task: e58143fd664be0a912fc0dd16556b7c468051ef5b742af469d9b4884779418e5
+T016:
+  task: f457b0ae1c30588c669d706dd56b9e6c9b0bff392717fae7d7833fb8891a28cd
+T017:
+  task: 039f92b37ed871b59c8b5457e61ee80f64082ae7216e44d322abc03fa02f0de1
+T018:
+  task: ed2aaf7cd9cad719e6c3cff85af4cdcb71f13711ed5d032ec82160fd0db7653e
+T019:
+  task: ac583df2ec256ad0c52fd48dcd64c025739d198cba8a4c4afd6ea39e2f7b75fc
+T020:
+  task: 0b701b4cce3f253dadadbdc8cdc1de61892fbf7fe4727e800fd56705bcb9d6c7
+T021:
+  task: 279b440aa9f2a5f8c6648ab3e900918e99ea04adcb600f6da79c30bcb65fbdff
+T022:
+  task: fc370b2285f7153d0c9e761352e578aec5706046d4e5a3b5f7ec337f042baee2
+T023:
+  task: eb7ae167ce3b0513187a1497b2a87a8e781b0ae70ee62910b10d9c810254a6dc
+T024:
+  task: ebe49395466a96aa11b6d184ba7001dd75c6cc14bbe48425ca285c265e9646c4
+T025:
+  task: 3cd9ee603d7bd879e56788b5463402b77012305bd95d5803cae7667fa87b6719
+T026:
+  task: 6931a57b167ee661cabd09ef0d9587f7734d5fd78955cb816f8c9eb7f5f1495a
+T027:
+  task: 198086a04b8d6974c4e008fcfc1c9845707d2c9d1bdb47f57f195f96ee7f2748
+T028:
+  task: 1068586774b9282f439c7f6ccd07bfc60f2913ffff38287d83c7f5b0659e8b59
+T029:
+  task: 79cffcba5f669c1c5b69e8f90ec48da0000c8b1a08e4d27740d196951e40339c
+T030:
+  task: 09763c783a5e8180b2670086c2fcdec9981919edb4c255e831adc164e5f1575e
+T031:
+  task: 713b0594be58b4e58d4f89383f2b3065a570273e0113484046b25cd5ad67b8aa
+T032:
+  task: 6c4bac9a4ac5f44c545e397611e8259e3dfbf594b0946a959b4e4eb1f49f28f1
+T033:
+  task: 911f0fc2038eb7ce9095cf9d5c7094c7cc26c64894dc61dbf3315fcc6bcb6de8
+T034:
+  task: c85429694bc7f080c73918a99180f70d13b9ba6556f62f693eb1195398ba0eab
+T035:
+  task: 46b7b538c0013b7cdf8c3aa18b4f4f670a5f153a1ba3802b4cfa26108515ea29
+T036:
+  task: d5752c41ca9a73f2834edaae587e0c419a19b464e8f91e7c5224880f84032361
+T037:
+  task: bf6f8357d19c0e3a1fbfd8e4821da51798672cdb71f47c45751d16bb3d70abb2
+T038:
+  task: 668d19145193988bc2b3bd3bd53713eaa8f322f8e9abcf51c9d6332fe02aa6d0
+T039:
+  task: b97f4524a5b0581f4622e361cfd0932ef4a967183652c23bd7178fb18897898e
+T040:
+  task: 17f2ae3482932935f735beaa8199c75099d06d2f6efcd3ea37218bf948167dfa
+T041:
+  task: 082ef186ac8060b0d45d0cba7bffcbb6d5d419f9b19280f4b0d0b009f415f74d
+T042:
+  task: c7863e4895dfabf4f3ee47ed26b5469bdb080e81ba1d1a90b154d19a5edb7952
+T043:
+  reason: 'The required output `data/processed/calibration_validation_report.json`
+    does not exist, and the script cannot have run successfully: `code/scripts/validate_calibration.py`
+    imports `REFERENCE_TONE_PARAMS`, `CALIBRATION_ERROR_THRESHOLD_DB`, and `PROCESSED_DIR`
+    from `code.config`, but the actual `config.py` defines none of these (it has `CALIBRATION_ERROR_THRESHOLD`
+    and `PROCESSED_DATA_DIR` instead), so the import would raise ImportError. The
+    implementer must add the reference tone parameters to `code/config.py`, fix the
+    import names, and execute the script to generate the report.'
+  task: 3e1c4c9f131813e0545a479b4a0ef066c77933cc302c7f2e0d30ecf195a0c5f1
+T044:
+  task: 128b77c06b528a9de79ed56a6f3f780913ca0a6322e348e61a8fd84497df2264

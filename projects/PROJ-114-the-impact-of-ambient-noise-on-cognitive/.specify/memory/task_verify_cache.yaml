@@ -1,32 +1,43 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files, directories, or any structural artifacts were presented; the\
-    \ claim provides only a feature specification narrative without the actual repository\
-    \ layout, configuration files, or folder hierarchy required to satisfy \u201C\
-    Create project structure per implementation plan.\u201D The required project structure\
-    \ is therefore missing."
+  h: 81bd52f51af86b613eaae21a255af54020022afc674d715d61978459ca51f946
+  r: "The evidence collector found no artifacts for this task \u2014 no project structure,\
+    \ directories, or files under `projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive`\
+    \ were confirmed to exist. T001 requires an actual project skeleton (directories,\
+    \ config, package markers, etc.) per the implementation plan, and there is no\
+    \ on-disk evidence any of it was created. The implementer must actually create\
+    \ the directory tree and required files and provide verifiable artifacts."
+  sig: ead6b8b01554f332aabe564ade66ede068cefdd12839a6ae16239eb3b59cdb8c
 T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only the feature specification text; there is no project\
-    \ scaffold, no `pyproject.toml`, `requirements.txt`, `setup.cfg`, or any other\
-    \ file showing a Python\u202F3.11 project initialized with the listed dependencies.\
-    \ Consequently the required artifact (an initialized Python project with the specified\
-    \ packages) is missing."
+  h: f3b94ce3cfceab3c1a66ee615940a8ba5a86bee6f93c652cd42909cd8835d482
+  r: "The task requires initializing a Python 3.11 project with dependencies (pandas,\
+    \ numpy, scipy, statsmodels, scikit-learn, pyyaml, jsonschema, pytest), but the\
+    \ evidence collector reports no artifacts on disk \u2014 no project scaffolding,\
+    \ dependency manifest (requirements.txt/pyproject.toml), or environment configuration\
+    \ exists for this task. Nothing was provided to verify the project initialization\
+    \ actually occurred."
+  sig: f13c74e809bc501c1fcd4cf71f39065ee0dc77aef7b0178811948056beb4ff3e
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting configuration files (e.g., .flake8, pyproject.toml/black settings,\
-    \ or a Makefile/CI script invoking flake8/black) were provided, nor any evidence\
-    \ that these tools have been set up and run. The claim does not include any artifact\
-    \ matching the task \u201CConfigure linting (flake8/black) and formatting tools.\u201D"
+  h: fac9334dd31943e8523b3e13ec223a53d653da14f7fdd706875b525a2fd6b22d
+  r: "The evidence section contains no artifacts whatsoever \u2014 no `.flake8`, `setup.cfg`,\
+    \ `pyproject.toml`, `tox.ini`, Makefile, or CI configuration showing flake8/black\
+    \ settings, and no execution logs demonstrating the linters/formatters run. The\
+    \ task references no artifact path and the collector confirmed nothing on disk,\
+    \ so there is no evidence that linting/formatting was actually configured; the\
+    \ implementer must add the configuration files (e.g., `pyproject.toml` or `.flake8`\
+    \ with flake8/black settings) and evidence that they run successfully."
+  sig: d5bd26692768429b6030b391b342cedd6ae2827a672ff7d8567955f5d7a2a24a
 T004:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required file `contracts/dataset.schema.yaml` does not exist (listed as\
-    \ missing), so no JSON Schema contracts for Participant, NoiseLog, or TaskPerformance\
-    \ are provided. The task\u2019s core artifact is absent."
+  c: true
+  h: a9e2bb8c2941067fa351379fd713513982c33219063a6c217a74911a0103235e
+  r: "The file `contracts/dataset.schema.yaml` exists (3166 bytes) and defines all\
+    \ three required Input entities \u2014 Participant, NoiseLog, and TaskPerformance\
+    \ \u2014 as JSON Schema draft-07 definitions with required fields, types, enums,\
+    \ and descriptions matching the spec's data (participant IDs, timestamps, db levels,\
+    \ reaction times, error counts, task conditions). No stubs or placeholders present."
+  sig: 335b9cfb7603ed8e84789ec251648eae90b764e9de0830d0feadeeaf870e7483
 T005:
   c: false
   h: 0628f1d13f035bf42b1abbc14d5037e63f775667cf8be3a2b30ee6a26c156450
@@ -43,3 +54,23 @@ T013:
     \ and call a schema validator, but the required schema file `contracts/dataset.schema.yaml`\
     \ is missing, so the validation step cannot be performed. The implementation therefore\
     \ does not meet the task\u2019s requirement."
+T019:
+  c: true
+  h: d28309cb711ec29533a7d06dea2876c851e52001fa6dc5430ac0909ce33fdcf6
+  r: "The artifact `docs/power_analysis_report.md` exists (2821 bytes) and contains\
+    \ the required elements: calculated effect size (f\xB2 = 0.15), alpha (0.05),\
+    \ power (0.80), and an explicit N=150 justification with sensitivity checks and\
+    \ subgroup reasoning. The report is a genuine a priori power analysis document,\
+    \ not a placeholder, and matches the task's stated deliverable."
+  sig: 0c002728cf0ceab0df8ad4976d0508e59f1af78579d817b73ce5ebb24284c560
+T043:
+  c: false
+  h: 7514da5fe692f53d6d971ea01144cfc440145f479d6f13f84c19ec63dc1fb25b
+  r: 'The required output `data/processed/calibration_validation_report.json` does
+    not exist, and the script cannot have run successfully: `code/scripts/validate_calibration.py`
+    imports `REFERENCE_TONE_PARAMS`, `CALIBRATION_ERROR_THRESHOLD_DB`, and `PROCESSED_DIR`
+    from `code.config`, but the actual `config.py` defines none of these (it has `CALIBRATION_ERROR_THRESHOLD`
+    and `PROCESSED_DATA_DIR` instead), so the import would raise ImportError. The
+    implementer must add the reference tone parameters to `code/config.py`, fix the
+    import names, and execute the script to generate the report.'
+  sig: b9d12f34edad5801f8de635825b18c2342726e658ddf402e5e32d5c67fe94f4f

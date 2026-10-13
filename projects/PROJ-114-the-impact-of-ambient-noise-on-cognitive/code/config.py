@@ -1,113 +1,106 @@
 """
-Configuration module for the Ambient Noise Cognitive Flexibility study.
-Contains reference tone parameters, thresholds, simulation settings,
-logging infrastructure, and environment configuration management.
+Configuration and logging setup for the ambient noise project.
 """
 import os
 import logging
 from typing import Dict, Any, Optional
 from pathlib import Path
 
-# Project Root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
-RAW_DIR = os.path.join(DATA_DIR, "raw")
-LOGS_DIR = os.path.join(PROJECT_ROOT, "logs")
+# Project root directory
+ROOT_DIR = Path(__file__).parent.parent
 
-# Ensure directories exist
-os.makedirs(PROCESSED_DIR, exist_ok=True)
-os.makedirs(RAW_DIR, exist_ok=True)
-os.makedirs(LOGS_DIR, exist_ok=True)
+# Data directories
+RAW_DATA_DIR = ROOT_DIR / "data" / "raw"
+PROCESSED_DATA_DIR = ROOT_DIR / "data" / "processed"
+MODELS_DIR = ROOT_DIR / "data" / "models"
 
-# Logging Configuration
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_FILE = os.getenv("LOG_FILE", "study_pipeline.log")
-LOG_FILE_PATH = os.path.join(LOGS_DIR, LOG_FILE)
+# Noise categorization thresholds (dB)
+NOISE_THRESHOLD_LOW = 45
+NOISE_THRESHOLD_HIGH = 65
 
-# Reference Tone Parameters (FR-009)
-# These define the ideal calibration signal used to validate device fidelity.
-REFERENCE_TONE_PARAMS: Dict[str, Any] = {
-    "frequency_hz": 1000.0,       # 1 kHz reference tone
-    "duration_seconds": 2.0,      # 2 second burst
-    "target_db": 60.0,            # Target SPL (A-weighted)
-    "tolerance_db": 2.0,          # Acceptable error margin (FR-009)
-    "sample_rate_hz": 44100,      # Standard audio sample rate
-}
+# Data validation thresholds
+VALID_LOGGING_THRESHOLD = 0.80  # 80% of hours must have logs
+GAP_THRESHOLD = 0.20  # Single gap >20% of total time triggers exclusion
+CALIBRATION_ERROR_THRESHOLD = 2.0  # dB
+REACTION_TIME_OUTLIER_SD = 3.0  # Standard deviations
+MAD_OUTLIER_THRESHOLD = 3.5  # Median Absolute Deviation threshold
 
-# Calibration Thresholds
-CALIBRATION_ERROR_THRESHOLD_DB = 2.0  # Participants with >2dB error are flagged
-CALIBRATION_MISSING_STATUS_FLAG = True
+# Statistical analysis parameters
+CFI_CORRELATION_THRESHOLD = 0.7  # Correlation between RT and Error
+VIF_THRESHOLD = 5.0  # Variance Inflation Factor threshold for collinearity
 
-# Noise Bin Configuration (FR-007)
-BIN_DURATION_SECONDS = 60  # 1-minute bins
-MIN_VALID_PROPORTION = 0.80  # 80% valid logging required
-MAX_GAP_PROPORTION = 0.20  # No single gap > 20% of session time
+# Target sample size
+TARGET_SAMPLE_SIZE = 150
 
-# CFI Calculation Parameters (FR-002)
-RT_SD_THRESHOLD = 3.0  # Reaction time outlier threshold (SD)
-ERROR_IMPUTE_VALUE = 0  # Default for missing errors if applicable
-CFI_CORRELATION_THRESHOLD = 0.7  # r > 0.7 use RT diff only
-
-# Model Parameters (FR-003)
-VIF_COLLINEARITY_THRESHOLD = 5.0
-LMM_RANDOM_INTERCEPT = "participant_id"
-LMM_DEPENDENT_VAR = "cfi_score"
-
-# Sensitivity Analysis (FR-005)
-THRESHOLD_SWEEP_RANGES = {
-    "low_noise_db": (30, 45),
-    "moderate_noise_db": (45, 65),
-    "high_noise_db": (65, 85)
-}
 
 def setup_logging(module_name: Optional[str] = None) -> logging.Logger:
     """
-    Configures and returns a logger instance with file and console handlers.
+    Configure and return a logger instance with file and console handlers.
     
     Args:
         module_name: Optional name for the logger. If None, uses 'root' or
-                     the calling module's name.
+                    the calling module's name.
     
     Returns:
         logging.Logger: Configured logger instance.
     """
-    logger = logging.getLogger(module_name if module_name else __name__)
+    if module_name is None:
+        module_name = "ambient_noise_analysis"
     
-    # Avoid adding handlers if already configured (e.g., in tests)
-    if logger.handlers:
+    logger = logging.getLogger(module_name)
+    
+    # Only configure if not already configured
+    if logger.hasHandlers():
         return logger
     
-    logger.setLevel(getattr(logging, LOG_LEVEL, logging.INFO))
+    logger.setLevel(logging.DEBUG)
     
-    # File Handler
-    try:
-        fh = logging.FileHandler(LOG_FILE_PATH)
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(logging.Formatter(LOG_FORMAT))
-        logger.addHandler(fh)
-    except (OSError, PermissionError) as e:
-        # Fallback if log file cannot be written
-        logger.warning(f"Could not create log file at {LOG_FILE_PATH}: {e}. Logging to console only.")
+    # Create logs directory if it doesn't exist
+    logs_dir = ROOT_DIR / "logs"
+    logs_dir.mkdir(exist_ok=True)
     
-    # Console Handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.WARNING) # Console only shows warnings by default to reduce noise
-    ch.setFormatter(logging.Formatter(LOG_FORMAT))
-    logger.addHandler(ch)
+    # File handler
+    file_handler = logging.FileHandler(logs_dir / f"{module_name}.log")
+    file_handler.setLevel(logging.DEBUG)
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    # Add handlers
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
     
     return logger
 
-def get_config_summary() -> Dict[str, Any]:
-    """Returns a summary of the current configuration for logging."""
-    return {
-        "reference_tone": REFERENCE_TONE_PARAMS,
-        "calibration_threshold_db": CALIBRATION_ERROR_THRESHOLD_DB,
-        "bin_duration_seconds": BIN_DURATION_SECONDS,
-        "log_level": LOG_LEVEL,
-        "log_file": LOG_FILE_PATH,
-    }
 
-# Initialize a default logger for the module
-logger = setup_logging()
+def get_config_summary() -> Dict[str, Any]:
+    """
+    Return a summary of the current configuration for logging.
+    
+    Returns:
+        Dict[str, Any]: Configuration summary.
+    """
+    return {
+        "root_dir": str(ROOT_DIR),
+        "raw_data_dir": str(RAW_DATA_DIR),
+        "processed_data_dir": str(PROCESSED_DATA_DIR),
+        "models_dir": str(MODELS_DIR),
+        "noise_threshold_low": NOISE_THRESHOLD_LOW,
+        "noise_threshold_high": NOISE_THRESHOLD_HIGH,
+        "valid_logging_threshold": VALID_LOGGING_THRESHOLD,
+        "gap_threshold": GAP_THRESHOLD,
+        "calibration_error_threshold": CALIBRATION_ERROR_THRESHOLD,
+        "reaction_time_outlier_sd": REACTION_TIME_OUTLIER_SD,
+        "cfi_correlation_threshold": CFI_CORRELATION_THRESHOLD,
+        "vif_threshold": VIF_THRESHOLD,
+        "target_sample_size": TARGET_SAMPLE_SIZE,
+    }

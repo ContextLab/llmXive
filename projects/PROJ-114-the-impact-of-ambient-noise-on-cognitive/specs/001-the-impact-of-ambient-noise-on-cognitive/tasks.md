@@ -56,11 +56,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T019 [P] Implement power analysis justification: Generate `docs/power_analysis_report.md` containing calculated effect size, alpha, power, and N=150 justification [UNRESOLVED-CLAIM: c_483fba6d — status=not_enough_info] (FR-008); verify report contains N=150 and specific statistical parameters. **Note: This task must be completed BEFORE any synthetic data generation or data collection logic.**
-- [X] T043 [P] Validate calibration simulation logic: Define reference tone parameters in `code/config.py` and implement validation script in `code/scripts/validate_calibration.py` to ensure simulation fidelity matches real-world expectations (FR-009); generate `data/processed/calibration_validation_report.json`.
-- [ ] T004 [P] Define JSON Schema contracts in `contracts/dataset.schema.yaml` for Participant, NoiseLog, and TaskPerformance (Input entities only)
+- [ ] T043 [P] Validate calibration simulation logic: Define reference tone parameters in `code/config.py` and implement validation script in `code/scripts/validate_calibration.py` to ensure simulation fidelity matches real-world expectations (FR-009); generate `data/processed/calibration_validation_report.json`.
+- [X] T004 [P] Define JSON Schema contracts in `contracts/dataset.schema.yaml` for Participant, NoiseLog, and TaskPerformance (Input entities only)
 - [ ] T005 [P] Implement `code/scripts/update_state.py` to compute SHA-256 hashes of artifacts and update `state/projects/PROJ-114-.../current_stage.yaml`
-- [X] T006 [P] Setup logging infrastructure and environment configuration management in `code/config.py`
-- [X] T007 Create base data classes/entities in `code/models.py` matching Key Entities in spec.md
+- [~] T006 [P] Setup logging infrastructure and environment configuration management in `code/config.py`
+- [~] T007 Create base data classes/entities in `code/models.py` matching Key Entities in spec.md
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,19 +76,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for calibration logic (error margin >2dB exclusion [UNRESOLVED-CLAIM: c_dd75c4b0 — status=not_enough_info]) in `tests/unit/test_data_ingestion.py`
-- [X] T011 [P] [US1] Unit test for 1-minute bin gap analysis in `tests/unit/test_data_ingestion.py`
-- [X] T012 [P] [US1] Integration test for full ingestion pipeline with synthetic data in `tests/integration/test_ingestion_pipeline.py`
+- [~] T010 [P] [US1] Unit test for calibration logic (error margin >2dB exclusion [UNRESOLVED-CLAIM: c_dd75c4b0 — status=not_enough_info]) in `tests/unit/test_data_ingestion.py`
+- [~] T011 [P] [US1] Unit test for 1-minute bin gap analysis in `tests/unit/test_data_ingestion.py`
+- [~] T012 [P] [US1] Integration test for full ingestion pipeline with synthetic data in `tests/integration/test_ingestion_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T018 [US1] [P] Create `code/scripts/generate_synthetic_data.py` to produce deterministic synthetic logs and task metrics for pipeline validation (NOT for hypothesis testing); ensure data includes edge cases (0dB, gaps >20%).
-- [ ] T013 [US1] Implement `code/data_ingestion.py` to load raw JSONL/CSV from `data/raw/` and validate against `contracts/dataset.schema.yaml`
-- [ ] T014 [US1] Implement device-specific calibration protocol simulation in `code/data_ingestion.py` (FR-009): flag participants if `error_margin > 2dB` or `calibration_status` missing
-- [ ] T015 [US1] Implement gap analysis logic in `code/data_ingestion.py` (FR-007): bin noise logs into 1-minute intervals, calculate `valid_logging_proportion`, exclude participants with <80% valid hours [UNRESOLVED-CLAIM: c_cc687e7d — status=not_enough_info] OR **detect and flag any single continuous gap >20% of total session time [UNRESOLVED-CLAIM: c_83296833 — status=not_enough_info] **; generate exclusion log.
-- [ ] T016 [US1] Implement outlier removal and edge case handling in `code/data_ingestion.py`: remove reaction times >3 SD from mean [UNRESOLVED-CLAIM: c_2eafcff0 — status=not_enough_info]; **handle 0dB as 'Low' noise [UNRESOLVED-CLAIM: c_2d442479 — status=not_enough_info] **; **flag participants with >90% silent sessions for model singularity check [UNRESOLVED-CLAIM: c_cf3f37b4 — status=not_enough_info] **; generate `data/processed/outlier_audit_log.json` containing counts and IDs of removed rows for audit.
-- [ ] T044 [US1] Implement Error Count Validation/Cleaning in `code/data_ingestion.py`: handle missing error counts, impute or flag as appropriate, and ensure clean error data before CFI calculation; generate `data/processed/cleaned_error_counts.csv`.
-- [ ] T017 [US1] [Depends on: T016, T044] Implement CFI calculation in `code/data_ingestion.py` (FR-002): compute z-scored RT difference and z-scored error count; apply logic: if r > 0.7 use RT diff only, else sum them; output `data/processed/cfi_metrics.csv` with columns [participant_id, cfi_score]; verify file exists.
+- [~] T018 [US1] [P] Create `code/scripts/generate_synthetic_data.py` to produce deterministic synthetic logs and task metrics for pipeline validation (NOT for hypothesis testing); ensure data includes edge cases (0dB, gaps >20%).
+- [~] T013 [US1] Implement `code/data_ingestion.py` to load raw JSONL/CSV from `data/raw/` and validate against `contracts/dataset.schema.yaml` <!-- FAILED: unspecified -->
+- [~] T014 [US1] Implement device-specific calibration protocol simulation in `code/data_ingestion.py` (FR-009): flag participants if `error_margin > 2dB` or `calibration_status` missing
+- [~] T015 [US1] Implement gap analysis logic in `code/data_ingestion.py` (FR-007): bin noise logs into 1-minute intervals, calculate `valid_logging_proportion`, exclude participants with <80% valid hours [UNRESOLVED-CLAIM: c_cc687e7d — status=not_enough_info] OR **detect and flag any single continuous gap >20% of total session time [UNRESOLVED-CLAIM: c_83296833 — status=not_enough_info] **; generate exclusion log.
+- [~] T016 [US1] Implement outlier removal and edge case handling in `code/data_ingestion.py`: remove reaction times >3 SD from mean [UNRESOLVED-CLAIM: c_2eafcff0 — status=not_enough_info]; **handle 0dB as 'Low' noise [UNRESOLVED-CLAIM: c_2d442479 — status=not_enough_info] **; **flag participants with >90% silent sessions for model singularity check [UNRESOLVED-CLAIM: c_cf3f37b4 — status=not_enough_info] **; generate `data/processed/outlier_audit_log.json` containing counts and IDs of removed rows for audit.
+- [~] T044 [US1] Implement Error Count Validation/Cleaning in `code/data_ingestion.py`: handle missing error counts, impute or flag as appropriate, and ensure clean error data before CFI calculation; generate `data/processed/cleaned_error_counts.csv`.
+- [~] T017 [US1] [Depends on: T016, T044] Implement CFI calculation in `code/data_ingestion.py` (FR-002): compute z-scored RT difference and z-scored error count; apply logic: if r > 0.7 use RT diff only, else sum them; output `data/processed/cfi_metrics.csv` with columns [participant_id, cfi_score]; verify file exists.
 - [ ] T040 [US1] Implement Valid Data Proportion Report generation: Aggregate pass/fail rates against N=150 target (SC-001) and generate `data/processed/valid_data_proportion_report.json` containing proportion of valid participants and recruitment status.
 - [ ] T020 [US1] Create `docs/quickstart.md` with instructions to run synthetic data generation and ingestion pipeline; verify file contains a runnable command block for `python code/scripts/generate_synthetic_data.py` and expected output path.
 
