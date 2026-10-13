@@ -1,0 +1,6 @@
+code/
+data/
+tests/
+docs/
+models/
+state/

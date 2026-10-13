@@ -1,0 +1,15 @@
+status: none
+intent: download SWE-bench and AgentBench task datasets with execution traces python
+  package dataset
+required_fields:
+- instance_id
+- repo
+- version
+- problem_statement
+- patch
+- test_patch
+- execution_trace
+- ground_truth_label
+cache_key: 735d18f15860325c5d3b0ef807bb372ac5cbb8196713f899a130d5059381d7eb
+searched_at: '2026-10-13T17:18:02.349098+00:00'
+retry_count: 1

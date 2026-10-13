@@ -5,13 +5,6 @@ T001:
     \ in the provided evidence, so we cannot confirm that the required project layout\
     \ was actually created. The implementer must supply proof (e.g., a directory tree\
     \ listing) that these folders exist and are non\u2011empty."
-T005b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data-model.md` file was presented in the evidence, nor any excerpt showing
-    its contents in `specs/001-llmxive-harness-extension/`. Without the actual markdown
-    documenting the data flow, schemas, and artifact relationships, the task requirement
-    is not satisfied. The implementer must add the file with the required documentation.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,9 +13,3 @@ T020:
     were supplied or referenced, so the required outputs cannot be verified. The implementer
     must provide the actual dataset ingestion results, feature extraction outputs,
     and predictive model artifacts to satisfy the task.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` files (README, usage guide) were provided; the evidence section contains
-    no artifacts, so the required documentation updates are missing. The implementer
-    must add the updated README and usage guide in the `docs/` directory.
