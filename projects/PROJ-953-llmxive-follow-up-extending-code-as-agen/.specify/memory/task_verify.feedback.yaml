@@ -1,20 +1,53 @@
 T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: 9aca1b1ce5f3db6a6f17316959cc7883f18907b6bd6a6cab5b83f9ef971f347d
 T002:
+  reason: The `requirements.txt` file is present, but the required verification script
+    `tests/unit/test_requirements.py` is missing, so the presence and exact versions
+    of the listed packages cannot be confirmed. The task is therefore not fully satisfied.
   task: d8f05fcf412f97c93b63c8ba2f20c8cfae11913cceae6555b7ef368171bd6700
 T003:
+  reason: Checked `pyproject.toml` (present and correctly configures Black and Ruff)
+    and `tests/unit/test_pyproject.py` (missing), so the required verification test
+    does not exist. The task is not fully satisfied.
   task: f955d2ed31f16332b2850f9d9e2b197b157db4f70815272aedf0dccc8b1dd802
 T004:
+  reason: "The `docs/README.md` contains only about 15 non\u2011empty lines (fewer\
+    \ than the required 20), and the required test `tests/unit/test_docs_presence.py`\
+    \ is missing, so the line\u2011count verification cannot be performed for any\
+    \ of the markdown files. Additionally, the contents of `docs/usage_guide.md` and\
+    \ `docs/api_reference.md` were not provided for line\u2011count checking. These\
+    \ issues must be fixed for the task to be considered complete."
   task: 771d8caf040ecd405aed5697a0761ef4fd50333c8eafb507fe6ae86073caccfa
 T005:
+  reason: "The evidence shows the three schema files are listed inside `contracts/`,\
+    \ but their contents are not provided and the required test `tests/unit/test_schema_files.py`\
+    \ is missing, so there is no proof they are syntactically valid or that a validator\
+    \ was run. The task\u2019s core requirement\u2014confirming presence **and** JSON\u2011\
+    Schema validity\u2014is therefore not satisfied."
   task: ca507162980dfd494e422b69b22ff46c6749b8206e089820f03a248b84d69aad
 T006:
+  reason: 'The provided `tests/unit/test_schema_validation.py` does not include the
+    required instance with `"semantic_complexity_score": null` and `"lines_of_code":
+    42`; it only tests the case where the key is omitted. Consequently the test does
+    not fully satisfy the task specification. Add a validation case for the explicit
+    `null` value (and adjust the schema if necessary) to meet the requirement.'
   task: bd6c745b56ab1835efc0a099d7617a8ff05e151ccfbfc09751dbc6b5340737f5
 T007:
+  reason: The `data-model.md` file exists and contains the required four headings,
+    but it references schema files (`contracts/task_artifact.schema.yaml`, `contracts/structural_metric.schema.yaml`,
+    `contracts/model_outcome.schema.yaml`) that are not present in the repository,
+    so the integration test that validates referenced schemas would fail. The missing
+    schema artifacts must be added for the task to be considered complete.
   task: a43ea153e4cc72d864f615b2949504722e56371a963f8b5a907d9328293bf08f
 T008:
   task: 47727d76e4a04b658f499aab4466c94dc003a637af372bae127a7f47da0f6599
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/ingest.py
+    exit=1'
   task: 4be91581383e6ebee75a8c7b8def51c0c216cd2dd50395ed6bfea54d82b5c9ae
 T010:
   task: f18b50a984438cb15bddd97c369db0b4dfd74d5452d43067a171abe8ed6f31fc

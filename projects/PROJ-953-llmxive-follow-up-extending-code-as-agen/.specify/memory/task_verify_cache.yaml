@@ -5,6 +5,57 @@ T001:
     \ in the provided evidence, so we cannot confirm that the required project layout\
     \ was actually created. The implementer must supply proof (e.g., a directory tree\
     \ listing) that these folders exist and are non\u2011empty."
+T002:
+  c: false
+  h: 4a4971ddd2452551634c0517173d9aebf38287874a0d4bbc7ea4d9f9e63649c4
+  r: The `requirements.txt` file is present, but the required verification script
+    `tests/unit/test_requirements.py` is missing, so the presence and exact versions
+    of the listed packages cannot be confirmed. The task is therefore not fully satisfied.
+  sig: ad95a93aa11e4ea72bd6fb521de086e132c8a9bd3331dfbc0794634dc8aa3c8c
+T003:
+  c: false
+  h: 03dda5ef9371ee8a613541a85a9bdb1168b97c48d856ebff0d782f963265250c
+  r: Checked `pyproject.toml` (present and correctly configures Black and Ruff) and
+    `tests/unit/test_pyproject.py` (missing), so the required verification test does
+    not exist. The task is not fully satisfied.
+  sig: cf56dbf3226c89fd3e1baf761b40cbc06bc1ac446d8f2f0ff34a3b39b6adc09a
+T004:
+  c: false
+  h: a9fa889b75e785bde7d1cfac4e6fe64e196631bf26b51b318edcf6841c2e21a3
+  r: "The `docs/README.md` contains only about 15 non\u2011empty lines (fewer than\
+    \ the required 20), and the required test `tests/unit/test_docs_presence.py` is\
+    \ missing, so the line\u2011count verification cannot be performed for any of\
+    \ the markdown files. Additionally, the contents of `docs/usage_guide.md` and\
+    \ `docs/api_reference.md` were not provided for line\u2011count checking. These\
+    \ issues must be fixed for the task to be considered complete."
+  sig: a623b519ebfa97908d71944a78f88d0488b500943f5b3f6145011d1e51f5a429
+T005:
+  c: false
+  h: dcc51c1e145319269003226e391db4b62e6136cd55d5247a9a96ebd703abc275
+  r: "The evidence shows the three schema files are listed inside `contracts/`, but\
+    \ their contents are not provided and the required test `tests/unit/test_schema_files.py`\
+    \ is missing, so there is no proof they are syntactically valid or that a validator\
+    \ was run. The task\u2019s core requirement\u2014confirming presence **and** JSON\u2011\
+    Schema validity\u2014is therefore not satisfied."
+  sig: 8302fb16e7a145d79a2dbfc539ef3435f46bd6b02a8a30bd2c471fe0e0488db6
+T006:
+  c: false
+  h: a5676674426a1dc3f2a09d8a9fe261e2eecd26d9943c5722357f2aedc8dbb688
+  r: 'The provided `tests/unit/test_schema_validation.py` does not include the required
+    instance with `"semantic_complexity_score": null` and `"lines_of_code": 42`; it
+    only tests the case where the key is omitted. Consequently the test does not fully
+    satisfy the task specification. Add a validation case for the explicit `null`
+    value (and adjust the schema if necessary) to meet the requirement.'
+  sig: a0cda9221f113ef75399110500ba4b3c5051245b01f7fe9a00d50cd29f6a588c
+T007:
+  c: false
+  h: 346f2d45edfe3196ffe58f00f50de3560ecf79c09ae3696b6e80830163054232
+  r: The `data-model.md` file exists and contains the required four headings, but
+    it references schema files (`contracts/task_artifact.schema.yaml`, `contracts/structural_metric.schema.yaml`,
+    `contracts/model_outcome.schema.yaml`) that are not present in the repository,
+    so the integration test that validates referenced schemas would fail. The missing
+    schema artifacts must be added for the task to be considered complete.
+  sig: 935ef46f0ee9dd1e054f35ea89e3311a6c7c66fddd35116ec1c8a8fbbc0874ae
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

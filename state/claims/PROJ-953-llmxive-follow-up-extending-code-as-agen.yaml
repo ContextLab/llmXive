@@ -380,3 +380,37 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-08T14:05:59Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/quickstart.md
+  attempts: 1
+  canonical: all tests pass without errors
+  claim_id: c_427eb613
+  context: "Run the full test suite to verify contract compliance: pytest -v All tests\
+    \ should pass without errors. If any test fails, inspect the traceback, fix the\
+    \ underlying script, and re\u2011run the tests."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass without errors.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T17:19:19Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: threshold 0.05 fnr 0.0008 fp 12 fn 0
+  claim_id: c_6550c0aa
+  context: "The file records the false\u2011negative rate (FNR) for each decision\
+    \ threshold evaluated during sensitivity analysis. Example entry shows these values."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At threshold 0.05, the false\u2011negative rate (FNR) is 0.0008, there\
+    \ are 12 false positives, and 0 false negatives."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T17:19:25Z'

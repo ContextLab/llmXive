@@ -1,15 +1,15 @@
 status: none
-intent: download SWE-bench and AgentBench task datasets with execution traces python
-  package dataset
+intent: download SWE-bench and AgentBench datasets from HuggingFace python package
+  dataset
 required_fields:
 - instance_id
-- repo
-- version
+- repo_version
 - problem_statement
 - patch
 - test_patch
-- execution_trace
+- code_artifacts
+- execution_traces
 - ground_truth_label
-cache_key: 735d18f15860325c5d3b0ef807bb372ac5cbb8196713f899a130d5059381d7eb
-searched_at: '2026-10-13T17:18:02.349098+00:00'
+cache_key: 3b63c77a40b7175a7b41ef34853a950ee2ebe5c3df66df2511329926d7888a91
+searched_at: '2026-10-13T17:22:36.211273+00:00'
 retry_count: 1

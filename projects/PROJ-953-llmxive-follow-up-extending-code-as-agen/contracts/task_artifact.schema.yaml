@@ -1,45 +1,17 @@
-%YAML 1.2
----
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Task Artifact Schema
-description: >
-  Schema for validating raw task artifacts ingested from SWE-bench and AgentBench.
-  Used to ensure consistency before feature extraction.
+title: "TaskArtifact"
 type: object
-required:
-  - task_id
-  - source
-  - code_diff
-  - original_code
-  - status
 properties:
   task_id:
     type: string
-    description: Unique identifier for the task (e.g., "swe_bench__repo__issue-123")
-    pattern: "^[a-zA-Z0-9_-]+$"
-  source:
-    type: string
-    description: Source dataset name
-    enum:
-      - swe_bench
-      - agent_bench
   code_diff:
     type: string
-    description: The code diff or patch applied to solve the task
-    minLength: 1
   original_code:
     type: string
-    description: The original code before the diff was applied
-    minLength: 1
-  status:
+  dataset_name:
     type: string
-    description: Parsing or ingestion status
-    enum:
-      - Parsed
-      - Unparseable
-      - Timeout
-  metadata:
-    type: object
-    description: Optional metadata fields
-    additionalProperties: true
-additionalProperties: false
+required:
+  - task_id
+  - code_diff
+  - original_code
+  - dataset_name

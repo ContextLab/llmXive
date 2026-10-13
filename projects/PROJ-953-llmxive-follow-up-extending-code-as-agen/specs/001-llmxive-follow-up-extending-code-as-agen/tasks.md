@@ -51,14 +51,14 @@ All paths are relative to the repository root.
 - [ ] T007 [P] Produce `specs/001-llmxive-harness-extension/data-model.md` documenting the full data flow, directory structure, schema definitions, and artifact relationships (mirroring the original data‑model description). The markdown must contain the four top‑level headings: **Data Flow Overview**, **Directory Structure & Artifacts**, **Schema Definitions**, **Artifact Relationships**.  
   *Verification*: `tests/integration/test_data_model_doc.py` parses the file, checks for the four headings, and confirms that each referenced schema file exists on disk.
 
-- [ ] T008 [P] Implement `code/scripts/config.py` that reads environment variables `HF_TOKEN` (required) and `SAMPLE_SIZE` (optional, default = 500). Missing `HF_TOKEN` raises `RuntimeError` with a clear message. The module exposes `HF_TOKEN` and `SAMPLE_SIZE` constants.  
+- [~] T008 [P] Implement `code/scripts/config.py` that reads environment variables `HF_TOKEN` (required) and `SAMPLE_SIZE` (optional, default = 500). Missing `HF_TOKEN` raises `RuntimeError` with a clear message. The module exposes `HF_TOKEN` and `SAMPLE_SIZE` constants.  
   *Verification*: `tests/unit/test_config_loader.py` sets/clears the env vars and asserts correct behaviour.
 
 ---
 
 ## Phase 3 – Dataset ingestion & ground‑truth generation (User Story 1)  
 
-- [ ] T009 [P] Implement `code/scripts/ingest.py` to:  
+- [ ] T009 [P] Implement `code/scripts/ingest.py` to:   <!-- FAILED-IN-EXECUTION: code/scripts/ingest.py exit=1 -->
 
   1. Stream `swe-bench-verified` and `agentbench-os` via `datasets.load_dataset(..., streaming=True)`.  
   2. Sample exactly `SAMPLE_SIZE` tasks (default 500) respecting the RAM budget; log the chosen size in `data/logs/ingest_sample_log.json`.  
