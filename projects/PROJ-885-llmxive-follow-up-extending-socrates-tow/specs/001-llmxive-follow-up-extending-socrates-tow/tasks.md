@@ -3,7 +3,7 @@
 **Inputs**: `specs/001-dynamic-state-injection/spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`
 **Research question**: Does real-time adaptation of LLM mediator prompts based on inferred socio-cognitive states improve consensus gap closure in high-emotion, culturally diverse conflicts compared to static prompting?
 
-**Re-plan note**: Rejected tasks (T013, T014, T015, T019, T027, T049, T020b) failed because promised artifacts were missing or truncated. This revision consolidates the pending work into a smaller set of tasks, each with a single deterministic deliverable, and decouples the trajectory generator from the experiment runner so each can be verified independently. Verified completed work is preserved as checked. Paths are relative to the project directory (`code/`, `data/`, `tests/`).
+**Re-plan note**: Rejected tasks (T013, T014, T015, T019, T027, T049, T020b) failed because promised artifacts were missing or truncated. This revision consolidates the pending work into a smaller set of tasks, each with a single deterministic deliverable, and decouples the trajectory generator from the experiment runner so each can be verified independently. Verified completed work is preserved as done. Paths are relative to the project directory (`code/`, `data/`, `tests/`).
 
 ## Phase 1: Data generation and first end-to-end analysis
 
@@ -59,7 +59,9 @@
 | SC-003 (throughput) | T107 | `throughput_report.json` |
 | SC-005 (threshold sensitivity) | T111 | `sensitivity_analysis_report.json` |
 
-**Execution order**: T101 → T102 → T103 → T104 → T105 → T106 → T107/T108 (parallel) → T109 → T110 → T111/T112 (parallel) → T113 → T114. Phase 5 statistical tasks remain strictly sequential (T109 → T110).
+**Execution order**: T101 → T102 → T103 → T104 → T105 → T106 → T107/T108 (parallel) → T109 → T110 → T111/T112 (parallel) → T113 → T114. Statistical tasks remain strictly sequential (T109 → T110).
+
+**Paper-stage handoff**: layout, PDF compilation, peer review and publication are handled by the subsequent paper pipeline; T113's `docs/research_draft.md` and the `data/results/` artifacts above constitute the complete handoff inputs.
 
 ## Revision behavior
 
