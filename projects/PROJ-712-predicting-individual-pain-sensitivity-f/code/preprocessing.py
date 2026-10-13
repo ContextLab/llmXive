@@ -269,18 +269,33 @@ def _load_participant_metadata(metadata_path: Path) -> pd.DataFrame:
 
 def _locate_metadata_file(raw_dir: Path) -> Path:
     """
-    Search for ``heat_pain_thresholds.csv`` in ``raw_dir`` or its immediate parent.
-    Returns the Path if found, otherwise raises FileNotFoundError.
+    Search for a CSV file in ``raw_dir`` (or its immediate parent) that contains
+    the required metadata columns. Returns the Path if found, otherwise raises
+    FileNotFoundError.
     """
-    candidate = raw_dir / "heat_pain_thresholds.csv"
-    if candidate.is_file():
-        return candidate
-    # Try one level up (useful when the CLI points at a sub‑sample directory)
-    candidate = raw_dir.parent / "heat_pain_thresholds.csv"
-    if candidate.is_file():
-        return candidate
+    required_cols = {"participant_id", "heat_pain_threshold", "age", "gender"}
+
+    # Helper to test a candidate CSV
+    def _is_valid(csv_path: Path) -> bool:
+        try:
+            df = pd.read_csv(csv_path, nrows=0)
+            return required_cols.issubset(set(df.columns))
+        except Exception:
+            return False
+
+    # Look in the provided directory
+    for candidate in raw_dir.glob("*.csv"):
+        if _is_valid(candidate):
+            return candidate
+
+    # Look one level up (useful when the CLI points at a sub‑sample directory)
+    parent = raw_dir.parent
+    for candidate in parent.glob("*.csv"):
+        if _is_valid(candidate):
+            return candidate
+
     raise FileNotFoundError(
-        f"Metadata CSV not found in {raw_dir} nor its parent directory."
+        f"Metadata CSV with required columns not found in {raw_dir} nor its parent directory."
     )
 
 def _load_raw_for_participant(loader: EEGDataLoader, participant_id: str) -> mne.io.Raw:

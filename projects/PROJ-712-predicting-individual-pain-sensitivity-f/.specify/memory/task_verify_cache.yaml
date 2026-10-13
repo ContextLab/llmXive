@@ -27,15 +27,13 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: c3cd5a642bb72a59588b40305e1446a8bf6bbcce4f1e8b8cc6fffb3ee46ee35c
-  r: '`code/utils.py` exists and implements all three required behaviors: `set_global_seed`
-    pins `random.seed(42)`/`np.random.seed(42)`, `setup_logging` writes timestamped
-    entries to `artifacts/log.txt` (confirmed by the actual log file containing the
-    test''s timestamped entry), and `record_artifact_hash` computes a SHA-256 digest
-    and returns it. The corresponding `tests/unit/test_utils.py` covers identical-file
-    hash equality and logger file creation, and the log evidence shows the test logger
-    ran successfully.'
-  sig: 2bb13e369207d271453f1b7988dba1d8b62d9d6a4e461f4099c126a0c3e37058
+  h: 0d8544bd1b068513692c0bd8fc982bcea70be980f22b678535b77d813e037dc2
+  r: "Checked `code/utils.py` (contains seed\u2011pinning function, logger writing\
+    \ to `artifacts/log.txt`, and `record_artifact_hash` returning a SHA\u2011256\
+    \ hash) and `tests/unit/test_utils.py` (verifies identical file hashes, logger\
+    \ entry with timestamp, and hash return). All required artifacts exist and pass\
+    \ the tests."
+  sig: cc0e0f5027fceb968f154fc7fbd06d64af4d1159d05144f57a5c3df8a95c7354
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56

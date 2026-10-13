@@ -26,3 +26,6 @@
 2026-10-13 08:16:28,445 - __main__ - ERROR - Missing required citations:
 2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.1234/example1
 2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 14:19:42,390 - __main__ - ERROR - Missing required citations:
+2026-10-13 14:19:42,391 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 14:19:42,391 - __main__ - ERROR -   - doi:10.5678/example2

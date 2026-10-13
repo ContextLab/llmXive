@@ -46,12 +46,12 @@ datasets.exceptions.DatasetNotFoundError: Dataset 'openneuro/ds003542' doesn't e
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-13 08:16:28,445 - __main__ - ERROR - Missing required citations:
-2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 14:19:42,390 - __main__ - ERROR - Missing required citations:
+2026-10-13 14:19:42,391 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 14:19:42,391 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
--pain-sensitivity-f/code/main.py", line 179, in <module>
+de/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -59,15 +59,15 @@ Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-ind
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 401, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 416, in preprocess_all_participants
     metadata_path = _locate_metadata_file(raw_dir)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 282, in _locate_metadata_file
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 297, in _locate_metadata_file
     raise FileNotFoundError(
-FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
+FileNotFoundError: Metadata CSV with required columns not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
 
 - python code/main.py --step preprocess -> rc=1
--pain-sensitivity-f/code/main.py", line 179, in <module>
+de/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -75,15 +75,15 @@ FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/p
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 401, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 416, in preprocess_all_participants
     metadata_path = _locate_metadata_file(raw_dir)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 282, in _locate_metadata_file
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 297, in _locate_metadata_file
     raise FileNotFoundError(
-FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
+FileNotFoundError: Metadata CSV with required columns not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
 
 - python code/main.py --step model -> rc=1
--pain-sensitivity-f/code/main.py", line 179, in <module>
+de/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -91,15 +91,15 @@ FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/p
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 401, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 416, in preprocess_all_participants
     metadata_path = _locate_metadata_file(raw_dir)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 282, in _locate_metadata_file
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 297, in _locate_metadata_file
     raise FileNotFoundError(
-FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
+FileNotFoundError: Metadata CSV with required columns not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
 
 - python code/main.py --step diagnostics -> rc=1
--pain-sensitivity-f/code/main.py", line 179, in <module>
+de/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -107,12 +107,12 @@ FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/p
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 401, in preprocess_all_participants
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 416, in preprocess_all_participants
     metadata_path = _locate_metadata_file(raw_dir)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 282, in _locate_metadata_file
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 297, in _locate_metadata_file
     raise FileNotFoundError(
-FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
+FileNotFoundError: Metadata CSV with required columns not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
 
 - python -m pytest -q -> rc=2
 oolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -131,7 +131,7 @@ HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.71s ===============================
+============================== 2 errors in 1.70s ===============================
 
 
 
