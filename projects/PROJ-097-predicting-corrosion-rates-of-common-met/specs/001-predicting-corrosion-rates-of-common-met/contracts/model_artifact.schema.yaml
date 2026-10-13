@@ -1,0 +1,40 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Model Artifact"
+type: object
+required:
+  - model_type
+  - hyperparameters
+  - feature_list
+  - cv_r2
+  - cv_rmse
+  - sha256
+  - created_at
+properties:
+  model_type:
+    type: string
+    enum: ["RandomForest", "GradientBoosting"]
+    description: "Algorithm used for the best-performing model."
+  hyperparameters:
+    type: object
+    description: "Dictionary of hyperparameters used (e.g., max_depth, n_estimators)."
+    additionalProperties:
+      type: integer
+  feature_list:
+    type: array
+    items:
+      type: string
+    description: "Ordered list of column names fed to the model (includes interaction features)."
+  cv_r2:
+    type: number
+    description: "Cross‑validated R² of the best model."
+  cv_rmse:
+    type: number
+    description: "Cross‑validated RMSE of the best model."
+  sha256:
+    type: string
+    description: "SHA‑256 hash of the serialized model file."
+  created_at:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when the artifact was created."
+additionalProperties: false
