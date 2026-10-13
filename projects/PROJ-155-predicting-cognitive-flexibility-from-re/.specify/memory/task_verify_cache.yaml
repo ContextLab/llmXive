@@ -1,19 +1,12 @@
 T001:
   c: true
-  h: 0f858e191b4a4f300700f1423c5a5032743a589d846da0fcae4da297a225f61d
-  r: 'I have verified the existence and content of the following artifacts:
-
-    - Directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`,
-    and `tests/` are all present.
-
-    - `requirements.txt` contains all requested libraries (numpy, pandas, scikit-learn,
-    statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest).
-
-    - `.ruff.toml` exists.
-
-    - `code/config.py` correctly pins the seed to 42 and sets `window_seconds=60`,
-    `step_seconds=1`, and `FD_threshold=0.2`.
-
-    - `plan.md` Constitution Check is updated with "DEVIATION (Justified in technical-design.md)"
-    for window length and "REJE'
-  sig: 5b3b548d2be8a051276a3991b7e247176895c8dfe9745d90adcbd6ac2602d49f
+  h: 2c012f4423720a55d46b2bd40811303afa5adf4596fb62f92dac5c5ed682b5f1
+  r: All required directories (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
+    `docs/`, `tests/`) exist and are non-empty; `requirements.txt` contains all 11
+    required packages (plus extras); `.ruff.toml` configures linting; `code/config.py`
+    pins seed=42, window=60s, step=1s, FD_threshold=0.2; and `plan.md`'s Constitution
+    Check marks window length as "DEVIATION (Justified in technical-design.md)" and
+    phase-shuffling as "REJECTED" as specified. No execution evidence of `ruff check`
+    was supplied, but that's a verification step, not a required artifact, and all
+    substantive deliverables are pr
+  sig: df4c74ffb2f3d35258ad6df0d60895a70550ececfba34a6e8aa2deb9a3b2bc36

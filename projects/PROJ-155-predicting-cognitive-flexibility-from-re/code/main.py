@@ -19,7 +19,6 @@ from code.features.connectivity import main as connectivity_main
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 def _run_download_preprocess():
     logger.info("Downloading raw data (ADHD dataset)...")
     download_adhd_dataset()
@@ -30,7 +29,6 @@ def _run_download_preprocess():
         sys.exit(1)
     logger.info(f"Preprocessing completed for {processed_count} subjects.")
 
-
 def _run_features():
     logger.info("Running connectivity feature extraction...")
     ret = connectivity_main()
@@ -38,7 +36,6 @@ def _run_features():
         logger.error("Connectivity pipeline failed.")
         sys.exit(1)
     logger.info("Feature extraction completed.")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Project entry point.")
@@ -59,7 +56,6 @@ def main():
         logger.info("Analysis stage not implemented for this task.")
     else:
         parser.error(f"Unknown stage: {args.stage}")
-
 
 if __name__ == "__main__":
     main()

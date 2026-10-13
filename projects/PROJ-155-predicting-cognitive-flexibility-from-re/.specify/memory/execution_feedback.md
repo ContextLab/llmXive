@@ -15,42 +15,24 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: self-declared fabricated metric — “…me"])         # Deterministic placeholder values:         writer.writerow([su…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; 3 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage features (rc=1); python code/main.py --stage analysis (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: self-declared fabricated metric — “…me"])         # Deterministic placeholder values:         writer.writerow([su…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; 2 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage features (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --stage download_preprocess -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 15, in <module>
-    from code.data.download import download_adhd_dataset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 20, in <module>
-    from code.data.behavioral_validator import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/behavioral_validator.py", line 14, in <module>
-    from code.utils.logging import log_exclusion, get_exclusion_log_path
-ImportError: cannot import name 'get_exclusion_log_path' from 'code.utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/utils/logging.py)
+INFO:__main__:Downloading raw data (ADHD dataset)...
+INFO:__main__:Running preprocessing pipeline...
+INFO:code.data.preprocess:Starting preprocessing pipeline...
+WARNING:code.data.preprocess:No subjects found to process.
+ERROR:__main__:Preprocessing failed or produced no subjects.
 
 - python code/main.py --stage features -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 15, in <module>
-    from code.data.download import download_adhd_dataset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 20, in <module>
-    from code.data.behavioral_validator import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/behavioral_validator.py", line 14, in <module>
-    from code.utils.logging import log_exclusion, get_exclusion_log_path
-ImportError: cannot import name 'get_exclusion_log_path' from 'code.utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/utils/logging.py)
-
-- python code/main.py --stage analysis -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 15, in <module>
-    from code.data.download import download_adhd_dataset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 20, in <module>
-    from code.data.behavioral_validator import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/behavioral_validator.py", line 14, in <module>
-    from code.utils.logging import log_exclusion, get_exclusion_log_path
-ImportError: cannot import name 'get_exclusion_log_path' from 'code.utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/utils/logging.py)
+INFO:__main__:Running connectivity feature extraction...
+INFO:code.features.connectivity:Starting connectivity feature extraction...
+ERROR:code.features.connectivity:Parcellated directory not found: /home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/data/processed/parcellated
+ERROR:__main__:Connectivity pipeline failed.
 
 
 ## Declared deliverables still missing
@@ -70,6 +52,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/merge.py` — NOT invoked by the run-book
     - `code/utils/exclusion_stats.py` — NOT invoked by the run-book
     - `code/utils/exclusion_validator.py` — NOT invoked by the run-book
+    - `code/utils/logging.py` — NOT invoked by the run-book
     - `code/utils/success_rate.py` — NOT invoked by the run-book
     - `code/utils/validate_exclusions.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/exclusion_log.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
