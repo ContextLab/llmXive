@@ -1,30 +1,37 @@
 T001:
-  reason: "Checked the presence and contents of the required directories, `requirements.txt`,\
-    \ `.ruff.toml`, and `code/config.py`, and the updated `plan.md`. While the directory\
-    \ structure and config values are correct, there is no provided evidence that\
-    \ `ruff check .` was run and passed (no ruff\u2011linting log or test result),\
-    \ so the linting verification step is missing."
-  task: 436cf559f918fc6c0f94366fbddaf6304a5bec8fd0006a5614c6baf503a7643d
+  reason: "The required directories, `requirements.txt`, `.ruff.toml`, and `code/config.py`\
+    \ all exist with correct content, but the core verification requirement fails:\
+    \ `data/logs/ruff.log` (735KB) is full of lint errors (E501, F401, I001, UP035,\
+    \ W291, etc. across `code/analysis/fdr_correction.py` and other files) and does\
+    \ not contain \"\u2714 No errors\". The implementer must fix the lint violations\
+    \ (or adjust the config appropriately) and re-run `ruff check . > data/logs/ruff.log`\
+    \ until the log reports no errors."
+  task: 11aaa1cc517612dd21fb748d9dd14d2aced6ffb1dbc6ce2bc7cab06d4a67134d
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
-    code/main.py exit=1'
-  task: 97f943e09d09ff131ea6a2f034d04cf4ca0092e411b9ba057c478c5e738d48eb
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=-1
+    (TIMEOUT)'
+  task: 0c85b0ea5ecce9583da61fcb6e76af71faf0b880a9913fa561d4dd9e1fbf6088
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: eeb7be70937c0eab25d44ad195e7ef89ed8fd7ae44cdb9a1f2d8560ba3305911
+  task: 3a638e70c7c321ce1789214fea7957570fd6922a3b02023031b624ebaa64d715
 T004:
-  task: b5184d55109fd27f8d0a760e7b6ef3342396782a6f4f7aa6c64c956e69cab50c
+  task: 46d1298062a4f9cf43602ccc86de65977881b0b43acacd134cb52ebd7483a806
 T005:
-  task: f6a9c5bb668047516f6c9a4bb31d9f658b6883e1556c4966614231fa9922cd69
+  task: 8bc5081afb616caa21b021ddccc1446e416d2a1a0d0abad78fbdbd39434914d7
 T006:
-  task: 7e48ced316287ab4795873ef62b7c9401ee87e5bfdfcfb7588ef58d704a58b81
+  task: 8fe78339350df003f6aa27f18e5fcddf0c10625ffc60139c86c9e93c9b39b71a
 T007:
-  task: 17ead866dbd755238c9888b84ace30c2ee2fcf79ef279a0b257162e933bd0b02
+  task: 81f92778e6b96da92bc39df7025963660826708e30cae6cd10decbf40caa4c14
 T008:
-  task: 9b99d37a4a26c06ccb276153655a2ae3c3c384f747b5a69eb3263e0b383fa5db
+  task: 31a2b4c4f3fb4361aefd9e110ca99b8d69e804356a29925d0b40fb97d5a4013b
 T009:
-  task: 5fec8f73c6984a0a3303cea2280d44fbb61ccc31f2a5631b1b5b5912c4a9bb6a
+  task: 32b65446e2520cb7227e7e94e0cde785ee305855b3a8c265de3ecf0fb348f141
 T010:
-  task: 27f4e59bba0db0b5b1c780f1f920f18b3b5ed438d672ed343987fedd6574dff7
+  task: a87ec0d52d0fe5299075baa385fd6dee734c1975aefb180e67b99f4daa5c5ad1
 T011:
-  task: 427abb0b2c7334527796db27538da9e873f3a84943db6b060b7aa667b998c05d
+  task: d50d5c3babb8fc9939014a21ec424e44ba85833ec4267e079b69cf19d72ff862
+T012:
+  task: 10b9516e2fea249060cd5dacb9867f9ee60604f31900081ee34ac7cf83f3ca7c
+T013:
+  task: 3805f8ed8af19ba9b15c1c816dab22be56300bcefa7be74db2f0c0a20b348502
+T014:
+  task: 7baa65757b243b5e8dbd1d7ad5212508282fcfbf5abe6bafc53f34cf0b18ec9e

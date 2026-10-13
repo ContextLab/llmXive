@@ -14,7 +14,7 @@ import nilearn.datasets as nd
 from llmxive_toolkit import paths
 
 # Import the helper that returns the correct raw data directory for the project.
-# This function is defined in `code/data/paths.py` and returns a Path object
+# This function is defined in `code/data/paths.py` and returns a string
 # pointing to `<project>/data/raw`.
 from code.data.paths import get_raw_path
 
@@ -30,19 +30,19 @@ def _sha256_of_file(file_path: Path) -> str:
 
 def _write_checksums(root_dir: Path) -> None:
     """
-    Write a checksum file (data/checksums.txt) that contains a SHA‑256 hash
-    for every file under ``root_dir``.  The file is written relative to the
-    repository root so that the path matches the convention used elsewhere
-    in the project.
+    Write a checksum file (data/raw/checksums.json) that contains a mapping
+    from relative file path (POSIX style) to its SHA‑256 hash.
     """
-    checksum_path = paths.data("checksums.txt")
+    checksum_path = paths.data("raw", "checksums.json")
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    with checksum_path.open("w") as out_f:
-        for file_path in root_dir.rglob("*"):
-            if file_path.is_file():
-                rel_path = file_path.relative_to(paths.root)
-                checksum = _sha256_of_file(file_path)
-                out_f.write(f"{checksum}  {rel_path}\n")
+    checksums: Dict[str, str] = {}
+    for file_path in root_dir.rglob("*"):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(paths.root).as_posix()
+            checksum = _sha256_of_file(file_path)
+            checksums[rel_path] = checksum
+    with checksum_path.open("w", encoding="utf-8") as out_f:
+        json.dump(checksums, out_f, indent=2, sort_keys=True)
 
 
 def download_hcp_subset() -> Path:
@@ -66,7 +66,7 @@ def download_hcp_subset() -> Path:
     chain further processing steps.
     """
     # 1️⃣  Create the raw data root (the pipeline expects this exact location)
-    raw_root = get_raw_path() / "HCP_1200"
+    raw_root = Path(get_raw_path()) / "HCP_1200"
     raw_root.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -108,7 +108,7 @@ def download_hcp_subset() -> Path:
 
     # 5️⃣  Write a manifest that downstream steps can read.
     manifest = {"total_count": 1, "subjects": [subj_id]}
-    with (raw_root / "manifest.json").open("w") as f:
+    with (raw_root / "manifest.json").open("w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
 
     # 6️⃣  Record checksums for every file under the raw directory.

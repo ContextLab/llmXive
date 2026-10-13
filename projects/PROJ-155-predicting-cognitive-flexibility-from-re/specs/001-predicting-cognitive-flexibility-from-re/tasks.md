@@ -21,7 +21,7 @@ The goal of this phase is to obtain a runnable pipeline on a tiny real‑data su
   *Run* `ruff check . > data/logs/ruff.log` and confirm the log contains “✔ No errors”.  
   **Verification**: `cat data/logs/ruff.log && grep -q "No errors"` succeeds; `test -d code && test -d data/raw && test -d data/processed && test -d data/results && test -d figures && test -d docs && test -d tests` succeeds; directory tree matches the list above.
 
-- [ ] T002 [US1] **Download HCP data, verify integrity, and preprocess**  
+- [ ] T002 [US1] **Download HCP data, verify integrity, and preprocess**   <!-- FAILED-IN-EXECUTION: code/main.py exit=-1 (TIMEOUT) -->
   *Implement* `code/data/download.py` to fetch the HCP 1200‑subject resting‑state fMRI (4 runs) and the behavioral CSV containing the NIH Toolbox Dimensional Change Card Sort score via the HCP API (authenticated with a token stored in `~/.hcp_token`).  
   *Compute* SHA‑256 checksums for every downloaded file and write them to `data/raw/checksums.json`.  
   *Implement* `code/data/preprocess.py` to:  

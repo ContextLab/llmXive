@@ -7,20 +7,25 @@ import random
 from typing import Dict, Any
 import numpy as np
 
+# Constants required by the task specification
+SEED = 42
+WINDOW_SEC = 60          # seconds, per spec
+STEP_SEC = 1
+FD_THRESHOLD = 0.2
+BATCH_SIZE = 20
+
+# Internal configuration dictionary (used by other modules)
 _CONFIG: Dict[str, Any] = {
-    # Reproducibility
-    "seed": int(os.getenv("SEED", "42")),
-    # fMRI acquisition parameters
-    "tr": 0.72,  # HCP repetition time in seconds
-    "window_seconds": 60,
-    "step_seconds": 1,
-    "FD_threshold": 0.2,
-    # Miscellaneous
+    "seed": SEED,
+    "tr": float(os.getenv("TR", "0.72")),  # HCP repetition time in seconds
+    "window_seconds": WINDOW_SEC,
+    "step_seconds": STEP_SEC,
+    "FD_threshold": FD_THRESHOLD,
+    "batch_size": BATCH_SIZE,
     "snr_threshold": 1.0,
-    "batch_size": 50,
 }
 
-def set_seed(seed: int = 42) -> None:
+def set_seed(seed: int = SEED) -> None:
     """
     Seed the global random number generators for reproducibility.
     """

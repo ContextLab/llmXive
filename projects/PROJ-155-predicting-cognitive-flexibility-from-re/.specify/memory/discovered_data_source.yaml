@@ -1,12 +1,12 @@
 status: none
-intent: download HCP 1200 resting state fMRI NIH Toolbox scores Schaefer atlas python
-  package dataset
+intent: Human Connectome Project resting-state fMRI, NIH Toolbox DCCS scores, Schaefer
+  atlas python package dataset
 required_fields:
-- SubjectID (string)
-- MeanRSFC (float)
-- Age (integer)
-- Sex (string)
-- DCCS_score (float)
-cache_key: b1579b3e3e3c27b45b80539deabefac63ffd27e4307134c1f38daf28f681b069
-searched_at: '2026-10-13T17:27:50.668102+00:00'
+- subject_id (string)
+- rsfc_feature (float)
+- age (integer)
+- sex (string)
+- nih_dccs_score (float)
+cache_key: f253e001a574b342fdf7603aab7849a14b5da9b5751d78562f297e9548f46fb1
+searched_at: '2026-10-13T17:48:56.795771+00:00'
 retry_count: 1

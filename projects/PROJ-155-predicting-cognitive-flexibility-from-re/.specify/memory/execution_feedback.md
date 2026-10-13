@@ -12,40 +12,31 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”
 - code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py`
+  - script usage: `main.py [-h] --stage {download_preprocess,features,analysis}`
+  - argparse error: `main.py: error: argument --stage: invalid choice: 'verify_data' (choose from 'download_preprocess', 'features', 'analysis')`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”; 2 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage features (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”; 1 command(s) failed: python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py (rc=2); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/raw/checksums.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py --stage download_preprocess -> rc=1
+- python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py -> rc=2
 
-INFO:__main__:Downloading raw data (HCP subset)...
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 68, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 59, in main
-    _run_download_preprocess()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 26, in _run_download_preprocess
-    download_hcp_subset()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/download.py", line 69, in download_hcp_subset
-    raw_root = get_raw_path() / "HCP_1200"
-               ~~~~~~~~~~~~~~~^~~~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'str' and 'str'
-
-- python code/main.py --stage features -> rc=1
-
-INFO:__main__:Running connectivity feature extraction...
-INFO:code.features.connectivity:Starting connectivity feature extraction...
-ERROR:code.features.connectivity:Parcellated directory not found: /home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/data/processed/parcellated
-ERROR:__main__:Connectivity pipeline failed.
+usage: main.py [-h] --stage {download_preprocess,features,analysis}
+main.py: error: argument --stage: invalid choice: 'verify_data' (choose from 'download_preprocess', 'features', 'analysis')
 
 
 ## Declared deliverables still missing
 
 - data/processed/exclusion_log.csv
 - data/processed/final_results.csv
-- data/processed/metrics.csv
+- data/raw/checksums.json
 - data/results/regression_summary.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -69,16 +60,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/validation.py` — NOT invoked by the run-book
     - `code/utils/validation_runner.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/final_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/fdr_correction.py` — NOT invoked by the run-book
-    - `code/analysis/final_results_generator.py` — NOT invoked by the run-book
-    - `code/analysis/permutation.py` — NOT invoked by the run-book
-    - `code/analysis/regression.py` — NOT invoked by the run-book
-    - `code/analysis/regression_summary_generator.py` — NOT invoked by the run-book
-    - `code/analysis/success_rate_calculator.py` — NOT invoked by the run-book
-    - `code/features/aggregation.py` — NOT invoked by the run-book
-    - `code/features/batch_processor.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
+    - `code/data/download.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/regression_summary.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/final_results_generator.py` — NOT invoked by the run-book
     - `code/analysis/regression.py` — NOT invoked by the run-book

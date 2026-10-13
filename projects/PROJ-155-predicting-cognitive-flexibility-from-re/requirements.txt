@@ -1,13 +1,12 @@
 numpy
 pandas
-scikit-learn
+scipy
 statsmodels
 nibabel
-scipy
-networkx
+nilearn
+scikit-learn
 tqdm
 pyyaml
 nitime
 pytest
-nilearn
-requests
+ruff
