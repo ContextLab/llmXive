@@ -1,12 +1,12 @@
 status: none
-intent: HCP 1200 minimal preprocessing dataset with Schaefer atlas python package
-  dataset
+intent: download Human Connectome Project 1200 release resting state fMRI and NIH
+  Toolbox scores python package dataset
 required_fields:
 - subject_id (string)
-- nih_toolbox_dccs_score (float)
-- age_years (integer)
-- sex (string)
-- mean_rsfc_value (float)
-cache_key: 9d6a113fd6a94ce230ef80d9115c9789cf9e8b9c3afd837de03f89ec73246cbb
-searched_at: '2026-10-13T04:14:35.724202+00:00'
+- rsfc_mean_connectivity (float)
+- age (integer)
+- gender (string)
+- nihtoolbox_dccs_score (float)
+cache_key: 1aceea891fd35eda0fe42b47508ef04b1a87fd24515321dcf7b8c6535d73182d
+searched_at: '2026-10-13T05:22:43.273586+00:00'
 retry_count: 1

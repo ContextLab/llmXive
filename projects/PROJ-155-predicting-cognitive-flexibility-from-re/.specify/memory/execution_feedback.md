@@ -8,35 +8,33 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/data/download.py: self-declared fabricated metric — “…ssign         # deterministic placeholder values that are *consistent* across…”
 - code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”
 - code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”
 - code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/raw/HCP_1200/development_fmri/sub-pixar002_task-pixar_desc-confounds_regressors.tsv, data/raw/HCP_1200/development_fmri/sub-pixar003_task-pixar_desc-confounds_regressors.tsv, data/raw/HCP_1200/development_fmri/sub-pixar004_task-pixar_desc-confounds_regressors.tsv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”; 2 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage features (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: self-declared fabricated metric — “…ssign         # deterministic placeholder values that are *consistent* across…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; every produced artifact is gitignored (data/raw/HCP_1200/development_fmri/sub-pixar002_task-pixar_desc-confounds_regressors.tsv, data/raw/HCP_1200/development_fmri/sub-pixar003_task-pixar_desc-confounds_regressors.tsv, data/raw/HCP_1200/development_fmri/sub-pixar004_task-pixar_desc-confounds_regressors.tsv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/main.py --stage download_preprocess (rc=-1); python code/main.py --stage features (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --stage download_preprocess -> rc=1
-ive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/download.py", line 104, in download_adhd_dataset
-    hcp_bundle = nd.fetch_hcp_rest(
-                 ^^^^^^^^^^^^^^^^^
-AttributeError: module 'nilearn.datasets' has no attribute 'fetch_hcp_rest'
+- python code/main.py --stage download_preprocess -> rc=-1
 
-The above exception was the direct cause of the following exception:
+INFO:__main__:Downloading raw data (HCP subset)...
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 61, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 52, in main
-    _run_download_preprocess()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 24, in _run_download_preprocess
-    download_adhd_dataset()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/download.py", line 111, in download_adhd_dataset
-    raise RuntimeError(f"Failed to fetch HCP data: {e}") from e
-RuntimeError: Failed to fetch HCP data: module 'nilearn.datasets' has no attribute 'fetch_hcp_rest'
-
+[TIMEOUT after 120s]
 - python code/main.py --stage features -> rc=1
 
 INFO:__main__:Running connectivity feature extraction...

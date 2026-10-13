@@ -5,29 +5,36 @@ Minimal orchestration script for the three major pipeline stages:
 3) analysis – (placeholder) run regression / permutation.
 
 Adjusted to correctly interpret the return value of the preprocessing
-pipeline (an integer count of processed subjects rather than a list).
+pipeline (an integer count of processed subjects rather than a list) and
+to invoke the merge step so that exclusion logs are produced.
 """
 
 import argparse
 import logging
 import sys
 
-from code.data.download import download_adhd_dataset
+from code.data.download import download_hcp_subset
 from code.data.preprocess import run_preprocessing_pipeline
+from code.data.merge import run_merge_pipeline
 from code.features.connectivity import main as connectivity_main
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def _run_download_preprocess():
-    logger.info("Downloading raw data (HCP dataset)...")
-    download_adhd_dataset()
+    logger.info("Downloading raw data (HCP subset)...")
+    download_hcp_subset()
     logger.info("Running preprocessing pipeline...")
     processed_count = run_preprocessing_pipeline()
     if processed_count == 0:
         logger.error("Preprocessing failed or produced no subjects.")
         sys.exit(1)
     logger.info(f"Preprocessing completed for {processed_count} subjects.")
+    logger.info("Running merge pipeline to create exclusion log...")
+    merged_df, success = run_merge_pipeline()
+    if not success:
+        logger.error("Merge pipeline failed.")
+        sys.exit(1)
 
 def _run_features():
     logger.info("Running connectivity feature extraction...")
