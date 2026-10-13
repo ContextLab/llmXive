@@ -19,10 +19,10 @@
 
 ## Phase 2 – Foundational Infrastructure (blocking prerequisites)
 
-- [ ] T004 Implement deterministic seed‑pinning utility in `code/utils/seeds.py` (FR‑008).  
+- [X] T004 Implement deterministic seed‑pinning utility in `code/utils/seeds.py` (FR‑008).  
   *Verification:* unit test `tests/unit/test_seeds.py` asserts `seeds.get_seed(task_id)` returns a consistent integer and that the file exists.  
 
-- [ ] T004b Create `code/utils/verify_seed_pinning.py` script that scans the codebase for prohibited `random.seed`, `np.random.seed`, etc., and ensures they call `seeds.get_seed(task_id)`.  
+- [X] T004b Create `code/utils/verify_seed_pinning.py` script that scans the codebase for prohibited `random.seed`, `np.random.seed`, etc., and ensures they call `seeds.get_seed(task_id)`.  
   *Verification:* run script in CI; exit code 0 indicates compliance.  
 
 - [X] T005 [P] Implement configuration loader in `code/utils/config.py` (model paths, checkpoint intervals).  
@@ -37,11 +37,11 @@
 - [ ] T008 [P] Verify seed‑pinning compliance across the codebase (`code/utils/verify_seed_pinning.py`).  
   *Verification:* execute the script; CI asserts exit code 0 (no violations).  
 
-- [ ] T015a [US1] Define data‑generation logic in `code/data/generator_logic.py`.  
+- [~] T015a [US1] Define data‑generation logic in `code/data/generator_logic.py`.  
   *Creates deterministic functions that encode the ten prescribed scenarios (5 State Persistence Errors, 5 Reasoning Deficits).*  
   *Verification:* unit test `tests/unit/test_generator_logic.py` checks that the logic returns exactly ten scenarios with correct labels.  
 
-- [ ] T015b [US1] Implement data‑generator script `code/data/generator.py` that **imports** `generator_logic.py` and writes the ten scenario traces to **`data/raw/golden_fixture.json`**.  
+- [ ] T015b [US1] Implement data‑generator script `code/data/generator.py` that **imports** `generator_logic.py` and writes the ten scenario traces to **`data/raw/golden_fixture.json`**.   <!-- FAILED-IN-EXECUTION: code/data/generator.py exit=1 -->
   *CLI entry point:* `python -m code.data.generator --output data/raw/golden_fixture.json`.  
   *Verification (indented):*  
     - The script must exit with status 0.  

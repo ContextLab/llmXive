@@ -5,29 +5,32 @@ T002:
 T003:
   task: f53112ebb6fde5fb7e3358a797995327d5333735691743709a5e124be3480b63
 T004:
-  reason: "The provided `code/utils/seeds.py` exists and contains many seed utilities,\
-    \ but it does **not** define a `get_seed(task_id)` function as required by the\
-    \ task (and referenced in the verification description). Consequently the unit\
-    \ test described in the task cannot be satisfied, and the deterministic seed\u2011\
-    pinning API is incomplete. Add a `get_seed(task_id)` implementation (e.g., delegating\
-    \ to `generate_task_seed`) and ensure the test checks its consistency."
   task: baa04f94aa6ae87c560145b8a5d96d3cf1b7e65b9de650d8c5d4da7b744aee87
 T004b:
-  reason: "The `code/utils/verify_seed_pinning.py` script exists and implements the\
-    \ required scanning logic, but when executed in CI the script exits with code\u202F\
-    1 because it detects direct `random.seed` calls in `code/utils/seeds.py` and `code/data/generator_logic.py`.\
-    \ The repository therefore does not meet the compliance condition that the script\
-    \ return 0, so the task is not fully satisfied. The prohibited seed calls must\
-    \ be replaced with the project's `seeds.get_seed(task_id)`/`seeds.set_seed` pattern\
-    \ (or the files must be otherwise made compliant)."
   task: 5fe6927b1fcb509233aec7431808323529ec97be4e6bb0c0c3a96182701f8d8e
 T005:
   task: 9042a1cbfe1de3c3dd1fdbd5260aabcda3a1d3de9e704198b8f4d212e0d9c88e
 T006:
+  reason: "`code/data/generator.py` does not define the required base data structures\
+    \ \u2013 it only imports `ExecutionTrace`, `StepState`, and `FailureType` from\
+    \ `generator_logic.py`. The task explicitly asked for the structures to be created\
+    \ in `generator.py`, and the provided unit test would fail because the generated\
+    \ step objects do not conform to the schema (e.g., `step_id` is an int, missing\
+    \ `environment_state`, `task_description`, and `outcome`). The necessary definitions\
+    \ and schema\u2011compliant fields are missing."
   task: 0e1c459953836ebafebe822f5bf39628bf81f9e644b333d1f0ffca7cf0b18159
 T007:
+  reason: The `code/utils/logging_config.py` file exists and implements logging, memory,
+    and timeout monitoring, but the required integration test `tests/integration/test_logging.py`
+    is missing, so the verification step cannot be performed. The task is therefore
+    not fully satisfied.
   task: 54eb86fc6fdeabded11c50d0c720acc594f820f2f46d16e28a3630fef07481f3
 T008:
+  reason: "The only artifact present is the `code/utils/verify_seed_pinning.py` script,\
+    \ but there is no evidence that it was actually executed (e.g., CI logs or command\
+    \ output) and that it exited with status\u202F0 indicating no violations. Without\
+    \ execution evidence, we cannot confirm the task\u2019s verification requirement\
+    \ is satisfied."
   task: cbe3a35b2892f173e7428b3f500a318a4e4fb26931fb9c41117a4950a500cef2
 T008b:
   task: 557f8052c3ef32ea844e2a07d2e108c8c88b986a75425a61bb15d7ac18b918f2
@@ -46,6 +49,8 @@ T014:
 T015a:
   task: f88a967c0eaed30761fc42efae1db0c2b3abb07b62758ac32b2f0c41d17a7f48
 T015b:
+  reason: 'Requested task execution failed; rerun successfully: code/data/generator.py
+    exit=1'
   task: c049c56a3913476e10f3e3b0d5a5f606018adb457448d3e2582ec9d1a31859fa
 T015c:
   task: 95aaf35a583fedf372ce75537b4520d8ed55b10afb184dd8dc3da6465137171d

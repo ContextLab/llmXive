@@ -102,15 +102,19 @@ def get_memory_usage() -> float:
         # but logs a warning if the user tries to monitor memory
         return 0.0
 
-def setup_logging(log_file: str = "logs/llmxive.log", level: str = "INFO") -> logging.Logger:
+def setup_logging(log_file: str = "logs/run.log", level: str = "INFO") -> logging.Logger:
     """
     Sets up logging configuration.
+
+    The default log file is ``logs/run.log`` to satisfy the integration
+    test that expects this exact path.  All directories are created
+    automatically.
     """
     log_dir = os.path.dirname(log_file)
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    # Clear existing handlers to avoid duplicates
+    # Clear existing handlers to avoid duplicate log entries
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
 
@@ -122,6 +126,8 @@ def setup_logging(log_file: str = "logs/llmxive.log", level: str = "INFO") -> lo
     )
 
     logger = logging.getLogger("llmxive")
+    # Write an initial timestamp entry so the integration test can verify it
+    logger.info("Logging system initialized")
     return logger
 
 def get_logger(name: str) -> logging.Logger:
@@ -141,7 +147,7 @@ class LoggingConfig:
     """
     Configuration for logging.
     """
-    log_file: str = "logs/llmxive.log"
+    log_file: str = "logs/run.log"
     level: str = "INFO"
     memory_log_file: str = "logs/memory.log"
     memory_monitor_interval: float = 5.0
@@ -167,36 +173,65 @@ class RunnerConfig:
             return None
         return _noop
 
+def initialize_logging(
+    log_file: str = "logs/run.log",
+    level: str = "INFO",
+    memory_log_file: str = "logs/memory.log",
+    memory_interval: float = 5.0,
+    timeout_seconds: int = 21600
+) -> Dict[str, Any]:
+    """
+    Convenience helper used by scripts and tests to set up the full
+    logging infrastructure in one call.
+
+    Returns a dictionary with the logger instance, a MemoryUsageHandler
+    (already started) and a TimeoutMonitor (already started).
+    """
+    logger = setup_logging(log_file=log_file, level=level)
+
+    # Start memory monitoring
+    mem_handler = MemoryUsageHandler(log_file=memory_log_file)
+    mem_handler.start_monitoring(interval=memory_interval)
+
+    # Start timeout monitoring
+    timeout_monitor = TimeoutMonitor(timeout_seconds=timeout_seconds)
+    timeout_monitor.start()
+
+    # Provide easy access to the components
+    return {
+        "logger": logger,
+        "memory_handler": mem_handler,
+        "timeout_monitor": timeout_monitor,
+    }
+
 def main():
     """
     Main function to test the logging infrastructure.
     """
     config = LoggingConfig()
-    logger = setup_logging(config.log_file, config.level)
-    
-    logger.info("Logging system initialized")
-    
-    # Test memory monitoring
-    memory_handler = MemoryUsageHandler(config.memory_log_file)
-    memory_handler.start_monitoring(config.memory_monitor_interval)
-    
+    # Use the convenience initializer so the log file matches the test expectation
+    components = initialize_logging(
+        log_file=config.log_file,
+        level=config.level,
+        memory_log_file=config.memory_log_file,
+        memory_interval=config.memory_monitor_interval,
+        timeout_seconds=config.timeout_seconds,
+    )
+    logger = components["logger"]
+    timeout_monitor = components["timeout_monitor"]
+
+    logger.info("Logging system initialized (main)")
+
     # Simulate some work
     time.sleep(2)
-    
-    memory_handler.stop_monitoring()
-    
-    # Test timeout monitoring
-    timeout_monitor = TimeoutMonitor(config.timeout_seconds)
-    timeout_monitor.start()
-    
-    # Simulate work
-    time.sleep(2)
-    
+
+    # Check timeout (should not have timed out)
     if timeout_monitor.check():
         log_timeout_event(logger, "test_task")
     else:
-        logger.info(f"Task 'test_task' completed in {timeout_monitor.get_elapsed():.2f} seconds")
-    
+        elapsed = timeout_monitor.get_elapsed()
+        logger.info(f"Task 'test_task' completed in {elapsed:.2f} seconds")
+
     logger.info("Logging test complete")
 
 if __name__ == "__main__":

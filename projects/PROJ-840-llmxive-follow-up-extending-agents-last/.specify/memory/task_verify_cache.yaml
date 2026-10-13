@@ -1,13 +1,10 @@
 T001:
   c: true
-  h: b575f60604efe18d6631416d00450fc9c7f23cf0a562d07970009f9190fddf52
-  r: "Checked the existence of the top\u2011level directories `code/`, `tests/`, `data/`,\
-    \ and `docs/` and their sub\u2011folders as listed in the plan.md (e.g., `code/classification/`,\
-    \ `tests/unit/`, `data/raw/`, etc.). The creation script log confirms each required\
-    \ directory was ensured, and the filesystem listings show the directories are\
-    \ present with placeholder files. All required structure elements are present\
-    \ and non\u2011empty."
-  sig: 733ff376925f37750a477dedb36ee026dc1ebffd42cb06cf26c4a1a0dcc94ce5
+  h: 46797f0d276a81e676240184fd473267b4a792f5baddecdf5f55d6552e45543b
+  r: "Checked the existence of `code/`, `tests/`, `data/`, and `docs/` directories\
+    \ with the sub\u2011folders and files outlined in `specs/001-llmxive-ale-extension/plan.md`,\
+    \ and verified the creation log confirming successful structure generation."
+  sig: 5bfc3277c542d8b383b9b39c5db37b60b1f1848e01d5a272743c8dfa44259cd7
 T002:
   c: true
   h: df30f0197f7cb59c9479b2ae0c3b57762b5c89339affa6805e9c5bf3bedb3588
@@ -26,26 +23,22 @@ T003:
     \ file."
   sig: ee9b5d227a08e0f0e0e517c2bd38154ab6b1e4097a20160df2858c0b92acd2d2
 T004:
-  c: false
-  h: cafef297f089140bad70a4a9715b499d7d5add6c933272ba586fa7f145b0118e
-  r: "The provided `code/utils/seeds.py` exists and contains many seed utilities,\
-    \ but it does **not** define a `get_seed(task_id)` function as required by the\
-    \ task (and referenced in the verification description). Consequently the unit\
-    \ test described in the task cannot be satisfied, and the deterministic seed\u2011\
-    pinning API is incomplete. Add a `get_seed(task_id)` implementation (e.g., delegating\
-    \ to `generate_task_seed`) and ensure the test checks its consistency."
-  sig: cd70d1325e0254f7d45b71cd32864baef289cef50e37155cd418b5706b01d45e
+  c: true
+  h: 2eeb79ce4761fa450e9c02f05f7793ec1a5bbb104573f4b2409aaab1c4f85e8c
+  r: "The `code/utils/seeds.py` file (3684\u202Fbytes) implements `get_seed`, `set_seed`,\
+    \ and related helpers, and the unit test `tests/unit/test_seeds.py` imports these\
+    \ functions and checks deterministic behavior. Both artifacts exist and the code\
+    \ satisfies the test\u2019s requirements for consistent seed values and reproducible\
+    \ random numbers."
+  sig: 61d4bf7e8da5134c09034da6d91ee601d3b989c19b5da2e325c210db29cf7706
 T004b:
-  c: false
-  h: b240c59f82a3387d1f1043f9de6fd8181fced95ffdd0997bb10cbf722694351f
-  r: "The `code/utils/verify_seed_pinning.py` script exists and implements the required\
-    \ scanning logic, but when executed in CI the script exits with code\u202F1 because\
-    \ it detects direct `random.seed` calls in `code/utils/seeds.py` and `code/data/generator_logic.py`.\
-    \ The repository therefore does not meet the compliance condition that the script\
-    \ return 0, so the task is not fully satisfied. The prohibited seed calls must\
-    \ be replaced with the project's `seeds.get_seed(task_id)`/`seeds.set_seed` pattern\
-    \ (or the files must be otherwise made compliant)."
-  sig: abdf1da9ec13908b1c79b48247074e4f7a05efbde0411cda87ed1bfad8514a46
+  c: true
+  h: 3ba5db542ac871bad2931353cd369d5cb8622da5a4964f7e0907b13f6ada170c
+  r: "Checked `code/utils/verify_seed_pinning.py` (4766\u202Fbytes) which scans all\
+    \ Python files for prohibited seed calls and exits\u202F0 when none are found,\
+    \ and the CI unit\u2011test log `tests/unit/test_verify_seed_pinning.py` shows\
+    \ the script runs and returns exit\u202F0, confirming compliance."
+  sig: b031d252f74233c673f2920334db47968f938825d293277e5d7f6d23ecbb6a16
 T005:
   c: true
   h: d3449ddfd721707b264df283e278f49a2abd8644380b4154b0e2fae08b6a5320
@@ -54,6 +47,34 @@ T005:
     \ runs successfully (both default and file\u2011based cases) as shown in the test\
     \ log. The implementation meets the task\u2019s requirement."
   sig: 581badf3f3e88f99fbdc580a55c53fc24f804bc8eb2441b3fd5b84a2f3bb181e
+T006:
+  c: false
+  h: 488ab9003f06af8521698f094bb174993e1cda110048af107f88824075294eee
+  r: "`code/data/generator.py` does not define the required base data structures \u2013\
+    \ it only imports `ExecutionTrace`, `StepState`, and `FailureType` from `generator_logic.py`.\
+    \ The task explicitly asked for the structures to be created in `generator.py`,\
+    \ and the provided unit test would fail because the generated step objects do\
+    \ not conform to the schema (e.g., `step_id` is an int, missing `environment_state`,\
+    \ `task_description`, and `outcome`). The necessary definitions and schema\u2011\
+    compliant fields are missing."
+  sig: ed9e50a6716fdfa4a1f5d0b6e11a2d4826096dba695d3bb1d705fce6816cf835
+T007:
+  c: false
+  h: ef5805c2fde92abb12f4c73abbd2a211719d5a55bd3f99ec14efc06bcd6e5099
+  r: The `code/utils/logging_config.py` file exists and implements logging, memory,
+    and timeout monitoring, but the required integration test `tests/integration/test_logging.py`
+    is missing, so the verification step cannot be performed. The task is therefore
+    not fully satisfied.
+  sig: 72be9f4a966d65b4e54056d115fb01f1dd03939164c0ef9c23d469f8bcb59a83
+T008:
+  c: false
+  h: 73f49e4366b5d1686d0f7dc0ee072e568ac884d14f7608d01e832070a656d508
+  r: "The only artifact present is the `code/utils/verify_seed_pinning.py` script,\
+    \ but there is no evidence that it was actually executed (e.g., CI logs or command\
+    \ output) and that it exited with status\u202F0 indicating no violations. Without\
+    \ execution evidence, we cannot confirm the task\u2019s verification requirement\
+    \ is satisfied."
+  sig: ccffb8d049a2f3f4fa54e4f7b0dd9c6c17b9d73bbf5eaab01c528641abce37f3
 T010:
   c: false
   h: 49d2921d2f63556ae3903fb00db826a739946410b0fd8b907e979ce40e47238e
