@@ -1,13 +1,12 @@
 T001:
   task: 99b1e94a124c6825c932f4457f3bc28528a77cea8f0906730a1f3a6883bd63fb
 T002:
-  reason: "Checked `code/config.yaml` (exists and is valid YAML) and the test log\
-    \ `code/.tasks/T002.tests_test_config.py.log`, which shows that importing `02_ingest_data.py`\
-    \ fails because `config.ConfigError: Missing or empty required configuration key:\
-    \ DRYAD_API_KEY`. The scripts cannot read the configuration without this key,\
-    \ violating the requirement that the config be used by the scripts with no hard\u2011\
-    coded values. Add the missing required key (or adjust the scripts) and ensure\
-    \ the import succeeds."
+  reason: "`code/config.yaml` exists and is valid YAML with the Dryad base URL, AnAge\
+    \ URL, seed 42, and alpha 0.05, but the required dataset IDs are not documented\
+    \ \u2014 `dataset_ids: []` with a comment \"replace with real IDs after discovery\"\
+    \ is an explicit placeholder. Additionally, no evidence was provided that `02_ingest_data.py`\
+    \ and `03_clean_merge.py` exist and read this config (the task's verification\
+    \ criterion), nor that they contain no hard-coded URLs or seeds."
   task: 0b8bf81499ac00f40ba477583896ad769aae235078ea55a1222962fad4707a95
 T003:
   task: 10b5f14858cd00a18046104ec45f199428fb21123ab355b7fad76c13ad23004a
@@ -24,8 +23,14 @@ T008:
 T009:
   task: 7a591af12ca68c0672c905d61e6356adb04fdbac416f519650082f0f84d7b557
 T010:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_requirements.py
-    exit=1'
+  reason: "The file `code/requirements.txt` exists and is non-empty, but it contains\
+    \ unpinned package names (no version specifiers), which directly contradicts the\
+    \ task's requirement for \"pinned Python dependencies.\" Additionally, `pytest`\
+    \ \u2014 explicitly listed in the task's example set \u2014 is absent, and there\
+    \ is no evidence that `pip install -r code/requirements.txt` succeeded in a fresh\
+    \ virtual environment; the only execution record (`verify_requirements.py`) reports\
+    \ warnings that pandas, matplotlib, seaborn, PyYAML, and rpy2 \"cannot be imported,\"\
+    \ and it only checks file format, not installability. Fix by"
   task: 2750e04bc78276cb479479f3d0bd769edfd0006d428d43c41405e1d107dc5200
 T011:
   reason: 'Requested task execution failed; rerun successfully: code/R/verify_renv.py

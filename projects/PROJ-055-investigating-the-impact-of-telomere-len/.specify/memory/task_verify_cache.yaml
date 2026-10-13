@@ -1,18 +1,22 @@
 T002:
   c: false
-  h: cbb1c40c009740ab23447c283bc2889a1c6c9aa65129202174aafe0cb5c5d5a8
-  r: "Checked `code/config.yaml` (exists and is valid YAML) and the test log `code/.tasks/T002.tests_test_config.py.log`,\
-    \ which shows that importing `02_ingest_data.py` fails because `config.ConfigError:\
-    \ Missing or empty required configuration key: DRYAD_API_KEY`. The scripts cannot\
-    \ read the configuration without this key, violating the requirement that the\
-    \ config be used by the scripts with no hard\u2011coded values. Add the missing\
-    \ required key (or adjust the scripts) and ensure the import succeeds."
-  sig: 4be5773bb346a2d9d04bd5309d73badf253b2800c458e6bd65b34fd566e9ec74
-T011:
+  h: fbe1b8b012586e740f8c287396da32ea825b3bad0b7d85a651f09830d53e9c62
+  r: "`code/config.yaml` exists and is valid YAML with the Dryad base URL, AnAge URL,\
+    \ seed 42, and alpha 0.05, but the required dataset IDs are not documented \u2014\
+    \ `dataset_ids: []` with a comment \"replace with real IDs after discovery\" is\
+    \ an explicit placeholder. Additionally, no evidence was provided that `02_ingest_data.py`\
+    \ and `03_clean_merge.py` exist and read this config (the task's verification\
+    \ criterion), nor that they contain no hard-coded URLs or seeds."
+  sig: 8ca635326743f805a12673406f79a8f6b9dce0a5e33c98ed29fc917e8d8ca053
+T010:
   c: false
-  h: 1923b0195c003c41bc76489b012160ca02187f061b5e4d7910c835b84a80144f
-  r: "The `code/R/renv.lock` file is present and correctly lists the required packages,\
-    \ but there is no provided evidence (e.g., command output, logs, or screenshots)\
-    \ showing that running `R -e \"renv::restore()\"` successfully restores those\
-    \ packages without error. The task\u2019s verification step is therefore unverified."
-  sig: 602d8402a996057036819d4e00f98e0f97dcd3c17fb9ed98259bad713fd09a76
+  h: 487bf2cd6c2d873316b55fb5acc49bc239b7c368f3c3dc432a123637c8f8ca69
+  r: "The file `code/requirements.txt` exists and is non-empty, but it contains unpinned\
+    \ package names (no version specifiers), which directly contradicts the task's\
+    \ requirement for \"pinned Python dependencies.\" Additionally, `pytest` \u2014\
+    \ explicitly listed in the task's example set \u2014 is absent, and there is no\
+    \ evidence that `pip install -r code/requirements.txt` succeeded in a fresh virtual\
+    \ environment; the only execution record (`verify_requirements.py`) reports warnings\
+    \ that pandas, matplotlib, seaborn, PyYAML, and rpy2 \"cannot be imported,\" and\
+    \ it only checks file format, not installability. Fix by"
+  sig: 556a52e88956105780fb3fb5a975907c40dc55281fae2a97ffd72f9ba656138f

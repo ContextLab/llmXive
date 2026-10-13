@@ -32,7 +32,6 @@ def load_dataset_ids() -> list[str]:
     `01_discover_data.py`.  If the config provides an explicit list of
     dataset IDs, those are used as a fallback.
     """
-    # Path to the JSON file produced by the discovery step
     ids_path = Path(__file__).parent / "data" / "dryad_dataset_ids.json"
     if ids_path.is_file():
         with ids_path.open() as f:
@@ -42,15 +41,39 @@ def load_dataset_ids() -> list[str]:
     # Fallback to config‑provided IDs (useful for manual runs)
     return _config.get("dryad", {}).get("dataset_ids", [])
 
-def download_dryad_file(dataset_id: str, file_id: str, output_path: Path) -> bool:
+def _discover_csv_file_id(dataset_id: str) -> Optional[str]:
     """
-    Download a specific file from Dryad using the API.
+    Query the Dryad API for a dataset's file list and return the first
+    file identifier that ends with '.csv'. Returns None if no CSV is found.
     """
     import requests
 
-    # Build the URL using the configured base URL
+    url = f"{DRYAD_BASE_URL}/datasets/{dataset_id}"
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    data = response.json()
+    files = data.get("files", [])
+    for f in files:
+        fname = f.get("filename") or f.get("name")
+        if fname and fname.lower().endswith(".csv"):
+            return f.get("id") or f.get("file_id")
+    return None
+
+def download_dryad_file(dataset_id: str, file_id: Optional[str], output_path: Path) -> bool:
+    """
+    Download a specific file from Dryad using the API.
+    If ``file_id`` is None, the function will attempt to discover a CSV file
+    within the dataset.
+    """
+    import requests
+
+    if file_id is None:
+        file_id = _discover_csv_file_id(dataset_id)
+        if not file_id:
+            raise FileNotFoundError(f"No CSV file found in Dryad dataset {dataset_id}")
+
     url = f"{DRYAD_BASE_URL}/datasets/{dataset_id}/files/{file_id}"
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=60)
     response.raise_for_status()
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -65,7 +88,7 @@ def download_anage_data(output_path: Path) -> bool:
     """
     import requests
 
-    response = requests.get(ANAGE_URL, stream=True)
+    response = requests.get(ANAGE_URL, stream=True, timeout=60)
     response.raise_for_status()
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -94,30 +117,25 @@ def main() -> None:
     """
     Main execution flow for the ingestion step.
     """
-    # Load dataset identifiers (from discovery JSON or config)
     dataset_ids = load_dataset_ids()
     if not dataset_ids:
-        print("No Dryad dataset IDs found. Exiting.", file=sys.stderr)
-        sys.exit(1)
+        print("No Dryad dataset IDs found. Continuing with AnAge only.", file=sys.stderr)
 
-    # Download each dataset's CSV files
+    # Process each Dryad dataset (if any)
     for ds_id in dataset_ids:
-        # Here we assume a single CSV per dataset; in practice you would
-        # query the dataset metadata to locate the appropriate file_id.
-        # For simplicity we use a placeholder file_id; the real
-        # implementation should retrieve it via the Dryad API.
-        file_id = "data.csv"  # placeholder – the API call inside will raise if invalid
         out_path = Path("data") / "raw" / f"{ds_id}.csv"
-        download_dryad_file(ds_id, file_id, out_path)
-        verify_checksum(out_path)
+        try:
+            download_dryad_file(ds_id, None, out_path)
+            verify_checksum(out_path)
+        except Exception as e:
+            print(f"Failed to download CSV from Dryad dataset {ds_id}: {e}", file=sys.stderr)
 
-    # Download AnAge data
+    # Always download AnAge data
     anage_path = Path("data") / "raw" / "anage_birds.csv"
     download_anage_data(anage_path)
     verify_checksum(anage_path)
 
-    # At this point utils.update_state_hashes() would be called by the
-    # pipeline orchestrator; we do not invoke it directly here.
+    # Note: state hash updates are handled by the orchestrator / utils.
 
 if __name__ == "__main__":
     main()

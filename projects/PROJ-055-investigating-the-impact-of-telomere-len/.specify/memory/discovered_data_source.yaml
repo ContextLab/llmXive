@@ -1,13 +1,13 @@
 status: none
-intent: download telomere length dataset Dryad and AnAge longevity database python
-  package dataset
+intent: download Dryad telomere length dataset and AnAge longevity data python package
+  dataset
 required_fields:
 - species_name
 - telomere_length_kb
-- measurement_method
-- maximum_lifespan_years
-- ecological_trait
-- source
-cache_key: 7f29721fdbb931028fd19b2b77eb08094077ae4c61a80328f99be55cd54b6c4a
-searched_at: '2026-10-13T22:08:32.099237+00:00'
+- telomere_measurement_method
+- max_lifespan_years
+- ecological_traits
+- dryad_dataset_id
+cache_key: df94d2cb5f12df92453509e2ed97a0f346af367eac32cd47e1295f579dc6d442
+searched_at: '2026-10-13T23:10:47.385861+00:00'
 retry_count: 1

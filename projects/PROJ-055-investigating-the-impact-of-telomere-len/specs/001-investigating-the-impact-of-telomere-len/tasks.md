@@ -4,7 +4,7 @@
 
 ## Phase 0: Reproducibility setup
 
-- [ ] T010 [P?] Create `code/requirements.txt` listing pinned Python dependencies (e.g., pandas, numpy, requests, rpy2, matplotlib, seaborn, pytest, pyyaml).   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+- [ ] T010 [P?] Create `code/requirements.txt` listing pinned Python dependencies (e.g., pandas, numpy, requests, rpy2, matplotlib, seaborn, pytest, pyyaml).
   **Verification**: File exists, is non‑empty, and `pip install -r code/requirements.txt` succeeds in a fresh virtual environment.
 
 - [ ] T011 [P?] Create `code/R/renv.lock` (or top‑level `renv.lock`) pinning R packages `phylolm`, `ape`, `rotl`, `caper`.   <!-- FAILED-IN-EXECUTION: code/R/verify_renv.py exit=1 -->
