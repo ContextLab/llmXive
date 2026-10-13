@@ -38,7 +38,7 @@ def set_global_seed(seed: int) -> None:
 
 
 def generate_erdos_renyi(n: int, p: float, seed: int) -> nx.Graph:
-    """Generate an Erdős‑Rényi (G(n, p)) graph."""
+    """Generate an Erdős‑Renyi (G(n, p)) graph."""
     return nx.erdos_renyi_graph(n=n, p=p, seed=seed)
 
 
@@ -93,7 +93,7 @@ def _write_edgelist(G: nx.Graph, out_path: Path) -> None:
     """Write the graph's edge list (one edge per line: u v)."""
     with out_path.open("w") as f:
         for u, v in G.edges():
-            f.write(f"{u} {v}\\n")
+            f.write(f"{u} {v}\n")
 
 
 def _write_metadata(metadata: dict, out_path: Path) -> None:
@@ -181,7 +181,7 @@ def main() -> None:
     log.info(f"Generating {instances} instance(s) for topology set: {topologies}")
 
     for topology in topologies:
-        # Prepare output sub‑directory for this topology
+        # Prepare output sub‑directory for this topology (kept for backward compatibility)
         topology_dir = base_dir / topology
         topology_dir.mkdir(parents=True, exist_ok=True)
 
@@ -238,6 +238,11 @@ def main() -> None:
                 "metrics": metrics,
             }
             _write_metadata(metadata, metadata_path)
+
+            # ALSO write a copy of the metadata at the root of the networks folder
+            # to satisfy tasks that expect files like data/raw/networks/metadata_BA_0001.json
+            root_metadata_path = base_dir / f"metadata_{base_name}.json"
+            _write_metadata(metadata, root_metadata_path)
 
             # Collect row for CSV summary
             csv_rows.append({

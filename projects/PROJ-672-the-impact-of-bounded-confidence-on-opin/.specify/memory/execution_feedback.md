@@ -13,25 +13,16 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/networks/BA/metadata_BA_0000.json, data/raw/networks/BA/metadata_BA_0001.json, data/raw/networks/BA/metadata_BA_0002.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze_scaling.py  --simulations data/raw/simulations/  --networks data/raw/networks/  --output data/processed/; 3 command(s) failed: python code/simulate_hk.py  --networks data/raw/networks/  --epsilon-start 0.05  --epsilon-end 0.50  --epsilon-step 0.05  --seeds 50  --output data/raw/simulations/ (rc=1); python -m pytest tests/unit/test_hk_update.py -v (rc=4); python -m pytest tests/integration/test_full_pipeline.py -v (rc=4)
+**Summary**: every produced artifact is gitignored (data/raw/networks/BA/metadata_BA_0000.json, data/raw/networks/BA/metadata_BA_0001.json, data/raw/networks/BA/metadata_BA_0002.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze_scaling.py  --simulations data/raw/simulations/  --networks data/raw/networks/  --output data/processed/; 3 command(s) failed: python code/simulate_hk.py  --networks data/raw/networks/  --epsilon-start 0.05  --epsilon-end 0.50  --epsilon-step 0.05  --seeds 50  --output data/raw/simulations/ (rc=-1); python -m pytest tests/unit/test_hk_update.py -v (rc=4); python -m pytest tests/integration/test_full_pipeline.py -v (rc=4)
 
 ## Failing / missing run-book commands
 
-- python code/simulate_hk.py  --networks data/raw/networks/  --epsilon-start 0.05  --epsilon-end 0.50  --epsilon-step 0.05  --seeds 50  --output data/raw/simulations/ -> rc=1
-ive/.llmxive-venvs/PROJ-672-the-impact-of-bounded-confidence-on-opin/lib/python3.11/site-packages/networkx/readwrite/edgelist.py", line 378, in read_edgelist
-    return parse_edgelist(
-           ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-672-the-impact-of-bounded-confidence-on-opin/lib/python3.11/site-packages/networkx/utils/decorators.py", line 784, in func
-    return argmap._lazy_compile(__wrapper)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<class 'networkx.utils.decorators.argmap'> compilation 14", line 3, in argmap_parse_edgelist_11
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-672-the-impact-of-bounded-confidence-on-opin/lib/python3.11/site-packages/networkx/utils/backends.py", line 551, in _call_if_no_backends_installed
-    return self.orig_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-672-the-impact-of-bounded-confidence-on-opin/lib/python3.11/site-packages/networkx/readwrite/edgelist.py", line 261, in parse_edgelist
-    raise TypeError(
-TypeError: Failed to convert nodes 0,36\n0 to type <class 'int'>.
+- python code/simulate_hk.py  --networks data/raw/networks/  --epsilon-start 0.05  --epsilon-end 0.50  --epsilon-step 0.05  --seeds 50  --output data/raw/simulations/ -> rc=-1
 
+2026-10-13 00:33:28,911 INFO __main__: Running HK simulation on 151 networks, 10 epsilon values, 50 seeds each
+2026-10-13 00:33:28,911 ERROR __main__: Failed to load graph data/raw/networks/ER_0000.edgelist: invalid literal for int() with base 10: '36\\n0'
+
+[TIMEOUT after 120s]
 - python code/analyze_scaling.py  --simulations data/raw/simulations/  --networks data/raw/networks/  --output data/processed/ -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-672-the-impact-of-bounded-confidence-on-opin/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/code/analyze_scaling.py': [Errno 2] No such file or directory
@@ -68,32 +59,30 @@ ERROR: file or directory not found: tests/integration/test_full_pipeline.py
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `networkx` to the project's `requirements.txt` and `pip install networkx`.
-- **Verified**: this loads **421** real records with fields: graph_id, graph_type, num_nodes, edge_source, edge_target.
+- **Verified**: this loads **721** real records with fields: graph_id, topology_type, num_nodes, edge_source, edge_target, edge_weight, generation_parameters, random_seed.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
+import random
 import networkx as nx
 
 records = []
-graph_id = 0
-
-# Load several built‑in graphs (these are the full datasets provided by NetworkX)
-builtin_graphs = [
-    ("karate_club", nx.karate_club_graph()),
-    ("davis_southern_women", nx.davis_southern_women_graph()),
-    ("les_miserables", nx.les_miserables_graph()),
-]
-
-for name, G in builtin_graphs:
-    graph_id += 1
-    num_nodes = G.number_of_nodes()
-    for u, v in G.edges():
+seeds = [42, 43, 44]
+for i, seed in enumerate(seeds):
+    random.seed(seed)
+    n = 100
+    p = 0.05
+    G = nx.erdos_renyi_graph(n, p, seed=seed)
+    for u, v, d in G.edges(data=True):
         records.append({
-            "graph_id": graph_id,
-            "graph_type": name,
-            "num_nodes": num_nodes,
+            "graph_id": f"er_{i}",
+            "topology_type": "erdos_renyi",
+            "num_nodes": G.number_of_nodes(),
             "edge_source": u,
             "edge_target": v,
+            "edge_weight": d.get("weight", 1.0),
+            "generation_parameters": f"p={p}",
+            "random_seed": seed
         })
 
 print(f"RECORDS={len(records)}")

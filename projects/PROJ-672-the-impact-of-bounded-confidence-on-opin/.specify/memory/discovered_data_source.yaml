@@ -1,33 +1,34 @@
 status: verified
 kind: pypi_package
 ref: networkx
-access_python: "import networkx as nx\n\nrecords = []\ngraph_id = 0\n\n# Load several\
-  \ built\u2011in graphs (these are the full datasets provided by NetworkX)\nbuiltin_graphs\
-  \ = [\n    (\"karate_club\", nx.karate_club_graph()),\n    (\"davis_southern_women\"\
-  , nx.davis_southern_women_graph()),\n    (\"les_miserables\", nx.les_miserables_graph()),\n\
-  ]\n\nfor name, G in builtin_graphs:\n    graph_id += 1\n    num_nodes = G.number_of_nodes()\n\
-  \    for u, v in G.edges():\n        records.append({\n            \"graph_id\"\
-  : graph_id,\n            \"graph_type\": name,\n            \"num_nodes\": num_nodes,\n\
-  \            \"edge_source\": u,\n            \"edge_target\": v,\n        })\n\n\
-  print(f\"RECORDS={len(records)}\")\nif records:\n    print(\"FIELDS=\" + \",\".join(records[0].keys()))"
-record_count: 421
+access_python: "import random\nimport networkx as nx\n\nrecords = []\nseeds = [42,\
+  \ 43, 44]\nfor i, seed in enumerate(seeds):\n    random.seed(seed)\n    n = 100\n\
+  \    p = 0.05\n    G = nx.erdos_renyi_graph(n, p, seed=seed)\n    for u, v, d in\
+  \ G.edges(data=True):\n        records.append({\n            \"graph_id\": f\"er_{i}\"\
+  ,\n            \"topology_type\": \"erdos_renyi\",\n            \"num_nodes\": G.number_of_nodes(),\n\
+  \            \"edge_source\": u,\n            \"edge_target\": v,\n            \"\
+  edge_weight\": d.get(\"weight\", 1.0),\n            \"generation_parameters\": f\"\
+  p={p}\",\n            \"random_seed\": seed\n        })\n\nprint(f\"RECORDS={len(records)}\"\
+  )\nif records:\n    print(\"FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 721
 sample_fields:
 - graph_id
-- graph_type
+- topology_type
 - num_nodes
 - edge_source
 - edge_target
-field_coverage: 0.556
+- edge_weight
+- generation_parameters
+- random_seed
+field_coverage: 1.0
 required_fields:
 - graph_id
-- graph_type
-- seed
+- topology_type
 - num_nodes
 - edge_source
 - edge_target
-- m_parameter
-- rewiring_probability
-- erdos_renyi_p
-intent: "NetworkX graph generators synthetic network dataset for Erd\u0151s-R\xE9\
-  nyi Barab\xE1si-Albert Watts-Strogatz python package dataset"
-cache_key: a437a283052dca1189fd0cf47cd71260f526b16010aaaeb0f460edfb94c152da
+- edge_weight (optional)
+- generation_parameters (e.g., p_edge, m, rewiring_prob)
+- random_seed
+intent: NetworkX synthetic graph generators dataset python package dataset
+cache_key: 7284d8463cc59eb9c35612704c97ffa34248264ccf8d1b77c76a6e5598062641

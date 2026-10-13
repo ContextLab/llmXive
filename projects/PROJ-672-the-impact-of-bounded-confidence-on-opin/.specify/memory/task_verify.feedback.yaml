@@ -9,11 +9,6 @@ T004:
 T005:
   task: 0d2f1504f8a9ef86550a7e26a0d4cbfd9c5bbf0a53e8aa78f33f5f0da7c4db44
 T006:
-  reason: "The required `metadata_BA_0001.json` file does not exist, and the existing\
-    \ `metadata_ER_0000.json` lacks the `\"metrics\"` field that the script is supposed\
-    \ to record (the schema permits omission, but the task explicitly requires storing\
-    \ structural metrics). Consequently the task\u2019s requirement of writing a conforming\
-    \ JSON per network with computed metrics and a node count of 500 is not satisfied."
   task: 0847d0dd9d2ef9f455148516ce16d7124715eb9f1ebd70619b2a478c465c37b4
 T007:
   task: 1f789d389f37a3be886a8ae637acd9d2febe51175af4d6f78e644a07bafd827e

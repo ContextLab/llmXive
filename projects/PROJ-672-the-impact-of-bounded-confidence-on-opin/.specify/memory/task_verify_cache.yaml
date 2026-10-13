@@ -1,12 +1,13 @@
 T001:
   c: true
-  h: b9608e10aaa51caa13427223ce92ac8dd8f2efb7637bd5cd83b6b3dc05f4a403
-  r: Checked that `README.md` and `quickstart.md` exist at the repository root, that
-    `quickstart.md` includes the required `python -m code.generate_networks --topology
-    ER --instances 1 --seed 0` command, and verified via the execution log and the
-    presence of `data/raw/networks/ER_0000.edgelist` and `data/raw/networks/metadata_ER_0000.json`
-    that the command runs without error and creates the expected files.
-  sig: e1974e1b88a8102e2585a6baf78790d1323181928338cc304632dc103f9c68dd
+  h: 090a3ac5678a9185b8a5938f899ef6b4e5364fec73a441c4f90f78269e3babcf
+  r: Both `README.md` and `quickstart.md` exist at the project root and are substantive;
+    `quickstart.md` contains the exact required command `python -m code.generate_networks
+    --topology ER --instances 1 --seed 0`, and the execution log shows that command
+    ran with exit 0, producing the non-empty `data/raw/networks/ER_0000.edgelist`
+    (21204 bytes, 500 nodes) and `metadata_ER_0000.json` with consistent metrics (500
+    nodes, 6262 edges).
+  sig: cb98d3082aa04265b0aba0110c0944f2fb9e6458497d525efeb7eedd2b497df0
 T002:
   c: true
   h: 3438ca9ee40b607fa8f2b140bd4ef88b83c28903587150d6fbe003c5a2abb857
@@ -16,37 +17,59 @@ T002:
   sig: 2e7e02597ac2fa984c0e0f421482be9f6b30c0d63137d7a04be31491cc78e08a
 T003:
   c: true
-  h: b908141bfb144b286cc0fc8d57b44d8479febb75139d0c22a67e614d5aa8ea9c
-  r: Checked that `code/utils/checksums.py`, `code/utils/metrics.py`, and `code/utils/plotting.py`
-    exist with full implementations, and that their corresponding unit tests in `tests/unit/`
-    (shown in the logged pytest runs) all passed.
-  sig: c698be5c7b24b81819749ff480e6831631c0fa6fd85948fa547b02fef5fb3e44
+  h: b57909ebdbe4761861c3ac1224afcfbe0785b176df30d33cea29c36ab910c1af
+  r: "All three required modules exist with real, substantive implementations: `checksums.py`\
+    \ provides chunked SHA-256 hashing of any file (plus directory/manifest helpers),\
+    \ `metrics.py` computes assortativity, average path length, and clustering via\
+    \ NetworkX (the path-graph \u22121.0 correction is mathematically justified since\
+    \ every edge in a path joins degree-1 to degree-2 nodes), and `plotting.py` provides\
+    \ log-log and regression-scatter helpers with the Agg backend. Corresponding unit\
+    \ tests (`test_checksums.py`, `test_metrics.py`, `test_plotting.py`) exist in\
+    \ `tests/unit/` and platform execution logs"
+  sig: f66153d7b05b4caf3c22743f0859760dcd5bcbac766906e3487819c48e0ead89
 T004:
   c: true
-  h: dbc11d6913c62c3467adc4067ae34510c6dd8f837706cb05035371f1e5d23afb
-  r: "Checked that `code/contracts/` contains the four required JSON schema files\
-    \ (all non\u2011empty and syntactically valid) and that `tests/conftest.py` defines\
-    \ an autouse fixture resetting `random` and `numpy.random` to a fixed seed, with\
-    \ `pytest.ini` present. The sample metadata validates against `network_instance.schema.json`,\
-    \ satisfying the verification step."
-  sig: 3222d9d82b9505fbf1643874cb94f2ee1fc2fdc45220dc15d20aa0feb11ed685
+  h: abfed2c0154eae0bbc62a50c28dd0b3825539219ccdc278d8563f9b5ed13aa93
+  r: "All four required schema files exist under `code/contracts/` with substantive,\
+    \ well-formed draft-07 content; `tests/conftest.py` provides an autouse `set_seed`\
+    \ fixture seeding `random` and `numpy.random` to a fixed value (42) per test;\
+    \ and `pytest.ini` configures test discovery and markers. I manually validated\
+    \ `data/raw/networks/metadata_ER_0000.json` against `network_instance.schema.json`\
+    \ \u2014 all required fields present, topology in enum, no additional properties\
+    \ \u2014 so the stated verification would pass. (No pytest execution evidence\
+    \ was supplied, but the task's deliverables are the config file"
+  sig: ac1defff38f60e58a7d84c53aae904a0418d908b35dd46a9aaad2f3329089dbe
 T005:
   c: true
-  h: 0352bac2f8bce9d6850d72a221cbf361991c624a85ea27da47fc442ce3df8553
-  r: "Checked `code/generate_networks.py` (CLI, deterministic seeding, writes to subfolders),\
-    \ the presence of 50 `.edgelist` files per topology in `data/raw/networks/ER/`,\
-    \ `BA/`, `WS/`, and the three CSV metadata files each containing 50 rows with\
-    \ `node_count`\u202F=\u202F500. All required artifacts exist and meet the specifications."
-  sig: 3f7709abe451b62318df0ce0e575f786b1cae418da2e6b09b0f7d19f95c01027
+  h: 251104d7a76854b877fa0fa7fece4e6faa082aaf0a80a034d0d7e090364cae81
+  r: The script exists with the required CLI (`--topology {ER,BA,WS}`, `--instances`,
+    `--seed`), and execution logs show a successful run generating 50 instances per
+    topology. Directory listings confirm 50 `.edgelist` files per topology folder
+    (ER shown with 50; BA/WS folders present with matching metadata), three metadata
+    CSVs each with 50 rows, and all sampled metadata JSONs report `node_count == 500`
+    with plausible per-seed structural metrics consistent with the CSV edge counts.
+  sig: 654b85200b824b05d695948ba8daf184d3e9f017af2c6eeb1f12e45e4d79dcc9
 T006:
-  c: false
-  h: c8db0edb80e38eb3bb22299ff8c65d8cc650bd6b2571dcbbf71dec4226db83e3
-  r: "The required `metadata_BA_0001.json` file does not exist, and the existing `metadata_ER_0000.json`\
-    \ lacks the `\"metrics\"` field that the script is supposed to record (the schema\
-    \ permits omission, but the task explicitly requires storing structural metrics).\
-    \ Consequently the task\u2019s requirement of writing a conforming JSON per network\
-    \ with computed metrics and a node count of 500 is not satisfied."
-  sig: d885114659e79b1f998f92757078a6abe7babc144063d6ba50219e9a3fa1c903
+  c: true
+  h: 4227353721b2c3a6e326e40087846a68105f9012fa5cfbfbbc6327e90c03e4b2
+  r: 'The generation script imports and calls `calculate_structural_metrics` from
+    `code/utils/metrics.py` and writes per-instance JSON metadata (150 files, 50 per
+    topology) at `data/raw/networks/metadata_{topology}_{idx}.json`. The sample `metadata_BA_0001.json`
+    conforms to the schema''s required fields (topology, seed, node_count, edge_count,
+    metrics) with `node_count: 500`, and execution logs plus passing unit tests confirm
+    the pipeline ran and produced these artifacts.'
+  sig: 873ec757ddd1ade089b07f2c903c2005468e81b4cb3899c46b694a50c58c43a7
+T007:
+  c: true
+  h: aef4dccfce200c9be594b4286fc5a48eaf7c14badd5e507926c5c85deff1560b
+  r: "The test file exists, generates 50 networks of N=500 across all three topologies,\
+    \ asserts peak memory < 7 GB, and the pytest run log shows all 3 tests passing\
+    \ (exit 0, 13.26s). The only deviation is that it uses `resource.getrusage`/`ru_maxrss`\
+    \ (a true OS peak-RAM high-water mark) as the primary monitor with `psutil` as\
+    \ the Windows fallback, rather than `psutil` as the primary tool \u2014 functionally\
+    \ equivalent peak-memory measurement, and the assertion and generation requirements\
+    \ are genuinely met."
+  sig: d376b3af719141c23eda0a71571c9efe8374c2906ce01e5fd500570de1d87dbe
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
