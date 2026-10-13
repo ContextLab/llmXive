@@ -1,12 +1,12 @@
 status: none
-intent: download Human Connectome Project 1200 release resting state fMRI and NIH
-  Toolbox scores python package dataset
+intent: download Human Connectome Project 1200 release resting-state fMRI NIH Toolbox
+  scores Schaefer atlas python package dataset
 required_fields:
 - subject_id (string)
-- rsfc_mean_connectivity (float)
+- region_fc_value (float)
 - age (integer)
-- gender (string)
-- nihtoolbox_dccs_score (float)
-cache_key: 1aceea891fd35eda0fe42b47508ef04b1a87fd24515321dcf7b8c6535d73182d
-searched_at: '2026-10-13T05:22:43.273586+00:00'
+- sex (string)
+- nih_dimensional_change_card_sort_score (float)
+cache_key: c6205617c536a44c929794515be8c6adefe3b344606c8d6ffd175ad009932b6c
+searched_at: '2026-10-13T07:29:48.336284+00:00'
 retry_count: 1
