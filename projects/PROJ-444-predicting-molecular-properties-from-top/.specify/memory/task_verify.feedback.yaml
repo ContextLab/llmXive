@@ -1,12 +1,6 @@
 T001:
-  reason: "The script ingests the **Lipophilicity** dataset via scikit-fingerprints\
-    \ by default, not the required ESOL dataset \u2014 the default `--url` is `.../lipophilicity.csv`\
-    \ instead of the specified `.../dataset_esol.csv`, and the raw CSV's contents\
-    \ (logP values like 3.54/-1.18, 4197 rows) are Lipophilicity, not ESOL's ~1128\
-    \ water-solubility records. The required \"chunked sparse-matrix fallback\" for\
-    \ processing remaining records is entirely absent from the code. Additionally,\
-    \ the exclusion log is malformed: the source writes literal `\\n` text (`f.write(f\"\
-    {smi}\\\\n\")`), producing one line of backslash-n-jo"
+  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
+    exit=1'
   task: b229e561fa0112f053eb188efae9dc8ab20dafe932c0b8790a489c485a5ccd91
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py

@@ -1,8 +1,10 @@
 status: none
-intent: MoleculeNet Lipophilicity dataset download via DeepChem python package dataset
+intent: MoleculeNet Lipophilicity dataset small organic molecules SMILES logP download
+  python package dataset
 required_fields:
-- smiles
-- exp_logP
-cache_key: 824cef23f8c771d99943782133bf0be186a56344476fa43a06b7ff6206a40f23
-searched_at: '2026-10-13T03:16:04.900708+00:00'
+- SMILES
+- logP
+- MoleculeID
+cache_key: 531316c1304e5275fff26c6997b69e11f273b7718d55f3bfd0e48dadc622a6b3
+searched_at: '2026-10-13T09:15:40.047763+00:00'
 retry_count: 1
