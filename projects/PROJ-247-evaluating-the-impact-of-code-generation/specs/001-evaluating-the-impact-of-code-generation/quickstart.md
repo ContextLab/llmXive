@@ -21,7 +21,13 @@
 
 ## Execution
 
-The pipeline is executed as a series of sequential scripts. Run them in the following order:
+The pipeline is executed as a series of sequential scripts. Because the project uses a `code/` source directory, ensure the `code` directory is in your `PYTHONPATH` to avoid `ModuleNotFoundError` for internal utilities.
+
+```bash
+export PYTHONPATH=$PYTHONPATH:$(pwd)/code
+```
+
+Run the scripts in the following order:
 
 ### Step 1: Data Curation
 Identify and clone repositories.

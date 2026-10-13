@@ -1,55 +1,32 @@
 """
-Logging configuration for the code maintainability impact study.
-Provides standardized logging setup to ensure consistency across the pipeline.
+Logging configuration for the Code Maintainability project.
+Provides a consistent interface for logger instantiation and 
+project-wide logging setup, integrating with the llmxive_toolkit.
 """
 import logging
-import sys
 from pathlib import Path
 from llmxive_toolkit import get_logger as toolkit_get_logger
 
 def setup_project_logging(name: str, log_file: str) -> logging.Logger:
     """
-    Configure a logger that writes to both a specific file and stdout.
-    
-    Args:
-        name: Name of the logger.
-        log_file: Path to the log file.
-        
-    Returns:
-        A configured logging.Logger instance.
+    Configure logging for a specific project module.
+    Ensures the log directory exists and returns a logger that writes to the specified file.
     """
     log_path = Path(log_file)
     log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
     
-    # Avoid adding duplicate handlers if the logger is already configured
-    if not logger.handlers:
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
-        # File handler for persistent logs
-        fh = logging.FileHandler(log_path)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-        
-        # Stream handler for real-time console output
-        sh = logging.StreamHandler(sys.stdout)
-        sh.setFormatter(formatter)
-        logger.addHandler(sh)
-        
-    return logger
+    # Use the toolkit's get_logger which handles the boilerplate
+    return toolkit_get_logger(name, log_file=log_file)
 
-def setup_logging():
+def setup_logging(name: str) -> logging.Logger:
     """
-    General logging setup wrapper used by several pipeline scripts.
-    Defaults to a project-level log file.
+    Convenience wrapper for setup_project_logging with a default path.
     """
-    return setup_project_logging("project", "data/logs/project.log")
+    log_file = f"data/logs/{name}.log"
+    return setup_project_logging(name, log_file)
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Retrieve a logger instance. Wraps the toolkit logger to maintain
-    compatibility with scripts importing from this module.
+    Retrieve a logger instance via the toolkit.
     """
     return toolkit_get_logger(name)

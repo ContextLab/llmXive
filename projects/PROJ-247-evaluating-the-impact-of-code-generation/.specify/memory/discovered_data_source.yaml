@@ -1,9 +1,12 @@
 status: none
-intent: LLM generated code detection dataset Python JavaScript CodeSearchNet The Stack
-  pip package
+intent: download LLM code detection dataset Python JavaScript GitHub GHTorrent python
+  package dataset
 required_fields:
+- repository_name
 - repository_url
 - language
+- stars
+- recent_commit_count
 - file_path
 - start_line
 - end_line
@@ -11,9 +14,6 @@ required_fields:
 - label
 - confidence_score
 - cyclomatic_complexity
-- nesting_depth
-- commit_hash
-- stars
-cache_key: f47bc79576a5e9e239c8ab081d41e5c146cdabd39564888e1ce0836e491c55d8
-searched_at: '2026-10-12T23:12:44.251528+00:00'
+cache_key: 68d3f4ec3e5faa6db89a3c377e3e19f40ae74142b02b4a6d43c9e030a7427a58
+searched_at: '2026-10-13T00:34:56.751856+00:00'
 retry_count: 1

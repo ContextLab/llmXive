@@ -1,24 +1,13 @@
-# Core scientific stack (already available in environment, pinned for reproducibility)
-numpy==1.26.4
-pandas==2.2.2
-scipy==1.12.0
-scikit-learn==1.4.2
-matplotlib==3.8.4
-statsmodels==0.14.2
-seaborn==0.13.2
-pytest==8.1.1
-PyYAML==6.0.1
-requests==2.32.3
-jsonschema==4.21.1
-psutil==5.9.8
+PyGithub==2.2.0
 python-dotenv==1.0.1
-
-# Model inference and analysis dependencies
-transformers==4.40.0
+transformers==4.44.2
 onnxruntime==1.18.0
-huggingface_hub==0.23.0
 radon==6.0.1
-datasets==2.18.0
-PyGithub==2.1.0
+scikit-learn==1.5.1
+pandas==2.2.2
+requests==2.32.3
+matplotlib==3.9.2
+statsmodels==0.14.2
+datasets==2.21.0
 tree-sitter==0.21.3
 tree-sitter-javascript==0.21.0

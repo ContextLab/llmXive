@@ -1,36 +1,18 @@
 T001:
   c: false
-  h: fe3be77787b838f88ce8dffe6e0299025adf138b1f047f4dd88cc2bbf96878c4
-  r: "The collector-confirmed artifacts cover `code/requirements.txt` (all required\
-    \ pinned packages present), `code/utils/models.py`, and the quickstart (resolved\
-    \ at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`), but\
-    \ there is no evidence of the required logging configuration or a `.env.example`\
-    \ file containing `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH` \u2014 the quickstart\
-    \ even instructs `cp .env.example .env`, yet no such file appears among the artifacts.\
-    \ The implementer must add the logging config and `.env.example` (with those three\
-    \ variables) to complete T001."
-  sig: 3b26c74a63f43bea046e65cd3d54b3895d0abeba0c3be4960a3791343c2ea14a
+  h: e5c3e1103a5bf53b63746f91b566d0c260a12bce5ca0d2af5d57e9a0f93f0c97
+  r: Checked `code/requirements.txt` (contains all required pinned packages) and `specs/001-code-maintainability-impact/quickstart.md`
+    (documents runnable command). However the repository lacks a `.env.example` file
+    defining `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH`, and no logging configuration
+    file is present, both of which are required by the task.
+  sig: c5a4e567122b88e0945c7036bd9facaa8bf006c863baaaa972610f7453cd0adc
 T002:
   c: false
-  h: 836841486e2b0a5f3fb15aebd0300fdbc13d47777cd8292554428004badd3e7c
-  r: "The script `code/01_data_curation.py` exists and implements the required logic\
-    \ (topic/keyword search, activity filters, depth-100 clones, metadata fields,\
-    \ rate-limit and 404 handling), but the task explicitly requires *executing* it,\
-    \ and both required output artifacts `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`\
-    \ are MISSING \u2014 there is no evidence the pipeline was ever run (no CSVs,\
-    \ no logs, no clones). The implementer must actually execute the curation (with\
-    \ a GitHub token or unauthenticated client) so the two CSVs are produced with\
-    \ real repository data."
-  sig: 77fa01ae6e6931d86ac5a9044145804d1d76b1ef3ac6d26636ac69ee16554a8c
-T003:
-  c: false
-  h: 15bd315e522e4c91de49446e9ba11b28f84e176836bd97cc0a8cfdc6be9a1ff2
-  r: "The CSV exists with the correct columns and 8063 real rows, but the rename-exclusion\
-    \ logic evidently was not applied: `data/logs/refactor_exclusions.log` contains\
-    \ only the header (0 exclusions) while the CSV itself contains the same `content_hash`\
-    \ at paths of different directory depth (e.g. `ink-theater/ink-theater.js` and\
-    \ `ink-theater/examples/mocap-figure/ink-theater.js`, likewise `ink-puppet.js`\
-    \ and `clips.js`), which per the spec must be excluded and logged \u2014 the report's\
-    \ \"blocks_excluded: 0\" contradicts the artifact's own data. Additionally, there\
-    \ is no execution record showing the requir"
-  sig: f981ce7913b38532b9294325ab2b49e80b7395aa80de8857117d239e0e5d0b8a
+  h: 19574b4559315b3c7548ed8ba7d656b333981ec1acc6743496df12fcf8cdef64
+  r: The script `code/01_data_curation.py` runs and logs successful cloning, but the
+    required output files `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`
+    are absent from the repository (both marked MISSING). The task explicitly demands
+    these CSVs be saved in `data/raw/`; without them the curation output is not produced.
+    The next implementer must ensure the script writes the CSVs to the correct `data/raw/`
+    directory and verify the files exist after execution.
+  sig: 46fea0511b567454db5baa05154086fd407b3b6cc7169bf2c062611278a0b917

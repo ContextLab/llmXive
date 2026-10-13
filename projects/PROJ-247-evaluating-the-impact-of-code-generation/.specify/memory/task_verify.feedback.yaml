@@ -1,22 +1,17 @@
 T001:
-  reason: "The collector-confirmed artifacts cover `code/requirements.txt` (all required\
-    \ pinned packages present), `code/utils/models.py`, and the quickstart (resolved\
-    \ at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`), but\
-    \ there is no evidence of the required logging configuration or a `.env.example`\
-    \ file containing `GITHUB_TOKEN`, `DATA_PATH`, and `LOG_PATH` \u2014 the quickstart\
-    \ even instructs `cp .env.example .env`, yet no such file appears among the artifacts.\
-    \ The implementer must add the logging config and `.env.example` (with those three\
-    \ variables) to complete T001."
+  reason: Checked `code/requirements.txt` (contains all required pinned packages)
+    and `specs/001-code-maintainability-impact/quickstart.md` (documents runnable
+    command). However the repository lacks a `.env.example` file defining `GITHUB_TOKEN`,
+    `DATA_PATH`, and `LOG_PATH`, and no logging configuration file is present, both
+    of which are required by the task.
   task: a876a79b1e7def0146374d046018b36b78aefd3d503f8aaffa3db11a4738d644
 T002:
-  reason: "The script `code/01_data_curation.py` exists and implements the required\
-    \ logic (topic/keyword search, activity filters, depth-100 clones, metadata fields,\
-    \ rate-limit and 404 handling), but the task explicitly requires *executing* it,\
-    \ and both required output artifacts `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`\
-    \ are MISSING \u2014 there is no evidence the pipeline was ever run (no CSVs,\
-    \ no logs, no clones). The implementer must actually execute the curation (with\
-    \ a GitHub token or unauthenticated client) so the two CSVs are produced with\
-    \ real repository data."
+  reason: The script `code/01_data_curation.py` runs and logs successful cloning,
+    but the required output files `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`
+    are absent from the repository (both marked MISSING). The task explicitly demands
+    these CSVs be saved in `data/raw/`; without them the curation output is not produced.
+    The next implementer must ensure the script writes the CSVs to the correct `data/raw/`
+    directory and verify the files exist after execution.
   task: cbc5911c83b824f1ab2876c5f2141ab580221569d3cf0ed4cca7259d012c5f1d
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/03_code_block_extraction.py
