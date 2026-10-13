@@ -1,32 +1,19 @@
 # The Impact of Musical Training on Functional Connectivity in Adolescent Brains
 
-## Project Overview
+This project implements a reproducible research pipeline to investigate how musical training during adolescence affects resting-state functional connectivity patterns, specifically within auditory, motor, and executive control networks.
 
-This repository implements a reproducible pipeline to investigate how musical training during adolescence influences resting‑state functional connectivity, focusing on auditory, motor, and executive control networks. The pipeline supports:
+## Project Structure
 
-- **Synthetic verification mode** for rapid code validation without real neuroimaging data.
-- **Real‑data analysis mode** (when a verified ABCD or HCP‑Adolescents dataset is supplied) that performs preprocessing, connectivity computation, statistical testing, NBS analysis, correlation with years of training, and sensitivity analyses.
+The project is organized into the following top-level directories:
 
-## Repository Structure
+- `code/`: Contains the implementation of the analysis pipeline, including data ingestion, preprocessing, statistical analysis, and visualization.
+- `data/`: Stores all data artifacts, including raw NIfTI files, behavioral metadata, processed connectivity matrices, and final result tables.
+- `tests/`: Contains the comprehensive test suite, including unit tests for individual modules and integration tests for the end-to-end pipeline.
 
-The top‑level directories are:
+## Overview
 
-- `code/` – Source code for data handling, analysis, utilities, and the CLI entry point.
-- `data/` – Raw and processed data (synthetic or real) as well as atlases and results.
-- `tests/` – Unit, integration, and contract tests that validate each pipeline component.
-- `specs/` – Feature specifications, plans, and contracts for data schemas.
-- `figures/` – Generated figures from the analysis.
-- `results/` – Summary CSVs and tables produced by the pipeline.
-- `docs/` – Documentation files (e.g., this README and `quickstart.md`).
+The pipeline supports two primary modes:
+1. **Verification Mode**: Uses synthetic data to validate the software architecture and memory constraints.
+2. **Analysis Mode**: Processes real neuroimaging data from verified sources (e.g., ABCD Study or HCP-Adolescents).
 
-## Quick‑Start
-
-See the detailed instructions in `quickstart.md`, which includes the exact command to run the verification mode:
-
-```bash
-python -m code.main --mode verification
-```
-
-## License
-
-This project is licensed under the MIT License.
+For detailed instructions on how to run the pipeline, please refer to `quickstart.md`.

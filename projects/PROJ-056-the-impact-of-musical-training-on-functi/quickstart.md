@@ -1,9 +1,9 @@
-# Quick‑Start Guide
+# Quickstart Guide
 
 ## 1. Prerequisites
 
-- **Python 3.11+** (the pipeline has been tested with Python 3.11 [UNRESOLVED-CLAIM: c_e35a3d80 — status=not_enough_info])
-- Git (to clone the repository)
+- **Python 3.11+**
+- Git
 - An active internet connection (required for downloading the Schaefer atlas)
 
 ## 2. Installation
@@ -18,7 +18,7 @@ python -m venv venv
 source venv/bin/activate # Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r code/requirements.txt
 ```
 
 ## 3. Running the Pipeline
@@ -41,18 +41,13 @@ Expected outputs (written under `data/processed/`):
 
 ### Analysis Mode (real data)
 
-When you have a verified dataset (e.g., ABCD or HCP‑Adolescents) that includes resting‑state fMRI NIfTI files and behavioural metadata, run:
+When you have a verified dataset (e.g., ABCD or HCP-Adolescents) that includes resting-state fMRI NIfTI files and behavioural metadata, run:
 
 ```bash
 python -m code.main --mode analysis --data-path /path/to/real/data
 ```
 
-The script will:
-1. Load and validate the real data.
-2. Perform preprocessing, confound matching, and regression.
-3. Compute functional connectivity matrices.
-4. Run statistical tests, NBS, correlation with years of training, and sensitivity analyses.
-5. Write all results to `data/processed/` and figures to `figures/`.
+The script will load and validate the real data, perform preprocessing, confound matching, and execute the full statistical analysis.
 
 **Important:** If the real dataset does not contain at least 50 subjects per group, the pipeline will abort with a clear `DataAccessError('Insufficient Data for Power')`.
 
@@ -64,10 +59,4 @@ After installation, run the full test suite to ensure everything is working:
 pytest tests/
 ```
 
-The unit test `tests/unit/test_quickstart.py` checks that this quick‑start guide contains the required verification command and that the top‑level README lists the required folders.
-
-## 5. Troubleshooting
-
-- **Missing `networkx`**: Install it via `pip install networkx` (added to `requirements.txt` automatically by the pipeline).
-- **Memory limit exceeded**: Reduce the number of subjects or use verification mode with fewer synthetic subjects (`--n-subjects` argument can be added to the script if needed).
-- **Atlas download failures**: Ensure you have internet access; the atlas is fetched from the Nilearn dataset repository.
+The unit test `tests/unit/test_quickstart.py` specifically verifies that this guide and the README are up-to-date.
