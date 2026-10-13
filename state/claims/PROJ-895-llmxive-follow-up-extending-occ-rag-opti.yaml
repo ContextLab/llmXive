@@ -227,3 +227,35 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T17:10:14Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/quickstart.md
+  attempts: 1
+  canonical: pipeline halts with DATA_UNAVAILABLE when data unavailable
+  claim_id: c_dc16feb3
+  context: If data is not available, the pipeline will halt with 'DATA_UNAVAILABLE'.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If data is not available, the pipeline will halt with 'DATA_UNAVAILABLE'.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T18:33:00Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/quickstart.md
+  attempts: 1
+  canonical: 50k synthetic corpus
+  claim_id: c_3a20457d
+  context: Access to OCC-RAG model checkpoint and 50k synthetic corpus (**manual fetch
+    required**)
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Access to OCC-RAG model checkpoint and 50k synthetic corpus (**manual
+    fetch required**)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T18:33:00Z'

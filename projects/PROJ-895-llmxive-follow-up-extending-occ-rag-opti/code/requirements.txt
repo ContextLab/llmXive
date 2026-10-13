@@ -1,9 +1,4 @@
-# OCC-RAG sparse-core follow-up — CPU-only dependency manifest.
-# NOTE: torch is installed from the CPU-only wheel index:
-#   pip install torch --index-url https://download.pytorch.org/whl/cpu
-# Explicitly EXCLUDED (GPU-dependent quantization, violates FR-006):
-#   bitsandbytes, auto-gptq, gptqmodel, autoawq
-torch
+torch (cpu-only)
 transformers
 scikit-learn
 pandas

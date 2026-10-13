@@ -1,10 +1,13 @@
 status: none
-intent: synthetic multi-hop QA 50k dataset download huggingface python package dataset
+intent: synthetic multi-hop question answering dataset 50k download python package
+  dataset
 required_fields:
+- question_id
 - question
 - context
-- answers
+- answer
 - supporting_facts
-cache_key: 1304b661562352f5aba71ac17320893e6b4d39a10a22e56f6edd59e7a15c72a3
-searched_at: '2026-10-12T03:49:00.204055+00:00'
+- hop_count
+cache_key: c7c531941962840972ae5479b5ab3b9e0e34c16c9bc70caa05363122b951592f
+searched_at: '2026-10-13T18:33:44.471900+00:00'
 retry_count: 1

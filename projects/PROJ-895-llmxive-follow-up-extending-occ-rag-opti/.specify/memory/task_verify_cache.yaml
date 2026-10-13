@@ -1,21 +1,12 @@
 T001.1:
   c: true
-  h: 0b42062ce47f62419b2534b682de556e031a4a8c23a9083bcb0fedc420cef2c9
-  r: The project root and required subdirectories (`code/`, `data/`, `tests/`, `paper/`)
-    exist, with explicit `data/raw/`, `data/processed/`, `tests/contract/`, `tests/integration/`,
-    and `tests/unit/` present (each containing a `.gitkeep`). The file `paper/draft.md`
-    is present and includes the placeholder sections Introduction, Methodology, Results,
-    and Discussion.
-  sig: 09948aa3082ffa2c62618e182b2c1ae95f792060197c526d141ecbfec606a05c
-T001.2:
-  c: false
-  h: 518902c294c6a43417dc48c9fd7e9561de43d5dfb878d80ea88f29f079d0a0cf
-  r: The `code/requirements.txt` file exists but its contents include comment lines
-    and extra explanatory text, whereas the task demanded the *exact* list of packages
-    (`torch (cpu-only), transformers, scikit-learn, pandas, numpy, datasets`) with
-    no additional lines. The extra comments mean the file does not match the required
-    exact content.
-  sig: 779b7f8300f040c47f04b42705f35d7f745b9c17f90ac883bc02355c4ebbc3ea
+  h: bad8adfe18b4accd691ea610d887f966fc77e89fc8b65ea4226978816b7edc98
+  r: The root project directory and required subdirectories (`code/`, `data/`, `tests/`,
+    `paper/`) are present, with explicit `data/raw/`, `data/processed/`, `tests/contract/`,
+    `tests/integration/`, and `tests/unit/` folders containing placeholder files.
+    The `paper/draft.md` file exists and includes the required placeholder sections
+    (Introduction, Methodology, Results, Discussion).
+  sig: 15fdf5d32f09372d0f395908376c57b097382bc2eb2e56f811a70f0f7dbcf769
 T001.3:
   c: true
   h: b0e7cc849b4e94c1a1854d27344d17dbd8a94d04f74a04b614c78ad7e9d08bd4
@@ -25,14 +16,11 @@ T001.3:
   sig: efdc34463d8ef5a1e4cda8d6cefc1bff68c0f1917ed9c12ed55e04ffa5b75ff3
 T001.4:
   c: true
-  h: 0031f89545e6eca3ff544b2127f52f5f6745723e2faf400c191089ebb514a23c
-  r: "The `tests/` directory and its required subdirectories `tests/contract/`, `tests/integration/`,\
-    \ and `tests/unit/` are present in the project root, each containing placeholder\
-    \ files (`.gitkeep`, `__init__.py`). The execution log `code/.tasks/T001.4.code_create_tests_dirs.py.log`\
-    \ confirms the creation script ran successfully without errors. This satisfies\
-    \ the task\u2019s specification of establishing the prescribed test directory\
-    \ structure."
-  sig: f97c32e01cbb39bfe3dff69a04f7ee6833ee73aae6c8062fa7e9535e44d7f0ce
+  h: a1d78e3427dc55c65a46185b09dde57e917142eb5ba83f30ca2a076a436202b0
+  r: The evidence shows a `tests/` directory with the required subdirectories `tests/contract/`,
+    `tests/integration/`, and `tests/unit/`, each containing placeholder files, confirming
+    the requested structure exists.
+  sig: eb334609fb88a737e17875bfceac6f9522840fe44c9f38e79a880c802b87b3b6
 T001.5:
   c: true
   h: 0e5232c8ab6d6577786d8a13788adb5809c44238923818be4dab59d4552bd715
@@ -42,25 +30,27 @@ T001.5:
   sig: 9603bd7ffd16bae9b5fbe13c37970d8e1975ecf9d207bfd016a97385224aae06
 T002:
   c: true
-  h: 80bb64118f3c8c24d34c1414c30f09b464276848d4cfa8c361689dcacfa982ce
-  r: "Checked `code/requirements.txt`, which lists exactly the required packages (torch,\
-    \ transformers, scikit-learn, pandas, numpy, datasets) and contains comments explicitly\
-    \ excluding bitsandbytes and other GPU\u2011dependent quantization libraries,\
-    \ satisfying the task\u2019s specification."
-  sig: d4a8334d05b63376937390d03bdb56e1dc846fac41fe9f5f09811629b8108447
+  h: 3d9e6146f474b0a7ab77e5f1de86ecf6806eae4f27516aac3ce1517397af75bb
+  r: "Checked `code/requirements.txt` (64\u202Fbytes) \u2013 it lists `torch (cpu-only)`,\
+    \ `transformers`, `scikit-learn`, `pandas`, `numpy`, and `datasets`, and does\
+    \ not contain any 8\u2011bit/4\u2011bit quantization libraries such as `bitsandbytes`."
+  sig: bbac8537dc53079de6855ab034c7072a4ad03d9816795f6d538a7805a9841f72
 T003:
   c: false
-  h: bfd6c4cc16d17f8c8553e1c8ff91fb92f9c6f4d2b678c6f7f8f4722a8f28d7cf
-  r: "No `.flake8` configuration file was presented or found in the provided evidence,\
-    \ so the required linting setup (max\u2011line\u2011length\u202F=\u202F88, specified\
-    \ ignores, and exclude list) is missing. The task cannot be considered completed\
-    \ without this file."
+  h: 6566b5c1920f7825232a726ef5261851d3b83cff4633b1f66a2412329f0a9c06
+  r: The evidence provided contains no `.flake8` file (or its contents) at the project
+    root, so we cannot confirm that the required configuration with the specified
+    `max-line-length`, `ignore`, and `exclude` settings was created. The task remains
+    unverified.
+  sig: cd705886444e9186163d0642e60bf5ce0dc028da3cb3cb4d3f380b03c3d25e6c
 T003.1:
   c: true
-  h: 5c5ef3789661c394c9135145c9a432d7d7435284987b804ffb36063ceaf81ec2
-  r: The provided `pyproject.toml` exists and contains the exact `[tool.black]` block
-    with `line-length = 88` and `target-version = ['py311']` as required. No missing
-    or placeholder content.
+  h: b736ff5f85309ba5583b2fae70f803103915a1309e0193fc45441a10cfd57e31
+  r: "The `pyproject.toml` file was found at `code/pyproject.toml` (502\u202Fbytes)\
+    \ and contains the required `[tool.black]` block with `line-length = 88` and `target-version\
+    \ = ['py311']`. The file exists, is non\u2011empty, and the Black configuration\
+    \ matches the specification exactly."
+  sig: 258eb6addbf98659ced19941a81b158f167af29bc98d3e1945d75dbafe726810
 T012:
   c: false
   h: 8dd49beb875d04b85e5275cc43ba0439259e0e6968d8433f851b30b20e7dad85

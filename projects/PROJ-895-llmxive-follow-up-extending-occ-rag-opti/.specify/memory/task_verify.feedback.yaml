@@ -1,11 +1,10 @@
 T001.1:
   task: 17704bc21e87939040dc16cf10633ec535babc60b8e8efdd6cb71d11175d443c
 T001.2:
-  reason: The `code/requirements.txt` file exists but its contents include comment
-    lines and extra explanatory text, whereas the task demanded the *exact* list of
-    packages (`torch (cpu-only), transformers, scikit-learn, pandas, numpy, datasets`)
-    with no additional lines. The extra comments mean the file does not match the
-    required exact content.
+  reason: "Checked `code/requirements.txt`; it lists each package on a separate line,\
+    \ whereas the task demanded the exact content `torch (cpu-only), transformers,\
+    \ scikit-learn, pandas, numpy, datasets` (a single comma\u2011separated line).\
+    \ The formatting does not match the specification, so the requirement is not satisfied."
   task: 7f2806c9a57f3b4302af1084a29311059aadddd6a301f55784181d41d716f28a
 T001.3:
   task: 038305119106328122927b1cce625163af28a31000dedea6f1573b2b9cf504de
@@ -16,10 +15,10 @@ T001.5:
 T002:
   task: 4ae0a26b59eaaef503a02dd902bab82c12bb8047cddb50c305cfedb29faf64be
 T003:
-  reason: "No `.flake8` configuration file was presented or found in the provided\
-    \ evidence, so the required linting setup (max\u2011line\u2011length\u202F=\u202F\
-    88, specified ignores, and exclude list) is missing. The task cannot be considered\
-    \ completed without this file."
+  reason: The evidence provided contains no `.flake8` file (or its contents) at the
+    project root, so we cannot confirm that the required configuration with the specified
+    `max-line-length`, `ignore`, and `exclude` settings was created. The task remains
+    unverified.
   task: 59ddb577cc1fc4cb30a92eeeb6641d119970cc51bab48a4b1a3a929a34823a43
 T003.1:
   task: 31ef8284ae67c493aae876e015a1a0d54896fba46aedd173c9c98dd74ba82d67
@@ -64,7 +63,8 @@ T013:
     exit=1'
   task: 88164e02d709aa61ba6eaa70189a4f67b371edfa4fbbcf8ef741d66fbe7fa157
 T013.1:
-  reason: 'declared artifact(s) missing/empty/invalid: data/processed/original_faithfulness_scores.csv'
+  reason: 'Requested task execution failed; rerun successfully: code/run_original_faithfulness.py
+    exit=1'
   task: 10897e9484f01e49d8827c65765246dba41113a7a2470661e400a2b58d9a4199
 T014:
   task: 31f2a6134a6b33d84a9f813fc0fff0b2719177841b5bc4924bebcee582dd0b0c
