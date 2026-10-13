@@ -63,13 +63,13 @@
 
 - [ ] T005a [P] Initialize logging infrastructure (`code/logging_config.py`) with basic file handlers and rotation; do NOT configure memory hooks yet.
 
-- [~] T005b [P] [Depends on T007] Configure logging hooks in `code/logging_config.py` to read memory state from T007 and emit "Time Limit Warning" logs when RAM usage approaches 6GB.
+- [X] T005b [P] [Depends on T007] Configure logging hooks in `code/logging_config.py` to read memory state from T007 and emit "Time Limit Warning" logs when RAM usage approaches 6GB.
 
-- [~] T006 Create base data entities: `Subject`, `ConnectivityMatrix`, `GraphMetrics` classes in `code/entities.py`
+- [X] T006 Create base data entities: `Subject`, `ConnectivityMatrix`, `GraphMetrics` classes in `code/entities.py`
 
-- [~] T008a [P] Implement synthetic data generator (`code/synthetic_data.py`) for "Methodology Validation Mode" with seeded random states.
+- [ ] T008a [P] Implement synthetic data generator (`code/synthetic_data.py`) for "Methodology Validation Mode" with seeded random states.
 
-- [~] T008b [P] [Depends on T004] Implement "Methodology Validation Mode" switch logic in `code/config.py` to set global `is_synthetic` flag based on data availability check. This task establishes the global project state for the mode.
+- [X] T008b [P] [Depends on T004] Implement "Methodology Validation Mode" switch logic in `code/config.py` to set global `is_synthetic` flag based on data availability check. This task establishes the global project state for the mode.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,13 +85,13 @@
 
 - [ ] T011 [US1] Implement `code/data_ingestion.py` to download OpenNeuro data (e.g., `ds000006` or similar mTBI dataset) and generate `data/results/manifest.csv` <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
 
-- [~] T012 [US1] Implement `code/preprocessing.py` for minimal confound regression using `nilearn` and AAL parcellation
+- [ ] T012 [US1] Implement `code/preprocessing.py` for minimal confound regression using `nilearn` and AAL parcellation
 
 - [ ] T013 [US1] Add logic to skip subjects with missing time points (acute/chronic) and log exclusion reasons (Edge Case)
 
 - [ ] T014 [US1] Add logic to handle AAL atlas failure (skip subject, log error) without crashing (Edge Case)
 
-- [~] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
+- [ ] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 

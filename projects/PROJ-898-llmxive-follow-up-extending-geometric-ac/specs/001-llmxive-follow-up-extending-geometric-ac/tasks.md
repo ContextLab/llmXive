@@ -20,7 +20,7 @@
 - [X] T001a-reqs [P] Create `requirements.txt` with pinned dependencies: `pybullet`, `torch==2.0.0+cpu --index-url https://download.pytorch.org/whl/cpu`, `cvxpy`, `diff-taichi`, `scipy`, `pandas`, `numpy`, `pytest`.  
   - **Verification**: Add a test `tests/integration/test_requirements_exist.py` that asserts the file exists and contains all listed packages.  
 
-- [ ] T001a-gitignore [P] Create `.gitignore` file excluding `data/`, `__pycache__/`, `*.pyc`, and environment files.  
+- [X] T001a-gitignore [P] Create `.gitignore` file excluding `data/`, `__pycache__/`, `*.pyc`, and environment files.  
   - **Verification**: `tests/integration/test_gitignore_exists.py` checks file existence and required patterns.  
 
 - [X] T001a-init [P] Create `code/__init__.py` and `tests/__init__.py`.  
@@ -34,8 +34,8 @@
 
 ### Phase 1 – Shared infrastructure (blocking prerequisites)
 
-- [ ] T002 (`requirements.txt`: pybullet, torch (cpu, `--index-url https://download.pytorch.org/whl/cpu`), cvxpy, diff-taichi, scipy, pandas, numpy, pytest)  
-- [X] T003 [P] Create `ruff.toml` and `.pre-commit-config.yaml` for linting and formatting.  
+- [X] T002 (`requirements.txt`: pybullet, torch (cpu, `--index-url https://download.pytorch.org/whl/cpu`), cvxpy, diff-taichi, scipy, pandas, numpy, pytest)  
+- [~] T003 [P] Create `ruff.toml` and `.pre-commit-config.yaml` for linting and formatting.  
   - **Verification**: `tests/integration/test_lint_config.py` runs `ruff --quiet` and ensures a successful exit.  
 
 - [ ] T004 Setup data directory structure (`data/raw`, `data/generated`, `data/results`) and `.gitkeep` files.  
@@ -60,7 +60,7 @@
   - **Depends on** T046-fetch-gfm-weights  
   - **Verification**: `tests/unit/test_gfm_diff.py` checks that gradients flow through inputs but not through weights.  
 
-- [~] T008 [P] Add a GitHub Actions workflow `.github/workflows/ci.yml` that runs on a 2‑core x86_64 runner with no GPU, enforces the 6‑hour timeout, and installs `requirements.txt`.  
+- [ ] T008 [P] Add a GitHub Actions workflow `.github/workflows/ci.yml` that runs on a 2‑core x86_64 runner with no GPU, enforces the 6‑hour timeout, and installs `requirements.txt`.  
   - **Verification**: The CI run itself serves as verification; include a badge in README that asserts the workflow passes.  
 
 - [ ] T009a-fetch-stats [US1] [Depends on T007b] Generate or fetch `data/raw/gam_reference_stats.json` (mean/covariance of training latents). Abort if unavailable.   <!-- FAILED-IN-EXECUTION: code/statistical_reference.py exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/compute_reference_stats.py exit=1 -->

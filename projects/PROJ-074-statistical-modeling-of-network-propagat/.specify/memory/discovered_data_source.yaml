@@ -1,12 +1,11 @@
 status: none
-intent: download SNAP Twitter cascade dataset PolitiFact claims dataset python package
+intent: PolitiFact and SNAP Twitter cascade dataset with node timestamps python package
   dataset
 required_fields:
-- cascade_id
 - source_node_id
 - target_node_id
 - timestamp
-- cascade_label
-cache_key: cf9ea70c9987e32f3b71973557d1ae0128afe4a9fa96ef6fac10d44fb470ef16
-searched_at: '2026-10-12T21:48:55.734761+00:00'
+- cascade_id
+cache_key: 932e630ff773ef630254a25ec1577ebbd64d337cc12534d9b5605c60d24a6f47
+searched_at: '2026-10-13T06:39:34.780767+00:00'
 retry_count: 1

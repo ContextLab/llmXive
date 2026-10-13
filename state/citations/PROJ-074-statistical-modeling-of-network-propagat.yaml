@@ -20,7 +20,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/snap-stanford/stark/resolve/main/qa/amazon/stark_qa/stark_qa.csv%60
   verified_at: '2026-06-28T02:23:11.764056Z'
-- artifact_hash: 5acc54a55fea8cc9fb6bbd4ba0aec504cbae71aabb54eb49f59bb41ac24b1ecf
+- artifact_hash: adb1f8eed2a09ab842f79da91ffa0a7b8d64a9dce9cc2100bb294e3cf43d7df3
   artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-10-12T21:48:24.696228Z'
+  verified_at: '2026-10-13T06:38:51.952457Z'

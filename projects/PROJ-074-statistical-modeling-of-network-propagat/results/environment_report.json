@@ -1,0 +1,78 @@
+{
+  "python_version": "3.11.17 (main, Oct  1 2026, 14:32:31) [GCC 13.3.0]",
+  "python_executable": "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/bin/python",
+  "platform": "linux",
+  "packages": {
+    "numpy": {
+      "import_name": "numpy",
+      "installed_version": "1.26.4",
+      "pinned_version": "1.26.4"
+    },
+    "pandas": {
+      "import_name": "pandas",
+      "installed_version": "2.2.1",
+      "pinned_version": "2.2.1"
+    },
+    "jax": {
+      "import_name": "jax",
+      "installed_version": "0.4.23",
+      "pinned_version": "0.4.23"
+    },
+    "jaxlib": {
+      "import_name": "jaxlib",
+      "installed_version": "0.4.23",
+      "pinned_version": "0.4.23"
+    },
+    "cmdstanpy": {
+      "import_name": "cmdstanpy",
+      "installed_version": "1.2.0",
+      "pinned_version": "1.2.0"
+    },
+    "networkx": {
+      "import_name": "networkx",
+      "installed_version": "3.2",
+      "pinned_version": "3.2"
+    },
+    "scikit-learn": {
+      "import_name": "sklearn",
+      "installed_version": "1.4.0",
+      "pinned_version": "1.4.0"
+    },
+    "pyyaml": {
+      "import_name": "yaml",
+      "installed_version": "6.0.1",
+      "pinned_version": "6.0.1"
+    },
+    "jsonschema": {
+      "import_name": "jsonschema",
+      "installed_version": "4.20.0",
+      "pinned_version": "4.20.0"
+    },
+    "pytest": {
+      "import_name": "pytest",
+      "installed_version": "8.0.0",
+      "pinned_version": "8.0.0"
+    },
+    "ruff": {
+      "import_name": "ruff",
+      "installed_version": "unknown",
+      "pinned_version": "0.3.0"
+    },
+    "black": {
+      "import_name": "black",
+      "installed_version": "24.2.0",
+      "pinned_version": "24.2.0"
+    }
+  },
+  "failures": [
+    {
+      "distribution": "numpyro",
+      "error": "AttributeError: module 'scipy.linalg' has no attribute 'tril'"
+    },
+    {
+      "distribution": "numpyro",
+      "error": "smoke test failed: module 'scipy.linalg' has no attribute 'tril'"
+    }
+  ],
+  "numpyro_smoke_test": "failed: module 'scipy.linalg' has no attribute 'tril'"
+}

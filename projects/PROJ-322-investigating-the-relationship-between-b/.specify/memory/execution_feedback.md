@@ -31,7 +31,7 @@ s/_validators.py", line 89, in _inner_fn
     hf_raise_for_status(r)
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-322-investigating-the-relationship-between-b/lib/python3.11/site-packages/huggingface_hub/utils/_http.py", line 953, in hf_raise_for_status
     raise _format(RepositoryNotFoundError, message, response, repo_type=repo_type, repo_id=repo_id) from e
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6acb6140-799611b65e1adc9b569677f0;9a168f3f-ec42-4388-8d3e-3d83abb7a1f6)
+huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6acdd7e0-08a958ca5ffdaf8702e30343;b4f88ff5-4187-41ee-a2c9-4ee2af7c40b7)
 
 Repository Not Found for url: https://huggingface.co/api/datasets/openneuro/ds000006/revision/main.
 Please make sure you specified the correct `repo_id` and `repo_type`.

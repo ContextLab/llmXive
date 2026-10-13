@@ -1,19 +1,12 @@
 T001a:
-  reason: "The required project directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
-    \ does not exist, so the mandated sub\u2011folders (`data/raw`, `data/processed`,\
-    \ `code`, `tests`) are absent. The task\u2019s core deliverable is missing."
+  reason: "The required directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
+    \ does not exist (collector marks it MISSING), and the script log shows creation\
+    \ of `projects/PROJ-678-comparative-analysis-of-molecular-finger/` (missing \u201C\
+    prints\u201D). Hence the exact project structure requested was not created."
   task: d9fec7349de4824f34634b80bf672b61fbb4cea9a6494fc514cb29215609da39
 T001b:
-  reason: "The evidence includes a `requirements.txt` and `pyproject.toml`, but the\
-    \ requirements file does not pin exact versions for the listed packages (and adds\
-    \ an unexpected `scipy` entry), and there is no `README.md` file present at all.\
-    \ These omissions mean the task\u2019s specification is not fully satisfied."
   task: 7fff59138db23b23a1c77c9bf3dbf04d38c491bc854bcd8ef327f49a36dc2f7d
 T002:
-  reason: Checked `requirements.txt` (contains only package names, no version pins)
-    and `pyproject.toml` (present). No `README.md` file was found. The task required
-    a pinned `requirements.txt` for the listed packages and a README, both of which
-    are missing or incorrect.
   task: b23ad6b7974b168cf46f630078ca3d27706722200830e8ece445d22171259a0f
 T003:
   task: c33860119f27bff9c550456457efc62cc1401cbcd06a585d0855db328edadcd5
@@ -26,12 +19,6 @@ T006:
 T007:
   task: ae0f4b3c48c474a1b31bab04a0c1916ddce9a962e4e46d6af4835595697f290c
 T008:
-  reason: "The required file `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`\
-    \ is missing (the only file found is under `specs/001-comparative-analysis-of-molecular-finger/data-model.md`).\
-    \ Moreover, the schemas in the existing document do not match the task\u2019s\
-    \ specified fields for Compound, Fingerprint, Model, and PerformanceMetric. The\
-    \ implementer must create the correctly\u2011named markdown file and define the\
-    \ exact schemas as listed in the task."
   task: 0ba586c68f417f521237a5b1263a42735f8c6ea9773571fce6e3522a10f1992c
 T009:
   task: dec14d06a6c9f89973c63986447f41a933761d6b511561dcf7d20d8c731349a8
@@ -61,6 +48,8 @@ T018c1:
 T018c2:
   task: 78fd6ee6d5fa81e03f30ea24461af1e26adc7b73ddbfc6c4fade6ba5e83f67e4
 T018c3:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/kfold_split_indices.json,
+    data/processed/kfold_split_invalid_report.md, data/processed/kfold_split_error.log'
   task: adcf5c2f1bcbc3d2016effd1ac5192ee0b53fe1b51e66dfcadb32243b9213f0a
 T019:
   task: ab2eee67375bbf8f16255b6a64b8dcda49ff283d1bc891516034506c3ce4f25b

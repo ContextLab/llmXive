@@ -1,15 +1,8 @@
 T001:
-  reason: "The project root contains all required directories and a non\u2011empty\
-    \ `README.md`, but the `.gitignore` file is not present in the listed artifacts.\
-    \ Adding a placeholder `.gitignore` at the project root is needed to satisfy the\
-    \ task."
   task: 730cddce39e04e6c1f654704bccacaf26a04863c5624abb9c93d41dc2dd6988c
 T002:
-  reason: Checked `pyproject.toml` and `requirements.txt`, both present and populated,
-    but there is no artifact showing a virtual environment was created or that the
-    listed dependencies were actually installed (e.g., a `venv/` directory, activation
-    script, or installation log). This missing evidence means the task is not fully
-    satisfied.
+  reason: 'Requested task execution failed; rerun successfully: code/setup/verify_environment.py
+    exit=1; code/setup/setup_env.sh exit=1'
   task: cd0fb177cbdfcc25cb7f7cca41870a3f07ecb33de31118d1eed5565fdf90defa
 T003:
   reason: "The evidence provides only the project root location and no concrete files\
@@ -20,8 +13,6 @@ T003:
     \ optionally a `requirements-dev.txt` or `pre-commit` setup) is required."
   task: a6df864b6d088cc457de911cfaf846b7563eaed9043061235c0b88ccbb58b597
 T004:
-  reason: The provided `requirements.txt` is present but omits the required line `scikit-learn==1.4.0`
-    (and its comment), so the pinned versions list is incomplete.
   task: 4bd84d07444bc57fe75d9b0640c88e53c4040edd28c94605976ccb071dd97336
 T005:
   reason: "Checked `run_pipeline.sh` (7\u202F437\u202Fbytes). It sets `OMP_NUM_THREADS=2`,\
@@ -39,6 +30,13 @@ T008:
 T009:
   task: 12d57fb2af5e4a8af6acca589bb8ef126cbb125c640ca5a4e0414c77a54233ba
 T010:
+  reason: "The evidence collector shows no artifacts for this task \u2014 no code\
+    \ implementing node-limit validation, no `skipped_cascades.log`, and no execution\
+    \ evidence that a cascade exceeding 2,000 nodes was actually logged and skipped.\
+    \ The task's claim cannot be verified from any on-disk artifact; the implementer\
+    \ must add the validation logic (e.g., in the ingestion/pipeline code) and demonstrate\
+    \ a run where an oversized cascade's identifier is recorded in `skipped_cascades.log`\
+    \ and excluded from processing."
   task: a9fed1cd2cd8c75f84082fc8bd560e4f0292039f43b59488b81a61ffd9238387
 T011:
   task: eb254b253a52fdb38299bf136870880d9078763f96ddb78a4e0822deecba7f02

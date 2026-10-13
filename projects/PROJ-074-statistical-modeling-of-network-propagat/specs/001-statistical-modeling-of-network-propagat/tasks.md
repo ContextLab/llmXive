@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure:
+- [X] T001 Create project directory structure:
  - `code/`, `data/`, `results/`, `tests/`, `contracts/`, `docs/`
  - Add placeholder `README.md` and `.gitignore`
-- [ ] T004 Create `requirements.txt` with pinned versions:
+- [X] T004 Create `requirements.txt` with pinned versions:
  ```
  numpy==1.26.4
  pandas==2.2.1
@@ -41,7 +41,7 @@
  ruff==0.3.0
  black==24.2.0
  ```
-- [ ] T002 Initialize Python project (create `pyproject.toml`/virtualenv) and install dependencies from `requirements.txt`.
+- [ ] T002 Initialize Python project (create `pyproject.toml`/virtualenv) and install dependencies from `requirements.txt`. <!-- FAILED-IN-EXECUTION: code/setup/verify_environment.py exit=1; code/setup/setup_env.sh exit=1 -->
 - [ ] T003 Configure linting (ruff) and formatting (black) tools.
 
 ---
@@ -60,15 +60,15 @@
  - Logging infrastructure (`setup_logger()`)
  - Random‑seed initialization function (`set_global_seed(seed)`)
  - Helper for SHA‑256 checksum calculation (`compute_checksum(path)`).
-- [~] T007 Create `data-model.md` specifying schemas for `Cascade`, `FeatureSet`, `ModelOutput`.
-- [~] T008 Create `contracts/` JSON schemas for:
+- [X] T007 Create `data-model.md` specifying schemas for `Cascade`, `FeatureSet`, `ModelOutput`.
+- [X] T008 Create `contracts/` JSON schemas for:
  - `features.csv`
  - `model_trace.nc`
  - `posterior_summary.csv`
  - `cv_metrics.json`
  - `collinearity_report.txt`
-- [~] T009 Create `quickstart.md` with pipeline execution instructions and a reference to `model_spec.yaml`.
-- [~] T010 Add node‑limit validation task: cascades with > 2,000 nodes are logged to `skipped_cascades.log` and skipped.
+- [X] T009 Create `quickstart.md` with pipeline execution instructions and a reference to `model_spec.yaml`.
+- [ ] T010 Add node‑limit validation task: cascades with > 2,000 nodes are logged to `skipped_cascades.log` and skipped.
 - [~] T060 [P] Add explicit random‑seed pinning in all code modules (call `set_global_seed(12345)` at script start).
 - [~] T061 [P] Compute SHA‑256 checksums for every file in `data/raw/`, write to `data/checksums.txt`.
 - [~] T062 [P] Implement proxy susceptibility score with formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0: 0.0` per FR‑003 Clarification; document formula in `susceptibility_method.md`.

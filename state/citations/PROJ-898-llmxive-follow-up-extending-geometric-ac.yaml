@@ -44,7 +44,7 @@
   verification_status: pending
   verified_against_url: https://github.com/astral-sh/ruff-pre-commit
   verified_at: '2026-10-09T10:45:31.133140Z'
-- artifact_hash: 6aa0f8316e856352557be13bd9a4454b35e4c0893dcd79bfbb01c3ebcc6fdc88
+- artifact_hash: 210ad0e1f0015c6297e8e302216ba986c233a08c9f773a317657c94abbd7ffd0
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -54,4 +54,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-10-09T10:51:04.869531Z'
+  verified_at: '2026-10-13T07:02:39.504896Z'

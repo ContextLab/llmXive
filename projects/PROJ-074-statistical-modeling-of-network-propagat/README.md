@@ -1,61 +1,34 @@
 # Bayesian Hierarchical Modeling of Misinformation Cascade Size
 
-## Overview
-
-This project implements a reproducible Bayesian hierarchical modeling pipeline
-for analyzing misinformation cascade sizes. The pipeline ingests raw cascade
-data, generates network and user features, fits a Bayesian hierarchical model
-with random effects, and outputs posterior summaries with diagnostic metrics.
+This project develops Bayesian hierarchical models to quantify how network
+topology and user-susceptibility features predict the size of misinformation
+cascades on online social networks.
 
 ## Project Structure
 
+```text
+code/ # Pipeline source code (pipeline, feature engineering, models)
+data/ # Raw and processed cascade data (JSON edge-list format)
+results/ # Pipeline outputs (features, traces, posterior summaries)
+tests/ # Contract and integration tests
+contracts/ # JSON schemas for input/output validation
+docs/ # Additional documentation
 ```
-.
-├── code/ # Python pipeline modules
-│ ├── pipeline/
-│ │ ├── utils.py # Core utilities (logging, seeding, checksums)
-│ │ ├── load_cascade.py # Data loading and validation
-│ │ ├── network_features.py
-│ │ ├── user_susceptibility.py
-│ │ └──...
-├── data/ # Input and processed data
-│ ├── raw/ # Raw cascade JSON files
-│ ├── processed/ # Validated and intermediate data
-│ └── checksums.txt # SHA-256 checksums for data integrity
-├── results/ # Model outputs
-│ ├── features.csv
-│ ├── model_trace.nc
-│ └── posterior_summary.csv
-├── tests/ # Contract and unit tests
-├── contracts/ # JSON schema definitions
-├── specs/ # Design documents
-├── docs/ # Documentation
-├── run_pipeline.sh # Main pipeline orchestration script
-├── quickstart.md # Pipeline execution guide
-├── model_spec.yaml # Bayesian model specification (priors, hyperparameters)
-└── requirements.txt # Python dependencies
+
+## Quick Start
+
+See `quickstart.md` for full step-by-step instructions. In brief:
+
+```bash
+bash code/pipeline/run_pipeline.sh --data data/raw/ --out results/
 ```
 
 ## Model Specification
 
-The Bayesian hierarchical model configuration is defined in `model_spec.yaml`.
-This file specifies:
-- Prior distributions for fixed effects and random intercepts
-- Hyperparameters for the negative binomial likelihood
-- Platform random effect logic (conditional on ≥2 platforms)
-- Sampling configuration (HMC/NUTS parameters)
-
-Refer to `model_spec.yaml` for complete model details before running the pipeline.
-
-## Quick Start
-
-See `quickstart.md` for detailed pipeline execution instructions.
-
-## Requirements
-
-- Python 3.10+
-- See `requirements.txt` for pinned dependency versions
+Model priors, hyper-parameters, and random-effect structure are defined in
+`code/models/model_spec.yaml` (see the model specification transparency
+requirement).
 
 ## License
 
-See LICENSE file.
+TBD

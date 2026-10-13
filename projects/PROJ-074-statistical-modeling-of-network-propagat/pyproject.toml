@@ -12,6 +12,8 @@ dependencies = [
     "numpy==1.26.4",
     "pandas==2.2.1",
     "numpyro==0.13.2",
+    "jax==0.4.23",
+    "jaxlib==0.4.23",
     "cmdstanpy==1.2.0",
     "networkx==3.2",
     "scikit-learn==1.4.0",

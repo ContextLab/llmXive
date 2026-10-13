@@ -1,12 +1,19 @@
-# Ignore data directories
+# Data and results
 data/
 
-# Python cache files
+# Python bytecode
 __pycache__/
 *.pyc
 
-# Environment files
+# Environment and secrets
 .env
-
-# Virtual environment directory
 venv/
+.venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log

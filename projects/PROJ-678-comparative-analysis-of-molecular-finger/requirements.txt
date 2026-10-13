@@ -1,7 +1,13 @@
-rdkit
-scikit-learn
-pandas
-numpy
-requests
-pytest
-scipy>=1.10.0
+# Pinned dependencies for the comparative fingerprint toxicity pipeline.
+# NOTE: numpy must be >= 2.0 because `datasets` pulls in pyarrow, whose
+# binary wheels require NumPy 2.x. Pinning numpy 1.26 caused:
+#   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+numpy==2.0.2
+pandas==2.2.2
+scikit-learn==1.5.0
+scipy==1.13.1
+rdkit==2024.3.5
+requests==2.32.3
+pytest==8.2.2
+datasets==2.20.0
+pyarrow==17.0.0

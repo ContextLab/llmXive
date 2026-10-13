@@ -20,7 +20,7 @@ def test_greedy_split_tanimoto_threshold():
     n_samples = 10
     n_bits = 64
     fingerprints = np.random.randint(0, 2, (n_samples, n_bits)).astype(float)
-    
+
     # Run split
     results = greedy_maximal_dissimilarity_split(
         fingerprints,
@@ -28,7 +28,7 @@ def test_greedy_split_tanimoto_threshold():
         threshold=0.85,
         min_test_size=2
     )
-    
+
     # Check results structure
     assert len(results) == 2
     for res in results:
@@ -36,7 +36,7 @@ def test_greedy_split_tanimoto_threshold():
         assert "status" in res
         assert "test_indices" in res
         assert "train_indices" in res
-        
+
         # If valid, check test set size
         if res["status"] == "VALID":
             assert len(res["test_indices"]) >= 2
@@ -59,19 +59,19 @@ def test_save_splits_creates_files():
             "train_indices": []
         }
     ]
-    
+
     with tempfile.TemporaryDirectory() as tmpdir:
         save_splits(fold_results, tmpdir)
-        
+
         # Check files exist
         assert os.path.exists(os.path.join(tmpdir, "split_fold_0.json"))
         assert os.path.exists(os.path.join(tmpdir, "split_fold_1.json"))
         assert os.path.exists(os.path.join(tmpdir, "split_summary.json"))
-        
+
         # Check summary content
         with open(os.path.join(tmpdir, "split_summary.json"), 'r') as f:
             summary = json.load(f)
-        
+
         assert summary["total_folds"] == 2
         assert summary["valid_folds"] == 1
         assert summary["invalid_folds"] == 1

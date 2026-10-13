@@ -7,16 +7,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -c "import numpyro; print('NumPyro Ready')" -> rc=1
-", line 1, in <module>
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/numpyro/__init__.py", line 6, in <module>
-    from numpyro import compat, diagnostics, distributions, handlers, infer, ops, optim
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/numpyro/infer/__init__.py", line 5, in <module>
-    from numpyro.infer.elbo import (
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/numpyro/infer/elbo.py", line 25, in <module>
-    from numpyro.ops.provenance import eval_provenance
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/numpyro/ops/provenance.py", line 7, in <module>
-    from jax.experimental.pjit import pjit_p
-ImportError: cannot import name 'pjit_p' from 'jax.experimental.pjit' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/jax/experimental/pjit.py)
+network-propagat/lib/python3.11/site-packages/numpyro/distributions/__init__.py", line 4, in <module>
+    from numpyro.distributions.conjugate import (
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/numpyro/distributions/conjugate.py", line 9, in <module>
+    from numpyro.distributions.continuous import Beta, Dirichlet, Gamma
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/numpyro/distributions/continuous.py", line 36, in <module>
+    from jax.scipy.linalg import cho_solve, solve_triangular
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/jax/scipy/linalg.py", line 18, in <module>
+    from jax._src.scipy.linalg import (
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-074-statistical-modeling-of-network-propagat/lib/python3.11/site-packages/jax/_src/scipy/linalg.py", line 403, in <module>
+    @_wraps(scipy.linalg.tril)
+            ^^^^^^^^^^^^^^^^^
+AttributeError: module 'scipy.linalg' has no attribute 'tril'
 
 - bash code/pipeline/run_pipeline.sh --data data/raw/ --out results/ -> rc=-1
 

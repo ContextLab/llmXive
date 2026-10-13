@@ -1,36 +1,41 @@
 T001a:
   c: false
-  h: 462298bdac0a2709b4ccb4b9046cca1bd5c5c279c23426db66fe7ebd46222fce
-  r: "The required project directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
-    \ does not exist, so the mandated sub\u2011folders (`data/raw`, `data/processed`,\
-    \ `code`, `tests`) are absent. The task\u2019s core deliverable is missing."
+  h: f0398c41a79c53d2cdab48772f15f88d4a73bbc4c89bac55144d608f76a508fe
+  r: "The required directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
+    \ does not exist (collector marks it MISSING), and the script log shows creation\
+    \ of `projects/PROJ-678-comparative-analysis-of-molecular-finger/` (missing \u201C\
+    prints\u201D). Hence the exact project structure requested was not created."
+  sig: 4bddd2414d1385fd5883b07afb0594b24ae19eebbea1a8751b0f2382d618157f
 T001b:
-  c: false
-  h: af80c8c58d914c9357a888a06976797af3cc4062f87c28f9462a082e6045b59c
-  r: "The evidence includes a `requirements.txt` and `pyproject.toml`, but the requirements\
-    \ file does not pin exact versions for the listed packages (and adds an unexpected\
-    \ `scipy` entry), and there is no `README.md` file present at all. These omissions\
-    \ mean the task\u2019s specification is not fully satisfied."
+  c: true
+  h: ca3db7b0b06102ca44db8d76bc020d1f1a7cde7b57f3d059d348f96d31a9ec7b
+  r: "Checked the three required artifacts in the project root: `requirements.txt`\
+    \ (pinned rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml`\
+    \ (includes Black and Flake8 linting configuration), and `README.md` (non\u2011\
+    empty). All files exist and contain the expected content."
+  sig: a6e6eed40d24620b417e613011373e5e7e53bc0ee1c67c32005121a0d2548596
 T002:
-  c: false
-  h: f31a195294da8b2c57168943e83ef3b13bc76abe0f08738cb0d50a20bc832bef
-  r: Checked `requirements.txt` (contains only package names, no version pins) and
-    `pyproject.toml` (present). No `README.md` file was found. The task required a
-    pinned `requirements.txt` for the listed packages and a README, both of which
-    are missing or incorrect.
+  c: true
+  h: 3a9d36a19e5634d7e109091f0d0c7747ed1a4fcd9ed68ff0f66d042a4da9dad2
+  r: "Checked `requirements.txt` (pinned rdkit, scikit-learn, pandas, numpy, requests,\
+    \ pytest), `pyproject.toml` (contains linting configuration), and `README.md`;\
+    \ all three files exist, are non\u2011empty, and meet the specified content requirements."
+  sig: 47052578d7a9fb84b3826ff00287eea879c00e5c9b0ea372bd70af0029f0a9f6
 T003:
   c: true
-  h: b339d652da8c1deb84ddb7da085bfae7bdd9e6194444eaa670a37ddf2d563ffc
-  r: "The `pyproject.toml` file exists (1049\u202Fbytes) and contains proper `[tool.black]`\
-    \ and `[tool.flake8]` configuration sections, fulfilling the requirement to configure\
-    \ Black and Flake8 in the project\u2019s pyproject file."
+  h: 0afcb44e9be860826af2c2b602085946d7cf7831ea99996ec5dd82a127933ef7
+  r: "The provided `pyproject.toml` (1164\u202Fbytes) contains both a `[tool.black]`\
+    \ section with line\u2011length, target version, include/exclude patterns, and\
+    \ a `[tool.flake8]` section with max line length, ignored codes, and exclude settings,\
+    \ fulfilling the requirement to configure linting and formatting tools."
+  sig: 59c84640a38b39bef03ec640786b9736dadb88e41df260e1d4629135012eae6b
 T004:
   c: true
-  h: c85d04af83a049904cc5fcdb90359e189eb6cd2afe431caf255d80e3e7ab37c3
-  r: "The evidence shows that both `data/raw/` and `data/processed/` directories exist\
-    \ and each contains a non\u2011empty `.gitkeep` file (`data/raw/.gitkeep` and\
-    \ `data/processed/.gitkeep`). The presence of these files satisfies the verification\
-    \ command specified in the task."
+  h: 2d60285e26db39690120581073863964f93f6b3cfd641c48a77bbf8402288d3b
+  r: "Checked that `data/raw/` and `data/processed/` directories exist and each contains\
+    \ a non\u2011empty `.gitkeep` file (`data/raw/.gitkeep` and `data/processed/.gitkeep`).\
+    \ The verification command would succeed."
+  sig: a0ffea29b00f20909ab0b90da754cc2dba1117dc2ca9eff3ef074d1ad9a924c8
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,14 +43,15 @@ T007:
     and `integration/` subfolders; the claim lacks any artifact confirming the directory
     structure exists.
 T008:
-  c: false
-  h: a80cae43957aa0df630d5aab8b66397fbe95ef323bd53fac66860adc8965f072
-  r: "The required file `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`\
-    \ is missing (the only file found is under `specs/001-comparative-analysis-of-molecular-finger/data-model.md`).\
-    \ Moreover, the schemas in the existing document do not match the task\u2019s\
-    \ specified fields for Compound, Fingerprint, Model, and PerformanceMetric. The\
-    \ implementer must create the correctly\u2011named markdown file and define the\
-    \ exact schemas as listed in the task."
+  c: true
+  h: 9333435ae80841b5ff8a77f328d2285ef3f3d36cc56f34baf8a0c3db394a8bf6
+  r: "Checked the file `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`\
+    \ (4744\u202Fbytes) which defines the Compound, Fingerprint, Model, and PerformanceMetric\
+    \ entities and includes the exact schemas `{smiles: str, mol_id: str, toxicity_labels:\
+    \ dict}`, `{type: str (morgan/maccs), bits: int, vector: list}`, `{type: str,\
+    \ fingerprint_type: str, endpoint: str, metrics: dict}`, and `{name: str, value:\
+    \ float, ci: tuple}` as required."
+  sig: e878eb630a6d05ba286bf76c58456c2242ec51651fd4a8491fbec77b65a515f8
 T012:
   c: false
   h: f435163df416b14ce8cc2e2946b54b94527927eb7ae9fb1755948a75c352e70d

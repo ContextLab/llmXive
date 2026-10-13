@@ -1,96 +1,49 @@
+#!/usr/bin/env python
 """
-setup_data_dirs.py
-------------------
+Script to create the required data sub‑directories and populate each with a ``.gitkeep`` file.
 
-Task **T004**: ensure the required data directory structure exists within
-the project repository and that each directory contains a ``.gitkeep``
-file so that Git tracks the empty directories.
+The directories are:
+  - data/raw
+  - data/generated
+  - data/results
 
-Public callables matching the project's API surface:
-
-* ``ensure_gitkeep(directory: str) -> None``
-* ``main() -> int``
-
-When executed as ``python code/setup_data_dirs.py`` it creates the
-following directories under the *project root* (the directory containing
-the ``code/`` folder, resolved relative to this file so the script works
-regardless of the current working directory):
-
-- ``data/raw``
-- ``data/generated``
-- ``data/results``
-
-Each directory will contain an empty ``.gitkeep`` file. ``main()``
-returns ``0`` on success and ``1`` on failure.
+Running this script is idempotent – existing directories and ``.gitkeep`` files are left untouched.
 """
-
-import os
 import sys
-from typing import List
+from llmxive_toolkit import paths, get_logger
 
-__all__: List[str] = ["ensure_gitkeep", "main"]
-
-# Project root = parent of the directory containing this file.
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+log = get_logger(__name__)
 
 
-def ensure_gitkeep(directory: str) -> None:
+def ensure_dir_and_gitkeep(dir_path):
     """
-    Ensure that *directory* exists and contains an empty ``.gitkeep`` file.
+    Ensure a directory exists and contains an empty ``.gitkeep`` file.
 
     Parameters
     ----------
-    directory: str
-        Path to the target directory. If relative, it is interpreted
-        relative to the current working directory (as in prior versions).
+    dir_path : pathlib.Path
+        Path to the directory to create.
     """
-    os.makedirs(directory, exist_ok=True)
-    gitkeep_path = os.path.join(directory, ".gitkeep")
-    if not os.path.isfile(gitkeep_path):
-        with open(gitkeep_path, "a", encoding="utf-8"):
-            pass  # The file is now present.
+    # ``paths`` helpers automatically create parent directories when needed.
+    dir_path.mkdir(parents=True, exist_ok=True)
+    gitkeep_path = dir_path / ".gitkeep"
+    gitkeep_path.touch(exist_ok=True)
+    log.info(f"Created/ensured {gitkeep_path}")
 
 
 def main() -> int:
-    """
-    Create the required data sub-directories and their ``.gitkeep`` files.
+    """Entry point for the script."""
+    # Define the three top‑level data sub‑folders.
+    subfolders = [
+        paths.data("raw"),
+        paths.data("generated"),
+        paths.data("results")
+    ]
 
-    Returns
-    -------
-    int
-        Exit status: ``0`` on success, ``1`` on any unexpected error.
-    """
-    try:
-        required_dirs = [
-            os.path.join("data", "raw"),
-            os.path.join("data", "generated"),
-            os.path.join("data", "results"),
-        ]
+    for folder in subfolders:
+        ensure_dir_and_gitkeep(folder)
 
-        # Run from the project root so the directories always land in
-        # the project tree regardless of the caller's cwd.
-        prev_cwd = os.getcwd()
-        os.chdir(PROJECT_ROOT)
-        try:
-            for d in required_dirs:
-                ensure_gitkeep(d)
-        finally:
-            os.chdir(prev_cwd)
-
-        # Verify all three .gitkeep files now exist; fail loudly otherwise.
-        for d in required_dirs:
-            path = os.path.join(PROJECT_ROOT, d, ".gitkeep")
-            if not os.path.isfile(path):
-                print(
-                    f"[setup_data_dirs] Verification failed: {path} missing",
-                    file=sys.stderr,
-                )
-                return 1
-
-        return 0
-    except Exception as exc:
-        print(f"[setup_data_dirs] Unexpected error: {exc}", file=sys.stderr)
-        return 1
+    return 0
 
 
 if __name__ == "__main__":

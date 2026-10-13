@@ -8,30 +8,35 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md -> rc=1
 
-2026-10-09 10:51:05,236 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
-2026-10-09 10:51:05,236 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
+2026-10-13 07:02:54,742 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
+2026-10-13 07:02:54,743 WARNING statistical_reference: GFM weights not found at data/raw/gfm_baseline.pt – attempting to download fallback.
+2026-10-13 07:02:54,743 INFO statistical_reference: Downloading fallback weights from https://download.pytorch.org/models/resnet18-f37072fd.pth
+2026-10-13 07:02:54,899 INFO statistical_reference: Saved fallback weights to data/raw/gfm_baseline.pt
+2026-10-13 07:02:54,899 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
 
 - python code/data/generator.py --num-trials 300 --output data/generated/test_set.json -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/data/generator.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-898-llmxive-follow-up-extending-geometric-ac/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/data/generator.py': [Errno 2] No such file or directory
 
 - python code/evaluation/runner.py --test-set data/generated/test_set.json --output data/results/trial_logs.jsonl -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/evaluation/runner.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-898-llmxive-follow-up-extending-geometric-ac/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/evaluation/runner.py': [Errno 2] No such file or directory
 
 - python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md -> rc=1
 
-2026-10-09 10:51:06,124 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
-2026-10-09 10:51:06,124 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
+2026-10-13 07:02:55,133 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
+2026-10-13 07:02:55,134 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
 
 - python -m pytest tests/ -v -> rc=2
-ts/test_differentiable_solver.py
+sts/test_data_generation_recording.py
+ERROR tests/test_differentiable_solver.py
 ERROR tests/test_directories_setup.py
 ERROR tests/test_experiment_time_validator.py
 ERROR tests/test_gfm_wrapper.py
 ERROR tests/test_gradient_verification.py
 ERROR tests/test_inference_pipeline.py
 ERROR tests/test_physics_state_extractor.py - TypeError: setup_logging() got ...
+ERROR tests/test_setup_data_dirs.py
 ERROR tests/test_solver_profiler.py
 ERROR tests/test_statistical_reference.py
 ERROR tests/test_symbolic_solver.py
@@ -40,18 +45,16 @@ ERROR tests/test_t016_integration.py
 ERROR tests/test_timeout_handler.py
 ERROR tests/test_trial_log_schema.py
 ERROR tests/test_utils.py
-ERROR tests/integration/test_lint_config.py
 ERROR tests/scripts/test_generate_test_set.py
 ERROR tests/unit/test_config_loader.py
-ERROR tests/unit/test_config_schema.py
 ERROR tests/unit/test_drift_detection.py
 ERROR tests/unit/test_gfm_diff.py
 ERROR tests/unit/test_latent_drift_detection.py
 ERROR tests/unit/test_solver_constraints.py
 ERROR tests/unit/test_symbolic_solver.py
 ERROR tests/unit/test_symbolic_solver_constraints.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 29 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 1 warning, 29 errors in 1.67s =========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 27 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 1 warning, 27 errors in 2.04s =========================
 
 
 
@@ -84,3 +87,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/trial_log_schema.py` — NOT invoked by the run-book
     - `scripts/validate_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/trial_log.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.
