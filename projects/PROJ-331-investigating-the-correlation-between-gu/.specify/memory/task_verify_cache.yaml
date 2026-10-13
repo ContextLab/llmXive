@@ -1,61 +1,13 @@
 T001:
   c: true
-  h: 3d2cfdf394e49829bb4c02755dc2970ac7986fe8dd35b4487e7c3e273539bfcd
-  r: "The required artifacts all exist and are substantive: `code/src/pipeline/ingest.py`\
-    \ implements the specified validation (missing/malformed file \u2192 FileNotFoundError/non-zero\
-    \ exit; missing `MDS_UPDRS_Total` \u2192 warning + skip flags, exit 0, no synthetic\
-    \ fallback), `code/tests/test_ingest.py` covers the three required cases (successful\
-    \ load, missing file, missing outcome column) plus malformed-input and report-writing\
-    \ cases, and `specs/.../quickstart.md` documents the runnable command `python\
-    \ -m code.src.pipeline.ingest`. Minor caveat: the non-zero-exit assertion in `test_missing_input_file_exits_n"
-  sig: b235b36fb680a569344f193faab14032d83f26c9ace81e0ac4fc2056b0bf5c52
-T002:
-  c: false
-  h: 776598a6738fe4068017594e04e76221633f1419ce7220b04e7480e70ba1cdac
-  r: "The implementation `code/src/pipeline/preprocess.py` correctly performs loading,\
-    \ merging, filtering, zero\u2011taxa removal, CLR transformation, zero\u2011variance\
-    \ detection, and RAM\u2011capped subsampling, and the unit tests exercise these\
-    \ behaviours. However, the required output artifacts `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are absent from the repository,\
-    \ so the task\u2019s specified outputs are not present. Generating and committing\
-    \ these two parquet files (or evidence of a successful run that creates them)\
-    \ is needed to complete the task."
-  sig: 49654b5189a577e319dd972de5d69c832c52d27763af249c874f2e6fdf80919b
-T003:
-  c: false
-  h: ab489b631192fdb526af5c8a0cdcd6e7bc0e56516e07aa336c46031fe792fdd7
-  r: "I examined `code/src/pipeline/slopes.py` and found that its `_prepare_time`\
-    \ function does **not** compute elapsed time as \u201Cexact years\u201D using\
-    \ `(date - first_date).dt.days / 365.25` as required by Task\u202FT003; instead\
-    \ it applies a half\u2011year offset rule based on the calendar day. Consequently\
-    \ the produced slopes are based on a different time metric than the task specification\
-    \ demands. The parquet output files exist, but the core computation does not meet\
-    \ the stated requirement."
-  sig: fdf495cb88bc10fabdd699df4ca80234131d59c10e333d226f19a8d5ad2d7386
-T004:
-  c: false
-  h: 469e8297657aa20a2ab2e91f0039a5288606b58ed763c8d5c58ad7fac46b4163
-  r: "The implementation module `code/src/pipeline/correlation.py` exists and its\
-    \ logic (per-taxon Spearman + BH via `multipletests`) matches the requirement,\
-    \ but the required output `data/results/taxa_correlations.csv` does not exist\
-    \ (nor the exploratory CSV), so there is no evidence the pipeline was ever run.\
-    \ Additionally, both claimed verification artifacts \u2014 `code/tests/contract/test_contracts.py`\
-    \ and `code/tests/test_correlation.py` \u2014 are missing, so the schema-contract\
-    \ and BH-monotonicity checks were never implemented or executed. The implementer\
-    \ must run the correlation step to produce the re"
-  sig: dcbbdc85131a83ab6a9bd4410482e1c34e8483ca20712b4fa34c83a6b9f77cef
-T005:
-  c: false
-  h: 52cf801fcd3f0852e6d305f756da940b4fd2340e8a4144dcec7aa9886cb15bd0
-  r: "The required output `data/results/mixed_effects_summary.csv` is MISSING \u2014\
-    \ the module and test exist, but there is no evidence the pipeline was ever run\
-    \ on real data, and no execution/test logs accompany the claim. Additionally,\
-    \ the implementation contradicts the claim: there is no zero-variance covariate\
-    \ dropping logic (covariates are hard-coded in `exog_cols` with no variance check\
-    \ or logged warning), and the claimed `statsmodels.formula_api as smf` import\
-    \ is absent (it uses `MixedLM` directly, which is acceptable, but the covariate-handling\
-    \ claim is not implemented). The implementer must run"
-  sig: 095c7801827bd520d514a1d8152fc09c5043162baba74cf5dda52430673c11f7
+  h: d071b7724df6e42efe4341eb6910107848e50a837cef60e769a94a28380548f6
+  r: "Checked `code/src/pipeline/ingest.py` for correct validation logic and exit\
+    \ behavior, the unit test suite `code/tests/test_ingest.py` covering the three\
+    \ required cases, and the quickstart documentation `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
+    \ that lists the runnable command. All artifacts exist, contain the proper implementation,\
+    \ and the validation report shows successful execution, satisfying the task\u2019\
+    s requirements."
+  sig: 1d8d97cb1a46c7cda8f90e32972afc40e62ed2a764de865ed9d7a1d95d273a3a
 T006:
   c: false
   h: 36c2126a5fcf843d596f21c2989bd4f04f8e62dde46e8d359cac0ac862fb37a0

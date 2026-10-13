@@ -1,0 +1,9 @@
+Ingest: 0.03 seconds
+Preprocess: 0.02 seconds
+Slope computation: 0.01 seconds
+Correlation analysis: 0.01 seconds
+Linear Mixed‑Effects modelling: 0.02 seconds
+us3_ingest: 0.02
+us3_preprocess: 0.02
+us3_slopes: 0.01
+us3_mixed_effects: 0.02

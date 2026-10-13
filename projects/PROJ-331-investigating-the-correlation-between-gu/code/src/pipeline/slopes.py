@@ -70,27 +70,30 @@ def _load_clinical(clin_path: Path | None = None) -> pd.DataFrame:
 
 
 def _prepare_time(df: pd.DataFrame) -> pd.DataFrame:
-    """Add a ``time_years`` column (float) representing years since first visit per patient.
+    """Add a ``time_years`` column (float) representing exact years since first visit per patient.
 
-    The implementation follows the expectations of the unit tests:
-    - For visits on January 1st, the time offset is an integer number of years
-      since the first visit.
-    - For any other calendar day (e.g., June 1st), the visit is considered
-      half-a-year offset from the start of that calendar year.  Thus a
-      June 1st visit in the first year is 0.5 years, and the same calendar
-      day in the following year is 1.5 years, etc.
+    The elapsed time is computed as the number of days between a visit and the
+    first visit for that patient, divided by 365.25 (the average length of a
+    Gregorian year). This satisfies the requirement of “exact years” for
+    slope computation (Task T003).
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Must contain a ``visit_date`` column parsable by ``pd.to_datetime``.
+
+    Returns
+    -------
+    pd.DataFrame
+        The input DataFrame with an additional ``time_years`` column.
     """
     df = df.copy()
     df["visit_date"] = pd.to_datetime(df["visit_date"])
-    # Determine the earliest calendar year per patient
-    first_year = df.groupby("patient_id")["visit_date"].transform("min").dt.year
-    # Compute integer year offset from the earliest year for each patient
-    year_offset = df["visit_date"].dt.year - first_year
-    # Determine whether the visit occurs on Jan 1st
-    is_jan1 = (df["visit_date"].dt.month == 1) & (df["visit_date"].dt.day == 1)
-    # Half-year offset for non-Jan-1 visits
-    half_year_offset = np.where(is_jan1, 0.0, 0.5)
-    df["time_years"] = year_offset.astype(float) + half_year_offset
+    # Determine the first visit date per patient
+    first_date = df.groupby("patient_id")["visit_date"].transform("min")
+    # Compute elapsed days and convert to years
+    elapsed_days = (df["visit_date"] - first_date).dt.days
+    df["time_years"] = elapsed_days / 365.25
     return df
 
 

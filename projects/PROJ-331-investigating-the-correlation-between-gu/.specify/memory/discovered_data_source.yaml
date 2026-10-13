@@ -1,16 +1,14 @@
 status: none
-intent: open longitudinal Parkinson's disease gut microbiome ASV counts with UPDRS
-  scores python package dataset
+intent: "download Parkinson's disease longitudinal gut microbiome dataset with MDS\u2011\
+  UPDRS scores from Qiita or MGnify python package dataset"
 required_fields:
 - sample_id
 - patient_id
-- visit_date
-- visit_number
-- asv_id
-- asv_count
-- mds_updrs_total
-- age
-- sex
-cache_key: 850058b7301c22a3bd0d7a4c948c40c37acd4180c49771f056515a1e33a10871
-searched_at: '2026-10-13T08:21:53.263590+00:00'
+- visit_number_or_timepoint
+- collection_date
+- asv_counts_matrix (raw counts per taxon)
+- taxon_id_or_taxonomy
+- mds_updrs_total_score
+cache_key: 9fc263de863e96f65cf332a5c1d3b6ff1c3ca07a7fe10fc0e36659d59f9086c2
+searched_at: '2026-10-13T09:22:56.187012+00:00'
 retry_count: 1

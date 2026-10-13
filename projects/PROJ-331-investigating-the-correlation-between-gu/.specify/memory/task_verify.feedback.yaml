@@ -1,33 +1,29 @@
 T001:
   task: c189ec04302c16e0eebf8bb7c042cadbfcdf73884974f5bf79a369206134dbe6
 T002:
-  reason: "The implementation `code/src/pipeline/preprocess.py` correctly performs\
-    \ loading, merging, filtering, zero\u2011taxa removal, CLR transformation, zero\u2011\
-    variance detection, and RAM\u2011capped subsampling, and the unit tests exercise\
-    \ these behaviours. However, the required output artifacts `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are absent from the repository,\
-    \ so the task\u2019s specified outputs are not present. Generating and committing\
-    \ these two parquet files (or evidence of a successful run that creates them)\
-    \ is needed to complete the task."
+  reason: "Checked `code/src/pipeline/preprocess.py` and its tests. While the script\
+    \ loads raw files, merges, filters patients, drops all\u2011zero taxa, adds a\
+    \ pseudocount and applies a scikit\u2011bio CLR, and caps taxa by RAM budget,\
+    \ it **does not actually remove zero\u2011variance covariate columns** from the\
+    \ merged data (the function `detect_zero_variance_covariates` only logs and returns\
+    \ them). The task specification requires these covariates be removed, so the implementation\
+    \ is missing that required behavior."
   task: ab5f61bd6cd381c8f27378ea345e52c3b3122e2a34fbdd52604725c76ddcfda6
 T003:
-  reason: "I examined `code/src/pipeline/slopes.py` and found that its `_prepare_time`\
-    \ function does **not** compute elapsed time as \u201Cexact years\u201D using\
-    \ `(date - first_date).dt.days / 365.25` as required by Task\u202FT003; instead\
-    \ it applies a half\u2011year offset rule based on the calendar day. Consequently\
-    \ the produced slopes are based on a different time metric than the task specification\
-    \ demands. The parquet output files exist, but the core computation does not meet\
-    \ the stated requirement."
+  reason: "The unit test `test_compute_outcome_slopes_simple` fails: the computed\
+    \ outcome slope is 2.0 while the test expects \u22481.9945, indicating the implementation\u2019\
+    s handling of outcome values does not match the verification criteria. Consequently\
+    \ the per\u2011patient clinical\u2011outcome slope computation does not satisfy\
+    \ the task\u2019s required behavior."
   task: 58cbcdfee89937dc43253ceab0e2ef19265131c939f473b4ee1b5a1dab6148f1
 T004:
-  reason: "The implementation module `code/src/pipeline/correlation.py` exists and\
-    \ its logic (per-taxon Spearman + BH via `multipletests`) matches the requirement,\
-    \ but the required output `data/results/taxa_correlations.csv` does not exist\
-    \ (nor the exploratory CSV), so there is no evidence the pipeline was ever run.\
-    \ Additionally, both claimed verification artifacts \u2014 `code/tests/contract/test_contracts.py`\
-    \ and `code/tests/test_correlation.py` \u2014 are missing, so the schema-contract\
-    \ and BH-monotonicity checks were never implemented or executed. The implementer\
-    \ must run the correlation step to produce the re"
+  reason: "I inspected `code/src/pipeline/correlation.py`, the test suite, and the\
+    \ execution logs. The module writes the primary results to `results/taxa_correlations.csv`\
+    \ (project\u2011root\u202F`results/\u2026`), but the task requires the file at\
+    \ `data/results/taxa_correlations.csv`; the path mismatch means the required artifact\
+    \ is not produced. Moreover, the contract test fails because the schema file `contracts/taxa_results.schema.yaml`\
+    \ is absent, and the partial\u2011Spearman test crashes due to a missing `data/processed/filtered_samples.parquet`.\
+    \ These missing/incorrect files prevent the contract validation and the re"
   task: 2cca29a1a1c8c7447d474e968bf85ce4a430c7003843488e5fe1e2a0862cd609
 T005:
   reason: 'Requested task execution failed; rerun successfully: tests/test_mixed_effects_execution.py

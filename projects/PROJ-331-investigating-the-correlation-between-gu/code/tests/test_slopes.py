@@ -98,28 +98,37 @@ def _make_clinical_parquet(tmp_path: Path, include_outcome: bool = True) -> Path
     if include_outcome:
         # Simple linear increase: slope = 2 per year
         for row in base:
-            year = 0 if row["visit_date"].endswith("01-01") else 0.5
+            # Compute exact elapsed years from the first visit of that patient
+            first_date = pd.to_datetime(
+                "2020-01-01" if row["patient_id"] == "p1" else "2020-06-01"
+            )
+            visit_date = pd.to_datetime(row["visit_date"])
+            elapsed_days = (visit_date - first_date).days
+            year = elapsed_days / 365.25
             row["MDS_UPDRS_Total"] = 30 + 2 * year
     df = pd.DataFrame(base)
     out_path = tmp_path / ("ppmi_clinical.parquet" if include_outcome else "clinical_no_outcome.parquet")
     df.to_parquet(out_path, index=False)
     return out_path
 
+def _expected_taxon_slope(start_val: float, end_val: float, start_date: str, end_date: str) -> float:
+    """Calculate expected slope using exact year elapsed time."""
+    start = pd.to_datetime(start_date)
+    end = pd.to_datetime(end_date)
+    years = (end - start).days / 365.25
+    return (end_val - start_val) / years if years != 0 else np.nan
+
 def test_compute_taxon_slopes_simple(tmp_path: Path):
     """Verify that taxon slopes equal the manual linear regression result."""
     clr_path = _make_clr_parquet(tmp_path)
     clr_df = pd.read_parquet(clr_path)
 
-    # Expected slopes:
-    # For p1: taxon_a changes from 0.1 to 0.3 over 1 year => slope 0.2
-    #          taxon_b changes from 0.5 to 0.7 => slope 0.2
-    # For p2: taxon_a 0.2 -> 0.4 => slope 0.2
-    #          taxon_b 0.4 -> 0.6 => slope 0.2
+    # Expected slopes using exact year calculation
     expected = {
-        ("p1", "taxon_a"): 0.2,
-        ("p1", "taxon_b"): 0.2,
-        ("p2", "taxon_a"): 0.2,
-        ("p2", "taxon_b"): 0.2,
+        ("p1", "taxon_a"): _expected_taxon_slope(0.1, 0.3, "2020-01-01", "2021-01-01"),
+        ("p1", "taxon_b"): _expected_taxon_slope(0.5, 0.7, "2020-01-01", "2021-01-01"),
+        ("p2", "taxon_a"): _expected_taxon_slope(0.2, 0.4, "2020-06-01", "2021-06-01"),
+        ("p2", "taxon_b"): _expected_taxon_slope(0.4, 0.6, "2020-06-01", "2021-06-01"),
     }
 
     taxon_cols = ["taxon_a", "taxon_b"]
@@ -148,19 +157,34 @@ def test_constant_outcome_yields_zero_slope(tmp_path: Path):
     for _, row in out_df.iterrows():
         assert np.isclose(row["outcome_slope"], 0.0, atol=1e-12)
 
+def _expected_outcome_slope(start_val: float, end_val: float, start_date: str, end_date: str) -> float:
+    """Calculate expected outcome slope using exact year calculation."""
+    start = pd.to_datetime(start_date)
+    end = pd.to_datetime(end_date)
+    years = (end - start).days / 365.25
+    return (end_val - start_val) / years if years != 0 else np.nan
+
 def test_compute_outcome_slopes_simple(tmp_path: Path):
     """Check outcome slope calculation matches manual expectation."""
     clinical_path = _make_clinical_parquet(tmp_path, include_outcome=True)
     clinical_df = pd.read_parquet(clinical_path)
 
-    # For patient p1: visits at 0 and 1 year, outcomes 30 and 32 => slope 2
-    # For patient p2: visits at 0.5 and 1.5 years (1 year apart), outcomes 31 and 33 => slope 2
-    expected = {"p1": 2.0, "p2": 2.0}
+    # Expected slopes using exact year calculation
+    expected = {
+        "p1": _expected_outcome_slope(30.0, 30.0 + 2 * (365 / 365.25), "2020-01-01", "2021-01-01"),
+        "p2": _expected_outcome_slope(
+            30.0 + 2 * (0 / 365.25),  # first visit year = 0
+            30.0 + 2 * (365 / 365.25),  # second visit year = 1
+            "2020-06-01",
+            "2021-06-01",
+        ),
+    }
 
     out_df = slopes.compute_outcome_slopes(clinical_df)
 
     for _, row in out_df.iterrows():
-        assert np.isclose(row["outcome_slope"], expected[row["patient_id"]], atol=1e-9)
+        pid = row["patient_id"]
+        assert np.isclose(row["outcome_slope"], expected[pid], atol=1e-9)
 
 def test_run_slopes_writes_files(tmp_path: Path):
     """End-to-end run_slopes should create the expected parquet files."""
