@@ -40,7 +40,9 @@ def load_dataset(csv_path: Path) -> pd.DataFrame:
 
 def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Apply the filtering criteria described in the task."""
-    missing_cols = [c for c in (CODE_COL, VULN_LABEL_COL, LANGUAGE_COL) if c not in df.columns]
+    missing_cols = [
+        c for c in (CODE_COL, VULN_LABEL_COL, LANGUAGE_COL) if c not in df.columns
+    ]
     if missing_cols:
         raise KeyError(f"Required column(s) missing in CSV: {missing_cols}")
 

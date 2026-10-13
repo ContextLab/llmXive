@@ -1,17 +1,15 @@
 status: none
-intent: download Devign and Juliet Test Suite SARD vulnerable code python package
+intent: download SARD Juliet Test Suite vulnerable code with CWE labels python package
   dataset
 required_fields:
-- code_snippet
+- snippet_id
+- code
 - programming_language
 - cwe_id
-- vulnerability_type
+- vulnerability_description
+- unit_test_cases
 - function_name
-- file_path
-- metadata (e.g., repository, commit hash)
-- associated_unit_tests
-- severity_score
-- line_numbers
-cache_key: 2e1480da537782dee0debb92c287bccb2e4fe2136e8a877a4485092073465ba0
-searched_at: '2026-10-13T12:12:06.399277+00:00'
+- metadata
+cache_key: b0148070c385b3e5b847aefef6b619784db1633d860a081b26874d1bd780011c
+searched_at: '2026-10-13T16:08:38.066351+00:00'
 retry_count: 1

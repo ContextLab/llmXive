@@ -2,19 +2,18 @@
 Download and prepare the Devign dataset.
 
 This script performs the following steps:
-1. Downloads the Devign dataset archive from the verified GitHub URL.
-2. Extracts the CSV file `devign.csv` from the archive (searches flexibly for any
-   file ending with `devign.csv` inside the zip, to accommodate possible repo
-   layout changes).
-3. Writes the CSV to `data/raw/devign/devign.csv`.
-4. Computes the SHA‑256 checksum of the extracted CSV.
-5. Verifies the checksum against the value stored in `data/checksums.json`.
+1. Attempts to download the Devign CSV directly from the raw GitHub URL.
+   If that fails, it falls back to downloading the zip archive (trying both
+   `main` and `master` branches) and extracts the CSV.
+2. Writes the CSV to `data/raw/devign/devign.csv`.
+3. Computes the SHA‑256 checksum of the extracted CSV.
+4. Verifies the checksum against the value stored in `data/checksums.json`.
    * If the checksum entry exists and does not match, a `ValueError` is raised.
    * If the entry does not exist, the checksum is written to the JSON file for
      future verification.
 
-The script is idempotent: re‑running it will re‑download the archive only if the
-target CSV is missing or the checksum does not match.
+The script is idempotent: re‑running it will re‑download the CSV only if the
+target file is missing or the checksum does not match.
 
 Usage (run as a module or script):
     python -m code.download_devign
@@ -34,10 +33,13 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The Devign repository historically used the `master` branch.  Some mirrors
-# may have switched to `main`.  We try the `main` URL first; if it returns a
-# 404 we fall back to `master`.  This logic is defensive but still fails
-# loudly if both attempts are unsuccessful.
+# Primary raw CSV URL (direct download). This URL is stable as long as the
+# upstream repository keeps the file at the root of the repo.
+RAW_CSV_URL = (
+    "https://raw.githubusercontent.com/anishathalye/devign-dataset/master/devign.csv"
+)
+# Fallback zip URLs – historically the repository used `master`; newer mirrors
+# may have switched to `main`. We try both.
 DEVIGN_ZIP_URL_MAIN = (
     "https://github.com/anishathalye/devign-dataset/archive/refs/heads/main.zip"
 )
@@ -86,7 +88,7 @@ def save_checksums(path: Path, data: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, sort_keys=True)
 
-def _determine_download_url() -> str:
+def _determine_zip_url() -> str:
     """
     Return a working download URL for the Devign zip archive.
     Tries the `main` branch first; on HTTP 404 falls back to `master`.
@@ -94,7 +96,6 @@ def _determine_download_url() -> str:
     """
     for url in (DEVIGN_ZIP_URL_MAIN, DEVIGN_ZIP_URL_MASTER):
         try:
-            # Use a HEAD request to check existence without downloading the whole file.
             with requests.head(url, timeout=10) as resp:
                 if resp.status_code == 200:
                     log.info(f"Selected Devign archive URL: {url}")
@@ -104,7 +105,6 @@ def _determine_download_url() -> str:
                     continue
                 resp.raise_for_status()
         except requests.RequestException as exc:
-            # If the request fails for reasons other than 404, re‑raise.
             log.debug(f"HEAD request failed for {url}: {exc}")
             raise
     raise RuntimeError(
@@ -122,9 +122,10 @@ def main() -> None:
     exception so that the caller (or CI) can see a clear failure rather than
     silently falling back to synthetic data.
     """
-    # Step 1 – download the zip (skip if CSV already exists and checksum matches)
+    # ------------------------------------------------------------------
+    # Step 0 – short‑circuit if CSV already exists and checksum matches
+    # ------------------------------------------------------------------
     if CSV_DEST.is_file():
-        # Verify existing checksum before deciding to skip download.
         existing_checksum = compute_sha256(CSV_DEST)
         checksums = load_checksums(CHECKSUMS_PATH)
         recorded = checksums.get(str(CSV_DEST))
@@ -138,58 +139,69 @@ def main() -> None:
                 recorded,
                 existing_checksum,
             )
-            CSV_DEST.unlink()  # remove corrupted / outdated file
+            CSV_DEST.unlink()
 
-    # Determine which URL to use (main or master)
-    download_url = _determine_download_url()
+    # --------------------------------------------------------------
+    # Step 1 – try direct CSV download (fastest & simplest)
+    # --------------------------------------------------------------
+    try:
+        log.info(f"Attempting direct CSV download from {RAW_CSV_URL}")
+        download_file(RAW_CSV_URL, CSV_DEST)
+    except Exception as exc:
+        log.warning(f"Direct CSV download failed: {exc}. Falling back to zip archive.")
+        # Ensure any partially written file is removed before fallback
+        if CSV_DEST.is_file():
+            CSV_DEST.unlink()
+        # --------------------------------------------------------------
+        # Step 2 – download zip archive (if needed)
+        # --------------------------------------------------------------
+        download_url = _determine_zip_url()
 
-    # Ensure we have the zip archive
-    if not ZIP_PATH.is_file():
-        download_file(download_url, ZIP_PATH)
-    else:
-        log.info(f"Using existing zip archive at {ZIP_PATH}")
+        if not ZIP_PATH.is_file():
+            download_file(download_url, ZIP_PATH)
+        else:
+            log.info(f"Using existing zip archive at {ZIP_PATH}")
 
-    # Step 2 – extract the CSV
-    log.info(f"Scanning zip archive {ZIP_PATH} for a CSV named devign.csv")
-    with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
-        # Find any member that ends with 'devign.csv' (case‑insensitive)
-        candidates = [
-            m for m in zip_ref.namelist() if m.lower().endswith("devign.csv")
-        ]
-        if not candidates:
-            raise FileNotFoundError(
-                "No file ending with 'devign.csv' found inside the zip archive."
-            )
-        # Prefer the top‑level devign.csv if multiple are present
-        member_name = candidates[0]
-        log.info(f"Extracting {member_name} from the archive")
-        temp_dir = paths.data("raw", "devign", "_tmp_extract")
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        zip_ref.extract(member_name, path=temp_dir)
+        # --------------------------------------------------------------
+        # Step 3 – extract the CSV from the zip
+        # --------------------------------------------------------------
+        log.info(f"Scanning zip archive {ZIP_PATH} for a CSV named devign.csv")
+        with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
+            candidates = [
+                m for m in zip_ref.namelist() if m.lower().endswith("devign.csv")
+            ]
+            if not candidates:
+                raise FileNotFoundError(
+                    "No file ending with 'devign.csv' found inside the zip archive."
+                )
+            member_name = candidates[0]
+            log.info(f"Extracting {member_name} from the archive")
+            temp_dir = paths.data("raw", "devign", "_tmp_extract")
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            zip_ref.extract(member_name, path=temp_dir)
 
-        extracted_path = temp_dir / member_name
-        # Ensure the destination directory exists
-        CSV_DEST.parent.mkdir(parents=True, exist_ok=True)
-        # Move the extracted file to the final location
-        extracted_path.replace(CSV_DEST)
+            extracted_path = temp_dir / member_name
+            CSV_DEST.parent.mkdir(parents=True, exist_ok=True)
+            extracted_path.replace(CSV_DEST)
 
-        # Clean up the temporary extraction directory (remove empty dirs)
-        try:
-            # Remove the extracted file's parent directories if they are now empty
-            parent = extracted_path.parent
-            while parent != temp_dir and not any(parent.iterdir()):
-                parent.rmdir()
-                parent = parent.parent
-            temp_dir.rmdir()
-        except Exception:
-            # Non‑critical cleanup failure; log and continue
-            log.debug("Temporary extraction directory cleanup failed, ignoring.", exc_info=True)
+            # Clean up temporary extraction directory (best‑effort)
+            try:
+                parent = extracted_path.parent
+                while parent != temp_dir and not any(parent.iterdir()):
+                    parent.rmdir()
+                    parent = parent.parent
+                temp_dir.rmdir()
+            except Exception:
+                log.debug(
+                    "Temporary extraction directory cleanup failed, ignoring.", exc_info=True
+                )
 
-    # Step 3 – compute checksum
+    # --------------------------------------------------------------
+    # Step 4 – compute checksum and verify / record it
+    # --------------------------------------------------------------
     log.info(f"Computing SHA‑256 for {CSV_DEST}")
     checksum = compute_sha256(CSV_DEST)
 
-    # Step 4 – verify against recorded checksum (or record it)
     checksums = load_checksums(CHECKSUMS_PATH)
     recorded = checksums.get(str(CSV_DEST))
     if recorded:
@@ -200,7 +212,6 @@ def main() -> None:
         else:
             log.info("Checksum verification passed (existing record).")
     else:
-        # No prior record – store it for future runs
         checksums[str(CSV_DEST)] = checksum
         save_checksums(CHECKSUMS_PATH, checksums)
         log.info(
