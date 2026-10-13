@@ -1,0 +1,65 @@
+T001:
+  task: 9d5524c4efc8de0ba22e51bb314d3eba159c1d9c70e1af7fe5a7138a5396075f
+T002:
+  reason: "Checked `code/simulation/physics_engine.py`, the schema file path, the\
+    \ unit test `code/tests/unit/test_physics_logic.py`, and the output directory\
+    \ `data/derived/physics_constraints/`. The test suite fails because it cannot\
+    \ locate the schema (wrong relative path), no per\u2011scene JSON constraint files\
+    \ are present (only the placeholder `contradiction_log.json` with empty entries),\
+    \ and the contradiction log is not populated despite reporting 100 total scenes.\
+    \ Consequently the required JSON outputs, proper schema validation, and <\u202F\
+    5\u202F% contradiction rate are not demonstrated."
+  task: 116c964e0cd205bc647214ce09fe2ded8e88b4f9cb4fc220669db02a5de66e21
+T003:
+  reason: "The `prompt_engine.py` script exists and writes baseline/experimental files,\
+    \ but the physics\u2011constraint JSON files are missing, so the experimental\
+    \ prompts contain no descriptor (the logs show warnings for every scene). Moreover,\
+    \ the unit\u2011test suite fails to import a required function (`format_physics_constraints`),\
+    \ indicating the required tests are not passing. Both the deterministic descriptor\
+    \ requirement and the unit\u2011test verification are unmet."
+  task: 7404bdffc8094c9b32f7b960fb60deb023b189f2522013a8974c6e13d59bf520
+T004:
+  reason: "The seed manifest file (`data/derived/seed_manifest.json`) is missing,\
+    \ no generated PNGs or `seed_lock_status.json` are present, and the diffusion\
+    \ runner never computes the required \u2264\u202F1\u202Fpixel bounding\u2011box\
+    \ deviation (it only does SSIM fallback). Additionally, the failure log (`generation_failure_log.json`)\
+    \ does not exist, so the task\u2019s verification criteria are not satisfied."
+  task: 58dc0fd2faa0a71b6e9f15a76e29ccbc000c003bf24c0a05830765a0c8d62922
+T005:
+  task: 494ddc59f63c61b9a8fa05e176410000129b41847dedc25162f72fb291279b01
+T006:
+  task: e9a5d645a1e6a64b27393f57eeb64893256fd75883476f4619c7d62543a450c9
+T007:
+  task: 67193646a1076cc98c80f8b3d45b5173845a6ce4cb78ddac1a14fda372e0310f
+T008:
+  task: 8301d3556d35f9f10049da24b654c43a00c1031cb0fc7a19bc65304cf9e5f6e0
+T009:
+  task: ff0428051ab76616cdeb75c9e356eda3a999f430886172a544bd380ba3870935
+T010:
+  task: 4638fd883fa2b36fed6e681e37fc66b8861e07c84a5c4a939ed7a204243776bf
+T011:
+  task: dff79c48b13f382b0a23b60d4700ee0e6caf0cc112fd7475daee2287547e9044
+T012:
+  task: e802eb0bf70523dd435a468842fae71b74f773a82ebd18e484c7e28c81817ebe
+T013:
+  task: cebe97af70f1b973c05a921a0739f6a2f797008b569e3f9efafc6436ca206ab5
+T014:
+  task: e8f3ddd8f64e5aa47572f16ea47987772d2d603c288caf1521231121ed8b307b
+T015:
+  task: c80dff34881b795f3cff5458a40654b8562df2bf5c22eeb8948a2c5662169c59
+T016:
+  task: ddb6b1e1c912221da5f933381aeac8dbd7e8d8000a85a2a624a0c53528c6c4b7
+T017:
+  task: 256d96bc1d3689d0fe8cd9d7d19aa90e599532cebe538d81a3e9f57c8157fab9
+T018:
+  task: 99ea1af6166272a7aad0237cf056e0b7c8b80fb3fd1d081173156e8ebadc3fe3
+T019:
+  task: b3f29edfe68fd645bfafb20cf6c32c5a7e21566758a165729b2b70f134c177a4
+T020:
+  task: f6edb0fe724695e8118d3a252ccd59a90da11201093becc05e4e8b010f84987d
+T021:
+  task: 85b24907674923b864cf6ba3f3a51e223f5b214be5074402cfbec393c817cc1c
+T022:
+  task: f1c3bcadd9f0e4638389f107657edb79c06feb1dbb72288477833c377eea0780
+T023:
+  task: 368d3858dea1bee436d6b880282d4db73f8401389f7dfb02e556c97ed89ad432

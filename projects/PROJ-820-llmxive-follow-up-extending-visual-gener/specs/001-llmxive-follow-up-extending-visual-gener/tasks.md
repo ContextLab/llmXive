@@ -9,7 +9,7 @@ Paths are relative to the project root (`projects/PROJ-820-llmxive-follow-up-ext
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] Generate the full stimulus dataset (500 main scenes + 50 validation scenes) with deterministic script `code/data/make_scenes.py` (seed=42). The script writes `data/raw/scene_descriptions.csv` (500 rows) and `data/raw/validation_scenes.csv` (50 rows) using the predefined templates. **Verification**: both CSVs exist, are non‑empty, parse with pandas, contain ≥500 and ≥50 rows, and every description matches a template.
+- [X] T001 [US1] Generate the full stimulus dataset (500 main scenes + 50 validation scenes) with deterministic script `code/data/make_scenes.py` (seed=42). The script writes `data/raw/scene_descriptions.csv` (500 rows) and `data/raw/validation_scenes.csv` (50 rows) using the predefined templates. **Verification**: both CSVs exist, are non‑empty, parse with pandas, contain ≥500 and ≥50 rows, and every description matches a template.
 
 - [ ] T002 [US1] Implement `code/simulation/physics_engine.py` (pymunk, single CPU core). For each scene in `scene_descriptions.csv`, parse objects/relations, run a pymunk simulation, detect logical contradictions (e.g., cyclical “above” rules), and write a JSON file to `data/derived/physics_constraints/{scene_id}.json` that conforms **exclusively** to `specs/001-llmxive-follow-up-extending-visual-gener/contracts/physics-constraint.schema.yaml`. Contradictory scenes are excluded; a log `data/derived/physics_constraints/contradiction_log.json` records them and the overall contradiction **rate** (must be **< 5 %**). **Verification**: `pytest code/tests/unit/test_physics_logic.py` passes; schema validation succeeds; contradiction rate < 5 %.
 

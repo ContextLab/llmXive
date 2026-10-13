@@ -1,0 +1,21 @@
+# Core dependencies (already available in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+pyyaml
+requests
+jsonschema
+psutil
+
+# Project‑specific dependencies
+pymunk
+diffusers
+torch
+ultralytics
+scikit-image
+pillow

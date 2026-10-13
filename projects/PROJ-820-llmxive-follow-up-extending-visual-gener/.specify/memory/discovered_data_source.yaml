@@ -1,0 +1,18 @@
+status: none
+intent: CLEVR and Physion scene description datasets with bounding boxes physics python
+  package dataset
+required_fields:
+- scene_id
+- description
+- objects.object_id
+- objects.category
+- objects.bounding_box
+- objects.center_of_gravity
+- relationships.type
+- relationships.object_a
+- relationships.object_b
+- physics_constraints.collision_rule
+- physics_constraints.stability_label
+cache_key: a069b523c06e1af1d78019f042779f2134dd2b49229e98c612ba8d9bf02138ea
+searched_at: '2026-10-13T02:43:59.802836+00:00'
+retry_count: 1

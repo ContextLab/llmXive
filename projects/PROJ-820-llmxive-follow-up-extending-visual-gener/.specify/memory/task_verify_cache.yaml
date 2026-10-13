@@ -1,18 +1,41 @@
 T001:
+  c: true
+  h: 74b9ae0ae7d8624a445f6617fe241d7377b58f8a4ba3b92834b4234952d7d0c9
+  r: "Checked `code/data/make_scenes.py` (deterministic seed\u202F=\u202F42) and the\
+    \ generated CSVs `data/raw/scene_descriptions.csv` (500 rows) and `data/raw/validation_scenes.csv`\
+    \ (50 rows). Unit\u2011test log confirms the files exist, have the required row\
+    \ counts, and every description matches a predefined template."
+  sig: 92322de55c051b45e031b62ae0b9a1c3b0948497e91afb8494ba8310c28abb01
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided to show that the required folders
-    (e.g., `data/raw`, `data/derived/physics_constraints`, `code/simulation`, `tests/unit`,
-    etc.) have been created; the claim lacks any concrete artifact confirming the
-    project structure exists.
+  h: 255e1a243f790a9e387503cc0119fe6d9269f6ec53fbb9cbd368889393dcf4b9
+  r: "Checked `code/simulation/physics_engine.py`, the schema file path, the unit\
+    \ test `code/tests/unit/test_physics_logic.py`, and the output directory `data/derived/physics_constraints/`.\
+    \ The test suite fails because it cannot locate the schema (wrong relative path),\
+    \ no per\u2011scene JSON constraint files are present (only the placeholder `contradiction_log.json`\
+    \ with empty entries), and the contradiction log is not populated despite reporting\
+    \ 100 total scenes. Consequently the required JSON outputs, proper schema validation,\
+    \ and <\u202F5\u202F% contradiction rate are not demonstrated."
+  sig: 152391a9ca923ae7a1411592f7d57cacb70267646a239718caef26dfaf71bfef
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml`
-    with Black settings, or a `.pre-commit-config.yaml` invoking ruff/black) are present
-    in the provided artifacts, nor any documentation showing they have been set up.
-    The claim lacks any concrete evidence that ruff and black have been configured
-    for the project.
+  h: 179408fd3f685059d8fdea471e7db02460f6c5bfe13e4bbec1cd1c3a8717e79b
+  r: "The `prompt_engine.py` script exists and writes baseline/experimental files,\
+    \ but the physics\u2011constraint JSON files are missing, so the experimental\
+    \ prompts contain no descriptor (the logs show warnings for every scene). Moreover,\
+    \ the unit\u2011test suite fails to import a required function (`format_physics_constraints`),\
+    \ indicating the required tests are not passing. Both the deterministic descriptor\
+    \ requirement and the unit\u2011test verification are unmet."
+  sig: 9484c483b9720bb1081632ddfec52169f571ad81176eaf5cfeb59d4f94c1e6c4
+T004:
+  c: false
+  h: d5d5dcae620e297cd3df46df3862e42f93594b7fe0682417f93919c7f9990a69
+  r: "The seed manifest file (`data/derived/seed_manifest.json`) is missing, no generated\
+    \ PNGs or `seed_lock_status.json` are present, and the diffusion runner never\
+    \ computes the required \u2264\u202F1\u202Fpixel bounding\u2011box deviation (it\
+    \ only does SSIM fallback). Additionally, the failure log (`generation_failure_log.json`)\
+    \ does not exist, so the task\u2019s verification criteria are not satisfied."
+  sig: 0a4f5c536729d2d1ce8461eb1e81203ddf6ac89f4e9e652362a72d9c8d3fe10e
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
