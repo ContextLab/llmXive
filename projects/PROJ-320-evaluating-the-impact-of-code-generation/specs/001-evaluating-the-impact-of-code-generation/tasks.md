@@ -52,7 +52,7 @@
   * Writes `data/processed/complexity_scores.csv` and merges the two new columns back into `data/processed/prs_labeled_complex.csv`.  
   – **Verification**: Output file exists, contains one row per PR, numeric fields are ≥ 0, and a spot‑check on a trivially simple PR yields `complexity_score == 1` when full analysis succeeds; fallback produces non‑negative scores when it is used.
 
-- [ ] T009 Extract review metrics and temporal covariates `code/data/extract_metrics.py`:
+- [ ] T009 Extract review metrics and temporal covariates `code/data/extract_metrics.py`: <!-- FAILED-IN-EXECUTION: code/data/extract_metrics.py exit=1 -->
   * Joins `prs_labeled_complex.csv` with the raw JSON data,
   * Calculates `comment_count` (from `comments_count`),
   * Calculates `time_to_merge_minutes` (`merged_at - created_at` in minutes; rows with `merged_at` = null are logged and omitted),

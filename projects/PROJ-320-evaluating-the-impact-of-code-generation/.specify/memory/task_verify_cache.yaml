@@ -17,17 +17,16 @@ T002:
   sig: 87fb4a9b20664f1b26efe244ae36eea744f7233cbdfba0b66445408795c239d7
 T003:
   c: false
-  h: 35055e9c5f32b648f18b9d53f7ff037b33dd5ede67b980aa05fdaa8810de8af3
+  h: 712c8e9bca76e6314bb27abef16872926828187d372d648018ff66fbded5389a
   r: "The `fetch_github.py` script exists and implements pagination, back\u2011off,\
-    \ JSONL writing, and checksum generation, but it stops after reaching the 200\u2011\
-    PR cap on the first repository, never fetching from the fallback repos even when\
-    \ the LLM count is\u202F0 (far below the required\u202F10). The resulting `data/raw/`\
-    \ directory contains only `psf_requests_prs.jsonl` with 0\u202FLLM\u2011labelled\
-    \ PRs, and `fetch_stats.json` shows `fallback_exhausted: true` despite not having\
-    \ tried the other repos, violating requirement\u202F5. The implementation must\
-    \ continue to the next repository (or adjust batch sizes) until at least 10\u202F\
-    L"
-  sig: 5c86fdcc3d056b8d395ab84c5ea7bbb94e1770b65a90a8056376ece0ce7bd4a5
+    \ JSONL writing, and checksum generation, but after execution it produced only\
+    \ one JSONL file (`psf_requests_prs.jsonl`) with 200 PRs and **0** `llm`\u2011\
+    labelled rows. The script stopped at the 200\u2011PR cap instead of continuing\
+    \ to the next repository to reach the required minimum of 10 `llm` PRs, and the\
+    \ generated `data/raw/fetch_stats.json` does not record the successful run (it\
+    \ shows empty stats). Consequently the verification condition \u201Cat least 10\
+    \ rows are labelled `llm` (or the fallback list is exhausted)\u201D is not satisfied"
+  sig: f71fe866fbe10b7121a8028f28e40ffed1a9b8ba8083dcd1a9e92103a2564c3b
 T004:
   c: true
   h: 336ede7320eb30e3ed9c626c4e671d8030de19819e8f620e4702bbdc9dbfaf8f
@@ -39,25 +38,30 @@ T004:
   sig: 0e2d1b93fe646da91ebf72eb84664df5c2d7e0168eeac524984e4efc2efa1290
 T005:
   c: false
-  h: 6d540a02174144cbc411dc109a829ba3aed45889cbb277b1261dd7653657e33c
-  r: "The `code/data/entropy_detector.py` file exists and implements the required\
-    \ functions, and the unit test file `tests/unit/test_entropy_detector.py` is present.\
-    \ However, the test suite fails: the test `test_noisy_diff_higher_entropy_than_clean_diff`\
-    \ asserts that the noisy diff yields a higher entropy score than the clean diff,\
-    \ but both scores evaluate to\u202F1.0, causing the test to fail. The task\u2019\
-    s verification condition (\u201CUnit test passes\u201D) is therefore not met.\
-    \ The implementation or the test must be adjusted so that the noisy diff indeed\
-    \ produces a higher normalized entropy than the clean diff."
-  sig: 114361c94fe1e13fcb14413ce5e67a5bb946fbb8c70996b10e5c5c16ad46583d
+  h: c41a9b3cca38a5b66bc13f5f2af913294bb62d660ea1bfe2b16ecfb20e076919
+  r: "The unit test `tests/unit/test_entropy_detector.py` fails the \u201Cnoisy diff\
+    \ higher entropy than clean diff\u201D assertion (both scores evaluate to 1.0),\
+    \ so the test suite does not fully pass as required. The detector implementation\
+    \ itself exists, but the verification condition is not met."
+  sig: 60d77460abd0befd4d5a089cf1a15f3d0d455ae8f8de6ad4e00d3c44a9c6e79c
 T006:
   c: false
-  h: e4aa8ac94a234aa2b36d690228789ac71c2e65c765fbd65775d5877ba6deb828
-  r: "The `code/data/classify_prs.py` script exists, but it does **not** satisfy the\
-    \ task: it only loads a single JSON file (or a directory with one JSON payload)\
-    \ and never iterates over all `data/raw/*.jsonl` files as required. Its confidence\u2011\
-    score logic yields only 0.0, 0.5, or 1.0 (never the 0.5\u20110.9 range specified)\
-    \ and flags infra\u2011bot users with a score of 0.0. The generated `data/processed/prs_labeled.csv`\
-    \ contains extra columns (`review_cycles`, `complexity_score`, `loc`, etc.) that\
-    \ are not defined in `pr_schema.schema.yaml` (which disallows additional properties),\
-    \ so the CSV would not validat"
-  sig: 3d46f3b16dd579138171f025f55120231c36a0f64225a26558e09c94ddf46eea
+  h: e056bcb003ee681b6263beba2ed22f0037e946d7945edd409dd6461770f6fc0d
+  r: "The classification script cannot be imported because it tries `from data.entropy_detector\
+    \ import compute_entropy` while the detector lives at `code/data/entropy_detector.py`,\
+    \ causing a `ModuleNotFoundError` (see unit\u2011test log). Moreover, the generated\
+    \ CSV includes extra columns (`confidence_score`, `flagged_for_audit`, `review_cycles`,\
+    \ `entropy_score`) that are not defined in `pr_schema.schema.yaml`, so the file\
+    \ would not validate against the schema. Fix the import path and ensure the CSV\
+    \ contains only the fields listed in the schema (or update the schema accordingly)."
+  sig: 75fff073af4d6604b30da36389b3a96cb86dcaedc4f699f6c242dccea963be9d
+T008:
+  c: false
+  h: ee68077077e1a7ec23099938345acc14a010984c91b6da7b46ace47ca795fb11
+  r: "The `code/analysis/complexity.py` script never retrieves full source files nor\
+    \ builds a control\u2011flow graph with\u202Fnetworkx as required; it only fetches\
+    \ the diff and computes complexity from the added lines (or falls back to a simple\
+    \ added\u202F+\u202Fremoved count). Consequently the produced `complexity_scores.csv`\
+    \ contains only `loc=0` and `complexity_score=1` for every PR, showing that the\
+    \ full\u2011analysis path was never exercised, violating the task specification."
+  sig: a89e4b85baa601e0e80d752fe91f15013ee5e7490abb178133d0fc0cdad06f43

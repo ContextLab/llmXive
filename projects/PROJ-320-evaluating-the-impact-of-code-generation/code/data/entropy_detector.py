@@ -3,7 +3,7 @@
 Computes a normalised Shannon entropy score over the whitespace-split
 token distribution of a plain-text PR diff. The score (`entropy_score`)
 is normalised to the 0-1 range by dividing by the maximum possible
-entropy log2(K), where K is the number of distinct tokens observed.
+entropy log2(N), where N is the total number of tokens observed.
 """
 from __future__ import annotations
 
@@ -48,8 +48,8 @@ def compute_entropy(diff_text: str) -> float:
 
     Returns:
         float in [0.0, 1.0]: Shannon entropy of the whitespace-token
-        distribution, normalised by log2(K) where K is the number of
-        distinct tokens (the maximum attainable entropy for K symbols).
+        distribution, normalised by log2(N) where N is the total number
+        of tokens (the maximum attainable entropy for a sequence of length N).
         Empty or single-token diffs return 0.0.
     """
     if not isinstance(diff_text, str):
@@ -65,7 +65,8 @@ def compute_entropy(diff_text: str) -> float:
         return 0.0
 
     entropy = shannon_entropy(tokens)
-    max_entropy = math.log2(distinct)
+    # Normalise by the theoretical maximum entropy for the given token count.
+    max_entropy = math.log2(len(tokens))
     normalized = entropy / max_entropy if max_entropy > 0 else 0.0
     # Guard against tiny floating point excursions outside [0, 1].
     return max(0.0, min(1.0, normalized))

@@ -1,11 +1,15 @@
 """GitHub PR fetcher (T003).
 
 Paginates the GitHub REST API in batches of 50 PRs, retries on
-HTTP 429/5xx with exponential back-off (max 3 retries), writes raw
-JSON payloads to data/raw/<repo>_prs.jsonl plus SHA-256 checksum
+HTTP 429/5xx with exponential back‑off (max 3 retries), writes raw
+JSON payloads to ``data/raw/<repo>_prs.jsonl`` plus SHA‑256 checksum
 files, and falls back to the next repository in the prioritized
-list (code/utils/config.py REPOS) until at least 10 PRs are
+list (``code/utils/config.py`` REPOS) until at least 10 PRs are
 labelled ``llm`` or a total of 200 PRs is collected.
+
+The script also accepts an optional ``--output`` argument (used by the
+quick‑start guide) that writes a combined JSON file containing all
+fetched PR objects.
 """
 from __future__ import annotations
 
@@ -20,7 +24,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-# Make sibling packages importable when run as `python -m code.data.fetch_github`
+# Make sibling packages importable when run as ``python -m code.data.fetch_github``
 _CODE_DIR = Path(__file__).resolve().parent.parent
 if str(_CODE_DIR) not in sys.path:
     sys.path.insert(0, str(_CODE_DIR))
@@ -54,6 +58,7 @@ LLM_TEXT_MARKERS = (
 
 
 def _session() -> requests.Session:
+    """Create a ``requests`` session with optional auth."""
     s = requests.Session()
     token = os.getenv("GITHUB_TOKEN")
     if token:
@@ -68,7 +73,7 @@ def _get_with_backoff(
     params: Dict[str, Any],
     max_retries: int,
 ) -> requests.Response:
-    """GET with exponential back-off on HTTP 429/5xx. Fails loudly."""
+    """GET with exponential back‑off on HTTP 429/5xx. Fails loudly."""
     retries = 0
     while True:
         try:
@@ -78,7 +83,9 @@ def _get_with_backoff(
                 raise RuntimeError(f"Network error fetching {url}: {exc}") from exc
             retries += 1
             delay = BASE_DELAY * (2 ** retries)
-            log.warning("Network error (%s); retry %d/%d in %.1fs", exc, retries, max_retries, delay)
+            log.warning(
+                "Network error (%s); retry %d/%d in %.1fs", exc, retries, max_retries, delay
+            )
             time.sleep(delay)
             continue
 
@@ -87,12 +94,10 @@ def _get_with_backoff(
         if resp.status_code == 429 or resp.status_code >= 500:
             if retries >= max_retries:
                 raise RuntimeError(
-                    f"GitHub API returned {resp.status_code} for {url} "
-                    f"after {max_retries} retries"
+                    f"GitHub API returned {resp.status_code} for {url} after {max_retries} retries"
                 )
             retries += 1
             delay = BASE_DELAY * (2 ** retries)
-            # Respect Retry-After when provided
             retry_after = resp.headers.get("Retry-After")
             if retry_after:
                 try:
@@ -110,11 +115,10 @@ def _get_with_backoff(
 
 
 def classify_pr_source_type(pr: Dict[str, Any]) -> str:
-    """Heuristic label used only for the fetch-time LLM count.
+    """Heuristic label used only for the fetch‑time LLM count.
 
-    The authoritative classification lives in classify_prs.py (T006);
-    this mirrors its bot-signature rules so the fetcher can decide
-    whether to continue to the next fallback repository.
+    Mirrors the rules in ``code/data/classify_prs.py`` so the fetcher can
+    decide whether to continue to the next fallback repository.
     """
     user = (pr.get("user") or {}).get("login", "") or ""
     user_l = user.lower()
@@ -174,11 +178,12 @@ def fetch_batch(
 
 
 def _safe_repo_name(repo: str) -> str:
+    """Convert ``owner/repo`` to a filesystem‑safe stem."""
     return repo.replace("/", "_")
 
 
 def write_repo_artifacts(prs: List[Dict[str, Any]], repo: str, raw_dir: Path) -> Dict[str, Any]:
-    """Write JSONL payload + SHA-256 checksum file for one repository."""
+    """Write JSONL payload + SHA‑256 checksum file for one repository."""
     raw_dir.mkdir(parents=True, exist_ok=True)
     stem = _safe_repo_name(repo)
     jsonl_path = raw_dir / f"{stem}_prs.jsonl"
@@ -193,7 +198,11 @@ def write_repo_artifacts(prs: List[Dict[str, Any]], repo: str, raw_dir: Path) ->
 
     llm_count = sum(1 for pr in prs if pr.get("source_type") == "llm")
     log.info(
-        "Wrote %s (%d PRs, llm=%d) checksum=%s", jsonl_path, len(prs), llm_count, checksum[:12]
+        "Wrote %s (%d PRs, llm=%d) checksum=%s",
+        jsonl_path,
+        len(prs),
+        llm_count,
+        checksum[:12],
     )
     return {
         "repo": repo,
@@ -212,7 +221,11 @@ def run_fetch(
     max_retries: int = DEFAULT_MAX_RETRIES,
     raw_dir: Optional[Path] = None,
 ) -> Dict[str, Any]:
-    """Fetch across the prioritized repo list with fallback logic."""
+    """Fetch across the prioritized repo list with fallback logic.
+
+    Returns a summary dictionary that mirrors the structure expected by
+    the verification step.
+    """
     if raw_dir is None:
         try:
             from llmxive_toolkit import paths
@@ -225,39 +238,50 @@ def run_fetch(
     total_prs = 0
     total_llm = 0
     repo_stats: List[Dict[str, Any]] = []
+    reached_cap = False  # true if we stopped because of the PR cap
 
     for repo in repo_list:
-        if total_prs >= limit_total and total_llm >= target_llm:
+        # If we already have enough LLMs we can stop early.
+        if total_llm >= target_llm:
             break
+
         remaining = limit_total - total_prs
-        if remaining <= 0 and total_llm >= target_llm:
-            break
         if remaining <= 0:
-            # total cap reached; stop regardless
-            break
+            reached_cap = True
+            break  # cannot fetch more without exceeding the global cap
+
         try:
-            prs = fetch_batch(repo, limit=remaining, batch_size=batch_size, max_retries=max_retries)
+            prs = fetch_batch(
+                repo, limit=remaining, batch_size=batch_size, max_retries=max_retries
+            )
         except RuntimeError as exc:
             log.error("Failed to fetch from %s: %s", repo, exc)
             continue
 
         stats = write_repo_artifacts(prs, repo, raw_dir)
         repo_stats.append(stats)
+
         total_prs += stats["pr_count"]
         total_llm += stats["llm_count"]
 
         if total_llm >= target_llm:
             log.info("LLM target met (%d >= %d)", total_llm, target_llm)
             break
+
         if stats["llm_count"] < target_llm:
             log.warning(
-                "Only %d llm-labelled PRs in %s; continuing to next repository",
+                "Only %d llm‑labelled PRs in %s; continuing to next repository",
                 stats["llm_count"],
                 repo,
             )
+
         if total_prs >= limit_total:
             log.info("Total PR cap (%d) reached", limit_total)
+            reached_cap = True
             break
+
+    # Determine whether we exhausted the repo list without meeting the LLM target.
+    fallback_exhausted = (not reached_cap) and (total_llm < target_llm)
 
     summary = {
         "repos": repo_stats,
@@ -265,13 +289,13 @@ def run_fetch(
         "total_llm": total_llm,
         "target_llm": target_llm,
         "target_met": total_llm >= target_llm,
-        "fallback_exhausted": total_llm < target_llm,
+        "fallback_exhausted": fallback_exhausted,
     }
     stats_path = raw_dir / "fetch_stats.json"
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
     log.info(
-        "Fetch complete: %d PRs total, %d llm-labelled; stats at %s",
+        "Fetch complete: %d PRs total, %d llm‑labelled; stats at %s",
         total_prs,
         total_llm,
         stats_path,
@@ -279,13 +303,36 @@ def run_fetch(
     return summary
 
 
+def combine_prs_to_jsonl(repo_stats: List[Dict[str, Any]], output_path: Path) -> None:
+    """Combine all per‑repo JSONL files into a single JSON array file."""
+    combined: List[Dict[str, Any]] = []
+    for repo_info in repo_stats:
+        jsonl_path = Path(repo_info["jsonl"])
+        with open(jsonl_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    combined.append(json.loads(line))
+    # Write as a JSON array for easy downstream consumption.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(combined, f, indent=2)
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Fetch GitHub PRs (T003)")
     parser.add_argument("--limit", type=int, default=MAX_TOTAL_PRS, help="Max total PRs")
-    parser.add_argument("--target-llm", type=int, default=TARGET_LLM_COUNT)
+    parser.add_argument(
+        "--target-llm", type=int, default=TARGET_LLM_COUNT, help="Desired minimum LLM PR count"
+    )
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--max-retries", type=int, default=DEFAULT_MAX_RETRIES)
-    parser.add_argument("--raw-dir", type=str, default=None)
+    parser.add_argument("--raw-dir", type=str, default=None, help="Directory for raw JSONL files")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Optional combined JSON file path (e.g., data/raw/prs_raw.json)",
+    )
     args = parser.parse_args(argv)
 
     raw_dir = Path(args.raw_dir) if args.raw_dir else None
@@ -296,7 +343,18 @@ def main(argv: Optional[List[str]] = None) -> int:
         max_retries=args.max_retries,
         raw_dir=raw_dir,
     )
-    print(json.dumps({k: v for k, v in summary.items() if k != "repos"}, indent=2))
+
+    # If the caller asked for a combined JSON output, produce it now.
+    if args.output:
+        output_path = Path(args.output)
+        combine_prs_to_jsonl(summary["repos"], output_path)
+
+    # Print a concise summary (excluding the potentially large ``repos`` list)
+    print(
+        json.dumps(
+            {k: v for k, v in summary.items() if k != "repos"}, indent=2, sort_keys=True
+        )
+    )
     return 0
 
 

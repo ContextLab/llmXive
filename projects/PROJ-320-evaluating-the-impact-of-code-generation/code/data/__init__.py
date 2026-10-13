@@ -1,1 +1,3 @@
-# Data module initialization
+"""
+Package marker for the `data` module.
+"""
