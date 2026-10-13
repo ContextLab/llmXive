@@ -27,73 +27,69 @@ ModuleNotFoundError: No module named 'datasets'
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-13 00:25:33,770 - __main__ - ERROR - Missing required citations:
-2026-10-13 00:25:33,770 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-13 00:25:33,770 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 01:33:44,071 - __main__ - ERROR - Missing required citations:
+2026-10-13 01:33:44,071 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 01:33:44,072 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
-mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
-    main()
+
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 379, in preprocess_all_participants
-    raw_dir = _determine_raw_dir(loader)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 366, in _determine_raw_dir
-    raise AttributeError(
-AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 402, in preprocess_all_participants
+    metadata_df = _load_participant_metadata(metadata_path)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
+    raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
+FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
 - python code/main.py --step preprocess -> rc=1
-mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
-    main()
+
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 379, in preprocess_all_participants
-    raw_dir = _determine_raw_dir(loader)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 366, in _determine_raw_dir
-    raise AttributeError(
-AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 402, in preprocess_all_participants
+    metadata_df = _load_participant_metadata(metadata_path)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
+    raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
+FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
 - python code/main.py --step model -> rc=1
-mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
-    main()
+
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 379, in preprocess_all_participants
-    raw_dir = _determine_raw_dir(loader)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 366, in _determine_raw_dir
-    raise AttributeError(
-AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 402, in preprocess_all_participants
+    metadata_df = _load_participant_metadata(metadata_path)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
+    raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
+FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
 - python code/main.py --step diagnostics -> rc=1
-mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
-    main()
+
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 379, in preprocess_all_participants
-    raw_dir = _determine_raw_dir(loader)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 366, in _determine_raw_dir
-    raise AttributeError(
-AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 402, in preprocess_all_participants
+    metadata_df = _load_participant_metadata(metadata_path)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 261, in _load_participant_metadata
+    raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
+FileNotFoundError: Metadata CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/heat_pain_thresholds.csv
 
 - python -m pytest -q -> rc=2
 868/matplotlib/_fontconfig_pattern.py:92
@@ -112,7 +108,7 @@ AttributeError: EEGDataLoader does not expose a raw data directory attribute. Ex
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 2 errors in 1.02s ========================
+======================== 14 warnings, 2 errors in 1.22s ========================
 
 
 

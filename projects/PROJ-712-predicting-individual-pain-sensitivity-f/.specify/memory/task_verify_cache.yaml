@@ -1,11 +1,12 @@
 T001:
   c: true
-  h: 45907c6a717ee6a00aa2771dd2fc4cf80113f672f4b2821b9a79531edc309846
-  r: "Checked `scripts/create_dirs.sh` (contains the required `mkdir -p \u2026` command),\
-    \ the six required directories (`data/raw/`, `data/processed/`, `artifacts/`,\
-    \ `code/`, `tests/`, `scripts/`) exist, and the integration test `tests/integration/test_structure.py`\
-    \ ran successfully (exit\u202F0, all assertions passed)."
-  sig: 4c9122e05c01b117522c2c30688a07a04c3e52d134722e61d960bc81b7419549
+  h: 698b8fdf7e2e5fa1eafa346d0a8d18bfb224beac8543c58ab8741c1cb628c7ac
+  r: The script `scripts/create_dirs.sh` exists, is non-empty, and runs the required
+    `mkdir -p data/raw data/processed artifacts code tests scripts` (with safe error
+    handling); all six directories exist on disk with content. The verification test
+    `tests/integration/test_structure.py` is present and correctly asserts script
+    exit code 0 and existence of all six directories.
+  sig: 9dbf230d35f1e87a795f6a6da9831123aba1bc018ed6c7c4e6918e65f09586fa
 T002:
   c: true
   h: c49f089da8db2a82e50343ffa7276cdc48bbe3c512a59ef0991d8fc13290c469
@@ -27,14 +28,15 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: 139ecbf8bfb444d434371a835d7c64d9b490f3f06a353f66a1e7cbc6f362d36d
-  r: "The provided `code/utils.py` defines `set_global_seed` (seeding both `random`\
-    \ and NumPy with 42), a `setup_logging` that writes timestamped entries to `artifacts/log.txt`,\
-    \ and `record_artifact_hash` that computes and returns a SHA\u2011256 hash. The\
-    \ accompanying `tests/unit/test_utils.py` exercises these functions, and the actual\
-    \ `artifacts/log.txt` file shows logged entries, confirming the logger\u2019s\
-    \ behavior. All required artifacts exist and pass the unit tests."
-  sig: 0d50401b00c34309940ec63432fa31a59c96bce47f0e4b5adb608fcdcfc71fcf
+  h: 422fb804b6d020435ca51b10b65c2fa057dd60f3b1094f0a2b5cf5f7c1e92cf4
+  r: '`code/utils.py` exists and implements all three required behaviors: `set_global_seed`
+    pins `random.seed(42)`/`np.random.seed(42)`, `setup_logging` writes to `artifacts/log.txt`
+    (confirmed by the actual log file containing a timestamped `test_logger - INFO
+    - utils unit test log entry` line from test execution), and `record_artifact_hash`
+    computes a SHA-256 digest and returns it. The corresponding `tests/unit/test_utils.py`
+    covers identical-file hash equality, logger file creation with timestamped entries,
+    and hash return value, and the log evidence shows the tests actually ran.'
+  sig: ba274b4059d3b790ed8e6bcafe75457c08609ebd8a377cfffd8a9ccaa8664a54
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56

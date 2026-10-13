@@ -18,6 +18,9 @@ from scipy.signal import welch
 # Import the data loader and DataChunk class used for streaming
 from data_loader import EEGDataLoader, DataChunk
 
+# Import expected feature column names to ensure correct header naming
+from config import EXPECTED_FEATURE_COLUMNS
+
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
@@ -61,7 +64,7 @@ def find_and_remove_artifacts(
     kurtosis_threshold: float = 10.0,
 ) -> mne.io.Raw:
     """
-    Identify ocular/muscle components automatically and remove them.
+    Identify ocular/muscle components automatically and discard them.
 
     Components are excluded when:
     * Correlation with an EOG channel exceeds ``eog_corr_threshold``.
@@ -288,6 +291,33 @@ def _load_raw_for_participant(loader: EEGDataLoader, participant_id: str) -> mne
         f"No EEG file found for participant {participant_id} in {participant_dir}"
     )
 
+def _determine_raw_dir(loader: EEGDataLoader) -> Path:
+    """
+    Helper to obtain the directory that holds the raw participant files.
+    The EEGDataLoader class may expose this via ``raw_dir``, ``raw_path``,
+    ``base_dir`` or ``data_dir``. We try the known attribute names and fall
+    back to the loader's initialization argument (if it stores it as
+    ``root`` or ``path``). If none are found we raise a clear error.
+    """
+    for attr in ("raw_dir", "raw_path", "base_dir", "data_dir", "root", "path"):
+        if hasattr(loader, attr):
+            candidate = getattr(loader, attr)
+            if isinstance(candidate, Path):
+                return candidate
+            else:
+                # Coerce string to Path
+                return Path(candidate)
+
+    # Fallback: inspect any Path attribute on the loader that points to an existing directory
+    for name, value in vars(loader).items():
+        if isinstance(value, Path) and value.is_dir():
+            return value
+
+    raise AttributeError(
+        "EEGDataLoader does not expose a raw data directory attribute. "
+        "Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path."
+    )
+
 def preprocess_participant(
     participant_id: str,
     loader: EEGDataLoader,
@@ -324,7 +354,19 @@ def preprocess_participant(
     # ------------------------------------------------------------------
     # Feature extraction
     # ------------------------------------------------------------------
-    features = extract_microstate_features(raw)
+    raw_features = extract_microstate_features(raw)
+
+    # ------------------------------------------------------------------
+    # Map internal feature names to the canonical names defined in config
+    # ------------------------------------------------------------------
+    if len(raw_features) != len(EXPECTED_FEATURE_COLUMNS):
+        raise ValueError(
+            f"Feature count mismatch: expected {len(EXPECTED_FEATURE_COLUMNS)} "
+            f"features but got {len(raw_features)}."
+        )
+    # Preserve order of extraction (dict preserves insertion order)
+    feature_values = list(raw_features.values())
+    mapped_features = dict(zip(EXPECTED_FEATURE_COLUMNS, feature_values))
 
     # ------------------------------------------------------------------
     # Assemble full row
@@ -342,31 +384,10 @@ def preprocess_participant(
     row["age"] = meta["age"]
     row["gender"] = meta["gender"]
 
-    # Add the 30 microstate features
-    row.update(features)
+    # Add the 30 microstate features using the expected column names
+    row.update(mapped_features)
 
     return row
-
-def _determine_raw_dir(loader: EEGDataLoader) -> Path:
-    """
-    Helper to obtain the directory that holds the raw participant files.
-    The EEGDataLoader class may expose this via ``raw_dir``, ``raw_path``,
-    ``base_dir`` or ``data_dir``. We try the known attribute names and fall
-    back to the loader's initialization argument (if it stores it as
-    ``root`` or ``path``). If none are found we raise a clear error.
-    """
-    for attr in ("raw_dir", "raw_path", "base_dir", "data_dir", "root", "path"):
-        if hasattr(loader, attr):
-            candidate = getattr(loader, attr)
-            if isinstance(candidate, Path):
-                return candidate
-            else:
-                # Sometimes the attribute may be a string; coerce to Path
-                return Path(candidate)
-    raise AttributeError(
-        "EEGDataLoader does not expose a raw data directory attribute. "
-        "Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path."
-    )
 
 def preprocess_all_participants(
     participant_ids: List[str], loader: EEGDataLoader
@@ -421,6 +442,12 @@ def main():
 
     # Convert to DataFrame and write CSV
     df = pd.DataFrame(rows)
+
+    # Ensure column order matches EXPECTED_FEATURE_COLUMNS (plus base columns)
+    base_cols = ["participant_id", "heat_pain_threshold", "age", "gender", "valid_eeg_minutes"]
+    ordered = base_cols + EXPECTED_FEATURE_COLUMNS
+    df = df[ordered]
+
     output_path = Path(args.output_dir) / "feature_matrix.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
