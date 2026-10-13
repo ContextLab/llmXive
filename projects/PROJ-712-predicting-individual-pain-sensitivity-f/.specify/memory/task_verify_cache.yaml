@@ -1,12 +1,11 @@
 T001:
-  c: false
-  h: 11e70d7daeb7e5f86f466fa09f17d7a0408d2c3bcbe2489f0bb0cf01ee3435f5
-  r: The provided `scripts/create_dirs.sh` creates only five of the six required directories
-    (it omits `scripts/` from the `mkdir -p` command), so it does not fully meet the
-    task specification. The integration test also checks only those five directories,
-    leaving the missing `scripts/` creation unverified. The script must be updated
-    to include `scripts` in the `mkdir -p` list.
-  sig: cc178f9ac35a12834660df70a0a9f9af66a78afc8739feb9a61a078f7b383f90
+  c: true
+  h: 45907c6a717ee6a00aa2771dd2fc4cf80113f672f4b2821b9a79531edc309846
+  r: "Checked `scripts/create_dirs.sh` (contains the required `mkdir -p \u2026` command),\
+    \ the six required directories (`data/raw/`, `data/processed/`, `artifacts/`,\
+    \ `code/`, `tests/`, `scripts/`) exist, and the integration test `tests/integration/test_structure.py`\
+    \ ran successfully (exit\u202F0, all assertions passed)."
+  sig: 4c9122e05c01b117522c2c30688a07a04c3e52d134722e61d960bc81b7419549
 T002:
   c: true
   h: c49f089da8db2a82e50343ffa7276cdc48bbe3c512a59ef0991d8fc13290c469
@@ -28,12 +27,14 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: c90636543cadea553fff3276f5d6421feb4df07c08e4f53a37f9ad56546c9bde
-  r: "Checked `code/utils.py` (contains `set_global_seed`, logger writing to `artifacts/log.txt`,\
-    \ and `record_artifact_hash` returning a SHA\u2011256 hash) and the corresponding\
-    \ `tests/unit/test_utils.py` which validates identical file hashes, logger output,\
-    \ and seed determinism. All required artifacts exist and behave as specified."
-  sig: 4ac29077d2203c914a52b3d96f6348a044fbdc72f0e98b4b9dad1054d0c0a510
+  h: 5965ad1ed3dae8218d22d0d59d9ca96ce82456ea47d26257fe4f7959a612a70f
+  r: "Checked `code/utils.py` for the required seed\u2011pinning function, logger\
+    \ setup writing to `artifacts/log.txt`, and `record_artifact_hash` returning a\
+    \ SHA\u2011256 digest; all are present and correctly implemented. Verified that\
+    \ `tests/unit/test_utils.py` exercises these features and that the supporting\
+    \ artifacts (`tests/unit/test_utils.py` and `artifacts/log.txt`) exist and contain\
+    \ appropriate content."
+  sig: 199f1a35fa0df7896e136a16415396e1a2e4efa390e45fc6f0af8be83fece52e
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56
@@ -59,17 +60,6 @@ T007:
     \ (4 durations, 4 occurrences, 16 transitions, 6 spectral powers) that align with\
     \ the column definitions in `contracts/features.schema.yaml`."
   sig: eefd338e0db225f6e7573d613d68448f8b3ea29821edb1092c7d9c5d69dcdcaf
-T008:
-  c: false
-  h: 057e795430fa4ece24eaa20411fcb3607b6f0c839ec6c0240b7f4f71f32c8664
-  r: "The repository contains `code/preprocessing.py`, but the required output file\
-    \ `data/processed/feature_matrix.csv` is missing, and the integration test fails\
-    \ because the raw data directory it expects does not exist, causing the script\
-    \ to exit with an error. Moreover, the provided unit test does not actually invoke\
-    \ `extract_microstate_features` to verify the 30\u2011feature DataFrame, so the\
-    \ pipeline\u2019s core functionality is not demonstrated. The pipeline therefore\
-    \ does not meet the task\u2019s specifications."
-  sig: 1cda043f40cd1824a97e3e5389f44695e518a7d5c71eeda74c2674e29a72325e
 T009:
   c: false
   h: 36611be7d76f1484cef9d460976821a2a2f0890fc33c5d0f02e131a1532fb233
@@ -95,3 +85,20 @@ T011:
     \ the specification. Adding an alias or renaming the function to `global_permutation_test`\
     \ is needed."
   sig: 991dea18c3a71a0162b468c343ed686db0aa8bb66624bc0aa434d5447920ce7b
+T012:
+  c: false
+  h: a56a5a04e4ecd74d92834bd243acfc53f8f6eae1ff52f6030e233c6c7e7a44cc
+  r: "The repository contains a `bootstrap_ci` function, but the required unit test\
+    \ `tests/unit/test_bootstrap.py` is missing, and the generated artifact `artifacts/bootstrap_ci.json`\
+    \ holds `null` values instead of numeric `ci_lower` and `ci_upper`. Consequently\
+    \ the task\u2019s verification steps are not satisfied."
+  sig: 8753b80e70164321250c9719c52daf16a7d7a824abfc046735ce96c7bc66100c
+T013:
+  c: false
+  h: f64fcc55d0359195fdd6e08c2fc78c8b9ee85fe0dd03b90b66865fc8d982f330
+  r: The required function `compute_empirical_pvalue` is present and correctly writes
+    a JSON with the needed fields, but the verification test `tests/unit/test_pvalue.py`
+    is missing, so we cannot confirm that the implementation meets the asserted test
+    criteria. Adding the missing test file (or evidence of its successful execution)
+    is needed to complete the task.
+  sig: dc06a2deb0ef5dcd5094374cd2a6dda199ba274ec9562892c1403bd89d031f06

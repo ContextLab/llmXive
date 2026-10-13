@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding (must be complete before any scientific work)
 
-- [ ] **T001** [P0] Create the required project‑owned directory hierarchy and a helper script `scripts/create_dirs.sh` that runs  
+- [X] **T001** [P0] Create the required project‑owned directory hierarchy and a helper script `scripts/create_dirs.sh` that runs  
 
   ```bash
   mkdir -p data/raw data/processed artifacts code tests scripts
@@ -75,11 +75,11 @@
   3. Enforce a runtime guard `max_permutations=1000`; if the guard is triggered the function aborts with a clear error.  
   **Verification**: `tests/integration/test_permutation.py` runs the function on a modest synthetic dataset, asserts that the returned array length is 1 000, and confirms that setting `max_permutations=5` triggers the early‑exit guard.
 
-- [~] **T012** [P2] Implement `code/modeling.py::bootstrap_ci` that, given the observed outer‑fold r values, draws **200 bootstrap resamples**, computes the 2.5 th and 97.5 th percentiles, and returns a tuple `(ci_lower, ci_upper)`. The function includes a wall‑time guard that aborts if the projected total runtime would exceed **6 hours**; in that case it logs a warning to `artifacts/log.txt`.  
+- [ ] **T012** [P2] Implement `code/modeling.py::bootstrap_ci` that, given the observed outer‑fold r values, draws **200 bootstrap resamples**, computes the 2.5 th and 97.5 th percentiles, and returns a tuple `(ci_lower, ci_upper)`. The function includes a wall‑time guard that aborts if the projected total runtime would exceed **6 hours**; in that case it logs a warning to `artifacts/log.txt`.  
   **Artifact**: `artifacts/bootstrap_ci.json` with keys `ci_lower` and `ci_upper`.  
   **Verification**: `tests/unit/test_bootstrap.py` uses a deterministic random seed to verify that the function returns numeric bounds and that a mocked timer triggers the guard when the projected runtime > 6 h.
 
-- [~] **T013** [P2] Implement `code/modeling.py::compute_empirical_pvalue` that:  
+- [ ] **T013** [P2] Implement `code/modeling.py::compute_empirical_pvalue` that:  
   1. Receives the observed mean r, the null distribution from T011, the MAE from T010, and the CI from T012.  
   2. Computes the empirical p‑value as the proportion of null r ≥ observed r.  
   3. Writes `artifacts/model_result.json` containing the fields `pearson_r`, `mae`, `p_value`, `ci_lower`, `ci_upper`, `n_permutations`, `n_bootstrap`.  

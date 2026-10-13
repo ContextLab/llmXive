@@ -1,38 +1,40 @@
 """
-Integration test for directory creation script.
+Integration test for directory creation script (task T001).
 
-This test runs the `scripts/create_dirs.sh` helper script and then
-asserts that each of the required project directories exists.
+Runs `scripts/create_dirs.sh` and asserts that each of the SIX
+required project directories exists afterwards:
+data/raw, data/processed, artifacts, code, tests, scripts.
 """
 
 import subprocess
 from pathlib import Path
 
+
 def test_create_dirs():
     """
-    Execute the directory‑creation script and verify that the expected
+    Execute the directory-creation script and verify that the expected
     directories are present afterwards.
     """
-    # Resolve the project root (two levels up from this test file)
+    # Resolve the project root:
     # tests/integration/test_structure.py -> parents[0]=integration, [1]=tests, [2]=root
     project_root = Path(__file__).resolve().parents[2]
 
-    # Path to the helper script
     script_path = project_root / "scripts" / "create_dirs.sh"
+    assert script_path.is_file(), f"Helper script missing: {script_path}"
 
     # Run the script; it should exit with status 0
     subprocess.check_call(["bash", str(script_path)])
 
-    # List of directories that must exist
-    # Note: 'state/' is excluded as it is platform-owned and managed by the runtime
+    # All six directories required by task T001 must exist.
+    # 'state/' is excluded as it is platform-owned.
     required_dirs = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "artifacts",
         project_root / "code",
         project_root / "tests",
+        project_root / "scripts",
     ]
 
-    # Assert each directory exists
     for d in required_dirs:
         assert d.is_dir(), f"Required directory missing: {d}"

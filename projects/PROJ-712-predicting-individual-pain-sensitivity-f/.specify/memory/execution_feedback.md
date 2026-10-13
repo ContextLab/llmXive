@@ -27,18 +27,12 @@ ModuleNotFoundError: No module named 'datasets'
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-12 23:17:20,826 - __main__ - ERROR - Missing required citations:
-2026-10-12 23:17:20,826 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-12 23:17:20,826 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 00:23:00,639 - __main__ - ERROR - Missing required citations:
+2026-10-13 00:23:00,640 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 00:23:00,640 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
-d to be installed on your system.
-If this would cause problems for you,
-please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
-        
-  import pandas as pd
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
+mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -46,19 +40,15 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 335, in preprocess_all_participants
-    metadata_path = loader.raw_dir / "heat_pain_thresholds.csv"
-                    ^^^^^^^^^^^^^^
-AttributeError: 'EEGDataLoader' object has no attribute 'raw_dir'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 355, in preprocess_all_participants
+    raw_dir = _determine_raw_dir(loader)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 342, in _determine_raw_dir
+    raise AttributeError(
+AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
 
 - python code/main.py --step preprocess -> rc=1
-d to be installed on your system.
-If this would cause problems for you,
-please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
-        
-  import pandas as pd
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
+mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -66,19 +56,15 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 335, in preprocess_all_participants
-    metadata_path = loader.raw_dir / "heat_pain_thresholds.csv"
-                    ^^^^^^^^^^^^^^
-AttributeError: 'EEGDataLoader' object has no attribute 'raw_dir'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 355, in preprocess_all_participants
+    raw_dir = _determine_raw_dir(loader)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 342, in _determine_raw_dir
+    raise AttributeError(
+AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
 
 - python code/main.py --step model -> rc=1
-d to be installed on your system.
-If this would cause problems for you,
-please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
-        
-  import pandas as pd
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
+mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -86,19 +72,15 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 335, in preprocess_all_participants
-    metadata_path = loader.raw_dir / "heat_pain_thresholds.csv"
-                    ^^^^^^^^^^^^^^
-AttributeError: 'EEGDataLoader' object has no attribute 'raw_dir'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 355, in preprocess_all_participants
+    raw_dir = _determine_raw_dir(loader)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 342, in _determine_raw_dir
+    raise AttributeError(
+AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
 
 - python code/main.py --step diagnostics -> rc=1
-d to be installed on your system.
-If this would cause problems for you,
-please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
-        
-  import pandas as pd
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
+mXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 179, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 206, in wrapper
     result = func(*args, **kwargs)
@@ -106,10 +88,12 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 139, in main
     participant_features = preprocess_all_participants(participant_ids, loader)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 335, in preprocess_all_participants
-    metadata_path = loader.raw_dir / "heat_pain_thresholds.csv"
-                    ^^^^^^^^^^^^^^
-AttributeError: 'EEGDataLoader' object has no attribute 'raw_dir'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 355, in preprocess_all_participants
+    raw_dir = _determine_raw_dir(loader)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/preprocessing.py", line 342, in _determine_raw_dir
+    raise AttributeError(
+AttributeError: EEGDataLoader does not expose a raw data directory attribute. Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path.
 
 - python -m pytest -q -> rc=2
 868/matplotlib/_fontconfig_pattern.py:92
@@ -128,7 +112,7 @@ AttributeError: 'EEGDataLoader' object has no attribute 'raw_dir'
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 2 errors in 1.51s ========================
+======================== 14 warnings, 2 errors in 1.16s ========================
 
 
 

@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-12T21:22:56Z",
+  "updated_at": "2026-10-13T00:24:30Z",
   "project_id": "PROJ-712-predicting-individual-pain-sensitivity-f",
   "replan_rounds": 1
 }

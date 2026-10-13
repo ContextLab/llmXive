@@ -70,7 +70,9 @@ def find_and_remove_artifacts(
     # 1. Correlation with EOG channels
     eog_channels = [ch for ch in raw.ch_names if "EOG" in ch.upper()]
     if eog_channels:
-        eog_inds, _ = ica.find_bads_eog(raw, ch_name=eog_channels[0], threshold=eog_corr_threshold)
+        eog_inds, _ = ica.find_bads_eog(
+            raw, ch_name=eog_channels[0], threshold=eog_corr_threshold
+        )
         ica.exclude.extend(eog_inds)
 
     # 2. High‑kurtosis components
@@ -86,9 +88,8 @@ def find_and_remove_artifacts(
 
 def estimate_valid_duration(raw: mne.io.Raw) -> float:
     """Estimate the total duration (in seconds) of the clean EEG segment."""
-    # MNE Raw objects store time in ``raw.times``; after ICA removal the
-    # length of the data does not change, but we consider the *usable*
-    # portion as the full duration (since bad segments are removed via ICA).
+    # After ICA removal the data length stays the same; we treat the whole
+    # recording as usable because bad segments have been zero‑ed out.
     return float(raw.times[-1] - raw.times[0])
 
 # ----------------------------------------------------------------------
@@ -273,9 +274,7 @@ def preprocess_participant(
     pipeline, and return a dictionary containing all required columns
     (metadata + 30 features + valid_eeg_minutes).
     """
-    # Use the DataChunk interface to stream the data
-    # The EEGDataLoader is expected to provide a ``load_raw`` method that
-    # returns an ``mne.io.Raw`` object with ``preload=False``.
+    # Load raw data via the streaming loader (preload=False)
     raw: mne.io.Raw = loader.load_raw(participant_id)
 
     # ------------------------------------------------------------------
@@ -324,6 +323,27 @@ def preprocess_participant(
 
     return row
 
+def _determine_raw_dir(loader: EEGDataLoader) -> Path:
+    """
+    Helper to obtain the directory that holds the raw participant files.
+    The EEGDataLoader class may expose this via ``raw_dir``, ``raw_path``,
+    ``base_dir`` or ``data_dir``. We try the known attribute names and fall
+    back to the loader's initialization argument (if it stores it as
+    ``root`` or ``path``). If none are found we raise a clear error.
+    """
+    for attr in ("raw_dir", "raw_path", "base_dir", "data_dir", "root", "path"):
+        if hasattr(loader, attr):
+            candidate = getattr(loader, attr)
+            if isinstance(candidate, Path):
+                return candidate
+            else:
+                # Sometimes the attribute may be a string; coerce to Path
+                return Path(candidate)
+    raise AttributeError(
+        "EEGDataLoader does not expose a raw data directory attribute. "
+        "Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path."
+    )
+
 def preprocess_all_participants(
     participant_ids: List[str], loader: EEGDataLoader
 ) -> List[Dict[str, Any]]:
@@ -331,8 +351,9 @@ def preprocess_all_participants(
     Iterate over provided participant IDs, preprocess each, and collect the rows.
     Returns a list of dictionaries ready for aggregation into a DataFrame.
     """
-    # Load metadata once; metadata file resides alongside raw data
-    metadata_path = loader.raw_dir / "heat_pain_thresholds.csv"
+    # Resolve the raw directory (metadata lives alongside the raw files)
+    raw_dir = _determine_raw_dir(loader)
+    metadata_path = raw_dir / "heat_pain_thresholds.csv"
     metadata_df = _load_participant_metadata(metadata_path)
 
     all_rows: List[Dict[str, Any]] = []
