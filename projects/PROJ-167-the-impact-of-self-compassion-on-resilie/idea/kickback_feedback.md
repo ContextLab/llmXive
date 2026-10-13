@@ -1,10 +1,106 @@
-# Downstream review concerns (address in this revision)
+# Idea rejected as infeasible — propose a CONSTRAINED replacement
 
-A downstream convergence panel kicked this project back to the idea stage. You MUST revise the idea — especially the `Methodology sketch` — to RESOLVE each concern below, not merely re-state the idea.
+Regeneration attempt 1 of 3. The previous idea (below) was judged infeasible for the execution environment. You MUST propose a SUBSTANTIALLY DIFFERENT idea in the same field that satisfies the feasibility constraint — do NOT re-state or lightly rephrase the rejected idea.
 
-**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'science'. Routing to 'flesh_out_in_progress' with full provenance so the next worker can address the root cause.
+**Why it was rejected**: reason: flesh-out judged idea out of GHA-feasible scope
+detected_at: 2026-10-13T21:33:43.520142+00:00
 
-## Unresolved concerns
+**Feasibility constraint**: the entire study must be executable by automated agents inside GitHub-Actions-class compute — public datasets or generated data only, no human subjects, no wet lab, no GPU training runs, no paid services.
 
-- FABRICATED-RESULT signal — projects/PROJ-167-the-impact-of-self-compassion-on-resilie/specs/001-the-impact-of-self-compassion-on-resilie/spec.md: self-declared fabricated metric — “…. No simulated, hardcoded, or placeholder values are permitted for any analys…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.
-- FABRICATED-RESULT signal — projects/PROJ-167-the-impact-of-self-compassion-on-resilie/specs/001-the-impact-of-self-compassion-on-resilie/spec.md: self-declared fabricated metric — “…s no simulated, hardcoded, or placeholder values for analysis results. *(See…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.
+## The rejected idea (for reference — do not reuse)
+
+### the-impact-of-self-compassion-on-resilie.md
+
+---
+field: psychology
+submitter: google.gemma-3-27b-it
+---
+
+# The Impact of Self-Compassion on Resilience to Negative Feedback
+
+**Field**: psychology
+
+## Research question
+
+Does self‑compassion moderate (buffer) the adverse psychological impact of negative feedback on state anxiety, rumination, and self‑efficacy?
+
+## Motivation
+
+Negative feedback is essential for learning but often triggers defensive emotions, reduced motivation, and lower self‑efficacy. Self‑compassion has been linked to emotion regulation and reduced stress, yet its role as a protective factor against feedback-induced distress remains under‑explored. Identifying such a buffering effect could inform low‑cost interventions to improve feedback receptivity in educational, clinical, and workplace settings.
+
+## Literature gap analysis
+
+### What we searched
+
+We queried Semantic Scholar and arXiv with (1) "self‑compassion negative feedback anxiety rumination"; (2) "self‑compassion feedback resilience moderation"; (3) broader terms on self‑compassion and emotion regulation. The verified literature block contains only two results, both tangential to the moderation question.
+
+### What is known
+
+- [Effects of a Co-Regulation Model for MR Teacher Training: HRV and Self-Compassion as Indicators of Emotion Regulation (2025)](https://arxiv.org/abs/2502.15383) — Establishes self‑compassion as an emotion‑regulation indicator in an educational context, but does not manipulate feedback valence or test moderation.
+- [Multimodal Detection of Higher-Order Behavioral Constructs: Self-Compassion in Structured Reflective Interaction (2026)](https://arxiv.org/abs/2609.37148) — Addresses computational detection/measurement of self‑compassion, not its buffering role against negative feedback.
+
+### What is NOT known
+
+No verified, publicly available dataset combines (a) a validated self‑compassion measure, (b) experimentally manipulated feedback valence, and (c) pre/post measures of anxiety, rumination, and self‑efficacy. The moderation question has therefore not been tested in open data.
+
+### Why this gap matters
+
+Answering it would tell educators, clinicians, and managers whether self‑compassion training should precede feedback delivery or serve as post‑feedback recovery support.
+
+### How this project addresses the gap
+
+It cannot, within scope. Testing this moderation hypothesis requires either new experimental data collection (out of scope) or a public dataset whose existence cannot be verified from the literature block or known repositories. The previously cited OSF dataset URL was not a verifiable primary source and has been removed.
+
+## Expected results
+
+Not applicable — see Duplicate-check verdict.
+
+## Methodology sketch
+
+Not applicable — see Duplicate-check verdict. The prior draft's methodology depended on a dataset URL that cannot be verified as a real, downloadable primary source; per the pipeline's rules against fabricated inputs and results, no substitute methodology is offered.
+
+## Duplicate-check
+
+- Reviewed existing ideas: none.
+- Closest match: none.
+- Verdict: rejected — out of scope. The research question requires experimentally manipulated negative feedback with pre/post psychological measures; no verifiable public dataset providing these variables is available, and new data collection is prohibited on GitHub Actions free-tier runners. The previously cited dataset (`osf.io/2g7h9/download`) could not be verified and must not be used. A genuine answer to this question requires a new experimental study, which is outside this pipeline's scope.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-13T21:33:16Z
+**Outcome**: exhausted
+**Original term**: The Impact of Self-Compassion on Resilience to Negative Feedback psychology
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | The Impact of Self-Compassion on Resilience to Negative Feedback psychology | 0 |
+| 1 | self-compassion and psychological resilience | 0 |
+| 2 | self-compassion response to failure | 2 |
+| 3 | self-compassion negative feedback processing | 0 |
+| 4 | self-compassion emotion regulation | 0 |
+| 5 | self-compassion and coping with criticism | 2 |
+| 6 | self-compassion academic setbacks | 0 |
+| 7 | self-criticism versus self-compassion feedback response | 0 |
+| 8 | self-compassion shame and threat | 0 |
+| 9 | resilience to social rejection | 0 |
+| 10 | self-compassion stress recovery | 0 |
+| 11 | self-compassion workplace performance feedback | 0 |
+| 12 | self-compassion ego threat | 0 |
+| 13 | self-compassion growth mindset and learning from failure | 0 |
+| 14 | psychological resilience protective factors | 0 |
+| 15 | self-compassion intervention trial | 0 |
+| 16 | self-compassion experimental manipulation | 0 |
+| 17 | self-kindness common humanity mindfulness | 0 |
+| 18 | emotional resilience feedback sensitivity | 0 |
+| 19 | self-compassion mental health outcomes | 0 |
+| 20 | self-compassion self-esteem defensiveness | 0 |
+
+### Verified citations
+
+1. **Effects of a Co-Regulation Model for MR Teacher Training: HRV and Self-Compassion as Indicators of Emotion Regulation** (2025). Lara Chehayeb, Katarzyna Olszynska, Chirag Bhuvaneshwara, Dimitra Tsovaltzi. arXiv. [2502.15383](https://arxiv.org/abs/2502.15383). PDF-sampled: No.
+2. **Multimodal Detection of Higher-Order Behavioral Constructs: Self-Compassion in Structured Reflective Interaction** (2026). Siddhant Jain, Dimitra Tsovaltzi. arXiv. [2609.37148](https://arxiv.org/abs/2609.37148). PDF-sampled: No.
+
