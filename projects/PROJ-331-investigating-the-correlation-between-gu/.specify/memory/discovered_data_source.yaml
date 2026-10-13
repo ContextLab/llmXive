@@ -1,16 +1,18 @@
 status: none
-intent: PPMI microbiome ASV data download dbGaP python package dataset
+intent: PPMI gut microbiome 16S ASV data Qiita MGnify EBI Metagenomics download python
+  package dataset
 required_fields:
 - sample_id
+- asv_id
+- taxonomy
+- count
 - patient_id
 - visit_date
-- taxon_id
-- asv_count
 - age
 - sex
 - levodopa_dose
-- UPDRS_total
-- MDS_UPDRS_total
-cache_key: 04170ce034464a5bc0e7f4bdcbb926d77a834b0781b66f3b7dd6313c3cf57779
-searched_at: '2026-10-13T06:22:41.751476+00:00'
+- updrs_total
+- updrs_part3
+cache_key: f968ba9968f5b99a3c608b0192d471dffb6ca5be27f64c3d6043f2873a1f3205
+searched_at: '2026-10-13T06:26:58.231309+00:00'
 retry_count: 1

@@ -3,16 +3,16 @@
 ## Raw Data Files
 | Path | Format | Content |
 |------|--------|---------|
-| `data/raw/ppmi_asv.csv` | CSV | Raw ASV count matrix (samples × taxa). Must contain columns `sample_id`, `patient_id`, `visit_date`, followed by taxon count columns. |
-| `data/raw/ppmi_clinical.parquet` | Parquet | Clinical metadata (`patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, **required** motor outcome column `UPDRS_partIII` **or** `MDS_UPDRS_total`). |
+| `data/raw/open_asv.csv` | CSV | Open ASV count matrix (samples × taxa). Required columns: `sample_id`, `patient_id`, `visit_date`, followed by one column per taxon with integer counts. |
+| `data/raw/open_clinical.parquet` | Parquet | Open clinical metadata: `patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, **required** `MDS_UPDRS_total`. |
 
 ## Processed Files
 | Path | Format | Description |
 |------|--------|-------------|
 | `data/processed/filtered_samples.parquet` | Parquet | Samples that meet the ≥ 2‑visit filter, with merged clinical fields. |
 | `data/processed/clr_abundances.parquet` | Parquet | CLR‑transformed taxa abundances (zero‑taxa removed). |
-| `data/processed/patient_taxon_slopes.parquet` | Parquet | Per‑patient slope of CLR abundance for each retained taxon (computed **only for patients with ≥ 3 visits**; used for exploratory correlation). |
-| `data/processed/patient_outcome_slopes.parquet` | Parquet | **Optional**: Per‑patient slope of the longitudinal motor outcome (UPDRS III or alternative). Created only if a motor‑score column is present. |
+| `data/processed/patient_taxon_slopes.parquet` | Parquet | Per‑patient slope of CLR abundance for each retained taxon (computed for patients with **≥ 2 visits**). |
+| `data/processed/patient_outcome_slopes.parquet` | Parquet | Per‑patient slope of the longitudinal `MDS_UPDRS_total` score (computed for patients with **≥ 2 visits**). |
 
 ## Result Files
 | Path | Format | Schema Reference |
