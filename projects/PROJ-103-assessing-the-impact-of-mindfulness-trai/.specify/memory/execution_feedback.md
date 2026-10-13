@@ -8,13 +8,12 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/src/utils/seeding.py: function `main` returns a bare RNG draw (line 109) — a reported value computed from no real input
-- code/src/utils/seeding.py: function `dummy_operation` returns a bare RNG draw (line 109) — a reported value computed from no real input
-- code/src/utils/seeding.py: metric `result` assigned from fabricator `dummy_operation()` (line 114)
+- code/src/utils/seeding.py: function `main` returns a bare RNG draw (line 150) — a reported value computed from no real input
+- code/src/utils/seeding.py: function `dummy` returns a bare RNG draw (line 150) — a reported value computed from no real input
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/src/utils/seeding.py: function `main` returns a bare RNG draw (line 109) — a reported value computed from no real input; code/src/utils/seeding.py: function `dummy_operation` returns a bare RNG draw (line 109) — a reported value computed from no real input; code/src/utils/seeding.py: metric `result` assigned from fabricator `dummy_operation()` (line 114); 6 run-book script(s) missing (plan/impl path mismatch): python code/data/download_openneuro.py --verify-only; python code/connectivity/dmn_extraction.py  --input data/processed/fmriprep_outputs  --atlas aal  --nodes PCC mPFC IPL angular_gyrus; python code/connectivity/correlation_matrix.py  --input data/processed/fmriprep_outputs  --output data/processed/connectivity_matrices; 4 command(s) failed: python code/src/preprocessing/fmriprep_runner.py --dataset dsXXXXXX --output data/processed/fmriprep_outputs (rc=1); python -m pytest tests/contract/ -v (rc=4); python -m pytest tests/unit/ -v (rc=2)
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/utils/seeding.py: function `main` returns a bare RNG draw (line 150) — a reported value computed from no real input; code/src/utils/seeding.py: function `dummy` returns a bare RNG draw (line 150) — a reported value computed from no real input; 6 run-book script(s) missing (plan/impl path mismatch): python code/data/download_openneuro.py --verify-only; python code/connectivity/dmn_extraction.py  --input data/processed/fmriprep_outputs  --atlas aal  --nodes PCC mPFC IPL angular_gyrus; python code/connectivity/correlation_matrix.py  --input data/processed/fmriprep_outputs  --output data/processed/connectivity_matrices; 4 command(s) failed: python code/src/preprocessing/fmriprep_runner.py --dataset dsXXXXXX --output data/processed/fmriprep_outputs (rc=1); python -m pytest tests/contract/ -v (rc=4); python -m pytest tests/unit/ -v (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -64,7 +63,8 @@ ERROR: file or directory not found: tests/contract/
 
 
 - python -m pytest tests/unit/ -v -> rc=2
-PROJ-103-assessing-the-impact-of-mindfulness-trai/tests/unit/test_verify_variables.py _
+NotFoundError: No module named 'src.config.settings'
+_ ERROR collecting projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/tests/unit/test_verify_variables.py _
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/tests/unit/test_verify_variables.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
@@ -77,11 +77,10 @@ E   ModuleNotFoundError: No module named 'src.datasets.verify_variables'
 ERROR tests/unit/test_download_datasets.py
 ERROR tests/unit/test_nilearn_fallback.py
 ERROR tests/unit/test_preprocessing.py
-ERROR tests/unit/test_seeding.py - AttributeError: module 'src.utils.seeding'...
 ERROR tests/unit/test_settings.py
 ERROR tests/unit/test_verify_variables.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.86s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 5 errors in 0.65s ===============================
 
 
 - python -m pytest tests/integration/test_full_pipeline.py -v -> rc=4

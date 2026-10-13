@@ -1,0 +1,11 @@
+T001:
+  c: false
+  h: cf6052a708731a48774f45a4025948fe7fad49917776cc28a2b6a9d262512bd9
+  r: "Checked the directory tree (all required folders exist with `__init__.py`),\
+    \ the `settings.py` definitions (all required keys with type hints are present),\
+    \ and the `seeding.py` wrapper (which correctly re\u2011exports a module that\
+    \ pins NumPy, Python `random`, and optional PyTorch seeds). However, no unit\u2011\
+    test file is provided to demonstrate deterministic output on two runs of a trivial\
+    \ NumPy operation, so the test requirement is unmet. Adding the missing test (e.g.,\
+    \ `tests/unit/test_seeding.py`) will be needed to complete the task."
+  sig: 1b22f99e69afc202787cd1bd63ea8103e07089396a3e8998edcfd9e39ef8cbe6

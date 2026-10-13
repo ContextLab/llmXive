@@ -1,1 +1,3 @@
-# Package marker for the top-level `code` module.
+"""
+Top-level package for the mindfulness‑DMN analysis project.
+"""

@@ -2,11 +2,12 @@
 Core configuration for the mindfulness‑DMN analysis pipeline.
 
 This module defines the canonical configuration keys required by downstream
-components. All keys are typed with standard Python type hints to enable
-static checking and documentation generation.
+components. In addition to the data structures required by the pipeline,
+helper accessor functions are provided so that other modules (and the unit
+tests) can retrieve configuration values in a type‑safe way.
 """
 
-from typing import Dict, Any, Tuple
+from typing import Dict, Any
 
 # ----------------------------------------------------------------------
 # Paths to various data folders (relative to the project root)
@@ -51,3 +52,26 @@ statistical_thresholds: Dict[str, float] = {
     "fwe_alpha": 0.05,  # family‑wise error rate for NBS
     "pvalue": 0.05,     # standard significance level
 }
+
+# ----------------------------------------------------------------------
+# Accessor helpers – used by the pipeline and unit‑tests
+# ----------------------------------------------------------------------
+def get_dataset_paths() -> Dict[str, str]:
+    """Return the dictionary mapping logical dataset keys to relative paths."""
+    return dataset_paths
+
+def get_preprocessing_params() -> Dict[str, Any]:
+    """Return the dictionary of preprocessing parameters."""
+    return preprocessing_params
+
+def get_atlas_choice() -> str:
+    """Return the name of the atlas to be used for ROI definition."""
+    return atlas_choice
+
+def get_motion_thresholds() -> Dict[str, float]:
+    """Return the motion‑exclusion thresholds."""
+    return motion_thresholds
+
+def get_statistical_thresholds() -> Dict[str, float]:
+    """Return the statistical thresholds used throughout the analysis."""
+    return statistical_thresholds

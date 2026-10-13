@@ -1,1 +1,3 @@
-# Package marker for the `code.config` submodule.
+"""
+Configuration package for the mindfulness‑DMN analysis pipeline.
+"""
