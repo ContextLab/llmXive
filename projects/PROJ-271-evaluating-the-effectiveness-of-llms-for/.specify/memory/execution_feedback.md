@@ -46,12 +46,21 @@ Traceback (most recent call last):
 FileNotFoundError: Static baseline file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
 
 - python -m pytest tests/ -> rc=2
-=========== 4 errors in 5.72s ===============================
+test_statistical_analysis.py ___________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/test_statistical_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_statistical_analysis.py:9: in <module>
+    from code.statistical_analysis import (
+E   ImportError: cannot import name 'generate_sensitivity_report' from 'code.statistical_analysis' (/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py)
+=========================== short test summary info ============================
+ERROR tests/unit/test_config.py
+ERROR tests/unit/test_data_pipeline_stratified.py
+ERROR tests/unit/test_quickstart_validation.py
+ERROR tests/unit/test_statistical_analysis.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 5.69s ===============================
 
-2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code
-2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw
-2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/processed
-2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results
-2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit
-2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/contract
 

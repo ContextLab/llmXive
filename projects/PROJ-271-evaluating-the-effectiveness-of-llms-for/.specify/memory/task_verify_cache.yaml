@@ -1,30 +1,21 @@
 T001a:
   c: true
-  h: d621c590ec634a3153c5a30ae7dee87938f9b8ab59a764864996d406a449789f
-  r: All six required directories (`code/`, `data/raw/`, `data/processed/`, `results/`,
-    `tests/unit/`, `tests/contract/`) exist with non-empty contents, confirmed by
-    the collector and by the executed `create_project_structure.py` log (exit 0) plus
-    the passing `test_project_structure.py` run. The task only asked for directory
-    initialization, which is satisfied.
-  sig: 0f0dba5fe9b0b7498f7f2075ecd598e0992b01c947b771cb1bd015c91855e957
-T001b:
-  c: false
-  h: ae3d9a2193c0b4391d3a5f1b0dcf6ab0ac17942a1f6e70f167b421985fb036e1
-  r: The `code/.flake8` file is listed as present in the `code/` directory, but no
-    evidence of its contents was provided, so I cannot verify it contains `max-line-length
-    = 88` and `ignore = E203,W503` as required. The next implementer should show the
-    actual file contents (or the collector should capture them) to confirm the configuration
-    matches the task.
-  sig: 5904e790e7b31579d4b45beff21a276764aa2e6b451c39ae7dc68470bcc4a06b
+  h: 94b1c817bbe79dbe620b6c152abc0fe4b04e471c00363b565b1513f440450ae8
+  r: 'All six required directories (`code/`, `data/raw/`, `data/processed/`, `results/`,
+    `tests/unit/`, `tests/contract/`) exist and are non-empty, confirmed by the collector''s
+    directory listings and `results/layout_verification.json` (all_present: true).
+    The creation script `code/create_project_structure.py` ran successfully (exit
+    0, logging each directory), and `tests/unit/test_project_structure.py` passed,
+    directly verifying this task''s requirement.'
+  sig: 74b08a12471a9cb105d07c72d0370764e066b9aba3b923d2163edda79f53c286
 T001c:
   c: true
-  h: 5aa9c59eef63bca10c749e0cfb46c94d73527473a1095fe4221c26bf3ea9dc17
-  r: The `code/` directory listing includes a `pyproject.toml` entry, and the collected
-    file content contains a valid `[tool.black]` section with `line-length = 88` and
-    `target-version = ['py311']` (plus reasonable extras like isort/pytest config),
-    exactly matching the task's requirements. The file is non-empty (993 bytes) and
-    is not a placeholder.
-  sig: 800ea56d88fd61185d7eb2fdd6d7a012ab9275c6c77e5068efb298cbc176238e
+  h: 81d9423a5ceb93c0cd7199066fa0602afbe305af146758a7d996233202771673
+  r: The `code/` directory listing includes `pyproject.toml`, and the collected file
+    content contains a `[tool.black]` section with `line-length = 88` and `target-version
+    = ['py311']` (plus reasonable extras like isort/pytest config), exactly matching
+    the task's requirements. The file is non-empty and not a placeholder.
+  sig: 8648153874b0ce0902f8eb4879d55465aef7b7ec751159091cbecb1a93ab011b
 T002:
   c: true
   h: a8231e16c9a4ef6cf86bdb4a0a56a3f82f92ad7045bed0ff87b9d08e9860e40d
@@ -36,25 +27,30 @@ T002:
   sig: 36340ddc7606c2717ea442cbe2bfa344bd6a375b756101c703fc47e104541eea
 T004:
   c: true
-  h: 7c429e1e1630e62d032dbac538aeef3dcff0ab2a013cab66990d91e5d1d946e9
+  h: 962a1b1b8f154b02d972a44f1379456aefae03f52e2bde6d32a1a1b3639f32b4
   r: '`code/config.py` exists (4543 bytes) and defines `DATA_DIR`/`RESULTS_DIR` paths,
     `RANDOM_SEED = 42`, and `LLM_BATCH_SIZE = 10`, exactly as required; the extra
     logging/path helpers and compatibility constants are additive and don''t conflict
-    with the task. The surrounding data/results evidence is irrelevant to this task''s
-    scope.'
-  sig: 735af3c64c97c2507928fdb600e48d9743a33b0cf40210087247c6b95a0b74a4
+    with the task. The `data/` and `results/` directories referenced by the config
+    also exist on disk.'
+  sig: 3e8fd6b75134a9ed9eadd51122e18eb32ea38db5ae9e0d496525507ff9dd93fb
 T005:
-  c: false
-  h: 3365c62504db926a309488505bbd31dd3d0a414fd08258291b448536d614ba2d
-  r: "The `code/__init__.py` exists and is substantive, and `code/create_project_structure.py`\
-    \ correctly implements idempotent creation of the layout. However, the task also\
-    \ requires that the directory layout (`data/raw`, `data/processed`, `results`)\
-    \ actually exists, and the evidence packet contains no confirmation that these\
-    \ directories are present on disk \u2014 only the source files that would create\
-    \ them, with no execution evidence (e.g., a run of `create_project_structure.py`\
-    \ or an import of the package) showing the directories were created. The implementer\
-    \ should run the structure script (or import"
-  sig: c59f136a60256270840d6519e3a4c6b991f564073948332e7405095c93a19b16
+  c: true
+  h: a75e0a842b9ccecbadb2b14d62f1f5d11d003f90f673fac7f6814cb58409cf5c
+  r: 'The `code/__init__.py` exists (1417 bytes, non-stub) and programmatically creates
+    the required `data/raw`, `data/processed`, and `results` directories idempotently
+    at import time. Execution logs confirm the layout test suite passed (3/3) and
+    `code/verify_layout.py` ran successfully with `all_present: True`, writing `results/layout_verification.json`.'
+  sig: 2df5eca98dd420dc7574f081aea059709d3fa06b67a14c3544670255aa62a285
+T006a:
+  c: true
+  h: b81db29a0ab18cb4038d03cb9dcb0edeec864fa8ac8418a8272a890e27d0ee1c
+  r: "`code/config.py` exists (4543 bytes) and its `setup_logging` function configures\
+    \ a log format (timestamp, name, level, message), a FileHandler writing to `results/run.log`\
+    \ (with directory creation), a StreamHandler, and a default INFO level \u2014\
+    \ exactly the format/file-handler/level requirements of T006a. The implementation\
+    \ is real, non-stubbed, and idempotent (guards against duplicate handlers)."
+  sig: 74d9be692610aa3f66de5b44d6f4a2a6fb0d574c79b6bb52d51c24130bade73c
 T020:
   c: false
   h: 5f87ae29f59008beef596b359f7644ec09acc2a4dcbade20cabaf5477ce6e756

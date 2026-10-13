@@ -1,57 +1,53 @@
 """
-llmXive Project Code Package
+llmXive Project Code Package.
 
-This package initializer ensures that the required project directory layout
-exists as soon as the `code` package is imported. The expected layout is:
+This package initializer ensures that the required project directory
+layout exists as soon as the ``code`` package is imported. The expected
+layout is:
 
 - data/raw/
 - data/processed/
 - results/
+- tests/unit/
+- tests/contract/
 
-The helper `ensure_directories` from ``code.create_project_structure`` creates
-these top‑level directories if they are missing. Additionally, we use the
-``llmxive_toolkit.paths`` helpers to guarantee that the specific sub‑folders
-are present.
+Creation is idempotent: importing the package repeatedly is safe.
 """
 
-# Standard library imports
 import logging
+from pathlib import Path
 
-# Local imports
-from .create_project_structure import ensure_directories
-
-# Toolkit imports for convenient path creation
-from llmxive_toolkit import paths
-
-# Configure a module‑level logger (optional but useful for debugging)
 logger = logging.getLogger(__name__)
 
-def _initialize_package() -> None:
-    """
-    Perform package‑level initialisation:
+# Project root is the parent of the directory containing this file.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-    1. Create the top‑level project directories (data/, data/raw/,
-       data/processed/, results/).
-    2. Explicitly ensure the sub‑folders required by the pipeline exist.
+# Directories required by the project layout (T001a / T005).
+_REQUIRED_DIRS = [
+    PROJECT_ROOT / "data" / "raw",
+    PROJECT_ROOT / "data" / "processed",
+    PROJECT_ROOT / "results",
+    PROJECT_ROOT / "tests" / "unit",
+    PROJECT_ROOT / "tests" / "contract",
+]
+
+
+def _initialize_package() -> None:
+    """Create the required project directories if they are missing.
+
+    Fails loudly (re-raises) if the filesystem cannot be written to,
+    so configuration problems surface early.
     """
     try:
-        # Create the generic top‑level directories
-        ensure_directories()
-        
-        # Ensure the specific sub‑directories used throughout the codebase
-        paths.data("raw")          # creates <project>/data/raw/
-        paths.data("processed")    # creates <project>/data/processed/
-        paths.results()            # creates <project>/results/
-        
+        for directory in _REQUIRED_DIRS:
+            directory.mkdir(parents=True, exist_ok=True)
         logger.debug("Project directory layout verified/created.")
     except Exception as exc:
-        # Log the exception but do not suppress it – failing loudly helps
-        # the execution stage discover configuration problems early.
         logger.error("Failed to initialise project layout: %s", exc)
         raise
 
-# Run initialisation at import time
+
+# Run initialisation at import time (idempotent).
 _initialize_package()
 
-# Export a clean public interface (optional)
-__all__ = []
+__all__ = ["PROJECT_ROOT"]

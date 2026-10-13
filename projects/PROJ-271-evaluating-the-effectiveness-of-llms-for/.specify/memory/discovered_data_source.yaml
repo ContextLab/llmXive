@@ -1,11 +1,11 @@
 status: none
-intent: HuggingFace CodeSearchNet Python functions pip installable python package
-  dataset
+intent: HuggingFace bigcode/the-stack Python functions dataset for static analysis
+  python package dataset
 required_fields:
 - function_code
 - loc
 - cyclomatic_complexity
 - pylint_error_codes
-cache_key: e2cd1a6ad1368838dadcc77b1ab0517ed2e35555c9a260a54ff90064f82cbfab
-searched_at: '2026-10-13T04:33:25.202529+00:00'
+cache_key: 46da673e2a62154dcd3377ad46442dbc8acbb4f7eda85f6a75eb745bec05f73b
+searched_at: '2026-10-13T04:37:41.831345+00:00'
 retry_count: 1

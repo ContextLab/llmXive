@@ -1,0 +1,28 @@
+{
+  "task_id": "T005",
+  "package_imported": true,
+  "package_root": "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for",
+  "directories": {
+    "data/raw": {
+      "exists": true,
+      "absolute_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw"
+    },
+    "data/processed": {
+      "exists": true,
+      "absolute_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/processed"
+    },
+    "results": {
+      "exists": true,
+      "absolute_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results"
+    },
+    "tests/unit": {
+      "exists": true,
+      "absolute_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit"
+    },
+    "tests/contract": {
+      "exists": true,
+      "absolute_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/contract"
+    }
+  },
+  "all_present": true
+}
