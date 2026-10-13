@@ -1,15 +1,17 @@
 status: none
-intent: OpenNeuro HCP-Aging diffusion MRI structural connectome and resting state
-  EEG python package dataset
+intent: OpenNeuro HCP-Aging ds004230 diffusion MRI EEG dataset with MRtrix HCP multimodal
+  parcellation python package dataset
 required_fields:
 - participant_id
-- dMRI_connectivity_matrix
-- eeg_time_series
-- eeg_sampling_rate
-- eeg_frequency_band
-- parcellation_scheme
+- diffusion_mri_file_path
+- eeg_file_path
+- structural_connectivity_matrix
+- parcel_labels
+- eeg_sampling_rate_hz
+- eeg_frequency_band_hz
+- preprocessing_status
+- quality_control_flag
 - acquisition_date
-- modality
-cache_key: 7aad7687e6c20ec797ec9840a86064204580348c31070bc78228badb02898e4e
-searched_at: '2026-10-13T01:38:10.751195+00:00'
+cache_key: e4ca57296eb763d8efd54f47a2d7d8cef35f83c2e84cafcfa48328d4abcabfc6
+searched_at: '2026-10-13T02:05:30.317031+00:00'
 retry_count: 1

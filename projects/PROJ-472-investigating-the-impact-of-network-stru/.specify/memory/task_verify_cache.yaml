@@ -1,3 +1,14 @@
+T000:
+  c: false
+  h: 32daaf82850deaa2694ea9c20c2c5b09220d1ee8031b1b9a486d60eafe889d28
+  r: "The task requires a drafted data-acquisition plan document (matched dMRI + EEG\
+    \ participant indexing and ID-alignment verification criteria), but the evidence\
+    \ collector lists no artifacts on disk for this task \u2014 no plan file exists\
+    \ or was confirmed anywhere in the project. The implementer's claim is unsupported\
+    \ by any actual deliverable; a plan document (e.g., `docs/data_acquisition_plan.md`\
+    \ or similar) outlining the participant-indexing scheme and verification criteria\
+    \ must be created."
+  sig: 905254645eb6895725c954e5ec7c7ee677470434578ff682560fe3be6709f061
 T004:
   c: true
   h: e543f4daf7fe046f9c9f28b4afd8a1f8f5e12a89219bee423f2d3e0464241a28

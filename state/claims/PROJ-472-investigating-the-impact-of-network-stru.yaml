@@ -2386,3 +2386,36 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T10:06:14Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/data_acquisition_plan.md
+  attempts: 1
+  canonical: both datasets follow BIDS convention
+  claim_id: c_d4aee85e
+  context: "In the Data Sources table the plan notes that both datasets follow the\
+    \ BIDS convention; the subject identifier is the sub\u2011XX folder name."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Both datasets follow the BIDS convention
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T01:58:51Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/data_acquisition_plan.md
+  attempts: 1
+  canonical: subject identifier is sub-XX folder name with no renaming required
+  claim_id: c_dfb0e6af
+  context: "Both datasets follow the BIDS convention; the subject identifier is the\
+    \ sub\u2011XX folder name (e.g., sub-01). No additional renaming is required."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The subject identifier is the sub\u2011XX folder name (e.g., sub-01);\
+    \ no additional renaming is required"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T01:59:49Z'

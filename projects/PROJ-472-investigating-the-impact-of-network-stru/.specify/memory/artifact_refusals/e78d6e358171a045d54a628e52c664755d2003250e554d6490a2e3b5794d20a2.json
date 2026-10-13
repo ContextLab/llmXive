@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "55acf1232359d2049d29ff7cedfc9976a404a79c45ee4fa49ad298d181ab6e6e",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refused 'code/data/__init__.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}
