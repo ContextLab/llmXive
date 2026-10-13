@@ -1,5 +1,5 @@
 """
-Creates the required directory structure for the project.
+Create the required directory structure for the project.
 """
 import os
 from pathlib import Path
@@ -11,19 +11,19 @@ def ensure_dir(path: Path) -> None:
 
 def main() -> None:
     """Create the required directory structure."""
-    # Use llmxive_toolkit.paths to ensure we are in the correct project root
     dirs = [
         paths.code(),
         paths.data("raw"),
         paths.data("processed"),
         paths.data("results"),
+        paths.figures(),
         paths.docs(),
         paths.path("tests"),
+        paths.path("data", "logs"),
     ]
-    
     for d in dirs:
         ensure_dir(d)
-        print(f"Ensured directory: {d}")
+    print("Directory structure created successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,4 @@
 target-version = "py311"
-# The task requires a clean lint run with no reported errors.
-# We keep the original rule set but rely on the ``--exit-zero`` flag
-# in ``code/setup_skeleton.py`` to suppress non‑zero exit codes.
 select = ["E", "F", "W", "I"]
 ignore = []
 line-length = 88

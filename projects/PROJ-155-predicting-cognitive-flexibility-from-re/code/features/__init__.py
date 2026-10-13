@@ -1,1 +1,1 @@
-"""Feature extraction and connectivity metric modules."""
+"""Feature extraction subpackage."""

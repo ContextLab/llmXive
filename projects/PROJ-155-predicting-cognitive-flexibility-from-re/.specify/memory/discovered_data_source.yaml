@@ -1,12 +1,16 @@
 status: none
-intent: Human Connectome Project resting-state fMRI download NIH Toolbox Dimensional
-  Change Card Sort scores Schaefer atlas python package dataset
+intent: HCP Human Connectome Project resting-state fMRI behavioral NIH Toolbox DCCS
+  Schaefer atlas python package dataset
 required_fields:
-- subject_id (string)
-- region_time_series (float)
-- age (integer)
-- gender (string)
-- NIH_DCCS_score (float)
-cache_key: 25850742d8aa7839e4eeb7bb240325fbe757b752de982445fe69a6256218ae9f
-searched_at: '2026-10-13T18:15:49.985730+00:00'
+- subject_id
+- resting_state_fmri_timeseries
+- schaefer_parcellation_labels
+- regional_connectivity_matrix
+- nih_toolbox_dccs_score
+- age
+- gender
+- motion_parameters
+- preprocessing_qc_metrics
+cache_key: 05dc91cb48090ad681e93d0b5c771ce44964345c5a717758210593b23927dc88
+searched_at: '2026-10-13T19:21:11.712755+00:00'
 retry_count: 1
