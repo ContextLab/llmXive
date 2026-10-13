@@ -5,7 +5,7 @@
 
 ## Phase 0: Foundations (already verified)
 
-- [X] T005/T004/T007/T008/T009 – config loader, `MemoryGuard`, seed pinning, sieve unit tests, custom exceptions, benchmark instrumentation (preserved as verified).
+- [ ] T005/T004/T007/T008/T009 – config loader, `MemoryGuard`, seed pinning, sieve unit tests, custom exceptions, benchmark instrumentation (preserved as verified).
 
 ## Phase 1: Implementation of core modules (must exist before orchestrator)
 
@@ -20,7 +20,7 @@
   * `run_deviation_test(dataset, ...)` – block‑bootstrap deviation metric with small‑N fallback (if `N < 100` report raw `D` and set `p_value = null`).
   Verification via `tests/unit/test_stats.py` covering uniform synthetic data, biased synthetic data, and small‑N path.
 
-- [ ] T017 [FR‑003] Extend `code/stats.py` to provide an **exact multinomial test** used when any expected bin count < 5, invoked automatically by `run_chi_squared_test`.
+- [X] T017 [FR‑003] Extend `code/stats.py` to provide an **exact multinomial test** used when any expected bin count < 5, invoked automatically by `run_chi_squared_test`.
 
 - [ ] T018 [FR‑004] Ensure `run_chi_squared_test` records the method used (`"chi_squared_monte_carlo"` or `"chi_squared_exact"`) in the output JSON for traceability.
 

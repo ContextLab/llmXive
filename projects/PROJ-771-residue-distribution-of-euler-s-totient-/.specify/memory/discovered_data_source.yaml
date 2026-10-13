@@ -1,0 +1,28 @@
+status: verified
+kind: pypi_package
+ref: euler-maths
+access_python: "import euler_maths as em\nN = 1000\nphis = em.euler_totients(N)  #\
+  \ returns list of \u03C6(i) for i in 1..N\nrecords = []\nfor i, phi in enumerate(phis,\
+  \ start=1):\n    rec = {\n        \"n\": i,\n        \"phi\": phi,\n        \"phi_mod_3\"\
+  : phi % 3,\n        \"phi_mod_5\": phi % 5,\n        \"phi_mod_7\": phi % 7,\n \
+  \       \"phi_mod_11\": phi % 11,\n    }\n    records.append(rec)\nprint(f\"RECORDS={len(records)}\"\
+  )\nprint(\"FIELDS=\" + \",\".join(rec.keys()))"
+record_count: 1000
+sample_fields:
+- n
+- phi
+- phi_mod_3
+- phi_mod_5
+- phi_mod_7
+- phi_mod_11
+field_coverage: 0.833
+required_fields:
+- n
+- phi
+- phi_mod_3
+- phi_mod_5
+- phi_mod_7
+- phi_mod_11
+intent: download Euler totient function values and residues dataset python package
+  dataset
+cache_key: 2a69e464d51362cb303fb23da619e282768ecf7c2acc169c77625dea3a48a08a

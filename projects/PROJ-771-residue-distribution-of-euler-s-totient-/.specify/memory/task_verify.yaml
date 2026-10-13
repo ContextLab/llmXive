@@ -1,2 +1,6 @@
-T021: 2
-T034: 2
+? "T005/T004/T007/T008/T009 \u2013 config loader, `MemoryGuard`, seed pinning, sieve\
+  \ unit tests, custom exceptions, benchmark instrumentation (preserved as verified)."
+: 1
+T010: 1
+T011: 1
+T012: 1

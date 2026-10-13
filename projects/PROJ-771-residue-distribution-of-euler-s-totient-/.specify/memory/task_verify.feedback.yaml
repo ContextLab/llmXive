@@ -1,0 +1,63 @@
+? "T005/T004/T007/T008/T009 \u2013 config loader, `MemoryGuard`, seed pinning, sieve\
+  \ unit tests, custom exceptions, benchmark instrumentation (preserved as verified)."
+: reason: "I examined the repository under `projects/PROJ-771-residue-distribution-of-euler-s-totient-`\
+    \ for the required artifacts (config loader, `MemoryGuard`, seed\u2011pinning\
+    \ code, sieve unit\u2011test suite, custom exception definitions, and benchmark\
+    \ instrumentation) but no such files or directories were found or referenced in\
+    \ the evidence. Consequently the claimed components are not present, so the task\
+    \ is not genuinely satisfied."
+  task: faa7df0518b0424cf3690b6413024db32f7b597ca7e93ac079ef260571032e94
+T010:
+  reason: "The `code/sieve.py` file does not define `compute_phi_linear_sieve`, `compute_residues`,\
+    \ the `MemoryGuard` class (or the `MemoryLimitExceeded` exception), nor does it\
+    \ implement the required polling interval or memory\u2011limit logic. Consequently\
+    \ the unit tests in `tests/unit/test_sieve.py` cannot run successfully. Implement\
+    \ these functions/classes as specified to satisfy the task."
+  task: d7342ce0f8a55303adffd18b1efe59967b3115a219d71a84d9ba34db057d5a67
+T011:
+  reason: "The `code/sieve.py` file contains type hints and class docstrings, but\
+    \ the module\u2011level functions (`save_residue_dataset`, `load_residue_dataset`,\
+    \ `save_statistical_result`, `load_statistical_result`) lack docstrings, so the\
+    \ docstring coverage is not comprehensive. Moreover, no mypy run output or proof\
+    \ that static analysis passes is provided. Adding docstrings for all public callables\
+    \ and supplying mypy verification evidence is required."
+  task: 898678c5c97e699e963c1abe2b709f1f2ccd11cfec8501c1129342ca7ee3bb81
+T012:
+  reason: "The provided `code/stats.py` does not satisfy the required API and behavior:\
+    \ `calculate_chi_squared_statistic` returns only a statistic (and attempts to\
+    \ import a non\u2011existent `multinomial_test`), yet the tests expect it to return\
+    \ both \u03C7\xB2 and a p\u2011value. Moreover, `run_deviation_test` yields a\
+    \ high p\u2011value for clearly biased synthetic data (\u22480.96 instead of <0.1),\
+    \ so the block\u2011bootstrap deviation test is incorrect. These mismatches cause\
+    \ the unit tests to fail, so the task is not fully implemented."
+  task: 3b106fd2ac86fbb42b85a894841a7d324bd883c9f992476632b7a39ebf31374f
+T013:
+  task: 054239589015b2970766fddb6835b6c16384ebb98a00168658fd66155855a8e5
+T014:
+  task: 4d65661ffd5839db24751b1f7c02252b057a9f72682a16135e36f5f5ad36263d
+T015:
+  task: 049d40f0eb3ea80deca9b93db01554fcdcaa12a32699a1ce22f44670d8fd3706
+T016:
+  task: f3121282c68a43a764da71bd37c4f305c39d87027908d47a55647fa40a2cd9e0
+T017:
+  task: a7d91377319a877cc31ea2a2acccfad1fe57317becdb925c115b2890cf7c4074
+T018:
+  task: 776e22bdc91327c35f6963ec1eb1a62ee7b55cb99b4ca651502b216de476b458
+T102:
+  task: 103928f211fdef086081945717798359deab39329f8121345163977ec4605d64
+T103:
+  task: e7d84e964dfdfaa7f046c27dd5c24f52e54574c219c871ca3e8d3dc582d95596
+T104:
+  task: 1e75ba970ee5ce9d30a1cb1723c153ddde0dc95a5f2d1fcff796341c045cc7ce
+T105:
+  task: 6849ddc85b26b94e188083bc974ae096ddd5c5916b4bbb599d72b42f9c313f5e
+T106:
+  task: 7a9be075f316db578c1a8287595728417726b766cda0ed861add85af8e40472c
+T107:
+  task: 843b36c75271d23fc5dfaa7356fb3a4218de3d199628d27829b42ab9aa4d6385
+T108:
+  task: 12382c18f8e70174da6d76302c403260a2dd1d185b1fd21aad1d3a51d1592603
+T109:
+  task: 49ae6bf2c9be89658901cc3309ea7437239410cbf911e47d135f137aac078a52
+T110:
+  task: efa484e6991ef31782f4e903305c0460ffca96a6dc39bf5d5f2958e8df590b3c

@@ -1,0 +1,7 @@
+{
+  "task_id": "T018",
+  "fingerprint": "c9f7d66dd64824e8228b7e7f5ab4f29c4d9d35efbf7ed7936852cdfbeeb75629",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/stats.py': imports nonexistent names from sibling files: `from sieve import calculate_chi_squared_statistic, calculate_deviation_D, check_bin_counts_and_fallback` (available: Any, Dict, List, Optional, ResidueDataset, StatisticalResult, asdict, dataclass...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

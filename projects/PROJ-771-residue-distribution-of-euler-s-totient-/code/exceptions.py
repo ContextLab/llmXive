@@ -18,3 +18,10 @@ class BenchmarkFailure(Exception):
         self.elapsed_time = elapsed_time
         self.limit = limit
         super().__init__(f"Benchmark failure: {elapsed_time:.2f}s exceeded limit of {limit:.2f}s")
+
+class MemoryLimitExceeded(Exception):
+    """Raised when memory usage reaches or exceeds the configured limit (>=90% of limit)."""
+    def __init__(self, used_mb: float, limit_mb: int):
+        self.used_mb = used_mb
+        self.limit_mb = limit_mb
+        super().__init__(f"Memory limit exceeded: {used_mb:.2f} MB >= {limit_mb} MB (90% threshold)")
