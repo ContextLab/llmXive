@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-- Python 3.11 or newer
+- Python 3.11 or newer
 - Internet access (for dataset streaming and MP API)
 - Materials Project API key set as environment variable `MP_API_KEY`
-- GitHub Actions‑compatible runner (2 CPU cores, ≤7 GB RAM, ≤14 GB disk)
+- GitHub Actions‑compatible runner (2 CPU cores, ≤7 GB RAM, ≤14 GB disk)
 
 ## Installation
 
@@ -37,7 +37,6 @@ pytest==7.4.3
 pymatgen==2023.10.1
 mp-api==0.35.0
 tqdm==4.66.2
-python-Levenshtein==0.23.0
 ```
 
 ## Step‑by‑Step Execution
@@ -46,37 +45,33 @@ python-Levenshtein==0.23.0
 
    ```bash
    python - <<'PY'
-import pathlib, os
+import pathlib
 for sub in ["data/raw", "data/processed", "outputs", "tests/unit", "tests/integration", "tests/contract"]:
     pathlib.Path(sub).mkdir(parents=True, exist_ok=True)
 PY
    ```
 
-2. **Download data** (raw OC20, MP descriptors, surrogate TOF):
+2. **Download data** (raw OC20, MP descriptors) and verify columns:
 
    ```bash
    python code/download_data.py
    ```
 
-   *Outputs*: `data/raw/oc20_parquet/`, `data/raw/mp_cache.json`, `data/raw/tof_surrogate.jsonl`
+   *Outputs*: `data/raw/oc20_parquet/`, `data/raw/mp_cache.json`, `required_columns.json`
 
-   > **Note:** The original CO₂ hydrogenation experimental TOF dataset is not publicly available. The pipeline therefore uses the open surrogate TOF collection (`locuslab/TOFU`). This limitation is documented in the plan and will be reflected in the final report.
-
-3. **Extract electronic descriptors**:
+3. **Extract electronic descriptors** (no intermediate persisted file):
 
    ```bash
    python code/extract_descriptors.py
    ```
 
-   *Outputs*: `data/processed/descriptors.parquet`
-
-4. **Preprocess & align** (impute, scale, generate `aligned_dataset.csv`):
+4. **Preprocess & align** (impute, scale, generate `aligned_dataset.csv` and related logs):
 
    ```bash
    python code/preprocess.py
    ```
 
-   *Outputs*: `data/processed/aligned_dataset.csv`, `outputs/alignment_log.json`, `outputs/imputation_log.json`
+   *Outputs*: `data/processed/aligned_dataset.csv`, `outputs/alignment_metrics.json`, `outputs/alignment_failure.json`, `outputs/imputation_log.json`, `outputs/scaling_report.json`
 
 5. **Train models & evaluate** (nested CV with outer hold‑out):
 
@@ -84,7 +79,7 @@ PY
    python code/train.py
    ```
 
-   *Outputs*: `code/models/xgboost_best.pkl`, `outputs/metrics.json`
+   *Outputs*: `code/models/best_xgboost.json`, `outputs/best_params.json`, `outputs/metrics.json`, `outputs/normality_test.json`, `outputs/statistical_test.json`
 
 6. **Reduced‑model verification (SC‑003)**:
 
@@ -100,7 +95,7 @@ PY
    python code/interpret.py
    ```
 
-   *Outputs*: `outputs/feature_importance.png`, `outputs/shap_ranking.json`
+   *Outputs*: `outputs/shap_rankings.csv`, `outputs/shap_barplot.png`
 
 8. **Generate final report**:
 
@@ -120,13 +115,9 @@ PY
 
 ## Expected Runtime & Resource Usage
 
-- **Total wall‑clock time**: ≤ 3 hours on the standard GitHub Actions runner.  
-- **Peak RAM**: ≤ 5 GB (due to streaming and chunked descriptor extraction).  
-- **Disk consumption**: ≤ 12 GB (raw parquet shards are streamed; only processed CSV (a few hundred MB) remains).  
+- **Total wall‑clock time**: ≤ 3 hours on the standard GitHub Actions runner (SC‑004 limit: ≤ 6 h).  
+- **Peak RAM**: ≤ 5 GB (due to streaming and chunked descriptor extraction).  
+- **Disk consumption**: ≤ 12 GB (raw parquet shards are streamed; only processed CSV (a few hundred MB) remains).  
 
-All steps are CPU‑only; no GPU resources are required.
-
----
-
-
+All steps are CPU‑only; no GPU resources are required.  
 

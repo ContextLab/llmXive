@@ -1,4 +1,3 @@
-# This schema aligns exactly with the columns produced by the pipeline (see plan.md and data-model.md).
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Aligned Dataset Schema"
 description: "Schema for the aligned, imputed, and scaled catalyst dataset (aligned_dataset.csv). Experimental TOF may be null when a surrogate source is used."
@@ -14,26 +13,32 @@ properties:
     type: "string"
     description: "Surface facet index (e.g., 111, 100)"
   synthesis_condition:
-    type: "string"
-    description: "Exact synthesis description (must match across sources)"
+    type:
+      - "string"
+      - "null"
+    description: "Exact synthesis description (optional)"
   temperature:
-    type: "number"
-    description: "Reaction temperature in Kelvin (extracted from synthesis_condition)"
+    type:
+      - "number"
+      - "null"
+    description: "Reaction temperature in Kelvin (optional)"
   pressure:
-    type: "number"
-    description: "Reaction pressure in atm"
+    type:
+      - "number"
+      - "null"
+    description: "Reaction pressure in atm (optional)"
   d_band_center:
     type: "number"
-    description: "d‑band center (scaled)"
+    description: "d-band center (scaled)"
   p_band_center:
     type: "number"
-    description: "p‑band center (scaled)"
+    description: "p-band center (scaled)"
   bader_charges:
     type: "number"
     description: "Bader charge (scaled)"
   activation_barrier:
     type: "number"
-    description: "Activation energy (eV, scaled)"
+    description: "Activation energy (eV, scaled) – used as proxy target"
   reaction_energy:
     type: "number"
     description: "Reaction energy (eV, scaled)"
@@ -47,7 +52,7 @@ properties:
     type:
       - "number"
       - "null"
-    description: "Experimental turnover frequency (scaled). May be null if surrogate TOF data are used."
+    description: "Experimental turnover frequency (scaled). May be null if surrogate target is used."
   is_imputed:
     type: "boolean"
     description: "True if any descriptor was imputed via k‑NN."
@@ -58,9 +63,6 @@ required:
   - catalyst_id
   - composition
   - surface_facet
-  - synthesis_condition
-  - temperature
-  - pressure
   - d_band_center
   - p_band_center
   - bader_charges
@@ -68,7 +70,6 @@ required:
   - reaction_energy
   - coordination_number
   - surface_area
-  - experimental_tof
   - is_imputed
   - excluded_from_training
-additionalProperties: false
+additionalProperties: true

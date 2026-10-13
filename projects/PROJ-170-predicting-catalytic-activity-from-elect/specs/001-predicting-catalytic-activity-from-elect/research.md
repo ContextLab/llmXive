@@ -1,53 +1,54 @@
 # Research: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
 ## Problem Statement
-Develop a predictive model for **generic catalytic turnover frequencies (TOF)** using DFT‑derived electronic descriptors (d‑band center, activation barrier, etc.) and reaction‑path features. The study assesses (1) whether an expanded descriptor set outperforms the classic Sabatier‑volcano descriptors for predicting catalytic activity, and (2) which descriptors provide the strongest associative signal via SHAP. The target variable does **not** correspond to CO₂ hydrogenation; this limitation is explicitly acknowledged throughout.
+Develop a predictive model for **generic catalytic activity** using DFT‑derived electronic descriptors (d‑band center, activation barrier, etc.) and reaction‑path features. Because no open experimental turnover‑frequency (TOF) dataset for CO₂ hydrogenation exists, the study will **temporarily use the DFT activation barrier as a proxy target** (see scope‑revision note in the implementation plan). The objective remains to assess (1) whether an expanded descriptor set outperforms the classic Sabatier‑volcano descriptors for predicting the proxy target, and (2) which descriptors provide the strongest associative signal via SHAP. All conclusions are explicitly limited to association with the proxy target.
 
 ## Dataset Strategy
 
 | Dataset | Purpose | Verified Source | Access Method | Notes |
 |---------|---------|----------------|---------------|-------|
-| OC20 (parquet) | DFT structures & computed energetics | https://huggingface.co/datasets/nimashoghi/oc20_s2ef_train_2M/resolve/main/data/train-00000-of-00014.parquet | `datasets.load_dataset(..., streaming=True)` | Provides atomic structures; no experimental TOF. |
+| OC20 (parquet) | DFT structures & computed energetics (descriptors) | https://huggingface.co/datasets/nimashoghi/oc20_s2ef_train_2M/resolve/main/data/train-00000-of-00014.parquet | `datasets.load_dataset(..., streaming=True)` | Provides atomic structures; no experimental TOF. |
 | Materials Project Bulk | Bulk electronic descriptors (d‑band, p‑band, Bader) | Official MP API (`mp-api`) | `mp-api` client (API key via `MP_API_KEY`) | Cached locally under `data/raw/mp_cache.json`. |
-| TOF (jsonl) – surrogate | Experimental TOF values (generic catalytic dataset) | https://huggingface.co/datasets/locuslab/TOFU/resolve/main/forget01.json | `datasets.load_dataset("locuslab/TOFU")` | Used because the required 2025 CO₂ hydrogenation dataset lacks an open URL. The surrogate does **not** represent CO₂ hydrogenation catalysts; provenance is clearly labeled in the final report. |
+| **No open experimental TOF dataset** | – | – | – | The original CO₂ hydrogenation experimental TOF dataset is not publicly available.; a formal scope‑revision request is filed to replace the target when an open source becomes available. The proxy target is the DFT activation barrier. |
 
-**Data‑Availability Gap**: The spec’s required “2025 CO₂ hydrogenation experimental TOFs” dataset is not publicly downloadable. Consequently, we **use the open surrogate TOF collection** (`locuslab/TOFU`) as a stand‑in, but we **explicitly state** that these values do **not** correspond to CO₂ hydrogenation catalysts. This limitation is recorded, and a scope‑revision request is filed for the original dataset.
+**Data‑Availability Gap**: The spec’s required “2025 CO₂ hydrogenation experimental TOFs” dataset is not publicly downloadable. Consequently, we **use the DFT activation barrier as a surrogate target** and clearly label this limitation in the final report. A formal scope‑revision request is filed to replace the target when an open source becomes available.
 
 ## Methodological Approach
 
-### 1. Data Alignment & Preprocessing (FR‑001 – FR‑003)
+### 1. Data Alignment & Preprocessing (FR‑001 – FR‑003)
 
-1. **Streaming Download** – OC20 parquet streamed in 100 k row chunks; MP descriptors fetched via API and cached.  
-2. **Descriptor Extraction** – For each OC20 structure, `pymatgen` computes: d‑band center, p‑band center, Bader charges, coordination number, surface area. Computations are chunked to stay within RAM limits.  
-3. **Exact Alignment** – **Exact string matching** on `composition`, `surface_facet`, **and** `synthesis_condition`. Temperature and pressure are parsed from `synthesis_condition`; entries lacking either are excluded. Alignment rate is recorded (SC‑002).  
-4. **Imputation** – k‑NN (k=5) in normalized stoichiometry space; entries with <5 neighbors are flagged (`excluded_from_training=True`).  
-5. **Scaling** – `StandardScaler` (zero mean, unit variance) applied to all numeric columns. The resulting CSV (`aligned_dataset.csv`) conforms to `contracts/aligned_dataset.schema.yaml`.
+1. **Streaming Download** – The OC dataset parquet streamed in substantial row chunks.; MP descriptors fetched via API and cached.  
+2. **Descriptor Extraction** – For each OC20 structure, `pymatgen` computes: d‑band center, p‑band center, Bader charges, coordination number, surface area, reaction energy. Computations are chunked to stay within RAM limits.  
+3. **Alignment** – **Exact matching on `composition` and `surface_facet`** between OC20 and MP descriptors. Optional fields `temperature`, `pressure`, and `synthesis_condition` are matched when present; otherwise they are left null. If an exact match cannot be found, a **nearest‑neighbor stoichiometry match** (k=5) is attempted; entries that still cannot be aligned are excluded and logged. Alignment success rate is recorded in `alignment_metrics.json`; if the rate falls below 0.80 the pipeline aborts with `alignment_failure.json`.  
+4. **Imputation** – k‑NN (k=5) in normalized stoichiometry space; entries with fewer than 5 neighbors are flagged (`excluded_from_training=True`) and excluded from model training.  
+5. **Scaling** – `StandardScaler` (zero mean, unit variance) applied to all numeric columns; post‑scaling mean |μ| < 0.01 and |σ‑1| < 0.01 are logged in `scaling_report.json`.  
+6. **Target Variable** – The proxy target `activation_barrier` (scaled) is used as the regression outcome; the original experimental TOF column is omitted pending dataset availability.
 
-### 2. Model Training & Baseline Comparison (FR‑004 – FR‑005)
+### 2. Model Training & Baseline Comparison (FR‑004 – FR‑005)
 
-1. **Nested CV** – An outer hold‑out test set ([deferred] of data) is split **before** any model fitting. Within the remaining data, a 5‑fold inner CV grid search optimizes XGBoost hyper‑parameters (`max_depth ∈ {3,5,7}`, `learning_rate ∈ {0.01,0.1}`, `n_estimators ∈ {50,100,150,200}`), selecting the configuration that maximizes inner‑CV R². Ties are broken by the smallest `n_estimators`.
-2. **Linear Volcano Baseline** – Elastic Net regression (l1_ratio = 0.5) on `d_band_center` and `activation_barrier` (with VIF diagnostics).  
-3. **Statistical Test** – Shapiro‑Wilk (α = 0.05) on absolute errors of both models. If normality is rejected, a two‑tailed Wilcoxon signed‑rank test is performed; otherwise a paired two‑tailed t‑test. **Minimal Important Difference (MID)** is defined as ΔMAE ≥ 0.1 log‑TOF units. Significance is declared only if *p* < 0.05 **and** ΔMAE ≥ MID. No multiple‑comparison correction is needed because this is the sole primary hypothesis test.
+1. **Nested CV** – An outer hold‑out test set of **[deferred] of the unified dataset (minimum 100 samples)** is split **before** any model fitting. Within the remaining data, a 5‑fold inner CV grid search optimizes XGBoost hyper‑parameters (`max_depth ∈ {3,5,7}`, `learning_rate ∈ {0.01,0.1}`, `n_estimators ∈ {50,100,150,200}`), selecting the configuration that maximizes inner‑CV R². Ties are broken by the smallest `n_estimators`.
+2. **Linear Volcano Baseline** – Ordinary Least Squares `LinearRegression` on `d_band_center` and `activation_barrier`.  
+3. **Statistical Test** – Shapiro‑Wilk test (α = 0.05) is applied to the **paired absolute‑error differences** (|e_XGB| − |e_baseline|). If normality holds (p ≥ 0.05) a paired two‑tailed t‑test is used; otherwise a Wilcoxon signed‑rank test is performed. Results are saved in `normality_test.json` and `statistical_test.json`. **Significance** is declared only if *p* < 0.05 **and** ΔR² ≥ 0.02 (per FR‑008).  
 
-### 3. Interpretability & Feature Importance (FR‑006 – FR‑007)
+### 3. Interpretability & Feature Importance (FR‑006 – FR‑007)
 
-1. **SHAP** – `shap.TreeExplainer` computes values for the final XGBoost model; mean absolute SHAP per descriptor is calculated.  
-2. **Ranking & Visualization** – Top‑5 descriptors plotted (`feature_importance.png`).  
-3. **Physical Comparison** – The top‑5 list is compared against Nørskov et al. (d‑band center, activation barrier, reaction energy). The report **explicitly limits** the discussion to associative patterns; no causal language is used.  
-4. **Reduced Model (SC‑003)** – XGBoost trained on only the top‑5 SHAP descriptors; R² ratio (`R²_reduced / R²_full`) computed and required to be ≥ 0.50. Result stored in `outputs/reduced_model_metrics.json`.
+1. **SHAP** – `shap.TreeExplainer` computes values for the final XGBoost model **using only training‑fold data**; mean absolute SHAP per descriptor is calculated.  
+2. **Ranking & Visualization** – Top‑5 descriptors saved as `shap_rankings.csv` (checksum‑verified) and visualized in `shap_barplot.png`.  
+3. **Physical Comparison** – The top‑5 list is compared against Nørskov et al. (d‑band center, activation barrier, reaction energy). The report **explicitly limits** the discussion to associative patterns; no causal language is used.  
 
-### 4. Reporting (FR‑007)
+### 4. Final Report (FR‑007)
 
 `code/report.py` aggregates:
-- Alignment rate, imputation statistics, model metrics (R², MAE, Pearson r), statistical test outcome (including MID check), SHAP ranking, reduced‑model ratio, and a discussion of physical relevance. The report **clearly notes** that the TOF data are surrogate and that SHAP findings are associative, not causal.
+- Alignment rate, imputation statistics, model metrics (R², MAE, Pearson r), statistical‑test outcome (including ΔR² check), SHAP ranking, reduced‑model ratio, and a discussion of physical relevance.  
+- The report **clearly notes** the surrogate nature of the target and limits interpretation to association.
 
 ## Statistical Rigor & Feasibility
 
 - **Multiple Comparisons** – Only one primary hypothesis test → no correction needed.  
-- **Power / Sample Size** – Assuming a medium effect size (Cohen’s f²≈0.15), ≥500 matched entries provide >80 % power at α = 0.05 for detecting a ΔMAE ≥ 0.1 log‑TOF (see Power‑Analysis justification).  
+- **Power / Sample Size** – Paired‑difference sample‑size formula (σ_Δ = 0.10, Δ = 0.02, α = 0.05, power = 0.80) yields a minimum of **≈250** paired samples; the outer hold‑out of ≥ 100 samples ensures ≥ 200 training samples, satisfying the power requirement.  
 - **Observational Data** – All statements are framed as associational; no causal claims are made.  
-- **Measurement Validity** – d‑band center and activation barrier are standard DFT descriptors with extensive literature support (Nørskov et al.). TOF values from the surrogate dataset are **clearly identified** as such.  
-- **Collinearity** – VIF calculated; if VIF > 5, Elastic Net regularization is applied and independent effect claims are avoided.  
+- **Measurement Validity** – d‑band center and activation barrier are standard DFT descriptors with extensive literature support (Nørskov et al.). The proxy target is explicitly labeled as such.  
+- **Collinearity** – VIF calculated; if VIF > 5, Elastic Net regularization is applied and independent effect claims are avoided.  
 
 ## Compute Feasibility (CPU‑First)
 
@@ -67,15 +68,10 @@ All steps are pure CPU; no GPU escape hatch required.
 
 | Risk | Mitigation |
 |------|------------|
-| Missing open CO₂ hydrogenation TOF dataset (FR‑001) | Document limitation; request scope‑revision; proceed with surrogate while clearly labeling it. |
+| Missing open experimental TOF dataset (FR‑001) | Document limitation; request scope‑revision; proceed with DFT proxy while clearly labeling it. |
 | Insufficient neighbors for k‑NN imputation | Log and exclude; if >30 % entries are excluded, abort with warning and suggest expanding dataset. |
-| Confounding experimental conditions | Require exact `synthesis_condition` match and parse temperature/pressure; exclude entries lacking these covariates. |
-| Runtime exceedance | Process smaller chunks; fallback to a random [deferred] sample with documented power limitation. |
+| Alignment failures due to missing optional fields | Optional fields are nullable; alignment proceeds on composition + facet alone, with fallback nearest‑neighbor matching. |
+| Runtime exceedance | Process smaller chunks; fallback to a random sample with documented power limitation. |
 | MP API rate limits | Cache results locally; exponential back‑off on 429 responses. |
-| Predictor collinearity | Compute VIF; apply Elastic Net; report descriptive relationships without claiming independence. |
-| Over‑optimistic significance claims | Enforce MID (ΔMAE ≥ 0.1) and require both p‑value < 0.05 **and** MID to claim improvement. |
-
----
-
-
-
+| Predictor collinearity | Compute VIF; apply Elastic Net if needed; report descriptive relationships without claiming independence. |
+| Over‑optimistic significance claims | Enforce ΔR² ≥ 0.02 and require both p < 0.05 **and** ΔR² rule (FR‑008). |

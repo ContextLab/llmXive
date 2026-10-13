@@ -22,7 +22,9 @@ properties:
     type: "number"
     description: "Pearson correlation coefficient."
   t_test_p_value:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "P-value from paired t-test or Wilcoxon test (null if not applicable)."
   hyperparameters:
     type: "object"
