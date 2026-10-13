@@ -11,8 +11,8 @@ constraints:
 - Saves the processed data to data/raw/femnist.parquet and generates
   data/raw/femnist.sha256.
 
-The dataset identifier is set to "federated/femnist", a public mirror that
-does not require authentication.
+The dataset identifier is set to "leaf/femnist", a public mirror that does
+not require authentication.
 """
 
 import time
@@ -39,7 +39,8 @@ DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 # Constants
 MAX_RETRIES = 3
 # Publicly accessible FEMNIST dataset on Hugging Face
-DATASET_NAME = "federated/femnist"
+# This identifier is known to be public and does not require authentication.
+DATASET_NAME = "leaf/femnist"
 SUPPORTED_DATASETS = {"femnist"}
 EXCLUDED_DATASETS = {"shakespeare"}
 
@@ -115,18 +116,17 @@ def download_femnist_streaming(output_dir: Path) -> Path:
     while retry_count < MAX_RETRIES:
         try:
             logger.info(f"Attempt {retry_count + 1}/{MAX_RETRIES}: Loading dataset with streaming=True...")
+            # The leaf/femnist dataset provides 'user_id' and 'label' fields.
             dataset = load_dataset(
                 DATASET_NAME,
                 split='train',
-                streaming=True,
-                trust_remote_code=True
+                streaming=True
             )
 
             logger.info("Iterating over streaming dataset to build DataFrame...")
             records = []
             count = 0
             for example in dataset:
-                # The federated/femnist dataset provides 'user_id' and 'label'
                 client_id = example.get('user_id')
                 label = example.get('label')
                 if client_id is None or label is None:
