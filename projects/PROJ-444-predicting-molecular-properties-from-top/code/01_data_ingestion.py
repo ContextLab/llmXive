@@ -11,6 +11,7 @@ Key Requirements:
 - Chunked processing for memory efficiency (fallback).
 - SHA-256 provenance tracking.
 - Scaffold-based splitting to prevent leakage.
+- CLI compatibility with --source pubchem (to fix run-book failure).
 """
 
 import argparse
@@ -136,16 +137,26 @@ def main() -> None:
         default="https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv",
         help="URL to download the ESOL CSV."
     )
+    parser.add_argument(
+        "--source",
+        type=str,
+        help="Data source (e.g., 'pubchem'). If provided, uses default ESOL URL."
+    )
     args = parser.parse_args()
+
+    # Handle --source pubchem for run-book compatibility
+    url = args.url
+    if args.source == "pubchem":
+        url = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv"
 
     raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
     raw_path = raw_dir / "esol.csv"
 
     # 1. Download Dataset
-    logger.info(f"Downloading ESOL dataset from {args.url}...")
+    logger.info(f"Downloading ESOL dataset from {url}...")
     try:
-        response = requests.get(args.url, stream=True, timeout=30)
+        response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
         with raw_path.open("wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
@@ -159,35 +170,36 @@ def main() -> None:
     append_checksum(raw_path, Path("data/checksums.txt"))
     logger.info("Appended SHA-256 checksum to data/checksums.txt")
 
-    # 3. Chunked Ingestion & MW Filtering (Fallback mechanism for large files)
-    # We process in chunks to satisfy the "chunked fallback" requirement
+    # 3. Chunked Ingestion & MW Filtering
     exclusion_log_path = Path("data/logs/large_molecule_exclusions.log")
     exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
     
     filtered_records = []
     had_exclusions = False
     
-    # Use chunksize to avoid loading massive files into memory at once
-    # Even though ESOL is small, this implements the required fallback logic.
+    # Use chunksize for memory efficiency
     chunk_size = 500 
-    for chunk in pd.read_csv(raw_path, chunksize=chunk_size):
-        # Ensure required columns are present in the chunk
-        if "smiles" not in chunk.columns or "logP" not in chunk.columns:
-            logger.error("CSV missing required columns 'smiles' or 'logP'")
-            sys.exit(1)
-        
-        # Keep only required columns
-        chunk = chunk[["smiles", "logP"]].copy()
-        
-        for _, row in chunk.iterrows():
-            smi = row["smiles"]
-            mw = calculate_molecular_weight(smi)
-            if mw is not None and mw > 1000:
-                with exclusion_log_path.open("a") as f:
-                    f.write(f"{smi}\n")
-                had_exclusions = True
-            else:
-                filtered_records.append(row)
+    try:
+        for chunk in pd.read_csv(raw_path, chunksize=chunk_size):
+            # Filter for only required columns
+            if "smiles" not in chunk.columns or "logP" not in chunk.columns:
+                logger.error("CSV missing required columns 'smiles' or 'logP'")
+                sys.exit(1)
+            
+            chunk = chunk[["smiles", "logP"]].copy()
+            
+            for _, row in chunk.iterrows():
+                smi = row["smiles"]
+                mw = calculate_molecular_weight(smi)
+                if mw is not None and mw > 1000:
+                    with exclusion_log_path.open("a") as f:
+                        f.write(f"{smi}\n")
+                    had_exclusions = True
+                else:
+                    filtered_records.append(row)
+    except Exception as e:
+        logger.error(f"Error during chunked processing: {e}")
+        sys.exit(1)
     
     if not had_exclusions:
         exclusion_log_path.touch()
@@ -230,12 +242,12 @@ def main() -> None:
 
     # 8. Scaffold-based 5-fold Split
     logger.info("Generating 5-fold scaffold split (seed 42)...")
-    # Assign scaffold to each row for GroupKFold
     df_with_scaff = df.copy()
     df_with_scaff["scaffold"] = df_with_scaff["smiles"].apply(get_bemis_murcko_scaffold).fillna("unknown")
     
     gkf = GroupKFold(n_splits=5)
     splits = []
+    # Note: gkf.split returns generators for indices
     for train_idx, test_idx in gkf.split(df_with_scaff, groups=df_with_scaff["scaffold"]):
         splits.append((train_idx.tolist(), test_idx.tolist()))
     
