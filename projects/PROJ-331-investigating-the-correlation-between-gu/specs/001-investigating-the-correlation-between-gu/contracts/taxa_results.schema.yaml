@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Taxa Results Schema"
+type: object
+description: "Schema for CSV result files produced by the gut‑microbiome–PD progression pipeline."
+properties:
+  correlation:
+    type: array
+    description: "Rows for taxa_correlations.csv"
+    items:
+      type: object
+      required: [taxon_name, spearman_rho, raw_p, bh_adj_p]
+      properties:
+        taxon_name:
+          type: string
+          description: "Exact taxon identifier as in the ASV table"
+        spearman_rho:
+          type: number
+          description: "Spearman rank correlation coefficient between taxon slope and UPDRS slope"
+        raw_p:
+          type: number
+          description: "Two‑tailed p‑value from the Spearman test"
+          minimum: 0
+          maximum: 1
+        bh_adj_p:
+          type: number
+          description: "Benjamini‑Hochberg adjusted p‑value"
+          minimum: 0
+          maximum: 1
+  mixed_effects:
+    type: array
+    description: "Rows for mixed_effects_summary.csv"
+    items:
+      type: object
+      required: [taxon_name, interaction_coef, std_error, raw_p, bh_adj_p]
+      properties:
+        taxon_name:
+          type: string
+        interaction_coef:
+          type: number
+          description: "Fixed‑effect coefficient for Time × Taxon interaction"
+        std_error:
+          type: number
+          description: "Standard error of the interaction coefficient"
+        raw_p:
+          type: number
+          minimum: 0
+          maximum: 1
+        bh_adj_p:
+          type: number
+          minimum: 0
+          maximum: 1
+  permutation:
+    type: array
+    description: "Rows for permutation_pvalues.csv"
+    items:
+      type: object
+      required: [taxon_name, empirical_p]
+      properties:
+        taxon_name:
+          type: string
+        empirical_p:
+          type: number
+          description: "Empirical p‑value from a substantial number of permutations."
+          minimum: 0
+          maximum: 1
+required: [correlation, mixed_effects, permutation]
+additionalProperties: false

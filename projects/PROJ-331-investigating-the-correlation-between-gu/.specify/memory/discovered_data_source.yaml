@@ -1,0 +1,14 @@
+status: none
+intent: download PPMI 16S rRNA ASV tables clinical metadata python package dataset
+required_fields:
+- sample_id
+- patient_id
+- visit_number
+- collection_date
+- asv_id
+- asv_count
+- taxonomy
+- UPDRS_motor_score
+cache_key: e395bdc567dbe949e562a5b87bf10a45ef6d5f0c86984e96592f0b4742ec2140
+searched_at: '2026-10-13T02:23:22.844824+00:00'
+retry_count: 1
