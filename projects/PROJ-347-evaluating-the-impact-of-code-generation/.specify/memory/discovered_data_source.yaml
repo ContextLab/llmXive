@@ -1,0 +1,13 @@
+status: none
+intent: download Devign vulnerable code dataset and CodeXGLUE python package dataset
+required_fields:
+- id
+- code
+- vulnerability_type
+- cve_id
+- language
+- function_name
+- metadata
+cache_key: 0e11ceb96755e64cc41885f26f8e516ea592909529da93eef6d02365c141d2b0
+searched_at: '2026-10-13T03:15:05.521091+00:00'
+retry_count: 1

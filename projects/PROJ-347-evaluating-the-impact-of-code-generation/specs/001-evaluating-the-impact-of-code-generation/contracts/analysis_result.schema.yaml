@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+type: object
+required:
+  - result_id
+  - vulnerability_type
+  - human_count
+  - llm_count
+  - total_pairs
+  - p_value
+  - p_value_adj
+  - is_significant
+  - test_method
+properties:
+  result_id:
+    type: string
+    format: uuid
+    description: "Unique identifier for the analysis row."
+  vulnerability_type:
+    type: string
+    description: "OWASP category being compared."
+  human_count:
+    type: integer
+    minimum: 0
+    description: "Number of human samples flagged."
+  llm_count:
+    type: integer
+    minimum: 0
+    description: "Number of LLM samples flagged."
+  total_pairs:
+    type: integer
+    minimum: 0
+    description: "Number of paired samples considered for this type."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p‑value from McNemar’s test."
+  p_value_adj:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni‑adjusted p‑value."
+  is_significant:
+    type: boolean
+    description: "True if adjusted p‑value < 0.05."
+  test_method:
+    type: string
+    enum: ["McNemar", "Exact McNemar"]
+    description: "Statistical test used."
+  confidence_threshold:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Confidence cutoff applied for this row (null for primary analysis)."
+    nullable: true
