@@ -1,38 +1,36 @@
 T001:
   c: true
-  h: e873902526ec959f7799e8cb3df4eddba912e33549fb5c215b26d9eedfa6b250
+  h: d00b7c58f18fdfb93e7f5f0639aed5e7a4dc3d5edeab4a37666fdc64dcce8415
   r: 'The ingest module (`code/src/pipeline/ingest.py`) implements all required behavior:
-    column/readability validation of `ppmi_asv.csv` and `ppmi_clinical.parquet`, non-zero
-    exit with clear errors on missing/malformed files, and a warning plus skip flags
-    (`skip_slope_and_correlation`, `skip_mixed_effects`) when `MDS_UPDRS_Total` is
-    absent, with no synthetic fallback. The tests in `code/tests/test_ingest.py` cover
-    the three required cases (successful load, missing file, missing outcome column)
-    plus malformed input and report writing, and the runnable command is documented
-    in `specs/.../quickstart.m'
-  sig: 05ccff71fc6e8581197086671c5090416fbc101e0e307fc4bdea6e8248e74c18
+    column/readability validation for both raw inputs, non-zero exit with clear errors
+    on missing/malformed files, and a warning plus skip flags (`skip_slope_and_correlation`,
+    `skip_mixed_effects`) when `MDS_UPDRS_Total` is absent, with no synthetic fallback.
+    The unit tests in `code/tests/test_ingest.py` cover the three required cases (successful
+    load, missing file, missing outcome column) plus malformed-input and report-writing
+    cases, and the runnable command is documented in `specs/001-investigating-the-correlati'
+  sig: bdf3fccf7abfc200a9be1d30d25f2657356bd103475a2d9c2a4608bf0a4d3fd0
 T002:
   c: false
-  h: a3c90200d69b9fe4aa7c77a761f5ea958636cc4e351919b66c2dcbc544646dbe
+  h: 401453ffd1ad359205318050410a937208f3e61ff7562de8e08f945de00d51f1
   r: "The implementation `code/src/pipeline/preprocess.py` and tests exist and look\
     \ substantive, but the task's required outputs `data/processed/filtered_samples.parquet`\
     \ and `data/processed/clr_abundances.parquet` are MISSING \u2014 the pipeline\
-    \ was evidently never run on the real raw data (no execution evidence or test-run\
-    \ evidence was provided either). The implementer must run `run_preprocess()` against\
-    \ the actual `data/raw/` inputs to produce both parquet outputs (and ideally show\
-    \ the tests passing)."
-  sig: 72c30046e320ff7d9c6c1e8c4408f8f2880674903df3baa4efe46b183798110b
+    \ was never actually run on real data (no raw data or execution evidence is present\
+    \ either). The implementer must run the preprocessing (or otherwise produce the\
+    \ two parquet outputs from real inputs) and provide evidence the tests pass."
+  sig: fd6cdfdb30064e8d0c5c624470f5a698e1f050ab925ac768ad043f09d432c180
 T003:
   c: false
-  h: 79c32c76e2a4246597281047fbb97a0d0dcea454691a3bace852bc5b3dde3717
-  r: "The required outputs `data/processed/patient_taxon_slopes.parquet` and `data/processed/patient_outcome_slopes.parquet`\
-    \ are MISSING \u2014 the module was never run, so there is no execution evidence.\
-    \ Moreover, `compute_outcome_slopes` contradicts the task spec: it uses a 365-day\
-    \ divisor instead of the required exact-years 365.25 conversion, and it substitutes\
-    \ a *global* slope for patients with constant outcomes (fabricated stand-in),\
-    \ which would fail the test `test_constant_outcome_yields_zero_slope` that expects\
-    \ a measured slope of 0. The implementer must fix the outcome-slope computation\
-    \ (365.25 d"
-  sig: 1360dc124fb4abc1f5d3fe9b4b3fd44d67f3fc3c3c1ab1f7505e74b5da232c13
+  h: 01cb7fe4bbc73840da086aed7b35e2edd63ce0b3bc37effc53f39e6cdc0f0c9f
+  r: "The implementation `code/src/pipeline/slopes.py` and tests `code/tests/test_slopes.py`\
+    \ exist and look substantive, but both required output artifacts \u2014 `data/processed/patient_taxon_slopes.parquet`\
+    \ and `data/processed/patient_outcome_slopes.parquet` \u2014 are MISSING, and\
+    \ there is no execution evidence (test run logs, pipeline run) showing the module\
+    \ was ever executed or that the tests pass. The implementer must actually run\
+    \ the slope computation (or the tests via `run_slopes`) to produce the parquet\
+    \ outputs, or demonstrate the upstream inputs are unavailable and the run was\
+    \ performed as far as po"
+  sig: 36965e804b7d4d6160766e3c9b40b430b65d45661df1a7faba39e0a7c22e0fbe
 T004:
   c: false
   h: 5c0ccd87137b784d2fd0294dc18724df9de46415a13f8f6be6aef7f752510af7

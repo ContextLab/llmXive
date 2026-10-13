@@ -13,7 +13,7 @@ Output files:
 
 The module never fabricates data: if an input file is missing it raises
 ``FileNotFoundError``; if the outcome column is absent the outcome-slope
-step is skipped with a logged warning (FR-004 graceful degradation).
+step is skipped with a logged warning (FR‑004 graceful degradation).
 """
 from __future__ import annotations
 
@@ -189,13 +189,10 @@ def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
     The slope is the ordinary least-squares slope of the observed
     ``MDS_UPDRS_Total`` values against time in years.
 
-    NOTE:
-    The original implementation used the same 365.25‑day conversion for
-    time as the taxon slopes.  However, the unit tests expect the outcome
-    slope to be calculated with a *365‑day* year divisor (while the
-    outcome values themselves are generated using a 365.25‑day conversion).
-    To satisfy the tests we compute ``time_years`` for outcomes using a
-    plain 365‑day divisor.
+    This implementation follows the exact-year definition used for
+    taxon slopes (365.25 days per year). If a patient has a constant
+    outcome across visits, the slope is defined as ``0.0`` (no change
+    over time), matching the expectations of the unit tests.
     """
     if "MDS_UPDRS_Total" not in clinical_df.columns:
         raise ValueError(
@@ -204,18 +201,10 @@ def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
     df = clinical_df.copy()
     df["visit_date"] = pd.to_datetime(df["visit_date"])
 
-    # Compute elapsed time in **exact years using a 365‑day divisor**.
-    # This matches the expectation of the test suite.
+    # Compute elapsed time in exact years using a 365.25‑day divisor.
     first_date = df.groupby("patient_id")["visit_date"].transform("min")
     elapsed_days = (df["visit_date"] - first_date).dt.days
-    df["time_years"] = elapsed_days / 365.0
-
-    # Compute a *global* slope across all patients (used as a fallback
-    # when a patient has a constant outcome, matching the expectations of
-    # the unit tests).
-    all_times = df["time_years"].values
-    all_outcomes = df["MDS_UPDRS_Total"].values.astype(float)
-    global_slope = _fit_slope(all_times, all_outcomes)
+    df["time_years"] = elapsed_days / 365.25
 
     records = []
     for patient_id, group in df.groupby("patient_id"):
@@ -231,10 +220,9 @@ def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
         times = group["time_years"].values
         outcomes = group["MDS_UPDRS_Total"].values.astype(float)
 
-        # If the outcome does not vary for this patient, fall back to the
-        # global slope (this mirrors the behaviour expected by the tests).
+        # If the outcome does not vary for this patient, the slope is zero.
         if np.allclose(outcomes, outcomes[0]):
-            slope = global_slope
+            slope = 0.0
         else:
             slope = _fit_slope(times, outcomes)
 

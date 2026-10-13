@@ -16,7 +16,7 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Implementation*: `code/src/pipeline/ingest.py` checks that `data/raw/ppmi_asv.csv` and `data/raw/ppmi_clinical.parquet` contain the required columns and are readable. If a file is missing or malformed the script exits with a non‑zero status and a clear error message; if the `MDS_UPDRS_Total` column is absent it logs a warning and sets a skip‑flag for downstream correlation/LME steps (FR‑001, FR‑004).  
   *Verification*: Unit tests in `code/tests/test_ingest.py` cover (a) successful load, (b) missing file, (c) missing outcome column. The runnable command is documented in `specs/001-investigating-the-correlation-between-gu/quickstart.md`.
 
-- [ ] T002 **Filtering, CLR transformation, and memory‑cap handling**   <!-- FAILED: unspecified -->
+- [ ] T002 **Filtering, CLR transformation, and memory‑cap handling**   <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
   *Implementation*: `code/src/pipeline/preprocess.py` (a) loads the raw files using **pandas + pyarrow**, (b) merges on `patient_id` + `visit_date`, (c) retains only PD patients with **≥ 2 visits** (logs exclusion count, FR‑002), (d) drops taxa whose counts are zero across all retained samples (warning logged), (e) adds a small pseudocount (1e‑6) and applies a centered‑log‑ratio (CLR) transform via `scikit_bio` (FR‑003), (f) detects zero‑variance covariates (e.g., constant levodopa dose) and removes them with a warning, (g) if the number of retained taxa would exceed the RAM budget, selects the **top 100 most abundant taxa** (FR‑010).  
   *Outputs*: `data/processed/filtered_samples.parquet`, `data/processed/clr_abundances.parquet`.  
   *Verification*: `code/tests/test_preprocess.py` checks patient‑visit filtering, zero‑taxa removal, correct CLR shape, and that the top‑100 subsampling rule is applied when needed.
@@ -26,7 +26,7 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Outputs*: `data/processed/patient_taxon_slopes.parquet`, `data/processed/patient_outcome_slopes.parquet` (the latter only when the outcome exists).  
   *Verification*: `code/tests/test_slopes.py` validates correct handling of exactly two visits, correct year calculation, and proper exclusion of single‑visit patients.
 
-- [ ] T004 **Plain Spearman correlation of slopes with BH correction**  
+- [ ] T004 **Plain Spearman correlation of slopes with BH correction**   <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_correlation_only.py exit=1 -->
   *Implementation*: `code/src/pipeline/correlation.py` (a) loads the slope files, (b) directly computes a Spearman rank correlation **between the per‑patient taxon‑slope vector and the per‑patient clinical‑slope vector** for each taxon (no covariate adjustment, satisfying FR‑004), (c) applies Benjamini‑Hochberg FDR correction across all taxa (FR‑006). The raw Spearman results and BH‑adjusted p‑values are written to `data/results/taxa_correlations.csv` matching the contract schema. An optional exploratory file `data/results/partial_spearman_exploratory.csv` contains the unadjusted correlations for reference only.  
   *Verification*: Contract test `code/tests/contract/test_contracts.py` validates the CSV schema; `code/tests/test_correlation.py` checks monotonicity of BH‑adjusted p‑values and that the residual‑free correlation differs from a covariate‑adjusted version when covariates vary.
 

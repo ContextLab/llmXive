@@ -4,30 +4,23 @@ T002:
   reason: "The implementation `code/src/pipeline/preprocess.py` and tests exist and\
     \ look substantive, but the task's required outputs `data/processed/filtered_samples.parquet`\
     \ and `data/processed/clr_abundances.parquet` are MISSING \u2014 the pipeline\
-    \ was evidently never run on the real raw data (no execution evidence or test-run\
-    \ evidence was provided either). The implementer must run `run_preprocess()` against\
-    \ the actual `data/raw/` inputs to produce both parquet outputs (and ideally show\
-    \ the tests passing)."
+    \ was never actually run on real data (no raw data or execution evidence is present\
+    \ either). The implementer must run the preprocessing (or otherwise produce the\
+    \ two parquet outputs from real inputs) and provide evidence the tests pass."
   task: ab5f61bd6cd381c8f27378ea345e52c3b3122e2a34fbdd52604725c76ddcfda6
 T003:
-  reason: "The required outputs `data/processed/patient_taxon_slopes.parquet` and\
-    \ `data/processed/patient_outcome_slopes.parquet` are MISSING \u2014 the module\
-    \ was never run, so there is no execution evidence. Moreover, `compute_outcome_slopes`\
-    \ contradicts the task spec: it uses a 365-day divisor instead of the required\
-    \ exact-years 365.25 conversion, and it substitutes a *global* slope for patients\
-    \ with constant outcomes (fabricated stand-in), which would fail the test `test_constant_outcome_yields_zero_slope`\
-    \ that expects a measured slope of 0. The implementer must fix the outcome-slope\
-    \ computation (365.25 d"
+  reason: "The implementation `code/src/pipeline/slopes.py` and tests `code/tests/test_slopes.py`\
+    \ exist and look substantive, but both required output artifacts \u2014 `data/processed/patient_taxon_slopes.parquet`\
+    \ and `data/processed/patient_outcome_slopes.parquet` \u2014 are MISSING, and\
+    \ there is no execution evidence (test run logs, pipeline run) showing the module\
+    \ was ever executed or that the tests pass. The implementer must actually run\
+    \ the slope computation (or the tests via `run_slopes`) to produce the parquet\
+    \ outputs, or demonstrate the upstream inputs are unavailable and the run was\
+    \ performed as far as po"
   task: 58cbcdfee89937dc43253ceab0e2ef19265131c939f473b4ee1b5a1dab6148f1
 T004:
-  reason: "The required output `data/results/taxa_correlations.csv` (and the optional\
-    \ `partial_spearman_exploratory.csv`) are MISSING from `data/results/`, so the\
-    \ correlation step was never actually run on real data \u2014 only the module\
-    \ and tests exist, with no execution evidence. Additionally, the `_bh_adjust`\
-    \ implementation is suspect: it indexes `rank` by `pvals.argsort()` positions\
-    \ and applies `cummin()[::-1]` without realignment, which does not correctly implement\
-    \ BH step-up adjustment; the implementer should fix the adjustment and run the\
-    \ pipeline to produce the results CSV."
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_correlation_only.py
+    exit=1'
   task: 2cca29a1a1c8c7447d474e968bf85ce4a430c7003843488e5fe1e2a0862cd609
 T005:
   reason: 'Requested task execution failed; rerun successfully: tests/test_mixed_effects_execution.py
