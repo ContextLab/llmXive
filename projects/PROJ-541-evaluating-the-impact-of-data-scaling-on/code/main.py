@@ -8,19 +8,16 @@ import argparse
 import csv
 import json
 import logging
-import os
-import sys
 import time
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 
 from simulation.config import CONFIG_MATRIX, SimulationConfig
 from simulation.generator import generate_synthetic_data
-from simulation.logger import setup_logger, inject_batch_context, save_seed_config
+from simulation.logger import setup_logger
 from simulation.persistence import save_synthetic_data
 from preprocessing.scaling import standardize_data, min_max_scale, robust_scale
 from analysis.tests import (
@@ -30,13 +27,13 @@ from analysis.tests import (
     ScalingMethod,
     TestResult,
 )
-from simulation.logger import log_operation
 
 # Constants for iteration logic (T028d)
 TARGET_ITERATIONS = 10000
 MAX_RUNTIME_SECONDS = 5.5 * 3600  # 5.5 hours
 
 logger = setup_logger("main")
+
 
 def get_scaling_function(method: str):
     """Return the scaling function corresponding to the method name."""
@@ -49,6 +46,7 @@ def get_scaling_function(method: str):
         raise ValueError(f"Unknown scaling method: {method}")
     return mapping[method]
 
+
 def get_test_function(test_type: str):
     """Return the test function corresponding to the test type."""
     mapping = {
@@ -59,6 +57,7 @@ def get_test_function(test_type: str):
     if test_type not in mapping:
         raise ValueError(f"Unknown test type: {test_type}")
     return mapping[test_type]
+
 
 def save_checkpoint(results: List[Dict], iteration_count: int, checkpoint_path: str = "results/partial_checkpoint.csv"):
     """Save partial results to a CSV file."""
@@ -71,6 +70,7 @@ def save_checkpoint(results: List[Dict], iteration_count: int, checkpoint_path: 
             writer.writerows(results)
         else:
             f.write("")  # Empty file if no results yet
+
 
 def write_simulation_results(results: List[Dict], output_path: str):
     """
@@ -128,6 +128,7 @@ def write_simulation_results(results: List[Dict], output_path: str):
         writer.writeheader()
         writer.writerows(cleaned_results)
 
+
 def run_single_iteration(
     config: SimulationConfig,
     iteration_id: int,
@@ -171,6 +172,7 @@ def run_single_iteration(
         logger.error(f"Iteration {iteration_id} failed: {e}", exc_info=True)
         return None
 
+
 def enforce_iteration_logic(current_iterations: int, start_time: float) -> int:
     """
     Enforce minimum iteration threshold.
@@ -186,6 +188,7 @@ def enforce_iteration_logic(current_iterations: int, start_time: float) -> int:
             logger.error(msg)
             raise RuntimeError(msg)
     return TARGET_ITERATIONS
+
 
 def run_simulation_loop(
     target_iterations: int = TARGET_ITERATIONS,
@@ -246,20 +249,24 @@ def run_simulation_loop(
     logger.info(f"Simulation loop completed. {len(all_results)} results written to {output_path}")
     return pd.DataFrame(all_results)
 
+
 def run_real_world_mode():
-    """Placeholder for real-world data processing."""
+    """Placeholder for real‑world data processing."""
     logger.info("Running real-world mode")
     # Implementation would go here (T038)
+
 
 def run_analyze_mode():
     """Placeholder for analysis."""
     logger.info("Running analysis mode")
     # Implementation would go here (T029)
 
+
 def run_visualize_mode():
     """Placeholder for visualization."""
     logger.info("Running visualization mode")
     # Implementation would go here (T030)
+
 
 def main():
     """
@@ -319,7 +326,8 @@ def main():
         run_visualize_mode()
     else:
         parser.print_help()
-        sys.exit(1)
+        raise SystemExit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -1,48 +1,24 @@
-"T001\u2013T003":
+T001:
   c: false
-  h: 88e54554dff54c856d70d08c9c2db28f51e54747fb359dd5ca85786b1a856b31
-  r: "Only the `code/requirements.txt` file is present and correctly pinned; there\
-    \ is no evidence of the broader project scaffolding (e.g., `code/` package init,\
-    \ test suite, README, etc.) nor any lint/format tooling configuration files (such\
-    \ as `ruff.toml`, `pyproject.toml` for Black, or pre\u2011commit hooks). These\
-    \ missing artifacts are required to satisfy the task."
-  sig: 0b4fd4c768bee4ba1c68aafbd10a3de756485a7cf2999508f799a64aa1fefe13
-? "T024\u2013T028, T034b, T046\u2013T050 Streaming ingestion, fail\u2011loudly fetch,\
-  \ dataset verification pipeline (`data/config/datasets.yaml`, `results/real_world_ingestion_log.csv`),\
-  \ real\u2011data integrity tests."
-: c: false
-  h: a74350178e609f6b89ae7034b01d966f8ec12d1ead6308b05d551ac6c36501e9
-  r: "The provided `data/config/datasets.yaml` and `results/real_world_ingestion_log.csv`\
-    \ exist, but there is no evidence of an actual streaming\u2011ingestion implementation,\
-    \ fail\u2011loudly fetch behavior, or real\u2011data integrity tests (e.g., code\
-    \ that streams the datasets, raises explicit errors on fetch failures, and validates\
-    \ checksums). Only a static configuration and a success\u2011only log are present,\
-    \ which does not satisfy the required pipeline and testing requirements."
-  sig: 7381f384c9e9f03f77a676427a5c4f18a93cfa47de74b1f750cfc26e612f79b8
-? "T033\u2013T039, T051, T052, T056, T056b, T059, T066 US4 real\u2011world ingestion,\
-  \ sampling, pipeline reuse (`results/real_world_results.csv`), comparison report."
-: c: false
-  h: fbf60182ac49ef889bddc128a6b9afd674f6ffba6aff9873373a106980dc95fb
-  r: "The required artifact `results/real_world_results.csv` is reported as MISSING,\
-    \ so the real\u2011world ingestion, sampling, and pipeline reuse results are not\
-    \ present. Without this CSV the task\u2019s core deliverable is absent."
-  sig: a84071799a7ec989c4dda4a0a7214198231655670f7fe9b2738abffba3f5fd03
-? "T060\u2013T062, T028a, T028b, T028d Metrics tests, Clopper\u2011Pearson CI, simulation\
-  \ loop orchestration with checkpointing and fidelity enforcement."
-: c: false
-  h: 651d5a2fb08d10fc2710f37d3fa706b06974c6db022b6400b48058176b57a2b3
-  r: "The evidence provided contains only a high\u2011level feature specification\
-    \ and a project root path; no concrete artifacts (e.g., Python modules implementing\
-    \ T060\u2013T062, T028a/b/d, Clopper\u2011Pearson confidence\u2011interval code,\
-    \ or a simulation loop with checkpointing and fidelity enforcement) are present,\
-    \ nor any execution logs or test results. Consequently the required metrics tests,\
-    \ CI calculations, and orchestration functionality are missing."
-  sig: 1f510eac0e9418345b3aea6c5df3cabad739781a3a58adf9160f934db510b633
-T065, T065b, T065c, T070 `CONFIG_MATRIX`, distribution factory, parameter mapper, dynamic config loading.:
+  h: 9cd11ec8a663a1e5c118dc182cff8f9d8cd7c7985ad5d46b76270e5fa63d4ca4
+  r: "The config files (`code/requirements.txt`, `code/pyproject.toml`, `code/ruff.toml`,\
+    \ `code/.pre-commit-config.yaml`, `code/__init__.py`, `code/tests/__init__.py`)\
+    \ exist with plausible content, but `README.md` was not confirmed to exist (\"\
+    NOT INSPECTED\" due to evidence limit, with no resolved path shown), and there\
+    \ is no execution evidence for any of the three verification steps \u2014 no log\
+    \ or output showing `pip install -r code/requirements.txt` succeeded in a fresh\
+    \ venv, or that `ruff check .` and `black --check .` returned exit code 0. The\
+    \ next implementer should confirm README.md exists and pro"
+  sig: 4317ccadcf53793e1cbb62cb4c7df782d12de7add5339604e673a9873e4ee6e7
+T002:
   c: false
-  h: 33fd87a51cc9c3eab4b680ee5ba8935bc50e86efdf8896f356f77e3615051286
-  r: "The evidence provides only a project root path and no concrete files such as\
-    \ a `CONFIG_MATRIX` definition, a distribution\u2011factory module, a parameter\u2011\
-    mapper implementation, or code for dynamic configuration loading. Since these\
-    \ required artifacts are absent, the task\u2019s deliverables are not satisfied."
-  sig: cee32bc0108e7699d0e8a6fffad5ad04200319c918f4781b3ff406efea48561d
+  h: 3276bac1f96f042747501ad2dc32a1f40ab2b63d709d57fdc9619051b10c7e99
+  r: "The required test run fails: the recorded execution log shows `pytest code/tests/unit/test_generator.py`\
+    \ exits 1 with 2 failures \u2014 `test_skewness_within_01_of_target[2.0]` (sample\
+    \ skewness 1.89, off by 0.11 > 0.1 tolerance) and `test_from_config` (test passes\
+    \ `mean=` but `SimulationConfig` has no `mean` field, only `mean_diff`). The generator\
+    \ and test files exist and are substantive, but the verification requirement \"\
+    pytest passes\" is not met; fix the skewness realization for target 2.0 (e.g.,\
+    \ larger n, moment matching, or different skewed distribution) and correct the\
+    \ `SimulationConfig` field"
+  sig: cbcf8a7943c26317689e19219548c4d9264de108a7d2a842df8a77bf65113e9e

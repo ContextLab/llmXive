@@ -1,79 +1,58 @@
-"T001\u2013T003":
-  reason: "Only the `code/requirements.txt` file is present and correctly pinned;\
-    \ there is no evidence of the broader project scaffolding (e.g., `code/` package\
-    \ init, test suite, README, etc.) nor any lint/format tooling configuration files\
-    \ (such as `ruff.toml`, `pyproject.toml` for Black, or pre\u2011commit hooks).\
-    \ These missing artifacts are required to satisfy the task."
-  task: 786c4b7266fffbaec436f2203bbe13e962185387af56e07368bc6e4397c855d4
-"T004\u2013T007":
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: 3d8927827c7e3eb7409205dfd82609674ef1a44e74015040f9f1c6e9ca811ab7
-"T015\u2013T023":
-  task: 9c6d10b1a44e3515ec2b0cb65bdc9b4d00f700718ec526fbecdda8b059083962
-? "T024\u2013T028, T034b, T046\u2013T050 Streaming ingestion, fail\u2011loudly fetch,\
-  \ dataset verification pipeline (`data/config/datasets.yaml`, `results/real_world_ingestion_log.csv`),\
-  \ real\u2011data integrity tests."
-: reason: "The provided `data/config/datasets.yaml` and `results/real_world_ingestion_log.csv`\
-    \ exist, but there is no evidence of an actual streaming\u2011ingestion implementation,\
-    \ fail\u2011loudly fetch behavior, or real\u2011data integrity tests (e.g., code\
-    \ that streams the datasets, raises explicit errors on fetch failures, and validates\
-    \ checksums). Only a static configuration and a success\u2011only log are present,\
-    \ which does not satisfy the required pipeline and testing requirements."
-  task: b3106fb08870c573e718259bfe46a9ee129224b3c87850b6e2d8c029dffff358
-T030:
-  task: 41c339fc4b245c86e979cbce10aa62f0294f300f7a080acfb75b83e661ad8232
-? "T033\u2013T039, T051, T052, T056, T056b, T059, T066 US4 real\u2011world ingestion,\
-  \ sampling, pipeline reuse (`results/real_world_results.csv`), comparison report."
-: reason: "The required artifact `results/real_world_results.csv` is reported as MISSING,\
-    \ so the real\u2011world ingestion, sampling, and pipeline reuse results are not\
-    \ present. Without this CSV the task\u2019s core deliverable is absent."
-  task: d4a645545a60ea78c08cd534b0f364908cd26fe7ba8a8490d99d834c7e15fc18
-"T040\u2013T044":
-  task: ab918338dd6354dc0a4787ca06b6e63dd77ab637634b128e3aa23312ab847388
-? "T060\u2013T062, T028a, T028b, T028d Metrics tests, Clopper\u2011Pearson CI, simulation\
-  \ loop orchestration with checkpointing and fidelity enforcement."
-: reason: "The evidence provided contains only a high\u2011level feature specification\
-    \ and a project root path; no concrete artifacts (e.g., Python modules implementing\
-    \ T060\u2013T062, T028a/b/d, Clopper\u2011Pearson confidence\u2011interval code,\
-    \ or a simulation loop with checkpointing and fidelity enforcement) are present,\
-    \ nor any execution logs or test results. Consequently the required metrics tests,\
-    \ CI calculations, and orchestration functionality are missing."
-  task: 00a7d95c3403df6b3266f16dc4400414ddc3bafa882f343adfa9920215e846e6
-T065, T065b, T065c, T070 `CONFIG_MATRIX`, distribution factory, parameter mapper, dynamic config loading.:
-  reason: "The evidence provides only a project root path and no concrete files such\
-    \ as a `CONFIG_MATRIX` definition, a distribution\u2011factory module, a parameter\u2011\
-    mapper implementation, or code for dynamic configuration loading. Since these\
-    \ required artifacts are absent, the task\u2019s deliverables are not satisfied."
-  task: cba79f4644bf8ab63865cc7d10e5d15b463a8ec85430a7c01d1949562bbec615
-T101:
-  task: 529b4e1fad0a713599c3f4a54e75e10d19291ec9bd077cba6031a89495ad51f3
-T102:
-  task: 84ef6e5cbf9be9cde0df1330c974746fcaadfb76d530c1e236325c376eb82a72
-T103a:
-  task: 47ea93365e880860dd9f62394902105a9ce1c280dbb82c1ece9137cd23b33511
-T103b:
-  task: 19a6f5a477fd62b1ddf282354ed68d2960456b55f495c909e9227ce3c5e27ab3
-T104:
-  task: c4e7501d9d7f29348ca5c5987915b48a67a19e26fa92d516f8d738d7b7f15b31
-T105:
-  task: 0b05bfbc261d79f9de757a8ceadb96ed1850f927717de44a6e10aa8188464bb7
-T106:
-  task: fb759d67284ca82170cb03b886162b61b4649ff74cad8fd0edcabecfd52f8997
-T107:
-  task: 4fd3342d805fb4bdea704740b3a9d41ca4df4f789725a95bd7de704e9c1f79ad
-T108a:
-  task: 1238dd286ca0959767fee5764c194d6e2399cfe143afd3c2599335625e3f9a03
-T108b:
-  task: 5a43c3eaf045434dbd4b3d1d39339ed48b81c888c728638a7b88d189b47c092a
-T109:
-  task: 2c86973f3fb8bfd4dfa1f896847b794c5589652947464bfe814e7b85fe76e627
-T110:
-  task: bdb337cc724449f2790854b57198f29c54c2a4308ccb2323ea768067e0767c3b
-T111:
-  task: e11d307fe54012e6001983122176f470be5309b1ba4d27df1bc3be03556b6081
-"T112\u2011T119":
-  task: 7c380468defc0b7cbec439c6ea1ab5d6d18c054c6d763a26b9a010f127258a0d
-T120:
-  task: bcbbc98e79dbd4a863c8ba001e9a6c5b6cb0e6e8aa8962123f226e2c292e7eb4
-T122:
-  task: 5ce9883efa0cdf7c2f02ae7b40078c1309e841c420ba39edca5a648588fec32a
+T001:
+  reason: "The config files (`code/requirements.txt`, `code/pyproject.toml`, `code/ruff.toml`,\
+    \ `code/.pre-commit-config.yaml`, `code/__init__.py`, `code/tests/__init__.py`)\
+    \ exist with plausible content, but `README.md` was not confirmed to exist (\"\
+    NOT INSPECTED\" due to evidence limit, with no resolved path shown), and there\
+    \ is no execution evidence for any of the three verification steps \u2014 no log\
+    \ or output showing `pip install -r code/requirements.txt` succeeded in a fresh\
+    \ venv, or that `ruff check .` and `black --check .` returned exit code 0. The\
+    \ next implementer should confirm README.md exists and pro"
+  task: 196be1182bf25472391af15a7e14a012433d24d9eb818eecaa8c2ec97383569d
+T002:
+  reason: "The required test run fails: the recorded execution log shows `pytest code/tests/unit/test_generator.py`\
+    \ exits 1 with 2 failures \u2014 `test_skewness_within_01_of_target[2.0]` (sample\
+    \ skewness 1.89, off by 0.11 > 0.1 tolerance) and `test_from_config` (test passes\
+    \ `mean=` but `SimulationConfig` has no `mean` field, only `mean_diff`). The generator\
+    \ and test files exist and are substantive, but the verification requirement \"\
+    pytest passes\" is not met; fix the skewness realization for target 2.0 (e.g.,\
+    \ larger n, moment matching, or different skewed distribution) and correct the\
+    \ `SimulationConfig` field"
+  task: d48a912e71812884a5c8e279e802ef512de9910c676af128a72f2f747e23379b
+T003:
+  task: 4ae7bdc8ea38e8f59f035f15cd54415e0dc81dcb8016a40806561936ae218633
+T004:
+  task: 1b45e5e6e829b488acb4c2a17a55d59f3af38671b8ee04684349381678d6b30f
+T005:
+  task: 154ff7966591000508077882566020213c0eb9a7e097a9d3e7d90b995802e77f
+T006:
+  task: 4c544ff774d688fb8c56e26590954741cce569f6ce5b1f3d987bdc827dc77e63
+T007:
+  task: 8a2c047aada76db371b4531d0fb4912e81748ea9488d55143b615860da789dbd
+T008:
+  task: a20da779308de45e51f0863a02ed6899bf7e37b14090b823474f6d95dfaf7ad3
+T009:
+  task: 57831f9ba539f3bbe18bb4f6be13dcae1c7372c6fc790c26d5bac00aebf78ebb
+T010:
+  task: 9838ad46e8b1d4afb1b5e94a8b6a4b980f90734d286a9fca86636036de6811a0
+T011:
+  task: be35853f5d357d5e1b6a2e8a79448060f3f37c3df33ff0cef16f6ae2818c044e
+T012:
+  task: 23d15b0d8ca8123d7201fd4612f8edb03ab04e1fd755f922c0ed900bf49f31cc
+T013:
+  task: 4a69966cfacf990f6d446d20f736958bf59b8eb0a3faae4f8f4f4264a1a4c245
+T014:
+  task: 4d8ed7c57ed5a63f538c821ce866cdedbd2b229c1daf6ef503b7ae4a9134322b
+T015:
+  task: 1216c7c623788d358577e21641eede7ab577d090b43972972005ba27d3b8cb39
+T016:
+  task: 063f7a41c7789da9a751f87ef14c406a71f773034f4d12a91f9526f309d635cb
+T017:
+  task: 8f20f653db40c2e5717e4bf8b160f90c5b12686a6e0233615aea01b1ed500997
+T018:
+  task: e25c55e8bb22011638cc206a0e28d11e0d3afa4c9359e5cd9011fe9334a5aa59
+T019:
+  task: ad9d70b46ea005e1aff1de2f256c5196e102a0fcea3a9d1111feeff9a003fca4
+T020:
+  task: fbe8acd979a32958776abd3ceb1d0041a7f08dd69853fa5795afcd9cd1464e5d
+T021:
+  task: c5e43ca87772623d148198893678e72915d03749dfb82f35b98b07b49b0f59fc
