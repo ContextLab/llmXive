@@ -1,0 +1,15 @@
+# Python dependencies for the telomere‑lifespan impact project
+# Versions are pinned to ensure reproducible installations.
+pandas==2.2.2
+numpy==1.26.4
+requests==2.31.0
+rpy2==3.5.16
+matplotlib==3.8.4
+seaborn==0.13.2
+pytest==8.2.0
+pyyaml==6.0.1
+scipy==1.13.0
+statsmodels==0.14.2
+# Optional: other utilities used elsewhere in the pipeline
+tqdm==4.66.5
+# End of requirements.txt

@@ -1,17 +1,27 @@
-T034:
+T002:
   c: false
-  h: 7a61431e2c0444c73ff1d526f6725a81ad076c3a925d9352303bbb4fbe67a6c3
-  r: "The repository lacks the required `results/model_summary.csv` file, so the scripts\
-    \ cannot read the base model results or compute the AIC difference. Moreover,\
-    \ the provided code snippets are truncated and do not show the actual call to\
-    \ the moderator R script or the extraction of the interaction coefficient and\
-    \ p\u2011value. The missing CSV and absent implementation details mean the task\
-    \ requirements are not satisfied."
-T035:
+  h: cbb1c40c009740ab23447c283bc2889a1c6c9aa65129202174aafe0cb5c5d5a8
+  r: "Checked `code/config.yaml` (exists and is valid YAML) and the test log `code/.tasks/T002.tests_test_config.py.log`,\
+    \ which shows that importing `02_ingest_data.py` fails because `config.ConfigError:\
+    \ Missing or empty required configuration key: DRYAD_API_KEY`. The scripts cannot\
+    \ read the configuration without this key, violating the requirement that the\
+    \ config be used by the scripts with no hard\u2011coded values. Add the missing\
+    \ required key (or adjust the scripts) and ensure the import succeeds."
+  sig: 4be5773bb346a2d9d04bd5309d73badf253b2800c458e6bd65b34fd566e9ec74
+T010:
   c: false
-  h: 4f77e5ce077092db14f3e96e94584d9f2ef20f3fce03613300a3289f3982354f
-  r: The provided `code/05_visualize.py` is truncated (ends with `plt.figu`), showing
-    that the plotting function is not fully implemented, and the required output file
-    `results/moderator_plot.png` does not exist. Consequently, the task of generating
-    and saving the grouped scatter plot with separate regression lines has not been
-    fulfilled.
+  h: b4a78a006f3b3ea95646b3fca8e968e76405e6bd68728a811dd72212a2e12640
+  r: "Checked the `code/requirements.txt` file (376\u202Fbytes, contains the required\
+    \ pinned dependencies). While the file exists and is non\u2011empty, there is\
+    \ no provided evidence (e.g., command output, logs, or test results) showing that\
+    \ `pip install -r code/requirements.txt` actually succeeds in a fresh virtual\
+    \ environment. This verification step is required by the task."
+  sig: b8d295164ee1f8c14b0a33913d1db6784eae089598ae5bbcba5460374c99f16d
+T011:
+  c: false
+  h: 1923b0195c003c41bc76489b012160ca02187f061b5e4d7910c835b84a80144f
+  r: "The `code/R/renv.lock` file is present and correctly lists the required packages,\
+    \ but there is no provided evidence (e.g., command output, logs, or screenshots)\
+    \ showing that running `R -e \"renv::restore()\"` successfully restores those\
+    \ packages without error. The task\u2019s verification step is therefore unverified."
+  sig: 602d8402a996057036819d4e00f98e0f97dcd3c17fb9ed98259bad713fd09a76
