@@ -2,7 +2,7 @@
 
 Implements FR-007: 1,000 iterations (configurable) of shuffling patient
 identifiers while preserving the within‑patient temporal ordering of the
-longitudinal ``MDS_UPDRS_Total`` scores. For each iteration the Linear Mixed
+``MDS_UPDRS_Total`` scores. For each iteration the Linear Mixed
 Effects model (identical to the one in ``mixed_effects.run_mixed_effects``)
 is re‑fit and the interaction p‑values are collected. Empirical p‑values
 per taxon are computed as the proportion of permuted p‑values that are
@@ -32,6 +32,7 @@ from llmxive_toolkit import get_logger, paths
 
 # Import internal helpers from the mixed‑effects module.
 from . import mixed_effects
+from .mixed_effects import _prepare_time, _encode_sex
 
 log = get_logger(__name__)
 
@@ -84,7 +85,16 @@ def _permute_clinical(clinical_df: pd.DataFrame, rng: np.random.Generator) -> pd
 def _fit_interaction_pvalues(
     merged_df: pd.DataFrame, taxon_columns: List[str]
 ) -> Dict[str, float]:
-    """Fit LME for each taxon on ``merged_df`` and return interaction p‑values."""
+    """Fit LME for each taxon on ``merged_df`` and return interaction p‑values.
+
+    The dataframe must already contain the required time and sex encoding
+    columns (``time_years`` and ``sex_num``) as prepared by the mixed‑effects
+    helpers.
+    """
+    # Prepare the dataframe exactly as mixed_effects.run_mixed_effects does.
+    merged_df = _prepare_time(merged_df)
+    merged_df = _encode_sex(merged_df)
+
     pvals: Dict[str, float] = {}
     for taxon in taxon_columns:
         try:

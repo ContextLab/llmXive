@@ -28,6 +28,8 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
+import statsmodels.api as sm
 from llmxive_toolkit import get_logger, paths
 from statsmodels.regression.mixed_linear_model import MixedLM
 from statsmodels.stats.multitest import multipletests
@@ -99,7 +101,7 @@ def _fit_taxon_model(
         "levodopa_eq_dose",
     ]
     exog = df[exog_cols]
-    exog = sm.add_constant(exog, has_constant="add")  # type: ignore[attr-defined]
+    exog = sm.add_constant(exog, has_constant="add")
 
     endog = df[outcome_col]
 
@@ -117,7 +119,7 @@ def _fit_taxon_model(
     coef = result.params["interaction"]
     std_err = result.bse["interaction"]
     t_stat = coef / std_err if std_err != 0 else np.nan
-    # Two‑sided p‑value from t‑distribution with large df approximated by normal
+    # Two‑sided p‑value from normal approximation (large df)
     pval = 2 * (1 - stats.norm.cdf(abs(t_stat))) if not np.isnan(t_stat) else np.nan
     return float(coef), float(std_err), float(pval)
 

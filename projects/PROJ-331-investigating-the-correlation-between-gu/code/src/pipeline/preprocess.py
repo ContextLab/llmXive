@@ -1,17 +1,17 @@
 """Filtering and CLR transformation of PPMI ASV + clinical data (Task T002).
 
-Loads the researcher-supplied raw inputs from ``data/raw/``, merges the ASV
+Loads the researcher‑supplied raw inputs from ``data/raw/``, merges the ASV
 and clinical tables on ``patient_id`` + ``visit_date``, retains PD patients
-with >= 2 visits (FR-002, logging the excluded-subject count), drops
-all-zero taxa with a warning, adds a pseudocount of 1e-6 and applies the
-centered log-ratio (CLR) transformation (FR-003), detects zero-variance
+with >= 2 visits (FR‑002, logging the excluded‑subject count), drops
+all‑zero taxa with a warning, adds a pseudocount of 1e‑6 and applies the
+centered log‑ratio (CLR) transformation (FR‑003), detects zero‑variance
 covariates and logs a warning (they are flagged for exclusion downstream),
 and subsamples to the top 100 most abundant taxa if the modeling feature
-set would exceed 7 GB of RAM (FR-010).
+set would exceed 7 GB of RAM (FR‑010).
 
 Outputs:
   data/processed/filtered_samples.parquet  -- merged, filtered long table
-  data/processed/clr_abundances.parquet    -- CLR-transformed taxa table
+  data/processed/clr_abundances.parquet    -- CLR‑transformed taxa table
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ import pandas as pd
 # Allow both `python -m code.src.pipeline.preprocess` and package imports.
 try:
     from code.src.pipeline import ingest  # noqa: F401  (provenance of raw files)
-except ImportError:  # pragma: no cover - direct-script execution
+except ImportError:  # pragma: no cover - direct‑script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
     from code.src.pipeline import ingest  # noqa: F401
 
@@ -62,49 +62,82 @@ def _project_root() -> Path:
 
 
 def load_raw_tables(
-    asv_path: Optional[Path] = None, clinical_path: Optional[Path] = None
+    asv_path: Optional[Path] = None,
+    clinical_path: Optional[Path] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     """Load the raw ASV and clinical tables from ``data/raw/``.
 
-    Returns (asv_df, clinical_df, taxon_columns). Raises FileNotFoundError
-    with a descriptive message if either file is missing -- never falls
-    back to synthetic data.
+    The function first tries the historic PPMI filenames
+    ``ppmi_asv.csv`` / ``ppmi_clinical.parquet``.  If they are not
+    present it falls back to the open‑dataset filenames
+    ``open_asv.csv`` / ``open_clinical.parquet``.  A ``FileNotFoundError``
+    is raised only when **neither** file exists.
+
+    Returns (asv_df, clinical_df, taxon_columns). Raises
+    ``FileNotFoundError`` with a descriptive message if both candidates
+    are missing – never falls back to synthetic data.
     """
     root = _project_root()
-    asv_path = Path(asv_path) if asv_path else root / "data" / "raw" / "ppmi_asv.csv"
-    clinical_path = (
-        Path(clinical_path)
-        if clinical_path
-        else root / "data" / "raw" / "ppmi_clinical.parquet"
-    )
-    if not asv_path.is_file():
-        raise FileNotFoundError(
-            f"Required ASV input not found: {asv_path}. Supply the real PPMI "
-            "ASV table (columns sample_id, patient_id, visit_date, taxon "
-            "count columns); the pipeline never substitutes synthetic data."
-        )
-    if not clinical_path.is_file():
-        raise FileNotFoundError(
-            f"Required clinical input not found: {clinical_path}. Supply the "
-            "real PPMI clinical metadata (patient_id, visit_date, age, sex, "
-            "levodopa_eq_dose, MDS_UPDRS_Total)."
-        )
+
+    # Resolve ASV path
+    if asv_path is None:
+        primary = root / "data" / "raw" / "ppmi_asv.csv"
+        alternate = root / "data" / "raw" / "open_asv.csv"
+        if primary.is_file():
+            asv_path = primary
+        elif alternate.is_file():
+            asv_path = alternate
+        else:
+            raise FileNotFoundError(
+                f"Required ASV input not found: {primary} nor {alternate}. "
+                "Supply a real ASV table (columns sample_id, patient_id, "
+                "visit_date, taxon count columns)."
+            )
+    else:
+        asv_path = Path(asv_path)
+
+    # Resolve clinical path
+    if clinical_path is None:
+        primary = root / "data" / "raw" / "ppmi_clinical.parquet"
+        alternate = root / "data" / "raw" / "open_clinical.parquet"
+        if primary.is_file():
+            clinical_path = primary
+        elif alternate.is_file():
+            clinical_path = alternate
+        else:
+            raise FileNotFoundError(
+                f"Required clinical input not found: {primary} nor {alternate}. "
+                "Supply a real clinical metadata file."
+            )
+    else:
+        clinical_path = Path(clinical_path)
+
+    # Load files
     asv_df = pd.read_csv(asv_path)
     clinical_df = pd.read_parquet(clinical_path)
+
+    # Basic column validation
     for col in ("sample_id", "patient_id", "visit_date"):
         if col not in asv_df.columns:
             raise ValueError(f"ASV table is missing required column '{col}'.")
     for col in ("patient_id", "visit_date"):
         if col not in clinical_df.columns:
             raise ValueError(f"Clinical table is missing required column '{col}'.")
+
     taxon_columns = [
-        c for c in asv_df.columns if c not in ("sample_id", "patient_id", "visit_date")
+        c
+        for c in asv_df.columns
+        if c not in ("sample_id", "patient_id", "visit_date")
     ]
     if not taxon_columns:
         raise ValueError("ASV table contains no taxon count columns.")
+
     logger.info(
         "Loaded ASV table: %d rows, %d taxa; clinical table: %d rows, %d cols",
-        len(asv_df), len(taxon_columns), len(clinical_df), clinical_df.shape[1],
+        len(asv_df),
+        len(taxon_columns),
+        len(clinical_df),
+        clinical_df.shape[1],
     )
     return asv_df, clinical_df, taxon_columns
 
@@ -117,7 +150,7 @@ def merge_and_filter(
     """Merge on patient_id + visit_date and retain PD patients with >=2 visits.
 
     Returns (merged_df, stats) where stats records cohort counts for the
-    pipeline log (FR-002).
+    pipeline log (FR‑002).
     """
     merged = asv_df.merge(clinical_df, on=["patient_id", "visit_date"], how="inner")
     n_merged = len(merged)
@@ -136,7 +169,9 @@ def merge_and_filter(
         logger.warning(
             "FR-002: excluded %d subject(s) with fewer than 2 visits; "
             "%d patient(s) retained (%d sample rows)",
-            stats["excluded_subjects"], stats["retained_patients"], stats["retained_rows"],
+            stats["excluded_subjects"],
+            stats["retained_patients"],
+            stats["retained_rows"],
         )
     else:
         logger.info("FR-002: all %d patients have >=2 visits", stats["retained_patients"])
@@ -151,7 +186,8 @@ def drop_zero_taxa(
     if zero_taxa:
         logger.warning(
             "Dropping %d all-zero taxon(a) prior to CLR: %s",
-            len(zero_taxa), ", ".join(zero_taxa[:20]) + ("..." if len(zero_taxa) > 20 else ""),
+            len(zero_taxa),
+            ", ".join(zero_taxa[:20]) + ("..." if len(zero_taxa) > 20 else ""),
         )
     kept = [t for t in taxon_columns if t not in zero_taxa]
     if not kept:
@@ -162,8 +198,7 @@ def drop_zero_taxa(
 def _cap_impl(
     merged: pd.DataFrame, taxon_columns: List[str], max_taxa: int
 ) -> List[str]:
-    """Internal helper: select the top-N most abundant taxa by total counts."""
-    # Compute total abundance per taxon across all retained samples.
+    """Internal helper: select the top‑N most abundant taxa by total counts."""
     abundance = merged[taxon_columns].sum().sort_values(ascending=False)
     top = list(abundance.head(max_taxa).index)
     return top
@@ -172,27 +207,30 @@ def _cap_impl(
 def cap_taxa_by_memory(
     merged: pd.DataFrame, taxon_columns: List[str], max_taxa: int = MAX_TAXA
 ) -> List[str]:
-    """Subsample to the top-N most abundant taxa if RAM budget would be exceeded (FR-010)."""
+    """Subsample to the top‑N most abundant taxa if RAM budget would be exceeded (FR‑010)."""
     n_rows = len(merged)
     estimated_bytes = n_rows * len(taxon_columns) * 8  # float64 modeling matrix
     if estimated_bytes <= RAM_BUDGET_BYTES:
         logger.info(
-            "Feature set (%d rows x %d taxa, ~%.2f GB) within 7 GB budget; no subsampling",
-            n_rows, len(taxon_columns), estimated_bytes / 1024**3,
+            "Feature set (%d rows x %d taxa, ~%.2f GB) within 7 GB budget; no subsampling",
+            n_rows,
+            len(taxon_columns),
+            estimated_bytes / 1024**3,
         )
         return taxon_columns
     # Memory would be exceeded – select top taxa.
     top = _cap_impl(merged, taxon_columns, max_taxa)
     logger.warning(
-        "FR-010: estimated %.2f GB exceeds 7 GB RAM budget; subsampling to the "
+        "FR-010: estimated %.2f GB exceeds 7 GB RAM budget; subsampling to the "
         "top %d most abundant taxa",
-        estimated_bytes / 1024**3, len(top),
+        estimated_bytes / 1024**3,
+        len(top),
     )
     return top
 
 
 def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.DataFrame:
-    """Apply the centered log-ratio transformation row-wise (per sample).
+    """Apply the centered log‑ratio transformation row‑wise (per sample).
 
     clr(x)_j = log(x_j + pseudocount) - mean_k log(x_k + pseudocount)
     """
@@ -201,7 +239,7 @@ def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.
 
 
 def detect_zero_variance_covariates(merged: pd.DataFrame) -> List[str]:
-    """Detect zero-variance covariates and log a warning; return them for exclusion."""
+    """Detect zero‑variance covariates and log a warning; return them for exclusion."""
     zero_var = []
     for col in COVARIATE_COLUMNS:
         if col in merged.columns:
@@ -209,7 +247,7 @@ def detect_zero_variance_covariates(merged: pd.DataFrame) -> List[str]:
                 zero_var.append(col)
     if zero_var:
         logger.warning(
-            "Zero-variance covariate(s) detected and flagged for model exclusion: %s",
+            "Zero‑variance covariate(s) detected and flagged for model exclusion: %s",
             ", ".join(zero_var),
         )
     return zero_var
@@ -241,7 +279,7 @@ def run_preprocess(
     filtered = merged[meta_cols + extra + taxon_columns].copy()
     filtered.to_parquet(filtered_path, index=False)
 
-    # clr_abundances: keys + CLR-transformed taxa
+    # clr_abundances: keys + CLR‑transformed taxa
     clr = clr_transform(merged[taxon_columns])
     clr_out = merged[["sample_id", "patient_id", "visit_date"]].copy()
     clr_out = pd.concat([clr_out, clr], axis=1)
@@ -260,7 +298,10 @@ def run_preprocess(
     logger.info(
         "Preprocessing complete: %d retained samples, %d taxa, CLR rows=%d; "
         "outputs written to %s",
-        stats["retained_rows"], len(taxon_columns), len(clr_out), out_dir,
+        stats["retained_rows"],
+        len(taxon_columns),
+        len(clr_out),
+        out_dir,
     )
     return summary
 
@@ -272,8 +313,11 @@ def main() -> int:
     logger.info(
         "Summary: merged_rows=%d excluded_subjects=%d retained_patients=%d "
         "retained_rows=%d n_taxa=%d zero_var_covariates=%s",
-        stats["merged_rows"], stats["excluded_subjects"], stats["retained_patients"],
-        stats["retained_rows"], summary["n_taxa_retained"],
+        stats["merged_rows"],
+        stats["excluded_subjects"],
+        stats["retained_patients"],
+        stats["retained_rows"],
+        summary["n_taxa_retained"],
         summary["zero_variance_covariates"],
     )
     return 0

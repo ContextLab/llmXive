@@ -17,6 +17,7 @@ Runnable as:  python -m code.src.pipeline.ingest
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -26,8 +27,13 @@ from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
-ASV_FILENAME = "ppmi_asv.csv"
-CLINICAL_FILENAME = "ppmi_clinical.parquet"
+# Primary expected filenames (historical PPMI naming)
+ASV_FILENAME_PPMI = "ppmi_asv.csv"
+CLINICAL_FILENAME_PPMI = "ppmi_clinical.parquet"
+
+# Alternate open‑dataset filenames (used in quickstart)
+ASV_FILENAME_OPEN = "open_asv.csv"
+CLINICAL_FILENAME_OPEN = "open_clinical.parquet"
 
 ASV_REQUIRED_COLUMNS = ["sample_id", "patient_id", "visit_date"]
 CLINICAL_REQUIRED_COLUMNS = [
@@ -46,13 +52,47 @@ def _fail(message: str) -> None:
     raise FileNotFoundError(message)
 
 
+def _choose_path(
+    primary: str, alternate: str, description: str
+) -> Path:
+    """
+    Resolve a raw data file path.
+
+    Preference order:
+      1. User‑supplied explicit path (handled upstream).
+      2. ``data/raw/<primary>`` if it exists.
+      3. ``data/raw/<alternate>`` if it exists.
+    If neither exists, raise a FileNotFoundError with a helpful message.
+    """
+    primary_path = paths.data("raw", primary)
+    alternate_path = paths.data("raw", alternate)
+
+    if primary_path.is_file():
+        log.info("%s found at expected PPMI location: %s", description, primary_path)
+        return primary_path
+    if alternate_path.is_file():
+        log.info(
+            "%s not found at PPMI name; using alternate open‑dataset name: %s",
+            description,
+            alternate_path,
+        )
+        return alternate_path
+
+    _fail(
+        f"Required input file not found: neither {primary_path} nor {alternate_path} exist. "
+        f"Place the researcher‑supplied {description.lower()} at one of these locations."
+    )
+    # Unreachable
+    return primary_path
+
+
 def _validate_asv(path: Path) -> Dict[str, Any]:
     """Validate the ASV count table. Raises on missing/malformed input."""
     if not path.is_file():
         _fail(
             f"Required input file not found: {path}. Place the researcher-supplied "
-            f"ASV table at data/raw/{ASV_FILENAME} (columns: "
-            f"{ASV_REQUIRED_COLUMNS + ['<taxon count columns>']}). The pipeline "
+            f"ASV table at data/raw/{ASV_FILENAME_PPMI} (or {ASV_FILENAME_OPEN}) "
+            f"(columns: {ASV_REQUIRED_COLUMNS + ['<taxon count columns>']}). The pipeline "
             "does not generate synthetic data."
         )
     try:
@@ -95,8 +135,8 @@ def _validate_clinical(path: Path) -> Dict[str, Any]:
     if not path.is_file():
         _fail(
             f"Required input file not found: {path}. Place the researcher-supplied "
-            f"clinical metadata at data/raw/{CLINICAL_FILENAME} (columns: "
-            f"{CLINICAL_REQUIRED_COLUMNS + [OUTCOME_COLUMN]}). The pipeline "
+            f"clinical metadata at data/raw/{CLINICAL_FILENAME_PPMI} (or {CLINICAL_FILENAME_OPEN}) "
+            f"(columns: {CLINICAL_REQUIRED_COLUMNS + [OUTCOME_COLUMN]}). The pipeline "
             "does not generate synthetic data."
         )
     try:
@@ -105,7 +145,9 @@ def _validate_clinical(path: Path) -> Dict[str, Any]:
         _fail(
             f"Malformed clinical file {path}: could not parse as Parquet ({exc})."
         )
-    missing = [c for c in CLINICAL_REQUIRED_COLUMNS if c not in clinical.columns]
+    missing = [
+        c for c in CLINICAL_REQUIRED_COLUMNS if c not in clinical.columns
+    ]
     if missing:
         _fail(
             f"Malformed clinical file {path}: missing required column(s) "
@@ -148,13 +190,18 @@ def validate_inputs(
     """Validate both raw inputs and return a report dict.
 
     Raises FileNotFoundError if any input file is missing or malformed.
-  The returned dict carries row/column counts, whether the
+    The returned dict carries row/column counts, whether the
     MDS_UPDRS_Total outcome column is present, and downstream skip flags.
     """
+    # Resolve default locations if caller did not supply explicit paths
     if asv_path is None:
-        asv_path = paths.data("raw", ASV_FILENAME)
+        asv_path = _choose_path(
+            ASV_FILENAME_PPMI, ASV_FILENAME_OPEN, "ASV table"
+        )
     if clinical_path is None:
-        clinical_path = paths.data("raw", CLINICAL_FILENAME)
+        clinical_path = _choose_path(
+            CLINICAL_FILENAME_PPMI, CLINICAL_FILENAME_OPEN, "clinical metadata"
+        )
 
     asv_report = _validate_asv(Path(asv_path))
     clinical_report = _validate_clinical(Path(clinical_path))
@@ -185,6 +232,21 @@ def write_validation_report(report: Dict[str, Any], out_path: Optional[Path] = N
     return out_path
 
 
+def _copy_to_default(
+    src: Path, default_name: str
+) -> None:
+    """
+    Ensure that downstream pipeline stages that expect the historic
+    PPMI filenames can find the data. If the source file is an
+    alternate (open_*) name, copy it to the default PPMI location.
+    """
+    dest = paths.data("raw", default_name)
+    if src.resolve() != dest.resolve():
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, dest)
+        log.info("Copied %s to default location %s for downstream compatibility.", src, dest)
+
+
 def main(
     asv_path: Optional[Path] = None,
     clinical_path: Optional[Path] = None,
@@ -199,6 +261,12 @@ def main(
     log.info("=== PPMI input validation (FR-001) ===")
     report = validate_inputs(asv_path, clinical_path)
     write_validation_report(report, report_path)
+
+    # Make sure downstream stages see the expected filenames.
+    # This is a no‑op if the user already placed files using the PPMI names.
+    _copy_to_default(Path(report["asv_path"]), ASV_FILENAME_PPMI)
+    _copy_to_default(Path(report["clinical_path"]), CLINICAL_FILENAME_PPMI)
+
     if report["outcome_column_present"]:
         log.info(
             "Outcome column '%s' present: slope, correlation, and LME steps "

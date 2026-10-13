@@ -1,52 +1,71 @@
 T001:
   c: true
-  h: 9205da6f31027a8ea8663dbfce2057113cf15c9314bc006fa89f786aa7367856
-  r: "Checked `code/src/pipeline/ingest.py` (validation logic, error handling, skip\u2011\
-    flag behavior), `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
-    \ (documents the runnable command), and the unit tests `code/tests/test_ingest.py`\
-    \ (cover valid inputs, missing file abort, missing outcome column warning and\
-    \ skip flag). All required behavior and documentation are present and correctly\
-    \ implemented."
-  sig: 034735f3563cf083c4d70cf2d74a3813d49dabe7426b0b3855ad88ffe59ed608
+  h: 3d2cfdf394e49829bb4c02755dc2970ac7986fe8dd35b4487e7c3e273539bfcd
+  r: "The required artifacts all exist and are substantive: `code/src/pipeline/ingest.py`\
+    \ implements the specified validation (missing/malformed file \u2192 FileNotFoundError/non-zero\
+    \ exit; missing `MDS_UPDRS_Total` \u2192 warning + skip flags, exit 0, no synthetic\
+    \ fallback), `code/tests/test_ingest.py` covers the three required cases (successful\
+    \ load, missing file, missing outcome column) plus malformed-input and report-writing\
+    \ cases, and `specs/.../quickstart.md` documents the runnable command `python\
+    \ -m code.src.pipeline.ingest`. Minor caveat: the non-zero-exit assertion in `test_missing_input_file_exits_n"
+  sig: b235b36fb680a569344f193faab14032d83f26c9ace81e0ac4fc2056b0bf5c52
+T002:
+  c: false
+  h: 2ccf0a1681fc807f58a7e24ee714a497e38ff91f3ae5263abdff4d4f290f8134
+  r: "The required outputs `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
+    \ are MISSING \u2014 the pipeline was never run to produce them (no execution\
+    \ evidence, no test-run logs). Additionally, the task explicitly requires the\
+    \ CLR transform via `scikit_bio`, but `preprocess.py` implements it manually with\
+    \ numpy (`np.log` minus row mean), and the memory-cap test only exercises the\
+    \ small no-subsampling branch plus a private helper rather than the actual FR-010\
+    \ budget path. The implementer must run the pipeline on the real raw data to generate\
+    \ both parquet outputs and u"
+  sig: e86b86a211c3f7d065c2e89d8e21ef938aaceed6d548559ca970882eed6f9e32
 T003:
   c: false
-  h: 1a173e204cce3eb3c82e1f9818b8c2af0da32fc4ac130f2989b8fe767c8a3300
-  r: The implementation and tests exist, but the recorded pytest run shows all 6 tests
-    FAILED (exit 1) because no parquet engine (pyarrow/fastparquet) is available,
-    and the required output artifacts `data/processed/patient_taxon_slopes.parquet`
-    and `data/processed/patient_outcome_slopes.parquet` are MISSING (as is the T002
-    input `clr_abundances.parquet`). Additionally, `_prepare_time` uses a fabricated
-    half-year approximation for non-Jan-1 dates rather than actual elapsed time in
-    years, which would produce incorrect slopes on real data; the implementer must
-    fix the parquet dependency, use true date
-  sig: cb1558d4c53bbbca487799757bb47ce2bee0da08d2afd1054f57564746578357
+  h: a659628bde6e10d8212249d52a26168248615489486ac6b68c91c7e70a933dd1
+  r: 'The recorded test run (`code/.tasks/T003.code_tests_test_slopes.py.log`) shows
+    all 6 tests FAILED (exit 1) because pyarrow/fastparquet is missing, so there is
+    no evidence the slope computation or file-writing logic was ever verified. Moreover,
+    the implementation contradicts the task spec: instead of exact years via `(date
+    - first_date).dt.days / 365.25`, `_prepare_time` uses a crude Jan-1/half-year
+    approximation, and `compute_outcome_slopes` substitutes a *global* slope for patients
+    with constant outcomes (fabricating a value where the test demands a measured
+    0.0). The parquet outputs in `data'
+  sig: b3d131a63a67c0dfa56bc6073c1153e76def12b394db9880253a381081d77342
 T004:
   c: false
-  h: 858d70684bfa5ecafbd319369fd11165bbc43c97a93768f99c0bc8197c8b3a73
-  r: "The correlation module exists, but the required output file `data/results/taxa_correlations.csv`\
-    \ is missing, and the contract test `code/tests/contract/test_contracts.py` that\
-    \ validates the CSV against the schema is also absent. Without these artifacts\
-    \ the task\u2019s deliverables are not satisfied."
-  sig: 20f375ed35a3e3a77b668e25735fea20a39acb1106101ddf8f0c1f525cfa209a
+  h: 469e8297657aa20a2ab2e91f0039a5288606b58ed763c8d5c58ad7fac46b4163
+  r: "The implementation module `code/src/pipeline/correlation.py` exists and its\
+    \ logic (per-taxon Spearman + BH via `multipletests`) matches the requirement,\
+    \ but the required output `data/results/taxa_correlations.csv` does not exist\
+    \ (nor the exploratory CSV), so there is no evidence the pipeline was ever run.\
+    \ Additionally, both claimed verification artifacts \u2014 `code/tests/contract/test_contracts.py`\
+    \ and `code/tests/test_correlation.py` \u2014 are missing, so the schema-contract\
+    \ and BH-monotonicity checks were never implemented or executed. The implementer\
+    \ must run the correlation step to produce the re"
+  sig: dcbbdc85131a83ab6a9bd4410482e1c34e8483ca20712b4fa34c83a6b9f77cef
 T005:
   c: false
-  h: 52721b0eb71b683d24caeda7d092ba27b40d85f0f9a89cfb2ae6b8dad7886ce4
-  r: "The `mixed_effects.py` module is present but contains bugs (missing imports\
-    \ for `statsmodels.api as sm` and `scipy.stats as stats`) that prevent it from\
-    \ running, and the required output file `data/results/mixed_effects_summary.csv`\
-    \ is absent. Additionally, the unit tests fail due to missing parquet engine and\
-    \ the code errors, so the contract test and synthetic\u2011data verification are\
-    \ not satisfied."
-  sig: 2d9f5d7130db71c7298299ff9885c64a5bbf51be6b0233e88340414efceab03d
-T006:
+  h: 52cf801fcd3f0852e6d305f756da940b4fd2340e8a4144dcec7aa9886cb15bd0
+  r: "The required output `data/results/mixed_effects_summary.csv` is MISSING \u2014\
+    \ the module and test exist, but there is no evidence the pipeline was ever run\
+    \ on real data, and no execution/test logs accompany the claim. Additionally,\
+    \ the implementation contradicts the claim: there is no zero-variance covariate\
+    \ dropping logic (covariates are hard-coded in `exog_cols` with no variance check\
+    \ or logged warning), and the claimed `statsmodels.formula_api as smf` import\
+    \ is absent (it uses `MixedLM` directly, which is acceptable, but the covariate-handling\
+    \ claim is not implemented). The implementer must run"
+  sig: 095c7801827bd520d514a1d8152fc09c5043162baba74cf5dda52430673c11f7
+T013:
   c: false
-  h: 00ca1cd6d44e3514e4c51cae6851a56ac3d8cf1cc1dfcf78fe04b4d29f887cf4
-  r: "The `permutation.py` script is present, but the required output file `data/results/permutation_pvalues.csv`\
-    \ does not exist, and the provided test `code/tests/test_permutation.py` fails\
-    \ (ImportError for missing parquet engine), so the contract test that validates\
-    \ the CSV never runs. Moreover, the permutation routine skips the time\u2011year\
-    \ and sex encoding steps that the mixed\u2011effects model needs, causing model\
-    \ fitting to error out and produce NaN p\u2011values. The task\u2019s core requirements\
-    \ (producing a valid CSV of empirical p\u2011values after correctly refitting\
-    \ the LME) are therefore not satisfied."
-  sig: f28ffb05ce80ce30039bce9e5a7337b63cf711376550175cd02b9b0311bca1c4
+  h: 86b181175ca3149be21c619b3e04a46e59022bfdca3087c0b4bd2895d5a026bb
+  r: 'The unit test run failed (exit 1: 3 of 4 tests ERROR because the test fixture
+    requires pyarrow/fastparquet, which is not installed), so the required verification
+    of matching/mismatching checksum handling was never demonstrated. Additionally,
+    `verify_dataset.py` hard-codes `EXPECTED_ASV_SHA256 = "PLACEHOLDER_ASV_SHA256"`
+    and `EXPECTED_CLINICAL_SHA256 = "PLACEHOLDER_CLINICAL_SHA256"` rather than the
+    real digests recorded in the PPMI publication, so the checksum-validation requirement
+    is a stub. Fix by recording the real expected digests (or a documented mechanism
+    to load them) and making the tes'
+  sig: 5244ce247ffdf294d51b0886ba433ad373f76449d2a48fbf99de94d39fe81656

@@ -12,7 +12,7 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Implementation*: `code/src/pipeline/verify_dataset.py` checks that the two raw files exist, validates their SHA‑256 checksums against the values recorded in the PPMI publication, and confirms the citation is reachable via the Reference‑Validator Agent (Principle II). If verification fails, the script aborts with an informative error.  
   *Verification*: Unit test `code/tests/test_verify_dataset.py` ensures correct handling of matching and mismatching checksums.
 
-- [ ] T001 **Validate input availability and provenance**  
+- [X] T001 **Validate input availability and provenance**  
   *Implementation*: `code/src/pipeline/ingest.py` checks that `data/raw/ppmi_asv.csv` and `data/raw/ppmi_clinical.parquet` contain the required columns and are readable. If a file is missing or malformed the script exits with a non‑zero status and a clear error message; if the `MDS_UPDRS_Total` column is absent it logs a warning and sets a skip‑flag for downstream correlation/LME steps (FR‑001, FR‑004).  
   *Verification*: Unit tests in `code/tests/test_ingest.py` cover (a) successful load, (b) missing file, (c) missing outcome column. The runnable command is documented in `specs/001-investigating-the-correlation-between-gu/quickstart.md`.
 
@@ -35,25 +35,25 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Output*: `data/results/mixed_effects_summary.csv` (schema‑compliant).  
   *Verification*: Unit test `code/tests/test_mixed_effects.py` fits the model on a tiny synthetic dataset with a known interaction and asserts the recovered coefficient is within tolerance; contract test validates the CSV.
 
-- [ ] T006 **Permutation robustness test preserving within‑patient temporal order**  
+- [~] T006 **Permutation robustness test preserving within‑patient temporal order**  
   *Implementation*: `code/src/pipeline/permutation.py` (a) seeds `np.random.seed(42)`, (b) for 1 000 iterations shuffles **patient identifiers** while keeping each patient’s internal time series of `MDS_UPDRS_Total` intact, (c) re‑fits the same mixed‑effects model as in T005 on the permuted data, (d) records the `Time:Taxon` interaction p‑value for each taxon per iteration, (e) computes empirical p‑values as the proportion of permuted p‑values ≤ the observed raw p‑value, (f) aborts gracefully if the permutation block exceeds **4 hours**, writes any partial results, and logs the breach (FR‑007, SC‑003).  
   *Output*: `data/results/permutation_pvalues.csv`.  
   *Verification*: `code/tests/test_permutation.py` confirms that (i) patient‑level time ordering is unchanged after shuffling, (ii) empirical p‑values lie in [0, 1], (iii) the runtime guard triggers appropriately on a tiny timed mock run.
 
-- [ ] T007 **Runtime and resource monitoring**  
+- [~] T007 **Runtime and resource monitoring**  
   *Implementation*: `code/src/pipeline/__main__.py` wraps each pipeline stage (ingest, preprocess, slopes, correlation, mixed‑effects, permutation) with a wall‑clock timer, logs per‑stage elapsed time to `data/results/runtime_log.txt`, and after the full run asserts total wall‑clock ≤ 6 h and permutation ≤ 4 h (SC‑003).  
   *Verification*: `code/tests/test_runtime_budget.py` runs a reduced‑size pipeline and checks that the log file contains the expected timing entries and that the assertions pass.
 
-- [ ] T008a **Execute US1 pipeline (Correlation only)**  
+- [ ] T008a **Execute US1 pipeline (Correlation only)**   <!-- FAILED: unspecified -->
   *Command*: `python -m code.src.pipeline.run_us1` (or equivalent wrapper) which sequentially invokes T001 → T002 → T003 → T004 and writes `data/results/taxa_correlations.csv` plus runtime log.  
   *Pre‑conditions*: Raw PPMI files present and verified by T013.  
   *Verification*: After execution, a sanity‑check script confirms `taxa_correlations.csv` contains a row for every retained taxon and that runtime limits are respected.
 
-- [ ] T008b **Execute US2 pipeline (Mixed‑effects only)**  
+- [ ] T008b **Execute US2 pipeline (Mixed‑effects only)**   <!-- FAILED: unspecified -->
   *Command*: `python -m code.src.pipeline.run_us2` which runs T001 → T002 → T003 → T005, producing `data/results/mixed_effects_summary.csv`.  
   *Verification*: Post‑run checks ensure the summary CSV matches the schema and that covariate handling obeys FR‑005.
 
-- [ ] T008c **Execute US3 pipeline (Permutation robustness)**  
+- [ ] T008c **Execute US3 pipeline (Permutation robustness)**   <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_us3.py exit=1 -->
   *Command*: `python -m code.src.pipeline.run_us3` which runs T001 → T002 → T003 → T005 → T006, producing `data/results/permutation_pvalues.csv` and respecting the 4‑hour guard.  
   *Verification*: Same as T006 verification plus runtime log check.
 

@@ -1,6 +1,12 @@
-# Parquet engine required by pandas.read_parquet / to_parquet
-# (not part of the platform's preinstalled package set).
-pyarrow>=14.0
-
-# PDF report generation (Task T010).
-reportlab>=4.0
+# Project dependencies
+pandas
+numpy
+scikit-bio
+statsmodels
+scipy
+matplotlib
+seaborn
+pyarrow
+tqdm
+# The following are already available in the base environment and do not need to be listed:
+# - requests, jsonschema, pytest, PyYAML, etc.

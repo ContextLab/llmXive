@@ -1,18 +1,14 @@
 status: none
-intent: PPMI gut microbiome 16S ASV data Qiita MGnify EBI Metagenomics download python
-  package dataset
+intent: Parkinson's disease gut microbiome longitudinal UPDRS dataset Zenodo NCBI
+  BioProject download python package dataset
 required_fields:
 - sample_id
-- asv_id
-- taxonomy
-- count
 - patient_id
-- visit_date
-- age
-- sex
-- levodopa_dose
-- updrs_total
-- updrs_part3
-cache_key: f968ba9968f5b99a3c608b0192d471dffb6ca5be27f64c3d6043f2873a1f3205
-searched_at: '2026-10-13T06:26:58.231309+00:00'
+- visit_id
+- collection_date
+- asv_counts_per_taxon (one column per taxon)
+- taxon_id_or_taxonomy
+- mds_updrs_total_score
+cache_key: ee25761371b6010afb27d7253aade3235c39ab28d920fe302890e7d5c7c4c972
+searched_at: '2026-10-13T06:53:57.773630+00:00'
 retry_count: 1
