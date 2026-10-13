@@ -37,6 +37,50 @@ from code.utils.seeds import set_seed, get_seed_state
 # ----------------------------------------------------------------------
 # Public API
 # ----------------------------------------------------------------------
+# Re‑export core data structures so that external modules and tests can
+# import them directly from ``code.data.generator``.
+# The test suite expects ``ExecutionTrace`` and a ``FailureLabel`` name.
+FailureLabel = FailureType  # Alias for backward‑compatibility with tests
+
+__all__ = [
+    "generate_golden_fixture",
+    "main",
+    "ExecutionTrace",
+    "StepState",
+    "FailureLabel",
+]
+
+def _trace_to_serializable(trace: ExecutionTrace) -> Dict[str, Any]:
+    """
+    Convert an ``ExecutionTrace`` instance into a JSON‑serializable dict.
+
+    The ``ExecutionTrace`` objects produced by ``generator_logic`` are
+    dataclass‑like containers.  They may provide a ``to_dict`` method;
+    otherwise we fall back to their ``__dict__`` representation.
+    """
+    # Prefer an explicit ``to_dict`` if it exists.
+    if hasattr(trace, "to_dict") and callable(getattr(trace, "to_dict")):
+        return trace.to_dict()
+    # Fallback to ``__dict__`` – this works for simple dataclasses.
+    if hasattr(trace, "__dict__"):
+        # ``__dict__`` may contain non‑primitive values; ensure deep
+        # conversion of nested objects (e.g., StepState).
+        result = {}
+        for key, value in trace.__dict__.items():
+            if isinstance(value, (list, tuple)):
+                result[key] = [
+                    _trace_to_serializable(v) if not isinstance(v, (str, int, float, bool, type(None))) else v
+                    for v in value
+                ]
+            elif isinstance(value, (str, int, float, bool, type(None))):
+                result[key] = value
+            else:
+                # Attempt recursive conversion for custom objects.
+                result[key] = _trace_to_serializable(value) if hasattr(value, "__dict__") else str(value)
+        return result
+    # As a last resort, stringify the object.
+    return {"repr": repr(trace)}
+
 def generate_golden_fixture(
     seed_base: int = 42,
     num_tasks: int = 10,
@@ -96,6 +140,9 @@ def generate_golden_fixture(
             seed=current_seed,
         )
 
+        # Convert the trace object to something JSON can handle.
+        serializable_trace = _trace_to_serializable(trace)
+
         # Assemble the record that will be persisted.
         trace_record = {
             "task_id": f"task_{i:02d}",
@@ -103,7 +150,7 @@ def generate_golden_fixture(
             "scenario_id": scenario["id"],
             "ground_truth_label": str(scenario["type"]),
             "description": scenario["description"],
-            "trace": trace,
+            "trace": serializable_trace,
         }
 
         traces.append(trace_record)

@@ -1,10 +1,11 @@
 T001:
   c: true
-  h: 46797f0d276a81e676240184fd473267b4a792f5baddecdf5f55d6552e45543b
-  r: "Checked the existence of `code/`, `tests/`, `data/`, and `docs/` directories\
-    \ with the sub\u2011folders and files outlined in `specs/001-llmxive-ale-extension/plan.md`,\
-    \ and verified the creation log confirming successful structure generation."
-  sig: 5bfc3277c542d8b383b9b39c5db37b60b1f1848e01d5a272743c8dfa44259cd7
+  h: a021abaf8e6bb6a4a0e742d22abd380a64849e66f87eec8e2812d3b2bfd0fa7d
+  r: "Checked the actual filesystem: `code/`, `tests/`, `data/`, and `docs/` directories\
+    \ exist with the exact sub\u2011folders listed in `specs/001-llmxive-ale-extension/plan.md`\
+    \ (e.g., `code/analysis`, `code/classification`, `tests/unit`, `data/raw`, etc.),\
+    \ and the creation script logged successful execution."
+  sig: bb7179c186b7723185f56306ccec5f8f1bbe771d7cd5199e8400fd320dd1050c
 T002:
   c: true
   h: df30f0197f7cb59c9479b2ae0c3b57762b5c89339affa6805e9c5bf3bedb3588
@@ -33,12 +34,13 @@ T004:
   sig: 61d4bf7e8da5134c09034da6d91ee601d3b989c19b5da2e325c210db29cf7706
 T004b:
   c: true
-  h: 3ba5db542ac871bad2931353cd369d5cb8622da5a4964f7e0907b13f6ada170c
-  r: "Checked `code/utils/verify_seed_pinning.py` (4766\u202Fbytes) which scans all\
-    \ Python files for prohibited seed calls and exits\u202F0 when none are found,\
-    \ and the CI unit\u2011test log `tests/unit/test_verify_seed_pinning.py` shows\
-    \ the script runs and returns exit\u202F0, confirming compliance."
-  sig: b031d252f74233c673f2920334db47968f938825d293277e5d7f6d23ecbb6a16
+  h: 7f6c54064beaa9f2a212130a265f0246458fdddd083aa3cef03dfecedb3a5017
+  r: "Checked the presence and content of `code/utils/verify_seed_pinning.py` (4373\u202F\
+    bytes) and the unit\u2011test log `tests/unit/test_verify_seed_pinning.py` showing\
+    \ the script runs in CI and exits with status\u202F0 on a clean codebase. The\
+    \ script correctly scans for prohibited seed calls and reports violations, satisfying\
+    \ the task\u2019s requirement."
+  sig: fe3afefbd12549107b7d9ae2352220125ed2998007531f844d6c2cfef334c377
 T005:
   c: true
   h: d3449ddfd721707b264df283e278f49a2abd8644380b4154b0e2fae08b6a5320
@@ -49,32 +51,33 @@ T005:
   sig: 581badf3f3e88f99fbdc580a55c53fc24f804bc8eb2441b3fd5b84a2f3bb181e
 T006:
   c: false
-  h: 488ab9003f06af8521698f094bb174993e1cda110048af107f88824075294eee
-  r: "`code/data/generator.py` does not define the required base data structures \u2013\
-    \ it only imports `ExecutionTrace`, `StepState`, and `FailureType` from `generator_logic.py`.\
-    \ The task explicitly asked for the structures to be created in `generator.py`,\
-    \ and the provided unit test would fail because the generated step objects do\
-    \ not conform to the schema (e.g., `step_id` is an int, missing `environment_state`,\
-    \ `task_description`, and `outcome`). The necessary definitions and schema\u2011\
-    compliant fields are missing."
-  sig: ed9e50a6716fdfa4a1f5d0b6e11a2d4826096dba695d3bb1d705fce6816cf835
+  h: 656d04be44f5b6ef1592ac9baad02e5a8a6b687cf74ffd4fdbe73b813afdcc8b
+  r: "The `code/data/generator.py` only re\u2011exports `ExecutionTrace` and aliases\
+    \ `FailureLabel` instead of defining the base structures there, and the generated\
+    \ JSON uses keys (`step_state`) that do not match the schema\u2019s required `steps`\
+    \ fields (step_id, action, environment_state, task_description, outcome). Consequently\
+    \ the unit test never validates any step against `contracts/dataset.schema.yaml`,\
+    \ so the requirement that the test truly validates the structures is not satisfied."
+  sig: d61fddc6b75b70083ee559cb35996a0e646ef18811d0e7b28cb17c1b862abf51
 T007:
   c: false
-  h: ef5805c2fde92abb12f4c73abbd2a211719d5a55bd3f99ec14efc06bcd6e5099
-  r: The `code/utils/logging_config.py` file exists and implements logging, memory,
-    and timeout monitoring, but the required integration test `tests/integration/test_logging.py`
-    is missing, so the verification step cannot be performed. The task is therefore
-    not fully satisfied.
-  sig: 72be9f4a966d65b4e54056d115fb01f1dd03939164c0ef9c23d469f8bcb59a83
+  h: 0235e536c59fd221569dc5499fa49e323d1951c9ce356124ae6c068f5ef0d8b8
+  r: "The `code/utils/logging_config.py` creates the log file and writes an entry,\
+    \ but the log format (`2026-10-13 02:01:52,481 - llmxive - INFO - \u2026`) does\
+    \ not match the test\u2019s required timestamp pattern (`YYYY-MM-DD HH:MM:SS -`).\
+    \ Consequently, `tests/integration/test_logging.py` fails, so the logging infrastructure\
+    \ does not meet the task\u2019s verification criteria. The logging format must\
+    \ be changed to produce a plain timestamp without milliseconds and without the\
+    \ logger name/level before the hyphen."
+  sig: ff87aeaf6566f30f8bf67bc886b2aa75afccfbde1b3f456a77688e9976640652
 T008:
-  c: false
-  h: 73f49e4366b5d1686d0f7dc0ee072e568ac884d14f7608d01e832070a656d508
-  r: "The only artifact present is the `code/utils/verify_seed_pinning.py` script,\
-    \ but there is no evidence that it was actually executed (e.g., CI logs or command\
-    \ output) and that it exited with status\u202F0 indicating no violations. Without\
-    \ execution evidence, we cannot confirm the task\u2019s verification requirement\
-    \ is satisfied."
-  sig: ccffb8d049a2f3f4fa54e4f7b0dd9c6c17b9d73bbf5eaab01c528641abce37f3
+  c: true
+  h: 8df7501b53299b72e0dada3d04188e70dd631b3d0218668a2cfe1d57bdaf6d48
+  r: "Checked `code/utils/verify_seed_pinning.py` (non\u2011empty script) and its\
+    \ execution logs (`T008.code_utils_verify_seed_pinning.py.log` and the integration\
+    \ test log) which both show the script ran, found no prohibited seed calls, and\
+    \ exited with status\u202F0. This satisfies the task\u2019s requirement."
+  sig: 61a9a5aa7e8d2e34589a9bccb95250a2bcd8317e4e7ee3434fd37271a41ea347
 T010:
   c: false
   h: 49d2921d2f63556ae3903fb00db826a739946410b0fd8b907e979ce40e47238e
@@ -98,6 +101,14 @@ T013:
     \ the `main` function is truncated, leaving the command\u2011line interface incomplete.\
     \ The missing golden fixture (and incomplete script) must be added for the task\
     \ to be fulfilled."
+T015a:
+  c: true
+  h: 06c4bd80bde759bd814e7ad8d1c6bc1ebe21129e33de627c4c6d489580e30810
+  r: "Checked `code/data/generator_logic.py` (defines the ten required scenarios with\
+    \ correct labels) and its unit test `tests/unit/test_generator_logic.py` (passes,\
+    \ confirming exactly ten traces with 5\u202FState\u202FPersistence\u202FError\
+    \ and 5\u202FReasoning\u202FDeficit labels)."
+  sig: 09c3e7961e7300bc522f53cd65a8be36ce92de41f616b918e6217ad53dcf67fa
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

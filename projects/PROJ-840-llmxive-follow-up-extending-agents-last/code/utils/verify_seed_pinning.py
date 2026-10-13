@@ -22,7 +22,8 @@ class SeedCallVisitor(ast.NodeVisitor):
     Visits all Call nodes and records those that directly invoke a prohibited
     seeding function without going through ``code.utils.seeds``.
     """
-    def __init__(self):
+    def __init__(self, file_path: Path):
+        self.file_path = file_path
         self.violations = []  # List[Tuple[Path, int, str]]
 
     def visit_Call(self, node: ast.Call):
@@ -48,14 +49,8 @@ class SeedCallVisitor(ast.NodeVisitor):
         }
 
         if func_name in prohibited:
-            # Determine if the call is wrapped by the project's helper.
-            # We allow calls where the *parent* attribute chain includes
-            # ``code.utils.seeds.set_seed`` or ``code.utils.seeds.get_seed``.
-            # Since AST does not expose parent links, we approximate by
-            # checking the source line for the allowed patterns.
-            src_line = getattr(node, "lineno", None)
-            # Store the violation; the caller will filter out allowed cases.
-            self.violations.append((node.lineno, func_name))
+            # Record the violation with file context.
+            self.violations.append((self.file_path, node.lineno, func_name))
 
         # Continue traversing.
         self.generic_visit(node)
@@ -64,20 +59,24 @@ class SeedCallVisitor(ast.NodeVisitor):
 # Main driver
 # ----------------------------------------------------------------------
 def find_python_files(root: Path) -> list[Path]:
+    """Recursively find all ``.py`` files under *root*."""
     return list(root.rglob("*.py"))
 
-def scan_file(path: Path, visitor: SeedCallVisitor):
+def scan_file(path: Path) -> list[tuple[Path, int, str]]:
+    """Parse *path* and return any seed‑pinning violations."""
     try:
         source = path.read_text(encoding="utf-8")
     except Exception:
-        # If the file cannot be read, skip it (will be caught by CI elsewhere).
-        return
+        # If the file cannot be read, skip it – CI will catch other issues.
+        return []
     try:
         tree = ast.parse(source, filename=str(path))
     except SyntaxError:
         # Invalid Python – let the test suite surface this.
-        return
+        return []
+    visitor = SeedCallVisitor(path)
     visitor.visit(tree)
+    return visitor.violations
 
 def main():
     parser = argparse.ArgumentParser(
@@ -90,35 +89,33 @@ def main():
         help="Root directory to start scanning (default: current directory)",
     )
     args = parser.parse_args()
-    root_path = Path(args.root)
+    root_path = Path(args.root).resolve()
 
-    visitor = SeedCallVisitor()
+    all_violations = []
+
     for py_file in find_python_files(root_path):
         # Skip the compliance script itself to avoid false positives.
-        if py_file.name == Path(__file__).name:
+        if py_file.samefile(Path(__file__)):
             continue
-        scan_file(py_file, visitor)
+        all_violations.extend(scan_file(py_file))
 
-    # Filter out allowed usages (calls that appear inside the project's helper
-    # modules).  The project's helper modules live under ``code/utils``.
+    # Exclude any violations that occur inside the official seed‑pinning helper.
+    # The helper lives in ``code/utils/seeds.py``; direct calls inside that file
+    # are permissible because the module abstracts the seeding logic.
     allowed_modules = {
-        "code/utils/seeds.py",
+        root_path / "code" / "utils" / "seeds.py",
     }
-    filtered = []
-    for lineno, func_name in visitor.violations:
-        # Determine the file that produced the violation.
-        # Since we lose filename in the visitor, we re‑scan with context.
-        # We'll simply treat any violation inside an allowed module as OK.
-        # The visitor is invoked per file, so we can map back.
-        # For simplicity, we assume any violation in an allowed module is permitted.
-        # This covers the case where ``code.utils.seeds`` itself calls
-        # ``random.seed`` internally.
-        filtered.append((lineno, func_name))
+    filtered_violations = [
+        (path, lineno, func)
+        for (path, lineno, func) in all_violations
+        if path not in allowed_modules
+    ]
 
-    if filtered:
+    if filtered_violations:
         print("Seed‑pinning violations detected:")
-        for lineno, func_name in filtered:
-            print(f"  Line {lineno}: prohibited call to {func_name}")
+        for path, lineno, func_name in filtered_violations:
+            rel_path = path.relative_to(root_path)
+            print(f"  {rel_path}:{lineno}: prohibited call to {func_name}")
         sys.exit(1)
     else:
         print("No seed‑pinning violations found.")

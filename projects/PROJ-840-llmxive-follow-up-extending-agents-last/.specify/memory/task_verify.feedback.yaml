@@ -11,26 +11,23 @@ T004b:
 T005:
   task: 9042a1cbfe1de3c3dd1fdbd5260aabcda3a1d3de9e704198b8f4d212e0d9c88e
 T006:
-  reason: "`code/data/generator.py` does not define the required base data structures\
-    \ \u2013 it only imports `ExecutionTrace`, `StepState`, and `FailureType` from\
-    \ `generator_logic.py`. The task explicitly asked for the structures to be created\
-    \ in `generator.py`, and the provided unit test would fail because the generated\
-    \ step objects do not conform to the schema (e.g., `step_id` is an int, missing\
-    \ `environment_state`, `task_description`, and `outcome`). The necessary definitions\
-    \ and schema\u2011compliant fields are missing."
+  reason: "The `code/data/generator.py` only re\u2011exports `ExecutionTrace` and\
+    \ aliases `FailureLabel` instead of defining the base structures there, and the\
+    \ generated JSON uses keys (`step_state`) that do not match the schema\u2019s\
+    \ required `steps` fields (step_id, action, environment_state, task_description,\
+    \ outcome). Consequently the unit test never validates any step against `contracts/dataset.schema.yaml`,\
+    \ so the requirement that the test truly validates the structures is not satisfied."
   task: 0e1c459953836ebafebe822f5bf39628bf81f9e644b333d1f0ffca7cf0b18159
 T007:
-  reason: The `code/utils/logging_config.py` file exists and implements logging, memory,
-    and timeout monitoring, but the required integration test `tests/integration/test_logging.py`
-    is missing, so the verification step cannot be performed. The task is therefore
-    not fully satisfied.
+  reason: "The `code/utils/logging_config.py` creates the log file and writes an entry,\
+    \ but the log format (`2026-10-13 02:01:52,481 - llmxive - INFO - \u2026`) does\
+    \ not match the test\u2019s required timestamp pattern (`YYYY-MM-DD HH:MM:SS -`).\
+    \ Consequently, `tests/integration/test_logging.py` fails, so the logging infrastructure\
+    \ does not meet the task\u2019s verification criteria. The logging format must\
+    \ be changed to produce a plain timestamp without milliseconds and without the\
+    \ logger name/level before the hyphen."
   task: 54eb86fc6fdeabded11c50d0c720acc594f820f2f46d16e28a3630fef07481f3
 T008:
-  reason: "The only artifact present is the `code/utils/verify_seed_pinning.py` script,\
-    \ but there is no evidence that it was actually executed (e.g., CI logs or command\
-    \ output) and that it exited with status\u202F0 indicating no violations. Without\
-    \ execution evidence, we cannot confirm the task\u2019s verification requirement\
-    \ is satisfied."
   task: cbe3a35b2892f173e7428b3f500a318a4e4fb26931fb9c41117a4950a500cef2
 T008b:
   task: 557f8052c3ef32ea844e2a07d2e108c8c88b986a75425a61bb15d7ac18b918f2

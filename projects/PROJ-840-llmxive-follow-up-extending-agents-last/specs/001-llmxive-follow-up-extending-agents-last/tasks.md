@@ -34,21 +34,21 @@
 - [ ] T007 Setup logging infrastructure to capture timeouts and memory usage in `code/utils/logging_config.py`.  
   *Verification:* integration test `tests/integration/test_logging.py` runs a dummy process, checks that `logs/run.log` is created and contains a timestamp entry.  
 
-- [ ] T008 [P] Verify seed‑pinning compliance across the codebase (`code/utils/verify_seed_pinning.py`).  
+- [X] T008 [P] Verify seed‑pinning compliance across the codebase (`code/utils/verify_seed_pinning.py`).  
   *Verification:* execute the script; CI asserts exit code 0 (no violations).  
 
-- [~] T015a [US1] Define data‑generation logic in `code/data/generator_logic.py`.  
+- [X] T015a [US1] Define data‑generation logic in `code/data/generator_logic.py`.  
   *Creates deterministic functions that encode the ten prescribed scenarios (5 State Persistence Errors, 5 Reasoning Deficits).*  
   *Verification:* unit test `tests/unit/test_generator_logic.py` checks that the logic returns exactly ten scenarios with correct labels.  
 
-- [ ] T015b [US1] Implement data‑generator script `code/data/generator.py` that **imports** `generator_logic.py` and writes the ten scenario traces to **`data/raw/golden_fixture.json`**.   <!-- FAILED-IN-EXECUTION: code/data/generator.py exit=1 -->
+- [~] T015b [US1] Implement data‑generator script `code/data/generator.py` that **imports** `generator_logic.py` and writes the ten scenario traces to **`data/raw/golden_fixture.json`**.
   *CLI entry point:* `python -m code.data.generator --output data/raw/golden_fixture.json`.  
   *Verification (indented):*  
     - The script must exit with status 0.  
     - The output file must exist, be non‑empty, and contain exactly ten JSON objects matching the schema in `contracts/dataset.schema.yaml`.  
     - Generate SHA‑256 checksum saved to `data/processed/golden_fixture_checksum.txt`.  
 
-- [ ] T015c [US1] Execute the generator and verify the artifact.  
+- [~] T015c [US1] Execute the generator and verify the artifact.  
   *Command:* `python -m code.data.generator --output data/raw/golden_fixture.json`.  
   *Verification (indented):*  
     - Confirm `data/raw/golden_fixture.json` exists.  
