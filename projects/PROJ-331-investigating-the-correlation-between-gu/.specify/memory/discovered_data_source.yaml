@@ -1,18 +1,17 @@
 status: none
-intent: PPMI gut microbiome 16S ASV dataset Synapse dbGaP python package dataset
+intent: download PPMI longitudinal microbiome ASV and clinical UPDRS dataset python
+  package dataset
 required_fields:
 - sample_id
 - patient_id
 - visit_date
-- visit_number
-- asv_id
-- taxonomy
-- abundance
 - age
 - sex
 - levodopa_dose
-- UPDRS_total
-- MDS_UPDRS_total
-cache_key: 9fc867865b62e2d915ab91322f4df997ecfb507ed206329649548e94ad216361
-searched_at: '2026-10-13T04:25:09.978653+00:00'
+- updrs_part_iii
+- mds_updrs_total
+- asv_id
+- asv_count
+cache_key: 7868800f3f0c0052c56f17ddf03f2b296731f5a15a9bb49fae8c120d9436564a
+searched_at: '2026-10-13T05:21:36.641710+00:00'
 retry_count: 1

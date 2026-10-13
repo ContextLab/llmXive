@@ -1,27 +1,26 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
 
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
 
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- every produced artifact is gitignored (data/processed/patient_outcome_slopes.parquet, data/processed/patient_taxon_slopes.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- code/src/pipeline/slopes.py: synthetic/fake INPUT data not authorized by the spec — “…n issue in the         # synthetic test data), fall back to the expec…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/patient_outcome_slopes.parquet, data/processed/patient_taxon_slopes.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python -m code.src.pipeline.ingest (rc=1); python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 (rc=1); python -m pytest -q code/tests (rc=1); 8 declared deliverable(s) absent: data/processed/clr_abundances.parquet; data/processed/filtered_samples.parquet; data/raw/ppmi_asv.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/pipeline/slopes.py: synthetic/fake INPUT data not authorized by the spec — “…n issue in the         # synthetic test data), fall back to the expec…”; 3 command(s) failed: python -m code.src.pipeline.ingest (rc=1); python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 (rc=1); python -m pytest -q code/tests (rc=1); 10 declared deliverable(s) absent: data/processed/clr_abundances.parquet; data/processed/filtered_samples.parquet; data/processed/patient_outcome_slopes.parquet
 
 ## Failing / missing run-book commands
 
 - python -m code.src.pipeline.ingest -> rc=1
 
-2026-10-13 04:24:45,840 INFO __main__: === PPMI input validation (FR-001) ===
-2026-10-13 04:24:45,840 ERROR __main__: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
-2026-10-13 04:24:45,840 ERROR __main__: Input validation FAILED: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
+2026-10-13 05:20:17,578 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-13 05:20:17,578 ERROR __main__: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
+2026-10-13 05:20:17,578 ERROR __main__: Input validation FAILED: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
 
 - python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
 ork/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 200, in main
@@ -37,26 +36,22 @@ ork/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/c
 FileNotFoundError: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
 
 - python -m pytest -q code/tests -> rc=1
-ected = {"p1": 2.0, "p2": 2.0}
-    
-        out_df = slopes.compute_outcome_slopes(clinical_df)
-    
-        for _, row in out_df.iterrows():
->           assert np.isclose(row["outcome_slope"], expected[row["patient_id"]], atol=1e-9)
-E           assert np.False_
-E            +  where np.False_ = <function isclose at 0x7fcc5944e8b0>(-1.6239695141939146e-15, 2.0, atol=1e-09)
-E            +    where <function isclose at 0x7fcc5944e8b0> = np.isclose
-
-code/tests/test_slopes.py:135: AssertionError
------------------------------ Captured stderr call -----------------------------
-2026-10-13 04:24:48,075 INFO code.src.pipeline.slopes: Computed outcome slopes for 2 patients
------------------------------- Captured log call -------------------------------
-INFO     code.src.pipeline.slopes:slopes.py:175 Computed outcome slopes for 2 patients
-=========================== short test summary info ============================
-FAILED code/tests/test_mixed_effects.py::test_mixed_effects_recovers_known_interaction
-FAILED code/tests/test_permutation.py::test_permutation_runs - ValueError: Yo...
-FAILED code/tests/test_slopes.py::test_compute_outcome_slopes_simple - assert...
-3 failed, 17 passed in 1.31s
+_zero_with_skip_flag
+FAILED code/tests/test_ingest.py::test_malformed_asv_missing_columns_aborts
+FAILED code/tests/test_ingest.py::test_main_writes_validation_report - Import...
+FAILED code/tests/test_preprocess.py::test_single_visit_patients_excluded_with_logged_count
+FAILED code/tests/test_preprocess.py::test_two_visit_patients_are_retained - ...
+FAILED code/tests/test_preprocess.py::test_zero_taxa_dropped_with_warning - I...
+FAILED code/tests/test_preprocess.py::test_clr_output_rows_equal_retained_samples
+FAILED code/tests/test_preprocess.py::test_zero_variance_covariate_detected
+FAILED code/tests/test_slopes.py::test_compute_taxon_slopes_simple - ImportEr...
+FAILED code/tests/test_slopes.py::test_compute_outcome_slopes_simple - Import...
+FAILED code/tests/test_slopes.py::test_run_slopes_writes_files - ImportError:...
+FAILED code/tests/test_slopes.py::test_run_slopes_missing_outcome - ImportErr...
+ERROR code/tests/test_mixed_effects.py::test_mixed_effects_recovers_known_interaction
+ERROR code/tests/test_mixed_effects.py::test_missing_outcome_causes_empty_file
+ERROR code/tests/test_permutation.py::test_permutation_runs - ImportError: Un...
+13 failed, 4 passed, 3 errors in 1.92s
 
 
 
@@ -64,6 +59,8 @@ FAILED code/tests/test_slopes.py::test_compute_outcome_slopes_simple - assert...
 
 - data/processed/clr_abundances.parquet
 - data/processed/filtered_samples.parquet
+- data/processed/patient_outcome_slopes.parquet
+- data/processed/patient_taxon_slopes.parquet
 - data/raw/ppmi_asv.csv
 - data/raw/ppmi_clinical.parquet
 - data/results/mixed_effects_summary.csv
@@ -90,6 +87,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/pipeline/preprocess.py` — NOT invoked by the run-book
     - `code/tests/test_preprocess.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/filtered_samples.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/patient_outcome_slopes.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/src/pipeline/correlation.py` — NOT invoked by the run-book
+    - `code/src/pipeline/slopes.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/patient_outcome_slopes.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/patient_taxon_slopes.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/src/pipeline/correlation.py` — NOT invoked by the run-book
+    - `code/src/pipeline/slopes.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/patient_taxon_slopes.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/ppmi_asv.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/pipeline/ingest.py` — IS a run-book command
     - `code/src/pipeline/preprocess.py` — NOT invoked by the run-book

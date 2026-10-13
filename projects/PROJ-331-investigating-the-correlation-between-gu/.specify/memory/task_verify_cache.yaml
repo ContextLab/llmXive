@@ -1,11 +1,23 @@
 T001:
   c: true
-  h: 44fc4ed7d9335bb216158a34990b75651361d011d7128fd077513b097dfe138d
-  r: "Checked `code/src/pipeline/ingest.py` for proper existence/parsing checks, graceful\u2011\
-    degradation handling, and non\u2011synthetic behavior; verified `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
-    \ documents the runnable command; and confirmed unit tests (`code/tests/test_ingest.py`)\
-    \ cover all required cases and pass."
-  sig: 8a73288743df980d20918a0c259ab5eff70b7cdd85a18e9e85b696b10571767f
+  h: 9205da6f31027a8ea8663dbfce2057113cf15c9314bc006fa89f786aa7367856
+  r: "Checked `code/src/pipeline/ingest.py` (validation logic, error handling, skip\u2011\
+    flag behavior), `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
+    \ (documents the runnable command), and the unit tests `code/tests/test_ingest.py`\
+    \ (cover valid inputs, missing file abort, missing outcome column warning and\
+    \ skip flag). All required behavior and documentation are present and correctly\
+    \ implemented."
+  sig: 034735f3563cf083c4d70cf2d74a3813d49dabe7426b0b3855ad88ffe59ed608
+T003:
+  c: false
+  h: e141e6f6a590304d1728604410c9cf01fdae39123824225afee9f00cb2f266cf
+  r: "The `slopes.py` module is present, but the required parquet files (`data/processed/clr_abundances.parquet`,\
+    \ the output parquet files) are missing and the unit tests all fail because the\
+    \ environment lacks a parquet engine (`pyarrow`/`fastparquet`). Consequently the\
+    \ slope functions cannot be exercised and the task\u2019s verification tests are\
+    \ not satisfied. Install a parquet engine (or provide a fallback) and ensure the\
+    \ input/output parquet files are generated so the tests pass."
+  sig: 2896239046d1eb6907932773dd355c82478f1f8bf913651f2de1b837e0d84a02
 T004:
   c: false
   h: 858d70684bfa5ecafbd319369fd11165bbc43c97a93768f99c0bc8197c8b3a73
