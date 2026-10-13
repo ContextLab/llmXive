@@ -1,0 +1,7 @@
+{
+  "task_id": "T010.1",
+  "fingerprint": "9a21e2cd0a943a9b47cad53cd03696470e1b75c5b618329c8b431f160679be52",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/extraction/snippet_extractor.py': SyntaxError at line 184: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 9404"
+}

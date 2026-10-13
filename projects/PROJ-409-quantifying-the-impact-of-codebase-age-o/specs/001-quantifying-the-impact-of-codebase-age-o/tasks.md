@@ -45,7 +45,7 @@
 
 - [X] T001 Create project structure per implementation plan: Create directories `code/`, `code/extraction/`, `code/inference/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/extracted/`, `data/aggregated/`, `data/results/`, `data/models/`, `tests/unit/`, `tests/integration/`.
 - [X] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (including `huggingface_hub`, `transformers`, `torch`, `bitsandbytes`, `gitpython`, `pandas`, `scipy`, `ast`, `tokenizers`, `networkx`).
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools.
 
 ---
 
@@ -58,8 +58,8 @@
 - [X] T004 Setup `code/utils/config.py` for constants, random seeds, and -hour timeout limits.
 - [X] T005 [P] Implement `code/utils/logging.py` for unified logging across the pipeline.
 - [X] T006 [P] Create `code/utils/hasher.py` to generate SHA-256 hashes for artifacts (Constitution V).
-- [X] T007 [P] Create `code/utils/reference_validator.py` to verify citations in markdown artifacts. The validator MUST check both legacy paths (`idea/`, `technical-design/`, `implementation-plan/`, `paper/`) and the active project structure (`specs/`) to ensure no citations are missed.
-- [X] T008 Create base data models/entities structure in `code/models.py` defining classes: `Snippet` (snippet_id, repo_url, file_path, median_commit_age, snippet_content, token_count, complexity), `Repository` (repo_url, commit_count, median_age), `InferenceResult` (snippet_id, perplexity, functional_correctness_rate, status), and `FileMetric` (file_path, mean_perplexity, mean_correctness, mean_complexity, mean_length, median_age).
+- [~] T007 [P] Create `code/utils/reference_validator.py` to verify citations in markdown artifacts. The validator MUST check both legacy paths (`idea/`, `technical-design/`, `implementation-plan/`, `paper/`) and the active project structure (`specs/`) to ensure no citations are missed.
+- [~] T008 Create base data models/entities structure in `code/models.py` defining classes: `Snippet` (snippet_id, repo_url, file_path, median_commit_age, snippet_content, token_count, complexity), `Repository` (repo_url, commit_count, median_age), `InferenceResult` (snippet_id, perplexity, functional_correctness_rate, status), and `FileMetric` (file_path, mean_perplexity, mean_correctness, mean_complexity, mean_length, median_age).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,10 +73,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [US1] Implement `code/extraction/git_utils.py` to fetch git history and calculate `median_commit_age` per file (handling sparse history edge cases).
-- [X] T010 [US1] Implement `code/extraction/snippet_extractor.py` using AST to extract function-level Python snippets, filter by token length (≥50 tokens), and calculate `complexity` using `networkx` Control Flow Graph analysis.
+- [~] T009 [US1] Implement `code/extraction/git_utils.py` to fetch git history and calculate `median_commit_age` per file (handling sparse history edge cases).
+- [~] T010 [US1] Implement `code/extraction/snippet_extractor.py` using AST to extract function-level Python snippets, filter by token length (≥50 tokens), and calculate `complexity` using `networkx` Control Flow Graph analysis.
 - [ ] T010.1 [US1] Ensure `snippet_extractor.py` outputs `token_length` and `complexity` columns for every snippet to support later covariate control.
-- [X] T011 [US1] Implement `code/extraction/run_extraction.py` CLI entry point to orchestrate repo cloning, snippet extraction, age calculation, and complexity calculation for 3-5 repos.
+- [~] T011 [US1] Implement `code/extraction/run_extraction.py` CLI entry point to orchestrate repo cloning, snippet extraction, age calculation, and complexity calculation for 3-5 repos.
 - [ ] T012 [US1] Add error handling in `run_extraction.py` to log and skip repos with inaccessible git history while ensuring a minimum of 3 valid repos are processed.
 - [ ] T013 [US1] Verify extraction output CSV structure matches requirements (columns: `snippet_id`, `repo_url`, `file_path`, `median_commit_age`, `snippet_content`, `token_count`, `complexity`, `token_length`).
 - [ ] T013.1 [US1] Create `tests/verify_extraction.py` to programmatically assert the CSV columns exist and row count is at least 800 (minimum viable dataset per FR-001).
@@ -99,13 +99,13 @@ References: Nijkamp et al. (2023) to generate `perplexity` and `functional_corre
 
 ### Implementation for User Story 2
 
-- [X] T014 [US2] Implement `code/inference/model_loader.py` to load CodeGen-small with CPU-only quantization (8-bit/4-bit via `bitsandbytes` or `llama.cpp`), explicitly disabling CUDA.
+- [~] T014 [US2] Implement `code/inference/model_loader.py` to load CodeGen-small with CPU-only quantization (8-bit/4-bit via `bitsandbytes` or `llama.cpp`), explicitly disabling CUDA.
 - [ ] T014.1 [US2] Create `code/inference/model_downloader.py` to download and cache CodeGen-350M weights to `data/models/` before inference begins.
-- [X] T015 [US2] Implement `code/inference/metrics_calculator.py` to calculate `perplexity` and `functional_correctness_rate`.
+- [~] T015 [US2] Implement `code/inference/metrics_calculator.py` to calculate `perplexity` and `functional_correctness_rate`.
 - [ ] T015.1 [US2] In `metrics_calculator.py`, implement logic to locate and execute associated unit tests for each snippet if available; if not, generate synthetic semantic validation by attempting code execution (syntax + type + basic runtime logic) to assign a binary valid/invalid score.
 - [ ] T015.2 [US2] Implement `code/inference/file_aggregator.py` to group snippets by `file_path` and calculate mean `perplexity`, mean `functional_correctness_rate`, mean `complexity`, and mean `token_length` into `data/aggregated/file_metrics.csv` (Key Methodological Adjustment).
 - [ ] T015.3 [US2] Implement `code/inference/age_aggregator.py` to aggregate `median_commit_age` from snippet-level to file-level (using mean or median) and merge this with `data/aggregated/file_metrics.csv`, ensuring the unit of analysis matches the Plan's 'Key Methodological Adjustment'.
-- [X] T016 [US2] Implement `code/inference/run_inference.py` CLI entry point to process the extraction CSV, applying a per-snippet timeout and total global timeout.
+- [~] T016 [US2] Implement `code/inference/run_inference.py` CLI entry point to process the extraction CSV, applying a per-snippet timeout and total global timeout.
 - [ ] T017 [US2] Add robust error handling in `run_inference.py` to log failures, record `NaN` for metrics on timeouts/OOMs, and continue processing without crashing.
 - [ ] T018 [US2] Implement logic in `run_inference.py` to stop new inferences if total runtime approaches a predefined threshold. If the time limit is reached, finalize the report with available data and mark the run as 'incomplete' ONLY IF the 800-snippet minimum is not met; otherwise mark as 'complete' with available data.
 - [ ] T019 [US2] Verify inference output CSV structure (columns: `snippet_id`, `perplexity`, `functional_correctness_rate`, `inference_time`, `status`) and verify `file_metrics.csv` exists with aggregated data.
@@ -125,9 +125,9 @@ References: Nijkamp et al. (2023) to generate `perplexity` and `functional_corre
 ### Implementation for User Story 3
 
 - [ ] T020 [US3] Implement `code/analysis/correlation.py` to perform Spearman rank correlation on `data/aggregated/file_metrics.csv` (which now includes file-level `median_commit_age`), handling NaNs by excluding rows, and controlling for `complexity` and `token_length` covariates.
-- [X] T021 [US3] Implement `code/analysis/report_generator.py` to generate a final Markdown/JSON report stating correlation coefficients, p-values, and statistical significance flags.
+- [~] T021 [US3] Implement `code/analysis/report_generator.py` to generate a final Markdown/JSON report stating correlation coefficients, p-values, and statistical significance flags.
 - [~] T022 [US3] Add logic in `report_generator.py` to explicitly state "No significant correlation" if p-value > 0.05.
-- [X] T023 [US3] Integrate `code/utils/hasher.py` to hash the final results CSV and update the project state YAML (Constitution V).
+- [~] T023 [US3] Integrate `code/utils/hasher.py` to hash the final results CSV and update the project state YAML (Constitution V).
 - [~] T024 [US3] Verify final report contains all required metrics and correctly interprets statistical significance based on p < 0.05 threshold.
 - [ ] T024.1 [US3] Create `tests/verify_report.py` to programmatically assert the report JSON keys exist and values are numeric.
 
@@ -143,8 +143,8 @@ References: Nijkamp et al. (2023) to generate `perplexity` and `functional_corre
 - [ ] T026.1 Refactor `code/inference/metrics_calculator.py` to reduce cyclomatic complexity to a low level.
 - [ ] T026.2 Refactor `code/analysis/correlation.py` to reduce cyclomatic complexity to a lower, manageable level.
 - [ ] T027.1 Implement batching in `code/inference/model_loader.py` to target average inference time < 30s per snippet.
-- [X] T028 [P] Add unit tests for extraction logic in `tests/unit/test_extraction.py`.
-- [X] T029 [P] Add unit tests for inference logic in `tests/unit/test_inference.py`.
+- [~] T028 [P] Add unit tests for extraction logic in `tests/unit/test_extraction.py`.
+- [~] T029 [P] Add unit tests for inference logic in `tests/unit/test_inference.py`.
 - [~] T030 Run `quickstart.md` validation.
 
 ---

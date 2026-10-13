@@ -1,0 +1,13 @@
+status: none
+intent: Software Heritage Graph Dataset and CodeSearchNet Python functions with commit
+  timestamps python package dataset
+required_fields:
+- repository_url
+- file_path
+- function_name
+- function_source_code
+- commit_hash
+- commit_date
+cache_key: 0316d606fb61e02eab9c0db5b0a0d031723aa566ddfe30978d72434038f50947
+searched_at: '2026-10-13T21:24:22.037727+00:00'
+retry_count: 1

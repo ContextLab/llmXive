@@ -1,0 +1,87 @@
+T001:
+  task: 412dd0c7e07c445b4ab22d62eff36606602445c0a8da9dd55877bc4b0547d497
+T002:
+  task: 96ab9bf79826bfd5489979a363524afb1a7bc1acfe874c93817a74e24b499743
+T003:
+  reason: "The evidence collector lists no artifacts for this task \u2014 there is\
+    \ no `pyproject.toml`, `ruff.toml`, `.ruff.toml`, `setup.cfg`, or any configuration\
+    \ file containing ruff/black settings anywhere in the project, and no execution\
+    \ evidence (e.g., a lint/format run log) was supplied. The implementer's claim\
+    \ of configuring ruff and black is entirely unsupported; the next implementer\
+    \ should add an actual configuration file (e.g., `[tool.ruff]` and `[tool.black]`\
+    \ sections in `pyproject.toml`) and demonstrate it runs."
+  task: 8bcdcfeaf36ac8844664102528ed27a6a539eb092b2b2ff696d7df99e6207c40
+T004:
+  task: c2fa8ff55168a79b8061e064cd0fc3a9467e05d21fb117acd31d01915062b9b0
+T005:
+  task: c5b5d6a690eefdd84ab1db83ef75ae12888b144c39ff45c8b89be168b50f0997
+T006:
+  task: a5cb6495171c60c224a5cb02bd3ef8cc40b07f8b27f86ac57ec56e8b30f80545
+T007:
+  task: 5cf008e43f8712abf6d658b27e28cac3df27f6dc7816ea194b10f26dcb72cbe9
+T008:
+  task: 69fcd195b7bdf267de0d6ded8bae3401d9246fd28801fd0dddc5dc5657ae48bf
+T009:
+  task: 3a28baf7a5f3b47c4841980b6510525a13b0d7cc0d0f961befd988b7b87f2131
+T010:
+  task: 5240124b196f365dabe851278bd1f01cadc16a4701059b858ebc6190424dba1a
+T010.1:
+  task: 612bb80ed4fce7086b60ea6ee45b6f055029041b9d1047ec85c65a0ded0344e8
+T011:
+  task: 77ef88685e5335fd7246ffea681ac0798006b5c5b10d24fc62619acf1f900bf2
+T012:
+  task: 56aebb7908cae318a9708814db5b7b0b80bc68167ea70d80484cc01f67d89b1f
+T013:
+  task: 99ca6e5058cf5e4d9a3d051499c9acd2f77169424b0f3c14160fc6dfb03d6b3d
+T013.1:
+  task: 68b9484dc37328bd47084d32795754182dc0ec7f7237aebbe44255474c9fdc80
+T014:
+  task: 55fed9f3f2510ce86c417db089c9f5ff5ba8e14f537dab726109180db574511d
+T014.1:
+  task: 21af9f3cd367650cd559f7d537172595f145d3f38ac12d6f049e64d395f1a890
+T015:
+  task: 009dcd6a1a9d3f6235dea60b2b3c316322ce518057613c53abded14a02bb3f7a
+T015.1:
+  task: d8174b50700efe0beffd5a69fa133afe3c5f4be5d03c8b5150e99dbfc98120f9
+T015.2:
+  task: aefc68a874efb4639907e3912d6520f203dff866aeee1dbc5f626adf842c3960
+T015.3:
+  task: a0c9943a36c2c0e3ea2b14a430555c00881bb6c0a47ebb9562e2f09ae2d0201a
+T016:
+  task: 19b1e081e712216aa5c3336f78b22b9c32fa2289f032ae8a4bfd8ddadc819f4d
+T017:
+  task: 5d5d9612323460e3c24effee4f184a246337246df680bbd9f92d5c5b9ac36dea
+T018:
+  task: 9294364d4d401460ec354960e07a9bbc5d4b9afeedc3b243e8df81ec98e9d718
+T019:
+  task: 591db6988a9206849c79f20e112e73f087ab6ea389cd0f060510ddf4bf505df7
+T019.1:
+  task: 08189c2e38e665cdedc406b49ab3619bd93d201259418e1460435a334dce68fc
+T019.2:
+  task: 2cee40d29b67965b4f28ff6a35d0e047ccbbccaa58766e93f87cae1e4df0d7cc
+T020:
+  task: 0bfd765b4a9c6d2f4b8ced1b12a36a9a92736e5fb300cb61deca98f86a46170b
+T021:
+  task: a7ddbb9fbb342178bff26b2bf738f1e62c88fff296de61e007b7904b0b08770c
+T022:
+  task: 18fb06ab8366f7adf8e6dbdfa82d24ce96f487b1179859d14c92e9f4c451866b
+T023:
+  task: 2139d9342aca3f102345fc9f3a563687efbc65160fdd3194938c8371a308a00c
+T024:
+  task: 190337e22cc2e572075e51b136a5fabb6f58064e3b08795e20457b57366fcd49
+T024.1:
+  task: 0356974e927f0fbe38837079099a57564e5e813929ff66706e5e87060c200efe
+T025:
+  task: 92bd7bb4afee40bffae2757816d9deb2825598cee441ef9826d589cba63067eb
+T026.1:
+  task: 55d5e909c4509844f477d1d23bf93f7d8885fba0dae7e2b16b1aecead27fecd3
+T026.2:
+  task: dd369d4c8091dcfc4b0a49c6c9bb917f22e3040401162630c7e342170a23083b
+T027.1:
+  task: c2e50b3942659ecb1486ab7b52faebb4ebf8abb96f837c9e631316623bd77187
+T028:
+  task: 5a0d8b935487bf993966eaf9de213b6bef703e95aefe2f0933aa2967a7b08b4f
+T029:
+  task: b8ee1e89c31231c6ec1c9b27e9b975e1caa688dac8ef068ad385ebe2d7feae9c
+T030:
+  task: f01452b3842c02cd2bb7fcf83b6ec7b9611d0c992642ec913710973956382bae
