@@ -1,12 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-10-13T14:10:05.168384+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-10-13T16:08:29.055921+00:00'
 last_outcome: committed
 history:
-- slug: richard-feynman
-  started_at: '2026-06-25T06:29:58.473253+00:00'
-  ended_at: '2026-06-25T07:47:26.295723+00:00'
-  outcome: abstained
-  action: abstain
 - slug: rosalind-franklin
   started_at: '2026-06-25T07:47:26.295723+00:00'
   ended_at: '2026-06-25T09:06:15.138390+00:00'
@@ -1252,3 +1247,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-318-evaluating-the-impact-of-code-generation/reviews/research/freeman-dyson-simulated__2026-10-13__research.md
+- slug: geoffrey-west
+  started_at: '2026-10-13T14:10:05.168384+00:00'
+  ended_at: '2026-10-13T16:08:29.055921+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-119-statistical-modeling-of-temporal-depende/reviews/research/geoffrey-west-simulated__2026-10-13__research.md
