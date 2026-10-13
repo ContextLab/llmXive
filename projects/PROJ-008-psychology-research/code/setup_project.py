@@ -1,35 +1,57 @@
+"""T001: Establish the project layout for PROJ-008-psychology-research.
+
+Creates the authoritative directory tree under code/ (per the tasks.md
+layout note) plus data/, docs/, contracts/, and tests/ subtrees, and
+verifies that every expected directory exists afterwards.
+
+Usage:
+    python code/setup_project.py
 """
-Setup script to ensure project directories exist.
-"""
-import os
 import sys
 from pathlib import Path
 
-def ensure_dir(path_str: str) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    path = Path(path_str)
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
+from llmxive_toolkit import paths, get_logger
 
-def main() -> None:
-    """Create standard project directories."""
-    base = Path(__file__).parent.parent
-    dirs = [
-        base / "code",
-        base / "data" / "raw",
-        base / "data" / "processed",
-        base / "data" / "interim",
-        base / "docs",
-        base / "tests" / "unit",
-        base / "tests" / "integration",
-        base / "tests" / "contract",
-        base / "contracts",
-        base / "scripts",
-        base / ".github" / "workflows",
-    ]
-    for d in dirs:
-        ensure_dir(str(d))
-        print(f"Ensured directory: {d}")
+log = get_logger(__name__)
+
+REQUIRED_DIRS = [
+    "code/data",
+    "code/analysis",
+    "code/viz",
+    "code/lib",
+    "code/utils",
+    "code/reporting",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "docs",
+    "contracts",
+    "tests/unit",
+    "tests/integration",
+    "tests/contract",
+]
+
+def setup() -> None:
+    """Create all required directories and verify them."""
+    for rel in REQUIRED_DIRS:
+        d = paths.path(rel)
+        d.mkdir(parents=True, exist_ok=True)
+        # Keep empty directories in version control.
+        keep = d / ".gitkeep"
+        if not any(d.iterdir()):
+            keep.touch()
+        log.info("ready: %s", d)
+
+    missing = [rel for rel in REQUIRED_DIRS if not paths.path(rel).is_dir()]
+    if missing:
+        raise RuntimeError(f"layout incomplete, missing: {missing}")
+
+    log.info("Project layout verified: %d directories present.", len(REQUIRED_DIRS))
+
+def main() -> int:
+    setup()
+    print("OK: project layout established under", paths.root)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

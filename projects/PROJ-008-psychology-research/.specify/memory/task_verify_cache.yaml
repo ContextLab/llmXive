@@ -1,17 +1,11 @@
-T021:
-  c: false
-  h: 5fb97f1f1bd4f67105ff3bc6a01df6f422a59a4d197d92e44e6a175c4a90f13d
-  r: "The repository contains `scripts/verify_output.py`, but the script is truncated\
-    \ and never validates the CSV against `contracts/cleaned_study.schema.yaml`, nor\
-    \ does it implement the required exit\u2011code logic. Moreover, the referenced\
-    \ schema file, the CSV, the exclusion log, and the mock JSON are all missing,\
-    \ so the script cannot perform the checks it is supposed to. The task\u2019s requirements\
-    \ are therefore not satisfied."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or report artifact was provided that demonstrates the required\
-    \ conditional logic to suppress the funnel plot and Egger\u2019s test when the\
-    \ total sample size N\u202F<\u202F10, nor the addition of a warning to the final\
-    \ report. The implementer\u2019s claim cannot be verified without such concrete\
-    \ evidence."
+T001:
+  c: true
+  h: 8a1bb390dc316bb26e2cfced34c8c96e1a5ae2a3293b45c7d2a10840837cb71d
+  r: The required directories (`code/{data,analysis,viz,lib}`, `data/{raw,processed,results}`,
+    `docs`, `contracts`, `tests/{unit,integration,contract}`) all exist on disk and
+    the setup script executed with exit 0 confirming all 14 directories; `code/pyproject.toml`
+    is a real, non-empty project config with a dependency manifest (mirrored by `code/requirements.txt`),
+    and `quickstart.md` is a substantive 3.2KB document covering layout setup, dependency
+    installation, and the full pipeline execution flow. The empty `cleaned_studies.csv`
+    and mock data file belong to later tasks (T002+), not this layout/s
+  sig: 5f6554b3f0981ef49165600244cc23fdf2c1131c125fba6464dea096eae357ac
