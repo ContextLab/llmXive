@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T19:39:55.957373Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-271-evaluating-the-effectiveness-of-llms-for
-last_run_id: 38501411-cce3-4119-bc31-7fb2ef020902
+last_run_id: ba2cad4d-2e53-4a84-b5f5-a4893d06920b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for
 title: Evaluating the Effectiveness of LLMs for Detecting Code Smells
-updated_at: '2026-10-13T04:21:37.902980Z'
+updated_at: '2026-10-13T04:29:42.789372Z'

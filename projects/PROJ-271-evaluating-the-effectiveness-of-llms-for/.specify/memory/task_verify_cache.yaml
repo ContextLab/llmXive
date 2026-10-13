@@ -1,3 +1,28 @@
+T001a:
+  c: true
+  h: 60fe1a31c605819c7bf87added67d58fa86935466e10b93df7a3c8496111d3d2
+  r: Checked the repository tree showing the required directories (`code/`, `data/raw/`,
+    `data/processed/`, `results/`, `tests/unit/`, `tests/contract/`) all exist with
+    placeholder files, and the unit test `test_project_structure.py` passed confirming
+    their presence.
+  sig: 7ccb011b0e12d5200ea8953396e3e5ac6c0e715e0cbf5130352bf2ca7953d3a8
+T001b:
+  c: false
+  h: 36eb2dd3125c3e674082f8cf03cc73d578442e7e77cf8747cbb98682b1686850
+  r: The `.flake8` file is present in `code/`, but no evidence of its contents is
+    provided, so we cannot confirm it sets `max-line-length = 88` and ignores `E203,W503`
+    as required.
+  sig: a2cc6cc543fd7829f119f88287bcdc47674e670fabd17731cca814b7603e36c4
+T001c:
+  c: false
+  h: 5ca2a14f70dcec69c948ef32f74a93726dc92d584f9f723696088f47e71826d8
+  r: The evidence shows a `pyproject.toml` file in the project root with the required
+    Black settings, and a `pyproject.toml` entry listed inside `code/`, but the content
+    of the `code/pyproject.toml` file is not provided. Without confirming that the
+    `code/pyproject.toml` exists and contains the required `[tool.black]` settings
+    (`line-length = 88`, `target-version = py311`), the task requirement is not demonstrably
+    satisfied.
+  sig: e8a71281ed149e23a121d8ae53227af445168ab9aefd6effb0df65a69ee6a33d
 T020:
   c: false
   h: 5f87ae29f59008beef596b359f7644ec09acc2a4dcbade20cabaf5477ce6e756
@@ -5,14 +30,6 @@ T020:
     utilities to capture peak RAM, CPU utilization, or inference time per batch, and
     the required output file `results/resource_metrics.json` is absent. Consequently
     the task of adding monitoring and persisting the metrics has not been fulfilled.
-T021a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., validation script output, summary report, or dataset file)\
-    \ was provided showing that the merged dataset of 800 functions was checked and\
-    \ that \u226595\u202F% of rows contain all required fields (code, metrics, static\
-    \ labels, semantic vectors, LLM labels). Without such evidence the requirement\
-    \ is not satisfied."
 T025:
   c: false
   h: d6b448b373a080a3e346459e572b67dbab7f7ad539037b8d15422caf0a3933e4
@@ -27,18 +44,3 @@ T029:
   r: "No `results/` directory or files were presented, and thus there is no data to\
     \ inspect for validity or coverage of \u2265\u202F95% of the sample. The required\
     \ artifact is missing, so the task is not satisfied."
-T035:
-  c: true
-  h: a23df33b73ff4d2f4e0ccf3d85ce2a702b6941339e75d91ad82381d4416664a0
-  r: "The repository contains the required `tests/contract/test_static_baseline_schema.py`\
-    \ file (5\u202FKB) implementing checks for file existence, required columns, and\
-    \ column data types, satisfying the SC\u2011005 contract test addition. The missing\
-    \ `data/static_baseline.csv` is not part of the deliverable for this task."
-T036:
-  c: true
-  h: d13b1d9e3786d26275143fd1f92dc9f477be038e10ca3ffd4cbb7a0fdd1edec9
-  r: "The repository contains a non\u2011empty `tests/contract/test_llm_output_schema.py`\
-    \ implementing the required schema\u2011validation logic for `data/processed/semantic_results.json`.\
-    \ The test file is fully written (imports, fixtures, and test functions) and satisfies\
-    \ the task of adding the contract test. The absence of the JSON data file does\
-    \ not affect the requirement, which only mandated adding the test."

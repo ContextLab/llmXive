@@ -1,0 +1,77 @@
+T001a:
+  task: c1cc612249d4010b358d46c07595426e9f4e6a62e33fd5bf19f036f808f03f4c
+T001b:
+  reason: The `.flake8` file is present in `code/`, but no evidence of its contents
+    is provided, so we cannot confirm it sets `max-line-length = 88` and ignores `E203,W503`
+    as required.
+  task: 60a7babb9d3b88a9ed56b4f9dbda234a3ac3f369347768d0307c6dddd0091aab
+T001c:
+  reason: The evidence shows a `pyproject.toml` file in the project root with the
+    required Black settings, and a `pyproject.toml` entry listed inside `code/`, but
+    the content of the `code/pyproject.toml` file is not provided. Without confirming
+    that the `code/pyproject.toml` exists and contains the required `[tool.black]`
+    settings (`line-length = 88`, `target-version = py311`), the task requirement
+    is not demonstrably satisfied.
+  task: 9f277c4ce329dcf8d3ee4e480dd3808b513e601d838bed6dbc70d1c6674de314
+T002:
+  task: 4d4c31269c081a265cc46ed711e115c632a58a59938df151f1668431d4e75770
+T004:
+  task: a5b8b77367655335eebc6e4f3823889bf2c10da9347ebcf295628eceff209c7d
+T005:
+  task: 5f59e483d4f3c399918b5b1a0ea5c988a382814fabdafb48b3c94ffd3ee263f8
+T006a:
+  task: b06eca74777b0b1ad1a7a139fce2e975fc5618a371981c4456812801b2f8c66b
+T006b:
+  task: a7ecd98418988db3c244d88d2bc095e4b602f30fdb8af4935698d2bfeaae52d6
+T007:
+  task: 1f6d41841c8a84baa892f9100aa9b06e8f1d3856cab46ea680c62a29ddff7c31
+T008:
+  task: 27074e470586f337a06a11fcc31d8b1ca76755b8c6576bea52c465b2af27e070
+T009:
+  task: a7e5a0103bbde814241f53d7065c7b9fac9c36639b15a4aabedc828719a09296
+T010:
+  task: 138d034d4df79ec139eb4127e9f4617b35119b3234aba20c3638e0099dc1f14c
+T011:
+  task: e3885db12fd07837e4c6de6c25b34ef1dead31dc8fdd42a0ef46772fc67ca559
+T012:
+  task: 13410559185450ac2c4eba5a951f0b7d52f5b8f0cae88eb3231149d5575fe3b2
+T013:
+  task: 5157cb6a101b1d45ad2cfde4aba94ca5a51f2e9390bab9f7d12c8f9fda4f65af
+T014:
+  task: cf6610de57a2e6f9ad22c4c45ea9d49b45a3711134371234debbe6691d726fb9
+T015:
+  task: a03615d32bf55eb6281659a8ac246d5b5ea0ecc86c59c05db49b68ac1893a208
+T016:
+  task: 8238f683729348e352eea09a68872df4a0bbcb3dc5bfff77baa600615d1ae508
+T017:
+  task: a7105bae2afef1e280d0756737759f89a385a5ba65d54d2a9bdb8bf46efc73b3
+T018:
+  task: 2731fc72671204505694acc900386939d51e33400a96144eb4caa0b855c86cf2
+T019:
+  task: 79ebb308ea447e11fc91e2bec89b0c9bb2b27c6e16b6638bfd605b1bc14c1222
+T020:
+  task: ba06878d18d823c8cf150e829586dcecfdd7b18b707a36670163cef19ee28792
+T021:
+  task: 7ed963a8bfea02e4a816dcfe2e870c8e62b435cc79c496afcf7f3d60cd98919a
+T022:
+  task: 1aa1d384471242aa0edb9d20e11ad1a9ac4454ef2cd4473370eab539865bd169
+T023:
+  task: 79b940d0d5e4c2ee797cccb2f81379e510e509dcd8100a98388617d66acd1f38
+T024:
+  task: 06a8d3d083756360ade459a4a43bdafb989d886c15abe567845097d62ca33c7f
+T025:
+  task: 05d0a462d438cc88dd9a3a94f9fd3f6b2e1eb484b68a4683361969942731c632
+T026:
+  task: 4830e6b1a998b284a5cb1f5205de596f5d5590b372dba7115f44cf84d359501f
+T027:
+  task: d1094b3b3596aed2232b5de4c82c1b4957ab4bc6c88838cd2a3a9ea6139b5e43
+T028:
+  task: 038bc9c5ecbb2c7fbe62cb77ddaea38481bd79369056e0df8626cea491a1ee8a
+T029:
+  task: 877d0550af040c72e3e1e23fd3d10f61a9c4d78fe4959ce356c21851161b5b48
+T030:
+  task: 7be6a510951e0bf527075ae210ce22a971b452aeea740eed753948544a21e32d
+T031:
+  task: 845b25b6dc3a73899bea9c4dbb5863c4a68c203a0ffa74eb6ca5408ee967de1d
+T032:
+  task: e644685bbe0eb458c15b6aca1b123a29867843b8bbf033338299c216cc6c0691

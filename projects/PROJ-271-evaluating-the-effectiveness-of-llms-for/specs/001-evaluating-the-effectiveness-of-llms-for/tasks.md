@@ -7,7 +7,7 @@
 
 *These tasks are already completed and verified.*
 
-- [ ] T001a [P] Initialize project directory structure (`projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/contract/`).  
+- [X] T001a [P] Initialize project directory structure (`projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/contract/`).  
 - [ ] T001b [P] Create `.flake8` in `code/` with `max-line-length = 88`, ignore `E203,W503`.  
 - [ ] T001c [P] Create `pyproject.toml` in `code/` with Black settings (`line-length = 88`, `target-version = py311`).  
 - [ ] T002  [P] Add `requirements.txt` containing `datasets pandas radon pylint sentence-transformers llama-cpp-python scikit-learn statsmodels numpy psutil`.  
