@@ -1,11 +1,13 @@
-T005b: 2
-T028c: 1
-T040: 1
-T043: 1
-T044: 1
-T046: 2
-T047: 2
-T048: 2
-T049: 2
-T050: 2
-T053b: 1
+"T001\u2013T003": 1
+"T004\u2013T007": 1
+? "T024\u2013T028, T034b, T046\u2013T050 Streaming ingestion, fail\u2011loudly fetch,\
+  \ dataset verification pipeline (`data/config/datasets.yaml`, `results/real_world_ingestion_log.csv`),\
+  \ real\u2011data integrity tests."
+: 1
+? "T033\u2013T039, T051, T052, T056, T056b, T059, T066 US4 real\u2011world ingestion,\
+  \ sampling, pipeline reuse (`results/real_world_results.csv`), comparison report."
+: 1
+? "T060\u2013T062, T028a, T028b, T028d Metrics tests, Clopper\u2011Pearson CI, simulation\
+  \ loop orchestration with checkpointing and fidelity enforcement."
+: 1
+T065, T065b, T065c, T070 `CONFIG_MATRIX`, distribution factory, parameter mapper, dynamic config loading.: 1

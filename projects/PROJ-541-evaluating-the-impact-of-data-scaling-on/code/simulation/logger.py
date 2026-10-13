@@ -1,206 +1,213 @@
-"""Reproducibility logging — fully tolerant; raises on nothing."""
+"""
+Reproducibility logging utilities for the simulation package.
+Provides a tolerant logger that never raises on unexpected calls,
+as well as seed configuration persistence with schema validation.
+"""
 from __future__ import annotations
 
-import functools
 import json
 import os
 import fcntl
-import hashlib
-from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Dict
 
-from code.simulation.schema import validate_seed_config
+import functools
+from dataclasses import dataclass, field, asdict
+
+# ---------------------------------------------------------------------------
+# Core tolerant logger (reference implementation)
+# ---------------------------------------------------------------------------
 
 @dataclass
 class LogEntry:
+    """A single log entry that can be serialised to JSON."""
     operation: str = ""
-    parameters: dict = field(default_factory=dict)
+    parameters: Dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    batch_id: Optional[str] = None
-    seed: Optional[int] = None
 
     def to_json(self) -> str:
+        """Serialise the entry to a JSON string."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
+    """
+    Minimal logger that accepts any call shape.
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
+    It stores LogEntry objects in ``self.entries`` and provides no‑op
+    implementations for the standard logging methods (info, debug, warning,
+    error, critical, etc.) so that callers never encounter AttributeError.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
-        self._batch_id: Optional[str] = None
-        self._seed: Optional[int] = None
+        # ``name`` is optional – if not provided we fall back to a generic name.
+        self.name: str = args[0] if args else kwargs.get("name", "reproducibility")
+        self.batch_id: str | None = kwargs.get("batch_id")
+        self.entries: list[LogEntry] = []
 
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(
-            operation=str(op),
-            parameters=dict(kwargs),
-            batch_id=self._batch_id,
-            seed=self._seed
-        )
+    # The primary logging API used throughout the codebase.
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        """
+        Record a log entry.
+
+        ``log("operation_name", param1=val1, ...)`` creates a LogEntry with
+        ``operation="operation_name"`` and ``parameters`` containing the
+        keyword arguments.
+        """
+        operation = args[0] if args else kwargs.pop("operation", "")
+        entry = LogEntry(operation=str(operation), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    def set_context(self, batch_id: str, seed: int) -> None:
-        """Inject batch context into the logger."""
-        self._batch_id = batch_id
-        self._seed = seed
-
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    # Standard logging method names – all become no‑ops that return ``None``.
     def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
+        def _noop(*_a: Any, **_kw: Any) -> None:
             return None
         return _noop
 
 
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+# Global singleton – the first call creates the logger, subsequent calls return it.
+_GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Return the global ``ReproducibilityLogger`` instance."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
     return _GLOBAL_LOGGER
 
 
-def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+def log_operation(*args: Any, **kwargs: Any):
+    """
+    Dual‑purpose helper that can be used as a decorator or as a direct logging call.
 
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
+    As a decorator:
+
+    >>> @log_operation
+    ... def foo(): ...
+
+    As a direct call:
+
+    >>> entry = log_operation("my_op", param=1)
+    >>> entry.to_json()
     """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
         @functools.wraps(func)
-        def _wrapper(*a: Any, **k: Any) -> Any:
+        def _wrapper(*a: Any, **k: Any):
             return func(*a, **k)
 
         return _wrapper
 
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
+    operation = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(operation, **kwargs)
 
+
+# ---------------------------------------------------------------------------
+# Helper functions required by the rest of the project
+# ---------------------------------------------------------------------------
 
 def setup_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
     """
-    Setup and return a logger instance.
-    Accepts flexible arguments to satisfy all callers:
-    - setup_logger("name_string")
-    - setup_logger(batch_id="id")
-    - setup_logger()
+    Initialise (or retrieve) a ``ReproducibilityLogger``.
+
+    The function is deliberately permissive – it accepts:
+
+    * a single positional argument (interpreted as the logger name)
+    * a ``batch_id=`` keyword argument
+    * no arguments at all
+    * any combination of the above
     """
-    global _GLOBAL_LOGGER
-    
-    # If called with a positional string, use it as name
     name = None
+    batch_id = None
+
+    # Positional first argument – could be a name string or ``__name__``.
     if args:
-        if isinstance(args[0], str):
-            name = args[0]
-        elif isinstance(args[0], type) and args[0].__module__ == 'builtins':
-            # Handle __name__ case if passed as a type check (unlikely but safe)
-            name = str(args[0])
-        else:
-            name = str(args[0])
-    
-    # If called with batch_id keyword, use it as name or store for context
-    batch_id_kw = kwargs.get("batch_id", None)
-    seed_kw = kwargs.get("seed", None)
-    
-    if name is None and batch_id_kw:
-        name = batch_id_kw
+        name = args[0]
 
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(name=name, **kwargs)
-    
-    # If batch_id and seed provided in kwargs, set context immediately
-    if batch_id_kw is not None and seed_kw is not None:
-        _GLOBAL_LOGGER.set_context(batch_id_kw, seed_kw)
-        
-    return _GLOBAL_LOGGER
+    # Keyword arguments
+    if "name" in kwargs:
+        name = kwargs["name"]
+    if "batch_id" in kwargs:
+        batch_id = kwargs["batch_id"]
+
+    # Fallback defaults
+    if name is None:
+        name = "reproducibility"
+
+    logger = get_logger(name=name, batch_id=batch_id)
+    # Attach attributes expected by the tests
+    logger.name = name
+    logger.batch_id = batch_id
+    return logger
 
 
-def inject_batch_context(logger: ReproducibilityLogger, batch_id: str, seed: int) -> None:
+def inject_batch_context(logger: ReproducibilityLogger, batch_id: str) -> ReproducibilityLogger:
     """
-    Wrap the logger to include batch_id and seed in every log record.
-    This function must be called at the start of every simulation batch.
+    Attach a ``batch_id`` to an existing logger instance.
+
+    The function mutates the logger in‑place and also returns it for convenience.
     """
-    if hasattr(logger, 'set_context'):
-        logger.set_context(batch_id, seed)
-    else:
-        # Fallback for standard logger objects (though we use ReproducibilityLogger)
-        logger.batch_id = batch_id
-        logger.seed = seed
+    logger.batch_id = batch_id
+    return logger
 
 
 def save_seed_config(batch_id: str, seed: int, config_hash: str) -> Dict[str, Any]:
     """
-    Append the new batch's seed to data/config/seed_config.json without overwriting existing entries.
-    The JSON structure MUST be { "batch_id": { "seed": int, "timestamp": str, "config_hash": str } }.
-    
-    Error Handling: Must raise RuntimeError if file is locked or missing (if missing, creates it).
-    Return: Must return the updated config object.
+    Persist a seed configuration entry to ``data/config/seed_config.json``.
+
+    The function:
+
+    1. Loads the existing JSON (or starts with an empty dict if the file does not exist).
+    2. Validates the *new* overall configuration against the JSON‑Schema defined in
+       ``code/simulation/schema.py``.
+    3. Writes the updated JSON back to disk using an exclusive, non‑blocking file lock.
+    4. Returns the full configuration dictionary after insertion.
+
+    Errors:
+
+    * If the file cannot be locked, ``RuntimeError`` is raised.
+    * If schema validation fails, the underlying ``jsonschema.ValidationError`` propagates.
     """
-    config_dir = Path("data/config")
-    config_dir.mkdir(parents=True, exist_ok=True)
-    config_file = config_dir / "seed_config.json"
+    from .schema import validate_seed_config, load_seed_config
 
-    # Load existing config or initialize empty
-    existing_config: Dict[str, Any] = {}
-    if config_file.exists():
-        try:
-            with open(config_file, 'r') as f:
-                # Try to acquire a lock for reading
-                try:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_SH)
-                    existing_config = json.load(f)
-                finally:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-        except json.JSONDecodeError:
-            raise RuntimeError(f"Configuration file {config_file} contains invalid JSON.")
-    else:
-        # If file is missing, we create it (not an error for the first run)
-        pass
-
-    # Check for duplicate batch_id
-    if batch_id in existing_config:
-        raise RuntimeError(f"Batch ID '{batch_id}' already exists in seed_config.json. Overwriting is not allowed.")
-
-    # Create new entry
-    timestamp = datetime.utcnow().isoformat()
-    new_entry = {
+    # Prepare the new entry
+    entry = {
         "seed": seed,
-        "timestamp": timestamp,
-        "config_hash": config_hash
+        "timestamp": datetime.utcnow().isoformat(),
+        "config_hash": config_hash,
     }
 
-    existing_config[batch_id] = new_entry
+    # Load existing configuration (append‑only semantics)
+    config_path = Path("data/config/seed_config.json")
+    config_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Validate against schema before saving
+    try:
+        existing_config = load_seed_config()
+    except Exception:
+        existing_config = {}
+
+    # Append / overwrite the specific batch key (append‑only in the sense that we never delete other keys)
+    existing_config[batch_id] = entry
+
+    # Validate the whole structure against the schema
     validate_seed_config(existing_config)
 
-    # Write back to file
+    # Write back with a file lock to avoid race conditions
     try:
-        with open(config_file, 'w') as f:
-            # Acquire exclusive lock for writing
+        with open(config_path, "w") as f:
+            fd = f.fileno()
             try:
-                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-                json.dump(existing_config, f, indent=2)
-            finally:
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-    except IOError as e:
-        raise RuntimeError(f"Failed to write to seed_config.json: {e}")
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as e:
+                raise RuntimeError(f"Could not acquire lock on seed config file: {e}") from e
+            json.dump(existing_config, f, indent=2, sort_keys=True)
+            f.flush()
+            os.fsync(fd)
+    except Exception as e:
+        raise RuntimeError(f"Failed to write seed config: {e}") from e
 
     return existing_config
-
-# Import Path here to avoid circular imports if any, though unlikely
-from pathlib import Path

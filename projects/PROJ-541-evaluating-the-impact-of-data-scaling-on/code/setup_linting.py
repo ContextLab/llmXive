@@ -1,110 +1,69 @@
-import os
+"""
+Setup linting and formatting tools for the project.
+Creates configuration files for Ruff, Flake8, and Black.
+"""
 import sys
 import subprocess
 from pathlib import Path
 
-def main():
-    """
-    Configure linting (ruff, flake8) and formatting (black) tools.
-    This script ensures configuration files are present and dependencies are installed.
-    """
-    project_root = Path(__file__).resolve().parent.parent
-    code_dir = project_root / "code"
-    
-    # Ensure code directory exists
-    code_dir.mkdir(exist_ok=True)
-    
-    # 1. Install dependencies if not present (optional but helpful for verification)
-    # We assume requirements.txt was handled in T002, but we can verify or add here if needed.
-    # For this task, we focus on configuration files.
 
-    # 2. Create .ruff.toml
-    ruff_config = code_dir / ".ruff.toml"
-    if not ruff_config.exists():
-        ruff_content = """
-# Ruff configuration for llmXive project
-target-version = "py311"
+def write_ruff_config(path: Path):
+    """Write a basic Ruff configuration."""
+    content = """[tool.ruff]
 line-length = 88
-
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
-
-[lint.isort]
-known-first-party = ["simulation", "preprocessing", "analysis", "visualization", "utils", "tests", "main"]
+select = ["E", "F", "W", "C90"]
+ignore = []
+exclude = ["__pycache__", "data", "results", "logs"]
 """
-        with open(ruff_config, "w") as f:
-            f.write(ruff_content.strip())
-        print(f"Created: {ruff_config}")
-    else:
-        print(f"Exists: {ruff_config}")
+    path.write_text(content)
 
-    # 3. Create .flake8
-    flake8_config = code_dir / ".flake8"
-    if not flake8_config.exists():
-        flake8_content = """
-[flake8]
+
+def write_flake8_config(path: Path):
+    """Write a basic Flake8 configuration."""
+    content = """[flake8]
 max-line-length = 88
-exclude = .git,__pycache__,build,dist
-ignore = E501,B008
+exclude = __pycache__,data,results,logs
 """
-        with open(flake8_config, "w") as f:
-            f.write(flake8_content.strip())
-        print(f"Created: {flake8_config}")
-    else:
-        print(f"Exists: {flake8_config}")
+    path.write_text(content)
 
-    # 4. Create pyproject.toml with Black configuration
-    # We append to existing or create new if it doesn't exist
-    pyproject = project_root / "pyproject.toml"
-    black_section = """
-[tool.black]
+
+def write_black_config(pyproject_path: Path):
+    """Ensure a [tool.black] section exists in pyproject.toml."""
+    if pyproject_path.exists():
+        text = pyproject_path.read_text()
+        if "[tool.black]" not in text:
+            with pyproject_path.open("a") as f:
+                f.write(
+"\n[tool.black]\\nline-length = 88\\nskip-string-normalization = false\\n"
+                )
+    else:
+        content = """[tool.black]
 line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+skip-string-normalization = false
 """
-    
-    needs_update = True
-    if pyproject.exists():
-        with open(pyproject, "r") as f:
-            content = f.read()
-            if "[tool.black]" in content:
-                print(f"Black config already exists in {pyproject}")
-                needs_update = False
-    
-    if needs_update:
-        with open(pyproject, "a") as f:
-            f.write("\n" + black_section.strip())
-        print(f"Updated: {pyproject} with Black config")
-    else:
-        print(f"Skipped update: {pyproject}")
+        pyproject_path.write_text(content)
 
-    print("Linting and formatting tools configured successfully.")
-    return 0
+
+def install_tools():
+    """Install linting/formatting tools from the pinned requirements."""
+    req_path = Path(__file__).parent / "requirements.txt"
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(req_path)])
+
+
+def main():
+    """Create config files and optionally install the tools."""
+    project_root = Path(__file__).parent
+    
+    # Config files
+    write_ruff_config(project_root / "ruff.toml")
+    write_flake8_config(project_root / ".flake8")
+    write_black_config(project_root / "pyproject.toml")
+    
+    # Uncomment the following line if you want the script to install the tools automatically
+    # install_tools()
+    
+    print("Linting and formatting configuration files have been set up.")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

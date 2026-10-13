@@ -1,0 +1,79 @@
+"T001\u2013T003":
+  reason: "Only the `code/requirements.txt` file is present and correctly pinned;\
+    \ there is no evidence of the broader project scaffolding (e.g., `code/` package\
+    \ init, test suite, README, etc.) nor any lint/format tooling configuration files\
+    \ (such as `ruff.toml`, `pyproject.toml` for Black, or pre\u2011commit hooks).\
+    \ These missing artifacts are required to satisfy the task."
+  task: 786c4b7266fffbaec436f2203bbe13e962185387af56e07368bc6e4397c855d4
+"T004\u2013T007":
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 3d8927827c7e3eb7409205dfd82609674ef1a44e74015040f9f1c6e9ca811ab7
+"T015\u2013T023":
+  task: 9c6d10b1a44e3515ec2b0cb65bdc9b4d00f700718ec526fbecdda8b059083962
+? "T024\u2013T028, T034b, T046\u2013T050 Streaming ingestion, fail\u2011loudly fetch,\
+  \ dataset verification pipeline (`data/config/datasets.yaml`, `results/real_world_ingestion_log.csv`),\
+  \ real\u2011data integrity tests."
+: reason: "The provided `data/config/datasets.yaml` and `results/real_world_ingestion_log.csv`\
+    \ exist, but there is no evidence of an actual streaming\u2011ingestion implementation,\
+    \ fail\u2011loudly fetch behavior, or real\u2011data integrity tests (e.g., code\
+    \ that streams the datasets, raises explicit errors on fetch failures, and validates\
+    \ checksums). Only a static configuration and a success\u2011only log are present,\
+    \ which does not satisfy the required pipeline and testing requirements."
+  task: b3106fb08870c573e718259bfe46a9ee129224b3c87850b6e2d8c029dffff358
+T030:
+  task: 41c339fc4b245c86e979cbce10aa62f0294f300f7a080acfb75b83e661ad8232
+? "T033\u2013T039, T051, T052, T056, T056b, T059, T066 US4 real\u2011world ingestion,\
+  \ sampling, pipeline reuse (`results/real_world_results.csv`), comparison report."
+: reason: "The required artifact `results/real_world_results.csv` is reported as MISSING,\
+    \ so the real\u2011world ingestion, sampling, and pipeline reuse results are not\
+    \ present. Without this CSV the task\u2019s core deliverable is absent."
+  task: d4a645545a60ea78c08cd534b0f364908cd26fe7ba8a8490d99d834c7e15fc18
+"T040\u2013T044":
+  task: ab918338dd6354dc0a4787ca06b6e63dd77ab637634b128e3aa23312ab847388
+? "T060\u2013T062, T028a, T028b, T028d Metrics tests, Clopper\u2011Pearson CI, simulation\
+  \ loop orchestration with checkpointing and fidelity enforcement."
+: reason: "The evidence provided contains only a high\u2011level feature specification\
+    \ and a project root path; no concrete artifacts (e.g., Python modules implementing\
+    \ T060\u2013T062, T028a/b/d, Clopper\u2011Pearson confidence\u2011interval code,\
+    \ or a simulation loop with checkpointing and fidelity enforcement) are present,\
+    \ nor any execution logs or test results. Consequently the required metrics tests,\
+    \ CI calculations, and orchestration functionality are missing."
+  task: 00a7d95c3403df6b3266f16dc4400414ddc3bafa882f343adfa9920215e846e6
+T065, T065b, T065c, T070 `CONFIG_MATRIX`, distribution factory, parameter mapper, dynamic config loading.:
+  reason: "The evidence provides only a project root path and no concrete files such\
+    \ as a `CONFIG_MATRIX` definition, a distribution\u2011factory module, a parameter\u2011\
+    mapper implementation, or code for dynamic configuration loading. Since these\
+    \ required artifacts are absent, the task\u2019s deliverables are not satisfied."
+  task: cba79f4644bf8ab63865cc7d10e5d15b463a8ec85430a7c01d1949562bbec615
+T101:
+  task: 529b4e1fad0a713599c3f4a54e75e10d19291ec9bd077cba6031a89495ad51f3
+T102:
+  task: 84ef6e5cbf9be9cde0df1330c974746fcaadfb76d530c1e236325c376eb82a72
+T103a:
+  task: 47ea93365e880860dd9f62394902105a9ce1c280dbb82c1ece9137cd23b33511
+T103b:
+  task: 19a6f5a477fd62b1ddf282354ed68d2960456b55f495c909e9227ce3c5e27ab3
+T104:
+  task: c4e7501d9d7f29348ca5c5987915b48a67a19e26fa92d516f8d738d7b7f15b31
+T105:
+  task: 0b05bfbc261d79f9de757a8ceadb96ed1850f927717de44a6e10aa8188464bb7
+T106:
+  task: fb759d67284ca82170cb03b886162b61b4649ff74cad8fd0edcabecfd52f8997
+T107:
+  task: 4fd3342d805fb4bdea704740b3a9d41ca4df4f789725a95bd7de704e9c1f79ad
+T108a:
+  task: 1238dd286ca0959767fee5764c194d6e2399cfe143afd3c2599335625e3f9a03
+T108b:
+  task: 5a43c3eaf045434dbd4b3d1d39339ed48b81c888c728638a7b88d189b47c092a
+T109:
+  task: 2c86973f3fb8bfd4dfa1f896847b794c5589652947464bfe814e7b85fe76e627
+T110:
+  task: bdb337cc724449f2790854b57198f29c54c2a4308ccb2323ea768067e0767c3b
+T111:
+  task: e11d307fe54012e6001983122176f470be5309b1ba4d27df1bc3be03556b6081
+"T112\u2011T119":
+  task: 7c380468defc0b7cbec439c6ea1ab5d6d18c054c6d763a26b9a010f127258a0d
+T120:
+  task: bcbbc98e79dbd4a863c8ba001e9a6c5b6cb0e6e8aa8962123f226e2c292e7eb4
+T122:
+  task: 5ce9883efa0cdf7c2f02ae7b40078c1309e841c420ba39edca5a648588fec32a

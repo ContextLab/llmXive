@@ -5,12 +5,12 @@
 ## Preserved completed work (verified; do not redo)
 
 - [ ] T001–T003 Project scaffolding, pinned dependencies in `code/requirements.txt`, lint/format tooling.
-- [ ] T004–T007 Configuration (`code/simulation/config.py`), seed schema/validation (`code/simulation/schema.py`, `data/config/seed_schema.json`), `inject_batch_context`, test fixtures, CPU‑only env setup (`code/utils/env.py`).
-- [x] T024–T028, T034b, T046–T050 Streaming ingestion, fail‑loudly fetch, dataset verification pipeline (`data/config/datasets.yaml`, `results/real_world_ingestion_log.csv`), real‑data integrity tests.
-- [x] T065, T065b, T065c, T070 `CONFIG_MATRIX`, distribution factory, parameter mapper, dynamic config loading.
+- [ ] T004–T007 Configuration (`code/simulation/config.py`), seed schema/validation (`code/simulation/schema.py`, `data/config/seed_schema.json`), `inject_batch_context`, test fixtures, CPU‑only env setup (`code/utils/env.py`). <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T024–T028, T034b, T046–T050 Streaming ingestion, fail‑loudly fetch, dataset verification pipeline (`data/config/datasets.yaml`, `results/real_world_ingestion_log.csv`), real‑data integrity tests.
+- [ ] T065, T065b, T065c, T070 `CONFIG_MATRIX`, distribution factory, parameter mapper, dynamic config loading.
 - [ ] T015–T023 Scaling functions and statistical tests (including chi‑squared binning) – verified implementation exists.
-- [x] T060–T062, T028a, T028b, T028d Metrics tests, Clopper‑Pearson CI, simulation loop orchestration with checkpointing and fidelity enforcement.
-- [x] T033–T039, T051, T052, T056, T056b, T059, T066 US4 real‑world ingestion, sampling, pipeline reuse (`results/real_world_results.csv`), comparison report.
+- [ ] T060–T062, T028a, T028b, T028d Metrics tests, Clopper‑Pearson CI, simulation loop orchestration with checkpointing and fidelity enforcement.
+- [ ] T033–T039, T051, T052, T056, T056b, T059, T066 US4 real‑world ingestion, sampling, pipeline reuse (`results/real_world_results.csv`), comparison report.
 - [ ] T030 Error‑rate plot in `code/visualization/plots.py` – verified generation.
 - [ ] T040–T044 Documentation, vectorization, parallelism, edge‑case tests, quickstart validation.
 

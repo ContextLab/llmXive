@@ -1,167 +1,135 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --mode simulation`
-  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --mode`
-- run-book command: `python code/main.py --mode real_world`
-  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --mode`
-- run-book command: `python code/main.py --mode simulation --config-id "test-config-1" --iterations 100`
-  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --mode`
-- run-book command: `python code/main.py --mode visualize`
-  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --mode`
-- run-book command: `python code/main.py --mode analyze`
-  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --mode`
-- run-book command: `python code/main.py --mode verify-checksums`
-  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
-  - argparse error: `main.py: error: argument mode: invalid choice: 'verify-checksums' (choose from 'simulation', 'real_world', 'analyze', 'visualize')`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/main.py --mode simulation (rc=2); python code/main.py --mode real_world (rc=2); python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 (rc=2)
+**Summary**: 7 command(s) failed: python code/main.py --mode simulation (rc=1); python code/main.py --mode real_world (rc=1); python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 (rc=1); 1 declared deliverable(s) absent: data/config/seed_config.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode simulation -> rc=2
-    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
-main.py: error: unrecognized arguments: --mode
-- python code/main.py --mode real_world -> rc=2
-    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
-main.py: error: unrecognized arguments: --mode
-- python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 -> rc=2
-    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
-main.py: error: unrecognized arguments: --mode
-- python code/main.py --mode visualize -> rc=2
-    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
-main.py: error: unrecognized arguments: --mode
-- python code/main.py --mode analyze -> rc=2
-    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
-main.py: error: unrecognized arguments: --mode
-- python code/main.py --mode verify-checksums -> rc=2
-    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
-main.py: error: argument mode: invalid choice: 'verify-checksums' (choose from 'simulation', 'real_world', 'analyze', 'visualize')
+- python code/main.py --mode simulation -> rc=1
 
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 24, in <module>
+    from simulation.persistence import save_synthetic_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/persistence.py", line 13, in <module>
+    from simulation.schema import save_seed_config, compute_config_hash, load_seed_config, validate_seed_config
+ImportError: cannot import name 'save_seed_config' from 'simulation.schema' (/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/schema.py)
 
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+- python code/main.py --mode real_world -> rc=1
 
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 24, in <module>
+    from simulation.persistence import save_synthetic_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/persistence.py", line 13, in <module>
+    from simulation.schema import save_seed_config, compute_config_hash, load_seed_config, validate_seed_config
+ImportError: cannot import name 'save_seed_config' from 'simulation.schema' (/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/schema.py)
 
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+- python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 -> rc=1
 
-### `run_full_analysis_pipeline` — defined in `code/analysis/metrics.py`; called 2 way(s):
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 24, in <module>
+    from simulation.persistence import save_synthetic_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/persistence.py", line 13, in <module>
+    from simulation.schema import save_seed_config, compute_config_hash, load_seed_config, validate_seed_config
+ImportError: cannot import name 'save_seed_config' from 'simulation.schema' (/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/schema.py)
 
-- code/tests/unit/analysis/test_metrics.py: result = run_full_analysis_pipeline(df)
-- code/tests/unit/analysis/test_metrics.py: result = run_full_analysis_pipeline()
+- python code/main.py --mode visualize -> rc=1
 
-Make `run_full_analysis_pipeline` in `code/analysis/metrics.py` accept ALL of the above.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 24, in <module>
+    from simulation.persistence import save_synthetic_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/persistence.py", line 13, in <module>
+    from simulation.schema import save_seed_config, compute_config_hash, load_seed_config, validate_seed_config
+ImportError: cannot import name 'save_seed_config' from 'simulation.schema' (/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/schema.py)
 
-### `setup_logger` — defined in `code/simulation/logger.py`; called 18 way(s):
+- python code/main.py --mode analyze -> rc=1
 
-- code/main.py: logger = setup_logger(batch_id="main_pipeline")
-- code/benchmark_generator.py: logger = setup_logger(__name__)
-- code/validate_quickstart.py: logger = setup_logger("quickstart_validation")
-- code/utils/env.py: logger = setup_logger(logger_name)
-- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger("test_name")
-- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger(batch_id="main_pipeline")
-- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger(__name__)
-- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger()
-- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger("test")
-- code/tests/unit/simulation/test_main.py: logger = setup_logger("test")
-- code/tests/unit/preprocessing/test_scaling.py: test_logger = setup_logger("test_scaling")
-- code/simulation/persistence.py: logger = setup_logger(__name__)
-- code/simulation/generator.py: logger = setup_logger(__name__)
-- code/simulation/logger.py: 1. setup_logger("name_string") -> positional arg
-- code/simulation/logger.py: 2. setup_logger(batch_id="id") -> keyword arg
-- code/simulation/logger.py: 3. setup_logger(__name__) -> positional arg
-- code/simulation/orchestrator.py: logger = setup_logger("orchestrator")
-- code/preprocessing/ingestion.py: logger = setup_logger("preprocessing.ingestion")
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 24, in <module>
+    from simulation.persistence import save_synthetic_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/persistence.py", line 13, in <module>
+    from simulation.schema import save_seed_config, compute_config_hash, load_seed_config, validate_seed_config
+ImportError: cannot import name 'save_seed_config' from 'simulation.schema' (/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/schema.py)
 
-Make `setup_logger` in `code/simulation/logger.py` accept ALL of the above.
+- python code/main.py --mode verify-checksums -> rc=1
 
-## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 24, in <module>
+    from simulation.persistence import save_synthetic_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/persistence.py", line 13, in <module>
+    from simulation.schema import save_seed_config, compute_config_hash, load_seed_config, validate_seed_config
+ImportError: cannot import name 'save_seed_config' from 'simulation.schema' (/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/simulation/schema.py)
 
-`code/simulation/logger.py` keeps breaking across rounds because it mixes the stdlib `logging` module (whose `Logger.log(level, msg)` needs an INTEGER level and has no `to_json`) with a custom `LogEntry`. That hybrid can never satisfy all callers. Replace the contents of `code/simulation/logger.py` with the self-contained reference below — it ALREADY defines every symbol callers need (`get_logger`, `log_operation`, `ReproducibilityLogger`, `LogEntry`), returns a `LogEntry` (with `.to_json()`) from direct `log_operation(...)` calls, supports `@log_operation`, and resolves any `.info`/`.debug`/`.warning` via `__getattr__`. Do NOT reach for the stdlib `logging` module again. Adjust only if a call site listed above needs a field it lacks.
+- python -m pytest tests/unit/ -> rc=2
+t-of-data-scaling-on/code/simulation/schema.py)
+_____ ERROR collecting tests/unit/validation/test_quickstart_validation.py _____
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/tests/unit/validation/test_quickstart_validation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/validation/test_quickstart_validation.py:16: in <module>
+    from validation.quickstart_validation import check_directories, run_aggregation
+E   ModuleNotFoundError: No module named 'validation'
+=========================== short test summary info ============================
+ERROR tests/unit/preprocessing/test_ingestion.py
+ERROR tests/unit/simulation/test_logger.py
+ERROR tests/unit/simulation/test_main.py
+ERROR tests/unit/validation/test_quickstart_validation.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 1.38s ===============================
+
+
+
+## Declared deliverables still missing
+
+- data/config/seed_config.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
+- **Verified**: this loads **48842** real records with fields: sample_id, age, fnlwgt, education-num, capital-gain, capital-loss, hours-per-week, group_label, outcome.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-"""Reproducibility logging — fully tolerant; raises on nothing."""
-from __future__ import annotations
-
-import functools
-import json
-from dataclasses import asdict, dataclass, field
-from datetime import datetime
-from typing import Any
-
-
-@dataclass
-class LogEntry:
-    operation: str = ""
-    parameters: dict = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False, default=str)
-
-
-class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
-
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
-
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
-        self.entries.append(entry)
-        return entry
-
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
-            return None
-        return _noop
-
-
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
-
-
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
-    global _GLOBAL_LOGGER
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
-    return _GLOBAL_LOGGER
-
-
-def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
-
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
-    """
-    if len(args) == 1 and callable(args[0]) and not kwargs:
-        func = args[0]
-
-        @functools.wraps(func)
-        def _wrapper(*a: Any, **k: Any) -> Any:
-            return func(*a, **k)
-
-        return _wrapper
-
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
+import openml, pandas as pd
+# Load the UCI Adult dataset via OpenML (ID 1590)
+dataset = openml.datasets.get_dataset(1590)
+X, y, _, _ = dataset.get_data(dataset_format='dataframe')
+df = X.copy()
+# Append target as numeric outcome (0/1)
+df['outcome'] = y
+# Map the binary protected attribute "sex" to group_label (Male=0, Female=1)
+if 'sex' not in df.columns:
+    raise ValueError('group column "sex" missing')
+df['group_label'] = df['sex'].map({'Male': 0, 'Female': 1})
+if df['group_label'].isnull().any():
+    raise ValueError('unexpected values in group column')
+# Create a sample identifier
+df = df.reset_index().rename(columns={'index': 'sample_id'})
+# Determine numeric feature columns (exclude identifiers and target columns)
+numeric_cols = df.select_dtypes(include='number').columns.tolist()
+for col in ['sample_id', 'outcome', 'group_label']:
+    if col in numeric_cols:
+        numeric_cols.remove(col)
+feature_cols = numeric_cols
+fields = ['sample_id'] + feature_cols + ['group_label', 'outcome']
+print(f'RECORDS={len(df)}')
+print('FIELDS=' + ','.join(fields))
 ```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/config/seed_config.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
+    - `code/simulation/logger.py` — NOT invoked by the run-book
+    - `code/simulation/persistence.py` — NOT invoked by the run-book
+    - `code/simulation/schema.py` — NOT invoked by the run-book
+    - `code/tests/unit/simulation/test_logger.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/config/seed_config.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

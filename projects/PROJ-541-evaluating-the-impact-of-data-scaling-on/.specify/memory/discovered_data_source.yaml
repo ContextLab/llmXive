@@ -1,0 +1,36 @@
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml, pandas as pd\n# Load the UCI Adult dataset via OpenML\
+  \ (ID 1590)\ndataset = openml.datasets.get_dataset(1590)\nX, y, _, _ = dataset.get_data(dataset_format='dataframe')\n\
+  df = X.copy()\n# Append target as numeric outcome (0/1)\ndf['outcome'] = y\n# Map\
+  \ the binary protected attribute \"sex\" to group_label (Male=0, Female=1)\nif 'sex'\
+  \ not in df.columns:\n    raise ValueError('group column \"sex\" missing')\ndf['group_label']\
+  \ = df['sex'].map({'Male': 0, 'Female': 1})\nif df['group_label'].isnull().any():\n\
+  \    raise ValueError('unexpected values in group column')\n# Create a sample identifier\n\
+  df = df.reset_index().rename(columns={'index': 'sample_id'})\n# Determine numeric\
+  \ feature columns (exclude identifiers and target columns)\nnumeric_cols = df.select_dtypes(include='number').columns.tolist()\n\
+  for col in ['sample_id', 'outcome', 'group_label']:\n    if col in numeric_cols:\n\
+  \        numeric_cols.remove(col)\nfeature_cols = numeric_cols\nfields = ['sample_id']\
+  \ + feature_cols + ['group_label', 'outcome']\nprint(f'RECORDS={len(df)}')\nprint('FIELDS='\
+  \ + ','.join(fields))"
+record_count: 48842
+sample_fields:
+- sample_id
+- age
+- fnlwgt
+- education-num
+- capital-gain
+- capital-loss
+- hours-per-week
+- group_label
+- outcome
+field_coverage: 0.75
+required_fields:
+- sample_id
+- feature_columns (numeric)
+- group_label (binary)
+- outcome (numeric)
+intent: UCI and OpenML classification datasets with numeric outcome and binary group
+  label python package dataset
+cache_key: e203445d03ddf7f0642a588049f94eefc2035475ac4c067f752f46355737c3b1
