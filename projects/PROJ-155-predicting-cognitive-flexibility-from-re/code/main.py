@@ -1,16 +1,8 @@
-"""
-Minimal orchestration script for the three major pipeline stages:
-1) download_preprocess – fetch raw data and run the preprocessing step;
-2) features – compute dynamic connectivity metrics;
-3) analysis – (placeholder) run regression / permutation.
-
-Adjusted to correctly handle path types returned by helper functions.
-"""
+"""Minimal orchestration script for the three major pipeline stages."""
 
 import argparse
 import logging
 import sys
-from pathlib import Path
 
 from code.data.download import download_hcp_subset
 from code.data.preprocess import run_preprocessing_pipeline
@@ -21,9 +13,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def _run_download_preprocess():
+def _run_download_preprocess() -> None:
+    """Download raw data and run preprocessing, then merge."""
     logger.info("Downloading raw data (HCP subset)...")
-    # download_hcp_subset returns a Path; we ignore the return value here.
     download_hcp_subset()
     logger.info("Running preprocessing pipeline...")
     processed_count = run_preprocessing_pipeline()
@@ -38,7 +30,9 @@ def _run_download_preprocess():
         logger.error("Merge pipeline failed.")
         sys.exit(1)
 
-def _run_features():
+
+def _run_features() -> None:
+    """Run the connectivity feature extraction stage."""
     logger.info("Running connectivity feature extraction...")
     ret = connectivity_main()
     if ret != 0:
@@ -46,13 +40,19 @@ def _run_features():
         sys.exit(1)
     logger.info("Feature extraction completed.")
 
-def main():
+
+def main() -> None:
+    """Entry point for the project."""
     parser = argparse.ArgumentParser(description="Project entry point.")
     parser.add_argument(
         "--stage",
         type=str,
         required=True,
-        choices=["download_preprocess", "features", "analysis"],
+        choices=[
+            "download_preprocess",
+            "features",
+            "analysis",
+        ],
         help="Pipeline stage to execute.",
     )
     args = parser.parse_args()
@@ -65,6 +65,7 @@ def main():
         logger.info("Analysis stage not implemented for this task.")
     else:
         parser.error(f"Unknown stage: {args.stage}")
+
 
 if __name__ == "__main__":
     main()
