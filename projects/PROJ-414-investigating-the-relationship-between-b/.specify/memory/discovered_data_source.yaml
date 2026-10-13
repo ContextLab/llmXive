@@ -1,19 +1,19 @@
 status: none
-intent: openneuro python package download ds000246 ds001600 Nilearn fetch_atlas_schaefer_2018
-  python package dataset
+intent: OpenNeuro ds000246 ds001600 clane9/openneuro-fslr64k Nilearn Schaefer 2018
+  atlas python package dataset
 required_fields:
 - subject_id
-- session_id
-- run_number
-- task_name
-- bold_nifti_path
-- repetition_time
-- slice_timing
-- motion_parameters
-- confound_regressors
-- anatomical_t1_path
-- atlas_name
-- roi_labels
-cache_key: 3453a421d69ab6e8721866c851218d824327292a9b513efb9ce4d4f4e3283925
-searched_at: '2026-10-13T12:15:22.471022+00:00'
+- run_label
+- age
+- years_training
+- fd
+- roi_1
+- roi_2
+- roi_3
+- roi_4
+- roi_5
+- roi_6
+- roi_7
+cache_key: 997348b43a7b96925f1074398163104cac5e89dc65029e0fb12d60379f496494
+searched_at: '2026-10-13T14:16:29.231593+00:00'
 retry_count: 1

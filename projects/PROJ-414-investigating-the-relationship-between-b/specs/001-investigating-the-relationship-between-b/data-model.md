@@ -34,7 +34,6 @@ properties:
   fd:
     type: number
     description: "Mean frame‑wise displacement (mm)."
-  # ROI columns are generated programmatically; we capture the pattern.
   roi_1:
     type: number
   roi_2:
@@ -52,18 +51,13 @@ title: "Preprocessed ROI Time‑Series"
 type: object
 required:
   - subject_id
-  - window_id
   - timepoint
 properties:
   subject_id:
     type: string
-  window_id:
-    type: integer
-    description: "Sliding‑window index (starting at 0)."
   timepoint:
     type: integer
-    description: "Time point index within the window."
-  # Dynamically created ROI columns (roi_1 … roi_100)
+    description: "Time point index within the full series."
   roi_1:
     type: number
   roi_2:
@@ -88,8 +82,10 @@ required:
 properties:
   subject_id:
     type: string
+    description: "Identifier of the participant."
   window_id:
     type: integer
+    description: "Sliding‑window index (starting at 0)."
   global_efficiency:
     type: number
     description: "Weighted global efficiency of the functional graph."
@@ -98,7 +94,7 @@ properties:
     description: "Modularity (Louvain) of the graph."
   participation_coefficient:
     type: number
-    description: "Mean participation coefficient across nodes."
+    description: "Mean participation coefficient across all nodes."
 additionalProperties: false
 ```
 
@@ -141,7 +137,7 @@ properties:
     description: "Principal component identifier (e.g., pc_1)."
   coefficient:
     type: number
-    description: "Estimated regression coefficient for task_condition."
+    description: "Estimated regression coefficient for years_training."
   raw_p:
     type: number
     description: "Permutation‑derived p‑value before correction."
@@ -162,3 +158,4 @@ additionalProperties: false
 All files are stored under `data/` with clear naming conventions (`raw.parquet`, `timeseries_<sub>.csv`, `metrics_<sub>.csv`, `pca_scores.csv`, `regression_results.csv`).
 
 ---
+
