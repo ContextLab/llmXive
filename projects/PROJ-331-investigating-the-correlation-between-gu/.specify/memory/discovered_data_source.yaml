@@ -1,17 +1,15 @@
 status: none
-intent: PPMI Parkinson's disease longitudinal gut microbiome ASV counts with UPDRS
-  scores SILVA python package dataset
+intent: Qiita Parkinson disease microbiome longitudinal ASV UPDRS dataset MGnify NCBI
+  SRA python package dataset
 required_fields:
 - sample_id
 - patient_id
-- visit_number
 - visit_date
-- asv_id
-- taxon_name
-- raw_count
-- UPDRS_total
-- MDS_UPDRS
-- sequencing_platform
-cache_key: 27e3c37fa21876ec408760d26ffe7b9bc9b949e9d4c11c20d370f3f6f53bf236
-searched_at: '2026-10-13T12:12:20.818451+00:00'
+- timepoint
+- taxon_id
+- taxonomic_classification
+- asv_count
+- mds_updrs_total
+cache_key: b6c13a3a8df5e1941cda77c3fee9aade0ee4d17d85e81f1e6df7cd9457563b55
+searched_at: '2026-10-13T15:11:35.162192+00:00'
 retry_count: 1
