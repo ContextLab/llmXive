@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: 7bc165136d4c1225f42a058977bd388c4b728d428c4f0c25173e50f410e6aaca
-  r: "The collector shows the `code/` directory containing the required subfolders\
-    \ (`agents`, `environments`, `metrics`, `utils`, `tests`, `models`) and the `config.py`\
-    \ file, and the `data/` directory with a `processed/` subdirectory. All paths\
-    \ exist and are non\u2011empty, satisfying the structural specification."
-  sig: 55884293fdda404e780a969994b043bd87bc3bfa286d49a356635b7f12b2fe0c
+  h: 4c27f56aacc56a1af22d43964afeebde35e63537e029926d0bcb02c20f75d793
+  r: 'All required directories exist and are non-empty: `code/` with `agents/`, `environments/`,
+    `metrics/`, `utils/`, `tests/`, `models/` subdirectories (each containing files),
+    `code/config.py` (5813 bytes of real configuration code), and `data/` with `data/processed/`.
+    The task only asked for the project root structure, which is fully present.'
+  sig: dc87bde20f891c524213c5b1ecaa7fd2af47242334e4786cfcf8a29eaffb78fb
 T004:
   c: true
   h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c

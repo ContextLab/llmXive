@@ -1,18 +1,14 @@
 status: none
-intent: ALFWorld WebShop environments Hugging Face python package dataset
+intent: ALFWorld and WebShop environment datasets python package dataset
 required_fields:
-- episode_id
-- step_number
-- observation
-- action
-- reward
-- cumulative_reward
-- goal_description
-- state
-- retrieved_context
-- student_entropy
-- context_stability
-- threshold_reached
-cache_key: 7048a1fd56229147248d5151faa733abea7ed4945d1b70bee50d3453f6fb97ca
-searched_at: '2026-10-13T10:22:09.255388+00:00'
+- environment_name
+- task_id
+- initial_state_description
+- goal_state_description
+- observation_spec
+- action_spec
+- reward_structure
+- success_criteria
+cache_key: 5759c8fd4730f91d9563e2bfe06835d4004eb6ae5a4e4a6b6bf4b9b6fe2f10e6
+searched_at: '2026-10-13T11:13:28.899816+00:00'
 retry_count: 1

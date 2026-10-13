@@ -24,8 +24,8 @@ dependencies = [
 
 [tool.black]
 line-length = 100
-target-version = ['py311']
-include = '\.pyi?$'
+target-version = ["py311"]
+include = '\\.pyi?$'
 exclude = '''
 /(
     \.eggs
@@ -54,20 +54,8 @@ exclude = '''
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# Real rule set (ruff default): pycodestyle errors (E4/E7/E9) and pyflakes (F).
-# Checks are genuinely enabled — no `select = []` shortcut.
 select = ["E4", "E7", "E9", "F"]
-ignore = [
-    "E402", # module-level import not at top (allowed in scripts/notebook-style entry points)
-    "E741", # ambiguous variable names (e.g. l, I) permitted for math-style indices
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["F401"]
-"agents/*" = ["F401"]
-"environments/*" = ["F401"]
-"*". = ["E4", "E7", "E9", "F"]  # ignore all selected rules globally to guarantee zero lint errors
+ignore = ["E402", "E741"]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
