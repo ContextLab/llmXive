@@ -30,7 +30,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 26 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects <representative_number> (rc=2); python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents (rc=2); python -m pytest tests/ (rc=2); 11 declared deliverable(s) absent: data/atlas/schaefer_400.csv; data/processed/connectivity_matrices.npy; data/processed/connectivity_results.csv
+**Summary**: 29 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects <representative_number> (rc=2); python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents (rc=2); python -m pytest tests/ (rc=2); 11 declared deliverable(s) absent: data/atlas/schaefer_400.csv; data/processed/connectivity_matrices.npy; data/processed/connectivity_results.csv
 
 ## Failing / missing run-book commands
 
@@ -63,7 +63,7 @@ ERROR tests/unit/test_download_atlas.py
 ERROR tests/unit/test_nbs_output.py
 ERROR tests/unit/test_nbs_results.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.94s ===============================
+============================== 3 errors in 1.09s ===============================
 
 
 

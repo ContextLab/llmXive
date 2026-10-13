@@ -1,20 +1,13 @@
 T001:
-  c: true
-  h: 69bfebefba5a9c274b141fa0b43ef0fb7793cc4b8cd9fc6b6faa98fe468520b1
-  r: "Checked `quickstart.md` (contains the required verification command and Python\
-    \ version), `README.md` (lists the top\u2011level folders `code/`, `data/`, `tests/`),\
-    \ and the unit test `tests/unit/test_quickstart.py` together with its passing\
-    \ pytest log. All requirements are met."
-  sig: be6fdb0d0def033f1d339c06177dcf572cbb70483452212c7f73761f30abc423
-T002:
   c: false
-  h: a19e90f76c04673989fc180315d43077b810ceaf11d1d6a1ff157006cacbd923
-  r: "The repository contains the generator script, but the required output artifacts\
-    \ are absent: the `data/raw/mock_nifti/` directory and the `data/processed/subjects.parquet`\
-    \ file are missing, and the referenced `subject.schema.yaml` does not exist. Consequently\
-    \ the task\u2019s core deliverables (balanced cohort files and schema\u2011validated\
-    \ parquet table) are not present."
-  sig: 2d09ae34a47320fe460fa21cbdc5bda8e6c28f6a6a28c8b2469efd161072f269
+  h: 3505e15e575bb86afeac1c4b3fb0b7d9bf143142fe4ddeea2ba40db04549c4b1
+  r: The repository contains the required `README.md` and `quickstart.md` with the
+    correct directory description and verification command, and the unit test file
+    `tests/unit/test_quickstart.py` is present. However, there is no evidence that
+    `pytest tests/unit/test_quickstart.py` was actually executed and passed, which
+    is a mandatory verification step for the task. Provide a test run log or CI output
+    showing the test suite succeeding.
+  sig: fe0287c28fbc3d4e5eb5a5a948eb363227d7e32694d9367b415330c5245dd6a1
 T003:
   c: false
   h: fdcb8aa43440d62bdd3107044b41e9d2a26426aeca8481aba43ade74686fde83

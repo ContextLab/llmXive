@@ -6,11 +6,11 @@
 
 ## Phase 0 – Project scaffolding, synthetic verification mode, and real‑data ingestion  
 
-- [X] T001 **Document project layout and quick‑start command**  
+- [ ] T001 **Document project layout and quick‑start command**  
   *Creates* `README.md` and `quickstart.md` that describe the directory structure, required Python version, and the command `python -m code.main --mode verification`.  
   *Verification*: `pytest tests/unit/test_quickstart.py` passes; the README lists all top‑level folders (`code/`, `data/`, `tests/`).  
 
-- [ ] T002 **Synthetic data generator** – `code/data/synthetic_generator.py`  
+- [ ] T002 **Synthetic data generator** – `code/data/synthetic_generator.py`   <!-- FAILED-IN-EXECUTION: code/data/run_synthetic_generator.py exit=1 -->
   Generates a balanced synthetic cohort (≈75 musicians, ≈75 non‑musicians) with realistic confound distributions and writes:  
   - `data/raw/mock_nifti/` (mock NIfTI files)  
   - `data/processed/subjects.parquet` (behavioural table).  

@@ -1,8 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Subject behavioural schema
-description: >
-  Schema for the synthetic (and eventually real) subject table used in the
-  musical‑training pipeline.
+title: Subject
+description: Schema for synthetic subject behavioural data.
 type: object
 properties:
   subject_id:
@@ -11,30 +9,30 @@ properties:
   group:
     type: string
     enum: ["musician", "non_musician"]
-    description: Whether the subject has musical training (>=1 yr) or not.
+    description: Group label – musician (≥1 year training) or non‑musician.
   years_of_training:
     type: number
     minimum: 0
-    description: Years of formal musical training (0 for non‑musicians).
+    description: Years of musical training (0 for non‑musicians, ≥1 for musicians).
   age:
     type: number
     minimum: 10
     maximum: 18
-    description: Age of the participant in years.
+    description: Age in years (adolescent range).
   sex:
     type: integer
     enum: [0, 1]
-    description: 0 = female, 1 = male.
+    description: 0 = female, 1 = male.
   motion_score:
     type: number
     minimum: 0
     maximum: 1
-    description: Head‑motion summary metric (0 = no motion, 1 = max).
+    description: Head‑motion metric (0–1).
   ses_score:
     type: number
     minimum: 1
     maximum: 10
-    description: Socio‑economic status score.
+    description: Socio‑economic status score (1–10).
 required:
   - subject_id
   - group
