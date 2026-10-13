@@ -1,24 +1,44 @@
+T001:
+  task: b59e5278d734a9b11befb1946f76f1e0a39930893a16dae6e84ed836907a24f0
+T002:
+  reason: "The generator script exists, but it never creates the required `data/raw/mock_nifti/`\
+    \ directory with mock NIfTI files, nor does it write the behavioural table as\
+    \ `subjects.parquet` (it writes CSV instead). Additionally, the required `subject.schema.yaml`\
+    \ file is missing. These essential artifacts are absent, so the task\u2019s requirements\
+    \ are not satisfied."
+  task: 332f508cb3901082579715e7a42a49c212ea027440b7535f6172ae590aa1e980
+T003:
+  reason: "Checked `code/main.py` for the required CLI options and the verification\u2011\
+    mode workflow. While the script defines `--mode verification` and `--mode analysis`,\
+    \ the verification path never writes the expected CSV outputs (e.g., `subjects_cleaned.csv`\
+    \ is only logged, not created) and no execution logs or generated CSV files are\
+    \ provided to prove that running `python -m code.main --mode verification` produces\
+    \ the three required verification\u2011mode CSVs without error. The task therefore\
+    \ lacks concrete evidence of successful wiring."
+  task: 71da3cfcb3f9641fcc2571ea6fb02fb7ee0667649a1fa2f1ef46164251bd5b91
 T101:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/download_atlas.py
-    exit=1'
-  task: ae3ae75eafe337a75fc5b9d8c16530b7f7c88cbb76fea47efccdbe91bb50dda7
+  task: 8681ac8a4c565935efec1fe7a733ab847a405e06d04a02834edc04cf22483497
 T102:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/download_atlas.py
-    exit=1'
-  task: 7c43e2bae1bcea81319b75b8258b709dde85a09ec51f0cc7bb954646f8c69788
+  task: 2bebaccd50a2aaa7ef023800768894aa9ad93fb2a82485df1fa887d62075c0b6
 T103:
-  task: 4132a2d2b29199a9ef970e5e8fc05e670f130f01e5cbe9cff22f42423e217d48
+  task: 73639989282f96c4e31f5c4bd5e19ecf5eb323aa71700604e7aab0e779233233
 T104:
-  task: 56d10a47ec49b2868cfbc22cd491db6203514f29522b9162b0bdaf78659a4158
+  task: a3c90c638cba93bceab11ba9b1db6669d81a2173f3e0ca19be733901270fd59c
 T105:
-  task: 5da63521b44829f494c489d25ec5887c16fdf2511be31e3df9c0f1ad842fd491
+  task: 336ca0cc68abdf417c608ad8aad2a7b15141d5d58aacc7d5adf94a5591fef57a
 T106:
-  task: cbf9f1b7864496329a64e6ccc6bd79db0f2b572d1bc8a8112d76a94f87547c93
+  task: 5001565e1f78f91e56215800974148c3448ac7ce6d8d9b54fa656fabb6f9c412
 T107:
-  task: 22bca9b5a51bee6b8d2167542cd95eaeb618d8183cd44724aa6c99dd50c639be
+  task: 8ac5907b6b8ff2b4ab36294d5f0946eee954472dfd11a793844411ae6156d4c6
 T108:
-  task: e3787d39e1b00dca284c556bd5fdfc9b269c03a518f7338b7a5c462c21cce5a8
+  task: 428427132281068c2901227fc16c47a6b98bf48a7a8cd2dd58056aee9c15b84a
 T109:
-  task: d16e4babebb05fcfbae43525408df8795d6f1e741b97a461e357245d3abacfcf
+  task: 796af4de7df00e1b26a2883b584f0423a3b41d94d53d20bf7a3d45c8b11b94df
 T110:
-  task: 12889817f5bd112a8ce9c6ffe7e734a2a81659112fff94623b26f413ab5eefb0
+  task: 5f17e8cf945455427c3163640f5c9b5bd5dcfd2e5d3c7b92c1c2b4e65ca3cd16
+T111:
+  reason: 'Requested task execution failed; rerun successfully: code/data/real_ingest.py
+    exit=1'
+  task: 8e315edfaa05a071e5aca5e5919e9e2a4fa7302edf14451616928c92f7effb23
+T112:
+  task: a2fd8a590ac20da824c47df427a8290ff9b60a744eecc4bdfa49bc9aa6c01a72

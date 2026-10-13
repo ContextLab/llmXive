@@ -1,0 +1,16 @@
+- artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/quickstart.md
+  attempts: 1
+  canonical: pipeline tested with Python 3.11
+  claim_id: c_aac6e33b
+  context: "Python\u202F3.11+ (the pipeline has been tested with Python\u202F3.11)\
+    \ listed under Prerequisites."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "the pipeline has been tested with Python\u202F3.11"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T11:41:40Z'

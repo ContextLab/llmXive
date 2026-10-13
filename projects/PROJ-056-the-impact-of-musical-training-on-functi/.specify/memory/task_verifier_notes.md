@@ -2,5 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T101** — Requested task execution failed; rerun successfully: code/analysis/download_atlas.py exit=1
-- **T102** — Requested task execution failed; rerun successfully: code/analysis/download_atlas.py exit=1
+- **T002** — The generator script exists, but it never creates the required `data/raw/mock_nifti/` directory with mock NIfTI files, nor does it write the behavioural table as `subjects.parquet` (it writes CSV instead). Additionally, the required `subject.schema.yaml` file is missing. These essential artifacts are absent, so the task’s requirements are not satisfied.
+- **T003** — Checked `code/main.py` for the required CLI options and the verification‑mode workflow. While the script defines `--mode verification` and `--mode analysis`, the verification path never writes the expected CSV outputs (e.g., `subjects_cleaned.csv` is only logged, not created) and no execution logs or generated CSV files are provided to prove that running `python -m code.main --mode verification` produces the three required verification‑mode CSVs without error. The task therefore lacks concrete evidence of successful wiring.
+- **T111** — Requested task execution failed; rerun successfully: code/data/real_ingest.py exit=1

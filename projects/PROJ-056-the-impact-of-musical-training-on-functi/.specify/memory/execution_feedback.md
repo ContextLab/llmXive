@@ -19,47 +19,48 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 19 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects (rc=1); python code/main.py --mode real --data-path /path/to/verified/data (rc=1); python -m pytest tests/ (rc=2); 9 declared deliverable(s) absent: data/atlas/schaefer_400.csv; data/processed/connectivity_matrices.npy; data/processed/connectivity_results.csv
+**Summary**: 23 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects <representative_number> (rc=1); python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents (rc=1); python -m pytest tests/ (rc=2); 10 declared deliverable(s) absent: data/atlas/schaefer_400.csv; data/processed/connectivity_matrices.npy; data/processed/connectivity_results.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode synthetic --n-subjects -> rc=1
+- python code/main.py --mode synthetic --n-subjects <representative_number> -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 40, in <module>
-    from analysis.stats import process_connectivity_statistics
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
-    import networkx as nx
-ModuleNotFoundError: No module named 'networkx'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 36, in <module>
+    from data.download import load_data, DataAccessError
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/download.py", line 9, in <module>
+    from data.synthetic_generator import generate_synthetic_dataset
+ImportError: cannot import name 'generate_synthetic_dataset' from 'data.synthetic_generator' (/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py)
 
-- python code/main.py --mode real --data-path /path/to/verified/data -> rc=1
+- python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 40, in <module>
-    from analysis.stats import process_connectivity_statistics
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
-    import networkx as nx
-ModuleNotFoundError: No module named 'networkx'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 36, in <module>
+    from data.download import load_data, DataAccessError
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/download.py", line 9, in <module>
+    from data.synthetic_generator import generate_synthetic_dataset
+ImportError: cannot import name 'generate_synthetic_dataset' from 'data.synthetic_generator' (/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py)
 
 - python -m pytest tests/ -> rc=2
-/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_synthetic_generator.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_synthetic_generator.py:23: in <module>
-    from data.synthetic_generator import (
-E   ImportError: cannot import name 'generate_subject_data' from 'data.synthetic_generator' (/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py)
+tests/unit/test_preprocess_validity.py:10: in <module>
+    from data.preprocess import calculate_dataset_validity, write_validity_report, main
+code/data/preprocess.py:11: in <module>
+    from data.synthetic_generator import generate_synthetic_dataset
+E   ImportError: cannot import name 'generate_synthetic_dataset' from 'data.synthetic_generator' (/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py)
 =========================== short test summary info ============================
+ERROR tests/integration/test_correlation_analysis.py
 ERROR tests/integration/test_group_comparison.py
+ERROR tests/integration/test_ingestion.py
 ERROR tests/unit/test_download_atlas.py
-ERROR tests/unit/test_nbs.py
+ERROR tests/unit/test_matching.py
 ERROR tests/unit/test_nbs_output.py
 ERROR tests/unit/test_nbs_results.py
-ERROR tests/unit/test_stats.py
-ERROR tests/unit/test_synthetic_generator.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.46s ===============================
+ERROR tests/unit/test_preprocess.py
+ERROR tests/unit/test_preprocess_validity.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 9 errors in 0.94s ===============================
 
 
 
@@ -74,6 +75,7 @@ ERROR tests/unit/test_synthetic_generator.py
 - data/processed/network_metrics.csv
 - data/processed/sensitivity_analysis.csv
 - data/processed/subjects_cleaned.csv
+- data/raw/behavioural/subjects_raw.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -130,3 +132,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/subjects_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/behavioural/subjects_raw.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/data/real_ingest.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/behavioural/subjects_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

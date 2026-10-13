@@ -6,7 +6,7 @@
 
 ## Phase 0 – Project scaffolding, synthetic verification mode, and real‑data ingestion  
 
-- [ ] T001 **Document project layout and quick‑start command**  
+- [X] T001 **Document project layout and quick‑start command**  
   *Creates* `README.md` and `quickstart.md` that describe the directory structure, required Python version, and the command `python -m code.main --mode verification`.  
   *Verification*: `pytest tests/unit/test_quickstart.py` passes; the README lists all top‑level folders (`code/`, `data/`, `tests/`).  
 
@@ -20,7 +20,7 @@
   Adds CLI options `--mode verification` (synthetic) and `--mode analysis` (real data). Calls the appropriate pipeline modules.  
   *Verification*: Running `python -m code.main --mode verification` produces the three verification‑mode CSVs listed in T101‑T106 without error.  
 
-- [ ] T111 **Real‑data ingestion (ABCD/HCP‑Adolescents)** – `code/data/real_ingest.py`  
+- [ ] T111 **Real‑data ingestion (ABCD/HCP‑Adolescents)** – `code/data/real_ingest.py`   <!-- FAILED-IN-EXECUTION: code/data/real_ingest.py exit=1 -->
   Implements a compliant access workflow to download/restoring resting‑state fMRI NIfTI files and accompanying behavioral CSVs from the ABCD Study or HCP‑Adolescents.  
   *Outputs*:  
   - `data/raw/fmri/` (raw NIfTI files)  

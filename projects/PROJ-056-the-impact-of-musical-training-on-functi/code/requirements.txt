@@ -1,3 +1,22 @@
-# Existing requirements (if any) are preserved.
-# Added external dependency required for real atlas download.
-nilearn>=0.10.0
+# Project dependencies
+# Core scientific stack (already available in the environment)
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional packages required by the pipeline
+networkx
+nibabel
+nilearn
+tqdm
+tqdm
+# Note: Versions are left unpinned to use the latest compatible releases.

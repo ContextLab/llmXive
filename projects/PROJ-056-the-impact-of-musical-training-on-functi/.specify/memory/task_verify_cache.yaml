@@ -1,0 +1,28 @@
+T001:
+  c: true
+  h: 69bfebefba5a9c274b141fa0b43ef0fb7793cc4b8cd9fc6b6faa98fe468520b1
+  r: "Checked `quickstart.md` (contains the required verification command and Python\
+    \ version), `README.md` (lists the top\u2011level folders `code/`, `data/`, `tests/`),\
+    \ and the unit test `tests/unit/test_quickstart.py` together with its passing\
+    \ pytest log. All requirements are met."
+  sig: be6fdb0d0def033f1d339c06177dcf572cbb70483452212c7f73761f30abc423
+T002:
+  c: false
+  h: 52a076af507bfce7249c824a067dcca8a7fc2a676b7559650e965fa795b85e1d
+  r: "The generator script exists, but it never creates the required `data/raw/mock_nifti/`\
+    \ directory with mock NIfTI files, nor does it write the behavioural table as\
+    \ `subjects.parquet` (it writes CSV instead). Additionally, the required `subject.schema.yaml`\
+    \ file is missing. These essential artifacts are absent, so the task\u2019s requirements\
+    \ are not satisfied."
+  sig: c9097b956d524fe8aaad77216faab5f29694e14b0d512a06cc5614f3f426a6f3
+T003:
+  c: false
+  h: fdcb8aa43440d62bdd3107044b41e9d2a26426aeca8481aba43ade74686fde83
+  r: "Checked `code/main.py` for the required CLI options and the verification\u2011\
+    mode workflow. While the script defines `--mode verification` and `--mode analysis`,\
+    \ the verification path never writes the expected CSV outputs (e.g., `subjects_cleaned.csv`\
+    \ is only logged, not created) and no execution logs or generated CSV files are\
+    \ provided to prove that running `python -m code.main --mode verification` produces\
+    \ the three required verification\u2011mode CSVs without error. The task therefore\
+    \ lacks concrete evidence of successful wiring."
+  sig: bcdb6565c0b3a14c744feca374d55b714446704968a1b40f1c73b3e510468fe6
