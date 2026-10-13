@@ -2,30 +2,31 @@
 
 ## Project Overview
 
-This repository implements a reproducible pipeline for investigating how musical training during adolescence influences resting‑state functional connectivity, focusing on auditory, motor, and executive control networks. The codebase follows a modular structure that separates data handling, preprocessing, analysis, and visualization.
+This repository implements a reproducible pipeline to investigate how musical training during adolescence influences resting‑state functional connectivity, focusing on auditory, motor, and executive control networks. The pipeline supports:
 
-## Directory Structure
+- **Synthetic verification mode** for rapid code validation without real neuroimaging data.
+- **Real‑data analysis mode** (when a verified ABCD or HCP‑Adolescents dataset is supplied) that performs preprocessing, connectivity computation, statistical testing, NBS analysis, correlation with years of training, and sensitivity analyses.
 
-```
-code/ # Python source code (modules, scripts, CLI entry‑point)
-data/ # Raw, intermediate, and final data artifacts
- raw/ # Placeholder for real neuroimaging data or synthetic generators
- processed/ # Cleaned behavioral tables, connectivity matrices, results
- atlas/ # Schaefer 400‑parcel atlas CSV and checksum [UNRESOLVED-CLAIM: c_5d3fe699 — status=not_enough_info]
-tests/ # Unit and integration test suite
- unit/ # Fast, isolated tests (e.g., quick‑start verification)
- integration/ # End‑to‑end pipeline tests
-figures/ # Generated plots and visualisations
-specs/ # Feature specifications and contracts
-results/ # Final result tables and summary reports
-```
+## Repository Structure
 
-The top‑level folders listed above are required by the test suite (`tests/unit/test_quickstart.py`).
+The top‑level directories are:
+
+- `code/` – Source code for data handling, analysis, utilities, and the CLI entry point.
+- `data/` – Raw and processed data (synthetic or real) as well as atlases and results.
+- `tests/` – Unit, integration, and contract tests that validate each pipeline component.
+- `specs/` – Feature specifications, plans, and contracts for data schemas.
+- `figures/` – Generated figures from the analysis.
+- `results/` – Summary CSVs and tables produced by the pipeline.
+- `docs/` – Documentation files (e.g., this README and `quickstart.md`).
 
 ## Quick‑Start
 
-See the companion `quickstart.md` for detailed installation instructions and example commands.
+See the detailed instructions in `quickstart.md`, which includes the exact command to run the verification mode:
+
+```bash
+python -m code.main --mode verification
+```
 
 ## License
 
-This project is released under the MIT License.
+This project is licensed under the MIT License.

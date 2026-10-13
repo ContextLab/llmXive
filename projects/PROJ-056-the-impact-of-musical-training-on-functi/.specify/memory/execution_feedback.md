@@ -17,53 +17,52 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/output_cleaned_subjects.py: synthetic/fake INPUT data not authorized by the spec — “…via stdin (JSON) or      generated via the synthetic generator if in verifica…”
 - code/data/output_cleaned_subjects.py: synthetic/fake INPUT data not authorized by the spec — “…rocessed data). If None, generates synthetic data."     )     parser.…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --mode synthetic --n-subjects <representative_number>`
-  - script usage: `main.py [-h] --mode {verification,analysis} [--data-path DATA_PATH]`
-  - argparse error: `main.py: error: argument --mode: invalid choice: 'synthetic' (choose from 'verification', 'analysis')`
-- run-book command: `python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents`
-  - script usage: `main.py [-h] --mode {verification,analysis} [--data-path DATA_PATH]`
-  - argparse error: `main.py: error: argument --mode: invalid choice: 'real' (choose from 'verification', 'analysis')`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 29 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects <representative_number> (rc=2); python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents (rc=2); python -m pytest tests/ (rc=2); 11 declared deliverable(s) absent: data/atlas/schaefer_400.csv; data/processed/connectivity_matrices.npy; data/processed/connectivity_results.csv
+**Summary**: 30 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects <representative_number> (rc=1); python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents (rc=1); python -m pytest tests/ (rc=2); 11 declared deliverable(s) absent: data/atlas/schaefer_400.csv; data/processed/connectivity_matrices.npy; data/processed/connectivity_results.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode synthetic --n-subjects <representative_number> -> rc=2
+- python code/main.py --mode synthetic --n-subjects <representative_number> -> rc=1
 
-usage: main.py [-h] --mode {verification,analysis} [--data-path DATA_PATH]
-               [--output-dir OUTPUT_DIR]
-               [--log-level {DEBUG,INFO,WARNING,ERROR}]
-main.py: error: argument --mode: invalid choice: 'synthetic' (choose from 'verification', 'analysis')
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 42, in <module>
+    from analysis.stats import process_connectivity_statistics
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
+    import networkx as nx
+ModuleNotFoundError: No module named 'networkx'
 
-- python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents -> rc=2
+- python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents -> rc=1
 
-usage: main.py [-h] --mode {verification,analysis} [--data-path DATA_PATH]
-               [--output-dir OUTPUT_DIR]
-               [--log-level {DEBUG,INFO,WARNING,ERROR}]
-main.py: error: argument --mode: invalid choice: 'real' (choose from 'verification', 'analysis')
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 42, in <module>
+    from analysis.stats import process_connectivity_statistics
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
+    import networkx as nx
+ModuleNotFoundError: No module named 'networkx'
 
 - python -m pytest tests/ -> rc=2
-llecting projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_nbs_results.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_nbs_results.py'.
+py)
+_ ERROR collecting projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_stats.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_stats.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_nbs_results.py:8: in <module>
-    from analysis.run_nbs import load_connectivity_matrices, run_nbs_analysis
-E   ImportError: cannot import name 'load_connectivity_matrices' from 'analysis.run_nbs' (/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/run_nbs.py)
+tests/unit/test_stats.py:11: in <module>
+    from analysis.stats import fdr_correction_benjamini_hochberg
+code/analysis/stats.py:7: in <module>
+    import networkx as nx
+E   ModuleNotFoundError: No module named 'networkx'
 =========================== short test summary info ============================
+ERROR tests/integration/test_group_comparison.py
 ERROR tests/unit/test_download_atlas.py
+ERROR tests/unit/test_nbs.py
 ERROR tests/unit/test_nbs_output.py
 ERROR tests/unit/test_nbs_results.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.65s ===============================
+ERROR tests/unit/test_stats.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 1.38s ===============================
 
 
 
