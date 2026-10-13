@@ -17,23 +17,33 @@ properties:
     items:
       type: number
     description: "Parameter Coverage Scores for LLM‑generated docstrings."
+  baseline_scores:
+    type: array
+    items:
+      type: number
+    description: "Composite scores for the signature‑copy baseline."
   wilcoxon_statistic:
     type: number
     description: "Wilcoxon signed‑rank test statistic."
   wilcoxon_p_value:
     type: number
     description: "Two‑tailed p‑value from the Wilcoxon signed‑rank test."
+  effect_size:
+    type: number
+    description: "Effect size (Cliff’s delta for the primary test)."
   significance:
     type: boolean
-    description: "True if p‑value < 0.05 and effect size > 0.05."
+    description: "True if p‑value < 0.05 and effect size > 0.05."
   execution_time_seconds:
     type: number
-    description: "Total wall‑clock time taken by the statistical analysis step."
+    description: "Total wall‑clock time taken by the statistical analysis step."
 required:
   - total_pairs
   - human_scores
   - llm_scores
+  - baseline_scores
   - wilcoxon_statistic
   - wilcoxon_p_value
+  - effect_size
   - significance
   - execution_time_seconds

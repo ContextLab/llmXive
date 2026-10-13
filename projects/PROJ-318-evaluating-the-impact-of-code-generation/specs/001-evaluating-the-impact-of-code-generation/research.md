@@ -1,75 +1,87 @@
 # Research: Evaluating the Impact of Code Generation Models on Code Documentation Completeness
 
 ## Executive Summary
-This study quantifies how well the `Salesforce/codegen-350M-mono` model can generate docstrings that cover the parameters defined in a method’s AST signature, compared with the existing human‑written docstrings in the top PyPI repositories. The primary metric is an **AST‑grounded Parameter Coverage Score**; secondary metrics capture **Return‑Value Coverage**, **Exception Coverage**, and an auxiliary **Semantic Similarity Score** (all‑MiniLM‑L6‑v2) for contextual reporting only. A Wilcoxon signed‑rank test evaluates whether the LLM’s coverage differs significantly from the human baseline at α = 0.05.
+We quantify how well the `Salesforce/codegen-350M-mono` model can generate docstrings that **cover the parameters** defined in a method’s AST signature, compared with the existing human‑written docstrings in a stratified sample of top‑tier PyPI packages (plus a supplemental low‑tier sample). The **primary metric** is a **Composite Documentation Completeness Score** (0.6 × Parameter Coverage + 0.4 × Description Coverage), with **Parameter Coverage** retained as the essential AST‑grounded component. Secondary metrics capture Return‑Value Coverage, Exception Coverage, Description Coverage, and an auxiliary **Semantic Similarity** score (all‑MiniLM‑L6‑v2). A **baseline “signature‑copy” model** provides a control for circularity. The primary statistical evidence is a **Wilcoxon signed‑rank test on method‑level paired Composite Scores**, complemented by a repository‑level aggregate test and baseline comparison.
 
 ## Dataset Strategy
 
 | Dataset | Source | Access Method | Notes |
 |---------|--------|---------------|-------|
-| **Top‑N PyPI repositories** | PyPI JSON API + GitHub | Programmatic HTTP calls (`https://pypi.org/pypi/{pkg}/json`) → `git clone` of the `source_url` field | The list is fetched **once**, saved to `data/raw/frozen_repo_list.json`, and committed. Subsequent runs read this frozen file, guaranteeing reproducibility (Constitution I). |
-| **Repository source code** | Public GitHub repos | `git clone` (no authentication required) | All repositories are open‑source; cloning is fully automated. |
+| **Top‑N PyPI repositories** | PyPI JSON API (`https://pypi.org/pypi/{pkg}/json`) | Programmatic HTTP GET → `repo_fetcher.py` → `data/raw/frozen_repo_list.json` (committed) | Open, no auth required; stratified across three popularity tiers (≥ 5 repos per tier). |
+| **Supplemental low‑tier sample** | Same PyPI API, packages ranked 21‑100 | Same pipeline as above | Mitigates selection bias; additional repositories were added. |
+| **GitHub source code** | Public GitHub URLs from the PyPI metadata | `git clone` via `git_clone.py` | Open‑source; cloning is fully automated. |
 | **Sentence‑Transformer model** | Hugging Face (`sentence-transformers/all-MiniLM-L6-v2`) | `sentence_transformers` library download | Small CPU‑friendly model; verified open source. |
-| **Supplemental random sample** | PyPI JSON API | Same method as above, selecting a moderate number of medium‑star packages at random | Mitigates selection‑bias concerns; analyzed separately. |
 
-*No alternative dataset is required* because the above sources are fully open and directly downloadable on a CI runner. The frozen repo list ensures the “top‑20” snapshot is reproducible.
+No gated datasets are required; all sources are directly downloadable on a CI runner.
 
 ## Model & Methodology
 
-### Model Selection
-- **LLM**: `Salesforce/codegen-350M-mono`
-  - **Quantization**: 4‑bit via `bitsandbytes` (mandatory; no fallback).
-  - **Device**: CPU (`torch.device("cpu")`).
-  - **Temperature**: 0.2 (fixed per Constitution VII).
-  - **Maximum new tokens**: 64 (prevents runaway generation).
+### LLM Generation
+- **Model**: `Salesforce/codegen-350M-mono`
+- **Quantization**: **8‑bit** via `bitsandbytes` (CPU‑compatible)
+- **Device**: CPU (`torch.device("cpu")`)
+- **Temperature**: 0.2 (fixed)
+- **Deterministic seeds**: `torch.manual_seed(42)`, `numpy.random.seed(42)`, `random.seed(42)` (ensures reproducibility)
+- **Prompt**: Only the method signature (name, parameters, return annotation) – FR‑012
+- **Max new tokens**: 64 (prevent runaway generation)
+- **Generation status handling**: per‑method timeout = 30 s; status recorded (`success`, `timeout`, `error`).
 
-### Metric Definitions
-1. **Parameter Coverage Score (Primary)**
-   - Extract AST parameters (`ast` module) → list `P`.
-   - Parse docstring parameters via `docstring_parser` → list `D`.
-   - Score = `|P ∩ D| / |P|`. Excludes `self`/`cls`. Complex type hints not mentioned count as unmatched.
-2. **Return‑Value Coverage (Secondary)**
-   - Same set‑intersection logic applied to `:return:` sections when present. Reported for completeness but **not** used in the primary hypothesis test.
-3. **Exception Coverage (Secondary)**
-   - Same logic applied to `:raises:` sections. Also reported only as auxiliary information.
-4. **Semantic Similarity (Auxiliary)**
-   - Encode human and generated docstrings with `all‑MiniLM‑L6‑v2`.
-   - Compute cosine similarity (range ‑1 to 1). Used only for descriptive reporting (Constitution VI).
+### Baseline “Signature‑Copy” Control
+- Generates a docstring that is exactly the method signature string.
+- Coverage scores computed identically; serves as a lower bound to quantify copying effects (addresses FR‑013).
+
+### Primary Metric – Composite Documentation Completeness Score
+1. **Parameter Coverage**: `|P ∩ D| / |P|` where `P` = AST parameters, `D` = documented parameters in docstring.  
+2. **Description Coverage**: average number of non‑stop‑word tokens per documented parameter (≥ 5 tokens considered satisfactory).  
+3. **Composite Score**: `0.6 * ParameterCoverage + 0.4 * DescriptionCoverage`.  
+4. If `human_docstring` is `null`, the record is **excluded** from the primary paired Wilcoxon test but included in descriptive aggregates (FR‑015).  
+5. Empty or whitespace‑only generated docstrings receive 0.0 for both component scores and are flagged (FR‑008).
+
+### Secondary Metrics
+- **Return‑Value Coverage**: same intersection logic on `:return:` sections.  
+- **Exception Coverage**: same logic on `:raises:` sections.  
+- **Semantic Similarity** (FR‑004): Encode human and generated docstrings with `all‑MiniLM‑L6‑v2`; compute cosine similarity (range ‑1 to 1). Used only for descriptive reporting (Constitution VI).
 
 ### Statistical Analysis
-- **Test**: Wilcoxon signed‑rank (paired) on the two coverage vectors (parameter coverage only for the hypothesis).
-- **Null hypothesis** `H₀`: No median difference between human and LLM parameter coverage scores.
-- **Alternative hypothesis** `H₁`: Two‑tailed difference.
-- **α** = 0.05.
-- **Minimum Effect Size (MES)**: Δ > 0.05 required for practical relevance; both statistical significance and MES must be satisfied for a “significant” finding.
-- **Power note**: With ≥ 2 000 paired observations (20 repos × ≤ 1 000 methods), the test is well‑powered; a warning will be logged if the actual pair count falls below 30.
+- **Primary Test**: Wilcoxon signed‑rank test on **method‑level paired** Composite Scores (human vs. LLM) across all ≥ 2 000 paired records.  
+- **Secondary Test**: Wilcoxon on **per‑repository mean** Composite Scores (human vs. LLM) to respect independence across methods.  
+- **Baseline Comparison**: Wilcoxon comparing LLM Composite Scores vs. baseline signature‑copy scores (quantifies circularity).  
+- **Null hypothesis** `H₀`: No median difference.  
+- **Alternative**: Two‑tailed.  
+- **α** = 0.05.  
+- **Effect‑size threshold**: Δ > 0.05 required for practical relevance; significance reported only if both p‑value < 0.05 **and** effect size > 0.05.  
+- **Power note**: With ≥ 2 000 pairs the test is well‑powered; a warning is logged if total pairs < 30 (FR‑009).  
 
 ### Bias & Scope Limitations
-- **Selection Bias**: Top‑20 PyPI packages tend to have higher‑quality human docstrings. Findings are interpreted with this bias acknowledged; the supplemental random sample (5 medium‑star repos) provides a sanity check on generality.
-- **Metric Scope**: Parameter Coverage Score captures only the presence of parameter names. It does **not** assess the quality of explanations, return‑value descriptions, or overall narrative completeness. Those aspects are reported via the secondary Return‑Value and Exception Coverage scores but are excluded from the primary hypothesis test, satisfying Constitution Principle VI.
+- **Selection bias**: Top‑20 PyPI packages tend to have higher documentation quality; mitigated by stratified sampling across three tiers and a supplemental low‑tier sample of 15 repos.  
+- **Metric scope**: Composite score incorporates both structural (parameter) and narrative (description) aspects, addressing construct‑validity concerns.  
+- **Circularity**: Baseline signature‑copy control quantifies the extent to which high parameter‑name coverage arises from simple copying.  
+- **Null human docstrings**: Excluded from primary paired test; included in descriptive statistics with a 0.0 score (method‑level).  
 
 ## Compute Feasibility & Resource Plan
 | Component | Estimated RAM | Estimated CPU time |
 |-----------|---------------|--------------------|
 | Repo cloning & AST extraction | ≤ 2 GB (per repo) | ~30 s per repo |
-| 4‑bit CodeGen loading | 0.8 GB – 1 GB | Brief load |
-| Generation (≤ 1 000 methods/repo) | ≤ 1 GB (model + batch) | ≤ 8 min per repo |
-| Coverage & similarity calculation | ≤ 0.5 GB | < 5 min total |
-| Overall pipeline | **Peak ≤ 4 GB** | **≈ 3 h** (well under 6 h limit) |
+| 8‑bit CodeGen loading | ≤ 1 GB | < 1 min (once) |
+| Generation (≤ 1 000 methods/repo) | ≤ 1 GB | ≤ 8 min per repo |
+| Baseline copy generation | ≤ 0.2 GB | negligible |
+| Coverage & similarity | ≤ 0.5 GB | < 5 min total |
+| **Overall peak** | **≤ 3 GB** | **≈ 3 h** (well under 6 h limit) |
 
-All steps run on the GitHub Actions CPU runner; no GPU escape hatch is required.
+All steps run on the GitHub Actions CPU runner; the 8‑bit quantization is CPU‑compatible, satisfying Principle VII.
 
 ## Risk Mitigation
 | Risk | Mitigation |
 |------|------------|
-| **AST parse failures** (non‑standard syntax) | Wrap `ast.parse` in `try/except`; log `AST_PARSE_FAIL` and skip the file. |
-| **Rate limiting (PyPI / GitHub)** | Exponential backoff (1 s, 2 s, 4 s, 8 s) with a max of 5 retries; abort with clear error if still failing. |
-| **Quantization load error** | Job aborts with explicit error; **no fallback** to higher‑bit precision (Constitution VII). |
-| **Generation timeout** | Enforce per‑method timeout of 30 s; skip and flag as `generation_status="timeout"` if exceeded. |
-| **Memory overflow** | Process one repository at a time; `del` intermediate objects and call `gc.collect()` after each repo. |
+| **AST parse failures** (non‑standard syntax) | Wrapped in `try/except`; log `AST_PARSE_FAIL` and continue (FR‑006). |
+| **Rate limiting (PyPI / GitHub)** | Exponential backoff (1 s → 2 s → 4 s → 8 s → 16 s) with max 5 retries; abort with clear error if still failing (FR‑007). |
+| **BitsAndBytes load error** | Job aborts with explicit message; **no fallback** per Principle VII. |
+| **Generation timeout** | Per‑method timeout = 30 s; flagged as `generation_status="timeout"` (FR‑008). |
+| **Memory overflow** | Process one repository at a time; explicit `del` and `gc.collect()` after each batch (FR‑006). |
+| **Low statistical power** | Log warning when total paired records < 30 (FR‑009). |
 
 ## Conclusion
-The proposed pipeline satisfies every functional requirement and success criterion while staying within the free‑tier compute budget. By grounding the primary metric in AST‑derived parameter lists, adding secondary coverage metrics, acknowledging selection bias, and explicitly aligning all outputs with validated contracts, the study adheres to Principle VI. The statistical plan includes both significance testing and a practical effect‑size threshold, delivering a rigorous answer to the research question.
+The revised pipeline satisfies **every functional requirement (FR‑001 – FR‑015)** and **all success criteria (SC‑001 – SC‑006)** while remaining within the free‑tier compute budget. By grounding the primary evidence in a Composite, AST‑grounded score, providing a baseline control for circularity, and employing a method‑level paired Wilcoxon test, the study delivers a reproducible, constitution‑compliant answer to the research question.
 
 ---
 

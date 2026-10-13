@@ -11,13 +11,13 @@
 
 The system MUST download a representative set of top Python repositories from the **PyPI leaderboard via the PyPI JSON API** (or a static HuggingFace dataset mirror), parse their source code using the `ast` module, extract public method signatures and existing human-written docstrings, **truncate the list to a maximum of 1,000 methods per repository**, and output a structured JSON dataset.
 
-**Why this priority**: This is the foundational data layer. Without a verified, structured dataset of code signatures and human-written documentation, no generation or comparison can occur. This step defines the structural reference against which the LLM is measured. *Selection bias limitation*: top‑20 PyPI packages may have unusually high documentation quality; we mitigate this by **stratified sampling across popularity tiers** (see FR-010).
+**Why this priority**: This is the foundational data layer. Without a verified, structured dataset of code signatures and human-written documentation, no generation or comparison can occur. This step defines the structural reference against which the LLM is measured. *Selection bias limitation*: top‑N PyPI packages may have unusually high documentation quality; we mitigate this by **stratified sampling across popularity tiers** (see FR-010).
 
 **Independent Test**: Can be fully tested by running the extraction script on a single known repository (e.g., `requests`) and verifying that the output JSON contains the correct method signatures, non‑empty human docstrings (if present), and the row count does not exceed 1,000.
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of valid PyPI package names for the top 20 packages, **When** the extraction script runs, **Then** it must output a JSON file containing **at most 1,000** unique public method signatures per repository, with the total count logged and verified (row count ≤ 1,000). *(See FR-001, FR-007)*
+1. **Given** a list of valid PyPI package names for the top‑tier packages, **When** the extraction script runs, **Then** it must output a JSON file containing **at most 1,000** unique public method signatures per repository, with the total count logged and verified (row count ≤ 1,000). *(See FR-001, FR-007)*
 2. **Given** a repository with mixed indentation or syntax errors in non‑public files, **When** the `ast` parser processes the file, **Then** it must skip the malformed file and continue processing valid files without crashing.
 3. **Given** a method with no existing docstring, **When** the parser extracts it, **Then** the `human_docstring` field in the output record must be explicitly set to `null` rather than an empty string.
 
@@ -35,7 +35,7 @@ The system MUST load the **`Salesforce/codegen-350M-mono`** model using low‑bi
 
 1. **Given** a JSON input file with up to 1,000 method signatures, **When** the generation script executes, **Then** it must produce an output file where every input method has a corresponding `generated_docstring` field populated with text. *(See FR-002)*
 2. **Given** the GitHub Actions runner environment with no GPU, **When** the model loads, **Then** it must successfully initialize in CPU‑only mode (verifying `torch.cuda.is_available()` returns False OR `model.device == cpu`) and stay within reasonable RAM limits as monitored via `/proc/self/status`. *(See FR-006)*
-3. **Given** a timeout of 6 hours for the entire job, **When** the generation runs on multiple repositories (max [deferred] methods each), **Then** the process must complete and write the final results within 6 hours (including a safety buffer). *(See FR-002)*
+3. **Given** a timeout of several hours for the entire job, **When** the generation runs on multiple repositories (max [deferred] methods each), **Then** the process must complete and write the final results within 6 hours (including a safety buffer). *(See FR-002)*
 
 ---
 
@@ -70,7 +70,7 @@ The system MUST calculate a **Parameter Coverage Score** for each generated docs
 - **FR-004**: System MUST compute semantic similarity between human and LLM docstrings using the compact `sentence-transformers/all-MiniLM-L6-v2` model. This is an **auxiliary metric** to detect style overlap and potential hallucinations, **not** a primary validator of completeness (per Constitution Principle VI). (See US-3)
 - **FR-005**: System MUST perform a Wilcoxon signed‑rank test on **per‑repository aggregated Parameter Coverage Scores** (mean human vs. mean LLM per repo) and report the p‑value to determine statistical significance at α = 0.05. (See US-3)
 - **FR-006**: System MUST handle memory constraints by processing repositories sequentially or in small batches, monitoring RAM via `/proc/self/status`, and ensuring total peak RAM usage remains within acceptable limits on the GitHub Actions runner. (See US-2)
-- **FR-007**: System MUST implement an exponential backoff retry mechanism for PyPI API calls (max 5 retries, backoff factor 2) and log each retry attempt. Failure after all retries aborts the job with a clear error message. (See US-1)
+- **FR-007**: System MUST implement an exponential backoff retry mechanism for PyPI API calls (with a limited number of retries and a multiplicative backoff factor) and log each retry attempt. Failure after all retries aborts the job with a clear error message. (See US-1)
 - **FR-008**: System MUST treat empty or whitespace‑only generated docstrings as having a coverage score of 0.0 and **automatically flag** any record whose coverage score falls below 0.2 by adding it to a `flagged_records.json` report. No manual review step is required. (See US-3, Edge Cases)
 - **FR-009**: System MUST emit a warning in the analysis log when the total number of paired method records is **< 30**, indicating low statistical power, but still proceed with the Wilcoxon test. (See US-3)
 - **FR-010**: System MUST mitigate selection bias by performing **stratified sampling** across at least three popularity tiers (high, medium, low) within the top‑20 PyPI list, ensuring each tier contributes ≥ 5 repositories. (See US-1)

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DocstringPair"
-description: "Schema for a single data point containing method signature, human docstring, and generated docstring with scores."
+description: "Schema for a single data point containing method signature, human docstring, generated docstring, baseline, and associated scores."
 type: object
 properties:
   repo_name:
@@ -9,14 +9,14 @@ properties:
   file_path:
     type: string
     description: "Relative path to the source file within the repo."
-  method_name:
+  function_name:
     type: string
     description: "Name of the public method."
-  parameters:
+  ast_params:
     type: array
+    description: "List of parameter names extracted from the AST signature (excluding 'self', 'cls')."
     items:
       type: string
-    description: "List of parameter names extracted from the AST signature (excluding 'self', 'cls')."
   human_docstring:
     oneOf:
       - type: string
@@ -24,35 +24,56 @@ properties:
     description: "The existing human‑written docstring (or null if absent)."
   generated_docstring:
     type: string
-    description: "The LLM generated ..."
+    description: "The LLM‑generated docstring for the method."
+  baseline_docstring:
+    type: string
+    description: "Signature‑copy baseline docstring (exact method signature)."
   parameter_coverage_score:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Primary ..."
+    description: "Primary metric: proportion of AST parameters that appear in the docstring."
+  description_coverage_score:
+    type: number
+    minimum: 0.0
+    description: "Average number of non‑stop‑word tokens per documented parameter."
+  composite_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Composite Documentation Completeness Score (0.6*ParameterCoverage + 0.4*DescriptionCoverage)."
   semantic_similarity_score:
     type: number
     minimum: -1.0
     maximum: 1.0
-    description: "Auxiliary ..."
+    description: "Auxiliary cosine similarity between human and generated docstrings (all‑MiniLM‑L6‑v2)."
   generation_status:
     type: string
     enum:
       - "success"
       - "timeout"
       - "error"
-    description: "Status ..."
+    description: "Status of the generation step for this record."
+  baseline_status:
+    type: string
+    enum:
+      - "success"
+    description: "Status of the baseline copy generation (always success)."
   error_message:
     type: string
-    description: "Description ..."
+    description: "Error details if generation_status != 'success'; empty string otherwise."
 required:
   - repo_name
   - file_path
-  - method_name
-  - parameters
+  - function_name
+  - ast_params
   - human_docstring
   - generated_docstring
+  - baseline_docstring
   - parameter_coverage_score
+  - description_coverage_score
+  - composite_score
   - semantic_similarity_score
   - generation_status
+  - baseline_status
   - error_message
