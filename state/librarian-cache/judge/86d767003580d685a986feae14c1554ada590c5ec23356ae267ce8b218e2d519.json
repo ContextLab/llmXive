@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.06125",
+  "judged_at": "2026-10-13T23:18:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+  "rationale": "The paper studies machine‑learning methods for tropical cyclone track and intensity forecasting, which is unrelated to corrosion rates, metals, or chemistry; it does not share the mechanism, variables, or domain of the user's question.",
+  "relevant": false
+}

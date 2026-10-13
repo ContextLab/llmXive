@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.08276",
+  "judged_at": "2026-10-13T23:18:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+  "rationale": "The paper studies intergranular corrosion of stainless steel using experiments and cellular automata modeling, without involving machine learning or public databases for predicting corrosion rates of common metals, thus it does not meet any inclusion criteria.",
+  "relevant": false
+}
