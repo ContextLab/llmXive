@@ -1,3 +1,13 @@
+T001:
+  c: true
+  h: b20cbd6207c6c995dafefd9ced639eef551e5cc13e1cb149516e006df3af7c09
+  r: "Both output files exist and are non-empty; the script is complete, ran with\
+    \ both oversampling flags and exited 0 (execution log confirms schema validation\
+    \ of all 500 trajectories and file writes). The stats file contains all required\
+    \ fields with oversampling_ratio 0.59 \u2265 0.40, consistent with the sampled\
+    \ trajectories (high-emotion scores \u22650.7, \u22653 cultural tags) and the\
+    \ script's measured-count logic."
+  sig: f17f70791613c5411ff252e1cc5318aa2877665621760c0fc30484bef1d223d3
 T011:
   c: false
   h: 1454140d03af297c44997d034d942742ce358a4e0b25b38301c1c1d38a0f837d
@@ -5,6 +15,27 @@ T011:
     \ is missing from the repository, so no test code exists to verify the oversampling\
     \ distribution as specified. Without this artifact, the task\u2019s acceptance\
     \ criteria cannot be satisfied."
+T014:
+  c: true
+  h: 4100ef31e600ec7aca9c468f0e1c23566230d429bd3459cd65611169c715e171
+  r: "The report `data/results/oversampling_report.json` exists with all required\
+    \ fields (`total_count=500`, `high_difficulty_count=396`, `oversampling_ratio=0.792`,\
+    \ `passes_fr001=true`), and the execution log shows the verifier recomputed these\
+    \ independently from `trajectories.json` (177 high-emotion + 339 high-cultural,\
+    \ union 396) and exited 0 with ratio 0.792 \u2265 0.40. The stats-file disagreement\
+    \ (0.59) is explicitly surfaced rather than hidden, and the loud-failure paths\
+    \ (missing/malformed inputs, below-threshold) are covered by passing tests; the\
+    \ one failing unit test (`high_difficulty_count 3 vs"
+  sig: f182325d4592557d4a3ce7ff5ede1cf0bf2fb13eeada1c6a10b64b37f4d5ec7f
+T015:
+  c: true
+  h: 7a67afe32a9e502031e47dd09256d0b1be8eb939e2438cd024b1bd5f9d5efd42
+  r: 'The script uses `TTestPower().solve_power(effect_size=0.5, power=0.80, alpha=0.05)`
+    as required, reads `total_count` from `generation_stats.json`, and the executed
+    report (exit 0) contains all four required fields (`required_n: 33`, `actual_n:
+    500`, `is_sufficient: true`, `underpowered_flag: false`), consistent with the
+    statsmodels computation and the actual sample count.'
+  sig: 25e1871ef4c2881ca12ac92b5f57c3770d40863aeaece102da4476b57199d27e
 T019:
   c: false
   h: 95546ba7dca28e7561c405ab4cb9a904de3680c5b08a38f8acb7a16284aaf28f
@@ -14,25 +45,3 @@ T019:
     \ creates `turn_text`/`label` pairs, adds `confidence_score` and `threshold_used`,\
     \ or writes the results to the specified JSON file. Consequently the task\u2019\
     s core requirements are not met."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation implementing the low\u2011confidence validation\
-    \ for the classifier were provided; the claim lacks any tangible artifact to verify\
-    \ that the classifier now falls back to a neutral \u201Cmonitoring\u201D state\
-    \ on low confidence. The required implementation and its verification are missing."
-T034:
-  c: false
-  h: bc05299e27705a5b5543d7bd2e92890ec2a66ac84511f9b896482cdf11874838
-  r: "The `code/analysis/metrics.py` file exists, but the required input `data/processed/experiment_logs.json`\
-    \ is missing, so the module cannot be exercised to compute consensus gap closure\
-    \ for every trajectory as specified. The absence of this dataset means the task\u2019\
-    s core requirement is unmet."
-T057:
-  c: false
-  h: 51e60230594c0d19ab8c8c2174ab1da2b40a33ff9ee03aedf76e97d41737b5f3
-  r: The required `docs/research_draft.md` file does not exist, so the script cannot
-    parse the Methods section, and the expected `data/results/exclusion_citation_audit.json`
-    output file was not generated. Additionally, the provided script is incomplete
-    (truncated) and does not show the JSON writing step. The task therefore remains
-    unfinished.

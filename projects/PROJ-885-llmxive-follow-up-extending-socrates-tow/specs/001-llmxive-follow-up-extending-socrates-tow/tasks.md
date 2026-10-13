@@ -10,7 +10,7 @@ All tasks are written as executable checklist items. Each task lists the exact a
 
 ## Phase 0 – Data creation, feasibility, and classifier preparation
 
-- [ ] **T001** [US1] **Generate synthetic conflict trajectories with targeted oversampling**
+- [X] **T001** [US1] **Generate synthetic conflict trajectories with targeted oversampling**
   *Creates* `data/processed/trajectories.json` and `data/processed/generation_stats.json`.
   *Depends on*: —
   - Implement and run `code/data/generate_trajectories.py` with `--oversample-high-emotion --oversample-diverse-cultural`. The script MUST be complete (no truncation) and MUST write both output files before exiting.
@@ -18,14 +18,14 @@ All tasks are written as executable checklist items. Each task lists the exact a
   - `generation_stats.json` MUST contain `total_count`, `high_emotion_count`, `high_cultural_count`, `oversampling_ratio` (fraction of trajectories in the high‑emotion or diverse‑cultural axes), and `underpowered_flag` (true if `total_count < 500`).
   - **Verification**: both files exist; every trajectory validates against `contracts/dataset.schema.yaml`; `oversampling_ratio ≥ 0.40`; script exits 0.
 
-- [ ] **T014** [US1] **Verify oversampling ratio (authoritative FR‑001 check)**
+- [X] **T014** [US1] **Verify oversampling ratio (authoritative FR‑001 check)**
   *Creates* `data/results/oversampling_report.json`.
   *Depends on*: T001
   - Reads `data/processed/trajectories.json` and `data/processed/generation_stats.json` produced by T001; recomputes the high‑difficulty fraction independently and confirms `oversampling_ratio ≥ 0.40`.
   - Fails loudly (non‑zero exit) if the ratio is insufficient or if either input file is missing or malformed — no fallback, no synthetic substitute.
   - **Verification**: report contains `total_count`, `high_difficulty_count`, `oversampling_ratio`, `passes_fr001` (`true`).
 
-- [ ] **T015** [US1] **Statistical power analysis and under‑powered flag**
+- [X] **T015** [US1] **Statistical power analysis and under‑powered flag**
   *Creates* `code/analysis/power_analysis.py` and `data/results/power_analysis_report.json`.
   *Depends on*: T014
   - Uses `statsmodels.stats.power.TTestPower().solve_power(effect_size=0.5, power=0.80, alpha=0.05)` to compute `required_n`.
