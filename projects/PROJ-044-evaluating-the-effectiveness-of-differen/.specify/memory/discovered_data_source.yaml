@@ -1,9 +1,10 @@
 status: none
-intent: official FEMNIST dataset download via tensorflow_datasets python package dataset
+intent: download FEMNIST dataset python package EMNIST federated learning parquet
+  python package dataset
 required_fields:
 - image
 - label
-- split
-cache_key: a19cdbd241b8f73aab4182c27615a15079083115de9657f33fe957c0dd86a0cc
-searched_at: '2026-10-13T17:10:35.102873+00:00'
+- client_id
+cache_key: 0e568b2054f849499cfd915556a0befb3b5b8e97ef3d670468a95c508a386253
+searched_at: '2026-10-13T20:10:22.600146+00:00'
 retry_count: 1
