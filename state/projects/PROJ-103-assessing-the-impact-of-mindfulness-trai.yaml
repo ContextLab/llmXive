@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T19:34:25.302517Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-103-assessing-the-impact-of-mindfulness-trai
-last_run_id: 3ed94ae2-3a1a-44a6-8766-666066af828f
+last_run_id: ca081be2-5c38-40f1-ae9b-6abc8a27ef54
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai
 title: Assessing the Impact of Mindfulness Training on Default Mode Network Activity
-updated_at: '2026-10-13T00:22:09.636960Z'
+updated_at: '2026-10-13T00:24:07.597706Z'
