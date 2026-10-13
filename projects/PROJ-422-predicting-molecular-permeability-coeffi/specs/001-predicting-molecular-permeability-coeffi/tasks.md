@@ -8,7 +8,7 @@
 
 - [ ] T002 [US1] Implement `code/data/preprocess.py` — `MoleculeProcessor.process(df)` that parses each SMILES with `rdkit.Chem.MolFromSmiles` (invalid SMILES logged and excluded), computes the required descriptor set (MW, logP, TPSA, HBA, HBD, RotatableBonds, etc.), builds the molecular graph (node and edge feature JSON columns), and **uses the experimental permeability column as the `target`**. Missing descriptor values are median‑imputed; rows missing the target are excluded with a warning. Output conforms to `specs/.../contracts/dataset.schema.yaml` and is written to `data/processed/processed_data.csv`.
 
-- [ ] T003 [US1] Implement `code/data/split.py` — performs:
+- [X] T003 [US1] Implement `code/data/split.py` — performs:
   1. **Retention check (FR‑011)**: abort with `SystemExit(1)` if valid molecule retention < 95 %.
   2. **Bias check (FR‑013)**: compute Pearson |r| between each descriptor and the experimental target; if any |r| > 0.85, set `bias_violation: true` and abort (target must be independent).
   3. **Stratified split (FR‑003)**: if a `polymer_type` column exists, perform an 80/20 stratified split with per‑class absolute percentage‑point difference ≤ 5; otherwise fall back to a random split with a logged warning. Writes `train.csv`, `test.csv`, and `data/results/stratification_report.md`. Verification: script exits 0, reports contain required sections, and `metrics.json` records the checks.
@@ -17,7 +17,7 @@
 
 ## Phase 2: Complete the study and validate its evidence
 
-- [ ] T004 [US2] Implement `code/models/gnn.py` (shallow 2‑layer MPNN, CPU‑only, early stopping patience 5, max 50 epochs) and `code/models/rf.py` (RandomForestRegressor, 100 trees, `max_features='sqrt'` on standard descriptors) and `code/models/rf_ablation.py` (RandomForest on graph‑derived ablation features only – FR‑012). Include a CPU feasibility pre‑check that writes `cpu_feasibility_check` (`passed` or `warning`) to `data/results/metrics.json`.
+- [ ] T004 [US2] Implement `code/models/gnn.py` (shallow 2‑layer MPNN, CPU‑only, early stopping patience 5, max 50 epochs) and `code/models/rf.py` (RandomForestRegressor, 100 trees, `max_features='sqrt'` on standard descriptors) and `code/models/rf_ablation.py` (RandomForest on graph‑derived ablation features only – FR‑012). Include a CPU feasibility pre‑check that writes `cpu_feasibility_check` (`passed` or `warning`) to `data/results/metrics.json`. <!-- FAILED-IN-EXECUTION: code/models/rf_ablation.py exit=1 -->
 
 - [ ] T005 [US2] Implement `code/analysis/train.py` — trains the three models on `data/processed/train.csv`, saves checkpoints under `data/interim/`, and records `total_training_time_hours` and `peak_memory_gb` in `data/results/training_log.json`. If the GNN does not achieve a validation loss improvement or its test performance is worse than the RF baseline, flag `no_significant_improvement: true` (do not force a positive claim).
 

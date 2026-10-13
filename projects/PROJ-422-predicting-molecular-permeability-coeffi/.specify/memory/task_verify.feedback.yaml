@@ -1,0 +1,37 @@
+T001:
+  reason: "The `code/data/download.py` script exists but the unit test fails because\
+    \ the specified Hugging\u202FFace dataset (`molecule-net/permeability`) cannot\
+    \ be loaded, so no raw CSV is written and `data/raw/` remains empty. Consequently\
+    \ `data/raw/checksums.json` is missing, and the loader does not demonstrate successful\
+    \ fetching of a real permeability dataset nor the required checksum recording."
+  task: dd6d473f868259e51c03a6f05e81bf433ff4bdeb0e30ea612215772a4b7eec79
+T002:
+  reason: "Checked `code/data/preprocess.py` \u2013 it implements `MoleculeProcessor.process`\
+    \ but aborts with `SystemExit` when the retention rate is below the hard\u2011\
+    coded 95\u202F% threshold, causing the unit test `test_preprocess_writes_output`\
+    \ to fail and leaving `data/processed/processed_data.csv` absent. The required\
+    \ output file is missing and the processing routine does not reliably produce\
+    \ it as specified."
+  task: 5e82f27dfa2b5a464107e51f3f08dbc38218053ffe8b8a4147b7f195d02aa117
+T003:
+  task: 1002b266e8cccf6afe2c21ab1109044c8ad331b4a51f94aaf9f07af1155c05fb
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/models/rf_ablation.py
+    exit=1'
+  task: 3aa5c97b97a47e80b3a91b0c932a0b2fcec978272bc1a6be96759c9754da301c
+T005:
+  task: 219548a5bc0f4ba0aed169115680dad52747085158c115885ef47ca95bbd7ce4
+T006:
+  task: efbf4ff97ac993afffd0c71203c468452ec8318bde97c9a9b244d307e393eabb
+T007:
+  task: 66b1a02f16e77155b8a8ae204196006599ebcdaebd93e29793ee798d59a1d34f
+T008:
+  task: f4b544d965545e0864b05f2a8c7e84b54312e9b6809ee2026691d815771161ce
+T009:
+  task: 5745efd7b78ad69023e31c34ec1d5e8ec043d604cf3971c5b8cd589a33f889c3
+T010:
+  task: 0f0d120ddc5ba03b1900f8524b46df0a55202c36f37bd48e35542286a90e96b8
+T011:
+  task: 73823aec0fac68d688af000b2590c10cb2a837981f619843105f1421afe5f448
+T012:
+  task: eaecc6f5718d117b0f5ee4177903782a12b1c9e7b222fbae5134d8340b445c63
