@@ -11,12 +11,12 @@
         "page": 50
       }
     ],
-    "audited_at": "2026-10-13T17:54:49.058964+00:00"
+    "audited_at": "2026-10-13T18:18:13.965793+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-805-tua-bench-a-benchmark-for-general-purpos",
-  "updated_at": "2026-10-13T17:54:49.058976+00:00"
+  "updated_at": "2026-10-13T18:18:13.965804+00:00"
 }
