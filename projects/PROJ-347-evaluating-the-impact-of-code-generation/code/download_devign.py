@@ -19,7 +19,6 @@ Usage (run as a module or script):
 """
 import hashlib
 import json
-import os
 import sys
 import zipfile
 from pathlib import Path
@@ -33,16 +32,18 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
+# Updated URL: the repository now uses the default branch `main` instead of `master`.
 DEVIGN_ZIP_URL = (
-    "https://github.com/anishathalye/devign-dataset/archive/refs/heads/master.zip"
+    "https://github.com/anishathalye/devign-dataset/archive/refs/heads/main.zip"
 )
 # Destination locations (all under the project root)
 ZIP_PATH = paths.data("raw", "devign", "devign.zip")
 CSV_DEST = paths.data("raw", "devign", "devign.csv")
 CHECKSUMS_PATH = paths.data("checksums.json")
 
-# Name of the CSV inside the zip archive (as per the repository layout)
-INTERNAL_CSV_PATH = Path("devign-master") / "devign.csv"
+# Name of the CSV inside the zip archive (as per the repository layout).
+# The zip extracts a top‑level directory named `devign-dataset-main`.
+INTERNAL_CSV_PATH = Path("devign-dataset-main") / "devign.csv"
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -85,7 +86,7 @@ def save_checksums(path: Path, data: dict) -> None:
 # Main workflow
 # ----------------------------------------------------------------------
 def main() -> None:
-    # Step 1 – download the zip (skip if already present and checksum matches)
+    # Step 1 – download the zip (skip if CSV already exists)
     if not CSV_DEST.is_file():
         download_file(DEVIGN_ZIP_URL, ZIP_PATH)
 
@@ -93,7 +94,7 @@ def main() -> None:
         log.info(f"Extracting {INTERNAL_CSV_PATH} from {ZIP_PATH}")
         with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
             try:
-                # Ensure the internal path exists in the archive
+                # Find the member that ends with the expected internal path
                 members = [
                     m for m in zip_ref.namelist() if m.endswith(str(INTERNAL_CSV_PATH))
                 ]

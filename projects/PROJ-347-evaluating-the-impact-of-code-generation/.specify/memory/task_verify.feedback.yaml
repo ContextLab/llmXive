@@ -3,6 +3,8 @@ T001:
     exit=1'
   task: 71f65c78ec2328d7d92b76225a9f4832ca73d362280311cdd8cbc9a80b2f037b
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/filter_human_python.py
+    exit=1'
   task: faded8148a7c958e95522ce9af51e4bd15f79b3fa7375a0d0607c89486ba9ba6
 T003:
   task: e0d3834ab49adc1ce72a7dc5ab750a3ed81ca79a059c237b1c3ce1088daa6731
