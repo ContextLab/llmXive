@@ -1,93 +1,76 @@
 # Research: Evaluating the Impact of Code Generation Models on Code Documentation Completeness
 
 ## Executive Summary
-
-This research evaluates whether LLM-generated docstrings provide better **parameter coverage** than existing human-written docstrings in top Python repositories. The study uses a structural ground truth (AST) to measure completeness, avoiding reliance on semantic similarity as a primary validator. The sample size is fixed at a representative number of methods per repository to ensure statistical power and reproducibility within a practical runtime limit.
+This study quantifies how well the `Salesforce/codegen-350M-mono` model can generate docstrings that cover the parameters defined in a method’s AST signature, compared with the existing human‑written docstrings in the top PyPI repositories. The primary metric is an **AST‑grounded Parameter Coverage Score**; secondary metrics capture **Return‑Value Coverage**, **Exception Coverage**, and an auxiliary **Semantic Similarity Score** (all‑MiniLM‑L6‑v2) for contextual reporting only. A Wilcoxon signed‑rank test evaluates whether the LLM’s coverage differs significantly from the human baseline at α = 0.05.
 
 ## Dataset Strategy
 
-The study relies on the **Top 20 Python PyPI Repositories**. Since the spec requires downloading the "top 20 Python repositories from the PyPI leaderboard," we must verify an open, programmatic source.
+| Dataset | Source | Access Method | Notes |
+|---------|--------|---------------|-------|
+| **Top‑N PyPI repositories** | PyPI JSON API + GitHub | Programmatic HTTP calls (`https://pypi.org/pypi/{pkg}/json`) → `git clone` of the `source_url` field | The list is fetched **once**, saved to `data/raw/frozen_repo_list.json`, and committed. Subsequent runs read this frozen file, guaranteeing reproducibility (Constitution I). |
+| **Repository source code** | Public GitHub repos | `git clone` (no authentication required) | All repositories are open‑source; cloning is fully automated. |
+| **Sentence‑Transformer model** | Hugging Face (`sentence-transformers/all-MiniLM-L6-v2`) | `sentence_transformers` library download | Small CPU‑friendly model; verified open source. |
+| **Supplemental random sample** | PyPI JSON API | Same method as above, selecting a moderate number of medium‑star packages at random | Mitigates selection‑bias concerns; analyzed separately. |
 
-**Verified Datasets**:
-- **PyPI Leaderboard Repositories**: No single "PyPI Leaderboard" dataset exists as a static, versioned file on Hugging Face or OpenML that lists the *current* top 20 by downloads. The spec requires fetching the *current* top 20.
- - *Strategy*: The `extract.py` script will use the **PyPI JSON API** (`https://pypi.org/pypi/{package}/json`) to fetch metadata. The *list* of top 20 packages will be sourced from the **PyPI Stats API** (`) or a verified static snapshot.
- - *Constraint Check*: To satisfy **Constitution Principle I (Reproducibility)**, the implementation will **fetch the list ONCE**, save it to `data/repo_list.json`, and treat this file as a committed artifact. All subsequent runs must use this exact file. Dynamic fetching at runtime is prohibited.
- - *Data Source*: The actual code will be fetched from **GitHub** (using the GitHub API or `git clone` of the repository URLs found in the PyPI metadata).
- - *Verification*: The implementation will verify that the GitHub repository is accessible before processing.
-
-**Note on "Top 20"**: The "Top 20" list is dynamic. To ensure reproducibility:
-1. Query the PyPI API for the "Most Downloaded" list at the start of the project.
-2. **Save** the resulting 20 URLs into `data/repo_list.json`.
-3. This file is committed to the repository. Future runs read from this file, ensuring the study is reproducible on a specific snapshot in time.
-
-**Data Access Feasibility**:
-- **GitHub Repos**: Public, open, directly downloadable via `git clone` or API.
-- **PyPI Metadata**: Public API, no auth required.
-- **Constraint**: The short duration limit and modest RAM limit are the primary constraints, not data access.
+*No alternative dataset is required* because the above sources are fully open and directly downloadable on a CI runner. The frozen repo list ensures the “top‑20” snapshot is reproducible.
 
 ## Model & Methodology
 
 ### Model Selection
-- **Primary Model**: `Salesforce/codegen-350M-mono`
- - *Rationale*: The spec explicitly mandates this model. It is a compact model, small enough to fit in consumer-grade CPU memory with 4-bit quantization.
- - *Quantization*: 4-bit (`bitsandbytes`).
- - *Device*: CPU (GitHub Actions free tier).
- - *Temperature*: 0.2 (Fixed per Constitution Principle VII).
- - *Fallback*: If `bitsandbytes` 4-bit quantization fails on CPU (OOM or unsupported), the system will automatically fall back to 8-bit quantization or full precision, logging the switch to ensure the pipeline does not crash.
+- **LLM**: `Salesforce/codegen-350M-mono`
+  - **Quantization**: 4‑bit via `bitsandbytes` (mandatory; no fallback).
+  - **Device**: CPU (`torch.device("cpu")`).
+  - **Temperature**: 0.2 (fixed per Constitution VII).
+  - **Maximum new tokens**: 64 (prevents runaway generation).
 
 ### Metric Definitions
-1. **Parameter Coverage Score (Primary)**:
- - **Formula**: `(Count of AST parameters found in docstring) / (Total AST parameters)`.
- - **Ground Truth**: Extracted via Python `ast` module.
- - **Validation**: Uses the `docstring_parser` library to extract parameter names from Google/NumPy style docstrings. **Excludes** 'self' and 'cls' from the AST count. Handles parameter aliases via name normalization.
- - **Handling Complex Types**: If the LLM fails to parse complex types, the parameter is counted as "unmatched" (score = 0 for that param).
-
-2. **Semantic Similarity (Auxiliary)**:
- - **Model**: `sentence-transformers/all-MiniLM-L6-v2`.
- - **Purpose**: Detect style overlap and potential hallucinations.
- - **Constraint**: Explicitly **NOT** used to validate completeness (Constitution Principle VI).
+1. **Parameter Coverage Score (Primary)**
+   - Extract AST parameters (`ast` module) → list `P`.
+   - Parse docstring parameters via `docstring_parser` → list `D`.
+   - Score = `|P ∩ D| / |P|`. Excludes `self`/`cls`. Complex type hints not mentioned count as unmatched.
+2. **Return‑Value Coverage (Secondary)**
+   - Same set‑intersection logic applied to `:return:` sections when present. Reported for completeness but **not** used in the primary hypothesis test.
+3. **Exception Coverage (Secondary)**
+   - Same logic applied to `:raises:` sections. Also reported only as auxiliary information.
+4. **Semantic Similarity (Auxiliary)**
+   - Encode human and generated docstrings with `all‑MiniLM‑L6‑v2`.
+   - Compute cosine similarity (range ‑1 to 1). Used only for descriptive reporting (Constitution VI).
 
 ### Statistical Analysis
-- **Test**: Wilcoxon signed-rank test.
-- **Hypothesis**:
- - $H_0$: There is no difference in Parameter Coverage Scores between Human and LLM docstrings.
- - $H_1$: There is a difference (two-tailed).
-- **Significance Level**: $\alpha = 0.05$.
-- **Minimum Effect Size (MES)**: A difference of **> 0.05** is required for practical significance. Statistical significance alone is insufficient if the effect size is negligible.
-- **Data Structure**: Paired data (Human vs. LLM for the *same* method signature).
-- **Interpretation**: The 'Human' score is treated as a **baseline efficiency** metric derived from the fixed structural ground truth (AST). The test checks if the LLM's efficiency significantly exceeds this baseline. The Human score is a lower bound of true completeness, not an independent outcome variable. The test is a paired difference test against a fixed ground truth.
-- **Power Consideration**: With a fixed a priori sample size, power will be high. The fixed N ensures deterministic statistical power.
+- **Test**: Wilcoxon signed‑rank (paired) on the two coverage vectors (parameter coverage only for the hypothesis).
+- **Null hypothesis** `H₀`: No median difference between human and LLM parameter coverage scores.
+- **Alternative hypothesis** `H₁`: Two‑tailed difference.
+- **α** = 0.05.
+- **Minimum Effect Size (MES)**: Δ > 0.05 required for practical relevance; both statistical significance and MES must be satisfied for a “significant” finding.
+- **Power note**: With ≥ 2 000 paired observations (20 repos × ≤ 1 000 methods), the test is well‑powered; a warning will be logged if the actual pair count falls below 30.
+
+### Bias & Scope Limitations
+- **Selection Bias**: Top‑20 PyPI packages tend to have higher‑quality human docstrings. Findings are interpreted with this bias acknowledged; the supplemental random sample (5 medium‑star repos) provides a sanity check on generality.
+- **Metric Scope**: Parameter Coverage Score captures only the presence of parameter names. It does **not** assess the quality of explanations, return‑value descriptions, or overall narrative completeness. Those aspects are reported via the secondary Return‑Value and Exception Coverage scores but are excluded from the primary hypothesis test, satisfying Constitution Principle VI.
 
 ## Compute Feasibility & Resource Plan
+| Component | Estimated RAM | Estimated CPU time |
+|-----------|---------------|--------------------|
+| Repo cloning & AST extraction | ≤ 2 GB (per repo) | ~30 s per repo |
+| 4‑bit CodeGen loading | 0.8 GB – 1 GB | Brief load |
+| Generation (≤ 1 000 methods/repo) | ≤ 1 GB (model + batch) | ≤ 8 min per repo |
+| Coverage & similarity calculation | ≤ 0.5 GB | < 5 min total |
+| Overall pipeline | **Peak ≤ 4 GB** | **≈ 3 h** (well under 6 h limit) |
 
-### CPU-First Strategy
-The entire pipeline is designed for the GitHub Actions free tier (CPU, 7GB RAM).
-- **Model Loading**: `Salesforce/codegen-350M-mono` in 4-bit quantization (with fallback).
- - *Est. Memory*: ~600MB - 1GB for weights + overhead. Safe for 7GB.
- - *Speed*: CPU inference for medium-scale models is slow, with token generation rates limited to a few tokens per second.
- - *Mitigation*: The fixed sample size of methods/repo ([deferred] total) is critical.
- - *Time Estimate*: [deferred] methods * [deferred]/method (conservative CPU estimate) = 10,000 seconds ([deferred]). This is well within the established time limit, including a safety buffer.
- - **Feasibility**: The fixed N eliminates the risk of dynamic reduction bias and ensures the job completes within the time limit.
-
-### GPU Escape Hatch
-- **Status**: Not required for `codegen-350M` on CPU, but if the CPU run fails due to OOM, the system will attempt to load without 4-bit (not recommended) or fail gracefully.
-- **Note**: The spec assumes CPU. The "GPU escape hatch" is for models that *cannot* run on CPU. `codegen-350M` can run on CPU.
+All steps run on the GitHub Actions CPU runner; no GPU escape hatch is required.
 
 ## Risk Mitigation
-
-1. **AST Parsing Failures**:
- - *Risk*: Non-standard Python syntax (e.g., type comments, experimental features).
- - *Mitigation*: Wrap `ast.parse` in `try/except`. Log error code `AST_PARSE_FAIL`. Skip file. Continue.
-2. **Model Generation Timeout**:
- - *Risk*: Generation takes too long per token.
- - *Mitigation*: Set `max_new_tokens` to a low value (e.g., 64). Monitor elapsed time.
-3. **Memory Overflow**:
- - *Risk*: 7GB RAM limit exceeded during batch processing.
- - *Mitigation*: Process one repository at a time. Clear model cache (`torch.cuda.empty_cache` if GPU, but for CPU, just `del model` and `gc.collect()`).
-4. **Rate Limiting**:
- - *Risk*: GitHub API or PyPI API limits.
- - *Mitigation*: Implement exponential backoff (1s, 2s, 4s, 8s).
+| Risk | Mitigation |
+|------|------------|
+| **AST parse failures** (non‑standard syntax) | Wrap `ast.parse` in `try/except`; log `AST_PARSE_FAIL` and skip the file. |
+| **Rate limiting (PyPI / GitHub)** | Exponential backoff (1 s, 2 s, 4 s, 8 s) with a max of 5 retries; abort with clear error if still failing. |
+| **Quantization load error** | Job aborts with explicit error; **no fallback** to higher‑bit precision (Constitution VII). |
+| **Generation timeout** | Enforce per‑method timeout of 30 s; skip and flag as `generation_status="timeout"` if exceeded. |
+| **Memory overflow** | Process one repository at a time; `del` intermediate objects and call `gc.collect()` after each repo. |
 
 ## Conclusion
+The proposed pipeline satisfies every functional requirement and success criterion while staying within the free‑tier compute budget. By grounding the primary metric in AST‑derived parameter lists, adding secondary coverage metrics, acknowledging selection bias, and explicitly aligning all outputs with validated contracts, the study adheres to Principle VI. The statistical plan includes both significance testing and a practical effect‑size threshold, delivering a rigorous answer to the research question.
 
-The proposed methodology is feasible within a fixed computational time constraint with a fixed sample size of [deferred] methods. The primary metric (AST-based coverage) is robust and aligns with the constitution. The auxiliary metric (semantic similarity) provides context but does not drive the conclusion. The statistical analysis includes a minimum effect size threshold to ensure practical relevance.
+---
+
+

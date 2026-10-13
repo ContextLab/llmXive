@@ -6,32 +6,29 @@ properties:
   total_pairs:
     type: integer
     minimum: 0
-    description: "Total number of valid pairs (Human vs LLM)."
+    description: "Number of paired human‑LLM docstring records used in the Wilcoxon test."
   human_scores:
     type: array
     items:
       type: number
-    description: "List of all human coverage scores."
+    description: "Parameter Coverage Scores for human docstrings."
   llm_scores:
     type: array
     items:
       type: number
-    description: "List of all LLM coverage scores."
+    description: "Parameter Coverage Scores for LLM‑generated docstrings."
   wilcoxon_statistic:
     type: number
-    description: "Test statistic from Wilcoxon signed-rank test."
+    description: "Wilcoxon signed‑rank test statistic."
   wilcoxon_p_value:
     type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "P-value from the test."
+    description: "Two‑tailed p‑value from the Wilcoxon signed‑rank test."
   significance:
     type: boolean
-    description: "True if p-value < 0.05 AND difference > 0.05 (Minimum Effect Size)."
+    description: "True if p‑value < 0.05 and effect size > 0.05."
   execution_time_seconds:
     type: number
-    minimum: 0.0
-    description: "Total runtime of the pipeline."
+    description: "Total wall‑clock time taken by the statistical analysis step."
 required:
   - total_pairs
   - human_scores

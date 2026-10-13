@@ -21,30 +21,30 @@ properties:
     oneOf:
       - type: string
       - type: "null"
-    description: "The existing human-written docstring (or null if absent)."
+    description: "The existing human‑written docstring (or null if absent)."
   generated_docstring:
     type: string
-    description: "The LLM-generated docstring."
+    description: "The LLM generated ..."
   parameter_coverage_score:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Primary metric: (matched params / total params). Calculated using docstring_parser."
+    description: "Primary ..."
   semantic_similarity_score:
     type: number
     minimum: -1.0
     maximum: 1.0
-    description: "Auxiliary metric: Cosine similarity between human and generated embeddings."
+    description: "Auxiliary ..."
   generation_status:
     type: string
     enum:
       - "success"
       - "timeout"
       - "error"
-    description: "Status of the generation process."
+    description: "Status ..."
   error_message:
     type: string
-    description: "Description of error if generation_status is not 'success'."
+    description: "Description ..."
 required:
   - repo_name
   - file_path
@@ -55,3 +55,4 @@ required:
   - parameter_coverage_score
   - semantic_similarity_score
   - generation_status
+  - error_message
