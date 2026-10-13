@@ -1,10 +1,12 @@
 status: none
-intent: download Membrane Permeability Database MPDB permeability coefficients with
-  SMILES polymer type python package dataset
+intent: public Polymer Permeability Database SMILES permeability coefficients download
 required_fields:
 - SMILES
 - permeability_coefficient
 - polymer_type
-cache_key: 6e5c2d11e660d3ea6516d03d8a519c270415b4b69093f7c4dadb35ce0616cad1
-searched_at: '2026-10-13T16:13:22.169167+00:00'
+- temperature
+- pressure
+- units
+cache_key: f15d6344ec830fcab65e85d70b0dd98407dd93acdf5702e50f628019ef8ea6cf
+searched_at: '2026-10-13T19:12:16.407531+00:00'
 retry_count: 1

@@ -1,5 +1,17 @@
-# Project-specific dependencies
-datasets>=2.0.0
-# Note: rdkit, torch, torch-geometric, shap, etc., are installed via the
-# project's environment setup and are not listed here because they are
-# either part of the base environment or handled elsewhere.
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+rdkit
+torch
+torch-geometric
+shap
+datasets
