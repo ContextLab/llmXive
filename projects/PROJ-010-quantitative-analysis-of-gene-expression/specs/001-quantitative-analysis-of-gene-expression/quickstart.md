@@ -6,6 +6,13 @@
 
 ## Execution Workflow
 
+### 0. Project Setup
+Initialize the directory structure and verify data connectivity.
+```bash
+python src/data_pipeline/setup_data.py
+```
+*Produces: `data/project_state.yaml` and verifies GEO access.*
+
 ### 1. Data Acquisition & Integration
 Run the preprocessing pipeline to fetch the human fetal brain scRNA-seq atlas and remove batch effects.
 ```bash

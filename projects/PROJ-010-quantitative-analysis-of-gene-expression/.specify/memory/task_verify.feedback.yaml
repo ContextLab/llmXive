@@ -1,0 +1,28 @@
+T001:
+  reason: "The directory layout, quickstart documentation, and data download/accessibility\
+    \ are present and verified via the `setup_data.py` log. However, there is no evidence\
+    \ that SHA\u2011256 checksums for the raw file were computed nor that they were\
+    \ recorded in a `project_state.yaml` (or any YAML) as required by Constitution\
+    \ Principle\u202FIII. The YAML file is missing, so the data\u2011hygiene step\
+    \ is incomplete."
+  task: 303461c7e6a2d94a7c75dad95a72117f92f5e1729ecde2ccd9e5af1b9d7df072
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data_pipeline.py
+    exit=1'
+  task: 33c02d55361aeba4426872f9079810ad3657a8e783bf556c601acbac2d16bace
+T003:
+  task: b21bb17e5c55b1f58daa7cf54100993f6a5d01588bba168bb973820139914134
+T004:
+  task: e0249fb5eb583fb1eb8cbc5c4dff046722f4b200e016b4e47528f5997c1b71e5
+T005:
+  task: 27b7463e2b819b43e62af6a0c874b1e1bee59b820ffc041f9dacb4a33ee65838
+T006:
+  task: c7f1b0ae2045d1a1291e66cd57cd80277c2bfe9d9a0bb18fb055e48829eaa0fd
+T007:
+  task: b3d51c64c012965faa21c25dc1de1b861e5da4d2e04ae615ec047b6af6ed0ffb
+T008:
+  task: 1319483cb37184c9f9bd037b780f70c8c5800718b23c1e0bd97b919b3d08f580
+T009:
+  task: 2256d043f42e943edd31e62f4a100c1a1a5b84e3fdd2ee2b4729ef514220c095
+T010:
+  task: 122ff98a3d8af9de3d717fa9577ed8a12957255d93b0d27d47646ec425234e8d

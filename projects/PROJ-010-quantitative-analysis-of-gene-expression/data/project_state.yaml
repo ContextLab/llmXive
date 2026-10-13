@@ -1,0 +1,6 @@
+project_id: PROJ-010-quantitative-analysis-of-gene-expression
+raw_inputs:
+- file: data/raw/GSE124310_family.soft.gz
+  sha256: cd4be8a2af02c62e02023618607e8d562ca86cd4b5b375ae716f3192979b513c
+  source: GEO:GSE124310
+status: initialized
