@@ -1,12 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-10-13T10:06:42.043506+00:00'
+last_used: eric-kandel
+last_used_at: '2026-10-13T12:05:38.996863+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-06-25T03:06:54.909908+00:00'
-  ended_at: '2026-06-25T04:54:01.070007+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-25T04:54:01.070007+00:00'
   ended_at: '2026-06-25T06:29:58.473253+00:00'
@@ -1248,3 +1243,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-044-evaluating-the-effectiveness-of-differen/reviews/research/david-krakauer-simulated__2026-10-13__research.md
+- slug: eric-kandel
+  started_at: '2026-10-13T10:06:42.043506+00:00'
+  ended_at: '2026-10-13T12:05:38.996863+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-056-the-impact-of-musical-training-on-functi/reviews/research/eric-kandel-simulated__2026-10-13__research.md
