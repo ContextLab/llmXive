@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/yourorg/PROJ-347-evaluating-the-impact-of-code-generation
   verified_at: '2026-10-13T07:35:50.017496Z'
-- artifact_hash: 0df3e5f8773a0c78d2bdf862b92b9de043e71c55bd8f787b8e79a45ffb78411f
+- artifact_hash: 230cc1a31860f7e843dbb3cab86f53f41993a93ac09ee2d604bfb594a768ac9c
   artifact_path: projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://github.com/anishathalye/devign-dataset/archive/refs/heads/master.zip`.**
   verification_status: mismatch
   verified_against_url: https://github.com/anishathalye/devign-dataset/archive/refs/heads/master.zip%60.**
-  verified_at: '2026-10-13T07:39:16.869556Z'
+  verified_at: '2026-10-13T07:40:07.920217Z'
