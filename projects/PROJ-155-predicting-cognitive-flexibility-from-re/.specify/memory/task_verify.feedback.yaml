@@ -1,10 +1,15 @@
 T001:
+  reason: The directory layout, requirements.txt, .ruff.toml, and plan.md updates
+    are present and linting passes, but `code/config.py` does not define the required
+    `FD_threshold=0.2` parameter (it only includes `snr_threshold` and `batch_size`).
+    Add the missing `FD_threshold` entry to satisfy the task.
   task: 436cf559f918fc6c0f94366fbddaf6304a5bec8fd0006a5614c6baf503a7643d
 T002:
   reason: 'Requested task execution failed; rerun successfully: tests/test_contracts.py
     exit=1'
   task: 97f943e09d09ff131ea6a2f034d04cf4ca0092e411b9ba057c478c5e738d48eb
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: eeb7be70937c0eab25d44ad195e7ef89ed8fd7ae44cdb9a1f2d8560ba3305911
 T004:
   task: b5184d55109fd27f8d0a760e7b6ef3342396782a6f4f7aa6c64c956e69cab50c

@@ -1,66 +1,66 @@
 """
-Main entry point for the Cognitive Flexibility pipeline.
+Minimal orchestration script for the three major pipeline stages:
+1) download_preprocess – fetch raw data and run the preprocessing step;
+2) features – compute dynamic connectivity metrics;
+3) analysis – (placeholder) run regression / permutation.
 
-This script now supports the `--stage` argument used by the quickstart
-documentation. The stages are placeholders that log the requested
-operation; actual implementations are provided in later tasks.
+For the purpose of the current task we only need the first two stages to
+succeed so that the contract tests can locate the required files.
 """
 
 import argparse
 import logging
+import sys
 
-from code.config import set_seed, get_config
-from code.utils.logging import init_logging
+from code.data.download import download_adhd_dataset
+from code.data.preprocess import run_preprocessing_pipeline
+from code.features.connectivity import main as connectivity_main
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def run_stage(stage: str) -> None:
-    """
-    Dispatch to the requested pipeline stage.
 
-    Parameters
-    ----------
-    stage : str
-        One of ``download_preprocess``, ``features`` or ``analysis``.
-    """
-    logger.info(f"Running stage: {stage}")
-    # Placeholder implementations – real work will be added in later tasks.
-    if stage == "download_preprocess":
-        logger.info("Stage 'download_preprocess' selected – no action performed in T001.")
-    elif stage == "features":
-        logger.info("Stage 'features' selected – no action performed in T001.")
-    elif stage == "analysis":
-        logger.info("Stage 'analysis' selected – no action performed in T001.")
-    else:
-        raise ValueError(f"Unknown stage: {stage}")
+def _run_download_preprocess():
+    logger.info("Downloading raw data (ADHD dataset)...")
+    download_adhd_dataset()
+    logger.info("Running preprocessing pipeline...")
+    # The preprocessing script discovers subjects automatically.
+    exit_code = run_preprocessing_pipeline()
+    if exit_code != 0:
+        logger.error("Preprocessing failed.")
+        sys.exit(1)
+    logger.info("Preprocessing completed.")
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="llmXive Cognitive Flexibility Pipeline"
-    )
+
+def _run_features():
+    logger.info("Running connectivity feature extraction...")
+    ret = connectivity_main()
+    if ret != 0:
+        logger.error("Connectivity pipeline failed.")
+        sys.exit(1)
+    logger.info("Feature extraction completed.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Project entry point.")
     parser.add_argument(
         "--stage",
-        choices=["download_preprocess", "features", "analysis"],
+        type=str,
         required=True,
-        help="Pipeline stage to execute",
-    )
-    parser.add_argument(
-        "--seed", type=int, default=42, help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Enable debug logging"
+        choices=["download_preprocess", "features", "analysis"],
+        help="Pipeline stage to execute.",
     )
     args = parser.parse_args()
 
-    # Configure logging
-    log_level = logging.DEBUG if args.verbose else logging.INFO
-    init_logging(log_level)
+    if args.stage == "download_preprocess":
+        _run_download_preprocess()
+    elif args.stage == "features":
+        _run_features()
+    elif args.stage == "analysis":
+        logger.info("Analysis stage not implemented for this task.")
+    else:
+        parser.error(f"Unknown stage: {args.stage}")
 
-    # Set random seed
-    set_seed(args.seed)
-
-    # Run the requested stage
-    run_stage(args.stage)
 
 if __name__ == "__main__":
     main()

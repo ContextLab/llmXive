@@ -6,7 +6,7 @@
 
 **Goal**: Establish the project skeleton and run a thin, end-to-end pipeline on a small subset of real HCP data to verify the data flow from NIfTI to regression results.
 
-- [X] T001 [P] Establish project structure and environment. 
+- [ ] T001 [P] Establish project structure and environment. 
     Create directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, and `tests/`. 
     Initialize `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest).
     Create `.ruff.toml` for linting and `code/config.py` with pinned seeds (42) and parameters (window=60s, step=1s, FD_threshold=0.2).
@@ -18,7 +18,7 @@
     Implement `code/data/preprocess.py` to download the Schaefer 200-region atlas and parcellate fMRI time-series into `data/processed/parcellated/{subject_id}_timeseries.csv`.
     Implement `code/data/merge.py` and `code/utils/motion.py` to exclude subjects with Mean FD > 0.2mm or missing behavioral scores, logging exclusions to `data/processed/exclusion_log.csv`.
     **Verification**: Run on 5 subjects and verify `data/processed/parcellated/` contains CSVs, `data/checksums.txt` is populated, and `exclusion_log.csv` is populated.
-- [ ] T003 [US2] Implement the dynamic connectivity metric computation.
+- [ ] T003 [US2] Implement the dynamic connectivity metric computation. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
     Implement `code/features/connectivity.py` to compute sliding-window Pearson correlations (60s window, 1s step) and calculate edge-wise standard deviation and Shannon entropy.
     Implement PCA dimensionality reduction on the edge-wise variability matrices to extract the top 10 principal components (`PCA_Component_1` through `PCA_Component_10`) for each subject, as required by the Plan and `dataset.schema.yaml`.
     Save results to `data/processed/metrics.csv` containing `Subject_ID` and the 10 PCA components.

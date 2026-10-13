@@ -15,32 +15,36 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: self-declared fabricated metric — “…'Total_Scan_Time'])         # Placeholder values:         writer.writerow([su…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; 1 command(s) failed: python -m pytest tests/test_contracts.py (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: self-declared fabricated metric — “…'Total_Scan_Time'])         # Placeholder values:         writer.writerow([su…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; 3 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage features (rc=1); python code/main.py --stage analysis (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
 
 ## Failing / missing run-book commands
 
-- python -m pytest tests/test_contracts.py -> rc=1
-0, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-155-predicting-cognitive-flexibility-from-re/bin/python
-cachedir: .pytest_cache
-rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re
-configfile: pyproject.toml
-collecting ... collected 3 items
+- python code/main.py --stage download_preprocess -> rc=1
 
-tests/test_contracts.py::test_data_ingestion_schema FAILED               [ 33%]
-tests/test_contracts.py::test_motion_exclusion_logic SKIPPED (Motion...) [ 66%]
-tests/test_contracts.py::test_final_json_output_schema SKIPPED (Regr...) [100%]
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 15, in <module>
+    from code.data.download import download_adhd_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 8, in <module>
+    from code.data.paths import (
+ImportError: cannot import name 'get_project_root' from 'code.data.paths' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/paths.py)
 
-=================================== FAILURES ===================================
-__________________________ test_data_ingestion_schema __________________________
-tests/test_contracts.py:16: in test_data_ingestion_schema
-    assert len(subjects) > 0, "No subject directories found in data/raw/"
-E   AssertionError: No subject directories found in data/raw/
-E   assert 0 > 0
-E    +  where 0 = len([])
-=========================== short test summary info ============================
-FAILED tests/test_contracts.py::test_data_ingestion_schema - AssertionError: ...
-========================= 1 failed, 2 skipped in 0.02s =========================
+- python code/main.py --stage features -> rc=1
 
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 15, in <module>
+    from code.data.download import download_adhd_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 8, in <module>
+    from code.data.paths import (
+ImportError: cannot import name 'get_project_root' from 'code.data.paths' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/paths.py)
+
+- python code/main.py --stage analysis -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 15, in <module>
+    from code.data.download import download_adhd_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 8, in <module>
+    from code.data.paths import (
+ImportError: cannot import name 'get_project_root' from 'code.data.paths' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/paths.py)
 
 
 ## Declared deliverables still missing
@@ -49,25 +53,6 @@ FAILED tests/test_contracts.py::test_data_ingestion_schema - AssertionError: ...
 - data/processed/final_results.csv
 - data/processed/metrics.csv
 - data/results/regression_summary.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `nilearn` to the project's `requirements.txt` and `pip install nilearn`.
-- **Verified**: this loads **30** real records with fields: Unnamed: 0, Subject, Rest.Scan, MeanFD, NumFD_greater_than_0.20, rootMeanSquareFD, FDquartile.top1.4thFD., PercentFD_greater_than_0.20, MeanDVARS, MeanFD_Jenkinson, site, sibling_id, data_set, age, sex, handedness, full_2_iq, full_4_iq, viq, piq, iq_measure, tdc, adhd, adhd_inattentive, adhd_combined, adhd_subthreshold, diagnosis_using_cdis, notes, sess_1_anat_2, oppositional, cog_inatt, hyperac, anxious_shy, perfectionism, social_problems, psychosomatic, conn_adhd, restless_impulsive, emot_lability, conn_gi_tot, dsm_iv_inatt, dsm_iv_h_i, dsm_iv_tot, study, sess_1_rest_1, sess_1_rest_1_eyes, sess_1_rest_2, sess_1_rest_2_eyes, sess_1_rest_3, sess_1_rest_3_eyes, sess_1_rest_4, sess_1_rest_4_eyes, sess_1_rest_5, sess_1_rest_5_eyes, sess_1_rest_6, sess_1_rest_6_eyes, sess_1_anat_1, sess_1_which_anat, sess_2_rest_1, sess_2_rest_1_eyes, sess_2_rest_2, sess_2_rest_2_eyes, sess_2_anat_1, defacing_ok, defacing_notes.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import nilearn.datasets as nd
-
-bunch = nd.fetch_adhd()
-df = bunch["phenotypic"]
-print(f"RECORDS={len(df)}")
-print("FIELDS=" + ",".join(df.columns))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
