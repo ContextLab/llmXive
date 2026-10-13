@@ -1,12 +1,12 @@
 status: none
-intent: download OpenNeuro ds000246 ds001600 musical improvisation fMRI python package
+intent: OpenNeuro ds000246 musical improvisation fMRI dataset download python package
   dataset
 required_fields:
 - subject_id
 - run_label
-- age
+- age_years
 - years_training
-- fd
+- framewise_displacement
 - roi_1
 - roi_2
 - roi_3
@@ -14,6 +14,6 @@ required_fields:
 - roi_5
 - roi_6
 - roi_7
-cache_key: 39873d0924473b0094428a84c2982dffea51b60ea3eca6474e3fe88cccf1a309
-searched_at: '2026-10-13T19:10:02.032608+00:00'
+cache_key: d789da14e0a07019e0f59f40d2515181fabb9d03a371838609fc73a7d8146604
+searched_at: '2026-10-13T22:10:51.697161+00:00'
 retry_count: 1
