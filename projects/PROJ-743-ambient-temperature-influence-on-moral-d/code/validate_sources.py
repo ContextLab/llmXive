@@ -5,21 +5,9 @@ Validates the presence, integrity, and basic schema of the Moral Machine dataset
 and performs a lightweight check that the Copernicus Climate Data Store (CDS) API
 is reachable for ERA5 temperature data.
 
-The script is invoked from the quickstart guide with three arguments:
-  --input   Path to the Moral Machine CSV (or CSV.gz) file.
-  --temp    Path to the directory containing ERA5 raw data (may be empty at this stage).
-  --output  Path to the JSON validation report that will be written.
-
-It performs the following checks:
-  1. File existence for the Moral Machine dataset.
-  2. SHA‑256 checksum verification against any expected checksum stored in the
-     project state file (if present).
-  3. Presence of required columns.
-  4. Basic existence check for the ERA5 data directory.
-  5. Connectivity test to the CDS API (hourly resolution, correct variable).
-
-Results are written to the JSON file specified by --output and also logged to
-the standard data‑quality logger used throughout the project.
+The script can be invoked with explicit arguments or, for convenience,
+with no arguments – in which case it falls back to the default project‑wide
+locations defined in ``config.py``.
 """
 import argparse
 import hashlib
@@ -38,10 +26,13 @@ try:
 except ImportError as exc:
     raise ImportError(
         "The 'cdsapi' package is required for source validation but is not installed. "
-        "Add it to 'code/requirements.txt' and reinstall dependencies."
+        "Add it to 'requirements.txt' and reinstall dependencies."
     ) from exc
 
-from config import get_path_env_override
+from config import (
+    DATA_RAW_DIR,
+    get_path_env_override,
+)
 from setup_logging import get_data_quality_logger
 
 # ----------------------------------------------------------------------
@@ -205,19 +196,19 @@ def main() -> int:
     parser.add_argument(
         "--input",
         type=str,
-        required=True,
+        default=str(DATA_RAW_DIR / "moral_machine.csv"),
         help="Path to the Moral Machine CSV (or .csv.gz).",
     )
     parser.add_argument(
         "--temp",
         type=str,
-        required=True,
+        default=str(DATA_RAW_DIR / "era5_data"),
         help="Path to the directory containing raw ERA5 data.",
     )
     parser.add_argument(
         "--output",
         type=str,
-        required=True,
+        default=str(Path("results") / "logs" / "validation_report.json"),
         help="Path to write the JSON validation report.",
     )
     args = parser.parse_args()

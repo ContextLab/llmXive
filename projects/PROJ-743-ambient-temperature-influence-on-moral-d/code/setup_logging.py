@@ -1,69 +1,93 @@
 """
-Centralised logging utilities for the project.
+setup_logging.py
+----------------
+Centralized logging utilities for the project.
 
-The pipeline uses three logical loggers:
-* ``data_quality`` – records high‑level pipeline status and validation messages.
-* ``exclusion``    – records records that are filtered out with reasons.
-* ``pipeline``    – general informational logger for each script.
+Provides three logger factories:
+  * get_data_quality_logger()      – logs data‑quality messages.
+  * get_exclusion_logger()        – logs records excluded during ingestion.
+  * get_model_diagnostics_logger() – logs diagnostics from the modeling step.
 
-All loggers write to ``stdout`` and also to a file under
-``results/logs/``.  The helpers below ensure that duplicate handlers are not
-added when modules import this file multiple times.
+All loggers write to files under the ``results/logs`` directory and also emit
+to the console. The log files are created lazily; the parent directory is
+guaranteed to exist by ``config.py``.
 """
-
 import logging
 import sys
 from pathlib import Path
 
-from config import RESULTS_LOG_DIR
+from llmxive_toolkit import paths
 
-# ----------------------------------------------------------------------
-# Helper to create a logger with a file handler (if not already present)
-# ----------------------------------------------------------------------
-def _get_logger(name: str, log_file: Path) -> logging.Logger:
+# Ensure the log directory exists (config.py already creates it, but we are defensive)
+LOG_DIR = paths.results("logs")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+def _configure_logger(name: str, logfile: Path) -> logging.Logger:
+    """
+    Internal helper to create (or retrieve) a logger with a file handler.
+
+    Parameters
+    ----------
+    name: str
+        The logger name.
+    logfile: Path
+        Path to the log file (will be created if missing).
+
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
-    # Avoid adding duplicate handlers on repeated imports
-    if not logger.handlers:
+    # Avoid adding duplicate handlers if this function is called multiple times.
+    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == str(logfile) for h in logger.handlers):
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
-        # Console handler
-        console = logging.StreamHandler(sys.stdout)
-        console.setFormatter(formatter)
-        logger.addHandler(console)
+
+        # Console handler (stdout)
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
 
         # File handler
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file, encoding="utf-8")
+        file_handler = logging.FileHandler(logfile, mode="a")
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
     return logger
 
-# ----------------------------------------------------------------------
-# Public logger factories
-# ----------------------------------------------------------------------
 def get_data_quality_logger() -> logging.Logger:
     """
-    Logger for data‑quality / validation messages.
-    Writes to ``results/logs/data_quality.log``.
+    Logger for data‑quality validation steps.
+
+    Returns
+    -------
+    logging.Logger
     """
-    log_path = RESULTS_LOG_DIR / "data_quality.log"
-    return _get_logger("data_quality", log_path)
+    logfile = LOG_DIR / "data_quality.log"
+    return _configure_logger("data_quality", logfile)
 
 def get_exclusion_logger() -> logging.Logger:
     """
-    Logger for records that are excluded during filtering.
-    Writes to ``results/logs/exclusion.log``.
-    """
-    log_path = RESULTS_LOG_DIR / "exclusion.log"
-    return _get_logger("exclusion", log_path)
+    Logger for records excluded during ingestion / preprocessing.
 
-def setup_logging() -> None:
+    Returns
+    -------
+    logging.Logger
     """
-    Initialise a generic ``pipeline`` logger used by many scripts.
-    The logger writes to ``results/logs/pipeline.log`` and stdout.
+    logfile = LOG_DIR / "exclusion.log"
+    return _configure_logger("exclusion", logfile)
+
+def get_model_diagnostics_logger() -> logging.Logger:
     """
-    _ = _get_logger("pipeline", RESULTS_LOG_DIR / "pipeline.log")
+    Logger for model fitting diagnostics (convergence, warnings, etc.).
+
+    Returns
+    -------
+    logging.Logger
+    """
+    logfile = LOG_DIR / "model_diagnostics.log"
+    return _configure_logger("model_diagnostics", logfile)
