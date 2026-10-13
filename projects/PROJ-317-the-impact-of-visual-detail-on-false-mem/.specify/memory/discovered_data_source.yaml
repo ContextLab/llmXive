@@ -1,13 +1,13 @@
 status: none
-intent: download Visual Genome image dataset via pip install python package dataset
+intent: download Visual Genome image dataset with annotations Python package dataset
 required_fields:
 - image_id
 - image_url
-- width
-- height
+- image_width
+- image_height
 - objects
-- relationships
+- object_bboxes
 - region_descriptions
-cache_key: ea94bbfd1c697cefcce33d888a5c873fbadae5f557a509812e7df5511eee4e9c
-searched_at: '2026-10-13T17:08:38.680338+00:00'
+cache_key: 414c677c7f6c25ac855ba106e1accf40b77dddfe452b430b172fd83cd768a8c3
+searched_at: '2026-10-13T17:26:57.942477+00:00'
 retry_count: 1

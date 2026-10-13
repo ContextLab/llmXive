@@ -29,7 +29,7 @@
 |-------|------|-------------|
 | `response_id` | `string` (UUID) | Unique response identifier. |
 | `participant_id` | `string` | FK → Participant. |
-| `question_id` | `string` | Identifier for the recognition item (e.g., Q_001). |
+| `question_id` | `string` | Identifier for the recognition item (e.g., `Q_001`). |
 | `condition` | `string` (`enhanced`, `reduced`, `baseline`) | Stimulus condition for this question. |
 | `is_false_detail` | `boolean` | True if the item is a lure. |
 | `lure_source_query` | `string` | Query used to generate the lure (e.g., “objects in kitchen not in image”). |
@@ -37,18 +37,18 @@
 | `response_timestamp` | `string` (ISO‑8601) | When the answer was recorded. |
 | `latency_ms` | `integer` | Time taken to answer, in milliseconds. |
 | `semantic_plausibility` | `number` (0 – 1) | WordNet‑based plausibility score for the lure (0 = implausible, 1 = highly plausible). |
-| `trial_type` | `string` (`true`, `lure`) | Indicates whether the question referred to a true detail or a false/lure detail (ensures a balanced number of observations per condition). |
+| `trial_type` | `string` (`true`, `lure`) | Indicates true‑detail vs. lure question (ensures balanced representation across conditions). |
 
 ## Data Flow
-1. **Acquisition** – `data_loader.py` streams Visual Genome (or loads pre‑bundled subset) → `Stimulus` records stored in `data/stimuli/`.  
-2. **Manipulation** – `generator.py` creates enhanced/reduced images, writes `metadata.yaml` per stimulus.  
-3. **Collection** – `interface.py` runs the participant session, writes `Response` rows to `data/responses/{participant_id}.jsonl`.  
-4. **Analysis** – `glmm.py` aggregates responses per condition, fits a binomial GLMM, outputs `data/analysis/glmm_results.json` and `results.png`.  
+1. **Acquisition** – `utils/data_loader.py` streams Visual Genome (or loads pre‑bundled subset) → creates `Stimulus` records in `data/stimuli/`.  
+2. **Manipulation** – `stimuli/generator.py` produces enhanced/reduced images and writes `metadata.yaml` per stimulus.  
+3. **Collection** – `participants/interface.py` runs sessions, writes `Response` rows to `data/responses/{participant_id}.jsonl`.  
+4. **Analysis** – `analysis/anova.py` (primary) and `analysis/glmm.py` (secondary) aggregate responses, fit models, output `data/analysis/glmm_results.json` and `false_memory_rates.png`.  
 
 ## Constraints
-- **No PII** in any file under `data/responses/`.  
-- **Uniqueness**: `image_id` and `response_id` must be globally unique.  
-- **Integrity**: Every `response` must reference an existing `participant_id` and a valid `question_id` derived from the associated stimulus.  
+- **No PII** in any `data/responses/` file.  
+- **Uniqueness**: `image_id`, `response_id`, and `participant_id` must be globally unique.  
+- **Integrity**: Every `Response` must reference an existing `Participant` and a valid `question_id` derived from the associated stimulus.  
 - **Versioning**: All generated files include a SHA‑256 checksum recorded in the project state YAML.  
 
---- 
+---
