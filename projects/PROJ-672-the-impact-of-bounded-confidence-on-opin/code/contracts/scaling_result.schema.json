@@ -2,29 +2,36 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ScalingResult",
   "type": "object",
-  "required": [
-    "topology_type",
-    "gamma",
-    "epsilon_c",
-    "r_squared",
-    "standard_error"
-  ],
+  "required": ["topology", "network_id", "epsilon_c", "gamma", "r_squared", "standard_error"],
   "properties": {
-    "topology_type": {
+    "topology": {
       "type": "string",
       "enum": ["ER", "BA", "WS"]
     },
-    "gamma": {
-      "type": "number"
+    "network_id": {
+      "type": "string",
+      "description": "Identifier of the network instance."
     },
     "epsilon_c": {
-      "type": "number"
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Estimated critical confidence threshold."
+    },
+    "gamma": {
+      "type": "number",
+      "description": "Scaling exponent."
     },
     "r_squared": {
-      "type": "number"
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Coefficient of determination for the power‑law fit."
     },
     "standard_error": {
-      "type": "number"
+      "type": "number",
+      "minimum": 0,
+      "description": "Standard error of the gamma estimate."
     }
   },
   "additionalProperties": false

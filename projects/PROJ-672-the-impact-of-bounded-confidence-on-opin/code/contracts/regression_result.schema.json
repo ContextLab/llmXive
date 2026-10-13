@@ -2,36 +2,40 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RegressionResult",
   "type": "object",
-  "required": [
-    "metric_name",
-    "coefficient",
-    "std_error",
-    "t_statistic",
-    "p_value",
-    "model_r_squared"
-  ],
+  "required": ["model_name", "metric_name", "coefficient", "std_error", "t_statistic", "p_value", "model_r_squared"],
   "properties": {
+    "model_name": {
+      "type": "string",
+      "description": "Name of the regression model, e.g., \"topology\" or \"structural\"."
+    },
     "metric_name": {
-      "type": "string"
+      "type": "string",
+      "description": "Name of the predictor metric (e.g., \"assortativity\")."
     },
     "coefficient": {
-      "type": "number"
+      "type": "number",
+      "description": "Estimated regression coefficient."
     },
     "std_error": {
-      "type": "number"
+      "type": "number",
+      "minimum": 0,
+      "description": "Standard error of the coefficient."
     },
     "t_statistic": {
-      "type": "number"
+      "type": "number",
+      "description": "t‑statistic for the coefficient."
     },
     "p_value": {
-      "type": "number"
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Two‑tailed p‑value for the coefficient."
     },
     "model_r_squared": {
-      "type": "number"
-    },
-    "topology": {
-      "type": "string",
-      "enum": ["ER", "BA", "WS"]
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "R² of the overall regression model."
     }
   },
   "additionalProperties": false

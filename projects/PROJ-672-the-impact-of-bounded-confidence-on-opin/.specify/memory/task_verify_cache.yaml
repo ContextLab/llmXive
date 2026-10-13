@@ -7,33 +7,34 @@ T001:
     `ER_0000.edgelist` and `metadata_ER_0000.json` files.
   sig: b2f33019db80fae9b2aea6249b1008f92a6e2dd3e7c57699f92b16441aacdfb6
 T002:
-  c: false
-  h: c217bd65dcf4ed5eea7ae9765f016aa2c61c7c9e67f770836617960a4b37bd33
-  r: The `code/requirements.txt` file exists and lists all required packages, but
-    there is no provided evidence (e.g., command output or logs) showing that `pip
-    install -r code/requirements.txt` completed successfully or that `pip list` confirms
-    the packages are installed. Add execution logs or test results to satisfy the
-    verification step.
-  sig: b791df38fbfd6ea1a9ed43868cb8ba4468444b838b621fcd296cba521e0d49e8
+  c: true
+  h: 5dd8121f80bd16b442e2d52815b96604bb172f146d4943f025b9cdd2f0d66f6e
+  r: "Checked `code/requirements.txt` \u2013 it contains all eight required packages\
+    \ (networkx, numpy, pandas, scipy, matplotlib, statsmodels, h5py, pytest) plus\
+    \ extra harmless entries. The task\u2019s verification log (`code/.tasks/T002.code_verify_requirements.py.log`)\
+    \ shows the `pip install -r \u2026` command was run and the script exited with\
+    \ status\u202F0 (`ok=True`), indicating the install succeeded and the subsequent\
+    \ `pip list` check passed."
+  sig: d606d06d3f13dd882d6de3b5004288a77ea869b23038a0534b8b733e89e4d3fe
 T003:
   c: false
-  h: b6c4c643ed34703ac2cbabeef211c646895f7922f8a7dd8bf91fed68bf3e6c79
-  r: "The `code/utils/metrics.py` module\u2019s unit tests failed (see `code/.tasks/T003.tests_unit_test_metrics.py.log`\
-    \ showing two assertion failures), so the required metrics utilities are not verified\
-    \ as working. All other modules and their tests pass, but the failing metrics\
-    \ tests mean the task\u2019s requirement of passing unit tests is not satisfied."
-  sig: 681adbf998159bdc03ac09df70e64f28a49d3620f0ed3c9f0788d968c9bb068b
+  h: 5978ea7fc7a781a4c8785247882ff1d51d5b201e44c85711f371b192cfcd55e9
+  r: "Checked `code/utils/metrics.py` and its unit tests (`tests/unit/test_metrics.py`),\
+    \ which both fail (assortativity returns \u20130.333 instead of \u20131.0 and\
+    \ returns NaN for regular graphs, causing assertions to fail). The other modules\
+    \ (`checksums.py`, `plotting.py`) exist and pass their tests. The core metrics\
+    \ utilities therefore do not meet the task requirements."
+  sig: 0d737407980fa1e01d36727d2f9550e7a3e0115e7ce1c3e2a7f6f7ea9623cbdb
 T004:
-  c: false
-  h: c34ff996e8c318a21eb8a12791070ab60bbd99547f2b61cf64a14161eaecb84e
-  r: "The required schema files exist under `code/contracts/` and the sample metadata\
-    \ validates against `network_instance.schema.json`, but the pytest configuration\
-    \ does not actually enforce a fixed RNG seed for every test \u2013 the `set_seed`\
-    \ fixture lacks `autouse=True` (or any global hook) and no test files or pytest\
-    \ run output are provided to prove that all tests pass with the seed active. Adding\
-    \ an autouse seed fixture (or equivalent) and supplying evidence of a successful\
-    \ `pytest -q tests` run is needed."
-  sig: 45098bdbcacb076e043f83258bdf968dc80b04c4b702c3cf752e751b8051072f
+  c: true
+  h: 1263bef6131d5816f3055e7092fb5d479c46e7d2bd80ec84e40b6486361dc993
+  r: "Checked that `code/contracts/` contains the four required JSON schema files\
+    \ with valid schema definitions, that `tests/conftest.py` defines a session\u2011\
+    scoped `global_seed` fixture and an autouse `set_seed` fixture resetting `random`\
+    \ and `numpy` RNGs before each test, and that `pytest.ini` is present. The provided\
+    \ `metadata_ER_0000.json` conforms to `network_instance.schema.json`, confirming\
+    \ the schemas are usable."
+  sig: b3c27c9f9a8536d280b27e914a946e9a38db9afd3f344189486b307ea6ae21b5
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -104,20 +104,29 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Generate synthetic networks (ER, BA, WS) and store them as "
-            "edgelist files, per‑instance JSON metadata, and a batch CSV."
+            "edgelist files, per‑instance JSON metadata, and a batch CSV. "
+            "If --topology is omitted, all three topologies are generated."
         )
     )
     parser.add_argument(
         "--topology",
         choices=["ER", "BA", "WS"],
-        required=True,
-        help="Network topology to generate (Erdős‑Rényi, Barabási‑Albert, Watts‑Strogatz).",
+        required=False,
+        help="Network topology to generate (Erdős‑Renyi, Barabási‑Albert, Watts‑Strogatz). "
+             "If omitted, all topologies are generated.",
     )
     parser.add_argument(
         "--instances",
         type=int,
-        default=1,
-        help="Number of independent network instances to generate.",
+        default=None,
+        help="Number of independent network instances to generate per topology. "
+             "Deprecated in favour of --seeds; if both are provided, --seeds wins.",
+    )
+    parser.add_argument(
+        "--seeds",
+        type=int,
+        default=None,
+        help="Alias for --instances; the number of networks to generate per topology.",
     )
     parser.add_argument(
         "--seed",
@@ -125,80 +134,101 @@ def main() -> None:
         default=0,
         help="Base random seed. Each instance will use seed + index.",
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Base output directory for generated networks. "
+             "Defaults to the project's data/raw/networks/ folder.",
+    )
 
     args = parser.parse_args()
+
+    # Resolve number of instances to generate
+    instances = args.seeds if args.seeds is not None else args.instances
+    if instances is None:
+        raise argparse.ArgumentError(None, "Either --instances or --seeds must be provided.")
+
+    # Resolve output base directory
+    if args.output:
+        base_dir = Path(args.output)
+    else:
+        base_dir = paths.data("raw", "networks")
+    base_dir.mkdir(parents=True, exist_ok=True)
+
+    # Determine which topologies to process
+    topologies = [args.topology] if args.topology else ["ER", "BA", "WS"]
 
     # Fixed problem size per the specification
     N_NODES = 500
 
-    # Prepare output directory for the chosen topology
-    topology_dir = paths.data("raw", "networks", args.topology)
-    topology_dir.mkdir(parents=True, exist_ok=True)
+    log.info(f"Generating {instances} instance(s) for topology set: {topologies}")
 
-    # CSV summary file (one per topology)
-    csv_path = paths.data("raw", "networks", f"{args.topology}_metadata.csv")
-    csv_rows = []
+    for topology in topologies:
+        # Prepare output sub‑directory for this topology
+        topology_dir = base_dir / topology
+        topology_dir.mkdir(parents=True, exist_ok=True)
 
-    log.info(f"Generating {args.instances} instance(s) of {args.topology} topology.")
+        # CSV summary file (one per topology)
+        csv_path = base_dir / f"{topology}_metadata.csv"
+        csv_rows = []
 
-    for idx in range(args.instances):
-        instance_seed = args.seed + idx
-        set_global_seed(instance_seed)
+        for idx in range(instances):
+            instance_seed = args.seed + idx
+            set_global_seed(instance_seed)
 
-        # ------------------------------------------------------------------
-        # Generate the raw graph according to topology
-        # ------------------------------------------------------------------
-        if args.topology == "ER":
-            # Edge probability chosen to give a sparse graph (~5k edges)
-            p = 0.02
-            G = generate_erdos_renyi(n=N_NODES, p=p, seed=instance_seed)
-        elif args.topology == "BA":
-            m = 3  # each new node attaches to 3 existing nodes
-            G = generate_barabasi_albert(n=N_NODES, m=m, seed=instance_seed)
-        else:  # WS
-            k = 6  # each node initially connected to 6 nearest neighbours
-            p = 0.1  # rewiring probability
-            G = generate_watts_strogatz(n=N_NODES, k=k, p=p, seed=instance_seed)
+            # ------------------------------------------------------------------
+            # Generate the raw graph according to topology
+            # ------------------------------------------------------------------
+            if topology == "ER":
+                # Edge probability chosen to give a sparse graph (~5k edges)
+                p = 0.02
+                G = generate_erdos_renyi(n=N_NODES, p=p, seed=instance_seed)
+            elif topology == "BA":
+                m = 3  # each new node attaches to 3 existing nodes
+                G = generate_barabasi_albert(n=N_NODES, m=m, seed=instance_seed)
+            else:  # WS
+                k = 6  # each node initially connected to 6 nearest neighbours
+                p = 0.1  # rewiring probability
+                G = generate_watts_strogatz(n=N_NODES, k=k, p=p, seed=instance_seed)
 
-        # Ensure a single connected component
-        G = ensure_connected(G, strategy="largest")
+            # Ensure a single connected component
+            G = ensure_connected(G, strategy="largest")
 
-        # Verify node count (required by verification)
-        if G.number_of_nodes() != N_NODES:
-            raise RuntimeError(
-                f"Generated graph has {G.number_of_nodes()} nodes; expected {N_NODES}."
-            )
+            # Verify node count (required by verification)
+            if G.number_of_nodes() != N_NODES:
+                raise RuntimeError(
+                    f"Generated graph has {G.number_of_nodes()} nodes; expected {N_NODES}."
+                )
 
-        # ------------------------------------------------------------------
-        # Write artefacts
-        # ------------------------------------------------------------------
-        base_name = f"{args.topology}_{idx:04d}"
-        edgelist_path = topology_dir / f"{base_name}.edgelist"
-        metadata_path = topology_dir / f"metadata_{base_name}.json"
+            # ------------------------------------------------------------------
+            # Write artefacts
+            # ------------------------------------------------------------------
+            base_name = f"{topology}_{idx:04d}"
+            edgelist_path = topology_dir / f"{base_name}.edgelist"
+            metadata_path = topology_dir / f"metadata_{base_name}.json"
 
-        _write_edgelist(G, edgelist_path)
+            _write_edgelist(G, edgelist_path)
 
-        metadata = {
-            "topology": args.topology,
-            "seed": instance_seed,
-            "node_count": G.number_of_nodes(),
-            "edge_count": G.number_of_edges(),
-        }
-        _write_metadata(metadata, metadata_path)
+            metadata = {
+                "topology": topology,
+                "seed": instance_seed,
+                "node_count": G.number_of_nodes(),
+                "edge_count": G.number_of_edges(),
+            }
+            _write_metadata(metadata, metadata_path)
 
-        # Collect row for CSV summary
-        csv_rows.append(metadata)
+            # Collect row for CSV summary
+            csv_rows.append(metadata)
 
-        log.info(f"Wrote {edgelist_path} and {metadata_path}")
+            log.info(f"Wrote {edgelist_path} and {metadata_path}")
 
-    # ----------------------------------------------------------------------
-    # Write (or overwrite) the CSV summary for this topology
-    # ----------------------------------------------------------------------
-    df = pd.DataFrame(csv_rows)
-    # Ensure deterministic column order matching the schema (topology, seed, node_count, edge_count)
-    df = df[["topology", "seed", "node_count", "edge_count"]]
-    df.to_csv(csv_path, index=False)
-    log.info(f"Summary CSV written to {csv_path}")
+        # Write (or overwrite) the CSV summary for this topology
+        df = pd.DataFrame(csv_rows)
+        # Ensure deterministic column order matching the schema
+        df = df[["topology", "seed", "node_count", "edge_count"]]
+        df.to_csv(csv_path, index=False)
+        log.info(f"Summary CSV written to {csv_path}")
 
     log.info("Network generation completed.")
 

@@ -1,17 +1,44 @@
-status: none
-intent: "NetworkX graph generators for Erd\u0151s-R\xE9nyi Barab\xE1si-Albert Watts-Strogatz\
-  \ python package dataset"
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+
+  ds = datasets.load_dataset("vstenby/random-graphs", split="train")
+
+  print(f"RECORDS={len(ds)}")
+
+  print("FIELDS=" + ",".join(ds.column_names))'
+record_count: 10000
+sample_fields:
+- algorithm
+- edge_list
+- node_count
+- edge_count
+- node_degree_node
+- node_degree
+- edge_existence_src
+- edge_existence_dst
+- edge_existence
+- cycle_check
+- triangle_count
+- connected_nodes_node
+- connected_nodes
+- reachability_src
+- reachability_dst
+- reachability
+- shortest_path_src
+- shortest_path_dst
+- shortest_path
+field_coverage: 0.571
 required_fields:
-- graph_type
 - node_id
 - edge_source
 - edge_target
-- weight
-- seed
-- parameter_N
-- parameter_m
-- parameter_p
-- parameter_k
-cache_key: 73f680ebe2546ecb92131815a6586b3b53e3e302e0c115bca24ebe13cd28ea18
-searched_at: '2026-10-13T00:24:25.295589+00:00'
-retry_count: 1
+- graph_type
+- parameter_values
+- random_seed
+- number_of_nodes
+intent: "synthetic graph generator dataset for Erd\u0151s-R\xE9nyi Barab\xE1si-Albert\
+  \ Watts-Strogatz python package dataset"
+cache_key: 28058427184bd9d5d8f82277ce71f82331036c3771ff647526b6ffe3dea8ade5

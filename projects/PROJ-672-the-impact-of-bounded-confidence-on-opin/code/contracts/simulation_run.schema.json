@@ -2,26 +2,26 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SimulationRun",
   "type": "object",
-  "required": [
-    "network_id",
-    "epsilon",
-    "seed",
-    "convergence_time",
-    "status",
-    "final_clusters"
-  ],
+  "required": ["network_id", "epsilon", "seed", "convergence_time", "status", "final_clusters"],
   "properties": {
     "network_id": {
-      "type": "string"
+      "type": "string",
+      "description": "Identifier of the network instance, e.g., \"ER_0000\"."
     },
     "epsilon": {
-      "type": "number"
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Confidence threshold used in the simulation."
     },
     "seed": {
-      "type": "integer"
+      "type": "integer",
+      "description": "Random seed for the simulation run."
     },
     "convergence_time": {
-      "type": ["integer", "null"]
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Number of iterations until convergence; null if non‑converged."
     },
     "status": {
       "type": "string",
@@ -31,10 +31,9 @@
       "type": "array",
       "items": {
         "type": "array",
-        "items": {
-          "type": "number"
-        }
-      }
+        "items": { "type": "number" }
+      },
+      "description": "List of opinion clusters at the end of the run."
     }
   },
   "additionalProperties": false

@@ -14,7 +14,7 @@
   - **File(s)**: `README.md`, `quickstart.md`  
   - **Verification**: `quickstart.md` contains the command `python -m code.generate_networks --topology ER --instances 1 --seed 0`. Running the command creates `data/raw/networks/ER_0000.edgelist` and `data/raw/networks/metadata_ER_0000.json` without errors.
 
-- [ ] T002 [P] **Pin Python 3.11 dependencies** – write `code/requirements.txt` with all required packages (`networkx`, `numpy`, `pandas`, `scipy`, `matplotlib`, `statsmodels`, `h5py`, `pytest`).  
+- [X] T002 [P] **Pin Python 3.11 dependencies** – write `code/requirements.txt` with all required packages (`networkx`, `numpy`, `pandas`, `scipy`, `matplotlib`, `statsmodels`, `h5py`, `pytest`).  
   - **File**: `code/requirements.txt`  
   - **Verification**: `pip install -r code/requirements.txt` exits with status 0 and `pip list` shows the listed packages.
 
@@ -29,7 +29,7 @@
   - **Files**: `code/utils/checksums.py`, `code/utils/metrics.py`, `code/utils/plotting.py`  
   - **Verification**: Each module has a corresponding unit test in `tests/unit/` that passes; e.g. `python -c "import code.utils.checksums as c; print(len(c.sha256('README.md')))"` prints 64.
 
-- [ ] T004 [P] **Add JSON schema files & pytest configuration** – place contract schemas under `code/contracts/` (`network_instance.schema.json`, `simulation_run.schema.json`, `scaling_result.schema.json`, `regression_result.schema.json`) and create `tests/conftest.py` + `pytest.ini` that enforce a fixed RNG seed for every test.  
+- [X] T004 [P] **Add JSON schema files & pytest configuration** – place contract schemas under `code/contracts/` (`network_instance.schema.json`, `simulation_run.schema.json`, `scaling_result.schema.json`, `regression_result.schema.json`) and create `tests/conftest.py` + `pytest.ini` that enforce a fixed RNG seed for every test.  
   - **Files**: `code/contracts/*.json`, `tests/conftest.py`, `pytest.ini`  
   - **Verification**: `jsonschema validate --schema code/contracts/network_instance.schema.json data/raw/networks/metadata_ER_0000.json` yields no errors; `pytest -q tests` reports all tests passed and the seed fixture is active.
 
@@ -40,7 +40,7 @@
 | Goal | Produce reproducible ensembles for ER, BA, and WS topologies, store metrics, and confirm memory limits. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] T005 [US1] **Generate 50 reproducible networks per topology** – `code/generate_networks.py` accepts `--topology {ER,BA,WS}`, `--instances 50`, `--seed <int>`. It writes edge‑list files to `data/raw/networks/{topology}_{idx}.edgelist` and a CSV `data/raw/networks/{topology}_metadata.csv` with one row per instance.   <!-- FAILED-IN-EXECUTION: code/generate_networks.py exit=1 -->
+- [ ] T005 [US1] **Generate 50 reproducible networks per topology** – `code/generate_networks.py` accepts `--topology {ER,BA,WS}`, `--instances 50`, `--seed <int>`. It writes edge‑list files to `data/raw/networks/{topology}_{idx}.edgelist` and a CSV `data/raw/networks/{topology}_metadata.csv` with one row per instance.   <!-- FAILED-IN-EXECUTION: code/generate_networks.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_networks.py exit=1 -->
   - **File**: `code/generate_networks.py`  
   - **Verification**: After execution, each topology folder (`data/raw/networks/ER/`, `.../BA/`, `.../WS/`) contains exactly 50 `.edgelist` files and the CSV validates against `network_instance.schema.json`. **Additionally**, each generated network is checked to have `node_count == 500`.
 

@@ -1,26 +1,15 @@
 T001:
   task: 9d2ac5d26708a6dd689b75c144fd7f1ec9635c8cb19e1355e22ee8ca824ad06c
 T002:
-  reason: The `code/requirements.txt` file exists and lists all required packages,
-    but there is no provided evidence (e.g., command output or logs) showing that
-    `pip install -r code/requirements.txt` completed successfully or that `pip list`
-    confirms the packages are installed. Add execution logs or test results to satisfy
-    the verification step.
   task: aa3fdfd39616c9417cb7b269f0fec012383edd9f0307f1ad9ca9996906a45488
 T003:
-  reason: "The `code/utils/metrics.py` module\u2019s unit tests failed (see `code/.tasks/T003.tests_unit_test_metrics.py.log`\
-    \ showing two assertion failures), so the required metrics utilities are not verified\
-    \ as working. All other modules and their tests pass, but the failing metrics\
-    \ tests mean the task\u2019s requirement of passing unit tests is not satisfied."
+  reason: "Checked `code/utils/metrics.py` and its unit tests (`tests/unit/test_metrics.py`),\
+    \ which both fail (assortativity returns \u20130.333 instead of \u20131.0 and\
+    \ returns NaN for regular graphs, causing assertions to fail). The other modules\
+    \ (`checksums.py`, `plotting.py`) exist and pass their tests. The core metrics\
+    \ utilities therefore do not meet the task requirements."
   task: acde92960821c3a36ba0b38256d7427cf6a0b91ba14433e66b1657bb56abc88b
 T004:
-  reason: "The required schema files exist under `code/contracts/` and the sample\
-    \ metadata validates against `network_instance.schema.json`, but the pytest configuration\
-    \ does not actually enforce a fixed RNG seed for every test \u2013 the `set_seed`\
-    \ fixture lacks `autouse=True` (or any global hook) and no test files or pytest\
-    \ run output are provided to prove that all tests pass with the seed active. Adding\
-    \ an autouse seed fixture (or equivalent) and supplying evidence of a successful\
-    \ `pytest -q tests` run is needed."
   task: fe3dbfd931e6947f383570fa473486049d06bdd2d742eb84bb6a7b9fd7327ce3
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/generate_networks.py
