@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Detection Results & Feature Record Schema"
+type: object
+required:
+  - instance_id
+  - pipeline
+  - prediction
+  - latency_ms
+  - dependency_depth
+  - semantic_scope
+  - syntactic_complexity
+  - ast_depth
+  - import_count
+  - cyclomatic_complexity
+properties:
+  instance_id:
+    type: string
+    description: "Unique identifier for the CodeInstance (e.g., 'real-001' or 'synthetic-042')."
+  pipeline:
+    type: string
+    enum: ["tide_lite", "tide_original"]
+    description: "Which detection pipeline produced this row."
+  prediction:
+    type: boolean
+    description: "True if the pipeline detected the hidden problem (TP/FP), False otherwise."
+  latency_ms:
+    type: number
+    minimum: 0
+    description: "Execution latency for this instance in milliseconds."
+  dependency_depth:
+    type: integer
+    minimum: 0
+    maximum: 5
+    description: "Number of import‑dependency levels (capped per FR‑009)."
+  semantic_scope:
+    type: string
+    enum: ["local", "cross_module"]
+    description: "Scope of the code (single file vs. cross‑module usage)."
+  syntactic_complexity:
+    type: integer
+    minimum: 0
+    description: "Custom score derived from nesting depth and token count."
+  ast_depth:
+    type: integer
+    minimum: 0
+    description: "Maximum depth of the Python AST."
+  import_count:
+    type: integer
+    minimum: 0
+    description: "Number of distinct import statements."
+  cyclomatic_complexity:
+    type: integer
+    minimum: 1
+    description: "Cyclomatic complexity as computed by radon."
+  sha256:
+    type: string
+    pattern: "^[A-Fa-f0-9]{64}$"
+    description: "SHA‑256 checksum of the CSV row (for data‑hygiene compliance)."
+additionalProperties: false

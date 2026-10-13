@@ -1,0 +1,15 @@
+status: none
+intent: download TIDE code debugging dataset and synthetic code feature extraction
+  python package dataset
+required_fields:
+- code
+- ast_depth
+- import_count
+- cyclomatic_complexity
+- dependency_depth
+- semantic_scope
+- syntactic_complexity
+- ground_truth_label
+cache_key: f4581a6e0af3df66957ae676cf08aee073472f3af73c1744b7daddfd9ba84b49
+searched_at: '2026-10-13T16:20:32.853476+00:00'
+retry_count: 1
