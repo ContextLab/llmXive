@@ -1,14 +1,17 @@
 status: none
-intent: download PPMI 16S rRNA ASV tables clinical metadata python package dataset
+intent: PPMI longitudinal microbiome ASV counts with clinical UPDRS scores downloadable
+  dataset python package dataset
 required_fields:
 - sample_id
 - patient_id
-- visit_number
-- collection_date
-- asv_id
-- asv_count
-- taxonomy
-- UPDRS_motor_score
-cache_key: e395bdc567dbe949e562a5b87bf10a45ef6d5f0c86984e96592f0b4742ec2140
-searched_at: '2026-10-13T02:23:22.844824+00:00'
+- visit_date
+- timepoint
+- asv_counts_matrix (taxon rows, sample columns)
+- taxon_id (e.g., ASV or OTU identifier)
+- clinical_updrs_total_or_part_III
+- age
+- sex
+- levodopa_dose
+cache_key: 2416efd401b4456d2885e5b69e8fa4a49e663b2d2a795f98baedfd61249e1a32
+searched_at: '2026-10-13T02:42:56.754994+00:00'
 retry_count: 1
