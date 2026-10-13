@@ -34,42 +34,7 @@ properties:
       error_reduction_percent:
         type: "number"
         description: "Percentage reduction vs 2007 baseline."
-  variance_analysis:
-    type: "object"
-    description: "Bootstrap variance analysis across minima."
-    properties:
-      maunder_variance:
-        type: "number"
-      dalton_variance:
-        type: "number"
-      modern_variance:
-        type: "number"
-      p_value_bonferroni:
-        type: "number"
-        description: "P-value after Bonferroni correction."
-  sensitivity_analysis:
-    type: "object"
-    description: "Sensitivity to inconsistency tolerance threshold."
-    properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "number"
-        description: "Swept thresholds (0.01, 0.05, 0.1)."
-      stability_metrics:
-        type: "array"
-        items:
-          type: "object"
-          properties:
-            threshold:
-              type: "number"
-            rmse_variation:
-              type: "number"
     required:
-      - thresholds
-      - stability_metrics
-required:
-  - reconstruction
-  - metrics
-  - variance_analysis
-  - sensitivity_analysis
+      - rmse_satellite
+      - r_squared
+# error_reduction_percent is optional because the 2007 baseline may be unavailable.

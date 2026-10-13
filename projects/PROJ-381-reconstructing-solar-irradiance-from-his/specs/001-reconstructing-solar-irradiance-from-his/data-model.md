@@ -2,70 +2,41 @@
 
 ## 1. Entity Definitions
 
-### 1.1 SolarCycle
-Logical entity representing a specific solar activity cycle.
-*   **cycle_id**: Integer (e.g., 1, 2, ..., 25).
-*   **start_year**: Integer (approximate start).
-*   **end_year**: Integer (approximate end).
-*   **peak_year**: Integer (year of maximum activity).
-*   **avg_gsn**: Float (average sunspot number over the cycle).
+| Entity | Attributes | Description |
+|---|---|---|
+| **SolarCycle** | `cycle_id` (int), `start_year` (int), `end_year` (int), `peak_year` (int), `avg_gsn` (float) | Logical grouping of years; derived from SILSO cycle maxima. Used as a categorical feature in modeling. |
+| **SunspotRecord** | `date` (date), `gsn` (float), `quality_flag` (enum: `raw`, `interpolated`, `proxy`), `cycle_id` (int), `gsn_lag1` (float) | Preprocessed GSN time‑series with engineered features and explicit categorical Cycle ID. |
+| **TSIProxyRecord** | `date` (date), `solar_forcing` (float) | CMIP6 solar‑forcing variable used **only for comparative analysis**, not as a training target. |
+| **ModelArtifact** | `model_type` (str), `validation_rmse` (float), `validation_r2` (float), `artifact_path` (str) | Serialized model (pickle) plus validation metrics. |
+| **ReconstructionRecord** | `date` (date), `tsi_reconstructed` (float), `tsi_lower` (float), `tsi_upper` (float) | Final TSI reconstruction for 1610‑2002 with uncertainty bands. |
+| **BootstrapStat** | `solar_minimum` (str), `variance_mean` (float), `variance_ci_lower` (float), `variance_ci_upper` (float), `p_value_corrected` (float) | Results of variance comparison across minima (Maunder, Dalton, Modern). |
+| **SensitivityResult** | `threshold` (float), `rmse_variation` (float) | Output of the inconsistency‑tolerance sweep. |
 
-### 1.2 SunspotRecord
-Time-series entity for Group Sunspot Number.
-*   **date**: Date (YYYY-MM-DD).
-*   **gsn**: Float (Group Sunspot Number).
-*   **quality_flag**: String (e.g., "raw", "interpolated", "proxy").
-*   **cycle_phase**: Float (sin/cos of day-of-year).
+## 2. Data Flow Diagram
 
-### 1.3 TSIRecord
-Time-series entity for Total Solar Irradiance.
-*   **date**: Date (YYYY-MM-DD).
-*   **tsi_value**: Float (W/m²).
-*   **tsi_lower**: Float (Lower bound of uncertainty).
-*   **tsi_upper**: Float (Upper bound of uncertainty).
-*   **source**: String ("satellite", "reconstruction", "synthetic").
+1. **Ingestion** (`code/data/ingestion.py`) → raw parquet files in `data/raw/`.  
+2. **SolarCycle Generation** (`code/data/preprocessing.py`) → `data/processed/solar_cycles.parquet`.  
+3. **Preprocessing** (`code/data/preprocessing.py`) → `data/processed/preprocessed_data.parquet` containing merged `SunspotRecord` + `TSIProxyRecord` + categorical `cycle_id`.  
+4. **Model Training** (`code/models/train.py`) → `data/artifacts/model_*.pkl` + `cv_report.json`.  
+5. **Sensitivity Analysis** (`code/analysis/sensitivity.py`) → `sensitivity_report.json`.  
+6. **Reconstruction** (`code/models/predict.py`) → `data/processed/tsi_reconstruction_1610_2002.parquet`.  
+7. **Comparison & Bootstrap** (`code/analysis/comparison.py`) → `comparison_report.json` (metrics, bootstrap stats).  
 
-### 1.4 ModelArtifact
-Trained model metadata.
-*   **model_type**: String ("RandomForest", "GaussianProcess").
-*   **validation_rmse**: Float (Time-Block CV).
-*   **r_squared**: Float.
-*   **pkl_path**: String (path to pickled model).
-
-## 2. Data Flow
-
-1.  **Ingestion**: Raw GSN (SILSO) and TSI (Satellite) loaded.
-2.  **Preprocessing**:
-    *   Gap filling (Linear/Proxy GSN=0).
-    *   Cycle detection (SILSO boundaries).
-    *   Feature engineering (Cycle_Phase).
-    *   Output: `preprocessed_data.parquet` (SunspotRecord + TSIRecord).
-3.  **Training**:
-    *   Split by Time-Block (Train: 2003-2015, Test: 2016-Present).
-    *   Train RF/GP.
-    *   Output: `model_artifact.pkl` + `cv_report.json`.
-4.  **Sensitivity Analysis**:
-    *   Sweep inconsistency tolerance threshold.
-    *   Output: `sensitivity_report.json`.
-5.  **Reconstruction**:
-    *   Apply model to pre-satellite GSN.
-    *   Generate uncertainty bands.
-    *   Output: `tsi_reconstruction_1610_2002.parquet`.
-6.  **Comparison**:
-    *   Compare with baseline/CMIP6.
-    *   Output: `comparison_report.json`.
+All intermediate files are immutable; each step writes a new artifact, satisfying Principle III.
 
 ## 3. Storage Layout
 
-```text
+```
 data/
 ├── raw/
-│   ├── silso_sunspot.parquet          # Source GSN
-│   ├── tsi_satellite.parquet          # Source TSI
-│   └── cmip6_baseline.parquet         # Source CMIP6
+│   ├── .gitkeep
+│   ├── gsn.parquet
+│   ├── silso.parquet
+│   └── cmip6_solar_forcing.parquet
 ├── processed/
-│   ├── preprocessed_data.parquet      # Joined, gap-filled, phase-labeled
-│   └── tsi_reconstruction_1610_2002.parquet # Final output
+│   ├── .gitkeep
+│   ├── preprocessed_data.parquet
+│   └── solar_cycles.parquet
 └── artifacts/
     ├── model_rf.pkl
     ├── model_gp.pkl
@@ -73,3 +44,8 @@ data/
     ├── sensitivity_report.json
     └── comparison_report.json
 ```
+
+Each file is checksum‑tracked in the project state YAML.
+
+---
+

@@ -1,0 +1,12 @@
+status: none
+intent: SILSO group sunspot number python package dataset SORCE TIM TSI python package
+  dataset
+required_fields:
+- date
+- group_sunspot_number
+- gsn_error
+- total_solar_irradiance
+- irradiance_quality_flag
+cache_key: eedf40850ab219cde3a586490f17bafe8ecd0d01f0ada5058ea6529f35e22b1e
+searched_at: '2026-10-13T20:11:24.981224+00:00'
+retry_count: 1

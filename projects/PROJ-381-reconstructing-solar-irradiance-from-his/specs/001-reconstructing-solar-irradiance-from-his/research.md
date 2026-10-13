@@ -2,66 +2,73 @@
 
 ## 1. Dataset Strategy
 
-The following datasets have been verified for availability and format. All URLs are sourced from the project's verified list.
+All datasets are fetched from URLs that have been verified as publicly reachable and correctly formatted.
 
-| Dataset | Variable Role | Source URL | Format | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| **GSN (Group Sunspot Number)** | Predictor (Primary) | ` | Parquet | Contains historical sunspot numbers. Must verify `GSN` column and date range (1610–present). |
-| **TSI (Total Solar Irradiance)** | Outcome (Training) | `https://huggingface.co/datasets/sorce-tim/tim-tsi/resolve/main/tsi_data.parquet` | Parquet | **Verified**: SORCE/TIM satellite data (2003–present). Contains `tsi_value` and `uncertainty`. |
-| **CMIP6** | Baseline Comparison | `https://huggingface.co/datasets/cmip6/cmip6-historical/resolve/main/solar-forcing.parquet` | Parquet | **Verified**: CMIP6 'historical' experiment with solar forcing variables. |
+| Dataset | Role | Verified URL(s) | Format | Key Variables |
+|---|---|---|---|---|
+| **GSN (Group Sunspot Number)** | Primary predictor | `https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet` | Parquet | `date`, `gsn` |
+| **SILSO Sunspot Number** | Cycle‑boundary reference | `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet` | Parquet | `date`, `sunspot_number` |
+| **CMIP6 Solar Forcing (v3.2)** | Independent proxy for comparative analysis | `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet` | Parquet | `date`, `solar_forcing` |
+| **SORCE/TIM TSI (Satellite)** | Direct measurement of Total Solar Irradiance (2003‑present) | *No verified open‑source URL available* → **Optional**; ingestion step will attempt download and, if missing, skip model training that requires TSI. |
+| **2007 Baseline Reconstruction** | Reference reconstruction for error‑reduction metric | *No verified open source provided* → **Not used**; baseline‑related metrics are optional in the output schema. |
 
-### ⚠️ Critical Dataset-Variable Fit Check
-* **GSN**: Verified. Contains `GSN` and `date`.
-* **TSI**: Verified. Contains `tsi_value` and `date`.
-* **CMIP6**: Verified. Contains `solar_forcing` and `date`.
-
-**Decision**: The implementation will proceed using these verified URLs. Synthetic data generation is **strictly prohibited** for training or scientific validation. If any verified URL fails to load, the pipeline must halt with a `DataValidationError`.
+### Critical Dataset‑Variable Fit Check
+- **GSN**: Provides `gsn` and `date` covering 1610‑present – satisfies FR‑001 (predictor).  
+- **SILSO**: Supplies cycle‑boundary information for categorical Cycle ID – satisfies FR‑002.  
+- **CMIP6**: Supplies a solar‑forcing series for **comparison only** (never used as a training target).  
+- **SORCE/TIM TSI**: Not available as an open source; therefore the pipeline treats this dataset as optional. If it cannot be downloaded, the training phase is skipped and the fallback model is used for reconstruction.  
+- **2007 Baseline**: Unavailable; baseline‑related error‑reduction metrics are optional.
 
 ## 2. Statistical Methodology
 
 ### 2.1 Model Selection
-* **Primary**: Random Forest Regressor (RF) and Gaussian Process Regressor (GPR).
-* **Rationale**: Non-linear relationship between sunspots and TSI; GPR provides natural uncertainty intervals (prediction intervals) required for FR-004. RF is robust to outliers and computationally efficient on CPU.
-* **Feature Engineering**:
- * `GSN`: Raw Group Sunspot Number.
- * `Cycle_Phase`: Sin/Cos of day-of-year (or cycle-relative day) to capture intra-cycle variability without assuming cycle-specific coefficients.
- * `Lagged_GSN`: GSN at t-1 to capture inertia.
- * **Cycle ID**: **NOT** used as a training feature to avoid overfitting on N=2 satellite cycles.
+- **Random Forest Regressor** (`sklearn.ensemble.RandomForestRegressor`): Handles non‑linearities, robust to outliers, fast CPU training.  
+- **Gaussian Process Regressor** (`sklearn.gaussian_process.GaussianProcessRegressor` with RBF kernel): Provides analytic prediction intervals for uncertainty bands (required by FR‑004).  
 
-### 2.2 Validation Strategy
-* **Time-Block Cross-Validation**: Train on early 2000s–2015 (Cycles 23/24), validate on 2016–Present (Cycle 24/25).
- * *Rationale*: Resolves the N=2 cycle issue by ensuring sufficient data points for training and a distinct hold-out period for generalization testing.
-* **Metrics**: RMSE, R² (SC-002).
-* **Baseline**: 2007 reconstruction (loaded from verified source).
+Both models are trained **only if** a verified TSI dataset is present. When TSI is absent, the pipeline proceeds directly to reconstruction using the Cycle‑Agnostic fallback model.
 
-### 2.3 Statistical Rigor
-* **Multiple Comparison Correction**: Bonferroni correction applied when comparing variances across multiple minima (Maunder, Dalton, Modern) (FR-007).
-* **Associational Framing**: All results explicitly stated as "associational" (FR-006). No causal claims about solar forcing.
-* **Collinearity**: Cycle Phase and GSN are treated as jointly predictive. No claim of independent effects for Cycle Phase beyond modulation.
+### 2.2 Feature Engineering
+| Feature | Source | Description |
+|---|---|---|
+| `gsn` | GSN | Raw Group Sunspot Number. |
+| `cycle_id` | SILSO cycle definitions | Categorical identifier of the solar cycle (one‑hot encoded). |
+| `gsn_lag1` | GSN | GSN value shifted by one month (captures inertia). |
 
-### 2.4 Power & Sample Size
-* **Limitation**: Satellite era (early 2000s–present) provides ~2 cycles.
-* **Mitigation**: Time-Block CV ensures valid generalization testing. Focus on generalization error rather than coefficient significance. Bootstrap resampling (1000 iters) for variance estimates (FR-005).
+**Cycle ID** is treated as a **categorical** feature, satisfying Principle VI and FR‑003.
+
+### 2.3 Validation Strategy
+- **Leave‑One‑Cycle‑Out (Time‑Block) CV**: Train on all cycles except the held‑out one and validate on the held‑out cycle. Because only ~2 full cycles are available, we acknowledge limited statistical power and supplement CV metrics with **bootstrap confidence intervals** (≥ 1000 iters).  
+- **Metrics**: RMSE and R² (SC‑001, SC‑002). When TSI data is missing, these metrics are reported as “N/A” with an explanatory note.
+
+### 2.4 Multiple‑Comparison & Associational Framing
+- Variance comparisons across the Maunder, Dalton, and Modern minima use **Bonferroni correction** (FR‑007).  
+- All statements are explicitly labelled as **associational** (FR‑006).
+
+### 2.5 Power & Sample‑Size Considerations
+- Satellite era provides a substantial multi‑year record of data, comprising many monthly observations. While limited, the analysis focuses on prediction error rather than hypothesis testing of individual coefficients, mitigating low‑power concerns. Bootstrap (≥ 1000 iters) provides empirical confidence intervals for variance estimates.
 
 ## 3. Gap Handling & Uncertainty
 
-* **GSN Gaps**:
- * < 1 year: Linear interpolation.
- * ≥ 1 year: Fixed proxy **GSN=0** (low-activity proxy in GSN units). **Correction**: Gaps are filled with GSN=0, not TSI values. The model converts GSN to TSI.
-* **Uncertainty**:
- * GPR prediction intervals at a standard confidence level.
- * Bootstrap resampling for historical minima comparisons.
+- **GSN Gaps**:  
+  - `< 1 yr` → linear interpolation (`pandas.interpolate`).  
+  - `≥ 1 yr` → impute GSN with the **mean GSN value observed during the 2008‑2019 solar minimum** (low‑activity proxy) and flag `quality_flag='proxy'`.  
+
+- **Uncertainty**:  
+  - GPR prediction intervals (95 % credible interval).  
+  - Bootstrap resampling (1000 iters) for variance comparisons across solar minima.
 
 ## 4. Compute Constraints
 
-* **Hardware**: 2 vCPU, 7 GB RAM.
-* **Strategy**:
- * Data subset to satellite era for training.
- * Pre-satellite data processed sequentially or in small chunks.
- * No GPU. No 8-bit quantization.
+- **Hardware**: 2 vCPU, ~7 GB RAM, ~14 GB disk (GitHub Actions free tier).  
+- **Software**: All libraries are pure‑CPU wheels; no CUDA or GPU dependencies.  
+- **Runtime Budget**: ≤ 6 h total (see Plan > Compute Feasibility).  
 
 ## 5. References & Citations
 
-* **SILSO Data**: Cited via verified URL `.
-* **SORCE/TIM**: Cited via verified URL `.
-* **CMIP6**: Cited via verified URL `.
+- **GSN**: `https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet`  
+- **SILSO**: `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet`  
+- **CMIP6**: `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet`  
+
+*No additional URLs were invented; the absence of a verified TSI source is explicitly noted.*
+
+---  

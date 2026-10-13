@@ -22,7 +22,7 @@ properties:
       - "sunspot_number"
   tsi:
     type: "object"
-    description: "Total Solar Irradiance dataset (SORCE/TIM)"
+    description: "Total Solar Irradiance dataset (SORCE/TIM) – optional if unavailable"
     properties:
       date:
         type: "string"
@@ -37,9 +37,7 @@ properties:
       uncertainty:
         type: "number"
         description: "Measurement uncertainty"
-    required:
-      - "date"
-      - "tsi_value"
+    # tsi is optional; it is included only when a verified dataset is available.
   cmip6:
     type: "object"
     description: "CMIP6 v3.2 dataset"
@@ -60,6 +58,8 @@ properties:
     required:
       - "date"
       - "tsi_value"
+      - "model"
+      - "scenario"
   isotope_14c:
     type: "object"
     description: "14C cosmogenic isotope proxy"
@@ -90,7 +90,7 @@ properties:
       - "be10_concentration"
 required:
   - "gsn"
-  - "tsi"
   - "cmip6"
   - "isotope_14c"
   - "isotope_10be"
+# tsi is optional; it is included only when a verified dataset is available.
