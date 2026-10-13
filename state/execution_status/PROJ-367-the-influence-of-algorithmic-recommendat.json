@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-12T10:15:46Z",
-  "project_id": "PROJ-367-the-influence-of-algorithmic-recommendat"
+  "updated_at": "2026-10-13T06:16:03Z",
+  "project_id": "PROJ-367-the-influence-of-algorithmic-recommendat",
+  "replan_rounds": 1
 }
