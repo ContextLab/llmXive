@@ -1,9 +1,10 @@
 status: none
-intent: FEMNIST federated dataset pip install leaf python package dataset
+intent: official FEMNIST and EMNIST dataset download leaf python package source python
+  package dataset
 required_fields:
 - image
 - label
 - client_id
-cache_key: 5690be4711254a7e5e714a29b868c144ec3be7c3acc7f3d75e71a0d03e03942b
-searched_at: '2026-10-13T13:24:39.438025+00:00'
+cache_key: 6af8640340dc11269e96bab8bed984edcf86bc44a747fda16e7cf31016394bc0
+searched_at: '2026-10-13T14:18:38.991975+00:00'
 retry_count: 1
