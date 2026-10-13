@@ -16,7 +16,7 @@ The script is idempotent: re‑running it will re‑download the CSV only if the
 target file is missing or the checksum does not match.
 
 Usage (run as a module or script):
-    python -m code.download_devign
+    python code/download_devign.py
 """
 import hashlib
 import json
