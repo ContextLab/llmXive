@@ -8,6 +8,14 @@ T001a:
     0, logging each directory), and `tests/unit/test_project_structure.py` passed,
     directly verifying this task''s requirement.'
   sig: 74b08a12471a9cb105d07c72d0370764e066b9aba3b923d2163edda79f53c286
+T001b:
+  c: false
+  h: fe6b9c4344046873d94ead69b0329e0dcd440d5b5303afe7ee35383516c51bd1
+  r: The `code/.flake8` file appears in the directory listing, but no content evidence
+    was provided to confirm it contains `max-line-length = 88` and `ignore = E203,W503`
+    as required. The next implementer should ensure the file exists with exactly those
+    settings and the evidence collector should capture its contents for verification.
+  sig: ee27794937f656e586216fccac2d9943b0327c6bdd6bfc3fd34ec93428594a77
 T001c:
   c: true
   h: 81d9423a5ceb93c0cd7199066fa0602afbe305af146758a7d996233202771673
@@ -51,6 +59,18 @@ T006a:
     \ exactly the format/file-handler/level requirements of T006a. The implementation\
     \ is real, non-stubbed, and idempotent (guards against duplicate handlers)."
   sig: 74d9be692610aa3f66de5b44d6f4a2a6fb0d574c79b6bb52d51c24130bade73c
+T006b:
+  c: false
+  h: 67ef63218d6af6354c3f4c7acf73dba798a6b2fb0274f33b6e67baa2d1383461
+  r: '`code/monitoring.py` itself is a real, non-stub implementation using `psutil`
+    with batch recording and JSON persistence. However, `results/resource_metrics.json`
+    is clearly fabricated: its schema (`batch_id`, `start_/end_process_ram_mb`, `functions_processed`,
+    duplicate `batch_id` keys) does not match what `monitoring.py` actually writes
+    (`batch_idx`, `batch_size`, `time_sec`, `ram_mb`, `cpu_pct`), and its timestamps
+    (1704067200 = 2024-01-01) and round-number values indicate hand-written placeholder
+    data rather than output from an actual monitored run. The next implementer should
+    run the monit'
+  sig: 875f132a51bc106938b61e8f1e46f1fb21fa778c0a0077f66f9ee8db8021e56c
 T020:
   c: false
   h: 5f87ae29f59008beef596b359f7644ec09acc2a4dcbade20cabaf5477ce6e756

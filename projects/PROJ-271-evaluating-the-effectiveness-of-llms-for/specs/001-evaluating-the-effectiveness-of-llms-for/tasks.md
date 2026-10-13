@@ -19,11 +19,11 @@
 - [X] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seed (`42`), and batch‑size constants (`LLM_BATCH_SIZE = 10`).  
 - [X] T005 [P] Add `code/__init__.py` and ensure directory layout matches `data/raw`, `data/processed`, `results`.  
 - [X] T006a Configure logging in `code/config.py` (format, file handler, level).  
-- [~] T006b Implement `code/monitoring.py` that records RAM, CPU, and elapsed time per batch using `psutil`; writes to `results/resource_metrics.json`.  
+- [ ] T006b Implement `code/monitoring.py` that records RAM, CPU, and elapsed time per batch using `psutil`; writes to `results/resource_metrics.json`.  
 
 ## Phase 3 – User Story 1: Automated Data Pipeline & Static‑Analysis Baseline (Priority P1)
 
-- [ ] T007 [US1] Sample **exactly 800** Python functions from the HuggingFace `codeparrot/github-code` dataset using `datasets.load_dataset(..., streaming=True)` with `seed=42`; write the raw sampled functions to `data/raw/sample_functions.jsonl`.   <!-- FAILED-IN-EXECUTION: code/sample_functions.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/sample_functions.py exit=1 -->
+- [ ] T007 [US1] Sample **exactly 800** Python functions from the HuggingFace `codeparrot/github-code` dataset using `datasets.load_dataset(..., streaming=True)` with `seed=42`; write the raw sampled functions to `data/raw/sample_functions.jsonl`.   <!-- FAILED-IN-EXECUTION: code/sample_functions.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/sample_functions.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/sample_functions.py exit=1 -->
   - *Verification*: Log the number of sampled functions; abort with an explicit error if the count is < 800.  
 
 - [ ] T008 [US1] For each sampled function, compute structural metrics **LOC**, **cyclomatic complexity**, and **nesting depth** using the `radon` library; store intermediate results in `data/processed/structural_metrics.jsonl`.  
