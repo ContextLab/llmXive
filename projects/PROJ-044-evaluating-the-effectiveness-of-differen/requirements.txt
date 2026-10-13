@@ -1,13 +1,17 @@
 # PROJ-044: Evaluating the Effectiveness of Differential Privacy in Federated Learning
 # Python 3.10+
+#
+# Compatibility pins: the runner image ships NumPy 1.26.x, so pyarrow and
+# datasets are pinned to versions that support NumPy 1.x (pyarrow >= 17
+# requires NumPy >= 2.0, which caused the T001 setup_check failure).
 torch>=2.3.0
 opacus>=1.4.0
-datasets>=2.19.0
+datasets>=2.19.0,<3.0
 pandas>=2.0
-numpy>=1.24
+numpy>=1.24,<2.0
 scipy>=1.10
 statsmodels>=0.14
 matplotlib>=3.7
-pyarrow>=14.0
+pyarrow>=14.0,<17.0
 # Note: pytest, seaborn, PyYAML, requests, jsonschema, psutil are provided
 # by the platform environment and are not repeated here.
