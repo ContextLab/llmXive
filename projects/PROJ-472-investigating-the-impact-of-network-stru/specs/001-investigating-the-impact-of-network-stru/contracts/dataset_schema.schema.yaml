@@ -29,20 +29,20 @@ properties:
     description: "Global clustering coefficient of the structural connectome."
   rich_club_auc:
     type: "number"
-    description: "Area Under the Curve of normalized rich-club coefficient."
+    description: "Area Under the Curve of normalized rich‑club coefficient."
   graph_connected:
     type: "boolean"
     description: "True if the structural graph is a single connected component."
   size_exponent:
     type: "number"
-    description: "Power-law scaling exponent for avalanche size."
+    description: "Power‑law scaling exponent for avalanche size."
   duration_exponent:
     type: "number"
-    description: "Power-law scaling exponent for avalanche duration."
+    description: "Power‑law scaling exponent for avalanche duration."
   fit_quality:
     type: "string"
     enum: ["good", "poor"]
-    description: "Quality of the power-law fit based on KS-test."
+    description: "Quality of the power‑law fit based on KS-test."
   threshold_value:
     type: "number"
     description: "The amplitude threshold used for avalanche detection (e.g., 0.75)."

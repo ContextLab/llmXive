@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Avalanche Metrics Schema"
-description: "Schema for participant-level avalanche and network metrics"
+description: "Schema for participant‑level avalanche and structural metrics"
 type: object
 properties:
   subject_id:
@@ -10,8 +10,6 @@ properties:
     type: string
     enum:
       - "OpenNeuro"
-      - "Neurofusion"
-      - "Synthetic"
     description: "Source of the data"
   quality_flag:
     type: boolean
@@ -27,7 +25,7 @@ properties:
         description: "Average clustering coefficient"
       rich_club:
         type: number
-        description: "Rich-club coefficient"
+        description: "Rich‑club coefficient"
     required:
       - mean_degree
       - mean_clustering
@@ -37,10 +35,10 @@ properties:
     properties:
       exponent_size:
         type: number
-        description: "Power-law exponent for avalanche size"
+        description: "Power‑law exponent for avalanche size"
       exponent_duration:
         type: number
-        description: "Power-law exponent for avalanche duration"
+        description: "Power‑law exponent for avalanche duration"
       model_fit_status:
         type: string
         enum:

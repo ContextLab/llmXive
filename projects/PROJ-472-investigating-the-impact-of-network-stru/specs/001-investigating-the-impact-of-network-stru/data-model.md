@@ -1,65 +1,67 @@
 # Data Model: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
 
 ## Overview
+All data artifacts reside under `data/` with strict versioning, checksums, and provenance metadata. The model defines participant‑level structures, intermediate results, and final outputs.
 
-This document defines the data structures, schemas, and file formats used throughout the pipeline. All data is stored in `data/` with strict versioning.
-
-## Entity Definitions
+## Entity Schemas
 
 ### 1. Participant
-A unique research subject.
-*   **Attributes**:
-    *   `subject_id`: String (e.g., "sub-001")
-    *   `dataset_source`: String ("OpenNeuro", "Neurofusion", "Synthetic")
-    *   `quality_flag`: Boolean (True if data passes QC)
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | string | Unique identifier (e.g., `sub-001`). |
+| `dataset_source` | string | `"OpenNeuro"` (matched dMRI + EEG). |
+| `quality_flag` | boolean | `true` if both modalities passed QC; otherwise `false`. |
 
 ### 2. StructuralConnectome
-Weighted graph derived from dMRI.
-*   **Attributes**:
-    *   `adjacency_matrix`: 2D Array (N_nodes x N_nodes)
-    *   `node_degree`: 1D Array (mean degree per node)
-    *   `clustering_coefficient`: 1D Array (local clustering per node)
-    *   `rich_club_coefficient`: Float (global coefficient)
-    *   `parcellation`: String (e.g., "HCP-MMP1.0")
+| Field | Type | Description |
+|-------|------|-------------|
+| `adjacency_matrix` | 2‑D array (float) | Weighted connectivity (N × N). |
+| `node_degree` | 1‑D array (float) | Degree per node. |
+| `clustering_coefficient` | 1‑D array (float) | Local clustering per node. |
+| `rich_club_coefficient` | float | Global rich‑club coefficient. |
+| `parcellation` | string | Parcellation name (e.g., `HCP-MMP1.0`). |
 
 ### 3. AvalancheRecord
-Detected neural event from EEG.
-*   **Attributes**:
-    *   `size`: Integer (number of active channels)
-    *   `duration`: Float (time in seconds or bins)
-    *   `time_bins`: List of integers (indices of active bins)
-    *   `participant_id`: String
+| Field | Type | Description |
+|-------|------|-------------|
+| `size` | integer | Number of active channels in the avalanche. |
+| `duration` | float | Duration in seconds (or number of time bins). |
+| `time_bins` | list[int] | Indices of active time bins. |
+| `participant_id` | string | Link to `Participant.subject_id`. |
 
 ### 4. CorrelationResult
-Statistical association between metrics.
-*   **Attributes**:
-    *   `metric_pair`: String (e.g., "degree_vs_exponent")
-    *   `spearman_rho`: Float
-    *   `p_value`: Float
-    *   `corrected_p_value`: Float
-    *   `vif_score`: Float (if applicable)
-    *   `threshold_used`: Float (e.g., 0.75)
+| Field | Type | Description |
+|-------|------|-------------|
+| `metric_pair` | string | `"degree_vs_exponent_size"` etc. |
+| `spearman_rho` | float | Spearman correlation coefficient. |
+| `p_value` | float | Raw p‑value. |
+| `corrected_p_value` | float | Permutation‑corrected family‑wise error p‑value. |
+| `vif_score` | float | VIF for the predictor pair (if applicable). |
+| `threshold_used` | float | Avalanche threshold percentile (0.75 or 0.80). |
+| `collinearity_status` | string | `"low"` or `"high"` (VIF ≥ 5). |
+| `sample_size` | integer | Number of participants included. |
+| `ci_lower` | float | Lower bound of bootstrap 95 % CI for ρ. |
+| `ci_upper` | float | Upper bound of bootstrap 95 % CI for ρ. |
 
 ## File Formats
 
-### Raw Data (`data/raw/`)
-*   **dMRI**: Parquet or NIfTI (from OpenNeuro).
-*   **EEG**: CSV or Parquet (from Neurofusion).
-*   **Checksum**: `data/raw/.checksums.json` (SHA256 hashes).
-
-### Processed Data (`data/processed/`)
-*   **Connectivity Matrices**: `.npy` or `.csv` (N x N).
-*   **EEG Time Series**: `.npy` (Channels x Time).
-*   **Avalanche Events**: `.csv` (size, duration, participant_id).
-
-### Results (`data/results/`)
-*   **Metrics**: `metrics.csv` (Participant, Degree, Clustering, RichClub, Exponent_Size, Exponent_Duration).
-*   **Correlations**: `correlations.csv` (Metric, Theta, P, P_Corr, VIF).
-*   **Collinearity**: `collinearity_status.json`.
-*   **Report**: `report.md`.
+| Directory | Content | Format |
+|-----------|---------|--------|
+| `data/raw/` | Original downloads (parquet, CSV). | Parquet / CSV (as provided). |
+| `data/processed/` | Connectivity matrices, cleaned EEG epochs, avalanche event tables. | `.npy` for arrays, `.csv` for tables. |
+| `data/results/` | Participant‑level metrics, correlation tables, collinearity JSON, final report. | `metrics.csv`, `correlations.csv`, `collinearity_status.json`, `report.md`. |
+| `data/raw/.checksums.json` | SHA‑256 checksums for each raw file. | JSON. |
 
 ## Data Flow
+1. **Download** → `data/raw/` (checksum recorded).  
+2. **Preprocess dMRI** → `data/processed/` (structural graphs).  
+3. **Preprocess EEG** → `data/processed/` (cleaned EEG).  
+4. **Metric Computation** → `data/results/metrics.csv`.  
+5. **Statistical Validation** → `data/results/correlations.csv` and `collinearity_status.json`.  
+6. **Report Generation** → `data/results/report.md`.
 
-1.  **Download**: `raw/` (Parquet/CSV) -> **Preprocess** -> `processed/` (Numpy/CSV) -> **Analyze** -> `results/` (CSV/JSON).
-2.  **QC**: Any participant failing QC (e.g., disconnected graph, no avalanches) is dropped before `results/` generation.
-3.  **Validation**: Unit tests on synthetic data (ground truth) validate the statistical logic.
+All steps are deterministic given the pinned seeds and versioned dependencies.
+
+---
+
+

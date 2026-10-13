@@ -11,10 +11,10 @@ properties:
     description: "Spearman correlation coefficient"
   p_value:
     type: number
-    description: "Raw p-value"
+    description: "Raw p-value from the correlation test"
   corrected_p_value:
     type: number
-    description: "Permutation-corrected p-value"
+    description: "Permutation-corrected p-value (family-wise error rate)"
   vif_score:
     type: number
     description: "Variance Inflation Factor (if applicable)"
