@@ -1,4 +1,5 @@
 """Unit tests for preprocessing.scaling (T003, FR-002)."""
+
 import json
 import sys
 from pathlib import Path
@@ -103,9 +104,7 @@ class TestRobust:
         assert np.all(out == 0.0)
 
     def test_dataframe_zero_iqr_column(self, rng):
-        df = pd.DataFrame(
-            {"a": rng.normal(size=100), "b": np.full(100, 5.0)}
-        )
+        df = pd.DataFrame({"a": rng.normal(size=100), "b": np.full(100, 5.0)})
         out = robust_scale(df)
         assert not out.isnull().any().any()
         assert np.all(out["b"].to_numpy() == 0.0)
@@ -160,10 +159,7 @@ class TestLoggingAndPreservation:
 
         log_file = tmp_path / "logs" / "scaling_standardize.log"
         assert log_file.exists()
-        lines = [
-            json.loads(line)
-            for line in log_file.read_text().strip().splitlines()
-        ]
+        lines = [json.loads(line) for line in log_file.read_text().strip().splitlines()]
         assert len(lines) == 1
         entry = lines[0]
         assert entry["method"] == "standardize"

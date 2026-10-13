@@ -3,6 +3,7 @@ Reproducibility logging utilities for the simulation package.
 Provides a tolerant logger that never raises on unexpected calls,
 as well as seed configuration persistence with schema validation.
 """
+
 from __future__ import annotations
 
 import json
@@ -19,9 +20,11 @@ from dataclasses import dataclass, field, asdict
 # Core tolerant logger (reference implementation)
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class LogEntry:
     """A single log entry that can be serialised to JSON."""
+
     operation: str = ""
     parameters: Dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
@@ -64,6 +67,7 @@ class ReproducibilityLogger:
     def __getattr__(self, name: str):
         def _noop(*_a: Any, **_kw: Any) -> None:
             return None
+
         return _noop
 
 
@@ -110,6 +114,7 @@ def log_operation(*args: Any, **kwargs: Any):
 # Helper functions required by the rest of the project
 # ---------------------------------------------------------------------------
 
+
 def setup_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
     """
     Initialise (or retrieve) a ``ReproducibilityLogger``.
@@ -145,7 +150,9 @@ def setup_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
     return logger
 
 
-def inject_batch_context(logger: ReproducibilityLogger, batch_id: str) -> ReproducibilityLogger:
+def inject_batch_context(
+    logger: ReproducibilityLogger, batch_id: str
+) -> ReproducibilityLogger:
     """
     Attach a ``batch_id`` to an existing logger instance.
 
@@ -203,7 +210,9 @@ def save_seed_config(batch_id: str, seed: int, config_hash: str) -> Dict[str, An
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except OSError as e:
-                raise RuntimeError(f"Could not acquire lock on seed config file: {e}") from e
+                raise RuntimeError(
+                    f"Could not acquire lock on seed config file: {e}"
+                ) from e
             json.dump(existing_config, f, indent=2, sort_keys=True)
             f.flush()
             os.fsync(fd)

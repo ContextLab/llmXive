@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 from setup_directories import create_directories
 
+
 class TestDirectoryCreation:
     def test_create_directories(self):
         """Test directory creation."""

@@ -4,6 +4,7 @@ import pandas as pd
 import os
 from code.main import ensure_directories, main
 
+
 class TestMain(unittest.TestCase):
     def test_ensure_directories(self):
         """Test directory creation."""

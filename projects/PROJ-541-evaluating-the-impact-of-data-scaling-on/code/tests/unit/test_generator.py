@@ -7,6 +7,7 @@ Checks:
     requested effect size.
   * Skewed data achieves target skewness within +/- 0.1.
 """
+
 import sys
 from pathlib import Path
 

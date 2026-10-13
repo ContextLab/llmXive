@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from simulation.config import SimulationConfig
 
+
 class TestGeneratorEdgeCases:
     def test_zero_variance_handling(self):
         """Test zero variance handling."""

@@ -1,4 +1,5 @@
 """Unit tests for code/main.py functionality."""
+
 import csv
 import json
 import os
@@ -32,9 +33,9 @@ class TestMain:
                 "seed": 42,
             }
         ]
-        
+
         write_simulation_results(results, str(output_path))
-        
+
         assert output_path.exists()
         with open(output_path, "r") as f:
             reader = csv.DictReader(f)
@@ -59,13 +60,20 @@ class TestMain:
                 "seed": 123,
             }
         ]
-        
+
         write_simulation_results(results, str(output_path))
-        
+
         df = pd.read_csv(output_path)
         expected_cols = [
-            "iteration_id", "config_id", "scaling_method", "test_type",
-            "p_value", "statistic", "ground_truth", "scaling_params", "seed"
+            "iteration_id",
+            "config_id",
+            "scaling_method",
+            "test_type",
+            "p_value",
+            "statistic",
+            "ground_truth",
+            "scaling_params",
+            "seed",
         ]
         for col in expected_cols:
             assert col in df.columns, f"Missing column: {col}"
@@ -73,9 +81,9 @@ class TestMain:
     def test_write_simulation_results_empty(self, tmp_path):
         """Test that write_simulation_results handles empty results gracefully."""
         output_path = tmp_path / "empty_results.csv"
-        
+
         write_simulation_results([], str(output_path))
-        
+
         # File should exist but be empty or have only headers depending on implementation
         # For this test, we just ensure it doesn't crash
         assert output_path.exists()
@@ -95,7 +103,7 @@ class TestMain:
             "scaling_params": "{}",
             "seed": 1,
         }
-        
+
         # Create a minimal config
         config = SimulationConfig(
             distribution_type="Normal",
@@ -104,7 +112,7 @@ class TestMain:
             skewness=0.0,
             kurtosis=3.0,
         )
-        
+
         # Run with 2 iterations
         with tempfile.TemporaryDirectory() as tmpdir:
             # Patch CONFIG_MATRIX
@@ -116,7 +124,7 @@ class TestMain:
                         scaling_methods=["standardize"],
                         test_types=["t_test"],
                     )
-                    
+
                     # Check that run_single_iteration was called 2 times (1 config * 2 iterations * 1 scale * 1 test)
                     assert mock_run_iter.call_count == 2
                     assert len(result_df) == 2
@@ -138,9 +146,9 @@ class TestMain:
             }
             for i in range(10)
         ]
-        
+
         write_simulation_results(results, str(output_path))
-        
+
         df = pd.read_csv(output_path)
         assert len(df) == 10
         assert df["iteration_id"].tolist() == list(range(10))

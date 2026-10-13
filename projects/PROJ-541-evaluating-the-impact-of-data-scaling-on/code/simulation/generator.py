@@ -19,6 +19,7 @@ Implementation notes
   kurtosis is a deterministic function of the skewness, so it cannot
   be controlled independently. This is documented, not silently ignored.
 """
+
 import logging
 from typing import Optional, Tuple
 
@@ -139,9 +140,7 @@ def generate_alternative(
 
     rng = np.random.default_rng(seed)
     group1 = _draw_centered(n_samples, variance, skewness, rng, 0.0)
-    group2 = _draw_centered(
-        n_samples, variance, skewness, rng, float(effect_size)
-    )
+    group2 = _draw_centered(n_samples, variance, skewness, rng, float(effect_size))
     return group1, group2
 
 
@@ -170,9 +169,7 @@ def generate_synthetic_data(
     edge-case behavior expected by the simulation driver.
     """
     if var < 1e-9:
-        logger.log(
-            "WARNING", message="Skipping iteration: zero variance detected"
-        )
+        logger.log("WARNING", message="Skipping iteration: zero variance detected")
         return np.array([]), np.array([])
 
     return generate_alternative(

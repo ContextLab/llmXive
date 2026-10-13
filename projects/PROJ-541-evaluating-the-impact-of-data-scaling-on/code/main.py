@@ -2,6 +2,7 @@
 Main entry point for the llmXive automated science pipeline.
 Orchestrates simulation, real‑world data processing, analysis, and visualization.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -59,7 +60,11 @@ def get_test_function(test_type: str):
     return mapping[test_type]
 
 
-def save_checkpoint(results: List[Dict], iteration_count: int, checkpoint_path: str = "results/partial_checkpoint.csv"):
+def save_checkpoint(
+    results: List[Dict],
+    iteration_count: int,
+    checkpoint_path: str = "results/partial_checkpoint.csv",
+):
     """Save partial results to a CSV file."""
     logger.info(f"Saving checkpoint at iteration {iteration_count}")
     Path(checkpoint_path).parent.mkdir(parents=True, exist_ok=True)
@@ -232,7 +237,9 @@ def run_simulation_loop(
                     if current_runs >= total_runs_needed:
                         break
 
-                    result = run_single_iteration(config, current_runs, scale, test, seed)
+                    result = run_single_iteration(
+                        config, current_runs, scale, test, seed
+                    )
                     if result is not None:
                         all_results.append(result)
                         current_runs += 1
@@ -246,7 +253,9 @@ def run_simulation_loop(
     enforce_iteration_logic(current_runs, start_time)
     write_simulation_results(all_results, output_path)
 
-    logger.info(f"Simulation loop completed. {len(all_results)} results written to {output_path}")
+    logger.info(
+        f"Simulation loop completed. {len(all_results)} results written to {output_path}"
+    )
     return pd.DataFrame(all_results)
 
 
@@ -285,7 +294,9 @@ def main():
         help="Mode to run (alternative to sub‑command syntax)",
     )
 
-    subparsers = parser.add_subparsers(dest="subcommand", help="Mode to run (sub‑command syntax)")
+    subparsers = parser.add_subparsers(
+        dest="subcommand", help="Mode to run (sub‑command syntax)"
+    )
 
     # Simulation mode
     sim_parser = subparsers.add_parser("simulation", help="Run simulation loop")

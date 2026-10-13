@@ -2,6 +2,7 @@
 Tests for T028d: Iteration Logic Enforcement.
 Verifies that the simulation fails if time limit is hit before target iterations.
 """
+
 import pytest
 import sys
 from pathlib import Path
@@ -15,7 +16,7 @@ from main import enforce_iteration_logic, TARGET_ITERATIONS, MAX_RUNTIME_SECONDS
 
 
 class TestIterationLogic:
-    
+
     def test_target_iterations_is_10k(self):
         """Asserts target is 10k."""
         assert TARGET_ITERATIONS == 10000
@@ -31,14 +32,16 @@ class TestIterationLogic:
         # 6 hours passed, 100 iterations done
         with pytest.raises(RuntimeError) as exc_info:
             enforce_iteration_logic(elapsed_time=6 * 3600, current_iterations=100)
-        
+
         assert "FIDELITY VIOLATION" in str(exc_info.value)
         assert "Insufficient iterations" in str(exc_info.value)
 
     def test_stops_if_time_limit_hit_after_iterations(self):
         """Should return False (stop) if time > 5.5h but iterations >= 10k."""
         # 6 hours passed, 10000 iterations done
-        result = enforce_iteration_logic(elapsed_time=6 * 3600, current_iterations=10000)
+        result = enforce_iteration_logic(
+            elapsed_time=6 * 3600, current_iterations=10000
+        )
         assert result is False
 
     def test_continues_if_time_limit_not_reached(self):
@@ -51,6 +54,6 @@ class TestIterationLogic:
         """Should return False if iterations >= target."""
         result = enforce_iteration_logic(elapsed_time=100, current_iterations=10000)
         assert result is False
-        
+
         result = enforce_iteration_logic(elapsed_time=100, current_iterations=10001)
         assert result is False

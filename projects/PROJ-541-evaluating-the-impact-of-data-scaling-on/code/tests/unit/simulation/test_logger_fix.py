@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from simulation.logger import setup_logger
 
+
 class TestSetupLogger:
     def test_setup_logger_string(self):
         """Test setup_logger with string argument."""

@@ -20,9 +20,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --mode simulation -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 333, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 344, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 320, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 331, in main
     run_simulation_loop(target_iterations=args.iterations, output_path=args.output)
                                           ^^^^^^^^^^^^^^^
 AttributeError: 'Namespace' object has no attribute 'iterations'
@@ -40,23 +40,20 @@ usage: main.py [-h] [--mode {simulation,real_world,analyze,visualize}]
 main.py: error: argument --mode: invalid choice: 'verify-checksums' (choose from 'simulation', 'real_world', 'analyze', 'visualize')
 
 - python -m pytest tests/unit/ -> rc=2
-imezone_db_path,
-pyarrow/lib.pyx:42: in init pyarrow.lib
-    ???
-E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.0
+ion' (/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/preprocessing/ingestion.py)
 _____ ERROR collecting tests/unit/validation/test_quickstart_validation.py _____
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/tests/unit/validation/test_quickstart_validation.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/validation/test_quickstart_validation.py:16: in <module>
+tests/unit/validation/test_quickstart_validation.py:17: in <module>
     from validation.quickstart_validation import check_directories, run_aggregation
 E   ModuleNotFoundError: No module named 'validation'
 =========================== short test summary info ============================
 ERROR tests/unit/preprocessing/test_ingestion.py
 ERROR tests/unit/validation/test_quickstart_validation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.04s ===============================
+============================== 2 errors in 1.85s ===============================
 
 

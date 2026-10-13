@@ -2,6 +2,7 @@
 Unit tests for the Quickstart Validation script (T044).
 Ensures the validation logic itself is sound.
 """
+
 import pytest
 import sys
 import os
@@ -16,6 +17,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from validation.quickstart_validation import check_directories, run_aggregation
 from analysis.tests import TestResult, ScalingMethod
 import json
+
 
 class TestQuickstartValidation:
     """Tests for the validation script components."""
@@ -48,7 +50,7 @@ class TestQuickstartValidation:
                 "p_value": 0.5,
                 "statistic": 0.0,
                 "significant": False,
-                "alpha": 0.05
+                "alpha": 0.05,
             },
             {
                 "hypothesis": "alt",
@@ -56,20 +58,20 @@ class TestQuickstartValidation:
                 "p_value": 0.01,
                 "statistic": 2.5,
                 "significant": True,
-                "alpha": 0.05
-            }
+                "alpha": 0.05,
+            },
         ]
-        
+
         # Should run without error
         run_aggregation(results)
-        
+
         # Verify file was created
         expected_file = PROJECT_ROOT / "results" / "aggregate_metrics.json"
         assert expected_file.exists(), "Aggregate metrics file should be created"
-        
-        with open(expected_file, 'r') as f:
+
+        with open(expected_file, "r") as f:
             data = json.load(f)
-        
+
         assert "type_i_error" in data or "power" in data or "metrics" in data
 
     def test_verify_artifacts_logic(self, tmp_path):
@@ -79,11 +81,12 @@ class TestQuickstartValidation:
         results_dir.mkdir()
         fake_file = results_dir / "aggregate_metrics.json"
         fake_file.write_text("{}")
-        
+
         # We cannot easily test the global PROJECT_ROOT dependency without
         # refactoring the script to accept a path argument.
         # This test serves as a placeholder for the logic check.
         pass
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

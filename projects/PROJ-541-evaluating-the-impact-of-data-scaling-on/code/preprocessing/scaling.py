@@ -14,6 +14,7 @@ Transparency requirements (Constitution VII / task T003):
 All functions FAIL LOUDLY on invalid input (empty, non-numeric,
 non-finite data) — there is no silent fallback.
 """
+
 from __future__ import annotations
 
 import json
@@ -51,9 +52,7 @@ def _validate_input(data: DataLike) -> None:
             raise ValueError("Input DataFrame is empty; refusing to scale.")
         for col in data.columns:
             if not pd.api.types.is_numeric_dtype(data[col]):
-                raise ValueError(
-                    f"Column '{col}' is non-numeric; refusing to scale."
-                )
+                raise ValueError(f"Column '{col}' is non-numeric; refusing to scale.")
         if not np.isfinite(data.to_numpy(dtype=float)).all():
             raise ValueError("Input DataFrame contains non-finite values.")
     elif isinstance(data, pd.Series):
@@ -74,9 +73,7 @@ def _validate_input(data: DataLike) -> None:
             raise ValueError("Input array contains non-finite values.")
 
 
-def _persist_original(
-    data: DataLike, method: str, parameters: Dict[str, Any]
-) -> Path:
+def _persist_original(data: DataLike, method: str, parameters: Dict[str, Any]) -> Path:
     """
     Save a copy of the PRE-scaled data and append a structured log entry.
 
@@ -189,9 +186,7 @@ def min_max_scale(
         )
     _validate_input(data)
     if persist:
-        _persist_original(
-            data, "minmax", {"min_val": min_val, "max_val": max_val}
-        )
+        _persist_original(data, "minmax", {"min_val": min_val, "max_val": max_val})
 
     if isinstance(data, pd.DataFrame):
         data_min = data.min()
@@ -206,18 +201,14 @@ def min_max_scale(
             out = min_val + (data - data_min) * (max_val - min_val) / span
             out.loc[:, zero_range] = min_val
             return out
-        return min_val + (data - data_min) * (max_val - min_val) / (
-            data_max - data_min
-        )
+        return min_val + (data - data_min) * (max_val - min_val) / (data_max - data_min)
     if isinstance(data, pd.Series):
         data_min = data.min()
         data_max = data.max()
         if data_min == data_max:
             logger.warning("Zero range; mapping to min_val.")
             return pd.Series(min_val, index=data.index, name=data.name)
-        return min_val + (data - data_min) * (max_val - min_val) / (
-            data_max - data_min
-        )
+        return min_val + (data - data_min) * (max_val - min_val) / (data_max - data_min)
 
     arr = np.asarray(data, dtype=float)
     data_min = np.min(arr)
@@ -225,9 +216,7 @@ def min_max_scale(
     if data_min == data_max:
         logger.warning("Zero range; mapping to min_val.")
         return np.full_like(arr, min_val)
-    return min_val + (arr - data_min) * (max_val - min_val) / (
-        data_max - data_min
-    )
+    return min_val + (arr - data_min) * (max_val - min_val) / (data_max - data_min)
 
 
 def robust_scale(

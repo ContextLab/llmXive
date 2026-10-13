@@ -11,7 +11,7 @@ contents, or successful command‑line execution).
 
 ## Phase 1 – Project scaffolding & core simulation engine  
 
-- [ ] **T001** [P] **Create project scaffolding, linting, and dependency lock**  
+- [ ] **T001** [P] **Create project scaffolding, linting, and dependency lock**   <!-- FAILED-IN-EXECUTION: code/verify_scaffolding.py exit=1 -->
   - **Files created / updated**: `README.md`, `code/__init__.py`, `code/requirements.txt` (pinned versions), `pyproject.toml` (Black config), `ruff.toml` (ruff lint config), `.pre-commit-config.yaml` (pre‑commit hooks), `code/tests/__init__.py`.  
   - **Verification**:  
     1. All listed files exist.  

@@ -1,12 +1,6 @@
 T001:
-  reason: "The config files (`code/requirements.txt`, `code/pyproject.toml`, `code/ruff.toml`,\
-    \ `code/.pre-commit-config.yaml`, `code/__init__.py`, `code/tests/__init__.py`)\
-    \ exist with plausible content, but `README.md` was not confirmed to exist (\"\
-    NOT INSPECTED\" due to evidence limit, with no resolved path shown), and there\
-    \ is no execution evidence for any of the three verification steps \u2014 no log\
-    \ or output showing `pip install -r code/requirements.txt` succeeded in a fresh\
-    \ venv, or that `ruff check .` and `black --check .` returned exit code 0. The\
-    \ next implementer should confirm README.md exists and pro"
+  reason: 'Requested task execution failed; rerun successfully: code/verify_scaffolding.py
+    exit=1'
   task: 196be1182bf25472391af15a7e14a012433d24d9eb818eecaa8c2ec97383569d
 T002:
   reason: "The required test run fails: the recorded execution log shows `pytest code/tests/unit/test_generator.py`\

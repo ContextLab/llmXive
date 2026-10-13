@@ -2,6 +2,7 @@
 Setup linting and formatting tools for the project.
 Creates configuration files for Ruff, Flake8, and Black.
 """
+
 import sys
 import subprocess
 from pathlib import Path
@@ -34,7 +35,7 @@ def write_black_config(pyproject_path: Path):
         if "[tool.black]" not in text:
             with pyproject_path.open("a") as f:
                 f.write(
-"\n[tool.black]\\nline-length = 88\\nskip-string-normalization = false\\n"
+                    "\n[tool.black]\\nline-length = 88\\nskip-string-normalization = false\\n"
                 )
     else:
         content = """[tool.black]
@@ -53,15 +54,15 @@ def install_tools():
 def main():
     """Create config files and optionally install the tools."""
     project_root = Path(__file__).parent
-    
+
     # Config files
     write_ruff_config(project_root / "ruff.toml")
     write_flake8_config(project_root / ".flake8")
     write_black_config(project_root / "pyproject.toml")
-    
+
     # Uncomment the following line if you want the script to install the tools automatically
     # install_tools()
-    
+
     print("Linting and formatting configuration files have been set up.")
 
 
