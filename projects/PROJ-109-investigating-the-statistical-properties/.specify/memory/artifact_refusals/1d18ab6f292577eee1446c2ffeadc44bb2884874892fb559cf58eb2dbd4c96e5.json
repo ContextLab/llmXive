@@ -1,0 +1,7 @@
+{
+  "task_id": "T011",
+  "fingerprint": "1d44ead4517740825fa30aa8034d44404e5905e9e8736068bcc9982638d47a40",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'config.py': `code/config.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root.\n[implementer] refusing to write 'code/data/compute_metrics.py': imports nonexistent names from sibling files: `from config import DATA_PROCESSED_DIR, MIN_PARTICLES, SIMULATION_BOX_SIZE` (available: Any, BH_FDR_THRESHOLD, BOX_SIZE, BOX_SIZE_MILLENNIUM, BOX_SIZE_TNG100, BULLOCK_ALPHA, BULLOCK_C200, CODE_DIR...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}
