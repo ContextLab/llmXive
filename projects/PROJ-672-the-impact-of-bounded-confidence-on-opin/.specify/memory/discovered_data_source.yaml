@@ -1,38 +1,33 @@
 status: verified
 kind: pypi_package
 ref: networkx
-access_python: "import networkx as nx\n\ndef make_record(gid, gtype, n, param, seed):\n\
-  \    if gtype == \"erdos_renyi\":\n        G = nx.erdos_renyi_graph(n, param, seed=seed)\n\
-  \    elif gtype == \"barabasi_albert\":\n        G = nx.barabasi_albert_graph(n,\
-  \ param, seed=seed)\n    elif gtype == \"watts_strogatz\":\n        k, p = param\n\
-  \        G = nx.watts_strogatz_graph(n, k, p, seed=seed)\n    else:\n        raise\
-  \ ValueError(f\"Unsupported graph type: {gtype}\")\n    return {\n        \"graph_id\"\
-  : gid,\n        \"graph_type\": gtype,\n        \"num_nodes\": G.number_of_nodes(),\n\
-  \        \"num_edges\": G.number_of_edges(),\n        \"seed\": seed,\n        \"\
-  edge_list\": list(G.edges()),\n        \"node_attributes\": {node: G.nodes[node]\
-  \ for node in G.nodes()},\n    }\n\nrecords = [\n    make_record(1, \"erdos_renyi\"\
-  , 100, 0.05, 42),\n    make_record(2, \"barabasi_albert\", 100, 3, 43),\n    make_record(3,\
-  \ \"watts_strogatz\", 100, (6, 0.1), 44),\n]\n\nprint(f\"RECORDS={len(records)}\"\
-  )\nprint(\"FIELDS=graph_id,graph_type,num_nodes,num_edges,seed,edge_list,node_attributes\"\
-  )"
-record_count: 3
+access_python: "import networkx as nx\n\nrecords = []\ngraph_id = 0\n\n# Load several\
+  \ built\u2011in graphs (these are the full datasets provided by NetworkX)\nbuiltin_graphs\
+  \ = [\n    (\"karate_club\", nx.karate_club_graph()),\n    (\"davis_southern_women\"\
+  , nx.davis_southern_women_graph()),\n    (\"les_miserables\", nx.les_miserables_graph()),\n\
+  ]\n\nfor name, G in builtin_graphs:\n    graph_id += 1\n    num_nodes = G.number_of_nodes()\n\
+  \    for u, v in G.edges():\n        records.append({\n            \"graph_id\"\
+  : graph_id,\n            \"graph_type\": name,\n            \"num_nodes\": num_nodes,\n\
+  \            \"edge_source\": u,\n            \"edge_target\": v,\n        })\n\n\
+  print(f\"RECORDS={len(records)}\")\nif records:\n    print(\"FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 421
 sample_fields:
 - graph_id
 - graph_type
 - num_nodes
-- num_edges
-- seed
-- edge_list
-- node_attributes
-field_coverage: 1.0
+- edge_source
+- edge_target
+field_coverage: 0.556
 required_fields:
 - graph_id
 - graph_type
-- num_nodes
-- num_edges
 - seed
-- edge_list
-- node_attributes
-intent: "NetworkX synthetic graph generators for Erd\u0151s\u2011R\xE9nyi Barab\xE1\
-  si\u2011Albert Watts\u2011Strogatz python package dataset"
-cache_key: 454a9fed8a38a7a1261d83b81fac84475753444d1b19fb4c16e10dac4a282d68
+- num_nodes
+- edge_source
+- edge_target
+- m_parameter
+- rewiring_probability
+- erdos_renyi_p
+intent: "NetworkX graph generators synthetic network dataset for Erd\u0151s-R\xE9\
+  nyi Barab\xE1si-Albert Watts-Strogatz python package dataset"
+cache_key: a437a283052dca1189fd0cf47cd71260f526b16010aaaeb0f460edfb94c152da

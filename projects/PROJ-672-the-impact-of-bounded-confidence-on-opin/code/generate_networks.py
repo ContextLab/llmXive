@@ -20,6 +20,9 @@ import pandas as pd
 
 from llmxive_toolkit import paths, get_logger
 
+# Import the metric calculator
+from utils.metrics import calculate_structural_metrics
+
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
@@ -73,7 +76,9 @@ def ensure_connected(G: nx.Graph, strategy: str = "largest") -> nx.Graph:
         # Keep the largest connected component and relabel nodes 0..N-1
         largest_cc = max(nx.connected_components(G), key=len)
         subgraph = G.subgraph(largest_cc).copy()
-        mapping = {old_label: new_label for new_label, old_label in enumerate(subgraph.nodes())}
+        mapping = {
+            old_label: new_label for new_label, old_label in enumerate(subgraph.nodes())
+        }
         return nx.relabel_nodes(subgraph, mapping)
     elif strategy == "bridge":
         raise NotImplementedError("Bridge strategy not implemented")
@@ -112,15 +117,19 @@ def main() -> None:
         "--topology",
         choices=["ER", "BA", "WS"],
         required=False,
-        help="Network topology to generate (Erdős‑Renyi, Barabási‑Albert, Watts‑Strogatz). "
-             "If omitted, all topologies are generated.",
+        help=(
+            "Network topology to generate (Erdős‑Renyi, Barabási‑Albert, Watts‑Strogatz). "
+            "If omitted, all topologies are generated."
+        ),
     )
     parser.add_argument(
         "--instances",
         type=int,
         default=None,
-        help="Number of independent network instances to generate per topology. "
-             "Deprecated in favour of --seeds; if both are provided, --seeds wins.",
+        help=(
+            "Number of independent network instances to generate per topology. "
+            "Deprecated in favour of --seeds; if both are provided, --seeds wins."
+        ),
     )
     parser.add_argument(
         "--seeds",
@@ -138,16 +147,23 @@ def main() -> None:
         "--output",
         type=str,
         default=None,
-        help="Base output directory for generated networks. "
-             "Defaults to the project's data/raw/networks/ folder.",
+        help=(
+            "Base output directory for generated networks. "
+            "Defaults to the project's data/raw/networks/ folder."
+        ),
     )
 
     args = parser.parse_args()
 
-    # Resolve number of instances to generate
-    instances = args.seeds if args.seeds is not None else args.instances
-    if instances is None:
-        raise argparse.ArgumentError(None, "Either --instances or --seeds must be provided.")
+    # Resolve number of instances to generate.
+    # If neither --instances nor --seeds is supplied, default to 50
+    # as required by the research specification.
+    if args.seeds is not None:
+        instances = args.seeds
+    elif args.instances is not None:
+        instances = args.instances
+    else:
+        instances = 50  # Default for the main study
 
     # Resolve output base directory
     if args.output:
@@ -211,16 +227,25 @@ def main() -> None:
 
             _write_edgelist(G, edgelist_path)
 
+            # Compute structural metrics using the shared utility
+            metrics = calculate_structural_metrics(G)
+
             metadata = {
                 "topology": topology,
                 "seed": instance_seed,
                 "node_count": G.number_of_nodes(),
                 "edge_count": G.number_of_edges(),
+                "metrics": metrics,
             }
             _write_metadata(metadata, metadata_path)
 
             # Collect row for CSV summary
-            csv_rows.append(metadata)
+            csv_rows.append({
+                "topology": topology,
+                "seed": instance_seed,
+                "node_count": G.number_of_nodes(),
+                "edge_count": G.number_of_edges(),
+            })
 
             log.info(f"Wrote {edgelist_path} and {metadata_path}")
 

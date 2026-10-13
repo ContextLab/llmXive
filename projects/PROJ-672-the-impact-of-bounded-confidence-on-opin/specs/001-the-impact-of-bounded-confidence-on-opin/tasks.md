@@ -40,7 +40,7 @@
 | Goal | Produce reproducible ensembles for ER, BA, and WS topologies, store metrics, and confirm memory limits. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] T005 [US1] **Generate 50 reproducible networks per topology** – `code/generate_networks.py` accepts `--topology {ER,BA,WS}`, `--instances 50`, `--seed <int>`. It writes edge‑list files to `data/raw/networks/{topology}_{idx}.edgelist` and a CSV `data/raw/networks/{topology}_metadata.csv` with one row per instance.   <!-- FAILED-IN-EXECUTION: code/generate_networks.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_networks.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_networks.py exit=1 -->
+- [X] T005 [US1] **Generate 50 reproducible networks per topology** – `code/generate_networks.py` accepts `--topology {ER,BA,WS}`, `--instances 50`, `--seed <int>`. It writes edge‑list files to `data/raw/networks/{topology}_{idx}.edgelist` and a CSV `data/raw/networks/{topology}_metadata.csv` with one row per instance.
   - **File**: `code/generate_networks.py`  
   - **Verification**: After execution, each topology folder (`data/raw/networks/ER/`, `.../BA/`, `.../WS/`) contains exactly 50 `.edgelist` files and the CSV validates against `network_instance.schema.json`. **Additionally**, each generated network is checked to have `node_count == 500`.
 
@@ -48,7 +48,7 @@
   - **File**: `code/generate_networks.py` (metrics section)  
   - **Verification**: `jsonschema validate --schema code/contracts/network_instance.schema.json data/raw/networks/metadata_BA_0001.json` passes **and** the `node_count` field equals 500.
 
-- [ ] T007 [US1] **Memory‑usage test for batch generation** – `tests/unit/test_memory_limits.py` uses `psutil` to monitor peak RAM while generating 50 × 500‑node graphs; it asserts peak < 7 GB.  
+- [~] T007 [US1] **Memory‑usage test for batch generation** – `tests/unit/test_memory_limits.py` uses `psutil` to monitor peak RAM while generating 50 × 500‑node graphs; it asserts peak < 7 GB.  
   - **File**: `tests/unit/test_memory_limits.py`  
   - **Verification**: Unit test passes on the CI runner.
 
@@ -59,7 +59,7 @@
 | Goal | Run the Hegselmann‑Krause model across all networks, sweep ε, record convergence times, and handle non‑convergence. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] T008 [US2] **Implement HK update rule & convergence detector** – `code/simulate_hk.py` provides `run_simulation(network, epsilon, seed, max_iter=10000, tol=1e-4)` and returns a dict with `convergence_time`, `status`, `final_clusters`.  
+- [ ] T008 [US2] **Implement HK update rule & convergence detector** – `code/simulate_hk.py` provides `run_simulation(network, epsilon, seed, max_iter=10000, tol=1e-4)` and returns a dict with `convergence_time`, `status`, `final_clusters`.   <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 -->
   - **File**: `code/simulate_hk.py` (plus `code/utils/convergence.py`)  
   - **Verification**: Unit test `tests/unit/test_hk_logic.py` on a 50‑node random graph asserts:
     1. `status == "converged"` and `convergence_time <= 200` when ε=0.2;

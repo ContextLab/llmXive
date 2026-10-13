@@ -1,36 +1,52 @@
 T001:
   c: true
-  h: b7bec645a69060a4ebe354c27ca4791183773e54e8f271da4268e1078690c47c
+  h: b9608e10aaa51caa13427223ce92ac8dd8f2efb7637bd5cd83b6b3dc05f4a403
   r: Checked that `README.md` and `quickstart.md` exist at the repository root, that
-    `quickstart.md` includes the required command, and that executing this command
-    (as shown in the log) successfully created `data/raw/networks/ER_0000.edgelist`
-    and `data/raw/networks/metadata_ER_0000.json` without errors.
-  sig: ab1f7cdfa5fa093582a175fa43a3f6db603bc92307371f1e838c0744275255da
+    `quickstart.md` includes the required `python -m code.generate_networks --topology
+    ER --instances 1 --seed 0` command, and verified via the execution log and the
+    presence of `data/raw/networks/ER_0000.edgelist` and `data/raw/networks/metadata_ER_0000.json`
+    that the command runs without error and creates the expected files.
+  sig: e1974e1b88a8102e2585a6baf78790d1323181928338cc304632dc103f9c68dd
 T002:
   c: true
-  h: 5dd8121f80bd16b442e2d52815b96604bb172f146d4943f025b9cdd2f0d66f6e
-  r: "Checked `code/requirements.txt` \u2013 it contains all eight required packages\
-    \ (networkx, numpy, pandas, scipy, matplotlib, statsmodels, h5py, pytest) plus\
-    \ extra harmless entries. The task\u2019s verification log (`code/.tasks/T002.code_verify_requirements.py.log`)\
-    \ shows the `pip install -r \u2026` command was run and the script exited with\
-    \ status\u202F0 (`ok=True`), indicating the install succeeded and the subsequent\
-    \ `pip list` check passed."
-  sig: d606d06d3f13dd882d6de3b5004288a77ea869b23038a0534b8b733e89e4d3fe
+  h: 3438ca9ee40b607fa8f2b140bd4ef88b83c28903587150d6fbe003c5a2abb857
+  r: "Checked `code/requirements.txt` (contains all eight required packages) and the\
+    \ execution log `code/.tasks/T002.code_verify_requirements.py.log` showing `pip\
+    \ install -r` succeeded (exit\u202F0) and the verification script reported success."
+  sig: 2e7e02597ac2fa984c0e0f421482be9f6b30c0d63137d7a04be31491cc78e08a
 T003:
   c: true
-  h: 9f858a51a0283f653e56c7d5c35a75dc1f065c842a9ca7334dfd05e41fa56254
+  h: b908141bfb144b286cc0fc8d57b44d8479febb75139d0c22a67e614d5aa8ea9c
   r: Checked that `code/utils/checksums.py`, `code/utils/metrics.py`, and `code/utils/plotting.py`
-    exist with appropriate implementations, and that their corresponding unit tests
-    in `tests/unit/` ran successfully (logs show all tests passed).
-  sig: 37108e2d53f4171174c2d12d40f6bf63069388b3584b3f2d639ab24ddad97143
+    exist with full implementations, and that their corresponding unit tests in `tests/unit/`
+    (shown in the logged pytest runs) all passed.
+  sig: c698be5c7b24b81819749ff480e6831631c0fa6fd85948fa547b02fef5fb3e44
 T004:
   c: true
-  h: 04ff0fe3da8f8e4bdecf45e809aedbf6300b9f8261285849fd30273d45b3c8e8
-  r: Checked that `code/contracts/` contains the four required JSON schema files,
-    that `tests/conftest.py` defines an autouse fixture resetting `random` and `numpy`
-    seeds to a fixed value, and that `pytest.ini` is present; the provided `network_instance.schema.json`
-    validates the example `metadata_ER_0000.json`, confirming the schemas are correct.
-  sig: f17265e8c15d9134bb0abd1255141a6f9766568d5caeac438c464e7f6be0e223
+  h: dbc11d6913c62c3467adc4067ae34510c6dd8f837706cb05035371f1e5d23afb
+  r: "Checked that `code/contracts/` contains the four required JSON schema files\
+    \ (all non\u2011empty and syntactically valid) and that `tests/conftest.py` defines\
+    \ an autouse fixture resetting `random` and `numpy.random` to a fixed seed, with\
+    \ `pytest.ini` present. The sample metadata validates against `network_instance.schema.json`,\
+    \ satisfying the verification step."
+  sig: 3222d9d82b9505fbf1643874cb94f2ee1fc2fdc45220dc15d20aa0feb11ed685
+T005:
+  c: true
+  h: 0352bac2f8bce9d6850d72a221cbf361991c624a85ea27da47fc442ce3df8553
+  r: "Checked `code/generate_networks.py` (CLI, deterministic seeding, writes to subfolders),\
+    \ the presence of 50 `.edgelist` files per topology in `data/raw/networks/ER/`,\
+    \ `BA/`, `WS/`, and the three CSV metadata files each containing 50 rows with\
+    \ `node_count`\u202F=\u202F500. All required artifacts exist and meet the specifications."
+  sig: 3f7709abe451b62318df0ce0e575f786b1cae418da2e6b09b0f7d19f95c01027
+T006:
+  c: false
+  h: c8db0edb80e38eb3bb22299ff8c65d8cc650bd6b2571dcbbf71dec4226db83e3
+  r: "The required `metadata_BA_0001.json` file does not exist, and the existing `metadata_ER_0000.json`\
+    \ lacks the `\"metrics\"` field that the script is supposed to record (the schema\
+    \ permits omission, but the task explicitly requires storing structural metrics).\
+    \ Consequently the task\u2019s requirement of writing a conforming JSON per network\
+    \ with computed metrics and a node count of 500 is not satisfied."
+  sig: d885114659e79b1f998f92757078a6abe7babc144063d6ba50219e9a3fa1c903
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
