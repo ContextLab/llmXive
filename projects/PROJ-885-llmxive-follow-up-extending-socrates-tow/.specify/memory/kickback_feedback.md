@@ -1,15 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T027` (rejected 1x): The runner.py file only contains a helper `enforce_cpu_only_execution` but does not show the required transformers inference loop, explicit CPU device mapping, bitsandbytes/quantization exclusion, or low‑confidence neutral‑state fallback. Moreover, the required `data/results/scope_adjustments.json` file is absent, so the exclusion‑record requirement cannot be verified. The implementer must add the full CPU‑only inference implementation and ensure the JSON file is created/updated as specified.
-- `T013` (rejected 1x): The repository lacks the required `data/processed/generation_stats.json` file, and the provided `code/data/generator.py` snippet shows no implemented oversampling logic or code that writes the requested `oversampling_ratio` and `high_emotion_count` values. Both the artifact and the required output are missing.
-- `T014` (rejected 1x): The repository lacks the required output files `data/processed/trajectories.json` and `data/processed/generation_stats.json`. Moreover, the provided `code/data/generator.py` is truncated and shows no implementation of writing trajectories or generating the summary report with the specified schema. The task’s core output artifacts are therefore missing.
-- `T015` (rejected 1x): The repository lacks the required output files `data/processed/trajectories.json` and `data/processed/generation_stats.json`, and the provided `code/data/generator.py` is truncated and shows no logic that writes those files or sets `underpowered_flag` when the count is below 500. Consequently the task’s core requirements are not met.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- T106 flags adapter records with injected_state='neutral-monitoring' as exclude_from_stats:true and T109/T110 filter them from the primary comparison. The spec's edge case says the neutral fallback exists to keep 'the static baseline comparison remain valid' — i.e., the neutral-monitoring run IS the valid adapter behavior for that trajectory, not a discardable record. One-sided post-hoc exclusion of adapter runs only breaks the paired design mandated by Constitution VII (same trajectories, same LLM, both conditions). No spec clause authorizes excluding these records from the primary effect.
