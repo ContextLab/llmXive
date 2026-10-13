@@ -18,13 +18,13 @@ logger = logging.getLogger(__name__)
 def calculate_snr(time_series: np.ndarray) -> float:
     """
     Calculate Signal-to-Noise Ratio (SNR) for fMRI time series.
-    
+
     Definition: Mean signal intensity / Standard deviation of signal.
     Computed across all timepoints and regions, then averaged.
-    
+
     Args:
         time_series: 1D (n_timepoints) or 2D (n_timepoints, n_regions) array.
-    
+
     Returns:
         float: Mean SNR value across all regions.
     """
@@ -47,11 +47,11 @@ def calculate_snr(time_series: np.ndarray) -> float:
 def filter_by_snr(time_series: np.ndarray, threshold: float | None = None) -> tuple[np.ndarray, bool]:
     """
     Check if time series meets SNR threshold.
-    
+
     Args:
         time_series: 1D or 2D array of fMRI data.
         threshold: SNR threshold. If None, uses config value.
-    
+
     Returns:
         Tuple of (time_series, passes_threshold).
         If passes_threshold is False, the data is considered noisy.
@@ -71,14 +71,14 @@ def filter_by_snr(time_series: np.ndarray, threshold: float | None = None) -> tu
 def orthogonalize_motion_noise(time_series: np.ndarray, motion_params: np.ndarray) -> np.ndarray:
     """
     Orthogonalize time series against motion parameters using nuisance regression.
-    
+
     This implements a standard linear regression approach to remove motion-related
     variance from the fMRI signal.
-    
+
     Args:
         time_series: Shape (n_timepoints, n_regions).
         motion_params: Shape (n_timepoints, n_motion_params) (typically 6 rigid-body parameters).
-    
+
     Returns:
         Residualized time series with motion effects removed.
         Shape: (n_timepoints, n_regions).
@@ -120,12 +120,12 @@ def apply_noise_filter_pipeline(
     Apply full noise filter pipeline:
     1. Calculate and check SNR.
     2. Orthogonalize against motion parameters.
-    
+
     Args:
         time_series: fMRI time series data (n_timepoints, n_regions).
         motion_params: Motion parameters (n_timepoints, 6).
         snr_threshold: Optional SNR threshold override.
-    
+
     Returns:
         Tuple of (cleaned_time_series, metadata_dict).
         metadata_dict contains:

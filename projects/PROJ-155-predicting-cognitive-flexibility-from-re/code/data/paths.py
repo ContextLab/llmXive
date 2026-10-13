@@ -1,63 +1,47 @@
 """
-Utility functions for accessing project data directories.
+Helper utilities for constructing project‑relative paths.
 
-This module provides a small wrapper around ``llmxive_toolkit.paths`` to
-expose convenient helpers used throughout the pipeline. All functions
-return ``str`` paths (compatible with ``os.path`` utilities) and ensure
-that the requested directories exist.
+The functions mirror the simple path helpers used throughout the
+codebase (e.g. ``ensure_dir``, ``get_processed_path``). They delegate
+to ``llmxive_toolkit.paths`` which creates the directories on
+demand.
 """
-
 from pathlib import Path
 
 from llmxive_toolkit import paths
 
 
-def get_project_root() -> Path:
+def ensure_dir(p: Path) -> None:
     """
-    Return the absolute path to the project root directory.
+    Ensure that the directory component of *p* exists.
 
-    The file lives in ``code/data/paths.py``; the project root is two
-    levels up (``code/data`` → ``code`` → project root).
+    Args:
+        p: Path object – typically a file path. The parent directory
+           will be created if it does not already exist.
     """
-    return Path(__file__).resolve().parents[2]
+    p.parent.mkdir(parents=True, exist_ok=True)
 
-
-def get_raw_path(*subpaths: str) -> str:
+def get_raw_path() -> Path:
     """
-    Path to the raw data directory (``data/raw``) optionally extended with
-    additional sub‑paths.
-
-    Example:
-        get_raw_path()                     -> "<project>/data/raw"
-        get_raw_path("HCP_1200", "sub-001") -> "<project>/data/raw/HCP_1200/sub-001"
+    Return the path to the raw data directory (``data/raw``).
     """
-    return str(paths.data("raw", *subpaths))
+    return paths.data("raw")
 
-
-def get_processed_path(*subpaths: str) -> str:
+def get_processed_path() -> Path:
     """
-    Path to the processed data directory (``data/processed``) optionally
-    extended with additional sub‑paths.
+    Return the path to the processed data directory (``data/processed``).
     """
-    return str(paths.data("processed", *subpaths))
+    return paths.data("processed")
 
-
-def get_results_path(*subpaths: str) -> str:
+def get_results_path() -> Path:
     """
-    Path to the results directory (``data/results``) optionally extended
-    with additional sub‑paths.
+    Return the path to the results directory (``data/results``).
     """
     # ``paths.results`` creates ``data/results`` under the project root.
-    return str(paths.results(*subpaths))
+    return paths.results()
 
-
-def ensure_dir(path: str | Path) -> None:
+def get_figures_path() -> Path:
     """
-    Ensure that the directory for *path* exists.
-
-    If ``path`` points to a file, the parent directory is created.
-    If it already exists, the function does nothing.
+    Return the path to the figures directory (``figures``).
     """
-    p = Path(path)
-    if not p.is_dir():
-        p.mkdir(parents=True, exist_ok=True)
+    return paths.figures()

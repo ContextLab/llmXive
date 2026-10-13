@@ -12,7 +12,6 @@ from code.features.connectivity import main as connectivity_main
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 def _run_download_preprocess() -> None:
     """Download raw data and run preprocessing, then merge."""
     logger.info("Downloading raw data (HCP subset)...")
@@ -30,7 +29,6 @@ def _run_download_preprocess() -> None:
         logger.error("Merge pipeline failed.")
         sys.exit(1)
 
-
 def _run_features() -> None:
     """Run the connectivity feature extraction stage."""
     logger.info("Running connectivity feature extraction...")
@@ -39,7 +37,6 @@ def _run_features() -> None:
         logger.error("Connectivity pipeline failed.")
         sys.exit(1)
     logger.info("Feature extraction completed.")
-
 
 def main() -> None:
     """Entry point for the project."""
@@ -65,7 +62,6 @@ def main() -> None:
         logger.info("Analysis stage not implemented for this task.")
     else:
         parser.error(f"Unknown stage: {args.stage}")
-
 
 if __name__ == "__main__":
     main()

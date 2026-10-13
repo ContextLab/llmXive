@@ -11,7 +11,6 @@ from code.utils.logging import init_logging, log_exclusion
 
 logger = logging.getLogger(__name__)
 
-
 def run_merge_pipeline() -> tuple[pd.DataFrame, bool]:
     """Run the merge pipeline and write outputs."""
     init_logging()
@@ -76,12 +75,10 @@ def run_merge_pipeline() -> tuple[pd.DataFrame, bool]:
         logger.error(f"Merge failed: {e}")
         return pd.DataFrame(), False
 
-
 def main() -> int:
     """CLI entry point."""
     success, _ = run_merge_pipeline()
     return 0 if success else 1
-
 
 if __name__ == "__main__":
     exit(main())

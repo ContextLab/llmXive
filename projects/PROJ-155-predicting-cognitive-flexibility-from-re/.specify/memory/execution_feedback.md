@@ -12,58 +12,27 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”
 - code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py`
-  - script usage: `main.py [-h] --stage {download_preprocess,features,analysis}`
-  - argparse error: `main.py: error: argument --stage: invalid choice: 'verify_data' (choose from 'download_preprocess', 'features', 'analysis')`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”; 1 command(s) failed: python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py (rc=2); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/raw/checksums.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”; 1 command(s) failed: python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py (rc=1); 3 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/results/regression_summary.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py -> rc=2
+- python code/main.py --stage verify_data &&  python code/main.py --stage download &&  python code/main.py --stage preprocess &&  python code/main.py --stage quality &&  python code/main.py --stage features &&  python code/main.py --stage null_model &&  python code/main.py --stage analysis &&  python code/main.py --stage report &&  python code/main.py --stage lint &&  pytest -q tests/test_contracts.py -> rc=1
 
-usage: main.py [-h] --stage {download_preprocess,features,analysis}
-main.py: error: argument --stage: invalid choice: 'verify_data' (choose from 'download_preprocess', 'features', 'analysis')
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 7, in <module>
+    from code.data.download import download_hcp_subset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 4, in <module>
+    from code.data.paths import (
+ImportError: cannot import name 'get_project_root' from 'code.data.paths' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/paths.py)
 
 
 ## Declared deliverables still missing
 
 - data/processed/exclusion_log.csv
 - data/processed/final_results.csv
-- data/raw/checksums.json
 - data/results/regression_summary.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `nilearn` to the project's `requirements.txt` and `pip install nilearn`.
-- **Verified**: this loads **30** real records with fields: Unnamed: 0, Subject, Rest.Scan, MeanFD, NumFD_greater_than_0.20, rootMeanSquareFD, FDquartile.top1.4thFD., PercentFD_greater_than_0.20, MeanDVARS, MeanFD_Jenkinson, site, sibling_id, data_set, age, sex, handedness, full_2_iq, full_4_iq, viq, piq, iq_measure, tdc, adhd, adhd_inattentive, adhd_combined, adhd_subthreshold, diagnosis_using_cdis, notes, sess_1_anat_2, oppositional, cog_inatt, hyperac, anxious_shy, perfectionism, social_problems, psychosomatic, conn_adhd, restless_impulsive, emot_lability, conn_gi_tot, dsm_iv_inatt, dsm_iv_h_i, dsm_iv_tot, study, sess_1_rest_1, sess_1_rest_1_eyes, sess_1_rest_2, sess_1_rest_2_eyes, sess_1_rest_3, sess_1_rest_3_eyes, sess_1_rest_4, sess_1_rest_4_eyes, sess_1_rest_5, sess_1_rest_5_eyes, sess_1_rest_6, sess_1_rest_6_eyes, sess_1_anat_1, sess_1_which_anat, sess_2_rest_1, sess_2_rest_1_eyes, sess_2_rest_2, sess_2_rest_2_eyes, sess_2_anat_1, defacing_ok, defacing_notes.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pandas as pd
-from nilearn import datasets
-
-# Load the full ADHD dataset (includes phenotypic information)
-adhd = datasets.fetch_adhd()
-df = pd.DataFrame(adhd.phenotypic)
-
-# Count records
-print(f"RECORDS={len(df)}")
-
-# Print field names from the dataset
-if not df.empty:
-    print("FIELDS=" + ",".join(df.columns))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -86,9 +55,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/validation.py` — NOT invoked by the run-book
     - `code/utils/validation_runner.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/final_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
-    - `code/data/download.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/regression_summary.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/final_results_generator.py` — NOT invoked by the run-book
     - `code/analysis/regression.py` — NOT invoked by the run-book
