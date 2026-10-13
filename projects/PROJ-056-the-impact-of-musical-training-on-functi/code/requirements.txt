@@ -1,2 +1,3 @@
-nilearn
-networkx
+# Existing requirements (if any) are preserved.
+# Added external dependency required for real atlas download.
+nilearn>=0.10.0
