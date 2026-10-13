@@ -1,14 +1,15 @@
 status: none
-intent: Download ALFWorld and WebShop environment datasets as pip installable python
-  package dataset
+intent: ALFWorld WebShop Qwen2.5-1.7B retriever dataset python package dataset
 required_fields:
 - episode_id
-- step_index
-- observation_text
-- action_text
-- reward
-- done_flag
-- task_name
-cache_key: 2fe0b917ffb6e17ebae5127abadd9113355f0029fc6fa6b0c764308859959c9b
-searched_at: '2026-10-13T08:46:13.084453+00:00'
+- environment_name
+- step_number
+- cumulative_reward
+- gating_score
+- token_entropy
+- context_similarity
+- model_name
+- timestamp
+cache_key: 900faf5547c5fe2e60cc99cf2953e655179a6e1572f3d6a9e6ce941665b838d4
+searched_at: '2026-10-13T09:26:13.140557+00:00'
 retry_count: 1

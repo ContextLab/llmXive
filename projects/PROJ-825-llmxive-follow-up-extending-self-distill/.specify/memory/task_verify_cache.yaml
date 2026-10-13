@@ -1,12 +1,11 @@
 T001:
   c: true
-  h: 6e90996022872ca91aec151fc18ad07953ff917738de36fe0a1255a75dceed9a
-  r: 'All required paths exist and are non-empty: `code/` with `agents/`, `environments/`,
-    `metrics/`, `utils/`, `tests/`, `models/` subdirectories (each containing files),
-    a substantive 5813-byte `code/config.py` with real configuration content, and
-    `data/` with `data/processed/` present. The structure matches the task''s stated
-    requirements.'
-  sig: 7934ae2e678e4c6ba47ac5842628b8ff0b8612126ad01ac272e166b1e3ed959c
+  h: 080fc0001cf0c8fce922e367b10a3908404bf884ae436a93b1042ead9970fd2e
+  r: "Checked that `code/` contains the required subdirectories (`agents`, `environments`,\
+    \ `metrics`, `utils`, `tests`, `models`) plus `config.py`, and that `data/` includes\
+    \ a `processed/` subdirectory, all present and non\u2011empty as listed in the\
+    \ collector output."
+  sig: 2485b7f10ee96ef60434c3636c2375578344e3a9ce14b6c11c1f37adcfd665bd
 T004:
   c: true
   h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c
