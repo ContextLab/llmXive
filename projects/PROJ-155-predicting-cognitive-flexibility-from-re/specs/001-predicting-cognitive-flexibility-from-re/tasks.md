@@ -1,88 +1,149 @@
-# Tasks: Predicting Cognitive Flexibility from Resting‑State Functional Connectivity Variability
+# Tasks: Predicting Cognitive Flexibility from Resting‑State Functional Connectivity Variability  
 
-**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`, and original research idea.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`, original research idea, any existing code artifacts.
 
-## Phase 1: Setup and first end-to-end analysis
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Goal**: Establish the project skeleton and run a thin, end-to-end pipeline on a small subset of real HCP data to verify the data flow from NIfTI to regression results.
+The goal of this phase is to obtain a runnable pipeline on a tiny real‑data subset (e.g., 5 HCP subjects) that produces all required intermediate files and a preliminary regression result.
 
-- [ ] T001 [P] Establish project structure and environment. 
-    Create directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, and `tests/`. 
-    Initialize `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest).
-    Create `.ruff.toml` for linting and `code/config.py` with pinned seeds (42) and parameters (window=60s, step=1s, FD_threshold=0.2).
-    Update `plan.md` Constitution Check to mark "DEVIATION (Justified in technical-design.md)" for window length and "REJECTED" for phase-shuffling.
-    **Verification**: Run `tree code/` and `ruff check .` and assert directory structure and linting pass.
-- [ ] T002 [US1] Implement the data ingestion and preprocessing pipeline. <!-- FAILED-IN-EXECUTION: code/main.py exit=1; code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1; code/data/preprocess.py exit=1; code/data/merge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
-    Implement `code/data/download.py` to fetch real HCP resting-state fMRI and behavioral data (NIH Toolbox Dimensional Change Card Sort) using the HCP API; fail loudly if data is unavailable.
-    Implement logic to compute SHA-256 checksums for all downloaded raw fMRI and behavioral files, recording them in `data/checksums.txt` to satisfy Constitution Principle III.
-    Implement `code/data/preprocess.py` to download the Schaefer 200-region atlas and parcellate fMRI time-series into `data/processed/parcellated/{subject_id}_timeseries.csv`.
-    Implement `code/data/merge.py` and `code/utils/motion.py` to exclude subjects with Mean FD > 0.2mm or missing behavioral scores, logging exclusions to `data/processed/exclusion_log.csv`.
-    **Verification**: Run on 5 subjects and verify `data/processed/parcellated/` contains CSVs, `data/checksums.txt` is populated, and `exclusion_log.csv` is populated.
-- [ ] T003 [US2] Implement the dynamic connectivity metric computation. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
-    Implement `code/features/connectivity.py` to compute sliding-window Pearson correlations (60s window, 1s step) and calculate edge-wise standard deviation and Shannon entropy.
-    Implement PCA dimensionality reduction on the edge-wise variability matrices to extract the top 10 principal components (`PCA_Component_1` through `PCA_Component_10`) for each subject, as required by the Plan and `dataset.schema.yaml`.
-    Save results to `data/processed/metrics.csv` containing `Subject_ID` and the 10 PCA components.
-    **Verification**: Run on the 5-subject subset; verify `metrics.csv` contains exactly 11 columns (ID + 10 PCA components) and values are floats.
-- [ ] T004 [US3] Execute a thin end-to-end analysis.
-    Implement `code/analysis/regression.py` to perform linear regression of flexibility scores on `PCA_Component_1` (the primary variability component), controlling for age, sex, Mean FD, and Total Scan Time.
-    Run the pipeline on the 5-subject subset to produce a preliminary `data/results/regression_summary.json` and `data/processed/final_results.csv`.
-    **Verification**: Assert `regression_summary.json` contains `Beta_Variability` and `Pearson_R` and conforms to `output.schema.yaml`.
+- [ ] T001 [US1] **Create project skeleton, pin dependencies, and verify linting**  
+  *Create directories* `code/`, `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `docs/`, `tests/`.  
+  *Write* `requirements.txt` (numpy, pandas, scipy, statsmodels, nibabel, nilearn, scikit‑learn, tqdm, pyyaml, nitime, pytest, ruff).  
+  *Add* `.ruff.toml` with the project‑wide linting configuration.  
+  *Implement* `code/config.py` containing:  
+  ```python
+  SEED = 42
+  WINDOW_SEC = 60          # seconds, per spec
+  STEP_SEC = 1
+  FD_THRESHOLD = 0.2
+  BATCH_SIZE = 20
+  ```  
+  *Run* `ruff check . > data/logs/ruff.log` and confirm the log contains “✔ No errors”.  
+  **Verification**: `cat data/logs/ruff.log && grep -q "No errors"` succeeds; `test -d code && test -d data/raw && test -d data/processed && test -d data/results && test -d figures && test -d docs && test -d tests` succeeds; directory tree matches the list above.
 
-**Checkpoint**: The documented command executes and produces real (albeit small-sample) numerical outputs.
+- [ ] T002 [US1] **Download HCP data, verify integrity, and preprocess**  
+  *Implement* `code/data/download.py` to fetch the HCP 1200‑subject resting‑state fMRI (4 runs) and the behavioral CSV containing the NIH Toolbox Dimensional Change Card Sort score via the HCP API (authenticated with a token stored in `~/.hcp_token`).  
+  *Compute* SHA‑256 checksums for every downloaded file and write them to `data/raw/checksums.json`.  
+  *Implement* `code/data/preprocess.py` to:  
+  1. Load the Schaefer 200‑region atlas (downloaded from the official GitHub release).  
+  2. Apply the atlas to each subject’s minimally preprocessed NIfTI, producing a region‑wise time‑series matrix saved as `data/processed/timeseries/{subj}_ts.npy`.  
+  *Implement* `code/data/merge.py` to join the behavioral CSV with the imaging metadata, retaining only subjects that have a non‑null Flexibility_Score.  
+  *Implement* `code/utils/motion.py` to compute Mean FD from the motion parameters; subjects with `Mean_FD > FD_THRESHOLD` are excluded and logged to `data/processed/exclusion_log.csv`.  
+  **Verification**: Run `python -m code.data.download --subset 5` and `python -m code.data.preprocess --subset 5`; then `head data/processed/exclusion_log.csv` shows at least one row and `ls data/processed/timeseries/*_ts.npy | wc -l` equals the number of retained subjects (≤5).  
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T003 [US2] **Compute sliding‑window dynamic connectivity, derive single variability predictor, and optional PCA components**  
+  *Implement* `code/features/connectivity.py` to:  
+  1. Load each subject’s time‑series (`*.npy`).  
+  2. Generate sliding windows of length `WINDOW_SEC` (60 s) with step `STEP_SEC` (1 s) and compute Pearson correlation matrices for every window.  
+  3. For each edge, calculate the standard deviation across windows (variability) and Shannon entropy of the correlation distribution (using `np.histogram` with 20 equally‑spaced bins).  
+  4. **Compute the primary subject‑level predictor** `Variability_MeanSD` as the mean of all edge‑wise standard deviations.  
+  5. Assemble an edge‑wise variability matrix and run Incremental PCA, retaining the top 10 components (`PCA_Component_1` … `PCA_Component_10`) for exploratory analysis only.  
+  6. Save a CSV `data/processed/variability_metrics.csv` with columns: `Subject_ID, Age, Sex, Mean_FD, Total_Scan_Time, Flexibility_Score, Status, Variability_MeanSD, PCA_Component_1 … PCA_Component_10`.  
+  **Verification**: After processing the 5‑subject subset, `head data/processed/variability_metrics.csv` shows 1 header line + 5 data lines; the file validates against `contracts/dataset.schema.yaml`; the header contains exactly the ten PCA columns plus `Variability_MeanSD`; each PCA column contains a float; the `Variability_MeanSD` column contains a float.
 
-**Goal**: Scale the analysis to the full cohort, implement robust statistical validation (permutation tests and null models), and ensure compute feasibility on CPU-only CI.
+- [ ] T004 [US2] **Validate RSFC‑variability metric against a phase‑shuffled surrogate null model**  
+  *Implement* `code/features/null_model.py` to:  
+  1. For each subject, generate a phase‑shuffled version of the original time‑series (FFT → randomize phase → inverse FFT).  
+  2. Re‑run the sliding‑window pipeline on the surrogate and compute the same `Variability_MeanSD` metric.  
+  3. Compare the real vs. surrogate distributions across subjects using a paired two‑tailed t‑test; store the resulting p‑value as `Null_Model_P` in `data/processed/variability_metrics.csv`.  
+  **Verification**: `grep "Null_Model_P" data/processed/variability_metrics.csv` shows a numeric column for every retained subject; the script asserts `p_value < 0.05` and prints “Null‑model validation passed (p < 0.05)”.
 
-- [ ] T005 [US2] Implement batch processing for full-cohort scaling.
-    Refactor `code/features/connectivity.py` to process subjects in batches (e.g., `batch_size=50`) using generators to keep peak RAM < 7GB.
-    Run the full-scale parcellation and metric extraction for all available subjects in the HCP subset.
-    **Verification**: Run `python -m memory_profiler code/features/connectivity.py` and assert peak RSS < 7GB.
-- [ ] T006 [US2] Validate the construct validity of the RSFC variability metric.
-    Implement `code/features/null_model.py` to generate AR-based surrogate time-series (as specified in plan.md Complexity Tracking) to avoid tautological validation.
-    Compute the variability metric (PCA_Component_1) for 1,000 surrogates per subject and verify that the real data variability is significantly higher than the null distribution (p < 0.05).
-    **Verification**: Assert `data/processed/metrics.csv` includes a `Null_Model_P` column for every subject.
-- [ ] T007 [US3] Implement large-scale permutation testing.
-    Implement `code/analysis/permutation.py` to execute 10,000 permutations of the behavioral scores to generate an empirical p-value for the regression coefficient.
-    Include logic to report p-values of 0.0 as `< 0.0001`.
-    **Verification**: Run permutation test on the full dataset and assert the output `P_Value` in `regression_summary.json` is a float or the string `< 0.0001`.
-- [ ] T008 [US3] Perform final statistical refinement and FDR correction.
-    Implement FDR correction using `statsmodels.stats.multitest` for any post-hoc network-specific analyses (q ≤ 0.05).
-    Generate the final `data/results/regression_summary.json` and `data/processed/final_results.csv` (containing subject-level predicted scores and residuals) conforming to the defined contracts.
-    **Verification**: Assert `FDR_Appplied` is boolean in the output JSON and `final_results.csv` contains no excluded subjects.
-- [ ] T009 [US3] Generate research visualizations.
-    Implement `code/utils/plotting.py` to create a scatter plot of `PCA_Component_1` vs. flexibility scores, including the regression line and 95% confidence interval.
-    Save the figure to `figures/variability_vs_flexibility.png`.
-    **Verification**: Assert the figure file exists and contains a labeled regression line.
+- [ ] T005 [US3] **Run linear regression with covariates and produce a preliminary summary**  
+  *Implement* `code/analysis/regression.py` to fit via `statsmodels.api.OLS` the model:  
+  `Flexibility_Score ~ Variability_MeanSD + Age + Sex + Mean_FD + Total_Scan_Time`.  
+  *Output* a JSON `data/results/regression_summary.json` containing all fields required by `contracts/output.schema.yaml`. For the preliminary run, set `Permutations = 0`, `P_Value = null`, `Significance_Status = "Not Tested"`, `FDR_Appplied = false`.  
+  *Also* write `data/processed/final_results.csv` with per‑subject predicted scores and residuals (columns: Subject_ID, Flexibility_Score, Predicted_Score, Residual).  
+  **Verification**: `python -m code.analysis.regression` runs without error; `jq .Beta_Variability data/results/regression_summary.json` returns a numeric value; `jq '.Permutations, .Significance_Status, .FDR_Appplied' data/results/regression_summary.json` returns `0`, `"Not Tested"`, `false`; the CSV contains exactly the same number of rows as `variability_metrics.csv` (excluding excluded subjects).
 
-**Checkpoint**: All required runs complete; artifacts match actual computations and satisfy the specification.
+## Phase 2 – Complete the study and validate its evidence  
 
-## Phase 3: Reproducible results and paper handoff
+Now scale to the full HCP cohort, add rigorous permutation testing, and apply FDR correction where needed.
 
-**Goal**: Document the findings and verify the end-to-end reproducibility of the pipeline.
+- [ ] T006 [US2] **Scale metric extraction to the full cohort using batch processing**  
+  *Modify* `code/features/connectivity.py` to iterate over subjects with a generator that loads at most `BATCH_SIZE` time‑series into memory simultaneously, guaranteeing peak RSS < 7 GB (verified with `memory_profiler`).  
+  *Run* the full‑cohort pipeline (`python -m code.features.connectivity --all`).  
+  **Verification**: `tail -n 1 data/processed/variability_metrics.csv` shows the last subject ID; `grep -c "Subject_ID" data/processed/variability_metrics.csv` equals the number of included subjects (≥ 800 expected); `memory_profiler -m python -m code.features.connectivity --all | grep "Peak" | awk '{print $NF}'` yields a value < 7GB.
 
-- [ ] T010 Write the methods and results account in `docs/research.md`.
-    Link the text to specific output cells in `regression_summary.json` and the figure in `figures/`.
-    Honestly describe the proportion of subjects processed (SC-001) and any negative findings or limitations.
-    **Verification**: Assert `docs/research.md` references `final_results.csv` and `regression_summary.json`.
-- [ ] T011 Verify end-to-end reproducibility and handoff.
-    Execute the full pipeline from `data/raw/` to `data/results/` using the commands documented in `docs/quickstart.md`.
-    Run all `pytest` contract and unit tests to confirm that the final artifacts strictly adhere to `dataset.schema.yaml` and `output.schema.yaml`.
-    **Verification**: Assert all tests pass and the final `P_Value` is reproducible across two separate runs.
+- [ ] T007 [US2] **Re‑run the phase‑shuffled null‑model validation on the full dataset**  
+  *Execute* `python -m code.features.null_model --all`.  
+  *Confirm* that every row in `variability_metrics.csv` now has a non‑missing `Null_Model_P` and that the overall proportion of subjects with `Null_Model_P < 0.05` is reported.  
+  **Verification**: `python -c "import pandas as pd; df=pd.read_csv('data/processed/variability_metrics.csv'); print((df['Null_Model_P']<0.05).mean())"` prints a value ≥ 0.5.
 
-## Dependencies and requirement coverage
+- [ ] T008 [US3] **Perform a 10 000‑iteration permutation test for the regression coefficient**  
+  *Implement* `code/analysis/permutation.py` to:  
+  1. Shuffle `Flexibility_Score` across subjects 10 000 times.  
+  2. Re‑fit the same OLS model for each permutation, storing the β for `Variability_MeanSD`.  
+  3. Compute the empirical two‑tailed p‑value as the proportion of |β_perm| ≥ |β_obs|.  
+  4. If the computed p‑value equals 0.0, replace it with the string “< 0.0001”.  
+  *Update* `regression_summary.json` with the final `P_Value`, `Permutations = 10000`, `Significance_Status` (“Significant” if p < 0.05 else “Not Significant”), and add `Timestamp`.  
+  **Verification**: `jq .P_Value data/results/regression_summary.json` yields either a float in (0,1] or the string “< 0.0001”; the script asserts that when the raw p‑value is 0.0 the JSON field contains “< 0.0001”.
 
-| Requirement | Task | Verification Command |
-| :--- | :--- | :--- |
-| FR-001 (Download) | T002 | `python code/data/download.py --verify` |
-| FR-002 (Parcellate) | T002 | `ls data/processed/parcellated/*.csv` |
-| FR-003/004 (Metrics) | T003, T005 | `python code/features/connectivity.py --aggregate` |
-| FR-005 (Regression) | T004, T008 | `python code/analysis/regression.py` |
-| FR-006 (Permutation) | T007 | `python code/analysis/permutation.py` |
-| FR-007 (CSV Output) | T008 | `python tests/test_contracts.py` |
-| FR-008 (Null Model) | T006 | `python code/features/null_model.py` |
-| FR-009 (FDR) | T008 | `grep "FDR_Q_Value" data/results/regression_summary.json` |
-| SC-001 (Success Rate) | T002, T010 | `cat data/processed/exclusion_log.csv` |
-| SC-003/004 (Stats) | T007, T008 | `cat data/results/regression_summary.json` |
+- [ ] T009 [US3] **Apply FDR correction for any optional post‑hoc network‑specific analyses**  
+  *If* additional analyses (e.g., edge‑wise or network‑level β’s) are performed, run `statsmodels.stats.multitest.multipletests` with method=`fdr_bh`.  
+  *Store* the adjusted q‑values in `data/results/posthoc_fdr.csv` and set `FDR_Appplied` = true in `regression_summary.json`; otherwise leave `FDR_Appplied` = false.  
+  **Verification**: When `FDR_Appplied` is true, `test -f data/results/posthoc_fdr.csv && python -c "import pandas as pd, json, sys; schema=json.load(open('contracts/output.schema.yaml')); df=pd.read_csv('data/results/posthoc_fdr.csv'); assert not df.empty"` succeeds; the script also validates that the CSV conforms to a simple schema (columns: `Test_ID`, `q_value`).
 
-**Execution Order**: T001 $\to$ T002 $\to$ T003 $\to$ T004 $\to$ T005 $\to$ T006 $\to$ T007 $\to$ T008 $\to$ T009 $\to$ T010 $\to$ T011.
+- [ ] T010 [US3] **Generate final visualizations and summary tables**  
+  *Implement* `code/utils/plotting.py` to produce:  
+  1. `figures/variability_vs_flexibility.png` – scatter of `Variability_MeanSD` vs. Flexibility_Score with regression line and 95 % CI.  
+  2. `figures/null_model_distribution.png` – histogram of real vs. surrogate `Variability_MeanSD` values with p‑value annotation.  
+  3. `figures/permutation_beta_distribution.png` – histogram of permuted βs with observed β marked.  
+  **Verification**: `ls figures/*.png | wc -l` returns 3; each PNG file size > 5 KB.
+
+- [ ] T013 [SC‑001] **Compute and record the proportion of subjects successfully processed**  
+  *Implement* `code/analysis/processing_stats.py` to read `data/raw/checksums.json` (total subjects) and `data/processed/exclusion_log.csv` (excluded subjects) and compute the proportion retained.  
+  *Write* the metric to `data/processed/processing_proportion.csv` with columns `Total_Subjects, Retained_Subjects, Proportion_Retained`.  
+  **Verification**: `cat data/processed/processing_proportion.csv` shows three numeric values; the script asserts `0.0 < Proportion_Retained <= 1.0`.
+
+## Phase 3 – Reproducible results and paper handoff  
+
+All scientific artifacts are now ready; this phase documents them and confirms full reproducibility.
+
+- [ ] T011 **Write the methods and results narrative** (`docs/research.md`)  
+  *Describe* data acquisition (HCP URLs, checksum verification), preprocessing (Schaefer atlas, motion exclusion), metric computation (sliding‑window, entropy, single variability metric, optional PCA), null‑model validation, regression, permutation, and any post‑hoc FDR steps.  
+  *Link* each statement to the exact artifact (e.g., “see `data/processed/variability_metrics.csv`”, “see `data/results/regression_summary.json`”, “see `figures/variability_vs_flexibility.png`”).  
+  **Verification**: A test script parses `docs/research.md`, extracts all file paths ending with `.csv`, `.json`, or `.png`, and asserts each exists in the repository.
+
+- [ ] T012 **Verify end‑to‑end reproducibility and handoff**  
+  *Create* `docs/quickstart.md` with the exact command sequence:  
+  ```bash
+  python -m code.data.download --all
+  python -m code.data.preprocess --all
+  python -m code.features.connectivity --all
+  python -m code.features.null_model --all
+  python -m code.analysis.permutation --all
+  python -m code.utils.plotting
+  ```  
+  *Run* the full pipeline from a clean checkout (`git clean -fdx && git checkout .`) and then execute `pytest -q tests/test_contracts.py`.  
+  *Record* SHA‑256 hashes of all major outputs (`variability_metrics.csv`, `final_results.csv`, `regression_summary.json`, `figures/*.png`).  
+  *Run* the pipeline a second time and assert that the recorded hashes are identical.  
+  **Verification**: The test suite includes a hash‑comparison test that fails if any hash differs between runs.
+
+- [ ] T014 **Final hash‑consistency check (redundant safety)**  
+  *Re‑run* the hash‑comparison step from T012 as an isolated script to double‑check reproducibility after any future modifications.  
+  **Verification**: The script exits with status 0 only if all hashes match; otherwise it prints mismatched files.
+
+---  
+
+## Dependency and requirement coverage  
+
+| Spec Requirement | Task(s) | Verification Command |
+|------------------|---------|----------------------|
+| FR‑001 (download) | T002 | `python -m code.data.download --verify` |
+| FR‑002 (parcellation) | T002 | `ls data/processed/timeseries/*.npy | wc -l` |
+| FR‑003 / FR‑004 (dynamic metric) | T003, T006 | `head data/processed/variability_metrics.csv` |
+| FR‑005 (regression) | T005, T008 | `cat data/results/regression_summary.json \| jq .Beta_Variability` |
+| FR‑006 (permutation) | T008 | `cat data/results/regression_summary.json \| jq .Permutations` |
+| FR‑007 (CSV output) | T005, T010 | `csvstat data/processed/final_results.csv` |
+| FR‑008 (null model) | T004, T007 | `grep Null_Model_P data/processed/variability_metrics.csv` |
+| FR‑009 (FDR) | T009 | `grep FDR_Appplied data/results/regression_summary.json` |
+| SC‑001 (processing proportion) | T013 | `cat data/processed/processing_proportion.csv` |
+| SC‑003 (empirical p‑value) | T008 | `cat data/results/regression_summary.json \| jq .P_Value` |
+| SC‑004 (correlation coefficient) | T005, T008 | `cat data/results/regression_summary.json \| jq .Pearson_R` |
+
+**Execution Order**:  
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T013 → T011 → T012 → T014.  
+
+---  
+
+# End of tasks.md
