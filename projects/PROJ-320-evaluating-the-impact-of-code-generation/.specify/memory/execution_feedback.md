@@ -19,12 +19,15 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/prs_raw.json/fetch_stats.json, data/raw/prs_raw.json/prs_raw_combined_1791933746.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/prs_labeled.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
+- run-book command: `python code/data/fetch_github.py --output data/raw/prs_raw.json`
+  - script usage: `fetch_github.py [-h] [--limit LIMIT] [--target-llm TARGET_LLM]`
+  - argparse error: `fetch_github.py: error: unrecognized arguments: --output data/raw/prs_raw.json`
 - run-book command: `python code/data/extract_metrics.py --input data/processed/prs_labeled.csv --output data/processed/prs_metrics.csv`
   - script usage: `extract_metrics.py [-h] [--labeled-input LABELED_INPUT]`
   - argparse error: `extract_metrics.py: error: unrecognized arguments: --input data/processed/prs_labeled.csv`
@@ -34,13 +37,16 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_results_report.py: self-declared fabricated metric — “…hat your reported numbers are NOT real measurements"         # and "Make the PRO…”; every produced artifact is gitignored (data/raw/prs_raw.json/fetch_stats.json, data/raw/prs_raw.json/prs_raw_combined_1791933746.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/data/classify_prs.py --input data/raw/prs_raw.json --output data/processed/prs_labeled.csv (rc=1); python code/data/extract_metrics.py --input data/processed/prs_labeled.csv --output data/processed/prs_metrics.csv (rc=2); python code/analysis/statistical_tests.py --input data/processed/prs_metrics.csv --output reports/results.json (rc=1); 6 declared deliverable(s) absent: data/audit/error_rate.json; data/processed/complexity_scores.csv; data/processed/gate_status.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_results_report.py: self-declared fabricated metric — “…hat your reported numbers are NOT real measurements"         # and "Make the PRO…”; every produced artifact is gitignored (data/processed/prs_labeled.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/data/fetch_github.py --output data/raw/prs_raw.json (rc=2); python code/data/extract_metrics.py --input data/processed/prs_labeled.csv --output data/processed/prs_metrics.csv (rc=2); python code/analysis/statistical_tests.py --input data/processed/prs_metrics.csv --output reports/results.json (rc=1); 5 declared deliverable(s) absent: data/audit/error_rate.json; data/processed/complexity_scores.csv; data/processed/gate_status.json
 
 ## Failing / missing run-book commands
 
-- python code/data/classify_prs.py --input data/raw/prs_raw.json --output data/processed/prs_labeled.csv -> rc=1
+- python code/data/fetch_github.py --output data/raw/prs_raw.json -> rc=2
 
-Error: [Errno 21] Is a directory: 'data/raw/prs_raw.json'
+usage: fetch_github.py [-h] [--limit LIMIT] [--target-llm TARGET_LLM]
+                       [--batch-size BATCH_SIZE] [--max-retries MAX_RETRIES]
+                       [--raw-dir RAW_DIR]
+fetch_github.py: error: unrecognized arguments: --output data/raw/prs_raw.json
 
 - python code/data/extract_metrics.py --input data/processed/prs_labeled.csv --output data/processed/prs_metrics.csv -> rc=2
 
@@ -104,7 +110,6 @@ NameError: name 'logging' is not defined
 - data/audit/error_rate.json
 - data/processed/complexity_scores.csv
 - data/processed/gate_status.json
-- data/processed/prs_labeled.csv
 - data/processed/prs_metrics.csv
 - data/processed/results.json
 
@@ -130,16 +135,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/generate_final_report_pdf.py` — NOT invoked by the run-book
     - `code/analysis/generate_results_report.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/gate_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/prs_labeled.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/complexity.py` — NOT invoked by the run-book
-    - `code/analysis/generate_results_report.py` — NOT invoked by the run-book
-    - `code/analysis/optimize_complexity_processing.py` — NOT invoked by the run-book
-    - `code/analysis/save_complexity_scores.py` — NOT invoked by the run-book
-    - `code/analysis/sensitivity_analysis.py` — IS a run-book command
-    - `code/audit/manual_validation.py` — IS a run-book command
-    - `code/data/extract_metrics.py` — IS a run-book command
-    - `code/data/optimize_metrics_extraction.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/prs_labeled.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/prs_metrics.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_final_report_pdf.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_analysis.py` — IS a run-book command

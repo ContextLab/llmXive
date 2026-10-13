@@ -1,32 +1,63 @@
-T002:
+T001:
   c: false
-  h: 842cf12e405d7ef52bfafeab4cab230822754e92949e707e78351ef330773e39
-  r: The provided `requirements.txt` exists, but it is located inside the project
-    subdirectory (`projects/PROJ-320-evaluating-the-impact-of-code-generation/requirements.txt`)
-    rather than at the repository root as required, and there is no evidence (e.g.,
-    installation logs) that `pip install -r requirements.txt` succeeds on a fresh
-    runner. Both location and successful install verification are missing.
-  sig: dc003b0297ad2f101bb3fe8f9046659d1d2e29a1364dd6876df8d56ad446870a
+  h: 35b01b14da522cd9dbbb68e783482ef24fab0137cc755dd22ba07f9d826b0a36
+  r: Checked `requirements.txt` (present and correctly lists the required packages)
+    and the installation log `code/.tasks/T001.scripts_install_requirements.sh.log`
+    (shows a successful install). However, the task explicitly requires the log to
+    be saved at `logs/requirements_install.log`, which is missing; the provided log
+    is in a different directory. The required log file must be created at the specified
+    path.
+  sig: 1d9799122b859e50fcc05ed4084ef34ef9d90cdb7e87e4957e6c0b4a5cc00c39
+T002:
+  c: true
+  h: c6f04713fedd2a42457ef46bb00a23ffd71bfce07d6121a057e544d4e8407ec6
+  r: "Checked `code/utils/checksum.py` for a correct `sha256_file` implementation\
+    \ and `tests/unit/test_checksum.py` together with its pytest execution log, which\
+    \ shows the test suite ran with exit code\u202F0 and all assertions passed."
+  sig: 87fb4a9b20664f1b26efe244ae36eea744f7233cbdfba0b66445408795c239d7
+T003:
+  c: false
+  h: 35055e9c5f32b648f18b9d53f7ff037b33dd5ede67b980aa05fdaa8810de8af3
+  r: "The `fetch_github.py` script exists and implements pagination, back\u2011off,\
+    \ JSONL writing, and checksum generation, but it stops after reaching the 200\u2011\
+    PR cap on the first repository, never fetching from the fallback repos even when\
+    \ the LLM count is\u202F0 (far below the required\u202F10). The resulting `data/raw/`\
+    \ directory contains only `psf_requests_prs.jsonl` with 0\u202FLLM\u2011labelled\
+    \ PRs, and `fetch_stats.json` shows `fallback_exhausted: true` despite not having\
+    \ tried the other repos, violating requirement\u202F5. The implementation must\
+    \ continue to the next repository (or adjust batch sizes) until at least 10\u202F\
+    L"
+  sig: 5c86fdcc3d056b8d395ab84c5ea7bbb94e1770b65a90a8056376ece0ce7bd4a5
 T004:
   c: true
-  h: f0039e3d28166b2eb7518e922379bbc7397c734d70f862c59822ad262898bdee
-  r: "Checked `code/utils/seeds.py` (2323\u202Fbytes) which defines `SEED = 42` and\
-    \ provides a `set_seed()` function that calls `random.seed` and `np.random.seed`\
-    \ (via `set_global_seed`). Importing and calling `set_seed` therefore sets both\
-    \ RNG seeds without error."
-  sig: 4551ced46cd0109f28ba34aa1e6e9f0862d60ca2eb90ca2083dfa08780d0f4a7
+  h: 336ede7320eb30e3ed9c626c4e671d8030de19819e8f620e4702bbdc9dbfaf8f
+  r: Checked the `requirements.txt` file and the execution log `code/.tasks/T004.code_verify_setup.py.log`,
+    which shows successful installation of all listed packages and a passing import
+    of `requests` (and other libraries). The log also confirms that the verification
+    output was written to `logs/setup_verification.log`. All required artifacts exist
+    and the verification behavior matches the task specification.
+  sig: 0e2d1b93fe646da91ebf72eb84664df5c2d7e0168eeac524984e4efc2efa1290
 T005:
-  c: true
-  h: 9c330c329f684d121aa4e07061e2a8ad753609276ea24d89ae548207d4ff45ac
-  r: 'Checked `code/utils/config.py`: it defines `REPOS` as `["psf/requests", "microsoft/vscode",
-    "numpy/numpy"]`, includes an `API_LIMITS` dictionary, and sets `LLM_CONFIDENCE
-    = 0.6`, satisfying all required elements.'
-  sig: 501dde934dcb01834d01ae97a07658b476649098b009ed72216fcf342b66cb81
-T019a:
   c: false
-  h: 55cf842a59b805eeefaa1ae6dd7ac2deee86e325a005638758867ee338bd25ed
-  r: "The `manual_validation.py` script is incomplete and contains placeholder logic\
-    \ (e.g., `n_llm = sum(1 for _ in range(total_count))`) rather than a real stratified\u2011\
-    sample calculation, and the file is truncated before the sample\u2011selection,\
-    \ checklist, and JSON\u2011logging code. Moreover, the required output file `data/audit/manual_audit_results.json`\
-    \ does not exist."
+  h: 6d540a02174144cbc411dc109a829ba3aed45889cbb277b1261dd7653657e33c
+  r: "The `code/data/entropy_detector.py` file exists and implements the required\
+    \ functions, and the unit test file `tests/unit/test_entropy_detector.py` is present.\
+    \ However, the test suite fails: the test `test_noisy_diff_higher_entropy_than_clean_diff`\
+    \ asserts that the noisy diff yields a higher entropy score than the clean diff,\
+    \ but both scores evaluate to\u202F1.0, causing the test to fail. The task\u2019\
+    s verification condition (\u201CUnit test passes\u201D) is therefore not met.\
+    \ The implementation or the test must be adjusted so that the noisy diff indeed\
+    \ produces a higher normalized entropy than the clean diff."
+  sig: 114361c94fe1e13fcb14413ce5e67a5bb946fbb8c70996b10e5c5c16ad46583d
+T006:
+  c: false
+  h: e4aa8ac94a234aa2b36d690228789ac71c2e65c765fbd65775d5877ba6deb828
+  r: "The `code/data/classify_prs.py` script exists, but it does **not** satisfy the\
+    \ task: it only loads a single JSON file (or a directory with one JSON payload)\
+    \ and never iterates over all `data/raw/*.jsonl` files as required. Its confidence\u2011\
+    score logic yields only 0.0, 0.5, or 1.0 (never the 0.5\u20110.9 range specified)\
+    \ and flags infra\u2011bot users with a score of 0.0. The generated `data/processed/prs_labeled.csv`\
+    \ contains extra columns (`review_cycles`, `complexity_score`, `loc`, etc.) that\
+    \ are not defined in `pr_schema.schema.yaml` (which disallows additional properties),\
+    \ so the CSV would not validat"
+  sig: 3d46f3b16dd579138171f025f55120231c36a0f64225a26558e09c94ddf46eea

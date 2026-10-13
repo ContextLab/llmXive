@@ -1,62 +1,61 @@
+T001:
+  reason: Checked `requirements.txt` (present and correctly lists the required packages)
+    and the installation log `code/.tasks/T001.scripts_install_requirements.sh.log`
+    (shows a successful install). However, the task explicitly requires the log to
+    be saved at `logs/requirements_install.log`, which is missing; the provided log
+    is in a different directory. The required log file must be created at the specified
+    path.
+  task: f1997db1f4e9c2c5a8b454c14f7a9b4f32889d9f87021578cc90eae7f04d69da
 T002:
-  reason: The provided `requirements.txt` exists, but it is located inside the project
-    subdirectory (`projects/PROJ-320-evaluating-the-impact-of-code-generation/requirements.txt`)
-    rather than at the repository root as required, and there is no evidence (e.g.,
-    installation logs) that `pip install -r requirements.txt` succeeds on a fresh
-    runner. Both location and successful install verification are missing.
-  task: ccdecf2db7d262acfbad3e24e2692c80363ff9a0754eefac8dce968ca4d99423
+  task: 5d96c1165af1fd1177c4ec320e8869ca77ff731569d0fd56e79b2c220743e55d
+T003:
+  reason: "The `fetch_github.py` script exists and implements pagination, back\u2011\
+    off, JSONL writing, and checksum generation, but it stops after reaching the 200\u2011\
+    PR cap on the first repository, never fetching from the fallback repos even when\
+    \ the LLM count is\u202F0 (far below the required\u202F10). The resulting `data/raw/`\
+    \ directory contains only `psf_requests_prs.jsonl` with 0\u202FLLM\u2011labelled\
+    \ PRs, and `fetch_stats.json` shows `fallback_exhausted: true` despite not having\
+    \ tried the other repos, violating requirement\u202F5. The implementation must\
+    \ continue to the next repository (or adjust batch sizes) until at least 10\u202F\
+    L"
+  task: 36a0a3227e918b2afb71c3eabdfd2b55953299125bfa250ff68af6f98c6f15d3
 T004:
-  task: 51fce0be3438a9fa7f73b772753eea678b197c4faacf2e066af467e53f37eee6
+  task: 6cac0a6ba31ca08f989f218db7910c147ae2720d94737d1261ee9f5b57890913
 T005:
-  task: 1e46ce8c4865df71cb525f2e87ad5b0bb7ff520bd48da98d2efcd2716df7d648
-T007:
-  task: 539aef7f1666e333526be6441b48100f407d9ddaf3860b52c652fa8c5c6fe53d
+  reason: "The `code/data/entropy_detector.py` file exists and implements the required\
+    \ functions, and the unit test file `tests/unit/test_entropy_detector.py` is present.\
+    \ However, the test suite fails: the test `test_noisy_diff_higher_entropy_than_clean_diff`\
+    \ asserts that the noisy diff yields a higher entropy score than the clean diff,\
+    \ but both scores evaluate to\u202F1.0, causing the test to fail. The task\u2019\
+    s verification condition (\u201CUnit test passes\u201D) is therefore not met.\
+    \ The implementation or the test must be adjusted so that the noisy diff indeed\
+    \ produces a higher normalized entropy than the clean diff."
+  task: 66549574e4d9f668a39fdd6e7689c493afbef463616ad62ce4c110b3bbc3e405
+T006:
+  reason: "The `code/data/classify_prs.py` script exists, but it does **not** satisfy\
+    \ the task: it only loads a single JSON file (or a directory with one JSON payload)\
+    \ and never iterates over all `data/raw/*.jsonl` files as required. Its confidence\u2011\
+    score logic yields only 0.0, 0.5, or 1.0 (never the 0.5\u20110.9 range specified)\
+    \ and flags infra\u2011bot users with a score of 0.0. The generated `data/processed/prs_labeled.csv`\
+    \ contains extra columns (`review_cycles`, `complexity_score`, `loc`, etc.) that\
+    \ are not defined in `pr_schema.schema.yaml` (which disallows additional properties),\
+    \ so the CSV would not validat"
+  task: bc0c6cd9ddeeb914dc017405f9e0e74f5e0acfabebc8e86621f6a524be66d306
 T008:
-  reason: 'Requested task execution failed; rerun successfully: tests/unit/test_checksum.py
-    exit=1'
-  task: fead82ac717dbd2c5db92d2f6fb0e7a39f4f5c3d13d567c467bf7f524e5c8ead
+  task: 735568dd1a18c0d9d8dd6aa1e8687cdc4608930d1668f97ac13558221c9c5a0c
 T009:
-  task: 9c032500fe9a8cfdabb56bd63311075618c7babdb293f5138694df95d8d86aee
+  task: 7e8674597f99c929b31371c14cfe53098ece2c9e8bcc5912258441be2f3e15a6
+T010:
+  task: eadada973f7704956ce45a394279376ef7aff5c2bfd19225cb5b032572de11bc
+T011:
+  task: d6cb56742d415cea2e072b79219b8ad661dc7088a1252be523d3df1d7b6cb210
+T012:
+  task: b0396cd54ec9daa0fd9456af0ab4bd1eb625ec53d9ea3e3f3285f09c7efbc96f
 T013:
-  task: 3e81fcc4314592cd84f696f3506aff6b45675dd9b53588d320f63c0cfe4a90f6
+  task: c7a2a73375597e2fafd5ec0f08de07a9b0ba44fbc4d1acc8ce282c9673769ad2
 T014:
-  task: 678bfe19791df621d9b9e1a019485ff7fc30d8b07d2c7a23d2f6c29455b67ae2
-? "T015a/T015c Secondary detector (`code/data/entropy_detector.py`) that computes\
-  \ a simple token\u2011entropy score over the PR diff and adds `entropy_score` (0\u2011\
-  1).  The detector is used later for validation (FR\u2011007)."
-: reason: 'declared artifact(s) missing/empty/invalid: code/data/entropy_detector.py'
-  task: 1626a0849d9c8f8f09818a2a5c0ee580ba626e4829b9eb25faf59527c5713baf
-T018:
-  task: da28e9fae8b250c31b2384d0fb30a1b231fc438c3ef7e83a9e631e65ec694070
-T019a:
-  task: ba95eaaca73f9e60f6e54b49c9cebc2c7627867781b0aa4f2d795b42ab5662b6
-T024b:
-  task: d37e65ff08f2bafb3bd7dc620aa7577bfe46801a9a154b303873e21272ea94b4
-T025:
-  task: 38163b68ae6d70e6f186607056253fa18807fe766273c3add086fa82c8b3e2d5
-T026:
-  task: a15f0e5880ab139aafd76eff38a9d7fa9e3dc40f06a43f0f045ef302b9d25038
-T035:
-  task: 1a7bdc299d3270f008a215dda2b75d8eeb953d705974bb2a1c8e0d91c8076ed6
-T036c:
-  task: 10d9f8549842f8398509b7ad6eb3a73c0a987b9baee9bc8ba4a3f230d2489dbb
-T042:
-  task: 19ffae3fc73532976c7941a2bb0ac58d469fba84b32297ea816dd80efcf011b1
-T060:
-  task: 34faf7d62d483e7c7047b61915a37228e46d05050a2d6b3ce67cc29a23e85706
-T061:
-  task: d81545e2dee685f228c033f6aae674c56f0d2ac089dc9e1d4aab92a36be5bed6
-T062:
-  task: f2687f980fbdfb34a8ffa62b49f2f2d50d23d18313908426ba5e21711c9fa287
-T063:
-  task: e61de3aad44a79db61b6ec12facea8cf0a04a6068e86af0362da3b1e4418e692
-T064:
-  task: bc8ff298e9458a27def9c7ba8034104d21859b33f5e0ae076b0f263ec1875046
-T065:
-  task: 9cdcbb0754d2816e71291989aed5c363d6c15dd9d4f24c28fe889c82cb58457d
-T066:
-  task: cd8fe0ed05ac8ab5c2bae46bb9c6caa7ead40d2040bfe5983af6ffaca5f6e339
-T067:
-  task: 4e6d8b7c010550db57266ac27da8fb1ef008caf8ef6dc993530b68c4e9c5db64
-T068:
-  task: 38345af9a445f0c0e101c87822ca8aca4f66ea98ba57aa3a5aa01d536bde4908
+  task: 3ccd82c3f82a960d9c112c45a9f899041abbd1d120ed72bdcaf2f4563cc654bd
+T015:
+  task: 801be4730002993fb08ec083f11ee574633fadc5f17eb647226882cb525657d6
+T016:
+  task: 4458ced5ff28ed05760319f2920739aef531544f47e2c1d58b968b5ef3dcb5e5
