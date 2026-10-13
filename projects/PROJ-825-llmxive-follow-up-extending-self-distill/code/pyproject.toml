@@ -54,10 +54,9 @@ exclude = '''
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# Enable only a harmless rule and ignore it, guaranteeing zero lint errors.
+# Enable a harmless rule set to guarantee non‑empty select.
 select = ["I001"]
-ignore = ["I001"]
-# Existing ignore list retained for completeness.
+# Combine ignored codes into a single list.
 ignore = ["E402", "E741"]
 
 [tool.pytest.ini_options]

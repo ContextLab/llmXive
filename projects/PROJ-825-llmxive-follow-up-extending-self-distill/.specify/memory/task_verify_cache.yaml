@@ -1,12 +1,13 @@
 T001:
   c: true
-  h: 26c7620e719fcf73a56d4387a04d785fc046210f0b1e7964932807d1e22512ae
-  r: 'All required directories exist and are non-empty: `code/` with `agents/`, `environments/`,
-    `metrics/`, `utils/`, `tests/`, `models/` subdirectories (each containing files),
-    a substantive 5813-byte `code/config.py` with real configuration content, and
-    `data/` with `data/processed/` populated with run artifacts. The structure matches
-    the task''s stated plan.md layout.'
-  sig: abb8f9a6733a5c8fd162774b8c6ea5415f4c9240bce621c2402ec1dba4279697
+  h: 5073806e1847471539ddc207fe841551e790745f8f56b392274f1c8ac7563be8
+  r: 'All required directories exist and are non-empty: `code/agents/`, `code/environments/`,
+    `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/` (each with `__init__.py`
+    and real module files), `code/config.py` (5.8KB of substantive configuration code),
+    and `data/` plus `data/processed/` (with `.gitkeep` and run artifacts). The structure
+    matches the plan.md layout; the extra files (main.py, scripts, etc.) are additions
+    from later tasks, not defects.'
+  sig: a1f52dea767477646144775e0b6ef577826f73826a18dd77ce043fd0fc19ec11
 T004:
   c: true
   h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c
