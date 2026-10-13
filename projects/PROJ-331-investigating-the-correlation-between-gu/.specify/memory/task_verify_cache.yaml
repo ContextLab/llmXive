@@ -1,25 +1,21 @@
 T001:
-  c: false
-  h: 9b55d93e17be67d4a872d8c41e6659f927d89d3adb913131bd8f2a53918b4f52
-  r: "The ingest module and quickstart documentation exist and follow the specification,\
-    \ but the required unit tests all fail because the test suite cannot write/read\
-    \ Parquet files (missing `pyarrow`/`fastparquet` engine). Consequently the three\
-    \ verification cases (valid inputs, missing outcome column, malformed ASV) are\
-    \ not demonstrated to work, so the task\u2019s verification criteria are not satisfied.\
-    \ The implementation must add the necessary Parquet support (e.g., include `pyarrow`\
-    \ in dependencies) or adjust the code/tests to handle the environment, after which\
-    \ the tests should pass."
-  sig: 1508418ae486522ecda6d431478d1fc92a719291155086f0aa83f775a7b9a1f2
+  c: true
+  h: 44fc4ed7d9335bb216158a34990b75651361d011d7128fd077513b097dfe138d
+  r: "Checked `code/src/pipeline/ingest.py` for proper existence/parsing checks, graceful\u2011\
+    degradation handling, and non\u2011synthetic behavior; verified `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
+    \ documents the runnable command; and confirmed unit tests (`code/tests/test_ingest.py`)\
+    \ cover all required cases and pass."
+  sig: 8a73288743df980d20918a0c259ab5eff70b7cdd85a18e9e85b696b10571767f
 T003:
   c: false
-  h: 537a603e7631678e0ec35b843bdfaab4dda7b129bc3410f869938dad1648d8d9
-  r: "The `slopes.py` module is present, but the required unit tests are empty (no\
-    \ test cases) and the test run reports 0 items collected with a non\u2011zero\
-    \ exit code. Additionally, the input file `data/processed/clr_abundances.parquet`\
-    \ (and the expected output parquet files) are missing, so the slope computation\
-    \ cannot be exercised or verified. The task\u2019s verification criteria are therefore\
-    \ not satisfied."
-  sig: 6049c8fde57cfaa0f5de4c78da4873ad4f4cc4a25a6f8dcb6d0f343c25fd3697
+  h: d1f70733f0f66841a5a2ff1a981bd7bb726127f50b0242f8a55bd3af43b51903
+  r: "Checked `code/src/pipeline/slopes.py` and the test run log `code/.tasks/T003.code_tests_test_slopes.py.log`.\
+    \ The unit tests `test_compute_taxon_slopes_simple` and `test_compute_outcome_slopes_simple`\
+    \ both fail (taxon slopes \u22480.19959 vs expected 0.2; outcome slopes \u2248\
+    0 vs expected 2). Additionally, the required default input `data/processed/clr_abundances.parquet`\
+    \ is missing. The implementation does not pass the provided verification suite,\
+    \ so the task is not genuinely completed."
+  sig: 811a623371c2f5191fe964a03eab96abc9f03cca6eefe369181c71bc6f0ccc38
 T004:
   c: false
   h: 858d70684bfa5ecafbd319369fd11165bbc43c97a93768f99c0bc8197c8b3a73

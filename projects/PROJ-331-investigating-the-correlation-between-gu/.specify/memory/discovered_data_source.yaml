@@ -1,17 +1,16 @@
 status: none
-intent: PPMI gut microbiome ASV table clinical metadata UPDRS python package dataset
+intent: download Parkinson's Progression Markers Initiative microbiome ASV dataset
+  python package dataset
 required_fields:
 - sample_id
 - asv_id
-- taxon
-- count
+- asv_count
 - patient_id
 - visit_date
+- updrs_total
 - age
 - sex
 - levodopa_dose
-- updrs_total
-- updrs_part3
-cache_key: b570757c487d74ce23e6389d0f38858cd5ac43df5e007d955eb088bc4f2216c5
-searched_at: '2026-10-13T03:24:18.328242+00:00'
+cache_key: f30fcf44154dfd524cf9373920ed219f76d75c86d642ffe6829b27d433884144
+searched_at: '2026-10-13T04:23:23.425836+00:00'
 retry_count: 1

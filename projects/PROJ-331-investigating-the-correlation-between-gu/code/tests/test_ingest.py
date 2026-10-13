@@ -1,6 +1,6 @@
 """Unit tests for the ingest module (T001).
 
-Covers the three required cases:
+Covers the three required verification cases:
   1. Valid inputs -> report with row/column counts, outcome present.
   2. Missing input file -> non-zero exit / descriptive error, no fallback.
   3. Missing MDS_UPDRS_Total column -> exit zero with warning + skip flag.

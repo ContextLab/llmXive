@@ -1,24 +1,16 @@
 T001:
-  reason: "The ingest module and quickstart documentation exist and follow the specification,\
-    \ but the required unit tests all fail because the test suite cannot write/read\
-    \ Parquet files (missing `pyarrow`/`fastparquet` engine). Consequently the three\
-    \ verification cases (valid inputs, missing outcome column, malformed ASV) are\
-    \ not demonstrated to work, so the task\u2019s verification criteria are not satisfied.\
-    \ The implementation must add the necessary Parquet support (e.g., include `pyarrow`\
-    \ in dependencies) or adjust the code/tests to handle the environment, after which\
-    \ the tests should pass."
   task: 3293c8154d25becdd274dcd6fa0a5363b58f0e438e39748c7f9d300c9b324ef6
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/preprocess.py
     exit=1'
   task: 89356ae41f24b7b2db1e5d75a118f58cea639025629c2263445d1cfdeb202a8a
 T003:
-  reason: "The `slopes.py` module is present, but the required unit tests are empty\
-    \ (no test cases) and the test run reports 0 items collected with a non\u2011\
-    zero exit code. Additionally, the input file `data/processed/clr_abundances.parquet`\
-    \ (and the expected output parquet files) are missing, so the slope computation\
-    \ cannot be exercised or verified. The task\u2019s verification criteria are therefore\
-    \ not satisfied."
+  reason: "Checked `code/src/pipeline/slopes.py` and the test run log `code/.tasks/T003.code_tests_test_slopes.py.log`.\
+    \ The unit tests `test_compute_taxon_slopes_simple` and `test_compute_outcome_slopes_simple`\
+    \ both fail (taxon slopes \u22480.19959 vs expected 0.2; outcome slopes \u2248\
+    0 vs expected 2). Additionally, the required default input `data/processed/clr_abundances.parquet`\
+    \ is missing. The implementation does not pass the provided verification suite,\
+    \ so the task is not genuinely completed."
   task: 23140288dd2b2c620356e9e880d74c88d1c3fca972a712e9f8f33215cb679c50
 T004:
   reason: "The correlation module exists, but the required output file `data/results/taxa_correlations.csv`\

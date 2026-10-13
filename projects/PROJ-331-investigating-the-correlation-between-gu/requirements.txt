@@ -1,7 +1,5 @@
 # Project dependencies
 # Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
 # statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
-# provided by the environment.
-#
-# Additional dependency needed for Parquet support in pandas:
+# provided by the base environment. Add pyarrow for Parquet support.
 pyarrow>=12.0.0
