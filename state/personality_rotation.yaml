@@ -1,12 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-10-13T06:06:39.568555+00:00'
-last_outcome: committed
+last_used: daniel-kahneman
+last_used_at: '2026-10-13T08:09:31.509439+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-25T00:36:22.355533+00:00'
-  ended_at: '2026-06-25T01:42:46.023161+00:00'
-  outcome: abstained
-  action: abstain
 - slug: linus-pauling
   started_at: '2026-06-25T01:42:46.023161+00:00'
   ended_at: '2026-06-25T03:06:54.909908+00:00'
@@ -1248,3 +1243,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/reviews/research/dan-rockmore-simulated__2026-10-13__research.md
+- slug: daniel-kahneman
+  started_at: '2026-10-13T06:06:39.568555+00:00'
+  ended_at: '2026-10-13T08:09:31.509439+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
