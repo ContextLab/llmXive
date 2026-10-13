@@ -7,7 +7,6 @@ fallback logic to switch repos if LLM count is insufficient.
 import os
 import time
 import json
-import hashlib
 import signal
 import sys
 import logging
@@ -19,7 +18,7 @@ import requests
 from utils.logging import setup_logging, get_logger
 from utils.config import get_repo_list, get_path
 from utils.errors import GitHubAPIError, RateLimitExceeded, AuthError, ResourceNotFoundError
-from utils.checksum import calculate_checksum
+from utils.checksum import sha256_file
 from utils.seeds import set_global_seed
 
 # Constants
@@ -41,10 +40,6 @@ def setup_watchdog(seconds: int = 300):
     else:
         logging.warning("SIGALRM not available on this platform; watchdog disabled")
 
-def check_watchdog():
-    """Check if watchdog timer has expired."""
-    pass  # Handled by signal
-
 def get_session() -> requests.Session:
     """Create a persistent session for GitHub API requests."""
     session = requests.Session()
@@ -54,8 +49,8 @@ def get_session() -> requests.Session:
     session.headers.update({"Accept": "application/vnd.github.v3+json"})
     return session
 
-def calculate_checksum(data: bytes) -> str:
-    """Calculate SHA-256 checksum for data."""
+def _file_sha256(data: bytes) -> str:
+    """Calculate SHA‑256 checksum for a bytes object."""
     return hashlib.sha256(data).hexdigest()
 
 def save_prs_to_raw(prs: List[Dict], repo: str, output_dir: str):
@@ -64,15 +59,17 @@ def save_prs_to_raw(prs: List[Dict], repo: str, output_dir: str):
     timestamp = int(time.time())
     filename = f"prs_raw_{repo.replace('/', '_')}_{timestamp}.json"
     filepath = os.path.join(output_dir, filename)
-    
-    with open(filepath, 'w') as f:
+
+    # Write JSON payload
+    with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(prs, f, indent=2)
-    
-    checksum = calculate_checksum(open(filepath, 'rb').read())
+
+    # Compute checksum using the new utility
+    checksum = sha256_file(filepath)
     checksum_file = f"{filepath}.sha256"
-    with open(checksum_file, 'w') as f:
+    with open(checksum_file, 'w', encoding='utf-8') as f:
         f.write(checksum)
-    
+
     logging.info(f"Saved {len(prs)} PRs to {filepath} (checksum: {checksum[:8]}...)")
 
 def get_next_repo(current_repo: str, repo_list: List[str]) -> Optional[str]:
@@ -86,20 +83,20 @@ def get_next_repo(current_repo: str, repo_list: List[str]) -> Optional[str]:
     return None
 
 def fetch_prs_from_repo(
-    session: requests.Session, 
-    repo: str, 
+    session: requests.Session,
+    repo: str,
     limit: int = BATCH_SIZE,
     max_retries: int = MAX_RETRIES
 ) -> List[Dict]:
     """
     Fetch PRs from a single GitHub repository.
-    
+
     Args:
         session: Authenticated GitHub API session
         repo: Repository in format 'owner/name'
         limit: Maximum number of PRs to fetch
         max_retries: Maximum retry attempts for rate limits
-        
+
     Returns:
         List of PR dictionaries
     """
@@ -107,24 +104,23 @@ def fetch_prs_from_repo(
     params = {"state": "all", "per_page": 100}
     prs = []
     retries = 0
-    
+
     logger = logging.getLogger(__name__)
-    
+
     while len(prs) < limit:
         try:
             response = session.get(url, params=params)
-            
+
             if response.status_code == 200:
                 batch = response.json()
                 if not batch:
                     break  # No more PRs
                 prs.extend(batch)
                 logger.info(f"Fetched {len(batch)} PRs from {repo} (total: {len(prs)})")
-                
-                # Check for next page
+
+                # Pagination handling
                 if len(batch) < 100:
                     break
-                # Get next page URL from Link header if present
                 link_header = response.headers.get('Link', '')
                 if 'rel="next"' in link_header:
                     next_url = link_header.split('<')[1].split('>')[0]
@@ -146,7 +142,7 @@ def fetch_prs_from_repo(
                 raise ResourceNotFoundError(f"Repository not found: {repo}")
             else:
                 raise GitHubAPIError(f"GitHub API error for {repo}: {response.status_code}")
-                
+
         except requests.RequestException as e:
             retries += 1
             if retries > max_retries:
@@ -154,7 +150,7 @@ def fetch_prs_from_repo(
             delay = BASE_DELAY * (2 ** retries)
             logger.warning(f"Network error. Waiting {delay}s before retry {retries}/{max_retries}")
             time.sleep(delay)
-    
+
     return prs[:limit]
 
 def classify_pr_source_type(pr: Dict) -> str:
@@ -166,19 +162,19 @@ def classify_pr_source_type(pr: Dict) -> str:
     user = pr.get('user', {}).get('login', '').lower()
     llm_indicators = ['copilot', 'github-actions', 'dependabot']
     human_indicators = ['dependabot']  # Dependabot is considered human for this context
-    
+
     # Dependabot is human
     if any(ind in user for ind in human_indicators):
         return 'human'
-    
+
     # LLM indicators
     if any(ind in user for ind in llm_indicators):
         return 'llm'
-        
+
     # Default to human for non-bot users
     if 'bot' not in user:
         return 'human'
-        
+
     # For other bots, default to human unless we have specific LLM indicators
     return 'human'
 
@@ -189,14 +185,14 @@ def run_batch_fetch(
 ) -> Dict[str, Any]:
     """
     Main fetch loop with fallback logic (T018).
-    
+
     Fetches PRs from repos in order until target LLM count is met or list exhausted.
-    
+
     Args:
         output_dir: Directory to save raw PR data
         target_llm_count: Minimum number of LLM-classified PRs needed
         max_repos: Maximum number of repos to try
-        
+
     Returns:
         Dictionary with fetch statistics
     """
@@ -215,29 +211,29 @@ def run_batch_fetch(
         'final_repo': None,
         'switched_repos': False
     }
-    
+
     if output_dir is None:
         output_dir = get_path('raw')
-        
+
     Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
+
     logger.info(f"Starting batch fetch. Target LLM count: {target_llm_count}")
     logger.info(f"Repo list: {repo_list}")
-    
+
     while llm_count < target_llm_count and current_repo_idx < len(repo_list):
         repo = repo_list[current_repo_idx]
         stats['repos_tried'] += 1
         logger.info(f"Fetching from repo {current_repo_idx + 1}/{len(repo_list)}: {repo}")
-        
+
         try:
             session = get_session()
             prs = fetch_prs_from_repo(session, repo, limit=BATCH_SIZE)
-            
+
             if not prs:
                 logger.warning(f"No PRs found in {repo}, moving to next repo")
                 current_repo_idx += 1
                 continue
-                
+
             # Classify PRs
             repo_llm_count = 0
             repo_human_count = 0
@@ -248,7 +244,7 @@ def run_batch_fetch(
                     repo_llm_count += 1
                 else:
                     repo_human_count += 1
-                    
+
             all_prs.extend(prs)
             llm_count += repo_llm_count
             stats['llm_prs'] += repo_llm_count
@@ -256,9 +252,9 @@ def run_batch_fetch(
             stats['repos_success'] += 1
             stats['total_prs_fetched'] += len(prs)
             stats['final_repo'] = repo
-            
+
             logger.info(f"Repo {repo}: {len(prs)} PRs (LLM: {repo_llm_count}, Human: {repo_human_count})")
-            
+
             # Check if we need to switch repos
             if repo_llm_count < 10:
                 logger.warning(f"LLM count ({repo_llm_count}) below threshold (10) in {repo}")
@@ -275,7 +271,7 @@ def run_batch_fetch(
             else:
                 logger.info(f"LLM count ({repo_llm_count}) meets threshold in {repo}")
                 break  # Target met
-                
+
         except Exception as e:
             stats['repos_failed'] += 1
             logger.error(f"Failed to fetch from {repo}: {str(e)}")
@@ -287,53 +283,53 @@ def run_batch_fetch(
             else:
                 logger.error("No more repos available after failure")
                 break
-    
+
     # Save all fetched PRs
     if all_prs:
         save_prs_to_raw(all_prs, "combined", output_dir)
-        
+
     stats['target_met'] = llm_count >= target_llm_count
     stats['final_llm_count'] = llm_count
-    
+
     logger.info(f"Fetch complete. Stats: {stats}")
     return stats
 
 def main():
     """CLI entry point for fetch_github.py."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Fetch GitHub PRs with fallback logic")
     parser.add_argument("--output", type=str, default=None, help="Output directory for raw data")
     parser.add_argument("--target-llm", type=int, default=TARGET_LLM_COUNT, help="Target LLM PR count")
     parser.add_argument("--max-repos", type=int, default=None, help="Maximum repos to try")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
-    
+
     args = parser.parse_args()
-    
-    # Setup logging
-    log_config = setup_logging(script_name="fetch_github")
-    
+
+    # Setup logging (tolerant version – accepts no arguments)
+    setup_logging()
+
     # Setup watchdog
     setup_watchdog(seconds=300)
-    
+
     # Set seed
     set_global_seed(args.seed)
-    
+
     try:
         stats = run_batch_fetch(
             output_dir=args.output,
             target_llm_count=args.target_llm,
             max_repos=args.max_repos
         )
-        
+
         # Save stats
         stats_path = os.path.join(args.output or get_path('raw'), "fetch_stats.json")
-        with open(stats_path, 'w') as f:
+        with open(stats_path, 'w', encoding='utf-8') as f:
             json.dump(stats, f, indent=2)
-            
+
         print(f"Fetch complete. Stats saved to {stats_path}")
         return 0
-        
+
     except Exception as e:
         logging.error(f"Fetch failed: {str(e)}")
         return 1

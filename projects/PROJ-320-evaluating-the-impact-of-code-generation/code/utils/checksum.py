@@ -5,7 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Union, Optional, List, Dict
+from typing import Union, List, Dict
 
 def calculate_checksum(file_path: Union[str, Path]) -> str:
     """Calculate SHA-256 checksum of a file."""
@@ -26,7 +26,7 @@ def generate_checksum_manifest(file_paths: List[Union[str, Path]], output_path: 
     for path in file_paths:
         path_str = str(path)
         manifest[path_str] = calculate_checksum(path_str)
-    
+
     with open(output_path, 'w') as f:
         json.dump(manifest, f, indent=2)
 
@@ -35,9 +35,21 @@ def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, str]:
     with open(manifest_path, 'r') as f:
         return json.load(f)
 
+def sha256_file(path: Union[str, Path]) -> str:
+    """
+    Compute the SHA‑256 checksum of the file at ``path``.
+    This is a thin wrapper around :func:`calculate_checksum` kept for backward
+    compatibility with scripts that expect a ``sha256_file`` function.
+    """
+    return calculate_checksum(path)
+
 def main():
-    # Test
-    pass
+    # Simple manual test when run as a script.
+    import argparse
+    parser = argparse.ArgumentParser(description="Compute SHA‑256 checksum of a file.")
+    parser.add_argument("file", help="Path to the file to checksum")
+    args = parser.parse_args()
+    print(sha256_file(args.file))
 
 if __name__ == "__main__":
     main()

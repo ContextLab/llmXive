@@ -1,0 +1,62 @@
+T002:
+  reason: The provided `requirements.txt` exists, but it is located inside the project
+    subdirectory (`projects/PROJ-320-evaluating-the-impact-of-code-generation/requirements.txt`)
+    rather than at the repository root as required, and there is no evidence (e.g.,
+    installation logs) that `pip install -r requirements.txt` succeeds on a fresh
+    runner. Both location and successful install verification are missing.
+  task: ccdecf2db7d262acfbad3e24e2692c80363ff9a0754eefac8dce968ca4d99423
+T004:
+  task: 51fce0be3438a9fa7f73b772753eea678b197c4faacf2e066af467e53f37eee6
+T005:
+  task: 1e46ce8c4865df71cb525f2e87ad5b0bb7ff520bd48da98d2efcd2716df7d648
+T007:
+  task: 539aef7f1666e333526be6441b48100f407d9ddaf3860b52c652fa8c5c6fe53d
+T008:
+  reason: 'Requested task execution failed; rerun successfully: tests/unit/test_checksum.py
+    exit=1'
+  task: fead82ac717dbd2c5db92d2f6fb0e7a39f4f5c3d13d567c467bf7f524e5c8ead
+T009:
+  task: 9c032500fe9a8cfdabb56bd63311075618c7babdb293f5138694df95d8d86aee
+T013:
+  task: 3e81fcc4314592cd84f696f3506aff6b45675dd9b53588d320f63c0cfe4a90f6
+T014:
+  task: 678bfe19791df621d9b9e1a019485ff7fc30d8b07d2c7a23d2f6c29455b67ae2
+? "T015a/T015c Secondary detector (`code/data/entropy_detector.py`) that computes\
+  \ a simple token\u2011entropy score over the PR diff and adds `entropy_score` (0\u2011\
+  1).  The detector is used later for validation (FR\u2011007)."
+: reason: 'declared artifact(s) missing/empty/invalid: code/data/entropy_detector.py'
+  task: 1626a0849d9c8f8f09818a2a5c0ee580ba626e4829b9eb25faf59527c5713baf
+T018:
+  task: da28e9fae8b250c31b2384d0fb30a1b231fc438c3ef7e83a9e631e65ec694070
+T019a:
+  task: ba95eaaca73f9e60f6e54b49c9cebc2c7627867781b0aa4f2d795b42ab5662b6
+T024b:
+  task: d37e65ff08f2bafb3bd7dc620aa7577bfe46801a9a154b303873e21272ea94b4
+T025:
+  task: 38163b68ae6d70e6f186607056253fa18807fe766273c3add086fa82c8b3e2d5
+T026:
+  task: a15f0e5880ab139aafd76eff38a9d7fa9e3dc40f06a43f0f045ef302b9d25038
+T035:
+  task: 1a7bdc299d3270f008a215dda2b75d8eeb953d705974bb2a1c8e0d91c8076ed6
+T036c:
+  task: 10d9f8549842f8398509b7ad6eb3a73c0a987b9baee9bc8ba4a3f230d2489dbb
+T042:
+  task: 19ffae3fc73532976c7941a2bb0ac58d469fba84b32297ea816dd80efcf011b1
+T060:
+  task: 34faf7d62d483e7c7047b61915a37228e46d05050a2d6b3ce67cc29a23e85706
+T061:
+  task: d81545e2dee685f228c033f6aae674c56f0d2ac089dc9e1d4aab92a36be5bed6
+T062:
+  task: f2687f980fbdfb34a8ffa62b49f2f2d50d23d18313908426ba5e21711c9fa287
+T063:
+  task: e61de3aad44a79db61b6ec12facea8cf0a04a6068e86af0362da3b1e4418e692
+T064:
+  task: bc8ff298e9458a27def9c7ba8034104d21859b33f5e0ae076b0f263ec1875046
+T065:
+  task: 9cdcbb0754d2816e71291989aed5c363d6c15dd9d4f24c28fe889c82cb58457d
+T066:
+  task: cd8fe0ed05ac8ab5c2bae46bb9c6caa7ead40d2040bfe5983af6ffaca5f6e339
+T067:
+  task: 4e6d8b7c010550db57266ac27da8fb1ef008caf8ef6dc993530b68c4e9c5db64
+T068:
+  task: 38345af9a445f0c0e101c87822ca8aca4f66ea98ba57aa3a5aa01d536bde4908

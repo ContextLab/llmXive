@@ -11,13 +11,13 @@
 - [ ] T002 Establish the Python 3.11 project with a `requirements.txt` that pins `requests`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pydantic`.  
   – **Verification**: `pip install -r requirements.txt` succeeds on a fresh runner; `requirements.txt` is present at the repo root.
 
-- [ ] T004 Create `code/utils/seeds.py` that defines a deterministic RNG seed (`SEED = 42`) and a helper `set_seed()` used by all stochastic scripts.  
+- [X] T004 Create `code/utils/seeds.py` that defines a deterministic RNG seed (`SEED = 42`) and a helper `set_seed()` used by all stochastic scripts.  
   – **Verification**: Importing `set_seed` sets `numpy` and `random` seeds without error.
 
-- [ ] T005 Create `code/utils/config.py` containing the prioritized repository list (`["psf/requests", "microsoft/vscode", "numpy/numpy"]`), API limits, and classification thresholds (`LLM_CONFIDENCE = 0.6`).  
+- [X] T005 Create `code/utils/config.py` containing the prioritized repository list (`["psf/requests", "microsoft/vscode", "numpy/numpy"]`), API limits, and classification thresholds (`LLM_CONFIDENCE = 0.6`).  
   – **Verification**: `from code.utils.config import REPOS` returns the expected list.
 
-- [ ] T008 Add `code/utils/checksum.py` with `sha256_file(path)` used by the fetch script.  
+- [ ] T008 Add `code/utils/checksum.py` with `sha256_file(path)` used by the fetch script.   <!-- FAILED-IN-EXECUTION: tests/unit/test_checksum.py exit=1 -->
   – **Verification**: Unit test in `tests/unit/test_checksum.py` passes.
 
 - [ ] T007 Implement `code/data/fetch_github.py` with `fetch_batch(repo: str, limit: int, max_retries: int = 3)` that:
@@ -30,7 +30,7 @@
 - [ ] T009 Add `code/audit/manual_validation.py` helper `calculate_sample_size(N_llm, min_threshold=10, scaling_factor=0.1)` returning the larger of `min_threshold` and `ceil(N_llm * scaling_factor)`.  
   – **Verification**: Function returns `10` for `N_llm=5` and `12` for `N_llm=120`.
 
-- [X] T015a/T015c Secondary detector (`code/data/entropy_detector.py`) that computes a simple token‑entropy score over the PR diff and adds `entropy_score` (0‑1).  The detector is used later for validation (FR‑007).  
+- [ ] T015a/T015c Secondary detector (`code/data/entropy_detector.py`) that computes a simple token‑entropy score over the PR diff and adds `entropy_score` (0‑1).  The detector is used later for validation (FR‑007).  
   – **Verification**: Unit test confirms higher entropy for a synthetic noisy diff vs. a clean diff.
 
 - [ ] T014 Primary signature classification (`code/data/classify_prs.py`) that:

@@ -49,11 +49,11 @@ def test_calculate_checksum_different_content_different_hash():
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f1:
         f1.write('content A')
         path1 = f1.name
-    
+
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f2:
         f2.write('content B')
         path2 = f2.name
-    
+
     try:
         hash1 = calculate_checksum(path1)
         hash2 = calculate_checksum(path2)
@@ -94,7 +94,7 @@ def test_verify_checksum_invalid_format():
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
         f.write('test')
         temp_path = f.name
-    
+
     try:
         with pytest.raises(ValueError):
             verify_checksum(temp_path, "invalid")
@@ -104,11 +104,11 @@ def test_verify_checksum_invalid_format():
 def test_generate_checksum_manifest(temp_file, temp_manifest):
     """Test that manifest is generated correctly."""
     generate_checksum_manifest([temp_file], temp_manifest)
-    
+
     assert os.path.exists(temp_manifest)
     with open(temp_manifest, 'r') as f:
         manifest = json.load(f)
-    
+
     assert Path(temp_file).name in manifest
     assert manifest[Path(temp_file).name] == calculate_checksum(temp_file)
 
@@ -117,17 +117,17 @@ def test_generate_checksum_manifest_multiple_files(temp_manifest):
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f1:
         f1.write('file 1')
         path1 = f1.name
-    
+
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f2:
         f2.write('file 2')
         path2 = f2.name
-    
+
     try:
         generate_checksum_manifest([path1, path2], temp_manifest)
-        
+
         with open(temp_manifest, 'r') as f:
             manifest = json.load(f)
-        
+
         assert len(manifest) == 2
         assert Path(path1).name in manifest
         assert Path(path2).name in manifest
@@ -138,18 +138,18 @@ def test_generate_checksum_manifest_multiple_files(temp_manifest):
 def test_generate_checksum_manifest_skips_missing(temp_manifest):
     """Test that missing files are skipped without error."""
     generate_checksum_manifest(["/nonexistent/file.json"], temp_manifest)
-    
+
     with open(temp_manifest, 'r') as f:
         manifest = json.load(f)
-    
+
     assert len(manifest) == 0
 
 def test_load_checksum_manifest(temp_file, temp_manifest):
     """Test loading a checksum manifest."""
     generate_checksum_manifest([temp_file], temp_manifest)
-    
+
     manifest = load_checksum_manifest(temp_manifest)
-    
+
     assert isinstance(manifest, dict)
     assert Path(temp_file).name in manifest
     assert manifest[Path(temp_file).name] == calculate_checksum(temp_file)
@@ -163,6 +163,6 @@ def test_load_checksum_manifest_invalid_json(temp_manifest):
     """Test that JSONDecodeError is raised for invalid JSON."""
     with open(temp_manifest, 'w') as f:
         f.write("not valid json")
-    
+
     with pytest.raises(json.JSONDecodeError):
         load_checksum_manifest(temp_manifest)
