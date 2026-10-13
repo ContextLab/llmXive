@@ -4,9 +4,10 @@ Implements the API expected by the unit tests:
   - generate_subject_data
   - generate_connectivity_data
   - save_synthetic_data
-and provides the constant MIN_SUBJECTS_PER_GROUP.
+and provides additional helpers required by the rest of the pipeline:
+  - generate_synthetic_dataset (creates NIfTI files and a Parquet behavioural table)
 All generated data are fully reproducible given a seed and respect the
-schema constraints defined in the contract files.
+schema constraints defined in ``contracts/subject.schema.yaml``.
 """
 
 import json
@@ -18,6 +19,10 @@ import numpy as np
 import pandas as pd
 
 from utils.memory_monitor import MemoryLimitExceeded
+from llmxive_toolkit import paths, get_logger
+from data.mock_nifti import create_mock_nifti
+
+log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Configuration constants
@@ -38,7 +43,7 @@ def _validate_subject_counts(df: pd.DataFrame) -> None:
         )
 
 # ----------------------------------------------------------------------
-# Public API
+# Public API required by the unit tests
 # ----------------------------------------------------------------------
 def generate_subject_data(
     n_subjects: int,
@@ -72,8 +77,10 @@ def generate_subject_data(
     * SES scores are drawn from a uniform [1, 10] interval.
     """
     if n_subjects < 2 * MIN_SUBJECTS_PER_GROUP:
-        raise ValueError("Insufficient subjects: total must allow at least "
-                         f"{MIN_SUBJECTS_PER_GROUP} per group.")
+        raise ValueError(
+            "Insufficient subjects: total must allow at least "
+            f"{MIN_SUBJECTS_PER_GROUP} per group."
+        )
 
     if seed is not None:
         np.random.seed(seed)
@@ -242,6 +249,74 @@ def save_synthetic_data(
     }
 
 # ----------------------------------------------------------------------
+# Additional helper required by the rest of the pipeline
+# ----------------------------------------------------------------------
+def generate_synthetic_dataset(
+    n_subjects: int = 100,
+    n_timepoints: int = 200,
+    n_rois: int = 400,
+    seed: int | None = None,
+) -> pd.DataFrame:
+    """
+    Generate a synthetic dataset that mimics the layout expected for
+    verification mode throughout the pipeline.
+
+    * Creates a behavioural table and writes it as ``data/processed/subjects.parquet``.
+    * Generates a mock NIfTI file for each subject under ``data/raw/mock_nifti/``.
+    * Returns the behavioural ``DataFrame`` for downstream consumption.
+
+    Parameters
+    ----------
+    n_subjects : int, default 100
+        Total number of subjects to generate.
+    n_timepoints : int, default 200
+        Number of time‑points per mock fMRI run (used only for the NIfTI shape).
+    n_rois : int, default 400
+        Number of ROIs – does not affect the NIfTI shape but is retained for
+        consistency with downstream code that expects 400 parcels.
+    seed : int | None
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    pd.DataFrame
+        Behavioural table with the required columns.
+    """
+    log.info(
+        f"Generating synthetic dataset: subjects={n_subjects}, "
+        f"timepoints={n_timepoints}, rois={n_rois}, seed={seed}"
+    )
+
+    # 1. Generate behavioural table
+    subjects_df = generate_subject_data(n_subjects, seed=seed)
+
+    # 2. Write behavioural table as Parquet (required by downstream scripts)
+    subjects_parquet_path = paths.data("processed", "subjects.parquet")
+    subjects_parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    subjects_df.to_parquet(subjects_parquet_path, index=False)
+    log.info(f"Wrote behavioural table to {subjects_parquet_path}")
+
+    # 3. Create mock NIfTI files for each subject
+    nifti_dir = paths.data("raw", "mock_nifti")
+    nifti_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use a simple 4‑D shape: (10, 10, 10, n_timepoints)
+    nifti_shape = (10, 10, 10, n_timepoints)
+
+    for subj_id in subjects_df["subject_id"]:
+        nifti_path = nifti_dir / f"{subj_id}.nii.gz"
+        # ``create_mock_nifti`` will ensure the file is a valid NIfTI‑1 image.
+        create_mock_nifti(
+            output_path=str(nifti_path),
+            shape=nifti_shape,
+            dtype=np.float32,
+            seed=seed,
+        )
+    log.info(f"Created {len(subjects_df)} mock NIfTI files in {nifti_dir}")
+
+    return subjects_df
+
+# ----------------------------------------------------------------------
 # Command‑line entry point (optional, useful for manual debugging)
 # ----------------------------------------------------------------------
 def _cli() -> int:
@@ -270,6 +345,7 @@ def _cli() -> int:
     )
     args = parser.parse_args()
 
+    # The CLI mirrors ``save_synthetic_data`` for backward compatibility.
     save_synthetic_data(args.output_dir, n_subjects=args.n_subjects, seed=args.seed)
     print(f"Synthetic data written to {args.output_dir}")
     return 0

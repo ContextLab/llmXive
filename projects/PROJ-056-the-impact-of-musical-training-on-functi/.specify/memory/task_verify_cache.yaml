@@ -8,13 +8,13 @@ T001:
   sig: be6fdb0d0def033f1d339c06177dcf572cbb70483452212c7f73761f30abc423
 T002:
   c: false
-  h: 52a076af507bfce7249c824a067dcca8a7fc2a676b7559650e965fa795b85e1d
-  r: "The generator script exists, but it never creates the required `data/raw/mock_nifti/`\
-    \ directory with mock NIfTI files, nor does it write the behavioural table as\
-    \ `subjects.parquet` (it writes CSV instead). Additionally, the required `subject.schema.yaml`\
-    \ file is missing. These essential artifacts are absent, so the task\u2019s requirements\
-    \ are not satisfied."
-  sig: c9097b956d524fe8aaad77216faab5f29694e14b0d512a06cc5614f3f426a6f3
+  h: a19e90f76c04673989fc180315d43077b810ceaf11d1d6a1ff157006cacbd923
+  r: "The repository contains the generator script, but the required output artifacts\
+    \ are absent: the `data/raw/mock_nifti/` directory and the `data/processed/subjects.parquet`\
+    \ file are missing, and the referenced `subject.schema.yaml` does not exist. Consequently\
+    \ the task\u2019s core deliverables (balanced cohort files and schema\u2011validated\
+    \ parquet table) are not present."
+  sig: 2d09ae34a47320fe460fa21cbdc5bda8e6c28f6a6a28c8b2469efd161072f269
 T003:
   c: false
   h: fdcb8aa43440d62bdd3107044b41e9d2a26426aeca8481aba43ade74686fde83

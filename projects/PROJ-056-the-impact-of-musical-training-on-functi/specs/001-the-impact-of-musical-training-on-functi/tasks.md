@@ -16,7 +16,7 @@
   - `data/processed/subjects.parquet` (behavioural table).  
   *Verification*: `pytest tests/unit/test_synthetic_generator.py` confirms schema compliance (subject.schema.yaml) and that every musician has `years_of_training ≥ 1`.  
 
-- [ ] T003 **Main entry‑point wiring** – `code/main.py`  
+- [ ] T003 **Main entry‑point wiring** – `code/main.py`   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   Adds CLI options `--mode verification` (synthetic) and `--mode analysis` (real data). Calls the appropriate pipeline modules.  
   *Verification*: Running `python -m code.main --mode verification` produces the three verification‑mode CSVs listed in T101‑T106 without error.  
 
