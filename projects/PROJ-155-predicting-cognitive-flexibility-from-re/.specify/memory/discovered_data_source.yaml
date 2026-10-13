@@ -1,12 +1,12 @@
 status: none
-intent: Human Connectome Project 1200 release download Python package HCP1200 Schaefer
-  atlas NIH Toolbox scores python package dataset
+intent: download HCP S1200 minimal preprocessing Schaefer atlas connectivity NIH Toolbox
+  scores python package dataset
 required_fields:
 - subject_id (string)
-- rsfc_feature (float)
+- connectivity_value (float)
 - age (integer)
-- sex (string)
-- nih_dimensional_change_card_sort_score (float)
-cache_key: 5cb5018b87634c1da9dec41afee67a5bfed4a654c5f5e6c621c0acf4f8779e58
-searched_at: '2026-10-13T11:18:17.144228+00:00'
+- gender (string)
+- NIH_Toolbox_DCCS_score (float)
+cache_key: 2e1629a3829274c7e898d3f077e304211d586a81433296e3229d0a89c0900341
+searched_at: '2026-10-13T17:24:39.193310+00:00'
 retry_count: 1

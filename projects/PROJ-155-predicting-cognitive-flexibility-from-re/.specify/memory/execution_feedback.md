@@ -14,36 +14,31 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”; 3 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage features (rc=1); python code/main.py --stage analysis (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…help="Run unit tests on synthetic data")     args = parser.pars…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…if args.test:         # Generate synthetic test data         np.ran…”; code/utils/noise_filter.py: synthetic/fake INPUT data not authorized by the spec — “…execute verification on synthetic data.")…”; 2 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage features (rc=1); 4 declared deliverable(s) absent: data/processed/exclusion_log.csv; data/processed/final_results.csv; data/processed/metrics.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --stage download_preprocess -> rc=1
 
+INFO:__main__:Downloading raw data (HCP subset)...
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 16, in <module>
-    from code.data.download import download_hcp_subset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 8, in <module>
-    from code.data.paths import (
-ImportError: cannot import name 'get_project_root' from 'code.data.paths' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/paths.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 68, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 59, in main
+    _run_download_preprocess()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 26, in _run_download_preprocess
+    download_hcp_subset()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/download.py", line 69, in download_hcp_subset
+    raw_root = get_raw_path() / "HCP_1200"
+               ~~~~~~~~~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'str' and 'str'
 
 - python code/main.py --stage features -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 16, in <module>
-    from code.data.download import download_hcp_subset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 8, in <module>
-    from code.data.paths import (
-ImportError: cannot import name 'get_project_root' from 'code.data.paths' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/paths.py)
-
-- python code/main.py --stage analysis -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/main.py", line 16, in <module>
-    from code.data.download import download_hcp_subset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/__init__.py", line 8, in <module>
-    from code.data.paths import (
-ImportError: cannot import name 'get_project_root' from 'code.data.paths' (/home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/code/data/paths.py)
+INFO:__main__:Running connectivity feature extraction...
+INFO:code.features.connectivity:Starting connectivity feature extraction...
+ERROR:code.features.connectivity:Parcellated directory not found: /home/runner/work/llmXive/llmXive/projects/PROJ-155-predicting-cognitive-flexibility-from-re/data/processed/parcellated
+ERROR:__main__:Connectivity pipeline failed.
 
 
 ## Declared deliverables still missing

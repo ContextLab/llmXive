@@ -1,10 +1,9 @@
 T001:
   c: false
-  h: 68c7c523353ba622b52c1183e2b0b4cbeb75b0b7df36df10b6e1173f45fea60c
-  r: "The required directories and files (`code/`, `data/raw/`, `data/processed/`,\
-    \ `data/results/`, `docs/`, `tests/`, `requirements.txt`, `.ruff.toml`, `code/config.py`,\
-    \ and the updated `plan.md`) are present and correctly populated, but there is\
-    \ no provided evidence that the linting step (`ruff check .`) was run and passed.\
-    \ A command\u2011line output or test result confirming that the codebase complies\
-    \ with the `.ruff.toml` configuration is needed to satisfy the verification requirement."
-  sig: 4bf016a148c17640a2743b43d2fe736f4fbe7a502754539fed26f3d83a438b63
+  h: f21465ba1af47ea2bf0549af9a18a8b64c68f09bbed9e402b06c582f8222e0cf
+  r: "Checked the presence and contents of the required directories, `requirements.txt`,\
+    \ `.ruff.toml`, and `code/config.py`, and the updated `plan.md`. While the directory\
+    \ structure and config values are correct, there is no provided evidence that\
+    \ `ruff check .` was run and passed (no ruff\u2011linting log or test result),\
+    \ so the linting verification step is missing."
+  sig: 063f7d4278aaf3ade692b366bcb0ef47b3af40cb841e67f92c9836133a2b6061

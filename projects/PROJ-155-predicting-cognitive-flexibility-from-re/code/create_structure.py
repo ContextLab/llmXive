@@ -1,20 +1,17 @@
 """
-Setup script to establish the project directory structure.
+Creates the required directory structure for the project.
 """
 import os
 from pathlib import Path
 from llmxive_toolkit import paths
 
 def ensure_dir(path: Path) -> None:
-    """Ensure that *path* exists as a directory."""
+    """Ensure that path exists as a directory."""
     path.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
-    """
-    Create the required directory structure:
-    code/, data/raw/, data/processed/, data/results/, docs/, tests/
-    """
-    # Root directories
+    """Create the required directory structure."""
+    # Use llmxive_toolkit.paths to ensure we are in the correct project root
     dirs = [
         paths.code(),
         paths.data("raw"),

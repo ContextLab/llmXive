@@ -2836,3 +2836,42 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-13T02:40:06Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Data sourced from the Human Connectome Project
+  claim_id: c_531b5f48
+  context: 'Data Source (Wikipedia: Human Connectome Project, https://en.wikipedia.org/wiki/Human_Connectome_Project)
+    (real data only).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Human Connectome Project
+      source_id: Q387749
+      url: https://www.wikidata.org/wiki/Q387749
+      value: Human Connectome Project
+    filled: true
+  kind: entity_fact
+  raw_text: 'Wikipedia: Human Connectome Project, https://en.wikipedia.org/wiki/Human_Connectome_Project'
+  resolved_value: Human Connectome Project
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-13T17:13:59Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Sample size is greater than 1000 subjects
+  claim_id: c_2f122c02
+  context: III. Statistical Power | COMPLIANT | The sample size is greater than 1000
+    subjects.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sample size is greater than 1000 subjects.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T17:14:00Z'

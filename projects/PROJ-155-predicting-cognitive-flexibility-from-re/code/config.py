@@ -2,13 +2,10 @@
 Configuration module – provides a deterministic random seed and a few
 pipeline parameters.
 """
-
 import os
 import random
 from typing import Dict, Any
-
 import numpy as np
-
 
 _CONFIG: Dict[str, Any] = {
     # Reproducibility
@@ -23,7 +20,6 @@ _CONFIG: Dict[str, Any] = {
     "batch_size": 50,
 }
 
-
 def set_seed(seed: int = 42) -> None:
     """
     Seed the global random number generators for reproducibility.
@@ -31,7 +27,6 @@ def set_seed(seed: int = 42) -> None:
     random.seed(seed)
     np.random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
-
 
 def get_config() -> Dict[str, Any]:
     """

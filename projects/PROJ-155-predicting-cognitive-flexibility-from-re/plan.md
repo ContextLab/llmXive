@@ -10,7 +10,7 @@ Does inter-individual variability in resting-state functional connectivity (RSFC
 Sliding-window correlation analysis with permutation-based statistical validation.
 
 ## Data Source
-{{claim:c_ebd21dee}} (Wikipedia: Human Connectome Project, https://en.wikipedia.org/wiki/Human_Connectome_Project) (real data only).
+{{claim:c_ebd21dee}} ({{claim:c_531b5f48}} (Wikidata Q387749, https://www.wikidata.org/wiki/Q387749)) (real data only).
 
 ## Constitution Check
 
@@ -18,7 +18,7 @@ Sliding-window correlation analysis with permutation-based statistical validatio
 |-----------|--------|---------------|
 | I. Reproducibility | COMPLIANT | All code is open source and version controlled. Random seeds pinned in code/config.py. |
 | II. Data Integrity | COMPLIANT | SHA checksums verified against HCP manifest. |
-| III. Statistical Power | COMPLIANT | The sample size is greater than 1000 subjects. [UNRESOLVED-CLAIM: c_75cfcb65 — status=not_enough_info]. |
+| III. Statistical Power | COMPLIANT | The sample size is greater than 1000 subjects. [UNRESOLVED-CLAIM: c_2f122c02 — status=not_enough_info]. |
 | IV. Pre-registration | COMPLIANT | Analysis plan documented in specs/. |
 | V. Transparency | COMPLIANT | All parameters and thresholds are configurable via code/config.py. |
 | VI. Ethical Compliance | COMPLIANT | HCP data use agreement signed. |

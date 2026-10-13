@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-13T05:23:15Z",
-  "project_id": "PROJ-155-predicting-cognitive-flexibility-from-re"
+  "updated_at": "2026-10-13T17:24:46Z",
+  "project_id": "PROJ-155-predicting-cognitive-flexibility-from-re",
+  "replan_rounds": 1
 }
