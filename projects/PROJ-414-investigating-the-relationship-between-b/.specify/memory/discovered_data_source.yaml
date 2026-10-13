@@ -1,13 +1,18 @@
 status: none
-intent: download OpenNeuro ds000246 fMRI dataset musicians improvisation Nilearn Schaefer
-  atlas python package dataset
+intent: OpenNeuro ds000246 ds001600 musical improvisation fMRI python package dataset
 required_fields:
 - subject_id
 - run_label
-- age_years
+- age
 - years_training
-- framewise_displacement
-- roi_1...roi_100
-cache_key: 1bba84036908ec7c0e06e4eca8d53226ea2c66b6c71ff29e44ca902bb18e999b
-searched_at: '2026-10-13T14:36:51.002504+00:00'
+- fd
+- roi_1
+- roi_2
+- roi_3
+- roi_4
+- roi_5
+- roi_6
+- roi_7
+cache_key: 071f85a26670fbe040cf182f1c7af5f3379e424c21705c1957a8729d959e6a98
+searched_at: '2026-10-13T15:16:49.120319+00:00'
 retry_count: 1
