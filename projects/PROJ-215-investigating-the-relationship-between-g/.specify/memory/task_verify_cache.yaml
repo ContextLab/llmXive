@@ -1,3 +1,50 @@
+T000a:
+  c: true
+  h: 7de569a4c71a71a31ee9b7acfcdbffffa5811ad41a0d146a5834a0cab84a097c
+  r: Checked `code/data_feasibility.py` (implements the dataset query and writes the
+    JSON) and the generated `results/feasibility_check.json` (exists and contains
+    the required boolean `data_available` field). The script ran without error and
+    produced the expected output file.
+  sig: 12041090aff3c89650d172ea4b89fc711b6135b6210131e4b36b87b59f7dd027
+T000b:
+  c: true
+  h: 1fe967e00fbda4800bb63463dab41bd0b7a5f0b81a730ceb9a2c8d71bdfd3025
+  r: "Checked `results/data_gap_report.md` (335\u202Fbytes) which exists and includes\
+    \ the required \u201CData Gap: No linked dataset found\u201D message, and the\
+    \ execution log shows the pipeline generated this report when no dataset could\
+    \ be fetched, satisfying the task\u2019s condition."
+  sig: 7f74d6f6c28669479c75b166c12cf3675b28bae19094da826684a303cd12edf9
+T000c:
+  c: false
+  h: 8e8dbf321b14329bf1d5f1282c1967a26c7f135c0c2598f523c68e6152c1a62e
+  r: "The provided execution log shows the pipeline failing to fetch study metadata\
+    \ and never emitting the required `Data feasibility confirmed` message; the log\
+    \ file `logs/pipeline.log` is not present or shown, and the pipeline does not\
+    \ continue after the error. The task\u2019s core requirement is therefore unmet."
+  sig: 34d3753be0d004fe92fd70b3a18b9a8c89510355366224c171821484f732450c
+T001a:
+  c: true
+  h: 309acaa785db7be085ed82162a49143c150d70e590a52b18e1e0d0c0be54d441
+  r: "The collector confirms that `data/raw/`, `data/processed/`, and `data/interior/`\
+    \ directories exist (though empty), and the unit\u2011test log shows the test\
+    \ `test_data_directories_created` passed, indicating the script successfully created\
+    \ the three required directories."
+  sig: 8775e57ab52804614fcb5fc69e28828379c86ed3dbbc33a3447c4b8b630995a2
+T001b:
+  c: true
+  h: 1562524470dd2a1df1c9f35e507935c124ea8ba14544795416ee9370e80a9328
+  r: "Checked the repository listing confirming that `code/`, `code/models/`, and\
+    \ `code/utils/` directories exist, and reviewed the unit\u2011test log and script\
+    \ execution log which both report successful creation of those three directories."
+  sig: a0dd48f5fc9eba50fd05bde2d89b51a9240314fb8335eafd2682c86c21572ba7
+T001c:
+  c: true
+  h: 189dfe7a75a7c3b7f8add563b8a2d6229fb15e2c6af2e5eb7619be41f7594994
+  r: "The collector confirms that `tests/unit/`, `tests/integration/`, and `tests/contract/`\
+    \ directories exist (non\u2011empty) and the execution log shows the script ran\
+    \ successfully (exit\u202F0) creating each directory. This meets the task\u2019\
+    s requirement to create and verify the three test directories."
+  sig: 34bf390c6ad3559ee363113a929a9b492333ac2d8f18dbd8bfc9a7c5c3a271bd
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -13,10 +13,10 @@
 
 ## Phase 0 – Data Feasibility Check (Blocking Gate)
 
-- [ ] T000a [P] [US1] Implement `code/data_feasibility.py` to query verified public sources for a dataset that contains both 16S rRNA data **and** PHQ‑9/GAD‑7 scores, returning `results/feasibility_check.json`.  
+- [X] T000a [P] [US1] Implement `code/data_feasibility.py` to query verified public sources for a dataset that contains both 16S rRNA data **and** PHQ‑9/GAD‑7 scores, returning `results/feasibility_check.json`.  
   • Verify that the JSON file exists and contains a boolean `data_available` field.  
 
-- [ ] T000b [P] [US1] If no linked dataset is found, generate a “Data Gap Report” at `results/data_gap_report.md` (JSON/Markdown) and halt the pipeline.  
+- [X] T000b [P] [US1] If no linked dataset is found, generate a “Data Gap Report” at `results/data_gap_report.md` (JSON/Markdown) and halt the pipeline.  
   • Verify that `results/data_gap_report.md` is created and contains the required “Data Gap” statement.  
 
 - [ ] T000c [P] [US1] Log a confirmation message and allow the pipeline to continue when a suitable dataset is discovered.  
@@ -26,16 +26,16 @@
 
 ## Phase 1 – Project Setup (Shared Infrastructure)
 
-- [ ] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/ data/interior/`.  
+- [X] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/ data/interior/`.  
   • Verify that each directory exists after execution.  
 
-- [ ] T001b [P] Create code directories: `mkdir -p code/ code/models/ code/utils/`.  
+- [X] T001b [P] Create code directories: `mkdir -p code/ code/models/ code/utils/`.  
   • Verify that each directory exists after execution.  
 
-- [ ] T001c [P] Create test directories: `mkdir -p tests/unit/ tests/integration/ tests/contract/`.  
+- [X] T001c [P] Create test directories: `mkdir -p tests/unit/ tests/integration/ tests/contract/`.  
   • Verify that each directory exists after execution.  
 
-- [ ] T002a [P] Add `requirements.txt` with pinned versions for core dependencies (pandas, scikit‑learn, scipy, numpy, biom-format, scikit‑bio, matplotlib, seaborn, requests, pytest, statsmodels).  
+- [~] T002a [P] Add `requirements.txt` with pinned versions for core dependencies (pandas, scikit‑learn, scipy, numpy, biom-format, scikit‑bio, matplotlib, seaborn, requests, pytest, statsmodels).  
   • Verify that `requirements.txt` contains at least the listed packages and that `pip install -r requirements.txt` succeeds without errors.  
 
 - [ ] T002b [P] Implement `code/scripts/generate_lock.py` to produce `requirements.lock` from `requirements.txt`.  
