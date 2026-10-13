@@ -1,0 +1,31 @@
+T001:
+  reason: The repository contains the required `requirements.txt`, `pyproject.toml`,
+    and a `code/config.py` that defines all the specified constants. However, there
+    are no artifacts for the logging subsystem, checksum utilities, or the chunked
+    Parquet loader modules that the task explicitly demands. These missing components
+    mean the project does not fully satisfy the T001 specification.
+  task: 9ac4154c5ddecb587279531090dbf2869b4801d70573f14e5559b99e9674b38c
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_sources.py
+    exit=1'
+  task: 50a0ff6721b706422e54b35dda00644a3e2385f54ce0b6d14318c2d2c4e956b0
+T003:
+  task: b2c21ce930a0c659a0c3047bc6fdf6cf9eeb46d2c95c8ac1994ee91cb5413305
+T004:
+  task: 7a0f95a8f8fe088564a514d0c1024eb10ef6cc24c0cf44ca787b4980b4f409c3
+T005:
+  task: 4ba75cea99166694c47df01b94a4a6cd1c4ee24468e9f1b5f2eb1945e1745fef
+T006:
+  task: 74a816c17971f3d77ff7a3b3ed1c6cda50d926d6cc0210830e32b454f1996879
+T101:
+  task: 0836d06775c4cc29d1fe51f3935f65f2dd104595bedbd2180554d29ea4b592c4
+T102:
+  task: 297f2853b916783bdb77e736f9ec2d46860cb49944ea48c9750fa54d505aaff9
+T103:
+  task: ec2283924c6500d44cf9759cc6b044850b49f57692ffc97f90023ea10f28e2a4
+T104:
+  task: 183519056feb2ae3c59f48a83680c1e32eaaa0fd7dd206679a64873b0d21cacc
+T105:
+  task: 4af97e62f54b4aabe73e2ac0613e48a07deb858437422b3af14719e07c208b62
+T106:
+  task: 192a1a289271d55315f2f29520d76787bcb7195c53ad80887192098b0068c37d

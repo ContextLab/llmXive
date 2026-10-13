@@ -1,117 +1,92 @@
 """
-Data loading utilities for the Ambient Temperature Influence on Moral Decision Speed project.
+Chunked Parquet Loader Utilities
 
-Provides memory-efficient Parquet loading via chunked iteration to prevent
-memory overflow when processing large datasets.
+This module provides helper functions for loading large Parquet files in a
+memory‑efficient way using pyarrow's dataset API. It is used throughout the
+pipeline (e.g., in ingestion, modeling, robustness) to avoid loading the
+entire file into memory when it is unnecessary.
+
+Functions
+----------
+load_parquet_as_df(path: str | Path, columns: list | None = None) -> pandas.DataFrame
+    Load the whole Parquet file as a DataFrame (convenient wrapper).
+
+iter_parquet_chunks(path: str | Path, batch_size: int = 100_000, columns: list | None = None)
+    Generator yielding DataFrames of size ``batch_size`` rows. Useful for
+    streaming large datasets without exhausting RAM.
 """
-
-import logging
 import os
 from pathlib import Path
-from typing import Generator, Optional
+from typing import Generator, List, Optional, Union
 
 import pandas as pd
+import pyarrow.dataset as ds
 
-from config import get_path_env_override
+def _ensure_path(path: Union[str, Path]) -> Path:
+    """Validate that the given path exists and is a file."""
+    p = Path(path)
+    if not p.is_file():
+        raise FileNotFoundError(f"Parquet file not found: {p}")
+    return p
 
-logger = logging.getLogger(__name__)
+def load_parquet_as_df(
+    path: Union[str, Path],
+    columns: Optional[List[str]] = None,
+) -> pd.DataFrame:
+    """
+    Load a Parquet file into a pandas DataFrame.
 
+    Parameters
+    ----------
+    path : str or Path
+        Path to the Parquet file.
+    columns : list of str, optional
+        Subset of columns to read. If None, all columns are read.
 
-def load_chunked_parquet(
-    path: str,
-    chunk_size: int = 100000
+    Returns
+    -------
+    pandas.DataFrame
+        The loaded data.
+    """
+    p = _ensure_path(path)
+    # Using pyarrow.dataset for efficient column projection
+    table = ds.dataset(p, format="parquet").to_table(columns=columns)
+    return table.to_pandas()
+
+def iter_parquet_chunks(
+    path: Union[str, Path],
+    batch_size: int = 100_000,
+    columns: Optional[List[str]] = None,
 ) -> Generator[pd.DataFrame, None, None]:
     """
-    Load a Parquet file in chunks to handle large datasets without memory overflow.
+    Iterate over a Parquet file in chunks.
 
-    This function uses pandas' `read_parquet` with the `chunksize` parameter
-    (via the `pyarrow` engine) to return an iterator of DataFrames.
+    Parameters
+    ----------
+    path : str or Path
+        Path to the Parquet file.
+    batch_size : int, default 100_000
+        Number of rows per yielded chunk.
+    columns : list of str, optional
+        Columns to read; None reads all.
 
-    Args:
-        path: Path to the Parquet file. Can be relative to project root or absolute.
-        chunk_size: Number of rows to read per chunk. Default is 100,000.
-
-    Yields:
-        pd.DataFrame: A chunk of the Parquet file as a DataFrame.
-
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If chunk_size is not a positive integer.
-        RuntimeError: If the file cannot be read as Parquet (e.g., wrong format).
-
-    Note:
-        This function relies on the `pyarrow` engine which is a dependency of pandas
-        for Parquet support. Ensure `pyarrow` is installed if using the `chunksize`
-        parameter in older pandas versions, though modern pandas handles this well.
+    Yields
+    ------
+    pandas.DataFrame
+        Chunk of rows from the Parquet file.
     """
-    if not isinstance(chunk_size, int) or chunk_size <= 0:
-        raise ValueError(f"chunk_size must be a positive integer, got {chunk_size}")
+    p = _ensure_path(path)
+    dataset = ds.dataset(p, format="parquet")
+    # Scan with optional column projection
+    scanner = dataset.scan(columns=columns)
 
-    # Resolve path relative to project root if not absolute
-    path_obj = Path(path)
-    if not path_obj.is_absolute():
-        project_root = get_path_env_override("PROJECT_ROOT", Path.cwd())
-        path_obj = Path(project_root) / path_obj
-
-    if not path_obj.exists():
-        raise FileNotFoundError(f"Parquet file not found: {path_obj}")
-
-    logger.info(f"Loading {path_obj} in chunks of {chunk_size} rows...")
-
-    try:
-        # read_parquet with chunksize returns a ParquetFile object which is iterable
-        # or in newer pandas versions, an iterator directly depending on the engine.
-        # We use the default engine (pyarrow) which supports chunking.
-        parquet_file = pd.read_parquet(
-            path_obj,
-            engine="pyarrow",
-            chunksize=chunk_size
-        )
-
-        for i, chunk in enumerate(parquet_file):
-            logger.debug(f"Yielding chunk {i} with {len(chunk)} rows.")
-            yield chunk
-
-        logger.info(f"Successfully loaded {path_obj} in {i + 1} chunks.")
-
-    except Exception as e:
-        logger.error(f"Failed to read Parquet file {path_obj}: {e}")
-        raise RuntimeError(f"Error reading Parquet file: {e}") from e
-
-
-def load_parquet_as_df(path: str, chunk_size: int = 100000) -> pd.DataFrame:
-    """
-    Convenience function to load a Parquet file into a single DataFrame using chunked reading.
-
-    This is useful when the dataset is large but fits in memory when fully concatenated,
-    and you want to avoid loading it all at once during the read process.
-
-    Args:
-        path: Path to the Parquet file.
-        chunk_size: Number of rows per chunk for the iterator.
-
-    Returns:
-        pd.DataFrame: The complete dataset concatenated from chunks.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If chunk_size is invalid.
-        RuntimeError: If concatenation fails or file is unreadable.
-    """
-    chunks = []
-    try:
-        for chunk in load_chunked_parquet(path, chunk_size):
-            chunks.append(chunk)
-
-        if not chunks:
-            logger.warning(f"No data found in {path}")
-            return pd.DataFrame()
-
-        logger.info(f"Concatenating {len(chunks)} chunks into a single DataFrame...")
-        df = pd.concat(chunks, ignore_index=True)
-        logger.info(f"Loaded {len(df)} total rows.")
-        return df
-
-    except Exception as e:
-        logger.error(f"Failed to load and concatenate {path}: {e}")
-        raise RuntimeError(f"Failed to load {path}: {e}") from e
+    # Use the pyarrow RecordBatch iterator and convert each batch to pandas
+    for batch in scanner.to_batches():
+        df = batch.to_pandas()
+        # If the batch is larger than the desired size, split it further
+        if len(df) <= batch_size:
+            yield df
+        else:
+            # Split large batch into smaller pieces
+            for start in range(0, len(df), batch_size):
+                yield df.iloc[start:start + batch_size]

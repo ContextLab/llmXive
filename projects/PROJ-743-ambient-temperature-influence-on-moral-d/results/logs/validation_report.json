@@ -1,0 +1,9 @@
+{
+  "checks": {
+    "moral_machine_file": {
+      "detail": "File not found: data/raw/moral_machine.csv",
+      "status": false
+    }
+  },
+  "timestamp": "2026-10-13T19:24:15.770759Z"
+}

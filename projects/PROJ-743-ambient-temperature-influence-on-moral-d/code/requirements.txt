@@ -1,14 +1,6 @@
-pandas
-numpy
-scikit-learn
-statsmodels
-cdsapi
-pyarrow
-geopandas
-matplotlib
-seaborn
-geopy
-shapely
-ruff
-black
-requests
+# Project dependencies
+# Core scientific packages are pre-installed in the execution environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional packages required for data acquisition and validation:
+cdsapi>=0.6.1
