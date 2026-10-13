@@ -123,7 +123,9 @@ except Exception:  # pragma: no cover
 def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     """
     Perform microstate segmentation and extract the 30 required features.
-    This implementation follows the canonical A‑D microstate pipeline.
+    This implementation follows the canonical A‑D microstate pipeline
+    and returns a dictionary whose keys exactly match the names listed in
+    ``config.EXPECTED_FEATURE_COLUMNS``.
     """
     # ------------------------------------------------------------------
     # 1. Global Field Power (GFP) peaks
@@ -226,29 +228,32 @@ def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
             band_powers[band_name] = 0.0
 
     # ------------------------------------------------------------------
-    # Assemble feature dictionary (30 features)
+    # 7. Assemble feature dictionary respecting the canonical column order
     # ------------------------------------------------------------------
-    feature_dict: Dict[str, float] = {}
+    # Gather values in the exact order expected by the schema:
+    #   4 mean durations (A‑D)
+    #   4 occurrence rates (A‑D)
+    #   16 transition probabilities (row‑major A‑D × A‑D)
+    #   6 spectral power bands (Delta, Theta, Alpha, Beta, LowGamma, HighGamma)
+    values_in_order: List[float] = []
+    values_in_order.extend(mean_durations)                     # 4
+    values_in_order.extend(occurrence_rates.tolist())          # 4
+    # Flatten transition matrix row‑major
+    values_in_order.extend(trans_probs.ravel().tolist())       # 16
+    # Append spectral powers in the order defined above
+    for band_name in ["Delta", "Theta", "Alpha", "Beta", "LowGamma", "HighGamma"]:
+        values_in_order.append(band_powers[band_name])        # 6
 
-    # Mean durations
-    for i, dur in enumerate(mean_durations):
-        feature_dict[f"MS_{chr(65 + i)}_Duration"] = float(dur)
+    # Sanity check
+    if len(values_in_order) != 30:
+        raise ValueError(f"Expected 30 feature values, got {len(values_in_order)}")
 
-    # Occurrence rates
-    for i, occ in enumerate(occurrence_rates):
-        feature_dict[f"MS_{chr(65 + i)}_Occurrence"] = float(occ)
-
-    # Transition probabilities (flattened row‑major)
-    for i in range(n_clusters):
-        for j in range(n_clusters):
-            feature_dict[f"Trans_{chr(65 + i)}_{chr(65 + j)}"] = float(trans_probs[i, j])
-
-    # Spectral power features
-    for band_name, power in band_powers.items():
-        feature_dict[f"Spectral_{band_name}_Power"] = float(power)
-
-    # Sanity check: ensure we have exactly 30 entries
-    assert len(feature_dict) == 30, f"Expected 30 features, got {len(feature_dict)}"
+    # Map to the canonical column names from config
+    if len(EXPECTED_FEATURE_COLUMNS) != 30:
+        raise ValueError(
+            f"EXPECTED_FEATURE_COLUMNS length mismatch: expected 30, got {len(EXPECTED_FEATURE_COLUMNS)}"
+        )
+    feature_dict = dict(zip(EXPECTED_FEATURE_COLUMNS, values_in_order))
 
     return feature_dict
 
@@ -357,18 +362,6 @@ def preprocess_participant(
     raw_features = extract_microstate_features(raw)
 
     # ------------------------------------------------------------------
-    # Map internal feature names to the canonical names defined in config
-    # ------------------------------------------------------------------
-    if len(raw_features) != len(EXPECTED_FEATURE_COLUMNS):
-        raise ValueError(
-            f"Feature count mismatch: expected {len(EXPECTED_FEATURE_COLUMNS)} "
-            f"features but got {len(raw_features)}."
-        )
-    # Preserve order of extraction (dict preserves insertion order)
-    feature_values = list(raw_features.values())
-    mapped_features = dict(zip(EXPECTED_FEATURE_COLUMNS, feature_values))
-
-    # ------------------------------------------------------------------
     # Assemble full row
     # ------------------------------------------------------------------
     row: Dict[str, Any] = {
@@ -385,7 +378,7 @@ def preprocess_participant(
     row["gender"] = meta["gender"]
 
     # Add the 30 microstate features using the expected column names
-    row.update(mapped_features)
+    row.update(raw_features)
 
     return row
 
