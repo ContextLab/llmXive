@@ -1,3 +1,39 @@
+T001:
+  c: true
+  h: 9546d3f6699e79ebb9fd18f9bbb9f2dceba9e70c8dac116ed1137a471695ee7b
+  r: Checked the presence and contents of `README.md` and `quickstart.md` at the project
+    root, verified that `quickstart.md` includes the required command, and confirmed
+    via execution logs that the command runs without error and creates the expected
+    `ER_0000.edgelist` and `metadata_ER_0000.json` files.
+  sig: b2f33019db80fae9b2aea6249b1008f92a6e2dd3e7c57699f92b16441aacdfb6
+T002:
+  c: false
+  h: c217bd65dcf4ed5eea7ae9765f016aa2c61c7c9e67f770836617960a4b37bd33
+  r: The `code/requirements.txt` file exists and lists all required packages, but
+    there is no provided evidence (e.g., command output or logs) showing that `pip
+    install -r code/requirements.txt` completed successfully or that `pip list` confirms
+    the packages are installed. Add execution logs or test results to satisfy the
+    verification step.
+  sig: b791df38fbfd6ea1a9ed43868cb8ba4468444b838b621fcd296cba521e0d49e8
+T003:
+  c: false
+  h: b6c4c643ed34703ac2cbabeef211c646895f7922f8a7dd8bf91fed68bf3e6c79
+  r: "The `code/utils/metrics.py` module\u2019s unit tests failed (see `code/.tasks/T003.tests_unit_test_metrics.py.log`\
+    \ showing two assertion failures), so the required metrics utilities are not verified\
+    \ as working. All other modules and their tests pass, but the failing metrics\
+    \ tests mean the task\u2019s requirement of passing unit tests is not satisfied."
+  sig: 681adbf998159bdc03ac09df70e64f28a49d3620f0ed3c9f0788d968c9bb068b
+T004:
+  c: false
+  h: c34ff996e8c318a21eb8a12791070ab60bbd99547f2b61cf64a14161eaecb84e
+  r: "The required schema files exist under `code/contracts/` and the sample metadata\
+    \ validates against `network_instance.schema.json`, but the pytest configuration\
+    \ does not actually enforce a fixed RNG seed for every test \u2013 the `set_seed`\
+    \ fixture lacks `autouse=True` (or any global hook) and no test files or pytest\
+    \ run output are provided to prove that all tests pass with the seed active. Adding\
+    \ an autouse seed fixture (or equivalent) and supplying evidence of a successful\
+    \ `pytest -q tests` run is needed."
+  sig: 45098bdbcacb076e043f83258bdf968dc80b04c4b702c3cf752e751b8051072f
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

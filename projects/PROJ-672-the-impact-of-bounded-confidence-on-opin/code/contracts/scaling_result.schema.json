@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScalingResult",
+  "type": "object",
+  "required": [
+    "topology_type",
+    "gamma",
+    "epsilon_c",
+    "r_squared",
+    "standard_error"
+  ],
+  "properties": {
+    "topology_type": {
+      "type": "string",
+      "enum": ["ER", "BA", "WS"]
+    },
+    "gamma": {
+      "type": "number"
+    },
+    "epsilon_c": {
+      "type": "number"
+    },
+    "r_squared": {
+      "type": "number"
+    },
+    "standard_error": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false
+}

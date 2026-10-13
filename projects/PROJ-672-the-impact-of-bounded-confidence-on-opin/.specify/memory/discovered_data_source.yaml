@@ -1,0 +1,17 @@
+status: none
+intent: "NetworkX graph generators for Erd\u0151s-R\xE9nyi Barab\xE1si-Albert Watts-Strogatz\
+  \ python package dataset"
+required_fields:
+- graph_type
+- node_id
+- edge_source
+- edge_target
+- weight
+- seed
+- parameter_N
+- parameter_m
+- parameter_p
+- parameter_k
+cache_key: 73f680ebe2546ecb92131815a6586b3b53e3e302e0c115bca24ebe13cd28ea18
+searched_at: '2026-10-13T00:24:25.295589+00:00'
+retry_count: 1

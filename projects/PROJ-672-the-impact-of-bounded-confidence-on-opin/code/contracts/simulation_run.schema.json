@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SimulationRun",
+  "type": "object",
+  "required": [
+    "network_id",
+    "epsilon",
+    "seed",
+    "convergence_time",
+    "status",
+    "final_clusters"
+  ],
+  "properties": {
+    "network_id": {
+      "type": "string"
+    },
+    "epsilon": {
+      "type": "number"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "convergence_time": {
+      "type": ["integer", "null"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["converged", "non_converged"]
+    },
+    "final_clusters": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
