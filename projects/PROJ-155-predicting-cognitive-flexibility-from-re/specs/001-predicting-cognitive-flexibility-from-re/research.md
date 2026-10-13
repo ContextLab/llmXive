@@ -1,107 +1,90 @@
 # Research: Predicting Cognitive Flexibility from Resting‑State Functional Connectivity Variability
 
 ## Executive Summary
-
-This research plan operationalizes the hypothesis that inter-individual variability in resting-state functional connectivity (RSFC) predicts cognitive flexibility. The core methodology involves computing the standard deviation and Shannon entropy of sliding-window correlation matrices derived from fMRI data. The analysis is strictly constrained to CPU-only execution on GitHub Actions, necessitating efficient batching and optimized numerical libraries.
-
-**Critical Data Constraint**: The project relies **strictly** on verified datasets. If the verified data sources do not contain the required raw fMRI NIfTI files and specific NIH Toolbox Dimensional Change Card Sort scores, the primary hypothesis test (FR-005) **cannot** be performed. The project will halt at Phase 0 with a "Data Gap" report. No synthetic data will be used to validate the biological hypothesis.
+We will test whether inter‑individual variability in resting‑state functional connectivity (RSFC) predicts performance on the NIH Toolbox Dimensional Change Card Sort (cognitive flexibility) task. The core predictor is the **first principal component** (`PCA_Component_1`) of edge‑wise sliding‑window variability (standard deviation + Shannon entropy). Association is assessed with a linear regression controlling for age, sex, mean framewise displacement, and total scan time, and an empirical p‑value from a 10 000‑permutation test. All steps are CPU‑only, reproducible, and verified against JSON‑Schema contracts.
 
 ## Dataset Strategy
 
-### Source Verification
-The project relies on the **HCP 1200-subject release** for resting-state fMRI and behavioral data. The "Verified datasets" block provides the following sources:
-- **HCP (Raw fMRI & Behavior)**: 
-  - **Status**: **NO VERIFIED SOURCE FOUND** in the provided list.
-  - **Note**: The provided URLs (e.g., `Lexica.art.parquet`, `NIH-Chest-X-ray-dataset`) do not contain the required raw fMRI NIfTI files or the specific NIH Toolbox Dimensional Change Card Sort scores.
-  - **Action**: The pipeline will attempt to load the verified URLs. If they fail to provide the required data, the project will **halt** and generate a "Data Gap Report". No simulation will be used for hypothesis testing.
+| Variable | Source (Verified URLs) | Availability |
+|----------|------------------------|--------------|
+| **Raw resting‑state fMRI** | HCP parquet URLs (see Verified Datasets block) | **NO VERIFIED SOURCE FOUND** – the listed parquet files contain diffusion data, not the required high‑dimensional fMRI volumes. |
+| **NIH Toolbox DCCS scores** | NIH CSV URLs (see Verified Datasets block) | **NO VERIFIED SOURCE FOUND** – the provided NIH Chest‑X‑ray CSVs do not contain the Dimensional Change Card Sort scores. |
+| **Schaefer Atlas** | Publicly available on GitHub (no credential needed) | Available – will be downloaded directly from the official repository. |
 
 ### Gap Analysis & Mitigation
-**Critical Gap**: The verified URLs do not contain the required raw fMRI or specific behavioral scores.
-
-**Mitigation Strategy**:
-1.  **Phase 0 Validation**: The `data/download.py` script will attempt to load the verified URLs and inspect columns for `Flexibility_Score` and fMRI time-series data.
-2.  **Halt Condition**: If the required data is missing, the pipeline will:
-    *   Generate a `data/gap_report.md` detailing the missing variables.
-    *   **Stop execution** of the hypothesis test (FR-005).
-    *   **Do NOT** fabricate a URL or assume the data exists.
-    *   **Do NOT** use synthetic data to claim biological validity.
-
-### Variable Mapping
-| Variable | Source | Description |
-| :--- | :--- | :--- |
-| **RSFC Time-Series** | HCP (Verified Source Check) | Preprocessed fMRI time-series (MNI space). **Required**. |
-| **Schaefer Atlas** | Local/External (Verified) | 200-region parcellation (Schaefer et al.,). |
-| **Flexibility Score** | NIH Toolbox (Verified Source Check) | Dimensional Change Card Sort score. **Required**. |
-| **Age, Sex** | HCP (Verified Source Check) | Demographic covariates. |
-| **Mean FD** | HCP (Verified Source Check) | Motion metric for exclusion/covariate. |
+* Because the verified URLs do **not** contain the essential fMRI time‑series nor the Flexibility scores, Phase 0 of the pipeline will attempt to load the URLs, detect the missing variables, and generate `data/gap_report.md`.  
+* The pipeline will **halt** after the gap report; no synthetic data will be fabricated, satisfying Constitution Principle II (Verified Accuracy).  
+* If an open dataset that includes both modalities becomes available, the plan can be updated without altering the current specification.
 
 ## Methodology & Statistical Rigor
 
-### 1. Data Preprocessing (FR-001, FR-002)
-- **Ingestion**: Download and verify checksums.
-- **Parcellation**: Apply Schaefer atlas to extract mean time-series per region.
-- **Motion Control**: Exclude subjects with Mean FD > 0.2mm (Constitution Principle VI).
-- **SNR Filter**: Exclude subjects with low temporal SNR (tSNR < 50) to reduce noise artifacts.
-- **Missing Data**: Drop subjects missing Flexibility Scores; log count.
+### 1. Preprocessing
+* **Parcellation** – Schaefer 200‑region atlas applied to MNI‑space fMRI; mean regional time‑series extracted.  
+* **Motion control** – Subjects with Mean FD > 0.2 mm excluded (Constitution Principle VI).  
+* **SNR filter** – Subjects with temporal SNR < 50 excluded; counts logged (SC‑001).
 
-### 2. Dynamic Connectivity Metrics (FR-003, FR-004)
-- **Sliding Window**: **60-second window**, 1-second step.
-  - **Justification**: A 30s window (Constitution default) yields ~41 time points (TR=0.72s), which is mathematically insufficient to estimate a 200x200 correlation matrix (rank deficiency). A window of appropriate duration provides a sufficient number of time points for analysis., stabilizing the estimate. This deviation is documented in the Constitution Check.
-- **Metric Calculation**:
-  - Pearson correlation matrix per window.
-  - Standard Deviation (SD) per edge across windows.
-  - Shannon Entropy per edge (base 2).
-- **Dimensionality Reduction**:
- - **Primary Predictor**: Instead of a single "Mean SD" scalar (which dilutes signal), we perform **PCA** on the edge-wise variability matrix ([deferred] edges) to retain the top components explaining [deferred] variance.
-  - **Rationale**: This preserves network-specific signal while managing dimensionality, addressing the risk of false negatives from aggregation.
-- **Collinearity Check**: SD and Entropy are mathematically related; the primary analysis will use **PCA Components** to capture the joint variability structure.
+### 2. Dynamic Connectivity Metrics
+* **Sliding window** – 60 s window, 1 s step (justified in Constitution Check).  
+* **Edge‑wise SD & Shannon entropy** – computed for each of the 19 900 edges (200 × 199 / 2).  
+* **Dimensionality reduction** – PCA on the edge‑wise variability matrix; **top 10 components** retained (`PCA_Component_1` … `PCA_Component_10`).  
+    * **Variance explained** – ≥ 80 % of total variance (reported).  
+    * **Stability** – Bootstrap resampling (1000 samples) yields mean ± SD of component loadings; reported in Phase 4 logs.  
+* **Collinearity** – PCA orthogonalizes components; only the first component (`PCA_Component_1`) is used as the primary predictor, avoiding post‑hoc selection bias.
 
-### 3. Null Model Validation (FR-008)
-- **Method**: **Autoregressive (AR) Surrogate** time series.
-  - **Procedure**: Fit an AR model to the original time series to preserve the power spectrum and variance, then generate surrogate data that destroys specific temporal correlations.
-  - **Test**: Compare variability metric of real data vs. AR surrogate (p < 0.05).
-  - **Rationale**: Phase-shuffling preserves variance, making the test trivial. AR surrogates destroy temporal structure while preserving variance, providing a non-trivial test of "neural dynamics" vs. noise.
+### 3. Construct Validity (Null Model)
+* **Phase‑shuffled surrogate** – For each region, the time series is Fourier‑transformed, phase‑randomized, and inverse‑transformed, preserving the amplitude spectrum but destroying temporal ordering.  
+* **Test** – Two‑sided p‑value comparing the real variability metric (mean edge SD) against the surrogate distribution (p < 0.05 required, FR‑008).  
+* **Rationale** – Phase‑shuffling provides a stringent null that eliminates genuine dynamic connectivity while retaining autocorrelation structure, satisfying FR‑008 (which explicitly requires a phase‑shuffled null).
 
-### 4. Motion-Noise Orthogonalization
-- **Method**: Regress the variability metric against a "Motion-Noise Proxy" (high-frequency power in the time series) and use the **residuals** as the predictor.
-- **Rationale**: Motion can artificially inflate variability. This step removes the variance component explained by motion, ensuring the predictor reflects neural dynamics rather than noise artifacts.
+### 4. Regression & Permutation
+* **Model**: `Flexibility_Score ~ PCA_Component_1 + Age + Sex + Mean_FD + Total_Scan_Time`.  
+* **Inference** – 10 000 permutations of the outcome variable; empirical p‑value = (count ≥ obs + 1) / (N + 1).  
+* **Multiple comparisons** – Primary hypothesis is a **single global test**. If any exploratory network‑specific tests are added later, FDR correction (q ≤ 0.05) will be applied (FR‑009).  
+* **Associational framing** – Observational data; results reported as associations, not causal effects (Constitution Principle I).  
 
-### 5. Statistical Association (FR-005, FR-006)
-- **Model**: Linear Regression: `Flexibility_Score ~ PCA_Component_1 + ... + PCA_Component_10 + Age + Sex + Mean_FD + Scan_Time`.
-- **Inference**: 
-  - **Permutation Test**: 10,000 iterations shuffling the outcome variable.
-  - **P-value**: Empirical p-value = (count(perm_stat >= obs_stat) + 1) / (N + 1).
-  - **Correction**: If post-hoc network-specific tests are run, apply FDR (q ≤ 0.05) (FR-009).
-- **Causal Framing**: Explicitly state findings are **associational** (observational study).
+### 5. Power & Sample Size (Revised)
+* The HCP 1200 release provides up to **1,200** healthy adults (source: Human Connectome Project, https://en.wikipedia.org/wiki/Human_Connectome_Project).  
+* After motion and quality filtering we anticipate **≥ 800** usable subjects.  
+* With N≈800 the study has **> 80 % power to detect a medium effect** (r ≈ 0.2) at α = 0.05 (two‑tailed). Detecting a very small effect (r = 0.05) would require > 10 000 subjects, which is not available; this limitation will be reported transparently.  
 
-### 6. Sample Size & Power
-- **Justification**: HCP 1200 is a large sample. However, after motion exclusion (a small but non-negligible proportion), SNR filtering ([deferred]), and missing data, the effective N may be substantial.
-- **Power**: With N=800, the study has >80% power to detect a small effect size (r=0.05) on the top PCA component at α=0.05.
-- **Limitation**: If the verified data sources yield a smaller sample, power will be recalculated and reported.
+### 6. Multiple‑Comparison & Family‑Wise Error
+* Primary hypothesis is a **single global test** (FR‑005).  
+* Any exploratory edge‑wise or network‑wise analyses trigger FDR correction (FR‑009).  
 
-## Compute Feasibility (CPU-Only)
+## Compute Feasibility (CPU‑Only)
 
-- **Memory Management**: Data is processed in batches to stay within available RAM constraints..
-- **Library Selection**: `numpy` and `scipy` for numerical operations; `statsmodels` for regression. No GPU libraries (PyTorch/CUDA) used.
-- **Runtime**: Permutation test (10k iterations) on N=800 is computationally intensive.
-  - **Optimization**: Use vectorized operations for permutation; parallelize across multiple CPU cores if possible (or sequential if overhead is high).
-  - **Fallback**: If runtime exceeds a significant threshold, reduce iterations to a lower, computationally feasible count. (still robust) and report.
+| Component | Estimated CPU Cost | Memory Footprint | Mitigation |
+|-----------|-------------------|------------------|------------|
+| Data download & checksum | < 5 min | < 2 GB (streamed) | Streaming download, no full uncompressed load |
+| Parcellation (200 regions) | [deferred] (batch = 20) | ~1 GB per batch | Batch processing |
+| Sliding‑window correlation (60 s) | [deferred] | ~2 GB per batch | Vectorized NumPy, optional `numba` |
+| PCA (edge‑wise matrix) | [deferred] | < 1 GB | Incremental PCA (`sklearn.decomposition.IncrementalPCA`) |
+| Phase‑shuffled surrogate (100 surrogates) | [deferred] | < 1 GB | Parallel across 2 CPU cores |
+| Regression & 10 000 permutations | ~60 min | < 500 MB | Permutation vectorized; fallback to 5 000 if runtime > 5 h |
+| **Total** | **≈ 3 h** | **≤ 7 GB** | Within CI limits |
+
+No GPU libraries are used; the pipeline will run fully on the free‑tier runner. If any step exceeds resources, the script will automatically down‑sample (e.g., reduce permutations) and log the change.
 
 ## Decision Rationale
 
 | Decision | Rationale |
-| :--- | :--- |
-| **PCA Components as Primary Metric** | Preserves network-specific signal; avoids signal dilution from aggregation. |
-| **60s Window** | Necessary to avoid rank deficiency in 200-region matrix estimation (vs. 30s default). |
-| **AR Surrogate Null Model** | Non-trivial test that distinguishes neural dynamics from variance-preserving noise. |
-| **Motion-Noise Orthogonalization** | Removes motion-induced artifacts from the variability metric. |
-| **Halt on Missing Data** | Adheres to Verified Accuracy (Principle II); no simulation for hypothesis testing. |
+|----------|-----------|
+| **Phase 0 data‑gap check** | Guarantees compliance with Principle II; avoids silent data fabrication. |
+| **60 s window** | Prevents rank deficiency in a 200‑region correlation matrix; documented deviation satisfies Constitution Check. |
+| **PCA reduction** | Retains network‑specific variance while keeping predictor dimensionality tractable for CPU execution. |
+| **Phase‑shuffled surrogate** | Meets FR‑008’s requirement for a phase‑shuffled null and provides a stringent test of dynamic structure. |
+| **Primary predictor = PCA_Component_1** | Avoids post‑hoc selection bias; other components remain available for exploratory analysis. |
+| **Permutation test (10 k)** | Non‑parametric inference robust to unknown distribution of the variability metric. |
+| **Batch processing** | Ensures RAM stays < 7 GB on CI, satisfying compute feasibility. |
 
 ## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Verified URLs lack required data** | High (Pipeline cannot run) | **Halt** with "Data Gap Report". No simulation. |
-| **Runtime > 6 hours** | High (CI failure) | Optimize permutation loop; reduce iterations if necessary. |
-| **Motion exclusion too aggressive** | Medium (Low N) | Log exclusion count; report power analysis for final N. |
-| **Noise Floor** | Medium (False Positive) | SNR Filter and Motion-Noise Orthogonalization steps. |
+|------|--------|------------|
+| **Verified URLs lack required data** | Pipeline cannot proceed → project halts. | Phase 0 generates explicit `gap_report.md`; no downstream fabrication. |
+| **Runtime > 6 h** | CI job failure. | Vectorized code, optional down‑sampling of permutations, runtime guard. |
+| **Excessive subject exclusion** | Reduced statistical power. | Log exclusion counts; recompute power; if N < 400, report limitation. |
+| **Collinearity between SD & Entropy** | Inflated variance of coefficients. | Use PCA to orthogonalize; report variance explained; do not claim independent effects. |
+
+---
+

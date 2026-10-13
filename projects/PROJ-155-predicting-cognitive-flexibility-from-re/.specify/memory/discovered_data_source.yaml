@@ -1,12 +1,12 @@
 status: none
-intent: download HCP S1200 minimal preprocessing Schaefer atlas connectivity NIH Toolbox
-  scores python package dataset
+intent: download HCP 1200 resting state fMRI NIH Toolbox scores Schaefer atlas python
+  package dataset
 required_fields:
-- subject_id (string)
-- connectivity_value (float)
-- age (integer)
-- gender (string)
-- NIH_Toolbox_DCCS_score (float)
-cache_key: 2e1629a3829274c7e898d3f077e304211d586a81433296e3229d0a89c0900341
-searched_at: '2026-10-13T17:24:39.193310+00:00'
+- SubjectID (string)
+- MeanRSFC (float)
+- Age (integer)
+- Sex (string)
+- DCCS_score (float)
+cache_key: b1579b3e3e3c27b45b80539deabefac63ffd27e4307134c1f38daf28f681b069
+searched_at: '2026-10-13T17:27:50.668102+00:00'
 retry_count: 1

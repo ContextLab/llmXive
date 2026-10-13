@@ -9,3 +9,25 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q387749
   verified_at: '2026-10-13T17:14:00.449751Z'
+- artifact_hash: 5324e4cd936da62736d470783783c1f546ca78f755059a65f4e293f82e9ccd2e
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Human Connectome Project - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Human_Connectome_Project
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Human_Connectome_Project
+  verified_at: '2026-10-13T17:32:42.316317Z'
+- artifact_hash: 80e00369911625293bcdbdf7ffdd24dcffbc29a942a49614fd987da9d560d6e3
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Human Connectome Project - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Human_Connectome_Project
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Human_Connectome_Project
+  verified_at: '2026-10-13T17:33:03.686661Z'
