@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 
-def compute_md5(file_path: Path) -> str:
+def compute_sha256(file_path: Path) -> str:
     """Compute SHA‑256 checksum of a file."""
     hash_sha = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -17,9 +17,9 @@ def compute_md5(file_path: Path) -> str:
     return hash_sha.hexdigest()
 
 
-def verify_md5(file_path: Path, expected_hash: str) -> bool:
+def verify_sha256(file_path: Path, expected_hash: str) -> bool:
     """Verify that the SHA‑256 checksum of a file matches the expected hash."""
-    return compute_md5(file_path) == expected_hash
+    return compute_sha256(file_path) == expected_hash
 
 
 def load_parquet(file_path: Path) -> pd.DataFrame:
@@ -33,4 +33,4 @@ def save_parquet(df: pd.DataFrame, file_path: Path) -> None:
     df.to_parquet(file_path, index=False, engine="pyarrow")
 
 
-__all__ = ["compute_md5", "verify_md5", "load_parquet", "save_parquet"]
+__all__ = ["compute_sha256", "verify_sha256", "load_parquet", "save_parquet"]

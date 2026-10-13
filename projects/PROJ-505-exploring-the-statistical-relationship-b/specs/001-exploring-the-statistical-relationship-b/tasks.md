@@ -26,7 +26,7 @@
 
   **Verification** – Run a shell command (e.g. `find … -type d`) and confirm that every directory listed above exists (exit code 0).
 
-- [ ] **T002** Initialize a Python project with a pinned `requirements.txt` containing the core scientific stack.  
+- [X] **T002** Initialize a Python project with a pinned `requirements.txt` containing the core scientific stack.  
 
   **File**: `requirements.txt` (project root)  
 

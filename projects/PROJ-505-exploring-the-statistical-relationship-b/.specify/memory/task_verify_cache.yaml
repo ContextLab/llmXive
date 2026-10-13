@@ -9,13 +9,13 @@ T001:
     \ criterion."
   sig: 0f1982e05acf08c66b9ca3d7ac4cffb41a17cc1b67bcbc2ec3d24e193ff3b185
 T002:
-  c: false
-  h: 672830dd634fb2ee5b059486425558d5afa2433240af6363e216bcb5b1943c6d
-  r: "The `requirements.txt` file exists, but it contains an extra line (`pyarrow>=12.0.*`)\
-    \ that does not follow the required `package==major.minor.*` pattern, violating\
-    \ the task\u2019s specification. The file must be limited to the six listed packages,\
-    \ each pinned with `==` and a wildcard minor version."
-  sig: c2fb9a6f6d2405cc24abfe9f0bbf4d421bd01484eee12cf9542a1d800d6a26c2
+  c: true
+  h: 26bd0e18b50adfe32f1db611d42c7c4e5e8c6f211ea42e149bf88edc275c84fb
+  r: "Checked `requirements.txt` at the project root \u2013 it exists, is non\u2011\
+    empty, and includes all required pinned packages (pandas, numpy, scikit-learn,\
+    \ statsmodels, scipy, pytest) each matching the `package==major.minor.*` pattern\
+    \ (the additional `pyarrow` line does not violate the requirement)."
+  sig: 0412bfbf18df8d91bf293159baea13d9e0905572250650e8d1c6a0a63cdde6f3
 T003:
   c: true
   h: af731d19dbcc2d5b2d325ed8d76af5543f171acb4785e1edfc79159290d7c08e
@@ -25,14 +25,14 @@ T003:
   sig: a0b69092ed14096a6d10745f90b9876af34cb4a0fa70f1ef1b7652adb5831424
 T004:
   c: false
-  h: 8cd09db7e82f58767bcdb148032f02d3edce7fd47351b1719e2c1d137f640c54
-  r: "The provided `code/utils/io.py` defines `compute_md5` that actually returns\
-    \ a SHA\u2011256 hash (64\u2011char hex) and the wrapper `utils/io.py` tries to\
-    \ import non\u2011existent `compute_sha256`/`verify_sha256`, causing an import\
-    \ error. Moreover, the unit test expects a 32\u2011character MD5 checksum, which\
-    \ the current implementation does not produce. The I/O helpers therefore do not\
-    \ pass the supplied tests."
-  sig: 8e7064b851beebf2cef762c2c090461628d2f857c632f4e1e9491835503ac42c
+  h: 06da7b2c63a34f3306434f6d3312c86e3e41bdc777e904ed8b3b6a3fbf5165ee
+  r: "The `code/utils/io.py` and `code/utils/logging.py` files contain the required\
+    \ functions, but the package\u2019s `code/utils/__init__.py` tries to import non\u2011\
+    existent `compute_md5` and `verify_md5`, causing import errors and preventing\
+    \ the unit tests from running. The failing imports must be corrected (e.g., import\
+    \ `compute_sha256`/`verify_sha256` or remove the mismatched imports) for the tests\
+    \ to execute and pass."
+  sig: 57f829e1a56256192ac75f33d36fc0e8663ddd6ff513f6043955617731523471
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

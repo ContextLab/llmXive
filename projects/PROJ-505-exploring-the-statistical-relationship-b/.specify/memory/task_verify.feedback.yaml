@@ -1,20 +1,16 @@
 T001:
   task: c1b72864b169c887206b78b895893e721e3b80e582694db42aa189f8b15aeeea
 T002:
-  reason: "The `requirements.txt` file exists, but it contains an extra line (`pyarrow>=12.0.*`)\
-    \ that does not follow the required `package==major.minor.*` pattern, violating\
-    \ the task\u2019s specification. The file must be limited to the six listed packages,\
-    \ each pinned with `==` and a wildcard minor version."
   task: e893c20cc1f301a8248aeacdd448f4c36fc287af2c24647ef34c37fe1a79549b
 T003:
   task: 7537932bf548322bb61d4e74fffbceb92d1396b257b8c9a63949ee8b43e81986
 T004:
-  reason: "The provided `code/utils/io.py` defines `compute_md5` that actually returns\
-    \ a SHA\u2011256 hash (64\u2011char hex) and the wrapper `utils/io.py` tries to\
-    \ import non\u2011existent `compute_sha256`/`verify_sha256`, causing an import\
-    \ error. Moreover, the unit test expects a 32\u2011character MD5 checksum, which\
-    \ the current implementation does not produce. The I/O helpers therefore do not\
-    \ pass the supplied tests."
+  reason: "The `code/utils/io.py` and `code/utils/logging.py` files contain the required\
+    \ functions, but the package\u2019s `code/utils/__init__.py` tries to import non\u2011\
+    existent `compute_md5` and `verify_md5`, causing import errors and preventing\
+    \ the unit tests from running. The failing imports must be corrected (e.g., import\
+    \ `compute_sha256`/`verify_sha256` or remove the mismatched imports) for the tests\
+    \ to execute and pass."
   task: b7a609573e7ba4f6b0cb7a2b4534f9027349fe5bb402640d053a2678c5b4c23f
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/ingestion/download_ace.py
