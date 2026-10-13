@@ -10,72 +10,48 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/data_pipeline.py --sample-size --seed 42`
+  - script usage: `data_pipeline.py [-h] [--sample-size SAMPLE_SIZE] [--seed SEED]`
+  - argparse error: `data_pipeline.py: error: argument --sample-size: expected one argument`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”; 4 command(s) failed: python code/data_pipeline.py --sample-size --seed 42 (rc=1); python code/semantic_analysis.py --batch-size 10 --model-path "CodeLlama-7B-Instruct-GGUF" (rc=1); python code/statistical_analysis.py (rc=1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”; 3 command(s) failed: python code/data_pipeline.py --sample-size --seed 42 (rc=2); python code/statistical_analysis.py (rc=1); python -m pytest tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/data_pipeline.py --sample-size --seed 42 -> rc=1
+- python code/data_pipeline.py --sample-size --seed 42 -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 12, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-271-evaluating-the-effectiveness-of-llms-for/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-271-evaluating-the-effectiveness-of-llms-for/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-271-evaluating-the-effectiveness-of-llms-for/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-
-- python code/semantic_analysis.py --batch-size 10 --model-path "CodeLlama-7B-Instruct-GGUF" -> rc=1
-b/python3.11/site-packages/sentence_transformers/base/training_args.py", line 15, in <module>
-    from sentence_transformers.base.sampler import (
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-271-evaluating-the-effectiveness-of-llms-for/lib/python3.11/site-packages/sentence_transformers/base/sampler.py", line 26, in <module>
-    from datasets import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-271-evaluating-the-effectiveness-of-llms-for/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-271-evaluating-the-effectiveness-of-llms-for/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-271-evaluating-the-effectiveness-of-llms-for/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+usage: data_pipeline.py [-h] [--sample-size SAMPLE_SIZE] [--seed SEED]
+                        [--dataset DATASET]
+data_pipeline.py: error: argument --sample-size: expected one argument
 
 - python code/statistical_analysis.py -> rc=1
-
-2026-10-13 04:28:31,358 - __main__ - INFO - Starting statistical analysis
-2026-10-13 04:28:31,358 - __main__ - ERROR - Statistical analysis failed: get_results_path() missing 1 required positional argument: 'filename'
+-271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 392, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 370, in main
     results = run_statistical_analysis()
               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 300, in run_statistical_analysis
-    output_dir = str(get_results_path())
-                     ^^^^^^^^^^^^^^^^^^
-TypeError: get_results_path() missing 1 required positional argument: 'filename'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 303, in run_statistical_analysis
+    static_df = load_static_baseline(static_baseline_path)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 26, in load_static_baseline
+    raise FileNotFoundError(f"Static baseline file not found: {filepath}")
+FileNotFoundError: Static baseline file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
 
 - python -m pytest tests/ -> rc=2
-/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/test_statistical_analysis.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_statistical_analysis.py:9: in <module>
-    from code.statistical_analysis import (
-E   ImportError: cannot import name 'generate_sensitivity_report' from 'code.statistical_analysis' (/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py)
-=========================== short test summary info ============================
-ERROR tests/unit/test_config.py
-ERROR tests/unit/test_data_pipeline.py
-ERROR tests/unit/test_data_pipeline_stratified.py
-ERROR tests/unit/test_quickstart_validation.py
-ERROR tests/unit/test_semantic_analysis.py
-ERROR tests/unit/test_statistical_analysis.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 5.74s ===============================
+=========== 4 errors in 5.72s ===============================
 
+2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code
+2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw
+2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/processed
+2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results
+2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit
+2026-10-13 04:32:17,859 INFO code.create_project_structure: Ensured directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/contract
 

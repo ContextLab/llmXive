@@ -1,29 +1,35 @@
 T001a:
   task: c1cc612249d4010b358d46c07595426e9f4e6a62e33fd5bf19f036f808f03f4c
 T001b:
-  reason: The `.flake8` file is present in `code/`, but no evidence of its contents
-    is provided, so we cannot confirm it sets `max-line-length = 88` and ignores `E203,W503`
-    as required.
+  reason: The `code/.flake8` file is listed as present in the `code/` directory, but
+    no evidence of its contents was provided, so I cannot verify it contains `max-line-length
+    = 88` and `ignore = E203,W503` as required. The next implementer should show the
+    actual file contents (or the collector should capture them) to confirm the configuration
+    matches the task.
   task: 60a7babb9d3b88a9ed56b4f9dbda234a3ac3f369347768d0307c6dddd0091aab
 T001c:
-  reason: The evidence shows a `pyproject.toml` file in the project root with the
-    required Black settings, and a `pyproject.toml` entry listed inside `code/`, but
-    the content of the `code/pyproject.toml` file is not provided. Without confirming
-    that the `code/pyproject.toml` exists and contains the required `[tool.black]`
-    settings (`line-length = 88`, `target-version = py311`), the task requirement
-    is not demonstrably satisfied.
   task: 9f277c4ce329dcf8d3ee4e480dd3808b513e601d838bed6dbc70d1c6674de314
 T002:
   task: 4d4c31269c081a265cc46ed711e115c632a58a59938df151f1668431d4e75770
 T004:
   task: a5b8b77367655335eebc6e4f3823889bf2c10da9347ebcf295628eceff209c7d
 T005:
+  reason: "The `code/__init__.py` exists and is substantive, and `code/create_project_structure.py`\
+    \ correctly implements idempotent creation of the layout. However, the task also\
+    \ requires that the directory layout (`data/raw`, `data/processed`, `results`)\
+    \ actually exists, and the evidence packet contains no confirmation that these\
+    \ directories are present on disk \u2014 only the source files that would create\
+    \ them, with no execution evidence (e.g., a run of `create_project_structure.py`\
+    \ or an import of the package) showing the directories were created. The implementer\
+    \ should run the structure script (or import"
   task: 5f59e483d4f3c399918b5b1a0ea5c988a382814fabdafb48b3c94ffd3ee263f8
 T006a:
   task: b06eca74777b0b1ad1a7a139fce2e975fc5618a371981c4456812801b2f8c66b
 T006b:
   task: a7ecd98418988db3c244d88d2bc095e4b602f30fdb8af4935698d2bfeaae52d6
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/sample_functions.py
+    exit=1'
   task: 1f6d41841c8a84baa892f9100aa9b06e8f1d3856cab46ea680c62a29ddff7c31
 T008:
   task: 27074e470586f337a06a11fcc31d8b1ca76755b8c6576bea52c465b2af27e070

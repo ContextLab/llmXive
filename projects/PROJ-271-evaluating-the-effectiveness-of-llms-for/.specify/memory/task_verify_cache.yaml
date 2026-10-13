@@ -1,28 +1,60 @@
 T001a:
   c: true
-  h: 60fe1a31c605819c7bf87added67d58fa86935466e10b93df7a3c8496111d3d2
-  r: Checked the repository tree showing the required directories (`code/`, `data/raw/`,
-    `data/processed/`, `results/`, `tests/unit/`, `tests/contract/`) all exist with
-    placeholder files, and the unit test `test_project_structure.py` passed confirming
-    their presence.
-  sig: 7ccb011b0e12d5200ea8953396e3e5ac6c0e715e0cbf5130352bf2ca7953d3a8
+  h: d621c590ec634a3153c5a30ae7dee87938f9b8ab59a764864996d406a449789f
+  r: All six required directories (`code/`, `data/raw/`, `data/processed/`, `results/`,
+    `tests/unit/`, `tests/contract/`) exist with non-empty contents, confirmed by
+    the collector and by the executed `create_project_structure.py` log (exit 0) plus
+    the passing `test_project_structure.py` run. The task only asked for directory
+    initialization, which is satisfied.
+  sig: 0f0dba5fe9b0b7498f7f2075ecd598e0992b01c947b771cb1bd015c91855e957
 T001b:
   c: false
-  h: 36eb2dd3125c3e674082f8cf03cc73d578442e7e77cf8747cbb98682b1686850
-  r: The `.flake8` file is present in `code/`, but no evidence of its contents is
-    provided, so we cannot confirm it sets `max-line-length = 88` and ignores `E203,W503`
-    as required.
-  sig: a2cc6cc543fd7829f119f88287bcdc47674e670fabd17731cca814b7603e36c4
+  h: ae3d9a2193c0b4391d3a5f1b0dcf6ab0ac17942a1f6e70f167b421985fb036e1
+  r: The `code/.flake8` file is listed as present in the `code/` directory, but no
+    evidence of its contents was provided, so I cannot verify it contains `max-line-length
+    = 88` and `ignore = E203,W503` as required. The next implementer should show the
+    actual file contents (or the collector should capture them) to confirm the configuration
+    matches the task.
+  sig: 5904e790e7b31579d4b45beff21a276764aa2e6b451c39ae7dc68470bcc4a06b
 T001c:
+  c: true
+  h: 5aa9c59eef63bca10c749e0cfb46c94d73527473a1095fe4221c26bf3ea9dc17
+  r: The `code/` directory listing includes a `pyproject.toml` entry, and the collected
+    file content contains a valid `[tool.black]` section with `line-length = 88` and
+    `target-version = ['py311']` (plus reasonable extras like isort/pytest config),
+    exactly matching the task's requirements. The file is non-empty (993 bytes) and
+    is not a placeholder.
+  sig: 800ea56d88fd61185d7eb2fdd6d7a012ab9275c6c77e5068efb298cbc176238e
+T002:
+  c: true
+  h: a8231e16c9a4ef6cf86bdb4a0a56a3f82f92ad7045bed0ff87b9d08e9860e40d
+  r: The `requirements.txt` exists at the project root and contains all ten required
+    packages (datasets, pandas, radon, pylint, sentence-transformers, llama-cpp-python,
+    scikit-learn, statsmodels, numpy, psutil); the only deviation is a version constraint
+    `numpy>=2.0.0`, which is a reasonable pinning rather than a missing or altered
+    requirement.
+  sig: 36340ddc7606c2717ea442cbe2bfa344bd6a375b756101c703fc47e104541eea
+T004:
+  c: true
+  h: 7c429e1e1630e62d032dbac538aeef3dcff0ab2a013cab66990d91e5d1d946e9
+  r: '`code/config.py` exists (4543 bytes) and defines `DATA_DIR`/`RESULTS_DIR` paths,
+    `RANDOM_SEED = 42`, and `LLM_BATCH_SIZE = 10`, exactly as required; the extra
+    logging/path helpers and compatibility constants are additive and don''t conflict
+    with the task. The surrounding data/results evidence is irrelevant to this task''s
+    scope.'
+  sig: 735af3c64c97c2507928fdb600e48d9743a33b0cf40210087247c6b95a0b74a4
+T005:
   c: false
-  h: 5ca2a14f70dcec69c948ef32f74a93726dc92d584f9f723696088f47e71826d8
-  r: The evidence shows a `pyproject.toml` file in the project root with the required
-    Black settings, and a `pyproject.toml` entry listed inside `code/`, but the content
-    of the `code/pyproject.toml` file is not provided. Without confirming that the
-    `code/pyproject.toml` exists and contains the required `[tool.black]` settings
-    (`line-length = 88`, `target-version = py311`), the task requirement is not demonstrably
-    satisfied.
-  sig: e8a71281ed149e23a121d8ae53227af445168ab9aefd6effb0df65a69ee6a33d
+  h: 3365c62504db926a309488505bbd31dd3d0a414fd08258291b448536d614ba2d
+  r: "The `code/__init__.py` exists and is substantive, and `code/create_project_structure.py`\
+    \ correctly implements idempotent creation of the layout. However, the task also\
+    \ requires that the directory layout (`data/raw`, `data/processed`, `results`)\
+    \ actually exists, and the evidence packet contains no confirmation that these\
+    \ directories are present on disk \u2014 only the source files that would create\
+    \ them, with no execution evidence (e.g., a run of `create_project_structure.py`\
+    \ or an import of the package) showing the directories were created. The implementer\
+    \ should run the structure script (or import"
+  sig: c59f136a60256270840d6519e3a4c6b991f564073948332e7405095c93a19b16
 T020:
   c: false
   h: 5f87ae29f59008beef596b359f7644ec09acc2a4dcbade20cabaf5477ce6e756
