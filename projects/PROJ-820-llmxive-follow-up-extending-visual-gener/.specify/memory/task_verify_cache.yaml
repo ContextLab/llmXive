@@ -8,34 +8,36 @@ T001:
   sig: 92322de55c051b45e031b62ae0b9a1c3b0948497e91afb8494ba8310c28abb01
 T002:
   c: false
-  h: 255e1a243f790a9e387503cc0119fe6d9269f6ec53fbb9cbd368889393dcf4b9
-  r: "Checked `code/simulation/physics_engine.py`, the schema file path, the unit\
-    \ test `code/tests/unit/test_physics_logic.py`, and the output directory `data/derived/physics_constraints/`.\
-    \ The test suite fails because it cannot locate the schema (wrong relative path),\
-    \ no per\u2011scene JSON constraint files are present (only the placeholder `contradiction_log.json`\
-    \ with empty entries), and the contradiction log is not populated despite reporting\
-    \ 100 total scenes. Consequently the required JSON outputs, proper schema validation,\
-    \ and <\u202F5\u202F% contradiction rate are not demonstrated."
-  sig: 152391a9ca923ae7a1411592f7d57cacb70267646a239718caef26dfaf71bfef
+  h: 315891ad9f49b6113ee265071610ee1366210063e4f1197bd2a7a324666d5717
+  r: "The repository contains `code/simulation/physics_engine.py`, but the required\
+    \ per\u2011scene JSON files are absent (only the log file exists) and the contradiction\
+    \ log lacks the `contradiction_rate` field. Moreover, the unit test suite fails\
+    \ because it cannot locate the schema file at the path it expects, so the test\
+    \ verification does not pass. Consequently the implementation does not meet the\
+    \ task\u2019s output, validation, or contradiction\u2011rate requirements."
+  sig: 083ac12c8421c0b9e96ded87631cd58db1c31fe72b9b2860c6111f22bac4ab1f
 T003:
   c: false
-  h: 179408fd3f685059d8fdea471e7db02460f6c5bfe13e4bbec1cd1c3a8717e79b
-  r: "The `prompt_engine.py` script exists and writes baseline/experimental files,\
-    \ but the physics\u2011constraint JSON files are missing, so the experimental\
-    \ prompts contain no descriptor (the logs show warnings for every scene). Moreover,\
-    \ the unit\u2011test suite fails to import a required function (`format_physics_constraints`),\
-    \ indicating the required tests are not passing. Both the deterministic descriptor\
-    \ requirement and the unit\u2011test verification are unmet."
-  sig: 9484c483b9720bb1081632ddfec52169f571ad81176eaf5cfeb59d4f94c1e6c4
+  h: 2193e0b5d855fc89b4e84479eb277cb93375836424d997d6c033c5d8158991d7
+  r: "The `prompt_engine.py` script runs and creates baseline/experimental files,\
+    \ and unit tests pass, but the required physics\u2011constraint JSON files are\
+    \ absent (e.g., `data/derived/physics_constraints/scene_0001.json` is missing).\
+    \ Consequently the generated `{scene_id}_experimental.txt` files contain only\
+    \ the original description (no descriptor), violating the task\u2019s requirement\
+    \ that each experimental prompt include the deterministic `natural_language_descriptor`\
+    \ from its JSON. The missing JSON artifacts must be provided and the script verified\
+    \ to incorporate their descriptors."
+  sig: 58010eb53cb8e4686acc3a08977d01e4cd4dea1496f4eed5cbfc8057a1616999
 T004:
   c: false
-  h: d5d5dcae620e297cd3df46df3862e42f93594b7fe0682417f93919c7f9990a69
-  r: "The seed manifest file (`data/derived/seed_manifest.json`) is missing, no generated\
-    \ PNGs or `seed_lock_status.json` are present, and the diffusion runner never\
-    \ computes the required \u2264\u202F1\u202Fpixel bounding\u2011box deviation (it\
-    \ only does SSIM fallback). Additionally, the failure log (`generation_failure_log.json`)\
-    \ does not exist, so the task\u2019s verification criteria are not satisfied."
-  sig: 0a4f5c536729d2d1ce8461eb1e81203ddf6ac89f4e9e652362a72d9c8d3fe10e
+  h: af8af974b1ee70ecc8231894751abfeed39ed4addd946d8d803488c66d4b907d
+  r: "The required `data/derived/seed_manifest.json` does not exist, no PNG images\
+    \ are present under `data/derived/generated_images/{baseline,experimental}/`,\
+    \ and the expected `seed_lock_status.json` and `generation_failure_log.json` are\
+    \ missing. Additionally, the unit\u2011test log shows errors preventing the seed\u2011\
+    locking pipeline from running. These missing artifacts mean the deterministic\
+    \ seed\u2011locking task is not fulfilled."
+  sig: 7a00867060734cc453204df614a93fdfe5b3bbf75ed8e1c924ac37d9d972b3cf
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

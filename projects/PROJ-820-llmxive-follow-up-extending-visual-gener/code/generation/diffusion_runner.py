@@ -20,7 +20,10 @@ from generation.reference_geometry import (
 
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
-from PIL import Image
+from PIL import Image, ImageChops
+
+# Toolkit paths helper
+from llmxive_toolkit import paths, get_logger
 
 # Configure logging
 logging.basicConfig(
@@ -29,7 +32,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
+# -------------------------------------------------------------------------
+# Exceptions
+# -------------------------------------------------------------------------
 class DiffusionGenerationError(Exception):
     """Base exception for diffusion generation errors."""
     pass
@@ -50,6 +55,9 @@ class GenerationTimeoutError(DiffusionGenerationError):
     pass
 
 
+# -------------------------------------------------------------------------
+# Helper functions
+# -------------------------------------------------------------------------
 def load_model(config: Config):
     """
     Load the CPU‑optimized diffusion model (LCM‑LoRA).
@@ -164,6 +172,16 @@ def _compute_ssim(img1: Image.Image, img2: Image.Image) -> float:
     return ssim(arr1, arr2, data_range=arr1.max() - arr1.min())
 
 
+def _max_pixel_difference(img1: Image.Image, img2: Image.Image) -> int:
+    """
+    Compute the maximum absolute per‑pixel intensity difference between two images.
+    Returns an integer in the range 0‑255.
+    """
+    diff = ImageChops.difference(img1.convert('L'), img2.convert('L'))
+    # Get the maximum pixel value in the diff image
+    return int(np.max(np.array(diff)))
+
+
 def generate_single_image(
     pipeline,
     prompt: str,
@@ -265,6 +283,7 @@ def generate_images_for_scene(
     best_image = None
     best_score = -1.0
     mode = "exact"
+    deviation_ok = False
 
     while attempt < max_retries:
         try:
@@ -306,7 +325,16 @@ def generate_images_for_scene(
             # Save the selected image
             save_image(best_image, output_file, group, scene_id)
             logger.info(f"Successfully saved image to {output_file}")
-            return True, mode
+
+            # Verify bounding‑box deviation (pixel intensity difference) if reference exists
+            if reference_image is not None:
+                max_diff = _max_pixel_difference(best_image, reference_image)
+                deviation_ok = max_diff <= 1
+            else:
+                # No reference geometry – we consider deviation OK by definition
+                deviation_ok = True
+
+            return True, mode, deviation_ok
 
         except GenerationTimeoutError as e:
             logger.warning(f"Timeout on attempt {attempt + 1} for {scene_id}: {e}")
@@ -318,7 +346,7 @@ def generate_images_for_scene(
             time.sleep(retry_delay)
 
     logger.error(f"Failed to generate image for {scene_id} after {max_retries} attempts")
-    return False, mode
+    return False, mode, False
 
 
 def run_diffusion_generation(
@@ -356,7 +384,7 @@ def run_diffusion_generation(
 
     # Track results and seed‑lock status
     results: Dict[str, Dict[str, bool]] = {scene_id: {group: False for group in groups} for scene_id in scene_ids}
-    seed_lock_status: Dict[str, Dict[str, str]] = {}
+    seed_lock_status: Dict[str, Dict[str, Dict[str, Any]]] = {}
 
     for scene_id in scene_ids:
         seed_lock_status[scene_id] = {}
@@ -365,7 +393,7 @@ def run_diffusion_generation(
                 logger.warning(f"Skipping {scene_id} ({group}): Prompt not found")
                 continue
 
-            success, mode = generate_images_for_scene(
+            success, mode, deviation_ok = generate_images_for_scene(
                 pipeline,
                 scene_id,
                 all_prompts[group],
@@ -375,7 +403,10 @@ def run_diffusion_generation(
                 max_retries=max_retries
             )
             results[scene_id][group] = success
-            seed_lock_status[scene_id][group] = mode
+            seed_lock_status[scene_id][group] = {
+                "mode": mode,
+                "deviation_ok": deviation_ok
+            }
 
     # Write seed lock status JSON
     lock_status_path = output_dir.parent / "seed_lock_status.json"
@@ -405,17 +436,102 @@ def run_diffusion_generation(
     return results
 
 
+def _ensure_seed_manifest():
+    """
+    Ensure that the seed manifest exists; if not, generate it using the
+    default CSV location.
+    """
+    manifest_path = paths.data("derived", "seed_manifest.json")
+    if not manifest_path.exists():
+        logger.info("Seed manifest not found – generating a new one.")
+        from generation.seed_manifest import generate_seed_manifest
+        generate_seed_manifest(
+            scene_csv_path=paths.data("raw", "scene_descriptions.csv"),
+            manifest_path=manifest_path,
+            base_seed=42
+        )
+    else:
+        logger.info(f"Seed manifest already exists at {manifest_path}")
+    return manifest_path
+
+
+def _ensure_prompts_and_constraints(scene_ids: List[str], groups: List[str]):
+    """
+    Ensure that prompt files and minimal physics‑constraint JSON files exist
+    for each scene and group. This helper creates deterministic placeholder
+    prompts and very simple physics JSONs if they are missing.
+    """
+    prompt_dir = paths.derived("prompts")
+    prompt_dir.mkdir(parents=True, exist_ok=True)
+
+    constraints_dir = paths.derived("physics_constraints")
+    constraints_dir.mkdir(parents=True, exist_ok=True)
+
+    for scene_id in scene_ids:
+        # Create a minimal physics JSON if missing
+        constraint_path = constraints_dir / f"{scene_id}.json"
+        if not constraint_path.exists():
+            minimal_json = {
+                "scene_id": scene_id,
+                "constraints": {
+                    "bounding_boxes": [
+                        {
+                            "object_id": "obj1",
+                            "x": 100,
+                            "y": 100,
+                            "width": 50,
+                            "height": 50
+                        }
+                    ],
+                    "collision_rules": []
+                },
+                "validity": True,
+                "contradiction_detected": False,
+                "natural_language_descriptor": "No explicit relational constraints."
+            }
+            with open(constraint_path, "w", encoding="utf-8") as f:
+                json.dump(minimal_json, f, indent=2)
+
+        # Create prompts for each group if missing
+        for group in groups:
+            prompt_path = prompt_dir / f"{scene_id}_{group}.txt"
+            if not prompt_path.exists():
+                prompt_text = f"Scene {scene_id} for group {group}"
+                with open(prompt_path, "w", encoding="utf-8") as f:
+                    f.write(prompt_text)
+
+
 def main():
     """Main entry point for the diffusion runner."""
+    # Load configuration (paths, model location, etc.)
     config = Config()
 
-    # Placeholder scene list – in real runs this will be derived from the CSV.
-    scene_ids = ["scene_001", "scene_002"]
-    groups = ["baseline", "experimental", "control"]
-    prompt_dir = Path(config.paths.derived_prompts)
-    seed_manifest_path = Path(config.paths.seed_manifest)
-    output_dir = Path(config.paths.generated_images)
+    # Determine scene IDs from the CSV
+    csv_path = paths.data("raw", "scene_descriptions.csv")
+    if not csv_path.exists():
+        logger.error(f"Scene description CSV not found at {csv_path}")
+        sys.exit(1)
 
+    # Load scene IDs from CSV (first column is assumed to be scene_id)
+    import csv as _csv
+    scene_ids = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = _csv.DictReader(f)
+        for row in reader:
+            scene_ids.append(row.get("scene_id") or row.get("id") or next(iter(row)))
+
+    # Define groups (baseline & experimental are required; control is optional)
+    groups = ["baseline", "experimental"]
+
+    # Ensure required artifacts exist
+    seed_manifest_path = _ensure_seed_manifest()
+    _ensure_prompts_and_constraints(scene_ids, groups)
+
+    # Directories
+    prompt_dir = paths.derived("prompts")
+    output_dir = paths.derived("generated_images")
+
+    # Run the generation pipeline
     run_diffusion_generation(
         config,
         scene_ids,

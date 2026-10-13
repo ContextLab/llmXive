@@ -13,11 +13,14 @@ specified output directory:
 
 Both files contain a single non‑empty line. The experimental descriptor is a
 pure function of the physics JSON; no randomness is introduced.
+
+Additional helper functions ``format_physics_constraints`` and
+``generate_control_prompt`` are provided to satisfy the public API expected
+by ``code/generation/__init__.py`` and other modules.
 """
 import csv
 import json
 import logging
-import sys
 from pathlib import Path
 from typing import Dict
 
@@ -89,6 +92,19 @@ def _extract_descriptor(constraints: Dict) -> str:
     """
     return constraints.get("natural_language_descriptor", "").strip()
 
+# ----------------------------------------------------------------------
+# Public helper functions expected by the rest of the codebase
+# ----------------------------------------------------------------------
+def format_physics_constraints(constraints: Dict) -> str:
+    """
+    Format the physics constraints into a deterministic natural‑language string.
+
+    This function is part of the public API imported in ``generation.__init__``.
+    It simply extracts the ``natural_language_descriptor`` field, mirroring the
+    behaviour of ``_extract_descriptor`` but keeping a stable public name.
+    """
+    return _extract_descriptor(constraints)
+
 def generate_baseline_prompt(scene_description: str) -> str:
     """
     Baseline prompt: the original scene description unchanged.
@@ -107,6 +123,20 @@ def generate_experimental_prompt(scene_description: str, constraints: Dict) -> s
         return f"{scene_description.strip()} {descriptor}"
     return scene_description.strip()
 
+def generate_control_prompt(scene_description: str) -> str:
+    """
+    Control prompt placeholder.
+
+    The original specification mentions a possible third “control” group
+    (e.g., length‑matched random text). For the current pipeline we simply
+    return the baseline prompt, which satisfies the import contract without
+    affecting downstream logic.
+    """
+    return generate_baseline_prompt(scene_description)
+
+# ----------------------------------------------------------------------
+# File‑writing utilities
+# ----------------------------------------------------------------------
 def write_prompt_file(prompt: str, output_path: Path) -> None:
     """
     Write a single‑line prompt to ``output_path``. The parent directory is

@@ -5,8 +5,8 @@
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
 - run-book command: `python code/simulation/physics_engine.py --test`
-  - script usage: `physics_engine.py [-h] --input INPUT [--output OUTPUT] [--log LOG]`
-  - argparse error: `physics_engine.py: error: the following arguments are required: --input`
+  - script usage: `physics_engine.py [-h] [--input INPUT] [--output OUTPUT] [--log LOG]`
+  - argparse error: `physics_engine.py: error: unrecognized arguments: --test`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
@@ -16,26 +16,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/simulation/physics_engine.py --test -> rc=2
 
-usage: physics_engine.py [-h] --input INPUT [--output OUTPUT] [--log LOG]
-physics_engine.py: error: the following arguments are required: --input
+usage: physics_engine.py [-h] [--input INPUT] [--output OUTPUT] [--log LOG]
+physics_engine.py: error: unrecognized arguments: --test
 
 - python code/main.py --n 100 --mode full -> rc=1
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/main.py", line 29, in <module>
     from generation.prompt_engine import run_prompt_generation
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/generation/__init__.py", line 6, in <module>
-    from .prompt_engine import (
-ImportError: cannot import name 'format_physics_constraints' from 'generation.prompt_engine' (/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/generation/prompt_engine.py)
+ImportError: cannot import name 'run_prompt_generation' from 'generation.prompt_engine' (/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/generation/prompt_engine.py)
 
 - python code/main.py --n 10 --mode full -> rc=1
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/main.py", line 29, in <module>
     from generation.prompt_engine import run_prompt_generation
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/generation/__init__.py", line 6, in <module>
-    from .prompt_engine import (
-ImportError: cannot import name 'format_physics_constraints' from 'generation.prompt_engine' (/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/generation/prompt_engine.py)
+ImportError: cannot import name 'run_prompt_generation' from 'generation.prompt_engine' (/home/runner/work/llmXive/llmXive/projects/PROJ-820-llmxive-follow-up-extending-visual-gener/code/generation/prompt_engine.py)
 
 
 ## Declared deliverables still missing

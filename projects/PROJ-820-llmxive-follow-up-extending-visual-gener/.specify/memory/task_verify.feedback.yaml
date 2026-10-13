@@ -1,29 +1,30 @@
 T001:
   task: 9d5524c4efc8de0ba22e51bb314d3eba159c1d9c70e1af7fe5a7138a5396075f
 T002:
-  reason: "Checked `code/simulation/physics_engine.py`, the schema file path, the\
-    \ unit test `code/tests/unit/test_physics_logic.py`, and the output directory\
-    \ `data/derived/physics_constraints/`. The test suite fails because it cannot\
-    \ locate the schema (wrong relative path), no per\u2011scene JSON constraint files\
-    \ are present (only the placeholder `contradiction_log.json` with empty entries),\
-    \ and the contradiction log is not populated despite reporting 100 total scenes.\
-    \ Consequently the required JSON outputs, proper schema validation, and <\u202F\
-    5\u202F% contradiction rate are not demonstrated."
+  reason: "The repository contains `code/simulation/physics_engine.py`, but the required\
+    \ per\u2011scene JSON files are absent (only the log file exists) and the contradiction\
+    \ log lacks the `contradiction_rate` field. Moreover, the unit test suite fails\
+    \ because it cannot locate the schema file at the path it expects, so the test\
+    \ verification does not pass. Consequently the implementation does not meet the\
+    \ task\u2019s output, validation, or contradiction\u2011rate requirements."
   task: 116c964e0cd205bc647214ce09fe2ded8e88b4f9cb4fc220669db02a5de66e21
 T003:
-  reason: "The `prompt_engine.py` script exists and writes baseline/experimental files,\
-    \ but the physics\u2011constraint JSON files are missing, so the experimental\
-    \ prompts contain no descriptor (the logs show warnings for every scene). Moreover,\
-    \ the unit\u2011test suite fails to import a required function (`format_physics_constraints`),\
-    \ indicating the required tests are not passing. Both the deterministic descriptor\
-    \ requirement and the unit\u2011test verification are unmet."
+  reason: "The `prompt_engine.py` script runs and creates baseline/experimental files,\
+    \ and unit tests pass, but the required physics\u2011constraint JSON files are\
+    \ absent (e.g., `data/derived/physics_constraints/scene_0001.json` is missing).\
+    \ Consequently the generated `{scene_id}_experimental.txt` files contain only\
+    \ the original description (no descriptor), violating the task\u2019s requirement\
+    \ that each experimental prompt include the deterministic `natural_language_descriptor`\
+    \ from its JSON. The missing JSON artifacts must be provided and the script verified\
+    \ to incorporate their descriptors."
   task: 7404bdffc8094c9b32f7b960fb60deb023b189f2522013a8974c6e13d59bf520
 T004:
-  reason: "The seed manifest file (`data/derived/seed_manifest.json`) is missing,\
-    \ no generated PNGs or `seed_lock_status.json` are present, and the diffusion\
-    \ runner never computes the required \u2264\u202F1\u202Fpixel bounding\u2011box\
-    \ deviation (it only does SSIM fallback). Additionally, the failure log (`generation_failure_log.json`)\
-    \ does not exist, so the task\u2019s verification criteria are not satisfied."
+  reason: "The required `data/derived/seed_manifest.json` does not exist, no PNG images\
+    \ are present under `data/derived/generated_images/{baseline,experimental}/`,\
+    \ and the expected `seed_lock_status.json` and `generation_failure_log.json` are\
+    \ missing. Additionally, the unit\u2011test log shows errors preventing the seed\u2011\
+    locking pipeline from running. These missing artifacts mean the deterministic\
+    \ seed\u2011locking task is not fulfilled."
   task: 58dc0fd2faa0a71b6e9f15a76e29ccbc000c003bf24c0a05830765a0c8d62922
 T005:
   task: 494ddc59f63c61b9a8fa05e176410000129b41847dedc25162f72fb291279b01

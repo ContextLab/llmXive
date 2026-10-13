@@ -479,7 +479,7 @@ def main() -> None:
     parser.add_argument(
         "--input",
         type=str,
-        required=True,
+        default="data/raw/scene_descriptions.csv",
         help="Path to the scene descriptions CSV (must contain ``scene_id`` and ``description`` or ``description_text`` columns).",
     )
     parser.add_argument(
