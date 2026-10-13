@@ -1,3 +1,8 @@
 [flake8]
 max-line-length = 100
-exclude = .git,__pycache__,venv,build,dist
+exclude = venv
+# Additional recommended settings
+ignore = E203, W503
+select = C,E,F,W,B,B950
+# Enable built-in pycodestyle and pyflakes checks
+# No need for further customization for this project.

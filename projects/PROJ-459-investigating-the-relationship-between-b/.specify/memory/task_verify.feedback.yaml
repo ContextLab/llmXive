@@ -1,24 +1,39 @@
 T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: 92c4e3e6257b707d80ef84761978b03dec2759d32180f9c1fadcee7573ed9556
 T002:
   task: 92762ac6e8d587f34f43a922510caa58db19d03f94c8ccafda66166b0e984f7b
 T003:
-  reason: The repository contains a valid `pyproject.toml` with Black configuration,
-    but there is no `.flake8` file present, and no execution evidence (e.g., command
-    output or logs) showing that `black --check .` and `flake8 code/` succeed. Both
-    the missing configuration file and lack of verification results must be provided.
+  reason: The `pyproject.toml` exists with a valid `[tool.black]` config, but the
+    required `.flake8` file is absent from the project root (not listed in artifacts
+    or the `code/` directory listing), so the flake8 half of the task is unconfigured.
+    Additionally, there is no execution evidence that `black --check .` or `flake8
+    code/` were run and passed.
   task: 5e4cf6ef27115cd86ead28fe69f5e2d7e3eeb7e067d37bd5ced5fd5f21345a9d
 T004:
   task: ca2cd4bcdc349838397683477b8b1701c5b51833ba16de58d047f0536ee21682
 T005:
   task: f8a87e605c6d06d6f27472ee58eeab181099dcd4b524b9ddbb5d1f82b61608c4
 T006:
+  reason: The file `code/utils/io.py` exists and implements `save_parquet()` and `load_json()`,
+    but the required `compute_checksum()` function is entirely absent (the module
+    instead adds unrequested `load_parquet`/`save_json` helpers). The next implementer
+    must add a real `compute_checksum()` (e.g., SHA-256 over file contents) to satisfy
+    the task's stated API.
   task: eabf27e72415c8827d79d8de15822cce5fae7b589500dce8aae6453ca38611b1
 T007:
   task: 735aee2e9655e0101df358658a7e05b23d76cb356caa75a0bd7018750638519d
 T008:
   task: 18fd4bade34d4a945721a5ea7f5f1fc00a5e0eef74ce9bbfe8407b9e1310e59d
 T009:
+  reason: "`code/config.py` does contain a real `check_memory_limit()` implementation,\
+    \ but `code/utils/io.py` contains no `monitor_runtime_and_warn()` function at\
+    \ all \u2014 it only has parquet/JSON helpers \u2014 so half of the task's required\
+    \ deliverable is missing. Additionally, the recorded test run for `tests/unit/test_config.py`\
+    \ failed (1 failed, 8 passed), so the config changes are not verified as working."
   task: c966161f82d48868a3a0a1557bc7ed297a8af067cbaa7779fe3bb91060b8c57f
 T010:
   task: 773a7565ce04bf7fea99a8da6d32d5d1ad67d6c900de855ae8555b774f09c315

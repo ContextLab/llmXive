@@ -46,6 +46,17 @@ DATASET_CONFIG = {
     },
 }
 
+# Exported name expected by legacy tests
+dataset_config = DATASET_CONFIG
+
+# Primary (active) dataset IDs – used by tests
+DATASET_IDS_PRIMARY = [
+    cfg["id"] for cfg in DATASET_CONFIG.values() if cfg.get("active")
+]
+
+# List of all verified dataset IDs (used for fallback logic)
+VERIFIED_DATASETS = list(DATASET_CONFIG.keys())
+
 # Default active dataset – can be overridden by environment variable
 _CURRENT_DATASET_ID: str = os.getenv("DATASET_ID") or next(
     (cfg["id"] for cfg in DATASET_CONFIG.values() if cfg["active"]),
@@ -69,6 +80,10 @@ HYPERPARAMETERS = {
     "min_sample_size": 85,              # Power requirement
     "permutations": 1000,               # Null‑distribution permutations
 }
+
+# Exported hyperparameter names expected by tests
+WINDOW_SIZES = HYPERPARAMETERS["window_sizes"]
+TR_DEFAULT = 2.0  # Typical TR for many OpenNeuro datasets (seconds)
 
 # ----------------------------------------------------------------------
 # Environment constraints
@@ -120,6 +135,9 @@ def get_figure_path(filename: str) -> Path:
     Construct a path to a figure.
     """
     return DIRS["figures"] / filename
+
+# Exported path for tests that check the existence of the top‑level data folder
+DATA_DIR = DIRS["data"]
 
 def get_env_config() -> Dict[str, Any]:
     """Return the environment‑constraint dictionary."""
@@ -217,6 +235,83 @@ def data_path(*, filename: Optional[str] = None) -> Path:
     """
     return get_data_path(_CURRENT_DATASET_ID, filename)
 
+# ----------------------------------------------------------------------
+# DatasetConfig class – legacy API required by unit tests
+# ----------------------------------------------------------------------
+class DatasetConfig:
+    """
+    Lightweight helper used by legacy unit tests to manage the list of
+    active dataset identifiers and to record validation failures.
+    """
+
+    def __init__(self, initial_ids: Optional[List[str]] = None):
+        """
+        Initialise the configuration.
+
+        Args:
+            initial_ids: Optional explicit list of dataset IDs to start with.
+                         If omitted, the primary active IDs are used.
+        """
+        if initial_ids is None:
+            self.current_ids = list(DATASET_IDS_PRIMARY)
+        else:
+            # Validate that supplied IDs exist in the global config
+            self.current_ids = [
+                ds_id for ds_id in initial_ids if ds_id in DATASET_CONFIG
+            ]
+        self.errors: List[Dict[str, Any]] = []
+
+    @property
+    def fallbacks_available(self) -> List[str]:
+        """
+        Return a list of dataset IDs that are still marked as active
+        (i.e., potential fallbacks) but are not currently in ``current_ids``.
+        """
+        return [
+            cfg["id"]
+            for cfg in DATASET_CONFIG.values()
+            if cfg.get("active") and cfg["id"] not in self.current_ids
+        ]
+
+    def register_validation_failure(
+        self, dataset_id: str, error_code: str, message: str
+    ) -> None:
+        """
+        Record a validation failure for a specific dataset and remove it
+        from the active list.
+
+        Args:
+            dataset_id: The identifier of the dataset that failed validation.
+            error_code: Short error code (e.g., ``ERR_DATA_MISSING``).
+            message: Human‑readable description of the problem.
+        """
+        if dataset_id in self.current_ids:
+            self.current_ids.remove(dataset_id)
+        self.errors.append(
+            {"dataset_id": dataset_id, "code": error_code, "message": message}
+        )
+
+    def to_json(self) -> str:
+        """
+        Serialise the current configuration state to JSON.
+
+        Returns:
+            JSON string containing ``current_ids``, ``errors`` and
+            ``fallbacks_available``.
+        """
+        state = {
+            "current_ids": self.current_ids,
+            "errors": self.errors,
+            "fallbacks_available": self.fallbacks_available,
+        }
+        return json.dumps(state)
+
+    def __repr__(self) -> str:  # pragma: no cover
+        return (
+            f"DatasetConfig(current_ids={self.current_ids}, "
+            f"errors={self.errors})"
+        )
+
 # The module's public interface
 __all__ = [
     "ensure_dirs",
@@ -233,4 +328,12 @@ __all__ = [
     "data_path",
     "HYPERPARAMETERS",
     "DATASET_CONFIG",
+    # Legacy names required by tests
+    "dataset_config",
+    "DATASET_IDS_PRIMARY",
+    "WINDOW_SIZES",
+    "TR_DEFAULT",
+    "DatasetConfig",
+    "VERIFIED_DATASETS",
+    "DATA_DIR",
 ]

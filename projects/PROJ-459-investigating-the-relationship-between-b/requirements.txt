@@ -1,3 +1,4 @@
+# Existing pinned dependencies (already present in the environment)
 nibabel==5.2.0
 networkx==3.2.1
 scikit-learn==1.3.2
@@ -7,3 +8,5 @@ scipy==1.11.4
 pyyaml==6.0.1
 pytest==7.4.3
 statsmodels==0.14.0
+# Additional dependency required for parquet support
+pyarrow==15.0.0
