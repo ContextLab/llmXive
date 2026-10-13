@@ -19,13 +19,67 @@ T003:
   r: "No evidence was provided that the directory `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/`\
     \ actually exists in the repository, nor that it contains any files. The implementer\u2019\
     s claim cannot be confirmed without a tangible artifact."
+T004:
+  c: false
+  h: f823a99dd130fac95f937d045e1518d5e2cfbfca1fc2cdead39637b550eac078
+  r: "No artifacts were provided or confirmed on disk \u2014 there is no evidence\
+    \ of a Python 3.11 project structure, a `requirements.txt`/`pyproject.toml`/environment\
+    \ file listing pandas, numpy, statsmodels, pyyaml, requests, tqdm, scipy, and\
+    \ pytest, or any dependency installation/verification output. The task's claim\
+    \ of completion is unsupported by any artifact; the implementer must create the\
+    \ project scaffold with pinned dependencies and demonstrate they resolve/install."
+  sig: 39f416d327a1eb57212873f1e1b148707458393126d4d9e9d590d6e77d9ab30c
+T005:
+  c: false
+  h: b175d2588f7025a6abee4cf4ae23677c46c14c7325aabe8983b5f41022cec8e1
+  r: "No artifacts were provided or confirmed on disk for this task \u2014 the collector\
+    \ explicitly notes the task references no code/data/figure path and no evidence\
+    \ exists to verify. Configuring flake8/black requires actual configuration files\
+    \ (e.g., `.flake8`, `setup.cfg`, `pyproject.toml`, or `tox.ini` with lint settings)\
+    \ plus evidence the tools run cleanly, none of which was shown. The next implementer\
+    \ should add the lint/format configuration files to the project and demonstrate\
+    \ they are installed and pass on the existing codebase."
+  sig: 4ce2d7806fdc785f9f21b996e2dc58c532a7ed89d198e5f88ee5adf08294e0c4
 T006:
   c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt shows FR\u2011005 and User Story\u202F3 both\
-    \ now require a \u201CCluster\u2011Robust OLS\u201D model (instead of an LMM),\
-    \ matching the task\u2019s update requirement. The content is present, non\u2011\
-    empty, and aligns exactly with what was asked."
+  h: b41029a56831af64bf03d7aef5f19717116fb80747eb6d2aaa9d067a01ccc29a
+  r: The spec.md artifact exists (5297 bytes) and its FR-005 explicitly mandates "a
+    Cluster-Robust OLS model with feedback group as a fixed effect and clustering
+    by course ID," with no mention of Linear Mixed-Effects Models anywhere in the
+    file. The US3 header likewise reads "fit a Cluster-Robust OLS model and perform
+    Tukey HSD post-hoc tests," matching the task's requirement to align with Plan.md.
+  sig: 40c3dea36636a5cf37589c1dda11ad542c035b5e823666760ca129bf8e495232
+T007:
+  c: true
+  h: 72298d884ba05fed44649cec57703f4afdb51fdbb981bdacb99c6ff054534d0a
+  r: 'The artifact `code/config.py` exists (3930 bytes) and implements a genuine configuration
+    loader: YAML loading with error handling, dot-notation key access, default config
+    with OULAD URLs, feedback thresholds (2h/48h matching FR-004), data paths, and
+    convenience wrappers. No stubs, TODOs, or placeholders; the code is functional
+    and matches the task''s stated requirement.'
+  sig: f00eda40d764da69206e5cc3f053b5156fddf6b3934e1e905ceb454c19fc97b8
+T008:
+  c: true
+  h: 80866de5becfae6b8a2bb153f9d0d788db20609b29b03da96730b298fb75c6a4
+  r: 'The file `code/logging_config.py` exists (6342 bytes) and contains a full, non-stub
+    logging implementation: `setup_logger` with console and file handlers, timestamped
+    formatting for audit trails, logger caching, config integration with the existing
+    `code/config.py`, and a dedicated `setup_audit_logger` for reproducible audit
+    records. The code is coherent, imports resolve to the confirmed local `config.py`,
+    and it matches the task''s requirement of logging infrastructure for reproducible
+    audit trails.'
+  sig: 920ebae4a290fa04acc5b42e50a8fe48a307b5e52a02e99613e08263ab5c2540
+T009:
+  c: false
+  h: c3b239d5c1161c09471ec4add66d83bb2d670f3ae4506cd88cd342e4d3a3109c
+  r: "The task explicitly requires `validate_types()` in `code/schema.py`, but the\
+    \ file only provides `validate_column_types()` (and `validate_schema()`); no `validate_types`\
+    \ function exists, and `tests/test_schema.py` imports/tests `validate_column_types`\
+    \ instead \u2014 so the required contract is not implemented. Additionally, there\
+    \ is no execution evidence (e.g., pytest output) that the tests actually pass.\
+    \ The implementer should add a `validate_types()` function matching the schema\
+    \ contract and provide test-run evidence."
+  sig: a1abaee65305f4ace339b330dec7a395d47e0374ccc6bae1e029b7342a048f32
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

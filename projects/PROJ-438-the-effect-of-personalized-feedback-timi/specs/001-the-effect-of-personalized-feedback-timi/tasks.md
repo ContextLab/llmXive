@@ -51,8 +51,8 @@
 - [ ] T001 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` directory at the correct project path (Plan.md Project Structure)
 - [ ] T002 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/data/raw/`, `data/processed/`, `data/cache/`, and `data/checksums/` directories with `.gitkeep`
 - [ ] T003 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/` directory at repository root
-- [~] T004 Initialize Python 3.11 project with dependencies: pandas, numpy, statsmodels, pyyaml, requests, tqdm, scipy, pytest
-- [~] T005 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T004 Initialize Python 3.11 project with dependencies: pandas, numpy, statsmodels, pyyaml, requests, tqdm, scipy, pytest
+- [ ] T005 [P] Configure linting (flake8/black) and formatting tools
 - [ ] T009a [Sequential] Generate `contracts/dataset.schema.yaml` defining the schema for OULAD input datasets (students, courses, events) and the expected structure for output artifacts (learners_raw, learners_binned) to satisfy the dependency for T009 (Plan.md Project Structure). **Output**: `contracts/dataset.schema.yaml` only; does not generate data files.
 
 ---
@@ -65,8 +65,8 @@
 
 - [X] T007 [P] Implement configuration loader for dataset URLs and hyperparameters in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/config.py`
 - [X] T008 [P] Setup logging infrastructure to `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/logging_config.py` for reproducible audit trails
-- [~] T009 [P] Create base data schema validation utilities in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/schema.py` implementing `validate_schema()` and `validate_types()` functions with input/output contracts aligned to `contracts/dataset.schema.yaml` (generated in T009a); verify via unit tests in `tests/test_schema.py` (aligns with `contracts/dataset.schema.yaml`)
-- [X] T010 Implement checksum utility for raw data integrity in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/checksums.py`
+- [ ] T009 [P] Create base data schema validation utilities in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/schema.py` implementing `validate_schema()` and `validate_types()` functions with input/output contracts aligned to `contracts/dataset.schema.yaml` (generated in T009a); verify via unit tests in `tests/test_schema.py` (aligns with `contracts/dataset.schema.yaml`)
+- [~] T010 Implement checksum utility for raw data integrity in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/checksums.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,14 +82,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T013 [P] [US1] Unit test for OULAD URL accessibility and response validation in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_download.py`
-- [X] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
-- [X] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
+- [~] T013 [P] [US1] Unit test for OULAD URL accessibility and response validation in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_download.py`
+- [~] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
+- [~] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
 
 ### Implementation for User Story 1
 
-- [X] T016 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/download_data.py` to fetch OULAD from the verified HuggingFace mirrors (students_data.csv and train parquet files as per Plan.md FR-001) and save to `data/raw/` (FR-001)
-- [X] T017 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/preprocess.py` to:
+- [~] T016 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/download_data.py` to fetch OULAD from the verified HuggingFace mirrors (students_data.csv and train parquet files as per Plan.md FR-001) and save to `data/raw/` (FR-001)
+- [~] T017 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/preprocess.py` to:
  1. Filter courses by "assessment" and "forum" events.
  2. Exclude learners with no recorded forum interactions (cannot compute interval).
  3. **Crucial**: Exclude learners who have a submission but NO subsequent event (no response), as interval is undefined.
