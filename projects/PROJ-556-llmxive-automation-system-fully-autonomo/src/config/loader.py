@@ -1,20 +1,10 @@
 """
-Loader utilities for ArchConfig definitions.
+Configuration loader for ArchConfig definitions.
 
-This module provides two public functions:
-- `load_arch_configs`: Load and validate all ArchConfig entries from the YAML file.
-- `get_arch_config`: Retrieve a single ArchConfig by its `config_id`.
-
-The configuration file is expected to be located at the same directory as this
-module and named ``arch_configs.yaml``. The YAML schema follows the example
-provided in the project documentation and includes ``defaults`` and a list of
-``configs``. Each config must contain the required keys listed in
-``REQUIRED_KEYS``; otherwise a ``ValueError`` is raised.
-
-The functions raise:
-- ``FileNotFoundError`` if the configuration file does not exist.
-- ``ValueError`` for structural validation errors.
-- ``KeyError`` when a requested ``config_id`` is not present.
+This module provides functions to load and validate architectural configurations
+from the arch_configs.yaml file. Each ArchConfig defines structural parameters
+(context window, model size, retrieval toggle) and sampling parameters
+(temperature, top_p) for hypothesis generation.
 """
 
 from __future__ import annotations
@@ -28,22 +18,13 @@ from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
-# Path to the YAML configuration file (same directory as this loader)
-CONFIG_PATH = pathlib.Path(__file__).with_name("arch_configs.yaml")
+# Default path to the configuration file relative to the project root.
+CONFIG_PATH = pathlib.Path(__file__).parent / "arch_configs.yaml"
 
-# Keys that must be present in each individual config entry
-REQUIRED_KEYS = {
-    "config_id",
-    "model_name",
-    "model_size_params",
-    "context_window_tokens",
-    "retrieval_augmented",
-    "temperature",
-    "top_p",
-}
 
 def _validate_config_entry(entry: Dict[str, Any]) -> None:
-    """Validate a single config dictionary.
+    """
+    Validate a single config dictionary.
 
     Args:
         entry: The dictionary representing one ArchConfig.
@@ -51,16 +32,64 @@ def _validate_config_entry(entry: Dict[str, Any]) -> None:
     Raises:
         ValueError: If any required key is missing.
     """
-    missing = REQUIRED_KEYS - entry.keys()
+    required_keys = {
+        "config_id",
+        "model_name",
+        "model_size_params",
+        "context_window_tokens",
+        "retrieval_augmented",
+        "temperature",
+        "top_p",
+    }
+    missing = required_keys - set(entry.keys())
     if missing:
         raise ValueError(
-            f"ArchConfig entry missing required keys: {sorted(missing)}. "
+            f"Config entry missing required keys: {missing}. "
             f"Entry: {entry}"
         )
-    # Additional optional validation can be added here (e.g., type checks).
+
+    # Validate types and ranges.
+    if not isinstance(entry["config_id"], str):
+        raise ValueError(f"config_id must be a string, got {type(entry['config_id'])}")
+    if not isinstance(entry["model_size_params"], int):
+        raise ValueError(
+            f"model_size_params must be an int, got {type(entry['model_size_params'])}"
+        )
+    if not isinstance(entry["context_window_tokens"], int):
+        raise ValueError(
+            f"context_window_tokens must be an int, got {type(entry['context_window_tokens'])}"
+        )
+    if not isinstance(entry["retrieval_augmented"], bool):
+        raise ValueError(
+            f"retrieval_augmented must be a bool, got {type(entry['retrieval_augmented'])}"
+        )
+    if not isinstance(entry["temperature"], (int, float)):
+        raise ValueError(
+            f"temperature must be numeric, got {type(entry['temperature'])}"
+        )
+    if not isinstance(entry["top_p"], (int, float)):
+        raise ValueError(f"top_p must be numeric, got {type(entry['top_p'])}")
+
+    # Validate ranges.
+    if entry["temperature"] < 0 or entry["temperature"] > 2:
+        raise ValueError(
+            f"temperature must be in [0, 2], got {entry['temperature']}"
+        )
+    if entry["top_p"] < 0 or entry["top_p"] > 1:
+        raise ValueError(f"top_p must be in [0, 1], got {entry['top_p']}")
+    if entry["model_size_params"] <= 0:
+        raise ValueError(
+            f"model_size_params must be positive, got {entry['model_size_params']}"
+        )
+    if entry["context_window_tokens"] <= 0:
+        raise ValueError(
+            f"context_window_tokens must be positive, got {entry['context_window_tokens']}"
+        )
+
 
 def load_arch_configs(path: pathlib.Path | str = CONFIG_PATH) -> List[Dict[str, Any]]:
-    """Load and validate all ArchConfig definitions from the YAML file.
+    """
+    Load and validate all ArchConfig definitions from the YAML file.
 
     Args:
         path: Path to the ``arch_configs.yaml`` file. Defaults to the module‑level
@@ -74,42 +103,49 @@ def load_arch_configs(path: pathlib.Path | str = CONFIG_PATH) -> List[Dict[str, 
         ValueError: If the file cannot be parsed, lacks the ``configs`` section,
                     or any entry fails validation.
     """
-    cfg_path = pathlib.Path(path)
-    log.debug("Loading ArchConfig definitions from %s", cfg_path)
+    path = pathlib.Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {path}")
 
-    if not cfg_path.is_file():
-        raise FileNotFoundError(f"ArchConfig file not found at {cfg_path}")
+    try:
+        with open(path, "r") as f:
+            data = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        raise ValueError(f"Failed to parse YAML configuration file: {e}")
 
-    with cfg_path.open("r", encoding="utf-8") as f:
-        try:
-            raw_cfg = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError(f"Failed to parse YAML config at {cfg_path}: {exc}") from exc
+    if data is None:
+        raise ValueError("Configuration file is empty")
 
-    if not isinstance(raw_cfg, dict):
-        raise ValueError(f"Expected top‑level mapping in {cfg_path}, got {type(raw_cfg)}")
+    if "configs" not in data:
+        raise ValueError(
+            "Configuration file must contain a 'configs' section with a list of configurations"
+        )
 
-    configs = raw_cfg.get("configs")
-    if configs is None:
-        raise ValueError(f"'configs' section missing in {cfg_path}")
+    configs = data["configs"]
     if not isinstance(configs, list):
-        raise ValueError(f"'configs' must be a list in {cfg_path}")
+        raise ValueError(
+            f"'configs' section must be a list, got {type(configs)}"
+        )
 
-    validated: List[Dict[str, Any]] = []
-    for entry in configs:
-        if not isinstance(entry, dict):
-            raise ValueError(f"Each config entry must be a mapping, got {type(entry)}")
-        _validate_config_entry(entry)
-        validated.append(entry)
+    if len(configs) == 0:
+        raise ValueError("'configs' section must contain at least one configuration")
 
-    log.info("Loaded %d ArchConfig entries from %s", len(validated), cfg_path)
-    return validated
+    # Validate each configuration entry.
+    for i, entry in enumerate(configs):
+        try:
+            _validate_config_entry(entry)
+        except ValueError as e:
+            raise ValueError(f"Validation failed for config entry {i}: {e}")
+
+    log.info(f"Loaded {len(configs)} ArchConfig(s) from {path}")
+    return configs
+
 
 def get_arch_config(
-    config_id: str,
-    path: pathlib.Path | str = CONFIG_PATH,
+    config_id: str, path: pathlib.Path | str = CONFIG_PATH
 ) -> Dict[str, Any]:
-    """Return a single ArchConfig by its ``config_id``.
+    """
+    Return a single ArchConfig by its ``config_id``.
 
     Args:
         config_id: Identifier of the desired configuration.
@@ -122,8 +158,10 @@ def get_arch_config(
         KeyError: If ``config_id`` is not defined in the configuration file.
     """
     configs = load_arch_configs(path)
-    for cfg in configs:
-        if cfg.get("config_id") == config_id:
-            log.debug("Found ArchConfig for id=%s", config_id)
-            return cfg
-    raise KeyError(f"ArchConfig with config_id '{config_id}' not found.")
+    for config in configs:
+        if config["config_id"] == config_id:
+            return config
+    raise KeyError(
+        f"ArchConfig '{config_id}' not found. Available configs: "
+        f"{[c['config_id'] for c in configs]}"
+    )
