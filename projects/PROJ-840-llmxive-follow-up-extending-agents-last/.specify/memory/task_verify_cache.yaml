@@ -109,6 +109,25 @@ T015a:
     \ confirming exactly ten traces with 5\u202FState\u202FPersistence\u202FError\
     \ and 5\u202FReasoning\u202FDeficit labels)."
   sig: 09c3e7961e7300bc522f53cd65a8be36ce92de41f616b918e6217ad53dcf67fa
+T015b:
+  c: false
+  h: c4ee666d06d7bd480eb2af250baac78a3a332c45e4991e01056ea045a421c7ef
+  r: "Checked `code/data/generator.py`, its execution log, `data/raw/golden_fixture.json`,\
+    \ and `data/processed/golden_fixture_checksum.txt`. The script runs successfully\
+    \ and writes a non\u2011empty file and checksum, but the JSON array contains objects\
+    \ with fields like `task_id`, `trace`, `step_state` etc., which do **not** match\
+    \ the required schema (`step_id`, `action`, `environment_state`, `task_description`,\
+    \ `outcome`). The output therefore fails the schema validation requirement."
+  sig: e0ac521a33b09e4cf0a2ac2d6397dce41f6aecaa2ee532bfaf9ebbbd78154b38
+T015c:
+  c: true
+  h: f9506185a82fb55489ee028f1f7a196a4e93b8b2d26578ce4dd2ff285a2e36f0
+  r: "Checked `data/raw/golden_fixture.json` (exists, correct SHA\u2011256, all `ground_truth_label`\
+    \ values are within the allowed set) and `data/processed/golden_fixture_checksum.txt`\
+    \ (contains the matching checksum). The integration test `tests/integration/test_golden_fixture.py`\
+    \ ran successfully, confirming the required 5\u202FState\u202FPersistence\u202F\
+    Error and 5\u202FReasoning\u202FDeficit records."
+  sig: b9d2111854e01bca70c585e96313081ef5e59764f81c4276791da05d3b7c6f26
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

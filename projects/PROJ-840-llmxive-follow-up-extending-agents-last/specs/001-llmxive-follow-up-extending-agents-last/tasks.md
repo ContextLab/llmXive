@@ -41,14 +41,14 @@
   *Creates deterministic functions that encode the ten prescribed scenarios (5 State Persistence Errors, 5 Reasoning Deficits).*  
   *Verification:* unit test `tests/unit/test_generator_logic.py` checks that the logic returns exactly ten scenarios with correct labels.  
 
-- [~] T015b [US1] Implement data‑generator script `code/data/generator.py` that **imports** `generator_logic.py` and writes the ten scenario traces to **`data/raw/golden_fixture.json`**.
+- [ ] T015b [US1] Implement data‑generator script `code/data/generator.py` that **imports** `generator_logic.py` and writes the ten scenario traces to **`data/raw/golden_fixture.json`**.
   *CLI entry point:* `python -m code.data.generator --output data/raw/golden_fixture.json`.  
   *Verification (indented):*  
     - The script must exit with status 0.  
     - The output file must exist, be non‑empty, and contain exactly ten JSON objects matching the schema in `contracts/dataset.schema.yaml`.  
     - Generate SHA‑256 checksum saved to `data/processed/golden_fixture_checksum.txt`.  
 
-- [~] T015c [US1] Execute the generator and verify the artifact.  
+- [X] T015c [US1] Execute the generator and verify the artifact.  
   *Command:* `python -m code.data.generator --output data/raw/golden_fixture.json`.  
   *Verification (indented):*  
     - Confirm `data/raw/golden_fixture.json` exists.  

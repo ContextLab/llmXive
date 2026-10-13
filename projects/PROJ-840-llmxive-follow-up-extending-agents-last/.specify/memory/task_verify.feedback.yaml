@@ -46,8 +46,12 @@ T014:
 T015a:
   task: f88a967c0eaed30761fc42efae1db0c2b3abb07b62758ac32b2f0c41d17a7f48
 T015b:
-  reason: 'Requested task execution failed; rerun successfully: code/data/generator.py
-    exit=1'
+  reason: "Checked `code/data/generator.py`, its execution log, `data/raw/golden_fixture.json`,\
+    \ and `data/processed/golden_fixture_checksum.txt`. The script runs successfully\
+    \ and writes a non\u2011empty file and checksum, but the JSON array contains objects\
+    \ with fields like `task_id`, `trace`, `step_state` etc., which do **not** match\
+    \ the required schema (`step_id`, `action`, `environment_state`, `task_description`,\
+    \ `outcome`). The output therefore fails the schema validation requirement."
   task: c049c56a3913476e10f3e3b0d5a5f606018adb457448d3e2582ec9d1a31859fa
 T015c:
   task: 95aaf35a583fedf372ce75537b4520d8ed55b10afb184dd8dc3da6465137171d
