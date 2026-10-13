@@ -264,6 +264,30 @@ def _load_participant_metadata(metadata_path: Path) -> pd.DataFrame:
     df = df.set_index("participant_id")
     return df
 
+def _load_raw_for_participant(loader: EEGDataLoader, participant_id: str) -> mne.io.Raw:
+    """
+    Helper that loads the raw EEG file for a participant using the loader's
+    raw directory. The loader may not provide a direct ``load_raw`` method,
+    so we locate the first .fif or .edf file inside the participant's folder.
+    """
+    raw_dir = _determine_raw_dir(loader)
+    participant_dir = raw_dir / participant_id
+    if not participant_dir.is_dir():
+        raise FileNotFoundError(f"Participant folder not found: {participant_dir}")
+
+    # Search for common EEG file extensions
+    for ext in ("*.fif", "*.edf", "*.set", "*.bdf"):
+        candidates = list(participant_dir.glob(ext))
+        if candidates:
+            raw_path = candidates[0]
+            # Use MNE's generic reader; it will choose the appropriate loader.
+            raw = mne.io.read_raw(raw_path, preload=False, verbose=False)
+            return raw
+
+    raise FileNotFoundError(
+        f"No EEG file found for participant {participant_id} in {participant_dir}"
+    )
+
 def preprocess_participant(
     participant_id: str,
     loader: EEGDataLoader,
@@ -275,7 +299,7 @@ def preprocess_participant(
     (metadata + 30 features + valid_eeg_minutes).
     """
     # Load raw data via the streaming loader (preload=False)
-    raw: mne.io.Raw = loader.load_raw(participant_id)
+    raw: mne.io.Raw = _load_raw_for_participant(loader, participant_id)
 
     # ------------------------------------------------------------------
     # Preprocessing steps

@@ -27,14 +27,14 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: 5965ad1ed3dae8218d22d0d59d9ca96ce82456ea47d26257fe4f7959a612a70f
-  r: "Checked `code/utils.py` for the required seed\u2011pinning function, logger\
-    \ setup writing to `artifacts/log.txt`, and `record_artifact_hash` returning a\
-    \ SHA\u2011256 digest; all are present and correctly implemented. Verified that\
-    \ `tests/unit/test_utils.py` exercises these features and that the supporting\
-    \ artifacts (`tests/unit/test_utils.py` and `artifacts/log.txt`) exist and contain\
-    \ appropriate content."
-  sig: 199f1a35fa0df7896e136a16415396e1a2e4efa390e45fc6f0af8be83fece52e
+  h: 139ecbf8bfb444d434371a835d7c64d9b490f3f06a353f66a1e7cbc6f362d36d
+  r: "The provided `code/utils.py` defines `set_global_seed` (seeding both `random`\
+    \ and NumPy with 42), a `setup_logging` that writes timestamped entries to `artifacts/log.txt`,\
+    \ and `record_artifact_hash` that computes and returns a SHA\u2011256 hash. The\
+    \ accompanying `tests/unit/test_utils.py` exercises these functions, and the actual\
+    \ `artifacts/log.txt` file shows logged entries, confirming the logger\u2019s\
+    \ behavior. All required artifacts exist and pass the unit tests."
+  sig: 0d50401b00c34309940ec63432fa31a59c96bce47f0e4b5adb608fcdcfc71fcf
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56
