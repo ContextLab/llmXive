@@ -9,14 +9,13 @@ T001:
   sig: 06fdc303185c6fee9d9fab2ca9b1cf8e66bc32711ac47d0db4010e93205a62c5
 T002:
   c: true
-  h: c49f089da8db2a82e50343ffa7276cdc48bbe3c512a59ef0991d8fc13290c469
+  h: 0182825a728d475cef5ba37c0d7e15be69aacf8f4c060e60f230209d071dd189
   r: The `requirements.txt` exists at the resolved project path and contains all eight
     required packages (mne, scikit-learn, numpy, pandas, scipy, statsmodels, joblib,
-    pyyaml), each with a pinned version specifier (plus an extra psutil with a range
-    specifier, which is acceptable). The task only required the pinned requirements
-    file; CI and unit-test verification steps are not separate deliverables for this
-    task.
-  sig: 4da5028c3b563802298a979521bc26375f0ee1e695a7834e0d56f6d2650b60c4
+    pyyaml) each with a version specifier, plus additional pinned dependencies. The
+    task only asked for a pinned requirements file with these packages; CI execution
+    and unit tests are separate concerns not required as artifacts here.
+  sig: 5711b115b7ffa51eca1598f50f3c5b0aa24d4b86ff1e908da77862fc080f06ef
 T003:
   c: true
   h: d50bbedde90b5019ab15ef8bac47f5ef577634088ae55f6b64144dfc22fca310
@@ -28,12 +27,15 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: 90c9587ab7bfd90f7153c3b8308b44f90b839d2342ba141380ad1367dabd2c9d
-  r: "Checked `code/utils.py` for seed\u2011pinning, logger setup, and `record_artifact_hash`\
-    \ implementation, and verified that `tests/unit/test_utils.py` runs successfully\
-    \ against the existing `artifacts/log.txt` and checksum functions. All required\
-    \ artifacts exist and meet the task specifications."
-  sig: 5000efde30878da224523a1b4b2287be3deb7533ee452722a7c551e703ee73d5
+  h: c3cd5a642bb72a59588b40305e1446a8bf6bbcce4f1e8b8cc6fffb3ee46ee35c
+  r: '`code/utils.py` exists and implements all three required behaviors: `set_global_seed`
+    pins `random.seed(42)`/`np.random.seed(42)`, `setup_logging` writes timestamped
+    entries to `artifacts/log.txt` (confirmed by the actual log file containing the
+    test''s timestamped entry), and `record_artifact_hash` computes a SHA-256 digest
+    and returns it. The corresponding `tests/unit/test_utils.py` covers identical-file
+    hash equality and logger file creation, and the log evidence shows the test logger
+    ran successfully.'
+  sig: 2bb13e369207d271453f1b7988dba1d8b62d9d6a4e461f4099c126a0c3e37058
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56

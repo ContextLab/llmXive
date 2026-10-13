@@ -11,6 +11,17 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…# Dummy Data Directory  This director…”
 - data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…pt will generate its own dummy data dynamically in a tempora…”
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python -c "import datasets; datasets.load_dataset('openneuro/ds003542', data_dir='data/raw')"`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…# Dummy Data Directory  This director…”; data/dummy/README.md: synthetic/fake INPUT data not authorized by the spec — “…pt will generate its own dummy data dynamically in a tempora…”; 6 command(s) failed: bash scripts/pre-run-validation.sh (rc=1); python code/main.py (rc=1); python code/main.py --step preprocess (rc=1); 1 declared deliverable(s) absent: data/processed/feature_matrix.csv
@@ -18,18 +29,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -c "import datasets; datasets.load_dataset('openneuro/ds003542', data_dir='data/raw')" -> rc=1
-
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-ModuleNotFoundError: No module named 'datasets'
+1, in <module>
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-712-predicting-individual-pain-sensitivity-f/lib/python3.11/site-packages/datasets/load.py", line 1667, in load_dataset
+    builder_instance = load_dataset_builder(
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-712-predicting-individual-pain-sensitivity-f/lib/python3.11/site-packages/datasets/load.py", line 1290, in load_dataset_builder
+    dataset_module = dataset_module_factory(
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-712-predicting-individual-pain-sensitivity-f/lib/python3.11/site-packages/datasets/load.py", line 1176, in dataset_module_factory
+    raise e1 from None
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-712-predicting-individual-pain-sensitivity-f/lib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
+    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
+datasets.exceptions.DatasetNotFoundError: Dataset 'openneuro/ds003542' doesn't exist on the Hub or cannot be accessed.
 
 - bash scripts/pre-run-validation.sh -> rc=1
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-13 05:19:09,720 - __main__ - ERROR - Missing required citations:
-2026-10-13 05:19:09,720 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-13 05:19:09,720 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 08:16:28,445 - __main__ - ERROR - Missing required citations:
+2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 -pain-sensitivity-f/code/main.py", line 179, in <module>
@@ -96,23 +115,23 @@ FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/p
 FileNotFoundError: Metadata CSV not found in /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw nor its parent directory.
 
 - python -m pytest -q -> rc=2
-868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
-    parser.resetCache()
-
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
-    ParserElement.enablePackrat()
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+oolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_checksum_manager.py:17: in <module>
+    from checksum_manager import (
+E   ModuleNotFoundError: No module named 'checksum_manager'
+_______________ ERROR collecting tests/unit/test_data_loader.py ________________
+import file mismatch:
+imported module 'test_data_loader' has this __file__ attribute:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/tests/integration/test_data_loader.py
+which is not the same as the test file we want to collect:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/tests/unit/test_data_loader.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
 =========================== short test summary info ============================
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 2 errors in 1.00s ========================
+============================== 2 errors in 1.71s ===============================
 
 
 

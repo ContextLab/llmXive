@@ -1,9 +1,12 @@
 status: none
-intent: OpenNeuro ds003542 EEG raw data download via python package dataset
+intent: download OpenNeuro ds003542 EEG dataset and microstate extraction python package
+  dataset
 required_fields:
+- EEG_raw_data
+- sampling_rate
+- channel_locations
+- heat_pain_threshold_C
 - participant_id
-- eeg_file_path
-- heat_pain_threshold_celsius
-cache_key: 7095652f50a25c4959c2f8e2fffb18596b55253355faf6f0349a558eb443cd74
-searched_at: '2026-10-13T05:20:03.373803+00:00'
+cache_key: 8dbde0e9151569609e19456493dea3903312737cc00b4edda7a4e25e0130ce0a
+searched_at: '2026-10-13T08:18:13.497991+00:00'
 retry_count: 1
