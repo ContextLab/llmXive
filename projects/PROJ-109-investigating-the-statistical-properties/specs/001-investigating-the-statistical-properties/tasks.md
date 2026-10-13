@@ -8,7 +8,7 @@
 - [X] T003 Configure linting/formatting in `pyproject.toml` (black line-length 88, flake8 max-line-length 100)
 - [X] T004 [P] Create `code/config.py` with pinned seeds, paths, box sizes, critical density constants
 - [X] T006 [P] Logging infrastructure in `code/utils/logging.py`
-- [ ] T011 [P] [US1] Integration test `test_full_data_pipeline` in `tests/integration/test_data_pipeline.py`
+- [X] T011 [P] [US1] Integration test `test_full_data_pipeline` in `tests/integration/test_data_pipeline.py`
 - [ ] T012 [US1] Implement `code/data/download.py` (real-download attempt with DATA_GAP logging, FR-001)
 - [ ] T013 [US1] Halo filtering ≥300 particles in `code/data/preprocess.py` (FR-002)
 - [ ] T014 [US1] Chunked streaming writer to `data/processed/filtered_halos.parquet` (FR-002)
