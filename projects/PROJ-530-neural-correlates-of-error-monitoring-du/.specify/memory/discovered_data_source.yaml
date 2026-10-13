@@ -1,14 +1,17 @@
 status: none
-intent: Download Navigation Error Corpus EEG dataset from Zenodo repository python
-  package dataset
+intent: download Navigation Error Corpus EEG dataset Zenodo python package dataset
 required_fields:
 - participant_id
+- session_id
 - trial_id
-- eeg_signal_time_series
+- eeg_data (multichannel time series)
 - eeg_sampling_rate
-- channel_labels
-- error_event_timestamp
-- angular_error_deviation_degrees
-cache_key: 4dc3e43647b8b478400dc7cb3a5a8ac3a74daa5594fad0eeced61537f1c14d3a
-searched_at: '2026-10-10T06:19:30.247996+00:00'
+- event_type (error)
+- event_timestamp
+- error_magnitude_degrees
+- trajectory_x
+- trajectory_y
+- timestamp
+cache_key: 854aea6f4e16a878d12319787fc02e1253c473536a12bbecd64ef373e35f85e2
+searched_at: '2026-10-13T00:59:42.986862+00:00'
 retry_count: 1

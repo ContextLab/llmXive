@@ -1,15 +1,18 @@
 T001:
   task: 06546221720cfde2feceaffbe562d93a745b4385e728df2f0d1bebc494f9a21c
 T002:
+  reason: "Checked the project\u2019s `data/raw/` directory (exists with files) and\
+    \ the `data/processed/` directory (marked MISSING). The required processed data\
+    \ directory has not been created."
   task: 134c0caecd2317184adcda925610a19ab56b84c73226fe3c4b81e08c4d6e2217
 T003:
   task: 13b9aa9aa5515afc47158190011f06ad1507b3d3bed20925d89fd469760c454e
 T004:
-  reason: "The evidence provides only the project root path but no concrete files\
-    \ (e.g., `pyproject.toml`, `requirements.txt`, `environment.yml`, or similar)\
-    \ that declare a Python\u202F3.11 project and list the required dependencies.\
-    \ Without such a manifest, we cannot verify that the specified packages are included,\
-    \ so the task is not satisfied."
+  reason: The only artifact examined is the pytest run log (`code/.tasks/T004.tests_test_project_setup.py.log`),
+    which shows the test suite exiting with an error (ImportError due to a bad relative
+    import) and no evidence of a dependency manifest (e.g., `pyproject.toml`, `requirements.txt`,
+    or `environment.yml`) listing the required packages. Consequently the Python 3.11
+    project is not properly initialized with the specified dependencies.
   task: 8741d6c3cfca74257e02916782b2496194f974f974f238714e1391e61b9b824c
 T005:
   reason: "The evidence contains no linting configuration artifacts (e.g., `.flake8`,\
@@ -22,10 +25,23 @@ T005:
 T006:
   task: c1da8b55c8217734ec6ab621b1b65e9bb66e8bc31782f399da2b8cfd91224efe
 T007:
+  reason: "Checked `code/utils.py`: it sets seeds for Python\u2019s `random` and NumPy,\
+    \ but does **not** actually set a seed for PyTorch (only a commented note). The\
+    \ task required pinning the global seed for torch when it is used, which is missing."
   task: c5581d533adc9fde31ad5d39d0c0e9caf4d3664d7d59d7a116cc73dca8dfd95a
 T008:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-530-neural-correlates-of-error-monitoring-du.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: b4fef0e94a5d58515ba1e77032dfd3f2b1d0c1a4c8676388217c907f09738b12
 T009:
+  reason: "The only artifact is a static `data/preprocessing.yaml` file (1071\u202F\
+    bytes) that contains no log entries (`entries: []`) and there is no accompanying\
+    \ code or execution evidence showing that logging has been configured to write\
+    \ to this YAML and to the console. Without a logging setup script or runtime logs,\
+    \ the requirement to \u201Csetup logging infrastructure to `data/preprocessing.yaml`\
+    \ and console\u201D is not satisfied."
   task: b7af352fe5225f763237e1ccd64491ce8c3d871590226dc5dee219bbd4980f73
 T010:
   task: a0daca8e32047aa01b12691c83af0e7572f1ce92a43da61541f2f73aac0eee7e
