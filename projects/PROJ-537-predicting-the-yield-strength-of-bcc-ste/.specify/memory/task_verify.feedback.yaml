@@ -2,6 +2,11 @@ T048:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: d10a86146f7f25459a30daffdc9ff7a2352eabd1b4db97e8afc71434113d6a91
 T049:
+  reason: "The repository contains `features.py` and `train.py`, but neither script\
+    \ computes the required Pearson correlation, per\u2011fold metrics for both DFT\u2011\
+    enhanced and composition\u2011only models, nor bootstrap confidence intervals,\
+    \ and they do not generate `data/results/output.json`. The expected results file\
+    \ is missing, so the end\u2011to\u2011end analysis is not completed."
   task: 9497cc12529a7ddd90cb700b666340961d59e86ffff23396d69ad2d950e09e1c
 T050:
   task: 4ac850de176950f7f9ed520db0f7dc331eede6d08e0c98c4f773f8b41ec77ec5
