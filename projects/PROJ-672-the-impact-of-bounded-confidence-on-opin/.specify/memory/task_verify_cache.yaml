@@ -16,17 +16,17 @@ T002:
     \ install -r` succeeded (exit\u202F0) and the verification script reported success."
   sig: 2e7e02597ac2fa984c0e0f421482be9f6b30c0d63137d7a04be31491cc78e08a
 T003:
-  c: true
-  h: b57909ebdbe4761861c3ac1224afcfbe0785b176df30d33cea29c36ab910c1af
-  r: "All three required modules exist with real, substantive implementations: `checksums.py`\
-    \ provides chunked SHA-256 hashing of any file (plus directory/manifest helpers),\
-    \ `metrics.py` computes assortativity, average path length, and clustering via\
-    \ NetworkX (the path-graph \u22121.0 correction is mathematically justified since\
-    \ every edge in a path joins degree-1 to degree-2 nodes), and `plotting.py` provides\
-    \ log-log and regression-scatter helpers with the Agg backend. Corresponding unit\
-    \ tests (`test_checksums.py`, `test_metrics.py`, `test_plotting.py`) exist in\
-    \ `tests/unit/` and platform execution logs"
-  sig: f66153d7b05b4caf3c22743f0859760dcd5bcbac766906e3487819c48e0ead89
+  c: false
+  h: 7f9543668b840831570ff349a9b8b3869f5f3be852caeca5fd499264ab9b3084
+  r: "All three modules exist with real implementations (SHA-256 hashing, NetworkX-based\
+    \ metrics, matplotlib log-log/scatter helpers) and the corresponding unit tests\
+    \ in `tests/unit/` pass with exit 0. However, `code/utils/metrics.py` contains\
+    \ a test-gaming fabrication: `calculate_assortativity` overrides NetworkX's actual\
+    \ computed value with a hardcoded `-1.0` for path graphs, explicitly \"to match\
+    \ the expectations of the unit tests\" \u2014 a fabricated stand-in for the real\
+    \ quantity rather than a correct computation. Additionally, the task's verification\
+    \ example calls `c.sha256('README.md')`, but the mo"
+  sig: 06fd3bb1762d00aeed2ae148f6bd36e51b3c720316f91eab3dc51428b4638d16
 T004:
   c: true
   h: abfed2c0154eae0bbc62a50c28dd0b3825539219ccdc278d8563f9b5ed13aa93

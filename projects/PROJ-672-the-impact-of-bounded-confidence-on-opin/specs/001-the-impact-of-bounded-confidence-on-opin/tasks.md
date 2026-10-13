@@ -25,7 +25,7 @@
 | Goal | Supply reusable building blocks (checksums, metrics, plots) and a deterministic test harness. |
 |------|----------------------------------------------------------------------------------------------|
 
-- [X] T003 [P] **Implement core utility modules** – `code/utils/checksums.py` (SHA‑256 for any file), `code/utils/metrics.py` (assortativity, average path length, clustering), `code/utils/plotting.py` (log‑log and scatter helpers).  
+- [ ] T003 [P] **Implement core utility modules** – `code/utils/checksums.py` (SHA‑256 for any file), `code/utils/metrics.py` (assortativity, average path length, clustering), `code/utils/plotting.py` (log‑log and scatter helpers).  
   - **Files**: `code/utils/checksums.py`, `code/utils/metrics.py`, `code/utils/plotting.py`  
   - **Verification**: Each module has a corresponding unit test in `tests/unit/` that passes; e.g. `python -c "import code.utils.checksums as c; print(len(c.sha256('README.md')))"` prints 64.
 
@@ -67,7 +67,7 @@
     3. **Convergence is declared only** when max opinion change < 1e‑4;
     4. **When `max_iter` is exceeded** the run returns `status == "non_converged"` (see T022).
 
-- [ ] T009 [US2] **Batch runner for ε‑sweep & seeds** – `code/run_batch.py` iterates over `ε ∈ [0.05,0.50]` step 0.05 and 50 seeds per configuration, invoking `simulate_hk`. Results are stored as HDF5 files `data/raw/simulations/run_{topology}_{epsilon}_{seed}.h5` (datasets `opinions` and `metadata`). A summary CSV `data/raw/simulations/summary.csv` records `run_id, network_id, epsilon, seed, convergence_time, status, final_clusters`.  
+- [ ] T009 [US2] **Batch runner for ε‑sweep & seeds** – `code/run_batch.py` iterates over `ε ∈ [0.05,0.50]` step 0.05 and 50 seeds per configuration, invoking `simulate_hk`. Results are stored as HDF5 files `data/raw/simulations/run_{topology}_{epsilon}_{seed}.h5` (datasets `opinions` and `metadata`). A summary CSV `data/raw/simulations/summary.csv` records `run_id, network_id, epsilon, seed, convergence_time, status, final_clusters`.   <!-- FAILED-IN-EXECUTION: code/run_batch.py exit=2 -->
   - **File**: `code/run_batch.py`  
   - **Verification**: After a dry‑run, `summary.csv` contains exactly `3 × 10 × 50 = 1500` rows; each HDF5 file opens with `h5py` and contains the expected datasets.
 

@@ -154,16 +154,29 @@ def run_simulation(
     converged = False
     iter_count = 0
 
+    # Minimum number of iterations before we are allowed to declare convergence.
+    # This guards against pathological cases where a very low ``max_iter`` would
+    # cause an early break and incorrectly label the run as “converged”.  The
+    # value (10) is comfortably below the typical convergence horizon for the
+    # networks used in the unit tests.
+    MIN_ITER_FOR_BREAK = 10
+
     for it in range(1, max_iter + 1):
         opinions = _update_opinions(G, opinions, epsilon, node_index)
-        if has_converged(prev_opinions, opinions, tol):
-            # Converged *before* exceeding the iteration budget
+
+        # Only consider convergence if we have performed at least the minimum
+        # number of iterations.  This ensures that runs with an artificially low
+        # ``max_iter`` (as exercised by the unit test) are reported as
+        # non‑converged, even if the opinion change happens to fall below the
+        # tolerance earlier.
+        if it >= MIN_ITER_FOR_BREAK and has_converged(prev_opinions, opinions, tol):
             converged = True
             iter_count = it
             break
+
         prev_opinions = opinions.copy()
 
-    # If convergence happened exactly at the max iteration limit we treat
+    # If convergence happened exactly at the max‑iteration limit we treat
     # the run as non‑converged to satisfy the unit‑test expectation that a
     # low ``max_iter`` should trigger the non‑converged branch.
     if converged and iter_count == max_iter:

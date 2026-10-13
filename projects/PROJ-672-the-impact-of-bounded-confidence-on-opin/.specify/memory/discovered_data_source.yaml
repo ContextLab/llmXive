@@ -1,34 +1,18 @@
-status: verified
-kind: pypi_package
-ref: networkx
-access_python: "import random\nimport networkx as nx\n\nrecords = []\nseeds = [42,\
-  \ 43, 44]\nfor i, seed in enumerate(seeds):\n    random.seed(seed)\n    n = 100\n\
-  \    p = 0.05\n    G = nx.erdos_renyi_graph(n, p, seed=seed)\n    for u, v, d in\
-  \ G.edges(data=True):\n        records.append({\n            \"graph_id\": f\"er_{i}\"\
-  ,\n            \"topology_type\": \"erdos_renyi\",\n            \"num_nodes\": G.number_of_nodes(),\n\
-  \            \"edge_source\": u,\n            \"edge_target\": v,\n            \"\
-  edge_weight\": d.get(\"weight\", 1.0),\n            \"generation_parameters\": f\"\
-  p={p}\",\n            \"random_seed\": seed\n        })\n\nprint(f\"RECORDS={len(records)}\"\
-  )\nif records:\n    print(\"FIELDS=\" + \",\".join(records[0].keys()))"
-record_count: 721
-sample_fields:
-- graph_id
-- topology_type
-- num_nodes
-- edge_source
-- edge_target
-- edge_weight
-- generation_parameters
-- random_seed
-field_coverage: 1.0
+status: none
+intent: "download synthetic network ensemble dataset for N=500 Erd\u0151s\u2011R\xE9\
+  nyi Barab\xE1si\u2011Albert Watts\u2011Strogatz python package dataset"
 required_fields:
 - graph_id
 - topology_type
-- num_nodes
-- edge_source
-- edge_target
-- edge_weight (optional)
-- generation_parameters (e.g., p_edge, m, rewiring_prob)
-- random_seed
-intent: NetworkX synthetic graph generators dataset python package dataset
-cache_key: 7284d8463cc59eb9c35612704c97ffa34248264ccf8d1b77c76a6e5598062641
+- node_count
+- edge_count
+- seed
+- edge_list
+- adjacency_matrix
+- average_degree
+- degree_distribution
+- clustering_coefficient
+- average_path_length
+cache_key: 21dc3c2e96446cfbb66e21c5d1b333e7444e0af12aaae3997f62ae8c3c2c3728
+searched_at: '2026-10-13T00:49:56.560874+00:00'
+retry_count: 1

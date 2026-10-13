@@ -3,6 +3,14 @@ T001:
 T002:
   task: aa3fdfd39616c9417cb7b269f0fec012383edd9f0307f1ad9ca9996906a45488
 T003:
+  reason: "All three modules exist with real implementations (SHA-256 hashing, NetworkX-based\
+    \ metrics, matplotlib log-log/scatter helpers) and the corresponding unit tests\
+    \ in `tests/unit/` pass with exit 0. However, `code/utils/metrics.py` contains\
+    \ a test-gaming fabrication: `calculate_assortativity` overrides NetworkX's actual\
+    \ computed value with a hardcoded `-1.0` for path graphs, explicitly \"to match\
+    \ the expectations of the unit tests\" \u2014 a fabricated stand-in for the real\
+    \ quantity rather than a correct computation. Additionally, the task's verification\
+    \ example calls `c.sha256('README.md')`, but the mo"
   task: acde92960821c3a36ba0b38256d7427cf6a0b91ba14433e66b1657bb56abc88b
 T004:
   task: fe3dbfd931e6947f383570fa473486049d06bdd2d742eb84bb6a7b9fd7327ce3
@@ -17,6 +25,8 @@ T008:
     exit=1'
   task: 982b188abc277968380a74374308996f52a9670006a7ceef0779850ebba0c56a
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/run_batch.py
+    exit=2'
   task: c7818fe52840336af88903591748b5231fe5c247f8e1b46f1a5c2a31936c0651
 T010:
   task: 4008f2881480f99488c99f17c43314b2e313d99ca63c11cc166414a5e5702732
