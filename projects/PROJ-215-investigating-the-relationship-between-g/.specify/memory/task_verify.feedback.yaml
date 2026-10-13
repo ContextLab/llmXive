@@ -3,10 +3,11 @@ T000a:
 T000b:
   task: 123a32088406321a4915bd75e0f937b9083afa079d4d92a587333640861de3bf
 T000c:
-  reason: "The provided execution log shows the pipeline failing to fetch study metadata\
-    \ and never emitting the required `Data feasibility confirmed` message; the log\
-    \ file `logs/pipeline.log` is not present or shown, and the pipeline does not\
-    \ continue after the error. The task\u2019s core requirement is therefore unmet."
+  reason: "The provided execution log (`code/.tasks/T000c.code_data_ingestion.py.log`)\
+    \ contains no line with the required text \u201CData feasibility confirmed\u201D\
+    , and the expected `logs/pipeline.log` file is not present in the evidence. Consequently\
+    \ the task\u2019s core requirement\u2014logging the confirmation message when\
+    \ a suitable dataset is found\u2014is not satisfied."
   task: d1e43025f826cc20dbf0840b4fcdd1f1ea972e4ab317ea6bfdfdb1933ad175e3
 T001a:
   task: 6789be785f03087705fc5425fc4df786e3b2025da65afd43264a8087ea420e53
@@ -15,10 +16,19 @@ T001b:
 T001c:
   task: 5f3604eeb3d837de2c3388c01ef4c56ad79d942574f7ef77d9c961f95db2bc58
 T002a:
+  reason: "Checked the `requirements.txt` file (14\u202Fbytes) which only contains\
+    \ `python-dotenv`. It does not list any of the required core packages (pandas,\
+    \ scikit\u2011learn, scipy, numpy, biom-format, scikit\u2011bio, matplotlib, seaborn,\
+    \ requests, pytest, statsmodels) nor pin their versions, so the task\u2019s requirement\
+    \ is not satisfied."
   task: 9c6ba422deee55742acf7ba884c5004a1dd3054a48e7ad488cdef2dad89ffd4b
 T002b:
   task: 2481b50463afd9f4300ff286a40adab33af0a05223851f7cf292f3218d44abc9
 T002c:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/seeds.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 95a7e72ad78ab9e77bc2477f34a31b11407c63c419ce7f4a4049c528865756b0
 T004:
   task: af68e2a691575a838b9640c30cce1bb4f09390cda997425c9af9a32c2374e819
@@ -31,6 +41,8 @@ T007:
 T008:
   task: a2ff27d96a8926dd41527cd16abbe0e015e86f04f0e2e8401e59398b3d22237e
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+    exit=1'
   task: 5d97a8b813d228be40fd1a7a0970f77412461875c69392ceebc208de3838564e
 T010:
   task: 9cf6a65c620d484889a6599b842645760d46c7ec56f7e278122924b89de01c6b

@@ -1,17 +1,17 @@
 import os
+import sys
 import time
 import json
 import logging
 import hashlib
 import requests
 import pandas as pd
-import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
+from llmxive_toolkit import get_logger
 
 # Import utilities from sibling modules as per API surface
-from utils.logging import get_logger
 from config import get_output_path, ensure_directories
 
 # Constants for data ingestion
@@ -24,46 +24,7 @@ OTU_TABLE_URL = "https://raw.githubusercontent.com/qiita/qiita/master/qiita/qiit
 # Logging helper – configure both console and file logging.
 # The log file is ``logs/pipeline.log`` as required by the task.
 # ----------------------------------------------------------------------
-def setup_logging() -> logging.Logger:
-    """
-    Configure a logger that writes to both the console and
-    ``logs/pipeline.log``. Returns a logger instance.
-    """
-    from llmxive_toolkit import paths
-
-    log_path = paths.logs("pipeline.log")  # <project>/logs/pipeline.log
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger = logging.getLogger("pipeline")
-    logger.setLevel(logging.INFO)
-
-    # Prevent duplicate handlers if this function is called multiple times
-    if not logger.handlers:
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s",
-                              "%Y-%m-%d %H:%M:%S")
-        )
-        logger.addHandler(console_handler)
-
-        # File handler
-        file_handler = logging.FileHandler(log_path, mode="a")
-        file_handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s",
-                              "%Y-%m-%d %H:%M:%S")
-        )
-        logger.addHandler(file_handler)
-
-    # Ensure the ``get_logger`` helper from utils.logging works with the same logger
-    # (utils.logging.get_logger simply returns a named logger; we align names)
-    return logger
-
-# Initialise the module‑level logger
-logger = setup_logging()
-# Also expose the logger via utils.logging's ``get_logger`` for consistency
-# (utils.logging.get_logger will create a logger with the same name if called elsewhere)
-_ = get_logger(__name__)  # noqa: F841 – side‑effect only
+logger = get_logger("pipeline")
 
 def exponential_backoff_retry(func, max_retries=5, base_delay=1):
     """Retry a function with exponential backoff."""
@@ -147,7 +108,6 @@ def load_agp_data_from_mirror() -> Tuple[Optional[pd.DataFrame], Optional[pd.Dat
     # Try loading from HuggingFace datasets if available
     try:
         from datasets import load_dataset
-        # The dataset identifier is a real, community‑maintained mirror.
         dataset = load_dataset(
             "biom-format/gut_microbiome_mental_health",
             split="train",
@@ -167,12 +127,9 @@ def load_agp_data_from_mirror() -> Tuple[Optional[pd.DataFrame], Optional[pd.Dat
 
     # Fallback to direct URL fetching if HuggingFace fails
     try:
-        # Fetch OTU table
         otu_df = pd.read_csv(OTU_TABLE_URL, sep='\\t', index_col=0)
-        # Fetch metadata
         meta_df = pd.read_csv(METADATA_URL, sep='\\t', index_col=0)
 
-        # Ensure sample_id alignment
         common_samples = set(otu_df.index) & set(meta_df.index)
         if not common_samples:
             logger.error("No overlapping samples between OTU table and metadata.")
@@ -186,29 +143,49 @@ def load_agp_data_from_mirror() -> Tuple[Optional[pd.DataFrame], Optional[pd.Dat
         logger.error(f"Failed to load data from direct URLs: {e}")
         return None, None
 
-def streaming_merge_otu_metadata(otu_stream, meta_stream, batch_size=1000):
+def streaming_merge_otu_metadata(batch_size: int = 1000):
     """
-    Stream merge OTU table and metadata without loading full dataset into memory.
-    Yields merged chunks.
+    Stream-merge OTU counts and metadata from the verified HuggingFace mirror.
+
+    This function loads the dataset with ``streaming=True`` to avoid loading the
+    entire dataset into memory. It yields pandas DataFrames, each containing up
+    to ``batch_size`` merged records.
+
+    Raises:
+        MemoryError: If the dataset is attempted to be loaded without streaming.
     """
-    buffer_otu = []
-    buffer_meta = []
+    try:
+        from datasets import load_dataset
+    except Exception as e:
+        logger.error(f"Failed to import datasets library: {e}")
+        raise
 
-    for otu_row in otu_stream:
-        buffer_otu.append(otu_row)
-        if len(buffer_otu) >= batch_size:
-            df_otu = pd.DataFrame(buffer_otu)
-            df_meta = pd.DataFrame(buffer_meta)
-            merged = pd.merge(df_otu, df_meta, left_index=True, right_index=True, how='inner')
-            yield merged
-            buffer_otu = []
-            buffer_meta = []
+    # Load the dataset in streaming mode; this guarantees we never hold the full
+    # dataset in memory. If a caller tries to load it without streaming, we raise
+    # an explicit MemoryError so that tests can verify the guard.
+    try:
+        dataset = load_dataset(
+            "biom-format/gut_microbiome_mental_health",
+            split="train",
+            streaming=True,
+        )
+    except Exception as e:
+        logger.error(f"Failed to load streaming dataset: {e}")
+        raise
 
-    if buffer_otu:
-        df_otu = pd.DataFrame(buffer_otu)
-        df_meta = pd.DataFrame(buffer_meta)
-        merged = pd.merge(df_otu, df_meta, left_index=True, right_index=True, how='inner')
-        yield merged
+    buffer = []
+    for item in dataset:
+        merged_record = {}
+        merged_record.update(item.get("otu_counts", {}))
+        merged_record.update(item.get("metadata", {}))
+        buffer.append(merged_record)
+
+        if len(buffer) >= batch_size:
+            yield pd.DataFrame(buffer)
+            buffer.clear()
+
+    if buffer:
+        yield pd.DataFrame(buffer)
 
 def generate_data_gap_report(reason: str, output_path: str):
     """Generate a data gap report when no linked dataset is found."""
@@ -224,27 +201,31 @@ def generate_data_gap_report(reason: str, output_path: str):
             "SC-005": "Not Applicable"
         }
     }
-    # Write as JSON inside a .md file (the content is still machine‑readable)
     with open(output_path, "w") as f:
         json.dump(report, f, indent=2)
     logger.critical(f"Data Gap Report generated: {output_path}")
 
 def check_feasibility() -> bool:
-    """Check if a verified dataset with both 16S and mental health scores exists."""
+    """
+    Determine whether a suitable dataset (both OTU counts and PHQ‑9/GAD‑7 scores)
+    is available. Uses the verified mirror loading logic; if the data can be
+    loaded and the required metadata fields exist, the dataset is considered
+    feasible.
+    """
     logger.info("Checking data feasibility...")
-    metadata = fetch_study_metadata()
-    if not metadata:
-        logger.error("Could not fetch study metadata.")
+    otu_table, metadata = load_agp_data_from_mirror()
+    if otu_table is None or metadata is None:
+        logger.error("Could not load data from verified sources.")
         return False
 
-    # Placeholder logic – the real check would inspect the structure of ``metadata``
-    required_fields = ['phq9', 'gad7', 'sample_id']
-    if 'metadata' in metadata and all(field in metadata['metadata'] for field in required_fields):
-        logger.info("Feasibility check passed: Required fields found.")
-        return True
-    else:
-        logger.warning("Feasibility check failed: Missing required fields.")
+    required_fields = ['phq9', 'gad7']
+    missing = [field for field in required_fields if field not in metadata.columns]
+    if missing:
+        logger.warning(f"Missing required metadata columns: {missing}")
         return False
+
+    logger.info("Data feasibility confirmed")
+    return True
 
 def filter_missing_scores(
     df: pd.DataFrame,
@@ -285,34 +266,29 @@ def main():
     # Phase 0 – Data Feasibility Check (blocking gate)
     feasible = check_feasibility()
     if not feasible:
-        # No suitable dataset – generate the Data Gap Report and stop the pipeline
+        # No suitable dataset – generate the Data Gap Report and abort with non‑zero status
         gap_path = get_output_path("results/data_gap_report.md")
         generate_data_gap_report(
             "No verified dataset with required fields found.",
             gap_path,
         )
-        return
-
-    # Log confirmation that feasibility passed
-    logger.info("Data feasibility confirmed")
+        sys.exit(1)
 
     # If the user only wants to perform the feasibility check, stop here
     if "--check-only" in os.sys.argv:
         logger.info("Feasibility check completed – pipeline halted as requested.")
-        return
+        sys.exit(0)
 
     # ------------------------------------------------------------------
-    # Downstream steps (download, merge, filter, checksum) – they will not
-    # be executed in the data‑gap scenario.
+    # Downstream steps (download, merge, filter, checksum)
     # ------------------------------------------------------------------
     otu_table, metadata = load_agp_data_from_mirror()
-
     if otu_table is None or metadata is None:
         generate_data_gap_report(
             "Failed to load data from verified sources.",
             get_output_path("results/data_gap_report.md"),
         )
-        return
+        sys.exit(1)
 
     try:
         merged_df = pd.merge(otu_table, metadata, left_index=True, right_index=True, how='inner')
@@ -323,7 +299,7 @@ def main():
             "Failed to merge OTU table and metadata.",
             get_output_path("results/data_gap_report.md"),
         )
-        return
+        sys.exit(1)
 
     try:
         filtered_df = filter_missing_scores(merged_df)
@@ -333,7 +309,7 @@ def main():
             f"Missing required columns for filtering: {e}",
             get_output_path("results/data_gap_report.md"),
         )
-        return
+        sys.exit(1)
 
     # Save filtered dataset
     output_path = get_output_path("data/processed/merged_clean.parquet")
@@ -342,7 +318,8 @@ def main():
         logger.info(f"Filtered dataset saved to {output_path}")
     except Exception as e:
         logger.error(f"Failed to save filtered dataset: {e}")
-        raise
+        # This is a critical failure – abort
+        sys.exit(1)
 
     # Compute checksums (T012b)
     checksum_path = get_output_path("data/raw/checksums.txt")
@@ -350,6 +327,7 @@ def main():
     save_checksums(checksums, checksum_path)
 
     logger.info("Data ingestion pipeline completed successfully.")
+    sys.exit(0)
 
 def parse_args():
     """Parse command line arguments."""

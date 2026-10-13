@@ -35,10 +35,10 @@
 - [X] T001c [P] Create test directories: `mkdir -p tests/unit/ tests/integration/ tests/contract/`.  
   • Verify that each directory exists after execution.  
 
-- [~] T002a [P] Add `requirements.txt` with pinned versions for core dependencies (pandas, scikit‑learn, scipy, numpy, biom-format, scikit‑bio, matplotlib, seaborn, requests, pytest, statsmodels).  
+- [ ] T002a [P] Add `requirements.txt` with pinned versions for core dependencies (pandas, scikit‑learn, scipy, numpy, biom-format, scikit‑bio, matplotlib, seaborn, requests, pytest, statsmodels).  
   • Verify that `requirements.txt` contains at least the listed packages and that `pip install -r requirements.txt` succeeds without errors.  
 
-- [ ] T002b [P] Implement `code/scripts/generate_lock.py` to produce `requirements.lock` from `requirements.txt`.  
+- [~] T002b [P] Implement `code/scripts/generate_lock.py` to produce `requirements.lock` from `requirements.txt`.  
   • Verify that `requirements.lock` is generated and matches the installed package versions.  
 
 - [ ] T002c [P] Implement `code/seeds.py` that writes `state/seeds.yaml` containing `random_seed`, `numpy_seed`, and (if applicable) `torch_seed`.  
@@ -48,22 +48,22 @@
 
 ## Phase 2 – Foundational Infrastructure (Blocking Prerequisites)
 
-- [ ] T004 [P] Implement `code/config.py` with global paths, random seeds, and thresholds (0.1 % prevalence, 20 % rarefaction‑loss cutoff).  
+- [~] T004 [P] Implement `code/config.py` with global paths, random seeds, and thresholds (0.1 % prevalence, 20 % rarefaction‑loss cutoff).  
   • Verify that `code/config.py` can be imported and that all constants are defined.  
 
-- [ ] T005 [P] Implement logging in `code/utils/logging.py` that writes to `logs/pipeline.log` with rotation.  
+- [~] T005 [P] Implement logging in `code/utils/logging.py` that writes to `logs/pipeline.log` with rotation.  
   • Verify that after running any script, `logs/pipeline.log` is created and contains timestamped entries.  
 
-- [ ] T006 [P] Define data‑model classes (`MicrobiomeSample`, `MentalHealthRecord`, `AssociationResult`) in `code/models.py`.  
+- [~] T006 [P] Define data‑model classes (`MicrobiomeSample`, `MentalHealthRecord`, `AssociationResult`) in `code/models.py`.  
   • Verify that `code/models.py` can be imported and that each class has the required attributes.  
 
-- [ ] T007 [P] Add a `.env` file at the repository root containing required environment variables (e.g., `AGP_STUDY_ID=10317`, `DATA_URL=…`). Implement loading logic in `code/config.py` using `python-dotenv` so that all scripts obtain configuration from `os.getenv`. Verify that `code/config.py` raises a clear `RuntimeError` if any required variable is missing.  
+- [~] T007 [P] Add a `.env` file at the repository root containing required environment variables (e.g., `AGP_STUDY_ID=10317`, `DATA_URL=…`). Implement loading logic in `code/config.py` using `python-dotenv` so that all scripts obtain configuration from `os.getenv`. Verify that `code/config.py` raises a clear `RuntimeError` if any required variable is missing.  
   • Verify that `.env` exists, that `python-dotenv` loads the variables, and that missing variables cause a RuntimeError with an informative message.  
 
-- [ ] T008 [P] Implement streaming merge in `code/data_ingestion.py`: `streaming_merge_otu_metadata` reads the OTU table and metadata via `datasets.load_dataset(..., streaming=True)`, yields merged chunks, and raises `MemoryError` if a full load is attempted.  
+- [~] T008 [P] Implement streaming merge in `code/data_ingestion.py`: `streaming_merge_otu_metadata` reads the OTU table and metadata via `datasets.load_dataset(..., streaming=True)`, yields merged chunks, and raises `MemoryError` if a full load is attempted.  
   • Verify that attempting to load the full dataset without streaming raises `MemoryError`.  
 
-- [ ] T009 [P] Extend `code/data_ingestion.py` so that any network‑related exception (e.g., 404, timeout) triggers the Data Gap Report generation (same logic as T000b) and **exits gracefully** without producing placeholder data.  
+- [ ] T009 [P] Extend `code/data_ingestion.py` so that any network‑related exception (e.g., 404, timeout) triggers the Data Gap Report generation (same logic as T000b) and **exits gracefully** without producing placeholder data.   <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
   • Verify that a simulated network failure results in `results/data_gap_report.md` being written and that the script exits with a non‑zero status.  
 
 - [ ] T010 [Write] Write unit tests in `tests/unit/test_preprocessing.py` for rarefaction‑fallback logic, median‑depth calculation, and missing‑value filtering.  

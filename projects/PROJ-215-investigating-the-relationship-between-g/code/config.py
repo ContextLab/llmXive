@@ -4,11 +4,14 @@ Configuration utilities for the gut‑microbiome‑mental‑health project.
 This module provides:
   • Directory creation helpers
   • Random seed management
+  • Global path constants
+  • Threshold constants (prevalence, rarefaction‑loss)
   • A flexible ``get_output_path`` function that satisfies every call‑site
     in the codebase (see the task description for the required signatures).
   • Simple helpers for calculating median sequencing depth and estimating
     rarefaction loss.
   • Loading of a minimal config (currently just the seeds file).
+  • Environment variable loading and validation using ``python-dotenv``.
 
 The implementation deliberately avoids any heavy imports at module import
 time – only standard‑library modules and the already‑available ``llmxive_toolkit``
@@ -24,12 +27,68 @@ from typing import Any, Dict, List, Optional, Union
 import numpy as np
 import yaml
 
-from llmxive_toolkit import paths, get_logger
+# Load environment variables from a .env file at the repository root.
+# ``python-dotenv`` is declared in ``requirements.txt``.
+try:
+    from dotenv import load_dotenv
+except ImportError as exc:
+    raise ImportError(
+        "The 'python-dotenv' package is required for loading environment variables. "
+        "Please ensure it is installed (see requirements.txt)."
+    ) from exc
+
+load_dotenv()  # This will read a .env file in the current working directory.
+
+# ----------------------------------------------------------------------
+# Validate required environment variables.
+# ----------------------------------------------------------------------
+_REQUIRED_ENV_VARS = ["AGP_STUDY_ID", "DATA_URL"]
+
+_missing_vars = [var for var in _REQUIRED_ENV_VARS if os.getenv(var) is None]
+if _missing_vars:
+    raise RuntimeError(
+        f"Missing required environment variable(s): {', '.join(_missing_vars)}. "
+        "Please define them in a .env file at the repository root."
+    )
 
 # ----------------------------------------------------------------------
 # Logging
 # ----------------------------------------------------------------------
+from llmxive_toolkit import paths, get_logger
+
 _log = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Global path constants
+# ----------------------------------------------------------------------
+# These constants are used throughout the codebase (e.g. utils.logging)
+# to locate the top‑level logs directory.
+LOGS_DIR: str = str(paths.logs())
+DATA_DIR: str = str(paths.data())
+CODE_DIR: str = str(paths.code())
+RESULTS_DIR: str = str(paths.results())
+FIGURES_DIR: str = str(paths.figures())
+
+# ----------------------------------------------------------------------
+# Threshold constants
+# ----------------------------------------------------------------------
+# Prevalence threshold: 0.1 % of samples must contain a given taxon.
+PREVALENCE_THRESHOLD: float = 0.001  # 0.1 %
+# Rarefaction‑loss cutoff: if >20 % of samples would be lost, switch to VST.
+RAREFACTION_LOSS_CUTOFF: float = 0.20  # 20 %
+
+# ----------------------------------------------------------------------
+# Random seed handling
+# ----------------------------------------------------------------------
+DEFAULT_RANDOM_SEED: int = 42
+
+def set_random_seed(seed: int = DEFAULT_RANDOM_SEED) -> None:
+    """
+    Set deterministic seeds for Python's ``random`` and NumPy's RNG.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    _log.debug(f"Random seed set to {seed}")
 
 # ----------------------------------------------------------------------
 # Directory helpers
@@ -55,17 +114,6 @@ def ensure_directories(dirs: Optional[List[Union[str, Path]]] = None) -> None:
         p = Path(d)
         p.mkdir(parents=True, exist_ok=True)
         _log.debug(f"Ensured directory exists: {p}")
-
-# ----------------------------------------------------------------------
-# Random seed handling
-# ----------------------------------------------------------------------
-def set_random_seed(seed: int = 42) -> None:
-    """
-    Set deterministic seeds for Python's ``random`` and NumPy's RNG.
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-    _log.debug(f"Random seed set to {seed}")
 
 # ----------------------------------------------------------------------
 # Flexible path resolver
@@ -210,4 +258,20 @@ __all__ = [
     "calculate_median_depth",
     "estimate_rarefaction_loss",
     "load_config",
+    # Global constants
+    "LOGS_DIR",
+    "DATA_DIR",
+    "CODE_DIR",
+    "RESULTS_DIR",
+    "FIGURES_DIR",
+    "PREVALENCE_THRESHOLD",
+    "RAREFACTION_LOSS_CUTOFF",
+    "DEFAULT_RANDOM_SEED",
+    # Environment variables (exposed for convenience)
+    "AGP_STUDY_ID",
+    "DATA_URL",
 ]
+
+# Expose required environment variables as module‑level constants for easy access.
+AGP_STUDY_ID: str = os.getenv("AGP_STUDY_ID")
+DATA_URL: str = os.getenv("DATA_URL")
