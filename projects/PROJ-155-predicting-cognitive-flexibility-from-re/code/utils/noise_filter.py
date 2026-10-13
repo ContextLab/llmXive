@@ -10,7 +10,6 @@ Exposed API:
 import numpy as np
 from typing import Optional, Tuple, List, Dict, Union
 from code.config import get_config
-from code.utils.motion import calculate_mean_fd
 import logging
 
 logger = logging.getLogger(__name__)

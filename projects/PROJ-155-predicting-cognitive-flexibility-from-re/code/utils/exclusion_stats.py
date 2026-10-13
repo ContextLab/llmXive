@@ -18,7 +18,7 @@ import pandas as pd
 from typing import Dict, Any, Optional
 
 from code.data.paths import get_processed_path, get_results_path, get_raw_path, ensure_dir
-from code.utils.logging import log_warning, log_error, init_logging
+from code.utils.logging import log_error, init_logging
 
 logger = logging.getLogger(__name__)
 

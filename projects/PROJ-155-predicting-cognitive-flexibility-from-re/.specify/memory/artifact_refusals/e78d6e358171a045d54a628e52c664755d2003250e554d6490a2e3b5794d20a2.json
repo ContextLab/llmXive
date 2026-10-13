@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "85e04fca9c0a43b08f74789afb97f0912f6d9088bf15867f5360236921fc80ff",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/data/behavioral_validator.py': imports nonexistent names from sibling files: `from code.utils.logging import get_exclusion_log_path` (available: Any, Dict, Optional, _logger, init_logging, log_error, log_exclusion, log_warning...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

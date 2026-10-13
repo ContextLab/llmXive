@@ -2,8 +2,9 @@ import os
 import logging
 import pandas as pd
 from typing import Optional, Tuple, List, Dict, Any
-from code.data.paths import get_processed_path, get_raw_path, ensure_dir
-from code.utils.logging import log_error, log_warning, init_logging, log_exclusion
+
+from code.data.paths import get_processed_path, get_raw_path
+from code.utils.logging import log_error, init_logging, log_exclusion
 
 logger = logging.getLogger(__name__)
 

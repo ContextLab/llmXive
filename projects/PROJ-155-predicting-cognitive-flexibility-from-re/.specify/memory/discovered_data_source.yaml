@@ -1,12 +1,12 @@
 status: none
-intent: download HCP 1200 subject resting state fMRI NIH Toolbox Dimensional Change
-  Card Sort scores Schaefer atlas python package dataset
+intent: Human Connectome Project 1200 release minimal preprocessing with Schaefer
+  atlas python package dataset
 required_fields:
 - subject_id (string)
-- mean_fc_value (float)
-- session_index (integer)
-- schaefer_region_name (string)
-- nih_toolbox_dcc_score (float)
-cache_key: 7efc86e402bf706d6addf9bf71236a5f4acb2edfe3e331757871040f2fd0471e
-searched_at: '2026-10-12T23:16:04.706052+00:00'
+- mean_rsfc (float)
+- age (integer)
+- sex (string)
+- nih_toolbox_dccs (float)
+cache_key: 3d9568611479f87e0831d3a3eeb92915bb2ce1bc2aaadab4dd16fad1d4cbe8f7
+searched_at: '2026-10-13T00:26:32.817116+00:00'
 retry_count: 1
