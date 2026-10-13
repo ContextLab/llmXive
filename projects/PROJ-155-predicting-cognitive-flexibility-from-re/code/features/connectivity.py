@@ -12,18 +12,18 @@ high‑dimensional edge‑wise variability matrix with PCA, and writes the top
 10 principal components to ``data/processed/metrics.csv``.
 """
 
-import os
 import logging
+import os
+from collections.abc import Generator
 from pathlib import Path
-from typing import List, Dict, Any, Generator, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 from sklearn.decomposition import PCA
 
 from code.config import get_config
-from code.data.paths import get_processed_path, ensure_dir
+from code.data.paths import ensure_dir, get_processed_path
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def _get_window_indices(
     n_timepoints: int,
     window_size: int,
     step_size: int
-) -> Generator[Tuple[int, int], None, None]:
+) -> Generator[tuple[int, int], None, None]:
     """
     Yield start/end indices for each sliding window.
 
@@ -109,7 +109,7 @@ def compute_sliding_window_correlation(
 def compute_edge_metrics(
     correlation_matrices: Generator[np.ndarray, None, None],
     n_rois: int
-) -> Tuple[np.ndarray, float]:
+) -> tuple[np.ndarray, float]:
     """
     Compute edge‑wise standard deviation and Shannon entropy from a
     generator of correlation matrices.
@@ -176,7 +176,7 @@ def extract_subject_connectivity_metrics(
     timeseries: np.ndarray,
     window_size: int,
     step_size: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Compute edge‑wise variability metrics for a single subject.
 
@@ -244,7 +244,7 @@ def _run_pca_on_edge_sd(
 
 
 def run_connectivity_pipeline(
-    input_data: List[Dict[str, Any]],
+    input_data: list[dict[str, Any]],
     output_path: str = None,
     n_pca_components: int = 10
 ) -> pd.DataFrame:
@@ -320,7 +320,7 @@ def run_connectivity_pipeline(
 # CLI entry point – discovers parcellated CSVs automatically
 # ----------------------------------------------------------------------
 
-def _load_parcellated_timeseries(csv_path: Path) -> Tuple[str, np.ndarray]:
+def _load_parcellated_timeseries(csv_path: Path) -> tuple[str, np.ndarray]:
     """
     Load a single parcellated CSV produced by ``preprocess_subject``.
 

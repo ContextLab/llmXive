@@ -1,8 +1,6 @@
 T001:
-  reason: "The required directories, `requirements.txt`, `.ruff.toml`, and `code/config.py`\
-    \ are present and correct, but the `data/logs/ruff.log` contains numerous lint\
-    \ warnings/errors and does not include the \u201C\u2714 No errors\u201D message,\
-    \ so the linting verification step failed."
+  reason: 'Requested task execution failed; rerun successfully: code/lint_setup.py
+    exit=1'
   task: 11aaa1cc517612dd21fb748d9dd14d2aced6ffb1dbc6ce2bc7cab06d4a67134d
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=-1

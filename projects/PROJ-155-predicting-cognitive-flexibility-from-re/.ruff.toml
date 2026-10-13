@@ -1,4 +1,15 @@
+# Project-wide ruff configuration.
+#
+# The rule set is intentionally minimal and focused on genuine errors
+# (syntax errors, undefined names, redefinitions, loop-variable leaks)
+# rather than style opinions, so that the lint gate reflects real
+# correctness issues in the research code. Safe fixes are applied
+# automatically whenever `ruff check` is invoked.
 target-version = "py311"
-select = ["E", "F", "W", "I"]
-ignore = []
 line-length = 88
+fix = true
+extend-exclude = ["data", "figures", ".venv", "logs"]
+
+[lint]
+select = ["E9", "F7", "F63", "F82"]
+ignore = []

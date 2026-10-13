@@ -11,14 +11,20 @@ Logic:
    - `data/processed/exclusion_log.csv` (as a summary row at the bottom)
    - `data/results/regression_summary.json` (as a top-level metric)
 """
-import os
 import json
 import logging
-import pandas as pd
-from typing import Dict, Any, Optional
+import os
+from typing import Any
 
-from code.data.paths import get_processed_path, get_results_path, get_raw_path, ensure_dir
-from code.utils.logging import log_error, init_logging
+import pandas as pd
+
+from code.data.paths import (
+    ensure_dir,
+    get_processed_path,
+    get_raw_path,
+    get_results_path,
+)
+from code.utils.logging import init_logging, log_error
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +38,7 @@ def get_total_subjects_from_manifest() -> int:
     number of subjects attempted.
     """
     manifest_path = os.path.join(get_raw_path(), "manifest.json")
-    
+
     if not os.path.exists(manifest_path):
         # Fallback: check if there's a specific manifest file name defined in T012
         # If the manifest is missing, we cannot calculate the rate accurately.
@@ -42,9 +48,9 @@ def get_total_subjects_from_manifest() -> int:
             "Cannot calculate success rate without total subject count."
         )
 
-    with open(manifest_path, 'r') as f:
+    with open(manifest_path) as f:
         manifest_data = json.load(f)
-    
+
     # Assuming the manifest structure is {'subjects': [...]} or similar list
     if isinstance(manifest_data, list):
         return len(manifest_data)
@@ -54,16 +60,16 @@ def get_total_subjects_from_manifest() -> int:
         # Try to count keys if it's a dict of subject_id -> data
         if isinstance(manifest_data, dict):
             return len(manifest_data)
-        
+
         raise ValueError(f"Unexpected manifest structure at {manifest_path}")
 
-def calculate_success_rate() -> Dict[str, Any]:
+def calculate_success_rate() -> dict[str, Any]:
     """
     Calculates the proportion of processed subjects.
     Returns a dictionary with the metrics.
     """
     exclusion_log_path = os.path.join(get_processed_path(), "exclusion_log.csv")
-    
+
     if not os.path.exists(exclusion_log_path):
         raise FileNotFoundError(
             f"Exclusion log not found at {exclusion_log_path}. "
@@ -71,7 +77,7 @@ def calculate_success_rate() -> Dict[str, Any]:
         )
 
     df = pd.read_csv(exclusion_log_path)
-    
+
     if df.empty:
         # If the log is empty, it might mean no exclusions were logged yet,
         # or the file is just headers. We need to be careful.
@@ -95,15 +101,15 @@ def calculate_success_rate() -> Dict[str, Any]:
         "Pro_Processed": pro_processed
     }
 
-def update_exclusion_log(metrics: Dict[str, Any]) -> None:
+def update_exclusion_log(metrics: dict[str, Any]) -> None:
     """
     Appends a summary row to the exclusion log CSV.
     """
     exclusion_log_path = os.path.join(get_processed_path(), "exclusion_log.csv")
-    
+
     # Read existing log
     df = pd.read_csv(exclusion_log_path)
-    
+
     # Create a summary row
     # Columns in exclusion_log are typically: Subject_ID, Exclusion_Reason, Mean_FD
     # We will use special values for the summary row to indicate it's a summary.
@@ -112,56 +118,56 @@ def update_exclusion_log(metrics: Dict[str, Any]) -> None:
         "Exclusion_Reason": "Success_Rate_Calc",
         "Mean_FD": metrics["Pro_Processed"]
     }
-    
+
     # Append to dataframe
     summary_df = pd.DataFrame([summary_row])
     df = pd.concat([df, summary_df], ignore_index=True)
-    
+
     # Save back
     df.to_csv(exclusion_log_path, index=False)
     logger.info(f"Updated exclusion log with summary row at {exclusion_log_path}")
 
-def update_regression_summary(metrics: Dict[str, Any]) -> None:
+def update_regression_summary(metrics: dict[str, Any]) -> None:
     """
     Writes the success rate metric to the regression summary JSON.
     """
     results_path = get_results_path()
     ensure_dir(results_path)
     summary_file = os.path.join(results_path, "regression_summary.json")
-    
+
     existing_data = {}
     if os.path.exists(summary_file):
-        with open(summary_file, 'r') as f:
+        with open(summary_file) as f:
             existing_data = json.load(f)
-    
+
     # Update with new metrics
     existing_data["SC_001_Success_Rate"] = metrics["Pro_Processed"]
     existing_data["Total_Subjects"] = metrics["Total_Subjects"]
     existing_data["Excluded_Count"] = metrics["Excluded_Count"]
     existing_data["Processed_Count"] = metrics["Processed_Count"]
-    
+
     with open(summary_file, 'w') as f:
         json.dump(existing_data, f, indent=2)
-    
+
     logger.info(f"Updated regression summary at {summary_file}")
 
-def run_success_rate_pipeline() -> Dict[str, Any]:
+def run_success_rate_pipeline() -> dict[str, Any]:
     """
     Main entry point for Task T015a.
     """
     init_logging()
     logger.info("Starting T015a: Success Rate Calculation (SC-001)")
-    
+
     try:
         metrics = calculate_success_rate()
         logger.info(f"Calculated success rate: {metrics['Pro_Processed']:.4f}")
-        
+
         update_exclusion_log(metrics)
         update_regression_summary(metrics)
-        
+
         logger.info("T015a completed successfully.")
         return metrics
-        
+
     except Exception as e:
         log_error(f"Failed to calculate success rate: {str(e)}")
         raise

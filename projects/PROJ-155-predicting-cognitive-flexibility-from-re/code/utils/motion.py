@@ -1,10 +1,10 @@
 """
 Motion artifact handling.
 """
+
 import numpy as np
 import pandas as pd
-from typing import Tuple, List
-from code.config import get_config
+
 
 def calculate_mean_fd(motion_params: np.ndarray) -> float:
     if motion_params.ndim != 2 or motion_params.shape[1] != 6:
@@ -15,7 +15,7 @@ def calculate_mean_fd(motion_params: np.ndarray) -> float:
     fd = np.sum(np.abs(diffs), axis=1)
     return float(np.mean(fd))
 
-def filter_by_motion(df: pd.DataFrame, threshold: float = 0.2) -> Tuple[pd.DataFrame, List[str]]:
+def filter_by_motion(df: pd.DataFrame, threshold: float = 0.2) -> tuple[pd.DataFrame, list[str]]:
     if "Mean_FD" not in df.columns:
         return df, []
     excluded = df[df["Mean_FD"] > threshold]["Subject_ID"].tolist()

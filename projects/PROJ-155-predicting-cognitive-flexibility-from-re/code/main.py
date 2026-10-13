@@ -5,8 +5,8 @@ import logging
 import sys
 
 from code.data.download import download_hcp_subset
-from code.data.preprocess import run_preprocessing_pipeline
 from code.data.merge import run_merge_pipeline
+from code.data.preprocess import run_preprocessing_pipeline
 from code.features.connectivity import main as connectivity_main
 
 logging.basicConfig(level=logging.INFO)

@@ -3,21 +3,21 @@ Preprocessing module for rs-fMRI data.
 Parcellates fMRI time‑series using the Schaefer 200‑region atlas and saves
 region‑wise time‑series as NumPy ``.npy`` files.
 """
-import os
 import logging
-from typing import List, Optional
+import os
+
+import nilearn.datasets as nd
 import numpy as np
 import pandas as pd
-import nilearn.datasets as nd
 from nilearn.maskers import NiftiLabelsMasker
 
-from code.data.paths import get_raw_path, get_processed_path, ensure_dir
+from code.data.paths import ensure_dir, get_processed_path, get_raw_path
 from code.utils.logging import init_logging
 
 logger = logging.getLogger(__name__)
 
 
-def run_preprocessing_pipeline(subject_ids: Optional[List[str]] = None) -> int:
+def run_preprocessing_pipeline(subject_ids: list[str] | None = None) -> int:
     """
     Execute the preprocessing pipeline for the given subjects.
 
@@ -47,7 +47,7 @@ def run_preprocessing_pipeline(subject_ids: Optional[List[str]] = None) -> int:
         ]
 
     processed_count = 0
-    neuro_features: List[dict] = []
+    neuro_features: list[dict] = []
 
     masker = NiftiLabelsMasker(labels_img=atlas_img, standardize=True)
 

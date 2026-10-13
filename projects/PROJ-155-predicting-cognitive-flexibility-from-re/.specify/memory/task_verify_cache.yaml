@@ -1,8 +1,0 @@
-T001:
-  c: false
-  h: 7a351274b422fe32ba9b5221e11eebdc44687ac6d3bc2d3c1a0b894695364856
-  r: "The required directories, `requirements.txt`, `.ruff.toml`, and `code/config.py`\
-    \ are present and correct, but the `data/logs/ruff.log` contains numerous lint\
-    \ warnings/errors and does not include the \u201C\u2714 No errors\u201D message,\
-    \ so the linting verification step failed."
-  sig: 4267442607bacf1d882fd058c31c580d1fcb63a307ddedd88d7b7ae3701a9161

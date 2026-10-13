@@ -8,9 +8,10 @@ Usage:
     python code/utils/validate_exclusions.py
 """
 
+import logging
 import os
 import sys
-import logging
+
 import pandas as pd
 
 # Add project root to path if running as script
@@ -18,7 +19,6 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from code.utils.logging import get_exclusion_log_path, init_logging, log_error
-from code.data.paths import ensure_dir
 
 logger = logging.getLogger(__name__)
 

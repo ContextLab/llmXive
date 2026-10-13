@@ -2,11 +2,12 @@
 Setup skeleton: create directories, pin dependencies, and verify linting.
 This script is the entry point for T001.
 """
-import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
+
 from llmxive_toolkit import paths
+
 
 def ensure_dir(path: Path) -> None:
     """Ensure that path exists as a directory."""
@@ -56,7 +57,7 @@ def main() -> int:
         print(f"  ✗ {config_file} not found")
         return 1
 
-    with open(config_file, 'r') as f:
+    with open(config_file) as f:
         config_content = f.read()
 
     required_constants = ["SEED", "WINDOW_SEC", "STEP_SEC", "FD_THRESHOLD", "BATCH_SIZE"]
@@ -83,7 +84,7 @@ def main() -> int:
                 f.write(result.stderr)
 
         # Read back the log to check for "No errors"
-        with open(log_path, 'r') as f:
+        with open(log_path) as f:
             log_content = f.read()
 
         # ruff check outputs "✔ X files checked, no errors" or similar
@@ -91,13 +92,13 @@ def main() -> int:
             print(f"  ✓ Linting passed (log: {log_path})")
         else:
             print(f"  ⚠ Linting check complete (log: {log_path})")
-            print(f"     Note: ruff may have reported style issues that are non-blocking.")
+            print("     Note: ruff may have reported style issues that are non-blocking.")
 
     except subprocess.TimeoutExpired:
-        print(f"  ✗ Ruff check timed out")
+        print("  ✗ Ruff check timed out")
         return 1
     except FileNotFoundError:
-        print(f"  ⚠ ruff not found; skipping linting (ensure it's installed)")
+        print("  ⚠ ruff not found; skipping linting (ensure it's installed)")
         # Write a placeholder log
         with open(log_path, 'w') as f:
             f.write("ruff not installed; linting skipped.\n")

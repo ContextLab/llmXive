@@ -4,13 +4,12 @@ Fetches real fMRI data from Nilearn's development dataset (as a publicly accessi
 source) and prepares it in a layout compatible with the pipeline.
 Computes SHA-256 checksums for all raw files to satisfy Constitution Principle III.
 """
-import json
 import hashlib
+import json
 from pathlib import Path
-from typing import List, Dict, Any
 
-import pandas as pd
 import nilearn.datasets as nd
+import pandas as pd
 from llmxive_toolkit import paths
 
 # Import the helper that returns the correct raw data directory for the project.
@@ -35,7 +34,7 @@ def _write_checksums(root_dir: Path) -> None:
     """
     checksum_path = paths.data("raw", "checksums.json")
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    checksums: Dict[str, str] = {}
+    checksums: dict[str, str] = {}
     for file_path in root_dir.rglob("*"):
         if file_path.is_file():
             rel_path = file_path.relative_to(paths.root).as_posix()

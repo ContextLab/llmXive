@@ -4,7 +4,9 @@ to ``data/logs/ruff.log``. The log is expected to contain the line
 ``✔ No errors`` which is used by the verification step of T001.
 """
 import subprocess
+
 from llmxive_toolkit import paths
+
 
 def main() -> None:
     # Ensure the logs directory exists

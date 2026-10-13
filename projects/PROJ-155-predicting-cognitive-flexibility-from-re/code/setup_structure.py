@@ -2,10 +2,9 @@
 Project structure setup and verification utilities.
 Creates the required directory tree and verifies its existence.
 """
+import logging
 import os
 import sys
-import logging
-from typing import List
 
 # Configure logging
 logging.basicConfig(

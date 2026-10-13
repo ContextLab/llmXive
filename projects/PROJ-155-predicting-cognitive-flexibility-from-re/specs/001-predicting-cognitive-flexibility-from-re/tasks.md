@@ -6,7 +6,7 @@
 
 The goal of this phase is to obtain a runnable pipeline on a tiny real‑data subset (e.g., 5 HCP subjects) that produces all required intermediate files and a preliminary regression result.
 
-- [ ] T001 [US1] **Create project skeleton, pin dependencies, and verify linting**  
+- [ ] T001 [US1] **Create project skeleton, pin dependencies, and verify linting**   <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 -->
   *Create directories* `code/`, `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `docs/`, `tests/`.  
   *Write* `requirements.txt` (numpy, pandas, scipy, statsmodels, nibabel, nilearn, scikit‑learn, tqdm, pyyaml, nitime, pytest, ruff).  
   *Add* `.ruff.toml` with the project‑wide linting configuration.  

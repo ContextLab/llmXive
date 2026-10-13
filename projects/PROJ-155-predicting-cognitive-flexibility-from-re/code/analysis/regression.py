@@ -1,15 +1,15 @@
-import os
 import json
 import logging
-from typing import Dict, Any, Optional, Tuple
+import os
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-from code.config import get_config
-from code.data.paths import get_processed_path, get_results_path, ensure_dir
-from code.analysis.permutation import run_permutation_test
 from code.analysis.p_value_formatter import format_p_value
+from code.analysis.permutation import run_permutation_test
+from code.data.paths import ensure_dir, get_processed_path, get_results_path
 
 logger = logging.getLogger(__name__)
 
@@ -23,22 +23,22 @@ def load_regression_dataset() -> pd.DataFrame:
     """
     metrics_path = os.path.join(get_processed_path(), "metrics.csv")
     behavioral_path = os.path.join(get_processed_path(), "merged_behavioral.csv")
-    
+
     if not os.path.exists(metrics_path):
         raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
     if not os.path.exists(behavioral_path):
         raise FileNotFoundError(f"Behavioral file not found: {behavioral_path}")
-        
+
     df_metrics = pd.read_csv(metrics_path)
     df_behavioral = pd.read_csv(behavioral_path)
-    
+
     # Merge on Subject_ID
     df = pd.merge(df_metrics, df_behavioral, on="Subject_ID", how="inner")
-    
+
     # Drop rows with any missing values in key columns
     key_cols = ["Variability_Metric", "Flexibility_Score", "Age", "Sex", "Mean_FD", "Total_Scan_Time"]
     df = df.dropna(subset=key_cols)
-    
+
     return df
 
 def encode_sex(sex_series: pd.Series) -> pd.Series:
@@ -54,7 +54,7 @@ def encode_sex(sex_series: pd.Series) -> pd.Series:
     sex_clean = sex_series.str.lower().str.strip()
     return sex_clean.map({"f": 0, "female": 0, "m": 1, "male": 1})
 
-def run_linear_regression(df: pd.DataFrame) -> Dict[str, Any]:
+def run_linear_regression(df: pd.DataFrame) -> dict[str, Any]:
     """
     Run linear regression: Flexibility_Score ~ Variability_Metric + Age + Sex + Mean_FD + Total_Scan_Time
     
@@ -68,34 +68,34 @@ def run_linear_regression(df: pd.DataFrame) -> Dict[str, Any]:
     X = df[["Variability_Metric", "Age", "Sex", "Mean_FD", "Total_Scan_Time"]].copy()
     X["Sex"] = encode_sex(df["Sex"])
     X = X.values
-    
+
     y = df["Flexibility_Score"].values
-    
+
     # Add intercept
     X_with_intercept = np.column_stack([np.ones(X.shape[0]), X])
-    
+
     # Solve using least squares
     try:
         coeffs, residuals, rank, s = np.linalg.lstsq(X_with_intercept, y, rcond=None)
     except np.linalg.LinAlgError as e:
         logger.error(f"Linear algebra error during regression: {e}")
         raise
-    
+
     # Calculate predictions and residuals
     y_pred = X_with_intercept @ coeffs
     residuals_calc = y - y_pred
-    
+
     # Calculate R-squared
     ss_res = np.sum(residuals_calc ** 2)
     ss_tot = np.sum((y - np.mean(y)) ** 2)
     r_squared = 1 - (ss_res / ss_tot)
-    
+
     # Calculate standard errors and p-values for coefficients
     # Covariance matrix of coefficients: sigma^2 * (X^T X)^-1
     n = len(y)
     p = X_with_intercept.shape[1]
     sigma_squared = ss_res / (n - p)
-    
+
     try:
         XtX_inv = np.linalg.inv(X_with_intercept.T @ X_with_intercept)
     except np.linalg.LinAlgError:
@@ -104,13 +104,13 @@ def run_linear_regression(df: pd.DataFrame) -> Dict[str, Any]:
         p_values = np.full(p, np.nan)
     else:
         se = np.sqrt(sigma_squared * np.diag(XtX_inv))
-        
+
         # t-statistics
         t_stats = coeffs / se
-        
+
         # p-values (two-tailed)
         p_values = 2 * (1 - stats.t.cdf(np.abs(t_stats), df=n-p))
-    
+
     # Format results
     results = {
         "intercept": float(coeffs[0]),
@@ -146,10 +146,10 @@ def run_linear_regression(df: pd.DataFrame) -> Dict[str, Any]:
         "r_squared": float(r_squared),
         "n_subjects": int(n)
     }
-    
+
     return results
 
-def save_regression_summary(results: Dict[str, Any], output_path: Optional[str] = None) -> str:
+def save_regression_summary(results: dict[str, Any], output_path: str | None = None) -> str:
     """
     Save regression results to JSON, formatting p-values per T032.
     
@@ -162,25 +162,25 @@ def save_regression_summary(results: Dict[str, Any], output_path: Optional[str] 
     """
     if output_path is None:
         output_path = os.path.join(get_results_path(), "regression_summary.json")
-        
+
     ensure_dir(os.path.dirname(output_path))
-    
+
     # Format p-values for human readability (T032 requirement)
     formatted_results = results.copy()
-    
+
     # Format intercept p-value
     if formatted_results["intercept_p"] is not None:
         formatted_results["intercept_p_str"] = format_p_value(formatted_results["intercept_p"])
-        
+
     # Format coefficient p-values
     for key in formatted_results["coefficients"]:
         p_val = formatted_results["coefficients"][key]["p_value"]
         if p_val is not None:
             formatted_results["coefficients"][key]["p_value_str"] = format_p_value(p_val)
-            
+
     with open(output_path, 'w') as f:
         json.dump(formatted_results, f, indent=2)
-        
+
     logger.info(f"Regression summary saved to {output_path}")
     return output_path
 
@@ -194,40 +194,40 @@ def run_regression_pipeline() -> str:
     logger.info("Starting regression pipeline")
     df = load_regression_dataset()
     logger.info(f"Loaded {len(df)} subjects for regression")
-    
+
     results = run_linear_regression(df)
     logger.info(f"Regression completed. R^2 = {results['r_squared']:.4f}")
-    
+
     # Run permutation test for Variability_Metric significance
     # Extract the specific variable for permutation
     X_perm = df[["Variability_Metric", "Age", "Sex", "Mean_FD", "Total_Scan_Time"]].copy()
     X_perm["Sex"] = encode_sex(df["Sex"])
     y_perm = df["Flexibility_Score"].values
-    
+
     # We need to test the coefficient of Variability_Metric
     # Permutation test: shuffle y and re-fit to get null distribution of the coefficient
     logger.info("Running permutation test for Variability_Metric significance...")
-    
+
     # Run permutation test (10,000 iterations as per T031)
     # We pass the data and the index of the coefficient we care about (1 for Variability_Metric)
     perm_p_value = run_permutation_test(
-        X=X_perm.values, 
-        y=y_perm, 
-        target_coef_idx=1, 
+        X=X_perm.values,
+        y=y_perm,
+        target_coef_idx=1,
         n_permutations=10000
     )
-    
+
     logger.info(f"Permutation test p-value: {perm_p_value}")
-    
+
     # Update the Variability_Metric p-value with the permutation result
     results["coefficients"]["Variability_Metric"]["p_value"] = perm_p_value
     results["coefficients"]["Variability_Metric"]["p_value_str"] = format_p_value(perm_p_value)
     results["permutation_iterations"] = 10000
-    
+
     # Save results
     output_path = save_regression_summary(results)
     logger.info("Regression pipeline completed successfully")
-    
+
     return output_path
 
 def main():

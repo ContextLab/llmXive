@@ -4,7 +4,8 @@ pipeline parameters.
 """
 import os
 import random
-from typing import Dict, Any
+from typing import Any
+
 import numpy as np
 
 # Constants required by the task specification
@@ -15,7 +16,7 @@ FD_THRESHOLD = 0.2
 BATCH_SIZE = 20
 
 # Internal configuration dictionary (used by other modules)
-_CONFIG: Dict[str, Any] = {
+_CONFIG: dict[str, Any] = {
     "seed": SEED,
     "tr": float(os.getenv("TR", "0.72")),  # HCP repetition time in seconds
     "window_seconds": WINDOW_SEC,
@@ -33,7 +34,7 @@ def set_seed(seed: int = SEED) -> None:
     np.random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
 
-def get_config() -> Dict[str, Any]:
+def get_config() -> dict[str, Any]:
     """
     Return a copy of the current configuration dictionary.
     """

@@ -1,10 +1,10 @@
 import os
-import csv
-from typing import Dict, List, Optional, Tuple, Any
-import numpy as np
+
 import nibabel as nib
 import pandas as pd
+
 from code.data.paths import get_raw_path
+
 
 def load_nifti(nifti_path: str) -> nib.Nifti1Image:
     """
@@ -20,7 +20,7 @@ def load_nifti(nifti_path: str) -> nib.Nifti1Image:
         raise FileNotFoundError(f"NIfTI file not found: {nifti_path}")
     return nib.load(nifti_path)
 
-def load_behavioral_csv(subject_id: str) -> Optional[pd.DataFrame]:
+def load_behavioral_csv(subject_id: str) -> pd.DataFrame | None:
     """
     Loads the behavioral data CSV for a specific subject.
     
@@ -33,17 +33,17 @@ def load_behavioral_csv(subject_id: str) -> Optional[pd.DataFrame]:
     raw_path = get_raw_path()
     file_name = f"HCP1200_allData_{subject_id}_Release20220522.csv"
     file_path = os.path.join(raw_path, subject_id, file_name)
-    
+
     if not os.path.exists(file_path):
         return None
-    
+
     try:
         df = pd.read_csv(file_path)
         return df
     except Exception as e:
         raise RuntimeError(f"Failed to load behavioral data for {subject_id}: {e}")
 
-def validate_subject_data(subject_id: str, data_files: Dict[str, str]) -> bool:
+def validate_subject_data(subject_id: str, data_files: dict[str, str]) -> bool:
     """
     Validates that all required data files exist for a subject.
     

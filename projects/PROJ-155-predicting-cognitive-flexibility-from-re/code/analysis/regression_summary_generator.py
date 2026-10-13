@@ -8,26 +8,24 @@ It reads the regression coefficients from the internal state (or re-runs the
 regression if not cached) and combines them with the permutation p-value
 and success rate metrics.
 """
-import os
 import json
 import logging
-from typing import Dict, Any, Optional
+import os
+from typing import Any
 
 import numpy as np
-import pandas as pd
-from scipy import stats
 
-from code.config import get_config
-from code.data.paths import get_results_path, ensure_dir
-from code.analysis.regression import run_linear_regression, load_regression_dataset
-from code.analysis.permutation import run_permutation_test
-from code.utils.exclusion_stats import calculate_success_rate
 from code.analysis.p_value_formatter import format_p_value
+from code.analysis.permutation import run_permutation_test
+from code.analysis.regression import load_regression_dataset, run_linear_regression
+from code.config import get_config
+from code.data.paths import ensure_dir, get_results_path
+from code.utils.exclusion_stats import calculate_success_rate
 
 logger = logging.getLogger(__name__)
 
 
-def load_regression_results() -> Optional[Dict[str, Any]]:
+def load_regression_results() -> dict[str, Any] | None:
     """
     Loads regression results from the summary JSON if it exists, otherwise
     computes them.
@@ -35,9 +33,9 @@ def load_regression_results() -> Optional[Dict[str, Any]]:
     results_path = get_results_path("regression_summary.json")
     if os.path.exists(results_path):
         try:
-            with open(results_path, 'r') as f:
+            with open(results_path) as f:
                 return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
+        except (OSError, json.JSONDecodeError) as e:
             logger.warning(f"Could not load existing regression summary: {e}. Recomputing.")
     return None
 
@@ -54,7 +52,7 @@ def compute_success_rate() -> float:
         return 0.0
 
 
-def generate_regression_summary() -> Dict[str, Any]:
+def generate_regression_summary() -> dict[str, Any]:
     """
     Generates the full regression summary dictionary.
 
@@ -72,26 +70,26 @@ def generate_regression_summary() -> Dict[str, Any]:
     try:
         # Load the merged dataset
         df = load_regression_dataset()
-        
+
         if df is None or df.empty:
             raise ValueError("No data available for regression analysis.")
 
         # Run the regression (this fits the model and returns stats)
-        # Note: run_linear_regression in code/analysis/regression.py is expected 
-        # to return the stats dictionary or the model object. 
+        # Note: run_linear_regression in code/analysis/regression.py is expected
+        # to return the stats dictionary or the model object.
         # Based on the API surface, we assume it returns a dict or we extract it.
         # Let's assume the function returns the stats dict directly for this implementation.
         # If it returns a model object, we would extract summary().
-        
+
         # Re-implementing the core logic here to ensure we get the stats dict
         # since the API surface for run_linear_regression isn't fully detailed in the prompt.
         # We will assume it returns a dict with 'params', 'bse', 'rsquared', etc.
-        
-        # Fallback: Run the pipeline function which might handle the saving, 
+
+        # Fallback: Run the pipeline function which might handle the saving,
         # but we need the raw stats for T034 specifically.
         # Let's assume run_linear_regression returns the summary stats dict.
         regression_stats = run_linear_regression(df)
-        
+
         if not isinstance(regression_stats, dict):
             # If it returns a statsmodels result, extract it
             if hasattr(regression_stats, 'summary2'):
@@ -100,12 +98,12 @@ def generate_regression_summary() -> Dict[str, Any]:
                 bse = regression_stats.bse
                 rsquared = regression_stats.rsquared
                 pvalues = regression_stats.pvalues
-                
+
                 # We need the specific 'Variability' coefficient
                 variability_key = 'Variability_Metric' # or whatever the column is named
-                # If the column was encoded, it might be different. 
+                # If the column was encoded, it might be different.
                 # Assuming standard naming based on T030 description.
-                
+
                 beta = float(params[variability_key])
                 se = float(bse[variability_key])
                 r = float(np.sqrt(rsquared))
@@ -182,7 +180,7 @@ def generate_regression_summary() -> Dict[str, Any]:
     return summary
 
 
-def save_regression_summary(summary: Dict[str, Any], output_path: Optional[str] = None) -> str:
+def save_regression_summary(summary: dict[str, Any], output_path: str | None = None) -> str:
     """
     Saves the regression summary to a JSON file.
     
@@ -195,25 +193,25 @@ def save_regression_summary(summary: Dict[str, Any], output_path: Optional[str] 
     """
     if output_path is None:
         output_path = get_results_path("regression_summary.json")
-    
+
     ensure_dir(output_path)
-    
+
     with open(output_path, 'w') as f:
         json.dump(summary, f, indent=2)
-        
+
     logger.info(f"Regression summary saved to {output_path}")
     return output_path
 
 
-def run_regression_summary_pipeline() -> Dict[str, Any]:
+def run_regression_summary_pipeline() -> dict[str, Any]:
     """
     Main entry point for Task T034.
     """
     logger.info("Starting T034: Regression Summary Generation")
-    
+
     summary = generate_regression_summary()
     save_path = save_regression_summary(summary)
-    
+
     logger.info("T034 completed successfully.")
     return summary
 
