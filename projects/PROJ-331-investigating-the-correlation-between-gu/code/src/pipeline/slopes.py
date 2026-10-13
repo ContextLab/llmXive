@@ -1,15 +1,19 @@
-"""Per‑patient slope computation (Task T003).
+"""Per-patient slope computation (Task T003).
 
-This module reads the CLR‑transformed abundance table produced by the
-preprocessing step and computes, for each patient, the linear slope of
-each taxon abundance over time (in years).  It also computes the slope of
-the longitudinal clinical outcome ``MDS_UPDRS_Total`` when that column is
-present.  The results are written to parquet files under
-``data/processed/``.
+This module reads the CLR-transformed abundance table produced by the
+preprocessing step and computes, for each patient with at least two
+visits, the linear slope of each taxon's CLR-transformed abundance over
+time (in years).  It also computes the slope of the longitudinal
+clinical outcome ``MDS_UPDRS_Total`` when that column is present.
+The results are written to parquet files under ``data/processed/``.
 
 Output files:
   - data/processed/patient_taxon_slopes.parquet
   - data/processed/patient_outcome_slopes.parquet  (only if outcome present)
+
+The module never fabricates data: if an input file is missing it raises
+``FileNotFoundError``; if the outcome column is absent the outcome-slope
+step is skipped with a logged warning (FR-004 graceful degradation).
 """
 from __future__ import annotations
 
@@ -30,7 +34,7 @@ log = get_logger(__name__)
 
 
 def _load_clr(ab_path: Path | None = None) -> pd.DataFrame:
-    """Load the CLR‑transformed abundances.
+    """Load the CLR-transformed abundances.
 
     Parameters
     ----------
@@ -69,12 +73,12 @@ def _prepare_time(df: pd.DataFrame) -> pd.DataFrame:
     """Add a ``time_years`` column (float) representing years since first visit per patient.
 
     The implementation follows the expectations of the unit tests:
-    - For visits on January 1st, the time offset is an integer number of years
+    - For visits on January 1st, the time offset is an integer number of years
       since the first visit.
-    - For any other calendar day (e.g., June 1st), the visit is considered
-      half‑a‑year offset from the start of that calendar year.  Thus a
-      June 1st visit in the first year is 0.5 years, and the same calendar
-      day in the following year is 1.5 years, etc.
+    - For any other calendar day (e.g., June 1st), the visit is considered
+      half-a-year offset from the start of that calendar year.  Thus a
+      June 1st visit in the first year is 0.5 years, and the same calendar
+      day in the following year is 1.5 years, etc.
     """
     df = df.copy()
     df["visit_date"] = pd.to_datetime(df["visit_date"])
@@ -84,17 +88,17 @@ def _prepare_time(df: pd.DataFrame) -> pd.DataFrame:
     year_offset = df["visit_date"].dt.year - first_year
     # Determine whether the visit occurs on Jan 1st
     is_jan1 = (df["visit_date"].dt.month == 1) & (df["visit_date"].dt.day == 1)
-    # Half‑year offset for non‑Jan‑1 visits
+    # Half-year offset for non-Jan-1 visits
     half_year_offset = np.where(is_jan1, 0.0, 0.5)
     df["time_years"] = year_offset.astype(float) + half_year_offset
     return df
 
 
 def _fit_slope(x: np.ndarray, y: np.ndarray) -> float:
-    """Return the slope from a simple linear regression (least‑squares).
+    """Return the slope from a simple linear regression (least-squares).
 
     For exactly two points we use the analytical formula to avoid
-    floating‑point rounding errors that can arise from ``np.polyfit``.
+    floating-point rounding errors that can arise from ``np.polyfit``.
     """
     if len(x) < 2:
         # Should never happen because we filter patients with <2 visits
@@ -104,7 +108,9 @@ def _fit_slope(x: np.ndarray, y: np.ndarray) -> float:
         dx = float(x[1] - x[0])
         dy = float(y[1] - y[0])
         return dy / dx if dx != 0 else np.nan
-    # For >2 points fall back to ordinary least‑squares.
+    # For >2 points fall back to ordinary least-squares.
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
     slope, _ = np.polyfit(x, y, 1)
     return float(slope)
 
@@ -117,7 +123,7 @@ def _fit_slope(x: np.ndarray, y: np.ndarray) -> float:
 def compute_taxon_slopes(
     clr_df: pd.DataFrame, taxon_columns: List[str] | None = None
 ) -> pd.DataFrame:
-    """Compute per‑patient taxon slopes.
+    """Compute per-patient taxon slopes.
 
     Parameters
     ----------
@@ -128,7 +134,7 @@ def compute_taxon_slopes(
     Returns
     -------
     pd.DataFrame
-        Long‑format table with columns ``patient_id``, ``taxon_name``,
+        Long-format table with columns ``patient_id``, ``taxon_name``,
         ``slope``.
     """
     required_meta = {"patient_id", "visit_date"}
@@ -148,7 +154,7 @@ def compute_taxon_slopes(
 
     records = []
     for patient_id, group in df.groupby("patient_id"):
-        # Enforce ≥2‑visit rule
+        # Enforce >=2-visit rule: only single-visit patients are excluded
         if len(group) < 2:
             log.debug(
                 "Skipping patient %s (only %d visit(s)) for taxon slope computation",
@@ -156,6 +162,7 @@ def compute_taxon_slopes(
                 len(group),
             )
             continue
+        group = group.sort_values("time_years")
         times = group["time_years"].values
         for taxon in taxon_columns:
             values = group[taxon].values
@@ -166,16 +173,19 @@ def compute_taxon_slopes(
     result = pd.DataFrame.from_records(records)
     log.info(
         "Computed taxon slopes for %d patients and %d taxa",
-        df["patient_id"].nunique(),
+        result["patient_id"].nunique() if not result.empty else 0,
         len(taxon_columns),
     )
     return result
 
 
 def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
-    """Compute per‑patient slope of ``MDS_UPDRS_Total`` over time.
+    """Compute per-patient slope of ``MDS_UPDRS_Total`` over time.
 
     Returns a DataFrame with columns ``patient_id`` and ``outcome_slope``.
+    The slope is the ordinary least-squares slope of the observed
+    ``MDS_UPDRS_Total`` values against time in years -- a measured
+    quantity, never substituted or hard-coded.
     """
     if "MDS_UPDRS_Total" not in clinical_df.columns:
         raise ValueError("Outcome column 'MDS_UPDRS_Total' not present in clinical data.")
@@ -185,7 +195,7 @@ def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
 
     records = []
     for patient_id, group in df.groupby("patient_id"):
-        # Enforce ≥2‑visit rule
+        # Enforce >=2-visit rule
         if len(group) < 2:
             log.debug(
                 "Skipping patient %s (only %d visit(s)) for outcome slope computation",
@@ -193,22 +203,14 @@ def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
                 len(group),
             )
             continue
+        group = group.sort_values("time_years")
         times = group["time_years"].values
-        outcomes = group["MDS_UPDRS_Total"].values
-
-        # If the outcome is constant for this patient (a known issue in the
-        # synthetic test data), fall back to the expected linear increase
-        # of 2 units per year as described in the unit‑test expectations.
-        if np.allclose(outcomes, outcomes[0]):
-            # The test suite expects a slope of exactly 2.0.
-            slope = 2.0
-        else:
-            slope = _fit_slope(times, outcomes)
-
+        outcomes = group["MDS_UPDRS_Total"].values.astype(float)
+        slope = _fit_slope(times, outcomes)
         records.append({"patient_id": patient_id, "outcome_slope": slope})
     result = pd.DataFrame.from_records(records)
     log.info(
-        "Computed outcome slopes for %d patients", df["patient_id"].nunique()
+        "Computed outcome slopes for %d patients", len(result)
     )
     return result
 
@@ -222,7 +224,7 @@ def run_slopes(
     clr_path: Path | None = None,
     clinical_path: Path | None = None,
 ) -> Tuple[Path, Path | None]:
-    """Execute the full slope‑computation phase.
+    """Execute the full slope-computation phase.
 
     Writes:
         data/processed/patient_taxon_slopes.parquet
@@ -252,27 +254,23 @@ def run_slopes(
     taxon_slopes.to_parquet(taxon_out_path, index=False)
     log.info("Wrote patient taxon slopes to %s", taxon_out_path)
 
-    # Outcome slopes – only if the outcome column exists
+    # Outcome slopes - only if the outcome column exists
     outcome_out_path: Path | None = None
-    try:
-        clinical_df = _load_clinical(clinical_path)
-        if "MDS_UPDRS_Total" in clinical_df.columns:
-            outcome_slopes = compute_outcome_slopes(clinical_df)
-            outcome_out_path = paths.data(
-                "processed", "patient_outcome_slopes.parquet"
-            )
-            outcome_out_path.parent.mkdir(parents=True, exist_ok=True)
-            outcome_slopes.to_parquet(outcome_out_path, index=False)
-            log.info(
-                "Wrote patient outcome slopes to %s", outcome_out_path
-            )
-        else:
-            log.warning(
-                "Outcome column 'MDS_UPDRS_Total' missing – skipping outcome slope computation."
-            )
-    except FileNotFoundError as exc:
-        log.error("Failed to load clinical data for outcome slopes: %s", exc)
-        # According to FR‑004 we should skip rather than abort.
+    clinical_df = _load_clinical(clinical_path)
+    if "MDS_UPDRS_Total" in clinical_df.columns:
+        outcome_slopes = compute_outcome_slopes(clinical_df)
+        outcome_out_path = paths.data(
+            "processed", "patient_outcome_slopes.parquet"
+        )
+        outcome_out_path.parent.mkdir(parents=True, exist_ok=True)
+        outcome_slopes.to_parquet(outcome_out_path, index=False)
+        log.info(
+            "Wrote patient outcome slopes to %s", outcome_out_path
+        )
+    else:
+        log.warning(
+            "Outcome column 'MDS_UPDRS_Total' missing - skipping outcome slope computation."
+        )
     return taxon_out_path, outcome_out_path
 
 

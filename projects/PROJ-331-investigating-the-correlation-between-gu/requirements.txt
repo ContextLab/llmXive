@@ -1,5 +1,6 @@
-# Project dependencies
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
-# provided by the base environment. Add pyarrow for Parquet support.
-pyarrow>=12.0.0
+# Parquet engine required by pandas.read_parquet / to_parquet
+# (not part of the platform's preinstalled package set).
+pyarrow>=14.0
+
+# PDF report generation (Task T010).
+reportlab>=4.0

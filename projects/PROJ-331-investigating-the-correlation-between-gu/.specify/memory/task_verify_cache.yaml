@@ -10,14 +10,16 @@ T001:
   sig: 034735f3563cf083c4d70cf2d74a3813d49dabe7426b0b3855ad88ffe59ed608
 T003:
   c: false
-  h: e141e6f6a590304d1728604410c9cf01fdae39123824225afee9f00cb2f266cf
-  r: "The `slopes.py` module is present, but the required parquet files (`data/processed/clr_abundances.parquet`,\
-    \ the output parquet files) are missing and the unit tests all fail because the\
-    \ environment lacks a parquet engine (`pyarrow`/`fastparquet`). Consequently the\
-    \ slope functions cannot be exercised and the task\u2019s verification tests are\
-    \ not satisfied. Install a parquet engine (or provide a fallback) and ensure the\
-    \ input/output parquet files are generated so the tests pass."
-  sig: 2896239046d1eb6907932773dd355c82478f1f8bf913651f2de1b837e0d84a02
+  h: 1a173e204cce3eb3c82e1f9818b8c2af0da32fc4ac130f2989b8fe767c8a3300
+  r: The implementation and tests exist, but the recorded pytest run shows all 6 tests
+    FAILED (exit 1) because no parquet engine (pyarrow/fastparquet) is available,
+    and the required output artifacts `data/processed/patient_taxon_slopes.parquet`
+    and `data/processed/patient_outcome_slopes.parquet` are MISSING (as is the T002
+    input `clr_abundances.parquet`). Additionally, `_prepare_time` uses a fabricated
+    half-year approximation for non-Jan-1 dates rather than actual elapsed time in
+    years, which would produce incorrect slopes on real data; the implementer must
+    fix the parquet dependency, use true date
+  sig: cb1558d4c53bbbca487799757bb47ce2bee0da08d2afd1054f57564746578357
 T004:
   c: false
   h: 858d70684bfa5ecafbd319369fd11165bbc43c97a93768f99c0bc8197c8b3a73

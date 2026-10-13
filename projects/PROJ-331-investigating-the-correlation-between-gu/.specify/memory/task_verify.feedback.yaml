@@ -5,12 +5,14 @@ T002:
     exit=1'
   task: 89356ae41f24b7b2db1e5d75a118f58cea639025629c2263445d1cfdeb202a8a
 T003:
-  reason: "The `slopes.py` module is present, but the required parquet files (`data/processed/clr_abundances.parquet`,\
-    \ the output parquet files) are missing and the unit tests all fail because the\
-    \ environment lacks a parquet engine (`pyarrow`/`fastparquet`). Consequently the\
-    \ slope functions cannot be exercised and the task\u2019s verification tests are\
-    \ not satisfied. Install a parquet engine (or provide a fallback) and ensure the\
-    \ input/output parquet files are generated so the tests pass."
+  reason: The implementation and tests exist, but the recorded pytest run shows all
+    6 tests FAILED (exit 1) because no parquet engine (pyarrow/fastparquet) is available,
+    and the required output artifacts `data/processed/patient_taxon_slopes.parquet`
+    and `data/processed/patient_outcome_slopes.parquet` are MISSING (as is the T002
+    input `clr_abundances.parquet`). Additionally, `_prepare_time` uses a fabricated
+    half-year approximation for non-Jan-1 dates rather than actual elapsed time in
+    years, which would produce incorrect slopes on real data; the implementer must
+    fix the parquet dependency, use true date
   task: 23140288dd2b2c620356e9e880d74c88d1c3fca972a712e9f8f33215cb679c50
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_correlation.sh

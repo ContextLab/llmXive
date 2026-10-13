@@ -1,4 +1,4 @@
-"""Unit tests for the per‑patient slope computation (Task T003)."""
+"""Unit tests for the per-patient slope computation (Task T003)."""
 
 from __future__ import annotations
 
@@ -12,10 +12,11 @@ import pytest
 from code.src.pipeline import slopes
 
 def _make_clr_parquet(tmp_path: Path) -> Path:
-    """Create a minimal CLR‑transformed abundance parquet file.
+    """Create a minimal CLR-transformed abundance parquet file.
 
     Two patients (p1, p2), each with two visits (0 and 1 year).
-    Taxa: taxon_a, taxon_b.
+    Taxa: taxon_a, taxon_b.  A third single-visit patient (p3) is
+    included to exercise the >=2-visit inclusion rule.
     """
     data = [
         # patient p1
@@ -47,6 +48,14 @@ def _make_clr_parquet(tmp_path: Path) -> Path:
             "visit_date": "2021-06-01",
             "taxon_a": 0.4,
             "taxon_b": 0.6,
+        },
+        # patient p3: single visit -> excluded from slopes
+        {
+            "sample_id": "s5",
+            "patient_id": "p3",
+            "visit_date": "2020-01-01",
+            "taxon_a": 0.9,
+            "taxon_b": 0.9,
         },
     ]
     df = pd.DataFrame(data)
@@ -120,13 +129,32 @@ def test_compute_taxon_slopes_simple(tmp_path: Path):
         key = (row["patient_id"], row["taxon_name"])
         assert np.isclose(row["slope"], expected[key], atol=1e-9)
 
+def test_two_visit_patients_included_single_visit_excluded(tmp_path: Path):
+    """Patients with exactly 2 visits ARE included; single-visit patients are not."""
+    clr_path = _make_clr_parquet(tmp_path)
+    clr_df = pd.read_parquet(clr_path)
+    slopes_df = slopes.compute_taxon_slopes(clr_df, taxon_columns=["taxon_a", "taxon_b"])
+    patients = set(slopes_df["patient_id"])
+    assert "p1" in patients and "p2" in patients  # exactly 2 visits: included
+    assert "p3" not in patients                    # single visit: excluded
+    assert len(slopes_df) == 4                     # 2 patients x 2 taxa
+
+def test_constant_outcome_yields_zero_slope(tmp_path: Path):
+    """A constant outcome must yield a measured slope of 0 (never a substituted value)."""
+    clinical_path = _make_clinical_parquet(tmp_path, include_outcome=True)
+    clinical_df = pd.read_parquet(clinical_path)
+    clinical_df["MDS_UPDRS_Total"] = 30.0  # constant outcome
+    out_df = slopes.compute_outcome_slopes(clinical_df)
+    for _, row in out_df.iterrows():
+        assert np.isclose(row["outcome_slope"], 0.0, atol=1e-12)
+
 def test_compute_outcome_slopes_simple(tmp_path: Path):
     """Check outcome slope calculation matches manual expectation."""
     clinical_path = _make_clinical_parquet(tmp_path, include_outcome=True)
     clinical_df = pd.read_parquet(clinical_path)
 
     # For patient p1: visits at 0 and 1 year, outcomes 30 and 32 => slope 2
-    # For patient p2: visits at 0.5 and 1.5 years (6 months apart), outcomes 31 and 33 => slope 2
+    # For patient p2: visits at 0.5 and 1.5 years (1 year apart), outcomes 31 and 33 => slope 2
     expected = {"p1": 2.0, "p2": 2.0}
 
     out_df = slopes.compute_outcome_slopes(clinical_df)
@@ -135,7 +163,7 @@ def test_compute_outcome_slopes_simple(tmp_path: Path):
         assert np.isclose(row["outcome_slope"], expected[row["patient_id"]], atol=1e-9)
 
 def test_run_slopes_writes_files(tmp_path: Path):
-    """End‑to‑end run_slopes should create the expected parquet files."""
+    """End-to-end run_slopes should create the expected parquet files."""
     clr_path = _make_clr_parquet(tmp_path)
     clinical_path = _make_clinical_parquet(tmp_path, include_outcome=True)
 
