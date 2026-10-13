@@ -10,7 +10,7 @@
 | Goal | Provide a minimal, runnable pipeline that produces a single network file and a corresponding simulation result. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [X] T001 [P] **Create project documentation** – add `README.md` and `quickstart.md` at the repository root.  
+- [ ] T001 [P] **Create project documentation** – add `README.md` and `quickstart.md` at the repository root.  
   - **File(s)**: `README.md`, `quickstart.md`  
   - **Verification**: `quickstart.md` contains the command `python -m code.generate_networks --topology ER --instances 1 --seed 0`. Running the command creates `data/raw/networks/ER_0000.edgelist` and `data/raw/networks/metadata_ER_0000.json` without errors.
 
@@ -25,7 +25,7 @@
 | Goal | Supply reusable building blocks (checksums, metrics, plots) and a deterministic test harness. |
 |------|----------------------------------------------------------------------------------------------|
 
-- [ ] T003 [P] **Implement core utility modules** – `code/utils/checksums.py` (SHA‑256 for any file), `code/utils/metrics.py` (assortativity, average path length, clustering), `code/utils/plotting.py` (log‑log and scatter helpers).  
+- [X] T003 [P] **Implement core utility modules** – `code/utils/checksums.py` (SHA‑256 for any file), `code/utils/metrics.py` (assortativity, average path length, clustering), `code/utils/plotting.py` (log‑log and scatter helpers).  
   - **Files**: `code/utils/checksums.py`, `code/utils/metrics.py`, `code/utils/plotting.py`  
   - **Verification**: Each module has a corresponding unit test in `tests/unit/` that passes; e.g. `python -c "import code.utils.checksums as c; print(len(c.sha256('README.md')))"` prints 64.
 
@@ -48,7 +48,7 @@
   - **File**: `code/generate_networks.py` (metrics section)  
   - **Verification**: `jsonschema validate --schema code/contracts/network_instance.schema.json data/raw/networks/metadata_BA_0001.json` passes **and** the `node_count` field equals 500.
 
-- [X] T007 [US1] **Memory‑usage test for batch generation** – `tests/unit/test_memory_limits.py` uses `psutil` to monitor peak RAM while generating 50 × 500‑node graphs; it asserts peak < 7 GB.  
+- [ ] T007 [US1] **Memory‑usage test for batch generation** – `tests/unit/test_memory_limits.py` uses `psutil` to monitor peak RAM while generating 50 × 500‑node graphs; it asserts peak < 7 GB.  
   - **File**: `tests/unit/test_memory_limits.py`  
   - **Verification**: Unit test passes on the CI runner.
 
@@ -59,7 +59,7 @@
 | Goal | Run the Hegselmann‑Krause model across all networks, sweep ε, record convergence times, and handle non‑convergence. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] T008 [US2] **Implement HK update rule & convergence detector** – `code/simulate_hk.py` provides `run_simulation(network, epsilon, seed, max_iter=10000, tol=1e-4)` and returns a dict with `convergence_time`, `status`, `final_clusters`.   <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=2 -->
+- [ ] T008 [US2] **Implement HK update rule & convergence detector** – `code/simulate_hk.py` provides `run_simulation(network, epsilon, seed, max_iter=10000, tol=1e-4)` and returns a dict with `convergence_time`, `status`, `final_clusters`.   <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 -->
   - **File**: `code/simulate_hk.py` (plus `code/utils/convergence.py`)  
   - **Verification**: Unit test `tests/unit/test_hk_logic.py` on a 50‑node random graph asserts:
     1. `status == "converged"` and `convergence_time <= 200` when ε=0.2;

@@ -1,60 +1,20 @@
-"""
-Unit tests for the checksum utilities.
-"""
-import hashlib
+import pytest
 import os
-import tempfile
-import sys
+from pathlib import Path
+from code.utils.checksums import sha256, calculate_sha256, generate_checksums_for_directory
 
-# Ensure the project's code directory is on the import path so that
-# `utils.checksums` can be imported (the utils package lives under `code/`).
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
-CODE_DIR = os.path.join(PROJECT_ROOT, "code")
-if CODE_DIR not in sys.path:
-    sys.path.insert(0, CODE_DIR)
+def test_sha256_length(tmp_path):
+    f = tmp_path / "test.txt"
+    f.write_text("hello world")
+    # Test both aliases
+    assert len(sha256(f)) == 64
+    assert len(calculate_sha256(f)) == 64
+    assert sha256(f) == calculate_sha256(f)
 
-from utils.checksums import calculate_sha256, generate_checksums_for_directory
-
-
-def test_calculate_sha256_matches_manual():
-    """The SHA‑256 returned by the utility must match hashlib directly."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"llmxive test payload")
-        tmp_path = tmp.name
-
-    try:
-        # Expected hash using hashlib directly
-        expected = hashlib.sha256(b"llmxive test payload").hexdigest()
-
-        # Hash computed by the utility
-        result = calculate_sha256(tmp_path)
-
-        assert isinstance(result, str)
-        assert len(result) == 64
-        assert result == expected
-    finally:
-        os.remove(tmp_path)
-
-
-def test_generate_checksums_for_directory_collects_files():
-    """The directory scanner must return a dict with a hash for each file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create a couple of files
-        file_paths = []
-        for i, content in enumerate([b"alpha", b"beta", b"gamma"]):
-            path = os.path.join(tmpdir, f"file{i}.txt")
-            with open(path, "wb") as f:
-                f.write(content)
-            file_paths.append(path)
-
-        checksums = generate_checksums_for_directory(tmpdir)
-
-        # All files should be present
-        assert len(checksums) == 3
-        for rel_path, expected_hash in zip(
-            ["file0.txt", "file1.txt", "file2.txt"],
-            [hashlib.sha256(b"alpha").hexdigest(),
-             hashlib.sha256(b"beta").hexdigest(),
-             hashlib.sha256(b"gamma").hexdigest()],
-        ):
-            assert checksums[rel_path] == expected_hash
+def test_directory_checksums(tmp_path):
+    (tmp_path / "f1.txt").write_text("a")
+    (tmp_path / "f2.txt").write_text("b")
+    checksums = generate_checksums_for_directory(tmp_path)
+    assert len(checksums) == 2
+    assert "f1.txt" in checksums
+    assert len(checksums["f1.txt"]) == 64

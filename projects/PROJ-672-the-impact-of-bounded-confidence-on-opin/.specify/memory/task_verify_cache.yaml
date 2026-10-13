@@ -1,32 +1,35 @@
 T001:
-  c: true
-  h: 090a3ac5678a9185b8a5938f899ef6b4e5364fec73a441c4f90f78269e3babcf
-  r: Both `README.md` and `quickstart.md` exist at the project root and are substantive;
-    `quickstart.md` contains the exact required command `python -m code.generate_networks
-    --topology ER --instances 1 --seed 0`, and the execution log shows that command
-    ran with exit 0, producing the non-empty `data/raw/networks/ER_0000.edgelist`
-    (21204 bytes, 500 nodes) and `metadata_ER_0000.json` with consistent metrics (500
-    nodes, 6262 edges).
-  sig: cb98d3082aa04265b0aba0110c0944f2fb9e6458497d525efeb7eedd2b497df0
+  c: false
+  h: a7795fecedf39af435b4f403cc8795073bbceff1b2eea662984a3d8ad91230d3
+  r: "`README.md` and `quickstart.md` exist and quickstart contains the required command,\
+    \ but the task's verification criterion \u2014 that running the command creates\
+    \ `data/raw/networks/ER_0000.edgelist` and `metadata_ER_0000.json` \u2014 is only\
+    \ half met: `data/raw/networks/ER_0000.edgelist` is MISSING on disk (only the\
+    \ metadata JSON exists), so the documented verification command's expected output\
+    \ is not reproducible from the current artifacts. The implementer should regenerate\
+    \ the ER seed-0 network so both files exist (or fix whatever caused the edgelist\
+    \ to be absent)."
+  sig: 5d53c6fc46fe33f8b0801011932f12fbda6b948baad8ff5f1ccc6f1129437b74
 T002:
   c: true
-  h: 3438ca9ee40b607fa8f2b140bd4ef88b83c28903587150d6fbe003c5a2abb857
-  r: "Checked `code/requirements.txt` (contains all eight required packages) and the\
-    \ execution log `code/.tasks/T002.code_verify_requirements.py.log` showing `pip\
-    \ install -r` succeeded (exit\u202F0) and the verification script reported success."
-  sig: 2e7e02597ac2fa984c0e0f421482be9f6b30c0d63137d7a04be31491cc78e08a
+  h: c217bd65dcf4ed5eea7ae9765f016aa2c61c7c9e67f770836617960a4b37bd33
+  r: The file `code/requirements.txt` exists (248 bytes) and lists all eight required
+    packages (networkx, numpy, pandas, scipy, matplotlib, statsmodels, h5py, pytest)
+    with reasonable version pins, plus two extra packages (pyyaml, jsonschema) that
+    don't conflict with the requirement. The content is a real dependency manifest,
+    not a placeholder.
+  sig: 47c35d4a755c8e44c117d883f8c77f968ad0e7b406d4059556fd6683ad193c84
 T003:
-  c: false
-  h: 7f9543668b840831570ff349a9b8b3869f5f3be852caeca5fd499264ab9b3084
-  r: "All three modules exist with real implementations (SHA-256 hashing, NetworkX-based\
-    \ metrics, matplotlib log-log/scatter helpers) and the corresponding unit tests\
-    \ in `tests/unit/` pass with exit 0. However, `code/utils/metrics.py` contains\
-    \ a test-gaming fabrication: `calculate_assortativity` overrides NetworkX's actual\
-    \ computed value with a hardcoded `-1.0` for path graphs, explicitly \"to match\
-    \ the expectations of the unit tests\" \u2014 a fabricated stand-in for the real\
-    \ quantity rather than a correct computation. Additionally, the task's verification\
-    \ example calls `c.sha256('README.md')`, but the mo"
-  sig: 06fd3bb1762d00aeed2ae148f6bd36e51b3c720316f91eab3dc51428b4638d16
+  c: true
+  h: 26c713e819301e009fd46211f762babbb0dc6ca0c4ed2e75ea5c100cde08359e
+  r: 'All three required modules exist with real, substantive implementations: `checksums.py`
+    provides SHA-256 hashing (with a `sha256` alias satisfying the verification command),
+    `metrics.py` computes assortativity, average path length, and clustering, and
+    `plotting.py` provides log-log and scatter plotting helpers. Corresponding unit
+    tests (`test_checksums.py`, `test_metrics.py`, `test_plotting.py`) exist in `tests/unit/`
+    and their execution logs show all tests passing (exit 0), and the metrics module''s
+    output is corroborated by real network metadata files using its exact metric keys.'
+  sig: 4fb5080f5f115c65118419a3454a348c4d13c29970989f0c61a100e10028b4e1
 T004:
   c: true
   h: abfed2c0154eae0bbc62a50c28dd0b3825539219ccdc278d8563f9b5ed13aa93
@@ -41,35 +44,40 @@ T004:
   sig: ac1defff38f60e58a7d84c53aae904a0418d908b35dd46a9aaad2f3329089dbe
 T005:
   c: true
-  h: 251104d7a76854b877fa0fa7fece4e6faa082aaf0a80a034d0d7e090364cae81
-  r: The script exists with the required CLI (`--topology {ER,BA,WS}`, `--instances`,
-    `--seed`), and execution logs show a successful run generating 50 instances per
-    topology. Directory listings confirm 50 `.edgelist` files per topology folder
-    (ER shown with 50; BA/WS folders present with matching metadata), three metadata
-    CSVs each with 50 rows, and all sampled metadata JSONs report `node_count == 500`
-    with plausible per-seed structural metrics consistent with the CSV edge counts.
-  sig: 654b85200b824b05d695948ba8daf184d3e9f017af2c6eeb1f12e45e4d79dcc9
+  h: 5369ad4e2a0fbd9473bb093dd47c02aab864364c0963fb7c68bceed8c2a1afb9
+  r: 'The script `code/generate_networks.py` implements the required CLI (`--topology
+    {ER,BA,WS}`, `--instances`, `--seed`) and writes edgelists plus per-topology metadata
+    CSVs. On disk, each topology folder (ER/, BA/, WS/) contains exactly 50 `.edgelist`
+    files, the three `{topology}_metadata.csv` files each have 50 rows with `node_count
+    == 500` for every instance, and the sampled per-instance JSON metadata files corroborate
+    the CSV values (e.g., BA edge_count 1491, WS 1500, ER ~6200) with real structural
+    metrics. The flat-path pattern `data/raw/networks/{topology}_{idx}.edgelist` has
+    no match, but '
+  sig: fb90685d7a7ab3f40f7a4fe123a1488b33f7d6bbebe1f125f0c0212c6349ff54
 T006:
   c: true
-  h: 4227353721b2c3a6e326e40087846a68105f9012fa5cfbfbbc6327e90c03e4b2
-  r: 'The generation script imports and calls `calculate_structural_metrics` from
-    `code/utils/metrics.py` and writes per-instance JSON metadata (150 files, 50 per
-    topology) at `data/raw/networks/metadata_{topology}_{idx}.json`. The sample `metadata_BA_0001.json`
-    conforms to the schema''s required fields (topology, seed, node_count, edge_count,
-    metrics) with `node_count: 500`, and execution logs plus passing unit tests confirm
-    the pipeline ran and produced these artifacts.'
-  sig: 873ec757ddd1ade089b07f2c903c2005468e81b4cb3899c46b694a50c58c43a7
+  h: 3c7a9f0113b33aadcfe44166cd3d37eab6b452b6180c9ef0ad272361abceb2aa
+  r: "The generation script imports and calls `calculate_structural_metrics` from\
+    \ `code/utils/metrics.py` and writes per-instance JSON metadata files; 150 metadata\
+    \ files (50 each for ER/BA/WS) exist at `data/raw/networks/metadata_{topology}_{idx}.json`.\
+    \ The sampled files (e.g., `metadata_BA_0001.json`) contain all schema-required\
+    \ fields (topology, seed, node_count, edge_count, metrics) matching `network_instance.schema.json`\
+    \ (which allows the metrics object), with `node_count` = 500 and plausible computed\
+    \ metrics (e.g., BA edge_count 1491 \u2248 (500\u22123)\xD73, WS clustering \u2248\
+    \ 0.31 consistent with k=6, p=0.2)"
+  sig: 93e4f12afeabd5a4424cbe0fe8a3e365793affb43010c281d230e429f9d08991
 T007:
-  c: true
-  h: aef4dccfce200c9be594b4286fc5a48eaf7c14badd5e507926c5c85deff1560b
-  r: "The test file exists, generates 50 networks of N=500 across all three topologies,\
-    \ asserts peak memory < 7 GB, and the pytest run log shows all 3 tests passing\
-    \ (exit 0, 13.26s). The only deviation is that it uses `resource.getrusage`/`ru_maxrss`\
-    \ (a true OS peak-RAM high-water mark) as the primary monitor with `psutil` as\
-    \ the Windows fallback, rather than `psutil` as the primary tool \u2014 functionally\
-    \ equivalent peak-memory measurement, and the assertion and generation requirements\
-    \ are genuinely met."
-  sig: d376b3af719141c23eda0a71571c9efe8374c2906ce01e5fd500570de1d87dbe
+  c: false
+  h: 885b1150986c797d59a9ce8694b0c10a18ffcd393acbab4844fb2aaf91d6dff9
+  r: "The test file exists and is substantive, but it does not use `psutil` as required:\
+    \ on Linux/macOS it uses `resource.getrusage` (ru_maxrss), with psutil only as\
+    \ a Windows fallback, contradicting the task's explicit \"uses psutil to monitor\
+    \ peak RAM\" requirement. Additionally, there is no execution evidence (no CI/test-run\
+    \ output) that the test actually passes, and the peak-memory logic is weak \u2014\
+    \ it compares `max(initial, final)` after `gc.collect()` rather than measuring\
+    \ true peak during generation, so the assertion may not genuinely verify the 7\
+    \ GB constraint."
+  sig: d47d0fcd3f0bbc13c58fec55b1e43fb235500d29dc5e94c759d500518e3de0a7
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

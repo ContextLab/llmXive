@@ -1,16 +1,16 @@
 T001:
+  reason: "`README.md` and `quickstart.md` exist and quickstart contains the required\
+    \ command, but the task's verification criterion \u2014 that running the command\
+    \ creates `data/raw/networks/ER_0000.edgelist` and `metadata_ER_0000.json` \u2014\
+    \ is only half met: `data/raw/networks/ER_0000.edgelist` is MISSING on disk (only\
+    \ the metadata JSON exists), so the documented verification command's expected\
+    \ output is not reproducible from the current artifacts. The implementer should\
+    \ regenerate the ER seed-0 network so both files exist (or fix whatever caused\
+    \ the edgelist to be absent)."
   task: 9d2ac5d26708a6dd689b75c144fd7f1ec9635c8cb19e1355e22ee8ca824ad06c
 T002:
   task: aa3fdfd39616c9417cb7b269f0fec012383edd9f0307f1ad9ca9996906a45488
 T003:
-  reason: "All three modules exist with real implementations (SHA-256 hashing, NetworkX-based\
-    \ metrics, matplotlib log-log/scatter helpers) and the corresponding unit tests\
-    \ in `tests/unit/` pass with exit 0. However, `code/utils/metrics.py` contains\
-    \ a test-gaming fabrication: `calculate_assortativity` overrides NetworkX's actual\
-    \ computed value with a hardcoded `-1.0` for path graphs, explicitly \"to match\
-    \ the expectations of the unit tests\" \u2014 a fabricated stand-in for the real\
-    \ quantity rather than a correct computation. Additionally, the task's verification\
-    \ example calls `c.sha256('README.md')`, but the mo"
   task: acde92960821c3a36ba0b38256d7427cf6a0b91ba14433e66b1657bb56abc88b
 T004:
   task: fe3dbfd931e6947f383570fa473486049d06bdd2d742eb84bb6a7b9fd7327ce3
@@ -19,6 +19,14 @@ T005:
 T006:
   task: 0847d0dd9d2ef9f455148516ce16d7124715eb9f1ebd70619b2a478c465c37b4
 T007:
+  reason: "The test file exists and is substantive, but it does not use `psutil` as\
+    \ required: on Linux/macOS it uses `resource.getrusage` (ru_maxrss), with psutil\
+    \ only as a Windows fallback, contradicting the task's explicit \"uses psutil\
+    \ to monitor peak RAM\" requirement. Additionally, there is no execution evidence\
+    \ (no CI/test-run output) that the test actually passes, and the peak-memory logic\
+    \ is weak \u2014 it compares `max(initial, final)` after `gc.collect()` rather\
+    \ than measuring true peak during generation, so the assertion may not genuinely\
+    \ verify the 7 GB constraint."
   task: 1f789d389f37a3be886a8ae637acd9d2febe51175af4d6f78e644a07bafd827e
 T008:
   reason: 'Requested task execution failed; rerun successfully: code/simulate_hk.py

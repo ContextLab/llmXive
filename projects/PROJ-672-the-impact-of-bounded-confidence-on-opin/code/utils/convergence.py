@@ -42,6 +42,8 @@ def has_converged(prev: Sequence[float], cur: Sequence[float], tol: float = 1e-4
     """
     prev_arr = np.asarray(prev, dtype=float)
     cur_arr = np.asarray(cur, dtype=float)
+    if prev_arr.size == 0:
+        return True
     max_change = np.max(np.abs(cur_arr - prev_arr))
     return max_change < tol
 
@@ -66,7 +68,7 @@ def compute_clusters(
     epsilon : float
         Confidence bound used for clustering.
     node_ids : Sequence[int] | None, optional
-        Identifiers of the agents.  If ``None`` the agents are assumed to be
+        Identifiers of the agents. If ``None`` the agents are assumed to be
         labelled ``0 .. len(opinions)-1``.  The order of identifiers in the
         output respects the sorted opinion order.
 
@@ -80,6 +82,9 @@ def compute_clusters(
         node_ids = list(range(len(opinions_arr)))
     else:
         node_ids = list(node_ids)
+
+    if len(opinions_arr) == 0:
+        return []
 
     # Sort by opinion to make clustering deterministic
     sorted_idx = np.argsort(opinions_arr)

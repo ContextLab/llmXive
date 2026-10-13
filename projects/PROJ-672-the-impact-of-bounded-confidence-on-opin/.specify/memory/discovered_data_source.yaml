@@ -1,18 +1,15 @@
 status: none
-intent: "download synthetic network ensemble dataset for N=500 Erd\u0151s\u2011R\xE9\
-  nyi Barab\xE1si\u2011Albert Watts\u2011Strogatz python package dataset"
+intent: download synthetic network ensemble python package NetworkX graph generators
+  dataset python package dataset
 required_fields:
 - graph_id
 - topology_type
-- node_count
-- edge_count
-- seed
+- num_nodes
+- random_seed
 - edge_list
-- adjacency_matrix
 - average_degree
-- degree_distribution
 - clustering_coefficient
 - average_path_length
-cache_key: 21dc3c2e96446cfbb66e21c5d1b333e7444e0af12aaae3997f62ae8c3c2c3728
-searched_at: '2026-10-13T00:49:56.560874+00:00'
+cache_key: 911fcfe1af55b620a18b84405e91013d91d9ba32f79b9e0563cfbd7f3a2d1dc3
+searched_at: '2026-10-13T01:43:10.487903+00:00'
 retry_count: 1
