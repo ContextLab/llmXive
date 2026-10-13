@@ -1,11 +1,10 @@
 T001:
-  c: true
-  h: 8a1bb390dc316bb26e2cfced34c8c96e1a5ae2a3293b45c7d2a10840837cb71d
-  r: The required directories (`code/{data,analysis,viz,lib}`, `data/{raw,processed,results}`,
-    `docs`, `contracts`, `tests/{unit,integration,contract}`) all exist on disk and
-    the setup script executed with exit 0 confirming all 14 directories; `code/pyproject.toml`
-    is a real, non-empty project config with a dependency manifest (mirrored by `code/requirements.txt`),
-    and `quickstart.md` is a substantive 3.2KB document covering layout setup, dependency
-    installation, and the full pipeline execution flow. The empty `cleaned_studies.csv`
-    and mock data file belong to later tasks (T002+), not this layout/s
-  sig: 5f6554b3f0981ef49165600244cc23fdf2c1131c125fba6464dea096eae357ac
+  c: false
+  h: 8e80060fa6493da96366aa1379b077ad9a3b64e35032d6c1009f2dddfa3535ac
+  r: "The repository contains `quickstart.md` and most of the required directories,\
+    \ but the authoritative layout is incomplete: `code/lib` and a top\u2011level\
+    \ `docs` folder are missing, and there is no evidence that the pinned dependencies\
+    \ from `code/pyproject.toml` have actually been installed (no lock file, install\
+    \ log, or virtual\u2011environment snapshot). These gaps mean the task\u2019s\
+    \ requirements are not fully satisfied."
+  sig: 736d2dfcf104f8a00c11ff8f9a9e143557a198a3eea6db8d8d990216b8fcc5da

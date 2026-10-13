@@ -1,18 +1,18 @@
 status: none
-intent: clinicaltrials.gov open science framework osf api python package dataset
+intent: OpenTrials combined ClinicalTrials.gov OSF dataset python package dataset
 required_fields:
-- nct_id
-- clinical_trial_title
-- brief_summary
-- overall_status
-- study_type
-- phase
-- enrollment
+- trial_id
+- osf_id
+- title
+- summary
+- status
 - start_date
 - completion_date
-- sponsor_name
-- principal_investigator
-- condition
-cache_key: ec93e252e4eb5810e1f133132a528503f25f3fc3e939c42e6f15375642c9cfe5
-searched_at: '2026-10-13T22:53:58.351645+00:00'
+- sponsor
+- interventions
+- outcomes
+- registration_date
+- locations
+cache_key: 65a3b37e7c7e14d780266a7421392c876915a36a784814c57897bc18b4b2138b
+searched_at: '2026-10-13T23:17:27.083692+00:00'
 retry_count: 1
