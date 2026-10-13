@@ -1,3 +1,3 @@
 """
-Models package for llmXive follow-up project.
+Models subpackage.
 """
