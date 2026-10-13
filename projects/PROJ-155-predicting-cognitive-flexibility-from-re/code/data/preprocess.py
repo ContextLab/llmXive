@@ -1,15 +1,22 @@
 """
 Preprocessing module for rs-fMRI data.
-Handles loading of preprocessed NIfTI files and application of Schaefer atlas parcellation.
-Updated to write ROI time‑series CSVs into ``data/processed/parcellated/`` and to
-generate a minimal ``neuro_features.csv`` required for downstream merging.
+Handles loading of preprocessed NIfTI files and application of Schaefer atlas
+parcellation. Updated to write ROI time‑series CSVs into
+``data/processed/parcellated/`` and to generate a minimal ``neuro_features.csv``
+required for downstream merging.
+
+The original implementation returned a list of output file paths, which caused
+``code/main.py`` to treat the return value as a non‑zero error code.  The
+function now returns the *count* of successfully processed subjects (an ``int``)
+so that the orchestration script can correctly interpret success.
 """
+
 import os
 import logging
 import tarfile
 import tempfile
 import csv
-from typing import List, Optional, Tuple, Any
+from typing import List, Optional, Tuple
 import numpy as np
 import nibabel as nib
 import pandas as pd
@@ -26,12 +33,14 @@ ATLAS_URL = "https://schaefer2018.atlases.nitrc.org/Schaefer2018_200Parcels_7Net
 ATLAS_FILENAME = "Schaefer2018_200Parcels_7Networks_order_FSLMNI152.nii.gz"
 ATLAS_DIR_NAME = "Schaefer2018"
 
+
 def _get_atlas_local_path() -> str:
     """Returns the local path where the atlas should be stored."""
     raw_path = get_raw_path()
     atlas_dir = os.path.join(raw_path, ATLAS_DIR_NAME)
     ensure_dir(atlas_dir)
     return os.path.join(atlas_dir, ATLAS_FILENAME)
+
 
 def _download_atlas(atlas_url: str, local_path: str) -> str:
     """Download the Schaefer atlas if it does not already exist."""
@@ -40,6 +49,7 @@ def _download_atlas(atlas_url: str, local_path: str) -> str:
         return local_path
 
     import requests
+
     logger.info(f"Downloading atlas from {atlas_url}...")
 
     temp_dir = tempfile.gettempdir()
@@ -48,14 +58,14 @@ def _download_atlas(atlas_url: str, local_path: str) -> str:
     try:
         response = requests.get(atlas_url, stream=True, timeout=300)
         response.raise_for_status()
-        with open(temp_tar, 'wb') as f:
+        with open(temp_tar, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
 
         logger.info(f"Downloaded atlas to {temp_tar}, extracting...")
 
-        with tarfile.open(temp_tar, 'r:gz') as tar:
+        with tarfile.open(temp_tar, "r:gz") as tar:
             members = tar.getmembers()
             target_member = None
             for member in members:
@@ -82,6 +92,7 @@ def _download_atlas(atlas_url: str, local_path: str) -> str:
 
     return local_path
 
+
 def load_schaefer_parcellation(atlas_url: str = ATLAS_URL) -> nib.Nifti1Image:
     """Load (or download) the Schaefer 200‑parcel atlas."""
     local_path = _get_atlas_local_path()
@@ -93,9 +104,10 @@ def load_schaefer_parcellation(atlas_url: str = ATLAS_URL) -> nib.Nifti1Image:
     logger.info(f"Loaded Schaefer atlas: shape={atlas_img.shape}")
     return atlas_img
 
+
 def extract_roi_time_series(
     subject_nifti_path: str,
-    atlas_img: nib.Nifti1Image
+    atlas_img: nib.Nifti1Image,
 ) -> np.ndarray:
     """Extract mean ROI time‑series from a 4‑D fMRI image."""
     subject_img = nib.load(subject_nifti_path)
@@ -117,7 +129,7 @@ def extract_roi_time_series(
         atlas_data = ndimage.zoom(
             atlas_data,
             np.array(subject_data.shape[:3]) / np.array(atlas_data.shape),
-            order=0
+            order=0,
         )
         atlas_data = np.round(atlas_data).astype(int)
         roi_labels = np.unique(atlas_data)[np.unique(atlas_data) > 0]
@@ -142,10 +154,11 @@ def extract_roi_time_series(
 
     return time_series
 
+
 def preprocess_subject(
     subject_id: str,
     subject_nifti_path: str,
-    atlas_img: Optional[nib.Nifti1Image] = None
+    atlas_img: Optional[nib.Nifti1Image] = None,
 ) -> Tuple[str, np.ndarray]:
     """Preprocess a single subject and write ROI time‑series CSV."""
     if atlas_img is None:
@@ -172,6 +185,7 @@ def preprocess_subject(
 
     return output_path, time_series
 
+
 def _write_neuro_features_row(csv_path: str, subject_id: str):
     """
     Append a minimal neuro‑features row for ``subject_id``.
@@ -179,15 +193,21 @@ def _write_neuro_features_row(csv_path: str, subject_id: str):
     Values are deterministic placeholders (real numbers, not random).
     """
     exists = os.path.exists(csv_path)
-    with open(csv_path, 'a', newline='') as f:
+    with open(csv_path, "a", newline="") as f:
         writer = csv.writer(f)
         if not exists:
-            writer.writerow(['Subject_ID', 'Mean_FD', 'Age', 'Sex', 'Total_Scan_Time'])
-        # Placeholder values:
-        writer.writerow([subject_id, 0.0, 30, 'M', 1200])
+            writer.writerow(["Subject_ID", "Mean_FD", "Age", "Sex", "Total_Scan_Time"])
+        # Deterministic placeholder values:
+        writer.writerow([subject_id, 0.0, 30, "M", 1200])
 
-def run_preprocessing_pipeline(subject_ids: Optional[List[str]] = None) -> List[str]:
-    """Run preprocessing for a list of subjects."""
+
+def run_preprocessing_pipeline(subject_ids: Optional[List[str]] = None) -> int:
+    """
+    Run preprocessing for a list of subjects.
+
+    Returns:
+        int: Number of subjects successfully processed. 0 indicates failure.
+    """
     init_logging()
     logger.info("Starting preprocessing pipeline...")
 
@@ -196,13 +216,13 @@ def run_preprocessing_pipeline(subject_ids: Optional[List[str]] = None) -> List[
         raw_path = get_raw_path()
         subject_ids = []
         for entry in os.listdir(raw_path):
-            if entry.endswith('_REST.nii.gz'):
-                sid = entry.replace('_REST.nii.gz', '')
+            if entry.endswith("_REST.nii.gz"):
+                sid = entry.replace("_REST.nii.gz", "")
                 subject_ids.append(sid)
 
     if not subject_ids:
         logger.warning("No subjects found to process.")
-        return []
+        return 0
 
     atlas_img = load_schaefer_parcellation()
     processed_paths = []
@@ -221,13 +241,19 @@ def run_preprocessing_pipeline(subject_ids: Optional[List[str]] = None) -> List[
             log_error(f"Skipping subject {sid} due to error: {e}")
             continue
 
-    logger.info(f"Preprocessing pipeline complete. Processed {len(processed_paths)} subjects.")
-    return processed_paths
+    logger.info(
+        f"Preprocessing pipeline complete. Processed {len(processed_paths)} subjects."
+    )
+    return len(processed_paths)
+
 
 def main():
     """CLI entry point for preprocessing."""
     import argparse
-    parser = argparse.ArgumentParser(description="Preprocess HCP fMRI data with Schaefer atlas.")
+
+    parser = argparse.ArgumentParser(
+        description="Preprocess HCP fMRI data with Schaefer atlas."
+    )
     parser.add_argument("--subject", type=str, help="Specific subject ID to process.")
     parser.add_argument("--verify", action="store_true", help="Verify atlas download and run a test.")
     args = parser.parse_args()
@@ -254,12 +280,13 @@ def main():
             logger.error(f"Failed: {e}")
             return 1
     else:
-        paths = run_preprocessing_pipeline()
-        if not paths:
+        processed_count = run_preprocessing_pipeline()
+        if processed_count == 0:
             logger.warning("No subjects processed.")
             return 1
 
     return 0
+
 
 if __name__ == "__main__":
     exit(main())

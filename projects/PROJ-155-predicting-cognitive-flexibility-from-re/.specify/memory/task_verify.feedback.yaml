@@ -1,8 +1,8 @@
 T001:
   task: 436cf559f918fc6c0f94366fbddaf6304a5bec8fd0006a5614c6baf503a7643d
 T002:
-  reason: 'Requested task execution failed; rerun successfully: tests/test_contracts.py
-    exit=1'
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
+    code/main.py exit=1'
   task: 97f943e09d09ff131ea6a2f034d04cf4ca0092e411b9ba057c478c5e738d48eb
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'

@@ -1,11 +1,12 @@
 status: none
-intent: Human Connectome Project HCP 1200 resting-state fMRI NIH Toolbox Schaefer
-  atlas python package dataset
+intent: Human Connectome Project 1200 release Schaefer atlas NIH Toolbox python package
+  dataset
 required_fields:
-- Subject ID
-- resting-state fMRI
-- NIH Toolbox Dimensional Change Card Sort score
-- Schaefer atlas parcellation
-cache_key: b57c294e7f0284ad2b0f26bf025c2e102ef700a7522fca9459172684e73b7e1d
-searched_at: '2026-10-13T02:42:02.301936+00:00'
+- subject_id (string)
+- rsfc_metric (float)
+- age (integer)
+- gender (string)
+- nih_dccs_score (float)
+cache_key: 03e2eb1fbb5676d82d74d9797ee0642e8554b8bc982632f3d45fc2f3d0aa1446
+searched_at: '2026-10-13T02:49:41.056871+00:00'
 retry_count: 1

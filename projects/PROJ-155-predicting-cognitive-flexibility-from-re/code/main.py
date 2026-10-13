@@ -4,8 +4,8 @@ Minimal orchestration script for the three major pipeline stages:
 2) features – compute dynamic connectivity metrics;
 3) analysis – (placeholder) run regression / permutation.
 
-For the purpose of the current task we only need the first two stages to
-succeed so that the contract tests can locate the required files.
+Adjusted to correctly interpret the return value of the preprocessing
+pipeline (an integer count of processed subjects rather than a list).
 """
 
 import argparse
@@ -24,12 +24,11 @@ def _run_download_preprocess():
     logger.info("Downloading raw data (ADHD dataset)...")
     download_adhd_dataset()
     logger.info("Running preprocessing pipeline...")
-    # The preprocessing script discovers subjects automatically.
-    exit_code = run_preprocessing_pipeline()
-    if exit_code != 0:
-        logger.error("Preprocessing failed.")
+    processed_count = run_preprocessing_pipeline()
+    if processed_count == 0:
+        logger.error("Preprocessing failed or produced no subjects.")
         sys.exit(1)
-    logger.info("Preprocessing completed.")
+    logger.info(f"Preprocessing completed for {processed_count} subjects.")
 
 
 def _run_features():

@@ -1,66 +1,81 @@
 """
-Helper utilities for locating project directories.
+Utility functions for accessing project data directories.
 
-The functions wrap ``llmxive_toolkit.paths`` to provide a stable API
-used throughout the code base (e.g. in tests and data‑handling modules).
+This module provides a thin wrapper around ``llmxive_toolkit.paths`` to
+expose the directory paths used throughout the codebase. It also offers
+a simple ``ensure_dir`` helper that creates a directory (including any
+missing parents) for a given path.
+
+The functions return string paths because the existing codebase mixes
+``str`` and ``pathlib.Path`` usage. Returning ``str`` keeps backward
+compatibility while still leveraging the robust path handling of
+``llmxive_toolkit.paths``.
 """
 
 from pathlib import Path
 from llmxive_toolkit import paths
 
 
-def get_raw_path() -> Path:
+def get_project_root() -> str:
     """
-    Path to the raw data directory (``data/raw``).
+    Return the absolute path to the project root directory.
 
-    Returns
-    -------
-    pathlib.Path
-        The absolute path to the raw data folder, created if missing.
+    The original ``code.data.__init__`` expected this symbol, so we
+    provide it here to satisfy the import.
     """
-    return paths.data("raw")
+    return str(paths.root)
 
 
-def get_processed_path() -> Path:
+def get_raw_path() -> str:
     """
-    Path to the processed data directory (``data/processed``).
+    Path to the raw HCP (or simulated) data directory.
 
-    Returns
-    -------
-    pathlib.Path
-        The absolute path to the processed data folder, created if missing.
+    Returns:
+        str: ``<project>/data/raw/HCP_1200``
     """
-    return paths.data("processed")
+    raw_path = paths.data("raw", "HCP_1200")
+    raw_path.mkdir(parents=True, exist_ok=True)
+    return str(raw_path)
 
 
-def get_results_path() -> Path:
+def get_processed_path() -> str:
     """
-    Path to the results directory (``data/results``).
+    Path to the processed data directory.
 
-    Returns
-    -------
-    pathlib.Path
-        The absolute path to the results folder, created if missing.
+    Returns:
+        str: ``<project>/data/processed``
     """
-    return paths.data("results")
+    proc_path = paths.data("processed")
+    proc_path.mkdir(parents=True, exist_ok=True)
+    return str(proc_path)
 
 
-def ensure_dir(p: Path) -> Path:
+def get_results_path() -> str:
     """
-    Ensure that the directory for *p* exists.
+    Path to the results directory (used for JSON summaries, etc.).
 
-    Parameters
-    ----------
-    p : pathlib.Path
-        Path to a file or directory.  If the path points to a file,
-        the parent directory is created.
-
-    Returns
-    -------
-    pathlib.Path
-        The original path (for convenient chaining).
+    Returns:
+        str: ``<project>/data/results``
     """
-    if p.suffix:  # it's a file path
-        p = p.parent
-    p.mkdir(parents=True, exist_ok=True)
-    return p
+    res_path = paths.data("results")
+    res_path.mkdir(parents=True, exist_ok=True)
+    return str(res_path)
+
+
+def ensure_dir(p: Path | str) -> None:
+    """
+    Ensure that the directory ``p`` exists.
+
+    Args:
+        p: Path or string representing a directory.
+    """
+    Path(p).mkdir(parents=True, exist_ok=True)
+
+
+__all__ = [
+    "get_project_root",
+    "get_raw_path",
+    "get_processed_path",
+    "get_results_path",
+    "ensure_dir",
+]
