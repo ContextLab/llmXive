@@ -1,13 +1,12 @@
 status: none
-intent: Polymer permeability SMILES dataset Polymer Genome download Python package
-  dataset
+intent: Polymer Permeability Database SMILES experimental coefficients download python
+  package dataset
 required_fields:
 - SMILES
 - permeability_coefficient
 - polymer_type
 - temperature
 - pressure
-- measurement_units
-cache_key: eeb4b5e66b35781f032f893011d79627178fcf86dfb7631d7b9a14ab37b2de43
-searched_at: '2026-10-13T11:25:29.750385+00:00'
+cache_key: 6098b6c954ae7ee8413c6405a19bd370c79a3450450816e98349164eec8fc9eb
+searched_at: '2026-10-13T11:27:52.664150+00:00'
 retry_count: 1

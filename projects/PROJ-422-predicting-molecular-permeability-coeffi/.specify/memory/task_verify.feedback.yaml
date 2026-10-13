@@ -1,9 +1,6 @@
 T001:
-  reason: "The `code/data/download.py` script exists but the unit test fails because\
-    \ the specified Hugging\u202FFace dataset (`molecule-net/permeability`) cannot\
-    \ be loaded, so no raw CSV is written and `data/raw/` remains empty. Consequently\
-    \ `data/raw/checksums.json` is missing, and the loader does not demonstrate successful\
-    \ fetching of a real permeability dataset nor the required checksum recording."
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: dd6d473f868259e51c03a6f05e81bf433ff4bdeb0e30ea612215772a4b7eec79
 T002:
   reason: "Checked `code/data/preprocess.py` \u2013 it implements `MoleculeProcessor.process`\

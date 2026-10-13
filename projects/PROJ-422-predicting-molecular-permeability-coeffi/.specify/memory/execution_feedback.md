@@ -29,7 +29,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download.py -> rc=1
 etNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'molecule-net/permeability' doesn't exist on the Hub or cannot be accessed.
+datasets.exceptions.DatasetNotFoundError: Dataset 'molecule_net/permeability' doesn't exist on the Hub or cannot be accessed.
 
 During handling of the above exception, another exception occurred:
 
@@ -44,7 +44,7 @@ Traceback (most recent call last):
          ^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/data/download.py", line 56, in fetch_dataset
     raise RuntimeError(f"Data fetch failed: {e}")
-RuntimeError: Data fetch failed: Dataset 'molecule-net/permeability' doesn't exist on the Hub or cannot be accessed.
+RuntimeError: Data fetch failed: Dataset 'molecule_net/permeability' doesn't exist on the Hub or cannot be accessed.
 
 - python code/analysis/train.py --config config.yaml -> rc=1
 

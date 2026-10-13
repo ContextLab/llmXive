@@ -1,7 +1,7 @@
 import hashlib
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any
 
 import pandas as pd
 from datasets import load_dataset
@@ -16,10 +16,10 @@ logger = get_logger(__name__)
 # experimentally measured permeability coefficients.
 VERIFIED_DATASET_CONFIG = {
     "source": "huggingface",
-    "dataset_id": "molecule-net/permeability",
+    "dataset_id": "molecule_net/permeability",
     "split": "train",
-    "target_column": "permeability_coefficient",
-    "expected_columns": ["SMILES", "permeability_coefficient"],
+    "target_column": "permeability",
+    "expected_columns": ["SMILES", "permeability"],
 }
 
 class DataLoader:
@@ -43,10 +43,10 @@ class DataLoader:
             f"Loading dataset {self.config['dataset_id']} (split={self.config.get('split', 'train')})"
         )
         try:
+            # ``trust_remote_code`` is no longer supported; the dataset must be in a standard format.
             hf_dataset = load_dataset(
                 self.config["dataset_id"],
-                split=self.config.get("split", "train"),
-                trust_remote_code=True,
+                split=self.config.get("split", "train")
             )
             df = hf_dataset.to_pandas()
             self.logger.info(f"Loaded {len(df)} rows.")
