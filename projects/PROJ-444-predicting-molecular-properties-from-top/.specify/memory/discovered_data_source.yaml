@@ -1,10 +1,8 @@
 status: none
-intent: MoleculeNet Lipophilicity SMILES logP dataset MoleculeNet ESOL HUBioDataLab
-  SELFormer download python package dataset
+intent: MoleculeNet Lipophilicity dataset download via DeepChem python package dataset
 required_fields:
 - smiles
-- logP
-- molecule_id
-cache_key: 133637d1b2465a3a353ee364cad0e02bf9bc1af59c6813349dfca53d26a71b84
-searched_at: '2026-10-13T00:19:04.455249+00:00'
+- exp_logP
+cache_key: 824cef23f8c771d99943782133bf0be186a56344476fa43a06b7ff6206a40f23
+searched_at: '2026-10-13T03:16:04.900708+00:00'
 retry_count: 1

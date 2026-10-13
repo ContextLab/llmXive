@@ -1,16 +1,18 @@
 """
-Data Ingestion Script for ESOL (Lipophilicity) Dataset
+Data Ingestion Script for Lipophilicity (logP) Dataset
 -----------------------------------------------------
 
-Implements Task T001: download the ESOL dataset (default URL),
+Implements Task T001: download the lipophilicity dataset (default URL),
 validate schema, filter by molecular weight, perform power analysis,
 check scaffold diversity, create a scaffold‑based 5‑fold split, and
 write all artefacts to the declared locations.
 
-The script now defaults to downloading the dataset from the URL
-`https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`.
-An optional ``--source skfp`` flag can be used to load the dataset via the
-verified ``scikit‑fingerprints`` loader (required for contract tests).
+The script defaults to using the verified ``scikit‑fingerprints`` loader
+(source='skfp'), which provides the canonical MoleculeNet Lipophilicity
+dataset with columns ``smiles`` and ``logP``.  For environments where
+``skfp`` is unavailable the script can fall back to downloading the raw
+CSV from the official URL (source='url').  An additional alias ``pubchem``
+is accepted for backward compatibility.
 """
 
 import argparse
@@ -242,47 +244,53 @@ def main() -> None:
     pin_random_seed(42)
 
     parser = argparse.ArgumentParser(
-        description="Data ingestion for ESOL (Lipophilicity) dataset"
+        description="Data ingestion for Lipophilicity (logP) dataset"
     )
     parser.add_argument(
         "--source",
         type=str,
-        default="url",
+        default="skfp",
         help=(
-            "Data source identifier. 'url' (default) downloads the CSV from the "
-            "official URL. 'skfp' uses the verified scikit‑fingerprints loader."
+            "Data source identifier. 'skfp' (default) loads the dataset via "
+            "scikit‑fingerprints. 'url' downloads the CSV from the official URL. "
+            "'pubchem' is accepted as an alias for 'skfp' for backward compatibility."
         ),
     )
     parser.add_argument(
         "--url",
         type=str,
-        default="https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv",
-        help="URL to download the ESOL CSV when source='url'.",
+        default="https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv",
+        help="URL to download the CSV when source='url'.",
     )
     args = parser.parse_args()
 
+    # Normalise source aliases
+    source = args.source.lower()
+    if source == "pubchem":
+        source = "skfp"
+
     raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
-    raw_path = raw_dir / "esol.csv"
+    raw_path = raw_dir / "esol.csv"   # keep filename for downstream scripts
 
     # ------------------------------------------------------------------
     # 1. Load dataset
     # ------------------------------------------------------------------
-    if args.source == "skfp":
+    if source == "skfp":
         if load_lipophilicity is None:
             logger.error(
                 "scikit-fingerprints not installed. Install it via requirements.txt."
             )
             sys.exit(1)
-        logger.info("Loading ESOL dataset via scikit‑fingerprints (verified source)...")
+        logger.info("Loading Lipophilicity dataset via scikit‑fingerprints (verified source)...")
         X, y = load_lipophilicity()
         if isinstance(X, pd.DataFrame):
             smiles_series = X["smiles"] if "smiles" in X.columns else X.iloc[:, 0]
         else:
             smiles_series = pd.Series(list(X))
         df = pd.DataFrame({"smiles": smiles_series, "logP": y})
-    elif args.source == "url":
-        logger.info(f"Downloading ESOL dataset from {args.url}...")
+    elif source == "url":
+        logger.info(f"Downloading Lipophilicity dataset from {args.url}...")
         import requests
 
         response = requests.get(args.url, stream=True, timeout=30)
@@ -294,10 +302,13 @@ def main() -> None:
         logger.info(f"Saved raw dataset to {raw_path}")
         df = pd.read_csv(raw_path)
     else:
-        logger.error(f"Unknown source '{args.source}'. Use 'url' or 'skfp'.")
+        logger.error(f"Unknown source '{args.source}'. Use 'skfp', 'url', or 'pubchem'.")
         sys.exit(1)
 
     # Keep only the required columns and enforce exact order
+    # Some versions of the CSV use 'exp' as the target column; rename if needed
+    if "logP" not in df.columns and "exp" in df.columns:
+        df = df.rename(columns={"exp": "logP"})
     df = df[["smiles", "logP"]].copy()
 
     # ------------------------------------------------------------------

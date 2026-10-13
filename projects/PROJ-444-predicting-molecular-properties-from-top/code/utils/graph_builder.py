@@ -1,65 +1,75 @@
 """
 utils/graph_builder.py
 ----------------------
-Helper functions to construct a NetworkX graph from an RDKit molecule
-and to perform basic validation. These utilities are used by the
-TDA computation pipeline (code/02_tda_computation.py).
+Helper utilities to construct a molecular graph from a SMILES string
+using RDKit and to perform minimal validation required by the TDA
+computation pipeline.
+
+The public API matches the imports used in ``code/02_tda_computation.py``:
+    - ``build_graph(smiles: str) -> Optional[Graph]``
+    - ``validate_graph(graph: Graph) -> bool``
+    - ``Graph`` (type alias for ``networkx.Graph``)
+
+Only the functionality needed for the baseline TDA feature computation
+is implemented – building an undirected graph where nodes correspond to
+atom indices and edges correspond to bonds.  Validation simply checks
+that the graph contains at least one node; more sophisticated checks
+(e.g., connectivity) are unnecessary for the current workflow.
 """
 
-from typing import Optional, Any
+from __future__ import annotations
+
+import logging
+from typing import Optional
 
 import networkx as nx
 from rdkit import Chem
-from rdkit.Chem import rdmolops
 
-# Type alias for clarity – the TDA pipeline expects a NetworkX Graph
+# Type alias for clarity – the rest of the code expects this name.
 Graph = nx.Graph
 
+_log = logging.getLogger(__name__)
 
 def build_graph(smiles: str) -> Optional[Graph]:
     """
-    Convert a SMILES string into an undirected NetworkX graph.
+    Construct an undirected ``networkx.Graph`` from a SMILES string.
 
     Parameters
     ----------
     smiles: str
-        SMILES representation of the molecule.
+        The SMILES representation of the molecule.
 
     Returns
     -------
     Optional[Graph]
-        A NetworkX Graph if the SMILES is valid, otherwise ``None``.
+        A NetworkX graph with atom indices as nodes and bonds as edges,
+        or ``None`` if the SMILES cannot be parsed by RDKit.
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
+        _log.debug("RDKit failed to parse SMILES: %s", smiles)
         return None
 
-    # Ensure the molecule has explicit hydrogens removed (they are not needed for
-    # the shortest‑path distance filtration used in this project).
-    mol = Chem.RemoveHs(mol)
+    G = nx.Graph()
+    # Add nodes for each atom (using the atom index as the node identifier)
+    for atom in mol.GetAtoms():
+        G.add_node(atom.GetIdx())
 
-    # Obtain the adjacency matrix (numpy array) where entry (i, j) == 1
-    # if there is a bond between atoms i and j.
-    adj = rdmolops.GetAdjacencyMatrix(mol)
-
-    # Create a NetworkX graph from the adjacency matrix.
-    G = nx.from_numpy_array(adj)
-
-    # Preserve atom indices as node attributes for potential downstream use.
-    for idx, atom in enumerate(mol.GetAtoms()):
-        G.nodes[idx]["atom_symbol"] = atom.GetSymbol()
-        G.nodes[idx]["atomic_num"] = atom.GetAtomicNum()
+    # Add edges for each bond
+    for bond in mol.GetBonds():
+        begin_idx = bond.GetBeginAtomIdx()
+        end_idx = bond.GetEndAtomIdx()
+        G.add_edge(begin_idx, end_idx)
 
     return G
-
 
 def validate_graph(graph: Graph) -> bool:
     """
     Perform a lightweight validation of the constructed graph.
 
-    The current pipeline only requires that the graph is non‑empty.
-    Additional checks (e.g., connectivity) can be added later without
-    affecting the existing interface.
+    The pipeline only requires that the graph is non‑empty; additional
+    checks (e.g., connectivity, aromaticity) are handled elsewhere
+    or are not necessary for the baseline persistence‑image computation.
 
     Parameters
     ----------
@@ -69,12 +79,11 @@ def validate_graph(graph: Graph) -> bool:
     Returns
     -------
     bool
-        ``True`` if the graph passes validation, ``False`` otherwise.
+        ``True`` if the graph contains at least one node, ``False`` otherwise.
     """
-    # The graph must contain at least one node.
-    if graph is None or graph.number_of_nodes() == 0:
+    if graph is None:
         return False
-
-    # Optionally, ensure the graph is undirected (NetworkX Graph is undirected by default).
-    # No further validation is required for the baseline TDA computation.
+    if graph.number_of_nodes() == 0:
+        _log.debug("Graph validation failed: graph has no nodes.")
+        return False
     return True

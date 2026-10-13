@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 6bff120d750c1473a6d317addc160ee8e7e64a655d9fd41b4dd74128ee1dcd9c
-  r: 'The core artifacts exist and are consistent with the run log (checksum matches
-    `data/raw/esol.csv`, power report shows `passes: true` with actual_n=4197, 3 large
-    molecules logged, 2441 scaffolds, 5-fold split written), and the data is real.
-    However, two explicit requirements are not met: (1) the script''s default source
-    is the `skfp` loader rather than downloading from the specified default URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`
-    (the `--url` path exists but is not the default behavior), and (2) the required
-    "chunked sparse-matrix fallback" for processing'
-  sig: d21a0442f874cb71a66685f1ffc754c14130d455956f036f3aa96ca83a953b6b
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,13 +15,12 @@ T004:
     \ confirmed."
 T014:
   c: false
-  h: 41d824427c761d638b484339ac32ced5818b83625cd3a67c92d7bfedb49397d5
-  r: "The required input `data/raw/esol.csv` is MISSING, and the test works around\
-    \ this by silently materializing a different dataset (skfp lipophilicity) in its\
-    \ place \u2014 that is a fabricated stand-in, not the ESOL data the schema contract\
-    \ describes, and it would mask the missing artifact rather than validate it. Additionally,\
-    \ there is no execution evidence that `pytest code/tests/test_dataset_schema.py`\
-    \ actually passes (no test output, and the test depends on the skfp package being\
-    \ installed). The implementer must provide the real `data/raw/esol.csv` (ESOL\
-    \ solubility data with the schema's columns),"
-  sig: a16d64d55561bab96112f16d125a31ff7184a44eacbb18094160141e1f5962f1
+  h: eef5fdab7ea2a2b2e2a52cd53b3370012508cfeb641829fbc25983fed2511039
+  r: "The test file, raw CSV, and schema all exist and their contents are mutually\
+    \ consistent (CSV has exactly `smiles,logP` columns matching the schema's required\
+    \ fields, and the test logic correctly validates columns, nulls, types, and n\u2265\
+    128). However, the task's verification criterion is that `pytest code/tests/test_dataset_schema.py`\
+    \ passes, and no execution evidence (pytest output, exit code, or run log) was\
+    \ supplied \u2014 the passing test is only claimed, not demonstrated. Provide\
+    \ a recorded pytest run showing all tests in the file pass to complete this task."
+  sig: 77153c11a676960cce9a99c71822046fac8cf03f9f60f268a472b94fe6f02abe

@@ -1,6 +1,12 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
-    exit=1'
+  reason: "The script ingests the **Lipophilicity** dataset via scikit-fingerprints\
+    \ by default, not the required ESOL dataset \u2014 the default `--url` is `.../lipophilicity.csv`\
+    \ instead of the specified `.../dataset_esol.csv`, and the raw CSV's contents\
+    \ (logP values like 3.54/-1.18, 4197 rows) are Lipophilicity, not ESOL's ~1128\
+    \ water-solubility records. The required \"chunked sparse-matrix fallback\" for\
+    \ processing remaining records is entirely absent from the code. Additionally,\
+    \ the exclusion log is malformed: the source writes literal `\\n` text (`f.write(f\"\
+    {smi}\\\\n\")`), producing one line of backslash-n-jo"
   task: b229e561fa0112f053eb188efae9dc8ab20dafe932c0b8790a489c485a5ccd91
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py
@@ -29,14 +35,13 @@ T012:
 T013:
   task: 1ef72eac4390b13c6cb01a63e9065e0356623e5a60ab7e7304975869598aa834
 T014:
-  reason: "The required input `data/raw/esol.csv` is MISSING, and the test works around\
-    \ this by silently materializing a different dataset (skfp lipophilicity) in its\
-    \ place \u2014 that is a fabricated stand-in, not the ESOL data the schema contract\
-    \ describes, and it would mask the missing artifact rather than validate it. Additionally,\
-    \ there is no execution evidence that `pytest code/tests/test_dataset_schema.py`\
-    \ actually passes (no test output, and the test depends on the skfp package being\
-    \ installed). The implementer must provide the real `data/raw/esol.csv` (ESOL\
-    \ solubility data with the schema's columns),"
+  reason: "The test file, raw CSV, and schema all exist and their contents are mutually\
+    \ consistent (CSV has exactly `smiles,logP` columns matching the schema's required\
+    \ fields, and the test logic correctly validates columns, nulls, types, and n\u2265\
+    128). However, the task's verification criterion is that `pytest code/tests/test_dataset_schema.py`\
+    \ passes, and no execution evidence (pytest output, exit code, or run log) was\
+    \ supplied \u2014 the passing test is only claimed, not demonstrated. Provide\
+    \ a recorded pytest run showing all tests in the file pass to complete this task."
   task: da4b2e9d3074aadfa40af76e3568ecff5c38149a740a185fb247fa1026135a16
 T015:
   task: f277646243fa1ecd38407e73c815f898130d740e0d417daef75e33c7cbe42680
