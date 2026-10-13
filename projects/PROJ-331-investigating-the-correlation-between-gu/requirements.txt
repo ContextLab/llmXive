@@ -1,12 +1,7 @@
 # Project dependencies
-pandas
-numpy
-scikit-bio
-statsmodels
-scipy
-matplotlib
-seaborn
-pyarrow
-tqdm
-# The following are already available in the base environment and do not need to be listed:
-# - requests, jsonschema, pytest, PyYAML, etc.
+# Existing dependencies (implicitly available): numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Additional required packages for this project
+pyarrow>=16.0.0
+scikit-bio>=0.6.0
+# Note: Versions are pinned to ensure compatibility with the CI environment.

@@ -8,7 +8,7 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T013 **Verify PPMI dataset citation and provenance**  
+- [X] T013 **Verify PPMI dataset citation and provenance**  
   *Implementation*: `code/src/pipeline/verify_dataset.py` checks that the two raw files exist, validates their SHA‑256 checksums against the values recorded in the PPMI publication, and confirms the citation is reachable via the Reference‑Validator Agent (Principle II). If verification fails, the script aborts with an informative error.  
   *Verification*: Unit test `code/tests/test_verify_dataset.py` ensures correct handling of matching and mismatching checksums.
 
@@ -16,12 +16,12 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Implementation*: `code/src/pipeline/ingest.py` checks that `data/raw/ppmi_asv.csv` and `data/raw/ppmi_clinical.parquet` contain the required columns and are readable. If a file is missing or malformed the script exits with a non‑zero status and a clear error message; if the `MDS_UPDRS_Total` column is absent it logs a warning and sets a skip‑flag for downstream correlation/LME steps (FR‑001, FR‑004).  
   *Verification*: Unit tests in `code/tests/test_ingest.py` cover (a) successful load, (b) missing file, (c) missing outcome column. The runnable command is documented in `specs/001-investigating-the-correlation-between-gu/quickstart.md`.
 
-- [ ] T002 **Filtering, CLR transformation, and memory‑cap handling**  
+- [X] T002 **Filtering, CLR transformation, and memory‑cap handling**  
   *Implementation*: `code/src/pipeline/preprocess.py` (a) loads the raw files using **pandas + pyarrow**, (b) merges on `patient_id` + `visit_date`, (c) retains only PD patients with **≥ 2 visits** (logs exclusion count, FR‑002), (d) drops taxa whose counts are zero across all retained samples (warning logged), (e) adds a small pseudocount (1e‑6) and applies a centered‑log‑ratio (CLR) transform via `scikit_bio` (FR‑003), (f) detects zero‑variance covariates (e.g., constant levodopa dose) and removes them with a warning, (g) if the number of retained taxa would exceed the RAM budget, selects the **top 100 most abundant taxa** (FR‑010).  
   *Outputs*: `data/processed/filtered_samples.parquet`, `data/processed/clr_abundances.parquet`.  
   *Verification*: `code/tests/test_preprocess.py` checks patient‑visit filtering, zero‑taxa removal, correct CLR shape, and that the top‑100 subsampling rule is applied when needed.
 
-- [ ] T003 **Per‑patient slope computation (taxa & clinical outcome)**  
+- [X] T003 **Per‑patient slope computation (taxa & clinical outcome)**  
   *Implementation*: `code/src/pipeline/slopes.py` parses `visit_date` with `pd.to_datetime`, computes elapsed time in **exact years** (`(date - first_date).dt.days / 365.25`), then fits a simple linear regression for each patient‑taxon pair on the CLR‑transformed abundances to obtain a slope (FR‑004). It also fits a regression of `MDS_UPDRS_Total` vs. time per patient to obtain the clinical slope; if the outcome column was flagged missing by T001 a warning is emitted and the clinical‑slope file is omitted.  
   *Outputs*: `data/processed/patient_taxon_slopes.parquet`, `data/processed/patient_outcome_slopes.parquet` (the latter only when the outcome exists).  
   *Verification*: `code/tests/test_slopes.py` validates correct handling of exactly two visits, correct year calculation, and proper exclusion of single‑visit patients.

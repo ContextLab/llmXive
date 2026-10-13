@@ -4,7 +4,7 @@ Loads the researcher‑supplied raw inputs from ``data/raw/``, merges the ASV
 and clinical tables on ``patient_id`` + ``visit_date``, retains PD patients
 with >= 2 visits (FR‑002, logging the excluded‑subject count), drops
 all‑zero taxa with a warning, adds a pseudocount of 1e‑6 and applies the
-centered log‑ratio (CLR) transformation (FR‑003), detects zero‑variance
+centered log‑ratio (CLR) transformation via **scikit‑bio** (FR‑003), detects zero‑variance
 covariates and logs a warning (they are flagged for exclusion downstream),
 and subsamples to the top 100 most abundant taxa if the modeling feature
 set would exceed 7 GB of RAM (FR‑010).
@@ -22,6 +22,17 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+
+# scikit‑bio provides a robust CLR implementation that respects compositional
+# data principles. It raises clear errors if non‑positive values are passed,
+# so we add a small pseudocount beforehand.
+try:
+    from skbio.stats.composition import clr as sbio_clr
+except ImportError as exc:  # pragma: no cover
+    raise ImportError(
+        "scikit‑bio is required for CLR transformation. Install it via "
+        "`pip install scikit-bio`."
+    ) from exc
 
 # Allow both `python -m code.src.pipeline.preprocess` and package imports.
 try:
@@ -230,12 +241,19 @@ def cap_taxa_by_memory(
 
 
 def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.DataFrame:
-    """Apply the centered log‑ratio transformation row‑wise (per sample).
+    """Apply the centered log‑ratio transformation using scikit‑bio.
 
-    clr(x)_j = log(x_j + pseudocount) - mean_k log(x_k + pseudocount)
+    The function adds a small pseudocount to avoid log‑zero issues,
+    then delegates to ``skbio.stats.composition.clr`` which computes
+    ``log(x) - mean(log(x))`` row‑wise.  The returned DataFrame retains
+    the original column names and index.
     """
-    logged = np.log(counts.astype(float) + pseudocount)
-    return logged.sub(logged.mean(axis=1), axis=0)
+    # Ensure we work with floating point numbers and add the pseudocount.
+    counts_pc = counts.astype(float) + pseudocount
+    # scikit‑bio operates on a NumPy array.
+    transformed = sbio_clr(counts_pc.values)
+    # Preserve the original DataFrame shape and column labels.
+    return pd.DataFrame(transformed, index=counts.index, columns=counts.columns)
 
 
 def detect_zero_variance_covariates(merged: pd.DataFrame) -> List[str]:
