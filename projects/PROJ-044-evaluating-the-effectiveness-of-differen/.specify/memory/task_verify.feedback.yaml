@@ -1,8 +1,14 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/setup_check.py
-    exit=1'
+  reason: The only artifact provided is `quickstart.md`, which documents the entry
+    point but does not show the required project structure (e.g., `code/`, `data/`,
+    `results/` directories) nor a `requirements.txt` (or similar) that lists the exact
+    dependencies `torch`, `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`,
+    and `pyarrow`. Without those files or evidence of the dependencies being specified/installed,
+    the task is not fully satisfied.
   task: d2a27c257bae67fbed74a496ba9f37343d863b747d3c7df42c64aea39b0d15a8
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: 9540a6b977d633b839725f09127fcc367c45d2dbf74f7566e09c5991ee4d020c
 T003:
   task: 4faf0b22120ad1d3f5b53a6b5666c3b9bef15e50a347be6ba26a905ade9b202f

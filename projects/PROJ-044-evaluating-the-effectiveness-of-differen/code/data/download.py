@@ -17,12 +17,11 @@ References:
 
 import time
 import hashlib
-import os
 import logging
 import sys
 import argparse
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional
 
 import pandas as pd
 
@@ -43,9 +42,11 @@ DATASET_NAME = "leaf/femnist"
 SUPPORTED_DATASETS = {"femnist"}
 EXCLUDED_DATASETS = {"shakespeare"}
 
+
 class DataFetchError(Exception):
     """Custom exception for data fetching failures."""
     pass
+
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA256 checksum of a file."""
@@ -55,6 +56,7 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+
 def generate_checksum_file(file_path: Path, checksum: str) -> Path:
     """Generate a .sha256 file containing the checksum."""
     checksum_path = file_path.with_suffix(file_path.suffix + ".sha256")
@@ -62,6 +64,7 @@ def generate_checksum_file(file_path: Path, checksum: str) -> Path:
         f.write(f"{checksum}  {file_path.name}\n")
     logger.info(f"Generated checksum file: {checksum_path}")
     return checksum_path
+
 
 def download_femnist_streaming(output_dir: Path) -> Path:
     """
@@ -80,10 +83,7 @@ def download_femnist_streaming(output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / "femnist.parquet"
 
-    # If file already exists, verify checksum or skip?
-    # For idempotency, we check if file exists and has valid checksum
-    # But to ensure freshness and correctness per task, we might re-download
-    # if checksum file is missing or invalid.
+    # If file already exists, verify checksum; otherwise re‑download.
     checksum_file = output_file.with_suffix(output_file.suffix + ".sha256")
     if output_file.exists() and checksum_file.exists():
         with open(checksum_file, "r") as f:
@@ -93,26 +93,24 @@ def download_femnist_streaming(output_dir: Path) -> Path:
             logger.info(f"File {output_file} already exists and checksum matches. Skipping download.")
             return output_file
         else:
-            logger.warning(f"Checksum mismatch for {output_file}. Re-downloading.")
+            logger.warning(f"Checksum mismatch for {output_file}. Re‑downloading.")
             output_file.unlink()
             checksum_file.unlink()
 
     logger.info(f"Starting streaming download of {DATASET_NAME}...")
-    
+
     # Import here to avoid hard dependency if not installed (though required by T002)
     try:
         from datasets import load_dataset
-    except ImportError:
-        raise DataFetchError("Hugging Face 'datasets' library is not installed. Please install it via requirements.txt.")
+    except ImportError as exc:
+        raise DataFetchError(
+            "Hugging Face 'datasets' library is not installed. Please install it via requirements.txt."
+        ) from exc
 
     retry_count = 0
-    last_exception = None
-
     while retry_count < MAX_RETRIES:
         try:
             logger.info(f"Attempt {retry_count + 1}/{MAX_RETRIES}: Loading dataset with streaming=True...")
-            # Load dataset in streaming mode
-            # split='train' as per task requirements
             dataset = load_dataset(
                 DATASET_NAME,
                 split='train',
@@ -120,61 +118,44 @@ def download_femnist_streaming(output_dir: Path) -> Path:
                 streaming=True
             )
 
-            # Process in chunks to avoid memory issues and convert to pandas
-            # We will collect all data into a list of dicts then convert to DataFrame
-            # Note: FEMNIST is large. Streaming iterates over examples.
-            # We need to accumulate them.
             logger.info("Iterating over streaming dataset to build DataFrame...")
-            
-            data_records = []
-            batch_size = 1000
+            records = []
             count = 0
-            
-            # Iterate through the streaming dataset
             for example in dataset:
-                # Example structure from leaf/femnist:
-                # {'user_id': ..., 'segment_id': ..., 'image': <PIL.Image>, 'label': int}
-                # We need to handle the image. For parquet, we might store as bytes or skip if not needed for partition.
-                # However, T012 (Partition) needs the data.
-                # If the partition logic expects raw images, we must convert to bytes or base64.
-                # Let's assume we convert image to bytes for storage.
-                
                 img = example.get('image')
                 img_bytes = None
                 if img is not None:
-                    # Convert PIL Image to bytes
                     import io
                     buf = io.BytesIO()
                     img.save(buf, format='PNG')
                     img_bytes = buf.getvalue()
-                
+
                 record = {
                     'user_id': example.get('user_id'),
                     'segment_id': example.get('segment_id'),
                     'label': example.get('label'),
                     'image_bytes': img_bytes
                 }
-                data_records.append(record)
+                records.append(record)
                 count += 1
 
                 if count % 10000 == 0:
                     logger.info(f"Processed {count} examples...")
 
             logger.info(f"Downloaded {count} examples. Converting to DataFrame...")
-            df = pd.DataFrame(data_records)
-            
+            df = pd.DataFrame(records)
+
             logger.info(f"Saving to {output_file}...")
             df.to_parquet(output_file, index=False)
-            
+
             # Generate checksum
             checksum = compute_sha256(output_file)
             generate_checksum_file(output_file, checksum)
-            
+
             logger.info(f"Successfully saved FEMNIST to {output_file} (checksum: {checksum})")
             return output_file
-
+        
         except Exception as e:
-            last_exception = e
             retry_count += 1
             logger.error(f"Attempt {retry_count} failed: {e}")
             if retry_count < MAX_RETRIES:
@@ -185,7 +166,9 @@ def download_femnist_streaming(output_dir: Path) -> Path:
                 logger.error(f"Failed to download FEMNIST after {MAX_RETRIES} attempts.")
                 raise DataFetchError(f"Failed to download FEMNIST after {MAX_RETRIES} attempts: {e}") from e
 
+    # Should never reach here
     raise DataFetchError("Unexpected error in download loop.")
+
 
 def download_dataset(dataset_name: str, output_dir: Optional[Path] = None, is_streaming: bool = True) -> Path:
     """
@@ -211,8 +194,7 @@ def download_dataset(dataset_name: str, output_dir: Optional[Path] = None, is_st
     # Check constraints (T000)
     if dataset_name in EXCLUDED_DATASETS:
         raise ValueError(
-            f"Shakespeare excluded per plan.md Gap Analysis (no verified source). "
-            f"Refer to T000 for exclusion details."
+            "Shakespeare excluded per plan.md Gap Analysis"
         )
 
     if dataset_name not in SUPPORTED_DATASETS:
@@ -220,8 +202,9 @@ def download_dataset(dataset_name: str, output_dir: Optional[Path] = None, is_st
 
     if dataset_name == "femnist":
         return download_femnist_streaming(output_dir)
-    
+
     raise ValueError(f"No handler for dataset: {dataset_name}")
+
 
 def main():
     """CLI entry point."""
@@ -256,11 +239,11 @@ def main():
             is_streaming=not args.no_streaming
         )
         logger.info(f"Download complete. Output: {result_path}")
-        
+
         # Verify existence
         if not result_path.exists():
             raise DataFetchError(f"Downloaded file not found at {result_path}")
-        
+
         # Verify checksum file
         checksum_path = result_path.with_suffix(result_path.suffix + ".sha256")
         if not checksum_path.exists():
@@ -278,6 +261,7 @@ def main():
     except Exception as e:
         logger.error(f"Unexpected Error: {e}", exc_info=True)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

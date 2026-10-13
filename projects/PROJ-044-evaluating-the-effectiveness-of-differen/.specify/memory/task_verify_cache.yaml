@@ -1,0 +1,10 @@
+T001:
+  c: false
+  h: 4c68c8d4c57f193fb02c7a27f7a2d6f2a75a123c4f4bbbbfebf56055b35c8c48
+  r: The only artifact provided is `quickstart.md`, which documents the entry point
+    but does not show the required project structure (e.g., `code/`, `data/`, `results/`
+    directories) nor a `requirements.txt` (or similar) that lists the exact dependencies
+    `torch`, `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`, and `pyarrow`.
+    Without those files or evidence of the dependencies being specified/installed,
+    the task is not fully satisfied.
+  sig: 3f0ee691a308355bf2de80024e02c6c6d93734df4dfc36ee1631692c33cbeea4

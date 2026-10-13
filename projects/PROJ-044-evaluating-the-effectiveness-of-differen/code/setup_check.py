@@ -5,16 +5,17 @@ Responsibilities:
 1. Install the project dependencies from requirements.txt into the
    active Python environment (idempotent; T001's mandate is to install
    torch, opacus, datasets, pandas, scipy, statsmodels, pyarrow).
-2. Verify every required third-party package is importable.
+2. Verify every required third‑party package is importable.
 3. Create the canonical project directory structure (data/raw,
    data/partitions, results, figures).
 
-Exits non-zero with a clear message if any dependency cannot be
+Exits non‑zero with a clear message if any dependency cannot be
 installed or imported — the failure is loud, never silent.
 """
 import importlib
 import subprocess
 import sys
+from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
 
@@ -46,10 +47,8 @@ REQUIRED_DIRS = [
 def install_dependencies() -> bool:
     """Install requirements.txt into the current interpreter's env.
 
-    Returns True on success. Pinned versions in requirements.txt
-    resolve the NumPy 1.x / pyarrow>=17 incompatibility observed in the
-    previous failed run by downgrading pyarrow to a NumPy-1-compatible
-    release.
+    Returns True on success. Pinned versions in requirements.txt resolve the
+    NumPy / pyarrow incompatibility observed in earlier runs.
     """
     req_path = paths.root / "requirements.txt"
     if not req_path.exists():
@@ -87,6 +86,18 @@ def ensure_directories() -> None:
     for label, path in REQUIRED_DIRS:
         path.mkdir(parents=True, exist_ok=True)
         print(f"  DIR   {label} -> {path}")
+
+    # Clean up any leftover placeholder *file* (not a directory).
+    # The previous implementation attempted to unlink a directory,
+    # which raised IsADirectoryError. We now guard against that.
+    placeholder_path = paths.results(".placeholder")
+    try:
+        if placeholder_path.is_file():
+            placeholder_path.unlink()
+            print(f"  CLEAN placeholder file removed: {placeholder_path}")
+    except Exception as e:
+        # Non‑critical; log and continue.
+        log.warning("Failed to clean placeholder file: %s", e)
 
 
 def main() -> int:
