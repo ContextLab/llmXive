@@ -267,6 +267,22 @@ def _load_participant_metadata(metadata_path: Path) -> pd.DataFrame:
     df = df.set_index("participant_id")
     return df
 
+def _locate_metadata_file(raw_dir: Path) -> Path:
+    """
+    Search for ``heat_pain_thresholds.csv`` in ``raw_dir`` or its immediate parent.
+    Returns the Path if found, otherwise raises FileNotFoundError.
+    """
+    candidate = raw_dir / "heat_pain_thresholds.csv"
+    if candidate.is_file():
+        return candidate
+    # Try one level up (useful when the CLI points at a sub‑sample directory)
+    candidate = raw_dir.parent / "heat_pain_thresholds.csv"
+    if candidate.is_file():
+        return candidate
+    raise FileNotFoundError(
+        f"Metadata CSV not found in {raw_dir} nor its parent directory."
+    )
+
 def _load_raw_for_participant(loader: EEGDataLoader, participant_id: str) -> mne.io.Raw:
     """
     Helper that loads the raw EEG file for a participant using the loader's
@@ -382,7 +398,7 @@ def preprocess_all_participants(
     Returns a list of dictionaries ready for aggregation into a DataFrame.
     """
     raw_dir = _determine_raw_dir(loader)
-    metadata_path = raw_dir / "heat_pain_thresholds.csv"
+    metadata_path = _locate_metadata_file(raw_dir)
     metadata_df = _load_participant_metadata(metadata_path)
 
     all_rows: List[Dict[str, Any]] = []

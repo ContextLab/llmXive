@@ -20,3 +20,6 @@
 2026-10-13 03:23:59,985 - __main__ - ERROR - Missing required citations:
 2026-10-13 03:23:59,985 - __main__ - ERROR -   - doi:10.1234/example1
 2026-10-13 03:23:59,985 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 05:19:09,720 - __main__ - ERROR - Missing required citations:
+2026-10-13 05:19:09,720 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 05:19:09,720 - __main__ - ERROR -   - doi:10.5678/example2

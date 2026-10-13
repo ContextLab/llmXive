@@ -13,14 +13,8 @@ T006:
 T007:
   task: 4920bb068637f0677080503775255f0cbbe75a85492856ce6325b89e0c093b96
 T008:
-  reason: "The repository contains `code/preprocessing.py`, but it never creates the\
-    \ required `data/processed/feature_matrix.csv` (the file is missing). Moreover,\
-    \ the pipeline cannot run: `EEGDataLoader` has no `load_raw` method used in `preprocess_participant`,\
-    \ the CLI entry point is not reachable via `python -m preprocessing` (the module\
-    \ is inside `code/`), and the feature names produced (`MS_A_Duration`, `Trans_A_A`,\
-    \ `Spectral_Delta_Power`, \u2026) do not match the expected columns defined in\
-    \ `config.EXPECTED_FEATURE_COLUMNS` (e.g., `duration_A`, `trans_AA`, `power_delta`).\
-    \ Consequently the integration tes"
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess_execution.yaml
+    exit=-1'
   task: 4d9e307a5628ed47f1bdc08a1b27e98cd8c09ab328d77f34d09089d92d89b8b7
 T009:
   reason: Checked for `data/processed/feature_matrix.csv` (missing) and the required
