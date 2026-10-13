@@ -6,7 +6,7 @@ The checklist below implements every functional requirement (FR‑001 – FR
 
 ---
 
-- [ ] **T001 [P1] [US1]** Download the verified OpenNeuro fMRI datasets (ds000246 and, if needed, ds001600) containing musical improvisation and scripted runs.  
+- [ ] **T001 [P1] [US1]** Download the verified OpenNeuro fMRI datasets (ds000246 and, if needed, ds001600) containing musical improvisation and scripted runs.   <!-- FAILED-IN-EXECUTION: code/download_openneuro.py exit=1 -->
   *Artifact path*: `data/raw/openneuro/ds000246/` (and `data/raw/openneuro/ds001600/` if available).  
   *Verification*:  
   &nbsp;&nbsp;• After download, a `manifest.json` in the dataset folder lists all subject IDs and must contain the columns `subject_id`, `run_label`, `age`, `years_training`, `fd`.  

@@ -1,12 +1,11 @@
 status: none
-intent: OpenNeuro ds000246 ds001600 clane9/openneuro-fslr64k Nilearn Schaefer 2018
-  atlas python package dataset
+intent: OpenNeuro ds000246 ds001600 Schaefer 2018 atlas download python package dataset
 required_fields:
 - subject_id
 - run_label
 - age
 - years_training
-- fd
+- framewise_displacement
 - roi_1
 - roi_2
 - roi_3
@@ -14,6 +13,6 @@ required_fields:
 - roi_5
 - roi_6
 - roi_7
-cache_key: 997348b43a7b96925f1074398163104cac5e89dc65029e0fb12d60379f496494
-searched_at: '2026-10-13T14:16:29.231593+00:00'
+cache_key: 6b410a518fad72e4e39c654263f390ba03d79b24bf4fdb1d5fc6f3cec9abef98
+searched_at: '2026-10-13T14:33:57.231597+00:00'
 retry_count: 1
