@@ -1,10 +1,11 @@
 status: none
-intent: download FEMNIST parquet dataset via pip python package dataset
+intent: download FEMNIST and Shakespeare datasets pip install federated learning python
+  package dataset
 required_fields:
 - image
 - label
 - client_id
 - split
-cache_key: 38c48200c2855d79a2296ff3c6894d785b2b4b1c10b5f18be062073d2e04e56e
-searched_at: '2026-10-13T11:16:59.574696+00:00'
+cache_key: 27325cb031884cb2314be19ed5d951d2fac6e129fb4f4b92c2e1a27ef49b6fac
+searched_at: '2026-10-13T12:23:54.600192+00:00'
 retry_count: 1

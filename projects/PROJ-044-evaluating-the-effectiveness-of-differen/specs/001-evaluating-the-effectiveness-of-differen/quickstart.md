@@ -12,6 +12,48 @@ streaming FEMNIST download → Dirichlet client partitions → DP-FedAvg trainin
 - Internet access (to download FEMNIST from Hugging Face)
 - No GPU required; everything runs on CPU.
 
+## Project Structure
+
+The repository layout (created/verified by `code/setup_check.py`) is:
+
+```text
+projects/PROJ-044-evaluating-the-effectiveness-of-differen/
+├── data/
+│   ├── raw/
+│   │   └── femnist.parquet               # streamed download → static parquet
+│   └── partitions/
+│       └── partition_femnist_{seed}_{alpha}_*.json
+├── code/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── setup_check.py
+│   ├── data/
+│   │   ├── download.py          # streaming → parquet (materialized)
+│   │   └── partition.py         # Dirichlet splitter, entropy calc, minority flag
+│   ├── models/
+│   │   └── cnn.py               # tiny ConvNet (≈ 30 k params)
+│   ├── training/
+│   │   ├── fedavg.py            # core FedAvg loop (DP optional)
+│   │   └── dp_utils.py          # Opacus wrapper, Moments Accountant
+│   ├── analysis/
+│   │   ├── stats.py             # paired t-test, LMM, Bonferroni
+│   │   └── plots.py             # overlay plot, sensitivity curves
+│   └── main.py                  # CLI entry point (orchestration)
+├── results/
+├── figures/
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── requirements.txt
+└── README.md
+```
+
+## Dependencies
+
+All dependencies are pinned in `requirements.txt` at the project root:
+`torch` (CPU), `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`,
+`pyarrow` (parquet I/O), plus `numpy`, `matplotlib`, and `pytest`.
+
 ## Setup
 
 ```bash
@@ -30,10 +72,6 @@ pip install -r requirements.txt
 python code/setup_check.py
 ```
 
-Installed dependencies: `torch`, `opacus`, `datasets`, `pandas`, `scipy`,
-`statsmodels`, `pyarrow` (plus `numpy`/`matplotlib` and the platform-provided
-`pytest`, `seaborn`, `PyYAML`, `requests`, `jsonschema`, `psutil`).
-
 ## Step-by-Step Execution
 
 ### 1. Download the FEMNIST dataset (stream → static parquet)
@@ -41,7 +79,7 @@ Installed dependencies: `torch`, `opacus`, `datasets`, `pandas`, `scipy`,
 python code/data/download.py --dataset femnist
 # → creates data/raw/femnist.parquet and data/raw/femnist.sha256
 ```
-The loader streams the full dataset (`datasets.load_dataset(..., streaming=True)`)
+The loader streams the dataset (`datasets.load_dataset(..., streaming=True)`)
 and fails loudly on fetch errors — there is no synthetic fallback. Requesting
 `--dataset shakespeare` raises
 `ValueError: Shakespeare excluded per plan.md Gap Analysis`.

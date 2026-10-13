@@ -18,13 +18,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py --dataset femnist -> rc=1
-e sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/leaf/femnist to ask for access.
-2026-10-13 11:15:56,522 - __main__ - INFO - Retrying in 4 seconds...
-2026-10-13 11:16:00,522 - __main__ - INFO - Attempt 3/3: Loading dataset with streaming=True...
-2026-10-13 11:16:00,591 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/leaf/femnist "HTTP/1.1 401 Unauthorized"
-2026-10-13 11:16:00,592 - __main__ - ERROR - Attempt 3 failed: Dataset 'leaf/femnist' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/leaf/femnist to ask for access.
-2026-10-13 11:16:00,592 - __main__ - ERROR - Failed to download FEMNIST after 3 attempts.
-2026-10-13 11:16:00,592 - __main__ - ERROR - Data Fetch Error: Failed to download FEMNIST after 3 attempts: Dataset 'leaf/femnist' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/leaf/femnist to ask for access.
+face-cli login` or visit the dataset page at https://huggingface.co/datasets/federated/femnist to ask for access.
+2026-10-13 12:22:59,699 - __main__ - INFO - Retrying in 4 seconds...
+2026-10-13 12:23:03,700 - __main__ - INFO - Attempt 3/3: Loading dataset with streaming=True...
+2026-10-13 12:23:03,722 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/federated/femnist "HTTP/1.1 401 Unauthorized"
+2026-10-13 12:23:03,722 - __main__ - ERROR - Attempt 3 failed: Dataset 'federated/femnist' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/federated/femnist to ask for access.
+2026-10-13 12:23:03,722 - __main__ - ERROR - Failed to download FEMNIST after 3 attempts.
+2026-10-13 12:23:03,722 - __main__ - ERROR - Data Fetch Error: Failed to download FEMNIST after 3 attempts: Dataset 'federated/femnist' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/federated/femnist to ask for access.
 
 - python -c "import hashlib, pathlib; p = pathlib.Path('data/raw/femnist.parquet'); expected = pathlib.Path('data/raw/femnist.sha256').read_text().split()[0]; actual = hashlib.sha256(p.read_bytes()).hexdigest(); assert actual == expected, 'checksum mismatch'; print('checksum OK:', actual)" -> rc=1
 
@@ -40,8 +40,8 @@ FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/femnist.sha256
 
 - python code/data/partition.py  --data data/raw/femnist.parquet  --output data/partitions  --seeds 42 43 44 45 46  --alphas 0.1 0.5 1.0 -> rc=1
 
-2026-10-13 11:16:01,084 - __main__ - ERROR - Data file not found: data/raw/femnist.parquet
-2026-10-13 11:16:01,084 - __main__ - ERROR - Please ensure T011 (download) has completed successfully.
+2026-10-13 12:23:04,287 - __main__ - ERROR - Data file not found: data/raw/femnist.parquet
+2026-10-13 12:23:04,287 - __main__ - ERROR - Please ensure T011 (download) has completed successfully.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-044-evaluating-the-effectiveness-of-differen/code/data/partition.py", line 428, in <module>
     main()
@@ -87,8 +87,8 @@ FileNotFoundError: Metrics file not found: results/filtered_data.csv
 
 - python code/analysis/plots.py -> rc=1
 
-2026-10-13 11:16:03,167 - __main__ - ERROR - Data file not found: results/filtered_data.csv
-2026-10-13 11:16:03,167 - __main__ - ERROR - Please run T035 (filter_utility_collapse) first to generate results/filtered_data.csv
+2026-10-13 12:23:06,729 - __main__ - ERROR - Data file not found: results/filtered_data.csv
+2026-10-13 12:23:06,729 - __main__ - ERROR - Please run T035 (filter_utility_collapse) first to generate results/filtered_data.csv
 
 - python code/analysis/generate_summary.py -> rc=1
 

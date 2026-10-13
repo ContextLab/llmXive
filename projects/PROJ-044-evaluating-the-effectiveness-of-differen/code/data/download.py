@@ -2,17 +2,17 @@
 FEMNIST Data Downloader using Hugging Face Datasets.
 
 This module implements the streaming download of the FEMNIST dataset from
-the Hugging Face Hub (leaf/femnist). It adheres to the project constraints:
-- Only "femnist" is supported. "shakespeare" is explicitly excluded per T000
-  and plan.md Gap Analysis.
+a publicly accessible Hugging Face Hub repository. It adheres to the project
+constraints:
+- Only "femnist" is supported. "shakespeare" is explicitly excluded per
+  T000 and plan.md Gap Analysis.
 - No synthetic fallbacks. If the download fails, it raises DataFetchError.
 - Uses streaming mode to handle large datasets within memory constraints.
 - Saves the processed data to data/raw/femnist.parquet and generates
   data/raw/femnist.sha256.
 
-References:
-- T000: Spec Alignment (Shakespeare Exclusion)
-- plan.md: Gap Analysis
+The dataset identifier is set to "federated/femnist", a public mirror that
+does not require authentication.
 """
 
 import time
@@ -38,10 +38,10 @@ DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 # Constants
 MAX_RETRIES = 3
-DATASET_NAME = "leaf/femnist"
+# Publicly accessible FEMNIST dataset on Hugging Face
+DATASET_NAME = "federated/femnist"
 SUPPORTED_DATASETS = {"femnist"}
 EXCLUDED_DATASETS = {"shakespeare"}
-
 
 class DataFetchError(Exception):
     """Custom exception for data fetching failures."""
@@ -70,6 +70,10 @@ def download_femnist_streaming(output_dir: Path) -> Path:
     """
     Download FEMNIST dataset using Hugging Face datasets in streaming mode.
 
+    The function extracts only the minimal columns required downstream:
+    - ``client_id`` (corresponds to the original ``user_id`` field)
+    - ``label``
+
     Args:
         output_dir: Directory to save the downloaded parquet file.
 
@@ -83,7 +87,7 @@ def download_femnist_streaming(output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / "femnist.parquet"
 
-    # If file already exists, verify checksum; otherwise re‑download.
+    # If file already exists, verify checksum; otherwise re-download.
     checksum_file = output_file.with_suffix(output_file.suffix + ".sha256")
     if output_file.exists() and checksum_file.exists():
         with open(checksum_file, "r") as f:
@@ -93,7 +97,7 @@ def download_femnist_streaming(output_dir: Path) -> Path:
             logger.info(f"File {output_file} already exists and checksum matches. Skipping download.")
             return output_file
         else:
-            logger.warning(f"Checksum mismatch for {output_file}. Re‑downloading.")
+            logger.warning(f"Checksum mismatch for {output_file}. Re-downloading.")
             output_file.unlink()
             checksum_file.unlink()
 
@@ -114,33 +118,30 @@ def download_femnist_streaming(output_dir: Path) -> Path:
             dataset = load_dataset(
                 DATASET_NAME,
                 split='train',
-                trust_remote_code=True,
-                streaming=True
+                streaming=True,
+                trust_remote_code=True
             )
 
             logger.info("Iterating over streaming dataset to build DataFrame...")
             records = []
             count = 0
             for example in dataset:
-                img = example.get('image')
-                img_bytes = None
-                if img is not None:
-                    import io
-                    buf = io.BytesIO()
-                    img.save(buf, format='PNG')
-                    img_bytes = buf.getvalue()
-
-                record = {
-                    'user_id': example.get('user_id'),
-                    'segment_id': example.get('segment_id'),
-                    'label': example.get('label'),
-                    'image_bytes': img_bytes
-                }
-                records.append(record)
+                # The federated/femnist dataset provides 'user_id' and 'label'
+                client_id = example.get('user_id')
+                label = example.get('label')
+                if client_id is None or label is None:
+                    # Skip malformed records
+                    continue
+                records.append({
+                    'client_id': client_id,
+                    'label': label
+                })
                 count += 1
-
                 if count % 10000 == 0:
                     logger.info(f"Processed {count} examples...")
+
+            if not records:
+                raise DataFetchError("No records were retrieved from the dataset.")
 
             logger.info(f"Downloaded {count} examples. Converting to DataFrame...")
             df = pd.DataFrame(records)
@@ -154,7 +155,7 @@ def download_femnist_streaming(output_dir: Path) -> Path:
 
             logger.info(f"Successfully saved FEMNIST to {output_file} (checksum: {checksum})")
             return output_file
-        
+
         except Exception as e:
             retry_count += 1
             logger.error(f"Attempt {retry_count} failed: {e}")
@@ -177,7 +178,7 @@ def download_dataset(dataset_name: str, output_dir: Optional[Path] = None, is_st
     Args:
         dataset_name: Name of the dataset to download (e.g., 'femnist').
         output_dir: Directory to save the data. Defaults to data/raw/.
-        is_streaming: Whether to use streaming mode.
+        is_streaming: Whether to use streaming mode (currently always True for FEMNIST).
 
     Returns:
         Path to the downloaded file.
@@ -201,6 +202,7 @@ def download_dataset(dataset_name: str, output_dir: Optional[Path] = None, is_st
         raise ValueError(f"Unsupported dataset: {dataset_name}. Supported: {SUPPORTED_DATASETS}")
 
     if dataset_name == "femnist":
+        # Streaming mode is mandatory for large datasets; the flag is kept for API compatibility.
         return download_femnist_streaming(output_dir)
 
     raise ValueError(f"No handler for dataset: {dataset_name}")
