@@ -9,6 +9,24 @@ T000:
     \ or similar) outlining the participant-indexing scheme and verification criteria\
     \ must be created."
   sig: 905254645eb6895725c954e5ec7c7ee677470434578ff682560fe3be6709f061
+T001:
+  c: false
+  h: f940b9de0a299c9b9f40b3a3412bca1d46d253c4c3dfa0414ba10f582a6edcc9
+  r: The directories `code/`, `tests/`, and `data/` exist with substantive contents,
+    but the task explicitly required a README and no README file appears anywhere
+    in the evidence (not in the project root listing, `code/`, `tests/`, or `data/`
+    entries). The implementer must add a non-empty README (e.g., `README.md` at the
+    project root) describing the project.
+  sig: 6df28779ba6db641406553b5deb0869efdb92771bad19da81bdd7a249e9a0622
+T002:
+  c: true
+  h: b049cecb2a53d6238ac880592355c0f881277a6ef887773772b4b31e1d938f56
+  r: 'The `code/requirements.txt` exists (1441 bytes) and contains pinned versions
+    (`==`) for all required packages: mne==1.6.0, networkx==3.2, powerlaw==1.5, plus
+    the broader scientific stack. MRtrix3 is correctly handled as a non-pip system
+    binary with a documented note and version requirement, which is the only accurate
+    way to "pin" it.'
+  sig: 10bf0b9aa6fed6e3a9196317eeaf6ee4f8e129c9b5177122255e30d56a295f15
 T004:
   c: true
   h: e543f4daf7fe046f9c9f28b4afd8a1f8f5e12a89219bee423f2d3e0464241a28

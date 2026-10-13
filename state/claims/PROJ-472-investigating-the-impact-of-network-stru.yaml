@@ -2419,3 +2419,51 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-13T01:59:49Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/data_acquisition_plan.md
+  attempts: 1
+  canonical: HCP-MMP1.0 parcellation (Glasser 2016) has 360 parcels
+  claim_id: c_e5c4203a
+  context: The plan lists HCP-MMP1.0 as the cortical parcellation source for computing
+    connectome metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cortical parcellation HCP-MMP1.0 (Glasser 2016, 360 parcels)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T02:09:14Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/data_acquisition_plan.md
+  attempts: 1
+  canonical: HCP-Aging dMRI tractography data is available on OpenNeuro as dataset
+    ds004230
+  claim_id: c_f78bef64
+  context: Data source table listing the datasets to be acquired.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: dMRI tractography HCP-Aging (dMRI) ds004230 https://openneuro.org/datasets/ds004230
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T02:10:13Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/data_acquisition_plan.md
+  attempts: 1
+  canonical: HCP-Aging resting-state EEG data is available on OpenNeuro as dataset
+    ds004231
+  claim_id: c_d8d9af40
+  context: Data source table listing the datasets to be acquired.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Resting-state EEG HCP-Aging (EEG) ds004231 https://openneuro.org/datasets/ds004231
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T02:10:45Z'

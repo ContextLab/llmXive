@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "3f068ca2d6c1487e5586cea6e25d60ae51bec95bb28fdb5f469846033c2c848a",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'tests/test_lint_config.py': SyntaxError at line 52: invalid syntax. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 1728"
+}

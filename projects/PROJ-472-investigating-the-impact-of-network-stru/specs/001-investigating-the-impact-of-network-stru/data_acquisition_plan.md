@@ -1,94 +1,102 @@
-# Data‑Acquisition Plan for Matched dMRI + EEG Participants
+# Data-Acquisition Plan: Matched dMRI + EEG Participant Indexing
 
-**Project:** Investigating the Impact of Network Structure on Neural Avalanche Dynamics
-**Feature Branch:** `001-network-structure-avalanche-dynamics`
-**Date:** 2026‑10‑12
+**Project**: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
+**Task**: T000 — High-level data-acquisition plan
+**Status**: Draft
 
 ## 1. Objective
 
-Obtain a set of human participants for which **both** diffusion‑MRI (dMRI) tractography data and resting‑state EEG recordings are publicly available, and ensure that the two modalities are correctly indexed to the same subject identifiers. This matched dataset will serve as the foundation for all downstream preprocessing, metric computation, and statistical association steps.
+Acquire diffusion-MRI (dMRI) tractography and resting-state EEG recordings for the
+*same* participants from public OpenNeuro datasets, and build a unified,
+participant-indexed data store keyed by a canonical subject identifier so that
+structural connectome metrics and neural-avalanche statistics can be computed on
+matched subjects only.
 
 ## 2. Data Sources
 
-| Modality | OpenNeuro Dataset ID | URL | Expected File Structure |
-|----------|----------------------|-----|--------------------------|
-| dMRI (tractography) | `ds004230` | <https://openneuro.org/datasets/ds004230> | `data/raw/dMRI/sub‑{subject_id}/.../*.tck` |
-| Resting‑state EEG | `ds004231` | <https://openneuro.org/datasets/ds004231> | `data/raw/EEG/sub‑{subject_id}/.../*.fif` |
+| Modality | Dataset | Accession | URL |
+|----------|---------|-----------|-----|
+| dMRI tractography | HCP-Aging (dMRI) | ds004230 | https://openneuro.org/datasets/ds004230 |
+| Resting-state EEG | HCP-Aging (EEG) | ds004231 | https://openneuro.org/datasets/ds004231 |
+| Cortical parcellation | HCP-MMP1.0 (Glasser 2016, 360 parcels) | — | |
 
-Both datasets follow the BIDS convention [UNRESOLVED-CLAIM: c_d4aee85e — status=not_enough_info]; the subject identifier is the `sub‑XX` folder name (e.g., `sub-01`). No additional renaming is required.
+Cross-dataset registration (pairing subjects that are not the same individuals in
+both modalities) is **not permitted**: it invalidates the structure–function
+research question. Only subjects present in BOTH accessions are used.
 
-## 3. Participant Indexing Strategy
+## 3. Participant Indexing Scheme
 
-1. **Discovery**
- - List all subject directories under `data/raw/dMRI/` → `dMRI_subjects`.
- - List all subject directories under `data/raw/EEG/` → `EEG_subjects`.
-
-2. **Matching**
- - Compute the intersection `matched_subjects = dMRI_subjects ∩ EEG_subjects`.
- - The resulting list contains the identifiers for which *both* modalities are present.
-
-3. **Canonical Identifier**
- - Use the raw BIDS identifier (`sub‑XX`) unchanged throughout the pipeline.
- - All downstream files (connectomes, pre‑processed EEG, QC reports) will be stored under `data/processed/.../sub‑{subject_id}` to preserve traceability.
-
-4. **Persisting the Index**
- - Write `data/processed/matched_subjects.json` with the structure:
- ```json
- {
- "subject_ids": ["01", "02", "..."]
- }
- ```
- - This file is read by downstream scripts (e.g., `preprocess_dMRI.py`, `preprocess_EEG.py`, `store.py`) to know which participants to process.
+1. **Canonical ID**: BIDS-style `sub-<label>` (e.g., `sub-01`). The label is the
+ zero-padded participant label as published in each dataset's
+ `participants.tsv`.
+2. **Per-modality index**: after download, each modality directory
+ (`data/raw/dMRI/`, `data/raw/EEG/`) is scanned for `sub-*` directories; the
+ set of subject labels found is recorded.
+3. **Matched index**: the intersection of the two label sets is computed
+ (`match_subjects` in `code/data/download.py`) and written to
+ `data/processed/routing_state.json` with the fields:
+ - `has_matched_eeg` (bool)
+ - `n_subjects_dMRI` (int)
+ - `n_subjects_EEG` (int)
+ - matched subject list and data-path pointers.
+4. **Unified store** (T013): `data/processed/unified_participant_store.json`
+ with one record per matched subject:
+ `{subject_id, structural_path, eeg_path, data_type}`.
 
 ## 4. Verification Criteria for ID Alignment
 
-After the download step (`code/data/download.py`) completes, the pipeline must verify that the subject indices are perfectly aligned. The verification consists of the following checks:
+The following checks MUST pass before preprocessing is allowed to proceed; each
+fails loudly (raises) rather than falling back to synthetic data:
 
-1. **Presence Check**
- - Confirm that `matched_subjects.json` exists and contains at least one subject ID.
- - If empty, abort with a clear error message indicating that no matched participants were found.
+- **V1 — Subject-set identity**: the set of subject labels under
+ `data/raw/dMRI/sub-*` equals the set under `data/raw/EEG/sub-*` for the
+ downloaded subset; any mismatch is logged and the unmatched subjects are
+ dropped from the matched index (never silently paired).
+- **V2 — Non-empty intersection**: the matched set must contain at least one
+ subject; if empty, `routing_state.json` records `has_matched_eeg: false` and
+ the pipeline stops with an explicit error (no simulation fallback).
+- **V3 — Per-subject file presence**: for every subject in the unified store,
+ both `structural_path` and `eeg_path` must exist on disk and be non-empty;
+ a query for a participant ID must return both modalities without error.
+- **V4 — Checksum integrity**: every downloaded raw file's SHA-256 is recorded
+ in `data/raw/.checksums.json` at download time and re-verified after
+ download; a mismatch raises an error.
+- **V5 — Parcellation integrity**: the SHA-256 of the HCP-MMP parcellation zip
+ is computed at runtime, recorded in `data/processed/parcellation_hash.json`,
+ and compared against the recorded value on every subsequent run.
+- **V6 — Automated test**: `tests/test_download_alignment.py` asserts that the
+ subject IDs are identical across modalities after a download run.
 
-2. **Symmetry Check**
- - For each `subject_id` in `matched_subjects.json`, assert that:
- - `data/raw/dMRI/sub‑{subject_id}` contains at least one `.tck` file.
- - `data/raw/EEG/sub‑{subject_id}` contains at least one `.fif` file.
- - Missing files trigger a `FileNotFoundError` with the offending subject ID.
+## 5. Acquisition Workflow (high level)
 
-3. **Hash Verification (Optional but Recommended)**
- - Compute SHA‑256 checksums for each raw file and compare them against entries in `data/raw/.checksums.json`.
- - Any checksum mismatch should raise a `ValueError` and halt the pipeline, ensuring data integrity.
+1. Fetch dataset file listings from OpenNeuro for ds004230 and ds004231.
+2. Extract subject lists from both listings; compute the matched set.
+3. Stream-download dMRI tractography (`.tck`) and EEG (`.fif`) files for the
+ matched subset into `data/raw/dMRI/` and `data/raw/EEG/` (streaming for
+ large files; chunk sizes logged).
+4. Verify checksums (V4) and write `routing_state.json`.
+5. Download and hash-verify the HCP-MMP parcellation (V5).
+6. Preprocess: dMRI → connectivity matrices via MRtrix3 `tck2connectome`
+ (360 parcels); EEG → 1–40 Hz band-pass, 250 Hz down-sample, ICA cleaning
+ (MNE-Python).
+7. Build the unified participant store (Section 3.4) and run QC
+ (`data/processed/usable_subjects.json`, `pipeline_quality_rate`).
 
-4. **Routing State Update**
- - Upon successful verification, `code/data/download.py` writes `data/processed/routing_state.json` with fields:
- ```json
- {
- "has_matched_eeg": true,
- "n_subjects_dMRI": <int>,
- "n_subjects_EEG": <int>,
- "matched_subjects": <int>,
- "dMRI_path": "data/raw/dMRI",
- "EEG_path": "data/raw/EEG",
- "simulation_required": false
- }
- ```
- - Downstream scripts (e.g., the sample‑size gate in `code/main.py`) rely on this file to decide whether to proceed.
+## 6. Quality & Exclusion Criteria (downstream of acquisition)
 
-## 5. Failure Modes & Reporting
+- Subjects with >30% EEG channels removed after ICA are excluded.
+- Subjects whose structural graph is disconnected (`networkx.is_connected`)
+ are excluded.
+- Sample-size gate: if the number of usable matched subjects is below
+ `config.N_MIN` (10), the statistical stage is marked `"limited"` and an
+ insufficient-sample report is produced.
 
-- **No Overlap:** If `matched_subjects` is empty, the pipeline aborts and writes an `insufficient_sample_report.md` (handled later in T029c).
-- **Partial Overlap:** If any subject is missing one modality, that subject is omitted from `matched_subjects.json`; a warning is logged with the list of excluded IDs.
-- **Checksum Mismatch:** The download script raises a `ConnectionError` (per the project policy of no silent fall‑backs). The error propagates to the top‑level `main.py`, which reports the failure and exits with a non‑zero status.
+## 7. Compute & Reproducibility Constraints
 
-## 6. Timeline & Resource Considerations
-
-- **Streaming Download:** Files > 100 MB are streamed using `datasets.load_dataset(..., streaming=True)` to keep memory usage < 2 GB.
-- **Parallelism:** The download of dMRI and EEG datasets can run in parallel (`[P]` flag) because they write to distinct sub‑folders.
-- **Disk Requirements:** Approx. 10 GB total for raw data (≈ 5 GB each modality) and ~2 GB for processed outputs. The CI runner provides sufficient space.
-
-## 7. Traceability
-
-All steps are logged via the project‑wide logger (`code/utils/logger.py`). Each log entry includes a timestamp, the script name, and a concise message, enabling reproducible audit trails.
-
----
-
-*This plan fulfills T000 by outlining the acquisition workflow, defining the participant indexing scheme, and specifying concrete verification criteria for ID alignment.*
+- All downloads stream; no file >100 MB is loaded fully into memory.
+- CPU-only execution; total pipeline runtime target ≤ 6 h.
+- Random seeds pinned (`config.RANDOM_SEED = 42`).
+- Raw files are stored unchanged under `data/raw/`; all transformations write
+ new files under `data/processed/` with provenance recorded.
+- Real data only: if the real OpenNeuro fetch fails, the pipeline raises —
+ no synthetic stand-in is ever generated for the primary analysis.

@@ -1,17 +1,17 @@
 status: none
-intent: OpenNeuro HCP-Aging ds004230 diffusion MRI EEG dataset with MRtrix HCP multimodal
-  parcellation python package dataset
+intent: OpenNeuro HCP-Aging ds004230 diffusion MRI resting EEG with HCP multimodal
+  parcellation download python package dataset
 required_fields:
 - participant_id
-- diffusion_mri_file_path
-- eeg_file_path
+- dwi_nifti_path
+- dwi_bvec
+- dwi_bval
+- eeg_bids_path
 - structural_connectivity_matrix
-- parcel_labels
-- eeg_sampling_rate_hz
-- eeg_frequency_band_hz
-- preprocessing_status
-- quality_control_flag
-- acquisition_date
-cache_key: e4ca57296eb763d8efd54f47a2d7d8cef35f83c2e84cafcfa48328d4abcabfc6
-searched_at: '2026-10-13T02:05:30.317031+00:00'
+- parcellation_labels
+- preprocessed_eeg_timeseries
+- eeg_sampling_rate
+- eeg_frequency_band
+cache_key: 0c36828f40443e23373fb49ea6e8ffe1b1bdfd01676e2b0bc1926303552e6979
+searched_at: '2026-10-13T02:13:17.511829+00:00'
 retry_count: 1

@@ -12,7 +12,7 @@ The checklist follows the canonical `- [ ] T### [P?] [USx?] description …` for
 
 - [ ] T000 [P] Draft a high‑level data‑acquisition plan that outlines matched dMRI + EEG participant indexing and defines verification criteria for ID alignment.  
 - [ ] T001 Create project directory layout (`code/`, `tests/`, `data/`) and add a README.  
-- [ ] T002 Pin Python dependencies in `code/requirements.txt` (including `mne`, `networkx`, `powerlaw`, `mrtrix3` system binary, etc.).  
+- [X] T002 Pin Python dependencies in `code/requirements.txt` (including `mne`, `networkx`, `powerlaw`, `mrtrix3` system binary, etc.).  
 
 ## Phase 1 – Project Setup (shared infrastructure)
 

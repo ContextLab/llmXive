@@ -14,7 +14,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/report.py: synthetic/fake INPUT data not authorized by the spec — “…e**: This study utilized simulated EEG data generated from structura…”; code/data/quality_control.py: synthetic/fake INPUT data not authorized by the spec — “…checks for both real and simulated data pipelines. It ensures da…”; code/data/quality_control.py: synthetic/fake INPUT data not authorized by the spec — “…heck quality metrics for simulated EEG data.          Args:…”; 1 command(s) failed: python -m src.cli.run_pipeline (rc=1); 6 declared deliverable(s) absent: data/processed/data_availability_status.json; data/processed/parcellation_hash.json; data/processed/routing_state.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/report.py: synthetic/fake INPUT data not authorized by the spec — “…e**: This study utilized simulated EEG data generated from structura…”; code/data/quality_control.py: synthetic/fake INPUT data not authorized by the spec — “…checks for both real and simulated data pipelines. It ensures da…”; code/data/quality_control.py: synthetic/fake INPUT data not authorized by the spec — “…heck quality metrics for simulated EEG data.          Args:…”; 1 command(s) failed: python -m src.cli.run_pipeline (rc=1); 5 declared deliverable(s) absent: data/processed/data_availability_status.json; data/processed/parcellation_hash.json; data/processed/routing_state.json
 
 ## Failing / missing run-book commands
 
@@ -29,7 +29,6 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - data/processed/parcellation_hash.json
 - data/processed/routing_state.json
 - data/processed/usable_subjects.json
-- data/raw/.checksums.json
 - data/results/collinearity_status.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -56,9 +55,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/quality_control.py` — NOT invoked by the run-book
     - `code/main.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/usable_subjects.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/.checksums.json` is declared but was NOT written. Scripts referencing it:
-    - `code/setup_project_layout.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/.checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/collinearity_status.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/report.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — NOT invoked by the run-book
