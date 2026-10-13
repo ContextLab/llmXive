@@ -1,17 +1,16 @@
 status: none
-intent: download MDP taxonomy dataset as pip installable python package for reasoning
-  environments python package dataset
+intent: MDP Taxonomy dataset download python package for reasoning MDP environments
+  python package dataset
 required_fields:
-- state_id
-- partial_proof_representation
-- action_id
-- inference_rule_name
-- next_state_id
-- reward
-- is_terminal
-- optimal_action_flag
-- depth
-- horizon
-cache_key: 5f5980b5482c040dceb08ac331edae91a25e1374b6bd966836e2c98066bb9bff
-searched_at: '2026-10-10T08:17:11.081506+00:00'
+- mdp_id
+- state_space_description
+- action_space_description
+- transition_function
+- reward_function
+- discount_factor
+- episode_horizon
+- domain
+- metadata
+cache_key: 4a7097ff32f91774424496d34860bf9f4544cdb5908e9b178445d3b274d44707
+searched_at: '2026-10-13T12:38:01.096698+00:00'
 retry_count: 1

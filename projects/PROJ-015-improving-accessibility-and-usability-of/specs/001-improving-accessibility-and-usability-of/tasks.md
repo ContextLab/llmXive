@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-015-improving-accessibility-and-usability-of/`)
-- [X] T002 Initialize Python project with pinned dependencies in `requirements.txt`. **Deliverable**: `requirements.txt` containing pinned versions of `scipy`, `matplotlib`, `pandas`, `jupyter`, `streamlit`, `pyyaml`, `numpy`, `statsmodels`. **Verification**: File exists and contains version pins (e.g., `{{claim:c_92731a70}}`, `{{claim:c_548e8345}}`, `{{claim:c_197b1480}}`).
+- [X] T002 Initialize Python project with pinned dependencies in `requirements.txt`. **Deliverable**: `requirements.txt` containing pinned versions of `scipy`, `matplotlib`, `pandas`, `jupyter`, `streamlit`, `pyyaml`, `numpy`, `statsmodels`. **Verification**: File exists and contains version pins (e.g., `scipy==1.11.0`, `numpy==1.24.0`, `statsmodels==0.14.0`).
 - [X] T003a [P] Create `.ruff.toml` configuration file. **Content**: Must contain `[lint]` section with `select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "TCH", "T20"]`. **Verification**: File exists and contains the specified select list.
 - [X] T003b [P] Create `pyproject.toml` configuration for Black. **Content**: Must contain `[tool.black]` section with `line-length = 88 [UNRESOLVED-CLAIM: c_839a8a73 — status=not_enough_info]` and `target-version = ['py311'] [UNRESOLVED-CLAIM: c_77d26e85 — status=not_enough_info]`. **Verification**: File exists and contains the specified configuration block.
 

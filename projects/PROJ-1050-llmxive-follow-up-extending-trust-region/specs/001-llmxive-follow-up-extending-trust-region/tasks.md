@@ -75,9 +75,9 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T008 [P] [US1] Unit test for valid state transitions in `tests/unit/test_mdp.py`
-- [~] T009 [P] [US1] Unit test for teacher policy generating optimal paths in `tests/unit/test_teacher_policy.py`
-- [~] T010 [P] [US1] Unit test for invalid action penalty handling in `tests/unit/test_mdp.py` <!-- ATOMIZE: requested -->
+- [ ] T008 [P] [US1] Unit test for valid state transitions in `tests/unit/test_mdp.py`
+- [ ] T009 [P] [US1] Unit test for teacher policy generating optimal paths in `tests/unit/test_teacher_policy.py`
+- [ ] T010 [P] [US1] Unit test for invalid action penalty handling in `tests/unit/test_mdp.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
@@ -99,7 +99,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T015 [P] [US2] Unit test for horizon constraint enforcement in `tests/unit/test_student_policy.py`
+- [ ] T015 [P] [US2] Unit test for horizon constraint enforcement in `tests/unit/test_student_policy.py`
 - [~] T016 [P] [US2] Unit test for TOP-D loss calculation with $\alpha$ interpolation in `tests/unit/test_topd_loss.py`
 - [~] T017 [P] [US2] Integration test for training loop convergence with distinct $\alpha$ values in `tests/integration/test_training_loop.py`
 

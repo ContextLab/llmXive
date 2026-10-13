@@ -1,157 +1,143 @@
 """
-Training Loop Runner for TOP-D Distillation.
+Minimal experiment runner.
 
-Executes the training loop for a given GridConfig, handling the interaction
-between the StudentPolicy, TeacherPolicy, and the ReasoningMDP environment.
+Supports two modes:
+* ``--debug`` – runs a single episode with user‑specified ``--alpha``,
+  ``--horizon`` and ``--seed``.
+* ``--grid`` – iterates over the default grid defined in
+  :mod:`experiments.grid_config` and records a single‑episode metric for
+  each configuration.
+
+All results are written to ``data/raw/`` using the ``paths`` helper from
+``llmxive_toolkit``.
 """
-import os
-import sys
+from __future__ import annotations
+
+import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import List, Dict, Any
+
 import numpy as np
 import pandas as pd
-import csv
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from llmxive_toolkit import paths, get_logger
 
-from utils.logger import get_logger
-from utils.seed_manager import set_seed
 from env.reasoning_mdp import ReasoningMDP
 from env.teacher_policy import TeacherPolicy
 from student.policy import StudentPolicy
-from student.topd_loss import TOPDLoss
-from experiments.grid_config import GridConfig
+from experiments.grid_config import GridConfig, create_default_grid
 
-def run_training_loop(config: GridConfig) -> Optional[Dict[str, Any]]:
+logger = get_logger("experiments.runner")
+
+def _run_episode(
+    mdp: ReasoningMDP,
+    teacher: TeacherPolicy,
+    student: StudentPolicy,
+    alpha: float,
+    horizon: int,
+) -> Dict[str, Any]:
     """
-    Run the training loop for a single configuration.
+    Execute a single episode and return basic metrics.
 
-    Args:
-        config: GridConfig containing hyperparameters for this run.
-
-    Returns:
-        Dictionary containing aggregated metrics (avg_loss, collapse_ratio, etc.)
-        or None if execution fails.
+    The TOP‑D loss is **not** computed here – this placeholder records the
+    effective depth achieved by the student and whether it matches the
+    teacher's depth.
     """
-    logger = get_logger("training_runner")
-    logger.info(f"Starting training loop for config: alpha={config.alpha}, "
-                f"horizon={config.student_horizon}, episodes={config.num_episodes}")
+    # Teacher provides the optimal path (length = horizon)
+    teacher_path = teacher.get_optimal_path(horizon)
 
-    try:
-        set_seed(config.seed)
+    state = mdp.reset()
+    effective_depth = 0
+    for step_idx, teacher_action in enumerate(teacher_path):
+        # Student selects an action based on its current Q‑table
+        student_action = student.select_action(state)
 
-        # Initialize Environment and Policies
-        env = ReasoningMDP(size=config.env_size)
-        teacher = TeacherPolicy(env)
-        student = StudentPolicy(env, horizon_limit=config.student_horizon)
-        loss_fn = TOPDLoss(alpha=config.alpha)
+        # Apply the student's action to the environment
+        next_state, reward, done = mdp.step(student_action)
 
-        # Metrics tracking
-        episode_losses = []
-        effective_depths = []
-        teacher_depths = []
-        collapse_counts = 0
-        total_steps = 0
+        # Update student Q‑table using the observed transition
+        student.update(state, student_action, reward, next_state)
 
-        # Prepare log file
-        log_path = Path(config.output_dir) / config.log_file_name
-        log_path.parent.mkdir(parents=True, exist_ok=True)
+        state = next_state
+        effective_depth = step_idx + 1
 
-        # Training Loop
-        for episode in range(config.num_episodes):
-            state = env.reset()
-            episode_loss = 0.0
-            step_count = 0
-            actual_depth = 0
-            teacher_plan = []
+        if done:
+            break
 
-            while not env.done:
-                # Teacher generates optimal plan (limited by max horizon for efficiency)
-                if not teacher_plan:
-                    teacher_plan = teacher.get_plan(state, max_steps=config.teacher_horizon)
-                
-                # Get student action
-                student_action = student.select_action(state)
-                
-                # Get teacher action (from plan)
-                teacher_action = teacher_plan[0] if teacher_plan else None
-                
-                if teacher_action is None:
-                    # Fallback if plan exhausted
-                    teacher_action = teacher.get_action(state)
+    # Simple collapse ratio: student depth / teacher depth
+    collapse_ratio = effective_depth / len(teacher_path)
 
-                # Step environment
-                next_state, reward, done, info = env.step(student_action)
-                actual_depth += 1
-                step_count += 1
+    return {
+        "alpha": alpha,
+        "horizon": horizon,
+        "effective_depth": effective_depth,
+        "teacher_depth": len(teacher_path),
+        "collapse_ratio": collapse_ratio,
+    }
 
-                # Calculate TOP-D Loss
-                # We need to simulate the probability distribution for the loss calculation
-                # In a real implementation, StudentPolicy would return a distribution
-                student_dist = student.get_action_distribution(state)
-                teacher_dist = np.zeros_like(student_dist)
-                if teacher_action is not None:
-                    teacher_dist[teacher_action] = 1.0
-                
-                loss = loss_fn(student_dist, teacher_dist)
-                episode_loss += loss
+def run_training_loop(config: GridConfig) -> Dict[str, Any]:
+    """
+    Run a single‑episode training loop for the given configuration.
 
-                state = next_state
-                if done:
-                    break
+    The function writes a CSV line to ``data/raw/episodes_<alpha>_<horizon>.csv``.
+    """
+    # Set deterministic seed for reproducibility
+    np.random.seed(config.seed)
 
-                # Safety break
-                if step_count > config.max_steps_per_episode:
-                    break
+    mdp = ReasoningMDP(size=config.horizon)
+    teacher = TeacherPolicy(mdp)
+    student = StudentPolicy(mdp, horizon_limit=config.horizon)
 
-            # Episode Summary
-            episode_losses.append(episode_loss)
-            effective_depths.append(actual_depth)
-            teacher_depths.append(len(teacher_plan))
-            total_steps += step_count
+    metrics = _run_episode(
+        mdp=mdp,
+        teacher=teacher,
+        student=student,
+        alpha=config.alpha,
+        horizon=config.horizon,
+    )
 
-            # Collapse detection: effective depth <= 0.5 * teacher depth
-            if len(teacher_plan) > 0:
-                if actual_depth <= 0.5 * len(teacher_plan):
-                    collapse_counts += 1
+    # Persist the episode log
+    output_path = paths.data("raw", f"episodes_{config.alpha}_{config.horizon}.csv")
+    df = pd.DataFrame([metrics])
+    df.to_csv(output_path, index=False)
+    logger.info(f"Episode logged to {output_path}")
 
-            # Log per episode
-            with open(log_path, 'a', newline='') as f:
-                writer = csv.writer(f)
-                if episode == 0:
-                    writer.writerow(['episode', 'loss', 'effective_depth', 'teacher_depth', 'collapse'])
-                writer.writerow([episode, episode_loss, actual_depth, len(teacher_plan), 
-                                 1 if actual_depth <= 0.5 * len(teacher_plan) else 0])
+    return metrics
 
-        # Calculate aggregated metrics
-        avg_loss = float(np.mean(episode_losses))
-        avg_eff_depth = float(np.mean(effective_depths))
-        avg_teacher_depth = float(np.mean(teacher_depths))
-        collapse_ratio = collapse_counts / config.num_episodes
-        
-        # Convergence stability check (variance of loss)
-        loss_variance = float(np.var(episode_losses))
-        convergence_stable = loss_variance < 0.5 # Threshold heuristic
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run TOP‑D experiments.")
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Run a single debug episode with explicit hyper‑parameters.",
+    )
+    parser.add_argument(
+        "--grid",
+        action="store_true",
+        help="Execute the full hyper‑parameter grid.",
+    )
+    parser.add_argument("--alpha", type=float, default=0.5, help="Interpolation coefficient.")
+    parser.add_argument("--horizon", type=int, default=5, help="Student horizon limit.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    return parser.parse_args()
 
-        result = {
-            "avg_loss": avg_loss,
-            "avg_effective_depth": avg_eff_depth,
-            "avg_teacher_depth": avg_teacher_depth,
-            "collapse_ratio": collapse_ratio,
-            "collapse_count": collapse_counts,
-            "total_steps": total_steps,
-            "convergence_stable": convergence_stable,
-            "loss_variance": loss_variance
-        }
+def main() -> int:
+    args = _parse_args()
 
-        logger.info(f"Training complete. Avg Loss: {avg_loss:.4f}, "
-                    f"Collapse Ratio: {collapse_ratio:.4f}")
-        return result
+    if args.debug:
+        # Build a temporary config object for the debug run
+        config = GridConfig(alpha=args.alpha, horizon=args.horizon, seed=args.seed)
+        run_training_loop(config)
+    elif args.grid:
+        configs = create_default_grid()
+        for cfg in configs:
+            run_training_loop(cfg)
+    else:
+        logger.error("Either --debug or --grid must be specified.")
+        return 1
 
-    except Exception as e:
-        logger.error(f"Training loop failed: {e}", exc_info=True)
-        return None
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

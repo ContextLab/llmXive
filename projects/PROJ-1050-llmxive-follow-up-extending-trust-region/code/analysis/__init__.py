@@ -1,6 +1,4 @@
 """
 Analysis package initialization.
 """
-from .tobit_model import TobitModel
-
-__all__ = ["TobitModel"]
+from .tobit_model import TobitModel  # noqa: F401

@@ -10,55 +10,60 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/student/policy.py: function `select_action` returns a bare RNG draw (line 37) — a reported value computed from no real input
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/raw/episodes_0.1_3.csv, data/raw/episodes_0.1_5.csv, data/raw/episodes_0.1_7.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/student/policy.py: function `select_action` returns a bare RNG draw (line 37) — a reported value computed from no real input; 4 command(s) failed: python -m experiments.runner --debug --alpha 0.5 --horizon 4 --seed 42 (rc=1); python -m experiments.runner --grid (rc=1); python -m analysis.two_part_model --input data/raw/episodes_*.parquet (rc=1); 1 declared deliverable(s) absent: data/processed/collapse_sweep.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/student/policy.py: function `select_action` returns a bare RNG draw (line 37) — a reported value computed from no real input; every produced artifact is gitignored (data/raw/episodes_0.1_3.csv, data/raw/episodes_0.1_5.csv, data/raw/episodes_0.1_7.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python -m analysis.two_part_model --input data/raw/episodes_*.parquet (rc=1); python -m analysis.plot_results --input data/processed/results_*.csv --output docs/results/collapse_plot.png (rc=1); 1 declared deliverable(s) absent: data/processed/collapse_sweep.csv
 
 ## Failing / missing run-book commands
-
-- python -m experiments.runner --debug --alpha 0.5 --horizon 4 --seed 42 -> rc=1
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/experiments/__init__.py", line 5, in <module>
-    from .runner import run_training_loop
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/experiments/runner.py", line 23, in <module>
-    from env.reasoning_mdp import ReasoningMDP
-ModuleNotFoundError: No module named 'env'
-
-- python -m experiments.runner --grid -> rc=1
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/experiments/__init__.py", line 5, in <module>
-    from .runner import run_training_loop
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/experiments/runner.py", line 23, in <module>
-    from env.reasoning_mdp import ReasoningMDP
-ModuleNotFoundError: No module named 'env'
 
 - python -m analysis.two_part_model --input data/raw/episodes_*.parquet -> rc=1
 
 Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/__init__.py", line 4, in <module>
-    from .tobit_model import TobitModel
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/tobit_model.py", line 6, in <module>
-    from statsmodels.regression.tobit import Tobit
-ModuleNotFoundError: No module named 'statsmodels.regression.tobit'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/tobit_model.py", line 19, in <module>
+    from statsmodels.miscmodels.tobit import Tobit
+ModuleNotFoundError: No module named 'statsmodels.miscmodels.tobit'
 
-- python -m analysis.plot_results --input data/processed/results_*.csv --output docs/results/collapse_plot.png -> rc=1
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 189, in _run_module_as_main
   File "<frozen runpy>", line 112, in _get_module_details
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/__init__.py", line 4, in <module>
-    from .tobit_model import TobitModel
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/tobit_model.py", line 6, in <module>
-    from statsmodels.regression.tobit import Tobit
-ModuleNotFoundError: No module named 'statsmodels.regression.tobit'
+    from .tobit_model import TobitModel  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/tobit_model.py", line 21, in <module>
+    raise ImportError(
+ImportError: statsmodels does not provide a Tobit implementation at the expected location.
+
+- python -m analysis.plot_results --input data/processed/results_*.csv --output docs/results/collapse_plot.png -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/tobit_model.py", line 19, in <module>
+    from statsmodels.miscmodels.tobit import Tobit
+ModuleNotFoundError: No module named 'statsmodels.miscmodels.tobit'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/__init__.py", line 4, in <module>
+    from .tobit_model import TobitModel  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/analysis/tobit_model.py", line 21, in <module>
+    raise ImportError(
+ImportError: statsmodels does not provide a Tobit implementation at the expected location.
 
 
 ## Declared deliverables still missing
