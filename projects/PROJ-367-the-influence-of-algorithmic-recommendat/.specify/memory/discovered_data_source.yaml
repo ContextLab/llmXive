@@ -1,13 +1,10 @@
 status: none
-intent: download Open University Learning Analytics Dataset OULAD as python package
-  dataset
+intent: Open University Learning Analytics Dataset OULAD download python package dataset
 required_fields:
-- session_id
 - user_id
+- session_id
 - recommended_items
 - enrolled_items
-- recommendation_timestamp
-- enrollment_timestamp
-cache_key: e90653a52f477bfcf0b67ead7711ca0ee85becc4e3fbff42c93d04f10c1ae42f
-searched_at: '2026-10-13T06:16:03.491831+00:00'
+cache_key: ddb90b30443f3ce517f4a62b4ce4d8c9d09be8f08e569af21b085f2d3e66e091
+searched_at: '2026-10-13T06:22:10.785817+00:00'
 retry_count: 1
