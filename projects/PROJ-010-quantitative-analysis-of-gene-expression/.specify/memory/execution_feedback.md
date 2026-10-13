@@ -7,22 +7,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/data_pipeline/preprocess.py --dataset fetal_brain_atlas --output data/processed/integrated_atlas.h5ad -> rc=1
-armonypy: Computing initial centroids...
-2026-10-13 21:08:53,855 - harmonypy - INFO - Initialization complete.
-2026-10-13 21:08:53,855 INFO harmonypy: Initialization complete.
-2026-10-13 21:08:53,855 - harmonypy - INFO - Iteration 1 of 10
-2026-10-13 21:08:53,855 INFO harmonypy: Iteration 1 of 10
-2026-10-13 21:08:53,863 - harmonypy - INFO - Converged after 1 iteration
-2026-10-13 21:08:53,863 INFO harmonypy: Converged after 1 iteration
-2026-10-13 21:08:53,988 INFO code.data_pipeline: Average LISI (batch='batch'): 1.000
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-010-quantitative-analysis-of-gene-expression/src/data_pipeline/preprocess.py", line 77, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-010-quantitative-analysis-of-gene-expression/src/data_pipeline/preprocess.py", line 70, in main
-    pipeline_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-010-quantitative-analysis-of-gene-expression/code/data_pipeline.py", line 235, in main
-    raise RuntimeError(f"LISI score too low ({lisi_score:.3f} < 1.2) – aborting pipeline.")
-RuntimeError: LISI score too low (1.000 < 1.2) – aborting pipeline.
+
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-010-quantitative-analysis-of-gene-expression/code/data_pipeline.py", line 81, in _highly_variable_genes
+    sc.pp.highly_variable_genes(adata, n_top_genes=n_top, flavor="seurat_v3")
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-010-quantitative-analysis-of-gene-expression/lib/python3.11/site-packages/legacy_api_wrap/__init__.py", line 88, in fn_compatible
+    return fn(*args_all, **kw)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-010-quantitative-analysis-of-gene-expression/lib/python3.11/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 701, in highly_variable_genes
+    return _highly_variable_genes_seurat_v3(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-010-quantitative-analysis-of-gene-expression/lib/python3.11/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 74, in _highly_variable_genes_seurat_v3
+    raise ImportError(msg) from e
+ImportError: Please install skmisc package via `pip install --user scikit-misc
 
 - python src/network_inference/infer_grn.py --input data/processed/integrated_atlas.h5ad --windows 5 -> rc=2
 
