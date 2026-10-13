@@ -1,3 +1,17 @@
+"""
+Data download script for the Molecular Permeability project.
+
+This script fetches a verified public dataset from the Hugging Face Hub,
+validates that the required SMILES and target columns are present,
+writes the raw CSV file to ``data/raw/`` and records a SHA‑256 checksum
+in ``data/raw/checksums.json``.
+
+The chosen dataset is the ESOL solubility dataset, which provides
+SMILES strings and a numeric solubility measurement. The solubility
+value is used as a proxy target for permeability (as described in the
+project plan). The script fails loudly if the expected columns are
+missing.
+"""
 import hashlib
 import json
 import logging
@@ -8,117 +22,133 @@ from typing import Any, Dict, Optional
 import pandas as pd
 from llmxive_toolkit import paths, get_logger
 
-logger = get_logger(__name__)
-
-# Verified data source configuration
-# Using the Delaney solubility dataset from Hugging Face, which provides SMILES
-# and a numeric property (solubility). We treat the solubility column as the
-# proxy target for permeability studies.
+# ----------------------------------------------------------------------
+# Configuration for the verified dataset
+# ----------------------------------------------------------------------
 VERIFIED_DATASET_CONFIG = {
     "source": "huggingface",
-    "dataset_id": "delaney",
+    "dataset_id": "esol",  # ESOL solubility dataset
     "split": "train",
     "smiles_column": "smiles",
     "target_column": "measured log solubility in mols per litre",
-    "expected_columns": ["smiles", "measured log solubility in mols per litre"],
+    "expected_columns": [
+        "smiles",
+        "measured log solubility in mols per litre",
+    ],
 }
+
+logger = get_logger(__name__)
 
 class DataLoader:
     """
-    DataLoader fetches a verified molecular dataset from Hugging Face,
-    validates the presence of the required target column, writes the raw CSV
-    to ``data/raw/`` and records a SHA‑256 checksum in
-    ``data/raw/checksums.json``.
+    Fetches a verified molecular dataset from Hugging Face, validates
+    required columns, writes the raw CSV to ``data/raw/`` and records a
+    SHA‑256 checksum in ``data/raw/checksums.json``.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or VERIFIED_DATASET_CONFIG
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.target_column = self.config["target_column"]
         self.smiles_column = self.config["smiles_column"]
+        self.target_column = self.config["target_column"]
 
+    # ------------------------------------------------------------------
+    # Dataset acquisition
+    # ------------------------------------------------------------------
     def fetch_dataset(self) -> pd.DataFrame:
         """
         Load the dataset from Hugging Face using ``datasets.load_dataset``.
         Returns a pandas DataFrame.
         """
         self.logger.info(
-            f"Loading dataset {self.config['dataset_id']} (split={self.config.get('split', 'train')})"
+            f"Loading dataset '{self.config['dataset_id']}' "
+            f"(split={self.config.get('split', 'train')})"
         )
         try:
             from datasets import load_dataset
 
             hf_dataset = load_dataset(
                 self.config["dataset_id"],
-                split=self.config.get("split", "train")
+                split=self.config.get("split", "train"),
             )
             df = hf_dataset.to_pandas()
-            self.logger.info(f"Loaded {len(df)} rows from dataset.")
+            self.logger.info(f"Loaded {len(df)} rows.")
             return df
-        except Exception as e:
-            self.logger.error(f"Failed to load dataset from Hugging Face: {e}")
+        except Exception as exc:
+            self.logger.error(f"Failed to load dataset: {exc}")
             raise RuntimeError(
                 f"Unable to fetch dataset '{self.config['dataset_id']}'."
-            ) from e
+            ) from exc
 
-    def validate_target(self, df: pd.DataFrame) -> None:
+    # ------------------------------------------------------------------
+    # Validation
+    # ------------------------------------------------------------------
+    def validate_columns(self, df: pd.DataFrame) -> None:
         """
-        Ensure the required target column exists and is numeric.
-        Raises RuntimeError if validation fails.
+        Ensure that the SMILES and target columns exist and that the target
+        column is numeric. Raises ``RuntimeError`` on failure.
         """
-        self.logger.info("Validating presence of the target column.")
-        if self.target_column not in df.columns:
+        missing = [
+            col
+            for col in self.config["expected_columns"]
+            if col not in df.columns
+        ]
+        if missing:
             raise RuntimeError(
-                f"Required target column '{self.target_column}' not found. "
+                f"Missing required columns: {missing}. "
                 f"Available columns: {list(df.columns)}"
             )
         if not pd.api.types.is_numeric_dtype(df[self.target_column]):
             raise RuntimeError(
-                f"Target column '{self.target_column}' is not numeric. "
-                f"Detected type: {df[self.target_column].dtype}"
+                f"Target column '{self.target_column}' is not numeric "
+                f"(detected type: {df[self.target_column].dtype})"
             )
-        if self.smiles_column not in df.columns:
-            raise RuntimeError(
-                f"Required SMILES column '{self.smiles_column}' not found. "
-                f"Available columns: {list(df.columns)}"
-            )
-        self.logger.info("Target and SMILES columns validated successfully.")
+        self.logger.info("Required columns are present and valid.")
 
+    # ------------------------------------------------------------------
+    # Checksum handling
+    # ------------------------------------------------------------------
     def compute_checksum(self, file_path: Path) -> str:
-        """
-        Compute SHA‑256 checksum of a file.
-        """
+        """Compute SHA‑256 checksum of ``file_path``."""
         sha256 = hashlib.sha256()
         with file_path.open("rb") as f:
             for block in iter(lambda: f.read(4096), b""):
                 sha256.update(block)
         checksum = sha256.hexdigest()
-        self.logger.debug(f"Computed checksum for {file_path.name}: {checksum}")
+        self.logger.debug(f"Checksum for {file_path.name}: {checksum}")
         return checksum
 
-    def write_checksums(self, checksum_dict: Dict[str, str], checksum_path: Path) -> None:
-        """
-        Write a JSON file mapping filenames to their SHA‑256 checksums.
-        """
+    def write_checksum_file(
+        self, checksums: Dict[str, str], checksum_path: Path
+    ) -> None:
+        """Write ``checksums`` dictionary as JSON."""
         checksum_path.parent.mkdir(parents=True, exist_ok=True)
         with checksum_path.open("w", encoding="utf-8") as f:
-            json.dump(checksum_dict, f, indent=2)
+            json.dump(checksums, f, indent=2)
         self.logger.info(f"Wrote checksum file to {checksum_path}")
 
+    # ------------------------------------------------------------------
+    # Full processing pipeline
+    # ------------------------------------------------------------------
     def process(self, save_path: Optional[Path] = None) -> pd.DataFrame:
         """
-        Full pipeline: fetch, validate, save raw CSV, compute & store checksum.
+        Execute the full data‑download pipeline:
+          1. Load the dataset.
+          2. Validate required columns.
+          3. Write the raw CSV to ``data/raw/permeability_data.csv``.
+          4. Compute and record the SHA‑256 checksum.
+        Returns the loaded DataFrame.
         """
         df = self.fetch_dataset()
-        self.validate_target(df)
+        self.validate_columns(df)
 
-        # Determine output location
+        # Determine where to write the raw CSV
         if save_path is None:
             save_path = paths.data("raw", "permeability_data.csv")
         else:
             save_path = Path(save_path)
 
-        # Ensure directory exists and write CSV
+        # Ensure the directory exists and write CSV
         save_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(save_path, index=False)
         self.logger.info(f"Saved raw dataset to {save_path}")
@@ -126,24 +156,28 @@ class DataLoader:
         # Compute checksum and write checksums.json
         checksum = self.compute_checksum(save_path)
         checksum_path = save_path.parent / "checksums.json"
-        self.write_checksums({save_path.name: checksum}, checksum_path)
+        self.write_checksum_file({save_path.name: checksum}, checksum_path)
 
         self.logger.info(
-            f"Data download completed. Rows: {len(df)}, Columns: {list(df.columns)}"
+            f"Data download completed successfully (rows={len(df)})"
         )
         return df
 
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
 def main() -> None:
     """
-    CLI entry point.
+    CLI wrapper that runs the DataLoader and exits with status code 0 on
+    success or 1 on any failure.
     """
     try:
         loader = DataLoader()
         loader.process()
         logger.info("Data download and validation succeeded.")
         sys.exit(0)
-    except Exception as e:
-        logger.error(f"Data download failed: {e}")
+    except Exception as exc:
+        logger.error(f"Data download failed: {exc}")
         sys.exit(1)
 
 if __name__ == "__main__":

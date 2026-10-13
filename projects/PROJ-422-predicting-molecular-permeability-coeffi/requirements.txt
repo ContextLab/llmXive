@@ -1,8 +1,5 @@
-# Core dependencies are pre‑installed in the execution environment.
-# Additional third‑party packages required by the project:
+# Project-specific dependencies
 datasets>=2.0.0
-rdkit-pypi>=2022.9.5
-torch>=2.0.0
-torch-geometric>=2.3.0
-shap>=0.44.0
-gnnexplainer>=0.1.0
+# Note: rdkit, torch, torch-geometric, shap, etc., are installed via the
+# project's environment setup and are not listed here because they are
+# either part of the base environment or handled elsewhere.

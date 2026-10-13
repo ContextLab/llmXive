@@ -1,6 +1,6 @@
 status: none
-intent: Polymer Permeability Database Polymer Membrane Permeability Dataset SMILES
-  download ChemBL python package dataset
+intent: Polymer membrane permeability dataset Polymer Membrane Permeability Database
+  OPERA python package dataset
 required_fields:
 - SMILES
 - permeability_coefficient
@@ -8,8 +8,7 @@ required_fields:
 - temperature
 - pressure
 - units
-- experimental_source
-- measurement_error
-cache_key: 5278fbbab3b5da0371069307f167b3c374161a5279f750506235e7aabeeb22ed
-searched_at: '2026-10-13T13:18:07.605464+00:00'
+- measurement_method
+cache_key: b05afc35bc3a28df01529723ba4c7ecd6366f3244cbd82edb6cfb40d5a3efb97
+searched_at: '2026-10-13T14:13:07.334331+00:00'
 retry_count: 1

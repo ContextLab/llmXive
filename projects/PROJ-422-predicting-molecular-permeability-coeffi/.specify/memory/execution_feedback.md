@@ -29,10 +29,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download.py -> rc=1
 
-2026-10-13 13:17:22,852 INFO DataLoader: Loading dataset delaney (split=train)
-2026-10-13 13:17:23,196 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/delaney/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
-2026-10-13 13:17:23,196 ERROR DataLoader: Failed to load dataset from Hugging Face: Dataset 'delaney' doesn't exist on the Hub or cannot be accessed.
-2026-10-13 13:17:23,196 ERROR __main__: Data download failed: Unable to fetch dataset 'delaney'.
+2026-10-13 14:12:26,490 INFO DataLoader: Loading dataset 'esol' (split=train)
+2026-10-13 14:12:26,950 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/esol/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
+2026-10-13 14:12:26,950 ERROR DataLoader: Failed to load dataset: Dataset 'esol' doesn't exist on the Hub or cannot be accessed.
+2026-10-13 14:12:26,950 ERROR __main__: Data download failed: Unable to fetch dataset 'esol'.
 
 - python code/analysis/train.py --config config.yaml -> rc=1
 
