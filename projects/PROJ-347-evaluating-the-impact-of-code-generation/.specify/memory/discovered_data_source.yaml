@@ -1,12 +1,19 @@
 status: none
-intent: download Devign CodeXGLUE OWASP Top 10 LLM Dataset Mahabharat SQL Injection
+intent: download SARD Juliet Test Suite Devign CodeXGLUE OWASP Top 10 LLM dataset
   python package dataset
 required_fields:
 - sample_id
-- code
-- vulnerability_type
-- cwe_id
+- source_dataset
+- code_snippet
+- generated_code_snippet
 - language
-cache_key: 5f9b67442d93e838410c42ee52b9283ab1469fbfafb750bd260c2805fc9d138c
-searched_at: '2026-10-13T07:23:34.275862+00:00'
+- cwe_id
+- cwe_description
+- vulnerability_type
+- function_name
+- file_path
+- prompt_text
+- model_name
+cache_key: 4d59b53a01f2fd8201fdff7807a528769686260002ff6e1edbfe72e1d2a15ea5
+searched_at: '2026-10-13T09:20:27.357540+00:00'
 retry_count: 1

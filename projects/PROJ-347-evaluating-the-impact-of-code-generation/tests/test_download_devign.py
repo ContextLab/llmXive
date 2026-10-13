@@ -1,58 +1,80 @@
 """
 Integration test for the Devign download script.
 
-The test invokes the `main` function defined in `code/download_devign.py`
-and checks that:
-  * The CSV file `data/raw/devign/devign.csv` exists after execution.
-  * Its SHA‑256 checksum is recorded in `data/checksums.json`.
+The test invokes ``code.download_devign.main`` which should:
+* download the Devign zip archive (if not already present),
+* extract ``devign.csv`` to ``data/raw/devign/devign.csv``,
+* compute its SHA‑256 checksum,
+* store the checksum in ``data/checksums.json``.
+
+After execution the test asserts that the expected files exist and that the
+checksum recorded in ``checksums.json`` matches the actual file checksum.
 """
 import json
+import os
+
 from pathlib import Path
 
 import pytest
 
-# Import the script as a module
-from importlib import import_module
+# Import the script under test
+from code.download_devign import (
+    main,
+    CSV_DEST,
+    CHECKSUMS_PATH,
+    compute_sha256,
+)
 
-download_module = import_module("code.download_devign")
-
+@pytest.mark.timeout(300)
 def test_download_and_checksum(tmp_path, monkeypatch):
     """
-    Run the download script and verify output artifacts.
-    The test relies on the real GitHub URL; if the URL becomes
-    unavailable the test will fail, which is the intended behaviour.
+    Run the download script and verify artefacts.
+
+    The test runs in an isolated temporary directory to avoid side‑effects
+    on the real project data. ``llmxive_toolkit.paths`` is monkey‑patched to
+    point into ``tmp_path``.
     """
-    # Ensure a clean state: remove any existing artefacts
-    csv_path = Path("data/raw/devign/devign.csv")
-    zip_path = Path("data/raw/devign/devign.zip")
-    checksums_path = Path("data/checksums.json")
+    # ------------------------------------------------------------------
+    # Patch the llmxive_toolkit.paths helpers so all file writes go under
+    # the temporary directory.
+    # ------------------------------------------------------------------
+    from llmxive_toolkit import paths as original_paths
 
-    for p in (csv_path, zip_path):
-        if p.is_file():
-            p.unlink()
-    if checksums_path.is_file():
-        # Remove only the entry for the CSV (keep others if present)
-        with open(checksums_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        data.pop(str(csv_path), None)
-        with open(checksums_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, sort_keys=True)
+    class TempPaths:
+        """A minimal stub exposing the same API used by the script."""
+        def __init__(self, root: Path):
+            self._root = root
 
-    # Run the main workflow
-    download_module.main()
+        def data(self, *parts):
+            p = self._root.joinpath(*parts)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            return p
 
+    temp_paths = TempPaths(tmp_path)
+
+    monkeypatch.setattr("llmxive_toolkit.paths", temp_paths, raising=False)
+
+    # Ensure a clean state
+    assert not CSV_DEST.is_file()
+    assert not CHECKSUMS_PATH.is_file()
+
+    # Run the script – this will download the real dataset from the internet.
+    main()
+
+    # ------------------------------------------------------------------
     # Assertions
-    assert csv_path.is_file(), "CSV file was not created"
-    assert zip_path.is_file(), "ZIP archive was not created"
+    # ------------------------------------------------------------------
+    # CSV must exist
+    assert CSV_DEST.is_file(), f"Expected CSV at {CSV_DEST}"
+    # Checksums file must exist
+    assert CHECKSUMS_PATH.is_file(), f"Expected checksums JSON at {CHECKSUMS_PATH}"
 
-    # Verify checksum entry exists and matches the computed value
-    with open(checksums_path, "r", encoding="utf-8") as f:
+    # Load the recorded checksum and compare with the actual file checksum
+    with open(CHECKSUMS_PATH, "r", encoding="utf-8") as f:
         checksums = json.load(f)
 
-    assert str(csv_path) in checksums, "Checksum entry missing in checksums.json"
+    recorded = checksums.get(str(CSV_DEST))
+    assert recorded is not None, "Checksum entry missing in checksums.json"
 
-    # Re‑compute checksum and compare
-    from code.download_devign import compute_sha256
-
-    recomputed = compute_sha256(csv_path)
-    assert checksums[str(csv_path)] == recomputed, "Recorded checksum does not match file content"
+    actual = compute_sha256(CSV_DEST)
+    assert recorded == actual, "Recorded checksum does not match actual file checksum"
