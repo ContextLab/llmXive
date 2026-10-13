@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:25.118444Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-008-psychology-research
-last_run_id: 2104bbeb-d1a7-4bc3-a1dd-47985b771c80
+last_run_id: 2b604bc1-7200-49b8-9241-8135781c1649
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-008-psychology-research/specs/002-psychology-research
 title: The Role of Mindfulness in Improving Social Skills Among Children with Autism
-updated_at: '2026-10-13T22:47:32.531415Z'
+updated_at: '2026-10-13T22:47:46.494533Z'
