@@ -8,16 +8,6 @@ T002:
     \ config be used by the scripts with no hard\u2011coded values. Add the missing\
     \ required key (or adjust the scripts) and ensure the import succeeds."
   sig: 4be5773bb346a2d9d04bd5309d73badf253b2800c458e6bd65b34fd566e9ec74
-T010:
-  c: false
-  h: a6be57d4ebd3c8443b29072b7e09d6a20a3374994e209cbc1ce6275542d08105
-  r: "The `code/requirements.txt` file exists and is non\u2011empty, but there is\
-    \ no evidence that `pip install -r code/requirements.txt` succeeds in a fresh\
-    \ virtual environment. The provided pytest log fails because it looks for the\
-    \ file in the wrong location, and no successful installation run is recorded.\
-    \ A fresh\u2011env install test (or corrected test path) is needed to satisfy\
-    \ the task."
-  sig: 08f8a0948f5e9051fe2c781939d3bab60fb705ce6796d74ac44c7b58cba48516
 T011:
   c: false
   h: 1923b0195c003c41bc76489b012160ca02187f061b5e4d7910c835b84a80144f

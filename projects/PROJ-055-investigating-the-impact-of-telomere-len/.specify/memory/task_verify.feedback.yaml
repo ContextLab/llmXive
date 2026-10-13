@@ -24,12 +24,8 @@ T008:
 T009:
   task: 7a591af12ca68c0672c905d61e6356adb04fdbac416f519650082f0f84d7b557
 T010:
-  reason: "The `code/requirements.txt` file exists and is non\u2011empty, but there\
-    \ is no evidence that `pip install -r code/requirements.txt` succeeds in a fresh\
-    \ virtual environment. The provided pytest log fails because it looks for the\
-    \ file in the wrong location, and no successful installation run is recorded.\
-    \ A fresh\u2011env install test (or corrected test path) is needed to satisfy\
-    \ the task."
+  reason: 'Requested task execution failed; rerun successfully: code/verify_requirements.py
+    exit=1'
   task: 2750e04bc78276cb479479f3d0bd769edfd0006d428d43c41405e1d107dc5200
 T011:
   reason: 'Requested task execution failed; rerun successfully: code/R/verify_renv.py
