@@ -1,19 +1,17 @@
 status: none
-intent: download SARD Juliet Test Suite Devign CodeXGLUE OWASP Top 10 LLM dataset
-  python package dataset
+intent: Juliet Test Suite SARD Devign CodeXGLUE vulnerable code python package dataset
 required_fields:
-- sample_id
-- source_dataset
 - code_snippet
-- generated_code_snippet
-- language
+- programming_language
 - cwe_id
-- cwe_description
 - vulnerability_type
 - function_name
-- file_path
+- source_file_path
+- unit_test_cases
+- metadata_fields
 - prompt_text
-- model_name
-cache_key: 4d59b53a01f2fd8201fdff7807a528769686260002ff6e1edbfe72e1d2a15ea5
-searched_at: '2026-10-13T09:20:27.357540+00:00'
+- generated_code_snippet
+- generation_timestamp
+cache_key: 61857e04a6c47acb509cb637415ebba45f86d332de2e375884e40451dfd2e299
+searched_at: '2026-10-13T10:10:29.820397+00:00'
 retry_count: 1
