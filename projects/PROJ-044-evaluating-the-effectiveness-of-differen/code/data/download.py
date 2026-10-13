@@ -124,11 +124,12 @@ def download_femnist_streaming(output_dir: Path) -> Path:
     retry = 0
     while retry < MAX_RETRIES:
         try:
-            # ``streaming=True`` ensures we never load the whole corpus into memory.
+            # ``trust_remote_code=True`` is needed for the FEMNIST loading script.
             ds = load_dataset(
                 "femnist",
                 split="train",
                 streaming=True,
+                trust_remote_code=True,
             )
             records = []
             for i, example in enumerate(ds):

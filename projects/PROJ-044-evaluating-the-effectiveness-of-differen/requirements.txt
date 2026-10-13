@@ -1,13 +1,18 @@
-# Project dependencies for PROJ-044
-# Core libraries (already available in the environment) are listed for completeness.
+# Core scientific dependencies for the DP‑FL study
 torch==2.3.0
 opacus==1.4.0
 datasets==2.19.0
 pandas
 scipy
 statsmodels
-pyarrow==12.0.0
-# The following are provided by the base environment but are listed for documentation.
+pyarrow
+# Additional common libraries (already in the base environment but pinned for clarity)
 numpy
 matplotlib
+seaborn
+tqdm
+# Testing
 pytest
+# YAML handling (used in config)
+PyYAML
+# Logging utilities (already available via standard library)

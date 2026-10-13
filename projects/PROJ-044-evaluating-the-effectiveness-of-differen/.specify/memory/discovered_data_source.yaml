@@ -1,10 +1,9 @@
 status: none
-intent: TensorFlow Datasets Federated FEMNIST download pip install python package
-  dataset
+intent: official FEMNIST dataset download via tensorflow_datasets python package dataset
 required_fields:
 - image
 - label
-- writer_id
-cache_key: fa5af61865f2fdd1e0c447302952b0b993b3603e5904806d824cf88b46d9bc6f
-searched_at: '2026-10-13T15:17:10.394515+00:00'
+- split
+cache_key: a19cdbd241b8f73aab4182c27615a15079083115de9657f33fe957c0dd86a0cc
+searched_at: '2026-10-13T17:10:35.102873+00:00'
 retry_count: 1
