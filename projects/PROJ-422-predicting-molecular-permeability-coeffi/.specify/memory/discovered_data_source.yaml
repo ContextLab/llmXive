@@ -1,9 +1,15 @@
 status: none
-intent: '### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
-  The system must successfully ingest public permeability datasets (SMILES strings
-  and experimental coefficients), parse them into molecular graphs using RDKit, and
-  compute standard molecular descriptors to create a unified, s'
-required_fields: []
-cache_key: cf98e7183f4e6516506b8a15343acc3b7c2bd44c1f5af070ab019f46edf5e3c0
-searched_at: '2026-10-13T12:25:09.672890+00:00'
+intent: Polymer Permeability Database Polymer Membrane Permeability Dataset SMILES
+  download ChemBL python package dataset
+required_fields:
+- SMILES
+- permeability_coefficient
+- polymer_type
+- temperature
+- pressure
+- units
+- experimental_source
+- measurement_error
+cache_key: 5278fbbab3b5da0371069307f167b3c374161a5279f750506235e7aabeeb22ed
+searched_at: '2026-10-13T13:18:07.605464+00:00'
 retry_count: 1

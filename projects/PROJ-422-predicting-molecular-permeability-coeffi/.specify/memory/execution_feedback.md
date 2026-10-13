@@ -28,14 +28,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
-roperties' doesn't exist on the Hub or cannot be accessed.. Trying alternative source...
-2026-10-13 12:23:54,747 INFO DataLoader: Attempting fallback: pubchem_compound dataset
-2026-10-13 12:23:54,820 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/pubchem_compound/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
-2026-10-13 12:23:54,820 ERROR DataLoader: Fallback dataset also failed: Dataset 'pubchem_compound' doesn't exist on the Hub or cannot be accessed.
-2026-10-13 12:23:54,821 ERROR DataLoader: Attempting direct download from alternative source...
-2026-10-13 12:23:54,821 INFO DataLoader: Downloading from https://raw.githubusercontent.com/aspuru-guzik-group/chemical_compounds/main/data/smiles_logp.csv
-2026-10-13 12:23:54,923 ERROR DataLoader: Direct download failed: HTTP Error 404: Not Found
-2026-10-13 12:23:54,924 ERROR __main__: Data download failed: All data fetch attempts failed. Primary: Dataset 'aspuru-guzik-group/chemical_compounds_with_properties' doesn't exist on the Hub or cannot be accessed.. Fallback 1: Dataset 'pubchem_compound' doesn't exist on the Hub or cannot be accessed.. Fallback 2: HTTP Error 404: Not Found. Cannot proceed without real data.
+
+2026-10-13 13:17:22,852 INFO DataLoader: Loading dataset delaney (split=train)
+2026-10-13 13:17:23,196 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/delaney/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
+2026-10-13 13:17:23,196 ERROR DataLoader: Failed to load dataset from Hugging Face: Dataset 'delaney' doesn't exist on the Hub or cannot be accessed.
+2026-10-13 13:17:23,196 ERROR __main__: Data download failed: Unable to fetch dataset 'delaney'.
 
 - python code/analysis/train.py --config config.yaml -> rc=1
 

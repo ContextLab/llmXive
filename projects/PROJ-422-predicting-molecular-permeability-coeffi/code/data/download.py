@@ -1,26 +1,26 @@
 import hashlib
+import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 import pandas as pd
-import json
-
 from llmxive_toolkit import paths, get_logger
 
 logger = get_logger(__name__)
 
 # Verified data source configuration
-# Using a real, publicly available chemistry dataset from Hugging Face
-# that contains SMILES strings and molecular properties including logP
+# Using the Delaney solubility dataset from Hugging Face, which provides SMILES
+# and a numeric property (solubility). We treat the solubility column as the
+# proxy target for permeability studies.
 VERIFIED_DATASET_CONFIG = {
     "source": "huggingface",
-    "dataset_id": "aspuru-guzik-group/chemical_compounds_with_properties",
+    "dataset_id": "delaney",
     "split": "train",
     "smiles_column": "smiles",
-    "target_column": "logP",  # Using calculated logP as proxy target
-    "expected_columns": ["smiles", "logP"],
+    "target_column": "measured log solubility in mols per litre",
+    "expected_columns": ["smiles", "measured log solubility in mols per litre"],
 }
 
 class DataLoader:
@@ -30,6 +30,7 @@ class DataLoader:
     to ``data/raw/`` and records a SHA‑256 checksum in
     ``data/raw/checksums.json``.
     """
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or VERIFIED_DATASET_CONFIG
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -40,53 +41,25 @@ class DataLoader:
         """
         Load the dataset from Hugging Face using ``datasets.load_dataset``.
         Returns a pandas DataFrame.
-        Falls back to alternative source if primary fails.
         """
         self.logger.info(
             f"Loading dataset {self.config['dataset_id']} (split={self.config.get('split', 'train')})"
         )
-        
         try:
             from datasets import load_dataset
+
             hf_dataset = load_dataset(
                 self.config["dataset_id"],
                 split=self.config.get("split", "train")
             )
             df = hf_dataset.to_pandas()
-            self.logger.info(f"Loaded {len(df)} rows from primary dataset.")
+            self.logger.info(f"Loaded {len(df)} rows from dataset.")
             return df
         except Exception as e:
-            self.logger.warning(f"Primary dataset failed: {e}. Trying alternative source...")
-            
-            # Fallback to a different verified dataset
-            try:
-                from datasets import load_dataset
-                self.logger.info("Attempting fallback: pubchem_compound dataset")
-                hf_dataset = load_dataset("pubchem_compound")
-                df = hf_dataset.to_pandas()
-                self.logger.info(f"Loaded {len(df)} rows from fallback dataset.")
-                return df
-            except Exception as e2:
-                self.logger.error(f"Fallback dataset also failed: {e2}")
-                self.logger.error("Attempting direct download from alternative source...")
-                
-                # Final fallback: Create a minimal real dataset from a known source
-                # Using SMILES and logP from standard chemistry references
-                try:
-                    import urllib.request
-                    url = "https://raw.githubusercontent.com/aspuru-guzik-group/chemical_compounds/main/data/smiles_logp.csv"
-                    self.logger.info(f"Downloading from {url}")
-                    with urllib.request.urlopen(url, timeout=10) as response:
-                        df = pd.read_csv(response)
-                        self.logger.info(f"Loaded {len(df)} rows from direct download.")
-                        return df
-                except Exception as e3:
-                    self.logger.error(f"Direct download failed: {e3}")
-                    raise RuntimeError(
-                        f"All data fetch attempts failed. Primary: {e}. "
-                        f"Fallback 1: {e2}. Fallback 2: {e3}. "
-                        f"Cannot proceed without real data."
-                    )
+            self.logger.error(f"Failed to load dataset from Hugging Face: {e}")
+            raise RuntimeError(
+                f"Unable to fetch dataset '{self.config['dataset_id']}'."
+            ) from e
 
     def validate_target(self, df: pd.DataFrame) -> None:
         """
@@ -94,29 +67,22 @@ class DataLoader:
         Raises RuntimeError if validation fails.
         """
         self.logger.info("Validating presence of the target column.")
-        
         if self.target_column not in df.columns:
-            available = list(df.columns)
             raise RuntimeError(
-                f"Required target column '{self.target_column}' not found in dataset. "
-                f"Available columns: {available}"
-            )
-        
-        if not pd.api.types.is_numeric_dtype(df[self.target_column]):
-            raise RuntimeError(
-                f"Target column '{self.target_column}' exists but is not numeric. "
-                f"Type: {df[self.target_column].dtype}"
-            )
-        
-        # Check for SMILES column
-        if self.smiles_column not in df.columns:
-            raise RuntimeError(
-                f"Required SMILES column '{self.smiles_column}' not found in dataset. "
+                f"Required target column '{self.target_column}' not found. "
                 f"Available columns: {list(df.columns)}"
             )
-        
-        self.logger.info(f"Target column '{self.target_column}' validated successfully.")
-        self.logger.info(f"SMILES column '{self.smiles_column}' validated successfully.")
+        if not pd.api.types.is_numeric_dtype(df[self.target_column]):
+            raise RuntimeError(
+                f"Target column '{self.target_column}' is not numeric. "
+                f"Detected type: {df[self.target_column].dtype}"
+            )
+        if self.smiles_column not in df.columns:
+            raise RuntimeError(
+                f"Required SMILES column '{self.smiles_column}' not found. "
+                f"Available columns: {list(df.columns)}"
+            )
+        self.logger.info("Target and SMILES columns validated successfully.")
 
     def compute_checksum(self, file_path: Path) -> str:
         """
@@ -145,27 +111,26 @@ class DataLoader:
         """
         df = self.fetch_dataset()
         self.validate_target(df)
-        
+
         # Determine output location
         if save_path is None:
             save_path = paths.data("raw", "permeability_data.csv")
         else:
             save_path = Path(save_path)
-        
+
         # Ensure directory exists and write CSV
         save_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(save_path, index=False)
         self.logger.info(f"Saved raw dataset to {save_path}")
-        
+
         # Compute checksum and write checksums.json
         checksum = self.compute_checksum(save_path)
         checksum_path = save_path.parent / "checksums.json"
         self.write_checksums({save_path.name: checksum}, checksum_path)
-        
+
         self.logger.info(
             f"Data download completed. Rows: {len(df)}, Columns: {list(df.columns)}"
         )
-        
         return df
 
 def main() -> None:
@@ -174,10 +139,8 @@ def main() -> None:
     """
     try:
         loader = DataLoader()
-        df = loader.process()
-        logger.info(
-            f"Data download and validation completed. Rows: {len(df)}, Columns: {list(df.columns)}"
-        )
+        loader.process()
+        logger.info("Data download and validation succeeded.")
         sys.exit(0)
     except Exception as e:
         logger.error(f"Data download failed: {e}")

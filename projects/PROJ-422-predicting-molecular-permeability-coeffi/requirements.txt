@@ -1,6 +1,8 @@
-# Existing dependencies are provided by the platform.
-# Additional packages required for the GNN implementation.
-torch
-torch-geometric
-psutil
-# The rest of the stack (numpy, pandas, scikit-learn, rdkit, etc.) is already available.
+# Core dependencies are pre‑installed in the execution environment.
+# Additional third‑party packages required by the project:
+datasets>=2.0.0
+rdkit-pypi>=2022.9.5
+torch>=2.0.0
+torch-geometric>=2.3.0
+shap>=0.44.0
+gnnexplainer>=0.1.0
