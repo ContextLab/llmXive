@@ -10,7 +10,7 @@ This research implementation evaluates how client data heterogeneity (controlled
 
 **Goal**: Establish the pipeline from streaming data download to a small-scale result to verify the compute budget and data flow.
 
-- [ ] T001 Establish the project structure, install dependencies (`torch`, `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`, `pyarrow`), and document the runnable entry point in `quickstart.md`. <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [ ] T001 Establish the project structure, install dependencies (`torch`, `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`, `pyarrow`), and document the runnable entry point in `quickstart.md`. <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
 - [ ] T002 Implement the FEMNIST data loader in `code/data/download.py` using `datasets.load_dataset(..., streaming=True)` to materialize the dataset into `data/raw/femnist.parquet` with a corresponding `data/raw/femnist.sha256`. <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
     The loader must fail loudly on fetch failure; no synthetic fallback is permitted. It must raise `ValueError("Shakespeare excluded per plan.md Gap Analysis")` if the dataset is set to "shakespeare".
 - [ ] T003 Implement a thin end-to-end pilot run in `code/main.py` using a single seed, one $\alpha=0.1$, and one $\epsilon=1.0$.

@@ -1,9 +1,13 @@
+# Project dependencies for PROJ-044
+# Core libraries (already available in the environment) are listed for completeness.
 torch==2.3.0
 opacus==1.4.0
 datasets==2.19.0
 pandas
-numpy
 scipy
 statsmodels
+pyarrow==12.0.0
+# The following are provided by the base environment but are listed for documentation.
+numpy
 matplotlib
-pyarrow
+pytest
