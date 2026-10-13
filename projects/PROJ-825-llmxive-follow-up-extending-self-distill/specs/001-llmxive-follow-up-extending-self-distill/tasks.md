@@ -25,7 +25,7 @@
   The corrupted placeholder entry `pytest>=7.0.0 (pi, https://en.wikipedia.org/wiki/Pi)` is removed.  
   **Verification**: `pip install -r code/requirements.txt` succeeds, and `grep -c "claim:" code/requirements.txt` returns `0`.
 
-- [ ] T005 [P] Create real linting/formatting configuration artifacts: `code/pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections (line length 100, target Python 3.11).   <!-- FAILED-IN-EXECUTION: code/scripts/verify_lint_t005.sh exit=1 -->
+- [ ] T005 [P] Create real linting/formatting configuration artifacts: `code/pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections (line length 100, target Python 3.11).   <!-- FAILED-IN-EXECUTION: code/scripts/verify_lint_t005.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/verify_lint_t005.sh exit=1 -->
   **Verification**: file exists, parses as valid TOML, and `ruff check code/` runs with zero errors (ruff installed via T004).  
 
 - [X] T006 [P] Configure `code/config.py` (seeds, hyperparameters, variant flags).  

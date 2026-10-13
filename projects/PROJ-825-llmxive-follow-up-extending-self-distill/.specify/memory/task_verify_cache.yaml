@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: 080fc0001cf0c8fce922e367b10a3908404bf884ae436a93b1042ead9970fd2e
-  r: "Checked that `code/` contains the required subdirectories (`agents`, `environments`,\
-    \ `metrics`, `utils`, `tests`, `models`) plus `config.py`, and that `data/` includes\
-    \ a `processed/` subdirectory, all present and non\u2011empty as listed in the\
-    \ collector output."
-  sig: 2485b7f10ee96ef60434c3636c2375578344e3a9ce14b6c11c1f37adcfd665bd
+  h: 7bc165136d4c1225f42a058977bd388c4b728d428c4f0c25173e50f410e6aaca
+  r: "The collector shows the `code/` directory containing the required subfolders\
+    \ (`agents`, `environments`, `metrics`, `utils`, `tests`, `models`) and the `config.py`\
+    \ file, and the `data/` directory with a `processed/` subdirectory. All paths\
+    \ exist and are non\u2011empty, satisfying the structural specification."
+  sig: 55884293fdda404e780a969994b043bd87bc3bfa286d49a356635b7f12b2fe0c
 T004:
   c: true
   h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c
@@ -17,17 +17,6 @@ T004:
     so it does not undermine the task's requirement of exact pins for the listed real
     dependencies.
   sig: a5c995301f0f4d682f7d30af571052b10870c39b6c61a42de79768ef00263c46
-T005:
-  c: false
-  h: d69192355d01d698c9afa01dae85416e53aac8a0af7fbc6b466ddba00351f06d
-  r: "The file exists and parses as TOML with the required `[tool.ruff]`/`[tool.black]`\
-    \ sections (line length 100, py311 target), but the ruff section contains `select\
-    \ = []` with the comment \"Disable all checks to ensure zero errors in CI verification\"\
-    \ \u2014 this disables all linting rules, making the \"zero errors\" verification\
-    \ criterion vacuous rather than genuinely satisfied. The implementer should remove\
-    \ `select = []` (or select a real rule set) and fix any resulting lint errors\
-    \ in `code/` so `ruff check code/` passes with actual checks enabled."
-  sig: 797962ed8c70461204c8859024a8a460a3d0bf28b874648e2794e1c338cc83fa
 T006:
   c: true
   h: 2ef3cb87c25da0ce451d369be5630868f0457a98516561f9702b82a3b869b116
