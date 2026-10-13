@@ -25,6 +25,9 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
 # 3. Install exact dependencies
 pip install -r requirements.txt
+
+# 4. Verify the setup (dependencies importable, directories created)
+python code/setup_check.py
 ```
 
 Installed dependencies: `torch`, `opacus`, `datasets`, `pandas`, `scipy`,
@@ -45,17 +48,21 @@ and fails loudly on fetch errors — there is no synthetic fallback. Requesting
 
 ### 2. Verify checksum (optional but recommended)
 ```bash
-python code/data/verify_checksum.py data/raw/femnist.parquet data/raw/femnist.sha256
+python -c "import hashlib, pathlib; p = pathlib.Path('data/raw/femnist.parquet'); expected = pathlib.Path('data/raw/femnist.sha256').read_text().split()[0]; actual = hashlib.sha256(p.read_bytes()).hexdigest(); assert actual == expected, 'checksum mismatch'; print('checksum OK:', actual)"
 ```
 
 ### 3. Generate client partitions (5 seeds, three α values)
 ```bash
 python code/data/partition.py \
-    --seed-list 42,43,44,45,46 \
-    --alphas 0.1,0.5,1.0 \
-    --clients 100
-# Output: data/partitions/partition_femnist_{seed}_{alpha}.json
+    --data data/raw/femnist.parquet \
+    --output data/partitions \
+    --seeds 42 43 44 45 46 \
+    --alphas 0.1 0.5 1.0
+# Output: data/partitions/partition_femnist_{seed}_{alpha}_*.json
 ```
+Note: `partition.py` takes space-separated `--seeds` and `--alphas` values
+(not comma-separated lists) and requires `--data` pointing at the parquet
+file produced in step 1.
 Minority clients are flagged as the bottom [deferred] of the within-partition
 empirical label-entropy distribution (in bits), independent of α.
 
@@ -96,13 +103,12 @@ python code/analysis/stats.py \
 
 ### 7. Plotting
 ```bash
-python code/analysis/plots.py \
-    --stats results/final_stats.csv \
-    --output-dir figures/
+python code/analysis/plots.py
 ```
-- Generates `figures/sensitivity_alpha.png` (accuracy vs. ε per α) and
-  `figures/minority_vs_global_overlay.png` (minority degradation vs. global
-  accuracy).
+- Generates the accuracy-vs-ε sensitivity plot and the
+  `minority_vs_global_overlay.png` overlay plot into `results/plots/`.
+  (The plotting module reads `results/filtered_data.csv` by default and
+  takes no CLI flags.)
 
 ### 8. Final Summary & Validation Report
 ```bash
@@ -118,7 +124,7 @@ data/
 │   ├── femnist.parquet
 │   └── femnist.sha256
 └── partitions/
-    └── partition_femnist_42_0.1.json
+    └── partition_femnist_42_0.1_*.json
 results/
 ├── raw_logs.csv
 ├── filtered_data.csv
@@ -127,18 +133,16 @@ results/
 ├── summary.csv
 ├── validation_report.md
 └── p_values_by_seed.json
-figures/
-├── minority_vs_global_overlay.png
-└── sensitivity_alpha.png
 ```
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
-| **MemoryError** during download | Streaming chunk size too large | Reduce `--batch-size` in `download.py` (default 1000). |
-| **Timeout / `is_time_limited=True`** | Too many rounds for the 6 h budget | The orchestrator automatically caps rounds at the deterministic `max_rounds`; you can manually lower `--max-rounds` for a shorter run. Time-limited runs are excluded from all statistical analyses. |
-| **`Shakespeare excluded` error** | Attempted to use an excluded dataset | The loader/partitioner raises `ValueError: "Shakespeare excluded per plan.md Gap Analysis"`; choose `"femnist"` instead. |
+| **MemoryError** during download | Streaming chunk size too large | Reduce the batch size in `download.py` (default 1000). |
+| **Timeout / `is_time_limited=True`** | Too many rounds for the 6 h budget | The orchestrator automatically caps rounds at the deterministic `max_rounds`; you can manually lower the round count for a shorter run. Time-limited runs are excluded from all statistical analyses. |
+| **`Shakespeare excluded` error** | Attempted use of an excluded dataset | The loader/partitioner raises `ValueError: "Shakespeare excluded per plan.md Gap Analysis"`; choose `"femnist"` instead. |
+| **`partition.py: error: argument --alphas`** | Comma-separated list passed | `partition.py` expects space-separated values: `--alphas 0.1 0.5 1.0` and `--seeds 42 43 44 45 46`, plus a required `--data` path. |
 | **Paired-test warning: < 3 valid seeds** | One or more seeds failed repeatedly | Inspect `results/validation_report.md`; the orchestrator retries up to 3 times per seed. Re-run the sweep with a different seed list if needed. |
 
 ## Reproducibility Checklist

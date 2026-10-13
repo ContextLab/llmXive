@@ -1,4 +1,6 @@
 T001:
+  reason: 'Requested task execution failed; rerun successfully: code/setup_check.py
+    exit=1'
   task: d2a27c257bae67fbed74a496ba9f37343d863b747d3c7df42c64aea39b0d15a8
 T002:
   task: 9540a6b977d633b839725f09127fcc367c45d2dbf74f7566e09c5991ee4d020c
