@@ -4,9 +4,7 @@
 **Input**: Feature specification from `/specs/001-visual-priming-implicit-attitudes/spec.md`
 
 ## Summary
-The pipeline will (1) download a **single, openly‑available IAT dataset** whose URL is hard‑coded in `code/config.py` and cross‑checked against `data/verified_sources.json`; (2) verify that required columns (`response_time`, `participant_id`, `stimulus_id`) exist and halt with a clear *Data Gap* if they do not; (3) extract stimulus metadata, compute linkage metrics, and derive missing **prime‑valence** and **stimulus‑ambiguity** scores using CPU‑only models/dictionaries; (4) run a **VIF pre‑check** before fitting a **linear mixed‑effects (LME) model** with optimizer fall‑backs; (5) apply **FDR** correction, add **associational framing** notes, and conduct an **α‑sweep sensitivity analysis**; (6) always generate a **PDF report** – either a full scientific report or a data‑gap narrative – satisfying SC‑003.
-
-All steps are reproducible, respect the constitution, and run on the GitHub Actions free‑tier CPU box (≤7 GB RAM, 2 CPU cores, ≤6 h). No GPU is required.
+The pipeline will (1) fetch a **single open‑source IAT dataset** whose URL is listed in `data/verified_sources.json`; (2) verify that the required trial‑level columns exist and abort with a clear *Data Gap* if they do not; (3) extract stimulus metadata, compute linkage metrics, and derive missing **prime‑valence** and **stimulus‑ambiguity** scores using CPU‑only models/dictionaries **and** validate those derived scores against external benchmarks; (4) perform a **VIF pre‑check** and a **power‑analysis checkpoint** before fitting a **linear mixed‑effects (LME) model** with random intercept **and random slope** for prime valence, including optimizer fall‑backs; (5) apply **FDR** correction, add associational framing notes, and run an **α‑sweep sensitivity analysis**; (6) always generate a **PDF report**—either a full scientific report or a data‑gap narrative—satisfying SC‑003; (7) compute **SHA‑256 checksums** for **all** artifacts and record them in `state/artifact_hashes.json`. All steps run on the GitHub Actions free‑tier CPU box (≤7 GB RAM, 2 CPU cores, ≤6 h). No GPU is required.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
@@ -21,12 +19,12 @@ All steps are reproducible, respect the constitution, and run on the GitHub Acti
 ## Constitution Check
 | Principle | Compliance | Detail |
 |-----------|------------|--------|
-| **I. Reproducibility** | PASS | Random seeds are set in `code/config.py`. All external URLs are hard‑coded and validated against `data/verified_sources.json`. |
+| **I. Reproducibility** | PASS | Random seeds are defined in `code/config.py`. All external URLs are hard‑coded and validated against `data/verified_sources.json`. |
 | **II. Verified Accuracy** | PASS | Only URLs from the “Verified datasets” block are cited; `research.md` references them verbatim. |
 | **III. Data Hygiene** | PASS | Raw files are immutable; every transformation writes a new file with a SHA‑256 checksum recorded in `state/artifact_hashes.json`. |
 | **IV. Single Source of Truth** | PASS | Every figure/table is generated directly from `data/processed/linked_trials.csv` and the model result JSON; no hand‑typed numbers. |
-| **V. Versioning Discipline** | PASS | Content hashes for all artifacts are stored in `state/artifact_hashes.json`; `state/project_state.yaml` records `updated_at` after each task. |
-| **VI. Distinct Stimulus Set Integrity** | PASS | `data/primes/` and `data/targets/` remain separate until the final merge step (Task T006). |
+| **V. Versioning Discipline** | PASS | **All** artifacts (raw, processed, model outputs, reports) have SHA‑256 hashes stored in `state/artifact_hashes.json`. |
+| **VI. Distinct Stimulus Set Integrity** | PASS | `data/primes/` and `data/targets/` remain separate until the final merge step (Task T009). |
 
 ## Project Structure
 ```text
@@ -52,7 +50,10 @@ code/
 ├── derive_valence.py      # Lexical dictionary / CPU emotion classifier
 ├── derive_ambiguity.py    # WordNet sense‑count / texture variance
 ├── vif.py                 # VIF calculation (pre‑fit)
-├── model.py               # LME fitting with optimizer fallback
+├── power_check.py         # A priori / post‑filter power analysis
+├── confound_check.py      # Detect trial‑order, stimulus‑repetition confounds
+├── validate_scores.py     # External validation of derived valence & ambiguity
+├── model.py               # LME fitting with random intercept + slope, optimizer fallback
 ├── fdr.py                 # Benjamini‑Hochberg correction
 ├── framing.py             # Append `caution_note` & `limitation_note`
 ├── sensitivity.py         # α‑sweep analysis
@@ -73,7 +74,7 @@ data/
     ├── ingest_metrics.json
     ├── ambiguity_scores.csv
     ├── valence_scores.csv
-    └── linked_trials.csv
+    ├── linked_trials.csv
 
 state/
 ├── artifact_hashes.json
@@ -84,6 +85,9 @@ state/
 ├── model_convergence_metrics.json
 ├── fdr_results.json
 ├── sensitivity_analysis.json
+├── power_check.json
+├── confound_check.json
+├── score_validation.json
 ├── pii_scan.json
 └── project_state.yaml
 
@@ -98,65 +102,59 @@ reports/
 
 | FR / SC | Capability | Task(s) |
 |--------|------------|---------|
-| **FR‑001** | Verify core columns; derive missing scores | T002, T003, T005a, T005b |
-| **FR‑002** | CPU‑optimized valence derivation | T005b |
-| **FR‑003** | Associational framing | T029 |
-| **FR‑004** | FDR correction | T028 |
-| **FR‑005** | VIF computation & flagging | T027a |
-| **FR‑006** | α‑sweep sensitivity | T027b |
-| **SC‑001** | Ingestion/linkage completeness | T004 |
-| **SC‑002** | Model convergence success (≥ [deferred] within 3 attempts) | T025 |
-| **SC‑003** | PDF contains required artifacts | T036 |
+| **FR‑001** | Verify core columns; derive missing scores | T003, T004, T007, T008 |
+| **FR‑002** | CPU‑optimized valence derivation | T008 |
+| **FR‑003** | Associational framing | T013 |
+| **FR‑004** | FDR correction | T012 |
+| **FR‑005** | VIF computation & flagging | T010 |
+| **FR‑006** | α‑sweep sensitivity | T014 |
+| **FR‑007** *(new)* | External validation of derived scores | T020 |
+| **FR‑008** *(new)* | Power‑analysis checkpoint | T021 |
+| **FR‑009** *(new)* | Confounding diagnostics | T022 |
+| **SC‑001** | Ingestion/linkage completeness | T005 |
+| **SC‑002** | Model convergence success (≥ [deferred] within 3 attempts) | T011 |
+| **SC‑003** | PDF contains required artifacts | T015 |
+| **SC‑004** *(new)* | Artifact hashing for versioning | T023 |
+
+All functional requirements and success criteria are explicitly covered, with the newly added tasks closing the previously identified gaps.
 
 ## Task Ordering (dependency‑corrected)
 
 | ID | Description | Depends On |
 |----|-------------|------------|
-| **T001** | **Environment Setup** – install pinned `requirements.txt` (with `pip.conf`), load `config.py`. | – |
-| **T002** | **Ingest** – download from `config.PRIMARY_DATASET_URL` → `data/raw/iat.parquet`; compute SHA‑256 checksum; write `state/artifact_hashes.json`. | T001 |
-| **T003** | **Core‑Column Validation** – ensure `response_time`, `participant_id`, `stimulus_id` exist. If any are missing, write `state/linkage_status.json` with `status: HALT` and `message: "Data Gap: Schema Mismatch"`; abort downstream steps. | T002 |
-| **T004** | **Metadata Extraction & Linkage Metric** – split stimuli into `data/primes/` & `data/targets/`, create `data/processed/metadata_mapping.csv`, compute % linked trials, write `data/processed/ingest_metrics.json` **and** `state/linkage_status.json`. Threshold `config.LINKAGE_THRESHOLD` (default 95.0) is read from `config.py`. >10 % missing → HALT; ≤10 % → WARN & exclude. | T003 |
-| **T005a** | **Derive Ambiguity** – if `ambiguity` column missing, compute WordNet sense‑count for words and Laplacian texture variance for images; write `data/processed/ambiguity_scores.csv`. | T004 |
-| **T005b** | **Derive Valence** – if `prime_valence` missing, use lexical valence dictionary for words and a CPU‑only emotion classifier (`torch` on CPU) for images; write `data/processed/valence_scores.csv`. | T004 |
-| **T006** | **Merge Scores** – join `metadata_mapping.csv`, `ambiguity_scores.csv`, `valence_scores.csv` → `data/processed/linked_trials.csv`; also write `state/analysis_scope.json` (`full` or `valence_only` if ambiguity unavailable). | T005a, T005b |
-| **T015** | **Verified‑Sources Validation** – load `data/verified_sources.json` (schema `verified_sources.schema.yaml`) and confirm `config.PRIMARY_DATASET_URL` appears there; abort with clear error if not. | T001 |
-| **T009** | **Logging Configuration & Execution Log** – `code/main.py` configures a `logging.FileHandler` writing to `code/logs/pipeline.log`. The first execution of any `--step` creates the file with timestamped entries. | T001 |
-| **T027a** | **VIF Pre‑Check** – compute VIF on predictors (`prime_valence`, `stimulus_ambiguity`, any demographics present) using `data/processed/linked_trials.csv`; write `state/vif_flag.json`. If any VIF > 5.0, set `claim_suppressed: true`. | T006 |
-| **T025** | **LME Fitting** – fit `statsmodels.MixedLM` with random intercept for `participant_id`; use robust SE; retry up to 3 optimizers (`lbfgs`, `bfgs`, `powell`). Record attempts & convergence in `state/model_convergence_metrics.json`. If all fail, log suggestion to simplify random effects. | T027a |
-| **T028** | **FDR Correction** – Benjamini‑Hochberg on all fixed‑effect p‑values from T025; write `state/fdr_results.json`. | T025 |
-| **T029** | **Associational Framing** – augment `state/model_results.json` with keys `caution_note` and `limitation_note` (as defined in `contracts/model_results.schema.yaml`). Also compute bootstrap effect sizes (Cohen’s d, partial η²) with seed 42 and ≥ 1000 resamples (count deferred). | T028 |
-| **T027b** | **Sensitivity Analysis** – sweep α ∈ {0.01, 0.05, 0.10} over FDR‑corrected p‑values; write `reports/sensitivity_analysis.csv`. | T028 |
-| **T036** | **Report Generation** – always produce `reports/final_report.pdf`. If `state/linkage_status.json` is `HALT`, the PDF contains a data‑gap narrative; otherwise it includes interaction plot, coefficient table, effect‑size CIs, caution/limitation notes, and the sensitivity summary. Uses `code/report.py`. | T004 (for halt case), T029, T027b |
-| **T014** | **Streaming Support Verification** – generate a synthetic >7 GB Parquet file (seeded), run `code/streaming.py` with `datasets.load_dataset(..., streaming=True)` to confirm streaming path works, then delete the temp file. | T001 |
-| **T016** | **Contract Verification** – `pytest -m contract` validates all JSON/YAML artifacts against schemas in `contracts/`. | T036, T009, T018a, T017, etc. |
+| **T001** | **Environment Setup** – create virtualenv, install pinned `requirements.txt` (uses `code/pip.conf`), ensure `code/logs/` exists. | – |
+| **T002** | **Load Verified Sources** – read `data/verified_sources.json` (schema `verified_sources.schema.yaml`), select the first entry as `config.PRIMARY_DATASET_URL`. Abort if file missing or empty. | T001 |
+| **T003** | **Ingest** – download dataset from `config.PRIMARY_DATASET_URL` → `data/raw/iat.parquet`; compute SHA‑256 checksum; write `state/artifact_hashes.json`. | T002 |
+| **T004** | **Core‑Column Validation** – confirm presence of `response_time`, `participant_id`, `stimulus_id`. If any missing, write `state/linkage_status.json` with `status: HALT` and `message: "Data Gap: Schema Mismatch"`; abort downstream steps. | T003 |
+| **T005** | **Metadata Extraction & Linkage Metric** – split stimuli into `data/primes/` & `data/targets/`; create `data/processed/metadata_mapping.csv`; compute % linked trials; write `data/processed/ingest_metrics.json` and update `state/linkage_status.json`. Threshold `config.LINKAGE_THRESHOLD` (default 95.0) is read from `code/config.py`. >10 % missing → HALT; ≤10 % → WARN & exclude. | T004 |
+| **T006** | **Linkage Gate** – read `ingest_metrics.json` and `config.LINKAGE_THRESHOLD`; if `linkage_percentage < threshold` set `status: HALT` in `state/linkage_status.json`. | T005 |
+| **T007** | **Derive Ambiguity** – if `ambiguity` column missing, compute WordNet sense‑count for words and Laplacian texture variance for images; write `data/processed/ambiguity_scores.csv`. | T005 |
+| **T008** | **Derive Valence** – if `prime_valence` missing, use lexical valence dictionary for words and a CPU‑only emotion classifier (`torch` on CPU) for images; write `data/processed/valence_scores.csv`. | T005 |
+| **T009** | **Merge Scores** – join `metadata_mapping.csv`, `ambiguity_scores.csv`, `valence_scores.csv` → `data/processed/linked_trials.csv`; also write `state/analysis_scope.json` (`full` or `valence_only` if ambiguity unavailable). | T007, T008 |
+| **T010** | **VIF Pre‑Check** – compute VIF on predictors (`prime_valence`, `stimulus_ambiguity`, any demographics) using `linked_trials.csv`; write `state/vif_flag.json`. If any VIF > 5.0, set `claim_suppressed: true`. | T009 |
+| **T020** | **Derived Scores Validation** – compare `prime_valence` against NRC VAD lexicon (words) and FER‑2013 benchmark (images); compare `stimulus_ambiguity` against established ambiguity corpora; store Pearson r and 95 % CI in `state/score_validation.json`. If r < 0.6, add a caution flag used later in reporting. | T009 |
+| **T021** | **Power‑Analysis Check** – compute required N for target effect size f = 0.15, α = 0.05, power = 0.80; compare to `linked_trials.csv` row count; write `state/power_check.json`. If insufficient, set `status: HALT` in `state/linkage_status.json` with a “Power Limitation” message. | T009 |
+| **T022** | **Confounding Check** – assess trial order autocorrelation, stimulus repetition frequency, and stimulus‑specific ICC; write `state/confound_check.json`. Severe confounds (e.g., ICC > 0.3) set `status: HALT` with explanatory message. | T009 |
+| **T011** | **LME Fitting** – fit `statsmodels.MixedLM` with random intercept **and** random slope for `prime_valence` per `participant_id`; use robust SE; retry up to 3 optimizers (`lbfgs`, `bfgs`, `powell`). Record attempts & convergence in `state/model_convergence_metrics.json`. If all fail, log suggestion to simplify random effects. | T010, T020, T021, T022 |
+| **T012** | **FDR Correction** – Benjamini‑Hochberg on all fixed‑effect raw p‑values from T011; write `state/fdr_results.json`. | T011 |
+| **T013** | **Associational Framing** – augment `state/model_results.json` with `caution_note` and `limitation_note` (as defined in `contracts/model_results.schema.yaml`); compute bootstrap effect sizes (Cohen’s d, partial η²) with seed 42 and ≥ 1000 resamples (count deferred). | T012 |
+| **T014** | **Sensitivity Analysis** – sweep α ∈ {0.01, 0.05, 0.10} over FDR‑corrected p‑values; write `reports/sensitivity_analysis.csv` and summary in `state/sensitivity_analysis.json`. | T012 |
+| **T015** | **Report Generation** – always produce `reports/final_report.pdf`. If `state/linkage_status.json` is `HALT`, the PDF contains a data‑gap narrative; otherwise it includes interaction plot, coefficient table, effect‑size CIs, caution/limitation notes, and the sensitivity summary. Uses `code/report.py`. | T004 (for halt case), T013, T014 |
+| **T016** | **Logging Configuration** – run a one‑off command that creates `code/logs/pipeline.log` with a timestamped entry. Subsequent steps append to this file. | T001 |
+| **T017** | **Streaming Verification** – generate a synthetic >7 GB Parquet file (seeded), run `code/streaming.py` with `datasets.load_dataset(..., streaming=True)` to confirm streaming works, then delete the temp file. | T001 |
+| **T018** | **Contract Verification** – execute `pytest -m contract` to validate all JSON/YAML artifacts against schemas in `contracts/`. | T015, T017, T016 |
+| **T023** | **Artifact Hashing** – after each major output (raw download, processed CSV/JSON, model results, PDF), compute SHA‑256 checksum and append entry to `state/artifact_hashes.json`. Ensures full compliance with Principle V. | All tasks that produce files (T003, T005‑T015, T017) |
 
-### Dependency Clarifications (addressing previous concerns)
-- **Threshold Definition**: `config.LINKAGE_THRESHOLD` is defined **once** in `code/config.py`. No task writes it, eliminating circularity.
-- **Confounding Check (removed)**: The earlier `T023` task was unnecessary for this analysis and has been removed. All necessary diagnostics are covered by the VIF pre‑check (T027a) and model‑fit convergence handling (T025).
-- **Aggregation (removed)**: The former `T024` aggregation step was unnecessary; the model operates directly on `linked_trials.csv`.
-- **VIF Placement**: Moved before model fitting (T027a → T025) as required.
-- **Linkage Gate**: Now reads `ingest_metrics.json` (produced by T004) and the static threshold from `config.py`; no write‑back of the threshold.
-- **Logging**: T009 explicitly creates `pipeline.log` on first step execution.
-- **Ingest Metrics**: T004 now generates a fully populated `data/processed/ingest_metrics.json` (addresses T018a rejection).
-- **Linked Trials**: T006 creates a non‑empty `data/processed/linked_trials.csv` (addresses T017 rejection).
-- **Report PDF**: T036 guarantees creation of `reports/final_report.pdf` (addresses T036 rejection).
-- **Streaming Verification**: T014 uses a synthetic >7 GB file, satisfying the earlier contradiction.
-- **Verified‑Sources Schema**: Defined in `contracts/verified_sources.schema.yaml` and referenced by T015.
-- **Pip.conf**: T003a (now part of T001) instructs creation of `code/pip.conf` with the CPU‑only index URL.
-
-## Alignment of FR/SC to Tasks
-| FR/SC | Task(s) |
-|------|---------|
-| FR‑001 | T002, T003, T005a, T005b |
-| FR‑002 | T005b |
-| FR‑003 | T029 |
-| FR‑004 | T028 |
-| FR‑005 | T027a |
-| FR‑006 | T027b |
-| SC‑001 | T004 |
-| SC‑002 | T025 |
-| SC‑003 | T036 |
-
-All functional requirements and success criteria are explicitly covered.
+### Dependency Clarifications (addressing prior concerns)
+- **No circular threshold definition**: `LINKAGE_THRESHOLD` is defined **once** in `code/config.py`; all tasks read the same static value.
+- **VIF placed before modeling**: T010 now precedes T011, satisfying the methodological requirement.
+- **Validation of derived scores**: T020 provides external construct‑validity evidence before any inferential claim.
+- **Power check**: T021 enforces a minimum sample size prior to modeling.
+- **Confounding diagnostics**: T022 explicitly assesses trial‑order and stimulus‑specific confounds.
+- **Random slope inclusion**: T011 now fits a random slope for prime_valence.
+- **Artifact hashing**: T023 guarantees every artifact is version‑hashed.
+- **Logging artifact existence**: T016 guarantees `pipeline.log` is created before any other step writes to it.
+- **Streaming verification uses >7 GB synthetic file**: T017 creates a 7.5 GB Parquet file, satisfying the requirement.
 
 ---
+

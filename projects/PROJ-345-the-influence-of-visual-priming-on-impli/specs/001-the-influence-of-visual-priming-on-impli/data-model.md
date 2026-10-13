@@ -33,7 +33,7 @@
 {
   "status": "PASS|WARN|HALT",
   "percentage": "number (0‑100)",
-  "threshold": "number (default 95.0)",
+  "threshold": "number (default 95.0, from code/config.py)",
   "message": "string"
 }
 ```
@@ -53,7 +53,7 @@
 | `total_attempts` | integer ≥ 1 | number of optimizer tries |
 | `successful_runs` | integer ≥ 0 | converged fits |
 | `failed_runs` | integer ≥ 0 | failed fits |
-| `optimizer_settings` | array of strings | attempted optimizers (e.g., `lbfgs`, `bfgs`, `powell`) |
+| `optimizer_settings` | array of strings | attempted optimizers (`lbfgs`, `bfgs`, `powell`) |
 
 ### 2.6 Model Results (`state/model_results.json`)
 ```json
@@ -63,7 +63,7 @@
     "stimulus_ambiguity": {"coef": "number", "se": "number", "p_raw": "number", "p_fdr": "number"},
     "interaction": {"coef": "number", "se": "number", "p_raw": "number", "p_fdr": "number"}
   },
-  "random_effects": {"participant_intercept_variance": "number"},
+  "random_effects": {"participant_intercept_variance": "number", "participant_valence_slope_variance": "number"},
   "robust_se": true,
   "caution_note": "string",
   "limitation_note": "string",
@@ -73,7 +73,7 @@
   }
 }
 ```
-*Keys `caution_note` and `limitation_note` satisfy FR‑003 and are defined in `contracts/model_results.schema.yaml`.*
+*Random‑effects now include `participant_valence_slope_variance` to reflect the added random slope (methodology‑a4a36c).*
 
 ### 2.7 VIF Flag (`state/vif_flag.json`)
 | Field | Type |
@@ -83,17 +83,50 @@
 | `claim_suppressed` | boolean |
 | `message` | string |
 
-### 2.8 Verified Sources Registry (`data/verified_sources.json`)
+### 2.8 Derived Scores Validation (`state/score_validation.json`)
+```json
+{
+  "prime_valence_validation": {"pearson_r": "number", "ci_lower": "number", "ci_upper": "number"},
+  "ambiguity_validation": {"pearson_r": "number", "ci_lower": "number", "ci_upper": "number"},
+  "validation_passed": "boolean"
+}
+```
+*Provides external validation metrics for the derived predictors (addresses methodology‑c1f3b31e & scientific_soundness‑0f39757b).*
+
+### 2.9 Power Check (`state/power_check.json`)
+```json
+{
+  "required_n": "integer",
+  "observed_n": "integer",
+  "power_achieved": "boolean",
+  "message": "string"
+}
+```
+*Result of the power‑analysis checkpoint (methodology‑e9a77e04).*
+
+### 2.10 Confound Check (`state/confound_check.json`)
+```json
+{
+  "trial_order_autocorrelation": "number",
+  "stimulus_repetition_rate": "number",
+  "stimulus_icc": "number",
+  "confound_severe": "boolean",
+  "message": "string"
+}
+```
+*Outputs from the confounding diagnostics (methodology‑e281f6e1).*
+
+### 2.11 Verified Sources Registry (`data/verified_sources.json`)
 ```json
 {
   "sources": [
-    {"name": "string", "url": "string", "format": "string"}
+    {"name": "OpenIAT", "url": "https://huggingface.co/datasets/openai/open_iat/resolve/main/iat.parquet", "format": "parquet"}
   ]
 }
 ```
-*If `research.md` and this file disagree, this file is authoritative (Task T015).*
+*If the research.md and this file disagree, this file is authoritative (Task T002).*
 
-### 2.9 Ingest Metrics (`data/processed/ingest_metrics.json`)
+### 2.12 Ingest Metrics (`data/processed/ingest_metrics.json`)
 ```json
 {
   "total_trials": "integer",
@@ -104,7 +137,7 @@
 }
 ```
 
-### 2.10 Sensitivity Analysis (`reports/sensitivity_analysis.csv`)
+### 2.13 Sensitivity Analysis (`reports/sensitivity_analysis.csv`)
 | Column | Type |
 |--------|------|
 | `alpha_level` | number |
@@ -114,19 +147,22 @@
 
 ## 3. Data Flow
 1. **Ingest** → `data/raw/iat.parquet` (+ checksum).  
-2. **Validate** → halt if core columns missing (Task T003).  
+2. **Validate** → halt if core columns missing (Task T004).  
 3. **Metadata Extraction** → `metadata_mapping.csv`.  
 4. **Linkage Metric** → `ingest_metrics.json`, `linkage_status.json`.  
-5. **Derive Ambiguity / Valence** → respective CSVs.  
+5. **Derive Ambiguity / Valence** → `ambiguity_scores.csv`, `valence_scores.csv`.  
 6. **Merge** → `linked_trials.csv` + `analysis_scope.json`.  
 7. **VIF** → `vif_flag.json`.  
-8. **LME Fit** → `model_results.json`, `model_convergence_metrics.json`.  
-9. **FDR** → `fdr_results.json`.  
-10. **Framing** → adds `caution_note` & `limitation_note`.  
-11. **Sensitivity** → `sensitivity_analysis.csv`.  
-12. **Report** → `final_report.pdf` (full or data‑gap).  
-13. **PII Scan** → `pii_scan.json`.  
-14. **Contract Validation** → `pytest -m contract`.
+8. **Derived Scores Validation** → `score_validation.json`.  
+9. **Power Check** → `power_check.json`.  
+10. **Confound Check** → `confound_check.json`.  
+11. **LME Fit** → `model_results.json`, `model_convergence_metrics.json`.  
+12. **FDR** → `fdr_results.json`.  
+13. **Framing** → adds `caution_note` & `limitation_note`.  
+14. **Sensitivity** → `sensitivity_analysis.csv`.  
+15. **Report** → `final_report.pdf` (full or data‑gap).  
+16. **PII Scan** → `pii_scan.json`.  
+17. **Contract Validation** → `pytest -m contract` validates all JSON/YAML artifacts against schemas in `contracts/`.  
 
 ## 4. Constraints & Validation Rules
 - **Linkage**: `% linked ≥ config.LINKAGE_THRESHOLD` (default 95 %). Otherwise `HALT`.  
@@ -134,6 +170,11 @@
 - **PII**: `participant_id` must not match email/phone/SSN regexes.  
 - **VIF** > 5.0 → `claim_suppressed: true`.  
 - **Missing covariates** → omitted from model, flagged, never imputed.  
+- **Derived Score Validation**: Pearson r ≥ 0.6 required for `validation_passed:true`; otherwise a caution flag is set.  
+- **Power**: `observed_n` ≥ `required_n` required for `power_achieved:true`; otherwise analysis halts with a data‑gap note.  
+- **Confounds**: `stimulus_icc` > 0.3 or `trial_order_autocorrelation` > 0.3 triggers `confound_severe:true` and halts the pipeline.  
 - **Raw data immutable**; all derivations create new files with SHA‑256 hashes recorded.  
+- **No synthetic stand‑ins**; all files are derived from the verified OpenIAT dataset.
 
 ---
+

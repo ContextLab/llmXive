@@ -37,8 +37,12 @@ properties:
       participant_intercept_variance:
         type: "number"
         description: "Variance of random intercept for participants"
+      participant_valence_slope_variance:
+        type: "number"
+        description: "Variance of random slope for prime valence per participant"
     required:
       - participant_intercept_variance
+      - participant_valence_slope_variance
     additionalProperties: false
   robust_se:
     type: "boolean"

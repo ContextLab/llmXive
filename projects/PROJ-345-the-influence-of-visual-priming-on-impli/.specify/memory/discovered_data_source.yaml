@@ -1,14 +1,15 @@
 status: none
-intent: download IAT response time dataset OSF facial stimulus metadata KDEF python
-  package dataset
+intent: Open Science Framework IAT response time dataset facial stimulus metadata
+  FACES database python package dataset
 required_fields:
 - trial_id
 - participant_id
-- response_time
-- prime_valence_label
-- stimulus_id
+- response_time_ms
 - stimulus_image_path
+- prime_valence_label
 - stimulus_ambiguity_score
-cache_key: 3787e80e327605c3f59e66729621092910080d4a59017c9e5e7bd75161ec2ed5
-searched_at: '2026-10-12T23:10:57.123790+00:00'
+- block_number
+- trial_number
+cache_key: 7adb7a9463dc74bbca92af61940808b5664bd82cfbd2b40c4a3e7de4159f6d07
+searched_at: '2026-10-13T06:17:00.525411+00:00'
 retry_count: 1
