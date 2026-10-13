@@ -1,4 +1,4 @@
-- artifact_hash: b9f10128cf12d25492fc4d4cf7592429ee090f36a942dcc1e0379f8e5878e879
+- artifact_hash: c52732bac3674282d85e7072246621bcbeb3142438567539b51ba22f5191ff18
   artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,16 +8,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-10-08T09:53:43.454570Z'
-- artifact_hash: b9f10128cf12d25492fc4d4cf7592429ee090f36a942dcc1e0379f8e5878e879
-  artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2607.07974] A Multi-cluster Boundary Learning Method for Out-of-Scope
-    Intent Detection via MiniLM Embedding'
-  kind: url
-  value: https://arxiv.org/abs/2607.07974
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2607.07974
-  verified_at: '2026-10-08T09:53:43.454570Z'
+  verified_at: '2026-10-13T08:24:45.365697Z'

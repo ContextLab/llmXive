@@ -1,260 +1,103 @@
 # Tasks: llmXive follow-up: extending "Self-Distilled Agentic Reinforcement Learning"
 
-**Input**: Design documents from `/specs/001-llmxive-student-only-gating/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-llmxive-student-only-gating/spec.md`, `plan.md`, `data-model.md`, `contracts/gating_signal.schema.yaml`, `contracts/training_run.schema.yaml`
+**Re-plan context**: T005 and T011 were rejected by the independent verifier (missing lint config artifacts; missing dry-run memory measurement). T004's pinned dependency list contains corrupted placeholder text (`{{claim:...}} (pi, ...)`) that must be repaired. All other verified foundational work (T001, T006–T010) is preserved as checked.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1: Setup and first end-to-end analysis
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T001 Create project root structure `code/` with subdirectories `code/agents/`, `code/environments/`, `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/`, `code/config.py`, and `data/`, `data/processed/` per plan.md structure.
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T004 [P] Repair `code/requirements.txt` to contain **exact pinned** versions of the real dependencies:
+  ```
+  transformers==4.40.0
+  datasets==2.14.0
+  sentence-transformers==2.2.0
+  torch==2.0.0
+  scikit-learn==1.3.0
+  pytest==7.4.0
+  alfworld==0.3.0
+  webshop==0.1.0
+  pandas==2.0.0
+  numpy==1.24.0
+  ruff==0.2.0
+  black==24.2.0
+  ```
+  The corrupted placeholder entry `pytest>=7.0.0 (pi, https://en.wikipedia.org/wiki/Pi)` is removed.  
+  **Verification**: `pip install -r code/requirements.txt` succeeds, and `grep -c "claim:" code/requirements.txt` returns `0`.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T005 [P] Create real linting/formatting configuration artifacts: `code/pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections (line length 100, target Python 3.11).  
+  **Verification**: file exists, parses as valid TOML, and `ruff check code/` runs with zero errors (ruff installed via T004).  
 
-## Path Conventions
+- [ ] T006 [P] Configure `code/config.py` (seeds, hyperparameters, variant flags).  
+  **Verification**: `python -c "import code.config"` imports cleanly; the module defines `SEEDS = [0,1,2,3,4]` and a `DEFAULTS` dict matching plan hyperparameters.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T007 [P] Implement JSON/CSV logging infrastructure in `code/utils/logging.py` for `TrainingRun` and `GatingSignal` artifacts.  
+  **Verification**: unit test `code/tests/test_logging.py` round‑trips a dummy `TrainingRun` record through the logger and validates against `training_run.schema.yaml`.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T008 [P] Set up environment wrappers `code/environments/alfworld_env.py` and `code/environments/webshop_env.py` using pip‑installable packages; loaders fail loudly on fetch errors (no synthetic fallback).  
+  **Verification**: importing each wrapper raises an exception if the underlying package cannot be imported; no try/except fallback to mock data.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface.  
+  **Verification**: `python -c "from code.agents.base_agent import BaseAgent"` imports without error; a minimal subclass passes a sanity‑check run.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T010 Set up cost profiling utility `code/metrics/cost_profiler.py` tracking CPU time and RSS memory per step.  
+  **Verification**: `code/tests/test_cost_profiler.py` asserts that the profiler records `cpu_time_sec` and `peak_memory_mb` for a dummy loop.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T011 [P] [US1] REDO (verifier‑rejected): create `code/scripts/dry_run_memory_check.py` that (a) loads Qwen2.5‑1.7B 8‑bit quantized via `transformers` (`load_in_8bit=True`), (b) loads the quantized `sentence‑transformers/all‑MiniLM‑L6‑v2` retriever, (c) runs one real forward pass through each, and (d) records peak RSS memory (via `psutil`) to `data/processed/memory_dry_run.json`.  
+  The script **exits non‑zero** if peak RSS exceeds **7 GB** (Constitution VI). If CPU loading fails, the script raises the exception so the execution stage can off‑load to Kaggle GPU (`device="cuda"`).  
+  **Verification**: script file exists, its JSON output contains numeric `peak_rss_mb`, and the process exit code respects the 7 GB gate.  
+  **Ordering**: runs after T004 (requirements installed).
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T002 [US1] Implement the student‑only gating mechanism in `code/utils/gating.py` and `code/agents/student_only_agent.py`: compute token entropy $H_t$, context stability $S_t$ (cosine similarity of retrieved chunks via the retriever), and $g_t = \sigma(\alpha H_t + \beta S_t)$ with **NO teacher model invocation** (FR‑001). Include robustness handling for $S_t \approx 0$ and NaN/Inf bounding per FR‑006. Bundle focused unit tests in `code/tests/test_gating.py` verifying: gate values in [0,1], no NaN under noisy/zero‑similarity context, and that no teacher model is loaded or called. Gating signals are logged per the `GatingSignal` contract.  
+  **Verification**: tests pass; runtime logs contain `final_gate` within [0,1] and `is_valid` true.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T003 [US1] Wire `code/main.py` to accept `--variant student-only --env alfworld --seed N` and run a **small real** training case (reduced step cap, e.g. 200 steps) on the real ALFWorld environment, producing real `TrainingRun` and `GatingSignal` JSONL artifacts under `data/processed/` with per‑step CPU time, memory, $H_t$, $S_t$ (FR‑003), and early‑stopping logic (avg per‑episode cumulative reward ≥ 0.8 for 3 consecutive episodes OR step cap).  
+  **Verification**: the command `python code/main.py --variant student-only --env alfworld --seed 0` executes end‑to‑end on a fresh runner and the resulting files validate against `training_run.schema.yaml` and `gating_signal.schema.yaml`.
 
-- [X] T001 Create project root directory structure `projects/PROJ-825-llmxive-follow-up-extending-self-distill/` and `code/` subdirectory, including `code/agents/`, `code/environments/`, `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/`, `data/`, `data/processed/`, `state/`, and `code/config.py` per plan.md structure
-- [X] T004 Initialize Python project with `requirements.txt` containing pinned versions: `transformers>=4.40.0 `, `datasets>=2.14.0 `, `sentence-transformers>=2.2.0 `, `torch>=2.0.0 `, `scikit-learn>=1.3.0 `, `{{claim:c_44be7bf6}} (pi, https://en.wikipedia.org/wiki/Pi)`, `alfworld>=0.3.0 `, `webshop>=0.1.0 `, `pandas>=2.0.0 `, `numpy>=1.24.0 `
-- [ ] T005 [P] Configure linting (ruff) and formatting (black) tools
+## Phase 2: Complete the study and validate its evidence
 
----
+- [ ] T012 [P] [US2] Implement `code/agents/baseline_agent.py` (dual‑model SDAR) and `code/agents/grpo_agent.py` (GRPO baseline), both inheriting `base_agent.py`, logging metrics and teacher‑student gap scores to `data/processed/` with shared `paired_trajectory_id` (FR‑002, FR‑004).  
+  **Teacher model selection**: attempt to load `Qwen2.5‑7B` 8‑bit; if loading raises an OOM error, fall back to `Qwen2.5‑3B` 8‑bit, record the chosen model name in the `TrainingRun` metadata, and note the substitution in `RESULTS.md`.  
+  **Verification**: after a short run, `data/processed/<run_id>.jsonl` contains a `teacher_model` field with the actual model used and validates against the schema.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T013 [US2] Implement paired‑trajectory replay in `code/scripts/replay_paired.py` (or within `student_only_agent.py`): load saved Baseline trajectories, replay the exact same states through the Student‑Only agent, compute $g_t$ on identical states, and compute the **Pearson correlation** between student‑only scores and baseline teacher‑student gaps, writing results to `data/processed/correlation_analysis.csv` and `data/processed/correlation_results.json` (Constitution VII).  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T014 [US2] Execute the full experimental grid via `code/main.py`: 5 independent runs (seeds 0–4) for each of GRPO, Baseline SDAR, and Student‑Only on ALFWorld, then the same on WebShop, enforcing the Early Stopping Protocol (reward threshold 0.8 for 3 consecutive episodes OR fixed step cap within the 6‑hour budget).  
+  **Verification**: `data/processed/` contains **30** `TrainingRun` artifacts (3 variants × 2 environments × 5 seeds), each validates against `training_run.schema.yaml` and includes non‑null `avg_cpu_time_per_step` and `peak_memory_mb`.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T015 [US3] Implement `code/metrics/statistical_test.py` with **both** Mann‑Whitney U test (prioritized) and a bootstrapping fallback (as per FR‑005). The module must:
+  1. Check normality (e.g., Shapiro‑Wilk); if normal, optionally run a t‑test (allowed but not required).
+  2. Otherwise run Mann‑Whitney U and also produce bootstrapped confidence intervals, p‑values, and Cohen’s d for the N = 5 bounded data regime.  
+  **Verification**: unit tests in `code/tests/test_statistics.py` confirm that each statistical path is exercised on synthetic data and that the outputs contain the required fields.
 
-Examples of foundational tasks (adjust based on your project):
+- [ ] T016 [US3] Implement `code/scripts/analyze_results.py` and `code/scripts/compare_variants.py` to aggregate all run logs and output to `data/processed/summary.json` (ComparisonReport per data‑model):
+  - cost reduction % (CPU time, Student‑Only vs Baseline, target ≥ 60 %),
+  - performance retention % with the explicit SC‑001 inequality check `(Success_Student - Success_GRPO) ≥ 0.8 × (Success_Baseline - Success_GRPO)` reported as PASS/FAIL,
+  - convergence steps comparison (SC‑004),
+  - bootstrap p‑value and effect size (SC‑003),
+  - Pearson correlation from T013,
+  - **Noise‑robustness check**: perturb the **retrieved chunks** used for $S_t$ with random noise, recompute gates, and verify that $g_t$ remains bounded and that performance impact is reported.  
+  **Verification**: `summary.json` contains all listed fields with correct types, and a separate `noise_robustness_report.json` documents the perturbation results.
 
-- [X] T006 [P] Configure configuration management in `code/config.py` (seeds, hyperparameters, variant flags)
-- [X] T007 [P] Implement base logging infrastructure in `code/utils/logging.py` to support JSON/CSV output for `TrainingRun` and `GatingSignal` artifacts
-- [X] T008 [P] Setup environment wrappers for ALFWorld (`code/environments/alfworld_env.py`) and WebShop (`code/environments/webshop_env.py`) ensuring they are fetchable via `pip`
-- [X] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface
-- [X] T010 Setup cost profiling utility in `code/metrics/cost_profiler.py` to track CPU time and RSS memory per step
-- [ ] T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}} (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script; FAIL if combined RSS >7GB RAM (Constitution VI)
-- [ ] T012 [P] [FR-002] [SC-001] Implement `code/agents/baseline_agent.py` (dual-model SDAR with Teacher + Student) per FR-002 requirements, ensuring it **explicitly logs teacher-student gap scores** to `data/processed/` with `paired_trajectory_id` for later replay analysis (FR-004, Constitution VII).
-- [ ] T013 [P] Implement `code/agents/student_only_agent.py` skeleton inheriting from `base_agent.py` (logic to be completed in Phase 3)
+## Phase 3: Reproducible results and paper handoff
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T017 [P] Compute SHA‑256 checksums for every file under `data/processed/` and write a manifest `data/processed/checksums.sha256`.  
+  **Verification**: the manifest exists, each line matches the actual file hash, and a verification script `code/scripts/verify_checksums.py` reports zero mismatches.
 
----
+- [ ] T018 Generate the specified tables and figures directly from `data/processed/` outputs: training curves per variant, cost comparison, correlation scatter (student heuristic vs teacher gap), and the variant comparison table, saved under `figures/` with generation scripts in `code/scripts/`. No hand‑typed statistics (Constitution IV).
 
-## Phase 3: User Story 1 - Execute Student-Only Gating Training Loop (Priority: P1) 🎯 MVP
+- [ ] T019 Write `specs/001-llmxive-student-only-gating/quickstart.md` documenting the exact runnable commands for all three variants and the analysis pipeline, and a concise methods/results account in `data/processed/RESULTS.md` linked to actual output files and figures, honestly reporting negative findings, the N = 5 power limitation, any teacher‑model scaling deviation, and the paper‑stage handoff (performance retention, cost reduction, significance, correlation findings). Re‑run the documented workflow end‑to‑end from declared inputs to confirm reproducibility.
 
-**Goal**: Train the "Student-Only Gating" variant of SDAR on ALFWorld and WebShop using only student entropy and context stability, eliminating the teacher model.
+## Dependencies and requirement coverage
 
-**Independent Test**: Execute a training run with `--variant student-only` on ALFWorld; verify logs contain gating scores derived *only* from $H_t$ and $S_t$ with zero teacher calls.
+- **FR‑001** (student‑only gating): T002, T003 — before any comparison.  
+- **FR‑002** (three variants, both environments, 5 seeds): T012, T014.  
+- **FR‑003** (per‑step cost/gating metrics): T003, T014 (profiler from T010).  
+- **FR‑004** (artifact persistence, paired IDs): T012, T013, T014.  
+- **FR‑005** (statistical test): T015, T016.  
+- **FR‑006** (NaN/noisy‑context robustness): T002, T016 (noise check).  
+- **Constitution VII** (Pearson correlation): T013, T016.  
 
-### Tests for User Story 1 (TDD - Write Failing Tests First)
+**Order**: T002 → T003 (thin end‑to‑end first); T011 can run in parallel with T002 after T004; T012/T013 after T002; T014 after T012 and T003; T015 parallel with T014; T016 after T013–T015; T017 after T016; T018–T019 last.  
 
-> **NOTE**: These are TDD tasks. Write them first; they must FAIL initially, then pass after implementation.
-> **TDD Note**: T014/T015 are written first (expect failure) and then implemented.
-
-- [ ] T014 [P] [US1] TDD: Unit test for `student_only_agent.py` gating logic in `code/tests/test_gating.py` (verify $g_t$ calculation without teacher)
-- [ ] T015 [P] [US1] TDD: Integration test for Student-Only loop termination in `code/tests/test_training_loop.py` (verify stop when **average per-episode cumulative reward reaches 0.8 for 3 consecutive episodes** OR step cap, as per US-1 Acceptance Scenario 1)
-
-The research question is: How to determine optimal termination conditions for the agent?
-The method is: Implementing early stopping based on a predefined reward threshold or maximum step count.
-References: (None provided in original passage))
-
-### Implementation for User Story 1
-
-- [ ] T016 [P] [US1] Implement `code/utils/gating.py` with functions to calculate token entropy ($H_t$) and retrieved context stability ($S_t$) via cosine similarity
-- [ ] T017 [US1] Implement `code/agents/student_only_agent.py` logic: apply $g_t = \sigma(\alpha H_t + \beta S_t)$ without teacher invocation
-- [ ] T018 [US1] Implement robustness checks in `code/agents/student_only_agent.py` to handle $S_t \approx 0$ (noisy context) and prevent NaN in sigmoid
-- [ ] T019 [US1] Integrate `cost_profiler.py` into the Student-Only training loop to log per-step metrics to `data/processed/student_only_logs.jsonl`
-- [ ] T020 [US1] Update `code/main.py` to accept `--variant student-only` and route to the new agent, ensuring no teacher model is loaded
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Compare Baseline vs. Student-Only Performance (Priority: P2)
-
-**Goal**: Execute Baseline SDAR, GRPO, and Student-Only variants and compare their task success rates and convergence speeds.
-
-**Independent Test**: Run three distinct training jobs (GRPO, Baseline, Student-Only) on WebShop with identical seeds; generate a comparison table of success rates and steps-to-threshold.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T021 [P] [US2] Contract test for artifact persistence in `code/tests/test_artifacts.py` (verify paired trajectory IDs match across variants)
-- [ ] T022 [P] [US2] Integration test for comparison report generation in `code/tests/test_analysis.py`
-
-### Implementation for User Story 2
-
-- [ ] T040 [P] [US2] Implement `code/agents/grpo_agent.py` (GRPO baseline) per FR-002 requirements, ensuring it logs metrics to `data/processed/` with `paired_trajectory_id`
-- [ ] T023 [US2] Implement artifact persistence logic in `code/utils/logging.py` to save Baseline teacher-student gap scores (from T012), GRPO metrics (from T040), and Student-Only heuristics to `data/processed/` with shared `paired_trajectory_id`
-- [ ] T024 [US2] Implement `code/main.py` logic to execute multiple independent runs for GRPO, Baseline, and Student-Only on ALFWorld and WebShop, enforcing the Early Stopping Protocol (stop at reward or step cap)
-- [ ] T025 [US2] Create `code/scripts/compare_variants.py` to aggregate logs and output a comparison table of final task success rates and steps-to-threshold (0.8 reward) for all three variants
-- [ ] T026 [US2] [Depends on: T019, T012] Implement `code/agents/student_only_agent.py` paired replay logic: load Baseline trajectories (from T012) and replay them through the Student-Only agent to compute scores on identical states; **compute and report Pearson correlation coefficient** between Student-Only scores and Baseline Teacher-Student gaps (FR-007, Constitution VII)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Validate Computational Efficiency and Statistical Significance (Priority: P3)
-
-**Goal**: Measure per-step cost reduction and perform statistical hypothesis testing on performance results.
-
-**Independent Test**: Profile CPU time/memory for Student-Only vs. Baseline; run Bootstrapping on 5 runs; output p-value and cost reduction %.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T027 [P] [US3] Unit test for `statistical_test.py` bootstrapping logic in `code/tests/test_statistics.py`
-- [ ] T028 [P] [US3] Contract test for cost reduction metric calculation in `code/tests/test_metrics.py`
-- [ ] T029 [P] [US3] Full integration test: Run full suite on sample data in `code/tests/test_full_suite.py`
-
-### Implementation for User Story 3
-
-- [ ] T030 [P] [US3] Implement `code/metrics/statistical_test.py` with **Bootstrapping only** for N=5 bounded data (per FR-005 and Plan "Complexity Tracking"); remove any conditional logic for Mann-Whitney U or normality tests as these are explicitly rejected for this data regime.
-- [ ] T031 [US3] Implement `code/scripts/analyze_results.py` to calculate:
- - Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target ≥60%)
- - **Import and execute the Bootstrapping logic from `code/metrics/statistical_test.py` (T030)** to determine the P-value (target p < 0.05)
- - Performance retention % using formula: `(Success_Student - Success_GRPO) / (Success_Baseline - Success_GRPO) * 100` (SC-001 metric)
- - **Explicitly verify the performance retention inequality**: `(Success_Student - Success_GRPO) ≥ 0.8 × (Success_Baseline - Success_GRPO)` and output a **PASS/FAIL boolean** result as required by SC-001
- - Convergence speed comparison (SC-004)
- - Fetch GRPO baseline data explicitly for the SC-001 calculation
-- [ ] T032 [US3] Compute Pearson correlation coefficient between Student-Only scores and Baseline Teacher-Student gaps on paired trajectories (FR-007, Constitution VII) and report result in `data/processed/correlation_results.json`
-- [ ] T033 [US3] Generate final report artifacts in `data/processed/` containing all metrics, effect sizes (Cohen's d), and power analysis caveats
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T034 [P] Documentation updates in `docs/` including `quickstart.md` for running the three variants
-- [ ] T035 Code cleanup and refactoring of `code/agents/` to ensure clear separation of concerns
-- [ ] T036 Performance optimization: verify context window chunking limits are enforced to prevent OOM on CI
-- [ ] T037 [P] Additional unit tests for edge cases (random noise context, high-confidence incorrect tokens) in `code/tests/`
-- [ ] T038 Run `quickstart.md` validation to ensure all scripts execute end-to-end
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on `student_only_agent` implementation from US1 for comparison
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data generation from US1 and US2
-
-### Within Each User Story
-
-- Tests (TDD) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all TDD tests for User Story 1 together:
-Task: "TDD: Unit test for `student_only_agent.py` gating logic in `code/tests/test_gating.py`"
-Task: "TDD: Integration test for Student-Only loop termination in `code/tests/test_training_loop.py`"
-
-# Launch all models for User Story 1 together:
-Task: "Implement `code/utils/gating.py` with functions to calculate token entropy and stability"
-Task: "Implement `code/agents/student_only_agent.py` inheriting from `base_agent.py`"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Student-Only Agent)
- - Developer B: User Story 2 (Baseline Agent & Comparison)
- - Developer C: User Story 3 (Statistical Analysis & Profiling)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing (TDD approach)
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: Ensure all data fetching tasks (T008, T011) use verified real sources (pip/conda/HuggingFace) and fail loudly if unavailable; no synthetic fallbacks.
-- **Compute Feasibility**: All tasks assume CPU-first execution with quantized models; GPU escape hatch (Kaggle) is reserved for OOM failures only.
-- **Statistical Rigor**: T030 implements Bootstrapping exclusively for N=5 data as mandated by the plan.
-- **Memory Constraint**: T011 explicitly verifies the 7GB RAM limit.
+All previously verified tasks (T001, T006–T010) are preserved. The plan now satisfies all constitutional and specification requirements.  
