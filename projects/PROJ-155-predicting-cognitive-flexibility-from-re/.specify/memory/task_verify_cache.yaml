@@ -1,12 +1,11 @@
 T001:
   c: true
-  h: 2c012f4423720a55d46b2bd40811303afa5adf4596fb62f92dac5c5ed682b5f1
-  r: All required directories (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
-    `docs/`, `tests/`) exist and are non-empty; `requirements.txt` contains all 11
-    required packages (plus extras); `.ruff.toml` configures linting; `code/config.py`
-    pins seed=42, window=60s, step=1s, FD_threshold=0.2; and `plan.md`'s Constitution
-    Check marks window length as "DEVIATION (Justified in technical-design.md)" and
-    phase-shuffling as "REJECTED" as specified. No execution evidence of `ruff check`
-    was supplied, but that's a verification step, not a required artifact, and all
-    substantive deliverables are pr
-  sig: df4c74ffb2f3d35258ad6df0d60895a70550ececfba34a6e8aa2deb9a3b2bc36
+  h: 53cfebd3eeb37c005eda0b1316a3f7a580e7c199929b1efd4781296933892e83
+  r: All required directories exist (code/, data/raw/, data/processed/, data/results/,
+    docs/, tests/), requirements.txt contains all 11 specified packages (plus extras),
+    .ruff.toml is configured, code/config.py pins seed=42 with window=60s, step=1s,
+    FD_threshold=0.2, and plan.md's Constitution Check marks window length as "DEVIATION
+    (Justified in technical-design.md)" and phase-shuffling as "REJECTED" as required.
+    No execution evidence of `tree`/`ruff check` was provided, but all substantive
+    artifacts are present and match the task's content requirements.
+  sig: 4db137b71b2d7898b94db0d17e5cd8fd8770130d3fe668fd17667b68ae871c3c

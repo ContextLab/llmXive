@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def _run_download_preprocess():
-    logger.info("Downloading raw data (ADHD dataset)...")
+    logger.info("Downloading raw data (HCP dataset)...")
     download_adhd_dataset()
     logger.info("Running preprocessing pipeline...")
     processed_count = run_preprocessing_pipeline()
