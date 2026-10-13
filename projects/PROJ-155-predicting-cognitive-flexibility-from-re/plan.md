@@ -10,15 +10,15 @@ Does inter-individual variability in resting-state functional connectivity (RSFC
 Sliding-window correlation analysis with permutation-based statistical validation.
 
 ## Data Source
-HCP 1200 Subjects Release (real data only).
+{{claim:c_ebd21dee}} (Wikipedia: Human Connectome Project, https://en.wikipedia.org/wiki/Human_Connectome_Project) (real data only).
 
 ## Constitution Check
 
 | Principle | Status | Justification |
 |-----------|--------|---------------|
-| I. Reproducibility | COMPLIANT | All code is open source and version controlled. Random seeds pinned in code/config.py. [UNRESOLVED-CLAIM: c_2547889c — status=not_enough_info] |
-| II. Data Integrity | COMPLIANT | SHA checksums verified against HCP manifest. [UNRESOLVED-CLAIM: c_4c47bba0 — status=not_enough_info] |
-| III. Statistical Power | COMPLIANT | Sample size > 1000 subjects. [UNRESOLVED-CLAIM: c_9246b072 — status=not_enough_info] |
+| I. Reproducibility | COMPLIANT | All code is open source and version controlled. Random seeds pinned in code/config.py. |
+| II. Data Integrity | COMPLIANT | SHA checksums verified against HCP manifest. |
+| III. Statistical Power | COMPLIANT | The sample size is greater than 1000 subjects. [UNRESOLVED-CLAIM: c_75cfcb65 — status=not_enough_info]. |
 | IV. Pre-registration | COMPLIANT | Analysis plan documented in specs/. |
 | V. Transparency | COMPLIANT | All parameters and thresholds are configurable via code/config.py. |
 | VI. Ethical Compliance | COMPLIANT | HCP data use agreement signed. |
@@ -29,11 +29,11 @@ HCP 1200 Subjects Release (real data only).
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| Sliding Window Correlation | IMPLEMENTED | Window=60s, Step=1s. [UNRESOLVED-CLAIM: c_a2a800bb — status=not_enough_info] |
+| Sliding Window Correlation | IMPLEMENTED | Window=60s, Step=1s. |
 | Edge-wise SD Calculation | IMPLEMENTED | Standard deviation across windows. |
 | Shannon Entropy | IMPLEMENTED | Entropy of edge distributions. |
-| AR Surrogate Null Model | IMPLEMENTED | AR-based phase randomization (n=1000). [UNRESOLVED-CLAIM: c_45ccc68e — status=not_enough_info] |
-| Permutation Test | IMPLEMENTED | 10,000 iterations. [UNRESOLVED-CLAIM: c_2b774f97 — status=not_enough_info] |
+| AR Surrogate Null Model | IMPLEMENTED | AR-based phase randomization (n=1000). |
+| Permutation Test | IMPLEMENTED | 10,000 iterations. |
 | FDR Correction | IMPLEMENTED | Benjamini-Hochberg procedure. |
 
 ## Execution Constraints

@@ -6,7 +6,7 @@
 
 **Goal**: Establish the project skeleton and run a thin, end-to-end pipeline on a small subset of real HCP data to verify the data flow from NIfTI to regression results.
 
-- [ ] T001 [P] Establish project structure and environment. 
+- [X] T001 [P] Establish project structure and environment. 
     Create directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, and `tests/`. 
     Initialize `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest).
     Create `.ruff.toml` for linting and `code/config.py` with pinned seeds (42) and parameters (window=60s, step=1s, FD_threshold=0.2).

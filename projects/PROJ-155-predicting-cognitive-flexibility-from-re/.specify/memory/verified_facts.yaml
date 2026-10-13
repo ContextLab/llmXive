@@ -1,0 +1,17 @@
+'|hcp release subject':
+  quote: "The WU-Minn-Oxford consortium developed improved MRI instrumentation, image\
+    \ acquisition and image analysis methods for mapping the connectivity in the human\
+    \ brain at spatial resolutions significantly better than previously available;\
+    \ using these methods, WU-Minn-Oxford consortium collected a large amount of MRI\
+    \ and behavioral data on 1,200 healthy adults \u2014 twin pairs and their siblings\
+    \ from 300 families - using a special 3-tesla MRI instrument. In addition, it\
+    \ scanned 184 subjects from this pool at 7 tesla, with higher spatial resolution.\
+    \ The data were analyzed to show the anatomical and functional connections between\
+    \ parts of the brain for each individual, and were related to behavioral test\
+    \ data. Comparing the connectomes and genetic data of genetically identical twins\
+    \ with fraternal twins revealed the relative contributions of genes and environment\
+    \ in shaping brain circuitry and pinpointed relevant genetic variation. The maps\
+    \ also shed light on how brain networks are organized."
+  source_id: Human Connectome Project
+  url: https://en.wikipedia.org/wiki/Human_Connectome_Project
+  value: 1,200 healthy adults

@@ -17,6 +17,7 @@ _CONFIG: Dict[str, Any] = {
     "tr": 0.72,  # HCP repetition time in seconds
     "window_seconds": 60,
     "step_seconds": 1,
+    "FD_threshold": 0.2,
     # Miscellaneous
     "snr_threshold": 1.0,
     "batch_size": 50,

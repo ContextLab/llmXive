@@ -2445,23 +2445,6 @@
   updated_at: '2026-10-02T12:36:43Z'
 - artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
   attempts: 1
-  canonical: Sample size greater than 1000 subjects
-  claim_id: c_75cfcb65
-  context: III. Statistical Power | COMPLIANT | Sample size > 1000 subjects.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Sample_size_greater_than_1000_subjects
-  kind: magnitude
-  raw_text: The sample size is greater than 1000 subjects.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-10-02T12:37:29Z'
-- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
-  attempts: 1
   canonical: 1000 phase-shuffling surrogates used
   claim_id: c_ac0f296f
   context: Phase-Shuffling Surrogates | IMPLEMENTED | FFT-based phase randomization
@@ -2804,3 +2787,52 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T22:20:40Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Human Connectome Project 1200 Subjects Release
+  claim_id: c_ebd21dee
+  context: 'Data Source: HCP 1200 Subjects Release (real data only).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The WU-Minn-Oxford consortium developed improved MRI instrumentation,\
+        \ image acquisition and image analysis methods for mapping the connectivity\
+        \ in the human brain at spatial resolutions significantly better than previously\
+        \ available; using these methods, WU-Minn-Oxford consortium collected a large\
+        \ amount of MRI and behavioral data on 1,200 healthy adults \u2014 twin pairs\
+        \ and their siblings from 300 families - using a special 3-tesla MRI instrument.\
+        \ In addition, it scanned 184 subjects from this pool at 7 tesla, with higher\
+        \ spatial resolution. The data were analyzed to show the anatomical and functional\
+        \ connections between parts of the brain for each individual, and were related\
+        \ to behavioral test data. Comparing the connectomes and genetic data of genetically\
+        \ identical twins with fraternal twins revealed the relative contributions\
+        \ of genes and environment in shaping brain circuitry and pinpointed relevant\
+        \ genetic variation. The maps also shed light on how brain networks are organized."
+      source_id: Human Connectome Project
+      url: https://en.wikipedia.org/wiki/Human_Connectome_Project
+      value: 1,200 healthy adults
+    filled: true
+  kind: numeric
+  raw_text: HCP 1200 Subjects Release
+  resolved_value: 1,200 healthy adults
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-13T02:34:48Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 2
+  canonical: Sample size greater than 1000 subjects
+  claim_id: c_75cfcb65
+  context: III. Statistical Power | COMPLIANT | Sample size > 1000 subjects.
+  evidence:
+    reason: no source found to validate superlative claim
+  kind: magnitude
+  raw_text: The sample size is greater than 1000 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T02:40:06Z'

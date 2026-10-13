@@ -1,8 +1,19 @@
 T001:
-  c: false
-  h: 049570c3d4e280211f53c3fb4d1bf4e30d51e8bc56d83d2ed7565326c822df08
-  r: The directory layout, requirements.txt, .ruff.toml, and plan.md updates are present
-    and linting passes, but `code/config.py` does not define the required `FD_threshold=0.2`
-    parameter (it only includes `snr_threshold` and `batch_size`). Add the missing
-    `FD_threshold` entry to satisfy the task.
-  sig: 5a63e9e2cb4a05b9b11515cb9c73eed59f12e25ee83e43fd12a566e269cea7b1
+  c: true
+  h: 0f858e191b4a4f300700f1423c5a5032743a589d846da0fcae4da297a225f61d
+  r: 'I have verified the existence and content of the following artifacts:
+
+    - Directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`,
+    and `tests/` are all present.
+
+    - `requirements.txt` contains all requested libraries (numpy, pandas, scikit-learn,
+    statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest).
+
+    - `.ruff.toml` exists.
+
+    - `code/config.py` correctly pins the seed to 42 and sets `window_seconds=60`,
+    `step_seconds=1`, and `FD_threshold=0.2`.
+
+    - `plan.md` Constitution Check is updated with "DEVIATION (Justified in technical-design.md)"
+    for window length and "REJE'
+  sig: 5b3b548d2be8a051276a3991b7e247176895c8dfe9745d90adcbd6ac2602d49f
