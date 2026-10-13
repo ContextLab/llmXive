@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Rewiring Enrichment Output Schema"
+type: "array"
+items:
+  type: "object"
+  properties:
+    disorder:
+      type: "string"
+      description: "Name of the neurological disorder"
+    vulnerability_window:
+      type: "string"
+      description: "Developmental stage where rewiring is most enriched"
+    odds_ratio:
+      type: "number"
+      description: "Enrichment odds ratio (target: ≥ 1.5)"
+    p_value:
+      type: "string"
+      description: "FDR-corrected p-value (formatted as 'p < 1/N' if zero)"
+    is_validated:
+      type: "boolean"
+      description: "Whether signal was replicated in independent cohort"
+  required: ["disorder", "vulnerability_window", "odds_ratio", "p_value"]

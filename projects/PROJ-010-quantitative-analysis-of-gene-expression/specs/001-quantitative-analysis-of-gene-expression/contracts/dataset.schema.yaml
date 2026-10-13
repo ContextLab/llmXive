@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BrainSpan Integrated Dataset Schema"
+type: "object"
+properties:
+  cells:
+    type: "integer"
+    description: "Total number of integrated cells (target: ≥ 50000)"
+  genes:
+    type: "integer"
+    description: "Number of features/genes retained after HVG filtering"
+  metadata:
+    type: "object"
+    properties:
+      developmental_stage:
+        type: "string"
+        description: "Stage label (e.g., 'Fetal 12-16w')"
+      donor_id:
+        type: "string"
+        description: "Unique identifier for the sample donor"
+      lisi_score:
+        type: "number"
+        description: "Local Inverse Simpson's Index (target: ≥ 1.2)"
+    required: ["developmental_stage", "donor_id", "lisi_score"]
+required: ["cells", "genes", "metadata"]

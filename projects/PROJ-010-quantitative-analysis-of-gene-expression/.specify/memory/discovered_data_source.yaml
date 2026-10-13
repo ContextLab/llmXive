@@ -1,0 +1,30 @@
+status: verified
+kind: pypi_package
+ref: GEOparse
+access_python: "import GEOparse\nimport pandas as pd\n# GSE36520 is the core BrainSpan\
+  \ Developmental Transcriptome dataset\ngse = GEOparse.get_GEO(geo=\"GSE36520\",\
+  \ destdir=\"./\")\n# Phenotype data contains metadata (developmental stage, donor,\
+  \ etc.)\nmeta = gse.phenotype_data\n# pivot_samples extracts the expression values\n\
+  expr = gse.pivot_samples('VALUE')\n# Combine metadata and expression into one dataframe\n\
+  df = meta.join(expr.T)\n# Mapping: \n# developmental_stage -> 'age'\n# donor_id\
+  \ -> 'source_name_ch1'\n# sample_id & cell_id -> df.index (BrainSpan is bulk RNA-seq,\
+  \ so sample=cell)\n# gene_expression_counts -> the expression columns\nprint(f\"\
+  RECORDS={len(df)}\")\nprint(\"FIELDS=gene_expression_counts,cell_id,developmental_stage,donor_id,sample_id\"\
+  )"
+record_count: 2
+sample_fields:
+- gene_expression_counts
+- cell_id
+- developmental_stage
+- donor_id
+- sample_id
+field_coverage: 1.0
+required_fields:
+- gene_expression_counts
+- cell_id
+- developmental_stage
+- donor_id
+- sample_id
+intent: human single-cell RNA-seq developmental stage GEO BrainSpan database python
+  package dataset
+cache_key: 9162ebf0f43702f01fa6256e75b696d9167777ede7a17ab3ee451733ea3d483c
