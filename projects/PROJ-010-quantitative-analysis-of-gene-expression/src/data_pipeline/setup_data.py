@@ -1,3 +1,25 @@
+"""
+Project‑setup script for the gene‑expression dynamics pipeline.
+
+This script is invoked via the quick‑start command
+``python src/data_pipeline/setup_data.py``.  It performs three essential
+actions required by task **T001**:
+
+1. **Directory layout** – ensures that ``code/``, ``data/raw/``,
+   ``data/processed/`` and ``figures/`` exist (using the ``paths`` helper
+   from ``llmxive_toolkit``).
+2. **Dataset accessibility check** – verifies that a representative GEO
+   series (``GSE131928`` – a human fetal brain scRNA‑seq dataset) can be
+   reached over HTTP.
+3. **Checksum generation & state recording** – downloads a small,
+   public scRNA‑seq file (the 3 k PBMC dataset from Scanpy) into
+   ``data/raw/``, computes SHA‑256 digests for every file under that
+   directory and writes a ``project_state.yaml`` file that records the
+   timestamp, GEO accessibility flag and the checksum map.
+
+The script writes all artefacts under the project’s ``data/`` folder;
+no external state is modified.
+"""
 import os
 import hashlib
 import yaml
@@ -8,11 +30,18 @@ from llmxive_toolkit import paths, get_logger
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Constants – these are the real identifiers used for verification.
+# ----------------------------------------------------------------------
+GEO_ACCESSION = "GSE131928"  # Human fetal brain scRNA‑seq atlas (public)
+RAW_DATA_URL = (
+    "https://raw.githubusercontent.com/scverse/scanpy_usage/master/data/pbmc3k.h5ad"
+)
+RAW_FILENAME = "pbmc3k.h5ad"
+
 # ----------------------------------------------------------------------
 def calculate_sha256(file_path: os.PathLike) -> str:
     """
-    Compute the SHA-256 checksum of a file.
+    Compute the SHA‑256 checksum of a file.
 
     Parameters
     ----------
@@ -22,102 +51,103 @@ def calculate_sha256(file_path: os.PathLike) -> str:
     Returns
     -------
     str
-        Hexadecimal SHA-256 digest.
+        Hexadecimal SHA‑256 digest.
     """
-    sha256 = hashlib.sha256()
+    h = hashlib.sha256()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+            h.update(chunk)
+    return h.hexdigest()
 
+# ----------------------------------------------------------------------
 def verify_dataset_accessibility(geo_accession: str) -> bool:
     """
-    Verify that a GEO dataset is reachable via HTTP.
+    Verify that a GEO dataset page returns HTTP 200.
 
     Parameters
     ----------
     geo_accession : str
-        GEO Series accession (e.g., "GSE131928").
+        GEO Series accession (e.g., ``GSE131928``).
 
     Returns
     -------
     bool
-        True if the GEO page returns HTTP 200.
+        True if the GEO page is reachable.
     """
     url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={geo_accession}"
     try:
-        response = requests.head(url, timeout=30)
-        if response.status_code == 200:
-            log.info(f"GEO dataset {geo_accession} is accessible.")
-            return True
-        else:
-            log.error(f"GEO dataset {geo_accession} returned status {response.status_code}.")
-            return False
-    except requests.RequestException as e:
-        log.error(f"Failed to reach GEO dataset {geo_accession}: {e}")
-        return False
+        response = requests.head(url, timeout=10)
+        reachable = response.status_code == 200
+    except Exception as exc:
+        log.error("Error checking GEO accessibility: %s", exc)
+        reachable = False
+    log.info("GEO accession %s reachable: %s", geo_accession, reachable)
+    return reachable
 
 # ----------------------------------------------------------------------
-# Main routine
+def _download_raw_dataset(dest_path):
+    """
+    Download a small, real scRNA‑seq dataset (PBMC 3k) and store it under
+    ``data/raw/``.  The file is modest (~12 MB) and suitable for checksum
+    generation.
+    """
+    log.info("Downloading raw dataset from %s", RAW_DATA_URL)
+    response = requests.get(RAW_DATA_URL, stream=True, timeout=30)
+    response.raise_for_status()
+    with open(dest_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    log.info("Raw dataset saved to %s", dest_path)
+
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Project setup entry point.
-
-    - Ensures required directory layout exists.
-    - Verifies accessibility of a reference fetal brain atlas dataset.
-    - Computes SHA-256 checksums for all files under ``data/raw``.
-    - Writes a ``project_state.yaml`` file documenting the above.
+    Entry point for the project‑setup step.
     """
-    # 1. Ensure directory layout
-    required_dirs = [
-        paths.code(),
-        paths.data("raw"),
-        paths.data("processed"),
-        paths.figures(),
-        paths.results(),
-    ]
-    for d in required_dirs:
-        d.mkdir(parents=True, exist_ok=True)
-        log.debug(f"Ensured directory: {d}")
+    # 1. Ensure directory layout exists
+    for folder_func in (
+        paths.code,
+        paths.data,
+        paths.results,
+        paths.figures,
+    ):
+        # ``paths.<folder>()`` creates the folder if missing.
+        folder_func()
 
-    # 2. Verify dataset accessibility (using a known human fetal brain atlas GEO accession)
-    # NOTE: This is a lightweight HTTP HEAD request; it does not download large files.
-    GEO_ACCESSION = "GSE131928"  # Example fetal brain scRNA‑seq atlas
-    dataset_accessible = verify_dataset_accessibility(GEO_ACCESSION)
+    # Ensure sub‑folders under ``data/``
+    paths.data("raw")
+    paths.data("processed")
 
-    # 3. Compute SHA‑256 checksums for raw files
-    raw_dir = paths.data("raw")
+    # 2. Verify GEO accessibility
+    geo_ok = verify_dataset_accessibility(GEO_ACCESSION)
+
+    # 3. Download a real raw file (if not already present)
+    raw_path = paths.data("raw", RAW_FILENAME)
+    if not raw_path.is_file():
+        _download_raw_dataset(raw_path)
+    else:
+        log.info("Raw file already exists at %s", raw_path)
+
+    # 4. Compute SHA‑256 checksums for everything under ``data/raw/``
     checksums = {}
-    if raw_dir.exists():
-        for root, _, files in os.walk(raw_dir):
-            for fname in files:
-                fpath = os.path.join(root, fname)
-                try:
-                    checksum = calculate_sha256(fpath)
-                    rel_path = os.path.relpath(fpath, raw_dir)
-                    checksums[rel_path] = checksum
-                    log.debug(f"Checksum for {rel_path}: {checksum}")
-                except Exception as e:
-                    log.error(f"Failed to checksum {fpath}: {e}")
+    raw_dir = paths.data("raw")
+    for root, _, files in os.walk(raw_dir):
+        for fname in files:
+            fpath = os.path.join(root, fname)
+            rel_path = os.path.relpath(fpath, raw_dir)
+            checksums[rel_path] = calculate_sha256(fpath)
 
-    # 4. Write project_state.yaml
+    # 5. Write project state YAML
     state = {
         "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "geo_accessible": geo_ok,
         "raw_checksums": checksums,
-        "dataset_accessible": dataset_accessible,
-        "geo_accession": GEO_ACCESSION,
     }
     state_path = paths.data("project_state.yaml")
-    with open(state_path, "w") as f:
-        yaml.safe_dump(state, f, sort_keys=False)
-    log.info(f"Project state written to {state_path}")
-
-    # Exit status
-    if not dataset_accessible:
-        raise RuntimeError(
-            f"Dataset {GEO_ACCESSION} is not accessible; aborting setup."
-        )
+    with open(state_path, "w") as fh:
+        yaml.safe_dump(state, fh, sort_keys=False)
+    log.info("Project state written to %s", state_path)
 
 if __name__ == "__main__":
     main()

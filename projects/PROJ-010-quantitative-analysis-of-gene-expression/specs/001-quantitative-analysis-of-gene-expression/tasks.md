@@ -6,7 +6,7 @@
 
 **Goal**: Establish the pipeline and run a thin, end-to-end analysis on a real subset of the human fetal brain atlas to verify the data flow from raw counts to enrichment results.
 
-- [ ] T001 Establish the project layout, document the execution command in `quickstart.md`, and implement data hygiene for raw inputs.
+- [ ] T001 Establish the project layout, document the execution command in `quickstart.md`, and implement data hygiene for raw inputs. <!-- FAILED-IN-EXECUTION: src/data_pipeline/setup_data.py exit=1; src/data_pipeline/preprocess.py exit=1 -->
     - Ensure `code/`, `data/raw/`, `data/processed/`, and `figures/` directories are initialized.
     - Verify accessibility of the raw scRNA-seq atlas via `datasets` or `GEOparse`.
     - Generate SHA-256 checksums for all raw input files and record them in the project state YAML (Constitution Principle III).
