@@ -1,242 +1,66 @@
 # Tasks: Dynamic Socio-Cognitive State Injection
 
-**Input**: Design documents from `/specs/001-dynamic-state-injection/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-dynamic-state-injection/spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`
+**Research question**: Does real-time adaptation of LLM mediator prompts based on inferred socio-cognitive states improve consensus gap closure in high-emotion, culturally diverse conflicts compared to static prompting?
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Re-plan note**: Rejected tasks (T013, T014, T015, T019, T027, T049, T020b) failed because promised artifacts were missing or truncated. This revision consolidates the pending work into a smaller set of tasks, each with a single deterministic deliverable, and decouples the trajectory generator from the experiment runner so each can be verified independently. Verified completed work is preserved as checked. Paths are relative to the project directory (`code/`, `data/`, `tests/`).
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1: Data generation and first end-to-end analysis
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T101 [US1] Rewrite `code/data/generator.py` as a complete, self-contained script that (a) generates conflict trajectories conforming to `contracts/trajectory.schema.yaml` (fields: `trajectory_id`, `dialogue`, `metadata.emotional_reactivity` 0–10, `metadata.cultural_identity` list, `metadata.conflict_type`, `ideal_resolution`), (b) applies oversampling so ≥40% of trajectories have `emotional_reactivity >= 7` or ≥2 distinct `cultural_identity` tags, targeting N=500 (no retry loop to force exactly 500), and (c) writes two real artifacts: `data/processed/trajectories.jsonl` (one JSON object per line) and `data/processed/generation_stats.json` with exact keys `total_count` (int), `high_emotion_count` (int), `high_cultural_count` (int), `oversampling_ratio` (float), `underpowered_flag` (boolean, true iff `total_count < 500`). Seed all randomness from `code/config.py`. **Verification**: `python code/data/generator.py` exits 0; `generation_stats.json['oversampling_ratio'] >= 0.40`; every line of `trajectories.jsonl` validates against the trajectory schema. Covers FR-001 (T013/T014/T015 redo).
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T102 [US1] Implement `code/analysis/power_analysis.py` using `statsmodels.stats.power.tt_solve_power` to compute the minimum N for Cohen's d = 0.5, power = 0.80, alpha = 0.05, paired t-test. Read `total_count` from `data/processed/generation_stats.json` and write `data/results/power_analysis_report.json` with exact keys `required_n` (int), `actual_n` (int), `is_sufficient` (boolean), `status` (string: 'sufficient' or 'underpowered'), `underpowered_flag` (boolean). If insufficient, log the warning "WARNING: Study is underpowered (N_actual < N_required). Proceeding to report results as per Assumption 4." and continue with exit code 0. Do NOT create any HALT file. **Verification**: file exists, keys correct, exit code 0 regardless of sufficiency. Covers T049 redo and Spec Assumption 4.
 
-## Path Conventions
+- [ ] T103 [US1] Implement turn-level training-pair derivation in `code/data/generator.py` (function `split_trajectory_into_turns`, exported for reuse by the runner): sliding windows of `config.TURN_WINDOW_SIZE` (3) turns producing `turn_text` (dialogue snippet) and `label` (string: 'high_reactivity', 'cultural_friction', or 'neutral') derived SOLELY from trajectory metadata tags — never from evaluator logic or `ideal_resolution` text (FR-002 independence). Every record must include `trajectory_id`, `turn_text`, `label`, `confidence_score` (float, from a fixed-seed bootstrap estimate), and `threshold_used` (float = `config.CONFIDENCE_THRESHOLD`). Write `data/processed/classifier_training_data.json`. **Verification**: file exists with ≥1 record per 3-turn window; labels take only the three allowed values; unit test `tests/unit/test_data_independence.py` asserts zero vocabulary overlap between classifier labels and `ideal_resolution` templates. Covers T019/T048 redo.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T104 [US1] Implement `code/analysis/audit_independence.py` producing two audit artifacts: (a) `data/results/feature_independence_audit.json` with `overlap_detected` (boolean) and `validation_passed` (boolean), verifying the vocabulary of `classifier_training_data.json` does not overlap with evaluator ideal-resolution templates; (b) `data/results/evaluator_independence_audit.json` with `independence_verified` (boolean), verifying `code/models/evaluator.py` (existing, T033) encodes no socio-cognitive state labels. **Verification**: both files exist with the exact keys; exit code 0 when no overlap is detected, non-zero otherwise. Covers T020b/T033b redo and FR-005 independence.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+**Checkpoint**: Real trajectory data, power report, classifier training data, and independence audits exist and are schema-valid. Classifier (T020, done) can now be trained on T103's output.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+## Phase 2: Experiment execution (Adapter vs. Static, CPU-only)
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T105 [US2] Complete the CPU-only inference loop in `code/experiments/runner.py`: (a) a full `transformers` pipeline with explicit `device="cpu"` for each model in `config.TARGET_MODELS`, loading GGUF/local-cached models from `data/raw/models/` and gracefully recording missing or >7 GB-RAM models (per `code/experiments/model_loader.py`, T009) into `data/results/scope_adjustments.json` (list of `{model_name, reason, estimated_ram_gb}`; initialize as `[]` if absent) instead of blocking; (b) if `torch.cuda.is_available()` is True, append an exclusion record with `reason: 'GPU_detected'`, `estimated_ram_gb: null` — do NOT fail the build; (c) no bitsandbytes/quantization-library imports; (d) low-confidence classifier fallback injects the "neutral-monitoring" template (T050) rather than a specific directive. **Verification**: running one model on 3 trajectories produces `data/results/experiment_logs/<model>/{static,adapter}.jsonl` records conforming to `contracts/experiment_log.schema.yaml`; adapter records carry non-null `injected_state`, static records carry `injected_state: null`. Covers T027/T050 redo and FR-003/FR-004.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T106 [US2] Implement the full paired experiment driver in `code/experiments/runner.py`: reuse `split_trajectory_into_turns` from T103 (import, do not duplicate), run the classifier every 3 turns, inject dynamic prompts for the Adapter condition (templates from T023) and the fixed Static prompt for the baseline, integrate retry logic from `code/experiments/retry_utils.py` (T008), and aggregate all runs into `data/processed/experiment_logs.json`. Per-record requirements: Adapter records include `confidence_score` (float) and `injected_state` (string; `"neutral-monitoring"` when confidence < `config.CONFIDENCE_THRESHOLD`, flagged `exclude_from_stats: true`); Static records set both to null. Skipped/timeout trajectories logged with `status: 'skipped'` and counted. Support `--seed` for deterministic runs (seed numpy/random/torch, `torch.use_deterministic_algorithms(True)`). **Verification**: run twice with the same seed on a fixed subset; mean consensus-gap variance across runs < `config.STATISTICAL_VARIANCE_TOLERANCE` (0.01), asserted by `tests/unit/test_reproducibility.py` (T047B, done). Covers T024/T025/T026/T028/T045A/T047A.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T107 [US2] Implement `code/analysis/perf_monitor.py` computing throughput (trajectories/hour) and latency (s/trajectory) from `data/processed/experiment_logs.json`, writing `data/results/throughput_report.json` with the metrics and a `passes_sc003` boolean (throughput ≥ 40, latency ≤ 45 s). Log a warning on threshold miss but never fail the build — this is a feasibility measurement (SC-003), not a gate. **Verification**: file exists with both metrics and the boolean; exit code 0 always. Covers T042/T051-throughput.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T108 [US2] Implement `tests/unit/test_gpu_policy.py` asserting the runner's model-exclusion path: when `torch.cuda.is_available()` is monkeypatched to True, the runner appends a `GPU_detected` exclusion record to `scope_adjustments.json` and does not load the model. Also implement `tests/unit/test_data_flow.py` (if not already passing) verifying runtime turn windows match T103 training windows for a fixed seed. **Verification**: `pytest tests/unit/test_gpu_policy.py tests/unit/test_data_flow.py` passes. Covers T043C/T045B.
 
-- [X] T001 Create `scripts/init_repo.py` to generate the directory structure defined in plan.md: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`, `contracts/`.
-- [X] T002 Initialize Python 3.11 project with `scikit-learn`, `pandas`, `transformers` (CPU-only), `datasets`, `pytest` in `requirements.txt`. **Explicitly exclude** `bitsandbytes`, `flash-attn`, and any GPU-accelerated libraries. Add a comment in `requirements.txt` noting this exclusion to satisfy FR-004.
-- [X] T053 [US2] **Define Target LLMs**. Implement `code/config.py` to explicitly define the **eight** target LLMs as a fixed constant `TARGET_MODELS = ['llama-3-8b-instruct', 'mistral-7b-instruct', 'gemma-7b-it', 'phi-3-mini', 'qwen2-7b-instruct', 'stablelm-2-1_6b', 'zephyr-7b-beta', 'openchat-3.5']`. **Requirement**: Do NOT perform external API availability checks. Instead, validate the list against **local cache** by checking for the existence of corresponding GGUF files in `data/raw/models/`. **Output**: `code/config.py` with the fixed list. **Dependency**: Must complete before T024. **Constraint**: If a model file is missing locally, it MUST be excluded gracefully (recorded in `scope_adjustments.json`) rather than blocking the build or attempting an external API call. <!-- FAILED: unspecified -->
+**Checkpoint**: Both conditions executed across all loadable models with valid logs; throughput measured.
 
----
+## Phase 3: Evaluation, statistics, and validation
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T109 [US3] Implement `code/analysis/metrics.py` to compute consensus gap closure for every record in `data/processed/experiment_logs.json` using the existing topic-localized evaluator (`code/models/evaluator.py`, T033), writing scores back into the logs (range [0.0, 1.0]). Filter records with `injected_state == 'neutral-monitoring'` (or `exclude_from_stats: true`) out of the primary comparison set, writing `data/results/neutral_filter_verification.json` with `neutral_count`, `excluded_from_stats`, `validation_passed`. **Verification**: every success record has a valid score; filter report exists and `validation_passed` is true. Covers T034.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T110 [US3] Execute the statistical analysis using the existing `code/analysis/stats.py` (T038A–D, done) on the real experiment logs: determine active LLMs from `scope_adjustments.json` and `data/results/memory_profile_report.json` (T041), run Shapiro-Wilk on difference scores (record `normality_p_value`), apply paired t-test or Wilcoxon per FR-006, apply Holm-Bonferroni across the actual N_active LLMs (FR-007), and produce `data/results/stats_report.json` with `test_type`, `statistic`, `p_value`, `is_significant`, `effect_size`, plus descriptive (uncorrected) high-difficulty-subset statistics. **Verification**: report validates against `contracts/report.schema.yaml`; corrected p-values match `data/results/correction_verification.json` (T058, done). Covers T038 execution.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T111 [US3] Implement `code/analysis/sensitivity.py`: sweep classifier confidence thresholds over a range (e.g., 0.3–0.9 step 0.1), filtering to `condition == 'Adapter'` records, and write `data/results/sensitivity_analysis_report.json` containing a threshold-vs-injected-directive-count table, a `passes_sc005` boolean, and a control check that Static-condition metrics remain stable (variance < tolerance) across the sweep. **Verification**: file exists with the table and booleans; exit code 0. Covers T039/SC-005.
 
-- [X] T004 Create `code/config.py` with pinned random seeds, file paths (`data/raw`, `data/processed`, `data/results`), and hyperparameters. **Explicitly define `STATISTICAL_VARIANCE_TOLERANCE = 0.01` for reproducibility checks.**
-- [X] T005 [P] Implement data validation utilities in `code/data/loader.py` to enforce schema compliance for generated trajectories. **Note**: Since the plan specifies local generation, streaming logic for external large datasets is out of scope.
-- [X] T006 [P] Setup logging infrastructure in `code/config.py` to track experiment conditions (Adapter vs. Static) and skipped samples
-- [X] T007 Create base entities: `ConflictTrajectory` and `SocioCognitiveState` dataclasses in `code/models/entities.py`
-- [X] T008 [P] Implement retry mechanism with exponential backoff for API/local inference failures in `code/experiments/retry_utils.py`
-- [X] T009 [P] Create `code/experiments/model_loader.py` with a pre-flight memory check function that estimates model size. **Logic**: If a model's estimated RAM usage > 7GB, log a warning, skip loading it, and **record this exclusion in `data/results/scope_adjustments.json`**. **Schema Requirement**: The `scope_adjustments.json` file MUST be a valid JSON list of objects with keys `model_name`, `reason`, and `estimated_ram_gb` to ensure machine-readability for downstream statistical tasks (T038A). **Initialization Requirement**: Initialize `scope_adjustments.json` as an empty list if it does not exist, then append exclusion records. Add a unit test in `tests/unit/test_model_loader.py` that verifies this exclusion and logging logic works for a mock large model.
-- [ ] T027 [US2] Implement CPU-only inference loop in `code/experiments/runner.py` using `transformers` with `device="cpu"`. **Verification**: Explicitly map the model to CPU. **Constraint**: If `torch.cuda.is_available()` returns True, the script MUST **EXCLUDE** the specific model from the experiment run, log a warning, and **append an exclusion record to `data/results/scope_adjustments.json`** with the schema defined in T009 (model_name, reason: 'GPU_detected', estimated_ram_gb: null). Explicitly exclude bitsandbytes/quantization libraries. Implement fallback logic to inject "neutral monitoring state" on low confidence (FR-002). **Note**: This task is a **HARD PREREQUISITE** for T024. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T112 [US3] Implement `scripts/validate_schemas.py` to validate `data/processed/classifier_training_data.json` and `data/processed/experiment_logs.json` against `contracts/trajectory.schema.yaml` and `contracts/experiment_log.schema.yaml`, writing `data/results/schema_validation_report.json` with `schema_valid` (boolean) and `errors` (list). **Verification**: report exists; `schema_valid` is true on the real artifacts. Covers T060.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+## Phase 4: Results handoff and reproducibility
 
----
+- [ ] T113 [US3] Implement `code/analysis/report_generator.py` ingesting `data/results/stats_report.json`, `sensitivity_analysis_report.json`, `power_analysis_report.json`, `throughput_report.json`, `scope_adjustments.json`, and `memory_profile_report.json` to produce `docs/research_draft.md` with: (1) Methods stating sample size, power calculation, and exclusion criteria (citing the T009/T041 scope-adjustment records); (2) Results tables for the primary hypothesis (all active LLMs, Holm-Bonferroni corrected) and the descriptive high-difficulty stratification; (3) Discussion of corrected p-values, sensitivity findings, throughput feasibility, and honest limitations (including any underpowered flag). Fail loudly if any required input is missing or malformed. **Verification**: draft exists; `code/analysis/verify_exclusion_citations.py` (T057, done) confirms exclusion citations; all numbers trace to `data/results/` files (Constitution IV). Covers T051.
 
-## Phase 3: User Story 1 - Generate Conflict Trajectories with Targeted Oversampling (Priority: P1) 🎯 MVP
+- [ ] T114 [US3] Implement `scripts/validate_quickstart.py` running the full documented pipeline from `specs/001-dynamic-state-injection/quickstart.md` (T040B, done) end-to-end on a small subset (N=5 trajectories, sequence: generate → T102 power → T103 training data → classifier → experiments → metrics → stats), writing `data/results/quickstart_validation_report.json` with `timestamp`, `exit_code`, `log_file_path`, `success_flag`, `error_message`, `sc003_status` ('passed'/'warning'), and `throughput_warning` (boolean). Return exit code 0 if throughput misses thresholds (warning only) or the study is underpowered; return exit code 1 only on pipeline failure. **Verification**: report contains "SUCCESS" (`success_flag: true`) and exit code 0. Covers T044A/T059.
 
-**Goal**: Generate synthetic conflict dialogue trajectories using the SoCRATES pipeline, specifically oversampling scenarios with "high emotional reactivity" and "diverse cultural identity" attributes.
+## Dependencies and requirement coverage
 
-**Independent Test**: Run the data generation script and verify the output JSON summary shows >40% of samples in the target categories, with memory <7GB and runtime <30m.
+| Requirement | Task(s) | Command demonstrating completion |
+|---|---|---|
+| FR-001 (trajectories, ≥40% oversampling) | T101 | `python code/data/generator.py`; check `generation_stats.json` |
+| FR-002 (classifier, independent features) | T103, T104, T020 (done) | `pytest tests/unit/test_data_independence.py` |
+| FR-003 (dynamic injection vs. static) | T105, T106 | inspect `experiment_logs.json` conditions |
+| FR-004 (CPU-only) | T105, T108 | `pytest tests/unit/test_gpu_policy.py` |
+| FR-005 (evaluator, independent) | T104, T109 | `evaluator_independence_audit.json` |
+| FR-006 (normality → t-test/Wilcoxon) | T110 | `stats_report.json` |
+| FR-007 (Holm-Bonferroni) | T110 | `correction_verification.json` (T058, done) |
+| SC-003 (throughput) | T107 | `throughput_report.json` |
+| SC-005 (threshold sensitivity) | T111 | `sensitivity_analysis_report.json` |
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+**Execution order**: T101 → T102 → T103 → T104 → T105 → T106 → T107/T108 (parallel) → T109 → T110 → T111/T112 (parallel) → T113 → T114. Phase 5 statistical tasks remain strictly sequential (T109 → T110).
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+## Revision behavior
 
-- [X] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory_schema.py`
-- [X] T011 [P] [US1] Integration test for oversampling distribution in `tests/integration/test_oversampling.py`
-
-### Implementation for User Story 1
-
-- [X] T012 [P] [US1] Implement `code/data/generator.py` to generate conflict trajectories with metadata tags (emotional reactivity, cultural identity)
-- [ ] T013 [US1] Implement oversampling logic in `code/data/generator.py` to ensure ≥40% of trajectories fall into "high emotional reactivity" or "diverse cultural identity" categories. **Deliverable**: Update `data/processed/generation_stats.json` to include `oversampling_ratio` (float) and `high_emotion_count` (int). **Verification**: Assert `generation_stats.json['high_emotion_count'] / total >= 0.40`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T014 [US1] Implement `code/data/generator.py` output writer to save trajectories to `data/processed/trajectories.json` and a summary report to `data/processed/generation_stats.json`. **Requirement**: The summary report MUST explicitly list the count and percentage of trajectories in each target category to satisfy T015 validation. **Schema**: `generation_stats.json` must contain keys: `total_count`, `high_emotion_count`, `high_cultural_count`, `oversampling_ratio` (float).
-- [ ] T015 [US1] **Enforce N=500 Sample Size (Non-Blocking)**. Update `code/data/generator.py` to **generate a substantial number of trajectories** (targeting N=500). **Requirement**: **DO NOT** implement a retry loop to force exactly 500. If the generator produces fewer than 500, it MUST **proceed** to the next step. **Output**: `data/processed/trajectories.json` must contain the generated count. **Mandatory**: If `total_count < 500`, the script MUST set `underpowered_flag: true` in `data/processed/generation_stats.json`. **Dependency**: Depends on T012/T013/T014. **Action**: Proceed to T049 regardless of the count. <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
-- [X] T016 [US1] Add logging for generation parameters and final distribution counts
-- [ ] T019 [US1] Implement `code/data/generator.py` to **derive turn-level training pairs** from generated `ConflictTrajectory` objects. **Requirement**: Implement logic to split the full trajectory history into sliding windows of N=3 turns (use `config.TURN_WINDOW_SIZE`) to create `turn_text` (dialogue snippet) and `label` (socio-cognitive state from trajectory metadata) pairs. **Schema Requirement**: The output `data/processed/classifier_training_data.json` MUST include `confidence_score` (float) and `threshold_used` (float) fields in every record to support downstream sensitivity analysis (T039). **Label Schema**: The `label` field MUST be a **string** (e.g., 'high_reactivity', 'cultural_friction', 'neutral'). **Mapping Logic**: Save this derived dataset. **Independence Check**: Explicitly verify that the `label` derivation logic uses ONLY trajectory metadata tags (e.g., emotional reactivity, cultural identity) and does NOT incorporate any logic or data from the `ConsensusGapScore` evaluator (FR-005). This ensures the classifier trains on independent metadata without circular validation. **Note**: Labels are static (from metadata), but features (`turn_text`) are dynamic (from dialogue history). **Dependency**: This task is a **HARD PREREQUISITE** for T020 and T024. Do NOT run T020 or T024 until T019 is complete.
-- [ ] T049 [US1] **Power Analysis & Continuation Logic**. Implement `code/analysis/power_analysis.py` to calculate the required sample size. **Requirement**: Using `statsmodels.stats.power.tt_solve_power`, compute the minimum N required to detect a medium effect size (Cohen's d = 0.5) with power=0.80 and alpha=25 (2511.14546, https://arxiv.org/abs/2511.14546) for a paired t-test. **Output Schema**: Generate `data/results/power_analysis_report.json` with the following exact keys: `required_n` (int), `actual_n` (int), `is_sufficient` (boolean), `status` (string: 'sufficient' if `actual_n >= required_n`, else 'underpowered'), and `underpowered_flag` (boolean, true if `is_sufficient` is false). **Constraint**: If `is_sufficient` is false, the script MUST **NOT** exit with code 1. Instead, it MUST log a warning message: "WARNING: Study is underpowered (N_actual < N_required). Proceeding to report results as per Assumption 4." and **continue** to Phase 4. **Action**: The script MUST generate the report (stating the study is underpowered) and **NOT exit with code 1**, satisfying Spec Assumption 4. **Dependency**: This task depends on T015 completion. **Prohibition**: DO NOT create a `HALT` file or any file implying a stop.
-- [ ] T020b [US1] **NEW** Verify feature independence (classifier features vs. evaluator logic). *Deliverable: `data/results/feature_independence_audit.json`.* **Requirement**: Implement a script to verify that the vocabulary of `classifier_training_data.json` (T019) does not overlap with the "ideal resolution" templates used in the evaluator (T033). **Output**: Generate `data/results/feature_independence_audit.json` with `overlap_detected` (boolean) and `validation_passed` (boolean).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **Phase 4 is blocked until T049 generates the power report (even if underpowered).**
-
----
-
-## Phase 3.5: Pre-Experiment Memory Profiling (Blocking for Experiments)
-
-**Purpose**: Determine which models can actually run within memory constraints before experiments begin.
-
-- [X] T041 [P] Implement `code/analysis/memory_profiler.py` to instrument memory usage during the full experiment suite. **Execution**: Run the profiler against the full experiment set and generate `data/results/memory_profile_report.json`. **Constraint**: The script MUST log a warning if any model exceeds a predefined RAM usage threshold, **exclude that model from the experiment run**, and ensure the excluded model is **removed from `data/processed/experiment_logs.json`** before statistical aggregation (T038A). **MUST NOT fail the build**, but must ensure the final report only reflects valid scope. **Output**: Generate `data/results/memory_profile_report.json` containing a list of `active_llms` (models that passed) and `excluded_llms`. **Dependency**: This task must run after T028 and before T038A.
-
----
-
-## Phase 4: User Story 2 - Execute Paired Mediation Experiments (Priority: P2)
-
-**Goal**: Run conflict trajectories through eight distinct LLMs under two conditions: (A) with dynamic socio-cognitive state adapter, (B) with static baseline prompt, ensuring CPU-only execution.
-
-**Independent Test**: Run experiment script for one LLM and subset of trajectories, verifying "Adapter" logs contain injected state signals (e.g., "de-escalate") while "Static" logs do not.
-
-**⚠️ SEQUENTIAL EXECUTION NOTE**: Phase 4 is split into 4A (Prerequisites) and 4B (Execution). **T024 (Execution) CANNOT START until all tasks in 4A are complete.**
-
-### Phase 4A: Prerequisites (Must Complete Before 4B)
-
-- [X] T020 [US2] Implement `code/models/classifier.py` with a lightweight logistic regression classifier. **Input Schema**: Must accept `classifier_training_data.json` containing a list of dicts with keys `turn_text`, `label`, `trajectory_id`, `confidence_score`, `threshold_used`. **Training**: Train on `turn_text` features (e.g., TF-IDF) to predict `label`. Ensure no overlap with evaluation metrics (FR-002). **Dependency**: This task requires T019 to complete first; it is **NOT parallel-safe** with T019. **Note**: T020 is **NOT** marked [P] due to dependency on T019 and its role as a prerequisite for T024.
-- [X] T023 [P] [US2] Implement `code/experiments/prompts.py` with templates for Static baseline and Dynamic Adapter (injecting state instructions like "validate cultural norms", "de-escalate")
-- [ ] T050 [US2] Refactor `code/experiments/prompts.py` to explicitly define the "neutral monitoring" system prompt template. **Requirement**: This template must be distinct from the "Static" baseline (which has no injection) and the "Dynamic" injection (which has specific directives). It should explicitly state the LLM to "maintain neutrality and monitor for escalation" without taking a side. Update `code/experiments/runner.py` to inject this specific template when `confidence_score` < `config.CONFIDENCE_THRESHOLD`. **Dependency**: Depends on T023.
-- [ ] T045A [US2] Refactor `code/experiments/runner.py` to explicitly import and reuse the `split_trajectory_into_turns` function from `code/data/generator.py` (defined in T019). **Dependency**: T024 depends on this refactoring to ensure shared logic.
-- [X] T045B [US2] Implement `tests/unit/test_data_flow.py` to verify the runtime streaming logic produces identical turn windows to the training data derivation logic for a fixed seed trajectory. **Requirement**: This test explicitly verifies the "train on real data" constraint (FR-002) is strictly maintained without circularity. **Dependency**: Depends on T045A.
-
-### Phase 4B: Execution (Blocked Until 4A Complete)
-
-- [ ] T024 [US2] Implement `code/experiments/runner.py` to load trajectories, run the classifier every N turns, and inject dynamic prompts for the Adapter condition. **Requirement**: Implement a stateful accumulator that appends dialogue turns and triggers the classifier every N=3 turns (using `config.TURN_WINDOW_SIZE`) using the logic defined in T019 and T045A. **Model List**: Explicitly load the **eight** target LLMs from `config.TARGET_MODELS` (defined in T053). **Dependency**: **MUST WAIT FOR COMPLETION OF ALL PHASE 4A TASKS**. Explicitly depends on T020 (Classifier), T045A (Shared split logic), T045B (Test), T023 (Prompts), T050 (Neutral prompt), T027 (Inference loop), and T053 (Model list).
-- [ ] T025 [US2] Implement `code/experiments/runner.py` to run the Static condition (no injection) for the same trajectories
-- [ ] T026 [US2] Integrate retry logic from `code/experiments/retry_utils.py` to handle timeouts/crashes, **aggregating skipped samples and logging the count in `data/processed/experiment_logs.json`** per trajectory and condition.
-- [ ] T028 [US2] Save experiment logs to `data/processed/experiment_logs.json`. **Requirement**: **Overwrite** `data/processed/experiment_logs.json` with the aggregated results of all LLM runs. **Mandatory**: For the **Adapter** condition, the log entry for each turn MUST include `confidence_score` (float) and `injected_state` (string or null). **Requirement**: For the **Static** condition entries, explicitly set `confidence_score` to `null` and `injected_state` to `null` to maintain schema consistency. **Edge Case Handling**: If the Adapter condition triggers but the classifier confidence is below threshold, `injected_state` MUST be set to the string `"neutral-monitoring"` (not null) to distinguish this fallback from the Static baseline. **Traceability**: Explicitly reference the Spec's "Edge Case" for low confidence handling and link to T050 for the neutral monitoring prompt logic. **Statistical Note**: Downstream analysis (T038B/T038C) MUST treat `injected_state` = "neutral-monitoring" as "no injection" to preserve the validity of the Static baseline comparison. **Explicit Mandate**: The task description for **T038B** MUST implement the filter to exclude records where `injected_state == 'neutral-monitoring'` before passing data to T038C. **Schema**: Explicitly flag `neutral-monitoring` records with `exclude_from_stats: true`.
-- [X] T029 [US2] Add validation to ensure the classifier fails gracefully to a neutral "monitoring" state on low confidence (Edge Case FR-002)
-- [ ] T042 [US2] Implement `code/analysis/perf_monitor.py` to calculate throughput (trajectories/hour) and latency (s/trajectory) from `experiment_logs.json`. **Verification**: Add a step that logs a warning if throughput < 40 or latency > 45. **Constraint**: The script must generate `data/results/throughput_report.json` with these metrics to satisfy SC-003 reporting requirements. **Explicitly DO NOT fail the build** if thresholds are missed; this is a measurement of feasibility, not a gate. **Requirement**: Explicitly verify thresholds and set `passes_sc003` boolean in report.
-- [ ] T047A [US2] Implement a deterministic experiment runner wrapper in `code/experiments/runner.py`. **Requirement**: The script must accept a `--seed` argument that seeds `numpy`, `random`, and `torch` (CPU) at the start of execution. Set `torch.use_deterministic_algorithms(True)` and `torch.backends.cudnn.deterministic = True`. **Verification**: Run the experiment twice with the same seed and trajectory subset, and assert that the resulting `experiment_logs.json` files show statistical reproducibility: specifically, the mean consensus gap variance between the two runs must be < `config.STATISTICAL_VARIANCE_TOLERANCE`. Do NOT assert byte-for-byte identity, as CPU inference may exhibit minor floating-point variations.
-- [X] T047B [US2] Implement `tests/unit/test_reproducibility.py` to execute the deterministic runner wrapper (T047A) twice with the same seed and assert that the mean consensus gap variance is within tolerance. **Dependency**: Depends on T047A.
-
-**Checkpoint**: At this point, User Story 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Compute Consensus Gap Closure and Statistical Significance (Priority: P3)
-
-**Goal**: Calculate "consensus gap closure" metric using the topic-localized evaluator and perform statistical comparison (paired t-test or Wilcoxon) between Adapter and Static conditions.
-
-**Independent Test**: Provide pre-computed CSV of gap scores and verify script outputs correct t-statistic, p-value, and Cohen's d.
-
-**⚠️ SEQUENTIAL EXECUTION NOTE**: Phase 5 tasks are strictly ordered: T038A -> T038B -> T038C -> T038D. Parallel execution is disabled within this phase.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T031 [P] [US3] Contract test for statistical report schema in `tests/contract/test_stats_report.py`
-- [X] T032 [P] [US3] Integration test for normality and significance testing in `tests/integration/test_statistical_analysis.py`
-
-### Implementation for User Story 3
-
-- [X] T033 [P] [US3] Implement `code/models/evaluator.py` (topic-localized evaluator) to calculate "consensus gap" scores for LLM outputs against ideal resolution (independent of state labels)
-- [ ] T033b [US3] **NEW** Audit evaluator for independence from state labels. *Deliverable: `data/results/evaluator_independence_audit.json`.* **Requirement**: Implement a script to verify that the evaluator's "ideal resolution" logic does not encode the socio-cognitive state labels being injected. **Output**: Generate `data/results/evaluator_independence_audit.json` with `independence_verified` (boolean).
-- [ ] T034 [US3] Implement `code/analysis/metrics.py` to compute consensus gap closure for every trajectory in `data/processed/experiment_logs.json`. **Dependency**: This task depends on T028 (Phase 4) completion; it is NOT parallel-safe with any Phase 4 tasks. **Note**: T034 is blocked until Phase 4 (specifically T028) completes. **Statistical Note**: Explicitly filter out or treat `injected_state` = "neutral-monitoring" as "no injection" to preserve baseline validity.
-- [X] T038A [US3] Implement `code/analysis/stats.py` Part 1: Data ingestion. **Explicitly parse** `scope_adjustments.json` (T009) and `memory_profile_report.json` (T041) to determine the **actual** number of LLMs executed (N_actual). **Dependency**: Depends on T041.
-- [X] T038B [US3] **Audit Neutral Exclusion**. Implement `code/analysis/stats.py` Part 1.5: **Audit** the input data for T038C. Verify that all records with `injected_state` = "neutral-monitoring" are **excluded** from the dataset passed to the statistical test. **Output**: Generate `data/results/neutral_filter_verification.json` containing `neutral_count`, `excluded_from_stats` boolean, and `validation_passed`. **Dependency**: Must run before T038C.
-- [X] T038C [US3] **Statistical Testing & Correction**. Implement `code/analysis/stats.py` Part 2: Perform Shapiro-Wilk normality test on difference scores. **Conditional Logic**: **IF** p-value < 0.05, **THEN** execute Wilcoxon signed-rank test; **ELSE** execute paired t-test. **Correction**: Apply Holm-Bonferroni correction for multiple comparisons across the **actual** N_actual LLMs (defining the "family" as the set of per-LLM p-values). **Output Schema**: Generate `data/results/stats_report.json` containing fields: `test_type` (string: 't-test'/'wilcoxon'), `statistic`, `p_value`, `is_significant` (boolean), `effect_size` (Cohen's d). **Stratified Analysis**: Generate descriptive metrics for the high-difficulty subset, but **DO NOT** apply Holm-Bonferroni correction to this subset (FR-007 applies only to aggregation across LLMs). Report the high-difficulty results as descriptive statistics with a note on potential underpowering. **Dependency**: Depends on T038A and T038B.
-- [X] T038D [US3] Implement `code/analysis/stats.py` Part 3: Report generation. Generate final report with t-statistic, p-value, Cohen's d, and `is_significant` flag.
-- [ ] T039 [US3] Implement sensitivity analysis script in `code/analysis/sensitivity.py` to sweep classifier confidence thresholds (e.g., a range of values). **Input**: `data/processed/experiment_logs.json` (must contain `confidence_score`). **Filtering Requirement**: Explicitly filter the input data WHERE `condition == 'Adapter'` before applying threshold logic to avoid skewing the "count of injected directives" metric with null values from the Static condition. **Output**: Generate `data/results/sensitivity_analysis_report.json` containing a table of confidence thresholds vs. count of injected directives, and verify the file exists with the correct schema (satisfying SC-005). **Requirement**: Explicitly verify output schema and set `passes_sc005` boolean. **Control Check**: The script MUST also verify that the Static condition metrics remain stable (variance < tolerance) across the threshold sweep to confirm that the threshold changes only affect the Adapter condition, satisfying SC-005.
-- [X] T043A [P] [US2] Implement unit tests for the logistic regression classifier in `tests/unit/test_classifier.py`. **Requirement**: Must include `test_classifier_predicts_correct_label`, `test_classifier_handles_low_confidence`, and `test_classifier_independence_from_evaluator`.
-- [X] T043B [P] [US3] Implement unit tests for the topic-localized evaluator in `tests/unit/test_evaluator.py`. **Requirement**: Must include `test_evaluator_calculates_gap_score`, `test_evaluator_independence_from_state_labels`, and `test_evaluator_handles_missing_ideal_resolution`.
-- [ ] T043C [P] [US2] **GPU Policy Test**. Implement `tests/unit/test_gpu_policy.py` to assert that `code/experiments/runner.py` raises an error when `torch.cuda.is_available()` is True. **Requirement**: This replaces the static analysis task T062. **Constraint**: Must align with T027 (strict failure on GPU).
-- [X] T043D [P] [US1] **Streaming Limits Test**. Implement `tests/unit/test_streaming_limits.py` to mock a 50GB file scenario and verify the pipeline fails gracefully with a "Memory limit exceeded" error. **Requirement**: This replaces the heavy integration test T063.
-- [ ] T044A [US3] **Quickstart Validation**. Implement `scripts/validate_quickstart.py` to run the full pipeline as described in `quickstart.md`. **Requirement**: The script must generate `data/results/quickstart_validation_report.json` containing: `timestamp`, `exit_code`, `log_file_path`, `success_flag` (boolean), `error_message` (if any), and **`sc003_status`** (string: 'passed' or 'warning') and **`throughput_warning`** (boolean). **Dependency**: Depends on T040A, T040B, T043A, T043B, T043C, T043D, T042. **Success Criteria**: The script MUST return exit code 0 (SUCCESS) if T042 logs a warning (throughput miss) but T027 passes (no GPU). **Explicitly**: If T049 flags the study as underpowered, the script MUST still return exit code 0 and log a warning, as per Spec Assumption 4. **Constraint**: If T027 fails (GPU detected), the script MUST return exit code 1. **Feasibility Gate**: The script MUST explicitly check `data/results/throughput_report.json` (T042). If throughput < 40, it MUST **LOG A WARNING**, set `sc003_status` to 'warning', set `throughput_warning` to true, and **return exit code 0** (do NOT fail).
-- [ ] T051 [US3] Implement `code/analysis/report_generator.py` to synthesize the final research paper draft. **Requirement**: The script must ingest `data/results/stats_report.json`, `data/results/sensitivity_analysis_report.json`, and `data/results/power_analysis_report.json`. It must generate a Markdown document `docs/research_draft.md` that includes: (1) A Methods section explicitly stating the sample size, power calculation, and **exclusion criteria (citing T009 and T041 logic)**; (2) A Results section with tables for the primary hypothesis (all LLMs) and the stratified high-difficulty analysis; (3) A Discussion section that interprets the Holm-Bonferroni corrected p-values and the sensitivity analysis findings. **Implementation Detail**: The script must explicitly read `data/results/scope_adjustments.json` and `data/results/memory_profile_report.json` to construct the exclusion criteria text for the Methods section. **Constraint**: The script must fail if any required input file is missing or malformed.
-- [ ] T060 [US1] Implement `scripts/validate_schemas.py` to load `data/processed/classifier_training_data.json` (T019) and `data/processed/experiment_logs.json` (T028) against their respective JSON schemas. **Output**: Generate `data/results/schema_validation_report.json` containing `schema_valid` boolean and `errors` list if any. **Requirement**: Explicitly use `contracts/trajectory.schema.yaml` and `contracts/experiment_log.schema.yaml` for validation.
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T040A [P] Update `README.md` with installation instructions, dependencies, and quick start guide.
-- [X] T040B [P] Update `specs/001-dynamic-state-injection/quickstart.md` with step-by-step execution instructions for the full pipeline.
-
----
-
-## Phase 7: Review Resolution & Verification
-
-**Purpose**: Address specific reviewer concerns regarding data flow, statistical validity, and reproducibility.
-
-### Review Concern: Data Flow & Turn-Level Inference
-> **Concern**: The original plan implied static trajectory generation but required dynamic turn-level inference. The dependency between T019 (training data derivation) and T024 (runtime streaming) must be explicit to ensure the classifier uses the same logic at runtime as it did during training.
-
-- [ ] T045A [US2] (Moved to Phase 4) Refactor `code/experiments/runner.py` to explicitly import and reuse the `split_trajectory_into_turns` function from `code/data/generator.py` (defined in T019). **Requirement**: Add a unit test in `tests/unit/test_data_flow.py` (T045B) that verifies the runtime streaming logic produces identical turn windows to the training data derivation logic for a fixed seed trajectory. This ensures the "train on real data" constraint (FR-002) is strictly maintained without circularity.
-
-### Review Concern: Statistical Robustness & Multiple Comparisons
-> **Concern**: The plan mentions Holm-Bonferroni correction but does not explicitly detail the handling of the "high-difficulty" subset vs. the full dataset in the final report.
-
-- [X] T038C [US3] (Updated) Logic moved to T038C. The stratified analysis (now descriptive only) is now part of the core Phase 5 workflow.
-
-### Review Concern: Statistical Reproducibility
-> **Concern**: T047 requires verifying statistical reproducibility by asserting mean consensus gap variance < `config.STATISTICAL_VARIANCE_TOLERANCE`, but this configuration constant is not defined in the tasks or spec.
-
-- [ ] T047A [US2] (Moved to Phase 4) Implement a deterministic experiment runner wrapper in `code/experiments/runner.py`. **Requirement**: The script must accept a `--seed` argument that seeds `numpy`, `random`, and `torch` (CPU) at the start of execution. Set `torch.use_deterministic_algorithms(True)` and `torch.backends.cudnn.deterministic = True`. **Verification**: Run the experiment twice with the same seed and trajectory subset, and assert that the resulting `experiment_logs.json` files show statistical reproducibility: specifically, the mean consensus gap variance between the two runs must be < `config.STATISTICAL_VARIANCE_TOLERANCE` (0.01). Do NOT assert byte-for-byte identity, as CPU inference may exhibit minor floating-point variations.
-- [X] T047B [US2] (Moved to Phase 4) Implement `tests/unit/test_reproducibility.py` to execute the deterministic runner wrapper (T047A) twice with the same seed and assert that the mean consensus gap variance is within tolerance.
-
-### Review Concern: Data Independence & Leakage Prevention
-> **Concern**: Ensure the classifier training data (T019) and the evaluation ground truth (T033) are rigorously decoupled to prevent the "circular validation" risk where the model might learn to predict the evaluation score rather than the socio-cognitive state.
-
-- [ ] T048 [US1] Implement a strict data separation check in `code/data/generator.py`. **Requirement**: Before saving `classifier_training_data.json`, the script must verify that the `label` field is derived *solely* from the trajectory's metadata tags (e.g., `emotional_reactivity`, `cultural_identity`) and that the `turn_text` content does not contain any tokens or phrases that are unique to the "ideal resolution" text used in the evaluator. Add a unit test in `tests/unit/test_data_independence.py` that asserts zero overlap between the vocabulary of the classifier labels and the "ideal resolution" templates.
-
-### Review Concern: Statistical Power & Sample Size Justification
-> **Concern**: The plan assumes a sample size is sufficient for power (≥0.80) but does not task the generation of a formal power analysis report to validate this assumption before running the full experiment.
-
-- [X] T049 [US1] (Moved to Phase 3) Implement `code/analysis/power_analysis.py` to calculate the required sample size. **Requirement**: Using `statsmodels.stats.power.tt_solve_power`, compute the minimum N required to detect a medium effect size (Cohen's d = 0.5) with power=0.80 and alpha=25 (2511.14546, https://arxiv.org/abs/2511.14546) for a paired t-test. **Output**: Generate `data/results/power_analysis_report.json` containing the calculated N and a boolean `is_sufficient` flag comparing it against the actual generated trajectory count (T015). **Constraint**: If `is_sufficient` is false, the script MUST generate a `data/results/HALT` file containing a JSON object with `reason`, `required_n`, `actual_n`, and `timestamp`, and **log a warning** to proceed but allow the pipeline to continue to Phase 4 to report the underpowered result. **Action**: The script MUST generate the report (stating the study is underpowered) and **NOT exit with code 1**, satisfying Spec Assumption 4. **Correction**: **DO NOT** create a `HALT` file. Instead, set `underpowered_flag` to `true` in the report and log the warning, then continue.
-
-### Review Concern: Execution Feasibility & GPU Fallback Logic
-> **Concern**: The spec mandates CPU-only execution, but the execution gate rule states that if a task genuinely requires GPU (e.g., specific model inference that fails on CPU), it must be scaled down for a single free GPU (Kaggle) rather than fabricated. We must explicitly task the system to detect CPU failure and trigger the GPU offload path if necessary, ensuring no "fake" CPU simulation occurs.
-
-- [ ] T027 [US2] (Updated) Implement CPU-only inference loop in `code/experiments/runner.py` using `transformers` with `device="cpu"`. **Verification**: Explicitly map the model to CPU. **Constraint**: If `torch.cuda.is_available()` returns True, the script MUST **FAIL THE BUILD** with a clear error message stating "GPU detected; reproducibility requires CPU-only execution." DO NOT warn and continue. Explicitly exclude bitsandbytes/quantization libraries. **Note**: GPU fallback is strictly forbidden per Constitution Principle VI and FR-004. If a model cannot run on CPU, it must be excluded (see T009, T041). **Correction**: **REVERTED**. If `torch.cuda.is_available()` is True, the script MUST **EXCLUDE** the model, log a warning, and **append an exclusion record to `data/results/scope_adjustments.json`**. It MUST NOT fail the build.
-
-### Review Concern: Dataset Integrity & Streaming Validation
-> **Concern**: The plan assumes local generation, but if the SoCRATES dataset were to be replaced by a large external source in a future iteration, the system must not shrink to a toy dataset. We must explicitly task the system to validate that any dataset (generated or loaded) respects the streaming/chunking constraints if it exceeds memory.
-
-- [X] T005 [US1] (Updated) Implement data validation utilities in `code/data/loader.py` to enforce schema compliance for generated trajectories. **Note**: Since the plan specifies local generation, streaming logic for external large datasets is out of scope.
-
-### Review Concern: Edge Case Handling for Low Confidence States
-> **Concern**: The spec requires a "neutral monitoring" state for low confidence, but the implementation must ensure this state is distinct from the "Static" baseline to avoid confounding variables in the statistical analysis.
-
-- [ ] T028 [US2] (Updated) Save experiment logs to `data/processed/experiment_logs.json`. **Edge Case Handling**: If the Adapter condition triggers but the classifier confidence is below threshold, `injected_state` MUST be set to the string `"neutral-monitoring"` (not null) to distinguish this fallback from the Static baseline. **Statistical Note**: Downstream analysis (T038B/T038C) MUST treat `injected_state` = "neutral-monitoring" as "no injection" to preserve the validity of the Static baseline comparison.
-
-### Review Concern: Multiple Comparison Correction Scope
-> **Concern**: The Holm-Bonferroni correction must be applied only to the set of LLMs that were *actually* executed and passed memory checks, not the theoretical set of 8 LLMs.
-
-- [X] T038A [US3] (Updated) The Holm-Bonferroni correction factor must be calculated as `1 / len(active_llms)` (or equivalent logic for the specific method chosen), NOT a fixed constant based on 8. The `active_llms` list is derived from `scope_adjustments.json` and `memory_profile_report.json`.
-
----
-
-## Phase 8: Final Verification & Handoff
-
-**Purpose**: Ensure all review concerns are fully resolved and the project is ready for execution.
-
-- [X] T057 [US3] Implement `code/analysis/verify_exclusion_citations.py` to parse `docs/research_draft.md` (T051) and verify that the Methods section explicitly cites the exclusion criteria from T009 and T041. **Output**: Generate `data/results/exclusion_citation_audit.json` containing a boolean `citation_found` and the specific text excerpt found.
-- [X] T058 [US3] Implement `code/analysis/verify_correction.py` to parse `data/results/stats_report.json` (T038D), calculate the expected Holm-Bonferroni factor from N_actual (derived from T038A), and assert equality. **Output**: Generate `data/results/correction_verification.json` containing `expected_factor`, `actual_factor`, and `match` boolean.
-- [X] T059 [US3] Implement `scripts/e2e_dry_run.sh` to execute the full pipeline on a small subset (N=5 trajectories) to confirm the sequence `T015 -> T019 -> T049 -> T020 -> T024 -> T028 -> T034 -> T038C` executes without error. **Requirement**: The script must verify T049 runs before T028/T034. **Verification Scope**: Explicitly validate the cross-phase sequence.
-
-Research Question: [Not specified in passage]
-Method: [Not specified in passage]
-References: [Not specified in passage] **Output**: Generate `data/results/dry_run_report.json` containing `exit_code`, `duration`, and `generated_files` list. **Dependency**: Requires T013, T014, T020, T024, T028 to be complete.
-- [X] T061 [US2] **Removed**. Logic covered by T038B.
+Completed and verified tasks (T001–T012, T016, T020, T023, T029, T031–T033, T038A–D, T040A/B, T041, T043A/B/D, T045B, T047B, T048-test, T053, T057, T058) are preserved as done. Rejected tasks T013/T014/T015 are consolidated into T101 (single generator with deterministic dual-artifact output); T019 into T103; T027/T050 into T105; T024/T025/T026/T028/T045A/T047A into T106; T049 into T102; T020b/T033b into T104. The duplicated Phase-7 restatements of already-moved tasks were removed; their acceptance criteria live in the consolidated tasks above. No test or constraint was weakened.
