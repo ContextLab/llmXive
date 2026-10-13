@@ -1,12 +1,52 @@
 T001:
   c: false
-  h: a49d2d846bb11eb88a391b6d827fb20fece26c035e25bb63b0a562da345048bb
-  r: 'The ingest module, quickstart doc, and test file exist with correct logic, but
-    the recorded test run (`code/.tasks/T001.code_tests...log`) shows 4 of 5 tests
-    FAILED with `ImportError: pyarrow/fastparquet missing`, so the required verification
-    (tests covering valid inputs, missing file, and missing outcome column all passing)
-    is not satisfied. The implementer must add a parquet engine (e.g., `pyarrow`)
-    to the project''s pinned `requirements.txt` (or otherwise make the tests runnable
-    in the platform environment) and re-run the tests to green; there is also no execution
-    evidence of `python -m code'
-  sig: 8ed476738ee17813d628e161d449243f14e4eb2307dfabbc44755bdf056947ba
+  h: 9b55d93e17be67d4a872d8c41e6659f927d89d3adb913131bd8f2a53918b4f52
+  r: "The ingest module and quickstart documentation exist and follow the specification,\
+    \ but the required unit tests all fail because the test suite cannot write/read\
+    \ Parquet files (missing `pyarrow`/`fastparquet` engine). Consequently the three\
+    \ verification cases (valid inputs, missing outcome column, malformed ASV) are\
+    \ not demonstrated to work, so the task\u2019s verification criteria are not satisfied.\
+    \ The implementation must add the necessary Parquet support (e.g., include `pyarrow`\
+    \ in dependencies) or adjust the code/tests to handle the environment, after which\
+    \ the tests should pass."
+  sig: 1508418ae486522ecda6d431478d1fc92a719291155086f0aa83f775a7b9a1f2
+T003:
+  c: false
+  h: 537a603e7631678e0ec35b843bdfaab4dda7b129bc3410f869938dad1648d8d9
+  r: "The `slopes.py` module is present, but the required unit tests are empty (no\
+    \ test cases) and the test run reports 0 items collected with a non\u2011zero\
+    \ exit code. Additionally, the input file `data/processed/clr_abundances.parquet`\
+    \ (and the expected output parquet files) are missing, so the slope computation\
+    \ cannot be exercised or verified. The task\u2019s verification criteria are therefore\
+    \ not satisfied."
+  sig: 6049c8fde57cfaa0f5de4c78da4873ad4f4cc4a25a6f8dcb6d0f343c25fd3697
+T004:
+  c: false
+  h: 858d70684bfa5ecafbd319369fd11165bbc43c97a93768f99c0bc8197c8b3a73
+  r: "The correlation module exists, but the required output file `data/results/taxa_correlations.csv`\
+    \ is missing, and the contract test `code/tests/contract/test_contracts.py` that\
+    \ validates the CSV against the schema is also absent. Without these artifacts\
+    \ the task\u2019s deliverables are not satisfied."
+  sig: 20f375ed35a3e3a77b668e25735fea20a39acb1106101ddf8f0c1f525cfa209a
+T005:
+  c: false
+  h: 52721b0eb71b683d24caeda7d092ba27b40d85f0f9a89cfb2ae6b8dad7886ce4
+  r: "The `mixed_effects.py` module is present but contains bugs (missing imports\
+    \ for `statsmodels.api as sm` and `scipy.stats as stats`) that prevent it from\
+    \ running, and the required output file `data/results/mixed_effects_summary.csv`\
+    \ is absent. Additionally, the unit tests fail due to missing parquet engine and\
+    \ the code errors, so the contract test and synthetic\u2011data verification are\
+    \ not satisfied."
+  sig: 2d9f5d7130db71c7298299ff9885c64a5bbf51be6b0233e88340414efceab03d
+T006:
+  c: false
+  h: 00ca1cd6d44e3514e4c51cae6851a56ac3d8cf1cc1dfcf78fe04b4d29f887cf4
+  r: "The `permutation.py` script is present, but the required output file `data/results/permutation_pvalues.csv`\
+    \ does not exist, and the provided test `code/tests/test_permutation.py` fails\
+    \ (ImportError for missing parquet engine), so the contract test that validates\
+    \ the CSV never runs. Moreover, the permutation routine skips the time\u2011year\
+    \ and sex encoding steps that the mixed\u2011effects model needs, causing model\
+    \ fitting to error out and produce NaN p\u2011values. The task\u2019s core requirements\
+    \ (producing a valid CSV of empirical p\u2011values after correctly refitting\
+    \ the LME) are therefore not satisfied."
+  sig: f28ffb05ce80ce30039bce9e5a7337b63cf711376550175cd02b9b0311bca1c4

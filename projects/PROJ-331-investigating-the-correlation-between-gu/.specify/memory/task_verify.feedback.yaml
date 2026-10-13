@@ -1,24 +1,48 @@
 T001:
-  reason: 'The ingest module, quickstart doc, and test file exist with correct logic,
-    but the recorded test run (`code/.tasks/T001.code_tests...log`) shows 4 of 5 tests
-    FAILED with `ImportError: pyarrow/fastparquet missing`, so the required verification
-    (tests covering valid inputs, missing file, and missing outcome column all passing)
-    is not satisfied. The implementer must add a parquet engine (e.g., `pyarrow`)
-    to the project''s pinned `requirements.txt` (or otherwise make the tests runnable
-    in the platform environment) and re-run the tests to green; there is also no execution
-    evidence of `python -m code'
+  reason: "The ingest module and quickstart documentation exist and follow the specification,\
+    \ but the required unit tests all fail because the test suite cannot write/read\
+    \ Parquet files (missing `pyarrow`/`fastparquet` engine). Consequently the three\
+    \ verification cases (valid inputs, missing outcome column, malformed ASV) are\
+    \ not demonstrated to work, so the task\u2019s verification criteria are not satisfied.\
+    \ The implementation must add the necessary Parquet support (e.g., include `pyarrow`\
+    \ in dependencies) or adjust the code/tests to handle the environment, after which\
+    \ the tests should pass."
   task: 3293c8154d25becdd274dcd6fa0a5363b58f0e438e39748c7f9d300c9b324ef6
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/preprocess.py
     exit=1'
   task: 89356ae41f24b7b2db1e5d75a118f58cea639025629c2263445d1cfdeb202a8a
 T003:
+  reason: "The `slopes.py` module is present, but the required unit tests are empty\
+    \ (no test cases) and the test run reports 0 items collected with a non\u2011\
+    zero exit code. Additionally, the input file `data/processed/clr_abundances.parquet`\
+    \ (and the expected output parquet files) are missing, so the slope computation\
+    \ cannot be exercised or verified. The task\u2019s verification criteria are therefore\
+    \ not satisfied."
   task: 23140288dd2b2c620356e9e880d74c88d1c3fca972a712e9f8f33215cb679c50
 T004:
+  reason: "The correlation module exists, but the required output file `data/results/taxa_correlations.csv`\
+    \ is missing, and the contract test `code/tests/contract/test_contracts.py` that\
+    \ validates the CSV against the schema is also absent. Without these artifacts\
+    \ the task\u2019s deliverables are not satisfied."
   task: dc6eec9f1455a7cba252bf2d05a926f775cfee2baea7a9c2bc2a0fae723ec51c
 T005:
+  reason: "The `mixed_effects.py` module is present but contains bugs (missing imports\
+    \ for `statsmodels.api as sm` and `scipy.stats as stats`) that prevent it from\
+    \ running, and the required output file `data/results/mixed_effects_summary.csv`\
+    \ is absent. Additionally, the unit tests fail due to missing parquet engine and\
+    \ the code errors, so the contract test and synthetic\u2011data verification are\
+    \ not satisfied."
   task: 1bc576b8038acd5301ad081b0de0a902e3ccc6f5f8ce125b4bb87861f02da2d4
 T006:
+  reason: "The `permutation.py` script is present, but the required output file `data/results/permutation_pvalues.csv`\
+    \ does not exist, and the provided test `code/tests/test_permutation.py` fails\
+    \ (ImportError for missing parquet engine), so the contract test that validates\
+    \ the CSV never runs. Moreover, the permutation routine skips the time\u2011year\
+    \ and sex encoding steps that the mixed\u2011effects model needs, causing model\
+    \ fitting to error out and produce NaN p\u2011values. The task\u2019s core requirements\
+    \ (producing a valid CSV of empirical p\u2011values after correctly refitting\
+    \ the LME) are therefore not satisfied."
   task: 64cc3e66021cc7b459542416539f6d36faa7208161e10fdc797e0752f8eb0940
 T007:
   task: 2a4599f5e54a8cdd796131e307f744782b85a04096105dcb136571c2333c991b

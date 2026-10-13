@@ -159,6 +159,16 @@ def drop_zero_taxa(
     return merged, kept
 
 
+def _cap_impl(
+    merged: pd.DataFrame, taxon_columns: List[str], max_taxa: int
+) -> List[str]:
+    """Internal helper: select the top-N most abundant taxa by total counts."""
+    # Compute total abundance per taxon across all retained samples.
+    abundance = merged[taxon_columns].sum().sort_values(ascending=False)
+    top = list(abundance.head(max_taxa).index)
+    return top
+
+
 def cap_taxa_by_memory(
     merged: pd.DataFrame, taxon_columns: List[str], max_taxa: int = MAX_TAXA
 ) -> List[str]:
@@ -171,8 +181,8 @@ def cap_taxa_by_memory(
             n_rows, len(taxon_columns), estimated_bytes / 1024**3,
         )
         return taxon_columns
-    abundance = merged[taxon_columns].sum().sort_values(ascending=False)
-    top = list(abundance.head(max_taxa).index)
+    # Memory would be exceeded – select top taxa.
+    top = _cap_impl(merged, taxon_columns, max_taxa)
     logger.warning(
         "FR-010: estimated %.2f GB exceeds 7 GB RAM budget; subsampling to the "
         "top %d most abundant taxa",
