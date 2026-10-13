@@ -19,9 +19,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.src.pipeline.ingest -> rc=1
 
-2026-10-13 04:22:29,418 INFO __main__: === PPMI input validation (FR-001) ===
-2026-10-13 04:22:29,418 ERROR __main__: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
-2026-10-13 04:22:29,418 ERROR __main__: Input validation FAILED: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
+2026-10-13 04:24:45,840 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-13 04:24:45,840 ERROR __main__: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
+2026-10-13 04:24:45,840 ERROR __main__: Input validation FAILED: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
 
 - python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
 ork/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 200, in main
@@ -37,25 +37,26 @@ ork/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/c
 FileNotFoundError: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv. Place the researcher-supplied ASV table at data/raw/ppmi_asv.csv (columns: ['sample_id', 'patient_id', 'visit_date', '<taxon count columns>']). The pipeline does not generate synthetic data.
 
 - python -m pytest -q code/tests -> rc=1
-s(clinical_df)
+ected = {"p1": 2.0, "p2": 2.0}
+    
+        out_df = slopes.compute_outcome_slopes(clinical_df)
     
         for _, row in out_df.iterrows():
 >           assert np.isclose(row["outcome_slope"], expected[row["patient_id"]], atol=1e-9)
 E           assert np.False_
-E            +  where np.False_ = <function isclose at 0x7f6386851df0>(-1.6206417078123697e-15, 2.0, atol=1e-09)
-E            +    where <function isclose at 0x7f6386851df0> = np.isclose
+E            +  where np.False_ = <function isclose at 0x7fcc5944e8b0>(-1.6239695141939146e-15, 2.0, atol=1e-09)
+E            +    where <function isclose at 0x7fcc5944e8b0> = np.isclose
 
 code/tests/test_slopes.py:135: AssertionError
 ----------------------------- Captured stderr call -----------------------------
-2026-10-13 04:22:31,646 INFO code.src.pipeline.slopes: Computed outcome slopes for 2 patients
+2026-10-13 04:24:48,075 INFO code.src.pipeline.slopes: Computed outcome slopes for 2 patients
 ------------------------------ Captured log call -------------------------------
-INFO     code.src.pipeline.slopes:slopes.py:166 Computed outcome slopes for 2 patients
+INFO     code.src.pipeline.slopes:slopes.py:175 Computed outcome slopes for 2 patients
 =========================== short test summary info ============================
 FAILED code/tests/test_mixed_effects.py::test_mixed_effects_recovers_known_interaction
 FAILED code/tests/test_permutation.py::test_permutation_runs - ValueError: Yo...
-FAILED code/tests/test_slopes.py::test_compute_taxon_slopes_simple - assert n...
 FAILED code/tests/test_slopes.py::test_compute_outcome_slopes_simple - assert...
-4 failed, 16 passed in 1.28s
+3 failed, 17 passed in 1.31s
 
 
 

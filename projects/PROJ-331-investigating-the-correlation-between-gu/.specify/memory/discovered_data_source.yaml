@@ -1,16 +1,18 @@
 status: none
-intent: download Parkinson's Progression Markers Initiative microbiome ASV dataset
-  python package dataset
+intent: PPMI gut microbiome 16S ASV dataset Synapse dbGaP python package dataset
 required_fields:
 - sample_id
-- asv_id
-- asv_count
 - patient_id
 - visit_date
-- updrs_total
+- visit_number
+- asv_id
+- taxonomy
+- abundance
 - age
 - sex
 - levodopa_dose
-cache_key: f30fcf44154dfd524cf9373920ed219f76d75c86d642ffe6829b27d433884144
-searched_at: '2026-10-13T04:23:23.425836+00:00'
+- UPDRS_total
+- MDS_UPDRS_total
+cache_key: 9fc867865b62e2d915ab91322f4df997ecfb507ed206329649548e94ad216361
+searched_at: '2026-10-13T04:25:09.978653+00:00'
 retry_count: 1

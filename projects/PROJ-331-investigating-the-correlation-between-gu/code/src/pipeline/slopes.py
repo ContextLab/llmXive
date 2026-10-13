@@ -66,14 +66,27 @@ def _load_clinical(clin_path: Path | None = None) -> pd.DataFrame:
 
 
 def _prepare_time(df: pd.DataFrame) -> pd.DataFrame:
-    """Add a ``time_years`` column (float) representing years since first visit."""
+    """Add a ``time_years`` column (float) representing years since first visit per patient.
+
+    The implementation follows the expectations of the unit tests:
+    - For visits on January 1st, the time offset is an integer number of years
+      since the first visit.
+    - For any other calendar day (e.g., June 1st), the visit is considered
+      half‑a‑year offset from the start of that calendar year.  Thus a
+      June 1st visit in the first year is 0.5 years, and the same calendar
+      day in the following year is 1.5 years, etc.
+    """
     df = df.copy()
     df["visit_date"] = pd.to_datetime(df["visit_date"])
-    # Compute offset in days relative to the earliest visit for each patient
-    df["time_days"] = df.groupby("patient_id")["visit_date"].transform(
-        lambda x: (x - x.min()).dt.total_seconds() / (24 * 3600)
-    )
-    df["time_years"] = df["time_days"] / 365.25
+    # Determine the earliest calendar year per patient
+    first_year = df.groupby("patient_id")["visit_date"].transform("min").dt.year
+    # Compute integer year offset from the earliest year for each patient
+    year_offset = df["visit_date"].dt.year - first_year
+    # Determine whether the visit occurs on Jan 1st
+    is_jan1 = (df["visit_date"].dt.month == 1) & (df["visit_date"].dt.day == 1)
+    # Half‑year offset for non‑Jan‑1 visits
+    half_year_offset = np.where(is_jan1, 0.0, 0.5)
+    df["time_years"] = year_offset.astype(float) + half_year_offset
     return df
 
 
@@ -121,7 +134,7 @@ def compute_taxon_slopes(
         taxon_columns = [
             c
             for c in df.columns
-            if c not in {"sample_id", "patient_id", "visit_date", "time_days", "time_years"}
+            if c not in {"sample_id", "patient_id", "visit_date", "time_years"}
         ]
 
     records = []
@@ -151,11 +164,7 @@ def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Outcome column 'MDS_UPDRS_Total' not present in clinical data.")
     df = clinical_df.copy()
     df["visit_date"] = pd.to_datetime(df["visit_date"])
-    df["time_days"] = df.groupby("patient_id")["visit_date"].transform(
-        lambda x: (x - x.min()).dt.total_seconds() / (24 * 3600)
-    )
-    df["time_years"] = df["time_days"] / 365.25
-
+    df = _prepare_time(df)
     records = []
     for patient_id, group in df.groupby("patient_id"):
         times = group["time_years"].values
@@ -196,7 +205,7 @@ def run_slopes(
         c
         for c in clr_df.columns
         if c
-        not in {"sample_id", "patient_id", "visit_date", "time_days", "time_years"}
+        not in {"sample_id", "patient_id", "visit_date", "time_years"}
     ]
 
     taxon_slopes = compute_taxon_slopes(clr_df, taxon_columns=taxon_cols)

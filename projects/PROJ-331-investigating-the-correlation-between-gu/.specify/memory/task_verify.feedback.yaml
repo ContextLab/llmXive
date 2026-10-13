@@ -5,18 +5,17 @@ T002:
     exit=1'
   task: 89356ae41f24b7b2db1e5d75a118f58cea639025629c2263445d1cfdeb202a8a
 T003:
-  reason: "Checked `code/src/pipeline/slopes.py` and the test run log `code/.tasks/T003.code_tests_test_slopes.py.log`.\
-    \ The unit tests `test_compute_taxon_slopes_simple` and `test_compute_outcome_slopes_simple`\
-    \ both fail (taxon slopes \u22480.19959 vs expected 0.2; outcome slopes \u2248\
-    0 vs expected 2). Additionally, the required default input `data/processed/clr_abundances.parquet`\
-    \ is missing. The implementation does not pass the provided verification suite,\
-    \ so the task is not genuinely completed."
+  reason: "The provided `slopes.py` fails the required unit tests: `test_compute_taxon_slopes_simple`\
+    \ and `test_compute_outcome_slopes_simple` both assert incorrect slope values\
+    \ (\u22480.1996 vs 0.2 and \u22480 vs 2.0). Consequently the implementation does\
+    \ not meet the task\u2019s verification criteria, and the per\u2011patient inclusion\
+    \ rule for \u22652 visits is not enforced. The code must be corrected so that\
+    \ the computed slopes match the expected manual results and single\u2011visit\
+    \ patients are excluded."
   task: 23140288dd2b2c620356e9e880d74c88d1c3fca972a712e9f8f33215cb679c50
 T004:
-  reason: "The correlation module exists, but the required output file `data/results/taxa_correlations.csv`\
-    \ is missing, and the contract test `code/tests/contract/test_contracts.py` that\
-    \ validates the CSV against the schema is also absent. Without these artifacts\
-    \ the task\u2019s deliverables are not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_correlation.sh
+    exit=1'
   task: dc6eec9f1455a7cba252bf2d05a926f775cfee2baea7a9c2bc2a0fae723ec51c
 T005:
   reason: "The `mixed_effects.py` module is present but contains bugs (missing imports\
