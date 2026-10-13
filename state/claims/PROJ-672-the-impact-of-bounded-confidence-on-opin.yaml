@@ -1795,3 +1795,359 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-13T00:22:34Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: 500 nodes in synthetic networks
+  claim_id: c_9892a35f
+  context: "We generate synthetic networks with 500 nodes, execute the Hegselmann-Krause\
+    \ opinion dynamics model across a sweep of confidence thresholds (\u03B5 \u2208\
+    \ [0.05, 0.50])"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: We generate synthetic networks with 500 nodes
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:35Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: confidence threshold range 0.05 to 0.50
+  claim_id: c_40d0e878
+  context: "execute the Hegselmann-Krause opinion dynamics model across a sweep of\
+    \ confidence thresholds (\u03B5 \u2208 [0.05, 0.50])"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "confidence thresholds (\u03B5 \u2208 [0.05, 0.50])"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:35Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: 50 instances each of three network topologies
+  claim_id: c_49d5012e
+  context: 'Network Generation: Create 50 instances each of ER, BA, WS topologies
+    with N=500 nodes'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Create 50 instances each of ER, BA, WS topologies with N=500 nodes
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:36Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: 50 seeds per configuration in HK simulations
+  claim_id: c_46c1479d
+  context: "Opinion Dynamics: Run HK model with \u03B5 \u2208 [0.05, 0.50], 50 seeds\
+    \ per configuration"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Run HK model with \u03B5 \u2208 [0.05, 0.50], 50 seeds per configuration"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:36Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: convergence threshold 1e-4 for max opinion change
+  claim_id: c_950dd2bf
+  context: 'Convergence Measurement: Record iteration count until max opinion change
+    < 1e-4'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Record iteration count until max opinion change < 1e-4
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:36Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: 1500 simulations completed in less than 5 hours
+  claim_id: c_e1a1d0ab
+  context: 'Efficient: Completes 1,500 simulations in < 5 hours on GitHub Actions'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Completes 1,500 simulations in < 5 hours on GitHub Actions
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:37Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: scaling exponent variation less than 5% across convergence threshold
+    sweep
+  claim_id: c_a7d5cb24
+  context: "\u03B3 variation < 5% across convergence threshold sweep (SC-004)"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "\u03B3 variation < 5% across convergence threshold sweep"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:37Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/README.md
+  attempts: 1
+  canonical: peak memory usage less than 7 GB
+  claim_id: c_0bec72ca
+  context: Peak memory usage < 7 GB during batch generation (SC-005)
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Peak memory usage < 7 GB during batch generation
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:37Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: network generation with exactly 500 nodes per instance
+  claim_id: c_2358d80f
+  context: 'Step 1: Generate Networks section describes network generation parameters.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generates multiple instances of each topology (ER, BA, WS) with exactly
+    500 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:58Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: full study ensemble consists of 50 instances per topology
+  claim_id: c_ef747d7f
+  context: Instructions for generating complete dataset across three topologies (ER,
+    BA, WS).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: To generate the full study ensemble (50 instances per topology)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:58Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: 150 edgelist files generated for all topologies
+  claim_id: c_ec4fbd2e
+  context: Output files section describing artifacts from network generation step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: data/raw/networks/ER_*.edgelist (150 files for all topologies)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:58Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: 150 metadata JSON files generated
+  claim_id: c_bbfa4d95
+  context: Output files section describing artifacts from network generation step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: data/raw/networks/metadata_*.json (150 metadata files)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:59Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: confidence threshold sweep starts at 0.05
+  claim_id: c_8a4dfe55
+  context: 'Step 2: Run Simulations parameters for the Hegselmann-Krause model.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: epsilon-start 0.05
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:59Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: confidence threshold sweep ends at 0.50
+  claim_id: c_2b83dbef
+  context: 'Step 2: Run Simulations parameters for the Hegselmann-Krause model.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: epsilon-end 0.50
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:34:59Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: confidence threshold step size is 0.05
+  claim_id: c_48977965
+  context: 'Step 2: Run Simulations parameters for the Hegselmann-Krause model.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: epsilon-step 0.05
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:00Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: summary CSV contains 1500 rows from 3 topologies times 10 epsilon values
+    times 50 seeds
+  claim_id: c_bbc86e35
+  context: Output files section describing aggregated simulation results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "data/raw/simulations/summary.csv (aggregated results: 1,500 rows for\
+    \ 3 topologies \xD7 10 \u03B5 values \xD7 50 seeds)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:00Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: Step 2 runtime approximately 4-5 hours on 2-CPU runner
+  claim_id: c_c46ec33a
+  context: Performance expectations for batch simulation step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Expected runtime: ~4-5 hours on a 2-CPU GitHub Actions runner.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:01Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: Step 3 runtime approximately 5-10 minutes
+  claim_id: c_21fe2d83
+  context: Performance expectations for analysis step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Expected runtime: ~5-10 minutes.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:01Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: Step 2 simulations runtime approximately 4-5 hours
+  claim_id: c_349dfb1e
+  context: Performance Expectations table for batch simulations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: ~4-5 hours
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:01Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: Step 3 analysis runtime approximately 5-10 minutes
+  claim_id: c_0896b8b8
+  context: Performance Expectations table for result analysis.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: ~5-10 minutes
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:02Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: total pipeline runtime approximately 4.5-5.5 hours
+  claim_id: c_d1728eb8
+  context: Performance Expectations table total runtime row.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: ~4.5-5.5 hours
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:02Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: total pipeline peak RAM usage approximately 3-4 GB
+  claim_id: c_d8906e09
+  context: Performance Expectations table total RAM usage row.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: ~3-4 GB peak
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:02Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/quickstart.md
+  attempts: 1
+  canonical: non-convergence threshold is 10 percent of runs
+  claim_id: c_f5893487
+  context: Troubleshooting section for non-convergent simulations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'If more than 10% of runs report `status: ''non_converged''`'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:35:03Z'

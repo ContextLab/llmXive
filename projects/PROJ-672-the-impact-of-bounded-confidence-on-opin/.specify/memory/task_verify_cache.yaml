@@ -1,15 +1,15 @@
 T001:
   c: false
-  h: a7795fecedf39af435b4f403cc8795073bbceff1b2eea662984a3d8ad91230d3
-  r: "`README.md` and `quickstart.md` exist and quickstart contains the required command,\
-    \ but the task's verification criterion \u2014 that running the command creates\
-    \ `data/raw/networks/ER_0000.edgelist` and `metadata_ER_0000.json` \u2014 is only\
-    \ half met: `data/raw/networks/ER_0000.edgelist` is MISSING on disk (only the\
-    \ metadata JSON exists), so the documented verification command's expected output\
-    \ is not reproducible from the current artifacts. The implementer should regenerate\
-    \ the ER seed-0 network so both files exist (or fix whatever caused the edgelist\
-    \ to be absent)."
-  sig: 5d53c6fc46fe33f8b0801011932f12fbda6b948baad8ff5f1ccc6f1129437b74
+  h: 8a7f3af6bba1d235acfa43af644fa79761bda0cc8846321d709566a418c921fc
+  r: "The task requires two documentation files (`README.md` and `quickstart.md`)\
+    \ and verification that running `python -m code.generate_networks --topology ER\
+    \ --instances 1 --seed 0` creates both `data/raw/networks/ER_0000.edgelist` and\
+    \ `data/raw/networks/metadata_ER_0000.json` without errors.\n\n**Evidence checked:**\n\
+    \n1. **`README.md`** exists (5320 bytes) and contains substantive project documentation.\
+    \ \u2713\n2. **`quickstart.md`** exists (9145 bytes) and contains the required\
+    \ command `python -m code.generate_networks --topology ER --instances 1 --seed\
+    \ 0`. \u2713\n3. **Execution log** shows the command ran su"
+  sig: fb18621cfbbc7ce13eff688121b5947a349c87748076275a3659a3213afd97f5
 T002:
   c: true
   h: c217bd65dcf4ed5eea7ae9765f016aa2c61c7c9e67f770836617960a4b37bd33
@@ -20,16 +20,17 @@ T002:
     not a placeholder.
   sig: 47c35d4a755c8e44c117d883f8c77f968ad0e7b406d4059556fd6683ad193c84
 T003:
-  c: true
-  h: 26c713e819301e009fd46211f762babbb0dc6ca0c4ed2e75ea5c100cde08359e
-  r: 'All three required modules exist with real, substantive implementations: `checksums.py`
-    provides SHA-256 hashing (with a `sha256` alias satisfying the verification command),
-    `metrics.py` computes assortativity, average path length, and clustering, and
-    `plotting.py` provides log-log and scatter plotting helpers. Corresponding unit
-    tests (`test_checksums.py`, `test_metrics.py`, `test_plotting.py`) exist in `tests/unit/`
-    and their execution logs show all tests passing (exit 0), and the metrics module''s
-    output is corroborated by real network metadata files using its exact metric keys.'
-  sig: 4fb5080f5f115c65118419a3454a348c4d13c29970989f0c61a100e10028b4e1
+  c: false
+  h: fca64da5ae9d30f765a4b451b93cda4524048a856683dbc5d82b4f0909e47a0e
+  r: "The three utility modules exist and contain substantive implementations, but\
+    \ the task explicitly requires **unit tests that pass**. The evidence shows `tests/unit/`\
+    \ directory exists with test files listed (including `test_checksums.py`, `test_metrics.py`,\
+    \ `test_plotting.py`), but **no test execution evidence is provided**\u2014no\
+    \ pytest output, no passing test logs, no demonstration that `python -c \"import\
+    \ code.utils.checksums as c; print(len(c.sha256('README.md')))\"` returns 64 as\
+    \ specified in the verification requirement.\n\nThe task states: \"Each module\
+    \ has a corresponding unit test in `tests/unit"
+  sig: e2932595d75a72260ef22bcb0a41bacabb996b054b1bedfad4d7618d9eb52eb4
 T004:
   c: true
   h: abfed2c0154eae0bbc62a50c28dd0b3825539219ccdc278d8563f9b5ed13aa93
@@ -43,29 +44,33 @@ T004:
     \ was supplied, but the task's deliverables are the config file"
   sig: ac1defff38f60e58a7d84c53aae904a0418d908b35dd46a9aaad2f3329089dbe
 T005:
-  c: true
-  h: 5369ad4e2a0fbd9473bb093dd47c02aab864364c0963fb7c68bceed8c2a1afb9
-  r: 'The script `code/generate_networks.py` implements the required CLI (`--topology
-    {ER,BA,WS}`, `--instances`, `--seed`) and writes edgelists plus per-topology metadata
-    CSVs. On disk, each topology folder (ER/, BA/, WS/) contains exactly 50 `.edgelist`
-    files, the three `{topology}_metadata.csv` files each have 50 rows with `node_count
-    == 500` for every instance, and the sampled per-instance JSON metadata files corroborate
-    the CSV values (e.g., BA edge_count 1491, WS 1500, ER ~6200) with real structural
-    metrics. The flat-path pattern `data/raw/networks/{topology}_{idx}.edgelist` has
-    no match, but '
-  sig: fb90685d7a7ab3f40f7a4fe123a1488b33f7d6bbebe1f125f0c0212c6349ff54
+  c: false
+  h: dc5a58e75843680abc6547be10adc9f519760f97d0bfa1d9e192872480374461
+  r: 'The task requires edge-list files at the path pattern `data/raw/networks/{topology}_{idx}.edgelist`,
+    but the actual files are located in subdirectories: `data/raw/networks/ER/ER_0000.edgelist`,
+    `data/raw/networks/BA/BA_0000.edgelist`, etc. The collector explicitly confirmed
+    "NO MATCHING FILE exists" for the required pattern `data/raw/networks/{topology}_{idx}.edgelist`.
+    While the CSV metadata files are correctly placed at `data/raw/networks/{topology}_metadata.csv`
+    and all 50 instances per topology are generated with node_count == 500 (verified
+    in the CSV and metadata JSON files), the edgelist'
+  sig: 65874da1883e0774afa491c5c57d84e062756a4e041eba64fd68e63e0e3e5bf4
 T006:
   c: true
-  h: 3c7a9f0113b33aadcfe44166cd3d37eab6b452b6180c9ef0ad272361abceb2aa
-  r: "The generation script imports and calls `calculate_structural_metrics` from\
-    \ `code/utils/metrics.py` and writes per-instance JSON metadata files; 150 metadata\
-    \ files (50 each for ER/BA/WS) exist at `data/raw/networks/metadata_{topology}_{idx}.json`.\
-    \ The sampled files (e.g., `metadata_BA_0001.json`) contain all schema-required\
-    \ fields (topology, seed, node_count, edge_count, metrics) matching `network_instance.schema.json`\
-    \ (which allows the metrics object), with `node_count` = 500 and plausible computed\
-    \ metrics (e.g., BA edge_count 1491 \u2248 (500\u22123)\xD73, WS clustering \u2248\
-    \ 0.31 consistent with k=6, p=0.2)"
-  sig: 93e4f12afeabd5a4424cbe0fe8a3e365793affb43010c281d230e429f9d08991
+  h: 512dce291bc395e5579b15c7b19ddcb67f1b2d346311514ccd06e29f209e88a1
+  r: '**Evidence checked:**
+
+
+    1. **Artifact existence**: `code/utils/metrics.py` exists (2352 bytes) and contains
+    the `calculate_structural_metrics()` function that computes assortativity, average
+    path length, clustering coefficient, and node/edge counts. `code/generate_networks.py`
+    exists (9520 bytes) and calls this metrics module at line 155 (`metrics = calculate_structural_metrics(G)`).
+    The schema file `code/contracts/network_instance.schema.json` exists and defines
+    the required JSON structure.
+
+
+    2. **Metadata file generation**: 150 metadata JSON files matching the pattern
+    `data/raw/networks/metada'
+  sig: 925a00a8e0bfd31eb2d239c265b20962f84b978cc316899bed921abc6a2488ac
 T007:
   c: false
   h: 885b1150986c797d59a9ce8694b0c10a18ffcd393acbab4844fb2aaf91d6dff9

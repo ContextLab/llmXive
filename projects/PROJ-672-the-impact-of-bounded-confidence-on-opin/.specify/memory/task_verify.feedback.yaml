@@ -1,20 +1,35 @@
 T001:
-  reason: "`README.md` and `quickstart.md` exist and quickstart contains the required\
-    \ command, but the task's verification criterion \u2014 that running the command\
-    \ creates `data/raw/networks/ER_0000.edgelist` and `metadata_ER_0000.json` \u2014\
-    \ is only half met: `data/raw/networks/ER_0000.edgelist` is MISSING on disk (only\
-    \ the metadata JSON exists), so the documented verification command's expected\
-    \ output is not reproducible from the current artifacts. The implementer should\
-    \ regenerate the ER seed-0 network so both files exist (or fix whatever caused\
-    \ the edgelist to be absent)."
+  reason: "The task requires two documentation files (`README.md` and `quickstart.md`)\
+    \ and verification that running `python -m code.generate_networks --topology ER\
+    \ --instances 1 --seed 0` creates both `data/raw/networks/ER_0000.edgelist` and\
+    \ `data/raw/networks/metadata_ER_0000.json` without errors.\n\n**Evidence checked:**\n\
+    \n1. **`README.md`** exists (5320 bytes) and contains substantive project documentation.\
+    \ \u2713\n2. **`quickstart.md`** exists (9145 bytes) and contains the required\
+    \ command `python -m code.generate_networks --topology ER --instances 1 --seed\
+    \ 0`. \u2713\n3. **Execution log** shows the command ran su"
   task: 9d2ac5d26708a6dd689b75c144fd7f1ec9635c8cb19e1355e22ee8ca824ad06c
 T002:
   task: aa3fdfd39616c9417cb7b269f0fec012383edd9f0307f1ad9ca9996906a45488
 T003:
+  reason: "The three utility modules exist and contain substantive implementations,\
+    \ but the task explicitly requires **unit tests that pass**. The evidence shows\
+    \ `tests/unit/` directory exists with test files listed (including `test_checksums.py`,\
+    \ `test_metrics.py`, `test_plotting.py`), but **no test execution evidence is\
+    \ provided**\u2014no pytest output, no passing test logs, no demonstration that\
+    \ `python -c \"import code.utils.checksums as c; print(len(c.sha256('README.md')))\"\
+    ` returns 64 as specified in the verification requirement.\n\nThe task states:\
+    \ \"Each module has a corresponding unit test in `tests/unit"
   task: acde92960821c3a36ba0b38256d7427cf6a0b91ba14433e66b1657bb56abc88b
 T004:
   task: fe3dbfd931e6947f383570fa473486049d06bdd2d742eb84bb6a7b9fd7327ce3
 T005:
+  reason: 'The task requires edge-list files at the path pattern `data/raw/networks/{topology}_{idx}.edgelist`,
+    but the actual files are located in subdirectories: `data/raw/networks/ER/ER_0000.edgelist`,
+    `data/raw/networks/BA/BA_0000.edgelist`, etc. The collector explicitly confirmed
+    "NO MATCHING FILE exists" for the required pattern `data/raw/networks/{topology}_{idx}.edgelist`.
+    While the CSV metadata files are correctly placed at `data/raw/networks/{topology}_metadata.csv`
+    and all 50 instances per topology are generated with node_count == 500 (verified
+    in the CSV and metadata JSON files), the edgelist'
   task: 0d2f1504f8a9ef86550a7e26a0d4cbfd9c5bbf0a53e8aa78f33f5f0da7c4db44
 T006:
   task: 0847d0dd9d2ef9f455148516ce16d7124715eb9f1ebd70619b2a478c465c37b4
