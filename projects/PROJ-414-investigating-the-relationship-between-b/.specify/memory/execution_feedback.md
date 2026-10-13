@@ -7,21 +7,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_openneuro.py -> rc=1
-^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 135, in _list_openneuro_files
     resp.raise_for_status()
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-414-investigating-the-relationship-between-b/lib/python3.11/site-packages/requests/models.py", line 1167, in raise_for_status
     raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000246/versions/1.0.0/files
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000246/versions/1/files
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 317, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 318, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 163, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 165, in main
     raise RuntimeError(
-RuntimeError: Failed to retrieve file list for dataset ds000246 version 1.0.0: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000246/versions/1.0.0/files
+RuntimeError: Failed to retrieve file list for dataset ds000246 version 1: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000246/versions/1/files
 
 - python -m src.pipeline.run_all  --seed 42  --output_dir data/output  --min_subjects 20  --permutations 5000 -> rc=1
 

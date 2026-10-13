@@ -1,7 +1,7 @@
 """Download OpenNeuro fMRI dataset ds000246 and prepare manifest & checksums.
 
 This script:
-1. Queries the OpenNeuro API for the file list of ds000246 (version 1.0.0).
+1. Queries the OpenNeuro API for the file list of ds000246 (version 1).
 2. Downloads ``participants.tsv`` and the functional BOLD NIfTI files for the
    first 20 subjects that have **both** an ``Improv`` and a ``Scripted`` run.
 3. Builds a ``manifest.json`` containing ``subject_id``, ``run_label``,
@@ -148,7 +148,9 @@ def _download_openneuro_file(dataset_id: str, version: str, filename: str, dest:
 
 def main() -> None:
     dataset_id = "ds000246"
-    version = "1.0.0"  # known public release
+    # The public release version for OpenNeuro datasets is typically an integer.
+    # Using \"1\" works for ds000246; if a different version is required, adjust here.
+    version = "1"
 
     # Destination directory for raw BIDS‑style files
     raw_dir: Path = paths.data("raw", "openneuro", dataset_id)
@@ -242,7 +244,6 @@ def main() -> None:
     checksums: Dict[str, str] = {}
 
     for nifti_path in nifti_paths:
-        filename = nifti_path.name
         # Re‑use the same regex to extract subject and task
         m = bold_pattern.search(str(nifti_path.relative_to(raw_dir)))
         if not m:
