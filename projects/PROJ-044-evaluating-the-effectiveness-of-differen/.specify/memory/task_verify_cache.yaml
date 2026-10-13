@@ -1,8 +1,11 @@
 T001:
-  c: true
-  h: b7c55275d4066784fcb308c680e1ce5f8b9b41ed5b6c530d33c98fdeb3cd035a
-  r: Checked `quickstart.md` (contains the runnable entry point `python code/main.py`)
-    and `code/setup_check.py` log, which confirms the required project directories
-    exist and `requirements.txt` lists and successfully imports all mandated dependencies
-    (`torch`, `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`, `pyarrow`).
-  sig: c523cfccb70cdbb164af5fa20dc9713da240c202bd967e6703d89d0a3f3d3e86
+  c: false
+  h: de820d68b4f8174225452740c590cf8526046e863a31c7ff73509e02a7d52c6e
+  r: The only concrete artifact provided is `quickstart.md`; there is no evidence
+    that the required project directories/files (e.g., `code/`, `data/`, `requirements.txt`)
+    actually exist, nor any proof that the listed dependencies (`torch`, `opacus`,
+    `datasets`, `pandas`, `scipy`, `statsmodels`, `pyarrow`) have been installed or
+    pinned in a `requirements.txt`. To satisfy T001, the implementer must supply the
+    full project tree (or at least the key files) and a `requirements.txt` containing
+    the specified packages.
+  sig: 039a3e3122075e7ac0e84e0b9ea69ec74c9c52a5b968a4a18e2fc4772ad4a8e6

@@ -1,10 +1,9 @@
 status: none
-intent: FEMNIST Leaf benchmark parquet download python package dataset
+intent: FEMNIST federated dataset pip install leaf python package dataset
 required_fields:
 - image
 - label
 - client_id
-- split
-cache_key: 73c2891c6c5607894ef46b4959b1519873d3268c72ce971dc9d7a715d309591b
-searched_at: '2026-10-13T12:25:43.376395+00:00'
+cache_key: 5690be4711254a7e5e714a29b868c144ec3be7c3acc7f3d75e71a0d03e03942b
+searched_at: '2026-10-13T13:24:39.438025+00:00'
 retry_count: 1
