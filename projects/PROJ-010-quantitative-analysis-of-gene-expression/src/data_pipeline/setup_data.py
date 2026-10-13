@@ -1,69 +1,123 @@
 import os
 import hashlib
 import yaml
-import GEOparse
+import datetime
+import requests
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-def calculate_sha256(file_path):
-    sha256_hash = hashlib.sha256()
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def calculate_sha256(file_path: os.PathLike) -> str:
+    """
+    Compute the SHA-256 checksum of a file.
+
+    Parameters
+    ----------
+    file_path : PathLike
+        Path to the file.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA-256 digest.
+    """
+    sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-def main():
-    # 1. Initialize directories
-    # Using paths.data and paths.figures creates the folders automatically
-    raw_dir = paths.data("raw")
-    processed_dir = paths.data("processed")
-    figures_dir = paths.figures()
-    
-    log.info(f"Initializing project directories: {raw_dir}, {processed_dir}, {figures_dir}")
+def verify_dataset_accessibility(geo_accession: str) -> bool:
+    """
+    Verify that a GEO dataset is reachable via HTTP.
 
-    # 2. Verify accessibility and download raw metadata
-    # GSE124310 is a known human fetal brain scRNA-seq dataset
-    gse_id = "GSE124310"
-    log.info(f"Verifying accessibility of {gse_id} via GEOparse...")
-    
+    Parameters
+    ----------
+    geo_accession : str
+        GEO Series accession (e.g., "GSE131928").
+
+    Returns
+    -------
+    bool
+        True if the GEO page returns HTTP 200.
+    """
+    url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={geo_accession}"
     try:
-        # Download the metadata (SOFT file) to verify connectivity and provide a raw artifact
-        gse = GEOparse.get_GEO(geo=gse_id, destdir=str(raw_dir))
-        # GEOparse saves files as GSEXXXX_family.soft or similar. 
-        # We locate the actual downloaded file to checksum it.
-        downloaded_files = [f for f in os.listdir(raw_dir) if gse_id in f]
-        if not downloaded_files:
-            raise FileNotFoundError(f"GEOparse did not save files for {gse_id} in {raw_dir}")
-        
-        target_file = raw_dir / downloaded_files[0]
-        log.info(f"Successfully verified and downloaded: {target_file}")
-    except Exception as e:
-        log.error(f"Failed to access GEO data: {e}")
-        raise
+        response = requests.head(url, timeout=30)
+        if response.status_code == 200:
+            log.info(f"GEO dataset {geo_accession} is accessible.")
+            return True
+        else:
+            log.error(f"GEO dataset {geo_accession} returned status {response.status_code}.")
+            return False
+    except requests.RequestException as e:
+        log.error(f"Failed to reach GEO dataset {geo_accession}: {e}")
+        return False
 
-    # 3. Generate SHA-256 checksums
-    log.info("Generating checksums for raw inputs...")
-    checksum = calculate_sha256(target_file)
-    
-    # 4. Record in project state YAML
+# ----------------------------------------------------------------------
+# Main routine
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Project setup entry point.
+
+    - Ensures required directory layout exists.
+    - Verifies accessibility of a reference fetal brain atlas dataset.
+    - Computes SHA-256 checksums for all files under ``data/raw``.
+    - Writes a ``project_state.yaml`` file documenting the above.
+    """
+    # 1. Ensure directory layout
+    required_dirs = [
+        paths.code(),
+        paths.data("raw"),
+        paths.data("processed"),
+        paths.figures(),
+        paths.results(),
+    ]
+    for d in required_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        log.debug(f"Ensured directory: {d}")
+
+    # 2. Verify dataset accessibility (using a known human fetal brain atlas GEO accession)
+    # NOTE: This is a lightweight HTTP HEAD request; it does not download large files.
+    GEO_ACCESSION = "GSE131928"  # Example fetal brain scRNA‑seq atlas
+    dataset_accessible = verify_dataset_accessibility(GEO_ACCESSION)
+
+    # 3. Compute SHA‑256 checksums for raw files
+    raw_dir = paths.data("raw")
+    checksums = {}
+    if raw_dir.exists():
+        for root, _, files in os.walk(raw_dir):
+            for fname in files:
+                fpath = os.path.join(root, fname)
+                try:
+                    checksum = calculate_sha256(fpath)
+                    rel_path = os.path.relpath(fpath, raw_dir)
+                    checksums[rel_path] = checksum
+                    log.debug(f"Checksum for {rel_path}: {checksum}")
+                except Exception as e:
+                    log.error(f"Failed to checksum {fpath}: {e}")
+
+    # 4. Write project_state.yaml
     state = {
-        "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-        "raw_inputs": [
-            {
-                "file": str(target_file.relative_to(paths.root)),
-                "sha256": checksum,
-                "source": f"GEO:{gse_id}"
-            }
-        ],
-        "status": "initialized"
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "raw_checksums": checksums,
+        "dataset_accessible": dataset_accessible,
+        "geo_accession": GEO_ACCESSION,
     }
-    
     state_path = paths.data("project_state.yaml")
     with open(state_path, "w") as f:
-        yaml.dump(state, f, default_flow_style=False)
-    
-    log.info(f"Project state recorded at {state_path}")
+        yaml.safe_dump(state, f, sort_keys=False)
+    log.info(f"Project state written to {state_path}")
+
+    # Exit status
+    if not dataset_accessible:
+        raise RuntimeError(
+            f"Dataset {GEO_ACCESSION} is not accessible; aborting setup."
+        )
 
 if __name__ == "__main__":
     main()

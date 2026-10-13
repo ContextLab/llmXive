@@ -1,4 +1,9 @@
-scanpy==1.9.6
-harmonypy==0.12.10
-anndata==0.9.2
-GEOparse==1.11
+# Project dependencies
+GEOparse
+scanpy
+arboreto
+harmonypy
+# The base environment already provides: numpy, pandas, scipy,
+# matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML,
+# requests, jsonschema, psutil.  No version pins are required for the
+# current reference implementation.

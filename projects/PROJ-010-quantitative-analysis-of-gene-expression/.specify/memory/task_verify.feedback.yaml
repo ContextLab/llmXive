@@ -1,10 +1,11 @@
 T001:
-  reason: "The directory layout, quickstart documentation, and data download/accessibility\
-    \ are present and verified via the `setup_data.py` log. However, there is no evidence\
-    \ that SHA\u2011256 checksums for the raw file were computed nor that they were\
-    \ recorded in a `project_state.yaml` (or any YAML) as required by Constitution\
-    \ Principle\u202FIII. The YAML file is missing, so the data\u2011hygiene step\
-    \ is incomplete."
+  reason: "The quickstart.md and directory layout exist, and the setup script logs\
+    \ successful GEO access, but the `data/raw/` directory is empty and no evidence\
+    \ is provided that SHA\u2011256 checksums for raw files were generated and stored\
+    \ in `data/project_state.yaml`. The task\u2019s core \u201Cdata hygiene\u201D\
+    \ requirement (checksum generation and recording) is therefore unmet. Adding the\
+    \ raw input files, computing their checksums, and persisting them in the project\
+    \ state YAML will be needed."
   task: 303461c7e6a2d94a7c75dad95a72117f92f5e1729ecde2ccd9e5af1b9d7df072
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data_pipeline.py
