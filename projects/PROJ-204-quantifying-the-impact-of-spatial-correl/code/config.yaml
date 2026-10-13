@@ -1,3 +1,8 @@
-sensitivity_threshold: 0.2
-min_sample_count: 30
-alpha: 0.05
+# Configuration for the quantifying‑spatial‑correlations pipeline
+# Paths are resolved relative to the repository root.
+base_dir: "."
+log_dir: "logs"
+# The following keys are used by various pipeline stages.
+config_path: null  # placeholder – can be overridden via CLI
+pixel_size: 1.0
+# Additional keys can be added by later tasks (e.g., sensitivity thresholds).

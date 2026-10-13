@@ -1,0 +1,9 @@
+T100:
+  c: false
+  h: 6d3c1956e3368fe43eae26873e1f1178f63b9ddc7b1c8c72da2bd14ae0cef59b
+  r: "The `code/data/feasibility.py` script creates the required JSON report, but\
+    \ it **always exits with status\u202F0**, violating the task requirement that\
+    \ the script must exit with a non\u2011zero code when the verdict is `\"halt\"\
+    ` (no linked EDS maps). This mismatch means the implementation does not fully\
+    \ satisfy the specification."
+  sig: e9aaaf8f6be90e9bfff2a7e7aa7eecbfb6638eaa72aea58867eda40189026105

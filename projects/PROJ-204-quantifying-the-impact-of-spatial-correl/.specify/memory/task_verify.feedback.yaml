@@ -1,6 +1,9 @@
 T100:
-  reason: 'Requested task execution failed; rerun successfully: code/data/feasibility.py
-    exit=1'
+  reason: "The `code/data/feasibility.py` script creates the required JSON report,\
+    \ but it **always exits with status\u202F0**, violating the task requirement that\
+    \ the script must exit with a non\u2011zero code when the verdict is `\"halt\"\
+    ` (no linked EDS maps). This mismatch means the implementation does not fully\
+    \ satisfy the specification."
   task: 082400cb176d6920164d012953f47dcffbb32a196c176a04aba682a0b4e9f0ab
 T101:
   reason: 'Requested task execution failed; rerun successfully: code/data/ingest.py
