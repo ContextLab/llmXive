@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-10-13T00:05:46.114215+00:00'
+last_used: alan-turing
+last_used_at: '2026-10-13T02:20:14.664302+00:00'
 last_outcome: committed
 history:
-- slug: eric-kandel
-  started_at: '2026-06-24T22:34:22.846847+00:00'
-  ended_at: '2026-06-24T23:27:17.513465+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-06-24T23:27:17.513465+00:00'
   ended_at: '2026-06-24T23:53:31.150099+00:00'
@@ -1242,3 +1237,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-170-predicting-catalytic-activity-from-elect/reviews/research/ada-lovelace-simulated__2026-10-13__research.md
+- slug: alan-turing
+  started_at: '2026-10-13T00:05:46.114215+00:00'
+  ended_at: '2026-10-13T02:20:14.664302+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-472-investigating-the-impact-of-network-stru/reviews/research/alan-turing-simulated__2026-10-13__research.md
