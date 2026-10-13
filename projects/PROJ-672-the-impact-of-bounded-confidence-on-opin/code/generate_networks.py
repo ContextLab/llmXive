@@ -181,15 +181,16 @@ def main() -> None:
             # Generate the raw graph according to topology
             # ------------------------------------------------------------------
             if topology == "ER":
-                # Edge probability chosen to give a sparse graph (~5k edges)
-                p = 0.02
+                # Use a higher edge probability to ensure connectivity.
+                p = 0.05
                 G = generate_erdos_renyi(n=N_NODES, p=p, seed=instance_seed)
             elif topology == "BA":
                 m = 3  # each new node attaches to 3 existing nodes
                 G = generate_barabasi_albert(n=N_NODES, m=m, seed=instance_seed)
             else:  # WS
                 k = 6  # each node initially connected to 6 nearest neighbours
-                p = 0.1  # rewiring probability
+                # Slightly higher rewiring probability improves connectivity.
+                p = 0.2
                 G = generate_watts_strogatz(n=N_NODES, k=k, p=p, seed=instance_seed)
 
             # Ensure a single connected component

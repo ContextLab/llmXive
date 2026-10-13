@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: 9546d3f6699e79ebb9fd18f9bbb9f2dceba9e70c8dac116ed1137a471695ee7b
-  r: Checked the presence and contents of `README.md` and `quickstart.md` at the project
-    root, verified that `quickstart.md` includes the required command, and confirmed
-    via execution logs that the command runs without error and creates the expected
-    `ER_0000.edgelist` and `metadata_ER_0000.json` files.
-  sig: b2f33019db80fae9b2aea6249b1008f92a6e2dd3e7c57699f92b16441aacdfb6
+  h: b7bec645a69060a4ebe354c27ca4791183773e54e8f271da4268e1078690c47c
+  r: Checked that `README.md` and `quickstart.md` exist at the repository root, that
+    `quickstart.md` includes the required command, and that executing this command
+    (as shown in the log) successfully created `data/raw/networks/ER_0000.edgelist`
+    and `data/raw/networks/metadata_ER_0000.json` without errors.
+  sig: ab1f7cdfa5fa093582a175fa43a3f6db603bc92307371f1e838c0744275255da
 T002:
   c: true
   h: 5dd8121f80bd16b442e2d52815b96604bb172f146d4943f025b9cdd2f0d66f6e
@@ -17,24 +17,20 @@ T002:
     \ `pip list` check passed."
   sig: d606d06d3f13dd882d6de3b5004288a77ea869b23038a0534b8b733e89e4d3fe
 T003:
-  c: false
-  h: 5978ea7fc7a781a4c8785247882ff1d51d5b201e44c85711f371b192cfcd55e9
-  r: "Checked `code/utils/metrics.py` and its unit tests (`tests/unit/test_metrics.py`),\
-    \ which both fail (assortativity returns \u20130.333 instead of \u20131.0 and\
-    \ returns NaN for regular graphs, causing assertions to fail). The other modules\
-    \ (`checksums.py`, `plotting.py`) exist and pass their tests. The core metrics\
-    \ utilities therefore do not meet the task requirements."
-  sig: 0d737407980fa1e01d36727d2f9550e7a3e0115e7ce1c3e2a7f6f7ea9623cbdb
+  c: true
+  h: 9f858a51a0283f653e56c7d5c35a75dc1f065c842a9ca7334dfd05e41fa56254
+  r: Checked that `code/utils/checksums.py`, `code/utils/metrics.py`, and `code/utils/plotting.py`
+    exist with appropriate implementations, and that their corresponding unit tests
+    in `tests/unit/` ran successfully (logs show all tests passed).
+  sig: 37108e2d53f4171174c2d12d40f6bf63069388b3584b3f2d639ab24ddad97143
 T004:
   c: true
-  h: 1263bef6131d5816f3055e7092fb5d479c46e7d2bd80ec84e40b6486361dc993
-  r: "Checked that `code/contracts/` contains the four required JSON schema files\
-    \ with valid schema definitions, that `tests/conftest.py` defines a session\u2011\
-    scoped `global_seed` fixture and an autouse `set_seed` fixture resetting `random`\
-    \ and `numpy` RNGs before each test, and that `pytest.ini` is present. The provided\
-    \ `metadata_ER_0000.json` conforms to `network_instance.schema.json`, confirming\
-    \ the schemas are usable."
-  sig: b3c27c9f9a8536d280b27e914a946e9a38db9afd3f344189486b307ea6ae21b5
+  h: 04ff0fe3da8f8e4bdecf45e809aedbf6300b9f8261285849fd30273d45b3c8e8
+  r: Checked that `code/contracts/` contains the four required JSON schema files,
+    that `tests/conftest.py` defines an autouse fixture resetting `random` and `numpy`
+    seeds to a fixed value, and that `pytest.ini` is present; the provided `network_instance.schema.json`
+    validates the example `metadata_ER_0000.json`, confirming the schemas are correct.
+  sig: f17265e8c15d9134bb0abd1255141a6f9766568d5caeac438c464e7f6be0e223
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

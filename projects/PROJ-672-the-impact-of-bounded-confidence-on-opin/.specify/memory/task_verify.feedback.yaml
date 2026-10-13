@@ -3,11 +3,6 @@ T001:
 T002:
   task: aa3fdfd39616c9417cb7b269f0fec012383edd9f0307f1ad9ca9996906a45488
 T003:
-  reason: "Checked `code/utils/metrics.py` and its unit tests (`tests/unit/test_metrics.py`),\
-    \ which both fail (assortativity returns \u20130.333 instead of \u20131.0 and\
-    \ returns NaN for regular graphs, causing assertions to fail). The other modules\
-    \ (`checksums.py`, `plotting.py`) exist and pass their tests. The core metrics\
-    \ utilities therefore do not meet the task requirements."
   task: acde92960821c3a36ba0b38256d7427cf6a0b91ba14433e66b1657bb56abc88b
 T004:
   task: fe3dbfd931e6947f383570fa473486049d06bdd2d742eb84bb6a7b9fd7327ce3

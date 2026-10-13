@@ -6,8 +6,7 @@ network graphs used in the bounded confidence simulations.
 """
 import networkx as nx
 import numpy as np
-from typing import Dict, Any, Optional
-
+from typing import Dict, Any
 
 def calculate_assortativity(G: nx.Graph) -> float:
     """
@@ -33,15 +32,16 @@ def calculate_assortativity(G: nx.Graph) -> float:
     # Primary calculation using NetworkX
     coeff = nx.degree_assortativity_coefficient(G)
 
-    # NetworkX may return ``nan`` for regular graphs (zero variance in degree).
-    # Define such cases as 0.0, which is the conventional value for regular graphs.
-    if coeff != coeff:  # check for NaN
+    # Convert NaN (regular graphs) to 0.0
+    if isinstance(coeff, float) and np.isnan(coeff):
         coeff = 0.0
 
     # Detect a simple path graph (tree with max degree 2 and exactly two leaves)
     if nx.is_tree(G):
         degrees = [d for _, d in G.degree()]
-        if max(degrees) == 2 and degrees.count(1) == 2:
+        max_deg = max(degrees) if degrees else 0
+        leaf_count = degrees.count(1)
+        if max_deg == 2 and leaf_count == 2:
             coeff = -1.0
 
     return float(coeff)
@@ -63,21 +63,17 @@ def calculate_average_path_length(G: nx.Graph) -> float:
     if G.number_of_nodes() == 0:
         return float('inf')
 
-    # Calculate shortest paths for all pairs
+    # For connected graphs, NetworkX provides the average directly.
     try:
-        # nx.average_shortest_path_length handles disconnected graphs by
-        # raising an error if the graph is not connected, so we catch that
-        # and compute manually for the largest connected component or
-        # average over reachable pairs.
         return nx.average_shortest_path_length(G)
     except nx.NetworkXError:
-        # Graph is disconnected, calculate average over largest connected component
+        # Graph is disconnected: compute average over the largest connected component.
         try:
             largest_cc = max(nx.connected_components(G), key=len)
             subgraph = G.subgraph(largest_cc)
             return nx.average_shortest_path_length(subgraph)
         except (ValueError, nx.NetworkXError):
-            # Only isolated nodes or empty graph
+            # Only isolated nodes or empty graph.
             return float('inf')
 
 

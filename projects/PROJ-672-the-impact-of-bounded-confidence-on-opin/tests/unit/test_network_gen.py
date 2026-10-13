@@ -8,16 +8,13 @@ The tests verify:
 4. The CSV conforms to the JSON schema (basic column check).
 """
 
-import csv
-from pathlib import Path
-
 import pandas as pd
 import pytest
 
 from llmxive_toolkit import paths
 
 # Helper to locate the topology directory
-def _topology_dir(topology: str) -> Path:
+def _topology_dir(topology: str):
     return paths.data("raw", "networks", topology)
 
 

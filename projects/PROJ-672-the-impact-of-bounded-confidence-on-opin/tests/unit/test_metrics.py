@@ -30,7 +30,7 @@ def test_individual_metric_functions_agree_with_networkx():
     # Degree assortativity for a path graph is -1.0 (perfect disassortative mixing)
     assort = calculate_assortativity(G)
     assert isinstance(assort, float)
-    # NetworkX may return -1.0 exactly; allow a tiny tolerance for floating errors.
+    # Allow a tiny tolerance for floating errors.
     assert abs(assort + 1.0) < 1e-9
 
     # Average shortest path length for a path of 5 nodes is 2.0
