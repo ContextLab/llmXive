@@ -1,0 +1,99 @@
+T001:
+  task: 19b039e7c927f11f01128131a40f211e7b9924771bf6075f12b000301daa55ab
+T002:
+  task: 15f303afe2d3144604fff7b2284a9f6fc319ae8d1780a9cdb87ed2b451290fd8
+T003:
+  task: f53112ebb6fde5fb7e3358a797995327d5333735691743709a5e124be3480b63
+T004:
+  reason: "The provided `code/utils/seeds.py` exists and contains many seed utilities,\
+    \ but it does **not** define a `get_seed(task_id)` function as required by the\
+    \ task (and referenced in the verification description). Consequently the unit\
+    \ test described in the task cannot be satisfied, and the deterministic seed\u2011\
+    pinning API is incomplete. Add a `get_seed(task_id)` implementation (e.g., delegating\
+    \ to `generate_task_seed`) and ensure the test checks its consistency."
+  task: baa04f94aa6ae87c560145b8a5d96d3cf1b7e65b9de650d8c5d4da7b744aee87
+T004b:
+  reason: "The `code/utils/verify_seed_pinning.py` script exists and implements the\
+    \ required scanning logic, but when executed in CI the script exits with code\u202F\
+    1 because it detects direct `random.seed` calls in `code/utils/seeds.py` and `code/data/generator_logic.py`.\
+    \ The repository therefore does not meet the compliance condition that the script\
+    \ return 0, so the task is not fully satisfied. The prohibited seed calls must\
+    \ be replaced with the project's `seeds.get_seed(task_id)`/`seeds.set_seed` pattern\
+    \ (or the files must be otherwise made compliant)."
+  task: 5fe6927b1fcb509233aec7431808323529ec97be4e6bb0c0c3a96182701f8d8e
+T005:
+  task: 9042a1cbfe1de3c3dd1fdbd5260aabcda3a1d3de9e704198b8f4d212e0d9c88e
+T006:
+  task: 0e1c459953836ebafebe822f5bf39628bf81f9e644b333d1f0ffca7cf0b18159
+T007:
+  task: 54eb86fc6fdeabded11c50d0c720acc594f820f2f46d16e28a3630fef07481f3
+T008:
+  task: cbe3a35b2892f173e7428b3f500a318a4e4fb26931fb9c41117a4950a500cef2
+T008b:
+  task: 557f8052c3ef32ea844e2a07d2e108c8c88b986a75425a61bb15d7ac18b918f2
+T010:
+  task: 17ae87d629c4f29c2d903ab8a0af95ab08f5f323a4b286fd4e558480f4abe89d
+T011:
+  task: df4db6ffe4f54295c21e89bfba988b97422f192a21f795aadd771756fd6b3fd6
+T012:
+  task: 141cbf3a0fda54781b8cf617fa1a4e205c6b7d9d44bd1634460eec09ec6121fb
+T013:
+  task: 6bbad40effd62397ad07809e66b575f3daa0920f3f0febb47b11544aa512760c
+T013c:
+  task: 17ae1832635beecea153057735e050d9c269ba01f04829f8e058ac43637f070d
+T014:
+  task: 06d08eb30d1f4458787d30db10c0416917bbf172dde982bbc181cff135983ecf
+T015a:
+  task: f88a967c0eaed30761fc42efae1db0c2b3abb07b62758ac32b2f0c41d17a7f48
+T015b:
+  task: c049c56a3913476e10f3e3b0d5a5f606018adb457448d3e2582ec9d1a31859fa
+T015c:
+  task: 95aaf35a583fedf372ce75537b4520d8ed55b10afb184dd8dc3da6465137171d
+T015d:
+  task: d3ca0ea4fbf89d6b6ab605a99f5ca3aef75341038e1876149495f92ec403a60d
+T016:
+  task: 3568ac6d25485ef733538958a994b68eeb95fc9b3d949c11c244bffbb9c8d040
+T019:
+  task: 0e051d2d674f77abd516a3bfe2a569380839a5d96edd734b273fb205387dc121
+T020:
+  task: 0fd5c3cd4a3a05debb3e40797020b9c8226753bd8853d01a96e1724edd0444d6
+T021:
+  task: 0a78b58206b5e320276900513885802de33fb76e12e0d346f3a96aec4d41b0e2
+T022:
+  task: 13ef61eaccc0b32bf91d6f7755526af27b2c6d109933240a94cf94f8bde8d29e
+T023:
+  task: dbfe19c990138a7f359588710ac48fb2a447a64519ee9a757bcdeea050066efc
+T023a:
+  task: 2b462d4351bf2ca99640375914e7831904e9a74c7e5475c4b1736d2a88e352b8
+T023b:
+  task: d6a737148afd82e7f47252cecb0ace915951c5b19235d4723d4e330a703d3b98
+T026a:
+  task: 9156aa203ca9e527d44bbd23ab384be8e83dce0e0d38b133b8e3965684ca7c46
+T026b:
+  task: e15893a4f71732ced80f6b64c1d458a6b95a522d27ab573333102f19980484d4
+T026c:
+  task: 84a5ca7fea1c985f09b82b13b6b9bcf8c783b0b1802efb9a2e1c3e950fab3b72
+T027:
+  task: ce1c81ead69bb798dde5749f67ebeef64e50d46adc0c4cf79a7cbed0ae129b4b
+T028:
+  task: b552aa5fdfd7c9fc29ada04399cee808069df2a02c31ac1d352a53d7c11db3d7
+T028d:
+  task: a103ee3244e61e5944df421f68163d0272bf6d0a65a984dd961edee2f3bf1e9c
+T029:
+  task: cf0f3c6538ed80955815e87fc9bf415a8634dea838d2a3c24292019ff435705a
+T031:
+  task: 364d9b6a635715b8b68043c439e7c6bfd0f4d509523954d42c85f86da46159fd
+T032:
+  task: b5cf2d89efb13c14c20f3c89d687b019b78cb5474df9a860586e8ec4fb5185d2
+T033:
+  task: e1fb2e0400a88d917aeca7e424c1090533c003c3f0843b55e3f1254cd6baebc6
+T034:
+  task: 8732a4e22e793d1dc49ec0190d2a05f8e3f9e277d7be3bb89d434a433c3209ec
+T035:
+  task: 295a1e50ccfed52ca0d85fe9a4e4a935b261ccea08e2b1542721480052dfdcd6
+T036:
+  task: b93e238d791b703769abbff7ca8e5ba9aa8ae727c8404f474f853b98150364d5
+T042:
+  task: a70e4e471408f54d5800096cf53204ed7e11693a6c65bde6531194fb199814d3
+T043:
+  task: a3c51dfd0af4d8f6e07327d12f23f727201db4a7323389901742cca4db2e5dbf

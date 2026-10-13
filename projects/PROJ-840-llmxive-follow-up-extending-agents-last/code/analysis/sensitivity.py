@@ -5,7 +5,8 @@ import time
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
 
-from utils.config import load_config, CheckpointConfig, PipelineConfig
+# Updated import: use the new ``load_pipeline_config`` that returns a PipelineConfig
+from utils.config import load_pipeline_config, CheckpointConfig, PipelineConfig
 
 class SensitivityResult:
     def __init__(self, interval: int, pass_rate: float, num_tasks: int):
@@ -27,15 +28,15 @@ def load_baseline_results(path: str) -> List[Dict[str, Any]]:
 def run_experiment_for_n(interval: int, config: PipelineConfig) -> List[Dict[str, Any]]:
     """
     Runs the intervention experiment for a specific checkpoint interval N.
-    This is a placeholder implementation that simulates results.
-    In a real scenario, this would run the actual intervention.
+    This placeholder simulates results; a real implementation would invoke
+    the actual intervention runner.
     """
-    # Simulate results
+    # Simulate results deterministically based on the interval
     results = []
     for i in range(10):
         results.append({
             "task_id": f"task_{i}",
-            "pass": (i + interval) % 2 == 0,  # Simulate some pass/fail pattern
+            "pass": (i + interval) % 2 == 0,
             "steps": 5 + i,
             "checkpoint_interval": interval
         })
@@ -50,42 +51,46 @@ def run_sensitivity_analysis(intervals: List[int], config: PipelineConfig) -> Di
         experiment_results = run_experiment_for_n(interval, config)
         pass_count = sum(1 for r in experiment_results if r.get('pass', False))
         pass_rate = pass_count / len(experiment_results) if experiment_results else 0.0
-        
+
         results[interval] = SensitivityResult(interval, pass_rate, len(experiment_results))
-    
+
     return results
 
 def main():
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Run sensitivity analysis for checkpoint intervals")
-    parser.add_argument("--results", type=str, default="data/processed/experiment_results.json", help="Input experiment results JSON")
-    parser.add_argument("--intervals", type=str, default="1,3,5", help="Comma-separated list of intervals to test")
-    parser.add_argument("--output", type=str, default="data/processed/sensitivity_analysis.json", help="Output sensitivity analysis JSON")
-    
+    parser.add_argument("--results", type=str, default="data/processed/experiment_results.json",
+                        help="Input experiment results JSON")
+    parser.add_argument("--intervals", type=str, default="1,3,5",
+                        help="Comma-separated list of intervals to test")
+    parser.add_argument("--output", type=str, default="data/processed/sensitivity_analysis.json",
+                        help="Output sensitivity analysis JSON")
+
     args = parser.parse_args()
-    
+
     intervals = [int(x.strip()) for x in args.intervals.split(',')]
-    
-    # Load config
+
+    # Load the full pipeline configuration if a schema file exists;
+    # otherwise fall back to defaults.
     config_path = Path("code/utils/config_schema.yaml")
     if config_path.exists():
-        config = load_config(config_path)
+        config = load_pipeline_config(str(config_path))
     else:
         config = PipelineConfig()
-    
+
     sensitivity_results = run_sensitivity_analysis(intervals, config)
-    
+
     output_data = {
         "results": {str(k): v.to_dict() for k, v in sensitivity_results.items()}
     }
-    
+
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     with open(output_path, 'w') as f:
         json.dump(output_data, f, indent=2)
-    
+
     print(f"Sensitivity analysis complete. Results saved to {output_path}")
     for interval, result in sensitivity_results.items():
         print(f"N={interval}: Pass Rate = {result.pass_rate:.4f}")

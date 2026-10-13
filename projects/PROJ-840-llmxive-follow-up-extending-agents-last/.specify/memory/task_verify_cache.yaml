@@ -1,3 +1,59 @@
+T001:
+  c: true
+  h: b575f60604efe18d6631416d00450fc9c7f23cf0a562d07970009f9190fddf52
+  r: "Checked the existence of the top\u2011level directories `code/`, `tests/`, `data/`,\
+    \ and `docs/` and their sub\u2011folders as listed in the plan.md (e.g., `code/classification/`,\
+    \ `tests/unit/`, `data/raw/`, etc.). The creation script log confirms each required\
+    \ directory was ensured, and the filesystem listings show the directories are\
+    \ present with placeholder files. All required structure elements are present\
+    \ and non\u2011empty."
+  sig: 733ff376925f37750a477dedb36ee026dc1ebffd42cb06cf26c4a1a0dcc94ce5
+T002:
+  c: true
+  h: df30f0197f7cb59c9479b2ae0c3b57762b5c89339affa6805e9c5bf3bedb3588
+  r: "Checked the `requirements.txt` file (148\u202Fbytes) at `projects/PROJ-840-llmxive-follow-up-extending-agents-last/requirements.txt`;\
+    \ it contains `llama-cpp-python`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`,\
+    \ `pytest`, and `statsmodels` as required (along with additional packages, which\
+    \ does not violate the task)."
+  sig: 4c90ebe6e8d1ead19c1e12ac5a77758891ae05c0230879caf4bfb9f55e050cee
+T003:
+  c: true
+  h: 4b6eba365345833ea4981497fe200aefe8499aa011d82f9a11626ccb1e5ffb4e
+  r: "Checked the `pyproject.toml` (1783\u202Fbytes) which contains a full `[tool.ruff]`\
+    \ section configuring linting (select, ignore, fix, per\u2011file\u2011ignores,\
+    \ isort) and a `[tool.black]` section configuring code formatting. This satisfies\
+    \ the task\u2019s requirement to configure ruff and formatting tools in the project\
+    \ file."
+  sig: ee9b5d227a08e0f0e0e517c2bd38154ab6b1e4097a20160df2858c0b92acd2d2
+T004:
+  c: false
+  h: cafef297f089140bad70a4a9715b499d7d5add6c933272ba586fa7f145b0118e
+  r: "The provided `code/utils/seeds.py` exists and contains many seed utilities,\
+    \ but it does **not** define a `get_seed(task_id)` function as required by the\
+    \ task (and referenced in the verification description). Consequently the unit\
+    \ test described in the task cannot be satisfied, and the deterministic seed\u2011\
+    pinning API is incomplete. Add a `get_seed(task_id)` implementation (e.g., delegating\
+    \ to `generate_task_seed`) and ensure the test checks its consistency."
+  sig: cd70d1325e0254f7d45b71cd32864baef289cef50e37155cd418b5706b01d45e
+T004b:
+  c: false
+  h: b240c59f82a3387d1f1043f9de6fd8181fced95ffdd0997bb10cbf722694351f
+  r: "The `code/utils/verify_seed_pinning.py` script exists and implements the required\
+    \ scanning logic, but when executed in CI the script exits with code\u202F1 because\
+    \ it detects direct `random.seed` calls in `code/utils/seeds.py` and `code/data/generator_logic.py`.\
+    \ The repository therefore does not meet the compliance condition that the script\
+    \ return 0, so the task is not fully satisfied. The prohibited seed calls must\
+    \ be replaced with the project's `seeds.get_seed(task_id)`/`seeds.set_seed` pattern\
+    \ (or the files must be otherwise made compliant)."
+  sig: abdf1da9ec13908b1c79b48247074e4f7a05efbde0411cda87ed1bfad8514a46
+T005:
+  c: true
+  h: d3449ddfd721707b264df283e278f49a2abd8644380b4154b0e2fae08b6a5320
+  r: "Checked `code/utils/config.py` which defines `load_config` returning a dict\
+    \ with `model_path` and `checkpoint_interval`, and verified that `tests/unit/test_config_loader.py`\
+    \ runs successfully (both default and file\u2011based cases) as shown in the test\
+    \ log. The implementation meets the task\u2019s requirement."
+  sig: 581badf3f3e88f99fbdc580a55c53fc24f804bc8eb2441b3fd5b84a2f3bb181e
 T010:
   c: false
   h: 49d2921d2f63556ae3903fb00db826a739946410b0fd8b907e979ce40e47238e
@@ -21,18 +77,6 @@ T013:
     \ the `main` function is truncated, leaving the command\u2011line interface incomplete.\
     \ The missing golden fixture (and incomplete script) must be added for the task\
     \ to be fulfilled."
-T017:
-  c: false
-  h: d9608e8a8c48df43d7c624a43e72442941422c960649f8374aa52f47da695b6c
-  r: The required artifact `tests/unit/test_wrapper.py` does not exist in the repository,
-    so no contract test for checkpoint injection logic is present. The task cannot
-    be considered done until this test file is added with appropriate test cases.
-T018:
-  c: false
-  h: 5ead217719f35dc7706c5c62aa116648d1105582ee4740255b3122c6b9ef9d2e
-  r: "The required file `tests/integration/test_memory_limit.py` does not exist, so\
-    \ no integration test for memory limit compliance is present. The task\u2019s\
-    \ artifact is missing, making the implementation incomplete."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

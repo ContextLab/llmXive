@@ -1,0 +1,7 @@
+{
+  "task_id": "T006",
+  "fingerprint": "bf0b8f3731a7a64fafef43b72c0308dfcc79ceedc6e69bdf24ac41244f4e7a4a",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/data/generator.py': imports nonexistent names from sibling files: `from code.data.generator_logic import FailureType` (available: Any, Dict, ExecutionTrace, List, Optional, StepState, dataclass, field...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

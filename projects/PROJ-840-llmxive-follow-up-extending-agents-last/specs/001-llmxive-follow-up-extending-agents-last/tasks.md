@@ -11,9 +11,9 @@
 
 ## Phase 1 – Setup & Quick‑start (already completed)
 
-- [ ] T001 Create project directory structure for `code/`, `tests/`, `data/`, `docs/` as defined in `specs/001-llmxive-ale-extension/plan.md`.  
-- [ ] T002 Initialize Python project with `llama-cpp-python`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `pytest`, `statsmodels` in `requirements.txt`.  
-- [ ] T003 [P] Configure linting (ruff) and formatting tools in `pyproject.toml`.  
+- [X] T001 Create project directory structure for `code/`, `tests/`, `data/`, `docs/` as defined in `specs/001-llmxive-ale-extension/plan.md`.  
+- [X] T002 Initialize Python project with `llama-cpp-python`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `pytest`, `statsmodels` in `requirements.txt`.  
+- [X] T003 [P] Configure linting (ruff) and formatting tools in `pyproject.toml`.  
 
 ---
 
@@ -25,7 +25,7 @@
 - [ ] T004b Create `code/utils/verify_seed_pinning.py` script that scans the codebase for prohibited `random.seed`, `np.random.seed`, etc., and ensures they call `seeds.get_seed(task_id)`.  
   *Verification:* run script in CI; exit code 0 indicates compliance.  
 
-- [ ] T005 [P] Implement configuration loader in `code/utils/config.py` (model paths, checkpoint intervals).  
+- [X] T005 [P] Implement configuration loader in `code/utils/config.py` (model paths, checkpoint intervals).  
   *Verification:* unit test `tests/unit/test_config_loader.py` loads a sample YAML config and checks expected keys (`model_path`, `checkpoint_interval`).  
 
 - [ ] T006 Create base data structures for ExecutionTrace and FailureLabel in `code/data/generator.py`.  
