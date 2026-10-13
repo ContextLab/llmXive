@@ -1,4 +1,4 @@
-- artifact_hash: 1931e64186e204d03c16a3db2719523cf496884480b6ce2679d8e3ff36666c48
+- artifact_hash: 6a425bf3b5c1429e1b5e8ffbf6a620140c8fa4bc7987bc697b02410dff18c406
   artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx`
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx
-  verified_at: '2026-10-13T11:34:34.971601Z'
+  verified_at: '2026-10-13T11:39:46.167741Z'

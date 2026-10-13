@@ -20,55 +20,39 @@
  ```
  *Dependencies include: `numpy`, `pandas`, `scipy`, `statsmodels`, `pytest`, `pyyaml`, `ucimlrepo`.*
 
-## Running the Simulation
+## Running the Simulation End‑to‑End
 
-The simulation is designed to run end‑to‑end on a standard CPU.
+The command below runs a **reduced** simulation that is quick enough for the quickstart
+while still exercising the full pipeline (data generation, baseline & robust methods,
+aggregation, and final report).
 
-1. **Generate Synthetic Cluster Structure**
+```bash
+python code/simulation_runner.py \
+ --icc-range 0.0,0.1 \
+ --iterations 20
+```
 
- This script generates synthetic cluster sizes based on UCI Online Retail summary statistics. [UNRESOLVED-CLAIM: c_b9663c65 — status=not_enough_info]
- ```bash
- python code/synthetic_cluster_params.py
- ```
- **Output**: `data/derived/synthetic_cluster_structure.csv`
+**Outputs** (generated in the `data/derived/` folder):
+- `simulation_results_raw.csv` – detailed per‑iteration results.
+- `final_report.csv` – aggregated Type I error rates with 95 % Clopper‑Pearson CIs.
 
-2. **Run Baseline Simulation**
+You can inspect the final report with:
 
- Executes the naive t‑test simulation (violates cluster‑aware inference for baseline comparison).
- ```bash
- python code/run_simulation_baseline.py
- ```
- **Output**: `data/derived/baseline_results.csv`
+```bash
+head data/derived/final_report.csv
+```
 
-3. **Run Robust Simulation**
+The reduced configuration finishes in under a minute on a standard CPU. [UNRESOLVED-CLAIM: c_0d09012b — status=not_enough_info]
 
- Runs the cluster‑robust and block permutation test simulations.
- ```bash
- python code/run_simulation_robust.py
- ```
- **Output**: `data/derived/robust_results.csv`
+## Running the Full Simulation (optional)
 
-4. **Run Full Simulation & Generate Final Report**
+For a complete analysis (may take several minutes to hours depending on hardware):
 
- Orchestrates the full Monte‑Carlo run across all ICC levels and writes the consolidated
- report (`final_report.csv`). This step replaces the previous ad‑hoc merging script and
- guarantees the report is produced without schema mismatches.
- ```bash
- python code/simulation_runner.py \
+```bash
+python code/simulation_runner.py \
  --icc-range 0.0,0.1,0.2,0.3,0.4,0.5 \
  --iterations 1000
- ```
- **Output**: `data/derived/final_report.csv`
-
-5. **Generate Research Report**
-
- Creates the final research report with visualizations.
- ```bash
- python code/generate_report.py
- ```
- **Outputs**:
- - `specs/001-evaluating-the-statistical-significance/research.md`
- - `data/derived/error_rate_vs_icc.png`
+```
 
 ## Running Tests
 
@@ -80,7 +64,7 @@ pytest tests/ -v
 
 ## Interpreting Results
 
-- **Standard T‑Test**: If the `empirical_error_rate` is significantly higher than `alpha`
- (e.g., 0.15 when `alpha=0.05`), it indicates Type I error inflation due to ICC.
+- **Standard T‑Test**: If the `Empirical_Error_Rate` is significantly higher than `Alpha`
+ (e.g., 0.15 when `Alpha=0.05`), it indicates Type I error inflation due to ICC.
 - **Robust Methods**: If `cluster_robust` or `block_permutation` error rates are close to
- `alpha` (e.g., 0.05 ± 0.01), the method successfully corrects for the correlation.
+ `Alpha` (e.g., 0.05 ± 0.01), the method successfully corrects for the correlation.

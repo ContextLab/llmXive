@@ -1,9 +1,6 @@
 T001:
-  reason: "Checked `requirements.txt` (contains the required packages) and `quickstart.md`\
-    \ (lists commands but provides no execution logs). There is no evidence that `pip\
-    \ install -r requirements.txt` actually succeeded, nor proof that the documented\
-    \ command(s) run the full simulation end\u2011to\u2011end without error (e.g.,\
-    \ missing run logs or the expected final_report.csv)."
+  reason: 'Requested task execution failed; rerun successfully: code/simulation_runner.py
+    exit=1'
   task: ea3c46b31a4f0fa19a16446004dcee753f79cfa37076618d8fd6aff474d6eece
 T002:
   task: 7ad8e0c3386a41ab1e81ef8d49765d934aea66de2d7f00f2189c0bdd2ba671be

@@ -7,7 +7,7 @@
 
 ## Phase 0 – Foundational scaffolding (already completed)
 
-- [ ] T001 [P] [US1] Create project skeleton, add `requirements.txt` (numpy, scipy, pandas, statsmodels, pytest, pyyaml) and document the runnable command in `quickstart.md`.  
+- [ ] T001 [P] [US1] Create project skeleton, add `requirements.txt` (numpy, scipy, pandas, statsmodels, pytest, pyyaml) and document the runnable command in `quickstart.md`.   <!-- FAILED-IN-EXECUTION: code/simulation_runner.py exit=1 -->
   *Verification*: `pip install -r requirements.txt` succeeds; `quickstart.md` contains a command that runs the simulation end‑to‑end without error.
 
 - [X] T002 [P] [US1] Implement `code/config.py` with the full simulation schema, default values (`ICC_RANGE = [0.0,0.1,0.2,0.3,0.4,0.5]`, `ALPHA_LEVELS = [0.01,0.05,0.10]`, `N_CLUSTERS = 100`, `N_ITERATIONS = 1000`, `SEED = 42`) and validation helpers (`validate_config`, `validate_alpha_levels`).  

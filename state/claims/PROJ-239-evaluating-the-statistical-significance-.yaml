@@ -7014,3 +7014,18 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-13T11:34:33Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/quickstart.md
+  attempts: 1
+  canonical: reduced configuration finishes in under a minute on a standard CPU
+  claim_id: c_0d09012b
+  context: The reduced configuration finishes in under a minute on a standard CPU.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The reduced configuration finishes in under a minute on a standard CPU.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T11:39:44Z'
