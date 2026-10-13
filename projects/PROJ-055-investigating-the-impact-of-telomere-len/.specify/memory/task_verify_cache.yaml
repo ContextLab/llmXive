@@ -10,13 +10,14 @@ T002:
   sig: 4be5773bb346a2d9d04bd5309d73badf253b2800c458e6bd65b34fd566e9ec74
 T010:
   c: false
-  h: b4a78a006f3b3ea95646b3fca8e968e76405e6bd68728a811dd72212a2e12640
-  r: "Checked the `code/requirements.txt` file (376\u202Fbytes, contains the required\
-    \ pinned dependencies). While the file exists and is non\u2011empty, there is\
-    \ no provided evidence (e.g., command output, logs, or test results) showing that\
-    \ `pip install -r code/requirements.txt` actually succeeds in a fresh virtual\
-    \ environment. This verification step is required by the task."
-  sig: b8d295164ee1f8c14b0a33913d1db6784eae089598ae5bbcba5460374c99f16d
+  h: a6be57d4ebd3c8443b29072b7e09d6a20a3374994e209cbc1ce6275542d08105
+  r: "The `code/requirements.txt` file exists and is non\u2011empty, but there is\
+    \ no evidence that `pip install -r code/requirements.txt` succeeds in a fresh\
+    \ virtual environment. The provided pytest log fails because it looks for the\
+    \ file in the wrong location, and no successful installation run is recorded.\
+    \ A fresh\u2011env install test (or corrected test path) is needed to satisfy\
+    \ the task."
+  sig: 08f8a0948f5e9051fe2c781939d3bab60fb705ce6796d74ac44c7b58cba48516
 T011:
   c: false
   h: 1923b0195c003c41bc76489b012160ca02187f061b5e4d7910c835b84a80144f

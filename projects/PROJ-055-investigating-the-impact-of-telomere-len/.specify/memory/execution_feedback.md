@@ -61,8 +61,8 @@ ModuleNotFoundError: No module named 'rpy2'
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-055-investigating-the-impact-of-telomere-len/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/04_sensitivity.py': [Errno 2] No such file or directory
 
 - python code/05_visualize.py -> rc=1
-2026-10-13 20:34:01 - telomere_pipeline - INFO - Logging infrastructure initialized
-2026-10-13 20:34:01 - telomere_pipeline - INFO - Memory Status: RSS=164,827,136B, Threshold=6,442,450,944B, Exceeds: False
+2026-10-13 20:35:25 - telomere_pipeline - INFO - Logging infrastructure initialized
+2026-10-13 20:35:25 - telomere_pipeline - INFO - Memory Status: RSS=163,688,448B, Threshold=6,442,450,944B, Exceeds: False
 
 Unexpected error during plot generation: log_memory_status() missing 1 required positional argument: 'logger'
 Traceback (most recent call last):
