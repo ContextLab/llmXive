@@ -1,0 +1,34 @@
+T001:
+  reason: 'The ingest module, quickstart doc, and test file exist with correct logic,
+    but the recorded test run (`code/.tasks/T001.code_tests...log`) shows 4 of 5 tests
+    FAILED with `ImportError: pyarrow/fastparquet missing`, so the required verification
+    (tests covering valid inputs, missing file, and missing outcome column all passing)
+    is not satisfied. The implementer must add a parquet engine (e.g., `pyarrow`)
+    to the project''s pinned `requirements.txt` (or otherwise make the tests runnable
+    in the platform environment) and re-run the tests to green; there is also no execution
+    evidence of `python -m code'
+  task: 3293c8154d25becdd274dcd6fa0a5363b58f0e438e39748c7f9d300c9b324ef6
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/preprocess.py
+    exit=1'
+  task: 89356ae41f24b7b2db1e5d75a118f58cea639025629c2263445d1cfdeb202a8a
+T003:
+  task: 23140288dd2b2c620356e9e880d74c88d1c3fca972a712e9f8f33215cb679c50
+T004:
+  task: dc6eec9f1455a7cba252bf2d05a926f775cfee2baea7a9c2bc2a0fae723ec51c
+T005:
+  task: 1bc576b8038acd5301ad081b0de0a902e3ccc6f5f8ce125b4bb87861f02da2d4
+T006:
+  task: 64cc3e66021cc7b459542416539f6d36faa7208161e10fdc797e0752f8eb0940
+T007:
+  task: 2a4599f5e54a8cdd796131e307f744782b85a04096105dcb136571c2333c991b
+T008:
+  task: 9da7b100f4a037ccd7a74b080bed9e19664c76dbed6fc1df9df8e8b5c89c79c8
+T009:
+  task: cd668469ca5a5f3e5ff60081786d61a4ef851722dfd7e20e38bc46c36ba2edb2
+T010:
+  task: 9c79487f7ea670956d1a76fcaafe9edaef5df51ea43968ccbd3dfea40d4fc7c2
+T011:
+  task: 9f68e7b5d3b190565b7975d369bbeed25e8090335833a70d02d2960b33310a07
+T012:
+  task: a481c67627477f6bca394f1ff558b9aadf032272e2c544b72883c87ac4d8707b

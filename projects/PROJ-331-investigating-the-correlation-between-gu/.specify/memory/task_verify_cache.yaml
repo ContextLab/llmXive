@@ -1,0 +1,12 @@
+T001:
+  c: false
+  h: a49d2d846bb11eb88a391b6d827fb20fece26c035e25bb63b0a562da345048bb
+  r: 'The ingest module, quickstart doc, and test file exist with correct logic, but
+    the recorded test run (`code/.tasks/T001.code_tests...log`) shows 4 of 5 tests
+    FAILED with `ImportError: pyarrow/fastparquet missing`, so the required verification
+    (tests covering valid inputs, missing file, and missing outcome column all passing)
+    is not satisfied. The implementer must add a parquet engine (e.g., `pyarrow`)
+    to the project''s pinned `requirements.txt` (or otherwise make the tests runnable
+    in the platform environment) and re-run the tests to green; there is also no execution
+    evidence of `python -m code'
+  sig: 8ed476738ee17813d628e161d449243f14e4eb2307dfabbc44755bdf056947ba

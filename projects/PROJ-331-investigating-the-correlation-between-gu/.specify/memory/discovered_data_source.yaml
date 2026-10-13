@@ -1,17 +1,18 @@
 status: none
-intent: PPMI longitudinal microbiome ASV counts with clinical UPDRS scores downloadable
-  dataset python package dataset
+intent: PPMI Parkinson microbiome ASV dataset download clinical metadata UPDRS python
+  package dataset
 required_fields:
 - sample_id
 - patient_id
 - visit_date
-- timepoint
-- asv_counts_matrix (taxon rows, sample columns)
-- taxon_id (e.g., ASV or OTU identifier)
-- clinical_updrs_total_or_part_III
+- asv_id
+- asv_count
+- taxon
 - age
 - sex
 - levodopa_dose
-cache_key: 2416efd401b4456d2885e5b69e8fa4a49e663b2d2a795f98baedfd61249e1a32
-searched_at: '2026-10-13T02:42:56.754994+00:00'
+- updrs_total
+- mds_updrs_total
+cache_key: 1aa47fe898d126e3b199da26f59336cb114b71e5c28222a072502fb29db63341
+searched_at: '2026-10-13T03:04:34.495960+00:00'
 retry_count: 1
