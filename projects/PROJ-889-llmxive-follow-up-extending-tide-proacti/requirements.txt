@@ -1,19 +1,23 @@
-# Existing dependencies (implicitly available in the environment):
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional dependencies required for the project:
+# Core scientific stack (already available in the execution environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional packages required for T001
+datasets==2.20.0
+huggingface_hub==0.23.0
+
+# Packages required for later phases (present but not needed for this task)
 transformers==4.41.2
 torch==2.2.2
-datasets==2.20.0
+bitsandbytes==0.43.1
 radon==6.0.1
-scikit-learn==1.5.0
-statsmodels==0.14.2
-pandas==2.2.2
-numpy==1.26.4
-matplotlib==3.9.0
-#
-# Added to support real dataset download without pyarrow:
-huggingface_hub==0.22.2
-# bitsandbytes is required later for quantized LLMs (not needed for this task) 
-bitsandbytes==0.42.0
