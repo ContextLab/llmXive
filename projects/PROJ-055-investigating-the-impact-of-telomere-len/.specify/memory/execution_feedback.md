@@ -21,33 +21,11 @@ AttributeError: 'PosixPath' object has no attribute 'upper'
 
 - python code/02_ingest_data.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/02_ingest_data.py", line 13, in <module>
-    _config = get_config()
-              ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/config.py", line 133, in get_config
-    return init_config()
-           ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/config.py", line 118, in init_config
-    validate_config(env_vars)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/config.py", line 84, in validate_config
-    raise ConfigError(f"Missing or empty required configuration key: {key}")
-config.ConfigError: Missing or empty required configuration key: DRYAD_API_KEY
+No Dryad dataset IDs found. Exiting.
 
 - python code/03_clean_merge.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/03_clean_merge.py", line 14, in <module>
-    _config = get_config()
-              ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/config.py", line 133, in get_config
-    return init_config()
-           ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/config.py", line 118, in init_config
-    validate_config(env_vars)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/config.py", line 84, in validate_config
-    raise ConfigError(f"Missing or empty required configuration key: {key}")
-config.ConfigError: Missing or empty required configuration key: DRYAD_API_KEY
+No raw telomere CSV files found. Exiting.
 
 - python code/04_model_pglS.py -> rc=1
 
@@ -61,8 +39,8 @@ ModuleNotFoundError: No module named 'rpy2'
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-055-investigating-the-impact-of-telomere-len/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/04_sensitivity.py': [Errno 2] No such file or directory
 
 - python code/05_visualize.py -> rc=1
-2026-10-13 21:09:36 - telomere_pipeline - INFO - Logging infrastructure initialized
-2026-10-13 21:09:36 - telomere_pipeline - INFO - Memory Status: RSS=166,391,808B, Threshold=6,442,450,944B, Exceeds: False
+2026-10-13 22:08:06 - telomere_pipeline - INFO - Logging infrastructure initialized
+2026-10-13 22:08:06 - telomere_pipeline - INFO - Memory Status: RSS=166,531,072B, Threshold=6,442,450,944B, Exceeds: False
 
 Unexpected error during plot generation: log_memory_status() missing 1 required positional argument: 'logger'
 Traceback (most recent call last):
