@@ -1,1 +1,1 @@
-# llmXive Project 353: Test suite
+# Init for tests package

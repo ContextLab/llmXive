@@ -14,7 +14,7 @@
   - Add `code/verify_structure.py` that exits with code 0 only if **all** required directories exist; otherwise prints missing paths and exits 1.  
   - **Verification**: Run `python -m code.verify_structure` in CI; test asserts exit 0.  
 
-- [ ] T002 **Pin Python dependencies** – `requirements.txt` containing exact versions of `networkx`, `torch`, `scikit‑learn`, `lifelines`, `pandas`, `numpy`, `pytest`.  
+- [X] T002 **Pin Python dependencies** – `requirements.txt` containing exact versions of `networkx`, `torch`, `scikit‑learn`, `lifelines`, `pandas`, `numpy`, `pytest`.  
   - **Verification**: `pip install -r requirements.txt` succeeds in a fresh virtualenv (checked by CI).  
 
 - [ ] T003 **Core utilities** – implement `code/utils.py` with:  

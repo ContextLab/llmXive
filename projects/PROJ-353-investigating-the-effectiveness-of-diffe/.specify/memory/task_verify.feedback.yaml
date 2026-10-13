@@ -1,0 +1,51 @@
+T001:
+  reason: "The required `artifacts/` directory is not present in the project layout\
+    \ (it is absent from the listed root directories), so the directory structure\
+    \ does not fully meet the task\u2019s specification. All other required paths\
+    \ and the verification script exist, but the missing `artifacts/` folder prevents\
+    \ the task from being complete."
+  task: fb36c9d70b7588306c05274cbe8cd19686f3137d75ca9ab3a0578ce0fd73e379
+T002:
+  task: 47f9d1aa1878162d09cf97d97239e8475d84a2fc070fe89eb4922de1095ab6a8
+T003:
+  task: 1c47b311f52391ad3bcd6901145bef7f24fe44cce4264a9e968c6e58297f403b
+T004:
+  task: db42ec655960073204e89d7879a06542cfb418d47c83e8149d0ff68c715a4213
+T007:
+  task: 19956f82e032c5d476b1baa9fb3580949b6fc2fb8c83d07614f3ae37317c81f4
+T008:
+  task: a6f3cf06fba6ca8873c42ba675b13b54c226288f55d4b0b0cff228795669a063
+T009:
+  task: c8fa7dba286f345346c87c5e3a930de50fe742a7aa1b47239fb34bb255de37eb
+T010:
+  task: 09b2792b8bdfc44526efd7a35d56485de61f5466e527c27d3875dae7b3d2d76f
+T011:
+  task: 2a886b0240ff587fe5f61e414b94b7302a716c4c03ef9cbd7969eeddc532fb73
+T012:
+  task: 3bf6a1320156a01c7b41a522833fb9e77ca25c869a574991e6107124e9e81c62
+T013:
+  task: df9b1e6118bf2afd07055b8a7844d6923616ef0751bba321d7024effc0ebe310
+T014:
+  task: 16c5dcd86b1abd243737c0dd66e99a01d772f08f42ed42efceda851cf9b493ab
+T015:
+  task: 3ef77e0c82043c8f9d2a990e2b0c1d5a6f45edd9562ad234a88e9c164ba0b6d5
+T016:
+  task: 80aa19ad7a5855e39cadbb87535a305dfcc344c9f30fee0bc3b8f1b761ca2548
+T017:
+  task: a61f53af2cb58daafe5e18781cf61aa7ef666899c7e1e35ce240bac795cc3989
+T018:
+  task: 5393c6534d292c1752027cd6f928857189d7d2764ef9ecde3093b0f7e6596926
+T019:
+  task: 5471b2c58c722f2a0d5285278b6bdd61399366249d42d584aea7ab164395732f
+T020:
+  task: a3ec7a1cf26d44f0c1e107fac0cd87e71dfdb65fb20a7e47d05c9a7f9f5f88ae
+T021:
+  task: 38ca2e6e6eccbab30ec40df1b5e010a1876ede93d2e900abeb8eff09666393c9
+T022:
+  task: 476aa9d0338de2791735c85b89f74bfb3e3565d86b1b09a99b6e19608f84cf19
+T023:
+  task: 91b8526d440c4326df6982714f4a22f407212c0c377483a61a029bbb0ea41fd8
+T024:
+  task: 704cdc56d021a9dd230777128ecd4c9ca07194be2abaab1639ed29f7218a0c68
+T025:
+  task: bb1a62570174b90ec653e138a291747bb58f4f1fba8d9ff104877380e1b69e54
