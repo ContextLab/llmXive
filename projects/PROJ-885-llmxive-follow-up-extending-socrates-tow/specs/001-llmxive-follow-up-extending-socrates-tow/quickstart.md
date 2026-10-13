@@ -1,74 +1,72 @@
 # Quickstart: llmXive Follow-up: Dynamic Socio-Cognitive State Injection
 
 ## 1. Prerequisites
-- Python 3.11+
-- 7 GB RAM available
-- Internet access (for dataset download)
+- Python 3.11 or newer  
+- ≥ 7 GB RAM, ≥ 2 vCPU (GitHub Actions free tier)  
+- Internet access for dataset download  
 
 ## 2. Installation
-
 ```bash
-# Clone and enter project
+# Clone the repository (already done in CI)
 cd projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/code/
 
-# Create virtual environment
+# Create and activate a virtual environment
 python -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# Install exact dependencies
 pip install -r requirements.txt
 ```
 
-## 3. Data Download
-The system automatically downloads the SoCRATES dataset on first run. To pre-fetch:
-
+## 3. Data Download & Generation
 ```bash
-python src/data/generate_trajectories.py --download-only
+# Download SoCRATES prompts (streaming) and generate oversampled trajectories
+python src/data/generate_trajectories.py --download-only   # creates data/raw/
+python src/data/generate_trajectories.py --oversample-high-difficulty --num-trajectories 120
 ```
-*Output: `data/raw/socrates_prompts.parquet` (Checksum verified).*
+*Outputs:*  
+- `data/raw/socrates_prompts.parquet` (checksum verified)  
+- `data/processed/filtered_trajectories.jsonl` (experiment set, ≥ 40 % high‑difficulty)  
+- `data/processed/generation_stats.json` (total count, oversampling ratio)  
+- `data/results/oversampling_report.json` (must show ≥ 40 % high‑difficulty)  
 
-## 4. Running the Pipeline
-
-### Step 1: Generate Filtered Dataset
+## 4. Train the State Classifier
 ```bash
-python src/data/generate_trajectories.py --oversample-high-difficulty
-```
-*Output: `data/processed/filtered_trajectories.jsonl`.*
+# Split the dataset into training and experiment subsets
+python src/data/split_dataset.py --train-ratio 0.6
 
-### Step 2: Train State Classifier
-```bash
+# Train the logistic‑regression classifier on the training split
 python src/data/classifier_training.py
 ```
-*Output: `models/state_classifier.pkl`.*
+*Outputs:* `models/state_classifier.pkl` and `data/results/feature_independence_audit.json`.
 
-### Step 3: Run Experiments (CPU Only)
+## 5. Run the Full Experiment (CPU‑Only)
 ```bash
-python src/experiments/runner.py --models llama-3-8b,mistral-7b --conditions adapter,static
+python src/experiments/runner.py \
+  --models llama-3-8b,mistral-7b,gemma-2b,phi-2b,openchat-3.5,starling-7b,qwen-7b,gemma-7b \
+  --conditions adapter,static \
+  --batch-size 4
 ```
-*Output: `data/results/experiment_logs/`.*
+*Outputs:* `data/results/experiment_logs/<model_name>/<condition>.jsonl` and `data/results/scope_adjustments.json`.
 
-### Step 4: Statistical Analysis
+## 6. Statistical Analysis
 ```bash
 python src/analysis/stats_utils.py
 ```
-*Output: `data/results/statistical_report.json`.*
+*Outputs:* `data/results/statistical_report.json`, `data/results/threshold_sensitivity_report.json`.
 
-## 5. Validation & Verification
-
-### Validate Quickstart
-Run the validation script to ensure end-to-end reproducibility:
+## 7. Validation & Verification
 ```bash
-python tests/integration/test_quickstart_validation.py
+# End‑to‑end integration test
+python tests/integration/test_full_pipeline.py
 ```
-*Expected Output*: `data/results/quickstart_validation_log.txt` containing "SUCCESS".
+*Expected:* The test completes without error, confirming the pipeline runs end‑to‑end.
 
-### Verify Schemas
-Ensure all output files match the contracts:
-```bash
-pytest tests/contract/test_schemas.py
-```
+## 8. Troubleshooting
+- **Out‑of‑Memory**: Reduce `--batch-size` or drop the largest model from `--models`.  
+- **CUDA Error**: Ensure `device="cpu"` is enforced; the runner will abort if any CUDA import is detected.  
+- **Oversampling Failure**: Check `data/results/oversampling_report.json`; regenerate with a different random seed (`--seed <int>`).  
+- **Low Confidence Excess**: Review `data/results/threshold_sensitivity_report.json` to see how many neutral‑monitoring runs were produced.
 
-## 6. Troubleshooting
-- **OOM Error**: Reduce `--batch-size` in `runner.py` or exclude larger models.
-- **CUDA Error**: Ensure `device="cpu"` is set in `transformers` config (enforced by script).
-- **Missing Data**: Check `data/raw/` checksums against `state/...yaml`.
+---
+

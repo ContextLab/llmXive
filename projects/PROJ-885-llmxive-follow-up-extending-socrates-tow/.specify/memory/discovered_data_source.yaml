@@ -1,15 +1,15 @@
 status: none
-intent: SoCRATES conflict dialogue generation dataset with emotional reactivity cultural
-  identity python package
+intent: conflict dialogue trajectories dataset with emotional reactivity and cultural
+  identity SoCRATES python package dataset
 required_fields:
 - trajectory_id
-- dialogue_turns
+- dialogue_id
+- turn_number
 - speaker_id
 - utterance_text
 - emotional_reactivity_label
 - cultural_identity_label
 - conflict_intensity_score
-- timestamp
-cache_key: 02c6b4070061a9c413c8b0c69bc483bda54a11a635ae97ab204ffc387271af2a
-searched_at: '2026-07-31T13:10:53.924674+00:00'
+cache_key: 71d98b5f923559f2f311edb5e92ad63b8f18925232b29daf68371898b7b3fc4a
+searched_at: '2026-10-13T06:26:55.869764+00:00'
 retry_count: 1
