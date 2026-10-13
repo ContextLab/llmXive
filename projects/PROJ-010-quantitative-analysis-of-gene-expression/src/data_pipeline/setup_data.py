@@ -12,7 +12,7 @@ actions required by task **T001**:
    series (``GSE131928`` – a human fetal brain scRNA‑seq dataset) can be
    reached over HTTP.
 3. **Checksum generation & state recording** – downloads a small,
-   public scRNA‑seq file (the 3 k PBMC dataset from Scanpy) into
+   real scRNA‑seq file (the 3 k PBMC dataset from Scanpy) into
    ``data/raw/``, computes SHA‑256 digests for every file under that
    directory and writes a ``project_state.yaml`` file that records the
    timestamp, GEO accessibility flag and the checksum map.
@@ -25,6 +25,7 @@ import hashlib
 import yaml
 import datetime
 import requests
+import scanpy as sc
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -33,9 +34,6 @@ log = get_logger(__name__)
 # Constants – these are the real identifiers used for verification.
 # ----------------------------------------------------------------------
 GEO_ACCESSION = "GSE131928"  # Human fetal brain scRNA‑seq atlas (public)
-RAW_DATA_URL = (
-    "https://raw.githubusercontent.com/scverse/scanpy_usage/master/data/pbmc3k.h5ad"
-)
 RAW_FILENAME = "pbmc3k.h5ad"
 
 # ----------------------------------------------------------------------
@@ -91,13 +89,10 @@ def _download_raw_dataset(dest_path):
     ``data/raw/``.  The file is modest (~12 MB) and suitable for checksum
     generation.
     """
-    log.info("Downloading raw dataset from %s", RAW_DATA_URL)
-    response = requests.get(RAW_DATA_URL, stream=True, timeout=30)
-    response.raise_for_status()
-    with open(dest_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
+    log.info("Downloading PBMC 3k dataset via Scanpy")
+    # Scanpy provides a reliable downloader for this dataset.
+    adata = sc.datasets.pbmc3k()
+    adata.write_h5ad(dest_path)
     log.info("Raw dataset saved to %s", dest_path)
 
 # ----------------------------------------------------------------------

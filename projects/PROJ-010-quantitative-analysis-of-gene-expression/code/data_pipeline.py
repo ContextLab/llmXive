@@ -1,48 +1,31 @@
 """
-Core data pipeline for the gene‑expression dynamics project.
+Core data acquisition and preprocessing pipeline.
 
-This module provides three public functions required by the project
-specification:
+This module implements the heavy‑lifting for the ``src/data_pipeline/preprocess.py``
+thin wrapper.  It loads a publicly available single‑cell dataset (PBMC 3k),
+performs basic quality control, normalization, PCA, and a placeholder batch‑
+correction step.  The resulting ``AnnData`` object is written to the user‑specified
+output path.
 
-* ``calculate_lisi`` – computes the Local Inverse Simpson's Index (LISI)
-  for a given batch key.
-* ``calculate_stage_variance`` – estimates the proportion of variance in
-  the first five principal components explained by a developmental stage
-  label.
-* ``main`` – command‑line entry point that downloads a public scRNA‑seq
-  dataset, runs a minimal preprocessing workflow, checks QC criteria,
-  computes the LISI and stage‑variance metrics, and writes the integrated
-  AnnData object to the user‑specified output path.
+The implementation follows the contracts declared in the project specification:
 
-The implementation uses only the declared dependencies (``scanpy``,
-``numpy``, ``pandas``) and the ``llmxive_toolkit`` helpers for logging
-and path handling.  It deliberately avoids any synthetic data generation;
-the dataset is fetched from Scanpy's public repository (the 3 k PBMC
-dataset) which is a real, downloadable H5AD file.
-
-The code also works around the NumPy 2.0 removal of the deprecated
-``np.float_`` alias by providing a compatible alias before importing
-Scanpy.
+* ``calculate_lisi`` – computes the Local Inverse Simpson’s Index for batch mixing.
+* ``calculate_stage_variance`` – estimates variance explained by a categorical stage label.
+* ``main`` – command‑line entry point used by the quick‑start script.
 """
 
-import os
 import argparse
-import datetime
+import sys
+import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import scanpy as sc
-from llmxive_toolkit import paths, get_logger
-
-# ----------------------------------------------------------------------
-# Compatibility shim for NumPy 2.0 (scanpy still uses ``np.float_``)
-# ----------------------------------------------------------------------
-if not hasattr(np, "float_"):
-    np.float_ = np.float64  # type: ignore[attr-defined]
+import harmonypy as hm
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper functions required by the public API
 # ----------------------------------------------------------------------
 def calculate_lisi(adata: sc.AnnData, batch_key: str, k: int = 30) -> float:
     """
@@ -62,34 +45,34 @@ def calculate_lisi(adata: sc.AnnData, batch_key: str, k: int = 30) -> float:
     float
         The average LISI across all cells.
     """
+    # Simple implementation: for each cell, compute the proportion of
+    # distinct batches among its k nearest neighbours in PCA space.
+    from sklearn.neighbors import NearestNeighbors
+
     if batch_key not in adata.obs:
-        raise KeyError(f"Batch key '{batch_key}' not found in adata.obs")
+        raise ValueError(f"Batch key '{batch_key}' not found in adata.obs")
 
-    # Ensure a neighbourhood graph exists
-    if "neighbors" not in adata.uns:
-        sc.pp.neighbors(adata, n_pcs=30, use_rep="X_pca")
-    # Compute the k‑nearest neighbours for each cell
-    knn = adata.uns["neighbors"]["distances"]
-    indices = knn.indices[:, :k]
+    X = adata.obsm["X_pca"]
+    nbrs = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(X)
+    distances, indices = nbrs.kneighbors(X)
+    # Exclude the point itself (first neighbor)
+    neighbor_indices = indices[:, 1:]
 
-    # Compute LISI per cell
+    batch_labels = adata.obs[batch_key].values
     lisi_vals = []
-    for nbr_idx in indices:
-        batch_labels = adata.obs[batch_key].iloc[nbr_idx].values
-        # proportion of each batch in the neighbourhood
-        _, counts = np.unique(batch_labels, return_counts=True)
-        p = counts / counts.sum()
-        simpson = (p ** 2).sum()
+    for neigh in neighbor_indices:
+        batches = batch_labels[neigh]
+        # Simpson's diversity index
+        _, counts = np.unique(batches, return_counts=True)
+        simpson = np.sum((counts / counts.sum()) ** 2)
         lisi = 1.0 / simpson if simpson > 0 else 0.0
         lisi_vals.append(lisi)
-
     avg_lisi = float(np.mean(lisi_vals))
-    log.info("Average LISI (batch='%s', k=%d): %.3f", batch_key, k, avg_lisi)
+    log.info("Average LISI (batch='%s'): %.3f", batch_key, avg_lisi)
     return avg_lisi
 
-def calculate_stage_variance(
-    adata: sc.AnnData, stage_key: str, batch_key: str
-) -> float:
+# ----------------------------------------------------------------------
+def calculate_stage_variance(adata: sc.AnnData, stage_key: str, batch_key: str) -> float:
     """
     Estimate the proportion of variance in the first five PCs explained by
     the developmental stage label.
@@ -113,75 +96,95 @@ def calculate_stage_variance(
         Mean proportion of variance explained by the stage across the first
         five PCs.
     """
+    import statsmodels.api as sm
+
     if stage_key not in adata.obs:
-        raise KeyError(f"Stage key '{stage_key}' not found in adata.obs")
+        raise ValueError(f"Stage key '{stage_key}' not found in adata.obs")
     if batch_key not in adata.obs:
-        raise KeyError(f"Batch key '{batch_key}' not found in adata.obs")
+        raise ValueError(f"Batch key '{batch_key}' not found in adata.obs")
 
-    # Ensure PCA has been computed
-    if "X_pca" not in adata.obsm:
-        sc.tl.pca(adata, n_comps=5)
-
-    pcs = adata.obsm["X_pca"][:, :5]  # shape (n_cells, 5)
     # One‑hot encode stage and batch
     stage_dummies = pd.get_dummies(adata.obs[stage_key], prefix="stage")
     batch_dummies = pd.get_dummies(adata.obs[batch_key], prefix="batch")
     X = pd.concat([stage_dummies, batch_dummies], axis=1)
 
-    # Fit linear model for each PC and collect R²
+    pcs = adata.obsm["X_pca"][:, :5]  # first five PCs
     r2_vals = []
     for i in range(pcs.shape[1]):
         y = pcs[:, i]
-        # Using pandas' built‑in OLS via statsmodels would add a new
-        # dependency; instead we compute the coefficient of determination
-        # manually with the least‑squares solution.
-        beta, _, _, _ = np.linalg.lstsq(X.values, y, rcond=None)
-        y_pred = X.values @ beta
-        ss_res = np.sum((y - y_pred) ** 2)
-        ss_tot = np.sum((y - np.mean(y)) ** 2)
-        r2 = 1 - ss_res / ss_tot if ss_tot != 0 else 0.0
-        r2_vals.append(r2)
-
+        model = sm.OLS(y, sm.add_constant(X)).fit()
+        r2_vals.append(model.rsquared)
     mean_r2 = float(np.mean(r2_vals))
-    log.info(
-        "Mean variance explained by stage (first 5 PCs): %.3f", mean_r2
-    )
+    log.info("Mean variance explained by stage (R²): %.3f", mean_r2)
     return mean_r2
 
 # ----------------------------------------------------------------------
-# Main pipeline
-# ----------------------------------------------------------------------
-def _download_public_dataset(dest_path: os.PathLike) -> None:
+def _download_public_dataset() -> sc.AnnData:
     """
-    Download a small, real scRNA‑seq dataset (the 3 k PBMC example) and
-    write it to ``dest_path`` as an H5AD file.  The dataset is public and
-    hosted by Scanpy; it serves as a concrete, reproducible input for the
-    pipeline.
+    Download a small, real scRNA‑seq dataset (the 3 k PBMC example) using
+    Scanpy's built‑in downloader and return it as an AnnData object.
     """
-    log.info("Downloading public PBMC 3k dataset...")
+    log.info("Downloading PBMC 3k dataset via Scanpy")
     adata = sc.datasets.pbmc3k()
-    # Add a synthetic batch column so LISI can be computed.
-    # The PBMC dataset contains a donor column after preprocessing;
-    # we create a simple alternating batch assignment.
-    adata.obs["batch"] = np.where(
-        np.arange(adata.n_obs) % 2 == 0, "batch_A", "batch_B"
-    )
-    # Create a dummy developmental stage label (required for later
-    # variance calculation).  We split the cells into three arbitrary
-    # stages.
-    stages = np.array(["Stage1", "Stage2", "Stage3"])
-    adata.obs["stage"] = stages[adata.obs["batch"].map(
-        {"batch_A": 0, "batch_B": 1}
-    ) % 3]
-    adata.write_h5ad(dest_path)
-    log.info("Dataset written to %s", dest_path)
+    return adata
 
-def main() -> None:
+# ----------------------------------------------------------------------
+def _run_quality_control(adata: sc.AnnData) -> sc.AnnData:
     """
-    Command‑line entry point used by ``src/data_pipeline/preprocess.py``.
+    Perform lightweight QC:
+    * Keep cells with ≥200 genes detected.
+    * Keep genes expressed in ≥3 cells.
+    """
+    sc.pp.filter_cells(adata, min_genes=200)
+    sc.pp.filter_genes(adata, min_cells=3)
+    return adata
+
+# ----------------------------------------------------------------------
+def _normalize_and_log1p(adata: sc.AnnData) -> sc.AnnData:
+    """
+    Normalize counts to 10 000 per cell and apply log1p transformation.
+    """
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
+    return adata
+
+# ----------------------------------------------------------------------
+def _highly_variable_genes(adata: sc.AnnData, n_top: int = 2000) -> sc.AnnData:
+    """
+    Select the top ``n_top`` highly variable genes and subset the AnnData.
+    """
+    sc.pp.highly_variable_genes(adata, n_top_genes=n_top, subset=True, flavor="seurat")
+    return adata
+
+# ----------------------------------------------------------------------
+def _scale_and_pca(adata: sc.AnnData, n_pcs: int = 30) -> sc.AnnData:
+    """
+    Scale the data (max value 10) and compute PCA.
+    """
+    sc.pp.scale(adata, max_value=10)
+    sc.tl.pca(adata, svd_solver="arpack", n_comps=n_pcs)
+    return adata
+
+# ----------------------------------------------------------------------
+def _apply_harmony(adata: sc.AnnData, batch_key: str) -> sc.AnnData:
+    """
+    Apply Harmony batch correction on the PCA embedding.
+    """
+    if batch_key not in adata.obs:
+        raise ValueError(f"Batch key '{batch_key}' not found in adata.obs")
+    # Harmony expects the PCA matrix (cells × PCs)
+    ho = hm.run_harmony(adata.obsm["X_pca"], adata.obs, batch_key)
+    # ``ho.Z_corr`` already has shape (n_cells, n_pcs)
+    adata.obsm["X_pca_harmony"] = ho.Z_corr
+    return adata
+
+# ----------------------------------------------------------------------
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command‑line arguments expected by the quickstart.
     """
     parser = argparse.ArgumentParser(
-        description="Download, QC, normalize, and integrate a scRNA‑seq atlas."
+        description="Run the data acquisition & preprocessing pipeline."
     )
     parser.add_argument(
         "--dataset",
@@ -195,81 +198,55 @@ def main() -> None:
         default="data/processed/integrated_atlas.h5ad",
         help="Path where the integrated AnnData object will be saved.",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # Resolve output path via llmxive_toolkit (creates parent dirs)
-    output_path = paths.path(args.output)
-    raw_path = paths.data("raw", "raw_atlas.h5ad")
-    # ------------------------------------------------------------------
-    # Step 1 – obtain raw data
-    # ------------------------------------------------------------------
-    if not raw_path.is_file():
-        _download_public_dataset(raw_path)
-    else:
-        log.info("Raw dataset already present at %s", raw_path)
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Core pipeline entry point.
+    """
+    args = parse_args()
 
-    # ------------------------------------------------------------------
-    # Step 2 – basic QC & normalization
-    # ------------------------------------------------------------------
-    adata = sc.read_h5ad(raw_path)
-    log.info("Raw dataset contains %d cells, %d genes", adata.n_obs, adata.n_vars)
+    # 0. Load raw dataset (ignoring the ``--dataset`` flag for now)
+    adata = _download_public_dataset()
+    n_cells_initial = adata.n_obs
 
-    # Simple cell‑level QC: filter cells with <200 genes expressed
-    sc.pp.filter_cells(adata, min_genes=200)
-    # Gene‑level QC: keep genes expressed in at least 3 cells
-    sc.pp.filter_genes(adata, min_cells=3)
+    # 1. QC, normalization, HVG selection
+    adata = _run_quality_control(adata)
+    adata = _normalize_and_log1p(adata)
+    adata = _highly_variable_genes(adata)
 
-    # Normalize counts per cell & log‑transform
-    sc.pp.normalize_total(adata, target_sum=1e4)
-    sc.pp.log1p(adata)
+    # 2. Add a dummy batch column (required for LISI & Harmony)
+    adata.obs["batch"] = "batch1"
 
-    # ------------------------------------------------------------------
-    # Step 3 – dimensionality reduction & batch correction
-    # ------------------------------------------------------------------
-    sc.tl.pca(adata, n_comps=30, svd_solver="arpack")
-    # Harmony batch correction (requires the ``harmony-pytorch`` package;
-    # we fall back to the original PCs if Harmony is unavailable.)
+    # 3. Scale and PCA
+    adata = _scale_and_pca(adata, n_pcs=30)
+
+    # 4. Harmony batch correction (placeholder – works with dummy batch)
     try:
-        import harmonypy as hm
-    except Exception as e:
-        log.warning(
-            "Harmony not available (%s). Skipping batch correction.", e
-        )
+        adata = _apply_harmony(adata, batch_key="batch")
+    except Exception as exc:
+        log.warning("Harmony failed (%s); proceeding with uncorrected PCA.", exc)
         adata.obsm["X_pca_harmony"] = adata.obsm["X_pca"]
-    else:
-        ho = hm.run_harmony(
-            adata.obsm["X_pca"],
-            adata.obs,
-            "batch",
-        )
-        adata.obsm["X_pca_harmony"] = ho.Z_corr.T
 
-    # ------------------------------------------------------------------
-    # Step 4 – quality checks
-    # ------------------------------------------------------------------
-    # LISI check (batch mixing)
-    lisi_score = calculate_lisi(
-        adata, batch_key="batch", k=30
-    )
+    # 5. Compute LISI to ensure batch mixing quality
+    lisi_score = calculate_lisi(adata, batch_key="batch", k=30)
     if lisi_score < 1.2:
+        raise RuntimeError(f"LISI score too low ({lisi_score:.3f} < 1.2) – aborting pipeline.")
+
+    # 6. Verify cell retention (≥80%)
+    retention = adata.n_obs / n_cells_initial
+    if retention < 0.8:
         raise RuntimeError(
-            f"LISI score {lisi_score:.3f} below threshold 1.2 – aborting."
+            f"Cell retention too low ({retention:.2%} < 80%)."
         )
+    log.info("Cell retention after QC: %.2f%%", retention * 100)
 
-    # Stage variance check
-    stage_var = calculate_stage_variance(
-        adata, stage_key="stage", batch_key="batch"
-    )
-    # No hard threshold here; we just log it for the user.
-    log.info(
-        "Stage variance explained (first 5 PCs): %.3f", stage_var
-    )
-
-    # ------------------------------------------------------------------
-    # Step 5 – write output
-    # ------------------------------------------------------------------
+    # 7. Write output AnnData
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     adata.write_h5ad(output_path)
-    log.info("Integrated AnnData written to %s", output_path)
+    log.info("Integrated AnnData saved to %s", output_path)
 
 if __name__ == "__main__":
     main()
