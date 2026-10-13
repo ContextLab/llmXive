@@ -1,19 +1,19 @@
 status: none
-intent: download LLM code detection dataset Python JavaScript GitHub GHTorrent python
+intent: GHTorrent Python JavaScript active repo metadata with LLM code labels python
   package dataset
 required_fields:
+- repository_id
 - repository_name
-- repository_url
-- language
+- owner
+- primary_language
 - stars
-- recent_commit_count
+- forks
+- watchers
+- last_commit_date
+- commits_last_90_days
+- code_block_id
 - file_path
 - start_line
-- end_line
-- code_snippet
-- label
-- confidence_score
-- cyclomatic_complexity
-cache_key: 68d3f4ec3e5faa6db89a3c377e3e19f40ae74142b02b4a6d43c9e030a7427a58
-searched_at: '2026-10-13T00:34:56.751856+00:00'
+cache_key: 6ab588ce48c61c3256f8ea14371b12f0afd290af67b989d668392596fd81612b
+searched_at: '2026-10-13T00:38:33.573004+00:00'
 retry_count: 1
