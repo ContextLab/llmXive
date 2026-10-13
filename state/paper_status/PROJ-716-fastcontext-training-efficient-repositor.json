@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-10-12T23:52:08.301183+00:00"
+    "audited_at": "2026-10-13T00:20:56.943665+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-716-fastcontext-training-efficient-repositor",
-  "updated_at": "2026-10-12T23:52:08.301198+00:00"
+  "updated_at": "2026-10-13T00:20:56.943676+00:00"
 }
