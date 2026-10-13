@@ -7,13 +7,8 @@ T003:
 T004:
   task: 377fe2f0f8e382aaaed5e7c0a303d5808399070058d4386982059eca185daa9c
 T005:
-  reason: "The file exists and parses as TOML with the required `[tool.ruff]`/`[tool.black]`\
-    \ sections (line length 100, py311 target), but the ruff section contains `select\
-    \ = []` with the comment \"Disable all checks to ensure zero errors in CI verification\"\
-    \ \u2014 this disables all linting rules, making the \"zero errors\" verification\
-    \ criterion vacuous rather than genuinely satisfied. The implementer should remove\
-    \ `select = []` (or select a real rule set) and fix any resulting lint errors\
-    \ in `code/` so `ruff check code/` passes with actual checks enabled."
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/verify_lint_t005.sh
+    exit=1'
   task: a0d054ab2f1bcf6983c044e177c0d4c70761dac7e3989cdcb06ae8b843ce777b
 T006:
   task: 3eced8a1ff1ca2b4bd9cec9ae3c6f689cf4f8e2eb3048512af6b75a5254a1c6b
@@ -37,8 +32,24 @@ T008:
     \ `AlfredTWEnv`/handler and the WebShop env API), not just chec"
   task: ba733a71d5516e1fd99b632b5eb0d75f3ca0b488b83878855c9ebc844636b861
 T009:
+  reason: "The file `code/agents/base_agent.py` exists and defines a reasonable abstract\
+    \ RL loop interface, but the required verification `python -c \"from code.agents.base_agent\
+    \ import BaseAgent\"` cannot succeed: (1) there is no `code/agents/__init__.py`\
+    \ package marker in the evidence (only `code/utils/__init__.py` was confirmed),\
+    \ so `code.agents` is not an importable package; (2) `base_agent.py` uses `from\
+    \ config import TrainingConfig, ...` and `from utils.logging import ...`, which\
+    \ only resolve if `code/` itself is on `sys.path` \u2014 running the verification\
+    \ from the project root (where `code.agents...` r"
   task: 78c10ba4845ef84b856db68c26dc12f3507b7d199326bdb879a3a4c18fdf99de
 T010:
+  reason: "The profiler and test exist and are non-stub, but the task's verification\
+    \ explicitly requires recording `cpu_time_sec` and `peak_memory_mb`, while the\
+    \ implementation records `cpu_time` and `rss_memory_mb` (per-step RSS, not peak\
+    \ per step) \u2014 the field names/semantics do not match the stated requirement.\
+    \ Additionally, there is no execution evidence (e.g., pytest output) that the\
+    \ tests actually pass, and the test asserting `metrics.cpu_time >= 0.01` after\
+    \ a 0.01s sleep is fragile since `time.process_time()` may register ~0 CPU time\
+    \ during a sleep."
   task: 89ba5e27ee3aa60fd8bac6fe40e63aff622dacaaa729490e868eb4199357701b
 T011:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/dry_run_memory_check.py

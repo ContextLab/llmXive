@@ -6,7 +6,6 @@ singleton logger management.
 """
 import json
 import csv
-import os
 from datetime import datetime
 from typing import Any, Dict
 from pathlib import Path

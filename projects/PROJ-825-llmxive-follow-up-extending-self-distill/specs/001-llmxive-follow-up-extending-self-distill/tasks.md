@@ -25,7 +25,7 @@
   The corrupted placeholder entry `pytest>=7.0.0 (pi, https://en.wikipedia.org/wiki/Pi)` is removed.  
   **Verification**: `pip install -r code/requirements.txt` succeeds, and `grep -c "claim:" code/requirements.txt` returns `0`.
 
-- [ ] T005 [P] Create real linting/formatting configuration artifacts: `code/pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections (line length 100, target Python 3.11).  
+- [ ] T005 [P] Create real linting/formatting configuration artifacts: `code/pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections (line length 100, target Python 3.11).   <!-- FAILED-IN-EXECUTION: code/scripts/verify_lint_t005.sh exit=1 -->
   **Verification**: file exists, parses as valid TOML, and `ruff check code/` runs with zero errors (ruff installed via T004).  
 
 - [X] T006 [P] Configure `code/config.py` (seeds, hyperparameters, variant flags).  
@@ -37,10 +37,10 @@
 - [ ] T008 [P] Set up environment wrappers `code/environments/alfworld_env.py` and `code/environments/webshop_env.py` using pip‑installable packages; loaders fail loudly on fetch errors (no synthetic fallback).  
   **Verification**: importing each wrapper raises an exception if the underlying package cannot be imported; no try/except fallback to mock data.
 
-- [~] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface.  
+- [ ] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface.  
   **Verification**: `python -c "from code.agents.base_agent import BaseAgent"` imports without error; a minimal subclass passes a sanity‑check run.
 
-- [~] T010 Set up cost profiling utility `code/metrics/cost_profiler.py` tracking CPU time and RSS memory per step.  
+- [ ] T010 Set up cost profiling utility `code/metrics/cost_profiler.py` tracking CPU time and RSS memory per step.  
   **Verification**: `code/tests/test_cost_profiler.py` asserts that the profiler records `cpu_time_sec` and `peak_memory_mb` for a dummy loop.
 
 - [ ] T011 [P] [US1] REDO (verifier‑rejected): create `code/scripts/dry_run_memory_check.py` that (a) loads Qwen2.5‑1.7B 8‑bit quantized via `transformers` (`load_in_8bit=True`), (b) loads the quantized `sentence‑transformers/all‑MiniLM‑L6‑v2` retriever, (c) runs one real forward pass through each, and (d) records peak RSS memory (via `psutil`) to `data/processed/memory_dry_run.json`.   <!-- FAILED-IN-EXECUTION: code/scripts/dry_run_memory_check.py exit=1 -->

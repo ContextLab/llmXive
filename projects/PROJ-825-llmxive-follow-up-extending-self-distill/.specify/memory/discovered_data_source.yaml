@@ -1,14 +1,14 @@
 status: none
-intent: ALFWorld and WebShop environments dataset download python package dataset
+intent: Download ALFWorld and WebShop environment datasets as pip installable python
+  package dataset
 required_fields:
 - episode_id
-- step
-- observation
-- action
+- step_index
+- observation_text
+- action_text
 - reward
-- done
-- info
-- environment_name
-cache_key: 089a97eea3ab611ce96516dd70ceecab2067739f5fbda86b1b921c03898a8992
-searched_at: '2026-10-13T08:39:15.653066+00:00'
+- done_flag
+- task_name
+cache_key: 2fe0b917ffb6e17ebae5127abadd9113355f0029fc6fa6b0c764308859959c9b
+searched_at: '2026-10-13T08:46:13.084453+00:00'
 retry_count: 1

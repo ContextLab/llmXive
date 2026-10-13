@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: 4a4589d2eab8d8fc3d3b8fd82eb617fc2758f3aeb8805e2a3907b6c606f07acf
-  r: 'All required directories exist and are non-empty: `code/agents/`, `code/environments/`,
-    `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/` (each with `__init__.py`
-    and additional files), `code/config.py` (5.8KB of real configuration code), and
-    `data/` plus `data/processed/` (with `.gitkeep` and run artifacts). The structure
-    matches the task''s stated requirements.'
-  sig: 51ebb4a34e8fcd5d85a1ec5347e052377e9e2c47cd4dc9a33391d07c02f86e2c
+  h: 6e90996022872ca91aec151fc18ad07953ff917738de36fe0a1255a75dceed9a
+  r: 'All required paths exist and are non-empty: `code/` with `agents/`, `environments/`,
+    `metrics/`, `utils/`, `tests/`, `models/` subdirectories (each containing files),
+    a substantive 5813-byte `code/config.py` with real configuration content, and
+    `data/` with `data/processed/` present. The structure matches the task''s stated
+    requirements.'
+  sig: 7934ae2e678e4c6ba47ac5842628b8ff0b8612126ad01ac272e166b1e3ed959c
 T004:
   c: true
   h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c
@@ -63,6 +63,29 @@ T008:
     \ to genuinely construct and drive the underlying environments (e.g., alfworld's\
     \ `AlfredTWEnv`/handler and the WebShop env API), not just chec"
   sig: 9964b232455a9408222b11a4fa6a156d292627523116148527fa51a0ee0a0326
+T009:
+  c: false
+  h: bfac9f2149ee8af4f57eb50ff96760cd521d5f5ffccb072cc407ba1d7ae05f8c
+  r: "The file `code/agents/base_agent.py` exists and defines a reasonable abstract\
+    \ RL loop interface, but the required verification `python -c \"from code.agents.base_agent\
+    \ import BaseAgent\"` cannot succeed: (1) there is no `code/agents/__init__.py`\
+    \ package marker in the evidence (only `code/utils/__init__.py` was confirmed),\
+    \ so `code.agents` is not an importable package; (2) `base_agent.py` uses `from\
+    \ config import TrainingConfig, ...` and `from utils.logging import ...`, which\
+    \ only resolve if `code/` itself is on `sys.path` \u2014 running the verification\
+    \ from the project root (where `code.agents...` r"
+  sig: 544fbff6f4b4b0fccd9854d6eb9bc30ea6a2bf87dc5935dc40a8617421ea5cd3
+T010:
+  c: false
+  h: b0ad83bb2e863c3df4441afdab158bcb2e1017a06c55fe92665689846156d01d
+  r: "The profiler and test exist and are non-stub, but the task's verification explicitly\
+    \ requires recording `cpu_time_sec` and `peak_memory_mb`, while the implementation\
+    \ records `cpu_time` and `rss_memory_mb` (per-step RSS, not peak per step) \u2014\
+    \ the field names/semantics do not match the stated requirement. Additionally,\
+    \ there is no execution evidence (e.g., pytest output) that the tests actually\
+    \ pass, and the test asserting `metrics.cpu_time >= 0.01` after a 0.01s sleep\
+    \ is fragile since `time.process_time()` may register ~0 CPU time during a sleep."
+  sig: bcac822ee81f78bc98b5965b365138cebfd0232146a746bfad9dab31f48e1405
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
