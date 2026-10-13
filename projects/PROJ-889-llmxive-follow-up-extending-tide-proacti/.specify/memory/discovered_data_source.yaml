@@ -1,15 +1,12 @@
 status: none
-intent: download TIDE code debugging dataset and synthetic code feature extraction
-  python package dataset
+intent: download TIDE evaluation dataset and CodeXGLUE defect detection python package
+  dataset
 required_fields:
 - code
 - ast_depth
 - import_count
 - cyclomatic_complexity
-- dependency_depth
-- semantic_scope
-- syntactic_complexity
 - ground_truth_label
-cache_key: f4581a6e0af3df66957ae676cf08aee073472f3af73c1744b7daddfd9ba84b49
-searched_at: '2026-10-13T16:20:32.853476+00:00'
+cache_key: e08c1b4f89f5e26698084c21f7955664f0f3dfcb0f3e5b25ddd2f55cb7640a3c
+searched_at: '2026-10-13T16:34:56.674303+00:00'
 retry_count: 1

@@ -1,0 +1,3 @@
+# Existing dependencies (implicitly available)
+# Added dependency for dataset handling
+datasets==2.20.0
