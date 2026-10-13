@@ -5,182 +5,119 @@
 **Input**: Feature specification from `/specs/001-reconstruct-solar-irradiance/spec.md`
 
 ## Summary
-The project will build a CPU‑only pipeline that (1) ingests verified Group Sunspot Number (GSN) data, **optionally** ingests modern satellite Total Solar Irradiance (TSI) data (SORCE/TIM) when available, (2) preprocesses the data (gap filling, cycle detection, feature engineering with categorical Cycle ID), (3) trains non‑linear regression models (Random Forest and Gaussian Process) **only if** a TSI dataset is present, (4) validates via leave‑one‑cycle‑out cross‑validation while acknowledging limited cycle count, (5) applies the calibrated model (or the Cycle‑Agnostic fallback) to the pre‑satellite GSN record to generate a TSI reconstruction with uncertainty bands, and (6) compares the reconstruction against CMIP6 solar forcing (used **only** for independent comparison) and, if a 2007 baseline becomes available, against that baseline, applying multiple‑comparison correction and documenting all findings as associational.
 
-**Note**: A publicly downloadable SORCE/TIM TSI dataset is currently **unavailable**. The pipeline therefore treats the TSI ingestion step as optional; if the dataset cannot be fetched, model training that requires TSI is skipped and the fallback model is used for reconstruction. Baseline‑related fields in the output schema are optional and will be omitted when the 2007 baseline is not present.
+Build a CPU‑only pipeline that (1) ingests the verified Group Sunspot Number (GSN) and SILSO sunspot datasets plus the CMIP v3.2 solar‑forcing parquet, (2) preprocesses the GSN record (gap filling, SILSO‑method cycle detection, categorical Cycle‑ID feature engineering), (3) **conditionally** trains Random Forest and Gaussian Process regressors mapping sunspot numbers to Total Solar Irradiance (TSI) **only if a verified SORCE/TIM TSI dataset is available** — otherwise the training step is skipped and all downstream steps that depend on a trained model are omitted, (4) validates via leave‑one‑cycle‑out CV **and** a dedicated hold‑out split (2016‑present) when TSI data exist, (5) generates a pre‑satellite (1610–2002) TSI reconstruction with uncertainty bands **only if a model was trained**, and (6) compares the reconstruction against CMIP6 solar forcing (comparison only, never a training target) applying Bonferroni correction and associational framing throughout.
+
+**Scope gap (flagged, not silently worked around)**: FR‑014 (verified SORCE/TIM TSI) and FR‑013 (2007 baseline) have no open, verified source. The pipeline therefore logs their absence (`tsi_available = false`, `baseline_available = false`) and skips any step that requires them. A spec revision is required to make these inputs optional or to provide an open source.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `scipy==1.13.*`, `requests==2.32.*`, `pyyaml==6.0.*`  
-- **Storage**: Local CSV/Parquet files under `data/` (no external database)  
-- **Testing**: `pytest` (unit tests for ingestion, preprocessing, model training, and analysis)  
-- **Target Platform**: Linux GitHub Actions runner (2 vCPU, ~7 GB RAM, ~14 GB disk) – **CPU‑only** (FR‑008)  
-- **Constraints**: ≤ 7 GB RAM, ≤ 6 h total runtime, no GPU libraries.
+
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.1`, `scipy==1.13.1`, `pyarrow==16.1.0`, `requests==2.32.3`, `python-dotenv==1.0.1`, `pyyaml==6.0.1`, `matplotlib==3.9.0`
+- **Storage**: Parquet/CSV files under `data/` (no database)
+- **Testing**: `pytest==8.2.2` (unit + contract tests)
+- **Target Platform**: GitHub Actions Linux runner, 2 vCPU, ~7 GB RAM, **CPU‑only** (FR‑008)
+- **Constraints**: ≤ 7 GB RAM, ≤ 6 h total runtime excluding downloads; no CUDA/bitsandbytes.
+- **Project Type**: Data‑analysis pipeline (scripts + library modules)
+- **Performance Goals**: Full pipeline ≤ 6 h on 2 cores; bootstrap (1000 iters) ≤ 2 h
+- **Scale/Scope**: ~several thousand monthly GSN rows (1610–present); CMIP6 parquet shard; ≤ 10 k training rows if TSI present
 
 ## Constitution Check
+
 | Principle | Compliance | Note |
 |---|---|---|
-| I. Reproducibility | ✅ | Random seeds fixed; data fetched from canonical URLs; `requirements.txt` pins versions. |
-| II. Verified Accuracy | ✅ | All citations reference the verified dataset URLs listed in `research.md`. |
-| III. Data Hygiene | ✅ | Raw files stored under `data/raw/` with checksums; transformations write new files under `data/processed/`. |
-| IV. Single Source of Truth | ✅ | Every figure/table derives from a single row in a processed artifact; no manual transcription. |
-| V. Versioning Discipline | ✅ | Artifact hashes stored in project state YAML. |
-| VI. Cycle‑Specific Calibration Integrity | ✅ | Cycle ID is a **categorical** feature (one‑hot encoded) in all models; validation via leave‑one‑cycle‑out CV. |
-| VII. Historical Gap Handling & Uncertainty Quantification | ✅ | Gap‑filling rules (linear < 1 yr, low‑activity proxy for ≥ 1 yr) and bootstrap (≥ 1000 iters) are implemented. |
+| I. Reproducibility | ✅ | Seeds pinned in `code/config.py`; canonical URLs in `code/data/ingestion.py`; `requirements.txt` pins all versions. |
+| II. Verified Accuracy | ✅ | Only the three verified URLs (GSN, SILSO, CMIP6) are cited; unrelated URLs are rejected. |
+| III. Data Hygiene | ✅ | Raw files under `data/raw/` with SHA‑256 checksums recorded; every transformation writes a new file under `data/processed/`. |
+| IV. Single Source of Truth | ✅ | All figures/statistics trace to `data/processed/` and `data/artifacts/` files; no hand‑typed numbers. |
+| V. Versioning Discipline | ✅ | Artifact hashes recorded in the project state YAML; `updated_at` bumped on change. |
+| VI. Cycle‑Specific Calibration Integrity | ✅ | Cycle ID is a one‑hot categorical feature in RF and GP models; **when TSI is present** validation uses leave‑one‑cycle‑out CV **and** a 2016‑present hold‑out split as required by the constitution. If TSI is unavailable, this requirement is deferred (noted in the final report). |
+| VII. Historical Gap Handling & Uncertainty | ✅ | Linear interpolation < 1 yr; low‑activity proxy = fixed TSI value 1360.8 W/m² for gaps ≥ 1 yr; uncertainty bands from GPR prediction intervals; bootstrap ≥ 1000 iterations. Cycle detection follows SILSO‑method and aligns to SILSO maxima within ±6 months. |
 
-## Project Structure (Evidence of Files & Directories)
+## Project Structure
 
-```
+```text
 code/
 ├── __init__.py
-├── config.py                       # seeds, paths, constants
+├── config.py                       # seeds, paths, constants; loads .env
 ├── data/
 │   ├── __init__.py
-│   ├── ingestion.py                # download verified datasets, optional TSI validation
-│   └── preprocessing.py            # gap filling, cycle detection, feature engineering
+│   ├── ingestion.py                # download verified datasets, checksums, schema validation
+│   └── preprocessing.py            # gap filling, cycle detection, feature engineering; writes preprocessed_data.parquet
 ├── models/
 │   ├── __init__.py
-│   ├── train.py                    # RF & GP training; runs only if TSI present
-│   └── predict.py                  # apply best model or fallback to pre‑satellite GSN
+│   ├── train.py                    # RF & GP + leave‑one‑cycle‑out CV (runs only if TSI present)
+│   └── predict.py                  # reconstruction 1610‑2002 with uncertainty bands (runs only if model exists)
 ├── analysis/
 │   ├── __init__.py
-│   ├── comparison.py               # CMIP6 comparison only; baseline optional
-│   └── stats.py                    # bootstrap, sensitivity analysis
+│   ├── sensitivity.py              # tolerance‑threshold sweep {0.01,0.05,0.1} (runs only if model exists)
+│   └── comparison.py               # CMIP6 comparison, bootstrap variance tests, final report
 └── main.py                         # orchestrates the full pipeline
 tests/
 ├── __init__.py
 ├── test_ingestion.py
 ├── test_preprocessing.py
-└── test_model_training.py
+├── test_model_training.py
+└── test_contracts.py               # validates outputs against contracts/*.schema.yaml
 data/
 ├── raw/
 │   ├── .gitkeep
 │   ├── gsn.parquet
 │   ├── silso.parquet
-│   └── cmip6_solar_forcing.parquet
-│   └── tsi.parquet                # optional; may be absent
+│   ├── cmip6_solar_forcing.parquet
+│   └── checksums.json
 ├── processed/
 │   ├── .gitkeep
-│   ├── preprocessed_data.parquet   # written by preprocessing step
-│   └── solar_cycles.parquet
+│   ├── solar_cycles.parquet
+│   ├── preprocessed_data.parquet
+│   └── tsi_reconstruction_1610_2002.parquet   # created only if a model is trained
 └── artifacts/
-    ├── model_rf.pkl               # only if TSI present
-    ├── model_gp.pkl               # only if TSI present
     ├── cv_report.json
     ├── sensitivity_report.json
-    └── comparison_report.json
-.env.example                         # template for optional environment vars
-requirements.txt                     # pinned dependency list
+    ├── comparison_report.json
+    └── figures/
+        └── reconstruction.png               # created only if a model is trained
+.env.example
+requirements.txt
 ```
 
-All directories contain `__init__.py` and the empty folders contain `.gitkeep` files, satisfying the earlier task checks.
+**Structure Decision**: Single‑project layout (Option 1): a small analysis library under `code/` with `main.py` as entry point, `tests/` mirroring modules, and `data/` split into raw/processed/artifacts. Every `code/` subpackage and `tests/` contains `__init__.py`; empty data directories contain `.gitkeep` (addresses T001a–T001c).
 
-## Phase Execution Order (Mapping FR/SC → Phases)
+## Phase Execution Order (FR/SC coverage — all requirements mapped)
 
 | Phase | Description | FR / SC addressed |
 |---|---|---|
-| **Phase 0 – Research & Data Verification** | Verify URLs, confirm variable presence, draft schemas. | FR‑001, FR‑002, FR‑007, SC‑001‑SC‑005 |
-| **Phase 0.5 – SolarCycle Entity Generation** | Derive SolarCycle records (cycle_id, start/end, peak) from SILSO data and store as `solar_cycles.parquet`. | FR‑002, FR‑009 |
-| **Phase 1 – Ingestion & Preprocessing** | Download GSN, SILSO, CMIP6, **optionally** TSI. Validate TSI fields (`date`, `tsi_value`, `instrument`, `uncertainty`) if present. Fill gaps; detect cycles; create categorical Cycle ID (one‑hot). Output `preprocessed_data.parquet`. | FR‑001 (optional), FR‑002, FR‑009 |
-| **Phase 2 – Model Training & Validation (User Story 1)** | **If** a verified TSI dataset is present, train Random Forest & Gaussian Process using `gsn`, `cycle_id`, and engineered lags. Perform **leave‑one‑cycle‑out CV** (train on all cycles except the held‑out one, validate on held‑out). Compute RMSE, R², and bootstrap‑based confidence intervals. If TSI is absent, skip training and note that the fallback model will be used. **CMIP6 is **not** used as a predictor**; it is reserved for independent comparison only. | FR‑003, SC‑001 (when possible), SC‑002 |
-| **Phase 2.5 – Sensitivity Analysis** | Sweep the “inconsistency tolerance threshold” over {0.01, 0.05, 0.1} and record stability of calibration coefficients. | FR‑009, SC‑005 |
-| **Phase 3 – Pre‑Satellite Reconstruction (User Story 2)** | Apply the best calibrated model (or the Cycle‑Agnostic fallback) to GSN 1610‑2002, generate `tsi_reconstruction_1610_2002.parquet` with prediction intervals from the GPR model. | FR‑004, FR‑005 |
-| **Phase 4 – Baseline Comparison & Reporting (User Story 3)** | Compare the reconstruction against **CMIP6 solar forcing** only (independent proxy). If a 2007 baseline becomes available, compute error‑reduction; otherwise omit those fields and note the omission in the report. Apply **Bonferroni correction** for variance tests across minima. Frame all statements as **associational**. | FR‑006, FR‑007, SC‑003, SC‑004 |
-| **Phase 5 – Testing & Packaging** | Run full pytest suite; generate checksums; update state YAML. | All FR/SC (ensures reproducibility & hygiene) |
+| **Phase 0 – Scaffolding** | Create directory tree, `__init__.py` files, `.gitkeep` files, `.env.example`, `requirements.txt`, `code/config.py` (seeds, paths, dotenv loading). | FR‑008, SC‑004 (enabling) |
+| **Phase 1 – Ingestion** | Download GSN, SILSO, CMIP6 from the three verified URLs; record SHA‑256 checksums; validate each file against `contracts/dataset.schema.yaml`. Attempt optional TSI fetch (no verified URL exists → logged limitation). If TSI were present, apply documented drift‑correction. | FR‑001 (GSN/SILSO part), FR‑010, FR‑013 (schema conformance; flagged unavailable), FR‑014 (attempted; flagged unavailable) |
+| **Phase 2 – SolarCycle & preprocessing** | Derive `solar_cycles.parquet` from SILSO records (external definitions, no leakage); fill GSN gaps (linear < 1 yr; low‑activity proxy = **1360.8 W/m²** for gaps ≥ 1 yr, flagged `proxy`); detect cycle boundaries via SILSO‑method 13‑month smoothed peak detection, verified within ±6 months of SILSO maxima; one‑hot Cycle ID; compute `gsn_lag1`; add a fixed facular baseline offset (internal constant, not persisted). Write `preprocessed_data.parquet`. | FR‑002, FR‑012, FR‑003 (features) |
+| **Phase 3 – Model training & CV** (conditional) | **If verified TSI is present**: train Random Forest and Gaussian Process with `gsn`, one‑hot `cycle_id`, `gsn_lag1`; perform leave‑one‑cycle‑out CV **and** a dedicated hold‑out validation on 2016‑present data (satisfying Constitution Principle VI); compute RMSE/R² per held‑out cycle + bootstrap CIs; also train a Cycle‑Agnostic fallback (GSN‑only) for unseen cycles. **If TSI is absent**: skip training, log `tsi_available = false`, and set all model‑dependent metrics to `null`. | FR‑003, FR‑004 (model side), SC‑001 (conditional), SC‑002 (conditional) |
+| **Phase 4 – Sensitivity analysis** (conditional) | **If models were trained**: sweep inconsistency‑tolerance threshold over {0.01, 0.05, 0.1}; record stability of cycle‑specific calibration coefficients. **If no training**, skip this phase and note the omission in the report. | FR‑009, SC‑005 (conditional) |
+| **Phase 5 – Reconstruction** (conditional) | **If a model exists**: apply calibrated model (or Cycle‑Agnostic fallback for unseen cycle IDs) to GSN 1610‑2002; output `tsi_reconstruction_1610_2002.parquet` with [deferred] prediction‑interval bands and generate time‑series figure. **If no model**, reconstruction step is omitted and flagged. | FR‑004, FR‑012 (conditional) |
+| **Phase 6 – Comparison & statistics** (conditional) | Perform bootstrap variance comparison across Maunder, Dalton, Modern minima (1000 iterations, Bonferroni‑corrected); compute RMSE/bias vs CMIP6 solar forcing; generate final report with associational framing, multiple‑comparison note, and explicit flags `tsi_available` / `baseline_available`. If TSI or baseline are unavailable, related metrics are set to `null` with explanatory notes. | FR‑005, FR‑006, FR‑007, FR‑011, SC‑001 (CMIP6 part, conditional), SC‑003 (cautionary note) |
+| **Phase 7 – Tests & packaging** | Full pytest suite incl. contract tests against the unified schemas; checksum manifest; state‑YAML update. | SC‑004, all FRs (regression) |
+
+Ordering guarantees: data downloaded (Phase 1) before preprocessing (Phase 2) before training (Phase 3) before reconstruction (Phase 5); figures generated (Phase 5) before the report that includes them (Phase 6).
 
 ## Compute Feasibility Strategy
-- **Memory**: Preprocessed parquet (~3 M rows, < 2 GB). Models trained on ≤ 10 k rows (satellite era) → < 1 GB RAM.  
-- **CPU**: Random Forest (`n_estimators=200`, `max_depth=12`) and GPR with `RBF` kernel are tractable on 2 cores; estimated training < 30 min.  
-- **Runtime Budget**: Ingestion [deferred], preprocessing [deferred], training [deferred] (or skipped), sensitivity [deferred], reconstruction ≈ 10 min, bootstrap ≈ 2 h (1000 iters, parallelized over 2 cores). Total < 6 h.  
-- **No GPU**: All libraries are pure‑CPU wheels; no CUDA or GPU dependencies.  
+
+- **CPU‑first, no GPU**: all libraries are pure‑CPU wheels; no CUDA/bitsandbytes anywhere (FR‑008). No GPU escape hatch needed.
+- **Memory**: monthly GSN (~5 k rows) and one CMIP6 parquet shard fit in < 1 GB; RF (`n_estimators=200`, `max_depth=12`) and GP (RBF kernel, ≤ 10 k rows) < 1 GB.
+- **Runtime**: ingestion [deferred], preprocessing [deferred], training (if TSI) ≤ 30 min, sensitivity ≤ 20 min, reconstruction ≤ 5 min, bootstrap 1000 iters ≤ 2 h on 2 cores. Total ≤ 6 h (SC‑004).
 
 ## Data Availability & Gap Handling
-- **Verified datasets** (see `research.md`): GSN, SILSO, CMIP6. No verified open‑source SORCE/TIM TSI dataset is available; ingestion is optional and the pipeline will continue with the fallback model if missing.  
-- **Gap handling**: Linear interpolation for gaps < 1 yr; for gaps ≥ 1 yr, impute GSN with the **mean GSN value observed during the 2008‑2019 solar minimum** (low‑activity proxy) and flag `quality_flag='proxy'`.  
-- **Uncertainty**: GPR prediction intervals (95 % credible interval) + bootstrap resampling (≥ 1000 iters) for variance comparisons across solar minima.
 
-## Power & Sample‑Size Disclaimer
-The satellite era provides only a small number of full solar cycles (a limited number). Consequently, leave‑one‑cycle‑out CV has limited statistical power. All reported validation metrics will be accompanied by bootstrap‑derived confidence intervals, and the analysis will explicitly state this limitation.
+- **Verified and used**: GSN parquet, SILSO parquet, CMIP6 parquet (URLs in research.md — the only three verified sources whose content matches the project's needs).
+- **Rejected verified‑datasets URLs**: the URLs listed under “TSI/SORCE/TIM” in the verified‑datasets block are unrelated datasets (Ethereum transactions, chat logs, Amazon reviews) and are rejected as dataset‑variable‑fit failures. Using them would be a fatal flaw; they are not used.
+- **Unavailable (flagged)**: SORCE/TIM TSI (FR‑014) and Wang et al. 2007 baseline (FR‑013/SC‑001). TSI ingestion is attempted and skipped with a logged limitation; baseline metrics are optional and omitted. The spec should be revised if a verified source becomes available.
+- **Gap handling**: linear interpolation for gaps < 1 yr; for gaps ≥ 1 yr, **fixed low‑activity proxy = 1360.8 W/m²** (average TSI during the 2008‑2019 minimum), flagged `proxy`; Maunder‑Minimum gaps are flagged but not interpolated.
 
-## Decision / Rationale (Research.md excerpt)
-- **TSI data**: Unavailable as an open source; therefore optional ingestion and conditional training.  
-- **CMIP6 usage**: Restricted to comparative analysis to avoid circular evaluation; never used as a predictor.  
-- **Baseline metrics**: Baseline‑related fields are optional in the output schema because the 2007 reconstruction cannot be accessed.  
+## Power & Statistical‑Rigor Disclaimers
 
----  
+- **Power**: only a few full satellite cycles exist; leave‑one‑cycle‑out CV and the 2016‑present hold‑out have limited power. All metrics carry bootstrap CIs and the limitation is noted in every report.
+- **Causal framing**: purely observational data → all findings framed associational (FR‑006).
+- **Multiplicity**: Bonferroni correction for the three pairwise variance tests (FR‑007).
+- **Collinearity**: Cycle ID and GSN are jointly predictive; no independent‑effect claims beyond modulation (per spec assumption).
 
-## projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/research.md
-# Research: Reconstructing Solar Irradiance from Historical Sunspot Records
+## Complexity Tracking
 
-## 1. Dataset Strategy
-
-All datasets are fetched from URLs that have been verified as publicly reachable and correctly formatted.
-
-| Dataset | Role | Verified URL(s) | Format | Key Variables |
-|---|---|---|---|---|
-| **GSN (Group Sunspot Number)** | Primary predictor | `https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet` | Parquet | `date`, `gsn` |
-| **SILSO Sunspot Number** | Cycle‑boundary reference | `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet` | Parquet | `date`, `sunspot_number` |
-| **CMIP6 Solar Forcing (v3.2)** | Independent proxy for **comparative** analysis only | `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet` | Parquet | `date`, `solar_forcing` |
-| **SORCE/TIM TSI (Satellite)** | Direct measurement of Total Solar Irradiance (2003‑present) | *No verified open‑source URL available* → **Optional**; ingestion step will attempt download and, if missing, skip model training that requires TSI. |
-| **2007 Baseline Reconstruction** | Reference reconstruction for error‑reduction metric | *No verified open source provided* → **Not used**; baseline‑related error‑reduction metrics are optional in the output schema. |
-
-### Critical Dataset‑Variable Fit Check
-- **GSN**: Provides `gsn` and `date` covering 1610‑present – satisfies FR‑001 (predictor).  
-- **SILSO**: Supplies cycle‑boundary information for categorical Cycle ID – satisfies FR‑002.  
-- **CMIP6**: Provides a solar‑forcing series **used only for independent comparison**, never as a predictor in model training.  
-- **SORCE/TIM TSI**: Not available as an open source; therefore the pipeline treats this dataset as optional. If it cannot be downloaded, the training phase is skipped and the fallback model is used for reconstruction.  
-- **2007 Baseline**: Unavailable; baseline‑related error‑reduction metrics are optional.
-
-## 2. Statistical Methodology
-
-### 2.1 Model Selection
-- **Random Forest Regressor** (`sklearn.ensemble.RandomForestRegressor`): Handles non‑linearities, robust to outliers, fast CPU training.  
-- **Gaussian Process Regressor** (`sklearn.gaussian_process.GaussianProcessRegressor` with RBF kernel): Provides analytic prediction intervals for uncertainty bands (required by FR‑004).  
-
-Both models are trained **only if** a verified TSI dataset is present. When TSI is absent, the pipeline proceeds directly to reconstruction using the Cycle‑Agnostic fallback model.
-
-### 2.2 Feature Engineering
-| Feature | Source | Description |
-|---|---|---|
-| `gsn` | GSN | Raw Group Sunspot Number. |
-| `cycle_id` | SILSO cycle definitions | Categorical identifier of the solar cycle (one‑hot encoded). |
-| `gsn_lag1` | GSN | GSN value shifted by one month (captures inertia). |
-
-**Cycle ID** is treated as a **categorical** feature, satisfying Principle VI and FR‑003.
-
-### 2.3 Validation Strategy
-- **Leave‑One‑Cycle‑Out (Time‑Block) CV**: Train on all cycles except the held‑out one and validate on the held‑out cycle. Because only ~2 full cycles are available, we acknowledge limited statistical power and supplement CV metrics with **bootstrap confidence intervals** (≥ 1000 iters).  
-- **Metrics**: RMSE and R² (SC‑001, SC‑002). When TSI data is missing, these metrics are reported as “N/A” with an explanatory note.
-
-### 2.4 Multiple‑Comparison & Associational Framing
-- Variance comparisons across the Maunder, Dalton, and Modern minima use **Bonferroni correction** (FR‑007).  
-- All statements are explicitly labelled as **associational** (FR‑006).
-
-### 2.5 Power & Sample‑Size Considerations
-- Satellite era provides a substantial multi‑year record of data, comprising many monthly observations. While limited, the analysis focuses on prediction error rather than hypothesis testing of individual coefficients, mitigating low‑power concerns. Bootstrap (≥ 1000 iters) provides empirical confidence intervals for variance estimates.
-
-## 3. Gap Handling & Uncertainty
-
-- **GSN Gaps**:  
-  - `< 1 yr` → linear interpolation (`pandas.interpolate`).  
-  - `≥ 1 yr` → impute GSN with the **mean GSN value observed during the 2008‑2019 solar minimum** (low‑activity proxy) and flag `quality_flag='proxy'`.  
-
-- **Uncertainty**:  
-  - GPR prediction intervals (95 % credible interval).  
-  - Bootstrap resampling (1000 iters) for variance comparisons across solar minima.
-
-## 4. Compute Constraints
-
-- **Hardware**: 2 vCPU, ~7 GB RAM, ~14 GB disk (GitHub Actions free tier).  
-- **Software**: All libraries are pure‑CPU wheels; no CUDA or GPU dependencies.  
-- **Runtime Budget**: ≤ 6 h total (see Plan > Compute Feasibility).  
-
-## 5. References & Citations
-
-- **GSN**: `https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet`  
-- **SILSO**: `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet`  
-- **CMIP6**: `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet`  
-
-*No additional URLs were invented; the absence of a verified TSI source is explicitly noted.*
-
----  
+No constitution violations requiring justification. The TSI/baseline unavailability is a spec‑scope gap (flagged above), not a plan‑level complexity addition.

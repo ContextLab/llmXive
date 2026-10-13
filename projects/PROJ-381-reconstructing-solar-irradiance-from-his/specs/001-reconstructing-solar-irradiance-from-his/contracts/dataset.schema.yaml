@@ -1,96 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Solar Irradiance Dataset Schema"
-description: "Schema for raw and processed datasets in the solar irradiance reconstruction project"
-type: "object"
+description: "Row-level schema for all dataset files in the project."
+type: object
 properties:
+  date:
+    type: string
+    format: date
+    description: "Observation date (YYYY-MM-DD)."
   gsn:
-    type: "object"
-    description: "Group Sunspot Number dataset"
-    properties:
-      date:
-        type: "string"
-        format: "date-time"
-        description: "Date of observation"
-      sunspot_number:
-        type: "number"
-        description: "Group Sunspot Number value"
-      is_missing:
-        type: "boolean"
-        description: "Flag for missing values (before interpolation)"
-    required:
-      - "date"
-      - "sunspot_number"
-  tsi:
-    type: "object"
-    description: "Total Solar Irradiance dataset (SORCE/TIM) – optional if unavailable"
-    properties:
-      date:
-        type: "string"
-        format: "date-time"
-        description: "Date of observation"
-      tsi_value:
-        type: "number"
-        description: "Total Solar Irradiance value"
-      instrument:
-        type: "string"
-        description: "Instrument name (SORCE or TIM)"
-      uncertainty:
-        type: "number"
-        description: "Measurement uncertainty"
-    # tsi is optional; it is included only when a verified dataset is available.
-  cmip6:
-    type: "object"
-    description: "CMIP6 v3.2 dataset"
-    properties:
-      date:
-        type: "string"
-        format: "date-time"
-        description: "Date of observation"
-      tsi_value:
-        type: "number"
-        description: "Total Solar Irradiance value from CMIP6"
-      model:
-        type: "string"
-        description: "Climate model name"
-      scenario:
-        type: "string"
-        description: "Emission scenario (e.g., SSP370)"
-    required:
-      - "date"
-      - "tsi_value"
-      - "model"
-      - "scenario"
-  isotope_14c:
-    type: "object"
-    description: "14C cosmogenic isotope proxy"
-    properties:
-      date:
-        type: "string"
-        format: "date-time"
-        description: "Date of observation"
-      c14_delta14c:
-        type: "number"
-        description: "Δ14C value (per mil)"
-    required:
-      - "date"
-      - "c14_delta14c"
-  isotope_10be:
-    type: "object"
-    description: "10Be cosmogenic isotope proxy"
-    properties:
-      date:
-        type: "string"
-        format: "date-time"
-        description: "Date of observation"
-      be10_concentration:
-        type: "number"
-        description: "10Be concentration (atoms g⁻¹)"
-    required:
-      - "date"
-      - "be10_concentration"
+    type: number
+    description: "Group Sunspot Number (raw, interpolated, or proxy‑filled)."
+  sunspot_number:
+    type: number
+    description: "SILSO sunspot number (if present)."
+  quality_flag:
+    type: string
+    enum:
+      - raw
+      - interpolated
+      - proxy
+    description: "Method used to obtain the GSN value."
+  cycle_id:
+    type: integer
+    description: "Solar cycle identifier from SILSO definitions."
+  gsn_lag1:
+    type: number
+    description: "One‑month lagged GSN value."
+  solar_forcing:
+    type: number
+    description: "CMIP6 solar forcing (TSI) value."
+  tsi_value:
+    type: number
+    description: "Total Solar Irradiance (W/m²) from verified satellite data."
+  instrument:
+    type: string
+    description: "Instrument name for TSI measurements."
+  uncertainty:
+    type: number
+    description: "Measurement uncertainty for TSI or baseline values."
 required:
-  - "gsn"
-  - "cmip6"
-  - "isotope_14c"
-  - "isotope_10be"
-# tsi is optional; it is included only when a verified dataset is available.
+  - date
+  - gsn
+  - quality_flag

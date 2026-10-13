@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Report Schema"
+description: "Schema for cv_report.json, sensitivity_report.json, and comparison_report.json top‑level objects."
+type: "object"
+properties:
+  generated_at:
+    type: "string"
+    format: "date-time"
+    description: "Report generation timestamp (UTC)."
+  random_seed:
+    type: "integer"
+    description: "Pinned random seed used for all stochastic steps."
+  metrics:
+    type: "object"
+    description: "Metric name to numeric value or null mapping. Null with an explanatory note when the underlying data (TSI or 2007 baseline) is unavailable."
+    additionalProperties:
+      type:
+        - "number"
+        - "null"
+  tsi_available:
+    type: "boolean"
+    description: "Whether a verified SORCE/TIM TSI dataset was ingested."
+  baseline_available:
+    type: "boolean"
+    description: "Whether the 2007 baseline reconstruction was ingested."
+  bootstrap_iterations:
+    type: "integer"
+    description: "Number of bootstrap iterations (spec‑mandated: a sufficiently large count)."
+  multiple_comparison_correction:
+    type: "string"
+    description: "Correction method applied, e.g. 'Bonferroni'."
+  framing_statement:
+    type: "string"
+    description: "Explicit statement that all findings are associational, not causal."
+  notes:
+    type: "array"
+    items:
+      type: "string"
+    description: "Limitation notes, e.g. omitted baseline metrics or skipped training."
+required:
+  - "generated_at"
+  - "random_seed"
+  - "metrics"
+  - "tsi_available"
+  - "baseline_available"
+  - "multiple_comparison_correction"
+  - "framing_statement"

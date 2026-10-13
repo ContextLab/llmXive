@@ -1,79 +1,67 @@
 # Quickstart: Reconstructing Solar Irradiance from Historical Sunspot Records
 
 ## Prerequisites
-- Python 3.11 or newer
-- `git` (to clone the repository)
-- ~Several GB of free disk space
-- Internet access (for dataset download)
+- Python 3.11+
+- `git`
+- ~Adequate free disk space (on the order of gigabytes).
+- Internet access (dataset download)
 
 ## Installation
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/your-org/solar-irradiance-reconstruction.git
 cd solar-irradiance-reconstruction
-
-# 2. Create a clean virtual environment
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
-
-# 3. Install pinned dependencies
 pip install -r requirements.txt
 ```
 
 ## Environment Configuration
-A minimal `.env.example` is provided. Copy it to `.env` if you need to override defaults (e.g., custom data directory).
 
 ```bash
 cp .env.example .env
 ```
 
-**`.env.example` contents**
+`.env.example` (managed via `python-dotenv`, loaded in `code/config.py`):
 
 ```dotenv
-# Directory where raw and processed data will be stored
+# Root directory for raw/processed/artifacts data
 DATA_ROOT=data
 
-# Random seed for reproducibility
+# Pinned random seed for all stochastic steps
 RANDOM_SEED=42
 
-# Number of bootstrap iterations (default 1000)
+# Bootstrap iterations (spec requires a sufficiently large number of iterations, e.g., on the order of thousands)
 BOOTSTRAP_ITER=1000
 ```
-
-The pipeline reads these variables via `python-dotenv` (already a dependency).
 
 ## Data Preparation
 
 ```bash
-# Download and verify raw datasets (GSN, SILSO, CMIP6, optional TSI)
-python code/data/ingestion.py
-# → creates data/raw/*.parquet and records checksums
+# Download verified datasets (GSN, SILSO, CMIP6), record checksums, validate it against the schema
+python -m code.data.ingestion
 
-# Preprocess (gap filling, cycle detection, feature engineering with categorical Cycle ID)
-python code/data/preprocessing.py
-# → output: data/processed/preprocessed_data.parquet and data/processed/solar_cycles.parquet
+# Gap filling, cycle detection, feature engineering; writes preprocessed_data.parquet
+python -m code.data.preprocessing
 ```
 
 ## Running the Full Analysis
 
 ```bash
-# 1. Train models and perform leave‑one‑cycle‑out CV (if a verified TSI dataset is available)
-python code/models/train.py
-# If TSI is missing, the script will emit a warning and skip training, proceeding to step 3.
-
-# 2. Sensitivity analysis for inconsistency tolerance
-python code/analysis/sensitivity.py
-
-# 3. Generate the historical reconstruction (1610‑2002)
-python code/models/predict.py
-
-# 4. Compare against CMIP6 proxy and (if available) the 2007 baseline
-python code/analysis/comparison.py
+# Orchestrate everything end‑to‑end (will automatically skip steps that lack required data)
+python -m code.main
 ```
 
-All outputs are written under `data/artifacts/` and `data/processed/`.  
-If the SORCE/TIM TSI dataset cannot be downloaded (currently unavailable), the training step will be skipped, and the fallback model will be used for reconstruction; the comparison step will still run using CMIP6 as an independent proxy.
+Or **if a verified TSI dataset becomes available**, run the pipeline step‑by‑step:
+
+```bash
+python -m code.models.train        # conditional: skipped with a logged note if TSI unavailable
+python -m code.analysis.sensitivity   # conditional: skipped if no model was trained
+python -m code.models.predict      # conditional: skipped if no model was trained
+python -m code.analysis.comparison # runs with available data; reports omitted metrics as null
+```
+
+**Current data status**: No verified open SORCE/TIM TSI or baseline source from the early mission period exists., so training is skipped, the Cycle‑Agnostic fallback is **not instantiated**, and reconstruction is omitted. The final report flags `tsi_available = false` and `baseline_available = false`; all metrics that depend on these data are reported as `null` with explanatory notes.
 
 ## Testing
 
@@ -81,20 +69,23 @@ If the SORCE/TIM TSI dataset cannot be downloaded (currently unavailable), the t
 pytest tests/ -v
 ```
 
-The test suite checks:
-- Successful download and checksum verification of raw files.
-- Correct execution of preprocessing (including gap‑filling logic and categorical Cycle ID creation).
-- Model training produces non‑empty pickle files **when** TSI data is present and writes a validation report; otherwise it reports the limitation without error.
-- Reconstruction file contains the expected columns and no missing dates.
+The suite verifies:
+- download + checksum verification;
+- gap‑filling logic (interpolation vs. proxy thresholds);
+- cycle‑boundary alignment within ±6 months of SILSO maxima;
+- categorical Cycle‑ID one‑hot encoding;
+- conditional model training (or graceful skip);
+- `preprocessed_data.parquet` and `tsi_reconstruction_1610_2002.parquet` (when produced) conform to `contracts/*.schema.yaml`;
+- bootstrap uses a sufficiently large number of iterations.; and
+- the conditional logic correctly handles the absence of TSI data.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---|---|---|
-| `DataValidationError` on ingestion | One of the verified URLs is temporarily unavailable | Re‑run after a few minutes; the CI runner will abort with a clear error if the problem persists. |
-| `MemoryError` during preprocessing | Attempting to load the full raw dataset into memory on a very low‑memory runner | Reduce the chunk size in `preprocessing.py` (the script already streams the raw parquet files). |
-| Missing model artifacts after training | No verified satellite TSI data available; training was skipped as documented | Provide a verified TSI source or accept that model training cannot be performed under current data constraints. |
-| No variance‑analysis results | Bootstrap iteration count set to 0 | Check `BOOTSTRAP_ITER` in `.env`; must be ≥ 1000. |
-| Unexpected warnings about CMIP6 usage | CMIP6 is now used **only** for comparison, not training | No action needed; the pipeline follows the updated methodology. |
-
----  
+| Download failure on ingestion | Verified URL temporarily unreachable | Re‑run; CI aborts with a clear error if persistent. |
+| Training skipped | No verified TSI dataset (expected today) | Documented limitation; provide a verified TSI source to enable. |
+| Missing `preprocessed_data.parquet` | Preprocessing crashed before write | Check logs; the script must always write the parquet on success — rerun `python -m code.data.preprocessing`. |
+| No variance results | `BOOTSTRAP_ITER` < 1000 | Set it to 1000 in `.env` (spec‑mandated). |
+| Baseline metrics absent | 2007 baseline unavailable | Expected; the `baseline_available` flag is false in the report. |
+| Reconstruction omitted | No trained model (TSI missing) | Expected; the pipeline proceeds with remaining analyses. |

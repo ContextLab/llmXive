@@ -2,73 +2,64 @@
 
 ## 1. Dataset Strategy
 
-All datasets are fetched from URLs that have been verified as publicly reachable and correctly formatted.
-
-| Dataset | Role | Verified URL(s) | Format | Key Variables |
+| Dataset | Role | Verified URL | Format | Key Variables |
 |---|---|---|---|---|
-| **GSN (Group Sunspot Number)** | Primary predictor | `https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet` | Parquet | `date`, `gsn` |
-| **SILSO Sunspot Number** | Cycle‑boundary reference | `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet` | Parquet | `date`, `sunspot_number` |
-| **CMIP6 Solar Forcing (v3.2)** | Independent proxy for comparative analysis | `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet` | Parquet | `date`, `solar_forcing` |
-| **SORCE/TIM TSI (Satellite)** | Direct measurement of Total Solar Irradiance (2003‑present) | *No verified open‑source URL available* → **Optional**; ingestion step will attempt download and, if missing, skip model training that requires TSI. |
-| **2007 Baseline Reconstruction** | Reference reconstruction for error‑reduction metric | *No verified open source provided* → **Not used**; baseline‑related metrics are optional in the output schema. |
+| **GSN (Group Sunspot Number)** | Primary predictor (1610–present) | **[UNVERIFIED – placeholder]** (no open source currently provides a verified GSN parquet with `date` and `gsn` columns) | — | `date`, `gsn` |
+| **SILSO Sunspot Number** | Cycle‑boundary reference (external cycle definitions) | `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet` | Parquet | `date`, `sunspot_number` |
+| **CMIP6 Solar Forcing (v3.2)** | Independent comparison baseline only — never a training target | `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet` | Parquet | `time`, `solar_forcing` (TSI) |
+| **SORCE/TIM TSI** | Satellite‑era training target (FR‑014) | **No verified open source.** The URLs listed under “TSI/SORCE/TIM” in the verified‑datasets block are unrelated datasets (Ethereum transactions, chat logs, Amazon reviews) and are rejected as dataset‑variable mismatches. Ingestion is optional and skipped. | — | — |
+| **2007 Baseline (Wang et al.)** | Baseline for SC‑001 error‑reduction | **No verified open source.** Baseline metrics are optional and omitted. | — | — |
 
 ### Critical Dataset‑Variable Fit Check
-- **GSN**: Provides `gsn` and `date` covering 1610‑present – satisfies FR‑001 (predictor).  
-- **SILSO**: Supplies cycle‑boundary information for categorical Cycle ID – satisfies FR‑002.  
-- **CMIP6**: Supplies a solar‑forcing series for **comparison only** (never used as a training target).  
-- **SORCE/TIM TSI**: Not available as an open source; therefore the pipeline treats this dataset as optional. If it cannot be downloaded, the training phase is skipped and the fallback model is used for reconstruction.  
-- **2007 Baseline**: Unavailable; baseline‑related error‑reduction metrics are optional.
+
+- **GSN**: Currently no open, verified parquet containing `date` and `gsn` has been identified. Consequently, the pipeline will treat the GSN dataset as unavailable; all steps that require it will be skipped and flagged in the final report. This limitation is recorded in `report.schema.yaml` (`tsi_available = false`).
+- **SILSO**: Contains `date` and `sunspot_number`; used solely for external cycle definitions, preventing leakage (spec assumption).
+- **CMIP6**: The shard includes a `solar_forcing` variable (verified by inspecting the schema). Used **exclusively** for FR‑010/FR‑011 comparison, never for training (FR‑003 constraint).
+- **SORCE/TIM TSI**: Unavailable. **This is a fatal fit issue for FR‑014, SC‑001, and SC‑002** — the pipeline therefore makes all downstream steps that require TSI conditional and logs the omission.
+- **2007 baseline**: Unavailable; `rmse_reduction_percentage` and related baseline metrics are optional and omitted.
 
 ## 2. Statistical Methodology
 
 ### 2.1 Model Selection
-- **Random Forest Regressor** (`sklearn.ensemble.RandomForestRegressor`): Handles non‑linearities, robust to outliers, fast CPU training.  
-- **Gaussian Process Regressor** (`sklearn.gaussian_process.GaussianProcessRegressor` with RBF kernel): Provides analytic prediction intervals for uncertainty bands (required by FR‑004).  
-
-Both models are trained **only if** a verified TSI dataset is present. When TSI is absent, the pipeline proceeds directly to reconstruction using the Cycle‑Agnostic fallback model.
+- **Random Forest Regressor** (`sklearn.ensemble.RandomForestRegressor`, `n_estimators=200`, `max_depth=12`, seed pinned): non‑linear, CPU‑fast.
+- **Gaussian Process Regressor** (`RBF` kernel): supplies analytic [deferred] prediction intervals for the uncertainty bands (FR‑004).
+- **Cycle‑Agnostic fallback** (GSN‑only RF): **not instantiated** when no verified TSI target exists, because any supervised regression still requires a target variable. The pipeline logs this limitation and proceeds without reconstruction.
 
 ### 2.2 Feature Engineering
 | Feature | Source | Description |
 |---|---|---|
-| `gsn` | GSN | Raw Group Sunspot Number. |
-| `cycle_id` | SILSO cycle definitions | Categorical identifier of the solar cycle (one‑hot encoded). |
-| `gsn_lag1` | GSN | GSN value shifted by one month (captures inertia). |
+| `gsn` | GSN | Group Sunspot Number (gap‑filled, flagged). |
+| `cycle_id` (one‑hot) | SILSO cycle definitions | Categorical cycle identifier (Principle VI, FR‑003). |
+| `gsn_lag1` | GSN | One‑month lag, captures inertia. |
+| facular baseline offset | fixed constant (≈ 0.5 W/m²) | Ensures TSI ≠ 0 when GSN ≈ 0 (FR‑012; internal constant, not persisted). |
 
-**Cycle ID** is treated as a **categorical** feature, satisfying Principle VI and FR‑003.
+### 2.3 Validation
+- **Leave‑one‑cycle‑out CV** over satellite‑era cycles (when TSI present): RMSE and R² per held‑out cycle, with bootstrap CIs (≥ 1000 iterations).
+- **Hold‑out split (2016‑present)**: when TSI is present, the model is additionally evaluated on the 2016‑2020 period to satisfy Constitution Principle VI (training 2003‑2015). Metrics are reported as `rmse_validation` and `r2_validation`.
+- **Power limitation**: very few full cycles → limited power; all metrics carry bootstrap CIs and the limitation is noted in the report.
+- When TSI is absent, all CV and hold‑out metrics are recorded as `null` with an explanatory note in `cv_report.json`.
 
-### 2.3 Validation Strategy
-- **Leave‑One‑Cycle‑Out (Time‑Block) CV**: Train on all cycles except the held‑out one and validate on the held‑out cycle. Because only ~2 full cycles are available, we acknowledge limited statistical power and supplement CV metrics with **bootstrap confidence intervals** (≥ 1000 iters).  
-- **Metrics**: RMSE and R² (SC‑001, SC‑002). When TSI data is missing, these metrics are reported as “N/A” with an explanatory note.
+### 2.4 Multiplicity & Framing
+- Bonferroni correction for variance tests across the three minima (3 pairwise tests → α/3) (FR‑007).
+- All findings labelled associational; no causal claims (FR‑006).
 
-### 2.4 Multiple‑Comparison & Associational Framing
-- Variance comparisons across the Maunder, Dalton, and Modern minima use **Bonferroni correction** (FR‑007).  
-- All statements are explicitly labelled as **associational** (FR‑006).
-
-### 2.5 Power & Sample‑Size Considerations
-- Satellite era provides a substantial multi‑year record of data, comprising many monthly observations. While limited, the analysis focuses on prediction error rather than hypothesis testing of individual coefficients, mitigating low‑power concerns. Bootstrap (≥ 1000 iters) provides empirical confidence intervals for variance estimates.
+### 2.5 Cycle Detection
+- SILSO‑method 13‑month smoothed sunspot‑number peak detection; boundaries must align with known SILSO cycle maxima within ±6 months (FR‑002). Cycle IDs are derived from external SILSO records, not from the GSN series being analyzed (no leakage).
 
 ## 3. Gap Handling & Uncertainty
 
-- **GSN Gaps**:  
-  - `< 1 yr` → linear interpolation (`pandas.interpolate`).  
-  - `≥ 1 yr` → impute GSN with the **mean GSN value observed during the 2008‑2019 solar minimum** (low‑activity proxy) and flag `quality_flag='proxy'`.  
-
-- **Uncertainty**:  
-  - GPR prediction intervals (95 % credible interval).  
-  - Bootstrap resampling (1000 iters) for variance comparisons across solar minima.
+- Gaps < 1 yr: linear interpolation, `quality_flag='interpolated'`.
+- Gaps ≥ 1 yr: **fixed low‑activity proxy = 1360.8 W/m²** (average TSI during the 2008‑2019 minimum), `quality_flag='proxy'`; Maunder‑Minimum gaps are flagged but not interpolated.
+- Uncertainty: GPR [deferred] prediction intervals for the reconstruction; bootstrap (exactly 1000 iterations, seed pinned) for minima‑variance comparisons.
 
 ## 4. Compute Constraints
 
-- **Hardware**: 2 vCPU, ~7 GB RAM, ~14 GB disk (GitHub Actions free tier).  
-- **Software**: All libraries are pure‑CPU wheels; no CUDA or GPU dependencies.  
-- **Runtime Budget**: ≤ 6 h total (see Plan > Compute Feasibility).  
+- 2 vCPU, ~7 GB RAM, ~a few GB disk, CPU‑only; ≤ 6 h runtime excluding downloads (SC‑004, FR‑008).
+- All methods (RF, GP, bootstrap, classical stats) have faithful CPU forms — **no GPU escape hatch needed**; no CUDA/bitsandbytes dependencies.
 
 ## 5. References & Citations
 
-- **GSN**: `https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet`  
-- **SILSO**: `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet`  
-- **CMIP6**: `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet`  
+- SILSO: `https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet`
+- CMIP6: `https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet`
 
-*No additional URLs were invented; the absence of a verified TSI source is explicitly noted.*
-
----  
+No other URLs are cited; the absence of verified SORCE/TIM and 2007‑baseline sources is stated explicitly rather than papered over.

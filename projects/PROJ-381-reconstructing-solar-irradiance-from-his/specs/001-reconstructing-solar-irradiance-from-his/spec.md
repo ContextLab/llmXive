@@ -37,7 +37,7 @@
 
 ### User Story 3 - Baseline Comparison and Methodological Validation (Priority: P3) (ID: US-3)
 
-**Description**: The system must rigorously compare the new reconstruction against the 2007 baseline reconstruction (Wang et al., 2007) and the CMIP6 v3.2 solar forcing dataset, calculating the percentage reduction in reconstruction error and ensuring methodological constraints (associational framing, multiplicity correction) are documented.
+**Description**: The system must rigorously compare the new reconstruction against the baseline reconstruction (Wang et al., 2007) and the CMIP v3.2 solar forcing dataset, calculating the percentage reduction in reconstruction error and ensuring methodological constraints (associational framing, multiplicity correction) are documented.
 
 **Why this priority**: This validates the claim of improvement (≥15% error reduction) and ensures the scientific integrity of the findings. It is a validation step that confirms the utility of the P1 and P2 outputs.
 
@@ -75,7 +75,7 @@
 - **FR-011**: System MUST compare the reconstructed TSI series against the ingested CMIP6 solar forcing series as an independent baseline, reporting RMSE and bias metrics. (See US-3)
 - **FR-012**: System MUST incorporate a facular proxy term (e.g., Mg II index or a fixed offset) for periods where GSN ≈ 0 but TSI is non‑zero, ensuring the model does not predict zero irradiance in low‑sunspot conditions. (See US-2)
 - **FR-013**: System MUST ingest the 2007 baseline TSI reconstruction (Wang et al., 2007) in a format conforming to `contracts/dataset.schema.yaml` (fields: `date`, `tsi_value`, `instrument`, `uncertainty`). The baseline dataset is required for computing the RMSE reduction target in SC‑001. (See US-3)
-- **FR-014**: System MUST ingest a verified SORCE/TIM satellite TSI dataset for the period 2003–present, validate it against `contracts/dataset.schema.yaml`, and use it as the sole training target for all regression models. (See US-1)
+- **FR-014**: System MUST ingest a verified SORCE/TIM satellite TSI dataset for the period from the early 2000s to the present., validate it against `contracts/dataset.schema.yaml`, and use it as the sole training target for all regression models. (See US-1)
 
 ### Key Entities
 

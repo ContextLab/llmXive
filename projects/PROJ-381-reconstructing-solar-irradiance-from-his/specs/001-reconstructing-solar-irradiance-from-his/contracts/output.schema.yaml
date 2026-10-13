@@ -1,63 +1,114 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Solar Irradiance Output Schema"
 description: "Schema for model predictions and statistical analysis outputs"
-type: "object"
+type: object
 properties:
   reconstruction:
-    type: "object"
+    type: object
     description: "Reconstructed TSI time series with uncertainty bands"
     properties:
       date:
-        type: "string"
-        format: "date-time"
+        type: string
+        format: date-time
         description: "Date of observation"
       tsi_reconstructed:
-        type: "number"
+        type: number
         description: "Reconstructed TSI value"
       tsi_lower:
-        type: "number"
+        type: number
         description: "Lower bound of uncertainty band"
       tsi_upper:
-        type: "number"
+        type: number
         description: "Upper bound of uncertainty band"
     required:
-      - "date"
-      - "tsi_reconstructed"
-      - "tsi_lower"
-      - "tsi_upper"
+      - date
+      - tsi_reconstructed
+      - tsi_lower
+      - tsi_upper
   metrics:
-    type: "object"
+    type: object
     description: "Model evaluation metrics"
     properties:
       rmse_train:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "RMSE on training set"
       rmse_validation:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "RMSE on validation set"
       r2_train:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "R² score on training set"
       r2_validation:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "R² score on validation set"
       rmse_reduction_percentage:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "Percentage reduction in RMSE vs. 2007 baseline"
       cmip6_correlation:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "Correlation coefficient with CMIP6 v3.2"
       baseline_rmse:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "RMSE of the 2007 baseline on the same split"
       baseline_r2:
-        type: "number"
+        type:
+          - number
+          - "null"
         description: "R² of the 2007 baseline on the same split"
     required:
-      - "rmse_train"
-      - "rmse_validation"
-      - "r2_train"
-      - "r2_validation"
-      - "cmip6_correlation"
-# baseline metrics are optional because the 2007 baseline may be unavailable.
-# rmse_reduction_percentage, baseline_rmse, and baseline_r2 are no longer required.
+      - rmse_train
+      - rmse_validation
+      - r2_train
+      - r2_validation
+      - cmip6_correlation
+properties:
+  generated_at:
+    type: string
+    format: date-time
+    description: "Report generation timestamp (UTC)."
+  random_seed:
+    type: integer
+    description: "Pinned random seed used for all stochastic steps."
+  tsi_available:
+    type: boolean
+    description: "Whether a verified SORCE/TIM TSI dataset was ingested."
+  baseline_available:
+    type: boolean
+    description: "Whether the 2007 baseline reconstruction was ingested."
+  bootstrap_iterations:
+    type: integer
+    description: "Number of bootstrap iterations (spec‑mandated: a sufficiently large number)."
+  multiple_comparison_correction:
+    type: string
+    description: "Correction method applied, e.g. 'Bonferroni'."
+  framing_statement:
+    type: string
+    description: "Explicit statement that all findings are associational, not causal."
+  notes:
+    type: array
+    items:
+      type: string
+    description: "Limitation notes, e.g. omitted baseline metrics or skipped training."
+required:
+  - generated_at
+  - random_seed
+  - metrics
+  - tsi_available
+  - baseline_available
+  - bootstrap_iterations
+  - multiple_comparison_correction
+  - framing_statement

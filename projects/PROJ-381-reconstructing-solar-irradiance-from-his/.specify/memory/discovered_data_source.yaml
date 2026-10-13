@@ -1,12 +1,16 @@
 status: none
-intent: SILSO group sunspot number python package dataset SORCE TIM TSI python package
-  dataset
+intent: download SILSO group sunspot number and SORCE TIM total solar irradiance python
+  package dataset
 required_fields:
 - date
+- year
+- month
+- day
 - group_sunspot_number
-- gsn_error
-- total_solar_irradiance
-- irradiance_quality_flag
-cache_key: eedf40850ab219cde3a586490f17bafe8ecd0d01f0ada5058ea6529f35e22b1e
-searched_at: '2026-10-13T20:11:24.981224+00:00'
+- group_sunspot_number_error
+- tsi
+- tsi_uncertainty
+- solar_cycle_number
+cache_key: d22fa3162327e683ef67df3c85098d4833cd428edbeacc704364d05cc55dbd62
+searched_at: '2026-10-13T20:35:08.848254+00:00'
 retry_count: 1
