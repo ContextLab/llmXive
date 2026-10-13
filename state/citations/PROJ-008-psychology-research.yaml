@@ -42,3 +42,25 @@
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-09-29T04:31:37.844669Z'
+- artifact_hash: 2efc8559bcae03315e0fb3c88ab79ab1353190662267de4b303af13c99de26f0
+  artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: https://clinicaltrials.gov/
+  fetched_title: ClinicalTrials.gov
+  kind: url
+  value: https://clinicaltrials.gov/
+  verification_status: pending
+  verified_against_url: https://clinicaltrials.gov/
+  verified_at: '2026-10-13T22:28:27.096274Z'
+- artifact_hash: 2efc8559bcae03315e0fb3c88ab79ab1353190662267de4b303af13c99de26f0
+  artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: https://osf.io/
+  fetched_title: OSF
+  kind: url
+  value: https://osf.io/
+  verification_status: pending
+  verified_against_url: https://osf.io/
+  verified_at: '2026-10-13T22:28:27.096274Z'

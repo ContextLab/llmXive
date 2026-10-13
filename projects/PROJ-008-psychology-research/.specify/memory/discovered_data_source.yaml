@@ -1,18 +1,18 @@
 status: none
-intent: ClinicalTrials.gov OSF API data extraction python package dataset
+intent: download clinical trial records ClinicalTrials.gov OSF python package dataset
 required_fields:
-- nct_id
-- official_title
-- overall_status
-- phase
-- study_type
-- start_date
-- completion_date
-- sponsor
-- intervention_name
-- outcome_measures
-- enrollment
-- location_countries
-cache_key: 6318e931fa33db0319d3db3b99fc79eadcf3716aec58e791fb2eb3a67c6213ca
-searched_at: '2026-09-24T01:39:25.936957+00:00'
+- NCT_ID
+- Title
+- Status
+- StartDate
+- CompletionDate
+- Phase
+- StudyType
+- Conditions
+- Interventions
+- Sponsors
+- Locations
+- Enrollment
+cache_key: 753627490ebecd292896fcb6163abff3a11f82feafddb20408a3ed2618ad565e
+searched_at: '2026-10-13T22:08:45.368833+00:00'
 retry_count: 1

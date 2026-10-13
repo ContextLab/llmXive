@@ -1,80 +1,54 @@
-# Schema contract for cleaned_studies.csv
-# Generated per T007
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Study Schema"
+type: "object"
 required:
-  - id
-  - title
-  - registry
-  - age_min
-  - age_max
-  - n_total
-  - n_treatment
-  - n_control
-  - intervention_type
-  - delivery_format
-  - outcome_measure
-  - mean_treatment
-  - sd_treatment
-  - mean_control
-  - sd_control
-  - included
+  - "study_id"
+  - "registry"
+  - "age_min"
+  - "age_max"
+  - "n_treatment"
+  - "n_control"
+  - "delivery_format"
+  - "included"
 properties:
-  id:
-    type: string
-    pattern: "^(clinicaltrials\\.gov|osf\\.io)_[A-Za-z0-9]+$"
-  title:
-    type: string
-    minLength: 1
+  study_id:
+    type: "string"
+    pattern: "^(ctgov|osf)_.*$"
   registry:
-    type: string
-    enum:
-      - clinicaltrials.gov
-      - osf.io
+    type: "string"
+    enum: ["clinicaltrials.gov", "osf.io"]
   age_min:
-    type: integer
+    type: "integer"
     minimum: 6
     maximum: 12
   age_max:
-    type: integer
+    type: "integer"
     minimum: 6
     maximum: 12
-  n_total:
-    type: integer
-    minimum: 1
   n_treatment:
-    type: integer
+    type: "integer"
     minimum: 1
   n_control:
-    type: integer
+    type: "integer"
     minimum: 1
-  intervention_type:
-    type: string
-    minLength: 1
   delivery_format:
-    type: string
-    enum:
-      - individual
-      - group
-      - parent_mediated
-      - hybrid
-  outcome_measure:
-    type: string
-    minLength: 1
+    type: "string"
+    enum: ["caregiver_mediated", "child_led", "hybrid", "unknown"]
+  social_skill_domain:
+    type: "string"
+    enum: ["communication", "peer_interaction", "emotional_regulation", "adaptive_behavior", "unknown"]
   mean_treatment:
-    type: number
+    type: "number"
   sd_treatment:
-    type: number
+    type: "number"
     minimum: 0
   mean_control:
-    type: number
+    type: "number"
   sd_control:
-    type: number
-    minimum: 0
-  follow_up_months:
-    type: integer
+    type: "number"
     minimum: 0
   included:
-    type: boolean
+    type: "boolean"
   exclusion_reason:
-    type: string
+    type: "string"
 additionalProperties: false

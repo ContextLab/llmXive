@@ -1,56 +1,39 @@
-# Schema contract for effect_sizes.csv
-# Generated per T007
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Effect Size Schema"
+type: "object"
 required:
-  - study_id
-  - hedges_g
-  - se
-  - ci_lower
-  - ci_upper
-  - n_treatment
-  - n_control
-  - component
-  - format
-  - domain
+  - "study_id"
+  - "hedges_g"
+  - "se"
+  - "ci_lower"
+  - "ci_upper"
+  - "component_tag"
+  - "format_tag"
 properties:
   study_id:
-    type: string
-    pattern: "^(clinicaltrials\\.gov|osf\\.io)_[A-Za-z0-9]+$"
+    type: "string"
   hedges_g:
-    type: number
+    type: "number"
   se:
-    type: number
+    type: "number"
     minimum: 0
   ci_lower:
-    type: number
+    type: "number"
   ci_upper:
-    type: number
+    type: "number"
   n_treatment:
-    type: integer
+    type: "integer"
     minimum: 1
   n_control:
-    type: integer
+    type: "integer"
     minimum: 1
-  component:
-    type: string
-    enum:
-      - breathing
-      - body_scan
-      - mindful_movement
-      - combined
-  format:
-    type: string
-    enum:
-      - individual
-      - group
-      - parent_mediated
-      - hybrid
-  domain:
-    type: string
-    enum:
-      - communication
-      - peer_interaction
-      - social_reciprocity
-      - emotional_regulation
-      - adaptive_behavior
+  component_tag:
+    type: "string"
+    enum: ["breathing", "body_scan", "mindful_movement", "combined"]
+  format_tag:
+    type: "string"
+    enum: ["caregiver_mediated", "child_led", "hybrid"]
+  domain_tag:
+    type: "string"
+    enum: ["communication", "peer_interaction", "emotional_regulation", "adaptive_behavior"]
 additionalProperties: false
