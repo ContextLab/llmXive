@@ -1,67 +1,53 @@
 # Research: Visual Detail and False Memory Susceptibility
 
 ## Summary
-
-This research investigates the relationship between visual scene complexity (manipulated via added or removed detail) and susceptibility to false memories. The study employs a **Between-Subjects design** where participants are assigned to one of three conditions (Enhanced, Reduced, or Baseline) and view a single image. After a distractor task, they answer recognition questions containing both true and false details. The primary outcome is the false memory rate across conditions.
+This study examines whether **visual detail** (enhanced vs. reduced vs. baseline) modulates **false‑memory susceptibility** using a **Repeated‑Measures (Within‑Subjects) design**. Participants view all three stimulus conditions in a counter‑balanced order, complete a brief arithmetic distractor, and answer a recognition questionnaire containing true and lure items. The primary outcome is the **false‑memory rate** (proportion of “Yes” responses to lure items) per condition.
 
 ## Theoretical Framework
-
-False memory is a well-documented phenomenon where individuals recall events that did not occur. The "misinformation effect" (Loftus et al.) suggests that post-event information can alter memory. This study extends this to **pre-event visual detail**: does the presence of more (or fewer) objects in a scene make the memory more or less susceptible to lures?
-* **Hypothesis**: Increased visual detail (Enhanced condition) may increase cognitive load, leading to higher false memory rates for non-presented objects, OR it may provide more distinct features that anchor the memory, reducing false memories. The direction is exploratory.
-* **Mechanism**: The "constructive nature of memory" (Bartlett) implies that gaps in memory are filled with plausible details. Visual detail might influence the plausibility of these fills.
+- **Misinformation Effect** (Loftus et al.) demonstrates that post‑event information can alter memory. Here we test a *pre‑event* manipulation: visual detail.
+- **Constructive Memory** (Bartlett) predicts that gaps are filled with plausible details; richer visual scenes may either **(a)** increase cognitive load → more lures accepted, or **(b)** provide more distinctive cues → fewer lures. The direction is exploratory.
+- **Hypothesis**: Visual detail will **significantly affect** false‑memory rates across conditions.
 
 ## Dataset Strategy
+The verified datasets block contains only a math parquet file, which is **not applicable**. Therefore:
 
-**Constraint Note**: The provided "Verified datasets" block contains only a math dataset (`math-orz-numerical...`) and **no** visual dataset. The Visual Genome dataset is the standard source for this type of study but is **not** in the verified list.
-**Strategy**:
-1. **CI Validation**: The pipeline uses a **Pre-bundled Subset** of 30 Visual Genome images (shipped in `data/stimuli/raw_subset/`). This subset is verified by content hash, ensuring reproducibility without external fetches.
-2. **Final Study**: The plan targets the **Visual Genome** dataset (via `datasets.load_dataset("visual_genome")`).
- * **Status**: **PENDING VERIFICATION** for the final study phase.
- * **Action**: The implementation includes a `DataAdapter` that defaults to the Pre-bundled Subset for CI and is configured to load Visual Genome for the final study.
- * **Variable Fit**: Visual Genome contains `complexity_score` (or derived metrics) and scene images. The study requires `baseline_complexity_score` (predictor) and `false_memory_rate` (outcome).
+| Dataset | Source | Availability | Variable Fit |
+|---------|--------|--------------|--------------|
+| **Visual Genome (Pre‑bundled subset)** | `data/stimuli/raw_subset/` (A collection of curated images.) | **Verified** by content hash, shipped with repo | Provides scene images, object annotations, and can be used to compute `complexity_score`. |
+| **Visual Genome (Full)** | `datasets.load_dataset("visual_genome")` | **Pending verification** – not listed in verified block. The pipeline includes a switch (`--source visual_genome`) for the final study once verification is obtained. | Same variables as above; streaming mode will be used to stay within memory limits. |
 
-| Dataset | Source URL | Status | Variable Fit |
-|:--- |:--- |:--- |:--- |
-| Visual Genome (Pre-bundled) | `data/stimuli/raw_subset/` (Local) | **Verified** (Content Hash) | **High**: Contains scene images with complexity metadata. |
-| Visual Genome (Final) | ` (Standard HF loader) | **PENDING** | **High**: Contains scene images with complexity metadata. |
+*Data‑Variable Fit*: The subset includes `image_id`, object lists, and resolution metadata; we compute a derived `complexity_score` (edge density + object count) to satisfy FR‑001. The outcome variable (false‑memory rate) is derived from participant responses, satisfying SC‑001.
 
-**Data Availability Plan**:
-* **Streaming**: If Visual Genome is used in the final study, `streaming=True` will be used to avoid loading the full dataset into RAM.
-* **Sample**: For CI, the pre-bundled subset (30 images) is used.
-* **Lure Generation**: Lures are generated by querying the Visual Genome object graph for items *semantically related* to the scene but *absent* from the specific image metadata (Semantic Absence Algorithm).
+**Data Availability Plan**  
+- CI runs use the pre‑bundled subset (no external download).  
+- For the full study, we will stream Visual Genome (`streaming=True`) and sample a limited subset of images to stay within the allocated RAM budget.  
+- All image files are stored under `data/stimuli/`; checksums recorded in `state/...yaml`.
 
 ## Statistical Methodology
+- **Design**: Repeated‑Measures (Within‑Subjects) with *condition* (enhanced, reduced, baseline) as the within‑subject factor. Condition order is **Latin‑square counterbalanced** across participants and recorded as a covariate.
+- **Model**: **Generalized Linear Mixed‑Effects Model (GLMM)** with a binomial (logit) link to model the binary lure responses. Implemented via `statsmodels` (`statsmodels.genmod.bayes_mixed_glm.BinomialBayesMixedGLM` or equivalent). Participant IDs are included as random intercepts; condition order is added as a fixed effect covariate to control for fatigue/learning.
+- **Assumption Checks**:  
+  - **Overdispersion**: Examine Pearson residuals.  
+  - **Random‑effects adequacy**: Compare models with vs. without random intercepts via likelihood ratio test.  
+- **Multiple‑Comparison**: Bonferroni correction for the three pairwise contrasts (enhanced vs baseline, reduced vs baseline, enhanced vs reduced).
+- **Power Analysis** (SC‑002):  
+  - **Effect size justification**: Prior visual‑memory work (Brady et al.) reported a medium effect. for detail‑related memory differences; we adopt this as a baseline.  
+  - **Sensitivity analysis**: `code/analysis/power.py` computes required N for effect sizes f = 0.20, 0.25, 0.30 (see Table 1). For f = 0.25, α = 0.05, power = 0.80 → **N ≈ 50** participants. The script will abort real data collection if the projected N falls below 50.  
+- **Effect Size Reporting**: Report odds ratios and marginal R² for the GLMM, and Cohen’s d for pairwise log‑odds contrasts.  
+- **Measurement Validity**: Recognition items follow the paradigm of Loftus & Palmer (1974); lures are generated via a “Semantic Absence” algorithm that selects objects present in the same scene category but absent from the target image.  
 
-**Design**: One-Way Between-Subjects ANOVA.
-* **Factor**: Detail Condition (Enhanced vs. Reduced vs. Baseline).
-* **Dependent Variable**: False Memory Rate (proportion of "Yes" responses to lure questions).
-* **Assumptions**:
- * **Normality**: Checked via Shapiro-Wilk. If violated, non-parametric alternative (Kruskal-Wallis) will be used.
- * **Homogeneity of Variance**: Checked via Levene's test. If violated, Welch's ANOVA will be used.
-* **Multiple Comparison Correction**: Bonferroni correction applied for pairwise comparisons if the omnibus ANOVA is significant.
-* **Power Analysis**:
- * **Effect Size**: Cohen's f = 0.25 (Medium effect). **Justification**: Based on Brady et al. on visual working memory capacity limits in complex scenes, which suggests a medium effect size for visual complexity on memory accuracy. This is more appropriate than Loftus's verbal misinformation studies.
- * **Alpha**: 0.05.
- * **Power**: 0.80.
- * **Required N**: ~50 participants (calculated via `statsmodels.stats.power.FTestAnovaPower`).
- * **Gate**: T012.1 blocks data collection if N < 50 is not achievable.
-
-**Statistical Rigor**:
-* **Collinearity**: 'Condition' (categorical) is the experimental manipulation. 'Complexity Score' (continuous, derived from edge density/texture entropy) is calculated *after* manipulation. The analysis will correlate the derived metric with false memory, avoiding the tautology of using 'object count' as both the manipulation and the predictor.
-* **Causal Claims**: Framed as **associational** regarding complexity, but **causal** regarding the experimental condition (random assignment to Enhanced/Reduced/Baseline).
-* **Measurement Validity**: Recognition questions will be based on validated paradigms (Loftus). Lures are generated using the 'Semantic Absence' algorithm to ensure plausibility.
+All statistical steps are performed with **CPU‑only** libraries (`statsmodels`, `scipy`, `matplotlib`).
 
 ## Compute Feasibility
-
-* **CPU-First**: All operations (PIL compositing, ANOVA, plotting) are CPU-tractable.
-* **Memory**: < 7GB RAM (streaming data, small sample).
-* **Disk**: < 14GB (images are small, ~MB each; 30 images = 30MB).
-* **Time**: < 6 hours (A set of images, each with a 5-second duration. + A moderate cohort of participants * a short duration + analysis < 10min).
-* **GPU**: Not required.
+- **CPU‑First**: All image compositing (PIL), data loading (datasets streaming), and statistical analysis run on the GitHub Actions free tier.  
+- **Memory**: Streaming ensures < 5 GB RAM even with full Visual Genome.  
+- **Disk**: Pre‑bundled subset ≈ a moderate size on the order of tens of megabytes; full streamed images processed on‑the‑fly, final outputs < 200 MB.  
+- **Runtime**: Estimated < 6 h total; analysis < 10 min for 60 participants.  
 
 ## Ethics & Compliance
+- **IRB**: No real participants are recruited in CI; a manual IRB approval checkpoint (`data/ethics/irb_approval.txt`) must be satisfied before any `--mode real` run.  
+- **Consent**: `data/ethics/informed_consent.md` contains a GDPR‑compliant consent script; participants must click “I Agree” before the first stimulus.  
+- **Anonymization**: Participant IDs are generated as pseudonyms (`P-001`, …) and stored separately from any IP logs.  
+- **Data Security**: All files under `data/` are checksummed; no PII is ever written to the repository.  
 
-* **IRB**: No *real* participant recruitment until IRB approval is obtained (T012.1).
-* **Consent**: `informed_consent.md` generated with GDPR-compliant text.
-* **PII**: All participant IDs anonymized (pseudonyms) before storage.
-* **Data Security**: Data stored in `data/` with checksums.
+--- 

@@ -1,11 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Participant Response Schema"
-description: "Schema for individual response records collected during the simulation (FR-004)."
+description: "Schema for individual response records collected during the experiment (FR-004)."
 type: "object"
 required:
   - "response_id"
   - "participant_id"
   - "question_id"
+  - "condition"
   - "is_false_detail"
   - "lure_source_query"
   - "response_value"
@@ -13,14 +14,18 @@ required:
 properties:
   response_id:
     type: "string"
-    description: "Unique identifier for the response."
+    description: "Unique UUID for the response."
   participant_id:
     type: "string"
-    pattern: "^P-[0-9]{3}$"
-    description: "Pseudonymous participant ID."
+    pattern: "^P-\\d{3}$"
+    description: "Pseudonymous participant identifier."
   question_id:
     type: "string"
-    description: "Identifier for the question (e.g., 'Q_001')."
+    description: "Identifier for the recognition question (e.g., Q_001)."
+  condition:
+    type: "string"
+    enum: ["enhanced", "reduced", "baseline"]
+    description: "Stimulus condition to which this response belongs."
   is_false_detail:
     type: "boolean"
     description: "True if the question refers to a lure (false detail)."
@@ -29,18 +34,18 @@ properties:
     description: "Query used to generate the lure (e.g., 'objects in kitchen not in image')."
   response_value:
     type: "boolean"
-    description: "True if the participant answered 'Yes, it was there'."
+    description: "Participant answered 'Yes, I saw this'."
   response_timestamp:
     type: "string"
     format: "date-time"
-    description: "ISO 8601 timestamp of the response."
+    description: "ISO‑8601 timestamp of the response."
   latency_ms:
     type: "integer"
     minimum: 0
-    description: "Time taken to answer in milliseconds."
+    description: "Time taken to answer, in milliseconds."
   semantic_plausibility:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Score indicating how semantically plausible the lure is (WordNet-based)."
+    description: "WordNet‑based plausibility score for the lure (0 = implausible, 1 = highly plausible)."
 additionalProperties: false
