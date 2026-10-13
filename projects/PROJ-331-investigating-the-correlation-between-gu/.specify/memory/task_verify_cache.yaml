@@ -1,13 +1,49 @@
 T001:
   c: true
-  h: d071b7724df6e42efe4341eb6910107848e50a837cef60e769a94a28380548f6
-  r: "Checked `code/src/pipeline/ingest.py` for correct validation logic and exit\
-    \ behavior, the unit test suite `code/tests/test_ingest.py` covering the three\
-    \ required cases, and the quickstart documentation `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
-    \ that lists the runnable command. All artifacts exist, contain the proper implementation,\
-    \ and the validation report shows successful execution, satisfying the task\u2019\
-    s requirements."
-  sig: 1d8d97cb1a46c7cda8f90e32972afc40e62ed2a764de865ed9d7a1d95d273a3a
+  h: e873902526ec959f7799e8cb3df4eddba912e33549fb5c215b26d9eedfa6b250
+  r: 'The ingest module (`code/src/pipeline/ingest.py`) implements all required behavior:
+    column/readability validation of `ppmi_asv.csv` and `ppmi_clinical.parquet`, non-zero
+    exit with clear errors on missing/malformed files, and a warning plus skip flags
+    (`skip_slope_and_correlation`, `skip_mixed_effects`) when `MDS_UPDRS_Total` is
+    absent, with no synthetic fallback. The tests in `code/tests/test_ingest.py` cover
+    the three required cases (successful load, missing file, missing outcome column)
+    plus malformed input and report writing, and the runnable command is documented
+    in `specs/.../quickstart.m'
+  sig: 05ccff71fc6e8581197086671c5090416fbc101e0e307fc4bdea6e8248e74c18
+T002:
+  c: false
+  h: a3c90200d69b9fe4aa7c77a761f5ea958636cc4e351919b66c2dcbc544646dbe
+  r: "The implementation `code/src/pipeline/preprocess.py` and tests exist and look\
+    \ substantive, but the task's required outputs `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are MISSING \u2014 the pipeline\
+    \ was evidently never run on the real raw data (no execution evidence or test-run\
+    \ evidence was provided either). The implementer must run `run_preprocess()` against\
+    \ the actual `data/raw/` inputs to produce both parquet outputs (and ideally show\
+    \ the tests passing)."
+  sig: 72c30046e320ff7d9c6c1e8c4408f8f2880674903df3baa4efe46b183798110b
+T003:
+  c: false
+  h: 79c32c76e2a4246597281047fbb97a0d0dcea454691a3bace852bc5b3dde3717
+  r: "The required outputs `data/processed/patient_taxon_slopes.parquet` and `data/processed/patient_outcome_slopes.parquet`\
+    \ are MISSING \u2014 the module was never run, so there is no execution evidence.\
+    \ Moreover, `compute_outcome_slopes` contradicts the task spec: it uses a 365-day\
+    \ divisor instead of the required exact-years 365.25 conversion, and it substitutes\
+    \ a *global* slope for patients with constant outcomes (fabricated stand-in),\
+    \ which would fail the test `test_constant_outcome_yields_zero_slope` that expects\
+    \ a measured slope of 0. The implementer must fix the outcome-slope computation\
+    \ (365.25 d"
+  sig: 1360dc124fb4abc1f5d3fe9b4b3fd44d67f3fc3c3c1ab1f7505e74b5da232c13
+T004:
+  c: false
+  h: 5c0ccd87137b784d2fd0294dc18724df9de46415a13f8f6be6aef7f752510af7
+  r: "The required output `data/results/taxa_correlations.csv` (and the optional `partial_spearman_exploratory.csv`)\
+    \ are MISSING from `data/results/`, so the correlation step was never actually\
+    \ run on real data \u2014 only the module and tests exist, with no execution evidence.\
+    \ Additionally, the `_bh_adjust` implementation is suspect: it indexes `rank`\
+    \ by `pvals.argsort()` positions and applies `cummin()[::-1]` without realignment,\
+    \ which does not correctly implement BH step-up adjustment; the implementer should\
+    \ fix the adjustment and run the pipeline to produce the results CSV."
+  sig: 4bc1243b81b9c3fef592703651b9e8b81566c4425fa296567b77f4326025d66b
 T006:
   c: false
   h: 36c2126a5fcf843d596f21c2989bd4f04f8e62dde46e8d359cac0ac862fb37a0

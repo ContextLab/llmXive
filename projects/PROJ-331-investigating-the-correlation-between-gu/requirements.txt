@@ -1,7 +1,5 @@
-# Project dependencies
-# Existing dependencies (implicitly available): numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil
-# Additional required packages for this project
-pyarrow>=16.0.0
 scikit-bio>=0.6.0
-# Note: Versions are pinned to ensure compatibility with the CI environment.
+scikit-learn>=1.5.0
+pdfminer.six>=20240706
+reportlab>=4.2.0
+tqdm>=4.66.0

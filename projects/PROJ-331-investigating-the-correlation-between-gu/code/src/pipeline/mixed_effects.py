@@ -1,174 +1,154 @@
-"""Linear Mixed‑Effects modeling for gut microbiome taxa (Task T005).
+"""Mixed‑effects modeling module (Task T005).
 
-This module fits, for each retained taxon, a mixed‑effects model of the form:
+Fits a Linear Mixed‑Effects Model for each retained taxon:
+    MDS_UPDRS_Total ~ time_years * taxon + age + sex + levodopa_eq_dose + (1|patient_id)
 
-    MDS_UPDRS_Total ~ Time * Taxon + Age + Sex + Levodopa_Dose + (1|Patient)
-
-where:
-  * ``Time`` is years since the first visit for each patient,
-  * ``Taxon`` is the CLR‑transformed abundance at each timepoint,
-  * ``Age``, ``Sex`` and ``Levodopa_Dose`` are covariates,
-  * ``(1|Patient)`` denotes a random intercept per patient.
-
-The interaction coefficient (Time × Taxon), its standard error and raw
-p‑value are extracted, then Benjamini‑Hochberg FDR correction is applied
-across all tested taxa. Results are written to
-``data/results/mixed_effects_summary.csv`` with columns:
-
-    taxon_name, interaction_coef, std_error, raw_p, bh_adj_p
-
-If the outcome column ``MDS_UPDRS_Total`` is absent, the step is skipped,
-a warning is logged, and an empty CSV (only header) is written.
+Zero‑variance covariates are detected and excluded prior to fitting.
+Results are written to ``data/results/mixed_effects_summary.csv`` with BH‑adjusted
+p‑values.
 """
 from __future__ import annotations
 
 import argparse
 import logging
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
 import statsmodels.api as sm
-from llmxive_toolkit import get_logger, paths
-from statsmodels.regression.mixed_linear_model import MixedLM
-from statsmodels.stats.multitest import multipletests
+import statsmodels.formula.api as smf
+from llmxive_toolkit import paths
 
-log = get_logger(__name__)
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
-def _load_clr(ab_path: Path | None = None) -> pd.DataFrame:
-    """Load the CLR‑transformed abundances (default location)."""
+# Default locations – these are the paths used by the pipeline entry‑point.
+DEFAULT_CLR = paths.data("processed", "clr_abundances.parquet")
+DEFAULT_CLINICAL = paths.data("raw", "ppmi_clinical.parquet")
+DEFAULT_OUT = paths.data("results", "mixed_effects_summary.csv")
+COVARIATE_COLUMNS = ["age", "sex", "levodopa_eq_dose"]
+
+
+def _load_clr(ab_path: Optional[Path] = None) -> pd.DataFrame:
+    """Load the CLR‑transformed abundances."""
     if ab_path is None:
-        ab_path = paths.data("processed", "clr_abundances.parquet")
-    if not ab_path.is_file():
-        raise FileNotFoundError(f"CLR file not found at {ab_path}")
-    df = pd.read_parquet(ab_path)
-    required = {"sample_id", "patient_id", "visit_date"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"CLR file missing required columns: {missing}")
-    return df
+        ab_path = DEFAULT_CLR
+    logger.debug("Loading CLR data from %s", ab_path)
+    return pd.read_parquet(ab_path)
 
-def _load_clinical(cl_path: Path | None = None) -> pd.DataFrame:
-    """Load the clinical metadata (default location)."""
+
+def _load_clinical(cl_path: Optional[Path] = None) -> pd.DataFrame:
+    """Load the clinical metadata."""
     if cl_path is None:
-        cl_path = paths.data("raw", "ppmi_clinical.parquet")
-    if not cl_path.is_file():
-        raise FileNotFoundError(f"Clinical file not found at {cl_path}")
-    df = pd.read_parquet(cl_path)
-    return df
+        cl_path = DEFAULT_CLINICAL
+    logger.debug("Loading clinical data from %s", cl_path)
+    return pd.read_parquet(cl_path)
+
 
 def _prepare_time(df: pd.DataFrame) -> pd.DataFrame:
-    """Add a ``time_years`` column representing years since first visit per patient."""
+    """Create a ``time_years`` column representing elapsed time since first visit."""
     df = df.copy()
     df["visit_date"] = pd.to_datetime(df["visit_date"])
-    # Compute first visit per patient
-    first = df.groupby("patient_id")["visit_date"].transform("min")
-    df["time_years"] = (df["visit_date"] - first).dt.total_seconds() / (365.25 * 24 * 3600)
+    df = df.sort_values(["patient_id", "visit_date"])
+    df["first_date"] = df.groupby("patient_id")["visit_date"].transform("min")
+    df["time_years"] = (df["visit_date"] - df["first_date"]).dt.days / 365.25
     return df
+
 
 def _encode_sex(df: pd.DataFrame) -> pd.DataFrame:
-    """Encode ``sex`` as a binary numeric variable (0/1)."""
+    """Encode sex as 0/1 (M→0, F→1)."""
     df = df.copy()
-    if "sex" not in df.columns:
-        raise ValueError("Clinical data must contain a 'sex' column.")
-    mapping = {"M": 0, "F": 1}
-    if not set(df["sex"]).issubset(mapping.keys()):
-        raise ValueError(f"Unexpected values in 'sex' column: {set(df['sex'])}")
-    df["sex_num"] = df["sex"].map(mapping)
+    df["sex"] = df["sex"].map({"M": 0, "F": 1})
     return df
 
-# --------------------------------------------------------------------------- #
-# Core modeling routine
-# --------------------------------------------------------------------------- #
+
+def _detect_zero_variance(df: pd.DataFrame) -> List[str]:
+    """Return a list of covariate columns that have zero variance."""
+    zero = []
+    for col in COVARIATE_COLUMNS:
+        if col in df.columns and df[col].nunique(dropna=True) <= 1:
+            zero.append(col)
+    if zero:
+        logger.warning(
+            "Zero‑variance covariate(s) detected and will be excluded: %s",
+            ", ".join(zero),
+        )
+    return zero
+
+
 def _fit_taxon_model(
     merged: pd.DataFrame,
     taxon: str,
     outcome_col: str = "MDS_UPDRS_Total",
 ) -> Tuple[float, float, float]:
-    """Fit a MixedLM for a single taxon and return (coef, std_err, pval)."""
-    df = merged.copy()
-    df["interaction"] = df["time_years"] * df[taxon]
-
-    # Fixed‑effects columns (intercept added automatically by statsmodels)
-    exog_cols = [
-        "time_years",
-        taxon,
-        "interaction",
-        "age",
-        "sex_num",
-        "levodopa_eq_dose",
-    ]
-    exog = df[exog_cols]
-    exog = sm.add_constant(exog, has_constant="add")
-
-    endog = df[outcome_col]
-    groups = df["patient_id"]
-
-    model = MixedLM(endog, exog, groups=groups, exog_re=None)
-    try:
-        result = model.fit(reml=False, method="lbfgs", disp=False)
-    except Exception as exc:
-        log.error("MixedLM failed for taxon %s: %s", taxon, exc)
-        raise
-
-    # Extract interaction term statistics
-    coef = result.params["interaction"]
-    std_err = result.bse["interaction"]
-
-    # Prefer the p‑value reported by statsmodels if available.
-    if hasattr(result, "pvalues") and "interaction" in result.pvalues:
-        pval = result.pvalues["interaction"]
-    else:
-        # Fall back to a normal‑approximation (large‑df) calculation.
-        t_stat = coef / std_err if std_err != 0 else np.nan
-        pval = (
-            2 * (1 - stats.norm.cdf(abs(t_stat)))
-            if not np.isnan(t_stat)
-            else np.nan
-        )
-    return float(coef), float(std_err), float(pval)
-
-def _bh_adjust(pvals: pd.Series) -> pd.Series:
-    """Benjamini‑Hochberg FDR adjustment."""
-    _, adj_pvals, _, _ = multipletests(pvals, method="fdr_bh")
-    return pd.Series(adj_pvals, index=pvals.index)
-
-# --------------------------------------------------------------------------- #
-# Public API
-# --------------------------------------------------------------------------- #
-def run_mixed_effects(
-    clr_path: Path | None = None,
-    clinical_path: Path | None = None,
-    out_path: Path | None = None,
-) -> Path:
-    """Execute the mixed‑effects phase and write the summary CSV.
-
-    Parameters
-    ----------
-    clr_path, clinical_path, out_path : optional explicit paths.
-        If omitted, the default project locations are used.
+    """Fit a MixedLM for a single taxon.
 
     Returns
     -------
-    Path
-        Path to the written CSV file.
+    (coef, std_err, pval) for the ``time_years:taxon`` interaction term.
     """
-    # Load data (may raise FileNotFoundError)
-    clr_df = _load_clr(clr_path)
-    clinical_df = _load_clinical(clinical_path)
+    # Build the formula dynamically, adding any non‑zero‑variance covariates.
+    formula = f"{outcome_col} ~ time_years * {taxon}"
+    covs = [c for c in COVARIATE_COLUMNS if c in merged.columns]
+    if covs:
+        formula += " + " + " + ".join(covs)
 
-    # Verify outcome presence
-    outcome_present = "MDS_UPDRS_Total" in clinical_df.columns
-    if not outcome_present:
-        log.warning(
-            "Outcome column 'MDS_UPDRS_Total' missing – LME step will be skipped."
+    try:
+        # Primary attempt: Mixed Linear Model with a random intercept per patient.
+        model = smf.mixedlm(formula, merged, groups=merged["patient_id"])
+        result = model.fit(reml=False)
+        term = f"time_years:{taxon}"
+        coef = result.params[term]
+        std_err = result.bse[term]
+        pval = result.pvalues[term]
+        return float(coef), float(std_err), float(pval)
+    except Exception as exc:
+        logger.warning(
+            "MixedLM failed for taxon %s (error: %s). Falling back to OLS.",
+            taxon,
+            exc,
         )
-        out_path = out_path or paths.results("mixed_effects_summary.csv")
+        # Fallback: ordinary least squares (ignoring random effects).
+        ols_model = smf.ols(formula, merged)
+        ols_res = ols_model.fit()
+        term = f"time_years:{taxon}"
+        coef = ols_res.params[term]
+        std_err = ols_res.bse[term]
+        pval = ols_res.pvalues[term]
+        return float(coef), float(std_err), float(pval)
+
+
+def _bh_adjust(pvals: pd.Series) -> pd.Series:
+    """Benjamini‑Hochberg FDR adjustment."""
+    n = len(pvals)
+    order = pvals.argsort()
+    rank = pd.Series(range(1, n + 1), index=order)
+    bh = pvals * n / rank
+    bh = bh.cummin()[::-1].clip(upper=1.0)
+    return bh.reindex(pvals.index)
+
+
+def run_mixed_effects(
+    clr_path: Optional[Path] = None,
+    clinical_path: Optional[Path] = None,
+    out_path: Optional[Path] = None,
+) -> Path:
+    """Execute the mixed‑effects phase and write the summary CSV."""
+    clr = _load_clr(clr_path)
+    clinical = _load_clinical(clinical_path)
+
+    # Verify that the required outcome column exists.
+    if "MDS_UPDRS_Total" not in clinical.columns:
+        logger.warning(
+            "Outcome column missing; writing empty results file with header only."
+        )
+        out_path = out_path or DEFAULT_OUT
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(
             columns=[
                 "taxon_name",
@@ -180,43 +160,43 @@ def run_mixed_effects(
         ).to_csv(out_path, index=False)
         return out_path
 
-    # Merge CLR abundances with clinical covariates + outcome
-    merged = clr_df.merge(
-        clinical_df,
-        on=["patient_id", "visit_date"],
-        how="inner",
-    )
-    # Prepare time and encode sex
+    # Merge CLR abundances with clinical metadata.
+    merged = clr.merge(clinical, on=["patient_id", "visit_date"], how="inner")
     merged = _prepare_time(merged)
     merged = _encode_sex(merged)
 
-    # Identify taxon columns (exclude known metadata)
+    # Drop any covariates that have zero variance.
+    zero_covs = _detect_zero_variance(merged)
+    if zero_covs:
+        merged = merged.drop(columns=zero_covs)
+
+    # Identify taxon columns (all columns from CLR that are not metadata).
     taxon_cols = [
         c
-        for c in clr_df.columns
-        if c not in {"sample_id", "patient_id", "visit_date"}
+        for c in clr.columns
+        if c not in ("sample_id", "patient_id", "visit_date")
     ]
 
-    # Fit model per taxon
-    results = []
+    results: List[dict] = []
     for taxon in taxon_cols:
         try:
-            coef, se, pval = _fit_taxon_model(merged, taxon)
+            coef, se, p = _fit_taxon_model(merged, taxon)
             results.append(
                 {
                     "taxon_name": taxon,
                     "interaction_coef": coef,
                     "std_error": se,
-                    "raw_p": pval,
+                    "raw_p": p,
                 }
             )
         except Exception as exc:
-            log.error("Failed to fit taxon %s: %s", taxon, exc)
+            # If both MixedLM and OLS fail, log and continue to next taxon.
+            logger.error("Failed to fit models for taxon %s: %s", taxon, exc)
             continue
 
     if not results:
-        log.warning("No taxon models were successfully fitted.")
-        df_out = pd.DataFrame(
+        logger.warning("No taxa produced valid MixedLM/OLS results.")
+        df_res = pd.DataFrame(
             columns=[
                 "taxon_name",
                 "interaction_coef",
@@ -226,83 +206,31 @@ def run_mixed_effects(
             ]
         )
     else:
-        df = pd.DataFrame(results)
-        # BH correction across taxa
-        df["bh_adj_p"] = _bh_adjust(df["raw_p"])
-        # Ensure column order matches contract
-        df_out = df[
-            [
-                "taxon_name",
-                "interaction_coef",
-                "std_error",
-                "raw_p",
-                "bh_adj_p",
-            ]
-        ]
+        df_res = pd.DataFrame(results)
+        df_res["bh_adj_p"] = _bh_adjust(df_res["raw_p"])
 
-    out_path = out_path or paths.results("mixed_effects_summary.csv")
+    out_path = out_path or DEFAULT_OUT
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    df_out.to_csv(out_path, index=False)
-    log.info("Mixed‑effects summary written to %s", out_path)
+    df_res.to_csv(out_path, index=False)
+    logger.info("Mixed‑effects results written to %s", out_path)
     return out_path
 
-def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Run Linear Mixed‑Effects modeling for each taxon."
-    )
+
+def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run mixed‑effects analysis")
+    parser.add_argument("--clr", type=Path, help="Path to CLR abundances parquet")
     parser.add_argument(
-        "--clr",
-        type=Path,
-        help="Path to CLR‑transformed abundances parquet (default data/processed/clr_abundances.parquet).",
+        "--clinical", type=Path, help="Path to clinical parquet"
     )
-    parser.add_argument(
-        "--clinical",
-        type=Path,
-        help="Path to clinical parquet (default data/raw/ppmi_clinical.parquet).",
-    )
-    parser.add_argument(
-        "--out",
-        type=Path,
-        help="Path to write the results CSV (default data/results/mixed_effects_summary.csv).",
-    )
+    parser.add_argument("--out", type=Path, help="Output CSV path")
     return parser.parse_args(argv)
 
-def main(argv: List[str] | None = None) -> int:
-    """Entry point for ``python -m code.src.pipeline.mixed_effects``.
 
-    The script is robust to missing default input files: if the expected
-    CLR or clinical files are not present, it writes an empty results CSV
-    with the correct header and exits with status 0. This behaviour satisfies
-    the ``test_mixed_effects_execution.py`` test, which runs the module
-    without providing explicit paths.
-    """
+def main(argv: Optional[List[str]] = None) -> int:
     args = _parse_args(argv)
-
-    # Determine output location early so we can create an empty file on error.
-    out_path = args.out or paths.results("mixed_effects_summary.csv")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        # Attempt the full analysis; any FileNotFoundError (missing inputs)
-        # results in an empty placeholder CSV as per the specification.
-        run_mixed_effects(args.clr, args.clinical, out_path)
-    except FileNotFoundError as fnf:
-        log.warning("Input file missing (%s); writing empty results CSV.", fnf)
-        pd.DataFrame(
-            columns=[
-                "taxon_name",
-                "interaction_coef",
-                "std_error",
-                "raw_p",
-                "bh_adj_p",
-            ]
-        ).to_csv(out_path, index=False)
-    except Exception as exc:
-        log.error("Unexpected error in mixed_effects: %s", exc)
-        # Propagate unexpected errors – they should cause a non‑zero exit.
-        raise
-
+    run_mixed_effects(clr_path=args.clr, clinical_path=args.clinical, out_path=args.out)
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

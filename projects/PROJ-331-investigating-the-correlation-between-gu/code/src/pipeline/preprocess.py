@@ -4,10 +4,10 @@ Loads the researcher‑supplied raw inputs from ``data/raw/``, merges the ASV
 and clinical tables on ``patient_id`` + ``visit_date``, retains PD patients
 with >= 2 visits (FR‑002, logging the excluded‑subject count), drops
 all‑zero taxa with a warning, adds a pseudocount of 1e‑6 and applies the
-centered log‑ratio (CLR) transformation via **scikit‑bio** (FR‑003), detects zero‑variance
-covariates and logs a warning (they are flagged for exclusion downstream),
-and subsamples to the top 100 most abundant taxa if the modeling feature
-set would exceed 7 GB of RAM (FR‑010).
+centered log‑ratio (CLR) transformation via **scikit‑bio** (FR‑003), detects
+zero‑variance covariates and removes them (FR‑010), and subsamples to the
+top 100 most abundant taxa if the modeling feature set would exceed a 7 GB
+RAM budget (FR‑010).
 
 Outputs:
   data/processed/filtered_samples.parquet  -- merged, filtered long table
@@ -248,11 +248,8 @@ def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.
     ``log(x) - mean(log(x))`` row‑wise.  The returned DataFrame retains
     the original column names and index.
     """
-    # Ensure we work with floating point numbers and add the pseudocount.
     counts_pc = counts.astype(float) + pseudocount
-    # scikit‑bio operates on a NumPy array.
     transformed = sbio_clr(counts_pc.values)
-    # Preserve the original DataFrame shape and column labels.
     return pd.DataFrame(transformed, index=counts.index, columns=counts.columns)
 
 
@@ -281,8 +278,14 @@ def run_preprocess(
     asv_df, clinical_df, taxon_columns = load_raw_tables(asv_path, clinical_path)
     merged, stats = merge_and_filter(asv_df, clinical_df, taxon_columns)
     merged, taxon_columns = drop_zero_taxa(merged, taxon_columns)
-    taxon_columns = cap_taxa_by_memory(merged, taxon_columns, max_taxa)
+
+    # Detect and drop zero‑variance covariates before any downstream modelling.
     zero_var_covariates = detect_zero_variance_covariates(merged)
+    if zero_var_covariates:
+        merged = merged.drop(columns=zero_var_covariates)
+
+    # Possibly cap taxa to satisfy RAM budget.
+    taxon_columns = cap_taxa_by_memory(merged, taxon_columns, max_taxa)
 
     root = _project_root()
     out_dir = Path(out_dir) if out_dir else root / "data" / "processed"

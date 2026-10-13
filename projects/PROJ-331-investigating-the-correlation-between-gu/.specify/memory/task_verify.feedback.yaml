@@ -1,29 +1,33 @@
 T001:
   task: c189ec04302c16e0eebf8bb7c042cadbfcdf73884974f5bf79a369206134dbe6
 T002:
-  reason: "Checked `code/src/pipeline/preprocess.py` and its tests. While the script\
-    \ loads raw files, merges, filters patients, drops all\u2011zero taxa, adds a\
-    \ pseudocount and applies a scikit\u2011bio CLR, and caps taxa by RAM budget,\
-    \ it **does not actually remove zero\u2011variance covariate columns** from the\
-    \ merged data (the function `detect_zero_variance_covariates` only logs and returns\
-    \ them). The task specification requires these covariates be removed, so the implementation\
-    \ is missing that required behavior."
+  reason: "The implementation `code/src/pipeline/preprocess.py` and tests exist and\
+    \ look substantive, but the task's required outputs `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are MISSING \u2014 the pipeline\
+    \ was evidently never run on the real raw data (no execution evidence or test-run\
+    \ evidence was provided either). The implementer must run `run_preprocess()` against\
+    \ the actual `data/raw/` inputs to produce both parquet outputs (and ideally show\
+    \ the tests passing)."
   task: ab5f61bd6cd381c8f27378ea345e52c3b3122e2a34fbdd52604725c76ddcfda6
 T003:
-  reason: "The unit test `test_compute_outcome_slopes_simple` fails: the computed\
-    \ outcome slope is 2.0 while the test expects \u22481.9945, indicating the implementation\u2019\
-    s handling of outcome values does not match the verification criteria. Consequently\
-    \ the per\u2011patient clinical\u2011outcome slope computation does not satisfy\
-    \ the task\u2019s required behavior."
+  reason: "The required outputs `data/processed/patient_taxon_slopes.parquet` and\
+    \ `data/processed/patient_outcome_slopes.parquet` are MISSING \u2014 the module\
+    \ was never run, so there is no execution evidence. Moreover, `compute_outcome_slopes`\
+    \ contradicts the task spec: it uses a 365-day divisor instead of the required\
+    \ exact-years 365.25 conversion, and it substitutes a *global* slope for patients\
+    \ with constant outcomes (fabricated stand-in), which would fail the test `test_constant_outcome_yields_zero_slope`\
+    \ that expects a measured slope of 0. The implementer must fix the outcome-slope\
+    \ computation (365.25 d"
   task: 58cbcdfee89937dc43253ceab0e2ef19265131c939f473b4ee1b5a1dab6148f1
 T004:
-  reason: "I inspected `code/src/pipeline/correlation.py`, the test suite, and the\
-    \ execution logs. The module writes the primary results to `results/taxa_correlations.csv`\
-    \ (project\u2011root\u202F`results/\u2026`), but the task requires the file at\
-    \ `data/results/taxa_correlations.csv`; the path mismatch means the required artifact\
-    \ is not produced. Moreover, the contract test fails because the schema file `contracts/taxa_results.schema.yaml`\
-    \ is absent, and the partial\u2011Spearman test crashes due to a missing `data/processed/filtered_samples.parquet`.\
-    \ These missing/incorrect files prevent the contract validation and the re"
+  reason: "The required output `data/results/taxa_correlations.csv` (and the optional\
+    \ `partial_spearman_exploratory.csv`) are MISSING from `data/results/`, so the\
+    \ correlation step was never actually run on real data \u2014 only the module\
+    \ and tests exist, with no execution evidence. Additionally, the `_bh_adjust`\
+    \ implementation is suspect: it indexes `rank` by `pvals.argsort()` positions\
+    \ and applies `cummin()[::-1]` without realignment, which does not correctly implement\
+    \ BH step-up adjustment; the implementer should fix the adjustment and run the\
+    \ pipeline to produce the results CSV."
   task: 2cca29a1a1c8c7447d474e968bf85ce4a430c7003843488e5fe1e2a0862cd609
 T005:
   reason: 'Requested task execution failed; rerun successfully: tests/test_mixed_effects_execution.py
